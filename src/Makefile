@@ -6,7 +6,7 @@ CFLAGS=-Wall -Wextra -Wpedantic -Weffc++ -std=c++17
 test: test/test_apy_int
 	test/test_apy_int
 
-test/test_apy_int: apy_int.h apy_int.cc test/test_apy_int.cc test/catch.o
+test/test_apy_int: util.h apy_int.h apy_int.cc test/test_apy_int.cc test/catch.o
 	${CC} ${CFLAGS} apy_int.cc test/test_apy_int.cc test/catch.o -o $@
 
 test/catch.o: test/catch.cc test/catch.hpp

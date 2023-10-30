@@ -19,18 +19,21 @@ public:
     // Default constructor deleted
     APyInt() = delete;
 
-    // Specify only size (number of bits). Data will be zerod on construction.
-    APyInt(std::size_t size);
+    // Specify only size (number of bits). Data will be zeroed on construction.
+    APyInt(std::size_t bits);
 
-    // Specify size and initialize using integer
-    APyInt(std::size_t size, int value);
+    // Specify size and initialize using c++ integer
+    APyInt(std::size_t bits, int value);
 
     /*
      * Helpers
      */
 
     // Get the number of bits in this APyInt
-    std::size_t bits_size() { return _size; }
+    std::size_t bits() const { return _bits; }
+
+    // Get the number of elements in underlying vector
+    std::size_t vector_size() const { return _data.size(); }
 
     /*
      * Binary operations
@@ -44,7 +47,7 @@ public:
 private:
 
     // Number of bits in integer type
-    std::size_t _size;
+    std::size_t _bits;
 
     // Underlying data vector
     std::vector<int64_t> _data;

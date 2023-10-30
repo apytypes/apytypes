@@ -3,6 +3,8 @@
  */
 
 #include "apy_int.h"
+#include "util.h"
+
 #include <algorithm>
 #include <cstddef>
 #include <exception>
@@ -12,16 +14,20 @@
 /*
  * Constructors
  */
-APyInt::APyInt(std::size_t size) : _size{size}, _data(size, int64_t(0))
+APyInt::APyInt(std::size_t bits) :
+    _bits{bits},
+    _data(idiv64_ceil_fast(bits), int64_t(0))
 {
-    if (size <= 0) {
+    if (bits <= 0) {
         throw std::domain_error("APyInt needs a size of atleast 1 bit");
     }
 }
 
-APyInt::APyInt(std::size_t size, int value) : _size{size}, _data(size, int64_t(0))
+APyInt::APyInt(std::size_t bits, int value) :
+    _bits{bits},
+    _data(idiv64_ceil_fast(bits), int64_t(0))
 {
-    if (size <= 0) {
+    if (bits <= 0) {
         throw std::domain_error("APyInt needs a size of atleast 1 bit");
     }
     _data[0] = int64_t(value);
