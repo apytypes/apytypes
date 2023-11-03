@@ -1,0 +1,4 @@
+__pycache__/
+builddir/
+.vscode/
+*.so
