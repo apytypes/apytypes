@@ -7,7 +7,6 @@
 
 #include <cstddef>
 #include <cstdlib>
-#include <deque>
 #include <stdexcept>
 #include <vector>
 
@@ -100,30 +99,53 @@ static inline std::vector<uint8_t> double_dabble(const std::vector<int64_t> &dat
     return bcd_list;
 }
 
-// Divide BCD number by two
-static inline void bcd_div2(std::deque<uint8_t> &bcd_list)
+// Divide BCD number by two. First element in input array in considered MSB
+static inline void bcd_div2(std::vector<uint8_t> &bcd_list)
 {
     if (bcd_list.size() == 0) {
         return;
     }
 
-    // Add a new least significant *bcd*?
-    bool new_lsbcd = bool(bcd_list[0] & 0x01);
+    // Add a new least significant bcd?
+    bool new_lsbcd = bool( *(bcd_list.end()-1) & 0x01);
 
-    // Division by two by shift and subtract 3
-    for (std::size_t i=0; i<bcd_list.size()-1; i++) {
+    // Division by two
+    for (int i=bcd_list.size()-1; i>0; i--) {
         bcd_list[i] >>= 1;
-        if (bcd_list[i+1] & 0x01){
-            bcd_list[i] |= 0x8;
-            bcd_list[i] -= 3;
+        if (bcd_list[i-1] & 0x01){
+            bcd_list[i] += 5;
         }
     }
-    bcd_list[bcd_list.size()-1] >>= 1;
+    bcd_list[0] >>= 1;
 
     // Add the new least significant *bcd*
     if (new_lsbcd) {
-        bcd_list.push_front(0x5);
+        bcd_list.push_back(0x5);
     }
+}
+
+// Multiply BCD number by two. First element in input array is considered LSB
+static inline void bcd_mul2(std::vector<uint8_t> &bcd_list)
+{
+    if (bcd_list.size() == 0) {
+        return;
+    }
+
+    // Multiply by two
+    bool carry_bit = false;
+    for (auto &bcd : bcd_list) {
+        if (bcd >= 5) {
+            bcd += 3;
+        }
+        bcd <<= 1;
+        bcd += static_cast<uint8_t>(carry_bit);
+        carry_bit = bcd >= 16;
+        bcd &= 0xF;
+    }
+    if (carry_bit) {
+        bcd_list.push_back(1);
+    }
+
 }
 
 #endif

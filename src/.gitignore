@@ -1,2 +1,5 @@
 *.o
-test/test_apy_int
+callgrind.out.*
+
+test/test_apy_fixed
+test/test_apy_util

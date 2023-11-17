@@ -8,11 +8,8 @@
 #include <algorithm>
 #include <cstddef>
 #include <exception>
-#include <iostream>
 #include <stdexcept>
 #include <string>
-
-#include <iostream>
 
 /*
  * Constructors
@@ -36,6 +33,16 @@ APyFixed::APyFixed(unsigned bits, int int_bits, int value) :
         throw std::domain_error("APyInt needs a size of atleast 1 bit");
     }
     _data[0] = int64_t(value);
+}
+
+APyFixed::APyFixed(unsigned bits, int int_bits, const std::vector<int64_t> &vec) :
+    _bits{bits},
+    _int_bits{int_bits},
+    _data(vec.begin(), vec.end())
+{
+    if (bits <= 0) {
+        throw std::domain_error("APyInt needs a size of atleast 1 bit");
+    }
 }
 
 /*
@@ -81,9 +88,13 @@ bool APyFixed::operator==(const APyFixed &rhs) const
  */
 APyFixed APyFixed::operator-() const {
     APyFixed result(bits()+1, int_bits()+1);
-    result = *this;
-    for (auto &data : result._data) {
-        data = ~data;
+    for (std::size_t i=0; i<result.vector_size(); i++) {
+        result._data[i] = ~_data[i];
+    }
+    if (result.vector_size() > vector_size()) {
+        // Pad bits in the new vector data with sign bit
+        bool not_sign = bool(_data[vector_size()-1] & 0x8000000000000000);
+        result._data[result.vector_size()-1] = not_sign ? int64_t(0) : int64_t(-1);
     }
     result.increment_lsb();
     return result;
@@ -113,47 +124,80 @@ std::string APyFixed::to_string_dec() const {
     }
 
     // Conversion to BCD
-    std::vector<uint8_t> data_bcd = double_dabble(abs_val._data);
-    std::deque<uint8_t> bcd_deque(data_bcd.begin(), data_bcd.end());
-    int bcd_binary_point = 0;
+    std::vector<uint8_t> bcd_list = double_dabble(abs_val._data);
+    auto bcd_binary_point = 0;
+    auto num_prev_bcds = bcd_list.size();
 
     if (int_bits() < bits()) {
 
-        // Step-wise divide BCD number by two
-        auto num_bcds_before_div = bcd_deque.size();
-        auto num_prev_bcds = num_bcds_before_div;
+        // Reverse order of BCD list to MSB first
+        std::reverse(bcd_list.begin(), bcd_list.end());
+
         for (int i=0; i<bits()-int_bits(); i++) {
-            bcd_div2(bcd_deque);
-            if (bcd_deque.size() > num_prev_bcds) {
+            bcd_div2(bcd_list);
+            if (bcd_list.size() > num_prev_bcds) {
                 bcd_binary_point++;
-                num_prev_bcds = bcd_deque.size();
+                num_prev_bcds = bcd_list.size();
             }
         }
 
+        // Reverse order BCD list (back) to LSB first
+        std::reverse(bcd_list.begin(), bcd_list.end());
+
         // Trim unnecessary zeros at start of BCD number
-        while (int(bcd_deque.size()) > bcd_binary_point+1) {
-            if (bcd_deque.back() != 0) {
+        while (int(bcd_list.size()) > bcd_binary_point+1) {
+            if (bcd_list.back() != 0) {
                 // Nothing more to trim, break out of while-loop
                 break;
             }
-            bcd_deque.pop_back();
+            bcd_list.pop_back();
         }
+
+        // Convert BCD number to string and return
+        std::string result = is_negative() ? "-" : "";
+        for (int i=bcd_list.size()-1; i >= 0; i--) {
+            result.push_back( static_cast<char>(bcd_list[i] + 0x30) );
+            if (bcd_binary_point && i == bcd_binary_point) {
+                result.append(".");
+            }
+        }
+        return result;
 
     } else if (int_bits() > bits()) {
-        // More integer bits that bits, not implemented yet
-        throw NotImplementedException();
-    }
 
-    // Convert BCD number to string and return
-    std::string result = is_negative() ? "-" : "";
-    for (int i=bcd_deque.size()-1; i >= 0; i--) {
-        result.append( std::to_string(static_cast<int>(bcd_deque[i])) );
-        if (bcd_binary_point && i == bcd_binary_point) {
-            result.append(".");
+        for (int i=0; i<int_bits()-bits(); i++) {
+            bcd_mul2(bcd_list);
+            if (bcd_list.size() > num_prev_bcds) {
+                bcd_binary_point++;
+                num_prev_bcds = bcd_list.size();
+            }
         }
+
+        // Convert BCD number to string and return
+        std::string result = is_negative() ? "-" : "";
+        for (int i=bcd_list.size()-1; i >= 0; i--) {
+            result.push_back( static_cast<char>(bcd_list[i] + 0x30) );
+        }
+        return result;
+
+    } else {
+
+        std::string result = is_negative() ? "-" : "";
+        for (int i=bcd_list.size()-1; i >= 0; i--) {
+            result.push_back( static_cast<char>(bcd_list[i] + 0x30) );
+            if (bcd_binary_point && i == bcd_binary_point) {
+                result.append(".");
+            }
+        }
+        return result;
+
     }
-    return result;
 }
+
+// APyFixed &APyFixed::operator=(const APyFixed &rhs) const
+// {
+//     throw NotImplementedException();
+// }
 
 void APyFixed::from_bitstring(const std::string &str)
 {

@@ -5,6 +5,16 @@
 #include <stdexcept>
 
 
+TEST_CASE("APyFixed must have a positive non-zero size")
+{
+    // Zero bit fixed-point types does not exist
+    REQUIRE_THROWS_AS( APyFixed(0, 1), std::domain_error );
+
+    // One bit fixed-point types does not throw on creation
+    APyFixed(1, 0);
+}
+
+
 TEST_CASE("Underlying data vector sizing")
 {
     REQUIRE(APyFixed(128, 12).bits()        == 128);
@@ -14,24 +24,11 @@ TEST_CASE("Underlying data vector sizing")
     REQUIRE(APyFixed(1, 0).vector_size()    == 1);
 }
 
-TEST_CASE("APyFixed must have a positive non-zero size")
-{
-    // Zero-bit fixed-point types does not exist
-    REQUIRE_THROWS_AS( APyFixed(0, 1), std::domain_error );
-
-    // One bit fixed-point types does not throw on creation
-    APyFixed(1, 1);
-}
-
 TEST_CASE("Test equality operator")
 {
     // Two default zero initialized APyFixed are equal no matter their bit widths
-    REQUIRE(APyFixed(1, 4) == APyFixed(3, -2));
-    REQUIRE(APyFixed(10, 10) == APyFixed(100, 10));
-
-    // APyFixed equality does not depend on their lengith, but of their value
-    //REQUIRE(APyFixed(3, 2) == APyFixed(200, 2));
-    //REQUIRE(APyFixed(64, 5) == APyFixed(6, 5));
+    REQUIRE(APyFixed(3, 2) == APyFixed(200, 2));
+    REQUIRE(APyFixed(64, 5) == APyFixed(6, -20000));
 }
 
 TEST_CASE("Test inequality operator")
@@ -45,28 +42,31 @@ TEST_CASE("Addition")
 
 TEST_CASE("to_str_dec()")
 {
-    using int64_vec = std::vector<int64_t>;
+     using int64_vec = std::vector<int64_t>;
 
-    // Point test
+    // Single to_str_dec() point test
     const auto POINT_TEST = [](
         unsigned bits,
         int int_bits,
         const std::vector<int64_t> &vec_in,
         const char *expected_result
     ) {
-        APyFixed fixed(bits, int_bits);
-        fixed.from_vector(vec_in);
+        APyFixed fixed(bits, int_bits, vec_in);
         REQUIRE(fixed.to_string_dec() == expected_result);
     };
 
     // Simple integer tests
-    POINT_TEST(   400,      0, int64_vec{ 0, 0, 0, 0, 0, 0, 0 }, "0" );
-    POINT_TEST(   400,    400, int64_vec{ 0, 0, 0, 0, 0, 0, 0 }, "0" );
-    POINT_TEST(   400,  -1400, int64_vec{ 0, 0, 0, 0, 0, 0, 0 }, "0" );
-    //POINT_TEST(   400,  12000, int64_vec{ 0, 0, 0, 0, 0, 0, 0 }, "0" );
-    POINT_TEST(   8,   8, int64_vec{ 0 }, "0" );
-    POINT_TEST(  64,  64, int64_vec{  1234000876300021324 },  "1234000876300021324" );
-    POINT_TEST(  64,  64, int64_vec{ -4321000867300021394 }, "-4321000867300021394" );
+    POINT_TEST( 400,      0, int64_vec{ 0, 0, 0, 0, 0, 0, 0 }, "0");
+    POINT_TEST( 400,    400, int64_vec{ 0, 0, 0, 0, 0, 0, 0 }, "0");
+    POINT_TEST( 400,  -1400, int64_vec{ 0, 0, 0, 0, 0, 0, 0 }, "0");
+    POINT_TEST( 400,  12000, int64_vec{ 0, 0, 0, 0, 0, 0, 0 }, "0");
+    POINT_TEST(   8,      8, int64_vec{ 0 }, "0" );
+    POINT_TEST(  64,     64, int64_vec{  1234000876300021324 },  "1234000876300021324");
+    POINT_TEST(  64,     64, int64_vec{ -4321000867300021394 }, "-4321000867300021394");
+    POINT_TEST(  32,    200,
+        int64_vec{ 0x976541 },
+        "3712207424220948591436712392519649713293914084621881966592"
+    );
     POINT_TEST( 128, 128,
         int64_vec{ 0x1234, 0xABCD },
         "811306251105819789627956"
@@ -77,15 +77,24 @@ TEST_CASE("to_str_dec()")
     );
 
     // Fractional numbers test
-    //POINT_TEST(   8, 13, int64_vec{ 0x18 }, "1.5" );
-    POINT_TEST(   8,  4, int64_vec{ 0x18 }, "1.5" );
-    POINT_TEST(   8,  1, int64_vec{ 0x18 }, "0.1875" );
-    POINT_TEST(   8,  0, int64_vec{ 0x18 }, "0.09375" );
-    POINT_TEST(   8, -1, int64_vec{ 0x18 }, "0.046875" );
-    POINT_TEST(   8, -7, int64_vec{ 0x18 }, "0.000732421875" );
-    POINT_TEST(   8, -9, int64_vec{ 0x18 }, "0.00018310546875" );
+    POINT_TEST(32,  28, int64_vec{ 0x976541 }, "620116.0625");
+    POINT_TEST(32,  23, int64_vec{ 0x976541 }, "19378.626953125");
+    POINT_TEST(32,   1, int64_vec{ 0x976541 }, "0.0046202247031033039093017578125");
+    POINT_TEST(32,   0, int64_vec{ 0x976541 }, "0.00231011235155165195465087890625");
+    POINT_TEST(32,  -1, int64_vec{ 0x976541 }, "0.001155056175775825977325439453125");
+    POINT_TEST(26,  -1, int64_vec{ 0x976541 }, "0.073923595249652862548828125");
+    POINT_TEST(26,  -9, int64_vec{ 0x976541 }, "0.00028876404394395649433135986328125");
 
-    // Good example for some profiling of the printing mechanism?
-    //POINT_TEST(   8, -123456, int64_vec{ 0x18 }, "0.046875" );
+    // Special case:
+    // The aboslute value during negation in to_str_dec() increases the underlying
+    // vector size by one.
+    POINT_TEST( 64,  64, int64_vec{ int64_t(0x0000000000000013) }, "19");
+    POINT_TEST( 64,  64, int64_vec{ int64_t(0xFFFFFFFFFFFFFFFF) }, "-1");
+    POINT_TEST( 64,  64,
+        int64_vec{ int64_t(0x8000000000000000) },
+        "-9223372036854775808");
+    POINT_TEST(128, 128,
+        int64_vec{ 0, int64_t(0x8000000000000000) },
+        "-170141183460469231731687303715884105728");
 
 }

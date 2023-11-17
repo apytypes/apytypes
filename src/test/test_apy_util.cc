@@ -1,8 +1,6 @@
 #include "../apy_util.h"
 #include "catch.hpp"
 
-#include <deque>
-#include <iostream>
 #include <iterator>
 #include <stdexcept>
 
@@ -110,8 +108,9 @@ TEST_CASE("double_dabble()")
 
 TEST_CASE("bcd_div2()")
 {
-    // Simple continues division by two (of the number 1)
-    std::deque<uint8_t> num{1};
+{
+    // Test 1: Continues division by two of 1
+    std::vector<uint8_t> num{1};
     for (int i=0; i<13; i++) {
         bcd_div2(num);
     }
@@ -119,6 +118,21 @@ TEST_CASE("bcd_div2()")
     char res[] = "00001220703125";
     REQUIRE(std::size(res)-1 == num.size());
     for (std::size_t i=0; i<std::size(res)-1; i++) {
-        REQUIRE(res[i] == num.at(13-i)+0x30);
+        REQUIRE(res[i] == num.at(i)+0x30);
     }
+}
+
+{
+    // Test 2: Divide 45 by 2 13 times
+    std::vector<uint8_t> num{0x4, 0x5};
+    for (int i=0; i<13; i++) {
+        bcd_div2(num);
+    }
+
+    char res[] = "000054931640625";
+    REQUIRE(std::size(res)-1 == num.size());
+    for (std::size_t i=0; i<std::size(res)-1; i++) {
+        REQUIRE(res[i] == num.at(i)+0x30);
+    }
+}
 }

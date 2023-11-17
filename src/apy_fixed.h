@@ -21,20 +21,39 @@ public:
      * Constructors
      */
 
-    // Default constructor deleted
     APyFixed() = delete;
 
     // Specify only size (number of bits). Data will be zeroed on construction.
     explicit APyFixed(unsigned bits, int int_bits);
 
-    // Specify size and initialize using c++ integer
+    // Specify size and initialize using C++ integer
     explicit APyFixed(unsigned bits, int int_bits, int value);
+
+    // Specify size and initialize the underlying bits using C++ vectory type
+    explicit APyFixed(unsigned bits, int int_bits, const std::vector<int64_t> &vec);
+
+
+    /*
+     * Conversion to stirng
+     */
+    inline std::string to_string(STRING_TYPE type = STRING_TYPE::DEC) const
+    {
+        switch (type) {
+            case STRING_TYPE::HEX: return to_string_hex();
+            case STRING_TYPE::OCT: return to_string_oct();
+            case STRING_TYPE::DEC: return to_string_dec();
+            default: throw NotImplementedException();
+        }
+    };
+    std::string to_string_hex() const;
+    std::string to_string_oct() const;
+    std::string to_string_dec() const;
+
 
     /*
      * Methods
      */
-
-    // Get the number of bits in this APyInt
+    // Get the number of bits in this APyInt object
     int bits() const { return int(_bits); }
     int int_bits() const { return _int_bits; }
 
@@ -47,21 +66,10 @@ public:
     // Set the bit-pattern from a vector of int64_t
     void from_vector(const std::vector<int64_t> &vector);
 
-    // to string function
-    inline std::string to_string(STRING_TYPE type = STRING_TYPE::DEC) const
-    {
-        switch (type) {
-            case STRING_TYPE::HEX: return to_string_hex();
-            case STRING_TYPE::OCT: return to_string_oct();
-            case STRING_TYPE::DEC: return to_string_dec();
-        }
-    };
-    std::string to_string_hex() const;
-    std::string to_string_oct() const;
-    std::string to_string_dec() const;
-
+    // Others
     bool is_negative() const { return *_data.crbegin() < 0; }
     void increment_lsb();
+
 
     /*
      * Binary operations
@@ -74,6 +82,11 @@ public:
      * Unariy operations
      */
     APyFixed operator-() const;
+
+    /*
+     * Assignment operators
+     */
+    // APyFixed &operator=(const APyFixed &rhs) const;
 
 
     /*
@@ -94,9 +107,9 @@ private:
 
 
 /*
- * Print APy_Fixed type to stream
+ * Print APyFixed object to ostream objects (e.g., std::cout, std::cerr)
  */
-inline std::ostream& operator << (std::ostream &os, const APyFixed &x) {
+inline std::ostream& operator<< (std::ostream &os, const APyFixed &x) {
     if ( (os.flags() & std::ios::hex) != 0 ) {
         os << x.to_string(STRING_TYPE::HEX);
     } else if ((os.flags() & std::ios::oct) != 0) {
@@ -108,4 +121,4 @@ inline std::ostream& operator << (std::ostream &os, const APyFixed &x) {
 }
 
 
-#endif
+#endif  // _APY_FIXED_H
