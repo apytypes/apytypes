@@ -5,9 +5,9 @@
 #ifndef _APY_UTIL_H
 #define _APY_UTIL_H
 
-#include <algorithm>
 #include <cstddef>
 #include <cstdlib>
+#include <deque>
 #include <stdexcept>
 #include <vector>
 
@@ -82,29 +82,48 @@ static inline std::vector<uint8_t> double_dabble(const std::vector<int64_t> &dat
 
     std::vector<uint8_t> nibble_list = to_nibble_list(data);
     std::vector<uint8_t> bcd_list{ 0 };
-    int iterations = 0;
-    while (
-        std::any_of(
-            nibble_list.cbegin(), nibble_list.cend(), [](uint8_t n){ return n!=0; }
-        )
-        || iterations%4 != 0
-    ) {
-        iterations++;
-        bool new_bit = nibble_list_shift_left_once(nibble_list);
+    for (std::size_t i=0; i<4*nibble_list.size(); i++) {
+        bool insert_bit = nibble_list_shift_left_once(nibble_list);
         for (auto &bcd : bcd_list) {
             if (bcd >= 5) {
                 bcd += 3;
             }
             bcd <<= 1;
-            bcd += static_cast<uint8_t>(new_bit);
-            new_bit = bcd >= 16;
-            bcd &= 0x0F;
+            bcd += static_cast<uint8_t>(insert_bit);
+            insert_bit = bcd >= 16;
+            bcd &= 0xF;
         }
-        if (new_bit) {
+        if (insert_bit) {
             bcd_list.push_back(1);
         }
     }
     return bcd_list;
+}
+
+// Divide BCD number by two
+static inline void bcd_div2(std::deque<uint8_t> &bcd_list)
+{
+    if (bcd_list.size() == 0) {
+        return;
+    }
+
+    // Add a new least significant *bcd*?
+    bool new_lsbcd = bool(bcd_list[0] & 0x01);
+
+    // Division by two by shift and subtract 3
+    for (std::size_t i=0; i<bcd_list.size()-1; i++) {
+        bcd_list[i] >>= 1;
+        if (bcd_list[i+1] & 0x01){
+            bcd_list[i] |= 0x8;
+            bcd_list[i] -= 3;
+        }
+    }
+    bcd_list[bcd_list.size()-1] >>= 1;
+
+    // Add the new least significant *bcd*
+    if (new_lsbcd) {
+        bcd_list.push_front(0x5);
+    }
 }
 
 #endif

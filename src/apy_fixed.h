@@ -31,30 +31,37 @@ public:
     explicit APyFixed(unsigned bits, int int_bits, int value);
 
     /*
-     * Helpers
+     * Methods
      */
 
     // Get the number of bits in this APyInt
-    unsigned bits() const { return _bits; }
+    int bits() const { return int(_bits); }
     int int_bits() const { return _int_bits; }
 
     // Get the number of elements in underlying vector
     std::size_t vector_size() const { return _data.size(); }
 
+    // Set the bit-pattern of fixed-point number from string
+    void from_bitstring(const std::string &str);
+
+    // Set the bit-pattern from a vector of int64_t
+    void from_vector(const std::vector<int64_t> &vector);
+
     // to string function
-    inline std::string to_string(STRING_TYPE type = STRING_TYPE::DEC) const {
+    inline std::string to_string(STRING_TYPE type = STRING_TYPE::DEC) const
+    {
         switch (type) {
-            case STRING_TYPE::HEX:
-                return to_string_hex();
-            case STRING_TYPE::OCT:
-                return to_string_oct();
-            case STRING_TYPE::DEC:
-                return to_string_dec();
+            case STRING_TYPE::HEX: return to_string_hex();
+            case STRING_TYPE::OCT: return to_string_oct();
+            case STRING_TYPE::DEC: return to_string_dec();
         }
     };
     std::string to_string_hex() const;
     std::string to_string_oct() const;
     std::string to_string_dec() const;
+
+    bool is_negative() const { return *_data.crbegin() < 0; }
+    void increment_lsb();
 
     /*
      * Binary operations
@@ -62,6 +69,12 @@ public:
     bool operator==(const APyFixed &rhs) const;
     APyFixed operator+(const APyFixed &rhs) const;
     APyFixed operator-(const APyFixed &rhs) const;
+
+    /*
+     * Unariy operations
+     */
+    APyFixed operator-() const;
+
 
     /*
      * Friend functions

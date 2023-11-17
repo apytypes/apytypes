@@ -12,6 +12,8 @@
 #include <stdexcept>
 #include <string>
 
+#include <iostream>
+
 /*
  * Constructors
  */
@@ -75,57 +77,96 @@ bool APyFixed::operator==(const APyFixed &rhs) const
 }
 
 /*
+ * Unariy operators
+ */
+APyFixed APyFixed::operator-() const {
+    APyFixed result(bits()+1, int_bits()+1);
+    result = *this;
+    for (auto &data : result._data) {
+        data = ~data;
+    }
+    result.increment_lsb();
+    return result;
+}
+
+// Increment the LSB without making the fixed-point number wider
+void APyFixed::increment_lsb()
+{
+    bool carry = true;
+    for (auto &word : _data) {
+        word += carry;
+        carry = uint64_t(word) < uint64_t(carry);
+    }
+}
+
+/*
  * Utility functions
  */
 std::string APyFixed::to_string_dec() const {
 
+    // Print absolute value of number, and conditionally append a minus sign
+    APyFixed abs_val(bits()+1, int_bits()+1);
+    if (is_negative()) {
+        abs_val = -(*this);
+    } else {
+        abs_val = *this;
+    }
+
     // Conversion to BCD
-    std::vector<uint8_t> data_bcd = double_dabble(_data);
-    
+    std::vector<uint8_t> data_bcd = double_dabble(abs_val._data);
+    std::deque<uint8_t> bcd_deque(data_bcd.begin(), data_bcd.end());
+    int bcd_binary_point = 0;
+
+    if (int_bits() < bits()) {
+
+        // Step-wise divide BCD number by two
+        auto num_bcds_before_div = bcd_deque.size();
+        auto num_prev_bcds = num_bcds_before_div;
+        for (int i=0; i<bits()-int_bits(); i++) {
+            bcd_div2(bcd_deque);
+            if (bcd_deque.size() > num_prev_bcds) {
+                bcd_binary_point++;
+                num_prev_bcds = bcd_deque.size();
+            }
+        }
+
+        // Trim unnecessary zeros at start of BCD number
+        while (int(bcd_deque.size()) > bcd_binary_point+1) {
+            if (bcd_deque.back() != 0) {
+                // Nothing more to trim, break out of while-loop
+                break;
+            }
+            bcd_deque.pop_back();
+        }
+
+    } else if (int_bits() > bits()) {
+        // More integer bits that bits, not implemented yet
+        throw NotImplementedException();
+    }
+
+    // Convert BCD number to string and return
+    std::string result = is_negative() ? "-" : "";
+    for (int i=bcd_deque.size()-1; i >= 0; i--) {
+        result.append( std::to_string(static_cast<int>(bcd_deque[i])) );
+        if (bcd_binary_point && i == bcd_binary_point) {
+            result.append(".");
+        }
+    }
+    return result;
 }
 
+void APyFixed::from_bitstring(const std::string &str)
+{
+    (void) str;
+    throw NotImplementedException();
+}
 
-//  inline std::string to_string(ac_base_mode base_rep, bool sign_mag = false, bool pad_to_width = false) const {
-//    char r[(W-AC_MIN(AC_MIN(W-I,I),0)+31)/32*32+5] = {0};
-//    int i = 0;
-//    if (is_neg())
-//      r[i++] = '-';
-//    ac_fixed<W+1, I+1, true> t;
-//    if( (base_rep == AC_DEC || sign_mag) && is_neg() )
-//      t = operator -();
-//    else if(pad_to_width)
-//      t = ac_fixed<W,I,false>(*this);
-//    else
-//      t = *this;
-//    ac_fixed<AC_MAX(I+1,1),AC_MAX(I+1,1),true> i_part = t;
-//    ac_fixed<AC_MAX(W-I,1),0,false> f_part = t;
-//    i += ac_private::to_string(i_part.v, AC_MAX(I+!pad_to_width,1), sign_mag, base_rep, false, pad_to_width, r+i);
-//    if(W-I > 0) {
-//      r[i++] = '.';
-//      if(!ac_private::to_string(f_part.v, W-I, false, base_rep, true, pad_to_width, r+i))
-//        r[--i] = 0;
-//    }
-//    if(!i) {
-//      r[0] = '0';
-//      r[1] = 0;
-//    }
-//    return std::string(r);
-//  }
-//  inline static std::string type_name() {
-//    const char *tf[] = {"false", "true" };
-//    const char *q[] = {"AC_TRN", "AC_RND", "AC_TRN_ZERO", "AC_RND_ZERO", "AC_RND_INF", "AC_RND_MIN_INF", "AC_RND_CONV", "AC_RND_CONV_ODD" };
-//    const char *o[] = {"AC_WRAP", "AC_SAT", "AC_SAT_ZERO", "AC_SAT_SYM" };
-//    std::string r = "ac_fixed<";
-//    r += ac_int<32,true>(W).to_string(AC_DEC) + ',';
-//    r += ac_int<32,true>(I).to_string(AC_DEC) + ',';
-//    r += tf[S];
-//    r += ',';
-//    r += q[Q];
-//    r += ',';
-//    r += o[O];
-//    r += '>';
-//    return r;
-//  }
+void APyFixed::from_vector(const std::vector<int64_t> &new_vector) {
+    if (new_vector.size() != this->vector_size()) {
+        throw std::domain_error("Vector size miss-match");
+    }
+    _data = new_vector;
+}
 
 std::string APyFixed::to_string_hex() const {
     throw NotImplementedException();
