@@ -1,5 +1,10 @@
+# Binary files
 *.o
-callgrind.out.*
-
 test/test_apy_fixed
 test/test_apy_util
+
+# Valgrind (callgrind) profiling
+callgrind.out.*
+
+# Apple debuging symbol files
+*.dSYM

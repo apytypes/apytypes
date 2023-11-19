@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-Wall -Wextra -Wpedantic -Weffc++ -std=c++17 -O2 -g
+CFLAGS=-Wall -Wextra -Wpedantic -Weffc++ -std=c++17 -O3 -march=native -g
 
 .PHONY: test test_profile clean
 

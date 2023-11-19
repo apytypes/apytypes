@@ -40,9 +40,40 @@ TEST_CASE("Addition")
     //REQUIRE(APyInt(4,3) + APyInt(4, 2) == APyInt(5, 5));
 }
 
+TEST_CASE("twos_complement_overflow()")
+{
+    using int64_vec = std::vector<int64_t>;
+    REQUIRE(
+        APyFixed(128, 1, 
+        int64_vec{0x0, int64_t(0x8000000000000000)}).to_string_dec() 
+        == "-1"
+    );
+    REQUIRE(
+        APyFixed(128, 1, 
+        int64_vec{0x0, int64_t(0x4000000000000000)}).to_string_dec() 
+        == "0.5"
+    );
+    REQUIRE(
+        APyFixed(96, 1, 
+        int64_vec{0x0, int64_t(0xFFFFFFFF00000000)}).to_string_dec() 
+        == "0"
+    );
+    REQUIRE(
+        APyFixed(96, 1, 
+        int64_vec{0x0, int64_t(0xFFFFFFFF80000000)}).to_string_dec() 
+        == "-1"
+    );
+    REQUIRE(
+        APyFixed(96, 1, 
+        int64_vec{0x0, int64_t(0xFFFFFFFF40000000)}).to_string_dec() 
+        == "0.5"
+    );
+
+}
+
 TEST_CASE("to_str_dec()")
 {
-     using int64_vec = std::vector<int64_t>;
+    using int64_vec = std::vector<int64_t>;
 
     // Single to_str_dec() point test
     const auto POINT_TEST = [](
@@ -61,8 +92,14 @@ TEST_CASE("to_str_dec()")
     POINT_TEST( 400,  -1400, int64_vec{ 0, 0, 0, 0, 0, 0, 0 }, "0");
     POINT_TEST( 400,  12000, int64_vec{ 0, 0, 0, 0, 0, 0, 0 }, "0");
     POINT_TEST(   8,      8, int64_vec{ 0 }, "0" );
-    POINT_TEST(  64,     64, int64_vec{  1234000876300021324 },  "1234000876300021324");
-    POINT_TEST(  64,     64, int64_vec{ -4321000867300021394 }, "-4321000867300021394");
+    POINT_TEST(  64,     64,
+        int64_vec{  1234000876300021324 },
+        "1234000876300021324"
+    );
+    POINT_TEST(  64,     64,
+        int64_vec{ -4321000867300021394 },
+        "-4321000867300021394"
+    );
     POINT_TEST(  32,    200,
         int64_vec{ 0x976541 },
         "3712207424220948591436712392519649713293914084621881966592"

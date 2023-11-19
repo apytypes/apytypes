@@ -24,14 +24,57 @@ public:
     APyFixed() = delete;
 
     // Specify only size (number of bits). Data will be zeroed on construction.
-    explicit APyFixed(unsigned bits, int int_bits);
+    explicit APyFixed(int bits, int int_bits);
 
     // Specify size and initialize using C++ integer
-    explicit APyFixed(unsigned bits, int int_bits, int value);
+    explicit APyFixed(int bits, int int_bits, int value);
 
     // Specify size and initialize the underlying bits using C++ vectory type
-    explicit APyFixed(unsigned bits, int int_bits, const std::vector<int64_t> &vec);
+    explicit APyFixed(int bits, int int_bits, const std::vector<int64_t> &vec);
 
+
+    /*
+     * Methods
+     */
+
+    // Get the number of bits in this APyInt object
+    int bits() const noexcept { return _bits; }
+    int int_bits() const noexcept { return _int_bits; }
+
+    // Get the number of elements in underlying 64-bit data vector
+    std::size_t vector_size() const noexcept { return _data.size(); }
+
+    // Perform 2's complement overflowing. This method sign-extends all bits outside of
+    // the APyFixed range.
+    void twos_complement_overflow() noexcept;
+
+    // Set the bit-pattern of fixed-point number from string
+    void from_bitstring(const std::string &str);
+
+    // Set the bit-pattern from a vector of int64_t
+    void from_vector(const std::vector<int64_t> &vector);
+
+    // Unary negation
+    APyFixed operator-() const;
+
+    // Others
+    bool is_negative() const noexcept { return _data.back() < 0; }
+    void increment_lsb();
+
+
+    /*
+     * Binary operations
+     */
+    bool operator==(const APyFixed &rhs) const;
+    APyFixed operator+(const APyFixed &rhs) const;
+    APyFixed operator-(const APyFixed &rhs) const;
+    APyFixed operator*(const APyFixed &rhs) const;
+    APyFixed operator/(const APyFixed &rhs) const;
+
+    /*
+     * Assignment operators
+     */
+    // APyFixed &operator=(const APyFixed &rhs) const;
 
     /*
      * Conversion to stirng
@@ -49,56 +92,10 @@ public:
     std::string to_string_oct() const;
     std::string to_string_dec() const;
 
-
-    /*
-     * Methods
-     */
-    // Get the number of bits in this APyInt object
-    int bits() const { return int(_bits); }
-    int int_bits() const { return _int_bits; }
-
-    // Get the number of elements in underlying vector
-    std::size_t vector_size() const { return _data.size(); }
-
-    // Set the bit-pattern of fixed-point number from string
-    void from_bitstring(const std::string &str);
-
-    // Set the bit-pattern from a vector of int64_t
-    void from_vector(const std::vector<int64_t> &vector);
-
-    // Others
-    bool is_negative() const { return *_data.crbegin() < 0; }
-    void increment_lsb();
-
-
-    /*
-     * Binary operations
-     */
-    bool operator==(const APyFixed &rhs) const;
-    APyFixed operator+(const APyFixed &rhs) const;
-    APyFixed operator-(const APyFixed &rhs) const;
-
-    /*
-     * Unariy operations
-     */
-    APyFixed operator-() const;
-
-    /*
-     * Assignment operators
-     */
-    // APyFixed &operator=(const APyFixed &rhs) const;
-
-
-    /*
-     * Friend functions
-     */
-    friend inline std::ostream& operator << (std::ostream &os, const APyFixed &x);
-
-
 private:
 
     // Number of bits in fixed-point data type
-    unsigned _bits;
+    int _bits;
     int _int_bits;
 
     // Underlying data vector
@@ -109,7 +106,7 @@ private:
 /*
  * Print APyFixed object to ostream objects (e.g., std::cout, std::cerr)
  */
-inline std::ostream& operator<< (std::ostream &os, const APyFixed &x) {
+static inline std::ostream& operator<< (std::ostream &os, const APyFixed &x) {
     if ( (os.flags() & std::ios::hex) != 0 ) {
         os << x.to_string(STRING_TYPE::HEX);
     } else if ((os.flags() & std::ios::oct) != 0) {
