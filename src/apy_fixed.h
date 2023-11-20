@@ -59,7 +59,7 @@ public:
 
     // Others
     bool is_negative() const noexcept { return _data.back() < 0; }
-    void increment_lsb();
+    void increment_lsb() noexcept;
 
 
     /*

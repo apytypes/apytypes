@@ -77,34 +77,8 @@ void APyFixed::twos_complement_overflow() noexcept
  */
 bool APyFixed::operator==(const APyFixed &rhs) const
 {
-    // Test that data is equal in regions of overlapping data
-    for (std::size_t i=0; i<std::min(_data.size(), rhs._data.size()); i++) {
-        if (_data.at(i) != rhs._data.at(i)) {
-            return false;
-        }
-    }
 
-    // Test that data is zeroed in regions of the larger integer
-    if (_data.size() < rhs._data.size()) {
-        bool signbit = _data.at(_data.size()-1) & (int64_t(1) << 63);
-        for (std::size_t i=_data.size()+1; i<rhs._data.size(); i++) {
-            if (signbit && rhs._data.at(i) != int64_t(0)-1) {
-                return false;
-            }
-            else if (!signbit && rhs._data.at(i) != int64_t(0)) {
-                return false;
-            }
-        }
-    } else {
-        bool signbit = rhs._data.at(rhs._data.size()-1) & (int64_t(1) << 63);
-        for (std::size_t i=rhs._data.size()+1; i<_data.size(); i++) {
-            if (signbit && _data.at(i) != int64_t(0)-1) {
-                return false;
-            } else if (!signbit && _data.at(i) != int64_t(0)) {
-                return false;
-            }
-        }
-    }
+
     
     // The integers are equal
     return true;
@@ -128,7 +102,7 @@ APyFixed APyFixed::operator-() const {
 }
 
 // Increment the LSB without making the fixed-point number wider
-void APyFixed::increment_lsb()
+void APyFixed::increment_lsb() noexcept
 {
     bool carry = true;
     for (auto &word : _data) {
