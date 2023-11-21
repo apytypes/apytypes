@@ -28,12 +28,12 @@
     $ python3
     >>> from apy_types import APyFixed, STRING_TYPE
     >>> fx_a = APyFixed(8, 2, (1<<6) | (1 << 5))
-    >>> print(fx_a.to_string((STRING_TYPE.DEC)))
+    >>> print(fx_a.to_string())
     1.5
     >>> print(fx_a)
     fx<8, 2>(1.5)
     >>> fx_a.increment_lsb()
-    >>> print(fx_a.to_string(STRING_TYPE.DEC))
+    >>> print(fx_a.to_string())
     1.515625
     ```
 Unit tests are currently built and run using GNU Make.
