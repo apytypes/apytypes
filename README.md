@@ -15,7 +15,6 @@
     ```
 
 ## Building and running
-(This only applies to `aPyFixed` at the moment.)
 1. From the top level of the project, run
     ```bash
     $ meson comile -C builddir
@@ -27,10 +26,14 @@
 3. The library can now be used as
     ```python
     $ python3
-    >>> import apy_types
-    >>> fx_a = aPyFixed(total_bits=8, integer_bits=3, value=1.5)
-    >>> fx_b = aPyFixed(8, 5, 2.75)
-    >>> print(fx_a + fx_b)
-    fx<11, 6>(4 + 8/32)
+    >>> from apy_types import APyFixed, STRING_TYPE
+    >>> fx_a = APyFixed(8, 2, (1<<6) | (1 << 5))
+    >>> print(fx_a.to_string((STRING_TYPE.DEC)))
+    1.5
+    >>> print(fx_a)
+    fx<8, 2>(1.5)
+    >>> fx_a.increment_lsb()
+    >>> print(fx_a.to_string(STRING_TYPE.DEC))
+    1.515625
     ```
-General testing during developement can be done in `src/cpp/main.cpp` and `src/python/main.py` for C++ and Python respectively.
+Unit tests are currently built and run using GNU Make.

@@ -91,6 +91,7 @@ public:
     std::string to_string_hex() const;
     std::string to_string_oct() const;
     std::string to_string_dec() const;
+    std::string repr() const; // Verbose string conversion
 
 private:
 

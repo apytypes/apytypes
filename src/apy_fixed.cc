@@ -203,3 +203,7 @@ std::string APyFixed::to_string_oct() const
 {
     throw NotImplementedException();
 }
+
+std::string APyFixed::repr() const {
+    return "fx<" + std::to_string(_bits) + ", " + std::to_string(_int_bits) + ">(" + to_string() + ")";
+}

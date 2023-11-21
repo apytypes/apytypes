@@ -1,6 +1,6 @@
 project('aPy-types', 'cpp', version : '0.0.1')
 
-lib_src = ['src/cpp/apy_fixed_point.cpp']
+lib_src = ['src/apy_fixed.cc']
 
 # Python module incudes
 python_installation = import('python').find_installation('python3')
@@ -21,16 +21,9 @@ apy_lib = library('lib',
         cpp_args : GNU_W_Flags        
 )
 
-# Executable that can be for miscellaneous tests
-executable('out',
-    sources : ['src/cpp/main.cpp'],
-    include_directories : ['src/cpp/'],
-    link_with : apy_lib
-)
-
 # Python module
 python_installation.extension_module('apy_types', 
-    sources : 'src/cpp/pybind_fixed.cpp',
+    sources : ['src/apy_types_wrapper.cc', 'src/apy_fixed_wrapper.cc'],
     include_directories : pybind11_includes,
     dependencies : python_installation.dependency(),
     link_with : apy_lib
