@@ -1,7 +1,13 @@
 CC=g++
-CFLAGS=-Wall -Wextra -Wpedantic -Weffc++ -std=c++17 -O3 -march=native -g
+CFLAGS=-Wall -Wextra -Wpedantic -Wno-depricated -Weffc++ -std=c++17 -O3 -march=native -g
+TEST_FLAGS=-D _IS_APY_TYPES_UNIT_TEST
 
 .PHONY: test test_profile clean
+
+TEST_SRC = 							\
+	test/test_apy_fixed.cc 			\
+	test/test_binary_operator.cc	\
+	test/test_to_string.cc
 
 test: test/test_apy_util test/test_apy_fixed
 	test/test_apy_util
@@ -12,10 +18,10 @@ test_profile: test/test_apy_util test/test_apy_fixed
 	valgrind --tool=callgrind test/test_apy_fixed
 
 test/test_apy_util: apy_util.h test/test_apy_util.cc test/catch.o
-	${CC} ${CFLAGS} test/test_apy_util.cc test/catch.o -o $@
+	${CC} ${CFLAGS} ${TEST_FLAGS} test/test_apy_util.cc test/catch.o -o $@
 
-test/test_apy_fixed: apy_util.h apy_fixed.h apy_fixed.cc test/test_apy_fixed.cc test/catch.o
-	${CC} ${CFLAGS} apy_fixed.cc test/test_apy_fixed.cc test/catch.o -o $@
+test/test_apy_fixed: apy_util.h apy_fixed.h apy_fixed.cc ${TEST_SRC} test/catch.o
+	${CC} ${CFLAGS} ${TEST_FLAGS} apy_fixed.cc ${TEST_SRC} test/catch.o -o $@
 
 test/catch.o: test/catch.cc test/catch.hpp
 	${CC} ${CFLAGS} -c test/catch.cc -o test/catch.o

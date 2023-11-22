@@ -6,6 +6,7 @@
 #include "apy_util.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <exception>
 #include <stdexcept>
@@ -75,19 +76,42 @@ void APyFixed::twos_complement_overflow() noexcept
 /*
  * Binary operators
  */
-bool APyFixed::operator==(const APyFixed &rhs) const
+APyFixed APyFixed::operator+(const APyFixed &rhs) const
 {
+    const int rhs_frac_bits = rhs.bits() - rhs.int_bits();
+    const int lhs_frac_bits = bits() - int_bits();
+    const int res_frac_bits = std::max(rhs_frac_bits, lhs_frac_bits);
+    const int res_int_bits = std::max(int_bits(), rhs.int_bits()) + 1;
+    const int res_bits = res_int_bits + res_frac_bits;
 
+    APyFixed result(res_bits, res_int_bits);
+    std::vector<int64_t> other_shifted;
 
-    
-    // The integers are equal
-    return true;
+    if (lhs_frac_bits <= rhs_frac_bits) {
+        // Right-hand side (rhs) has more fractional bits
+        std::copy(rhs._data.cbegin(), rhs._data.cend(), result._data.begin());
+        other_shifted = _data_asl(rhs_frac_bits - lhs_frac_bits);
+    } else {
+        // Left-hand side (*this) has more fractional bits
+        std::copy(_data.cbegin(), _data.cend(), result._data.begin());
+        other_shifted = rhs._data_asl(lhs_frac_bits - rhs_frac_bits);
+    }
+
+    // Add with carry
+    bool carry = false;
+    for (unsigned i=0; i<result.vector_size(); i++) {
+        // TODO: Look at...
+        int64_t term = other_shifted[i] + int64_t(carry);
+        result._data[i] += term;
+        carry = uint64_t(result._data[i]) < uint64_t(term);
+    }
+    return result;
 }
 
 /*
  * Unariy operators
  */
-APyFixed APyFixed::operator-() const {
+ APyFixed APyFixed::operator-() const {
     APyFixed result(_bits+1, _int_bits+1);
     for (std::size_t i=0; i<result.vector_size(); i++) {
         result._data[i] = ~_data[i];
@@ -114,11 +138,6 @@ void APyFixed::increment_lsb() noexcept
 /*
  * Utility functions
  */
-
-// APyFixed &APyFixed::operator=(const APyFixed &rhs) const
-// {
-//     throw NotImplementedException();
-// }
 
 void APyFixed::from_bitstring(const std::string &str)
 {
@@ -205,5 +224,50 @@ std::string APyFixed::to_string_oct() const
 }
 
 std::string APyFixed::repr() const {
-    return "fx<" + std::to_string(_bits) + ", " + std::to_string(_int_bits) + ">(" + to_string() + ")";
+    return std::string(
+        "fx<"
+        + std::to_string(_bits)
+        + ", "
+        + std::to_string(_int_bits)
+        + ">("
+        + to_string()
+        + ")"
+    );
+}
+
+/*
+ * Private helper methods
+ */
+
+std::vector<int64_t> APyFixed::_data_asl(unsigned shift_val) const
+{
+    int vector_size = idiv64_ceil_fast(bits() + shift_val);
+    std::vector<int64_t> result(vector_size, 0);
+
+    unsigned vec_skip_val  = shift_val/64;
+    unsigned bit_shift_val = shift_val%64;
+    if (bit_shift_val > 0) {
+        for (unsigned i=result.size()-1; i>vec_skip_val; i--) {
+            unsigned src_idx = i-vec_skip_val;
+            uint64_t a = src_idx   < _data.size() ? _data[src_idx]   : 0;
+            uint64_t b = src_idx-1 < _data.size() ? _data[src_idx-1] : 0;
+            result.at(i) = (a << bit_shift_val) | (b >> (64-bit_shift_val));
+        }
+    } else {
+        for (unsigned i=result.size()-1; i>vec_skip_val; i--) {
+            unsigned src_idx = i-vec_skip_val;
+            uint64_t a = src_idx < _data.size() ? _data[src_idx] : 0;
+            result[i] = a;
+        }
+    }
+    result[vec_skip_val] = uint64_t(_data[0]) << bit_shift_val;
+
+    // Append sign bits for "arithmetic" shift
+    if ( (bits()+shift_val) % 64 > 0 ) {
+        int64_t sign_int = (_data.back() >> 63);
+        int64_t or_mask = ~((uint64_t(1) << (bits()+shift_val)%64) - 1);
+        result.back() |= or_mask & sign_int;
+    }
+    
+    return result;
 }

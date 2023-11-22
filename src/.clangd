@@ -1,0 +1,10 @@
+CompileFlags:
+    Add: [
+      -std=c++17,
+      -Wall,
+      -Wextra,
+      -Wpedantic,
+      -Wno-deprecated, 
+      -D _IS_APY_TYPES_UNIT_TEST,
+      -I test/,
+     ]

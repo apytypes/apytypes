@@ -15,6 +15,20 @@
 
 class APyFixed {
 
+    #ifdef _IS_APY_TYPES_UNIT_TEST
+    /*
+     * Unit tests have public access to underlying data files
+     */
+public:
+    #endif  // #ifdef _IS_APY_TYPES_UNIT_TEST
+
+    /*
+     * APyFixed data fields
+     */
+    int _bits;
+    int _int_bits;
+    std::vector<int64_t> _data;  // Underlying data vector
+
 public:
 
     /*
@@ -42,7 +56,7 @@ public:
     int int_bits() const noexcept { return _int_bits; }
 
     // Get the number of elements in underlying 64-bit data vector
-    std::size_t vector_size() const noexcept { return _data.size(); }
+    std::vector<int64_t>::size_type vector_size() const noexcept {return _data.size();}
 
     // Perform 2's complement overflowing. This method sign-extends all bits outside of
     // the APyFixed range.
@@ -65,11 +79,13 @@ public:
     /*
      * Binary operations
      */
-    bool operator==(const APyFixed &rhs) const;
+    //bool operator==(const APyFixed &rhs) const;
     APyFixed operator+(const APyFixed &rhs) const;
     APyFixed operator-(const APyFixed &rhs) const;
     APyFixed operator*(const APyFixed &rhs) const;
     APyFixed operator/(const APyFixed &rhs) const;
+    APyFixed operator<<(int shift_val) const;
+    APyFixed operator>>(int shift_val) const;
 
     /*
      * Assignment operators
@@ -91,16 +107,24 @@ public:
     std::string to_string_hex() const;
     std::string to_string_oct() const;
     std::string to_string_dec() const;
-    std::string repr() const; // Verbose string conversion
+    std::string repr() const;  // Python verbose string conversion
 
 private:
 
-    // Number of bits in fixed-point data type
-    int _bits;
-    int _int_bits;
+    #ifdef _IS_APY_TYPES_UNIT_TEST
+    /*
+     * Unit tests have public access to all member function
+     */
+public:
+    #endif  // #ifdef _IS_APY_TYPES_UNIT_TEST
 
-    // Underlying data vector
-    std::vector<int64_t> _data;
+    /*
+     * Private helper methods
+     */
+
+    // Bit preserving logical shift-left
+    std::vector<int64_t> _data_asl(unsigned shift_val) const;
+
 };
 
 
