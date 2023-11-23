@@ -17,7 +17,8 @@
 ## Building and running
 1. From the top level of the project, run
     ```bash
-    $ meson comile -C builddir
+    $ meson builddir
+    $ meson compile -C builddir
     ```
 2. Currently, to be able to use the Python library one must enter the `builddir` directory
     ```bash
