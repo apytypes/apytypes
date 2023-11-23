@@ -35,10 +35,10 @@ enum class STRING_TYPE {
 
 // Convert a positive arbitrary size integer array to a nibble list
 static inline std::vector<uint8_t> to_nibble_list(
-    const std::vector<int64_t> &data_array
+    const std::vector<uint64_t> &data_array
 ) {
     std::vector<uint8_t> result{};
-    for (int64_t data : data_array) {
+    for (uint64_t data : data_array) {
         for (int i=0; i<16; i++) {
             result.push_back(static_cast<uint8_t>((data >> (4*i)) & 0x0F));
         }
@@ -72,13 +72,8 @@ static inline bool nibble_list_shift_left_once(std::vector<uint8_t> &nibble_list
 }
 
 // Double-dabble algorithm for binary->bcd conversion
-static inline std::vector<uint8_t> double_dabble(const std::vector<int64_t> &data) {
-
-    // Data needs to be positive
-    if ( *data.rbegin() < 0) {
-        throw std::domain_error("Double-dabble needs positive number");
-    }
-
+static inline std::vector<uint8_t> double_dabble(const std::vector<uint64_t> &data)
+{
     std::vector<uint8_t> nibble_list = to_nibble_list(data);
     std::vector<uint8_t> bcd_list{ 0 };
     for (std::size_t i=0; i<4*nibble_list.size(); i++) {

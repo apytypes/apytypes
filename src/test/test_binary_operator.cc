@@ -2,22 +2,22 @@
 #include "catch.hpp"
 #include <iostream>
 
-using int64_vec = std::vector<int64_t>;
+using uint64_vec = std::vector<uint64_t>;
 
 TEST_CASE("APyFixed::operator+()")
 {
 
     { /* Test #1 */
-        APyFixed op_a(3,2, int64_vec{3});  //  1.5
-        APyFixed op_b(3,2, int64_vec{4});  // -2.0
+        APyFixed op_a(3,2, uint64_vec{3});  //  1.5
+        APyFixed op_b(3,2, uint64_vec{4});  // -2.0
         REQUIRE((op_a+op_b).to_string() == "-0.5");
         REQUIRE((op_a+op_b).int_bits()  == 3);
         REQUIRE((op_a+op_b).bits()      == 4);
     }
 
     { /* Test #2 */
-        APyFixed op_a(1, 1, int64_vec{0x1});  // -1.0
-        APyFixed op_b(1, 0, int64_vec{0x1});  // -0.5
+        APyFixed op_a(1, 1, uint64_vec{0x1});  // -1.0
+        APyFixed op_b(1, 0, uint64_vec{0x1});  // -0.5
         REQUIRE((op_a+op_b).to_string() == "-1.5");
         REQUIRE((op_a+op_b).int_bits()  == 2);
         REQUIRE((op_a+op_b).bits()      == 3);
@@ -25,10 +25,10 @@ TEST_CASE("APyFixed::operator+()")
 
     { /* Test #3 */
         // 306538369.1376953125
-        APyFixed op_a(100, 40, int64_vec{0x1234000000000000, 0x1245678});
+        APyFixed op_a(100, 40, uint64_vec{0x1234000000000000, 0x1245678});
         
         // 68.5000000000000005176294573636282259077034950678353197872638702392578125
-        APyFixed op_b(140, 10, int64_vec{0x5000000000000000, 0x9532, 0x4112});
+        APyFixed op_b(140, 10, uint64_vec{0x5000000000000000, 0x9532, 0x4112});
 
         REQUIRE((op_a+op_b).bits() == 171);
         REQUIRE((op_a+op_b).int_bits() == 41);
@@ -47,15 +47,15 @@ TEST_CASE("APyFixed::operator+()")
         // 00344149373334940301798201556238154807942919433116912841796875
         APyFixed op_a(
             512, 200,
-            int64_vec{
-                int64_t(0x1429404125123152),
-                int64_t(0x1245451212312342),
-                int64_t(0x1424F0A218B18CCC),
-                int64_t(0x124011012151FEEA),
-                int64_t(0xA0AA912831824717),
-                int64_t(0x192A91B39812391A),
-                int64_t(0x123ABCA124150012),
-                int64_t(0xFFFFF1A23A231245),
+            uint64_vec{
+                0x1429404125123152,
+                0x1245451212312342,
+                0x1424F0A218B18CCC,
+                0x124011012151FEEA,
+                0xA0AA912831824717,
+                0x192A91B39812391A,
+                0x123ABCA124150012,
+                0xFFFFF1A23A231245,
             }
         );
 
@@ -67,15 +67,15 @@ TEST_CASE("APyFixed::operator+()")
         // 80808972834127647429103280529716357705183327198028564453125
         APyFixed op_b(
             512, 100,
-            int64_vec{
-                int64_t(0x151A10EEB1241512),
-                int64_t(0x151A10EEB1241512),
-                int64_t(0x151A10EEB1241512),
-                int64_t(0x151A10EEB1241512),
-                int64_t(0x151A10EEB1241512),
-                int64_t(0x151A10EEB1241512),
-                int64_t(0x151A10EEB1241512),
-                int64_t(0x151A10EEB1241512),
+            uint64_vec{
+                0x151A10EEB1241512,
+                0x151A10EEB1241512,
+                0x151A10EEB1241512,
+                0x151A10EEB1241512,
+                0x151A10EEB1241512,
+                0x151A10EEB1241512,
+                0x151A10EEB1241512,
+                0x151A10EEB1241512,
             }
         );
         REQUIRE(
@@ -88,6 +88,8 @@ TEST_CASE("APyFixed::operator+()")
                "91307236837960818135285369376844864673208344678338497050523019191027165"
                "872352570896719470283642294816672801971435546875"
         );
+        REQUIRE((op_a+op_b).bits() == 613);
+        REQUIRE((op_a+op_b).int_bits() == 201);
     }
 
 }

@@ -15,14 +15,14 @@
 /*
  * Constructors
  */
- APyFixed::APyFixed(int bits, int int_bits) :
+APyFixed::APyFixed(int bits, int int_bits) :
     _bits{bits},
     _int_bits{int_bits},
-    _data(idiv64_ceil_fast(bits), int64_t(0))  // Zero initialize data
+    _data(idiv64_ceil_fast(bits), uint64_t(0))  // Zero initialize data
 {
     if (bits <= 0) {
         throw std::domain_error(
-            "APyInt needs a positive integer bit-size of atleast 1 bit"
+            "APyInt needs a positive integer bit-size of at-least 1 bit"
         );
     }
 }
@@ -30,25 +30,25 @@
 APyFixed::APyFixed(int bits, int int_bits, int value) :
     _bits{bits},
     _int_bits{int_bits},
-    _data(idiv64_ceil_fast(bits), int64_t(0))  // Zero initialize data
+    _data(idiv64_ceil_fast(bits), uint64_t(0))  // Zero initialize data
 {
     if (bits <= 0) {
         throw std::domain_error(
-            "APyInt needs a positive integer bit-size of atleast 1 bit"
+            "APyInt needs a positive integer bit-size of at-least 1 bit"
         );
     }
-    _data[0] = int64_t(value);
+    _data[0] = uint64_t(value);
     twos_complement_overflow();
 }
 
-APyFixed::APyFixed(int bits, int int_bits, const std::vector<int64_t> &vec) :
+APyFixed::APyFixed(int bits, int int_bits, const std::vector<uint64_t> &vec) :
     _bits{bits},
     _int_bits{int_bits},
     _data(vec.begin(), vec.end())
 {
     if (bits <= 0) {
         throw std::domain_error(
-            "APyInt needs a positive integer bit-size of atleast 1 bit"
+            "APyInt needs a positive integer bit-size of at-least 1 bit"
         );
     }
     if (vec.size() != idiv64_ceil_fast(bits)) {
@@ -69,7 +69,7 @@ void APyFixed::twos_complement_overflow() noexcept
     if (bits_last_word) {
         // Exploit signed arithmetic right-shift to perform two's complement overflow
         unsigned shft_amnt = 64-bits_last_word;
-        _data.back() = int64_t(uint64_t(_data.back()) << (shft_amnt)) >> (shft_amnt);
+        _data.back() = int64_t(_data.back() << (shft_amnt)) >> (shft_amnt);
     }
 }
 
@@ -85,7 +85,7 @@ APyFixed APyFixed::operator+(const APyFixed &rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
 
     APyFixed result(res_bits, res_int_bits);
-    std::vector<int64_t> other_shifted;
+    std::vector<uint64_t> other_shifted;
 
     if (lhs_frac_bits <= rhs_frac_bits) {
         // Right-hand side (rhs) has more fractional bits
@@ -101,9 +101,9 @@ APyFixed APyFixed::operator+(const APyFixed &rhs) const
     bool carry = false;
     for (unsigned i=0; i<result.vector_size(); i++) {
         // TODO: Look at...
-        int64_t term = other_shifted[i] + int64_t(carry);
+        uint64_t term = other_shifted[i] + uint64_t(carry);
         result._data[i] += term;
-        carry = uint64_t(result._data[i]) < uint64_t(term);
+        carry = result._data[i] < term;
     }
     return result;
 }
@@ -119,7 +119,7 @@ APyFixed APyFixed::operator+(const APyFixed &rhs) const
     if (result.vector_size() > vector_size()) {
         // Pad bits in the new vector data with sign bit
         bool not_sign = bool(_data[vector_size()-1] & 0x8000000000000000);
-        result._data[result.vector_size()-1] = not_sign ? int64_t(0) : int64_t(-1);
+        result._data[result.vector_size()-1] = not_sign ? 0 : int64_t(-1);
     }
     result.increment_lsb();
     return result;
@@ -131,7 +131,7 @@ void APyFixed::increment_lsb() noexcept
     bool carry = true;
     for (auto &word : _data) {
         word += carry;
-        carry = uint64_t(word) < uint64_t(carry);
+        carry = word < uint64_t(carry);
     }
 }
 
@@ -145,7 +145,7 @@ void APyFixed::from_bitstring(const std::string &str)
     throw NotImplementedException();
 }
 
-void APyFixed::from_vector(const std::vector<int64_t> &new_vector)
+void APyFixed::from_vector(const std::vector<uint64_t> &new_vector)
 {
     if (new_vector.size() != this->vector_size()) {
         throw std::domain_error("Vector size miss-match");
@@ -239,10 +239,10 @@ std::string APyFixed::repr() const {
  * Private helper methods
  */
 
-std::vector<int64_t> APyFixed::_data_asl(unsigned shift_val) const
+std::vector<uint64_t> APyFixed::_data_asl(unsigned shift_val) const
 {
     int vector_size = idiv64_ceil_fast(bits() + shift_val);
-    std::vector<int64_t> result(vector_size, 0);
+    std::vector<uint64_t> result(vector_size, 0);
 
     unsigned vec_skip_val  = shift_val/64;
     unsigned bit_shift_val = shift_val%64;
@@ -264,7 +264,7 @@ std::vector<int64_t> APyFixed::_data_asl(unsigned shift_val) const
 
     // Append sign bits for "arithmetic" shift
     if ( (bits()+shift_val) % 64 > 0 ) {
-        int64_t sign_int = (_data.back() >> 63);
+        int64_t sign_int = int64_t(_data.back()) >> 63;  // Arithmetic right-shift
         int64_t or_mask = ~((uint64_t(1) << (bits()+shift_val)%64) - 1);
         result.back() |= or_mask & sign_int;
     }

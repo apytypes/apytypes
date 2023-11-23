@@ -27,7 +27,7 @@ public:
      */
     int _bits;
     int _int_bits;
-    std::vector<int64_t> _data;  // Underlying data vector
+    std::vector<uint64_t> _data;  // Underlying data vector
 
 public:
 
@@ -44,7 +44,7 @@ public:
     explicit APyFixed(int bits, int int_bits, int value);
 
     // Specify size and initialize the underlying bits using C++ vectory type
-    explicit APyFixed(int bits, int int_bits, const std::vector<int64_t> &vec);
+    explicit APyFixed(int bits, int int_bits, const std::vector<uint64_t> &vec);
 
 
     /*
@@ -56,7 +56,7 @@ public:
     int int_bits() const noexcept { return _int_bits; }
 
     // Get the number of elements in underlying 64-bit data vector
-    std::vector<int64_t>::size_type vector_size() const noexcept {return _data.size();}
+    std::vector<uint64_t>::size_type vector_size() const noexcept {return _data.size();}
 
     // Perform 2's complement overflowing. This method sign-extends all bits outside of
     // the APyFixed range.
@@ -65,14 +65,14 @@ public:
     // Set the bit-pattern of fixed-point number from string
     void from_bitstring(const std::string &str);
 
-    // Set the bit-pattern from a vector of int64_t
-    void from_vector(const std::vector<int64_t> &vector);
+    // Set the bit-pattern from a vector of uint64_t
+    void from_vector(const std::vector<uint64_t> &vector);
 
     // Unary negation
     APyFixed operator-() const;
 
     // Others
-    bool is_negative() const noexcept { return _data.back() < 0; }
+    bool is_negative() const noexcept { return int64_t(_data.back()) < 0; }
     void increment_lsb() noexcept;
 
 
@@ -123,7 +123,7 @@ public:
      */
 
     // Bit preserving logical shift-left
-    std::vector<int64_t> _data_asl(unsigned shift_val) const;
+    std::vector<uint64_t> _data_asl(unsigned shift_val) const;
 
 };
 
