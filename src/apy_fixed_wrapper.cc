@@ -24,7 +24,7 @@ void bind_fixed(py::module &m) {
         .def("to_string_oct", &APyFixed::to_string_oct)
         .def("to_string_dec", &APyFixed::to_string_dec)
         .def("__repr__", &APyFixed::repr)
-        .def(py::self == py::self)
+        // .def(py::self == py::self)
         // .def(py::self + py::self)
         // .def(py::self - py::self)
         // .def(py::self * py::self)
