@@ -13,6 +13,9 @@
 #include <ostream>
 #include <string>
 
+// GMP should be included after all other includes
+#include <gmp.h>
+
 class APyFixed {
 
     #ifdef _IS_APY_TYPES_UNIT_TEST
@@ -27,7 +30,7 @@ class APyFixed {
      */
     int _bits;
     int _int_bits;
-    std::vector<uint64_t> _data;  // Underlying data vector
+    std::vector<mp_limb_t> _data;
 
 public:
 
@@ -42,13 +45,16 @@ public:
     // construction
     explicit APyFixed(int bits, int int_bits);
 
+    // Constructor: specify size and initialize from string
+    explicit APyFixed(int bits, int int_bits, const char *str, int base=10);
+
     // Constructor: specify size and initialize underlying bits from two iterators
     template <typename _ITER>
     explicit APyFixed(int bits, int int_bits, _ITER begin, _ITER end);
 
-    // Constructor: specify size and initialize underlying bits using vector<[u]int64_t>
-    explicit APyFixed(int bits, int int_bits, const std::vector<uint64_t> &vec);
-    explicit APyFixed(int bits, int int_bits, const std::vector<int64_t>  &vec);
+    // Constructor: specify size and initialize underlying bits using vector
+    explicit APyFixed(int bits, int int_bits, const std::vector<mp_limb_t> &vec);
+    //explicit APyFixed(int bits, int int_bits, const std::vector<int64_t>  &vec);
 
 
     /*
@@ -79,7 +85,7 @@ public:
     int frac_bits() const noexcept { return _bits - _int_bits; }
 
     // Get the number of elements in underlying 64-bit data vector
-    std::vector<uint64_t>::size_type vector_size() const noexcept {return _data.size();}
+    std::vector<mp_limb_t>::size_type vector_size() const noexcept {return _data.size();}
 
     // Perform 2's complement overflowing. This method sign-extends all bits outside of
     // the APyFixed range.
@@ -134,6 +140,9 @@ public:
 
     // Sign preserving automatic size extending arithmetic left shift
     std::vector<uint64_t> _data_asl(unsigned shift_val) const;
+
+    // Sanitize the _bits and _int_bits parameters
+    void _constructor_sanitize_bits() const;
 };
 
 

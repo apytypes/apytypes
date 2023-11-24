@@ -21,12 +21,13 @@ public:
     NotImplementedException() : std::logic_error("Not implemeted yet") {};
 };
 
-// Perform fast integer ceil( n/64 )
-static inline std::size_t idiv64_ceil_fast(std::size_t n) {
-    if (n%64 == 0) {
-        return n/64;
+// Perform fast integer ceil( n/sizeof(mp_limb_t) )
+static inline std::size_t idiv_limb_bits_ceil_fast(std::size_t n) {
+    constexpr std::size_t mp_limb_t_bits = 8*sizeof(mp_limb_t);
+    if (n%mp_limb_t_bits == 0) {
+        return n/mp_limb_t_bits;
     } else {
-        return n/64+1;
+        return n/mp_limb_t_bits + 1;
     }
 }
 
