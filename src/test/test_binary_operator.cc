@@ -5,29 +5,29 @@
 
 using uint64_vec = std::vector<uint64_t>;
 
-TEST_CASE("APyFixed::operator+() and APyFixed::operator-()")
+TEST_CASE("APyFixed::operator+(rhs) and APyFixed::operator-(rhs)")
 {
 
     { /* Test #1 */
         APyFixed op_a(3,2, uint64_vec{3});  //  1.5
         APyFixed op_b(3,2, uint64_vec{4});  // -2.0
-        REQUIRE((op_a+op_b).to_string() == "-0.5");
-        REQUIRE((op_a+op_b).int_bits()  ==      3);
-        REQUIRE((op_a+op_b).bits()      ==      4);
-        REQUIRE((op_a-op_b).to_string() ==  "3.5");
-        REQUIRE((op_a-op_b).int_bits()  ==      3);
-        REQUIRE((op_a-op_b).bits()      ==      4);
+        REQUIRE((op_a + op_b).to_string() == "-0.5");
+        REQUIRE((op_a + op_b).int_bits()  ==      3);
+        REQUIRE((op_a + op_b).bits()      ==      4);
+        REQUIRE((op_a - op_b).to_string() ==  "3.5");
+        REQUIRE((op_a - op_b).int_bits()  ==      3);
+        REQUIRE((op_a - op_b).bits()      ==      4);
     }
 
     { /* Test #2 */
         APyFixed op_a(1, 1, uint64_vec{0x1});  // -1.0
         APyFixed op_b(1, 0, uint64_vec{0x1});  // -0.5
-        REQUIRE((op_a+op_b).to_string() == "-1.5");
-        REQUIRE((op_a+op_b).int_bits()  ==      2);
-        REQUIRE((op_a+op_b).bits()      ==      3);
-        REQUIRE((op_a-op_b).to_string() == "-0.5");
-        REQUIRE((op_a-op_b).int_bits()  ==      2);
-        REQUIRE((op_a-op_b).bits()      ==      3);
+        REQUIRE((op_a + op_b).to_string() == "-1.5");
+        REQUIRE((op_a + op_b).int_bits()  ==      2);
+        REQUIRE((op_a + op_b).bits()      ==      3);
+        REQUIRE((op_a - op_b).to_string() == "-0.5");
+        REQUIRE((op_a - op_b).int_bits()  ==      2);
+        REQUIRE((op_a - op_b).bits()      ==      3);
     }
 
     { /* Test #3 */
@@ -37,14 +37,14 @@ TEST_CASE("APyFixed::operator+() and APyFixed::operator-()")
         // 68.5000000000000005176294573636282259077034950678353197872638702392578125
         APyFixed op_b(140, 10, uint64_vec{0x5000000000000000, 0x9532, 0x4112});
 
-        REQUIRE((op_a+op_b).bits()      == 171);
-        REQUIRE((op_a+op_b).int_bits()  == 41);
+        REQUIRE((op_a + op_b).bits()      == 171);
+        REQUIRE((op_a + op_b).int_bits()  == 41);
         REQUIRE((op_a + op_b).to_string() ==
                 "306538437."
                 "63769531250000051762945736362822590770349506783531978726387023"
                 "92578125");
-        REQUIRE((op_a-op_b).bits()      == 171);
-        REQUIRE((op_a-op_b).int_bits()  == 41);
+        REQUIRE((op_a - op_b).bits()      == 171);
+        REQUIRE((op_a - op_b).int_bits()  == 41);
         REQUIRE((op_a - op_b).to_string() ==
                 "306538300."
                 "6376953124999994823705426363717740922965049321646802127361297"
@@ -52,6 +52,54 @@ TEST_CASE("APyFixed::operator+() and APyFixed::operator-()")
     }
 
     { /* Test #4 */
+        APyFixed op_a(512, 200, uint64_vec{0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0});
+        APyFixed op_b(512, 100, uint64_vec{0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0});
+        REQUIRE( (op_a - op_b).to_string() == "0" );
+    }
+
+    { /* Test #5 */
+        APyFixed op_a(200, 100, uint64_vec{0x0,0x0,0x0,0x0});
+        APyFixed op_b(512, 200, uint64_vec{0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0});
+        REQUIRE( (op_a - op_b).to_string() == "0" );
+    }
+
+}
+
+TEST_CASE("APyFixed::operator-()")
+{
+    { /* Test #1 */
+        APyFixed operand(64, 32, uint64_vec{ 0x8000000000000000 });
+        REQUIRE( (-operand)._data == uint64_vec{ 0x8000000000000000, 0 });
+    }
+
+    { /* Test #2 */
+        APyFixed operand(64, 32, uint64_vec{ 0x7FFFFFFFFFFFFFFF });
+        REQUIRE( (-operand)._data == uint64_vec{ 0x8000000000000001, uint64_t(-1) });
+    }
+
+    { /* Test #3 */
+        APyFixed operand(
+            512, 100,
+            uint64_vec{
+                0xF51A10EEB1241512,
+                0xF51A10EF8AFF1512,
+                0x151A10EF8AFF1512,
+                0x051A10EF8AFF1512,
+                0x051A10EEB1241512,
+                0xF51A10EEB1241512,
+                0xF51A10EEB1241512,
+                0x101A10EEB1241512,
+            }
+        );
+        REQUIRE( (-operand).bits()     == 513 );
+        REQUIRE( (-operand).int_bits() == 101 );
+        REQUIRE(std::string("-") + operand.to_string() == (-operand).to_string());
+    }
+}
+
+TEST_CASE("APyFixed::operator+(rhs) and APyFixed::operator-(rhs) [large]")
+{
+    { /* Test #1 */
 
         // -1376018206341311063223476816643087998331620501540496640.
         // 021222579872958058370179355618716816066859017361262100333952697594702
@@ -117,43 +165,70 @@ TEST_CASE("APyFixed::operator+() and APyFixed::operator-()")
         REQUIRE((op_a-op_b).int_bits()  == 201);
     }
 
-    { /* Test #5 */
-        APyFixed op_a(512, 200, uint64_vec{0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0});
-        APyFixed op_b(512, 100, uint64_vec{0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0});
-        REQUIRE( (op_a - op_b).to_string() == "0" );
-    }
-
-}
-
-TEST_CASE("APyFixed::operator-()")
-{
-    { /* Test #1 */
-        APyFixed operand(64, 32, uint64_vec{ 0x8000000000000000 });
-        REQUIRE( (-operand)._data == uint64_vec{ 0x8000000000000000, 0 });
-    }
-
     { /* Test #2 */
-        APyFixed operand(64, 32, uint64_vec{ 0x7FFFFFFFFFFFFFFF });
-        REQUIRE( (-operand)._data == uint64_vec{ 0x8000000000000001, uint64_t(-1) });
-    }
 
-    { /* Test #3 */
-        APyFixed operand(
+        // -1085486967854999652283885.
+        // 7448729760947930374960952188947589709537631140390587787067857834922569
+        // 8593119855531200749403496121503716792997680618362464712806046112732391
+        // 3062308705241286170134557973407921303069833918178512551600480466327405
+        // 8610777142902994459196267966570891762710916869640642680309043084935670
+        // 3461527201803803803026149333988253072319552556869060605661235965322211
+        // 0076395744803539537663705782932765941950492560863494873046875
+        APyFixed op_a(
             512, 100,
             uint64_vec{
-                0xF51A10EEB1241512,
-                0xF51A10EF8AFF1512,
-                0x151A10EF8AFF1512,
-                0x051A10EF8AFF1512,
-                0x051A10EEB1241512,
-                0xF51A10EEB1241512,
-                0xF51A10EEB1241512,
-                0x101A10EEB1241512,
+                0x1429404125123152,
+                0x1245451212312342,
+                0xFFF4F0A218B18CCC,
+                0xFFF011012151FEEA,
+                0xFFFA912831824717,
+                0xFFFA91B39812391A,
+                0x123ABCA124150012,
+                0xFFFFF1A23A231245,
             }
         );
-        REQUIRE( (-operand).bits()     == 513 );
-        REQUIRE( (-operand).int_bits() == 101 );
-        REQUIRE(std::string("-") + operand.to_string() == (-operand).to_string());
-    }
-}
 
+        // 132458276388924914357910377122715071335085446375728229978879.
+        // 664320867774297149614525689744528428324923121855502041915090146517009
+        // 690050948493327275505512705229951370519178223895243419834128949003300
+        // 054840360790844456369066397718311100233752085743664256491380347940962
+        // 859216008018161064320203894400395799216476079288214421276109787964370
+        // 13471631871652789413928985595703125
+        APyFixed op_b(
+            512, 200,
+            uint64_vec{
+                0x151A10EEB1241512,
+                0xFFAA10EEB1241512,
+                0xFFAA10EEB1241512,
+                0xFFAA10EEB1241512,
+                0xFFAA10EEB1241512,
+                0x151A10EEB1241512,
+                0x151A10EEB1241512,
+                0x151A10EEB1241512,
+            }
+        );
+        REQUIRE((op_a + op_b).to_string() ==
+                "132458276388924914357910377122715070249598478520728577694993."
+                "91944789167950411211843047084976945737116000781644326320830436"
+                "30247527041197499380152680114777440149142025892014177116187727"
+                "06068487875976141778052085603170198931839744903178930682251825"
+                "48574393977986747463545335493030387076487428426760373871004020"
+                "49876012503570080788836558765676817034445098561012595944636913"
+                "67469276804474431309393943387640346777889923604255196460462336"
+                "294217067234058049507439136505126953125");
+        REQUIRE((op_a - op_b).to_string() ==
+                "-132458276388924914357910377122715072420572414230727882262765."
+                "40919384386909018711062090863928739927868623589456082062187593"
+                "00092666759821470486392829995476664449885384491550300788680669"
+                "62189410130623967902669496085742539200955691719021536821919661"
+                "84276904298082840729026507708573245136376612352119705288839274"
+                "71709751784855441406922728637017509339885459321773201174503711"
+                "32530723195525568690606056612359653222110076395744803539537663"
+                "705782932765941950492560863494873046875");
+        REQUIRE((op_a+op_b).bits()      == 613);
+        REQUIRE((op_a+op_b).int_bits()  == 201);
+        REQUIRE((op_a-op_b).bits()      == 613);
+        REQUIRE((op_a-op_b).int_bits()  == 201);
+    }
+
+}

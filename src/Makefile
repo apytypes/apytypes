@@ -20,7 +20,7 @@ test_profile: test/test_apy_util test/test_apy_fixed
 	valgrind --tool=callgrind test/test_apy_util
 	valgrind --tool=callgrind test/test_apy_fixed
 
-test_coverage: test/test_apy_util test/test_apy_fixed
+test_coverage: test
 	lcov --directory test --capture --output-file coverage.info
 	genhtml --demangle-cpp -o coverage coverage.info
 

@@ -8,3 +8,9 @@ callgrind.out.*
 
 # Apple debuging symbol files
 *.dSYM
+
+# Coverage files
+coverage/
+coverage.info
+test/*.gcda
+test/*.gcno

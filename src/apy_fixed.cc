@@ -9,7 +9,6 @@
 #include <cassert>
 #include <cstddef>
 #include <exception>
-#include <iostream>
 #include <iterator>
 #include <stdexcept>
 #include <string>
@@ -95,6 +94,8 @@ APyFixed APyFixed::operator+(const APyFixed &rhs) const
     APyFixed result(res_int_bits+res_frac_bits, res_int_bits);
     std::vector<uint64_t> other_shifted;
 
+    // Upshift the operand with fewest fractional bits to align the binary point of the
+    // two addition operands (this and rhs)
     if (frac_bits() <= rhs.frac_bits()) {
         // Right-hand side (rhs) has more fractional bits
         std::copy(rhs._data.cbegin(), rhs._data.cend(), result._data.begin());
@@ -114,12 +115,12 @@ APyFixed APyFixed::operator+(const APyFixed &rhs) const
     }
 
     // Vector sign-extend the "other" shifted vector
-    bool carry = false;
     for (unsigned i=other_shifted.size(); i<result.vector_size(); i++) {
         other_shifted.push_back( int64_t(other_shifted.back()) >> 63 );
     }
 
     // Add with carry
+    bool carry = false;
     for (unsigned i=0; i<result.vector_size(); i++) {
         uint64_t term = other_shifted[i] + uint64_t(carry);
         result._data[i] += term;
