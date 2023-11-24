@@ -172,12 +172,6 @@ void APyFixed::increment_lsb() noexcept
  * Utility functions
  */
 
-void APyFixed::from_bitstring(const std::string &str)
-{
-    (void) str;
-    throw NotImplementedException();
-}
-
 void APyFixed::from_vector(const std::vector<uint64_t> &new_vector)
 {
     if (new_vector.size() != this->vector_size()) {

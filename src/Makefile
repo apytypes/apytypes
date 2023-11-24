@@ -5,9 +5,9 @@ CFLAGS=																\
 
 .PHONY: test test_profile test_coverage clean clean_all
 
-TEST_SRC = 							\
-	test/test_apy_fixed.cc 			\
-	test/test_binary_operator.cc	\
+TEST_SRC = 															\
+	test/test_apy_fixed.cc 											\
+	test/test_binary_operator.cc									\
 	test/test_to_string.cc
 
 TEST_FLAGS=-D _IS_APY_TYPES_UNIT_TEST
@@ -33,6 +33,10 @@ test/test_apy_fixed: apy_util.h apy_fixed.h apy_fixed.cc ${TEST_SRC} test/catch.
 test/catch.o: test/catch.cc test/catch.hpp
 	${CC} ${CFLAGS} -c test/catch.cc -o test/catch.o
 
+#
+# Regular soft cleaning. Does not remove test/catch.o, as that object file takes such a
+# long time to build.
+#
 clean:
 	@rm -rvf test/*gcda
 	@rm -rvf test/*gcno
@@ -43,5 +47,8 @@ clean:
 	@rm -rvf coverage/
 	@rm -rvf coverage.info
 
+#
+# Hard cleaning. Remove everything build related
+#
 clean_all: clean
 	@rm -rvf test/catch.o

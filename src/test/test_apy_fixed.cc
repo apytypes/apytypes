@@ -6,12 +6,15 @@
 #include <stdexcept>
 
 using uint64_vec = std::vector<uint64_t>;
+using int64_vec = std::vector<int64_t>;
 
 
 TEST_CASE("APyFixed must have a positive non-zero size")
 {
     // Zero bit fixed-point types does not exist
-    REQUIRE_THROWS_AS( APyFixed(0, 1), std::domain_error );
+    REQUIRE_THROWS_AS( APyFixed(0,  1), std::domain_error );
+    REQUIRE_THROWS_AS( APyFixed(0,  1, uint64_vec{}), std::domain_error );
+    REQUIRE_THROWS_AS( APyFixed(64, 1, uint64_vec{}), std::domain_error );
 
     // One bit fixed-point types does not throw on creation
     APyFixed(1, 0);
@@ -111,4 +114,19 @@ TEST_CASE("APyFixed::_data_asl()")
             }
         );
     }
+}
+
+TEST_CASE("APyFixed::from_vector()")
+{
+    APyFixed a(64, 64, int64_vec{ -1 });
+    REQUIRE(a.to_string() == "-1");
+    REQUIRE_THROWS_AS(a.from_vector( uint64_vec{ 0, 0 }), std::domain_error);
+    a.from_vector( uint64_vec{ 5 } );
+    REQUIRE(a.to_string() == "5");
+}
+
+TEST_CASE("Non-implemented function")
+{
+    REQUIRE_THROWS_AS(APyFixed(1,0).to_string_hex(), NotImplementedException);
+    REQUIRE_THROWS_AS(APyFixed(1,0).to_string_oct(), NotImplementedException);
 }
