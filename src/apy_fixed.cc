@@ -140,6 +140,11 @@ APyFixed APyFixed::operator-(const APyFixed &rhs) const
     return result;
 }
 
+APyFixed APyFixed::operator*(const APyFixed &rhs) const
+{
+
+}
+
 /*
  * Unariy operators
  */

@@ -5,10 +5,14 @@
 #ifndef _APY_UTIL_H
 #define _APY_UTIL_H
 
+#include <array>
 #include <cstddef>
+#include <cstdint>
 #include <cstdlib>
+#include <iostream>
 #include <stdexcept>
 #include <vector>
+#include <gmp.h>
 
 // Not implemented exception
 class NotImplementedException : public std::logic_error
@@ -141,6 +145,27 @@ static inline void bcd_mul2(std::vector<uint8_t> &bcd_list)
         bcd_list.push_back(1);
     }
 
+}
+
+static inline std::array<uint64_t, 2> unsigned_mul64(uint64_t op_a, uint64_t op_b)
+{
+    // TODO: More portible version of multiplication. This is probably the fastest
+    //       thought...
+    std::array<uint64_t, 2> result;
+    __uint128_t product = __uint128_t(op_a) * __uint128_t(op_b);
+    result[0] = product & 0xFFFFFFFFFFFFFFFF;
+    result[1] = product >> 64;
+    return result;
+}
+
+// Arbitrary sized signed twos-complement vector multiplication
+static inline std::vector<uint64_t> signed_vector_mul(
+    const std::vector<uint64_t> &op_a,
+    const std::vector<uint64_t> &op_b
+) {
+    std::vector<uint64_t> result(op_a.size() + op_b.size());
+
+    return result;
 }
 
 #endif

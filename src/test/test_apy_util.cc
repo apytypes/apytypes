@@ -1,6 +1,7 @@
 #include "../apy_util.h"
 #include "catch.hpp"
 
+#include <iostream>
 #include <iterator>
 #include <stdexcept>
 
@@ -100,31 +101,43 @@ TEST_CASE("double_dabble()")
 
 TEST_CASE("bcd_div2()")
 {
-{
-    // Test 1: Continues division by two of 1
-    std::vector<uint8_t> num{1};
-    for (int i=0; i<13; i++) {
-        bcd_div2(num);
+    {
+        // Test 1: Continues division by two of 1
+        std::vector<uint8_t> num{1};
+        for (int i=0; i<13; i++) {
+            bcd_div2(num);
+        }
+
+        char res[] = "00001220703125";
+        REQUIRE(std::size(res)-1 == num.size());
+        for (std::size_t i=0; i<std::size(res)-1; i++) {
+            REQUIRE(res[i] == num.at(i)+0x30);
+        }
     }
 
-    char res[] = "00001220703125";
-    REQUIRE(std::size(res)-1 == num.size());
-    for (std::size_t i=0; i<std::size(res)-1; i++) {
-        REQUIRE(res[i] == num.at(i)+0x30);
+    {
+        // Test 2: Divide 45 by 2 13 times
+        std::vector<uint8_t> num{0x4, 0x5};
+        for (int i=0; i<13; i++) {
+            bcd_div2(num);
+        }
+
+        char res[] = "000054931640625";
+        REQUIRE(std::size(res)-1 == num.size());
+        for (std::size_t i=0; i<std::size(res)-1; i++) {
+            REQUIRE(res[i] == num.at(i)+0x30);
+        }
     }
 }
 
+TEST_CASE("unsigned_mul64()")
 {
-    // Test 2: Divide 45 by 2 13 times
-    std::vector<uint8_t> num{0x4, 0x5};
-    for (int i=0; i<13; i++) {
-        bcd_div2(num);
+    {
+        std::array<uint64_t, 2> product = unsigned_mul64(uint64_t(-1), uint64_t(-1));
+        for (uint64_t u : product) {
+            std::cout << std::hex << u << " ";
+        }
+        std::cout << std::endl;
     }
 
-    char res[] = "000054931640625";
-    REQUIRE(std::size(res)-1 == num.size());
-    for (std::size_t i=0; i<std::size(res)-1; i++) {
-        REQUIRE(res[i] == num.at(i)+0x30);
-    }
-}
 }
