@@ -5,14 +5,17 @@
 #ifndef _APY_UTIL_H
 #define _APY_UTIL_H
 
-#include <array>
 #include <cstddef>
 #include <cstdint>
-#include <cstdlib>
-#include <iostream>
 #include <stdexcept>
 #include <vector>
+
+// GMP should be included after all other includes
 #include <gmp.h>
+
+// Sizes of GMP limbs (underlying words)
+static constexpr std::size_t _LIMB_SIZE_BYTES = sizeof(mp_limb_t);
+static constexpr std::size_t _LIMB_SIZE_BITS  = 8 * _LIMB_SIZE_BYTES;
 
 // Not implemented exception
 class NotImplementedException : public std::logic_error
@@ -21,16 +24,6 @@ public:
     NotImplementedException() : std::logic_error("Not implemeted yet") {};
 };
 
-// Perform fast integer ceil( n/sizeof(mp_limb_t) )
-static inline std::size_t idiv_limb_bits_ceil_fast(std::size_t n) {
-    constexpr std::size_t mp_limb_t_bits = 8*sizeof(mp_limb_t);
-    if (n%mp_limb_t_bits == 0) {
-        return n/mp_limb_t_bits;
-    } else {
-        return n/mp_limb_t_bits + 1;
-    }
-}
-
 // Avaiable string converstion types
 enum class STRING_TYPE {
     HEX,
@@ -38,21 +31,32 @@ enum class STRING_TYPE {
     DEC,
 };
 
+// Quickly evaluate how many limbs are requiered to to store an n-bit word
+static inline std::size_t bits_to_limbs(std::size_t bits) {
+    if (bits%_LIMB_SIZE_BITS == 0) {
+        return bits/_LIMB_SIZE_BITS;
+    } else {
+        return bits/_LIMB_SIZE_BITS + 1;
+    }
+}
+
 // Convert a positive arbitrary size integer array to a nibble list
 static inline std::vector<uint8_t> to_nibble_list(
-    const std::vector<uint64_t> &data_array
+    const std::vector<mp_limb_t> &data_array
 ) {
+    constexpr std::size_t NIBBLES_PER_LIMB = 2*_LIMB_SIZE_BYTES;
+    constexpr std::size_t BITS_PER_NIBBLE = 4;
     std::vector<uint8_t> result{};
-    for (uint64_t data : data_array) {
-        for (int i=0; i<16; i++) {
-            result.push_back(static_cast<uint8_t>((data >> (4*i)) & 0x0F));
+    for (mp_limb_t data : data_array) {
+        for (unsigned i=0; i<NIBBLES_PER_LIMB; i++) {
+            result.push_back(uint8_t((data >> (BITS_PER_NIBBLE*i)) & 0x0F));
         }
     }
 
     // Remove zero-elements from the end
     int zero_elements = 0;
-    for (auto nibble = result.crbegin(); nibble != result.crend(); ++nibble) {
-        if (*nibble == 0) {
+    for (auto nibble_it = result.crbegin(); nibble_it != result.crend(); ++nibble_it) {
+        if (*nibble_it == 0) {
             zero_elements++;
         } else {
             break;
@@ -68,7 +72,7 @@ static inline bool nibble_list_shift_left_once(std::vector<uint8_t> &nibble_list
     bool output_bit = *(--nibble_list.cend()) >= 8;
     for (int i=nibble_list.size()-1; i>=0; i--) {
         nibble_list[i] <<= 1;
-        nibble_list[i] &= 0x0F;
+        nibble_list[i] &= 0xF;
         if (i > 0 && nibble_list[i-1] >= 8) {
             nibble_list[i] += 1;
         }
@@ -77,7 +81,7 @@ static inline bool nibble_list_shift_left_once(std::vector<uint8_t> &nibble_list
 }
 
 // Double-dabble algorithm for binary->bcd conversion
-static inline std::vector<uint8_t> double_dabble(const std::vector<uint64_t> &data)
+static inline std::vector<uint8_t> double_dabble(const std::vector<mp_limb_t> &data)
 {
     std::vector<uint8_t> nibble_list = to_nibble_list(data);
     std::vector<uint8_t> bcd_list{ 0 };
@@ -146,27 +150,6 @@ static inline void bcd_mul2(std::vector<uint8_t> &bcd_list)
         bcd_list.push_back(1);
     }
 
-}
-
-static inline std::array<uint64_t, 2> unsigned_mul64(uint64_t op_a, uint64_t op_b)
-{
-    // TODO: More portible version of multiplication. This is probably the fastest
-    //       thought...
-    std::array<uint64_t, 2> result;
-    __uint128_t product = __uint128_t(op_a) * __uint128_t(op_b);
-    result[0] = product & 0xFFFFFFFFFFFFFFFF;
-    result[1] = product >> 64;
-    return result;
-}
-
-// Arbitrary sized signed twos-complement vector multiplication
-static inline std::vector<uint64_t> signed_vector_mul(
-    const std::vector<uint64_t> &op_a,
-    const std::vector<uint64_t> &op_b
-) {
-    std::vector<uint64_t> result(op_a.size() + op_b.size());
-
-    return result;
 }
 
 #endif

@@ -1,16 +1,16 @@
 CC=g++
-CFLAGS=																\
-	-Wall -Wextra -Wpedantic -Wno-depricated -Weffc++ 				\
+CFLAGS=								\
+	-Wall -Wextra -Wpedantic -Wno-depricated -Weffc++ 	\
 	-D _GLIBCXX_DEBUG -std=c++17 -O3 -march=native -g
 
 .PHONY: test test_profile test_coverage clean clean_all
 
-TEST_SRC = 															\
-	test/test_apy_fixed.cc 											\
-	test/test_binary_operator.cc									\
+TEST_SRC =				\
+	test/test_apy_fixed.cc		\
+	test/test_binary_operator.cc	\
 	test/test_to_string.cc
 
-TEST_FLAGS=-D _IS_APY_TYPES_UNIT_TEST
+TEST_FLAGS=-D _IS_APY_TYPES_UNIT_TEST --coverage
 
 test: test/test_apy_util test/test_apy_fixed
 	test/test_apy_util
@@ -25,10 +25,10 @@ test_coverage: test
 	genhtml --demangle-cpp -o coverage coverage.info
 
 test/test_apy_util: apy_util.h test/test_apy_util.cc test/catch.o
-	${CC} ${CFLAGS} ${TEST_FLAGS} --coverage test/test_apy_util.cc test/catch.o -o $@
+	${CC} ${CFLAGS} ${TEST_FLAGS} test/test_apy_util.cc test/catch.o -o $@
 
 test/test_apy_fixed: apy_util.h apy_fixed.h apy_fixed.cc ${TEST_SRC} test/catch.o
-	${CC} ${CFLAGS} ${TEST_FLAGS} --coverage apy_fixed.cc ${TEST_SRC} test/catch.o -o $@
+	${CC} ${CFLAGS} ${TEST_FLAGS} apy_fixed.cc ${TEST_SRC} test/catch.o -o $@ -lgmp
 
 test/catch.o: test/catch.cc test/catch.hpp
 	${CC} ${CFLAGS} -c test/catch.cc -o test/catch.o
@@ -38,8 +38,10 @@ test/catch.o: test/catch.cc test/catch.hpp
 # long time to build.
 #
 clean:
-	@rm -rvf test/*gcda
-	@rm -rvf test/*gcno
+	@rm -rvf test/*.gcda
+	@rm -rvf test/*.gcno
+	@rm -rvf *.gcda
+	@rm -rvf *.gcno
 	@rm -rvf test/*.gcov
 	@rm -rvf test/test_apy_fixed
 	@rm -rvf test/test_apy_util
@@ -52,3 +54,4 @@ clean:
 #
 clean_all: clean
 	@rm -rvf test/catch.o
+

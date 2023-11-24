@@ -16,6 +16,7 @@
 // GMP should be included after all other includes
 #include <gmp.h>
 
+
 class APyFixed {
 
     #ifdef _IS_APY_TYPES_UNIT_TEST
@@ -30,7 +31,10 @@ class APyFixed {
      */
     int _bits;
     int _int_bits;
-    std::vector<mp_limb_t> _data;
+    std::vector<mp_limb_t> _data;  // mp_limb_t is the underlying data type used for 
+                                   // arithmetic in APyFixed. It is either a 32-bit or
+                                   // a 64-bit unsigned int, depending on the target
+                                   // architecture.
 
 public:
 
@@ -54,7 +58,7 @@ public:
 
     // Constructor: specify size and initialize underlying bits using vector
     explicit APyFixed(int bits, int int_bits, const std::vector<mp_limb_t> &vec);
-    //explicit APyFixed(int bits, int int_bits, const std::vector<int64_t>  &vec);
+    explicit APyFixed(int bits, int int_bits, const std::vector<mp_limb_signed_t> &vec);
 
 
     /*
@@ -84,25 +88,24 @@ public:
     int int_bits() const noexcept { return _int_bits; }
     int frac_bits() const noexcept { return _bits - _int_bits; }
 
-    // Get the number of elements in underlying 64-bit data vector
-    std::vector<mp_limb_t>::size_type vector_size() const noexcept {return _data.size();}
+    // Get the number of elements in underlying limb data vector
+    std::size_t vector_size() const noexcept { return _data.size(); }
 
     // Perform 2's complement overflowing. This method sign-extends all bits outside of
     // the APyFixed range.
     void twos_complement_overflow() noexcept;
 
-    // Set the bit-pattern of fixed-point number from string
-    void from_bitstring(const std::string &str);
-
     // Set the bit-pattern from a vector of uint64_t
-    void from_vector(const std::vector<uint64_t> &vector);
+    void from_vector(const std::vector<mp_limb_t> &vector);
 
     // Unary negation
     APyFixed operator-() const;
 
-    // Others
-    bool is_negative() const noexcept { return int64_t(_data.back()) < 0; }
-    void increment_lsb() noexcept;
+    // Test if fixed-point number is negative
+    bool is_negative() const noexcept { return mp_limb_signed_t(_data.back()) < 0; }
+
+    // Increment the LSB without making the fixed-point number wider. Returns carry out
+    mp_limb_t increment_lsb() noexcept;
 
 
     /*

@@ -5,14 +5,13 @@
 #include <iostream>
 #include <stdexcept>
 
-using uint64_vec = std::vector<uint64_t>;
-using int64_vec = std::vector<int64_t>;
+using word_vec = std::vector<mp_limb_t>;
 
 
 TEST_CASE("APyFixed must have a positive non-zero size")
 {
     // Zero bit fixed-point types does not exist
-    REQUIRE_THROWS_AS( APyFixed(0,  1), std::domain_error );
+    REQUIRE_THROWS_AS(APyFixed(0,  1), std::domain_error);
 
     // One bit fixed-point types does not throw on creation
     APyFixed(1, 0);
@@ -21,55 +20,55 @@ TEST_CASE("APyFixed must have a positive non-zero size")
 TEST_CASE("Vector initialization must be consistent with APyFixed word-length")
 {
     // Vector-initialization fails on size missmatch
-    REQUIRE_THROWS_AS( APyFixed(65, 0, uint64_vec{0}), std::domain_error );
+    REQUIRE_THROWS_AS(APyFixed(_LIMB_SIZE_BITS+1, 0, word_vec{0}), std::domain_error);
 
     // Vector-initalization succeeds on correct sizes
-    for (int bits=1; bits<64; bits++) {
-        APyFixed(bits, 0, uint64_vec{0});
+    for (unsigned bits=1; bits<_LIMB_SIZE_BITS; bits++) {
+        APyFixed(bits, 0, word_vec{0});
     }
 
 }
 
-//TEST_CASE("APyFixed::bits(), APyFixed::int_bits() and APyFixed::vector_size()")
-//{
-//    REQUIRE(APyFixed(128, 12).bits()        == 128);
-//    REQUIRE(APyFixed(128, 12).int_bits()    == 12);
-//    REQUIRE(APyFixed(128, 0).vector_size()  == 2);
-//    REQUIRE(APyFixed(129, 0).vector_size()  == 3);
-//    REQUIRE(APyFixed(1, 0).vector_size()    == 1);
-//}
-//
-//TEST_CASE("APyFixed::twos_complement_overflow()")
-//{
-//    REQUIRE(
-//        APyFixed(128, 1, 
-//        uint64_vec{0x0, 0x8000000000000000}).to_string_dec() 
-//        == "-1"
-//    );
-//    REQUIRE(
-//        APyFixed(128, 1, 
-//        uint64_vec{0x0, 0x4000000000000000}).to_string_dec() 
-//        == "0.5"
-//    );
-//    REQUIRE(
-//        APyFixed(96, 1, 
-//        uint64_vec{0x0, 0xFFFFFFFF00000000}).to_string_dec() 
-//        == "0"
-//    );
-//    REQUIRE(
-//        APyFixed(96, 1, 
-//        uint64_vec{0x0, 0xFFFFFFFF80000000}).to_string_dec() 
-//        == "-1"
-//    );
-//    REQUIRE(
-//        APyFixed(96, 1, 
-//        uint64_vec{0x0, 0xFFFFFFFF40000000}).to_string_dec() 
-//        == "0.5"
-//    );
-//
-//}
-//
-//
+TEST_CASE("APyFixed::bits(), APyFixed::int_bits() and APyFixed::vector_size()")
+{
+    REQUIRE(APyFixed(12345, 12).bits()                       == 12345);
+    REQUIRE(APyFixed(12345, 12).int_bits()                   == 12);
+    REQUIRE(APyFixed(123*_LIMB_SIZE_BITS,   0).vector_size() == 123);
+    REQUIRE(APyFixed(123*_LIMB_SIZE_BITS+1, 0).vector_size() == 124);
+    REQUIRE(APyFixed(1, 0).vector_size()                     == 1);
+}
+
+TEST_CASE("APyFixed::twos_complement_overflow()")
+{
+    REQUIRE(
+        APyFixed(128, 1, 
+        word_vec{0x0, 0x8000000000000000}).to_string_dec() 
+        == "-1"
+    );
+    REQUIRE(
+        APyFixed(128, 1, 
+        word_vec{0x0, 0x4000000000000000}).to_string_dec() 
+        == "0.5"
+    );
+    REQUIRE(
+        APyFixed(96, 1, 
+        word_vec{0x0, 0xFFFFFFFF00000000}).to_string_dec() 
+        == "0"
+    );
+    REQUIRE(
+        APyFixed(96, 1, 
+        word_vec{0x0, 0xFFFFFFFF80000000}).to_string_dec() 
+        == "-1"
+    );
+    REQUIRE(
+        APyFixed(96, 1, 
+        word_vec{0x0, 0xFFFFFFFF40000000}).to_string_dec() 
+        == "0.5"
+    );
+
+}
+
+
 //TEST_CASE("APyFixed::_data_asl()")
 //{
 //    {  /* Test #1 */

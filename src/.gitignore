@@ -12,5 +12,5 @@ callgrind.out.*
 # Coverage files
 coverage/
 coverage.info
-test/*.gcda
-test/*.gcno
+*.gcda
+*.gcno
