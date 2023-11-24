@@ -9,11 +9,13 @@
 #include <cassert>
 #include <cstddef>
 #include <exception>
+#include <iostream>
+#include <iterator>
 #include <stdexcept>
 #include <string>
 
 /*
- * Constructors
+ * Zero initializing constructor
  */
 APyFixed::APyFixed(int bits, int int_bits) :
     _bits{bits},
@@ -27,37 +29,45 @@ APyFixed::APyFixed(int bits, int int_bits) :
     }
 }
 
-APyFixed::APyFixed(int bits, int int_bits, int value) :
+/*
+ * Base iterator-based constructor
+ */
+template <typename _ITER>
+APyFixed::APyFixed(int bits, int int_bits, _ITER begin, _ITER end) :
     _bits{bits},
     _int_bits{int_bits},
-    _data(idiv64_ceil_fast(bits), uint64_t(0))  // Zero initialize data
+    _data(begin, end)
 {
     if (bits <= 0) {
         throw std::domain_error(
             "APyInt needs a positive integer bit-size of at-least 1 bit"
         );
     }
-    _data[0] = uint64_t(value);
-    twos_complement_overflow();
-}
 
-APyFixed::APyFixed(int bits, int int_bits, const std::vector<uint64_t> &vec) :
-    _bits{bits},
-    _int_bits{int_bits},
-    _data(vec.begin(), vec.end())
-{
-    if (bits <= 0) {
+    auto iterator_elements = std::distance(begin, end);
+    if (iterator_elements <= 0) {
         throw std::domain_error(
-            "APyInt needs a positive integer bit-size of at-least 1 bit"
+            "APyInt vector initialization needs propriate vector size"
         );
-    }
-    if (vec.size() != idiv64_ceil_fast(bits)) {
+    } else if (std::size_t(iterator_elements) != idiv64_ceil_fast(bits)) {
         throw std::domain_error(
             "APyInt vector initialization needs propriate vector size"
         );
     }
+
+    // Two-complements overflow bits outside of the range
     twos_complement_overflow();
 }
+
+// Construction from std::vector<uint64_t>
+APyFixed::APyFixed(int bits, int int_bits, const std::vector<uint64_t> &vec) :
+    APyFixed(bits, int_bits, vec.begin(), vec.end()) {}
+
+// Construction from std::vector<int64_t>
+APyFixed::APyFixed(int bits, int int_bits, const std::vector<int64_t> &vec) :
+    APyFixed(bits, int_bits, vec.begin(), vec.end()) {}
+
+// Construction from
 
 /*
  * Methods
@@ -76,35 +86,56 @@ void APyFixed::twos_complement_overflow() noexcept
 /*
  * Binary operators
  */
+
 APyFixed APyFixed::operator+(const APyFixed &rhs) const
 {
-    const int rhs_frac_bits = rhs.bits() - rhs.int_bits();
-    const int lhs_frac_bits = bits() - int_bits();
-    const int res_frac_bits = std::max(rhs_frac_bits, lhs_frac_bits);
-    const int res_int_bits = std::max(int_bits(), rhs.int_bits()) + 1;
-    const int res_bits = res_int_bits + res_frac_bits;
+    const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
+    const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
 
-    APyFixed result(res_bits, res_int_bits);
+    APyFixed result(res_int_bits+res_frac_bits, res_int_bits);
     std::vector<uint64_t> other_shifted;
 
-    if (lhs_frac_bits <= rhs_frac_bits) {
+    if (frac_bits() <= rhs.frac_bits()) {
         // Right-hand side (rhs) has more fractional bits
         std::copy(rhs._data.cbegin(), rhs._data.cend(), result._data.begin());
-        other_shifted = _data_asl(rhs_frac_bits - lhs_frac_bits);
+        other_shifted = _data_asl(rhs.frac_bits() - frac_bits());
+        for (unsigned i=rhs.vector_size(); i<result.vector_size(); i++) {
+            // Vector sign-extend the resulting data vector from the rhs operand
+            result._data[i] = int64_t(rhs._data.back()) >> 63;
+        }
     } else {
         // Left-hand side (*this) has more fractional bits
         std::copy(_data.cbegin(), _data.cend(), result._data.begin());
-        other_shifted = rhs._data_asl(lhs_frac_bits - rhs_frac_bits);
+        other_shifted = rhs._data_asl(frac_bits() - rhs.frac_bits());
+        for (unsigned i=vector_size(); i<result.vector_size(); i++) {
+            // Vector sign-extend the resulting data vector from the lhs (this) operand
+            result._data[i] = int64_t(_data.back()) >> 63;
+        }
+    }
+
+    // Vector sign-extend the "other" shifted vector
+    bool carry = false;
+    for (unsigned i=other_shifted.size(); i<result.vector_size(); i++) {
+        other_shifted.push_back( int64_t(other_shifted.back()) >> 63 );
     }
 
     // Add with carry
-    bool carry = false;
     for (unsigned i=0; i<result.vector_size(); i++) {
-        // TODO: Look at...
         uint64_t term = other_shifted[i] + uint64_t(carry);
         result._data[i] += term;
         carry = result._data[i] < term;
     }
+    return result;
+}
+
+APyFixed APyFixed::operator-(const APyFixed &rhs) const
+{
+    const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
+    const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
+    auto result = *this + (-rhs);
+    result._bits = res_int_bits+res_frac_bits;
+    result._int_bits = res_int_bits;
+    result._data.resize(idiv64_ceil_fast(res_int_bits+res_frac_bits));
     return result;
 }
 
@@ -113,13 +144,14 @@ APyFixed APyFixed::operator+(const APyFixed &rhs) const
  */
  APyFixed APyFixed::operator-() const {
     APyFixed result(_bits+1, _int_bits+1);
-    for (std::size_t i=0; i<result.vector_size(); i++) {
+    for (std::size_t i=0; i<vector_size(); i++) {
+        // Invert bits
         result._data[i] = ~_data[i];
     }
     if (result.vector_size() > vector_size()) {
         // Pad bits in the new vector data with sign bit
-        bool not_sign = bool(_data[vector_size()-1] & 0x8000000000000000);
-        result._data[result.vector_size()-1] = not_sign ? 0 : int64_t(-1);
+        bool not_sign = bool(_data.back() & 0x8000000000000000);
+        result._data.back() = not_sign ? 0 : int64_t(-1);
     }
     result.increment_lsb();
     return result;
@@ -251,16 +283,15 @@ std::vector<uint64_t> APyFixed::_data_asl(unsigned shift_val) const
             unsigned src_idx = i-vec_skip_val;
             uint64_t a = src_idx   < _data.size() ? _data[src_idx]   : 0;
             uint64_t b = src_idx-1 < _data.size() ? _data[src_idx-1] : 0;
-            result.at(i) = (a << bit_shift_val) | (b >> (64-bit_shift_val));
+            result[i] = (a << bit_shift_val) | (b >> (64-bit_shift_val));
         }
-    } else {
+    } else {  // bit_shift_val == 0
         for (unsigned i=result.size()-1; i>vec_skip_val; i--) {
             unsigned src_idx = i-vec_skip_val;
-            uint64_t a = src_idx < _data.size() ? _data[src_idx] : 0;
-            result[i] = a;
+            result[i] = src_idx < _data.size() ? _data[src_idx] : 0;
         }
     }
-    result[vec_skip_val] = uint64_t(_data[0]) << bit_shift_val;
+    result[vec_skip_val] = _data[0] << bit_shift_val;
 
     // Append sign bits for "arithmetic" shift
     if ( (bits()+shift_val) % 64 > 0 ) {

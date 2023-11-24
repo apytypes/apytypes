@@ -1,6 +1,7 @@
 CC=g++
-CFLAGS=-Wall -Wextra -Wpedantic -Wno-depricated -Weffc++ -std=c++17 -O3 -march=native -g
-TEST_FLAGS=-D _IS_APY_TYPES_UNIT_TEST
+CFLAGS=													\
+	-Wall -Wextra -Wpedantic -Wno-depricated -Weffc++ 	\
+	-D _GLIBCXX_DEBUG -std=c++17 -O3 -march=native -g
 
 .PHONY: test test_profile clean
 
@@ -8,6 +9,8 @@ TEST_SRC = 							\
 	test/test_apy_fixed.cc 			\
 	test/test_binary_operator.cc	\
 	test/test_to_string.cc
+
+TEST_FLAGS=-D _IS_APY_TYPES_UNIT_TEST
 
 test: test/test_apy_util test/test_apy_fixed
 	test/test_apy_util

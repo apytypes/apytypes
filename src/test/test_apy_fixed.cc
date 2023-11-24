@@ -17,8 +17,19 @@ TEST_CASE("APyFixed must have a positive non-zero size")
     APyFixed(1, 0);
 }
 
+TEST_CASE("Vector initialization must be consistent with APyFixed word-length")
+{
+    // Vector-initialization fails on size missmatch
+    REQUIRE_THROWS_AS( APyFixed(65, 0, uint64_vec{0}), std::domain_error );
 
-TEST_CASE("Underlying data vector sizing")
+    // Vector-initalization succeeds on correct sizes
+    for (int bits=1; bits<64; bits++) {
+        APyFixed(bits, 0, uint64_vec{0});
+    }
+
+}
+
+TEST_CASE("APyFixed::bits(), APyFixed::int_bits() and APyFixed::vector_size()")
 {
     REQUIRE(APyFixed(128, 12).bits()        == 128);
     REQUIRE(APyFixed(128, 12).int_bits()    == 12);

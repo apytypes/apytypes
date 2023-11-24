@@ -16,10 +16,10 @@
 class APyFixed {
 
     #ifdef _IS_APY_TYPES_UNIT_TEST
-    /*
-     * Unit tests have public access to underlying data files
-     */
-public:
+        // Unit tests have public access to underlying data files
+        public:
+    #else
+        private:
     #endif  // #ifdef _IS_APY_TYPES_UNIT_TEST
 
     /*
@@ -35,16 +35,38 @@ public:
      * Constructors
      */
 
+    // No default constructed APyFixed types
     APyFixed() = delete;
 
-    // Specify only size (number of bits). Data will be zeroed on construction.
+    // Constructor: specify only size (number of bits). Data will be zeroed on
+    // construction
     explicit APyFixed(int bits, int int_bits);
 
-    // Specify size and initialize using C++ integer
-    explicit APyFixed(int bits, int int_bits, int value);
+    // Constructor: specify size and initialize underlying bits from two iterators
+    template <typename _ITER>
+    explicit APyFixed(int bits, int int_bits, _ITER begin, _ITER end);
 
-    // Specify size and initialize the underlying bits using C++ vectory type
+    // Constructor: specify size and initialize underlying bits using vector<[u]int64_t>
     explicit APyFixed(int bits, int int_bits, const std::vector<uint64_t> &vec);
+    explicit APyFixed(int bits, int int_bits, const std::vector<int64_t>  &vec);
+
+
+    /*
+     * Binary arithmetic operators
+     */
+
+    APyFixed operator+(const APyFixed &rhs) const;
+    APyFixed operator-(const APyFixed &rhs) const;
+    APyFixed operator*(const APyFixed &rhs) const;
+    APyFixed operator/(const APyFixed &rhs) const;
+    APyFixed operator<<(int shift_val) const;
+    APyFixed operator>>(int shift_val) const;
+
+    /*
+     * Binary comparison operators
+     */
+    bool operator==(const APyFixed &rhs) const;
+    bool operator<(const APyFixed &rhs) const;
 
 
     /*
@@ -54,6 +76,7 @@ public:
     // Get the number of bits in this APyInt object
     int bits() const noexcept { return _bits; }
     int int_bits() const noexcept { return _int_bits; }
+    int frac_bits() const noexcept { return _bits - _int_bits; }
 
     // Get the number of elements in underlying 64-bit data vector
     std::vector<uint64_t>::size_type vector_size() const noexcept {return _data.size();}
@@ -77,17 +100,6 @@ public:
 
 
     /*
-     * Binary operations
-     */
-    //bool operator==(const APyFixed &rhs) const;
-    APyFixed operator+(const APyFixed &rhs) const;
-    APyFixed operator-(const APyFixed &rhs) const;
-    APyFixed operator*(const APyFixed &rhs) const;
-    APyFixed operator/(const APyFixed &rhs) const;
-    APyFixed operator<<(int shift_val) const;
-    APyFixed operator>>(int shift_val) const;
-
-    /*
      * Assignment operators
      */
     // APyFixed &operator=(const APyFixed &rhs) const;
@@ -109,22 +121,19 @@ public:
     std::string to_string_dec() const;
     std::string repr() const;  // Python verbose string conversion
 
-private:
-
-    #ifdef _IS_APY_TYPES_UNIT_TEST
-    /*
-     * Unit tests have public access to all member function
-     */
-public:
-    #endif  // #ifdef _IS_APY_TYPES_UNIT_TEST
 
     /*
      * Private helper methods
      */
+    #ifdef _IS_APY_TYPES_UNIT_TEST
+        // Unit tests have public access to all member function
+        public:
+    #else
+        private:
+    #endif  // #ifdef _IS_APY_TYPES_UNIT_TEST
 
-    // Bit preserving logical shift-left
+    // Sign preserving automatic size extending arithmetic left shift
     std::vector<uint64_t> _data_asl(unsigned shift_val) const;
-
 };
 
 
