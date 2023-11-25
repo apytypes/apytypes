@@ -162,6 +162,15 @@ public:
         const APyFixed &operand2
     ) const;
 
+    // Get a copy of the negated underlying limb vector. This methods does not extend
+    // the size of the limb vector to make place for an additional bit.
+    std::vector<mp_limb_t> _non_extending_negate() const;
+
+    // Get the absolute value of the number in the limb vector. This method does not
+    // extend the resulting limb vector to make place for an additional bit. Instead, it
+    // relies on the user knowing that the number in the vector is now unsigned.
+    std::vector<mp_limb_t> _unsigned_abs() const;
+
 };
 
 

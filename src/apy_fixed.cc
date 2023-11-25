@@ -9,6 +9,7 @@
 #include <cstddef>    // std::size_t
 #include <stdexcept>  // std::domain_error
 #include <string>     // std::string
+#include <vector>     // std::vector, std::swap
 
 // GMP should be included after all other includes
 #include <gmp.h>
@@ -141,24 +142,32 @@ APyFixed APyFixed::operator-(const APyFixed &rhs) const
 
 APyFixed APyFixed::operator*(const APyFixed &rhs) const
 {
-    /*
-     * * This needs some thinking as APyFixed::operand-() adds a single bit...
-     * * 'mpn_mul' requires the first operand to have longer or equal length to operand
-     *   two
-     * * Check sign of result!
-     */
     const int res_int_bits = int_bits() + rhs.int_bits();
     const int res_frac_bits = frac_bits() + rhs.frac_bits();
-    APyFixed abs_operand1 = this->is_negative() ? -(*this) : *this;
-    APyFixed abs_operand2 =   rhs.is_negative() ?     -rhs :   rhs;
-    APyFixed result(res_int_bits, res_frac_bits);
+    std::vector<mp_limb_t> abs_operand1 = _unsigned_abs();
+    std::vector<mp_limb_t> abs_operand2 = rhs._unsigned_abs();
+    APyFixed result(res_int_bits+res_frac_bits, res_int_bits);
+    bool sign_product = is_negative() ^ rhs.is_negative();
+
+    // mpn_mul requires the limb vector length of the first operand to be greater than
+    // or equally long as the limb vector length of the second operand. Simply swap the
+    // operands (essentially a free operation in C++) if this is not the case
+    if (abs_operand1.size() < abs_operand2.size()) {
+        std::swap(abs_operand1, abs_operand2);
+    }
+
     mpn_mul(
-        &result._data[0],
-        &abs_operand1._data[0],
-        abs_operand1.vector_size(),
-        &abs_operand2._data[0],
-        abs_operand2.vector_size()
+        &result._data[0],     // dst
+        &abs_operand1[0],     // src1
+        abs_operand1.size(),  // src1 limb vector length
+        &abs_operand2[0],     // src2
+        abs_operand2.size()   // src2 limb vector length
     );
+
+    // Handle sign
+    if (sign_product) {
+        result._data = result._non_extending_negate();
+    }
     return result;
 }
 
@@ -364,3 +373,25 @@ void APyFixed::_normalize_binary_points(
         );
     }
 }
+
+
+std::vector<mp_limb_t> APyFixed::_non_extending_negate() const
+{
+    // Invert all bits and increment the lsb
+    APyFixed result(bits(), 0);
+    for (std::size_t i=0; i<vector_size(); i++) {
+        result._data[i] = ~_data[i];
+    }
+    result.increment_lsb();
+    return result._data;
+}
+
+
+// Get the absolute value of the number in the limb vector. This method does not
+// extend the resulting limb vector to make place for an additional bit. Instead, it
+// relies on the user knowing that the number in the vector is now unsigned.
+std::vector<mp_limb_t> APyFixed::_unsigned_abs() const
+{
+    return is_negative() ? _non_extending_negate() : _data;
+}
+
