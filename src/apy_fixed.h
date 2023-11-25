@@ -7,11 +7,10 @@
 
 #include "apy_util.h"
 
-#include <vector>
-#include <cstdint>
-#include <iosfwd>
-#include <ostream>
-#include <string>
+#include <cstddef>  // std::size_t
+#include <ostream>  // std::ostream
+#include <string>   // std::string
+#include <vector>   // std::vector
 
 // GMP should be included after all other includes
 #include <gmp.h>
@@ -35,7 +34,6 @@ class APyFixed {
                                    // arithmetic in APyFixed. It is either a 32-bit or
                                    // a 64-bit unsigned int, depending on the target
                                    // architecture.
-
 public:
 
     /*
@@ -88,14 +86,14 @@ public:
     int int_bits() const noexcept { return _int_bits; }
     int frac_bits() const noexcept { return _bits - _int_bits; }
 
-    // Get the number of elements in underlying limb data vector
+    // Retrieve the number of elements in underlying limb data vector
     std::size_t vector_size() const noexcept { return _data.size(); }
 
-    // Perform 2's complement overflowing. This method sign-extends all bits outside of
-    // the APyFixed range.
+    // Perform two's complement overflowing. This method sign-extends any bits outside
+    // of the APyFixed range.
     void twos_complement_overflow() noexcept;
 
-    // Set the bit-pattern from a vector of uint64_t
+    // Set the bit-pattern of the fixed-point number from a vector of limbs
     void from_vector(const std::vector<mp_limb_t> &vector);
 
     // Unary negation
@@ -111,7 +109,7 @@ public:
     /*
      * Assignment operators
      */
-    // APyFixed &operator=(const APyFixed &rhs) const;
+
 
     /*
      * Conversion to stirng
@@ -141,11 +139,29 @@ public:
         private:
     #endif  // #ifdef _IS_APY_TYPES_UNIT_TEST
 
+    // Sanitize the _bits and _int_bits parameters
+    void _constructor_sanitize_bits() const;
+
     // Sign preserving automatic size extending arithmetic left shift
     std::vector<uint64_t> _data_asl(unsigned shift_val) const;
 
-    // Sanitize the _bits and _int_bits parameters
-    void _constructor_sanitize_bits() const;
+    // Prepare for binary arithmetic by aligning the binary points of two limb vectors.
+    // The limbs of the first operand (`operand1`) are copied into the limb vector of
+    // `result` and vector sign extended. The limbs of the second operand (`operand2`)
+    // are vector-shifted by `operand1.frac_bits()` - `operand2.frac_bits()` bits to the
+    // left and copied into the `operand_shifted` limb vector.
+    // Assumptions when calling this method:
+    //   * `result` is already initialized with a propriate vector limb size
+    //   * `operand_shifted` is *not* initialized, i.e., it's an empty (zero element)
+    //      vector
+    //   * the number of fractional bits in `operand1` is greater than that of `operand2`
+    void _normalize_binary_points(
+        APyFixed &result,
+        std::vector<mp_limb_t> &operand_shifted,
+        const APyFixed &operand1,
+        const APyFixed &operand2
+    ) const;
+
 };
 
 
@@ -162,6 +178,5 @@ static inline std::ostream& operator<< (std::ostream &os, const APyFixed &x) {
     }
     return os;
 }
-
 
 #endif  // _APY_FIXED_H

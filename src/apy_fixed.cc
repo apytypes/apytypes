@@ -5,29 +5,14 @@
 #include "apy_fixed.h"
 #include "apy_util.h"
 
-#include <algorithm>
-#include <cassert>
-#include <cstddef>
-#include <exception>
-#include <iterator>
-#include <stdexcept>
-#include <string>
+#include <algorithm>  // std::copy, std::max
+#include <cstddef>    // std::size_t
+#include <stdexcept>  // std::domain_error
+#include <string>     // std::string
 
 // GMP should be included after all other includes
 #include <gmp.h>
 
-
-/*
- * Bit setting sanitization for the APyFixed constructors
- */
-void APyFixed::_constructor_sanitize_bits() const
-{
-    if (_bits <= 0) {
-        throw std::domain_error(
-            "APyInt needs a positive integer bit-size of at-least 1 bit"
-        );
-    }
-}
 
 /*
  * Zero initializing constructor
@@ -101,62 +86,80 @@ void APyFixed::twos_complement_overflow() noexcept
 
 APyFixed APyFixed::operator+(const APyFixed &rhs) const
 {
-    const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
+    const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
 
     APyFixed result(res_int_bits+res_frac_bits, res_int_bits);
-    std::vector<uint64_t> other_shifted;
+    std::vector<mp_limb_t> operand_shifted;
 
-    // Upshift the operand with fewest fractional bits to align the binary point of the
-    // two addition operands (this and rhs)
-    if (frac_bits() <= rhs.frac_bits()) {
-        // Right-hand side (rhs) has more fractional bits
-        std::copy(rhs._data.cbegin(), rhs._data.cend(), result._data.begin());
-        other_shifted = _data_asl(rhs.frac_bits() - frac_bits());
-        for (unsigned i=rhs.vector_size(); i<result.vector_size(); i++) {
-            // Vector sign-extend the resulting data vector from the rhs operand
-            result._data[i] = int64_t(rhs._data.back()) >> 63;
-        }
-    } else {
-        // Left-hand side (*this) has more fractional bits
-        std::copy(_data.cbegin(), _data.cend(), result._data.begin());
-        other_shifted = rhs._data_asl(frac_bits() - rhs.frac_bits());
-        for (unsigned i=vector_size(); i<result.vector_size(); i++) {
-            // Vector sign-extend the resulting data vector from the lhs (this) operand
-            result._data[i] = int64_t(_data.back()) >> 63;
-        }
+    if (frac_bits() < rhs.frac_bits()) {
+        // Right-hand side (rhs) has more fractional bits.
+        _normalize_binary_points(result, operand_shifted, rhs, *this);
+    } else {  // frac_bits() >= rhs.frac_bits() 
+        // Left-hand side (*this) has more fractional bits.
+        _normalize_binary_points(result, operand_shifted, *this, rhs);
     }
 
-    // Vector sign-extend the "other" shifted vector
-    for (unsigned i=other_shifted.size(); i<result.vector_size(); i++) {
-        other_shifted.push_back( int64_t(other_shifted.back()) >> 63 );
-    }
-
-    // Add with carry
-    bool carry = false;
-    for (unsigned i=0; i<result.vector_size(); i++) {
-        uint64_t term = other_shifted[i] + uint64_t(carry);
-        result._data[i] += term;
-        carry = result._data[i] < term;
-    }
+    // Add with carry and return
+    mpn_add_n(
+        &result._data[0],     // dst
+        &result._data[0],     // src1
+        &operand_shifted[0],  // src2
+        result.vector_size()  // limb vector length
+    );
     return result;
 }
 
 APyFixed APyFixed::operator-(const APyFixed &rhs) const
 {
-    const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
-    auto result = *this + (-rhs);
-    result._bits = res_int_bits+res_frac_bits;
-    result._int_bits = res_int_bits;
-    result._data.resize(bits_to_limbs(res_int_bits+res_frac_bits));
+    const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
+
+    APyFixed result(res_int_bits+res_frac_bits, res_int_bits);
+    std::vector<mp_limb_t> operand_shifted;
+
+    bool swap_operand;
+    if (frac_bits() < rhs.frac_bits()) {
+        // Right-hand side (rhs) has more fractional bits.
+        _normalize_binary_points(result, operand_shifted, rhs, *this);
+        swap_operand = false;
+    } else {  // frac_bits() >= rhs.frac_bits() 
+        // Left-hand side (*this) has more fractional bits.
+        _normalize_binary_points(result, operand_shifted, *this, rhs);
+        swap_operand = true;
+    }
+
+    // Add with carry and return
+    mpn_sub_n(
+        &result._data[0],                                       // dst
+        swap_operand ? &result._data[0] : &operand_shifted[0],  // src1
+        swap_operand ? &operand_shifted[0] : &result._data[0],  // src2
+        result.vector_size()                                    // limb vector length
+    );
     return result;
 }
 
 APyFixed APyFixed::operator*(const APyFixed &rhs) const
 {
-    (void) rhs;
-    throw NotImplementedException();
+    /*
+     * * This needs some thinking as APyFixed::operand-() adds a single bit...
+     * * 'mpn_mul' requires the first operand to have longer or equal length to operand
+     *   two
+     * * Check sign of result!
+     */
+    const int res_int_bits = int_bits() + rhs.int_bits();
+    const int res_frac_bits = frac_bits() + rhs.frac_bits();
+    APyFixed abs_operand1 = this->is_negative() ? -(*this) : *this;
+    APyFixed abs_operand2 =   rhs.is_negative() ?     -rhs :   rhs;
+    APyFixed result(res_int_bits, res_frac_bits);
+    mpn_mul(
+        &result._data[0],
+        &abs_operand1._data[0],
+        abs_operand1.vector_size(),
+        &abs_operand2._data[0],
+        abs_operand2.vector_size()
+    );
+    return result;
 }
 
 
@@ -181,26 +184,31 @@ APyFixed APyFixed::operator*(const APyFixed &rhs) const
 // Increment the LSB without making the fixed-point number wider. Returns carry out
 mp_limb_t APyFixed::increment_lsb() noexcept
 {
-    return mpn_add_1(&_data[0], &_data[0], vector_size(), 1);
+    return mpn_add_1(
+        &_data[0],      // dst
+        &_data[0],      // src1
+        vector_size(),  // limb vector length
+        1               // src2
+    );
 }
 
-///*
-// * Utility functions
-// */
-//
-//void APyFixed::from_vector(const std::vector<uint64_t> &new_vector)
-//{
-//    if (new_vector.size() != this->vector_size()) {
-//        throw std::domain_error("Vector size miss-match");
-//    }
-//    _data = new_vector;
-//    twos_complement_overflow();
-//}
-//
-///*
-// * Conversion to string functions
-// */
-//
+/*
+ * Utility functions
+ */
+
+void APyFixed::from_vector(const std::vector<mp_limb_t> &new_vector)
+{
+    if (new_vector.size() != this->vector_size()) {
+        throw std::domain_error("Vector size miss-match");
+    }
+    _data = new_vector;
+    twos_complement_overflow();
+}
+
+/*
+ * Conversion to string functions
+ */
+
 std::string APyFixed::to_string_dec() const {
 
     // Print absolute value of number, and conditionally append a minus sign
@@ -255,33 +263,44 @@ std::string APyFixed::to_string_dec() const {
     }
     return result;
 }
-//
-//std::string APyFixed::to_string_hex() const 
-//{
-//    throw NotImplementedException();
-//}
-//
-//std::string APyFixed::to_string_oct() const 
-//{
-//    throw NotImplementedException();
-//}
-//
-//std::string APyFixed::repr() const {
-//    return std::string(
-//        "fx<"
-//        + std::to_string(_bits)
-//        + ", "
-//        + std::to_string(_int_bits)
-//        + ">("
-//        + to_string()
-//        + ")"
-//    );
-//}
+
+std::string APyFixed::to_string_hex() const 
+{
+    throw NotImplementedException();
+}
+
+std::string APyFixed::to_string_oct() const 
+{
+    throw NotImplementedException();
+}
+
+std::string APyFixed::repr() const {
+    return std::string(
+        "fx<"
+        + std::to_string(_bits)
+        + ", "
+        + std::to_string(_int_bits)
+        + ">("
+        + to_string()
+        + ")"
+    );
+}
 
 /*
  * Private helper methods
  */
 
+// Sanitize the _bits and _int_bits parameters
+void APyFixed::_constructor_sanitize_bits() const
+{
+    if (_bits <= 0) {
+        throw std::domain_error(
+            "APyInt needs a positive integer bit-size of at-least 1 bit"
+        );
+    }
+}
+
+// Sign preserving automatic size extending arithmetic left shift
 std::vector<mp_limb_t> APyFixed::_data_asl(unsigned shift_val) const
 {
     if (shift_val == 0) {
@@ -293,7 +312,12 @@ std::vector<mp_limb_t> APyFixed::_data_asl(unsigned shift_val) const
     unsigned bit_shift_val = shift_val%_LIMB_SIZE_BITS;
     std::vector<mp_limb_t> result(bits_to_limbs(bits() + shift_val), 0);
     std::copy(_data.cbegin(), _data.cend(), result.begin()+vec_skip_val);
-    mpn_lshift(&result[0], &result[0], result.size(), bit_shift_val);
+    mpn_lshift(
+        &result[0],     // dst
+        &result[0],     // src
+        result.size(),  // limb vector length
+        bit_shift_val   // shift amount
+    );
 
     // Append sign bits for "arithmetic" shift
     if ( (bits()+shift_val)%_LIMB_SIZE_BITS > 0 ) {
@@ -304,4 +328,39 @@ std::vector<mp_limb_t> APyFixed::_data_asl(unsigned shift_val) const
     }
     
     return result;
+}
+
+
+// Prepare for binary arithmetic by aligning the binary points of two limb vectors.
+// The limbs of the first operand (`operand1`) are copied into the limb vector of
+// `result` and vector sign extended. The limbs of the second operand (`operand2`)
+// are vector-shifted by `operand1.frac_bits()` - `operand2.frac_bits()` bits to the
+// left and copied into the `operand_shifted` limb vector.
+// Assumptions when calling this method:
+//   * `result` is already initialized with a propriate vector limb size
+//   * `operand_shifted` is *not* initialized, i.e., it's an empty (zero element)
+//      vector
+//   * the number of fractional bits in `operand1` is greater than that of `operand2`
+void APyFixed::_normalize_binary_points(
+    APyFixed &result,
+    std::vector<mp_limb_t> &operand_shifted,
+    const APyFixed &operand1,
+    const APyFixed &operand2
+) const {
+    std::copy(operand1._data.cbegin(), operand1._data.cend(), result._data.begin());
+    operand_shifted = operand2._data_asl(operand1.frac_bits() - operand2.frac_bits());
+
+    // Vector sign-extend the `result` limb vector
+    constexpr unsigned LIMB_SHFT_AMNT = _LIMB_SIZE_BITS-1;
+    for (unsigned i=operand1.vector_size(); i<result.vector_size(); i++) {
+        result._data[i] = mp_limb_signed_t(operand1._data.back()) >> LIMB_SHFT_AMNT;
+    }
+
+    // Vector sign-extend the `operand_shifted` limb vector
+    for (unsigned i=operand_shifted.size(); i<result.vector_size(); i++) {
+        // Vector sign-extend the `operand_shifted` limb vector
+        operand_shifted.push_back(
+            mp_limb_signed_t(operand_shifted.back()) >> LIMB_SHFT_AMNT
+        );
+    }
 }

@@ -5,10 +5,9 @@
 #ifndef _APY_UTIL_H
 #define _APY_UTIL_H
 
-#include <cstddef>
-#include <cstdint>
-#include <stdexcept>
-#include <vector>
+#include <cstddef>    // std::size_t
+#include <stdexcept>  // std::logic_error, std::domain_error
+#include <vector>     // std::vector
 
 // GMP should be included after all other includes
 #include <gmp.h>
