@@ -15,9 +15,11 @@
 #include <gmp.h>
 
 
-/*
- * Zero initializing constructor
- */
+/* ********************************************************************************** *
+ *                                Constructors                                        *
+ * ********************************************************************************** */
+
+// Zero-initializing constructor
 APyFixed::APyFixed(int bits, int int_bits) :
     _bits{bits},
     _int_bits{int_bits},
@@ -26,37 +28,28 @@ APyFixed::APyFixed(int bits, int int_bits) :
     _constructor_sanitize_bits();
 }
 
-/*
- * Underlying vector iterator-based constructor
- */
+// Underlying vector iterator-based constructor
 template <typename _ITER>
 APyFixed::APyFixed(int bits, int int_bits, _ITER begin, _ITER end) :
     _bits{bits},
     _int_bits{int_bits},
     _data(begin, end)
 {
-    if (bits <= 0) {
-        throw std::domain_error(
-            "APyInt needs a positive integer bit-size of at-least 1 bit"
-        );
-    }
+    _constructor_sanitize_bits();
 
-    auto iterator_elements = std::distance(begin, end);
-    if (iterator_elements <= 0) {
+    if (std::distance(begin, end) <= 0) {
         throw std::domain_error(
             "APyInt vector initialization needs propriate vector size"
         );
-    } else if (std::size_t(iterator_elements) != bits_to_limbs(bits)) {
+    } else if (std::size_t(std::distance(begin, end)) != bits_to_limbs(bits)) {
         throw std::domain_error(
             "APyInt vector initialization needs propriate vector size"
         );
     }
 
-    // Two-complements overflow bits outside of the range
+    // Two's-complements overflow bits outside of the range
     twos_complement_overflow();
 }
-
-
 
 
 // Construction from std::vector<mp_limb_t>
@@ -67,9 +60,10 @@ APyFixed::APyFixed(int bits, int int_bits, const std::vector<mp_limb_t> &vec) :
 APyFixed::APyFixed(int bits, int int_bits, const std::vector<mp_limb_signed_t> &vec) :
     APyFixed(bits, int_bits, vec.begin(), vec.end()) {}
 
-/*
- * Methods
- */
+
+/* ********************************************************************************** *
+ *                         Public member functions (methods)                          *
+ * ********************************************************************************** */
 
 void APyFixed::twos_complement_overflow() noexcept
 {
@@ -295,9 +289,10 @@ std::string APyFixed::repr() const {
     );
 }
 
-/*
- * Private helper methods
- */
+
+/* ********************************************************************************** *
+ *                           Private member functions                                 *
+ * ********************************************************************************** */
 
 // Sanitize the _bits and _int_bits parameters
 void APyFixed::_constructor_sanitize_bits() const

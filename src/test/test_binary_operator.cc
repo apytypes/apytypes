@@ -278,5 +278,4 @@ TEST_CASE("APyFixed::operator*()")
     );
 
     auto product = op_a*op_b;
-    std::cout << product << std::endl;
 }

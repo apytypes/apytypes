@@ -112,21 +112,34 @@ public:
 
 
     /*
-     * Conversion to stirng
+     * Conversion to/from stirng
      */
     inline std::string to_string(STRING_TYPE type = STRING_TYPE::DEC) const
     {
         switch (type) {
-            case STRING_TYPE::HEX: return to_string_hex();
-            case STRING_TYPE::OCT: return to_string_oct();
-            case STRING_TYPE::DEC: return to_string_dec();
-            default: throw NotImplementedException();
+            case STRING_TYPE::HEX: return to_string_hex(); break;
+            case STRING_TYPE::OCT: return to_string_oct(); break;
+            case STRING_TYPE::DEC: return to_string_dec(); break;
+            default: throw NotImplementedException(); break;
         }
     };
     std::string to_string_hex() const;
     std::string to_string_oct() const;
     std::string to_string_dec() const;
     std::string repr() const;  // Python verbose string conversion
+    
+    inline void from_string(const char *s, STRING_TYPE type = STRING_TYPE::DEC)
+    {
+        switch (type) {
+            case STRING_TYPE::HEX: from_string_hex(s); break;
+            case STRING_TYPE::OCT: from_string_oct(s); break;
+            case STRING_TYPE::DEC: from_string_dec(s); break;
+            default: throw NotImplementedException(); break;
+        }
+    }
+    void from_string_hex(const char *s);
+    void from_string_oct(const char *s);
+    void from_string_dec(const char *s);
 
 
     /*
