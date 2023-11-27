@@ -15,10 +15,15 @@ GNU_W_Flags = [
     '-Wsuggest-override', '-Woverloaded-virtual', '-std=c++17', '-g3'
 ]
 
+# https://mesonbuild.com/howtox.html#enable-threads
+cc = meson.get_compiler('cpp')
+gmp_dep = cc.find_library('gmp')
+
 # aPy Types library
 apy_lib = library('lib',
         sources : lib_src,
-        cpp_args : GNU_W_Flags        
+        cpp_args : GNU_W_Flags,
+        dependencies : gmp_dep     
 )
 
 # Python module

@@ -13,7 +13,7 @@ void bind_fixed(py::module &m) {
 
    py::class_<APyFixed>(m, "APyFixed")
         .def(py::init<int, int>(), py::arg("bits"), py::arg("int_bits"))
-        .def(py::init<int, int, int>(), py::arg("bits"), py::arg("int_bits"), py::arg("value"))
+        //.def(py::init<int, int, int>(), py::arg("bits"), py::arg("int_bits"), py::arg("value"))
         .def("bits", &APyFixed::bits)
         .def("int_bits", &APyFixed::int_bits)
         .def("vector_size", &APyFixed::vector_size)
