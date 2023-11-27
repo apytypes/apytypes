@@ -68,3 +68,37 @@ TEST_CASE("APyFixed::to_str_dec()")
         "-170141183460469231731687303715884105728");
 
 }
+
+TEST_CASE("APyFixed::from_string_dec()")
+{
+    auto TEST_VALID_STRINGS = [](const std::vector<std::string> &string_vec)
+    {
+        for (auto str : string_vec) {
+            APyFixed fixed(64, 0);
+            fixed.from_string_dec(str);
+        }
+    };
+    auto TEST_INVALID_STRING = [](const std::vector<std::string> &string_vec)
+    {
+        for (auto str : string_vec) {
+            APyFixed fixed(64, 0);
+            REQUIRE_THROWS_AS(fixed.from_string_dec(str), std::domain_error);
+        }
+    };
+
+    /*
+     * String validity should be consistent with Python decimal numeric construction
+     * from strings
+     */
+    TEST_INVALID_STRING({
+        "", ".", "-.", "..", "0..", ".0.", "..0", "1.2.3", "1-.2", "-",
+        "-0..", "-.0.", "-..0", "-1.2.3", "-1-.2", "-1.-2", "123.456-",
+        "--", "--1.2", "--0", "--123",
+    });
+    TEST_VALID_STRINGS({
+        "1.2", "1.", ".1", "00", "000", "00.00", "00.12", "010.", "010.0",
+        "-1.2", "-1.", "-.1", "-00", "-000", "-00.00", "-00.12", "-010.0",
+        "-010", "0.0", "-0.0", 
+    });
+
+}

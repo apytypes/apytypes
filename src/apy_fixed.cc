@@ -7,6 +7,8 @@
 
 #include <algorithm>  // std::copy, std::max
 #include <cstddef>    // std::size_t
+#include <iostream>
+#include <regex>      // std::regex
 #include <stdexcept>  // std::domain_error
 #include <string>     // std::string
 #include <vector>     // std::vector, std::swap
@@ -26,6 +28,19 @@ APyFixed::APyFixed(int bits, int int_bits) :
     _data(bits_to_limbs(bits))
 {
     _constructor_sanitize_bits();
+}
+
+// Construct from a decimal string
+APyFixed::APyFixed(int bits, int int_bits, const char *str, int base) :
+    APyFixed(bits, int_bits)
+{
+    switch (base) {
+        case 8:  from_string_oct(str); break;
+        case 10: from_string_dec(str); break;
+        case 16: from_string_hex(str); break;
+        default: throw std::domain_error("Unknown numberic base");
+    }
+    twos_complement_overflow();
 }
 
 // Underlying vector iterator-based constructor
@@ -274,6 +289,66 @@ std::string APyFixed::to_string_hex() const
 
 std::string APyFixed::to_string_oct() const 
 {
+    throw NotImplementedException();
+}
+
+void APyFixed::from_string_dec(const std::string &str)
+{
+    // Trim the string from leading and trailing whitespace
+    std::string str_trimmed = string_trim_whitespace(str);
+
+    // Check the validity as a decimal string
+    const char validity_regex[] = R"((^-?[0-9]+\.?[0-9]*$)|(^-?[0-9]*\.?[0-9]+)$)";
+    if ( !std::regex_match(str_trimmed, std::regex(validity_regex)) ) {
+        throw std::domain_error("Not a valid decimal numeric string");
+    }
+
+    // Validity checking makes sure str_trimmed[0] exists
+    bool is_negative = str_trimmed.front() == '-';
+    if (is_negative) {
+        str_trimmed.erase(0, 1);
+    }
+
+    // Trim leading and trailing zeros that don't affect the numeric value of the
+    // decimal number
+    str_trimmed = string_trim_zeros(str_trimmed);
+    std::cout << str_trimmed << std::endl;
+
+    // Find the binary point (from the back) of the trimmed string
+    std::size_t binary_point_dec;
+    if (str_trimmed.find('.') == std::string::npos) {
+        binary_point_dec = 0;
+    } else {
+        binary_point_dec = str_trimmed.length() - 1 - str_trimmed.find('.');
+    }
+    std::cout << "Binary point: " << binary_point_dec << std::endl;
+
+    // TODO: !!!Contrinue here!!!
+    std::vector<uint8_t> bcd_list;
+    for (int i=str_trimmed.length()-1; i>=0; i--) {
+        if (str_trimmed[i] != '.') {
+            bcd_list.push_back(str_trimmed[i] - 0x30);
+        }
+    }
+
+    for (auto u : bcd_list) {
+        std::cout << (int)u << " ";
+    }
+    std::cout << std::endl;
+
+
+    _data = std::vector<mp_limb_t>({0,0,0,0});
+}
+
+void APyFixed::from_string_hex(const std::string &str)
+{
+    (void) str;
+    throw NotImplementedException();
+}
+
+void APyFixed::from_string_oct(const std::string &str)
+{
+    (void) str;
     throw NotImplementedException();
 }
 

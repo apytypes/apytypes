@@ -5,7 +5,9 @@
 #ifndef _APY_UTIL_H
 #define _APY_UTIL_H
 
+#include <algorithm>  // std::find
 #include <cstddef>    // std::size_t
+#include <regex>      // std::regex, std::regex_replace
 #include <stdexcept>  // std::logic_error, std::domain_error
 #include <vector>     // std::vector
 
@@ -149,6 +151,56 @@ static inline void bcd_mul2(std::vector<uint8_t> &bcd_list)
         bcd_list.push_back(1);
     }
 
+}
+
+// Trim a string from leading whitespace
+static inline std::string string_trim_leading_whitespace(const std::string &str)
+{
+    return std::regex_replace(str, std::regex("^\\s+"), "");
+}
+
+// Trim a string from trailing whitespace
+static inline std::string string_trim_trailing_whitespace(const std::string &str)
+{
+    return std::regex_replace(str, std::regex("\\s+$"), "");
+}
+
+// Trim a string from leading and trailing whitespace
+static inline std::string string_trim_whitespace(const std::string &str)
+{
+    return string_trim_leading_whitespace(string_trim_trailing_whitespace(str));
+}
+
+// Trim a string from unnecessary leading and trailing zeros, that don't affect numeric
+// value of the string. This function also attaches a zero to the string if it starts
+// with a decimal dot, and it removes the decimal dot if no digit after it affects it's
+// value (e.g., 0.00 == 0).
+static inline std::string string_trim_zeros(const std::string &str)
+{
+    std::string result = str;
+
+    // Remove all leading zeros
+    result = std::regex_replace(result, std::regex("^0*"), "");
+
+    // Remove all trailing zeros, after a decimal dot
+    while (result.find('.') != std::string::npos && result.back() == '0') {
+        result.pop_back();
+    }
+
+    // Decimal point at the end?
+    if (result.size() && result.back() == '.') {
+        // Erase it
+        result.pop_back();
+    }
+
+    // Decimal point in the start?
+    if (result.size() && result.front() == '.') {
+        // Append a zero
+        result.insert(0, "0");
+    }
+
+    // Return the result
+    return result.size() ? result : "0";
 }
 
 #endif

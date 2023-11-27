@@ -128,18 +128,18 @@ public:
     std::string to_string_dec() const;
     std::string repr() const;  // Python verbose string conversion
     
-    inline void from_string(const char *s, STRING_TYPE type = STRING_TYPE::DEC)
+    inline void from_string(const std::string &str, STRING_TYPE type = STRING_TYPE::DEC)
     {
         switch (type) {
-            case STRING_TYPE::HEX: from_string_hex(s); break;
-            case STRING_TYPE::OCT: from_string_oct(s); break;
-            case STRING_TYPE::DEC: from_string_dec(s); break;
+            case STRING_TYPE::HEX: from_string_hex(str); break;
+            case STRING_TYPE::OCT: from_string_oct(str); break;
+            case STRING_TYPE::DEC: from_string_dec(str); break;
             default: throw NotImplementedException(); break;
         }
     }
-    void from_string_hex(const char *s);
-    void from_string_oct(const char *s);
-    void from_string_dec(const char *s);
+    void from_string_hex(const std::string &str);
+    void from_string_oct(const std::string &str);
+    void from_string_dec(const std::string &str);
 
 
     /*
