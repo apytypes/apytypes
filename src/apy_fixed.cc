@@ -5,13 +5,14 @@
 #include "apy_fixed.h"
 #include "apy_util.h"
 
-#include <algorithm>  // std::copy, std::max
-#include <cstddef>    // std::size_t
-#include <iostream>
-#include <regex>      // std::regex
-#include <stdexcept>  // std::domain_error
-#include <string>     // std::string
-#include <vector>     // std::vector, std::swap
+#include <algorithm>   // std::copy, std::max, std::transform, std::fill, std::fill_n
+#include <cstddef>     // std::size_t
+#include <functional>  // std::bit_not
+#include <regex>       // std::regex
+#include <iterator>    // std::back_inserter
+#include <stdexcept>   // std::domain_error
+#include <string>      // std::string
+#include <vector>      // std::vector, std::swap
 
 // GMP should be included after all other includes
 #include <gmp.h>
@@ -186,11 +187,9 @@ APyFixed APyFixed::operator*(const APyFixed &rhs) const
  */
  APyFixed APyFixed::operator-() const
 {
-    // Invert all bits and increment the lsb
+    // Invert all bits of *this, possibly append sign to new limb, and increment lsb
     APyFixed result(_bits+1, _int_bits+1);
-    for (std::size_t i=0; i<vector_size(); i++) {
-        result._data[i] = ~_data[i];
-    }
+    std::transform(_data.cbegin(), _data.cend(), result._data.begin(), std::bit_not{});
     if (result.vector_size() > vector_size()) {
         mp_limb_t sign = _data.back() & (mp_limb_t(1) << (_LIMB_SIZE_BITS - 1));
         result._data.back() = sign ? 0 : mp_limb_signed_t(-1);
@@ -238,12 +237,12 @@ std::string APyFixed::to_string_dec() const {
     auto bcd_binary_point = 0;
     auto num_prev_bcds = bcd_list.size();
 
-    if (int_bits() < bits()) {
+    if (frac_bits() > 0) {
         // Reverse order of BCD list to most-significant-bcd first, so that bcd_div2()
         // can append to bcd_list from the back.
         std::reverse(bcd_list.begin(), bcd_list.end());
 
-        for (int i=0; i<bits()-int_bits(); i++) {
+        for (int i=0; i<frac_bits(); i++) {
             bcd_div2(bcd_list);
             if (bcd_list.size() > num_prev_bcds) {
                 bcd_binary_point++;
@@ -255,8 +254,8 @@ std::string APyFixed::to_string_dec() const {
         std::reverse(bcd_list.begin(), bcd_list.end());
 
         // Trim unnecessary zeros at start of BCD number that might be occur during
-        // bcd_div2(). The first zero after the decimal point (of value 10^0) is never
-        // trimmed.
+        // bcd_div2(). The first zero, left of the decimal point (of value 10^0), is
+        // never trimmed.
         while (bcd_list.size() > std::size_t(bcd_binary_point+1)) {
             if (bcd_list.back() != 0) {
                 // Nothing more to trim, break out of loop
@@ -266,8 +265,8 @@ std::string APyFixed::to_string_dec() const {
         }
     }
 
-    // Multiply BCD number by two
-    for (int i=0; i<int_bits()-bits(); i++) {
+    // Multiply BCD number by two (if it has negative number of fractional bits)
+    for (int i=0; i< -frac_bits(); i++) {
         bcd_mul2(bcd_list);
     }
 
@@ -276,7 +275,7 @@ std::string APyFixed::to_string_dec() const {
     for (int i=bcd_list.size()-1; i >= 0; i--) {
         result.push_back( static_cast<char>(bcd_list[i] + 0x30) );
         if (bcd_binary_point && i == bcd_binary_point) {
-            result.append(".");
+            result.push_back('.');
         }
     }
     return result;
@@ -298,12 +297,12 @@ void APyFixed::from_string_dec(const std::string &str)
     std::string str_trimmed = string_trim_whitespace(str);
 
     // Check the validity as a decimal string
-    const char validity_regex[] = R"((^-?[0-9]+\.?[0-9]*$)|(^-?[0-9]*\.?[0-9]+)$)";
-    if ( !std::regex_match(str_trimmed, std::regex(validity_regex)) ) {
+    if ( !is_valid_decimal_numeric_string(str_trimmed) ) {
         throw std::domain_error("Not a valid decimal numeric string");
     }
 
-    // Validity checking makes sure str_trimmed[0] exists
+    // Test if negative. If so, remove the negative sign from the string.
+    // `is_valid_decimal_numeric_string()` makes sure that str_trimmed[0] is valid.
     bool is_negative = str_trimmed.front() == '-';
     if (is_negative) {
         str_trimmed.erase(0, 1);
@@ -312,7 +311,6 @@ void APyFixed::from_string_dec(const std::string &str)
     // Trim leading and trailing zeros that don't affect the numeric value of the
     // decimal number
     str_trimmed = string_trim_zeros(str_trimmed);
-    std::cout << str_trimmed << std::endl;
 
     // Find the binary point (from the back) of the trimmed string
     std::size_t binary_point_dec;
@@ -321,9 +319,7 @@ void APyFixed::from_string_dec(const std::string &str)
     } else {
         binary_point_dec = str_trimmed.length() - 1 - str_trimmed.find('.');
     }
-    std::cout << "Binary point: " << binary_point_dec << std::endl;
 
-    // TODO: !!!Contrinue here!!!
     std::vector<uint8_t> bcd_list;
     for (int i=str_trimmed.length()-1; i>=0; i--) {
         if (str_trimmed[i] != '.') {
@@ -331,13 +327,23 @@ void APyFixed::from_string_dec(const std::string &str)
         }
     }
 
-    for (auto u : bcd_list) {
-        std::cout << (int)u << " ";
+    // Multiply BCD number by 2^(frac_bits() + 1) (extra bit for rounding)
+    for (int i=0; i<frac_bits()+1; i++) {
+        bcd_mul2(bcd_list);
+    }
+
+    // Reverse double-dabble algorithm (BCD -> binary)
+    std::vector<mp_limb_t> data = reverse_double_dabble(bcd_list);
+    for (auto u : data) {
+        std::cout << u << " ";
     }
     std::cout << std::endl;
 
+    // !! FINISH HIM !!
+    //std::copy(data.begin(), data.end(), _data.begin());
+    _data = { 0, 0, 0, 0, 0, 0 };
 
-    _data = std::vector<mp_limb_t>({0,0,0,0});
+
 }
 
 void APyFixed::from_string_hex(const std::string &str)
@@ -430,28 +436,26 @@ void APyFixed::_normalize_binary_points(
     operand_shifted = operand2._data_asl(operand1.frac_bits() - operand2.frac_bits());
 
     // Vector sign-extend the `result` limb vector
-    constexpr unsigned LIMB_SHFT_AMNT = _LIMB_SIZE_BITS-1;
-    for (unsigned i=operand1.vector_size(); i<result.vector_size(); i++) {
-        result._data[i] = mp_limb_signed_t(operand1._data.back()) >> LIMB_SHFT_AMNT;
-    }
+    mp_limb_t s_ext = mp_limb_signed_t(operand1._data.back()) >> (_LIMB_SIZE_BITS - 1);
+    std::fill(result._data.begin() + operand1.vector_size(), result._data.end(), s_ext);
 
     // Vector sign-extend the `operand_shifted` limb vector
-    for (unsigned i=operand_shifted.size(); i<result.vector_size(); i++) {
-        // Vector sign-extend the `operand_shifted` limb vector
-        operand_shifted.push_back(
-            mp_limb_signed_t(operand_shifted.back()) >> LIMB_SHFT_AMNT
-        );
-    }
+    std::fill_n(
+        std::back_inserter(operand_shifted),
+        result.vector_size() - operand_shifted.size(),
+        mp_limb_signed_t(operand_shifted.back()) >> (_LIMB_SIZE_BITS - 1)
+    );
 }
 
 
+// Retrieve a limb vector with the negated value from this APyFixed type. This member 
+// function does not extend the size of the result, unlike `APyFixed::operator-()`,
+// that extends the result with one bit.
 std::vector<mp_limb_t> APyFixed::_non_extending_negate() const
 {
     // Invert all bits and increment the lsb
     APyFixed result(bits(), 0);
-    for (std::size_t i=0; i<vector_size(); i++) {
-        result._data[i] = ~_data[i];
-    }
+    std::transform(_data.begin(), _data.end(), result._data.begin(), std::bit_not{});
     result.increment_lsb();
     return result._data;
 }

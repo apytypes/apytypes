@@ -5,25 +5,33 @@
 #include <iterator>
 #include <stdexcept>
 
-using word_vec = std::vector<mp_limb_t>;
 using uint8_vec = std::vector<uint8_t>;
 
-TEST_CASE("to_nibble_list()")
+
+TEST_CASE("to_nibble_list() and from_nibble_list()")
 {
 
     // Zero-vector results in nibble-list with one element
-    REQUIRE(to_nibble_list(word_vec{ 0 }) == uint8_vec{ 0 });
+    REQUIRE(to_nibble_list({ 0 }) == uint8_vec{ 0 });
 
     // Simple tests
-    REQUIRE(to_nibble_list(word_vec{ 1 }) == uint8_vec{ 1 });
-    REQUIRE(to_nibble_list(word_vec{ 15 }) == uint8_vec{ 15 });
-    REQUIRE(to_nibble_list(word_vec{ 16 }) == uint8_vec{ 0, 1 });
-    REQUIRE(to_nibble_list(word_vec{ 0xff }) == uint8_vec{ 0x0f, 0x0f });
-    REQUIRE(to_nibble_list(word_vec{ 0xfca }) == uint8_vec{ 0x0a, 0x0c, 0x0f });
+    REQUIRE(to_nibble_list({ 1 }) == uint8_vec{ 1 });
+    REQUIRE(to_nibble_list({ 15 }) == uint8_vec{ 15 });
+    REQUIRE(to_nibble_list({ 16 }) == uint8_vec{ 0, 1 });
+    REQUIRE(to_nibble_list({ 0xff }) == uint8_vec{ 0x0f, 0x0f });
+    REQUIRE(to_nibble_list({ 0xfca }) == uint8_vec{ 0x0a, 0x0c, 0x0f });
 
-    // Longer test
+    REQUIRE(from_nibble_list({ 0 }) == to_limb_vec({0x0}));
+    REQUIRE(from_nibble_list({ 1 }) == to_limb_vec({0x1}));
+    REQUIRE(from_nibble_list({ 1, 0 }) == to_limb_vec({0x10}));
+    REQUIRE(from_nibble_list({ 9, 3, 0, 7, 3, 9  }) == to_limb_vec({0x930739}));
+
+    /*
+     * TODO: Longer tests are actually dependant on the target architecture. These tests
+     * would fail on machines where `mp_limb_t` are 32-bit.
+     */
     REQUIRE(
-        to_nibble_list(word_vec{
+        to_nibble_list({
             0xabcd0012,
             0x773300,
             0x7E00AD0000BE00EF,
@@ -37,34 +45,50 @@ TEST_CASE("to_nibble_list()")
 
 TEST_CASE("nibble_shift_left_once()")
 {
+    /*
+     * `nibble_shift_left_once()` assumes a list with *least* significant nibble first
+     */
     { /* Zero-element */
-        auto nibble_list = to_nibble_list(word_vec{ 0x00 });
+        std::vector<uint8_t> nibble_list{ 0 };
         bool out_bit = nibble_list_shift_left_once(nibble_list);
         REQUIRE(nibble_list == uint8_vec{ 0 });
         REQUIRE(out_bit == 0);
     }
-    { /* Simple shift */
-        auto nibble_list = to_nibble_list(word_vec{ 0x88F7 });
+    { /* Shift with `out_bit` = 1  */
+        std::vector<uint8_t> nibble_list = { 0x7, 0xF, 0x8, 0x8 };
         bool out_bit = nibble_list_shift_left_once(nibble_list);
-        REQUIRE(nibble_list == uint8_vec{ 0x0E, 0x0E, 0x01, 0x01 });
+        REQUIRE(nibble_list == uint8_vec{ 0xE, 0xE, 0x1, 0x1 });
         REQUIRE(out_bit == 1);
     }
-    { /* More complex shift */
-        auto nibble_list = to_nibble_list(word_vec{
-            0xF000070F0056789A,
-            0x13373,
-            18,
-            0xFFFFF00
-        });
+    { /* Shift with `out_bit = 0 */
+        std::vector<uint8_t> nibble_list = { 0x7, 0xF, 0x8, 0x3 };
         bool out_bit = nibble_list_shift_left_once(nibble_list);
-        REQUIRE(nibble_list == 
-            uint8_vec{
-                0x4, 0x3, 0x1, 0xF, 0xC, 0xA, 0, 0, 0xE, 0x1, 0xE, 0, 0, 0, 0, 0xE,
-                0x7, 0xE, 0x6, 0x6, 0x2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0x4, 0x2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0x0, 0x0, 0xE, 0xF, 0xF, 0xF, 0xF
-            }
-        );
+        REQUIRE(nibble_list == uint8_vec{ 0xE, 0xE, 0x1, 0x7 });
+        REQUIRE(out_bit == 0);
+    }
+}
+
+TEST_CASE("nibble_shift_right_once()")
+{
+    /*
+     * `nibble_shift_left_once()` assumes a list with *most* significant nibble first
+     */
+    { /* Zero-element */
+        std::vector<uint8_t> nibble_list{ 0 };
+        bool out_bit = nibble_list_shift_right_once(nibble_list);
+        REQUIRE(nibble_list == uint8_vec{ 0 });
+        REQUIRE(out_bit == 0);
+    }
+    { /* Shift with `out_bit` = 0  */
+        std::vector<uint8_t> nibble_list = { 0x7, 0xF, 0x8, 0x8 };
+        bool out_bit = nibble_list_shift_right_once(nibble_list);
+        REQUIRE(nibble_list == uint8_vec{ 0x3, 0xF, 0xC, 0x4 });
+        REQUIRE(out_bit == 0);
+    }
+    { /* Shift with `out_bit = 1 */
+        std::vector<uint8_t> nibble_list = { 0x7, 0xF, 0x8, 0x3 };
+        bool out_bit = nibble_list_shift_right_once(nibble_list);
+        REQUIRE(nibble_list == uint8_vec{ 0x3, 0xF, 0xC, 0x1 });
         REQUIRE(out_bit == 1);
     }
 }
@@ -72,31 +96,53 @@ TEST_CASE("nibble_shift_left_once()")
 TEST_CASE("double_dabble()")
 {
     // Simple tests for double-dabble
-    REQUIRE(double_dabble(word_vec{ 0 }) == uint8_vec{ 0 });
-    REQUIRE(double_dabble(word_vec{ 1 }) == uint8_vec{ 1 });
-    REQUIRE(double_dabble(word_vec{ 9 }) == uint8_vec{ 9 });
-    REQUIRE(double_dabble(word_vec{ 10 }) == uint8_vec{ 0, 1 });
+    REQUIRE(double_dabble({}) == uint8_vec{});
+    REQUIRE(double_dabble({ 0 }) == uint8_vec{ 0 });
+    REQUIRE(double_dabble({ 1 }) == uint8_vec{ 1 });
+    REQUIRE(double_dabble({ 9 }) == uint8_vec{ 9 });
+    REQUIRE(double_dabble({ 10412 }) == uint8_vec{ 2, 1, 4, 0, 1 });
 
     // Problematique test #1
-    REQUIRE(double_dabble(word_vec{ 0x0ff }) == uint8_vec{ 5, 5, 2 });
-    REQUIRE(double_dabble(word_vec{ 0x100 }) == uint8_vec{ 6, 5, 2 });
-    REQUIRE(double_dabble(word_vec{ 0x0ffff }) == uint8_vec{ 5, 3, 5, 5, 6 });
-    REQUIRE(double_dabble(word_vec{ 0x10000 }) == uint8_vec{ 6, 3, 5, 5, 6 });
+    REQUIRE(double_dabble({ 0x0ff }) == uint8_vec{ 5, 5, 2 });
+    REQUIRE(double_dabble({ 0x100 }) == uint8_vec{ 6, 5, 2 });
+    REQUIRE(double_dabble({ 0x0ffff }) == uint8_vec{ 5, 3, 5, 5, 6 });
+    REQUIRE(double_dabble({ 0x10000 }) == uint8_vec{ 6, 3, 5, 5, 6 });
 
     // Larger tests
     REQUIRE(
-        double_dabble(word_vec{ 0x7ff003011fff2fef })
+        double_dabble({ 0x7ff003011fff2fef })
         == uint8_vec{
             3, 8, 5, 3, 7, 0, 4, 9, 5, 0, 4, 7, 1, 7, 8, 8, 1, 2, 9
         }
     );
     REQUIRE(
-        double_dabble(word_vec{ 0x00FFFFFFFFFA70CE, 0x1234500 })
+        double_dabble({ 0x00FFFFFFFFFA70CE, 0x1234500 })
         == uint8_vec{
             8, 3, 8, 5, 0, 8, 6, 9, 3, 9, 8, 6, 2, 3, 2, 7, 6, 8, 6, 5,
             2, 3, 2, 1, 2, 5, 3
         }
     );
+}
+
+TEST_CASE("reverse_double_dabble()")
+{
+    REQUIRE(reverse_double_dabble({}) == to_limb_vec({}));
+    REQUIRE(reverse_double_dabble({ 0 }) == to_limb_vec({ 0 }));
+    REQUIRE(reverse_double_dabble({ 1 }) == to_limb_vec({ 1 }));
+    REQUIRE(reverse_double_dabble({ 9 }) == to_limb_vec({ 9 }));
+    REQUIRE(reverse_double_dabble({ 1, 0 }) == to_limb_vec({ 0xA }));
+    REQUIRE(reverse_double_dabble({ 1, 5 }) == to_limb_vec({ 0xF }));
+    REQUIRE(reverse_double_dabble({ 2, 5, 5 }) == to_limb_vec({ 0xFF }));
+    REQUIRE(reverse_double_dabble({ 2, 5, 6 }) == to_limb_vec({ 0x100 }));
+
+    REQUIRE(
+        reverse_double_dabble({
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 5, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 3, 0, 0, 0, 0,
+        })
+        == to_limb_vec({0x0b0290d4c7eba390, 0x00baf96937ffc2a8, 0x159ffe72})
+    );
+
 }
 
 TEST_CASE("bcd_div2()")
