@@ -200,6 +200,11 @@ static inline std::vector<mp_limb_t> reverse_double_dabble(
         std::any_of(bcd_list.begin(), bcd_list.end(), [](auto n){ return n!=0; })
         || iteration % 4 != 0
     ) {
+        // Append a new nibble every fourth iteration
+        if (iteration % 4 == 0) {
+            nibble_list.push_back(0);
+        }
+
         // Shift BCD list to the right
         bool carry_bcd_to_nibble = nibble_list_shift_right_once(bcd_list);
         for (auto &bcd : bcd_list) {
@@ -208,10 +213,6 @@ static inline std::vector<mp_limb_t> reverse_double_dabble(
             }
         }
 
-        // Append a new nibble every fourth iteration
-        if (iteration % 4 == 0) {
-            nibble_list.push_back(0);
-        }
         nibble_list_shift_right_once(nibble_list);
         if (carry_bcd_to_nibble) {
             nibble_list.front() |= 0x8;
@@ -220,7 +221,9 @@ static inline std::vector<mp_limb_t> reverse_double_dabble(
         // Increment iteration counter
         iteration++;
     }
-    return nibble_list.size() ? from_nibble_list(nibble_list) : std::vector<mp_limb_t>{0};
+    return nibble_list.size() 
+        ? from_nibble_list(nibble_list)
+        : std::vector<mp_limb_t>{0};
 }
 
 // Divide BCD number by two. First element in input array in considered MSB
@@ -326,6 +329,39 @@ static inline std::string string_trim_zeros(const std::string &str)
 
     // Return the result
     return result.size() ? result : "0";
+}
+
+
+// Perform arithmetic right shift on a limb vector. Accelerated using GMP.
+static inline void limb_vector_asr(std::vector<mp_limb_t> &vec, unsigned shift_amnt)
+{
+    if (!vec.size()) {
+        return;
+    }
+
+    mp_limb_t sign_limb = mp_limb_signed_t(vec.back()) >> (_LIMB_SIZE_BITS-1);
+    unsigned limb_shift = shift_amnt%_LIMB_SIZE_BITS;
+    unsigned limb_skip  = shift_amnt/_LIMB_SIZE_BITS;
+    if (limb_skip >= vec.size()) {
+        std::fill(vec.begin(), vec.end(), sign_limb);
+        return;  // early return
+    } else if (limb_skip) {
+        for (unsigned i=0; i<vec.size()-limb_skip; i++) {
+            vec[i] = vec[i+limb_skip];
+        }
+        for (unsigned i=vec.size()-limb_skip; i<vec.size(); i++) {
+            vec[i] = sign_limb;
+        }
+    }
+
+    // Perform the in-limb shifting
+    mpn_rshift(
+        &vec[0],     // dst
+        &vec[0],     // src
+        vec.size(),  // limb vector size
+        limb_shift   // shift amount
+    );
+    vec.back() = sign_limb;
 }
 
 #endif

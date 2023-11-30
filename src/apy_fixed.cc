@@ -6,6 +6,7 @@
 #include "apy_util.h"
 
 #include <algorithm>   // std::copy, std::max, std::transform, std::fill, std::fill_n
+                       // std::remove, std::copy, std::for_each
 #include <cstddef>     // std::size_t
 #include <functional>  // std::bit_not
 #include <regex>       // std::regex
@@ -312,38 +313,67 @@ void APyFixed::from_string_dec(const std::string &str)
     // decimal number
     str_trimmed = string_trim_zeros(str_trimmed);
 
-    // Find the binary point (from the back) of the trimmed string
-    std::size_t binary_point_dec;
-    if (str_trimmed.find('.') == std::string::npos) {
-        binary_point_dec = 0;
-    } else {
-        binary_point_dec = str_trimmed.length() - 1 - str_trimmed.find('.');
-    }
+    // Find the binary point of the trimmed string and remove it from the string
+    std::size_t binary_point_dec = str_trimmed.find('.');
+    binary_point_dec = (binary_point_dec == std::string::npos) ? 0 : binary_point_dec;
+    str_trimmed.erase(
+        std::remove(str_trimmed.begin(), str_trimmed.end(), '.'),
+        str_trimmed.cend()
+    );
 
+    // Copy characters (from back) of the trimmed string into a BCD list
     std::vector<uint8_t> bcd_list;
-    for (int i=str_trimmed.length()-1; i>=0; i--) {
-        if (str_trimmed[i] != '.') {
-            bcd_list.push_back(str_trimmed[i] - 0x30);
-        }
-    }
+    std::for_each(str_trimmed.crbegin(), str_trimmed.crend(),
+        [&](char c){ bcd_list.push_back(c - 0x30); }
+    );
 
     // Multiply BCD number by 2^(frac_bits() + 1) (extra bit for rounding)
-    for (int i=0; i<frac_bits()+1; i++) {
+    auto bcd_list_size_prev = bcd_list.size();
+    for (int i=0; i<frac_bits() + 1; i++) {
         bcd_mul2(bcd_list);
+    }
+
+    // Reverse the order of the BCD list (to MSB first)
+    std::reverse(bcd_list.begin(), bcd_list.end());
+
+    // Remove elements after decimal dot
+    if (binary_point_dec) {
+        bcd_list.erase(
+            bcd_list.end() - (bcd_list_size_prev-binary_point_dec), bcd_list.end()
+        );
     }
 
     // Reverse double-dabble algorithm (BCD -> binary)
     std::vector<mp_limb_t> data = reverse_double_dabble(bcd_list);
-    for (auto u : data) {
-        std::cout << u << " ";
+
+    // Round the data
+    mpn_add_1(
+        &data[0],     // dst
+        &data[0],     // src1
+        data.size(),  // limb vector length
+        1             // src2
+    );
+    mpn_rshift(
+        &data[0],     // dst
+        &data[0],     // src
+        data.size(),  // limb vector length
+        1             // shift amount
+    );
+
+    // Adjust limb vector if negative fractional bits are present
+    if (frac_bits() + 1 < 0) {
+        limb_vector_asr(data, -(frac_bits() + 1));
     }
-    std::cout << std::endl;
 
-    // !! FINISH HIM !!
-    //std::copy(data.begin(), data.end(), _data.begin());
-    _data = { 0, 0, 0, 0, 0, 0 };
+    // Copy the data into the result vector
+    _data = data;
+    _data.resize(bits_to_limbs(bits()));
+    if (is_negative) {
+        _data = _non_extending_negate();
+    }
 
-
+    // Two's complement overflow and we're done
+    twos_complement_overflow();
 }
 
 void APyFixed::from_string_hex(const std::string &str)

@@ -114,6 +114,66 @@ TEST_CASE("APyFixed::from_string_dec()")
         "-010", "0.0", "-0.0", 
     });
 
-    //REQUIRE( APyFixed(10, 5, "0.123").to_string() == "0.125" );
+    /*
+     * Zero-string initialization
+     */
+    REQUIRE( APyFixed(   1,      0, "0").to_string() == "0" );
+    REQUIRE( APyFixed(1234,  12345, "0").to_string() == "0" );
+    REQUIRE( APyFixed(1234, -12345, "0").to_string() == "0" );
 
+    /*
+     * Integer string
+     */
+    auto large_integer_str = "-1234567890987654321234567899876543234568";
+    REQUIRE( APyFixed(150, 150, large_integer_str).to_string() == large_integer_str );
+    REQUIRE( APyFixed(150, 153, large_integer_str).to_string() == large_integer_str );
+    REQUIRE( APyFixed(150, 154, large_integer_str).to_string() == 
+        "-1234567890987654321234567899876543234560"
+    );
+    REQUIRE( APyFixed(150, 230, large_integer_str).to_string() == 
+        "-1234567890987653842370520939723795464192"
+    );
+    REQUIRE( APyFixed(150, 500, large_integer_str).to_string() == 
+        "0"
+    );
+
+    /*
+     * Fractional strings
+     */
+
+    // Fractional strings are rounded (away from infinity on ties) when precision is
+    // lost
+    REQUIRE( APyFixed(5, 4,  "0.24").to_string() ==    "0");
+    REQUIRE( APyFixed(5, 4,  "0.25").to_string() ==  "0.5");
+    REQUIRE( APyFixed(5, 4, "-0.25").to_string() == "-0.5");
+    REQUIRE( APyFixed(5, 4, "-0.24").to_string() ==    "0");
+
+
+    REQUIRE( APyFixed(128, 64, "1234.5").to_string() == "1234.5" );
+    REQUIRE( APyFixed(10, 5, "0.1328125").to_string() == "0.125" );
+    REQUIRE( APyFixed(10, 8, "12.5").to_string() == "12.5" );
+    REQUIRE( APyFixed(10, 8, "-12.5").to_string() == "-12.5" );
+
+
+    {
+        auto str = "0.00028876404394395649433135986328125";
+        REQUIRE(APyFixed(26, -9, str).to_string() == str);
+    }
+}
+
+TEST_CASE("APyFixed::repr()")
+{
+    {
+        auto str = "0.00028876404394395649433135986328125";
+        REQUIRE(
+            APyFixed(26, -9, str).repr() 
+            == "fx<26, -9>(0.00028876404394395649433135986328125)"
+        );
+    }
+}
+
+TEST_CASE("Not implemented to/from string function")
+{
+    REQUIRE_THROWS_AS(APyFixed(1, 0).to_string_hex(), NotImplementedException);
+    REQUIRE_THROWS_AS(APyFixed(1, 0).to_string_oct(), NotImplementedException);
 }
