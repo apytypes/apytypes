@@ -25,7 +25,7 @@ test_coverage: test
 	genhtml --demangle-cpp -o coverage coverage.info
 
 test/test_apy_util: apy_util.h test/test_apy_util.cc test/catch.o
-	${CC} ${CFLAGS} ${TEST_FLAGS} test/test_apy_util.cc test/catch.o -o $@
+	${CC} ${CFLAGS} ${TEST_FLAGS} test/test_apy_util.cc test/catch.o -o $@ -lgmp
 
 test/test_apy_fixed: apy_util.h apy_fixed.h apy_fixed.cc ${TEST_SRC} test/catch.o
 	${CC} ${CFLAGS} ${TEST_FLAGS} apy_fixed.cc ${TEST_SRC} test/catch.o -o $@ -lgmp

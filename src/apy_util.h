@@ -71,6 +71,29 @@ static inline std::size_t bits_to_limbs(std::size_t bits) {
     }
 }
 
+// Quickly perform `1 + ceil(log2(x))` for unsigned integer (`mp_limb_t`) `x` if `x` is
+// non-zero and return the value. If `x` is zero, return zero.
+static inline std::size_t bit_width(mp_limb_t x)
+{
+    std::size_t result = 0;
+    while (x) {
+        x >>= 1;
+        result++;
+    }
+    return result;
+}
+
+// Quickly count the number of nibbles in an unsigned `mp_limb_t`
+static inline std::size_t nibble_width(mp_limb_t x)
+{
+    std::size_t bits = bit_width(x);
+    if (bits % 4 == 0) {
+        return bits/4;
+    } else {
+        return bits/4 + 1;
+    }
+}
+
 // Convert a positive arbitrary size integer array (array mp_limb_t) to a nibble list.
 // The nibble list contains least significant nibble first.
 static inline std::vector<uint8_t> to_nibble_list(
@@ -157,31 +180,75 @@ static inline bool nibble_list_shift_right_once(std::vector<uint8_t> &nibble_lis
     return output_bit;
 }
 
-// Double-dabble algorithm for binary->BCD conversion
-static inline std::vector<uint8_t> double_dabble(const std::vector<mp_limb_t> &data)
-{
-    if (data.size() == 0) {
-        return {};
-    }
 
-    std::vector<uint8_t> nibble_list = to_nibble_list(data);  // LSNibble first
-    std::vector<uint8_t> bcd_list{ 0 };
-    for (std::size_t i=0; i<4*nibble_list.size(); i++) {
-        bool insert_bit = nibble_list_shift_left_once(nibble_list);
-        for (auto &bcd : bcd_list) {
-            if (bcd >= 5) {
-                bcd += 3;
-            }
-            bcd <<= 1;
-            bcd += static_cast<uint8_t>(insert_bit);
-            insert_bit = bcd >= 16;
-            bcd &= 0xF;
-        }
-        if (insert_bit) {
+// Double-Dabble helper class with proporate methods for performing the double-dabble
+// and reverse double-dable algorithm.
+struct DoubleDabbleList {
+
+    // Mask with a bit in every possition where a nibble starts
+    static constexpr mp_limb_t _NIBBLE_MASK = 
+        _LIMB_SIZE_BITS == 64
+        ? 0x1111111111111111  // 64-bit architecture
+        : 0x11111111;         // 32-bit architecture
+
+    std::vector<mp_limb_t> bcd_list{ 0 };
+
+    void do_double(mp_limb_t new_bit) {
+        // Perform a single bit left shift (double)
+        if (mpn_lshift(&bcd_list[0], &bcd_list[0], bcd_list.size(), 1)) {
             bcd_list.push_back(1);
         }
+        if (new_bit) {
+            bcd_list[0] |= 0x1;
+        }
     }
-    return bcd_list;
+
+    void do_dabble() {
+        // Add 3 to each nibble GEQ 5
+        for (auto &l : bcd_list) {
+            mp_limb_t dabble_mask = (((l | l>>1) & (l>>2)) | (l>>3)) & _NIBBLE_MASK;
+            l += (dabble_mask << 1) | dabble_mask;
+        }
+    }
+};
+
+// Double-dabble algorithm for binary->BCD conversion
+static inline std::vector<uint8_t> double_dabble(std::vector<mp_limb_t> nibble_data)
+{
+    // Remove zero elements from the back until first non-zero element is found
+    nibble_data.erase(
+        std::find_if(
+            nibble_data.rbegin(),
+            nibble_data.rend(),
+            [](auto n){ return n != 0; }
+        ).base(),
+        nibble_data.end()
+    );
+
+    // Return array with zero early if nibble list is empty
+    if (nibble_data.size() == 0) {
+        return { 0 };
+    }
+
+    // Double-dabble algorithm begin
+    const std::size_t nibbles_last_limb = nibble_width(nibble_data.back());
+    const std::size_t nibbles_full_limbs = _LIMB_SIZE_BITS/4 * (nibble_data.size()-1);
+    const std::size_t nibbles = nibbles_last_limb + nibbles_full_limbs;
+    const mp_limb_t new_bit_mask = 
+        nibbles_last_limb % _LIMB_SIZE_BITS == 0
+        ? mp_limb_t(1) << (_LIMB_SIZE_BITS - 1)
+        : mp_limb_t(1) << (4*nibbles_last_limb - 1);
+    DoubleDabbleList bcd_list{};
+    for (std::size_t i=0; i<4*nibbles; i++) {
+        // Shift input data left once
+        mp_limb_t new_bit = nibble_data.back() & new_bit_mask;
+        mpn_lshift(&nibble_data[0], &nibble_data[0], nibble_data.size(), 1);
+
+        // Do the double-dabble (dabble-double)
+        bcd_list.do_dabble();
+        bcd_list.do_double(new_bit);
+    }
+    return to_nibble_list(bcd_list.bcd_list);
 }
 
 // Reverse double-dabble algorithm for BCD->binary conversion

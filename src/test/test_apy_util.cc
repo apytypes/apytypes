@@ -96,7 +96,7 @@ TEST_CASE("nibble_shift_right_once()")
 TEST_CASE("double_dabble()")
 {
     // Simple tests for double-dabble
-    REQUIRE(double_dabble({}) == uint8_vec{});
+    REQUIRE(double_dabble({   }) == uint8_vec{ 0 });
     REQUIRE(double_dabble({ 0 }) == uint8_vec{ 0 });
     REQUIRE(double_dabble({ 1 }) == uint8_vec{ 1 });
     REQUIRE(double_dabble({ 9 }) == uint8_vec{ 9 });
@@ -108,18 +108,22 @@ TEST_CASE("double_dabble()")
     REQUIRE(double_dabble({ 0x0ffff }) == uint8_vec{ 5, 3, 5, 5, 6 });
     REQUIRE(double_dabble({ 0x10000 }) == uint8_vec{ 6, 3, 5, 5, 6 });
 
-    // Larger tests
+    // Problematique test #2
     REQUIRE(
-        double_dabble({ 0x7ff003011fff2fef })
+        double_dabble({ 0xFFFFFFFFFFFA70CE, 0xFFFFFAAAFFFFFFFF, 0xFFFFFAAAFFFFFFFF})
         == uint8_vec{
-            3, 8, 5, 3, 7, 0, 4, 9, 5, 0, 4, 7, 1, 7, 8, 8, 1, 2, 9
+            8, 7, 6, 7, 7, 7, 0, 2, 6, 8, 2, 9, 8, 9, 7, 2, 1, 2, 5, 0,
+            4, 6, 2, 9, 7, 2, 4, 1, 3, 0, 7, 6, 9, 5, 0, 3, 3, 5, 1, 7,
+            0, 8, 5, 4, 9, 6, 3, 4, 0, 4, 7, 9, 9, 0, 7, 7, 2, 6
         }
     );
+
+    // Problematique test #3
     REQUIRE(
-        double_dabble({ 0x00FFFFFFFFFA70CE, 0x1234500 })
+        double_dabble({ 0, 0x8000000000000000, 0})
         == uint8_vec{
-            8, 3, 8, 5, 0, 8, 6, 9, 3, 9, 8, 6, 2, 3, 2, 7, 6, 8, 6, 5,
-            2, 3, 2, 1, 2, 5, 3
+            8, 2, 7, 5, 0, 1, 4, 8, 8, 5, 1, 7, 3, 0, 3, 7, 8, 6, 1, 3,
+            7, 1, 3, 2, 9, 6, 4, 0, 6, 4, 3, 8, 1, 1, 4, 1, 0, 7, 1
         }
     );
 }

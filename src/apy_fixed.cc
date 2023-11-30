@@ -5,11 +5,9 @@
 #include "apy_fixed.h"
 #include "apy_util.h"
 
-#include <algorithm>   // std::copy, std::max, std::transform, std::fill, std::fill_n
-                       // std::remove, std::copy, std::for_each
+#include <algorithm>   // std::copy, std::max, std::transform, etc...
 #include <cstddef>     // std::size_t
 #include <functional>  // std::bit_not
-#include <regex>       // std::regex
 #include <iterator>    // std::back_inserter
 #include <stdexcept>   // std::domain_error
 #include <string>      // std::string
