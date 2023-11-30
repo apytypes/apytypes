@@ -1,34 +1,28 @@
-import unittest
-from itertools import permutations
+from itertools import permutations as perm
+import pytest
 import sys
 sys.path.append('../builddir/')
 from apy_types import APyFloat
 
+@pytest.mark.parametrize(
+    "test_in,test_exp", [("-APyFloat(5, 5, 2.75)", APyFloat(5, 5, -2.75)), 
+                        ("-APyFloat(5, 5, -13.125)", APyFloat(5, 5, 13.125))]
+)
+def test_negation(test_in, test_exp):
+    assert eval(test_in) == test_exp
 
-class TestFloatingPoint(unittest.TestCase):
-    
-    def test_negation(self):
-        with self.subTest('negate positive'):
-            self.assertEqual(-APyFloat(5, 5, 2.75), APyFloat(5, 5, -2.75)) 
+@pytest.mark.parametrize("lhs,rhs", list(perm(["APyFloat(5, 5, 2.75)", "APyFloat(5, 5, 2.5)"])))
+def test_addition_same_exp(lhs, rhs):
+    # Add two numbers that have the same exponent
+    assert eval(f"{rhs} + {lhs}") == APyFloat(5, 5, 5.25)
 
-        with self.subTest('negate negative'):
-            self.assertEqual(-APyFloat(5, 5, -13.125), APyFloat(5, 5, 13.125))
+@pytest.mark.parametrize("lhs,rhs", list(perm(["APyFloat(5, 5, 4)", "APyFloat(5, 5, 16)"])))
+def test_addition_diff_exp(lhs, rhs):
+    # Add two numbers that have different exponent
+    assert eval(f"{rhs} + {lhs}") == APyFloat(5, 5, 20)
 
-
-    def test_addition(self):
-        with self.subTest('same exponents'):
-            for lhs, rhs in permutations([APyFloat(5, 5, 2.75), APyFloat(5, 5, 2.5)]):
-                self.assertEqual(lhs + rhs, APyFloat(5, 5, 5.25), f"lhs={lhs}, rhs={rhs}")
-
-        with self.subTest('different exponents'):
-            for lhs, rhs in permutations([APyFloat(5, 5, 4), APyFloat(5, 5, 16)]):
-                self.assertEqual(lhs + rhs, APyFloat(5, 5, 20), f"lhs={lhs}, rhs={rhs}")
-
-        with self.subTest('same exponents, different signs'):
-            for lhs, rhs in permutations([APyFloat(5, 4, 12), APyFloat(5, 4, -4)]):
-                self.skipTest('Not implemented yet')
-                self.assertEqual(lhs + rhs, APyFloat(5, 4, 8), f"lhs={lhs}, rhs={rhs}")
-
-
-if __name__ == '__main__':
-    unittest.main()
+@pytest.mark.skip
+@pytest.mark.parametrize("lhs,rhs", list(perm(["APyFloat(5, 4, 12)", "APyFloat(5, 4, -4)"])))
+def test_addition_diff_sign(lhs, rhs):
+    # Add two numbers that have different sign
+    assert eval(f"{rhs} + {lhs}") == APyFloat(5, 4, 8)
