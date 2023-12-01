@@ -7,6 +7,7 @@
 
 #include <algorithm>   // std::copy, std::max, std::transform, etc...
 #include <cstddef>     // std::size_t
+#include <cstring>     // std::memcpy
 #include <functional>  // std::bit_not
 #include <iterator>    // std::back_inserter
 #include <stdexcept>   // std::domain_error
@@ -30,6 +31,14 @@ APyFixed::APyFixed(int bits, int int_bits) :
     _constructor_sanitize_bits();
 }
 
+// Construct from a double-precision floating-point
+APyFixed::APyFixed(int bits, int int_bits, double value) :
+    APyFixed(bits, int_bits)
+{
+    from_double(value);
+}
+
+
 // Construct from a decimal string
 APyFixed::APyFixed(int bits, int int_bits, const char *str, int base) :
     APyFixed(bits, int_bits)
@@ -40,7 +49,6 @@ APyFixed::APyFixed(int bits, int int_bits, const char *str, int base) :
         case 16: from_string_hex(str); break;
         default: throw std::domain_error("Unknown numberic base");
     }
-    twos_complement_overflow();
 }
 
 // Underlying vector iterator-based constructor
@@ -384,6 +392,46 @@ void APyFixed::from_string_oct(const std::string &str)
 {
     (void) str;
     throw NotImplementedException();
+}
+
+void APyFixed::from_double(double value)
+{
+    if constexpr (_LIMB_SIZE_BITS == 64) {
+        // Assumes IEEE 754 double-precision floating-point (binary-64)
+        mp_limb_t float_pun;
+        std::memcpy(&float_pun, &value, sizeof(double));
+
+        mp_limb_signed_t sign = float_pun & (mp_limb_t(1) << (_LIMB_SIZE_BITS - 1));
+        mp_limb_signed_t exp = (float_pun & 0x7FF0000000000000) >> 52;
+        mp_limb_t mantissa = float_pun & 0x000FFFFFFFFFFFFF;
+
+        // Append mantissa hidden one
+        if (exp) {
+            mantissa |= mp_limb_t(1) << 52;
+        }
+        _data[0] = mantissa;
+
+        // Adjust the actual exponent
+        exp -= 1023;
+
+
+        // Shift data into right position
+        auto shift_amnt = exp+frac_bits()-52;
+        if (shift_amnt > 0) {
+            limb_vector_lsl(_data, shift_amnt);
+        } else {
+            limb_vector_lsr(_data, -shift_amnt);
+        }
+
+        // Adjust for sign
+        if (sign) {
+            _data = _non_extending_negate();
+        }
+
+    } else {
+        throw NotImplementedException();
+    }
+    twos_complement_overflow();
 }
 
 std::string APyFixed::repr() const {

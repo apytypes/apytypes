@@ -1,6 +1,7 @@
 #include "../apy_fixed.h"
 #include "catch.hpp"
 
+#include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
@@ -112,6 +113,54 @@ TEST_CASE("APyFixed::_data_asl()")
             }
         );
     }
+}
+
+TEST_CASE("from_floating_point")
+{
+    /*
+     * Zero floating-point
+     */
+    REQUIRE( APyFixed(   1,     0,  0.0).to_string_dec() == "0" );
+    REQUIRE( APyFixed(1234, -1000, -0.0).to_string_dec() == "0" );
+    REQUIRE( APyFixed(1234,  1000,  0.0).to_string_dec() == "0" );
+    REQUIRE( APyFixed(1234,  4000, -0.0).to_string_dec() == "0" );
+
+    /*
+     * Integer tests
+     */
+    REQUIRE( APyFixed(64, 64,  123).to_string_dec() ==  "123" );
+    REQUIRE( APyFixed(64, 64, -123).to_string_dec() == "-123" );
+    REQUIRE(
+        APyFixed(64, 64, std::pow(2.0, 52.0) + 0).to_string_dec()
+        == "4503599627370496"
+    );
+    REQUIRE(
+        APyFixed(64, 64, std::pow(2.0, 52.0) + 1).to_string_dec()
+        == "4503599627370497"
+    );
+    REQUIRE(
+        APyFixed(64, 64, std::pow(2.0, 53.0) + 0).to_string_dec()
+        == "9007199254740992"
+    );
+    REQUIRE(
+        APyFixed(64, 64, std::pow(2.0, 53.0) + 1).to_string_dec()
+        == "9007199254740992"  // Precision was lost when adding 1 onto 2^53
+    );
+    REQUIRE(
+        APyFixed(30, 153, std::pow(2.0, 123.0) - std::pow(2.0, 152)).to_string_dec()
+        == "-5708990760190015557953816894567524063288229888"
+    );
+    REQUIRE(
+        APyFixed(29, 153, std::pow(2.0, 123.0) - std::pow(2.0, 152)).to_string_dec()
+        == "-5708990749556191591674489911337067581045473280"
+    );
+
+    std::cout << APyFixed(64,  32,   0.0  ).to_string_dec() << std::endl;
+    std::cout << APyFixed(64,  32,   1.0  ).to_string_dec() << std::endl;
+    std::cout << APyFixed(64,  32, 123.125).to_string_dec() << std::endl;
+    std::cout << APyFixed(64,  32,-123.125).to_string_dec() << std::endl;
+    //std::cout << APyFixed(64,  0,    2.0).to_string_dec() << std::endl;
+    //std::cout << APyFixed(64, 32, 9123.0).to_string_dec() << std::endl;
 }
 
 TEST_CASE("APyFixed::from_vector()")

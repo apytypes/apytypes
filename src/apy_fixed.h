@@ -47,6 +47,9 @@ public:
     // construction
     explicit APyFixed(int bits, int int_bits);
 
+    // Constructor: specify size and initialize from a double
+    explicit APyFixed(int bits, int int_bits, double value);
+
     // Constructor: specify size and initialize from string
     explicit APyFixed(int bits, int int_bits, const char *str, int base=10);
 
@@ -140,6 +143,11 @@ public:
     void from_string_hex(const std::string &str);
     void from_string_oct(const std::string &str);
     void from_string_dec(const std::string &str);
+
+    /*
+     * Conversion to and from C++ primitive types
+     */
+    void from_double(double value);
 
 
     /*

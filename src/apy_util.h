@@ -343,13 +343,15 @@ static inline void bcd_mul2(std::vector<uint8_t> &bcd_list)
 // Trim a string from leading whitespace
 static inline std::string string_trim_leading_whitespace(const std::string &str)
 {
-    return std::regex_replace(str, std::regex("^\\s+"), "");
+    static const auto regex = std::regex("^\\s+");
+    return std::regex_replace(str, regex, "");
 }
 
 // Trim a string from trailing whitespace
 static inline std::string string_trim_trailing_whitespace(const std::string &str)
 {
-    return std::regex_replace(str, std::regex("\\s+$"), "");
+    static const auto regex = std::regex("\\s+$");
+    return std::regex_replace(str, regex, "");
 }
 
 // Trim a string from leading and trailing whitespace
@@ -363,7 +365,8 @@ static inline bool is_valid_decimal_numeric_string(const std::string &str)
 {
     // Test with validity regex
     const char validity_regex[] = R"((^-?[0-9]+\.?[0-9]*$)|(^-?[0-9]*\.?[0-9]+)$)";
-    return std::regex_match(str, std::regex(validity_regex));
+    static const auto regex = std::regex(validity_regex);
+    return std::regex_match(str, regex);
 }
 
 // Trim a string from unnecessary leading and trailing zeros, that don't affect numeric
@@ -375,7 +378,8 @@ static inline std::string string_trim_zeros(const std::string &str)
     std::string result = str;
 
     // Remove all leading zeros
-    result = std::regex_replace(result, std::regex("^0*"), "");
+    static const auto regex = std::regex("^0*");
+    result = std::regex_replace(result, regex, "");
 
     // Remove all trailing zeros, after a decimal dot
     while (result.find('.') != std::string::npos && result.back() == '0') {
@@ -429,6 +433,64 @@ static inline void limb_vector_asr(std::vector<mp_limb_t> &vec, unsigned shift_a
         limb_shift   // shift amount
     );
     vec.back() = sign_limb;
+}
+
+// Perform logical right shift on a limb vector. Accelerated using GMP.
+static inline void limb_vector_lsr(std::vector<mp_limb_t> &vec, unsigned shift_amnt)
+{
+    if (!vec.size()) {
+        return;
+    }
+
+    unsigned limb_shift = shift_amnt%_LIMB_SIZE_BITS;
+    unsigned limb_skip  = shift_amnt/_LIMB_SIZE_BITS;
+    if (limb_skip >= vec.size()) {
+        std::fill(vec.begin(), vec.end(), 0);
+        return;  // early return
+    } else if (limb_skip) {
+        for (unsigned i=0; i<vec.size()-limb_skip; i++) {
+            vec[i] = vec[i+limb_skip];
+        }
+        for (unsigned i=vec.size()-limb_skip; i<vec.size(); i++) {
+            vec[i] = 0;
+        }
+    }
+    // Perform the in-limb shifting
+    mpn_rshift(
+        &vec[0],     // dst
+        &vec[0],     // src
+        vec.size(),  // limb vector size
+        limb_shift   // shift amount
+    );
+}
+
+// Perform logical left shift on a limb vector. Accelerate using GMP.
+static inline void limb_vector_lsl(std::vector<mp_limb_t> &vec, unsigned shift_amnt)
+{
+    if (!vec.size()) {
+        return;
+    }
+
+    unsigned limb_shift = shift_amnt%_LIMB_SIZE_BITS;
+    unsigned limb_skip  = shift_amnt/_LIMB_SIZE_BITS;
+    if (limb_skip >= vec.size()) {
+        std::fill(vec.begin(), vec.end(), 0);
+        return;  // early return
+    } else if (limb_skip) {
+        for (unsigned i = vec.size()-1; i>=limb_skip; i--) {
+            vec[i] = vec[i-limb_skip];
+        }
+        for (unsigned i=0; i<limb_skip; i++) {
+            vec[i] = 0;
+        }
+    }
+    // Perform the in-limb shifting
+    mpn_lshift(
+        &vec[0],     // dst
+        &vec[0],     // src
+        vec.size(),  // limb vector size
+        limb_shift   // shift amount
+    );
 }
 
 #endif
