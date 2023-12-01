@@ -115,7 +115,7 @@ TEST_CASE("APyFixed::_data_asl()")
     }
 }
 
-TEST_CASE("from_floating_point")
+TEST_CASE("APyFixed::from_double()")
 {
     /*
      * Zero floating-point
@@ -158,7 +158,17 @@ TEST_CASE("from_floating_point")
     /*
      * Fractional number test
      */
-    //REQUIRE(APyFixed());
+    REQUIRE(APyFixed(64, 0, 123.125).to_string_dec() == "0.125");
+    REQUIRE(
+        APyFixed(1, -126, -std::pow(2, -127)).to_string_dec() 
+        == "-0.0000000000000000000000000000000000000058774717541114375"
+           "3984368268611122838909332778386043760754375853139208629727"
+           "36358642578125"
+    );
+    REQUIRE(
+        APyFixed(55, 2, -1.0 + std::pow(2, -53)).to_string_dec()
+        == "-0.99999999999999988897769753748434595763683319091796875"
+    );
 
 
     /*
