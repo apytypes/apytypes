@@ -169,12 +169,6 @@ TEST_CASE("from_floating_point")
     REQUIRE(APyFixed(2, 1, -0.25).to_string_dec() == "-0.5");
     REQUIRE(APyFixed(2, 1, -0.24).to_string_dec() ==    "0");
 
-    std::cout << APyFixed(64,  32,   0.0  ).to_string_dec() << std::endl;
-    std::cout << APyFixed(64,  32,   1.0  ).to_string_dec() << std::endl;
-    std::cout << APyFixed(64,  32, 123.125).to_string_dec() << std::endl;
-    std::cout << APyFixed(64,  32,-123.125).to_string_dec() << std::endl;
-    //std::cout << APyFixed(64,  0,    2.0).to_string_dec() << std::endl;
-    //std::cout << APyFixed(64, 32, 9123.0).to_string_dec() << std::endl;
 }
 
 TEST_CASE("APyFixed::from_vector()")

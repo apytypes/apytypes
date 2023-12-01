@@ -7,7 +7,6 @@
 
 #include <algorithm>  // std::find
 #include <cstddef>    // std::size_t
-#include <iostream>
 #include <iterator>
 #include <regex>      // std::regex, std::regex_replace
 #include <stdexcept>  // std::logic_error, std::domain_error
