@@ -12,24 +12,49 @@ void bind_fixed(py::module &m) {
         .value("DEC", STRING_TYPE::DEC);
 
    py::class_<APyFixed>(m, "APyFixed")
+
+        /*
+         * Constructors
+         */
         .def(py::init<int, int>(), py::arg("bits"), py::arg("int_bits"))
-        //.def(py::init<int, int, int>(), py::arg("bits"), py::arg("int_bits"), py::arg("value"))
+        .def(
+            py::init<int, int, double>(),
+            py::arg("bits"),
+            py::arg("int_bits"),
+            py::arg("value")
+        )
+        .def(
+            py::init<int, int, const char *, int>(),
+            py::arg("bits"),
+            py::arg("int_bits"),
+            py::arg("value"),
+            py::arg("base") = 10
+        )
+
+        /*
+         * Arithmetic operators
+         */
+        // .def(py::self == py::self)
+        .def(py::self + py::self)
+        .def(py::self - py::self)
+        .def(py::self * py::self)
+        // .def(py::self / py::self)
+        .def(-py::self)
+
+        /*
+         * Methods
+         */
         .def("bits", &APyFixed::bits)
         .def("int_bits", &APyFixed::int_bits)
+        .def("frac_bits", &APyFixed::frac_bits)
         .def("vector_size", &APyFixed::vector_size)
         .def("is_negative", &APyFixed::is_negative)
         .def("increment_lsb", &APyFixed::increment_lsb)
-        .def("to_string", &APyFixed::to_string, py::arg("type")=STRING_TYPE::DEC)
+        .def("to_string", &APyFixed::to_string, py::arg("type") = STRING_TYPE::DEC)
         .def("to_string_hex", &APyFixed::to_string_hex)
         .def("to_string_oct", &APyFixed::to_string_oct)
         .def("to_string_dec", &APyFixed::to_string_dec)
         .def("__repr__", &APyFixed::repr)
-        // .def(py::self == py::self)
-        // .def(py::self + py::self)
-        // .def(py::self - py::self)
-        // .def(py::self * py::self)
-        // .def(py::self / py::self)
-        .def(-py::self)
         ;
     
 }

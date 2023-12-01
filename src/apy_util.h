@@ -125,7 +125,7 @@ static inline std::vector<mp_limb_t> from_nibble_list(
     constexpr std::size_t NIBBLES_PER_LIMB = 2*_LIMB_SIZE_BYTES;
     constexpr std::size_t BITS_PER_NIBBLE = 4;
 
-    unsigned limbs = nibble_list.size()/NIBBLES_PER_LIMB;
+    std::size_t limbs = nibble_list.size()/NIBBLES_PER_LIMB;
     limbs += nibble_list.size()%NIBBLES_PER_LIMB != 0 ? 1 : 0;
 
     std::vector<mp_limb_t> result( limbs, 0 );

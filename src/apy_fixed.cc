@@ -47,7 +47,9 @@ APyFixed::APyFixed(int bits, int int_bits, const char *str, int base) :
         case 8:  from_string_oct(str); break;
         case 10: from_string_dec(str); break;
         case 16: from_string_hex(str); break;
-        default: throw std::domain_error("Unknown numberic base");
+        default: throw std::domain_error(
+            "Unsupported numeric base. Valid bases are: 8, 10, 16"
+        );
     }
 }
 
@@ -415,15 +417,19 @@ void APyFixed::from_double(double value)
         exp -= 1023;
 
 
-        // Shift data into right position
-        auto shift_amnt = exp+frac_bits()-52;
-        if (shift_amnt > 0) {
-            limb_vector_lsl(_data, shift_amnt);
+        // Shift the data into its correct position
+        auto left_shift_amnt = exp+frac_bits()-52;
+        if (left_shift_amnt >= 0) {
+            limb_vector_lsl(_data, left_shift_amnt);
         } else {
-            limb_vector_lsr(_data, -shift_amnt);
+            if (-left_shift_amnt-1 < 64) {
+                // Round the value
+                _data[0] += mp_limb_t(1) << (-left_shift_amnt-1);
+            }
+            limb_vector_lsr(_data, -left_shift_amnt);
         }
 
-        // Adjust for sign
+        // Adjust result from sign
         if (sign) {
             _data = _non_extending_negate();
         }
@@ -436,7 +442,7 @@ void APyFixed::from_double(double value)
 
 std::string APyFixed::repr() const {
     return std::string(
-        "fx<"
+        "APyFixed<"
         + std::to_string(_bits)
         + ", "
         + std::to_string(_int_bits)

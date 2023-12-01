@@ -152,8 +152,22 @@ TEST_CASE("from_floating_point")
     );
     REQUIRE(
         APyFixed(29, 153, std::pow(2.0, 123.0) - std::pow(2.0, 152)).to_string_dec()
-        == "-5708990749556191591674489911337067581045473280"
-    );
+        == "-5708990770823839524233143877797980545530986496"  // Precision lost,
+    );                                                        // number rounded
+
+    /*
+     * Fractional number test
+     */
+    //REQUIRE(APyFixed());
+
+
+    /*
+     * Round away from infinity on tie
+     */
+    REQUIRE(APyFixed(2, 1,  0.24).to_string_dec() ==    "0");
+    REQUIRE(APyFixed(2, 1,  0.25).to_string_dec() ==  "0.5");
+    REQUIRE(APyFixed(2, 1, -0.25).to_string_dec() == "-0.5");
+    REQUIRE(APyFixed(2, 1, -0.24).to_string_dec() ==    "0");
 
     std::cout << APyFixed(64,  32,   0.0  ).to_string_dec() << std::endl;
     std::cout << APyFixed(64,  32,   1.0  ).to_string_dec() << std::endl;
