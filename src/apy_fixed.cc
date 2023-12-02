@@ -243,52 +243,52 @@ std::string APyFixed::to_string_dec() const {
     APyFixed abs_val(_bits+1, _int_bits+1);
     abs_val = is_negative() ? -(*this) : *this;
 
-    // Conversion of data to BCD
-    std::vector<uint8_t> bcd_list = double_dabble(abs_val._data);
-    auto bcd_binary_point = 0;
+    // Convert this number to BCD with the double-dabble algorithm
+    std::vector<mp_limb_t> bcd_limb_list = double_dabble(abs_val._data);
+
+    // The resulting string
+    std::string result = is_negative() ? "-" : "";
+
+    // String construction intermediates
+    std::vector<uint8_t> bcd_list;
+    long rjust = 0;
+    long decimal_point = 0;
 
     if (frac_bits() > 0) {
-        // Reverse order of BCD list to most-significant-bcd first, so that bcd_div2()
-        // can append to bcd_list from the back.
-        std::reverse(bcd_list.begin(), bcd_list.end());
 
-        std::size_t num_prev_bcds = bcd_list.size();
+        // Divide BCD limb list by two, one time per fractional bit
+        auto bcd_list_start_size = bcd_limb_list.size();
         for (int i=0; i<frac_bits(); i++) {
-            bcd_div2(bcd_list);
-            if (bcd_list.size() > num_prev_bcds) {
-                bcd_binary_point++;
-                num_prev_bcds = bcd_list.size();
+            bcd_div2(bcd_limb_list);
+            if (bcd_limb_list.size() > bcd_list_start_size) {
+                decimal_point++;
             }
         }
 
-        // Reverse order of BCD list (back) to least-significant-bcd first
-        std::reverse(bcd_list.begin(), bcd_list.end());
+        // Convert BCD limb list to regular BCD list (`std::vector<uint8_t>`)
+        long ljust = decimal_point % (_LIMB_SIZE_BITS/4);
+        rjust = ((_LIMB_SIZE_BITS/4) - ljust) % (_LIMB_SIZE_BITS/4);
+        bcd_list = to_nibble_list(bcd_limb_list, decimal_point+rjust+1);
 
-        // Trim unnecessary zeros at start of BCD number that might be occur during
-        // bcd_div2(). The first zero, left of the decimal point (of value 10^0), is
-        // never trimmed.
-        while (bcd_list.size() > std::size_t(bcd_binary_point+1)) {
-            if (bcd_list.back() != 0) {
-                // Nothing more to trim, break out of loop
-                break;
-            }
-            bcd_list.pop_back();
+    } else {
+
+        // Convert BCD limb list to regular BCD list (`std::vector<uint8_t>`) and
+        // multiply by two, one time for each missing integer bit
+        bcd_list = to_nibble_list(bcd_limb_list);
+        for (int i=0; i<-frac_bits(); i++) {
+            bcd_mul2(bcd_list);
         }
+
     }
 
-    // Multiply BCD number by two (if it has negative number of fractional bits)
-    for (int i=0; i< -frac_bits(); i++) {
-        bcd_mul2(bcd_list);
-    }
-
-    // Convert BCD number to characters in a string and return
-    std::string result = is_negative() ? "-" : "";
-    for (int i=bcd_list.size()-1; i >= 0; i--) {
-        result.push_back( static_cast<char>(bcd_list[i] + 0x30) );
-        if (bcd_binary_point && i == bcd_binary_point) {
+    // Convert BCDs to ASCII
+    for (long i=bcd_list.size()-1; i>=rjust; i--) {
+        result.push_back(bcd_list[i] + 0x30);
+        if (decimal_point && i == rjust+long(decimal_point)) {
             result.push_back('.');
         }
     }
+
     return result;
 }
 

@@ -2,8 +2,6 @@
 #include "catch.hpp"
 
 #include <cmath>
-#include <iomanip>
-#include <iostream>
 #include <stdexcept>
 
 using ulimb_vec = std::vector<mp_limb_t>;

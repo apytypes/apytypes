@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=								\
 	-Wall -Wextra -Wpedantic -Wno-depricated -Weffc++ 	\
-	-std=c++17 -O2 -march=native -g
+	-D _GLIBCXX_DEBUG -std=c++17 -O2 -march=native -g
 
 .PHONY: test test_profile test_coverage clean clean_all
 

@@ -1,6 +1,7 @@
 #include "../apy_util.h"
 #include "catch.hpp"
 
+#include <iomanip>
 #include <iostream>
 #include <iterator>
 
@@ -106,35 +107,32 @@ TEST_CASE("nibble_shift_right_once()")
 TEST_CASE("double_dabble()")
 {
     // Simple tests for double-dabble
-    REQUIRE(double_dabble({   }) == uint8_vec{ 0 });
-    REQUIRE(double_dabble({ 0 }) == uint8_vec{ 0 });
-    REQUIRE(double_dabble({ 1 }) == uint8_vec{ 1 });
-    REQUIRE(double_dabble({ 9 }) == uint8_vec{ 9 });
-    REQUIRE(double_dabble({ 10412 }) == uint8_vec{ 2, 1, 4, 0, 1 });
+    REQUIRE(double_dabble({   }) == to_limb_vec({     }));
+    REQUIRE(double_dabble({ 0 }) == to_limb_vec({ 0x0 }));
+    REQUIRE(double_dabble({ 1 }) == to_limb_vec({ 0x1 }));
+    REQUIRE(double_dabble({ 9 }) == to_limb_vec({ 0x9 }));
+    REQUIRE(double_dabble({ 10412 }) == to_limb_vec({ 0x10412 }));
 
     // Problematique test #1
-    REQUIRE(double_dabble({ 0x0ff }) == uint8_vec{ 5, 5, 2 });
-    REQUIRE(double_dabble({ 0x100 }) == uint8_vec{ 6, 5, 2 });
-    REQUIRE(double_dabble({ 0x0ffff }) == uint8_vec{ 5, 3, 5, 5, 6 });
-    REQUIRE(double_dabble({ 0x10000 }) == uint8_vec{ 6, 3, 5, 5, 6 });
+    REQUIRE(double_dabble({ 0x0ff }) == to_limb_vec({ 0x255 }));
+    REQUIRE(double_dabble({ 0x100 }) == to_limb_vec({ 0x256 }));
+    REQUIRE(double_dabble({ 0x0ffff }) == to_limb_vec({ 0x65535 }));
+    REQUIRE(double_dabble({ 0x10000 }) == to_limb_vec({ 0x65536 }));
 
     // Problematique test #2
     REQUIRE(
         double_dabble({ 0xFFFFFFFFFFFA70CE, 0xFFFFFAAAFFFFFFFF, 0xFFFFFAAAFFFFFFFF})
-        == uint8_vec{
-            8, 7, 6, 7, 7, 7, 0, 2, 6, 8, 2, 9, 8, 9, 7, 2, 1, 2, 5, 0,
-            4, 6, 2, 9, 7, 2, 4, 1, 3, 0, 7, 6, 9, 5, 0, 3, 3, 5, 1, 7,
-            0, 8, 5, 4, 9, 6, 3, 4, 0, 4, 7, 9, 9, 0, 7, 7, 2, 6
-        }
+        == to_limb_vec({
+            0x2798928620777678, 0x6703142792640521, 0x4369458071533059, 0x6277099740
+        })
     );
 
     // Problematique test #3
     REQUIRE(
         double_dabble({ 0, 0x8000000000000000, 0})
-        == uint8_vec{
-            8, 2, 7, 5, 0, 1, 4, 8, 8, 5, 1, 7, 3, 0, 3, 7, 8, 6, 1, 3,
-            7, 1, 3, 2, 9, 6, 4, 0, 6, 4, 3, 8, 1, 1, 4, 1, 0, 7, 1
-        }
+        == to_limb_vec({
+            0x7303715884105728, 0x8346046923173168, 0x1701411
+        })
     );
 }
 
@@ -165,30 +163,24 @@ TEST_CASE("bcd_div2()")
 {
     {
         // Test 1: Continues division by two of 1
-        std::vector<uint8_t> num{1};
+        std::vector<mp_limb_t> num{1};
         for (int i=0; i<13; i++) {
             bcd_div2(num);
         }
 
-        char res[] = "00001220703125";
-        REQUIRE(std::size(res)-1 == num.size());
-        for (std::size_t i=0; i<std::size(res)-1; i++) {
-            REQUIRE(res[i] == num.at(i)+0x30);
-        }
+        REQUIRE(num.size() == 2);
+        REQUIRE(num[0] == 0x00001220703125000);
     }
 
     {
         // Test 2: Divide 45 by 2 13 times
-        std::vector<uint8_t> num{0x4, 0x5};
+        std::vector<mp_limb_t> num{0x45};
         for (int i=0; i<13; i++) {
             bcd_div2(num);
         }
 
-        char res[] = "000054931640625";
-        REQUIRE(std::size(res)-1 == num.size());
-        for (std::size_t i=0; i<std::size(res)-1; i++) {
-            REQUIRE(res[i] == num.at(i)+0x30);
-        }
+        REQUIRE(num.size() == 2);
+        REQUIRE(num[0] == 0x54931640625000);
     }
 }
 

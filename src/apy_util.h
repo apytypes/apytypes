@@ -94,8 +94,11 @@ static inline std::size_t nibble_width(mp_limb_t x)
 
 // Convert a positive arbitrary size integer array (`std::vector<mp_limb_t>`) to a
 // nibble list. The nibble list contains least significant nibble first.
+// Argument `len` indicates the intended bcd length of the output. When set, no more
+// than `result.rend() - len` zeros will be removed.
 static inline std::vector<uint8_t> to_nibble_list(
-    const std::vector<mp_limb_t> &data_array
+    const std::vector<mp_limb_t> &data_array,
+    std::size_t len = 0
 ) {
     constexpr std::size_t NIBBLES_PER_LIMB = 2*_LIMB_SIZE_BYTES;
     constexpr std::size_t BITS_PER_NIBBLE = 4;
@@ -106,9 +109,9 @@ static inline std::vector<uint8_t> to_nibble_list(
         }
     }
 
-    // Remove zero-elements *from the end*
+    // Remove zero-elements *from the end*, but no more than `keep` elements
     auto is_non_zero = [](auto n) { return n != 0; };
-    auto non_zero_it = std::find_if(result.rbegin(), result.rend(), is_non_zero);
+    auto non_zero_it = std::find_if(result.rbegin(), result.rend()-len, is_non_zero);
     result.erase(non_zero_it.base(), result.end());
 
     // Return result
@@ -232,14 +235,16 @@ struct DoubleDabbleList {
 };
 
 // Double-dabble algorithm for binary->BCD conversion
-static inline std::vector<uint8_t> __attribute__((noinline)) double_dabble(std::vector<mp_limb_t> nibble_data)
+static inline std::vector<mp_limb_t> double_dabble(std::vector<mp_limb_t> nibble_data)
 {
+    if (!nibble_data.size()) {
+        return {};
+    }
+
     // Remove zero elements from the back until first non-zero element is found
     nibble_data.erase(
         std::find_if(
-            nibble_data.rbegin(),
-            nibble_data.rend(),
-            [](auto n){ return n != 0; }
+            nibble_data.rbegin(), nibble_data.rend(), [](auto n){return n!=0;}
         ).base(),
         nibble_data.end()
     );
@@ -267,11 +272,11 @@ static inline std::vector<uint8_t> __attribute__((noinline)) double_dabble(std::
         bcd_list.do_dabble();
         bcd_list.do_double(new_bit);
     }
-    return to_nibble_list(bcd_list.data);
+    return bcd_list.data;
 }
 
 // Reverse double-dabble algorithm for BCD->binary conversion
-static inline std::vector<mp_limb_t> __attribute__((noinline)) reverse_double_dabble(
+static inline std::vector<mp_limb_t> reverse_double_dabble(
     const std::vector<uint8_t> &bcd_list
 ) {
     if (bcd_list.size() == 0) {
@@ -312,26 +317,23 @@ static inline std::vector<mp_limb_t> __attribute__((noinline)) reverse_double_da
     return nibble_data.size() ? nibble_data : std::vector<mp_limb_t>{ 0 };
 }
 
-// Divide BCD number by two. First element in input array in considered MSB
-static void __attribute__((noinline)) bcd_div2(std::vector<uint8_t> &bcd_list)
+// Divide BCD number by two. First element in input array in considered LSB
+static inline void bcd_div2(std::vector<mp_limb_t> &bcd_list)
 {
     if (bcd_list.size() == 0) {
         return;
     }
 
-    // Add a new least significant bcd?
-    bool new_lsbcd = bool(bcd_list.back() & 0x1);
-
-    // Division by two
-    for (int i=bcd_list.size()-1; i>0; i--) {
-        bcd_list[i] >>= 1;
-        bcd_list[i] += bcd_list[i-1] & 0x1 ? 5 : 0;
+    // Do a single vector right-shift and possibly prepend the new data
+    auto shift_out = mpn_rshift(&bcd_list[0], &bcd_list[0], bcd_list.size(), 1);
+    if (shift_out) {
+        bcd_list.insert(bcd_list.begin(), shift_out);
     }
-    bcd_list[0] >>= 1;
 
-    // Add the new least significant *bcd*
-    if (new_lsbcd) {
-        bcd_list.push_back(0x5);
+    // Subtract 3 from each nibble greater than or equal to 8
+    for (auto &l : bcd_list) {
+        mp_limb_t dabble_mask = (l >> 3) & DoubleDabbleList::_NIBBLE_MASK;
+        l -= (dabble_mask << 1) | dabble_mask;
     }
 }
 
@@ -483,7 +485,7 @@ static inline void limb_vector_lsr(std::vector<mp_limb_t> &vec, unsigned shift_a
     );
 }
 
-// Perform logical left shift on a limb vector. Accelerate using GMP.
+// Perform logical left shift on a limb vector. Accelerated using GMP.
 static inline void limb_vector_lsl(std::vector<mp_limb_t> &vec, unsigned shift_amnt)
 {
     if (!vec.size()) {
