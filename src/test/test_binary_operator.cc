@@ -1,11 +1,10 @@
 #include "../apy_fixed.h"
 #include "catch.hpp"
-#include <iomanip>
 #include <iostream>
 
 using uint64_vec = std::vector<uint64_t>;
 
-TEST_CASE("APyFixed::operator+(rhs) and APyFixed::operator-(rhs)")
+TEST_CASE("Binary arithmetic")
 {
 
     { /* Test #1 */
@@ -17,6 +16,9 @@ TEST_CASE("APyFixed::operator+(rhs) and APyFixed::operator-(rhs)")
         REQUIRE((op_a - op_b).to_string() ==  "3.5");
         REQUIRE((op_a - op_b).int_bits()  ==      3);
         REQUIRE((op_a - op_b).bits()      ==      4);
+        REQUIRE((op_a * op_b).to_string() ==   "-3");
+        REQUIRE((op_a * op_b).int_bits()  ==      4);
+        REQUIRE((op_a * op_b).bits()      ==      6);
     }
 
     { /* Test #2 */
@@ -28,6 +30,9 @@ TEST_CASE("APyFixed::operator+(rhs) and APyFixed::operator-(rhs)")
         REQUIRE((op_a - op_b).to_string() == "-0.5");
         REQUIRE((op_a - op_b).int_bits()  ==      2);
         REQUIRE((op_a - op_b).bits()      ==      3);
+        REQUIRE((op_a * op_b).to_string() ==  "0.5");
+        REQUIRE((op_a * op_b).int_bits()  ==      1);
+        REQUIRE((op_a * op_b).bits()      ==      2);
     }
 
     { /* Test #3 */
@@ -47,8 +52,14 @@ TEST_CASE("APyFixed::operator+(rhs) and APyFixed::operator-(rhs)")
         REQUIRE((op_a - op_b).int_bits()  == 41);
         REQUIRE((op_a - op_b).to_string() ==
                 "306538300."
-                "6376953124999994823705426363717740922965049321646802127361297"
-                "607421875");
+                "63769531249999948237054263637177409229650493216468021273612976"
+                "07421875");
+        REQUIRE((op_a * op_b).bits()      == 240);
+        REQUIRE((op_a * op_b).int_bits()  == 50);
+        REQUIRE((op_a * op_b).to_string() ==
+                "20997878285."
+                "93212906492328967787678618300118861387561219888908681241446174"
+                "681186676025390625");
     }
 
     { /* Test #4 */

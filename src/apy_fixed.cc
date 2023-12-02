@@ -168,8 +168,8 @@ APyFixed APyFixed::operator*(const APyFixed &rhs) const
     APyFixed result(res_int_bits+res_frac_bits, res_int_bits);
     bool sign_product = is_negative() ^ rhs.is_negative();
 
-    // mpn_mul requires the limb vector length of the first operand to be greater than
-    // or equally long as the limb vector length of the second operand. Simply swap the
+    // mpn_mul requires the limb vector length of the first operand to be greater than,
+    // or equally long as, the limb vector length of the second operand. Simply swap the
     // operands (essentially a free operation in C++) if this is not the case
     if (abs_operand1.size() < abs_operand2.size()) {
         std::swap(abs_operand1, abs_operand2);
@@ -194,6 +194,7 @@ APyFixed APyFixed::operator*(const APyFixed &rhs) const
 /*
  * Unariy operators
  */
+
  APyFixed APyFixed::operator-() const
 {
     // Invert all bits of *this, possibly append sign to new limb, and increment lsb
@@ -237,7 +238,8 @@ void APyFixed::from_vector(const std::vector<mp_limb_t> &new_vector)
 
 std::string APyFixed::to_string_dec() const {
 
-    // Print absolute value of number, and conditionally append a minus sign
+    // Construct a string from the absolute value of number, and conditionally append a
+    // minus sign to the string if negative
     APyFixed abs_val(_bits+1, _int_bits+1);
     abs_val = is_negative() ? -(*this) : *this;
 
