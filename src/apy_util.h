@@ -7,7 +7,6 @@
 
 #include <algorithm>  // std::find
 #include <cstddef>    // std::size_t
-#include <iterator>
 #include <regex>      // std::regex, std::regex_replace
 #include <stdexcept>  // std::logic_error, std::domain_error
 #include <vector>     // std::vector
@@ -93,8 +92,8 @@ static inline std::size_t nibble_width(mp_limb_t x)
     }
 }
 
-// Convert a positive arbitrary size integer array (array mp_limb_t) to a nibble list.
-// The nibble list contains least significant nibble first.
+// Convert a positive arbitrary size integer array (`std::vector<mp_limb_t>`) to a
+// nibble list. The nibble list contains least significant nibble first.
 static inline std::vector<uint8_t> to_nibble_list(
     const std::vector<mp_limb_t> &data_array
 ) {
@@ -116,8 +115,8 @@ static inline std::vector<uint8_t> to_nibble_list(
     return result.size() > 0 ? result : std::vector<uint8_t>{ 0 };
 }
 
-// Convert a nibble list into a positive integer array (mp_limb_t). The nibble list is
-// assumed to have most significant nibble first.
+// Convert a nibble list into a positive integer array (`std::vector<mp_limb_t>`). The
+// nibble list is assumed to have least significant nibble first.
 static inline std::vector<mp_limb_t> from_nibble_list(
     const std::vector<uint8_t> &nibble_list
 ) {
@@ -133,9 +132,8 @@ static inline std::vector<mp_limb_t> from_nibble_list(
     for (std::size_t limb_i=0; limb_i<result.size(); limb_i++) {
         mp_limb_t limb = 0;
         for (std::size_t nbl_i=0; nbl_i<NIBBLES_PER_LIMB; nbl_i++) {
-            int i = nibble_list.size() - 1 -(limb_i*NIBBLES_PER_LIMB + nbl_i);
-            if (i < 0) {
-                // Done reading all nibbles
+            auto i = limb_i * NIBBLES_PER_LIMB + nbl_i;
+            if (i >= nibble_list.size()) {
                 break;
             }
             limb |= (mp_limb_t(nibble_list[i]) & 0xF) << (nbl_i*BITS_PER_NIBBLE);
@@ -194,7 +192,9 @@ struct DoubleDabbleList {
 
     std::vector<mp_limb_t> data{ 0 };
 
-    void do_double(mp_limb_t new_bit) {
+    // Do one iteration of double (double-dabble)
+    void do_double(mp_limb_t new_bit)
+    {
         // Perform a single bit left shift (double)
         if (mpn_lshift(&data[0], &data[0], data.size(), 1)) {
             data.push_back(1);
@@ -204,17 +204,35 @@ struct DoubleDabbleList {
         }
     }
 
-    void do_dabble() {
-        // Add 3 to each nibble GEQ 5
+    // Do one iteration of dabble (double-dabble)
+    void do_dabble()
+    {
         for (auto &l : data) {
+            // Add 3 to each nibble GEQ 5
             mp_limb_t dabble_mask = (((l | l>>1) & (l>>2)) | (l>>3)) & _NIBBLE_MASK;
             l += (dabble_mask << 1) | dabble_mask;
+        }
+    }
+
+    // Do one iteration of reverse double (reverse double-dabble)
+    void do_reverse_double(mp_limb_t &limb_out)
+    {
+        limb_out |= mpn_rshift(&data[0], &data[0], data.size(), 1);
+    }
+
+    // Do one iteration of reverse dabble (reverse double-dabble)
+    void do_reverse_dabble()
+    {
+        for (auto &l : data) {
+            // Subtract 3 from each nibble GEQ 8
+            mp_limb_t dabble_mask = (l >> 3) & _NIBBLE_MASK;
+            l -= (dabble_mask << 1) | dabble_mask;
         }
     }
 };
 
 // Double-dabble algorithm for binary->BCD conversion
-static inline std::vector<uint8_t> double_dabble(std::vector<mp_limb_t> nibble_data)
+static inline std::vector<uint8_t> __attribute__((noinline)) double_dabble(std::vector<mp_limb_t> nibble_data)
 {
     // Remove zero elements from the back until first non-zero element is found
     nibble_data.erase(
@@ -253,49 +271,49 @@ static inline std::vector<uint8_t> double_dabble(std::vector<mp_limb_t> nibble_d
 }
 
 // Reverse double-dabble algorithm for BCD->binary conversion
-static inline std::vector<mp_limb_t> reverse_double_dabble(
-    std::vector<uint8_t> bcd_list
+static inline std::vector<mp_limb_t> __attribute__((noinline)) reverse_double_dabble(
+    const std::vector<uint8_t> &bcd_list
 ) {
     if (bcd_list.size() == 0) {
         return {};
     }
 
-    std::vector<uint8_t> nibble_list{};  // MSNibble first
-    int iteration=0;
+    std::size_t iteration=0;
+    std::vector<mp_limb_t> nibble_data{};
+    DoubleDabbleList bcd{ from_nibble_list(bcd_list) };
+    mp_limb_t new_limb = 0;
     while (
-        // As long as there are elements remaining in the BCD list and we haven't
+        // As long as there are elements remaining in the BCD list, and we haven't
         // completed a multiple-of-four iterations
-        std::any_of(bcd_list.begin(), bcd_list.end(), [](auto n){ return n!=0; })
+        std::any_of(bcd.data.begin(), bcd.data.end(), [](auto n){ return n!=0; })
         || iteration % 4 != 0
     ) {
-        // Append a new nibble every fourth iteration
-        if (iteration % 4 == 0) {
-            nibble_list.push_back(0);
+        // Insert a new limb to the nibble data vector
+        if (iteration % _LIMB_SIZE_BITS == 0) {
+            nibble_data.insert(nibble_data.begin(), new_limb);
         }
 
-        // Shift BCD list to the right
-        bool carry_bcd_to_nibble = nibble_list_shift_right_once(bcd_list);
-        for (auto &bcd : bcd_list) {
-            if (bcd >= 8) {
-                bcd -= 3;
-            }
-        }
+        // Right shift the nibble binary data
+        new_limb = mpn_rshift(&nibble_data[0], &nibble_data[0], nibble_data.size(), 1);
 
-        nibble_list_shift_right_once(nibble_list);
-        if (carry_bcd_to_nibble) {
-            nibble_list.front() |= 0x8;
-        }
+        // Do the (reverse) double-dabble
+        bcd.do_reverse_double(nibble_data.back());
+        bcd.do_reverse_dabble();
 
         // Increment iteration counter
         iteration++;
     }
-    return nibble_list.size() 
-        ? from_nibble_list(nibble_list)
-        : std::vector<mp_limb_t>{0};
+
+    // Right-adjust the data and return
+    std::size_t shft_val = 64 - (iteration % 64);
+    if (iteration && shft_val) {
+        mpn_rshift(&nibble_data[0], &nibble_data[0], nibble_data.size(), shft_val);
+    }
+    return nibble_data.size() ? nibble_data : std::vector<mp_limb_t>{ 0 };
 }
 
 // Divide BCD number by two. First element in input array in considered MSB
-static inline void bcd_div2(std::vector<uint8_t> &bcd_list)
+static void __attribute__((noinline)) bcd_div2(std::vector<uint8_t> &bcd_list)
 {
     if (bcd_list.size() == 0) {
         return;

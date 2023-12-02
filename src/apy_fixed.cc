@@ -343,13 +343,11 @@ void APyFixed::from_string_dec(const std::string &str)
         bcd_mul2(bcd_list);
     }
 
-    // Reverse the order of the BCD list (to MSB first)
-    std::reverse(bcd_list.begin(), bcd_list.end());
-
     // Remove elements after decimal dot
     if (binary_point_dec) {
         bcd_list.erase(
-            bcd_list.end() - (bcd_list_size_prev-binary_point_dec), bcd_list.end()
+            bcd_list.begin(),
+            bcd_list.begin() + bcd_list_size_prev - binary_point_dec
         );
     }
 

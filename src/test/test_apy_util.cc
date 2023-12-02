@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <iterator>
-#include <stdexcept>
 
 using uint8_vec = std::vector<uint8_t>;
 
@@ -23,8 +22,8 @@ TEST_CASE("to_nibble_list() and from_nibble_list()")
 
     REQUIRE(from_nibble_list({ 0 }) == to_limb_vec({0x0}));
     REQUIRE(from_nibble_list({ 1 }) == to_limb_vec({0x1}));
-    REQUIRE(from_nibble_list({ 1, 0 }) == to_limb_vec({0x10}));
-    REQUIRE(from_nibble_list({ 9, 3, 0, 7, 3, 9  }) == to_limb_vec({0x930739}));
+    REQUIRE(from_nibble_list({ 1, 0 }) == to_limb_vec({0x01}));
+    REQUIRE(from_nibble_list({ 9, 3, 0, 7, 3, 9  }) == to_limb_vec({0x937039}));
 
     /*
      * TODO: Longer tests are actually dependant on the target architecture. These tests
@@ -40,6 +39,17 @@ TEST_CASE("to_nibble_list() and from_nibble_list()")
             0x0, 0x0, 0x3, 0x3, 0x7, 0x7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0xF, 0xE, 0, 0, 0xE, 0xB, 0, 0, 0, 0, 0xD, 0xA, 0, 0, 0xE, 0x7
         }
+    );
+    REQUIRE(
+        from_nibble_list({
+            0x2, 0x1, 0, 0, 0xd, 0xc, 0xb, 0xa, 0, 0, 0, 0, 0, 0, 0, 0,
+            0x0, 0x0, 0x3, 0x3, 0x7, 0x7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0xF, 0xE, 0, 0, 0xE, 0xB, 0, 0, 0, 0, 0xD, 0xA, 0, 0, 0xE, 0x7
+        }) == to_limb_vec({
+            0xabcd0012,
+            0x773300,
+            0x7E00AD0000BE00EF,
+        })
     );
 }
 
@@ -134,15 +144,17 @@ TEST_CASE("reverse_double_dabble()")
     REQUIRE(reverse_double_dabble({ 0 }) == to_limb_vec({ 0 }));
     REQUIRE(reverse_double_dabble({ 1 }) == to_limb_vec({ 1 }));
     REQUIRE(reverse_double_dabble({ 9 }) == to_limb_vec({ 9 }));
-    REQUIRE(reverse_double_dabble({ 1, 0 }) == to_limb_vec({ 0xA }));
-    REQUIRE(reverse_double_dabble({ 1, 5 }) == to_limb_vec({ 0xF }));
-    REQUIRE(reverse_double_dabble({ 2, 5, 5 }) == to_limb_vec({ 0xFF }));
-    REQUIRE(reverse_double_dabble({ 2, 5, 6 }) == to_limb_vec({ 0x100 }));
+    REQUIRE(reverse_double_dabble({ 0, 1 }) == to_limb_vec({ 0xA }));
+    REQUIRE(reverse_double_dabble({ 5, 1 }) == to_limb_vec({ 0xF }));
+    REQUIRE(reverse_double_dabble({ 5, 5, 2 }) == to_limb_vec({ 0xFF }));
+    REQUIRE(reverse_double_dabble({ 6, 5, 2 }) == to_limb_vec({ 0x100 }));
+    REQUIRE(reverse_double_dabble({ 6, 0, 2 }) == to_limb_vec({ 0xCE }));
 
     REQUIRE(
         reverse_double_dabble({
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 5, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 3, 0, 0, 0, 0,
+            0, 0, 0, 0, 3, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 5, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 8, 7,
+            6, 5, 4, 3, 2, 1,
         })
         == to_limb_vec({0x0b0290d4c7eba390, 0x00baf96937ffc2a8, 0x159ffe72})
     );
