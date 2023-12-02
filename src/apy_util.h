@@ -110,7 +110,7 @@ static inline std::vector<uint8_t> to_nibble_list(
     // Remove zero-elements *from the end*
     auto is_non_zero = [](auto n) { return n != 0; };
     auto non_zero_it = std::find_if(result.rbegin(), result.rend(), is_non_zero);
-    result.resize(std::distance(result.begin(), non_zero_it.base()));
+    result.erase(non_zero_it.base(), result.end());
 
     // Return result
     return result.size() > 0 ? result : std::vector<uint8_t>{ 0 };
@@ -124,9 +124,11 @@ static inline std::vector<mp_limb_t> from_nibble_list(
     constexpr std::size_t NIBBLES_PER_LIMB = 2*_LIMB_SIZE_BYTES;
     constexpr std::size_t BITS_PER_NIBBLE = 4;
 
+    // Compute the total number of limbs in the result vector
     std::size_t limbs = nibble_list.size()/NIBBLES_PER_LIMB;
     limbs += nibble_list.size()%NIBBLES_PER_LIMB != 0 ? 1 : 0;
 
+    // Insert one nibble to the limb vector at a time
     std::vector<mp_limb_t> result( limbs, 0 );
     for (std::size_t limb_i=0; limb_i<result.size(); limb_i++) {
         mp_limb_t limb = 0;
@@ -190,21 +192,21 @@ struct DoubleDabbleList {
         ? 0x1111111111111111  // 64-bit architecture
         : 0x11111111;         // 32-bit architecture
 
-    std::vector<mp_limb_t> bcd_list{ 0 };
+    std::vector<mp_limb_t> data{ 0 };
 
     void do_double(mp_limb_t new_bit) {
         // Perform a single bit left shift (double)
-        if (mpn_lshift(&bcd_list[0], &bcd_list[0], bcd_list.size(), 1)) {
-            bcd_list.push_back(1);
+        if (mpn_lshift(&data[0], &data[0], data.size(), 1)) {
+            data.push_back(1);
         }
         if (new_bit) {
-            bcd_list[0] |= 0x1;
+            data[0] |= 0x1;
         }
     }
 
     void do_dabble() {
         // Add 3 to each nibble GEQ 5
-        for (auto &l : bcd_list) {
+        for (auto &l : data) {
             mp_limb_t dabble_mask = (((l | l>>1) & (l>>2)) | (l>>3)) & _NIBBLE_MASK;
             l += (dabble_mask << 1) | dabble_mask;
         }
@@ -247,7 +249,7 @@ static inline std::vector<uint8_t> double_dabble(std::vector<mp_limb_t> nibble_d
         bcd_list.do_dabble();
         bcd_list.do_double(new_bit);
     }
-    return to_nibble_list(bcd_list.bcd_list);
+    return to_nibble_list(bcd_list.data);
 }
 
 // Reverse double-dabble algorithm for BCD->binary conversion

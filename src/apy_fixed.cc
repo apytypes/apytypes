@@ -246,13 +246,13 @@ std::string APyFixed::to_string_dec() const {
     // Conversion of data to BCD
     std::vector<uint8_t> bcd_list = double_dabble(abs_val._data);
     auto bcd_binary_point = 0;
-    auto num_prev_bcds = bcd_list.size();
 
     if (frac_bits() > 0) {
         // Reverse order of BCD list to most-significant-bcd first, so that bcd_div2()
         // can append to bcd_list from the back.
         std::reverse(bcd_list.begin(), bcd_list.end());
 
+        std::size_t num_prev_bcds = bcd_list.size();
         for (int i=0; i<frac_bits(); i++) {
             bcd_div2(bcd_list);
             if (bcd_list.size() > num_prev_bcds) {
