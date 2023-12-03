@@ -250,18 +250,18 @@ std::string APyFixed::to_string_dec() const {
     // Divide BCD limb list by two, one time per fractional bit (if any)
     long decimal_point = 0;
     for (int i=0; i<frac_bits(); i++) {
-        bcd_div2(bcd_limb_list);
+        bcd_limb_vec_div2(bcd_limb_list);
         decimal_point += bcd_limb_list.size() > bcd_limb_list_start_size ? 1 : 0;
     }
     long rjust = ((_LIMB_SIZE_BITS/4) - decimal_point) % (_LIMB_SIZE_BITS/4);
 
-    // Convert BCD limb list to regular BCD list (`std::vector<uint8_t>`)
-    auto bcd_list = to_nibble_list(bcd_limb_list, decimal_point+rjust+1);
-
     // Multiply BCD list by two, one time per for each missing fractional bit (if any)
     for (int i=0; i<-frac_bits(); i++) {
-        bcd_mul2(bcd_list);
+        bcd_limb_vec_mul2(bcd_limb_list);
     }
+
+    // Convert BCD limb list to regular BCD list (`std::vector<uint8_t>`)
+    auto bcd_list = to_nibble_list(bcd_limb_list, decimal_point+rjust+1);
 
     // Convert BCDs to ASCII
     std::string result = is_negative() ? "-" : "";

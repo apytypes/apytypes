@@ -310,8 +310,8 @@ static inline std::vector<mp_limb_t> reverse_double_dabble(
     return nibble_data.size() ? nibble_data : std::vector<mp_limb_t>{ 0 };
 }
 
-// Divide BCD number by two. First element in input array in considered LSB
-static inline void bcd_div2(std::vector<mp_limb_t> &bcd_list)
+// Divide BCD limb vector number by two.
+static inline void bcd_limb_vec_div2(std::vector<mp_limb_t> &bcd_list)
 {
     if (bcd_list.size() == 0) {
         return;
@@ -330,14 +330,36 @@ static inline void bcd_div2(std::vector<mp_limb_t> &bcd_list)
     }
 }
 
-// Multiply BCD number by two. First element in input array is considered LSB
+// Multiply BCD limb vector number by two.
+static inline void bcd_limb_vec_mul2(std::vector<mp_limb_t> &bcd_list)
+{
+    if (bcd_list.size() == 0) {
+        return;
+    }
+
+    // Add 3 to each nibble greater than or equal to 5
+    for (auto &l : bcd_list) {
+        mp_limb_t dabble_mask =
+            (((l | l>>1) & (l>>2)) | (l>>3)) & DoubleDabbleList::_NIBBLE_MASK;
+        l += (dabble_mask << 1) | dabble_mask;
+    }
+
+    // Multiply by two
+    auto shift_out = mpn_lshift(&bcd_list[0], &bcd_list[0], bcd_list.size(), 1);
+    if (shift_out) {
+        bcd_list.push_back(shift_out);
+    }
+}
+
+// Multiply BCD vector (`std::vector<uint8_t>`) by two. The first element (`front()`)
+// in the vector is considered LSB.
 static inline void bcd_mul2(std::vector<uint8_t> &bcd_list)
 {
     if (bcd_list.size() == 0) {
         return;
     }
 
-    // Multiply by two
+    // Multiply each BCD by two
     bool carry_bit = false;
     for (auto &bcd : bcd_list) {
         if (bcd >= 5) {

@@ -159,13 +159,13 @@ TEST_CASE("reverse_double_dabble()")
 
 }
 
-TEST_CASE("bcd_div2()")
+TEST_CASE("bcd_limb_vec_div2()")
 {
     {
         // Test 1: Continues division by two of 1
         std::vector<mp_limb_t> num{1};
         for (int i=0; i<13; i++) {
-            bcd_div2(num);
+            bcd_limb_vec_div2(num);
         }
 
         REQUIRE(num.size() == 2);
@@ -176,7 +176,7 @@ TEST_CASE("bcd_div2()")
         // Test 2: Divide 45 by 2 13 times
         std::vector<mp_limb_t> num{0x45};
         for (int i=0; i<13; i++) {
-            bcd_div2(num);
+            bcd_limb_vec_div2(num);
         }
 
         REQUIRE(num.size() == 2);
