@@ -241,28 +241,21 @@ static inline std::vector<mp_limb_t> double_dabble(std::vector<mp_limb_t> nibble
         return {};
     }
 
-    // Remove zero elements from the back until first non-zero element is found
+    // Remove zero elements from the back until first non-zero element is found (keep
+    // one zero at the start)
+    auto is_non_zero = [](auto n) { return n != 0; };
     nibble_data.erase(
-        std::find_if(
-            nibble_data.rbegin(), nibble_data.rend(), [](auto n){return n!=0;}
-        ).base(),
+        std::find_if(nibble_data.rbegin(), nibble_data.rend()-1, is_non_zero).base(),
         nibble_data.end()
     );
 
-    // Return array with zero early if nibble list is empty
-    if (nibble_data.size() == 0) {
-        return { 0 };
-    }
-
     // Double-dabble algorithm begin
-    const std::size_t nibbles_last_limb = nibble_width(nibble_data.back());
-    const std::size_t nibbles_full_limbs = _LIMB_SIZE_BITS/4 * (nibble_data.size()-1);
-    const std::size_t nibbles = nibbles_last_limb + nibbles_full_limbs;
-    const mp_limb_t new_bit_mask = 
-        nibbles_last_limb % _LIMB_SIZE_BITS == 0
+    DoubleDabbleList bcd_list{};
+    const auto nibbles_last_limb = nibble_width(nibble_data.back());
+    const auto nibbles = nibbles_last_limb + _LIMB_SIZE_BITS/4 * (nibble_data.size()-1);
+    const mp_limb_t new_bit_mask = nibbles_last_limb == 0
         ? mp_limb_t(1) << (_LIMB_SIZE_BITS - 1)
         : mp_limb_t(1) << (4*nibbles_last_limb - 1);
-    DoubleDabbleList bcd_list{};
     for (std::size_t i=0; i<4*nibbles; i++) {
         // Shift input data left once
         mp_limb_t new_bit = nibble_data.back() & new_bit_mask;

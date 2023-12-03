@@ -245,43 +245,26 @@ std::string APyFixed::to_string_dec() const {
 
     // Convert this number to BCD with the double-dabble algorithm
     std::vector<mp_limb_t> bcd_limb_list = double_dabble(abs_val._data);
+    std::size_t bcd_limb_list_start_size = bcd_limb_list.size();
 
-    // The resulting string
-    std::string result = is_negative() ? "-" : "";
-
-    // String construction intermediates
-    std::vector<uint8_t> bcd_list;
-    long rjust = 0;
+    // Divide BCD limb list by two, one time per fractional bit (if any)
     long decimal_point = 0;
+    for (int i=0; i<frac_bits(); i++) {
+        bcd_div2(bcd_limb_list);
+        decimal_point += bcd_limb_list.size() > bcd_limb_list_start_size ? 1 : 0;
+    }
+    long rjust = ((_LIMB_SIZE_BITS/4) - decimal_point) % (_LIMB_SIZE_BITS/4);
 
-    if (frac_bits() > 0) {
+    // Convert BCD limb list to regular BCD list (`std::vector<uint8_t>`)
+    auto bcd_list = to_nibble_list(bcd_limb_list, decimal_point+rjust+1);
 
-        // Divide BCD limb list by two, one time per fractional bit
-        auto bcd_list_start_size = bcd_limb_list.size();
-        for (int i=0; i<frac_bits(); i++) {
-            bcd_div2(bcd_limb_list);
-            if (bcd_limb_list.size() > bcd_list_start_size) {
-                decimal_point++;
-            }
-        }
-
-        // Convert BCD limb list to regular BCD list (`std::vector<uint8_t>`)
-        long ljust = decimal_point % (_LIMB_SIZE_BITS/4);
-        rjust = ((_LIMB_SIZE_BITS/4) - ljust) % (_LIMB_SIZE_BITS/4);
-        bcd_list = to_nibble_list(bcd_limb_list, decimal_point+rjust+1);
-
-    } else {
-
-        // Convert BCD limb list to regular BCD list (`std::vector<uint8_t>`) and
-        // multiply by two, one time for each missing integer bit
-        bcd_list = to_nibble_list(bcd_limb_list);
-        for (int i=0; i<-frac_bits(); i++) {
-            bcd_mul2(bcd_list);
-        }
-
+    // Multiply BCD list by two, one time per for each missing fractional bit (if any)
+    for (int i=0; i<-frac_bits(); i++) {
+        bcd_mul2(bcd_list);
     }
 
     // Convert BCDs to ASCII
+    std::string result = is_negative() ? "-" : "";
     for (long i=bcd_list.size()-1; i>=rjust; i--) {
         result.push_back(bcd_list[i] + 0x30);
         if (decimal_point && i == rjust+long(decimal_point)) {

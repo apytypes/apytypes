@@ -192,4 +192,7 @@ TEST_CASE("Non-implemented function")
 {
     REQUIRE_THROWS_AS(APyFixed(1,0).to_string_hex(), NotImplementedException);
     REQUIRE_THROWS_AS(APyFixed(1,0).to_string_oct(), NotImplementedException);
+    REQUIRE_THROWS_AS(APyFixed(1,0, "0", 8), NotImplementedException);
+    REQUIRE_THROWS_AS(APyFixed(1,0, "0", 16), NotImplementedException);
+    REQUIRE_THROWS_AS(APyFixed(1,0, "0", -1), std::domain_error);
 }
