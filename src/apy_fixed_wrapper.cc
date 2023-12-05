@@ -51,6 +51,7 @@ void bind_fixed(py::module &m) {
         .def("is_negative", &APyFixed::is_negative)
         .def("increment_lsb", &APyFixed::increment_lsb)
         .def("to_string", &APyFixed::to_string, py::arg("type") = STRING_TYPE::DEC)
+        .def("__str__", &APyFixed::to_string, py::arg("type") = STRING_TYPE::DEC)
         .def("to_string_hex", &APyFixed::to_string_hex)
         .def("to_string_oct", &APyFixed::to_string_oct)
         .def("to_string_dec", &APyFixed::to_string_dec)
