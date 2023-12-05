@@ -5,7 +5,7 @@
  * APyTypes use very small vectors (elements often smaller than say 128 bits), this
  * can many times help save the overhead of performing heap allocations.
  *
- * Should be used with std::vector<mp_limb_t>
+ * The idea is to use this allocator with `std::vector<mp_limb_t>`
  *
  * Author: Mikael Henriksson (2023)
  */
@@ -29,8 +29,7 @@ public:
     typename std::allocator<T>::pointer allocate(
         typename std::allocator<T>::size_type n
     ) {
-        //if (n <= _STACK_ELEMENT_SIZE) {
-        if (n <= 4) {
+        if (n <= _STACK_ELEMENT_SIZE) {
             return stack_data;
         } else {
             return new T[n];
@@ -51,11 +50,13 @@ public:
         }
     }
 
-    // Rebind (for C++03 compatibility)
-    //template <class U>
-    //struct rebind {
-    //    using other = DynamicStackAllocator<T, _STACK_ELEMENT_SIZE>;
-    //};
+    // Member function `rebind` is non-optional for allocators where template parameters
+    // are non-template *type* parameters:
+    // https://en.cppreference.com/w/cpp/named_req/Allocator
+    template <class U>
+    struct rebind {
+        using other = DynamicStackAllocator<T, _STACK_ELEMENT_SIZE>;
+    };
 
 private:
 
@@ -73,7 +74,7 @@ bool operator==(
     const DynamicStackAllocator<U, _U_STACK_ELEMENT_SIZE> &) 
     noexcept
 { 
-    // Storage allocated with one `DynamicAllocator` can be deallocated throught
+    // Storage allocated with one `DynamicAllocator` can be deallocated through
     // another `DynamicAllocator`
     return true;
 }
@@ -88,7 +89,7 @@ bool operator!=(
     const DynamicStackAllocator<U, _U_STACK_ELEMENT_SIZE> &) 
     noexcept
 { 
-    // Storage allocated with one `DynamicAllocator` can be deallocated throught
+    // Storage allocated with one `DynamicAllocator` can be deallocated through
     // another `DynamicAllocator`
     return false;
 }
