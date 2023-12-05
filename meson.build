@@ -39,7 +39,8 @@ apy_lib = library(
     'apy_lib',
     sources : lib_src,
     cpp_args : cpp_compiler_flags,
-    dependencies : gmp_dep     
+    dependencies : gmp_dep,
+    install: true # Perhaps only works on Linux systems
 )
 
 # Python module
@@ -52,5 +53,6 @@ python_installation.extension_module(
     ],
     include_directories : pybind11_includes,
     dependencies : python_installation.dependency(),
-    link_with : apy_lib
+    link_with : apy_lib,
+    install: true
 )
