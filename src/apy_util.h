@@ -5,6 +5,8 @@
 #ifndef _APY_UTIL_H
 #define _APY_UTIL_H
 
+#include "apy_dynamic_stack_allocator.h"
+
 #include <algorithm>  // std::find
 #include <cstddef>    // std::size_t
 #include <regex>      // std::regex, std::regex_replace
@@ -42,7 +44,7 @@ static inline std::vector<mp_limb_t> to_limb_vec(std::vector<uint64_t> vec)
         }
         return result;
     } else {  // sizeof(mp_limb_t) == 8
-        return vec;
+        return std::vector<mp_limb_t>(vec.begin(), vec.end());
     }
 }
 
@@ -67,6 +69,14 @@ static inline std::size_t bits_to_limbs(std::size_t bits) {
     } else {
         return bits/_LIMB_SIZE_BITS + 1;
     }
+}
+
+// Count the number of significant limbs in limb vector
+static inline std::size_t significant_limbs(const std::vector<mp_limb_t> &vector)
+{
+    auto is_non_zero = [](auto n) { return n != 0; };
+    auto back_non_zero_it = std::find_if(vector.crbegin(), vector.crend(), is_non_zero);
+    return std::distance(vector.begin(), back_non_zero_it.base());
 }
 
 // Quickly perform `1 + ceil(log2(x))` for unsigned integer (`mp_limb_t`) `x` if `x` is
@@ -303,7 +313,7 @@ static inline std::vector<mp_limb_t> reverse_double_dabble(
     }
 
     // Right-adjust the data and return
-    std::size_t shft_val = 64 - (iteration % 64);
+    std::size_t shft_val = _LIMB_SIZE_BITS - (iteration % _LIMB_SIZE_BITS);
     if (iteration && shft_val) {
         mpn_rshift(&nibble_data[0], &nibble_data[0], nibble_data.size(), shft_val);
     }

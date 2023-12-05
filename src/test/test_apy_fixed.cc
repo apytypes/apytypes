@@ -126,8 +126,8 @@ TEST_CASE("APyFixed::from_double()")
     /*
      * Integer tests
      */
-    REQUIRE( APyFixed(64, 64,  123).to_string_dec() ==  "123" );
-    REQUIRE( APyFixed(64, 64, -123).to_string_dec() == "-123" );
+    REQUIRE( APyFixed(64, 64,  123.0).to_string_dec() ==  "123" );
+    REQUIRE( APyFixed(64, 64, -123.0).to_string_dec() == "-123" );
     REQUIRE(
         APyFixed(64, 64, std::pow(2.0, 52.0) + 0).to_string_dec()
         == "4503599627370496"

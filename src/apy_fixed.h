@@ -5,6 +5,7 @@
 #ifndef _APY_FIXED_H
 #define _APY_FIXED_H
 
+#include "apy_dynamic_stack_allocator.h"
 #include "apy_util.h"
 
 #include <cstddef>  // std::size_t
@@ -14,7 +15,6 @@
 
 // GMP should be included after all other includes
 #include <gmp.h>
-
 
 class APyFixed {
 
@@ -30,10 +30,11 @@ class APyFixed {
      */
     int _bits;
     int _int_bits;
-    std::vector<mp_limb_t> _data;  // mp_limb_t is the underlying data type used for 
-                                   // arithmetic in APyFixed. It is either a 32-bit or
-                                   // a 64-bit unsigned int, depending on the target
-                                   // architecture.
+    std::vector<
+        mp_limb_t
+    > _data;  // mp_limb_t is the underlying data type used for arithmetic in APyFixed
+              // (from the GMP library). It is either a 32-bit or a 64-bit unsigned int,
+              // depending on the target architecture.
 public:
 
     /*
@@ -49,6 +50,9 @@ public:
 
     // Constructor: specify size and initialize from a double
     explicit APyFixed(int bits, int int_bits, double value);
+
+    // Constructor: specify size and initialize from a 64-bit signed integer
+    //explicit APyFixed(int bits, int int_bits, int64_t value);
 
     // Constructor: specify size and initialize from string
     explicit APyFixed(int bits, int int_bits, const char *str, int base=10);
@@ -164,7 +168,7 @@ public:
     void _constructor_sanitize_bits() const;
 
     // Sign preserving automatic size extending arithmetic left shift
-    std::vector<uint64_t> _data_asl(unsigned shift_val) const;
+    std::vector<mp_limb_t> _data_asl(unsigned shift_val) const;
 
     // Prepare for binary arithmetic by aligning the binary points of two limb vectors.
     // The limbs of the first operand (`operand1`) are copied into the limb vector of

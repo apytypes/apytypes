@@ -290,3 +290,12 @@ TEST_CASE("APyFixed::operator*()")
 
     auto product = op_a*op_b;
 }
+
+
+TEST_CASE("APyFixed::operator/()")
+{
+    {  /* Test #1 */
+        auto quotient = APyFixed(10, 3, 2.5) / APyFixed(10, 3, 1.5);
+        REQUIRE(quotient.to_string_dec() == "1.65625");
+    }
+}

@@ -2,8 +2,9 @@
  * APyFixed: Dynamic arbitrary fixed-point data type.
  */
 
-#include "apy_fixed.h"
+#include "apy_dynamic_stack_allocator.h"
 #include "apy_util.h"
+#include "apy_fixed.h"
 
 #include <algorithm>   // std::copy, std::max, std::transform, etc...
 #include <cstddef>     // std::size_t
@@ -16,7 +17,6 @@
 
 // GMP should be included after all other includes
 #include <gmp.h>
-
 
 /* ********************************************************************************** *
  *                                Constructors                                        *
@@ -87,22 +87,8 @@ APyFixed::APyFixed(int bits, int int_bits, const std::vector<mp_limb_signed_t> &
 
 
 /* ********************************************************************************** *
- *                         Public member functions (methods)                          *
+ *                         Arithmetic member functions                                *
  * ********************************************************************************** */
-
-void APyFixed::twos_complement_overflow() noexcept
-{
-    unsigned bits_last_word = _bits & (_LIMB_SIZE_BITS-1);
-    if (bits_last_word) {
-        // Exploit signed arithmetic right-shift to perform two's complement overflow
-        unsigned shft_amnt = _LIMB_SIZE_BITS - bits_last_word;
-        _data.back() = mp_limb_signed_t(_data.back() << (shft_amnt)) >> (shft_amnt);
-    }
-}
-
-/*
- * Binary operators
- */
 
 APyFixed APyFixed::operator+(const APyFixed &rhs) const
 {
@@ -168,9 +154,9 @@ APyFixed APyFixed::operator*(const APyFixed &rhs) const
     APyFixed result(res_int_bits+res_frac_bits, res_int_bits);
     bool sign_product = is_negative() ^ rhs.is_negative();
 
-    // mpn_mul requires the limb vector length of the first operand to be greater than,
-    // or equally long as, the limb vector length of the second operand. Simply swap the
-    // operands (essentially a free operation in C++) if this is not the case
+    // `mpn_mul` requires the limb vector length of the first operand to be greater
+    // than, or equally long as, the limb vector length of the second operand. Simply
+    // swap the operands (essentially a free operation in C++) if this is not the case.
     if (abs_operand1.size() < abs_operand2.size()) {
         std::swap(abs_operand1, abs_operand2);
     }
@@ -190,10 +176,61 @@ APyFixed APyFixed::operator*(const APyFixed &rhs) const
     return result;
 }
 
+APyFixed APyFixed::operator/(const APyFixed &rhs) const
+{
+    const int res_bits = bits() + std::max(rhs.bits() - rhs.int_bits(), 0) + 1;
+    const int res_int_bits = int_bits() + rhs.bits() - rhs.int_bits() + 1;
+    APyFixed result(res_bits, res_int_bits);
 
-/*
- * Unariy operators
- */
+    // Absolute value numerator and denominator
+    bool sign_product = is_negative() ^ rhs.is_negative();
+    std::vector<mp_limb_t> abs_den = rhs._unsigned_abs();
+    std::vector<mp_limb_t> abs_num;
+    if (is_negative()) {
+        abs_num = (-*this)._data_asl(rhs.frac_bits());
+    } else {
+        abs_num = (*this)._data_asl(rhs.frac_bits());
+    }
+
+    // `mpn_tdiv_rq` requires that the number of significant limbs in the numerator is
+    // greater than or equal to that of the denominator.
+    std::size_t num_significant_limbs = significant_limbs(abs_num);
+    std::size_t den_significant_limbs = significant_limbs(abs_den);
+    if (num_significant_limbs < den_significant_limbs) {
+        // Early return zero
+        return result;
+    } else {
+        mpn_tdiv_qr(
+            &result._data[0],       // Quotient
+            &abs_num[0],            // Remainder (unused -- discarded into numerator)
+            0,                      // QXn (must be zero according to documentation)
+            &abs_num[0],            // Numerator
+            num_significant_limbs,  // Numerator significant limbs
+            &abs_den[0],            // Denominator
+            den_significant_limbs   // Denominator significant limbs
+        );
+        if (sign_product) {
+            result._data = result._non_extending_negate();
+        }
+        return result;
+    }
+}
+
+APyFixed APyFixed::operator<<(int shift_val) const
+{
+    // Left and right shift of data only affects the binary point in the data
+    APyFixed result = *this;
+    result._int_bits += shift_val;
+    return result;
+}
+
+APyFixed APyFixed::operator>>(int shift_val) const
+{
+    // Left and right shift of data only affects the binary point in the data
+    APyFixed result = *this;
+    result._int_bits -= shift_val;
+    return result;
+}
 
  APyFixed APyFixed::operator-() const
 {
@@ -208,6 +245,21 @@ APyFixed APyFixed::operator*(const APyFixed &rhs) const
     return result;
 }
 
+
+/* ********************************************************************************** *
+ *                         Public member functions (methods)                          *
+ * ********************************************************************************** */
+
+void APyFixed::twos_complement_overflow() noexcept
+{
+    unsigned bits_last_word = _bits & (_LIMB_SIZE_BITS-1);
+    if (bits_last_word) {
+        // Exploit signed arithmetic right-shift to perform two's complement overflow
+        unsigned shft_amnt = _LIMB_SIZE_BITS - bits_last_word;
+        _data.back() = mp_limb_signed_t(_data.back() << (shft_amnt)) >> (shft_amnt);
+    }
+}
+
 // Increment the LSB without making the fixed-point number wider. Returns carry out
 mp_limb_t APyFixed::increment_lsb() noexcept
 {
@@ -219,10 +271,6 @@ mp_limb_t APyFixed::increment_lsb() noexcept
     );
 }
 
-/*
- * Utility functions
- */
-
 void APyFixed::from_vector(const std::vector<mp_limb_t> &new_vector)
 {
     if (new_vector.size() != this->vector_size()) {
@@ -231,10 +279,6 @@ void APyFixed::from_vector(const std::vector<mp_limb_t> &new_vector)
     _data = new_vector;
     twos_complement_overflow();
 }
-
-/*
- * Conversion to string functions
- */
 
 std::string APyFixed::to_string_dec() const {
 
