@@ -55,7 +55,7 @@ public:
     // https://en.cppreference.com/w/cpp/named_req/Allocator
     template <class U>
     struct rebind {
-        using other = DynamicStackAllocator<T, _STACK_ELEMENT_SIZE>;
+        using other = DynamicStackAllocator<U, _STACK_ELEMENT_SIZE>;
     };
 
 private:

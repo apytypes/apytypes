@@ -1,14 +1,14 @@
 CC=g++
 CFLAGS=								\
 	-Wall -Wextra -Wpedantic -Wno-depricated -Weffc++ 	\
-	-D _GLIBCXX_DEBUG -std=c++17 -O2 -march=native -g
+ 	-std=c++17 -O2 -march=native -g
 
 .PHONY: test test_profile test_coverage clean clean_all
 
 TEST_SRC =				\
 	test/test_apy_fixed.cc		\
-	test/test_binary_operator.cc	\
-	test/test_to_from_string.cc
+	test/test_arithmetic.cc		\
+	test/test_string.cc
 
 TEST_FLAGS=-D _IS_APY_TYPES_UNIT_TEST --coverage
 

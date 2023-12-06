@@ -30,11 +30,10 @@ class APyFixed {
      */
     int _bits;
     int _int_bits;
-    std::vector<
-        mp_limb_t
-    > _data;  // mp_limb_t is the underlying data type used for arithmetic in APyFixed
-              // (from the GMP library). It is either a 32-bit or a 64-bit unsigned int,
-              // depending on the target architecture.
+    std::vector<mp_limb_t> _data;
+             // mp_limb_t is the underlying data type used for arithmetic in APyFixed
+             // (from the GMP library). It is either a 32-bit or a 64-bit unsigned int,
+             // depending on the target architecture.
 public:
 
     /*

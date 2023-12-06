@@ -276,7 +276,7 @@ void APyFixed::from_vector(const std::vector<mp_limb_t> &new_vector)
     if (new_vector.size() != this->vector_size()) {
         throw std::domain_error("Vector size miss-match");
     }
-    _data = new_vector;
+    _data = std::vector<mp_limb_t>(new_vector.begin(), new_vector.end());
     twos_complement_overflow();
 }
 

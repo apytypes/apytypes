@@ -1,7 +1,10 @@
+/*
+ * String utility functions for the APyFixed data type.
+ */
+
 #include "../apy_fixed.h"
 #include "catch.hpp"
 #include <iostream>
-
 
 
 TEST_CASE("APyFixed::to_str_dec()")
@@ -13,7 +16,7 @@ TEST_CASE("APyFixed::to_str_dec()")
         const std::vector<mp_limb_t> &vec_in,
         const char *expected_result
     ) {
-        APyFixed fixed(bits, int_bits, vec_in);
+        APyFixed fixed(bits, int_bits, vec_in.begin(), vec_in.end());
         REQUIRE(fixed.to_string_dec() == expected_result);
     };
 
