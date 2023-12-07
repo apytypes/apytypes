@@ -8,7 +8,9 @@
 #include "catch.hpp"
 
 #include <cmath>
+#include <cstdlib>
 #include <gmp.h>
+#include <iostream>
 #include <stdexcept>
 
 
@@ -34,22 +36,6 @@ TEST_CASE("APyFixed must have a positive non-zero size")
 
     // One bit fixed-point types does not throw on creation
     APyFixed(1, 0);
-}
-
-
-TEST_CASE("Vector initialization must be consistent with APyFixed word-length")
-{
-    // Vector-initialization fails on size missmatch
-    REQUIRE_THROWS_AS(
-        APyFixed(_LIMB_SIZE_BITS+1, 0, to_limb_vec({0})),
-        std::domain_error
-    );
-
-    // Vector-initalization succeeds on correct sizes
-    for (unsigned bits=1; bits<_LIMB_SIZE_BITS; bits++) {
-        APyFixed(bits, 0, to_limb_vec({0}));
-    }
-
 }
 
 
@@ -196,7 +182,7 @@ TEST_CASE("APyFixed::from_double()")
 }
 
 
-TEST_CASE("APyFixed::from_vector()")
+TEST_CASE("Private member function: APyFixed::from_vector()")
 {
     APyFixed a(64, 64, to_limb_vec({ uint64_t(-1) }));
     REQUIRE(a.to_string() == "-1");
@@ -206,7 +192,7 @@ TEST_CASE("APyFixed::from_vector()")
 }
 
 
-TEST_CASE("Non-implemented function")
+TEST_CASE("Non-implemented functions")
 {
     REQUIRE_THROWS_AS(APyFixed(1,0).to_string_hex(), NotImplementedException);
     REQUIRE_THROWS_AS(APyFixed(1,0).to_string_oct(), NotImplementedException);
@@ -215,3 +201,33 @@ TEST_CASE("Non-implemented function")
     REQUIRE_THROWS_AS(APyFixed(1,0, "0", -1), std::domain_error);
 }
 
+
+
+TEST_CASE("Vector initialization must be consistent with APyFixed word-length")
+{
+    // Vector-initialization fails on size missmatch
+    REQUIRE_THROWS_AS(
+        APyFixed(_LIMB_SIZE_BITS+1, 0, to_limb_vec({0})),
+        std::domain_error
+    );
+
+    // Vector-initalization succeeds on correct sizes
+    for (unsigned bits=1; bits<_LIMB_SIZE_BITS; bits++) {
+        APyFixed(bits, 0, to_limb_vec({0}));
+    }
+
+}
+
+
+TEST_CASE("Bit specifying copy constructor")
+{
+    { /* Test #1 */
+        APyFixed operand(10, 3, 2.5);
+        REQUIRE(operand.to_string()  == "2.5");
+
+        APyFixed fix_copy(10, 5, operand);
+        REQUIRE(fix_copy.bits()      ==    10);
+        REQUIRE(fix_copy.int_bits()  ==     5);
+        REQUIRE(fix_copy.to_string() == "2.5");
+    }
+}

@@ -6,17 +6,19 @@
 namespace py = pybind11;
 
 void bind_fixed(py::module &m) {
-    py::enum_<STRING_TYPE>(m, "STRING_TYPE")
-        .value("HEX", STRING_TYPE::HEX)
-        .value("OCT", STRING_TYPE::OCT)
-        .value("DEC", STRING_TYPE::DEC);
 
-   py::class_<APyFixed>(m, "APyFixed")
-
+    
+    py::class_<APyFixed>(m, "APyFixed")
+        
         /*
          * Constructors
          */
-        .def(py::init<int, int>(), py::arg("bits"), py::arg("int_bits"))
+
+        .def(
+            py::init<int, int>(),
+            py::arg("bits"),
+            py::arg("int_bits")
+        )
         .def(
             py::init<int, int, double>(),
             py::arg("bits"),
@@ -30,6 +32,19 @@ void bind_fixed(py::module &m) {
             py::arg("value"),
             py::arg("base") = 10
         )
+        .def(
+            py::init<int, int, const APyFixed &>(),
+            py::arg("bits"),
+            py::arg("int_bits"),
+            py::arg("other")
+        )
+        .def(
+            py::init<int, int, PyLong_Type>(),
+            //py::init<int, int, PyLong_Type>(),
+            py::arg("bits"),
+            py::arg("int_bits"),
+            py::arg("value")
+        )
 
         /*
          * Arithmetic operators
@@ -38,7 +53,8 @@ void bind_fixed(py::module &m) {
         .def(py::self + py::self)
         .def(py::self - py::self)
         .def(py::self * py::self)
-        // .def(py::self / py::self)
+        .def(py::self / py::self)
+        .def("assign", &APyFixed::operator=)
         .def(-py::self)
 
         /*
@@ -50,8 +66,8 @@ void bind_fixed(py::module &m) {
         .def("vector_size", &APyFixed::vector_size)
         .def("is_negative", &APyFixed::is_negative)
         .def("increment_lsb", &APyFixed::increment_lsb)
-        .def("to_string", &APyFixed::to_string, py::arg("type") = STRING_TYPE::DEC)
-        .def("__str__", &APyFixed::to_string, py::arg("type") = STRING_TYPE::DEC)
+        .def("to_string", &APyFixed::to_string, py::arg("base") = 10)
+        .def("__str__", &APyFixed::to_string, py::arg("base") = 10)
         .def("to_string_hex", &APyFixed::to_string_hex)
         .def("to_string_oct", &APyFixed::to_string_oct)
         .def("to_string_dec", &APyFixed::to_string_dec)

@@ -5,7 +5,6 @@
 #ifndef _APY_FIXED_H
 #define _APY_FIXED_H
 
-#include "apy_dynamic_stack_allocator.h"
 #include "apy_util.h"
 
 #include <cstddef>  // std::size_t
@@ -43,26 +42,23 @@ public:
     // No default constructed APyFixed types
     APyFixed() = delete;
 
-    // Constructor: specify only size (number of bits). Data will be zeroed on
-    // construction
+    // Constructor: specify only size and zero data on construction
     explicit APyFixed(int bits, int int_bits);
 
-    // Constructor: specify size and initialize from a double
+    // Constructor: specify size and initialize from a `double`
     explicit APyFixed(int bits, int int_bits, double value);
 
-    // Constructor: specify size and initialize from a 64-bit signed integer
-    //explicit APyFixed(int bits, int int_bits, int64_t value);
+    // Constructor: specify size and initialize from a `long`
+    explicit APyFixed(int bits, int int_bits, long value);
 
     // Constructor: specify size and initialize from string
     explicit APyFixed(int bits, int int_bits, const char *str, int base=10);
 
-    // Constructor: specify size and initialize underlying bits from two iterators
-    template <typename _ITER>
-    explicit APyFixed(int bits, int int_bits, _ITER begin, _ITER end);
+    // Constructor: specify size and initialize from another APyFixed number
+    explicit APyFixed(int bits, int int_bits, const APyFixed &other);
 
-    // Constructor: specify size and initialize underlying bits using vector
-    explicit APyFixed(int bits, int int_bits, const std::vector<mp_limb_t> &vec);
-    explicit APyFixed(int bits, int int_bits, const std::vector<mp_limb_signed_t> &vec);
+    // Constructor: copy construct with default copy-per-field behaviour
+    APyFixed(const APyFixed &other) = default;
 
 
     /*
@@ -76,15 +72,17 @@ public:
     APyFixed operator<<(int shift_val) const;
     APyFixed operator>>(int shift_val) const;
 
+
     /*
      * Binary comparison operators
      */
+
     bool operator==(const APyFixed &rhs) const;
     bool operator<(const APyFixed &rhs) const;
 
-
+    
     /*
-     * Methods
+     * Other member functions
      */
 
     // Get the number of bits in this APyInt object
@@ -99,9 +97,6 @@ public:
     // of the APyFixed range.
     void twos_complement_overflow() noexcept;
 
-    // Set the bit-pattern of the fixed-point number from a vector of limbs
-    void from_vector(const std::vector<mp_limb_t> &vector);
-
     // Unary negation
     APyFixed operator-() const;
 
@@ -111,51 +106,37 @@ public:
     // Increment the LSB without making the fixed-point number wider. Returns carry out
     mp_limb_t increment_lsb() noexcept;
 
-
-    /*
-     * Assignment operators
-     */
+    // Python verbose string representation
+    std::string repr() const;
 
 
     /*
-     * Conversion to/from stirng
+     * Conversion to other types
      */
-    inline std::string to_string(STRING_TYPE type = STRING_TYPE::DEC) const
-    {
-        switch (type) {
-            case STRING_TYPE::HEX: return to_string_hex(); break;
-            case STRING_TYPE::OCT: return to_string_oct(); break;
-            case STRING_TYPE::DEC: return to_string_dec(); break;
-            default: throw NotImplementedException(); break;
-        }
-    };
+
+    std::string to_string(int base = 10) const;
     std::string to_string_hex() const;
     std::string to_string_oct() const;
     std::string to_string_dec() const;
-    std::string repr() const;  // Python verbose string conversion
     
-    inline void from_string(const std::string &str, STRING_TYPE type = STRING_TYPE::DEC)
-    {
-        switch (type) {
-            case STRING_TYPE::HEX: from_string_hex(str); break;
-            case STRING_TYPE::OCT: from_string_oct(str); break;
-            case STRING_TYPE::DEC: from_string_dec(str); break;
-            default: throw NotImplementedException(); break;
-        }
-    }
+
+
+    /*
+     * Conversionsion from other types
+     */
+
+    void from_double(double value);
+    void from_apyfixed(const APyFixed &fixed);
+    void from_string(const std::string &str, int base = 10);
     void from_string_hex(const std::string &str);
     void from_string_oct(const std::string &str);
     void from_string_dec(const std::string &str);
-
-    /*
-     * Conversion to and from C++ primitive types
-     */
-    void from_double(double value);
 
 
     /*
      * Private helper methods
      */
+
     #ifdef _IS_APY_TYPES_UNIT_TEST
         // Unit tests have public access to all member function
         public:
@@ -195,6 +176,19 @@ public:
     // relies on the user knowing that the number in the vector is now unsigned.
     std::vector<mp_limb_t> _unsigned_abs() const;
 
+
+    // Constructor: specify size and initialize underlying vector from start and end
+    // iterators
+    template <typename _ITER>
+    explicit APyFixed(int bits, int int_bits, _ITER begin, _ITER end);
+
+    // Constructor: specify size and initialize underlying bits using vector
+    explicit APyFixed(int bits, int int_bits, const std::vector<mp_limb_t> &vec);
+    explicit APyFixed(int bits, int int_bits, const std::vector<mp_limb_signed_t> &vec);
+
+    // Set the bit-pattern of the fixed-point number from a vector of limbs
+    void from_vector(const std::vector<mp_limb_t> &vector);
+
 };
 
 
@@ -203,11 +197,11 @@ public:
  */
 static inline std::ostream& operator<< (std::ostream &os, const APyFixed &x) {
     if ( (os.flags() & std::ios::hex) != 0 ) {
-        os << x.to_string(STRING_TYPE::HEX);
+        os << x.to_string(16);
     } else if ((os.flags() & std::ios::oct) != 0) {
-        os << x.to_string(STRING_TYPE::OCT);
+        os << x.to_string(8);
     } else {
-        os << x.to_string(STRING_TYPE::DEC);
+        os << x.to_string(10);
     }
     return os;
 }

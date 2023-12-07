@@ -5,8 +5,6 @@
 #ifndef _APY_UTIL_H
 #define _APY_UTIL_H
 
-#include "apy_dynamic_stack_allocator.h"
-
 #include <algorithm>  // std::find
 #include <cstddef>    // std::size_t
 #include <regex>      // std::regex, std::regex_replace
@@ -55,13 +53,6 @@ public:
     NotImplementedException() : std::logic_error("Not implemeted yet") {};
 };
 
-// Avaiable string converstion types
-enum class STRING_TYPE {
-    HEX,
-    OCT,
-    DEC,
-};
-
 // Quickly evaluate how many limbs are requiered to to store an n-bit word
 static inline std::size_t bits_to_limbs(std::size_t bits) {
     if (bits%_LIMB_SIZE_BITS == 0) {
@@ -83,6 +74,7 @@ static inline std::size_t significant_limbs(const std::vector<mp_limb_t> &vector
 // non-zero and return the value. If `x` is zero, return zero.
 static inline std::size_t bit_width(mp_limb_t x)
 {
+    // Optimized on x86-64 using single `bsr` instruction since GCC-13.1
     std::size_t result = 0;
     while (x) {
         x >>= 1;
@@ -252,7 +244,7 @@ static inline std::vector<mp_limb_t> double_dabble(std::vector<mp_limb_t> nibble
     }
 
     // Remove zero elements from the back until first non-zero element is found (keep
-    // one zero at the start)
+    // atleast one zero at the start)
     auto is_non_zero = [](auto n) { return n != 0; };
     nibble_data.erase(
         std::find_if(nibble_data.rbegin(), nibble_data.rend()-1, is_non_zero).base(),
@@ -320,7 +312,7 @@ static inline std::vector<mp_limb_t> reverse_double_dabble(
     return nibble_data.size() ? nibble_data : std::vector<mp_limb_t>{ 0 };
 }
 
-// Divide BCD limb vector number by two.
+// Divide the number in a BCD limb vector by two.
 static inline void bcd_limb_vec_div2(std::vector<mp_limb_t> &bcd_list)
 {
     if (bcd_list.size() == 0) {
@@ -340,7 +332,7 @@ static inline void bcd_limb_vec_div2(std::vector<mp_limb_t> &bcd_list)
     }
 }
 
-// Multiply BCD limb vector number by two.
+// Multiply the number in a BCD limb vector by two.
 static inline void bcd_limb_vec_mul2(std::vector<mp_limb_t> &bcd_list)
 {
     if (bcd_list.size() == 0) {
@@ -452,7 +444,7 @@ static inline std::string string_trim_zeros(const std::string &str)
 // Perform arithmetic right shift on a limb vector. Accelerated using GMP.
 static inline void limb_vector_asr(std::vector<mp_limb_t> &vec, unsigned shift_amnt)
 {
-    if (!vec.size()) {
+    if (!vec.size() || !shift_amnt) {
         return;
     }
 
@@ -472,19 +464,25 @@ static inline void limb_vector_asr(std::vector<mp_limb_t> &vec, unsigned shift_a
     }
 
     // Perform the in-limb shifting
-    mpn_rshift(
-        &vec[0],     // dst
-        &vec[0],     // src
-        vec.size(),  // limb vector size
-        limb_shift   // shift amount
-    );
-    vec.back() = sign_limb;
+    if (limb_shift) {
+        mpn_rshift(
+            &vec[0],     // dst
+            &vec[0],     // src
+            vec.size(),  // limb vector size
+            limb_shift   // shift amount
+        );
+
+        // Sign extend the most significant bits
+        if (sign_limb) {
+            vec.back() |= ~((mp_limb_t(1) << (_LIMB_SIZE_BITS - limb_shift)) - 1);
+        }
+    }
 }
 
 // Perform logical right shift on a limb vector. Accelerated using GMP.
 static inline void limb_vector_lsr(std::vector<mp_limb_t> &vec, unsigned shift_amnt)
 {
-    if (!vec.size()) {
+    if (!vec.size() || !shift_amnt) {
         return;
     }
 
@@ -501,19 +499,22 @@ static inline void limb_vector_lsr(std::vector<mp_limb_t> &vec, unsigned shift_a
             vec[i] = 0;
         }
     }
+
     // Perform the in-limb shifting
-    mpn_rshift(
-        &vec[0],     // dst
-        &vec[0],     // src
-        vec.size(),  // limb vector size
-        limb_shift   // shift amount
-    );
+    if (limb_shift) {
+        mpn_rshift(
+            &vec[0],     // dst
+            &vec[0],     // src
+            vec.size(),  // limb vector size
+            limb_shift   // shift amount
+        );
+    }
 }
 
 // Perform logical left shift on a limb vector. Accelerated using GMP.
 static inline void limb_vector_lsl(std::vector<mp_limb_t> &vec, unsigned shift_amnt)
 {
-    if (!vec.size()) {
+    if (!vec.size() || !shift_amnt) {
         return;
     }
 
@@ -530,13 +531,16 @@ static inline void limb_vector_lsl(std::vector<mp_limb_t> &vec, unsigned shift_a
             vec[i] = 0;
         }
     }
+
     // Perform the in-limb shifting
-    mpn_lshift(
-        &vec[0],     // dst
-        &vec[0],     // src
-        vec.size(),  // limb vector size
-        limb_shift   // shift amount
-    );
+    if (limb_shift) {
+        mpn_lshift(
+            &vec[0],     // dst
+            &vec[0],     // src
+            vec.size(),  // limb vector size
+            limb_shift   // shift amount
+        );
+    }
 }
 
 #endif

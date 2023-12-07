@@ -10,6 +10,7 @@
 #include <cstddef>     // std::size_t
 #include <cstring>     // std::memcpy
 #include <functional>  // std::bit_not
+#include <iostream>
 #include <iterator>    // std::back_inserter
 #include <stdexcept>   // std::domain_error
 #include <string>      // std::string
@@ -22,7 +23,7 @@
  *                                Constructors                                        *
  * ********************************************************************************** */
 
-// Zero-initializing constructor
+// Constructor: specify only size and zero data on construction
 APyFixed::APyFixed(int bits, int int_bits) :
     _bits{bits},
     _int_bits{int_bits},
@@ -31,7 +32,7 @@ APyFixed::APyFixed(int bits, int int_bits) :
     _constructor_sanitize_bits();
 }
 
-// Construct from a double-precision floating-point
+// Constructor: specify size and initialize from a `double`
 APyFixed::APyFixed(int bits, int int_bits, double value) :
     APyFixed(bits, int_bits)
 {
@@ -39,7 +40,15 @@ APyFixed::APyFixed(int bits, int int_bits, double value) :
 }
 
 
-// Construct from a decimal string
+// Constructor: specify size and initialize from a `long`
+APyFixed::APyFixed(int bits, int int_bits, long value) :
+    APyFixed(bits, int_bits)
+{
+    (void) value;
+    throw NotImplementedException();
+}
+
+// Constructor: specify size and initialize from string
 APyFixed::APyFixed(int bits, int int_bits, const char *str, int base) :
     APyFixed(bits, int_bits)
 {
@@ -51,6 +60,13 @@ APyFixed::APyFixed(int bits, int int_bits, const char *str, int base) :
             "Unsupported numeric base. Valid bases are: 8, 10, 16"
         );
     }
+}
+
+// Constructor: specify size and initialize from another APyFixed number
+APyFixed::APyFixed(int bits, int int_bits, const APyFixed &other) :
+    APyFixed(bits, int_bits)
+{
+    from_apyfixed(other);
 }
 
 // Underlying vector iterator-based constructor
@@ -284,8 +300,7 @@ std::string APyFixed::to_string_dec() const {
 
     // Construct a string from the absolute value of number, and conditionally append a
     // minus sign to the string if negative
-    APyFixed abs_val(_bits+1, _int_bits+1);
-    abs_val = is_negative() ? -(*this) : *this;
+    APyFixed abs_val(_bits+1, _int_bits+1, is_negative() ? -(*this) : *this);
 
     // Convert this number to BCD with the double-dabble algorithm
     std::vector<mp_limb_t> bcd_limb_list = double_dabble(abs_val._data);
@@ -327,6 +342,16 @@ std::string APyFixed::to_string_hex() const
 std::string APyFixed::to_string_oct() const 
 {
     throw NotImplementedException();
+}
+
+std::string APyFixed::to_string(int base) const
+{
+    switch (base) {
+        case 8: return to_string_oct(); break;
+        case 16: return to_string_hex(); break;
+        case 10: return to_string_dec(); break;
+        default: throw NotImplementedException(); break;
+    }
 }
 
 void APyFixed::from_string_dec(const std::string &str)
@@ -423,6 +448,16 @@ void APyFixed::from_string_oct(const std::string &str)
     throw NotImplementedException();
 }
 
+void APyFixed::from_string(const std::string &str, int base)
+{
+    switch (base) {
+        case 8: from_string_oct(str); break;
+        case 10: from_string_dec(str); break;
+        case 16: from_string_hex(str); break;
+        default: throw NotImplementedException(); break;
+    }
+}
+
 void APyFixed::from_double(double value)
 {
     if constexpr (_LIMB_SIZE_BITS == 64) {
@@ -464,6 +499,35 @@ void APyFixed::from_double(double value)
     } else {
         throw NotImplementedException();
     }
+    twos_complement_overflow();
+}
+
+void APyFixed::from_apyfixed(const APyFixed &other)
+{
+    // Copy data from `other` limb vector shift binary point into position
+    std::vector<mp_limb_t> other_data_copy{ other._data };
+    if (frac_bits() <= other.frac_bits()) {
+        limb_vector_asr(other_data_copy, other.frac_bits() - frac_bits());
+    } else {
+        limb_vector_lsl(other_data_copy, frac_bits() - other.frac_bits());
+    }
+
+    // Copy binary point-adjusted data
+    if (vector_size() <= other_data_copy.size()) {
+        std::copy(
+            other_data_copy.cbegin(),
+            other_data_copy.cbegin() + vector_size(),
+            _data.begin()
+        );
+    } else {
+        std::copy(other_data_copy.cbegin(), other_data_copy.cend(), _data.begin());
+        std::fill(
+            _data.begin() + other_data_copy.size(),
+            _data.end(), 
+            other.is_negative() ? -1 : 0
+        );
+    }
+
     twos_complement_overflow();
 }
 

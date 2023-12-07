@@ -54,6 +54,7 @@ TEST_CASE("to_nibble_list() and from_nibble_list()")
     );
 }
 
+
 TEST_CASE("nibble_shift_left_once()")
 {
     /*
@@ -79,6 +80,7 @@ TEST_CASE("nibble_shift_left_once()")
     }
 }
 
+
 TEST_CASE("nibble_shift_right_once()")
 {
     /*
@@ -103,6 +105,7 @@ TEST_CASE("nibble_shift_right_once()")
         REQUIRE(out_bit == 1);
     }
 }
+
 
 TEST_CASE("double_dabble()")
 {
@@ -136,6 +139,7 @@ TEST_CASE("double_dabble()")
     );
 }
 
+
 TEST_CASE("reverse_double_dabble()")
 {
     REQUIRE(reverse_double_dabble({}) == to_limb_vec({}));
@@ -158,6 +162,7 @@ TEST_CASE("reverse_double_dabble()")
     );
 
 }
+
 
 TEST_CASE("bcd_limb_vec_div2()")
 {
@@ -184,3 +189,101 @@ TEST_CASE("bcd_limb_vec_div2()")
     }
 }
 
+
+TEST_CASE("limb_vector_asr()")
+{
+    { /* Test #1 */
+        std::vector<mp_limb_t> operand = { mp_limb_t(-1) };
+
+        limb_vector_asr(operand, 0);
+        REQUIRE(operand == std::vector<mp_limb_t>{ mp_limb_t(-1) });
+
+        limb_vector_asr(operand, 12345);
+        REQUIRE(operand == std::vector<mp_limb_t>{ mp_limb_t(-1) });
+    }
+
+    { /* Test #2 */
+        std::vector<mp_limb_t> operand = { 8 };
+
+        limb_vector_asr(operand, 0);
+        REQUIRE(operand == std::vector<mp_limb_t>{ 8 });
+
+        limb_vector_asr(operand, 2);
+        REQUIRE(operand == std::vector<mp_limb_t>{ 2 });
+    }
+
+    { /* Test #4 */
+        std::vector<mp_limb_t> operand = { 0, 0, 0x12300000 };
+
+        limb_vector_asr(operand, 0);
+        REQUIRE(operand == std::vector<mp_limb_t>{ 0, 0, 0x12300000 });
+
+        limb_vector_asr(operand, 4);
+        REQUIRE(operand == std::vector<mp_limb_t>{ 0, 0, 0x01230000 });
+
+        limb_vector_asr(operand, 4*6 + _LIMB_SIZE_BITS);
+        REQUIRE(operand == std::vector<mp_limb_t>{ 0x2300000000000000, 0x1, 0 });
+
+    }
+
+    { /* Test #4 */
+        std::vector<mp_limb_t> operand = { 0, 0, mp_limb_t( -0x12300000 ) };
+
+        limb_vector_asr(operand, 0);
+        REQUIRE(operand == std::vector<mp_limb_t>{ 0, 0, mp_limb_t( -0x12300000 ) });
+
+        limb_vector_asr(operand, 4);
+        REQUIRE(operand == std::vector<mp_limb_t>{ 0, 0, mp_limb_t( -0x01230000 ) });
+
+        limb_vector_asr(operand, 4*6 + _LIMB_SIZE_BITS);
+        REQUIRE(
+            operand == std::vector<mp_limb_t>{
+                mp_limb_t(-0x2300000000000000-0),
+                mp_limb_t(-0x0000000000000001-1),
+                mp_limb_t(-0x0000000000000000-1)
+            }
+        );
+    }
+}
+
+
+TEST_CASE("limb_vector_lsl() and limb_vector_lsr()")
+{
+    { /* Test #1 */
+        std::vector<mp_limb_t> operand = { mp_limb_t(-1) };
+
+        limb_vector_lsl(operand, 0);
+        REQUIRE(operand == std::vector<mp_limb_t>{ mp_limb_t(-1) });
+
+        limb_vector_lsr(operand, 0);
+        REQUIRE(operand == std::vector<mp_limb_t>{ mp_limb_t(-1) });
+    }
+
+    { /* Test #2 */
+        std::vector<mp_limb_t> operand = { 0, 0, mp_limb_t( 0x0123abc0 ) };
+
+        limb_vector_lsr(operand, 0);
+        REQUIRE(operand == std::vector<mp_limb_t>{ 0, 0, mp_limb_t( 0x0123abc0 ) });
+
+        limb_vector_lsr(operand, 4);
+        REQUIRE(operand == std::vector<mp_limb_t>{ 0, 0, mp_limb_t( 0x00123abc ) });
+
+        limb_vector_lsr(operand, 4*4 + _LIMB_SIZE_BITS);
+        REQUIRE(
+            operand == std::vector<mp_limb_t>{
+                mp_limb_t(0x3abc000000000000),
+                mp_limb_t(0x12),
+                mp_limb_t(0)
+            }
+        );
+
+        limb_vector_lsl(operand, 4*4 + _LIMB_SIZE_BITS);
+        REQUIRE(operand == std::vector<mp_limb_t>{ 0, 0, mp_limb_t( 0x00123abc ) });
+
+        limb_vector_lsl(operand, 4);
+        REQUIRE(operand == std::vector<mp_limb_t>{ 0, 0, mp_limb_t( 0x0123abc0 ) });
+
+        limb_vector_lsl(operand, 0);
+        REQUIRE(operand == std::vector<mp_limb_t>{ 0, 0, mp_limb_t( 0x0123abc0 ) });
+    }
+}
