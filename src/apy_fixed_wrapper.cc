@@ -38,13 +38,13 @@ void bind_fixed(py::module &m) {
             py::arg("int_bits"),
             py::arg("other")
         )
-        .def(
+        /*.def(
             py::init<int, int, PyLong_Type>(),
             //py::init<int, int, PyLong_Type>(),
             py::arg("bits"),
             py::arg("int_bits"),
             py::arg("value")
-        )
+        )*/
 
         /*
          * Arithmetic operators

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <math.h>
 #include "apy_float.h"
+#include "apy_util.h"
 
 APyFloat::APyFloat(std::uint8_t exp_bits, std::uint8_t man_bits, double value = 0) :
         exp_bits(exp_bits), man_bits(man_bits) {
@@ -25,7 +26,96 @@ APyFloat::APyFloat(bool sign, std::int64_t exp, std::int64_t man, std::uint8_t e
     bias = (1 << (exp_bits - 1)) - 1;
 }
 
-APyFloat APyFloat::operator+(const APyFloat &rhs) const {
+void swap(APyFloat &x, APyFloat &y) {
+    APyFloat tmp = y;
+    y = x;
+    x = tmp;
+}
+
+APyFloat APyFloat::operator+(APyFloat y) const {
+    APyFloat x = *this;
+    APyFloat res;
+
+    if (!(x.is_normal() && y.is_normal())) {
+        throw NotImplementedException();
+    }
+
+    // Compute sign
+    bool x_sign = x.sign, y_sign = y.sign;
+    x = abs(x);
+    y = abs(y);
+
+    if (x > y) {
+        res.sign = x_sign;
+    } else if (x < y) {
+        res.sign = y_sign;
+        // Make sure |x| >= |y|
+        swap(x, y);
+    } else {
+        res.sign = x_sign | y_sign;
+    }
+
+    res.exp = x.exp;
+    res.exp_bits = x.exp_bits;
+
+    // Conditionally add leading one's
+    man_t mx = (x.is_normal() << man_bits) | man;
+    man_t my = (y.is_normal() << y.man_bits) | y.man;
+
+    // Add room for guard bits
+    mx <<= 3;
+    my <<= 3;
+
+    // Align mantissas
+    exp_t delta = x.exp - y.exp;
+    const exp_t max_shift = y.man_bits + 4UL; // +4 to account for leading one and 3 guard bits 
+    man_t highY = my >> std::min(max_shift, delta);
+
+    man_t lowY; // Used to update the sticky bit position
+    if (delta <= 3) {
+        lowY = 0;
+    } else if (delta >= max_shift) {
+        lowY = 1;
+    } else {
+        lowY = (my << (max_shift-delta)) != 0;
+    }
+
+    // Perform addition/subtraction
+    man_t highR;
+    if (y.sign) {
+        highR = mx - (highY | lowY);
+    } else {
+        highR = mx + (highY | lowY);
+    }
+
+    // Calculate rounding bit
+    man_t M, G, T, B;
+
+    if (highR & (1 << man_bits - 1)) { // Check for carry
+        M = highR >> 4;
+        G = (highR >> 3) & 1;
+        T = (highR << 29) != 0;
+        B = G & (M | T);
+
+        //++x_exp; // Should also check for overflow
+    } else if (false) { // No carry
+        M = (highR >> 3) & 0;
+        G = (highR >> 2) & 1;
+        T = (highR << 30) != 0;
+        B = G & (M | T);
+    } else { // n >= 6 should only happend during subtraction
+        throw std::runtime_error("n was out of range");
+    }
+    
+    res.man = M & (1 << man_bits);
+    return APyFloat(1, 1);
+}
+
+APyFloat APyFloat::operator-(const APyFloat &y) const {
+    return *this + (-y);
+}
+
+/*APyFloat APyFloat::plus(const APyFloat &rhs) const {
     // Sign is not currently handled
     APyFloat res = *this;
 
@@ -48,7 +138,7 @@ APyFloat APyFloat::operator+(const APyFloat &rhs) const {
     
     res.normalize();
     return res;
-}
+}*/
 
 APyFloat APyFloat::operator-() const {
     return APyFloat(!sign, exp, man, exp_bits, man_bits);
@@ -56,6 +146,23 @@ APyFloat APyFloat::operator-() const {
 
 bool APyFloat::operator==(const APyFloat &rhs) const {
     return (exp == rhs.exp) && (man == rhs.man) && (exp_bits == rhs.exp_bits) && (man_bits == rhs.man_bits) && (sign == rhs.sign);
+}
+
+bool APyFloat::operator>(const APyFloat &rhs) const {
+    return !(*this < rhs);
+}
+
+bool APyFloat::operator<(const APyFloat &rhs) const {
+    if (sign == rhs.sign) {
+        if ((exp - bias) < (rhs.exp - rhs.bias)) {
+            return true;
+        } else if ((exp - bias) > (rhs.exp - rhs.bias)) {
+            return false;
+        } else {
+            return man < rhs.man;
+        }
+    }
+    throw NotImplementedException();
 }
 
 void APyFloat::normalize() {
@@ -66,6 +173,13 @@ void APyFloat::normalize() {
         ++exp;
     }
     man &= (1 << man_bits) - 1;
+}
+
+/*
+    True if and only if x is normal (not zero, subnormal, infinite, or NaN).
+*/
+bool APyFloat::is_normal() const {
+    return (exp != 0) && (exp != (1 << exp_bits) - 1);
 }
 
 std::string APyFloat::repr() const {
@@ -85,4 +199,8 @@ APyFloat::operator double() const {
     const auto exponent = exp - bias - man_bits - 1;
 
     return (sign ? -1.0 : 1.0) * mantissa / (1 << -exponent);
+}
+
+APyFloat APyFloat::abs(const APyFloat &f) const {
+    return f.sign ? -f : f;
 }
