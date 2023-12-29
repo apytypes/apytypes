@@ -26,12 +26,6 @@ APyFloat::APyFloat(bool sign, std::int64_t exp, std::int64_t man, std::uint8_t e
     bias = (1 << (exp_bits - 1)) - 1;
 }
 
-void swap(APyFloat &x, APyFloat &y) {
-    APyFloat tmp = y;
-    y = x;
-    x = tmp;
-}
-
 APyFloat APyFloat::operator+(APyFloat y) const {
     APyFloat x = *this;
     
@@ -49,7 +43,7 @@ APyFloat APyFloat::operator+(APyFloat y) const {
         res.sign = x.sign;
     } else if (xabs < yabs) {
         res.sign = y.sign;
-        swap(x, y);
+        std::swap(x, y);
     } else {
         res.sign = x.sign | y.sign;
     }
@@ -96,6 +90,7 @@ APyFloat APyFloat::operator+(APyFloat y) const {
 
     // Calculate rounding bit
     man_t M, G, T, B;
+    const man_t man_mask = ((1 << res.man_bits) - 1);
 
     // TODO: Break out rounding and normalization to their own methods
     // Currently round-to-nearest-even is used
@@ -110,7 +105,7 @@ APyFloat APyFloat::operator+(APyFloat y) const {
             return res;
         }
     } else if (highR & (1 << (res.man_bits+3))) { // No carry
-        M = (highR >> 3) & ((1 << res.man_bits) - 1);
+        M = (highR >> 3);
         G = (highR >> 2) & 1;
         T = (highR & 0x3) != 0;
         B = G & (M | T);
@@ -123,12 +118,13 @@ APyFloat APyFloat::operator+(APyFloat y) const {
                 break;
             }
         }
-        M = (highR >> 3) & ((1 << res.man_bits) - 1);
+        M = (highR >> 3);
     }
     
+    M &= man_mask;
     res.man = M + B;
     // Check for potential carry and round again if needed
-    if (res.man > (1 << res.man_bits)) {
+    if (res.man > man_mask) {
         res.man >>= 1;
         ++res.exp;
     }
