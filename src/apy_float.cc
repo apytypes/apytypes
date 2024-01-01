@@ -1,12 +1,13 @@
 #include <iostream>
 #include <limits>
 #include <math.h>
+#include "apy_common.h"
 #include "apy_float.h"
 #include "apy_util.h"
 
 APyFloat::APyFloat(std::uint8_t exp_bits, std::uint8_t man_bits, double value /*= 0*/) :
         exp_bits(exp_bits), man_bits(man_bits), sign(std::signbit(value)), bias(ieee_bias()) {
-            
+
     switch (std::fpclassify(value)) {
         case FP_ZERO:
             *this = construct_zero(sign);
@@ -39,6 +40,10 @@ APyFloat::APyFloat(bool sign, std::int64_t exp, std::int64_t man, std::uint8_t e
 }
 
 APyFloat APyFloat::operator+(APyFloat y) const {
+    if (get_rounding_mode() != RoundingMode::TIES_TO_EVEN) {
+        throw NotImplementedException();
+    }
+
     APyFloat x = *this;
     
     if (!(x.is_finite() && y.is_finite()) || (x.bias != y.bias)) {
@@ -147,6 +152,10 @@ APyFloat APyFloat::operator-(const APyFloat &y) const {
 }
 
 APyFloat APyFloat::operator*(const APyFloat &y) const {
+    if (get_rounding_mode() != RoundingMode::TIES_TO_EVEN) {
+        throw NotImplementedException();
+    }
+    
     const bool res_sign = sign ^ y.sign;
 
     if ((is_nan() || y.is_nan())

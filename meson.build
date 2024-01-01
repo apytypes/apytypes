@@ -5,8 +5,10 @@ project(
 )
 
 lib_src = [
+    'src/apy_common.cc',
     'src/apy_fixed.cc',
     'src/apy_float.cc',
+    'src/apy_float_contextmanager.cc',
 ]
 
 # Python module incudes
@@ -49,10 +51,12 @@ python_installation.extension_module(
     sources : [
         'src/apy_types_wrapper.cc',
         'src/apy_fixed_wrapper.cc',
-        'src/apy_float_wrapper.cc'
+        'src/apy_float_wrapper.cc',
+        'src/apy_float_context_wrapper.cc'
     ],
     include_directories : pybind11_includes,
     dependencies : python_installation.dependency(),
     link_with : apy_lib,
+    cpp_args : '-std=c++17',
     install: true
 )
