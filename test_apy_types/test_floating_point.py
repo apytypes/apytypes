@@ -2,10 +2,11 @@ from itertools import permutations as perm
 import pytest
 import sys
 sys.path.append('../builddir/')
+import apy_types
 from apy_types import APyFloat
 
 # Addition
-@pytest.mark.float_add
+@pytest.mark.float_neg
 @pytest.mark.parametrize(
     "test_in,test_exp", [("-APyFloat(5, 5, 2.75)", -2.75), 
                         ("-APyFloat(5, 5, -13.25)", 13.25)]
@@ -62,3 +63,30 @@ def test_sub_diff_sign(lhs, rhs):
 def test_sub_zero(lhs, rhs):
     # Subtract two numbers that have different sign
     assert float(eval(f"{lhs} - {rhs}")) == (5.75 * (-1 if eval(lhs).is_zero() else 1))
+
+
+# Multiplication
+@pytest.mark.float_mul
+@pytest.mark.parametrize("lhs,rhs", list(perm(["APyFloat(5, 5, 2.75)", "APyFloat(5, 5, 2.5)"])))
+def test_mul_same_exp(lhs, rhs):
+    assert float(eval(f"{lhs} * {rhs}")) == 6.875
+
+@pytest.mark.float_mul
+@pytest.mark.parametrize("lhs,rhs", list(perm(["APyFloat(5, 5, 2.75)", "APyFloat(5, 5, 0)"])))
+def test_mul_zero(lhs, rhs):
+    assert float(eval(f"{lhs} * {rhs}")) == 0.0
+
+@pytest.mark.float_mul
+@pytest.mark.parametrize("lhs,rhs", list(perm(["APyFloat(5, 5, 2.75)", "APyFloat(5, 5, 1)"])))
+def test_mul_identity(lhs, rhs):
+    assert float(eval(f"{lhs} * {rhs}")) == 2.75
+
+@pytest.mark.float_mul
+@pytest.mark.parametrize("lhs,rhs", list(perm(["APyFloat(5, 5, 2.75)", "APyFloat(5, 5, -1)"])))
+def test_mul_sign(lhs, rhs):
+    assert float(eval(f"{lhs} * {rhs}")) == -2.75
+
+@pytest.mark.float_mul
+@pytest.mark.parametrize("lhs,rhs", list(perm(["APyFloat(5, 6, -2.75)", "APyFloat(5, 6, -3.5)"])))
+def test_mul_two_neg(lhs, rhs):
+    assert float(eval(f"{lhs} * {rhs}")) == 9.625

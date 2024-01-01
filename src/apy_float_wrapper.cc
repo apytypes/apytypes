@@ -12,6 +12,7 @@ void bind_float(py::module &m) {
             .def(py::self + py::self)
             .def(-py::self)
             .def(py::self - py::self)
+            .def(py::self * py::self)
             .def(py::self == py::self)
             .def("__float__", &APyFloat::operator double)
 
@@ -23,5 +24,10 @@ void bind_float(py::module &m) {
             .def("is_nan", &APyFloat::is_nan)
             .def("is_inf", &APyFloat::is_inf)
             .def("is_sign_neg", &APyFloat::is_sign_neg)
+
+            // Getters
+            .def("get_sign", &APyFloat::get_sign)
+            .def("get_man", &APyFloat::get_man)
+            .def("get_exp", &APyFloat::get_exp)
             ;
 }
