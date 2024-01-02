@@ -5,19 +5,25 @@
 
 namespace py = pybind11;
 
+void context_enter_handler(ContextManager &cm)
+{
+    cm.enter_context();
+}
+
+void context_exit_handler(ContextManager &cm,
+                            const std::optional<pybind11::type> &exc_type,
+                            const std::optional<pybind11::object> &exc_value,
+                            const std::optional<pybind11::object> &traceback)
+{
+    cm.exit_context();
+}
+
 void bind_float_context(py::module &m) {
-    py::class_<RoundingContext>(m, "RoundingContext")
-            .def(py::init<RoundingMode>(),
-            py::arg("rounding_mode"))
-            .def("__enter__", [] (RoundingContext &rc) { rc.enter_context(); })
-            .def("__exit__",
-            [] (RoundingContext& rc,
-                const std::optional<pybind11::type> &exc_type,
-                const std::optional<pybind11::object> &exc_value,
-                const std::optional<pybind11::object> &traceback)
-            { 
-                    rc.exit_context(); 
-            })
+    py::class_<ContextManager>(m, "ContextManager"); 
+    py::class_<RoundingContext, ContextManager>(m, "RoundingContext")
+            .def(py::init<RoundingMode>(), py::arg("rounding_mode"))
+            .def("__enter__", &context_enter_handler)
+            .def("__exit__", &context_exit_handler)
             ;
 
     m.def("set_rounding_mode", &set_rounding_mode);
