@@ -2,7 +2,6 @@ from itertools import permutations as perm
 import pytest
 import sys
 sys.path.append('../builddir/')
-import apy_types
 from apy_types import APyFloat
 
 # Addition

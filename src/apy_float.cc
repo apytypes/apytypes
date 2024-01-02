@@ -35,8 +35,8 @@ APyFloat::APyFloat(std::uint8_t exp_bits, std::uint8_t man_bits, double value /*
     exp = d_exp + bias - 1;
 }
 
-APyFloat::APyFloat(bool sign, std::int64_t exp, std::int64_t man, std::uint8_t exp_bits, std::uint8_t man_bits) : 
-        sign(sign), exp(exp), bias(ieee_bias()), man(man), exp_bits(exp_bits), man_bits(man_bits) { 
+APyFloat::APyFloat(bool sign, exp_t exp, man_t man, std::uint8_t exp_bits, std::uint8_t man_bits) : 
+        exp_bits(exp_bits), man_bits(man_bits), sign(sign), man(man), bias(ieee_bias()), exp(exp)  { 
 }
 
 APyFloat APyFloat::operator+(APyFloat y) const {
@@ -192,7 +192,7 @@ APyFloat APyFloat::operator*(const APyFloat &y) const {
     const man_t man_mask = ((1 << res.man_bits) - 1);
     man_t M, G, T, B;
 
-    if (highR >= (1 << (2*res.man_bits+1))) { // Carry
+    if (highR >= static_cast<man_t>((1 << (2*res.man_bits+1)))) { // Carry
         M = highR >> (res.man_bits+1);
         G = (highR >> (res.man_bits-1)) & 1;
         T = (highR & (man_mask<< 1 | 1)) != 0;

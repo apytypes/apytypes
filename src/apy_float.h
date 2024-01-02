@@ -61,7 +61,7 @@ class APyFloat {
     exp_t bias, exp;
 
     APyFloat() = default;
-    APyFloat(bool sign, std::int64_t exp, std::int64_t man, std::uint8_t exp_bits, std::uint8_t man_bits);
+    explicit APyFloat(bool sign, exp_t exp, man_t man, std::uint8_t exp_bits, std::uint8_t man_bits);
 
     exp_t max_exponent() const;
     exp_t ieee_bias() const;

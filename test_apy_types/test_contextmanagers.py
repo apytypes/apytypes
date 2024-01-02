@@ -1,4 +1,3 @@
-import pytest
 import sys
 sys.path.append('../builddir/')
 import apy_types
