@@ -14,6 +14,11 @@ void bind_float(py::module &m) {
             .def(py::self - py::self)
             .def(py::self * py::self)
             .def(py::self == py::self)
+            .def(py::self != py::self)
+            .def(py::self < py::self)
+            .def(py::self > py::self)
+            .def(py::self <= py::self)
+            .def(py::self >= py::self)
             .def("__float__", &APyFloat::operator double)
 
             // Non-computational operations

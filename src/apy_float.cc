@@ -14,9 +14,10 @@ APyFloat::APyFloat(std::uint8_t exp_bits, std::uint8_t man_bits, double value /*
             return;
         case FP_INFINITE:
             *this = construct_inf(sign);
-            break;
+            return;
         case FP_NAN:
-            *this = construct_nan(sign, 1);
+            *this = construct_nan(sign);
+            return;
         case FP_NORMAL:
             break; // Continue below switch statement
         case FP_SUBNORMAL:
@@ -230,6 +231,9 @@ APyFloat APyFloat::operator-() const {
     return res;
 }
 
+/*
+    Comparison operators
+*/
 bool APyFloat::operator==(const APyFloat &rhs) const {
     if (is_nan() || rhs.is_nan()) {
         return false;
@@ -241,19 +245,45 @@ bool APyFloat::operator==(const APyFloat &rhs) const {
     }
 }
 
+bool APyFloat::operator!=(const APyFloat &rhs) const {
+    if (is_nan() || rhs.is_nan()) {
+        return false;
+    } else {
+        return !(*this == rhs);
+    }
+}
+
+bool APyFloat::operator>=(const APyFloat &rhs) const {
+    return (*this > rhs) || (*this == rhs);
+}
+
+bool APyFloat::operator<=(const APyFloat &rhs) const {
+    return (*this < rhs) || (*this == rhs);
+}
+
 bool APyFloat::operator>(const APyFloat &rhs) const {
-    return !(*this < rhs);
+    if (is_nan() || rhs.is_nan()) {
+        return false;
+    } else {
+        return !(*this < rhs);
+    }
 }
 
 bool APyFloat::operator<(const APyFloat &rhs) const {
+    if (is_nan() || rhs.is_nan()) {
+        return false;
+    } 
+
     if (sign == rhs.sign) {
+        bool ret;
         if ((exp - bias) < (rhs.exp - rhs.bias)) {
-            return true;
+            ret = true;
         } else if ((exp - bias) > (rhs.exp - rhs.bias)) {
-            return false;
+            ret = false;
         } else {
-            return man < rhs.man;
+            ret = (man < rhs.man);
         }
+        return ret ^ sign;
     } else {
         return sign;
     }

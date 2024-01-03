@@ -4,6 +4,74 @@ import sys
 sys.path.append('../builddir/')
 from apy_types import APyFloat
 
+# Conversion to special numbers
+@pytest.mark.float_special
+@pytest.mark.parametrize(
+    "float_s", ['nan', 'inf', '-inf', '0.0', '-0.0']
+)
+def test_special_conversions(float_s):
+    assert str(float(APyFloat(5, 5, float(float_s)))) ==  str(float(float_s)) == float_s
+
+# Comparison operators
+@pytest.mark.float_comp
+@pytest.mark.parametrize(
+    "lhs,rhs,test_exp", [("APyFloat(5, 5, 2.75)", "APyFloat(5, 5, 2.75)", True), 
+                         ("APyFloat(5, 5, 2.75)", "APyFloat(5, 5, -2.75)", False),
+                         ("APyFloat(5, 5, 3.5)", "APyFloat(5, 5, 6.5)", False),
+                         ("APyFloat(5, 5, 3.5)", "APyFloat(5, 5, 3.75)", False)]
+)
+def test_equality(lhs, rhs, test_exp):
+    assert (eval(lhs) == eval(rhs)) == test_exp
+    assert (eval(lhs) != eval(rhs)) == (not test_exp)
+
+@pytest.mark.float_comp
+@pytest.mark.parametrize(
+    "lhs,rhs,test_exp", [("APyFloat(5, 5, 3.5)", "APyFloat(5, 5, 6.75)", True), 
+                         ("APyFloat(5, 5, 3.5)", "APyFloat(5, 5, 6.25)", True),
+                         ("APyFloat(5, 5, 3.5)", "APyFloat(5, 5, 2.75)", False),
+                         ("APyFloat(5, 5, 3.5)", "APyFloat(5, 5, 3.5)", False),
+                         ("APyFloat(5, 5, 3.5)", "APyFloat(5, 5, -6.75)", False)]
+)
+def test_less_greater_than(lhs, rhs, test_exp):
+    assert (eval(lhs) < eval(rhs)) == test_exp
+    assert (eval(lhs) > eval(rhs)) == (not test_exp)
+
+@pytest.mark.float_comp
+@pytest.mark.parametrize(
+    "lhs,rhs,test_exp", [("APyFloat(5, 5, 3.5)", "APyFloat(5, 5, 6.75)", True), 
+                         ("APyFloat(5, 5, 3.5)", "APyFloat(5, 5, 6.25)", True),
+                         ("APyFloat(5, 5, 3.5)", "APyFloat(5, 5, 2.75)", False),
+                         ("APyFloat(5, 5, 3.5)", "APyFloat(5, 5, 3.5)", True),
+                         ("APyFloat(5, 5, 3.5)", "APyFloat(5, 5, -6.75)", False)]
+)
+def test_leq_geq(lhs, rhs, test_exp):
+    assert (eval(lhs) <= eval(rhs)) == test_exp
+    assert (eval(rhs) >= eval(lhs)) == test_exp
+
+@pytest.mark.float_comp
+@pytest.mark.float_special
+@pytest.mark.parametrize("lhs,rhs", list(perm(["APyFloat(5, 5, 2.75)", "APyFloat(5, 5, float('nan'))"]))
+                                    + list(perm(["APyFloat(5, 5, float('inf'))", "APyFloat(5, 5, float('nan'))"]))
+                                    + list(perm(["APyFloat(5, 5, float('nan'))", "APyFloat(5, 5, 0)"]))
+                                    + [("APyFloat(5, 5, float('nan'))", "APyFloat(5, 5, float('nan'))")])
+def test_nan_comparison(lhs, rhs):
+    assert not (eval(lhs) == eval(rhs))
+    assert not (eval(lhs) != eval(rhs))
+    assert not (eval(lhs) < eval(rhs))
+    assert not (eval(lhs) > eval(rhs))
+    assert not (eval(lhs) <= eval(rhs))
+    assert not (eval(lhs) >= eval(rhs))
+
+@pytest.mark.float_comp
+@pytest.mark.float_special
+def test_inf_comparison():
+    assert APyFloat(4, 1, 12) < APyFloat(5, 5, float('inf'))
+    assert APyFloat(4, 1, -12) > APyFloat(5, 5, float('-inf'))
+    assert APyFloat(5, 5, 0) > APyFloat(5, 5, float('-inf'))
+    assert APyFloat(5, 5, float('inf')) == APyFloat(5, 5, float('inf'))
+    assert APyFloat(5, 5, float('inf')) != APyFloat(5, 5, float('-inf'))
+
+
 # Addition
 @pytest.mark.float_neg
 @pytest.mark.parametrize(

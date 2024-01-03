@@ -20,20 +20,16 @@ class APyFloat {
 
     // Overloaded operators
     APyFloat operator+(APyFloat rhs) const;
-    APyFloat &operator+=(const APyFloat &rhs);
     APyFloat operator-(const APyFloat &rhs) const;
     APyFloat operator-() const;
-    APyFloat &operator-=(const APyFloat &rhs);
     APyFloat operator*(const APyFloat &rhs) const;
-    APyFloat &operator*=(const APyFloat &rhs);
     APyFloat operator/(const APyFloat &rhs) const;
-    APyFloat &operator/=(const APyFloat &rhs);
     bool operator==(const APyFloat &rhs) const;
+    bool operator!=(const APyFloat &rhs) const;
     bool operator<=(const APyFloat &rhs) const;
     bool operator<(const APyFloat &rhs) const;
     bool operator>=(const APyFloat &rhs) const;
     bool operator>(const APyFloat &rhs) const;
-    bool operator!=(const APyFloat &rhs) const;
     std::ostream &operator<<(std::ostream &os) const;
     operator double() const;
 
