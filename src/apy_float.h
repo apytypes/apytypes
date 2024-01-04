@@ -47,6 +47,8 @@ class APyFloat {
     bool get_sign() const { return sign; }
     man_t get_man() const { return man; }
     exp_t get_exp() const { return exp; }
+    std::uint8_t get_man_bits() const { return man_bits; }
+    std::uint8_t get_exp_bits() const { return exp_bits; }
 
     private:
     // It is perhaps better to combine the sign, hidden one, and mantissa into one field using APyFixed,

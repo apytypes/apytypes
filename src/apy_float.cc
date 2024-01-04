@@ -47,7 +47,7 @@ APyFloat APyFloat::operator+(APyFloat y) const {
 
     APyFloat x = *this;
     
-    if (!(x.is_finite() && y.is_finite()) || (x.bias != y.bias)) {
+    if (!(x.is_finite() && y.is_finite())) {
         throw NotImplementedException();
     }
 
@@ -63,12 +63,15 @@ APyFloat APyFloat::operator+(APyFloat y) const {
         res.sign = y.sign;
         std::swap(x, y);
     } else {
+        if (x.sign != y.sign) {
+            return res.construct_zero(false);
+        }
         res.sign = x.sign | y.sign;
     }
 
-    res.exp = x.exp;
-    res.exp_bits = x.exp_bits;
-    res.bias = x.bias;
+    res.exp_bits = std::max(x.exp_bits, y.exp_bits);
+    res.bias = ieee_bias();
+    res.exp = x.exp - x.bias + res.bias;
     res.man_bits = std::max(x.man_bits, y.man_bits);
 
     // Conditionally add leading one's
@@ -82,8 +85,16 @@ APyFloat APyFloat::operator+(APyFloat y) const {
     my <<= 3;
 
     // Align mantissas
-    exp_t delta = (x.exp - nx) - (y.exp - ny);
-    const exp_t max_shift = y.man_bits + 4UL; // +4 to account for leading one and 3 guard bits 
+    const exp_t man_bits_delta = x.man_bits - y.man_bits;
+    if (man_bits_delta < 0) {
+        mx <<= -man_bits_delta;
+    } else {
+        my <<= man_bits_delta;
+    }
+
+    exp_t delta = (x.exp - x.bias - nx) - (y.exp - y.bias- ny);
+
+    const exp_t max_shift = y.man_bits + 4UL; // +4 to account for leading one and 3 guard bits
     man_t highY = my >> std::min(max_shift, delta);
 
     man_t lowY; // Used to update the sticky bit position T
@@ -92,7 +103,7 @@ APyFloat APyFloat::operator+(APyFloat y) const {
     } else if (delta >= max_shift) {
         lowY = 1;
     } else {
-        lowY = (my << (max_shift-delta)) != 0;
+        lowY = (my & ((1 << (max_shift-delta))-1)) != 0;
     }
 
     // Perform addition/subtraction
@@ -170,24 +181,29 @@ APyFloat APyFloat::operator*(const APyFloat &y) const {
         return construct_inf(res_sign);
     }
 
-    if (is_zero() || y.is_zero()) {
-        return construct_zero(res_sign);
-    }
-
-    if (is_subnormal() || y.is_subnormal() || (bias != y.bias)) {
+    if ((is_subnormal() && !is_zero()) || (y.is_subnormal() && !y.is_zero())) {
         throw NotImplementedException();
     }
 
     APyFloat res(std::max(exp_bits, y.exp_bits), std::max(man_bits, y.man_bits));
+
+    if (is_zero() || y.is_zero()) {
+        return res.construct_zero(res_sign);
+    }
+
     res.sign = res_sign;
+    res.bias = res.ieee_bias();
 
     // Conditionally add leading one's
     man_t mx = (is_normal() << man_bits) | man;
     man_t my = (y.is_normal() << y.man_bits) | y.man;
     
-    res.exp = exp + y.exp - y.bias;
+    res.exp = exp - bias + y.exp - y.bias + res.bias;
     
+    // One of the operands should be scaled but since (a*scale)*b == (a*b)*scale
+    // we can just scale the result.
     man_t highR = mx * my;
+    highR <<= std::abs(man_bits - y.man_bits);
 
     // Calculate rounding bit
     const man_t man_mask = ((1 << res.man_bits) - 1);
@@ -218,10 +234,10 @@ APyFloat APyFloat::operator*(const APyFloat &y) const {
     if (res.man > man_mask) {
         res.man >>= 1;
         ++res.exp;
-        throw NotImplementedException();
+        if (res.exp == max_exponent()) {
+            return res.construct_inf(res.sign);
+        }
     }
-    //res.man = (highR >> (res.man_bits)) & man_mask;
-
     return res;
 }
 
@@ -262,7 +278,7 @@ bool APyFloat::operator<=(const APyFloat &rhs) const {
 }
 
 bool APyFloat::operator>(const APyFloat &rhs) const {
-    if (is_nan() || rhs.is_nan()) {
+    if (is_nan() || rhs.is_nan() || (*this == rhs)) {
         return false;
     } else {
         return !(*this < rhs);
@@ -270,23 +286,28 @@ bool APyFloat::operator>(const APyFloat &rhs) const {
 }
 
 bool APyFloat::operator<(const APyFloat &rhs) const {
-    if (is_nan() || rhs.is_nan()) {
+    if (is_nan() || rhs.is_nan() || (*this == rhs)) {
         return false;
-    } 
+    }
 
-    if (sign == rhs.sign) {
-        bool ret;
-        if ((exp - bias) < (rhs.exp - rhs.bias)) {
-            ret = true;
-        } else if ((exp - bias) > (rhs.exp - rhs.bias)) {
-            ret = false;
-        } else {
-            ret = (man < rhs.man);
-        }
-        return ret ^ sign;
-    } else {
+    if (sign != rhs.sign) {
         return sign;
     }
+
+    bool ret;
+    if ((exp - bias) < (rhs.exp - rhs.bias)) {
+        ret = true;
+    } else if ((exp - bias) > (rhs.exp - rhs.bias)) {
+        ret = false;
+    } else {
+        exp_t man_bits_diff = man_bits - rhs.man_bits;
+        if (man_bits_diff < 0) {
+            ret = (man << -man_bits_diff) < rhs.man;
+        } else {
+            ret = man < (rhs.man << man_bits_diff);
+        }
+    }
+    return ret ^ sign;
 }
 
 APyFloat::exp_t APyFloat::ieee_bias() const {

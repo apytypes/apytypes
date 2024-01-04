@@ -34,5 +34,7 @@ void bind_float(py::module &m) {
             .def("get_sign", &APyFloat::get_sign)
             .def("get_man", &APyFloat::get_man)
             .def("get_exp", &APyFloat::get_exp)
+            .def("get_man_bits", &APyFloat::get_man_bits)
+            .def("get_exp_bits", &APyFloat::get_exp_bits)
             ;
 }
