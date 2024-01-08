@@ -18,6 +18,8 @@ class APyFloat {
     // Constructors
     explicit APyFloat(std::uint8_t exp_bits, std::uint8_t man_bits, double value = 0);
 
+    APyFloat& from_bits(unsigned long long bits);
+
     // Overloaded operators
     APyFloat operator+(APyFloat rhs) const;
     APyFloat operator-(const APyFloat &rhs) const;
@@ -42,6 +44,7 @@ class APyFloat {
     bool is_sign_neg() const;
     APyFloat abs(const APyFloat &) const;
     std::string repr() const;
+    unsigned long long to_bits() const;
 
     // Getters
     bool get_sign() const { return sign; }

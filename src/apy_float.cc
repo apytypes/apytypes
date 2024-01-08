@@ -5,6 +5,10 @@
 #include "apy_float.h"
 #include "apy_util.h"
 
+extern "C" {
+#include "ieee754_bit_fiddle.h"
+}
+
 APyFloat::APyFloat(std::uint8_t exp_bits, std::uint8_t man_bits, double value /*= 0*/) :
         exp_bits(exp_bits), man_bits(man_bits), sign(std::signbit(value)), bias(ieee_bias()) {
 
@@ -19,21 +23,42 @@ APyFloat::APyFloat(std::uint8_t exp_bits, std::uint8_t man_bits, double value /*
             *this = construct_nan(sign);
             return;
         case FP_NORMAL:
-            break; // Continue below switch statement
         case FP_SUBNORMAL:
+            break;
         default:
             throw NotImplementedException();
     }
 
-    // If no errors occur, std::frexp returns the value f_norm in the range (-1, -0.5], [0.5, 1)
-    // and stores an integer value in *exp such that (f_norm * 2^d_exp) == num.
-    int d_exp;
-    double f_norm = std::abs(std::frexp(value, &d_exp));
+    exp = exp_of_double(value) + bias;
+    man = man_of_double(value);
+    man >>= 52 - man_bits; // Binary64 (double) has 52 mantissa bits
 
-    // f_norm contains the leading 1 so it should be shifted to the left (and exponent incremented)
-    man = static_cast<man_t>(f_norm * (1 << (man_bits + 1)));
-    man &= (1 << man_bits) - 1;
-    exp = d_exp + bias - 1;
+    man_t subnormal_compensation = 0;
+    if (exp >= max_exponent()) { // Exponent too big, saturate to inf
+        *this = construct_inf(sign);
+        return;
+    } else if (exp <= -man_bits) { // Exponent too small, round to zero
+        *this = construct_zero(sign);
+        return;
+    } else if (exp <= 0) {            // The number must be converted to a subnormal in the new format
+        man |= 1 << (man_bits);       // Add leading one
+        man <<= (man_bits + exp - 1); // Shift the difference between E_min and exp 
+        man /= 1 << man_bits;         // Divide by the minimum subnorm (i.e. E_min)
+        man &= (1 << man_bits) - 1;   // Mask away the leading ones
+        exp = 0;
+    }
+}
+
+APyFloat& APyFloat::from_bits(unsigned long long bits) {
+    man = bits & ((1 << man_bits) - 1);
+    bits >>= man_bits;
+
+    exp = bits & ((1 << exp_bits) - 1);
+    bits >>= exp_bits;
+
+    sign = bits != 0;
+
+    return *this;
 }
 
 APyFloat::APyFloat(bool sign, exp_t exp, man_t man, std::uint8_t exp_bits, std::uint8_t man_bits) : 
@@ -400,7 +425,7 @@ std::string APyFloat::repr() const {
     }
 
     str += "2**"
-        + std::to_string(exp - bias - man_bits)
+        + std::to_string(exp - bias - man_bits + 1 - is_normal())
         + "*"
         + std::to_string((is_normal() << man_bits) | man)
         + ")";
@@ -416,7 +441,11 @@ APyFloat::operator double() const {
     }
 
     const auto mantissa = (is_normal() << man_bits) | man;
-    const auto exponent = is_subnormal() ? 0 : exp - bias - man_bits;
+    const auto exponent = exp - bias - man_bits + 1 - is_normal();
 
-    return (sign ? -1.0 : 1.0) * mantissa / (1 << -exponent);
+    return (sign ? -1.0 : 1.0) * std::pow(2, exponent) * mantissa;
+}
+
+unsigned long long APyFloat::to_bits() const {
+    return (sign << (exp_bits + man_bits)) | (exp << man_bits) | man;
 }

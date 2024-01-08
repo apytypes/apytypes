@@ -20,6 +20,35 @@ def test_normal_conversions(exp, man, val, neg):
     assert float(APyFloat(exp[0], man[0], val)) == float(APyFloat(exp[1], man[1], val)) == val
 
 
+@pytest.mark.parametrize('sign', ['1', '0'])
+@pytest.mark.parametrize('absx,ans',[('00000_00', '0.0'),         # Zero
+                                    ('0000_001', '1*2**-9'),      # Min subnorm
+                                    ('0000_010', '2*2**-9'),
+                                    ('0000_011', '3*2**-9'),
+                                    ('0000_100', '4*2**-9'),
+                                    ('0000_101', '5*2**-9'),
+                                    ('0000_110', '6*2**-9'),
+                                    ('0000_111', '7*2**-9'),      # Max subnorm
+                                    ('0001_000', '2**-6'),        # Min normal
+                                    ('1110_111', '240.0'),        # Max normal
+                                    ('1111_000', 'float("inf")'), # Infinity
+                                    ])
+def test_bit_conversions_e4m3(absx, sign, ans):
+    assert float(APyFloat(4, 3).from_bits(int(f'{sign}_{absx}', 2))) == eval(f'{"-" if sign == "1" else ""}{ans}')
+    assert APyFloat(4, 3, eval(f'{"-" if sign == "1" else ""}{ans}')).to_bits() == int(f'{sign}_{absx}', 2)
+    
+
+@pytest.mark.parametrize('sign', ['1', '0'])
+@pytest.mark.parametrize('absx,ans',[('11111_01', 'float("nan")'), # NaN
+                                    ('11111_10', 'float("nan")'),  # NaN
+                                    ('11111_11', 'float("nan")'),  # NaN
+                                    ])
+def test_bit_conversion_nan_e5m2(absx, sign, ans):
+    assert str(float(APyFloat(5, 2).from_bits(int(f'{sign}_{absx}', 2)))) == str(eval(f'{"-" if sign == "1" else ""}{ans}'))
+    bits = APyFloat(5, 2, eval(f'{"-" if sign == "1" else ""}{ans}')).to_bits()
+    assert (bits & 0x3) != 0
+
+
 # Comparison operators
 @pytest.mark.float_comp
 @pytest.mark.parametrize(

@@ -1,6 +1,6 @@
 project(
     'aPy-types',
-    'cpp',
+    'c', 'cpp',
     version : '0.0.1'
 )
 
@@ -9,6 +9,7 @@ lib_src = [
     'src/apy_fixed.cc',
     'src/apy_float.cc',
     'src/apy_float_contextmanager.cc',
+    'src/ieee754_bit_fiddle.c'
 ]
 
 # Python module incudes
