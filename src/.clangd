@@ -7,4 +7,5 @@ CompileFlags:
       -Wno-deprecated, 
       -D _IS_APY_TYPES_UNIT_TEST,
       -I test/,
-     ]
+      -I/usr/include/python3.10,
+    ]

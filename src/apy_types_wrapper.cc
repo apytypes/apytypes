@@ -26,4 +26,7 @@ void bind_common(py::module &m) {
     
     m.def("set_rounding_mode", &set_rounding_mode);
     m.def("get_rounding_mode", &get_rounding_mode);
+
+    // APyTypes version number
+    m.attr("__version__") = "0.0.1";
 }

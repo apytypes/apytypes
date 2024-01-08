@@ -19,6 +19,12 @@ void bind_fixed(py::module &m) {
             py::arg("bits"),
             py::arg("int_bits")
         )
+        //.def(
+        //    py::init<int, int, py::int_>(),
+        //    py::arg("bits"),
+        //    py::arg("int_bits"),
+        //    py::arg("obj")
+        //)
         .def(
             py::init<int, int, double>(),
             py::arg("bits"),
@@ -38,13 +44,13 @@ void bind_fixed(py::module &m) {
             py::arg("int_bits"),
             py::arg("other")
         )
-        /*.def(
-            py::init<int, int, PyLong_Type>(),
-            //py::init<int, int, PyLong_Type>(),
-            py::arg("bits"),
-            py::arg("int_bits"),
-            py::arg("value")
-        )*/
+        //.def(
+        //  py::init<int, int, PyLong_Type>(),
+        //  //py::init<int, int, PyLong_Type>(),
+        //  py::arg("bits"),
+        //  py::arg("int_bits"),
+        //  py::arg("value")
+        ///
 
         /*
          * Arithmetic operators

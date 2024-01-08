@@ -2,7 +2,6 @@
  * APyFixed: Dynamic arbitrary fixed-point data type.
  */
 
-#include "apy_dynamic_stack_allocator.h"
 #include "apy_util.h"
 #include "apy_fixed.h"
 
@@ -16,8 +15,13 @@
 #include <string>      // std::string
 #include <vector>      // std::vector, std::swap
 
+// Python object access through Pybind
+//#include <pybind11/pybind11.h>
+//namespace py = pybind11;
+
 // GMP should be included after all other includes
 #include <gmp.h>
+
 
 /* ********************************************************************************** *
  *                                Constructors                                        *
@@ -68,6 +72,15 @@ APyFixed::APyFixed(int bits, int int_bits, const APyFixed &other) :
 {
     from_apyfixed(other);
 }
+
+
+// Constructor: construct from a PyObject (e.g. PyLong_Type)
+//APyFixed::APyFixed(int bits, int int_bits, py::int_ obj)
+//    : APyFixed(bits, int_bits)
+//{
+//    (void) obj;
+//    throw NotImplementedException();
+//}
 
 // Underlying vector iterator-based constructor
 template <typename _ITER>
@@ -477,7 +490,6 @@ void APyFixed::from_double(double value)
 
         // Adjust the actual exponent
         exp -= 1023;
-
 
         // Shift the data into its correct position
         auto left_shift_amnt = exp+frac_bits()-52;
