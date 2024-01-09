@@ -1,7 +1,8 @@
 project(
     'aPy-types',
     'c', 'cpp',
-    version : '0.0.1'
+    version : '0.0.1',
+    default_options : ['cpp_std=c++17'],
 )
 
 lib_src = [
@@ -23,14 +24,10 @@ pybind11_includes = run_command(
 cpp_compiler_flags = [
 
     # Warnings
-    '-Wpedantic', '-Wall', '-Wextra', '-Wcast-align', '-Wunused', '-Wundef',
-    '-Wdouble-promotion', '-Wmisleading-indentation', '-Wduplicated-cond',
-    '-Wduplicated-branches', '-Wlogical-op', '-fno-common', '-Wnull-dereference',
-    '-Wold-style-cast', '-Wredundant-decls', '-Wundef', '-Wno-unused',
-    '-Wsuggest-final-types', '-Wsuggest-override', '-Woverloaded-virtual',
+    '-Wpedantic', '-Wall', '-Wextra',
 
     # Others
-    '-std=c++17', '-O2', '-march=native', '-g3',
+    '-O2', '-march=native', '-g3',
 ]
 
 # https://mesonbuild.com/howtox.html#enable-threads
@@ -38,12 +35,13 @@ cc = meson.get_compiler('cpp')
 gmp_dep = cc.find_library('gmp')
 
 # The aPy-types library
-apy_lib = library(
+apy_lib = static_library(
     'apy_lib',
     sources : lib_src,
     cpp_args : cpp_compiler_flags,
-    dependencies : gmp_dep,
-    install: true # Perhaps only works on Linux systems
+    include_directories : pybind11_includes,
+    dependencies : [python_installation.dependency(), gmp_dep],
+    install: true,  # Perhaps only works on Linux systems
 )
 
 # Python module
@@ -58,6 +56,5 @@ python_installation.extension_module(
     include_directories : pybind11_includes,
     dependencies : python_installation.dependency(),
     link_with : apy_lib,
-    cpp_args : '-std=c++17',
     install: true
 )

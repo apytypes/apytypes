@@ -5,13 +5,14 @@
 #ifndef _APY_FIXED_H
 #define _APY_FIXED_H
 
+#include <pybind11/pybind11.h>  // pybind11::object
+
 #include "apy_util.h"
 
 #include <cstddef>   // std::size_t
 #include <ostream>   // std::ostream
 #include <string>    // std::string
 #include <vector>    // std::vector
-//#include <pybind11/pybind11.h>  // pybind11::object
 
 // GMP should be included after all other includes
 #include <gmp.h>
@@ -58,8 +59,8 @@ public:
     // Constructor: specify size and initialize from another APyFixed number
     explicit APyFixed(int bits, int int_bits, const APyFixed &other);
 
-    // Constructor: construct from a Python object
-    //explicit APyFixed(int bits, int int_bits, pybind11::int_ obj);
+    // Constructor: construct from a Python arbitrary long integer object
+    explicit APyFixed(int bits, int int_bits, pybind11::int_ obj);
 
     // Constructor: copy construct with default copy-per-field behaviour
     APyFixed(const APyFixed &other) = default;

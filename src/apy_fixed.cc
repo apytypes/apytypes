@@ -2,6 +2,13 @@
  * APyFixed: Dynamic arbitrary fixed-point data type.
  */
 
+// Python object access through Pybind
+#include <pybind11/pybind11.h>
+#include <longobject.h>   // PyLongObject
+#include <longintrepr.h>  // PyLong_SHIFT
+namespace py = pybind11;
+
+#include "python_util.h"
 #include "apy_util.h"
 #include "apy_fixed.h"
 
@@ -14,10 +21,6 @@
 #include <stdexcept>   // std::domain_error
 #include <string>      // std::string
 #include <vector>      // std::vector, std::swap
-
-// Python object access through Pybind
-//#include <pybind11/pybind11.h>
-//namespace py = pybind11;
 
 // GMP should be included after all other includes
 #include <gmp.h>
@@ -74,13 +77,64 @@ APyFixed::APyFixed(int bits, int int_bits, const APyFixed &other) :
 }
 
 
-// Constructor: construct from a PyObject (e.g. PyLong_Type)
-//APyFixed::APyFixed(int bits, int int_bits, py::int_ obj)
-//    : APyFixed(bits, int_bits)
-//{
-//    (void) obj;
-//    throw NotImplementedException();
-//}
+// Constructor: construct from a Python arbitrary long integer object
+APyFixed::APyFixed(int bits, int int_bits, py::int_ obj)
+    : APyFixed(bits, int_bits)
+{
+    /*
+     * Beware when making changes to this function: This function is not (yet) tested
+     * by any C++ unit tests, as it's difficuly to construct `py::int_` or 
+     * `PyLongObject` objects from C++.
+     */
+    PyLongObject *py_long = (PyLongObject *) obj.ptr();
+    long py_long_digits = _PyLong_DigitCount(py_long);
+    bool py_long_is_negative = _PyLong_IsNegative(py_long);
+
+    if (py_long_digits == 0) {  // Python integer is zero
+        _data = std::vector<mp_limb_t>{ 0 };
+    } else if (py_long_digits == 1) {  // Python integer fits in one Python digit
+        _data[0] = mp_limb_t(GET_OB_DIGIT(py_long)[0]);
+        if (py_long_is_negative) {
+            _data[0] = -_data[0];
+            std::fill(_data.begin()+1, _data.end(), mp_limb_t(-1));
+        }
+    } else {  // Python integer is stored using multiple Python digits
+
+        // Import data from multi-digit Python long integer
+        mpz_t mpz_from_py_long;
+        mpz_init(mpz_from_py_long);
+        mpz_import(
+            mpz_from_py_long,                                   // Destination operand
+            py_long_digits,                                     // Words to read
+            -1,                                                 // LSWord first
+            sizeof(GET_OB_DIGIT(py_long)[0]),                   // Word size in bytes
+            0,                                                  // Machine endianness
+            sizeof(GET_OB_DIGIT(py_long)[0])*8 - PyLong_SHIFT,  // Nail bits
+            GET_OB_DIGIT(py_long)                               // Source operand
+        );
+
+        // Export data to limb vector
+        auto limb_copy_count = std::min(_data.size(), mpz_size(mpz_from_py_long));
+        std::memcpy(
+            &_data[0],                          // dst
+            mpz_limbs_read(mpz_from_py_long),   // src
+            limb_copy_count * _LIMB_SIZE_BYTES
+        );
+
+        // Negate limb vector if negative
+        if (py_long_is_negative) {
+            std::transform(_data.begin(), _data.end(), _data.begin(), std::bit_not{});
+            increment_lsb();
+        }
+
+        // Clear resources and return
+        mpz_clear(mpz_from_py_long);
+    }
+
+    // Perform two's complement overflowing
+    twos_complement_overflow();
+
+}
 
 // Underlying vector iterator-based constructor
 template <typename _ITER>
@@ -261,7 +315,7 @@ APyFixed APyFixed::operator>>(int shift_val) const
     return result;
 }
 
- APyFixed APyFixed::operator-() const
+APyFixed APyFixed::operator-() const
 {
     // Invert all bits of *this, possibly append sign to new limb, and increment lsb
     APyFixed result(_bits+1, _int_bits+1);
