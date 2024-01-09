@@ -53,11 +53,12 @@ def test_bit_conversion_nan_e5m2(absx, sign, ans):
 @pytest.mark.float_comp
 @pytest.mark.parametrize(
     'lhs,rhs,test_exp', [('APyFloat(5, 5, 2.75)', 'APyFloat(5, 5, 2.75)', True), 
-                         ('APyFloat(5, 6, 2.75)', 'APyFloat(5, 5, 2.75)', False), 
-                         ('APyFloat(6, 5, 2.75)', 'APyFloat(5, 5, 2.75)', False), 
+                         ('APyFloat(5, 6, 2.75)', 'APyFloat(5, 5, 2.75)', True), 
+                         ('APyFloat(6, 5, 2.75)', 'APyFloat(5, 5, 2.75)', True), 
                          ('APyFloat(5, 5, 2.75)', 'APyFloat(5, 5, -2.75)', False),
                          ('APyFloat(5, 5, 3.5)', 'APyFloat(5, 5, 6.5)', False),
-                         ('APyFloat(5, 5, 3.5)', 'APyFloat(5, 5, 3.75)', False)]
+                         ('APyFloat(5, 5, 3.5)', 'APyFloat(5, 5, 3.75)', False),
+                         ('APyFloat(5, 2, 2**-9)', 'APyFloat(5, 5, 2*-9)', False)]
 )
 def test_equality(lhs, rhs, test_exp):
     assert (eval(lhs) == eval(rhs)) == test_exp
@@ -74,7 +75,7 @@ def test_equality(lhs, rhs, test_exp):
                          ('3.5', '-6.75', False)])
 def test_less_greater_than(exp, man, lhs, rhs, test_exp):
     assert (eval(f'APyFloat({exp[0]}, {man[0]}, {lhs}) < APyFloat({exp[1]}, {man[1]}, {rhs})') ) == test_exp
-    assert (eval(f'APyFloat({exp[0]}, {man[0]}, {lhs}) > APyFloat({exp[1]}, {man[1]}, {rhs})') ) != test_exp
+    assert (eval(f'APyFloat({exp[0]}, {man[0]}, {rhs}) > APyFloat({exp[1]}, {man[1]}, {lhs})') ) == test_exp
 
 @pytest.mark.float_comp
 @pytest.mark.parametrize(
@@ -108,6 +109,7 @@ def test_inf_comparison():
     assert APyFloat(4, 1, -12) > APyFloat(5, 5, float('-inf'))
     assert APyFloat(5, 5, 0) > APyFloat(5, 5, float('-inf'))
     assert APyFloat(5, 5, float('inf')) == APyFloat(5, 5, float('inf'))
+    assert APyFloat(5, 5, float('inf')) == APyFloat(3, 2, float('inf'))
     assert APyFloat(5, 5, float('inf')) != APyFloat(5, 5, float('-inf'))
 
 

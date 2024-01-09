@@ -276,14 +276,41 @@ APyFloat APyFloat::operator-() const {
     Comparison operators
 */
 bool APyFloat::operator==(const APyFloat &rhs) const {
+    if (sign != rhs.sign) {
+        return false;
+    }
+
     if (is_nan() || rhs.is_nan()) {
         return false;
-    } else {
-        return (exp == rhs.exp) && (man == rhs.man) 
-                && (exp_bits == rhs.exp_bits) && (man_bits == rhs.man_bits) 
-                && (sign == rhs.sign);
+    } 
 
+    if (is_inf() && rhs.is_inf()) {
+        return true;
     }
+
+    if (is_zero() && rhs.is_zero()) {
+        return true;
+    }
+
+    // Operands are (sub)normals
+    exp_t ex = exp - bias - man_bits + 1 - is_normal();
+    exp_t ey = rhs.exp - rhs.bias - rhs.man_bits + 1 - rhs.is_normal();
+
+    man_t mx = (is_normal() << man_bits) | man;
+    man_t my = (rhs.is_normal() << rhs.man_bits) | rhs.man;
+
+    // Align mantissas
+    const exp_t man_diff = man_bits - rhs.man_bits;
+
+    if (man_diff < 0) {
+        mx <<= -man_diff;
+        ex += man_diff;
+    } else {
+        my <<= man_diff;
+        ey -= man_diff;
+    }
+
+    return (ex == ey) && (mx == my);
 }
 
 bool APyFloat::operator!=(const APyFloat &rhs) const {
