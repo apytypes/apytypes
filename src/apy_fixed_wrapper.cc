@@ -12,9 +12,8 @@ void bind_fixed(py::module &m) {
 
     
     py::class_<APyFixed>(m, "APyFixed")
-        /*
-         * Constructors
-         */
+
+        // Constructor: construct from another APyFixed number
         .def(
             py::init<
                 const APyFixed &,
@@ -27,6 +26,8 @@ void bind_fixed(py::module &m) {
             py::arg("int_bits") = std::nullopt,
             py::arg("frac_bits") = std::nullopt
         )
+
+        // Constructor: construct from a Python arbitrary long integer object
         .def(
             py::init<
                 py::int_,
@@ -43,7 +44,13 @@ void bind_fixed(py::module &m) {
         /*
          * Arithmetic operators
          */
-        // .def(py::self == py::self)
+        .def(py::self == py::self)
+        .def(py::self != py::self)
+        .def(py::self < py::self)
+        .def(py::self <= py::self)
+        .def(py::self > py::self)
+        .def(py::self >= py::self)
+
         .def(py::self + py::self)
         .def(py::self - py::self)
         .def(py::self * py::self)
@@ -61,6 +68,7 @@ void bind_fixed(py::module &m) {
         .def("is_negative", &APyFixed::is_negative)
         .def("increment_lsb", &APyFixed::increment_lsb)
         .def("to_string", &APyFixed::to_string, py::arg("base") = 10)
+        .def("from_string", &APyFixed::from_string, py::arg("str"), py::arg("base") = 10)
         .def("__str__", &APyFixed::to_string, py::arg("base") = 10)
         .def("to_string_hex", &APyFixed::to_string_hex)
         .def("to_string_oct", &APyFixed::to_string_oct)
