@@ -1,7 +1,10 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
+#include <pybind11/stl.h>
 #include "apy_fixed.h"
 #include "apy_util.h"
+
+#include <optional>  // std::optional, std::nullopt
 
 namespace py = pybind11;
 
@@ -13,16 +16,28 @@ void bind_fixed(py::module &m) {
          * Constructors
          */
         .def(
-            py::init<int, int, const APyFixed &>(),
-            py::arg("bits"),
-            py::arg("int_bits"),
-            py::arg("other")
+            py::init<
+                const APyFixed &,
+                std::optional<int>,
+                std::optional<int>,
+                std::optional<int>
+            >(),
+            py::arg("other"),
+            py::arg("bits") = std::nullopt,
+            py::arg("int_bits") = std::nullopt,
+            py::arg("frac_bits") = std::nullopt
         )
         .def(
-            py::init<int, int, py::int_>(),
-            py::arg("bits"),
-            py::arg("int_bits"),
-            py::arg("obj")
+            py::init<
+                py::int_,
+                std::optional<int>,
+                std::optional<int>,
+                std::optional<int>
+            >(),
+            py::arg("int_bit_pattern"),
+            py::arg("bits") = std::nullopt,
+            py::arg("int_bits") = std::nullopt,
+            py::arg("frac_bits") = std::nullopt
         )
 
         /*

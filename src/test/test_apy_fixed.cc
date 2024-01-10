@@ -124,53 +124,53 @@ TEST_CASE("APyFixed::from_double()")
     /*
      * Zero floating-point
      */
-    REQUIRE( APyFixed(   1,     0,  0.0).to_string_dec() == "0" );
-    REQUIRE( APyFixed(1234, -1000, -0.0).to_string_dec() == "0" );
-    REQUIRE( APyFixed(1234,  1000,  0.0).to_string_dec() == "0" );
-    REQUIRE( APyFixed(1234,  4000, -0.0).to_string_dec() == "0" );
+    REQUIRE( APyFixed( 0.0,    1,     0).to_string_dec() == "0" );
+    REQUIRE( APyFixed(-0.0, 1234, -1000).to_string_dec() == "0" );
+    REQUIRE( APyFixed( 0.0, 1234,  1000).to_string_dec() == "0" );
+    REQUIRE( APyFixed(-0.0, 1234,  4000).to_string_dec() == "0" );
 
     /*
      * Integer tests
      */
-    REQUIRE( APyFixed(64, 64,  123.0).to_string_dec() ==  "123" );
-    REQUIRE( APyFixed(64, 64, -123.0).to_string_dec() == "-123" );
+    REQUIRE( APyFixed( 123.0, 64, 64).to_string_dec() ==  "123" );
+    REQUIRE( APyFixed(-123.0, 64, 64).to_string_dec() == "-123" );
     REQUIRE(
-        APyFixed(64, 64, std::pow(2.0, 52.0) + 0).to_string_dec()
+        APyFixed(std::pow(2.0, 52.0) + 0, 64, 64).to_string_dec()
         == "4503599627370496"
     );
     REQUIRE(
-        APyFixed(64, 64, std::pow(2.0, 52.0) + 1).to_string_dec()
+        APyFixed(std::pow(2.0, 52.0) + 1, 64, 64).to_string_dec()
         == "4503599627370497"
     );
     REQUIRE(
-        APyFixed(64, 64, std::pow(2.0, 53.0) + 0).to_string_dec()
+        APyFixed(std::pow(2.0, 53.0) + 0, 64, 64).to_string_dec()
         == "9007199254740992"
     );
     REQUIRE(
-        APyFixed(64, 64, std::pow(2.0, 53.0) + 1).to_string_dec()
+        APyFixed(std::pow(2.0, 53.0) + 1, 64, 64).to_string_dec()
         == "9007199254740992"  // Precision was lost when adding 1 onto 2^53
     );
     REQUIRE(
-        APyFixed(30, 153, std::pow(2.0, 123.0) - std::pow(2.0, 152)).to_string_dec()
+        APyFixed(std::pow(2.0, 123.0) - std::pow(2.0, 152), 30, 153).to_string_dec()
         == "-5708990760190015557953816894567524063288229888"
     );
     REQUIRE(
-        APyFixed(29, 153, std::pow(2.0, 123.0) - std::pow(2.0, 152)).to_string_dec()
+        APyFixed(std::pow(2.0, 123.0) - std::pow(2.0, 152), 29, 153).to_string_dec()
         == "-5708990770823839524233143877797980545530986496"  // Precision lost,
     );                                                        // number rounded
 
     /*
      * Fractional number test
      */
-    REQUIRE(APyFixed(64, 0, 123.125).to_string_dec() == "0.125");
+    REQUIRE(APyFixed(123.125, 64, 0).to_string_dec() == "0.125");
     REQUIRE(
-        APyFixed(1, -126, -std::pow(2, -127)).to_string_dec() 
+        APyFixed(-std::pow(2, -127), 1, -126).to_string_dec() 
         == "-0.0000000000000000000000000000000000000058774717541114375"
            "3984368268611122838909332778386043760754375853139208629727"
            "36358642578125"
     );
     REQUIRE(
-        APyFixed(55, 2, -1.0 + std::pow(2, -53)).to_string_dec()
+        APyFixed(-1.0 + std::pow(2, -53), 55, 2).to_string_dec()
         == "-0.99999999999999988897769753748434595763683319091796875"
     );
 
@@ -178,11 +178,10 @@ TEST_CASE("APyFixed::from_double()")
     /*
      * Round away from infinity on tie
      */
-    REQUIRE(APyFixed(2, 1,  0.24).to_string_dec() ==    "0");
-    REQUIRE(APyFixed(2, 1,  0.25).to_string_dec() ==  "0.5");
-    REQUIRE(APyFixed(2, 1, -0.25).to_string_dec() == "-0.5");
-    REQUIRE(APyFixed(2, 1, -0.24).to_string_dec() ==    "0");
-
+    REQUIRE(APyFixed( 0.24, 2, 1).to_string_dec() ==    "0");
+    REQUIRE(APyFixed( 0.25, 2, 1).to_string_dec() ==  "0.5");
+    REQUIRE(APyFixed(-0.25, 2, 1).to_string_dec() == "-0.5");
+    REQUIRE(APyFixed(-0.24, 2, 1).to_string_dec() ==    "0");
 }
 
 
@@ -226,10 +225,10 @@ TEST_CASE("Vector initialization must be consistent with APyFixed word-length")
 TEST_CASE("Bit specifying copy constructor")
 {
     { /* Test #1 */
-        APyFixed operand(10, 3, 2.5);
+        APyFixed operand(2.5, 10, 3);
         REQUIRE(operand.to_string()  == "2.5");
 
-        APyFixed fix_copy(10, 5, operand);
+        APyFixed fix_copy(operand, 10, 5);
         REQUIRE(fix_copy.bits()      ==    10);
         REQUIRE(fix_copy.int_bits()  ==     5);
         REQUIRE(fix_copy.to_string() == "2.5");
@@ -239,6 +238,6 @@ TEST_CASE("Bit specifying copy constructor")
 
 TEST_CASE("")
 {
-    REQUIRE( APyFixed(1, 0, 0.0).is_zero());
-    REQUIRE(!APyFixed(5, 2, 1.5).is_zero());
+    REQUIRE( APyFixed(0.0, 1, 0).is_zero());
+    REQUIRE(!APyFixed(1.5, 5, 2).is_zero());
 }

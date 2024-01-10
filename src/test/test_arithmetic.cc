@@ -10,8 +10,8 @@
 TEST_CASE("General binary arithmetic tests")
 {
     {  /* Test #1 */
-        APyFixed op_a(3,2,  1.5);
-        APyFixed op_b(3,2, -2.0);
+        APyFixed op_a( 1.5, 3, 2);
+        APyFixed op_b(-2.0, 3, 2);
         REQUIRE((op_a + op_b).to_string() == "-0.5");
         REQUIRE((op_a + op_b).int_bits()  ==      3);
         REQUIRE((op_a + op_b).bits()      ==      4);
@@ -27,8 +27,8 @@ TEST_CASE("General binary arithmetic tests")
     }
 
     {  /* Test #2 */
-        APyFixed op_a(1, 1, -1.0);
-        APyFixed op_b(1, 0, -0.5);
+        APyFixed op_a(-1.0, 1, 1);
+        APyFixed op_b(-0.5, 1, 0);
         REQUIRE((op_a + op_b).to_string() == "-1.5");
         REQUIRE((op_a + op_b).int_bits()  ==      2);
         REQUIRE((op_a + op_b).bits()      ==      3);
@@ -344,24 +344,24 @@ TEST_CASE("Binary arithmetic: APyFixed::operator*/(APyFixed &rhs)")
 
 TEST_CASE("Comparison operators")
 {
-    REQUIRE_FALSE(  APyFixed(256, 128, 0.0)  == APyFixed(256, 128, 1.0)  );
-    REQUIRE(        APyFixed(256, 128, 0.0)  != APyFixed(256, 128, 1.0)  );
-    REQUIRE(        APyFixed(256, 128, 0.0)  <  APyFixed(256, 128, 1.0)  );
-    REQUIRE(        APyFixed(256, 128, 0.0)  <= APyFixed(256, 128, 1.0)  );
-    REQUIRE_FALSE(  APyFixed(256, 128, 0.0)  >  APyFixed(256, 128, 1.0)  );
-    REQUIRE_FALSE(  APyFixed(256, 128, 0.0)  >= APyFixed(256, 128, 1.0)  );
+    REQUIRE_FALSE(  APyFixed(0.0, 256, 128)  == APyFixed(1.0, 256, 128)  );
+    REQUIRE(        APyFixed(0.0, 256, 128)  != APyFixed(1.0, 256, 128)  );
+    REQUIRE(        APyFixed(0.0, 256, 128)  <  APyFixed(1.0, 256, 128)  );
+    REQUIRE(        APyFixed(0.0, 256, 128)  <= APyFixed(1.0, 256, 128)  );
+    REQUIRE_FALSE(  APyFixed(0.0, 256, 128)  >  APyFixed(1.0, 256, 128)  );
+    REQUIRE_FALSE(  APyFixed(0.0, 256, 128)  >= APyFixed(1.0, 256, 128)  );
 
-    REQUIRE(        APyFixed(256, 128, 1.0)  == APyFixed(256, 128, 1.0)  );
-    REQUIRE_FALSE(  APyFixed(256, 128, 1.0)  != APyFixed(140, 128, 1.0)  );
-    REQUIRE_FALSE(  APyFixed(256, 128, 1.0)  <  APyFixed(140, 128, 1.0)  );
-    REQUIRE(        APyFixed(256, 128, 1.0)  <= APyFixed(256, 128, 1.0)  );
-    REQUIRE_FALSE(  APyFixed(256, 128, 1.0)  >  APyFixed(256, 128, 1.0)  );
-    REQUIRE(        APyFixed(256, 128, 1.0)  >= APyFixed(256, 128, 1.0)  );
+    REQUIRE(        APyFixed(1.0, 256, 128)  == APyFixed(1.0, 256, 128)  );
+    REQUIRE_FALSE(  APyFixed(1.0, 256, 128)  != APyFixed(1.0, 140, 128)  );
+    REQUIRE_FALSE(  APyFixed(1.0, 256, 128)  <  APyFixed(1.0, 140, 128)  );
+    REQUIRE(        APyFixed(1.0, 256, 128)  <= APyFixed(1.0, 256, 128)  );
+    REQUIRE_FALSE(  APyFixed(1.0, 256, 128)  >  APyFixed(1.0, 256, 128)  );
+    REQUIRE(        APyFixed(1.0, 256, 128)  >= APyFixed(1.0, 256, 128)  );
 
-    REQUIRE_FALSE(  APyFixed(256, 128, -1.0) == APyFixed(140, 128, -3.0) );
-    REQUIRE(        APyFixed(256, 128, -1.0) != APyFixed(256, 128, -3.0) );
-    REQUIRE_FALSE(  APyFixed(256, 128, -1.0) <  APyFixed(140, 128, -3.0) );
-    REQUIRE_FALSE(  APyFixed(256, 128, -1.0) <= APyFixed(256, 128, -3.0) );
-    REQUIRE(        APyFixed(256, 128, -1.0) >  APyFixed(256, 128, -3.0) );
-    REQUIRE(        APyFixed(256, 128, -1.0) >= APyFixed(256, 128, -3.0) );
+    REQUIRE_FALSE(  APyFixed(-1.0, 256, 128) == APyFixed(-3.0, 140, 128) );
+    REQUIRE(        APyFixed(-1.0, 256, 128) != APyFixed(-3.0, 256, 128) );
+    REQUIRE_FALSE(  APyFixed(-1.0, 256, 128) <  APyFixed(-3.0, 140, 128) );
+    REQUIRE_FALSE(  APyFixed(-1.0, 256, 128) <= APyFixed(-3.0, 256, 128) );
+    REQUIRE(        APyFixed(-1.0, 256, 128) >  APyFixed(-3.0, 256, 128) );
+    REQUIRE(        APyFixed(-1.0, 256, 128) >= APyFixed(-3.0, 256, 128) );
 }

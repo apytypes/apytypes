@@ -10,9 +10,11 @@
 #include "apy_util.h"
 
 #include <cstddef>   // std::size_t
+#include <optional>  // std::optional, std::nullopt
 #include <ostream>   // std::ostream
 #include <string>    // std::string
 #include <vector>    // std::vector
+
 
 // GMP should be included after all other includes
 #include <gmp.h>
@@ -41,36 +43,51 @@ public:
     APyFixed() = delete;
 
 
-    /*
-     * Constructors exported to Python
-     */
+    /* ****************************************************************************** *
+     *                            Python constructors                                 *
+     * ****************************************************************************** */
 
-    // Constructor: specify size and initialize from another APyFixed number
-    explicit APyFixed(int bits, int int_bits, const APyFixed &other);
+    // Constructor: initialize from other APyFixed and possibly set bit specifiers
+    APyFixed(
+        const APyFixed &other,
+        std::optional<int> bits      = std::nullopt,
+        std::optional<int> int_bits  = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt
+    );
 
     // Constructor: construct from a Python arbitrary long integer object
-    explicit APyFixed(int bits, int int_bits, pybind11::int_ obj);
+    explicit APyFixed(
+        pybind11::int_ obj,
+        std::optional<int> bits      = std::nullopt,
+        std::optional<int> int_bits  = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt
+    );
 
-    // Constructor: copy construct with default copy-per-field behaviour
-    APyFixed(const APyFixed &other) = default;
 
-    /*
-     * Constructors local to C++ APyFixed
-     */
+    /* ****************************************************************************** *
+     *                        More C++-accessible constructors                        *
+     * ****************************************************************************** */
 
     // Constructor: specify size and initialize from a `double`
-    explicit APyFixed(int bits, int int_bits, double value);
+    explicit APyFixed(double value, int bits, int int_bits);
 
-    // Constructor: specify only size and zero data on construction
+    // Constructor: specify only size, and zero data on construction
     explicit APyFixed(int bits, int int_bits);
+
+    // Constructor: specify only size, and zero data on construction
+    explicit APyFixed(
+        std::optional<int> bits = std::nullopt,
+        std::optional<int> int_bits = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt
+    );
 
     // Constructor: specify size and initialize from string
     explicit APyFixed(int bits, int int_bits, const char *str, int base=10);
 
 
-    /*
-     * Binary arithmetic operators
-     */
+    /* ****************************************************************************** *
+     *                         Binary arithmetic operators                            *
+     * ****************************************************************************** */
 
     APyFixed operator+(const APyFixed &rhs) const;
     APyFixed operator-(const APyFixed &rhs) const;
@@ -80,9 +97,9 @@ public:
     APyFixed operator>>(int shift_val) const;
 
 
-    /*
-     * Binary comparison operators
-     */
+    /* ****************************************************************************** *
+     *                          Binary comparion operators                            *
+     * ****************************************************************************** */
 
     bool operator==(const APyFixed &rhs) const;
     bool operator!=(const APyFixed &rhs) const;
@@ -92,9 +109,9 @@ public:
     bool operator>=(const APyFixed &rhs) const;
 
     
-    /*
-     * Other member functions
-     */
+    /* ****************************************************************************** *
+     *                        Other public member functions                           *
+     * ****************************************************************************** */
 
     // Get the number of bits in this APyInt object
     int bits() const noexcept { return _bits; }
@@ -124,9 +141,9 @@ public:
     std::string repr() const;
 
 
-    /*
-     * Conversion to other types
-     */
+    /* ****************************************************************************** *
+     *                           Conversion to other types                            *
+     * ****************************************************************************** */
 
     std::string to_string(int base = 10) const;
     std::string to_string_hex() const;
@@ -134,9 +151,9 @@ public:
     std::string to_string_dec() const;
     
 
-    /*
-     * Conversionsion from other types
-     */
+    /* ****************************************************************************** *
+     *                          Conversion from other types                           *
+     * ****************************************************************************** */
 
     void from_double(double value);
     void from_apyfixed(const APyFixed &fixed);
@@ -146,9 +163,9 @@ public:
     void from_string_dec(const std::string &str);
 
 
-    /*
-     * Private helper methods
-     */
+    /* ****************************************************************************** *
+     *                           Private helper methods                               *
+     * ****************************************************************************** */
 
 #ifdef _IS_APY_TYPES_UNIT_TEST
     // Unit tests have public access to all member function
@@ -156,6 +173,13 @@ public:
 #else
     private:
 #endif  // #ifdef _IS_APY_TYPES_UNIT_TEST
+    
+    // Set member fields `bits` and `int_bits` from optional input arguments
+    void _bits_set_from_optional(
+        std::optional<int> bits,
+        std::optional<int> int_bits,
+        std::optional<int> frac_bits
+    );
 
     // Sanitize the _bits and _int_bits parameters
     void _constructor_sanitize_bits() const;
@@ -202,12 +226,13 @@ public:
     // Set the bit-pattern of the fixed-point number from a vector of limbs
     void from_vector(const std::vector<mp_limb_t> &vector);
 
-};
+};  // end: class APyFixed
 
 
-/*
- * Print APyFixed object to ostream objects (e.g., std::cout, std::cerr)
- */
+/* ********************************************************************************** *
+ *                        Output to C++ streaming objects                             *
+ * ********************************************************************************** */
+
 static inline std::ostream& operator<< (std::ostream &os, const APyFixed &x) {
     if ( (os.flags() & std::ios::hex) != 0 ) {
         os << x.to_string(16);

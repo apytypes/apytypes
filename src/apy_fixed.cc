@@ -18,6 +18,7 @@ namespace py = pybind11;
 #include <functional>  // std::bit_not
 #include <iostream>
 #include <iterator>    // std::back_inserter
+#include <optional>    // std::optional
 #include <stdexcept>   // std::domain_error
 #include <string>      // std::string
 #include <vector>      // std::vector, std::swap
@@ -25,59 +26,49 @@ namespace py = pybind11;
 // GMP should be included after all other includes
 #include <gmp.h>
 
-
 /* ********************************************************************************** *
- *                                Constructors                                        *
+ *                              Python constructors                                   *
  * ********************************************************************************** */
 
-// Constructor: specify only size and zero data on construction
-APyFixed::APyFixed(int bits, int int_bits) :
-    _bits{bits},
-    _int_bits{int_bits},
-    _data(bits_to_limbs(bits))
-{
-    _constructor_sanitize_bits();
-}
-
-// Constructor: specify size and initialize from a `double`
-APyFixed::APyFixed(int bits, int int_bits, double value) :
-    APyFixed(bits, int_bits)
-{
-    from_double(value);
-}
-
-// Constructor: specify size and initialize from string
-APyFixed::APyFixed(int bits, int int_bits, const char *str, int base) :
-    APyFixed(bits, int_bits)
-{
-    switch (base) {
-        case 8:  from_string_oct(str); break;
-        case 10: from_string_dec(str); break;
-        case 16: from_string_hex(str); break;
-        default: throw std::domain_error(
-            "Unsupported numeric base. Valid bases are: 8, 10, 16"
-        );
-    }
-}
-
 // Constructor: specify size and initialize from another APyFixed number
-APyFixed::APyFixed(int bits, int int_bits, const APyFixed &other) :
-    APyFixed(bits, int_bits)
+APyFixed::APyFixed(
+    const APyFixed &other, 
+    std::optional<int> bits,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits
+) : _bits{}, _int_bits{}, _data{}
 {
+    if ( bits.has_value() || int_bits.has_value() || frac_bits.has_value() ) {
+        // One or more bit-specifiers set, initialize from the specifier arguments
+        _bits_set_from_optional(bits, int_bits, frac_bits);
+        _constructor_sanitize_bits();
+        _data = std::vector<mp_limb_t>(bits_to_limbs(_bits), 0);
+    } else {
+        // No bit-specifiers set, use bit-specifiers from `other`
+        _bits = other._bits;
+        _int_bits = other._int_bits;
+        _data = std::vector<mp_limb_t>(bits_to_limbs(_bits), 0);
+    }
+
+    // Copy the limb data from `other`
     from_apyfixed(other);
 }
 
 
 // Constructor: construct from a Python arbitrary long integer object
-APyFixed::APyFixed(int bits, int int_bits, py::int_ obj)
-    : APyFixed(bits, int_bits)
+APyFixed::APyFixed(
+    py::int_ python_int,
+    std::optional<int> bits,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits
+) : APyFixed(bits, int_bits, frac_bits)
 {
     /*
      * Beware when making changes to this function: This function is not (yet) tested
      * by any C++ unit tests, as it's difficuly to construct `py::int_` or 
      * `PyLongObject` objects from C++.
      */
-    PyLongObject *py_long = (PyLongObject *) obj.ptr();
+    PyLongObject *py_long = (PyLongObject *) python_int.ptr();
     long py_long_digits = _PyLong_DigitCount(py_long);
     bool py_long_is_negative = _PyLong_IsNegative(py_long);
 
@@ -127,6 +118,54 @@ APyFixed::APyFixed(int bits, int int_bits, py::int_ obj)
     // Perform two's complement overflowing
     twos_complement_overflow();
 }
+
+
+/* ********************************************************************************** *
+ *                           More C++ accessible constructors                         *
+ * ********************************************************************************** */
+
+// Constructor: specify only size and zero data on construction
+APyFixed::APyFixed(
+    std::optional<int> bits,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits
+) : _bits{0}, _int_bits{0}, _data{}
+{
+    _bits_set_from_optional(bits, int_bits, frac_bits);
+    _constructor_sanitize_bits();
+    _data = std::vector<mp_limb_t>(bits_to_limbs(_bits), 0);
+}
+
+// Constructor: specify only size and zero data on construction
+APyFixed::APyFixed(int bits, int int_bits) :
+    _bits{bits},
+    _int_bits{int_bits},
+    _data(bits_to_limbs(bits))
+{
+    _constructor_sanitize_bits();
+}
+
+// Constructor: specify size and initialize from a `double`
+APyFixed::APyFixed(double value, int bits, int int_bits)
+    : APyFixed(bits, int_bits)
+{
+    from_double(value);
+}
+
+// Constructor: specify size and initialize from string
+APyFixed::APyFixed(int bits, int int_bits, const char *str, int base) :
+    APyFixed(bits, int_bits)
+{
+    switch (base) {
+        case 8:  from_string_oct(str); break;
+        case 10: from_string_dec(str); break;
+        case 16: from_string_hex(str); break;
+        default: throw std::domain_error(
+            "Unsupported numeric base. Valid bases are: 8, 10, 16"
+        );
+    }
+}
+
 
 // Underlying vector iterator-based constructor
 template <typename _ITER>
@@ -400,7 +439,7 @@ std::string APyFixed::to_string_dec() const {
 
     // Construct a string from the absolute value of number, and conditionally append a
     // minus sign to the string if negative
-    APyFixed abs_val(_bits+1, _int_bits+1, is_negative() ? -(*this) : *this);
+    APyFixed abs_val(is_negative() ? -(*this) : *this, _bits+1, _int_bits+1);
 
     // Convert this number to BCD with the double-dabble algorithm
     std::vector<mp_limb_t> bcd_limb_list = double_dabble(abs_val._data);
@@ -646,6 +685,40 @@ std::string APyFixed::repr() const {
 /* ********************************************************************************** *
  *                           Private member functions                                 *
  * ********************************************************************************** */
+
+// Sanitize the _bits and _int_bits parameters
+void APyFixed::_bits_set_from_optional(
+    std::optional<int> bits,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits
+)
+{
+    int num_bit_spec = bits.has_value() + int_bits.has_value() + frac_bits.has_value();
+    if (num_bit_spec != 2) {
+        throw std::domain_error(
+            "APyInt needs exactly two of three bit specifiers (bits, int_bits, "
+            "frac_bits) specified"
+        );
+    }
+
+    // Set the internal `_bits` and `_int_bits` fields from two out of the three bit
+    // specifier fields
+    if (bits.has_value()) {
+        if (int_bits.has_value()) {
+            _bits = *bits;
+            _int_bits = *int_bits;
+            return;
+        } else {
+            // `bits` set and `int_bits` unset so `frac_bits` is set
+            _bits = *bits;
+            _int_bits = *bits - *frac_bits;
+        }
+    } else {
+        // `bits` unset, so `int_bits` and `frac_bits` is set
+        _bits = *int_bits + *frac_bits;
+        _int_bits = *int_bits;
+    }
+}
 
 // Sanitize the _bits and _int_bits parameters
 void APyFixed::_constructor_sanitize_bits() const
