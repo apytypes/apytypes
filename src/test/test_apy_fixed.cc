@@ -12,6 +12,7 @@
 #include <gmp.h>
 #include <iostream>
 #include <stdexcept>
+#include <limits>
 
 
 TEST_CASE("APyFixed assumptions")
@@ -26,6 +27,9 @@ TEST_CASE("APyFixed assumptions")
     // but before C++20 the right shift of signed integral types is implementation
     // defined. APyFixed relies heavily on arithmetic right shift.
     REQUIRE( -1 >> 1 == -1 );
+
+    // We assume IEEE-754 double-precision floating-point types
+    REQUIRE(std::numeric_limits<double>::is_iec559);
 }
 
 
@@ -230,4 +234,11 @@ TEST_CASE("Bit specifying copy constructor")
         REQUIRE(fix_copy.int_bits()  ==     5);
         REQUIRE(fix_copy.to_string() == "2.5");
     }
+}
+
+
+TEST_CASE("")
+{
+    REQUIRE( APyFixed(1, 0, 0.0).is_zero());
+    REQUIRE(!APyFixed(5, 2, 1.5).is_zero());
 }

@@ -18,29 +18,16 @@ void bind_fixed(py::module &m) {
             py::arg("int_bits")
         )
         .def(
-            py::init<int, int, py::int_>(),
-            py::arg("bits"),
-            py::arg("int_bits"),
-            py::arg("obj")
-        )
-        .def(
-            py::init<int, int, double>(),
-            py::arg("bits"),
-            py::arg("int_bits"),
-            py::arg("value")
-        )
-        .def(
-            py::init<int, int, const char *, int>(),
-            py::arg("bits"),
-            py::arg("int_bits"),
-            py::arg("value"),
-            py::arg("base") = 10
-        )
-        .def(
             py::init<int, int, const APyFixed &>(),
             py::arg("bits"),
             py::arg("int_bits"),
             py::arg("other")
+        )
+        .def(
+            py::init<int, int, py::int_>(),
+            py::arg("bits"),
+            py::arg("int_bits"),
+            py::arg("obj")
         )
 
         /*

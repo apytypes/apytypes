@@ -37,24 +37,13 @@ class APyFixed {
              // depending on the target architecture.
 public:
 
-    /*
-     * Constructors
-     */
-
     // No default constructed APyFixed types
     APyFixed() = delete;
 
-    // Constructor: specify only size and zero data on construction
-    explicit APyFixed(int bits, int int_bits);
 
-    // Constructor: specify size and initialize from a `double`
-    explicit APyFixed(int bits, int int_bits, double value);
-
-    // Constructor: specify size and initialize from a `long`
-    explicit APyFixed(int bits, int int_bits, long value);
-
-    // Constructor: specify size and initialize from string
-    explicit APyFixed(int bits, int int_bits, const char *str, int base=10);
+    /*
+     * Constructors exported to Python
+     */
 
     // Constructor: specify size and initialize from another APyFixed number
     explicit APyFixed(int bits, int int_bits, const APyFixed &other);
@@ -64,6 +53,19 @@ public:
 
     // Constructor: copy construct with default copy-per-field behaviour
     APyFixed(const APyFixed &other) = default;
+
+    /*
+     * Constructors local to C++ APyFixed
+     */
+
+    // Constructor: specify size and initialize from a `double`
+    explicit APyFixed(int bits, int int_bits, double value);
+
+    // Constructor: specify only size and zero data on construction
+    explicit APyFixed(int bits, int int_bits);
+
+    // Constructor: specify size and initialize from string
+    explicit APyFixed(int bits, int int_bits, const char *str, int base=10);
 
 
     /*
@@ -83,7 +85,11 @@ public:
      */
 
     bool operator==(const APyFixed &rhs) const;
-    bool operator<(const APyFixed &rhs) const;
+    bool operator!=(const APyFixed &rhs) const;
+    bool operator< (const APyFixed &rhs) const;
+    bool operator<=(const APyFixed &rhs) const;
+    bool operator> (const APyFixed &rhs) const;
+    bool operator>=(const APyFixed &rhs) const;
 
     
     /*
@@ -106,7 +112,10 @@ public:
     APyFixed operator-() const;
 
     // Test if fixed-point number is negative
-    bool is_negative() const noexcept { return mp_limb_signed_t(_data.back()) < 0; }
+    bool is_negative() const noexcept;
+
+    // Test if fixed-point number is zero
+    bool is_zero() const noexcept;
 
     // Increment the LSB without making the fixed-point number wider. Returns carry out
     mp_limb_t increment_lsb() noexcept;

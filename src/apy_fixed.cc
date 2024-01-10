@@ -46,15 +46,6 @@ APyFixed::APyFixed(int bits, int int_bits, double value) :
     from_double(value);
 }
 
-
-// Constructor: specify size and initialize from a `long`
-APyFixed::APyFixed(int bits, int int_bits, long value) :
-    APyFixed(bits, int_bits)
-{
-    (void) value;
-    throw NotImplementedException();
-}
-
 // Constructor: specify size and initialize from string
 APyFixed::APyFixed(int bits, int int_bits, const char *str, int base) :
     APyFixed(bits, int_bits)
@@ -133,7 +124,6 @@ APyFixed::APyFixed(int bits, int int_bits, py::int_ obj)
 
     // Perform two's complement overflowing
     twos_complement_overflow();
-
 }
 
 // Underlying vector iterator-based constructor
@@ -315,6 +305,36 @@ APyFixed APyFixed::operator>>(int shift_val) const
     return result;
 }
 
+bool APyFixed::operator==(const APyFixed &rhs) const
+{
+    return (*this - rhs).is_zero();
+}
+
+bool APyFixed::operator!=(const APyFixed &rhs) const
+{
+    return !(*this == rhs);
+}
+
+bool APyFixed::operator<(const APyFixed &rhs) const
+{
+    return (*this - rhs).is_negative();
+}
+
+bool APyFixed::operator<=(const APyFixed &rhs) const
+{
+    return (*this < rhs) || (*this == rhs);
+}
+
+bool APyFixed::operator>(const APyFixed &rhs) const
+{
+    return (rhs - *this).is_negative();
+}
+
+bool APyFixed::operator>=(const APyFixed &rhs) const
+{
+    return (*this > rhs) || (*this == rhs);
+}
+
 APyFixed APyFixed::operator-() const
 {
     // Invert all bits of *this, possibly append sign to new limb, and increment lsb
@@ -341,6 +361,17 @@ void APyFixed::twos_complement_overflow() noexcept
         unsigned shft_amnt = _LIMB_SIZE_BITS - bits_last_word;
         _data.back() = mp_limb_signed_t(_data.back() << (shft_amnt)) >> (shft_amnt);
     }
+}
+
+bool APyFixed::is_negative() const noexcept
+{
+    return mp_limb_signed_t(_data.back()) < 0; 
+}
+
+bool APyFixed::is_zero() const noexcept
+{
+    auto limb_non_zero = [](mp_limb_t limb) { return limb != 0; };
+    return std::find_if(_data.begin(), _data.end(), limb_non_zero) == _data.end();
 }
 
 // Increment the LSB without making the fixed-point number wider. Returns carry out
@@ -624,7 +655,8 @@ void APyFixed::_constructor_sanitize_bits() const
     }
 }
 
-// Sign preserving automatic size extending arithmetic left shift
+// Sign preserving automatic size extending arithmetic left shift. Returns a new limb
+// vector with the shifted content.
 std::vector<mp_limb_t> APyFixed::_data_asl(unsigned shift_val) const
 {
     if (shift_val == 0) {
