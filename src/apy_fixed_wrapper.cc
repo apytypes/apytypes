@@ -13,11 +13,6 @@ void bind_fixed(py::module &m) {
          * Constructors
          */
         .def(
-            py::init<int, int>(),
-            py::arg("bits"),
-            py::arg("int_bits")
-        )
-        .def(
             py::init<int, int, const APyFixed &>(),
             py::arg("bits"),
             py::arg("int_bits"),

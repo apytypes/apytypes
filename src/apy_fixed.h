@@ -19,12 +19,12 @@
 
 class APyFixed {
 
-    #ifdef _IS_APY_TYPES_UNIT_TEST
-        // Unit tests have public access to underlying data files
-        public:
-    #else
-        private:
-    #endif  // #ifdef _IS_APY_TYPES_UNIT_TEST
+#ifdef _IS_APY_TYPES_UNIT_TEST
+    // Unit tests have public access to underlying data fields
+    public:
+#else
+    private:
+#endif  // #ifdef _IS_APY_TYPES_UNIT_TEST
 
     /*
      * APyFixed data fields
@@ -134,7 +134,6 @@ public:
     std::string to_string_dec() const;
     
 
-
     /*
      * Conversionsion from other types
      */
@@ -151,12 +150,12 @@ public:
      * Private helper methods
      */
 
-    #ifdef _IS_APY_TYPES_UNIT_TEST
-        // Unit tests have public access to all member function
-        public:
-    #else
-        private:
-    #endif  // #ifdef _IS_APY_TYPES_UNIT_TEST
+#ifdef _IS_APY_TYPES_UNIT_TEST
+    // Unit tests have public access to all member function
+    public:
+#else
+    private:
+#endif  // #ifdef _IS_APY_TYPES_UNIT_TEST
 
     // Sanitize the _bits and _int_bits parameters
     void _constructor_sanitize_bits() const;

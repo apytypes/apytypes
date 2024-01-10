@@ -81,17 +81,19 @@ APyFixed::APyFixed(int bits, int int_bits, py::int_ obj)
     long py_long_digits = _PyLong_DigitCount(py_long);
     bool py_long_is_negative = _PyLong_IsNegative(py_long);
 
-    if (py_long_digits == 0) {  // Python integer is zero
-        _data = std::vector<mp_limb_t>{ 0 };
-    } else if (py_long_digits == 1) {  // Python integer fits in one Python digit
+    if (py_long_digits == 0) {
+        // Python integer is zero
+        _data[0] = 0;
+    } else if (py_long_digits == 1) {
+        // Python integer fits in one Python digit
         _data[0] = mp_limb_t(GET_OB_DIGIT(py_long)[0]);
         if (py_long_is_negative) {
             _data[0] = -_data[0];
             std::fill(_data.begin()+1, _data.end(), mp_limb_t(-1));
         }
-    } else {  // Python integer is stored using multiple Python digits
-
-        // Import data from multi-digit Python long integer
+    } else {
+        // Python integer is stored using multiple Python digits. Import data from
+        // multi-digit Python long integer.
         mpz_t mpz_from_py_long;
         mpz_init(mpz_from_py_long);
         mpz_import(
