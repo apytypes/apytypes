@@ -35,7 +35,7 @@ coverage:
   script:
     - apt-get install --yes lcov
     - pip install gcovr
-    - export CPPFLAGS='--coverage -fprofile-abs-path'
+    # - export CPPFLAGS='--coverage -fprofile-abs-path'
     - pip install .
     - pytest
     - cd src
