@@ -8,9 +8,7 @@
 /*
  * Scalar floating-point type, vectorized version still needed.
  * Currently the IEEE 754-Standard is followed but it would also be
- * of interest to have an option to disable it and support more customization.
- * 
- * Static methods have 's' as a prefix inorder to avoid collision in Python, e.g. 'from_float' and 'sfrom_float'.
+ * of interest to have an option to disable it and support more customization. 
  */
 
 using exp_t = std::uint32_t;
@@ -18,7 +16,11 @@ using man_t = std::uint64_t;
 
 class APyFloat {
     public:
-    // Constructors
+
+    /* ****************************************************************************** *
+     *                       Constructors                                             *
+     * ****************************************************************************** */
+
     explicit APyFloat(bool sign,
                       exp_t exp,
                       man_t man,
@@ -26,10 +28,15 @@ class APyFloat {
                       std::uint8_t man_bits, 
                       std::optional<exp_t> bias = std::nullopt);
 
-    // Conversions
+    
+    /* ****************************************************************************** *
+     *                       Methods for conversions                                  *
+     * ****************************************************************************** */
+    
     static APyFloat from_double(double value, std::uint8_t exp_bits, std::uint8_t man_bits);
     APyFloat& update_from_double(double value);
     double to_double() const;
+    operator double() const;   
 
     static APyFloat from_bits(unsigned long long bits, std::uint8_t exp_bits, std::uint8_t man_bits);
     APyFloat& update_from_bits(unsigned long long bits);
@@ -39,20 +46,42 @@ class APyFloat {
     std::string repr() const;
     std::string pretty_string() const;
 
-    // Overloaded operators
+
+    /* ****************************************************************************** *
+     *                         Arithmetic operators                                   *
+     * ****************************************************************************** */
+
     APyFloat operator+(APyFloat rhs) const;
     APyFloat operator-(const APyFloat &rhs) const;
     APyFloat operator-() const;
     APyFloat operator*(const APyFloat &rhs) const;
     APyFloat operator/(const APyFloat &rhs) const;
+
+
+    /* ****************************************************************************** *
+     *                         Mathematical functions                                 *
+     * ****************************************************************************** */
+
+    static APyFloat abs(const APyFloat &);
+    static APyFloat pow(const APyFloat &);
+    static APyFloat pown(int n);
+
+
+    /* ****************************************************************************** *
+     *                          Binary comparison operators                           *
+     * ****************************************************************************** */
+
     bool operator==(const APyFloat &rhs) const;
     bool operator!=(const APyFloat &rhs) const;
     bool operator<=(const APyFloat &rhs) const;
-    bool operator<(const APyFloat &rhs) const;
+    bool operator< (const APyFloat &rhs) const;
     bool operator>=(const APyFloat &rhs) const;
-    bool operator>(const APyFloat &rhs) const;
-    std::ostream &operator<<(std::ostream &os) const;
-    operator double() const;
+    bool operator> (const APyFloat &rhs) const;
+   
+
+    /* ****************************************************************************** *
+     *                          Non-computational functions                           *
+     * ****************************************************************************** */
 
     bool is_normal() const;
     bool is_subnormal() const;
@@ -62,42 +91,44 @@ class APyFloat {
     bool is_inf() const;
     bool is_sign_neg() const;
 
-    // Getters
-    bool get_sign() const { return sign; }
-    man_t get_man() const { return man; }
-    exp_t get_exp() const { return exp; }
-    std::uint8_t get_man_bits() const { return man_bits; }
-    std::uint8_t get_exp_bits() const { return exp_bits; }
+    inline bool get_sign() const { return sign; }
+    inline man_t get_man() const { return man; }
+    inline exp_t get_exp() const { return exp; }
+    inline std::uint8_t get_man_bits() const { return man_bits; }
+    inline std::uint8_t get_exp_bits() const { return exp_bits; }
 
     private:
-    // It is perhaps better to combine the sign, hidden one, and mantissa into one field using APyFixed,
-    // especially since the supported floating-point formats is limited by the underlying data type.
     std::uint8_t exp_bits, man_bits;
     exp_t bias;
     bool sign;
-    exp_t exp;
+    exp_t exp; // Biased exponent
     man_t man; // Hidden one
+
+
+    /* ****************************************************************************** *
+     *                       Non-Python accessible constructors                       *
+     * ****************************************************************************** */
 
     APyFloat() = default;
     APyFloat(std::uint8_t exp_bits,
              std::uint8_t man_bits,
              std::optional<exp_t> bias = std::nullopt);
 
-    exp_t max_exponent() const;
-    exp_t ieee_bias() const;
-    APyFloat construct_zero(bool sign) const;
-    APyFloat construct_inf(bool sign) const;
-    APyFloat construct_nan(bool sign, man_t payload = 1) const;
 
-    // Masks
-    inline man_t man_mask() const { return ((1 << man_bits) - 1); }
-    inline exp_t exp_mask() const { return ((1 << exp_bits) - 1); }
-    inline exp_t leading_one() const { return (1 << man_bits); }
+    /* ****************************************************************************** *
+     *                       Helper functions                                         *
+     * ****************************************************************************** */
+
+    APyFloat construct_zero(std::optional<bool> new_sign = std::nullopt) const;
+    APyFloat construct_inf(std::optional<bool> new_sign = std::nullopt) const;
+    APyFloat construct_nan(std::optional<bool> new_sign = std::nullopt, man_t payload = 1) const;
+
+    inline exp_t exp_mask()     const { return ((1 << exp_bits) - 1);   }
+    inline exp_t max_exponent() const { return ((1 << exp_bits) - 1);   } // Max exponent with bias
+    inline exp_t ieee_bias()    const { return (1 << (exp_bits-1)) - 1; }
+    inline man_t man_mask()     const { return ((1 << man_bits) - 1);   }
+    inline man_t leading_one()  const { return (1 << man_bits);         }
 };
 
-// This prevents pybind from confusing abs with std::abs.
-namespace apy_types {
-    APyFloat abs(const APyFloat &);
-}
 
 #endif // _APY_FLOAT_H

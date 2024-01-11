@@ -50,7 +50,8 @@ static inline std::vector<mp_limb_t> to_limb_vec(std::vector<uint64_t> vec)
 class NotImplementedException : public std::logic_error
 {
 public:
-    NotImplementedException() : std::logic_error("Not implemeted yet") {};
+    NotImplementedException(std::optional<std::string> msg = std::nullopt) : 
+                        std::logic_error(msg.value_or("Not implemeted yet")) {};
 };
 
 // Quickly evaluate how many limbs are requiered to to store an n-bit word
