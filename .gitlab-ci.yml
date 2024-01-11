@@ -8,6 +8,10 @@
 # https://hub.docker.com/r/library/python/tags/
 image: python:3.10
 
+stages:
+  - test
+  - deploy
+
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.
 variables:
@@ -21,22 +25,23 @@ cache:
 before_script:
   - apt-get update --yes
   - apt-get install --yes pybind11-dev
-  - pip install pytest # you can also use tox
   - python --version ; pip --version  # For debugging
 
 test:
+  stage: test
   script:
-    - pip install .
+    - pip install -v .[test]
     - pytest
     - cd src
     - make
 
 coverage:
+  stage: test
   script:
     - apt-get install --yes lcov
     - pip install gcovr
     # - export CPPFLAGS='--coverage -fprofile-abs-path'
-    - pip install .
+    - pip install .[test]
     - pytest
     - cd src
     - make test_coverage
@@ -49,3 +54,19 @@ coverage:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
+
+pages:
+  stage: deploy
+  script:
+    - apt-get install --yes optipng doxygen
+    - pip install .[doc]
+    - mkdir public
+    - cd docs
+    - doxygen
+    - cd ..
+    - sphinx-build -b html docs public
+  artifacts:
+    paths:
+      - public
+  only:
+    - main

@@ -23,3 +23,7 @@ classifiers = [
 
 [tool.meson-python.args]
 setup = ['--default-library=static']
+
+[project.optional-dependencies]
+doc = ["furo", "numpydoc", "sphinx", "sphinx_copybutton", "breathe"]
+test = ["pytest"]

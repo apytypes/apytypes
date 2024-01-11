@@ -1,5 +1,8 @@
 # aPy-types
 
+## Documentation
+https://daint.gitlab-pages.liu.se/apy-types/
+
 ## Setting up a local workspace
 Install [meson](https://mesonbuild.com/index.html), [ninja](https://ninja-build.org/), and [pybind11](https://pypi.org/project/pybind11/) by running
 ```
