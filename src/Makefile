@@ -5,6 +5,7 @@
 
 CC = g++
 PYTHON3_FLAGS = $(shell python3-config --includes)
+PYTHON3_LINK = $(shell python3-config --ldflags --embed)
 WARNING_FLAGS = -Wall -Wextra -Wpedantic -Wno-depricated -Weffc++
 CXXFLAGS = ${WARNING_FLAGS} ${PYTHON3_FLAGS} -std=c++17 -O2 -march=native -g
 
@@ -30,10 +31,10 @@ test_coverage: test
 	genhtml --demangle-cpp -o coverage coverage.info
 
 test/test_apy_util: apy_util.h test/test_apy_util.cc test/catch.o
-	${CC} ${CXXFLAGS} ${TEST_FLAGS} test/test_apy_util.cc test/catch.o -o $@ -lgmp
+	${CC} ${CXXFLAGS} ${TEST_FLAGS} test/test_apy_util.cc test/catch.o -o $@ -lgmp ${PYTHON3_LINK}
 
 test/test_apy_fixed: apy_util.h apy_fixed.h apy_fixed.cc ${TEST_SRC} test/catch.o
-	${CC} ${CXXFLAGS} ${TEST_FLAGS} apy_fixed.cc ${TEST_SRC} test/catch.o -o $@ -lgmp
+	${CC} ${CXXFLAGS} ${TEST_FLAGS} apy_fixed.cc ${TEST_SRC} test/catch.o -o $@ -lgmp ${PYTHON3_LINK}
 
 test/catch.o: test/catch.cc test/catch.hpp
 	${CC} ${CXXFLAGS} -c test/catch.cc -o test/catch.o
