@@ -1,7 +1,7 @@
 project(
     'aPy-types',
     'c', 'cpp',
-    default_options : ['cpp_std=c++20'],
+    default_options : ['cpp_std=c++17'],
     version : '0.0.1',
 )
 
@@ -42,7 +42,7 @@ py3.extension_module(
         'src/apy_float_contextmanager.cc',
         'src/apy_float_wrapper.cc',
         'src/apy_types_wrapper.cc',
-        'src/ieee754_bit_fiddle.c']),
+    ]),
     include_directories : pybind11_includes,
     dependencies : [py3_dep, gmp_dep, pybind11_dep],
     subdir: 'apy_types',

@@ -7,7 +7,7 @@ CC = g++
 PYTHON3_FLAGS = $(shell python3-config --includes)
 PYTHON3_LINK = $(shell python3-config --ldflags --embed)
 WARNING_FLAGS = -Wall -Wextra -Wpedantic -Wno-depricated -Weffc++
-CXXFLAGS = ${WARNING_FLAGS} ${PYTHON3_FLAGS} -std=c++20 -O2 -march=native -g
+CXXFLAGS = ${WARNING_FLAGS} ${PYTHON3_FLAGS} -std=c++17 -O2 -march=native -g
 
 .PHONY: test test_profile test_coverage clean clean_all
 
