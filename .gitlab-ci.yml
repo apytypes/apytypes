@@ -35,10 +35,13 @@ coverage:
   script:
     - apt-get install --yes lcov
     - pip install gcovr
+    - export CPPFLAGS='--coverage -fprofile-abs-path'
     - pip install .
     - pytest
     - cd src
     - make test_coverage
+    - lcov --rc lcov_branch_coverage=1 --output-file coverage.info \
+              --extract coverage.info $PWD/'*'
     - gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o ../coverage.xml --root ${CI_PROJECT_DIR}
   coverage: /^\s*lines:\s*\d+.\d+\%/
   artifacts:
