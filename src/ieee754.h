@@ -50,7 +50,7 @@ static inline bool sign_of_double(double d)
 
 // Returns the *biased* exponent of a `double` in a `int64_t` 
 // Return value range: [0, 2048)
-static inline int64_t exponent_of_double(double d)
+static inline int64_t exp_of_double(double d)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
     if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
@@ -62,7 +62,7 @@ static inline int64_t exponent_of_double(double d)
 
 // Returns significand/mantissa of a `double` (*without* the hidden one) in a `uint64_t`
 // Return value range: [0, 4503599627370496)
-static inline uint64_t mantissa_of_double(double d)
+static inline uint64_t man_of_double(double d)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
     if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {

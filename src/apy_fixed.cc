@@ -602,8 +602,8 @@ void APyFixed::from_double(double value)
 {
     if constexpr (_LIMB_SIZE_BITS == 64) {
 
-        mp_limb_signed_t exp = exponent_of_double(value);
-        mp_limb_t mantissa = mantissa_of_double(value);
+        mp_limb_signed_t exp = exp_of_double(value);
+        mp_limb_t mantissa = man_of_double(value);
 
         // Append mantissa hidden one
         if (exp) {

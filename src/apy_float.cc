@@ -6,9 +6,10 @@
 #include "apy_float.h"
 #include "apy_util.h"
 
-extern "C" {
-#include "ieee754_bit_fiddle.h"
-}
+//extern "C" {
+//#include "ieee754_bit_fiddle.h"
+//}
+#include "ieee754.h"
 
 
 void print_warning(const std::string msg) {
@@ -572,3 +573,48 @@ APyFloat APyFloat::construct_nan(std::optional<bool>  new_sign, man_t payload /*
     return APyFloat(new_sign.value_or(sign), max_exponent(), payload, exp_bits, man_bits);
 }
 
+<<<<<<< HEAD
+=======
+APyFloat APyFloat::construct_nan(bool sign, APyFloat::man_t payload /*= 1*/) const {
+    return APyFloat(sign, max_exponent(), payload, exp_bits, man_bits);
+}
+
+std::string APyFloat::repr() const {
+    std::string str = "fp<"
+                    + std::to_string(exp_bits)
+                    + ","
+                    + std::to_string(man_bits)
+                    + (sign ? ">(-" : ">(");
+    
+    if (is_nan()) {
+        return str + "NaN)";
+    } else if (is_inf()) {
+        return str + "inf)";
+    }
+
+    str += "2**"
+        + std::to_string(exp - bias - man_bits + 1 - is_normal())
+        + "*"
+        + std::to_string((is_normal() << man_bits) | man)
+        + ")";
+
+    return str;
+}
+
+APyFloat::operator double() const {
+    if (is_inf()) {
+        return (is_sign_neg() ? -1.0 : 1.0) * std::numeric_limits<double>::infinity();
+    } else if (is_nan()) {
+        return (is_sign_neg() ? -1.0 : 1.0) * std::numeric_limits<double>::quiet_NaN();
+    }
+
+    const auto mantissa = (is_normal() << man_bits) | man;
+    const auto exponent = exp - bias - man_bits + 1 - is_normal();
+
+    return (sign ? -1.0 : 1.0) * std::pow(2, exponent) * mantissa;
+}
+
+unsigned long long APyFloat::to_bits() const {
+    return (sign << (exp_bits + man_bits)) | (exp << man_bits) | man;
+}
+>>>>>>> 6a3eb62 (src: remove ieee754_bit_fiddle)
