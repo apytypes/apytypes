@@ -14,9 +14,9 @@ lib_src = [
 ]
 
 # Python module incudes
-python_installation = import('python').find_installation('python3')
+py3 = import('python').find_installation('python3')
 pybind11_includes = run_command(
-    python_installation, '-c', 'import pybind11; print(pybind11.get_include());',
+    py3, '-c', 'import pybind11; print(pybind11.get_include());',
     check : true
 ).stdout().strip()
 
@@ -34,18 +34,12 @@ cpp_compiler_flags = [
 cc = meson.get_compiler('cpp')
 gmp_dep = cc.find_library('gmp')
 
-# The aPy-types library
-apy_lib = static_library(
-    'apy_lib',
-    sources : lib_src,
-    cpp_args : cpp_compiler_flags,
-    include_directories : pybind11_includes,
-    dependencies : [python_installation.dependency(), gmp_dep],
-    install: true,  # Perhaps only works on Linux systems
-)
+py3_dep = py3.dependency()
+
+pybind11_dep = dependency('pybind11', version: '>=2.6')
 
 # Python module
-python_installation.extension_module(
+py3.extension_module(
     'apy_types', 
     sources : [
         'src/apy_types_wrapper.cc',
@@ -54,7 +48,6 @@ python_installation.extension_module(
         'src/apy_float_context_wrapper.cc'
     ],
     include_directories : pybind11_includes,
-    dependencies : python_installation.dependency(),
-    link_with : apy_lib,
+    dependencies : [py3.dependency(), gmp_dep, pybind11_dep],
     install: true
 )
