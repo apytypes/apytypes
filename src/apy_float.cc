@@ -10,18 +10,35 @@ extern "C" {
 }
 
 APyFloat::APyFloat(std::uint8_t exp_bits, std::uint8_t man_bits, double value /*= 0*/) :
-        exp_bits(exp_bits), man_bits(man_bits), sign(std::signbit(value)), bias(ieee_bias()) {
+        exp_bits(exp_bits), man_bits(man_bits), bias(ieee_bias()) {
+    from_double(value);
+}
+
+APyFloat& APyFloat::from_bits(unsigned long long bits) {
+    man = bits & ((1 << man_bits) - 1);
+    bits >>= man_bits;
+
+    exp = bits & ((1 << exp_bits) - 1);
+    bits >>= exp_bits;
+
+    sign = bits != 0;
+
+    return *this;
+}
+
+APyFloat& APyFloat::from_double(double value) {
+    sign = std::signbit(value);
 
     switch (std::fpclassify(value)) {
         case FP_ZERO:
             *this = construct_zero(sign);
-            return;
+            return *this;
         case FP_INFINITE:
             *this = construct_inf(sign);
-            return;
+            return *this;
         case FP_NAN:
             *this = construct_nan(sign);
-            return;
+            return *this;
         case FP_NORMAL:
         case FP_SUBNORMAL:
             break;
@@ -36,10 +53,8 @@ APyFloat::APyFloat(std::uint8_t exp_bits, std::uint8_t man_bits, double value /*
     man_t subnormal_compensation = 0;
     if (exp >= max_exponent()) { // Exponent too big, saturate to inf
         *this = construct_inf(sign);
-        return;
     } else if (exp <= -man_bits) { // Exponent too small, round to zero
         *this = construct_zero(sign);
-        return;
     } else if (exp <= 0) {            // The number must be converted to a subnormal in the new format
         man |= 1 << (man_bits);       // Add leading one
         man <<= (man_bits + exp - 1); // Shift the difference between E_min and exp 
@@ -47,17 +62,6 @@ APyFloat::APyFloat(std::uint8_t exp_bits, std::uint8_t man_bits, double value /*
         man &= (1 << man_bits) - 1;   // Mask away the leading ones
         exp = 0;
     }
-}
-
-APyFloat& APyFloat::from_bits(unsigned long long bits) {
-    man = bits & ((1 << man_bits) - 1);
-    bits >>= man_bits;
-
-    exp = bits & ((1 << exp_bits) - 1);
-    bits >>= exp_bits;
-
-    sign = bits != 0;
-
     return *this;
 }
 
@@ -79,8 +83,8 @@ APyFloat APyFloat::operator+(APyFloat y) const {
     APyFloat res;
 
     // Compute sign and swap operands if need to make sure |x| >= |y|
-    const APyFloat xabs = abs(x);
-    const APyFloat yabs = abs(y);
+    const APyFloat xabs = apy_types::abs(x);
+    const APyFloat yabs = apy_types::abs(y);
 
     if (xabs > yabs) {
         res.sign = x.sign;
@@ -201,8 +205,7 @@ APyFloat APyFloat::operator*(const APyFloat &y) const {
         return construct_nan(res_sign);
     }
 
-    if ((is_inf() && y.is_finite())
-        || (is_finite() && y.is_inf())) {
+    if ((is_inf() || y.is_inf())) {
         return construct_inf(res_sign);
     }
 
@@ -422,7 +425,7 @@ bool APyFloat::is_sign_neg() const {
     return sign;
 }
 
-APyFloat APyFloat::abs(const APyFloat &f) const {
+APyFloat apy_types::abs(const APyFloat &f) {
     return f.is_sign_neg() ? -f : f;
 }
 

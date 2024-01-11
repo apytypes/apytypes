@@ -123,6 +123,16 @@ def test_negation(float_s, sign):
     assert float(eval(f'-APyFloat(5, 5, float("{float_s}"))')) == -float(float_s)
 
 
+# Abs
+@pytest.mark.parametrize('sign', ['-', ''])
+@pytest.mark.parametrize('float_s', ['13',
+                                     '0.0',
+                                     pytest.param('inf', marks=pytest.mark.float_special)])
+def test_abs(float_s, sign):
+    float_s = sign + float_s
+    assert float(eval(f'abs(APyFloat(5, 5, float("{float_s}")))')) == abs(float(float_s))
+
+
 # Addition
 @pytest.mark.float_add
 @pytest.mark.parametrize('exp', list(perm(['5', '6', '10'], 2)))

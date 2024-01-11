@@ -19,6 +19,7 @@ class APyFloat {
     explicit APyFloat(std::uint8_t exp_bits, std::uint8_t man_bits, double value = 0);
 
     APyFloat& from_bits(unsigned long long bits);
+    APyFloat& from_double(double value);
 
     // Overloaded operators
     APyFloat operator+(APyFloat rhs) const;
@@ -42,7 +43,6 @@ class APyFloat {
     bool is_nan() const;
     bool is_inf() const;
     bool is_sign_neg() const;
-    APyFloat abs(const APyFloat &) const;
     std::string repr() const;
     unsigned long long to_bits() const;
 
@@ -70,5 +70,10 @@ class APyFloat {
     APyFloat construct_inf(bool sign) const;
     APyFloat construct_nan(bool sign, man_t payload = 1) const;
 };
+
+// This prevents pybind from confusing abs with std::abs.
+namespace apy_types {
+    APyFloat abs(const APyFloat &);
+}
 
 #endif // _APY_FLOAT_H
