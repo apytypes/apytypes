@@ -20,12 +20,12 @@ cache:
 
 before_script:
   - apt-get update --yes
-  - apt-get install --yes pybind11-dev
+  - apt-get install --yes pybind11-dev lcov
+  - pip install pytest gcovr # you can also use tox
   - python --version ; pip --version  # For debugging
 
 test:
   script:
-    - pip install pytest # you can also use tox
     - pip install .
     - pytest
     - cd src
