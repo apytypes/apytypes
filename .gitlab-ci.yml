@@ -20,8 +20,8 @@ cache:
 
 before_script:
   - apt-get update --yes
-  - apt-get install --yes pybind11-dev lcov
-  - pip install pytest gcovr # you can also use tox
+  - apt-get install --yes pybind11-dev
+  - pip install pytest # you can also use tox
   - python --version ; pip --version  # For debugging
 
 test:
@@ -30,8 +30,14 @@ test:
     - pytest
     - cd src
     - make
+
+coverage:
+  script:
+    - pip install .
+    - pytest
+    - cd src
     - make test_coverage
-    - gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o coverage.xml --root ${CI_PROJECT_DIR}
+    - gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o ../coverage.xml --root ${CI_PROJECT_DIR}
   coverage: /^\s*lines:\s*\d+.\d+\%/
   artifacts:
     name: ${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}
