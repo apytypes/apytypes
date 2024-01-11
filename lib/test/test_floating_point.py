@@ -4,6 +4,7 @@ import sys
 sys.path.append('../builddir/')
 from apy_types import APyFloat
 
+
 # Conversions
 @pytest.mark.float_special
 @pytest.mark.parametrize(
@@ -112,6 +113,7 @@ def test_inf_comparison():
     assert APyFloat.from_float(float('inf'), 5, 5) == APyFloat.from_float(float('inf'), 3, 2)
     assert APyFloat.from_float(float('inf'), 5, 5) != APyFloat.from_float(float('-inf'), 5, 5)
     
+
 # Negation
 @pytest.mark.parametrize('sign', ['-', ''])
 @pytest.mark.parametrize('float_s', ['13',
@@ -145,6 +147,7 @@ def test_add_representable(exp, man, sign, lhs, rhs):
     res = eval(expr)
     assert res.get_exp_bits() == max(int(exp[0]), int(exp[1]))
     assert res.get_man_bits() == max(int(man[0]), int(man[1]))
+
 
 # Subtraction
 # Because subtraction is implemented as 'a+(-b)', the tests for addition will also cover subtraction,

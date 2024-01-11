@@ -396,8 +396,18 @@ APyFloat APyFloat::operator/(const APyFloat &y) const {
 *                         Mathematical functions                                 *
 * ****************************************************************************** */
 
-APyFloat APyFloat::abs(const APyFloat &f) {
-    return f.is_sign_neg() ? -f : f;
+APyFloat APyFloat::abs(const APyFloat &x) {
+    return x.is_sign_neg() ? -x : x;
+}
+
+
+APyFloat APyFloat::pow(const APyFloat &x, const APyFloat &y) {
+    throw NotImplementedException("APyFloat: Power to another APyFloat has not yet been implemented.");
+}
+
+
+APyFloat APyFloat::pown(const APyFloat &x, int n) {
+    throw NotImplementedException("APyFloat: Power to an integer has not yet been implemented.");
 }
 
 

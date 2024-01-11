@@ -62,9 +62,9 @@ class APyFloat {
      *                         Mathematical functions                                 *
      * ****************************************************************************** */
 
-    static APyFloat abs(const APyFloat &);
-    static APyFloat pow(const APyFloat &);
-    static APyFloat pown(int n);
+    static APyFloat abs(const APyFloat &x);
+    static APyFloat pow(const APyFloat &x, const APyFloat &y);
+    static APyFloat pown(const APyFloat &x, int n);
 
 
     /* ****************************************************************************** *

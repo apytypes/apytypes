@@ -26,6 +26,7 @@ void bind_float(py::module &m) {
         .def_static("from_float", &APyFloat::from_double)
         .def("update_from_float", &APyFloat::update_from_double)
         .def("to_float", &APyFloat::to_double)
+        .def("__float__", &APyFloat::operator double)
         .def_static("from_bits", &APyFloat::from_bits)
         .def("update_from_bits", &APyFloat::update_from_bits)
         .def("to_bits", &APyFloat::to_bits)
@@ -49,8 +50,9 @@ void bind_float(py::module &m) {
         .def(py::self <= py::self)
         .def(py::self >= py::self)
 
-        .def("__float__", &APyFloat::operator double)
         .def("__abs__", &APyFloat::abs)
+        .def("__pow__", &APyFloat::pow)
+        .def("__pow__", &APyFloat::pown)
 
         /*
         * Non-computational methods
