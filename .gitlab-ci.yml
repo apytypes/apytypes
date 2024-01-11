@@ -39,4 +39,4 @@ test:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: build/coverage.xml
+        path: coverage.xml
