@@ -19,6 +19,8 @@ cache:
     - .cache/pip
 
 before_script:
+  - apt-get update --yes
+  - apt-get install --yes python3-dev libgmp-dev
   - python --version ; pip --version  # For debugging
 
 test:
