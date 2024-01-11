@@ -1,30 +1,45 @@
 # aPy-types
 
 ## Documentation
-https://daint.gitlab-pages.liu.se/apy-types/
+
+<https://daint.gitlab-pages.liu.se/apy-types/>
 
 ## Setting up a local workspace
-Install [meson](https://mesonbuild.com/index.html), [ninja](https://ninja-build.org/), and [pybind11](https://pypi.org/project/pybind11/) by running
-```
-$ pip3 install --user meson ninja pybind11
+
+Install [meson](https://mesonbuild.com/index.html),
+[ninja](https://ninja-build.org/), and
+[pybind11](https://pypi.org/project/pybind11/) by running
+
+```bash
+pip3 install --user meson ninja pybind11
 ```
 
 ## Building and running
+
 ### Using pip
-The package can be install by running `pip3 install .` from the top level of the project, and uninstalled by running `pip3 uninstall apy_types`.
+
+The package can be install by running `pip3 install .` from the top level of
+the project, and uninstalled by running `pip3 uninstall apy_types`.
 
 ### Without using pip
+
 1. From the top level of the project, run
+
     ```bash
-    $ meson builddir
-    $ meson compile -C builddir
+    meson builddir
+    meson compile -C builddir
     ```
+
 2. The Python library can be used by entering the `builddir` directory
+
     ```bash
-    $ cd builddir
+    cd builddir
     ```
+
 ### Running
+
 The package can now be used as such:
+
 ```python
 $ python3
 >>> from apy_types import APyFixed
@@ -38,5 +53,8 @@ fx<8, 2>(1.5)
 >>> print(fx_a.to_string())
 1.515625
 ```
+
 ### Tests
-Tests for APyFixed are currently run by running `make` from the src directory, and APyFloat tests are executed by running `pytest` from `test_apy_types`.
+
+Tests for APyFixed are currently run by running `make` from the src directory,
+and APyFloat tests are executed by running `pytest` from `test_apy_types`.
