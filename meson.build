@@ -30,7 +30,8 @@ cpp_compiler_flags = [
 cc = meson.get_compiler('cpp')
 gmp_dep = cc.find_library('gmp')
 
-py3_dep = py3.dependency()
+#py3_dep = py3.dependency()
+py3_dep = dependency('python3')
 
 pybind11_dep = dependency('pybind11', version: '>=2.6')
 
