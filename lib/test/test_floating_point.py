@@ -9,7 +9,7 @@ from apy_types import APyFloat
 @pytest.mark.parametrize(
     'float_s', ['nan', 'inf', '-inf', '0.0', '-0.0'])
 def test_special_conversions(float_s):
-    assert str(float(APyFloat(5, 5, float(float_s)))) ==  str(float(float_s)) == float_s
+    assert str(float(APyFloat.from_float(float(float_s), 5, 5))) ==  str(float(float_s)) == float_s
 
 @pytest.mark.parametrize('exp', list(perm([5, 6, 7, 8], 2)))
 @pytest.mark.parametrize('man', list(perm([5, 6, 7, 8], 2)))
@@ -17,7 +17,7 @@ def test_special_conversions(float_s):
 @pytest.mark.parametrize('neg', [-1.0, 1.0])
 def test_normal_conversions(exp, man, val, neg):
     val *= neg
-    assert float(APyFloat(exp[0], man[0], val)) == float(APyFloat(exp[1], man[1], val)) == val
+    assert float(APyFloat.from_float(val, exp[0], man[0])) == float(APyFloat.from_float(val, exp[1], man[1])) == val
 
 
 @pytest.mark.parametrize('sign', ['1', '0'])
@@ -34,8 +34,8 @@ def test_normal_conversions(exp, man, val, neg):
                                     ('1111_000', 'float("inf")'), # Infinity
                                     ])
 def test_bit_conversions_e4m3(absx, sign, ans):
-    assert float(APyFloat(4, 3).from_bits(int(f'{sign}_{absx}', 2))) == eval(f'{"-" if sign == "1" else ""}{ans}')
-    assert APyFloat(4, 3, eval(f'{"-" if sign == "1" else ""}{ans}')).to_bits() == int(f'{sign}_{absx}', 2)
+    assert float(APyFloat.from_bits(int(f'{sign}_{absx}', 2), 4, 3)) == eval(f'{"-" if sign == "1" else ""}{ans}')
+    assert APyFloat.from_float(eval(f'{"-" if sign == "1" else ""}{ans}'), 4, 3).to_bits() == int(f'{sign}_{absx}', 2)
     
 
 @pytest.mark.parametrize('sign', ['1', '0'])
@@ -44,21 +44,21 @@ def test_bit_conversions_e4m3(absx, sign, ans):
                                     ('11111_11', 'float("nan")'),  # NaN
                                     ])
 def test_bit_conversion_nan_e5m2(absx, sign, ans):
-    assert str(float(APyFloat(5, 2).from_bits(int(f'{sign}_{absx}', 2)))) == str(eval(f'{"-" if sign == "1" else ""}{ans}'))
-    bits = APyFloat(5, 2, eval(f'{"-" if sign == "1" else ""}{ans}')).to_bits()
+    assert str(float(APyFloat.from_bits(int(f'{sign}_{absx}', 2), 5, 2))) == str(eval(f'{"-" if sign == "1" else ""}{ans}'))
+    bits = APyFloat.from_float(eval(f'{"-" if sign == "1" else ""}{ans}'), 5, 2).to_bits()
     assert (bits & 0x3) != 0
 
 
 # Comparison operators
 @pytest.mark.float_comp
 @pytest.mark.parametrize(
-    'lhs,rhs,test_exp', [('APyFloat(5, 5, 2.75)', 'APyFloat(5, 5, 2.75)', True), 
-                         ('APyFloat(5, 6, 2.75)', 'APyFloat(5, 5, 2.75)', True), 
-                         ('APyFloat(6, 5, 2.75)', 'APyFloat(5, 5, 2.75)', True), 
-                         ('APyFloat(5, 5, 2.75)', 'APyFloat(5, 5, -2.75)', False),
-                         ('APyFloat(5, 5, 3.5)', 'APyFloat(5, 5, 6.5)', False),
-                         ('APyFloat(5, 5, 3.5)', 'APyFloat(5, 5, 3.75)', False),
-                         ('APyFloat(5, 2, 2**-9)', 'APyFloat(5, 5, 2*-9)', False)]
+    'lhs,rhs,test_exp', [('APyFloat.from_float(2.75, 5, 5)', 'APyFloat.from_float(2.75, 5, 5)', True), 
+                         ('APyFloat.from_float(2.75, 5, 6)', 'APyFloat.from_float(2.75, 5, 5)', True), 
+                         ('APyFloat.from_float(2.75, 6, 5)', 'APyFloat.from_float(2.75, 5, 5)', True), 
+                         ('APyFloat.from_float(2.75, 5, 5)', 'APyFloat.from_float(-2.75, 5, 5)', False),
+                         ('APyFloat.from_float(3.5, 5, 5)', 'APyFloat.from_float(6.5, 5, 5)', False),
+                         ('APyFloat.from_float(3.5, 5, 5)', 'APyFloat.from_float(3.75, 5, 5)', False),
+                         ('APyFloat.from_float(2**-9, 5, 2)', 'APyFloat.from_float(2*-9, 5, 5)', False)]
 )
 def test_equality(lhs, rhs, test_exp):
     assert (eval(lhs) == eval(rhs)) == test_exp
@@ -74,26 +74,26 @@ def test_equality(lhs, rhs, test_exp):
                          ('3.5', '3.5', False),
                          ('3.5', '-6.75', False)])
 def test_less_greater_than(exp, man, lhs, rhs, test_exp):
-    assert (eval(f'APyFloat({exp[0]}, {man[0]}, {lhs}) < APyFloat({exp[1]}, {man[1]}, {rhs})') ) == test_exp
-    assert (eval(f'APyFloat({exp[0]}, {man[0]}, {rhs}) > APyFloat({exp[1]}, {man[1]}, {lhs})') ) == test_exp
+    assert (eval(f'APyFloat.from_float({lhs}, {exp[0]}, {man[0]}) < APyFloat.from_float({rhs}, {exp[1]}, {man[1]})') ) == test_exp
+    assert (eval(f'APyFloat.from_float({rhs}, {exp[0]}, {man[0]}) > APyFloat.from_float({lhs}, {exp[1]}, {man[1]})') ) == test_exp
 
 @pytest.mark.float_comp
 @pytest.mark.parametrize(
-    'lhs,rhs,test_exp', [('APyFloat(5, 5, 3.5)', 'APyFloat(5, 5, 6.75)', True), 
-                         ('APyFloat(5, 5, 3.5)', 'APyFloat(5, 5, 6.25)', True),
-                         ('APyFloat(5, 5, 3.5)', 'APyFloat(5, 5, 2.75)', False),
-                         ('APyFloat(5, 5, 3.5)', 'APyFloat(5, 5, 3.5)', True),
-                         ('APyFloat(5, 5, 3.5)', 'APyFloat(5, 5, -6.75)', False)])
+    'lhs,rhs,test_exp', [('APyFloat.from_float(3.5, 5, 5)', 'APyFloat.from_float(6.75, 5, 5)', True), 
+                         ('APyFloat.from_float(3.5, 5, 5)', 'APyFloat.from_float(6.25, 5, 5)', True),
+                         ('APyFloat.from_float(3.5, 5, 5)', 'APyFloat.from_float(2.75, 5, 5)', False),
+                         ('APyFloat.from_float(3.5, 5, 5)', 'APyFloat.from_float(3.5, 5, 5)', True),
+                         ('APyFloat.from_float(3.5, 5, 5)', 'APyFloat.from_float(-6.75, 5, 5)', False)])
 def test_leq_geq(lhs, rhs, test_exp):
     assert (eval(lhs) <= eval(rhs)) == test_exp
     assert (eval(rhs) >= eval(lhs)) == test_exp
 
 @pytest.mark.float_comp
 @pytest.mark.float_special
-@pytest.mark.parametrize('lhs,rhs', list(perm(['APyFloat(5, 5, 2.75)', "APyFloat(5, 5, float('nan'))"]))
-                                    + list(perm(["APyFloat(5, 5, float('inf'))", "APyFloat(5, 5, float('nan'))"]))
-                                    + list(perm(["APyFloat(5, 5, float('nan'))", "APyFloat(5, 5, 0)"]))
-                                    + [("APyFloat(5, 5, float('nan'))", "APyFloat(5, 5, float('nan'))")])
+@pytest.mark.parametrize('lhs,rhs', list(perm(['APyFloat.from_float(2.75, 5, 5)', "APyFloat.from_float(float('nan'), 5, 5)"]))
+                                    + list(perm(["APyFloat.from_float(float('nan'), 5, 5)", "APyFloat.from_float(float('nan'), 5, 5)"]))
+                                    + list(perm(["APyFloat.from_float(float('nan'), 5, 5)", "APyFloat.from_float(0, 5, 5)"]))
+                                    + [("APyFloat.from_float(float('nan'), 5, 5)", "APyFloat.from_float(float('nan'), 5, 5)")])
 def test_nan_comparison(lhs, rhs):
     assert not (eval(lhs) == eval(rhs))
     assert not (eval(lhs) != eval(rhs))
@@ -105,14 +105,13 @@ def test_nan_comparison(lhs, rhs):
 @pytest.mark.float_comp
 @pytest.mark.float_special
 def test_inf_comparison():
-    assert APyFloat(4, 1, 12) < APyFloat(5, 5, float('inf'))
-    assert APyFloat(4, 1, -12) > APyFloat(5, 5, float('-inf'))
-    assert APyFloat(5, 5, 0) > APyFloat(5, 5, float('-inf'))
-    assert APyFloat(5, 5, float('inf')) == APyFloat(5, 5, float('inf'))
-    assert APyFloat(5, 5, float('inf')) == APyFloat(3, 2, float('inf'))
-    assert APyFloat(5, 5, float('inf')) != APyFloat(5, 5, float('-inf'))
-
-
+    assert APyFloat.from_float(12, 4, 1) < APyFloat.from_float(float('inf'), 5, 5)
+    assert APyFloat.from_float(-12, 4, 1) > APyFloat.from_float(float('-inf'), 5, 5)
+    assert APyFloat.from_float(0, 5, 5) > APyFloat.from_float(float('-inf'), 5, 5)
+    assert APyFloat.from_float(float('inf'), 5, 5) == APyFloat.from_float(float('inf'), 5, 5)
+    assert APyFloat.from_float(float('inf'), 5, 5) == APyFloat.from_float(float('inf'), 3, 2)
+    assert APyFloat.from_float(float('inf'), 5, 5) != APyFloat.from_float(float('-inf'), 5, 5)
+    
 # Negation
 @pytest.mark.parametrize('sign', ['-', ''])
 @pytest.mark.parametrize('float_s', ['13',
@@ -120,7 +119,7 @@ def test_inf_comparison():
                                      pytest.param('inf', marks=pytest.mark.float_special)])
 def test_negation(float_s, sign):
     float_s = sign + float_s
-    assert float(eval(f'-APyFloat(5, 5, float("{float_s}"))')) == -float(float_s)
+    assert float(eval(f'-APyFloat.from_float(float("{float_s}"), 5, 5)')) == -float(float_s)
 
 
 # Abs
@@ -130,7 +129,7 @@ def test_negation(float_s, sign):
                                      pytest.param('inf', marks=pytest.mark.float_special)])
 def test_abs(float_s, sign):
     float_s = sign + float_s
-    assert float(eval(f'abs(APyFloat(5, 5, float("{float_s}")))')) == abs(float(float_s))
+    assert float(eval(f'abs(APyFloat.from_float(float("{float_s}"), 5, 5))')) == abs(float(float_s))
 
 
 # Addition
@@ -142,16 +141,16 @@ def test_abs(float_s, sign):
 def test_add_representable(exp, man, sign, lhs, rhs):
     """ Test additions where the operands and the result is exactly representable by the formats. """
     expr = None
-    assert float(eval(expr := f'APyFloat({exp[0]}, {man[0]}, {sign[0]}{lhs}) + APyFloat({exp[1]}, {man[1]}, {sign[1]}{rhs})')) == (float(eval(f'{sign[0]}{lhs} + {sign[1]}{rhs}')))
+    assert float(eval(expr := f'APyFloat.from_float({sign[0]}{lhs}, {exp[0]}, {man[0]}) + APyFloat.from_float({sign[1]}{rhs}, {exp[1]}, {man[1]})')) == (float(eval(f'{sign[0]}{lhs} + {sign[1]}{rhs}')))
     res = eval(expr)
     assert res.get_exp_bits() == max(int(exp[0]), int(exp[1]))
     assert res.get_man_bits() == max(int(man[0]), int(man[1]))
 
 # Subtraction
-# Because subtraction is implemented as 'a+(-b)', the tests for addition will also cover subtraction.
-# But we 
+# Because subtraction is implemented as 'a+(-b)', the tests for addition will also cover subtraction,
+# but we still do some tests using the subtraction operator to make sure it's not broken.
 @pytest.mark.float_sub
-@pytest.mark.parametrize('lhs,rhs', list(perm(['APyFloat(6, 5, 2.75)', 'APyFloat(5, 7, 2.5)'])))
+@pytest.mark.parametrize('lhs,rhs', list(perm(['APyFloat.from_float(2.75, 6, 5)', 'APyFloat.from_float(2.5, 5, 7)'])))
 def test_sub_same_exp(lhs, rhs):
     # Subtract two numbers that have the same exponent
     expr = None
@@ -161,7 +160,7 @@ def test_sub_same_exp(lhs, rhs):
     assert res.get_man_bits() == 7
 
 @pytest.mark.float_sub
-@pytest.mark.parametrize('lhs,rhs', list(perm(['APyFloat(9, 5, 4)', 'APyFloat(5, 12, 16)'])))
+@pytest.mark.parametrize('lhs,rhs', list(perm(['APyFloat.from_float(4, 9, 5)', 'APyFloat.from_float(16, 5, 12)'])))
 def test_sub_diff_exp(lhs, rhs):
     # Subtract two numbers that have different exponent
     expr = None
@@ -171,7 +170,7 @@ def test_sub_diff_exp(lhs, rhs):
     assert res.get_man_bits() == 12
 
 @pytest.mark.float_sub
-@pytest.mark.parametrize('lhs,rhs', list(perm(['APyFloat(9, 4, 12)', 'APyFloat(5, 14, -4)'])))
+@pytest.mark.parametrize('lhs,rhs', list(perm(['APyFloat.from_float(12, 9, 4)', 'APyFloat.from_float(-4, 5, 14)'])))
 def test_sub_diff_sign(lhs, rhs):
     # Subtract two numbers that have different sign
     expr = None
@@ -181,7 +180,7 @@ def test_sub_diff_sign(lhs, rhs):
     assert res.get_man_bits() == 14
 
 @pytest.mark.float_sub
-@pytest.mark.parametrize('lhs,rhs', list(perm(['APyFloat(15, 5, 5.75)', 'APyFloat(5, 12, 0.0)'])))
+@pytest.mark.parametrize('lhs,rhs', list(perm(['APyFloat.from_float(5.75, 15, 5)', 'APyFloat.from_float(0.0, 5, 12)'])))
 def test_sub_zero(lhs, rhs):
     # Subtraction when one operand is zero
     expr = None
@@ -200,7 +199,7 @@ def test_sub_zero(lhs, rhs):
 def test_mul_mixed(exp, man, sign, lhs, rhs):
     """ Test multiplications where the operands and the result is exactly representable by the formats. """
     expr = None
-    assert float(eval(expr := f'APyFloat({exp[0]}, {man[0]}, {sign[0]}{lhs}) * APyFloat({exp[1]}, {man[1]}, {sign[1]}{rhs})')) == (float(eval(f'{sign[0]}{lhs} * {sign[1]}{rhs}')))
+    assert float(eval(expr := f'APyFloat.from_float({sign[0]}{lhs}, {exp[0]}, {man[0]}) * APyFloat.from_float({sign[1]}{rhs}, {exp[1]}, {man[1]})')) == (float(eval(f'{sign[0]}{lhs} * {sign[1]}{rhs}')))
     res = eval(expr)
     assert res.get_exp_bits() == max(int(exp[0]), int(exp[1]))
     assert res.get_man_bits() == max(int(man[0]), int(man[1]))
