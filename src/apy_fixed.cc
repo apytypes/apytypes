@@ -11,6 +11,7 @@ namespace py = pybind11;
 #include "python_util.h"
 #include "apy_util.h"
 #include "apy_fixed.h"
+#include "ieee754.h"
 
 #include <algorithm>   // std::copy, std::max, std::transform, etc...
 #include <cstddef>     // std::size_t
@@ -600,13 +601,9 @@ void APyFixed::from_string(const std::string &str, int base)
 void APyFixed::from_double(double value)
 {
     if constexpr (_LIMB_SIZE_BITS == 64) {
-        // Assumes IEEE 754 double-precision floating-point (binary-64)
-        mp_limb_t float_pun;
-        std::memcpy(&float_pun, &value, sizeof(double));
 
-        mp_limb_signed_t sign = float_pun & (mp_limb_t(1) << (_LIMB_SIZE_BITS - 1));
-        mp_limb_signed_t exp = (float_pun & 0x7FF0000000000000) >> 52;
-        mp_limb_t mantissa = float_pun & 0x000FFFFFFFFFFFFF;
+        mp_limb_signed_t exp = exp_of_double(value);
+        mp_limb_t mantissa = mantissa_of_double(value);
 
         // Append mantissa hidden one
         if (exp) {
@@ -630,7 +627,7 @@ void APyFixed::from_double(double value)
         }
 
         // Adjust result from sign
-        if (sign) {
+        if (sign_of_double(value)) {
             _data = _non_extending_negate();
         }
 

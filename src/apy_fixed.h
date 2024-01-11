@@ -47,7 +47,7 @@ public:
      *                            Python constructors                                 *
      * ****************************************************************************** */
 
-    // Constructor: initialize from other APyFixed and possibly set bit specifiers
+    // Constructor: initialize from other APyFixed and optionally set bit specifiers
     APyFixed(
         const APyFixed &other,
         std::optional<int> bits      = std::nullopt,
@@ -55,7 +55,8 @@ public:
         std::optional<int> frac_bits = std::nullopt
     );
 
-    // Constructor: construct from a Python arbitrary long integer object
+    // Constructor: construct from a Python arbitrary long integer object and optionally
+    // set bit specifiers
     explicit APyFixed(
         pybind11::int_ obj,
         std::optional<int> bits      = std::nullopt,
@@ -65,7 +66,7 @@ public:
 
 
     /* ****************************************************************************** *
-     *                        More C++-accessible constructors                        *
+     *                       Non-Python accessible constructors                       *
      * ****************************************************************************** */
 
     // Constructor: specify size and initialize from a `double`

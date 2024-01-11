@@ -7,7 +7,7 @@ CC = g++
 PYTHON3_FLAGS = $(shell python3-config --includes)
 PYTHON3_LINK = $(shell python3-config --ldflags --embed)
 WARNING_FLAGS = -Wall -Wextra -Wpedantic -Wno-depricated -Weffc++
-CXXFLAGS = ${WARNING_FLAGS} ${PYTHON3_FLAGS} -std=c++17 -O2 -march=native -g
+CXXFLAGS = ${WARNING_FLAGS} ${PYTHON3_FLAGS} -std=c++20 -O2 -march=native -g
 
 .PHONY: test test_profile test_coverage clean clean_all
 
@@ -30,10 +30,10 @@ test_coverage: test
 	lcov --directory test --capture --output-file coverage.info
 	genhtml --demangle-cpp -o coverage coverage.info
 
-test/test_apy_util: apy_util.h test/test_apy_util.cc test/catch.o
+test/test_apy_util: ieee754.h apy_util.h test/test_apy_util.cc test/catch.o
 	${CC} ${CXXFLAGS} ${TEST_FLAGS} test/test_apy_util.cc test/catch.o -o $@ -lgmp ${PYTHON3_LINK}
 
-test/test_apy_fixed: apy_util.h apy_fixed.h apy_fixed.cc ${TEST_SRC} test/catch.o
+test/test_apy_fixed: ieee754.h apy_util.h apy_fixed.h apy_fixed.cc ${TEST_SRC} test/catch.o
 	${CC} ${CXXFLAGS} ${TEST_FLAGS} apy_fixed.cc ${TEST_SRC} test/catch.o -o $@ -lgmp ${PYTHON3_LINK}
 
 test/catch.o: test/catch.cc test/catch.hpp
