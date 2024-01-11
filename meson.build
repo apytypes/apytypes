@@ -6,15 +6,11 @@ project(
 )
 
 lib_src = [
-    'src/apy_common.cc',
-    'src/apy_fixed.cc',
-    'src/apy_float.cc',
-    'src/apy_float_contextmanager.cc',
-    'src/ieee754_bit_fiddle.c'
+
 ]
 
 # Python module incudes
-py3 = import('python').find_installation('python3')
+py3 = import('python').find_installation('python3', pure: false)
 pybind11_includes = run_command(
     py3, '-c', 'import pybind11; print(pybind11.get_include());',
     check : true
@@ -38,16 +34,25 @@ py3_dep = py3.dependency()
 
 pybind11_dep = dependency('pybind11', version: '>=2.6')
 
+py3.install_sources(['lib/apy_types/__init__.py'], subdir: 'apy_types')
+
+
+
 # Python module
 py3.extension_module(
-    'apy_types', 
-    sources : [
+    '_apy_types', 
+    sources : files(
         'src/apy_types_wrapper.cc',
         'src/apy_fixed_wrapper.cc',
         'src/apy_float_wrapper.cc',
-        'src/apy_float_context_wrapper.cc'
-    ],
+        'src/apy_float_context_wrapper.cc',
+    'src/apy_common.cc',
+    'src/apy_fixed.cc',
+    'src/apy_float.cc',
+    'src/apy_float_contextmanager.cc',
+    'src/ieee754_bit_fiddle.c'    ),
     include_directories : pybind11_includes,
-    dependencies : [py3.dependency(), gmp_dep, pybind11_dep],
+    dependencies : [py3_dep, gmp_dep, pybind11_dep],
+    subdir: 'apy_types',
     install: true
 )
