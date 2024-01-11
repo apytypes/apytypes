@@ -33,6 +33,8 @@ test:
 
 coverage:
   script:
+    - apt-get install --yes lcov
+    - pip install gcovr
     - pip install .
     - pytest
     - cd src
