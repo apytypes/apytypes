@@ -9,13 +9,13 @@
 #define _CXX_IEEE754_FIDDLE
 
 #include "apy_util.h"
-#include <cstdint>  // uint64_t
-#include <cstring>  // std::memcpy
-#include <limits>   // std::numiric_limits
+#include <cstdint> // uint64_t
+#include <cstring> // std::memcpy
+#include <limits>  // std::numiric_limits
 
-// Test target machine native endianness in pure C++. Optimized away to single `true`
-// or `false`, depending on endianness, on all tested machines using most C++17
-// compatible compilers (godbolt.org):
+// Test target machine native endianness in pure C++. Optimized away to single `true` or
+// `false`, depending on endianness, on all tested machines using most C++17 compatible
+// compilers (godbolt.org):
 // * All GCC version supporting C++17
 // * All Clang version supporting C++17
 // * All versions of MSVC available at compiler explorer...
@@ -38,7 +38,7 @@ static inline uint64_t type_pun_double_to_uint64_t(double d)
     return double_pun;
 }
 
-static inline void type_pun_uint64_t_to_double(double &d, uint64_t num)
+static inline void type_pun_uint64_t_to_double(double& d, uint64_t num)
 {
     // These functions are only compatible with IEEE-754 double-precision `double`s
     static_assert(std::numeric_limits<double>::is_iec559);
@@ -51,38 +51,38 @@ static inline bool sign_of_double(double d)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
     if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
-         return bool(double_pun & (uint64_t(1) << 63));
-    } else {  // std::endiand::native == std::endian::big
+        return bool(double_pun & (uint64_t(1) << 63));
+    } else { // std::endiand::native == std::endian::big
         throw NotImplementedException();
     }
 }
 
-// Returns the *biased* exponent of a `double` in a `int64_t` 
+// Returns the *biased* exponent of a `double` in a `int64_t`.
 // Return value range: [0, 2048)
 static inline int64_t exp_of_double(double d)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
     if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
         return (double_pun << 1) >> 53;
-    } else {  // std::endiand::native == std::endian::big
+    } else { // std::endiand::native == std::endian::big
         throw NotImplementedException();
     }
 }
 
-// Returns significand/mantissa of a `double` (*without* the hidden one) in a `uint64_t`
+// Returns significand/mantissa of a `double` (without the hidden one) in a `uint64_t`.
 // Range of returned value: [0, 4503599627370496)
 static inline uint64_t man_of_double(double d)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
     if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
         return double_pun & 0x000FFFFFFFFFFFFF;
-    } else {  // std::endiand::native == std::endian::big
+    } else { // std::endiand::native == std::endian::big
         throw NotImplementedException();
     }
 }
 
 // [Un]set the sign of a `double` type from a `bool`
-static inline void set_sign_of_double(double &d, bool sign)
+static inline void set_sign_of_double(double& d, bool sign)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
     if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
@@ -94,9 +94,9 @@ static inline void set_sign_of_double(double &d, bool sign)
     type_pun_uint64_t_to_double(d, double_pun);
 }
 
-// Set the exponent part of a `double` from `int64_t`
+// Set the exponent part of a `double` from `int64_t`.
 // Domain of argument `int64_t`: [0, 2048)
-static inline void set_exp_of_double(double &d, int64_t exp)
+static inline void set_exp_of_double(double& d, int64_t exp)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
     if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
@@ -108,9 +108,9 @@ static inline void set_exp_of_double(double &d, int64_t exp)
     type_pun_uint64_t_to_double(d, double_pun);
 }
 
-// Set the mantissa poart of a `double` from `uint64_t`
+// Set the mantissa poart of a `double` from `uint64_t`.
 // Domain of argument `uint64_t`: [0, 4503599627370496)
-static inline void set_man_of_double(double &d, uint64_t man)
+static inline void set_man_of_double(double& d, uint64_t man)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
     if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
@@ -122,4 +122,4 @@ static inline void set_man_of_double(double &d, uint64_t man)
     type_pun_uint64_t_to_double(d, double_pun);
 }
 
-#endif  // _CXX_IEEE754_FIDDLE
+#endif // _CXX_IEEE754_FIDDLE

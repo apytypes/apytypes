@@ -13,12 +13,10 @@
 #ifndef _APY_DYNAMIC_STACK_ALLOCATOR_H
 #define _APY_DYNAMIC_STACK_ALLOCATOR_H
 
-#include <type_traits>
 #include <memory>
+#include <type_traits>
 
-template <typename T, std::size_t _STACK_ELEMENT_SIZE>
-class DynamicStackAllocator
-{
+template <typename T, std::size_t _STACK_ELEMENT_SIZE> class DynamicStackAllocator {
 public:
     using value_type = T;
     DynamicStackAllocator() noexcept {};
@@ -26,9 +24,9 @@ public:
     /*
      * Allocation function
      */
-    typename std::allocator<T>::pointer allocate(
-        typename std::allocator<T>::size_type n
-    ) {
+    typename std::allocator<T>::pointer allocate(typename std::allocator<T>::size_type n
+    )
+    {
         if (n <= _STACK_ELEMENT_SIZE) {
             return stack_data;
         } else {
@@ -40,9 +38,9 @@ public:
      * Deallocation function
      */
     void deallocate(
-        typename std::allocator<T>::pointer ptr,
-        typename std::allocator<T>::size_type n
-    ) {
+        typename std::allocator<T>::pointer ptr, typename std::allocator<T>::size_type n
+    )
+    {
         if (n <= _STACK_ELEMENT_SIZE) {
             return;
         } else {
@@ -53,45 +51,37 @@ public:
     // Member function `rebind` is non-optional for allocators where template parameters
     // are non-template *type* parameters:
     // https://en.cppreference.com/w/cpp/named_req/Allocator
-    template <class U>
-    struct rebind {
+    template <class U> struct rebind {
         using other = DynamicStackAllocator<U, _STACK_ELEMENT_SIZE>;
     };
 
 private:
-
     // Underlying stack data for small allocations
     T stack_data[_STACK_ELEMENT_SIZE];
 };
 
-
 template <
-    typename T, std::size_t _T_STACK_ELEMENT_SIZE,
-    typename U, std::size_t _U_STACK_ELEMENT_SIZE
->
-bool operator==(
-    const DynamicStackAllocator<T, _T_STACK_ELEMENT_SIZE> &,
-    const DynamicStackAllocator<U, _U_STACK_ELEMENT_SIZE> &) 
-    noexcept
-{ 
+    typename T,
+    std::size_t _T_STACK_ELEMENT_SIZE,
+    typename U,
+    std::size_t _U_STACK_ELEMENT_SIZE>
+bool operator==(const DynamicStackAllocator<T, _T_STACK_ELEMENT_SIZE>&, const DynamicStackAllocator<U, _U_STACK_ELEMENT_SIZE>&) noexcept
+{
     // Storage allocated with one `DynamicAllocator` can be deallocated through
     // another `DynamicAllocator`
     return true;
 }
 
-
 template <
-    typename T, std::size_t _T_STACK_ELEMENT_SIZE,
-    typename U, std::size_t _U_STACK_ELEMENT_SIZE
->
-bool operator!=(
-    const DynamicStackAllocator<T, _T_STACK_ELEMENT_SIZE> &,
-    const DynamicStackAllocator<U, _U_STACK_ELEMENT_SIZE> &) 
-    noexcept
-{ 
+    typename T,
+    std::size_t _T_STACK_ELEMENT_SIZE,
+    typename U,
+    std::size_t _U_STACK_ELEMENT_SIZE>
+bool operator!=(const DynamicStackAllocator<T, _T_STACK_ELEMENT_SIZE>&, const DynamicStackAllocator<U, _U_STACK_ELEMENT_SIZE>&) noexcept
+{
     // Storage allocated with one `DynamicAllocator` can be deallocated through
     // another `DynamicAllocator`
     return false;
 }
 
-#endif  // _APY_DYNAMIC_STACK_ALLOCATOR_H
+#endif // _APY_DYNAMIC_STACK_ALLOCATOR_H

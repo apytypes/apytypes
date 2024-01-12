@@ -2,71 +2,70 @@
  * Arithmetic tests for the APyFixed data type.
  */
 
-
 #include "../apy_fixed.h"
 #include "catch.hpp"
 #include <iostream>
 
 TEST_CASE("General binary arithmetic tests")
 {
-    {  /* Test #1 */
-        APyFixed op_a( 1.5, 3, 2);
+    { /* Test #1 */
+        APyFixed op_a(1.5, 3, 2);
         APyFixed op_b(-2.0, 3, 2);
         REQUIRE((op_a + op_b).to_string() == "-0.5");
-        REQUIRE((op_a + op_b).int_bits()  ==      3);
-        REQUIRE((op_a + op_b).bits()      ==      4);
-        REQUIRE((op_a - op_b).to_string() ==  "3.5");
-        REQUIRE((op_a - op_b).int_bits()  ==      3);
-        REQUIRE((op_a - op_b).bits()      ==      4);
-        REQUIRE((op_a * op_b).to_string() ==   "-3");
-        REQUIRE((op_a * op_b).int_bits()  ==      4);
-        REQUIRE((op_a * op_b).bits()      ==      6);
+        REQUIRE((op_a + op_b).int_bits() == 3);
+        REQUIRE((op_a + op_b).bits() == 4);
+        REQUIRE((op_a - op_b).to_string() == "3.5");
+        REQUIRE((op_a - op_b).int_bits() == 3);
+        REQUIRE((op_a - op_b).bits() == 4);
+        REQUIRE((op_a * op_b).to_string() == "-3");
+        REQUIRE((op_a * op_b).int_bits() == 4);
+        REQUIRE((op_a * op_b).bits() == 6);
         REQUIRE((op_a / op_b).to_string() == "-0.5");
-        REQUIRE((op_a / op_b).int_bits()  ==      4);
-        REQUIRE((op_a / op_b).bits()      ==      5);
+        REQUIRE((op_a / op_b).int_bits() == 4);
+        REQUIRE((op_a / op_b).bits() == 5);
     }
 
-    {  /* Test #2 */
+    { /* Test #2 */
         APyFixed op_a(-1.0, 1, 1);
         APyFixed op_b(-0.5, 1, 0);
         REQUIRE((op_a + op_b).to_string() == "-1.5");
-        REQUIRE((op_a + op_b).int_bits()  ==      2);
-        REQUIRE((op_a + op_b).bits()      ==      3);
+        REQUIRE((op_a + op_b).int_bits() == 2);
+        REQUIRE((op_a + op_b).bits() == 3);
         REQUIRE((op_a - op_b).to_string() == "-0.5");
-        REQUIRE((op_a - op_b).int_bits()  ==      2);
-        REQUIRE((op_a - op_b).bits()      ==      3);
-        REQUIRE((op_a * op_b).to_string() ==  "0.5");
-        REQUIRE((op_a * op_b).int_bits()  ==      1);
-        REQUIRE((op_a * op_b).bits()      ==      2);
-        REQUIRE((op_a / op_b).to_string() ==    "2");
-        REQUIRE((op_a / op_b).int_bits()  ==      3);
-        REQUIRE((op_a / op_b).bits()      ==      3);
+        REQUIRE((op_a - op_b).int_bits() == 2);
+        REQUIRE((op_a - op_b).bits() == 3);
+        REQUIRE((op_a * op_b).to_string() == "0.5");
+        REQUIRE((op_a * op_b).int_bits() == 1);
+        REQUIRE((op_a * op_b).bits() == 2);
+        REQUIRE((op_a / op_b).to_string() == "2");
+        REQUIRE((op_a / op_b).int_bits() == 3);
+        REQUIRE((op_a / op_b).bits() == 3);
     }
 
-    {  /* Test #3 */
+    { /* Test #3 */
         APyFixed op_a(100, 40);
         op_a.from_string("306538369.1376953125");
-        
+
         APyFixed op_b(140, 10);
         op_b.from_string(
             "68.5000000000000005176294573636282259077034950678353197872638702392578125"
         );
 
-        REQUIRE((op_a + op_b).bits()     == 171);
+        REQUIRE((op_a + op_b).bits() == 171);
         REQUIRE((op_a + op_b).int_bits() == 41);
         REQUIRE(
             (op_a + op_b).to_string() ==
             "306538437."
             "6376953125000005176294573636282259077034950678353197872638702392578125"
         );
-        REQUIRE((op_a - op_b).bits()     == 171);
+        REQUIRE((op_a - op_b).bits() == 171);
         REQUIRE((op_a - op_b).int_bits() == 41);
         REQUIRE(
             (op_a - op_b).to_string() ==
             "306538300."
             "6376953124999994823705426363717740922965049321646802127361297607421875"
         );
-        REQUIRE((op_a * op_b).bits()     == 240);
+        REQUIRE((op_a * op_b).bits() == 240);
         REQUIRE((op_a * op_b).int_bits() == 50);
         REQUIRE(
             (op_a * op_b).to_string() ==
@@ -74,48 +73,53 @@ TEST_CASE("General binary arithmetic tests")
             "9321290649232896778767861830011886138756121988890868124144617468118667"
             "6025390625"
         );
-        REQUIRE((op_a / op_b).bits()     == 231);
+        REQUIRE((op_a / op_b).bits() == 231);
         REQUIRE((op_a / op_b).int_bits() == 171);
         REQUIRE(
             (op_a / op_b).to_string() ==
             "4475012."
             "688141537374943088913037403386852020048536360263824462890625"
        );
-    }  /* End test #3 */
+    } /* End test #3 */
 }
-
 
 TEST_CASE("Binary arithmetic: APyFixed::operator-(const APyFixed &rhs)")
 {
     { /* Test #1 */
-        APyFixed op_a(512, 200, to_limb_vec({0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0}));
-        APyFixed op_b(512, 100, to_limb_vec({0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0}));
-        REQUIRE( (op_a - op_b).to_string() == "0" );
+        APyFixed op_a(
+            512, 200, to_limb_vec({ 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 })
+        );
+        APyFixed op_b(
+            512, 100, to_limb_vec({ 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 })
+        );
+        REQUIRE((op_a - op_b).to_string() == "0");
     }
 
     { /* Test #2 */
-        APyFixed op_a(200, 100, to_limb_vec({0x0,0x0,0x0,0x0}));
-        APyFixed op_b(512, 200, to_limb_vec({0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0}));
-        REQUIRE( (op_a - op_b).to_string() == "0" );
+        APyFixed op_a(200, 100, to_limb_vec({ 0x0, 0x0, 0x0, 0x0 }));
+        APyFixed op_b(
+            512, 200, to_limb_vec({ 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 })
+        );
+        REQUIRE((op_a - op_b).to_string() == "0");
     }
 }
-
 
 TEST_CASE("Unary arithmetic arithmetic: APyFixed::operator-()")
 {
     { /* Test #1 */
         APyFixed operand(64, 32, to_limb_vec({ 0x8000000000000000 }));
-        REQUIRE( (-operand)._data == to_limb_vec({ 0x8000000000000000, 0 }));
+        REQUIRE((-operand)._data == to_limb_vec({ 0x8000000000000000, 0 }));
     }
 
     { /* Test #2 */
         APyFixed operand(64, 32, to_limb_vec({ 0x7FFFFFFFFFFFFFFF }));
-        REQUIRE( (-operand)._data == to_limb_vec({ 0x8000000000000001, uint64_t(-1) }));
+        REQUIRE((-operand)._data == to_limb_vec({ 0x8000000000000001, uint64_t(-1) }));
     }
 
     { /* Test #3 */
         APyFixed operand(
-            512, 100,
+            512,
+            100,
             to_limb_vec({
                 0xF51A10EEB1241512,
                 0xF51A10EF8AFF1512,
@@ -127,8 +131,8 @@ TEST_CASE("Unary arithmetic arithmetic: APyFixed::operator-()")
                 0x101A10EEB1241512,
             })
         );
-        REQUIRE( (-operand).bits()     == 513 );
-        REQUIRE( (-operand).int_bits() == 101 );
+        REQUIRE((-operand).bits() == 513);
+        REQUIRE((-operand).int_bits() == 101);
         REQUIRE(std::string("-") + operand.to_string() == (-operand).to_string());
     }
 }
@@ -144,7 +148,8 @@ TEST_CASE("APyFixed::operator+(rhs) and APyFixed::operator-(rhs) [large]")
         // 257136662269306798708182072507551281664490003441493733349403017982015
         // 56238154807942919433116912841796875
         APyFixed op_a(
-            512, 200,
+            512,
+            200,
             to_limb_vec({
                 0x1429404125123152,
                 0x1245451212312342,
@@ -165,7 +170,8 @@ TEST_CASE("APyFixed::operator+(rhs) and APyFixed::operator-(rhs) [large]")
         // 656142652390037359273932290457150614714630623155135326791655321661502
         // 949476980808972834127647429103280529716357705183327198028564453125
         APyFixed op_b(
-            512, 100,
+            512,
+            100,
             to_limb_vec({
                 0x151A10EEB1241512,
                 0xFFAA10EEB1241512,
@@ -195,10 +201,10 @@ TEST_CASE("APyFixed::operator+(rhs) and APyFixed::operator-(rhs) [large]")
                 "89250790714216106332680929032185242004694665536051014188751193"
                 "64714630623155135326791655321661502949476980808972834127647429"
                 "103280529716357705183327198028564453125");
-        REQUIRE((op_a+op_b).bits()      == 613);
-        REQUIRE((op_a+op_b).int_bits()  == 201);
-        REQUIRE((op_a-op_b).bits()      == 613);
-        REQUIRE((op_a-op_b).int_bits()  == 201);
+        REQUIRE((op_a + op_b).bits() == 613);
+        REQUIRE((op_a + op_b).int_bits() == 201);
+        REQUIRE((op_a - op_b).bits() == 613);
+        REQUIRE((op_a - op_b).int_bits() == 201);
     }
 
     { /* Test #2 */
@@ -211,7 +217,8 @@ TEST_CASE("APyFixed::operator+(rhs) and APyFixed::operator-(rhs) [large]")
         // 3461527201803803803026149333988253072319552556869060605661235965322211
         // 0076395744803539537663705782932765941950492560863494873046875
         APyFixed op_a(
-            512, 100,
+            512,
+            100,
             to_limb_vec({
                 0x1429404125123152,
                 0x1245451212312342,
@@ -231,7 +238,8 @@ TEST_CASE("APyFixed::operator+(rhs) and APyFixed::operator-(rhs) [large]")
         // 859216008018161064320203894400395799216476079288214421276109787964370
         // 13471631871652789413928985595703125
         APyFixed op_b(
-            512, 200,
+            512,
+            200,
             to_limb_vec({
                 0x151A10EEB1241512,
                 0xFFAA10EEB1241512,
@@ -261,14 +269,12 @@ TEST_CASE("APyFixed::operator+(rhs) and APyFixed::operator-(rhs) [large]")
                 "71709751784855441406922728637017509339885459321773201174503711"
                 "32530723195525568690606056612359653222110076395744803539537663"
                 "705782932765941950492560863494873046875");
-        REQUIRE((op_a+op_b).bits()      == 613);
-        REQUIRE((op_a+op_b).int_bits()  == 201);
-        REQUIRE((op_a-op_b).bits()      == 613);
-        REQUIRE((op_a-op_b).int_bits()  == 201);
+        REQUIRE((op_a + op_b).bits() == 613);
+        REQUIRE((op_a + op_b).int_bits() == 201);
+        REQUIRE((op_a - op_b).bits() == 613);
+        REQUIRE((op_a - op_b).int_bits() == 201);
     }
-
 }
-
 
 TEST_CASE("Binary arithmetic: APyFixed::operator*/(APyFixed &rhs)")
 {
@@ -280,7 +286,8 @@ TEST_CASE("Binary arithmetic: APyFixed::operator*/(APyFixed &rhs)")
     // 3461527201803803803026149333988253072319552556869060605661235965322211
     // 0076395744803539537663705782932765941950492560863494873046875
     APyFixed op_a(
-        512, 100,
+        512,
+        100,
         to_limb_vec({
             0x1429404125123152,
             0x1245451212312342,
@@ -300,7 +307,8 @@ TEST_CASE("Binary arithmetic: APyFixed::operator*/(APyFixed &rhs)")
     // 859216008018161064320203894400395799216476079288214421276109787964370
     // 13471631871652789413928985595703125
     APyFixed op_b(
-        512, 200,
+        512,
+        200,
         to_limb_vec({
             0x151A10EEB1241512,
             0xFFAA10EEB1241512,
@@ -341,27 +349,26 @@ TEST_CASE("Binary arithmetic: APyFixed::operator*/(APyFixed &rhs)")
     );
 }
 
-
 TEST_CASE("Comparison operators")
 {
-    REQUIRE_FALSE(  APyFixed(0.0, 256, 128)  == APyFixed(1.0, 256, 128)  );
-    REQUIRE(        APyFixed(0.0, 256, 128)  != APyFixed(1.0, 256, 128)  );
-    REQUIRE(        APyFixed(0.0, 256, 128)  <  APyFixed(1.0, 256, 128)  );
-    REQUIRE(        APyFixed(0.0, 256, 128)  <= APyFixed(1.0, 256, 128)  );
-    REQUIRE_FALSE(  APyFixed(0.0, 256, 128)  >  APyFixed(1.0, 256, 128)  );
-    REQUIRE_FALSE(  APyFixed(0.0, 256, 128)  >= APyFixed(1.0, 256, 128)  );
+    REQUIRE_FALSE(APyFixed(0.0, 256, 128) == APyFixed(1.0, 256, 128));
+    REQUIRE(APyFixed(0.0, 256, 128) != APyFixed(1.0, 256, 128));
+    REQUIRE(APyFixed(0.0, 256, 128) < APyFixed(1.0, 256, 128));
+    REQUIRE(APyFixed(0.0, 256, 128) <= APyFixed(1.0, 256, 128));
+    REQUIRE_FALSE(APyFixed(0.0, 256, 128) > APyFixed(1.0, 256, 128));
+    REQUIRE_FALSE(APyFixed(0.0, 256, 128) >= APyFixed(1.0, 256, 128));
 
-    REQUIRE(        APyFixed(1.0, 256, 128)  == APyFixed(1.0, 256, 128)  );
-    REQUIRE_FALSE(  APyFixed(1.0, 256, 128)  != APyFixed(1.0, 140, 128)  );
-    REQUIRE_FALSE(  APyFixed(1.0, 256, 128)  <  APyFixed(1.0, 140, 128)  );
-    REQUIRE(        APyFixed(1.0, 256, 128)  <= APyFixed(1.0, 256, 128)  );
-    REQUIRE_FALSE(  APyFixed(1.0, 256, 128)  >  APyFixed(1.0, 256, 128)  );
-    REQUIRE(        APyFixed(1.0, 256, 128)  >= APyFixed(1.0, 256, 128)  );
+    REQUIRE(APyFixed(1.0, 256, 128) == APyFixed(1.0, 256, 128));
+    REQUIRE_FALSE(APyFixed(1.0, 256, 128) != APyFixed(1.0, 140, 128));
+    REQUIRE_FALSE(APyFixed(1.0, 256, 128) < APyFixed(1.0, 140, 128));
+    REQUIRE(APyFixed(1.0, 256, 128) <= APyFixed(1.0, 256, 128));
+    REQUIRE_FALSE(APyFixed(1.0, 256, 128) > APyFixed(1.0, 256, 128));
+    REQUIRE(APyFixed(1.0, 256, 128) >= APyFixed(1.0, 256, 128));
 
-    REQUIRE_FALSE(  APyFixed(-1.0, 256, 128) == APyFixed(-3.0, 140, 128) );
-    REQUIRE(        APyFixed(-1.0, 256, 128) != APyFixed(-3.0, 256, 128) );
-    REQUIRE_FALSE(  APyFixed(-1.0, 256, 128) <  APyFixed(-3.0, 140, 128) );
-    REQUIRE_FALSE(  APyFixed(-1.0, 256, 128) <= APyFixed(-3.0, 256, 128) );
-    REQUIRE(        APyFixed(-1.0, 256, 128) >  APyFixed(-3.0, 256, 128) );
-    REQUIRE(        APyFixed(-1.0, 256, 128) >= APyFixed(-3.0, 256, 128) );
+    REQUIRE_FALSE(APyFixed(-1.0, 256, 128) == APyFixed(-3.0, 140, 128));
+    REQUIRE(APyFixed(-1.0, 256, 128) != APyFixed(-3.0, 256, 128));
+    REQUIRE_FALSE(APyFixed(-1.0, 256, 128) < APyFixed(-3.0, 140, 128));
+    REQUIRE_FALSE(APyFixed(-1.0, 256, 128) <= APyFixed(-3.0, 256, 128));
+    REQUIRE(APyFixed(-1.0, 256, 128) > APyFixed(-3.0, 256, 128));
+    REQUIRE(APyFixed(-1.0, 256, 128) >= APyFixed(-3.0, 256, 128));
 }
