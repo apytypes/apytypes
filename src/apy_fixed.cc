@@ -4,42 +4,45 @@
 
 // Python object access through Pybind
 #include <pybind11/pybind11.h>
-#include <longobject.h>   // PyLongObject
-#include <longintrepr.h>  // PyLong_SHIFT
 namespace py = pybind11;
 
-#include "python_util.h"
-#include "apy_util.h"
-#include "apy_fixed.h"
-#include "ieee754.h"
+// Python details
+#include <Python.h>
+#include <longobject.h> // PyLongObject
+#include <pyport.h>     // PYLONG_BITS_IN_DIGIT
 
-#include <algorithm>   // std::copy, std::max, std::transform, etc...
-#include <cstddef>     // std::size_t
-#include <cstring>     // std::memcpy
-#include <functional>  // std::bit_not
-#include <iostream>
-#include <iterator>    // std::back_inserter
-#include <optional>    // std::optional
-#include <stdexcept>   // std::domain_error
-#include <string>      // std::string
-#include <vector>      // std::vector, std::swap
+#include <algorithm>  // std::copy, std::max, std::transform, etc...
+#include <cstddef>    // std::size_t
+#include <cstring>    // std::memcpy
+#include <functional> // std::bit_not
+#include <iterator>   // std::back_inserter
+#include <optional>   // std::optional
+#include <stdexcept>  // std::domain_error
+#include <string>     // std::string
+#include <vector>     // std::vector, std::swap
+
+#include "apy_fixed.h"
+#include "apy_util.h"
+#include "ieee754.h"
+#include "python_util.h"
 
 // GMP should be included after all other includes
 #include <gmp.h>
 
 /* ********************************************************************************** *
- *                              Python constructors                                   *
+ * *                            Python constructors                                 * *
  * ********************************************************************************** */
 
 // Constructor: specify size and initialize from another APyFixed number
 APyFixed::APyFixed(
-    const APyFixed &other, 
-    std::optional<int> bits,
-    std::optional<int> int_bits,
+    const APyFixed& other, std::optional<int> bits, std::optional<int> int_bits,
     std::optional<int> frac_bits
-) : _bits{}, _int_bits{}, _data{}
+)
+    : _bits {}
+    , _int_bits {}
+    , _data {}
 {
-    if ( bits.has_value() || int_bits.has_value() || frac_bits.has_value() ) {
+    if (bits.has_value() || int_bits.has_value() || frac_bits.has_value()) {
         // One or more bit-specifiers set, initialize from the specifier arguments
         _bits_set_from_optional(bits, int_bits, frac_bits);
         _constructor_sanitize_bits();
@@ -55,21 +58,19 @@ APyFixed::APyFixed(
     from_apyfixed(other);
 }
 
-
 // Constructor: construct from a Python arbitrary long integer object
 APyFixed::APyFixed(
-    py::int_ python_int,
-    std::optional<int> bits,
-    std::optional<int> int_bits,
+    py::int_ python_int, std::optional<int> bits, std::optional<int> int_bits,
     std::optional<int> frac_bits
-) : APyFixed(bits, int_bits, frac_bits)
+)
+    : APyFixed(bits, int_bits, frac_bits)
 {
     /*
-     * Beware when making changes to this function: This function is not (yet) tested
-     * by any C++ unit tests, as it's difficuly to construct `py::int_` or 
-     * `PyLongObject` objects from C++.
+     * Beware when making changes to this function: This function is not (yet)
+     * tested by any C++ unit tests, as it's difficuly to construct `py::int_`
+     * or `PyLongObject` objects from C++.
      */
-    PyLongObject *py_long = (PyLongObject *) python_int.ptr();
+    PyLongObject* py_long = (PyLongObject*)python_int.ptr();
     long py_long_digits = _PyLong_DigitCount(py_long);
     bool py_long_is_negative = _PyLong_IsNegative(py_long);
 
@@ -81,34 +82,35 @@ APyFixed::APyFixed(
         _data[0] = mp_limb_t(GET_OB_DIGIT(py_long)[0]);
         if (py_long_is_negative) {
             _data[0] = -_data[0];
-            std::fill(_data.begin()+1, _data.end(), mp_limb_t(-1));
+            std::fill(_data.begin() + 1, _data.end(), mp_limb_t(-1));
         }
     } else {
-        // Python integer is stored using multiple Python digits. Import data from
-        // multi-digit Python long integer.
+        // Python integer is stored using multiple Python digits. Import data
+        // from multi-digit Python long integer.
         mpz_t mpz_from_py_long;
         mpz_init(mpz_from_py_long);
         mpz_import(
-            mpz_from_py_long,                                   // Destination operand
-            py_long_digits,                                     // Words to read
-            -1,                                                 // LSWord first
-            sizeof(GET_OB_DIGIT(py_long)[0]),                   // Word size in bytes
-            0,                                                  // Machine endianness
-            sizeof(GET_OB_DIGIT(py_long)[0])*8 - PyLong_SHIFT,  // Nail bits
-            GET_OB_DIGIT(py_long)                               // Source operand
+            mpz_from_py_long,                    // Destination operand
+            py_long_digits,                      // Words to read
+            -1,                                  // LSWord first
+            sizeof(GET_OB_DIGIT(py_long)[0]),    // Word size in bytes
+            0,                                   // Machine endianness
+            sizeof(GET_OB_DIGIT(py_long)[0]) * 8 // Nail bits
+                - PYLONG_BITS_IN_DIGIT,
+            GET_OB_DIGIT(py_long) // Source operand
         );
 
         // Export data to limb vector
         auto limb_copy_count = std::min(_data.size(), mpz_size(mpz_from_py_long));
         std::memcpy(
-            &_data[0],                          // dst
-            mpz_limbs_read(mpz_from_py_long),   // src
+            &_data[0],                        // dst
+            mpz_limbs_read(mpz_from_py_long), // src
             limb_copy_count * _LIMB_SIZE_BYTES
         );
 
         // Negate limb vector if negative
         if (py_long_is_negative) {
-            std::transform(_data.begin(), _data.end(), _data.begin(), std::bit_not{});
+            std::transform(_data.begin(), _data.end(), _data.begin(), std::bit_not {});
             increment_lsb();
         }
 
@@ -120,17 +122,17 @@ APyFixed::APyFixed(
     twos_complement_overflow();
 }
 
-
 /* ********************************************************************************** *
- *                           More C++ accessible constructors                         *
+ * *                       More C++ accessible constructors                         * *
  * ********************************************************************************** */
 
 // Constructor: specify only size and zero data on construction
 APyFixed::APyFixed(
-    std::optional<int> bits,
-    std::optional<int> int_bits,
-    std::optional<int> frac_bits
-) : _bits{0}, _int_bits{0}, _data{}
+    std::optional<int> bits, std::optional<int> int_bits, std::optional<int> frac_bits
+)
+    : _bits { 0 }
+    , _int_bits { 0 }
+    , _data {}
 {
     _bits_set_from_optional(bits, int_bits, frac_bits);
     _constructor_sanitize_bits();
@@ -138,10 +140,10 @@ APyFixed::APyFixed(
 }
 
 // Constructor: specify only size and zero data on construction
-APyFixed::APyFixed(int bits, int int_bits) :
-    _bits{bits},
-    _int_bits{int_bits},
-    _data(bits_to_limbs(bits))
+APyFixed::APyFixed(int bits, int int_bits)
+    : _bits { bits }
+    , _int_bits { int_bits }
+    , _data(bits_to_limbs(bits))
 {
     _constructor_sanitize_bits();
 }
@@ -154,26 +156,30 @@ APyFixed::APyFixed(double value, int bits, int int_bits)
 }
 
 // Constructor: specify size and initialize from string
-APyFixed::APyFixed(int bits, int int_bits, const char *str, int base) :
-    APyFixed(bits, int_bits)
+APyFixed::APyFixed(int bits, int int_bits, const char* str, int base)
+    : APyFixed(bits, int_bits)
 {
     switch (base) {
-        case 8:  from_string_oct(str); break;
-        case 10: from_string_dec(str); break;
-        case 16: from_string_hex(str); break;
-        default: throw std::domain_error(
-            "Unsupported numeric base. Valid bases are: 8, 10, 16"
-        );
+    case 8:
+        from_string_oct(str);
+        break;
+    case 10:
+        from_string_dec(str);
+        break;
+    case 16:
+        from_string_hex(str);
+        break;
+    default:
+        throw std::domain_error("Unsupported numeric base. Valid bases are: 8, 10, 16");
     }
 }
 
-
 // Underlying vector iterator-based constructor
 template <typename _ITER>
-APyFixed::APyFixed(int bits, int int_bits, _ITER begin, _ITER end) :
-    _bits{bits},
-    _int_bits{int_bits},
-    _data(begin, end)
+APyFixed::APyFixed(int bits, int int_bits, _ITER begin, _ITER end)
+    : _bits { bits }
+    , _int_bits { int_bits }
+    , _data(begin, end)
 {
     _constructor_sanitize_bits();
 
@@ -191,52 +197,55 @@ APyFixed::APyFixed(int bits, int int_bits, _ITER begin, _ITER end) :
     twos_complement_overflow();
 }
 
-
 // Construction from std::vector<mp_limb_t>
-APyFixed::APyFixed(int bits, int int_bits, const std::vector<mp_limb_t> &vec) :
-    APyFixed(bits, int_bits, vec.begin(), vec.end()) {}
+APyFixed::APyFixed(int bits, int int_bits, const std::vector<mp_limb_t>& vec)
+    : APyFixed(bits, int_bits, vec.begin(), vec.end())
+{
+}
 
 // Construction from std::vector<mp_limb_signed_t>
-APyFixed::APyFixed(int bits, int int_bits, const std::vector<mp_limb_signed_t> &vec) :
-    APyFixed(bits, int_bits, vec.begin(), vec.end()) {}
+APyFixed::APyFixed(int bits, int int_bits, const std::vector<mp_limb_signed_t>& vec)
+    : APyFixed(bits, int_bits, vec.begin(), vec.end())
+{
+}
 
+/* **********************************************************************************
+ * * Arithmetic member functions                                *
+ * **********************************************************************************
+ */
 
-/* ********************************************************************************** *
- *                         Arithmetic member functions                                *
- * ********************************************************************************** */
-
-APyFixed APyFixed::operator+(const APyFixed &rhs) const
+APyFixed APyFixed::operator+(const APyFixed& rhs) const
 {
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
 
-    APyFixed result(res_int_bits+res_frac_bits, res_int_bits);
+    APyFixed result(res_int_bits + res_frac_bits, res_int_bits);
     std::vector<mp_limb_t> operand_shifted;
 
     if (frac_bits() < rhs.frac_bits()) {
         // Right-hand side (rhs) has more fractional bits.
         _normalize_binary_points(result, operand_shifted, rhs, *this);
-    } else {  // frac_bits() >= rhs.frac_bits() 
+    } else { // frac_bits() >= rhs.frac_bits()
         // Left-hand side (*this) has more fractional bits.
         _normalize_binary_points(result, operand_shifted, *this, rhs);
     }
 
     // Add with carry and return
     mpn_add_n(
-        &result._data[0],     // dst
-        &result._data[0],     // src1
-        &operand_shifted[0],  // src2
-        result.vector_size()  // limb vector length
+        &result._data[0],    // dst
+        &result._data[0],    // src1
+        &operand_shifted[0], // src2
+        result.vector_size() // limb vector length
     );
     return result;
 }
 
-APyFixed APyFixed::operator-(const APyFixed &rhs) const
+APyFixed APyFixed::operator-(const APyFixed& rhs) const
 {
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
 
-    APyFixed result(res_int_bits+res_frac_bits, res_int_bits);
+    APyFixed result(res_int_bits + res_frac_bits, res_int_bits);
     std::vector<mp_limb_t> operand_shifted;
 
     bool swap_operand;
@@ -244,7 +253,7 @@ APyFixed APyFixed::operator-(const APyFixed &rhs) const
         // Right-hand side (rhs) has more fractional bits.
         _normalize_binary_points(result, operand_shifted, rhs, *this);
         swap_operand = false;
-    } else {  // frac_bits() >= rhs.frac_bits() 
+    } else { // frac_bits() >= rhs.frac_bits()
         // Left-hand side (*this) has more fractional bits.
         _normalize_binary_points(result, operand_shifted, *this, rhs);
         swap_operand = true;
@@ -252,36 +261,37 @@ APyFixed APyFixed::operator-(const APyFixed &rhs) const
 
     // Add with carry and return
     mpn_sub_n(
-        &result._data[0],                                       // dst
-        swap_operand ? &result._data[0] : &operand_shifted[0],  // src1
-        swap_operand ? &operand_shifted[0] : &result._data[0],  // src2
-        result.vector_size()                                    // limb vector length
+        &result._data[0],                                      // dst
+        swap_operand ? &result._data[0] : &operand_shifted[0], // src1
+        swap_operand ? &operand_shifted[0] : &result._data[0], // src2
+        result.vector_size()                                   // limb vector length
     );
     return result;
 }
 
-APyFixed APyFixed::operator*(const APyFixed &rhs) const
+APyFixed APyFixed::operator*(const APyFixed& rhs) const
 {
     const int res_int_bits = int_bits() + rhs.int_bits();
     const int res_frac_bits = frac_bits() + rhs.frac_bits();
     std::vector<mp_limb_t> abs_operand1 = _unsigned_abs();
     std::vector<mp_limb_t> abs_operand2 = rhs._unsigned_abs();
-    APyFixed result(res_int_bits+res_frac_bits, res_int_bits);
+    APyFixed result(res_int_bits + res_frac_bits, res_int_bits);
     bool sign_product = is_negative() ^ rhs.is_negative();
 
-    // `mpn_mul` requires the limb vector length of the first operand to be greater
-    // than, or equally long as, the limb vector length of the second operand. Simply
-    // swap the operands (essentially a free operation in C++) if this is not the case.
+    // `mpn_mul` requires the limb vector length of the first operand to be
+    // greater than, or equally long as, the limb vector length of the second
+    // operand. Simply swap the operands (essentially a free operation in C++)
+    // if this is not the case.
     if (abs_operand1.size() < abs_operand2.size()) {
         std::swap(abs_operand1, abs_operand2);
     }
 
     mpn_mul(
-        &result._data[0],     // dst
-        &abs_operand1[0],     // src1
-        abs_operand1.size(),  // src1 limb vector length
-        &abs_operand2[0],     // src2
-        abs_operand2.size()   // src2 limb vector length
+        &result._data[0],    // dst
+        &abs_operand1[0],    // src1
+        abs_operand1.size(), // src1 limb vector length
+        &abs_operand2[0],    // src2
+        abs_operand2.size()  // src2 limb vector length
     );
 
     // Handle sign
@@ -291,7 +301,7 @@ APyFixed APyFixed::operator*(const APyFixed &rhs) const
     return result;
 }
 
-APyFixed APyFixed::operator/(const APyFixed &rhs) const
+APyFixed APyFixed::operator/(const APyFixed& rhs) const
 {
     const int res_bits = bits() + std::max(rhs.bits() - rhs.int_bits(), 0) + 1;
     const int res_int_bits = int_bits() + rhs.bits() - rhs.int_bits() + 1;
@@ -307,8 +317,8 @@ APyFixed APyFixed::operator/(const APyFixed &rhs) const
         abs_num = (*this)._data_asl(rhs.frac_bits());
     }
 
-    // `mpn_tdiv_rq` requires that the number of significant limbs in the numerator is
-    // greater than or equal to that of the denominator.
+    // `mpn_tdiv_rq` requires that the number of significant limbs in the
+    // numerator is greater than or equal to that of the denominator.
     std::size_t num_significant_limbs = significant_limbs(abs_num);
     std::size_t den_significant_limbs = significant_limbs(abs_den);
     if (num_significant_limbs < den_significant_limbs) {
@@ -316,13 +326,13 @@ APyFixed APyFixed::operator/(const APyFixed &rhs) const
         return result;
     } else {
         mpn_tdiv_qr(
-            &result._data[0],       // Quotient
-            &abs_num[0],            // Remainder (unused -- discarded into numerator)
-            0,                      // QXn (must be zero according to documentation)
-            &abs_num[0],            // Numerator
-            num_significant_limbs,  // Numerator significant limbs
-            &abs_den[0],            // Denominator
-            den_significant_limbs   // Denominator significant limbs
+            &result._data[0],      // Quotient
+            &abs_num[0],           // Remainder (unused -- discarded into numerator)
+            0,                     // QXn (must be zero according to documentation)
+            &abs_num[0],           // Numerator
+            num_significant_limbs, // Numerator significant limbs
+            &abs_den[0],           // Denominator
+            den_significant_limbs  // Denominator significant limbs
         );
         if (sign_product) {
             result._data = result._non_extending_negate();
@@ -347,41 +357,36 @@ APyFixed APyFixed::operator>>(int shift_val) const
     return result;
 }
 
-bool APyFixed::operator==(const APyFixed &rhs) const
-{
-    return (*this - rhs).is_zero();
-}
+bool APyFixed::operator==(const APyFixed& rhs) const { return (*this - rhs).is_zero(); }
 
-bool APyFixed::operator!=(const APyFixed &rhs) const
-{
-    return !(*this == rhs);
-}
+bool APyFixed::operator!=(const APyFixed& rhs) const { return !(*this == rhs); }
 
-bool APyFixed::operator<(const APyFixed &rhs) const
+bool APyFixed::operator<(const APyFixed& rhs) const
 {
     return (*this - rhs).is_negative();
 }
 
-bool APyFixed::operator<=(const APyFixed &rhs) const
+bool APyFixed::operator<=(const APyFixed& rhs) const
 {
     return (*this < rhs) || (*this == rhs);
 }
 
-bool APyFixed::operator>(const APyFixed &rhs) const
+bool APyFixed::operator>(const APyFixed& rhs) const
 {
     return (rhs - *this).is_negative();
 }
 
-bool APyFixed::operator>=(const APyFixed &rhs) const
+bool APyFixed::operator>=(const APyFixed& rhs) const
 {
     return (*this > rhs) || (*this == rhs);
 }
 
 APyFixed APyFixed::operator-() const
 {
-    // Invert all bits of *this, possibly append sign to new limb, and increment lsb
-    APyFixed result(_bits+1, _int_bits+1);
-    std::transform(_data.cbegin(), _data.cend(), result._data.begin(), std::bit_not{});
+    // Invert all bits of *this, possibly append sign to new limb, and increment
+    // lsb
+    APyFixed result(_bits + 1, _int_bits + 1);
+    std::transform(_data.cbegin(), _data.cend(), result._data.begin(), std::bit_not {});
     if (result.vector_size() > vector_size()) {
         mp_limb_t sign = _data.back() & (mp_limb_t(1) << (_LIMB_SIZE_BITS - 1));
         result._data.back() = sign ? 0 : mp_limb_signed_t(-1);
@@ -390,16 +395,17 @@ APyFixed APyFixed::operator-() const
     return result;
 }
 
-
-/* ********************************************************************************** *
- *                         Public member functions (methods)                          *
- * ********************************************************************************** */
+/* **********************************************************************************
+ * * Public member functions (methods)                          *
+ * **********************************************************************************
+ */
 
 void APyFixed::twos_complement_overflow() noexcept
 {
-    unsigned bits_last_word = _bits & (_LIMB_SIZE_BITS-1);
+    unsigned bits_last_word = _bits & (_LIMB_SIZE_BITS - 1);
     if (bits_last_word) {
-        // Exploit signed arithmetic right-shift to perform two's complement overflow
+        // Exploit signed arithmetic right-shift to perform two's complement
+        // overflow
         unsigned shft_amnt = _LIMB_SIZE_BITS - bits_last_word;
         _data.back() = mp_limb_signed_t(_data.back() << (shft_amnt)) >> (shft_amnt);
     }
@@ -407,7 +413,7 @@ void APyFixed::twos_complement_overflow() noexcept
 
 bool APyFixed::is_negative() const noexcept
 {
-    return mp_limb_signed_t(_data.back()) < 0; 
+    return mp_limb_signed_t(_data.back()) < 0;
 }
 
 bool APyFixed::is_zero() const noexcept
@@ -420,14 +426,14 @@ bool APyFixed::is_zero() const noexcept
 mp_limb_t APyFixed::increment_lsb() noexcept
 {
     return mpn_add_1(
-        &_data[0],      // dst
-        &_data[0],      // src1
-        vector_size(),  // limb vector length
-        1               // src2
+        &_data[0],     // dst
+        &_data[0],     // src1
+        vector_size(), // limb vector length
+        1              // src2
     );
 }
 
-void APyFixed::from_vector(const std::vector<mp_limb_t> &new_vector)
+void APyFixed::from_vector(const std::vector<mp_limb_t>& new_vector)
 {
     if (new_vector.size() != this->vector_size()) {
         throw std::domain_error("Vector size miss-match");
@@ -436,11 +442,11 @@ void APyFixed::from_vector(const std::vector<mp_limb_t> &new_vector)
     twos_complement_overflow();
 }
 
-std::string APyFixed::to_string_dec() const {
-
+std::string APyFixed::to_string_dec() const
+{
     // Construct a string from the absolute value of number, and conditionally append a
     // minus sign to the string if negative
-    APyFixed abs_val(is_negative() ? -(*this) : *this, _bits+1, _int_bits+1);
+    APyFixed abs_val(is_negative() ? -(*this) : *this, _bits + 1, _int_bits + 1);
 
     // Convert this number to BCD with the double-dabble algorithm
     std::vector<mp_limb_t> bcd_limb_list = double_dabble(abs_val._data);
@@ -448,25 +454,25 @@ std::string APyFixed::to_string_dec() const {
 
     // Divide BCD limb list by two, one time per fractional bit (if any)
     long decimal_point = 0;
-    for (int i=0; i<frac_bits(); i++) {
+    for (int i = 0; i < frac_bits(); i++) {
         bcd_limb_vec_div2(bcd_limb_list);
         decimal_point += bcd_limb_list.size() > bcd_limb_list_start_size ? 1 : 0;
     }
-    long rjust = ((_LIMB_SIZE_BITS/4) - decimal_point) % (_LIMB_SIZE_BITS/4);
+    long rjust = ((_LIMB_SIZE_BITS / 4) - decimal_point) % (_LIMB_SIZE_BITS / 4);
 
     // Multiply BCD list by two, one time per for each missing fractional bit (if any)
-    for (int i=0; i<-frac_bits(); i++) {
+    for (int i = 0; i < -frac_bits(); i++) {
         bcd_limb_vec_mul2(bcd_limb_list);
     }
 
     // Convert BCD limb list to regular BCD list (`std::vector<uint8_t>`)
-    auto bcd_list = to_nibble_list(bcd_limb_list, decimal_point+rjust+1);
+    auto bcd_list = to_nibble_list(bcd_limb_list, decimal_point + rjust + 1);
 
     // Convert BCDs to ASCII
     std::string result = is_negative() ? "-" : "";
-    for (long i=bcd_list.size()-1; i>=rjust; i--) {
+    for (long i = bcd_list.size() - 1; i >= rjust; i--) {
         result.push_back(bcd_list[i] + 0x30);
-        if (decimal_point && i == rjust+long(decimal_point)) {
+        if (decimal_point && i == rjust + long(decimal_point)) {
             result.push_back('.');
         }
     }
@@ -474,33 +480,35 @@ std::string APyFixed::to_string_dec() const {
     return result;
 }
 
-std::string APyFixed::to_string_hex() const 
-{
-    throw NotImplementedException();
-}
+std::string APyFixed::to_string_hex() const { throw NotImplementedException(); }
 
-std::string APyFixed::to_string_oct() const 
-{
-    throw NotImplementedException();
-}
+std::string APyFixed::to_string_oct() const { throw NotImplementedException(); }
 
 std::string APyFixed::to_string(int base) const
 {
     switch (base) {
-        case 8: return to_string_oct(); break;
-        case 16: return to_string_hex(); break;
-        case 10: return to_string_dec(); break;
-        default: throw NotImplementedException(); break;
+    case 8:
+        return to_string_oct();
+        break;
+    case 16:
+        return to_string_hex();
+        break;
+    case 10:
+        return to_string_dec();
+        break;
+    default:
+        throw NotImplementedException();
+        break;
     }
 }
 
-void APyFixed::from_string_dec(const std::string &str)
+void APyFixed::from_string_dec(const std::string& str)
 {
     // Trim the string from leading and trailing whitespace
     std::string str_trimmed = string_trim_whitespace(str);
 
     // Check the validity as a decimal string
-    if ( !is_valid_decimal_numeric_string(str_trimmed) ) {
+    if (!is_valid_decimal_numeric_string(str_trimmed)) {
         throw std::domain_error("Not a valid decimal numeric string");
     }
 
@@ -519,27 +527,25 @@ void APyFixed::from_string_dec(const std::string &str)
     std::size_t binary_point_dec = str_trimmed.find('.');
     binary_point_dec = (binary_point_dec == std::string::npos) ? 0 : binary_point_dec;
     str_trimmed.erase(
-        std::remove(str_trimmed.begin(), str_trimmed.end(), '.'),
-        str_trimmed.cend()
+        std::remove(str_trimmed.begin(), str_trimmed.end(), '.'), str_trimmed.cend()
     );
 
     // Copy characters (from back) of the trimmed string into a BCD list
     std::vector<uint8_t> bcd_list;
-    std::for_each(str_trimmed.crbegin(), str_trimmed.crend(),
-        [&](char c){ bcd_list.push_back(c - 0x30); }
-    );
+    std::for_each(str_trimmed.crbegin(), str_trimmed.crend(), [&](char c) {
+        bcd_list.push_back(c - 0x30);
+    });
 
     // Multiply BCD number by 2^(frac_bits() + 1) (extra bit for rounding)
     auto bcd_list_size_prev = bcd_list.size();
-    for (int i=0; i<frac_bits() + 1; i++) {
+    for (int i = 0; i < frac_bits() + 1; i++) {
         bcd_mul2(bcd_list);
     }
 
     // Remove elements after decimal dot
     if (binary_point_dec) {
         bcd_list.erase(
-            bcd_list.begin(),
-            bcd_list.begin() + bcd_list_size_prev - binary_point_dec
+            bcd_list.begin(), bcd_list.begin() + bcd_list_size_prev - binary_point_dec
         );
     }
 
@@ -548,16 +554,16 @@ void APyFixed::from_string_dec(const std::string &str)
 
     // Round the data
     mpn_add_1(
-        &data[0],     // dst
-        &data[0],     // src1
-        data.size(),  // limb vector length
-        1             // src2
+        &data[0],    // dst
+        &data[0],    // src1
+        data.size(), // limb vector length
+        1            // src2
     );
     mpn_rshift(
-        &data[0],     // dst
-        &data[0],     // src
-        data.size(),  // limb vector length
-        1             // shift amount
+        &data[0],    // dst
+        &data[0],    // src
+        data.size(), // limb vector length
+        1            // shift amount
     );
 
     // Adjust limb vector if negative fractional bits are present
@@ -576,25 +582,33 @@ void APyFixed::from_string_dec(const std::string &str)
     twos_complement_overflow();
 }
 
-void APyFixed::from_string_hex(const std::string &str)
+void APyFixed::from_string_hex(const std::string& str)
 {
-    (void) str;
+    (void)str;
     throw NotImplementedException();
 }
 
-void APyFixed::from_string_oct(const std::string &str)
+void APyFixed::from_string_oct(const std::string& str)
 {
-    (void) str;
-    throw NotImplementedException();
+    (void)str;
+    throw NotImplementedException("Not implemented: APyFixed::from_string_oct()");
 }
 
-void APyFixed::from_string(const std::string &str, int base)
+void APyFixed::from_string(const std::string& str, int base)
 {
     switch (base) {
-        case 8: from_string_oct(str); break;
-        case 10: from_string_dec(str); break;
-        case 16: from_string_hex(str); break;
-        default: throw NotImplementedException(); break;
+    case 8:
+        from_string_oct(str);
+        break;
+    case 10:
+        from_string_dec(str);
+        break;
+    case 16:
+        from_string_hex(str);
+        break;
+    default:
+        throw NotImplementedException();
+        break;
     }
 }
 
@@ -614,13 +628,13 @@ void APyFixed::from_double(double value)
         exp -= 1023;
 
         // Shift the data into its correct position
-        auto left_shift_amnt = exp+frac_bits()-52;
+        auto left_shift_amnt = exp + frac_bits() - 52;
         if (left_shift_amnt >= 0) {
             limb_vector_lsl(_data, left_shift_amnt);
         } else {
-            if (-left_shift_amnt-1 < 64) {
+            if (-left_shift_amnt - 1 < 64) {
                 // Round the value
-                _data[0] += mp_limb_t(1) << (-left_shift_amnt-1);
+                _data[0] += mp_limb_t(1) << (-left_shift_amnt - 1);
             }
             limb_vector_lsr(_data, -left_shift_amnt);
         }
@@ -631,37 +645,55 @@ void APyFixed::from_double(double value)
         }
         twos_complement_overflow();
     } else {
-        // Not implemented for 32-bit system yet...
-        throw NotImplementedException();
+        throw NotImplementedException(
+            "Not implemented: APyFixed::from_double() for 32-bit systems"
+        );
     }
 }
 
 double APyFixed::to_double() const
 {
     if constexpr (_LIMB_SIZE_BITS == 64) {
-        mp_limb_t man{};
-        mp_limb_signed_t exp = frac_bits() + 1023;
+        // Early exit if zero
+        if (is_zero()) {
+            return 0.0;
+        }
+
+        mp_limb_t man {};
+        mp_limb_signed_t exp {};
         bool sign = is_negative();
 
         std::vector<mp_limb_t> man_vec = _unsigned_abs();
+        unsigned man_leading_zeros = limb_vector_leading_zeros(man_vec);
+
+        // Shift the mantissa into position and set the mantissa and exponent part
+        int left_shift_amnt = 53 - _LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
+        if (left_shift_amnt > 0) {
+            limb_vector_lsl(man_vec, left_shift_amnt);
+        } else {
+            limb_vector_lsr(man_vec, left_shift_amnt);
+        }
         man = man_vec[0];
+        exp = left_shift_amnt - 52 + 1023;
 
         // Return the result
-        double result{};
+        double result {};
         set_sign_of_double(result, sign);
         set_exp_of_double(result, exp);
         set_man_of_double(result, man);
         return result;
     } else {
         // Not implemented for 32-bit system yet...
-        throw NotImplementedException();
+        throw NotImplementedException(
+            "Not implemented: APyFixed::to_double() for 32-bit systems"
+        );
     }
 }
 
-void APyFixed::from_apyfixed(const APyFixed &other)
+void APyFixed::from_apyfixed(const APyFixed& other)
 {
     // Copy data from `other` limb vector shift binary point into position
-    std::vector<mp_limb_t> other_data_copy{ other._data };
+    std::vector<mp_limb_t> other_data_copy { other._data };
     if (frac_bits() <= other.frac_bits()) {
         limb_vector_asr(other_data_copy, other.frac_bits() - frac_bits());
     } else {
@@ -671,15 +703,13 @@ void APyFixed::from_apyfixed(const APyFixed &other)
     // Copy binary point-adjusted data
     if (vector_size() <= other_data_copy.size()) {
         std::copy(
-            other_data_copy.cbegin(),
-            other_data_copy.cbegin() + vector_size(),
+            other_data_copy.cbegin(), other_data_copy.cbegin() + vector_size(),
             _data.begin()
         );
     } else {
         std::copy(other_data_copy.cbegin(), other_data_copy.cend(), _data.begin());
         std::fill(
-            _data.begin() + other_data_copy.size(),
-            _data.end(), 
+            _data.begin() + other_data_copy.size(), _data.end(),
             other.is_negative() ? -1 : 0
         );
     }
@@ -687,28 +717,21 @@ void APyFixed::from_apyfixed(const APyFixed &other)
     twos_complement_overflow();
 }
 
-std::string APyFixed::repr() const {
+std::string APyFixed::repr() const
+{
     return std::string(
-        "APyFixed<"
-        + std::to_string(_bits)
-        + ", "
-        + std::to_string(_int_bits)
-        + ">("
-        + to_string()
-        + ")"
+        "APyFixed<" + std::to_string(_bits) + ", " + std::to_string(_int_bits) + ">("
+        + to_string() + ")"
     );
 }
 
-
 /* ********************************************************************************** *
- *                           Private member functions                                 *
+ * *                          Private member functions                              * *
  * ********************************************************************************** */
 
 // Sanitize the _bits and _int_bits parameters
 void APyFixed::_bits_set_from_optional(
-    std::optional<int> bits,
-    std::optional<int> int_bits,
-    std::optional<int> frac_bits
+    std::optional<int> bits, std::optional<int> int_bits, std::optional<int> frac_bits
 )
 {
     int num_bit_spec = bits.has_value() + int_bits.has_value() + frac_bits.has_value();
@@ -719,8 +742,8 @@ void APyFixed::_bits_set_from_optional(
         );
     }
 
-    // Set the internal `_bits` and `_int_bits` fields from two out of the three bit
-    // specifier fields
+    // Set the internal `_bits` and `_int_bits` fields from two out of the three
+    // bit specifier fields
     if (bits.has_value()) {
         if (int_bits.has_value()) {
             _bits = *bits;
@@ -748,8 +771,8 @@ void APyFixed::_constructor_sanitize_bits() const
     }
 }
 
-// Sign preserving automatic size extending arithmetic left shift. Returns a new limb
-// vector with the shifted content.
+// Sign preserving automatic size extending arithmetic left shift. Returns a new
+// limb vector with the shifted content.
 std::vector<mp_limb_t> APyFixed::_data_asl(unsigned shift_val) const
 {
     if (shift_val == 0) {
@@ -757,45 +780,43 @@ std::vector<mp_limb_t> APyFixed::_data_asl(unsigned shift_val) const
     }
 
     // Perform the left-shift
-    unsigned vec_skip_val  = shift_val/_LIMB_SIZE_BITS;
-    unsigned bit_shift_val = shift_val%_LIMB_SIZE_BITS;
+    unsigned vec_skip_val = shift_val / _LIMB_SIZE_BITS;
+    unsigned bit_shift_val = shift_val % _LIMB_SIZE_BITS;
     std::vector<mp_limb_t> result(bits_to_limbs(bits() + shift_val), 0);
-    std::copy(_data.cbegin(), _data.cend(), result.begin()+vec_skip_val);
+    std::copy(_data.cbegin(), _data.cend(), result.begin() + vec_skip_val);
     mpn_lshift(
-        &result[0],     // dst
-        &result[0],     // src
-        result.size(),  // limb vector length
-        bit_shift_val   // shift amount
+        &result[0],    // dst
+        &result[0],    // src
+        result.size(), // limb vector length
+        bit_shift_val  // shift amount
     );
 
     // Append sign bits for "arithmetic" shift
-    if ( (bits()+shift_val)%_LIMB_SIZE_BITS > 0 ) {
+    if ((bits() + shift_val) % _LIMB_SIZE_BITS > 0) {
         // Arithmetic right-shift
         mp_limb_t sign_int = mp_limb_signed_t(_data.back()) >> (_LIMB_SIZE_BITS - 1);
-        mp_limb_t or_mask = ~((mp_limb_t(1) << (bits()+shift_val)%_LIMB_SIZE_BITS) - 1);
+        mp_limb_t or_mask
+            = ~((mp_limb_t(1) << (bits() + shift_val) % _LIMB_SIZE_BITS) - 1);
         result.back() |= or_mask & sign_int;
     }
-    
+
     return result;
 }
 
-
-// Prepare for binary arithmetic by aligning the binary points of two limb vectors.
-// The limbs of the first operand (`operand1`) are copied into the limb vector of
-// `result` and vector sign extended. The limbs of the second operand (`operand2`)
-// are vector-shifted by `operand1.frac_bits()` - `operand2.frac_bits()` bits to the
-// left and copied into the `operand_shifted` limb vector.
-// Assumptions when calling this method:
+// Prepare for binary arithmetic by aligning the binary points of two limb vectors. The
+// limbs of the first operand (`operand1`) are copied into the limb vector of `result`
+// and vector sign extended. The limbs of the second operand (`operand2`) are
+// vector-shifted by `operand1.frac_bits()` - `operand2.frac_bits()` bits to the left
+// and copied into the `operand_shifted` limb vector. Assumptions when calling this
+// method:
 //   * `result` is already initialized with a propriate vector limb size
-//   * `operand_shifted` is *not* initialized, i.e., it's an empty (zero element)
-//      vector
+//   * `operand_shifted` is *not* initialized, i.e., it's an empty (zero element) vector
 //   * the number of fractional bits in `operand1` is greater than that of `operand2`
 void APyFixed::_normalize_binary_points(
-    APyFixed &result,
-    std::vector<mp_limb_t> &operand_shifted,
-    const APyFixed &operand1,
-    const APyFixed &operand2
-) const {
+    APyFixed& result, std::vector<mp_limb_t>& operand_shifted, const APyFixed& operand1,
+    const APyFixed& operand2
+) const
+{
     std::copy(operand1._data.cbegin(), operand1._data.cend(), result._data.begin());
     operand_shifted = operand2._data_asl(operand1.frac_bits() - operand2.frac_bits());
 
@@ -811,25 +832,22 @@ void APyFixed::_normalize_binary_points(
     );
 }
 
-
-// Retrieve a limb vector with the negated value from this APyFixed type. This member 
-// function does not extend the size of the result, unlike `APyFixed::operator-()`,
-// that extends the result with one bit.
+// Retrieve a limb vector with the negated value from this APyFixed type. This member
+// function does not extend the size of the result, unlike `APyFixed::operator-()`, that
+// extends the result with one bit.
 std::vector<mp_limb_t> APyFixed::_non_extending_negate() const
 {
     // Invert all bits and increment the lsb
     APyFixed result(bits(), 0);
-    std::transform(_data.begin(), _data.end(), result._data.begin(), std::bit_not{});
+    std::transform(_data.begin(), _data.end(), result._data.begin(), std::bit_not {});
     result.increment_lsb();
     return result._data;
 }
 
-
-// Get the absolute value of the number in the limb vector. This method does not
-// extend the resulting limb vector to make place for an additional bit. Instead, it
-// relies on the user knowing that the number in the vector is now unsigned.
+// Get the absolute value of the number in the limb vector. This method does not extend
+// the resulting limb vector to make place for an additional bit. Instead, it relies on
+// the user knowing that the number in the vector is now unsigned.
 std::vector<mp_limb_t> APyFixed::_unsigned_abs() const
 {
     return is_negative() ? _non_extending_negate() : _data;
 }
-
