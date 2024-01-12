@@ -6,9 +6,6 @@
 #include "apy_float.h"
 #include "apy_util.h"
 
-// extern "C" {
-// #include "ieee754_bit_fiddle.h"
-// }
 #include "ieee754.h"
 
 void print_warning(const std::string msg) { std::cerr << "Warning: " << msg; }
@@ -64,9 +61,11 @@ APyFloat &APyFloat::update_from_double(double value) {
         "APyFloat: could not classify floating-point number.");
   }
 
-  std::int64_t new_exp = exp_of_double(value) + static_cast<std::int64_t>(bias);
+  // Binary64 (double) has an exponent bias of 1023 and 52 mantissa bits
+  std::int64_t new_exp =
+      exp_of_double(value) - 1023 + static_cast<std::int64_t>(bias);
   man = man_of_double(value);
-  man >>= 52 - man_bits; // Binary64 (double) has 52 mantissa bits
+  man >>= 52 - man_bits;
 
   if (new_exp >= max_exponent()) { // Exponent too big, saturate to inf
     *this = construct_inf();
@@ -174,7 +173,8 @@ APyFloat APyFloat::operator+(APyFloat y) const {
     throw NotImplementedException();
   }
 
-  APyFloat res;
+  APyFloat res(std::max(x.exp_bits, y.exp_bits),
+               std::max(x.man_bits, y.man_bits));
 
   // Compute sign and swap operands if need to make sure |x| >= |y|
   const APyFloat xabs = APyFloat::abs(x);
@@ -192,11 +192,6 @@ APyFloat APyFloat::operator+(APyFloat y) const {
     res.sign = x.sign | y.sign;
   }
 
-  // Prepare result object
-  res.exp_bits = std::max(x.exp_bits, y.exp_bits);
-  res.bias = ieee_bias();
-  res.man_bits = std::max(x.man_bits, y.man_bits);
-
   std::int64_t new_exp = x.exp - x.bias + res.bias;
 
   // Conditionally add leading one's
@@ -211,6 +206,7 @@ APyFloat APyFloat::operator+(APyFloat y) const {
 
   // Align mantissas based on mixed formats
   const auto man_bits_delta = x.man_bits - y.man_bits;
+
   if (man_bits_delta < 0) {
     mx <<= -man_bits_delta;
   } else {
@@ -221,7 +217,7 @@ APyFloat APyFloat::operator+(APyFloat y) const {
   const std::int64_t delta = (x.exp - x.bias - nx) - (y.exp - y.bias - ny);
 
   const std::int64_t max_shift =
-      y.man_bits + 4UL; // +4 to account for leading one and 3 guard bits
+      res.man_bits + 4UL; // +4 to account for leading one and 3 guard bits
   man_t highY = my >> std::min(max_shift, delta);
 
   man_t lowY; // Used to update the sticky bit position T
@@ -251,7 +247,7 @@ APyFloat APyFloat::operator+(APyFloat y) const {
     G = (highR >> 3) & 1;
     T = (highR & 0x7) != 0;
     ++new_exp;
-    if (new_exp == max_exponent()) {
+    if (new_exp == res.max_exponent()) {
       return res.construct_inf();
     }
   } else if (highR & (1 << (res.man_bits + 3))) { // No carry
@@ -263,7 +259,7 @@ APyFloat APyFloat::operator+(APyFloat y) const {
     while (!(highR & (1 << (res.man_bits + 3)))) {
       highR <<= 1;
       --new_exp;
-      if (res.is_subnormal()) {
+      if (new_exp == 0) {
         break;
       }
     }
@@ -421,14 +417,14 @@ bool APyFloat::operator==(const APyFloat &rhs) const {
   man_t my = (rhs.is_normal() << rhs.man_bits) | rhs.man;
 
   // Align mantissas
-  const auto man_diff = man_bits - rhs.man_bits;
+  const auto man_bits_delta = man_bits - rhs.man_bits;
 
-  if (man_diff < 0) {
-    mx <<= -man_diff;
-    ex += man_diff;
+  if (man_bits_delta < 0) {
+    mx <<= -man_bits_delta;
+    ex += man_bits_delta;
   } else {
-    my <<= man_diff;
-    ey -= man_diff;
+    my <<= man_bits_delta;
+    ey -= man_bits_delta;
   }
 
   return (ex == ey) && (mx == my);
