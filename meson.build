@@ -26,7 +26,7 @@ cpp_compiler_flags = [
 cc = meson.get_compiler('cpp')
 gmp_dep = cc.find_library('gmp')
 
-py3_dep = dependency('python3')
+py3_dep = py3.dependency()
 pybind11_dep = dependency('pybind11', version: '>=2.6')
 py3.install_sources(['lib/apy_types/__init__.py'], subdir: 'apy_types')
 
