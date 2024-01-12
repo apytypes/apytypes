@@ -35,6 +35,24 @@ test:
     - cd src
     - make
 
+test-3.9:
+  image: python:3.9
+  stage: test
+  script:
+    - pip install -v .[test]
+    - pytest
+    - cd src
+    - make
+
+test-3.8:
+  image: python:3.8
+  stage: test
+  script:
+    - pip install -v .[test]
+    - pytest
+    - cd src
+    - make
+
 coverage:
   stage: test
   script:

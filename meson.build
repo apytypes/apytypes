@@ -8,7 +8,7 @@ project(
 # Python module incudes
 py3 = import('python').find_installation('python3', pure: false)
 pybind11_includes = run_command(
-    py3, '-c', 'import pybind11; print(pybind11.get_include());',
+    py3, '-c', 'import os; import pybind11; print(os.path.relpath(pybind11.get_include()));',
     check : true
 ).stdout().strip()
 
