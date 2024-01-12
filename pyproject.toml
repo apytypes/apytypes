@@ -27,3 +27,13 @@ setup = ['--default-library=static']
 [project.optional-dependencies]
 doc = ["furo", "numpydoc", "sphinx", "sphinx_copybutton", "breathe"]
 test = ["pytest"]
+
+[tool.pytest.ini_options]
+markers = [
+    "float_neg : custom marker for grouping tests for floating-point negation",
+    "float_add : custom marker for grouping tests for floating-point addition",
+    "float_sub : custom marker for grouping tests for floating-point subtraction",
+    "float_mul : custom marker for grouping tests for floating-point multiplication",
+    "float_comp : custom marker for grouping tests for floating-point comparisons",
+    "float_special : custom marker for grouping tests for floating-point special values"
+    ]
