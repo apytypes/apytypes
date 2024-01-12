@@ -1,10 +1,10 @@
 CompileFlags:
     Add: [
-      -std=c++20,
+      -std=c++17,
       -Wall,
       -Wextra,
       -Wpedantic,
-      -Wno-deprecated, 
+      -Wno-deprecated,
       -D _IS_APY_TYPES_UNIT_TEST,
       -I test/,
       -I/usr/include/python3.10,

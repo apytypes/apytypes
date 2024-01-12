@@ -70,9 +70,9 @@ APyFixed::APyFixed(
     : APyFixed(bits, int_bits, frac_bits)
 {
     /*
-     * Beware when making changes to this function: This function is not (yet)
-     * tested by any C++ unit tests, as it's difficuly to construct `py::int_`
-     * or `PyLongObject` objects from C++.
+     * Beware when making changes to this function: This function is not (yet) tested by
+     * any C++ unit tests, as it's difficuly to construct `py::int_` or `PyLongObject`
+     * objects from C++.
      */
     PyLongObject* py_long = (PyLongObject*)python_int.ptr();
     long py_long_digits = _PyLong_DigitCount(py_long);
@@ -673,10 +673,11 @@ double APyFixed::to_double() const
         if (left_shift_amnt > 0) {
             limb_vector_lsl(man_vec, left_shift_amnt);
         } else {
-            limb_vector_lsr(man_vec, left_shift_amnt);
+            limb_vector_lsr(man_vec, -left_shift_amnt);
         }
         man = man_vec[0];
-        exp = left_shift_amnt - 52 + 1023;
+        exp = 52 - left_shift_amnt - frac_bits();
+        exp += 1023;
 
         // Return the result
         double result {};

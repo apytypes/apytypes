@@ -3,3 +3,7 @@ builddir/
 .vscode/
 *.so
 *~
+
+# Documentation ignores
+docs/_build/
+docs/xml/

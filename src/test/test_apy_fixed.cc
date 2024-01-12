@@ -176,9 +176,10 @@ TEST_CASE("APyFixed::to_double()")
     // More tests
     REQUIRE(APyFixed(0.25, 5, 1).to_double() == 0.25);
     REQUIRE(APyFixed(-0.25, 5, 1).to_double() == -0.25);
-
-    {
-    }
+    REQUIRE(APyFixed(9, 5, to_limb_vec({ 0x48 })).to_double() == 4.5);
+    REQUIRE(
+        APyFixed(128 + 12, 8, to_limb_vec({ 0x0, 0x0, 0x558 })).to_double() == 85.5
+    );
 }
 
 TEST_CASE("Private member function: APyFixed::from_vector()")
