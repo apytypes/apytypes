@@ -35,23 +35,21 @@ test:
     - cd src
     - make
 
+test-3.12:
+  image: python:3.12
+  extends: test
+
+test-3.11:
+  image: python:3.11
+  extends: test
+
 test-3.9:
   image: python:3.9
-  stage: test
-  script:
-    - pip install -v .[test]
-    - pytest
-    - cd src
-    - make
+  extends: test
 
 test-3.8:
   image: python:3.8
-  stage: test
-  script:
-    - pip install -v .[test]
-    - pytest
-    - cd src
-    - make
+  extends: test
 
 coverage:
   stage: test
