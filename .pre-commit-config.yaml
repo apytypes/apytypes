@@ -26,3 +26,7 @@ repos:
     - id: rst-directive-colons
     - id: rst-inline-touching-normal
     - id: text-unicode-replacement-char
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+    - id: black

@@ -1,4 +1,4 @@
-from apy_types._apy_types import (
+from apytypes._apytypes import (
     APyFloat,
     APyFixed,
     RoundingContext,

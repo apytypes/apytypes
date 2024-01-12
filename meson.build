@@ -27,11 +27,11 @@ cc = meson.get_compiler('cpp')
 gmp_dep = cc.find_library('gmp')
 py3_dep = py3.dependency()
 pybind11_dep = dependency('pybind11', version: '>=2.6')
-py3.install_sources(['lib/apy_types/__init__.py'], subdir: 'apy_types')
+py3.install_sources(['lib/apytypes/__init__.py'], subdir: 'apytypes')
 
 # Python module
 py3.extension_module(
-    '_apy_types',
+    '_apytypes',
     sources : files([
         'src/apy_common.cc',
         'src/apy_fixed.cc',
@@ -40,10 +40,10 @@ py3.extension_module(
         'src/apy_float_context_wrapper.cc',
         'src/apy_float_contextmanager.cc',
         'src/apy_float_wrapper.cc',
-        'src/apy_types_wrapper.cc',
+        'src/apytypes_wrapper.cc',
     ]),
     include_directories : pybind11_includes,
     dependencies : [py3_dep, gmp_dep, pybind11_dep],
-    subdir: 'apy_types',
+    subdir: 'apytypes',
     install: true
 )

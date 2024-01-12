@@ -1,7 +1,4 @@
-.. APyTypes documentation master file, created by
-   sphinx-quickstart on Thu Jan 11 19:13:46 2024.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. APyTypes documentation master file.
 
 Welcome to APyTypes's documentation!
 ====================================
@@ -10,7 +7,7 @@ Welcome to APyTypes's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   api/apy_types
+   api/apytypes
 
 .. autodoxygenindex::
    :outline:

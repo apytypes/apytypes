@@ -1,6 +1,6 @@
 from itertools import permutations as perm
 import pytest
-from apy_types import APyFloat
+from apytypes import APyFloat
 
 
 # Conversions

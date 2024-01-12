@@ -4,7 +4,7 @@ apy\_types package
 Module contents
 ---------------
 
-.. automodule:: apy_types
+.. automodule:: apytypes
    :members:
    :undoc-members:
    :private-members:

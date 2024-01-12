@@ -1,4 +1,4 @@
-from apy_types import APyFixed
+from apytypes import APyFixed
 
 
 def test_placeholder():
