@@ -32,10 +32,19 @@ static inline uint64_t type_pun_double_to_uint64_t(double d)
     // These functions are only compatible with IEEE-754 double-precision `double`s
     static_assert(std::numeric_limits<double>::is_iec559);
 
-    // The *only* way to legaly and portably type-pun in C++: with `std::memcpy`
+    // The *only* C++17 way to legaly and portably type-pun in C++: with `std::memcpy`
     uint64_t double_pun;
     std::memcpy(&double_pun, &d, sizeof(double_pun));
     return double_pun;
+}
+
+static inline void type_pun_uint64_t_to_double(double &d, uint64_t num)
+{
+    // These functions are only compatible with IEEE-754 double-precision `double`s
+    static_assert(std::numeric_limits<double>::is_iec559);
+
+    // The *only* C++17 way to legaly and portably type-pun in C++: with `std::memcpy`
+    std::memcpy(&d, &num, sizeof(d));
 }
 
 static inline bool sign_of_double(double d)
@@ -44,7 +53,7 @@ static inline bool sign_of_double(double d)
     if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
          return bool(double_pun & (uint64_t(1) << 63));
     } else {  // std::endiand::native == std::endian::big
-        return bool(double_pun & (uint64_t(1) << 0));
+        throw NotImplementedException();
     }
 }
 
@@ -61,7 +70,7 @@ static inline int64_t exp_of_double(double d)
 }
 
 // Returns significand/mantissa of a `double` (*without* the hidden one) in a `uint64_t`
-// Return value range: [0, 4503599627370496)
+// Range of returned value: [0, 4503599627370496)
 static inline uint64_t man_of_double(double d)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
@@ -70,6 +79,47 @@ static inline uint64_t man_of_double(double d)
     } else {  // std::endiand::native == std::endian::big
         throw NotImplementedException();
     }
+}
+
+// [Un]set the sign of a `double` type from a `bool`
+static inline void set_sign_of_double(double &d, bool sign)
+{
+    uint64_t double_pun = type_pun_double_to_uint64_t(d);
+    if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
+        double_pun &= 0x7FFFFFFFFFFFFFFF;
+        double_pun |= (uint64_t(sign) << 63);
+    } else {
+        throw NotImplementedException();
+    }
+    type_pun_uint64_t_to_double(d, double_pun);
+}
+
+// Set the exponent part of a `double` from `int64_t`
+// Domain of argument `int64_t`: [0, 2048)
+static inline void set_exp_of_double(double &d, int64_t exp)
+{
+    uint64_t double_pun = type_pun_double_to_uint64_t(d);
+    if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
+        double_pun &= 0x800FFFFFFFFFFFFF;
+        double_pun |= 0x7FF0000000000000 & (uint64_t(exp) << 52);
+    } else {
+        throw NotImplementedException();
+    }
+    type_pun_uint64_t_to_double(d, double_pun);
+}
+
+// Set the mantissa poart of a `double` from `uint64_t`
+// Domain of argument `uint64_t`: [0, 4503599627370496)
+static inline void set_man_of_double(double &d, uint64_t man)
+{
+    uint64_t double_pun = type_pun_double_to_uint64_t(d);
+    if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
+        double_pun &= 0xFFF0000000000000;
+        double_pun |= 0x000FFFFFFFFFFFFF & man;
+    } else {
+        throw NotImplementedException();
+    }
+    type_pun_uint64_t_to_double(d, double_pun);
 }
 
 #endif  // _CXX_IEEE754_FIDDLE

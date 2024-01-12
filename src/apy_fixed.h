@@ -146,6 +146,7 @@ public:
      *                           Conversion to other types                            *
      * ****************************************************************************** */
 
+    double to_double() const;
     std::string to_string(int base = 10) const;
     std::string to_string_hex() const;
     std::string to_string_oct() const;

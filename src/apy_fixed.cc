@@ -601,15 +601,14 @@ void APyFixed::from_string(const std::string &str, int base)
 void APyFixed::from_double(double value)
 {
     if constexpr (_LIMB_SIZE_BITS == 64) {
-
         mp_limb_signed_t exp = exp_of_double(value);
-        mp_limb_t mantissa = man_of_double(value);
+        mp_limb_t man = man_of_double(value);
 
         // Append mantissa hidden one
         if (exp) {
-            mantissa |= mp_limb_t(1) << 52;
+            man |= mp_limb_t(1) << 52;
         }
-        _data[0] = mantissa;
+        _data[0] = man;
 
         // Adjust the actual exponent
         exp -= 1023;
@@ -630,11 +629,33 @@ void APyFixed::from_double(double value)
         if (sign_of_double(value)) {
             _data = _non_extending_negate();
         }
-
+        twos_complement_overflow();
     } else {
+        // Not implemented for 32-bit system yet...
         throw NotImplementedException();
     }
-    twos_complement_overflow();
+}
+
+double APyFixed::to_double() const
+{
+    if constexpr (_LIMB_SIZE_BITS == 64) {
+        mp_limb_t man{};
+        mp_limb_signed_t exp = frac_bits() + 1023;
+        bool sign = is_negative();
+
+        std::vector<mp_limb_t> man_vec = _unsigned_abs();
+        man = man_vec[0];
+
+        // Return the result
+        double result{};
+        set_sign_of_double(result, sign);
+        set_exp_of_double(result, exp);
+        set_man_of_double(result, man);
+        return result;
+    } else {
+        // Not implemented for 32-bit system yet...
+        throw NotImplementedException();
+    }
 }
 
 void APyFixed::from_apyfixed(const APyFixed &other)
