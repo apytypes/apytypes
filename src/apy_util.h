@@ -7,6 +7,7 @@
 
 #include <algorithm>  // std::find
 #include <cstddef>    // std::size_t
+#include <optional>   // std::optional, std::nullopt
 #include <regex>      // std::regex, std::regex_replace
 #include <stdexcept>  // std::logic_error, std::domain_error
 #include <vector>     // std::vector
