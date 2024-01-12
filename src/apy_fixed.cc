@@ -35,7 +35,9 @@ namespace py = pybind11;
 
 // Constructor: specify size and initialize from another APyFixed number
 APyFixed::APyFixed(
-    const APyFixed& other, std::optional<int> bits, std::optional<int> int_bits,
+    const APyFixed& other,
+    std::optional<int> bits,
+    std::optional<int> int_bits,
     std::optional<int> frac_bits
 )
     : _bits {}
@@ -60,7 +62,9 @@ APyFixed::APyFixed(
 
 // Constructor: construct from a Python arbitrary long integer object
 APyFixed::APyFixed(
-    py::int_ python_int, std::optional<int> bits, std::optional<int> int_bits,
+    py::int_ python_int,
+    std::optional<int> bits,
+    std::optional<int> int_bits,
     std::optional<int> frac_bits
 )
     : APyFixed(bits, int_bits, frac_bits)
@@ -96,8 +100,8 @@ APyFixed::APyFixed(
             sizeof(GET_OB_DIGIT(py_long)[0]),    // Word size in bytes
             0,                                   // Machine endianness
             sizeof(GET_OB_DIGIT(py_long)[0]) * 8 // Nail bits
-                - PYLONG_BITS_IN_DIGIT,
-            GET_OB_DIGIT(py_long) // Source operand
+                - PYLONG_BITS_IN_DIGIT,          //
+            GET_OB_DIGIT(py_long)                // Source operand
         );
 
         // Export data to limb vector
@@ -209,10 +213,9 @@ APyFixed::APyFixed(int bits, int int_bits, const std::vector<mp_limb_signed_t>& 
 {
 }
 
-/* **********************************************************************************
- * * Arithmetic member functions                                *
- * **********************************************************************************
- */
+/* ********************************************************************************** *
+ * *                            Arithmetic member functions                         * *
+ * ********************************************************************************** */
 
 APyFixed APyFixed::operator+(const APyFixed& rhs) const
 {
@@ -395,10 +398,9 @@ APyFixed APyFixed::operator-() const
     return result;
 }
 
-/* **********************************************************************************
- * * Public member functions (methods)                          *
- * **********************************************************************************
- */
+/* ********************************************************************************** *
+ * *                           Public member functions                              * *
+ * ********************************************************************************** */
 
 void APyFixed::twos_complement_overflow() noexcept
 {
@@ -703,13 +705,15 @@ void APyFixed::from_apyfixed(const APyFixed& other)
     // Copy binary point-adjusted data
     if (vector_size() <= other_data_copy.size()) {
         std::copy(
-            other_data_copy.cbegin(), other_data_copy.cbegin() + vector_size(),
+            other_data_copy.cbegin(),
+            other_data_copy.cbegin() + vector_size(),
             _data.begin()
         );
     } else {
         std::copy(other_data_copy.cbegin(), other_data_copy.cend(), _data.begin());
         std::fill(
-            _data.begin() + other_data_copy.size(), _data.end(),
+            _data.begin() + other_data_copy.size(),
+            _data.end(),
             other.is_negative() ? -1 : 0
         );
     }
@@ -813,7 +817,9 @@ std::vector<mp_limb_t> APyFixed::_data_asl(unsigned shift_val) const
 //   * `operand_shifted` is *not* initialized, i.e., it's an empty (zero element) vector
 //   * the number of fractional bits in `operand1` is greater than that of `operand2`
 void APyFixed::_normalize_binary_points(
-    APyFixed& result, std::vector<mp_limb_t>& operand_shifted, const APyFixed& operand1,
+    APyFixed& result,
+    std::vector<mp_limb_t>& operand_shifted,
+    const APyFixed& operand1,
     const APyFixed& operand2
 ) const
 {
