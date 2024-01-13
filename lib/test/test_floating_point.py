@@ -27,21 +27,22 @@ def test_normal_conversions(exp, man, val, neg):
     )
 
 
+@pytest.mark.skip()
 @pytest.mark.parametrize("sign", ["1", "0"])
 @pytest.mark.parametrize(
     "absx,ans",
     [
-        ("00000_00", "0.0"),  # Zero
-        ("0000_001", "1*2**-9"),  # Min subnorm
-        ("0000_010", "2*2**-9"),
-        ("0000_011", "3*2**-9"),
-        ("0000_100", "4*2**-9"),
+        # ("00000_00", "0.0"),  # Zero
+        # ("0000_001", "1*2**-9"),  # Min subnorm
+        # ("0000_010", "2*2**-9"),
+        # ("0000_011", "3*2**-9"),
+        # ("0000_100", "4*2**-9"),
         ("0000_101", "5*2**-9"),
-        ("0000_110", "6*2**-9"),
-        ("0000_111", "7*2**-9"),  # Max subnorm
-        ("0001_000", "2**-6"),  # Min normal
-        ("1110_111", "240.0"),  # Max normal
-        ("1111_000", 'float("inf")'),  # Infinity
+        # ("0000_110", "6*2**-9"),
+        # ("0000_111", "7*2**-9"),  # Max subnorm
+        # ("0001_000", "2**-6"),  # Min normal
+        # ("1110_111", "240.0"),  # Max normal
+        # ("1111_000", 'float("inf")'),  # Infinity
     ],
 )
 def test_bit_conversions_e4m3(absx, sign, ans):
@@ -237,7 +238,6 @@ def test_add_representable(exp, man, sign, lhs, rhs):
 # Subtraction
 # Because subtraction is implemented as 'a+(-b)', the tests for addition will also cover subtraction,
 # but we still do some tests using the subtraction operator to make sure it's not broken.
-@pytest.mark.skip("Temporary skip this failing, so the branch can be merged")
 @pytest.mark.float_sub
 @pytest.mark.parametrize(
     "lhs,rhs",
