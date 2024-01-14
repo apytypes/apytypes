@@ -35,10 +35,10 @@ public:
   static APyFloat
   from_double(double value, std::uint8_t exp_bits, std::uint8_t man_bits,
               std::optional<exp_t> bias = std::nullopt,
-              RoundingMode rounding_mode = RoundingMode::TIES_TO_EVEN);
+              std::optional<RoundingMode> rounding_mode = std::nullopt);
   APyFloat &
   update_from_double(double value,
-                     RoundingMode rounding_mode = RoundingMode::TIES_TO_EVEN);
+                     std::optional<RoundingMode> rounding_mode = std::nullopt);
   double to_double() const;
   operator double() const;
 
@@ -50,7 +50,7 @@ public:
   APyFloat
   cast_to(std::uint8_t exp_bits, std::uint8_t man_bits,
           std::optional<exp_t> bias = std::nullopt,
-          RoundingMode rounding_mode = RoundingMode::TIES_TO_EVEN) const;
+          std::optional<RoundingMode> rounding_mode = std::nullopt) const;
 
   std::string str() const;
   std::string repr() const;

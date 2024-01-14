@@ -21,9 +21,9 @@ void bind_float(py::module &m) {
       .def_static("from_float", &APyFloat::from_double, py::arg("value"),
                   py::arg("exp_bits"), py::arg("man_bits"),
                   py::arg("bias") = std::nullopt,
-                  py::arg("rounding_mode") = RoundingMode::TIES_TO_EVEN)
+                  py::arg("rounding_mode") = std::nullopt)
       .def("update_from_float", &APyFloat::update_from_double, py::arg("value"),
-           py::arg("rounding_mode") = RoundingMode::TIES_TO_EVEN)
+           py::arg("rounding_mode") = std::nullopt)
       .def("to_float", &APyFloat::to_double)
       .def("__float__", &APyFloat::operator double)
       .def_static("from_bits", &APyFloat::from_bits)
@@ -34,7 +34,7 @@ void bind_float(py::module &m) {
       .def("pretty_string", &APyFloat::pretty_string)
       .def("cast_to", &APyFloat::cast_to, py::arg("exp_bits"),
            py::arg("man_bits"), py::arg("bias") = std::nullopt,
-           py::arg("rounding_mode") = RoundingMode::TIES_TO_EVEN)
+           py::arg("rounding_mode") = std::nullopt)
 
       /*
        * Arithmetic operators

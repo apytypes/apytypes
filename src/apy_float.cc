@@ -42,13 +42,14 @@ APyFloat::APyFloat(std::uint8_t exp_bits, std::uint8_t man_bits,
 
 APyFloat APyFloat::from_double(double value, std::uint8_t exp_bits,
                                std::uint8_t man_bits, std::optional<exp_t> bias,
-                               RoundingMode rounding_mode) {
+                               std::optional<RoundingMode> rounding_mode) {
   APyFloat f(exp_bits, man_bits);
   return f.update_from_double(value, rounding_mode);
 }
 
-APyFloat &APyFloat::update_from_double(double value,
-                                       RoundingMode rounding_mode) {
+APyFloat &
+APyFloat::update_from_double(double value,
+                             std::optional<RoundingMode> rounding_mode) {
 
   // Initialize an APyFloat from the double
   APyFloat apy_double(sign_of_double(value), exp_of_double(value),
@@ -60,17 +61,9 @@ APyFloat &APyFloat::update_from_double(double value,
   return *this;
 }
 
-unsigned int find_msb(man_t x) {
-  unsigned i = 0;
-  while (x >>= 1ULL) {
-    ++i;
-  }
-  return i;
-}
-
 APyFloat APyFloat::cast_to(std::uint8_t new_exp_bits, std::uint8_t new_man_bits,
                            std::optional<exp_t> new_bias,
-                           RoundingMode rounding_mode) const {
+                           std::optional<RoundingMode> rounding_mode) const {
   APyFloat res(new_exp_bits, new_man_bits, new_bias);
   res.sign = sign;
 
@@ -90,12 +83,12 @@ APyFloat APyFloat::cast_to(std::uint8_t new_exp_bits, std::uint8_t new_man_bits,
   const auto man_bits_delta = res.man_bits - man_bits;
 
   // Normalize the exponent and mantissa if convertering from a subnormal
-  man_t curr_man = man;
+  man_t prev_man = man;
   if (is_subnormal()) {
-    const exp_t subn_adjustment = find_msb(man);
+    const exp_t subn_adjustment = count_trailing_bits(man);
     new_exp = new_exp - man_bits + subn_adjustment;
     const man_t remainder = man % (1ULL << subn_adjustment);
-    curr_man = remainder << (man_bits - subn_adjustment);
+    prev_man = remainder << (man_bits - subn_adjustment);
   }
 
   if (new_exp <=
@@ -104,8 +97,8 @@ APyFloat APyFloat::cast_to(std::uint8_t new_exp_bits, std::uint8_t new_man_bits,
   }
 
   // Initial value for mantissa
-  man_t new_man = (man_bits_delta > 0) ? (curr_man << man_bits_delta)
-                                       : (curr_man >> -man_bits_delta);
+  man_t new_man = (man_bits_delta > 0) ? (prev_man << man_bits_delta)
+                                       : (prev_man >> -man_bits_delta);
 
   if (new_exp <=
       0) { // The number will be converted to a subnormal in the new format
@@ -117,29 +110,31 @@ APyFloat APyFloat::cast_to(std::uint8_t new_exp_bits, std::uint8_t new_man_bits,
     new_exp = 0;
   } else if (man_bits_delta < 0) { // Normal case, exponent is positive
     // Calculate rounding bit
-    man_t G, // Guard
-        T,   // Sticky bits after guard
+    man_t G, // Guard (bit after LSB)
+        T,   // Sticky bit, logical OR of all the bits after the guard bit
         B;   // Rounding bit to add to LSB
 
-    G = (curr_man >> (std::abs(man_bits_delta) - 1)) & 1;
-    T = (curr_man & ((1ULL << (std::abs(man_bits_delta - 1))) - 1)) != 0;
+    G = (prev_man >> (std::abs(man_bits_delta) - 1)) & 1;
+    T = (prev_man & ((1ULL << (std::abs(man_bits_delta) - 1)) - 1)) != 0;
 
-    switch (rounding_mode) {
+    switch (rounding_mode.value_or(get_rounding_mode())) {
     case RoundingMode::TO_POSITIVE:
-      B = sign ? 0 : G;
+      B = sign ? 0 : (G | T);
       break;
     case RoundingMode::TO_NEGATIVE:
-      B = sign ? G : 0;
+      B = sign ? (G | T) : 0;
       break;
     case RoundingMode::TO_ZERO:
       B = 0;
       break;
     case RoundingMode::TIES_TO_EVEN:
+      // Using 'new_man' directly here is fine since G can only be '0' or '1',
+      // thus calculating the LSB of 'new_man' is not needed.
       B = G & (new_man | T);
       break;
     case RoundingMode::TIES_TO_AWAY:
-      throw NotImplementedException(
-          "APyFloat: rounding to away has not been implemented yet.");
+      B = G;
+      break;
     case RoundingMode::JAMMING:
       throw NotImplementedException(
           "APyFloat: rounding mode jamming has not been implemented.");
@@ -147,6 +142,9 @@ APyFloat APyFloat::cast_to(std::uint8_t new_exp_bits, std::uint8_t new_man_bits,
       throw NotImplementedException("APyFloat: Unknown rounding mode.");
     }
 
+    // printf("new_man=%d, prev_man=%d, man_bits_delta=%d, S=%d, B=%d, G=%d,
+    // T=%d\n", (int)new_man, (int)prev_man, (int)man_bits_delta, (int)sign,
+    // (int)B, (int)G, (int)T);
     new_man += B;
     if (static_cast<std::uint64_t>(new_man) > res.man_mask()) {
       ++new_exp;
@@ -233,11 +231,6 @@ std::string APyFloat::pretty_string() const {
  */
 
 APyFloat APyFloat::operator+(APyFloat y) const {
-  if (get_rounding_mode() != RoundingMode::TIES_TO_EVEN) {
-    throw NotImplementedException(
-        "APyFloat: Only round-ties-to-even is supported currently.");
-  }
-
   APyFloat x = *this;
 
   if (!(x.is_finite() && y.is_finite())) {
@@ -247,7 +240,7 @@ APyFloat APyFloat::operator+(APyFloat y) const {
   APyFloat res(std::max(x.exp_bits, y.exp_bits),
                std::max(x.man_bits, y.man_bits));
 
-  if ((res.man_bits + 5) >
+  if ((res.man_bits + 5UL) >
       (sizeof(man_t) *
        CHAR_BIT)) { // +1 (leading one) +3 (guard bits) +1 (addition)
     throw std::domain_error("The intermediate mantissa can potentially exceed "
@@ -322,17 +315,17 @@ APyFloat APyFloat::operator+(APyFloat y) const {
     highR &= (1ULL << (res.man_bits + 4)) - 1;
     return APyFloat(res.sign, new_exp, highR, res.exp_bits, (res.man_bits + 4),
                     res.bias)
-        .cast_to(res.exp_bits, res.man_bits, res.bias, get_rounding_mode());
+        .cast_to(res.exp_bits, res.man_bits, res.bias);
 
   } else if (highR & (1ULL << (res.man_bits + 3))) { // No carry
     highR &= (1ULL << (res.man_bits + 3)) - 1;
     return APyFloat(res.sign, new_exp, highR, res.exp_bits, (res.man_bits + 3),
                     res.bias)
-        .cast_to(res.exp_bits, res.man_bits, res.bias, get_rounding_mode());
+        .cast_to(res.exp_bits, res.man_bits, res.bias);
   }
 
   // Cancellation occured
-  while (!(highR & (1 << (res.man_bits + 3)))) {
+  while (!(highR & (1ULL << (res.man_bits + 3UL)))) {
     highR <<= 1;
     --new_exp;
     if (new_exp == 0) {
@@ -357,7 +350,7 @@ APyFloat APyFloat::operator-() const {
 APyFloat APyFloat::operator*(const APyFloat &y) const {
   APyFloat res(std::max(exp_bits, y.exp_bits), std::max(man_bits, y.man_bits));
 
-  if ((2 * res.man_bits + 1) > (sizeof(man_t) * CHAR_BIT)) {
+  if ((2ULL * res.man_bits + 1ULL) > (sizeof(man_t) * CHAR_BIT)) {
     throw std::domain_error("The intermediate mantissa can potentially exceed "
                             "its underlaying data type.");
   }
@@ -402,12 +395,12 @@ APyFloat APyFloat::operator*(const APyFloat &y) const {
     highR &= (1ULL << (2 * res.man_bits + 1)) - 1;
     return APyFloat(res.sign, new_exp, highR, res.exp_bits,
                     (2 * res.man_bits + 1), res.bias)
-        .cast_to(res.exp_bits, res.man_bits, res.bias, get_rounding_mode());
+        .cast_to(res.exp_bits, res.man_bits, res.bias);
   } else {
     highR &= (1ULL << (2 * res.man_bits)) - 1;
     return APyFloat(res.sign, new_exp, highR, res.exp_bits, (2 * res.man_bits),
                     res.bias)
-        .cast_to(res.exp_bits, res.man_bits, res.bias, get_rounding_mode());
+        .cast_to(res.exp_bits, res.man_bits, res.bias);
   }
 }
 
