@@ -27,22 +27,21 @@ def test_normal_conversions(exp, man, val, neg):
     )
 
 
-@pytest.mark.skip()
 @pytest.mark.parametrize("sign", ["1", "0"])
 @pytest.mark.parametrize(
     "absx,ans",
     [
-        # ("00000_00", "0.0"),  # Zero
-        # ("0000_001", "1*2**-9"),  # Min subnorm
-        # ("0000_010", "2*2**-9"),
-        # ("0000_011", "3*2**-9"),
-        # ("0000_100", "4*2**-9"),
+        ("00000_00", "0.0"),  # Zero
+        ("0000_001", "1*2**-9"),  # Min subnorm
+        ("0000_010", "2*2**-9"),
+        ("0000_011", "3*2**-9"),
+        ("0000_100", "4*2**-9"),
         ("0000_101", "5*2**-9"),
-        # ("0000_110", "6*2**-9"),
-        # ("0000_111", "7*2**-9"),  # Max subnorm
-        # ("0001_000", "2**-6"),  # Min normal
-        # ("1110_111", "240.0"),  # Max normal
-        # ("1111_000", 'float("inf")'),  # Infinity
+        ("0000_110", "6*2**-9"),
+        ("0000_111", "7*2**-9"),  # Max subnorm
+        ("0001_000", "2**-6"),  # Min normal
+        ("1110_111", "240.0"),  # Max normal
+        ("1111_000", 'float("inf")'),  # Infinity
     ],
 )
 def test_bit_conversions_e4m3(absx, sign, ans):
@@ -84,7 +83,7 @@ def test_bit_conversion_nan_e5m2(absx, sign, ans):
         ("APyFloat.from_float(2.75, 5, 5)", "APyFloat.from_float(-2.75, 5, 5)", False),
         ("APyFloat.from_float(3.5, 5, 5)", "APyFloat.from_float(6.5, 5, 5)", False),
         ("APyFloat.from_float(3.5, 5, 5)", "APyFloat.from_float(3.75, 5, 5)", False),
-        ("APyFloat.from_float(2**-9, 5, 2)", "APyFloat.from_float(2*-9, 5, 5)", False),
+        ("APyFloat.from_float(2**-9, 4, 3)", "APyFloat.from_float(2**-9, 5, 2)", True),
     ],
 )
 def test_equality(lhs, rhs, test_exp):

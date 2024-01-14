@@ -60,6 +60,14 @@ APyFloat &APyFloat::update_from_double(double value,
   return *this;
 }
 
+unsigned int find_msb(man_t x) {
+  unsigned i = 0;
+  while (x >>= 1ULL) {
+    ++i;
+  }
+  return i;
+}
+
 APyFloat APyFloat::cast_to(std::uint8_t new_exp_bits, std::uint8_t new_man_bits,
                            std::optional<exp_t> new_bias,
                            RoundingMode rounding_mode) const {
@@ -75,22 +83,29 @@ APyFloat APyFloat::cast_to(std::uint8_t new_exp_bits, std::uint8_t new_man_bits,
     return res.construct_zero(sign);
   }
 
-  // TODO: Handle cast *from* subnormal
-
   // Initial value for exponent
   std::int64_t new_exp = (std::int64_t)exp - (std::int64_t)bias + 1 -
                          is_normal() + (std::int64_t)res.bias;
+
+  const auto man_bits_delta = res.man_bits - man_bits;
+
+  // Normalize the exponent and mantissa if convertering from a subnormal
+  man_t curr_man = man;
+  if (is_subnormal()) {
+    const exp_t subn_adjustment = find_msb(man);
+    new_exp = new_exp - man_bits + subn_adjustment;
+    const man_t remainder = man % (1ULL << subn_adjustment);
+    curr_man = remainder << (man_bits - subn_adjustment);
+  }
 
   if (new_exp <=
       -static_cast<std::int64_t>(res.man_bits)) { // Exponent too small
     return res.construct_zero();
   }
 
-  const auto man_bits_delta = res.man_bits - man_bits;
-
   // Initial value for mantissa
-  man_t new_man =
-      (man_bits_delta > 0) ? (man << man_bits_delta) : (man >> -man_bits_delta);
+  man_t new_man = (man_bits_delta > 0) ? (curr_man << man_bits_delta)
+                                       : (curr_man >> -man_bits_delta);
 
   if (new_exp <=
       0) { // The number will be converted to a subnormal in the new format
@@ -106,8 +121,8 @@ APyFloat APyFloat::cast_to(std::uint8_t new_exp_bits, std::uint8_t new_man_bits,
         T,   // Sticky bits after guard
         B;   // Rounding bit to add to LSB
 
-    G = (man >> (std::abs(man_bits_delta) - 1)) & 1;
-    T = (man & ((1ULL << (std::abs(man_bits_delta - 1))) - 1)) != 0;
+    G = (curr_man >> (std::abs(man_bits_delta) - 1)) & 1;
+    T = (curr_man & ((1ULL << (std::abs(man_bits_delta - 1))) - 1)) != 0;
 
     switch (rounding_mode) {
     case RoundingMode::TO_POSITIVE:
@@ -432,33 +447,13 @@ bool APyFloat::operator==(const APyFloat &rhs) const {
     return false;
   }
 
-  if (is_inf() && rhs.is_inf()) {
-    return true;
-  }
+  // Cast operands to a larger format that can represent both numbers
+  const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
+  const auto max_man_bits = std::max(man_bits, rhs.man_bits);
+  const auto lhs_big = cast_to(max_exp_bits, max_man_bits);
+  const auto rhs_big = rhs.cast_to(max_exp_bits, max_man_bits);
 
-  if (is_zero() && rhs.is_zero()) {
-    return true;
-  }
-
-  // Operands are (sub)normals
-  std::int64_t ex = exp - bias - man_bits + 1 - is_normal();
-  std::int64_t ey = rhs.exp - rhs.bias - rhs.man_bits + 1 - rhs.is_normal();
-
-  man_t mx = (is_normal() << man_bits) | man;
-  man_t my = (rhs.is_normal() << rhs.man_bits) | rhs.man;
-
-  // Align mantissas
-  const auto man_bits_delta = man_bits - rhs.man_bits;
-
-  if (man_bits_delta < 0) {
-    mx <<= -man_bits_delta;
-    ex += man_bits_delta;
-  } else {
-    my <<= man_bits_delta;
-    ey -= man_bits_delta;
-  }
-
-  return (ex == ey) && (mx == my);
+  return (lhs_big.exp == rhs_big.exp) && (lhs_big.man == rhs_big.man);
 }
 
 bool APyFloat::operator!=(const APyFloat &rhs) const {
@@ -474,7 +469,7 @@ bool APyFloat::operator<=(const APyFloat &rhs) const {
 }
 
 bool APyFloat::operator<(const APyFloat &rhs) const {
-  if (is_nan() || rhs.is_nan() || (*this == rhs)) {
+  if (is_nan() || rhs.is_nan()) {
     return false;
   }
 
@@ -482,20 +477,22 @@ bool APyFloat::operator<(const APyFloat &rhs) const {
     return sign;
   }
 
-  bool ret;
-  if ((static_cast<std::int64_t>(exp) - bias) <
-      (static_cast<std::int64_t>(rhs.exp) - rhs.bias)) {
+  // Cast operands to a larger format that can represent both numbers
+  const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
+  const auto max_man_bits = std::max(man_bits, rhs.man_bits);
+  const auto lhs_big = cast_to(max_exp_bits, max_man_bits);
+  const auto rhs_big = rhs.cast_to(max_exp_bits, max_man_bits);
+
+  bool ret{};
+
+  if (lhs_big.exp < rhs_big.exp) {
     ret = true;
-  } else if ((exp - bias) > (rhs.exp - rhs.bias)) {
-    ret = false;
+  } else if (lhs_big.exp == rhs_big.exp) {
+    ret = lhs_big.man < rhs_big.man;
   } else {
-    const auto man_bits_diff = man_bits - rhs.man_bits;
-    if (man_bits_diff < 0) {
-      ret = (man << -man_bits_diff) < rhs.man;
-    } else {
-      ret = man < (rhs.man << man_bits_diff);
-    }
+    ret = false;
   }
+
   return ret ^ sign;
 }
 
