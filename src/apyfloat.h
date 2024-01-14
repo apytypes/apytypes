@@ -1,11 +1,11 @@
-#ifndef _APY_FLOAT_H
-#define _APY_FLOAT_H
+#ifndef _APYFLOAT_H
+#define _APYFLOAT_H
 
 #include <cstdint>
 #include <optional>
 #include <string>
 
-#include "apy_common.h"
+#include "apytypes_common.h"
 
 /*
  * Scalar floating-point type, vectorized version still needed.
@@ -156,4 +156,4 @@ private:
     inline man_t leading_one() const { return (1ULL << man_bits); }
 };
 
-#endif // _APY_FLOAT_H
+#endif // _APYFLOAT_H

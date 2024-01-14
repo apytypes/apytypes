@@ -8,7 +8,7 @@
 #ifndef _CXX_IEEE754_FIDDLE
 #define _CXX_IEEE754_FIDDLE
 
-#include "apy_util.h"
+#include "apytypes_util.h"
 #include <cstdint> // uint64_t
 #include <cstring> // std::memcpy
 #include <limits>  // std::numiric_limits

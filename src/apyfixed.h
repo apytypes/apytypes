@@ -2,12 +2,12 @@
  * Dynamic arbitrary precision fixed-point data type.
  */
 
-#ifndef _APY_FIXED_H
-#define _APY_FIXED_H
+#ifndef _APYFIXED_H
+#define _APYFIXED_H
 
 #include <pybind11/pybind11.h> // pybind11::object
 
-#include "apy_util.h"
+#include "apytypes_util.h"
 
 #include <cstddef>  // std::size_t
 #include <optional> // std::optional, std::nullopt
@@ -20,12 +20,12 @@
 
 class APyFixed {
 
-#ifdef _IS_APY_TYPES_UNIT_TEST
+#ifdef _IS_APYTYPES_UNIT_TEST
     // Unit tests have public access to underlying data fields
 public:
 #else
 private:
-#endif // #ifdef _IS_APY_TYPES_UNIT_TEST
+#endif // #ifdef _IS_APYTYPES_UNIT_TEST
 
     /*
      * APyFixed data fields
@@ -159,12 +159,12 @@ public:
      *                           Private helper methods                               *
      * ****************************************************************************** */
 
-#ifdef _IS_APY_TYPES_UNIT_TEST
+#ifdef _IS_APYTYPES_UNIT_TEST
     // Unit tests have public access to all member function
 public:
 #else
 private:
-#endif // #ifdef _IS_APY_TYPES_UNIT_TEST
+#endif // #ifdef _IS_APYTYPES_UNIT_TEST
 
     // Set member fields `bits` and `int_bits` from optional input arguments
     void _bits_set_from_optional(
@@ -236,4 +236,4 @@ static inline std::ostream& operator<<(std::ostream& os, const APyFixed& x)
     return os;
 }
 
-#endif // _APY_FIXED_H
+#endif // _APYFIXED_H

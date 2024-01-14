@@ -2,7 +2,7 @@
  * Arithmetic tests for the APyFixed data type.
  */
 
-#include "../apy_fixed.h"
+#include "../apyfixed.h"
 #include "catch.hpp"
 #include <iostream>
 

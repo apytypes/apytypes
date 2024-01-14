@@ -1,4 +1,4 @@
-#include "../apy_util.h"
+#include "../apytypes_util.h"
 #include "catch.hpp"
 
 #include <iomanip>

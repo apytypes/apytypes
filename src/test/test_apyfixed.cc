@@ -2,8 +2,8 @@
  * General tests for the APyFixed data type
  */
 
-#include "../apy_fixed.h"
-#include "../apy_util.h"
+#include "../apyfixed.h"
+#include "../apytypes_util.h"
 #include "catch.hpp"
 
 #include <cmath>

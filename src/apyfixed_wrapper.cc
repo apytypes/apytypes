@@ -1,5 +1,5 @@
-#include "apy_fixed.h"
-#include "apy_util.h"
+#include "apyfixed.h"
+#include "apytypes_util.h"
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>

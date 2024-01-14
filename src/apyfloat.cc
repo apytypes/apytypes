@@ -2,8 +2,8 @@
 #include <limits>
 #include <math.h>
 
-#include "apy_float.h"
-#include "apy_util.h"
+#include "apyfloat.h"
+#include "apytypes_util.h"
 
 #include "ieee754.h"
 
@@ -76,12 +76,12 @@ APyFloat::update_from_double(double value, std::optional<RoundingMode> rounding_
 {
 
     // Initialize an APyFloat from the double
-    APyFloat apy_double(
+    APyFloat apytypes_double(
         sign_of_double(value), exp_of_double(value), man_of_double(value), 11, 52
     );
 
     // Cast it to the correct format
-    *this = apy_double.cast_to(exp_bits, man_bits, bias, rounding_mode);
+    *this = apytypes_double.cast_to(exp_bits, man_bits, bias, rounding_mode);
 
     return *this;
 }
@@ -188,11 +188,11 @@ APyFloat APyFloat::cast_to(
 
 double APyFloat::to_double() const
 {
-    const auto apy_d = cast_to(11, 52);
+    const auto apytypes_d = cast_to(11, 52);
     double d {};
-    set_sign_of_double(d, apy_d.sign);
-    set_exp_of_double(d, apy_d.exp);
-    set_man_of_double(d, apy_d.man);
+    set_sign_of_double(d, apytypes_d.sign);
+    set_exp_of_double(d, apytypes_d.exp);
+    set_man_of_double(d, apytypes_d.man);
     return d;
 }
 

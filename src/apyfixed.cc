@@ -21,8 +21,8 @@ namespace py = pybind11;
 #include <string>     // std::string
 #include <vector>     // std::vector, std::swap
 
-#include "apy_fixed.h"
-#include "apy_util.h"
+#include "apyfixed.h"
+#include "apytypes_util.h"
 #include "ieee754.h"
 #include "python_util.h"
 

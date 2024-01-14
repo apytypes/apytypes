@@ -46,10 +46,10 @@ breathe_projects_source = {
     "APyTypes": (
         "../src/",
         [
-            "apy_common.cc",
-            "apy_fixed.cc",
-            "apy_float.cc",
-            "apy_float_contextwrapper.cc",
+            "apytypes_common.cc",
+            "apyfixed.cc",
+            "apyfloat.cc",
+            "apyfloat_contextwrapper.cc",
         ],
     )
 }

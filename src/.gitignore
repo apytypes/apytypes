@@ -1,7 +1,7 @@
 # Binary files
 *.o
-test/test_apy_fixed
-test/test_apy_util
+test/test_apyfixed
+test/test_apytypes_util
 
 # Valgrind (callgrind) profiling
 callgrind.out.*

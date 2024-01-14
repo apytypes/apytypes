@@ -1,7 +1,7 @@
-#ifndef _APY_FLOAT_CONTEXTMANAGER_H
-#define _APY_FLOAT_CONTEXTMANAGER_H
-#include "apy_common.h"
-#include "apy_float.h"
+#ifndef _APYFLOAT_CONTEXTMANAGER_H
+#define _APYFLOAT_CONTEXTMANAGER_H
+#include "apyfloat.h"
+#include "apytypes_common.h"
 
 class ContextManager {
 public:
@@ -37,4 +37,4 @@ private:
 
 // TODO: AccumulatorContext for matrix operations
 
-#endif // _APY_FLOAT_CONTEXTMANAGER_H
+#endif // _APYFLOAT_CONTEXTMANAGER_H

@@ -10,8 +10,8 @@
  * Author: Mikael Henriksson (2023)
  */
 
-#ifndef _APY_DYNAMIC_STACK_ALLOCATOR_H
-#define _APY_DYNAMIC_STACK_ALLOCATOR_H
+#ifndef _APYTYPES_DYNAMIC_STACK_ALLOCATOR_H
+#define _APYTYPES_DYNAMIC_STACK_ALLOCATOR_H
 
 #include <memory>
 #include <type_traits>
@@ -84,4 +84,4 @@ bool operator!=(const DynamicStackAllocator<T, _T_STACK_ELEMENT_SIZE>&, const Dy
     return false;
 }
 
-#endif // _APY_DYNAMIC_STACK_ALLOCATOR_H
+#endif // _APYTYPES_DYNAMIC_STACK_ALLOCATOR_H

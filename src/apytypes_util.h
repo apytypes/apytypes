@@ -2,8 +2,8 @@
  * Utility functions
  */
 
-#ifndef _APY_UTIL_H
-#define _APY_UTIL_H
+#ifndef _APYTYPES_UTIL_H
+#define _APYTYPES_UTIL_H
 
 #include <algorithm> // std::find
 #include <cstddef>   // std::size_t
@@ -566,4 +566,4 @@ static inline void limb_vector_lsl(std::vector<mp_limb_t>& vec, unsigned shift_a
     }
 }
 
-#endif // _APY_UTIL_H
+#endif // _APYTYPES_UTIL_H

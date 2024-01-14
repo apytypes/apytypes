@@ -1,5 +1,5 @@
-#ifndef _APY_COMMON_H
-#define _APY_COMMON_H
+#ifndef _APYTYPES_COMMON_H
+#define _APYTYPES_COMMON_H
 
 /*
     The selected rounding mode is shared for all arithmetic operations,
@@ -18,4 +18,4 @@ enum class RoundingMode {
 void set_rounding_mode(RoundingMode);
 RoundingMode get_rounding_mode();
 
-#endif // _APY_COMMON_H
+#endif // _APYTYPES_COMMON_H

@@ -6,35 +6,35 @@
 CC = g++
 PYTHON3_FLAGS = $(shell python3-config --includes)
 PYTHON3_LINK = $(shell python3-config --ldflags --embed)
-WARNING_FLAGS = -Wall -Wextra -Wpedantic -Wno-depricated -Weffc++
+WARNING_FLAGS = -Wall -Wextra -Wpedantic -Wno-deprecated -Weffc++
 CXXFLAGS = ${WARNING_FLAGS} ${PYTHON3_FLAGS} -std=c++17 -O2 -march=native -g
 
 .PHONY: test test_profile test_coverage clean clean_all
 
 TEST_SRC =				\
-	test/test_apy_fixed.cc		\
+	test/test_apyfixed.cc		\
 	test/test_arithmetic.cc		\
 	test/test_string.cc
 
-TEST_FLAGS=-D _IS_APY_TYPES_UNIT_TEST --coverage
+TEST_FLAGS=-D _IS_APYTYPES_UNIT_TEST --coverage
 
-test: test/test_apy_util test/test_apy_fixed
-	test/test_apy_util
-	test/test_apy_fixed
+test: test/test_apytypes_util test/test_apyfixed
+	test/test_apytypes_util
+	test/test_apyfixed
 
-test_profile: test/test_apy_util test/test_apy_fixed
-	valgrind --tool=callgrind test/test_apy_util
-	valgrind --tool=callgrind test/test_apy_fixed
+test_profile: test/test_apytypes_util test/test_apyfixed
+	valgrind --tool=callgrind test/test_apytypes_util
+	valgrind --tool=callgrind test/test_apyfixed
 
 test_coverage: test
 	lcov --directory test --capture --output-file coverage.info
 	genhtml --demangle-cpp -o coverage coverage.info
 
-test/test_apy_util: ieee754.h apy_util.h test/test_apy_util.cc test/catch.o
-	${CC} ${CXXFLAGS} ${TEST_FLAGS} test/test_apy_util.cc test/catch.o -o $@ -lgmp ${PYTHON3_LINK}
+test/test_apytypes_util: ieee754.h apytypes_util.h test/test_apytypes_util.cc test/catch.o
+	${CC} ${CXXFLAGS} ${TEST_FLAGS} test/test_apytypes_util.cc test/catch.o -o $@ -lgmp ${PYTHON3_LINK}
 
-test/test_apy_fixed: ieee754.h apy_util.h apy_fixed.h apy_fixed.cc ${TEST_SRC} test/catch.o
-	${CC} ${CXXFLAGS} ${TEST_FLAGS} apy_fixed.cc ${TEST_SRC} test/catch.o -o $@ -lgmp ${PYTHON3_LINK}
+test/test_apyfixed: ieee754.h apytypes_util.h apyfixed.h apyfixed.cc ${TEST_SRC} test/catch.o
+	${CC} ${CXXFLAGS} ${TEST_FLAGS} apyfixed.cc ${TEST_SRC} test/catch.o -o $@ -lgmp ${PYTHON3_LINK}
 
 test/catch.o: test/catch.cc test/catch.hpp
 	${CC} ${CXXFLAGS} -c test/catch.cc -o test/catch.o
@@ -49,8 +49,8 @@ clean:
 	@rm -rvf *.gcda
 	@rm -rvf *.gcno
 	@rm -rvf test/*.gcov
-	@rm -rvf test/test_apy_fixed
-	@rm -rvf test/test_apy_util
+	@rm -rvf test/test_apyfixed
+	@rm -rvf test/test_apytypes_util
 	@rm -rvf callgrind.out.*
 	@rm -rvf coverage/
 	@rm -rvf coverage.info
