@@ -60,4 +60,3 @@ clean:
 #
 clean_all: clean
 	@rm -rvf test/catch.o
-

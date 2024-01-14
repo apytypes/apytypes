@@ -4,14 +4,15 @@
 #include "apy_float.h"
 
 class ContextManager {
-    public:
+public:
     virtual void enter_context() = 0;
     virtual void exit_context() = 0;
 };
 
 /*
-    This allows the user to choose a rounding mode for all operations performed inside the runtime context.
-    The rounding mode will be changed back to whatever it was before when the context ends.
+    This allows the user to choose a rounding mode for all operations performed inside
+   the runtime context. The rounding mode will be changed back to whatever it was before
+   when the context ends.
 
 
     Python example using nested contexts:
@@ -25,12 +26,12 @@ class ContextManager {
     # Rounding mode now reverted back to what was used before
 */
 class RoundingContext : public ContextManager {
-    public:
-    RoundingContext(const RoundingMode &new_mode);
+public:
+    RoundingContext(const RoundingMode& new_mode);
     virtual void enter_context() override;
     virtual void exit_context() override;
 
-    private:
+private:
     RoundingMode new_mode, prev_mode;
 };
 
