@@ -156,7 +156,7 @@ TEST_CASE("APyFixed::repr()")
         auto str = "0.00028876404394395649433135986328125";
         REQUIRE(
             APyFixed(26, -9, str).repr()
-            == "APyFixed<26, -9>(0.00028876404394395649433135986328125)"
+            == "APyFixed(bit_pattern=9921857, bits=26, int_bits=-9)"
         );
     }
 }

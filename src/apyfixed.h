@@ -55,7 +55,7 @@ public:
     // Constructor: construct from a Python arbitrary long integer object and optionally
     // set bit specifiers
     explicit APyFixed(
-        pybind11::int_ obj,
+        pybind11::int_ python_long_int_bit_pattern,
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt
@@ -115,12 +115,11 @@ public:
     // Retrieve the number of elements in underlying limb data vector
     std::size_t vector_size() const noexcept { return _data.size(); }
 
-    // Perform two's complement overflowing. This method sign-extends any bits outside
-    // of the APyFixed range.
-    void twos_complement_overflow() noexcept;
-
     // Unary negation
     APyFixed operator-() const;
+
+    // Absolute value
+    APyFixed abs() const;
 
     // Test if fixed-point number is negative
     bool is_negative() const noexcept;
@@ -130,6 +129,9 @@ public:
 
     // Increment the LSB without making the fixed-point number wider. Returns carry out
     mp_limb_t increment_lsb() noexcept;
+
+    // Convert the underlying bit patter to decimal and return in a string
+    std::string bit_pattern_to_dec_string() const;
 
     // Python verbose string representation
     std::string repr() const;
@@ -167,7 +169,7 @@ private:
 #endif // #ifdef _IS_APYTYPES_UNIT_TEST
 
     // Set member fields `bits` and `int_bits` from optional input arguments
-    void _bits_set_from_optional(
+    void _set_bit_specifier_from_optional(
         std::optional<int> bits,
         std::optional<int> int_bits,
         std::optional<int> frac_bits
@@ -205,6 +207,10 @@ private:
     // extend the resulting limb vector to make place for an additional bit. Instead, it
     // relies on the user knowing that the number in the vector is now unsigned.
     std::vector<mp_limb_t> _unsigned_abs() const;
+
+    // Perform two's complement overflowing. This method sign-extends any bits outside
+    // of the APyFixed range.
+    void _twos_complement_overflow() noexcept;
 
     // Constructor: specify size and initialize underlying vector from start and end
     // iterators

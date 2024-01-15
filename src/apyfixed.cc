@@ -4,6 +4,7 @@
 
 // Python object access through Pybind
 #include <pybind11/pybind11.h>
+#include <sstream>
 namespace py = pybind11;
 
 // Python details
@@ -46,7 +47,7 @@ APyFixed::APyFixed(
 {
     if (bits.has_value() || int_bits.has_value() || frac_bits.has_value()) {
         // One or more bit-specifiers set, initialize from the specifier arguments
-        _bits_set_from_optional(bits, int_bits, frac_bits);
+        _set_bit_specifier_from_optional(bits, int_bits, frac_bits);
         _constructor_sanitize_bits();
         _data = std::vector<mp_limb_t>(bits_to_limbs(_bits), 0);
     } else {
@@ -62,7 +63,7 @@ APyFixed::APyFixed(
 
 // Constructor: construct from a Python arbitrary long integer object
 APyFixed::APyFixed(
-    py::int_ python_int,
+    py::int_ python_long_int_bit_pattern,
     std::optional<int> bits,
     std::optional<int> int_bits,
     std::optional<int> frac_bits
@@ -74,7 +75,7 @@ APyFixed::APyFixed(
      * any C++ unit tests, as it's difficuly to construct `py::int_` or `PyLongObject`
      * objects from C++.
      */
-    PyLongObject* py_long = (PyLongObject*)python_int.ptr();
+    PyLongObject* py_long = (PyLongObject*)python_long_int_bit_pattern.ptr();
     long py_long_digits = _PyLong_DigitCount(py_long);
     bool py_long_is_negative = _PyLong_IsNegative(py_long);
 
@@ -123,7 +124,7 @@ APyFixed::APyFixed(
     }
 
     // Perform two's complement overflowing
-    twos_complement_overflow();
+    _twos_complement_overflow();
 }
 
 /* ********************************************************************************** *
@@ -138,7 +139,7 @@ APyFixed::APyFixed(
     , _int_bits { 0 }
     , _data {}
 {
-    _bits_set_from_optional(bits, int_bits, frac_bits);
+    _set_bit_specifier_from_optional(bits, int_bits, frac_bits);
     _constructor_sanitize_bits();
     _data = std::vector<mp_limb_t>(bits_to_limbs(_bits), 0);
 }
@@ -198,7 +199,7 @@ APyFixed::APyFixed(int bits, int int_bits, _ITER begin, _ITER end)
     }
 
     // Two's-complements overflow bits outside of the range
-    twos_complement_overflow();
+    _twos_complement_overflow();
 }
 
 // Construction from std::vector<mp_limb_t>
@@ -386,8 +387,7 @@ bool APyFixed::operator>=(const APyFixed& rhs) const
 
 APyFixed APyFixed::operator-() const
 {
-    // Invert all bits of *this, possibly append sign to new limb, and increment
-    // lsb
+    // Invert all bits of *this, possibly append sign to new limb, and increment lsb
     APyFixed result(_bits + 1, _int_bits + 1);
     std::transform(_data.cbegin(), _data.cend(), result._data.begin(), std::bit_not {});
     if (result.vector_size() > vector_size()) {
@@ -398,11 +398,20 @@ APyFixed APyFixed::operator-() const
     return result;
 }
 
+APyFixed APyFixed::abs() const
+{
+    if (is_negative()) {
+        return -*this;
+    } else {
+        return *this;
+    }
+}
+
 /* ********************************************************************************** *
  * *                           Public member functions                              * *
  * ********************************************************************************** */
 
-void APyFixed::twos_complement_overflow() noexcept
+void APyFixed::_twos_complement_overflow() noexcept
 {
     unsigned bits_last_word = _bits & (_LIMB_SIZE_BITS - 1);
     if (bits_last_word) {
@@ -441,7 +450,7 @@ void APyFixed::from_vector(const std::vector<mp_limb_t>& new_vector)
         throw std::domain_error("Vector size miss-match");
     }
     _data = std::vector<mp_limb_t>(new_vector.begin(), new_vector.end());
-    twos_complement_overflow();
+    _twos_complement_overflow();
 }
 
 std::string APyFixed::to_string_dec() const
@@ -581,7 +590,7 @@ void APyFixed::from_string_dec(const std::string& str)
     }
 
     // Two's complement overflow and we're done
-    twos_complement_overflow();
+    _twos_complement_overflow();
 }
 
 void APyFixed::from_string_hex(const std::string& str)
@@ -645,7 +654,7 @@ void APyFixed::from_double(double value)
         if (sign_of_double(value)) {
             _data = _non_extending_negate();
         }
-        twos_complement_overflow();
+        _twos_complement_overflow();
     } else {
         throw NotImplementedException(
             "Not implemented: APyFixed::from_double() for 32-bit systems"
@@ -719,15 +728,28 @@ void APyFixed::from_apyfixed(const APyFixed& other)
         );
     }
 
-    twos_complement_overflow();
+    _twos_complement_overflow();
+}
+
+std::string APyFixed::bit_pattern_to_dec_string() const
+{
+    std::stringstream ss {};
+    std::vector<mp_limb_t> v = double_dabble(_data);
+    ss << std::hex;
+    for (auto limb_it = v.crbegin(); limb_it != v.crend(); ++limb_it) {
+        ss << *limb_it;
+    }
+    return ss.str();
 }
 
 std::string APyFixed::repr() const
 {
-    return std::string(
-        "APyFixed<" + std::to_string(_bits) + ", " + std::to_string(_int_bits) + ">("
-        + to_string() + ")"
-    );
+    std::stringstream ss {};
+    ss << "APyFixed(";
+    ss << "bit_pattern=" << bit_pattern_to_dec_string() << ", ";
+    ss << "bits=" << bits() << ", ";
+    ss << "int_bits=" << int_bits() << ")";
+    return ss.str();
 }
 
 /* ********************************************************************************** *
@@ -735,20 +757,20 @@ std::string APyFixed::repr() const
  * ********************************************************************************** */
 
 // Sanitize the _bits and _int_bits parameters
-void APyFixed::_bits_set_from_optional(
+void APyFixed::_set_bit_specifier_from_optional(
     std::optional<int> bits, std::optional<int> int_bits, std::optional<int> frac_bits
 )
 {
     int num_bit_spec = bits.has_value() + int_bits.has_value() + frac_bits.has_value();
     if (num_bit_spec != 2) {
         throw std::domain_error(
-            "APyInt needs exactly two of three bit specifiers (bits, int_bits, "
+            "APyInt needs exactly zero or two of three bit specifiers (bits, int_bits, "
             "frac_bits) specified"
         );
     }
 
-    // Set the internal `_bits` and `_int_bits` fields from two out of the three
-    // bit specifier fields
+    // Set the internal `_bits` and `_int_bits` fields from two out of the three bit
+    // specifier fields
     if (bits.has_value()) {
         if (int_bits.has_value()) {
             _bits = *bits;

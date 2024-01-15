@@ -42,18 +42,18 @@ static inline unsigned int count_trailing_bits(std::uint64_t val)
 static inline std::vector<mp_limb_t> to_limb_vec(std::vector<uint64_t> vec)
 {
     static_assert(
-        sizeof(mp_limb_t) == 4    // 32-bit target architecture
-        || sizeof(mp_limb_t) == 8 // 64-bit target architecture
+        _LIMB_SIZE_BITS == 32    // 32-bit target architecture
+        || _LIMB_SIZE_BITS == 64 // 64-bit target architecture
     );
 
-    if (sizeof(mp_limb_t) == 4) {
+    if constexpr (_LIMB_SIZE_BITS == 32) {
         std::vector<mp_limb_t> result(2 * vec.size(), 0);
         for (std::size_t i = 0; i < vec.size(); i++) {
             result[2 * i] = mp_limb_t(vec[i] & 0xFFFFFFFF);
             result[2 * i + 1] = mp_limb_t(vec[i] >> 32);
         }
         return result;
-    } else { // sizeof(mp_limb_t) == 8
+    } else { // _LIMB_SIZE_BITS == 64
         return std::vector<mp_limb_t>(vec.begin(), vec.end());
     }
 }
