@@ -80,13 +80,13 @@ TEST_CASE("APyFixed::from_string_dec()")
     auto TEST_VALID_STRINGS = [](const std::vector<std::string>& string_vec) {
         for (auto str : string_vec) {
             APyFixed fixed(64, 0);
-            fixed.from_string_dec(str);
+            fixed.set_from_string_dec(str);
         }
     };
     auto TEST_INVALID_STRING = [](const std::vector<std::string>& string_vec) {
         for (auto str : string_vec) {
             APyFixed fixed(64, 0);
-            REQUIRE_THROWS_AS(fixed.from_string_dec(str), std::domain_error);
+            REQUIRE_THROWS_AS(fixed.set_from_string_dec(str), std::domain_error);
         }
     };
 

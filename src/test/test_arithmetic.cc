@@ -44,10 +44,10 @@ TEST_CASE("General binary arithmetic tests")
 
     { /* Test #3 */
         APyFixed op_a(100, 40);
-        op_a.from_string("306538369.1376953125");
+        op_a.set_from_string("306538369.1376953125");
 
         APyFixed op_b(140, 10);
-        op_b.from_string(
+        op_b.set_from_string(
             "68.5000000000000005176294573636282259077034950678353197872638702392578125"
         );
 

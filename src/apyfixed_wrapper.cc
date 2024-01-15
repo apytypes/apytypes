@@ -67,9 +67,12 @@ void bind_fixed(py::module& m)
         .def("bits", &APyFixed::bits)
         .def("frac_bits", &APyFixed::frac_bits)
         .def(
-            "from_string", &APyFixed::from_string, py::arg("str"), py::arg("base") = 10
+            "set_from_string",
+            &APyFixed::set_from_string,
+            py::arg("str"),
+            py::arg("base") = 10
         )
-        .def("from_float", &APyFixed::from_double)
+        .def("set_from_float", &APyFixed::set_from_double)
         .def("increment_lsb", &APyFixed::increment_lsb)
         .def("int_bits", &APyFixed::int_bits)
         .def("is_negative", &APyFixed::is_negative)
@@ -94,6 +97,12 @@ void bind_fixed(py::module& m)
         /*
          * Static methods
          */
-        //.def_static("float_float", &APyFixed::from_double)
-        ;
+        .def_static(
+            "from_float",
+            &APyFixed::from_double,
+            py::arg("value"),
+            py::arg("bits") = std::nullopt,
+            py::arg("int_bits") = std::nullopt,
+            py::arg("frac_bits") = std::nullopt
+        );
 }

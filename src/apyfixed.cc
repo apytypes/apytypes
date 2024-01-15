@@ -58,7 +58,7 @@ APyFixed::APyFixed(
     }
 
     // Copy the limb data from `other`
-    from_apyfixed(other);
+    set_from_apyfixed(other);
 }
 
 // Constructor: construct from a Python arbitrary long integer object
@@ -157,7 +157,7 @@ APyFixed::APyFixed(int bits, int int_bits)
 APyFixed::APyFixed(double value, int bits, int int_bits)
     : APyFixed(bits, int_bits)
 {
-    from_double(value);
+    set_from_double(value);
 }
 
 // Constructor: specify size and initialize from string
@@ -166,13 +166,13 @@ APyFixed::APyFixed(int bits, int int_bits, const char* str, int base)
 {
     switch (base) {
     case 8:
-        from_string_oct(str);
+        set_from_string_oct(str);
         break;
     case 10:
-        from_string_dec(str);
+        set_from_string_dec(str);
         break;
     case 16:
-        from_string_hex(str);
+        set_from_string_hex(str);
         break;
     default:
         throw std::domain_error("Unsupported numeric base. Valid bases are: 8, 10, 16");
@@ -513,7 +513,7 @@ std::string APyFixed::to_string(int base) const
     }
 }
 
-void APyFixed::from_string_dec(const std::string& str)
+void APyFixed::set_from_string_dec(const std::string& str)
 {
     // Trim the string from leading and trailing whitespace
     std::string str_trimmed = string_trim_whitespace(str);
@@ -593,29 +593,29 @@ void APyFixed::from_string_dec(const std::string& str)
     _twos_complement_overflow();
 }
 
-void APyFixed::from_string_hex(const std::string& str)
+void APyFixed::set_from_string_hex(const std::string& str)
 {
     (void)str;
     throw NotImplementedException();
 }
 
-void APyFixed::from_string_oct(const std::string& str)
+void APyFixed::set_from_string_oct(const std::string& str)
 {
     (void)str;
     throw NotImplementedException("Not implemented: APyFixed::from_string_oct()");
 }
 
-void APyFixed::from_string(const std::string& str, int base)
+void APyFixed::set_from_string(const std::string& str, int base)
 {
     switch (base) {
     case 8:
-        from_string_oct(str);
+        set_from_string_oct(str);
         break;
     case 10:
-        from_string_dec(str);
+        set_from_string_dec(str);
         break;
     case 16:
-        from_string_hex(str);
+        set_from_string_hex(str);
         break;
     default:
         throw NotImplementedException();
@@ -623,7 +623,19 @@ void APyFixed::from_string(const std::string& str, int base)
     }
 }
 
-void APyFixed::from_double(double value)
+APyFixed APyFixed::from_double(
+    double value,
+    std::optional<int> bits,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits
+)
+{
+    APyFixed result(0, bits, int_bits, frac_bits);
+    result.set_from_double(value);
+    return result;
+}
+
+void APyFixed::set_from_double(double value)
 {
     if constexpr (_LIMB_SIZE_BITS == 64) {
         mp_limb_signed_t exp = exp_of_double(value);
@@ -657,7 +669,7 @@ void APyFixed::from_double(double value)
         _twos_complement_overflow();
     } else {
         throw NotImplementedException(
-            "Not implemented: APyFixed::from_double() for 32-bit systems"
+            "Not implemented: APyFixed::set_from_double() for 32-bit systems"
         );
     }
 }
@@ -702,7 +714,7 @@ double APyFixed::to_double() const
     }
 }
 
-void APyFixed::from_apyfixed(const APyFixed& other)
+void APyFixed::set_from_apyfixed(const APyFixed& other)
 {
     // Copy data from `other` limb vector shift binary point into position
     std::vector<mp_limb_t> other_data_copy { other._data };

@@ -150,12 +150,19 @@ public:
      *                          Conversion from other types                           *
      * ****************************************************************************** */
 
-    void from_double(double value);
-    void from_apyfixed(const APyFixed& fixed);
-    void from_string(const std::string& str, int base = 10);
-    void from_string_hex(const std::string& str);
-    void from_string_oct(const std::string& str);
-    void from_string_dec(const std::string& str);
+    void set_from_double(double value);
+    void set_from_apyfixed(const APyFixed& fixed);
+    void set_from_string(const std::string& str, int base = 10);
+    void set_from_string_hex(const std::string& str);
+    void set_from_string_oct(const std::string& str);
+    void set_from_string_dec(const std::string& str);
+
+    static APyFixed from_double(
+        double value,
+        std::optional<int> bits = std::nullopt,
+        std::optional<int> int_bits = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt
+    );
 
     /* ****************************************************************************** *
      *                           Private helper methods                               *
