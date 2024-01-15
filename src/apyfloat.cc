@@ -489,9 +489,54 @@ APyFloat APyFloat::pow(const APyFloat& x, const APyFloat& y)
 
 APyFloat APyFloat::pown(const APyFloat& x, int n)
 {
-    throw NotImplementedException(
-        "APyFloat: Power to an integer has not yet been implemented."
-    );
+    // Handling of special cases based on the 754-2019 standard
+    if (x.is_nan()) {
+        return x;
+    }
+
+    if (n == 0) {
+        return APyFloat(0, x.bias, 0, x.exp_bits, x.man_bits, x.bias); // Return '1'
+    }
+
+    bool new_sign = ((n % 2) == 0) ? false : x.sign;
+
+    if (x.is_zero()) {
+        if (n < 0) {
+            return x.construct_inf(new_sign);
+        } else {
+            return x.construct_zero(new_sign);
+        }
+    }
+
+    if (x.is_inf()) {
+        new_sign = x.is_sign_neg() ? new_sign : false;
+
+        if (n > 0) {
+            return x.construct_inf(new_sign);
+        } else {
+            return x.construct_zero(new_sign);
+        }
+    }
+
+    const exp_t max_exp_bits = x.exp_bits + (count_trailing_bits(n) + 1);
+    const exp_t extended_bias = (1 << (max_exp_bits - 1)) - 1;
+
+    std::int64_t new_exp
+        = (static_cast<std::int64_t>(x.exp) - x.bias) * n + extended_bias;
+    std::uint64_t new_man = std::pow(x.leading_bit() | x.man, n);
+
+    // Perform rounding
+    const man_t trailing_bits = count_trailing_bits(new_man);
+
+    // If a leading one was added, mask it away
+    if (x.is_normal()) {
+        new_man &= (1ULL << trailing_bits) - 1;
+    }
+
+    return APyFloat(
+               new_sign, new_exp, new_man, max_exp_bits, trailing_bits, extended_bias
+    )
+        .cast_to(x.exp_bits, x.man_bits, x.bias);
 }
 
 /* ******************************************************************************

@@ -343,3 +343,75 @@ def test_mul_overflow():
 def test_mul_underflow():
     """Test that a multiplication can underflow to zero."""
     assert (APyFloat(0, 1, 1, 5, 2) * APyFloat(0, 1, 3, 5, 3)).is_zero()
+
+
+# Power
+@pytest.mark.float_pow
+def test_power():
+    """Test that a multiplication can underflow to zero."""
+    assert APyFloat.from_float(4.5, 8, 10) ** 2 == APyFloat.from_float(4.5**2, 8, 10)
+    assert APyFloat.from_float(-4.5, 8, 10) ** 3 == APyFloat.from_float(
+        (-4.5) ** 3, 8, 10
+    )
+    assert APyFloat.from_float(-8.125, 8, 10) ** 4 == APyFloat.from_float(
+        (-8.125) ** 4, 8, 10
+    )
+
+
+@pytest.mark.float_pow
+def test_power_overflow():
+    """Test that the power function can overflow to infinity."""
+    assert (APyFloat(0, 0b11110, 1, 5, 2) ** 2).to_float() == float("inf")
+    assert (APyFloat(1, 0b11110, 1, 5, 2) ** 3).to_float() == float("-inf")
+
+
+@pytest.mark.float_pow
+def test_power_underflow():
+    """Test that the power function can underflow to zero."""
+    assert (APyFloat(0, 1, 1, 5, 2) ** 3).to_float() == 0
+
+
+@pytest.mark.float_pow
+@pytest.mark.parametrize(
+    "x,n,test_exp",
+    [
+        # 1 if x is not a signaling NaN
+        ("'inf'", "0", 1.0),
+        ("'-inf'", "0", 1.0),
+        ("0.0", "0", 1.0),
+        ("-0.0", "0", 1.0),
+        ("'nan'", "0", float("nan")),
+        # pown (+-0, n) is +-inf for odd n < 0
+        ("0.0", "-1", float("inf")),
+        ("-0.0", "-3", float("-inf")),
+        # pown (+-0, n) is +inf for even n < 0
+        ("0.0", "-2", float("inf")),
+        ("-0.0", "-4", float("inf")),
+        # pown (+-0, n) is +0 for even n > 0
+        ("0.0", "2", 0.0),
+        ("-0.0", "4", 0.0),
+        # pown (+-0, n) is +-0 for odd n > 0
+        ("0.0", "3", 0.0),
+        ("-0.0", "1", -0.0),
+        # pown (+inf, n) is +inf for n > 0
+        ("'inf'", "3", float("inf")),
+        # pown (-inf, n) is -inf for odd n > 0
+        ("'-inf'", "3", float("-inf")),
+        # pown (-inf, n) is +inf for even n > 0
+        ("'-inf'", "2", float("inf")),
+        # pown (+inf, n) is +0 for n < 0
+        ("'inf'", "-2", 0.0),
+        # pown (-inf, n) is -0 for odd n < 0
+        ("'-inf'", "-3", -0.0),
+        # pown (-inf, n) is +0 for even n < 0
+        ("'-inf'", "-4", 0.0),
+    ],
+)
+def test_power_special_cases(x, n, test_exp):
+    """Test that a multiplication can underflow to zero."""
+    if str(test_exp) == "nan":
+        assert eval(f"(APyFloat.from_float(float({x}), 9, 7)**{n}).is_nan()")
+    else:
+        assert (
+            eval(f"(APyFloat.from_float(float({x}), 9, 7)**{n}).to_float()") == test_exp
+        )

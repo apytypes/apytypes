@@ -34,6 +34,7 @@ markers = [
     "float_add : custom marker for grouping tests for floating-point addition",
     "float_sub : custom marker for grouping tests for floating-point subtraction",
     "float_mul : custom marker for grouping tests for floating-point multiplication",
+    "float_pow : custom marker for grouping tests for floating-point power function",
     "float_comp : custom marker for grouping tests for floating-point comparisons",
     "float_special : custom marker for grouping tests for floating-point special values"
     ]

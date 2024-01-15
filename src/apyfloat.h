@@ -154,6 +154,10 @@ private:
     inline exp_t ieee_bias() const { return (1ULL << (exp_bits - 1)) - 1; }
     inline man_t man_mask() const { return ((1ULL << man_bits) - 1); }
     inline man_t leading_one() const { return (1ULL << man_bits); }
+    inline man_t leading_bit() const
+    {
+        return (static_cast<man_t>(is_normal()) << man_bits);
+    }
 };
 
 #endif // _APYFLOAT_H
