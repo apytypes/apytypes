@@ -15,13 +15,13 @@
 // GMP should be included after all other includes
 #include <gmp.h>
 
-/*
+/*!
  * Sizes of GMP limbs (underlying words)
  */
 static constexpr std::size_t _LIMB_SIZE_BYTES = sizeof(mp_limb_t);
 static constexpr std::size_t _LIMB_SIZE_BITS = 8 * _LIMB_SIZE_BYTES;
 
-/*
+/*!
  * Count the number of trailing bits after the most significant `1`.
  */
 static inline unsigned int count_trailing_bits(std::uint64_t val)
@@ -33,7 +33,7 @@ static inline unsigned int count_trailing_bits(std::uint64_t val)
     return i;
 }
 
-/*
+/*!
  * As the underlying GMP integer vector data type `mp_limb_t` can be either
  * 32-bit or 64-bit, depending on the target architecture, we here define a
  * unified way to go from a vector of `uint64_t` to a vector of `mp_limb_t`,
@@ -58,14 +58,14 @@ static inline std::vector<mp_limb_t> to_limb_vec(std::vector<uint64_t> vec)
     }
 }
 
-// Not implemented exception
+//! Not implemented exception
 class NotImplementedException : public std::logic_error {
 public:
     NotImplementedException(std::optional<std::string> msg = std::nullopt)
         : std::logic_error(msg.value_or("Not implemeted yet")) {};
 };
 
-// Quickly evaluate how many limbs are requiered to to store an n-bit word
+//! Quickly evaluate how many limbs are requiered to to store an n-bit word
 static inline std::size_t bits_to_limbs(std::size_t bits)
 {
     if (bits % _LIMB_SIZE_BITS == 0) {
@@ -75,7 +75,7 @@ static inline std::size_t bits_to_limbs(std::size_t bits)
     }
 }
 
-// Count the number of significant limbs in limb vector
+//! Count the number of significant limbs in limb vector
 static inline std::size_t significant_limbs(const std::vector<mp_limb_t>& vector)
 {
     auto is_non_zero = [](auto n) { return n != 0; };
@@ -83,8 +83,8 @@ static inline std::size_t significant_limbs(const std::vector<mp_limb_t>& vector
     return std::distance(vector.begin(), back_non_zero_it.base());
 }
 
-// Quickly perform `1 + ceil(log2(x))` for unsigned integer (`mp_limb_t`) `x` if
-// `x` is non-zero and return the value. If `x` is zero, return zero.
+//! Quickly perform `1 + ceil(log2(x))` for unsigned integer (`mp_limb_t`) `x` if
+//! `x` is non-zero and return the value. If `x` is zero, return zero.
 static inline std::size_t bit_width(mp_limb_t x)
 {
     // Optimized on x86-64 using single `bsr` instruction since GCC-13.1
@@ -108,7 +108,7 @@ static inline std::size_t limb_vector_leading_zeros(const std::vector<mp_limb_t>
     }
 }
 
-// Quickly count the number of nibbles in an unsigned `mp_limb_t`
+//! Quickly count the number of nibbles in an unsigned `mp_limb_t`
 static inline std::size_t nibble_width(mp_limb_t x)
 {
     std::size_t bits = bit_width(x);
@@ -119,10 +119,10 @@ static inline std::size_t nibble_width(mp_limb_t x)
     }
 }
 
-// Convert a positive arbitrary size integer array (`std::vector<mp_limb_t>`) to
-// a nibble list. The nibble list contains least significant nibble first.
-// Argument `len` indicates the intended bcd length of the output. When set, no
-// more than `result.rend() - len` zeros will be removed.
+//! Convert a positive arbitrary size integer array (`std::vector<mp_limb_t>`) to
+//! a nibble list. The nibble list contains least significant nibble first.
+//! Argument `len` indicates the intended bcd length of the output. When set, no
+//! more than `result.rend() - len` zeros will be removed.
 static inline std::vector<uint8_t>
 to_nibble_list(const std::vector<mp_limb_t>& data_array, std::size_t len = 0)
 {
@@ -144,9 +144,9 @@ to_nibble_list(const std::vector<mp_limb_t>& data_array, std::size_t len = 0)
     return result.size() > 0 ? result : std::vector<uint8_t> { 0 };
 }
 
-// Convert a nibble list into a positive integer array
-// (`std::vector<mp_limb_t>`). The nibble list is assumed to have least
-// significant nibble first.
+//! Convert a nibble list into a positive integer array
+//! (`std::vector<mp_limb_t>`). The nibble list is assumed to have least
+//! significant nibble first.
 static inline std::vector<mp_limb_t>
 from_nibble_list(const std::vector<uint8_t>& nibble_list)
 {
@@ -173,9 +173,9 @@ from_nibble_list(const std::vector<uint8_t>& nibble_list)
     return result;
 }
 
-// Shift a nibble list left by one stage. Modifies the content of input
-// `nibble_list` Assumes that the `back()` element of the input `nibble_list` is
-// the most significant nibble.
+//! Shift a nibble list left by one stage. Modifies the content of input
+//! `nibble_list` Assumes that the `back()` element of the input `nibble_list` is
+//! the most significant nibble.
 static inline bool nibble_list_shift_left_once(std::vector<uint8_t>& nibble_list)
 {
     if (nibble_list.size() == 0) {
@@ -191,9 +191,9 @@ static inline bool nibble_list_shift_left_once(std::vector<uint8_t>& nibble_list
     return output_bit;
 }
 
-// Shift a nibble list right by one stage. Modifies the content of input
-// `nibble_list`. Assumes that the `back()` element of the input `nibble_list`
-// is the least significant nibble.
+//! Shift a nibble list right by one stage. Modifies the content of input
+//! `nibble_list`. Assumes that the `back()` element of the input `nibble_list`
+//! is the least significant nibble.
 static inline bool nibble_list_shift_right_once(std::vector<uint8_t>& nibble_list)
 {
     if (nibble_list.size() == 0) {
@@ -209,18 +209,18 @@ static inline bool nibble_list_shift_right_once(std::vector<uint8_t>& nibble_lis
     return output_bit;
 }
 
-// Double-Dabble helper class with proporate methods for performing the
-// double-dabble and reverse double-dable algorithm.
+//! Double-Dabble helper class with proporate methods for performing the
+//! double-dabble and reverse double-dable algorithm.
 struct DoubleDabbleList {
 
-    // Mask with a bit in every possition where a nibble starts
+    //! Mask with a bit in every possition where a nibble starts
     static constexpr mp_limb_t _NIBBLE_MASK = _LIMB_SIZE_BITS == 64
         ? 0x1111111111111111 // 64-bit architecture
         : 0x11111111;        // 32-bit architecture
 
     std::vector<mp_limb_t> data { 0 };
 
-    // Do one iteration of double (double-dabble)
+    //! Do one iteration of double (double-dabble)
     void do_double(mp_limb_t new_bit)
     {
         // Perform a single bit left shift (double)
@@ -232,7 +232,7 @@ struct DoubleDabbleList {
         }
     }
 
-    // Do one iteration of dabble (double-dabble)
+    //! Do one iteration of dabble (double-dabble)
     void do_dabble()
     {
         for (auto& l : data) {
@@ -243,13 +243,13 @@ struct DoubleDabbleList {
         }
     }
 
-    // Do one iteration of reverse double (reverse double-dabble)
+    //! Do one iteration of reverse double (reverse double-dabble)
     void do_reverse_double(mp_limb_t& limb_out)
     {
         limb_out |= mpn_rshift(&data[0], &data[0], data.size(), 1);
     }
 
-    // Do one iteration of reverse dabble (reverse double-dabble)
+    //! Do one iteration of reverse dabble (reverse double-dabble)
     void do_reverse_dabble()
     {
         for (auto& l : data) {
@@ -260,7 +260,7 @@ struct DoubleDabbleList {
     }
 };
 
-// Double-dabble algorithm for binary->BCD conversion
+//! Double-dabble algorithm for binary->BCD conversion
 static inline std::vector<mp_limb_t> double_dabble(std::vector<mp_limb_t> nibble_data)
 {
     if (!nibble_data.size()) {
@@ -295,7 +295,7 @@ static inline std::vector<mp_limb_t> double_dabble(std::vector<mp_limb_t> nibble
     return bcd_list.data;
 }
 
-// Reverse double-dabble algorithm for BCD->binary conversion
+//! Reverse double-dabble algorithm for BCD->binary conversion
 static inline std::vector<mp_limb_t>
 reverse_double_dabble(const std::vector<uint8_t>& bcd_list)
 {
@@ -337,7 +337,7 @@ reverse_double_dabble(const std::vector<uint8_t>& bcd_list)
     return nibble_data.size() ? nibble_data : std::vector<mp_limb_t> { 0 };
 }
 
-// Divide the number in a BCD limb vector by two.
+//! Divide the number in a BCD limb vector by two.
 static inline void bcd_limb_vec_div2(std::vector<mp_limb_t>& bcd_list)
 {
     if (bcd_list.size() == 0) {
@@ -357,7 +357,7 @@ static inline void bcd_limb_vec_div2(std::vector<mp_limb_t>& bcd_list)
     }
 }
 
-// Multiply the number in a BCD limb vector by two.
+//! Multiply the number in a BCD limb vector by two.
 static inline void bcd_limb_vec_mul2(std::vector<mp_limb_t>& bcd_list)
 {
     if (bcd_list.size() == 0) {
@@ -378,8 +378,8 @@ static inline void bcd_limb_vec_mul2(std::vector<mp_limb_t>& bcd_list)
     }
 }
 
-// Multiply BCD vector (`std::vector<uint8_t>`) by two. The first element
-// (`front()`) in the vector is considered LSB.
+//! Multiply BCD vector (`std::vector<uint8_t>`) by two. The first element
+//! (`front()`) in the vector is considered LSB.
 static inline void bcd_mul2(std::vector<uint8_t>& bcd_list)
 {
     if (bcd_list.size() == 0) {
@@ -402,27 +402,27 @@ static inline void bcd_mul2(std::vector<uint8_t>& bcd_list)
     }
 }
 
-// Trim a string from leading whitespace
+//! Trim a string from leading whitespace
 static inline std::string string_trim_leading_whitespace(const std::string& str)
 {
     static const auto regex = std::regex("^\\s+");
     return std::regex_replace(str, regex, "");
 }
 
-// Trim a string from trailing whitespace
+//! Trim a string from trailing whitespace
 static inline std::string string_trim_trailing_whitespace(const std::string& str)
 {
     static const auto regex = std::regex("\\s+$");
     return std::regex_replace(str, regex, "");
 }
 
-// Trim a string from leading and trailing whitespace
+//! Trim a string from leading and trailing whitespace
 static inline std::string string_trim_whitespace(const std::string& str)
 {
     return string_trim_leading_whitespace(string_trim_trailing_whitespace(str));
 }
 
-// Test if a string is a valid numeric decimal string
+//! Test if a string is a valid numeric decimal string
 static inline bool is_valid_decimal_numeric_string(const std::string& str)
 {
     // Test with validity regex
@@ -431,10 +431,10 @@ static inline bool is_valid_decimal_numeric_string(const std::string& str)
     return std::regex_match(str, regex);
 }
 
-// Trim a string from unnecessary leading and trailing zeros, that don't affect
-// numeric value of the string. This function also attaches a zero to the string
-// if it starts with a decimal dot, and it removes the decimal dot if no digit
-// after it affects it's value (e.g., 0.00 == 0).
+//! Trim a string from unnecessary leading and trailing zeros, that don't affect
+//! numeric value of the string. This function also attaches a zero to the string
+//! if it starts with a decimal dot, and it removes the decimal dot if no digit
+//! after it affects it's value (e.g., 0.00 == 0).
 static inline std::string string_trim_zeros(const std::string& str)
 {
     std::string result = str;
@@ -464,7 +464,7 @@ static inline std::string string_trim_zeros(const std::string& str)
     return result.size() ? result : "0";
 }
 
-// Perform arithmetic right shift on a limb vector. Accelerated using GMP.
+//! Perform arithmetic right shift on a limb vector. Accelerated using GMP.
 static inline void limb_vector_asr(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
 {
     if (!vec.size() || !shift_amnt) {
@@ -502,7 +502,7 @@ static inline void limb_vector_asr(std::vector<mp_limb_t>& vec, unsigned shift_a
     }
 }
 
-// Perform logical right shift on a limb vector. Accelerated using GMP.
+//! Perform logical right shift on a limb vector. Accelerated using GMP.
 static inline void limb_vector_lsr(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
 {
     if (!vec.size() || !shift_amnt) {
@@ -534,7 +534,7 @@ static inline void limb_vector_lsr(std::vector<mp_limb_t>& vec, unsigned shift_a
     }
 }
 
-// Perform logical left shift on a limb vector. Accelerated using GMP.
+//! Perform logical left shift on a limb vector. Accelerated using GMP.
 static inline void limb_vector_lsl(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
 {
     if (!vec.size() || !shift_amnt) {

@@ -13,12 +13,12 @@
 #include <cstring> // std::memcpy
 #include <limits>  // std::numiric_limits
 
-// Test target machine native endianness in pure C++. Optimized away to single `true` or
-// `false`, depending on endianness, on all tested machines using most C++17 compatible
-// compilers (godbolt.org):
-// * All GCC version supporting C++17
-// * All Clang version supporting C++17
-// * All versions of MSVC available at compiler explorer...
+//! Test target machine native endianness in pure C++. Optimized away to single `true`
+//! or `false`, depending on endianness, on all tested machines using most C++17
+//! compatible compilers (godbolt.org):
+//! * All GCC version supporting C++17
+//! * All Clang version supporting C++17
+//! * All versions of MSVC available at compiler explorer...
 static inline bool _MACHINE_IS_NATIVE_LITTLE_ENDIAN()
 {
     uint32_t deadbeef = 0xDEADBEEF;
@@ -57,8 +57,8 @@ static inline bool sign_of_double(double d)
     }
 }
 
-// Returns the *biased* exponent of a `double` in a `int64_t`.
-// Return value range: [0, 2048)
+//! Returns the *biased* exponent of a `double` in a `int64_t`.
+//! Return value range: [0, 2048)
 static inline int64_t exp_of_double(double d)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
@@ -69,8 +69,8 @@ static inline int64_t exp_of_double(double d)
     }
 }
 
-// Returns significand/mantissa of a `double` (without the hidden one) in a `uint64_t`.
-// Range of returned value: [0, 4503599627370496)
+//! Returns significand/mantissa of a `double` (without the hidden one) in a `uint64_t`.
+//! Range of returned value: [0, 4503599627370496)
 static inline uint64_t man_of_double(double d)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
@@ -81,7 +81,7 @@ static inline uint64_t man_of_double(double d)
     }
 }
 
-// [Un]set the sign of a `double` type from a `bool`
+//! [Un]set the sign of a `double` type from a `bool`
 static inline void set_sign_of_double(double& d, bool sign)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
@@ -94,8 +94,8 @@ static inline void set_sign_of_double(double& d, bool sign)
     type_pun_uint64_t_to_double(d, double_pun);
 }
 
-// Set the exponent part of a `double` from `int64_t`.
-// Domain of argument `int64_t`: [0, 2048)
+//! Set the exponent part of a `double` from `int64_t`.
+//! Domain of argument `int64_t`: [0, 2048)
 static inline void set_exp_of_double(double& d, int64_t exp)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
@@ -108,8 +108,8 @@ static inline void set_exp_of_double(double& d, int64_t exp)
     type_pun_uint64_t_to_double(d, double_pun);
 }
 
-// Set the mantissa poart of a `double` from `uint64_t`.
-// Domain of argument `uint64_t`: [0, 4503599627370496)
+//! Set the mantissa poart of a `double` from `uint64_t`.
+//! Domain of argument `uint64_t`: [0, 4503599627370496)
 static inline void set_man_of_double(double& d, uint64_t man)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);

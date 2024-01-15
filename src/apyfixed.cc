@@ -34,7 +34,7 @@ namespace py = pybind11;
  * *                            Python constructors                                 * *
  * ********************************************************************************** */
 
-// Constructor: specify size and initialize from another APyFixed number
+//! Constructor: specify size and initialize from another APyFixed number
 APyFixed::APyFixed(
     const APyFixed& other,
     std::optional<int> bits,
@@ -61,7 +61,7 @@ APyFixed::APyFixed(
     set_from_apyfixed(other);
 }
 
-// Constructor: construct from a Python arbitrary long integer object
+//! Constructor: construct from a Python arbitrary long integer object
 APyFixed::APyFixed(
     py::int_ python_long_int_bit_pattern,
     std::optional<int> bits,
@@ -131,7 +131,7 @@ APyFixed::APyFixed(
  * *                       More C++ accessible constructors                         * *
  * ********************************************************************************** */
 
-// Constructor: specify only size and zero data on construction
+//! Constructor: specify only size and zero data on construction
 APyFixed::APyFixed(
     std::optional<int> bits, std::optional<int> int_bits, std::optional<int> frac_bits
 )
@@ -144,7 +144,7 @@ APyFixed::APyFixed(
     _data = std::vector<mp_limb_t>(bits_to_limbs(_bits), 0);
 }
 
-// Constructor: specify only size and zero data on construction
+//! Constructor: specify only size and zero data on construction
 APyFixed::APyFixed(int bits, int int_bits)
     : _bits { bits }
     , _int_bits { int_bits }
@@ -153,14 +153,14 @@ APyFixed::APyFixed(int bits, int int_bits)
     _constructor_sanitize_bits();
 }
 
-// Constructor: specify size and initialize from a `double`
+//! Constructor: specify size and initialize from a `double`
 APyFixed::APyFixed(double value, int bits, int int_bits)
     : APyFixed(bits, int_bits)
 {
     set_from_double(value);
 }
 
-// Constructor: specify size and initialize from string
+//! Constructor: specify size and initialize from string
 APyFixed::APyFixed(int bits, int int_bits, const char* str, int base)
     : APyFixed(bits, int_bits)
 {
@@ -179,7 +179,7 @@ APyFixed::APyFixed(int bits, int int_bits, const char* str, int base)
     }
 }
 
-// Underlying vector iterator-based constructor
+//! Underlying vector iterator-based constructor
 template <typename _ITER>
 APyFixed::APyFixed(int bits, int int_bits, _ITER begin, _ITER end)
     : _bits { bits }
@@ -202,13 +202,13 @@ APyFixed::APyFixed(int bits, int int_bits, _ITER begin, _ITER end)
     _twos_complement_overflow();
 }
 
-// Construction from std::vector<mp_limb_t>
+//! Construction from std::vector<mp_limb_t>
 APyFixed::APyFixed(int bits, int int_bits, const std::vector<mp_limb_t>& vec)
     : APyFixed(bits, int_bits, vec.begin(), vec.end())
 {
 }
 
-// Construction from std::vector<mp_limb_signed_t>
+//! Construction from std::vector<mp_limb_signed_t>
 APyFixed::APyFixed(int bits, int int_bits, const std::vector<mp_limb_signed_t>& vec)
     : APyFixed(bits, int_bits, vec.begin(), vec.end())
 {
