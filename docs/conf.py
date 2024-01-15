@@ -53,3 +53,7 @@ breathe_projects_source = {
         ],
     )
 }
+
+breathe_projects = {
+    "APyTypes": "xml/"
+}
