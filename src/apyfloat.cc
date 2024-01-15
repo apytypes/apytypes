@@ -348,14 +348,24 @@ APyFloat APyFloat::operator+(APyFloat y) const
         ++new_exp;
         highR &= (1ULL << (res.man_bits + 4)) - 1;
         return APyFloat(
-                   res.sign, new_exp, highR, res.exp_bits, (res.man_bits + 4), res.bias
+                   res.sign,
+                   new_exp,
+                   highR,
+                   res.exp_bits + 1,
+                   (res.man_bits + 4),
+                   res.bias
         )
             .cast_to(res.exp_bits, res.man_bits, res.bias);
 
     } else if (highR & (1ULL << (res.man_bits + 3))) { // No carry
         highR &= (1ULL << (res.man_bits + 3)) - 1;
         return APyFloat(
-                   res.sign, new_exp, highR, res.exp_bits, (res.man_bits + 3), res.bias
+                   res.sign,
+                   new_exp,
+                   highR,
+                   res.exp_bits + 1,
+                   (res.man_bits + 3),
+                   res.bias
         )
             .cast_to(res.exp_bits, res.man_bits, res.bias);
     }
@@ -426,7 +436,9 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     man_t highR = mx * my;
     highR <<= man_bits_delta;
 
-    std::int64_t new_exp = (exp - bias) + (y.exp - y.bias) + res.bias;
+    // An intermediate, larger, format is used to handle under/overflow
+    const exp_t extended_bias = (res.ieee_bias() << 1) | 1;
+    std::int64_t new_exp = (exp - bias) + (y.exp - y.bias) + extended_bias;
 
     // Perform rounding
 
@@ -437,15 +449,20 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
                    res.sign,
                    new_exp,
                    highR,
-                   res.exp_bits,
+                   res.exp_bits + 1,
                    (2 * res.man_bits + 1),
-                   res.bias
+                   extended_bias
         )
             .cast_to(res.exp_bits, res.man_bits, res.bias);
     } else {
         highR &= (1ULL << (2 * res.man_bits)) - 1;
         return APyFloat(
-                   res.sign, new_exp, highR, res.exp_bits, (2 * res.man_bits), res.bias
+                   res.sign,
+                   new_exp,
+                   highR,
+                   res.exp_bits + 1,
+                   (2 * res.man_bits),
+                   extended_bias
         )
             .cast_to(res.exp_bits, res.man_bits, res.bias);
     }

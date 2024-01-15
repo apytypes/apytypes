@@ -234,6 +234,13 @@ def test_add_representable(exp, man, sign, lhs, rhs):
     assert res.get_man_bits() == max(int(man[0]), int(man[1]))
 
 
+@pytest.mark.float_add
+def test_add_overflow():
+    """Test that an addition can overflow."""
+    assert (APyFloat(0, 0b11110, 3, 5, 2) + APyFloat(0, 0b11110, 3, 5, 2)).is_inf()
+    assert (APyFloat(1, 0b11110, 3, 5, 2) + APyFloat(1, 0b11110, 3, 5, 2)).is_inf()
+
+
 # Subtraction
 # Because subtraction is implemented as 'a+(-b)', the tests for addition will also cover subtraction,
 # but we still do some tests using the subtraction operator to make sure it's not broken.
@@ -301,6 +308,12 @@ def test_sub_zero(lhs, rhs):
     assert res.get_man_bits() == 12
 
 
+@pytest.mark.float_sub
+def test_sub_overflow():
+    """Test that a subtraction can overflow."""
+    assert (APyFloat(1, 0b11110, 1, 5, 2) - APyFloat(0, 0b11110, 3, 5, 3)).is_inf()
+
+
 # Multiplication
 @pytest.mark.float_mul
 @pytest.mark.parametrize("exp", list(perm(["5", "6", "7", "8"], 2)))
@@ -318,3 +331,15 @@ def test_mul_mixed(exp, man, sign, lhs, rhs):
     res = eval(expr)
     assert res.get_exp_bits() == max(int(exp[0]), int(exp[1]))
     assert res.get_man_bits() == max(int(man[0]), int(man[1]))
+
+
+@pytest.mark.float_mul
+def test_mul_overflow():
+    """Test that a multiplication can overflow to infinity."""
+    assert (APyFloat(0, 0b11110, 1, 5, 2) * APyFloat(0, 0b11110, 3, 5, 3)).is_inf()
+
+
+@pytest.mark.float_mul
+def test_mul_underflow():
+    """Test that a multiplication can underflow to zero."""
+    assert (APyFloat(0, 1, 1, 5, 2) * APyFloat(0, 1, 3, 5, 3)).is_zero()
