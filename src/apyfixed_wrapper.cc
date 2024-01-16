@@ -1,4 +1,5 @@
 #include "apyfixed.h"
+#include "apytypes_common.h"
 #include "apytypes_util.h"
 
 #include <pybind11/operators.h>
@@ -77,6 +78,15 @@ void bind_fixed(py::module& m)
         .def("int_bits", &APyFixed::int_bits)
         .def("is_negative", &APyFixed::is_negative)
         .def("is_zero", &APyFixed::is_zero)
+        .def(
+            "resize",
+            &APyFixed::resize,
+            py::arg("bits") = std::nullopt,
+            py::arg("int_bits") = std::nullopt,
+            py::arg("rounding_mode") = APyFixedRoundingMode::TRN,
+            py::arg("overflow_mode") = APyFixedOverflowMode::OVERFLOW,
+            py::arg("frac_bits") = std::nullopt
+        )
         .def("to_string", &APyFixed::to_string, py::arg("base") = 10)
         .def("to_string_dec", &APyFixed::to_string_dec)
         .def("to_string_hex", &APyFixed::to_string_hex)
@@ -101,6 +111,16 @@ void bind_fixed(py::module& m)
             "from_float",
             &APyFixed::from_double,
             py::arg("value"),
+            py::arg("bits") = std::nullopt,
+            py::arg("int_bits") = std::nullopt,
+            py::arg("frac_bits") = std::nullopt
+        )
+
+        .def_static(
+            "from_string",
+            &APyFixed::from_string,
+            py::arg("string_value"),
+            py::arg("base") = 10,
             py::arg("bits") = std::nullopt,
             py::arg("int_bits") = std::nullopt,
             py::arg("frac_bits") = std::nullopt

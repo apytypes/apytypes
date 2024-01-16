@@ -372,3 +372,21 @@ TEST_CASE("Comparison operators")
     REQUIRE(APyFixed(-1.0, 256, 128) > APyFixed(-3.0, 256, 128));
     REQUIRE(APyFixed(-1.0, 256, 128) >= APyFixed(-3.0, 256, 128));
 }
+
+TEST_CASE("APyFixed::resize()")
+{
+    { /* Rounding mode: TRN (truncate) and RND (round: ties towrads plus infinity)*/
+        using Mode = APyFixedRoundingMode;
+        REQUIRE(APyFixed(0.75, 3, 1).resize(2, 1, Mode::TRN).to_double() == 0.5);
+        REQUIRE(APyFixed(0.75, 3, 1).resize(2, 1, Mode::RND).to_double() == -1.0);
+        REQUIRE(APyFixed(0.75, 4, 1).resize(3, 1, Mode::TRN).to_double() == 0.75);
+        REQUIRE(APyFixed(0.75, 4, 1).resize(3, 1, Mode::RND).to_double() == 0.75);
+        REQUIRE(APyFixed(0.875, 4, 1).resize(3, 1, Mode::TRN).to_double() == 0.75);
+        REQUIRE(APyFixed(0.875, 4, 1).resize(3, 1, Mode::RND).to_double() == -1.0);
+    }
+
+    { /* Extending number of integer bits must limb sign-extend*/
+        using Mode = APyFixedRoundingMode;
+        REQUIRE(APyFixed(-1.0, 3, 1).resize(1234, 1, Mode::TRN).to_double() == -1.0);
+    }
+}

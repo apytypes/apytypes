@@ -7,6 +7,7 @@
 
 #include <pybind11/pybind11.h> // pybind11::object
 
+#include "apytypes_common.h"
 #include "apytypes_util.h"
 
 #include <cstddef>  // std::size_t
@@ -33,9 +34,10 @@ private:
     int _bits;
     int _int_bits;
     std::vector<mp_limb_t> _data;
-    // mp_limb_t is the underlying data type used for arithmetic in APyFixed
-    // (from the GMP library). It is either a 32-bit or a 64-bit unsigned int,
-    // depending on the target architecture.
+    // `mp_limb_t` is the underlying data type used for arithmetic in APyFixed (from the
+    // GMP library). It is either a 32-bit or a 64-bit unsigned int, depending on the
+    // target architecture.
+
 public:
     // No default constructed APyFixed types
     APyFixed() = delete;
@@ -136,6 +138,16 @@ public:
     // Python verbose string representation
     std::string repr() const;
 
+    // Create a new, resized version of this fixed-point number. Main method for
+    // handling overflow and quantization
+    APyFixed resize(
+        std::optional<int> bits = std::nullopt,
+        std::optional<int> int_bits = std::nullopt,
+        APyFixedRoundingMode rounding_mode = APyFixedRoundingMode::TRN,
+        APyFixedOverflowMode overflow_mode = APyFixedOverflowMode::OVERFLOW,
+        std::optional<int> frac_bits = std::nullopt
+    ) const;
+
     /* ****************************************************************************** *
      *                           Conversion to other types                            *
      * ****************************************************************************** */
@@ -147,7 +159,7 @@ public:
     std::string to_string_dec() const;
 
     /* ****************************************************************************** *
-     *                          Conversion from other types                           *
+     *                          Setters from other types                              *
      * ****************************************************************************** */
 
     void set_from_double(double value);
@@ -157,8 +169,20 @@ public:
     void set_from_string_oct(const std::string& str);
     void set_from_string_dec(const std::string& str);
 
+    /* ****************************************************************************** *
+     *                       Static conversion from other types                       *
+     * ****************************************************************************** */
+
     static APyFixed from_double(
         double value,
+        std::optional<int> bits = std::nullopt,
+        std::optional<int> int_bits = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt
+    );
+
+    static APyFixed from_string(
+        std::string string_value,
+        int base = 10,
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt
@@ -183,7 +207,7 @@ private:
     );
 
     // Sanitize the _bits and _int_bits parameters
-    void _constructor_sanitize_bits() const;
+    void _bit_specifier_sanitize_bits() const;
 
     // Sign preserving automatic size extending arithmetic left shift
     std::vector<mp_limb_t> _data_asl(unsigned shift_val) const;
@@ -214,6 +238,18 @@ private:
     // extend the resulting limb vector to make place for an additional bit. Instead, it
     // relies on the user knowing that the number in the vector is now unsigned.
     std::vector<mp_limb_t> _unsigned_abs() const;
+
+    // Handle rounding of fixed-point numbers
+    void _round(APyFixedRoundingMode rounding_mode, int old_bits, int old_int_bits);
+
+    // Truncation rounding
+    void _round_trn(int old_bits, int old_int_bits);
+
+    // Round towards plus infinity
+    void _round_rnd(int old_bits, int old_int_bits);
+
+    // Handle overflowing of fixed-point numbers
+    void _overflow(APyFixedOverflowMode overflow_mode);
 
     // Perform two's complement overflowing. This method sign-extends any bits outside
     // of the APyFixed range.

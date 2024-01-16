@@ -26,6 +26,18 @@ void bind_common(py::module& m)
         .value("TIES_TO_AWAY", RoundingMode::TIES_TO_AWAY)
         .value("JAMMING", RoundingMode::JAMMING);
 
+    py::enum_<APyFixedRoundingMode>(m, "APyFixedRoundingMode")
+        .value("TRN", APyFixedRoundingMode::TRN)
+        .value("RND", APyFixedRoundingMode::RND)
+        .value("RND_TO_ZERO", APyFixedRoundingMode::RND_TO_ZERO)
+        .value("RND_AWAY_ZERO", APyFixedRoundingMode::RND_AWAY_ZERO)
+        .value("RND_CONV", APyFixedRoundingMode::RND_CONV)
+        .value("RND_CONV_ODD", APyFixedRoundingMode::RND_CONV_ODD);
+
+    py::enum_<APyFixedOverflowMode>(m, "APyFixedOverflowMode")
+        .value("OVERFLOW", APyFixedOverflowMode::OVERFLOW)
+        .value("SATURATE", APyFixedOverflowMode::SATURATE);
+
     m.def("set_rounding_mode", &set_rounding_mode);
     m.def("get_rounding_mode", &get_rounding_mode);
 

@@ -34,12 +34,12 @@ static inline unsigned int count_trailing_bits(std::uint64_t val)
 }
 
 /*!
- * As the underlying GMP integer vector data type `mp_limb_t` can be either
- * 32-bit or 64-bit, depending on the target architecture, we here define a
- * unified way to go from a vector of `uint64_t` to a vector of `mp_limb_t`,
- * irrespective of the `mp_limb_t` size.
+ * As the underlying GMP integer vector data type `mp_limb_t` can be either 32-bit or
+ * 64-bit, depending on the target architecture, we here define a unified way to go from
+ * a vector of `std::uint64_t` to a vector of `mp_limb_t`, irrespective of the
+ * `mp_limb_t` size.
  */
-static inline std::vector<mp_limb_t> to_limb_vec(std::vector<uint64_t> vec)
+static inline std::vector<mp_limb_t> to_limb_vec(std::vector<std::uint64_t> vec)
 {
     static_assert(
         _LIMB_SIZE_BITS == 32    // 32-bit target architecture
@@ -119,19 +119,19 @@ static inline std::size_t nibble_width(mp_limb_t x)
     }
 }
 
-//! Convert a positive arbitrary size integer array (`std::vector<mp_limb_t>`) to
-//! a nibble list. The nibble list contains least significant nibble first.
-//! Argument `len` indicates the intended bcd length of the output. When set, no
-//! more than `result.rend() - len` zeros will be removed.
-static inline std::vector<uint8_t>
+//! Convert a positive arbitrary size integer array (`std::vector<mp_limb_t>`) to a
+//! nibble list. The nibble list contains least significant nibble first. Argument `len`
+//! indicates the intended bcd length of the output. When set, no more than
+//! `result.rend() - len` zeros will be removed.
+static inline std::vector<std::uint8_t>
 to_nibble_list(const std::vector<mp_limb_t>& data_array, std::size_t len = 0)
 {
     constexpr std::size_t NIBBLES_PER_LIMB = 2 * _LIMB_SIZE_BYTES;
     constexpr std::size_t BITS_PER_NIBBLE = 4;
-    std::vector<uint8_t> result {};
+    std::vector<std::uint8_t> result {};
     for (mp_limb_t data : data_array) {
         for (unsigned i = 0; i < NIBBLES_PER_LIMB; i++) {
-            result.push_back(uint8_t((data >> (BITS_PER_NIBBLE * i)) & 0x0F));
+            result.push_back(std::uint8_t((data >> (BITS_PER_NIBBLE * i)) & 0x0F));
         }
     }
 
@@ -141,14 +141,14 @@ to_nibble_list(const std::vector<mp_limb_t>& data_array, std::size_t len = 0)
     result.erase(non_zero_it.base(), result.end());
 
     // Return result
-    return result.size() > 0 ? result : std::vector<uint8_t> { 0 };
+    return result.size() > 0 ? result : std::vector<std::uint8_t> { 0 };
 }
 
 //! Convert a nibble list into a positive integer array
 //! (`std::vector<mp_limb_t>`). The nibble list is assumed to have least
 //! significant nibble first.
 static inline std::vector<mp_limb_t>
-from_nibble_list(const std::vector<uint8_t>& nibble_list)
+from_nibble_list(const std::vector<std::uint8_t>& nibble_list)
 {
     constexpr std::size_t NIBBLES_PER_LIMB = 2 * _LIMB_SIZE_BYTES;
     constexpr std::size_t BITS_PER_NIBBLE = 4;
@@ -173,10 +173,10 @@ from_nibble_list(const std::vector<uint8_t>& nibble_list)
     return result;
 }
 
-//! Shift a nibble list left by one stage. Modifies the content of input
-//! `nibble_list` Assumes that the `back()` element of the input `nibble_list` is
-//! the most significant nibble.
-static inline bool nibble_list_shift_left_once(std::vector<uint8_t>& nibble_list)
+//! Shift a nibble list left by one stage. Modifies the content of input `nibble_list`
+//! Assumes that the `back()` element of the input `nibble_list` is the most significant
+//! nibble.
+static inline bool nibble_list_shift_left_once(std::vector<std::uint8_t>& nibble_list)
 {
     if (nibble_list.size() == 0) {
         return false;
@@ -191,10 +191,10 @@ static inline bool nibble_list_shift_left_once(std::vector<uint8_t>& nibble_list
     return output_bit;
 }
 
-//! Shift a nibble list right by one stage. Modifies the content of input
-//! `nibble_list`. Assumes that the `back()` element of the input `nibble_list`
-//! is the least significant nibble.
-static inline bool nibble_list_shift_right_once(std::vector<uint8_t>& nibble_list)
+//! Shift a nibble list right by one stage. Modifies the content of input `nibble_list`.
+//! Assumes that the `back()` element of the input `nibble_list` is the least
+//! significant nibble.
+static inline bool nibble_list_shift_right_once(std::vector<std::uint8_t>& nibble_list)
 {
     if (nibble_list.size() == 0) {
         return false;
@@ -297,7 +297,7 @@ static inline std::vector<mp_limb_t> double_dabble(std::vector<mp_limb_t> nibble
 
 //! Reverse double-dabble algorithm for BCD->binary conversion
 static inline std::vector<mp_limb_t>
-reverse_double_dabble(const std::vector<uint8_t>& bcd_list)
+reverse_double_dabble(const std::vector<std::uint8_t>& bcd_list)
 {
     if (bcd_list.size() == 0) {
         return {};
@@ -378,9 +378,9 @@ static inline void bcd_limb_vec_mul2(std::vector<mp_limb_t>& bcd_list)
     }
 }
 
-//! Multiply BCD vector (`std::vector<uint8_t>`) by two. The first element
+//! Multiply BCD vector (`std::vector<std::uint8_t>`) by two. The first element
 //! (`front()`) in the vector is considered LSB.
-static inline void bcd_mul2(std::vector<uint8_t>& bcd_list)
+static inline void bcd_mul2(std::vector<std::uint8_t>& bcd_list)
 {
     if (bcd_list.size() == 0) {
         return;
@@ -393,7 +393,7 @@ static inline void bcd_mul2(std::vector<uint8_t>& bcd_list)
             bcd += 3;
         }
         bcd <<= 1;
-        bcd += static_cast<uint8_t>(carry_bit);
+        bcd += static_cast<std::uint8_t>(carry_bit);
         carry_bit = bcd >= 16;
         bcd &= 0xF;
     }
@@ -564,6 +564,21 @@ static inline void limb_vector_lsl(std::vector<mp_limb_t>& vec, unsigned shift_a
             limb_shift  // shift amount
         );
     }
+}
+
+// Add a power-of-two (2 ^ `n`) onto a limb vector. Returns carry out
+static inline mp_limb_t limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
+{
+    unsigned bit_idx = n % _LIMB_SIZE_BITS;
+    unsigned limb_idx = n / _LIMB_SIZE_BITS;
+    std::vector<mp_limb_t> term(vec.size(), 0);
+    term[limb_idx] = mp_limb_t(1) << bit_idx;
+    return mpn_add_n(
+        &vec[0],   // dst
+        &vec[0],   // src1
+        &term[0],  // src2
+        vec.size() // limb vector length
+    );
 }
 
 #endif // _APYTYPES_UTIL_H

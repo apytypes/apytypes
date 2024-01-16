@@ -48,7 +48,7 @@ APyFixed::APyFixed(
     if (bits.has_value() || int_bits.has_value() || frac_bits.has_value()) {
         // One or more bit-specifiers set, initialize from the specifier arguments
         _set_bit_specifier_from_optional(bits, int_bits, frac_bits);
-        _constructor_sanitize_bits();
+        _bit_specifier_sanitize_bits();
         _data = std::vector<mp_limb_t>(bits_to_limbs(_bits), 0);
     } else {
         // No bit-specifiers set, use bit-specifiers from `other`
@@ -140,7 +140,7 @@ APyFixed::APyFixed(
     , _data {}
 {
     _set_bit_specifier_from_optional(bits, int_bits, frac_bits);
-    _constructor_sanitize_bits();
+    _bit_specifier_sanitize_bits();
     _data = std::vector<mp_limb_t>(bits_to_limbs(_bits), 0);
 }
 
@@ -150,7 +150,7 @@ APyFixed::APyFixed(int bits, int int_bits)
     , _int_bits { int_bits }
     , _data(bits_to_limbs(bits))
 {
-    _constructor_sanitize_bits();
+    _bit_specifier_sanitize_bits();
 }
 
 //! Constructor: specify size and initialize from a `double`
@@ -186,7 +186,7 @@ APyFixed::APyFixed(int bits, int int_bits, _ITER begin, _ITER end)
     , _int_bits { int_bits }
     , _data(begin, end)
 {
-    _constructor_sanitize_bits();
+    _bit_specifier_sanitize_bits();
 
     if (std::distance(begin, end) <= 0) {
         throw std::domain_error(
@@ -411,17 +411,6 @@ APyFixed APyFixed::abs() const
  * *                           Public member functions                              * *
  * ********************************************************************************** */
 
-void APyFixed::_twos_complement_overflow() noexcept
-{
-    unsigned bits_last_word = _bits & (_LIMB_SIZE_BITS - 1);
-    if (bits_last_word) {
-        // Exploit signed arithmetic right-shift to perform two's complement
-        // overflow
-        unsigned shft_amnt = _LIMB_SIZE_BITS - bits_last_word;
-        _data.back() = mp_limb_signed_t(_data.back() << (shft_amnt)) >> (shft_amnt);
-    }
-}
-
 bool APyFixed::is_negative() const noexcept
 {
     return mp_limb_signed_t(_data.back()) < 0;
@@ -623,18 +612,6 @@ void APyFixed::set_from_string(const std::string& str, int base)
     }
 }
 
-APyFixed APyFixed::from_double(
-    double value,
-    std::optional<int> bits,
-    std::optional<int> int_bits,
-    std::optional<int> frac_bits
-)
-{
-    APyFixed result(0, bits, int_bits, frac_bits);
-    result.set_from_double(value);
-    return result;
-}
-
 void APyFixed::set_from_double(double value)
 {
     if constexpr (_LIMB_SIZE_BITS == 64) {
@@ -764,9 +741,141 @@ std::string APyFixed::repr() const
     return ss.str();
 }
 
+APyFixed APyFixed::resize(
+    std::optional<int> bits,
+    std::optional<int> int_bits,
+    APyFixedRoundingMode rounding_mode,
+    APyFixedOverflowMode overflow_mode,
+    std::optional<int> frac_bits
+) const
+{
+    APyFixed result { *this };
+    int old_bits = result._bits;
+    int old_int_bits = result._int_bits;
+    result._set_bit_specifier_from_optional(bits, int_bits, frac_bits);
+    result._bit_specifier_sanitize_bits();
+    if (bits_to_limbs(result._bits) > vector_size()) {
+        std::fill_n( // Vector sign-extend the result limb vector
+            std::back_inserter(result._data),
+            bits_to_limbs(result._bits) - vector_size(),
+            is_negative() ? mp_limb_t(-1) : 0
+        );
+    }
+
+    // First perform the rounding
+    result._round(rounding_mode, old_bits, old_int_bits);
+
+    // And than handle possible overflowing
+    result._overflow(overflow_mode);
+
+    return result;
+}
+
+/* ********************************************************************************** *
+ * *                           Static member functions                              * *
+ * ********************************************************************************** */
+
+APyFixed APyFixed::from_double(
+    double value,
+    std::optional<int> bits,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits
+)
+{
+    APyFixed result(0, bits, int_bits, frac_bits);
+    result.set_from_double(value);
+    return result;
+}
+
+APyFixed APyFixed::from_string(
+    std::string string_value,
+    int base,
+    std::optional<int> bits,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits
+)
+{
+    APyFixed result(0, bits, int_bits, frac_bits);
+    result.set_from_string(string_value, base);
+    return result;
+}
+
 /* ********************************************************************************** *
  * *                          Private member functions                              * *
  * ********************************************************************************** */
+
+// Perform rounding of fixed-point numbers
+void APyFixed::_round(
+    APyFixedRoundingMode rounding_mode, int old_bits, int old_int_bits
+)
+{
+    switch (rounding_mode) {
+    case APyFixedRoundingMode::TRN:
+        _round_trn(old_bits, old_int_bits); // Truncation
+        break;
+    case APyFixedRoundingMode::RND:
+        _round_rnd(old_bits, old_int_bits); // Rounding, ties to plus infinity
+        break;
+    case APyFixedRoundingMode::RND_TO_ZERO:
+        throw NotImplementedException("Rounding: RND_TO_ZERO not implemented yet");
+    case APyFixedRoundingMode::RND_AWAY_ZERO:
+        throw NotImplementedException("Rounding: RND_AWAY_ZERO not implemented yet");
+    case APyFixedRoundingMode::RND_CONV:
+        throw NotImplementedException("Rounding: RND_CONV not implemented yet");
+    case APyFixedRoundingMode::RND_CONV_ODD:
+        throw NotImplementedException("Rounding: RND_CONV_ODD not implemented yet");
+    default:
+        throw std::domain_error("APyFixed::_round(): unregistered rounding mode");
+    }
+}
+
+// Perform overflowing of fixed-point numbers
+void APyFixed::_overflow(APyFixedOverflowMode overflow_mode)
+{
+    switch (overflow_mode) {
+    case APyFixedOverflowMode::OVERFLOW:
+        _twos_complement_overflow();
+        break;
+    case APyFixedOverflowMode::SATURATE:
+        throw NotImplementedException("Overflow: SATURATE not implemented yet");
+    default:
+        throw std::domain_error("APyFixed::_overflow(): unregistered rounding mode");
+    }
+}
+
+// Truncation rounding
+void APyFixed::_round_trn(int old_bits, int old_int_bits)
+{
+    int old_frac_bits = old_bits - old_int_bits;
+    if (old_frac_bits <= frac_bits()) {
+        limb_vector_lsl(_data, frac_bits() - old_frac_bits);
+    } else { // frac_bits() < old_frac_bits
+        limb_vector_asr(_data, old_frac_bits - frac_bits());
+    }
+}
+
+// Round towards plus infinity
+void APyFixed::_round_rnd(int old_bits, int old_int_bits)
+{
+    int old_frac_bits = old_bits - old_int_bits;
+    if (old_frac_bits <= frac_bits()) {
+        limb_vector_lsl(_data, frac_bits() - old_frac_bits);
+    } else { // frac_bits() < old_frac_bits
+        limb_vector_add_pow2(_data, old_frac_bits - frac_bits() - 1);
+        limb_vector_asr(_data, old_frac_bits - frac_bits());
+    }
+}
+
+// Perform two's complement overflowing
+void APyFixed::_twos_complement_overflow() noexcept
+{
+    unsigned bits_last_word = _bits & (_LIMB_SIZE_BITS - 1);
+    if (bits_last_word) {
+        // Exploit signed arithmetic right-shift to perform two's complement overflow
+        unsigned shft_amnt = _LIMB_SIZE_BITS - bits_last_word;
+        _data.back() = mp_limb_signed_t(_data.back() << (shft_amnt)) >> (shft_amnt);
+    }
+}
 
 // Sanitize the _bits and _int_bits parameters
 void APyFixed::_set_bit_specifier_from_optional(
@@ -776,8 +885,8 @@ void APyFixed::_set_bit_specifier_from_optional(
     int num_bit_spec = bits.has_value() + int_bits.has_value() + frac_bits.has_value();
     if (num_bit_spec != 2) {
         throw std::domain_error(
-            "APyInt needs exactly zero or two of three bit specifiers (bits, int_bits, "
-            "frac_bits) specified"
+            "APyInt needs exactly two of three bit specifiers (bits, int_bits, "
+            "frac_bits) set when specifying bits."
         );
     }
 
@@ -801,7 +910,7 @@ void APyFixed::_set_bit_specifier_from_optional(
 }
 
 // Sanitize the _bits and _int_bits parameters
-void APyFixed::_constructor_sanitize_bits() const
+void APyFixed::_bit_specifier_sanitize_bits() const
 {
     if (_bits <= 0) {
         throw std::domain_error(
