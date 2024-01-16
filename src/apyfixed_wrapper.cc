@@ -65,8 +65,20 @@ void bind_fixed(py::module& m)
          * Methods
          */
         .def("bit_pattern_to_dec_string", &APyFixed::bit_pattern_to_dec_string)
-        .def("bits", &APyFixed::bits)
-        .def("frac_bits", &APyFixed::frac_bits)
+        .def("bits", &APyFixed::bits, R"pbdoc(
+            Retrieve the total number of bits in this :class:`APyFixed` object
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc")
+        .def("frac_bits", &APyFixed::frac_bits, R"pbdoc(
+            Retrieve the number of fractional bits in this :class:`APyFixed` object
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc")
         .def(
             "set_from_string",
             &APyFixed::set_from_string,
@@ -75,7 +87,13 @@ void bind_fixed(py::module& m)
         )
         .def("set_from_float", &APyFixed::set_from_double)
         .def("increment_lsb", &APyFixed::increment_lsb)
-        .def("int_bits", &APyFixed::int_bits)
+        .def("int_bits", &APyFixed::int_bits, R"pbdoc(
+            Retrieve the number of integer bits in this :class:`APyFixed` object
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc")
         .def("is_negative", &APyFixed::is_negative)
         .def("is_zero", &APyFixed::is_zero)
         .def(
@@ -113,7 +131,34 @@ void bind_fixed(py::module& m)
             py::arg("value"),
             py::arg("bits") = std::nullopt,
             py::arg("int_bits") = std::nullopt,
-            py::arg("frac_bits") = std::nullopt
+            py::arg("frac_bits") = std::nullopt,
+            R"pbdoc(
+            Create an :class:`APyFixed` object and initialize its value from a Python
+            :class:`float`. The initialized fixed-point value is the one closest to the
+            input floating-point value. Rounds away from zero on ties. Exactly two of
+            the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) has to be set.
+
+            Example usage:
+
+            .. code-block:: python
+
+                from apytypes import APyFixed
+
+                # Fixed-point `fx_a` from float, initialized from the floating-point
+                # value 1.234, rounded to 1.25 as it is the closest representable number
+                fx_a = APyFixed.from_float(1.234, int_bits=2, frac_bits=2)
+
+            Parameters
+            ----------
+            value : float
+                Floating point value to initialize from
+            bits : int, optional
+                Total number of bits in the created fixed-point object
+            int_bits : int, optional
+                Number of integer bits in the created fixed-point object
+            frac_bits : int, optional
+                Number of fractional bits in the created fixed-point object
+            )pbdoc"
         )
 
         .def_static(

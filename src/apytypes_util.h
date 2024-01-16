@@ -65,7 +65,7 @@ public:
         : std::logic_error(msg.value_or("Not implemeted yet")) {};
 };
 
-//! Quickly evaluate how many limbs are requiered to to store an n-bit word
+//! Quickly evaluate how many limbs are requiered to to store a `bits` bit word
 static inline std::size_t bits_to_limbs(std::size_t bits)
 {
     if (bits % _LIMB_SIZE_BITS == 0) {
