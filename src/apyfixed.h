@@ -132,7 +132,10 @@ public:
     // Increment the LSB without making the fixed-point number wider. Returns carry out
     mp_limb_t increment_lsb() noexcept;
 
-    // Convert the underlying bit patter to decimal and return in a string
+    // Convert the underlying bit pattern to a Python long integer
+    pybind11::int_ bit_pattern_to_int() const;
+
+    // Convert the underlying bit pattern to decimal and return in a string
     std::string bit_pattern_to_dec_string() const;
 
     // Python verbose string representation

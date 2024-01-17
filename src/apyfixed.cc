@@ -4,23 +4,24 @@
 
 // Python object access through Pybind
 #include <pybind11/pybind11.h>
-#include <sstream>
 namespace py = pybind11;
 
-// Python details
-#include <Python.h>
-#include <longobject.h> // PyLongObject
-#include <pyport.h>     // PYLONG_BITS_IN_DIGIT
+// Python details. These should be included before standard header files:
+// https://docs.python.org/3/c-api/intro.html#include-files
+#include <Python.h> // PYLONG_BITS_IN_DIGIT, PyLongObject
 
+// Standard header includes
 #include <algorithm>  // std::copy, std::max, std::transform, etc...
 #include <cstddef>    // std::size_t
 #include <cstring>    // std::memcpy
 #include <functional> // std::bit_not
-#include <iterator>   // std::back_inserter
-#include <optional>   // std::optional
-#include <stdexcept>  // std::domain_error
-#include <string>     // std::string
-#include <vector>     // std::vector, std::swap
+#include <iostream>
+#include <iterator>  // std::back_inserter
+#include <optional>  // std::optional
+#include <sstream>   // std::stringstream
+#include <stdexcept> // std::domain_error
+#include <string>    // std::string
+#include <vector>    // std::vector, std::swap
 
 #include "apyfixed.h"
 #include "apytypes_util.h"
@@ -74,10 +75,12 @@ APyFixed::APyFixed(
      * Beware when making changes to this function: This function is not (yet) tested by
      * any C++ unit tests, as it's difficuly to construct `py::int_` or `PyLongObject`
      * objects from C++.
+     *
+     * Update 2024-01-17: This function is now tested in the Python test-environment
      */
     PyLongObject* py_long = (PyLongObject*)python_long_int_bit_pattern.ptr();
-    long py_long_digits = _PyLong_DigitCount(py_long);
-    bool py_long_is_negative = _PyLong_IsNegative(py_long);
+    long py_long_digits = PyLong_DigitCount(py_long);
+    bool py_long_is_negative = PyLong_IsNegative(py_long);
 
     if (py_long_digits == 0) {
         // Python integer is zero
@@ -718,6 +721,66 @@ void APyFixed::set_from_apyfixed(const APyFixed& other)
     }
 
     _twos_complement_overflow();
+}
+
+py::int_ APyFixed::bit_pattern_to_int() const
+{
+    // Required conversion information
+    bool sign = is_negative();
+    std::vector<mp_limb_t> abs_limb_vec = _unsigned_abs();
+
+    // Number of significant bits in the limb vector
+    std::size_t significant_bits = _LIMB_SIZE_BITS * abs_limb_vec.size()
+        - limb_vector_leading_zeros(abs_limb_vec);
+
+    // Number of resulting limbs (Python nomencalture: `digits`) in the Python long
+    // integer result
+    std::size_t python_digits
+        = (significant_bits + PYLONG_BITS_IN_DIGIT - 1) / PYLONG_BITS_IN_DIGIT;
+
+    // Intermediate GMP `mpz` variable for import and export
+    mpz_t mpz_to_py_long;
+    mpz_init(mpz_to_py_long);
+    mpz_import(
+        mpz_to_py_long,    // Destination operand
+        vector_size(),     // Words to read
+        -1,                // LSWord first
+        sizeof(mp_limb_t), // Word size in bytes
+        0,                 // Machine endianness
+        0,                 // Number of nail bits
+        &abs_limb_vec[0]   // Source operand
+    );
+
+    PyLongObject* result = PyLong_New(python_digits);
+    if (!result) {
+        throw std::runtime_error("Could not allocate memory for Python long integer");
+    }
+
+    // Export the intermediate data to the python integer
+    std::size_t words_written = 0;
+    mpz_export(
+        &GET_OB_DIGIT(result)[0],           // Destination operand
+        &words_written,                     // Number of words written
+        -1,                                 // LSWord first
+        sizeof(GET_OB_DIGIT(result)[0]),    // Word size in bytes
+        0,                                  // Machine endianness
+        sizeof(GET_OB_DIGIT(result)[0]) * 8 // Nail bits
+            - PYLONG_BITS_IN_DIGIT,         //
+        mpz_to_py_long                      // Source operand
+    );
+    if (!words_written) {
+        GET_OB_DIGIT(result)[0] = 0;
+    }
+
+    // Clear the GMP `mpz` intermediate and finalize the Python long integer
+    mpz_clear(mpz_to_py_long);
+    while (python_digits > 0 && (GET_OB_DIGIT(result)[python_digits - 1] == 0)) {
+        python_digits--;
+    }
+    PyLong_SetSignAndDigitCount(result, sign, python_digits);
+
+    // Do a PyBind11 steal of the object and return
+    return py::reinterpret_steal<py::int_>((PyObject*)result);
 }
 
 std::string APyFixed::bit_pattern_to_dec_string() const

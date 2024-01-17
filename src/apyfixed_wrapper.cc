@@ -64,16 +64,30 @@ void bind_fixed(py::module& m)
         /*
          * Methods
          */
-        .def("bit_pattern_to_dec_string", &APyFixed::bit_pattern_to_dec_string)
+        .def("bit_pattern_to_dec_string", &APyFixed::bit_pattern_to_dec_string, R"pbdoc(
+            Retrieve the underlying bit-pattern as a :class:`str` object formated in
+            base-10.
+
+            Returns
+            -------
+            :class:`str`
+            )pbdoc")
+        .def("bit_pattern_to_int", &APyFixed::bit_pattern_to_int, R"pbdoc(
+            Retrieve the underlying bit-pattern in an :class:`int` object.
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc")
         .def("bits", &APyFixed::bits, R"pbdoc(
-            Retrieve the total number of bits in this :class:`APyFixed` object
+            Retrieve the total number of bits in this :class:`APyFixed` object.
 
             Returns
             -------
             :class:`int`
             )pbdoc")
         .def("frac_bits", &APyFixed::frac_bits, R"pbdoc(
-            Retrieve the number of fractional bits in this :class:`APyFixed` object
+            Retrieve the number of fractional bits in this :class:`APyFixed` object.
 
             Returns
             -------
@@ -88,7 +102,7 @@ void bind_fixed(py::module& m)
         .def("set_from_float", &APyFixed::set_from_double)
         .def("increment_lsb", &APyFixed::increment_lsb)
         .def("int_bits", &APyFixed::int_bits, R"pbdoc(
-            Retrieve the number of integer bits in this :class:`APyFixed` object
+            Retrieve the number of integer bits in this :class:`APyFixed` object.
 
             Returns
             -------
@@ -134,8 +148,10 @@ void bind_fixed(py::module& m)
             py::arg("frac_bits") = std::nullopt,
             R"pbdoc(
             Create an :class:`APyFixed` object and initialize its value from a Python
-            :class:`float`. The initialized fixed-point value is the one closest to the
-            input floating-point value. Rounds away from zero on ties. Exactly two of
+            :class:`float`.
+
+            The initialized fixed-point value is the one closest to the
+            input floating-point value, rounded away from zero on ties. Exactly two of
             the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) has to be set.
 
             Example usage:
@@ -160,7 +176,6 @@ void bind_fixed(py::module& m)
                 Number of fractional bits in the created fixed-point object
             )pbdoc"
         )
-
         .def_static(
             "from_string",
             &APyFixed::from_string,
