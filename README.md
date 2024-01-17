@@ -1,5 +1,7 @@
 # APyTypes
 
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/apytypes/apytypes/main.svg)](https://results.pre-commit.ci/latest/github/apytypes/apytypes/main)
+
 ## Documentation
 
 <https://daint.gitlab-pages.liu.se/apy-types/>
