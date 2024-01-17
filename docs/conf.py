@@ -54,6 +54,4 @@ breathe_projects_source = {
     )
 }
 
-breathe_projects = {
-    "APyTypes": "xml/"
-}
+breathe_projects = {"APyTypes": "xml/"}
