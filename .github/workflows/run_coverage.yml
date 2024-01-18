@@ -16,9 +16,9 @@ jobs:
         python-version: ["3.10"]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -29,6 +29,7 @@ jobs:
       run: |
         export CPPFLAGS='--coverage -fprofile-abs-path'
         python -m pip install -v .[test]
+        unset CPPFLAGS
     - name: Test with pytest
       run: |
         pytest --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
