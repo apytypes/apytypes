@@ -24,7 +24,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get install -yy lcov
-        python -m pip install pytest-cov
+        python -m pip install pytest-cov gcovr
     - name: Install APyTypes
       run: |
         export CPPFLAGS='--coverage -fprofile-abs-path'
