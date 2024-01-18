@@ -64,7 +64,7 @@ void bind_fixed(py::module& m)
         /*
          * Methods
          */
-        .def("bit_pattern_to_dec_string", &APyFixed::bit_pattern_to_dec_string, R"pbdoc(
+        .def("bit_pattern_to_string_dec", &APyFixed::bit_pattern_to_string_dec, R"pbdoc(
             Retrieve the underlying bit-pattern as a :class:`str` object formated in
             base-10.
 
@@ -72,13 +72,39 @@ void bind_fixed(py::module& m)
             -------
             :class:`str`
             )pbdoc")
-        .def("bit_pattern_to_int", &APyFixed::bit_pattern_to_int, R"pbdoc(
+        .def(
+            "bit_pattern_to_int",
+            &APyFixed::bit_pattern_to_int,
+            py::arg("allow_negative_return_value") = false,
+            R"pbdoc(
             Retrieve the underlying bit-pattern in an :class:`int` object.
+
+            Parameters
+            ----------
+            allow_negative_return_value : bool, default=False
+                Allow returning a negative integer bit-pattern. See example.
+
+            Examples
+            --------
+
+            .. code-block:: python
+
+                from apytypes import APyFixed
+
+                # Create fixed-point number `fx_a` of value -5.75
+                fx_a = APyFixed.from_float(-5.75, int_bits=4, frac_bits=4)
+
+                ### Returns: 164 == 0xa4 == 0b10100100
+                fx_a.bit_pattern_to_int()
+
+                ### Returns: -92 == -0x5C == -0b1011100
+                fx_a.bit_pattern_to_int(allow_negative_return_value=True)
 
             Returns
             -------
             :class:`int`
-            )pbdoc")
+            )pbdoc"
+        )
         .def("bits", &APyFixed::bits, R"pbdoc(
             Retrieve the total number of bits in this :class:`APyFixed` object.
 
@@ -147,14 +173,15 @@ void bind_fixed(py::module& m)
             py::arg("int_bits") = std::nullopt,
             py::arg("frac_bits") = std::nullopt,
             R"pbdoc(
-            Create an :class:`APyFixed` object and initialize its value from a Python
+            Create an :class:`APyFixed` object and initialize its value from a
             :class:`float`.
 
             The initialized fixed-point value is the one closest to the
             input floating-point value, rounded away from zero on ties. Exactly two of
             the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) has to be set.
 
-            Example usage:
+            Examples
+            --------
 
             .. code-block:: python
 

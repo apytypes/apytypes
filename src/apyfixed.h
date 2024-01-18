@@ -133,10 +133,10 @@ public:
     mp_limb_t increment_lsb() noexcept;
 
     // Convert the underlying bit pattern to a Python long integer
-    pybind11::int_ bit_pattern_to_int() const;
+    pybind11::int_ bit_pattern_to_int(bool allow_negative_return_value = false) const;
 
     // Convert the underlying bit pattern to decimal and return in a string
-    std::string bit_pattern_to_dec_string() const;
+    std::string bit_pattern_to_string_dec() const;
 
     // Python verbose string representation
     std::string repr() const;
@@ -225,7 +225,7 @@ private:
     //   * `operand_shifted` is *not* initialized, i.e., it's an empty (zero element)
     //      vector
     //   * the number of fractional bits in `operand1` is greater than that of
-    //   `operand2`
+    //     `operand2`
     void _normalize_binary_points(
         APyFixed& result,
         std::vector<mp_limb_t>& operand_shifted,

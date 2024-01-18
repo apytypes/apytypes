@@ -7,17 +7,19 @@
 */
 
 enum class APyFixedRoundingMode {
-    TRN,           // Truncation
-    RND,           // Rounding, ties toward plus inf (most common fixed-point rounding)
-    RND_TO_ZERO,   // Rounding, ties toward zero
-    RND_AWAY_ZERO, // Rounding, ties away from zero
-    RND_CONV,      // Rounding, ties toward even quantization setps
-    RND_CONV_ODD   // Rounding, ties toward odd quantization steps
+    TRN,         // !< Truncation
+    RND,         // !< Rounding, ties toward plus inf (most common fixed-point rounding)
+    RND_TO_ZERO, // !< Rounding, ties toward zero
+    RND_AWAY_ZERO, // !< Rounding, ties away from zero
+    RND_CONV,      // !< Rounding, ties toward even quantization setps
+    RND_CONV_ODD,  // !< Rounding, ties toward odd quantization steps
+    STOCHASTIC_WEIGHTED,
+    STOCHASTIC_RANDOM
 };
 
 enum class APyFixedOverflowMode {
-    OVERFLOW, // Two's complement overflowing
-    SATURATE  // Saturation on overflow
+    OVERFLOW, // !< Two's complement overflowing
+    SATURATE  // !< Saturation on overflow
 };
 
 enum class RoundingMode {
