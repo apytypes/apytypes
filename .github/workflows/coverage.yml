@@ -1,4 +1,4 @@
-name: Python package
+name: Coverage
 
 on:
   push:
@@ -23,8 +23,8 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-         apt-get install --yes lcov
-         pip install gcovr
+        apt-get install --yes lcov
+        python -m pip install gcovr pytest-cov
     - name: Install APyTypes
       run: |
         python -m pip install .[test]
@@ -32,7 +32,8 @@ jobs:
       run: |
         pytest
     - name: Format coverage data
-       gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o coverage.xml --root .
+      run: |
+        gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o coverage.xml --root .
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
       env:
