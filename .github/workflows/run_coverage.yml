@@ -24,11 +24,11 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get install -yy lcov
-        python -m pip install pytest-cov gcovr
+        python -m pip install pytest-cov gcovr ninja pybind11 meson-python
     - name: Install APyTypes
       run: |
         export CPPFLAGS='--coverage -fprofile-abs-path'
-        python -m pip install -v .[test]
+        python -m pip install --no-deps --no-build-isolation -v --editable .
         unset CPPFLAGS
     - name: Test with pytest
       run: |

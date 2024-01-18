@@ -12,16 +12,6 @@ pybind11_includes = run_command(
     check : true
 ).stdout().strip()
 
-# GNU compiler warnings
-cpp_compiler_flags = [
-
-    # Warnings
-    '-Wpedantic', '-Wall', '-Wextra',
-
-    # Others
-    '-O2', '-march=native', '-g3',
-]
-
 # https://mesonbuild.com/howtox.html#enable-threads
 cc = meson.get_compiler('cpp')
 gmp_dep = cc.find_library('gmp')
