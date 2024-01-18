@@ -723,15 +723,21 @@ void APyFixed::set_from_apyfixed(const APyFixed& other)
     _twos_complement_overflow();
 }
 
-py::int_ APyFixed::bit_pattern_to_int() const
+py::int_ APyFixed::bit_pattern_to_int(bool allow_negative_return_value) const
 {
     // Required conversion information
-    bool sign = is_negative();
-    std::vector<mp_limb_t> abs_limb_vec = _unsigned_abs();
+    bool sign = allow_negative_return_value ? is_negative() : false;
+    std::vector<mp_limb_t> limb_vec
+        = allow_negative_return_value ? _unsigned_abs() : _data;
+
+    // Make sure to zero bits outside of fixed-point range if printing as non-negative
+    if (!allow_negative_return_value && (bits() % _LIMB_SIZE_BITS)) {
+        limb_vec.back() &= (mp_limb_t(1) << (bits() % _LIMB_SIZE_BITS)) - 1;
+    }
 
     // Number of significant bits in the limb vector
-    std::size_t significant_bits = _LIMB_SIZE_BITS * abs_limb_vec.size()
-        - limb_vector_leading_zeros(abs_limb_vec);
+    std::size_t significant_bits
+        = _LIMB_SIZE_BITS * limb_vec.size() - limb_vector_leading_zeros(limb_vec);
 
     // Number of resulting limbs (Python nomencalture: `digits`) in the Python long
     // integer result
@@ -748,7 +754,7 @@ py::int_ APyFixed::bit_pattern_to_int() const
         sizeof(mp_limb_t), // Word size in bytes
         0,                 // Machine endianness
         0,                 // Number of nail bits
-        &abs_limb_vec[0]   // Source operand
+        &limb_vec[0]       // Source operand
     );
 
     PyLongObject* result = PyLong_New(python_digits);
@@ -783,12 +789,24 @@ py::int_ APyFixed::bit_pattern_to_int() const
     return py::reinterpret_steal<py::int_>((PyObject*)result);
 }
 
-std::string APyFixed::bit_pattern_to_dec_string() const
+std::string APyFixed::bit_pattern_to_string_dec() const
 {
     std::stringstream ss {};
-    std::vector<mp_limb_t> v = double_dabble(_data);
+
+    std::vector<mp_limb_t> data = _data;
+    if (bits() % _LIMB_SIZE_BITS) {
+        mp_limb_t and_mask = (mp_limb_t(1) << (bits() % _LIMB_SIZE_BITS)) - 1;
+        data.back() &= and_mask;
+    }
+
+    // Double-dabble for binary-to-BCD conversion
+    std::vector<mp_limb_t> v = double_dabble(data);
+
+    // Setup hex printing which will properly display the BCD characters
     ss << std::hex;
-    for (auto limb_it = v.crbegin(); limb_it != v.crend(); ++limb_it) {
+
+    // The remaining limbs can be printed normally
+    for (auto limb_it = v.crbegin()++; limb_it != v.crend(); ++limb_it) {
         ss << *limb_it;
     }
     return ss.str();
@@ -798,7 +816,7 @@ std::string APyFixed::repr() const
 {
     std::stringstream ss {};
     ss << "APyFixed(";
-    ss << "bit_pattern=" << bit_pattern_to_dec_string() << ", ";
+    ss << bit_pattern_to_string_dec() << ", ";
     ss << "bits=" << bits() << ", ";
     ss << "int_bits=" << int_bits() << ")";
     return ss.str();
