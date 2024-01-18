@@ -31,10 +31,15 @@ jobs:
         python -m pip install .[test]
     - name: Test with pytest
       run: |
-        pytest
+        pytest --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
     - name: Format coverage data
       run: |
-        gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o coverage.xml --root .
+        lcov --rc lcov_branch_coverage=1 --capture --directory . \
+          --output-file coverage.info
+        lcov --rc lcov_branch_coverage=1 --output-file coverage.info \
+          --extract coverage.info $PWD/src/'*' $PWD/lib/'*'
+        lcov --rc lcov_branch_coverage=1 --list coverage.info
+        find . -name '*.gc*' -delete
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
       env:
