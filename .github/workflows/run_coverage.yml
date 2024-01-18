@@ -23,23 +23,24 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        sudo apt-get install --yes lcov
+        sudo apt-get install -yy lcov
         python -m pip install pytest-cov
     - name: Install APyTypes
       run: |
         export CPPFLAGS='--coverage -fprofile-abs-path'
-        python -m pip install .[test]
+        python -m pip install -v .[test]
     - name: Test with pytest
       run: |
         pytest --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
     - name: Format coverage data
       run: |
-        lcov --rc lcov_branch_coverage=1 --capture --directory . \
-          --output-file coverage.info
-        lcov --rc lcov_branch_coverage=1 --output-file coverage.info \
-          --extract coverage.info $PWD/src/'*' $PWD/lib/'*'
-        lcov --rc lcov_branch_coverage=1 --list coverage.info
-        find . -name '*.gc*' -delete
+        # lcov --rc lcov_branch_coverage=1 --capture --directory . \
+        #  --output-file coverage.info
+        # lcov --rc lcov_branch_coverage=1 --output-file coverage.info \
+        #  --extract coverage.info $PWD/src/'*' $PWD/lib/'*'
+        # lcov --rc lcov_branch_coverage=1 --list coverage.info
+        # find . -name '*.gc*' -delete
+        gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o coverage.xml --root ${PWD}
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
       env:
