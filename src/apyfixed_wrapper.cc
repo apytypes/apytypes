@@ -142,7 +142,7 @@ void bind_fixed(py::module& m)
             py::arg("bits") = std::nullopt,
             py::arg("int_bits") = std::nullopt,
             py::arg("rounding_mode") = APyFixedRoundingMode::TRN,
-            py::arg("overflow_mode") = APyFixedOverflowMode::OVERFLOW,
+            py::arg("overflow_mode") = APyFixedOverflowMode::TWOS_OVERFLOW,
             py::arg("frac_bits") = std::nullopt
         )
         .def("to_string", &APyFixed::to_string, py::arg("base") = 10)

@@ -79,7 +79,7 @@ TEST_CASE("General binary arithmetic tests")
             (op_a / op_b).to_string() ==
             "4475012."
             "688141537374943088913037403386852020048536360263824462890625"
-       );
+        );
     } /* End test #3 */
 }
 
