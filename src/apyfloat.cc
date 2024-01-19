@@ -1,6 +1,6 @@
+#include <cmath>
 #include <iostream>
 #include <limits>
-#include <math.h>
 
 #include "apyfloat.h"
 #include "apytypes_util.h"
