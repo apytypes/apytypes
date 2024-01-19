@@ -296,7 +296,7 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
     if (abs_operand1.size() < abs_operand2.size()) {
         std::swap(abs_operand1, abs_operand2);
     }
-    
+
     mpn_mul(
         &result._data[0],    // dst
         &abs_operand1[0],    // src1

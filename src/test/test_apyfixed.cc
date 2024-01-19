@@ -70,7 +70,7 @@ TEST_CASE("APyFixed::twos_complement_overflow()")
         == "0.5"
     );
 }
- 
+
 TEST_CASE("APyFixed::_data_asl()")
 {
     { /* Test #1 */

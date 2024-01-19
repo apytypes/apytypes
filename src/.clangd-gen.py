@@ -14,34 +14,34 @@ import subprocess
 
 # Include files for Python details
 python3_includes = subprocess.run(
-    ['python3-config', '--includes'],
+    ["python3-config", "--includes"],
     capture_output=True,
-    encoding='utf-8',
+    encoding="utf-8",
 )
 
 # Include files for Pybind11
 pybind11_includes = subprocess.run(
-    ['pybind11-config', '--includes'],
+    ["pybind11-config", "--includes"],
     capture_output=True,
-    encoding='utf-8',
+    encoding="utf-8",
 )
 
 compile_flags = [
-    '-std=c++17',
-    '-Wall',
-    '-Wextra',
-    '-Wpedantic',
-    '-Wno-deprecated',
-    '-D _IS_APYTYPES_UNIT_TEST',
-    '-I test/',
-    '-I/usr/include/python3.10',
-    *str(python3_includes.stdout.strip()).split(' '),
-    *str(pybind11_includes.stdout.strip()).split(' '),
+    "-std=c++17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Wno-deprecated",
+    "-D _IS_APYTYPES_UNIT_TEST",
+    "-I test/",
+    "-I/usr/include/python3.10",
+    *str(python3_includes.stdout.strip()).split(" "),
+    *str(pybind11_includes.stdout.strip()).split(" "),
 ]
 
 # Produce the .clangd configuration
-TAB="    "
+TAB = "    "
 print("CompileFlags:\n" + TAB + "Add: [")
 for flag in compile_flags:
-    print(2*TAB + flag + ',')
+    print(2 * TAB + flag + ",")
 print(TAB + "]")
