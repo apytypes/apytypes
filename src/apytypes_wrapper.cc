@@ -26,6 +26,7 @@ void bind_common(py::module& m)
         .value("TO_ZERO", RoundingMode::TO_ZERO)
         .value("TIES_TO_EVEN", RoundingMode::TIES_TO_EVEN)
         .value("TIES_TO_AWAY", RoundingMode::TIES_TO_AWAY)
+        .value("TIES_TO_ZERO", RoundingMode::TIES_TO_ZERO)
         .value("JAMMING", RoundingMode::JAMMING);
 
     py::enum_<APyFixedRoundingMode>(m, "APyFixedRoundingMode")

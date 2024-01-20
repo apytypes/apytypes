@@ -28,6 +28,7 @@ enum class RoundingMode {
     TO_ZERO,
     TIES_TO_EVEN,
     TIES_TO_AWAY,
+    TIES_TO_ZERO,
     JAMMING
 };
 
