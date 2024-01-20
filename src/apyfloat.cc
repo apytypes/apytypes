@@ -168,9 +168,9 @@ APyFloat APyFloat::cast_to(
             B = G & T;
             break;
         case RoundingMode::JAMMING:
-            throw NotImplementedException(
-                "APyFloat: rounding mode jamming has not been implemented."
-            );
+            B = 0;
+            new_man |= 1;
+            break;
         default:
             throw NotImplementedException("APyFloat: Unknown rounding mode.");
         }

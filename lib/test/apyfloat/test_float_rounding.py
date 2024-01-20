@@ -384,6 +384,122 @@ class TestAPyFloatRounding:
                 1, 5, 0b110, 5, 3
             )  # Round up
 
+    def test_rounding_jamming(self):
+            apytypes.set_rounding_mode(RoundingMode.JAMMING)
+            # Rounding from 0.xx
+            assert APyFloat(0, 5, 0b10000, 5, 5).cast_to(5, 3) == APyFloat(
+                0, 5, 0b101, 5, 3
+            )
+            assert APyFloat(0, 5, 0b10001, 5, 5).cast_to(5, 3) == APyFloat(
+                0, 5, 0b101, 5, 3
+            )
+            assert APyFloat(0, 5, 0b10010, 5, 5).cast_to(5, 3) == APyFloat(
+                0, 5, 0b101, 5, 3
+            ) 
+            assert APyFloat(0, 5, 0b10011, 5, 5).cast_to(5, 3) == APyFloat(
+                0, 5, 0b101, 5, 3
+            )
+
+            # Rounding from 1.xx
+            assert APyFloat(0, 5, 0b10100, 5, 5).cast_to(5, 3) == APyFloat(
+                0, 5, 0b101, 5, 3
+            ) 
+            assert APyFloat(0, 5, 0b10101, 5, 5).cast_to(5, 3) == APyFloat(
+                0, 5, 0b101, 5, 3
+            )
+            assert APyFloat(0, 5, 0b10110, 5, 5).cast_to(5, 3) == APyFloat(
+                0, 5, 0b101, 5, 3
+            ) 
+            assert APyFloat(0, 5, 0b10111, 5, 5).cast_to(5, 3) == APyFloat(
+                0, 5, 0b101, 5, 3
+            ) 
+
+            # Rounding from 0.xx, negative sign
+            assert APyFloat(1, 5, 0b10000, 5, 5).cast_to(5, 3) == APyFloat(
+                1, 5, 0b101, 5, 3
+            ) 
+            assert APyFloat(1, 5, 0b10001, 5, 5).cast_to(5, 3) == APyFloat(
+                1, 5, 0b101, 5, 3
+            )
+            assert APyFloat(1, 5, 0b10010, 5, 5).cast_to(5, 3) == APyFloat(
+                1, 5, 0b101, 5, 3
+            )
+            assert APyFloat(1, 5, 0b10011, 5, 5).cast_to(5, 3) == APyFloat(
+                1, 5, 0b101, 5, 3
+            ) 
+
+            # Rounding from 1.xx, negative sign
+            assert APyFloat(1, 5, 0b10100, 5, 5).cast_to(5, 3) == APyFloat(
+                1, 5, 0b101, 5, 3
+            ) 
+            assert APyFloat(1, 5, 0b10101, 5, 5).cast_to(5, 3) == APyFloat(
+                1, 5, 0b101, 5, 3
+            )
+            assert APyFloat(1, 5, 0b10110, 5, 5).cast_to(5, 3) == APyFloat(
+                1, 5, 0b101, 5, 3
+            )
+            assert APyFloat(1, 5, 0b10111, 5, 5).cast_to(5, 3) == APyFloat(
+                1, 5, 0b101, 5, 3
+            )
+
+    def test_rounding_jamming(self):
+            apytypes.set_rounding_mode(RoundingMode.JAMMING)
+            # Rounding from 0.xx
+            assert APyFloat(0, 5, 0b10000, 5, 5).cast_to(5, 3) == APyFloat(
+                0, 5, 0b101, 5, 3
+            )
+            assert APyFloat(0, 5, 0b10001, 5, 5).cast_to(5, 3) == APyFloat(
+                0, 5, 0b101, 5, 3
+            )
+            assert APyFloat(0, 5, 0b10010, 5, 5).cast_to(5, 3) == APyFloat(
+                0, 5, 0b101, 5, 3
+            ) 
+            assert APyFloat(0, 5, 0b10011, 5, 5).cast_to(5, 3) == APyFloat(
+                0, 5, 0b101, 5, 3
+            )
+
+            # Rounding from 1.xx
+            assert APyFloat(0, 5, 0b10100, 5, 5).cast_to(5, 3) == APyFloat(
+                0, 5, 0b101, 5, 3
+            ) 
+            assert APyFloat(0, 5, 0b10101, 5, 5).cast_to(5, 3) == APyFloat(
+                0, 5, 0b101, 5, 3
+            )
+            assert APyFloat(0, 5, 0b10110, 5, 5).cast_to(5, 3) == APyFloat(
+                0, 5, 0b101, 5, 3
+            ) 
+            assert APyFloat(0, 5, 0b10111, 5, 5).cast_to(5, 3) == APyFloat(
+                0, 5, 0b101, 5, 3
+            ) 
+
+            # Rounding from 0.xx, negative sign
+            assert APyFloat(1, 5, 0b10000, 5, 5).cast_to(5, 3) == APyFloat(
+                1, 5, 0b101, 5, 3
+            ) 
+            assert APyFloat(1, 5, 0b10001, 5, 5).cast_to(5, 3) == APyFloat(
+                1, 5, 0b101, 5, 3
+            )
+            assert APyFloat(1, 5, 0b10010, 5, 5).cast_to(5, 3) == APyFloat(
+                1, 5, 0b101, 5, 3
+            )
+            assert APyFloat(1, 5, 0b10011, 5, 5).cast_to(5, 3) == APyFloat(
+                1, 5, 0b101, 5, 3
+            ) 
+
+            # Rounding from 1.xx, negative sign
+            assert APyFloat(1, 5, 0b10100, 5, 5).cast_to(5, 3) == APyFloat(
+                1, 5, 0b101, 5, 3
+            ) 
+            assert APyFloat(1, 5, 0b10101, 5, 5).cast_to(5, 3) == APyFloat(
+                1, 5, 0b101, 5, 3
+            )
+            assert APyFloat(1, 5, 0b10110, 5, 5).cast_to(5, 3) == APyFloat(
+                1, 5, 0b101, 5, 3
+            )
+            assert APyFloat(1, 5, 0b10111, 5, 5).cast_to(5, 3) == APyFloat(
+                1, 5, 0b101, 5, 3
+            )
+
 
 # Floating-point divison is implemented quite differently and should therefore be tested seperately
 @pytest.mark.float_div
