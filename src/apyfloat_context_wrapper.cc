@@ -22,8 +22,7 @@ void bind_float_context(py::module& m)
     py::class_<ContextManager>(m, "ContextManager");
     py::class_<RoundingContext, ContextManager>(m, "RoundingContext")
         .def(
-            py::init<
-                RoundingMode, std::optional<std::uint64_t>>(), 
+            py::init<RoundingMode, std::optional<std::uint64_t>>(),
             py::arg("rounding_mode"),
             py::arg("rounding_seed") = std::nullopt
         )

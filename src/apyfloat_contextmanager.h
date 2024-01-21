@@ -1,9 +1,9 @@
 #ifndef _APYFLOAT_CONTEXTMANAGER_H
 #define _APYFLOAT_CONTEXTMANAGER_H
-#include <cstdint>
-#include <optional>
 #include "apyfloat.h"
 #include "apytypes_common.h"
+#include <cstdint>
+#include <optional>
 
 class ContextManager {
 public:
@@ -31,7 +31,10 @@ public:
 */
 class RoundingContext : public ContextManager {
 public:
-    RoundingContext(const RoundingMode& new_mode, std::optional<std::uint64_t> new_seed = std::nullopt);
+    RoundingContext(
+        const RoundingMode& new_mode,
+        std::optional<std::uint64_t> new_seed = std::nullopt
+    );
     virtual void enter_context() override;
     virtual void exit_context() override;
 

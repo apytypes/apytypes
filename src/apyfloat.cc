@@ -172,15 +172,13 @@ APyFloat APyFloat::cast_to(
             B = 0;
             new_man |= 1;
             break;
-        case RoundingMode::STOCHASTIC_WEIGHTED:
-            {
+        case RoundingMode::STOCHASTIC_WEIGHTED: {
             const man_t trailing_bits = prev_man & ((1ULL << bits_to_discard) - 1);
             const man_t weight = random_number() & ((1ULL << bits_to_discard) - 1);
             // Since the weight won't be greater than the discarded bits,
             // this will never round an already exact number.
             B = (trailing_bits + weight) >> bits_to_discard;
-            }
-            break;
+        } break;
         case RoundingMode::STOCHASTIC_EQUAL:
             // Only perform the rounding if the result is not exact.
             B = (G || T) ? random_number() & 1 : 0;

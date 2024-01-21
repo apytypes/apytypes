@@ -327,176 +327,172 @@ class TestAPyFloatRounding:
 
 
     def test_rounding_ties_to_zero(self):
-            apytypes.set_rounding_mode(RoundingMode.TIES_TO_ZERO)
-            # Rounding from 0.xx
-            assert APyFloat(0, 5, 0b10000, 5, 5).cast_to(5, 3) == APyFloat(
-                0, 5, 0b100, 5, 3
-            )  # No rounding needed
-            assert APyFloat(0, 5, 0b10001, 5, 5).cast_to(5, 3) == APyFloat(
-                0, 5, 0b100, 5, 3
-            )  # Round down
-            assert APyFloat(0, 5, 0b10010, 5, 5).cast_to(5, 3) == APyFloat(
-                0, 5, 0b100, 5, 3
-            )  # Tie break, round down
-            assert APyFloat(0, 5, 0b10011, 5, 5).cast_to(5, 3) == APyFloat(
-                0, 5, 0b101, 5, 3
-            )  # Round up
+        apytypes.set_rounding_mode(RoundingMode.TIES_TO_ZERO)
+        # Rounding from 0.xx
+        assert APyFloat(0, 5, 0b10000, 5, 5).cast_to(5, 3) == APyFloat(
+            0, 5, 0b100, 5, 3
+        )  # No rounding needed
+        assert APyFloat(0, 5, 0b10001, 5, 5).cast_to(5, 3) == APyFloat(
+            0, 5, 0b100, 5, 3
+        )  # Round down
+        assert APyFloat(0, 5, 0b10010, 5, 5).cast_to(5, 3) == APyFloat(
+            0, 5, 0b100, 5, 3
+        )  # Tie break, round down
+        assert APyFloat(0, 5, 0b10011, 5, 5).cast_to(5, 3) == APyFloat(
+            0, 5, 0b101, 5, 3
+        )  # Round up
 
-            # Rounding from 1.xx
-            assert APyFloat(0, 5, 0b10100, 5, 5).cast_to(5, 3) == APyFloat(
-                0, 5, 0b101, 5, 3
-            )  # No rounding needed
-            assert APyFloat(0, 5, 0b10101, 5, 5).cast_to(5, 3) == APyFloat(
-                0, 5, 0b101, 5, 3
-            )  # Round down
-            assert APyFloat(0, 5, 0b10110, 5, 5).cast_to(5, 3) == APyFloat(
-                0, 5, 0b101, 5, 3
-            )  # Tie break, round down
-            assert APyFloat(0, 5, 0b10111, 5, 5).cast_to(5, 3) == APyFloat(
-                0, 5, 0b110, 5, 3
-            )  # Round up
+        # Rounding from 1.xx
+        assert APyFloat(0, 5, 0b10100, 5, 5).cast_to(5, 3) == APyFloat(
+            0, 5, 0b101, 5, 3
+        )  # No rounding needed
+        assert APyFloat(0, 5, 0b10101, 5, 5).cast_to(5, 3) == APyFloat(
+            0, 5, 0b101, 5, 3
+        )  # Round down
+        assert APyFloat(0, 5, 0b10110, 5, 5).cast_to(5, 3) == APyFloat(
+            0, 5, 0b101, 5, 3
+        )  # Tie break, round down
+        assert APyFloat(0, 5, 0b10111, 5, 5).cast_to(5, 3) == APyFloat(
+            0, 5, 0b110, 5, 3
+        )  # Round up
 
-            # Rounding from 0.xx, negative sign
-            assert APyFloat(1, 5, 0b10000, 5, 5).cast_to(5, 3) == APyFloat(
-                1, 5, 0b100, 5, 3
-            )  # No rounding needed
-            assert APyFloat(1, 5, 0b10001, 5, 5).cast_to(5, 3) == APyFloat(
-                1, 5, 0b100, 5, 3
-            )  # Round down
-            assert APyFloat(1, 5, 0b10010, 5, 5).cast_to(5, 3) == APyFloat(
-                1, 5, 0b100, 5, 3
-            )  # Tie break, round down
-            assert APyFloat(1, 5, 0b10011, 5, 5).cast_to(5, 3) == APyFloat(
-                1, 5, 0b101, 5, 3
-            )  # Round up
+        # Rounding from 0.xx, negative sign
+        assert APyFloat(1, 5, 0b10000, 5, 5).cast_to(5, 3) == APyFloat(
+            1, 5, 0b100, 5, 3
+        )  # No rounding needed
+        assert APyFloat(1, 5, 0b10001, 5, 5).cast_to(5, 3) == APyFloat(
+            1, 5, 0b100, 5, 3
+        )  # Round down
+        assert APyFloat(1, 5, 0b10010, 5, 5).cast_to(5, 3) == APyFloat(
+            1, 5, 0b100, 5, 3
+        )  # Tie break, round down
+        assert APyFloat(1, 5, 0b10011, 5, 5).cast_to(5, 3) == APyFloat(
+            1, 5, 0b101, 5, 3
+        )  # Round up
 
-            # Rounding from 1.xx, negative sign
-            assert APyFloat(1, 5, 0b10100, 5, 5).cast_to(5, 3) == APyFloat(
-                1, 5, 0b101, 5, 3
-            )  # No rounding needed
-            assert APyFloat(1, 5, 0b10101, 5, 5).cast_to(5, 3) == APyFloat(
-                1, 5, 0b101, 5, 3
-            )  # Round down
-            assert APyFloat(1, 5, 0b10110, 5, 5).cast_to(5, 3) == APyFloat(
-                1, 5, 0b101, 5, 3
-            )  # Tie break, round down
-            assert APyFloat(1, 5, 0b10111, 5, 5).cast_to(5, 3) == APyFloat(
-                1, 5, 0b110, 5, 3
-            )  # Round up
+        # Rounding from 1.xx, negative sign
+        assert APyFloat(1, 5, 0b10100, 5, 5).cast_to(5, 3) == APyFloat(
+            1, 5, 0b101, 5, 3
+        )  # No rounding needed
+        assert APyFloat(1, 5, 0b10101, 5, 5).cast_to(5, 3) == APyFloat(
+            1, 5, 0b101, 5, 3
+        )  # Round down
+        assert APyFloat(1, 5, 0b10110, 5, 5).cast_to(5, 3) == APyFloat(
+            1, 5, 0b101, 5, 3
+        )  # Tie break, round down
+        assert APyFloat(1, 5, 0b10111, 5, 5).cast_to(5, 3) == APyFloat(
+            1, 5, 0b110, 5, 3
+        )  # Round up
 
     def test_rounding_jamming(self):
-            apytypes.set_rounding_mode(RoundingMode.JAMMING)
-            # Rounding from 0.xx
-            assert APyFloat(0, 5, 0b10000, 5, 5).cast_to(5, 3) == APyFloat(
-                0, 5, 0b101, 5, 3
-            )
-            assert APyFloat(0, 5, 0b10001, 5, 5).cast_to(5, 3) == APyFloat(
-                0, 5, 0b101, 5, 3
-            )
-            assert APyFloat(0, 5, 0b10010, 5, 5).cast_to(5, 3) == APyFloat(
-                0, 5, 0b101, 5, 3
-            ) 
-            assert APyFloat(0, 5, 0b10011, 5, 5).cast_to(5, 3) == APyFloat(
-                0, 5, 0b101, 5, 3
-            )
+        apytypes.set_rounding_mode(RoundingMode.JAMMING)
+        # Rounding from 0.xx
+        assert APyFloat(0, 5, 0b10000, 5, 5).cast_to(5, 3) == APyFloat(
+            0, 5, 0b101, 5, 3
+        )
+        assert APyFloat(0, 5, 0b10001, 5, 5).cast_to(5, 3) == APyFloat(
+            0, 5, 0b101, 5, 3
+        )
+        assert APyFloat(0, 5, 0b10010, 5, 5).cast_to(5, 3) == APyFloat(
+            0, 5, 0b101, 5, 3
+        )
+        assert APyFloat(0, 5, 0b10011, 5, 5).cast_to(5, 3) == APyFloat(
+            0, 5, 0b101, 5, 3
+        )
 
-            # Rounding from 1.xx
-            assert APyFloat(0, 5, 0b10100, 5, 5).cast_to(5, 3) == APyFloat(
-                0, 5, 0b101, 5, 3
-            ) 
-            assert APyFloat(0, 5, 0b10101, 5, 5).cast_to(5, 3) == APyFloat(
-                0, 5, 0b101, 5, 3
-            )
-            assert APyFloat(0, 5, 0b10110, 5, 5).cast_to(5, 3) == APyFloat(
-                0, 5, 0b101, 5, 3
-            ) 
-            assert APyFloat(0, 5, 0b10111, 5, 5).cast_to(5, 3) == APyFloat(
-                0, 5, 0b101, 5, 3
-            ) 
+        # Rounding from 1.xx
+        assert APyFloat(0, 5, 0b10100, 5, 5).cast_to(5, 3) == APyFloat(
+            0, 5, 0b101, 5, 3
+        )
+        assert APyFloat(0, 5, 0b10101, 5, 5).cast_to(5, 3) == APyFloat(
+            0, 5, 0b101, 5, 3
+        )
+        assert APyFloat(0, 5, 0b10110, 5, 5).cast_to(5, 3) == APyFloat(
+            0, 5, 0b101, 5, 3
+        )
+        assert APyFloat(0, 5, 0b10111, 5, 5).cast_to(5, 3) == APyFloat(
+            0, 5, 0b101, 5, 3
+        )
 
-            # Rounding from 0.xx, negative sign
-            assert APyFloat(1, 5, 0b10000, 5, 5).cast_to(5, 3) == APyFloat(
-                1, 5, 0b101, 5, 3
-            ) 
-            assert APyFloat(1, 5, 0b10001, 5, 5).cast_to(5, 3) == APyFloat(
-                1, 5, 0b101, 5, 3
-            )
-            assert APyFloat(1, 5, 0b10010, 5, 5).cast_to(5, 3) == APyFloat(
-                1, 5, 0b101, 5, 3
-            )
-            assert APyFloat(1, 5, 0b10011, 5, 5).cast_to(5, 3) == APyFloat(
-                1, 5, 0b101, 5, 3
-            ) 
+        # Rounding from 0.xx, negative sign
+        assert APyFloat(1, 5, 0b10000, 5, 5).cast_to(5, 3) == APyFloat(
+            1, 5, 0b101, 5, 3
+        )
+        assert APyFloat(1, 5, 0b10001, 5, 5).cast_to(5, 3) == APyFloat(
+            1, 5, 0b101, 5, 3
+        )
+        assert APyFloat(1, 5, 0b10010, 5, 5).cast_to(5, 3) == APyFloat(
+            1, 5, 0b101, 5, 3
+        )
+        assert APyFloat(1, 5, 0b10011, 5, 5).cast_to(5, 3) == APyFloat(
+            1, 5, 0b101, 5, 3
+        )
 
-            # Rounding from 1.xx, negative sign
-            assert APyFloat(1, 5, 0b10100, 5, 5).cast_to(5, 3) == APyFloat(
-                1, 5, 0b101, 5, 3
-            ) 
-            assert APyFloat(1, 5, 0b10101, 5, 5).cast_to(5, 3) == APyFloat(
-                1, 5, 0b101, 5, 3
-            )
-            assert APyFloat(1, 5, 0b10110, 5, 5).cast_to(5, 3) == APyFloat(
-                1, 5, 0b101, 5, 3
-            )
-            assert APyFloat(1, 5, 0b10111, 5, 5).cast_to(5, 3) == APyFloat(
-                1, 5, 0b101, 5, 3
-            )
+        # Rounding from 1.xx, negative sign
+        assert APyFloat(1, 5, 0b10100, 5, 5).cast_to(5, 3) == APyFloat(
+            1, 5, 0b101, 5, 3
+        )
+        assert APyFloat(1, 5, 0b10101, 5, 5).cast_to(5, 3) == APyFloat(
+            1, 5, 0b101, 5, 3
+        )
+        assert APyFloat(1, 5, 0b10110, 5, 5).cast_to(5, 3) == APyFloat(
+            1, 5, 0b101, 5, 3
+        )
+        assert APyFloat(1, 5, 0b10111, 5, 5).cast_to(5, 3) == APyFloat(
+            1, 5, 0b101, 5, 3
+        )
 
     def test_rounding_stochastic_weighted(self):
-            """
-            A bit naive, but test that a value can be rounded both up and down in 1000 tries.
-            An exact value should however not be rounded.
-            """
-            apytypes.set_rounding_mode(RoundingMode.STOCHASTIC_WEIGHTED)
-            larger_format = APyFloat(0, 5, 0b10000, 5, 5)
-            assert larger_format.cast_to(5, 3) == APyFloat(
-                0, 5, 0b100, 5, 3
-            )
+        """
+        A bit naive, but test that a value can be rounded both up and down in 1000 tries.
+        An exact value should however not be rounded.
+        """
+        apytypes.set_rounding_mode(RoundingMode.STOCHASTIC_WEIGHTED)
+        larger_format = APyFloat(0, 5, 0b10000, 5, 5)
+        assert larger_format.cast_to(5, 3) == APyFloat(0, 5, 0b100, 5, 3)
 
-            larger_format = APyFloat(0, 5, 0b10001, 5, 5)
-            rounded_down = APyFloat(0, 5, 0b100, 5, 3)
-            rounded_up = APyFloat(0, 5, 0b101, 5, 3)
+        larger_format = APyFloat(0, 5, 0b10001, 5, 5)
+        rounded_down = APyFloat(0, 5, 0b100, 5, 3)
+        rounded_up = APyFloat(0, 5, 0b101, 5, 3)
 
-            done_up = False
-            done_down = False
-            for i in range(1000):
-                smaller_format = larger_format.cast_to(5, 3)
-                if smaller_format == rounded_down:
-                    done_down = True
-                elif smaller_format == rounded_up:
-                    done_up = True
-                else:
-                    self.fail(f'{larger_format} was rounded to {smaller_format}')
-                if done_down and done_up:
-                     break
+        done_up = False
+        done_down = False
+        for i in range(1000):
+            smaller_format = larger_format.cast_to(5, 3)
+            if smaller_format == rounded_down:
+                done_down = True
+            elif smaller_format == rounded_up:
+                done_up = True
+            else:
+                self.fail(f"{larger_format} was rounded to {smaller_format}")
+            if done_down and done_up:
+                break
 
     def test_rounding_stochastic_equal(self):
-            """
-            A bit naive, but test that a value can be rounded both up and down in 1000 tries.
-            An exact value should however not be rounded.
-            """
-            apytypes.set_rounding_mode(RoundingMode.STOCHASTIC_EQUAL)
-            larger_format = APyFloat(0, 5, 0b10000, 5, 5)
-            assert larger_format.cast_to(5, 3) == APyFloat(
-                0, 5, 0b100, 5, 3
-            )
+        """
+        A bit naive, but test that a value can be rounded both up and down in 1000 tries.
+        An exact value should however not be rounded.
+        """
+        apytypes.set_rounding_mode(RoundingMode.STOCHASTIC_EQUAL)
+        larger_format = APyFloat(0, 5, 0b10000, 5, 5)
+        assert larger_format.cast_to(5, 3) == APyFloat(0, 5, 0b100, 5, 3)
 
-            larger_format = APyFloat(0, 5, 0b10001, 5, 5)
-            rounded_down = APyFloat(0, 5, 0b100, 5, 3)
-            rounded_up = APyFloat(0, 5, 0b101, 5, 3)
+        larger_format = APyFloat(0, 5, 0b10001, 5, 5)
+        rounded_down = APyFloat(0, 5, 0b100, 5, 3)
+        rounded_up = APyFloat(0, 5, 0b101, 5, 3)
 
-            done_up = False
-            done_down = False
-            for i in range(1000):
-                smaller_format = larger_format.cast_to(5, 3)
-                if smaller_format == rounded_down:
-                    done_down = True
-                elif smaller_format == rounded_up:
-                    done_up = True
-                else:
-                    pytest.fail(f'{larger_format} was rounded to {smaller_format}')
-                if done_down and done_up:
-                     break
+        done_up = False
+        done_down = False
+        for i in range(1000):
+            smaller_format = larger_format.cast_to(5, 3)
+            if smaller_format == rounded_down:
+                done_down = True
+            elif smaller_format == rounded_up:
+                done_up = True
+            else:
+                pytest.fail(f'{larger_format} was rounded to {smaller_format}')
+            if done_down and done_up:
+                    break
                 
 
 # Floating-point divison is implemented quite differently and should therefore be tested seperately
