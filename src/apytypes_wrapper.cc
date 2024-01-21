@@ -27,7 +27,9 @@ void bind_common(py::module& m)
         .value("TIES_TO_EVEN", RoundingMode::TIES_TO_EVEN)
         .value("TIES_TO_AWAY", RoundingMode::TIES_TO_AWAY)
         .value("TIES_TO_ZERO", RoundingMode::TIES_TO_ZERO)
-        .value("JAMMING", RoundingMode::JAMMING);
+        .value("JAMMING", RoundingMode::JAMMING)
+        .value("STOCHASTIC_WEIGHTED", RoundingMode::STOCHASTIC_WEIGHTED)
+        .value("STOCHASTIC_EQUAL", RoundingMode::STOCHASTIC_EQUAL);
 
     py::enum_<APyFixedRoundingMode>(m, "APyFixedRoundingMode")
         .value("TRN", APyFixedRoundingMode::TRN)
@@ -43,4 +45,6 @@ void bind_common(py::module& m)
 
     m.def("set_rounding_mode", &set_rounding_mode);
     m.def("get_rounding_mode", &get_rounding_mode);
+    m.def("set_rounding_seed", &set_rounding_seed);
+    m.def("get_rounding_seed", &get_rounding_seed);
 }

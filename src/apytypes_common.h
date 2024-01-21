@@ -1,5 +1,6 @@
 #ifndef _APYTYPES_COMMON_H
 #define _APYTYPES_COMMON_H
+#include <cstdint>
 
 /*
     The selected rounding mode is shared for all arithmetic operations,
@@ -14,7 +15,7 @@ enum class APyFixedRoundingMode {
     RND_CONV,      // !< Rounding, ties toward even quantization setps
     RND_CONV_ODD,  // !< Rounding, ties toward odd quantization steps
     STOCHASTIC_WEIGHTED,
-    STOCHASTIC_RANDOM
+    STOCHASTIC_EQUAL
 };
 
 enum class APyFixedOverflowMode {
@@ -29,10 +30,16 @@ enum class RoundingMode {
     TIES_TO_EVEN,
     TIES_TO_AWAY,
     TIES_TO_ZERO,
-    JAMMING
+    JAMMING,
+    STOCHASTIC_WEIGHTED,
+    STOCHASTIC_EQUAL
 };
 
 void set_rounding_mode(RoundingMode);
 RoundingMode get_rounding_mode();
+
+void set_rounding_seed(std::uint64_t);
+std::uint64_t get_rounding_seed();
+std::uint64_t random_number();
 
 #endif // _APYTYPES_COMMON_H
