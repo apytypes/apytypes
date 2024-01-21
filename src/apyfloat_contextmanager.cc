@@ -1,4 +1,5 @@
 #include "apyfloat_contextmanager.h"
+#include <stdexcept>
 
 RoundingContext::RoundingContext(
     const RoundingMode& new_mode, std::optional<std::uint64_t> new_seed
