@@ -11,6 +11,7 @@
 #include "apytypes_util.h"
 
 #include <cstddef>  // std::size_t
+#include <limits>   // std::numeric_limits<>::is_iec559
 #include <optional> // std::optional, std::nullopt
 #include <ostream>  // std::ostream
 #include <string>   // std::string
@@ -21,6 +22,28 @@
 
 class APyFixed {
 
+    /* ****************************************************************************** *
+     *                            APyFixed C++ assumptions                            *
+     * ****************************************************************************** */
+
+    static_assert(
+        (sizeof(mp_limb_t) == 8 || sizeof(mp_limb_t) == 4),
+        "The GMP `mp_limb_t` data type is either 64 bit or 32 bit. Any other limb size "
+        "is unsupported. This assumption should hold true always, according to the GMP "
+        "documentation"
+    );
+    static_assert(
+        (-1 >> 1 == -1),
+        "Right shift applied to signed integral types performs *arithmetic* right "
+        "shift. Arithmetic right shift of signed types is *the only* valid behaviour "
+        "since C++20, but before C++20 the right shift of signed integral types is "
+        "implementation defined. APyFixed relies heavily on arithmetic right shift."
+    );
+    static_assert(
+        (std::numeric_limits<double>::is_iec559),
+        "We assume IEEE-754 double-precision floating-point types."
+    );
+
 #ifdef _IS_APYTYPES_UNIT_TEST
     // Unit tests have public access to underlying data fields
 public:
@@ -28,9 +51,9 @@ public:
 private:
 #endif // #ifdef _IS_APYTYPES_UNIT_TEST
 
-    /*
-     * APyFixed data fields
-     */
+    /* ****************************************************************************** *
+     *                            APyFixed data fields                                *
+     * ****************************************************************************** */
     int _bits;
     int _int_bits;
     std::vector<mp_limb_t> _data;
@@ -141,6 +164,10 @@ public:
     // Python verbose string representation
     std::string repr() const;
 
+    // Test if two Fixed-point numbers are identical, i.e., has the same values, the
+    // same number of integer bits, and the same number of fractional bits
+    bool is_identical(const APyFixed& other) const;
+
     // Create a new, resized version of this fixed-point number. Main method for
     // handling overflow and quantization
     APyFixed resize(
@@ -185,9 +212,9 @@ public:
 
     static APyFixed from_string(
         std::string string_value,
-        int base = 10,
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
+        int base = 10,
         std::optional<int> frac_bits = std::nullopt
     );
 

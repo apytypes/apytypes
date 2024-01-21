@@ -135,6 +135,19 @@ void bind_fixed(py::module& m)
             :class:`int`
             )pbdoc")
         .def("is_negative", &APyFixed::is_negative)
+        .def("is_identical", &APyFixed::is_identical, py::arg("other"), R"pbdoc(
+            Test if two `APyFixed` objects are identical.
+
+            Two `APyFixed` objects are considered identical if, and only if,  they store
+            the same fixed-point value and have exactly the same bit-specification
+            (`bits`, `int_bits`, and `frac_bits` are all equal). This is a more
+            restrictive test than `__eq__`,  that only tests equality of the fixed-point
+            value.
+
+            Returns
+            -------
+            :class:`bool`
+            )pbdoc")
         .def("is_zero", &APyFixed::is_zero)
         .def(
             "resize",
@@ -207,9 +220,9 @@ void bind_fixed(py::module& m)
             "from_string",
             &APyFixed::from_string,
             py::arg("string_value"),
-            py::arg("base") = 10,
             py::arg("bits") = std::nullopt,
             py::arg("int_bits") = std::nullopt,
+            py::arg("base") = 10,
             py::arg("frac_bits") = std::nullopt
         );
 }
