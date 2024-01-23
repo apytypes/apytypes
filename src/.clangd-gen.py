@@ -12,14 +12,14 @@
 
 import subprocess
 
-# Include files for Python details
+# Include files for Python details using `python3-config`
 python3_includes = subprocess.run(
     ["python3-config", "--includes"],
     capture_output=True,
     encoding="utf-8",
 )
 
-# Include files for Pybind11
+# Include files for Pybind11 using `pybind11-config`
 pybind11_includes = subprocess.run(
     ["pybind11-config", "--includes"],
     capture_output=True,
@@ -32,9 +32,6 @@ compile_flags = [
     "-Wextra",
     "-Wpedantic",
     "-Wno-deprecated",
-    "-D _IS_APYTYPES_UNIT_TEST",
-    "-I test/",
-    "-I/usr/include/python3.10",
     *str(python3_includes.stdout.strip()).split(" "),
     *str(pybind11_includes.stdout.strip()).split(" "),
 ]

@@ -12,13 +12,7 @@ docs/_build/
 docs/xml/
 
 # C++ source ignores
-src/*.o
-src/test/*.o
-src/test/test_apyfixed
-src/test/test_apytypes_util
-src/callgrind.out.*
+*.gcda
+*.gcno
+*.o
 src/.clangd
-src/coverage/
-src/coverage.info
-src/*.gcda
-src/*.gcno
