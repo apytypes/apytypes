@@ -18,8 +18,8 @@ enum class APyFixedRoundingMode {
 };
 
 enum class APyFixedOverflowMode {
-    OVERFLOW, // !< Two's complement overflowing
-    SATURATE  // !< Saturation on overflow
+    TWOS_OVERFLOW, // !< Two's complement overflowing
+    SATURATE       // !< Saturation on overflow
 };
 
 enum class RoundingMode {

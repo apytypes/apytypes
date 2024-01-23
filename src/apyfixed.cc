@@ -280,10 +280,14 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
 {
     const int res_int_bits = int_bits() + rhs.int_bits();
     const int res_frac_bits = frac_bits() + rhs.frac_bits();
+    const bool sign_product = is_negative() ^ rhs.is_negative();
     std::vector<mp_limb_t> abs_operand1 = _unsigned_abs();
     std::vector<mp_limb_t> abs_operand2 = rhs._unsigned_abs();
+
+    // "The destination has to have space for s1n + s2n limbs, even if the product’s
+    // most significant limb is zero."
     APyFixed result(res_int_bits + res_frac_bits, res_int_bits);
-    bool sign_product = is_negative() ^ rhs.is_negative();
+    result._data.resize(abs_operand1.size() + abs_operand2.size());
 
     // `mpn_mul` requires the limb vector length of the first operand to be
     // greater than, or equally long as, the limb vector length of the second
@@ -300,6 +304,9 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
         &abs_operand2[0],    // src2
         abs_operand2.size()  // src2 limb vector length
     );
+
+    // Shape the result vector back to the number of significant limbs
+    result._data.resize(bits_to_limbs(res_int_bits + res_frac_bits));
 
     // Handle sign
     if (sign_product) {
@@ -914,7 +921,7 @@ void APyFixed::_round(
 void APyFixed::_overflow(APyFixedOverflowMode overflow_mode)
 {
     switch (overflow_mode) {
-    case APyFixedOverflowMode::OVERFLOW:
+    case APyFixedOverflowMode::TWOS_OVERFLOW:
         _twos_complement_overflow();
         break;
     case APyFixedOverflowMode::SATURATE:

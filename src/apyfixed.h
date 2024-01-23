@@ -147,7 +147,7 @@ public:
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
         APyFixedRoundingMode rounding_mode = APyFixedRoundingMode::TRN,
-        APyFixedOverflowMode overflow_mode = APyFixedOverflowMode::OVERFLOW,
+        APyFixedOverflowMode overflow_mode = APyFixedOverflowMode::TWOS_OVERFLOW,
         std::optional<int> frac_bits = std::nullopt
     ) const;
 
@@ -258,8 +258,7 @@ private:
     // of the APyFixed range.
     void _twos_complement_overflow() noexcept;
 
-    // Constructor: specify size and initialize underlying vector from start and end
-    // iterators
+    // Constructor: specify size and initialize underlying vector from iterators
     template <typename _ITER>
     explicit APyFixed(int bits, int int_bits, _ITER begin, _ITER end);
 

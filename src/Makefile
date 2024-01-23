@@ -4,10 +4,11 @@
 #
 
 CC = g++
-PYTHON3_FLAGS = $(shell python3-config --includes)
+PYTHON3_INCLUDES = $(shell python3-config --includes)
 PYTHON3_LINK = $(shell python3-config --ldflags --embed)
+PYBIND11_INCLUDES = $(shell pybind11-config --includes)
 WARNING_FLAGS = -Wall -Wextra -Wpedantic -Wno-deprecated -Weffc++
-CXXFLAGS = ${WARNING_FLAGS} ${PYTHON3_FLAGS} -std=c++17 -O2 -march=native -g
+CXXFLAGS = ${WARNING_FLAGS} ${PYTHON3_INCLUDES} ${PYBIND11_INCLUDES} -std=c++17 -O2 -march=native -g
 
 .PHONY: test test_profile test_coverage clean clean_all
 

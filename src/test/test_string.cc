@@ -9,11 +9,11 @@
 TEST_CASE("APyFixed::to_str_dec()")
 {
     // Single to_str_dec() point test
-    const auto POINT_TEST = [](unsigned bits,
+    const auto POINT_TEST = [](int bits,
                                int int_bits,
                                const std::vector<mp_limb_t>& vec_in,
                                const char* expected_result) {
-        APyFixed fixed(bits, int_bits, vec_in.begin(), vec_in.end());
+        APyFixed fixed(bits, int_bits, vec_in);
         REQUIRE(fixed.to_string_dec() == expected_result);
     };
 

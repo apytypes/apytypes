@@ -21,7 +21,7 @@ TEST_CASE("APyFixed assumptions")
     REQUIRE((sizeof(mp_limb_t) == 8 || sizeof(mp_limb_t) == 4));
 
     // Right shift applied to signed integral types performs *arithmetic* right shift.
-    // Arithmetic right shift of signed types is the *only* valid behaviour since C++20,
+    // Arithmetic right shift of signed types is *the only* valid behaviour since C++20,
     // but before C++20 the right shift of signed integral types is implementation
     // defined. APyFixed relies heavily on arithmetic right shift.
     REQUIRE(-1 >> 1 == -1);

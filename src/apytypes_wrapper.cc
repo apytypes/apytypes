@@ -35,7 +35,7 @@ void bind_common(py::module& m)
         .value("RND_CONV_ODD", APyFixedRoundingMode::RND_CONV_ODD);
 
     py::enum_<APyFixedOverflowMode>(m, "APyFixedOverflowMode")
-        .value("OVERFLOW", APyFixedOverflowMode::OVERFLOW)
+        .value("TWOS_OVERFLOW", APyFixedOverflowMode::TWOS_OVERFLOW)
         .value("SATURATE", APyFixedOverflowMode::SATURATE);
 
     m.def("set_rounding_mode", &set_rounding_mode);
