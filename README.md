@@ -35,6 +35,3 @@ APyFixed(bit_pattern=304, bits=11, int_bits=5)
 
 Test dependencies can be installed by running `pip3 install [.test]` and then
 executed by `pytest`.
-
-Tests for APyFixed are currently run by running `make` from the src directory,
-and APyFloat tests are executed by running `pytest` from `test_apytypes`.
