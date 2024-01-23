@@ -44,13 +44,6 @@ class APyFixed {
         "We assume IEEE-754 double-precision floating-point types."
     );
 
-#ifdef _IS_APYTYPES_UNIT_TEST
-    // Unit tests have public access to underlying data fields
-public:
-#else
-private:
-#endif // #ifdef _IS_APYTYPES_UNIT_TEST
-
     /* ****************************************************************************** *
      *                            APyFixed data fields                                *
      * ****************************************************************************** */
@@ -61,13 +54,13 @@ private:
     // GMP library). It is either a 32-bit or a 64-bit unsigned int, depending on the
     // target architecture.
 
-public:
-    // No default constructed APyFixed types
-    APyFixed() = delete;
-
     /* ****************************************************************************** *
      *                            Python constructors                                 *
      * ****************************************************************************** */
+
+public:
+    // No default constructed APyFixed types
+    APyFixed() = delete;
 
     // Constructor: initialize from other APyFixed and optionally set bit specifiers
     APyFixed(
@@ -222,13 +215,7 @@ public:
      *                           Private helper methods                               *
      * ****************************************************************************** */
 
-#ifdef _IS_APYTYPES_UNIT_TEST
-    // Unit tests have public access to all member function
-public:
-#else
 private:
-#endif // #ifdef _IS_APYTYPES_UNIT_TEST
-
     // Set member fields `bits` and `int_bits` from optional input arguments
     void _set_bit_specifier_from_optional(
         std::optional<int> bits,
