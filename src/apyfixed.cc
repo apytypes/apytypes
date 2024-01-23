@@ -15,13 +15,12 @@ namespace py = pybind11;
 #include <cstddef>    // std::size_t
 #include <cstring>    // std::memcpy
 #include <functional> // std::bit_not
-#include <iostream>
-#include <iterator>  // std::back_inserter
-#include <optional>  // std::optional
-#include <sstream>   // std::stringstream
-#include <stdexcept> // std::domain_error
-#include <string>    // std::string
-#include <vector>    // std::vector, std::swap
+#include <iterator>   // std::back_inserter
+#include <optional>   // std::optional
+#include <sstream>    // std::stringstream
+#include <stdexcept>  // std::domain_error
+#include <string>     // std::string
+#include <vector>     // std::vector, std::swap
 
 #include "apyfixed.h"
 #include "apytypes_util.h"
@@ -193,11 +192,11 @@ APyFixed::APyFixed(int bits, int int_bits, _ITER begin, _ITER end)
 
     if (std::distance(begin, end) <= 0) {
         throw std::domain_error(
-            "APyInt vector initialization needs propriate vector size"
+            "APyFixed vector initialization needs propriate vector size"
         );
     } else if (std::size_t(std::distance(begin, end)) != bits_to_limbs(bits)) {
         throw std::domain_error(
-            "APyInt vector initialization needs propriate vector size"
+            "APyFixed vector initialization needs propriate vector size"
         );
     }
 
@@ -829,6 +828,11 @@ std::string APyFixed::repr() const
     return ss.str();
 }
 
+bool APyFixed::is_identical(const APyFixed& other) const
+{
+    return bits() == other.bits() && int_bits() == other.int_bits() && *this == other;
+}
+
 APyFixed APyFixed::resize(
     std::optional<int> bits,
     std::optional<int> int_bits,
@@ -877,9 +881,9 @@ APyFixed APyFixed::from_double(
 
 APyFixed APyFixed::from_string(
     std::string string_value,
-    int base,
     std::optional<int> bits,
     std::optional<int> int_bits,
+    int base,
     std::optional<int> frac_bits
 )
 {
@@ -973,7 +977,7 @@ void APyFixed::_set_bit_specifier_from_optional(
     int num_bit_spec = bits.has_value() + int_bits.has_value() + frac_bits.has_value();
     if (num_bit_spec != 2) {
         throw std::domain_error(
-            "APyInt needs exactly two of three bit specifiers (bits, int_bits, "
+            "APyFixed needs exactly two of three bit specifiers (bits, int_bits, "
             "frac_bits) set when specifying bits."
         );
     }
@@ -1002,7 +1006,7 @@ void APyFixed::_bit_specifier_sanitize_bits() const
 {
     if (_bits <= 0) {
         throw std::domain_error(
-            "APyInt needs a positive integer bit-size of at-least 1 bit"
+            "APyFixed needs a positive integer bit-size of at-least 1 bit"
         );
     }
 }

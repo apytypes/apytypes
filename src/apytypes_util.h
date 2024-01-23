@@ -62,7 +62,7 @@ static inline std::vector<mp_limb_t> to_limb_vec(std::vector<std::uint64_t> vec)
 class NotImplementedException : public std::logic_error {
 public:
     NotImplementedException(std::optional<std::string> msg = std::nullopt)
-        : std::logic_error(msg.value_or("Not implemeted yet")) {};
+        : std::logic_error(msg.value_or("Not implemented yet")) {};
 };
 
 //! Quickly evaluate how many limbs are requiered to to store a `bits` bit word
@@ -313,13 +313,16 @@ reverse_double_dabble(const std::vector<std::uint8_t>& bcd_list)
         std::any_of(bcd.data.begin(), bcd.data.end(), [](auto n) { return n != 0; })
         || iteration % 4 != 0
     ) {
+        // Right shift the nibble binary data
+        if (iteration) {
+            new_limb
+                = mpn_rshift(&nibble_data[0], &nibble_data[0], nibble_data.size(), 1);
+        }
+
         // Insert a new limb to the nibble data vector
         if (iteration % _LIMB_SIZE_BITS == 0) {
             nibble_data.insert(nibble_data.begin(), new_limb);
         }
-
-        // Right shift the nibble binary data
-        new_limb = mpn_rshift(&nibble_data[0], &nibble_data[0], nibble_data.size(), 1);
 
         // Do the (reverse) double-dabble
         bcd.do_reverse_double(nibble_data.back());
@@ -330,10 +333,11 @@ reverse_double_dabble(const std::vector<std::uint8_t>& bcd_list)
     }
 
     // Right-adjust the data and return
-    std::size_t shft_val = _LIMB_SIZE_BITS - (iteration % _LIMB_SIZE_BITS);
+    auto shft_val = (_LIMB_SIZE_BITS - (iteration % _LIMB_SIZE_BITS)) % _LIMB_SIZE_BITS;
     if (iteration && shft_val) {
         mpn_rshift(&nibble_data[0], &nibble_data[0], nibble_data.size(), shft_val);
     }
+
     return nibble_data.size() ? nibble_data : std::vector<mp_limb_t> { 0 };
 }
 
