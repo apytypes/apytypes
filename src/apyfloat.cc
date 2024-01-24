@@ -260,25 +260,26 @@ std::string APyFloat::pretty_string() const
 std::string APyFloat::latex() const
 {
     if (is_nan()) {
-        return "NaN";
+        return "$\\textrm{NaN}$";
     } else if (is_inf()) {
         return "$\\infty$";
     } else if (is_zero()) {
-        return "0";
+        return "$0$";
     }
 
     std::string str = (sign ? "$-" : "$");
     if (is_normal()) {
         str += "\\left(1 + ";
     }
-    str += "\\frac{" + std::to_string(man) + "}{2^{"
-        + std::to_string(man_bits - 1 + is_normal()) + "}}";
+    str += "\\frac{" + std::to_string(man) + "}{2^{" + std::to_string(man_bits) + "}}";
     if (is_normal()) {
         str += "\\right)";
     }
     str += "2^{";
     if (is_normal()) {
         str += std::to_string(exp);
+    } else {
+        str += "1";
     }
     str += "-" + std::to_string(bias) + "} = ";
     if (sign) {

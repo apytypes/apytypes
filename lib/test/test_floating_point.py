@@ -425,3 +425,20 @@ def test_comparisons_failing():
     a = APyFloat.from_float(0.0, 3, 3)
     assert a == 0
     assert a == 0.0
+
+
+def test_latex():
+    assert APyFloat.from_float(0, 2, 2)._repr_latex_() == "$0$"
+    assert APyFloat.from_float(20, 2, 2)._repr_latex_() == r"$\infty$"
+    assert (
+        APyFloat.from_float(0.5, 2, 2)._repr_latex_()
+        == r"$\frac{2}{2^{2}}2^{1-1} = 2\times 2^{-2}$"
+    )
+    assert (
+        APyFloat.from_float(-0.5, 2, 2)._repr_latex_()
+        == r"$-\frac{2}{2^{2}}2^{1-1} = -2\times 2^{-2}$"
+    )
+    assert (
+        APyFloat.from_float(1.5, 2, 2)._repr_latex_()
+        == r"$\left(1 + \frac{2}{2^{2}}\right)2^{1-1} = 6\times 2^{-2}$"
+    )
