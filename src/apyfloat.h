@@ -65,6 +65,7 @@ public:
     std::string str() const;
     std::string repr() const;
     std::string pretty_string() const;
+    std::string latex() const;
 
     /* ******************************************************************************
      * * Arithmetic operators                                                       *

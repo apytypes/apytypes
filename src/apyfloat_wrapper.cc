@@ -53,6 +53,7 @@ void bind_float(py::module& m)
         .def("__str__", &APyFloat::str)
         .def("__repr__", &APyFloat::repr)
         .def("pretty_string", &APyFloat::pretty_string)
+        .def("_repr_latex_", &APyFloat::latex)
         .def(
             "cast_to",
             &APyFloat::cast_to,

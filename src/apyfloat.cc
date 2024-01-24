@@ -257,6 +257,42 @@ std::string APyFloat::pretty_string() const
     return str;
 }
 
+std::string APyFloat::latex() const
+{
+    if (is_nan()) {
+        return "NaN";
+    } else if (is_inf()) {
+        return "$\\infty$";
+    } else if (is_zero()) {
+        return "0";
+    }
+
+    std::string str = (sign ? "$-" : "$");
+    if (is_normal()) {
+        str += "\\left(1 + ";
+    }
+    str += "\\frac{" + std::to_string(man) + "}{2^{"
+        + std::to_string(man_bits - 1 + is_normal()) + "}}";
+    if (is_normal()) {
+        str += "\\right)";
+    }
+    str += "2^{";
+    if (is_normal()) {
+        str += std::to_string(exp);
+    }
+    str += "-" + std::to_string(bias) + "} = ";
+    if (sign) {
+        str += "-";
+    }
+    str += std::to_string((is_normal() ? ((1 << man_bits) + man) : man)) + "\\times 2^{"
+        + std::to_string(
+               static_cast<std::int64_t>(exp) - bias - man_bits + 1 - is_normal()
+        )
+        + "}$";
+
+    return str;
+}
+
 /* ******************************************************************************
  * * Arithmetic operators                                                       *
  * ******************************************************************************
