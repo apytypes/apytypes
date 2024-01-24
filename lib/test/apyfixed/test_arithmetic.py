@@ -2,6 +2,8 @@ from apytypes import APyFixed
 from apytypes import APyFixedRoundingMode
 from apytypes import APyFixedOverflowMode
 
+import pytest
+
 
 def test_arithmetic_operations():
     a = APyFixed.from_float(-1.25, int_bits=2, frac_bits=4)
@@ -177,3 +179,10 @@ def test_shift():
     assert (a << 7).is_identical(APyFixed(-3, 3, 9))
     assert (a >> -2).is_identical(APyFixed(-3, 3, 4))
     assert (a << -7).is_identical(APyFixed(-3, 3, -5))
+
+
+@pytest.mark.xfail
+def test_abs_failing():
+    a = APyFixed(3, 3, 2)
+    b = APyFixed(-3, 3, 2)
+    assert abs(a).is_identical(abs(b))
