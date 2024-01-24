@@ -19,11 +19,11 @@ void bind_fixed_array(py::module& m)
          */
         .def(
             py::init<
-                py::list,
+                const py::sequence&,
                 std::optional<int>,
                 std::optional<int>,
                 std::optional<int>>(),
-            py::arg("bit_pattern_list"),
+            py::arg("bit_pattern_sequence"),
             py::arg("bits") = std::nullopt,
             py::arg("int_bits") = std::nullopt,
             py::arg("frac_bits") = std::nullopt
