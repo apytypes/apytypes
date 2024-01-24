@@ -419,9 +419,9 @@ def test_power_special_cases(x, n, test_exp):
 
 @pytest.mark.xfail
 def test_comparisons_failing():
-    a == APyFloat.from_float(0.5, 3, 3)
+    a = APyFloat.from_float(0.5, 3, 3)
     assert a > 0
     assert a > 0.0
-    a == APyFloat.from_float(0.0, 3, 3)
+    a = APyFloat.from_float(0.0, 3, 3)
     assert a == 0
     assert a == 0.0

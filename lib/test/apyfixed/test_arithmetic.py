@@ -192,9 +192,9 @@ def test_abs_failing():
 
 @pytest.mark.xfail
 def test_comparisons_failing():
-    a == APyFixed(3, 3, 2)
+    a = APyFixed(3, 3, 2)
     assert a > 0
     assert a > 0.0
-    a == APyFixed(0, 3, 2)
+    a = APyFixed(0, 3, 2)
     assert a == 0
     assert a == 0.0
