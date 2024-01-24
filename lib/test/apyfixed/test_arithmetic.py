@@ -188,3 +188,13 @@ def test_abs_failing():
     a = APyFixed(3, 3, 2)
     b = APyFixed(-3, 3, 2)
     assert abs(a).is_identical(abs(b))
+
+
+@pytest.mark.xfail
+def test_comparisons_failing():
+    a == APyFixed(3, 3, 2)
+    assert a > 0
+    assert a > 0.0
+    a == APyFixed(0, 3, 2)
+    assert a == 0
+    assert a == 0.0
