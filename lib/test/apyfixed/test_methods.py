@@ -27,9 +27,9 @@ def test_bit_specifier_getters():
       * `int_bits()`
       * `frac_bits()`
     """
-    assert APyFixed(0, 12345, 12).bits() == 12345
-    assert APyFixed(0, 12345, 12).int_bits() == 12
-    assert APyFixed(0, 12345, 12).frac_bits() == 12345 - 12
+    assert APyFixed(0, 12345, 12).bits == 12345
+    assert APyFixed(0, 12345, 12).int_bits == 12
+    assert APyFixed(0, 12345, 12).frac_bits == 12345 - 12
 
 
 def test_to_float():
@@ -47,9 +47,9 @@ def test_is_zero():
     for bit_pattern in range(0, 1 << 4):
         fx = APyFixed(bit_pattern, 4, 2)
         if bit_pattern == 0:
-            assert fx.is_zero()
+            assert fx.is_zero
         else:
-            assert not (fx.is_zero())
+            assert not (fx.is_zero)
 
 
 def test_to_string():
