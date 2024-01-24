@@ -1,6 +1,7 @@
 from apytypes._apytypes import (
     APyFloat,
     APyFixed,
+    APyFixedArray,
     APyFixedRoundingMode,
     APyFixedOverflowMode,
     RoundingContext,
@@ -12,6 +13,7 @@ from apytypes._apytypes import (
 __all__ = [
     "APyFloat",
     "APyFixed",
+    "APyFixedArray",
     "APyFixedRoundingMode",
     "APyFixedOverflowMode",
     "RoundingContext",

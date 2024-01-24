@@ -21,6 +21,13 @@
 static constexpr std::size_t _LIMB_SIZE_BYTES = sizeof(mp_limb_t);
 static constexpr std::size_t _LIMB_SIZE_BITS = 8 * _LIMB_SIZE_BYTES;
 
+//! Not implemented exception
+class NotImplementedException : public std::logic_error {
+public:
+    NotImplementedException(std::optional<std::string> msg = std::nullopt)
+        : std::logic_error(msg.value_or("Not implemented yet")) {};
+};
+
 /*!
  * Count the number of trailing bits after the most significant `1`.
  */
@@ -57,13 +64,6 @@ static inline std::vector<mp_limb_t> to_limb_vec(std::vector<std::uint64_t> vec)
         return std::vector<mp_limb_t>(vec.begin(), vec.end());
     }
 }
-
-//! Not implemented exception
-class NotImplementedException : public std::logic_error {
-public:
-    NotImplementedException(std::optional<std::string> msg = std::nullopt)
-        : std::logic_error(msg.value_or("Not implemented yet")) {};
-};
 
 //! Quickly evaluate how many limbs are requiered to to store a `bits` bit word
 static inline std::size_t bits_to_limbs(std::size_t bits)
@@ -583,6 +583,58 @@ static inline mp_limb_t limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsign
         &term[0],  // src2
         vec.size() // limb vector length
     );
+}
+
+/*!
+ * Set the `_bits` and `_int_bits` specifiers for a fixed-point number from user
+ * provided optional `bits`, `int_bits`, and/or `frac_bits`.
+ */
+static inline void set_bit_specifiers_from_optional(
+    int& _bits,
+    int& _int_bits,
+    std::optional<int> bits,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits
+)
+{
+    int num_bit_spec = bits.has_value() + int_bits.has_value() + frac_bits.has_value();
+    if (num_bit_spec != 2) {
+        throw std::domain_error(
+            "Fixed-point needs exactly two of three bit specifiers (bits, int_bits, "
+            "frac_bits) set when specifying bits."
+        );
+    }
+
+    // Set the internal `_bits` and `_int_bits` fields from two out of the three bit
+    // specifier fields
+    if (bits.has_value()) {
+        if (int_bits.has_value()) {
+            _bits = *bits;
+            _int_bits = *int_bits;
+            return;
+        } else {
+            // `bits` set and `int_bits` unset so `frac_bits` is set
+            _bits = *bits;
+            _int_bits = *bits - *frac_bits;
+        }
+    } else {
+        // `bits` unset, so `int_bits` and `frac_bits` is set
+        _bits = *int_bits + *frac_bits;
+        _int_bits = *int_bits;
+    }
+}
+
+/*!
+ * Sanitize the _bits and _int_bits parameters in a fixed-point number
+ */
+static inline void bit_specifier_sanitize_bits(int _bits, int _int_bits)
+{
+    (void)_int_bits;
+    if (_bits <= 0) {
+        throw std::domain_error(
+            "Fixed-point needs a positive integer bit-size of at-least 1 bit"
+        );
+    }
 }
 
 #endif // _APYTYPES_UTIL_H

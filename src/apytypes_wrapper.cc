@@ -5,6 +5,7 @@ namespace py = pybind11;
 
 void bind_common(py::module& m);
 void bind_fixed(py::module& m);
+void bind_fixed_array(py::module& m);
 void bind_float(py::module& m);
 void bind_float_context(py::module& m);
 
@@ -12,6 +13,7 @@ PYBIND11_MODULE(_apytypes, m)
 {
     bind_common(m);
     bind_fixed(m);
+    bind_fixed_array(m);
     bind_float(m);
     bind_float_context(m);
 }

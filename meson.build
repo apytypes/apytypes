@@ -25,6 +25,8 @@ py3.extension_module(
         'src/apytypes_common.cc',
         'src/apyfixed.cc',
         'src/apyfixed_wrapper.cc',
+        'src/apyfixed_array.cc',
+        'src/apyfixed_array_wrapper.cc',
         'src/apyfloat.cc',
         'src/apyfloat_context_wrapper.cc',
         'src/apyfloat_contextmanager.cc',
