@@ -230,15 +230,15 @@ def test_add_representable(exp, man, sign, lhs, rhs):
         )
     ) == (float(eval(f"{sign[0]}{lhs} + {sign[1]}{rhs}")))
     res = eval(expr)
-    assert res.get_exp_bits() == max(int(exp[0]), int(exp[1]))
-    assert res.get_man_bits() == max(int(man[0]), int(man[1]))
+    assert res.exp_bits == max(int(exp[0]), int(exp[1]))
+    assert res.man_bits == max(int(man[0]), int(man[1]))
 
 
 @pytest.mark.float_add
 def test_add_overflow():
     """Test that an addition can overflow."""
-    assert (APyFloat(0, 0b11110, 3, 5, 2) + APyFloat(0, 0b11110, 3, 5, 2)).is_inf()
-    assert (APyFloat(1, 0b11110, 3, 5, 2) + APyFloat(1, 0b11110, 3, 5, 2)).is_inf()
+    assert (APyFloat(0, 0b11110, 3, 5, 2) + APyFloat(0, 0b11110, 3, 5, 2)).is_inf
+    assert (APyFloat(1, 0b11110, 3, 5, 2) + APyFloat(1, 0b11110, 3, 5, 2)).is_inf
 
 
 # Subtraction
@@ -256,8 +256,8 @@ def test_sub_same_exp(lhs, rhs):
         0.25 if float(eval(lhs)) == 2.75 else -0.25
     )
     res = eval(expr)
-    assert res.get_exp_bits() == 6
-    assert res.get_man_bits() == 7
+    assert res.exp_bits == 6
+    assert res.man_bits == 7
 
 
 @pytest.mark.float_sub
@@ -272,8 +272,8 @@ def test_sub_diff_exp(lhs, rhs):
         -12 if float(eval(lhs)) == 4 else 12
     )
     res = eval(expr)
-    assert res.get_exp_bits() == 9
-    assert res.get_man_bits() == 12
+    assert res.exp_bits == 9
+    assert res.man_bits == 12
 
 
 @pytest.mark.float_sub
@@ -285,11 +285,11 @@ def test_sub_diff_sign(lhs, rhs):
     # Subtract two numbers that have different sign
     expr = None
     assert float(eval(expr := f"{lhs} - {rhs}")) == (
-        16.0 * (-1 if eval(lhs).is_sign_neg() else 1)
+        16.0 * (-1 if eval(lhs).is_sign_neg else 1)
     )
     res = eval(expr)
-    assert res.get_exp_bits() == 9
-    assert res.get_man_bits() == 14
+    assert res.exp_bits == 9
+    assert res.man_bits == 14
 
 
 @pytest.mark.float_sub
@@ -301,17 +301,17 @@ def test_sub_zero(lhs, rhs):
     # Subtraction when one operand is zero
     expr = None
     assert float(eval(expr := f"{lhs} - {rhs}")) == (
-        5.75 * (-1 if eval(lhs).is_zero() else 1)
+        5.75 * (-1 if eval(lhs).is_zero else 1)
     )
     res = eval(expr)
-    assert res.get_exp_bits() == 15
-    assert res.get_man_bits() == 12
+    assert res.exp_bits == 15
+    assert res.man_bits == 12
 
 
 @pytest.mark.float_sub
 def test_sub_overflow():
     """Test that a subtraction can overflow."""
-    assert (APyFloat(1, 0b11110, 1, 5, 2) - APyFloat(0, 0b11110, 3, 5, 3)).is_inf()
+    assert (APyFloat(1, 0b11110, 1, 5, 2) - APyFloat(0, 0b11110, 3, 5, 3)).is_inf
 
 
 # Multiplication
@@ -329,20 +329,20 @@ def test_mul_mixed(exp, man, sign, lhs, rhs):
         )
     ) == (float(eval(f"{sign[0]}{lhs} * {sign[1]}{rhs}")))
     res = eval(expr)
-    assert res.get_exp_bits() == max(int(exp[0]), int(exp[1]))
-    assert res.get_man_bits() == max(int(man[0]), int(man[1]))
+    assert res.exp_bits == max(int(exp[0]), int(exp[1]))
+    assert res.man_bits == max(int(man[0]), int(man[1]))
 
 
 @pytest.mark.float_mul
 def test_mul_overflow():
     """Test that a multiplication can overflow to infinity."""
-    assert (APyFloat(0, 0b11110, 1, 5, 2) * APyFloat(0, 0b11110, 3, 5, 3)).is_inf()
+    assert (APyFloat(0, 0b11110, 1, 5, 2) * APyFloat(0, 0b11110, 3, 5, 3)).is_inf
 
 
 @pytest.mark.float_mul
 def test_mul_underflow():
     """Test that a multiplication can underflow to zero."""
-    assert (APyFloat(0, 1, 1, 5, 2) * APyFloat(0, 1, 3, 5, 3)).is_zero()
+    assert (APyFloat(0, 1, 1, 5, 2) * APyFloat(0, 1, 3, 5, 3)).is_zero
 
 
 # Power
@@ -410,7 +410,7 @@ def test_power_underflow():
 def test_power_special_cases(x, n, test_exp):
     """Test that a multiplication can underflow to zero."""
     if str(test_exp) == "nan":
-        assert eval(f"(APyFloat.from_float(float({x}), 9, 7)**{n}).is_nan()")
+        assert eval(f"(APyFloat.from_float(float({x}), 9, 7)**{n}).is_nan")
     else:
         assert (
             eval(f"(APyFloat.from_float(float({x}), 9, 7)**{n}).to_float()") == test_exp

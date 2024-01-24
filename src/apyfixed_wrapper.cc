@@ -105,15 +105,15 @@ void bind_fixed(py::module& m)
             :class:`int`
             )pbdoc"
         )
-        .def("bits", &APyFixed::bits, R"pbdoc(
-            Retrieve the total number of bits in this :class:`APyFixed` object.
+        .def_property_readonly("bits", &APyFixed::bits, R"pbdoc(
+            Total number of bits in this :class:`APyFixed` object.
 
             Returns
             -------
             :class:`int`
             )pbdoc")
-        .def("frac_bits", &APyFixed::frac_bits, R"pbdoc(
-            Retrieve the number of fractional bits in this :class:`APyFixed` object.
+        .def_property_readonly("frac_bits", &APyFixed::frac_bits, R"pbdoc(
+            Number of fractional bits in this :class:`APyFixed` object.
 
             Returns
             -------
@@ -127,14 +127,14 @@ void bind_fixed(py::module& m)
         )
         .def("set_from_float", &APyFixed::set_from_double)
         .def("increment_lsb", &APyFixed::increment_lsb)
-        .def("int_bits", &APyFixed::int_bits, R"pbdoc(
-            Retrieve the number of integer bits in this :class:`APyFixed` object.
+        .def_property_readonly("int_bits", &APyFixed::int_bits, R"pbdoc(
+            Number of integer bits in this :class:`APyFixed` object.
 
             Returns
             -------
             :class:`int`
             )pbdoc")
-        .def("is_negative", &APyFixed::is_negative)
+        .def_property_readonly("is_negative", &APyFixed::is_negative)
         .def("is_identical", &APyFixed::is_identical, py::arg("other"), R"pbdoc(
             Test if two `APyFixed` objects are identical.
 
@@ -148,7 +148,7 @@ void bind_fixed(py::module& m)
             -------
             :class:`bool`
             )pbdoc")
-        .def("is_zero", &APyFixed::is_zero)
+        .def_property_readonly("is_zero", &APyFixed::is_zero)
         .def(
             "resize",
             &APyFixed::resize,
@@ -162,7 +162,7 @@ void bind_fixed(py::module& m)
         .def("to_string_dec", &APyFixed::to_string_dec)
         .def("to_string_hex", &APyFixed::to_string_hex)
         .def("to_string_oct", &APyFixed::to_string_oct)
-        .def("vector_size", &APyFixed::vector_size)
+        .def_property_readonly("vector_size", &APyFixed::vector_size)
 
         /*
          * Dunder methods
