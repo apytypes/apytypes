@@ -151,3 +151,29 @@ def test_resize():
     assert float(APyFixed.from_float(0.75, 4, 1).resize(3, 1, Mode.RND)) == 0.75
     assert float(APyFixed.from_float(0.875, 4, 1).resize(3, 1, Mode.TRN)) == 0.75
     assert float(APyFixed.from_float(0.875, 4, 1).resize(3, 1, Mode.RND)) == -1.0
+
+
+def test_unary_minus():
+    a = APyFixed(-3, 3, 2)
+    assert a.is_negative
+    assert (-a).is_identical(APyFixed(3, 4, 3))
+    assert (--a).is_identical(APyFixed(-3, 5, 4))
+    assert not (-a).is_negative
+
+
+def test_abs():
+    a = APyFixed(-3, 3, 2)
+    assert abs(a).is_identical(APyFixed(3, 4, 3))
+    assert not abs(a).is_negative
+    a = APyFixed(-4, 3, 2)
+    assert a.is_negative
+    assert abs(a).is_identical(APyFixed(4, 4, 3))
+    assert not abs(a).is_negative
+
+
+def test_shift():
+    a = APyFixed(-3, 3, 2)
+    assert (a >> 2).is_identical(APyFixed(-3, 3, 0))
+    assert (a << 7).is_identical(APyFixed(-3, 3, 9))
+    assert (a >> -2).is_identical(APyFixed(-3, 3, 4))
+    assert (a << -7).is_identical(APyFixed(-3, 3, -5))
