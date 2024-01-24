@@ -33,16 +33,17 @@ namespace py = pybind11;
  * ********************************************************************************** */
 
 APyFixedArray::APyFixedArray(
-    py::list bit_pattern_list,
+    const py::sequence& bit_pattern_list,
     std::optional<int> bits,
     std::optional<int> int_bits,
     std::optional<int> frac_bits
 )
     : APyFixedArray(bits, int_bits, frac_bits)
 {
-    for (auto item : bit_pattern_list) {
-        std::cout << item << std::endl;
-    }
+    _shape = python_sequence_extract_shape(bit_pattern_list);
+
+    // Currently we only support initialization from Python ints
+    //_data = python_sequence_walk_ints(bit_pattern_list, _shape);
 }
 
 /* ********************************************************************************** *
@@ -61,3 +62,7 @@ APyFixedArray::APyFixedArray(
     set_bit_specifiers_from_optional(_bits, _int_bits, bits, int_bits, frac_bits);
     bit_specifier_sanitize_bits(_bits, _int_bits);
 }
+
+/* ********************************************************************************** *
+ * *                               Other methods                                    * *
+ * ********************************************************************************** */

@@ -6,6 +6,7 @@
 #define _APYFIXED_ARRAY_H
 
 #include <pybind11/pybind11.h> // pybind11::object
+#include <pybind11/pytypes.h>  // pybind11::sequence
 
 #include "apytypes_common.h"
 #include "apytypes_util.h"
@@ -23,7 +24,7 @@
 class APyFixedArray {
     int _bits;
     int _int_bits;
-    std::vector<unsigned> _shape;
+    std::vector<std::size_t> _shape;
     std::vector<mp_limb_t> _data;
 
     /* ****************************************************************************** *
@@ -35,7 +36,7 @@ public:
     APyFixedArray() = delete;
 
     APyFixedArray(
-        pybind11::list bit_pattern_list,
+        const pybind11::sequence& bit_pattern_sequence,
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt

@@ -3,14 +3,18 @@
  */
 
 // Python object access through Pybind
+#include <cassert>
 #include <pybind11/pybind11.h>
+#include <pybind11/pytypes.h>
+#include <pybind11/stl.h>
 
 // Python details. These should be included before standard header files:
 // https://docs.python.org/3/c-api/intro.html#include-files
 #include <Python.h>
 
 // Standard includes
-#include <cstddef>  // offsetof
+#include <cstddef> // offsetof
+#include <iostream>
 #include <optional> // std::optional, std::nullopt
 #include <vector>   // std::vector
 
@@ -240,3 +244,71 @@ static inline pybind11::int_ limb_vec_to_py_long(
     // Do a PyBind11 steal of the object and return
     return pybind11::reinterpret_steal<pybind11::int_>((PyObject*)result);
 }
+
+/*!
+ * Retrieve the shape of a, possibly nested, Python sequence of iterable object.
+ */
+static inline std::vector<std::size_t>
+python_sequence_extract_shape(const pybind11::sequence& bit_pattern_sequence)
+{
+    // Compute the length along the first dimension of this sequence
+    auto len = std::distance(bit_pattern_sequence.begin(), bit_pattern_sequence.end());
+
+    // Early exit
+    if (len == 0) {
+        // Empyt Python sequence, array shape is ( 0, )
+        return { 0 };
+    }
+
+    auto first_element_it = bit_pattern_sequence.begin();
+    if (pybind11::isinstance<pybind11::sequence>(*first_element_it)) {
+        // First element along this dimension is another sequence. Make sure all
+        // elements along this dimesions are also lists and recursivly evaluate their
+        // shapes.
+        std::vector<std::vector<std::size_t>> recursive_shapes;
+        for (auto element : bit_pattern_sequence) {
+            if (!pybind11::isinstance<pybind11::sequence>(element)) {
+                // Non-sequence detected along dimension of sequences
+                throw std::runtime_error("Inhomogenous sequence shape");
+            }
+
+            recursive_shapes.push_back(python_sequence_extract_shape(
+                pybind11::cast<pybind11::sequence>(element)
+            ));
+        }
+
+        // Make sure all recursively found shapes are equal
+        for (const auto& shape : recursive_shapes) {
+            if (shape != recursive_shapes[0]) {
+                // Inhomogeneouity detected
+                throw std::runtime_error("Inhomogenous sequence shape");
+            }
+        }
+
+        // Return the recursive shape
+        assert(len > 0);
+        std::vector<std::size_t> result { std::size_t(len) };
+        result.insert(
+            result.end(), recursive_shapes[0].begin(), recursive_shapes[0].end()
+        );
+        return result;
+    } else {
+        // First element along this dimension is not a sequence. Make sure all elements
+        // along this dimension are non-sequence.
+        for (auto element : bit_pattern_sequence) {
+            if (pybind11::isinstance<pybind11::sequence>(element)) {
+                // Sequence detected along dimension of non-sequence
+                throw std::runtime_error("Inhomogenous sequence shape");
+            }
+        }
+
+        // Return the size along this dimension
+        assert(len > 0);
+        return std::vector<std::size_t> { std::size_t(len) };
+    }
+}
+
+/*!
+ * Walk a, possibly nested, Python sequence of iterable objects and convert to a limb
+ * vector
+ */
