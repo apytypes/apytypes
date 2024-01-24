@@ -72,3 +72,25 @@ def test_to_string():
         str(APyFixed((1 << 999) + (1 << 123) + (1 << 64) + (1 << 63), 1000, 900))
         == "-4226356249085321970818718279332132852150778608288972177023685672213391220453798875795338047101257503157395159946057029431058780476021484298004311827703516615267093471992040673349852141411411528424193863265689507233184226342012493910707175190136291811916308647181895598079.9999999999781721271574497222900390625"
     )
+
+
+def test_is_positive():
+    a = APyFixed(4, 3, 2)
+    assert not a.is_positive
+    a = APyFixed(3, 3, 2)
+    assert a.is_positive
+    a = APyFixed(0, 3, 2)
+    assert not a.is_positive
+    a = APyFixed(-3, 3, 2)
+    assert not a.is_positive
+
+
+def test_is_negative():
+    a = APyFixed(4, 3, 2)
+    assert a.is_negative
+    a = APyFixed(3, 3, 2)
+    assert not a.is_negative
+    a = APyFixed(0, 3, 2)
+    assert not a.is_negative
+    a = APyFixed(-3, 3, 2)
+    assert a.is_negative

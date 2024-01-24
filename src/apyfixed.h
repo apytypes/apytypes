@@ -142,6 +142,9 @@ public:
     // Test if fixed-point number is negative
     bool is_negative() const noexcept;
 
+    // Test if fixed-point number is positive
+    bool is_positive() const noexcept;
+
     // Test if fixed-point number is zero
     bool is_zero() const noexcept;
 

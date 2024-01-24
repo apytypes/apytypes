@@ -135,6 +135,7 @@ void bind_fixed(py::module& m)
             :class:`int`
             )pbdoc")
         .def_property_readonly("is_negative", &APyFixed::is_negative)
+        .def_property_readonly("is_positive", &APyFixed::is_positive)
         .def("is_identical", &APyFixed::is_identical, py::arg("other"), R"pbdoc(
             Test if two `APyFixed` objects are identical.
 

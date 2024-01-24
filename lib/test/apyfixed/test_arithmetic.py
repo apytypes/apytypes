@@ -158,6 +158,7 @@ def test_resize():
 def test_unary_minus():
     a = APyFixed(-3, 3, 2)
     assert a.is_negative
+    assert not a.is_positive
     assert (-a).is_identical(APyFixed(3, 4, 3))
     assert (--a).is_identical(APyFixed(-3, 5, 4))
     assert not (-a).is_negative
@@ -171,6 +172,7 @@ def test_abs():
     assert a.is_negative
     assert abs(a).is_identical(APyFixed(4, 4, 3))
     assert not abs(a).is_negative
+    assert abs(a).is_positive
 
 
 def test_shift():

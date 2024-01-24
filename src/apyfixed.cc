@@ -425,6 +425,11 @@ bool APyFixed::is_negative() const noexcept
     return mp_limb_signed_t(_data.back()) < 0;
 }
 
+bool APyFixed::is_positive() const noexcept
+{
+    return mp_limb_signed_t(_data.back()) > 0;
+}
+
 bool APyFixed::is_zero() const noexcept
 {
     auto limb_non_zero = [](mp_limb_t limb) { return limb != 0; };
