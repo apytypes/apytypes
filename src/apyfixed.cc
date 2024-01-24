@@ -47,8 +47,8 @@ APyFixed::APyFixed(
 {
     if (bits.has_value() || int_bits.has_value() || frac_bits.has_value()) {
         // One or more bit-specifiers set, initialize from the specifier arguments
-        _set_bit_specifier_from_optional(bits, int_bits, frac_bits);
-        _bit_specifier_sanitize_bits();
+        set_bit_specifiers_from_optional(_bits, _int_bits, bits, int_bits, frac_bits);
+        bit_specifier_sanitize_bits(_bits, _int_bits);
         _data = std::vector<mp_limb_t>(bits_to_limbs(_bits), 0);
     } else {
         // No bit-specifiers set, use bit-specifiers from `other`
@@ -70,62 +70,7 @@ APyFixed::APyFixed(
 )
     : APyFixed(bits, int_bits, frac_bits)
 {
-    /*
-     * Beware when making changes to this function: This function is not (yet) tested by
-     * any C++ unit tests, as it's difficuly to construct `py::int_` or `PyLongObject`
-     * objects from C++.
-     *
-     * Update 2024-01-17: This function is now tested in the Python test-environment
-     */
-    PyLongObject* py_long = (PyLongObject*)python_long_int_bit_pattern.ptr();
-    long py_long_digits = PyLong_DigitCount(py_long);
-    bool py_long_is_negative = PyLong_IsNegative(py_long);
-
-    if (py_long_digits == 0) {
-        // Python integer is zero
-        _data[0] = 0;
-    } else if (py_long_digits == 1) {
-        // Python integer fits in one Python digit
-        _data[0] = mp_limb_t(GET_OB_DIGIT(py_long)[0]);
-        if (py_long_is_negative) {
-            _data[0] = -_data[0];
-            std::fill(_data.begin() + 1, _data.end(), mp_limb_t(-1));
-        }
-    } else {
-        // Python integer is stored using multiple Python digits. Import data
-        // from multi-digit Python long integer.
-        mpz_t mpz_from_py_long;
-        mpz_init(mpz_from_py_long);
-        mpz_import(
-            mpz_from_py_long,                    // Destination operand
-            py_long_digits,                      // Words to read
-            -1,                                  // LSWord first
-            sizeof(GET_OB_DIGIT(py_long)[0]),    // Word size in bytes
-            0,                                   // Machine endianness
-            sizeof(GET_OB_DIGIT(py_long)[0]) * 8 // Nail bits
-                - PYLONG_BITS_IN_DIGIT,          //
-            GET_OB_DIGIT(py_long)                // Source operand
-        );
-
-        // Export data to limb vector
-        auto limb_copy_count = std::min(_data.size(), mpz_size(mpz_from_py_long));
-        std::memcpy(
-            &_data[0],                        // dst
-            mpz_limbs_read(mpz_from_py_long), // src
-            limb_copy_count * _LIMB_SIZE_BYTES
-        );
-
-        // Negate limb vector if negative
-        if (py_long_is_negative) {
-            std::transform(_data.begin(), _data.end(), _data.begin(), std::bit_not {});
-            increment_lsb();
-        }
-
-        // Clear resources and return
-        mpz_clear(mpz_from_py_long);
-    }
-
-    // Perform two's complement overflowing
+    _data = py_long_to_limb_vec(python_long_int_bit_pattern, _data.size());
     _twos_complement_overflow();
 }
 
@@ -141,8 +86,8 @@ APyFixed::APyFixed(
     , _int_bits { 0 }
     , _data {}
 {
-    _set_bit_specifier_from_optional(bits, int_bits, frac_bits);
-    _bit_specifier_sanitize_bits();
+    set_bit_specifiers_from_optional(_bits, _int_bits, bits, int_bits, frac_bits);
+    bit_specifier_sanitize_bits(_bits, _int_bits);
     _data = std::vector<mp_limb_t>(bits_to_limbs(_bits), 0);
 }
 
@@ -152,7 +97,7 @@ APyFixed::APyFixed(int bits, int int_bits)
     , _int_bits { int_bits }
     , _data(bits_to_limbs(bits))
 {
-    _bit_specifier_sanitize_bits();
+    bit_specifier_sanitize_bits(_bits, _int_bits);
 }
 
 //! Constructor: specify size and initialize from a `double`
@@ -188,7 +133,7 @@ APyFixed::APyFixed(int bits, int int_bits, _ITER begin, _ITER end)
     , _int_bits { int_bits }
     , _data(begin, end)
 {
-    _bit_specifier_sanitize_bits();
+    bit_specifier_sanitize_bits(_bits, _int_bits);
 
     if (std::distance(begin, end) <= 0) {
         throw std::domain_error(
@@ -738,68 +683,9 @@ void APyFixed::set_from_apyfixed(const APyFixed& other)
 
 py::int_ APyFixed::bit_pattern_to_int(bool allow_negative_return_value) const
 {
-    // Required conversion information
-    bool sign = allow_negative_return_value ? is_negative() : false;
-    std::vector<mp_limb_t> limb_vec
-        = allow_negative_return_value ? _unsigned_abs() : _data;
-
-    // Make sure to zero bits outside of fixed-point range if printing as non-negative
-    if (!allow_negative_return_value && (bits() % _LIMB_SIZE_BITS)) {
-        limb_vec.back() &= (mp_limb_t(1) << (bits() % _LIMB_SIZE_BITS)) - 1;
-    }
-
-    // Number of significant bits in the limb vector
-    std::size_t significant_bits
-        = _LIMB_SIZE_BITS * limb_vec.size() - limb_vector_leading_zeros(limb_vec);
-
-    // Number of resulting limbs (Python nomencalture: `digits`) in the Python long
-    // integer result
-    std::size_t python_digits
-        = (significant_bits + PYLONG_BITS_IN_DIGIT - 1) / PYLONG_BITS_IN_DIGIT;
-
-    // Intermediate GMP `mpz` variable for import and export
-    mpz_t mpz_to_py_long;
-    mpz_init(mpz_to_py_long);
-    mpz_import(
-        mpz_to_py_long,    // Destination operand
-        vector_size(),     // Words to read
-        -1,                // LSWord first
-        sizeof(mp_limb_t), // Word size in bytes
-        0,                 // Machine endianness
-        0,                 // Number of nail bits
-        &limb_vec[0]       // Source operand
+    return limb_vec_to_py_long(
+        _data, allow_negative_return_value, bits() % _LIMB_SIZE_BITS
     );
-
-    PyLongObject* result = PyLong_New(python_digits);
-    if (!result) {
-        throw std::runtime_error("Could not allocate memory for Python long integer");
-    }
-
-    // Export the intermediate data to the python integer
-    std::size_t words_written = 0;
-    mpz_export(
-        &GET_OB_DIGIT(result)[0],           // Destination operand
-        &words_written,                     // Number of words written
-        -1,                                 // LSWord first
-        sizeof(GET_OB_DIGIT(result)[0]),    // Word size in bytes
-        0,                                  // Machine endianness
-        sizeof(GET_OB_DIGIT(result)[0]) * 8 // Nail bits
-            - PYLONG_BITS_IN_DIGIT,         //
-        mpz_to_py_long                      // Source operand
-    );
-    if (!words_written) {
-        GET_OB_DIGIT(result)[0] = 0;
-    }
-
-    // Clear the GMP `mpz` intermediate and finalize the Python long integer
-    mpz_clear(mpz_to_py_long);
-    while (python_digits > 0 && (GET_OB_DIGIT(result)[python_digits - 1] == 0)) {
-        python_digits--;
-    }
-    PyLong_SetSignAndDigitCount(result, sign, python_digits);
-
-    // Do a PyBind11 steal of the object and return
-    return py::reinterpret_steal<py::int_>((PyObject*)result);
 }
 
 std::string APyFixed::bit_pattern_to_string_dec() const
@@ -851,8 +737,10 @@ APyFixed APyFixed::resize(
     APyFixed result { *this };
     int old_bits = result._bits;
     int old_int_bits = result._int_bits;
-    result._set_bit_specifier_from_optional(bits, int_bits, frac_bits);
-    result._bit_specifier_sanitize_bits();
+    set_bit_specifiers_from_optional(
+        result._bits, result._int_bits, bits, int_bits, frac_bits
+    );
+    bit_specifier_sanitize_bits(result._bits, result._int_bits);
     if (bits_to_limbs(result._bits) > vector_size()) {
         std::fill_n( // Vector sign-extend the result limb vector
             std::back_inserter(result._data),
@@ -973,48 +861,6 @@ void APyFixed::_twos_complement_overflow() noexcept
         // Exploit signed arithmetic right-shift to perform two's complement overflow
         unsigned shft_amnt = _LIMB_SIZE_BITS - bits_last_word;
         _data.back() = mp_limb_signed_t(_data.back() << (shft_amnt)) >> (shft_amnt);
-    }
-}
-
-// Sanitize the _bits and _int_bits parameters
-void APyFixed::_set_bit_specifier_from_optional(
-    std::optional<int> bits, std::optional<int> int_bits, std::optional<int> frac_bits
-)
-{
-    int num_bit_spec = bits.has_value() + int_bits.has_value() + frac_bits.has_value();
-    if (num_bit_spec != 2) {
-        throw std::domain_error(
-            "APyFixed needs exactly two of three bit specifiers (bits, int_bits, "
-            "frac_bits) set when specifying bits."
-        );
-    }
-
-    // Set the internal `_bits` and `_int_bits` fields from two out of the three bit
-    // specifier fields
-    if (bits.has_value()) {
-        if (int_bits.has_value()) {
-            _bits = *bits;
-            _int_bits = *int_bits;
-            return;
-        } else {
-            // `bits` set and `int_bits` unset so `frac_bits` is set
-            _bits = *bits;
-            _int_bits = *bits - *frac_bits;
-        }
-    } else {
-        // `bits` unset, so `int_bits` and `frac_bits` is set
-        _bits = *int_bits + *frac_bits;
-        _int_bits = *int_bits;
-    }
-}
-
-// Sanitize the _bits and _int_bits parameters
-void APyFixed::_bit_specifier_sanitize_bits() const
-{
-    if (_bits <= 0) {
-        throw std::domain_error(
-            "APyFixed needs a positive integer bit-size of at-least 1 bit"
-        );
     }
 }
 

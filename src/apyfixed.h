@@ -62,7 +62,7 @@ public:
     // No default constructed APyFixed types
     APyFixed() = delete;
 
-    // Constructor: initialize from other APyFixed and optionally set bit specifiers
+    //! Constructor: initialize from other APyFixed and optionally set bit specifiers
     APyFixed(
         const APyFixed& other,
         std::optional<int> bits = std::nullopt,
@@ -70,8 +70,8 @@ public:
         std::optional<int> frac_bits = std::nullopt
     );
 
-    // Constructor: construct from a Python arbitrary long integer object and optionally
-    // set bit specifiers
+    //! Constructor: construct from a Python arbitrary long integer object and
+    //! optionally set bit specifiers
     explicit APyFixed(
         pybind11::int_ python_long_int_bit_pattern,
         std::optional<int> bits = std::nullopt,
@@ -83,20 +83,20 @@ public:
      *                       Non-Python accessible constructors                       *
      * ****************************************************************************** */
 
-    // Constructor: specify size and initialize from a `double`
+    //! Constructor: specify size and initialize from a `double`
     explicit APyFixed(double value, int bits, int int_bits);
 
-    // Constructor: specify only size, and zero data on construction
+    //! Constructor: specify only size, and zero data on construction
     explicit APyFixed(int bits, int int_bits);
 
-    // Constructor: specify only size, and zero data on construction
+    //! Constructor: specify only size, and zero data on construction
     explicit APyFixed(
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt
     );
 
-    // Constructor: specify size and initialize from string
+    //! Constructor: specify size and initialize from string
     explicit APyFixed(int bits, int int_bits, const char* str, int base = 10);
 
     /* ****************************************************************************** *
@@ -125,9 +125,13 @@ public:
      *                        Other public member functions                           *
      * ****************************************************************************** */
 
-    // Get the number of bits in this APyInt object
+    //! Retrieve the `bits` specifier for this APyFixed
     int bits() const noexcept { return _bits; }
+
+    //! Retrieve the `int_bits` specifier for this APyFixed
     int int_bits() const noexcept { return _int_bits; }
+
+    //! Retrieve the `frac_bits` specifier for this APyFixed
     int frac_bits() const noexcept { return _bits - _int_bits; }
 
     // Retrieve the number of elements in underlying limb data vector
@@ -219,16 +223,6 @@ public:
      * ****************************************************************************** */
 
 private:
-    // Set member fields `bits` and `int_bits` from optional input arguments
-    void _set_bit_specifier_from_optional(
-        std::optional<int> bits,
-        std::optional<int> int_bits,
-        std::optional<int> frac_bits
-    );
-
-    // Sanitize the _bits and _int_bits parameters
-    void _bit_specifier_sanitize_bits() const;
-
     // Sign preserving automatic size extending arithmetic left shift
     std::vector<mp_limb_t> _data_asl(unsigned shift_val) const;
 

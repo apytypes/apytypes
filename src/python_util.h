@@ -2,12 +2,23 @@
  * Python utility functions and helpers
  */
 
+// Python object access through Pybind
+#include <pybind11/pybind11.h>
+
 // Python details. These should be included before standard header files:
 // https://docs.python.org/3/c-api/intro.html#include-files
 #include <Python.h>
 
 // Standard includes
-#include <cstddef> // offsetof
+#include <cstddef>  // offsetof
+#include <optional> // std::optional, std::nullopt
+#include <vector>   // std::vector
+
+// Custom includes
+#include "apytypes_util.h"
+
+// GMP should be included after all other includes
+#include <gmp.h>
 
 /*
  * Access of information of PyLongObjects (Python arbitrary length integer objects).
@@ -39,7 +50,7 @@
 #define PyLong_DigitCount(obj) (PyLong_IsNegative(obj) ? -Py_SIZE(obj) : Py_SIZE(obj))
 #endif
 
-/*
+/*!
  * Creation of a new PyLongObject that can be returned to Python
  */
 static inline PyLongObject* PyLong_New(std::size_t python_digits)
@@ -67,4 +78,165 @@ static inline PyLongObject* PyLong_New(std::size_t python_digits)
 
     // Return the newly created Python integer
     return result;
+}
+
+/*!
+ * Python arbitrary long integer object to GMP limb vector
+ */
+static inline std::vector<mp_limb_t> py_long_to_limb_vec(
+    pybind11::int_ py_long_int, std::optional<std::size_t> n_exact_limbs = std::nullopt
+)
+{
+    PyLongObject* py_long = (PyLongObject*)py_long_int.ptr();
+    long py_long_digits = PyLong_DigitCount(py_long);
+    bool py_long_is_negative = PyLong_IsNegative(py_long);
+
+    std::vector<mp_limb_t> result;
+    if (py_long_digits == 0) {
+        // Python integer is zero
+        result = { 0 };
+    } else if (py_long_digits == 1) {
+        // Python integer fits in one Python digit
+        result = { GET_OB_DIGIT(py_long)[0] };
+    } else {
+        // Python integer is stored using multiple Python digits. Import data from
+        // multi-digit Python long integer.
+        mpz_t mpz_from_py_long;
+        mpz_init(mpz_from_py_long);
+        mpz_import(
+            mpz_from_py_long,                    // Destination operand
+            py_long_digits,                      // Words to read
+            -1,                                  // LSWord first
+            sizeof(GET_OB_DIGIT(py_long)[0]),    // Word size in bytes
+            0,                                   // Machine endianness
+            sizeof(GET_OB_DIGIT(py_long)[0]) * 8 // Nail bits
+                - PYLONG_BITS_IN_DIGIT,          //
+            GET_OB_DIGIT(py_long)                // Source operand
+        );
+
+        // Compute how many limbs to copy
+        std::size_t limb_copy_count {};
+        if (n_exact_limbs.has_value()) {
+            limb_copy_count = std::min(*n_exact_limbs, mpz_size(mpz_from_py_long));
+        } else {
+            limb_copy_count = mpz_size(mpz_from_py_long);
+        }
+
+        // Copy limbs into a result-vector
+        result = std::vector<mp_limb_t>(limb_copy_count, 0);
+        std::memcpy(
+            &result[0],                       // dst
+            mpz_limbs_read(mpz_from_py_long), // src
+            limb_copy_count * _LIMB_SIZE_BYTES
+        );
+
+        // Clear MPZ resources
+        mpz_clear(mpz_from_py_long);
+    }
+
+    // Possibly extend the vector
+    if (n_exact_limbs.has_value() && *n_exact_limbs > result.size()) {
+        std::fill_n(std::back_inserter(result), *n_exact_limbs - result.size(), 0);
+    }
+
+    // Negate limb vector if negative
+    if (py_long_is_negative) {
+        std::transform(result.begin(), result.end(), result.begin(), std::bit_not {});
+        mpn_add_1(&result[0], &result[0], result.size(), 1);
+    }
+
+    // Return the result
+    return result;
+}
+
+/*!
+ * Convert a limb vector (`std::vector<mp_limb_t>`) to a Python long integer object
+ * wrapped in a `Pybind11::int_`.
+ */
+static inline pybind11::int_ limb_vec_to_py_long(
+    const std::vector<mp_limb_t>& vec,
+    bool vec_is_signed = false,
+    std::optional<unsigned> bits_last_limb = std::nullopt
+)
+{
+    // Guard for empty vectors
+    if (vec.size() == 0) {
+        return pybind11::reinterpret_steal<pybind11::int_>((PyObject*)PyLong_New(0));
+    }
+
+    // Extract sign of limb vector
+    bool sign = vec_is_signed ? mp_limb_signed_t(vec.back()) < 0 : false;
+
+    // Take absolute value of limb vector
+    std::vector<mp_limb_t> limb_vec_abs = vec;
+    if (sign) {
+        std::transform(
+            limb_vec_abs.cbegin(),
+            limb_vec_abs.cend(),
+            limb_vec_abs.begin(),
+            [](auto limb) { return ~limb; }
+        );
+        mpn_add_1(&limb_vec_abs[0], &limb_vec_abs[0], limb_vec_abs.size(), 1);
+    }
+
+    // Zero bits outside of range if printing as positive and `bits_last_limb` is
+    // specified
+    if (!vec_is_signed && bits_last_limb.has_value()) {
+        if (*bits_last_limb % _LIMB_SIZE_BITS) {
+            limb_vec_abs.back()
+                &= (mp_limb_t(1) << (*bits_last_limb % _LIMB_SIZE_BITS)) - 1;
+        }
+    }
+
+    // Number of significant bits in the absolute value limb vector
+    std::size_t significant_bits = _LIMB_SIZE_BITS * limb_vec_abs.size()
+        - limb_vector_leading_zeros(limb_vec_abs);
+
+    // Number of resulting Python digits in the Python long
+    std::size_t python_digits
+        = (significant_bits + PYLONG_BITS_IN_DIGIT - 1) / PYLONG_BITS_IN_DIGIT;
+
+    // Intermediate GMP `mpz` variable for import and export
+    mpz_t mpz_to_py_long;
+    mpz_init(mpz_to_py_long);
+    mpz_import(
+        mpz_to_py_long,      // Destination operand
+        limb_vec_abs.size(), // Words to read
+        -1,                  // LSWord first
+        sizeof(mp_limb_t),   // Word size in bytes
+        0,                   // Machine endianness
+        0,                   // Number of nail bits
+        &limb_vec_abs[0]     // Source operand
+    );
+
+    PyLongObject* result = PyLong_New(python_digits);
+    if (!result) {
+        throw std::runtime_error("Could not allocate memory for Python long integer");
+    }
+
+    // Export the intermediate data to the python integer
+    std::size_t words_written = 0;
+    mpz_export(
+        &GET_OB_DIGIT(result)[0],           // Destination operand
+        &words_written,                     // Number of words written
+        -1,                                 // LSWord first
+        sizeof(GET_OB_DIGIT(result)[0]),    // Word size in bytes
+        0,                                  // Machine endianness
+        sizeof(GET_OB_DIGIT(result)[0]) * 8 // Nail bits
+            - PYLONG_BITS_IN_DIGIT,         //
+        mpz_to_py_long                      // Source operand
+    );
+    if (!words_written) {
+        GET_OB_DIGIT(result)[0] = 0;
+    }
+
+    // Clear the GMP `mpz` intermediate and finalize the Python long integer
+    mpz_clear(mpz_to_py_long);
+    while (python_digits > 0 && (GET_OB_DIGIT(result)[python_digits - 1] == 0)) {
+        python_digits--;
+    }
+    PyLong_SetSignAndDigitCount(result, sign, python_digits);
+
+    // Do a PyBind11 steal of the object and return
+    return pybind11::reinterpret_steal<pybind11::int_>((PyObject*)result);
 }
