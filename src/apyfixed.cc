@@ -70,7 +70,7 @@ APyFixed::APyFixed(
 )
     : APyFixed(bits, int_bits, frac_bits)
 {
-    _data = py_long_to_limb_vec(python_long_int_bit_pattern, _data.size());
+    _data = python_long_to_limb_vec(python_long_int_bit_pattern, _data.size());
     _twos_complement_overflow();
 }
 
@@ -683,7 +683,7 @@ void APyFixed::set_from_apyfixed(const APyFixed& other)
 
 py::int_ APyFixed::bit_pattern_to_int(bool allow_negative_return_value) const
 {
-    return limb_vec_to_py_long(
+    return python_limb_vec_to_long(
         _data, allow_negative_return_value, bits() % _LIMB_SIZE_BITS
     );
 }

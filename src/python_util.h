@@ -3,7 +3,6 @@
  */
 
 // Python object access through Pybind
-#include <cassert>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h>
@@ -13,10 +12,15 @@
 #include <Python.h>
 
 // Standard includes
-#include <cstddef> // offsetof
+#include <algorithm> // std::copy
+#include <cassert>   // assert
+#include <cstddef>   // offsetof
 #include <iostream>
-#include <optional> // std::optional, std::nullopt
-#include <vector>   // std::vector
+#include <numeric>   // std::accumulate
+#include <optional>  // std::optional, std::nullopt
+#include <stack>     // std::stack
+#include <stdexcept> // std::runtime_error
+#include <vector>    // std::vector
 
 // Custom includes
 #include "apytypes_util.h"
@@ -87,7 +91,7 @@ static inline PyLongObject* PyLong_New(std::size_t python_digits)
 /*!
  * Python arbitrary long integer object to GMP limb vector
  */
-static inline std::vector<mp_limb_t> py_long_to_limb_vec(
+static inline std::vector<mp_limb_t> python_long_to_limb_vec(
     pybind11::int_ py_long_int, std::optional<std::size_t> n_exact_limbs = std::nullopt
 )
 {
@@ -157,7 +161,7 @@ static inline std::vector<mp_limb_t> py_long_to_limb_vec(
  * Convert a limb vector (`std::vector<mp_limb_t>`) to a Python long integer object
  * wrapped in a `Pybind11::int_`.
  */
-static inline pybind11::int_ limb_vec_to_py_long(
+static inline pybind11::int_ python_limb_vec_to_long(
     const std::vector<mp_limb_t>& vec,
     bool vec_is_signed = false,
     std::optional<unsigned> bits_last_limb = std::nullopt
@@ -251,43 +255,46 @@ static inline pybind11::int_ limb_vec_to_py_long(
 static inline std::vector<std::size_t>
 python_sequence_extract_shape(const pybind11::sequence& bit_pattern_sequence)
 {
+    namespace py = pybind11;
+
     // Compute the length along the first dimension of this sequence
-    auto len = std::distance(bit_pattern_sequence.begin(), bit_pattern_sequence.end());
+    auto sequence_len
+        = std::distance(bit_pattern_sequence.begin(), bit_pattern_sequence.end());
 
     // Early exit
-    if (len == 0) {
+    if (sequence_len == 0) {
         // Empyt Python sequence, array shape is ( 0, )
         return { 0 };
     }
 
     auto first_element_it = bit_pattern_sequence.begin();
-    if (pybind11::isinstance<pybind11::sequence>(*first_element_it)) {
+    if (py::isinstance<py::sequence>(*first_element_it)) {
         // First element along this dimension is another sequence. Make sure all
         // elements along this dimesions are also lists and recursivly evaluate their
         // shapes.
         std::vector<std::vector<std::size_t>> recursive_shapes;
         for (auto element : bit_pattern_sequence) {
-            if (!pybind11::isinstance<pybind11::sequence>(element)) {
+            if (!py::isinstance<py::sequence>(element)) {
                 // Non-sequence detected along dimension of sequences
-                throw std::runtime_error("Inhomogenous sequence shape");
+                throw std::runtime_error("Inhomogeneous sequence shape");
             }
 
-            recursive_shapes.push_back(python_sequence_extract_shape(
-                pybind11::cast<pybind11::sequence>(element)
-            ));
+            recursive_shapes.push_back(
+                python_sequence_extract_shape(py::cast<py::sequence>(element))
+            );
         }
 
         // Make sure all recursively found shapes are equal
         for (const auto& shape : recursive_shapes) {
             if (shape != recursive_shapes[0]) {
-                // Inhomogeneouity detected
-                throw std::runtime_error("Inhomogenous sequence shape");
+                // Inhomogeneous detected
+                throw std::runtime_error("Inhomogeneous sequence shape");
             }
         }
 
         // Return the recursive shape
-        assert(len > 0);
-        std::vector<std::size_t> result { std::size_t(len) };
+        assert(sequence_len > 0);
+        std::vector<std::size_t> result { std::size_t(sequence_len) };
         result.insert(
             result.end(), recursive_shapes[0].begin(), recursive_shapes[0].end()
         );
@@ -296,19 +303,77 @@ python_sequence_extract_shape(const pybind11::sequence& bit_pattern_sequence)
         // First element along this dimension is not a sequence. Make sure all elements
         // along this dimension are non-sequence.
         for (auto element : bit_pattern_sequence) {
-            if (pybind11::isinstance<pybind11::sequence>(element)) {
+            if (py::isinstance<py::sequence>(element)) {
                 // Sequence detected along dimension of non-sequence
-                throw std::runtime_error("Inhomogenous sequence shape");
+                throw std::runtime_error("Inhomogeneous sequence shape");
             }
         }
 
         // Return the size along this dimension
-        assert(len > 0);
-        return std::vector<std::size_t> { std::size_t(len) };
+        assert(sequence_len > 0);
+        return std::vector<std::size_t> { std::size_t(sequence_len) };
     }
 }
 
 /*!
- * Walk a, possibly nested, Python sequence of iterable objects and convert to a limb
- * vector
+ * Walk a, possibly nested, Python sequence of iterable objects and convert every Python
+ * integer object to a limb vector and return. Throws exception if any object is neither
+ * a Python sequence nor a Python long.
  */
+static inline std::vector<mp_limb_t> python_sequence_walk_ints(
+    const pybind11::sequence& bit_pattern_sequence,
+    const std::vector<std::size_t> shape,
+    std::size_t limbs_per_element
+)
+{
+    namespace py = pybind11;
+    std::size_t elements
+        = std::accumulate(shape.cbegin(), shape.cend(), 1, std::multiplies());
+    std::cout << "N Elements: " << elements << std::endl;
+    std::vector<mp_limb_t> result(limbs_per_element * elements, 0);
+
+    // Result output iterator
+    auto result_output_it = result.begin();
+
+    // Walk the Python sequences and extract the data
+    std::stack<decltype(bit_pattern_sequence.begin())> python_iterator_stack {};
+    std::stack<decltype(bit_pattern_sequence.end())> python_sentinel_stack {};
+    python_iterator_stack.push(bit_pattern_sequence.begin());
+    python_sentinel_stack.push(bit_pattern_sequence.end());
+    while (!python_iterator_stack.empty()) {
+
+        // Current iterator/sentinel pair (by reference)
+        auto& current_iterator = python_iterator_stack.top();
+        auto& current_sentinel = python_sentinel_stack.top();
+
+        if (current_iterator == current_sentinel) {
+            // End of current iterator/sentinel pair. Pop it.
+            python_iterator_stack.pop();
+            python_sentinel_stack.pop();
+        } else {
+
+            if (py::isinstance<py::sequence>(*current_iterator)) {
+                // New sequence found. We need to go deeper
+                auto new_sequence = py::cast<py::sequence>(*current_iterator);
+                python_iterator_stack.push(new_sequence.begin());
+                python_sentinel_stack.push(new_sequence.end());
+                ++current_iterator;
+            } else if (py::isinstance<py::int_>(*current_iterator)) {
+                // New python integer found. Add it
+                auto new_int = py::cast<py::int_>(*current_iterator);
+                auto limb_vec = python_long_to_limb_vec(new_int, limbs_per_element);
+                result_output_it
+                    = std::copy(limb_vec.begin(), limb_vec.end(), result_output_it);
+                std::cout << "New int found: " << new_int << std::endl;
+                ++current_iterator;
+            } else {
+                throw std::runtime_error(
+                    "Non integer/sequence found when walking integers"
+                );
+            }
+        }
+    }
+
+    // Return the result
+    return result;
+}
