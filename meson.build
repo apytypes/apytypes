@@ -17,7 +17,14 @@ cc = meson.get_compiler('cpp')
 gmp_dep = cc.find_library('gmp')
 py3_dep = py3.dependency()
 pybind11_dep = dependency('pybind11', version: '>=2.6')
-py3.install_sources(['lib/apytypes/__init__.py'], subdir: 'apytypes')
+py3.install_sources(
+  [
+    'lib/apytypes/__init__.py',
+    'lib/apytypes/__init__.pyi',
+    'lib/apytypes/_apytypes.pyi',
+  ],
+  subdir: 'apytypes'
+)
 
 # Python module
 py3.extension_module(
