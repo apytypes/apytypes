@@ -15,7 +15,6 @@
 #include <algorithm> // std::copy
 #include <cassert>   // assert
 #include <cstddef>   // offsetof
-#include <iostream>
 #include <numeric>   // std::accumulate
 #include <optional>  // std::optional, std::nullopt
 #include <stack>     // std::stack
@@ -318,7 +317,9 @@ python_sequence_extract_shape(const pybind11::sequence& bit_pattern_sequence)
 /*!
  * Walk a, possibly nested, Python sequence of iterable objects and convert every Python
  * integer object to a limb vector and return. Throws exception if any object is neither
- * a Python sequence nor a Python long.
+ * a Python sequence nor a Python long. This method naivly traverses the sequences,
+ * depth-first style, so the `shape` must correspond exactly to the shape of the
+ * `bit_pattern_sequence` argument, anything else is undefined behaviour.
  */
 static inline std::vector<mp_limb_t> python_sequence_walk_ints(
     const pybind11::sequence& bit_pattern_sequence,
@@ -329,7 +330,6 @@ static inline std::vector<mp_limb_t> python_sequence_walk_ints(
     namespace py = pybind11;
     std::size_t elements
         = std::accumulate(shape.cbegin(), shape.cend(), 1, std::multiplies());
-    std::cout << "N Elements: " << elements << std::endl;
     std::vector<mp_limb_t> result(limbs_per_element * elements, 0);
 
     // Result output iterator
@@ -364,7 +364,6 @@ static inline std::vector<mp_limb_t> python_sequence_walk_ints(
                 auto limb_vec = python_long_to_limb_vec(new_int, limbs_per_element);
                 result_output_it
                     = std::copy(limb_vec.begin(), limb_vec.end(), result_output_it);
-                std::cout << "New int found: " << new_int << std::endl;
                 ++current_iterator;
             } else {
                 throw std::runtime_error(

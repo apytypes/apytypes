@@ -67,3 +67,24 @@ APyFixedArray::APyFixedArray(
 /* ********************************************************************************** *
  * *                               Other methods                                    * *
  * ********************************************************************************** */
+
+std::string APyFixedArray::repr() const
+{
+    std::stringstream ss {};
+    ss << "APyFixedArray([";
+    for (auto e : _data) {
+        ss << e << ", ";
+    }
+    ss.seekp(-2, ss.cur);
+    ss << "], "
+       << "shape=(";
+    for (auto d : _shape) {
+        ss << d << ", ";
+    }
+    ss.seekp(-2, ss.cur);
+    ss << "), ";
+    ss << "bits=" << _bits << ", ";
+    ss << "int_bits=" << _int_bits;
+    ss << ")";
+    return ss.str();
+}

@@ -29,5 +29,10 @@ void bind_fixed_array(py::module& m)
             py::arg("frac_bits") = std::nullopt
         )
 
+        /*
+         * Dunder methods
+         */
+        .def("__repr__", &APyFixedArray::repr)
+
         ;
 }
