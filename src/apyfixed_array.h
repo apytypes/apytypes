@@ -28,7 +28,7 @@ class APyFixedArray {
     std::vector<mp_limb_t> _data;
 
     /* ****************************************************************************** *
-     *                            Python constructors                                 *
+     * *                          Python constructors                               * *
      * ****************************************************************************** */
 
 public:
@@ -43,7 +43,7 @@ public:
     );
 
     /* ****************************************************************************** *
-     *                       Non-Python accessible constructors                       *
+     * *                     Non-Python accessible constructors                     * *
      * ****************************************************************************** */
 
     //! Constructor: specify only size, and zero data on construction
@@ -52,6 +52,11 @@ public:
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt
     );
+
+    /* ****************************************************************************** *
+     * *                          Public member functions                           * *
+     * ****************************************************************************** */
+    std::string repr() const;
 };
 
 #endif // _APYFIXED_ARRAY_H

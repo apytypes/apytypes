@@ -3,6 +3,7 @@ import typing
 
 __all__ = [
     "APyFixed",
+    "APyFixedArray",
     "APyFixedOverflowMode",
     "APyFixedRoundingMode",
     "APyFloat",
@@ -211,6 +212,16 @@ class APyFixed:
     def is_zero(self) -> bool: ...
     @property
     def vector_size(self) -> int: ...
+
+class APyFixedArray:
+    def __init__(
+        self,
+        bit_pattern_sequence: typing.Sequence,
+        bits: int | None = None,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+    ) -> None: ...
+    def __repr__(self) -> str: ...
 
 class APyFixedOverflowMode:
     """

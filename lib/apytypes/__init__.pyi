@@ -1,5 +1,6 @@
 from __future__ import annotations
 from apytypes._apytypes import APyFixed
+from apytypes._apytypes import APyFixedArray
 from apytypes._apytypes import APyFixedOverflowMode
 from apytypes._apytypes import APyFixedRoundingMode
 from apytypes._apytypes import APyFloat
@@ -12,6 +13,7 @@ from . import _apytypes
 __all__: list = [
     "APyFloat",
     "APyFixed",
+    "APyFixedArray",
     "APyFixedRoundingMode",
     "APyFixedOverflowMode",
     "RoundingContext",
