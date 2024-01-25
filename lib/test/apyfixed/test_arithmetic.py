@@ -174,6 +174,14 @@ def test_abs():
     assert not abs(a).is_negative
     assert abs(a).is_positive
 
+    # Both positive and negative fixed-point values have word length increased on
+    # absolute value. Related GitHub issue: #15
+    a = APyFixed(3, 3, 2)
+    b = APyFixed(-3, 3, 2)
+    assert abs(a).bit_pattern_to_int() == 3
+    assert abs(b).bit_pattern_to_int() == 3
+    assert abs(a).is_identical(abs(b))
+
 
 def test_shift():
     a = APyFixed(-3, 3, 2)
@@ -181,13 +189,6 @@ def test_shift():
     assert (a << 7).is_identical(APyFixed(-3, 3, 9))
     assert (a >> -2).is_identical(APyFixed(-3, 3, 4))
     assert (a << -7).is_identical(APyFixed(-3, 3, -5))
-
-
-@pytest.mark.xfail
-def test_abs_failing():
-    a = APyFixed(3, 3, 2)
-    b = APyFixed(-3, 3, 2)
-    assert abs(a).is_identical(abs(b))
 
 
 @pytest.mark.xfail

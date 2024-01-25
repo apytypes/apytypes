@@ -410,9 +410,13 @@ APyFixed APyFixed::operator-() const
 APyFixed APyFixed::abs() const
 {
     if (is_negative()) {
+        // Unary `operator-()` increases word length by one
         return -*this;
     } else {
-        return *this;
+        // Incrase word length by one and return copy
+        APyFixed result(_bits + 1, _int_bits + 1);
+        std::copy(_data.cbegin(), _data.cend(), result._data.begin());
+        return result;
     }
 }
 
