@@ -43,7 +43,8 @@ APyFixedArray::APyFixedArray(
     _shape = python_sequence_extract_shape(bit_pattern_list);
 
     // Currently we only support initialization from Python ints
-    //_data = python_sequence_walk_ints(bit_pattern_list, _shape);
+    std::size_t limbs_per_element = bits_to_limbs(_bits);
+    _data = python_sequence_walk_ints(bit_pattern_list, _shape, limbs_per_element);
 }
 
 /* ********************************************************************************** *
