@@ -704,8 +704,8 @@ std::string APyFixed::bit_pattern_to_string_dec() const
     // Setup hex printing which will properly display the BCD characters
     ss << std::hex;
 
-    // The remaining limbs can be printed normally
-    for (auto limb_it = v.crbegin()++; limb_it != v.crend(); ++limb_it) {
+    // The limbs can be converted to characters normally
+    for (auto limb_it = v.crbegin(); limb_it != v.crend(); ++limb_it) {
         ss << *limb_it;
     }
     return ss.str();
