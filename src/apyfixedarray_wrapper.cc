@@ -1,4 +1,4 @@
-#include "apyfixed_array.h"
+#include "apyfixedarray.h"
 #include "apytypes_common.h"
 #include "apytypes_util.h"
 
