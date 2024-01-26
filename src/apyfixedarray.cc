@@ -10,6 +10,7 @@ namespace py = pybind11;
 // Standard header includes
 #include <algorithm>  // std::copy, std::max, std::transform, etc...
 #include <cstddef>    // std::size_t
+#include <cstdlib>    // std::malloc, std::free
 #include <cstring>    // std::memcpy
 #include <functional> // std::bit_not
 #include <iostream>
@@ -20,7 +21,7 @@ namespace py = pybind11;
 #include <string>    // std::string
 #include <vector>    // std::vector, std::swap
 
-#include "apyfixed_array.h"
+#include "apyfixedarray.h"
 #include "apytypes_util.h"
 #include "ieee754.h"
 #include "python_util.h"
@@ -45,6 +46,8 @@ APyFixedArray::APyFixedArray(
     // Currently we only support initialization from Python ints
     std::size_t limbs_per_element = bits_to_limbs(_bits);
     _data = python_sequence_walk_ints(bit_pattern_list, _shape, limbs_per_element);
+
+    ///// TODO: Two's complement overflowing
 }
 
 /* ********************************************************************************** *
@@ -72,19 +75,39 @@ std::string APyFixedArray::repr() const
 {
     std::stringstream ss {};
     ss << "APyFixedArray([";
-    for (auto e : _data) {
-        ss << e << ", ";
+    if (_shape[0]) {
+        mpz_t tmp;
+        mpz_init(tmp);
+        for (std::size_t i = 0; i < _data.size(); i += bits_to_limbs(_bits)) {
+            mpz_import(
+                tmp,                  // Destination operand
+                bits_to_limbs(_bits), // Words to read
+                -1,                   // LSWord first
+                sizeof(mp_limb_t),    // Word size in bytes
+                0,                    // Machine endianness
+                0,                    // Number of nail bits
+                &_data[i]             // Source operand
+            );
+
+            // Allocation using `malloc()` happens in `gmp_asprintf()`, therefore we
+            // need to free the memory using `free()`. See 10.2 Functions, of GMP
+            // documentation.
+            char* pp = nullptr;
+            gmp_asprintf(&pp, "%Zd", tmp);
+            ss << pp << ", ";
+            std::free(pp);
+        }
+        mpz_clear(tmp);
+        ss.seekp(-2, ss.cur);
     }
-    ss.seekp(-2, ss.cur);
     ss << "], "
        << "shape=(";
     for (auto d : _shape) {
         ss << d << ", ";
     }
     ss.seekp(-2, ss.cur);
-    ss << "), ";
-    ss << "bits=" << _bits << ", ";
-    ss << "int_bits=" << _int_bits;
-    ss << ")";
+    ss << "), "
+       << "bits=" << _bits << ", "
+       << "int_bits=" << _int_bits << ")";
     return ss.str();
 }

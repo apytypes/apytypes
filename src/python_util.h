@@ -336,8 +336,9 @@ static inline std::vector<mp_limb_t> python_sequence_walk_ints(
     auto result_output_it = result.begin();
 
     // Walk the Python sequences and extract the data
-    std::stack<decltype(bit_pattern_sequence.begin())> python_iterator_stack {};
-    std::stack<decltype(bit_pattern_sequence.end())> python_sentinel_stack {};
+    using seq_it_t = decltype(bit_pattern_sequence.begin());
+    std::stack<seq_it_t, std::vector<seq_it_t>> python_iterator_stack {};
+    std::stack<seq_it_t, std::vector<seq_it_t>> python_sentinel_stack {};
     python_iterator_stack.push(bit_pattern_sequence.begin());
     python_sentinel_stack.push(bit_pattern_sequence.end());
     while (!python_iterator_stack.empty()) {
@@ -354,20 +355,20 @@ static inline std::vector<mp_limb_t> python_sequence_walk_ints(
 
             if (py::isinstance<py::sequence>(*current_iterator)) {
                 // New sequence found. We need to go deeper
-                auto new_sequence = py::cast<py::sequence>(*current_iterator);
+                auto new_sequence = py::cast<py::sequence>(*current_iterator++);
                 python_iterator_stack.push(new_sequence.begin());
                 python_sentinel_stack.push(new_sequence.end());
-                ++current_iterator;
             } else if (py::isinstance<py::int_>(*current_iterator)) {
                 // New python integer found. Add it
-                auto new_int = py::cast<py::int_>(*current_iterator);
+                auto new_int = py::cast<py::int_>(*current_iterator++);
                 auto limb_vec = python_long_to_limb_vec(new_int, limbs_per_element);
                 result_output_it
                     = std::copy(limb_vec.begin(), limb_vec.end(), result_output_it);
-                ++current_iterator;
             } else {
+                std::string repr_string = py::repr(*current_iterator);
                 throw std::runtime_error(
-                    "Non integer/sequence found when walking integers"
+                    std::string("Non integer/sequence found when walking integers: ")
+                    + repr_string
                 );
             }
         }
