@@ -54,8 +54,21 @@ public:
     );
 
     /* ****************************************************************************** *
+     * *                       Binary arithmetic operators                          * *
+     * ****************************************************************************** */
+
+    APyFixedArray operator+(const APyFixedArray& rhs) const;
+    APyFixedArray operator-(const APyFixedArray& rhs) const;
+    APyFixedArray operator*(const APyFixedArray& rhs) const;
+    APyFixedArray operator/(const APyFixedArray& rhs) const;
+    APyFixedArray operator<<(int shift_val) const;
+    APyFixedArray operator>>(int shift_val) const;
+
+    /* ****************************************************************************** *
      * *                          Public member functions                           * *
      * ****************************************************************************** */
+
+    //! Python `__repr__()` function
     std::string repr() const;
 };
 

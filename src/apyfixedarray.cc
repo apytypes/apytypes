@@ -68,6 +68,21 @@ APyFixedArray::APyFixedArray(
 }
 
 /* ********************************************************************************** *
+ * *                            Binary arithmetic operators                         * *
+ * ********************************************************************************** */
+
+APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
+{
+    // Make sure `_shape` of `*this` and `rhs` are the same
+
+    // Increase word length of result by one
+
+    // Shift the binary point in position
+
+    // Perform addition using `mpn_add_n` or `mpn_add`
+}
+
+/* ********************************************************************************** *
  * *                               Other methods                                    * *
  * ********************************************************************************** */
 
@@ -76,28 +91,35 @@ std::string APyFixedArray::repr() const
     std::stringstream ss {};
     ss << "APyFixedArray([";
     if (_shape[0]) {
-        mpz_t tmp;
-        mpz_init(tmp);
-        for (std::size_t i = 0; i < _data.size(); i += bits_to_limbs(_bits)) {
-            mpz_import(
-                tmp,                  // Destination operand
-                bits_to_limbs(_bits), // Words to read
-                -1,                   // LSWord first
-                sizeof(mp_limb_t),    // Word size in bytes
-                0,                    // Machine endianness
-                0,                    // Number of nail bits
-                &_data[i]             // Source operand
-            );
+        // Setup hex printing which will properly display the BCD characters
+        ss << std::hex;
 
-            // Allocation using `malloc()` happens in `gmp_asprintf()`, therefore we
-            // need to free the memory using `free()`. See 10.2 Functions, of GMP
-            // documentation.
-            char* pp = nullptr;
-            gmp_asprintf(&pp, "%Zd", tmp);
-            ss << pp << ", ";
-            std::free(pp);
+        std::size_t n_limbs = bits_to_limbs(_bits);
+        std::vector<mp_limb_t> data(n_limbs, 0);
+        for (std::size_t offset = 0; offset < _data.size(); offset += n_limbs) {
+            std::copy_n(_data.begin() + offset, n_limbs, data.begin());
+
+            // Zero sign bits outside of bit-range
+            if (_bits % _LIMB_SIZE_BITS) {
+                mp_limb_t and_mask = (mp_limb_t(1) << (_bits % _LIMB_SIZE_BITS)) - 1;
+                data.back() &= and_mask;
+            }
+
+            // Double-dabble for binary-to-BCD conversion
+            std::vector<mp_limb_t> bcds = double_dabble(data);
+
+            // The limbs can be converted to characters normally
+            for (auto limb_it = bcds.crbegin(); limb_it != bcds.crend(); ++limb_it) {
+                ss << *limb_it;
+            }
+
+            ss << ", ";
         }
-        mpz_clear(tmp);
+
+        // Back to decimal printing
+        ss << std::dec;
+
+        // mpz_clear(tmp);
         ss.seekp(-2, ss.cur);
     }
     ss << "], "
