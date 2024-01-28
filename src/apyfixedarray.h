@@ -48,6 +48,7 @@ public:
 
     //! Constructor: specify only size, and zero data on construction
     explicit APyFixedArray(
+        std::vector<std::size_t> shape,
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt
@@ -70,6 +71,21 @@ public:
 
     //! Python `__repr__()` function
     std::string repr() const;
+
+    /* ****************************************************************************** *
+     * *                          Private member functions                          * *
+     * ****************************************************************************** */
+
+    //! Construct a new `APyFixedArray` tensor object with the same `shape` and
+    //! fixed-point values as `*this`, but with a new word-length. The underlying
+    //! bit-pattern of each tensor element are copied into place, meaning that lowering
+    //! the number of fractional bits may result in truncation, and lowering the number
+    //! of integer bits may result in two's complement overflowing.
+    APyFixedArray _bit_resize(int bits, int int_bits) const;
+
+    //! Retrieve the number of limbs per scalar in `*this` `APyFixedArray` tensor
+    //! object.
+    std::size_t _scalar_limbs() const { return bits_to_limbs(_bits); }
 };
 
 #endif // _APYFIXED_ARRAY_H

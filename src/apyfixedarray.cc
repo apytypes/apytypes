@@ -39,7 +39,7 @@ APyFixedArray::APyFixedArray(
     std::optional<int> int_bits,
     std::optional<int> frac_bits
 )
-    : APyFixedArray(bits, int_bits, frac_bits)
+    : APyFixedArray(std::vector<std::size_t>(), bits, int_bits, frac_bits)
 {
     _shape = python_sequence_extract_shape(bit_pattern_list);
 
@@ -55,16 +55,20 @@ APyFixedArray::APyFixedArray(
  * ********************************************************************************** */
 
 APyFixedArray::APyFixedArray(
-    std::optional<int> bits, std::optional<int> int_bits, std::optional<int> frac_bits
+    std::vector<std::size_t> shape,
+    std::optional<int> bits,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits
 )
     : _bits {}
     , _int_bits {}
-    , _shape()
+    , _shape { shape }
     , _data()
 
 {
     set_bit_specifiers_from_optional(_bits, _int_bits, bits, int_bits, frac_bits);
     bit_specifier_sanitize_bits(_bits, _int_bits);
+    _data = std::vector<mp_limb_t>(bits_to_limbs(_bits), 0);
 }
 
 /* ********************************************************************************** *
@@ -132,4 +136,19 @@ std::string APyFixedArray::repr() const
        << "bits=" << _bits << ", "
        << "int_bits=" << _int_bits << ")";
     return ss.str();
+}
+
+/* ********************************************************************************** *
+ * *                            Private member functions                            * *
+ * ********************************************************************************** */
+
+APyFixedArray APyFixedArray::_bit_resize(int bits, int int_bits) const
+{
+    APyFixedArray result(_shape, bits, int_bits);
+    if (_scalar_limbs() == result._scalar_limbs()) {
+        // All scalars have equally many limbs. Copy the data and adjust binary point.
+        std::copy(_data.begin(), _data.end(), result._data.begin());
+    } else {
+        throw NotImplementedException();
+    }
 }
