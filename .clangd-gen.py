@@ -26,6 +26,13 @@ pybind11_includes = subprocess.run(
     encoding="utf-8",
 )
 
+# Include files for GMP using `pkg-config`
+gmp_includes = subprocess.run(
+    ["pkg-config", "--cflags", "gmp"],
+    capture_output=True,
+    encoding="utf-8",
+)
+
 compile_flags = [
     "-std=c++17",
     "-Wall",
@@ -34,6 +41,7 @@ compile_flags = [
     "-Wno-deprecated",
     *str(python3_includes.stdout.strip()).split(" "),
     *str(pybind11_includes.stdout.strip()).split(" "),
+    *str(gmp_includes.stdout.strip()).split(" "),
 ]
 
 # Produce the .clangd configuration
