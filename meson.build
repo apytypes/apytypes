@@ -1,6 +1,6 @@
 project(
     'aPy-types',
-    'cpp',
+    'cpp', 'c',
     default_options : ['cpp_std=c++17'],
     version : '0.0.1',
 )
@@ -38,7 +38,7 @@ py3.extension_module(
         'src/apyfloat_contextmanager.cc',
         'src/apyfloat_wrapper.cc',
         'src/apytypes_wrapper.cc',
-        'src/mini-gmp/mini-gmp.cc'
+        'src/mini-gmp/mini-gmp.c'
     ]),
     include_directories : pybind11_includes,
     #dependencies : [py3_dep, gmp_dep, pybind11_dep],
