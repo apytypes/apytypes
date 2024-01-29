@@ -8,8 +8,7 @@ def test_bit_pattern_to_int():
     assert APyFixed(0, 1, 0).bit_pattern_to_int(True) == 0
     # Python short int
     assert (
-        APyFixed.from_float(1.00, int_bits=4, frac_bits=4).bit_pattern_to_int()
-        == 2**4
+        APyFixed.from_float(1.00, int_bits=4, frac_bits=4).bit_pattern_to_int() == 2**4
     )
     assert (
         APyFixed.from_float(-1.00, int_bits=4, frac_bits=4).bit_pattern_to_int()

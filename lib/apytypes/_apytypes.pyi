@@ -57,6 +57,7 @@ class APyFixed:
         frac_bits : int, optional
             Number of fractional bits in the created fixed-point object
         """
+
     @staticmethod
     def from_string(
         string_value: str,
@@ -131,6 +132,7 @@ class APyFixed:
         -------
         :class:`int`
         """
+
     def bit_pattern_to_string_dec(self) -> str:
         """
         Retrieve the underlying bit-pattern as a :class:`str` object formated in
@@ -140,6 +142,7 @@ class APyFixed:
         -------
         :class:`str`
         """
+
     def increment_lsb(self) -> int: ...
     def is_identical(self, other: APyFixed) -> bool:
         """
@@ -155,6 +158,7 @@ class APyFixed:
         -------
         :class:`bool`
         """
+
     def resize(
         self,
         bits: int | None = None,
@@ -178,6 +182,7 @@ class APyFixed:
         -------
         :class:`int`
         """
+
     @property
     def frac_bits(self) -> int:
         """
@@ -187,6 +192,7 @@ class APyFixed:
         -------
         :class:`int`
         """
+
     @property
     def int_bits(self) -> int:
         """
@@ -196,6 +202,7 @@ class APyFixed:
         -------
         :class:`int`
         """
+
     @property
     def is_negative(self) -> bool: ...
     @property
