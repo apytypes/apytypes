@@ -159,6 +159,14 @@ std::string APyFixedArray::repr() const
     return ss.str();
 }
 
+bool APyFixedArray::is_identical(const APyFixedArray& other) const
+{
+    bool same_spec = (_shape == other._shape) && (bits() == other.bits())
+        && (int_bits() == other.int_bits());
+
+    return same_spec && (_data == other._data);
+}
+
 /* ********************************************************************************** *
  * *                            Private member functions                            * *
  * ********************************************************************************** */

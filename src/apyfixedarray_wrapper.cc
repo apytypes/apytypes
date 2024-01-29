@@ -38,18 +38,38 @@ void bind_fixed_array(py::module& m)
          * Methods
          */
         .def_property_readonly("bits", &APyFixedArray::bits, R"pbdoc(
-            Total number of bits in this :class:`APyFixedArray` object.
+            Retrieve total number of bits in this :class:`APyFixedArray` object.
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc")
+        .def_property_readonly("int_bits", &APyFixedArray::int_bits, R"pbdoc(
+            Retrieve number of integer bits in this :class:`APyFixedArray` object.
 
             Returns
             -------
             :class:`int`
             )pbdoc")
         .def_property_readonly("frac_bits", &APyFixedArray::frac_bits, R"pbdoc(
-            Number of fractional bits in this :class:`APyFixedArray` object.
+            Retrieve number of fractional bits in this :class:`APyFixedArray` object.
 
             Returns
             -------
             :class:`int`
+            )pbdoc")
+        .def("is_identical", &APyFixedArray::is_identical, py::arg("other"), R"pbdoc(
+            Test if two `APyFixedArray` objects are identical.
+
+            Two `APyFixedArray` objects are considered identical if, and only if:
+              * They represent exatly the same tensor shape
+              * They store the exact same fixed-point values in all tensor elements
+              * They have the exact same bit specification (`bits`, `int_bits`, and
+                `frac_bits` are all equal)
+
+            Returns
+            -------
+            :class:`bool`
             )pbdoc")
 
         /*

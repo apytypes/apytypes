@@ -223,6 +223,47 @@ class APyFixedArray:
         frac_bits: int | None = None,
     ) -> None: ...
     def __repr__(self) -> str: ...
+    def is_identical(self, other: APyFixedArray) -> bool:
+        """
+        Test if two `APyFixedArray` objects are identical.
+
+        Two `APyFixedArray` objects are considered identical if, and only if:
+          * They represent exatly the same tensor shape
+          * They store the exact same fixed-point values in all tensor elements
+          * They have the exact same bit specification (`bits`, `int_bits`, and
+            `frac_bits` are all equal)
+
+        Returns
+        -------
+        :class:`bool`
+        """
+    @property
+    def bits(self) -> int:
+        """
+        Retrieve total number of bits in this :class:`APyFixedArray` object.
+
+        Returns
+        -------
+        :class:`int`
+        """
+    @property
+    def frac_bits(self) -> int:
+        """
+        Retrieve number of fractional bits in this :class:`APyFixedArray` object.
+
+        Returns
+        -------
+        :class:`int`
+        """
+    @property
+    def int_bits(self) -> int:
+        """
+        Retrieve number of integer bits in this :class:`APyFixedArray` object.
+
+        Returns
+        -------
+        :class:`int`
+        """
 
 class APyFixedOverflowMode:
     """

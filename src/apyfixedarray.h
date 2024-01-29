@@ -81,6 +81,16 @@ public:
     //! Retrieve the `frac_bits` specifier for this APyFixedArray
     int frac_bits() const noexcept { return _bits - _int_bits; }
 
+    /*!
+     * Test if two `APyFixedArray` objects are identical. Two `APyFixedArray` objects
+     * are considered identical if, and only if:
+     *   * They represent exatly the same tensor shape
+     *   * They store the exact same fixed-point values in all tensor elements
+     *   * They have the exact same bit specification (`bits`, `int_bits`, and
+     *     `frac_bits` are all equal)
+     */
+    bool is_identical(const APyFixedArray& other) const;
+
     /* ****************************************************************************** *
      * *                          Private member functions                          * *
      * ****************************************************************************** */
