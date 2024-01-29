@@ -56,7 +56,7 @@ see https://www.gnu.org/licenses/.  */
 #endif
 
 /* Macros */
-#define GMP_LIMB_BITS (sizeof(mp_limb_t) * CHAR_BIT)
+// #define GMP_LIMB_BITS (sizeof(mp_limb_t) * CHAR_BIT)
 
 #define GMP_LIMB_MAX ((mp_limb_t) ~(mp_limb_t)0)
 #define GMP_LIMB_HIGHBIT ((mp_limb_t)1 << (GMP_LIMB_BITS - 1))
@@ -4016,176 +4016,424 @@ static int gmp_detect_endian(void)
     return 1 - *p;
 }
 
-/* Import and export. Does not support nails. */
 void mpz_import(
-    mpz_t r,
+    mpz_ptr z,
     size_t count,
     int order,
     size_t size,
     int endian,
-    size_t nails,
-    const void* src
+    size_t nail,
+    const void* data
 )
 {
-    const unsigned char* p;
-    ptrdiff_t word_step;
-    mp_ptr rp;
-    mp_size_t rn;
-
-    /* The current (partial) limb. */
-    mp_limb_t limb;
-    /* The number of bytes already copied to this limb (starting from
-       the low end). */
-    size_t bytes;
-    /* The index where the limb should be stored, when completed. */
-    mp_size_t i;
-
-    if (nails != 0)
-        gmp_die("mpz_import: Nails not supported.");
+    mp_size_t zsize;
+    mp_ptr zp;
 
     assert(order == 1 || order == -1);
-    assert(endian >= -1 && endian <= 1);
+    assert(endian == 1 || endian == 0 || endian == -1);
+    assert(nail <= 8 * size);
+
+    zsize = BITS_TO_LIMBS(count * (8 * size - nail));
+    zp = MPZ_NEWALLOC(z, zsize);
 
     if (endian == 0)
-        endian = gmp_detect_endian();
+        endian = HOST_ENDIAN;
 
-    p = (unsigned char*)src;
-
-    word_step = (order != endian) ? 2 * size : 0;
-
-    /* Process bytes from the least significant end, so point p at the
-       least significant word. */
-    if (order == 1) {
-        p += size * (count - 1);
-        word_step = -word_step;
-    }
-
-    /* And at least significant byte of that word. */
-    if (endian == 1)
-        p += (size - 1);
-
-    rn = (size * count + sizeof(mp_limb_t) - 1) / sizeof(mp_limb_t);
-    rp = MPZ_REALLOC(r, rn);
-
-    for (limb = 0, bytes = 0, i = 0; count > 0; count--, p += word_step) {
-        size_t j;
-        for (j = 0; j < size; j++, p -= (ptrdiff_t)endian) {
-            limb |= (mp_limb_t)*p << (bytes++ * CHAR_BIT);
-            if (bytes == sizeof(mp_limb_t)) {
-                rp[i++] = limb;
-                bytes = 0;
-                limb = 0;
-            }
+    /* Can't use these special cases with nails currently, since they don't
+       mask out the nail bits in the input data.  */
+    if (nail == 0 && GMP_NAIL_BITS == 0 && size == sizeof(mp_limb_t)
+        && (((char*)data - (char*)0) % sizeof(mp_limb_t)) == 0 /* align */) {
+        if (order == -1) {
+            if (endian == HOST_ENDIAN)
+                memcpy(zp, (mp_srcptr)data, (mp_size_t)count);
+            else /* if (endian == - HOST_ENDIAN) */
+                assert(false);
+        } else /* if (order == 1) */
+        {
+            assert(false);
         }
-    }
-    assert(i + (bytes > 0) == rn);
-    if (limb != 0)
-        rp[i++] = limb;
-    else
-        i = mpn_normalized_size(rp, i);
+    } else {
+        mp_limb_t limb, byte, wbitsmask;
+        size_t i, j, numb, wbytes;
+        mp_size_t woffset;
+        unsigned char* dp;
+        int lbits, wbits;
 
-    r->_mp_size = i;
+        numb = size * 8 - nail;
+
+        /* whole bytes to process */
+        wbytes = numb / 8;
+
+        /* partial byte to process */
+        wbits = numb % 8;
+        wbitsmask = (mp_limb_t(1) << wbits) - 1;
+
+        /* offset to get to the next word after processing wbytes and wbits */
+        woffset = (numb + 7) / 8;
+        woffset = (endian >= 0 ? woffset : -woffset)
+            + (order < 0 ? size : -(mp_size_t)size);
+
+        /* least significant byte */
+        dp = (unsigned char*)data + (order >= 0 ? (count - 1) * size : 0)
+            + (endian >= 0 ? size - 1 : 0);
+
+#define ACCUMULATE(N)                                                                  \
+    do {                                                                               \
+        assert(lbits < GMP_NUMB_BITS);                                                 \
+        assert(limb <= (mp_limb_t(1) << lbits) - 1);                                   \
+                                                                                       \
+        limb |= (mp_limb_t)byte << lbits;                                              \
+        lbits += (N);                                                                  \
+        if (lbits >= GMP_NUMB_BITS) {                                                  \
+            *zp++ = limb & GMP_NUMB_MASK;                                              \
+            lbits -= GMP_NUMB_BITS;                                                    \
+            assert(lbits < (N));                                                       \
+            limb = byte >> ((N)-lbits);                                                \
+        }                                                                              \
+    } while (0)
+
+        limb = 0;
+        lbits = 0;
+        for (i = 0; i < count; i++) {
+            for (j = 0; j < wbytes; j++) {
+                byte = *dp;
+                dp -= endian;
+                ACCUMULATE(8);
+            }
+            if (wbits != 0) {
+                byte = *dp & wbitsmask;
+                dp -= endian;
+                ACCUMULATE(wbits);
+            }
+            dp += woffset;
+        }
+
+        if (lbits != 0) {
+            assert(lbits <= int(GMP_NUMB_BITS));
+            // ASSERT_LIMB (limb);
+            *zp++ = limb;
+        }
+
+        assert(zp == PTR(z) + zsize);
+
+        /* low byte of word after most significant */
+        assert(
+            dp
+            == (unsigned char*)data + (order < 0 ? count * size : -(mp_size_t)size)
+                + (endian >= 0 ? (mp_size_t)size - 1 : 0)
+        );
+    }
+
+    zp = PTR(z);
+    MPN_NORMALIZE(zp, zsize);
+    SIZ(z) = zsize;
 }
 
 void* mpz_export(
-    void* r,
+    void* data,
     size_t* countp,
     int order,
     size_t size,
     int endian,
-    size_t nails,
-    const mpz_t u
+    size_t nail,
+    mpz_srcptr z
 )
 {
-    size_t count;
-    mp_size_t un;
-
-    if (nails != 0)
-        gmp_die("mpz_export: Nails not supported.");
+    mp_size_t zsize;
+    mp_srcptr zp;
+    size_t count, dummy;
+    unsigned long numb;
+    unsigned align;
 
     assert(order == 1 || order == -1);
-    assert(endian >= -1 && endian <= 1);
-    assert(size > 0 || u->_mp_size == 0);
+    assert(endian == 1 || endian == 0 || endian == -1);
+    assert(nail <= 8 * size);
+    assert(nail < 8 * size || SIZ(z) == 0); /* nail < 8*size+(SIZ(z)==0) */
 
-    un = u->_mp_size;
-    count = 0;
-    if (un != 0) {
-        size_t k;
-        unsigned char* p;
-        ptrdiff_t word_step;
-        /* The current (partial) limb. */
-        mp_limb_t limb;
-        /* The number of bytes left to do in this limb. */
-        size_t bytes;
-        /* The index where the limb was read. */
-        mp_size_t i;
+    if (countp == NULL)
+        countp = &dummy;
 
-        un = GMP_ABS(un);
-
-        /* Count bytes in top limb. */
-        limb = u->_mp_d[un - 1];
-        assert(limb != 0);
-
-        k = (GMP_LIMB_BITS <= CHAR_BIT);
-        if (!k) {
-            do {
-                int LOCAL_CHAR_BIT = CHAR_BIT;
-                k++;
-                limb >>= LOCAL_CHAR_BIT;
-            } while (limb != 0);
-        }
-        /* else limb = 0; */
-
-        count = (k + (un - 1) * sizeof(mp_limb_t) + size - 1) / size;
-
-        if (!r)
-            r = gmp_alloc(count * size);
-
-        if (endian == 0)
-            endian = gmp_detect_endian();
-
-        p = (unsigned char*)r;
-
-        word_step = (order != endian) ? 2 * size : 0;
-
-        /* Process bytes from the least significant end, so point p at the
-           least significant word. */
-        if (order == 1) {
-            p += size * (count - 1);
-            word_step = -word_step;
-        }
-
-        /* And at least significant byte of that word. */
-        if (endian == 1)
-            p += (size - 1);
-
-        for (bytes = 0, i = 0, k = 0; k < count; k++, p += word_step) {
-            size_t j;
-            for (j = 0; j < size; ++j, p -= (ptrdiff_t)endian) {
-                if (sizeof(mp_limb_t) == 1) {
-                    if (i < un)
-                        *p = u->_mp_d[i++];
-                    else
-                        *p = 0;
-                } else {
-                    int LOCAL_CHAR_BIT = CHAR_BIT;
-                    if (bytes == 0) {
-                        if (i < un)
-                            limb = u->_mp_d[i++];
-                        bytes = sizeof(mp_limb_t);
-                    }
-                    *p = limb;
-                    limb >>= LOCAL_CHAR_BIT;
-                    bytes--;
-                }
-            }
-        }
-        assert(i == un);
-        assert(k == count);
+    zsize = SIZ(z);
+    if (zsize == 0) {
+        *countp = 0;
+        return data;
     }
 
-    if (countp)
-        *countp = count;
+    zsize = ABS(zsize);
+    zp = PTR(z);
+    numb = 8 * size - nail;
+    MPN_SIZEINBASE_2EXP(count, zp, zsize, numb);
+    *countp = count;
 
-    return r;
+    if (data == NULL)
+        data = (*gmp_allocate_func)(count * size);
+
+    if (endian == 0)
+        endian = HOST_ENDIAN;
+
+    align = ((char*)data - (char*)NULL) % sizeof(mp_limb_t);
+
+    if (nail == GMP_NAIL_BITS) {
+        if (size == sizeof(mp_limb_t) && align == 0) {
+            if (order == -1 && endian == HOST_ENDIAN) {
+                memcpy((mp_ptr)data, zp, (mp_size_t)count);
+                return data;
+            }
+            if (order == 1 && endian == HOST_ENDIAN) {
+                assert(false);
+            }
+
+            if (order == -1 && endian == -HOST_ENDIAN) {
+                assert(false);
+            }
+            if (order == 1 && endian == -HOST_ENDIAN) {
+                assert(false);
+            }
+        }
+    }
+
+    {
+        mp_limb_t limb, wbitsmask;
+        size_t i, numb;
+        mp_size_t j, wbytes, woffset;
+        unsigned char* dp;
+        int lbits, wbits;
+        mp_srcptr zend;
+
+        numb = size * 8 - nail;
+
+        /* whole bytes per word */
+        wbytes = numb / 8;
+
+        /* possible partial byte */
+        wbits = numb % 8;
+        wbitsmask = (mp_limb_t(1) << wbits) - 1;
+
+        /* offset to get to the next word */
+        woffset = (endian >= 0 ? size : -(mp_size_t)size)
+            + (order < 0 ? size : -(mp_size_t)size);
+
+        /* least significant byte */
+        dp = (unsigned char*)data + (order >= 0 ? (count - 1) * size : 0)
+            + (endian >= 0 ? size - 1 : 0);
+
+#define EXTRACT(N, MASK)                                                               \
+    do {                                                                               \
+        if (lbits >= (N)) {                                                            \
+            *dp = limb MASK;                                                           \
+            limb >>= (N);                                                              \
+            lbits -= (N);                                                              \
+        } else {                                                                       \
+            mp_limb_t newlimb;                                                         \
+            newlimb = (zp == zend ? 0 : *zp++);                                        \
+            *dp = (limb | (newlimb << lbits)) MASK;                                    \
+            limb = newlimb >> ((N)-lbits);                                             \
+            lbits += GMP_NUMB_BITS - (N);                                              \
+        }                                                                              \
+    } while (0)
+
+        zend = zp + zsize;
+        lbits = 0;
+        limb = 0;
+        for (i = 0; i < count; i++) {
+            for (j = 0; j < wbytes; j++) {
+                EXTRACT(8, +0);
+                dp -= endian;
+            }
+            if (wbits != 0) {
+                EXTRACT(wbits, &wbitsmask);
+                dp -= endian;
+                j++;
+            }
+            for (; j < size; j++) {
+                *dp = '\0';
+                dp -= endian;
+            }
+            dp += woffset;
+        }
+
+        assert(zp == PTR(z) + ABSIZ(z));
+
+        /* low byte of word after most significant */
+        assert(
+            dp
+            == (unsigned char*)data + (order < 0 ? count * size : -(mp_size_t)size)
+                + (endian >= 0 ? (mp_size_t)size - 1 : 0)
+        );
+    }
+    return data;
 }
+
+/* Import and export. Does not support nails. */
+// void mpz_import(
+//     mpz_t r,
+//     size_t count,
+//     int order,
+//     size_t size,
+//     int endian,
+//     size_t nails,
+//     const void* src
+// )
+// {
+//     const unsigned char* p;
+//     ptrdiff_t word_step;
+//     mp_ptr rp;
+//     mp_size_t rn;
+//
+//     /* The current (partial) limb. */
+//     mp_limb_t limb;
+//     /* The number of bytes already copied to this limb (starting from
+//        the low end). */
+//     size_t bytes;
+//     /* The index where the limb should be stored, when completed. */
+//     mp_size_t i;
+//
+//     if (nails != 0)
+//         gmp_die("mpz_import: Nails not supported.");
+//
+//     assert(order == 1 || order == -1);
+//     assert(endian >= -1 && endian <= 1);
+//
+//     if (endian == 0)
+//         endian = gmp_detect_endian();
+//
+//     p = (unsigned char*)src;
+//
+//     word_step = (order != endian) ? 2 * size : 0;
+//
+//     /* Process bytes from the least significant end, so point p at the
+//        least significant word. */
+//     if (order == 1) {
+//         p += size * (count - 1);
+//         word_step = -word_step;
+//     }
+//
+//     /* And at least significant byte of that word. */
+//     if (endian == 1)
+//         p += (size - 1);
+//
+//     rn = (size * count + sizeof(mp_limb_t) - 1) / sizeof(mp_limb_t);
+//     rp = MPZ_REALLOC(r, rn);
+//
+//     for (limb = 0, bytes = 0, i = 0; count > 0; count--, p += word_step) {
+//         size_t j;
+//         for (j = 0; j < size; j++, p -= (ptrdiff_t)endian) {
+//             limb |= (mp_limb_t)*p << (bytes++ * CHAR_BIT);
+//             if (bytes == sizeof(mp_limb_t)) {
+//                 rp[i++] = limb;
+//                 bytes = 0;
+//                 limb = 0;
+//             }
+//         }
+//     }
+//     assert(i + (bytes > 0) == rn);
+//     if (limb != 0)
+//         rp[i++] = limb;
+//     else
+//         i = mpn_normalized_size(rp, i);
+//
+//     r->_mp_size = i;
+// }
+//
+// void* mpz_export(
+//    void* r,
+//    size_t* countp,
+//    int order,
+//    size_t size,
+//    int endian,
+//    size_t nails,
+//    const mpz_t u
+//)
+//{
+//    size_t count;
+//    mp_size_t un;
+//
+//    if (nails != 0)
+//        gmp_die("mpz_export: Nails not supported.");
+//
+//    assert(order == 1 || order == -1);
+//    assert(endian >= -1 && endian <= 1);
+//    assert(size > 0 || u->_mp_size == 0);
+//
+//    un = u->_mp_size;
+//    count = 0;
+//    if (un != 0) {
+//        size_t k;
+//        unsigned char* p;
+//        ptrdiff_t word_step;
+//        /* The current (partial) limb. */
+//        mp_limb_t limb;
+//        /* The number of bytes left to do in this limb. */
+//        size_t bytes;
+//        /* The index where the limb was read. */
+//        mp_size_t i;
+//
+//        un = GMP_ABS(un);
+//
+//        /* Count bytes in top limb. */
+//        limb = u->_mp_d[un - 1];
+//        assert(limb != 0);
+//
+//        k = (GMP_LIMB_BITS <= CHAR_BIT);
+//        if (!k) {
+//            do {
+//                int LOCAL_CHAR_BIT = CHAR_BIT;
+//                k++;
+//                limb >>= LOCAL_CHAR_BIT;
+//            } while (limb != 0);
+//        }
+//        /* else limb = 0; */
+//
+//        count = (k + (un - 1) * sizeof(mp_limb_t) + size - 1) / size;
+//
+//        if (!r)
+//            r = gmp_alloc(count * size);
+//
+//        if (endian == 0)
+//            endian = gmp_detect_endian();
+//
+//        p = (unsigned char*)r;
+//
+//        word_step = (order != endian) ? 2 * size : 0;
+//
+//        /* Process bytes from the least significant end, so point p at the
+//           least significant word. */
+//        if (order == 1) {
+//            p += size * (count - 1);
+//            word_step = -word_step;
+//        }
+//
+//        /* And at least significant byte of that word. */
+//        if (endian == 1)
+//            p += (size - 1);
+//
+//        for (bytes = 0, i = 0, k = 0; k < count; k++, p += word_step) {
+//            size_t j;
+//            for (j = 0; j < size; ++j, p -= (ptrdiff_t)endian) {
+//                if (sizeof(mp_limb_t) == 1) {
+//                    if (i < un)
+//                        *p = u->_mp_d[i++];
+//                    else
+//                        *p = 0;
+//                } else {
+//                    int LOCAL_CHAR_BIT = CHAR_BIT;
+//                    if (bytes == 0) {
+//                        if (i < un)
+//                            limb = u->_mp_d[i++];
+//                        bytes = sizeof(mp_limb_t);
+//                    }
+//                    *p = limb;
+//                    limb >>= LOCAL_CHAR_BIT;
+//                    bytes--;
+//                }
+//            }
+//        }
+//        assert(i == un);
+//        assert(k == count);
+//    }
+//
+//    if (countp)
+//        *countp = count;
+//
+//    return r;
+//}
