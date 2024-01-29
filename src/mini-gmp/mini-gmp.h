@@ -41,6 +41,9 @@ see https://www.gnu.org/licenses/.  */
 /* For size_t */
 #include <stddef.h>
 
+/* For realloc */
+#include <stdlib.h>
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -58,11 +61,11 @@ void mp_get_memory_functions(
 #endif
 
 typedef unsigned MINI_GMP_LIMB_TYPE mp_limb_t;
+typedef MINI_GMP_LIMB_TYPE mp_limb_signed_t;
 typedef long mp_size_t;
 typedef unsigned long mp_bitcnt_t;
 
 typedef mp_limb_t* mp_ptr;
-using mp_limb_signed_t = long;
 typedef const mp_limb_t* mp_srcptr;
 
 typedef struct {
@@ -80,6 +83,71 @@ typedef __mpz_struct* mpz_ptr;
 typedef const __mpz_struct* mpz_srcptr;
 
 extern const int mp_bits_per_limb;
+
+/*
+ * APyTypes custom changes to get mini-gmp working. These additions are needed to
+ * provide functionallity for:
+ *   * Nail support and constants for `mpz_import` and `mpz_export`
+ *
+ * Mikael Henriksson (2024)
+ */
+#define ABS(x) ((x) >= 0 ? (x) : -(x))
+#define ABSIZ(x) ABS(SIZ(x))
+#define ALLOC(x) ((x)->_mp_alloc)
+#define MPZ_NEWALLOC(z, n) (((n) > ALLOC(z)) ? (mp_ptr)mpz_realloc(z, n) : PTR(z))
+#define PTR(x) ((x)->_mp_d)
+#define SIZ(x) ((x)->_mp_size)
+
+#define BITS_TO_LIMBS(n) (((n) + (GMP_NUMB_BITS - 1)) / GMP_NUMB_BITS)
+#define GMP_LIMB_BITS (8 * sizeof(mp_limb_t))
+#define GMP_NAIL_BITS 0
+#define GMP_NUMB_BITS (GMP_LIMB_BITS - GMP_NAIL_BITS)
+#define GMP_NUMB_MASK ((~mp_limb_t(0)) >> GMP_NAIL_BITS)
+
+static const mp_limb_t endian_test = (mp_limb_t(1) << (GMP_LIMB_BITS - 7)) - 1;
+#define HOST_ENDIAN (*(signed char*)&endian_test)
+
+//! Quickly perform `1 + ceil(log2(x))` for unsigned integer (`mp_limb_t`) `x` if
+//! `x` is non-zero and return the value. If `x` is zero, return zero.
+static inline size_t mini_gmp_bit_width(mp_limb_t x)
+{
+    // Optimized on x86-64 using single `bsr` instruction since GCC-13.1
+    size_t result = 0;
+    while (x) {
+        x >>= 1;
+        result++;
+    }
+    return result;
+}
+
+static inline void count_leading_zeros(int& count, mp_limb_t limb)
+{
+    count = 8 * sizeof(mp_limb_t) - mini_gmp_bit_width(limb);
+}
+
+#define MPN_NORMALIZE(DST, NLIMBS)                                                     \
+    do {                                                                               \
+        while ((NLIMBS) > 0) {                                                         \
+            if ((DST)[(NLIMBS)-1] != 0)                                                \
+                break;                                                                 \
+            (NLIMBS)--;                                                                \
+        }                                                                              \
+    } while (0)
+
+#define MPN_SIZEINBASE_2EXP(result, ptr, size, base2exp)                               \
+    do {                                                                               \
+        int __cnt;                                                                     \
+        mp_bitcnt_t __totbits;                                                         \
+        assert((size) > 0);                                                            \
+        assert((ptr)[(size)-1] != 0);                                                  \
+        count_leading_zeros(__cnt, (ptr)[(size)-1]);                                   \
+        __totbits = (mp_bitcnt_t)(size) * GMP_NUMB_BITS - (__cnt - GMP_NAIL_BITS);     \
+        (result) = (__totbits + (base2exp)-1) / (base2exp);                            \
+    } while (0)
+
+/*
+ * End of APyTypes custom changes to mini-gmp.h
+ */
 
 void mpn_copyi(mp_ptr, mp_srcptr, mp_size_t);
 void mpn_copyd(mp_ptr, mp_srcptr, mp_size_t);
