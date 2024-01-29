@@ -35,7 +35,7 @@ public:
     // No default constructed APyFixed types
     APyFixedArray() = delete;
 
-    APyFixedArray(
+    explicit APyFixedArray(
         const pybind11::sequence& bit_pattern_sequence,
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
@@ -46,9 +46,9 @@ public:
      * *                     Non-Python accessible constructors                     * *
      * ****************************************************************************** */
 
-    //! Constructor: specify only size, and zero data on construction
+    //! Constructor: specify only shape, size, and zero data on construction
     explicit APyFixedArray(
-        std::vector<std::size_t> shape,
+        const std::vector<std::size_t>& shape,
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt
@@ -72,6 +72,15 @@ public:
     //! Python `__repr__()` function
     std::string repr() const;
 
+    //! Retrieve the `bits` specifier for this APyFixedArray
+    int bits() const noexcept { return _bits; }
+
+    //! Retrieve the `int_bits` specifier for this APyFixedArray
+    int int_bits() const noexcept { return _int_bits; }
+
+    //! Retrieve the `frac_bits` specifier for this APyFixedArray
+    int frac_bits() const noexcept { return _bits - _int_bits; }
+
     /* ****************************************************************************** *
      * *                          Private member functions                          * *
      * ****************************************************************************** */
@@ -81,7 +90,7 @@ public:
     //! bit-pattern of each tensor element are copied into place, meaning that lowering
     //! the number of fractional bits may result in truncation, and lowering the number
     //! of integer bits may result in two's complement overflowing.
-    APyFixedArray _bit_resize(int bits, int int_bits) const;
+    APyFixedArray _bit_resize(int new_bits, int new_int_bits) const;
 
     //! Retrieve the number of limbs per scalar in `*this` `APyFixedArray` tensor
     //! object.

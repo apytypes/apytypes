@@ -214,6 +214,7 @@ class APyFixed:
     def vector_size(self) -> int: ...
 
 class APyFixedArray:
+    def __add__(self, arg0: APyFixedArray) -> APyFixedArray: ...
     def __init__(
         self,
         bit_pattern_sequence: typing.Sequence,

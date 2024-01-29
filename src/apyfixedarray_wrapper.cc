@@ -30,6 +30,29 @@ void bind_fixed_array(py::module& m)
         )
 
         /*
+         * Arithmetic operations
+         */
+        .def(py::self + py::self)
+
+        /*
+         * Methods
+         */
+        .def_property_readonly("bits", &APyFixedArray::bits, R"pbdoc(
+            Total number of bits in this :class:`APyFixedArray` object.
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc")
+        .def_property_readonly("frac_bits", &APyFixedArray::frac_bits, R"pbdoc(
+            Number of fractional bits in this :class:`APyFixedArray` object.
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc")
+
+        /*
          * Dunder methods
          */
         .def("__repr__", &APyFixedArray::repr)
