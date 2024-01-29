@@ -107,6 +107,35 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
     return result;
 }
 
+APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
+{
+    // Make sure `_shape` of `*this` and `rhs` are the same
+    if (_shape != rhs._shape) {
+        throw std::runtime_error("In APyFixedArray.__add__: shape missmatch");
+    }
+
+    // Increase word length of result by one
+    const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
+    const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
+
+    // Adjust binary point
+    APyFixedArray result = _bit_resize(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray imm = rhs._bit_resize(res_int_bits + res_frac_bits, res_int_bits);
+
+    // Perform addition
+    for (std::size_t i = 0; i < result._data.size(); i += result._scalar_limbs()) {
+        mpn_sub_n(
+            &result._data[i],      // dst
+            &result._data[i],      // src1
+            &imm._data[i],         // src2
+            result._scalar_limbs() // limb vector length
+        );
+    }
+
+    // Return result
+    return result;
+}
+
 /* ********************************************************************************** *
  * *                               Other methods                                    * *
  * ********************************************************************************** */
