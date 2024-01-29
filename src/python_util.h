@@ -316,24 +316,19 @@ python_sequence_extract_shape(const pybind11::sequence& bit_pattern_sequence)
 
 /*!
  * Walk a, possibly nested, Python sequence of iterable objects and convert every Python
- * integer object to a limb vector and return. Throws exception if any object is neither
- * a Python sequence nor a Python long. This method naivly traverses the sequences,
- * depth-first style, so the `shape` must correspond exactly to the shape of the
- * `bit_pattern_sequence` argument, anything else is undefined behaviour.
+ * object  (of type `<T>`, via `py::cast<T>()`) and returns them in a `std::vector<T>`.
+ * The sequence is walked in a depth-first search manner. If any object in the sequence
+ * `bit_pattern_sequence` does not match `<T>` or another Python sequence will cause a
+ * `std::runtime_error` exception to be raised.
  */
-static inline std::vector<mp_limb_t> python_sequence_walk_ints(
-    const pybind11::sequence& bit_pattern_sequence,
-    const std::vector<std::size_t> shape,
-    std::size_t limbs_per_element
-)
+template <typename T>
+static inline std::vector<T>
+python_sequence_walk(const pybind11::sequence& bit_pattern_sequence)
 {
     namespace py = pybind11;
-    std::size_t elements
-        = std::accumulate(shape.cbegin(), shape.cend(), 1, std::multiplies());
-    std::vector<mp_limb_t> result(limbs_per_element * elements, 0);
 
     // Result output iterator
-    auto result_output_it = result.begin();
+    std::vector<T> result {};
 
     // Walk the Python sequences and extract the data
     using seq_it_t = decltype(bit_pattern_sequence.begin());
@@ -352,22 +347,19 @@ static inline std::vector<mp_limb_t> python_sequence_walk_ints(
             python_iterator_stack.pop();
             python_sentinel_stack.pop();
         } else {
-
             if (py::isinstance<py::sequence>(*current_iterator)) {
                 // New sequence found. We need to go deeper
                 auto new_sequence = py::cast<py::sequence>(*current_iterator++);
                 python_iterator_stack.push(new_sequence.begin());
                 python_sentinel_stack.push(new_sequence.end());
-            } else if (py::isinstance<py::int_>(*current_iterator)) {
+            } else if (py::isinstance<T>(*current_iterator)) {
                 // New python integer found. Add it
-                auto new_int = py::cast<py::int_>(*current_iterator++);
-                auto limb_vec = python_long_to_limb_vec(new_int, limbs_per_element);
-                result_output_it
-                    = std::copy(limb_vec.begin(), limb_vec.end(), result_output_it);
+                auto new_element = py::cast<T>(*current_iterator++);
+                result.push_back(new_element);
             } else {
                 std::string repr_string = py::repr(*current_iterator);
                 throw std::runtime_error(
-                    std::string("Non integer/sequence found when walking integers: ")
+                    std::string("Non <type>/sequence found when walking <type>: ")
                     + repr_string
                 );
             }

@@ -92,6 +92,19 @@ public:
     bool is_identical(const APyFixedArray& other) const;
 
     /* ****************************************************************************** *
+     *                       Static conversion from other types                       *
+     * ****************************************************************************** */
+
+    //! Create an `APyFixedArray` tensor object initialized with values from a sequence
+    //! of `doubles`
+    static APyFixedArray from_double(
+        const pybind11::sequence& double_seq,
+        std::optional<int> bits = std::nullopt,
+        std::optional<int> int_bits = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt
+    );
+
+    /* ****************************************************************************** *
      * *                          Private member functions                          * *
      * ****************************************************************************** */
 
