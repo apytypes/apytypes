@@ -31,3 +31,6 @@ def test_array_floating_point_construction():
 
     a = APyFixedArray.from_float([-1.0, -1.25, -2.99], bits=4, frac_bits=1)
     assert a.is_identical(APyFixedArray([-2, -3, -6], bits=4, frac_bits=1))
+
+    with pytest.raises(RuntimeError, match="Non <type>/sequence found when walking"):
+        APyFixedArray.from_float([1.0, 2.0, None], int_bits=13, frac_bits=12)
