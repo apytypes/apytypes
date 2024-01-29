@@ -228,7 +228,8 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
     std::vector<mp_limb_t> abs_operand1 = _unsigned_abs();
     std::vector<mp_limb_t> abs_operand2 = rhs._unsigned_abs();
 
-    // "The destination has to have space for s1n + s2n limbs, even if the product’s
+    // `mpn_mul` requires:
+    // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
     // most significant limb is zero."
     APyFixed result(res_int_bits + res_frac_bits, res_int_bits);
     result._data.resize(abs_operand1.size() + abs_operand2.size());

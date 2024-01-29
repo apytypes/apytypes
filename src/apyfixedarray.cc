@@ -28,7 +28,7 @@ namespace py = pybind11;
 #include "python_util.h"
 
 // GMP should be included after all other includes
-#include <gmp.h>
+#include "../extern/mini-gmp/mini-gmp.h"
 
 /* ********************************************************************************** *
  * *                            Python constructors                                 * *
@@ -75,11 +75,7 @@ APyFixedArray::APyFixedArray(
 {
     set_bit_specifiers_from_optional(_bits, _int_bits, bits, int_bits, frac_bits);
     bit_specifier_sanitize_bits(_bits, _int_bits);
-    _data = std::vector<mp_limb_t>(
-        bits_to_limbs(_bits)
-            * std::accumulate(_shape.begin(), _shape.end(), 1, std::multiplies {}),
-        0
-    );
+    _data = std::vector<mp_limb_t>(bits_to_limbs(_bits) * _fold_shape(), 0);
 }
 
 /* ********************************************************************************** *
@@ -119,7 +115,7 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
 {
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (_shape != rhs._shape) {
-        throw std::runtime_error("In APyFixedArray.__add__: shape missmatch");
+        throw std::runtime_error("In APyFixedArray.__sub__: shape missmatch");
     }
 
     // Increase word length of result by one
@@ -142,6 +138,22 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
 
     // Return result
     return result;
+}
+
+APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
+{
+    // Make sure `_shape` of `*this` and `rhs` are the same
+    if (_shape != rhs._shape) {
+        throw std::runtime_error("In APyFixedArray.__mul__: shape missmatch");
+    }
+
+    const int res_int_bits = int_bits() + rhs.int_bits();
+    const int res_frac_bits = frac_bits() + rhs.frac_bits();
+
+    // `mpn_mul` requires:
+    // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
+    // most significant limb is zero."
+    // std::vector<mp_limb_t> result_vec(, 0);
 }
 
 /* ********************************************************************************** *
@@ -181,7 +193,6 @@ std::string APyFixedArray::repr() const
         // Back to decimal printing
         ss << std::dec;
 
-        // mpz_clear(tmp);
         ss.seekp(-2, ss.cur);
     }
     ss << "], "
@@ -272,4 +283,10 @@ APyFixedArray APyFixedArray::_bit_resize(int new_bits, int new_int_bits) const
     }
 
     return result;
+}
+
+std::size_t APyFixedArray::_fold_shape() const
+{
+    // Fold the shape over multiplication
+    return std::accumulate(_shape.begin(), _shape.end(), 1, std::multiplies {});
 }
