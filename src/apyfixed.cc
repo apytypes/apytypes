@@ -28,7 +28,8 @@ namespace py = pybind11;
 #include "python_util.h"
 
 // GMP should be included after all other includes
-#include <gmp.h>
+// #include <gmp.h>
+#include "mini-gmp/mini-gmp.h"
 
 /* ********************************************************************************** *
  * *                            Python constructors                                 * *
@@ -338,15 +339,16 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
         // Early return zero
         return result;
     } else {
-        mpn_tdiv_qr(
-            &result._data[0],      // Quotient
-            &abs_num[0],           // Remainder (unused -- discarded into numerator)
-            0,                     // QXn (must be zero according to documentation)
-            &abs_num[0],           // Numerator
-            num_significant_limbs, // Numerator significant limbs
-            &abs_den[0],           // Denominator
-            den_significant_limbs  // Denominator significant limbs
-        );
+        // mpn_tdiv_qr(
+        // mpn_tdiv_qr(
+        //     &result._data[0],      // Quotient
+        //     &abs_num[0],           // Remainder (unused -- discarded into numerator)
+        //     0,                     // QXn (must be zero according to documentation)
+        //     &abs_num[0],           // Numerator
+        //     num_significant_limbs, // Numerator significant limbs
+        //     &abs_den[0],           // Denominator
+        //     den_significant_limbs  // Denominator significant limbs
+        //);
         if (sign_product) {
             result._data = result._non_extending_negate();
         }

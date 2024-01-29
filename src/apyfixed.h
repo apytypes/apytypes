@@ -18,7 +18,8 @@
 #include <vector>   // std::vector
 
 // GMP should be included after all other includes
-#include <gmp.h>
+// #include <gmp.h>
+#include "mini-gmp/mini-gmp.h"
 
 class APyFixed {
 
