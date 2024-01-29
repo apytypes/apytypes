@@ -102,13 +102,11 @@ extern const int mp_bits_per_limb;
 #define GMP_LIMB_BITS (8 * sizeof(mp_limb_t))
 #define GMP_NAIL_BITS 0
 #define GMP_NUMB_BITS (GMP_LIMB_BITS - GMP_NAIL_BITS)
-#define GMP_NUMB_MASK ((~mp_limb_t(0)) >> GMP_NAIL_BITS)
+#define GMP_NUMB_MASK ((~((mp_limb_t)0)) >> GMP_NAIL_BITS)
 
-static const mp_limb_t endian_test = (mp_limb_t(1) << (GMP_LIMB_BITS - 7)) - 1;
+static const mp_limb_t endian_test = (((mp_limb_t)1) << (GMP_LIMB_BITS - 7)) - 1;
 #define HOST_ENDIAN (*(signed char*)&endian_test)
 
-//! Quickly perform `1 + ceil(log2(x))` for unsigned integer (`mp_limb_t`) `x` if
-//! `x` is non-zero and return the value. If `x` is zero, return zero.
 static inline size_t mini_gmp_bit_width(mp_limb_t x)
 {
     // Optimized on x86-64 using single `bsr` instruction since GCC-13.1
@@ -120,10 +118,10 @@ static inline size_t mini_gmp_bit_width(mp_limb_t x)
     return result;
 }
 
-static inline void count_leading_zeros(int& count, mp_limb_t limb)
-{
-    count = 8 * sizeof(mp_limb_t) - mini_gmp_bit_width(limb);
-}
+#define COUNT_LEADING_ZEROS(count, limb)                                               \
+    do {                                                                               \
+        count = 8 * sizeof(limb) - mini_gmp_bit_width(limb);                           \
+    } while (0)
 
 #define MPN_NORMALIZE(DST, NLIMBS)                                                     \
     do {                                                                               \
@@ -140,7 +138,7 @@ static inline void count_leading_zeros(int& count, mp_limb_t limb)
         mp_bitcnt_t __totbits;                                                         \
         assert((size) > 0);                                                            \
         assert((ptr)[(size)-1] != 0);                                                  \
-        count_leading_zeros(__cnt, (ptr)[(size)-1]);                                   \
+        COUNT_LEADING_ZEROS(__cnt, (ptr)[(size)-1]);                                   \
         __totbits = (mp_bitcnt_t)(size) * GMP_NUMB_BITS - (__cnt - GMP_NAIL_BITS);     \
         (result) = (__totbits + (base2exp)-1) / (base2exp);                            \
     } while (0)

@@ -4066,7 +4066,7 @@ void mpz_import(
 
         /* partial byte to process */
         wbits = numb % 8;
-        wbitsmask = (mp_limb_t(1) << wbits) - 1;
+        wbitsmask = (((mp_limb_t)1) << wbits) - 1;
 
         /* offset to get to the next word after processing wbytes and wbits */
         woffset = (numb + 7) / 8;
@@ -4080,7 +4080,7 @@ void mpz_import(
 #define ACCUMULATE(N)                                                                  \
     do {                                                                               \
         assert(lbits < GMP_NUMB_BITS);                                                 \
-        assert(limb <= (mp_limb_t(1) << lbits) - 1);                                   \
+        assert(limb <= (((mp_limb_t)1) << lbits) - 1);                                 \
                                                                                        \
         limb |= (mp_limb_t)byte << lbits;                                              \
         lbits += (N);                                                                  \
@@ -4207,7 +4207,7 @@ void* mpz_export(
 
         /* possible partial byte */
         wbits = numb % 8;
-        wbitsmask = (mp_limb_t(1) << wbits) - 1;
+        wbitsmask = (((mp_limb_t)1) << wbits) - 1;
 
         /* offset to get to the next word */
         woffset = (endian >= 0 ? size : -(mp_size_t)size)
