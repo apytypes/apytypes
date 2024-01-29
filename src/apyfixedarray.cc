@@ -1,4 +1,5 @@
 // Python object access through Pybind
+#include "apyfixed.h"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 namespace py = pybind11;
@@ -43,11 +44,18 @@ APyFixedArray::APyFixedArray(
         python_sequence_extract_shape(bit_pattern_sequence), bits, int_bits, frac_bits
     )
 {
-    // Currently we only support initialization from Python ints
-    std::size_t limbs_per_element = bits_to_limbs(_bits);
-    _data = python_sequence_walk_ints(bit_pattern_sequence, _shape, limbs_per_element);
+    auto python_ints = python_sequence_walk<py::int_>(bit_pattern_sequence);
+    for (std::size_t i = 0; i < _data.size() / bits_to_limbs(_bits); i++) {
 
-    ///// TODO: Two's complement overflowing
+        // Two's complements overflowing in `APyFixed` constructor
+        auto limb_vec = python_long_to_limb_vec(python_ints[i], bits_to_limbs(_bits));
+        APyFixed fixed(_bits, _int_bits, limb_vec);
+        std::copy_n(
+            fixed.read_data().begin(),               // src
+            bits_to_limbs(_bits),                    // limbs to copy
+            _data.begin() + i * bits_to_limbs(_bits) // dst
+        );
+    }
 }
 
 /* ********************************************************************************** *
@@ -194,6 +202,39 @@ bool APyFixedArray::is_identical(const APyFixedArray& other) const
         && (int_bits() == other.int_bits());
 
     return same_spec && (_data == other._data);
+}
+
+/* ********************************************************************************** *
+ * *                      Static conversion from other types                          *
+ * ********************************************************************************** */
+
+APyFixedArray APyFixedArray::from_double(
+    const pybind11::sequence& double_seq,
+    std::optional<int> bits,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits
+)
+{
+    APyFixedArray result(
+        python_sequence_extract_shape(double_seq), bits, int_bits, frac_bits
+    );
+
+    // Extract all of the doubles
+    std::vector<py::float_> doubles = python_sequence_walk<py::float_>(double_seq);
+
+    // Set data from doubles (reuse `APyFixed::from_double` conversion)
+    for (std::size_t i = 0; i < result._data.size() / bits_to_limbs(result.bits());
+         i++) {
+        double d = static_cast<double>(doubles[i]);
+        APyFixed fix(d, result.bits(), result.int_bits());
+        std::copy_n(
+            fix.read_data().begin(),                                // src
+            bits_to_limbs(result.bits()),                           // limb count
+            result._data.begin() + i * bits_to_limbs(result.bits()) // dst
+        );
+    }
+
+    return result;
 }
 
 /* ********************************************************************************** *

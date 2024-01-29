@@ -99,6 +99,14 @@ public:
     //! Constructor: specify size and initialize from string
     explicit APyFixed(int bits, int int_bits, const char* str, int base = 10);
 
+    //! Constructor: specify size and initialize underlying vector from iterators
+    template <typename _ITER>
+    explicit APyFixed(int bits, int int_bits, _ITER begin, _ITER end);
+
+    //! Constructor: specify size and initialize underlying bits using vector
+    explicit APyFixed(int bits, int int_bits, const std::vector<mp_limb_t>& vec);
+    explicit APyFixed(int bits, int int_bits, const std::vector<mp_limb_signed_t>& vec);
+
     /* ****************************************************************************** *
      *                         Binary arithmetic operators                            *
      * ****************************************************************************** */
@@ -125,17 +133,20 @@ public:
      *                        Other public member functions                           *
      * ****************************************************************************** */
 
-    //! Retrieve the `bits` specifier for this APyFixed
+    //! Retrieve the `bits` specifier for this `APyFixed`
     int bits() const noexcept { return _bits; }
 
-    //! Retrieve the `int_bits` specifier for this APyFixed
+    //! Retrieve the `int_bits` specifier for this `APyFixed`
     int int_bits() const noexcept { return _int_bits; }
 
-    //! Retrieve the `frac_bits` specifier for this APyFixed
+    //! Retrieve the `frac_bits` specifier for this `APyFixed`
     int frac_bits() const noexcept { return _bits - _int_bits; }
 
-    // Retrieve the number of elements in underlying limb data vector
+    //! Retrieve the number of elements in underlying limb data vector
     std::size_t vector_size() const noexcept { return _data.size(); }
+
+    //! Retrieve (read-only) the `_data` field of this `APyFixed`
+    const std::vector<mp_limb_t>& read_data() { return _data; }
 
     // Unary negation
     APyFixed operator-() const;
@@ -268,14 +279,6 @@ private:
     // Perform two's complement overflowing. This method sign-extends any bits outside
     // of the APyFixed range.
     void _twos_complement_overflow() noexcept;
-
-    // Constructor: specify size and initialize underlying vector from iterators
-    template <typename _ITER>
-    explicit APyFixed(int bits, int int_bits, _ITER begin, _ITER end);
-
-    // Constructor: specify size and initialize underlying bits using vector
-    explicit APyFixed(int bits, int int_bits, const std::vector<mp_limb_t>& vec);
-    explicit APyFixed(int bits, int int_bits, const std::vector<mp_limb_signed_t>& vec);
 
     // Set the bit-pattern of the fixed-point number from a vector of limbs
     void from_vector(const std::vector<mp_limb_t>& vector);

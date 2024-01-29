@@ -214,6 +214,45 @@ class APyFixed:
     def vector_size(self) -> int: ...
 
 class APyFixedArray:
+    @staticmethod
+    def from_float(
+        float_sequence: typing.Sequence,
+        bits: int | None = None,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+    ) -> APyFixedArray:
+        """
+        Create an :class:`APyFixedArray` object and initialize its value from a
+        a sequence of :class:`float`.
+
+        The initialized fixed-point values are the one closest to the
+        input floating-point value, rounded away from zero on ties. Exactly two of
+        the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) has to be set.
+
+        Examples
+        --------
+
+        .. code-block:: python
+
+            from apytypes import APyFixedArray
+
+            # Tensor `a` from float, initialized from some floating-point values.
+            # The last value `1.49` is rounded to its closes fixed-point
+            # representable value `1.50`.
+            a = APyFixedArray.from_float([1.0, 1.25, 1.49], int_bits=2, frac_bits=2)
+
+        Parameters
+        ----------
+        float_sequence : sequence of float
+            Floating point values to initialize from. The tensor shape will be taken
+            from the sequence shape.
+        bits : int, optional
+            Total number of bits in the created fixed-point tensor
+        int_bits : int, optional
+            Number of integer bits in the created fixed-point tensor
+        frac_bits : int, optional
+            Number of fractional bits in the created fixed-point tensor
+        """
     def __add__(self, arg0: APyFixedArray) -> APyFixedArray: ...
     def __init__(
         self,

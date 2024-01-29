@@ -20,3 +20,14 @@ def test_homogeneous_shape():
         APyFixedArray([range(3), [3, 4, 5], (7, 8)], bits=10, int_bits=10)
     with pytest.raises(RuntimeError, match="Inhomogeneous sequence shape"):
         APyFixedArray([range(4), [3, 4, 5], (6, 7, 8)], bits=10, int_bits=10)
+
+
+def test_array_floating_point_construction():
+    """
+    Test the `APyFixedArray.from_float` construction method
+    """
+    a = APyFixedArray.from_float([1.0, 1.25, 2.99], bits=4, frac_bits=1)
+    assert a.is_identical(APyFixedArray([2, 3, 6], bits=4, frac_bits=1))
+
+    a = APyFixedArray.from_float([-1.0, -1.25, -2.99], bits=4, frac_bits=1)
+    assert a.is_identical(APyFixedArray([-2, -3, -6], bits=4, frac_bits=1))
