@@ -253,6 +253,7 @@ class APyFixedArray:
         frac_bits : int, optional
             Number of fractional bits in the created fixed-point tensor
         """
+
     def __add__(self, arg0: APyFixedArray) -> APyFixedArray: ...
     def __init__(
         self,
@@ -277,6 +278,7 @@ class APyFixedArray:
         -------
         :class:`bool`
         """
+
     @property
     def bits(self) -> int:
         """
@@ -286,6 +288,7 @@ class APyFixedArray:
         -------
         :class:`int`
         """
+
     @property
     def frac_bits(self) -> int:
         """
@@ -295,6 +298,7 @@ class APyFixedArray:
         -------
         :class:`int`
         """
+
     @property
     def int_bits(self) -> int:
         """

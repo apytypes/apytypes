@@ -25,7 +25,7 @@
 #include "apytypes_util.h"
 
 // GMP should be included after all other includes
-#include <gmp.h>
+#include "../extern/mini-gmp/mini-gmp.h"
 
 /*
  * Access of information of PyLongObjects (Python arbitrary length integer objects).

@@ -19,7 +19,7 @@
 #include <vector>   // std::vector
 
 // GMP should be included after all other includes
-#include <gmp.h>
+#include "../extern/mini-gmp/mini-gmp.h"
 
 class APyFixedArray {
     int _bits;
@@ -118,6 +118,9 @@ public:
     //! Retrieve the number of limbs per scalar in `*this` `APyFixedArray` tensor
     //! object.
     std::size_t _scalar_limbs() const { return bits_to_limbs(_bits); }
+
+    //! Fold the `_shape` field over multiplication
+    std::size_t _fold_shape() const;
 };
 
 #endif // _APYFIXED_ARRAY_H
