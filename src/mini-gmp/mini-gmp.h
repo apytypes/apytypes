@@ -143,6 +143,30 @@ static inline size_t mini_gmp_bit_width(mp_limb_t x)
         (result) = (__totbits + (base2exp)-1) / (base2exp);                            \
     } while (0)
 
+#define MPN_COPY_INCR(dst, src, n)                                                     \
+    do {                                                                               \
+        assert((n) >= 0);                                                              \
+        if ((n) != 0) {                                                                \
+            mp_size_t __n = (n)-1;                                                     \
+            mp_ptr __dst = (dst);                                                      \
+            mp_srcptr __src = (src);                                                   \
+            mp_limb_t __x;                                                             \
+            __x = *__src++;                                                            \
+            if (__n != 0) {                                                            \
+                do {                                                                   \
+                    *__dst++ = __x;                                                    \
+                    __x = *__src++;                                                    \
+                } while (--__n);                                                       \
+            }                                                                          \
+            *__dst++ = __x;                                                            \
+        }                                                                              \
+    } while (0)
+
+#define MPN_COPY(d, s, n)                                                              \
+    do {                                                                               \
+        MPN_COPY_INCR(d, s, n);                                                        \
+    } while (0)
+
 /*
  * End of APyTypes custom changes to mini-gmp.h
  */
