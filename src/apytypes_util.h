@@ -5,12 +5,13 @@
 #ifndef _APYTYPES_UTIL_H
 #define _APYTYPES_UTIL_H
 
-#include <algorithm> // std::find
-#include <cstddef>   // std::size_t
-#include <optional>  // std::optional, std::nullopt
-#include <regex>     // std::regex, std::regex_replace
-#include <stdexcept> // std::logic_error, std::domain_error
-#include <vector>    // std::vector
+#include <algorithm>  // std::find
+#include <cstddef>    // std::size_t
+#include <functional> // std::bit_not
+#include <optional>   // std::optional, std::nullopt
+#include <regex>      // std::regex, std::regex_replace
+#include <stdexcept>  // std::logic_error, std::domain_error
+#include <vector>     // std::vector
 
 // GMP should be included after all other includes
 #include "../extern/mini-gmp/mini-gmp.h"
@@ -38,31 +39,6 @@ static inline unsigned int count_trailing_bits(std::uint64_t val)
         ++i;
     }
     return i;
-}
-
-/*!
- * As the underlying GMP integer vector data type `mp_limb_t` can be either 32-bit or
- * 64-bit, depending on the target architecture, we here define a unified way to go from
- * a vector of `std::uint64_t` to a vector of `mp_limb_t`, irrespective of the
- * `mp_limb_t` size.
- */
-static inline std::vector<mp_limb_t> to_limb_vec(std::vector<std::uint64_t> vec)
-{
-    static_assert(
-        _LIMB_SIZE_BITS == 32    // 32-bit target architecture
-        || _LIMB_SIZE_BITS == 64 // 64-bit target architecture
-    );
-
-    if constexpr (_LIMB_SIZE_BITS == 32) {
-        std::vector<mp_limb_t> result(2 * vec.size(), 0);
-        for (std::size_t i = 0; i < vec.size(); i++) {
-            result[2 * i] = mp_limb_t(vec[i] & 0xFFFFFFFF);
-            result[2 * i + 1] = mp_limb_t(vec[i] >> 32);
-        }
-        return result;
-    } else { // _LIMB_SIZE_BITS == 64
-        return std::vector<mp_limb_t>(vec.begin(), vec.end());
-    }
 }
 
 //! Quickly evaluate how many limbs are requiered to to store a `bits` bit word
@@ -570,7 +546,7 @@ static inline void limb_vector_lsl(std::vector<mp_limb_t>& vec, unsigned shift_a
     }
 }
 
-// Add a power-of-two (2 ^ `n`) onto a limb vector. Returns carry out
+//! Add a power-of-two (2 ^ `n`) onto a limb vector. Returns carry out
 static inline mp_limb_t limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
 {
     unsigned bit_idx = n % _LIMB_SIZE_BITS;
@@ -603,30 +579,28 @@ static inline void set_bit_specifiers_from_optional(
             "Fixed-point needs exactly two of three bit specifiers (bits, int_bits, "
             "frac_bits) set when specifying bits."
         );
-    }
-
-    // Set the internal `_bits` and `_int_bits` fields from two out of the three bit
-    // specifier fields
-    if (bits.has_value()) {
-        if (int_bits.has_value()) {
-            _bits = *bits;
-            _int_bits = *int_bits;
-            return;
-        } else {
-            // `bits` set and `int_bits` unset so `frac_bits` is set
-            _bits = *bits;
-            _int_bits = *bits - *frac_bits;
-        }
     } else {
-        // `bits` unset, so `int_bits` and `frac_bits` is set
-        _bits = *int_bits + *frac_bits;
-        _int_bits = *int_bits;
+        // Set the internal `_bits` and `_int_bits` fields from two out of the three bit
+        // specifier fields
+        if (bits.has_value()) {
+            if (int_bits.has_value()) {
+                _bits = *bits;
+                _int_bits = *int_bits;
+                return;
+            } else {
+                // `bits` set and `int_bits` unset so `frac_bits` is set
+                _bits = *bits;
+                _int_bits = *bits - *frac_bits;
+            }
+        } else {
+            // `bits` unset, so `int_bits` and `frac_bits` is set
+            _bits = *int_bits + *frac_bits;
+            _int_bits = *int_bits;
+        }
     }
 }
 
-/*!
- * Sanitize the _bits and _int_bits parameters in a fixed-point number
- */
+//! Sanitize the _bits and _int_bits parameters in a fixed-point number
 static inline void bit_specifier_sanitize_bits(int _bits, int _int_bits)
 {
     (void)_int_bits;
@@ -634,6 +608,48 @@ static inline void bit_specifier_sanitize_bits(int _bits, int _int_bits)
         throw std::domain_error(
             "Fixed-point needs a positive integer bit-size of at-least 1 bit"
         );
+    }
+}
+
+/*!
+ * Non-limb extending negation of limb vector from constant reference
+ * to `std::vector<mp_limb_t>`. This function guarantees
+ * that `result.size() == input.size()`.
+ */
+static inline std::vector<mp_limb_t> limb_vector_negate(
+    std::vector<mp_limb_t>::const_iterator cbegin_it,
+    std::vector<mp_limb_t>::const_iterator cend_it
+)
+{
+    if (cend_it <= cbegin_it) {
+        return {};
+    }
+
+    std::vector<mp_limb_t> result(std::distance(cbegin_it, cend_it), 0);
+    std::transform(cbegin_it, cend_it, result.begin(), std::bit_not {});
+    mpn_add_1(&result[0], &result[0], result.size(), mp_limb_t(1));
+    return result;
+}
+
+/*!
+ * Take the two's complement absolute value of a limb vector
+ * (`const std::vector<mp_limb_t>`). This function guarantees
+ * that `result.size() == input.size()`.
+ */
+static inline std::vector<mp_limb_t> limb_vector_abs(
+    std::vector<mp_limb_t>::const_iterator cbegin_it,
+    std::vector<mp_limb_t>::const_iterator cend_it
+)
+{
+    if (cend_it <= cbegin_it) {
+        return {};
+    }
+
+    std::vector<mp_limb_t> result(std::distance(cbegin_it, cend_it), 0);
+    if (mp_limb_signed_t(*(cend_it - 1)) < 0) {
+        return limb_vector_negate(cbegin_it, cend_it);
+    } else {
+        return std::vector<mp_limb_t>(cbegin_it, cend_it);
     }
 }
 

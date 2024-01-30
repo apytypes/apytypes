@@ -14,13 +14,12 @@ namespace py = pybind11;
 #include <cstdlib>    // std::malloc, std::free
 #include <cstring>    // std::memcpy
 #include <functional> // std::bit_not
-#include <iostream>
-#include <iterator>  // std::back_inserter
-#include <optional>  // std::optional
-#include <sstream>   // std::stringstream
-#include <stdexcept> // std::domain_error
-#include <string>    // std::string
-#include <vector>    // std::vector, std::swap
+#include <iterator>   // std::back_inserter
+#include <optional>   // std::optional
+#include <sstream>    // std::stringstream
+#include <stdexcept>  // std::domain_error
+#include <string>     // std::string
+#include <vector>     // std::vector, std::swap
 
 #include "apyfixedarray.h"
 #include "apytypes_util.h"
@@ -150,10 +149,52 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
     const int res_int_bits = int_bits() + rhs.int_bits();
     const int res_frac_bits = frac_bits() + rhs.frac_bits();
 
-    // `mpn_mul` requires:
+    // Resulting `APyFixedArray` fixed-point tensor
+    APyFixedArray result(_shape, res_int_bits + res_frac_bits, res_int_bits);
+
+    // Perform multiplication for each element in the tensor. `mpn_mul` requires:
     // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
-    // most significant limb is zero."
-    // std::vector<mp_limb_t> result_vec(, 0);
+    //  most significant limb is zero."
+    std::vector<mp_limb_t> res_tmp_vec(_data.size() + rhs._data.size(), 0);
+    for (std::size_t i = 0; i < _fold_shape(); i++) {
+        // Current working operands
+        auto op1_begin = _data.begin() + (i + 0) * _scalar_limbs();
+        auto op1_end = _data.begin() + (i + 1) * _scalar_limbs();
+        auto op2_begin = rhs._data.begin() + (i + 0) * rhs._scalar_limbs();
+        auto op2_end = rhs._data.begin() + (i + 1) * rhs._scalar_limbs();
+
+        // Evaluate resulting sign
+        bool sign1 = mp_limb_signed_t(*(op1_end - 1)) < 0;
+        bool sign2 = mp_limb_signed_t(*(op2_end - 1)) < 0;
+        bool result_sign = sign1 ^ sign2;
+
+        // Retrieve the absolut value of both operands, as required by GMP
+        std::vector<mp_limb_t> op1_abs = limb_vector_abs(op1_begin, op1_end);
+        std::vector<mp_limb_t> op2_abs = limb_vector_abs(op2_begin, op2_end);
+
+        // Perform the multiplication
+        mpn_mul(
+            &res_tmp_vec[0], // dst
+            &op1_abs[0],     // src1
+            op1_abs.size(),  // src1 limb vector length
+            &op2_abs[0],     // src2
+            op2_abs.size()   // src2 limb vector length
+        );
+
+        // Handle sign
+        if (result_sign) {
+            res_tmp_vec = limb_vector_negate(res_tmp_vec.begin(), res_tmp_vec.end());
+        }
+
+        // Copy into resulting vector
+        std::copy_n(
+            res_tmp_vec.begin(),
+            result._scalar_limbs(),
+            result._data.begin() + (i + 0) * result._scalar_limbs()
+        );
+    }
+
+    return result;
 }
 
 /* ********************************************************************************** *
