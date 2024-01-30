@@ -85,9 +85,11 @@ typedef const __mpz_struct* mpz_srcptr;
 extern const int mp_bits_per_limb;
 
 /*
- * APyTypes custom changes to get mini-gmp working. These additions are needed to
- * provide functionallity for:
- *   * Nail support and constants for `mpz_import` and `mpz_export`
+ * APyTypes custom changes to get mini-gmp working with APyTypes. These additions are
+ * needed to provide functionallity for:
+ *
+ *   * Nail support for `mpz_import` and `mpz_export`
+ *   * Division support using `mpn_div_qr`
  *
  * Mikael Henriksson (2024)
  */

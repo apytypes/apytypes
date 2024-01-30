@@ -7,12 +7,6 @@ project(
 
 # Python module incudes
 py3 = import('python').find_installation('python3', pure: false)
-#pybind11_includes = run_command(
-#    py3, '-c', 'import os; import pybind11; print(os.path.relpath(pybind11.get_include()));',
-#    check : true
-#).stdout().strip()
-
-# https://mesonbuild.com/howtox.html#enable-threads
 py3_dep = py3.dependency()
 pybind11_dep = dependency('pybind11', version: '>=2.6')
 py3.install_sources(
@@ -38,7 +32,6 @@ py3.extension_module(
         'src/apytypes_wrapper.cc',
         'src/mini-gmp/mini-gmp.c'
     ]),
-    #include_directories : pybind11_includes,
     dependencies : [py3_dep, pybind11_dep],
     subdir: 'apytypes',
     install: true

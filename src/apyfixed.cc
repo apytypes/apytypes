@@ -28,7 +28,6 @@ namespace py = pybind11;
 #include "python_util.h"
 
 // GMP should be included after all other includes
-// #include <gmp.h>
 #include "mini-gmp/mini-gmp.h"
 
 /* ********************************************************************************** *
