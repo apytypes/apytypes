@@ -30,7 +30,7 @@ py3.extension_module(
         'src/apyfloat_contextmanager.cc',
         'src/apyfloat_wrapper.cc',
         'src/apytypes_wrapper.cc',
-        'src/mini-gmp/mini-gmp.c'
+        'extern/mini-gmp/mini-gmp.c'
     ]),
     dependencies : [py3_dep, pybind11_dep],
     subdir: 'apytypes',
