@@ -57,7 +57,7 @@ void mp_get_memory_functions(
 );
 
 #ifndef MINI_GMP_LIMB_TYPE
-#define MINI_GMP_LIMB_TYPE long
+#define MINI_GMP_LIMB_TYPE long long
 #endif
 
 typedef unsigned MINI_GMP_LIMB_TYPE mp_limb_t;
