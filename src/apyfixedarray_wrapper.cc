@@ -34,6 +34,7 @@ void bind_fixed_array(py::module& m)
          */
         .def(py::self + py::self)
         .def(py::self - py::self)
+        .def(py::self * py::self)
 
         /*
          * Methods

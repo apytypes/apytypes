@@ -316,14 +316,13 @@ python_sequence_extract_shape(const pybind11::sequence& bit_pattern_sequence)
 
 /*!
  * Walk a, possibly nested, Python sequence of iterable objects and convert every Python
- * object  (of type `<T>`, via `py::cast<T>()`) and returns them in a `std::vector<T>`.
- * The sequence is walked in a depth-first search manner. If any object in the sequence
- * `bit_pattern_sequence` does not match `<T>` or another Python sequence will cause a
- * `std::runtime_error` exception to be raised.
+ * object  (of type `<T>`, via `py::cast<T>()`) and return them in a `std::vector<T>`.
+ * The sequence is walked in a depth-first search manner. If any object in the
+ * sequence `bit_pattern_sequence` does not match `<T>` or another Python sequence
+ * a `std::runtime_error` exception to be raised.
  */
 template <typename T>
-static inline std::vector<T>
-python_sequence_walk(const pybind11::sequence& bit_pattern_sequence)
+static inline std::vector<T> python_sequence_walk(const pybind11::sequence& py_seq)
 {
     namespace py = pybind11;
 
@@ -331,33 +330,28 @@ python_sequence_walk(const pybind11::sequence& bit_pattern_sequence)
     std::vector<T> result {};
 
     // Walk the Python sequences and extract the data
-    using seq_it_t = decltype(bit_pattern_sequence.begin());
-    std::stack<seq_it_t, std::vector<seq_it_t>> python_iterator_stack {};
-    std::stack<seq_it_t, std::vector<seq_it_t>> python_sentinel_stack {};
-    python_iterator_stack.push(bit_pattern_sequence.begin());
-    python_sentinel_stack.push(bit_pattern_sequence.end());
-    while (!python_iterator_stack.empty()) {
+    struct seq_it_pair {
+        decltype(std::begin(py_seq)) iterator;
+        decltype(std::end(py_seq)) sentinel;
+    };
+    std::stack<seq_it_pair, std::vector<seq_it_pair>> it_stack;
+    it_stack.push({ py_seq.begin(), py_seq.end() });
 
-        // Current iterator/sentinel pair (by reference)
-        auto& current_iterator = python_iterator_stack.top();
-        auto& current_sentinel = python_sentinel_stack.top();
-
-        if (current_iterator == current_sentinel) {
+    while (!it_stack.empty()) {
+        if (it_stack.top().iterator == it_stack.top().sentinel) {
             // End of current iterator/sentinel pair. Pop it.
-            python_iterator_stack.pop();
-            python_sentinel_stack.pop();
+            it_stack.pop();
         } else {
-            if (py::isinstance<py::sequence>(*current_iterator)) {
+            if (py::isinstance<py::sequence>(*it_stack.top().iterator)) {
                 // New sequence found. We need to go deeper
-                auto new_sequence = py::cast<py::sequence>(*current_iterator++);
-                python_iterator_stack.push(new_sequence.begin());
-                python_sentinel_stack.push(new_sequence.end());
-            } else if (py::isinstance<T>(*current_iterator)) {
-                // New python integer found. Add it
-                auto new_element = py::cast<T>(*current_iterator++);
+                auto new_sequence = py::cast<py::sequence>(*it_stack.top().iterator++);
+                it_stack.push({ new_sequence.begin(), new_sequence.end() });
+            } else if (py::isinstance<T>(*it_stack.top().iterator)) {
+                // Element found, add it to result vector
+                auto new_element = py::cast<T>(*it_stack.top().iterator++);
                 result.push_back(new_element);
             } else {
-                std::string repr_string = py::repr(*current_iterator);
+                std::string repr_string = py::repr(*it_stack.top().iterator);
                 throw std::runtime_error(
                     std::string("Non <type>/sequence found when walking <type>: ")
                     + repr_string

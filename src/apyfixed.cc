@@ -225,8 +225,9 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
     const int res_int_bits = int_bits() + rhs.int_bits();
     const int res_frac_bits = frac_bits() + rhs.frac_bits();
     const bool sign_product = is_negative() ^ rhs.is_negative();
-    std::vector<mp_limb_t> abs_operand1 = _unsigned_abs();
-    std::vector<mp_limb_t> abs_operand2 = rhs._unsigned_abs();
+    std::vector<mp_limb_t> abs_operand1 = limb_vector_abs(_data.cbegin(), _data.cend());
+    std::vector<mp_limb_t> abs_operand2
+        = limb_vector_abs(rhs._data.cbegin(), rhs._data.cend());
 
     // `mpn_mul` requires:
     // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
@@ -255,7 +256,7 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
 
     // Handle sign
     if (sign_product) {
-        result._data = result._non_extending_negate();
+        result._data = limb_vector_negate(result._data.cbegin(), result._data.cend());
     }
     return result;
 }
@@ -268,7 +269,8 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
 
     // Absolute value numerator and denominator
     bool sign_product = is_negative() ^ rhs.is_negative();
-    std::vector<mp_limb_t> abs_den = rhs._unsigned_abs();
+    std::vector<mp_limb_t> abs_den
+        = limb_vector_abs(rhs._data.cbegin(), rhs._data.cend());
     std::vector<mp_limb_t> abs_num;
     if (is_negative()) {
         abs_num = (-*this)._data_asl(rhs.frac_bits());
@@ -292,7 +294,8 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
             den_significant_limbs  // Denominator significant limbs
         );
         if (sign_product) {
-            result._data = result._non_extending_negate();
+            result._data
+                = limb_vector_negate(result._data.cbegin(), result._data.cend());
         }
         return result;
     }
@@ -537,7 +540,7 @@ void APyFixed::set_from_string_dec(const std::string& str)
     _data = data;
     _data.resize(bits_to_limbs(bits()));
     if (is_negative) {
-        _data = _non_extending_negate();
+        _data = limb_vector_negate(_data.cbegin(), _data.cend());
     }
 
     // Two's complement overflow and we're done
@@ -603,7 +606,7 @@ void APyFixed::set_from_double(double value)
 
         // Adjust result from sign
         if (sign_of_double(value)) {
-            _data = _non_extending_negate();
+            _data = limb_vector_negate(_data.cbegin(), _data.cend());
         }
         _twos_complement_overflow();
     } else {
@@ -625,7 +628,7 @@ double APyFixed::to_double() const
         mp_limb_signed_t exp {};
         bool sign = is_negative();
 
-        std::vector<mp_limb_t> man_vec = _unsigned_abs();
+        std::vector<mp_limb_t> man_vec = limb_vector_abs(_data.cbegin(), _data.cend());
         unsigned man_leading_zeros = limb_vector_leading_zeros(man_vec);
 
         // Shift the mantissa into position and set the mantissa and exponent part
@@ -926,24 +929,4 @@ void APyFixed::_normalize_binary_points(
         result.vector_size() - operand_shifted.size(),
         mp_limb_signed_t(operand_shifted.back()) >> (_LIMB_SIZE_BITS - 1)
     );
-}
-
-// Retrieve a limb vector with the negated value from this APyFixed type. This member
-// function does not extend the size of the result, unlike `APyFixed::operator-()`, that
-// extends the result with one bit.
-std::vector<mp_limb_t> APyFixed::_non_extending_negate() const
-{
-    // Invert all bits and increment the lsb
-    APyFixed result(bits(), 0);
-    std::transform(_data.begin(), _data.end(), result._data.begin(), std::bit_not {});
-    result.increment_lsb();
-    return result._data;
-}
-
-// Get the absolute value of the number in the limb vector. This method does not extend
-// the resulting limb vector to make place for an additional bit. Instead, it relies on
-// the user knowing that the number in the vector is now unsigned.
-std::vector<mp_limb_t> APyFixed::_unsigned_abs() const
-{
-    return is_negative() ? _non_extending_negate() : _data;
 }
