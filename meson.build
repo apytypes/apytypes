@@ -1,7 +1,7 @@
 project(
     'aPy-types',
     'cpp', 'c',
-    default_options : ['cpp_std=c++17'],
+    default_options : ['cpp_std=c++17', 'c_std=c17'],
     version : '0.0.1',
 )
 
@@ -13,8 +13,6 @@ pybind11_includes = run_command(
 ).stdout().strip()
 
 # https://mesonbuild.com/howtox.html#enable-threads
-cc = meson.get_compiler('cpp')
-#gmp_dep = cc.find_library('gmp')
 py3_dep = py3.dependency()
 pybind11_dep = dependency('pybind11', version: '>=2.6')
 py3.install_sources(
@@ -41,7 +39,6 @@ py3.extension_module(
         'src/mini-gmp/mini-gmp.c'
     ]),
     include_directories : pybind11_includes,
-    #dependencies : [py3_dep, gmp_dep, pybind11_dep],
     dependencies : [py3_dep, pybind11_dep],
     subdir: 'apytypes',
     install: true

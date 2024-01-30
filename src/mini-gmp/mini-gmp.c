@@ -4009,15 +4009,8 @@ size_t mpz_out_str(FILE* stream, int base, const mpz_t x)
     return n;
 }
 
-static int gmp_detect_endian(void)
-{
-    static const int i = 2;
-    const unsigned char* p = (const unsigned char*)&i;
-    return 1 - *p;
-}
-
 void mpz_import(
-    mpz_ptr z,
+    mpz_t z,
     size_t count,
     int order,
     size_t size,
@@ -4045,7 +4038,7 @@ void mpz_import(
         && (((char*)data - (char*)0) % sizeof(mp_limb_t)) == 0 /* align */) {
         if (order == -1) {
             if (endian == HOST_ENDIAN)
-                memcpy(zp, (mp_srcptr)data, (mp_size_t)count);
+                MPN_COPY(zp, (mp_srcptr)data, (mp_size_t)count);
             else /* if (endian == - HOST_ENDIAN) */
                 assert(false);
         } else /* if (order == 1) */
@@ -4136,7 +4129,7 @@ void* mpz_export(
     size_t size,
     int endian,
     size_t nail,
-    mpz_srcptr z
+    const mpz_t z
 )
 {
     mp_size_t zsize;
@@ -4176,7 +4169,7 @@ void* mpz_export(
     if (nail == GMP_NAIL_BITS) {
         if (size == sizeof(mp_limb_t) && align == 0) {
             if (order == -1 && endian == HOST_ENDIAN) {
-                memcpy((mp_ptr)data, zp, (mp_size_t)count);
+                MPN_COPY((mp_ptr)data, zp, (mp_size_t)count);
                 return data;
             }
             if (order == 1 && endian == HOST_ENDIAN) {
@@ -4263,6 +4256,14 @@ void* mpz_export(
     }
     return data;
 }
+
+// static int gmp_detect_endian(void)
+//{
+//     static const int i = 2;
+//     const unsigned char* p = (const unsigned char*)&i;
+//     return 1 - *p;
+// }
+//
 
 /* Import and export. Does not support nails. */
 // void mpz_import(
