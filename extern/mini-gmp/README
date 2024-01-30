@@ -41,9 +41,7 @@ not desired as a dependency.
 The supported GMP subset of the mpn and mpz interfaces is declared in
 mini-gmp.h, and implemented in mini-gmp.c. The implemented
 functions are fully compatible with the corresponding GMP functions,
-as specified in the GMP manual, with a few exceptions:
-
-  mpz_export and mpz_import support only NAILS = 0.
+as specified in the GMP manual.
 
 The performance target for mini-gmp is to be at most 10 times slower
 than the real GMP library, for numbers of size up to a few hundred
