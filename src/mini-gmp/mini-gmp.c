@@ -1064,7 +1064,7 @@ static void mpn_div_qr_preinv(
     }
 }
 
-static void mpn_div_qr(mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn)
+void mpn_div_qr(mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn)
 {
     struct gmp_div_inverse inv;
     mp_ptr tp = NULL;

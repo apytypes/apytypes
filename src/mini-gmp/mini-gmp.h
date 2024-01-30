@@ -213,6 +213,9 @@ mp_limb_t mpn_invert_3by2(mp_limb_t, mp_limb_t);
 size_t mpn_get_str(unsigned char*, int, mp_ptr, mp_size_t);
 mp_size_t mpn_set_str(mp_ptr, const unsigned char*, size_t, int);
 
+/* APyTypes custom add: `mpn_div_qr` */
+void mpn_div_qr(mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn);
+
 void mpz_init(mpz_t);
 void mpz_init2(mpz_t, mp_bitcnt_t);
 void mpz_clear(mpz_t);
