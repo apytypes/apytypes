@@ -1,30 +1,32 @@
-name: "Sphinx: Render docs"
+name: documentation
 
-on: push
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: write
 
 jobs:
-  build:
+  docs:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
-    - uses: actions/checkout@v4
-    - name: Install dependencies and run doxygen
-      run: |
-        sudo apt-get install -yy doxygen
-        cd docs
-        doxygen
-        cd ..
-    - name: Build HTML
-      uses: ammaraskar/sphinx-action@master
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: html-docs
-        path: docs/_build/html/
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/main'
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: docs/_build/html
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+          with:
+            python-version: "3.10"
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -yy doxygen
+          python -m pip install -v .[docs]
+      - name: Sphinx build
+        run: |
+          cd docs
+          doxygen
+          cd ..
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        with:
+          publish_branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/_build/html
+          force_orphan: true
