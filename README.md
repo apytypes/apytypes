@@ -2,9 +2,11 @@
 
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/apytypes/apytypes/main.svg)](https://results.pre-commit.ci/latest/github/apytypes/apytypes/main)
 
+![License](https://img.shields.io/github/license/apytypes/apytypes)
+
 ## Documentation
 
-<https://daint.gitlab-pages.liu.se/apy-types/>
+<https://apytypes.github.io/apytypes/>
 
 ## Installation
 
