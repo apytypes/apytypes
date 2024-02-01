@@ -17,5 +17,13 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get install -yy doxygen
+    - name: Install APyTypes and doc dependencies
+      run: |
+        python -m pip install -v .[docs]
+    - name: Run DoxyGen
+      run:
+         cd docs
+         doxygen
+         cd ..
     - id: deployment
       uses: sphinx-notes/pages@v3
