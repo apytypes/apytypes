@@ -21,7 +21,7 @@ jobs:
       run: |
         python -m pip install [.docs] -v
     - name: Run DoxyGen
-      run:
+      run: |
          cd docs
          doxygen
          cd ..
