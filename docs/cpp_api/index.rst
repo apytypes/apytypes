@@ -6,6 +6,7 @@ APyTypes C++ API
    :caption: Contents:
 
    apyfixed
+   apyfixedarray
    apyfloat
    apytypes_util
    ieee754
