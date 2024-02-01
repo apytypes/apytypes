@@ -5,6 +5,7 @@
 
 class ContextManager {
 public:
+    virtual ~ContextManager() = default;
     virtual void enter_context() = 0;
     virtual void exit_context() = 0;
 };
