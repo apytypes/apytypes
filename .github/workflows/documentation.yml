@@ -1,29 +1,30 @@
-name: Deploy Sphinx documentation to Pages
+name: "Sphinx: Render docs"
 
-on:
-  push:
-    branches: [main] # branch to trigger deployment
+on: push
 
 jobs:
-  pages:
-    runs-on: ubuntu-20.04
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
+    runs-on: ubuntu-latest
     permissions:
-      pages: write
-      id-token: write
+      contents: write
     steps:
-    - name: Install dependencies
+    - uses: actions/checkout@v4
+    - name: Install dependencies and run doxygen
       run: |
         sudo apt-get install -yy doxygen
-    - name: Install APyTypes and doc dependencies
-      run: |
-        python -m pip install [.docs] -v
-    - name: Run DoxyGen
-      run: |
-         cd docs
-         doxygen
-         cd ..
-    - id: deployment
-      uses: sphinx-notes/pages@v3
+        cd docs
+        doxygen
+        cd ..
+    - name: Build HTML
+      uses: ammaraskar/sphinx-action@master
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: html-docs
+        path: docs/_build/html/
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: docs/_build/html
