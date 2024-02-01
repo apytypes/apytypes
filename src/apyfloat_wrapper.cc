@@ -79,6 +79,13 @@ void bind_float(py::module& m)
         .def(py::self <= py::self)
         .def(py::self >= py::self)
 
+        .def(py::self == float())
+        .def(py::self != float())
+        .def(py::self < float())
+        .def(py::self > float())
+        .def(py::self <= float())
+        .def(py::self >= float())
+
         .def("__abs__", &APyFloat::abs)
         .def("__pow__", &APyFloat::pow)
         .def("__pow__", &APyFloat::pown)
@@ -88,11 +95,9 @@ void bind_float(py::module& m)
          */
         .def_property_readonly("is_normal", &APyFloat::is_normal)
         .def_property_readonly("is_subnormal", &APyFloat::is_subnormal)
-        .def_property_readonly("is_zero", &APyFloat::is_zero)
         .def_property_readonly("is_finite", &APyFloat::is_finite)
         .def_property_readonly("is_nan", &APyFloat::is_nan)
         .def_property_readonly("is_inf", &APyFloat::is_inf)
-        .def_property_readonly("is_sign_neg", &APyFloat::is_sign_neg)
 
         /*
          * Properties
@@ -100,6 +105,7 @@ void bind_float(py::module& m)
         .def_property_readonly("sign", &APyFloat::get_sign)
         .def_property_readonly("man", &APyFloat::get_man)
         .def_property_readonly("exp", &APyFloat::get_exp)
+        .def_property_readonly("bias", &APyFloat::get_bias)
         .def_property_readonly("man_bits", &APyFloat::get_man_bits)
         .def_property_readonly("exp_bits", &APyFloat::get_exp_bits);
 }

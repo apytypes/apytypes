@@ -1,6 +1,6 @@
 from itertools import permutations as perm
 import pytest
-from apytypes import APyFloat
+from apytypes import APyFloat, APyFixed
 
 
 # Conversions
@@ -73,6 +73,36 @@ def test_bit_conversion_nan_e5m2(absx, sign, ans):
 
 
 # Comparison operators
+@pytest.mark.float_comp
+def test_comparisons_with_floats():
+    a = APyFloat.from_float(0.5, 3, 3)
+    assert a > 0
+    assert a > 0.0
+    assert a >= 0
+    assert not a < 0
+    assert not a <= 0
+    assert a != 0
+
+    a = APyFloat.from_float(0.0, 3, 3)
+    assert a == 0
+    assert a == 0.0
+
+
+@pytest.mark.float_comp
+def test_comparisons_with_apyfixed():
+    a = APyFloat.from_float(2.5, 5, 5)
+    b = APyFixed.from_float(5, 5, 5)
+    assert a != b
+    assert b > a
+    assert a < b
+    assert a > -b
+    assert a == (b >> 1)
+    
+    assert APyFloat.from_float(float('inf'), 4, 3) > APyFixed.from_float(1000, 16, 16)
+    assert APyFloat.from_float(0, 4, 5) <= APyFixed.from_float(0, 16, 16)
+    assert APyFloat.from_float(0.125, 4, 3) >= APyFixed.from_float(0.125, 16, 16)
+
+
 @pytest.mark.float_comp
 @pytest.mark.parametrize(
     "lhs,rhs,test_exp",
@@ -285,7 +315,7 @@ def test_sub_diff_sign(lhs, rhs):
     # Subtract two numbers that have different sign
     expr = None
     assert float(eval(expr := f"{lhs} - {rhs}")) == (
-        16.0 * (-1 if eval(lhs).is_sign_neg else 1)
+        16.0 * (-1 if eval(lhs) < 0 else 1)
     )
     res = eval(expr)
     assert res.exp_bits == 9
@@ -301,7 +331,7 @@ def test_sub_zero(lhs, rhs):
     # Subtraction when one operand is zero
     expr = None
     assert float(eval(expr := f"{lhs} - {rhs}")) == (
-        5.75 * (-1 if eval(lhs).is_zero else 1)
+        5.75 * (-1 if eval(lhs) == 0 else 1)
     )
     res = eval(expr)
     assert res.exp_bits == 15
@@ -342,7 +372,7 @@ def test_mul_overflow():
 @pytest.mark.float_mul
 def test_mul_underflow():
     """Test that a multiplication can underflow to zero."""
-    assert (APyFloat(0, 1, 1, 5, 2) * APyFloat(0, 1, 3, 5, 3)).is_zero
+    assert (APyFloat(0, 1, 1, 5, 2) * APyFloat(0, 1, 3, 5, 3)) == 0
 
 
 # Power
@@ -415,16 +445,6 @@ def test_power_special_cases(x, n, test_exp):
         assert (
             eval(f"(APyFloat.from_float(float({x}), 9, 7)**{n}).to_float()") == test_exp
         )
-
-
-@pytest.mark.xfail
-def test_comparisons_failing():
-    a = APyFloat.from_float(0.5, 3, 3)
-    assert a > 0
-    assert a > 0.0
-    a = APyFloat.from_float(0.0, 3, 3)
-    assert a == 0
-    assert a == 0.0
 
 
 def test_latex():

@@ -115,6 +115,7 @@ public:
     inline bool get_sign() const { return sign; }
     inline man_t get_man() const { return man; }
     inline exp_t get_exp() const { return exp; }
+    inline exp_t get_bias() const { return bias; }
     inline std::uint8_t get_man_bits() const { return man_bits; }
     inline std::uint8_t get_exp_bits() const { return exp_bits; }
 
