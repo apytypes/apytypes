@@ -100,25 +100,6 @@ APyFixed::APyFixed(int bits, int int_bits)
     bit_specifier_sanitize_bits(_bits, _int_bits);
 }
 
-//! Constructor: specify size and initialize from string
-APyFixed::APyFixed(int bits, int int_bits, const char* str, int base)
-    : APyFixed(bits, int_bits)
-{
-    switch (base) {
-    case 8:
-        set_from_string_oct(str);
-        break;
-    case 10:
-        set_from_string_dec(str);
-        break;
-    case 16:
-        set_from_string_hex(str);
-        break;
-    default:
-        throw std::domain_error("Unsupported numeric base. Valid bases are: 8, 10, 16");
-    }
-}
-
 //! Underlying vector iterator-based constructor
 template <typename _ITER>
 APyFixed::APyFixed(int bits, int int_bits, _ITER begin, _ITER end)

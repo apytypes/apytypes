@@ -93,9 +93,6 @@ public:
         std::optional<int> frac_bits = std::nullopt
     );
 
-    //! Constructor: specify size and initialize from string
-    explicit APyFixed(int bits, int int_bits, const char* str, int base = 10);
-
     //! Constructor: specify size and initialize underlying vector from iterators
     template <typename _ITER>
     explicit APyFixed(int bits, int int_bits, _ITER begin, _ITER end);
