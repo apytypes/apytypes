@@ -65,4 +65,12 @@ sphinx_gallery_conf = {
     "filename_pattern": ".",
     "doc_module": ("apytypes",),
     "reference_url": {"apytypes": None},
+    "image_scrapers": (
+        #    qtgallery.qtscraper,
+        "matplotlib",
+    ),
+    "reset_modules": (
+        #    qtgallery.reset_qapp,
+        "matplotlib",
+    ),
 }
