@@ -65,6 +65,14 @@ public:
     APyFixedArray operator<<(int shift_val) const;
     APyFixedArray operator>>(int shift_val) const;
 
+    /*!
+     * Matrix mutliplication. If both arguments ar 2-D tensors, this method performs the
+     * ordinary matrix multiplication. If input dimensions are greater than 2, this
+     * method performs stacked matrix multiplications, where the dimensions of last two
+     * dimensions are treated as matrices.
+     */
+    APyFixedArray matmul(const APyFixedArray& rhs) const;
+
     /* ****************************************************************************** *
      * *                          Public member functions                           * *
      * ****************************************************************************** */
@@ -121,6 +129,16 @@ public:
 
     //! Fold the `_shape` field over multiplication
     std::size_t _fold_shape() const;
+
+    //! Evaluate the inner between two vectors. This method assumes that the the shape
+    //! of both `*this` and `rhs` are equally long. Anything else is undefined
+    //! behaviour.
+    APyFixedArray _checked_inner_product(const APyFixedArray& rhs) const;
+
+    //! Evaluate the matrix product between two 2D matrices. This method assumes that
+    //! the shape of `*this` and `rhs` have been checked to match a 2D matrix
+    //! multiplication.
+    APyFixedArray _checked_2d_matmul(const APyFixedArray& rhs) const;
 };
 
 #endif // _APYFIXED_ARRAY_H
