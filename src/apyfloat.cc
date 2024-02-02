@@ -134,8 +134,8 @@ APyFloat APyFloat::cast_to(
         new_man |= res.leading_one();             // Add leading one
         new_man <<= (res.man_bits + new_exp - 1); // Shift the difference between E_min
                                                   // and exp
-        new_man /= 1 << res.man_bits; // Divide by the minimum subnorm (i.e. E_min)
-        new_man &= res.man_mask();    // Mask away the leading ones
+        new_man /= 1ULL << res.man_bits; // Divide by the minimum subnorm (i.e. E_min)
+        new_man &= res.man_mask();       // Mask away the leading ones
         new_exp = 0;
     } else if (man_bits_delta < 0) { // Normal case, exponent is positive
         // Calculate rounding bit
@@ -547,29 +547,32 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
         my <<= man_bits_delta;
     }
 
-    // Two integer bits, sign bit and leading one
-    APyFixed apy_mx(2 + 1 + res.man_bits, 2, std::vector<mp_limb_t>({ mx << 1 }));
-    APyFixed apy_my(2 + 1 + res.man_bits, 2, std::vector<mp_limb_t>({ my << 1 }));
+    // Two integer bits, sign bit and leading one, and two extra guard bits
+    constexpr auto guard_bits = 2;
+    APyFixed apy_mx(
+        2 + guard_bits + res.man_bits, 2, std::vector<mp_limb_t>({ mx << guard_bits })
+    );
+    APyFixed apy_my(
+        2 + guard_bits + res.man_bits, 2, std::vector<mp_limb_t>({ my << guard_bits })
+    );
 
-    man_t c = (mx < my) ? 1 : 0;
+    // Determines if the exponent needs to be decremented
+    man_t dec_exp = (mx < my) ? 1 : 0;
 
     auto apy_man_res = apy_mx / apy_my;
 
-    apy_man_res.resize(
-        2 + res.man_bits, 2, translate_rounding_mode(get_rounding_mode())
-    );
-
-    apy_man_res = apy_man_res << (res.man_bits + c);
+    apy_man_res = apy_man_res << (res.man_bits + guard_bits + dec_exp);
     man_t new_man = apy_man_res.to_double();
 
-    new_man &= res.man_mask();
+    constexpr auto lower_man_mask = (1 << guard_bits) - 1;
+    new_man &= (res.man_mask() << guard_bits) | lower_man_mask;
 
     return APyFloat(
                res.sign,
-               new_exp - c,
+               new_exp - dec_exp,
                new_man,
                res.exp_bits + 1,
-               res.man_bits,
+               res.man_bits + guard_bits,
                extended_bias
     )
         .cast_to(res.exp_bits, res.man_bits, res.bias);
