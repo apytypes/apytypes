@@ -34,4 +34,7 @@ enum class RoundingMode {
 void set_rounding_mode(RoundingMode);
 RoundingMode get_rounding_mode();
 
+APyFixedRoundingMode translate_rounding_mode(RoundingMode);
+RoundingMode translate_rounding_mode(APyFixedRoundingMode);
+
 #endif // _APYTYPES_COMMON_H

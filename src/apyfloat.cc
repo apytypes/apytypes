@@ -3,6 +3,7 @@
 #include <iostream>
 #include <limits>
 
+#include "apyfixed.h"
 #include "apyfloat.h"
 #include "apytypes_util.h"
 
@@ -508,7 +509,70 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
 
 APyFloat APyFloat::operator/(const APyFloat& y) const
 {
-    throw NotImplementedException("APyFloat: Division has not yet been implemented.");
+    APyFloat res(std::max(exp_bits, y.exp_bits), std::max(man_bits, y.man_bits));
+
+    // Calculate sign
+    res.sign = sign ^ y.sign;
+
+    // Handle special operands
+    if ((is_nan() || y.is_nan()) || (is_inf() && y.is_zero())
+        || (is_zero() && y.is_zero())) {
+        return res.construct_nan();
+    }
+
+    if (is_zero() || y.is_inf()) {
+        return res.construct_zero();
+    }
+
+    if (is_inf() || y.is_zero()) {
+        return res.construct_inf();
+    }
+
+    if ((is_subnormal() && !is_zero()) || (y.is_subnormal() && !y.is_zero())) {
+        print_warning("division with subnormals is not sure to work yet.");
+    }
+
+    const exp_t extended_bias = (res.ieee_bias() << 1) | 1;
+    std::int64_t new_exp = (exp - bias) - (y.exp - y.bias) + extended_bias;
+
+    // Conditionally add leading one's
+    man_t mx = (is_normal() << man_bits) | man;
+    man_t my = (y.is_normal() << y.man_bits) | y.man;
+
+    // Align mantissas based on mixed formats
+    const auto man_bits_delta = man_bits - y.man_bits;
+    if (man_bits_delta < 0) {
+        mx <<= -man_bits_delta;
+    } else {
+        my <<= man_bits_delta;
+    }
+
+    // Two integer bits, sign bit and leading one
+    APyFixed apy_mx(2 + 1 + res.man_bits, 2, std::vector<mp_limb_t>({ mx << 1 }));
+    APyFixed apy_my(2 + 1 + res.man_bits, 2, std::vector<mp_limb_t>({ my << 1 }));
+
+    man_t c = (mx < my) ? 1 : 0;
+
+    auto apy_man_res = apy_mx / apy_my;
+
+    apy_man_res.resize(
+        2 + res.man_bits, 2, translate_rounding_mode(get_rounding_mode())
+    );
+
+    apy_man_res = apy_man_res << (res.man_bits + c);
+    man_t new_man = apy_man_res.to_double();
+
+    new_man &= res.man_mask();
+
+    return APyFloat(
+               res.sign,
+               new_exp - c,
+               new_man,
+               res.exp_bits + 1,
+               res.man_bits,
+               extended_bias
+    )
+        .cast_to(res.exp_bits, res.man_bits, res.bias);
 }
 
 /* ******************************************************************************
