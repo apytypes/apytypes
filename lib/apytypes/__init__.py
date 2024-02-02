@@ -10,6 +10,8 @@ from apytypes._apytypes import (
     set_rounding_mode,
 )
 
+from apytypes._version import version as __version__
+
 __all__ = [
     "APyFloat",
     "APyFixed",
@@ -20,6 +22,7 @@ __all__ = [
     "RoundingMode",
     "get_rounding_mode",
     "set_rounding_mode",
+    "__version__",
 ]
 
 APyFloat.__doc__ = """

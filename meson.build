@@ -2,7 +2,7 @@ project(
     'apytypes',
     'cpp', 'c',
     default_options : ['cpp_std=c++17', 'c_std=c17'],
-    version : '0.0.1',
+    version : '0.0.1.dev0',
 )
 
 # Python module incudes
@@ -17,6 +17,20 @@ py3.install_sources(
   ],
   subdir: 'apytypes'
 )
+# Version handling
+fs = import('fs')
+if fs.exists('_version.py')
+    py3.install_sources('_version.py', subdir: 'apytypes')
+else
+  cfg = configuration_data()
+  cfg.set_quoted('VCS_TAG', meson.project_version())
+  configure_file(
+    input: 'lib/apytypes/_version.py.in', output: '_version.py',
+    configuration: cfg,
+    install: true,
+    install_tag: 'python-runtime',
+    install_dir: py3.get_install_dir() / 'apytypes')
+endif
 
 # Python module
 py3.extension_module(

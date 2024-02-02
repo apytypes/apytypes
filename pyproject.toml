@@ -4,7 +4,7 @@ requires = ['meson-python', 'pybind11']
 
 [project]
 name = "apytypes"
-version = "0.0.1"
+dynamic = ['version']
 authors = [
   { name="Example Author", email="author@example.com" }
 ]
