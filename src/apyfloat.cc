@@ -561,7 +561,7 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
 
     auto apy_man_res = apy_mx / apy_my;
 
-    apy_man_res = apy_man_res << (res.man_bits + guard_bits + dec_exp);
+    apy_man_res = apy_man_res << int(res.man_bits + guard_bits + dec_exp);
     man_t new_man = apy_man_res.to_double();
 
     constexpr auto lower_man_mask = (1 << guard_bits) - 1;
