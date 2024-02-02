@@ -60,6 +60,9 @@ void bind_fixed_array(py::module& m)
             -------
             :class:`int`
             )pbdoc")
+
+        .def_property_readonly("shape", &APyFixedArray::shape)
+        .def_property_readonly("ndim", &APyFixedArray::ndim)
         .def("is_identical", &APyFixedArray::is_identical, py::arg("other"), R"pbdoc(
             Test if two `APyFixedArray` objects are identical.
 

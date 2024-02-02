@@ -269,6 +269,19 @@ std::string APyFixedArray::repr() const
     return ss.str();
 }
 
+// The shape of the array
+pybind11::tuple APyFixedArray::shape() const
+{
+    py::tuple result(_shape.size());
+    for (std::size_t i = 0; i < _shape.size(); i++) {
+        result[i] = _shape[i];
+    }
+    return result;
+}
+
+// The dimension in the array
+int APyFixedArray::ndim() const { return _shape.size(); }
+
 bool APyFixedArray::is_identical(const APyFixedArray& other) const
 {
     bool same_spec = (_shape == other._shape) && (bits() == other.bits())
