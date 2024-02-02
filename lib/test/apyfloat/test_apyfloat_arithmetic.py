@@ -187,10 +187,26 @@ def test_div_underflow():
     assert (APyFloat(0, 1, 3, 5, 2) / APyFloat(1, 30, 3, 5, 2)) == 0
 
 
+@pytest.mark.float_div
+@pytest.mark.parametrize("x", [0, 1, float("inf"), float("nan")])
+@pytest.mark.parametrize("y", [0, 1, float("inf"), float("nan")])
+def test_div_special_cases(x, y):
+    """Test the special cases for division."""
+    try:
+        assert (
+            s := str(float(APyFloat.from_float(x, 4, 4) / APyFloat.from_float(y, 4, 4)))
+        ) == str(x / y)
+    except ZeroDivisionError:
+        if x == 1 or x == float("inf"):
+            assert s == "inf"
+        else:
+            assert s == "nan"
+
+
 # Power
 @pytest.mark.float_pow
 def test_power():
-    """Test that a multiplication can underflow to zero."""
+    """Test the power function."""
     assert APyFloat.from_float(4.5, 8, 10) ** 2 == APyFloat.from_float(4.5**2, 8, 10)
     assert APyFloat.from_float(-4.5, 8, 10) ** 3 == APyFloat.from_float(
         (-4.5) ** 3, 8, 10
@@ -250,7 +266,7 @@ def test_power_underflow():
     ],
 )
 def test_power_special_cases(x, n, test_exp):
-    """Test that a multiplication can underflow to zero."""
+    """Test the special cases for the power function."""
     if str(test_exp) == "nan":
         assert eval(f"(APyFloat.from_float(float({x}), 9, 7)**{n}).is_nan")
     else:
