@@ -385,15 +385,6 @@ mp_limb_t APyFixed::increment_lsb() noexcept
     );
 }
 
-void APyFixed::from_vector(const std::vector<mp_limb_t>& new_vector)
-{
-    if (new_vector.size() != this->vector_size()) {
-        throw std::domain_error("Vector size miss-match");
-    }
-    _data = std::vector<mp_limb_t>(new_vector.begin(), new_vector.end());
-    _twos_complement_overflow();
-}
-
 std::string APyFixed::to_string_dec() const
 {
     // Construct a string from the absolute value of number, and conditionally append a

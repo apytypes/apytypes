@@ -269,9 +269,6 @@ private:
     // of the APyFixed range.
     void _twos_complement_overflow() noexcept;
 
-    // Set the bit-pattern of the fixed-point number from a vector of limbs
-    void from_vector(const std::vector<mp_limb_t>& vector);
-
 }; // end: class APyFixed
 
 /* ********************************************************************************** *
