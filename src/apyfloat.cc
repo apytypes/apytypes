@@ -515,8 +515,8 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     res.sign = sign ^ y.sign;
 
     // Handle special operands
-    if ((is_nan() || y.is_nan()) || (is_inf() && y.is_zero())
-        || (is_zero() && y.is_zero())) {
+    if ((is_nan() || y.is_nan()) || (is_zero() && y.is_zero())
+        || (is_inf() && y.is_inf())) {
         return res.construct_nan();
     }
 
