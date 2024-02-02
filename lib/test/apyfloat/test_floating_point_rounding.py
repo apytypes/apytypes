@@ -1,5 +1,6 @@
 import apytypes
-from apytypes import APyFloat, RoundingMode
+from apytypes import APyFloat, RoundingMode, RoundingContext
+import pytest
 
 
 class TestAPyFloatRounding:
@@ -323,3 +324,40 @@ class TestAPyFloatRounding:
         assert APyFloat(1, 5, 0b10111, 5, 5).cast_to(5, 3) == APyFloat(
             1, 5, 0b110, 5, 3
         )  # Round up
+
+
+# Floating-point divison is implemented quite differently and should therefore be tested seperately
+@pytest.mark.float_div
+@pytest.mark.parametrize("a", [14, 20])
+@pytest.mark.parametrize("b", [14, 20])
+@pytest.mark.parametrize("sign", [1, -1])
+class TestAPyFloatRoundingDiv:
+    def test_to_positive(self, a, b, sign):
+        with RoundingContext(RoundingMode.TO_POSITIVE):
+            assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
+                b, 5, 5
+            ) == APyFloat.from_float(sign * a / b, 5, 5)
+
+    def test_to_negative(self, a, b, sign):
+        with RoundingContext(RoundingMode.TO_NEGATIVE):
+            assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
+                b, 5, 5
+            ) == APyFloat.from_float(sign * a / b, 5, 5)
+
+    def test_to_zero(self, a, b, sign):
+        with RoundingContext(RoundingMode.TO_ZERO):
+            assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
+                b, 5, 5
+            ) == APyFloat.from_float(sign * a / b, 5, 5)
+
+    def test_to_ties_to_even(self, a, b, sign):
+        with RoundingContext(RoundingMode.TIES_TO_EVEN):
+            assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
+                b, 5, 5
+            ) == APyFloat.from_float(sign * a / b, 5, 5)
+
+    def test_to_ties_to_away(self, a, b, sign):
+        with RoundingContext(RoundingMode.TIES_TO_AWAY):
+            assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
+                b, 5, 5
+            ) == APyFloat.from_float(sign * a / b, 5, 5)
