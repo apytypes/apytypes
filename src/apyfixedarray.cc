@@ -1,5 +1,6 @@
 // Python object access through Pybind
 #include "apyfixed.h"
+#include <iostream>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 namespace py = pybind11;
@@ -23,7 +24,6 @@ namespace py = pybind11;
 
 #include "apyfixedarray.h"
 #include "apytypes_util.h"
-#include "ieee754.h"
 #include "python_util.h"
 
 // GMP should be included after all other includes
@@ -197,6 +197,31 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
     return result;
 }
 
+APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
+{
+    if (_shape.size() == 1 && rhs._shape.size() == 1) {
+        if (_shape[0] == rhs._shape[0]) {
+            // Dimensionality for a standard scalar inner product checks out. Perform
+            // the checked inner product.
+            return _checked_inner_product(rhs);
+        }
+    }
+    if (_shape.size() == 2 && rhs._shape.size() == 2) {
+        if (_shape[1] == rhs._shape[0]) {
+            // Dimensionality for a standard 2D matrix mutliplication checks out.
+            // Perform the checked 2D matrix
+            return _checked_2d_matmul(rhs);
+        }
+    }
+
+    // Unsupported `__matmul__` dimensionality, raise exception
+    throw std::runtime_error(
+        std::string("APyFixedArray.__matmul__: input shape missmatch, ")
+        + std::string("lhs: (") + string_from_vec(_shape) + "), "
+        + std::string("rhs: (") + string_from_vec(rhs._shape) + ")"
+    );
+}
+
 /* ********************************************************************************** *
  * *                               Other methods                                    * *
  * ********************************************************************************** */
@@ -236,12 +261,8 @@ std::string APyFixedArray::repr() const
 
         ss.seekp(-2, ss.cur);
     }
-    ss << "], "
-       << "shape=(";
-    for (auto d : _shape) {
-        ss << d << ", ";
-    }
-    ss.seekp(-2, ss.cur);
+    ss << "], shape=(";
+    ss << string_from_vec(_shape);
     ss << "), "
        << "bits=" << bits() << ", "
        << "int_bits=" << int_bits() << ")";
@@ -330,4 +351,87 @@ std::size_t APyFixedArray::_fold_shape() const
 {
     // Fold the shape over multiplication
     return std::accumulate(_shape.begin(), _shape.end(), 1, std::multiplies {});
+}
+
+// Evaluate the inner between two vectors. This method assumes that the the shape of
+// both `*this` and `rhs` are equally long. Anything else is undefined behaviour.
+APyFixedArray APyFixedArray::_checked_inner_product(const APyFixedArray& rhs) const
+{
+    const int res_bits = bits() + rhs.bits() + bit_width(_shape[0] - 1);
+    const int res_int_bits = int_bits() + rhs.int_bits() + bit_width(_shape[0] - 1);
+    if (_shape[0] == 0) {
+        return APyFixedArray({ 0 }, res_bits, res_int_bits);
+    }
+
+    // Hadamard product of `*this` and `rhs`
+    APyFixedArray hadamard = *this * rhs;
+    APyFixedArray result({ 1 }, res_bits, res_int_bits);
+    for (std::size_t i = 0; i < hadamard._fold_shape(); i++) {
+        mpn_add(
+            &result._data[0],                              // dst
+            &result._data[0],                              // src1
+            result._data.size(),                           // src1 limb length
+            &hadamard._data[i * hadamard._scalar_limbs()], // src2
+            hadamard._scalar_limbs()                       // src2 limb length
+        );
+    }
+    return result;
+}
+
+// Evaluate the matrix product between two 2D matrices. This method assumes that the
+// shape of `*this` and `rhs` have been checked to match a 2d matrix multiplication.
+APyFixedArray APyFixedArray::_checked_2d_matmul(const APyFixedArray& rhs) const
+{
+    std::cout << "lsh._shape: (" << string_from_vec(this->_shape) << ")" << std::endl;
+    std::cout << "rhs._shape: (" << string_from_vec(rhs._shape) << ")" << std::endl;
+
+    // Resulting parameters
+    std::vector<std::size_t> res_shape { _shape[0], rhs._shape[1] };
+    const auto res_bits = bits() + rhs.bits() + bit_width(_shape[1] - 1);
+    const auto res_int_bits = int_bits() + rhs.int_bits() + bit_width(_shape[1] - 1);
+
+    // Resulting `APyFixedArray`
+    APyFixedArray result(res_shape, res_bits, res_int_bits);
+
+    std::cout << "res._shape: (" << string_from_vec(result._shape) << ")" << std::endl;
+
+    for (std::size_t x = 0; x < res_shape[1]; x++) {
+
+        // Copy column from `rhs` and use as the current working column. As reading
+        // columns from `rhs` is cache-inefficient, we like to do this only once for
+        // each element in the resulting matrix.
+        APyFixedArray current_column({ rhs._shape[0] }, rhs.bits(), rhs.int_bits());
+        for (std::size_t i = 0; i < rhs._shape[0]; i++) {
+            current_column._data[i]
+                = rhs._data[(x + i * rhs._shape[1]) * rhs._scalar_limbs()];
+        }
+        std::cout << "Column " << x << ": " << current_column.repr() << std::endl;
+
+        for (std::size_t y = 0; y < res_shape[0]; y++) {
+
+            // Current row from lhs (`*this`)
+            APyFixedArray current_row({ _shape[1] }, bits(), int_bits());
+            for (std::size_t i = 0; i < _shape[1]; i++) {
+                current_row._data[i] = _data[(y * _shape[1] + i) * _scalar_limbs()];
+            }
+
+            // Perform the inner product
+            APyFixedArray current_res
+                = current_column._checked_inner_product(current_row);
+            assert(current_res._shape == std::vector<std::size_t> { 1 });
+            assert(current_res._scalar_limbs() == result._scalar_limbs());
+            assert(current_res.bits() == result.bits());
+            assert(current_res.int_bits() == result.int_bits());
+
+            // Copy into the resulting vector
+            std::copy_n(
+                current_res._data.begin(), // src
+                current_res._data.size(),  // limbs to copy
+                result._data.begin()
+                    + (y * result._shape[1] + x) * result._scalar_limbs()
+            );
+        }
+    }
+
+    return result;
 }

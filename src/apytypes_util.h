@@ -10,6 +10,7 @@
 #include <functional> // std::bit_not
 #include <optional>   // std::optional, std::nullopt
 #include <regex>      // std::regex, std::regex_replace
+#include <sstream>    // std::stringstream
 #include <stdexcept>  // std::logic_error, std::domain_error
 #include <vector>     // std::vector
 
@@ -651,6 +652,19 @@ static inline std::vector<mp_limb_t> limb_vector_abs(
     } else {
         return std::vector<mp_limb_t>(cbegin_it, cend_it);
     }
+}
+
+template <typename T> std::string string_from_vec(const std::vector<T>& vec)
+{
+    if (vec.size() == 0) {
+        return "";
+    }
+
+    std::stringstream ss;
+    for (auto& d : vec) {
+        ss << d << ", ";
+    }
+    return ss.str().substr(0, ss.str().length() - 2);
 }
 
 #endif // _APYTYPES_UTIL_H

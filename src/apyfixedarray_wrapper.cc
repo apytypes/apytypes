@@ -122,6 +122,7 @@ void bind_fixed_array(py::module& m)
          * Dunder methods
          */
         .def("__repr__", &APyFixedArray::repr)
+        .def("__matmul__", &APyFixedArray::matmul, py::arg("rhs"))
 
         ;
 }
