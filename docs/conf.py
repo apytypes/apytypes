@@ -17,6 +17,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
+    "sphinx_gallery.gen_gallery",
     "numpydoc",  # Needs to be loaded *after* autodoc.
     "sphinx_copybutton",
     "breathe",
@@ -55,3 +56,13 @@ breathe_projects_source = {
 }
 
 breathe_projects = {"APyTypes": "xml/"}
+
+# -- Options for sphinx-gallery --
+sphinx_gallery_conf = {
+    "examples_dirs": "../examples",  # path to your example scripts
+    "gallery_dirs": "examples",  # path to where to save gallery generated output
+    "plot_gallery": "True",  # sphinx-gallery/913
+    "filename_pattern": ".",
+    "doc_module": ("apytypes",),
+    "reference_url": {"apytypes": None},
+}
