@@ -63,6 +63,29 @@ def test_binary_comparison():
     assert APyFixed.from_float(-1.0, 256, 128) >= APyFixed.from_float(-3.0, 256, 128)
 
 
+def test_float_comparison():
+    assert not APyFixed.from_float(0.0, 256, 128) == 1.0
+    assert APyFixed.from_float(0.0, 256, 128) != 1.0
+    assert APyFixed.from_float(0.0, 256, 128) < 1.0
+    assert APyFixed.from_float(0.0, 256, 128) <= 1.0
+    assert not APyFixed.from_float(0.0, 256, 128) > 1.0
+    assert not APyFixed.from_float(0.0, 256, 128) >= 1.0
+
+    assert APyFixed.from_float(1.0, 256, 128) == 1.0
+    assert not APyFixed.from_float(1.0, 256, 128) != 1.0
+    assert not APyFixed.from_float(1.0, 256, 128) < 1.0
+    assert APyFixed.from_float(1.0, 256, 128) <= 1.0
+    assert not APyFixed.from_float(1.0, 256, 128) > 1.0
+    assert APyFixed.from_float(1.0, 256, 128) >= 1.0
+
+    assert not APyFixed.from_float(-1.0, 256, 128) == -3.0
+    assert APyFixed.from_float(-1.0, 256, 128) != -3.0
+    assert not APyFixed.from_float(-1.0, 256, 128) < -3.0
+    assert not APyFixed.from_float(-1.0, 256, 128) <= -3.0
+    assert APyFixed.from_float(-1.0, 256, 128) > -3.0
+    assert APyFixed.from_float(-1.0, 256, 128) >= -3.0
+
+
 def test_wide_operations():
     """
     Tests for wider additions and subtractions

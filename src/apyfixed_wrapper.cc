@@ -54,6 +54,13 @@ void bind_fixed(py::module& m)
         .def(py::self > py::self)
         .def(py::self >= py::self)
 
+        .def(py::self == float())
+        .def(py::self != float())
+        .def(py::self < float())
+        .def(py::self > float())
+        .def(py::self <= float())
+        .def(py::self >= float())
+
         .def(py::self + py::self)
         .def(py::self - py::self)
         .def(py::self * py::self)
@@ -169,7 +176,7 @@ void bind_fixed(py::module& m)
          * Dunder methods
          */
         .def("__abs__", &APyFixed::abs)
-        .def("__float__", &APyFixed::to_double)
+        .def("__float__", &APyFixed::operator double)
         .def("__neg__", [](APyFixed& fix) { return -fix; })
         .def("__repr__", &APyFixed::repr)
         .def("__str__", &APyFixed::to_string, py::arg("base") = 10)

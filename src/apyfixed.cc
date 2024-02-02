@@ -100,13 +100,6 @@ APyFixed::APyFixed(int bits, int int_bits)
     bit_specifier_sanitize_bits(_bits, _int_bits);
 }
 
-//! Constructor: specify size and initialize from a `double`
-APyFixed::APyFixed(double value, int bits, int int_bits)
-    : APyFixed(bits, int_bits)
-{
-    set_from_double(value);
-}
-
 //! Constructor: specify size and initialize from string
 APyFixed::APyFixed(int bits, int int_bits, const char* str, int base)
     : APyFixed(bits, int_bits)
@@ -151,12 +144,6 @@ APyFixed::APyFixed(int bits, int int_bits, _ITER begin, _ITER end)
 
 //! Construction from std::vector<mp_limb_t>
 APyFixed::APyFixed(int bits, int int_bits, const std::vector<mp_limb_t>& vec)
-    : APyFixed(bits, int_bits, vec.begin(), vec.end())
-{
-}
-
-//! Construction from std::vector<mp_limb_signed_t>
-APyFixed::APyFixed(int bits, int int_bits, const std::vector<mp_limb_signed_t>& vec)
     : APyFixed(bits, int_bits, vec.begin(), vec.end())
 {
 }
@@ -466,6 +453,8 @@ std::string APyFixed::to_string(int base) const
         break;
     }
 }
+
+APyFixed::operator double() const { return to_double(); }
 
 void APyFixed::set_from_string_dec(const std::string& str)
 {

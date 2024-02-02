@@ -312,7 +312,7 @@ APyFixedArray APyFixedArray::from_double(
     for (std::size_t i = 0; i < result._data.size() / bits_to_limbs(result.bits());
          i++) {
         double d = static_cast<double>(doubles[i]);
-        APyFixed fix(d, result.bits(), result.int_bits());
+        auto fix = APyFixed::from_double(d, result.bits(), result.int_bits());
         std::copy_n(
             fix.read_data().begin(),                                // src
             bits_to_limbs(result.bits()),                           // limb count

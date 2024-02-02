@@ -83,9 +83,6 @@ public:
      *                       Non-Python accessible constructors                       *
      * ****************************************************************************** */
 
-    //! Constructor: specify size and initialize from a `double`
-    explicit APyFixed(double value, int bits, int int_bits);
-
     //! Constructor: specify only size, and zero data on construction
     explicit APyFixed(int bits, int int_bits);
 
@@ -105,7 +102,6 @@ public:
 
     //! Constructor: specify size and initialize underlying bits using vector
     explicit APyFixed(int bits, int int_bits, const std::vector<mp_limb_t>& vec);
-    explicit APyFixed(int bits, int int_bits, const std::vector<mp_limb_signed_t>& vec);
 
     /* ****************************************************************************** *
      *                         Binary arithmetic operators                            *
@@ -198,6 +194,8 @@ public:
     std::string to_string_hex() const;
     std::string to_string_oct() const;
     std::string to_string_dec() const;
+
+    operator double() const;
 
     /* ****************************************************************************** *
      *                          Setters from other types                              *
