@@ -4,6 +4,7 @@ builddir/
 *.so
 *~
 _version.py
+_version.pyi
 
 # Apple debuging symbol files
 *.dSYM

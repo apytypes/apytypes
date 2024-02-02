@@ -6,3 +6,4 @@ if ! command -v pybind11-stubgen; then
 fi
 
 pybind11-stubgen -o lib apytypes
+black lib/apytypes/*.pyi

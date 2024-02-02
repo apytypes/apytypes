@@ -311,6 +311,11 @@ class APyFixedArray:
         :class:`int`
         """
 
+    @property
+    def ndim(self) -> int: ...
+    @property
+    def shape(self) -> tuple: ...
+
 class APyFixedOverflowMode:
     """
     Members:
@@ -560,5 +565,3 @@ def get_rounding_mode() -> RoundingMode: ...
 def set_rounding_mode(arg0: RoundingMode) -> None: ...
 @typing.overload
 def set_rounding_mode(arg0: RoundingMode) -> None: ...
-
-__version__: str = "0.0.1"

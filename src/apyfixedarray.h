@@ -80,13 +80,19 @@ public:
     //! Python `__repr__()` function
     std::string repr() const;
 
-    //! Retrieve the `bits` specifier for this APyFixedArray
+    //! Shape of the array
+    pybind11::tuple shape() const;
+
+    //! Number of dimension in the array
+    int ndim() const;
+
+    //! The `bits` specifier for this APyFixedArray
     int bits() const noexcept { return _bits; }
 
-    //! Retrieve the `int_bits` specifier for this APyFixedArray
+    //! The `int_bits` specifier for this APyFixedArray
     int int_bits() const noexcept { return _int_bits; }
 
-    //! Retrieve the `frac_bits` specifier for this APyFixedArray
+    //! The `frac_bits` specifier for this APyFixedArray
     int frac_bits() const noexcept { return _bits - _int_bits; }
 
     /*!
