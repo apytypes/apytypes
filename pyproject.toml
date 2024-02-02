@@ -25,7 +25,7 @@ classifiers = [
 setup = ['--default-library=static']
 
 [project.optional-dependencies]
-docs = ["furo", "numpydoc", "sphinx", "sphinx_copybutton", "breathe"]
+docs = ["furo", "numpydoc", "sphinx", "sphinx_copybutton", "breathe", "sphinx_gallery", "matplotlib"]
 test = ["pytest"]
 
 [tool.pytest.ini_options]

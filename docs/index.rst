@@ -1,7 +1,9 @@
 .. APyTypes documentation master file.
 
-Welcome to APyTypes's documentation!
-====================================
+Welcome to APyTypes' documentation!
+===================================
+
+APyTypes is a library to simplify finite word length design and simulation.
 
 .. toctree::
    :maxdepth: 1
@@ -9,7 +11,7 @@ Welcome to APyTypes's documentation!
 
    api/index
    cpp_api/index
-
+   examples
 
 Indices and tables
 ==================
