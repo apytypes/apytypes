@@ -1,6 +1,6 @@
 #include "apytypes_common.h"
-#include <stdexcept>
 #include <random>
+#include <stdexcept>
 
 RoundingMode rounding_mode = RoundingMode::TIES_TO_EVEN;
 

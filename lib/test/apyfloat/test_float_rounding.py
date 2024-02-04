@@ -325,7 +325,6 @@ class TestAPyFloatRounding:
             1, 5, 0b110, 5, 3
         )  # Round up
 
-
     def test_rounding_ties_to_zero(self):
         apytypes.set_rounding_mode(RoundingMode.TIES_TO_ZERO)
         # Rounding from 0.xx
@@ -490,10 +489,10 @@ class TestAPyFloatRounding:
             elif smaller_format == rounded_up:
                 done_up = True
             else:
-                pytest.fail(f'{larger_format} was rounded to {smaller_format}')
+                pytest.fail(f"{larger_format} was rounded to {smaller_format}")
             if done_down and done_up:
-                    break
-                
+                break
+
 
 # Floating-point divison is implemented quite differently and should therefore be tested seperately
 @pytest.mark.float_div
