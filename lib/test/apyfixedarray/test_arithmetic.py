@@ -101,4 +101,33 @@ def test_array_mul():
 
 
 def test_transpose():
-    pass
+
+    # High-dimensional transor transposition not implemented
+    with pytest.raises(RuntimeError, match="Not implemented: high-dimensional"):
+        APyFixedArray([[[1]]], 1, 0).T
+
+    # 1-D transposition simply returns the input (just like NumPy-arrays)
+    assert APyFixedArray([], 1, 0).T.is_identical(APyFixedArray([], 1, 0))
+    assert APyFixedArray([1, 2, 3], 5, 5).T.is_identical(APyFixedArray([1, 2, 3], 5, 5))
+
+    # 2-D transposition returns the matrix transposition
+    a = APyFixedArray.from_float(
+        [
+            [1.0, 2.0, 3.0],
+            [4.0, 5.0, 6.0],
+        ],
+        bits=256,
+        int_bits=128,
+    )
+    assert a.T.T.is_identical(a)
+    assert a.T.is_identical(
+        APyFixedArray.from_float(
+            [
+                [1.0, 4.0],
+                [2.0, 5.0],
+                [3.0, 6.0],
+            ],
+            bits=256,
+            int_bits=128,
+        )
+    )
