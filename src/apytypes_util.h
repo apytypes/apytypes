@@ -8,10 +8,13 @@
 #include <algorithm>  // std::find
 #include <cstddef>    // std::size_t
 #include <functional> // std::bit_not
+#include <iomanip>    // std::setfill, std::setw
+#include <ios>        // std::hex
 #include <optional>   // std::optional, std::nullopt
 #include <regex>      // std::regex, std::regex_replace
 #include <sstream>    // std::stringstream
 #include <stdexcept>  // std::logic_error, std::domain_error
+#include <string>     // std::string
 #include <vector>     // std::vector
 
 // GMP should be included after all other includes
@@ -270,6 +273,28 @@ static inline std::vector<mp_limb_t> double_dabble(std::vector<mp_limb_t> nibble
         bcd_list.do_double(new_bit);
     }
     return bcd_list.data;
+}
+
+//! Convert a BCD limb vector into a `std::string`.
+static inline std::string bcds_to_string(const std::vector<mp_limb_t> bcds)
+{
+    if (bcds.size() == 0) {
+        return "";
+    }
+
+    // Utilize the built-in stream hexadecimal conversion
+    std::stringstream ss;
+    ss << std::hex;
+
+    // The first limb *should not* be padded with zeros
+    ss << *bcds.crbegin();
+
+    // Any remaing limbs *should* must be zero padded
+    for (auto limb_it = bcds.crbegin() + 1; limb_it != bcds.crend(); ++limb_it) {
+        ss << std::setw(2 * _LIMB_SIZE_BYTES) << std::setfill('0') << *limb_it;
+    }
+
+    return ss.str();
 }
 
 //! Reverse double-dabble algorithm for BCD->binary conversion

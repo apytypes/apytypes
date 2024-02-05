@@ -664,15 +664,8 @@ std::string APyFixed::bit_pattern_to_string_dec() const
     }
 
     // Double-dabble for binary-to-BCD conversion
-    std::vector<mp_limb_t> v = double_dabble(data);
+    ss << bcds_to_string(double_dabble(data));
 
-    // Setup hex printing which will properly display the BCD characters
-    ss << std::hex;
-
-    // The limbs can be converted to characters normally
-    for (auto limb_it = v.crbegin(); limb_it != v.crend(); ++limb_it) {
-        ss << *limb_it;
-    }
     return ss.str();
 }
 

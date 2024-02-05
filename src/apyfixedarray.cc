@@ -13,8 +13,7 @@ namespace py = pybind11;
 #include <cstdlib>    // std::malloc, std::free
 #include <cstring>    // std::memcpy
 #include <functional> // std::bit_not
-#include <iomanip>    // std::setw, std::setfill
-#include <iterator>   // std::back_inserter
+#include <ios>        // std::dec
 #include <optional>   // std::optional
 #include <sstream>    // std::stringstream
 #include <stdexcept>  // std::domain_error
@@ -264,28 +263,17 @@ std::string APyFixedArray::repr() const
             }
 
             // Double-dabble for binary-to-BCD conversion
-            std::vector<mp_limb_t> bcds = double_dabble(data);
-
-            // The limbs can be converted to characters normally
-            ss << *bcds.crbegin(); // The first limb should not be padded with zeros
-            for (auto limb_it = bcds.crbegin() + 1; limb_it != bcds.crend();
-                 ++limb_it) {
-                ss << std::setw(2 * _LIMB_SIZE_BYTES) << std::setfill('0') << *limb_it;
-            }
-
+            ss << bcds_to_string(double_dabble(data));
             ss << ", ";
         }
-
-        // Back to decimal printing
-        ss << std::dec;
 
         ss.seekp(-2, ss.cur);
     }
     ss << "], shape=(";
     ss << string_from_vec(_shape);
     ss << "), "
-       << "bits=" << bits() << ", "
-       << "int_bits=" << int_bits() << ")";
+       << "bits=" << std::dec << bits() << ", "
+       << "int_bits=" << std::dec << int_bits() << ")";
     return ss.str();
 }
 
