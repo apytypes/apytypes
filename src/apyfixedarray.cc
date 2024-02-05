@@ -1,6 +1,4 @@
 // Python object access through Pybind
-#include "apyfixed.h"
-#include <iostream>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 namespace py = pybind11;
@@ -15,6 +13,7 @@ namespace py = pybind11;
 #include <cstdlib>    // std::malloc, std::free
 #include <cstring>    // std::memcpy
 #include <functional> // std::bit_not
+#include <iomanip>    // std::setw, std::setfill
 #include <iterator>   // std::back_inserter
 #include <optional>   // std::optional
 #include <sstream>    // std::stringstream
@@ -22,6 +21,7 @@ namespace py = pybind11;
 #include <string>     // std::string
 #include <vector>     // std::vector, std::swap
 
+#include "apyfixed.h"
 #include "apyfixedarray.h"
 #include "apytypes_util.h"
 #include "python_util.h"
@@ -155,7 +155,7 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
     // Perform multiplication for each element in the tensor. `mpn_mul` requires:
     // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
     //  most significant limb is zero."
-    std::vector<mp_limb_t> res_tmp_vec(_data.size() + rhs._data.size(), 0);
+    std::vector<mp_limb_t> res_tmp_vec(_scalar_limbs() + rhs._scalar_limbs(), 0);
     for (std::size_t i = 0; i < _fold_shape(); i++) {
         // Current working operands
         auto op1_begin = _data.begin() + (i + 0) * _scalar_limbs();
@@ -168,7 +168,7 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
         bool sign2 = mp_limb_signed_t(*(op2_end - 1)) < 0;
         bool result_sign = sign1 ^ sign2;
 
-        // Retrieve the absolut value of both operands, as required by GMP
+        // Retrieve the absolute value of both operands, as required by GMP
         std::vector<mp_limb_t> op1_abs = limb_vector_abs(op1_begin, op1_end);
         std::vector<mp_limb_t> op2_abs = limb_vector_abs(op2_begin, op2_end);
 
@@ -222,6 +222,24 @@ APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
     );
 }
 
+APyFixedArray APyFixedArray::transpose() const
+{
+    if (_shape.size() > 2) {
+        throw NotImplementedException(
+            "Not implemented: high-dimensional (> 2) tensor transposition"
+        );
+    } else if (_shape.size() <= 1) {
+        // Transposition like NumPy, simply return `*this` if single-dimensional
+        return *this;
+    }
+
+    // Resulting array with shape dimensions
+    APyFixedArray result(_shape, bits(), int_bits());
+    std::reverse(result._shape.begin(), result._shape.end());
+
+    return result;
+}
+
 /* ********************************************************************************** *
  * *                               Other methods                                    * *
  * ********************************************************************************** */
@@ -249,8 +267,10 @@ std::string APyFixedArray::repr() const
             std::vector<mp_limb_t> bcds = double_dabble(data);
 
             // The limbs can be converted to characters normally
-            for (auto limb_it = bcds.crbegin(); limb_it != bcds.crend(); ++limb_it) {
-                ss << *limb_it;
+            ss << *bcds.crbegin(); // The first limb should not be padded with zeros
+            for (auto limb_it = bcds.crbegin() + 1; limb_it != bcds.crend();
+                 ++limb_it) {
+                ss << std::setw(2 * _LIMB_SIZE_BYTES) << std::setfill('0') << *limb_it;
             }
 
             ss << ", ";
@@ -333,14 +353,25 @@ APyFixedArray APyFixedArray::_bit_resize(int new_bits, int new_int_bits) const
     std::vector<mp_limb_t> tmp(bits_to_limbs(new_bits), 0);
 
     // For each scalar in the tensor...
-    for (std::size_t i = 0; i < result._data.size(); i += bits_to_limbs(new_bits)) {
+    for (std::size_t i = 0; i < result._data.size() / bits_to_limbs(new_bits); i++) {
 
         // Copy the scalar into an intermediate
         std::copy_n(
-            _data.begin() + i * bits_to_limbs(new_bits), // src
-            bits_to_limbs(new_bits),                     // number limbs to copy
-            tmp.begin()                                  // dst
+            _data.begin() + i * bits_to_limbs(_bits),
+            std::min(bits_to_limbs(new_bits), bits_to_limbs(_bits)),
+            tmp.begin()
         );
+
+        // Extend intermediate if bigger
+        if (bits_to_limbs(new_bits) > bits_to_limbs(_bits)) {
+            auto sentinel_limb_it = tmp.begin() + bits_to_limbs(_bits);
+            bool is_negative = mp_limb_signed_t(*(sentinel_limb_it - 1)) < 0;
+            std::fill_n(
+                sentinel_limb_it,
+                bits_to_limbs(new_bits) - bits_to_limbs(_bits),
+                is_negative ? mp_limb_t(-1) : 0
+            );
+        }
 
         // Adjust binary point of intermediate
         if (frac_bits() <= result.frac_bits()) {
@@ -395,9 +426,6 @@ APyFixedArray APyFixedArray::_checked_inner_product(const APyFixedArray& rhs) co
 // shape of `*this` and `rhs` have been checked to match a 2d matrix multiplication.
 APyFixedArray APyFixedArray::_checked_2d_matmul(const APyFixedArray& rhs) const
 {
-    std::cout << "lsh._shape: (" << string_from_vec(this->_shape) << ")" << std::endl;
-    std::cout << "rhs._shape: (" << string_from_vec(rhs._shape) << ")" << std::endl;
-
     // Resulting parameters
     std::vector<std::size_t> res_shape { _shape[0], rhs._shape[1] };
     const auto res_bits = bits() + rhs.bits() + bit_width(_shape[1] - 1);
@@ -406,26 +434,30 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(const APyFixedArray& rhs) const
     // Resulting `APyFixedArray`
     APyFixedArray result(res_shape, res_bits, res_int_bits);
 
-    std::cout << "res._shape: (" << string_from_vec(result._shape) << ")" << std::endl;
-
     for (std::size_t x = 0; x < res_shape[1]; x++) {
 
         // Copy column from `rhs` and use as the current working column. As reading
         // columns from `rhs` is cache-inefficient, we like to do this only once for
         // each element in the resulting matrix.
         APyFixedArray current_column({ rhs._shape[0] }, rhs.bits(), rhs.int_bits());
-        for (std::size_t i = 0; i < rhs._shape[0]; i++) {
-            current_column._data[i]
-                = rhs._data[(x + i * rhs._shape[1]) * rhs._scalar_limbs()];
+        for (std::size_t col = 0; col < rhs._shape[0]; col++) {
+            std::copy_n(
+                rhs._data.begin() + (x + col * rhs._shape[1]) * rhs._scalar_limbs(),
+                rhs._scalar_limbs(),
+                current_column._data.begin() + col * rhs._scalar_limbs()
+            );
         }
-        std::cout << "Column " << x << ": " << current_column.repr() << std::endl;
 
         for (std::size_t y = 0; y < res_shape[0]; y++) {
 
             // Current row from lhs (`*this`)
             APyFixedArray current_row({ _shape[1] }, bits(), int_bits());
             for (std::size_t i = 0; i < _shape[1]; i++) {
-                current_row._data[i] = _data[(y * _shape[1] + i) * _scalar_limbs()];
+                std::copy_n(
+                    _data.begin() + (y * _shape[1] + i) * _scalar_limbs(),
+                    _scalar_limbs(),
+                    current_row._data.begin() + i * _scalar_limbs()
+                );
             }
 
             // Perform the inner product

@@ -59,7 +59,7 @@ class APyFixed {
      * ****************************************************************************** */
 
 public:
-    // No default constructed APyFixed types
+    //! No default constructed APyFixed types
     APyFixed() = delete;
 
     //! Constructor: initialize from other APyFixed and optionally set bit specifiers
@@ -141,35 +141,35 @@ public:
     //! Retrieve (read-only) the `_data` field of this `APyFixed`
     const std::vector<mp_limb_t>& read_data() { return _data; }
 
-    // Unary negation
+    //! Unary negation
     APyFixed operator-() const;
 
-    // Absolute value
+    //! Absolute value
     APyFixed abs() const;
 
-    // Test if fixed-point number is negative
+    //! Test if fixed-point number is negative
     bool is_negative() const noexcept;
 
-    // Test if fixed-point number is positive
+    //! Test if fixed-point number is positive
     bool is_positive() const noexcept;
 
-    // Test if fixed-point number is zero
+    //! Test if fixed-point number is zero
     bool is_zero() const noexcept;
 
-    // Increment the LSB without making the fixed-point number wider. Returns carry out
+    //! Increment the LSB without making the fixed-point number wider. Returns carry out
     mp_limb_t increment_lsb() noexcept;
 
-    // Convert the underlying bit pattern to a Python long integer
+    //! Convert the underlying bit pattern to a Python long integer
     pybind11::int_ bit_pattern_to_int(bool allow_negative_return_value = false) const;
 
-    // Convert the underlying bit pattern to decimal and return in a string
+    //! Convert the underlying bit pattern to decimal and return in a string
     std::string bit_pattern_to_string_dec() const;
 
-    // Python verbose string representation
+    //! Python verbose string representation
     std::string repr() const;
 
-    // Test if two Fixed-point numbers are identical, i.e., has the same values, the
-    // same number of integer bits, and the same number of fractional bits
+    //! Test if two Fixed-point numbers are identical, i.e., has the same values, the
+    //! same number of integer bits, and the same number of fractional bits
     bool is_identical(const APyFixed& other) const;
 
     // Create a new, resized version of this fixed-point number. Main method for

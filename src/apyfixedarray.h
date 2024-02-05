@@ -73,6 +73,10 @@ public:
      */
     APyFixedArray matmul(const APyFixedArray& rhs) const;
 
+    //! Transposition function. For a 1-D array, returns an exact copy of `*this`. For
+    //! a 2-D array, returns the matrix transposition of `*this`.
+    APyFixedArray transpose() const;
+
     /* ****************************************************************************** *
      * *                          Public member functions                           * *
      * ****************************************************************************** */
@@ -129,7 +133,7 @@ public:
     //! of integer bits may result in two's complement overflowing.
     APyFixedArray _bit_resize(int new_bits, int new_int_bits) const;
 
-    //! Retrieve the number of limbs per scalar in `*this` `APyFixedArray` tensor
+    //! The number of limbs per scalar in `*this` `APyFixedArray` tensor
     //! object.
     std::size_t _scalar_limbs() const { return bits_to_limbs(_bits); }
 
