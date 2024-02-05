@@ -286,9 +286,9 @@ class APyFixedArray:
     def __sub__(self, arg0: APyFixedArray) -> APyFixedArray: ...
     def is_identical(self, other: APyFixedArray) -> bool:
         """
-        Test if two `APyFixedArray` objects are identical.
+        Test if two :class:`APyFixedArray` objects are identical.
 
-        Two `APyFixedArray` objects are considered identical if, and only if:
+        Two :class:`APyFixedArray` objects are considered identical if, and only if:
           * They represent exatly the same tensor shape
           * They store the exact same fixed-point values in all tensor elements
           * They have the exact same bit specification (`bits`, `int_bits`, and
@@ -299,10 +299,28 @@ class APyFixedArray:
         :class:`bool`
         """
 
+    def transpose(self) -> APyFixedArray:
+        """
+        Retrieve the transposition of this :class:`APyFixedArray` object.
+
+        If the dimension of `self` is one, this method returns the a copy of `self`.
+        If the dimension of `self` is two, this method returns the matrix
+        transposition of `self.
+
+        Higher order transposition has not been implemented and will raise a
+        `NotImplementedException`.
+
+        Returns
+        -------
+        :class:`APyFixedArray`
+        """
+
+    @property
+    def T(self) -> APyFixedArray: ...
     @property
     def bits(self) -> int:
         """
-        Retrieve total number of bits in this :class:`APyFixedArray` object.
+        The total number of bits in this :class:`APyFixedArray` object.
 
         Returns
         -------
@@ -312,7 +330,7 @@ class APyFixedArray:
     @property
     def frac_bits(self) -> int:
         """
-        Retrieve number of fractional bits in this :class:`APyFixedArray` object.
+        The number of fractional bits in this :class:`APyFixedArray` object.
 
         Returns
         -------
@@ -322,7 +340,7 @@ class APyFixedArray:
     @property
     def int_bits(self) -> int:
         """
-        Retrieve number of integer bits in this :class:`APyFixedArray` object.
+        The number of integer bits in this :class:`APyFixedArray` object.
 
         Returns
         -------
@@ -330,9 +348,24 @@ class APyFixedArray:
         """
 
     @property
-    def ndim(self) -> int: ...
+    def ndim(self) -> int:
+        """
+        Number of dimensions in this `class`APyFixedArray` object.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
     @property
-    def shape(self) -> tuple: ...
+    def shape(self) -> tuple:
+        """
+        The shape of this :class:`APyFixedArray` object.
+
+        Returns
+        -------
+        :class:`tuple` of :class:`int`
+        """
 
 class APyFixedOverflowMode:
     """

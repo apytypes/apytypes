@@ -228,13 +228,24 @@ APyFixedArray APyFixedArray::transpose() const
             "Not implemented: high-dimensional (> 2) tensor transposition"
         );
     } else if (_shape.size() <= 1) {
-        // Transposition like NumPy, simply return `*this` if single-dimensional
+        // Behave like `NumPy`, simply return `*this` if single-dimensional
         return *this;
     }
 
     // Resulting array with shape dimensions
     APyFixedArray result(_shape, bits(), int_bits());
     std::reverse(result._shape.begin(), result._shape.end());
+
+    // Copy data
+    for (std::size_t y = 0; y < _shape[0]; y++) {
+        for (std::size_t x = 0; x < _shape[1]; x++) {
+            std::copy_n(
+                _data.begin() + (y * _shape[1] + x) * _scalar_limbs(),       // src
+                _scalar_limbs(),                                             // limbs
+                result._data.begin() + (x * _shape[0] + y) * _scalar_limbs() // dst
+            );
+        }
+    }
 
     return result;
 }

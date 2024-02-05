@@ -98,3 +98,7 @@ def test_array_mul():
             int_bits=256,
         )
     )
+
+
+def test_transpose():
+    pass

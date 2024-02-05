@@ -40,33 +40,45 @@ void bind_fixed_array(py::module& m)
          * Methods
          */
         .def_property_readonly("bits", &APyFixedArray::bits, R"pbdoc(
-            Retrieve total number of bits in this :class:`APyFixedArray` object.
+            The total number of bits in this :class:`APyFixedArray` object.
 
             Returns
             -------
             :class:`int`
             )pbdoc")
         .def_property_readonly("int_bits", &APyFixedArray::int_bits, R"pbdoc(
-            Retrieve number of integer bits in this :class:`APyFixedArray` object.
+            The number of integer bits in this :class:`APyFixedArray` object.
 
             Returns
             -------
             :class:`int`
             )pbdoc")
         .def_property_readonly("frac_bits", &APyFixedArray::frac_bits, R"pbdoc(
-            Retrieve number of fractional bits in this :class:`APyFixedArray` object.
+            The number of fractional bits in this :class:`APyFixedArray` object.
 
             Returns
             -------
             :class:`int`
             )pbdoc")
 
-        .def_property_readonly("shape", &APyFixedArray::shape)
-        .def_property_readonly("ndim", &APyFixedArray::ndim)
-        .def("is_identical", &APyFixedArray::is_identical, py::arg("other"), R"pbdoc(
-            Test if two `APyFixedArray` objects are identical.
+        .def_property_readonly("shape", &APyFixedArray::shape, R"pbdoc(
+            The shape of this :class:`APyFixedArray` object.
 
-            Two `APyFixedArray` objects are considered identical if, and only if:
+            Returns
+            -------
+            :class:`tuple` of :class:`int`
+            )pbdoc")
+        .def_property_readonly("ndim", &APyFixedArray::ndim, R"pbdoc(
+            Number of dimensions in this `class`APyFixedArray` object.
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc")
+        .def("is_identical", &APyFixedArray::is_identical, py::arg("other"), R"pbdoc(
+            Test if two :class:`APyFixedArray` objects are identical.
+
+            Two :class:`APyFixedArray` objects are considered identical if, and only if:
               * They represent exatly the same tensor shape
               * They store the exact same fixed-point values in all tensor elements
               * They have the exact same bit specification (`bits`, `int_bits`, and
@@ -76,6 +88,21 @@ void bind_fixed_array(py::module& m)
             -------
             :class:`bool`
             )pbdoc")
+        .def("transpose", &APyFixedArray::transpose, R"pbdoc(
+            Retrieve the transposition of this :class:`APyFixedArray` object.
+
+            If the dimension of `self` is one, this method returns the a copy of `self`.
+            If the dimension of `self` is two, this method returns the matrix
+            transposition of `self.
+
+            Higher order transposition has not been implemented and will raise a
+            `NotImplementedException`.
+
+            Returns
+            -------
+            :class:`APyFixedArray`
+            )pbdoc")
+        .def_property_readonly("T", &APyFixedArray::transpose)
 
         /*
          * Static methods
