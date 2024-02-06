@@ -5,6 +5,7 @@
 #ifndef _APYFIXED_ARRAY_H
 #define _APYFIXED_ARRAY_H
 
+#include <pybind11/numpy.h>    // pybind11::array_t
 #include <pybind11/pybind11.h> // pybind11::object
 #include <pybind11/pytypes.h>  // pybind11::sequence
 
@@ -98,6 +99,9 @@ public:
 
     //! The `frac_bits` specifier for this APyFixedArray
     int frac_bits() const noexcept { return _bits - _int_bits; }
+
+    //! Convert this array to a NumPy array
+    pybind11::array_t<double> to_numpy() const;
 
     /*!
      * Test if two `APyFixedArray` objects are identical. Two `APyFixedArray` objects

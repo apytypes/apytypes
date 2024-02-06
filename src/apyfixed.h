@@ -266,6 +266,11 @@ private:
     // of the APyFixed range.
     void _twos_complement_overflow() noexcept;
 
+    //! `APyFixedArray` is a friend class of APyFixed, and can access all data of an
+    //! `APyFixed` object
+public:
+    friend class APyFixedArray;
+
 }; // end: class APyFixed
 
 /* ********************************************************************************** *

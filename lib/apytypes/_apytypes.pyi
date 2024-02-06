@@ -1,4 +1,5 @@
 from __future__ import annotations
+import numpy
 import typing
 
 __all__ = [
@@ -297,6 +298,19 @@ class APyFixedArray:
         Returns
         -------
         :class:`bool`
+        """
+
+    def to_numpy(self) -> numpy.ndarray[numpy.float64]:
+        """
+        Retrieve a :class:`Numpy.ndarray` object of :class:`Numpy.float64` from this
+        array.
+
+        The returned array has the same `shape` and stored value as `self`. This
+        method rounds away from infinity on ties.
+
+        Returns
+        -------
+        :class:`Numpy.ndarray`
         """
 
     def transpose(self) -> APyFixedArray:

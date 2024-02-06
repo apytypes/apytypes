@@ -1,4 +1,5 @@
 // Python object access through Pybind
+#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 namespace py = pybind11;
@@ -14,6 +15,7 @@ namespace py = pybind11;
 #include <cstring>    // std::memcpy
 #include <functional> // std::bit_not
 #include <ios>        // std::dec
+#include <numeric>    // std::accumulate
 #include <optional>   // std::optional
 #include <sstream>    // std::stringstream
 #include <stdexcept>  // std::domain_error
@@ -300,6 +302,38 @@ pybind11::tuple APyFixedArray::shape() const
 
 // The dimension in the array
 int APyFixedArray::ndim() const { return _shape.size(); }
+
+py::array_t<double> APyFixedArray::to_numpy() const
+{
+    // Shape of NumPy object is same as `APyFixedArray` object
+    std::vector<py::ssize_t> numpy_shape(_shape.begin(), _shape.end());
+
+    // The strides of the NumPy object
+    std::vector<py::ssize_t> numpy_stride(numpy_shape.size(), 0);
+    for (std::size_t i = 0; i < numpy_shape.size(); i++) {
+        numpy_stride[i] = std::accumulate(
+            _shape.crbegin(), _shape.crbegin() + i, sizeof(double), std::multiplies {}
+        );
+    }
+    std::reverse(numpy_stride.begin(), numpy_stride.end());
+
+    // Resulting `NumPy` array of float64
+    py::array_t<double, py::array::c_style> result(numpy_shape, numpy_stride);
+
+    // Type-cast data and store in the NumPy array
+    APyFixed imm(bits(), int_bits());
+    double* numpy_data = result.mutable_data();
+    for (std::size_t i = 0; i < _fold_shape(); i++) {
+        std::copy_n(
+            std::begin(_data) + i * _scalar_limbs(),
+            _scalar_limbs(),
+            std::begin(imm._data)
+        );
+        numpy_data[i] = double(imm);
+    }
+
+    return result;
+}
 
 bool APyFixedArray::is_identical(const APyFixedArray& other) const
 {

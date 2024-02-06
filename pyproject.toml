@@ -25,8 +25,19 @@ classifiers = [
 setup = ['--default-library=static']
 
 [project.optional-dependencies]
-docs = ["furo", "numpydoc", "sphinx", "sphinx_copybutton", "breathe", "sphinx_gallery", "matplotlib"]
-test = ["pytest"]
+docs = [
+    "breathe",
+    "furo",
+    "matplotlib",
+    "numpydoc",
+    "sphinx",
+    "sphinx_copybutton",
+    "sphinx_gallery",
+]
+test = [
+    "numpy",
+    "pytest",
+]
 
 [tool.pytest.ini_options]
 markers = [
@@ -38,4 +49,4 @@ markers = [
     "float_pow : custom marker for grouping tests for floating-point power function",
     "float_comp : custom marker for grouping tests for floating-point comparisons",
     "float_special : custom marker for grouping tests for floating-point special values"
-    ]
+]

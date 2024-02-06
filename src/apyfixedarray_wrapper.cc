@@ -46,6 +46,7 @@ void bind_fixed_array(py::module& m)
             -------
             :class:`int`
             )pbdoc")
+
         .def_property_readonly("int_bits", &APyFixedArray::int_bits, R"pbdoc(
             The number of integer bits in this :class:`APyFixedArray` object.
 
@@ -53,6 +54,7 @@ void bind_fixed_array(py::module& m)
             -------
             :class:`int`
             )pbdoc")
+
         .def_property_readonly("frac_bits", &APyFixedArray::frac_bits, R"pbdoc(
             The number of fractional bits in this :class:`APyFixedArray` object.
 
@@ -68,6 +70,7 @@ void bind_fixed_array(py::module& m)
             -------
             :class:`tuple` of :class:`int`
             )pbdoc")
+
         .def_property_readonly("ndim", &APyFixedArray::ndim, R"pbdoc(
             Number of dimensions in this `class`APyFixedArray` object.
 
@@ -75,6 +78,19 @@ void bind_fixed_array(py::module& m)
             -------
             :class:`int`
             )pbdoc")
+
+        .def("to_numpy", &APyFixedArray::to_numpy, R"pbdoc(
+            Retrieve a :class:`Numpy.ndarray` object of :class:`Numpy.float64` from
+            `self`.
+
+            The returned array has the same `shape` and stored value as `self`. This
+            method rounds away from infinity on ties.
+
+            Returns
+            -------
+            :class:`Numpy.ndarray`
+            )pbdoc")
+
         .def("is_identical", &APyFixedArray::is_identical, py::arg("other"), R"pbdoc(
             Test if two :class:`APyFixedArray` objects are identical.
 
