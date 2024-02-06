@@ -22,6 +22,8 @@ namespace py = pybind11;
 #include <string>     // std::string
 #include <vector>     // std::vector, std::swap
 
+#include <fmt/format.h>
+
 #include "apyfixed.h"
 #include "apytypes_util.h"
 #include "ieee754.h"
@@ -683,7 +685,8 @@ std::string APyFixed::latex() const
 {
     std::string str = (this->is_negative() ? "$-" : "$");
     str += "\\frac{" + bit_pattern_to_string_dec() + "}{2^{"
-        + std::to_string(frac_bits()) + "}} = " + std::to_string(float(*this)) + "$";
+        + std::to_string(frac_bits()) + "}} = " + fmt::format("{:g}", float(*this))
+        + "$";
 
     return str;
 }

@@ -3,6 +3,8 @@
 #include <iostream>
 #include <limits>
 
+#include <fmt/format.h>
+
 #include "apyfixed.h"
 #include "apyfloat.h"
 #include "apytypes_util.h"
@@ -291,7 +293,7 @@ std::string APyFloat::latex() const
         + std::to_string(
                static_cast<std::int64_t>(exp) - bias - man_bits + 1 - is_normal()
         )
-        + "} = " + std::to_string(float(*this)) + "$";
+        + "} = " + fmt::format("{:g}", float(*this)) + "$";
 
     return str;
 }
