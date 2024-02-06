@@ -228,7 +228,7 @@ unsigned long long APyFloat::to_bits() const
     return (sign << (exp_bits + man_bits)) | (exp << man_bits) | man;
 }
 
-std::string APyFloat::str() const { return std::to_string(to_double()); }
+std::string APyFloat::str() const { return fmt::format("{:g}", to_double()); }
 
 std::string APyFloat::repr() const
 {
