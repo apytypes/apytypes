@@ -10,7 +10,7 @@ Consider the example from https://docs.scipy.org/doc/scipy/reference/generated/s
 
 import numpy as np
 from scipy import signal
-from apytypes import APyFixedArray
+from apytypes import APyFixedArray, convolve
 import matplotlib.pyplot as plt
 
 sig = np.repeat([0.0, 1.0, 0.0], 100)
@@ -20,7 +20,7 @@ win = signal.windows.hann(50)
 win_fx = APyFixedArray.from_float(win, 10, 2)
 
 filtered = signal.convolve(sig, win, mode="same") / sum(win)
-filtered_fx = signal.convolve(sig_fx, win_fx, mode="same") / sum(win_fx)
+filtered_fx = convolve(sig_fx, win_fx, mode="same") / sum(win_fx)
 
 # %%
 # The results can then be plotted in Matplotlib
