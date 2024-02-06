@@ -87,7 +87,7 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
 {
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (_shape != rhs._shape) {
-        throw std::runtime_error(fmt::format(
+        throw std::length_error(fmt::format(
             "APyFixedArray.__add__: shape missmatch, lhs.shape={}, rhs.shape={}",
             string_from_vec(_shape),
             string_from_vec(rhs._shape)
@@ -120,7 +120,7 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
 {
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (_shape != rhs._shape) {
-        throw std::runtime_error(fmt::format(
+        throw std::length_error(fmt::format(
             "APyFixedArray.__sub__: shape missmatch, lhs.shape={}, rhs.shape={}",
             string_from_vec(_shape),
             string_from_vec(rhs._shape)
@@ -153,7 +153,7 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
 {
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (_shape != rhs._shape) {
-        throw std::runtime_error(fmt::format(
+        throw std::length_error(fmt::format(
             "APyFixedArray.__mul__: shape missmatch, lhs.shape={}, rhs.shape={}",
             string_from_vec(_shape),
             string_from_vec(rhs._shape)
@@ -229,7 +229,7 @@ APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
     }
 
     // Unsupported `__matmul__` dimensionality, raise exception
-    throw std::runtime_error(fmt::format(
+    throw std::length_error(fmt::format(
         "APyFixedArray.__matmul__: input shape missmatch, lhs: ({}), rhs: ({})",
         string_from_vec(_shape),
         string_from_vec(rhs._shape)

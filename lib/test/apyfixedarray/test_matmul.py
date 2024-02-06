@@ -13,7 +13,7 @@ def test_dimension_missmatch_raises():
     b = APyFixedArray([4, 5], bits=10, int_bits=10)
 
     with pytest.raises(
-        RuntimeError,
+        ValueError,
         match=re.escape(
             "APyFixedArray.__matmul__: input shape missmatch, lhs: (3), rhs: (2)"
         ),
@@ -21,7 +21,7 @@ def test_dimension_missmatch_raises():
         _ = a @ b
 
     with pytest.raises(
-        RuntimeError,
+        ValueError,
         match=re.escape(
             "APyFixedArray.__matmul__: input shape missmatch, lhs: (2), rhs: (3)"
         ),
@@ -38,7 +38,7 @@ def test_dimension_missmatch_raises():
     _ = a @ b
 
     with pytest.raises(
-        RuntimeError,
+        ValueError,
         match=re.escape(
             "APyFixedArray.__matmul__: input shape missmatch, lhs: (2, 3), rhs: (2, 3)"
         ),
@@ -46,7 +46,7 @@ def test_dimension_missmatch_raises():
         _ = a @ a
 
     with pytest.raises(
-        RuntimeError,
+        ValueError,
         match=re.escape(
             "APyFixedArray.__matmul__: input shape missmatch, lhs: (3, 2), rhs: (3, 2)"
         ),
@@ -102,7 +102,7 @@ def test_matrix_multiplication():
             int_bits=22,
         )
     )
-    with pytest.raises(RuntimeError, match="APyFixedArray.__matmul__: input shape"):
+    with pytest.raises(ValueError, match="APyFixedArray.__matmul__: input shape"):
         _ = b @ a
 
 
