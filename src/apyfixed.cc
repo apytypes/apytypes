@@ -679,6 +679,15 @@ std::string APyFixed::repr() const
     return ss.str();
 }
 
+std::string APyFixed::latex() const
+{
+    std::string str = (this->is_negative() ? "$-" : "$");
+    str += "\\frac{" + bit_pattern_to_string_dec() + "}{2^{"
+        + std::to_string(frac_bits()) + "}} = " + std::to_string(float(*this)) + "$";
+
+    return str;
+}
+
 bool APyFixed::is_identical(const APyFixed& other) const
 {
     return bits() == other.bits() && int_bits() == other.int_bits() && *this == other;

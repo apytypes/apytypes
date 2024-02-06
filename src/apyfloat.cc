@@ -291,7 +291,7 @@ std::string APyFloat::latex() const
         + std::to_string(
                static_cast<std::int64_t>(exp) - bias - man_bits + 1 - is_normal()
         )
-        + "}$";
+        + "} = " + std::to_string(float(*this)) + "$";
 
     return str;
 }
