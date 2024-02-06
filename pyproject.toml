@@ -42,9 +42,11 @@ docs = [
     "sphinx_gallery>=0.16",
     "m2r2",
     "docutils<=0.20",  # Pin to get around limitation in m2r2
+    "numpy>=1.25",
+    "scipy",
 ]
 test = ["numpy>=1.25", "pytest>=8.2"]
-dev = ["nanobind>=2.0.0"]
+dev = ["nanobind>=2.1.0"]
 benchmark = ["numpy>=1.25", "pytest>=8.2", "pytest-benchmark"]
 comparison = [
     "fpbinary",
