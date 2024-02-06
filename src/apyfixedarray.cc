@@ -87,7 +87,11 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
 {
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (_shape != rhs._shape) {
-        throw std::runtime_error("In APyFixedArray.__add__: shape missmatch");
+        throw std::runtime_error(fmt::format(
+            "APyFixedArray.__add__: shape missmatch, lhs.shape={}, rhs.shape={}",
+            string_from_vec(_shape),
+            string_from_vec(rhs._shape)
+        ));
     }
 
     // Increase word length of result by one
@@ -116,7 +120,11 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
 {
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (_shape != rhs._shape) {
-        throw std::runtime_error("In APyFixedArray.__sub__: shape missmatch");
+        throw std::runtime_error(fmt::format(
+            "APyFixedArray.__sub__: shape missmatch, lhs.shape={}, rhs.shape={}",
+            string_from_vec(_shape),
+            string_from_vec(rhs._shape)
+        ));
     }
 
     // Increase word length of result by one
@@ -145,7 +153,11 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
 {
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (_shape != rhs._shape) {
-        throw std::runtime_error("In APyFixedArray.__mul__: shape missmatch");
+        throw std::runtime_error(fmt::format(
+            "APyFixedArray.__mul__: shape missmatch, lhs.shape={}, rhs.shape={}",
+            string_from_vec(_shape),
+            string_from_vec(rhs._shape)
+        ));
     }
 
     const int res_int_bits = int_bits() + rhs.int_bits();
@@ -201,14 +213,14 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
 
 APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
 {
-    if (_shape.size() == 1 && rhs._shape.size() == 1) {
+    if (ndim() == 1 && rhs.ndim() == 1) {
         if (_shape[0] == rhs._shape[0]) {
             // Dimensionality for a standard scalar inner product checks out. Perform
             // the checked inner product.
             return _checked_inner_product(rhs);
         }
     }
-    if (_shape.size() == 2 && rhs._shape.size() == 2) {
+    if (ndim() == 2 && rhs.ndim() == 2) {
         if (_shape[1] == rhs._shape[0]) {
             // Dimensionality for a standard 2D matrix mutliplication checks out.
             // Perform the checked 2D matrix
@@ -217,20 +229,21 @@ APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
     }
 
     // Unsupported `__matmul__` dimensionality, raise exception
-    throw std::runtime_error(
-        std::string("APyFixedArray.__matmul__: input shape missmatch, ")
-        + std::string("lhs: (") + string_from_vec(_shape) + "), "
-        + std::string("rhs: (") + string_from_vec(rhs._shape) + ")"
-    );
+    throw std::runtime_error(fmt::format(
+        "APyFixedArray.__matmul__: input shape missmatch, lhs: ({}), rhs: ({})",
+        string_from_vec(_shape),
+        string_from_vec(rhs._shape)
+    ));
 }
 
 APyFixedArray APyFixedArray::transpose() const
 {
-    if (_shape.size() > 2) {
-        throw NotImplementedException(
-            "Not implemented: high-dimensional (> 2) tensor transposition"
-        );
-    } else if (_shape.size() <= 1) {
+    if (ndim() > 2) {
+        throw NotImplementedException(fmt::format(
+            "Not implemented: high-dimensional (ndim={} > 2) tensor transposition",
+            ndim()
+        ));
+    } else if (ndim() <= 1) {
         // Behave like `NumPy`, simply return `*this` if single-dimensional
         return *this;
     }
@@ -294,8 +307,8 @@ std::string APyFixedArray::repr() const
 // The shape of the array
 pybind11::tuple APyFixedArray::shape() const
 {
-    py::tuple result(_shape.size());
-    for (std::size_t i = 0; i < _shape.size(); i++) {
+    py::tuple result(ndim());
+    for (std::size_t i = 0; i < ndim(); i++) {
         result[i] = _shape[i];
     }
     return result;
@@ -316,7 +329,7 @@ APyFixedArray APyFixedArray::get_item(std::size_t idx) const
     }
 
     // New shape contains all dimensions except the very first one
-    auto new_shape = _shape.size() > 1
+    auto new_shape = ndim() > 1
         ? std::vector<std::size_t>(_shape.begin() + 1, _shape.end())
         : std::vector<std::size_t> { 1 };
 
