@@ -32,6 +32,10 @@ else
     install_dir: py3.get_install_dir() / 'apytypes')
 endif
 
+# fmt
+fmt = subproject('fmt')
+fmt_dep = fmt.get_variable('fmt_header_only_dep')
+
 # Python module
 py3.extension_module(
     '_apytypes',
@@ -48,7 +52,7 @@ py3.extension_module(
         'src/apytypes_wrapper.cc',
         'extern/mini-gmp/mini-gmp.c'
     ]),
-    dependencies : [py3_dep, pybind11_dep],
+    dependencies : [py3_dep, pybind11_dep, fmt_dep],
     subdir: 'apytypes',
     install: true
 )

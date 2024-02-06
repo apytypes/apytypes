@@ -22,7 +22,7 @@ classifiers = [
 #Issues = "https://github.com/pypa/sampleproject/issues"
 
 [tool.meson-python.args]
-setup = ['--default-library=static']
+install = ['--skip-subprojects']
 
 [project.optional-dependencies]
 docs = [
