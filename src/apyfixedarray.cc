@@ -348,29 +348,52 @@ bool APyFixedArray::is_identical(const APyFixedArray& other) const
  * ********************************************************************************** */
 
 APyFixedArray APyFixedArray::from_double(
-    const pybind11::sequence& double_seq,
+    const pybind11::sequence& python_seq,
     std::optional<int> bits,
     std::optional<int> int_bits,
     std::optional<int> frac_bits
 )
 {
     APyFixedArray result(
-        python_sequence_extract_shape(double_seq), bits, int_bits, frac_bits
+        python_sequence_extract_shape(python_seq), bits, int_bits, frac_bits
     );
 
-    // Extract all of the doubles
-    std::vector<py::float_> doubles = python_sequence_walk<py::float_>(double_seq);
+    // Extract all Python doubles and integers
+    auto py_obj = python_sequence_walk<py::float_, py::int_>(python_seq);
 
     // Set data from doubles (reuse `APyFixed::from_double` conversion)
     for (std::size_t i = 0; i < result._data.size() / bits_to_limbs(result.bits());
          i++) {
-        double d = static_cast<double>(doubles[i]);
-        auto fix = APyFixed::from_double(d, result.bits(), result.int_bits());
-        std::copy_n(
-            fix.read_data().begin(),                                // src
-            bits_to_limbs(result.bits()),                           // limb count
-            result._data.begin() + i * bits_to_limbs(result.bits()) // dst
-        );
+        if (py::isinstance<py::float_>(py_obj[i])) {
+            //
+            // Python double object
+            //
+            double d = static_cast<double>(py::cast<py::float_>(py_obj[i]));
+            auto fix = APyFixed::from_double(d, result.bits(), result.int_bits());
+            std::copy_n(
+                fix.read_data().begin(),                                // src
+                bits_to_limbs(result.bits()),                           // limb count
+                result._data.begin() + i * bits_to_limbs(result.bits()) // dst
+            );
+        } else if (py::isinstance<py::int_>(py_obj[i])) {
+            //
+            // Python integer object
+            //
+            auto max_bits = result.frac_bits() < 0
+                ? result.bits() - result.frac_bits() // Negative fractional bits
+                : result.bits();                     // Non-negative fractional bits
+            auto limb_vec = python_long_to_limb_vec(
+                py::cast<py::int_>(py_obj[i]), bits_to_limbs(max_bits)
+            );
+            APyFixed fixed(max_bits, max_bits, limb_vec);
+            double d = double(fixed);
+            auto fix = APyFixed::from_double(d, result.bits(), result.int_bits());
+            std::copy_n(
+                fix.read_data().begin(),                                // src
+                bits_to_limbs(result.bits()),                           // limb count
+                result._data.begin() + i * bits_to_limbs(result.bits()) // dst
+            );
+        }
     }
 
     return result;

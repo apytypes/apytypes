@@ -13,6 +13,11 @@
 #include <cstring> // std::memcpy
 #include <limits>  // std::numiric_limits
 
+/*
+ * For an easy C++17 compatible byte-swap expression, see:
+ * https://en.cppreference.com/w/cpp/language/fold
+ */
+
 //! Test target machine native endianness in pure C++. Optimized away to single `true`
 //! or `false`, depending on endianness, on all tested machines using most C++17
 //! compatible compilers (godbolt.org):

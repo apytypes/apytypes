@@ -321,13 +321,14 @@ python_sequence_extract_shape(const pybind11::sequence& bit_pattern_sequence)
  * sequence `bit_pattern_sequence` does not match `<T>` or another Python sequence
  * a `std::runtime_error` exception to be raised.
  */
-template <typename T>
-static inline std::vector<T> python_sequence_walk(const pybind11::sequence& py_seq)
+template <typename... PyTypes>
+static inline std::vector<pybind11::object>
+python_sequence_walk(const pybind11::sequence& py_seq)
 {
     namespace py = pybind11;
 
     // Result output iterator
-    std::vector<T> result {};
+    std::vector<py::object> result {};
 
     // Walk the Python sequences and extract the data
     struct seq_it_pair {
@@ -346,10 +347,9 @@ static inline std::vector<T> python_sequence_walk(const pybind11::sequence& py_s
                 // New sequence found. We need to go deeper
                 auto new_sequence = py::cast<py::sequence>(*it_stack.top().iterator++);
                 it_stack.push({ new_sequence.begin(), new_sequence.end() });
-            } else if (py::isinstance<T>(*it_stack.top().iterator)) {
-                // Element found, add it to result vector
-                auto new_element = py::cast<T>(*it_stack.top().iterator++);
-                result.push_back(new_element);
+            } else if ((py::isinstance<PyTypes>(*it_stack.top().iterator) || ...)) {
+                // Element matching one of the PyTypes found, store it in container
+                result.push_back(*it_stack.top().iterator++);
             } else {
                 std::string repr_string = py::repr(*it_stack.top().iterator);
                 throw std::runtime_error(

@@ -34,3 +34,21 @@ def test_array_floating_point_construction():
 
     with pytest.raises(RuntimeError, match="Non <type>/sequence found when walking"):
         APyFixedArray.from_float([1.0, 2.0, None], int_bits=13, frac_bits=12)
+
+    a = APyFixedArray.from_float([-1.0, -2.0, -3.0, -4.0], bits=4, frac_bits=0)
+    b = APyFixedArray.from_float([-1, -2, -3.0, -4], bits=4, frac_bits=0)
+    assert a.is_identical(APyFixedArray([15, 14, 13, 12], bits=4, frac_bits=0))
+    assert a.is_identical(b)
+
+    a = APyFixedArray.from_float([-1.0, -2.0, -3.0, -4.0], bits=4, frac_bits=1)
+    b = APyFixedArray.from_float([-1, -2, -3.0, -4], bits=4, frac_bits=1)
+    assert a.is_identical(APyFixedArray([14, 12, 10, 8], bits=4, frac_bits=1))
+    assert a.is_identical(b)
+
+    a = APyFixedArray.from_float([-1.0, -2.0, -3.0, -4.0], bits=4, frac_bits=-1)
+    b = APyFixedArray.from_float([-1, -2, -3.0, -4], bits=4, frac_bits=-1)
+    assert a.is_identical(b)
+
+    a = APyFixedArray.from_float([100.0, -200.0, -300.0, -400.0], bits=4, frac_bits=0)
+    b = APyFixedArray.from_float([100, -200, -300, -400], bits=4, frac_bits=0)
+    assert a.is_identical(b)

@@ -18,3 +18,5 @@ docs/xml/
 *.gcno
 *.o
 .clangd
+
+subprojects/*/
