@@ -168,6 +168,9 @@ public:
     //! Python verbose string representation
     std::string repr() const;
 
+    //! LaTeX representation
+    std::string latex() const;
+
     //! Test if two Fixed-point numbers are identical, i.e., has the same values, the
     //! same number of integer bits, and the same number of fractional bits
     bool is_identical(const APyFixed& other) const;

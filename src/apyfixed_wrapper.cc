@@ -171,6 +171,7 @@ void bind_fixed(py::module& m)
         .def("to_string_hex", &APyFixed::to_string_hex)
         .def("to_string_oct", &APyFixed::to_string_oct)
         .def_property_readonly("vector_size", &APyFixed::vector_size)
+        .def("_repr_latex_", &APyFixed::latex)
 
         /*
          * Dunder methods
