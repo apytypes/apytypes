@@ -21,9 +21,13 @@ def test_to_numpy():
     # Skip this test if `NumPy` is not present on the machine
     np = pytest.importorskip("numpy")
 
+    assert np.array_equal(APyFixedArray([], 1, 0).to_numpy(), np.array([]))
+    assert np.array_equal(APyFixedArray([1], 2, 2).to_numpy(), np.array([1.0]))
+
     float_seq = [
         [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
         [[7.0, 8.0, 9.0], [10.0, 11.0, 12.0]],
     ]
     fx_arr = APyFixedArray.from_float(float_seq, bits=10, int_bits=10)
-    np.array_equal(fx_arr.to_numpy(), np.array(float_seq))
+    assert fx_arr.to_numpy().shape == (2, 2, 3)
+    assert np.array_equal(fx_arr.to_numpy(), np.array(float_seq))
