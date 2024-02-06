@@ -126,16 +126,16 @@ public:
      *                        Other public member functions                           *
      * ****************************************************************************** */
 
-    //! Retrieve the `bits` specifier for this `APyFixed`
+    //! Retrieve the `bits` specifier
     int bits() const noexcept { return _bits; }
 
-    //! Retrieve the `int_bits` specifier for this `APyFixed`
+    //! Retrieve the `int_bits` specifier
     int int_bits() const noexcept { return _int_bits; }
 
-    //! Retrieve the `frac_bits` specifier for this `APyFixed`
+    //! Retrieve the `frac_bits` specifier
     int frac_bits() const noexcept { return _bits - _int_bits; }
 
-    //! Retrieve the number of elements in underlying limb data vector
+    //! Retrieve the number of elements in the underlying limb data vector
     std::size_t vector_size() const noexcept { return _data.size(); }
 
     //! Retrieve (read-only) the `_data` field of this `APyFixed`

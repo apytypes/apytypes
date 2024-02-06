@@ -169,6 +169,7 @@ void bind_fixed_array(py::module& m)
          */
         .def("__repr__", &APyFixedArray::repr)
         .def("__matmul__", &APyFixedArray::matmul, py::arg("rhs"))
+        .def("__getitem__", &APyFixedArray::get_item, py::arg("idx"))
 
         ;
 }

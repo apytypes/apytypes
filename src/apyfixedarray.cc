@@ -9,18 +9,19 @@ namespace py = pybind11;
 #include <Python.h> // PYLONG_BITS_IN_DIGIT, PyLongObject
 
 // Standard header includes
-#include <algorithm>  // std::copy, std::max, std::transform, etc...
-#include <cstddef>    // std::size_t
-#include <cstdlib>    // std::malloc, std::free
-#include <cstring>    // std::memcpy
-#include <functional> // std::bit_not
-#include <ios>        // std::dec
-#include <numeric>    // std::accumulate
-#include <optional>   // std::optional
-#include <sstream>    // std::stringstream
-#include <stdexcept>  // std::domain_error
-#include <string>     // std::string
-#include <vector>     // std::vector, std::swap
+#include <algorithm> // std::copy, std::max, std::transform, etc...
+#include <cstddef>   // std::size_t
+#include <cstdlib>   // std::malloc, std::free
+#include <cstring>   // std::memcpy
+#include <ios>       // std::dec
+#include <numeric>   // std::accumulate
+#include <optional>  // std::optional
+#include <sstream>   // std::stringstream
+#include <stdexcept> // std::domain_error
+#include <string>    // std::string
+#include <vector>    // std::vector, std::swap
+
+#include <fmt/format.h>
 
 #include "apyfixed.h"
 #include "apyfixedarray.h"
@@ -302,6 +303,35 @@ pybind11::tuple APyFixedArray::shape() const
 
 // The dimension in the array
 int APyFixedArray::ndim() const { return _shape.size(); }
+
+APyFixedArray APyFixedArray::get_item(std::size_t idx) const
+{
+    if (idx >= _shape[0]) {
+        throw std::out_of_range(fmt::format(
+            "APyFixedArray.__getitem__: index {} is out of bounds for axis 0 with size "
+            "{}",
+            idx,
+            _shape[0]
+        ));
+    }
+
+    // New shape contains all dimensions except the very first one
+    auto new_shape = _shape.size() > 1
+        ? std::vector<std::size_t>(_shape.begin() + 1, _shape.end())
+        : std::vector<std::size_t> { 1 };
+
+    // Element stride is the new shape folded over multiplication
+    std::size_t element_stride
+        = std::accumulate(new_shape.begin(), new_shape.end(), 1, std::multiplies {});
+
+    APyFixedArray result(new_shape, _bits, _int_bits);
+    std::copy_n(
+        _data.begin() + idx * _scalar_limbs() * element_stride,
+        _scalar_limbs() * element_stride,
+        result._data.begin()
+    );
+    return result;
+}
 
 py::array_t<double> APyFixedArray::to_numpy() const
 {
