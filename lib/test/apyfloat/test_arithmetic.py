@@ -53,6 +53,16 @@ def test_add_overflow():
     assert (APyFloat(1, 0b11110, 3, 5, 2) + APyFloat(1, 0b11110, 3, 5, 2)).is_inf
 
 
+@pytest.mark.float_add
+@pytest.mark.parametrize("x", [0.0, 1.0, float("inf"), float("nan")])
+@pytest.mark.parametrize("y", [0.0, 1.0, float("inf"), float("nan")])
+def test_add_special_cases(x, y):
+    """Test the special cases for addition."""
+    assert str(
+        float(APyFloat.from_float(x, 4, 4) + APyFloat.from_float(y, 4, 4))
+    ) == str(x + y)
+
+
 # Subtraction
 # Because subtraction is implemented as 'a+(-b)', the tests for addition will also cover subtraction,
 # but we still do some tests using the subtraction operator to make sure it's not broken.
@@ -124,6 +134,18 @@ def test_sub_zero(lhs, rhs):
 def test_sub_overflow():
     """Test that a subtraction can overflow."""
     assert (APyFloat(1, 0b11110, 1, 5, 2) - APyFloat(0, 0b11110, 3, 5, 3)).is_inf
+
+
+@pytest.mark.float_sub
+@pytest.mark.parametrize("x", [0.0, 1.0, float("inf"), float("nan")])
+@pytest.mark.parametrize("y", [0.0, 1.0, float("inf"), float("nan")])
+def test_sub_special_cases(x, y):
+    """Test the special cases for addition."""
+    s = str(float(APyFloat.from_float(x, 4, 4) - APyFloat.from_float(y, 4, 4)))
+    if x == 0 and y == 0 or x == 1 and y == 1:  # Python writes this as 0.0
+        assert s == "-0.0"
+    else:
+        assert s == str(x - y)
 
 
 # Multiplication
