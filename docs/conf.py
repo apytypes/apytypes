@@ -49,8 +49,9 @@ breathe_projects_source = {
         [
             "apytypes_common.cc",
             "apyfixed.cc",
+            "apyfixedarray.cc",
             "apyfloat.cc",
-            "apyfloat_contextwrapper.cc",
+            "apyfloat_context_wrapper.cc",
         ],
     )
 }

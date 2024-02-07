@@ -121,8 +121,8 @@ void bind_fixed(py::module& m)
 
             Two `APyFixed` objects are considered exactly identical if, and only if,
             they store the same fixed-point value, and have the exact same
-            bit-specification (`bits`, `int_bits`, and `frac_bits`). This is a more
-            restrictive test than `__eq__`,  that only tests equality of the stored
+            bit-specification (*bits*, *int_bits*, and *frac_bits*). This is a more
+            restrictive test than ``==``,  that only tests equality of the stored
             fixed-point value.
 
             Paramters
@@ -132,6 +132,7 @@ void bind_fixed(py::module& m)
 
             Returns
             -------
+            :class:`bool`
 
             Examples
             --------
@@ -147,7 +148,6 @@ void bind_fixed(py::module& m)
 
                 # `fx_a` and `fx_b` differ in the `int_bits` specifier
                 assert not(fx_a.is_identical(fx_b))
-            :class:`bool`
             )pbdoc")
         .def_property_readonly("is_zero", &APyFixed::is_zero, R"pbdoc(
             True if the stored value equals zero, false otherwise.
