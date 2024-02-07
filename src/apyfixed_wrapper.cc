@@ -142,8 +142,8 @@ void bind_fixed(py::module& m)
             restrictive test than ``==``,  that only tests equality of the stored
             fixed-point value.
 
-            Paramters
-            ---------
+            Parameters
+            ----------
             other : :class:`APyFixed`
                 The fixed-point number to test identicality against
 

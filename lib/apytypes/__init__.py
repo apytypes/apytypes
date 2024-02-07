@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from apytypes._apytypes import (
     APyFloat,
     APyFixed,
