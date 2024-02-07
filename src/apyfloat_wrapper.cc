@@ -90,6 +90,16 @@ void bind_float(py::module& m)
         .def_property_readonly("is_finite", &APyFloat::is_finite)
         .def_property_readonly("is_nan", &APyFloat::is_nan)
         .def_property_readonly("is_inf", &APyFloat::is_inf)
+        .def("is_identical", &APyFloat::is_identical, py::arg("other"), R"pbdoc(
+            Test if two `APyFloat` objects are identical.
+
+            Two `APyFixed` objects are considered identical if, and only if,  they have
+            the same sign, exponent, mantissa, and format.
+
+            Returns
+            -------
+            :class:`bool`
+            )pbdoc")
 
         /*
          * Properties

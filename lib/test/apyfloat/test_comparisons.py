@@ -2,6 +2,17 @@ from itertools import permutations as perm
 import pytest
 from apytypes import APyFloat, APyFixed
 
+@pytest.mark.float_comp
+def test_identical():
+    a = APyFloat(0, 5, 3, 15, 3, 8)
+    assert a.is_identical(a)
+    assert not a.is_identical(-a)
+    assert not a.is_identical(APyFloat(0, 6, 3, 15, 3, 8))
+    assert not a.is_identical(APyFloat(0, 5, 2, 15, 3, 8))
+    assert not a.is_identical(APyFloat(0, 5, 3, 16, 3, 8))
+    assert not a.is_identical(APyFloat(0, 5, 3, 15, 5, 8))
+    assert not a.is_identical(APyFloat(0, 5, 3, 15, 3, 9))
+
 
 @pytest.mark.float_comp
 def test_comparisons_with_floats():

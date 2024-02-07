@@ -670,6 +670,12 @@ bool APyFloat::operator==(const APyFloat& rhs) const
     return (lhs_big.exp == rhs_big.exp) && (lhs_big.man == rhs_big.man);
 }
 
+bool APyFloat::is_identical(const APyFloat& other) const {
+    return (sign == other.sign) && (exp == other.exp)
+            && (bias == other.bias) && (man == other.man)
+            && (exp_bits == other.exp_bits) && (man_bits == other.man_bits);
+}
+
 bool APyFloat::operator!=(const APyFloat& rhs) const
 {
     if (is_nan() || rhs.is_nan()) {
