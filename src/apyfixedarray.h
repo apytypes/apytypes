@@ -9,6 +9,7 @@
 #include <pybind11/pybind11.h> // pybind11::object
 #include <pybind11/pytypes.h>  // pybind11::sequence
 
+#include "apyfixed.h"
 #include "apytypes_common.h"
 #include "apytypes_util.h"
 
@@ -60,8 +61,11 @@ public:
      * ****************************************************************************** */
 
     APyFixedArray operator+(const APyFixedArray& rhs) const;
+    APyFixedArray operator+(const APyFixed& rhs) const;
     APyFixedArray operator-(const APyFixedArray& rhs) const;
+    APyFixedArray operator-(const APyFixed& rhs) const;
     APyFixedArray operator*(const APyFixedArray& rhs) const;
+    APyFixedArray operator*(const APyFixed& rhs) const;
     APyFixedArray operator/(const APyFixedArray& rhs) const;
     APyFixedArray operator<<(int shift_val) const;
     APyFixedArray operator>>(int shift_val) const;

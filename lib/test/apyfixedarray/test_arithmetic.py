@@ -1,5 +1,6 @@
-from apytypes import APyFixedArray
+from apytypes import APyFixedArray, APyFixed
 
+import math
 import pytest
 
 
@@ -40,6 +41,27 @@ def test_array_add():
     )
 
 
+def test_array_add_scalar():
+    a = APyFixedArray([-5, -6, 7], bits=10, int_bits=5)
+    b = APyFixed(3, bits=7, int_bits=2)
+    assert (a + b).is_identical(APyFixedArray([2046, 2045, 10], bits=11, int_bits=6))
+    assert (b + a).is_identical(APyFixedArray([2046, 2045, 10], bits=11, int_bits=6))
+
+
+def test_array_sum():
+    a = APyFixedArray([-5, -6, 7, -1], bits=10, int_bits=5)
+    assert sum(a).is_identical(APyFixedArray([-5], bits=13, int_bits=8))
+    b = APyFixedArray.from_float(
+        [
+            [1.0, 2.0, 3.0],
+            [4.0, 5.0, 6.0],
+        ],
+        bits=8,
+        int_bits=6,
+    )
+    assert sum(b).is_identical(APyFixedArray([20, 28, 36], bits=9, int_bits=7))
+
+
 def test_array_sub():
     a = APyFixedArray([-5, -6, 7], bits=10, int_bits=5)
     b = APyFixedArray([1, -2, 3], bits=7, int_bits=2)
@@ -63,6 +85,12 @@ def test_array_sub():
             int_bits=129,
         )
     )
+
+
+def test_array_sub_scalar():
+    a = APyFixedArray([-5, -6, 7], bits=10, int_bits=5)
+    b = APyFixed(3, bits=7, int_bits=2)
+    assert (a - b).is_identical(APyFixedArray([2040, 2039, 4], bits=11, int_bits=6))
 
 
 def test_array_mul():
@@ -97,6 +125,35 @@ def test_array_mul():
             bits=512,
             int_bits=256,
         )
+    )
+
+
+def test_array_mul_scalar():
+    a = APyFixedArray([-5, -6, 7], bits=10, int_bits=5)
+    b = APyFixed(3, bits=7, int_bits=2)
+    assert (a * b).is_identical(
+        APyFixedArray([131057, 131054, 21], bits=17, int_bits=7)
+    )
+    assert (b * a).is_identical(
+        APyFixedArray([131057, 131054, 21], bits=17, int_bits=7)
+    )
+
+
+def test_array_prod():
+    a = APyFixedArray([-5, -6, 7, -1], bits=10, int_bits=5)
+    assert math.prod(a).is_identical(
+        APyFixedArray([1099511627566], bits=40, int_bits=20)
+    )
+    b = APyFixedArray.from_float(
+        [
+            [1.0, 2.0, 3.0],
+            [4.0, 5.0, 6.0],
+        ],
+        bits=8,
+        int_bits=6,
+    )
+    assert math.prod(b).is_identical(
+        APyFixedArray([64, 160, 288], bits=16, int_bits=12)
     )
 
 
