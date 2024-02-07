@@ -25,6 +25,7 @@ namespace py = pybind11;
 
 #include "apyfixed.h"
 #include "apyfixedarray.h"
+#include "apyfixedarray_iterator.h"
 #include "apytypes_util.h"
 #include "python_util.h"
 
@@ -315,7 +316,9 @@ pybind11::tuple APyFixedArray::shape() const
 }
 
 // The dimension in the array
-int APyFixedArray::ndim() const { return _shape.size(); }
+size_t APyFixedArray::ndim() const { return _shape.size(); }
+
+size_t APyFixedArray::size() const { return _shape[0]; }
 
 APyFixedArray APyFixedArray::get_item(std::size_t idx) const
 {

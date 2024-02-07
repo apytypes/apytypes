@@ -88,23 +88,26 @@ public:
     //! Shape of the array
     pybind11::tuple shape() const;
 
-    //! Number of dimension
-    int ndim() const;
+    //! Number of dimensions
+    size_t ndim() const;
 
     //! Retrieve a single item
     APyFixedArray get_item(std::size_t idx) const;
 
-    //! Retrieve `bits` specifier
+    //! Number of bits
     int bits() const noexcept { return _bits; }
 
-    //! Retrieve `int_bits` specifier
+    //! Number of integer bits
     int int_bits() const noexcept { return _int_bits; }
 
-    //! Retrieve `frac_bits` specifier
+    //! Number of fractional bits
     int frac_bits() const noexcept { return _bits - _int_bits; }
 
     //! Convert to a NumPy array
     pybind11::array_t<double> to_numpy() const;
+
+    //! Length of the array
+    size_t size() const;
 
     /*!
      * Test if two `APyFixedArray` objects are identical. Two `APyFixedArray` objects

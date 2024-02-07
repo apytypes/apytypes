@@ -44,6 +44,7 @@ py3.extension_module(
         'src/apyfixed.cc',
         'src/apyfixed_wrapper.cc',
         'src/apyfixedarray.cc',
+        'src/apyfixedarray_iterator.cc',
         'src/apyfixedarray_wrapper.cc',
         'src/apyfloat.cc',
         'src/apyfloat_context_wrapper.cc',

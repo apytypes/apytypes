@@ -1,4 +1,5 @@
 #include "apyfixedarray.h"
+#include "apyfixedarray_iterator.h"
 #include "apytypes_common.h"
 #include "apytypes_util.h"
 
@@ -170,6 +171,20 @@ void bind_fixed_array(py::module& m)
         .def("__repr__", &APyFixedArray::repr)
         .def("__matmul__", &APyFixedArray::matmul, py::arg("rhs"))
         .def("__getitem__", &APyFixedArray::get_item, py::arg("idx"))
+        .def("__len__", &APyFixedArray::size)
+        .def(
+            "__iter__",
+            [](py::object array) {
+                return APyFixedArrayIterator(array.cast<const APyFixedArray&>(), array);
+            }
+        )
+        .def("__array__", &APyFixedArray::to_numpy)
 
         ;
+    py::class_<APyFixedArrayIterator>(m, "APyFixedArrayIterator")
+        .def(
+            "__iter__",
+            [](APyFixedArrayIterator& it) -> APyFixedArrayIterator& { return it; }
+        )
+        .def("__next__", &APyFixedArrayIterator::next);
 }
