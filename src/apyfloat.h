@@ -97,6 +97,10 @@ public:
     bool operator>=(const APyFloat& rhs) const;
     bool operator>(const APyFloat& rhs) const;
 
+    //! Test if two floating-point numbers are identical, i.e., has the same value, and
+    //! the same format
+    bool is_identical(const APyFloat& other) const;
+
     /* ******************************************************************************
      * * Non-computational functions                                                *
      * ******************************************************************************
