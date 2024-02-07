@@ -221,7 +221,7 @@ APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
             return _checked_inner_product(rhs);
         }
     }
-    if ((ndim() == 2 && rhs.ndim() == 2) || (ndim() == 2 && rhs.ndim() == 1)) {
+    if (ndim() == 2 && (rhs.ndim() == 2 || rhs.ndim() == 1)) {
         if (_shape[1] == rhs._shape[0]) {
             // Dimensionality for a standard 2D matrix mutliplication checks out.
             // Perform the checked 2D matrix

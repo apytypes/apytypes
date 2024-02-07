@@ -326,24 +326,11 @@ class APyFixedArray:
         frac_bits: int | None = None,
     ) -> APyFixedArray:
         """
-        Create an :class:`APyFixedArray` object and initialize its value from a
-        a sequence of :class:`float`.
+        Create an :class:`APyFixedArray` object from a sequence of :class:`float`.
 
         The initialized fixed-point values are the one closest to the
         input floating-point value, rounded away from zero on ties. Exactly two of
         the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) has to be set.
-
-        Examples
-        --------
-
-        .. code-block:: python
-
-            from apytypes import APyFixedArray
-
-            # Tensor `a` from float, initialized from some floating-point values.
-            # The last value `1.49` is rounded to its closes fixed-point
-            # representable value `1.50`.
-            a = APyFixedArray.from_float([1.0, 1.25, 1.49], int_bits=2, frac_bits=2)
 
         Parameters
         ----------
@@ -356,6 +343,30 @@ class APyFixedArray:
             Number of integer bits in the created fixed-point tensor
         frac_bits : int, optional
             Number of fractional bits in the created fixed-point tensor
+
+        Returns
+        -------
+        :class:`APyFixedArray`
+
+        Examples
+        --------
+
+        .. code-block:: python
+
+            from apytypes import APyFixedArray
+
+            # Array `a`, initialized from floating-point values.
+            a = APyFixedArray.from_float([1.0, 1.25, 1.49], int_bits=2, frac_bits=2)
+
+            # Array `b` (2 x 3 matrix), initialized from floating-point values.
+            b = APyFixedArray.from_float(
+                [
+                    [1.0, 2.0, 3.0],
+                    [4.0, 5.0, 6.0],
+                ],
+                bits=5,
+                frac_bits=0
+            )
         """
 
     def __add__(self, arg0: APyFixedArray) -> APyFixedArray: ...
@@ -403,7 +414,7 @@ class APyFixedArray:
 
     def transpose(self) -> APyFixedArray:
         """
-        Return the transposed version of the array.
+        Return the transposition of the array.
 
         If the dimension of `self` is one, this method returns the a copy of `self`.
         If the dimension of `self` is two, this method returns the matrix
@@ -418,7 +429,17 @@ class APyFixedArray:
         """
 
     @property
-    def T(self) -> APyFixedArray: ...
+    def T(self) -> APyFixedArray:
+        """
+        The transposition of the array.
+
+        Equivalent to calling :func:`APyFixedArray.transpose`.
+
+        Returns
+        -------
+        :class:`APyFixedArray`
+        """
+
     @property
     def bits(self) -> int:
         """
