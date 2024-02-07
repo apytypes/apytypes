@@ -2,7 +2,7 @@
 APyFloat
 ========
 
-APyTypes provide a class for configurable floating-point numbers.
+APyTypes provide a class for configurable floating-point numbers: :class:`APyFloat`.
 
 The numbers are created from the sign-bit, the exponent and the mantissa
 (without hidden one) and the corresponding wordlengths. However, there are
@@ -25,8 +25,19 @@ c
 # %%
 # Standard arithmetic operations are supported. The resulting number of exponent
 # and mantissa bits are the maximum of the involved terms.
-
 a + b
 
 # %%
 a * c
+
+# %%
+# Standard string formatting is supported
+str(a)
+
+# %%
+# Comparisons with integers and floats are supported
+(b >= 7, a < -1.2)
+
+# %%
+# To change the word length of a APyFloat, the method :func:`~APyFloat.resize` can be used
+(a + b).resize(4, 3)
