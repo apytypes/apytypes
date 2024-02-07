@@ -203,10 +203,13 @@ double APyFloat::to_double() const
 APyFloat::operator double() const { return to_double(); }
 
 APyFloat APyFloat::from_bits(
-    unsigned long long bits, std::uint8_t exp_bits, std::uint8_t man_bits
+    unsigned long long bits,
+    std::uint8_t exp_bits,
+    std::uint8_t man_bits,
+    std::optional<exp_t> bias
 )
 {
-    APyFloat f(exp_bits, man_bits);
+    APyFloat f(exp_bits, man_bits, bias);
     return f.update_from_bits(bits);
 }
 
@@ -585,7 +588,7 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
  * ******************************************************************************
  */
 
-APyFloat APyFloat::abs(const APyFloat& x) { return x.is_sign_neg() ? -x : x; }
+APyFloat APyFloat::abs(const APyFloat& x) { return x.sign ? -x : x; }
 
 APyFloat APyFloat::pow(const APyFloat& x, const APyFloat& y)
 {
@@ -616,7 +619,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
     }
 
     if (x.is_inf()) {
-        new_sign = x.is_sign_neg() ? new_sign : false;
+        new_sign = x.sign ? new_sign : false;
 
         if (n > 0) {
             return x.construct_inf(new_sign);
@@ -670,10 +673,11 @@ bool APyFloat::operator==(const APyFloat& rhs) const
     return (lhs_big.exp == rhs_big.exp) && (lhs_big.man == rhs_big.man);
 }
 
-bool APyFloat::is_identical(const APyFloat& other) const {
-    return (sign == other.sign) && (exp == other.exp)
-            && (bias == other.bias) && (man == other.man)
-            && (exp_bits == other.exp_bits) && (man_bits == other.man_bits);
+bool APyFloat::is_identical(const APyFloat& other) const
+{
+    return (sign == other.sign) && (exp == other.exp) && (bias == other.bias)
+        && (man == other.man) && (exp_bits == other.exp_bits)
+        && (man_bits == other.man_bits);
 }
 
 bool APyFloat::operator!=(const APyFloat& rhs) const
@@ -756,9 +760,6 @@ bool APyFloat::is_nan() const { return exp == max_exponent() && man != 0; }
 
 // True if and only if x is infinite.
 bool APyFloat::is_inf() const { return exp == max_exponent() && man == 0; }
-
-// True if and only if x has a negative sign. Applies to zeros and NaNs as well.
-bool APyFloat::is_sign_neg() const { return sign; }
 
 /* ******************************************************************************
  * * Helper functions                                                           *

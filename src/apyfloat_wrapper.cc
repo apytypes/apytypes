@@ -40,7 +40,14 @@ void bind_float(py::module& m)
             py::arg("rounding_mode") = std::nullopt
         )
         .def("__float__", &APyFloat::operator double)
-        .def_static("from_bits", &APyFloat::from_bits)
+        .def_static(
+            "from_bits",
+            &APyFloat::from_bits,
+            py::arg("bits"),
+            py::arg("exp_bits"),
+            py::arg("man_bits"),
+            py::arg("bias") = std::nullopt
+        )
         .def("to_bits", &APyFloat::to_bits)
         .def("__str__", &APyFloat::str)
         .def("__repr__", &APyFloat::repr)
@@ -85,11 +92,41 @@ void bind_float(py::module& m)
         /*
          * Non-computational properties
          */
-        .def_property_readonly("is_normal", &APyFloat::is_normal)
-        .def_property_readonly("is_subnormal", &APyFloat::is_subnormal)
-        .def_property_readonly("is_finite", &APyFloat::is_finite)
-        .def_property_readonly("is_nan", &APyFloat::is_nan)
-        .def_property_readonly("is_inf", &APyFloat::is_inf)
+        .def_property_readonly("is_normal", &APyFloat::is_normal, R"pbdoc(
+            True if and only if x is normal (not zero, subnormal, infinite, or NaN).
+
+            Returns
+            -------
+            :class:`bool`
+            )pbdoc")
+        .def_property_readonly("is_subnormal", &APyFloat::is_subnormal, R"pbdoc(
+            True if and only if x is normal (not zero, subnormal, infinite, or NaN).
+
+            Returns
+            -------
+            :class:`bool`
+            )pbdoc")
+        .def_property_readonly("is_finite", &APyFloat::is_finite, R"pbdoc(
+            True if and only if x is zero, subnormal, or normal.
+
+            Returns
+            -------
+            :class:`bool`
+            )pbdoc")
+        .def_property_readonly("is_nan", &APyFloat::is_nan, R"pbdoc(
+            True if and only if x is NaN.
+
+            Returns
+            -------
+            :class:`bool`
+            )pbdoc")
+        .def_property_readonly("is_inf", &APyFloat::is_inf, R"pbdoc(
+            True if and only if x is infinite.
+
+            Returns
+            -------
+            :class:`bool`
+            )pbdoc")
         .def("is_identical", &APyFloat::is_identical, py::arg("other"), R"pbdoc(
             Test if two `APyFloat` objects are identical.
 
