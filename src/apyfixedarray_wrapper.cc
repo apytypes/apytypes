@@ -342,8 +342,12 @@ void bind_fixed_array(py::module& m)
         /*
          * Dunder methods
          */
-        .def("__repr__", &APyFixedArray::repr)
+        .def("__lshift__", &APyFixedArray::operator<<, py::arg("shift_amnt"))
         .def("__matmul__", &APyFixedArray::matmul, py::arg("rhs"))
+        .def("__repr__", &APyFixedArray::repr)
+        .def("__rshift__", &APyFixedArray::operator>>, py::arg("shift_amnt"))
+
+        // Iteration and friends
         .def("__getitem__", &APyFixedArray::get_item, py::arg("idx"))
         .def("__len__", &APyFixedArray::size)
         .def(
@@ -355,6 +359,7 @@ void bind_fixed_array(py::module& m)
         .def("__array__", &APyFixedArray::to_numpy)
 
         ;
+
     py::class_<APyFixedArrayIterator>(m, "APyFixedArrayIterator")
         .def(
             "__iter__",

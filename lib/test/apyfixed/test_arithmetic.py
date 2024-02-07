@@ -205,7 +205,7 @@ def test_abs():
 
 
 def test_shift():
-    a = APyFixed(-3, 3, 2)
+    a = APyFixed(-3, bits=3, int_bits=2)
     assert (a >> 2).is_identical(APyFixed(-3, 3, 0))
     assert (a << 7).is_identical(APyFixed(-3, 3, 9))
     assert (a >> -2).is_identical(APyFixed(-3, 3, 4))

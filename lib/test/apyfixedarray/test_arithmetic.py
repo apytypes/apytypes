@@ -188,3 +188,11 @@ def test_transpose():
             int_bits=128,
         )
     )
+
+
+def test_shift():
+    a = APyFixedArray([1, 2, -3], bits=10, int_bits=5)
+    assert (a >> 2).is_identical(APyFixedArray([1, 2, -3], bits=10, int_bits=3))
+    assert (a << 7).is_identical(APyFixedArray([1, 2, -3], bits=10, int_bits=12))
+    assert (a >> -2).is_identical(APyFixedArray([1, 2, -3], bits=10, int_bits=7))
+    assert (a << -7).is_identical(APyFixedArray([1, 2, -3], bits=10, int_bits=-2))

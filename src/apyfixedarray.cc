@@ -313,6 +313,22 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
     return result;
 }
 
+APyFixedArray APyFixedArray::operator<<(int shift_val) const
+{
+    // Left and right shift of data only affects the binary point in the data
+    APyFixedArray result = *this;
+    result._int_bits += shift_val;
+    return result;
+}
+
+APyFixedArray APyFixedArray::operator>>(int shift_val) const
+{
+    // Left and right shift of data only affects the binary point in the data
+    APyFixedArray result = *this;
+    result._int_bits -= shift_val;
+    return result;
+}
+
 APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
 {
     if (ndim() == 1 && rhs.ndim() == 1) {
