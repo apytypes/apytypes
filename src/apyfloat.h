@@ -47,8 +47,12 @@ public:
     double to_double() const;
     operator double() const;
 
-    static APyFloat
-    from_bits(unsigned long long bits, std::uint8_t exp_bits, std::uint8_t man_bits);
+    static APyFloat from_bits(
+        unsigned long long bits,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
     unsigned long long to_bits() const;
 
     APyFloat resize(
@@ -112,7 +116,6 @@ public:
     bool is_finite() const;
     bool is_nan() const;
     bool is_inf() const;
-    bool is_sign_neg() const;
 
     inline bool get_sign() const { return sign; }
     inline man_t get_man() const { return man; }
