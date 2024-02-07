@@ -117,6 +117,30 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
     return result;
 }
 
+APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
+{
+    // Increase word length of result by one
+    const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
+    const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
+
+    // Adjust binary point
+    APyFixedArray result = _bit_resize(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixed imm = rhs.resize(res_int_bits + res_frac_bits, res_int_bits);
+
+    // Perform addition
+    for (std::size_t i = 0; i < result._data.size(); i += result._scalar_limbs()) {
+        mpn_add_n(
+            &result._data[i],      // dst
+            &result._data[i],      // src1
+            &imm._data[0],         // src2
+            result._scalar_limbs() // limb vector length
+        );
+    }
+
+    // Return result
+    return result;
+}
+
 APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
 {
     // Make sure `_shape` of `*this` and `rhs` are the same
@@ -142,6 +166,30 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
             &result._data[i],      // dst
             &result._data[i],      // src1
             &imm._data[i],         // src2
+            result._scalar_limbs() // limb vector length
+        );
+    }
+
+    // Return result
+    return result;
+}
+
+APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
+{
+    // Increase word length of result by one
+    const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
+    const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
+
+    // Adjust binary point
+    APyFixedArray result = _bit_resize(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixed imm = rhs.resize(res_int_bits + res_frac_bits, res_int_bits);
+
+    // Perform addition
+    for (std::size_t i = 0; i < result._data.size(); i += result._scalar_limbs()) {
+        mpn_sub_n(
+            &result._data[i],      // dst
+            &result._data[i],      // src1
+            &imm._data[0],         // src2
             result._scalar_limbs() // limb vector length
         );
     }
@@ -177,6 +225,59 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
         auto op1_end = _data.begin() + (i + 1) * _scalar_limbs();
         auto op2_begin = rhs._data.begin() + (i + 0) * rhs._scalar_limbs();
         auto op2_end = rhs._data.begin() + (i + 1) * rhs._scalar_limbs();
+
+        // Evaluate resulting sign
+        bool sign1 = mp_limb_signed_t(*(op1_end - 1)) < 0;
+        bool sign2 = mp_limb_signed_t(*(op2_end - 1)) < 0;
+        bool result_sign = sign1 ^ sign2;
+
+        // Retrieve the absolute value of both operands, as required by GMP
+        std::vector<mp_limb_t> op1_abs = limb_vector_abs(op1_begin, op1_end);
+        std::vector<mp_limb_t> op2_abs = limb_vector_abs(op2_begin, op2_end);
+
+        // Perform the multiplication
+        mpn_mul(
+            &res_tmp_vec[0], // dst
+            &op1_abs[0],     // src1
+            op1_abs.size(),  // src1 limb vector length
+            &op2_abs[0],     // src2
+            op2_abs.size()   // src2 limb vector length
+        );
+
+        // Handle sign
+        if (result_sign) {
+            res_tmp_vec = limb_vector_negate(res_tmp_vec.begin(), res_tmp_vec.end());
+        }
+
+        // Copy into resulting vector
+        std::copy_n(
+            res_tmp_vec.begin(),
+            result._scalar_limbs(),
+            result._data.begin() + (i + 0) * result._scalar_limbs()
+        );
+    }
+
+    return result;
+}
+
+APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
+{
+    const int res_int_bits = int_bits() + rhs.int_bits();
+    const int res_frac_bits = frac_bits() + rhs.frac_bits();
+
+    // Resulting `APyFixedArray` fixed-point tensor
+    APyFixedArray result(_shape, res_int_bits + res_frac_bits, res_int_bits);
+
+    // Perform multiplication for each element in the tensor. `mpn_mul` requires:
+    // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
+    //  most significant limb is zero."
+    std::vector<mp_limb_t> res_tmp_vec(_scalar_limbs() + rhs.vector_size(), 0);
+    for (std::size_t i = 0; i < _fold_shape(); i++) {
+        // Current working operands
+        auto op1_begin = _data.begin() + (i + 0) * _scalar_limbs();
+        auto op1_end = _data.begin() + (i + 1) * _scalar_limbs();
+        auto op2_begin = rhs._data.begin() + (0) * rhs.vector_size();
+        auto op2_end = rhs._data.begin() + (1) * rhs.vector_size();
 
         // Evaluate resulting sign
         bool sign1 = mp_limb_signed_t(*(op1_end - 1)) < 0;

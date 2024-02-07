@@ -1,3 +1,4 @@
+#include "apyfixed.h"
 #include "apyfixedarray.h"
 #include "apyfixedarray_iterator.h"
 #include "apytypes_common.h"
@@ -34,9 +35,163 @@ void bind_fixed_array(py::module& m)
          * Arithmetic operations
          */
         .def(py::self + py::self)
+        .def(
+            "__add__",
+            [](const APyFixedArray& a, int b) {
+                if (b == 0) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot add with int");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__radd__",
+            [](const APyFixedArray& a, int b) {
+                if (b == 0) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot add with int");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__add__",
+            [](const APyFixedArray& a, float b) {
+                if (b == 0.) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot add with float");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__radd__",
+            [](const APyFixedArray& a, float b) {
+                if (b == 0.) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot add with float");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__add__",
+            [](const APyFixedArray& a, APyFixed& b) { return a + b; },
+            py::is_operator()
+        )
+        .def(
+            "__radd__",
+            [](const APyFixedArray& a, APyFixed& b) { return a + b; },
+            py::is_operator()
+        )
         .def(py::self - py::self)
+        .def(
+            "__sub__",
+            [](const APyFixedArray& a, int b) {
+                if (b == 0) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot subtract with int");
+                };
+            },
+            py::is_operator()
+        )
+        /* .def("__rsub__", [](const APyFixedArray& a, int b) {
+            if (b == 0) {
+                return -a;
+            } else {
+                throw pybind11::type_error("Cannot subtract with int");
+            };
+        }, py::is_operator())
+         */
+        .def(
+            "__sub__",
+            [](const APyFixedArray& a, float b) {
+                if (b == 0.) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot subtract with float");
+                };
+            },
+            py::is_operator()
+        )
+        /* .def("__rsub__", [](const APyFixedArray& a, float b) {
+            if (b == 0.) {
+                return -a;
+            } else {
+                throw pybind11::type_error("Cannot subtract with float");
+            };
+        }, py::is_operator())
+         */
+        .def(
+            "__sub__",
+            [](const APyFixedArray& a, APyFixed& b) { return a - b; },
+            py::is_operator()
+        )
+        /* .def("__rsub__", [](const APyFixedArray& a, APyFixed& b) {
+            return (-a) + b;
+        }, py::is_operator())
+         */
         .def(py::self * py::self)
-
+        .def(
+            "__mul__",
+            [](const APyFixedArray& a, APyFixed& b) { return a * b; },
+            py::is_operator()
+        )
+        .def(
+            "__rmul__",
+            [](const APyFixedArray& a, APyFixed& b) { return a * b; },
+            py::is_operator()
+        )
+        .def(
+            "__mul__",
+            [](const APyFixedArray& a, int b) {
+                if (b == 1) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot multiply with int");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__rmul__",
+            [](const APyFixedArray& a, int b) {
+                if (b == 1) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot multiply with int");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__mul__",
+            [](const APyFixedArray& a, float b) {
+                if (b == 1.) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot multiply with float");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__rmul__",
+            [](const APyFixedArray& a, float b) {
+                if (b == 1.) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot multiply with float");
+                };
+            },
+            py::is_operator()
+        )
         /*
          * Methods
          */
