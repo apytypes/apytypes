@@ -221,7 +221,7 @@ APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
             return _checked_inner_product(rhs);
         }
     }
-    if (ndim() == 2 && rhs.ndim() == 2) {
+    if ((ndim() == 2 && rhs.ndim() == 2) || (ndim() == 2 && rhs.ndim() == 1)) {
         if (_shape[1] == rhs._shape[0]) {
             // Dimensionality for a standard 2D matrix mutliplication checks out.
             // Perform the checked 2D matrix
@@ -529,14 +529,17 @@ APyFixedArray APyFixedArray::_checked_inner_product(const APyFixedArray& rhs) co
 APyFixedArray APyFixedArray::_checked_2d_matmul(const APyFixedArray& rhs) const
 {
     // Resulting parameters
-    std::vector<std::size_t> res_shape { _shape[0], rhs._shape[1] };
+    std::vector<std::size_t> res_shape = rhs._shape.size() > 1
+        ? std::vector<std::size_t> { _shape[0], rhs._shape[1] } // rhs is 2-D
+        : std::vector<std::size_t> { _shape[0] };               // rhs is 1-D
     const auto res_bits = bits() + rhs.bits() + bit_width(_shape[1] - 1);
     const auto res_int_bits = int_bits() + rhs.int_bits() + bit_width(_shape[1] - 1);
+    const auto res_cols = rhs._shape.size() > 1 ? rhs._shape[1] : 1;
 
     // Resulting `APyFixedArray`
     APyFixedArray result(res_shape, res_bits, res_int_bits);
 
-    for (std::size_t x = 0; x < res_shape[1]; x++) {
+    for (std::size_t x = 0; x < res_cols; x++) {
 
         // Copy column from `rhs` and use as the current working column. As reading
         // columns from `rhs` is cache-inefficient, we like to do this only once for
@@ -544,7 +547,7 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(const APyFixedArray& rhs) const
         APyFixedArray current_column({ rhs._shape[0] }, rhs.bits(), rhs.int_bits());
         for (std::size_t col = 0; col < rhs._shape[0]; col++) {
             std::copy_n(
-                rhs._data.begin() + (x + col * rhs._shape[1]) * rhs._scalar_limbs(),
+                rhs._data.begin() + (x + col * res_cols) * rhs._scalar_limbs(),
                 rhs._scalar_limbs(),
                 current_column._data.begin() + col * rhs._scalar_limbs()
             );
@@ -574,8 +577,7 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(const APyFixedArray& rhs) const
             std::copy_n(
                 current_res._data.begin(), // src
                 current_res._data.size(),  // limbs to copy
-                result._data.begin()
-                    + (y * result._shape[1] + x) * result._scalar_limbs()
+                result._data.begin() + (y * res_cols + x) * result._scalar_limbs()
             );
         }
     }

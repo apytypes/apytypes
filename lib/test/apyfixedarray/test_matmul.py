@@ -105,6 +105,14 @@ def test_matrix_multiplication():
     with pytest.raises(ValueError, match="APyFixedArray.__matmul__: input shape"):
         _ = b @ a
 
+    A = APyFixedArray.from_float(
+        [[0.1, 0.2, 0.3], [-0.2, -0.3, -0.4]], int_bits=0, frac_bits=7
+    )
+    b = APyFixedArray.from_float([-3.2, 1.4, 4.5], int_bits=3, frac_bits=3)
+    assert (A @ b.T).is_identical(
+        APyFixedArray([31652, 1686], int_bits=5, frac_bits=10)
+    )
+
 
 def test_wide_matmul():
     a = APyFixedArray.from_float(
