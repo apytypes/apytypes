@@ -67,6 +67,23 @@ void bind_fixed(py::module& m)
         .def(py::self / py::self)
         .def(-py::self)
 
+        // Addition with integers
+        .def(py::self + int())
+        .def("__radd__", [](APyFixed& rhs, int lhs) { return rhs + lhs; })
+        .def(py::self - int())
+        .def(
+            "__rsub__",
+            [](APyFixed& rhs, int lhs) {
+                if (lhs == 0) {
+                    return -rhs;
+                }
+                throw NotImplementedException("NotImplemented: __rsub__(int)");
+            }
+        )
+        .def(py::self * int())
+        .def("__rmul__", [](APyFixed& rhs, int lhs) { return rhs * lhs; })
+        //.def(py::self / int())
+
         /*
          * Methods
          */
@@ -297,7 +314,7 @@ void bind_fixed(py::module& m)
                 from apytypes import APyFixed
 
                 # Larger fixed-point value initialization from a string (base-10)
-                fx_a = APyFixed.from_string(
+                fx_a = APyFixed.from_str(
                     "-1376018206341311063223476816643087998331620501540496640."
                     "021222579872958058370179355618716816066859017361262100333952697594702"
                     "314679773970519809467311447652539955943903993200932791396783892142688"

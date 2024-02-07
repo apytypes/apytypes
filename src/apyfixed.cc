@@ -271,6 +271,39 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
     }
 }
 
+APyFixed APyFixed::operator+(int rhs) const
+{
+    // TODO
+    if (rhs == 0) {
+        return *this;
+    }
+    throw NotImplementedException("Not implemented: APyFixed.__add__(int)");
+}
+
+APyFixed APyFixed::operator-(int rhs) const
+{
+    // TODO
+    if (rhs == 0) {
+        return *this;
+    }
+    throw NotImplementedException("Not implemented: APyFixed.__sub__(int)");
+}
+
+APyFixed APyFixed::operator*(int rhs) const
+{
+    // TODO
+    if (rhs == 0) {
+        return *this;
+    }
+    throw NotImplementedException("Not implemented: APyFixed.__mul__(int)");
+}
+
+APyFixed APyFixed::operator/(int rhs) const
+{
+    (void)rhs;
+    throw NotImplementedException("Not implemented: APyFixed.__div__(int)");
+}
+
 APyFixed APyFixed::operator<<(int shift_val) const
 {
     // Left and right shift of data only affects the binary point in the data

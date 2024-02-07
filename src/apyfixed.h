@@ -111,6 +111,11 @@ public:
     APyFixed operator<<(int shift_val) const;
     APyFixed operator>>(int shift_val) const;
 
+    APyFixed operator+(int rhs) const;
+    APyFixed operator-(int rhs) const;
+    APyFixed operator*(int rhs) const;
+    APyFixed operator/(int rhs) const;
+
     /* ****************************************************************************** *
      *                          Binary comparion operators                            *
      * ****************************************************************************** */
