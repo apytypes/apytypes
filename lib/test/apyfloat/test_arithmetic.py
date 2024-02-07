@@ -270,6 +270,4 @@ def test_power_special_cases(x, n, test_exp):
     if str(test_exp) == "nan":
         assert eval(f"(APyFloat.from_float(float({x}), 9, 7)**{n}).is_nan")
     else:
-        assert (
-            eval(f"float(APyFloat.from_float(float({x}), 9, 7)**{n})") == test_exp
-        )
+        assert eval(f"float(APyFloat.from_float(float({x}), 9, 7)**{n})") == test_exp

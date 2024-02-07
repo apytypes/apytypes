@@ -20,17 +20,13 @@ class TestAPyFloatRounding:
 
     def test_rounding_mantissa_overflow(self):
         apytypes.set_rounding_mode(RoundingMode.TO_POSITIVE)
-        assert APyFloat(0, 5, 0b11111, 5, 5).resize(5, 3) == APyFloat(
-            0, 6, 0b000, 5, 3
-        )
+        assert APyFloat(0, 5, 0b11111, 5, 5).resize(5, 3) == APyFloat(0, 6, 0b000, 5, 3)
         assert APyFloat(0, 0b11110, 0b11111, 5, 5).resize(5, 3) == APyFloat(
             0, 0b11111, 0b000, 5, 3
         )  # Rounding becomes inf
 
         apytypes.set_rounding_mode(RoundingMode.TO_NEGATIVE)
-        assert APyFloat(1, 5, 0b11111, 5, 5).resize(5, 3) == APyFloat(
-            1, 6, 0b000, 5, 3
-        )
+        assert APyFloat(1, 5, 0b11111, 5, 5).resize(5, 3) == APyFloat(1, 6, 0b000, 5, 3)
         assert APyFloat(1, 0b11110, 0b11111, 5, 5).resize(5, 3) == APyFloat(
             1, 0b11111, 0b000, 5, 3
         )  # Rounding becomes -inf

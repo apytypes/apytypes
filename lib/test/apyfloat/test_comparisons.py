@@ -2,6 +2,7 @@ from itertools import permutations as perm
 import pytest
 from apytypes import APyFloat, APyFixed
 
+
 @pytest.mark.float_comp
 def test_identical():
     a = APyFloat(0, 5, 3, 15, 3, 8)
