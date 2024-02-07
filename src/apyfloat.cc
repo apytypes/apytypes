@@ -85,12 +85,12 @@ APyFloat::update_from_double(double value, std::optional<RoundingMode> rounding_
     );
 
     // Cast it to the correct format
-    *this = apytypes_double.cast_to(exp_bits, man_bits, bias, rounding_mode);
+    *this = apytypes_double.resize(exp_bits, man_bits, bias, rounding_mode);
 
     return *this;
 }
 
-APyFloat APyFloat::cast_to(
+APyFloat APyFloat::resize(
     std::uint8_t new_exp_bits,
     std::uint8_t new_man_bits,
     std::optional<exp_t> new_bias,
@@ -192,7 +192,7 @@ APyFloat APyFloat::cast_to(
 
 double APyFloat::to_double() const
 {
-    const auto apytypes_d = cast_to(11, 52);
+    const auto apytypes_d = resize(11, 52);
     double d {};
     set_sign_of_double(d, apytypes_d.sign);
     set_exp_of_double(d, apytypes_d.exp);
@@ -396,7 +396,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
                    (res.man_bits + 4),
                    res.bias
         )
-            .cast_to(res.exp_bits, res.man_bits, res.bias);
+            .resize(res.exp_bits, res.man_bits, res.bias);
 
     } else if (highR & (1ULL << (res.man_bits + 3))) { // No carry
         highR &= (1ULL << (res.man_bits + 3)) - 1;
@@ -408,7 +408,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
                    (res.man_bits + 3),
                    res.bias
         )
-            .cast_to(res.exp_bits, res.man_bits, res.bias);
+            .resize(res.exp_bits, res.man_bits, res.bias);
     }
 
     // Cancellation occured
@@ -494,7 +494,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
                    (2 * res.man_bits + 1),
                    extended_bias
         )
-            .cast_to(res.exp_bits, res.man_bits, res.bias);
+            .resize(res.exp_bits, res.man_bits, res.bias);
     } else {
         highR &= (1ULL << (2 * res.man_bits)) - 1;
         return APyFloat(
@@ -505,7 +505,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
                    (2 * res.man_bits),
                    extended_bias
         )
-            .cast_to(res.exp_bits, res.man_bits, res.bias);
+            .resize(res.exp_bits, res.man_bits, res.bias);
     }
 }
 
@@ -577,7 +577,7 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
                res.man_bits + guard_bits,
                extended_bias
     )
-        .cast_to(res.exp_bits, res.man_bits, res.bias);
+        .resize(res.exp_bits, res.man_bits, res.bias);
 }
 
 /* ******************************************************************************
@@ -643,7 +643,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
     return APyFloat(
                new_sign, new_exp, new_man, max_exp_bits, trailing_bits, extended_bias
     )
-        .cast_to(x.exp_bits, x.man_bits, x.bias);
+        .resize(x.exp_bits, x.man_bits, x.bias);
 }
 
 /* ******************************************************************************
@@ -664,8 +664,8 @@ bool APyFloat::operator==(const APyFloat& rhs) const
     // Cast operands to a larger format that can represent both numbers
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto lhs_big = cast_to(max_exp_bits, max_man_bits);
-    const auto rhs_big = rhs.cast_to(max_exp_bits, max_man_bits);
+    const auto lhs_big = resize(max_exp_bits, max_man_bits);
+    const auto rhs_big = rhs.resize(max_exp_bits, max_man_bits);
 
     return (lhs_big.exp == rhs_big.exp) && (lhs_big.man == rhs_big.man);
 }
@@ -697,8 +697,8 @@ bool APyFloat::operator<(const APyFloat& rhs) const
     // Cast operands to a larger format that can represent both numbers
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto lhs_big = cast_to(max_exp_bits, max_man_bits);
-    const auto rhs_big = rhs.cast_to(max_exp_bits, max_man_bits);
+    const auto lhs_big = resize(max_exp_bits, max_man_bits);
+    const auto rhs_big = rhs.resize(max_exp_bits, max_man_bits);
 
     bool ret {};
 

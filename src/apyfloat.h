@@ -55,7 +55,7 @@ public:
     APyFloat& update_from_bits(unsigned long long bits);
     unsigned long long to_bits() const;
 
-    APyFloat cast_to(
+    APyFloat resize(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt,
