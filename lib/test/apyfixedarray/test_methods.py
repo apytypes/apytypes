@@ -59,3 +59,15 @@ def test_get_item():
     )
     with pytest.raises(IndexError, match="APyFixedArray.__getitem__: index 2 is out"):
         fx_array[2]
+
+
+def test_iterator():
+    fx_array = APyFixedArray([1, 2, 3, 4, 5, 6], bits=10, int_bits=10)
+    iterator = iter(fx_array)
+    assert next(iterator).is_identical(APyFixedArray([1], bits=10, int_bits=10))
+    assert next(iterator).is_identical(APyFixedArray([2], bits=10, int_bits=10))
+
+
+def test_len():
+    fx_array = APyFixedArray([1, 2, 3, 4, 5, 6], bits=10, int_bits=10)
+    assert len(fx_array) == 6
