@@ -19,20 +19,20 @@ class TestAPyFloatRounding:
         apytypes.set_rounding_mode(self.default_mode)
 
     def test_rounding_mantissa_overflow(self):
-        apytypes.set_rounding_mode(RoundingMode.TO_POSITIVE)
+        apytypes.set_rounding_mode(RoundingMode.TO_POS)
         assert APyFloat(0, 5, 0b11111, 5, 5).resize(5, 3) == APyFloat(0, 6, 0b000, 5, 3)
         assert APyFloat(0, 0b11110, 0b11111, 5, 5).resize(5, 3) == APyFloat(
             0, 0b11111, 0b000, 5, 3
         )  # Rounding becomes inf
 
-        apytypes.set_rounding_mode(RoundingMode.TO_NEGATIVE)
+        apytypes.set_rounding_mode(RoundingMode.TO_NEG)
         assert APyFloat(1, 5, 0b11111, 5, 5).resize(5, 3) == APyFloat(1, 6, 0b000, 5, 3)
         assert APyFloat(1, 0b11110, 0b11111, 5, 5).resize(5, 3) == APyFloat(
             1, 0b11111, 0b000, 5, 3
         )  # Rounding becomes -inf
 
-    def test_rounding_to_positive(self):
-        apytypes.set_rounding_mode(RoundingMode.TO_POSITIVE)
+    def test_rounding_to_pos(self):
+        apytypes.set_rounding_mode(RoundingMode.TO_POS)
         # Rounding from 0.xx
         assert APyFloat(0, 5, 0b10000, 5, 5).resize(5, 3) == APyFloat(
             0, 5, 0b100, 5, 3
@@ -89,8 +89,8 @@ class TestAPyFloatRounding:
             1, 5, 0b101, 5, 3
         )  # Round down
 
-    def test_rounding_to_negative(self):
-        apytypes.set_rounding_mode(RoundingMode.TO_NEGATIVE)
+    def test_rounding_to_neg(self):
+        apytypes.set_rounding_mode(RoundingMode.TO_NEG)
         # Rounding from 0.xx
         assert APyFloat(0, 5, 0b10000, 5, 5).resize(5, 3) == APyFloat(
             0, 5, 0b100, 5, 3
@@ -205,8 +205,8 @@ class TestAPyFloatRounding:
             1, 5, 0b101, 5, 3
         )  # Round down
 
-    def test_rounding_ties_to_even(self):
-        apytypes.set_rounding_mode(RoundingMode.TIES_TO_EVEN)
+    def test_rounding_ties_even(self):
+        apytypes.set_rounding_mode(RoundingMode.TIES_EVEN)
         # Rounding from 0.xx
         assert APyFloat(0, 5, 0b10000, 5, 5).resize(5, 3) == APyFloat(
             0, 5, 0b100, 5, 3
@@ -263,8 +263,8 @@ class TestAPyFloatRounding:
             1, 5, 0b110, 5, 3
         )  # Round up
 
-    def test_rounding_ties_to_away(self):
-        apytypes.set_rounding_mode(RoundingMode.TIES_TO_AWAY)
+    def test_rounding_ties_away(self):
+        apytypes.set_rounding_mode(RoundingMode.TIES_AWAY)
         # Rounding from 0.xx
         assert APyFloat(0, 5, 0b10000, 5, 5).resize(5, 3) == APyFloat(
             0, 5, 0b100, 5, 3
@@ -328,14 +328,14 @@ class TestAPyFloatRounding:
 @pytest.mark.parametrize("b", [14, 20])
 @pytest.mark.parametrize("sign", [1, -1])
 class TestAPyFloatRoundingDiv:
-    def test_to_positive(self, a, b, sign):
-        with RoundingContext(RoundingMode.TO_POSITIVE):
+    def test_to_pos(self, a, b, sign):
+        with RoundingContext(RoundingMode.TO_POS):
             assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
                 b, 5, 5
             ) == APyFloat.from_float(sign * a / b, 5, 5)
 
-    def test_to_negative(self, a, b, sign):
-        with RoundingContext(RoundingMode.TO_NEGATIVE):
+    def test_to_neg(self, a, b, sign):
+        with RoundingContext(RoundingMode.TO_NEG):
             assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
                 b, 5, 5
             ) == APyFloat.from_float(sign * a / b, 5, 5)
@@ -346,14 +346,14 @@ class TestAPyFloatRoundingDiv:
                 b, 5, 5
             ) == APyFloat.from_float(sign * a / b, 5, 5)
 
-    def test_to_ties_to_even(self, a, b, sign):
-        with RoundingContext(RoundingMode.TIES_TO_EVEN):
+    def test_to_ties_even(self, a, b, sign):
+        with RoundingContext(RoundingMode.TIES_EVEN):
             assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
                 b, 5, 5
             ) == APyFloat.from_float(sign * a / b, 5, 5)
 
-    def test_to_ties_to_away(self, a, b, sign):
-        with RoundingContext(RoundingMode.TIES_TO_AWAY):
+    def test_to_ties_away(self, a, b, sign):
+        with RoundingContext(RoundingMode.TIES_AWAY):
             assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
                 b, 5, 5
             ) == APyFloat.from_float(sign * a / b, 5, 5)

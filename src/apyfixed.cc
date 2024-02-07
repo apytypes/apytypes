@@ -697,8 +697,8 @@ bool APyFixed::is_identical(const APyFixed& other) const
 APyFixed APyFixed::resize(
     std::optional<int> bits,
     std::optional<int> int_bits,
-    APyFixedRoundingMode rounding_mode,
-    APyFixedOverflowMode overflow_mode,
+    RoundingMode rounding_mode,
+    OverflowMode overflow_mode,
     std::optional<int> frac_bits
 ) const
 {
@@ -760,24 +760,26 @@ APyFixed APyFixed::from_string(
  * ********************************************************************************** */
 
 // Perform rounding of fixed-point numbers
-void APyFixed::_round(
-    APyFixedRoundingMode rounding_mode, int old_bits, int old_int_bits
-)
+void APyFixed::_round(RoundingMode rounding_mode, int old_bits, int old_int_bits)
 {
     switch (rounding_mode) {
-    case APyFixedRoundingMode::TRN:
+    case RoundingMode::TRN:
         _round_trn(old_bits, old_int_bits); // Truncation
         break;
-    case APyFixedRoundingMode::RND:
+    case RoundingMode::RND:
         _round_rnd(old_bits, old_int_bits); // Rounding, ties to plus infinity
         break;
-    case APyFixedRoundingMode::RND_TO_ZERO:
-        throw NotImplementedException("Rounding: RND_TO_ZERO not implemented yet");
-    case APyFixedRoundingMode::RND_AWAY_ZERO:
-        throw NotImplementedException("Rounding: RND_AWAY_ZERO not implemented yet");
-    case APyFixedRoundingMode::RND_CONV:
+    case RoundingMode::TRN_ZERO:
+        throw NotImplementedException("Rounding: TRN_ZERO not implemented yet");
+    case RoundingMode::RND_ZERO:
+        throw NotImplementedException("Rounding: RND_ZERO not implemented yet");
+    case RoundingMode::RND_INF:
+        throw NotImplementedException("Rounding: RND_INF not implemented yet");
+    case RoundingMode::RND_MIN_INF:
+        throw NotImplementedException("Rounding: RND_MIN_INF not implemented yet");
+    case RoundingMode::RND_CONV:
         throw NotImplementedException("Rounding: RND_CONV not implemented yet");
-    case APyFixedRoundingMode::RND_CONV_ODD:
+    case RoundingMode::RND_CONV_ODD:
         throw NotImplementedException("Rounding: RND_CONV_ODD not implemented yet");
     default:
         throw std::domain_error("APyFixed::_round(): unregistered rounding mode");
@@ -785,13 +787,13 @@ void APyFixed::_round(
 }
 
 // Perform overflowing of fixed-point numbers
-void APyFixed::_overflow(APyFixedOverflowMode overflow_mode)
+void APyFixed::_overflow(OverflowMode overflow_mode)
 {
     switch (overflow_mode) {
-    case APyFixedOverflowMode::TWOS_OVERFLOW:
+    case OverflowMode::WRAP:
         _twos_complement_overflow();
         break;
-    case APyFixedOverflowMode::SATURATE:
+    case OverflowMode::SAT:
         throw NotImplementedException("Overflow: SATURATE not implemented yet");
     default:
         throw std::domain_error("APyFixed::_overflow(): unregistered rounding mode");

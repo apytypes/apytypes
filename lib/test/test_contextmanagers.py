@@ -19,31 +19,31 @@ class TestRoundingContext:
         apytypes.set_rounding_mode(self.default_mode)
 
     def test_default_mode(self):
-        assert apytypes.get_rounding_mode() == RoundingMode.TIES_TO_EVEN
+        assert apytypes.get_rounding_mode() == RoundingMode.TIES_EVEN
 
     def test_prerequisite(self):
         """Make sure get/set works for the rounding mode to begin with."""
-        apytypes.set_rounding_mode(RoundingMode.TO_POSITIVE)
-        assert apytypes.get_rounding_mode() == RoundingMode.TO_POSITIVE
-        apytypes.set_rounding_mode(RoundingMode.TO_NEGATIVE)
-        assert apytypes.get_rounding_mode() == RoundingMode.TO_NEGATIVE
+        apytypes.set_rounding_mode(RoundingMode.TO_POS)
+        assert apytypes.get_rounding_mode() == RoundingMode.TO_POS
+        apytypes.set_rounding_mode(RoundingMode.TO_NEG)
+        assert apytypes.get_rounding_mode() == RoundingMode.TO_NEG
 
     def test_not_nested(self):
         """Single layer of context."""
-        apytypes.set_rounding_mode(RoundingMode.TO_POSITIVE)
-        with RoundingContext(RoundingMode.TO_NEGATIVE):
-            assert apytypes.get_rounding_mode() == RoundingMode.TO_NEGATIVE
-        assert apytypes.get_rounding_mode() == RoundingMode.TO_POSITIVE
-        with RoundingContext(RoundingMode.JAMMING):
-            assert apytypes.get_rounding_mode() == RoundingMode.JAMMING
-        assert apytypes.get_rounding_mode() == RoundingMode.TO_POSITIVE
+        apytypes.set_rounding_mode(RoundingMode.TO_POS)
+        with RoundingContext(RoundingMode.TO_NEG):
+            assert apytypes.get_rounding_mode() == RoundingMode.TO_NEG
+        assert apytypes.get_rounding_mode() == RoundingMode.TO_POS
+        with RoundingContext(RoundingMode.JAM):
+            assert apytypes.get_rounding_mode() == RoundingMode.JAM
+        assert apytypes.get_rounding_mode() == RoundingMode.TO_POS
 
     def test_nested(self):
         """Nested context layers."""
-        apytypes.set_rounding_mode(RoundingMode.TO_POSITIVE)
-        with RoundingContext(RoundingMode.TO_NEGATIVE):
-            assert apytypes.get_rounding_mode() == RoundingMode.TO_NEGATIVE
+        apytypes.set_rounding_mode(RoundingMode.TO_POS)
+        with RoundingContext(RoundingMode.TO_NEG):
+            assert apytypes.get_rounding_mode() == RoundingMode.TO_NEG
             with RoundingContext(RoundingMode.TO_ZERO):
                 assert apytypes.get_rounding_mode() == RoundingMode.TO_ZERO
-            assert apytypes.get_rounding_mode() == RoundingMode.TO_NEGATIVE
-        assert apytypes.get_rounding_mode() == RoundingMode.TO_POSITIVE
+            assert apytypes.get_rounding_mode() == RoundingMode.TO_NEG
+        assert apytypes.get_rounding_mode() == RoundingMode.TO_POS

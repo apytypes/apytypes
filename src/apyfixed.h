@@ -180,8 +180,8 @@ public:
     APyFixed resize(
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
-        APyFixedRoundingMode rounding_mode = APyFixedRoundingMode::TRN,
-        APyFixedOverflowMode overflow_mode = APyFixedOverflowMode::TWOS_OVERFLOW,
+        RoundingMode rounding_mode = RoundingMode::TRN,
+        OverflowMode overflow_mode = OverflowMode::WRAP,
         std::optional<int> frac_bits = std::nullopt
     ) const;
 
@@ -254,7 +254,7 @@ private:
     ) const;
 
     // Handle rounding of fixed-point numbers
-    void _round(APyFixedRoundingMode rounding_mode, int old_bits, int old_int_bits);
+    void _round(RoundingMode rounding_mode, int old_bits, int old_int_bits);
 
     // Truncation rounding
     void _round_trn(int old_bits, int old_int_bits);
@@ -263,7 +263,7 @@ private:
     void _round_rnd(int old_bits, int old_int_bits);
 
     // Handle overflowing of fixed-point numbers
-    void _overflow(APyFixedOverflowMode overflow_mode);
+    void _overflow(OverflowMode overflow_mode);
 
     // Perform two's complement overflowing. This method sign-extends any bits outside
     // of the APyFixed range.

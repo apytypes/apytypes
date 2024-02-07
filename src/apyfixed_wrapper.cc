@@ -157,8 +157,8 @@ void bind_fixed(py::module& m)
             &APyFixed::resize,
             py::arg("bits") = std::nullopt,
             py::arg("int_bits") = std::nullopt,
-            py::arg("rounding") = APyFixedRoundingMode::TRN,
-            py::arg("overflow") = APyFixedOverflowMode::TWOS_OVERFLOW,
+            py::arg("rounding") = RoundingMode::TRN,
+            py::arg("overflow") = OverflowMode::WRAP,
             py::arg("frac_bits") = std::nullopt,
             R"pbdoc(
             Create a new resized fixed-point number based on the bit pattern in this

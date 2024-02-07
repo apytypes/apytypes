@@ -1,7 +1,10 @@
 #include "apytypes_common.h"
 #include <stdexcept>
 
-RoundingMode rounding_mode = RoundingMode::TIES_TO_EVEN;
+/*
+ * Global rounding mode for floating-point number
+ */
+RoundingMode rounding_mode = RoundingMode::RND_CONV;
 
 void set_rounding_mode(RoundingMode mode) { rounding_mode = mode; }
 

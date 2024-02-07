@@ -6,10 +6,9 @@ __all__ = [
     "APyFixed",
     "APyFixedArray",
     "APyFixedArrayIterator",
-    "APyFixedOverflowMode",
-    "APyFixedRoundingMode",
     "APyFloat",
     "ContextManager",
+    "OverflowMode",
     "RoundingContext",
     "RoundingMode",
     "get_rounding_mode",
@@ -170,8 +169,8 @@ class APyFixed:
 
         Two `APyFixed` objects are considered exactly identical if, and only if,
         they store the same fixed-point value, and have the exact same
-        bit-specification (`bits`, `int_bits`, and `frac_bits`). This is a more
-        restrictive test than `__eq__`,  that only tests equality of the stored
+        bit-specification (*bits*, *int_bits*, and *frac_bits*). This is a more
+        restrictive test than ``==``,  that only tests equality of the stored
         fixed-point value.
 
         Paramters
@@ -181,6 +180,7 @@ class APyFixed:
 
         Returns
         -------
+        :class:`bool`
 
         Examples
         --------
@@ -196,15 +196,14 @@ class APyFixed:
 
             # `fx_a` and `fx_b` differ in the `int_bits` specifier
             assert not(fx_a.is_identical(fx_b))
-        :class:`bool`
         """
 
     def resize(
         self,
         bits: int | None = None,
         int_bits: int | None = None,
-        rounding: APyFixedRoundingMode = ...,
-        overflow: APyFixedOverflowMode = ...,
+        rounding: RoundingMode = ...,
+        overflow: OverflowMode = ...,
         frac_bits: int | None = None,
     ) -> APyFixed:
         """
@@ -494,88 +493,6 @@ class APyFixedArrayIterator:
     def __iter__(self) -> APyFixedArrayIterator: ...
     def __next__(self) -> APyFixedArray: ...
 
-class APyFixedOverflowMode:
-    """
-    Members:
-
-      TWOS_OVERFLOW
-
-      SATURATE
-    """
-
-    SATURATE: typing.ClassVar[
-        APyFixedOverflowMode
-    ]  # value = <APyFixedOverflowMode.SATURATE: 1>
-    TWOS_OVERFLOW: typing.ClassVar[
-        APyFixedOverflowMode
-    ]  # value = <APyFixedOverflowMode.TWOS_OVERFLOW: 0>
-    __members__: typing.ClassVar[
-        dict[str, APyFixedOverflowMode]
-    ]  # value = {'TWOS_OVERFLOW': <APyFixedOverflowMode.TWOS_OVERFLOW: 0>, 'SATURATE': <APyFixedOverflowMode.SATURATE: 1>}
-    def __eq__(self, other: typing.Any) -> bool: ...
-    def __getstate__(self) -> int: ...
-    def __hash__(self) -> int: ...
-    def __index__(self) -> int: ...
-    def __init__(self, value: int) -> None: ...
-    def __int__(self) -> int: ...
-    def __ne__(self, other: typing.Any) -> bool: ...
-    def __repr__(self) -> str: ...
-    def __setstate__(self, state: int) -> None: ...
-    def __str__(self) -> str: ...
-    @property
-    def name(self) -> str: ...
-    @property
-    def value(self) -> int: ...
-
-class APyFixedRoundingMode:
-    """
-    Members:
-
-      TRN
-
-      RND
-
-      RND_TO_ZERO
-
-      RND_AWAY_ZERO
-
-      RND_CONV
-
-      RND_CONV_ODD
-    """
-
-    RND: typing.ClassVar[APyFixedRoundingMode]  # value = <APyFixedRoundingMode.RND: 1>
-    RND_AWAY_ZERO: typing.ClassVar[
-        APyFixedRoundingMode
-    ]  # value = <APyFixedRoundingMode.RND_AWAY_ZERO: 3>
-    RND_CONV: typing.ClassVar[
-        APyFixedRoundingMode
-    ]  # value = <APyFixedRoundingMode.RND_CONV: 4>
-    RND_CONV_ODD: typing.ClassVar[
-        APyFixedRoundingMode
-    ]  # value = <APyFixedRoundingMode.RND_CONV_ODD: 5>
-    RND_TO_ZERO: typing.ClassVar[
-        APyFixedRoundingMode
-    ]  # value = <APyFixedRoundingMode.RND_TO_ZERO: 2>
-    TRN: typing.ClassVar[APyFixedRoundingMode]  # value = <APyFixedRoundingMode.TRN: 0>
-    __members__: typing.ClassVar[
-        dict[str, APyFixedRoundingMode]
-    ]  # value = {'TRN': <APyFixedRoundingMode.TRN: 0>, 'RND': <APyFixedRoundingMode.RND: 1>, 'RND_TO_ZERO': <APyFixedRoundingMode.RND_TO_ZERO: 2>, 'RND_AWAY_ZERO': <APyFixedRoundingMode.RND_AWAY_ZERO: 3>, 'RND_CONV': <APyFixedRoundingMode.RND_CONV: 4>, 'RND_CONV_ODD': <APyFixedRoundingMode.RND_CONV_ODD: 5>}
-    def __eq__(self, other: typing.Any) -> bool: ...
-    def __getstate__(self) -> int: ...
-    def __hash__(self) -> int: ...
-    def __index__(self) -> int: ...
-    def __init__(self, value: int) -> None: ...
-    def __int__(self) -> int: ...
-    def __ne__(self, other: typing.Any) -> bool: ...
-    def __repr__(self) -> str: ...
-    def __setstate__(self, state: int) -> None: ...
-    def __str__(self) -> str: ...
-    @property
-    def name(self) -> str: ...
-    @property
-    def value(self) -> int: ...
-
 class APyFloat:
     """
 
@@ -729,6 +646,35 @@ class APyFloat:
 class ContextManager:
     pass
 
+class OverflowMode:
+    """
+    Members:
+
+      WRAP
+
+      SAT
+    """
+
+    SAT: typing.ClassVar[OverflowMode]  # value = <OverflowMode.SAT: 1>
+    WRAP: typing.ClassVar[OverflowMode]  # value = <OverflowMode.WRAP: 0>
+    __members__: typing.ClassVar[
+        dict[str, OverflowMode]
+    ]  # value = {'WRAP': <OverflowMode.WRAP: 0>, 'SAT': <OverflowMode.SAT: 1>}
+    def __eq__(self, other: typing.Any) -> bool: ...
+    def __getstate__(self) -> int: ...
+    def __hash__(self) -> int: ...
+    def __index__(self) -> int: ...
+    def __init__(self, value: int) -> None: ...
+    def __int__(self) -> int: ...
+    def __ne__(self, other: typing.Any) -> bool: ...
+    def __repr__(self) -> str: ...
+    def __setstate__(self, state: int) -> None: ...
+    def __str__(self) -> str: ...
+    @property
+    def name(self) -> str: ...
+    @property
+    def value(self) -> int: ...
+
 class RoundingContext(ContextManager):
     def __enter__(self: ContextManager) -> None: ...
     def __exit__(
@@ -743,32 +689,73 @@ class RoundingMode:
     """
     Members:
 
-      TO_POSITIVE
+      TRN
 
-      TO_NEGATIVE
+      TRN_ZERO
+
+      TRN_INF
+
+      RND
+
+      RND_ZERO
+
+      RND_INF
+
+      RND_MIN_INF
+
+      RND_CONV
+
+      RND_CONV_ODD
+
+      JAM
+
+      STOCHASTIC_WEIGHTED
+
+      STOCHASTIC_EQUAL
+
+      TO_NEG
 
       TO_ZERO
 
-      TIES_TO_EVEN
+      TO_POS
 
-      TIES_TO_AWAY
+      TIES_ZERO
 
-      JAMMING
+      TIES_AWAY
+
+      TIES_EVEN
+
+      TIES_ODD
     """
 
-    JAMMING: typing.ClassVar[RoundingMode]  # value = <RoundingMode.JAMMING: 5>
-    TIES_TO_AWAY: typing.ClassVar[
+    JAM: typing.ClassVar[RoundingMode]  # value = <RoundingMode.JAM: 9>
+    RND: typing.ClassVar[RoundingMode]  # value = <RoundingMode.RND: 3>
+    RND_CONV: typing.ClassVar[RoundingMode]  # value = <RoundingMode.RND_CONV: 7>
+    RND_CONV_ODD: typing.ClassVar[
         RoundingMode
-    ]  # value = <RoundingMode.TIES_TO_AWAY: 4>
-    TIES_TO_EVEN: typing.ClassVar[
+    ]  # value = <RoundingMode.RND_CONV_ODD: 8>
+    RND_INF: typing.ClassVar[RoundingMode]  # value = <RoundingMode.RND_INF: 5>
+    RND_MIN_INF: typing.ClassVar[RoundingMode]  # value = <RoundingMode.RND_MIN_INF: 6>
+    RND_ZERO: typing.ClassVar[RoundingMode]  # value = <RoundingMode.RND_ZERO: 4>
+    STOCHASTIC_EQUAL: typing.ClassVar[
         RoundingMode
-    ]  # value = <RoundingMode.TIES_TO_EVEN: 3>
-    TO_NEGATIVE: typing.ClassVar[RoundingMode]  # value = <RoundingMode.TO_NEGATIVE: 1>
-    TO_POSITIVE: typing.ClassVar[RoundingMode]  # value = <RoundingMode.TO_POSITIVE: 0>
-    TO_ZERO: typing.ClassVar[RoundingMode]  # value = <RoundingMode.TO_ZERO: 2>
+    ]  # value = <RoundingMode.STOCHASTIC_EQUAL: 11>
+    STOCHASTIC_WEIGHTED: typing.ClassVar[
+        RoundingMode
+    ]  # value = <RoundingMode.STOCHASTIC_WEIGHTED: 10>
+    TIES_AWAY: typing.ClassVar[RoundingMode]  # value = <RoundingMode.RND_INF: 5>
+    TIES_EVEN: typing.ClassVar[RoundingMode]  # value = <RoundingMode.RND_CONV: 7>
+    TIES_ODD: typing.ClassVar[RoundingMode]  # value = <RoundingMode.RND_CONV_ODD: 8>
+    TIES_ZERO: typing.ClassVar[RoundingMode]  # value = <RoundingMode.RND_ZERO: 4>
+    TO_NEG: typing.ClassVar[RoundingMode]  # value = <RoundingMode.TRN: 0>
+    TO_POS: typing.ClassVar[RoundingMode]  # value = <RoundingMode.TRN_INF: 1>
+    TO_ZERO: typing.ClassVar[RoundingMode]  # value = <RoundingMode.TRN_ZERO: 2>
+    TRN: typing.ClassVar[RoundingMode]  # value = <RoundingMode.TRN: 0>
+    TRN_INF: typing.ClassVar[RoundingMode]  # value = <RoundingMode.TRN_INF: 1>
+    TRN_ZERO: typing.ClassVar[RoundingMode]  # value = <RoundingMode.TRN_ZERO: 2>
     __members__: typing.ClassVar[
         dict[str, RoundingMode]
-    ]  # value = {'TO_POSITIVE': <RoundingMode.TO_POSITIVE: 0>, 'TO_NEGATIVE': <RoundingMode.TO_NEGATIVE: 1>, 'TO_ZERO': <RoundingMode.TO_ZERO: 2>, 'TIES_TO_EVEN': <RoundingMode.TIES_TO_EVEN: 3>, 'TIES_TO_AWAY': <RoundingMode.TIES_TO_AWAY: 4>, 'JAMMING': <RoundingMode.JAMMING: 5>}
+    ]  # value = {'TRN': <RoundingMode.TRN: 0>, 'TRN_ZERO': <RoundingMode.TRN_ZERO: 2>, 'TRN_INF': <RoundingMode.TRN_INF: 1>, 'RND': <RoundingMode.RND: 3>, 'RND_ZERO': <RoundingMode.RND_ZERO: 4>, 'RND_INF': <RoundingMode.RND_INF: 5>, 'RND_MIN_INF': <RoundingMode.RND_MIN_INF: 6>, 'RND_CONV': <RoundingMode.RND_CONV: 7>, 'RND_CONV_ODD': <RoundingMode.RND_CONV_ODD: 8>, 'JAM': <RoundingMode.JAM: 9>, 'STOCHASTIC_WEIGHTED': <RoundingMode.STOCHASTIC_WEIGHTED: 10>, 'STOCHASTIC_EQUAL': <RoundingMode.STOCHASTIC_EQUAL: 11>, 'TO_NEG': <RoundingMode.TRN: 0>, 'TO_ZERO': <RoundingMode.TRN_ZERO: 2>, 'TO_POS': <RoundingMode.TRN_INF: 1>, 'TIES_ZERO': <RoundingMode.RND_ZERO: 4>, 'TIES_AWAY': <RoundingMode.RND_INF: 5>, 'TIES_EVEN': <RoundingMode.RND_CONV: 7>, 'TIES_ODD': <RoundingMode.RND_CONV_ODD: 8>}
     def __eq__(self, other: typing.Any) -> bool: ...
     def __getstate__(self) -> int: ...
     def __hash__(self) -> int: ...

@@ -149,24 +149,24 @@ APyFloat APyFloat::resize(
         T = (prev_man & ((1ULL << (std::abs(man_bits_delta) - 1)) - 1)) != 0;
 
         switch (rounding_mode.value_or(get_rounding_mode())) {
-        case RoundingMode::TO_POSITIVE:
+        case RoundingMode::TRN_INF: // TO_POSITIVE
             B = sign ? 0 : (G | T);
             break;
-        case RoundingMode::TO_NEGATIVE:
+        case RoundingMode::TRN: // TO_NEGATIVE
             B = sign ? (G | T) : 0;
             break;
-        case RoundingMode::TO_ZERO:
+        case RoundingMode::TRN_ZERO: // TO_ZERO
             B = 0;
             break;
-        case RoundingMode::TIES_TO_EVEN:
+        case RoundingMode::RND_CONV: // TIES_TO_EVEN
             // Using 'new_man' directly here is fine since G can only be '0' or '1',
             // thus calculating the LSB of 'new_man' is not needed.
             B = G & (new_man | T);
             break;
-        case RoundingMode::TIES_TO_AWAY:
+        case RoundingMode::RND_INF: // TIES_TO_AWAY
             B = G;
             break;
-        case RoundingMode::JAMMING:
+        case RoundingMode::JAM:
             throw NotImplementedException(
                 "APyFloat: rounding mode jamming has not been implemented."
             );
