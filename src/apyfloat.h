@@ -90,6 +90,16 @@ public:
     static APyFloat pown(const APyFloat& x, int n);
 
     /* ******************************************************************************
+     * * Binary logic operators                                                     *
+     * ******************************************************************************
+     */
+
+    APyFloat operator&(APyFloat& rhs);
+    APyFloat operator|(APyFloat& rhs);
+    APyFloat operator^(APyFloat& rhs);
+    APyFloat operator~();
+
+    /* ******************************************************************************
      * * Binary comparison operators                                                *
      * ******************************************************************************
      */
