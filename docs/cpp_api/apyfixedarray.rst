@@ -1,3 +1,6 @@
+``APyFixedArray``
+=================
+
 .. doxygenclass:: APyFixedArray
     :project: APyTypes
     :members:

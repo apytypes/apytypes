@@ -1,3 +1,6 @@
+``APyFixed``
+============
+
 .. doxygenclass:: APyFixed
     :project: APyTypes
     :members:
