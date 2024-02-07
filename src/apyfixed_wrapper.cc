@@ -65,34 +65,23 @@ void bind_fixed(py::module& m)
         .def(py::self - py::self)
         .def(py::self * py::self)
         .def(py::self / py::self)
-        .def("assign", &APyFixed::operator=)
         .def(-py::self)
 
         /*
          * Methods
          */
-        .def("bit_pattern_to_string_dec", &APyFixed::bit_pattern_to_string_dec, R"pbdoc(
-            Return the underlying bit-pattern as a :class:`str` object formated in base-10.
+        .def(
+            "to_bits",
+            &APyFixed::to_bits,
+            R"pbdoc(
+            Retrieve underlying bit-pattern in an :class:`int`.
 
             Returns
             -------
-            :class:`str`
-            )pbdoc")
-        .def(
-            "bit_pattern_to_int",
-            &APyFixed::bit_pattern_to_int,
-            py::arg("allow_negative_return_value") = false,
-            R"pbdoc(
-            Return the underlying bit-pattern in an :class:`int` object.
-
-            Parameters
-            ----------
-            allow_negative_return_value : bool, default=False
-                Allow returning a negative integer bit-pattern. See example.
+            :class:`int`
 
             Examples
             --------
-
             .. code-block:: python
 
                 from apytypes import APyFixed
@@ -100,15 +89,8 @@ void bind_fixed(py::module& m)
                 # Create fixed-point number `fx_a` of value -5.75
                 fx_a = APyFixed.from_float(-5.75, int_bits=4, frac_bits=4)
 
-                ### Returns: 164 == 0xa4 == 0b10100100
-                fx_a.bit_pattern_to_int()
-
-                ### Returns: -92 == -0x5C == -0b1011100
-                fx_a.bit_pattern_to_int(allow_negative_return_value=True)
-
-            Returns
-            -------
-            :class:`int`
+                # Returns: 164 == 0xA4 == 0b10100100
+                fx_a.to_bits()
             )pbdoc"
         )
         .def_property_readonly("bits", &APyFixed::bits, R"pbdoc(
@@ -125,14 +107,6 @@ void bind_fixed(py::module& m)
             -------
             :class:`int`
             )pbdoc")
-        .def(
-            "set_from_string",
-            &APyFixed::set_from_string,
-            py::arg("str"),
-            py::arg("base") = 10
-        )
-        .def("set_from_float", &APyFixed::set_from_double)
-        .def("increment_lsb", &APyFixed::increment_lsb)
         .def_property_readonly("int_bits", &APyFixed::int_bits, R"pbdoc(
             Number of integer bits.
 
@@ -143,32 +117,96 @@ void bind_fixed(py::module& m)
         .def_property_readonly("_is_negative", &APyFixed::is_negative)
         .def_property_readonly("_is_positive", &APyFixed::is_positive)
         .def("is_identical", &APyFixed::is_identical, py::arg("other"), R"pbdoc(
-            Test if two `APyFixed` objects are identical.
+            Test if two fixed-point objects are exactly identical.
 
-            Two `APyFixed` objects are considered identical if, and only if,  they store
-            the same fixed-point value and have exactly the same bit-specification
-            (`bits`, `int_bits`, and `frac_bits` are all equal). This is a more
-            restrictive test than `__eq__`,  that only tests equality of the fixed-point
-            value.
+            Two `APyFixed` objects are considered exactly identical if, and only if,
+            they store the same fixed-point value, and have the exact same
+            bit-specification (`bits`, `int_bits`, and `frac_bits`). This is a more
+            restrictive test than `__eq__`,  that only tests equality of the stored
+            fixed-point value.
+
+            Paramters
+            ---------
+            other : :class:`APyFixed`
+                The fixed-point number to test identicality against
 
             Returns
             -------
+
+            Examples
+            --------
+            .. code-block:: python
+
+                from apytypes import APyFixed
+
+                fx_a = APyFixed.from_float(2.0, int_bits=3, frac_bits=3)
+                fx_b = APyFixed.from_float(2.0, int_bits=4, frac_bits=3)
+
+                # `fx_a` and `fx_b` store the same fixed-point value
+                assert fx_a == fx_b
+
+                # `fx_a` and `fx_b` differ in the `int_bits` specifier
+                assert not(fx_a.is_identical(fx_b))
             :class:`bool`
             )pbdoc")
-        .def_property_readonly("is_zero", &APyFixed::is_zero)
+        .def_property_readonly("is_zero", &APyFixed::is_zero, R"pbdoc(
+            True if the stored value equals zero, false otherwise.
+            )pbdoc")
         .def(
             "resize",
             &APyFixed::resize,
             py::arg("bits") = std::nullopt,
             py::arg("int_bits") = std::nullopt,
-            py::arg("rounding_mode") = APyFixedRoundingMode::TRN,
-            py::arg("overflow_mode") = APyFixedOverflowMode::TWOS_OVERFLOW,
-            py::arg("frac_bits") = std::nullopt
+            py::arg("rounding") = APyFixedRoundingMode::TRN,
+            py::arg("overflow") = APyFixedOverflowMode::TWOS_OVERFLOW,
+            py::arg("frac_bits") = std::nullopt,
+            R"pbdoc(
+            Create a new resized fixed-point number based on the bit pattern in this
+            fixed-point number.
+
+            This is the primary method for performing rounding, truncation, overflowing,
+            and saturation when dealing with APyTypes fixed-point numbers.
+
+            Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
+            to be set.
+
+            Parameters
+            ----------
+            bits : int, optional
+                Total number of bits in the created fixed-point object
+            int_bits : int, optional
+                Number of integer bits in the created fixed-point object
+            rounding : RoundingMode, default: RoundingMode.TRN
+                Rounding mode to use in this resize
+            overflow : OverflowMode, default: OverflowMode.WRAP
+                Overflowing mode to use in this resize
+            frac_bits : int, optional
+                Number of fractional bits in the created fixed-point object
+
+            Returns
+            -------
+            :class:`APyFixed`
+
+            Examples
+            --------
+            .. code-block:: python
+
+                from apytypes import APyFixed
+                from apytypes import RoundingMode
+                from apytypes import OverflowMode
+
+                fx = APyFixed.from_float(2.125, int_bits=3, frac_bits=3)
+
+                # Truncation (fx_a == 2.0)
+                fx_a = fx.resize(int_bits=3, frac_bits=2, rounding=RoundingMode.TRN)
+
+                # Rounding (fx_b == 2.25)
+                fx_b = fx.resize(int_bits=3, frac_bits=2, rounding=RoundingMode.RND)
+
+                # Two's complement overflowing (fx_c == -1.875)
+                fx_c = fx.resize(int_bits=2, frac_bits=3, overflow=OverflowMode.WRAP)
+            )pbdoc"
         )
-        .def("to_string", &APyFixed::to_string, py::arg("base") = 10)
-        .def("to_string_dec", &APyFixed::to_string_dec)
-        .def("_to_string_hex", &APyFixed::to_string_hex)
-        .def("_to_string_oct", &APyFixed::to_string_oct)
         .def_property_readonly("_vector_size", &APyFixed::vector_size)
         .def("_repr_latex_", &APyFixed::latex)
 
@@ -194,23 +232,14 @@ void bind_fixed(py::module& m)
             py::arg("int_bits") = std::nullopt,
             py::arg("frac_bits") = std::nullopt,
             R"pbdoc(
-            Create an :class:`APyFixed` object and initialize its value from a
-            :class:`float`.
+            Create an :class:`APyFixed` object from :class:`float`.
 
             The initialized fixed-point value is the one closest to the
             input floating-point value, rounded away from zero on ties. Exactly two of
-            the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) has to be set.
+            the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) needs to be set.
 
-            Examples
-            --------
-
-            .. code-block:: python
-
-                from apytypes import APyFixed
-
-                # Fixed-point `fx_a` from float, initialized from the floating-point
-                # value 1.234, rounded to 1.25 as it is the closest representable number
-                fx_a = APyFixed.from_float(1.234, int_bits=2, frac_bits=2)
+            Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
+            to be set.
 
             Parameters
             ----------
@@ -222,15 +251,63 @@ void bind_fixed(py::module& m)
                 Number of integer bits in the created fixed-point object
             frac_bits : int, optional
                 Number of fractional bits in the created fixed-point object
+
+            Examples
+            --------
+            .. code-block:: python
+
+                from apytypes import APyFixed
+
+                # Fixed-point `fx_a`, initialized from the floating-point value 1.234,
+                # rounded to 1.25 as it is the closest representable number
+                fx_a = APyFixed.from_float(1.234, int_bits=2, frac_bits=2)
             )pbdoc"
         )
         .def_static(
-            "from_string",
+            "from_str",
             &APyFixed::from_string,
             py::arg("string_value"),
             py::arg("bits") = std::nullopt,
             py::arg("int_bits") = std::nullopt,
             py::arg("base") = 10,
-            py::arg("frac_bits") = std::nullopt
+            py::arg("frac_bits") = std::nullopt,
+            R"pbdoc(
+            Create an :class:`APyFixed` object from :class:`str`.
+
+            Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
+            to be set.
+
+            Parameters
+            ----------
+            string_value : str
+                String to initialize the value from
+            bits : int, optional
+                Total number of bits in the created fixed-point object
+            int_bits : int, optional
+                Number of integer bits in the created fixed-point object
+            base : int, default: 10
+                Numeric base used in `string_value`
+            frac_bits : int, optional
+                Number of fractional bits in the created fixed-point object
+
+            Examples
+            --------
+            .. code-block:: python
+
+                from apytypes import APyFixed
+
+                # Larger fixed-point value initialization from a string (base-10)
+                fx_a = APyFixed.from_string(
+                    "-1376018206341311063223476816643087998331620501540496640."
+                    "021222579872958058370179355618716816066859017361262100333952697594702"
+                    "314679773970519809467311447652539955943903993200932791396783892142688"
+                    "708904952458654442554723081083186210082207584128592922850820472478833"
+                    "257136662269306798708182072507551281664490003441493733349403017982015"
+                    "56238154807942919433116912841796875",
+                    bits=511,
+                    int_bits=199,
+                    base=10
+                )
+            )pbdoc"
         );
 }

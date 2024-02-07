@@ -5,6 +5,7 @@ import typing
 __all__ = [
     "APyFixed",
     "APyFixedArray",
+    "APyFixedArrayIterator",
     "APyFixedOverflowMode",
     "APyFixedRoundingMode",
     "APyFloat",
@@ -30,23 +31,14 @@ class APyFixed:
         frac_bits: int | None = None,
     ) -> APyFixed:
         """
-        Create an :class:`APyFixed` object and initialize its value from a
-        :class:`float`.
+        Create an :class:`APyFixed` object from :class:`float`.
 
         The initialized fixed-point value is the one closest to the
         input floating-point value, rounded away from zero on ties. Exactly two of
-        the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) has to be set.
+        the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) needs to be set.
 
-        Examples
-        --------
-
-        .. code-block:: python
-
-            from apytypes import APyFixed
-
-            # Fixed-point `fx_a` from float, initialized from the floating-point
-            # value 1.234, rounded to 1.25 as it is the closest representable number
-            fx_a = APyFixed.from_float(1.234, int_bits=2, frac_bits=2)
+        Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
+        to be set.
 
         Parameters
         ----------
@@ -58,16 +50,65 @@ class APyFixed:
             Number of integer bits in the created fixed-point object
         frac_bits : int, optional
             Number of fractional bits in the created fixed-point object
+
+        Examples
+        --------
+        .. code-block:: python
+
+            from apytypes import APyFixed
+
+            # Fixed-point `fx_a`, initialized from the floating-point value 1.234,
+            # rounded to 1.25 as it is the closest representable number
+            fx_a = APyFixed.from_float(1.234, int_bits=2, frac_bits=2)
         """
 
     @staticmethod
-    def from_string(
+    def from_str(
         string_value: str,
         bits: int | None = None,
         int_bits: int | None = None,
         base: int = 10,
         frac_bits: int | None = None,
-    ) -> APyFixed: ...
+    ) -> APyFixed:
+        """
+        Create an :class:`APyFixed` object from :class:`str`.
+
+        Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
+        to be set.
+
+        Parameters
+        ----------
+        string_value : str
+            String to initialize the value from
+        bits : int, optional
+            Total number of bits in the created fixed-point object
+        int_bits : int, optional
+            Number of integer bits in the created fixed-point object
+        base : int, default: 10
+            Numeric base used in `string_value`
+        frac_bits : int, optional
+            Number of fractional bits in the created fixed-point object
+
+        Examples
+        --------
+        .. code-block:: python
+
+            from apytypes import APyFixed
+
+            # Larger fixed-point value initialization from a string (base-10)
+            fx_a = APyFixed.from_string(
+                "-1376018206341311063223476816643087998331620501540496640."
+                "021222579872958058370179355618716816066859017361262100333952697594702"
+                "314679773970519809467311447652539955943903993200932791396783892142688"
+                "708904952458654442554723081083186210082207584128592922850820472478833"
+                "257136662269306798708182072507551281664490003441493733349403017982015"
+                "56238154807942919433116912841796875",
+                bits=511,
+                int_bits=199,
+                base=10
+            )
+        """
+
     def __abs__(self) -> APyFixed: ...
     def __add__(self, arg0: APyFixed) -> APyFixed: ...
     @typing.overload
@@ -123,60 +164,38 @@ class APyFixed:
     def __sub__(self, arg0: APyFixed) -> APyFixed: ...
     def __truediv__(self, arg0: APyFixed) -> APyFixed: ...
     def _repr_latex_(self) -> str: ...
-    def assign(self, arg0: APyFixed) -> APyFixed: ...
-    def bit_pattern_to_int(self, allow_negative_return_value: bool = False) -> int:
+    def is_identical(self, other: APyFixed) -> bool:
         """
-        Retrieve the underlying bit-pattern in an :class:`int` object.
+        Test if two fixed-point objects are exactly identical.
 
-        Parameters
-        ----------
-        allow_negative_return_value : bool, default=False
-            Allow returning a negative integer bit-pattern. See example.
+        Two `APyFixed` objects are considered exactly identical if, and only if,
+        they store the same fixed-point value, and have the exact same
+        bit-specification (`bits`, `int_bits`, and `frac_bits`). This is a more
+        restrictive test than `__eq__`,  that only tests equality of the stored
+        fixed-point value.
+
+        Paramters
+        ---------
+        other : :class:`APyFixed`
+            The fixed-point number to test identicality against
+
+        Returns
+        -------
 
         Examples
         --------
-
         .. code-block:: python
 
             from apytypes import APyFixed
 
-            # Create fixed-point number `fx_a` of value -5.75
-            fx_a = APyFixed.from_float(-5.75, int_bits=4, frac_bits=4)
+            fx_a = APyFixed.from_float(2.0, int_bits=3, frac_bits=3)
+            fx_b = APyFixed.from_float(2.0, int_bits=4, frac_bits=3)
 
-            ### Returns: 164 == 0xa4 == 0b10100100
-            fx_a.bit_pattern_to_int()
+            # `fx_a` and `fx_b` store the same fixed-point value
+            assert fx_a == fx_b
 
-            ### Returns: -92 == -0x5C == -0b1011100
-            fx_a.bit_pattern_to_int(allow_negative_return_value=True)
-
-        Returns
-        -------
-        :class:`int`
-        """
-
-    def bit_pattern_to_string_dec(self) -> str:
-        """
-        Retrieve the underlying bit-pattern as a :class:`str` object formated in
-        base-10.
-
-        Returns
-        -------
-        :class:`str`
-        """
-
-    def increment_lsb(self) -> int: ...
-    def is_identical(self, other: APyFixed) -> bool:
-        """
-        Test if two `APyFixed` objects are identical.
-
-        Two `APyFixed` objects are considered identical if, and only if,  they store
-        the same fixed-point value and have exactly the same bit-specification
-        (`bits`, `int_bits`, and `frac_bits` are all equal). This is a more
-        restrictive test than `__eq__`,  that only tests equality of the fixed-point
-        value.
-
-        Returns
-        -------
+            # `fx_a` and `fx_b` differ in the `int_bits` specifier
+            assert not(fx_a.is_identical(fx_b))
         :class:`bool`
         """
 
@@ -184,20 +203,88 @@ class APyFixed:
         self,
         bits: int | None = None,
         int_bits: int | None = None,
-        rounding_mode: APyFixedRoundingMode = ...,
-        overflow_mode: APyFixedOverflowMode = ...,
+        rounding: APyFixedRoundingMode = ...,
+        overflow: APyFixedOverflowMode = ...,
         frac_bits: int | None = None,
-    ) -> APyFixed: ...
-    def set_from_float(self, arg0: float) -> None: ...
-    def set_from_string(self, str: str, base: int = 10) -> None: ...
-    def to_string(self, base: int = 10) -> str: ...
-    def to_string_dec(self) -> str: ...
-    def to_string_hex(self) -> str: ...
-    def to_string_oct(self) -> str: ...
+    ) -> APyFixed:
+        """
+        Create a new resized fixed-point number based on the bit pattern in this
+        fixed-point number.
+
+        This is the primary method for performing rounding, truncation, overflowing,
+        and saturation when dealing with APyTypes fixed-point numbers.
+
+        Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
+        to be set.
+
+        Parameters
+        ----------
+        bits : int, optional
+            Total number of bits in the created fixed-point object
+        int_bits : int, optional
+            Number of integer bits in the created fixed-point object
+        rounding : RoundingMode, default: RoundingMode.TRN
+            Rounding mode to use in this resize
+        overflow : OverflowMode, default: OverflowMode.WRAP
+            Overflowing mode to use in this resize
+        frac_bits : int, optional
+            Number of fractional bits in the created fixed-point object
+
+        Returns
+        -------
+        :class:`APyFixed`
+
+        Examples
+        --------
+        .. code-block:: python
+
+            from apytypes import APyFixed
+            from apytypes import RoundingMode
+            from apytypes import OverflowMode
+
+            fx = APyFixed.from_float(2.125, int_bits=3, frac_bits=3)
+
+            # Truncation (fx_a == 2.0)
+            fx_a = fx.resize(int_bits=3, frac_bits=2, rounding=RoundingMode.TRN)
+
+            # Rounding (fx_b == 2.25)
+            fx_b = fx.resize(int_bits=3, frac_bits=2, rounding=RoundingMode.RND)
+
+            # Two's complement overflowing (fx_c == -1.875)
+            fx_c = fx.resize(int_bits=2, frac_bits=3, overflow=OverflowMode.WRAP)
+        """
+
+    def to_bits(self) -> int:
+        """
+        Retrieve underlying bit-pattern in an :class:`int`.
+
+        Returns
+        -------
+        :class:`int`
+
+        Examples
+        --------
+        .. code-block:: python
+
+            from apytypes import APyFixed
+
+            # Create fixed-point number `fx_a` of value -5.75
+            fx_a = APyFixed.from_float(-5.75, int_bits=4, frac_bits=4)
+
+            # Returns: 164 == 0xA4 == 0b10100100
+            fx_a.to_bits()
+        """
+
+    @property
+    def _is_negative(self) -> bool: ...
+    @property
+    def _is_positive(self) -> bool: ...
+    @property
+    def _vector_size(self) -> int: ...
     @property
     def bits(self) -> int:
         """
-        Total number of bits in this :class:`APyFixed` object.
+        Total number of bits.
 
         Returns
         -------
@@ -207,7 +294,7 @@ class APyFixed:
     @property
     def frac_bits(self) -> int:
         """
-        Number of fractional bits in this :class:`APyFixed` object.
+        Number of fractional bits.
 
         Returns
         -------
@@ -217,7 +304,7 @@ class APyFixed:
     @property
     def int_bits(self) -> int:
         """
-        Number of integer bits in this :class:`APyFixed` object.
+        Number of integer bits.
 
         Returns
         -------
@@ -225,13 +312,10 @@ class APyFixed:
         """
 
     @property
-    def is_negative(self) -> bool: ...
-    @property
-    def is_positive(self) -> bool: ...
-    @property
-    def is_zero(self) -> bool: ...
-    @property
-    def vector_size(self) -> int: ...
+    def is_zero(self) -> bool:
+        """
+        True if the stored value equals zero, false otherwise.
+        """
 
 class APyFixedArray:
     @staticmethod
@@ -275,6 +359,7 @@ class APyFixedArray:
         """
 
     def __add__(self, arg0: APyFixedArray) -> APyFixedArray: ...
+    def __array__(self) -> numpy.ndarray[numpy.float64]: ...
     def __getitem__(self, idx: int) -> APyFixedArray: ...
     def __init__(
         self,
@@ -283,6 +368,8 @@ class APyFixedArray:
         int_bits: int | None = None,
         frac_bits: int | None = None,
     ) -> None: ...
+    def __iter__(self) -> APyFixedArrayIterator: ...
+    def __len__(self) -> int: ...
     def __matmul__(self, rhs: APyFixedArray) -> APyFixedArray: ...
     def __mul__(self, arg0: APyFixedArray) -> APyFixedArray: ...
     def __repr__(self) -> str: ...
@@ -304,24 +391,23 @@ class APyFixedArray:
 
     def to_numpy(self) -> numpy.ndarray[numpy.float64]:
         """
-        Retrieve a :class:`Numpy.ndarray` object of :class:`Numpy.float64` from
-        `self`.
+        Return array as a :class:`numpy.ndarray` of :class:`numpy.float64`.
 
         The returned array has the same `shape` and stored value as `self`. This
         method rounds away from infinity on ties.
 
         Returns
         -------
-        :class:`Numpy.ndarray`
+        :class:`numpy.ndarray`
         """
 
     def transpose(self) -> APyFixedArray:
         """
-        Retrieve the transposition of this :class:`APyFixedArray` object.
+        Return the transposed version of the array.
 
         If the dimension of `self` is one, this method returns the a copy of `self`.
         If the dimension of `self` is two, this method returns the matrix
-        transposition of `self.
+        transposition of `self`.
 
         Higher order transposition has not been implemented and will raise a
         `NotImplementedException`.
@@ -336,7 +422,7 @@ class APyFixedArray:
     @property
     def bits(self) -> int:
         """
-        The total number of bits in this :class:`APyFixedArray` object.
+        Total number of bits.
 
         Returns
         -------
@@ -346,7 +432,7 @@ class APyFixedArray:
     @property
     def frac_bits(self) -> int:
         """
-        The number of fractional bits in this :class:`APyFixedArray` object.
+        Number of fractional bits.
 
         Returns
         -------
@@ -356,7 +442,7 @@ class APyFixedArray:
     @property
     def int_bits(self) -> int:
         """
-        The number of integer bits in this :class:`APyFixedArray` object.
+        Number of integer bits.
 
         Returns
         -------
@@ -366,7 +452,7 @@ class APyFixedArray:
     @property
     def ndim(self) -> int:
         """
-        Number of dimensions in this `class`APyFixedArray` object.
+        Number of dimensions in the array.
 
         Returns
         -------
@@ -376,12 +462,16 @@ class APyFixedArray:
     @property
     def shape(self) -> tuple:
         """
-        The shape of this :class:`APyFixedArray` object.
+        The shape of the array.
 
         Returns
         -------
         :class:`tuple` of :class:`int`
         """
+
+class APyFixedArrayIterator:
+    def __iter__(self) -> APyFixedArrayIterator: ...
+    def __next__(self) -> APyFixedArray: ...
 
 class APyFixedOverflowMode:
     """
@@ -473,7 +563,9 @@ class APyFloat:
 
     __hash__: typing.ClassVar[None] = None
     @staticmethod
-    def from_bits(arg0: int, arg1: int, arg2: int) -> APyFloat: ...
+    def from_bits(
+        bits: int, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyFloat: ...
     @staticmethod
     def from_float(
         value: float,
@@ -529,6 +621,19 @@ class APyFloat:
     def __sub__(self, arg0: APyFloat) -> APyFloat: ...
     def __truediv__(self, arg0: APyFloat) -> APyFloat: ...
     def _repr_latex_(self) -> str: ...
+    def is_identical(self, other: APyFloat) -> bool:
+        """
+        Test if two `APyFloat` objects are identical.
+
+        Two `APyFixed` objects are considered identical if, and only if,  they have
+        the same sign, exponent, mantissa, and format.
+
+        Returns
+        -------
+        :class:`bool`
+        """
+
+    def pretty_string(self) -> str: ...
     def resize(
         self,
         exp_bits: int,
@@ -536,7 +641,6 @@ class APyFloat:
         bias: int | None = None,
         rounding_mode: RoundingMode | None = None,
     ) -> APyFloat: ...
-    def pretty_string(self) -> str: ...
     def to_bits(self) -> int: ...
     @property
     def bias(self) -> int: ...
@@ -545,15 +649,55 @@ class APyFloat:
     @property
     def exp_bits(self) -> int: ...
     @property
-    def is_finite(self) -> bool: ...
+    def is_finite(self) -> bool:
+        """
+        True if and only if x is zero, subnormal, or normal.
+
+        Returns
+        -------
+        :class:`bool`
+        """
+
     @property
-    def is_inf(self) -> bool: ...
+    def is_inf(self) -> bool:
+        """
+        True if and only if x is infinite.
+
+        Returns
+        -------
+        :class:`bool`
+        """
+
     @property
-    def is_nan(self) -> bool: ...
+    def is_nan(self) -> bool:
+        """
+        True if and only if x is NaN.
+
+        Returns
+        -------
+        :class:`bool`
+        """
+
     @property
-    def is_normal(self) -> bool: ...
+    def is_normal(self) -> bool:
+        """
+        True if and only if x is normal (not zero, subnormal, infinite, or NaN).
+
+        Returns
+        -------
+        :class:`bool`
+        """
+
     @property
-    def is_subnormal(self) -> bool: ...
+    def is_subnormal(self) -> bool:
+        """
+        True if and only if x is normal (not zero, subnormal, infinite, or NaN).
+
+        Returns
+        -------
+        :class:`bool`
+        """
+
     @property
     def man(self) -> int: ...
     @property

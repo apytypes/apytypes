@@ -3,20 +3,14 @@ from apytypes import APyFixed
 import pytest
 
 
-def test_bit_pattern_to_int():
-    assert APyFixed(0, 1, 0).bit_pattern_to_int(False) == 0
-    assert APyFixed(0, 1, 0).bit_pattern_to_int(True) == 0
+def test_to_bits():
+    assert APyFixed(0, 1, 0).to_bits() == 0
     # Python short int
+    assert APyFixed.from_float(1.00, int_bits=4, frac_bits=4).to_bits() == 2**4
     assert (
-        APyFixed.from_float(1.00, int_bits=4, frac_bits=4).bit_pattern_to_int() == 2**4
-    )
-    assert (
-        APyFixed.from_float(-1.00, int_bits=4, frac_bits=4).bit_pattern_to_int()
+        APyFixed.from_float(-1.00, int_bits=4, frac_bits=4).to_bits()
         == 2**7 + 2**6 + 2**5 + 2**4
     )
-    assert APyFixed.from_float(-1.00, int_bits=4, frac_bits=4).bit_pattern_to_int(
-        allow_negative_return_value=True
-    ) == -(2**4)
 
 
 def test_bit_specifier_getters():

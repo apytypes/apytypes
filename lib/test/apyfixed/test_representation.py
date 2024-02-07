@@ -27,13 +27,7 @@ def test_repr():
         APyFixed.from_float(-5.75, int_bits=4, frac_bits=4).__repr__()
         == "APyFixed(164, bits=8, int_bits=4)"
     )
-    assert (
-        APyFixed.from_float(-5.75, int_bits=4, frac_bits=4).bit_pattern_to_int() == 164
-    )
-    assert (
-        APyFixed.from_float(-5.75, int_bits=4, frac_bits=4).bit_pattern_to_string_dec()
-        == "164"
-    )
+    assert APyFixed.from_float(-5.75, int_bits=4, frac_bits=4).to_bits() == 164
 
 
 def test_str():

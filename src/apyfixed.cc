@@ -648,11 +648,9 @@ void APyFixed::set_from_apyfixed(const APyFixed& other)
     _twos_complement_overflow();
 }
 
-py::int_ APyFixed::bit_pattern_to_int(bool allow_negative_return_value) const
+py::int_ APyFixed::to_bits() const
 {
-    return python_limb_vec_to_long(
-        _data, allow_negative_return_value, bits() % _LIMB_SIZE_BITS
-    );
+    return python_limb_vec_to_long(_data, false, bits() % _LIMB_SIZE_BITS);
 }
 
 std::string APyFixed::bit_pattern_to_string_dec() const

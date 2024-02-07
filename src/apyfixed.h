@@ -160,7 +160,7 @@ public:
     mp_limb_t increment_lsb() noexcept;
 
     //! Convert the underlying bit pattern to a Python long integer
-    pybind11::int_ bit_pattern_to_int(bool allow_negative_return_value = false) const;
+    pybind11::int_ to_bits() const;
 
     //! Convert the underlying bit pattern to decimal and return in a string
     std::string bit_pattern_to_string_dec() const;
