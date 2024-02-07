@@ -310,12 +310,16 @@ std::string APyFloat::latex() const
 APyFloat APyFloat::operator+(APyFloat y) const
 {
     APyFloat x = *this;
+    APyFloat res(std::max(x.exp_bits, y.exp_bits), std::max(x.man_bits, y.man_bits));
 
-    if (!(x.is_finite() && y.is_finite())) {
-        throw NotImplementedException();
+    // Handle the NaN cases first, other special cases are further down
+    if (x.is_nan() || y.is_nan() || (x.is_inf() && y.is_inf()) && (x.sign != y.sign)) {
+        return res.construct_nan();
     }
 
-    APyFloat res(std::max(x.exp_bits, y.exp_bits), std::max(x.man_bits, y.man_bits));
+    if ((is_subnormal() && !is_zero()) || (y.is_subnormal() && !y.is_zero())) {
+        print_warning("multiplication with subnormals is not sure to work yet.");
+    }
 
     if ((res.man_bits + 5UL)
         > (sizeof(man_t) * CHAR_BIT
@@ -340,6 +344,19 @@ APyFloat APyFloat::operator+(APyFloat y) const
             return res.construct_zero(true);
         }
         res.sign = x.sign | y.sign;
+    }
+
+    // Handle other special cases
+    if ((x.is_inf() || y.is_inf())) {
+        return res.construct_inf();
+    }
+
+    if (x.is_zero()) {
+        return y.resize(res.exp_bits, res.man_bits, res.bias);
+    }
+
+    if (y.is_zero()) {
+        return x.resize(res.exp_bits, res.man_bits, res.bias);
     }
 
     std::int64_t new_exp = x.exp - x.bias + res.bias;
