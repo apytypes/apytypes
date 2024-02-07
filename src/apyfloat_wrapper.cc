@@ -55,8 +55,8 @@ void bind_float(py::module& m)
         .def("pretty_string", &APyFloat::pretty_string)
         .def("_repr_latex_", &APyFloat::latex)
         .def(
-            "cast_to",
-            &APyFloat::cast_to,
+            "resize",
+            &APyFloat::resize,
             py::arg("exp_bits"),
             py::arg("man_bits"),
             py::arg("bias") = std::nullopt,
