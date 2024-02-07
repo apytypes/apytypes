@@ -75,21 +75,21 @@ def test_to_string():
 
 def test_is_positive():
     a = APyFixed(4, 3, 2)
-    assert not a.is_positive
+    assert not a._is_positive
     a = APyFixed(3, 3, 2)
-    assert a.is_positive
+    assert a._is_positive
     a = APyFixed(0, 3, 2)
-    assert not a.is_positive
+    assert not a._is_positive
     a = APyFixed(-3, 3, 2)
-    assert not a.is_positive
+    assert not a._is_positive
 
 
 def test_is_negative():
     a = APyFixed(4, 3, 2)
-    assert a.is_negative
+    assert a._is_negative
     a = APyFixed(3, 3, 2)
-    assert not a.is_negative
+    assert not a._is_negative
     a = APyFixed(0, 3, 2)
-    assert not a.is_negative
+    assert not a._is_negative
     a = APyFixed(-3, 3, 2)
-    assert a.is_negative
+    assert a._is_negative
