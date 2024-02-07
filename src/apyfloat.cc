@@ -292,7 +292,8 @@ std::string APyFloat::latex() const
     if (sign) {
         str += "-";
     }
-    str += std::to_string((is_normal() ? ((1 << man_bits) + man) : man)) + "\\times 2^{"
+    str += std::to_string((is_normal() ? ((1ULL << man_bits) + man) : man))
+        + "\\times 2^{"
         + std::to_string(
                static_cast<std::int64_t>(exp) - bias - man_bits + 1 - is_normal()
         )
@@ -647,6 +648,74 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
                new_sign, new_exp, new_man, max_exp_bits, trailing_bits, extended_bias
     )
         .resize(x.exp_bits, x.man_bits, x.bias);
+}
+
+/* ******************************************************************************
+ * * Binary logic operators                                                     *
+ * ******************************************************************************
+ */
+
+APyFloat APyFloat::operator&(APyFloat& rhs)
+{
+    const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
+    const auto max_man_bits = std::max(man_bits, rhs.man_bits);
+    const auto lhs_big = resize(max_exp_bits, max_man_bits);
+    const auto rhs_big = rhs.resize(max_exp_bits, max_man_bits);
+
+    APyFloat f(
+        lhs_big.sign & rhs_big.sign,
+        lhs_big.exp & rhs_big.exp,
+        lhs_big.man & rhs_big.man,
+        max_exp_bits,
+        max_man_bits
+    );
+    return f;
+}
+
+APyFloat APyFloat::operator|(APyFloat& rhs)
+{
+    const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
+    const auto max_man_bits = std::max(man_bits, rhs.man_bits);
+    const auto lhs_big = resize(max_exp_bits, max_man_bits);
+    const auto rhs_big = rhs.resize(max_exp_bits, max_man_bits);
+
+    APyFloat f(
+        lhs_big.sign | rhs_big.sign,
+        lhs_big.exp | rhs_big.exp,
+        lhs_big.man | rhs_big.man,
+        max_exp_bits,
+        max_man_bits
+    );
+    return f;
+}
+
+APyFloat APyFloat::operator^(APyFloat& rhs)
+{
+    const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
+    const auto max_man_bits = std::max(man_bits, rhs.man_bits);
+    const auto lhs_big = resize(max_exp_bits, max_man_bits);
+    const auto rhs_big = rhs.resize(max_exp_bits, max_man_bits);
+
+    APyFloat f(
+        lhs_big.sign ^ rhs_big.sign,
+        lhs_big.exp ^ rhs_big.exp,
+        lhs_big.man ^ rhs_big.man,
+        max_exp_bits,
+        max_man_bits
+    );
+    return f;
+}
+
+APyFloat APyFloat::operator~()
+{
+    APyFloat f(
+        !sign,
+        ~exp & ((1ULL << exp_bits) - 1),
+        ~man & ((1ULL << exp_bits) - 1),
+        exp_bits,
+        man_bits
+    );
+    return f;
 }
 
 /* ******************************************************************************

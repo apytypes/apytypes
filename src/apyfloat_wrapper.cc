@@ -89,6 +89,19 @@ void bind_float(py::module& m)
         .def("__pow__", &APyFloat::pow)
         .def("__pow__", &APyFloat::pown)
 
+        .def(
+            "__and__", [](APyFloat& a, APyFloat& b) { return a & b; }, py::is_operator()
+        )
+        .def(
+            "__or__", [](APyFloat& a, APyFloat& b) { return a | b; }, py::is_operator()
+        )
+        .def(
+            "__xor__", [](APyFloat& a, APyFloat& b) { return a ^ b; }, py::is_operator()
+        )
+        .def(
+            "__invert__", [](APyFloat& a) { return ~a; }, py::is_operator()
+        )
+
         /*
          * Non-computational properties
          */
