@@ -8,4 +8,5 @@
    apyfixed
    apyfixedarray
    apyfloat
+   roundingoverflow
    floatcontext
