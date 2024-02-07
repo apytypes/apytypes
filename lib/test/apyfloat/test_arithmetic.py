@@ -179,6 +179,17 @@ def test_mul_underflow():
     assert (APyFloat(0, 1, 1, 5, 2) * APyFloat(0, 1, 3, 5, 3)) == 0
 
 
+@pytest.mark.float_mul
+@pytest.mark.parametrize("x", [0.0, 1.0, float("inf"), float("nan")])
+@pytest.mark.parametrize("y", [0.0, 1.0, float("inf"), float("nan")])
+@pytest.mark.parametrize("sign", [1, -1])
+def test_mul_special_cases(x, y, sign):
+    """Test the special cases for addition."""
+    assert str(
+        float(APyFloat.from_float(x, 4, 4) * APyFloat.from_float(sign * y, 4, 4))
+    ) == str(x * sign * y)
+
+
 @pytest.mark.float_div
 @pytest.mark.parametrize("exp", list(perm(["5", "8"], 2)))
 @pytest.mark.parametrize("man", list(perm(["5", "8"], 2)))
