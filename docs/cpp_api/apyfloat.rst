@@ -1,3 +1,6 @@
+``APyFloat``
+============
+
 .. doxygenclass:: APyFloat
     :project: APyTypes
     :members:

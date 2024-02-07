@@ -1,5 +1,5 @@
-Context handling for APyFloat
-=============================
+Context handling for ``APyFloat``
+=================================
 
 .. autoclass:: apytypes.RoundingContext
    :members:
