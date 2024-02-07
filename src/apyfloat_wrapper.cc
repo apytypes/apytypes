@@ -39,16 +39,8 @@ void bind_float(py::module& m)
             py::arg("bias") = std::nullopt,
             py::arg("rounding_mode") = std::nullopt
         )
-        .def(
-            "update_from_float",
-            &APyFloat::update_from_double,
-            py::arg("value"),
-            py::arg("rounding_mode") = std::nullopt
-        )
-        .def("to_float", &APyFloat::to_double)
         .def("__float__", &APyFloat::operator double)
         .def_static("from_bits", &APyFloat::from_bits)
-        .def("update_from_bits", &APyFloat::update_from_bits)
         .def("to_bits", &APyFloat::to_bits)
         .def("__str__", &APyFloat::str)
         .def("__repr__", &APyFloat::repr)

@@ -44,15 +44,11 @@ public:
         std::optional<exp_t> bias = std::nullopt,
         std::optional<RoundingMode> rounding_mode = std::nullopt
     );
-    APyFloat& update_from_double(
-        double value, std::optional<RoundingMode> rounding_mode = std::nullopt
-    );
     double to_double() const;
     operator double() const;
 
     static APyFloat
     from_bits(unsigned long long bits, std::uint8_t exp_bits, std::uint8_t man_bits);
-    APyFloat& update_from_bits(unsigned long long bits);
     unsigned long long to_bits() const;
 
     APyFloat resize(
@@ -144,6 +140,10 @@ private:
      * * Helper functions                                                           *
      * ******************************************************************************
      */
+    APyFloat& update_from_bits(unsigned long long bits);
+    APyFloat& update_from_double(
+        double value, std::optional<RoundingMode> rounding_mode = std::nullopt
+    );
 
     APyFloat construct_zero(std::optional<bool> new_sign = std::nullopt) const;
     APyFloat construct_inf(std::optional<bool> new_sign = std::nullopt) const;

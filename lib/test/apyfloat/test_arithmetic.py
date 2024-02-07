@@ -219,14 +219,14 @@ def test_power():
 @pytest.mark.float_pow
 def test_power_overflow():
     """Test that the power function can overflow to infinity."""
-    assert (APyFloat(0, 0b11110, 1, 5, 2) ** 2).to_float() == float("inf")
-    assert (APyFloat(1, 0b11110, 1, 5, 2) ** 3).to_float() == float("-inf")
+    assert float(APyFloat(0, 0b11110, 1, 5, 2) ** 2) == float("inf")
+    assert float(APyFloat(1, 0b11110, 1, 5, 2) ** 3) == float("-inf")
 
 
 @pytest.mark.float_pow
 def test_power_underflow():
     """Test that the power function can underflow to zero."""
-    assert (APyFloat(0, 1, 1, 5, 2) ** 3).to_float() == 0
+    assert float(APyFloat(0, 1, 1, 5, 2) ** 3) == 0
 
 
 @pytest.mark.float_pow
@@ -271,5 +271,5 @@ def test_power_special_cases(x, n, test_exp):
         assert eval(f"(APyFloat.from_float(float({x}), 9, 7)**{n}).is_nan")
     else:
         assert (
-            eval(f"(APyFloat.from_float(float({x}), 9, 7)**{n}).to_float()") == test_exp
+            eval(f"float(APyFloat.from_float(float({x}), 9, 7)**{n})") == test_exp
         )
