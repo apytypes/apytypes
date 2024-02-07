@@ -180,22 +180,22 @@ def test_resize():
 
 def test_unary_minus():
     a = APyFixed(-3, 3, 2)
-    assert a.is_negative
-    assert not a.is_positive
+    assert a._is_negative
+    assert not a._is_positive
     assert (-a).is_identical(APyFixed(3, 4, 3))
     assert (--a).is_identical(APyFixed(-3, 5, 4))
-    assert not (-a).is_negative
+    assert not (-a)._is_negative
 
 
 def test_abs():
     a = APyFixed(-3, 3, 2)
     assert abs(a).is_identical(APyFixed(3, 4, 3))
-    assert not abs(a).is_negative
+    assert not abs(a)._is_negative
     a = APyFixed(-4, 3, 2)
-    assert a.is_negative
+    assert a._is_negative
     assert abs(a).is_identical(APyFixed(4, 4, 3))
-    assert not abs(a).is_negative
-    assert abs(a).is_positive
+    assert not abs(a)._is_negative
+    assert abs(a)._is_positive
 
     # Both positive and negative fixed-point values have word length increased on
     # absolute value. Related GitHub issue: #15

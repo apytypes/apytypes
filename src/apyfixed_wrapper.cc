@@ -72,8 +72,7 @@ void bind_fixed(py::module& m)
          * Methods
          */
         .def("bit_pattern_to_string_dec", &APyFixed::bit_pattern_to_string_dec, R"pbdoc(
-            Retrieve the underlying bit-pattern as a :class:`str` object formated in
-            base-10.
+            Return the underlying bit-pattern as a :class:`str` object formated in base-10.
 
             Returns
             -------
@@ -84,7 +83,7 @@ void bind_fixed(py::module& m)
             &APyFixed::bit_pattern_to_int,
             py::arg("allow_negative_return_value") = false,
             R"pbdoc(
-            Retrieve the underlying bit-pattern in an :class:`int` object.
+            Return the underlying bit-pattern in an :class:`int` object.
 
             Parameters
             ----------
@@ -113,14 +112,14 @@ void bind_fixed(py::module& m)
             )pbdoc"
         )
         .def_property_readonly("bits", &APyFixed::bits, R"pbdoc(
-            Total number of bits in this :class:`APyFixed` object.
+            Total number of bits.
 
             Returns
             -------
             :class:`int`
             )pbdoc")
         .def_property_readonly("frac_bits", &APyFixed::frac_bits, R"pbdoc(
-            Number of fractional bits in this :class:`APyFixed` object.
+            Number of fractional bits.
 
             Returns
             -------
@@ -135,14 +134,14 @@ void bind_fixed(py::module& m)
         .def("set_from_float", &APyFixed::set_from_double)
         .def("increment_lsb", &APyFixed::increment_lsb)
         .def_property_readonly("int_bits", &APyFixed::int_bits, R"pbdoc(
-            Number of integer bits in this :class:`APyFixed` object.
+            Number of integer bits.
 
             Returns
             -------
             :class:`int`
             )pbdoc")
-        .def_property_readonly("is_negative", &APyFixed::is_negative)
-        .def_property_readonly("is_positive", &APyFixed::is_positive)
+        .def_property_readonly("_is_negative", &APyFixed::is_negative)
+        .def_property_readonly("_is_positive", &APyFixed::is_positive)
         .def("is_identical", &APyFixed::is_identical, py::arg("other"), R"pbdoc(
             Test if two `APyFixed` objects are identical.
 
@@ -168,9 +167,9 @@ void bind_fixed(py::module& m)
         )
         .def("to_string", &APyFixed::to_string, py::arg("base") = 10)
         .def("to_string_dec", &APyFixed::to_string_dec)
-        .def("to_string_hex", &APyFixed::to_string_hex)
-        .def("to_string_oct", &APyFixed::to_string_oct)
-        .def_property_readonly("vector_size", &APyFixed::vector_size)
+        .def("_to_string_hex", &APyFixed::to_string_hex)
+        .def("_to_string_oct", &APyFixed::to_string_oct)
+        .def_property_readonly("_vector_size", &APyFixed::vector_size)
         .def("_repr_latex_", &APyFixed::latex)
 
         /*

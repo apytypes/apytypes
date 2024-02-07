@@ -41,7 +41,7 @@ void bind_fixed_array(py::module& m)
          * Methods
          */
         .def_property_readonly("bits", &APyFixedArray::bits, R"pbdoc(
-            The total number of bits in this :class:`APyFixedArray` object.
+            Total number of bits.
 
             Returns
             -------
@@ -49,7 +49,7 @@ void bind_fixed_array(py::module& m)
             )pbdoc")
 
         .def_property_readonly("int_bits", &APyFixedArray::int_bits, R"pbdoc(
-            The number of integer bits in this :class:`APyFixedArray` object.
+            Number of integer bits.
 
             Returns
             -------
@@ -57,7 +57,7 @@ void bind_fixed_array(py::module& m)
             )pbdoc")
 
         .def_property_readonly("frac_bits", &APyFixedArray::frac_bits, R"pbdoc(
-            The number of fractional bits in this :class:`APyFixedArray` object.
+            Number of fractional bits.
 
             Returns
             -------
@@ -65,7 +65,7 @@ void bind_fixed_array(py::module& m)
             )pbdoc")
 
         .def_property_readonly("shape", &APyFixedArray::shape, R"pbdoc(
-            The shape of this :class:`APyFixedArray` object.
+            The shape of the array.
 
             Returns
             -------
@@ -73,7 +73,7 @@ void bind_fixed_array(py::module& m)
             )pbdoc")
 
         .def_property_readonly("ndim", &APyFixedArray::ndim, R"pbdoc(
-            Number of dimensions in this `class`APyFixedArray` object.
+            Number of dimensions in the array.
 
             Returns
             -------
@@ -81,15 +81,14 @@ void bind_fixed_array(py::module& m)
             )pbdoc")
 
         .def("to_numpy", &APyFixedArray::to_numpy, R"pbdoc(
-            Retrieve a :class:`Numpy.ndarray` object of :class:`Numpy.float64` from
-            `self`.
+            Return array as a :class:`numpy.ndarray` of :class:`numpy.float64`.
 
             The returned array has the same `shape` and stored value as `self`. This
             method rounds away from infinity on ties.
 
             Returns
             -------
-            :class:`Numpy.ndarray`
+            :class:`numpy.ndarray`
             )pbdoc")
 
         .def("is_identical", &APyFixedArray::is_identical, py::arg("other"), R"pbdoc(
@@ -106,11 +105,11 @@ void bind_fixed_array(py::module& m)
             :class:`bool`
             )pbdoc")
         .def("transpose", &APyFixedArray::transpose, R"pbdoc(
-            Retrieve the transposition of this :class:`APyFixedArray` object.
+            Return the transposed version of the array.
 
             If the dimension of `self` is one, this method returns the a copy of `self`.
             If the dimension of `self` is two, this method returns the matrix
-            transposition of `self.
+            transposition of `self`.
 
             Higher order transposition has not been implemented and will raise a
             `NotImplementedException`.
