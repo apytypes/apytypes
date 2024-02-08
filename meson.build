@@ -50,6 +50,8 @@ py3.extension_module(
         'src/apyfloat_context_wrapper.cc',
         'src/apyfloat_contextmanager.cc',
         'src/apyfloat_wrapper.cc',
+        'src/apyfloatarray.cc',
+        'src/apyfloatarray_wrapper.cc',
         'src/apytypes_wrapper.cc',
         'extern/mini-gmp/mini-gmp.c'
     ]),
