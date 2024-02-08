@@ -134,6 +134,8 @@ public:
     inline std::uint8_t get_man_bits() const { return man_bits; }
     inline std::uint8_t get_exp_bits() const { return exp_bits; }
 
+    static inline exp_t ieee_bias(std::uint8_t exp_bits) { return (1ULL << (exp_bits - 1)) - 1; }
+
 private:
     std::uint8_t exp_bits, man_bits;
     exp_t bias;
@@ -172,7 +174,7 @@ private:
     {
         return ((1ULL << exp_bits) - 1);
     } // Max exponent with bias
-    inline exp_t ieee_bias() const { return (1ULL << (exp_bits - 1)) - 1; }
+    inline exp_t ieee_bias() const { return ieee_bias(exp_bits); }
     inline man_t man_mask() const { return ((1ULL << man_bits) - 1); }
     inline man_t leading_one() const { return (1ULL << man_bits); }
     inline man_t leading_bit() const

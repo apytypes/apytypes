@@ -6,7 +6,10 @@
 #include <pybind11/numpy.h>    // pybind11::array_t
 #include <pybind11/pybind11.h> // pybind11::object
 #include <pybind11/pytypes.h>  // pybind11::sequence
+#include <optional>
 #include <vector>
+#include <tuple>
+#include "apytypes_common.h"
 
 using exp_t = std::uint32_t;
 using man_t = std::uint64_t;
@@ -34,6 +37,29 @@ class APyFloatArray {
     //! Length of the array
     size_t get_size() const;
 
+    /*!
+     * Test if two `APyFloatArray` objects are identical. Two `APyFloatArray` objects
+     * are considered identical if, and only if:
+     *   * They represent exatly the same tensor shape
+     *   * They store the exact same floating-point values in all tensor elements
+     *   * They have the exact same sized fields
+     */
+    bool is_identical(const APyFloatArray& other) const;
+
+    /* ****************************************************************************** *
+     *                       Static conversion from other types                       *
+     * ****************************************************************************** */
+
+    //! Create an `APyFloatArray` tensor object initialized with values from a sequence
+    //! of `doubles`
+    static APyFloatArray from_double(
+        const pybind11::sequence& double_seq,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt,
+        std::optional<RoundingMode> rounding_mode = std::nullopt
+    );
+
     inline exp_t get_bias() const { return bias; }
     inline std::uint8_t get_man_bits() const { return man_bits; }
     inline std::uint8_t get_exp_bits() const { return exp_bits; } 
@@ -43,7 +69,10 @@ class APyFloatArray {
         bool sign;
         exp_t exp; // Biased exponent
         man_t man; // Hidden one
+        bool operator==(const APyFloatData &other) const {return std::make_tuple(sign, exp, man) == std::make_tuple(other.sign, other.exp, other.man);}
     };
+
+    APyFloatArray(const std::vector<std::size_t> &shape, exp_t exp_bits, std::uint8_t man_bits, std::optional<exp_t> bias = std::nullopt);
 
     std::uint8_t exp_bits, man_bits;
     exp_t bias;
