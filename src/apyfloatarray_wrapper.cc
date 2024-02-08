@@ -76,6 +76,15 @@ void bind_float_array(py::module& m)
             -------
             :class:`int`
             )pbdoc")
+        .def_property_readonly("T", &APyFloatArray::transpose, R"pbdoc(
+            The transposition of the array.
+
+            Equivalent to calling :func:`APyFloatArray.transpose`.
+
+            Returns
+            -------
+            :class:`APyFloatArray`
+            )pbdoc")
 
         /*
          * Static methods
@@ -146,7 +155,20 @@ void bind_float_array(py::module& m)
             Returns
             -------
             :class:`bool`
-            )pbdoc");
+            )pbdoc")
 
-        
+        .def("transpose", &APyFloatArray::transpose, R"pbdoc(
+            Return the transposition of the array.
+
+            If the dimension of `self` is one, this method returns the a copy of `self`.
+            If the dimension of `self` is two, this method returns the matrix
+            transposition of `self`.
+
+            Higher order transposition has not been implemented and will raise a
+            `NotImplementedException`.
+
+            Returns
+            -------
+            :class:`APyFloatArray`
+            )pbdoc");
 }
