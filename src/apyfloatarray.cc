@@ -78,7 +78,10 @@ APyFloatArray::APyFloatArray(
 /* ********************************************************************************** *
  * *                            Binary arithmetic operators                         * *
  * ********************************************************************************* */
-APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
+
+APyFloatArray APyFloatArray::perform_basic_arithmetic(
+    const APyFloatArray& rhs, ArithmeticOperation op
+) const
 {
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (shape != rhs.shape) {
@@ -95,18 +98,33 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
     );
     res.bias = APyFloat::ieee_bias(res.exp_bits);
 
-    // Perform addition
+    // Perform operation
     res.data.resize(data.size());
     for (std::size_t i = 0; i < data.size(); i++) {
         APyFloat lhs_scalar(data[i], exp_bits, man_bits, bias);
         APyFloat rhs_scalar(rhs.data[i], rhs.exp_bits, rhs.man_bits, rhs.bias);
-        res.data[i] = (lhs_scalar + rhs_scalar).get_data();
+
+        std::cout << lhs_scalar.to_double() << " - " << rhs_scalar.to_double() << " = "
+                  << (lhs_scalar - rhs_scalar).to_double() << std::endl;
+
+        if (op == ArithmeticOperation::ADDITION)
+            res.data[i] = (lhs_scalar + rhs_scalar).get_data();
+        else if (op == ArithmeticOperation::SUBTRACTION)
+            res.data[i] = (lhs_scalar - rhs_scalar).get_data();
+        else if (op == ArithmeticOperation::MULTIPLICATION)
+            res.data[i] = (lhs_scalar * rhs_scalar).get_data();
+        else if (op == ArithmeticOperation::DIVISION)
+            res.data[i] = (lhs_scalar / rhs_scalar).get_data();
+        else
+            throw NotImplementedException("Arithmetic operation not implemented yet");
     }
 
     return res;
 }
 
-APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
+APyFloatArray APyFloatArray::perform_basic_arithmetic(
+    const APyFloat& rhs, ArithmeticOperation op
+) const
 {
     // Calculate new format
     APyFloatArray res(
@@ -116,14 +134,44 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
     );
     res.bias = APyFloat::ieee_bias(res.exp_bits);
 
-    // Perform addition
+    // Perform operations
     res.data.resize(data.size());
     for (std::size_t i = 0; i < data.size(); i++) {
         APyFloat lhs_scalar(data[i], exp_bits, man_bits, bias);
-        res.data[i] = (lhs_scalar + rhs).get_data();
+
+        if (op == ArithmeticOperation::ADDITION)
+            res.data[i] = (lhs_scalar + rhs).get_data();
+        else if (op == ArithmeticOperation::SUBTRACTION)
+            res.data[i] = (lhs_scalar - rhs).get_data();
+        else if (op == ArithmeticOperation::MULTIPLICATION)
+            res.data[i] = (lhs_scalar * rhs).get_data();
+        else if (op == ArithmeticOperation::DIVISION)
+            res.data[i] = (lhs_scalar / rhs).get_data();
+        else
+            throw NotImplementedException("Arithmetic operation not implemented yet");
     }
 
     return res;
+}
+
+APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
+{
+    return perform_basic_arithmetic(rhs, ArithmeticOperation::ADDITION);
+}
+
+APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
+{
+    return perform_basic_arithmetic(rhs, ArithmeticOperation::ADDITION);
+}
+
+APyFloatArray APyFloatArray::operator-(const APyFloatArray& rhs) const
+{
+    return perform_basic_arithmetic(rhs, ArithmeticOperation::SUBTRACTION);
+}
+
+APyFloatArray APyFloatArray::operator-(const APyFloat& rhs) const
+{
+    return perform_basic_arithmetic(rhs, ArithmeticOperation::SUBTRACTION);
 }
 
 std::string APyFloatArray::repr() const

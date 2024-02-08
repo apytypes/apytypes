@@ -77,6 +77,8 @@ public:
     inline std::uint8_t get_man_bits() const { return man_bits; }
     inline std::uint8_t get_exp_bits() const { return exp_bits; }
 
+    enum class ArithmeticOperation { ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION };
+
 private:
     APyFloatArray(
         const std::vector<std::size_t>& shape,
@@ -84,6 +86,11 @@ private:
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
+
+    APyFloatArray
+    perform_basic_arithmetic(const APyFloatArray& rhs, ArithmeticOperation op) const;
+    APyFloatArray
+    perform_basic_arithmetic(const APyFloat& rhs, ArithmeticOperation op) const;
 
     std::uint8_t exp_bits, man_bits;
     exp_t bias;
