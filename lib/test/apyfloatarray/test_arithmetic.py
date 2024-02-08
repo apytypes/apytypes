@@ -51,6 +51,49 @@ def test_array_add_int_float():
     a = APyFloatArray.from_float([12, 23, 34], 8, 10)
     assert (a + 0).is_identical(a)
     assert (0 + a).is_identical(a)
+    assert (a + 0.0).is_identical(a)
+    assert (0.0 + a).is_identical(a)
+
+
+@pytest.mark.float_array
+def test_array_sub():
+    a = APyFloatArray.from_float([0, 0.125, 2.5, 12], 5, 7)
+    b = APyFloatArray.from_float([3, -0.75, -5, 8], 6, 5)
+    ans = APyFloatArray.from_float([-3, 0.875, 7.5, 4], 6, 7)
+    assert (a - b).is_identical(ans)
+
+    a = APyFloatArray.from_float(
+        [
+            [1.0, 2.0, 3.0],
+            [-4.0, -5.0, -6.0],
+        ],
+        exp_bits=8,
+        man_bits=8,
+    )
+    b = APyFloatArray.from_float(
+        [
+            [6, 2.5, 7.5],
+            [-4.0, 20, 6.0],
+        ],
+        exp_bits=8,
+        man_bits=8,
+    )
+    ans = APyFloatArray.from_float(
+        [
+            [-5, -0.5, -4.5],
+            [-0.0, -25.0, -12.0],
+        ],
+        exp_bits=8,
+        man_bits=8,
+    )
+    assert (a - b).is_identical(ans)
+
+
+@pytest.mark.float_array
+def test_array_sub_scalar():
+    a = APyFloatArray.from_float([12, 23, 34], 8, 10)
+    b = APyFloat.from_float(8, 9, 8)
+    assert (a - b).is_identical(APyFloatArray.from_float([4, 15, 26], 9, 10))
 
 
 @pytest.mark.float_array
