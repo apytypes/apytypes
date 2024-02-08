@@ -58,6 +58,21 @@ APyFloat::APyFloat(
 {
 }
 
+APyFloat::APyFloat(
+    const APyFloatData& data,
+    std::uint8_t exp_bits,
+    std::uint8_t man_bits,
+    std::optional<exp_t> bias
+)
+    : exp_bits(exp_bits)
+    , man_bits(man_bits)
+    , bias(bias.value_or(ieee_bias()))
+    , sign(data.sign)
+    , exp(data.exp)
+    , man(data.man)
+{
+}
+
 /* **********************************************************************************
  * * Methods for conversions                                                        *
  * **********************************************************************************
