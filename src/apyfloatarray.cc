@@ -4,11 +4,12 @@
 #include <pybind11/stl.h>
 namespace py = pybind11;
 
-#include <algorithm>
-#include <iostream>
-#include "apyfloatarray.h"
 #include "apyfloat.h"
+#include "apyfloatarray.h"
 #include "python_util.h"
+#include <algorithm>
+#include <fmt/format.h>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 
@@ -18,9 +19,11 @@ APyFloatArray::APyFloatArray(
     const pybind11::sequence& man_seq,
     std::uint8_t exp_bits,
     std::uint8_t man_bits,
-    std::optional<exp_t> bias) :
-    exp_bits(exp_bits), man_bits(man_bits)
-    {
+    std::optional<exp_t> bias
+)
+    : exp_bits(exp_bits)
+    , man_bits(man_bits)
+{
     if (bias.has_value()) {
         this->bias = bias.value();
     } else {
@@ -47,19 +50,29 @@ APyFloatArray::APyFloatArray(
         if (py::isinstance<py::bool_>(signs[i])) {
             sign = static_cast<bool>(py::cast<py::bool_>(signs[i]));
         } else if (py::isinstance<py::int_>(signs[i])) {
-            sign = static_cast<int>(py::cast<py::int_>(signs[i])); // Must cast to int here
+            sign = static_cast<int>(py::cast<py::int_>(signs[i])
+            ); // Must cast to int here
         } else {
             throw std::domain_error("Invalid objects in sign");
         }
         exp_t exp = static_cast<exp_t>(py::cast<py::int_>(exps[i]));
         man_t man = static_cast<man_t>(py::cast<py::int_>(mans[i]));
 
-        data.push_back({sign, exp, man});
+        data.push_back({ sign, exp, man });
     }
 }
 
-APyFloatArray::APyFloatArray(const std::vector<std::size_t> &shape, exp_t exp_bits, std::uint8_t man_bits, std::optional<exp_t> bias) 
-: shape(shape), exp_bits(exp_bits), man_bits(man_bits), bias(bias.value_or(APyFloat::ieee_bias(exp_bits))) {
+APyFloatArray::APyFloatArray(
+    const std::vector<std::size_t>& shape,
+    exp_t exp_bits,
+    std::uint8_t man_bits,
+    std::optional<exp_t> bias
+)
+    : shape(shape)
+    , exp_bits(exp_bits)
+    , man_bits(man_bits)
+    , bias(bias.value_or(APyFloat::ieee_bias(exp_bits)))
+{
 }
 
 std::string APyFloatArray::repr() const
@@ -67,7 +80,7 @@ std::string APyFloatArray::repr() const
     std::stringstream ss {};
     ss << "APyFloatArray(";
     if (shape[0]) {
-        std::stringstream sign_str{}, exp_str{}, man_str{};
+        std::stringstream sign_str {}, exp_str {}, man_str {};
         sign_str << "[";
         exp_str << "[";
         man_str << "[";
@@ -78,7 +91,8 @@ std::string APyFloatArray::repr() const
             exp_str << d.exp << (is_last ? "" : ", ");
             man_str << d.man << (is_last ? "" : ", ");
         }
-        ss << sign_str.str() << "], " << exp_str.str() << "], " << man_str.str() << "], ";
+        ss << sign_str.str() << "], " << exp_str.str() << "], " << man_str.str()
+           << "], ";
     } else {
         ss << "[], [], [], ";
     }
@@ -105,25 +119,32 @@ size_t APyFloatArray::get_ndim() const { return shape.size(); }
 
 size_t APyFloatArray::get_size() const { return shape[0]; }
 
-bool APyFloatArray::is_identical(const APyFloatArray& other) const {
+bool APyFloatArray::is_identical(const APyFloatArray& other) const
+{
     const bool same_spec = (shape == other.shape) && (exp_bits == other.exp_bits)
-    && (man_bits == other.man_bits) && (bias == other.bias) && (data.size() == other.data.size());
+        && (man_bits == other.man_bits) && (bias == other.bias)
+        && (data.size() == other.data.size());
 
-    return same_spec && std::equal(data.begin(), data.end(), other.data.begin(), other.data.end()); 
+    return same_spec
+        && std::equal(data.begin(), data.end(), other.data.begin(), other.data.end());
 }
 
 APyFloatArray APyFloatArray::from_double(
-        const pybind11::sequence& double_seq,
-        std::uint8_t exp_bits,
-        std::uint8_t man_bits,
-        std::optional<exp_t> bias,
-        std::optional<RoundingMode> rounding_mode) {
+    const pybind11::sequence& double_seq,
+    std::uint8_t exp_bits,
+    std::uint8_t man_bits,
+    std::optional<exp_t> bias,
+    std::optional<RoundingMode> rounding_mode
+)
+{
 
-    APyFloatArray arr(python_sequence_extract_shape(double_seq), exp_bits, man_bits, bias);
+    APyFloatArray arr(
+        python_sequence_extract_shape(double_seq), exp_bits, man_bits, bias
+    );
 
     auto py_obj = python_sequence_walk<py::float_, py::int_>(double_seq);
 
-    for (const auto &obj : py_obj) {
+    for (const auto& obj : py_obj) {
         double d;
         if (py::isinstance<py::float_>(obj)) {
             d = static_cast<double>(py::cast<py::float_>(obj));
@@ -133,7 +154,34 @@ APyFloatArray APyFloatArray::from_double(
             throw std::domain_error("Invalid Python objects in sequence");
         }
         const auto fp = APyFloat::from_double(d, exp_bits, man_bits, arr.bias);
-        arr.data.push_back({fp.get_sign(), fp.get_exp(), fp.get_man()});
+        arr.data.push_back({ fp.get_sign(), fp.get_exp(), fp.get_man() });
     }
     return arr;
+}
+
+APyFloatArray APyFloatArray::transpose() const
+{
+    if (get_ndim() > 2) {
+        throw NotImplementedException(fmt::format(
+            "Not implemented: high-dimensional (ndim={} > 2) tensor transposition",
+            get_ndim()
+        ));
+    } else if (get_ndim() <= 1) {
+        // Behave like `NumPy`, simply return `*this` if single-dimensional
+        return *this;
+    }
+
+    // Resulting array with shape dimensions
+    APyFloatArray result(shape, exp_bits, man_bits, bias);
+    std::reverse(result.shape.begin(), result.shape.end());
+
+    // Copy data
+    result.data.resize(data.size());
+    for (std::size_t y = 0; y < shape[0]; y++) {
+        for (std::size_t x = 0; x < shape[1]; x++) {
+            result.data[x * shape[0] + y] = data[y * shape[1] + x];
+        }
+    }
+
+    return result;
 }
