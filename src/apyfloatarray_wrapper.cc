@@ -147,7 +147,61 @@ void bind_float_array(py::module& m)
         //     [](const APyFloatArray& a, APyFloat& b) { return a - b; },
         //     py::is_operator()
         // )
-
+        .def(py::self * py::self)
+        .def(
+            "__mul__",
+            [](const APyFloatArray& a, int b) {
+                if (b == 1) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot multiply with int");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__rmul__",
+            [](const APyFloatArray& a, int b) {
+                if (b == 1) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot multiply with int");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__mul__",
+            [](const APyFloatArray& a, float b) {
+                if (b == 1.) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot multiply with float");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__rmul__",
+            [](const APyFloatArray& a, float b) {
+                if (b == 1.) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot multiply with float");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__mul__",
+            [](const APyFloatArray& a, APyFloat& b) { return a * b; },
+            py::is_operator()
+        )
+        .def(
+            "__rmul__",
+            [](const APyFloatArray& a, APyFloat& b) { return a * b; },
+            py::is_operator()
+        )
         /*
          * Methods
          */
