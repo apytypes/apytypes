@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from apytypes._apytypes import (
     APyFloat,
+    APyFloatArray,
     APyFixed,
     APyFixedArray,
     RoundingContext,
@@ -15,6 +16,7 @@ from apytypes._version import version as __version__
 
 __all__ = [
     "APyFloat",
+    "APyFloatArray",
     "APyFixed",
     "APyFixedArray",
     "OverflowMode",
