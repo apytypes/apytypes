@@ -35,6 +35,64 @@ void bind_float_array(py::module& m)
         )
 
         /*
+         * Arithmetic operations
+         */
+        .def(py::self + py::self)
+        .def(
+            "__add__",
+            [](const APyFloatArray& a, int b) {
+                if (b == 0) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot add with int");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__radd__",
+            [](const APyFloatArray& a, int b) {
+                if (b == 0) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot add with int");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__add__",
+            [](const APyFloatArray& a, float b) {
+                if (b == 0.) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot add with float");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__radd__",
+            [](const APyFloatArray& a, float b) {
+                if (b == 0.) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot add with float");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__add__",
+            [](const APyFloatArray& a, APyFloat& b) { return a + b; },
+            py::is_operator()
+        )
+        .def(
+            "__radd__",
+            [](const APyFloatArray& a, APyFloat& b) { return a + b; },
+            py::is_operator()
+        )
+        /*
          * Methods
          */
         .def_property_readonly("exp_bits", &APyFloatArray::get_exp_bits, R"pbdoc(

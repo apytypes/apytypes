@@ -75,6 +75,57 @@ APyFloatArray::APyFloatArray(
 {
 }
 
+/* ********************************************************************************** *
+ * *                            Binary arithmetic operators                         * *
+ * ********************************************************************************* */
+APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
+{
+    // Make sure `_shape` of `*this` and `rhs` are the same
+    if (shape != rhs.shape) {
+        throw std::length_error(fmt::format(
+            "APyFloatArray.__add__: shape missmatch, lhs.shape={}, rhs.shape={}",
+            string_from_vec(shape),
+            string_from_vec(rhs.shape)
+        ));
+    }
+
+    // Calculate new format
+    APyFloatArray res(
+        shape, std::max(exp_bits, rhs.exp_bits), std::max(man_bits, rhs.man_bits)
+    );
+    res.bias = APyFloat::ieee_bias(res.exp_bits);
+
+    // Perform addition
+    res.data.resize(data.size());
+    for (std::size_t i = 0; i < data.size(); i++) {
+        APyFloat lhs_scalar(data[i], exp_bits, man_bits, bias);
+        APyFloat rhs_scalar(rhs.data[i], rhs.exp_bits, rhs.man_bits, rhs.bias);
+        res.data[i] = (lhs_scalar + rhs_scalar).get_data();
+    }
+
+    return res;
+}
+
+APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
+{
+    // Calculate new format
+    APyFloatArray res(
+        shape,
+        std::max(exp_bits, rhs.get_exp_bits()),
+        std::max(man_bits, rhs.get_man_bits())
+    );
+    res.bias = APyFloat::ieee_bias(res.exp_bits);
+
+    // Perform addition
+    res.data.resize(data.size());
+    for (std::size_t i = 0; i < data.size(); i++) {
+        APyFloat lhs_scalar(data[i], exp_bits, man_bits, bias);
+        res.data[i] = (lhs_scalar + rhs).get_data();
+    }
+
+    return res;
+}
+
 std::string APyFloatArray::repr() const
 {
     std::stringstream ss {};

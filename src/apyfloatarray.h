@@ -2,17 +2,14 @@
 #ifndef _APYFLOAT_ARRAY_H
 #define _APYFLOAT_ARRAY_H
 
+#include "apyfloat.h"
 #include "apytypes_common.h"
 #include <cstdint>
 #include <optional>
 #include <pybind11/numpy.h>    // pybind11::array_t
 #include <pybind11/pybind11.h> // pybind11::object
 #include <pybind11/pytypes.h>  // pybind11::sequence
-#include <tuple>
 #include <vector>
-
-using exp_t = std::uint32_t;
-using man_t = std::uint64_t;
 
 class APyFloatArray {
 public:
@@ -24,6 +21,18 @@ public:
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
+
+    /* ****************************************************************************** *
+     * *                       Binary arithmetic operators                          * *
+     * ****************************************************************************** */
+
+    APyFloatArray operator+(const APyFloatArray& rhs) const;
+    APyFloatArray operator+(const APyFloat& rhs) const;
+    APyFloatArray operator-(const APyFloatArray& rhs) const;
+    APyFloatArray operator-(const APyFloat& rhs) const;
+    APyFloatArray operator*(const APyFloatArray& rhs) const;
+    APyFloatArray operator*(const APyFloat& rhs) const;
+    APyFloatArray operator/(const APyFloatArray& rhs) const;
 
     //! Python `__repr__()` function
     std::string repr() const;
@@ -69,17 +78,6 @@ public:
     inline std::uint8_t get_exp_bits() const { return exp_bits; }
 
 private:
-    struct APyFloatData {
-        bool sign;
-        exp_t exp; // Biased exponent
-        man_t man; // Hidden one
-        bool operator==(const APyFloatData& other) const
-        {
-            return std::make_tuple(sign, exp, man)
-                == std::make_tuple(other.sign, other.exp, other.man);
-        }
-    };
-
     APyFloatArray(
         const std::vector<std::size_t>& shape,
         exp_t exp_bits,

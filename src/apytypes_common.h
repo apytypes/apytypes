@@ -1,6 +1,9 @@
 #ifndef _APYTYPES_COMMON_H
 #define _APYTYPES_COMMON_H
 
+#include <cstdint>
+#include <tuple>
+
 /*!
  * Available rounding modes for APyFixed and APyFloat
  */
@@ -29,5 +32,19 @@ enum class OverflowMode {
 
 void set_rounding_mode(RoundingMode);
 RoundingMode get_rounding_mode();
+
+using exp_t = std::uint32_t;
+using man_t = std::uint64_t;
+
+struct APyFloatData {
+    bool sign;
+    exp_t exp; // Biased exponent
+    man_t man; // Hidden one
+    bool operator==(const APyFloatData& other) const
+    {
+        return std::make_tuple(sign, exp, man)
+            == std::make_tuple(other.sign, other.exp, other.man);
+    }
+};
 
 #endif // _APYTYPES_COMMON_H
