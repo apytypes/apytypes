@@ -174,6 +174,16 @@ APyFloatArray APyFloatArray::operator-(const APyFloat& rhs) const
     return perform_basic_arithmetic(rhs, ArithmeticOperation::SUBTRACTION);
 }
 
+APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
+{
+    return perform_basic_arithmetic(rhs, ArithmeticOperation::MULTIPLICATION);
+}
+
+APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
+{
+    return perform_basic_arithmetic(rhs, ArithmeticOperation::MULTIPLICATION);
+}
+
 std::string APyFloatArray::repr() const
 {
     std::stringstream ss {};

@@ -33,6 +33,7 @@ public:
     APyFloatArray operator*(const APyFloatArray& rhs) const;
     APyFloatArray operator*(const APyFloat& rhs) const;
     APyFloatArray operator/(const APyFloatArray& rhs) const;
+    APyFloatArray operator/(const APyFloat& rhs) const;
 
     //! Python `__repr__()` function
     std::string repr() const;
