@@ -118,8 +118,7 @@ public:
      * are considered identical if, and only if:
      *   * They represent exatly the same tensor shape
      *   * They store the exact same fixed-point values in all tensor elements
-     *   * They have the exact same bit specification (`bits`, `int_bits`, and
-     *     `frac_bits` are all equal)
+     *   * They have the exact same bit format (`exp_bits`, `man_bits`, and `bias`)
      */
     bool is_identical(const APyFixedArray& other) const;
 

@@ -78,8 +78,75 @@ void bind_float_array(py::module& m)
             )pbdoc")
 
         /*
+         * Static methods
+         */
+        .def_static(
+            "from_float",
+            &APyFloatArray::from_double,
+            py::arg("float_sequence"),
+            py::arg("exp_bits") = std::nullopt,
+            py::arg("man_bits") = std::nullopt,
+            py::arg("bias") = std::nullopt,
+            py::arg("rounding_mode") = std::nullopt,
+            R"pbdoc(
+            Create an :class:`APyFloatArray` object from a sequence of :class:`float`.
+
+            Parameters
+            ----------
+            float_sequence : sequence of float
+                Floating point values to initialize from. The tensor shape will be taken
+                from the sequence shape.
+            exp_bits : int
+                Number of exponent bits in the created fixed-point tensor
+            man_bits : int, optional
+                Number of mantissa bits in the created fixed-point tensor
+            bias : int, optional
+                Bias in the created fixed-point tensor
+
+            Returns
+            -------
+            :class:`APyFloatArray`
+
+            Examples
+            --------
+
+            .. code-block:: python
+
+                from apytypes import APyFloatArray
+
+                # Array `a`, initialized from floating-point values.
+                a = APyFloatArray.from_float([1.0, 1.25, 1.49], exp_bits=10, man_bits=15)
+
+                # Array `b` (2 x 3 matrix), initialized from floating-point values.
+                b = APyFloatArray.from_float(
+                    [
+                        [1.0, 2.0, 3.0],
+                        [4.0, 5.0, 6.0],
+                    ],
+                    exp_bits=5,
+                    man_bits=2
+                )
+            )pbdoc"
+        )
+
+        /*
          * Dunder methods
          */
         .def("__repr__", &APyFloatArray::repr)
-        .def("__len__", &APyFloatArray::get_size);
+        .def("__len__", &APyFloatArray::get_size)
+
+        .def("is_identical", &APyFloatArray::is_identical, py::arg("other"), R"pbdoc(
+            Test if two :class:`APyFloatArray` objects are identical.
+
+            Two :class:`APyFloatArray` objects are considered identical if, and only if:
+              * They represent exatly the same tensor shape
+              * They store the exact same floating-ppint values in all tensor elements
+              * They have the exact same bit format (`exp_bits`, `man_bits`, and `bias`)
+
+            Returns
+            -------
+            :class:`bool`
+            )pbdoc");
+
+        
 }

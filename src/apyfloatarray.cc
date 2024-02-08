@@ -4,6 +4,7 @@
 #include <pybind11/stl.h>
 namespace py = pybind11;
 
+#include <algorithm>
 #include <iostream>
 #include "apyfloatarray.h"
 #include "apyfloat.h"
@@ -24,7 +25,7 @@ APyFloatArray::APyFloatArray(
         this->bias = bias.value();
     } else {
         // Not very pretty way to get the IEEE-like bias
-        this->bias = APyFloat(0, 0, 0, exp_bits, 0).get_bias();
+        this->bias = APyFloat::ieee_bias(exp_bits);
     }
 
     const auto signs_shape = python_sequence_extract_shape(sign_seq);
@@ -55,6 +56,10 @@ APyFloatArray::APyFloatArray(
 
         data.push_back({sign, exp, man});
     }
+}
+
+APyFloatArray::APyFloatArray(const std::vector<std::size_t> &shape, exp_t exp_bits, std::uint8_t man_bits, std::optional<exp_t> bias) 
+: shape(shape), exp_bits(exp_bits), man_bits(man_bits), bias(bias.value_or(APyFloat::ieee_bias(exp_bits))) {
 }
 
 std::string APyFloatArray::repr() const
@@ -99,3 +104,36 @@ pybind11::tuple APyFloatArray::get_shape() const
 size_t APyFloatArray::get_ndim() const { return shape.size(); }
 
 size_t APyFloatArray::get_size() const { return shape[0]; }
+
+bool APyFloatArray::is_identical(const APyFloatArray& other) const {
+    const bool same_spec = (shape == other.shape) && (exp_bits == other.exp_bits)
+    && (man_bits == other.man_bits) && (bias == other.bias) && (data.size() == other.data.size());
+
+    return same_spec && std::equal(data.begin(), data.end(), other.data.begin(), other.data.end()); 
+}
+
+APyFloatArray APyFloatArray::from_double(
+        const pybind11::sequence& double_seq,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias,
+        std::optional<RoundingMode> rounding_mode) {
+
+    APyFloatArray arr(python_sequence_extract_shape(double_seq), exp_bits, man_bits, bias);
+
+    auto py_obj = python_sequence_walk<py::float_, py::int_>(double_seq);
+
+    for (const auto &obj : py_obj) {
+        double d;
+        if (py::isinstance<py::float_>(obj)) {
+            d = static_cast<double>(py::cast<py::float_>(obj));
+        } else if (py::isinstance<py::int_>(obj)) {
+            d = static_cast<int>(py::cast<py::int_>(obj));
+        } else {
+            throw std::domain_error("Invalid Python objects in sequence");
+        }
+        const auto fp = APyFloat::from_double(d, exp_bits, man_bits, arr.bias);
+        arr.data.push_back({fp.get_sign(), fp.get_exp(), fp.get_man()});
+    }
+    return arr;
+}
