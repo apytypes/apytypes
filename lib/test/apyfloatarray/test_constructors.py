@@ -1,6 +1,7 @@
 import pytest
 from apytypes import APyFloatArray
 
+
 @pytest.mark.float_array
 def test_explicit_constructor():
     arr = APyFloatArray([1], [2], [3], 4, 5)
@@ -8,7 +9,7 @@ def test_explicit_constructor():
     assert arr.shape == (1,)
     assert arr.exp_bits == 4
     assert arr.man_bits == 5
-    assert arr.bias == 7 # Default when using 4 exponent bits
+    assert arr.bias == 7  # Default when using 4 exponent bits
 
     arr2d = APyFloatArray([[0, 1], [0, 1]], [[2, 3], [2, 3]], [[4, 5], [4, 5]], 6, 7, 8)
     assert len(arr2d) == 2
@@ -30,10 +31,15 @@ def test_from_float():
             [-4.0, -5.0, -6.0],
         ],
         exp_bits=5,
-        man_bits=2
+        man_bits=2,
     )
 
-    assert b.is_identical(APyFloatArray([[0, 0, 0], [1, 1, 1]], 
-                                        [[15, 16, 16], [17, 17, 17]],
-                                        [[0, 0, 2], [0, 1, 2]], 5, 2))
-    
+    assert b.is_identical(
+        APyFloatArray(
+            [[0, 0, 0], [1, 1, 1]],
+            [[15, 16, 16], [17, 17, 17]],
+            [[0, 0, 2], [0, 1, 2]],
+            5,
+            2,
+        )
+    )
