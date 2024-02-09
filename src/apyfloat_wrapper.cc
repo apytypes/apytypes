@@ -84,6 +84,140 @@ void bind_float(py::module& m)
         .def(py::self > float())
         .def(py::self <= float())
         .def(py::self >= float())
+        .def(
+            "__add__",
+            [](const APyFloat& a, int b) {
+                if (b == 0) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot add with int");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__radd__",
+            [](const APyFloat& a, int b) {
+                if (b == 0) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot add with int");
+                };
+            },
+            py::is_operator()
+        )
+
+        .def(
+            "__add__",
+            [](const APyFloat& a, float b) {
+                if (b == 0.) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot add with float");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__radd__",
+            [](const APyFloat& a, float b) {
+                if (b == 0.) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot add with float");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__sub__",
+            [](const APyFloat& a, int b) {
+                if (b == 0) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot subtract with int");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__rsub__",
+            [](const APyFloat& a, int b) {
+                if (b == 0) {
+                    return -a;
+                } else {
+                    throw pybind11::type_error("Cannot subtract with int");
+                };
+            },
+            py::is_operator()
+        )
+
+        .def(
+            "__sub__",
+            [](const APyFloat& a, float b) {
+                if (b == 0.) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot subtract with float");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__rsub__",
+            [](const APyFloat& a, float b) {
+                if (b == 0.) {
+                    return -a;
+                } else {
+                    throw pybind11::type_error("Cannot subtract with float");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__mul__",
+            [](const APyFloat& a, int b) {
+                if (b == 1) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot multiply with int");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__rmul__",
+            [](const APyFloat& a, int b) {
+                if (b == 1) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot multiply with int");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__mul__",
+            [](const APyFloat& a, float b) {
+                if (b == 1.) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot multiply with float");
+                };
+            },
+            py::is_operator()
+        )
+        .def(
+            "__rmul__",
+            [](const APyFloat& a, float b) {
+                if (b == 1.) {
+                    return a;
+                } else {
+                    throw pybind11::type_error("Cannot multiply with float");
+                };
+            },
+            py::is_operator()
+        )
 
         .def("__abs__", &APyFloat::abs)
         .def("__pow__", &APyFloat::pow)
