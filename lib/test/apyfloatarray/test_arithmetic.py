@@ -3,6 +3,20 @@ from apytypes import APyFloat, APyFloatArray
 
 
 @pytest.mark.float_array
+def test_array_raises():
+    a = APyFloatArray([1], [5], [4], 10, 10)
+    b = APyFloatArray([1, 2], [5, 3], [4, 4], 10, 10)
+    with pytest.raises(ValueError, match="APyFloatArray.__add__: shape missmatch"):
+        _ = a + b
+    with pytest.raises(ValueError, match="APyFloatArray.__sub__: shape missmatch"):
+        _ = a - b
+    with pytest.raises(ValueError, match="APyFloatArray.__mul__: shape missmatch"):
+        _ = a * b
+    with pytest.raises(ValueError, match="APyFloatArray.__truediv__: shape missmatch"):
+        _ = a / b
+
+
+@pytest.mark.float_array
 def test_array_add():
     a = APyFloatArray.from_float([0, 0.125, 2.5, 12], 5, 7)
     b = APyFloatArray.from_float([3, -0.75, -5, 8], 6, 5)
