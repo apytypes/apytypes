@@ -46,8 +46,8 @@ void bind_accumulator_context(py::module& m)
             py::arg("bits") = std::nullopt,
             py::arg("int_bits") = std::nullopt,
             py::arg("frac_bits") = std::nullopt,
-            py::arg("rounding_mode") = std::nullopt,
-            py::arg("overflow_mode") = std::nullopt
+            py::arg("rounding") = std::nullopt,
+            py::arg("overflow") = std::nullopt
         )
         .def("__enter__", &context_enter_handler)
         .def("__exit__", &context_exit_handler);

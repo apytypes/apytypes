@@ -191,23 +191,43 @@ def test_matrix_multiplication_accumulator_context():
         frac_bits=2,
     )
 
+    # True result
     assert (A @ B).is_identical(
         APyFixedArray.from_float([[0.3125, 0.50], [0.8125, 1.25]], bits=9, int_bits=5)
     )
 
-    with AccumulatorContext(int_bits=2, frac_bits=4):
+    # Truncating rounding mode
+    with AccumulatorContext(int_bits=2, frac_bits=4, rounding=RoundingMode.TRN):
         assert (A @ B).is_identical(
             APyFixedArray.from_float([[0.3125, 0.5000], [0.8125, 1.2500]], 6, 2)
         )
-    with AccumulatorContext(int_bits=2, frac_bits=3):
+    with AccumulatorContext(int_bits=2, frac_bits=3, rounding=RoundingMode.TRN):
         assert (A @ B).is_identical(
             APyFixedArray.from_float([[0.2500, 0.5000], [0.7500, 1.2500]], 5, 2)
         )
-    with AccumulatorContext(int_bits=2, frac_bits=2):
+    with AccumulatorContext(int_bits=2, frac_bits=2, rounding=RoundingMode.TRN):
         assert (A @ B).is_identical(
             APyFixedArray.from_float([[0.0000, 0.5000], [0.7500, 1.2500]], 4, 2)
         )
-    with AccumulatorContext(int_bits=2, frac_bits=1):
+    with AccumulatorContext(int_bits=2, frac_bits=1, rounding=RoundingMode.TRN):
         assert (A @ B).is_identical(
             APyFixedArray.from_float([[0.0000, 0.0000], [0.5000, 1.0000]], 3, 2)
+        )
+
+    # Rounding, ties to plus infinity rounding
+    with AccumulatorContext(int_bits=2, frac_bits=4, rounding=RoundingMode.RND):
+        assert (A @ B).is_identical(
+            APyFixedArray.from_float([[0.3125, 0.5000], [0.8125, 1.2500]], 6, 2)
+        )
+    with AccumulatorContext(int_bits=2, frac_bits=3, rounding=RoundingMode.RND):
+        assert (A @ B).is_identical(
+            APyFixedArray.from_float([[0.3750, 0.5000], [0.875, 1.2500]], 5, 2)
+        )
+    with AccumulatorContext(int_bits=2, frac_bits=2, rounding=RoundingMode.RND):
+        assert (A @ B).is_identical(
+            APyFixedArray.from_float([[0.5000, 0.5000], [0.7500, 1.2500]], 4, 2)
+        )
+    with AccumulatorContext(int_bits=2, frac_bits=1, rounding=RoundingMode.RND):
+        assert (A @ B).is_identical(
+            APyFixedArray.from_float([[0.0000, 1.0000], [1.0000, 1.5000]], 3, 2)
         )

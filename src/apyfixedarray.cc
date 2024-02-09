@@ -676,7 +676,9 @@ APyFixedArray APyFixedArray::_checked_inner_product(const APyFixedArray& rhs) co
     // Handle possible global accumulator mode
     if (get_accumulator_mode().has_value()) {
         AccumulatorOption mode = *get_accumulator_mode();
-        hadamard = hadamard.resize(mode.bits, mode.int_bits);
+        hadamard = hadamard.resize(
+            mode.bits, mode.int_bits, mode.rounding_mode, mode.overflow_mode
+        );
     }
 
     APyFixedArray result({ 1 }, res_bits, res_int_bits);
