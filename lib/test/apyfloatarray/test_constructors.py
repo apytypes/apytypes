@@ -78,4 +78,4 @@ def test_numpy_creation(dt):
 
     a = APyFloatArray.from_float(anp, 4, 2)
 
-    assert np.all(a.to_numpy() == anp.asdtype(np.float64))
+    assert np.all(a.to_numpy() == anp.astype(np.float64))

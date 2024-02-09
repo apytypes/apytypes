@@ -77,6 +77,6 @@ def test_numpy_creation(dt):
     np = pytest.importorskip("numpy")
     anp = np.array([[1, 2, 3, 4]], dtype=dt)
 
-    a = APyFixedArray.from_float(anp, 5, 2)
+    a = APyFixedArray.from_float(anp, 5, 4)
 
-    assert np.all(a.to_numpy() == anp.asdtype(np.double))
+    assert np.all(a.to_numpy() == anp.astype(np.double))
