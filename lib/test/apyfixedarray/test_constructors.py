@@ -52,3 +52,31 @@ def test_array_floating_point_construction():
     a = APyFixedArray.from_float([100.0, -200.0, -300.0, -400.0], bits=4, frac_bits=0)
     b = APyFixedArray.from_float([100, -200, -300, -400], bits=4, frac_bits=0)
     assert a.is_identical(b)
+
+
+@pytest.mark.parametrize(
+    "dt",
+    [
+        "int64",
+        "int32",
+        "int16",
+        "int8",
+        "uint64",
+        "uint32",
+        "uint16",
+        "uint8",
+        "float64",
+        "float32",
+        "float16",
+    ],
+)
+@pytest.mark.xfail()
+def test_numpy_creation(dt):
+    import numpy as np
+
+    np = pytest.importorskip("numpy")
+    anp = np.array([[1, 2, 3, 4]], dtype=dt)
+
+    a = APyFixedArray.from_float(anp, 5, 2)
+
+    assert np.all(a.to_numpy() == anp.asdtype(np.double))

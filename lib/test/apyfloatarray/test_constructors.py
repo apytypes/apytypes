@@ -51,3 +51,31 @@ def test_from_float():
             2,
         )
     )
+
+
+@pytest.mark.parametrize(
+    "dt",
+    [
+        "int64",
+        "int32",
+        "int16",
+        "int8",
+        "uint64",
+        "uint32",
+        "uint16",
+        "uint8",
+        "float64",
+        "float32",
+        "float16",
+    ],
+)
+@pytest.mark.xfail()
+def test_numpy_creation(dt):
+    import numpy as np
+
+    np = pytest.importorskip("numpy")
+    anp = np.array([[1, 2, 3, 4]], dtype=dt)
+
+    a = APyFloatArray.from_float(anp, 4, 2)
+
+    assert np.all(a.to_numpy() == anp.asdtype(np.float64))
