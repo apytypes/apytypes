@@ -88,6 +88,14 @@ public:
     //! a 2-D array, returns the matrix transposition of `*this`.
     APyFloatArray transpose() const;
 
+    //! Returns a copy of the tensor with the elements resized.
+    APyFloatArray resize(
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt,
+        std::optional<RoundingMode> rounding_mode = std::nullopt
+    ) const;
+
     inline exp_t get_bias() const { return bias; }
     inline std::uint8_t get_man_bits() const { return man_bits; }
     inline std::uint8_t get_exp_bits() const { return exp_bits; }

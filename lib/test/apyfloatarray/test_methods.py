@@ -1,5 +1,5 @@
 import pytest
-from apytypes import APyFloatArray
+from apytypes import APyFloatArray, RoundingMode
 
 
 @pytest.mark.float_array
@@ -92,3 +92,22 @@ def test_iterator():
 def test_len():
     fp_array = APyFloatArray.from_float([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
     assert len(fp_array) == 6
+
+
+@pytest.mark.float_array
+def test_resize():
+    fp_array = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=10, man_bits=15)
+    ans = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=5, man_bits=2)
+    assert fp_array.resize(5, 2).is_identical(ans)
+
+    fp_array = APyFloatArray.from_float(
+        [[1000, -1000], [1.015625, float("nan")]], exp_bits=10, man_bits=15
+    )
+    ans = APyFloatArray.from_float(
+        [[float("inf"), float("-inf")], [1, float("nan")]], exp_bits=4, man_bits=3
+    )
+    assert fp_array.resize(4, 3).is_identical(ans)
+
+    fp_array = APyFloatArray.from_float([1.125, -1.875], exp_bits=10, man_bits=15)
+    ans = APyFloatArray.from_float([1, -1.75], exp_bits=5, man_bits=2)
+    assert fp_array.resize(5, 2, rounding_mode=RoundingMode.TO_ZERO).is_identical(ans)
