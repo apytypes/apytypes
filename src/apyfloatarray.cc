@@ -104,9 +104,6 @@ APyFloatArray APyFloatArray::perform_basic_arithmetic(
         APyFloat lhs_scalar(data[i], exp_bits, man_bits, bias);
         APyFloat rhs_scalar(rhs.data[i], rhs.exp_bits, rhs.man_bits, rhs.bias);
 
-        std::cout << lhs_scalar.to_double() << " - " << rhs_scalar.to_double() << " = "
-                  << (lhs_scalar - rhs_scalar).to_double() << std::endl;
-
         if (op == ArithmeticOperation::ADDITION)
             res.data[i] = (lhs_scalar + rhs_scalar).get_data();
         else if (op == ArithmeticOperation::SUBTRACTION)
@@ -182,6 +179,16 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
 APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
 {
     return perform_basic_arithmetic(rhs, ArithmeticOperation::MULTIPLICATION);
+}
+
+APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
+{
+    return perform_basic_arithmetic(rhs, ArithmeticOperation::DIVISION);
+}
+
+APyFloatArray APyFloatArray::operator/(const APyFloat& rhs) const
+{
+    return perform_basic_arithmetic(rhs, ArithmeticOperation::DIVISION);
 }
 
 std::string APyFloatArray::repr() const
