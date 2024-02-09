@@ -114,6 +114,22 @@ public:
     size_t size() const;
 
     /*!
+     * Construct a new `APyFixedArray` tensor object with the same `shape` and
+     * fixed-point values as `*this`, but with a new word-length. The underlying
+     * bit-pattern of each tensor element are copied into place, meaning that lowering
+     * the number of fractional bits may result in quantization, and lowering the number
+     * of integer bits may result in overflowing. Supports rounding and oveflow options
+     * on narrowing resizes.
+     */
+    APyFixedArray resize(
+        std::optional<int> bits = std::nullopt,
+        std::optional<int> int_bits = std::nullopt,
+        RoundingMode rounding = RoundingMode::TRN,
+        OverflowMode overflow = OverflowMode::WRAP,
+        std::optional<int> frac_bits = std::nullopt
+    ) const;
+
+    /*!
      * Test if two `APyFixedArray` objects are identical. Two `APyFixedArray` objects
      * are considered identical if, and only if:
      *   * They represent exatly the same tensor shape
@@ -138,13 +154,6 @@ public:
     /* ****************************************************************************** *
      * *                          Private member functions                          * *
      * ****************************************************************************** */
-
-    //! Construct a new `APyFixedArray` tensor object with the same `shape` and
-    //! fixed-point values as `*this`, but with a new word-length. The underlying
-    //! bit-pattern of each tensor element are copied into place, meaning that lowering
-    //! the number of fractional bits may result in truncation, and lowering the number
-    //! of integer bits may result in two's complement overflowing.
-    APyFixedArray _bit_resize(int new_bits, int new_int_bits) const;
 
     //! The number of limbs per scalar in `*this` `APyFixedArray` tensor
     //! object.

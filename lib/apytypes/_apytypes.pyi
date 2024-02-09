@@ -449,6 +449,42 @@ class APyFixedArray:
         :class:`bool`
         """
 
+    def resize(
+        self,
+        bits: int | None = None,
+        int_bits: int | None = None,
+        rounding: RoundingMode = ...,
+        overflow: OverflowMode = ...,
+        frac_bits: int | None = None,
+    ) -> APyFixedArray:
+        """
+        Create a new resized fixed-point array based on the bit pattern in this
+        fixed-point array.
+
+        This is the primary method for performing rounding, truncation, overflowing,
+        and saturation when dealing with APyTypes fixed-point numbers.
+
+        Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
+        to be set.
+
+        Parameters
+        ----------
+        bits : int, optional
+            Total number of bits in the created fixed-point array
+        int_bits : int, optional
+            Number of integer bits in the created fixed-point array
+        rounding : RoundingMode, default: RoundingMode.TRN
+            Rounding mode to use in this resize
+        overflow : OverflowMode, default: OverflowMode.WRAP
+            Overflowing mode to use in this resize
+        frac_bits : int, optional
+            Number of fractional bits in the created fixed-point array
+
+        Returns
+        -------
+        :class:`APyFixedArray`
+        """
+
     def to_numpy(self) -> numpy.ndarray[numpy.float64]:
         """
         Return array as a :class:`numpy.ndarray` of :class:`numpy.float64`.

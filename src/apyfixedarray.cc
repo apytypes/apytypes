@@ -102,8 +102,8 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
 
     // Adjust binary point
-    APyFixedArray result = _bit_resize(res_int_bits + res_frac_bits, res_int_bits);
-    APyFixedArray imm = rhs._bit_resize(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result = resize(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray imm = rhs.resize(res_int_bits + res_frac_bits, res_int_bits);
 
     // Perform addition
     for (std::size_t i = 0; i < result._data.size(); i += result._scalar_limbs()) {
@@ -126,7 +126,7 @@ APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
 
     // Adjust binary point
-    APyFixedArray result = _bit_resize(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result = resize(res_int_bits + res_frac_bits, res_int_bits);
     APyFixed imm = rhs.resize(res_int_bits + res_frac_bits, res_int_bits);
 
     // Perform addition
@@ -159,8 +159,8 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
 
     // Adjust binary point
-    APyFixedArray result = _bit_resize(res_int_bits + res_frac_bits, res_int_bits);
-    APyFixedArray imm = rhs._bit_resize(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result = resize(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray imm = rhs.resize(res_int_bits + res_frac_bits, res_int_bits);
 
     // Perform addition
     for (std::size_t i = 0; i < result._data.size(); i += result._scalar_limbs()) {
@@ -183,7 +183,7 @@ APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
 
     // Adjust binary point
-    APyFixedArray result = _bit_resize(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result = resize(res_int_bits + res_frac_bits, res_int_bits);
     APyFixed imm = rhs.resize(res_int_bits + res_frac_bits, res_int_bits);
 
     // Perform addition
@@ -568,28 +568,60 @@ APyFixedArray APyFixedArray::from_double(
  * *                            Private member functions                            * *
  * ********************************************************************************** */
 
-APyFixedArray APyFixedArray::_bit_resize(int new_bits, int new_int_bits) const
+APyFixedArray APyFixedArray::resize(
+    std::optional<int> i_bits,
+    std::optional<int> i_int_bits,
+    RoundingMode rounding,
+    OverflowMode overflow,
+    std::optional<int> i_frac_bits
+) const
 {
-    APyFixedArray result(_shape, new_bits, new_int_bits);
-    std::vector<mp_limb_t> tmp(bits_to_limbs(new_bits), 0);
+    // Sanitize the input
+    int bits, int_bits;
+    set_bit_specifiers_from_optional(bits, int_bits, i_bits, i_int_bits, i_frac_bits);
+    bit_specifier_sanitize_bits(bits, int_bits);
+
+    // Saturation not supported yet, unfortuantly...
+    if (overflow == OverflowMode::SAT) {
+        throw NotImplementedException(
+            "Not implemented: APyFixedArray::_bit_resize() with overflow=SAT"
+        );
+    }
+
+    // Only rounding (ties to plus infinity) and truncation supported yet.
+    if (rounding != RoundingMode::TRN && rounding != RoundingMode::RND) {
+        throw NotImplementedException(fmt::format(
+            "Not implemented: APyFixedArray::_bit_resize() with rounding={}",
+            "<UNKNOWN_ROUNDING>"
+        ));
+    }
+
+    // Early exit if this isn't a resize
+    if (_bits == bits && _int_bits == int_bits) {
+        return *this;
+    }
+
+    // The new result array
+    APyFixedArray result(_shape, bits, int_bits);
 
     // For each scalar in the tensor...
-    for (std::size_t i = 0; i < result._data.size() / bits_to_limbs(new_bits); i++) {
+    std::vector<mp_limb_t> tmp(bits_to_limbs(bits), 0);
+    for (std::size_t i = 0; i < result._data.size() / bits_to_limbs(bits); i++) {
 
         // Copy the scalar into an intermediate
         std::copy_n(
             _data.begin() + i * bits_to_limbs(_bits),
-            std::min(bits_to_limbs(new_bits), bits_to_limbs(_bits)),
+            std::min(bits_to_limbs(bits), bits_to_limbs(_bits)),
             tmp.begin()
         );
 
         // Extend intermediate if bigger
-        if (bits_to_limbs(new_bits) > bits_to_limbs(_bits)) {
+        if (bits_to_limbs(bits) > bits_to_limbs(_bits)) {
             auto sentinel_limb_it = tmp.begin() + bits_to_limbs(_bits);
             bool is_negative = mp_limb_signed_t(*(sentinel_limb_it - 1)) < 0;
             std::fill_n(
                 sentinel_limb_it,
-                bits_to_limbs(new_bits) - bits_to_limbs(_bits),
+                bits_to_limbs(bits) - bits_to_limbs(_bits),
                 is_negative ? mp_limb_t(-1) : 0
             );
         }
@@ -598,14 +630,17 @@ APyFixedArray APyFixedArray::_bit_resize(int new_bits, int new_int_bits) const
         if (frac_bits() <= result.frac_bits()) {
             limb_vector_lsl(tmp, result.frac_bits() - frac_bits());
         } else { // frac_bits() > result.frac_bits()
+            if (rounding == RoundingMode::RND) {
+                limb_vector_add_pow2(tmp, frac_bits() - result.frac_bits() - 1);
+            }
             limb_vector_asr(tmp, frac_bits() - result.frac_bits());
         }
 
         // Copy scalar into new tensor
         std::copy_n(
-            tmp.begin(),                                       // src
-            bits_to_limbs(new_bits),                           // number limbs to copy
-            result._data.begin() + i * bits_to_limbs(new_bits) // dst
+            tmp.begin(),                                   // src
+            bits_to_limbs(bits),                           // number limbs to copy
+            result._data.begin() + i * bits_to_limbs(bits) // dst
         );
     }
 
@@ -641,7 +676,7 @@ APyFixedArray APyFixedArray::_checked_inner_product(const APyFixedArray& rhs) co
     // Handle possible global accumulator mode
     if (get_accumulator_mode().has_value()) {
         AccumulatorOption mode = *get_accumulator_mode();
-        hadamard = hadamard._bit_resize(mode.bits, mode.int_bits);
+        hadamard = hadamard.resize(mode.bits, mode.int_bits);
     }
 
     APyFixedArray result({ 1 }, res_bits, res_int_bits);
