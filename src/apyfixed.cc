@@ -291,8 +291,7 @@ APyFixed APyFixed::operator-(int rhs) const
 
 APyFixed APyFixed::operator*(int rhs) const
 {
-    // TODO
-    if (rhs == 0) {
+    if (rhs == 1) {
         return *this;
     }
     throw NotImplementedException("Not implemented: APyFixed.__mul__(int)");
@@ -300,8 +299,10 @@ APyFixed APyFixed::operator*(int rhs) const
 
 APyFixed APyFixed::operator/(int rhs) const
 {
-    (void)rhs;
-    throw NotImplementedException("Not implemented: APyFixed.__div__(int)");
+    if (rhs == 1) {
+        return *this;
+    }
+    throw NotImplementedException("Not implemented: APyFixed.__mul__(int)");
 }
 
 APyFixed APyFixed::operator<<(int shift_val) const

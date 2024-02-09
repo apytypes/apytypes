@@ -1,4 +1,5 @@
 from itertools import permutations as perm
+import math
 import pytest
 from apytypes import APyFloat
 
@@ -304,3 +305,13 @@ def test_power_special_cases(x, n, test_exp):
         assert eval(f"(APyFloat.from_float(float({x}), 9, 7)**{n}).is_nan")
     else:
         assert eval(f"float(APyFloat.from_float(float({x}), 9, 7)**{n})") == test_exp
+
+
+def test_sum():
+    s = [APyFloat.from_float(0.3, 2, 5), APyFloat.from_float(0.7, 4, 7)]
+    assert sum(s).is_identical(APyFloat(0, 6, 51, 4, 7))
+
+
+def test_prod():
+    s = [APyFloat.from_float(0.3, 2, 5), APyFloat.from_float(0.7, 4, 7)]
+    assert math.prod(s).is_identical(APyFloat(0, 5, 50, 4, 7))

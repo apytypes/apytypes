@@ -2,6 +2,7 @@ from apytypes import APyFixed
 from apytypes import QuantizationMode
 from apytypes import OverflowMode
 
+import math
 import pytest
 
 
@@ -212,7 +213,6 @@ def test_shift():
     assert (a << -7).is_identical(APyFixed(-3, 3, -5))
 
 
-@pytest.mark.xfail
 def test_comparisons_failing():
     a = APyFixed(3, 3, 2)
     assert a > 0
@@ -220,3 +220,19 @@ def test_comparisons_failing():
     a = APyFixed(0, 3, 2)
     assert a == 0
     assert a == 0.0
+
+
+def test_sum():
+    s = [
+        APyFixed.from_float(0.3, int_bits=2, frac_bits=5),
+        APyFixed.from_float(0.7, int_bits=4, frac_bits=7),
+    ]
+    assert sum(s).is_identical(APyFixed(130, bits=12, int_bits=5))
+
+
+def test_prod():
+    s = [
+        APyFixed.from_float(0.3, int_bits=2, frac_bits=5),
+        APyFixed.from_float(0.7, int_bits=4, frac_bits=7),
+    ]
+    assert math.prod(s).is_identical(APyFixed(900, bits=18, int_bits=6))
