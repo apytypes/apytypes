@@ -77,6 +77,18 @@ def test_get_item():
 
 
 @pytest.mark.float_array
+def test_iterator():
+    fx_array = APyFloatArray.from_float([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
+    iterator = iter(fx_array)
+    assert next(iterator).is_identical(
+        APyFloatArray.from_float([1], exp_bits=10, man_bits=10)
+    )
+    assert next(iterator).is_identical(
+        APyFloatArray.from_float([2], exp_bits=10, man_bits=10)
+    )
+
+
+@pytest.mark.float_array
 def test_len():
     fp_array = APyFloatArray.from_float([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
     assert len(fp_array) == 6

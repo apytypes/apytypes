@@ -1,5 +1,5 @@
 #include "apyfloatarray.h"
-// #include "apyfloatarray_iterator.h"
+#include "apyfloatarray_iterator.h"
 #include "apytypes_common.h"
 #include "apytypes_util.h"
 
@@ -407,5 +407,21 @@ void bind_float_array(py::module& m)
             )pbdoc")
 
         // Iteration and friends
-        .def("__getitem__", &APyFloatArray::get_item, py::arg("idx"));
+        .def("__getitem__", &APyFloatArray::get_item, py::arg("idx"))
+        .def(
+            "__iter__",
+            [](py::object array) {
+                return APyFloatArrayIterator(array.cast<const APyFloatArray&>(), array);
+            }
+        )
+        .def("__array__", &APyFloatArray::to_numpy)
+
+        ;
+
+    py::class_<APyFloatArrayIterator>(m, "APyFloatArrayIterator")
+        .def(
+            "__iter__",
+            [](APyFloatArrayIterator& it) -> APyFloatArrayIterator& { return it; }
+        )
+        .def("__next__", &APyFloatArrayIterator::next);
 }
