@@ -308,6 +308,16 @@ void bind_float_array(py::module& m)
             -------
             :class:`APyFloatArray`
             )pbdoc")
+        .def("to_numpy", &APyFloatArray::to_numpy, R"pbdoc(
+            Return array as a :class:`numpy.ndarray` of :class:`numpy.float64`.
+
+            The returned array has the same `shape` and stored value as `self`. This
+            method rounds away from infinity on ties.
+
+            Returns
+            -------
+            :class:`numpy.ndarray`
+            )pbdoc")
 
         /*
          * Static methods

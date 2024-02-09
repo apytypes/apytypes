@@ -235,6 +235,32 @@ size_t APyFloatArray::get_ndim() const { return shape.size(); }
 
 size_t APyFloatArray::get_size() const { return shape[0]; }
 
+py::array_t<double> APyFloatArray::to_numpy() const
+{
+    // Shape of NumPy object is same as `APyFloatArray` object
+    std::vector<py::ssize_t> numpy_shape(shape.begin(), shape.end());
+
+    // The strides of the NumPy object
+    std::vector<py::ssize_t> numpy_stride(numpy_shape.size(), 0);
+    for (std::size_t i = 0; i < numpy_shape.size(); i++) {
+        numpy_stride[i] = std::accumulate(
+            shape.crbegin(), shape.crbegin() + i, sizeof(double), std::multiplies {}
+        );
+    }
+    std::reverse(numpy_stride.begin(), numpy_stride.end());
+
+    // Resulting `NumPy` array of float64
+    py::array_t<double, py::array::c_style> result(numpy_shape, numpy_stride);
+
+    double* numpy_data = result.mutable_data();
+    for (std::size_t i = 0; i < fold_shape(); i++) {
+        const auto apy_f = APyFloat(data.at(i), exp_bits, man_bits, bias);
+        numpy_data[i] = double(apy_f);
+    }
+
+    return result;
+}
+
 bool APyFloatArray::is_identical(const APyFloatArray& other) const
 {
     const bool same_spec = (shape == other.shape) && (exp_bits == other.exp_bits)
@@ -300,4 +326,10 @@ APyFloatArray APyFloatArray::transpose() const
     }
 
     return result;
+}
+
+std::size_t APyFloatArray::fold_shape() const
+{
+    // Fold the shape over multiplication
+    return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies {});
 }
