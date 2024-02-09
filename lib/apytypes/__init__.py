@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from apytypes._apytypes import (
-    APyFloat,
-    APyFloatArray,
     APyFixed,
     APyFixedArray,
+    APyFloat,
+    APyFloatArray,
+    AccumulatorContext,
+    OverflowMode,
     RoundingContext,
     RoundingMode,
-    OverflowMode,
     get_rounding_mode,
     set_rounding_mode,
 )
@@ -15,16 +16,17 @@ from apytypes._apytypes import (
 from apytypes._version import version as __version__
 
 __all__ = [
-    "APyFloat",
-    "APyFloatArray",
     "APyFixed",
     "APyFixedArray",
+    "APyFloat",
+    "APyFloatArray",
+    "AccumulatorContext",
     "OverflowMode",
     "RoundingContext",
     "RoundingMode",
+    "__version__",
     "get_rounding_mode",
     "set_rounding_mode",
-    "__version__",
 ]
 
 APyFloat.__doc__ = """

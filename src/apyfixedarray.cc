@@ -1,4 +1,5 @@
 // Python object access through Pybind
+#include <iostream>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -26,6 +27,7 @@ namespace py = pybind11;
 #include "apyfixed.h"
 #include "apyfixedarray.h"
 #include "apyfixedarray_iterator.h"
+#include "apytypes_common.h"
 #include "apytypes_util.h"
 #include "python_util.h"
 
@@ -620,14 +622,28 @@ std::size_t APyFixedArray::_fold_shape() const
 // both `*this` and `rhs` are equally long. Anything else is undefined behaviour.
 APyFixedArray APyFixedArray::_checked_inner_product(const APyFixedArray& rhs) const
 {
-    const int res_bits = bits() + rhs.bits() + bit_width(_shape[0] - 1);
-    const int res_int_bits = int_bits() + rhs.int_bits() + bit_width(_shape[0] - 1);
+    // Resulting parameters of the inner product
+    int res_bits = bits() + rhs.bits() + bit_width(_shape[0] - 1);
+    int res_int_bits = int_bits() + rhs.int_bits() + bit_width(_shape[0] - 1);
+    if (get_accumulator_mode().has_value()) {
+        res_bits = get_accumulator_mode()->bits;
+        res_int_bits = get_accumulator_mode()->int_bits;
+    }
+
+    // Early exit for empty arrays
     if (_shape[0] == 0) {
         return APyFixedArray({ 0 }, res_bits, res_int_bits);
     }
 
     // Hadamard product of `*this` and `rhs`
     APyFixedArray hadamard = *this * rhs;
+
+    // Handle possible global accumulator mode
+    if (get_accumulator_mode().has_value()) {
+        AccumulatorOption mode = *get_accumulator_mode();
+        hadamard = hadamard._bit_resize(mode.bits, mode.int_bits);
+    }
+
     APyFixedArray result({ 1 }, res_bits, res_int_bits);
     for (std::size_t i = 0; i < hadamard._fold_shape(); i++) {
         mpn_add(
@@ -645,46 +661,51 @@ APyFixedArray APyFixedArray::_checked_inner_product(const APyFixedArray& rhs) co
 // shape of `*this` and `rhs` have been checked to match a 2d matrix multiplication.
 APyFixedArray APyFixedArray::_checked_2d_matmul(const APyFixedArray& rhs) const
 {
-    // Resulting parameters
+    // Resulting shape
     std::vector<std::size_t> res_shape = rhs._shape.size() > 1
         ? std::vector<std::size_t> { _shape[0], rhs._shape[1] } // rhs is 2-D
         : std::vector<std::size_t> { _shape[0] };               // rhs is 1-D
-    const auto res_bits = bits() + rhs.bits() + bit_width(_shape[1] - 1);
-    const auto res_int_bits = int_bits() + rhs.int_bits() + bit_width(_shape[1] - 1);
     const auto res_cols = rhs._shape.size() > 1 ? rhs._shape[1] : 1;
+
+    // Resulting number of bits
+    std::size_t res_bits = bits() + rhs.bits() + bit_width(_shape[1] - 1);
+    std::size_t res_int_bits = int_bits() + rhs.int_bits() + bit_width(_shape[1] - 1);
+    if (get_accumulator_mode().has_value()) {
+        res_bits = get_accumulator_mode()->bits;
+        res_int_bits = get_accumulator_mode()->int_bits;
+    }
 
     // Resulting `APyFixedArray`
     APyFixedArray result(res_shape, res_bits, res_int_bits);
 
+    // Perform the 2D matrix multiplication
+    APyFixedArray current_column({ rhs._shape[0] }, rhs.bits(), rhs.int_bits());
+    APyFixedArray current_row({ _shape[1] }, bits(), int_bits());
+    APyFixedArray current_res({ 1 }, res_bits, res_int_bits);
     for (std::size_t x = 0; x < res_cols; x++) {
 
         // Copy column from `rhs` and use as the current working column. As reading
         // columns from `rhs` is cache-inefficient, we like to do this only once for
         // each element in the resulting matrix.
-        APyFixedArray current_column({ rhs._shape[0] }, rhs.bits(), rhs.int_bits());
-        for (std::size_t col = 0; col < rhs._shape[0]; col++) {
+        for (std::size_t row = 0; row < rhs._shape[0]; row++) {
             std::copy_n(
-                rhs._data.begin() + (x + col * res_cols) * rhs._scalar_limbs(),
+                rhs._data.begin() + (x + row * res_cols) * rhs._scalar_limbs(),
                 rhs._scalar_limbs(),
-                current_column._data.begin() + col * rhs._scalar_limbs()
+                current_column._data.begin() + row * rhs._scalar_limbs()
             );
         }
 
         for (std::size_t y = 0; y < res_shape[0]; y++) {
 
-            // Current row from lhs (`*this`)
-            APyFixedArray current_row({ _shape[1] }, bits(), int_bits());
-            for (std::size_t i = 0; i < _shape[1]; i++) {
-                std::copy_n(
-                    _data.begin() + (y * _shape[1] + i) * _scalar_limbs(),
-                    _scalar_limbs(),
-                    current_row._data.begin() + i * _scalar_limbs()
-                );
-            }
+            // Copy current row from lhs (`*this`)
+            std::copy_n(
+                _data.begin() + (y * _shape[1] * _scalar_limbs()), // src
+                _scalar_limbs() * _shape[1],                       // limbs to copy
+                current_row._data.begin()                          // dst
+            );
 
             // Perform the inner product
-            APyFixedArray current_res
-                = current_column._checked_inner_product(current_row);
+            current_res = current_column._checked_inner_product(current_row);
             assert(current_res._shape == std::vector<std::size_t> { 1 });
             assert(current_res._scalar_limbs() == result._scalar_limbs());
             assert(current_res.bits() == result.bits());

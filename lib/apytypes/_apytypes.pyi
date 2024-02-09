@@ -7,6 +7,9 @@ __all__ = [
     "APyFixedArray",
     "APyFixedArrayIterator",
     "APyFloat",
+    "APyFloatArray",
+    "APyFloatArrayIterator",
+    "AccumulatorContext",
     "ContextManager",
     "OverflowMode",
     "RoundingContext",
@@ -185,8 +188,8 @@ class APyFixed:
         restrictive test than ``==``,  that only tests equality of the stored
         fixed-point value.
 
-        Paramters
-        ---------
+        Parameters
+        ----------
         other : :class:`APyFixed`
             The fixed-point number to test identicality against
 
@@ -380,7 +383,14 @@ class APyFixedArray:
             )
         """
 
+    @typing.overload
     def __add__(self, arg0: APyFixedArray) -> APyFixedArray: ...
+    @typing.overload
+    def __add__(self, arg0: int) -> APyFixedArray: ...
+    @typing.overload
+    def __add__(self, arg0: float) -> APyFixedArray: ...
+    @typing.overload
+    def __add__(self, arg0: APyFixed) -> APyFixedArray: ...
     def __array__(self) -> numpy.ndarray[numpy.float64]: ...
     def __getitem__(self, idx: int) -> APyFixedArray: ...
     def __init__(
@@ -394,10 +404,36 @@ class APyFixedArray:
     def __len__(self) -> int: ...
     def __lshift__(self, shift_amnt: int) -> APyFixedArray: ...
     def __matmul__(self, rhs: APyFixedArray) -> APyFixedArray: ...
+    @typing.overload
     def __mul__(self, arg0: APyFixedArray) -> APyFixedArray: ...
+    @typing.overload
+    def __mul__(self, arg0: APyFixed) -> APyFixedArray: ...
+    @typing.overload
+    def __mul__(self, arg0: int) -> APyFixedArray: ...
+    @typing.overload
+    def __mul__(self, arg0: float) -> APyFixedArray: ...
+    @typing.overload
+    def __radd__(self, arg0: int) -> APyFixedArray: ...
+    @typing.overload
+    def __radd__(self, arg0: float) -> APyFixedArray: ...
+    @typing.overload
+    def __radd__(self, arg0: APyFixed) -> APyFixedArray: ...
     def __repr__(self) -> str: ...
+    @typing.overload
+    def __rmul__(self, arg0: APyFixed) -> APyFixedArray: ...
+    @typing.overload
+    def __rmul__(self, arg0: int) -> APyFixedArray: ...
+    @typing.overload
+    def __rmul__(self, arg0: float) -> APyFixedArray: ...
     def __rshift__(self, shift_amnt: int) -> APyFixedArray: ...
+    @typing.overload
     def __sub__(self, arg0: APyFixedArray) -> APyFixedArray: ...
+    @typing.overload
+    def __sub__(self, arg0: int) -> APyFixedArray: ...
+    @typing.overload
+    def __sub__(self, arg0: float) -> APyFixedArray: ...
+    @typing.overload
+    def __sub__(self, arg0: APyFixed) -> APyFixedArray: ...
     def is_identical(self, other: APyFixedArray) -> bool:
         """
         Test if two :class:`APyFixedArray` objects are identical.
@@ -528,6 +564,7 @@ class APyFloat:
     ) -> APyFloat: ...
     def __abs__(self) -> APyFloat: ...
     def __add__(self, arg0: APyFloat) -> APyFloat: ...
+    def __and__(self, arg0: APyFloat) -> APyFloat: ...
     @typing.overload
     def __eq__(self, arg0: APyFloat) -> bool: ...
     @typing.overload
@@ -550,6 +587,7 @@ class APyFloat:
         man_bits: int,
         bias: int | None = None,
     ) -> None: ...
+    def __invert__(self) -> APyFloat: ...
     @typing.overload
     def __le__(self, arg0: APyFloat) -> bool: ...
     @typing.overload
@@ -564,6 +602,7 @@ class APyFloat:
     @typing.overload
     def __ne__(self, arg0: float) -> bool: ...
     def __neg__(self) -> APyFloat: ...
+    def __or__(self, arg0: APyFloat) -> APyFloat: ...
     @typing.overload
     def __pow__(self, arg0: APyFloat) -> APyFloat: ...
     @typing.overload
@@ -572,6 +611,7 @@ class APyFloat:
     def __str__(self) -> str: ...
     def __sub__(self, arg0: APyFloat) -> APyFloat: ...
     def __truediv__(self, arg0: APyFloat) -> APyFloat: ...
+    def __xor__(self, arg0: APyFloat) -> APyFloat: ...
     def _repr_latex_(self) -> str: ...
     def is_identical(self, other: APyFloat) -> bool:
         """
@@ -656,6 +696,246 @@ class APyFloat:
     def man_bits(self) -> int: ...
     @property
     def sign(self) -> bool: ...
+
+class APyFloatArray:
+    @staticmethod
+    def from_float(
+        float_sequence: typing.Sequence,
+        exp_bits: int = None,
+        man_bits: int = None,
+        bias: int | None = None,
+        rounding_mode: RoundingMode | None = None,
+    ) -> APyFloatArray:
+        """
+        Create an :class:`APyFloatArray` object from a sequence of :class:`float`.
+
+        Parameters
+        ----------
+        float_sequence : sequence of float
+            Floating point values to initialize from. The tensor shape will be taken
+            from the sequence shape.
+        exp_bits : int
+            Number of exponent bits in the created fixed-point tensor
+        man_bits : int, optional
+            Number of mantissa bits in the created fixed-point tensor
+        bias : int, optional
+            Bias in the created fixed-point tensor
+
+        Returns
+        -------
+        :class:`APyFloatArray`
+
+        Examples
+        --------
+
+        .. code-block:: python
+
+            from apytypes import APyFloatArray
+
+            # Array `a`, initialized from floating-point values.
+            a = APyFloatArray.from_float([1.0, 1.25, 1.49], exp_bits=10, man_bits=15)
+
+            # Array `b` (2 x 3 matrix), initialized from floating-point values.
+            b = APyFloatArray.from_float(
+                [
+                    [1.0, 2.0, 3.0],
+                    [4.0, 5.0, 6.0],
+                ],
+                exp_bits=5,
+                man_bits=2
+            )
+        """
+
+    @typing.overload
+    def __add__(self, arg0: APyFloatArray) -> APyFloatArray: ...
+    @typing.overload
+    def __add__(self, arg0: int) -> APyFloatArray: ...
+    @typing.overload
+    def __add__(self, arg0: float) -> APyFloatArray: ...
+    @typing.overload
+    def __add__(self, arg0: APyFloat) -> APyFloatArray: ...
+    def __array__(self) -> numpy.ndarray[numpy.float64]: ...
+    def __getitem__(self, idx: int) -> APyFloatArray: ...
+    def __init__(
+        self,
+        signs: typing.Sequence,
+        exps: typing.Sequence,
+        mans: typing.Sequence,
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
+    ) -> None: ...
+    def __iter__(self) -> APyFloatArrayIterator: ...
+    def __len__(self) -> int: ...
+    def __matmul__(self, rhs: APyFloatArray) -> APyFloatArray: ...
+    @typing.overload
+    def __mul__(self, arg0: APyFloatArray) -> APyFloatArray: ...
+    @typing.overload
+    def __mul__(self, arg0: int) -> APyFloatArray: ...
+    @typing.overload
+    def __mul__(self, arg0: float) -> APyFloatArray: ...
+    @typing.overload
+    def __mul__(self, arg0: APyFloat) -> APyFloatArray: ...
+    @typing.overload
+    def __radd__(self, arg0: int) -> APyFloatArray: ...
+    @typing.overload
+    def __radd__(self, arg0: float) -> APyFloatArray: ...
+    @typing.overload
+    def __radd__(self, arg0: APyFloat) -> APyFloatArray: ...
+    def __repr__(self) -> str: ...
+    @typing.overload
+    def __rmul__(self, arg0: int) -> APyFloatArray: ...
+    @typing.overload
+    def __rmul__(self, arg0: float) -> APyFloatArray: ...
+    @typing.overload
+    def __rmul__(self, arg0: APyFloat) -> APyFloatArray: ...
+    @typing.overload
+    def __sub__(self, arg0: APyFloatArray) -> APyFloatArray: ...
+    @typing.overload
+    def __sub__(self, arg0: int) -> APyFloatArray: ...
+    @typing.overload
+    def __sub__(self, arg0: float) -> APyFloatArray: ...
+    @typing.overload
+    def __sub__(self, arg0: APyFloat) -> APyFloatArray: ...
+    @typing.overload
+    def __truediv__(self, arg0: APyFloatArray) -> APyFloatArray: ...
+    @typing.overload
+    def __truediv__(self, arg0: int) -> APyFloatArray: ...
+    @typing.overload
+    def __truediv__(self, arg0: float) -> APyFloatArray: ...
+    @typing.overload
+    def __truediv__(self, arg0: APyFloat) -> APyFloatArray: ...
+    def is_identical(self, other: APyFloatArray) -> bool:
+        """
+        Test if two :class:`APyFloatArray` objects are identical.
+
+        Two :class:`APyFloatArray` objects are considered identical if, and only if:
+          * They represent exatly the same tensor shape
+          * They store the exact same floating-ppint values in all tensor elements
+          * They have the exact same bit format (`exp_bits`, `man_bits`, and `bias`)
+
+        Returns
+        -------
+        :class:`bool`
+        """
+
+    def resize(
+        self,
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
+        rounding_mode: RoundingMode | None = None,
+    ) -> APyFloatArray: ...
+    def to_numpy(self) -> numpy.ndarray[numpy.float64]:
+        """
+        Return array as a :class:`numpy.ndarray` of :class:`numpy.float64`.
+
+        The returned array has the same `shape` and stored value as `self`. This
+        method rounds away from infinity on ties.
+
+        Returns
+        -------
+        :class:`numpy.ndarray`
+        """
+
+    def transpose(self) -> APyFloatArray:
+        """
+        Return the transposition of the array.
+
+        If the dimension of `self` is one, this method returns the a copy of `self`.
+        If the dimension of `self` is two, this method returns the matrix
+        transposition of `self`.
+
+        Higher order transposition has not been implemented and will raise a
+        `NotImplementedException`.
+
+        Returns
+        -------
+        :class:`APyFloatArray`
+        """
+
+    @property
+    def T(self) -> APyFloatArray:
+        """
+        The transposition of the array.
+
+        Equivalent to calling :func:`APyFloatArray.transpose`.
+
+        Returns
+        -------
+        :class:`APyFloatArray`
+        """
+
+    @property
+    def bias(self) -> int:
+        """
+        Bias.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def exp_bits(self) -> int:
+        """
+        Number of exponent bits.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def man_bits(self) -> int:
+        """
+        Number of mantissa bits.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def ndim(self) -> int:
+        """
+        Number of dimensions in the array.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def shape(self) -> tuple:
+        """
+        The shape of the array.
+
+        Returns
+        -------
+        :class:`tuple` of :class:`int`
+        """
+
+class APyFloatArrayIterator:
+    def __iter__(self) -> APyFloatArrayIterator: ...
+    def __next__(self) -> APyFloatArray: ...
+
+class AccumulatorContext(ContextManager):
+    def __enter__(self: ContextManager) -> None: ...
+    def __exit__(
+        self: ContextManager,
+        arg0: type | None,
+        arg1: typing.Any | None,
+        arg2: typing.Any | None,
+    ) -> None: ...
+    def __init__(
+        self,
+        bits: int | None = None,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        rounding_mode: RoundingMode | None = None,
+        overflow_mode: OverflowMode | None = None,
+    ) -> None: ...
 
 class ContextManager:
     pass
