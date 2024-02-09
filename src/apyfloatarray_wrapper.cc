@@ -374,6 +374,7 @@ void bind_float_array(py::module& m)
         /*
          * Dunder methods
          */
+        .def("__matmul__", &APyFloatArray::matmul, py::arg("rhs"))
         .def("__repr__", &APyFloatArray::repr)
         .def("__len__", &APyFloatArray::get_size)
 

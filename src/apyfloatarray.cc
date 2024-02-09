@@ -73,6 +73,7 @@ APyFloatArray::APyFloatArray(
     , man_bits(man_bits)
     , bias(bias.value_or(APyFloat::ieee_bias(exp_bits)))
 {
+    data = std::vector<APyFloatData>(fold_shape(), { 0, 0, 0 });
 }
 
 /* ********************************************************************************** *
@@ -109,7 +110,6 @@ APyFloatArray APyFloatArray::perform_basic_arithmetic(
     res.bias = APyFloat::ieee_bias(res.exp_bits);
 
     // Perform operation
-    res.data.resize(data.size());
     for (std::size_t i = 0; i < data.size(); i++) {
         APyFloat lhs_scalar(data[i], exp_bits, man_bits, bias);
         APyFloat rhs_scalar(rhs.data[i], rhs.exp_bits, rhs.man_bits, rhs.bias);
@@ -142,7 +142,6 @@ APyFloatArray APyFloatArray::perform_basic_arithmetic(
     res.bias = APyFloat::ieee_bias(res.exp_bits);
 
     // Perform operations
-    res.data.resize(data.size());
     for (std::size_t i = 0; i < data.size(); i++) {
         APyFloat lhs_scalar(data[i], exp_bits, man_bits, bias);
 
@@ -199,6 +198,31 @@ APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
 APyFloatArray APyFloatArray::operator/(const APyFloat& rhs) const
 {
     return perform_basic_arithmetic(rhs, ArithmeticOperation::DIVISION);
+}
+
+APyFloatArray APyFloatArray::matmul(const APyFloatArray& rhs) const
+{
+    if (get_ndim() == 1 && rhs.get_ndim() == 1) {
+        if (shape[0] == rhs.shape[0]) {
+            // Dimensionality for a standard scalar inner product checks out. Perform
+            // the checked inner product.
+            return checked_inner_product(rhs);
+        }
+    }
+    if (get_ndim() == 2 && (rhs.get_ndim() == 2 || rhs.get_ndim() == 1)) {
+        if (shape[1] == rhs.shape[0]) {
+            // Dimensionality for a standard 2D matrix mutliplication checks out.
+            // Perform the checked 2D matrix
+            return checked_2d_matmul(rhs);
+        }
+    }
+
+    // Unsupported `__matmul__` dimensionality, raise exception
+    throw std::length_error(fmt::format(
+        "APyFloatArray.__matmul__: input shape missmatch, lhs: ({}), rhs: ({})",
+        string_from_vec(shape),
+        string_from_vec(rhs.shape)
+    ));
 }
 
 std::string APyFloatArray::repr() const
@@ -290,25 +314,25 @@ APyFloatArray APyFloatArray::from_double(
 )
 {
 
-    APyFloatArray arr(
+    APyFloatArray result(
         python_sequence_extract_shape(double_seq), exp_bits, man_bits, bias
     );
 
     auto py_obj = python_sequence_walk<py::float_, py::int_>(double_seq);
 
-    for (const auto& obj : py_obj) {
+    for (std::size_t i = 0; i < result.data.size(); i++) {
         double d;
-        if (py::isinstance<py::float_>(obj)) {
-            d = static_cast<double>(py::cast<py::float_>(obj));
-        } else if (py::isinstance<py::int_>(obj)) {
-            d = static_cast<int>(py::cast<py::int_>(obj));
+        if (py::isinstance<py::float_>(py_obj[i])) {
+            d = static_cast<double>(py::cast<py::float_>(py_obj[i]));
+        } else if (py::isinstance<py::int_>(py_obj[i])) {
+            d = static_cast<int>(py::cast<py::int_>(py_obj[i]));
         } else {
             throw std::domain_error("Invalid Python objects in sequence");
         }
-        const auto fp = APyFloat::from_double(d, exp_bits, man_bits, arr.bias);
-        arr.data.push_back({ fp.get_sign(), fp.get_exp(), fp.get_man() });
+        const auto fp = APyFloat::from_double(d, exp_bits, man_bits, result.bias);
+        result.data[i] = { fp.get_sign(), fp.get_exp(), fp.get_man() };
     }
-    return arr;
+    return result;
 }
 
 APyFloatArray APyFloatArray::transpose() const
@@ -328,7 +352,6 @@ APyFloatArray APyFloatArray::transpose() const
     std::reverse(result.shape.begin(), result.shape.end());
 
     // Copy data
-    result.data.resize(data.size());
     for (std::size_t y = 0; y < shape[0]; y++) {
         for (std::size_t x = 0; x < shape[1]; x++) {
             result.data[x * shape[0] + y] = data[y * shape[1] + x];
@@ -342,4 +365,81 @@ std::size_t APyFloatArray::fold_shape() const
 {
     // Fold the shape over multiplication
     return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies {});
+}
+
+// Evaluate the inner between two vectors. This method assumes that the the shape of
+// both `*this` and `rhs` are equally long. Anything else is undefined behaviour.
+APyFloatArray APyFloatArray::checked_inner_product(const APyFloatArray& rhs) const
+{
+    const std::uint8_t max_exp_bits = std::max(exp_bits, rhs.exp_bits);
+    const std::uint8_t max_man_bits = std::max(man_bits, rhs.man_bits);
+    if (shape[0] == 0) {
+        return APyFloatArray({ 0 }, max_exp_bits, max_man_bits);
+    }
+
+    // Hadamard product of `*this` and `rhs`
+    APyFloatArray hadamard = *this * rhs;
+    APyFloat sum = APyFloat(0, 0, 0, max_exp_bits, max_man_bits);
+    for (std::size_t i = 0; i < hadamard.fold_shape(); i++) {
+        const APyFloatData scalar = hadamard.data.at(i);
+        sum = sum + APyFloat(scalar, max_exp_bits, max_man_bits);
+    }
+
+    APyFloatArray result({ 1 }, max_exp_bits, max_man_bits);
+    result.data[0] = sum.get_data();
+    return result;
+}
+
+// Evaluate the matrix product between two 2D matrices. This method assumes that the
+// shape of `*this` and `rhs` have been checked to match a 2d matrix multiplication.
+APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
+{
+    // Resulting parameters
+    std::vector<std::size_t> res_shape = rhs.shape.size() > 1
+        ? std::vector<std::size_t> { shape[0], rhs.shape[1] } // rhs is 2-D
+        : std::vector<std::size_t> { shape[0] };              // rhs is 1-D
+    const std::uint8_t max_exp_bits = std::max(exp_bits, rhs.exp_bits);
+    const std::uint8_t max_man_bits = std::max(man_bits, rhs.man_bits);
+    const auto res_cols = rhs.shape.size() > 1 ? rhs.shape[1] : 1;
+
+    // Resulting `APyFloatArray`
+    APyFloatArray result(res_shape, max_exp_bits, max_man_bits);
+
+    for (std::size_t x = 0; x < res_cols; x++) {
+
+        // Copy column from `rhs` and use as the current working column. As reading
+        // columns from `rhs` is cache-inefficient, we like to do this only once for
+        // each element in the resulting matrix.
+        APyFloatArray current_column({ rhs.shape[0] }, rhs.exp_bits, rhs.man_bits);
+        for (std::size_t col = 0; col < rhs.shape[0]; col++) {
+            current_column.data[col] = rhs.data[x + col * res_cols];
+        }
+
+        for (std::size_t y = 0; y < res_shape[0]; y++) {
+
+            // Current row from lhs (`*this`)
+            APyFloatArray current_row({ shape[1] }, exp_bits, man_bits);
+            for (std::size_t i = 0; i < shape[1]; i++) {
+                current_row.data[i] = data[i + y * shape[1]];
+            }
+
+            // Perform the inner product
+            APyFloatArray current_res
+                = current_column.checked_inner_product(current_row);
+            assert(current_res.shape == std::vector<std::size_t> { 1 });
+            assert(current_res.exp_bits == result.exp_bits);
+            assert(current_res.man_bits == result.man_bits);
+
+            // Copy into the resulting vector
+            // result.data.insert(result.data.begin(), current_res.data.begin(),
+            // current_res.data.end());
+            std::copy_n(
+                current_res.data.begin(), // src
+                current_res.data.size(),  // limbs to copy
+                result.data.begin() + x + y * res_cols
+            );
+        }
+    }
+
+    return result;
 }
