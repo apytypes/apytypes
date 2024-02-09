@@ -52,6 +52,9 @@ public:
     //! Number of dimensions
     size_t get_ndim() const;
 
+    //! Retrieve a single item
+    APyFloatArray get_item(std::size_t idx) const;
+
     //! Length of the array
     size_t get_size() const;
 

@@ -33,3 +33,50 @@ def test_to_numpy():
     fp_arr = APyFloatArray.from_float(float_seq, 10, 10)
     assert fp_arr.to_numpy().shape == (2, 2, 3)
     assert np.array_equal(fp_arr.to_numpy(), np.array(float_seq))
+
+
+@pytest.mark.float_array
+def test_get_item():
+    # ndim == 1
+    fp_array = APyFloatArray.from_float([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
+    assert fp_array[0].is_identical(
+        APyFloatArray.from_float([1], exp_bits=10, man_bits=10)
+    )
+    assert fp_array[1].is_identical(
+        APyFloatArray.from_float([2], exp_bits=10, man_bits=10)
+    )
+    assert fp_array[5].is_identical(
+        APyFloatArray.from_float([6], exp_bits=10, man_bits=10)
+    )
+    with pytest.raises(IndexError, match="APyFloatArray.__getitem__: index 6 is out"):
+        fp_array[6]
+
+    # ndim == 2
+    fp_array = APyFloatArray.from_float([[1, 2], [3, 4]], exp_bits=10, man_bits=10)
+    assert fp_array[0].is_identical(
+        APyFloatArray.from_float([1, 2], exp_bits=10, man_bits=10)
+    )
+    assert fp_array[1].is_identical(
+        APyFloatArray.from_float([3, 4], exp_bits=10, man_bits=10)
+    )
+    with pytest.raises(IndexError, match="APyFloatArray.__getitem__: index 2 is out"):
+        fp_array[2]
+
+    # ndim == 3
+    fp_array = APyFloatArray.from_float(
+        [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], exp_bits=10, man_bits=10
+    )
+    assert fp_array[0].is_identical(
+        APyFloatArray.from_float([[1, 2], [3, 4]], exp_bits=10, man_bits=10)
+    )
+    assert fp_array[1].is_identical(
+        APyFloatArray.from_float([[5, 6], [7, 8]], exp_bits=10, man_bits=10)
+    )
+    with pytest.raises(IndexError, match="APyFloatArray.__getitem__: index 2 is out"):
+        fp_array[2]
+
+
+@pytest.mark.float_array
+def test_len():
+    fp_array = APyFloatArray.from_float([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
+    assert len(fp_array) == 6

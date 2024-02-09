@@ -404,5 +404,8 @@ void bind_float_array(py::module& m)
             Returns
             -------
             :class:`APyFloatArray`
-            )pbdoc");
+            )pbdoc")
+
+        // Iteration and friends
+        .def("__getitem__", &APyFloatArray::get_item, py::arg("idx"));
 }

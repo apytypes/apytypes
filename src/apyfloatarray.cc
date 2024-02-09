@@ -269,6 +269,33 @@ size_t APyFloatArray::get_ndim() const { return shape.size(); }
 
 size_t APyFloatArray::get_size() const { return shape[0]; }
 
+APyFloatArray APyFloatArray::get_item(std::size_t idx) const
+{
+    if (idx >= shape[0]) {
+        throw std::out_of_range(fmt::format(
+            "APyFloatArray.__getitem__: index {} is out of bounds for axis 0 with size "
+            "{}",
+            idx,
+            shape[0]
+        ));
+    }
+
+    // New shape contains all dimensions except the very first one
+    auto new_shape = get_ndim() > 1
+        ? std::vector<std::size_t>(shape.begin() + 1, shape.end())
+        : std::vector<std::size_t> { 1 };
+
+    // Element stride is the new shape folded over multiplication
+    std::size_t element_stride
+        = std::accumulate(new_shape.begin(), new_shape.end(), 1, std::multiplies {});
+
+    APyFloatArray result(new_shape, exp_bits, man_bits, bias);
+    std::copy_n(
+        data.begin() + idx * element_stride, element_stride, result.data.begin()
+    );
+    return result;
+}
+
 py::array_t<double> APyFloatArray::to_numpy() const
 {
     // Shape of NumPy object is same as `APyFloatArray` object
