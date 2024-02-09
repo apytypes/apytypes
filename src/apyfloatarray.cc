@@ -85,8 +85,18 @@ APyFloatArray APyFloatArray::perform_basic_arithmetic(
 {
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (shape != rhs.shape) {
+        std::string op_str;
+        if (op == ArithmeticOperation::ADDITION)
+            op_str = "add";
+        else if (op == ArithmeticOperation::SUBTRACTION)
+            op_str = "sub";
+        else if (op == ArithmeticOperation::MULTIPLICATION)
+            op_str = "mul";
+        else if (op == ArithmeticOperation::DIVISION)
+            op_str = "truediv";
         throw std::length_error(fmt::format(
-            "APyFloatArray.__add__: shape missmatch, lhs.shape={}, rhs.shape={}",
+            "APyFloatArray.__{}__: shape missmatch, lhs.shape={}, rhs.shape={}",
+            op_str,
             string_from_vec(shape),
             string_from_vec(rhs.shape)
         ));

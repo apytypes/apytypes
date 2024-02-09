@@ -3,6 +3,14 @@ from apytypes import APyFloatArray
 
 
 @pytest.mark.float_array
+def test_constructor_raises():
+    with pytest.raises(ValueError, match="Shape mismatch"):
+        APyFloatArray([1], [5, 2], [4], 10, 10)
+    with pytest.raises(RuntimeError, match="Inhomogeneous sequence"):
+        APyFloatArray([1, 2], [5, 2], [4, "str"], 10, 10)
+
+
+@pytest.mark.float_array
 def test_explicit_constructor():
     arr = APyFloatArray([1], [2], [3], 4, 5)
     assert len(arr) == 1
