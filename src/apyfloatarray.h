@@ -56,6 +56,9 @@ public:
      */
     bool is_identical(const APyFloatArray& other) const;
 
+    //! Convert to a NumPy array
+    pybind11::array_t<double> to_numpy() const;
+
     /* ****************************************************************************** *
      *                       Static conversion from other types                       *
      * ****************************************************************************** */
@@ -98,6 +101,9 @@ private:
 
     std::vector<std::size_t> shape;
     std::vector<APyFloatData> data;
+
+    //! Fold the `_shape` field over multiplication
+    std::size_t fold_shape() const;
 };
 
 #endif
