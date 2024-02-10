@@ -1,5 +1,6 @@
 import apytypes
 from apytypes import RoundingContext, RoundingMode
+import pytest
 
 
 class TestRoundingContext:
@@ -28,22 +29,51 @@ class TestRoundingContext:
         apytypes.set_rounding_mode(RoundingMode.TO_NEG)
         assert apytypes.get_rounding_mode() == RoundingMode.TO_NEG
 
+        apytypes.set_rounding_seed(5)
+        assert apytypes.get_rounding_seed() == 5
+        apytypes.set_rounding_seed(1 << 57)
+        assert apytypes.get_rounding_seed() == (1 << 57)
+
     def test_not_nested(self):
         """Single layer of context."""
+        # Test setting a non-stochastic rounding mode
         apytypes.set_rounding_mode(RoundingMode.TO_POS)
         with RoundingContext(RoundingMode.TO_NEG):
             assert apytypes.get_rounding_mode() == RoundingMode.TO_NEG
         assert apytypes.get_rounding_mode() == RoundingMode.TO_POS
-        with RoundingContext(RoundingMode.JAM):
-            assert apytypes.get_rounding_mode() == RoundingMode.JAM
+
+        # Test setting a stochastic rounding mode without changing the seed
+        apytypes.set_rounding_seed(123)
+        with RoundingContext(RoundingMode.STOCHASTIC_EQUAL):
+            assert apytypes.get_rounding_mode() == RoundingMode.STOCHASTIC_EQUAL
+            assert apytypes.get_rounding_seed() == 123
         assert apytypes.get_rounding_mode() == RoundingMode.TO_POS
+        assert apytypes.get_rounding_seed() == 123
+
+        # Test setting a stochastic rounding mode and changing the seed
+        with RoundingContext(RoundingMode.STOCHASTIC_WEIGHTED, 77):
+            assert apytypes.get_rounding_mode() == RoundingMode.STOCHASTIC_WEIGHTED
+            assert apytypes.get_rounding_seed() == 77
+        assert apytypes.get_rounding_mode() == RoundingMode.TO_POS
+        assert apytypes.get_rounding_seed() == 123
 
     def test_nested(self):
         """Nested context layers."""
         apytypes.set_rounding_mode(RoundingMode.TO_POS)
-        with RoundingContext(RoundingMode.TO_NEG):
-            assert apytypes.get_rounding_mode() == RoundingMode.TO_NEG
-            with RoundingContext(RoundingMode.TO_ZERO):
-                assert apytypes.get_rounding_mode() == RoundingMode.TO_ZERO
-            assert apytypes.get_rounding_mode() == RoundingMode.TO_NEG
+        apytypes.set_rounding_seed(123)
+        with RoundingContext(RoundingMode.STOCHASTIC_WEIGHTED, 456):
+            assert apytypes.get_rounding_mode() == RoundingMode.STOCHASTIC_WEIGHTED
+            assert apytypes.get_rounding_seed() == 456
+            with RoundingContext(RoundingMode.STOCHASTIC_EQUAL, 789):
+                assert apytypes.get_rounding_mode() == RoundingMode.STOCHASTIC_EQUAL
+                assert apytypes.get_rounding_seed() == 789
+            assert apytypes.get_rounding_mode() == RoundingMode.STOCHASTIC_WEIGHTED
+            assert apytypes.get_rounding_seed() == 456
         assert apytypes.get_rounding_mode() == RoundingMode.TO_POS
+        assert apytypes.get_rounding_seed() == 123
+
+    def test_raised_exception(self):
+        """Make sure an exception is raised if a seed is given for RoundingContext with a non-stochastic rounding mode."""
+        with pytest.raises(ValueError, match="Seed"):
+            with RoundingContext(RoundingMode.TO_POS, 123):
+                pass

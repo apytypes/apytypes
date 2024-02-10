@@ -60,4 +60,6 @@ void bind_common(py::module& m)
 
     m.def("set_rounding_mode", &set_rounding_mode);
     m.def("get_rounding_mode", &get_rounding_mode);
+    m.def("set_rounding_seed", &set_rounding_seed);
+    m.def("get_rounding_seed", &get_rounding_seed);
 }

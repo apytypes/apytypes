@@ -25,12 +25,14 @@ void context_exit_handler(
 void bind_float_context(py::module& m)
 {
     py::class_<RoundingContext, ContextManager>(m, "RoundingContext")
-        .def(py::init<RoundingMode>(), py::arg("rounding_mode"))
+        .def(
+            py::init<RoundingMode, std::optional<std::uint64_t>>(),
+            py::arg("rounding_mode"),
+            py::arg("rounding_seed") = std::nullopt
+        )
+
         .def("__enter__", &context_enter_handler)
         .def("__exit__", &context_exit_handler);
-
-    m.def("set_rounding_mode", &set_rounding_mode);
-    m.def("get_rounding_mode", &get_rounding_mode);
 }
 
 void bind_accumulator_context(py::module& m)
