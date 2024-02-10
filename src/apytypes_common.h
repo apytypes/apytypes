@@ -68,19 +68,32 @@ public:
 
 class RoundingContext : public ContextManager {
 public:
-    RoundingContext(const RoundingMode& new_mode);
+    RoundingContext(
+        const RoundingMode& new_mode,
+        std::optional<std::uint64_t> new_seed = std::nullopt
+    );
     void enter_context() override;
     void exit_context() override;
 
 private:
     RoundingMode new_mode, prev_mode;
+    std::uint64_t new_seed, prev_seed;
 };
 
-// Set the global roudning mdoe
+// Set the global rounding mdoe
 void set_rounding_mode(RoundingMode mode);
 
 // Retrieve the global rounding mode
 RoundingMode get_rounding_mode();
+
+// Set the global seed for stochastic rounding
+void set_rounding_seed(std::uint64_t);
+
+// Get the global seed for stochastic rounding
+std::uint64_t get_rounding_seed();
+
+// Retreive a random 64-bit number
+std::uint64_t random_number();
 
 using exp_t = std::uint32_t;
 using man_t = std::uint64_t;
