@@ -181,6 +181,9 @@ APyFloat APyFloat::resize(
         case RoundingMode::RND_INF: // TIES_TO_AWAY
             B = G;
             break;
+        case RoundingMode::RND_ZERO: // TIES_TO_ZERO
+            B = G & T;
+            break;
         case RoundingMode::JAM:
             throw NotImplementedException(
                 "APyFloat: rounding mode jamming has not been implemented."
