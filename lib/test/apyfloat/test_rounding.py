@@ -97,13 +97,13 @@ class TestAPyFloatRounding:
         )  # No rounding needed
         assert APyFloat(0, 5, 0b10001, 5, 5).resize(5, 3) == APyFloat(
             0, 5, 0b100, 5, 3
-        )  # Round up
+        )  # Round down
         assert APyFloat(0, 5, 0b10010, 5, 5).resize(5, 3) == APyFloat(
             0, 5, 0b100, 5, 3
-        )  # Tie break, round up
+        )  # Tie break, round down
         assert APyFloat(0, 5, 0b10011, 5, 5).resize(5, 3) == APyFloat(
             0, 5, 0b100, 5, 3
-        )  # Round up
+        )  # Round down
 
         # Rounding from 1.xx
         assert APyFloat(0, 5, 0b10100, 5, 5).resize(5, 3) == APyFloat(
@@ -111,13 +111,13 @@ class TestAPyFloatRounding:
         )  # No rounding needed
         assert APyFloat(0, 5, 0b10101, 5, 5).resize(5, 3) == APyFloat(
             0, 5, 0b101, 5, 3
-        )  # Round up
+        )  # Round down
         assert APyFloat(0, 5, 0b10110, 5, 5).resize(5, 3) == APyFloat(
             0, 5, 0b101, 5, 3
-        )  # Tie break, round up
+        )  # Tie break, round down
         assert APyFloat(0, 5, 0b10111, 5, 5).resize(5, 3) == APyFloat(
             0, 5, 0b101, 5, 3
-        )  # Round up
+        )  # Round down
 
         # Rounding from 0.xx, negative sign
         assert APyFloat(1, 5, 0b10000, 5, 5).resize(5, 3) == APyFloat(
@@ -142,10 +142,10 @@ class TestAPyFloatRounding:
         )  # Round up
         assert APyFloat(1, 5, 0b10110, 5, 5).resize(5, 3) == APyFloat(
             1, 5, 0b110, 5, 3
-        )  # Tie break, round ip
+        )  # Tie break, round up
         assert APyFloat(1, 5, 0b10111, 5, 5).resize(5, 3) == APyFloat(
             1, 5, 0b110, 5, 3
-        )  # Round ip
+        )  # Round up
 
     def test_rounding_to_zero(self):
         apytypes.set_rounding_mode(RoundingMode.TO_ZERO)
@@ -317,6 +317,64 @@ class TestAPyFloatRounding:
         assert APyFloat(1, 5, 0b10110, 5, 5).resize(5, 3) == APyFloat(
             1, 5, 0b110, 5, 3
         )  # Tie break, round up
+        assert APyFloat(1, 5, 0b10111, 5, 5).resize(5, 3) == APyFloat(
+            1, 5, 0b110, 5, 3
+        )  # Round up
+
+    def test_rounding_ties_to_zero(self):
+        apytypes.set_rounding_mode(RoundingMode.TIES_ZERO)
+        # Rounding from 0.xx
+        assert APyFloat(0, 5, 0b10000, 5, 5).resize(5, 3) == APyFloat(
+            0, 5, 0b100, 5, 3
+        )  # No rounding needed
+        assert APyFloat(0, 5, 0b10001, 5, 5).resize(5, 3) == APyFloat(
+            0, 5, 0b100, 5, 3
+        )  # Round down
+        assert APyFloat(0, 5, 0b10010, 5, 5).resize(5, 3) == APyFloat(
+            0, 5, 0b100, 5, 3
+        )  # Tie break, round down
+        assert APyFloat(0, 5, 0b10011, 5, 5).resize(5, 3) == APyFloat(
+            0, 5, 0b101, 5, 3
+        )  # Round up
+
+        # Rounding from 1.xx
+        assert APyFloat(0, 5, 0b10100, 5, 5).resize(5, 3) == APyFloat(
+            0, 5, 0b101, 5, 3
+        )  # No rounding needed
+        assert APyFloat(0, 5, 0b10101, 5, 5).resize(5, 3) == APyFloat(
+            0, 5, 0b101, 5, 3
+        )  # Round down
+        assert APyFloat(0, 5, 0b10110, 5, 5).resize(5, 3) == APyFloat(
+            0, 5, 0b101, 5, 3
+        )  # Tie break, round down
+        assert APyFloat(0, 5, 0b10111, 5, 5).resize(5, 3) == APyFloat(
+            0, 5, 0b110, 5, 3
+        )  # Round up
+
+        # Rounding from 0.xx, negative sign
+        assert APyFloat(1, 5, 0b10000, 5, 5).resize(5, 3) == APyFloat(
+            1, 5, 0b100, 5, 3
+        )  # No rounding needed
+        assert APyFloat(1, 5, 0b10001, 5, 5).resize(5, 3) == APyFloat(
+            1, 5, 0b100, 5, 3
+        )  # Round down
+        assert APyFloat(1, 5, 0b10010, 5, 5).resize(5, 3) == APyFloat(
+            1, 5, 0b100, 5, 3
+        )  # Tie break, round down
+        assert APyFloat(1, 5, 0b10011, 5, 5).resize(5, 3) == APyFloat(
+            1, 5, 0b101, 5, 3
+        )  # Round up
+
+        # Rounding from 1.xx, negative sign
+        assert APyFloat(1, 5, 0b10100, 5, 5).resize(5, 3) == APyFloat(
+            1, 5, 0b101, 5, 3
+        )  # No rounding needed
+        assert APyFloat(1, 5, 0b10101, 5, 5).resize(5, 3) == APyFloat(
+            1, 5, 0b101, 5, 3
+        )  # Round down
+        assert APyFloat(1, 5, 0b10110, 5, 5).resize(5, 3) == APyFloat(
+            1, 5, 0b101, 5, 3
+        )  # Tie break, round down
         assert APyFloat(1, 5, 0b10111, 5, 5).resize(5, 3) == APyFloat(
             1, 5, 0b110, 5, 3
         )  # Round up
