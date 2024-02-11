@@ -8,7 +8,9 @@ from apytypes._apytypes import OverflowMode
 from apytypes._apytypes import QuantizationContext
 from apytypes._apytypes import QuantizationMode
 from apytypes._apytypes import get_quantization_mode
+from apytypes._apytypes import get_quantization_seed
 from apytypes._apytypes import set_quantization_mode
+from apytypes._apytypes import set_quantization_seed
 from . import _apytypes
 from . import _version
 
@@ -24,5 +26,7 @@ __all__: list = [
     "__version__",
     "get_quantization_mode",
     "set_quantization_mode",
+    "get_quantization_seed",
+    "set_quantization_seed",
 ]
 __version__: str = "0.0.1.dev0"

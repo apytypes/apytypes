@@ -15,7 +15,9 @@ __all__ = [
     "QuantizationContext",
     "QuantizationMode",
     "get_quantization_mode",
+    "get_quantization_seed",
     "set_quantization_mode",
+    "set_quantization_seed",
 ]
 
 class APyFixed:
@@ -599,7 +601,12 @@ class APyFloat:
         quantization_mode: QuantizationMode | None = None,
     ) -> APyFloat: ...
     def __abs__(self) -> APyFloat: ...
+    @typing.overload
     def __add__(self, arg0: APyFloat) -> APyFloat: ...
+    @typing.overload
+    def __add__(self, arg0: int) -> APyFloat: ...
+    @typing.overload
+    def __add__(self, arg0: float) -> APyFloat: ...
     def __and__(self, arg0: APyFloat) -> APyFloat: ...
     @typing.overload
     def __eq__(self, arg0: APyFloat) -> bool: ...
@@ -632,7 +639,12 @@ class APyFloat:
     def __lt__(self, arg0: APyFloat) -> bool: ...
     @typing.overload
     def __lt__(self, arg0: float) -> bool: ...
+    @typing.overload
     def __mul__(self, arg0: APyFloat) -> APyFloat: ...
+    @typing.overload
+    def __mul__(self, arg0: int) -> APyFloat: ...
+    @typing.overload
+    def __mul__(self, arg0: float) -> APyFloat: ...
     @typing.overload
     def __ne__(self, arg0: APyFloat) -> bool: ...
     @typing.overload
@@ -643,9 +655,26 @@ class APyFloat:
     def __pow__(self, arg0: APyFloat) -> APyFloat: ...
     @typing.overload
     def __pow__(self, arg0: int) -> APyFloat: ...
+    @typing.overload
+    def __radd__(self, arg0: int) -> APyFloat: ...
+    @typing.overload
+    def __radd__(self, arg0: float) -> APyFloat: ...
     def __repr__(self) -> str: ...
+    @typing.overload
+    def __rmul__(self, arg0: int) -> APyFloat: ...
+    @typing.overload
+    def __rmul__(self, arg0: float) -> APyFloat: ...
+    @typing.overload
+    def __rsub__(self, arg0: int) -> APyFloat: ...
+    @typing.overload
+    def __rsub__(self, arg0: float) -> APyFloat: ...
     def __str__(self) -> str: ...
+    @typing.overload
     def __sub__(self, arg0: APyFloat) -> APyFloat: ...
+    @typing.overload
+    def __sub__(self, arg0: int) -> APyFloat: ...
+    @typing.overload
+    def __sub__(self, arg0: float) -> APyFloat: ...
     def __truediv__(self, arg0: APyFloat) -> APyFloat: ...
     def __xor__(self, arg0: APyFloat) -> APyFloat: ...
     def _repr_latex_(self) -> str: ...
@@ -969,8 +998,8 @@ class AccumulatorContext(ContextManager):
         bits: int | None = None,
         int_bits: int | None = None,
         frac_bits: int | None = None,
-        quantization_mode: QuantizationMode | None = None,
-        overflow_mode: OverflowMode | None = None,
+        quantization: QuantizationMode | None = None,
+        overflow: OverflowMode | None = None,
     ) -> None: ...
 
 class ContextManager:
@@ -980,16 +1009,20 @@ class OverflowMode:
     """
     Members:
 
-      WRAP
+      WRAP : Two's complement overflow. Remove MSBs.
 
-      SAT
+      SAT : Saturate to the closest of most positive and most negative value.
+
+      NUMERIC_STD : Remove MSBs, but keep the most significant bit. As ieee.numeric_std "
+                "resize for signed.
     """
 
+    NUMERIC_STD: typing.ClassVar[OverflowMode]  # value = <OverflowMode.NUMERIC_STD: 2>
     SAT: typing.ClassVar[OverflowMode]  # value = <OverflowMode.SAT: 1>
     WRAP: typing.ClassVar[OverflowMode]  # value = <OverflowMode.WRAP: 0>
     __members__: typing.ClassVar[
         dict[str, OverflowMode]
-    ]  # value = {'WRAP': <OverflowMode.WRAP: 0>, 'SAT': <OverflowMode.SAT: 1>}
+    ]  # value = {'WRAP': <OverflowMode.WRAP: 0>, 'SAT': <OverflowMode.SAT: 1>, 'NUMERIC_STD': <OverflowMode.NUMERIC_STD: 2>}
     def __eq__(self, other: typing.Any) -> bool: ...
     def __getstate__(self) -> int: ...
     def __hash__(self) -> int: ...
@@ -1013,52 +1046,66 @@ class QuantizationContext(ContextManager):
         arg1: typing.Any | None,
         arg2: typing.Any | None,
     ) -> None: ...
-    def __init__(self, quantization_mode: QuantizationMode) -> None: ...
+    def __init__(
+        self, quantization_mode: QuantizationMode, quantization_seed: int | None = None
+    ) -> None: ...
 
 class QuantizationMode:
     """
     Members:
 
-      TRN
+      TRN : Truncation (remove bits, round towards negative infinity
 
-      TRN_ZERO
+      TRN_ZERO : Magnitude truncation (round towards zero).
 
-      TRN_INF
+      TRN_INF : Round towards positive infinity.
 
-      RND
+      RND : Round to nearest, ties towards postive infinity (standard 'round' "
+                "for fixed-point).
 
-      RND_ZERO
+      RND_ZERO : Round to nearest, ties toward zero.
 
-      RND_INF
+      RND_INF : Round to nearest, ties away from zero.
 
-      RND_MIN_INF
+      RND_MIN_INF : Round to nearest, ties toward negative infinity.
 
-      RND_CONV
+      RND_CONV : Round to nearest, ties to even.
 
-      RND_CONV_ODD
+      RND_CONV_ODD : Round to nearest, ties to odd.
 
-      JAM
+      JAM : Jamming/von Neumann rounding. Set LSB to 1.
 
-      STOCHASTIC_WEIGHTED
+      JAM_UNBIASED : Unbiased jamming/von Neumann rounding. Set LSB to 1 unless a "
+                "tie.
 
-      STOCHASTIC_EQUAL
+      STOCHASTIC_WEIGHTED : Stochastic rounding. Probability depends on the bits to "
+                "remove.
 
-      TO_NEG
+      STOCHASTIC_EQUAL : Stochastic rounding with equal probability.
 
-      TO_ZERO
+      TO_NEG : Alias. Round towards negative infinity.
 
-      TO_POS
+      TO_ZERO : Alias. Round towards zero.
 
-      TIES_ZERO
+      TO_POS : Alias. Round towards postiive infinity.
+
+      TIES_ZERO : Alias. Round to nearest, ties toward zero.
 
       TIES_AWAY
 
       TIES_EVEN
 
       TIES_ODD
+
+      TIES_NEG
+
+      TIES_POS
     """
 
     JAM: typing.ClassVar[QuantizationMode]  # value = <QuantizationMode.JAM: 9>
+    JAM_UNBIASED: typing.ClassVar[
+        QuantizationMode
+    ]  # value = <QuantizationMode.JAM_UNBIASED: 10>
     RND: typing.ClassVar[QuantizationMode]  # value = <QuantizationMode.RND: 3>
     RND_CONV: typing.ClassVar[
         QuantizationMode
@@ -1075,19 +1122,23 @@ class QuantizationMode:
     ]  # value = <QuantizationMode.RND_ZERO: 4>
     STOCHASTIC_EQUAL: typing.ClassVar[
         QuantizationMode
-    ]  # value = <QuantizationMode.STOCHASTIC_EQUAL: 11>
+    ]  # value = <QuantizationMode.STOCHASTIC_EQUAL: 12>
     STOCHASTIC_WEIGHTED: typing.ClassVar[
         QuantizationMode
-    ]  # value = <QuantizationMode.STOCHASTIC_WEIGHTED: 10>
+    ]  # value = <QuantizationMode.STOCHASTIC_WEIGHTED: 11>
     TIES_AWAY: typing.ClassVar[
         QuantizationMode
     ]  # value = <QuantizationMode.RND_INF: 5>
     TIES_EVEN: typing.ClassVar[
         QuantizationMode
     ]  # value = <QuantizationMode.RND_CONV: 7>
+    TIES_NEG: typing.ClassVar[
+        QuantizationMode
+    ]  # value = <QuantizationMode.RND_MIN_INF: 6>
     TIES_ODD: typing.ClassVar[
         QuantizationMode
     ]  # value = <QuantizationMode.RND_CONV_ODD: 8>
+    TIES_POS: typing.ClassVar[QuantizationMode]  # value = <QuantizationMode.RND: 3>
     TIES_ZERO: typing.ClassVar[
         QuantizationMode
     ]  # value = <QuantizationMode.RND_ZERO: 4>
@@ -1101,7 +1152,7 @@ class QuantizationMode:
     ]  # value = <QuantizationMode.TRN_ZERO: 2>
     __members__: typing.ClassVar[
         dict[str, QuantizationMode]
-    ]  # value = {'TRN': <QuantizationMode.TRN: 0>, 'TRN_ZERO': <QuantizationMode.TRN_ZERO: 2>, 'TRN_INF': <QuantizationMode.TRN_INF: 1>, 'RND': <QuantizationMode.RND: 3>, 'RND_ZERO': <QuantizationMode.RND_ZERO: 4>, 'RND_INF': <QuantizationMode.RND_INF: 5>, 'RND_MIN_INF': <QuantizationMode.RND_MIN_INF: 6>, 'RND_CONV': <QuantizationMode.RND_CONV: 7>, 'RND_CONV_ODD': <QuantizationMode.RND_CONV_ODD: 8>, 'JAM': <QuantizationMode.JAM: 9>, 'STOCHASTIC_WEIGHTED': <QuantizationMode.STOCHASTIC_WEIGHTED: 10>, 'STOCHASTIC_EQUAL': <QuantizationMode.STOCHASTIC_EQUAL: 11>, 'TO_NEG': <QuantizationMode.TRN: 0>, 'TO_ZERO': <QuantizationMode.TRN_ZERO: 2>, 'TO_POS': <QuantizationMode.TRN_INF: 1>, 'TIES_ZERO': <QuantizationMode.RND_ZERO: 4>, 'TIES_AWAY': <QuantizationMode.RND_INF: 5>, 'TIES_EVEN': <QuantizationMode.RND_CONV: 7>, 'TIES_ODD': <QuantizationMode.RND_CONV_ODD: 8>}
+    ]  # value = {'TRN': <QuantizationMode.TRN: 0>, 'TRN_ZERO': <QuantizationMode.TRN_ZERO: 2>, 'TRN_INF': <QuantizationMode.TRN_INF: 1>, 'RND': <QuantizationMode.RND: 3>, 'RND_ZERO': <QuantizationMode.RND_ZERO: 4>, 'RND_INF': <QuantizationMode.RND_INF: 5>, 'RND_MIN_INF': <QuantizationMode.RND_MIN_INF: 6>, 'RND_CONV': <QuantizationMode.RND_CONV: 7>, 'RND_CONV_ODD': <QuantizationMode.RND_CONV_ODD: 8>, 'JAM': <QuantizationMode.JAM: 9>, 'JAM_UNBIASED': <QuantizationMode.JAM_UNBIASED: 10>, 'STOCHASTIC_WEIGHTED': <QuantizationMode.STOCHASTIC_WEIGHTED: 11>, 'STOCHASTIC_EQUAL': <QuantizationMode.STOCHASTIC_EQUAL: 12>, 'TO_NEG': <QuantizationMode.TRN: 0>, 'TO_ZERO': <QuantizationMode.TRN_ZERO: 2>, 'TO_POS': <QuantizationMode.TRN_INF: 1>, 'TIES_ZERO': <QuantizationMode.RND_ZERO: 4>, 'TIES_AWAY': <QuantizationMode.RND_INF: 5>, 'TIES_EVEN': <QuantizationMode.RND_CONV: 7>, 'TIES_ODD': <QuantizationMode.RND_CONV_ODD: 8>, 'TIES_NEG': <QuantizationMode.RND_MIN_INF: 6>, 'TIES_POS': <QuantizationMode.RND: 3>}
     def __eq__(self, other: typing.Any) -> bool: ...
     def __getstate__(self) -> int: ...
     def __hash__(self) -> int: ...
@@ -1117,11 +1168,7 @@ class QuantizationMode:
     @property
     def value(self) -> int: ...
 
-@typing.overload
 def get_quantization_mode() -> QuantizationMode: ...
-@typing.overload
-def get_quantization_mode() -> QuantizationMode: ...
-@typing.overload
+def get_quantization_seed() -> int: ...
 def set_quantization_mode(arg0: QuantizationMode) -> None: ...
-@typing.overload
-def set_quantization_mode(arg0: QuantizationMode) -> None: ...
+def set_quantization_seed(arg0: int) -> None: ...
