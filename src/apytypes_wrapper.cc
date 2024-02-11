@@ -48,55 +48,55 @@ void bind_common(py::module& m)
         .value(
             "RND",
             QuantizationMode::RND,
-            "pbdoc(Round to nearest, ties towards postive infinity (standard 'round' "
+            R"pbdoc(Round to nearest, ties towards postive infinity (standard 'round' "
             "for fixed-point).)pbdoc"
         )
         .value(
             "RND_ZERO",
             QuantizationMode::RND_ZERO,
-            "pbdoc(Round to nearest, ties toward zero.)pbdoc"
+            R"pbdoc(Round to nearest, ties toward zero.)pbdoc"
         )
         .value(
             "RND_INF",
             QuantizationMode::RND_INF,
-            "pbdoc(Round to nearest, ties away from zero.)pbdoc"
+            R"pbdoc(Round to nearest, ties away from zero.)pbdoc"
         )
         .value(
             "RND_MIN_INF",
             QuantizationMode::RND_MIN_INF,
-            "pbdoc(Round to nearest, ties toward negative infinity.)pbdoc"
+            R"pbdoc(Round to nearest, ties toward negative infinity.)pbdoc"
         )
         .value(
             "RND_CONV",
             QuantizationMode::RND_CONV,
-            "pbdoc(Round to nearest, ties to even.)pbdoc"
+            R"pbdoc(Round to nearest, ties to even.)pbdoc"
         )
         .value(
             "RND_CONV_ODD",
             QuantizationMode::RND_CONV_ODD,
-            "pbdoc(Round to nearest, ties to odd.)pbdoc"
+            R"pbdoc(Round to nearest, ties to odd.)pbdoc"
         )
         .value(
             "JAM",
             QuantizationMode::JAM,
-            "pbdoc(Jamming/von Neumann rounding. Set LSB to 1.)pbdoc"
+            R"pbdoc(Jamming/von Neumann rounding. Set LSB to 1.)pbdoc"
         )
         .value(
             "JAM_UNBIASED",
             QuantizationMode::JAM_UNBIASED,
-            "pbdoc(Unbiased jamming/von Neumann rounding. Set LSB to 1 unless a "
+            R"pbdoc(Unbiased jamming/von Neumann rounding. Set LSB to 1 unless a "
             "tie.)pbdoc"
         )
         .value(
             "STOCHASTIC_WEIGHTED",
             QuantizationMode::STOCHASTIC_WEIGHTED,
-            "pbdoc(Stochastic rounding. Probability depends on the bits to "
+            R"pbdoc(Stochastic rounding. Probability depends on the bits to "
             "remove.)pbdoc"
         )
         .value(
             "STOCHASTIC_EQUAL",
             QuantizationMode::STOCHASTIC_EQUAL,
-            "pbdoc(Stochastic rounding with equal probability.)pbdoc"
+            R"pbdoc(Stochastic rounding with equal probability.)pbdoc"
         )
 
         /*
@@ -105,20 +105,22 @@ void bind_common(py::module& m)
         .value(
             "TO_NEG",
             QuantizationMode::TRN,
-            "pbdoc(Alias. Round towards negative infinity."
+            R"pbdoc(Alias. Round towards negative infinity.)pbdoc"
         )
         .value(
-            "TO_ZERO", QuantizationMode::TRN_ZERO, "pbdoc(Alias. Round towards zero."
+            "TO_ZERO",
+            QuantizationMode::TRN_ZERO,
+            R"pbdoc(Alias. Round towards zero.)pbdoc"
         )
         .value(
             "TO_POS",
             QuantizationMode::TRN_INF,
-            "pbdoc(Alias. Round towards postiive infinity."
+            R"pbdoc(Alias. Round towards postiive infinity.)pbdoc"
         )
         .value(
             "TIES_ZERO",
             QuantizationMode::RND_ZERO,
-            "pbdoc(Alias. Round to nearest, ties toward zero.)pbdoc"
+            R"pbdoc(Alias. Round to nearest, ties toward zero.)pbdoc"
         )
         .value("TIES_AWAY", QuantizationMode::RND_INF)
         .value("TIES_EVEN", QuantizationMode::RND_CONV)
@@ -127,17 +129,21 @@ void bind_common(py::module& m)
         .value("TIES_POS", QuantizationMode::RND);
 
     py::enum_<OverflowMode>(m, "OverflowMode")
-        .value("WRAP", OverflowMode::WRAP, "Two's complement overflow. Remove MSBs.")
+        .value(
+            "WRAP",
+            OverflowMode::WRAP,
+            R"pbdoc(Two's complement overflow. Remove MSBs.)pbdoc"
+        )
         .value(
             "SAT",
             OverflowMode::SAT,
-            "Saturate to the closest of most positive and most negative value."
+            R"pbdoc(Saturate to the closest of most positive and most negative value.)pbdoc"
         )
         .value(
             "NUMERIC_STD",
             OverflowMode::NUMERIC_STD,
-            "Remove MSBs, but keep the most significant bit. As ieee.numeric_std "
-            "resize for signed."
+            R"pbdoc(Remove MSBs, but keep the most significant bit. As ieee.numeric_std "
+            "resize for signed.)pbdoc"
         );
 
     m.def("set_quantization_mode", &set_quantization_mode);
