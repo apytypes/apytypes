@@ -28,9 +28,9 @@ enum class QuantizationMode {
  * Available overflowing modes for APyFixed and APyFloat
  */
 enum class OverflowMode {
-    WRAP,        // Drop bits left of the MSB (two's complement overflowing)
-    SAT,         // Saturate on overflow
-    NUMERIC_STD, // Drop bits left of the MSB, but keep the most significant bit
+    WRAP,        // !< Drop bits left of the MSB (two's complement overflowing)
+    SAT,         // !< Saturate on overflow
+    NUMERIC_STD, // !< Drop bits left of the MSB, but keep the most significant bit
 };
 
 /* ********************************************************************************** *
