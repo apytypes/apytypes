@@ -6,20 +6,22 @@ requires = ['meson-python', 'pybind11']
 name = "apytypes"
 dynamic = ['version']
 authors = [
-  { name="Example Author", email="author@example.com" }
+  { name="Oscar Gustafsson", email="oscar.gustafsson@gmail.com" },
+  { name="Mikael Henriksson", email="mikael.henriksson@liu.se" },
+  { name="Theodor Lindberg", email="theodor.lindberg@liu.se" }
 ]
 description = "Python package for custom fixed-point and floating-point formats"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
-    #"License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 
-#[project.urls]
-#Homepage = "https://github.com/pypa/sampleproject"
-#Issues = "https://github.com/pypa/sampleproject/issues"
+[project.urls]
+Homepage = "https://apytypes.github.io/"
+Issues = "https://github.com/apytypes/apytypes/issues"
 
 [tool.meson-python.args]
 install = ['--skip-subprojects']
@@ -38,6 +40,7 @@ test = [
     "numpy",
     "pytest",
 ]
+dev = ["pybind11-stubgen"]
 
 [tool.pytest.ini_options]
 markers = [
