@@ -30,27 +30,96 @@ void bind_common(py::module& m)
         /*
          * Base quantization modes
          */
-        .value("TRN", QuantizationMode::TRN)
-        .value("TRN_ZERO", QuantizationMode::TRN_ZERO)
-        .value("TRN_INF", QuantizationMode::TRN_INF)
-        .value("RND", QuantizationMode::RND)
-        .value("RND_ZERO", QuantizationMode::RND_ZERO)
-        .value("RND_INF", QuantizationMode::RND_INF)
-        .value("RND_MIN_INF", QuantizationMode::RND_MIN_INF)
-        .value("RND_CONV", QuantizationMode::RND_CONV)
-        .value("RND_CONV_ODD", QuantizationMode::RND_CONV_ODD)
-        .value("JAM", QuantizationMode::JAM)
-        .value("JAM_UNBIASED", QuantizationMode::JAM_UNBIASED)
-        .value("STOCHASTIC_WEIGHTED", QuantizationMode::STOCHASTIC_WEIGHTED)
-        .value("STOCHASTIC_EQUAL", QuantizationMode::STOCHASTIC_EQUAL)
+        .value(
+            "TRN",
+            QuantizationMode::TRN,
+            R"pbdoc(Truncation (remove bits, round towards negative infinity)pbdoc"
+        )
+        .value(
+            "TRN_ZERO",
+            QuantizationMode::TRN_ZERO,
+            R"pbdoc(Magnitude truncation (round towards zero).)pbdoc"
+        )
+        .value(
+            "TRN_INF",
+            QuantizationMode::TRN_INF,
+            R"pbdoc(Round towards positive infinity.)pbdoc"
+        )
+        .value(
+            "RND",
+            QuantizationMode::RND,
+            "pbdoc(Round to nearest, ties towards postive infinity (standard 'round' "
+            "for fixed-point).)pbdoc"
+        )
+        .value(
+            "RND_ZERO",
+            QuantizationMode::RND_ZERO,
+            "pbdoc(Round to nearest, ties toward zero.)pbdoc"
+        )
+        .value(
+            "RND_INF",
+            QuantizationMode::RND_INF,
+            "pbdoc(Round to nearest, ties away from zero.)pbdoc"
+        )
+        .value(
+            "RND_MIN_INF",
+            QuantizationMode::RND_MIN_INF,
+            "pbdoc(Round to nearest, ties toward negative infinity.)pbdoc"
+        )
+        .value(
+            "RND_CONV",
+            QuantizationMode::RND_CONV,
+            "pbdoc(Round to nearest, ties to even.)pbdoc"
+        )
+        .value(
+            "RND_CONV_ODD",
+            QuantizationMode::RND_CONV_ODD,
+            "pbdoc(Round to nearest, ties to odd.)pbdoc"
+        )
+        .value(
+            "JAM",
+            QuantizationMode::JAM,
+            "pbdoc(Jamming/von Neumann rounding. Set LSB to 1.)pbdoc"
+        )
+        .value(
+            "JAM_UNBIASED",
+            QuantizationMode::JAM_UNBIASED,
+            "pbdoc(Unbiased jamming/von Neumann rounding. Set LSB to 1 unless a "
+            "tie.)pbdoc"
+        )
+        .value(
+            "STOCHASTIC_WEIGHTED",
+            QuantizationMode::STOCHASTIC_WEIGHTED,
+            "pbdoc(Stochastic rounding. Probability depends on the bits to "
+            "remove.)pbdoc"
+        )
+        .value(
+            "STOCHASTIC_EQUAL",
+            QuantizationMode::STOCHASTIC_EQUAL,
+            "pbdoc(Stochastic rounding with equal probability.)pbdoc"
+        )
 
         /*
          * Floating point aliases
          */
-        .value("TO_NEG", QuantizationMode::TRN)
-        .value("TO_ZERO", QuantizationMode::TRN_ZERO)
-        .value("TO_POS", QuantizationMode::TRN_INF)
-        .value("TIES_ZERO", QuantizationMode::RND_ZERO)
+        .value(
+            "TO_NEG",
+            QuantizationMode::TRN,
+            "pbdoc(Alias. Round towards negative infinity."
+        )
+        .value(
+            "TO_ZERO", QuantizationMode::TRN_ZERO, "pbdoc(Alias. Round towards zero."
+        )
+        .value(
+            "TO_POS",
+            QuantizationMode::TRN_INF,
+            "pbdoc(Alias. Round towards postiive infinity."
+        )
+        .value(
+            "TIES_ZERO",
+            QuantizationMode::RND_ZERO,
+            "pbdoc(Alias. Round to nearest, ties toward zero.)pbdoc"
+        )
         .value("TIES_AWAY", QuantizationMode::RND_INF)
         .value("TIES_EVEN", QuantizationMode::RND_CONV)
         .value("TIES_ODD", QuantizationMode::RND_CONV_ODD)
@@ -58,9 +127,18 @@ void bind_common(py::module& m)
         .value("TIES_POS", QuantizationMode::RND);
 
     py::enum_<OverflowMode>(m, "OverflowMode")
-        .value("WRAP", OverflowMode::WRAP)
-        .value("SAT", OverflowMode::SAT)
-        .value("NUMERIC_STD", OverflowMode::NUMERIC_STD);
+        .value("WRAP", OverflowMode::WRAP, "Two's complement overflow. Remove MSBs.")
+        .value(
+            "SAT",
+            OverflowMode::SAT,
+            "Saturate to the closest of most positive and most negative value."
+        )
+        .value(
+            "NUMERIC_STD",
+            OverflowMode::NUMERIC_STD,
+            "Remove MSBs, but keep the most significant bit. As ieee.numeric_std "
+            "resize for signed."
+        );
 
     m.def("set_quantization_mode", &set_quantization_mode);
     m.def("get_quantization_mode", &get_quantization_mode);
