@@ -48,8 +48,8 @@ void bind_common(py::module& m)
         .value(
             "RND",
             QuantizationMode::RND,
-            R"pbdoc(Round to nearest, ties towards postive infinity (standard 'round' "
-            "for fixed-point).)pbdoc"
+            R"pbdoc(Round to nearest, ties towards postive infinity (standard 'round'
+            for fixed-point).)pbdoc"
         )
         .value(
             "RND_ZERO",
@@ -84,14 +84,14 @@ void bind_common(py::module& m)
         .value(
             "JAM_UNBIASED",
             QuantizationMode::JAM_UNBIASED,
-            R"pbdoc(Unbiased jamming/von Neumann rounding. Set LSB to 1 unless a "
-            "tie.)pbdoc"
+            R"pbdoc(Unbiased jamming/von Neumann rounding. Set LSB to 1 unless a
+            tie.)pbdoc"
         )
         .value(
             "STOCHASTIC_WEIGHTED",
             QuantizationMode::STOCHASTIC_WEIGHTED,
-            R"pbdoc(Stochastic rounding. Probability depends on the bits to "
-            "remove.)pbdoc"
+            R"pbdoc(Stochastic rounding. Probability depends on the bits to
+            remove.)pbdoc"
         )
         .value(
             "STOCHASTIC_EQUAL",
@@ -142,8 +142,8 @@ void bind_common(py::module& m)
         .value(
             "NUMERIC_STD",
             OverflowMode::NUMERIC_STD,
-            R"pbdoc(Remove MSBs, but keep the most significant bit. As ieee.numeric_std "
-            "resize for signed.)pbdoc"
+            R"pbdoc(Remove MSBs, but keep the most significant bit. As ieee.numeric_std
+            resize for signed.)pbdoc"
         );
 
     m.def("set_quantization_mode", &set_quantization_mode);
