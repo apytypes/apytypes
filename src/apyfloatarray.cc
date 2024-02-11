@@ -337,7 +337,7 @@ APyFloatArray APyFloatArray::from_double(
     std::uint8_t exp_bits,
     std::uint8_t man_bits,
     std::optional<exp_t> bias,
-    std::optional<RoundingMode> rounding_mode
+    std::optional<QuantizationMode> quantization_mode
 )
 {
 
@@ -392,7 +392,7 @@ APyFloatArray APyFloatArray::resize(
     std::uint8_t new_exp_bits,
     std::uint8_t new_man_bits,
     std::optional<exp_t> new_bias,
-    std::optional<RoundingMode> rounding_mode
+    std::optional<QuantizationMode> quantization_mode
 ) const
 {
     APyFloatArray result(shape, new_exp_bits, new_man_bits, new_bias);
@@ -400,7 +400,7 @@ APyFloatArray APyFloatArray::resize(
     for (std::size_t i = 0; i < data.size(); i++) {
         result.data[i]
             = APyFloat(data[i], exp_bits, man_bits, bias)
-                  .resize(new_exp_bits, new_man_bits, new_bias, rounding_mode)
+                  .resize(new_exp_bits, new_man_bits, new_bias, quantization_mode)
                   .get_data();
     }
 

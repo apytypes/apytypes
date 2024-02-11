@@ -6,29 +6,31 @@
 #include <tuple>    // std::tuple
 
 /*!
- * Available rounding modes for APyFixed and APyFloat
+ * Available quantization modes for APyFixed and APyFloat
  */
-enum class RoundingMode {
+enum class QuantizationMode {
     TRN,                 // !< Truncation
     TRN_INF,             // !< Jamming
     TRN_ZERO,            // !< Magnitude truncation
-    RND,                 // !< Rounding, ties toward plus inf
-    RND_ZERO,            // !< Rounding, ties toward zero
-    RND_INF,             // !< Rounding, ties away from zero
-    RND_MIN_INF,         // !< Rounding, ties toward minus infinity
-    RND_CONV,            // !< Rounding, ties toward even quantization setps
-    RND_CONV_ODD,        // !< Rounding, ties toward odd quantization steps
+    RND,                 // !< Quantization, ties toward plus inf
+    RND_ZERO,            // !< Quantization, ties toward zero
+    RND_INF,             // !< Quantization, ties away from zero
+    RND_MIN_INF,         // !< Quantization, ties toward minus infinity
+    RND_CONV,            // !< Quantization, ties toward even quantization setps
+    RND_CONV_ODD,        // !< Quantization, ties toward odd quantization steps
     JAM,                 // !< Jamming
-    STOCHASTIC_WEIGHTED, // !< Weighted stochastic rounding
-    STOCHASTIC_EQUAL     // !< Stochastic rounding with equal probability
+    JAM_UNBIASED,        // !< Unbiased jamming
+    STOCHASTIC_WEIGHTED, // !< Weighted stochastic quantization
+    STOCHASTIC_EQUAL     // !< Stochastic quantization with equal probability
 };
 
 /*!
  * Available overflowing modes for APyFixed and APyFloat
  */
 enum class OverflowMode {
-    WRAP, // Drop bits left of the MSB (two's complement overflowing)
-    SAT   // Saturate on overflow
+    WRAP,        // Drop bits left of the MSB (two's complement overflowing)
+    SAT,         // Saturate on overflow
+    NUMERIC_STD, // Drop bits left of the MSB, but keep the most significant bit
 };
 
 /* ********************************************************************************** *
@@ -43,54 +45,54 @@ public:
 };
 
 /* ********************************************************************************** *
- * *                          Rounding context for APyFloat                         * *
+ * *                          Quantization context for APyFloat * *
  * ********************************************************************************** */
 
 /*
- * This allows the user to choose a rounding mode for all operations performed inside
- * the runtime context. The rounding mode will be changed back to whatever it was
- * before when the context ends.
+ * This allows the user to choose a quantization mode for all operations performed
+ * inside the runtime context. The quantization mode will be changed back to whatever it
+ * was before when the context ends.
  *
  * Python example using nested contexts:
  *
  * ```
- * with RoundingContext(RoundingMode.TO_NEG):
+ * with QuantizationContext(QuantizationMode.TO_NEG):
  *     # Operations now round towards negative infinity
  *     ...
- *     with RoundingContext(RoundingMode.TO_POS):
+ *     with QuantizationContext(QuantizationMode.TO_POS):
  *         # Operations now round towards positive infinity
  *         ...
  *     # Operations now round towards negative infinity again
  *
- * # Rounding mode now reverted back to what was used before
+ * # Quantization mode now reverted back to what was used before
  * ```
  */
 
-class RoundingContext : public ContextManager {
+class QuantizationContext : public ContextManager {
 public:
-    RoundingContext(
-        const RoundingMode& new_mode,
+    QuantizationContext(
+        const QuantizationMode& new_mode,
         std::optional<std::uint64_t> new_seed = std::nullopt
     );
     void enter_context() override;
     void exit_context() override;
 
 private:
-    RoundingMode new_mode, prev_mode;
+    QuantizationMode new_mode, prev_mode;
     std::uint64_t new_seed, prev_seed;
 };
 
-// Set the global rounding mdoe
-void set_rounding_mode(RoundingMode mode);
+// Set the global quantization mdoe
+void set_quantization_mode(QuantizationMode mode);
 
-// Retrieve the global rounding mode
-RoundingMode get_rounding_mode();
+// Retrieve the global quantization mode
+QuantizationMode get_quantization_mode();
 
-// Set the global seed for stochastic rounding
-void set_rounding_seed(std::uint64_t);
+// Set the global seed for stochastic quantization
+void set_quantization_seed(std::uint64_t);
 
-// Get the global seed for stochastic rounding
-std::uint64_t get_rounding_seed();
+// Get the global seed for stochastic quantization
+std::uint64_t get_quantization_seed();
 
 // Retreive a random 64-bit number
 std::uint64_t random_number();
@@ -117,7 +119,7 @@ struct APyFloatData {
 struct AccumulatorOption {
     int bits;
     int int_bits;
-    RoundingMode rounding_mode;
+    QuantizationMode quantization_mode;
     OverflowMode overflow_mode;
 };
 
@@ -128,7 +130,7 @@ public:
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
-        std::optional<RoundingMode> rounding_mode = std::nullopt,
+        std::optional<QuantizationMode> quantization_mode = std::nullopt,
         std::optional<OverflowMode> overflow_mode = std::nullopt
     );
     void enter_context() override;

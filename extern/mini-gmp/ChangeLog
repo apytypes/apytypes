@@ -173,7 +173,7 @@
 2018-05-20 Marco Bodrato <bodrato@mail.dm.unipi.it>
 
 	* mini-gmp.c (mpz_get_d): Convert a fixed number of
-	bits (GMP_DBL_MANT_BITS) to avoid rounding.
+	bits (GMP_DBL_MANT_BITS) to avoid quantization.
 
 	* mini-mpq.c (mpq_mul): Use mpq_nan_init.
 

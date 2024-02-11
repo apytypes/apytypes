@@ -83,15 +83,16 @@ APyFloat APyFloat::from_double(
     std::uint8_t exp_bits,
     std::uint8_t man_bits,
     std::optional<exp_t> bias,
-    std::optional<RoundingMode> rounding_mode
+    std::optional<QuantizationMode> quantization_mode
 )
 {
     APyFloat f(exp_bits, man_bits);
-    return f.update_from_double(value, rounding_mode);
+    return f.update_from_double(value, quantization_mode);
 }
 
-APyFloat&
-APyFloat::update_from_double(double value, std::optional<RoundingMode> rounding_mode)
+APyFloat& APyFloat::update_from_double(
+    double value, std::optional<QuantizationMode> quantization_mode
+)
 {
 
     // Initialize an APyFloat from the double
@@ -100,7 +101,7 @@ APyFloat::update_from_double(double value, std::optional<RoundingMode> rounding_
     );
 
     // Cast it to the correct format
-    *this = apytypes_double.resize(exp_bits, man_bits, bias, rounding_mode);
+    *this = apytypes_double.resize(exp_bits, man_bits, bias, quantization_mode);
 
     return *this;
 }
@@ -109,7 +110,7 @@ APyFloat APyFloat::resize(
     std::uint8_t new_exp_bits,
     std::uint8_t new_man_bits,
     std::optional<exp_t> new_bias,
-    std::optional<RoundingMode> rounding_mode
+    std::optional<QuantizationMode> quantization_mode
 ) const
 {
     APyFloat res(new_exp_bits, new_man_bits, new_bias);
@@ -155,53 +156,53 @@ APyFloat APyFloat::resize(
         new_man &= res.man_mask();       // Mask away the leading ones
         new_exp = 0;
     } else if (man_bits_delta < 0) { // Normal case, exponent is positive
-        // Calculate rounding bit
+        // Calculate quantization bit
         man_t G, // Guard (bit after LSB)
             T,   // Sticky bit, logical OR of all the bits after the guard bit
-            B;   // Rounding bit to add to LSB
+            B;   // Quantization bit to add to LSB
 
         const man_t bits_to_discard = std::abs(man_bits_delta);
         G = (prev_man >> (bits_to_discard - 1)) & 1;
         T = (prev_man & ((1ULL << (bits_to_discard - 1)) - 1)) != 0;
 
-        switch (rounding_mode.value_or(get_rounding_mode())) {
-        case RoundingMode::TRN_INF: // TO_POSITIVE
+        switch (quantization_mode.value_or(get_quantization_mode())) {
+        case QuantizationMode::TRN_INF: // TO_POSITIVE
             B = sign ? 0 : (G | T);
             break;
-        case RoundingMode::TRN: // TO_NEGATIVE
+        case QuantizationMode::TRN: // TO_NEGATIVE
             B = sign ? (G | T) : 0;
             break;
-        case RoundingMode::TRN_ZERO: // TO_ZERO
+        case QuantizationMode::TRN_ZERO: // TO_ZERO
             B = 0;
             break;
-        case RoundingMode::RND_CONV: // TIES_TO_EVEN
+        case QuantizationMode::RND_CONV: // TIES_TO_EVEN
             // Using 'new_man' directly here is fine since G can only be '0' or '1',
             // thus calculating the LSB of 'new_man' is not needed.
             B = G & (new_man | T);
             break;
-        case RoundingMode::RND_INF: // TIES_TO_AWAY
+        case QuantizationMode::RND_INF: // TIES_TO_AWAY
             B = G;
             break;
-        case RoundingMode::RND_ZERO: // TIES_TO_ZERO
+        case QuantizationMode::RND_ZERO: // TIES_TO_ZERO
             B = G & T;
             break;
-        case RoundingMode::JAM:
+        case QuantizationMode::JAM:
             B = 0;
             new_man |= 1;
             break;
-        case RoundingMode::STOCHASTIC_WEIGHTED: {
+        case QuantizationMode::STOCHASTIC_WEIGHTED: {
             const man_t trailing_bits = prev_man & ((1ULL << bits_to_discard) - 1);
             const man_t weight = random_number() & ((1ULL << bits_to_discard) - 1);
             // Since the weight won't be greater than the discarded bits,
             // this will never round an already exact number.
             B = (trailing_bits + weight) >> bits_to_discard;
         } break;
-        case RoundingMode::STOCHASTIC_EQUAL:
-            // Only perform the rounding if the result is not exact.
+        case QuantizationMode::STOCHASTIC_EQUAL:
+            // Only perform the quantization if the result is not exact.
             B = (G || T) ? random_number() & 1 : 0;
             break;
         default:
-            throw NotImplementedException("APyFloat: Unknown rounding mode.");
+            throw NotImplementedException("APyFloat: Unknown quantization mode.");
         }
 
         new_man += B;
@@ -434,7 +435,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
         highR = mx + (highY | lowY);
     }
 
-    // Perform rounding
+    // Perform quantization
 
     if (highR & (1ULL << (res.man_bits + 4))) { // Carry
         ++new_exp;
@@ -532,7 +533,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     const exp_t extended_bias = (res.ieee_bias() << 1) | 1;
     std::int64_t new_exp = (exp - bias) + (y.exp - y.bias) + extended_bias;
 
-    // Perform rounding
+    // Perform quantization
 
     if (highR & static_cast<man_t>((1ULL << (2 * res.man_bits + 1)))) { // Carry
         ++new_exp;
@@ -683,7 +684,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
         = (static_cast<std::int64_t>(x.exp) - x.bias) * n + extended_bias;
     std::uint64_t new_man = std::pow(x.leading_bit() | x.man, n);
 
-    // Perform rounding
+    // Perform quantization
     const man_t trailing_bits = count_trailing_bits(new_man);
 
     // If a leading one was added, mask it away

@@ -4,43 +4,43 @@
 #include <stdexcept>
 
 /* ********************************************************************************** *
- * *                          Rounding context for APyFloat                         * *
+ * *                          Quantization context for APyFloat * *
  * ********************************************************************************** */
 
-// Global rounding mode
-static RoundingMode global_rounding_mode = RoundingMode::RND_CONV;
+// Global quantization mode
+static QuantizationMode global_quantization_mode = QuantizationMode::RND_CONV;
 
-// Get the global rounding mode
-RoundingMode get_rounding_mode() { return global_rounding_mode; }
+// Get the global quantization mode
+QuantizationMode get_quantization_mode() { return global_quantization_mode; }
 
-void set_rounding_mode(RoundingMode mode) { global_rounding_mode = mode; }
+void set_quantization_mode(QuantizationMode mode) { global_quantization_mode = mode; }
 
-RoundingContext::RoundingContext(
-    const RoundingMode& new_mode, std::optional<std::uint64_t> new_seed
+QuantizationContext::QuantizationContext(
+    const QuantizationMode& new_mode, std::optional<std::uint64_t> new_seed
 )
     : new_mode(new_mode)
-    , prev_mode(get_rounding_mode())
-    , new_seed(new_seed.value_or(get_rounding_seed()))
-    , prev_seed(get_rounding_seed())
+    , prev_mode(get_quantization_mode())
+    , new_seed(new_seed.value_or(get_quantization_seed()))
+    , prev_seed(get_quantization_seed())
 {
-    if (new_seed.has_value() && new_mode != RoundingMode::STOCHASTIC_WEIGHTED
-        && new_mode != RoundingMode::STOCHASTIC_EQUAL) {
+    if (new_seed.has_value() && new_mode != QuantizationMode::STOCHASTIC_WEIGHTED
+        && new_mode != QuantizationMode::STOCHASTIC_EQUAL) {
         throw std::domain_error(
-            "Seed for rounding was given for a non-stochastic rounding mode."
+            "Seed for quantization was given for a non-stochastic quantization mode."
         );
     }
 }
 
-void RoundingContext::enter_context()
+void QuantizationContext::enter_context()
 {
-    set_rounding_mode(new_mode);
-    set_rounding_seed(new_seed);
+    set_quantization_mode(new_mode);
+    set_quantization_seed(new_seed);
 }
 
-void RoundingContext::exit_context()
+void QuantizationContext::exit_context()
 {
-    set_rounding_mode(prev_mode);
-    set_rounding_seed(prev_seed);
+    set_quantization_mode(prev_mode);
+    set_quantization_seed(prev_seed);
 }
 
 /* ********************************************************************************** *
@@ -48,19 +48,19 @@ void RoundingContext::exit_context()
  * ********************************************************************************** */
 
 // This creates a random seed on every program start.
-std::uint64_t rounding_seed = std::random_device {}();
+std::uint64_t quantization_seed = std::random_device {}();
 
 // A random number engine is used instead of purely std::random_device so that runs can
 // be reproducible.
-std::mt19937_64 gen64(rounding_seed);
+std::mt19937_64 gen64(quantization_seed);
 
-void set_rounding_seed(std::uint64_t seed)
+void set_quantization_seed(std::uint64_t seed)
 {
-    rounding_seed = seed;
+    quantization_seed = seed;
     gen64.seed(seed);
 }
 
-std::uint64_t get_rounding_seed() { return rounding_seed; }
+std::uint64_t get_quantization_seed() { return quantization_seed; }
 
 std::uint64_t random_number() { return gen64(); }
 
@@ -81,7 +81,7 @@ AccumulatorContext::AccumulatorContext(
     std::optional<int> bits,
     std::optional<int> int_bits,
     std::optional<int> frac_bits,
-    std::optional<RoundingMode> rounding_mode,
+    std::optional<QuantizationMode> quantization_mode,
     std::optional<OverflowMode> overflow_mode
 )
 {
@@ -94,9 +94,10 @@ AccumulatorContext::AccumulatorContext(
     previous_mode = global_accumulator_option;
 
     // Set the current mode
-    RoundingMode acc_rounding_mode = rounding_mode.value_or(RoundingMode::TRN);
+    QuantizationMode acc_quantization_mode
+        = quantization_mode.value_or(QuantizationMode::TRN);
     OverflowMode acc_overflow_mode = overflow_mode.value_or(OverflowMode::WRAP);
-    current_mode = { acc_bits, acc_int_bits, acc_rounding_mode, acc_overflow_mode };
+    current_mode = { acc_bits, acc_int_bits, acc_quantization_mode, acc_overflow_mode };
 }
 
 void AccumulatorContext::enter_context() { global_accumulator_option = current_mode; }

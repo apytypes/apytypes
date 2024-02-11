@@ -24,11 +24,11 @@ void context_exit_handler(
 
 void bind_float_context(py::module& m)
 {
-    py::class_<RoundingContext, ContextManager>(m, "RoundingContext")
+    py::class_<QuantizationContext, ContextManager>(m, "QuantizationContext")
         .def(
-            py::init<RoundingMode, std::optional<std::uint64_t>>(),
-            py::arg("rounding_mode"),
-            py::arg("rounding_seed") = std::nullopt
+            py::init<QuantizationMode, std::optional<std::uint64_t>>(),
+            py::arg("quantization_mode"),
+            py::arg("quantization_seed") = std::nullopt
         )
 
         .def("__enter__", &context_enter_handler)
@@ -43,12 +43,12 @@ void bind_accumulator_context(py::module& m)
                 std::optional<int>,
                 std::optional<int>,
                 std::optional<int>,
-                std::optional<RoundingMode>,
+                std::optional<QuantizationMode>,
                 std::optional<OverflowMode>>(),
             py::arg("bits") = std::nullopt,
             py::arg("int_bits") = std::nullopt,
             py::arg("frac_bits") = std::nullopt,
-            py::arg("rounding") = std::nullopt,
+            py::arg("quantization") = std::nullopt,
             py::arg("overflow") = std::nullopt
         )
         .def("__enter__", &context_enter_handler)

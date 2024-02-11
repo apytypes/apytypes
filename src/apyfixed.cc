@@ -497,7 +497,7 @@ void APyFixed::set_from_string_dec(const std::string& str)
         bcd_list.push_back(c - 0x30);
     });
 
-    // Multiply BCD number by 2^(frac_bits() + 1) (extra bit for rounding)
+    // Multiply BCD number by 2^(frac_bits() + 1) (extra bit for quantization)
     auto bcd_list_size_prev = bcd_list.size();
     for (int i = 0; i < frac_bits() + 1; i++) {
         bcd_mul2(bcd_list);
@@ -730,7 +730,7 @@ bool APyFixed::is_identical(const APyFixed& other) const
 APyFixed APyFixed::resize(
     std::optional<int> bits,
     std::optional<int> int_bits,
-    RoundingMode rounding_mode,
+    QuantizationMode quantization_mode,
     OverflowMode overflow_mode,
     std::optional<int> frac_bits
 ) const
@@ -750,8 +750,8 @@ APyFixed APyFixed::resize(
         );
     }
 
-    // First perform the rounding
-    result._round(rounding_mode, old_bits, old_int_bits);
+    // First perform the quantization
+    result._round(quantization_mode, old_bits, old_int_bits);
 
     // And than handle possible overflowing
     result._overflow(overflow_mode);
@@ -792,30 +792,32 @@ APyFixed APyFixed::from_string(
  * *                          Private member functions                              * *
  * ********************************************************************************** */
 
-// Perform rounding of fixed-point numbers
-void APyFixed::_round(RoundingMode rounding_mode, int old_bits, int old_int_bits)
+// Perform quantization of fixed-point numbers
+void APyFixed::_round(
+    QuantizationMode quantization_mode, int old_bits, int old_int_bits
+)
 {
-    switch (rounding_mode) {
-    case RoundingMode::TRN:
+    switch (quantization_mode) {
+    case QuantizationMode::TRN:
         _round_trn(old_bits, old_int_bits); // Truncation
         break;
-    case RoundingMode::RND:
-        _round_rnd(old_bits, old_int_bits); // Rounding, ties to plus infinity
+    case QuantizationMode::RND:
+        _round_rnd(old_bits, old_int_bits); // Quantization, ties to plus infinity
         break;
-    case RoundingMode::TRN_ZERO:
-        throw NotImplementedException("Rounding: TRN_ZERO not implemented yet");
-    case RoundingMode::RND_ZERO:
-        throw NotImplementedException("Rounding: RND_ZERO not implemented yet");
-    case RoundingMode::RND_INF:
-        throw NotImplementedException("Rounding: RND_INF not implemented yet");
-    case RoundingMode::RND_MIN_INF:
-        throw NotImplementedException("Rounding: RND_MIN_INF not implemented yet");
-    case RoundingMode::RND_CONV:
-        throw NotImplementedException("Rounding: RND_CONV not implemented yet");
-    case RoundingMode::RND_CONV_ODD:
-        throw NotImplementedException("Rounding: RND_CONV_ODD not implemented yet");
+    case QuantizationMode::TRN_ZERO:
+        throw NotImplementedException("Quantization: TRN_ZERO not implemented yet");
+    case QuantizationMode::RND_ZERO:
+        throw NotImplementedException("Quantization: RND_ZERO not implemented yet");
+    case QuantizationMode::RND_INF:
+        throw NotImplementedException("Quantization: RND_INF not implemented yet");
+    case QuantizationMode::RND_MIN_INF:
+        throw NotImplementedException("Quantization: RND_MIN_INF not implemented yet");
+    case QuantizationMode::RND_CONV:
+        throw NotImplementedException("Quantization: RND_CONV not implemented yet");
+    case QuantizationMode::RND_CONV_ODD:
+        throw NotImplementedException("Quantization: RND_CONV_ODD not implemented yet");
     default:
-        throw std::domain_error("APyFixed::_round(): unregistered rounding mode");
+        throw std::domain_error("APyFixed::_round(): unregistered quantization mode");
     }
 }
 
@@ -829,11 +831,12 @@ void APyFixed::_overflow(OverflowMode overflow_mode)
     case OverflowMode::SAT:
         throw NotImplementedException("Overflow: SATURATE not implemented yet");
     default:
-        throw std::domain_error("APyFixed::_overflow(): unregistered rounding mode");
+        throw std::domain_error("APyFixed::_overflow(): unregistered quantization mode"
+        );
     }
 }
 
-// Truncation rounding
+// Truncation quantization
 void APyFixed::_round_trn(int old_bits, int old_int_bits)
 {
     int old_frac_bits = old_bits - old_int_bits;

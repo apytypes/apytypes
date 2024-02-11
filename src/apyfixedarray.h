@@ -118,13 +118,13 @@ public:
      * fixed-point values as `*this`, but with a new word-length. The underlying
      * bit-pattern of each tensor element are copied into place, meaning that lowering
      * the number of fractional bits may result in quantization, and lowering the number
-     * of integer bits may result in overflowing. Supports rounding and oveflow options
-     * on narrowing resizes.
+     * of integer bits may result in overflowing. Supports quantization and oveflow
+     * options on narrowing resizes.
      */
     APyFixedArray resize(
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
-        RoundingMode rounding = RoundingMode::TRN,
+        QuantizationMode quantization = QuantizationMode::TRN,
         OverflowMode overflow = OverflowMode::WRAP,
         std::optional<int> frac_bits = std::nullopt
     ) const;

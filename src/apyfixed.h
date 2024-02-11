@@ -185,7 +185,7 @@ public:
     APyFixed resize(
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
-        RoundingMode rounding_mode = RoundingMode::TRN,
+        QuantizationMode quantization_mode = QuantizationMode::TRN,
         OverflowMode overflow_mode = OverflowMode::WRAP,
         std::optional<int> frac_bits = std::nullopt
     ) const;
@@ -258,10 +258,10 @@ private:
         const APyFixed& operand2
     ) const;
 
-    // Handle rounding of fixed-point numbers
-    void _round(RoundingMode rounding_mode, int old_bits, int old_int_bits);
+    // Handle quantization of fixed-point numbers
+    void _round(QuantizationMode quantization_mode, int old_bits, int old_int_bits);
 
-    // Truncation rounding
+    // Truncation quantization
     void _round_trn(int old_bits, int old_int_bits);
 
     // Round towards plus infinity

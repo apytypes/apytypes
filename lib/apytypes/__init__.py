@@ -7,12 +7,12 @@ from apytypes._apytypes import (
     APyFloatArray,
     AccumulatorContext,
     OverflowMode,
-    RoundingContext,
-    RoundingMode,
-    get_rounding_mode,
-    set_rounding_mode,
-    get_rounding_seed,
-    set_rounding_seed,
+    QuantizationContext,
+    QuantizationMode,
+    get_quantization_mode,
+    set_quantization_mode,
+    get_quantization_seed,
+    set_quantization_seed,
 )
 
 from apytypes._version import version as __version__
@@ -24,13 +24,13 @@ __all__ = [
     "APyFloatArray",
     "AccumulatorContext",
     "OverflowMode",
-    "RoundingContext",
-    "RoundingMode",
+    "QuantizationContext",
+    "QuantizationMode",
     "__version__",
-    "get_rounding_mode",
-    "set_rounding_mode",
-    "get_rounding_seed",
-    "set_rounding_seed",
+    "get_quantization_mode",
+    "set_quantization_mode",
+    "get_quantization_seed",
+    "set_quantization_seed",
 ]
 
 APyFloat.__doc__ = """

@@ -12,10 +12,10 @@ __all__ = [
     "AccumulatorContext",
     "ContextManager",
     "OverflowMode",
-    "RoundingContext",
-    "RoundingMode",
-    "get_rounding_mode",
-    "set_rounding_mode",
+    "QuantizationContext",
+    "QuantizationMode",
+    "get_quantization_mode",
+    "set_quantization_mode",
 ]
 
 class APyFixed:
@@ -217,7 +217,7 @@ class APyFixed:
         self,
         bits: int | None = None,
         int_bits: int | None = None,
-        rounding: RoundingMode = ...,
+        quantization: QuantizationMode = ...,
         overflow: OverflowMode = ...,
         frac_bits: int | None = None,
     ) -> APyFixed:
@@ -225,7 +225,7 @@ class APyFixed:
         Create a new resized fixed-point number based on the bit pattern in this
         fixed-point number.
 
-        This is the primary method for performing rounding, truncation, overflowing,
+        This is the primary method for performing quantization, truncation, overflowing,
         and saturation when dealing with APyTypes fixed-point numbers.
 
         Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
@@ -237,8 +237,8 @@ class APyFixed:
             Total number of bits in the created fixed-point object
         int_bits : int, optional
             Number of integer bits in the created fixed-point object
-        rounding : RoundingMode, default: RoundingMode.TRN
-            Rounding mode to use in this resize
+        quantization : QuantizationMode, default: QuantizationMode.TRN
+            Quantization mode to use in this resize
         overflow : OverflowMode, default: OverflowMode.WRAP
             Overflowing mode to use in this resize
         frac_bits : int, optional
@@ -253,16 +253,16 @@ class APyFixed:
         .. code-block:: python
 
             from apytypes import APyFixed
-            from apytypes import RoundingMode
+            from apytypes import QuantizationMode
             from apytypes import OverflowMode
 
             fx = APyFixed.from_float(2.125, int_bits=3, frac_bits=3)
 
             # Truncation (fx_a == 2.0)
-            fx_a = fx.resize(int_bits=3, frac_bits=2, rounding=RoundingMode.TRN)
+            fx_a = fx.resize(int_bits=3, frac_bits=2, quantization=QuantizationMode.TRN)
 
-            # Rounding (fx_b == 2.25)
-            fx_b = fx.resize(int_bits=3, frac_bits=2, rounding=RoundingMode.RND)
+            # Quantization (fx_b == 2.25)
+            fx_b = fx.resize(int_bits=3, frac_bits=2, quantization=QuantizationMode.RND)
 
             # Two's complement overflowing (fx_c == -1.875)
             fx_c = fx.resize(int_bits=2, frac_bits=3, overflow=OverflowMode.WRAP)
@@ -453,7 +453,7 @@ class APyFixedArray:
         self,
         bits: int | None = None,
         int_bits: int | None = None,
-        rounding: RoundingMode = ...,
+        quantization: QuantizationMode = ...,
         overflow: OverflowMode = ...,
         frac_bits: int | None = None,
     ) -> APyFixedArray:
@@ -461,7 +461,7 @@ class APyFixedArray:
         Create a new resized fixed-point array based on the bit pattern in this
         fixed-point array.
 
-        This is the primary method for performing rounding, truncation, overflowing,
+        This is the primary method for performing quantization, truncation, overflowing,
         and saturation when dealing with APyTypes fixed-point numbers.
 
         Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
@@ -473,8 +473,8 @@ class APyFixedArray:
             Total number of bits in the created fixed-point array
         int_bits : int, optional
             Number of integer bits in the created fixed-point array
-        rounding : RoundingMode, default: RoundingMode.TRN
-            Rounding mode to use in this resize
+        quantization : QuantizationMode, default: QuantizationMode.TRN
+            Quantization mode to use in this resize
         overflow : OverflowMode, default: OverflowMode.WRAP
             Overflowing mode to use in this resize
         frac_bits : int, optional
@@ -596,7 +596,7 @@ class APyFloat:
         exp_bits: int,
         man_bits: int,
         bias: int | None = None,
-        rounding_mode: RoundingMode | None = None,
+        quantization_mode: QuantizationMode | None = None,
     ) -> APyFloat: ...
     def __abs__(self) -> APyFloat: ...
     def __add__(self, arg0: APyFloat) -> APyFloat: ...
@@ -667,7 +667,7 @@ class APyFloat:
         exp_bits: int,
         man_bits: int,
         bias: int | None = None,
-        rounding_mode: RoundingMode | None = None,
+        quantization_mode: QuantizationMode | None = None,
     ) -> APyFloat: ...
     def to_bits(self) -> int: ...
     @property
@@ -740,7 +740,7 @@ class APyFloatArray:
         exp_bits: int = None,
         man_bits: int = None,
         bias: int | None = None,
-        rounding_mode: RoundingMode | None = None,
+        quantization_mode: QuantizationMode | None = None,
     ) -> APyFloatArray:
         """
         Create an :class:`APyFloatArray` object from a sequence of :class:`float`.
@@ -860,7 +860,7 @@ class APyFloatArray:
         exp_bits: int,
         man_bits: int,
         bias: int | None = None,
-        rounding_mode: RoundingMode | None = None,
+        quantization_mode: QuantizationMode | None = None,
     ) -> APyFloatArray: ...
     def to_numpy(self) -> numpy.ndarray[numpy.float64]:
         """
@@ -969,7 +969,7 @@ class AccumulatorContext(ContextManager):
         bits: int | None = None,
         int_bits: int | None = None,
         frac_bits: int | None = None,
-        rounding_mode: RoundingMode | None = None,
+        quantization_mode: QuantizationMode | None = None,
         overflow_mode: OverflowMode | None = None,
     ) -> None: ...
 
@@ -1005,7 +1005,7 @@ class OverflowMode:
     @property
     def value(self) -> int: ...
 
-class RoundingContext(ContextManager):
+class QuantizationContext(ContextManager):
     def __enter__(self: ContextManager) -> None: ...
     def __exit__(
         self: ContextManager,
@@ -1013,9 +1013,9 @@ class RoundingContext(ContextManager):
         arg1: typing.Any | None,
         arg2: typing.Any | None,
     ) -> None: ...
-    def __init__(self, rounding_mode: RoundingMode) -> None: ...
+    def __init__(self, quantization_mode: QuantizationMode) -> None: ...
 
-class RoundingMode:
+class QuantizationMode:
     """
     Members:
 
@@ -1058,34 +1058,50 @@ class RoundingMode:
       TIES_ODD
     """
 
-    JAM: typing.ClassVar[RoundingMode]  # value = <RoundingMode.JAM: 9>
-    RND: typing.ClassVar[RoundingMode]  # value = <RoundingMode.RND: 3>
-    RND_CONV: typing.ClassVar[RoundingMode]  # value = <RoundingMode.RND_CONV: 7>
+    JAM: typing.ClassVar[QuantizationMode]  # value = <QuantizationMode.JAM: 9>
+    RND: typing.ClassVar[QuantizationMode]  # value = <QuantizationMode.RND: 3>
+    RND_CONV: typing.ClassVar[
+        QuantizationMode
+    ]  # value = <QuantizationMode.RND_CONV: 7>
     RND_CONV_ODD: typing.ClassVar[
-        RoundingMode
-    ]  # value = <RoundingMode.RND_CONV_ODD: 8>
-    RND_INF: typing.ClassVar[RoundingMode]  # value = <RoundingMode.RND_INF: 5>
-    RND_MIN_INF: typing.ClassVar[RoundingMode]  # value = <RoundingMode.RND_MIN_INF: 6>
-    RND_ZERO: typing.ClassVar[RoundingMode]  # value = <RoundingMode.RND_ZERO: 4>
+        QuantizationMode
+    ]  # value = <QuantizationMode.RND_CONV_ODD: 8>
+    RND_INF: typing.ClassVar[QuantizationMode]  # value = <QuantizationMode.RND_INF: 5>
+    RND_MIN_INF: typing.ClassVar[
+        QuantizationMode
+    ]  # value = <QuantizationMode.RND_MIN_INF: 6>
+    RND_ZERO: typing.ClassVar[
+        QuantizationMode
+    ]  # value = <QuantizationMode.RND_ZERO: 4>
     STOCHASTIC_EQUAL: typing.ClassVar[
-        RoundingMode
-    ]  # value = <RoundingMode.STOCHASTIC_EQUAL: 11>
+        QuantizationMode
+    ]  # value = <QuantizationMode.STOCHASTIC_EQUAL: 11>
     STOCHASTIC_WEIGHTED: typing.ClassVar[
-        RoundingMode
-    ]  # value = <RoundingMode.STOCHASTIC_WEIGHTED: 10>
-    TIES_AWAY: typing.ClassVar[RoundingMode]  # value = <RoundingMode.RND_INF: 5>
-    TIES_EVEN: typing.ClassVar[RoundingMode]  # value = <RoundingMode.RND_CONV: 7>
-    TIES_ODD: typing.ClassVar[RoundingMode]  # value = <RoundingMode.RND_CONV_ODD: 8>
-    TIES_ZERO: typing.ClassVar[RoundingMode]  # value = <RoundingMode.RND_ZERO: 4>
-    TO_NEG: typing.ClassVar[RoundingMode]  # value = <RoundingMode.TRN: 0>
-    TO_POS: typing.ClassVar[RoundingMode]  # value = <RoundingMode.TRN_INF: 1>
-    TO_ZERO: typing.ClassVar[RoundingMode]  # value = <RoundingMode.TRN_ZERO: 2>
-    TRN: typing.ClassVar[RoundingMode]  # value = <RoundingMode.TRN: 0>
-    TRN_INF: typing.ClassVar[RoundingMode]  # value = <RoundingMode.TRN_INF: 1>
-    TRN_ZERO: typing.ClassVar[RoundingMode]  # value = <RoundingMode.TRN_ZERO: 2>
+        QuantizationMode
+    ]  # value = <QuantizationMode.STOCHASTIC_WEIGHTED: 10>
+    TIES_AWAY: typing.ClassVar[
+        QuantizationMode
+    ]  # value = <QuantizationMode.RND_INF: 5>
+    TIES_EVEN: typing.ClassVar[
+        QuantizationMode
+    ]  # value = <QuantizationMode.RND_CONV: 7>
+    TIES_ODD: typing.ClassVar[
+        QuantizationMode
+    ]  # value = <QuantizationMode.RND_CONV_ODD: 8>
+    TIES_ZERO: typing.ClassVar[
+        QuantizationMode
+    ]  # value = <QuantizationMode.RND_ZERO: 4>
+    TO_NEG: typing.ClassVar[QuantizationMode]  # value = <QuantizationMode.TRN: 0>
+    TO_POS: typing.ClassVar[QuantizationMode]  # value = <QuantizationMode.TRN_INF: 1>
+    TO_ZERO: typing.ClassVar[QuantizationMode]  # value = <QuantizationMode.TRN_ZERO: 2>
+    TRN: typing.ClassVar[QuantizationMode]  # value = <QuantizationMode.TRN: 0>
+    TRN_INF: typing.ClassVar[QuantizationMode]  # value = <QuantizationMode.TRN_INF: 1>
+    TRN_ZERO: typing.ClassVar[
+        QuantizationMode
+    ]  # value = <QuantizationMode.TRN_ZERO: 2>
     __members__: typing.ClassVar[
-        dict[str, RoundingMode]
-    ]  # value = {'TRN': <RoundingMode.TRN: 0>, 'TRN_ZERO': <RoundingMode.TRN_ZERO: 2>, 'TRN_INF': <RoundingMode.TRN_INF: 1>, 'RND': <RoundingMode.RND: 3>, 'RND_ZERO': <RoundingMode.RND_ZERO: 4>, 'RND_INF': <RoundingMode.RND_INF: 5>, 'RND_MIN_INF': <RoundingMode.RND_MIN_INF: 6>, 'RND_CONV': <RoundingMode.RND_CONV: 7>, 'RND_CONV_ODD': <RoundingMode.RND_CONV_ODD: 8>, 'JAM': <RoundingMode.JAM: 9>, 'STOCHASTIC_WEIGHTED': <RoundingMode.STOCHASTIC_WEIGHTED: 10>, 'STOCHASTIC_EQUAL': <RoundingMode.STOCHASTIC_EQUAL: 11>, 'TO_NEG': <RoundingMode.TRN: 0>, 'TO_ZERO': <RoundingMode.TRN_ZERO: 2>, 'TO_POS': <RoundingMode.TRN_INF: 1>, 'TIES_ZERO': <RoundingMode.RND_ZERO: 4>, 'TIES_AWAY': <RoundingMode.RND_INF: 5>, 'TIES_EVEN': <RoundingMode.RND_CONV: 7>, 'TIES_ODD': <RoundingMode.RND_CONV_ODD: 8>}
+        dict[str, QuantizationMode]
+    ]  # value = {'TRN': <QuantizationMode.TRN: 0>, 'TRN_ZERO': <QuantizationMode.TRN_ZERO: 2>, 'TRN_INF': <QuantizationMode.TRN_INF: 1>, 'RND': <QuantizationMode.RND: 3>, 'RND_ZERO': <QuantizationMode.RND_ZERO: 4>, 'RND_INF': <QuantizationMode.RND_INF: 5>, 'RND_MIN_INF': <QuantizationMode.RND_MIN_INF: 6>, 'RND_CONV': <QuantizationMode.RND_CONV: 7>, 'RND_CONV_ODD': <QuantizationMode.RND_CONV_ODD: 8>, 'JAM': <QuantizationMode.JAM: 9>, 'STOCHASTIC_WEIGHTED': <QuantizationMode.STOCHASTIC_WEIGHTED: 10>, 'STOCHASTIC_EQUAL': <QuantizationMode.STOCHASTIC_EQUAL: 11>, 'TO_NEG': <QuantizationMode.TRN: 0>, 'TO_ZERO': <QuantizationMode.TRN_ZERO: 2>, 'TO_POS': <QuantizationMode.TRN_INF: 1>, 'TIES_ZERO': <QuantizationMode.RND_ZERO: 4>, 'TIES_AWAY': <QuantizationMode.RND_INF: 5>, 'TIES_EVEN': <QuantizationMode.RND_CONV: 7>, 'TIES_ODD': <QuantizationMode.RND_CONV_ODD: 8>}
     def __eq__(self, other: typing.Any) -> bool: ...
     def __getstate__(self) -> int: ...
     def __hash__(self) -> int: ...
@@ -1102,10 +1118,10 @@ class RoundingMode:
     def value(self) -> int: ...
 
 @typing.overload
-def get_rounding_mode() -> RoundingMode: ...
+def get_quantization_mode() -> QuantizationMode: ...
 @typing.overload
-def get_rounding_mode() -> RoundingMode: ...
+def get_quantization_mode() -> QuantizationMode: ...
 @typing.overload
-def set_rounding_mode(arg0: RoundingMode) -> None: ...
+def set_quantization_mode(arg0: QuantizationMode) -> None: ...
 @typing.overload
-def set_rounding_mode(arg0: RoundingMode) -> None: ...
+def set_quantization_mode(arg0: QuantizationMode) -> None: ...

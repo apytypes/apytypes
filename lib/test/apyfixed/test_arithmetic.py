@@ -1,5 +1,5 @@
 from apytypes import APyFixed
-from apytypes import RoundingMode
+from apytypes import QuantizationMode
 from apytypes import OverflowMode
 
 import pytest
@@ -165,9 +165,9 @@ def test_wide_operations():
 
 def test_resize():
     """
-    Test rounding and truncation
+    Test quantization and truncation
     """
-    Mode = RoundingMode
+    Mode = QuantizationMode
     assert float(APyFixed.from_float(0.75, 3, 1).resize(2, 1, Mode.TRN)) == 0.5
     assert float(APyFixed.from_float(0.75, 3, 1).resize(2, 1, Mode.RND)) == -1.0
     assert float(APyFixed.from_float(0.75, 4, 1).resize(3, 1, Mode.TRN)) == 0.75

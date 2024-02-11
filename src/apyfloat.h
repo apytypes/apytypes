@@ -47,7 +47,7 @@ public:
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt,
-        std::optional<RoundingMode> rounding_mode = std::nullopt
+        std::optional<QuantizationMode> quantization_mode = std::nullopt
     );
     double to_double() const;
     operator double() const;
@@ -64,7 +64,7 @@ public:
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt,
-        std::optional<RoundingMode> rounding_mode = std::nullopt
+        std::optional<QuantizationMode> quantization_mode = std::nullopt
     ) const;
 
     std::string str() const;
@@ -170,7 +170,7 @@ private:
      */
     APyFloat& update_from_bits(unsigned long long bits);
     APyFloat& update_from_double(
-        double value, std::optional<RoundingMode> rounding_mode = std::nullopt
+        double value, std::optional<QuantizationMode> quantization_mode = std::nullopt
     );
 
     APyFloat construct_zero(std::optional<bool> new_sign = std::nullopt) const;
