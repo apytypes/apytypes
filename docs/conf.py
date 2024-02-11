@@ -7,8 +7,10 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "APyTypes"
-copyright = "2024, Oscar Gustafsson, Mikael Henriksson, Theodor Lindberg"
-author = "Oscar Gustafsson, Mikael Henriksson, Theodor Lindberg"
+copyright = "2024, APyTypes authors"
+author = "Withheld for double-blind review"
+# copyright = "2024, Oscar Gustafsson, Mikael Henriksson, Theodor Lindberg"
+# author = "Oscar Gustafsson, Mikael Henriksson, Theodor Lindberg"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
