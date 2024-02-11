@@ -8,5 +8,6 @@
    apyfixed
    apyfixedarray
    apyfloat
+   apyfloatarray
    quantizationoverflow
    context
