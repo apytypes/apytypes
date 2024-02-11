@@ -1,79 +1,88 @@
 import apytypes
-from apytypes import RoundingContext, RoundingMode
+from apytypes import QuantizationContext, QuantizationMode
 import pytest
 
 
-class TestRoundingContext:
+class TestQuantizationContext:
     """
-    This test class doesn't test if the rounding itself works,
+    This test class doesn't test if the quantization itself works,
     just that the context manager acts correctly.
     """
 
     default_mode = None
 
     def setup_class(self):
-        """Save the current rounding mode so that it can be restored later for other tests."""
-        self.default_mode = apytypes.get_rounding_mode()
+        """Save the current quantization mode so that it can be restored later for other tests."""
+        self.default_mode = apytypes.get_quantization_mode()
 
     def teardown_class(self):
-        """Restore rounding mode."""
-        apytypes.set_rounding_mode(self.default_mode)
+        """Restore quantization mode."""
+        apytypes.set_quantization_mode(self.default_mode)
 
     def test_default_mode(self):
-        assert apytypes.get_rounding_mode() == RoundingMode.TIES_EVEN
+        assert apytypes.get_quantization_mode() == QuantizationMode.TIES_EVEN
 
     def test_prerequisite(self):
-        """Make sure get/set works for the rounding mode to begin with."""
-        apytypes.set_rounding_mode(RoundingMode.TO_POS)
-        assert apytypes.get_rounding_mode() == RoundingMode.TO_POS
-        apytypes.set_rounding_mode(RoundingMode.TO_NEG)
-        assert apytypes.get_rounding_mode() == RoundingMode.TO_NEG
+        """Make sure get/set works for the quantization mode to begin with."""
+        apytypes.set_quantization_mode(QuantizationMode.TO_POS)
+        assert apytypes.get_quantization_mode() == QuantizationMode.TO_POS
+        apytypes.set_quantization_mode(QuantizationMode.TO_NEG)
+        assert apytypes.get_quantization_mode() == QuantizationMode.TO_NEG
 
-        apytypes.set_rounding_seed(5)
-        assert apytypes.get_rounding_seed() == 5
-        apytypes.set_rounding_seed(1 << 57)
-        assert apytypes.get_rounding_seed() == (1 << 57)
+        apytypes.set_quantization_seed(5)
+        assert apytypes.get_quantization_seed() == 5
+        apytypes.set_quantization_seed(1 << 57)
+        assert apytypes.get_quantization_seed() == (1 << 57)
 
     def test_not_nested(self):
         """Single layer of context."""
-        # Test setting a non-stochastic rounding mode
-        apytypes.set_rounding_mode(RoundingMode.TO_POS)
-        with RoundingContext(RoundingMode.TO_NEG):
-            assert apytypes.get_rounding_mode() == RoundingMode.TO_NEG
-        assert apytypes.get_rounding_mode() == RoundingMode.TO_POS
+        # Test setting a non-stochastic quantization mode
+        apytypes.set_quantization_mode(QuantizationMode.TO_POS)
+        with QuantizationContext(QuantizationMode.TO_NEG):
+            assert apytypes.get_quantization_mode() == QuantizationMode.TO_NEG
+        assert apytypes.get_quantization_mode() == QuantizationMode.TO_POS
 
-        # Test setting a stochastic rounding mode without changing the seed
-        apytypes.set_rounding_seed(123)
-        with RoundingContext(RoundingMode.STOCHASTIC_EQUAL):
-            assert apytypes.get_rounding_mode() == RoundingMode.STOCHASTIC_EQUAL
-            assert apytypes.get_rounding_seed() == 123
-        assert apytypes.get_rounding_mode() == RoundingMode.TO_POS
-        assert apytypes.get_rounding_seed() == 123
+        # Test setting a stochastic quantization mode without changing the seed
+        apytypes.set_quantization_seed(123)
+        with QuantizationContext(QuantizationMode.STOCHASTIC_EQUAL):
+            assert apytypes.get_quantization_mode() == QuantizationMode.STOCHASTIC_EQUAL
+            assert apytypes.get_quantization_seed() == 123
+        assert apytypes.get_quantization_mode() == QuantizationMode.TO_POS
+        assert apytypes.get_quantization_seed() == 123
 
-        # Test setting a stochastic rounding mode and changing the seed
-        with RoundingContext(RoundingMode.STOCHASTIC_WEIGHTED, 77):
-            assert apytypes.get_rounding_mode() == RoundingMode.STOCHASTIC_WEIGHTED
-            assert apytypes.get_rounding_seed() == 77
-        assert apytypes.get_rounding_mode() == RoundingMode.TO_POS
-        assert apytypes.get_rounding_seed() == 123
+        # Test setting a stochastic quantization mode and changing the seed
+        with QuantizationContext(QuantizationMode.STOCHASTIC_WEIGHTED, 77):
+            assert (
+                apytypes.get_quantization_mode() == QuantizationMode.STOCHASTIC_WEIGHTED
+            )
+            assert apytypes.get_quantization_seed() == 77
+        assert apytypes.get_quantization_mode() == QuantizationMode.TO_POS
+        assert apytypes.get_quantization_seed() == 123
 
     def test_nested(self):
         """Nested context layers."""
-        apytypes.set_rounding_mode(RoundingMode.TO_POS)
-        apytypes.set_rounding_seed(123)
-        with RoundingContext(RoundingMode.STOCHASTIC_WEIGHTED, 456):
-            assert apytypes.get_rounding_mode() == RoundingMode.STOCHASTIC_WEIGHTED
-            assert apytypes.get_rounding_seed() == 456
-            with RoundingContext(RoundingMode.STOCHASTIC_EQUAL, 789):
-                assert apytypes.get_rounding_mode() == RoundingMode.STOCHASTIC_EQUAL
-                assert apytypes.get_rounding_seed() == 789
-            assert apytypes.get_rounding_mode() == RoundingMode.STOCHASTIC_WEIGHTED
-            assert apytypes.get_rounding_seed() == 456
-        assert apytypes.get_rounding_mode() == RoundingMode.TO_POS
-        assert apytypes.get_rounding_seed() == 123
+        apytypes.set_quantization_mode(QuantizationMode.TO_POS)
+        apytypes.set_quantization_seed(123)
+        with QuantizationContext(QuantizationMode.STOCHASTIC_WEIGHTED, 456):
+            assert (
+                apytypes.get_quantization_mode() == QuantizationMode.STOCHASTIC_WEIGHTED
+            )
+            assert apytypes.get_quantization_seed() == 456
+            with QuantizationContext(QuantizationMode.STOCHASTIC_EQUAL, 789):
+                assert (
+                    apytypes.get_quantization_mode()
+                    == QuantizationMode.STOCHASTIC_EQUAL
+                )
+                assert apytypes.get_quantization_seed() == 789
+            assert (
+                apytypes.get_quantization_mode() == QuantizationMode.STOCHASTIC_WEIGHTED
+            )
+            assert apytypes.get_quantization_seed() == 456
+        assert apytypes.get_quantization_mode() == QuantizationMode.TO_POS
+        assert apytypes.get_quantization_seed() == 123
 
     def test_raised_exception(self):
-        """Make sure an exception is raised if a seed is given for RoundingContext with a non-stochastic rounding mode."""
+        """Make sure an exception is raised if a seed is given for QuantizationContext with a non-stochastic quantization mode."""
         with pytest.raises(ValueError, match="Seed"):
-            with RoundingContext(RoundingMode.TO_POS, 123):
+            with QuantizationContext(QuantizationMode.TO_POS, 123):
                 pass

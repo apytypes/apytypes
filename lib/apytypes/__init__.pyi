@@ -5,10 +5,10 @@ from apytypes._apytypes import APyFloat
 from apytypes._apytypes import APyFloatArray
 from apytypes._apytypes import AccumulatorContext
 from apytypes._apytypes import OverflowMode
-from apytypes._apytypes import RoundingContext
-from apytypes._apytypes import RoundingMode
-from apytypes._apytypes import get_rounding_mode
-from apytypes._apytypes import set_rounding_mode
+from apytypes._apytypes import QuantizationContext
+from apytypes._apytypes import QuantizationMode
+from apytypes._apytypes import get_quantization_mode
+from apytypes._apytypes import set_quantization_mode
 from . import _apytypes
 from . import _version
 
@@ -19,10 +19,10 @@ __all__: list = [
     "APyFloatArray",
     "AccumulatorContext",
     "OverflowMode",
-    "RoundingContext",
-    "RoundingMode",
+    "QuantizationContext",
+    "QuantizationMode",
     "__version__",
-    "get_rounding_mode",
-    "set_rounding_mode",
+    "get_quantization_mode",
+    "set_quantization_mode",
 ]
 __version__: str = "0.0.1.dev0"

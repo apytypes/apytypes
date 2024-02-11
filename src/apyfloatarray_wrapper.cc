@@ -329,7 +329,7 @@ void bind_float_array(py::module& m)
             py::arg("exp_bits") = std::nullopt,
             py::arg("man_bits") = std::nullopt,
             py::arg("bias") = std::nullopt,
-            py::arg("rounding_mode") = std::nullopt,
+            py::arg("quantization_mode") = std::nullopt,
             R"pbdoc(
             Create an :class:`APyFloatArray` object from a sequence of :class:`float`.
 
@@ -422,7 +422,7 @@ void bind_float_array(py::module& m)
             py::arg("exp_bits"),
             py::arg("man_bits"),
             py::arg("bias") = std::nullopt,
-            py::arg("rounding_mode") = std::nullopt
+            py::arg("quantization_mode") = std::nullopt
         );
 
     py::class_<APyFloatArrayIterator>(m, "APyFloatArrayIterator")

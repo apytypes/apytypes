@@ -174,14 +174,14 @@ void bind_fixed(py::module& m)
             &APyFixed::resize,
             py::arg("bits") = std::nullopt,
             py::arg("int_bits") = std::nullopt,
-            py::arg("rounding") = RoundingMode::TRN,
+            py::arg("quantization") = QuantizationMode::TRN,
             py::arg("overflow") = OverflowMode::WRAP,
             py::arg("frac_bits") = std::nullopt,
             R"pbdoc(
             Create a new resized fixed-point number based on the bit pattern in this
             fixed-point number.
 
-            This is the primary method for performing rounding, truncation, overflowing,
+            This is the primary method for performing quantization, truncation, overflowing,
             and saturation when dealing with APyTypes fixed-point numbers.
 
             Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
@@ -193,8 +193,8 @@ void bind_fixed(py::module& m)
                 Total number of bits in the created fixed-point object
             int_bits : int, optional
                 Number of integer bits in the created fixed-point object
-            rounding : RoundingMode, default: RoundingMode.TRN
-                Rounding mode to use in this resize
+            quantization : QuantizationMode, default: QuantizationMode.TRN
+                Quantization mode to use in this resize
             overflow : OverflowMode, default: OverflowMode.WRAP
                 Overflowing mode to use in this resize
             frac_bits : int, optional
@@ -209,16 +209,16 @@ void bind_fixed(py::module& m)
             .. code-block:: python
 
                 from apytypes import APyFixed
-                from apytypes import RoundingMode
+                from apytypes import QuantizationMode
                 from apytypes import OverflowMode
 
                 fx = APyFixed.from_float(2.125, int_bits=3, frac_bits=3)
 
                 # Truncation (fx_a == 2.0)
-                fx_a = fx.resize(int_bits=3, frac_bits=2, rounding=RoundingMode.TRN)
+                fx_a = fx.resize(int_bits=3, frac_bits=2, quantization=QuantizationMode.TRN)
 
-                # Rounding (fx_b == 2.25)
-                fx_b = fx.resize(int_bits=3, frac_bits=2, rounding=RoundingMode.RND)
+                # Quantization (fx_b == 2.25)
+                fx_b = fx.resize(int_bits=3, frac_bits=2, quantization=QuantizationMode.RND)
 
                 # Two's complement overflowing (fx_c == -1.875)
                 fx_c = fx.resize(int_bits=2, frac_bits=3, overflow=OverflowMode.WRAP)

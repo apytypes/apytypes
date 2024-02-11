@@ -571,7 +571,7 @@ APyFixedArray APyFixedArray::from_double(
 APyFixedArray APyFixedArray::resize(
     std::optional<int> i_bits,
     std::optional<int> i_int_bits,
-    RoundingMode rounding,
+    QuantizationMode quantization,
     OverflowMode overflow,
     std::optional<int> i_frac_bits
 ) const
@@ -588,10 +588,11 @@ APyFixedArray APyFixedArray::resize(
         );
     }
 
-    // Only rounding (ties to plus infinity) and truncation supported yet.
-    if (rounding != RoundingMode::TRN && rounding != RoundingMode::RND) {
+    // Only quantization (ties to plus infinity) and truncation supported yet.
+    if (quantization != QuantizationMode::TRN
+        && quantization != QuantizationMode::RND) {
         throw NotImplementedException(fmt::format(
-            "Not implemented: APyFixedArray::_bit_resize() with rounding={}",
+            "Not implemented: APyFixedArray::_bit_resize() with quantization={}",
             "<UNKNOWN_ROUNDING>"
         ));
     }
@@ -630,7 +631,7 @@ APyFixedArray APyFixedArray::resize(
         if (frac_bits() <= result.frac_bits()) {
             limb_vector_lsl(tmp, result.frac_bits() - frac_bits());
         } else { // frac_bits() > result.frac_bits()
-            if (rounding == RoundingMode::RND) {
+            if (quantization == QuantizationMode::RND) {
                 limb_vector_add_pow2(tmp, frac_bits() - result.frac_bits() - 1);
             }
             limb_vector_asr(tmp, frac_bits() - result.frac_bits());
@@ -677,7 +678,7 @@ APyFixedArray APyFixedArray::_checked_inner_product(const APyFixedArray& rhs) co
     if (get_accumulator_mode().has_value()) {
         AccumulatorOption mode = *get_accumulator_mode();
         hadamard = hadamard.resize(
-            mode.bits, mode.int_bits, mode.rounding_mode, mode.overflow_mode
+            mode.bits, mode.int_bits, mode.quantization_mode, mode.overflow_mode
         );
     }
 

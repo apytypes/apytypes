@@ -288,14 +288,14 @@ void bind_fixed_array(py::module& m)
             &APyFixedArray::resize,
             py::arg("bits") = std::nullopt,
             py::arg("int_bits") = std::nullopt,
-            py::arg("rounding") = RoundingMode::TRN,
+            py::arg("quantization") = QuantizationMode::TRN,
             py::arg("overflow") = OverflowMode::WRAP,
             py::arg("frac_bits") = std::nullopt,
             R"pbdoc(
             Create a new resized fixed-point array based on the bit pattern in this
             fixed-point array.
 
-            This is the primary method for performing rounding, truncation, overflowing,
+            This is the primary method for performing quantization, truncation, overflowing,
             and saturation when dealing with APyTypes fixed-point numbers.
 
             Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
@@ -307,8 +307,8 @@ void bind_fixed_array(py::module& m)
                 Total number of bits in the created fixed-point array
             int_bits : int, optional
                 Number of integer bits in the created fixed-point array
-            rounding : RoundingMode, default: RoundingMode.TRN
-                Rounding mode to use in this resize
+            quantization : QuantizationMode, default: QuantizationMode.TRN
+                Quantization mode to use in this resize
             overflow : OverflowMode, default: OverflowMode.WRAP
                 Overflowing mode to use in this resize
             frac_bits : int, optional
