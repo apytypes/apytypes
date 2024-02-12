@@ -731,8 +731,8 @@ bool APyFixed::is_identical(const APyFixed& other) const
 APyFixed APyFixed::resize(
     std::optional<int> bits,
     std::optional<int> int_bits,
-    QuantizationMode quantization_mode,
-    OverflowMode overflow_mode,
+    QuantizationMode quantization,
+    OverflowMode overflow,
     std::optional<int> frac_bits
 ) const
 {
@@ -752,10 +752,10 @@ APyFixed APyFixed::resize(
     }
 
     // First perform the quantization
-    result._round(quantization_mode, old_bits, old_int_bits);
+    result._round(quantization, old_bits, old_int_bits);
 
     // And than handle possible overflowing
-    result._overflow(overflow_mode);
+    result._overflow(overflow);
 
     return result;
 }
@@ -794,11 +794,9 @@ APyFixed APyFixed::from_string(
  * ********************************************************************************** */
 
 // Perform quantization of fixed-point numbers
-void APyFixed::_round(
-    QuantizationMode quantization_mode, int old_bits, int old_int_bits
-)
+void APyFixed::_round(QuantizationMode quantization, int old_bits, int old_int_bits)
 {
-    switch (quantization_mode) {
+    switch (quantization) {
     case QuantizationMode::TRN:
         _round_trn(old_bits, old_int_bits); // Truncation
         break;
@@ -823,9 +821,9 @@ void APyFixed::_round(
 }
 
 // Perform overflowing of fixed-point numbers
-void APyFixed::_overflow(OverflowMode overflow_mode)
+void APyFixed::_overflow(OverflowMode overflow)
 {
-    switch (overflow_mode) {
+    switch (overflow) {
     case OverflowMode::WRAP:
         _twos_complement_overflow();
         break;

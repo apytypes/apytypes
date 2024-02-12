@@ -181,8 +181,8 @@ void bind_fixed(py::module& m)
             Create a new resized fixed-point number based on the bit pattern in this
             fixed-point number.
 
-            This is the primary method for performing quantization, truncation, overflowing,
-            and saturation when dealing with APyTypes fixed-point numbers.
+            This is the primary method for performing quantization, truncation,
+            overflowing, and saturation when dealing with APyTypes fixed-point numbers.
 
             Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
             to be set.

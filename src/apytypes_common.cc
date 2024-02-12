@@ -81,8 +81,8 @@ AccumulatorContext::AccumulatorContext(
     std::optional<int> bits,
     std::optional<int> int_bits,
     std::optional<int> frac_bits,
-    std::optional<QuantizationMode> quantization_mode,
-    std::optional<OverflowMode> overflow_mode
+    std::optional<QuantizationMode> quantization,
+    std::optional<OverflowMode> overflow
 )
 {
     // Sanitize the input bits
@@ -94,10 +94,9 @@ AccumulatorContext::AccumulatorContext(
     previous_mode = global_accumulator_option;
 
     // Set the current mode
-    QuantizationMode acc_quantization_mode
-        = quantization_mode.value_or(QuantizationMode::TRN);
-    OverflowMode acc_overflow_mode = overflow_mode.value_or(OverflowMode::WRAP);
-    current_mode = { acc_bits, acc_int_bits, acc_quantization_mode, acc_overflow_mode };
+    QuantizationMode acc_quantization = quantization.value_or(QuantizationMode::TRN);
+    OverflowMode acc_overflow_mode = overflow.value_or(OverflowMode::WRAP);
+    current_mode = { acc_bits, acc_int_bits, acc_quantization, acc_overflow_mode };
 }
 
 void AccumulatorContext::enter_context() { global_accumulator_option = current_mode; }

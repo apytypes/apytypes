@@ -227,8 +227,8 @@ class APyFixed:
         Create a new resized fixed-point number based on the bit pattern in this
         fixed-point number.
 
-        This is the primary method for performing quantization, truncation, overflowing,
-        and saturation when dealing with APyTypes fixed-point numbers.
+        This is the primary method for performing quantization, truncation,
+        overflowing, and saturation when dealing with APyTypes fixed-point numbers.
 
         Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
         to be set.
@@ -598,7 +598,7 @@ class APyFloat:
         exp_bits: int,
         man_bits: int,
         bias: int | None = None,
-        quantization_mode: QuantizationMode | None = None,
+        quantization: QuantizationMode | None = None,
     ) -> APyFloat: ...
     def __abs__(self) -> APyFloat: ...
     @typing.overload
@@ -696,7 +696,7 @@ class APyFloat:
         exp_bits: int,
         man_bits: int,
         bias: int | None = None,
-        quantization_mode: QuantizationMode | None = None,
+        quantization: QuantizationMode | None = None,
     ) -> APyFloat: ...
     def to_bits(self) -> int: ...
     @property
@@ -1013,8 +1013,8 @@ class OverflowMode:
 
       SAT : Saturate to the closest of most positive and most negative value.
 
-      NUMERIC_STD : Remove MSBs, but keep the most significant bit. As ieee.numeric_std "
-                "resize for signed.
+      NUMERIC_STD : Remove MSBs, but keep the most significant bit. As ieee.numeric_std
+                resize for signed.
     """
 
     NUMERIC_STD: typing.ClassVar[OverflowMode]  # value = <OverflowMode.NUMERIC_STD: 2>
@@ -1060,8 +1060,8 @@ class QuantizationMode:
 
       TRN_INF : Round towards positive infinity.
 
-      RND : Round to nearest, ties towards postive infinity (standard 'round' "
-                "for fixed-point).
+      RND : Round to nearest, ties towards postive infinity (standard 'round'
+                for fixed-point).
 
       RND_ZERO : Round to nearest, ties toward zero.
 
@@ -1075,11 +1075,11 @@ class QuantizationMode:
 
       JAM : Jamming/von Neumann rounding. Set LSB to 1.
 
-      JAM_UNBIASED : Unbiased jamming/von Neumann rounding. Set LSB to 1 unless a "
-                "tie.
+      JAM_UNBIASED : Unbiased jamming/von Neumann rounding. Set LSB to 1 unless a
+                tie.
 
-      STOCHASTIC_WEIGHTED : Stochastic rounding. Probability depends on the bits to "
-                "remove.
+      STOCHASTIC_WEIGHTED : Stochastic rounding. Probability depends on the bits to
+                remove.
 
       STOCHASTIC_EQUAL : Stochastic rounding with equal probability.
 

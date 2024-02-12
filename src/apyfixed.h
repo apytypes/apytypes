@@ -185,8 +185,8 @@ public:
     APyFixed resize(
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
-        QuantizationMode quantization_mode = QuantizationMode::TRN,
-        OverflowMode overflow_mode = OverflowMode::WRAP,
+        QuantizationMode quantization = QuantizationMode::TRN,
+        OverflowMode overflow = OverflowMode::WRAP,
         std::optional<int> frac_bits = std::nullopt
     ) const;
 
@@ -259,7 +259,7 @@ private:
     ) const;
 
     // Handle quantization of fixed-point numbers
-    void _round(QuantizationMode quantization_mode, int old_bits, int old_int_bits);
+    void _round(QuantizationMode quantization, int old_bits, int old_int_bits);
 
     // Truncation quantization
     void _round_trn(int old_bits, int old_int_bits);
@@ -268,7 +268,7 @@ private:
     void _round_rnd(int old_bits, int old_int_bits);
 
     // Handle overflowing of fixed-point numbers
-    void _overflow(OverflowMode overflow_mode);
+    void _overflow(OverflowMode overflow);
 
     // Perform two's complement overflowing. This method sign-extends any bits outside
     // of the APyFixed range.

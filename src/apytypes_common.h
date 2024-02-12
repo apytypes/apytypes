@@ -119,8 +119,8 @@ struct APyFloatData {
 struct AccumulatorOption {
     int bits;
     int int_bits;
-    QuantizationMode quantization_mode;
-    OverflowMode overflow_mode;
+    QuantizationMode quantization;
+    OverflowMode overflow;
 };
 
 // Accumulator context
@@ -130,8 +130,8 @@ public:
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
-        std::optional<QuantizationMode> quantization_mode = std::nullopt,
-        std::optional<OverflowMode> overflow_mode = std::nullopt
+        std::optional<QuantizationMode> quantization = std::nullopt,
+        std::optional<OverflowMode> overflow = std::nullopt
     );
     void enter_context() override;
     void exit_context() override;

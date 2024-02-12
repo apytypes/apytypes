@@ -83,16 +83,15 @@ APyFloat APyFloat::from_double(
     std::uint8_t exp_bits,
     std::uint8_t man_bits,
     std::optional<exp_t> bias,
-    std::optional<QuantizationMode> quantization_mode
+    std::optional<QuantizationMode> quantization
 )
 {
     APyFloat f(exp_bits, man_bits);
-    return f.update_from_double(value, quantization_mode);
+    return f.update_from_double(value, quantization);
 }
 
-APyFloat& APyFloat::update_from_double(
-    double value, std::optional<QuantizationMode> quantization_mode
-)
+APyFloat&
+APyFloat::update_from_double(double value, std::optional<QuantizationMode> quantization)
 {
 
     // Initialize an APyFloat from the double
@@ -101,7 +100,7 @@ APyFloat& APyFloat::update_from_double(
     );
 
     // Cast it to the correct format
-    *this = apytypes_double.resize(exp_bits, man_bits, bias, quantization_mode);
+    *this = apytypes_double.resize(exp_bits, man_bits, bias, quantization);
 
     return *this;
 }
@@ -110,7 +109,7 @@ APyFloat APyFloat::resize(
     std::uint8_t new_exp_bits,
     std::uint8_t new_man_bits,
     std::optional<exp_t> new_bias,
-    std::optional<QuantizationMode> quantization_mode
+    std::optional<QuantizationMode> quantization
 ) const
 {
     APyFloat res(new_exp_bits, new_man_bits, new_bias);
@@ -165,7 +164,7 @@ APyFloat APyFloat::resize(
         G = (prev_man >> (bits_to_discard - 1)) & 1;
         T = (prev_man & ((1ULL << (bits_to_discard - 1)) - 1)) != 0;
 
-        switch (quantization_mode.value_or(get_quantization_mode())) {
+        switch (quantization.value_or(get_quantization_mode())) {
         case QuantizationMode::TRN_INF: // TO_POSITIVE
             B = sign ? 0 : (G | T);
             break;
@@ -344,7 +343,8 @@ APyFloat APyFloat::operator+(APyFloat y) const
     APyFloat res(std::max(x.exp_bits, y.exp_bits), std::max(x.man_bits, y.man_bits));
 
     // Handle the NaN cases first, other special cases are further down
-    if (x.is_nan() || y.is_nan() || (x.is_inf() && y.is_inf()) && (x.sign != y.sign)) {
+    if (x.is_nan() || y.is_nan()
+        || ((x.is_inf() && y.is_inf()) && (x.sign != y.sign))) {
         return res.construct_nan();
     }
 

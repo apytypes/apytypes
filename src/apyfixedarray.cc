@@ -678,7 +678,7 @@ APyFixedArray APyFixedArray::_checked_inner_product(const APyFixedArray& rhs) co
     if (get_accumulator_mode().has_value()) {
         AccumulatorOption mode = *get_accumulator_mode();
         hadamard = hadamard.resize(
-            mode.bits, mode.int_bits, mode.quantization_mode, mode.overflow_mode
+            mode.bits, mode.int_bits, mode.quantization, mode.overflow
         );
     }
 

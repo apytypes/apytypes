@@ -37,7 +37,7 @@ void bind_float(py::module& m)
             py::arg("exp_bits"),
             py::arg("man_bits"),
             py::arg("bias") = std::nullopt,
-            py::arg("quantization_mode") = std::nullopt
+            py::arg("quantization") = std::nullopt
         )
         .def("__float__", &APyFloat::operator double)
         .def_static(
@@ -59,7 +59,7 @@ void bind_float(py::module& m)
             py::arg("exp_bits"),
             py::arg("man_bits"),
             py::arg("bias") = std::nullopt,
-            py::arg("quantization_mode") = std::nullopt
+            py::arg("quantization") = std::nullopt
         )
 
         /*

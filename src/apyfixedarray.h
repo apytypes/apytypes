@@ -24,6 +24,33 @@
 #include "../extern/mini-gmp/mini-gmp.h"
 
 class APyFixedArray {
+
+    /* ****************************************************************************** *
+     *                        APyFixedArray C++ assumptions                           *
+     * ****************************************************************************** */
+
+    static_assert(
+        (sizeof(mp_limb_t) == 8 || sizeof(mp_limb_t) == 4),
+        "The GMP `mp_limb_t` data type is either 64 bit or 32 bit. Any other limb size "
+        "is unsupported. This assumption should hold true always, according to the GMP "
+        "documentation"
+    );
+    static_assert(
+        (-1 >> 1 == -1),
+        "Right shift applied to signed integral types performs *arithmetic* right "
+        "shift. Arithmetic right shift of signed types is *the only* valid behaviour "
+        "since C++20, but before C++20 the right shift of signed integral types is "
+        "implementation defined. APyFixed relies heavily on arithmetic right shift."
+    );
+    static_assert(
+        (std::numeric_limits<double>::is_iec559),
+        "We assume IEEE-754 double-precision floating-point types."
+    );
+
+    /* ****************************************************************************** *
+     *                         APyFixedArray data fields                              *
+     * ****************************************************************************** */
+
     int _bits;
     int _int_bits;
     std::vector<std::size_t> _shape;
@@ -34,7 +61,7 @@ class APyFixedArray {
      * ****************************************************************************** */
 
 public:
-    // No default constructed APyFixed types
+    //! No default (empty) constructed APyFixedArray types
     APyFixedArray() = delete;
 
     explicit APyFixedArray(
@@ -48,7 +75,7 @@ public:
      * *                     Non-Python accessible constructors                     * *
      * ****************************************************************************** */
 
-    //! Constructor: specify only shape, size, and zero data on construction
+    //! Constructor: specify only shape and word-length. Zero data on construction
     explicit APyFixedArray(
         const std::vector<std::size_t>& shape,
         std::optional<int> bits = std::nullopt,
@@ -168,8 +195,8 @@ public:
     APyFixedArray _checked_inner_product(const APyFixedArray& rhs) const;
 
     //! Evaluate the matrix product between two 2D matrices. This method assumes that
-    //! the shape of `*this` and `rhs` have been checked to match a 2D matrix
-    //! multiplication.
+    //! the shape of `*this` and `rhs` have been checked to match a 2D matrix-matrix or
+    //! matrix-vector multiplication. Anything else is undefined behaviour.
     APyFixedArray _checked_2d_matmul(const APyFixedArray& rhs) const;
 };
 
