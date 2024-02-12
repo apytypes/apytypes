@@ -1,4 +1,5 @@
 from __future__ import annotations
+import apytypes
 import numpy
 import typing
 
@@ -219,8 +220,8 @@ class APyFixed:
         self,
         bits: int | None = None,
         int_bits: int | None = None,
-        quantization: QuantizationMode = ...,
-        overflow: OverflowMode = ...,
+        quantization: QuantizationMode = apytypes.QuantizationMode.TRN,
+        overflow: OverflowMode = apytypes.OverflowMode.WRAP,
         frac_bits: int | None = None,
     ) -> APyFixed:
         """
@@ -455,8 +456,8 @@ class APyFixedArray:
         self,
         bits: int | None = None,
         int_bits: int | None = None,
-        quantization: QuantizationMode = ...,
-        overflow: OverflowMode = ...,
+        quantization: QuantizationMode = apytypes.QuantizationMode.TRN,
+        overflow: OverflowMode = apytypes.OverflowMode.WRAP,
         frac_bits: int | None = None,
     ) -> APyFixedArray:
         """
