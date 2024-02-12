@@ -220,8 +220,8 @@ class APyFixed:
         self,
         bits: int | None = None,
         int_bits: int | None = None,
-        quantization: QuantizationMode = apytypes.QuantizationMode.TRN,
-        overflow: OverflowMode = apytypes.OverflowMode.WRAP,
+        quantization: QuantizationMode = QuantizationMode.TRN,
+        overflow: OverflowMode = OverflowMode.WRAP,
         frac_bits: int | None = None,
     ) -> APyFixed:
         """
@@ -456,8 +456,8 @@ class APyFixedArray:
         self,
         bits: int | None = None,
         int_bits: int | None = None,
-        quantization: QuantizationMode = apytypes.QuantizationMode.TRN,
-        overflow: OverflowMode = apytypes.OverflowMode.WRAP,
+        quantization: QuantizationMode = QuantizationMode.TRN,
+        overflow: OverflowMode = OverflowMode.WRAP,
         frac_bits: int | None = None,
     ) -> APyFixedArray:
         """
