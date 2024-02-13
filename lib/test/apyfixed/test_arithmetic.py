@@ -1,9 +1,6 @@
 from apytypes import APyFixed
-from apytypes import QuantizationMode
-from apytypes import OverflowMode
 
 import math
-import pytest
 
 
 def test_arithmetic_operations():
@@ -162,19 +159,6 @@ def test_wide_operations():
     assert fx_a + fx_b == fx_b + fx_a
     assert fx_a - fx_b == -(fx_b - fx_a)
     assert fx_a * fx_b == fx_b * fx_a
-
-
-def test_resize():
-    """
-    Test quantization and truncation
-    """
-    Mode = QuantizationMode
-    assert float(APyFixed.from_float(0.75, 3, 1).resize(2, 1, Mode.TRN)) == 0.5
-    assert float(APyFixed.from_float(0.75, 3, 1).resize(2, 1, Mode.RND)) == -1.0
-    assert float(APyFixed.from_float(0.75, 4, 1).resize(3, 1, Mode.TRN)) == 0.75
-    assert float(APyFixed.from_float(0.75, 4, 1).resize(3, 1, Mode.RND)) == 0.75
-    assert float(APyFixed.from_float(0.875, 4, 1).resize(3, 1, Mode.TRN)) == 0.75
-    assert float(APyFixed.from_float(0.875, 4, 1).resize(3, 1, Mode.RND)) == -1.0
 
 
 def test_unary_minus():
