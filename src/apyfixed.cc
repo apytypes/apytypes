@@ -50,17 +50,15 @@ APyFixed::APyFixed(
     if (bits.has_value() || int_bits.has_value() || frac_bits.has_value()) {
         // One or more bit-specifiers set, initialize from the specifier arguments
         set_bit_specifiers_from_optional(_bits, _int_bits, bits, int_bits, frac_bits);
-        bit_specifier_sanitize_bits(_bits, _int_bits);
+        bit_specifier_sanitize(_bits, _int_bits);
         _data = std::vector<mp_limb_t>(bits_to_limbs(_bits), 0);
+        set_from_apyfixed(other);
     } else {
-        // No bit-specifiers set, use bit-specifiers from `other`
+        // No bit-specifiers set, use data from `other`
         _bits = other._bits;
         _int_bits = other._int_bits;
-        _data = std::vector<mp_limb_t>(bits_to_limbs(_bits), 0);
+        _data = other._data;
     }
-
-    // Copy the limb data from `other`
-    set_from_apyfixed(other);
 }
 
 //! Constructor: construct from a Python arbitrary long integer object
@@ -89,7 +87,7 @@ APyFixed::APyFixed(
     , _data {}
 {
     set_bit_specifiers_from_optional(_bits, _int_bits, bits, int_bits, frac_bits);
-    bit_specifier_sanitize_bits(_bits, _int_bits);
+    bit_specifier_sanitize(_bits, _int_bits);
     _data = std::vector<mp_limb_t>(bits_to_limbs(_bits), 0);
 }
 
@@ -99,7 +97,7 @@ APyFixed::APyFixed(int bits, int int_bits)
     , _int_bits { int_bits }
     , _data(bits_to_limbs(bits))
 {
-    bit_specifier_sanitize_bits(_bits, _int_bits);
+    bit_specifier_sanitize(_bits, _int_bits);
 }
 
 //! Underlying vector iterator-based constructor
@@ -109,7 +107,7 @@ APyFixed::APyFixed(int bits, int int_bits, _ITER begin, _ITER end)
     , _int_bits { int_bits }
     , _data(begin, end)
 {
-    bit_specifier_sanitize_bits(_bits, _int_bits);
+    bit_specifier_sanitize(_bits, _int_bits);
 
     if (std::distance(begin, end) <= 0) {
         throw std::domain_error(
@@ -736,14 +734,16 @@ APyFixed APyFixed::resize(
     std::optional<int> frac_bits
 ) const
 {
-    APyFixed result { *this };
-    int old_bits = result._bits;
-    int old_int_bits = result._int_bits;
+    // Create result object, with a copy of the limb vector, but with the new bit
+    // specifiers
+    APyFixed result(*this);
     set_bit_specifiers_from_optional(
         result._bits, result._int_bits, bits, int_bits, frac_bits
     );
-    bit_specifier_sanitize_bits(result._bits, result._int_bits);
-    if (bits_to_limbs(result._bits) > vector_size()) {
+    bit_specifier_sanitize(result._bits, result._int_bits);
+
+    // Append new limbs to result if it happend to be bigger than `*this`
+    if (bits_to_limbs(result.bits()) > result.vector_size()) {
         std::fill_n( // Vector sign-extend the result limb vector
             std::back_inserter(result._data),
             bits_to_limbs(result._bits) - vector_size(),
@@ -751,11 +751,14 @@ APyFixed APyFixed::resize(
         );
     }
 
-    // First perform the quantization
-    result._round(quantization, old_bits, old_int_bits);
+    // First perform quantization
+    result._quantize(quantization, _bits, _int_bits);
 
-    // And than handle possible overflowing
+    // Then perform overflowing
     result._overflow(overflow);
+
+    // Finally resize the result limb vector that might be to large
+    result._data.resize(bits_to_limbs(result._bits));
 
     return result;
 }
@@ -794,29 +797,20 @@ APyFixed APyFixed::from_string(
  * ********************************************************************************** */
 
 // Perform quantization of fixed-point numbers
-void APyFixed::_round(QuantizationMode quantization, int old_bits, int old_int_bits)
+void APyFixed::_quantize(QuantizationMode quantization, int old_bits, int old_int_bits)
 {
     switch (quantization) {
     case QuantizationMode::TRN:
-        _round_trn(old_bits, old_int_bits); // Truncation
+        _quantize_trn(old_bits, old_int_bits);
         break;
     case QuantizationMode::RND:
-        _round_rnd(old_bits, old_int_bits); // Quantization, ties to plus infinity
+        _quantize_rnd(old_bits, old_int_bits);
         break;
-    case QuantizationMode::TRN_ZERO:
-        throw NotImplementedException("Quantization: TRN_ZERO not implemented yet");
-    case QuantizationMode::RND_ZERO:
-        throw NotImplementedException("Quantization: RND_ZERO not implemented yet");
-    case QuantizationMode::RND_INF:
-        throw NotImplementedException("Quantization: RND_INF not implemented yet");
-    case QuantizationMode::RND_MIN_INF:
-        throw NotImplementedException("Quantization: RND_MIN_INF not implemented yet");
-    case QuantizationMode::RND_CONV:
-        throw NotImplementedException("Quantization: RND_CONV not implemented yet");
-    case QuantizationMode::RND_CONV_ODD:
-        throw NotImplementedException("Quantization: RND_CONV_ODD not implemented yet");
     default:
-        throw std::domain_error("APyFixed::_round(): unregistered quantization mode");
+        throw NotImplementedException(fmt::format(
+            "Not implemented: APyFixed.resize(): with quantization mode: {}",
+            quantization_mode_to_string(quantization)
+        ));
     }
 }
 
@@ -836,7 +830,7 @@ void APyFixed::_overflow(OverflowMode overflow)
 }
 
 // Truncation quantization
-void APyFixed::_round_trn(int old_bits, int old_int_bits)
+void APyFixed::_quantize_trn(int old_bits, int old_int_bits)
 {
     int old_frac_bits = old_bits - old_int_bits;
     if (old_frac_bits <= frac_bits()) {
@@ -847,7 +841,7 @@ void APyFixed::_round_trn(int old_bits, int old_int_bits)
 }
 
 // Round towards plus infinity
-void APyFixed::_round_rnd(int old_bits, int old_int_bits)
+void APyFixed::_quantize_rnd(int old_bits, int old_int_bits)
 {
     int old_frac_bits = old_bits - old_int_bits;
     if (old_frac_bits <= frac_bits()) {
@@ -863,9 +857,13 @@ void APyFixed::_twos_complement_overflow() noexcept
 {
     unsigned bits_last_word = _bits & (_LIMB_SIZE_BITS - 1);
     if (bits_last_word) {
-        // Exploit signed arithmetic right-shift to perform two's complement overflow
-        unsigned shft_amnt = _LIMB_SIZE_BITS - bits_last_word;
-        _data.back() = mp_limb_signed_t(_data.back() << (shft_amnt)) >> (shft_amnt);
+        // Exploit signed arithmetic right-shift to perform two's complement overflow.
+        // Evaluate the last limb with `bits_to_limbs(bits())`, as `_data.back()` might
+        // not be the actual last limb.
+        auto limbs = bits_to_limbs(bits());
+        auto shft_amnt = _LIMB_SIZE_BITS - bits_last_word;
+        _data[limbs - 1]
+            = mp_limb_signed_t(_data[limbs - 1] << (shft_amnt)) >> (shft_amnt);
     }
 }
 

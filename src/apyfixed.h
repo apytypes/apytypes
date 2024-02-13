@@ -259,13 +259,13 @@ private:
     ) const;
 
     // Handle quantization of fixed-point numbers
-    void _round(QuantizationMode quantization, int old_bits, int old_int_bits);
+    void _quantize(QuantizationMode quantization, int old_bits, int old_int_bits);
 
     // Truncation quantization
-    void _round_trn(int old_bits, int old_int_bits);
+    void _quantize_trn(int old_bits, int old_int_bits);
 
     // Round towards plus infinity
-    void _round_rnd(int old_bits, int old_int_bits);
+    void _quantize_rnd(int old_bits, int old_int_bits);
 
     // Handle overflowing of fixed-point numbers
     void _overflow(OverflowMode overflow);

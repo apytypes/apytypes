@@ -78,7 +78,7 @@ APyFixedArray::APyFixedArray(
     , _data {}
 {
     set_bit_specifiers_from_optional(_bits, _int_bits, bits, int_bits, frac_bits);
-    bit_specifier_sanitize_bits(_bits, _int_bits);
+    bit_specifier_sanitize(_bits, _int_bits);
     _data = std::vector<mp_limb_t>(bits_to_limbs(_bits) * _fold_shape(), 0);
 }
 
@@ -579,7 +579,7 @@ APyFixedArray APyFixedArray::resize(
     // Sanitize the input
     int bits, int_bits;
     set_bit_specifiers_from_optional(bits, int_bits, i_bits, i_int_bits, i_frac_bits);
-    bit_specifier_sanitize_bits(bits, int_bits);
+    bit_specifier_sanitize(bits, int_bits);
 
     // Saturation not supported yet, unfortuantly...
     if (overflow == OverflowMode::SAT) {

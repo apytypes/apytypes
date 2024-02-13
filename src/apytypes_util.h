@@ -627,10 +627,10 @@ static inline void set_bit_specifiers_from_optional(
 }
 
 //! Sanitize the _bits and _int_bits parameters in a fixed-point number
-static inline void bit_specifier_sanitize_bits(int _bits, int _int_bits)
+static inline void bit_specifier_sanitize(int bits, int int_bits)
 {
-    (void)_int_bits;
-    if (_bits <= 0) {
+    (void)int_bits;
+    if (bits <= 0) {
         throw std::domain_error(
             "Fixed-point needs a positive integer bit-size of at-least 1 bit"
         );

@@ -3,21 +3,24 @@
 
 #include <cstdint>  // std::uint32_t, uint64_t
 #include <optional> // std::optional
+#include <string>   // std::string
 #include <tuple>    // std::tuple
+
+#include "apytypes_util.h"
 
 /*!
  * Available quantization modes for APyFixed and APyFloat
  */
 enum class QuantizationMode {
-    TRN,                 // !< Truncation
-    TRN_INF,             // !< Jamming
-    TRN_ZERO,            // !< Magnitude truncation
-    RND,                 // !< Quantization, ties toward plus inf
-    RND_ZERO,            // !< Quantization, ties toward zero
-    RND_INF,             // !< Quantization, ties away from zero
-    RND_MIN_INF,         // !< Quantization, ties toward minus infinity
-    RND_CONV,            // !< Quantization, ties toward even quantization setps
-    RND_CONV_ODD,        // !< Quantization, ties toward odd quantization steps
+    TRN,                 // !< Truncation, quantization toward minus infinity
+    TRN_INF,             // !< Truncation, quantization toward plus infinity
+    TRN_ZERO,            // !< Magnitude truncation, quantization toward zero
+    RND,                 // !< Round to nearest, ties toward plus inf
+    RND_ZERO,            // !< Round to nearest, ties toward zero
+    RND_INF,             // !< Round to nearest, ties away from zero
+    RND_MIN_INF,         // !< Round to nearest, ties toward minus infinity
+    RND_CONV,            // !< Round to nearest, ties toward even quantization setps
+    RND_CONV_ODD,        // !< Round to nearest, ties toward odd quantization steps
     JAM,                 // !< Jamming
     JAM_UNBIASED,        // !< Unbiased jamming
     STOCHASTIC_WEIGHTED, // !< Weighted stochastic quantization
@@ -32,6 +35,42 @@ enum class OverflowMode {
     SAT,         // !< Saturate on overflow
     NUMERIC_STD, // !< Drop bits left of the MSB, but keep the most significant bit
 };
+
+static inline std::string quantization_mode_to_string(QuantizationMode mode)
+{
+    switch (mode) {
+    case QuantizationMode::TRN:
+        return "QuantizationMode::TRN";
+    case QuantizationMode::TRN_INF:
+        return "QuantizationMode::TRN_INF";
+    case QuantizationMode::TRN_ZERO:
+        return "QuantizationMode::TRN_ZERO";
+    case QuantizationMode::RND:
+        return "QuantizationMode::RND";
+    case QuantizationMode::RND_ZERO:
+        return "QuantizationMode::RND_ZERO";
+    case QuantizationMode::RND_INF:
+        return "QuantizationMode::RND_INF";
+    case QuantizationMode::RND_MIN_INF:
+        return "QuantizationMode::RND_MIN_INF";
+    case QuantizationMode::RND_CONV:
+        return "QuantizationMode::RND_CONV";
+    case QuantizationMode::RND_CONV_ODD:
+        return "QuantizationMode::RND_CONV_ODD";
+    case QuantizationMode::JAM:
+        return "QuantizationMode::JAM";
+    case QuantizationMode::JAM_UNBIASED:
+        return "QuantizationMode::JAM_UNBIASED";
+    case QuantizationMode::STOCHASTIC_WEIGHTED:
+        return "QuantizationMode::STOCHASTIC_WEIGHTED";
+    case QuantizationMode::STOCHASTIC_EQUAL:
+        return "QuantizationMode::STOCHASTIC_EQUAL";
+    default:
+        throw NotImplementedException(
+            "Not implemented: quantization_mode_to_string(), missing specifier"
+        );
+    }
+}
 
 /* ********************************************************************************** *
  * *                          Context management for APyTypes                       * *
