@@ -138,23 +138,19 @@ APyFixed APyFixed::operator+(const APyFixed& rhs) const
 {
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
+    const int res_bits = res_int_bits + res_frac_bits;
 
-    APyFixed result(res_int_bits + res_frac_bits, res_int_bits);
-    std::vector<mp_limb_t> operand_shifted;
+    APyFixed result(res_bits, res_int_bits);
+    _resize(result._data.begin(), result._data.end(), res_bits, res_int_bits);
 
-    if (frac_bits() < rhs.frac_bits()) {
-        // Right-hand side (rhs) has more fractional bits.
-        _normalize_binary_points(result, operand_shifted, rhs, *this);
-    } else { // frac_bits() >= rhs.frac_bits()
-        // Left-hand side (*this) has more fractional bits.
-        _normalize_binary_points(result, operand_shifted, *this, rhs);
-    }
+    APyFixed operand(res_bits, res_int_bits);
+    rhs._resize(operand._data.begin(), operand._data.end(), res_bits, res_int_bits);
 
     // Add with carry and return
     mpn_add_n(
         &result._data[0],    // dst
         &result._data[0],    // src1
-        &operand_shifted[0], // src2
+        &operand._data[0],   // src2
         result.vector_size() // limb vector length
     );
     return result;
@@ -164,27 +160,20 @@ APyFixed APyFixed::operator-(const APyFixed& rhs) const
 {
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
+    const int res_bits = res_int_bits + res_frac_bits;
 
     APyFixed result(res_int_bits + res_frac_bits, res_int_bits);
-    std::vector<mp_limb_t> operand_shifted;
+    _resize(result._data.begin(), result._data.end(), res_bits, res_int_bits);
 
-    bool swap_operand;
-    if (frac_bits() < rhs.frac_bits()) {
-        // Right-hand side (rhs) has more fractional bits.
-        _normalize_binary_points(result, operand_shifted, rhs, *this);
-        swap_operand = false;
-    } else { // frac_bits() >= rhs.frac_bits()
-        // Left-hand side (*this) has more fractional bits.
-        _normalize_binary_points(result, operand_shifted, *this, rhs);
-        swap_operand = true;
-    }
+    APyFixed operand(res_bits, res_int_bits);
+    rhs._resize(operand._data.begin(), operand._data.end(), res_bits, res_int_bits);
 
-    // Add with carry and return
+    // Subtract with carry and return
     mpn_sub_n(
-        &result._data[0],                                      // dst
-        swap_operand ? &result._data[0] : &operand_shifted[0], // src1
-        swap_operand ? &operand_shifted[0] : &result._data[0], // src2
-        result.vector_size()                                   // limb vector length
+        &result._data[0],    // dst
+        &result._data[0],    // src1
+        &operand._data[0],   // src2
+        result.vector_size() // limb vector length
     );
     return result;
 }
@@ -194,9 +183,8 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
     const int res_int_bits = int_bits() + rhs.int_bits();
     const int res_frac_bits = frac_bits() + rhs.frac_bits();
     const bool sign_product = is_negative() ^ rhs.is_negative();
-    std::vector<mp_limb_t> abs_operand1 = limb_vector_abs(_data.cbegin(), _data.cend());
-    std::vector<mp_limb_t> abs_operand2
-        = limb_vector_abs(rhs._data.cbegin(), rhs._data.cend());
+    auto abs_operand1 = limb_vector_abs(_data.cbegin(), _data.cend());
+    auto abs_operand2 = limb_vector_abs(rhs._data.cbegin(), rhs._data.cend());
 
     // `mpn_mul` requires:
     // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
@@ -935,35 +923,4 @@ std::vector<mp_limb_t> APyFixed::_data_asl(unsigned shift_val) const
     }
 
     return result;
-}
-
-// Prepare for binary arithmetic by aligning the binary points of two limb vectors. The
-// limbs of the first operand (`operand1`) are copied into the limb vector of `result`
-// and vector sign extended. The limbs of the second operand (`operand2`) are
-// vector-shifted by `operand1.frac_bits()` - `operand2.frac_bits()` bits to the left
-// and copied into the `operand_shifted` limb vector. Assumptions when calling this
-// method:
-//   * `result` is already initialized with a propriate vector limb size
-//   * `operand_shifted` is *not* initialized, i.e., it's an empty (zero element) vector
-//   * the number of fractional bits in `operand1` is greater than that of `operand2`
-void APyFixed::_normalize_binary_points(
-    APyFixed& result,
-    std::vector<mp_limb_t>& operand_shifted,
-    const APyFixed& operand1,
-    const APyFixed& operand2
-) const
-{
-    std::copy(operand1._data.cbegin(), operand1._data.cend(), result._data.begin());
-    operand_shifted = operand2._data_asl(operand1.frac_bits() - operand2.frac_bits());
-
-    // Vector sign-extend the `result` limb vector
-    mp_limb_t s_ext = mp_limb_signed_t(operand1._data.back()) >> (_LIMB_SIZE_BITS - 1);
-    std::fill(result._data.begin() + operand1.vector_size(), result._data.end(), s_ext);
-
-    // Vector sign-extend the `operand_shifted` limb vector
-    std::fill_n(
-        std::back_inserter(operand_shifted),
-        result.vector_size() - operand_shifted.size(),
-        mp_limb_signed_t(operand_shifted.back()) >> (_LIMB_SIZE_BITS - 1)
-    );
 }

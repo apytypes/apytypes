@@ -47,6 +47,8 @@ class APyFixed {
     /* ****************************************************************************** *
      *                            APyFixed data fields                                *
      * ****************************************************************************** */
+
+private:
     int _bits;
     int _int_bits;
     std::vector<mp_limb_t> _data;
@@ -83,6 +85,7 @@ public:
      *                       Non-Python accessible constructors                       *
      * ****************************************************************************** */
 
+public:
     //! Constructor: specify only size, and zero data on construction
     explicit APyFixed(int bits, int int_bits);
 
@@ -104,6 +107,7 @@ public:
      *                         Binary arithmetic operators                            *
      * ****************************************************************************** */
 
+public:
     APyFixed operator+(const APyFixed& rhs) const;
     APyFixed operator-(const APyFixed& rhs) const;
     APyFixed operator*(const APyFixed& rhs) const;
@@ -120,6 +124,7 @@ public:
      *                          Binary comparion operators                            *
      * ****************************************************************************** */
 
+public:
     bool operator==(const APyFixed& rhs) const;
     bool operator!=(const APyFixed& rhs) const;
     bool operator<(const APyFixed& rhs) const;
@@ -131,6 +136,7 @@ public:
      *                        Other public member functions                           *
      * ****************************************************************************** */
 
+public:
     //! Retrieve the `bits` specifier
     int bits() const noexcept { return _bits; }
 
@@ -184,6 +190,7 @@ public:
      *                           Conversion to other types                            *
      * ****************************************************************************** */
 
+public:
     double to_double() const;
     std::string to_string(int base = 10) const;
     std::string to_string_hex() const;
@@ -196,6 +203,7 @@ public:
      *                          Setters from other types                              *
      * ****************************************************************************** */
 
+public:
     void set_from_double(double value);
     void set_from_apyfixed(const APyFixed& fixed);
     void set_from_string(const std::string& str, int base = 10);
@@ -207,6 +215,7 @@ public:
      *                       Static conversion from other types                       *
      * ****************************************************************************** */
 
+public:
     static APyFixed from_double(
         double value,
         std::optional<int> bits = std::nullopt,
@@ -244,8 +253,8 @@ private:
         std::vector<mp_limb_t>::iterator it_end,
         int new_bits,
         int new_int_bits,
-        QuantizationMode quantization,
-        OverflowMode overflow
+        QuantizationMode quantization = QuantizationMode::TRN,
+        OverflowMode overflow = OverflowMode::WRAP
     ) const;
 
     //! Handle quantization of fixed-point numbers
@@ -298,24 +307,6 @@ private:
 private:
     // Sign preserving automatic size extending arithmetic left shift
     std::vector<mp_limb_t> _data_asl(unsigned shift_val) const;
-
-    // Prepare for binary arithmetic by aligning the binary points of two limb vectors.
-    // The limbs of the first operand (`operand1`) are copied into the limb vector of
-    // `result` and vector sign extended. The limbs of the second operand (`operand2`)
-    // are vector-shifted by `operand1.frac_bits()` - `operand2.frac_bits()` bits to the
-    // left and copied into the `operand_shifted` limb vector.
-    // Assumptions when calling this method:
-    //   * `result` is already initialized with a propriate vector limb size
-    //   * `operand_shifted` is *not* initialized, i.e., it's an empty (zero element)
-    //      vector
-    //   * the number of fractional bits in `operand1` is greater than that of
-    //     `operand2`
-    void _normalize_binary_points(
-        APyFixed& result,
-        std::vector<mp_limb_t>& operand_shifted,
-        const APyFixed& operand1,
-        const APyFixed& operand2
-    ) const;
 
     //! `APyFixedArray` is a friend class of APyFixed, and can access all data of an
     //! `APyFixed` object
