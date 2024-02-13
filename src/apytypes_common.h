@@ -72,6 +72,22 @@ static inline std::string quantization_mode_to_string(QuantizationMode mode)
     }
 }
 
+static inline std::string overflow_mode_to_string(OverflowMode mode)
+{
+    switch (mode) {
+    case OverflowMode::WRAP:
+        return "OverflowMode::WRAP";
+    case OverflowMode::SAT:
+        return "OverflowMode::SAT";
+    case OverflowMode::NUMERIC_STD:
+        return "OverflowMode::NUMERIC_STD";
+    default:
+        throw NotImplementedException(
+            "Not implemented: quantization_mode_to_string(), missing specifier"
+        );
+    }
+}
+
 /* ********************************************************************************** *
  * *                          Context management for APyTypes                       * *
  * ********************************************************************************** */

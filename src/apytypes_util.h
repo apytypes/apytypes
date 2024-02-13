@@ -10,12 +10,13 @@
 #include <functional> // std::bit_not
 #include <iomanip>    // std::setfill, std::setw
 #include <ios>        // std::hex
-#include <optional>   // std::optional, std::nullopt
-#include <regex>      // std::regex, std::regex_replace
-#include <sstream>    // std::stringstream
-#include <stdexcept>  // std::logic_error, std::domain_error
-#include <string>     // std::string
-#include <vector>     // std::vector
+#include <iterator>
+#include <optional>  // std::optional, std::nullopt
+#include <regex>     // std::regex, std::regex_replace
+#include <sstream>   // std::stringstream
+#include <stdexcept> // std::logic_error, std::domain_error
+#include <string>    // std::string
+#include <vector>    // std::vector
 
 // GMP should be included after all other includes
 #include "../extern/mini-gmp/mini-gmp.h"
@@ -471,70 +472,132 @@ static inline std::string string_trim_zeros(const std::string& str)
 }
 
 //! Perform arithmetic right shift on a limb vector. Accelerated using GMP.
-static inline void limb_vector_asr(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
+static inline void limb_vector_asr(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    unsigned shift_amnt
+)
 {
-    if (!vec.size() || !shift_amnt) {
+    // Return early if no shift or no vector
+    if (it_end <= it_begin || !shift_amnt) {
         return;
     }
 
-    mp_limb_t sign_limb = mp_limb_signed_t(vec.back()) >> (_LIMB_SIZE_BITS - 1);
+    mp_limb_t sign_limb = mp_limb_signed_t(*(it_end - 1)) >> (_LIMB_SIZE_BITS - 1);
+    std::size_t vec_size = std::distance(it_begin, it_end);
     unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
     unsigned limb_skip = shift_amnt / _LIMB_SIZE_BITS;
-    if (limb_skip >= vec.size()) {
-        std::fill(vec.begin(), vec.end(), sign_limb);
+    if (limb_skip >= vec_size) {
+        std::fill(it_begin, it_end, sign_limb);
         return; // early return
     } else if (limb_skip) {
-        for (unsigned i = 0; i < vec.size() - limb_skip; i++) {
-            vec[i] = vec[i + limb_skip];
+        for (auto it = it_begin; it < it_end - limb_skip; ++it) {
+            *it = *(it + limb_skip);
         }
-        for (unsigned i = vec.size() - limb_skip; i < vec.size(); i++) {
-            vec[i] = sign_limb;
+        for (auto it = it_end - limb_skip; it < it_end; ++it) {
+            *it = sign_limb;
         }
     }
 
     // Perform the in-limb shifting
     if (limb_shift) {
         mpn_rshift(
-            &vec[0],    // dst
-            &vec[0],    // src
-            vec.size(), // limb vector size
+            &*it_begin, // dst
+            &*it_begin, // src
+            vec_size,   // limb vector size
             limb_shift  // shift amount
         );
 
         // Sign extend the most significant bits
         if (sign_limb) {
-            vec.back() |= ~((mp_limb_t(1) << (_LIMB_SIZE_BITS - limb_shift)) - 1);
+            *(it_end - 1) |= ~((mp_limb_t(1) << (_LIMB_SIZE_BITS - limb_shift)) - 1);
         }
+    }
+}
+
+//! Perform arithmetic right shift on a limb vector. Accelerated using GMP.
+static inline void limb_vector_asr(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
+{
+    limb_vector_asr(vec.begin(), vec.end(), shift_amnt);
+}
+
+//! Perform logical right shift on a limb vector. Accelerated using GMP.
+static inline void limb_vector_lsr(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    unsigned shift_amnt
+)
+{
+    // Return early if no shift or no vector
+    if (it_end <= it_begin || !shift_amnt) {
+        return;
+    }
+
+    std::size_t vec_size = std::distance(it_begin, it_end);
+    unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
+    unsigned limb_skip = shift_amnt / _LIMB_SIZE_BITS;
+    if (limb_skip >= vec_size) {
+        std::fill(it_begin, it_end, 0);
+        return; // early return
+    } else if (limb_skip) {
+        for (auto it = it_begin; it < it_end - limb_skip; ++it) {
+            *it = *(it + limb_skip);
+        }
+        for (auto it = it_end - limb_skip; it < it_end; ++it) {
+            *it = 0;
+        }
+    }
+
+    // Perform the in-limb shifting
+    if (limb_shift) {
+        mpn_rshift(
+            &*it_begin, // dst
+            &*it_begin, // src
+            vec_size,   // limb vector size
+            limb_shift  // shift amount
+        );
     }
 }
 
 //! Perform logical right shift on a limb vector. Accelerated using GMP.
 static inline void limb_vector_lsr(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
 {
-    if (!vec.size() || !shift_amnt) {
+    limb_vector_lsr(vec.begin(), vec.end(), shift_amnt);
+}
+
+//! Perform logical left shift on a limb vector. Accelerated using GMP.
+static inline void limb_vector_lsl(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    unsigned shift_amnt
+)
+{
+    // Return early if no shift or no vector
+    if (it_end <= it_begin || !shift_amnt) {
         return;
     }
 
+    std::size_t vec_size = std::distance(it_begin, it_end);
     unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
     unsigned limb_skip = shift_amnt / _LIMB_SIZE_BITS;
-    if (limb_skip >= vec.size()) {
-        std::fill(vec.begin(), vec.end(), 0);
+    if (limb_skip >= vec_size) {
+        std::fill(it_begin, it_end, 0);
         return; // early return
     } else if (limb_skip) {
-        for (unsigned i = 0; i < vec.size() - limb_skip; i++) {
-            vec[i] = vec[i + limb_skip];
+        for (auto it = it_end - 1; it != it_begin + limb_skip - 1; --it) {
+            *it = *(it - limb_skip);
         }
-        for (unsigned i = vec.size() - limb_skip; i < vec.size(); i++) {
-            vec[i] = 0;
+        for (auto it = it_begin; it != it_begin + limb_skip; it++) {
+            *it = 0;
         }
     }
 
     // Perform the in-limb shifting
     if (limb_shift) {
-        mpn_rshift(
-            &vec[0],    // dst
-            &vec[0],    // src
-            vec.size(), // limb vector size
+        mpn_lshift(
+            &*it_begin, // dst
+            &*it_begin, // src
+            vec_size,   // limb vector size
             limb_shift  // shift amount
         );
     }
@@ -543,48 +606,32 @@ static inline void limb_vector_lsr(std::vector<mp_limb_t>& vec, unsigned shift_a
 //! Perform logical left shift on a limb vector. Accelerated using GMP.
 static inline void limb_vector_lsl(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
 {
-    if (!vec.size() || !shift_amnt) {
-        return;
-    }
+    limb_vector_lsl(vec.begin(), vec.end(), shift_amnt);
+}
 
-    unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
-    unsigned limb_skip = shift_amnt / _LIMB_SIZE_BITS;
-    if (limb_skip >= vec.size()) {
-        std::fill(vec.begin(), vec.end(), 0);
-        return; // early return
-    } else if (limb_skip) {
-        for (unsigned i = vec.size() - 1; i >= limb_skip; i--) {
-            vec[i] = vec[i - limb_skip];
-        }
-        for (unsigned i = 0; i < limb_skip; i++) {
-            vec[i] = 0;
-        }
-    }
-
-    // Perform the in-limb shifting
-    if (limb_shift) {
-        mpn_lshift(
-            &vec[0],    // dst
-            &vec[0],    // src
-            vec.size(), // limb vector size
-            limb_shift  // shift amount
-        );
-    }
+//! Add a power-of-two (2 ^ `n`) onto a limb vector. Returns carry out
+static inline mp_limb_t limb_vector_add_pow2(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    unsigned n
+)
+{
+    unsigned bit_idx = n % _LIMB_SIZE_BITS;
+    unsigned limb_idx = n / _LIMB_SIZE_BITS;
+    std::vector<mp_limb_t> term(std::distance(it_begin, it_end), 0);
+    term[limb_idx] = mp_limb_t(1) << bit_idx;
+    return mpn_add_n(
+        &*it_begin, // dst
+        &*it_begin, // src1
+        &term[0],   // src2
+        term.size() // limb vector length
+    );
 }
 
 //! Add a power-of-two (2 ^ `n`) onto a limb vector. Returns carry out
 static inline mp_limb_t limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
 {
-    unsigned bit_idx = n % _LIMB_SIZE_BITS;
-    unsigned limb_idx = n / _LIMB_SIZE_BITS;
-    std::vector<mp_limb_t> term(vec.size(), 0);
-    term[limb_idx] = mp_limb_t(1) << bit_idx;
-    return mpn_add_n(
-        &vec[0],   // dst
-        &vec[0],   // src1
-        &term[0],  // src2
-        vec.size() // limb vector length
-    );
+    return limb_vector_add_pow2(vec.begin(), vec.end(), n);
 }
 
 /*!

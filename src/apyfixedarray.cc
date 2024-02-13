@@ -569,79 +569,42 @@ APyFixedArray APyFixedArray::from_double(
  * ********************************************************************************** */
 
 APyFixedArray APyFixedArray::resize(
-    std::optional<int> i_bits,
-    std::optional<int> i_int_bits,
+    std::optional<int> bits,
+    std::optional<int> int_bits,
     QuantizationMode quantization,
     OverflowMode overflow,
-    std::optional<int> i_frac_bits
+    std::optional<int> frac_bits
 ) const
 {
     // Sanitize the input
-    int bits, int_bits;
-    set_bit_specifiers_from_optional(bits, int_bits, i_bits, i_int_bits, i_frac_bits);
-    bit_specifier_sanitize(bits, int_bits);
+    int new_bits, new_int_bits;
+    set_bit_specifiers_from_optional(new_bits, new_int_bits, bits, int_bits, frac_bits);
 
-    // Saturation not supported yet, unfortuantly...
-    if (overflow == OverflowMode::SAT) {
-        throw NotImplementedException(
-            "Not implemented: APyFixedArray::_bit_resize() with overflow=SAT"
-        );
-    }
+    // The new result array (`bit_specifier_sanitize()` called in constructor)
+    APyFixedArray result(_shape, new_bits, new_int_bits);
 
-    // Only quantization (ties to plus infinity) and truncation supported yet.
-    if (quantization != QuantizationMode::TRN
-        && quantization != QuantizationMode::RND) {
-        throw NotImplementedException(fmt::format(
-            "Not implemented: APyFixedArray::_bit_resize() with quantization={}",
-            "<UNKNOWN_ROUNDING>"
-        ));
-    }
-
-    // Early exit if this isn't a resize
-    if (_bits == bits && _int_bits == int_bits) {
-        return *this;
-    }
-
-    // The new result array
-    APyFixedArray result(_shape, bits, int_bits);
+    // `APyFixed` with the same word length as `*this` for reusing all quantization
+    // methods
+    APyFixed fixed(_bits, _int_bits);
 
     // For each scalar in the tensor...
-    std::vector<mp_limb_t> tmp(bits_to_limbs(bits), 0);
-    for (std::size_t i = 0; i < result._data.size() / bits_to_limbs(bits); i++) {
+    for (std::size_t i = 0; i < _fold_shape(); i++) {
 
-        // Copy the scalar into an intermediate
+        // Copy data into temporary `APyFixed`
         std::copy_n(
-            _data.begin() + i * bits_to_limbs(_bits),
-            std::min(bits_to_limbs(bits), bits_to_limbs(_bits)),
-            tmp.begin()
+            _data.begin() + i * _scalar_limbs(), // src
+            _scalar_limbs(),                     // limbs to copy
+            fixed._data.begin()                  // dst
         );
 
-        // Extend intermediate if bigger
-        if (bits_to_limbs(bits) > bits_to_limbs(_bits)) {
-            auto sentinel_limb_it = tmp.begin() + bits_to_limbs(_bits);
-            bool is_negative = mp_limb_signed_t(*(sentinel_limb_it - 1)) < 0;
-            std::fill_n(
-                sentinel_limb_it,
-                bits_to_limbs(bits) - bits_to_limbs(_bits),
-                is_negative ? mp_limb_t(-1) : 0
-            );
-        }
-
-        // Adjust binary point of intermediate
-        if (frac_bits() <= result.frac_bits()) {
-            limb_vector_lsl(tmp, result.frac_bits() - frac_bits());
-        } else { // frac_bits() > result.frac_bits()
-            if (quantization == QuantizationMode::RND) {
-                limb_vector_add_pow2(tmp, frac_bits() - result.frac_bits() - 1);
-            }
-            limb_vector_asr(tmp, frac_bits() - result.frac_bits());
-        }
-
-        // Copy scalar into new tensor
-        std::copy_n(
-            tmp.begin(),                                   // src
-            bits_to_limbs(bits),                           // number limbs to copy
-            result._data.begin() + i * bits_to_limbs(bits) // dst
+        // Perform the resizing
+        fixed._resize(
+            result._data.begin() + (i + 0) * result._scalar_limbs(), // output start
+            result._data.begin() + (i + 1) * result._scalar_limbs(), // output sentinel
+            new_bits,
+            new_int_bits,
+            quantization,
+            overflow
         );
     }
 

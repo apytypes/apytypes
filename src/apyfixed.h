@@ -94,8 +94,8 @@ public:
     );
 
     //! Constructor: specify size and initialize underlying vector from iterators
-    template <typename _ITER>
-    explicit APyFixed(int bits, int int_bits, _ITER begin, _ITER end);
+    template <typename _IT>
+    explicit APyFixed(int bits, int int_bits, _IT begin, _IT end);
 
     //! Constructor: specify size and initialize underlying bits using vector
     explicit APyFixed(int bits, int int_bits, const std::vector<mp_limb_t>& vec);
@@ -180,16 +180,6 @@ public:
     //! same number of integer bits, and the same number of fractional bits
     bool is_identical(const APyFixed& other) const;
 
-    // Create a new, resized version of this fixed-point number. Main method for
-    // handling overflow and quantization
-    APyFixed resize(
-        std::optional<int> bits = std::nullopt,
-        std::optional<int> int_bits = std::nullopt,
-        QuantizationMode quantization = QuantizationMode::TRN,
-        OverflowMode overflow = OverflowMode::WRAP,
-        std::optional<int> frac_bits = std::nullopt
-    ) const;
-
     /* ****************************************************************************** *
      *                           Conversion to other types                            *
      * ****************************************************************************** */
@@ -233,6 +223,75 @@ public:
     );
 
     /* ****************************************************************************** *
+     *                       Resize and quantization methods                        * *
+     * ****************************************************************************** */
+
+public:
+    //! Publicly exposed resize method
+    APyFixed resize(
+        std::optional<int> bits = std::nullopt,
+        std::optional<int> int_bits = std::nullopt,
+        QuantizationMode quantization = QuantizationMode::TRN,
+        OverflowMode overflow = OverflowMode::WRAP,
+        std::optional<int> frac_bits = std::nullopt
+    ) const;
+
+private:
+    //! The internal resize method. Uses output iterators to place result onto its limb
+    //! vector. Requires that `std::distance(it_begin, it_end) == bits_to_limbs(bits)`.
+    void _resize(
+        std::vector<mp_limb_t>::iterator it_begin,
+        std::vector<mp_limb_t>::iterator it_end,
+        int new_bits,
+        int new_int_bits,
+        QuantizationMode quantization,
+        OverflowMode overflow
+    ) const;
+
+    //! Handle quantization of fixed-point numbers
+    void _quantize(
+        std::vector<mp_limb_t>::iterator it_begin,
+        std::vector<mp_limb_t>::iterator it_end,
+        int new_bits,
+        int new_int_bits,
+        QuantizationMode quantization
+    ) const;
+
+    //! Quantization: quantize towrad minus infinity
+    void _quantize_trn(
+        std::vector<mp_limb_t>::iterator it_begin,
+        std::vector<mp_limb_t>::iterator it_end,
+        int new_bits,
+        int new_int_bits
+    ) const;
+
+    //! Quantization: round to nearest, ties toward plus infinity
+    void _quantize_rnd(
+        std::vector<mp_limb_t>::iterator it_begin,
+        std::vector<mp_limb_t>::iterator it_end,
+        int new_bits,
+        int new_int_bits
+    ) const;
+
+    // Handle overflowing of fixed-point numbers
+    void _overflow(
+        std::vector<mp_limb_t>::iterator it_begin,
+        std::vector<mp_limb_t>::iterator it_end,
+        int new_bits,
+        int new_int_bits,
+        OverflowMode overflow
+    ) const;
+
+    // Perform two's complement overflowing. This method sign-extends any bits outside
+    // of the APyFixed range.
+    void _twos_complement_overflow(
+        std::vector<mp_limb_t>::iterator it_begin,
+        std::vector<mp_limb_t>::iterator it_end,
+        int bits,
+        int int_bits
+    ) const;
+
+    /* ****************************************************************************** *
      *                           Private helper methods                               *
      * ****************************************************************************** */
 
@@ -257,22 +316,6 @@ private:
         const APyFixed& operand1,
         const APyFixed& operand2
     ) const;
-
-    // Handle quantization of fixed-point numbers
-    void _quantize(QuantizationMode quantization, int old_bits, int old_int_bits);
-
-    // Truncation quantization
-    void _quantize_trn(int old_bits, int old_int_bits);
-
-    // Round towards plus infinity
-    void _quantize_rnd(int old_bits, int old_int_bits);
-
-    // Handle overflowing of fixed-point numbers
-    void _overflow(OverflowMode overflow);
-
-    // Perform two's complement overflowing. This method sign-extends any bits outside
-    // of the APyFixed range.
-    void _twos_complement_overflow() noexcept;
 
     //! `APyFixedArray` is a friend class of APyFixed, and can access all data of an
     //! `APyFixed` object

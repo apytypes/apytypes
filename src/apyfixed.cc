@@ -71,7 +71,7 @@ APyFixed::APyFixed(
     : APyFixed(bits, int_bits, frac_bits)
 {
     _data = python_long_to_limb_vec(python_long_int_bit_pattern, _data.size());
-    _twos_complement_overflow();
+    _twos_complement_overflow(_data.begin(), _data.end(), _bits, _int_bits);
 }
 
 /* ********************************************************************************** *
@@ -95,14 +95,15 @@ APyFixed::APyFixed(
 APyFixed::APyFixed(int bits, int int_bits)
     : _bits { bits }
     , _int_bits { int_bits }
-    , _data(bits_to_limbs(bits))
+    , _data {}
 {
     bit_specifier_sanitize(_bits, _int_bits);
+    _data = std::vector<mp_limb_t>(bits_to_limbs(bits), 0);
 }
 
 //! Underlying vector iterator-based constructor
-template <typename _ITER>
-APyFixed::APyFixed(int bits, int int_bits, _ITER begin, _ITER end)
+template <typename _IT>
+APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end)
     : _bits { bits }
     , _int_bits { int_bits }
     , _data(begin, end)
@@ -120,7 +121,7 @@ APyFixed::APyFixed(int bits, int int_bits, _ITER begin, _ITER end)
     }
 
     // Two's-complements overflow bits outside of the range
-    _twos_complement_overflow();
+    _twos_complement_overflow(_data.begin(), _data.end(), _bits, _int_bits);
 }
 
 //! Construction from std::vector<mp_limb_t>
@@ -539,7 +540,7 @@ void APyFixed::set_from_string_dec(const std::string& str)
     }
 
     // Two's complement overflow and we're done
-    _twos_complement_overflow();
+    _twos_complement_overflow(_data.begin(), _data.end(), bits(), int_bits());
 }
 
 void APyFixed::set_from_string_hex(const std::string& str)
@@ -603,7 +604,7 @@ void APyFixed::set_from_double(double value)
         if (sign_of_double(value)) {
             _data = limb_vector_negate(_data.cbegin(), _data.cend());
         }
-        _twos_complement_overflow();
+        _twos_complement_overflow(_data.begin(), _data.end(), bits(), int_bits());
     } else {
         throw NotImplementedException(
             "Not implemented: APyFixed::set_from_double() for 32-bit systems"
@@ -677,7 +678,7 @@ void APyFixed::set_from_apyfixed(const APyFixed& other)
         );
     }
 
-    _twos_complement_overflow();
+    _twos_complement_overflow(_data.begin(), _data.end(), bits(), int_bits());
 }
 
 py::int_ APyFixed::to_bits() const
@@ -726,43 +727,6 @@ bool APyFixed::is_identical(const APyFixed& other) const
     return bits() == other.bits() && int_bits() == other.int_bits() && *this == other;
 }
 
-APyFixed APyFixed::resize(
-    std::optional<int> bits,
-    std::optional<int> int_bits,
-    QuantizationMode quantization,
-    OverflowMode overflow,
-    std::optional<int> frac_bits
-) const
-{
-    // Create result object, with a copy of the limb vector, but with the new bit
-    // specifiers
-    APyFixed result(*this);
-    set_bit_specifiers_from_optional(
-        result._bits, result._int_bits, bits, int_bits, frac_bits
-    );
-    bit_specifier_sanitize(result._bits, result._int_bits);
-
-    // Append new limbs to result if it happend to be bigger than `*this`
-    if (bits_to_limbs(result.bits()) > result.vector_size()) {
-        std::fill_n( // Vector sign-extend the result limb vector
-            std::back_inserter(result._data),
-            bits_to_limbs(result._bits) - vector_size(),
-            is_negative() ? mp_limb_t(-1) : 0
-        );
-    }
-
-    // First perform quantization
-    result._quantize(quantization, _bits, _int_bits);
-
-    // Then perform overflowing
-    result._overflow(overflow);
-
-    // Finally resize the result limb vector that might be to large
-    result._data.resize(bits_to_limbs(result._bits));
-
-    return result;
-}
-
 /* ********************************************************************************** *
  * *                           Static member functions                              * *
  * ********************************************************************************** */
@@ -793,18 +757,73 @@ APyFixed APyFixed::from_string(
 }
 
 /* ********************************************************************************** *
- * *                          Private member functions                              * *
+ * *                        Resize and quantization methods                         * *
  * ********************************************************************************** */
 
-// Perform quantization of fixed-point numbers
-void APyFixed::_quantize(QuantizationMode quantization, int old_bits, int old_int_bits)
+APyFixed APyFixed::resize(
+    std::optional<int> bits,
+    std::optional<int> int_bits,
+    QuantizationMode quantization,
+    OverflowMode overflow,
+    std::optional<int> frac_bits
+) const
+{
+    // Sanitize the input
+    int new_bits, new_int_bits;
+    set_bit_specifiers_from_optional(new_bits, new_int_bits, bits, int_bits, frac_bits);
+
+    APyFixed result(new_bits, new_int_bits);
+    _resize(
+        result._data.begin(), // output start
+        result._data.end(),   // output sentinel
+        new_bits,
+        new_int_bits,
+        quantization,
+        overflow
+    );
+
+    return result;
+}
+
+void APyFixed::_resize(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    int new_bits,
+    int new_int_bits,
+    QuantizationMode quantization,
+    OverflowMode overflow
+) const
+{
+    std::size_t result_vector_size = std::distance(it_begin, it_end);
+    if (result_vector_size <= 0) {
+        return;
+    }
+
+    // Copy data into the result and sign extend
+    std::copy_n(_data.begin(), std::min(vector_size(), result_vector_size), it_begin);
+    std::fill(it_begin + vector_size(), it_end, is_negative() ? mp_limb_t(-1) : 0);
+
+    // First perform quantization
+    _quantize(it_begin, it_end, new_bits, new_int_bits, quantization);
+
+    // Then perform overflowing
+    _overflow(it_begin, it_end, new_bits, new_int_bits, overflow);
+}
+
+void APyFixed::_quantize(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    int new_bits,
+    int new_int_bits,
+    QuantizationMode quantization
+) const
 {
     switch (quantization) {
     case QuantizationMode::TRN:
-        _quantize_trn(old_bits, old_int_bits);
+        _quantize_trn(it_begin, it_end, new_bits, new_int_bits);
         break;
     case QuantizationMode::RND:
-        _quantize_rnd(old_bits, old_int_bits);
+        _quantize_rnd(it_begin, it_end, new_bits, new_int_bits);
         break;
     default:
         throw NotImplementedException(fmt::format(
@@ -814,58 +833,77 @@ void APyFixed::_quantize(QuantizationMode quantization, int old_bits, int old_in
     }
 }
 
-// Perform overflowing of fixed-point numbers
-void APyFixed::_overflow(OverflowMode overflow)
+void APyFixed::_quantize_trn(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    int new_bits,
+    int new_int_bits
+) const
+{
+    int new_frac_bits = new_bits - new_int_bits;
+    if (frac_bits() <= new_frac_bits) {
+        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    } else {
+        limb_vector_asr(it_begin, it_end, frac_bits() - new_frac_bits);
+    }
+}
+
+void APyFixed::_quantize_rnd(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    int new_bits,
+    int new_int_bits
+) const
+{
+    int new_frac_bits = new_bits - new_int_bits;
+    if (frac_bits() <= new_frac_bits) {
+        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    } else {
+        limb_vector_add_pow2(it_begin, it_end, frac_bits() - new_frac_bits - 1);
+        limb_vector_asr(it_begin, it_end, frac_bits() - new_frac_bits);
+    }
+}
+
+void APyFixed::_overflow(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    int new_bits,
+    int new_int_bits,
+    OverflowMode overflow
+) const
 {
     switch (overflow) {
     case OverflowMode::WRAP:
-        _twos_complement_overflow();
+        _twos_complement_overflow(it_begin, it_end, new_bits, new_int_bits);
         break;
-    case OverflowMode::SAT:
-        throw NotImplementedException("Overflow: SATURATE not implemented yet");
     default:
-        throw std::domain_error("APyFixed::_overflow(): unregistered quantization mode"
-        );
+        throw NotImplementedException(fmt::format(
+            "Not implemented: APyFixed.resize(): with overflow mode: {}",
+            overflow_mode_to_string(overflow)
+        ));
     }
 }
 
-// Truncation quantization
-void APyFixed::_quantize_trn(int old_bits, int old_int_bits)
+void APyFixed::_twos_complement_overflow(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    int bits,
+    int int_bits
+) const
 {
-    int old_frac_bits = old_bits - old_int_bits;
-    if (old_frac_bits <= frac_bits()) {
-        limb_vector_lsl(_data, frac_bits() - old_frac_bits);
-    } else { // frac_bits() < old_frac_bits
-        limb_vector_asr(_data, old_frac_bits - frac_bits());
-    }
-}
-
-// Round towards plus infinity
-void APyFixed::_quantize_rnd(int old_bits, int old_int_bits)
-{
-    int old_frac_bits = old_bits - old_int_bits;
-    if (old_frac_bits <= frac_bits()) {
-        limb_vector_lsl(_data, frac_bits() - old_frac_bits);
-    } else { // frac_bits() < old_frac_bits
-        limb_vector_add_pow2(_data, old_frac_bits - frac_bits() - 1);
-        limb_vector_asr(_data, old_frac_bits - frac_bits());
-    }
-}
-
-// Perform two's complement overflowing
-void APyFixed::_twos_complement_overflow() noexcept
-{
-    unsigned bits_last_word = _bits & (_LIMB_SIZE_BITS - 1);
+    (void)it_begin;
+    (void)int_bits;
+    unsigned bits_last_word = bits & (_LIMB_SIZE_BITS - 1);
     if (bits_last_word) {
         // Exploit signed arithmetic right-shift to perform two's complement overflow.
-        // Evaluate the last limb with `bits_to_limbs(bits())`, as `_data.back()` might
-        // not be the actual last limb.
-        auto limbs = bits_to_limbs(bits());
         auto shft_amnt = _LIMB_SIZE_BITS - bits_last_word;
-        _data[limbs - 1]
-            = mp_limb_signed_t(_data[limbs - 1] << (shft_amnt)) >> (shft_amnt);
+        *(it_end - 1) = mp_limb_signed_t((*(it_end - 1)) << shft_amnt) >> shft_amnt;
     }
 }
+
+/* ********************************************************************************** *
+ * *                          Private member functions                              * *
+ * ********************************************************************************** */
 
 // Sign preserving automatic size extending arithmetic left shift. Returns a new
 // limb vector with the shifted content.
