@@ -831,9 +831,9 @@ void APyFixed::_quantize(
     case QuantizationMode::RND_CONV:
         _quantize_rnd_conv(it_begin, it_end, new_bits, new_int_bits);
         break;
-    // case QuantizationMode::RND_CONV_ODD:
-    //     _quantize_rnd_conv_odd(it_begin, it_end, new_bits, new_int_bits);
-    //     break;
+    case QuantizationMode::RND_CONV_ODD:
+        _quantize_rnd_conv_odd(it_begin, it_end, new_bits, new_int_bits);
+        break;
     default:
         throw NotImplementedException(fmt::format(
             "Not implemented: APyFixed.resize(): with quantization mode: {}",
