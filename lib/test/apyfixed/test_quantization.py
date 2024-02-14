@@ -78,10 +78,21 @@ def test_rnd_inf():
     assert float(APyFixed.from_float(0.75, 4, 1).resize(3, 1, mode)) == 0.75
     assert float(APyFixed.from_float(0.875, 4, 1).resize(3, 2, mode)) == 1.0
     assert float(APyFixed.from_float(0.875, 4, 1).resize(3, 1, mode)) == -1.0
+    assert float(APyFixed.from_float(0.875, 4, 1).resize(2, 1, mode)) == -1.0
 
 
 def test_rnd_min_inf():
-    pass
+    mode = QuantizationMode.RND_MIN_INF
+    assert float(APyFixed.from_float(-0.75, 3, 1).resize(5, 1, mode)) == -0.75
+    assert float(APyFixed.from_float(-0.75, 3, 1).resize(2, 1, mode)) == -1.0
+    assert float(APyFixed.from_float(-0.75, 4, 1).resize(3, 1, mode)) == -0.75
+    assert float(APyFixed.from_float(-0.875, 4, 1).resize(3, 1, mode)) == -1.0
+    assert float(APyFixed.from_float(0.75, 3, 1).resize(2, 2, mode)) == 1.0
+    assert float(APyFixed.from_float(0.75, 3, 1).resize(2, 1, mode)) == 0.5
+    assert float(APyFixed.from_float(0.75, 4, 1).resize(3, 1, mode)) == 0.75
+    assert float(APyFixed.from_float(0.875, 4, 1).resize(3, 2, mode)) == 1.0
+    assert float(APyFixed.from_float(0.875, 4, 1).resize(3, 1, mode)) == 0.75
+    assert float(APyFixed.from_float(0.875, 4, 1).resize(2, 1, mode)) == -1.0
 
 
 def test_rnd_conv():
@@ -112,7 +123,6 @@ def test_stochastic_equal():
 @pytest.mark.parametrize(
     "mode",
     [
-        QuantizationMode.RND_MIN_INF,
         QuantizationMode.RND_CONV,
         QuantizationMode.RND_CONV_ODD,
         QuantizationMode.JAM,

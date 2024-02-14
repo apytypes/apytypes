@@ -314,6 +314,14 @@ private:
         int new_int_bits
     ) const;
 
+    //! Round to nearest, ties toward minus infinity
+    void _quantize_rnd_min_inf(
+        std::vector<mp_limb_t>::iterator it_begin,
+        std::vector<mp_limb_t>::iterator it_end,
+        int new_bits,
+        int new_int_bits
+    ) const;
+
     // Handle overflowing of fixed-point numbers
     void _overflow(
         std::vector<mp_limb_t>::iterator it_begin,
