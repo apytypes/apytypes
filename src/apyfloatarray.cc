@@ -24,11 +24,11 @@ APyFloatArray::APyFloatArray(
     : exp_bits(exp_bits)
     , man_bits(man_bits)
 {
-    if (bias.has_value()) {
-        this->bias = bias.value();
-    } else {
-        // Not very pretty way to get the IEEE-like bias
-        this->bias = APyFloat::ieee_bias(exp_bits);
+    this->bias = APyFloat::ieee_bias(exp_bits);
+    if (bias.value_or(this->bias) != this->bias) {
+        throw NotImplementedException(
+            "Not implemented: APyFloatArray with non IEEE-like bias"
+        );
     }
 
     const auto signs_shape = python_sequence_extract_shape(sign_seq);
@@ -340,7 +340,12 @@ APyFloatArray APyFloatArray::from_double(
     std::optional<QuantizationMode> quantization
 )
 {
-    (void)quantization;
+    if (bias.has_value() && bias.value() != APyFloat::ieee_bias(exp_bits)) {
+        throw NotImplementedException(
+            "Not implemented: APyFloatArray with non IEEE-like bias"
+        );
+    }
+
     APyFloatArray result(
         python_sequence_extract_shape(double_seq), exp_bits, man_bits, bias
     );
@@ -356,7 +361,13 @@ APyFloatArray APyFloatArray::from_double(
         } else {
             throw std::domain_error("Invalid Python objects in sequence");
         }
-        const auto fp = APyFloat::from_double(d, exp_bits, man_bits, result.bias);
+        const auto fp = APyFloat::from_double(
+            d,
+            exp_bits,
+            man_bits,
+            result.bias,
+            quantization.value_or(get_quantization_mode())
+        );
         result.data[i] = { fp.get_sign(), fp.get_exp(), fp.get_man() };
     }
     return result;
@@ -418,20 +429,53 @@ APyFloatArray APyFloatArray::checked_inner_product(const APyFloatArray& rhs) con
 {
     const std::uint8_t max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const std::uint8_t max_man_bits = std::max(man_bits, rhs.man_bits);
+
     if (shape[0] == 0) {
         return APyFloatArray({ 0 }, max_exp_bits, max_man_bits);
     }
 
+    auto tmp_exp_bits = max_exp_bits;
+    auto tmp_man_bits = max_man_bits;
+
+    // If an accumulator is used, the operands must be resized before the
+    // multiplication. This is because the products would otherwise get quantized too
+    // early
+    QuantizationMode quant_mode = get_quantization_mode();
+    if (get_accumulator_mode().has_value()) {
+        const auto acc_option = get_accumulator_mode().value();
+        tmp_exp_bits = acc_option.exp_bits;
+        tmp_man_bits = acc_option.man_bits;
+        quant_mode = acc_option.quantization;
+    }
+
     // Hadamard product of `*this` and `rhs`
-    APyFloatArray hadamard = *this * rhs;
-    APyFloat sum = APyFloat(0, 0, 0, max_exp_bits, max_man_bits);
+    APyFloatArray hadamard;
+    if (get_accumulator_mode().has_value()) {
+        hadamard = this->resize(tmp_exp_bits, tmp_man_bits, std::nullopt, quant_mode)
+            * rhs.resize(tmp_exp_bits, tmp_man_bits, std::nullopt, quant_mode);
+    } else {
+        hadamard = *this * rhs;
+    }
+
+    APyFloat sum = APyFloat(0, 0, 0, tmp_exp_bits, max_man_bits);
     for (std::size_t i = 0; i < hadamard.fold_shape(); i++) {
         const APyFloatData scalar = hadamard.data.at(i);
-        sum = sum + APyFloat(scalar, max_exp_bits, max_man_bits);
+        sum = sum + APyFloat(scalar, tmp_exp_bits, tmp_man_bits);
     }
 
     APyFloatArray result({ 1 }, max_exp_bits, max_man_bits);
-    result.data[0] = sum.get_data();
+
+    // The result must be quantized back if an accumulator was used.
+    if (get_accumulator_mode().has_value()) {
+        result.data[0]
+            = sum.resize(
+                     max_exp_bits, max_man_bits, std::nullopt, get_quantization_mode()
+            )
+                  .get_data();
+    } else {
+        result.data[0] = sum.get_data();
+    }
+
     return result;
 }
 

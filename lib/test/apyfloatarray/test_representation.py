@@ -4,10 +4,10 @@ from apytypes import APyFloatArray
 
 @pytest.mark.float_array
 def test_repr():
-    arr = APyFloatArray([], [], [], 6, 7, 8)
+    arr = APyFloatArray([], [], [], 6, 7)
     assert (
         repr(arr)
-        == "APyFloatArray([], [], [], shape=(0), exp_bits=6, man_bits=7, bias=8)"
+        == "APyFloatArray([], [], [], shape=(0), exp_bits=6, man_bits=7, bias=31)"
     )
 
     arr = APyFloatArray([1], [5], [3], 5, 2)

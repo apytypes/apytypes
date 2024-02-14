@@ -1,4 +1,5 @@
 #include "apytypes_common.h"
+#include "apyfloat.h"
 #include "apytypes_util.h"
 #include <random>
 #include <stdexcept>
@@ -82,21 +83,52 @@ AccumulatorContext::AccumulatorContext(
     std::optional<int> int_bits,
     std::optional<int> frac_bits,
     std::optional<QuantizationMode> quantization,
-    std::optional<OverflowMode> overflow
+    std::optional<OverflowMode> overflow,
+    std::optional<std::uint8_t> _exp_bits,
+    std::optional<std::uint8_t> _man_bits,
+    std::optional<exp_t> _bias
 )
 {
-    // Sanitize the input bits
-    int acc_bits, acc_int_bits;
-    set_bit_specifiers_from_optional(acc_bits, acc_int_bits, bits, int_bits, frac_bits);
-    bit_specifier_sanitize_bits(acc_bits, acc_int_bits);
+    // Check that APyFixed specific parameters are mixed with APyFloat parameters
+    const bool any_apfixed_parameters = bits.has_value() || int_bits.has_value()
+        || frac_bits.has_value() || overflow.has_value();
+    const bool any_apfloat_parameters
+        = _exp_bits.has_value() || _man_bits.has_value() || _bias.has_value();
+    if (any_apfixed_parameters == any_apfloat_parameters) {
+        throw std::domain_error(
+            "Invalid combination of parameters for accumulator context"
+        );
+    }
 
-    // Store the previous accumulator mode
-    previous_mode = global_accumulator_option;
+    AccumulatorOption new_mode = get_accumulator_mode().value_or(AccumulatorOption {});
 
-    // Set the current mode
-    QuantizationMode acc_quantization = quantization.value_or(QuantizationMode::TRN);
-    OverflowMode acc_overflow_mode = overflow.value_or(OverflowMode::WRAP);
-    current_mode = { acc_bits, acc_int_bits, acc_quantization, acc_overflow_mode };
+    if (any_apfixed_parameters) {
+        // Sanitize the input bits
+        int acc_bits, acc_int_bits;
+        set_bit_specifiers_from_optional(
+            acc_bits, acc_int_bits, bits, int_bits, frac_bits
+        );
+        bit_specifier_sanitize_bits(acc_bits, acc_int_bits);
+
+        // Store the previous accumulator mode
+        previous_mode = global_accumulator_option;
+
+        // Set the current mode
+        QuantizationMode acc_quantization
+            = quantization.value_or(QuantizationMode::TRN);
+        OverflowMode acc_overflow_mode = overflow.value_or(OverflowMode::WRAP);
+
+        new_mode.bits = acc_bits;
+        new_mode.int_bits = acc_int_bits;
+        new_mode.quantization = acc_quantization;
+        new_mode.overflow = acc_overflow_mode;
+    } else {
+        new_mode.exp_bits = _exp_bits.value();
+        new_mode.man_bits = _man_bits.value();
+        new_mode.bias = _bias.value_or(APyFloat::ieee_bias(new_mode.exp_bits));
+    }
+
+    current_mode = new_mode;
 }
 
 void AccumulatorContext::enter_context() { global_accumulator_option = current_mode; }

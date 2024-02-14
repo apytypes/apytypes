@@ -13,7 +13,6 @@ def test_is_identical():
     assert not a.is_identical(APyFloatArray([1], [2], [3], 5, 5))
     assert not a.is_identical(APyFloatArray([1], [2], [3], 4, 6))
     assert not a.is_identical(APyFloatArray([1], [2], [6], 4, 6))  # Same value
-    assert not a.is_identical(APyFloatArray([1], [2], [3], 4, 5, 9))
 
 
 @pytest.mark.float_array
