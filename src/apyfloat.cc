@@ -40,7 +40,6 @@ APyFloat::APyFloat(
     , exp(exp)
     , man(man)
 {
-
     if (bias.has_value() && bias.value() != ieee_bias()) {
         print_warning("non 'ieee-like' biases is not sure to work yet.\n");
     }

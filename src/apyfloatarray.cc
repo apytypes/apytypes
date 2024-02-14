@@ -9,7 +9,6 @@ namespace py = pybind11;
 #include "python_util.h"
 #include <algorithm>
 #include <fmt/format.h>
-#include <iostream>
 #include <stdexcept>
 #include <string>
 

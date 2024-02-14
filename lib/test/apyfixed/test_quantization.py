@@ -145,17 +145,21 @@ def test_rnd_conv_odd():
 def test_jam():
     mode = QuantizationMode.JAM
     assert float(APyFixed.from_float(-0.75, 3, 1).resize(5, 1, mode)) == -0.6875
-    assert float(APyFixed.from_float(-0.25, 5, 3).resize(3, 3, mode)) == -1.0
-    assert float(APyFixed.from_float(-0.50, 5, 3).resize(3, 3, mode)) == -1.0
-    assert float(APyFixed.from_float(-0.75, 5, 3).resize(3, 3, mode)) == -1.0
-    assert float(APyFixed.from_float(-1.25, 5, 3).resize(3, 3, mode)) == -1.0
-    assert float(APyFixed.from_float(-1.50, 5, 3).resize(3, 3, mode)) == -1.0
-    assert float(APyFixed.from_float(-1.75, 5, 3).resize(3, 3, mode)) == -1.0
-    assert float(APyFixed.from_float(-2.00, 5, 3).resize(3, 3, mode)) == -1.0
+
     assert float(APyFixed.from_float(-2.25, 5, 3).resize(3, 3, mode)) == -3.0
+    assert float(APyFixed.from_float(-2.00, 5, 3).resize(3, 3, mode)) == -1.0
+    assert float(APyFixed.from_float(-1.75, 5, 3).resize(3, 3, mode)) == -1.0
+    assert float(APyFixed.from_float(-1.50, 5, 3).resize(3, 3, mode)) == -1.0
+    assert float(APyFixed.from_float(-1.25, 5, 3).resize(3, 3, mode)) == -1.0
+    assert float(APyFixed.from_float(-1.00, 5, 3).resize(3, 3, mode)) == -1.0
+    assert float(APyFixed.from_float(-0.75, 5, 3).resize(3, 3, mode)) == -1.0
+    assert float(APyFixed.from_float(-0.50, 5, 3).resize(3, 3, mode)) == -1.0
+    assert float(APyFixed.from_float(-0.25, 5, 3).resize(3, 3, mode)) == -1.0
+    assert float(APyFixed.from_float(0.00, 5, 3).resize(3, 3, mode)) == 1.0
     assert float(APyFixed.from_float(0.25, 5, 3).resize(3, 3, mode)) == 1.0
     assert float(APyFixed.from_float(0.50, 5, 3).resize(3, 3, mode)) == 1.0
     assert float(APyFixed.from_float(0.75, 5, 3).resize(3, 3, mode)) == 1.0
+    assert float(APyFixed.from_float(1.00, 5, 3).resize(3, 3, mode)) == 1.0
     assert float(APyFixed.from_float(1.25, 5, 3).resize(3, 3, mode)) == 1.0
     assert float(APyFixed.from_float(1.50, 5, 3).resize(3, 3, mode)) == 1.0
     assert float(APyFixed.from_float(1.75, 5, 3).resize(3, 3, mode)) == 1.0
@@ -164,7 +168,28 @@ def test_jam():
 
 
 def test_jam_unbiased():
-    pass
+    mode = QuantizationMode.JAM_UNBIASED
+    assert float(APyFixed.from_float(-0.75, 3, 1).resize(5, 1, mode)) == -0.75
+
+    assert float(APyFixed.from_float(-2.25, 5, 3).resize(3, 3, mode)) == -3.0
+    assert float(APyFixed.from_float(-2.00, 5, 3).resize(3, 3, mode)) == -2.0
+    assert float(APyFixed.from_float(-1.75, 5, 3).resize(3, 3, mode)) == -1.0
+    assert float(APyFixed.from_float(-1.50, 5, 3).resize(3, 3, mode)) == -1.0
+    assert float(APyFixed.from_float(-1.25, 5, 3).resize(3, 3, mode)) == -1.0
+    assert float(APyFixed.from_float(-1.00, 5, 3).resize(3, 3, mode)) == -1.0
+    assert float(APyFixed.from_float(-0.75, 5, 3).resize(3, 3, mode)) == -1.0
+    assert float(APyFixed.from_float(-0.50, 5, 3).resize(3, 3, mode)) == -1.0
+    assert float(APyFixed.from_float(-0.25, 5, 3).resize(3, 3, mode)) == -1.0
+    assert float(APyFixed.from_float(0.00, 5, 3).resize(3, 3, mode)) == 0.0
+    assert float(APyFixed.from_float(0.25, 5, 3).resize(3, 3, mode)) == 1.0
+    assert float(APyFixed.from_float(0.50, 5, 3).resize(3, 3, mode)) == 1.0
+    assert float(APyFixed.from_float(0.75, 5, 3).resize(3, 3, mode)) == 1.0
+    assert float(APyFixed.from_float(1.00, 5, 3).resize(3, 3, mode)) == 1.0
+    assert float(APyFixed.from_float(1.25, 5, 3).resize(3, 3, mode)) == 1.0
+    assert float(APyFixed.from_float(1.50, 5, 3).resize(3, 3, mode)) == 1.0
+    assert float(APyFixed.from_float(1.75, 5, 3).resize(3, 3, mode)) == 1.0
+    assert float(APyFixed.from_float(2.00, 5, 3).resize(3, 3, mode)) == 2.0
+    assert float(APyFixed.from_float(2.25, 5, 3).resize(3, 3, mode)) == 3.0
 
 
 def test_stochastic_weighted():
@@ -179,7 +204,6 @@ def test_stochastic_equal():
 @pytest.mark.parametrize(
     "mode",
     [
-        QuantizationMode.JAM_UNBIASED,
         QuantizationMode.STOCHASTIC_WEIGHTED,
         QuantizationMode.STOCHASTIC_EQUAL,
     ],

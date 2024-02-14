@@ -346,6 +346,14 @@ private:
         int new_int_bits
     ) const;
 
+    //! Quantization through unbiased jamming
+    void _quantize_jam_unbiased(
+        std::vector<mp_limb_t>::iterator it_begin,
+        std::vector<mp_limb_t>::iterator it_end,
+        int new_bits,
+        int new_int_bits
+    ) const;
+
     //! Handle overflowing of fixed-point numbers
     void _overflow(
         std::vector<mp_limb_t>::iterator it_begin,
