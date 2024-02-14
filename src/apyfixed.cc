@@ -810,11 +810,14 @@ void APyFixed::_quantize(
     case QuantizationMode::TRN: // Quantize towrad minus infinity
         _quantize_trn(it_begin, it_end, new_bits, new_int_bits);
         break;
-    case QuantizationMode::RND: // Round to nearest, ties towrad plus infinity
-        _quantize_rnd(it_begin, it_end, new_bits, new_int_bits);
+    case QuantizationMode::TRN_INF:
+        _quantize_trn_inf(it_begin, it_end, new_bits, new_int_bits);
         break;
     case QuantizationMode::TRN_ZERO: // Quantize towrad zero
         _quantize_trn_zero(it_begin, it_end, new_bits, new_int_bits);
+        break;
+    case QuantizationMode::RND: // Round to nearest, ties towrad plus infinity
+        _quantize_rnd(it_begin, it_end, new_bits, new_int_bits);
         break;
     default:
         throw NotImplementedException(fmt::format(
@@ -851,14 +854,12 @@ void APyFixed::_quantize_trn_inf(
         limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
     } else {
         unsigned start_idx = frac_bits() - new_frac_bits;
-        if (limb_vector_is_negative(it_begin, it_end)) {
-            limb_vector_asr(it_begin, it_end, start_idx);
-        } else {
+        if (!limb_vector_is_negative(it_begin, it_end)) {
             if (limb_vector_or_reduce(it_begin, it_end, start_idx)) {
-
-            } else {
+                limb_vector_add_pow2(it_begin, it_end, start_idx);
             }
         }
+        limb_vector_asr(it_begin, it_end, start_idx);
     }
 }
 
@@ -877,13 +878,9 @@ void APyFixed::_quantize_trn_zero(
         if (limb_vector_is_negative(it_begin, it_end)) {
             if (limb_vector_or_reduce(it_begin, it_end, start_idx)) {
                 limb_vector_add_pow2(it_begin, it_end, start_idx);
-                limb_vector_asr(it_begin, it_end, start_idx);
-            } else {
-                limb_vector_asr(it_begin, it_end, start_idx);
             }
-        } else {
-            limb_vector_asr(it_begin, it_end, start_idx);
         }
+        limb_vector_asr(it_begin, it_end, start_idx);
     }
 }
 
