@@ -439,20 +439,22 @@ APyFloatArray APyFloatArray::checked_inner_product(const APyFloatArray& rhs) con
 
     // If an accumulator is used, the operands must be resized before the
     // multiplication. This is because the products would otherwise get quantized too
-    // early
-    QuantizationMode quant_mode = get_quantization_mode();
+    // early.
+
+    const auto orig_quant_mode = get_quantization_mode();
+
     if (get_accumulator_mode().has_value()) {
         const auto acc_option = get_accumulator_mode().value();
         tmp_exp_bits = acc_option.exp_bits;
         tmp_man_bits = acc_option.man_bits;
-        quant_mode = acc_option.quantization;
+        set_quantization_mode(acc_option.quantization);
     }
 
     // Hadamard product of `*this` and `rhs`
     APyFloatArray hadamard;
     if (get_accumulator_mode().has_value()) {
-        hadamard = this->resize(tmp_exp_bits, tmp_man_bits, std::nullopt, quant_mode)
-            * rhs.resize(tmp_exp_bits, tmp_man_bits, std::nullopt, quant_mode);
+        hadamard = this->resize(tmp_exp_bits, tmp_man_bits)
+            * rhs.resize(tmp_exp_bits, tmp_man_bits);
     } else {
         hadamard = *this * rhs;
     }
@@ -467,15 +469,13 @@ APyFloatArray APyFloatArray::checked_inner_product(const APyFloatArray& rhs) con
 
     // The result must be quantized back if an accumulator was used.
     if (get_accumulator_mode().has_value()) {
-        result.data[0]
-            = sum.resize(
-                     max_exp_bits, max_man_bits, std::nullopt, get_quantization_mode()
-            )
-                  .get_data();
+        result.data[0] = sum.resize(max_exp_bits, max_man_bits).get_data();
     } else {
         result.data[0] = sum.get_data();
     }
 
+    // Change the quantization mode back, even if it wasn't changed
+    set_quantization_mode(orig_quant_mode);
     return result;
 }
 

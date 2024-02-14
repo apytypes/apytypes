@@ -30,6 +30,19 @@ class TestAccumulatorContext:
             with AccumulatorContext(bits=5, int_bits=2, exp_bits=5, man_bits=2):
                 pass
 
+    def test_with_quantization_context(self):
+        """Test that the AccumulatorContext interacts correctly with the QuanizationContext."""
+        with QuantizationContext(QuantizationMode.TO_POS):
+            assert apytypes.get_quantization_mode() == QuantizationMode.TO_POS
+
+            with AccumulatorContext(exp_bits=5, man_bits=3):
+                assert apytypes.get_quantization_mode() == QuantizationMode.TO_POS
+
+            with AccumulatorContext(
+                exp_bits=5, man_bits=3, quantization=QuantizationMode.TO_NEG
+            ):
+                assert apytypes.get_quantization_mode() == QuantizationMode.TO_POS
+
 
 class TestQuantizationContext:
     """

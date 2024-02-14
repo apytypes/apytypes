@@ -101,6 +101,7 @@ AccumulatorContext::AccumulatorContext(
     }
 
     AccumulatorOption new_mode = get_accumulator_mode().value_or(AccumulatorOption {});
+    QuantizationMode acc_quantization;
 
     if (any_apfixed_parameters) {
         // Sanitize the input bits
@@ -113,11 +114,10 @@ AccumulatorContext::AccumulatorContext(
         // Store the previous accumulator mode
         previous_mode = global_accumulator_option;
 
-        // Set the current mode
-        QuantizationMode acc_quantization
-            = quantization.value_or(QuantizationMode::TRN);
+        acc_quantization = quantization.value_or(QuantizationMode::TRN);
         OverflowMode acc_overflow_mode = overflow.value_or(OverflowMode::WRAP);
 
+        // Set the current mode
         new_mode.bits = acc_bits;
         new_mode.int_bits = acc_int_bits;
         new_mode.quantization = acc_quantization;
@@ -126,8 +126,10 @@ AccumulatorContext::AccumulatorContext(
         new_mode.exp_bits = _exp_bits.value();
         new_mode.man_bits = _man_bits.value();
         new_mode.bias = _bias.value_or(APyFloat::ieee_bias(new_mode.exp_bits));
+        acc_quantization = quantization.value_or(get_quantization_mode());
     }
 
+    new_mode.quantization = acc_quantization;
     current_mode = new_mode;
 }
 
