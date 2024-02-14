@@ -10,13 +10,13 @@
 #include <functional> // std::bit_not
 #include <iomanip>    // std::setfill, std::setw
 #include <ios>        // std::hex
-#include <iterator>
-#include <optional>  // std::optional, std::nullopt
-#include <regex>     // std::regex, std::regex_replace
-#include <sstream>   // std::stringstream
-#include <stdexcept> // std::logic_error, std::domain_error
-#include <string>    // std::string
-#include <vector>    // std::vector
+#include <iterator>   // std::distance
+#include <optional>   // std::optional, std::nullopt
+#include <regex>      // std::regex, std::regex_replace
+#include <sstream>    // std::stringstream
+#include <stdexcept>  // std::logic_error, std::domain_error
+#include <string>     // std::string
+#include <vector>     // std::vector
 
 // GMP should be included after all other includes
 #include "../extern/mini-gmp/mini-gmp.h"
@@ -609,7 +609,7 @@ static inline void limb_vector_lsl(std::vector<mp_limb_t>& vec, unsigned shift_a
     limb_vector_lsl(vec.begin(), vec.end(), shift_amnt);
 }
 
-//! Add a power-of-two (2 ^ `n`) onto a limb vector. Returns carry out
+//! Add a power-of-two (2 ^ `n`) onto a limb vector. Returns carry out.
 static inline mp_limb_t limb_vector_add_pow2(
     std::vector<mp_limb_t>::iterator it_begin,
     std::vector<mp_limb_t>::iterator it_end,
@@ -625,6 +625,25 @@ static inline mp_limb_t limb_vector_add_pow2(
         &*it_begin, // src1
         &term[0],   // src2
         term.size() // limb vector length
+    );
+}
+
+//! Subtract a power-of-two (2 ^ `n`) from a limb vector. Returns borrow.
+static inline mp_limb_t limb_vector_sub_pow2(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    unsigned n
+)
+{
+    unsigned bit_idx = n % _LIMB_SIZE_BITS;
+    unsigned limb_idx = n / _LIMB_SIZE_BITS;
+    std::vector<mp_limb_t> term(std::distance(it_begin, it_end), 0);
+    term[limb_idx] = mp_limb_t(1) << bit_idx;
+    return mpn_sub_n(
+        &*it_begin, // dst
+        &*it_begin, // src1
+        &term[0],   // src2
+        term.size() // limb_vector_length
     );
 }
 
@@ -684,6 +703,50 @@ static inline void bit_specifier_sanitize(int bits, int int_bits)
     }
 }
 
+//! Test if the value of a limb vector is negative
+static inline bool limb_vector_is_negative(
+    std::vector<mp_limb_t>::const_iterator cbegin_it,
+    std::vector<mp_limb_t>::const_iterator cend_it
+)
+{
+    (void)cbegin_it;
+    return mp_limb_signed_t(*--cend_it) < 0;
+}
+
+//! Reduce the first `n` bits in a limb vector over bitwise `or`. Returns bool.
+static inline bool limb_vector_or_reduce(
+    std::vector<mp_limb_t>::const_iterator cbegin_it,
+    std::vector<mp_limb_t>::const_iterator cend_it,
+    unsigned n
+)
+{
+    if (cend_it <= cbegin_it) {
+        return false; // Early exit
+    }
+
+    (void)cend_it;
+    const unsigned last_limb_bits = n % _LIMB_SIZE_BITS;
+    const unsigned full_limbs = n / _LIMB_SIZE_BITS;
+
+    // The full limbs can be reduced as full integers
+    for (auto limb_it = cbegin_it; limb_it != cbegin_it + full_limbs; ++limb_it) {
+        if (*limb_it != 0) {
+            return true;
+        }
+    }
+
+    // The last limb must be masked
+    if (last_limb_bits) {
+        mp_limb_t last_limb = *(cbegin_it + full_limbs);
+        mp_limb_t limb_mask = (mp_limb_t(1) << last_limb_bits) - 1;
+        if (last_limb & limb_mask) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 /*!
  * Non-limb extending negation of limb vector from constant reference
  * to `std::vector<mp_limb_t>`. This function guarantees
@@ -704,11 +767,7 @@ static inline std::vector<mp_limb_t> limb_vector_negate(
     return result;
 }
 
-/*!
- * Take the two's complement absolute value of a limb vector
- * (`const std::vector<mp_limb_t>`). This function guarantees
- * that `result.size() == input.size()`.
- */
+//! Take the two's complement absolute value of a limb vector
 static inline std::vector<mp_limb_t> limb_vector_abs(
     std::vector<mp_limb_t>::const_iterator cbegin_it,
     std::vector<mp_limb_t>::const_iterator cend_it

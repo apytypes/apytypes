@@ -782,12 +782,12 @@ void APyFixed::_resize(
     OverflowMode overflow
 ) const
 {
-    std::size_t result_vector_size = std::distance(it_begin, it_end);
-    if (result_vector_size <= 0) {
-        return;
+    if (it_end <= it_begin) {
+        return; // Early exit
     }
 
     // Copy data into the result and sign extend
+    std::size_t result_vector_size = std::distance(it_begin, it_end);
     std::copy_n(_data.begin(), std::min(vector_size(), result_vector_size), it_begin);
     std::fill(it_begin + vector_size(), it_end, is_negative() ? mp_limb_t(-1) : 0);
 
@@ -807,11 +807,14 @@ void APyFixed::_quantize(
 ) const
 {
     switch (quantization) {
-    case QuantizationMode::TRN:
+    case QuantizationMode::TRN: // Quantize towrad minus infinity
         _quantize_trn(it_begin, it_end, new_bits, new_int_bits);
         break;
-    case QuantizationMode::RND:
+    case QuantizationMode::RND: // Round to nearest, ties towrad plus infinity
         _quantize_rnd(it_begin, it_end, new_bits, new_int_bits);
+        break;
+    case QuantizationMode::TRN_ZERO: // Quantize towrad zero
+        _quantize_trn_zero(it_begin, it_end, new_bits, new_int_bits);
         break;
     default:
         throw NotImplementedException(fmt::format(
@@ -833,6 +836,54 @@ void APyFixed::_quantize_trn(
         limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
     } else {
         limb_vector_asr(it_begin, it_end, frac_bits() - new_frac_bits);
+    }
+}
+
+void APyFixed::_quantize_trn_inf(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    int new_bits,
+    int new_int_bits
+) const
+{
+    int new_frac_bits = new_bits - new_int_bits;
+    if (frac_bits() <= new_frac_bits) {
+        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    } else {
+        unsigned start_idx = frac_bits() - new_frac_bits;
+        if (limb_vector_is_negative(it_begin, it_end)) {
+            limb_vector_asr(it_begin, it_end, start_idx);
+        } else {
+            if (limb_vector_or_reduce(it_begin, it_end, start_idx)) {
+
+            } else {
+            }
+        }
+    }
+}
+
+void APyFixed::_quantize_trn_zero(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    int new_bits,
+    int new_int_bits
+) const
+{
+    int new_frac_bits = new_bits - new_int_bits;
+    if (frac_bits() <= new_frac_bits) {
+        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    } else {
+        unsigned start_idx = frac_bits() - new_frac_bits;
+        if (limb_vector_is_negative(it_begin, it_end)) {
+            if (limb_vector_or_reduce(it_begin, it_end, start_idx)) {
+                limb_vector_add_pow2(it_begin, it_end, start_idx);
+                limb_vector_asr(it_begin, it_end, start_idx);
+            } else {
+                limb_vector_asr(it_begin, it_end, start_idx);
+            }
+        } else {
+            limb_vector_asr(it_begin, it_end, start_idx);
+        }
     }
 }
 

@@ -27,17 +27,16 @@ def test_trn_inf():
     assert float(APyFixed.from_float(0.875, 4, 1).resize(3, 2, mode)) == 1.0
 
 
-@pytest.mark.xfail()
 def test_trn_zero():
     mode = QuantizationMode.TRN_ZERO
     assert float(APyFixed.from_float(-0.75, 3, 1).resize(2, 1, mode)) == -0.5
     assert float(APyFixed.from_float(-0.75, 4, 1).resize(3, 1, mode)) == -0.75
     assert float(APyFixed.from_float(-0.875, 4, 1).resize(3, 1, mode)) == -0.75
-    assert float(APyFixed.from_float(0.75, 3, 1).resize(2, 2, mode)) == 0.5
+    assert float(APyFixed.from_float(0.75, 3, 1).resize(2, 2, mode)) == 0.0
     assert float(APyFixed.from_float(0.75, 3, 1).resize(2, 1, mode)) == 0.5
     assert float(APyFixed.from_float(0.75, 4, 1).resize(3, 1, mode)) == 0.75
     assert float(APyFixed.from_float(0.875, 4, 1).resize(3, 1, mode)) == 0.75
-    assert float(APyFixed.from_float(0.875, 4, 1).resize(3, 2, mode)) == 0.75
+    assert float(APyFixed.from_float(0.875, 4, 1).resize(3, 2, mode)) == 0.5
 
 
 def test_rnd():
@@ -57,7 +56,6 @@ def test_rnd():
     "mode",
     [
         QuantizationMode.TRN_INF,
-        QuantizationMode.TRN_ZERO,
         QuantizationMode.RND_ZERO,
         QuantizationMode.RND_INF,
         QuantizationMode.RND_MIN_INF,
