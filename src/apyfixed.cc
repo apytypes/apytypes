@@ -807,27 +807,33 @@ void APyFixed::_quantize(
 ) const
 {
     switch (quantization) {
-    case QuantizationMode::TRN: // Quantize towrad minus infinity
+    case QuantizationMode::TRN:
         _quantize_trn(it_begin, it_end, new_bits, new_int_bits);
         break;
     case QuantizationMode::TRN_INF:
         _quantize_trn_inf(it_begin, it_end, new_bits, new_int_bits);
         break;
-    case QuantizationMode::TRN_ZERO: // Quantize towrad zero
+    case QuantizationMode::TRN_ZERO:
         _quantize_trn_zero(it_begin, it_end, new_bits, new_int_bits);
         break;
-    case QuantizationMode::RND: // Round to nearest, ties towrad plus infinity
+    case QuantizationMode::RND:
         _quantize_rnd(it_begin, it_end, new_bits, new_int_bits);
         break;
-    case QuantizationMode::RND_ZERO: // Round to nearest, ties towrad zero
+    case QuantizationMode::RND_ZERO:
         _quantize_rnd_zero(it_begin, it_end, new_bits, new_int_bits);
         break;
-    case QuantizationMode::RND_INF: // Round to nearest, ties towrad zero
+    case QuantizationMode::RND_INF:
         _quantize_rnd_inf(it_begin, it_end, new_bits, new_int_bits);
         break;
-    case QuantizationMode::RND_MIN_INF: // Round to nearest, ties towrad zero
+    case QuantizationMode::RND_MIN_INF:
         _quantize_rnd_min_inf(it_begin, it_end, new_bits, new_int_bits);
         break;
+    case QuantizationMode::RND_CONV:
+        _quantize_rnd_conv(it_begin, it_end, new_bits, new_int_bits);
+        break;
+    // case QuantizationMode::RND_CONV_ODD:
+    //     _quantize_rnd_conv_odd(it_begin, it_end, new_bits, new_int_bits);
+    //     break;
     default:
         throw NotImplementedException(fmt::format(
             "Not implemented: APyFixed.resize(): with quantization mode: {}",
@@ -974,6 +980,52 @@ void APyFixed::_quantize_rnd_min_inf(
             }
         } else {
             if (limb_vector_or_reduce(it_begin, it_end, start_idx - 1)) {
+                limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
+            }
+        }
+        limb_vector_asr(it_begin, it_end, start_idx);
+    }
+}
+
+void APyFixed::_quantize_rnd_conv(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    int new_bits,
+    int new_int_bits
+) const
+{
+    int new_frac_bits = new_bits - new_int_bits;
+    if (frac_bits() <= new_frac_bits) {
+        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    } else {
+        unsigned start_idx = frac_bits() - new_frac_bits;
+        if (limb_vector_or_reduce(it_begin, it_end, start_idx - 1)) {
+            limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
+        } else {
+            if (limb_vector_test_bit(it_begin, it_end, start_idx)) {
+                limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
+            }
+        }
+        limb_vector_asr(it_begin, it_end, start_idx);
+    }
+}
+
+void APyFixed::_quantize_rnd_conv_odd(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    int new_bits,
+    int new_int_bits
+) const
+{
+    int new_frac_bits = new_bits - new_int_bits;
+    if (frac_bits() <= new_frac_bits) {
+        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    } else {
+        unsigned start_idx = frac_bits() - new_frac_bits;
+        if (limb_vector_or_reduce(it_begin, it_end, start_idx - 1)) {
+            limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
+        } else {
+            if (!limb_vector_test_bit(it_begin, it_end, start_idx)) {
                 limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
             }
         }

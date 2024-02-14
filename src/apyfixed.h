@@ -322,6 +322,22 @@ private:
         int new_int_bits
     ) const;
 
+    //! Round to nearest, ties toward even quantization steps
+    void _quantize_rnd_conv(
+        std::vector<mp_limb_t>::iterator it_begin,
+        std::vector<mp_limb_t>::iterator it_end,
+        int new_bits,
+        int new_int_bits
+    ) const;
+
+    //! Round to nearest, ties toward odd quantization steps
+    void _quantize_rnd_conv_odd(
+        std::vector<mp_limb_t>::iterator it_begin,
+        std::vector<mp_limb_t>::iterator it_end,
+        int new_bits,
+        int new_int_bits
+    ) const;
+
     // Handle overflowing of fixed-point numbers
     void _overflow(
         std::vector<mp_limb_t>::iterator it_begin,

@@ -747,6 +747,21 @@ static inline bool limb_vector_or_reduce(
     return false;
 }
 
+//! Test if the `n`-th bit is set in a limb vector
+static inline bool limb_vector_test_bit(
+    std::vector<mp_limb_t>::const_iterator cbegin_it,
+    std::vector<mp_limb_t>::const_iterator cend_it,
+    unsigned n
+)
+{
+    (void)cend_it;
+    unsigned bit_idx = n % _LIMB_SIZE_BITS;
+    unsigned limb_idx = n / _LIMB_SIZE_BITS;
+    mp_limb_t mask = mp_limb_t(1) << bit_idx;
+    mp_limb_t limb = *(cbegin_it + limb_idx);
+    return mask & limb;
+}
+
 /*!
  * Non-limb extending negation of limb vector from constant reference
  * to `std::vector<mp_limb_t>`. This function guarantees
