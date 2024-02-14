@@ -8,6 +8,8 @@ def test_constructor_raises():
         APyFloatArray([1], [5, 2], [4], 10, 10)
     with pytest.raises(RuntimeError, match="Inhomogeneous sequence"):
         APyFloatArray([1, 2], [5, 2], [4, "str"], 10, 10)
+    with pytest.raises(RuntimeError, match="Not.*implemented.*bias"):
+        APyFloatArray([1], [5], [4], 10, 10, 12)
 
 
 @pytest.mark.float_array
@@ -19,12 +21,12 @@ def test_explicit_constructor():
     assert arr.man_bits == 5
     assert arr.bias == 7  # Default when using 4 exponent bits
 
-    arr2d = APyFloatArray([[0, 1], [0, 1]], [[2, 3], [2, 3]], [[4, 5], [4, 5]], 6, 7, 8)
+    arr2d = APyFloatArray([[0, 1], [0, 1]], [[2, 3], [2, 3]], [[4, 5], [4, 5]], 6, 7)
     assert len(arr2d) == 2
     assert arr2d.shape == (2, 2)
     assert arr2d.exp_bits == 6
     assert arr2d.man_bits == 7
-    assert arr2d.bias == 8
+    assert arr2d.bias == 31  # Default for 6 bits
 
 
 @pytest.mark.float_array

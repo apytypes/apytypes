@@ -103,6 +103,7 @@ public:
     enum class ArithmeticOperation { ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION };
 
 private:
+    APyFloatArray() = default;
     APyFloatArray(
         const std::vector<std::size_t>& shape,
         exp_t exp_bits,

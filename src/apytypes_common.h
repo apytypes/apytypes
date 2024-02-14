@@ -121,6 +121,11 @@ struct AccumulatorOption {
     int int_bits;
     QuantizationMode quantization;
     OverflowMode overflow;
+
+    // APyFloat specific options
+    int exp_bits;
+    int man_bits;
+    exp_t bias;
 };
 
 // Accumulator context
@@ -131,7 +136,10 @@ public:
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<QuantizationMode> quantization = std::nullopt,
-        std::optional<OverflowMode> overflow = std::nullopt
+        std::optional<OverflowMode> overflow = std::nullopt,
+        std::optional<std::uint8_t> = std::nullopt,
+        std::optional<std::uint8_t> = std::nullopt,
+        std::optional<exp_t> = std::nullopt
     );
     void enter_context() override;
     void exit_context() override;

@@ -1,6 +1,34 @@
 import apytypes
-from apytypes import QuantizationContext, QuantizationMode
+from apytypes import QuantizationContext, QuantizationMode, AccumulatorContext
 import pytest
+
+
+class TestAccumulatorContext:
+    """
+    This test class doesn't test if the accumulation itself works,
+    just that the context manager acts correctly.
+    """
+
+    def test_raises(self):
+        with pytest.raises(ValueError, match="Invalid.*parameters"):
+            with AccumulatorContext():
+                pass
+
+        with pytest.raises(TypeError):  # keyword only
+            with AccumulatorContext(5, 2):
+                pass
+
+        with AccumulatorContext(bits=5, int_bits=2):  # should not thow
+            pass
+
+        with AccumulatorContext(exp_bits=5, man_bits=2):  # should not thow
+            pass
+
+        with pytest.raises(
+            ValueError, match="Invalid.*parameters"
+        ):  # mixing APyFixed and APyFloat parameters not allowed
+            with AccumulatorContext(bits=5, int_bits=2, exp_bits=5, man_bits=2):
+                pass
 
 
 class TestQuantizationContext:
