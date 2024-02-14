@@ -338,7 +338,15 @@ private:
         int new_int_bits
     ) const;
 
-    // Handle overflowing of fixed-point numbers
+    //! Quantization through jamming
+    void _quantize_jam(
+        std::vector<mp_limb_t>::iterator it_begin,
+        std::vector<mp_limb_t>::iterator it_end,
+        int new_bits,
+        int new_int_bits
+    ) const;
+
+    //! Handle overflowing of fixed-point numbers
     void _overflow(
         std::vector<mp_limb_t>::iterator it_begin,
         std::vector<mp_limb_t>::iterator it_end,

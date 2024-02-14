@@ -758,8 +758,25 @@ static inline bool limb_vector_test_bit(
     unsigned bit_idx = n % _LIMB_SIZE_BITS;
     unsigned limb_idx = n / _LIMB_SIZE_BITS;
     mp_limb_t mask = mp_limb_t(1) << bit_idx;
-    mp_limb_t limb = *(cbegin_it + limb_idx);
+    mp_limb_t limb = cbegin_it[limb_idx];
     return mask & limb;
+}
+
+//! Set the `n`-th bit (zero indexed) of a limb vector to `bit`
+static inline void limb_vector_set_bit(
+    std::vector<mp_limb_t>::iterator begin_it,
+    std::vector<mp_limb_t>::iterator end_it,
+    unsigned n,
+    bool bit
+)
+{
+    (void)end_it;
+    unsigned bit_idx = n % _LIMB_SIZE_BITS;
+    unsigned limb_idx = n / _LIMB_SIZE_BITS;
+    mp_limb_t bit_mask = mp_limb_t(1) << bit_idx;
+    mp_limb_t bit_unmask = ~bit_mask;
+    begin_it[limb_idx]
+        = (begin_it[limb_idx] & bit_unmask) | (mp_limb_t(bit) << bit_idx);
 }
 
 /*!

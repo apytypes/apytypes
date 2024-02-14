@@ -834,6 +834,9 @@ void APyFixed::_quantize(
     case QuantizationMode::RND_CONV_ODD:
         _quantize_rnd_conv_odd(it_begin, it_end, new_bits, new_int_bits);
         break;
+    case QuantizationMode::JAM:
+        _quantize_jam(it_begin, it_end, new_bits, new_int_bits);
+        break;
     default:
         throw NotImplementedException(fmt::format(
             "Not implemented: APyFixed.resize(): with quantization mode: {}",
@@ -1030,6 +1033,23 @@ void APyFixed::_quantize_rnd_conv_odd(
             }
         }
         limb_vector_asr(it_begin, it_end, start_idx);
+    }
+}
+
+void APyFixed::_quantize_jam(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    int new_bits,
+    int new_int_bits
+) const
+{
+    int new_frac_bits = new_bits - new_int_bits;
+    if (frac_bits() <= new_frac_bits) {
+        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+        limb_vector_set_bit(it_begin, it_end, 0, true);
+    } else {
+        limb_vector_asr(it_begin, it_end, frac_bits() - new_frac_bits);
+        limb_vector_set_bit(it_begin, it_end, 0, true);
     }
 }
 

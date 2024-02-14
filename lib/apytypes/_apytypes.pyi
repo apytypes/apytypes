@@ -996,11 +996,15 @@ class AccumulatorContext(ContextManager):
     ) -> None: ...
     def __init__(
         self,
+        *,
         bits: int | None = None,
         int_bits: int | None = None,
         frac_bits: int | None = None,
         quantization: QuantizationMode | None = None,
         overflow: OverflowMode | None = None,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
     ) -> None: ...
 
 class ContextManager:
