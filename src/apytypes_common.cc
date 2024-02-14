@@ -109,7 +109,7 @@ AccumulatorContext::AccumulatorContext(
         set_bit_specifiers_from_optional(
             acc_bits, acc_int_bits, bits, int_bits, frac_bits
         );
-        bit_specifier_sanitize_bits(acc_bits, acc_int_bits);
+        bit_specifier_sanitize(acc_bits, acc_int_bits);
 
         // Store the previous accumulator mode
         previous_mode = global_accumulator_option;

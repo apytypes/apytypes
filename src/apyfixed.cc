@@ -819,6 +819,9 @@ void APyFixed::_quantize(
     case QuantizationMode::RND: // Round to nearest, ties towrad plus infinity
         _quantize_rnd(it_begin, it_end, new_bits, new_int_bits);
         break;
+    case QuantizationMode::RND_ZERO: // Round to nearest, ties towrad zero
+        _quantize_rnd_zero(it_begin, it_end, new_bits, new_int_bits);
+        break;
     default:
         throw NotImplementedException(fmt::format(
             "Not implemented: APyFixed.resize(): with quantization mode: {}",
@@ -895,8 +898,32 @@ void APyFixed::_quantize_rnd(
     if (frac_bits() <= new_frac_bits) {
         limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
     } else {
-        limb_vector_add_pow2(it_begin, it_end, frac_bits() - new_frac_bits - 1);
-        limb_vector_asr(it_begin, it_end, frac_bits() - new_frac_bits);
+        unsigned start_idx = frac_bits() - new_frac_bits;
+        limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
+        limb_vector_asr(it_begin, it_end, start_idx);
+    }
+}
+
+void APyFixed::_quantize_rnd_zero(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    int new_bits,
+    int new_int_bits
+) const
+{
+    int new_frac_bits = new_bits - new_int_bits;
+    if (frac_bits() <= new_frac_bits) {
+        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    } else {
+        unsigned start_idx = frac_bits() - new_frac_bits;
+        if (limb_vector_is_negative(it_begin, it_end)) {
+            limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
+        } else {
+            if (limb_vector_or_reduce(it_begin, it_end, start_idx - 1)) {
+                limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
+            }
+        }
+        limb_vector_asr(it_begin, it_end, start_idx);
     }
 }
 

@@ -266,7 +266,7 @@ private:
         QuantizationMode quantization
     ) const;
 
-    //! Quantization: quantize towrad minus infinity
+    //! Quantize towrad minus infinity
     void _quantize_trn(
         std::vector<mp_limb_t>::iterator it_begin,
         std::vector<mp_limb_t>::iterator it_end,
@@ -290,8 +290,16 @@ private:
         int new_int_bits
     ) const;
 
-    //! Quantization: round to nearest, ties toward plus infinity
+    //! Round to nearest, ties toward plus infinity
     void _quantize_rnd(
+        std::vector<mp_limb_t>::iterator it_begin,
+        std::vector<mp_limb_t>::iterator it_end,
+        int new_bits,
+        int new_int_bits
+    ) const;
+
+    //! Round to nearest, ties toward plus infinity
+    void _quantize_rnd_zero(
         std::vector<mp_limb_t>::iterator it_begin,
         std::vector<mp_limb_t>::iterator it_end,
         int new_bits,
