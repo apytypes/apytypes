@@ -188,14 +188,14 @@ APyFloat APyFloat::resize(
             B = 0;
             new_man |= 1;
             break;
-        case QuantizationMode::STOCHASTIC_WEIGHTED: {
+        case QuantizationMode::STOCH_WEIGHTED: {
             const man_t trailing_bits = prev_man & ((1ULL << bits_to_discard) - 1);
             const man_t weight = random_number() & ((1ULL << bits_to_discard) - 1);
             // Since the weight won't be greater than the discarded bits,
             // this will never round an already exact number.
             B = (trailing_bits + weight) >> bits_to_discard;
         } break;
-        case QuantizationMode::STOCHASTIC_EQUAL:
+        case QuantizationMode::STOCH_EQUAL:
             // Only perform the quantization if the result is not exact.
             B = (G || T) ? random_number() & 1 : 0;
             break;

@@ -88,14 +88,14 @@ void bind_common(py::module& m)
             tie.)pbdoc"
         )
         .value(
-            "STOCHASTIC_WEIGHTED",
-            QuantizationMode::STOCHASTIC_WEIGHTED,
+            "STOCH_WEIGHTED",
+            QuantizationMode::STOCH_WEIGHTED,
             R"pbdoc(Stochastic rounding. Probability depends on the bits to
             remove.)pbdoc"
         )
         .value(
-            "STOCHASTIC_EQUAL",
-            QuantizationMode::STOCHASTIC_EQUAL,
+            "STOCH_EQUAL",
+            QuantizationMode::STOCH_EQUAL,
             R"pbdoc(Stochastic rounding with equal probability.)pbdoc"
         )
 

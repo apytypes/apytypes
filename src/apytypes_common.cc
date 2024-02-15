@@ -24,8 +24,8 @@ QuantizationContext::QuantizationContext(
     , new_seed(new_seed.value_or(get_quantization_seed()))
     , prev_seed(get_quantization_seed())
 {
-    if (new_seed.has_value() && new_mode != QuantizationMode::STOCHASTIC_WEIGHTED
-        && new_mode != QuantizationMode::STOCHASTIC_EQUAL) {
+    if (new_seed.has_value() && new_mode != QuantizationMode::STOCH_WEIGHTED
+        && new_mode != QuantizationMode::STOCH_EQUAL) {
         throw std::domain_error(
             "Seed for quantization was given for a non-stochastic quantization mode."
         );

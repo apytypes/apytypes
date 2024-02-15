@@ -85,17 +85,15 @@ class TestQuantizationContext:
 
         # Test setting a stochastic quantization mode without changing the seed
         apytypes.set_quantization_seed(123)
-        with QuantizationContext(QuantizationMode.STOCHASTIC_EQUAL):
-            assert apytypes.get_quantization_mode() == QuantizationMode.STOCHASTIC_EQUAL
+        with QuantizationContext(QuantizationMode.STOCH_EQUAL):
+            assert apytypes.get_quantization_mode() == QuantizationMode.STOCH_EQUAL
             assert apytypes.get_quantization_seed() == 123
         assert apytypes.get_quantization_mode() == QuantizationMode.TO_POS
         assert apytypes.get_quantization_seed() == 123
 
         # Test setting a stochastic quantization mode and changing the seed
-        with QuantizationContext(QuantizationMode.STOCHASTIC_WEIGHTED, 77):
-            assert (
-                apytypes.get_quantization_mode() == QuantizationMode.STOCHASTIC_WEIGHTED
-            )
+        with QuantizationContext(QuantizationMode.STOCH_WEIGHTED, 77):
+            assert apytypes.get_quantization_mode() == QuantizationMode.STOCH_WEIGHTED
             assert apytypes.get_quantization_seed() == 77
         assert apytypes.get_quantization_mode() == QuantizationMode.TO_POS
         assert apytypes.get_quantization_seed() == 123
@@ -104,20 +102,13 @@ class TestQuantizationContext:
         """Nested context layers."""
         apytypes.set_quantization_mode(QuantizationMode.TO_POS)
         apytypes.set_quantization_seed(123)
-        with QuantizationContext(QuantizationMode.STOCHASTIC_WEIGHTED, 456):
-            assert (
-                apytypes.get_quantization_mode() == QuantizationMode.STOCHASTIC_WEIGHTED
-            )
+        with QuantizationContext(QuantizationMode.STOCH_WEIGHTED, 456):
+            assert apytypes.get_quantization_mode() == QuantizationMode.STOCH_WEIGHTED
             assert apytypes.get_quantization_seed() == 456
-            with QuantizationContext(QuantizationMode.STOCHASTIC_EQUAL, 789):
-                assert (
-                    apytypes.get_quantization_mode()
-                    == QuantizationMode.STOCHASTIC_EQUAL
-                )
+            with QuantizationContext(QuantizationMode.STOCH_EQUAL, 789):
+                assert apytypes.get_quantization_mode() == QuantizationMode.STOCH_EQUAL
                 assert apytypes.get_quantization_seed() == 789
-            assert (
-                apytypes.get_quantization_mode() == QuantizationMode.STOCHASTIC_WEIGHTED
-            )
+            assert apytypes.get_quantization_mode() == QuantizationMode.STOCH_WEIGHTED
             assert apytypes.get_quantization_seed() == 456
         assert apytypes.get_quantization_mode() == QuantizationMode.TO_POS
         assert apytypes.get_quantization_seed() == 123
