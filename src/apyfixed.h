@@ -236,7 +236,15 @@ public:
      * ****************************************************************************** */
 
 public:
-    //! Publicly exposed resize method
+    //! Publicly exposed cast method
+    APyFixed cast(
+        std::optional<int> bits = std::nullopt,
+        std::optional<int> int_bits = std::nullopt,
+        QuantizationMode quantization = QuantizationMode::TRN,
+        OverflowMode overflow = OverflowMode::WRAP,
+        std::optional<int> frac_bits = std::nullopt
+    ) const;
+
     APyFixed resize(
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
@@ -246,9 +254,9 @@ public:
     ) const;
 
 private:
-    //! The internal resize method. Uses output iterators to place result onto its limb
+    //! The internal cast method. Uses output iterators to place result onto its limb
     //! vector. Requires that `std::distance(it_begin, it_end) == bits_to_limbs(bits)`.
-    void _resize(
+    void _cast(
         std::vector<mp_limb_t>::iterator it_begin,
         std::vector<mp_limb_t>::iterator it_end,
         int new_bits,

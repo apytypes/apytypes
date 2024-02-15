@@ -292,6 +292,19 @@ void bind_fixed_array(py::module& m)
             py::arg("overflow") = OverflowMode::WRAP,
             py::arg("frac_bits") = std::nullopt,
             R"pbdoc(
+            .. deprecated::
+               Use :method:`cast` instead.
+            )pbdoc"
+        )
+        .def(
+            "cast",
+            &APyFixedArray::cast,
+            py::arg("bits") = std::nullopt,
+            py::arg("int_bits") = std::nullopt,
+            py::arg("quantization") = QuantizationMode::TRN,
+            py::arg("overflow") = OverflowMode::WRAP,
+            py::arg("frac_bits") = std::nullopt,
+            R"pbdoc(
             Create a new resized fixed-point array based on the bit pattern in this
             fixed-point array.
 
@@ -308,9 +321,9 @@ void bind_fixed_array(py::module& m)
             int_bits : int, optional
                 Number of integer bits in the created fixed-point array
             quantization : QuantizationMode, default: QuantizationMode.TRN
-                Quantization mode to use in this resize
+                Quantization mode to use in this cast
             overflow : OverflowMode, default: OverflowMode.WRAP
-                Overflowing mode to use in this resize
+                Overflowing mode to use in this cast
             frac_bits : int, optional
                 Number of fractional bits in the created fixed-point array
 

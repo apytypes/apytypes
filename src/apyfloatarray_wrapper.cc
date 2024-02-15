@@ -417,12 +417,24 @@ void bind_float_array(py::module& m)
         .def("__array__", &APyFloatArray::to_numpy)
 
         .def(
+            "cast",
+            &APyFloatArray::cast,
+            py::arg("exp_bits"),
+            py::arg("man_bits"),
+            py::arg("bias") = std::nullopt,
+            py::arg("quantization_mode") = std::nullopt
+        )
+        .def(
             "resize",
             &APyFloatArray::resize,
             py::arg("exp_bits"),
             py::arg("man_bits"),
             py::arg("bias") = std::nullopt,
-            py::arg("quantization_mode") = std::nullopt
+            py::arg("quantization_mode") = std::nullopt,
+            R"pbdoc(
+            .. deprecated::
+               Use :method:`cast` instead.
+            )pbdoc"
         );
 
     py::class_<APyFloatArrayIterator>(m, "APyFloatArrayIterator")

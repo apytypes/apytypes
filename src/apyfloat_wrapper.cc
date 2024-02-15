@@ -54,14 +54,27 @@ void bind_float(py::module& m)
         .def("pretty_string", &APyFloat::pretty_string)
         .def("_repr_latex_", &APyFloat::latex)
         .def(
-            "resize",
-            &APyFloat::resize,
+            "cast",
+            &APyFloat::cast,
             py::arg("exp_bits"),
             py::arg("man_bits"),
             py::arg("bias") = std::nullopt,
             py::arg("quantization") = std::nullopt
         )
+        // Deprecated, but keep around for paper review
+        .def(
+            "resize",
+            &APyFloat::resize,
+            py::arg("exp_bits"),
+            py::arg("man_bits"),
+            py::arg("bias") = std::nullopt,
+            py::arg("quantization") = std::nullopt,
+            R"pbdoc(
+            .. deprecated::
+               Use :method:`cast` instead.
+            )pbdoc"
 
+        )
         /*
          * Arithmetic operators
          */

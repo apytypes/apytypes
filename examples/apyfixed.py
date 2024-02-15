@@ -43,5 +43,5 @@ str(a)
 (b >= -2.25, a == 1.75)
 
 # %%
-# To change the word length of a APyFixed, the method :func:`~APyFixed.resize` can be used
-(a + b).resize(4, 3)
+# To change the word length of a APyFixed, the method :func:`~APyFixed.cast` can be used
+(a + b).cast(4, 3)

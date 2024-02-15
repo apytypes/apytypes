@@ -39,5 +39,5 @@ str(a)
 (b >= 7, a < -1.2)
 
 # %%
-# To change the word length of a APyFloat, the method :func:`~APyFloat.resize` can be used
-(a + b).resize(4, 3)
+# To change the word length of a APyFloat, the method :func:`~APyFloat.cast` can be used
+(a + b).cast(4, 3)
