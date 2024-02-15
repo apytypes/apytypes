@@ -178,6 +178,19 @@ void bind_fixed(py::module& m)
             py::arg("overflow") = OverflowMode::WRAP,
             py::arg("frac_bits") = std::nullopt,
             R"pbdoc(
+            .. deprecated::
+               Use :method:`cast` instead.
+            )pbdoc"
+        )
+        .def(
+            "cast",
+            &APyFixed::cast,
+            py::arg("bits") = std::nullopt,
+            py::arg("int_bits") = std::nullopt,
+            py::arg("quantization") = QuantizationMode::TRN,
+            py::arg("overflow") = OverflowMode::WRAP,
+            py::arg("frac_bits") = std::nullopt,
+            R"pbdoc(
             Create a new resized fixed-point number based on the bit pattern in this
             fixed-point number.
 
@@ -194,9 +207,9 @@ void bind_fixed(py::module& m)
             int_bits : int, optional
                 Number of integer bits in the created fixed-point object
             quantization : QuantizationMode, default: QuantizationMode.TRN
-                Quantization mode to use in this resize
+                Quantization mode to use in this cast
             overflow : OverflowMode, default: OverflowMode.WRAP
-                Overflowing mode to use in this resize
+                Overflowing mode to use in this cast
             frac_bits : int, optional
                 Number of fractional bits in the created fixed-point object
 
@@ -215,13 +228,13 @@ void bind_fixed(py::module& m)
                 fx = APyFixed.from_float(2.125, int_bits=3, frac_bits=3)
 
                 # Truncation (fx_a == 2.0)
-                fx_a = fx.resize(int_bits=3, frac_bits=2, quantization=QuantizationMode.TRN)
+                fx_a = fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.TRN)
 
                 # Quantization (fx_b == 2.25)
-                fx_b = fx.resize(int_bits=3, frac_bits=2, quantization=QuantizationMode.RND)
+                fx_b = fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.RND)
 
                 # Two's complement overflowing (fx_c == -1.875)
-                fx_c = fx.resize(int_bits=2, frac_bits=3, overflow=OverflowMode.WRAP)
+                fx_c = fx.cast(int_bits=2, frac_bits=3, overflow=OverflowMode.WRAP)
             )pbdoc"
         )
         .def_property_readonly("_vector_size", &APyFixed::vector_size)

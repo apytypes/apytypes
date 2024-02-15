@@ -141,10 +141,10 @@ APyFixed APyFixed::operator+(const APyFixed& rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
 
     APyFixed result(res_bits, res_int_bits);
-    _resize(result._data.begin(), result._data.end(), res_bits, res_int_bits);
+    _cast(result._data.begin(), result._data.end(), res_bits, res_int_bits);
 
     APyFixed operand(res_bits, res_int_bits);
-    rhs._resize(operand._data.begin(), operand._data.end(), res_bits, res_int_bits);
+    rhs._cast(operand._data.begin(), operand._data.end(), res_bits, res_int_bits);
 
     // Add with carry and return
     mpn_add_n(
@@ -163,10 +163,10 @@ APyFixed APyFixed::operator-(const APyFixed& rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
 
     APyFixed result(res_int_bits + res_frac_bits, res_int_bits);
-    _resize(result._data.begin(), result._data.end(), res_bits, res_int_bits);
+    _cast(result._data.begin(), result._data.end(), res_bits, res_int_bits);
 
     APyFixed operand(res_bits, res_int_bits);
-    rhs._resize(operand._data.begin(), operand._data.end(), res_bits, res_int_bits);
+    rhs._cast(operand._data.begin(), operand._data.end(), res_bits, res_int_bits);
 
     // Subtract with carry and return
     mpn_sub_n(
@@ -748,7 +748,7 @@ APyFixed APyFixed::from_string(
  * *                        Resize and quantization methods                         * *
  * ********************************************************************************** */
 
-APyFixed APyFixed::resize(
+APyFixed APyFixed::cast(
     std::optional<int> bits,
     std::optional<int> int_bits,
     QuantizationMode quantization,
@@ -761,7 +761,7 @@ APyFixed APyFixed::resize(
     set_bit_specifiers_from_optional(new_bits, new_int_bits, bits, int_bits, frac_bits);
 
     APyFixed result(new_bits, new_int_bits);
-    _resize(
+    _cast(
         result._data.begin(), // output start
         result._data.end(),   // output sentinel
         new_bits,
@@ -773,7 +773,21 @@ APyFixed APyFixed::resize(
     return result;
 }
 
-void APyFixed::_resize(
+APyFixed APyFixed::resize(
+    std::optional<int> bits,
+    std::optional<int> int_bits,
+    QuantizationMode quantization,
+    OverflowMode overflow,
+    std::optional<int> frac_bits
+) const
+{
+    PyErr_WarnEx(
+        PyExc_DeprecationWarning, "resize() is deprecated, use cast() instead.", 1
+    );
+    return cast(bits, int_bits, quantization, overflow, frac_bits);
+}
+
+void APyFixed::_cast(
     std::vector<mp_limb_t>::iterator it_begin,
     std::vector<mp_limb_t>::iterator it_end,
     int new_bits,
@@ -842,7 +856,7 @@ void APyFixed::_quantize(
         break;
     default:
         throw NotImplementedException(fmt::format(
-            "Not implemented: APyFixed.resize(): with quantization mode: {}",
+            "Not implemented: APyFixed.cast(): with quantization mode: {}",
             quantization_mode_to_string(quantization)
         ));
     }
@@ -1088,7 +1102,7 @@ void APyFixed::_overflow(
         break;
     default:
         throw NotImplementedException(fmt::format(
-            "Not implemented: APyFixed.resize(): with overflow mode: {}",
+            "Not implemented: APyFixed.cast(): with overflow mode: {}",
             overflow_mode_to_string(overflow)
         ));
     }

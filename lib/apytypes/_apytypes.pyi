@@ -181,6 +181,61 @@ class APyFixed:
     def __sub__(self, arg0: int) -> APyFixed: ...
     def __truediv__(self, arg0: APyFixed) -> APyFixed: ...
     def _repr_latex_(self) -> str: ...
+    def cast(
+        self,
+        bits: int | None = None,
+        int_bits: int | None = None,
+        quantization: QuantizationMode = QuantizationMode.TRN,
+        overflow: OverflowMode = OverflowMode.WRAP,
+        frac_bits: int | None = None,
+    ) -> APyFixed:
+        """
+        Create a new resized fixed-point number based on the bit pattern in this
+        fixed-point number.
+
+        This is the primary method for performing quantization, truncation,
+        overflowing, and saturation when dealing with APyTypes fixed-point numbers.
+
+        Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
+        to be set.
+
+        Parameters
+        ----------
+        bits : int, optional
+            Total number of bits in the created fixed-point object
+        int_bits : int, optional
+            Number of integer bits in the created fixed-point object
+        quantization : QuantizationMode, default: QuantizationMode.TRN
+            Quantization mode to use in this cast
+        overflow : OverflowMode, default: OverflowMode.WRAP
+            Overflowing mode to use in this cast
+        frac_bits : int, optional
+            Number of fractional bits in the created fixed-point object
+
+        Returns
+        -------
+        :class:`APyFixed`
+
+        Examples
+        --------
+        .. code-block:: python
+
+            from apytypes import APyFixed
+            from apytypes import QuantizationMode
+            from apytypes import OverflowMode
+
+            fx = APyFixed.from_float(2.125, int_bits=3, frac_bits=3)
+
+            # Truncation (fx_a == 2.0)
+            fx_a = fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.TRN)
+
+            # Quantization (fx_b == 2.25)
+            fx_b = fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.RND)
+
+            # Two's complement overflowing (fx_c == -1.875)
+            fx_c = fx.cast(int_bits=2, frac_bits=3, overflow=OverflowMode.WRAP)
+        """
+
     def is_identical(self, other: APyFixed) -> bool:
         """
         Test if two fixed-point objects are exactly identical.
@@ -225,50 +280,8 @@ class APyFixed:
         frac_bits: int | None = None,
     ) -> APyFixed:
         """
-        Create a new resized fixed-point number based on the bit pattern in this
-        fixed-point number.
-
-        This is the primary method for performing quantization, truncation,
-        overflowing, and saturation when dealing with APyTypes fixed-point numbers.
-
-        Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
-        to be set.
-
-        Parameters
-        ----------
-        bits : int, optional
-            Total number of bits in the created fixed-point object
-        int_bits : int, optional
-            Number of integer bits in the created fixed-point object
-        quantization : QuantizationMode, default: QuantizationMode.TRN
-            Quantization mode to use in this resize
-        overflow : OverflowMode, default: OverflowMode.WRAP
-            Overflowing mode to use in this resize
-        frac_bits : int, optional
-            Number of fractional bits in the created fixed-point object
-
-        Returns
-        -------
-        :class:`APyFixed`
-
-        Examples
-        --------
-        .. code-block:: python
-
-            from apytypes import APyFixed
-            from apytypes import QuantizationMode
-            from apytypes import OverflowMode
-
-            fx = APyFixed.from_float(2.125, int_bits=3, frac_bits=3)
-
-            # Truncation (fx_a == 2.0)
-            fx_a = fx.resize(int_bits=3, frac_bits=2, quantization=QuantizationMode.TRN)
-
-            # Quantization (fx_b == 2.25)
-            fx_b = fx.resize(int_bits=3, frac_bits=2, quantization=QuantizationMode.RND)
-
-            # Two's complement overflowing (fx_c == -1.875)
-            fx_c = fx.resize(int_bits=2, frac_bits=3, overflow=OverflowMode.WRAP)
+        .. deprecated::
+           Use :method:`cast` instead.
         """
 
     def to_bits(self) -> int:
@@ -437,22 +450,7 @@ class APyFixedArray:
     def __sub__(self, arg0: float) -> APyFixedArray: ...
     @typing.overload
     def __sub__(self, arg0: APyFixed) -> APyFixedArray: ...
-    def is_identical(self, other: APyFixedArray) -> bool:
-        """
-        Test if two :class:`APyFixedArray` objects are identical.
-
-        Two :class:`APyFixedArray` objects are considered identical if, and only if:
-          * They represent exatly the same tensor shape
-          * They store the exact same fixed-point values in all tensor elements
-          * They have the exact same bit specification (`bits`, `int_bits`, and
-            `frac_bits` are all equal)
-
-        Returns
-        -------
-        :class:`bool`
-        """
-
-    def resize(
+    def cast(
         self,
         bits: int | None = None,
         int_bits: int | None = None,
@@ -477,15 +475,43 @@ class APyFixedArray:
         int_bits : int, optional
             Number of integer bits in the created fixed-point array
         quantization : QuantizationMode, default: QuantizationMode.TRN
-            Quantization mode to use in this resize
+            Quantization mode to use in this cast
         overflow : OverflowMode, default: OverflowMode.WRAP
-            Overflowing mode to use in this resize
+            Overflowing mode to use in this cast
         frac_bits : int, optional
             Number of fractional bits in the created fixed-point array
 
         Returns
         -------
         :class:`APyFixedArray`
+        """
+
+    def is_identical(self, other: APyFixedArray) -> bool:
+        """
+        Test if two :class:`APyFixedArray` objects are identical.
+
+        Two :class:`APyFixedArray` objects are considered identical if, and only if:
+          * They represent exatly the same tensor shape
+          * They store the exact same fixed-point values in all tensor elements
+          * They have the exact same bit specification (`bits`, `int_bits`, and
+            `frac_bits` are all equal)
+
+        Returns
+        -------
+        :class:`bool`
+        """
+
+    def resize(
+        self,
+        bits: int | None = None,
+        int_bits: int | None = None,
+        quantization: QuantizationMode = QuantizationMode.TRN,
+        overflow: OverflowMode = OverflowMode.WRAP,
+        frac_bits: int | None = None,
+    ) -> APyFixedArray:
+        """
+        .. deprecated::
+           Use :method:`cast` instead.
         """
 
     def to_numpy(self) -> numpy.ndarray[numpy.float64]:
@@ -679,6 +705,13 @@ class APyFloat:
     def __truediv__(self, arg0: APyFloat) -> APyFloat: ...
     def __xor__(self, arg0: APyFloat) -> APyFloat: ...
     def _repr_latex_(self) -> str: ...
+    def cast(
+        self,
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
+        quantization: QuantizationMode | None = None,
+    ) -> APyFloat: ...
     def is_identical(self, other: APyFloat) -> bool:
         """
         Test if two `APyFloat` objects are identical.
@@ -698,7 +731,12 @@ class APyFloat:
         man_bits: int,
         bias: int | None = None,
         quantization: QuantizationMode | None = None,
-    ) -> APyFloat: ...
+    ) -> APyFloat:
+        """
+        .. deprecated::
+           Use :method:`cast` instead.
+        """
+
     def to_bits(self) -> int: ...
     @property
     def bias(self) -> int: ...
@@ -871,6 +909,13 @@ class APyFloatArray:
     def __truediv__(self, arg0: float) -> APyFloatArray: ...
     @typing.overload
     def __truediv__(self, arg0: APyFloat) -> APyFloatArray: ...
+    def cast(
+        self,
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
+        quantization_mode: QuantizationMode | None = None,
+    ) -> APyFloatArray: ...
     def is_identical(self, other: APyFloatArray) -> bool:
         """
         Test if two :class:`APyFloatArray` objects are identical.
@@ -891,7 +936,12 @@ class APyFloatArray:
         man_bits: int,
         bias: int | None = None,
         quantization_mode: QuantizationMode | None = None,
-    ) -> APyFloatArray: ...
+    ) -> APyFloatArray:
+        """
+        .. deprecated::
+           Use :method:`cast` instead.
+        """
+
     def to_numpy(self) -> numpy.ndarray[numpy.float64]:
         """
         Return array as a :class:`numpy.ndarray` of :class:`numpy.float64`.
@@ -1019,7 +1069,7 @@ class OverflowMode:
       SAT : Saturate to the closest of most positive and most negative value.
 
       NUMERIC_STD : Remove MSBs, but keep the most significant bit. As ieee.numeric_std
-                resize for signed.
+                cast for signed.
     """
 
     NUMERIC_STD: typing.ClassVar[OverflowMode]  # value = <OverflowMode.NUMERIC_STD: 2>
@@ -1083,10 +1133,10 @@ class QuantizationMode:
       JAM_UNBIASED : Unbiased jamming/von Neumann rounding. Set LSB to 1 unless a
                 tie.
 
-      STOCHASTIC_WEIGHTED : Stochastic rounding. Probability depends on the bits to
+      STOCH_WEIGHTED : Stochastic rounding. Probability depends on the bits to
                 remove.
 
-      STOCHASTIC_EQUAL : Stochastic rounding with equal probability.
+      STOCH_EQUAL : Stochastic rounding with equal probability.
 
       TO_NEG : Alias. Round towards negative infinity.
 
@@ -1125,12 +1175,12 @@ class QuantizationMode:
     RND_ZERO: typing.ClassVar[
         QuantizationMode
     ]  # value = <QuantizationMode.RND_ZERO: 4>
-    STOCHASTIC_EQUAL: typing.ClassVar[
+    STOCH_EQUAL: typing.ClassVar[
         QuantizationMode
-    ]  # value = <QuantizationMode.STOCHASTIC_EQUAL: 12>
-    STOCHASTIC_WEIGHTED: typing.ClassVar[
+    ]  # value = <QuantizationMode.STOCH_EQUAL: 12>
+    STOCH_WEIGHTED: typing.ClassVar[
         QuantizationMode
-    ]  # value = <QuantizationMode.STOCHASTIC_WEIGHTED: 11>
+    ]  # value = <QuantizationMode.STOCH_WEIGHTED: 11>
     TIES_AWAY: typing.ClassVar[
         QuantizationMode
     ]  # value = <QuantizationMode.RND_INF: 5>
@@ -1157,7 +1207,7 @@ class QuantizationMode:
     ]  # value = <QuantizationMode.TRN_ZERO: 2>
     __members__: typing.ClassVar[
         dict[str, QuantizationMode]
-    ]  # value = {'TRN': <QuantizationMode.TRN: 0>, 'TRN_ZERO': <QuantizationMode.TRN_ZERO: 2>, 'TRN_INF': <QuantizationMode.TRN_INF: 1>, 'RND': <QuantizationMode.RND: 3>, 'RND_ZERO': <QuantizationMode.RND_ZERO: 4>, 'RND_INF': <QuantizationMode.RND_INF: 5>, 'RND_MIN_INF': <QuantizationMode.RND_MIN_INF: 6>, 'RND_CONV': <QuantizationMode.RND_CONV: 7>, 'RND_CONV_ODD': <QuantizationMode.RND_CONV_ODD: 8>, 'JAM': <QuantizationMode.JAM: 9>, 'JAM_UNBIASED': <QuantizationMode.JAM_UNBIASED: 10>, 'STOCHASTIC_WEIGHTED': <QuantizationMode.STOCHASTIC_WEIGHTED: 11>, 'STOCHASTIC_EQUAL': <QuantizationMode.STOCHASTIC_EQUAL: 12>, 'TO_NEG': <QuantizationMode.TRN: 0>, 'TO_ZERO': <QuantizationMode.TRN_ZERO: 2>, 'TO_POS': <QuantizationMode.TRN_INF: 1>, 'TIES_ZERO': <QuantizationMode.RND_ZERO: 4>, 'TIES_AWAY': <QuantizationMode.RND_INF: 5>, 'TIES_EVEN': <QuantizationMode.RND_CONV: 7>, 'TIES_ODD': <QuantizationMode.RND_CONV_ODD: 8>, 'TIES_NEG': <QuantizationMode.RND_MIN_INF: 6>, 'TIES_POS': <QuantizationMode.RND: 3>}
+    ]  # value = {'TRN': <QuantizationMode.TRN: 0>, 'TRN_ZERO': <QuantizationMode.TRN_ZERO: 2>, 'TRN_INF': <QuantizationMode.TRN_INF: 1>, 'RND': <QuantizationMode.RND: 3>, 'RND_ZERO': <QuantizationMode.RND_ZERO: 4>, 'RND_INF': <QuantizationMode.RND_INF: 5>, 'RND_MIN_INF': <QuantizationMode.RND_MIN_INF: 6>, 'RND_CONV': <QuantizationMode.RND_CONV: 7>, 'RND_CONV_ODD': <QuantizationMode.RND_CONV_ODD: 8>, 'JAM': <QuantizationMode.JAM: 9>, 'JAM_UNBIASED': <QuantizationMode.JAM_UNBIASED: 10>, 'STOCH_WEIGHTED': <QuantizationMode.STOCH_WEIGHTED: 11>, 'STOCH_EQUAL': <QuantizationMode.STOCH_EQUAL: 12>, 'TO_NEG': <QuantizationMode.TRN: 0>, 'TO_ZERO': <QuantizationMode.TRN_ZERO: 2>, 'TO_POS': <QuantizationMode.TRN_INF: 1>, 'TIES_ZERO': <QuantizationMode.RND_ZERO: 4>, 'TIES_AWAY': <QuantizationMode.RND_INF: 5>, 'TIES_EVEN': <QuantizationMode.RND_CONV: 7>, 'TIES_ODD': <QuantizationMode.RND_CONV_ODD: 8>, 'TIES_NEG': <QuantizationMode.RND_MIN_INF: 6>, 'TIES_POS': <QuantizationMode.RND: 3>}
     def __eq__(self, other: typing.Any) -> bool: ...
     def __getstate__(self) -> int: ...
     def __hash__(self) -> int: ...

@@ -101,8 +101,8 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
 
     // Adjust binary point
-    APyFixedArray result = resize(res_int_bits + res_frac_bits, res_int_bits);
-    APyFixedArray imm = rhs.resize(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result = cast(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray imm = rhs.cast(res_int_bits + res_frac_bits, res_int_bits);
 
     // Perform addition
     for (std::size_t i = 0; i < result._data.size(); i += result._scalar_limbs()) {
@@ -125,8 +125,8 @@ APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
 
     // Adjust binary point
-    APyFixedArray result = resize(res_int_bits + res_frac_bits, res_int_bits);
-    APyFixed imm = rhs.resize(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result = cast(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixed imm = rhs.cast(res_int_bits + res_frac_bits, res_int_bits);
 
     // Perform addition
     for (std::size_t i = 0; i < result._data.size(); i += result._scalar_limbs()) {
@@ -158,8 +158,8 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
 
     // Adjust binary point
-    APyFixedArray result = resize(res_int_bits + res_frac_bits, res_int_bits);
-    APyFixedArray imm = rhs.resize(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result = cast(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray imm = rhs.cast(res_int_bits + res_frac_bits, res_int_bits);
 
     // Perform addition
     for (std::size_t i = 0; i < result._data.size(); i += result._scalar_limbs()) {
@@ -182,8 +182,8 @@ APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
 
     // Adjust binary point
-    APyFixedArray result = resize(res_int_bits + res_frac_bits, res_int_bits);
-    APyFixed imm = rhs.resize(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result = cast(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixed imm = rhs.cast(res_int_bits + res_frac_bits, res_int_bits);
 
     // Perform addition
     for (std::size_t i = 0; i < result._data.size(); i += result._scalar_limbs()) {
@@ -567,7 +567,7 @@ APyFixedArray APyFixedArray::from_double(
  * *                            Private member functions                            * *
  * ********************************************************************************** */
 
-APyFixedArray APyFixedArray::resize(
+APyFixedArray APyFixedArray::cast(
     std::optional<int> bits,
     std::optional<int> int_bits,
     QuantizationMode quantization,
@@ -597,7 +597,7 @@ APyFixedArray APyFixedArray::resize(
         );
 
         // Perform the resizing
-        fixed._resize(
+        fixed._cast(
             result._data.begin() + (i + 0) * result._scalar_limbs(), // output start
             result._data.begin() + (i + 1) * result._scalar_limbs(), // output sentinel
             new_bits,
@@ -608,6 +608,20 @@ APyFixedArray APyFixedArray::resize(
     }
 
     return result;
+}
+
+APyFixedArray APyFixedArray::resize(
+    std::optional<int> bits,
+    std::optional<int> int_bits,
+    QuantizationMode quantization,
+    OverflowMode overflow,
+    std::optional<int> frac_bits
+) const
+{
+    PyErr_WarnEx(
+        PyExc_DeprecationWarning, "resize() is deprecated, use cast() instead.", 1
+    );
+    return cast(bits, int_bits, quantization, overflow, frac_bits);
 }
 
 std::size_t APyFixedArray::_fold_shape() const
@@ -639,9 +653,8 @@ APyFixedArray APyFixedArray::_checked_inner_product(const APyFixedArray& rhs) co
     // Handle possible global accumulator mode
     if (get_accumulator_mode().has_value()) {
         AccumulatorOption mode = *get_accumulator_mode();
-        hadamard = hadamard.resize(
-            mode.bits, mode.int_bits, mode.quantization, mode.overflow
-        );
+        hadamard
+            = hadamard.cast(mode.bits, mode.int_bits, mode.quantization, mode.overflow);
     }
 
     APyFixedArray result({ 1 }, res_bits, res_int_bits);

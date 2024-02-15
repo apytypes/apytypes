@@ -89,6 +89,13 @@ public:
     APyFloatArray transpose() const;
 
     //! Returns a copy of the tensor with the elements resized.
+    APyFloatArray cast(
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt,
+        std::optional<QuantizationMode> quantization_mode = std::nullopt
+    ) const;
+
     APyFloatArray resize(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,

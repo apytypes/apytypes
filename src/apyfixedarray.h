@@ -146,9 +146,9 @@ public:
      * bit-pattern of each tensor element are copied into place, meaning that lowering
      * the number of fractional bits may result in quantization, and lowering the number
      * of integer bits may result in overflowing. Supports quantization and oveflow
-     * options on narrowing resizes.
+     * options on narrowing casts.
      */
-    APyFixedArray resize(
+    APyFixedArray cast(
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
         QuantizationMode quantization = QuantizationMode::TRN,
@@ -156,6 +156,13 @@ public:
         std::optional<int> frac_bits = std::nullopt
     ) const;
 
+    APyFixedArray resize(
+        std::optional<int> bits = std::nullopt,
+        std::optional<int> int_bits = std::nullopt,
+        QuantizationMode quantization = QuantizationMode::TRN,
+        OverflowMode overflow = OverflowMode::WRAP,
+        std::optional<int> frac_bits = std::nullopt
+    ) const;
     /*!
      * Test if two `APyFixedArray` objects are identical. Two `APyFixedArray` objects
      * are considered identical if, and only if:

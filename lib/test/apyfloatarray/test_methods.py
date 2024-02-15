@@ -94,10 +94,10 @@ def test_len():
 
 
 @pytest.mark.float_array
-def test_resize():
+def test_cast():
     fp_array = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=10, man_bits=15)
     ans = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=5, man_bits=2)
-    assert fp_array.resize(5, 2).is_identical(ans)
+    assert fp_array.cast(5, 2).is_identical(ans)
 
     fp_array = APyFloatArray.from_float(
         [[1000, -1000], [1.015625, float("nan")]], exp_bits=10, man_bits=15
@@ -105,10 +105,10 @@ def test_resize():
     ans = APyFloatArray.from_float(
         [[float("inf"), float("-inf")], [1, float("nan")]], exp_bits=4, man_bits=3
     )
-    assert fp_array.resize(4, 3).is_identical(ans)
+    assert fp_array.cast(4, 3).is_identical(ans)
 
     fp_array = APyFloatArray.from_float([1.125, -1.875], exp_bits=10, man_bits=15)
     ans = APyFloatArray.from_float([1, -1.75], exp_bits=5, man_bits=2)
-    assert fp_array.resize(
-        5, 2, quantization_mode=QuantizationMode.TO_ZERO
-    ).is_identical(ans)
+    assert fp_array.cast(5, 2, quantization_mode=QuantizationMode.TO_ZERO).is_identical(
+        ans
+    )

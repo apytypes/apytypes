@@ -398,7 +398,7 @@ APyFloatArray APyFloatArray::transpose() const
     return result;
 }
 
-APyFloatArray APyFloatArray::resize(
+APyFloatArray APyFloatArray::cast(
     std::uint8_t new_exp_bits,
     std::uint8_t new_man_bits,
     std::optional<exp_t> new_bias,
@@ -409,7 +409,28 @@ APyFloatArray APyFloatArray::resize(
 
     for (std::size_t i = 0; i < data.size(); i++) {
         result.data[i] = APyFloat(data[i], exp_bits, man_bits, bias)
-                             .resize(new_exp_bits, new_man_bits, new_bias, quantization)
+                             .cast(new_exp_bits, new_man_bits, new_bias, quantization)
+                             .get_data();
+    }
+
+    return result;
+}
+
+APyFloatArray APyFloatArray::resize(
+    std::uint8_t new_exp_bits,
+    std::uint8_t new_man_bits,
+    std::optional<exp_t> new_bias,
+    std::optional<QuantizationMode> quantization
+) const
+{
+    PyErr_WarnEx(
+        PyExc_DeprecationWarning, "resize() is deprecated, use cast() instead.", 1
+    );
+    APyFloatArray result(shape, new_exp_bits, new_man_bits, new_bias);
+
+    for (std::size_t i = 0; i < data.size(); i++) {
+        result.data[i] = APyFloat(data[i], exp_bits, man_bits, bias)
+                             .cast(new_exp_bits, new_man_bits, new_bias, quantization)
                              .get_data();
     }
 
@@ -452,8 +473,8 @@ APyFloatArray APyFloatArray::checked_inner_product(const APyFloatArray& rhs) con
     // Hadamard product of `*this` and `rhs`
     APyFloatArray hadamard;
     if (get_accumulator_mode().has_value()) {
-        hadamard = this->resize(tmp_exp_bits, tmp_man_bits)
-            * rhs.resize(tmp_exp_bits, tmp_man_bits);
+        hadamard = this->cast(tmp_exp_bits, tmp_man_bits)
+            * rhs.cast(tmp_exp_bits, tmp_man_bits);
     } else {
         hadamard = *this * rhs;
     }
@@ -468,7 +489,7 @@ APyFloatArray APyFloatArray::checked_inner_product(const APyFloatArray& rhs) con
 
     // The result must be quantized back if an accumulator was used.
     if (get_accumulator_mode().has_value()) {
-        result.data[0] = sum.resize(max_exp_bits, max_man_bits).get_data();
+        result.data[0] = sum.cast(max_exp_bits, max_man_bits).get_data();
     } else {
         result.data[0] = sum.get_data();
     }
