@@ -12,19 +12,19 @@
  * Available quantization modes for APyFixed and APyFloat
  */
 enum class QuantizationMode {
-    TRN,                 // !< Truncation, quantization toward minus infinity
-    TRN_INF,             // !< Truncation, quantization toward plus infinity
-    TRN_ZERO,            // !< Magnitude truncation, quantization toward zero
-    RND,                 // !< Round to nearest, ties toward plus inf
-    RND_ZERO,            // !< Round to nearest, ties toward zero
-    RND_INF,             // !< Round to nearest, ties away from zero
-    RND_MIN_INF,         // !< Round to nearest, ties toward minus infinity
-    RND_CONV,            // !< Round to nearest, ties toward even quantization setps
-    RND_CONV_ODD,        // !< Round to nearest, ties toward odd quantization steps
-    JAM,                 // !< Jamming
-    JAM_UNBIASED,        // !< Unbiased jamming
-    STOCHASTIC_WEIGHTED, // !< Weighted stochastic quantization
-    STOCHASTIC_EQUAL     // !< Stochastic quantization with equal probability
+    TRN,            // !< Truncation, quantization toward minus infinity
+    TRN_INF,        // !< Truncation, quantization toward plus infinity
+    TRN_ZERO,       // !< Magnitude truncation, quantization toward zero
+    RND,            // !< Round to nearest, ties toward plus inf
+    RND_ZERO,       // !< Round to nearest, ties toward zero
+    RND_INF,        // !< Round to nearest, ties away from zero
+    RND_MIN_INF,    // !< Round to nearest, ties toward minus infinity
+    RND_CONV,       // !< Round to nearest, ties toward even quantization setps
+    RND_CONV_ODD,   // !< Round to nearest, ties toward odd quantization steps
+    JAM,            // !< Jamming
+    JAM_UNBIASED,   // !< Unbiased jamming
+    STOCH_WEIGHTED, // !< Weighted stochastic quantization
+    STOCH_EQUAL     // !< Stochastic quantization with equal probability
 };
 
 /*!
@@ -61,10 +61,10 @@ static inline std::string quantization_mode_to_string(QuantizationMode mode)
         return "QuantizationMode::JAM";
     case QuantizationMode::JAM_UNBIASED:
         return "QuantizationMode::JAM_UNBIASED";
-    case QuantizationMode::STOCHASTIC_WEIGHTED:
-        return "QuantizationMode::STOCHASTIC_WEIGHTED";
-    case QuantizationMode::STOCHASTIC_EQUAL:
-        return "QuantizationMode::STOCHASTIC_EQUAL";
+    case QuantizationMode::STOCH_WEIGHTED:
+        return "QuantizationMode::STOCH_WEIGHTED";
+    case QuantizationMode::STOCH_EQUAL:
+        return "QuantizationMode::STOCH_EQUAL";
     default:
         throw NotImplementedException(
             "Not implemented: quantization_mode_to_string(), missing specifier"

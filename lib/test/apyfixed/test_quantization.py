@@ -204,8 +204,8 @@ def test_stochastic_equal():
 @pytest.mark.parametrize(
     "mode",
     [
-        QuantizationMode.STOCHASTIC_WEIGHTED,
-        QuantizationMode.STOCHASTIC_EQUAL,
+        QuantizationMode.STOCH_WEIGHTED,
+        QuantizationMode.STOCH_EQUAL,
     ],
 )
 def test_not_implemented(mode):

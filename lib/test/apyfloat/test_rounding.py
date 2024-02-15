@@ -410,7 +410,7 @@ class TestAPyFloatQuantization:
         A bit naive, but test that a value can be rounded both up and down in 1000 tries.
         An exact value should however not be rounded.
         """
-        apytypes.set_quantization_mode(QuantizationMode.STOCHASTIC_WEIGHTED)
+        apytypes.set_quantization_mode(QuantizationMode.STOCH_WEIGHTED)
         larger_format = APyFloat(0, 5, 0b10000, 5, 5)
         assert larger_format.resize(5, 3) == APyFloat(0, 5, 0b100, 5, 3)
 
@@ -436,7 +436,7 @@ class TestAPyFloatQuantization:
         A bit naive, but test that a value can be rounded both up and down in 1000 tries.
         An exact value should however not be rounded.
         """
-        apytypes.set_quantization_mode(QuantizationMode.STOCHASTIC_EQUAL)
+        apytypes.set_quantization_mode(QuantizationMode.STOCH_EQUAL)
         larger_format = APyFloat(0, 5, 0b10000, 5, 5)
         assert larger_format.resize(5, 3) == APyFloat(0, 5, 0b100, 5, 3)
 
