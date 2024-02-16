@@ -133,13 +133,7 @@ class APyFixed:
     @typing.overload
     def __gt__(self, arg0: float) -> bool: ...
     @typing.overload
-    def __init__(
-        self,
-        other: APyFixed,
-        bits: int | None = None,
-        int_bits: int | None = None,
-        frac_bits: int | None = None,
-    ) -> None: ...
+    def __init__(self, other: APyFixed) -> None: ...
     @typing.overload
     def __init__(
         self,

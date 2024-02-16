@@ -104,12 +104,9 @@ AccumulatorContext::AccumulatorContext(
     QuantizationMode acc_quantization;
 
     if (any_apfixed_parameters) {
-        // Sanitize the input bits
-        int acc_bits, acc_int_bits;
-        set_bit_specifiers_from_optional(
-            acc_bits, acc_int_bits, bits, int_bits, frac_bits
-        );
-        bit_specifier_sanitize(acc_bits, acc_int_bits);
+        // Extract the input
+        int acc_bits = bits_from_optional(bits, int_bits, frac_bits);
+        int acc_int_bits = int_bits_from_optional(bits, int_bits, frac_bits);
 
         // Store the previous accumulator mode
         previous_mode = global_accumulator_option;

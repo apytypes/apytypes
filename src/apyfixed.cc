@@ -37,28 +37,11 @@ namespace py = pybind11;
  * ********************************************************************************** */
 
 //! Constructor: specify size and initialize from another APyFixed number
-APyFixed::APyFixed(
-    const APyFixed& other,
-    std::optional<int> bits,
-    std::optional<int> int_bits,
-    std::optional<int> frac_bits
-)
-    : _bits {}
-    , _int_bits {}
-    , _data {}
+APyFixed::APyFixed(const APyFixed& other)
+    : _bits { other._bits }
+    , _int_bits { other._int_bits }
+    , _data(other._data.begin(), other._data.end())
 {
-    if (bits.has_value() || int_bits.has_value() || frac_bits.has_value()) {
-        // One or more bit-specifiers set, initialize from the specifier arguments
-        set_bit_specifiers_from_optional(_bits, _int_bits, bits, int_bits, frac_bits);
-        bit_specifier_sanitize(_bits, _int_bits);
-        _data = std::vector<mp_limb_t>(bits_to_limbs(_bits), 0);
-        set_from_apyfixed(other);
-    } else {
-        // No bit-specifiers set, use data from `other`
-        _bits = other._bits;
-        _int_bits = other._int_bits;
-        _data = other._data;
-    }
 }
 
 //! Constructor: construct from a Python arbitrary long integer object
@@ -82,34 +65,25 @@ APyFixed::APyFixed(
 APyFixed::APyFixed(
     std::optional<int> bits, std::optional<int> int_bits, std::optional<int> frac_bits
 )
-    : _bits { 0 }
-    , _int_bits { 0 }
-    , _data {}
+    : _bits { bits_from_optional(bits, int_bits, frac_bits) }
+    , _int_bits { int_bits_from_optional(bits, int_bits, frac_bits) }
+    , _data(bits_to_limbs(_bits), 0)
 {
-    set_bit_specifiers_from_optional(_bits, _int_bits, bits, int_bits, frac_bits);
-    bit_specifier_sanitize(_bits, _int_bits);
-    _data = std::vector<mp_limb_t>(bits_to_limbs(_bits), 0);
 }
 
 //! Constructor: specify only size and zero data on construction
 APyFixed::APyFixed(int bits, int int_bits)
     : _bits { bits }
     , _int_bits { int_bits }
-    , _data {}
+    , _data(bits_to_limbs(_bits), 0)
 {
-    bit_specifier_sanitize(_bits, _int_bits);
-    _data = std::vector<mp_limb_t>(bits_to_limbs(bits), 0);
 }
 
 //! Underlying vector iterator-based constructor
 template <typename _IT>
 APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end)
-    : _bits { bits }
-    , _int_bits { int_bits }
-    , _data(begin, end)
+    : APyFixed(bits, int_bits)
 {
-    bit_specifier_sanitize(_bits, _int_bits);
-
     if (std::distance(begin, end) <= 0) {
         throw std::domain_error(
             "APyFixed vector initialization needs propriate vector size"
@@ -119,6 +93,9 @@ APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end)
             "APyFixed vector initialization needs propriate vector size"
         );
     }
+
+    // Copy data into resulting vector
+    std::copy(begin, end, _data.begin());
 
     // Two's-complements overflow bits outside of the range
     _twos_complement_overflow(_data.begin(), _data.end(), _bits, _int_bits);
@@ -351,7 +328,7 @@ APyFixed APyFixed::abs() const
         // Unary `operator-()` increases word length by one
         return -*this;
     } else {
-        // Incrase word length by one and return copy
+        // Incrase word length by one and return copy (extra bit guaranteed to be zero)
         APyFixed result(_bits + 1, _int_bits + 1);
         std::copy(_data.cbegin(), _data.cend(), result._data.begin());
         return result;
@@ -393,7 +370,7 @@ std::string APyFixed::to_string_dec() const
 {
     // Construct a string from the absolute value of number, and conditionally append a
     // minus sign to the string if negative
-    APyFixed abs_val(is_negative() ? -(*this) : *this, _bits + 1, _int_bits + 1);
+    APyFixed abs_val = abs();
 
     // Convert this number to BCD with the double-dabble algorithm
     std::vector<mp_limb_t> bcd_limb_list = double_dabble(abs_val._data);
@@ -757,8 +734,8 @@ APyFixed APyFixed::cast(
 ) const
 {
     // Sanitize the input
-    int new_bits, new_int_bits;
-    set_bit_specifiers_from_optional(new_bits, new_int_bits, bits, int_bits, frac_bits);
+    int new_bits = bits_from_optional(bits, int_bits, frac_bits);
+    int new_int_bits = int_bits_from_optional(bits, int_bits, frac_bits);
 
     APyFixed result(new_bits, new_int_bits);
     _cast(

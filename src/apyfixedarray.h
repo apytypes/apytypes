@@ -9,6 +9,7 @@
 #include <pybind11/pybind11.h> // pybind11::object
 #include <pybind11/pytypes.h>  // pybind11::sequence
 
+#include "apybuffer.h"
 #include "apyfixed.h"
 #include "apytypes_common.h"
 #include "apytypes_util.h"
@@ -23,7 +24,7 @@
 // GMP should be included after all other includes
 #include "../extern/mini-gmp/mini-gmp.h"
 
-class APyFixedArray {
+class APyFixedArray : public APyBuffer<mp_limb_t> {
 
     /* ****************************************************************************** *
      *                        APyFixedArray C++ assumptions                           *
@@ -53,8 +54,6 @@ class APyFixedArray {
 
     int _bits;
     int _int_bits;
-    std::vector<std::size_t> _shape;
-    std::vector<mp_limb_t> _data;
 
     /* ****************************************************************************** *
      * *                          Python constructors                               * *
@@ -188,13 +187,6 @@ public:
     /* ****************************************************************************** *
      * *                          Private member functions                          * *
      * ****************************************************************************** */
-
-    //! The number of limbs per scalar in `*this` `APyFixedArray` tensor
-    //! object.
-    std::size_t _scalar_limbs() const { return bits_to_limbs(_bits); }
-
-    //! Fold the `_shape` field over multiplication
-    std::size_t _fold_shape() const;
 
     //! Evaluate the inner between two vectors. This method assumes that the the shape
     //! of both `*this` and `rhs` are equally long. Anything else is undefined

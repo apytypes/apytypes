@@ -653,54 +653,38 @@ static inline mp_limb_t limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsign
     return limb_vector_add_pow2(vec.begin(), vec.end(), n);
 }
 
-/*!
- * Set the `_bits` and `_int_bits` specifiers for a fixed-point number from user
- * provided optional `bits`, `int_bits`, and/or `frac_bits`.
- */
-static inline void set_bit_specifiers_from_optional(
-    int& _bits,
-    int& _int_bits,
-    std::optional<int> bits,
-    std::optional<int> int_bits,
-    std::optional<int> frac_bits
+//! Retrieve the `bits` specifier from user provided optional bit specifiers.
+//! Throws `std::domain_error` if the resulting number of bits is less than or equal to
+//! zero, or if not exactly two of three bit specifiers are present.
+static inline int bits_from_optional(
+    std::optional<int> bits, std::optional<int> int_bits, std::optional<int> frac_bits
 )
 {
     int num_bit_spec = bits.has_value() + int_bits.has_value() + frac_bits.has_value();
     if (num_bit_spec != 2) {
         throw std::domain_error(
-            "Fixed-point needs exactly two of three bit specifiers (bits, int_bits, "
-            "frac_bits) set when specifying bits."
+            "Fixed-point bit specification needs exactly two of three bit specifiers "
+            "(bits, int_bits, frac_bits) set"
         );
-    } else {
-        // Set the internal `_bits` and `_int_bits` fields from two out of the three bit
-        // specifier fields
-        if (bits.has_value()) {
-            if (int_bits.has_value()) {
-                _bits = *bits;
-                _int_bits = *int_bits;
-                return;
-            } else {
-                // `bits` set and `int_bits` unset so `frac_bits` is set
-                _bits = *bits;
-                _int_bits = *bits - *frac_bits;
-            }
-        } else {
-            // `bits` unset, so `int_bits` and `frac_bits` is set
-            _bits = *int_bits + *frac_bits;
-            _int_bits = *int_bits;
-        }
     }
+
+    int result = bits.has_value() ? *bits : *int_bits + *frac_bits;
+    if (result <= 0) {
+        throw std::domain_error(
+            "Fixed-point bit specification needs a positive integer bit-size (>= 1 bit)"
+        );
+    }
+
+    return result;
 }
 
-//! Sanitize the _bits and _int_bits parameters in a fixed-point number
-static inline void bit_specifier_sanitize(int bits, int int_bits)
+//! Retrieve the `int_bits` specifier from user provided optional bit specifiers.
+//! Assumes exactly two of three bit specifiers are set.
+static inline int int_bits_from_optional(
+    std::optional<int> bits, std::optional<int> int_bits, std::optional<int> frac_bits
+)
 {
-    (void)int_bits;
-    if (bits <= 0) {
-        throw std::domain_error(
-            "Fixed-point needs a positive integer bit-size of at-least 1 bit"
-        );
-    }
+    return int_bits.has_value() ? *int_bits : *bits - *frac_bits;
 }
 
 //! Test if the value of a limb vector is negative

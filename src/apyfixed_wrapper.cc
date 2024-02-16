@@ -17,17 +17,7 @@ void bind_fixed(py::module& m)
         /*
          * Constructor: construct from another APyFixed number
          */
-        .def(
-            py::init<
-                const APyFixed&,
-                std::optional<int>,
-                std::optional<int>,
-                std::optional<int>>(),
-            py::arg("other"),
-            py::arg("bits") = std::nullopt,
-            py::arg("int_bits") = std::nullopt,
-            py::arg("frac_bits") = std::nullopt
-        )
+        .def(py::init<const APyFixed&>(), py::arg("other"))
 
         /*
          * Constructor: construct from a Python arbitrary long integer object

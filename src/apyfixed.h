@@ -64,13 +64,8 @@ public:
     //! No default constructed APyFixed types
     APyFixed() = delete;
 
-    //! Constructor: initialize from other APyFixed and optionally set bit specifiers
-    APyFixed(
-        const APyFixed& other,
-        std::optional<int> bits = std::nullopt,
-        std::optional<int> int_bits = std::nullopt,
-        std::optional<int> frac_bits = std::nullopt
-    );
+    //! Constructor: initialize from other APyFixed
+    APyFixed(const APyFixed& other);
 
     //! Constructor: construct from a Python arbitrary long integer object and
     //! optionally set bit specifiers

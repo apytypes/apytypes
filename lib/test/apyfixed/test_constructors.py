@@ -9,7 +9,7 @@ def test_construction_raises():
     Disallowed construction of `APyFixed` object raises `ValueError`
     """
     # Zero-bit fixed-point nubmers can not be created
-    with pytest.raises(ValueError, match="Fixed-point needs a positive integer bit-"):
+    with pytest.raises(ValueError, match="Fixed-point bit specification needs a"):
         APyFixed(0, bits=0, int_bits=0)
 
     # Exactly two of three bit-specifiers needs to be set when creating `APyFixed`
