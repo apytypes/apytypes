@@ -280,8 +280,8 @@ class APyFixed:
         frac_bits: int | None = None,
     ) -> APyFixed:
         """
-        .. deprecated::
-           Use :method:`cast` instead.
+        .. deprecated:: 0.1.pre
+           Use :func:`~APyFixed.cast` instead.
         """
 
     def to_bits(self) -> int:
@@ -510,8 +510,8 @@ class APyFixedArray:
         frac_bits: int | None = None,
     ) -> APyFixedArray:
         """
-        .. deprecated::
-           Use :method:`cast` instead.
+        .. deprecated:: 0.1.pre
+           Use :func:`~APyFixedArray.cast` instead.
         """
 
     def to_numpy(self) -> numpy.ndarray[numpy.float64]:
@@ -733,8 +733,8 @@ class APyFloat:
         quantization: QuantizationMode | None = None,
     ) -> APyFloat:
         """
-        .. deprecated::
-           Use :method:`cast` instead.
+        .. deprecated:: 0.1.pre
+           Use :func:`~APyFloat.cast` instead.
         """
 
     def to_bits(self) -> int: ...
@@ -938,8 +938,8 @@ class APyFloatArray:
         quantization_mode: QuantizationMode | None = None,
     ) -> APyFloatArray:
         """
-        .. deprecated::
-           Use :method:`cast` instead.
+        .. deprecated:: 0.1.pre
+           Use :func:`~APyFloatArray.cast` instead.
         """
 
     def to_numpy(self) -> numpy.ndarray[numpy.float64]:
@@ -1069,7 +1069,7 @@ class OverflowMode:
       SAT : Saturate to the closest of most positive and most negative value.
 
       NUMERIC_STD : Remove MSBs, but keep the most significant bit. As ieee.numeric_std
-                cast for signed.
+                resize for signed.
     """
 
     NUMERIC_STD: typing.ClassVar[OverflowMode]  # value = <OverflowMode.NUMERIC_STD: 2>

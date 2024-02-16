@@ -178,8 +178,8 @@ void bind_fixed(py::module& m)
             py::arg("overflow") = OverflowMode::WRAP,
             py::arg("frac_bits") = std::nullopt,
             R"pbdoc(
-            .. deprecated::
-               Use :method:`cast` instead.
+            .. deprecated:: 0.1.pre
+               Use :func:`~APyFixed.cast` instead.
             )pbdoc"
         )
         .def(

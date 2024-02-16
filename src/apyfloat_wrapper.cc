@@ -70,8 +70,8 @@ void bind_float(py::module& m)
             py::arg("bias") = std::nullopt,
             py::arg("quantization") = std::nullopt,
             R"pbdoc(
-            .. deprecated::
-               Use :method:`cast` instead.
+            .. deprecated:: 0.1.pre
+               Use :func:`~APyFloat.cast` instead.
             )pbdoc"
 
         )
