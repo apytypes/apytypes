@@ -46,7 +46,7 @@ protected:
         , _shape { shape }
         , _strides { strides_from_shape<T>(shape, itemsize) }
         , _data(itemsize * fold_shape(shape))
-        , _ndim(shape.size())
+        , _ndim { shape.size() }
     {
     }
 
