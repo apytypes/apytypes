@@ -1,4 +1,5 @@
 // Python object access through Pybind
+#include "apybuffer.h"
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -11,13 +12,11 @@ namespace py = pybind11;
 // Standard header includes
 #include <algorithm> // std::copy, std::max, std::transform, etc...
 #include <cstddef>   // std::size_t
-#include <cstdlib>   // std::malloc, std::free
-#include <cstring>   // std::memcpy
-#include <ios>       // std::dec
+#include <ios>       // std::dec, std::hex
 #include <numeric>   // std::accumulate
 #include <optional>  // std::optional
 #include <sstream>   // std::stringstream
-#include <stdexcept> // std::domain_error
+#include <stdexcept> // std::length_error
 #include <string>    // std::string
 #include <vector>    // std::vector, std::swap
 
@@ -54,7 +53,7 @@ APyFixedArray::APyFixedArray(
         auto limb_vec = python_long_to_limb_vec(python_ints[i], _itemsize);
         APyFixed fixed(_bits, _int_bits, limb_vec);
         std::copy_n(
-            fixed.read_data().begin(),    // src
+            fixed._data.begin(),          // src
             _itemsize,                    // limbs to copy
             _data.begin() + i * _itemsize // dst
         );
@@ -419,7 +418,7 @@ std::string APyFixedArray::repr() const
 }
 
 // The shape of the array
-pybind11::tuple APyFixedArray::shape() const
+py::tuple APyFixedArray::shape() const
 {
     py::tuple result(ndim());
     for (std::size_t i = 0; i < ndim(); i++) {
@@ -450,8 +449,7 @@ APyFixedArray APyFixedArray::get_item(std::size_t idx) const
         : std::vector<std::size_t> { 1 };
 
     // Element stride is the new shape folded over multiplication
-    std::size_t element_stride
-        = std::accumulate(new_shape.begin(), new_shape.end(), 1, std::multiplies {});
+    std::size_t element_stride = fold_shape(new_shape);
 
     APyFixedArray result(new_shape, _bits, _int_bits);
     std::copy_n(
@@ -464,29 +462,19 @@ APyFixedArray APyFixedArray::get_item(std::size_t idx) const
 
 py::array_t<double> APyFixedArray::to_numpy() const
 {
-    // Shape of NumPy object is same as `APyFixedArray` object
-    std::vector<py::ssize_t> numpy_shape(_shape.begin(), _shape.end());
-
-    // The strides of the NumPy object
-    std::vector<py::ssize_t> numpy_stride(numpy_shape.size(), 0);
-    for (std::size_t i = 0; i < numpy_shape.size(); i++) {
-        numpy_stride[i] = std::accumulate(
-            _shape.crbegin(), _shape.crbegin() + i, sizeof(double), std::multiplies {}
-        );
-    }
-    std::reverse(numpy_stride.begin(), numpy_stride.end());
+    // The byte-strides of the NumPy object
+    std::vector<std::size_t> numpy_stride = strides_from_shape<double>(_shape);
 
     // Resulting `NumPy` array of float64
-    py::array_t<double, py::array::c_style> result(numpy_shape, numpy_stride);
+    py::array_t<double, py::array::c_style> result(_shape, numpy_stride);
 
     // Type-cast data and store in the NumPy array
     APyFixed imm(bits(), int_bits());
-    double* numpy_data = result.mutable_data();
     for (std::size_t i = 0; i < fold_shape(_shape); i++) {
         std::copy_n(
             std::begin(_data) + i * _itemsize, _itemsize, std::begin(imm._data)
         );
-        numpy_data[i] = double(imm);
+        result.mutable_data()[i] = double(imm);
     }
 
     return result;
@@ -494,10 +482,9 @@ py::array_t<double> APyFixedArray::to_numpy() const
 
 bool APyFixedArray::is_identical(const APyFixedArray& other) const
 {
-    bool same_spec = (_shape == other._shape) && (bits() == other.bits())
-        && (int_bits() == other.int_bits());
-
-    return same_spec && (_data == other._data);
+    bool same_shape = _shape == other._shape;
+    bool same_bit_spec = bits() == other.bits() && int_bits() == other.int_bits();
+    return same_shape && same_bit_spec && (_data == other._data);
 }
 
 /* ********************************************************************************** *
@@ -505,7 +492,7 @@ bool APyFixedArray::is_identical(const APyFixedArray& other) const
  * ********************************************************************************** */
 
 APyFixedArray APyFixedArray::from_double(
-    const pybind11::sequence& python_seq,
+    const py::sequence& python_seq,
     std::optional<int> bits,
     std::optional<int> int_bits,
     std::optional<int> frac_bits
@@ -519,13 +506,14 @@ APyFixedArray APyFixedArray::from_double(
     auto py_obj = python_sequence_walk<py::float_, py::int_>(python_seq);
 
     // Set data from doubles (reuse `APyFixed::from_double` conversion)
+    APyFixed fix(result.bits(), result.int_bits());
     for (std::size_t i = 0; i < result._data.size() / result._itemsize; i++) {
         if (py::isinstance<py::float_>(py_obj[i])) {
             // Python double object
             double d = static_cast<double>(py::cast<py::float_>(py_obj[i]));
-            auto fix = APyFixed::from_double(d, result.bits(), result.int_bits());
+            fix.set_from_double(d);
             std::copy_n(
-                fix.read_data().begin(),                    // src
+                fix._data.begin(),                          // src
                 result._itemsize,                           // limbs to copy
                 result._data.begin() + i * result._itemsize // dst
             );
@@ -537,11 +525,9 @@ APyFixedArray APyFixedArray::from_double(
             auto limb_vec = python_long_to_limb_vec(
                 py::cast<py::int_>(py_obj[i]), bits_to_limbs(max_bits)
             );
-            APyFixed fixed(max_bits, max_bits, limb_vec);
-            double d = double(fixed);
-            auto fix = APyFixed::from_double(d, result.bits(), result.int_bits());
+            fix.set_from_double(double(APyFixed(max_bits, max_bits, limb_vec)));
             std::copy_n(
-                fix.read_data().begin(),                    // src
+                fix._data.begin(),                          // src
                 result._itemsize,                           // limbs to copy
                 result._data.begin() + i * result._itemsize // dst
             );

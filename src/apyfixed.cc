@@ -540,6 +540,7 @@ void APyFixed::set_from_string(const std::string& str, int base)
 
 void APyFixed::set_from_double(double value)
 {
+    std::fill(_data.begin(), _data.end(), 0);
     if constexpr (_LIMB_SIZE_BITS == 64) {
         mp_limb_signed_t exp = exp_of_double(value);
         mp_limb_t man = man_of_double(value);

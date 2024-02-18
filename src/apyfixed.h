@@ -144,9 +144,6 @@ public:
     //! Retrieve the number of elements in the underlying limb data vector
     std::size_t vector_size() const noexcept { return _data.size(); }
 
-    //! Retrieve (read-only) the `_data` field of this `APyFixed`
-    const std::vector<mp_limb_t>& read_data() { return _data; }
-
     //! Unary negation
     APyFixed operator-() const;
 

@@ -10,8 +10,9 @@
 // https://docs.python.org/3/c-api/intro.html#include-files
 #include <Python.h>
 
-#include <numeric> // std::accumulate, std::multiplies
-#include <vector>  // std::vector
+#include <algorithm> // std::reverse
+#include <numeric>   // std::accumulate, std::multiplies
+#include <vector>    // std::vector
 
 //! Fold a shape under multiplication
 static inline std::size_t fold_shape(const std::vector<std::size_t>& shape)
@@ -19,10 +20,10 @@ static inline std::size_t fold_shape(const std::vector<std::size_t>& shape)
     return std::accumulate(shape.cbegin(), shape.cend(), 1, std::multiplies {});
 }
 
-//! Retrieve the strides from a shape
+//! Retrieve the byte-strides from a shape
 template <typename T>
 static inline std::vector<std::size_t>
-strides_from_shape(const std::vector<std::size_t>& shape, std::size_t itemsize)
+strides_from_shape(const std::vector<std::size_t>& shape, std::size_t itemsize = 1)
 {
     std::size_t n_bytes = sizeof(T) * itemsize;
     std::vector<std::size_t> strides(shape.size(), 0);
@@ -31,6 +32,7 @@ strides_from_shape(const std::vector<std::size_t>& shape, std::size_t itemsize)
             shape.crbegin(), shape.crbegin() + i, n_bytes, std::multiplies {}
         );
     }
+    std::reverse(strides.begin(), strides.end());
     return strides;
 }
 

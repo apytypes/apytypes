@@ -7,7 +7,7 @@
 
 #include <pybind11/numpy.h>    // pybind11::array_t
 #include <pybind11/pybind11.h> // pybind11::object
-#include <pybind11/pytypes.h>  // pybind11::sequence
+#include <pybind11/pytypes.h>  // pybind11::sequence, pybind11::tuple
 
 #include "apybuffer.h"
 #include "apyfixed.h"
@@ -17,7 +17,6 @@
 #include <cstddef>  // std::size_t
 #include <limits>   // std::numeric_limits<>::is_iec559
 #include <optional> // std::optional, std::nullopt
-#include <ostream>  // std::ostream
 #include <string>   // std::string
 #include <vector>   // std::vector
 
