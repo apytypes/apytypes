@@ -197,6 +197,8 @@ private:
     {
         return (static_cast<man_t>(is_normal()) << man_bits);
     }
+
+    APyFloat normalized() const;
 };
 
 #endif // _APYFLOAT_H

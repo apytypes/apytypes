@@ -137,7 +137,7 @@ APyFloat APyFloat::cast(
     }
 
     // Initial value for exponent
-    std::int64_t new_exp = (std::int64_t)exp - (std::int64_t)bias + 1 - is_normal()
+    std::int64_t new_exp = (std::int64_t)exp - (std::int64_t)bias + is_subnormal()
         + (std::int64_t)res.bias;
 
     const auto man_bits_delta = res.man_bits - man_bits;
@@ -523,54 +523,61 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         return res.construct_inf();
     }
 
-    if ((is_subnormal() && !is_zero()) || (y.is_subnormal() && !y.is_zero())) {
-        print_warning("multiplication with subnormals is not sure to work yet.");
-    }
-
     if (is_zero() || y.is_zero()) {
         return res.construct_zero();
     }
 
-    // Conditionally add leading one's
-    man_t mx = (is_normal() << man_bits) | man;
-    man_t my = (y.is_normal() << y.man_bits) | y.man;
+    // Normalize both inputs
+    APyFloat norm_x = is_subnormal() ? normalized() : *this;
+    APyFloat norm_y = y.is_subnormal() ? y.normalized() : y;
+
+    // Add leading one's
+    man_t mx = norm_x.leading_bit() | norm_x.man;
+    man_t my = norm_y.leading_bit() | norm_y.man;
+
+    // Two integer bits, sign bit and leading one
+    APyFixed apy_mx(2 + norm_x.man_bits, 2, std::vector<mp_limb_t>({ mx }));
+    APyFixed apy_my(2 + norm_y.man_bits, 2, std::vector<mp_limb_t>({ my }));
 
     // One of the operands should be scaled but since (a*scale)*b == (a*b)*scale
     // we can just scale the result.
-    const exp_t man_bits_delta = std::abs(man_bits - y.man_bits);
-    man_t highR = mx * my;
-    highR <<= man_bits_delta;
+    const exp_t man_bits_delta = std::abs(norm_x.man_bits - norm_y.man_bits);
+    auto apy_res = (apy_mx * apy_my);
 
-    // An intermediate, larger, format is used to handle under/overflow
-    const exp_t extended_bias = (res.ieee_bias() << 1) | 1;
-    std::int64_t new_exp = (exp - bias) + (y.exp - y.bias) + extended_bias;
+    std::int64_t new_exp = ((std::int64_t)norm_x.exp - (std::int64_t)norm_x.bias)
+        + ((std::int64_t)norm_y.exp - (std::int64_t)norm_y.bias) + res.bias;
+
+    // Normalize result if needed
+    if (new_exp < 0) {
+        while (apy_res.to_double() < 1.0) {
+            apy_res = apy_res << 1;
+            new_exp++;
+        }
+    }
 
     // Perform quantization
+    const double apy_res_d = apy_res.to_double();
 
-    if (highR & static_cast<man_t>((1ULL << (2 * res.man_bits + 1)))) { // Carry
-        ++new_exp;
-        highR &= (1ULL << (2 * res.man_bits + 1)) - 1;
-        return APyFloat(
-                   res.sign,
-                   new_exp,
-                   highR,
-                   res.exp_bits + 1,
-                   (2 * res.man_bits + 1),
-                   extended_bias
-        )
-            .cast(res.exp_bits, res.man_bits, res.bias);
-    } else {
-        highR &= (1ULL << (2 * res.man_bits)) - 1;
-        return APyFloat(
-                   res.sign,
-                   new_exp,
-                   highR,
-                   res.exp_bits + 1,
-                   (2 * res.man_bits),
-                   extended_bias
-        )
-            .cast(res.exp_bits, res.man_bits, res.bias);
+    int c = 0;
+    if (apy_res_d >= 2.0) { // Carry
+        new_exp++;
+        c = 1;
     }
+
+    int tmp_man_bits = 2 * (res.man_bits) + c;
+
+    apy_res = apy_res << (tmp_man_bits - c);
+    man_t new_man = static_cast<man_t>(apy_res.to_double());
+    new_man &= (1ULL << (tmp_man_bits)) - 1;
+
+    int tmp_exp_bits = std::max(norm_x.exp_bits, norm_y.exp_bits) + 1;
+    exp_t extended_bias = APyFloat::ieee_bias(tmp_exp_bits);
+    new_exp = new_exp - res.bias + extended_bias;
+
+    return APyFloat(
+               res.sign, new_exp, new_man, tmp_exp_bits, tmp_man_bits, extended_bias
+    )
+        .cast(res.exp_bits, res.man_bits, res.bias);
 }
 
 APyFloat APyFloat::operator/(const APyFloat& y) const
@@ -628,7 +635,7 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     auto apy_man_res = apy_mx / apy_my;
 
     apy_man_res = apy_man_res << int(res.man_bits + guard_bits + dec_exp);
-    man_t new_man = apy_man_res.to_double();
+    man_t new_man = static_cast<man_t>(apy_man_res.to_double());
 
     constexpr auto lower_man_mask = (1 << guard_bits) - 1;
     new_man &= (res.man_mask() << guard_bits) | lower_man_mask;
@@ -911,4 +918,29 @@ APyFloat::construct_nan(std::optional<bool> new_sign, man_t payload /*= 1*/) con
     return APyFloat(
         new_sign.value_or(sign), max_exponent(), payload, exp_bits, man_bits
     );
+}
+
+APyFloat APyFloat::normalized() const
+{
+    if (!is_subnormal() || is_zero()) {
+        return *this;
+    }
+
+    man_t new_man = man;
+    std::int64_t true_exp = exp - bias;
+
+    while (!(new_man & leading_one())) {
+        new_man <<= 1;
+        true_exp--;
+    }
+
+    APyFloat res;
+    res.man_bits = man_bits;
+    res.exp_bits = exp_bits + 1;
+    res.sign = sign;
+    res.bias = res.ieee_bias();
+    res.exp = true_exp + res.bias + 1;
+    res.man = new_man;
+
+    return res;
 }
