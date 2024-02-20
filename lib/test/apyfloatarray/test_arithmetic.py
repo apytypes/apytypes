@@ -22,7 +22,7 @@ def test_array_add():
     b = APyFloatArray.from_float([3, -0.75, -5, 8], 6, 5)
     ans = APyFloatArray.from_float([3, -0.625, -2.5, 20], 6, 7)
     assert (a + b).is_identical(ans)
-    assert (a + b).is_identical(ans)
+    assert (b + a).is_identical(ans)
 
     a = APyFloatArray.from_float(
         [
