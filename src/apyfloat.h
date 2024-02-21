@@ -5,6 +5,7 @@
 #include <optional>
 #include <string>
 
+#include "apyfixed.h"
 #include "apytypes_common.h"
 
 /*
@@ -199,6 +200,8 @@ private:
     }
 
     APyFloat normalized() const;
+
+    int leading_zeros_apyfixed(APyFixed fx) const;
 };
 
 #endif // _APYFLOAT_H

@@ -160,11 +160,17 @@ APyFloat APyFloat::cast(
                                          : (prev_man >> -man_bits_delta);
 
     if (new_exp <= 0) { // The number will be converted to a subnormal in the new format
-        new_man |= res.leading_one();             // Add leading one
+        // //std::cout << "\nsubnormal cast\n";
+        // //std::cout << "new_man: " << new_man << std::endl;
+        new_man |= res.leading_one(); // Add leading one
+        // //std::cout << "new_man: " << new_man << std::endl;
         new_man <<= (res.man_bits + new_exp - 1); // Shift the difference between E_min
                                                   // and exp
+        // //std::cout << "new_man: " << new_man << std::endl;
         new_man /= 1ULL << res.man_bits; // Divide by the minimum subnorm (i.e. E_min)
-        new_man &= res.man_mask();       // Mask away the leading ones
+        // //std::cout << "new_man: " << new_man << std::endl;
+        new_man &= res.man_mask(); // Mask away the leading ones
+        // //std::cout << "new_man: " << new_man << std::endl;
         new_exp = 0;
     } else if (man_bits_delta < 0) { // Normal case, exponent is positive
         // Calculate quantization bit
@@ -360,10 +366,6 @@ APyFloat APyFloat::operator+(APyFloat y) const
         return res.construct_nan();
     }
 
-    if ((is_subnormal() && !is_zero()) || (y.is_subnormal() && !y.is_zero())) {
-        print_warning("multiplication with subnormals is not sure to work yet.");
-    }
-
     if ((res.man_bits + 5UL)
         > (sizeof(man_t) * CHAR_BIT
         )) { // +1 (leading one) +3 (guard bits) +1 (addition)
@@ -389,6 +391,8 @@ APyFloat APyFloat::operator+(APyFloat y) const
         res.sign = x.sign | y.sign;
     }
 
+    // std::cout << "x repr " << xabs.repr() << " y repr " << yabs.repr() << std::endl;
+
     // Handle other special cases
     if ((x.is_inf() || y.is_inf())) {
         return res.construct_inf();
@@ -402,92 +406,78 @@ APyFloat APyFloat::operator+(APyFloat y) const
         return x.cast(res.exp_bits, res.man_bits, res.bias);
     }
 
-    std::int64_t new_exp = x.exp - x.bias + res.bias;
+    std::int64_t new_exp = x.exp - x.bias + res.bias; // std::cout
 
     // Conditionally add leading one's
-    const man_t nx = x.is_normal();
-    const man_t ny = y.is_normal();
-    man_t mx = (nx << x.man_bits) | x.man;
-    man_t my = (ny << y.man_bits) | y.man;
-
-    // Add room for guard bits
-    mx <<= 3;
-    my <<= 3;
+    man_t mx = x.leading_bit() | x.man;
+    man_t my = y.leading_bit() | y.man;
 
     // Align mantissas based on mixed formats
     const auto man_bits_delta = x.man_bits - y.man_bits;
-
     if (man_bits_delta < 0) {
         mx <<= -man_bits_delta;
     } else {
         my <<= man_bits_delta;
     }
 
+    // Two integer bits, sign bit and leading one
+    APyFixed apy_mx(2 + res.man_bits, 2, std::vector<mp_limb_t>({ mx }));
+    APyFixed apy_my(2 + res.man_bits, 2, std::vector<mp_limb_t>({ my }));
+
     // Align mantissas based on exponent difference
-    const std::int64_t delta = (x.exp - x.bias - nx) - (y.exp - y.bias - ny);
+    const std::int64_t delta
+        = (x.exp - x.bias - x.is_normal()) - (y.exp - y.bias - y.is_normal());
 
-    const std::int64_t max_shift
-        = res.man_bits + 4UL; // +4 to account for leading one and 3 guard bits
-    man_t highY = my >> std::min(max_shift, delta);
-
-    man_t lowY; // Used to update the sticky bit position T
-    if (delta <= 3) {
-        lowY = 0;
-    } else if (delta >= max_shift) {
-        lowY = 1;
-    } else {
-        lowY = (my & ((1 << (max_shift - delta)) - 1)) != 0;
-    }
+    apy_my = apy_my >> delta;
 
     // Perform addition/subtraction
-    man_t highR;
-    if (x.sign != y.sign) {
-        highR = mx - (highY | lowY);
-    } else {
-        highR = mx + (highY | lowY);
+    auto apy_res = (x.sign == y.sign) ? apy_mx + apy_my : apy_mx - apy_my;
+    std::cout << "apy_mx: " << apy_mx << " apy_my: " << apy_my
+              << " apy_res: " << apy_res << std::endl;
+
+    int c = 0;
+    if (apy_res.to_double() >= 2.0) {
+        new_exp++;
+        c = 1;
+    } else if (apy_res.to_double() >= 1.0 && new_exp == 0) {
+        new_exp++;
     }
 
-    // Perform quantization
-
-    if (highR & (1ULL << (res.man_bits + 4))) { // Carry
-        ++new_exp;
-        highR &= (1ULL << (res.man_bits + 4)) - 1;
-        return APyFloat(
-                   res.sign,
-                   new_exp,
-                   highR,
-                   res.exp_bits + 1,
-                   (res.man_bits + 4),
-                   res.bias
-        )
-            .cast(res.exp_bits, res.man_bits, res.bias);
-
-    } else if (highR & (1ULL << (res.man_bits + 3))) { // No carry
-        highR &= (1ULL << (res.man_bits + 3)) - 1;
-        return APyFloat(
-                   res.sign,
-                   new_exp,
-                   highR,
-                   res.exp_bits + 1,
-                   (res.man_bits + 3),
-                   res.bias
-        )
-            .cast(res.exp_bits, res.man_bits, res.bias);
+    if (new_exp >= res.max_exponent()) {
+        return res.construct_inf();
     }
 
-    // Cancellation occured
-    while (!(highR & (1ULL << (res.man_bits + 3UL)))) {
-        highR <<= 1;
-        --new_exp;
+    int leading_zeros = leading_zeros_apyfixed(apy_res);
+    if (leading_zeros) {
+        if ((new_exp - leading_zeros) > 0) {
+            new_exp -= leading_zeros;
+            apy_res = apy_res << leading_zeros;
+        } else {
+            std::cout << apy_res << " << " << (new_exp - 1) << std::endl;
+            apy_res = (new_exp > 0) ? apy_res << (new_exp - 1) : apy_res;
+            new_exp = 0;
+        }
+    }
+    /*while (apy_res.to_double() < 1.0) {
         if (new_exp == 0) {
             break;
         }
-    }
+        new_exp--;
+        apy_res = apy_res << 1;
+        std::cout << "apy_res: " << apy_res << " new_exp: " << (new_exp+1) << " -> " <<
+    new_exp << std::endl;
+    }*/
+    std::cout << "apy_res: " << apy_res << " leading_zeros: " << leading_zeros
+              << " new_exp: " << new_exp << std::endl;
 
-    res.man = (highR >> 3) & res.man_mask();
-    res.exp = static_cast<exp_t>(new_exp);
+    int tmp_man_bits = res.man_bits + 1 + delta + c;
+    apy_res = apy_res << (tmp_man_bits - c);
+    man_t new_man = static_cast<man_t>(apy_res.to_double());
+    new_man &= (1ULL << (tmp_man_bits)) - 1;
+    std::cout << "new_man: " << new_man << " apy_res: " << apy_res << std::endl;
 
-    return res;
+    return APyFloat(res.sign, new_exp, new_man, res.exp_bits, tmp_man_bits)
+        .cast(res.exp_bits, res.man_bits, res.bias);
 }
 
 APyFloat APyFloat::operator-(const APyFloat& y) const { return *this + (-y); }
@@ -943,4 +933,14 @@ APyFloat APyFloat::normalized() const
     res.man = new_man;
 
     return res;
+}
+
+int APyFloat::leading_zeros_apyfixed(APyFixed fx) const
+{
+    int zeros = 0;
+    while (fx.to_double() < 1.0) {
+        fx = fx << 1;
+        zeros++;
+    }
+    return zeros;
 }
