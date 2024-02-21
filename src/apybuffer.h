@@ -10,9 +10,10 @@
 // https://docs.python.org/3/c-api/intro.html#include-files
 #include <Python.h>
 
-#include <algorithm> // std::reverse
-#include <numeric>   // std::accumulate, std::multiplies
-#include <vector>    // std::vector
+#include <algorithm>  // std::reverse
+#include <functional> // std::multiplies
+#include <numeric>    // std::accumulate
+#include <vector>     // std::vector
 
 //! Fold a shape under multiplication
 static inline std::size_t fold_shape(const std::vector<std::size_t>& shape)
