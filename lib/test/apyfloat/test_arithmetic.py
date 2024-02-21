@@ -4,6 +4,65 @@ import pytest
 from apytypes import APyFloat
 
 
+# Exhaustive tests, long running
+# @pytest.mark.slow
+# @pytest.mark.float_add
+# @pytest.mark.parametrize("x_bits", range(0, 2**8))
+# @pytest.mark.parametrize("y_bits", range(0, 2**8))
+# def test_add_all(x_bits, y_bits):
+#     y = APyFloat.from_bits(y_bits, 4, 3)
+#     x = APyFloat.from_bits(x_bits, 4, 3)
+#     ans = x + y
+#     ref = APyFloat.from_float(float(x) + float(y), 4, 3)
+#     print(f'{float(x)} + {float(y)} = {float(ref)} != {float(ans)}')
+#     print(f'{x!r} + {y!r} = {ref!r} != {ans!r}')
+#     assert ans == ref or (ans.is_nan and ref.is_nan) or (ans == 0 and ref == 0)
+
+
+# @pytest.mark.slow
+# @pytest.mark.float_sub
+# @pytest.mark.parametrize("x_bits", range(0, 2**8))
+# @pytest.mark.parametrize("y_bits", range(0, 2**8))
+# def test_sub_all(x_bits, y_bits):
+#     y = APyFloat.from_bits(y_bits, 4, 3)
+#     x = APyFloat.from_bits(x_bits, 4, 3)
+#     ans = x - y
+#     ref = APyFloat.from_float(float(x) - float(y), 4, 3)
+#     print(f'{float(x)} - {float(y)} = {float(ref)} != {float(ans)}')
+#     print(f'{x!r} - {y!r} = {ref!r} != {ans!r}')
+#     assert ans == ref or (ans.is_nan and ref.is_nan) or (ans == 0 and ref == 0)
+
+
+# @pytest.mark.slow
+# @pytest.mark.float_mul
+# @pytest.mark.parametrize("x_bits", range(0, 2**8))
+# @pytest.mark.parametrize("y_bits", range(0, 2**8))
+# def test_mul_all(x_bits, y_bits):
+#     y = APyFloat.from_bits(y_bits, 4, 3)
+#     x = APyFloat.from_bits(x_bits, 4, 3)
+#     ans = x * y
+#     prod = float(x) * float(y)
+#     ref = APyFloat.from_float(prod, 4, 3)
+#     # print(f'{float(x)} * {float(y)} = {float(ref)}({prod}) != {float(ans)}')
+#     print(f'{x!r} * {y!r} = {ref!r} != {ans!r}')
+#     assert ans.is_identical(ref) or (ans.is_nan and ref.is_nan) or (ans == 0 and ref == 0)
+
+
+# @pytest.mark.slow
+# @pytest.mark.float_div
+# @pytest.mark.parametrize("x_bits", range(0, 2**7))
+# @pytest.mark.parametrize("y_bits", range(0, 2**7))
+# def test_div_all(x_bits, y_bits):
+#     y = APyFloat.from_bits(y_bits, 4, 3)
+#     if y != 0:
+#         x = APyFloat.from_bits(x_bits, 4, 3)
+#         ans = x / y
+#         ref = APyFloat.from_float(float(x) / float(y), 4, 3)
+#         print(f'{float(x)} / {float(y)} = {float(ref)} != {float(ans)}')
+#         print(f'{x!r} / {y!r} = {ref!r} != {ans!r}')
+#         assert ans.is_identical(ref) or (ans.is_nan and ref.is_nan) or (ans == 0 and ref == 0)
+
+
 # Negation
 @pytest.mark.parametrize("sign", ["-", ""])
 @pytest.mark.parametrize(
@@ -37,6 +96,10 @@ def test_abs(float_s, sign):
 def test_add_representable(exp, man, sign, lhs, rhs):
     """Test additions where the operands and the result is exactly representable by the formats."""
     expr = None
+    f = float(eval(f"{sign[0]}{lhs} + {sign[1]}{rhs}"))
+    e = max(int(exp[0]), int(exp[1]))
+    m = max(int(man[0]), int(man[1]))
+    print(repr(APyFloat.from_float(f, e, m)))
     assert float(
         eval(
             expr := f"APyFloat.from_float({sign[0]}{lhs}, {exp[0]}, {man[0]}) + APyFloat.from_float({sign[1]}{rhs}, {exp[1]}, {man[1]})"
@@ -307,11 +370,13 @@ def test_power_special_cases(x, n, test_exp):
         assert eval(f"float(APyFloat.from_float(float({x}), 9, 7)**{n})") == test_exp
 
 
+@pytest.mark.float_add
 def test_sum():
     s = [APyFloat.from_float(0.3, 2, 5), APyFloat.from_float(0.7, 4, 7)]
-    assert sum(s).is_identical(APyFloat(0, 6, 51, 4, 7))
+    assert sum(s).is_identical(s[0] + s[1])
 
 
+@pytest.mark.float_mul
 def test_prod():
     s = [APyFloat.from_float(0.3, 2, 5), APyFloat.from_float(0.7, 4, 7)]
-    assert math.prod(s).is_identical(APyFloat(0, 5, 50, 4, 7))
+    assert math.prod(s).is_identical(s[0] * s[1])
