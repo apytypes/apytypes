@@ -458,15 +458,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
             new_exp = 0;
         }
     }
-    /*while (apy_res.to_double() < 1.0) {
-        if (new_exp == 0) {
-            break;
-        }
-        new_exp--;
-        apy_res = apy_res << 1;
-        std::cout << "apy_res: " << apy_res << " new_exp: " << (new_exp+1) << " -> " <<
-    new_exp << std::endl;
-    }*/
+
     std::cout << "apy_res: " << apy_res << " leading_zeros: " << leading_zeros
               << " new_exp: " << new_exp << std::endl;
 
@@ -595,12 +587,16 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
         print_warning("division with subnormals is not sure to work yet.");
     }
 
-    const exp_t extended_bias = (res.ieee_bias() << 1) | 1;
-    std::int64_t new_exp = (exp - bias) - (y.exp - y.bias) + extended_bias;
+    // Normalize both inputs
+    APyFloat norm_x = is_subnormal() ? normalized() : *this;
+    APyFloat norm_y = y.is_subnormal() ? y.normalized() : y;
 
-    // Conditionally add leading one's
-    man_t mx = (is_normal() << man_bits) | man;
-    man_t my = (y.is_normal() << y.man_bits) | y.man;
+    std::int64_t new_exp
+        = (norm_x.exp - norm_x.bias) - (norm_y.exp - norm_y.bias) + res.bias;
+
+    // Add leading one's
+    man_t mx = norm_x.leading_bit() | norm_x.man;
+    man_t my = norm_y.leading_bit() | norm_y.man;
 
     // Align mantissas based on mixed formats
     const auto man_bits_delta = man_bits - y.man_bits;
@@ -611,31 +607,52 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     }
 
     // Two integer bits, sign bit and leading one, and two extra guard bits
-    constexpr auto guard_bits = 2;
+    const auto guard_bits = res.man_bits * 2;
+
+    // Two integer bits, sign bit and leading one
     APyFixed apy_mx(
-        2 + guard_bits + res.man_bits, 2, std::vector<mp_limb_t>({ mx << guard_bits })
+        2 + guard_bits + norm_x.man_bits,
+        2,
+        std::vector<mp_limb_t>({ mx << guard_bits })
     );
     APyFixed apy_my(
-        2 + guard_bits + res.man_bits, 2, std::vector<mp_limb_t>({ my << guard_bits })
+        2 + guard_bits + norm_y.man_bits,
+        2,
+        std::vector<mp_limb_t>({ my << guard_bits })
     );
 
     // Determines if the exponent needs to be decremented
-    man_t dec_exp = (mx < my) ? 1 : 0;
+    int dec_exp = (apy_mx < apy_my) ? 1 : 0;
 
     auto apy_man_res = apy_mx / apy_my;
 
-    apy_man_res = apy_man_res << int(res.man_bits + guard_bits + dec_exp);
+    // The result from the division will be in [1/2, 2) so normalization may be required
+    if (apy_man_res.to_double() < 1.0) {
+        apy_man_res = apy_man_res << 1;
+    }
+
+    std::cout << "apy_mx: " << apy_mx << " apy_my: " << apy_my
+              << " apy_man_res: " << apy_man_res << std::endl;
+
+    int tmp_man_bits = res.man_bits + guard_bits;
+    apy_man_res = apy_man_res << int(tmp_man_bits);
+    std::cout << "apy_man_res: " << apy_man_res << " dec_exp: " << dec_exp << std::endl;
     man_t new_man = static_cast<man_t>(apy_man_res.to_double());
 
-    constexpr auto lower_man_mask = (1 << guard_bits) - 1;
+    const auto lower_man_mask = (1 << guard_bits) - 1;
     new_man &= (res.man_mask() << guard_bits) | lower_man_mask;
+    std::cout << "new_man: " << new_man << std::endl;
+
+    int tmp_exp_bits = std::max(norm_x.exp_bits, norm_y.exp_bits) + 1;
+    exp_t extended_bias = APyFloat::ieee_bias(tmp_exp_bits);
+    new_exp = new_exp - res.bias + extended_bias;
 
     return APyFloat(
                res.sign,
                new_exp - dec_exp,
                new_man,
-               res.exp_bits + 1,
-               res.man_bits + guard_bits,
+               tmp_exp_bits,
+               tmp_man_bits,
                extended_bias
     )
         .cast(res.exp_bits, res.man_bits, res.bias);

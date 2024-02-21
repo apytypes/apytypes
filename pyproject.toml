@@ -52,5 +52,6 @@ markers = [
     "float_pow : custom marker for grouping tests for floating-point power function",
     "float_comp : custom marker for grouping tests for floating-point comparisons",
     "float_special : custom marker for grouping tests for floating-point special values",
-    "float_array : custom marker for grouping tests for floating-point arrays"
+    "float_array : custom marker for grouping tests for floating-point arrays",
+    "slow : custom marker for grouping long running tests"
 ]
