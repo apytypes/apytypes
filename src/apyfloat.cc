@@ -417,7 +417,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
     APyFixed apy_my(2 + res.man_bits, 2, std::vector<mp_limb_t>({ my }));
 
     // Align mantissas based on exponent difference
-    const std::int64_t delta
+    const int delta
         = (x.exp - x.bias - x.is_normal()) - (y.exp - y.bias - y.is_normal());
 
     apy_my = apy_my >> delta;
@@ -443,7 +443,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
             new_exp -= leading_zeros;
             apy_res = apy_res << leading_zeros;
         } else {
-            apy_res = (new_exp > 0) ? apy_res << (new_exp - 1) : apy_res;
+            apy_res = (new_exp > 0) ? apy_res << int(new_exp - 1) : apy_res;
             new_exp = 0;
         }
     }
