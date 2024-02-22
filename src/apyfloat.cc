@@ -160,11 +160,11 @@ APyFloat APyFloat::cast(
                                          : (prev_man >> -man_bits_delta);
 
     if (new_exp <= 0) { // The number will be converted to a subnormal in the new format
-        new_man |= res.leading_one(); // Add leading one
+        new_man |= res.leading_one();             // Add leading one
         new_man <<= (res.man_bits + new_exp - 1); // Shift the difference between E_min
                                                   // and exp
         new_man /= 1ULL << res.man_bits; // Divide by the minimum subnorm (i.e. E_min)
-        new_man &= res.man_mask(); // Mask away the leading ones
+        new_man &= res.man_mask();       // Mask away the leading ones
         new_exp = 0;
     } else if (man_bits_delta < 0) { // Normal case, exponent is positive
         // Calculate quantization bit
