@@ -160,17 +160,11 @@ APyFloat APyFloat::cast(
                                          : (prev_man >> -man_bits_delta);
 
     if (new_exp <= 0) { // The number will be converted to a subnormal in the new format
-        // //std::cout << "\nsubnormal cast\n";
-        // //std::cout << "new_man: " << new_man << std::endl;
         new_man |= res.leading_one(); // Add leading one
-        // //std::cout << "new_man: " << new_man << std::endl;
         new_man <<= (res.man_bits + new_exp - 1); // Shift the difference between E_min
                                                   // and exp
-        // //std::cout << "new_man: " << new_man << std::endl;
         new_man /= 1ULL << res.man_bits; // Divide by the minimum subnorm (i.e. E_min)
-        // //std::cout << "new_man: " << new_man << std::endl;
         new_man &= res.man_mask(); // Mask away the leading ones
-        // //std::cout << "new_man: " << new_man << std::endl;
         new_exp = 0;
     } else if (man_bits_delta < 0) { // Normal case, exponent is positive
         // Calculate quantization bit
@@ -391,8 +385,6 @@ APyFloat APyFloat::operator+(APyFloat y) const
         res.sign = x.sign | y.sign;
     }
 
-    // std::cout << "x repr " << xabs.repr() << " y repr " << yabs.repr() << std::endl;
-
     // Handle other special cases
     if ((x.is_inf() || y.is_inf())) {
         return res.construct_inf();
@@ -406,7 +398,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
         return x.cast(res.exp_bits, res.man_bits, res.bias);
     }
 
-    std::int64_t new_exp = x.exp - x.bias + res.bias; // std::cout
+    std::int64_t new_exp = x.exp - x.bias + res.bias;
 
     // Conditionally add leading one's
     man_t mx = x.leading_bit() | x.man;
@@ -432,8 +424,6 @@ APyFloat APyFloat::operator+(APyFloat y) const
 
     // Perform addition/subtraction
     auto apy_res = (x.sign == y.sign) ? apy_mx + apy_my : apy_mx - apy_my;
-    std::cout << "apy_mx: " << apy_mx << " apy_my: " << apy_my
-              << " apy_res: " << apy_res << std::endl;
 
     int c = 0;
     if (apy_res.to_double() >= 2.0) {
@@ -453,20 +443,15 @@ APyFloat APyFloat::operator+(APyFloat y) const
             new_exp -= leading_zeros;
             apy_res = apy_res << leading_zeros;
         } else {
-            std::cout << apy_res << " << " << (new_exp - 1) << std::endl;
             apy_res = (new_exp > 0) ? apy_res << (new_exp - 1) : apy_res;
             new_exp = 0;
         }
     }
 
-    std::cout << "apy_res: " << apy_res << " leading_zeros: " << leading_zeros
-              << " new_exp: " << new_exp << std::endl;
-
     int tmp_man_bits = res.man_bits + 1 + delta + c;
     apy_res = apy_res << (tmp_man_bits - c);
     man_t new_man = static_cast<man_t>(apy_res.to_double());
     new_man &= (1ULL << (tmp_man_bits)) - 1;
-    std::cout << "new_man: " << new_man << " apy_res: " << apy_res << std::endl;
 
     return APyFloat(res.sign, new_exp, new_man, res.exp_bits, tmp_man_bits)
         .cast(res.exp_bits, res.man_bits, res.bias);
@@ -583,10 +568,6 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
         return res.construct_inf();
     }
 
-    if ((is_subnormal() && !is_zero()) || (y.is_subnormal() && !y.is_zero())) {
-        print_warning("division with subnormals is not sure to work yet.");
-    }
-
     // Normalize both inputs
     APyFloat norm_x = is_subnormal() ? normalized() : *this;
     APyFloat norm_y = y.is_subnormal() ? y.normalized() : y;
@@ -599,12 +580,12 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     man_t my = norm_y.leading_bit() | norm_y.man;
 
     // Align mantissas based on mixed formats
-    const auto man_bits_delta = man_bits - y.man_bits;
+    /*const auto man_bits_delta = man_bits - y.man_bits;
     if (man_bits_delta < 0) {
         mx <<= -man_bits_delta;
     } else {
         my <<= man_bits_delta;
-    }
+    }*/
 
     // Two integer bits, sign bit and leading one, and two extra guard bits
     const auto guard_bits = res.man_bits * 2;
@@ -631,19 +612,22 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
         apy_man_res = apy_man_res << 1;
     }
 
-    std::cout << "apy_mx: " << apy_mx << " apy_my: " << apy_my
-              << " apy_man_res: " << apy_man_res << std::endl;
-
     int tmp_man_bits = res.man_bits + guard_bits;
-    apy_man_res = apy_man_res << int(tmp_man_bits);
-    std::cout << "apy_man_res: " << apy_man_res << " dec_exp: " << dec_exp << std::endl;
+    apy_man_res = apy_man_res << tmp_man_bits;
     man_t new_man = static_cast<man_t>(apy_man_res.to_double());
 
     const auto lower_man_mask = (1 << guard_bits) - 1;
     new_man &= (res.man_mask() << guard_bits) | lower_man_mask;
-    std::cout << "new_man: " << new_man << std::endl;
 
     int tmp_exp_bits = std::max(norm_x.exp_bits, norm_y.exp_bits) + 1;
+
+    if (tmp_man_bits > (sizeof(man_t) * CHAR_BIT)) {
+        throw std::domain_error(
+            "The intermediate mantissa can potentially exceed "
+            "its underlaying data type."
+        );
+    }
+
     exp_t extended_bias = APyFloat::ieee_bias(tmp_exp_bits);
     new_exp = new_exp - res.bias + extended_bias;
 

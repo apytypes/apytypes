@@ -5,62 +5,62 @@ from apytypes import APyFloat
 
 
 # Exhaustive tests, long running
-# @pytest.mark.slow
-# @pytest.mark.float_add
-# @pytest.mark.parametrize("x_bits", range(0, 2**8))
-# @pytest.mark.parametrize("y_bits", range(0, 2**8))
-# def test_add_all(x_bits, y_bits):
-#     y = APyFloat.from_bits(y_bits, 4, 3)
-#     x = APyFloat.from_bits(x_bits, 4, 3)
-#     ans = x + y
-#     ref = APyFloat.from_float(float(x) + float(y), 4, 3)
-#     print(f'{float(x)} + {float(y)} = {float(ref)} != {float(ans)}')
-#     print(f'{x!r} + {y!r} = {ref!r} != {ans!r}')
-#     assert ans == ref or (ans.is_nan and ref.is_nan) or (ans == 0 and ref == 0)
+#@pytest.mark.slow
+#@pytest.mark.float_add
+#@pytest.mark.parametrize("x_bits", range(0, 2**8))
+#@pytest.mark.parametrize("y_bits", range(0, 2**8))
+#def test_add_all(x_bits, y_bits):
+#    y = APyFloat.from_bits(y_bits, 4, 3)
+#    x = APyFloat.from_bits(x_bits, 4, 3)
+#    ans = x + y
+#    ref = APyFloat.from_float(float(x) + float(y), 4, 3)
+#    print(f'{float(x)} + {float(y)} = {float(ref)} != {float(ans)}')
+#    print(f'{x!r} + {y!r} = {ref!r} != {ans!r}')
+#    assert ans == ref or (ans.is_nan and ref.is_nan) or (ans == 0 and ref == 0)
 
 
-# @pytest.mark.slow
-# @pytest.mark.float_sub
-# @pytest.mark.parametrize("x_bits", range(0, 2**8))
-# @pytest.mark.parametrize("y_bits", range(0, 2**8))
-# def test_sub_all(x_bits, y_bits):
-#     y = APyFloat.from_bits(y_bits, 4, 3)
-#     x = APyFloat.from_bits(x_bits, 4, 3)
-#     ans = x - y
-#     ref = APyFloat.from_float(float(x) - float(y), 4, 3)
-#     print(f'{float(x)} - {float(y)} = {float(ref)} != {float(ans)}')
-#     print(f'{x!r} - {y!r} = {ref!r} != {ans!r}')
-#     assert ans == ref or (ans.is_nan and ref.is_nan) or (ans == 0 and ref == 0)
+#@pytest.mark.slow
+#@pytest.mark.float_sub
+#@pytest.mark.parametrize("x_bits", range(0, 2**8))
+#@pytest.mark.parametrize("y_bits", range(0, 2**8))
+#def test_sub_all(x_bits, y_bits):
+#    y = APyFloat.from_bits(y_bits, 4, 3)
+#    x = APyFloat.from_bits(x_bits, 4, 3)
+#    ans = x - y
+#    ref = APyFloat.from_float(float(x) - float(y), 4, 3)
+#    print(f'{float(x)} - {float(y)} = {float(ref)} != {float(ans)}')
+#    print(f'{x!r} - {y!r} = {ref!r} != {ans!r}')
+#    assert ans == ref or (ans.is_nan and ref.is_nan) or (ans == 0 and ref == 0)
 
 
-# @pytest.mark.slow
-# @pytest.mark.float_mul
-# @pytest.mark.parametrize("x_bits", range(0, 2**8))
-# @pytest.mark.parametrize("y_bits", range(0, 2**8))
-# def test_mul_all(x_bits, y_bits):
-#     y = APyFloat.from_bits(y_bits, 4, 3)
-#     x = APyFloat.from_bits(x_bits, 4, 3)
-#     ans = x * y
-#     prod = float(x) * float(y)
-#     ref = APyFloat.from_float(prod, 4, 3)
-#     # print(f'{float(x)} * {float(y)} = {float(ref)}({prod}) != {float(ans)}')
-#     print(f'{x!r} * {y!r} = {ref!r} != {ans!r}')
-#     assert ans.is_identical(ref) or (ans.is_nan and ref.is_nan) or (ans == 0 and ref == 0)
+#@pytest.mark.slow
+#@pytest.mark.float_mul
+#@pytest.mark.parametrize("x_bits", range(0, 2**8))
+#@pytest.mark.parametrize("y_bits", range(0, 2**8))
+#def test_mul_all(x_bits, y_bits):
+#    y = APyFloat.from_bits(y_bits, 4, 3)
+#    x = APyFloat.from_bits(x_bits, 4, 3)
+#    ans = x * y
+#    prod = float(x) * float(y)
+#    ref = APyFloat.from_float(prod, 4, 3)
+#    print(f'{float(x)} * {float(y)} = {float(ref)}({prod}) != {float(ans)}')
+#    print(f'{x!r} * {y!r} = {ref!r} != {ans!r}')
+#    assert ans.is_identical(ref) or (ans.is_nan and ref.is_nan) or (ans == 0 and ref == 0)
 
 
-# @pytest.mark.slow
-# @pytest.mark.float_div
-# @pytest.mark.parametrize("x_bits", range(0, 2**7))
-# @pytest.mark.parametrize("y_bits", range(0, 2**7))
-# def test_div_all(x_bits, y_bits):
-#     y = APyFloat.from_bits(y_bits, 4, 3)
-#     if y != 0:
-#         x = APyFloat.from_bits(x_bits, 4, 3)
-#         ans = x / y
-#         ref = APyFloat.from_float(float(x) / float(y), 4, 3)
-#         print(f'{float(x)} / {float(y)} = {float(ref)} != {float(ans)}')
-#         print(f'{x!r} / {y!r} = {ref!r} != {ans!r}')
-#         assert ans.is_identical(ref) or (ans.is_nan and ref.is_nan) or (ans == 0 and ref == 0)
+@pytest.mark.slow
+@pytest.mark.float_div
+@pytest.mark.parametrize("x_bits", range(0, 2*8))
+@pytest.mark.parametrize("y_bits", range(0, 2**8))
+def test_div_all(x_bits, y_bits):
+    y = APyFloat.from_bits(y_bits, 4, 3)
+    if y != 0:
+        x = APyFloat.from_bits(x_bits, 4, 3)
+        ans = x / y
+        ref = APyFloat.from_float(float(x) / float(y), 4, 3)
+        print(f'{float(x)} / {float(y)} = {float(ref)} != {float(ans)}')
+        print(f'{x!r} / {y!r} = {ref!r} != {ans!r}')
+        assert ans.is_identical(ref) or (ans.is_nan and ref.is_nan) or (ans == 0 and ref == 0)
 
 
 # Negation
