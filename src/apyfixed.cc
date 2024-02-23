@@ -781,7 +781,9 @@ void APyFixed::_cast(
     // Copy data into the result and sign extend
     std::size_t result_vector_size = std::distance(it_begin, it_end);
     std::copy_n(_data.begin(), std::min(vector_size(), result_vector_size), it_begin);
-    std::fill(it_begin + vector_size(), it_end, is_negative() ? mp_limb_t(-1) : 0);
+    if (vector_size() < result_vector_size) {
+        std::fill(it_begin + vector_size(), it_end, is_negative() ? mp_limb_t(-1) : 0);
+    }
 
     // First perform quantization
     _quantize(it_begin, it_end, new_bits, new_int_bits, quantization);

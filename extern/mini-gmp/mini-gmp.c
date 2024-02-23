@@ -45,6 +45,7 @@ see https://www.gnu.org/licenses/.  */
 #include <assert.h>
 #include <ctype.h>
 #include <limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -4102,7 +4103,7 @@ void mpz_import(
         }
 
         if (lbits != 0) {
-            assert(lbits <= int(GMP_NUMB_BITS));
+            assert(lbits <= (int)GMP_NUMB_BITS);
             // ASSERT_LIMB (limb);
             *zp++ = limb;
         }
