@@ -153,6 +153,19 @@ public:
         return (1ULL << (exp_bits - 1)) - 1;
     }
 
+    /* ******************************************************************************
+     * * Convenience methods                                                        *
+     * ******************************************************************************
+     */
+    APyFloat
+    cast_to_double(std::optional<QuantizationMode> quantization = std::nullopt) const;
+    APyFloat
+    cast_to_single(std::optional<QuantizationMode> quantization = std::nullopt) const;
+    APyFloat
+    cast_to_half(std::optional<QuantizationMode> quantization = std::nullopt) const;
+    APyFloat
+    cast_to_bfloat16(std::optional<QuantizationMode> quantization = std::nullopt) const;
+
 private:
     std::uint8_t exp_bits, man_bits;
     exp_t bias;
