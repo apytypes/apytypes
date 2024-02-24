@@ -306,5 +306,93 @@ void bind_float(py::module& m)
         .def_property_readonly("exp", &APyFloat::get_exp)
         .def_property_readonly("bias", &APyFloat::get_bias)
         .def_property_readonly("man_bits", &APyFloat::get_man_bits)
-        .def_property_readonly("exp_bits", &APyFloat::get_exp_bits);
+        .def_property_readonly("exp_bits", &APyFloat::get_exp_bits)
+
+        /*
+         * Convenience methods
+         */
+        .def(
+            "cast_to_double",
+            &APyFloat::cast_to_double,
+            py::arg("quantization") = std::nullopt,
+            R"pbdoc(
+            Cast to IEEE 754 binary64 (double-precision) format.
+
+            Convenience method corresponding to
+
+            .. code-block:: python
+
+               f.cast(exp_bits=11, man_bits=52)
+
+            Parameters
+            ==========
+
+            quantization : :class:`QuantizationMode`, optional
+                Quantization mode to use. If not provided,
+                :class:`QuantizationMode::RND_CONV` is used.
+            )pbdoc"
+        )
+        .def(
+            "cast_to_single",
+            &APyFloat::cast_to_single,
+            py::arg("quantization") = std::nullopt,
+            R"pbdoc(
+            Cast to IEEE 754 binary32 (single-precision) format.
+
+            Convenience method corresponding to
+
+            .. code-block:: python
+
+               f.cast(exp_bits=8, man_bits=23)
+
+            Parameters
+            ==========
+
+            quantization : :class:`QuantizationMode`, optional
+                Quantization mode to use. If not provided,
+                :class:`QuantizationMode::RND_CONV` is used.
+            )pbdoc"
+        )
+        .def(
+            "cast_to_half",
+            &APyFloat::cast_to_half,
+            py::arg("quantization") = std::nullopt,
+            R"pbdoc(
+            Cast to IEEE 754 binary16 (half-precision) format.
+
+            Convenience method corresponding to
+
+            .. code-block:: python
+
+               f.cast(exp_bits=5, man_bits=10)
+
+            Parameters
+            ==========
+
+            quantization : :class:`QuantizationMode`, optional
+                Quantization mode to use. If not provided,
+                :class:`QuantizationMode::RND_CONV` is used.
+            )pbdoc"
+        )
+        .def(
+            "cast_to_bfloat16",
+            &APyFloat::cast_to_bfloat16,
+            py::arg("quantization") = std::nullopt,
+            R"pbdoc(
+            Cast to bfloat16 format.
+
+            Convenience method corresponding to
+
+            .. code-block:: python
+
+               f.cast(exp_bits=8, man_bits=7)
+
+            Parameters
+            ==========
+
+            quantization : :class:`QuantizationMode`, optional
+                Quantization mode to use. If not provided,
+                :class:`QuantizationMode::RND_CONV` is used.
+            )pbdoc"
+        );
 }
