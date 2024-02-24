@@ -802,7 +802,7 @@ class APyFloatArray:
         exp_bits: int = None,
         man_bits: int = None,
         bias: int | None = None,
-        quantization_mode: QuantizationMode | None = None,
+        quantization: QuantizationMode | None = None,
     ) -> APyFloatArray:
         """
         Create an :class:`APyFloatArray` object from a sequence of :class:`float`.
@@ -908,7 +908,7 @@ class APyFloatArray:
         exp_bits: int,
         man_bits: int,
         bias: int | None = None,
-        quantization_mode: QuantizationMode | None = None,
+        quantization: QuantizationMode | None = None,
     ) -> APyFloatArray: ...
     def is_identical(self, other: APyFloatArray) -> bool:
         """
@@ -929,7 +929,7 @@ class APyFloatArray:
         exp_bits: int,
         man_bits: int,
         bias: int | None = None,
-        quantization_mode: QuantizationMode | None = None,
+        quantization: QuantizationMode | None = None,
     ) -> APyFloatArray:
         """
         .. deprecated:: 0.1.pre
@@ -1096,7 +1096,7 @@ class QuantizationContext(ContextManager):
         arg2: typing.Any | None,
     ) -> None: ...
     def __init__(
-        self, quantization_mode: QuantizationMode, quantization_seed: int | None = None
+        self, quantization: QuantizationMode, quantization_seed: int | None = None
     ) -> None: ...
 
 class QuantizationMode:

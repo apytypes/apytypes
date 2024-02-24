@@ -27,7 +27,7 @@ void bind_float_context(py::module& m)
     py::class_<QuantizationContext, ContextManager>(m, "QuantizationContext")
         .def(
             py::init<QuantizationMode, std::optional<std::uint64_t>>(),
-            py::arg("quantization_mode"),
+            py::arg("quantization"),
             py::arg("quantization_seed") = std::nullopt
         )
 
