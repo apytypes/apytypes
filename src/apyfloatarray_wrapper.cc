@@ -329,7 +329,7 @@ void bind_float_array(py::module& m)
             py::arg("exp_bits") = std::nullopt,
             py::arg("man_bits") = std::nullopt,
             py::arg("bias") = std::nullopt,
-            py::arg("quantization_mode") = std::nullopt,
+            py::arg("quantization") = std::nullopt,
             R"pbdoc(
             Create an :class:`APyFloatArray` object from a sequence of :class:`float`.
 
@@ -344,6 +344,9 @@ void bind_float_array(py::module& m)
                 Number of mantissa bits in the created fixed-point tensor
             bias : int, optional
                 Bias in the created fixed-point tensor
+            quantization : :class:`QuantizationMode`, optional
+                Quantization mode to use. If not provided, the global mode,
+                see :func:`get_quantization_mode`, is used.
 
             Returns
             -------
@@ -422,7 +425,7 @@ void bind_float_array(py::module& m)
             py::arg("exp_bits"),
             py::arg("man_bits"),
             py::arg("bias") = std::nullopt,
-            py::arg("quantization_mode") = std::nullopt
+            py::arg("quantization") = std::nullopt
         )
         .def(
             "resize",
@@ -430,7 +433,7 @@ void bind_float_array(py::module& m)
             py::arg("exp_bits"),
             py::arg("man_bits"),
             py::arg("bias") = std::nullopt,
-            py::arg("quantization_mode") = std::nullopt,
+            py::arg("quantization") = std::nullopt,
             R"pbdoc(
             .. deprecated:: 0.1.pre
                Use :func:`~APyFloatArray.cast` instead.
@@ -452,11 +455,11 @@ void bind_float_array(py::module& m)
                f.cast(exp_bits=11, man_bits=52)
 
             Parameters
-            ==========
+            ----------
 
             quantization : :class:`QuantizationMode`, optional
-                Quantization mode to use. If not provided,
-                :class:`QuantizationMode.RND_CONV` is used.
+                Quantization mode to use. If not provided, the global mode,
+                see :func:`get_quantization_mode`, is used.
             )pbdoc"
         )
         .def(
@@ -473,11 +476,11 @@ void bind_float_array(py::module& m)
                f.cast(exp_bits=8, man_bits=23)
 
             Parameters
-            ==========
+            ----------
 
             quantization : :class:`QuantizationMode`, optional
-                Quantization mode to use. If not provided,
-                :class:`QuantizationMode,RND_CONV` is used.
+                Quantization mode to use. If not provided, the global mode,
+                see :func:`get_quantization_mode`, is used.
             )pbdoc"
         )
         .def(
@@ -494,11 +497,11 @@ void bind_float_array(py::module& m)
                f.cast(exp_bits=5, man_bits=10)
 
             Parameters
-            ==========
+            ----------
 
             quantization : :class:`QuantizationMode`, optional
-                Quantization mode to use. If not provided,
-                :class:`QuantizationMode.RND_CONV` is used.
+                Quantization mode to use. If not provided, the global mode,
+                see :func:`get_quantization_mode`, is used.
             )pbdoc"
         )
         .def(
@@ -515,11 +518,11 @@ void bind_float_array(py::module& m)
                f.cast(exp_bits=8, man_bits=7)
 
             Parameters
-            ==========
+            ----------
 
             quantization : :class:`QuantizationMode`, optional
-                Quantization mode to use. If not provided,
-                :class:`QuantizationMode.RND_CONV` is used.
+                Quantization mode to use. If not provided, the global mode,
+                see :func:`get_quantization_mode`, is used.
             )pbdoc"
         );
 

@@ -109,6 +109,4 @@ def test_cast():
 
     fp_array = APyFloatArray.from_float([1.125, -1.875], exp_bits=10, man_bits=15)
     ans = APyFloatArray.from_float([1, -1.75], exp_bits=5, man_bits=2)
-    assert fp_array.cast(5, 2, quantization_mode=QuantizationMode.TO_ZERO).is_identical(
-        ans
-    )
+    assert fp_array.cast(5, 2, quantization=QuantizationMode.TO_ZERO).is_identical(ans)

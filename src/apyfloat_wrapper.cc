@@ -37,7 +37,38 @@ void bind_float(py::module& m)
             py::arg("exp_bits"),
             py::arg("man_bits"),
             py::arg("bias") = std::nullopt,
-            py::arg("quantization") = std::nullopt
+            py::arg("quantization") = std::nullopt,
+            R"pbdoc(
+            Create an :class:`APyFloat` object from a :class:`float`.
+
+            Parameters
+            ----------
+            float_sequence : float
+                Floating-point value to initialize from.
+            exp_bits : int
+                Number of exponent bits.
+            man_bits : int, optional
+                Number of mantissa bits.
+            bias : int, optional
+                Bias.
+            quantization : :class:`QuantizationMode`, optional
+                Quantization mode to use. If not provided, the global mode,
+                see :func:`get_quantization_mode`, is used.
+
+            Returns
+            -------
+            :class:`APyFloat`
+
+            Examples
+            --------
+
+            .. code-block:: python
+
+                from apytypes import APyFloat
+
+                # `a`, initialized from floating-point values.
+                a = APyFloat.from_float(1.35, exp_bits=10, man_bits=15)
+            )pbdoc"
         )
         .def("__float__", &APyFloat::operator double)
         .def_static(
@@ -325,12 +356,12 @@ void bind_float(py::module& m)
                f.cast(exp_bits=11, man_bits=52)
 
             Parameters
-            ==========
+            ----------
 
             quantization : :class:`QuantizationMode`, optional
-                Quantization mode to use. If not provided,
-                :class:`QuantizationMode.RND_CONV` is used.
-            )pbdoc"
+                Quantization mode to use. If not provided, the global mode,
+                see :func:`get_quantization_mode`, is used.
+        )pbdoc"
         )
         .def(
             "cast_to_single",
@@ -346,11 +377,11 @@ void bind_float(py::module& m)
                f.cast(exp_bits=8, man_bits=23)
 
             Parameters
-            ==========
+            ----------
 
             quantization : :class:`QuantizationMode`, optional
-                Quantization mode to use. If not provided,
-                :class:`QuantizationMode,RND_CONV` is used.
+                Quantization mode to use. If not provided, the global mode,
+                see :func:`get_quantization_mode`, is used.
             )pbdoc"
         )
         .def(
@@ -367,11 +398,11 @@ void bind_float(py::module& m)
                f.cast(exp_bits=5, man_bits=10)
 
             Parameters
-            ==========
+            ----------
 
             quantization : :class:`QuantizationMode`, optional
-                Quantization mode to use. If not provided,
-                :class:`QuantizationMode.RND_CONV` is used.
+                Quantization mode to use. If not provided, the global mode,
+                see :func:`get_quantization_mode`, is used.
             )pbdoc"
         )
         .def(
@@ -388,11 +419,11 @@ void bind_float(py::module& m)
                f.cast(exp_bits=8, man_bits=7)
 
             Parameters
-            ==========
+            ----------
 
             quantization : :class:`QuantizationMode`, optional
-                Quantization mode to use. If not provided,
-                :class:`QuantizationMode.RND_CONV` is used.
+                Quantization mode to use. If not provided, the global mode,
+                see :func:`get_quantization_mode`, is used.
             )pbdoc"
         );
 }

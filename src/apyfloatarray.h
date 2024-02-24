@@ -81,7 +81,7 @@ public:
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt,
-        std::optional<QuantizationMode> quantization_mode = std::nullopt
+        std::optional<QuantizationMode> quantization = std::nullopt
     );
 
     //! Transposition function. For a 1-D array, returns an exact copy of `*this`. For
@@ -93,14 +93,14 @@ public:
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt,
-        std::optional<QuantizationMode> quantization_mode = std::nullopt
+        std::optional<QuantizationMode> quantization = std::nullopt
     ) const;
 
     APyFloatArray resize(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt,
-        std::optional<QuantizationMode> quantization_mode = std::nullopt
+        std::optional<QuantizationMode> quantization = std::nullopt
     ) const;
 
     inline exp_t get_bias() const { return bias; }
