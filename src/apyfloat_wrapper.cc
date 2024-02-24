@@ -329,7 +329,7 @@ void bind_float(py::module& m)
 
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use. If not provided,
-                :class:`QuantizationMode::RND_CONV` is used.
+                :class:`QuantizationMode.RND_CONV` is used.
             )pbdoc"
         )
         .def(
@@ -350,7 +350,7 @@ void bind_float(py::module& m)
 
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use. If not provided,
-                :class:`QuantizationMode::RND_CONV` is used.
+                :class:`QuantizationMode,RND_CONV` is used.
             )pbdoc"
         )
         .def(
@@ -371,7 +371,7 @@ void bind_float(py::module& m)
 
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use. If not provided,
-                :class:`QuantizationMode::RND_CONV` is used.
+                :class:`QuantizationMode.RND_CONV` is used.
             )pbdoc"
         )
         .def(
@@ -392,7 +392,7 @@ void bind_float(py::module& m)
 
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use. If not provided,
-                :class:`QuantizationMode::RND_CONV` is used.
+                :class:`QuantizationMode.RND_CONV` is used.
             )pbdoc"
         );
 }

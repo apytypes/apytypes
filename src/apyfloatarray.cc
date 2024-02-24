@@ -552,3 +552,30 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
 
     return result;
 }
+
+/*
+ * Convenience methods
+ */
+APyFloatArray APyFloatArray::cast_to_double(std::optional<QuantizationMode> quantization
+) const
+{
+    return cast(11, 52, std::nullopt, quantization);
+}
+
+APyFloatArray APyFloatArray::cast_to_single(std::optional<QuantizationMode> quantization
+) const
+{
+    return cast(8, 23, std::nullopt, quantization);
+}
+
+APyFloatArray APyFloatArray::cast_to_half(std::optional<QuantizationMode> quantization
+) const
+{
+    return cast(5, 10, std::nullopt, quantization);
+}
+
+APyFloatArray
+APyFloatArray::cast_to_bfloat16(std::optional<QuantizationMode> quantization) const
+{
+    return cast(8, 7, std::nullopt, quantization);
+}
