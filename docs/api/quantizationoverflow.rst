@@ -1,5 +1,5 @@
-``apytypes`` quantization and overflow handling
-===========================================
+Quantization and overflow handling
+==================================
 
 .. autoclass:: apytypes.QuantizationMode
    :members:

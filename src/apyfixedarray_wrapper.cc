@@ -317,15 +317,15 @@ void bind_fixed_array(py::module& m)
             Parameters
             ----------
             bits : int, optional
-                Total number of bits in the created fixed-point array
+                Total number of bits in the created fixed-point array.
             int_bits : int, optional
-                Number of integer bits in the created fixed-point array
-            quantization : QuantizationMode, default: QuantizationMode.TRN
-                Quantization mode to use in this cast
-            overflow : OverflowMode, default: OverflowMode.WRAP
-                Overflowing mode to use in this cast
+                Number of integer bits in the created fixed-point array-
+            quantization : :class:`QuantizationMode`, default: :class:`QuantizationMode.TRN`
+                Quantization mode to use in this cast.
+            overflow : :class:`OverflowMode`, default: :class:`OverflowMode.WRAP`
+                Overflowing mode to use in this cast.
             frac_bits : int, optional
-                Number of fractional bits in the created fixed-point array
+                Number of fractional bits in the created fixed-point array.
 
             Returns
             -------

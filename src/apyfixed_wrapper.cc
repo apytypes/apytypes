@@ -196,9 +196,9 @@ void bind_fixed(py::module& m)
                 Total number of bits in the created fixed-point object
             int_bits : int, optional
                 Number of integer bits in the created fixed-point object
-            quantization : QuantizationMode, default: QuantizationMode.TRN
+            quantization : :class:`QuantizationMode`, default: :class:`QuantizationMode.TRN`
                 Quantization mode to use in this cast
-            overflow : OverflowMode, default: OverflowMode.WRAP
+            overflow : :class:`OverflowMode`, default: :class:`OverflowMode.WRAP`
                 Overflowing mode to use in this cast
             frac_bits : int, optional
                 Number of fractional bits in the created fixed-point object

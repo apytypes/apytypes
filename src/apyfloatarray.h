@@ -109,6 +109,19 @@ public:
 
     enum class ArithmeticOperation { ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION };
 
+    /* ******************************************************************************
+     * * Convenience methods                                                        *
+     * ******************************************************************************
+     */
+    APyFloatArray
+    cast_to_double(std::optional<QuantizationMode> quantization = std::nullopt) const;
+    APyFloatArray
+    cast_to_single(std::optional<QuantizationMode> quantization = std::nullopt) const;
+    APyFloatArray
+    cast_to_half(std::optional<QuantizationMode> quantization = std::nullopt) const;
+    APyFloatArray
+    cast_to_bfloat16(std::optional<QuantizationMode> quantization = std::nullopt) const;
+
 private:
     APyFloatArray() = default;
     APyFloatArray(
