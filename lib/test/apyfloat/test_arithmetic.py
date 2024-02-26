@@ -384,3 +384,14 @@ def test_sum():
 def test_prod():
     s = [APyFloat.from_float(0.3, 2, 5), APyFloat.from_float(0.7, 4, 7)]
     assert math.prod(s).is_identical(s[0] * s[1])
+
+
+def test_binary_logic():
+    a = APyFloat(1, 3, 7, 3, 4)
+    b = APyFloat(1, 5, 9, 3, 4)
+    c = APyFloat(0, 7, 19, 4, 5)
+
+    assert (a & b).is_identical(APyFloat(1, 1, 1, 3, 4))
+    assert (a | b).is_identical(APyFloat(1, 7, 15, 3, 4))
+    assert (a ^ b).is_identical(APyFloat(0, 6, 14, 3, 4))
+    assert (~a).is_identical(APyFloat(0, 4, 8, 3, 4))

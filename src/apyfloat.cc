@@ -769,7 +769,7 @@ APyFloat APyFloat::operator~()
     APyFloat f(
         !sign,
         ~exp & ((1ULL << exp_bits) - 1),
-        ~man & ((1ULL << exp_bits) - 1),
+        ~man & ((1ULL << man_bits) - 1),
         exp_bits,
         man_bits
     );
