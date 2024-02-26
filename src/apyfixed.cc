@@ -12,6 +12,7 @@ namespace py = pybind11;
 
 // Standard header includes
 #include <algorithm>  // std::copy, std::max, std::transform, etc...
+#include <cmath>      // std::isinf, std::isnan
 #include <cstddef>    // std::size_t
 #include <cstring>    // std::memcpy
 #include <functional> // std::bit_not
@@ -540,6 +541,12 @@ void APyFixed::set_from_string(const std::string& str, int base)
 
 void APyFixed::set_from_double(double value)
 {
+    if (std::isnan(value)) {
+        throw std::domain_error("Cannot convert Nan to fixed-point");
+    }
+    if (std::isinf(value)) {
+        throw std::domain_error("Cannot convert infinity to fixed-point");
+    }
     std::fill(_data.begin(), _data.end(), 0);
     if constexpr (_LIMB_SIZE_BITS == 64) {
         mp_limb_signed_t exp = exp_of_double(value);

@@ -126,3 +126,11 @@ def test_string_construction():
         "257136662269306798708182072507551281664490003441493733349403017982015"
         "56238154807942919433116912841796875"
     )
+
+
+def test_incorrect_double_construction():
+    with pytest.raises(ValueError, match="Cannot convert Nan to fixed-point"):
+        APyFixed.from_float(float("NaN"), 4, 4)
+
+    with pytest.raises(ValueError, match="Cannot convert infinity to fixed-point"):
+        APyFixed.from_float(float("inf"), 4, 4)

@@ -80,3 +80,11 @@ def test_numpy_creation(dt):
     a = APyFixedArray.from_float(anp, 5, 4)
 
     assert np.all(a.to_numpy() == anp.astype(np.double))
+
+
+def test_incorrect_double_construction():
+    with pytest.raises(ValueError, match="Cannot convert Nan to fixed-point"):
+        APyFixedArray.from_float([float("NaN")], 4, 4)
+
+    with pytest.raises(ValueError, match="Cannot convert infinity to fixed-point"):
+        APyFixedArray.from_float([float("inf")], 4, 4)
