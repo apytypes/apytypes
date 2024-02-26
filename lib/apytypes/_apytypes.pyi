@@ -199,9 +199,9 @@ class APyFixed:
             Total number of bits in the created fixed-point object
         int_bits : int, optional
             Number of integer bits in the created fixed-point object
-        quantization : QuantizationMode, default: QuantizationMode.TRN
+        quantization : :class:`QuantizationMode`, default: :class:`QuantizationMode.TRN`
             Quantization mode to use in this cast
-        overflow : OverflowMode, default: OverflowMode.WRAP
+        overflow : :class:`OverflowMode`, default: :class:`OverflowMode.WRAP`
             Overflowing mode to use in this cast
         frac_bits : int, optional
             Number of fractional bits in the created fixed-point object
@@ -465,15 +465,15 @@ class APyFixedArray:
         Parameters
         ----------
         bits : int, optional
-            Total number of bits in the created fixed-point array
+            Total number of bits in the created fixed-point array.
         int_bits : int, optional
-            Number of integer bits in the created fixed-point array
-        quantization : QuantizationMode, default: QuantizationMode.TRN
-            Quantization mode to use in this cast
-        overflow : OverflowMode, default: OverflowMode.WRAP
-            Overflowing mode to use in this cast
+            Number of integer bits in the created fixed-point array-
+        quantization : :class:`QuantizationMode`, default: :class:`QuantizationMode.TRN`
+            Quantization mode to use in this cast.
+        overflow : :class:`OverflowMode`, default: :class:`OverflowMode.WRAP`
+            Overflowing mode to use in this cast.
         frac_bits : int, optional
-            Number of fractional bits in the created fixed-point array
+            Number of fractional bits in the created fixed-point array.
 
         Returns
         -------
@@ -620,7 +620,39 @@ class APyFloat:
         man_bits: int,
         bias: int | None = None,
         quantization: QuantizationMode | None = None,
-    ) -> APyFloat: ...
+    ) -> APyFloat:
+        """
+        Create an :class:`APyFloat` object from a :class:`float`.
+
+        Parameters
+        ----------
+        float_sequence : float
+            Floating-point value to initialize from.
+        exp_bits : int
+            Number of exponent bits.
+        man_bits : int, optional
+            Number of mantissa bits.
+        bias : int, optional
+            Bias.
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_quantization_mode`, is used.
+
+        Returns
+        -------
+        :class:`APyFloat`
+
+        Examples
+        --------
+
+        .. code-block:: python
+
+            from apytypes import APyFloat
+
+            # `a`, initialized from floating-point values.
+            a = APyFloat.from_float(1.35, exp_bits=10, man_bits=15)
+        """
+
     def __abs__(self) -> APyFloat: ...
     @typing.overload
     def __add__(self, arg0: APyFloat) -> APyFloat: ...
@@ -706,6 +738,80 @@ class APyFloat:
         bias: int | None = None,
         quantization: QuantizationMode | None = None,
     ) -> APyFloat: ...
+    def cast_to_bfloat16(
+        self, quantization: QuantizationMode | None = None
+    ) -> APyFloat:
+        """
+        Cast to bfloat16 format.
+
+        Convenience method corresponding to
+
+        .. code-block:: python
+
+           f.cast(exp_bits=8, man_bits=7)
+
+        Parameters
+        ----------
+
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_quantization_mode`, is used.
+        """
+
+    def cast_to_double(self, quantization: QuantizationMode | None = None) -> APyFloat:
+        """
+        Cast to IEEE 754 binary64 (double-precision) format.
+
+        Convenience method corresponding to
+
+        .. code-block:: python
+
+           f.cast(exp_bits=11, man_bits=52)
+
+        Parameters
+        ----------
+
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_quantization_mode`, is used.
+        """
+
+    def cast_to_half(self, quantization: QuantizationMode | None = None) -> APyFloat:
+        """
+        Cast to IEEE 754 binary16 (half-precision) format.
+
+        Convenience method corresponding to
+
+        .. code-block:: python
+
+           f.cast(exp_bits=5, man_bits=10)
+
+        Parameters
+        ----------
+
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_quantization_mode`, is used.
+        """
+
+    def cast_to_single(self, quantization: QuantizationMode | None = None) -> APyFloat:
+        """
+        Cast to IEEE 754 binary32 (single-precision) format.
+
+        Convenience method corresponding to
+
+        .. code-block:: python
+
+           f.cast(exp_bits=8, man_bits=23)
+
+        Parameters
+        ----------
+
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_quantization_mode`, is used.
+        """
+
     def is_identical(self, other: APyFloat) -> bool:
         """
         Test if two `APyFloat` objects are identical.
@@ -818,6 +924,9 @@ class APyFloatArray:
             Number of mantissa bits in the created fixed-point tensor
         bias : int, optional
             Bias in the created fixed-point tensor
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_quantization_mode`, is used.
 
         Returns
         -------
@@ -910,6 +1019,86 @@ class APyFloatArray:
         bias: int | None = None,
         quantization: QuantizationMode | None = None,
     ) -> APyFloatArray: ...
+    def cast_to_bfloat16(
+        self, quantization: QuantizationMode | None = None
+    ) -> APyFloatArray:
+        """
+        Cast to bfloat16 format.
+
+        Convenience method corresponding to
+
+        .. code-block:: python
+
+           f.cast(exp_bits=8, man_bits=7)
+
+        Parameters
+        ----------
+
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_quantization_mode`, is used.
+        """
+
+    def cast_to_double(
+        self, quantization: QuantizationMode | None = None
+    ) -> APyFloatArray:
+        """
+        Cast to IEEE 754 binary64 (double-precision) format.
+
+        Convenience method corresponding to
+
+        .. code-block:: python
+
+           f.cast(exp_bits=11, man_bits=52)
+
+        Parameters
+        ----------
+
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_quantization_mode`, is used.
+        """
+
+    def cast_to_half(
+        self, quantization: QuantizationMode | None = None
+    ) -> APyFloatArray:
+        """
+        Cast to IEEE 754 binary16 (half-precision) format.
+
+        Convenience method corresponding to
+
+        .. code-block:: python
+
+           f.cast(exp_bits=5, man_bits=10)
+
+        Parameters
+        ----------
+
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_quantization_mode`, is used.
+        """
+
+    def cast_to_single(
+        self, quantization: QuantizationMode | None = None
+    ) -> APyFloatArray:
+        """
+        Cast to IEEE 754 binary32 (single-precision) format.
+
+        Convenience method corresponding to
+
+        .. code-block:: python
+
+           f.cast(exp_bits=8, man_bits=23)
+
+        Parameters
+        ----------
+
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_quantization_mode`, is used.
+        """
+
     def is_identical(self, other: APyFloatArray) -> bool:
         """
         Test if two :class:`APyFloatArray` objects are identical.
