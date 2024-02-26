@@ -19,7 +19,6 @@ namespace py = pybind11;
 #include <iterator>   // std::back_inserter
 #include <optional>   // std::optional
 #include <sstream>    // std::stringstream
-#include <stdexcept>  // std::domain_error
 #include <string>     // std::string
 #include <vector>     // std::vector, std::swap
 
@@ -86,12 +85,12 @@ APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end)
     : APyFixed(bits, int_bits)
 {
     if (std::distance(begin, end) <= 0) {
-        throw std::domain_error(
-            "APyFixed vector initialization needs propriate vector size"
+        throw py::value_error(
+            "APyFixed vector initialization needs appropriate vector size"
         );
     } else if (std::size_t(std::distance(begin, end)) != bits_to_limbs(bits)) {
-        throw std::domain_error(
-            "APyFixed vector initialization needs propriate vector size"
+        throw py::value_error(
+            "APyFixed vector initialization needs appropriate vector size"
         );
     }
 
@@ -436,7 +435,7 @@ void APyFixed::set_from_string_dec(const std::string& str)
 
     // Check the validity as a decimal string
     if (!is_valid_decimal_numeric_string(str_trimmed)) {
-        throw std::domain_error("Not a valid decimal numeric string");
+        throw py::value_error("Not a valid decimal numeric string");
     }
 
     // Test if negative. If so, remove the negative sign from the string.
@@ -542,10 +541,10 @@ void APyFixed::set_from_string(const std::string& str, int base)
 void APyFixed::set_from_double(double value)
 {
     if (std::isnan(value)) {
-        throw std::domain_error("Cannot convert Nan to fixed-point");
+        throw py::value_error("Cannot convert Nan to fixed-point");
     }
     if (std::isinf(value)) {
-        throw std::domain_error("Cannot convert infinity to fixed-point");
+        throw py::value_error("Cannot convert infinity to fixed-point");
     }
     std::fill(_data.begin(), _data.end(), 0);
     if constexpr (_LIMB_SIZE_BITS == 64) {

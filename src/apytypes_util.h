@@ -5,6 +5,9 @@
 #ifndef _APYTYPES_UTIL_H
 #define _APYTYPES_UTIL_H
 
+#include <pybind11/pybind11.h>
+namespace py = pybind11;
+
 #include <algorithm>  // std::find
 #include <cstddef>    // std::size_t
 #include <functional> // std::bit_not
@@ -14,7 +17,6 @@
 #include <optional>   // std::optional, std::nullopt
 #include <regex>      // std::regex, std::regex_replace
 #include <sstream>    // std::stringstream
-#include <stdexcept>  // std::logic_error, std::domain_error
 #include <string>     // std::string
 #include <vector>     // std::vector
 
@@ -654,7 +656,7 @@ static inline mp_limb_t limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsign
 }
 
 //! Retrieve the `bits` specifier from user provided optional bit specifiers.
-//! Throws `std::domain_error` if the resulting number of bits is less than or equal to
+//! Throws `py::value_error` if the resulting number of bits is less than or equal to
 //! zero, or if not exactly two of three bit specifiers are present.
 static inline int bits_from_optional(
     std::optional<int> bits, std::optional<int> int_bits, std::optional<int> frac_bits
@@ -662,7 +664,7 @@ static inline int bits_from_optional(
 {
     int num_bit_spec = bits.has_value() + int_bits.has_value() + frac_bits.has_value();
     if (num_bit_spec != 2) {
-        throw std::domain_error(
+        throw py::value_error(
             "Fixed-point bit specification needs exactly two of three bit specifiers "
             "(bits, int_bits, frac_bits) set"
         );
@@ -670,7 +672,7 @@ static inline int bits_from_optional(
 
     int result = bits.has_value() ? *bits : *int_bits + *frac_bits;
     if (result <= 0) {
-        throw std::domain_error(
+        throw py::value_error(
             "Fixed-point bit specification needs a positive integer bit-size (>= 1 bit)"
         );
     }
