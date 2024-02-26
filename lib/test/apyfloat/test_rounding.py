@@ -493,3 +493,25 @@ class TestAPyFloatQuantizationDiv:
             assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
                 b, 5, 5
             ) == APyFloat.from_float(sign * a / b, 5, 5)
+
+
+def test_convenience_cast():
+    a = APyFloat.from_float(1 / 7, 20, 60)
+    assert a.man_bits == 60
+    assert a.exp_bits == 20
+
+    double = a.cast_to_double()
+    assert double.man_bits == 52
+    assert double.exp_bits == 11
+
+    single = a.cast_to_single()
+    assert single.man_bits == 23
+    assert single.exp_bits == 8
+
+    half = a.cast_to_half()
+    assert half.man_bits == 10
+    assert half.exp_bits == 5
+
+    bfloat16 = a.cast_to_bfloat16()
+    assert bfloat16.man_bits == 7
+    assert bfloat16.exp_bits == 8

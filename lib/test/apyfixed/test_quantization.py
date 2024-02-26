@@ -211,3 +211,8 @@ def test_stochastic_equal():
 def test_not_implemented(mode):
     with pytest.raises(RuntimeError, match=r"Not implemented"):
         APyFixed(0, 1, 0).cast(bits=1, int_bits=0, quantization=mode)
+
+
+def test_issue_112():
+    # Smoke test to make sure that it doesn't seg-fault
+    APyFixed.from_float(123, int_bits=119, frac_bits=0).cast(4, 4)
