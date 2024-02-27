@@ -257,6 +257,16 @@ private:
         OverflowMode overflow = OverflowMode::WRAP
     ) const;
 
+    //! The internal cast method when the word length is known to be correct.
+    //! Uses output iterators to place result onto its limb vector.
+    //! Requires that `std::distance(it_begin, it_end) == bits_to_limbs(bits)`.
+    void _cast_correct_wl(
+        std::vector<mp_limb_t>::iterator it_begin,
+        std::vector<mp_limb_t>::iterator it_end,
+        int new_bits,
+        int new_int_bits
+    ) const;
+
     //! Handle quantization of fixed-point numbers
     void _quantize(
         std::vector<mp_limb_t>::iterator it_begin,
@@ -266,7 +276,7 @@ private:
         QuantizationMode quantization
     ) const;
 
-    //! Quantize towrad minus infinity
+    //! Quantize towards minus infinity
     void _quantize_trn(
         std::vector<mp_limb_t>::iterator it_begin,
         std::vector<mp_limb_t>::iterator it_end,
@@ -274,7 +284,7 @@ private:
         int new_int_bits
     ) const;
 
-    //! Quantize towrad +/- infinity (away from zero)
+    //! Quantize towards +/- infinity (away from zero)
     void _quantize_trn_inf(
         std::vector<mp_limb_t>::iterator it_begin,
         std::vector<mp_limb_t>::iterator it_end,
@@ -282,7 +292,7 @@ private:
         int new_int_bits
     ) const;
 
-    //! Quantize towrad zero
+    //! Quantize towards zero
     void _quantize_trn_zero(
         std::vector<mp_limb_t>::iterator it_begin,
         std::vector<mp_limb_t>::iterator it_end,

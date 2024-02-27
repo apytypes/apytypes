@@ -118,10 +118,12 @@ APyFixed APyFixed::operator+(const APyFixed& rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
 
     APyFixed result(res_bits, res_int_bits);
-    _cast(result._data.begin(), result._data.end(), res_bits, res_int_bits);
+    _cast_correct_wl(result._data.begin(), result._data.end(), res_bits, res_int_bits);
 
     APyFixed operand(res_bits, res_int_bits);
-    rhs._cast(operand._data.begin(), operand._data.end(), res_bits, res_int_bits);
+    rhs._cast_correct_wl(
+        operand._data.begin(), operand._data.end(), res_bits, res_int_bits
+    );
 
     // Add with carry and return
     mpn_add_n(
@@ -140,10 +142,12 @@ APyFixed APyFixed::operator-(const APyFixed& rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
 
     APyFixed result(res_int_bits + res_frac_bits, res_int_bits);
-    _cast(result._data.begin(), result._data.end(), res_bits, res_int_bits);
+    _cast_correct_wl(result._data.begin(), result._data.end(), res_bits, res_int_bits);
 
     APyFixed operand(res_bits, res_int_bits);
-    rhs._cast(operand._data.begin(), operand._data.end(), res_bits, res_int_bits);
+    rhs._cast_correct_wl(
+        operand._data.begin(), operand._data.end(), res_bits, res_int_bits
+    );
 
     // Subtract with carry and return
     mpn_sub_n(
@@ -796,6 +800,21 @@ void APyFixed::_cast(
 
     // Then perform overflowing
     _overflow(it_begin, it_end, new_bits, new_int_bits, overflow);
+}
+
+void APyFixed::_cast_correct_wl(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    int new_bits,
+    int new_int_bits
+) const
+{
+    // Copy data into the result and sign extend
+    std::size_t result_vector_size = std::distance(it_begin, it_end);
+    std::copy_n(_data.begin(), result_vector_size, it_begin);
+    std::fill(it_begin + vector_size(), it_end, is_negative() ? mp_limb_t(-1) : 0);
+    int new_frac_bits = new_bits - new_int_bits;
+    limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
 }
 
 void APyFixed::_quantize(

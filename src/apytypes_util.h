@@ -575,7 +575,7 @@ static inline void limb_vector_lsl(
 )
 {
     // Return early if no shift or no vector
-    if (it_end <= it_begin || !shift_amnt) {
+    if (!shift_amnt || it_end <= it_begin) {
         return;
     }
 
