@@ -795,7 +795,6 @@ static inline std::vector<mp_limb_t> limb_vector_abs(
         return {};
     }
 
-    std::vector<mp_limb_t> result(std::distance(cbegin_it, cend_it), 0);
     if (mp_limb_signed_t(*(cend_it - 1)) < 0) {
         return limb_vector_negate(cbegin_it, cend_it);
     } else {

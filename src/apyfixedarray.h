@@ -183,6 +183,7 @@ public:
         std::optional<int> frac_bits = std::nullopt
     );
 
+private:
     /* ****************************************************************************** *
      * *                          Private member functions                          * *
      * ****************************************************************************** */
@@ -196,6 +197,8 @@ public:
     //! the shape of `*this` and `rhs` have been checked to match a 2D matrix-matrix or
     //! matrix-vector multiplication. Anything else is undefined behaviour.
     APyFixedArray _checked_2d_matmul(const APyFixedArray& rhs) const;
+
+    APyFixedArray _cast_correct_wl(int new_bits, int new_int_bits) const;
 };
 
 #endif // _APYFIXED_ARRAY_H

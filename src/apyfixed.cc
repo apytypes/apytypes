@@ -118,10 +118,10 @@ APyFixed APyFixed::operator+(const APyFixed& rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
 
     APyFixed result(res_bits, res_int_bits);
-    _cast_correct_wl(result._data.begin(), result._data.end(), res_bits, res_int_bits);
+    cast_correct_wl(result._data.begin(), result._data.end(), res_bits, res_int_bits);
 
     APyFixed operand(res_bits, res_int_bits);
-    rhs._cast_correct_wl(
+    rhs.cast_correct_wl(
         operand._data.begin(), operand._data.end(), res_bits, res_int_bits
     );
 
@@ -142,10 +142,10 @@ APyFixed APyFixed::operator-(const APyFixed& rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
 
     APyFixed result(res_int_bits + res_frac_bits, res_int_bits);
-    _cast_correct_wl(result._data.begin(), result._data.end(), res_bits, res_int_bits);
+    cast_correct_wl(result._data.begin(), result._data.end(), res_bits, res_int_bits);
 
     APyFixed operand(res_bits, res_int_bits);
-    rhs._cast_correct_wl(
+    rhs.cast_correct_wl(
         operand._data.begin(), operand._data.end(), res_bits, res_int_bits
     );
 
@@ -802,7 +802,7 @@ void APyFixed::_cast(
     _overflow(it_begin, it_end, new_bits, new_int_bits, overflow);
 }
 
-void APyFixed::_cast_correct_wl(
+void APyFixed::cast_correct_wl(
     std::vector<mp_limb_t>::iterator it_begin,
     std::vector<mp_limb_t>::iterator it_end,
     int new_bits,
