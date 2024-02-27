@@ -96,8 +96,9 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
 
     // Adjust binary point
-    APyFixedArray result = cast(res_int_bits + res_frac_bits, res_int_bits);
-    APyFixedArray imm = rhs.cast(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result = _cast_correct_wl(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray imm
+        = rhs._cast_correct_wl(res_int_bits + res_frac_bits, res_int_bits);
 
     // Perform addition
     for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
@@ -120,7 +121,7 @@ APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
 
     // Adjust binary point
-    APyFixedArray result = cast(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result = _cast_correct_wl(res_int_bits + res_frac_bits, res_int_bits);
     APyFixed imm = rhs.cast(res_int_bits + res_frac_bits, res_int_bits);
 
     // Perform addition
@@ -153,8 +154,9 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
 
     // Adjust binary point
-    APyFixedArray result = cast(res_int_bits + res_frac_bits, res_int_bits);
-    APyFixedArray imm = rhs.cast(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result = _cast_correct_wl(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray imm
+        = rhs._cast_correct_wl(res_int_bits + res_frac_bits, res_int_bits);
 
     // Perform addition
     for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
@@ -577,6 +579,37 @@ APyFixedArray APyFixedArray::cast(
             new_int_bits,
             quantization,
             overflow
+        );
+    }
+
+    return result;
+}
+
+APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) const
+{
+
+    // The new result array (`bit_specifier_sanitize()` called in constructor)
+    APyFixedArray result(_shape, new_bits, new_int_bits);
+
+    // `APyFixed` with the same word length as `*this` for reusing quantization methods
+    APyFixed fixed(_bits, _int_bits);
+
+    // For each scalar in the tensor...
+    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+
+        // Copy data into temporary `APyFixed`
+        std::copy_n(
+            _data.begin() + i * _itemsize, // src
+            _itemsize,                     // limbs to copy
+            fixed._data.begin()            // dst
+        );
+
+        // Perform the resizing
+        fixed.cast_correct_wl(
+            result._data.begin() + (i + 0) * result._itemsize, // output start
+            result._data.begin() + (i + 1) * result._itemsize, // output sentinel
+            new_bits,
+            new_int_bits
         );
     }
 
