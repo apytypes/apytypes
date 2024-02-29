@@ -53,7 +53,8 @@ breathe_projects_source = {
             "apyfixed.cc",
             "apyfixedarray.cc",
             "apyfloat.cc",
-            "apyfloat_context_wrapper.cc",
+            "apyfloatarray.cc",
+            "apytypes_context_wrapper.cc",
         ],
     )
 }

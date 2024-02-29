@@ -12,6 +12,7 @@ APyTypes is a library to simplify finite word length design and simulation.
    api/index
    cpp_api/index
    examples/index
+   comparison
 
 Indices and tables
 ==================
