@@ -7,11 +7,11 @@ Comparison Between Available Libraries
 
     * - Library
       - APyTypes
-      - `fixedpoint <https://github.com/Schweitzer-Engineering-Laboratories/fixedpoint>`
-      - `fxpmath <https://github.com/francof2a/fxpmath>`
-      - `pyfixp <https://github.com/chipmuenk/pyfixp>`
-      - `spfpm <https://github.com/rwpenney/spfpm>`
-      - `gmpy2 <https://github.com/aleaxit/gmpy>`
+      - `fixedpoint <https://github.com/Schweitzer-Engineering-Laboratories/fixedpoint>`_
+      - `fxpmath <https://github.com/francof2a/fxpmath>`_
+      - `pyfixp <https://github.com/chipmuenk/pyfixp>`_
+      - `spfpm <https://github.com/rwpenney/spfpm>`_
+      - `gmpy2 <https://github.com/aleaxit/gmpy>`_
     * - Fixed-point support
       - Yes
       - Yes
