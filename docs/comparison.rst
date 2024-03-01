@@ -66,3 +66,13 @@ Comparison Between Available Libraries
 .. rubric:: Footnotes
 
 .. [#1] ``pyfixp`` is essentially a package to simply quantize NumPy-arrays with doubles.
+
+
+Benchmark
+=========
+
+This benchmark compares relevant fixed-point libraries from the list above.
+It is updated every documentation build and may vary over time.
+
+.. image:: _static/benchmark.png
+    :alt: Benchmark numbers for different fixed-point libraries.

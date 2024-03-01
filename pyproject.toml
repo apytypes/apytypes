@@ -41,7 +41,7 @@ test = [
     "pytest",
 ]
 dev = ["pybind11-stubgen"]
-benchmark = ["fpbinary", "fixedpoint", "fxpmath", "spfpm"]
+benchmark = ["fpbinary", "fixedpoint", "fxpmath", "spfpm", "numpy", "matplotlib"]
 
 [tool.pytest.ini_options]
 markers = [
