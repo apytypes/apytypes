@@ -70,7 +70,6 @@ Comparison matrix
 
     * - Library
       - APyTypes
-      - `fixedpoint <https://github.com/Schweitzer-Engineering-Laboratories/fixedpoint>`_
       - `gmpy2 <https://github.com/aleaxit/gmpy>`_
     * - Custom fixed-point formats
       - Yes
