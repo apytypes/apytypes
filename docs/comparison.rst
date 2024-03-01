@@ -1,5 +1,5 @@
-Comparison Between Available Libraries
-======================================
+Comparison
+==========
 
 Comparison matrix
 -----------------
