@@ -38,8 +38,8 @@ Comparison matrix
       - No
     * - Arrays
       - Yes
-      - No [#2]_
       - No
+      - No [#2]_
       - Yes
       - Yes [#1]_
       - No
@@ -62,7 +62,7 @@ Comparison matrix
 .. rubric:: Footnotes
 
 .. [#1] ``pyfixp`` is essentially a package to simply quantize NumPy-arrays with doubles.
-.. [#2] ``pybinary`` provides a helper function to convert an array to a list with fixed-point numbers.
+.. [#2] ``fpbinary`` provides a helper function to convert an array to a list with fixed-point numbers.
 
 .. list-table:: Floating-point libraries
     :header-rows: 1
