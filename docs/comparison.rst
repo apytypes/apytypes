@@ -1,7 +1,10 @@
 Comparison Between Available Libraries
 ======================================
 
-.. list-table:: Comparison matrix
+Comparison matrix
+-----------------
+
+.. list-table::
     :header-rows: 1
     :stub-columns: 1
 
@@ -13,7 +16,7 @@ Comparison Between Available Libraries
       - `pyfixp <https://github.com/chipmuenk/pyfixp>`_
       - `spfpm <https://github.com/rwpenney/spfpm>`_
       - `gmpy2 <https://github.com/aleaxit/gmpy>`_
-    * - Fixed-point support
+    * - Custom fixed-point formats
       - Yes
       - Yes
       - Yes
@@ -21,7 +24,7 @@ Comparison Between Available Libraries
       - Yes
       - Yes
       - No
-    * - Floating-point support
+    * - Custom floating-point formats
       - Yes
       - No
       - No
@@ -36,8 +39,8 @@ Comparison Between Available Libraries
       - Yes
       - Yes [#1]_
       - No
-      - ?
-    * - Explicit resizing of fixed-point values
+      - No
+    * - Automatic resizing of fixed-point values
       - Yes
       - Yes
       - Yes
@@ -52,7 +55,7 @@ Comparison Between Available Libraries
       - No
       - Yes [#1]_
       - N/A
-      - ?
+      - N/A
     * - Written in
       - C++/Python
       - Python
@@ -69,7 +72,7 @@ Comparison Between Available Libraries
 
 
 Benchmark
-=========
+---------
 
 This benchmark compares relevant fixed-point libraries from the list above.
 It is updated every documentation build and may vary over time.

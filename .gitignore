@@ -20,3 +20,4 @@ docs/xml/
 .clangd
 
 subprojects/*/
+benchmark/benchmark.png
