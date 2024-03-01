@@ -8,11 +8,13 @@ Comparison Between Available Libraries
     * - Library
       - APyTypes
       - `fixedpoint <https://github.com/Schweitzer-Engineering-Laboratories/fixedpoint>`_
+      - `fpbinary <https://github.com/smlgit/fpbinary>`_
       - `fxpmath <https://github.com/francof2a/fxpmath>`_
       - `pyfixp <https://github.com/chipmuenk/pyfixp>`_
       - `spfpm <https://github.com/rwpenney/spfpm>`_
       - `gmpy2 <https://github.com/aleaxit/gmpy>`_
     * - Fixed-point support
+      - Yes
       - Yes
       - Yes
       - Yes
@@ -25,24 +27,28 @@ Comparison Between Available Libraries
       - No
       - No
       - No
+      - No
       - Yes
     * - Arrays
       - Yes
-      - ?
+      - No
+      - No
       - Yes
       - Yes [#1]_
       - No
       - ?
     * - Explicit resizing of fixed-point values
       - Yes
-      - ?
+      - Yes
+      - Yes
       - Yes
       - Yes [#1]_
-      - ?
+      - No
       - N/A
     * - Matrix multiplication (``@``)
       - Yes
-      - ?
+      - N/A
+      - N/A
       - No
       - Yes [#1]_
       - N/A
@@ -50,6 +56,7 @@ Comparison Between Available Libraries
     * - Written in
       - C++/Python
       - Python
+      - C/Python
       - Python
       - Python [#1]_
       - Python
