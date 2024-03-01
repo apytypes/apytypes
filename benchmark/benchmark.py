@@ -3,9 +3,9 @@ import timeit
 
 libraries = {
     "APyTypes": "bench_apytypes",
-    "fixedpoint": "bench_fixedpoint",
-    "fpbinary": "bench_fpbinary",
     "fxpmath": "bench_fxpmath",
+    "fpbinary": "bench_fpbinary",
+    "fixedpoint": "bench_fixedpoint",
     "spfpm": "bench_spfpm",
 }
 
@@ -15,8 +15,10 @@ CREATE_TWO_SCALARS = (
 CREATE_TWO_LONG_SCALARS = (
     "a = lib.create_scalar(0.37, 320, 16); b = lib.create_scalar(1.54, 320, 16)"
 )
-CREATE_TWO_ARRAYS = "import numpy as np; a = lib.create_array(np.random.rand(200, 200), 32, 16); b = lib.create_array(np.random.rand(200, 200), 32, 16)"
-CREATE_VECTOR = "import numpy as np; a = lib.create_array(np.random.rand(200), 32, 16)"
+CREATE_TWO_ARRAYS = "import numpy as np; a = lib.create_array(np.random.rand(200, 200) - 0.5, 32, 16); b = lib.create_array(np.random.rand(200, 200), 32, 16)"
+CREATE_VECTOR = (
+    "import numpy as np; a = lib.create_array(np.random.rand(200) - 0.5, 32, 16)"
+)
 benchmarks = {
     "Scalar creation, 32-bit": ("lib.create_scalar(0.37, 32, 16)", "pass"),
     "Scalar addition, 32-bit": ("c = a + b", CREATE_TWO_SCALARS),
@@ -60,7 +62,7 @@ import numpy as np
 fig, ax = plt.subplots(layout="constrained", figsize=(8, 10))
 
 x = np.arange(len(benchmarks))  # the label locations
-width = 1 / (len(libraries) + 1)  # the width of the bars
+width = 1 / (len(libraries) + 2)  # the width of the bars
 multiplier = 0
 
 for library, measurement in results.items():
@@ -71,7 +73,7 @@ for library, measurement in results.items():
 ax.set_yscale("log")
 ax.set_ylabel("Time, s")
 ax.set_xticks(
-    x + width,
+    x + (len(libraries) - 1) * width / 2,
     benchmarks.keys(),
     rotation=90,
 )
