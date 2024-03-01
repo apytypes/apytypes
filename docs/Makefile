@@ -28,3 +28,4 @@ show:
 %: Makefile
 	doxygen
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	sed -i 's/._apytypes//g' $(BUILDDIR)/html/api/*.html
