@@ -16,7 +16,14 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install -yy doxygen
-          python -m pip install -v .[docs]
+          python -m pip install -v .[docs,benchmark]
+      - name: Run benchmarks
+        run: |
+          cd benchmark
+          python benchmark.py
+          cd ..
+          mkdir -p docs/_static/
+          cp benchmark/benchmark.png docs/_static
       - name: Sphinx build
         run: |
           cd docs

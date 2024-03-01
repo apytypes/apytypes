@@ -76,3 +76,4 @@ ax.set_xticks(
     rotation=90,
 )
 ax.legend(loc="upper left")
+fig.savefig("benchmark.png")
