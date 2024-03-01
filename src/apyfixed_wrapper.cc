@@ -15,11 +15,6 @@ void bind_fixed(py::module& m)
     py::class_<APyFixed>(m, "APyFixed")
 
         /*
-         * Constructor: construct from another APyFixed number
-         */
-        .def(py::init<const APyFixed&>(), py::arg("other"))
-
-        /*
          * Constructor: construct from a Python arbitrary long integer object
          */
         .def(
