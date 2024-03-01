@@ -57,7 +57,7 @@ for lib_name, file in libraries.items():
 import matplotlib.pyplot as plt
 import numpy as np
 
-fig, ax = plt.subplots(layout="constrained", figsize=(7, 10))
+fig, ax = plt.subplots(layout="constrained", figsize=(8, 10))
 
 x = np.arange(len(benchmarks))  # the label locations
 width = 1 / (len(libraries) + 1)  # the width of the bars
