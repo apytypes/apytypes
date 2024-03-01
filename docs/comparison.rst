@@ -40,7 +40,7 @@ Comparison matrix
       - Yes [#1]_
       - No
       - No
-    * - Automatic resizing of fixed-point values
+    * - Resizing of fixed-point results
       - Yes
       - Yes
       - Yes
