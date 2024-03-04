@@ -199,3 +199,25 @@ def test_shift():
     assert (a << 7).is_identical(APyFixedArray([1, 2, -3], bits=10, int_bits=12))
     assert (a >> -2).is_identical(APyFixedArray([1, 2, -3], bits=10, int_bits=7))
     assert (a << -7).is_identical(APyFixedArray([1, 2, -3], bits=10, int_bits=-2))
+
+
+def test_unary_negate():
+    a = APyFixedArray.from_float([0, -1, 2, -3, 4], bits=100, int_bits=50)
+    b = APyFixedArray.from_float([0, -1, 2, -3, 4], bits=64, int_bits=32)
+    assert (-a).is_identical(
+        APyFixedArray.from_float([0, 1, -2, 3, -4], bits=101, int_bits=51)
+    )
+    assert (-b).is_identical(
+        APyFixedArray.from_float([0, 1, -2, 3, -4], bits=65, int_bits=33)
+    )
+
+
+def test_abs():
+    a = APyFixedArray.from_float([0, -1, 2, -3, 4], bits=100, int_bits=50)
+    b = APyFixedArray.from_float([0, -1, 2, -3, 4], bits=64, int_bits=32)
+    assert abs(a).is_identical(
+        APyFixedArray.from_float([0, 1, 2, 3, 4], bits=101, int_bits=51)
+    )
+    assert abs(b).is_identical(
+        APyFixedArray.from_float([0, 1, 2, 3, 4], bits=65, int_bits=33)
+    )

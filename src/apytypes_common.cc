@@ -1,5 +1,9 @@
-#include "apytypes_common.h"
+// Python object access through Pybind
+#include <pybind11/pybind11.h>
+namespace py = pybind11;
+
 #include "apyfloat.h"
+#include "apytypes_common.h"
 #include "apytypes_util.h"
 #include <random>
 

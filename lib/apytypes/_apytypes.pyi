@@ -132,9 +132,6 @@ class APyFixed:
     def __gt__(self, arg0: APyFixed) -> bool: ...
     @typing.overload
     def __gt__(self, arg0: float) -> bool: ...
-    @typing.overload
-    def __init__(self, other: APyFixed) -> None: ...
-    @typing.overload
     def __init__(
         self,
         bit_pattern: int,
@@ -393,6 +390,7 @@ class APyFixedArray:
             )
         """
 
+    def __abs__(self) -> APyFixedArray: ...
     @typing.overload
     def __add__(self, arg0: APyFixedArray) -> APyFixedArray: ...
     @typing.overload
@@ -422,6 +420,7 @@ class APyFixedArray:
     def __mul__(self, arg0: int) -> APyFixedArray: ...
     @typing.overload
     def __mul__(self, arg0: float) -> APyFixedArray: ...
+    def __neg__(self) -> APyFixedArray: ...
     @typing.overload
     def __radd__(self, arg0: int) -> APyFixedArray: ...
     @typing.overload
@@ -1251,8 +1250,7 @@ class OverflowMode:
 
       SAT : Saturate to the closest of most positive and most negative value.
 
-      NUMERIC_STD : Remove MSBs, but keep the most significant bit. As ieee.numeric_std
-                resize for signed.
+      NUMERIC_STD : Remove MSBs, but keep the most significant bit. As ieee.numeric_std resize for signed.
     """
 
     NUMERIC_STD: typing.ClassVar[OverflowMode]  # value = <OverflowMode.NUMERIC_STD: 2>
@@ -1298,8 +1296,7 @@ class QuantizationMode:
 
       TRN_INF : Round towards positive infinity.
 
-      RND : Round to nearest, ties towards postive infinity (standard 'round'
-                for fixed-point).
+      RND : Round to nearest, ties towards postive infinity (standard 'round' for fixed-point).
 
       RND_ZERO : Round to nearest, ties toward zero.
 
@@ -1313,11 +1310,9 @@ class QuantizationMode:
 
       JAM : Jamming/von Neumann rounding. Set LSB to 1.
 
-      JAM_UNBIASED : Unbiased jamming/von Neumann rounding. Set LSB to 1 unless a
-                tie.
+      JAM_UNBIASED : Unbiased jamming/von Neumann rounding. Set LSB to 1 unless the previous LSB and all the removed bits are 0.
 
-      STOCH_WEIGHTED : Stochastic rounding. Probability depends on the bits to
-                remove.
+      STOCH_WEIGHTED : Stochastic rounding. Probability depends on the bits to remove.
 
       STOCH_EQUAL : Stochastic rounding with equal probability.
 
@@ -1325,19 +1320,19 @@ class QuantizationMode:
 
       TO_ZERO : Alias. Round towards zero.
 
-      TO_POS : Alias. Round towards postiive infinity.
+      TO_POS : Alias. Round towards positive infinity.
 
       TIES_ZERO : Alias. Round to nearest, ties toward zero.
 
-      TIES_AWAY
+      TIES_AWAY : Alias. Round to nearest, ties away from zero.
 
-      TIES_EVEN
+      TIES_EVEN : Alias. Round to nearest, ties to even.
 
-      TIES_ODD
+      TIES_ODD : Alias. Round to nearest, ties to odd.
 
-      TIES_NEG
+      TIES_NEG : Alias. Round to nearest, ties towards negative infinity.
 
-      TIES_POS
+      TIES_POS : Alias. Round to nearest, ties towards positive infinity.
     """
 
     JAM: typing.ClassVar[QuantizationMode]  # value = <QuantizationMode.JAM: 9>

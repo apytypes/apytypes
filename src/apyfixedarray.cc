@@ -13,7 +13,6 @@ namespace py = pybind11;
 #include <algorithm> // std::copy, std::max, std::transform, etc...
 #include <cstddef>   // std::size_t
 #include <ios>       // std::dec, std::hex
-#include <numeric>   // std::accumulate
 #include <optional>  // std::optional
 #include <sstream>   // std::stringstream
 #include <stdexcept> // std::length_error
@@ -445,6 +444,32 @@ py::tuple APyFixedArray::shape() const
 size_t APyFixedArray::ndim() const { return _shape.size(); }
 
 size_t APyFixedArray::size() const { return _shape[0]; }
+
+APyFixedArray APyFixedArray::abs() const
+{
+    APyFixedArray result = cast(bits() + 1, int_bits() + 1);
+    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+        limb_vector_abs(
+            result._data.begin() + (i + 0) * result._itemsize,
+            result._data.begin() + (i + 1) * result._itemsize,
+            result._data.begin() + (i + 0) * result._itemsize
+        );
+    }
+    return result;
+}
+
+APyFixedArray APyFixedArray::operator-() const
+{
+    APyFixedArray result = cast(bits() + 1, int_bits() + 1);
+    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+        limb_vector_negate(
+            result._data.begin() + (i + 0) * result._itemsize,
+            result._data.begin() + (i + 1) * result._itemsize,
+            result._data.begin() + (i + 0) * result._itemsize
+        );
+    }
+    return result;
+}
 
 APyFixedArray APyFixedArray::get_item(std::size_t idx) const
 {

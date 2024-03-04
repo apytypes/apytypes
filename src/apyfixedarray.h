@@ -138,6 +138,12 @@ public:
     //! Length of the array
     size_t size() const;
 
+    //! Elementwise absolute value
+    APyFixedArray abs() const;
+
+    //! Elementwise unary negation
+    APyFixedArray operator-() const;
+
     /*!
      * Construct a new `APyFixedArray` tensor object with the same `shape` and
      * fixed-point values as `*this`, but with a new word-length. The underlying

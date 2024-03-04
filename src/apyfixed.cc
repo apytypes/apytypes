@@ -345,7 +345,7 @@ APyFixed APyFixed::abs() const
 
 bool APyFixed::is_negative() const noexcept
 {
-    return mp_limb_signed_t(_data.back()) < 0;
+    return limb_vector_is_negative(_data.begin(), _data.end());
 }
 
 bool APyFixed::is_positive() const noexcept

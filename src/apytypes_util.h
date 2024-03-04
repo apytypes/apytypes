@@ -6,7 +6,6 @@
 #define _APYTYPES_UTIL_H
 
 #include <pybind11/pybind11.h>
-namespace py = pybind11;
 
 #include <algorithm>  // std::find
 #include <cstddef>    // std::size_t
@@ -46,7 +45,8 @@ public:
 /*!
  * Count the number of trailing bits after the most significant `1`.
  */
-[[maybe_unused]] static APY_INLINE unsigned int count_trailing_bits(std::uint64_t val)
+[[maybe_unused, nodiscard]] static APY_INLINE unsigned int
+count_trailing_bits(std::uint64_t val)
 {
     unsigned int i = 0;
     while (val >>= 1ULL) {
@@ -56,7 +56,8 @@ public:
 }
 
 //! Quickly evaluate how many limbs are requiered to to store a `bits` bit word
-[[maybe_unused]] static APY_INLINE std::size_t bits_to_limbs(std::size_t bits)
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t bits_to_limbs(std::size_t bits
+)
 {
     if (bits % _LIMB_SIZE_BITS == 0) {
         return bits / _LIMB_SIZE_BITS;
@@ -66,7 +67,7 @@ public:
 }
 
 //! Count the number of significant limbs in limb vector
-[[maybe_unused]] static APY_INLINE std::size_t
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t
 significant_limbs(const std::vector<mp_limb_t>& vector)
 {
     auto is_non_zero = [](auto n) { return n != 0; };
@@ -87,7 +88,7 @@ significant_limbs(const std::vector<mp_limb_t>& vector)
     return result;
 }
 
-[[maybe_unused]] static APY_INLINE std::size_t
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t
 limb_vector_leading_zeros(const std::vector<mp_limb_t>& vec)
 {
     auto is_non_zero = [](auto n) { return n != 0; };
@@ -101,7 +102,7 @@ limb_vector_leading_zeros(const std::vector<mp_limb_t>& vec)
 }
 
 //! Quickly count the number of nibbles in an unsigned `mp_limb_t`
-[[maybe_unused]] static APY_INLINE std::size_t nibble_width(mp_limb_t x)
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t nibble_width(mp_limb_t x)
 {
     std::size_t bits = bit_width(x);
     if (bits % 4 == 0) {
@@ -115,7 +116,7 @@ limb_vector_leading_zeros(const std::vector<mp_limb_t>& vec)
 //! nibble list. The nibble list contains least significant nibble first. Argument `len`
 //! indicates the intended bcd length of the output. When set, no more than
 //! `result.rend() - len` zeros will be removed.
-[[maybe_unused]] static APY_INLINE std::vector<std::uint8_t>
+[[maybe_unused, nodiscard]] static APY_INLINE std::vector<std::uint8_t>
 to_nibble_list(const std::vector<mp_limb_t>& data_array, std::size_t len = 0)
 {
     constexpr std::size_t NIBBLES_PER_LIMB = 2 * _LIMB_SIZE_BYTES;
@@ -139,7 +140,7 @@ to_nibble_list(const std::vector<mp_limb_t>& data_array, std::size_t len = 0)
 //! Convert a nibble list into a positive integer array
 //! (`std::vector<mp_limb_t>`). The nibble list is assumed to have least
 //! significant nibble first.
-[[maybe_unused]] static APY_INLINE std::vector<mp_limb_t>
+[[maybe_unused, nodiscard]] static APY_INLINE std::vector<mp_limb_t>
 from_nibble_list(const std::vector<std::uint8_t>& nibble_list)
 {
     constexpr std::size_t NIBBLES_PER_LIMB = 2 * _LIMB_SIZE_BYTES;
@@ -255,7 +256,7 @@ struct DoubleDabbleList {
 };
 
 //! Double-dabble algorithm for binary->BCD conversion
-[[maybe_unused]] static APY_INLINE std::vector<mp_limb_t>
+[[maybe_unused, nodiscard]] static APY_INLINE std::vector<mp_limb_t>
 double_dabble(std::vector<mp_limb_t> nibble_data)
 {
     if (!nibble_data.size()) {
@@ -291,7 +292,7 @@ double_dabble(std::vector<mp_limb_t> nibble_data)
 }
 
 //! Convert a BCD limb vector into a `std::string`.
-[[maybe_unused]] static APY_INLINE std::string
+[[maybe_unused, nodiscard]] static APY_INLINE std::string
 bcds_to_string(const std::vector<mp_limb_t> bcds)
 {
     if (bcds.size() == 0) {
@@ -314,7 +315,7 @@ bcds_to_string(const std::vector<mp_limb_t> bcds)
 }
 
 //! Reverse double-dabble algorithm for BCD->binary conversion
-[[maybe_unused]] static APY_INLINE std::vector<mp_limb_t>
+[[maybe_unused, nodiscard]] static APY_INLINE std::vector<mp_limb_t>
 reverse_double_dabble(const std::vector<std::uint8_t>& bcd_list)
 {
     if (bcd_list.size() == 0) {
@@ -427,7 +428,7 @@ bcd_limb_vec_mul2(std::vector<mp_limb_t>& bcd_list)
 }
 
 //! Trim a string from leading whitespace
-[[maybe_unused]] static APY_INLINE std::string
+[[maybe_unused, nodiscard]] static APY_INLINE std::string
 string_trim_leading_whitespace(const std::string& str)
 {
     static const auto regex = std::regex("^\\s+");
@@ -435,7 +436,7 @@ string_trim_leading_whitespace(const std::string& str)
 }
 
 //! Trim a string from trailing whitespace
-[[maybe_unused]] static APY_INLINE std::string
+[[maybe_unused, nodiscard]] static APY_INLINE std::string
 string_trim_trailing_whitespace(const std::string& str)
 {
     static const auto regex = std::regex("\\s+$");
@@ -443,14 +444,14 @@ string_trim_trailing_whitespace(const std::string& str)
 }
 
 //! Trim a string from leading and trailing whitespace
-[[maybe_unused]] static APY_INLINE std::string
+[[maybe_unused, nodiscard]] static APY_INLINE std::string
 string_trim_whitespace(const std::string& str)
 {
     return string_trim_leading_whitespace(string_trim_trailing_whitespace(str));
 }
 
 //! Test if a string is a valid numeric decimal string
-[[maybe_unused]] static APY_INLINE bool
+[[maybe_unused, nodiscard]] static APY_INLINE bool
 is_valid_decimal_numeric_string(const std::string& str)
 {
     // Test with validity regex
@@ -463,7 +464,8 @@ is_valid_decimal_numeric_string(const std::string& str)
 //! numeric value of the string. This function also attaches a zero to the string
 //! if it starts with a decimal dot, and it removes the decimal dot if no digit
 //! after it affects it's value (e.g., 0.00 == 0).
-[[maybe_unused]] static APY_INLINE std::string string_trim_zeros(const std::string& str)
+[[maybe_unused, nodiscard]] static APY_INLINE std::string
+string_trim_zeros(const std::string& str)
 {
     std::string result = str;
 
@@ -681,13 +683,13 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
 //! Retrieve the `bits` specifier from user provided optional bit specifiers.
 //! Throws `py::value_error` if the resulting number of bits is less than or equal to
 //! zero, or if not exactly two of three bit specifiers are present.
-[[maybe_unused]] static APY_INLINE int bits_from_optional(
+[[maybe_unused, nodiscard]] static APY_INLINE int bits_from_optional(
     std::optional<int> bits, std::optional<int> int_bits, std::optional<int> frac_bits
 )
 {
     int num_bit_spec = bits.has_value() + int_bits.has_value() + frac_bits.has_value();
     if (num_bit_spec != 2) {
-        throw py::value_error(
+        throw pybind11::value_error(
             "Fixed-point bit specification needs exactly two of three bit specifiers "
             "(bits, int_bits, frac_bits) set"
         );
@@ -695,7 +697,7 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
 
     int result = bits.has_value() ? *bits : *int_bits + *frac_bits;
     if (result <= 0) {
-        throw py::value_error(
+        throw pybind11::value_error(
             "Fixed-point bit specification needs a positive integer bit-size (>= 1 bit)"
         );
     }
@@ -705,7 +707,7 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
 
 //! Retrieve the `int_bits` specifier from user provided optional bit specifiers.
 //! Assumes exactly two of three bit specifiers are set.
-[[maybe_unused]] static APY_INLINE int int_bits_from_optional(
+[[maybe_unused, nodiscard]] static APY_INLINE int int_bits_from_optional(
     std::optional<int> bits, std::optional<int> int_bits, std::optional<int> frac_bits
 )
 {
@@ -713,7 +715,7 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
 }
 
 //! Test if the value of a limb vector is negative
-[[maybe_unused]] static APY_INLINE bool limb_vector_is_negative(
+[[maybe_unused, nodiscard]] static APY_INLINE bool limb_vector_is_negative(
     std::vector<mp_limb_t>::const_iterator cbegin_it,
     std::vector<mp_limb_t>::const_iterator cend_it
 )
@@ -723,7 +725,7 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
 }
 
 //! Reduce the first `n` bits in a limb vector over bitwise `or`. Returns bool.
-[[maybe_unused]] static APY_INLINE bool limb_vector_or_reduce(
+[[maybe_unused, nodiscard]] static APY_INLINE bool limb_vector_or_reduce(
     std::vector<mp_limb_t>::const_iterator cbegin_it,
     std::vector<mp_limb_t>::const_iterator cend_it,
     unsigned n
@@ -757,7 +759,7 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
 }
 
 //! Test if the `n`-th bit is set in a limb vector
-[[maybe_unused]] static APY_INLINE bool limb_vector_test_bit(
+[[maybe_unused, nodiscard]] static APY_INLINE bool limb_vector_test_bit(
     std::vector<mp_limb_t>::const_iterator cbegin_it,
     std::vector<mp_limb_t>::const_iterator cend_it,
     unsigned n
@@ -793,18 +795,18 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
  * to `std::vector<mp_limb_t>`. This function guarantees
  * that `result.size() == input.size()`.
  */
-[[maybe_unused]] static APY_INLINE void limb_vector_negate(
+[[maybe_unused]] static APY_INLINE mp_limb_t limb_vector_negate(
     std::vector<mp_limb_t>::const_iterator cbegin_it,
     std::vector<mp_limb_t>::const_iterator cend_it,
     std::vector<mp_limb_t>::iterator res_it
 )
 {
     if (cend_it <= cbegin_it) {
-        return;
+        return 0;
     }
 
     std::transform(cbegin_it, cend_it, res_it, std::bit_not {});
-    mpn_add_1(&*res_it, &*res_it, std::distance(cbegin_it, cend_it), mp_limb_t(1));
+    return mpn_add_1(&*res_it, &*res_it, std::distance(cbegin_it, cend_it), 1);
 }
 
 /*!
@@ -812,7 +814,7 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
  * to `std::vector<mp_limb_t>`. This function guarantees
  * that `result.size() == input.size()`.
  */
-[[maybe_unused]] static APY_INLINE std::vector<mp_limb_t> limb_vector_negate(
+[[maybe_unused, nodiscard]] static APY_INLINE std::vector<mp_limb_t> limb_vector_negate(
     std::vector<mp_limb_t>::const_iterator cbegin_it,
     std::vector<mp_limb_t>::const_iterator cend_it
 )
@@ -844,7 +846,7 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
 }
 
 //! Take the two's complement absolute value of a limb vector
-[[maybe_unused]] static APY_INLINE std::vector<mp_limb_t> limb_vector_abs(
+[[maybe_unused, nodiscard]] static APY_INLINE std::vector<mp_limb_t> limb_vector_abs(
     std::vector<mp_limb_t>::const_iterator cbegin_it,
     std::vector<mp_limb_t>::const_iterator cend_it
 )

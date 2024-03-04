@@ -192,6 +192,8 @@ void bind_fixed_array(py::module& m)
             },
             py::is_operator()
         )
+        .def(-py::self)
+
         /*
          * Methods
          */
@@ -395,6 +397,7 @@ void bind_fixed_array(py::module& m)
         .def("__matmul__", &APyFixedArray::matmul, py::arg("rhs"))
         .def("__repr__", &APyFixedArray::repr)
         .def("__rshift__", &APyFixedArray::operator>>, py::arg("shift_amnt"))
+        .def("__abs__", &APyFixedArray::abs)
 
         // Iteration and friends
         .def("__getitem__", &APyFixedArray::get_item, py::arg("idx"))
