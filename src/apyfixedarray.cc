@@ -272,25 +272,27 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
     // Resulting `APyFixedArray` fixed-point tensor
     APyFixedArray result(_shape, res_int_bits + res_frac_bits, res_int_bits);
 
+    auto op2_begin = rhs._data.begin() + (0) * rhs.vector_size();
+    auto op2_end = rhs._data.begin() + (1) * rhs.vector_size();
+    bool sign2 = mp_limb_signed_t(*(op2_end - 1)) < 0;
+    std::vector<mp_limb_t> op2_abs = limb_vector_abs(op2_begin, op2_end);
+
     // Perform multiplication for each element in the tensor. `mpn_mul` requires:
     // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
     //  most significant limb is zero."
     std::vector<mp_limb_t> res_tmp_vec(_itemsize + rhs.vector_size(), 0);
+    std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
     for (std::size_t i = 0; i < fold_shape(_shape); i++) {
         // Current working operands
         auto op1_begin = _data.begin() + (i + 0) * _itemsize;
         auto op1_end = _data.begin() + (i + 1) * _itemsize;
-        auto op2_begin = rhs._data.begin() + (0) * rhs.vector_size();
-        auto op2_end = rhs._data.begin() + (1) * rhs.vector_size();
 
         // Evaluate resulting sign
         bool sign1 = mp_limb_signed_t(*(op1_end - 1)) < 0;
-        bool sign2 = mp_limb_signed_t(*(op2_end - 1)) < 0;
         bool result_sign = sign1 ^ sign2;
 
         // Retrieve the absolute value of both operands, as required by GMP
-        std::vector<mp_limb_t> op1_abs = limb_vector_abs(op1_begin, op1_end);
-        std::vector<mp_limb_t> op2_abs = limb_vector_abs(op2_begin, op2_end);
+        limb_vector_abs(op1_begin, op1_end, op1_abs.begin());
 
         // Perform the multiplication
         mpn_mul(
@@ -303,15 +305,19 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
 
         // Handle sign
         if (result_sign) {
-            res_tmp_vec = limb_vector_negate(res_tmp_vec.begin(), res_tmp_vec.end());
+            limb_vector_negate(
+                res_tmp_vec.begin(),
+                res_tmp_vec.begin() + result._itemsize,
+                result._data.begin() + (i + 0) * result._itemsize
+            );
+        } else {
+            // Copy into resulting vector
+            std::copy_n(
+                res_tmp_vec.begin(),
+                result._itemsize,
+                result._data.begin() + (i + 0) * result._itemsize
+            );
         }
-
-        // Copy into resulting vector
-        std::copy_n(
-            res_tmp_vec.begin(),
-            result._itemsize,
-            result._data.begin() + (i + 0) * result._itemsize
-        );
     }
 
     return result;
