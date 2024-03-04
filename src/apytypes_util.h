@@ -506,7 +506,6 @@ is_valid_decimal_numeric_string(const std::string& str)
 
     mp_limb_t sign_limb = mp_limb_signed_t(*(it_end - 1)) >> (_LIMB_SIZE_BITS - 1);
     std::size_t vec_size = std::distance(it_begin, it_end);
-    unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
     unsigned limb_skip = shift_amnt / _LIMB_SIZE_BITS;
     if (limb_skip >= vec_size) {
         std::fill(it_begin, it_end, sign_limb);
@@ -520,6 +519,7 @@ is_valid_decimal_numeric_string(const std::string& str)
         }
     }
 
+    unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
     // Perform the in-limb shifting
     if (limb_shift) {
         mpn_rshift(
@@ -556,7 +556,6 @@ limb_vector_asr(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
     }
 
     std::size_t vec_size = std::distance(it_begin, it_end);
-    unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
     unsigned limb_skip = shift_amnt / _LIMB_SIZE_BITS;
     if (limb_skip >= vec_size) {
         std::fill(it_begin, it_end, 0);
@@ -570,6 +569,7 @@ limb_vector_asr(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
         }
     }
 
+    unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
     // Perform the in-limb shifting
     if (limb_shift) {
         mpn_rshift(
@@ -601,7 +601,6 @@ limb_vector_lsr(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
     }
 
     std::size_t vec_size = std::distance(it_begin, it_end);
-    unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
     unsigned limb_skip = shift_amnt / _LIMB_SIZE_BITS;
     if (limb_skip >= vec_size) {
         std::fill(it_begin, it_end, 0);
@@ -615,6 +614,7 @@ limb_vector_lsr(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
         }
     }
 
+    unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
     // Perform the in-limb shifting
     if (limb_shift) {
         mpn_lshift(
@@ -734,7 +734,6 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
     }
 
     (void)cend_it;
-    const unsigned last_limb_bits = n % _LIMB_SIZE_BITS;
     const unsigned full_limbs = n / _LIMB_SIZE_BITS;
 
     // The full limbs can be reduced as full integers
@@ -744,6 +743,7 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
         }
     }
 
+    const unsigned last_limb_bits = n % _LIMB_SIZE_BITS;
     // The last limb must be masked
     if (last_limb_bits) {
         mp_limb_t last_limb = *(cbegin_it + full_limbs);
