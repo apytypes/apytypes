@@ -217,6 +217,8 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
     // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
     //  most significant limb is zero."
     std::vector<mp_limb_t> res_tmp_vec(_itemsize + rhs._itemsize, 0);
+    std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
+    std::vector<mp_limb_t> op2_abs(bits_to_limbs(rhs.bits()));
     for (std::size_t i = 0; i < fold_shape(_shape); i++) {
         // Current working operands
         auto op1_begin = _data.begin() + (i + 0) * _itemsize;
@@ -230,8 +232,8 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
         bool result_sign = sign1 ^ sign2;
 
         // Retrieve the absolute value of both operands, as required by GMP
-        std::vector<mp_limb_t> op1_abs = limb_vector_abs(op1_begin, op1_end);
-        std::vector<mp_limb_t> op2_abs = limb_vector_abs(op2_begin, op2_end);
+        limb_vector_abs(op1_begin, op1_end, op1_abs.begin());
+        limb_vector_abs(op2_begin, op2_end, op2_abs.begin());
 
         // Perform the multiplication
         mpn_mul(
@@ -244,15 +246,19 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
 
         // Handle sign
         if (result_sign) {
-            res_tmp_vec = limb_vector_negate(res_tmp_vec.begin(), res_tmp_vec.end());
+            limb_vector_negate(
+                res_tmp_vec.begin(),
+                res_tmp_vec.begin() + result._itemsize,
+                result._data.begin() + (i + 0) * result._itemsize
+            );
+        } else {
+            // Copy into resulting vector
+            std::copy_n(
+                res_tmp_vec.begin(),
+                result._itemsize,
+                result._data.begin() + (i + 0) * result._itemsize
+            );
         }
-
-        // Copy into resulting vector
-        std::copy_n(
-            res_tmp_vec.begin(),
-            result._itemsize,
-            result._data.begin() + (i + 0) * result._itemsize
-        );
     }
 
     return result;

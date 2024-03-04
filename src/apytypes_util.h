@@ -793,6 +793,25 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
  * to `std::vector<mp_limb_t>`. This function guarantees
  * that `result.size() == input.size()`.
  */
+[[maybe_unused]] static APY_INLINE void limb_vector_negate(
+    std::vector<mp_limb_t>::const_iterator cbegin_it,
+    std::vector<mp_limb_t>::const_iterator cend_it,
+    std::vector<mp_limb_t>::iterator res_it
+)
+{
+    if (cend_it <= cbegin_it) {
+        return;
+    }
+
+    std::transform(cbegin_it, cend_it, res_it, std::bit_not {});
+    mpn_add_1(&*res_it, &*res_it, std::distance(cbegin_it, cend_it), mp_limb_t(1));
+}
+
+/*!
+ * Non-limb extending negation of limb vector from constant reference
+ * to `std::vector<mp_limb_t>`. This function guarantees
+ * that `result.size() == input.size()`.
+ */
 [[maybe_unused]] static APY_INLINE std::vector<mp_limb_t> limb_vector_negate(
     std::vector<mp_limb_t>::const_iterator cbegin_it,
     std::vector<mp_limb_t>::const_iterator cend_it
@@ -803,9 +822,25 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
     }
 
     std::vector<mp_limb_t> result(std::distance(cbegin_it, cend_it), 0);
-    std::transform(cbegin_it, cend_it, result.begin(), std::bit_not {});
-    mpn_add_1(&result[0], &result[0], result.size(), mp_limb_t(1));
+    limb_vector_negate(cbegin_it, cend_it, result.begin());
     return result;
+}
+
+//! Take the two's complement absolute value of a limb vector in place
+[[maybe_unused]] static APY_INLINE void limb_vector_abs(
+    std::vector<mp_limb_t>::const_iterator cbegin_it,
+    std::vector<mp_limb_t>::const_iterator cend_it,
+    std::vector<mp_limb_t>::iterator res_it
+)
+{
+    if (cend_it <= cbegin_it) {
+        return;
+    }
+    if (mp_limb_signed_t(*(cend_it - 1)) < 0) {
+        limb_vector_negate(cbegin_it, cend_it, res_it);
+    } else {
+        std::copy(cbegin_it, cend_it, res_it);
+    }
 }
 
 //! Take the two's complement absolute value of a limb vector
@@ -818,11 +853,9 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
         return {};
     }
 
-    if (mp_limb_signed_t(*(cend_it - 1)) < 0) {
-        return limb_vector_negate(cbegin_it, cend_it);
-    } else {
-        return std::vector<mp_limb_t>(cbegin_it, cend_it);
-    }
+    std::vector<mp_limb_t> result(std::distance(cbegin_it, cend_it), 0);
+    limb_vector_abs(cbegin_it, cend_it, result.begin());
+    return result;
 }
 
 template <typename T> std::string string_from_vec(const std::vector<T>& vec)
