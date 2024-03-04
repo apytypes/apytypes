@@ -24,7 +24,7 @@
 //! * All GCC version supporting C++17
 //! * All Clang version supporting C++17
 //! * All versions of MSVC available at compiler explorer...
-static inline bool _MACHINE_IS_NATIVE_LITTLE_ENDIAN()
+[[maybe_unused]] static APY_INLINE bool _MACHINE_IS_NATIVE_LITTLE_ENDIAN()
 {
     uint32_t deadbeef = 0xDEADBEEF;
     uint8_t arr[4];
@@ -32,7 +32,7 @@ static inline bool _MACHINE_IS_NATIVE_LITTLE_ENDIAN()
     return arr[0] == uint8_t(0xEF) ? true : false;
 }
 
-static inline uint64_t type_pun_double_to_uint64_t(double d)
+[[maybe_unused]] static APY_INLINE uint64_t type_pun_double_to_uint64_t(double d)
 {
     // These functions are only compatible with IEEE-754 double-precision `double`s
     static_assert(std::numeric_limits<double>::is_iec559);
@@ -43,7 +43,7 @@ static inline uint64_t type_pun_double_to_uint64_t(double d)
     return double_pun;
 }
 
-static inline double type_pun_uint64_t_to_double(uint64_t num)
+[[maybe_unused]] static APY_INLINE double type_pun_uint64_t_to_double(uint64_t num)
 {
     // These functions are only compatible with IEEE-754 double-precision `double`s
     static_assert(std::numeric_limits<double>::is_iec559);
@@ -54,7 +54,7 @@ static inline double type_pun_uint64_t_to_double(uint64_t num)
     return d;
 }
 
-static inline bool sign_of_double(double d)
+[[maybe_unused]] static APY_INLINE bool sign_of_double(double d)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
     if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
@@ -66,7 +66,7 @@ static inline bool sign_of_double(double d)
 
 //! Returns the *biased* exponent of a `double` in a `int64_t`.
 //! Return value range: [0, 2048)
-static inline int64_t exp_of_double(double d)
+[[maybe_unused]] static APY_INLINE int64_t exp_of_double(double d)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
     if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
@@ -78,7 +78,7 @@ static inline int64_t exp_of_double(double d)
 
 //! Returns significand/mantissa of a `double` (without the hidden one) in a `uint64_t`.
 //! Range of returned value: [0, 4503599627370496)
-static inline uint64_t man_of_double(double d)
+[[maybe_unused]] static APY_INLINE uint64_t man_of_double(double d)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
     if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
@@ -89,7 +89,7 @@ static inline uint64_t man_of_double(double d)
 }
 
 //! [Un]set the sign of a `double` type from a `bool`
-static inline void set_sign_of_double(double& d, bool sign)
+[[maybe_unused]] static APY_INLINE void set_sign_of_double(double& d, bool sign)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
     if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
@@ -103,7 +103,7 @@ static inline void set_sign_of_double(double& d, bool sign)
 
 //! Set the exponent part of a `double` from `int64_t`.
 //! Domain of argument `int64_t`: [0, 2048)
-static inline void set_exp_of_double(double& d, int64_t exp)
+[[maybe_unused]] static APY_INLINE void set_exp_of_double(double& d, int64_t exp)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
     if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
@@ -117,7 +117,7 @@ static inline void set_exp_of_double(double& d, int64_t exp)
 
 //! Set the mantissa poart of a `double` from `uint64_t`.
 //! Domain of argument `uint64_t`: [0, 4503599627370496)
-static inline void set_man_of_double(double& d, uint64_t man)
+[[maybe_unused]] static APY_INLINE void set_man_of_double(double& d, uint64_t man)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
     if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {

@@ -15,15 +15,18 @@
 #include <numeric>    // std::accumulate
 #include <vector>     // std::vector
 
+#include "apytypes_util.h"
+
 //! Fold a shape under multiplication
-static inline std::size_t fold_shape(const std::vector<std::size_t>& shape)
+[[maybe_unused]] static APY_INLINE std::size_t
+fold_shape(const std::vector<std::size_t>& shape)
 {
     return std::accumulate(shape.cbegin(), shape.cend(), 1, std::multiplies {});
 }
 
 //! Retrieve the byte-strides from a shape
 template <typename T>
-static inline std::vector<std::size_t>
+[[maybe_unused]] static APY_INLINE std::vector<std::size_t>
 strides_from_shape(const std::vector<std::size_t>& shape, std::size_t itemsize = 1)
 {
     std::size_t n_bytes = sizeof(T) * itemsize;

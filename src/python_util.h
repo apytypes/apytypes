@@ -60,7 +60,7 @@
 /*!
  * Creation of a new PyLongObject that can be returned to Python
  */
-static inline PyLongObject* PyLong_New(std::size_t python_digits)
+[[maybe_unused]] static APY_INLINE PyLongObject* PyLong_New(std::size_t python_digits)
 {
     std::size_t n_digits = python_digits ? python_digits : 1;
 
@@ -90,7 +90,7 @@ static inline PyLongObject* PyLong_New(std::size_t python_digits)
 /*!
  * Python arbitrary long integer object to GMP limb vector
  */
-static inline std::vector<mp_limb_t> python_long_to_limb_vec(
+[[maybe_unused]] static APY_INLINE std::vector<mp_limb_t> python_long_to_limb_vec(
     pybind11::int_ py_long_int, std::optional<std::size_t> n_exact_limbs = std::nullopt
 )
 {
@@ -160,7 +160,7 @@ static inline std::vector<mp_limb_t> python_long_to_limb_vec(
  * Convert a limb vector (`std::vector<mp_limb_t>`) to a Python long integer object
  * wrapped in a `Pybind11::int_`.
  */
-static inline pybind11::int_ python_limb_vec_to_long(
+[[maybe_unused]] static APY_INLINE pybind11::int_ python_limb_vec_to_long(
     const std::vector<mp_limb_t>& vec,
     bool vec_is_signed = false,
     std::optional<unsigned> bits_last_limb = std::nullopt
@@ -251,7 +251,7 @@ static inline pybind11::int_ python_limb_vec_to_long(
 /*!
  * Retrieve the shape of a, possibly nested, Python sequence of iterable object.
  */
-static inline std::vector<std::size_t>
+[[maybe_unused]] static APY_INLINE std::vector<std::size_t>
 python_sequence_extract_shape(const pybind11::sequence& bit_pattern_sequence)
 {
     namespace py = pybind11;
@@ -322,7 +322,7 @@ python_sequence_extract_shape(const pybind11::sequence& bit_pattern_sequence)
  * a `std::runtime_error` exception to be raised.
  */
 template <typename... PyTypes>
-static inline std::vector<pybind11::object>
+[[maybe_unused]] static APY_INLINE std::vector<pybind11::object>
 python_sequence_walk(const pybind11::sequence& py_seq)
 {
     namespace py = pybind11;

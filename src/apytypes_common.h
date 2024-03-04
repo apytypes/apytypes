@@ -36,7 +36,8 @@ enum class OverflowMode {
     NUMERIC_STD, // !< Drop bits left of the MSB, but keep the most significant bit
 };
 
-static inline std::string quantization_mode_to_string(QuantizationMode mode)
+[[maybe_unused]] static APY_INLINE std::string
+quantization_mode_to_string(QuantizationMode mode)
 {
     switch (mode) {
     case QuantizationMode::TRN:
@@ -72,7 +73,8 @@ static inline std::string quantization_mode_to_string(QuantizationMode mode)
     }
 }
 
-static inline std::string overflow_mode_to_string(OverflowMode mode)
+[[maybe_unused]] static APY_INLINE std::string overflow_mode_to_string(OverflowMode mode
+)
 {
     switch (mode) {
     case OverflowMode::WRAP:
