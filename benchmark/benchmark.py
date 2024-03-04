@@ -4,6 +4,7 @@ import timeit
 libraries = {
     "APyTypes": "bench_apytypes",
     "fxpmath": "bench_fxpmath",
+    "numfi": "bench_numfi",
     "fpbinary": "bench_fpbinary",
     "fixedpoint": "bench_fixedpoint",
     "spfpm": "bench_spfpm",
@@ -13,9 +14,12 @@ CREATE_TWO_SCALARS = (
     "a = lib.create_scalar(0.37, 32, 16); b = lib.create_scalar(1.54, 32, 16)"
 )
 CREATE_TWO_LONG_SCALARS = (
-    "a = lib.create_scalar(0.37, 320, 16); b = lib.create_scalar(1.54, 320, 16)"
+    "a = lib.create_scalar(0.37, 320, 160); b = lib.create_scalar(1.54, 320, 160)"
 )
 CREATE_TWO_ARRAYS = "import numpy as np; a = lib.create_array(np.random.rand(200, 200) - 0.5, 32, 16); b = lib.create_array(np.random.rand(200, 200), 32, 16)"
+CREATE_SHORT_VECTOR = (
+    "import numpy as np; a = lib.create_array(np.random.rand(20) - 0.5, 32, 16)"
+)
 CREATE_VECTOR = (
     "import numpy as np; a = lib.create_array(np.random.rand(200) - 0.5, 32, 16)"
 )
@@ -24,19 +28,25 @@ benchmarks = {
     "Scalar addition, 32-bit": ("c = a + b", CREATE_TWO_SCALARS),
     "Scalar multiplication, 32-bit": ("c = a * b", CREATE_TWO_SCALARS),
     "Scalar division, 32-bit": ("c = a / b", CREATE_TWO_SCALARS),
+    "Scalar abs, 32-bit": ("c = abs(a)", CREATE_TWO_SCALARS),
+    "Scalar negation, 32-bit": ("c = -a", CREATE_TWO_SCALARS),
     "Scalar to float, 32-bit": ("c = float(a)", CREATE_TWO_SCALARS),
-    "Scalar creation, 320-bit": ("lib.create_scalar(0.37, 32, 16)", "pass"),
+    "Scalar creation, 320-bit": ("lib.create_scalar(0.37, 320, 160)", "pass"),
     "Scalar addition, 320-bit": ("c = a + b", CREATE_TWO_LONG_SCALARS),
     "Scalar multiplication, 320-bit": ("c = a * b", CREATE_TWO_LONG_SCALARS),
     "Scalar division, 320-bit": ("c = a / b", CREATE_TWO_LONG_SCALARS),
     "Scalar to float, 320-bit": ("c = float(a)", CREATE_TWO_LONG_SCALARS),
-    "Vector summation": ("sum(a)", CREATE_VECTOR),
-    "Array creation": (
+    "20-element vector summation": ("sum(a)", CREATE_SHORT_VECTOR),
+    "200-element vector summation": ("sum(a)", CREATE_VECTOR),
+    "Matrix creation": (
         "lib.create_array(a, 32, 16)",
         "import numpy as np; a = np.random.rand(200, 200)",
     ),
-    "Array addition": ("c = a + b", CREATE_TWO_ARRAYS),
-    "Elementwise array multiplication": ("c = a * b", CREATE_TWO_ARRAYS),
+    "Matrix addition": ("c = a + b", CREATE_TWO_ARRAYS),
+    "Matrix abs": ("c = abs(a)", CREATE_TWO_ARRAYS),
+    "Matrix negation": ("c = -a", CREATE_TWO_ARRAYS),
+    "Matrix transpose": ("c = a.T", CREATE_TWO_ARRAYS),
+    "Elementwise matrix multiplication": ("c = a * b", CREATE_TWO_ARRAYS),
     "Matrix multiplication": ("c = a @ b", CREATE_TWO_ARRAYS),
 }
 
