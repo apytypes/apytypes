@@ -137,6 +137,9 @@ def test_array_mul_scalar():
     assert (b * a).is_identical(
         APyFixedArray([131057, 131054, 21], bits=17, int_bits=7)
     )
+    b = APyFixed(-3, bits=7, int_bits=2)
+    assert (a * b).is_identical(APyFixedArray([15, 18, 131051], bits=17, int_bits=7))
+    assert (b * a).is_identical(APyFixedArray([15, 18, 131051], bits=17, int_bits=7))
 
 
 def test_array_prod():
