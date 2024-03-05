@@ -201,6 +201,17 @@ def test_shift():
     assert (a >> -2).is_identical(APyFixedArray([1, 2, -3], bits=10, int_bits=7))
     assert (a << -7).is_identical(APyFixedArray([1, 2, -3], bits=10, int_bits=-2))
 
+    a = APyFixedArray([1, 2, -3], bits=10, int_bits=5)
+    b = a << 2
+    assert not a.is_identical(b)
+    a <<= 2
+    assert a.is_identical(b)
+    a = APyFixedArray([1, 2, -3], bits=10, int_bits=5)
+    b = a >> 2
+    assert not a.is_identical(b)
+    a >>= 2
+    assert a.is_identical(b)
+
 
 def test_unary_negate():
     a = APyFixedArray.from_float([0, -1, 2, -3, 4], bits=100, int_bits=50)

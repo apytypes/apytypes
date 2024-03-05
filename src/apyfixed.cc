@@ -276,7 +276,7 @@ APyFixed APyFixed::operator/(int rhs) const
     throw NotImplementedException("Not implemented: APyFixed.__mul__(int)");
 }
 
-APyFixed APyFixed::operator<<(int shift_val) const
+APyFixed APyFixed::operator<<(const int shift_val) const
 {
     // Left and right shift of data only affects the binary point in the data
     APyFixed result = *this;
@@ -284,12 +284,26 @@ APyFixed APyFixed::operator<<(int shift_val) const
     return result;
 }
 
-APyFixed APyFixed::operator>>(int shift_val) const
+APyFixed APyFixed::operator>>(const int shift_val) const
 {
     // Left and right shift of data only affects the binary point in the data
     APyFixed result = *this;
     result._int_bits -= shift_val;
     return result;
+}
+
+APyFixed& APyFixed::operator<<=(const int shift_val)
+{
+    // Left-shift in place
+    _int_bits += shift_val;
+    return *this;
+}
+
+APyFixed& APyFixed::operator>>=(const int shift_val)
+{
+    // Left-shift in place
+    _int_bits -= shift_val;
+    return *this;
 }
 
 bool APyFixed::operator==(const APyFixed& rhs) const { return (*this - rhs).is_zero(); }
@@ -570,11 +584,12 @@ void APyFixed::set_from_double(double value)
         if (left_shift_amnt >= 0) {
             limb_vector_lsl(_data, left_shift_amnt);
         } else {
-            if (-left_shift_amnt - 1 < 64) {
+            auto right_shift_amount = -left_shift_amnt;
+            if (right_shift_amount - 1 < 64) {
                 // Round the value
                 _data[0] += mp_limb_t(1) << (-left_shift_amnt - 1);
             }
-            limb_vector_lsr(_data, -left_shift_amnt);
+            limb_vector_lsr(_data, right_shift_amount);
         }
 
         // Adjust result from sign

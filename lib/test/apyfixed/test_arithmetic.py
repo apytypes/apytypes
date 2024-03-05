@@ -196,6 +196,17 @@ def test_shift():
     assert (a >> -2).is_identical(APyFixed(-3, 3, 4))
     assert (a << -7).is_identical(APyFixed(-3, 3, -5))
 
+    a = APyFixed(-3, bits=3, int_bits=2)
+    b = a << 2
+    assert not a.is_identical(b)
+    a <<= 2
+    assert a.is_identical(b)
+    a = APyFixed(-3, bits=3, int_bits=2)
+    b = a >> 2
+    assert not a.is_identical(b)
+    a >>= 2
+    assert a.is_identical(b)
+
 
 def test_comparisons_failing():
     a = APyFixed(3, 3, 2)
