@@ -95,9 +95,15 @@ ax.set_xticks(
     rotation=90,
 )
 ax.legend(loc="upper left")
+ax.set_xbound((-0.5, len(benchmarks)))
 fig.savefig("benchmark.png")
 
 # %%
+plt.rcParams["font.serif"] = ["cmr10", "cmss10"]
+plt.rcParams["font.family"] = "serif"
+plt.rcParams["text.usetex"] = True
+plt.rcParams["ytick.labelsize"] = 12
+
 fig, ax = plt.subplots(layout="constrained", figsize=(7, 7))
 x = np.arange(len(benchmarks))  # the label locations
 width = 1 / (len(libraries) + 2)  # the width of the bars
@@ -109,12 +115,10 @@ for library, measurement in results.items():
     multiplier += 1
 
 ax.set_yscale("log")
-ax.set_ylabel("Time, s")
+ax.set_ylabel("Time, s", size=12)
 ax.set_xticks(
-    x + (len(libraries) - 1) * width / 2,
-    benchmarks.keys(),
-    rotation=90,
+    x + (len(libraries) - 1) * width / 2, benchmarks.keys(), rotation=90, size=12
 )
-ax.legend(loc="upper left")
-
+ax.legend(loc="upper left", fontsize=12)
+ax.set_xbound((-0.5, len(benchmarks)))
 fig.savefig("benchmark.pdf")
