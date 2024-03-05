@@ -11,10 +11,10 @@ libraries = {
 }
 
 CREATE_TWO_SCALARS = (
-    "a = lib.create_scalar(0.37, 32, 16); b = lib.create_scalar(1.54, 32, 16)"
+    "a = lib.create_scalar(0.37, 32, 16); b = lib.create_scalar(-1.54, 32, 16)"
 )
 CREATE_TWO_LONG_SCALARS = (
-    "a = lib.create_scalar(0.37, 320, 160); b = lib.create_scalar(1.54, 320, 160)"
+    "a = lib.create_scalar(0.37, 320, 160); b = lib.create_scalar(-1.54, 320, 160)"
 )
 CREATE_TWO_ARRAYS = "import numpy as np; a = lib.create_array(np.random.rand(200, 200) - 0.5, 32, 16); b = lib.create_array(np.random.rand(200, 200), 32, 16)"
 CREATE_SCALAR_AND_ARRAY = "import numpy as np; a = lib.create_array(np.random.rand(200, 200) - 0.5, 32, 16); b = lib.create_scalar(-0.37854, 32, 16)"
