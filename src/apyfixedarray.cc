@@ -325,7 +325,24 @@ APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
         if (_shape[0] == rhs._shape[0]) {
             // Dimensionality for a standard scalar inner product checks out. Perform
             // the checked inner product.
-            return _checked_inner_product(rhs);
+            int res_bits = bits() + rhs.bits() + bit_width(_shape[0] - 1);
+            int res_int_bits = int_bits() + rhs.int_bits() + bit_width(_shape[0] - 1);
+            APyFixedArray result({ 1 }, res_bits, res_int_bits);
+            APyFixedArray hadamard_tmp(
+                _shape, bits() + rhs.bits(), int_bits() + rhs.int_bits()
+            );
+            std::vector<mp_limb_t> prod_tmp(_itemsize + rhs._itemsize);
+            std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
+            std::vector<mp_limb_t> op2_abs(bits_to_limbs(rhs.bits()));
+            _checked_inner_product(
+                rhs,
+                result, // dst
+                hadamard_tmp,
+                prod_tmp, // scratch memory: product
+                op1_abs,  // scratch memory: operand 1 absolute value
+                op2_abs   // scratch memroy: operand 2 absolute value
+            );
+            return result;
         }
     }
     if (ndim() == 2 && (rhs.ndim() == 2 || rhs.ndim() == 1)) {
@@ -507,60 +524,6 @@ bool APyFixedArray::is_identical(const APyFixedArray& other) const
     return same_shape && same_bit_spec && (_data == other._data);
 }
 
-/* ********************************************************************************** *
- * *                      Static conversion from other types                          *
- * ********************************************************************************** */
-
-APyFixedArray APyFixedArray::from_double(
-    const py::sequence& python_seq,
-    std::optional<int> bits,
-    std::optional<int> int_bits,
-    std::optional<int> frac_bits
-)
-{
-    APyFixedArray result(
-        python_sequence_extract_shape(python_seq), bits, int_bits, frac_bits
-    );
-
-    // Extract all Python doubles and integers
-    auto py_obj = python_sequence_walk<py::float_, py::int_>(python_seq);
-
-    // Set data from doubles (reuse `APyFixed::from_double` conversion)
-    APyFixed fix(result.bits(), result.int_bits());
-    for (std::size_t i = 0; i < result._data.size() / result._itemsize; i++) {
-        if (py::isinstance<py::float_>(py_obj[i])) {
-            // Python double object
-            double d = static_cast<double>(py::cast<py::float_>(py_obj[i]));
-            fix.set_from_double(d);
-            std::copy_n(
-                fix._data.begin(),                          // src
-                result._itemsize,                           // limbs to copy
-                result._data.begin() + i * result._itemsize // dst
-            );
-        } else if (py::isinstance<py::int_>(py_obj[i])) {
-            // Python integer object
-            auto max_bits = result.frac_bits() < 0
-                ? result.bits() - result.frac_bits() // Negative fractional bits
-                : result.bits();                     // Non-negative fractional bits
-            auto limb_vec = python_long_to_limb_vec(
-                py::cast<py::int_>(py_obj[i]), bits_to_limbs(max_bits)
-            );
-            fix.set_from_double(double(APyFixed(max_bits, max_bits, limb_vec)));
-            std::copy_n(
-                fix._data.begin(),                          // src
-                result._itemsize,                           // limbs to copy
-                result._data.begin() + i * result._itemsize // dst
-            );
-        }
-    }
-
-    return result;
-}
-
-/* ********************************************************************************** *
- * *                            Private member functions                            * *
- * ********************************************************************************** */
-
 APyFixedArray APyFixedArray::cast(
     std::optional<int> bits,
     std::optional<int> int_bits,
@@ -615,37 +578,6 @@ APyFixedArray APyFixedArray::cast(
     return result;
 }
 
-APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) const
-{
-
-    // The new result array (`bit_specifier_sanitize()` called in constructor)
-    APyFixedArray result(_shape, new_bits, new_int_bits);
-
-    // `APyFixed` with the same word length as `*this` for reusing quantization methods
-    APyFixed fixed(_bits, _int_bits);
-
-    // For each scalar in the tensor...
-    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
-
-        // Copy data into temporary `APyFixed`
-        std::copy_n(
-            _data.begin() + i * _itemsize, // src
-            _itemsize,                     // limbs to copy
-            fixed._data.begin()            // dst
-        );
-
-        // Perform the resizing
-        fixed.cast_correct_wl(
-            result._data.begin() + (i + 0) * result._itemsize, // output start
-            result._data.begin() + (i + 1) * result._itemsize, // output sentinel
-            new_bits,
-            new_int_bits
-        );
-    }
-
-    return result;
-}
-
 APyFixedArray APyFixedArray::resize(
     std::optional<int> bits,
     std::optional<int> int_bits,
@@ -659,6 +591,60 @@ APyFixedArray APyFixedArray::resize(
     );
     return cast(bits, int_bits, quantization, overflow, frac_bits);
 }
+
+/* ********************************************************************************** *
+ * *                      Static conversion from other types                          *
+ * ********************************************************************************** */
+
+APyFixedArray APyFixedArray::from_double(
+    const py::sequence& python_seq,
+    std::optional<int> bits,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits
+)
+{
+    APyFixedArray result(
+        python_sequence_extract_shape(python_seq), bits, int_bits, frac_bits
+    );
+
+    // Extract all Python doubles and integers
+    auto py_obj = python_sequence_walk<py::float_, py::int_>(python_seq);
+
+    // Set data from doubles (reuse `APyFixed::from_double` conversion)
+    APyFixed fix(result.bits(), result.int_bits());
+    for (std::size_t i = 0; i < result._data.size() / result._itemsize; i++) {
+        if (py::isinstance<py::float_>(py_obj[i])) {
+            // Python double object
+            double d = static_cast<double>(py::cast<py::float_>(py_obj[i]));
+            fix.set_from_double(d);
+            std::copy_n(
+                fix._data.begin(),                          // src
+                result._itemsize,                           // limbs to copy
+                result._data.begin() + i * result._itemsize // dst
+            );
+        } else if (py::isinstance<py::int_>(py_obj[i])) {
+            // Python integer object
+            auto max_bits = result.frac_bits() < 0
+                ? result.bits() - result.frac_bits() // Negative fractional bits
+                : result.bits();                     // Non-negative fractional bits
+            auto limb_vec = python_long_to_limb_vec(
+                py::cast<py::int_>(py_obj[i]), bits_to_limbs(max_bits)
+            );
+            fix.set_from_double(double(APyFixed(max_bits, max_bits, limb_vec)));
+            std::copy_n(
+                fix._data.begin(),                          // src
+                result._itemsize,                           // limbs to copy
+                result._data.begin() + i * result._itemsize // dst
+            );
+        }
+    }
+
+    return result;
+}
+
+/* ********************************************************************************** *
+ * *                            Private member functions                            * *
+ * ********************************************************************************** */
 
 void APyFixedArray::_checked_hadamard_product(
     const APyFixedArray& rhs,
@@ -717,42 +703,47 @@ void APyFixedArray::_checked_hadamard_product(
 
 // Evaluate the inner between two vectors. This method assumes that the the shape of
 // both `*this` and `rhs` are equally long. Anything else is undefined behaviour.
-APyFixedArray APyFixedArray::_checked_inner_product(const APyFixedArray& rhs) const
+void APyFixedArray::_checked_inner_product(
+    const APyFixedArray& rhs,         // rhs
+    APyFixedArray& result,            // result
+    APyFixedArray& hadamard_tmp,      // scratch: hadamard product
+    std::vector<mp_limb_t>& prod_tmp, // scratch: product result
+    std::vector<mp_limb_t>& op1_abs,  // scratch: absolute value operand 1
+    std::vector<mp_limb_t>& op2_abs   // scratch: absolute value operand 2
+) const
 {
-    // Resulting parameters of the inner product
-    int res_bits = bits() + rhs.bits() + bit_width(_shape[0] - 1);
-    int res_int_bits = int_bits() + rhs.int_bits() + bit_width(_shape[0] - 1);
-    if (get_accumulator_mode().has_value()) {
-        res_bits = get_accumulator_mode()->bits;
-        res_int_bits = get_accumulator_mode()->int_bits;
-    }
-
     // Early exit for empty arrays
     if (_shape[0] == 0) {
-        return APyFixedArray({ 0 }, res_bits, res_int_bits);
+        return;
     }
 
     // Hadamard product of `*this` and `rhs`
-    APyFixedArray hadamard = *this * rhs;
+    _checked_hadamard_product(
+        rhs, hadamard_tmp._data.begin(), prod_tmp, op1_abs, op2_abs
+    );
 
     // Handle possible global accumulator mode
     if (get_accumulator_mode().has_value()) {
         AccumulatorOption mode = *get_accumulator_mode();
-        hadamard
-            = hadamard.cast(mode.bits, mode.int_bits, mode.quantization, mode.overflow);
-    }
-
-    APyFixedArray result({ 1 }, res_bits, res_int_bits);
-    for (std::size_t i = 0; i < fold_shape(hadamard._shape); i++) {
-        mpn_add(
-            &result._data[0],                        // dst
-            &result._data[0],                        // src1
-            result._data.size(),                     // src1 limb length
-            &hadamard._data[i * hadamard._itemsize], // src2
-            hadamard._itemsize                       // src2 limb length
+        hadamard_tmp._cast(
+            hadamard_tmp._data.begin(),
+            hadamard_tmp._data.end(),
+            mode.bits,
+            mode.int_bits,
+            mode.quantization,
+            mode.overflow
         );
     }
-    return result;
+
+    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+        mpn_add(
+            &*result._data.begin(),                          // dst
+            &*result._data.begin(),                          // src1
+            result._data.size(),                             // src1 limb length
+            &hadamard_tmp._data[i * hadamard_tmp._itemsize], // src2
+            hadamard_tmp._itemsize                           // src2 limb length
+        );
+    }
 }
 
 // Evaluate the matrix product between two 2D matrices. This method assumes that the
@@ -775,6 +766,14 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(const APyFixedArray& rhs) const
 
     // Resulting `APyFixedArray`
     APyFixedArray result(res_shape, res_bits, res_int_bits);
+
+    // Scratch memories for avoiding memory allocation and de-allocation
+    APyFixedArray hadamard_tmp(
+        _shape, bits() + rhs.bits(), int_bits() + rhs.int_bits()
+    );
+    std::vector<mp_limb_t> prod_tmp(_itemsize + rhs._itemsize);
+    std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
+    std::vector<mp_limb_t> op2_abs(bits_to_limbs(rhs.bits()));
 
     // Perform the 2D matrix multiplication
     APyFixedArray current_column({ rhs._shape[0] }, rhs.bits(), rhs.int_bits());
@@ -803,11 +802,9 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(const APyFixedArray& rhs) const
             );
 
             // Perform the inner product
-            current_res = current_column._checked_inner_product(current_row);
-            assert(current_res._shape == std::vector<std::size_t> { 1 });
-            assert(current_res._itemsize == result._itemsize);
-            assert(current_res.bits() == result.bits());
-            assert(current_res.int_bits() == result.int_bits());
+            current_column._checked_inner_product(
+                current_row, current_res, hadamard_tmp, prod_tmp, op1_abs, op2_abs
+            );
 
             // Copy into the resulting vector
             std::copy_n(
@@ -815,8 +812,76 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(const APyFixedArray& rhs) const
                 current_res._data.size(),
                 result._data.begin() + (y * res_cols + x) * result._itemsize
             );
+
+            std::fill(current_res._data.begin(), current_res._data.end(), 0);
         }
     }
 
     return result;
+}
+
+APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) const
+{
+
+    // The new result array (`bit_specifier_sanitize()` called in constructor)
+    APyFixedArray result(_shape, new_bits, new_int_bits);
+
+    // `APyFixed` with the same word length as `*this` for reusing quantization methods
+    APyFixed fixed(_bits, _int_bits);
+
+    // For each scalar in the tensor...
+    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+
+        // Copy data into temporary `APyFixed`
+        std::copy_n(
+            _data.begin() + i * _itemsize, // src
+            _itemsize,                     // limbs to copy
+            fixed._data.begin()            // dst
+        );
+
+        // Perform the resizing
+        fixed.cast_correct_wl(
+            result._data.begin() + (i + 0) * result._itemsize, // output start
+            result._data.begin() + (i + 1) * result._itemsize, // output sentinel
+            new_bits,
+            new_int_bits
+        );
+    }
+
+    return result;
+}
+
+void APyFixedArray::_cast(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    int new_bits,
+    int new_int_bits,
+    QuantizationMode quantization,
+    OverflowMode overflow
+) const
+{
+    // `APyFixed` with the same word length as `*this` for reusing quantization methods
+    APyFixed fixed(_bits, _int_bits);
+
+    // For each scalar in the tensor...
+    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+
+        // Copy data into temporary `APyFixed`
+        std::copy_n(
+            _data.begin() + i * _itemsize, // src
+            _itemsize,                     // limbs to copy
+            fixed._data.begin()            // dst
+        );
+
+        // Perform the resizing
+        std::size_t result_itemsize = bits_to_limbs(new_bits);
+        fixed._cast(
+            it_begin + (i + 0) * result_itemsize, // output start
+            it_begin + (i + 1) * result_itemsize, // output sentinel
+            new_bits,
+            new_int_bits,
+            quantization,
+            overflow
+        );
+    }
 }

@@ -835,7 +835,9 @@ void APyFixed::cast_correct_wl(
         std::fill(it_begin + vector_size(), it_end, is_negative() ? mp_limb_t(-1) : 0);
     }
     int new_frac_bits = new_bits - new_int_bits;
-    limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    if (new_frac_bits - frac_bits() >= 0) {
+        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    }
 }
 
 void APyFixed::_quantize(

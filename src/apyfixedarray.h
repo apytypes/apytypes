@@ -197,10 +197,12 @@ private:
      * *                          Private member functions                          * *
      * ****************************************************************************** */
 
-    //! Perform hadamard product between `*this` and `rhs` using scratch memories. Store
-    //! the result in the vector pointed to by `res_begin`. This method assums the the
-    //! shape of `*this` and `rhs` are equally long. Anyghing else is undefined
-    //! behaviour.
+    /*!
+     * Perform hadamard product between `*this` and `rhs` using scratch memories. Store
+     * the result in the vector pointed to by `res_begin`. This method assumes that the
+     * shape of `*this` and `rhs` are equally long. Anyghing else is undefined
+     * behaviour.
+     */
     void _checked_hadamard_product(
         const APyFixedArray& rhs,
         std::vector<mp_limb_t>::iterator res_out, // output iterator
@@ -209,10 +211,20 @@ private:
         std::vector<mp_limb_t>& op2_abs           // scratch: absolute value operand 2
     ) const;
 
-    //! Evaluate the inner between two vectors. This method assumes that the the shape
-    //! of both `*this` and `rhs` are equally long. Anything else is undefined
-    //! behaviour.
-    APyFixedArray _checked_inner_product(const APyFixedArray& rhs) const;
+    /*!
+     * Evaluate the inner between `*this* and `rhs` using scratch memories. Store the
+     * result in the vector pointed to by `res_begin`. This method assumes that the the
+     * shape of both `*this` and `rhs` are equally long. Anything else is undefined
+     * behaviour.
+     */
+    void _checked_inner_product(
+        const APyFixedArray& rhs,         // rhs
+        APyFixedArray& result,            // result
+        APyFixedArray& hadamard_tmp,      // scratch: hadamard product
+        std::vector<mp_limb_t>& prod_tmp, // scratch: product result
+        std::vector<mp_limb_t>& op1_abs,  // scratch: absolute value operand 1
+        std::vector<mp_limb_t>& op2_abs   // scratch: absolute value operand 2
+    ) const;
 
     //! Evaluate the matrix product between two 2D matrices. This method assumes that
     //! the shape of `*this` and `rhs` have been checked to match a 2D matrix-matrix or
@@ -220,6 +232,16 @@ private:
     APyFixedArray _checked_2d_matmul(const APyFixedArray& rhs) const;
 
     APyFixedArray _cast_correct_wl(int new_bits, int new_int_bits) const;
+
+    //! The internal cast method used to place cast data onto a vector
+    void _cast(
+        std::vector<mp_limb_t>::iterator it_begin,
+        std::vector<mp_limb_t>::iterator it_end,
+        int new_bits,
+        int new_int_bits,
+        QuantizationMode quantization,
+        OverflowMode overflow
+    ) const;
 };
 
 #endif // _APYFIXED_ARRAY_H
