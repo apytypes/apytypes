@@ -169,6 +169,7 @@ public:
         OverflowMode overflow = OverflowMode::WRAP,
         std::optional<int> frac_bits = std::nullopt
     ) const;
+
     /*!
      * Test if two `APyFixedArray` objects are identical. Two `APyFixedArray` objects
      * are considered identical if, and only if:
@@ -195,6 +196,18 @@ private:
     /* ****************************************************************************** *
      * *                          Private member functions                          * *
      * ****************************************************************************** */
+
+    //! Perform hadamard product between `*this` and `rhs` using scratch memories. Store
+    //! the result in the vector pointed to by `res_begin`. This method assums the the
+    //! shape of `*this` and `rhs` are equally long. Anyghing else is undefined
+    //! behaviour.
+    void _checked_hadamard_product(
+        const APyFixedArray& rhs,
+        std::vector<mp_limb_t>::iterator res_out, // output iterator
+        std::vector<mp_limb_t>& prod_tmp,         // scratch: product result
+        std::vector<mp_limb_t>& op1_abs,          // scratch: absolute value operand 1
+        std::vector<mp_limb_t>& op2_abs           // scratch: absolute value operand 2
+    ) const;
 
     //! Evaluate the inner between two vectors. This method assumes that the the shape
     //! of both `*this` and `rhs` are equally long. Anything else is undefined

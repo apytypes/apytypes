@@ -212,53 +212,20 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
     // Resulting `APyFixedArray` fixed-point tensor
     APyFixedArray result(_shape, res_int_bits + res_frac_bits, res_int_bits);
 
-    // Perform multiplication for each element in the tensor. `mpn_mul` requires:
+    // Perform multiplication for each element in the tensor. `checked_hadamard_product`
+    // requires:
     // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
     //  most significant limb is zero."
-    std::vector<mp_limb_t> res_tmp_vec(_itemsize + rhs._itemsize, 0);
+    std::vector<mp_limb_t> prod_tmp(_itemsize + rhs._itemsize);
     std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
     std::vector<mp_limb_t> op2_abs(bits_to_limbs(rhs.bits()));
-    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
-        // Current working operands
-        auto op1_begin = _data.begin() + (i + 0) * _itemsize;
-        auto op1_end = _data.begin() + (i + 1) * _itemsize;
-        auto op2_begin = rhs._data.begin() + (i + 0) * rhs._itemsize;
-        auto op2_end = rhs._data.begin() + (i + 1) * rhs._itemsize;
-
-        // Evaluate resulting sign
-        bool sign1 = mp_limb_signed_t(*(op1_end - 1)) < 0;
-        bool sign2 = mp_limb_signed_t(*(op2_end - 1)) < 0;
-        bool result_sign = sign1 ^ sign2;
-
-        // Retrieve the absolute value of both operands, as required by GMP
-        limb_vector_abs(op1_begin, op1_end, op1_abs.begin());
-        limb_vector_abs(op2_begin, op2_end, op2_abs.begin());
-
-        // Perform the multiplication
-        mpn_mul(
-            &res_tmp_vec[0], // dst
-            &op1_abs[0],     // src1
-            op1_abs.size(),  // src1 limb vector length
-            &op2_abs[0],     // src2
-            op2_abs.size()   // src2 limb vector length
-        );
-
-        // Handle sign
-        if (result_sign) {
-            limb_vector_negate(
-                res_tmp_vec.begin(),
-                res_tmp_vec.begin() + result._itemsize,
-                result._data.begin() + (i + 0) * result._itemsize
-            );
-        } else {
-            // Copy into resulting vector
-            std::copy_n(
-                res_tmp_vec.begin(),
-                result._itemsize,
-                result._data.begin() + (i + 0) * result._itemsize
-            );
-        }
-    }
+    _checked_hadamard_product(
+        rhs,                  // rhs
+        result._data.begin(), // dst
+        prod_tmp,             // scratch memory: product
+        op1_abs,              // scratch memory: operand 1 absolute value
+        op2_abs               // scratch memroy: operand 2 absolute value
+    );
 
     return result;
 }
@@ -691,6 +658,61 @@ APyFixedArray APyFixedArray::resize(
         PyExc_DeprecationWarning, "resize() is deprecated, use cast() instead.", 1
     );
     return cast(bits, int_bits, quantization, overflow, frac_bits);
+}
+
+void APyFixedArray::_checked_hadamard_product(
+    const APyFixedArray& rhs,
+    std::vector<mp_limb_t>::iterator res_out, // output iterator
+    std::vector<mp_limb_t>& prod_tmp,         // scratch: product result
+    std::vector<mp_limb_t>& op1_abs,          // scratch: absolute value operand 1
+    std::vector<mp_limb_t>& op2_abs           // scratch: absolute value operand 2
+) const
+{
+    // Perform multiplication for each element in the tensor. `mpn_mul` requires:
+    // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
+    //  most significant limb is zero."
+    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+        // Current working operands
+        auto op1_begin = _data.begin() + (i + 0) * _itemsize;
+        auto op1_end = _data.begin() + (i + 1) * _itemsize;
+        auto op2_begin = rhs._data.begin() + (i + 0) * rhs._itemsize;
+        auto op2_end = rhs._data.begin() + (i + 1) * rhs._itemsize;
+
+        // Evaluate resulting sign
+        bool sign1 = mp_limb_signed_t(*(op1_end - 1)) < 0;
+        bool sign2 = mp_limb_signed_t(*(op2_end - 1)) < 0;
+        bool result_sign = sign1 ^ sign2;
+
+        // Retrieve the absolute value of both operands, as required by GMP
+        limb_vector_abs(op1_begin, op1_end, op1_abs.begin());
+        limb_vector_abs(op2_begin, op2_end, op2_abs.begin());
+
+        // Perform the multiplication
+        mpn_mul(
+            &prod_tmp[0],   // dst
+            &op1_abs[0],    // src1
+            op1_abs.size(), // src1 limb vector length
+            &op2_abs[0],    // src2
+            op2_abs.size()  // src2 limb vector length
+        );
+
+        int result_itemsize = bits_to_limbs(bits() + rhs.bits());
+        if (result_sign) {
+            // Negate result
+            limb_vector_negate(
+                prod_tmp.begin(),
+                prod_tmp.begin() + result_itemsize,
+                res_out + (i + 0) * result_itemsize
+            );
+        } else {
+            // Copy into resulting vector
+            std::copy(
+                prod_tmp.begin(),
+                prod_tmp.begin() + result_itemsize,
+                res_out + (i + 0) * result_itemsize
+            );
+        }
+    }
 }
 
 // Evaluate the inner between two vectors. This method assumes that the the shape of

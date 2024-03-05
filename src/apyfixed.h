@@ -64,9 +64,6 @@ public:
     //! No default constructed APyFixed types
     APyFixed() = delete;
 
-    //! Constructor: initialize from other APyFixed
-    APyFixed(const APyFixed& other);
-
     //! Constructor: construct from a Python arbitrary long integer object and
     //! optionally set bit specifiers
     explicit APyFixed(
@@ -81,6 +78,9 @@ public:
      * ****************************************************************************** */
 
 public:
+    //! Constructor: initialize from other APyFixed
+    APyFixed(const APyFixed& other);
+
     //! Constructor: specify only size, and zero data on construction
     explicit APyFixed(int bits, int int_bits);
 

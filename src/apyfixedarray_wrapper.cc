@@ -139,6 +139,7 @@ void bind_fixed_array(py::module& m)
             },
             py::is_operator()
         )
+        //.def(py::self - APyFixed(1,0))
         .def(
             "__sub__",
             [](const APyFixedArray& a, const APyFixed& b) { return a - b; },
