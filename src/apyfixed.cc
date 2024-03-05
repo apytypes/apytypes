@@ -194,7 +194,9 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
 
     // Handle sign
     if (sign_product) {
-        result._data = limb_vector_negate(result._data.cbegin(), result._data.cend());
+        limb_vector_negate(
+            result._data.begin(), result._data.end(), result._data.begin()
+        );
     }
     return result;
 }
@@ -232,8 +234,9 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
             den_significant_limbs  // Denominator significant limbs
         );
         if (sign_product) {
-            result._data
-                = limb_vector_negate(result._data.cbegin(), result._data.cend());
+            limb_vector_negate(
+                result._data.begin(), result._data.end(), result._data.begin()
+            );
         }
         return result;
     }
@@ -505,7 +508,7 @@ void APyFixed::set_from_string_dec(const std::string& str)
     _data = data;
     _data.resize(bits_to_limbs(bits()));
     if (is_negative) {
-        _data = limb_vector_negate(_data.cbegin(), _data.cend());
+        limb_vector_negate(_data.begin(), _data.end(), _data.begin());
     }
 
     // Two's complement overflow and we're done
@@ -561,11 +564,9 @@ void APyFixed::set_from_double(double value)
         }
         _data[0] = man;
 
-        // Adjust the actual exponent
-        exp -= 1023;
-
-        // Shift the data into its correct position
-        auto left_shift_amnt = exp + frac_bits() - 52;
+        // Adjust the actual exponent (-1023) and
+        // shift the data into its correct position
+        auto left_shift_amnt = exp + frac_bits() - 52 - 1023;
         if (left_shift_amnt >= 0) {
             limb_vector_lsl(_data, left_shift_amnt);
         } else {
@@ -578,7 +579,7 @@ void APyFixed::set_from_double(double value)
 
         // Adjust result from sign
         if (sign_of_double(value)) {
-            _data = limb_vector_negate(_data.cbegin(), _data.cend());
+            limb_vector_negate(_data.begin(), _data.end(), _data.begin());
         }
         _twos_complement_overflow(_data.begin(), _data.end(), bits(), int_bits());
     } else {
@@ -611,8 +612,7 @@ double APyFixed::to_double() const
             limb_vector_lsr(man_vec, -left_shift_amnt);
         }
         man = man_vec[0];
-        exp = 52 - left_shift_amnt - frac_bits();
-        exp += 1023;
+        exp = 1023 + 52 - left_shift_amnt - frac_bits();
 
         // Return the result
         double result {};
