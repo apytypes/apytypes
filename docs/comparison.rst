@@ -20,8 +20,8 @@ Comparison matrix
       - Yes
       - Yes
       - Yes
-      - Yes [#numfifootnote]_
       - Yes
+      - Yes [#numfifootnote]_
       - Yes
       - Yes
     * - Custom floating-point formats
@@ -36,16 +36,16 @@ Comparison matrix
       - None
       - None
       - None
-      - 64 [#numfifootnote]_
       - None
+      - 64 [#numfifootnote]_
       - 53 [#pyfixpfootnote]_
       - None
     * - Resizing of fixed-point results
       - Yes
       - Yes
       - Yes
-      - Yes [#numfifootnote]_
       - Yes
+      - Yes [#numfifootnote]_
       - Yes [#pyfixpfootnote]_
       - No
     * - Arrays
@@ -94,11 +94,11 @@ Comparison matrix
     * - Custom floating-point formats
       - Yes
       - Yes
-    * - Binary representation of number [#binaryfootnote]
+    * - Binary representation of number [#binaryfootnote]_
       - Yes
       - No
     * - Maximum wordlength
-      - 32 bits for exponent, 64 bits for mantissa [#apytypesfootnote]
+      - 32 bits for exponent, 64 bits for mantissa [#apytypesfootnote]_
       - None
     * - Stochastic rounding
       - Yes
