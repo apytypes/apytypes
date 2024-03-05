@@ -101,14 +101,17 @@ void bind_fixed_array(py::module& m)
             },
             py::is_operator()
         )
-        /* .def("__rsub__", [](const APyFixedArray& a, int b) {
-            if (b == 0) {
-                return -a;
-            } else {
-                throw pybind11::type_error("Cannot subtract with int");
-            };
-        }, py::is_operator())
-         */
+        .def(
+            "__rsub__",
+            [](const APyFixedArray& a, int b) {
+                if (b == 0) {
+                    return -a;
+                } else {
+                    throw pybind11::type_error("Cannot subtract with int");
+                };
+            },
+            py::is_operator()
+        )
         .def(
             "__sub__",
             [](const APyFixedArray& a, float b) {
@@ -120,23 +123,27 @@ void bind_fixed_array(py::module& m)
             },
             py::is_operator()
         )
-        /* .def("__rsub__", [](const APyFixedArray& a, float b) {
-            if (b == 0.) {
-                return -a;
-            } else {
-                throw pybind11::type_error("Cannot subtract with float");
-            };
-        }, py::is_operator())
-         */
+        .def(
+            "__rsub__",
+            [](const APyFixedArray& a, float b) {
+                if (b == 0.) {
+                    return -a;
+                } else {
+                    throw pybind11::type_error("Cannot subtract with float");
+                };
+            },
+            py::is_operator()
+        )
         .def(
             "__sub__",
             [](const APyFixedArray& a, APyFixed& b) { return a - b; },
             py::is_operator()
         )
-        /* .def("__rsub__", [](const APyFixedArray& a, APyFixed& b) {
-            return (-a) + b;
-        }, py::is_operator())
-         */
+        .def(
+            "__rsub__",
+            [](const APyFixedArray& a, APyFixed& b) { return (-a) + b; },
+            py::is_operator()
+        )
         .def(py::self * py::self)
         .def(
             "__mul__",

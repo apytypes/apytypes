@@ -91,6 +91,7 @@ def test_array_sub_scalar():
     a = APyFixedArray([-5, -6, 7], bits=10, int_bits=5)
     b = APyFixed(3, bits=7, int_bits=2)
     assert (a - b).is_identical(APyFixedArray([2040, 2039, 4], bits=11, int_bits=6))
+    assert (-(b - a)).is_identical((a - b).cast(13, 8))
 
 
 def test_array_mul():
