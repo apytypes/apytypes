@@ -92,8 +92,10 @@ public:
     APyFixedArray operator*(const APyFixedArray& rhs) const;
     APyFixedArray operator*(const APyFixed& rhs) const;
     APyFixedArray operator/(const APyFixedArray& rhs) const;
-    APyFixedArray operator<<(int shift_val) const;
-    APyFixedArray operator>>(int shift_val) const;
+    APyFixedArray operator<<(const int shift_val) const;
+    APyFixedArray operator>>(const int shift_val) const;
+    APyFixedArray& operator<<=(const int shift_val);
+    APyFixedArray& operator>>=(const int shift_val);
 
     /*!
      * Matrix mutliplication. If both arguments ar 2-D tensors, this method performs the

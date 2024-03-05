@@ -51,10 +51,16 @@ void bind_fixed(py::module& m)
         .def(py::self * py::self)
         .def(py::self / py::self)
         .def(-py::self)
+        .def(py::self <<= int())
+        .def(py::self >>= int())
 
         // Addition with integers
         .def(py::self + int())
-        .def("__radd__", [](APyFixed& rhs, int lhs) { return rhs + lhs; })
+        .def(
+            "__radd__",
+            [](APyFixed& rhs, int lhs) { return rhs + lhs; },
+            py::is_operator()
+        )
         .def(py::self - int())
         .def(
             "__rsub__",
@@ -63,10 +69,15 @@ void bind_fixed(py::module& m)
                     return -rhs;
                 }
                 throw NotImplementedException("NotImplemented: __rsub__(int)");
-            }
+            },
+            py::is_operator()
         )
         .def(py::self * int())
-        .def("__rmul__", [](APyFixed& rhs, int lhs) { return rhs * lhs; })
+        .def(
+            "__rmul__",
+            [](APyFixed& rhs, int lhs) { return rhs * lhs; },
+            py::is_operator()
+        )
         //.def(py::self / int())
 
         /*
@@ -233,8 +244,18 @@ void bind_fixed(py::module& m)
         .def("__neg__", [](APyFixed& fix) { return -fix; })
         .def("__repr__", &APyFixed::repr)
         .def("__str__", &APyFixed::to_string, py::arg("base") = 10)
-        .def("__lshift__", &APyFixed::operator<<, py::arg("shift_amnt"))
-        .def("__rshift__", &APyFixed::operator>>, py::arg("shift_amnt"))
+        .def(
+            "__lshift__",
+            &APyFixed::operator<<,
+            py::arg("shift_amnt"),
+            py::is_operator()
+        )
+        .def(
+            "__rshift__",
+            &APyFixed::operator>>,
+            py::arg("shift_amnt"),
+            py::is_operator()
+        )
 
         /*
          * Static methods

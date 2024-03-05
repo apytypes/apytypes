@@ -107,8 +107,10 @@ public:
     APyFixed operator-(const APyFixed& rhs) const;
     APyFixed operator*(const APyFixed& rhs) const;
     APyFixed operator/(const APyFixed& rhs) const;
-    APyFixed operator<<(int shift_val) const;
-    APyFixed operator>>(int shift_val) const;
+    APyFixed operator<<(const int shift_val) const;
+    APyFixed operator>>(const int shift_val) const;
+    APyFixed& operator<<=(const int shift_val);
+    APyFixed& operator>>=(const int shift_val);
 
     APyFixed operator+(int rhs) const;
     APyFixed operator-(int rhs) const;
