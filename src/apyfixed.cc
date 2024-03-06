@@ -763,7 +763,8 @@ APyFixed APyFixed::cast(
     int new_bits = bits_from_optional(bits, int_bits, frac_bits);
     int new_int_bits = int_bits_from_optional(bits, int_bits, frac_bits);
 
-    APyFixed result(new_bits, new_int_bits);
+    // Result that temporarily can hold all the necessary bits
+    APyFixed result(std::max(new_bits, _bits), std::max(new_int_bits, _int_bits));
     _cast(
         result._data.begin(), // output start
         result._data.end(),   // output sentinel
@@ -773,6 +774,9 @@ APyFixed APyFixed::cast(
         overflow
     );
 
+    result._bits = new_bits;
+    result._int_bits = new_int_bits;
+    result._data.resize(bits_to_limbs(new_bits));
     return result;
 }
 

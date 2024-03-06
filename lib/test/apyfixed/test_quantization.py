@@ -200,6 +200,11 @@ def test_stochastic_equal():
     pass
 
 
+def test_huge_narrowing_cast():
+    mode = QuantizationMode.RND
+    assert float(APyFixed.from_float(-0.75, 1000, 500).cast(5, 1, mode)) == -0.75
+
+
 # All of the non-implemented Python quantization methods for APyFixed
 @pytest.mark.parametrize(
     "mode",
