@@ -1,5 +1,6 @@
 // Python object access through Pybind
 #include "apybuffer.h"
+#include <iostream>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -342,6 +343,13 @@ APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
                 op1_abs,  // scratch memory: operand 1 absolute value
                 op2_abs   // scratch memroy: operand 2 absolute value
             );
+            if (get_accumulator_mode().has_value()) {
+                AccumulatorOption mode = *get_accumulator_mode();
+                result._bits = mode.bits;
+                result._int_bits = mode.int_bits;
+                result._itemsize = bits_to_limbs(mode.bits);
+                result._data.resize(result._itemsize * fold_shape(result._shape));
+            }
             return result;
         }
     }
@@ -701,15 +709,13 @@ void APyFixedArray::_checked_hadamard_product(
     }
 }
 
-// Evaluate the inner between two vectors. This method assumes that the the shape of
-// both `*this` and `rhs` are equally long. Anything else is undefined behaviour.
 void APyFixedArray::_checked_inner_product(
-    const APyFixedArray& rhs,         // rhs
-    APyFixedArray& result,            // result
-    APyFixedArray& hadamard_tmp,      // scratch: hadamard product
-    std::vector<mp_limb_t>& prod_tmp, // scratch: product result
-    std::vector<mp_limb_t>& op1_abs,  // scratch: absolute value operand 1
-    std::vector<mp_limb_t>& op2_abs   // scratch: absolute value operand 2
+    const APyFixedArray& rhs,             // rhs
+    APyFixedArray& result,                // result
+    APyFixedArray& hadamard_scratch,      // scratch: hadamard product
+    std::vector<mp_limb_t>& prod_scratch, // scratch: product result
+    std::vector<mp_limb_t>& op1_scratch,  // scratch: absolute value operand 1
+    std::vector<mp_limb_t>& op2_scratch   // scratch: absolute value operand 2
 ) const
 {
     // Early exit for empty arrays
@@ -719,30 +725,44 @@ void APyFixedArray::_checked_inner_product(
 
     // Hadamard product of `*this` and `rhs`
     _checked_hadamard_product(
-        rhs, hadamard_tmp._data.begin(), prod_tmp, op1_abs, op2_abs
+        rhs, hadamard_scratch._data.begin(), prod_scratch, op1_scratch, op2_scratch
     );
 
-    // Handle possible global accumulator mode
-    if (get_accumulator_mode().has_value()) {
-        AccumulatorOption mode = *get_accumulator_mode();
-        hadamard_tmp._cast(
-            hadamard_tmp._data.begin(),
-            hadamard_tmp._data.end(),
-            mode.bits,
-            mode.int_bits,
-            mode.quantization,
-            mode.overflow
-        );
-    }
+    std::size_t hadamard_itemsize = hadamard_scratch._itemsize;
 
-    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
-        mpn_add(
-            &*result._data.begin(),                          // dst
-            &*result._data.begin(),                          // src1
-            result._data.size(),                             // src1 limb length
-            &hadamard_tmp._data[i * hadamard_tmp._itemsize], // src2
-            hadamard_tmp._itemsize                           // src2 limb length
+    // Handle global accumulator context
+    auto global_accumulator_mode = get_accumulator_mode();
+    if (global_accumulator_mode.has_value()) {
+        AccumulatorOption mode = *global_accumulator_mode;
+        APyFixedArray hadamard_new = hadamard_scratch.cast(
+            mode.bits, mode.int_bits, mode.quantization, mode.overflow
         );
+        std::cout << "Hadamard new: " << hadamard_new.repr() << std::endl;
+
+        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+            mpn_add(
+                &*result._data.begin(),                          // dst
+                &*result._data.begin(),                          // src1
+                result._data.size(),                             // src1 limb length
+                &hadamard_new._data[i * hadamard_new._itemsize], // src2
+                std::min(
+                    hadamard_new._itemsize, result._data.size()
+                ) // src2 limb length
+            );
+        }
+
+        std::cout << "Sum: " << *result._data.begin() << std::endl;
+    } else {
+
+        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+            mpn_add(
+                &*result._data.begin(),                          // dst
+                &*result._data.begin(),                          // src1
+                result._data.size(),                             // src1 limb length
+                &hadamard_scratch._data[i * hadamard_itemsize],  // src2
+                std::min(hadamard_itemsize, result._data.size()) // src2 limb length
+            );
+        }
     }
 }
 
@@ -759,17 +779,13 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(const APyFixedArray& rhs) const
     // Resulting number of bits
     std::size_t res_bits = bits() + rhs.bits() + bit_width(_shape[1] - 1);
     std::size_t res_int_bits = int_bits() + rhs.int_bits() + bit_width(_shape[1] - 1);
-    if (get_accumulator_mode().has_value()) {
-        res_bits = get_accumulator_mode()->bits;
-        res_int_bits = get_accumulator_mode()->int_bits;
-    }
 
     // Resulting `APyFixedArray`
     APyFixedArray result(res_shape, res_bits, res_int_bits);
 
     // Scratch memories for avoiding memory allocation and de-allocation
     APyFixedArray hadamard_tmp(
-        _shape, bits() + rhs.bits(), int_bits() + rhs.int_bits()
+        { rhs._shape[0] }, bits() + rhs.bits(), int_bits() + rhs.int_bits()
     );
     std::vector<mp_limb_t> prod_tmp(_itemsize + rhs._itemsize);
     std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
@@ -806,15 +822,29 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(const APyFixedArray& rhs) const
                 current_row, current_res, hadamard_tmp, prod_tmp, op1_abs, op2_abs
             );
 
+            auto acc_mode = get_accumulator_mode();
+            if (acc_mode.has_value()) {
+                auto mode = *acc_mode;
+                result._itemsize = bits_to_limbs(mode.bits);
+            }
+
             // Copy into the resulting vector
             std::copy_n(
                 current_res._data.begin(),
-                current_res._data.size(),
+                result._itemsize,
                 result._data.begin() + (y * res_cols + x) * result._itemsize
             );
 
             std::fill(current_res._data.begin(), current_res._data.end(), 0);
         }
+    }
+
+    if (get_accumulator_mode().has_value()) {
+        AccumulatorOption mode = *get_accumulator_mode();
+        result._bits = mode.bits;
+        result._int_bits = mode.int_bits;
+        result._itemsize = bits_to_limbs(mode.bits);
+        result._data.resize(result._itemsize * fold_shape(result._shape));
     }
 
     return result;

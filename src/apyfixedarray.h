@@ -171,11 +171,11 @@ public:
     ) const;
 
     /*!
-     * Test if two `APyFixedArray` objects are identical. Two `APyFixedArray` objects
-     * are considered identical if, and only if:
+     * Test if `*this` is identical to another `APyFixedArray`. Two `APyFixedArray`
+     * objects are considered identical if, and only if:
      *   * They represent exatly the same tensor shape
      *   * They store the exact same fixed-point values in all tensor elements
-     *   * They have the exact same bit format (`exp_bits`, `man_bits`, and `bias`)
+     *   * They have the exact same bit format (`bits`, `int_bits`, and `frac_bits`)
      */
     bool is_identical(const APyFixedArray& other) const;
 
@@ -204,31 +204,33 @@ private:
      * behaviour.
      */
     void _checked_hadamard_product(
-        const APyFixedArray& rhs,
+        const APyFixedArray& rhs,                 // rhs
         std::vector<mp_limb_t>::iterator res_out, // output iterator
-        std::vector<mp_limb_t>& prod_tmp,         // scratch: product result
-        std::vector<mp_limb_t>& op1_abs,          // scratch: absolute value operand 1
-        std::vector<mp_limb_t>& op2_abs           // scratch: absolute value operand 2
+        std::vector<mp_limb_t>& prod_scratch,     // scratch: product result
+        std::vector<mp_limb_t>& op1_scratch,      // scratch: absolute value operand 1
+        std::vector<mp_limb_t>& op2_scratch       // scratch: absolute value operand 2
     ) const;
 
     /*!
-     * Evaluate the inner between `*this* and `rhs` using scratch memories. Store the
-     * result in the vector pointed to by `res_begin`. This method assumes that the the
-     * shape of both `*this` and `rhs` are equally long. Anything else is undefined
-     * behaviour.
+     * Evaluate the inner product between `*this` and `rhs` using scratch memories.
+     * Store the result in the vector pointed to by `res_begin`. This method assumes
+     * that the the shape of both `*this` and `rhs` are equally long. Anything else is
+     * undefined behaviour.
      */
     void _checked_inner_product(
-        const APyFixedArray& rhs,         // rhs
-        APyFixedArray& result,            // result
-        APyFixedArray& hadamard_tmp,      // scratch: hadamard product
-        std::vector<mp_limb_t>& prod_tmp, // scratch: product result
-        std::vector<mp_limb_t>& op1_abs,  // scratch: absolute value operand 1
-        std::vector<mp_limb_t>& op2_abs   // scratch: absolute value operand 2
+        const APyFixedArray& rhs,             // rhs
+        APyFixedArray& result,                // result
+        APyFixedArray& hadamard_scratch,      // scratch: hadamard product
+        std::vector<mp_limb_t>& prod_scratch, // scratch: product result
+        std::vector<mp_limb_t>& op1_scratch,  // scratch: absolute value operand 1
+        std::vector<mp_limb_t>& op2_scratch   // scratch: absolute value operand 2
     ) const;
 
-    //! Evaluate the matrix product between two 2D matrices. This method assumes that
-    //! the shape of `*this` and `rhs` have been checked to match a 2D matrix-matrix or
-    //! matrix-vector multiplication. Anything else is undefined behaviour.
+    /*!
+     * Evaluate the matrix product between two 2D matrices. This method assumes that
+     * the shape of `*this` and `rhs` have been checked to match a 2D matrix-matrix or
+     * matrix-vector multiplication. Anything else is undefined behaviour.
+     */
     APyFixedArray _checked_2d_matmul(const APyFixedArray& rhs) const;
 
     APyFixedArray _cast_correct_wl(int new_bits, int new_int_bits) const;

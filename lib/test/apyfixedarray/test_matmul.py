@@ -58,9 +58,9 @@ def test_dimension_missmatch_raises():
 
 def test_inner_product():
     a = APyFixedArray([1, 2, 3, 4, 5, 6, 7, 8], bits=10, int_bits=10)
-    b = APyFixedArray([9, 8, 7, 6, 5, 4, 3, 2], bits=10, int_bits=10)
-    assert (a @ b).is_identical(APyFixedArray([156], bits=23, int_bits=23))
-    assert (b @ a).is_identical(APyFixedArray([156], bits=23, int_bits=23))
+    b = APyFixedArray([9, 8, 7, 6, 5, 4, 3, 2], bits=10, int_bits=5)
+    assert (a @ b).is_identical(APyFixedArray([156], bits=23, int_bits=18))
+    assert (b @ a).is_identical(APyFixedArray([156], bits=23, int_bits=18))
 
     a = APyFixedArray.from_float([1.2345, 5.4321], bits=256, int_bits=128)
     b = APyFixedArray.from_float([9.8765, 5.6789], bits=256, int_bits=128)
@@ -114,7 +114,7 @@ def test_matrix_multiplication():
             [3, 3, 3, 3, 3],
         ],
         bits=10,
-        int_bits=10,
+        int_bits=7,
     )
     assert (a @ b).is_identical(
         APyFixedArray(
@@ -123,7 +123,7 @@ def test_matrix_multiplication():
                 [32, 32, 32, 32, 32],
             ],
             bits=22,
-            int_bits=22,
+            int_bits=19,
         )
     )
     with pytest.raises(ValueError, match="APyFixedArray.__matmul__: input shape"):
@@ -230,4 +230,39 @@ def test_matrix_multiplication_accumulator_context():
     with AccumulatorContext(int_bits=2, frac_bits=1, quantization=QuantizationMode.RND):
         assert (A @ B).is_identical(
             APyFixedArray.from_float([[0.0000, 1.0000], [1.0000, 1.5000]], 3, 2)
+        )
+
+
+def test_matrix_multiplication_narrow_accumulator():
+    A = APyFixedArray.from_float(
+        [
+            [0.25, 0.50],
+            [0.75, 1.00],
+        ],
+        int_bits=512,
+        frac_bits=256,
+    )
+    B = APyFixedArray.from_float(
+        [
+            [0.75, 1.00],
+            [0.25, 0.50],
+        ],
+        int_bits=256,
+        frac_bits=512,
+    )
+
+    assert (A @ B).is_identical(
+        APyFixedArray.from_float(
+            [[0.3125, 0.5], [0.8125, 1.25]],
+            bits=1537,
+            int_bits=768 + 1,
+        )
+    )
+
+    with AccumulatorContext(bits=10, int_bits=5):
+        C = A @ B
+        assert C.is_identical(
+            APyFixedArray.from_float(
+                [[0.3125, 0.5], [0.8125, 1.25]], bits=10, int_bits=5
+            )
         )
