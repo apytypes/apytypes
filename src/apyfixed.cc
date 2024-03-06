@@ -830,8 +830,10 @@ void APyFixed::cast_correct_wl(
 {
     // Copy data into the result and sign extend
     std::size_t result_vector_size = std::distance(it_begin, it_end);
-    std::copy_n(_data.begin(), result_vector_size, it_begin);
-    std::fill(it_begin + vector_size(), it_end, is_negative() ? mp_limb_t(-1) : 0);
+    std::copy_n(_data.begin(), std::min(result_vector_size, vector_size()), it_begin);
+    if (vector_size() < result_vector_size) {
+        std::fill(it_begin + vector_size(), it_end, is_negative() ? mp_limb_t(-1) : 0);
+    }
     int new_frac_bits = new_bits - new_int_bits;
     limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
 }
@@ -1139,13 +1141,24 @@ void APyFixed::_twos_complement_overflow(
     int int_bits
 ) const
 {
-    (void)it_begin;
     (void)int_bits;
-    unsigned bits_last_word = bits & (_LIMB_SIZE_BITS - 1);
-    if (bits_last_word) {
-        // Exploit signed arithmetic right-shift to perform two's complement overflow.
-        auto shft_amnt = _LIMB_SIZE_BITS - bits_last_word;
-        *(it_end - 1) = mp_limb_signed_t((*(it_end - 1)) << shft_amnt) >> shft_amnt;
+    unsigned limb_shift_val = bits & (_LIMB_SIZE_BITS - 1);
+    std::size_t n_out_limbs = std::distance(it_begin, it_end);
+    std::size_t significant_limbs = bits_to_limbs(bits);
+    auto limb_it = it_begin + significant_limbs - 1;
+
+    if (limb_shift_val) {
+        auto shft_amnt = _LIMB_SIZE_BITS - limb_shift_val;
+        auto signed_limb = mp_limb_signed_t(*limb_it << shft_amnt) >> shft_amnt;
+        *limb_it = mp_limb_t(signed_limb);
+    }
+
+    if (n_out_limbs > significant_limbs) {
+        std::fill_n(
+            it_begin + significant_limbs,
+            n_out_limbs - significant_limbs,
+            mp_limb_signed_t(*limb_it) < 0 ? -1 : 0
+        );
     }
 }
 

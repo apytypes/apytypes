@@ -1,4 +1,5 @@
 from apytypes import APyFixedArray, APyFixed
+from apytypes import QuantizationMode
 
 import math
 import pytest
@@ -232,4 +233,50 @@ def test_abs():
     )
     assert abs(b).is_identical(
         APyFixedArray.from_float([0, 1, 2, 3, 4], bits=65, int_bits=33)
+    )
+
+
+@pytest.mark.parametrize(
+    "mode",
+    [
+        QuantizationMode.TRN,
+        QuantizationMode.TRN_INF,
+        QuantizationMode.TRN_ZERO,
+        QuantizationMode.RND,
+        QuantizationMode.RND_INF,
+        QuantizationMode.RND_MIN_INF,
+        QuantizationMode.RND_ZERO,
+        QuantizationMode.RND_CONV,
+        QuantizationMode.RND_CONV_ODD,
+        QuantizationMode.JAM_UNBIASED,
+    ],
+)
+def test_huge_narrowing_cast(mode):
+    a = APyFixedArray.from_float([-0.75, 0.5], 1000, 500)
+    assert a.cast(10, 5, mode).is_identical(
+        APyFixedArray.from_float([-0.75, 0.5], 10, 5)
+    )
+
+
+@pytest.mark.parametrize(
+    "mode",
+    [
+        QuantizationMode.TRN,
+        QuantizationMode.TRN_INF,
+        QuantizationMode.TRN_ZERO,
+        QuantizationMode.RND,
+        QuantizationMode.RND_INF,
+        QuantizationMode.RND_MIN_INF,
+        QuantizationMode.RND_ZERO,
+        QuantizationMode.RND_CONV,
+        QuantizationMode.RND_CONV_ODD,
+        QuantizationMode.JAM_UNBIASED,
+    ],
+)
+def test_huge_extending_cast(mode):
+    a = APyFixedArray.from_float([-0.75, 0.5], 10, 5)
+    print(a.cast(1000, 500, mode))
+    print(APyFixedArray.from_float([-0.75, 0.5], 1000, 500))
+    assert a.cast(1000, 500, mode).is_identical(
+        APyFixedArray.from_float([-0.75, 0.5], 1000, 500)
     )

@@ -607,7 +607,9 @@ APyFixedArray APyFixedArray::cast(
     int new_int_bits = int_bits_from_optional(bits, int_bits, frac_bits);
 
     // The new result array (`bit_specifier_sanitize()` called in constructor)
-    APyFixedArray result(_shape, new_bits, new_int_bits);
+    APyFixedArray result(
+        _shape, std::max(new_bits, _bits), std::max(new_int_bits, _int_bits)
+    );
 
     // `APyFixed` with the same word length as `*this` for reusing quantization methods
     APyFixed fixed(_bits, _int_bits);
@@ -615,17 +617,24 @@ APyFixedArray APyFixedArray::cast(
     // For each scalar in the tensor...
     for (std::size_t i = 0; i < fold_shape(_shape); i++) {
 
-        // Copy data into temporary `APyFixed`
+        // Copy data into temporary `APyFixed` and possibly sign extend
         std::copy_n(
             _data.begin() + i * _itemsize, // src
             _itemsize,                     // limbs to copy
             fixed._data.begin()            // dst
         );
+        if (fixed.vector_size() > _itemsize) {
+            std::fill_n(
+                fixed._data.begin() + _itemsize,
+                fixed.vector_size() - _itemsize,
+                mp_limb_signed_t(*--(_data.begin() + (i + 1) * _itemsize)) < 0 ? -1 : 0
+            );
+        }
 
         // Perform the resizing
         fixed._cast(
-            result._data.begin() + (i + 0) * result._itemsize, // output start
-            result._data.begin() + (i + 1) * result._itemsize, // output sentinel
+            result._data.begin() + (i + 0) * bits_to_limbs(new_bits), // output start
+            result._data.begin() + (i + 1) * result._itemsize,        // output sentinel
             new_bits,
             new_int_bits,
             quantization,
@@ -633,6 +642,9 @@ APyFixedArray APyFixedArray::cast(
         );
     }
 
+    result._bits = new_bits;
+    result._int_bits = new_int_bits;
+    result.buffer_resize(_shape, bits_to_limbs(new_bits));
     return result;
 }
 
