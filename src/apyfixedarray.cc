@@ -1,6 +1,5 @@
 // Python object access through Pybind
 #include "apybuffer.h"
-#include <iostream>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -329,26 +328,26 @@ APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
             int res_bits = bits() + rhs.bits() + bit_width(_shape[0] - 1);
             int res_int_bits = int_bits() + rhs.int_bits() + bit_width(_shape[0] - 1);
             APyFixedArray result({ 1 }, res_bits, res_int_bits);
-            APyFixedArray hadamard_tmp(
+            APyFixedArray hadamard_scratch(
                 _shape, bits() + rhs.bits(), int_bits() + rhs.int_bits()
             );
-            std::vector<mp_limb_t> prod_tmp(_itemsize + rhs._itemsize);
+            std::vector<mp_limb_t> prod_scratch(_itemsize + rhs._itemsize);
             std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
             std::vector<mp_limb_t> op2_abs(bits_to_limbs(rhs.bits()));
+            std::optional<AccumulatorOption> mode = get_accumulator_mode();
             _checked_inner_product(
                 rhs,
-                result, // dst
-                hadamard_tmp,
-                prod_tmp, // scratch memory: product
-                op1_abs,  // scratch memory: operand 1 absolute value
-                op2_abs   // scratch memroy: operand 2 absolute value
+                result,           // dst
+                hadamard_scratch, // scratch memory: hadamard product
+                prod_scratch,     // scratch memory: product
+                op1_abs,          // scratch memory: operand 1 absolute value
+                op2_abs,          // scratch memroy: operand 2 absolute value
+                mode
             );
-            if (get_accumulator_mode().has_value()) {
-                AccumulatorOption mode = *get_accumulator_mode();
-                result._bits = mode.bits;
-                result._int_bits = mode.int_bits;
-                result._itemsize = bits_to_limbs(mode.bits);
-                result._data.resize(result._itemsize * fold_shape(result._shape));
+            if (mode.has_value()) {
+                result._bits = mode->bits;
+                result._int_bits = mode->int_bits;
+                result.buffer_resize(result._shape, bits_to_limbs(mode->bits));
             }
             return result;
         }
@@ -357,7 +356,7 @@ APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
         if (_shape[1] == rhs._shape[0]) {
             // Dimensionality for a standard 2D matrix mutliplication checks out.
             // Perform the checked 2D matrix
-            return _checked_2d_matmul(rhs);
+            return _checked_2d_matmul(rhs, get_accumulator_mode());
         }
     }
 
@@ -545,44 +544,31 @@ APyFixedArray APyFixedArray::cast(
     int new_int_bits = int_bits_from_optional(bits, int_bits, frac_bits);
 
     // The new result array (`bit_specifier_sanitize()` called in constructor)
+    std::size_t result_limbs = bits_to_limbs(new_bits);
+    std::size_t pad_limbs = bits_to_limbs(std::max(new_bits, _bits)) - result_limbs;
     APyFixedArray result(
-        _shape, std::max(new_bits, _bits), std::max(new_int_bits, _int_bits)
+        _shape,
+        new_bits + _LIMB_SIZE_BITS * pad_limbs,
+        new_int_bits + _LIMB_SIZE_BITS * pad_limbs
     );
 
     // `APyFixed` with the same word length as `*this` for reusing quantization methods
-    APyFixed fixed(_bits, _int_bits);
+    APyFixed caster(_bits, _int_bits);
 
-    // For each scalar in the tensor...
-    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
-
-        // Copy data into temporary `APyFixed` and possibly sign extend
-        std::copy_n(
-            _data.begin() + i * _itemsize, // src
-            _itemsize,                     // limbs to copy
-            fixed._data.begin()            // dst
-        );
-        if (fixed.vector_size() > _itemsize) {
-            std::fill_n(
-                fixed._data.begin() + _itemsize,
-                fixed.vector_size() - _itemsize,
-                mp_limb_signed_t(*--(_data.begin() + (i + 1) * _itemsize)) < 0 ? -1 : 0
-            );
-        }
-
-        // Perform the resizing
-        fixed._cast(
-            result._data.begin() + (i + 0) * bits_to_limbs(new_bits), // output start
-            result._data.begin() + (i + 1) * result._itemsize,        // output sentinel
-            new_bits,
-            new_int_bits,
-            quantization,
-            overflow
-        );
-    }
+    // Do the casting
+    _cast(
+        result._data.begin(),
+        result._data.end(),
+        caster,
+        new_bits,
+        new_int_bits,
+        quantization,
+        overflow
+    );
 
     result._bits = new_bits;
     result._int_bits = new_int_bits;
-    result.buffer_resize(_shape, bits_to_limbs(new_bits));
+    result.buffer_resize(_shape, result_limbs);
     return result;
 }
 
@@ -663,7 +649,7 @@ void APyFixedArray::_checked_hadamard_product(
 ) const
 {
     // Perform multiplication for each element in the tensor. `mpn_mul` requires:
-    // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
+    // "The destination has to have space for `s1n` + `s2n` limbs, even if the product's
     //  most significant limb is zero."
     for (std::size_t i = 0; i < fold_shape(_shape); i++) {
         // Current working operands
@@ -715,7 +701,8 @@ void APyFixedArray::_checked_inner_product(
     APyFixedArray& hadamard_scratch,      // scratch: hadamard product
     std::vector<mp_limb_t>& prod_scratch, // scratch: product result
     std::vector<mp_limb_t>& op1_scratch,  // scratch: absolute value operand 1
-    std::vector<mp_limb_t>& op2_scratch   // scratch: absolute value operand 2
+    std::vector<mp_limb_t>& op2_scratch,  // scratch: absolute value operand 2
+    std::optional<AccumulatorOption> mode // optional accumulation mode
 ) const
 {
     // Early exit for empty arrays
@@ -728,32 +715,28 @@ void APyFixedArray::_checked_inner_product(
         rhs, hadamard_scratch._data.begin(), prod_scratch, op1_scratch, op2_scratch
     );
 
-    std::size_t hadamard_itemsize = hadamard_scratch._itemsize;
-
     // Handle global accumulator context
-    auto global_accumulator_mode = get_accumulator_mode();
-    if (global_accumulator_mode.has_value()) {
-        AccumulatorOption mode = *global_accumulator_mode;
-        APyFixedArray hadamard_new = hadamard_scratch.cast(
-            mode.bits, mode.int_bits, mode.quantization, mode.overflow
-        );
-        std::cout << "Hadamard new: " << hadamard_new.repr() << std::endl;
+    if (mode.has_value()) {
 
+        // Accumulator setting specified
+        APyFixedArray hadamard_new = hadamard_scratch.cast(
+            mode->bits, mode->int_bits, mode->quantization, mode->overflow
+        );
+        std::size_t hadamard_itemsize = bits_to_limbs(mode->bits);
         for (std::size_t i = 0; i < fold_shape(_shape); i++) {
             mpn_add(
                 &*result._data.begin(),                          // dst
                 &*result._data.begin(),                          // src1
                 result._data.size(),                             // src1 limb length
-                &hadamard_new._data[i * hadamard_new._itemsize], // src2
-                std::min(
-                    hadamard_new._itemsize, result._data.size()
-                ) // src2 limb length
+                &hadamard_new._data[i * hadamard_itemsize],      // src2
+                std::min(hadamard_itemsize, result._data.size()) // src2 limb length
             );
         }
 
-        std::cout << "Sum: " << *result._data.begin() << std::endl;
     } else {
 
+        // No accumulator setting specified
+        std::size_t hadamard_itemsize = hadamard_scratch._itemsize;
         for (std::size_t i = 0; i < fold_shape(_shape); i++) {
             mpn_add(
                 &*result._data.begin(),                          // dst
@@ -768,7 +751,9 @@ void APyFixedArray::_checked_inner_product(
 
 // Evaluate the matrix product between two 2D matrices. This method assumes that the
 // shape of `*this` and `rhs` have been checked to match a 2d matrix multiplication.
-APyFixedArray APyFixedArray::_checked_2d_matmul(const APyFixedArray& rhs) const
+APyFixedArray APyFixedArray::_checked_2d_matmul(
+    const APyFixedArray& rhs, std::optional<AccumulatorOption> mode
+) const
 {
     // Resulting shape
     std::vector<std::size_t> res_shape = rhs._shape.size() > 1
@@ -782,6 +767,9 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(const APyFixedArray& rhs) const
 
     // Resulting `APyFixedArray`
     APyFixedArray result(res_shape, res_bits, res_int_bits);
+    if (mode.has_value()) {
+        result._itemsize = bits_to_limbs(mode->bits);
+    }
 
     // Scratch memories for avoiding memory allocation and de-allocation
     APyFixedArray hadamard_tmp(
@@ -819,14 +807,8 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(const APyFixedArray& rhs) const
 
             // Perform the inner product
             current_column._checked_inner_product(
-                current_row, current_res, hadamard_tmp, prod_tmp, op1_abs, op2_abs
+                current_row, current_res, hadamard_tmp, prod_tmp, op1_abs, op2_abs, mode
             );
-
-            auto acc_mode = get_accumulator_mode();
-            if (acc_mode.has_value()) {
-                auto mode = *acc_mode;
-                result._itemsize = bits_to_limbs(mode.bits);
-            }
 
             // Copy into the resulting vector
             std::copy_n(
@@ -839,11 +821,10 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(const APyFixedArray& rhs) const
         }
     }
 
-    if (get_accumulator_mode().has_value()) {
-        AccumulatorOption mode = *get_accumulator_mode();
-        result._bits = mode.bits;
-        result._int_bits = mode.int_bits;
-        result._itemsize = bits_to_limbs(mode.bits);
+    if (mode.has_value()) {
+        result._bits = mode->bits;
+        result._int_bits = mode->int_bits;
+        result._itemsize = bits_to_limbs(mode->bits);
         result._data.resize(result._itemsize * fold_shape(result._shape));
     }
 
@@ -884,30 +865,38 @@ APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) co
 void APyFixedArray::_cast(
     std::vector<mp_limb_t>::iterator it_begin,
     std::vector<mp_limb_t>::iterator it_end,
+    APyFixed& caster,
     int new_bits,
     int new_int_bits,
     QuantizationMode quantization,
     OverflowMode overflow
 ) const
 {
-    // `APyFixed` with the same word length as `*this` for reusing quantization methods
-    APyFixed fixed(_bits, _int_bits);
+    (void)it_end;
 
     // For each scalar in the tensor...
+    std::size_t result_limbs = bits_to_limbs(new_bits);
+    std::size_t pad_limbs = bits_to_limbs(std::max(new_bits, _bits)) - result_limbs;
     for (std::size_t i = 0; i < fold_shape(_shape); i++) {
 
-        // Copy data into temporary `APyFixed`
+        // Copy data into temporary `APyFixed` and sign extend
         std::copy_n(
             _data.begin() + i * _itemsize, // src
             _itemsize,                     // limbs to copy
-            fixed._data.begin()            // dst
+            caster._data.begin()           // dst
         );
+        if (caster.vector_size() > _itemsize) {
+            std::fill_n(
+                caster._data.begin() + _itemsize,
+                caster.vector_size() - _itemsize,
+                mp_limb_signed_t(*--(_data.begin() + (i + 1) * _itemsize)) < 0 ? -1 : 0
+            );
+        }
 
         // Perform the resizing
-        std::size_t result_itemsize = bits_to_limbs(new_bits);
-        fixed._cast(
-            it_begin + (i + 0) * result_itemsize, // output start
-            it_begin + (i + 1) * result_itemsize, // output sentinel
+        caster._cast(
+            it_begin + (i + 0) * result_limbs,             // output start
+            it_begin + (i + 1) * result_limbs + pad_limbs, // output sentinel
             new_bits,
             new_int_bits,
             quantization,

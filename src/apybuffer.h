@@ -76,11 +76,13 @@ protected:
     // result in loss of data.
     void buffer_resize(const std::vector<std::size_t> shape, std::size_t itemsize)
     {
-        _itemsize = itemsize;
-        _shape = shape;
-        _strides = strides_from_shape<T>(shape, itemsize);
-        _data.resize(itemsize * fold_shape(shape));
-        _ndim = shape.size();
+        if ((_itemsize != itemsize) || (_shape != shape)) {
+            _itemsize = itemsize;
+            _shape = shape;
+            _strides = strides_from_shape<T>(shape, itemsize);
+            _data.resize(itemsize * fold_shape(shape));
+            _ndim = shape.size();
+        }
     }
 
     std::size_t _itemsize;             // Size of item (in number of objects `T`)

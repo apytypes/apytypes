@@ -223,7 +223,8 @@ private:
         APyFixedArray& hadamard_scratch,      // scratch: hadamard product
         std::vector<mp_limb_t>& prod_scratch, // scratch: product result
         std::vector<mp_limb_t>& op1_scratch,  // scratch: absolute value operand 1
-        std::vector<mp_limb_t>& op2_scratch   // scratch: absolute value operand 2
+        std::vector<mp_limb_t>& op2_scratch,  // scratch: absolute value operand 2
+        std::optional<AccumulatorOption> mode // optional accumulation mode
     ) const;
 
     /*!
@@ -231,14 +232,24 @@ private:
      * the shape of `*this` and `rhs` have been checked to match a 2D matrix-matrix or
      * matrix-vector multiplication. Anything else is undefined behaviour.
      */
-    APyFixedArray _checked_2d_matmul(const APyFixedArray& rhs) const;
+    APyFixedArray _checked_2d_matmul(
+        const APyFixedArray& rhs,             // rhs
+        std::optional<AccumulatorOption> mode // optional accumulation mode
+    ) const;
 
     APyFixedArray _cast_correct_wl(int new_bits, int new_int_bits) const;
 
-    //! The internal cast method used to place cast data onto a vector
+    /*!
+     * The internal cast method used to place cast data onto a pair of iterators.
+     * See `APyFixedArray::cast` for example usage.
+     * Importantly:
+     *   * The `caster` must be an `APyFixed` object with same bit specifier as `*this`
+     *   * If `new_bits` > `_bits`, the output must contain pad limbs
+     */
     void _cast(
         std::vector<mp_limb_t>::iterator it_begin,
         std::vector<mp_limb_t>::iterator it_end,
+        APyFixed& caster,
         int new_bits,
         int new_int_bits,
         QuantizationMode quantization,
