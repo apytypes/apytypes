@@ -648,49 +648,57 @@ void APyFixedArray::_checked_hadamard_product(
     std::vector<mp_limb_t>& op2_abs           // scratch: absolute value operand 2
 ) const
 {
-    // Perform multiplication for each element in the tensor. `mpn_mul` requires:
-    // "The destination has to have space for `s1n` + `s2n` limbs, even if the product's
-    //  most significant limb is zero."
-    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
-        // Current working operands
-        auto op1_begin = _data.begin() + (i + 0) * _itemsize;
-        auto op1_end = _data.begin() + (i + 1) * _itemsize;
-        auto op2_begin = rhs._data.begin() + (i + 0) * rhs._itemsize;
-        auto op2_end = rhs._data.begin() + (i + 1) * rhs._itemsize;
+    std::size_t res_bits = _bits + rhs._bits;
+    if (res_bits <= _LIMB_SIZE_BITS) {
+        // Native multiplication supported
+        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+            *(res_out + i) = _data[i] * rhs._data[i];
+        }
+    } else {
+        // Perform multiplication for each element in the tensor. `mpn_mul` requires:
+        // "The destination has to have space for `s1n` + `s2n` limbs, even if the
+        // product's most significant limb is zero."
+        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+            // Current working operands
+            auto op1_begin = _data.begin() + (i + 0) * _itemsize;
+            auto op1_end = _data.begin() + (i + 1) * _itemsize;
+            auto op2_begin = rhs._data.begin() + (i + 0) * rhs._itemsize;
+            auto op2_end = rhs._data.begin() + (i + 1) * rhs._itemsize;
 
-        // Evaluate resulting sign
-        bool sign1 = mp_limb_signed_t(*(op1_end - 1)) < 0;
-        bool sign2 = mp_limb_signed_t(*(op2_end - 1)) < 0;
-        bool result_sign = sign1 ^ sign2;
+            // Evaluate resulting sign
+            bool sign1 = mp_limb_signed_t(*(op1_end - 1)) < 0;
+            bool sign2 = mp_limb_signed_t(*(op2_end - 1)) < 0;
+            bool result_sign = sign1 ^ sign2;
 
-        // Retrieve the absolute value of both operands, as required by GMP
-        limb_vector_abs(op1_begin, op1_end, op1_abs.begin());
-        limb_vector_abs(op2_begin, op2_end, op2_abs.begin());
+            // Retrieve the absolute value of both operands, as required by GMP
+            limb_vector_abs(op1_begin, op1_end, op1_abs.begin());
+            limb_vector_abs(op2_begin, op2_end, op2_abs.begin());
 
-        // Perform the multiplication
-        mpn_mul(
-            &prod_tmp[0],   // dst
-            &op1_abs[0],    // src1
-            op1_abs.size(), // src1 limb vector length
-            &op2_abs[0],    // src2
-            op2_abs.size()  // src2 limb vector length
-        );
-
-        int result_itemsize = bits_to_limbs(bits() + rhs.bits());
-        if (result_sign) {
-            // Negate result
-            limb_vector_negate(
-                prod_tmp.begin(),
-                prod_tmp.begin() + result_itemsize,
-                res_out + (i + 0) * result_itemsize
+            // Perform the multiplication
+            mpn_mul(
+                &prod_tmp[0],   // dst
+                &op1_abs[0],    // src1
+                op1_abs.size(), // src1 limb vector length
+                &op2_abs[0],    // src2
+                op2_abs.size()  // src2 limb vector length
             );
-        } else {
-            // Copy into resulting vector
-            std::copy(
-                prod_tmp.begin(),
-                prod_tmp.begin() + result_itemsize,
-                res_out + (i + 0) * result_itemsize
-            );
+
+            int result_itemsize = bits_to_limbs(bits() + rhs.bits());
+            if (result_sign) {
+                // Negate result
+                limb_vector_negate(
+                    prod_tmp.begin(),
+                    prod_tmp.begin() + result_itemsize,
+                    res_out + (i + 0) * result_itemsize
+                );
+            } else {
+                // Copy into resulting vector
+                std::copy(
+                    prod_tmp.begin(),
+                    prod_tmp.begin() + result_itemsize,
+                    res_out + (i + 0) * result_itemsize
+                );
+            }
         }
     }
 }
