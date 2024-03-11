@@ -96,6 +96,7 @@ public:
     APyFixedArray operator>>(const int shift_val) const;
     APyFixedArray& operator<<=(const int shift_val);
     APyFixedArray& operator>>=(const int shift_val);
+    APyFixedArray rsub(const APyFixed& rhs) const;
 
     /*!
      * Matrix mutliplication. If both arguments ar 2-D tensors, this method performs the

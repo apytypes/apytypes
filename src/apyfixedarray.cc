@@ -195,6 +195,31 @@ APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
     return result;
 }
 
+// Scalar - Array
+APyFixedArray APyFixedArray::rsub(const APyFixed& rhs) const
+{
+    // Increase word length of result by one
+    const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
+    const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
+
+    // Adjust binary point
+    APyFixedArray result = cast(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixed imm = rhs.cast(res_int_bits + res_frac_bits, res_int_bits);
+
+    // Perform addition
+    for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+        mpn_sub_n(
+            &result._data[i], // dst
+            &imm._data[0],    // src1
+            &result._data[i], // src2
+            result._itemsize  // limb vector length
+        );
+    }
+
+    // Return result
+    return result;
+}
+
 APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
 {
     // Make sure `_shape` of `*this` and `rhs` are the same

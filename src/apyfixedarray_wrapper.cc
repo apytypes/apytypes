@@ -147,7 +147,7 @@ void bind_fixed_array(py::module& m)
         )
         .def(
             "__rsub__",
-            [](const APyFixedArray& a, const APyFixed& b) { return (-a) + b; },
+            [](const APyFixedArray& a, const APyFixed& b) { return a.rsub(b); },
             py::is_operator()
         )
         .def(py::self * py::self)
