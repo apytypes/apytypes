@@ -178,7 +178,7 @@ APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
 
     // Adjust binary point
-    APyFixedArray result = cast(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result = _cast_correct_wl(res_int_bits + res_frac_bits, res_int_bits);
     APyFixed imm = rhs.cast(res_int_bits + res_frac_bits, res_int_bits);
 
     // Perform addition
@@ -196,15 +196,15 @@ APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
 }
 
 // Scalar - Array
-APyFixedArray APyFixedArray::rsub(const APyFixed& rhs) const
+APyFixedArray APyFixedArray::rsub(const APyFixed& lhs) const
 {
     // Increase word length of result by one
-    const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
-    const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
+    const int res_int_bits = std::max(lhs.int_bits(), int_bits()) + 1;
+    const int res_frac_bits = std::max(lhs.frac_bits(), frac_bits());
 
     // Adjust binary point
-    APyFixedArray result = cast(res_int_bits + res_frac_bits, res_int_bits);
-    APyFixed imm = rhs.cast(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result = _cast_correct_wl(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixed imm = lhs.cast(res_int_bits + res_frac_bits, res_int_bits);
 
     // Perform addition
     for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
@@ -477,7 +477,7 @@ size_t APyFixedArray::size() const { return _shape[0]; }
 
 APyFixedArray APyFixedArray::abs() const
 {
-    APyFixedArray result = cast(bits() + 1, int_bits() + 1);
+    APyFixedArray result = _cast_correct_wl(bits() + 1, int_bits() + 1);
     for (std::size_t i = 0; i < fold_shape(_shape); i++) {
         limb_vector_abs(
             result._data.begin() + (i + 0) * result._itemsize,
@@ -490,7 +490,7 @@ APyFixedArray APyFixedArray::abs() const
 
 APyFixedArray APyFixedArray::operator-() const
 {
-    APyFixedArray result = cast(bits() + 1, int_bits() + 1);
+    APyFixedArray result = _cast_correct_wl(bits() + 1, int_bits() + 1);
     for (std::size_t i = 0; i < fold_shape(_shape); i++) {
         limb_vector_negate(
             result._data.begin() + (i + 0) * result._itemsize,
