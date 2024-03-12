@@ -42,8 +42,8 @@ APyFixedArray::APyFixedArray(
     std::optional<int> frac_bits
 )
     : APyFixedArray(
-        python_sequence_extract_shape(bit_pattern_sequence), bits, int_bits, frac_bits
-    )
+          python_sequence_extract_shape(bit_pattern_sequence), bits, int_bits, frac_bits
+      )
 {
     auto python_ints = python_sequence_walk<py::int_>(bit_pattern_sequence);
     for (std::size_t i = 0; i < _data.size() / _itemsize; i++) {
@@ -454,9 +454,8 @@ std::string APyFixedArray::repr() const
     }
     ss << "], shape=(";
     ss << string_from_vec(_shape);
-    ss << "), "
-       << "bits=" << std::dec << bits() << ", "
-       << "int_bits=" << std::dec << int_bits() << ")";
+    ss << "), " << "bits=" << std::dec << bits() << ", " << "int_bits=" << std::dec
+       << int_bits() << ")";
     return ss.str();
 }
 

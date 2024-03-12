@@ -183,7 +183,7 @@ see https://www.gnu.org/licenses/.  */
         mp_limb_t _qh, _ql, _r, _mask;                                                 \
         gmp_umul_ppmm(_qh, _ql, (nh), (di));                                           \
         gmp_add_ssaaaa(_qh, _ql, _qh, _ql, (nh) + 1, (nl));                            \
-        _r = (nl)-gmp_umullo_limb(_qh, (d));                                           \
+        _r = (nl) - gmp_umullo_limb(_qh, (d));                                         \
         _mask = -(mp_limb_t)(_r > _ql); /* both > and >= are OK */                     \
         _qh += _mask;                                                                  \
         _r += _mask & (d);                                                             \
@@ -203,7 +203,7 @@ see https://www.gnu.org/licenses/.  */
         gmp_add_ssaaaa((q), _q0, (q), _q0, (n2), (n1));                                \
                                                                                        \
         /* Compute the two most significant limbs of n - q'd */                        \
-        (r1) = (n1)-gmp_umullo_limb((d1), (q));                                        \
+        (r1) = (n1) - gmp_umullo_limb((d1), (q));                                      \
         gmp_sub_ddmmss((r1), (r0), (r1), (n0), (d1), (d0));                            \
         gmp_umul_ppmm(_t1, _t0, (d0), (q));                                            \
         gmp_sub_ddmmss((r1), (r0), (r1), (r0), _t1, _t0);                              \
@@ -2914,10 +2914,10 @@ void mpz_rootrem(mpz_t x, mpz_t r, const mpz_t y, unsigned long z)
 
     if (z == 2) /* simplify sqrt loop: z-1 == 1 */
         do {
-            mpz_swap(u, t);             /* u = x */
-            mpz_tdiv_q(t, y, u);        /* t = y/x */
-            mpz_add(t, t, u);           /* t = y/x + x */
-            mpz_tdiv_q_2exp(t, t, 1);   /* x'= (y/x + x)/2 */
+            mpz_swap(u, t);           /* u = x */
+            mpz_tdiv_q(t, y, u);      /* t = y/x */
+            mpz_add(t, t, u);         /* t = y/x + x */
+            mpz_tdiv_q_2exp(t, t, 1); /* x'= (y/x + x)/2 */
         } while (mpz_cmpabs(t, u) < 0); /* |x'| < |x| */
     else /* z != 2 */ {
         mpz_t v;
@@ -2927,12 +2927,12 @@ void mpz_rootrem(mpz_t x, mpz_t r, const mpz_t y, unsigned long z)
             mpz_neg(t, t);
 
         do {
-            mpz_swap(u, t);             /* u = x */
-            mpz_pow_ui(t, u, z - 1);    /* t = x^(z-1) */
-            mpz_tdiv_q(t, y, t);        /* t = y/x^(z-1) */
-            mpz_mul_ui(v, u, z - 1);    /* v = x*(z-1) */
-            mpz_add(t, t, v);           /* t = y/x^(z-1) + x*(z-1) */
-            mpz_tdiv_q_ui(t, t, z);     /* x'=(y/x^(z-1) + x*(z-1))/z */
+            mpz_swap(u, t);          /* u = x */
+            mpz_pow_ui(t, u, z - 1); /* t = x^(z-1) */
+            mpz_tdiv_q(t, y, t);     /* t = y/x^(z-1) */
+            mpz_mul_ui(v, u, z - 1); /* v = x*(z-1) */
+            mpz_add(t, t, v);        /* t = y/x^(z-1) + x*(z-1) */
+            mpz_tdiv_q_ui(t, t, z);  /* x'=(y/x^(z-1) + x*(z-1))/z */
         } while (mpz_cmpabs(t, u) < 0); /* |x'| < |x| */
 
         mpz_clear(v);
@@ -4082,7 +4082,7 @@ void mpz_import(
             *zp++ = limb & GMP_NUMB_MASK;                                              \
             lbits -= GMP_NUMB_BITS;                                                    \
             assert(lbits < (N));                                                       \
-            limb = byte >> ((N)-lbits);                                                \
+            limb = byte >> ((N) - lbits);                                              \
         }                                                                              \
     } while (0)
 
@@ -4221,7 +4221,7 @@ void* mpz_export(
             mp_limb_t newlimb;                                                         \
             newlimb = (zp == zend ? 0 : *zp++);                                        \
             *dp = (limb | (newlimb << lbits)) MASK;                                    \
-            limb = newlimb >> ((N)-lbits);                                             \
+            limb = newlimb >> ((N) - lbits);                                           \
             lbits += GMP_NUMB_BITS - (N);                                              \
         }                                                                              \
     } while (0)
