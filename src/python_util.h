@@ -3,9 +3,8 @@
  */
 
 // Python object access through Pybind
-#include <pybind11/pybind11.h>
-#include <pybind11/pytypes.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
 
 // Python details. These should be included before standard header files:
 // https://docs.python.org/3/c-api/intro.html#include-files
@@ -15,6 +14,7 @@
 #include <algorithm> // std::copy
 #include <cassert>   // assert
 #include <cstddef>   // offsetof
+#include <cstring>   // std::memcpy
 #include <numeric>   // std::accumulate
 #include <optional>  // std::optional, std::nullopt
 #include <stack>     // std::stack
@@ -91,7 +91,7 @@
  * Python arbitrary long integer object to GMP limb vector
  */
 [[maybe_unused]] static APY_INLINE std::vector<mp_limb_t> python_long_to_limb_vec(
-    pybind11::int_ py_long_int, std::optional<std::size_t> n_exact_limbs = std::nullopt
+    nanobind::int_ py_long_int, std::optional<std::size_t> n_exact_limbs = std::nullopt
 )
 {
     PyLongObject* py_long = (PyLongObject*)py_long_int.ptr();
@@ -160,7 +160,7 @@
  * Convert a limb vector (`std::vector<mp_limb_t>`) to a Python long integer object
  * wrapped in a `Pybind11::int_`.
  */
-[[maybe_unused]] static APY_INLINE pybind11::int_ python_limb_vec_to_long(
+[[maybe_unused]] static APY_INLINE nanobind::int_ python_limb_vec_to_long(
     const std::vector<mp_limb_t>& vec,
     bool vec_is_signed = false,
     std::optional<unsigned> bits_last_limb = std::nullopt
@@ -168,7 +168,7 @@
 {
     // Guard for empty vectors
     if (vec.size() == 0) {
-        return pybind11::reinterpret_steal<pybind11::int_>((PyObject*)PyLong_New(0));
+        return nanobind::steal<nanobind::int_>((PyObject*)PyLong_New(0));
     }
 
     // Extract sign of limb vector
@@ -245,20 +245,31 @@
     PyLong_SetSignAndDigitCount(result, sign, python_digits);
 
     // Do a PyBind11 steal of the object and return
-    return pybind11::reinterpret_steal<pybind11::int_>((PyObject*)result);
+    return nanobind::steal<nanobind::int_>((PyObject*)result);
 }
 
 /*!
  * Retrieve the shape of a, possibly nested, Python sequence of iterable object.
  */
 [[maybe_unused]] static APY_INLINE std::vector<std::size_t>
-python_sequence_extract_shape(const pybind11::sequence& bit_pattern_sequence)
+python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
 {
-    namespace py = pybind11;
+    namespace py = nanobind;
 
     // Compute the length along the first dimension of this sequence
-    auto sequence_len
-        = std::distance(bit_pattern_sequence.begin(), bit_pattern_sequence.end());
+    auto nanobind_sequence_distance = [](const nanobind::sequence& seq) -> std::size_t {
+        std::size_t res = 0;
+        auto first = seq.begin();
+        auto last = seq.end();
+        while (first != last) {
+            ++first;
+            ++res;
+        }
+        return res;
+    };
+    // auto sequence_len
+    //     = std::distance(bit_pattern_sequence.begin(), bit_pattern_sequence.end());
+    std::size_t sequence_len = nanobind_sequence_distance(bit_pattern_sequence);
 
     // Early exit
     if (sequence_len == 0) {
@@ -322,10 +333,10 @@ python_sequence_extract_shape(const pybind11::sequence& bit_pattern_sequence)
  * a `std::runtime_error` exception to be raised.
  */
 template <typename... PyTypes>
-[[maybe_unused]] static APY_INLINE std::vector<pybind11::object>
-python_sequence_walk(const pybind11::sequence& py_seq)
+[[maybe_unused]] static APY_INLINE std::vector<nanobind::object>
+python_sequence_walk(const nanobind::sequence& py_seq)
 {
-    namespace py = pybind11;
+    namespace py = nanobind;
 
     // Result output iterator
     std::vector<py::object> result {};
@@ -349,9 +360,10 @@ python_sequence_walk(const pybind11::sequence& py_seq)
                 it_stack.push({ new_sequence.begin(), new_sequence.end() });
             } else if ((py::isinstance<PyTypes>(*it_stack.top().iterator) || ...)) {
                 // Element matching one of the PyTypes found, store it in container
-                result.push_back(*it_stack.top().iterator++);
+                result.push_back(py::cast<py::object>(*it_stack.top().iterator++));
             } else {
-                std::string repr_string = py::repr(*it_stack.top().iterator);
+                py::str repr = py::cast<py::str>(*it_stack.top().iterator);
+                std::string repr_string = repr.c_str();
                 throw std::runtime_error(
                     std::string("Non <type>/sequence found when walking <type>: ")
                     + repr_string

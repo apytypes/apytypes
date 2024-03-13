@@ -1,6 +1,6 @@
 // Python object access through Pybind
-#include <pybind11/pybind11.h>
-namespace py = pybind11;
+#include <nanobind/nanobind.h>
+namespace py = nanobind;
 
 #include "apyfloat.h"
 #include "apytypes_common.h"

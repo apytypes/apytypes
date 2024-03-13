@@ -1,8 +1,8 @@
 #include "apyfloatarray_iterator.h"
 #include "apyfloatarray.h"
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
-namespace py = pybind11;
+namespace py = nanobind;
 
 APyFloatArrayIterator::APyFloatArrayIterator(const APyFloatArray& array, py::object ref)
     : array(array)

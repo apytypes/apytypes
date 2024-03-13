@@ -3,15 +3,15 @@
 #include "apytypes_common.h"
 #include "apytypes_util.h"
 
-#include <pybind11/operators.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/make_iterator.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/operators.h>
 
 #include <optional> // std::optional, std::nullopt
 
-namespace py = pybind11;
+namespace py = nanobind;
 
-void bind_float_array(py::module& m)
+void bind_float_array(py::module_& m)
 {
     py::class_<APyFloatArray>(m, "APyFloatArray")
 
@@ -44,7 +44,7 @@ void bind_float_array(py::module& m)
                 if (b == 0) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot add with int");
+                    throw nanobind::type_error("Cannot add with int");
                 };
             },
             py::is_operator()
@@ -55,7 +55,7 @@ void bind_float_array(py::module& m)
                 if (b == 0) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot add with int");
+                    throw nanobind::type_error("Cannot add with int");
                 };
             },
             py::is_operator()
@@ -66,7 +66,7 @@ void bind_float_array(py::module& m)
                 if (b == 0.) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot add with float");
+                    throw nanobind::type_error("Cannot add with float");
                 };
             },
             py::is_operator()
@@ -77,7 +77,7 @@ void bind_float_array(py::module& m)
                 if (b == 0.) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot add with float");
+                    throw nanobind::type_error("Cannot add with float");
                 };
             },
             py::is_operator()
@@ -99,7 +99,7 @@ void bind_float_array(py::module& m)
                 if (b == 0) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot add with int");
+                    throw nanobind::type_error("Cannot add with int");
                 };
             },
             py::is_operator()
@@ -110,7 +110,7 @@ void bind_float_array(py::module& m)
         //         if (b == 0) {
         //             return a;
         //         } else {
-        //             throw pybind11::type_error("Cannot sub with int");
+        //             throw nanobind::type_error("Cannot sub with int");
         //         };
         //     },
         //     py::is_operator()
@@ -121,7 +121,7 @@ void bind_float_array(py::module& m)
                 if (b == 0.) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot add with float");
+                    throw nanobind::type_error("Cannot add with float");
                 };
             },
             py::is_operator()
@@ -132,7 +132,7 @@ void bind_float_array(py::module& m)
         //         if (b == 0.) {
         //             return a;
         //         } else {
-        //             throw pybind11::type_error("Cannot sub with float");
+        //             throw nanobind::type_error("Cannot sub with float");
         //         };
         //     },
         //     py::is_operator()
@@ -154,7 +154,7 @@ void bind_float_array(py::module& m)
                 if (b == 1) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot multiply with int");
+                    throw nanobind::type_error("Cannot multiply with int");
                 };
             },
             py::is_operator()
@@ -165,7 +165,7 @@ void bind_float_array(py::module& m)
                 if (b == 1) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot multiply with int");
+                    throw nanobind::type_error("Cannot multiply with int");
                 };
             },
             py::is_operator()
@@ -176,7 +176,7 @@ void bind_float_array(py::module& m)
                 if (b == 1.) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot multiply with float");
+                    throw nanobind::type_error("Cannot multiply with float");
                 };
             },
             py::is_operator()
@@ -187,7 +187,7 @@ void bind_float_array(py::module& m)
                 if (b == 1.) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot multiply with float");
+                    throw nanobind::type_error("Cannot multiply with float");
                 };
             },
             py::is_operator()
@@ -209,7 +209,7 @@ void bind_float_array(py::module& m)
                 if (b == 1) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot divide with int");
+                    throw nanobind::type_error("Cannot divide with int");
                 };
             },
             py::is_operator()
@@ -220,7 +220,7 @@ void bind_float_array(py::module& m)
         //         if (b == 0) {
         //             return a;
         //         } else {
-        //             throw pybind11::type_error("Cannot divide with int");
+        //             throw nanobind::type_error("Cannot divide with int");
         //         };
         //     },
         //     py::is_operator()
@@ -231,7 +231,7 @@ void bind_float_array(py::module& m)
                 if (b == 1.) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot divide with float");
+                    throw nanobind::type_error("Cannot divide with float");
                 };
             },
             py::is_operator()
@@ -242,7 +242,7 @@ void bind_float_array(py::module& m)
         //         if (b == 0.) {
         //             return a;
         //         } else {
-        //             throw pybind11::type_error("Cannot divide with float");
+        //             throw nanobind::type_error("Cannot divide with float");
         //         };
         //     },
         //     py::is_operator()
@@ -260,7 +260,7 @@ void bind_float_array(py::module& m)
         /*
          * Methods
          */
-        .def_property_readonly("exp_bits", &APyFloatArray::get_exp_bits, R"pbdoc(
+        .def_prop_ro("exp_bits", &APyFloatArray::get_exp_bits, R"pbdoc(
             Number of exponent bits.
 
             Returns
@@ -268,7 +268,7 @@ void bind_float_array(py::module& m)
             :class:`int`
             )pbdoc")
 
-        .def_property_readonly("man_bits", &APyFloatArray::get_man_bits, R"pbdoc(
+        .def_prop_ro("man_bits", &APyFloatArray::get_man_bits, R"pbdoc(
             Number of mantissa bits.
 
             Returns
@@ -276,7 +276,7 @@ void bind_float_array(py::module& m)
             :class:`int`
             )pbdoc")
 
-        .def_property_readonly("bias", &APyFloatArray::get_bias, R"pbdoc(
+        .def_prop_ro("bias", &APyFloatArray::get_bias, R"pbdoc(
             Bias.
 
             Returns
@@ -284,7 +284,7 @@ void bind_float_array(py::module& m)
             :class:`int`
             )pbdoc")
 
-        .def_property_readonly("shape", &APyFloatArray::get_shape, R"pbdoc(
+        .def_prop_ro("shape", &APyFloatArray::get_shape, R"pbdoc(
             The shape of the array.
 
             Returns
@@ -292,14 +292,14 @@ void bind_float_array(py::module& m)
             :class:`tuple` of :class:`int`
             )pbdoc")
 
-        .def_property_readonly("ndim", &APyFloatArray::get_ndim, R"pbdoc(
+        .def_prop_ro("ndim", &APyFloatArray::get_ndim, R"pbdoc(
             Number of dimensions in the array.
 
             Returns
             -------
             :class:`int`
             )pbdoc")
-        .def_property_readonly("T", &APyFloatArray::transpose, R"pbdoc(
+        .def_prop_ro("T", &APyFloatArray::transpose, R"pbdoc(
             The transposition of the array.
 
             Equivalent to calling :func:`APyFloatArray.transpose`.
@@ -413,8 +413,10 @@ void bind_float_array(py::module& m)
         .def("__getitem__", &APyFloatArray::get_item, py::arg("idx"))
         .def(
             "__iter__",
-            [](py::object array) {
-                return APyFloatArrayIterator(array.cast<const APyFloatArray&>(), array);
+            [](py::iterable array) {
+                return APyFloatArrayIterator(
+                    py::cast<const APyFloatArray&>(array), array
+                );
             }
         )
         .def("__array__", &APyFloatArray::to_numpy)

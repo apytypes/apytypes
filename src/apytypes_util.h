@@ -6,6 +6,7 @@
 #define _APYTYPES_UTIL_H
 
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
 
 #include <algorithm>  // std::find
 #include <cstddef>    // std::size_t
