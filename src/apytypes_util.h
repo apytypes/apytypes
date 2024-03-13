@@ -5,7 +5,7 @@
 #ifndef _APYTYPES_UTIL_H
 #define _APYTYPES_UTIL_H
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include <algorithm>  // std::find
 #include <cstddef>    // std::size_t
@@ -689,7 +689,7 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
 {
     int num_bit_spec = bits.has_value() + int_bits.has_value() + frac_bits.has_value();
     if (num_bit_spec != 2) {
-        throw pybind11::value_error(
+        throw nanobind::value_error(
             "Fixed-point bit specification needs exactly two of three bit specifiers "
             "(bits, int_bits, frac_bits) set"
         );
@@ -697,7 +697,7 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
 
     int result = bits.has_value() ? *bits : *int_bits + *frac_bits;
     if (result <= 0) {
-        throw pybind11::value_error(
+        throw nanobind::value_error(
             "Fixed-point bit specification needs a positive integer bit-size (>= 1 bit)"
         );
     }
