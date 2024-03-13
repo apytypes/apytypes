@@ -8,7 +8,12 @@ project(
 # Python module incudes
 py3 = import('python').find_installation('python3', pure: false)
 py3_dep = py3.dependency()
-pybind11_dep = dependency('pybind11', version: '>=2.6')
+nanobind_cmd = run_command(py3, ['-m', 'nanobind', '--include_dir'])
+nanobind_dep = declare_dependency(
+    include_directories: [nanobind_cmd.stdout().split('-I')[-1].strip()],
+)
+
+
 py3.install_sources(
   [
     'lib/apytypes/__init__.py',
@@ -17,6 +22,7 @@ py3.install_sources(
   ],
   subdir: 'apytypes'
 )
+
 # Version handling
 fs = import('fs')
 if fs.exists('_version.py')
@@ -55,7 +61,7 @@ py3.extension_module(
         'src/apytypes_context_wrapper.cc',
         'src/apytypes_wrapper.cc',
     ]),
-    dependencies : [py3_dep, pybind11_dep, fmt_dep],
+    dependencies : [py3_dep, nanobind_dep, fmt_dep],
     subdir: 'apytypes',
     install: true
 )
