@@ -5,18 +5,18 @@
 #include "apyfloat.h"
 #include "apytypes_common.h"
 #include <cstdint>
+#include <nanobind/nanobind.h> // nanobind::object
+#include <nanobind/ndarray.h>  // nanobind::ndarray
 #include <optional>
-#include <pybind11/numpy.h>    // pybind11::array_t
-#include <pybind11/pybind11.h> // pybind11::object
-#include <pybind11/pytypes.h>  // pybind11::sequence
 #include <vector>
 
 class APyFloatArray {
 public:
     explicit APyFloatArray(
-        const pybind11::sequence& sign_seq,
-        const pybind11::sequence& exp_seq,
-        const pybind11::sequence& man_seq,
+
+        const nanobind::sequence& sign_seq,
+        const nanobind::sequence& exp_seq,
+        const nanobind::sequence& man_seq,
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
@@ -47,7 +47,7 @@ public:
     std::string repr() const;
 
     //! Shape of the array
-    pybind11::tuple get_shape() const;
+    nanobind::tuple get_shape() const;
 
     //! Number of dimensions
     size_t get_ndim() const;
@@ -68,7 +68,7 @@ public:
     bool is_identical(const APyFloatArray& other) const;
 
     //! Convert to a NumPy array
-    pybind11::array_t<double> to_numpy() const;
+    nanobind::ndarray<nanobind::numpy, double> to_numpy() const;
 
     /* ****************************************************************************** *
      *                       Static conversion from other types                       *
@@ -77,7 +77,7 @@ public:
     //! Create an `APyFloatArray` tensor object initialized with values from a sequence
     //! of `doubles`
     static APyFloatArray from_double(
-        const pybind11::sequence& double_seq,
+        const nanobind::sequence& double_seq,
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt,

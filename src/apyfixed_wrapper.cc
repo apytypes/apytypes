@@ -2,15 +2,14 @@
 #include "apytypes_common.h"
 #include "apytypes_util.h"
 
-#include <pybind11/operators.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/operators.h>
 
 #include <optional> // std::optional, std::nullopt
 
-namespace py = pybind11;
+namespace py = nanobind;
 
-void bind_fixed(py::module& m)
+void bind_fixed(py::module_& m)
 {
     py::class_<APyFixed>(m, "APyFixed")
 
@@ -106,29 +105,29 @@ void bind_fixed(py::module& m)
                 fx_a.to_bits()
             )pbdoc"
         )
-        .def_property_readonly("bits", &APyFixed::bits, R"pbdoc(
+        .def_prop_ro("bits", &APyFixed::bits, R"pbdoc(
             Total number of bits.
 
             Returns
             -------
             :class:`int`
             )pbdoc")
-        .def_property_readonly("frac_bits", &APyFixed::frac_bits, R"pbdoc(
+        .def_prop_ro("frac_bits", &APyFixed::frac_bits, R"pbdoc(
             Number of fractional bits.
 
             Returns
             -------
             :class:`int`
             )pbdoc")
-        .def_property_readonly("int_bits", &APyFixed::int_bits, R"pbdoc(
+        .def_prop_ro("int_bits", &APyFixed::int_bits, R"pbdoc(
             Number of integer bits.
 
             Returns
             -------
             :class:`int`
             )pbdoc")
-        .def_property_readonly("_is_negative", &APyFixed::is_negative)
-        .def_property_readonly("_is_positive", &APyFixed::is_positive)
+        .def_prop_ro("_is_negative", &APyFixed::is_negative)
+        .def_prop_ro("_is_positive", &APyFixed::is_positive)
         .def("is_identical", &APyFixed::is_identical, py::arg("other"), R"pbdoc(
             Test if two fixed-point objects are exactly identical.
 
@@ -162,7 +161,7 @@ void bind_fixed(py::module& m)
                 # `fx_a` and `fx_b` differ in the `int_bits` specifier
                 assert not(fx_a.is_identical(fx_b))
             )pbdoc")
-        .def_property_readonly("is_zero", &APyFixed::is_zero, R"pbdoc(
+        .def_prop_ro("is_zero", &APyFixed::is_zero, R"pbdoc(
             True if the stored value equals zero, false otherwise.
             )pbdoc")
         .def(
@@ -233,7 +232,7 @@ void bind_fixed(py::module& m)
                 fx_c = fx.cast(int_bits=2, frac_bits=3, overflow=OverflowMode.WRAP)
             )pbdoc"
         )
-        .def_property_readonly("_vector_size", &APyFixed::vector_size)
+        .def_prop_ro("_vector_size", &APyFixed::vector_size)
         .def("_repr_latex_", &APyFixed::latex)
 
         /*

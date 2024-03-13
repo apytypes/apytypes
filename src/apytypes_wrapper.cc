@@ -1,18 +1,18 @@
 #include "apytypes_common.h"
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
-namespace py = pybind11;
+namespace py = nanobind;
 
-void bind_accumulator_context(py::module& m);
-void bind_common(py::module& m);
-void bind_context_manager(py::module& m);
-void bind_fixed(py::module& m);
-void bind_fixed_array(py::module& m);
-void bind_float(py::module& m);
-void bind_float_array(py::module& m);
-void bind_float_context(py::module& m);
+void bind_accumulator_context(py::module_& m);
+void bind_common(py::module_& m);
+void bind_context_manager(py::module_& m);
+void bind_fixed(py::module_& m);
+void bind_fixed_array(py::module_& m);
+void bind_float(py::module_& m);
+void bind_float_array(py::module_& m);
+void bind_float_context(py::module_& m);
 
-PYBIND11_MODULE(_apytypes, m)
+NB_MODULE(_apytypes, m)
 {
     bind_common(m);
     bind_fixed(m);
@@ -24,7 +24,7 @@ PYBIND11_MODULE(_apytypes, m)
     bind_accumulator_context(m);
 }
 
-void bind_common(py::module& m)
+void bind_common(py::module_& m)
 {
     py::enum_<QuantizationMode>(m, "QuantizationMode")
         /*

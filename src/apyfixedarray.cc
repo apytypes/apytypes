@@ -1,9 +1,8 @@
 // Python object access through Pybind
 #include "apybuffer.h"
-#include <pybind11/numpy.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-namespace py = pybind11;
+#include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
+namespace py = nanobind;
 
 // Python details. These should be included before standard header files:
 // https://docs.python.org/3/c-api/intro.html#include-files
@@ -49,7 +48,8 @@ APyFixedArray::APyFixedArray(
     for (std::size_t i = 0; i < _data.size() / _itemsize; i++) {
 
         // Two's complements overflowing in `APyFixed` constructor
-        auto limb_vec = python_long_to_limb_vec(python_ints[i], _itemsize);
+        auto limb_vec
+            = python_long_to_limb_vec(py::cast<py::int_>(python_ints[i]), _itemsize);
         APyFixed fixed(_bits, _int_bits, limb_vec);
         std::copy_n(
             fixed._data.begin(),          // src
@@ -461,14 +461,7 @@ std::string APyFixedArray::repr() const
 }
 
 // The shape of the array
-py::tuple APyFixedArray::shape() const
-{
-    py::tuple result(ndim());
-    for (std::size_t i = 0; i < ndim(); i++) {
-        result[i] = _shape[i];
-    }
-    return result;
-}
+py::tuple APyFixedArray::shape() const { return py::make_tuple(_shape); }
 
 // The dimension in the array
 size_t APyFixedArray::ndim() const { return _shape.size(); }
@@ -529,24 +522,23 @@ APyFixedArray APyFixedArray::get_item(std::size_t idx) const
     return result;
 }
 
-py::array_t<double> APyFixedArray::to_numpy() const
+py::ndarray<py::numpy, double> APyFixedArray::to_numpy() const
 {
-    // The byte-strides of the NumPy object
-    std::vector<std::size_t> numpy_stride = strides_from_shape<double>(_shape);
+    // Dynamically allocate data to be passed to python
+    double* result_data = new double[fold_shape(_shape)];
 
-    // Resulting `NumPy` array of float64
-    py::array_t<double, py::array::c_style> result(_shape, numpy_stride);
-
-    // Type-cast data and store in the NumPy array
-    APyFixed imm(bits(), int_bits());
+    APyFixed type_caster(bits(), int_bits());
     for (std::size_t i = 0; i < fold_shape(_shape); i++) {
         std::copy_n(
-            std::begin(_data) + i * _itemsize, _itemsize, std::begin(imm._data)
+            std::begin(_data) + i * _itemsize, _itemsize, std::begin(type_caster._data)
         );
-        result.mutable_data()[i] = double(imm);
+        result_data[i] = double(type_caster);
     }
 
-    return result;
+    // Delete 'data' when the 'owner' capsule expires
+    py::capsule owner(result_data, [](void* p) noexcept { delete[] (double*)p; });
+
+    return py::ndarray<py::numpy, double>(result_data, _ndim, &_shape[0], owner);
 }
 
 bool APyFixedArray::is_identical(const APyFixedArray& other) const

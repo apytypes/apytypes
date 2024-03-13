@@ -2,17 +2,15 @@
 #include "apyfixedarray.h"
 #include "apyfixedarray_iterator.h"
 #include "apytypes_common.h"
-#include "apytypes_util.h"
 
-#include <pybind11/operators.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/operators.h>
 
 #include <optional> // std::optional, std::nullopt
 
-namespace py = pybind11;
+namespace py = nanobind;
 
-void bind_fixed_array(py::module& m)
+void bind_fixed_array(py::module_& m)
 {
     py::class_<APyFixedArray>(m, "APyFixedArray")
 
@@ -41,7 +39,7 @@ void bind_fixed_array(py::module& m)
                 if (b == 0) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot add with non-zero int");
+                    throw nanobind::type_error("Cannot add with non-zero int");
                 };
             },
             py::is_operator()
@@ -52,7 +50,7 @@ void bind_fixed_array(py::module& m)
                 if (b == 0) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot reverse add with non-zero int");
+                    throw nanobind::type_error("Cannot reverse add with non-zero int");
                 };
             },
             py::is_operator()
@@ -63,7 +61,7 @@ void bind_fixed_array(py::module& m)
                 if (b == 0.) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot add with non-zero float");
+                    throw nanobind::type_error("Cannot add with non-zero float");
                 };
             },
             py::is_operator()
@@ -74,7 +72,7 @@ void bind_fixed_array(py::module& m)
                 if (b == 0.) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot reverse add with non-zero float"
+                    throw nanobind::type_error("Cannot reverse add with non-zero float"
                     );
                 };
             },
@@ -97,7 +95,7 @@ void bind_fixed_array(py::module& m)
                 if (b == 0) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot subtract with non-zero int");
+                    throw nanobind::type_error("Cannot subtract with non-zero int");
                 };
             },
             py::is_operator()
@@ -108,7 +106,7 @@ void bind_fixed_array(py::module& m)
                 if (b == 0) {
                     return -a;
                 } else {
-                    throw pybind11::type_error(
+                    throw nanobind::type_error(
                         "Cannot reverse subtract with non-zero int"
                     );
                 };
@@ -121,7 +119,7 @@ void bind_fixed_array(py::module& m)
                 if (b == 0.) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot subtract with non-zero float");
+                    throw nanobind::type_error("Cannot subtract with non-zero float");
                 };
             },
             py::is_operator()
@@ -132,7 +130,7 @@ void bind_fixed_array(py::module& m)
                 if (b == 0.) {
                     return -a;
                 } else {
-                    throw pybind11::type_error(
+                    throw nanobind::type_error(
                         "Cannot reverse subtract with non-zero float"
                     );
                 };
@@ -167,7 +165,7 @@ void bind_fixed_array(py::module& m)
                 if (b == 1) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot multiply with int");
+                    throw nanobind::type_error("Cannot multiply with int");
                 };
             },
             py::is_operator()
@@ -178,7 +176,7 @@ void bind_fixed_array(py::module& m)
                 if (b == 1) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot reverse multiply with int");
+                    throw nanobind::type_error("Cannot reverse multiply with int");
                 };
             },
             py::is_operator()
@@ -189,7 +187,7 @@ void bind_fixed_array(py::module& m)
                 if (b == 1.) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot multiply with float");
+                    throw nanobind::type_error("Cannot multiply with float");
                 };
             },
             py::is_operator()
@@ -200,7 +198,7 @@ void bind_fixed_array(py::module& m)
                 if (b == 1.) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot multiply with float");
+                    throw nanobind::type_error("Cannot multiply with float");
                 };
             },
             py::is_operator()
@@ -212,7 +210,7 @@ void bind_fixed_array(py::module& m)
         /*
          * Methods
          */
-        .def_property_readonly("bits", &APyFixedArray::bits, R"pbdoc(
+        .def_prop_ro("bits", &APyFixedArray::bits, R"pbdoc(
             Total number of bits.
 
             Returns
@@ -220,7 +218,7 @@ void bind_fixed_array(py::module& m)
             :class:`int`
             )pbdoc")
 
-        .def_property_readonly("int_bits", &APyFixedArray::int_bits, R"pbdoc(
+        .def_prop_ro("int_bits", &APyFixedArray::int_bits, R"pbdoc(
             Number of integer bits.
 
             Returns
@@ -228,7 +226,7 @@ void bind_fixed_array(py::module& m)
             :class:`int`
             )pbdoc")
 
-        .def_property_readonly("frac_bits", &APyFixedArray::frac_bits, R"pbdoc(
+        .def_prop_ro("frac_bits", &APyFixedArray::frac_bits, R"pbdoc(
             Number of fractional bits.
 
             Returns
@@ -236,7 +234,7 @@ void bind_fixed_array(py::module& m)
             :class:`int`
             )pbdoc")
 
-        .def_property_readonly("shape", &APyFixedArray::shape, R"pbdoc(
+        .def_prop_ro("shape", &APyFixedArray::shape, R"pbdoc(
             The shape of the array.
 
             Returns
@@ -244,14 +242,14 @@ void bind_fixed_array(py::module& m)
             :class:`tuple` of :class:`int`
             )pbdoc")
 
-        .def_property_readonly("ndim", &APyFixedArray::ndim, R"pbdoc(
+        .def_prop_ro("ndim", &APyFixedArray::ndim, R"pbdoc(
             Number of dimensions in the array.
 
             Returns
             -------
             :class:`int`
             )pbdoc")
-        .def_property_readonly("T", &APyFixedArray::transpose, R"pbdoc(
+        .def_prop_ro("T", &APyFixedArray::transpose, R"pbdoc(
             The transposition of the array.
 
             Equivalent to calling :func:`APyFixedArray.transpose`.
@@ -419,8 +417,10 @@ void bind_fixed_array(py::module& m)
         .def("__len__", &APyFixedArray::size)
         .def(
             "__iter__",
-            [](py::object array) {
-                return APyFixedArrayIterator(array.cast<const APyFixedArray&>(), array);
+            [](py::iterable array) {
+                return APyFixedArrayIterator(
+                    py::cast<const APyFixedArray&>(array), array
+                );
             }
         )
         .def("__array__", &APyFixedArray::to_numpy)

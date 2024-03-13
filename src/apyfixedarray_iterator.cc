@@ -1,8 +1,8 @@
 #include "apyfixedarray_iterator.h"
 #include "apyfixedarray.h"
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
-namespace py = pybind11;
+namespace py = nanobind;
 
 APyFixedArrayIterator::APyFixedArrayIterator(const APyFixedArray& array, py::object ref)
     : array(array)

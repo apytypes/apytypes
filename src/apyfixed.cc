@@ -3,8 +3,8 @@
  */
 
 // Python object access through Pybind
-#include <pybind11/pybind11.h>
-namespace py = pybind11;
+#include <nanobind/nanobind.h>
+namespace py = nanobind;
 
 // Python details. These should be included before standard header files:
 // https://docs.python.org/3/c-api/intro.html#include-files
@@ -729,7 +729,7 @@ APyFixed APyFixed::from_double(
     std::optional<int> frac_bits
 )
 {
-    APyFixed result(0, bits, int_bits, frac_bits);
+    APyFixed result(bits, int_bits, frac_bits);
     result.set_from_double(value);
     return result;
 }
@@ -742,7 +742,7 @@ APyFixed APyFixed::from_string(
     std::optional<int> frac_bits
 )
 {
-    APyFixed result(0, bits, int_bits, frac_bits);
+    APyFixed result(bits, int_bits, frac_bits);
     result.set_from_string(string_value, base);
     return result;
 }

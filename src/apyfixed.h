@@ -5,7 +5,7 @@
 #ifndef _APYFIXED_H
 #define _APYFIXED_H
 
-#include <pybind11/pybind11.h> // pybind11::object
+#include <nanobind/nanobind.h> // nanobind::object
 
 #include "apytypes_common.h"
 #include "apytypes_util.h"
@@ -67,7 +67,7 @@ public:
     //! Constructor: construct from a Python arbitrary long integer object and
     //! optionally set bit specifiers
     explicit APyFixed(
-        pybind11::int_ python_long_int_bit_pattern,
+        nanobind::int_ python_long_int_bit_pattern,
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt
@@ -165,7 +165,7 @@ public:
     mp_limb_t increment_lsb() noexcept;
 
     //! Convert the underlying bit pattern to a Python long integer
-    pybind11::int_ to_bits() const;
+    nanobind::int_ to_bits() const;
 
     //! Convert the underlying bit pattern to decimal and return in a string
     std::string bit_pattern_to_string_dec() const;

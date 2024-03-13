@@ -1,8 +1,7 @@
 // Python object access through Pybind
-#include <pybind11/numpy.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-namespace py = pybind11;
+#include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
+namespace py = nanobind;
 
 #include "apyfloat.h"
 #include "apyfloatarray.h"
@@ -13,9 +12,9 @@ namespace py = pybind11;
 #include <string>
 
 APyFloatArray::APyFloatArray(
-    const pybind11::sequence& sign_seq,
-    const pybind11::sequence& exp_seq,
-    const pybind11::sequence& man_seq,
+    const nanobind::sequence& sign_seq,
+    const nanobind::sequence& exp_seq,
+    const nanobind::sequence& man_seq,
     std::uint8_t exp_bits,
     std::uint8_t man_bits,
     std::optional<exp_t> bias
@@ -255,14 +254,7 @@ std::string APyFloatArray::repr() const
 }
 
 // The shape of the array
-pybind11::tuple APyFloatArray::get_shape() const
-{
-    py::tuple result(get_ndim());
-    for (std::size_t i = 0; i < get_ndim(); i++) {
-        result[i] = shape[i];
-    }
-    return result;
-}
+nanobind::tuple APyFloatArray::get_shape() const { return py::make_tuple(shape); }
 
 size_t APyFloatArray::get_ndim() const { return shape.size(); }
 
@@ -295,30 +287,20 @@ APyFloatArray APyFloatArray::get_item(std::size_t idx) const
     return result;
 }
 
-py::array_t<double> APyFloatArray::to_numpy() const
+py::ndarray<py::numpy, double> APyFloatArray::to_numpy() const
 {
-    // Shape of NumPy object is same as `APyFloatArray` object
-    std::vector<py::ssize_t> numpy_shape(shape.begin(), shape.end());
-
-    // The strides of the NumPy object
-    std::vector<py::ssize_t> numpy_stride(numpy_shape.size(), 0);
-    for (std::size_t i = 0; i < numpy_shape.size(); i++) {
-        numpy_stride[i] = std::accumulate(
-            shape.crbegin(), shape.crbegin() + i, sizeof(double), std::multiplies {}
-        );
-    }
-    std::reverse(numpy_stride.begin(), numpy_stride.end());
-
-    // Resulting `NumPy` array of float64
-    py::array_t<double, py::array::c_style> result(numpy_shape, numpy_stride);
-
-    double* numpy_data = result.mutable_data();
+    // Dynamically allocate data to be passed to python
+    double* result_data = new double[fold_shape()];
     for (std::size_t i = 0; i < fold_shape(); i++) {
         const auto apy_f = APyFloat(data.at(i), exp_bits, man_bits, bias);
-        numpy_data[i] = double(apy_f);
+        result_data[i] = double(apy_f);
     }
 
-    return result;
+    // Delete 'data' when the 'owner' capsule expires
+    py::capsule owner(result_data, [](void* p) noexcept { delete[] (double*)p; });
+
+    std::size_t ndim = shape.size();
+    return py::ndarray<py::numpy, double>(result_data, ndim, &shape[0], owner);
 }
 
 bool APyFloatArray::is_identical(const APyFloatArray& other) const
@@ -332,7 +314,7 @@ bool APyFloatArray::is_identical(const APyFloatArray& other) const
 }
 
 APyFloatArray APyFloatArray::from_double(
-    const pybind11::sequence& double_seq,
+    const nanobind::sequence& double_seq,
     std::uint8_t exp_bits,
     std::uint8_t man_bits,
     std::optional<exp_t> bias,

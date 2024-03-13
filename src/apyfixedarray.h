@@ -5,9 +5,8 @@
 #ifndef _APYFIXED_ARRAY_H
 #define _APYFIXED_ARRAY_H
 
-#include <pybind11/numpy.h>    // pybind11::array_t
-#include <pybind11/pybind11.h> // pybind11::object
-#include <pybind11/pytypes.h>  // pybind11::sequence, pybind11::tuple
+#include <nanobind/nanobind.h> // nanobind::object
+#include <nanobind/ndarray.h>  // nanobind::array_t
 
 #include "apybuffer.h"
 #include "apyfixed.h"
@@ -63,7 +62,7 @@ public:
     APyFixedArray() = delete;
 
     explicit APyFixedArray(
-        const pybind11::sequence& bit_pattern_sequence,
+        const nanobind::sequence& bit_pattern_sequence,
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt
@@ -118,7 +117,7 @@ public:
     std::string repr() const;
 
     //! Shape of the array
-    pybind11::tuple shape() const;
+    nanobind::tuple shape() const;
 
     //! Number of dimensions
     size_t ndim() const;
@@ -136,7 +135,7 @@ public:
     int frac_bits() const noexcept { return _bits - _int_bits; }
 
     //! Convert to a NumPy array
-    pybind11::array_t<double> to_numpy() const;
+    nanobind::ndarray<nanobind::numpy, double> to_numpy() const;
 
     //! Length of the array
     size_t size() const;
@@ -187,7 +186,7 @@ public:
     //! Create an `APyFixedArray` tensor object initialized with values from a sequence
     //! of `doubles`
     static APyFixedArray from_double(
-        const pybind11::sequence& double_seq,
+        const nanobind::sequence& double_seq,
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt

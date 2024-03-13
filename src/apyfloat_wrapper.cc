@@ -1,11 +1,10 @@
 #include "apyfloat.h"
-#include <pybind11/operators.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/operators.h>
 
-namespace py = pybind11;
+namespace py = nanobind;
 
-void bind_float(py::module& m)
+void bind_float(py::module_& m)
 {
     py::class_<APyFloat>(m, "APyFloat")
         /*
@@ -134,7 +133,7 @@ void bind_float(py::module& m)
                 if (b == 0) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot add with int");
+                    throw nanobind::type_error("Cannot add with int");
                 };
             },
             py::is_operator()
@@ -145,7 +144,7 @@ void bind_float(py::module& m)
                 if (b == 0) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot add with int");
+                    throw nanobind::type_error("Cannot add with int");
                 };
             },
             py::is_operator()
@@ -157,7 +156,7 @@ void bind_float(py::module& m)
                 if (b == 0.) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot add with float");
+                    throw nanobind::type_error("Cannot add with float");
                 };
             },
             py::is_operator()
@@ -168,7 +167,7 @@ void bind_float(py::module& m)
                 if (b == 0.) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot add with float");
+                    throw nanobind::type_error("Cannot add with float");
                 };
             },
             py::is_operator()
@@ -179,7 +178,7 @@ void bind_float(py::module& m)
                 if (b == 0) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot subtract with int");
+                    throw nanobind::type_error("Cannot subtract with int");
                 };
             },
             py::is_operator()
@@ -190,7 +189,7 @@ void bind_float(py::module& m)
                 if (b == 0) {
                     return -a;
                 } else {
-                    throw pybind11::type_error("Cannot subtract with int");
+                    throw nanobind::type_error("Cannot subtract with int");
                 };
             },
             py::is_operator()
@@ -202,7 +201,7 @@ void bind_float(py::module& m)
                 if (b == 0.) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot subtract with float");
+                    throw nanobind::type_error("Cannot subtract with float");
                 };
             },
             py::is_operator()
@@ -213,7 +212,7 @@ void bind_float(py::module& m)
                 if (b == 0.) {
                     return -a;
                 } else {
-                    throw pybind11::type_error("Cannot subtract with float");
+                    throw nanobind::type_error("Cannot subtract with float");
                 };
             },
             py::is_operator()
@@ -224,7 +223,7 @@ void bind_float(py::module& m)
                 if (b == 1) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot multiply with int");
+                    throw nanobind::type_error("Cannot multiply with int");
                 };
             },
             py::is_operator()
@@ -235,7 +234,7 @@ void bind_float(py::module& m)
                 if (b == 1) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot multiply with int");
+                    throw nanobind::type_error("Cannot multiply with int");
                 };
             },
             py::is_operator()
@@ -246,7 +245,7 @@ void bind_float(py::module& m)
                 if (b == 1.) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot multiply with float");
+                    throw nanobind::type_error("Cannot multiply with float");
                 };
             },
             py::is_operator()
@@ -257,7 +256,7 @@ void bind_float(py::module& m)
                 if (b == 1.) {
                     return a;
                 } else {
-                    throw pybind11::type_error("Cannot multiply with float");
+                    throw nanobind::type_error("Cannot multiply with float");
                 };
             },
             py::is_operator()
@@ -283,35 +282,35 @@ void bind_float(py::module& m)
         /*
          * Non-computational properties
          */
-        .def_property_readonly("is_normal", &APyFloat::is_normal, R"pbdoc(
+        .def_prop_ro("is_normal", &APyFloat::is_normal, R"pbdoc(
             True if and only if x is normal (not zero, subnormal, infinite, or NaN).
 
             Returns
             -------
             :class:`bool`
             )pbdoc")
-        .def_property_readonly("is_subnormal", &APyFloat::is_subnormal, R"pbdoc(
+        .def_prop_ro("is_subnormal", &APyFloat::is_subnormal, R"pbdoc(
             True if and only if x is normal (not zero, subnormal, infinite, or NaN).
 
             Returns
             -------
             :class:`bool`
             )pbdoc")
-        .def_property_readonly("is_finite", &APyFloat::is_finite, R"pbdoc(
+        .def_prop_ro("is_finite", &APyFloat::is_finite, R"pbdoc(
             True if and only if x is zero, subnormal, or normal.
 
             Returns
             -------
             :class:`bool`
             )pbdoc")
-        .def_property_readonly("is_nan", &APyFloat::is_nan, R"pbdoc(
+        .def_prop_ro("is_nan", &APyFloat::is_nan, R"pbdoc(
             True if and only if x is NaN.
 
             Returns
             -------
             :class:`bool`
             )pbdoc")
-        .def_property_readonly("is_inf", &APyFloat::is_inf, R"pbdoc(
+        .def_prop_ro("is_inf", &APyFloat::is_inf, R"pbdoc(
             True if and only if x is infinite.
 
             Returns
@@ -332,12 +331,12 @@ void bind_float(py::module& m)
         /*
          * Properties
          */
-        .def_property_readonly("sign", &APyFloat::get_sign)
-        .def_property_readonly("man", &APyFloat::get_man)
-        .def_property_readonly("exp", &APyFloat::get_exp)
-        .def_property_readonly("bias", &APyFloat::get_bias)
-        .def_property_readonly("man_bits", &APyFloat::get_man_bits)
-        .def_property_readonly("exp_bits", &APyFloat::get_exp_bits)
+        .def_prop_ro("sign", &APyFloat::get_sign)
+        .def_prop_ro("man", &APyFloat::get_man)
+        .def_prop_ro("exp", &APyFloat::get_exp)
+        .def_prop_ro("bias", &APyFloat::get_bias)
+        .def_prop_ro("man_bits", &APyFloat::get_man_bits)
+        .def_prop_ro("exp_bits", &APyFloat::get_exp_bits)
 
         /*
          * Convenience methods

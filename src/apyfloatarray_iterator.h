@@ -1,17 +1,17 @@
 #include "apyfloatarray.h"
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #ifndef _APYFLOAT_ARRAY_ITERATOR_H
 #define _APYFLOAT_ARRAY_ITERATOR_H
 struct APyFloatArrayIterator {
 public:
-    APyFloatArrayIterator(const APyFloatArray& array, pybind11::object ref);
+    APyFloatArrayIterator(const APyFloatArray& array, nanobind::object ref);
 
     APyFloatArray next();
     const APyFloatArray& array;
 
 private:
-    pybind11::object ref; // keep a reference
+    nanobind::object ref; // keep a reference
     size_t index;
 };
 #endif
