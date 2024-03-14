@@ -24,6 +24,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get install -yy lcov
+        python -m pip install --upgrade pip
         python -m pip install pytest-cov gcovr ninja pybind11 meson-python numpy
     - name: Install APyTypes
       run: |
