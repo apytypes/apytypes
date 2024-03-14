@@ -5,34 +5,33 @@
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
+#include <nanobind/stl/optional.h>
 
-#include <optional> // std::optional, std::nullopt
+namespace nb = nanobind;
 
-namespace py = nanobind;
-
-void bind_fixed_array(py::module_& m)
+void bind_fixed_array(nb::module_& m)
 {
-    py::class_<APyFixedArray>(m, "APyFixedArray")
+    nb::class_<APyFixedArray>(m, "APyFixedArray")
 
         /*
          * Constructor: construct from a list of Python integers
          */
         .def(
-            py::init<
-                const py::sequence&,
+            nb::init<
+                const nb::sequence&,
                 std::optional<int>,
                 std::optional<int>,
                 std::optional<int>>(),
-            py::arg("bit_pattern_sequence"),
-            py::arg("bits") = std::nullopt,
-            py::arg("int_bits") = std::nullopt,
-            py::arg("frac_bits") = std::nullopt
+            nb::arg("bit_pattern_sequence"),
+            nb::arg("bits") = nb::none(),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("frac_bits") = nb::none()
         )
 
         /*
          * Arithmetic operations
          */
-        .def(py::self + py::self)
+        .def(nb::self + nb::self)
         .def(
             "__add__",
             [](const APyFixedArray& a, int b) {
@@ -42,7 +41,7 @@ void bind_fixed_array(py::module_& m)
                     throw nanobind::type_error("Cannot add with non-zero int");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__radd__",
@@ -53,7 +52,7 @@ void bind_fixed_array(py::module_& m)
                     throw nanobind::type_error("Cannot reverse add with non-zero int");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__add__",
@@ -64,7 +63,7 @@ void bind_fixed_array(py::module_& m)
                     throw nanobind::type_error("Cannot add with non-zero float");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__radd__",
@@ -76,19 +75,19 @@ void bind_fixed_array(py::module_& m)
                     );
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__add__",
             [](const APyFixedArray& a, const APyFixed& b) { return a + b; },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__radd__",
             [](const APyFixedArray& a, const APyFixed& b) { return a + b; },
-            py::is_operator()
+            nb::is_operator()
         )
-        .def(py::self - py::self)
+        .def(nb::self - nb::self)
         .def(
             "__sub__",
             [](const APyFixedArray& a, const int b) {
@@ -98,7 +97,7 @@ void bind_fixed_array(py::module_& m)
                     throw nanobind::type_error("Cannot subtract with non-zero int");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__rsub__",
@@ -111,7 +110,7 @@ void bind_fixed_array(py::module_& m)
                     );
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__sub__",
@@ -122,7 +121,7 @@ void bind_fixed_array(py::module_& m)
                     throw nanobind::type_error("Cannot subtract with non-zero float");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__rsub__",
@@ -135,29 +134,29 @@ void bind_fixed_array(py::module_& m)
                     );
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
-        //.def(py::self - APyFixed(1,0))
+        //.def(nb::self - APyFixed(1,0))
         .def(
             "__sub__",
             [](const APyFixedArray& a, const APyFixed& b) { return a - b; },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__rsub__",
             [](const APyFixedArray& a, const APyFixed& b) { return a.rsub(b); },
-            py::is_operator()
+            nb::is_operator()
         )
-        .def(py::self * py::self)
+        .def(nb::self * nb::self)
         .def(
             "__mul__",
             [](const APyFixedArray& a, const APyFixed& b) { return a * b; },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__rmul__",
             [](const APyFixedArray& a, const APyFixed& b) { return a * b; },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__mul__",
@@ -168,7 +167,7 @@ void bind_fixed_array(py::module_& m)
                     throw nanobind::type_error("Cannot multiply with int");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__rmul__",
@@ -179,7 +178,7 @@ void bind_fixed_array(py::module_& m)
                     throw nanobind::type_error("Cannot reverse multiply with int");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__mul__",
@@ -190,7 +189,7 @@ void bind_fixed_array(py::module_& m)
                     throw nanobind::type_error("Cannot multiply with float");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__rmul__",
@@ -201,11 +200,11 @@ void bind_fixed_array(py::module_& m)
                     throw nanobind::type_error("Cannot multiply with float");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
-        .def(-py::self)
-        .def(py::self <<= int())
-        .def(py::self >>= int())
+        .def(-nb::self)
+        .def(nb::self <<= int())
+        .def(nb::self >>= int())
 
         /*
          * Methods
@@ -270,7 +269,7 @@ void bind_fixed_array(py::module_& m)
             :class:`numpy.ndarray`
             )pbdoc")
 
-        .def("is_identical", &APyFixedArray::is_identical, py::arg("other"), R"pbdoc(
+        .def("is_identical", &APyFixedArray::is_identical, nb::arg("other"), R"pbdoc(
             Test if two :class:`APyFixedArray` objects are identical.
 
             Two :class:`APyFixedArray` objects are considered identical if, and only if:
@@ -301,11 +300,11 @@ void bind_fixed_array(py::module_& m)
         .def(
             "resize",
             &APyFixedArray::resize,
-            py::arg("bits") = std::nullopt,
-            py::arg("int_bits") = std::nullopt,
-            py::arg("quantization") = QuantizationMode::TRN,
-            py::arg("overflow") = OverflowMode::WRAP,
-            py::arg("frac_bits") = std::nullopt,
+            nb::arg("bits") = nb::none(),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("quantization") = QuantizationMode::TRN,
+            nb::arg("overflow") = OverflowMode::WRAP,
+            nb::arg("frac_bits") = nb::none(),
             R"pbdoc(
             .. deprecated:: 0.1.pre
                Use :func:`~APyFixedArray.cast` instead.
@@ -314,11 +313,11 @@ void bind_fixed_array(py::module_& m)
         .def(
             "cast",
             &APyFixedArray::cast,
-            py::arg("bits") = std::nullopt,
-            py::arg("int_bits") = std::nullopt,
-            py::arg("quantization") = QuantizationMode::TRN,
-            py::arg("overflow") = OverflowMode::WRAP,
-            py::arg("frac_bits") = std::nullopt,
+            nb::arg("bits") = nb::none(),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("quantization") = QuantizationMode::TRN,
+            nb::arg("overflow") = OverflowMode::WRAP,
+            nb::arg("frac_bits") = nb::none(),
             R"pbdoc(
             Create a new resized fixed-point array based on the bit pattern in this
             fixed-point array.
@@ -354,10 +353,10 @@ void bind_fixed_array(py::module_& m)
         .def_static(
             "from_float",
             &APyFixedArray::from_double,
-            py::arg("float_sequence"),
-            py::arg("bits") = std::nullopt,
-            py::arg("int_bits") = std::nullopt,
-            py::arg("frac_bits") = std::nullopt,
+            nb::arg("float_sequence"),
+            nb::arg("bits") = nb::none(),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("frac_bits") = nb::none(),
             R"pbdoc(
             Create an :class:`APyFixedArray` object from a sequence of :class:`float`.
 
@@ -406,20 +405,20 @@ void bind_fixed_array(py::module_& m)
         /*
          * Dunder methods
          */
-        .def("__lshift__", &APyFixedArray::operator<<, py::arg("shift_amnt"))
-        .def("__matmul__", &APyFixedArray::matmul, py::arg("rhs"))
+        .def("__lshift__", &APyFixedArray::operator<<, nb::arg("shift_amnt"))
+        .def("__matmul__", &APyFixedArray::matmul, nb::arg("rhs"))
         .def("__repr__", &APyFixedArray::repr)
-        .def("__rshift__", &APyFixedArray::operator>>, py::arg("shift_amnt"))
+        .def("__rshift__", &APyFixedArray::operator>>, nb::arg("shift_amnt"))
         .def("__abs__", &APyFixedArray::abs)
 
         // Iteration and friends
-        .def("__getitem__", &APyFixedArray::get_item, py::arg("idx"))
+        .def("__getitem__", &APyFixedArray::get_item, nb::arg("idx"))
         .def("__len__", &APyFixedArray::size)
         .def(
             "__iter__",
-            [](py::iterable array) {
+            [](nb::iterable array) {
                 return APyFixedArrayIterator(
-                    py::cast<const APyFixedArray&>(array), array
+                    nb::cast<const APyFixedArray&>(array), array
                 );
             }
         )
@@ -427,7 +426,7 @@ void bind_fixed_array(py::module_& m)
 
         ;
 
-    py::class_<APyFixedArrayIterator>(m, "APyFixedArrayIterator")
+    nb::class_<APyFixedArrayIterator>(m, "APyFixedArrayIterator")
         .def(
             "__iter__",
             [](APyFixedArrayIterator& it) -> APyFixedArrayIterator& { return it; }

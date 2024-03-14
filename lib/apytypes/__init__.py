@@ -3,16 +3,16 @@ from __future__ import annotations
 from apytypes._apytypes import (
     APyFixed,
     APyFixedArray,
-    APyFloat,
-    APyFloatArray,
+    # APyFloat,
+    # APyFloatArray,
     AccumulatorContext,
     OverflowMode,
-    QuantizationContext,
+    # QuantizationContext,
     QuantizationMode,
-    get_quantization_mode,
-    set_quantization_mode,
-    get_quantization_seed,
-    set_quantization_seed,
+    # get_quantization_mode,
+    # set_quantization_mode,
+    # get_quantization_seed,
+    # set_quantization_seed,
 )
 
 from apytypes._version import version as __version__
@@ -20,22 +20,22 @@ from apytypes._version import version as __version__
 __all__ = [
     "APyFixed",
     "APyFixedArray",
-    "APyFloat",
-    "APyFloatArray",
+    # "APyFloat",
+    # "APyFloatArray",
     "AccumulatorContext",
     "OverflowMode",
-    "QuantizationContext",
+    # "QuantizationContext",
     "QuantizationMode",
-    "__version__",
-    "get_quantization_mode",
-    "set_quantization_mode",
-    "get_quantization_seed",
-    "set_quantization_seed",
+    # "__version__",
+    # "get_quantization_mode",
+    # "set_quantization_mode",
+    # "get_quantization_seed",
+    # "set_quantization_seed",
 ]
 
-APyFloat.__doc__ = """
-Class for configurable floating-point formats.
-"""
+# APyFloat.__doc__ = """
+# Class for configurable floating-point formats.
+# """
 
 APyFixed.__doc__ = """
 Class for configurable fixed-point formats.
