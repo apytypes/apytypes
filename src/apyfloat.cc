@@ -46,6 +46,17 @@ APyFloat::APyFloat(
         print_warning("non 'ieee-like' biases is not sure to work yet.\n");
     }
 }
+APyFloat::APyFloat(
+    int sign,
+    exp_t exp,
+    man_t man,
+    std::uint8_t exp_bits,
+    std::uint8_t man_bits,
+    std::optional<exp_t> bias
+)
+    : APyFloat(bool(sign), exp, man, exp_bits, man_bits, bias)
+{
+}
 
 APyFloat::APyFloat(
     std::uint8_t exp_bits, std::uint8_t man_bits, std::optional<exp_t> bias

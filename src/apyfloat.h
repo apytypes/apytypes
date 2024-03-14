@@ -29,6 +29,14 @@ public:
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
+    explicit APyFloat(
+        int sign,
+        exp_t exp,
+        man_t man,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
 
     // This constructor is not exposed to Python
     APyFloat(
