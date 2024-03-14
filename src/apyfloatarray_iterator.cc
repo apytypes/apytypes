@@ -2,9 +2,9 @@
 #include "apyfloatarray.h"
 #include <nanobind/nanobind.h>
 
-namespace py = nanobind;
+namespace nb = nanobind;
 
-APyFloatArrayIterator::APyFloatArrayIterator(const APyFloatArray& array, py::object ref)
+APyFloatArrayIterator::APyFloatArrayIterator(const APyFloatArray& array, nb::object ref)
     : array(array)
     , ref(ref)
     , index(0)
@@ -14,6 +14,6 @@ APyFloatArrayIterator::APyFloatArrayIterator(const APyFloatArray& array, py::obj
 APyFloatArray APyFloatArrayIterator::next()
 {
     if (index == array.get_size())
-        throw py::stop_iteration();
+        throw nb::stop_iteration();
     return array.get_item(index++);
 }

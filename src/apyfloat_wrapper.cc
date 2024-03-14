@@ -1,29 +1,45 @@
 #include "apyfloat.h"
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
+#include <nanobind/stl/optional.h>
 
-namespace py = nanobind;
+namespace nb = nanobind;
 
-void bind_float(py::module_& m)
+void bind_float(nb::module_& m)
 {
-    py::class_<APyFloat>(m, "APyFloat")
+    nb::class_<APyFloat>(m, "APyFloat")
         /*
          * Constructors
          */
         .def(
-            py::init<
+            nb::init<
                 bool,
                 exp_t,
                 man_t,
                 std::uint8_t,
                 std::uint8_t,
                 std::optional<exp_t>>(),
-            py::arg("sign"),
-            py::arg("exp"),
-            py::arg("man"),
-            py::arg("exp_bits"),
-            py::arg("man_bits"),
-            py::arg("bias") = std::nullopt
+            nb::arg("sign"),
+            nb::arg("exp"),
+            nb::arg("man"),
+            nb::arg("exp_bits"),
+            nb::arg("man_bits"),
+            nb::arg("bias") = nb::none()
+        )
+        .def(
+            nb::init<
+                int,
+                exp_t,
+                man_t,
+                std::uint8_t,
+                std::uint8_t,
+                std::optional<exp_t>>(),
+            nb::arg("sign"),
+            nb::arg("exp"),
+            nb::arg("man"),
+            nb::arg("exp_bits"),
+            nb::arg("man_bits"),
+            nb::arg("bias") = nb::none()
         )
 
         /*
@@ -32,11 +48,11 @@ void bind_float(py::module_& m)
         .def_static(
             "from_float",
             &APyFloat::from_double,
-            py::arg("value"),
-            py::arg("exp_bits"),
-            py::arg("man_bits"),
-            py::arg("bias") = std::nullopt,
-            py::arg("quantization") = std::nullopt,
+            nb::arg("value"),
+            nb::arg("exp_bits"),
+            nb::arg("man_bits"),
+            nb::arg("bias") = nb::none(),
+            nb::arg("quantization") = nb::none(),
             R"pbdoc(
             Create an :class:`APyFloat` object from a :class:`float`.
 
@@ -73,10 +89,10 @@ void bind_float(py::module_& m)
         .def_static(
             "from_bits",
             &APyFloat::from_bits,
-            py::arg("bits"),
-            py::arg("exp_bits"),
-            py::arg("man_bits"),
-            py::arg("bias") = std::nullopt
+            nb::arg("bits"),
+            nb::arg("exp_bits"),
+            nb::arg("man_bits"),
+            nb::arg("bias") = nb::none()
         )
         .def("to_bits", &APyFloat::to_bits)
         .def("__str__", &APyFloat::str)
@@ -86,19 +102,19 @@ void bind_float(py::module_& m)
         .def(
             "cast",
             &APyFloat::cast,
-            py::arg("exp_bits"),
-            py::arg("man_bits"),
-            py::arg("bias") = std::nullopt,
-            py::arg("quantization") = std::nullopt
+            nb::arg("exp_bits"),
+            nb::arg("man_bits"),
+            nb::arg("bias") = nb::none(),
+            nb::arg("quantization") = nb::none()
         )
         // Deprecated, but keep around for paper review
         .def(
             "resize",
             &APyFloat::resize,
-            py::arg("exp_bits"),
-            py::arg("man_bits"),
-            py::arg("bias") = std::nullopt,
-            py::arg("quantization") = std::nullopt,
+            nb::arg("exp_bits"),
+            nb::arg("man_bits"),
+            nb::arg("bias") = nb::none(),
+            nb::arg("quantization") = nb::none(),
             R"pbdoc(
             .. deprecated:: 0.1.pre
                Use :func:`~APyFloat.cast` instead.
@@ -108,25 +124,25 @@ void bind_float(py::module_& m)
         /*
          * Arithmetic operators
          */
-        .def(py::self + py::self)
-        .def(-py::self)
-        .def(py::self - py::self)
-        .def(py::self * py::self)
-        .def(py::self / py::self)
+        .def(nb::self + nb::self)
+        .def(-nb::self)
+        .def(nb::self - nb::self)
+        .def(nb::self * nb::self)
+        .def(nb::self / nb::self)
 
-        .def(py::self == py::self)
-        .def(py::self != py::self)
-        .def(py::self < py::self)
-        .def(py::self > py::self)
-        .def(py::self <= py::self)
-        .def(py::self >= py::self)
+        .def(nb::self == nb::self)
+        .def(nb::self != nb::self)
+        .def(nb::self < nb::self)
+        .def(nb::self > nb::self)
+        .def(nb::self <= nb::self)
+        .def(nb::self >= nb::self)
 
-        .def(py::self == float())
-        .def(py::self != float())
-        .def(py::self < float())
-        .def(py::self > float())
-        .def(py::self <= float())
-        .def(py::self >= float())
+        .def(nb::self == float())
+        .def(nb::self != float())
+        .def(nb::self < float())
+        .def(nb::self > float())
+        .def(nb::self <= float())
+        .def(nb::self >= float())
         .def(
             "__add__",
             [](const APyFloat& a, int b) {
@@ -136,7 +152,7 @@ void bind_float(py::module_& m)
                     throw nanobind::type_error("Cannot add with int");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__radd__",
@@ -147,7 +163,7 @@ void bind_float(py::module_& m)
                     throw nanobind::type_error("Cannot add with int");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
 
         .def(
@@ -159,7 +175,7 @@ void bind_float(py::module_& m)
                     throw nanobind::type_error("Cannot add with float");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__radd__",
@@ -170,7 +186,7 @@ void bind_float(py::module_& m)
                     throw nanobind::type_error("Cannot add with float");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__sub__",
@@ -181,7 +197,7 @@ void bind_float(py::module_& m)
                     throw nanobind::type_error("Cannot subtract with int");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__rsub__",
@@ -192,7 +208,7 @@ void bind_float(py::module_& m)
                     throw nanobind::type_error("Cannot subtract with int");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
 
         .def(
@@ -204,7 +220,7 @@ void bind_float(py::module_& m)
                     throw nanobind::type_error("Cannot subtract with float");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__rsub__",
@@ -215,7 +231,7 @@ void bind_float(py::module_& m)
                     throw nanobind::type_error("Cannot subtract with float");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__mul__",
@@ -226,7 +242,7 @@ void bind_float(py::module_& m)
                     throw nanobind::type_error("Cannot multiply with int");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__rmul__",
@@ -237,7 +253,7 @@ void bind_float(py::module_& m)
                     throw nanobind::type_error("Cannot multiply with int");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__mul__",
@@ -248,7 +264,7 @@ void bind_float(py::module_& m)
                     throw nanobind::type_error("Cannot multiply with float");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
         .def(
             "__rmul__",
@@ -259,7 +275,7 @@ void bind_float(py::module_& m)
                     throw nanobind::type_error("Cannot multiply with float");
                 };
             },
-            py::is_operator()
+            nb::is_operator()
         )
 
         .def("__abs__", &APyFloat::abs)
@@ -267,16 +283,16 @@ void bind_float(py::module_& m)
         .def("__pow__", &APyFloat::pown)
 
         .def(
-            "__and__", [](APyFloat& a, APyFloat& b) { return a & b; }, py::is_operator()
+            "__and__", [](APyFloat& a, APyFloat& b) { return a & b; }, nb::is_operator()
         )
         .def(
-            "__or__", [](APyFloat& a, APyFloat& b) { return a | b; }, py::is_operator()
+            "__or__", [](APyFloat& a, APyFloat& b) { return a | b; }, nb::is_operator()
         )
         .def(
-            "__xor__", [](APyFloat& a, APyFloat& b) { return a ^ b; }, py::is_operator()
+            "__xor__", [](APyFloat& a, APyFloat& b) { return a ^ b; }, nb::is_operator()
         )
         .def(
-            "__invert__", [](APyFloat& a) { return ~a; }, py::is_operator()
+            "__invert__", [](APyFloat& a) { return ~a; }, nb::is_operator()
         )
 
         /*
@@ -317,7 +333,7 @@ void bind_float(py::module_& m)
             -------
             :class:`bool`
             )pbdoc")
-        .def("is_identical", &APyFloat::is_identical, py::arg("other"), R"pbdoc(
+        .def("is_identical", &APyFloat::is_identical, nb::arg("other"), R"pbdoc(
             Test if two `APyFloat` objects are identical.
 
             Two `APyFixed` objects are considered identical if, and only if,  they have
@@ -344,7 +360,7 @@ void bind_float(py::module_& m)
         .def(
             "cast_to_double",
             &APyFloat::cast_to_double,
-            py::arg("quantization") = std::nullopt,
+            nb::arg("quantization") = nb::none(),
             R"pbdoc(
             Cast to IEEE 754 binary64 (double-precision) format.
 
@@ -365,7 +381,7 @@ void bind_float(py::module_& m)
         .def(
             "cast_to_single",
             &APyFloat::cast_to_single,
-            py::arg("quantization") = std::nullopt,
+            nb::arg("quantization") = nb::none(),
             R"pbdoc(
             Cast to IEEE 754 binary32 (single-precision) format.
 
@@ -386,7 +402,7 @@ void bind_float(py::module_& m)
         .def(
             "cast_to_half",
             &APyFloat::cast_to_half,
-            py::arg("quantization") = std::nullopt,
+            nb::arg("quantization") = nb::none(),
             R"pbdoc(
             Cast to IEEE 754 binary16 (half-precision) format.
 
@@ -407,7 +423,7 @@ void bind_float(py::module_& m)
         .def(
             "cast_to_bfloat16",
             &APyFloat::cast_to_bfloat16,
-            py::arg("quantization") = std::nullopt,
+            nb::arg("quantization") = nb::none(),
             R"pbdoc(
             Cast to bfloat16 format.
 

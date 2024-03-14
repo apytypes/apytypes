@@ -1,7 +1,7 @@
 // Python object access through Pybind
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
-namespace py = nanobind;
+namespace nb = nanobind;
 
 #include "apyfloat.h"
 #include "apyfloatarray.h"
@@ -39,22 +39,22 @@ APyFloatArray::APyFloatArray(
 
     shape = signs_shape;
 
-    auto signs = python_sequence_walk<py::int_, py::bool_>(sign_seq);
-    auto exps = python_sequence_walk<py::int_>(exp_seq);
-    auto mans = python_sequence_walk<py::int_>(man_seq);
+    auto signs = python_sequence_walk<nb::int_, nb::bool_>(sign_seq);
+    auto exps = python_sequence_walk<nb::int_>(exp_seq);
+    auto mans = python_sequence_walk<nb::int_>(man_seq);
 
     for (std::size_t i = 0; i < signs.size(); ++i) {
         bool sign;
-        if (py::isinstance<py::bool_>(signs[i])) {
-            sign = static_cast<bool>(py::cast<py::bool_>(signs[i]));
-        } else if (py::isinstance<py::int_>(signs[i])) {
-            sign = static_cast<int>(py::cast<py::int_>(signs[i])
+        if (nb::isinstance<nb::bool_>(signs[i])) {
+            sign = static_cast<bool>(nb::cast<nb::bool_>(signs[i]));
+        } else if (nb::isinstance<nb::int_>(signs[i])) {
+            sign = static_cast<int>(nb::cast<nb::int_>(signs[i])
             ); // Must cast to int here
         } else {
             throw std::domain_error("Invalid objects in sign");
         }
-        exp_t exp = static_cast<exp_t>(py::cast<py::int_>(exps[i]));
-        man_t man = static_cast<man_t>(py::cast<py::int_>(mans[i]));
+        exp_t exp = static_cast<exp_t>(nb::cast<nb::int_>(exps[i]));
+        man_t man = static_cast<man_t>(nb::cast<nb::int_>(mans[i]));
 
         data.push_back({ sign, exp, man });
     }
@@ -254,7 +254,14 @@ std::string APyFloatArray::repr() const
 }
 
 // The shape of the array
-nanobind::tuple APyFloatArray::get_shape() const { return py::make_tuple(shape); }
+nanobind::tuple APyFloatArray::get_shape() const
+{
+    nb::list result_list;
+    for (std::size_t i = 0; i < shape.size(); i++) {
+        result_list.append(shape[i]);
+    }
+    return nb::tuple(result_list);
+}
 
 size_t APyFloatArray::get_ndim() const { return shape.size(); }
 
@@ -287,7 +294,7 @@ APyFloatArray APyFloatArray::get_item(std::size_t idx) const
     return result;
 }
 
-py::ndarray<py::numpy, double> APyFloatArray::to_numpy() const
+nb::ndarray<nb::numpy, double> APyFloatArray::to_numpy() const
 {
     // Dynamically allocate data to be passed to python
     double* result_data = new double[fold_shape()];
@@ -297,10 +304,10 @@ py::ndarray<py::numpy, double> APyFloatArray::to_numpy() const
     }
 
     // Delete 'data' when the 'owner' capsule expires
-    py::capsule owner(result_data, [](void* p) noexcept { delete[] (double*)p; });
+    nb::capsule owner(result_data, [](void* p) noexcept { delete[] (double*)p; });
 
     std::size_t ndim = shape.size();
-    return py::ndarray<py::numpy, double>(result_data, ndim, &shape[0], owner);
+    return nb::ndarray<nb::numpy, double>(result_data, ndim, &shape[0], owner);
 }
 
 bool APyFloatArray::is_identical(const APyFloatArray& other) const
@@ -331,14 +338,14 @@ APyFloatArray APyFloatArray::from_double(
         python_sequence_extract_shape(double_seq), exp_bits, man_bits, bias
     );
 
-    auto py_obj = python_sequence_walk<py::float_, py::int_>(double_seq);
+    auto py_obj = python_sequence_walk<nb::float_, nb::int_>(double_seq);
 
     for (std::size_t i = 0; i < result.data.size(); i++) {
         double d;
-        if (py::isinstance<py::float_>(py_obj[i])) {
-            d = static_cast<double>(py::cast<py::float_>(py_obj[i]));
-        } else if (py::isinstance<py::int_>(py_obj[i])) {
-            d = static_cast<int>(py::cast<py::int_>(py_obj[i]));
+        if (nb::isinstance<nb::float_>(py_obj[i])) {
+            d = static_cast<double>(nb::cast<nb::float_>(py_obj[i]));
+        } else if (nb::isinstance<nb::int_>(py_obj[i])) {
+            d = static_cast<int>(nb::cast<nb::int_>(py_obj[i]));
         } else {
             throw std::domain_error("Invalid Python objects in sequence");
         }

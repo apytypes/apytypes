@@ -2,7 +2,7 @@
 #include "apybuffer.h"
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
-namespace py = nanobind;
+namespace nb = nanobind;
 
 // Python details. These should be included before standard header files:
 // https://docs.python.org/3/c-api/intro.html#include-files
@@ -35,7 +35,7 @@ namespace py = nanobind;
  * ********************************************************************************** */
 
 APyFixedArray::APyFixedArray(
-    const py::sequence& bit_pattern_sequence,
+    const nb::sequence& bit_pattern_sequence,
     std::optional<int> bits,
     std::optional<int> int_bits,
     std::optional<int> frac_bits
@@ -44,12 +44,12 @@ APyFixedArray::APyFixedArray(
         python_sequence_extract_shape(bit_pattern_sequence), bits, int_bits, frac_bits
     )
 {
-    auto python_ints = python_sequence_walk<py::int_>(bit_pattern_sequence);
+    auto python_ints = python_sequence_walk<nb::int_>(bit_pattern_sequence);
     for (std::size_t i = 0; i < _data.size() / _itemsize; i++) {
 
         // Two's complements overflowing in `APyFixed` constructor
         auto limb_vec
-            = python_long_to_limb_vec(py::cast<py::int_>(python_ints[i]), _itemsize);
+            = python_long_to_limb_vec(nb::cast<nb::int_>(python_ints[i]), _itemsize);
         APyFixed fixed(_bits, _int_bits, limb_vec);
         std::copy_n(
             fixed._data.begin(),          // src
@@ -461,7 +461,14 @@ std::string APyFixedArray::repr() const
 }
 
 // The shape of the array
-py::tuple APyFixedArray::shape() const { return py::make_tuple(_shape); }
+nb::tuple APyFixedArray::shape() const
+{
+    nb::list result_list;
+    for (std::size_t i = 0; i < _shape.size(); i++) {
+        result_list.append(_shape[i]);
+    }
+    return nb::tuple(result_list);
+}
 
 // The dimension in the array
 size_t APyFixedArray::ndim() const { return _shape.size(); }
@@ -522,7 +529,7 @@ APyFixedArray APyFixedArray::get_item(std::size_t idx) const
     return result;
 }
 
-py::ndarray<py::numpy, double> APyFixedArray::to_numpy() const
+nb::ndarray<nb::numpy, double> APyFixedArray::to_numpy() const
 {
     // Dynamically allocate data to be passed to python
     double* result_data = new double[fold_shape(_shape)];
@@ -536,9 +543,9 @@ py::ndarray<py::numpy, double> APyFixedArray::to_numpy() const
     }
 
     // Delete 'data' when the 'owner' capsule expires
-    py::capsule owner(result_data, [](void* p) noexcept { delete[] (double*)p; });
+    nb::capsule owner(result_data, [](void* p) noexcept { delete[] (double*)p; });
 
-    return py::ndarray<py::numpy, double>(result_data, _ndim, &_shape[0], owner);
+    return nb::ndarray<nb::numpy, double>(result_data, _ndim, &_shape[0], owner);
 }
 
 bool APyFixedArray::is_identical(const APyFixedArray& other) const
@@ -608,7 +615,7 @@ APyFixedArray APyFixedArray::resize(
  * ********************************************************************************** */
 
 APyFixedArray APyFixedArray::from_double(
-    const py::sequence& python_seq,
+    const nb::sequence& python_seq,
     std::optional<int> bits,
     std::optional<int> int_bits,
     std::optional<int> frac_bits
@@ -619,27 +626,27 @@ APyFixedArray APyFixedArray::from_double(
     );
 
     // Extract all Python doubles and integers
-    auto py_obj = python_sequence_walk<py::float_, py::int_>(python_seq);
+    auto py_obj = python_sequence_walk<nb::float_, nb::int_>(python_seq);
 
     // Set data from doubles (reuse `APyFixed::from_double` conversion)
     APyFixed fix(result.bits(), result.int_bits());
     for (std::size_t i = 0; i < result._data.size() / result._itemsize; i++) {
-        if (py::isinstance<py::float_>(py_obj[i])) {
+        if (nb::isinstance<nb::float_>(py_obj[i])) {
             // Python double object
-            double d = static_cast<double>(py::cast<py::float_>(py_obj[i]));
+            double d = static_cast<double>(nb::cast<nb::float_>(py_obj[i]));
             fix.set_from_double(d);
             std::copy_n(
                 fix._data.begin(),                          // src
                 result._itemsize,                           // limbs to copy
                 result._data.begin() + i * result._itemsize // dst
             );
-        } else if (py::isinstance<py::int_>(py_obj[i])) {
+        } else if (nb::isinstance<nb::int_>(py_obj[i])) {
             // Python integer object
             auto max_bits = result.frac_bits() < 0
                 ? result.bits() - result.frac_bits() // Negative fractional bits
                 : result.bits();                     // Non-negative fractional bits
             auto limb_vec = python_long_to_limb_vec(
-                py::cast<py::int_>(py_obj[i]), bits_to_limbs(max_bits)
+                nb::cast<nb::int_>(py_obj[i]), bits_to_limbs(max_bits)
             );
             fix.set_from_double(double(APyFixed(max_bits, max_bits, limb_vec)));
             std::copy_n(

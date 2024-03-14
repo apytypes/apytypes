@@ -34,7 +34,13 @@ void bind_float_context(nb::module_& m)
         )
 
         .def("__enter__", &context_enter_handler)
-        .def("__exit__", &context_exit_handler);
+        .def(
+            "__exit__",
+            &context_exit_handler,
+            nb::arg("exc_type") = nb::none(),
+            nb::arg("exc_value") = nb::none(),
+            nb::arg("traceback") = nb::none()
+        );
 }
 
 void bind_accumulator_context(nb::module_& m)
