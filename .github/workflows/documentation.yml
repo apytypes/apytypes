@@ -17,7 +17,7 @@ jobs:
         run: |
           sudo apt-get install -yy doxygen
           python -m pip install --upgrade pip
-          python -m pip install -v .[docs,benchmark]
+          python -m pip install -v .[docs,comparison,benchmark]
       - name: Run comparison benchmarks
         run: |
           cd benchmark
@@ -80,3 +80,39 @@ jobs:
           auto-push: true
       - name: Copy previous file to cache
         run: mkdir -p cache && cp benchmark/output_float_array.json cache/
+      - name: Run fixed scalar benchmark
+        run: cd benchmark && pytest ci_fixed_scalar_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_fixed_scalar.json
+        # Run `github-action-benchmark` action
+      - name: Store fixed benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        with:
+          name: APyTypes Fixed-Point Scalar Benchmarks
+          # What benchmark tool the output.txt came from
+          tool: 'pytest'
+          # Where the output from the benchmark tool is stored
+          output-file-path: benchmark/output_fixed_scalar.json
+          # GitHub API token to make a commit comment
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Push and deploy GitHub pages branch automatically
+          auto-push: true
+      - name: Copy previous file to cache
+        run: mkdir -p cache && cp benchmark/output_fixed_scalar.json cache/
+      - name: Run float scalar benchmark
+        run: cd benchmark && pytest ci_float_scalar_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_float_scalar.json
+        # Run `github-action-benchmark` action
+      - name: Store float benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        with:
+          name: APyTypes Floating-Point Scalar Benchmarks
+          # What benchmark tool the output.txt came from
+          tool: 'pytest'
+          # Where the output from the benchmark tool is stored
+          output-file-path: benchmark/output_float_scalar.json
+          # GitHub API token to make a commit comment
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Push and deploy GitHub pages branch automatically
+          auto-push: true
+      - name: Copy previous file to cache
+        run: mkdir -p cache && cp benchmark/output_float_scalar.json cache/

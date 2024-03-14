@@ -6,9 +6,9 @@ requires = ['meson-python']
 name = "apytypes"
 dynamic = ['version']
 authors = [
-  { name="Oscar Gustafsson", email="oscar.gustafsson@gmail.com" },
-  { name="Mikael Henriksson", email="mikael.henriksson@liu.se" },
-  { name="Theodor Lindberg", email="theodor.lindberg@liu.se" }
+    { name = "Oscar Gustafsson", email = "oscar.gustafsson@gmail.com" },
+    { name = "Mikael Henriksson", email = "mikael.henriksson@liu.se" },
+    { name = "Theodor Lindberg", email = "theodor.lindberg@liu.se" },
 ]
 description = "Python package for custom fixed-point and floating-point formats"
 readme = "README.md"
@@ -36,12 +36,18 @@ docs = [
     "sphinx_copybutton",
     "sphinx_gallery",
 ]
-test = [
-    "numpy",
-    "pytest",
-]
+test = ["numpy", "pytest"]
 dev = ["pybind11-stubgen"]
-benchmark = ["fpbinary", "fixedpoint", "fxpmath", "spfpm", "numfi", "numpy", "matplotlib", "pytest", "pytest-benchmark"]
+benchmark = ["numpy", "pytest", "pytest-benchmark"]
+comparison = [
+    "fpbinary",
+    "fixedpoint",
+    "fxpmath",
+    "spfpm",
+    "numfi",
+    "numpy",
+    "matplotlib",
+]
 
 [tool.pytest.ini_options]
 markers = [
@@ -54,5 +60,5 @@ markers = [
     "float_comp : custom marker for grouping tests for floating-point comparisons",
     "float_special : custom marker for grouping tests for floating-point special values",
     "float_array : custom marker for grouping tests for floating-point arrays",
-    "slow : custom marker for grouping long running tests"
+    "slow : custom marker for grouping long running tests",
 ]
