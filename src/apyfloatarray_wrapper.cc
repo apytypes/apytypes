@@ -110,7 +110,7 @@ void bind_float_array(nb::module_& m)
         //             throw nanobind::type_error("Cannot sub with int");
         //         };
         //     },
-        //     py::is_operator()
+        //     nb::is_operator()
         // )
         .def(
             "__sub__",
@@ -132,7 +132,7 @@ void bind_float_array(nb::module_& m)
         //             throw nanobind::type_error("Cannot sub with float");
         //         };
         //     },
-        //     py::is_operator()
+        //     nb::is_operator()
         // )
         .def(
             "__sub__",
@@ -142,7 +142,7 @@ void bind_float_array(nb::module_& m)
         // .def(
         //     "__rsub__",
         //     [](const APyFloatArray& a, APyFloat& b) { return a - b; },
-        //     py::is_operator()
+        //     nb::is_operator()
         // )
         .def(nb::self * nb::self)
         .def(
@@ -220,7 +220,7 @@ void bind_float_array(nb::module_& m)
         //             throw nanobind::type_error("Cannot divide with int");
         //         };
         //     },
-        //     py::is_operator()
+        //     nb::is_operator()
         // )
         .def(
             "__truediv__",
@@ -242,7 +242,7 @@ void bind_float_array(nb::module_& m)
         //             throw nanobind::type_error("Cannot divide with float");
         //         };
         //     },
-        //     py::is_operator()
+        //     nb::is_operator()
         // )
         .def(
             "__truediv__",
@@ -252,7 +252,7 @@ void bind_float_array(nb::module_& m)
         // .def(
         //     "__rtruediv__",
         //     [](const APyFloatArray& a, APyFloat& b) { return a / b; },
-        //     py::is_operator()
+        //     nb::is_operator()
         // )
         /*
          * Methods

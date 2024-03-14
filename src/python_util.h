@@ -254,7 +254,7 @@
 [[maybe_unused]] static APY_INLINE std::vector<std::size_t>
 python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
 {
-    namespace py = nanobind;
+    namespace nb = nanobind;
 
     // Compute the length along the first dimension of this sequence
     auto nanobind_sequence_distance = [](const nanobind::sequence& seq) -> std::size_t {
@@ -278,19 +278,19 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
     }
 
     auto first_element_it = bit_pattern_sequence.begin();
-    if (py::isinstance<py::sequence>(*first_element_it)) {
+    if (nb::isinstance<nb::sequence>(*first_element_it)) {
         // First element along this dimension is another sequence. Make sure all
         // elements along this dimesions are also lists and recursivly evaluate their
         // shapes.
         std::vector<std::vector<std::size_t>> recursive_shapes;
         for (auto element : bit_pattern_sequence) {
-            if (!py::isinstance<py::sequence>(element)) {
+            if (!nb::isinstance<nb::sequence>(element)) {
                 // Non-sequence detected along dimension of sequences
                 throw std::runtime_error("Inhomogeneous sequence shape");
             }
 
             recursive_shapes.push_back(
-                python_sequence_extract_shape(py::cast<py::sequence>(element))
+                python_sequence_extract_shape(nb::cast<nb::sequence>(element))
             );
         }
 
@@ -313,7 +313,7 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
         // First element along this dimension is not a sequence. Make sure all elements
         // along this dimension are non-sequence.
         for (auto element : bit_pattern_sequence) {
-            if (py::isinstance<py::sequence>(element)) {
+            if (nb::isinstance<nb::sequence>(element)) {
                 // Sequence detected along dimension of non-sequence
                 throw std::runtime_error("Inhomogeneous sequence shape");
             }
@@ -327,7 +327,7 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
 
 /*!
  * Walk a, possibly nested, Python sequence of iterable objects and convert every Python
- * object  (of type `<T>`, via `py::cast<T>()`) and return them in a `std::vector<T>`.
+ * object  (of type `<T>`, via `nb::cast<T>()`) and return them in a `std::vector<T>`.
  * The sequence is walked in a depth-first search manner. If any object in the
  * sequence `bit_pattern_sequence` does not match `<T>` or another Python sequence
  * a `std::runtime_error` exception to be raised.
@@ -336,10 +336,10 @@ template <typename... PyTypes>
 [[maybe_unused]] static APY_INLINE std::vector<nanobind::object>
 python_sequence_walk(const nanobind::sequence& py_seq)
 {
-    namespace py = nanobind;
+    namespace nb = nanobind;
 
     // Result output iterator
-    std::vector<py::object> result {};
+    std::vector<nb::object> result {};
 
     // Walk the Python sequences and extract the data
     struct seq_it_pair {
@@ -354,15 +354,15 @@ python_sequence_walk(const nanobind::sequence& py_seq)
             // End of current iterator/sentinel pair. Pop it.
             it_stack.pop();
         } else {
-            if (py::isinstance<py::sequence>(*it_stack.top().iterator)) {
+            if (nb::isinstance<nb::sequence>(*it_stack.top().iterator)) {
                 // New sequence found. We need to go deeper
-                auto new_sequence = py::cast<py::sequence>(*it_stack.top().iterator++);
+                auto new_sequence = nb::cast<nb::sequence>(*it_stack.top().iterator++);
                 it_stack.push({ new_sequence.begin(), new_sequence.end() });
-            } else if ((py::isinstance<PyTypes>(*it_stack.top().iterator) || ...)) {
+            } else if ((nb::isinstance<PyTypes>(*it_stack.top().iterator) || ...)) {
                 // Element matching one of the PyTypes found, store it in container
-                result.push_back(py::cast<py::object>(*it_stack.top().iterator++));
+                result.push_back(nb::cast<nb::object>(*it_stack.top().iterator++));
             } else {
-                auto repr = py::repr(*it_stack.top().iterator);
+                auto repr = nb::repr(*it_stack.top().iterator);
                 std::string repr_string = repr.c_str();
                 throw std::runtime_error(
                     std::string("Non <type>/sequence found when walking <type>: ")
