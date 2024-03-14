@@ -1,6 +1,6 @@
 [build-system]
 build-backend = 'mesonpy'
-requires = ['meson-python', 'nanobind']
+requires = ['meson-python']
 
 [project]
 name = "apytypes"
