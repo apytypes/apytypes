@@ -8,10 +8,9 @@ project(
 # Python module incudes
 py3 = import('python').find_installation('python3', pure: false)
 py3_dep = py3.dependency()
-nanobind_cmd = run_command(py3, ['-m', 'nanobind', '--include_dir'])
-nanobind_dep = declare_dependency(
-    include_directories: [nanobind_cmd.stdout().split('-I')[-1].strip()],
-)
+
+# Nanobind dependency
+nanobind_dep = dependency('nanobind')
 
 
 py3.install_sources(
