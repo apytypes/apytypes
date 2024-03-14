@@ -39,10 +39,9 @@ docs = [
 test = [
     "numpy",
     "pytest",
-    "pytest-benchmark"
 ]
 dev = ["pybind11-stubgen"]
-benchmark = ["fpbinary", "fixedpoint", "fxpmath", "spfpm", "numfi", "numpy", "matplotlib"]
+benchmark = ["fpbinary", "fixedpoint", "fxpmath", "spfpm", "numfi", "numpy", "matplotlib", "pytest", "pytest-benchmark"]
 
 [tool.pytest.ini_options]
 markers = [

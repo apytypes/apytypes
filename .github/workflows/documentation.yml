@@ -17,13 +17,22 @@ jobs:
         run: |
           sudo apt-get install -yy doxygen
           python -m pip install -v .[docs,benchmark]
-      - name: Run benchmarks
+      - name: Run comparison benchmarks
         run: |
           cd benchmark
           python benchmark.py
           cd ..
           mkdir -p docs/_static/
           cp benchmark/benchmark.png docs/_static
+      # Run benchmark with `go test -bench` and stores the output to a file
+      - name: Run benchmark
+        run: mkdir cache && cd benchmark && pytest ci_fixed_array_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_fixed_array.json && cp output_fixed_array.json ../cache/
+      # Download previous benchmark result from cache (if exists)
+      - name: Download previous benchmark data
+        uses: actions/cache@v4
+        with:
+          path: ./cache
+          key: ${{ runner.os }}-benchmark
       - name: Sphinx build
         run: |
           cd docs
@@ -37,3 +46,17 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/_build/html
           force_orphan: true
+      # Run `github-action-benchmark` action
+      - name: Store benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        with:
+          name: APyTypes Fixed-Point Array Benchmarks
+          # What benchmark tool the output.txt came from
+          tool: 'pytest'
+          # Where the output from the benchmark tool is stored
+          output-file-path: benchmark/output_fixed_array.json
+          # GitHub API token to make a commit comment
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Push and deploy GitHub pages branch automatically
+          auto-push: true

@@ -23,6 +23,7 @@ jobs:
         with:
           path: ./cache
           key: ${{ runner.os }}-benchmark
+        run: mkdir -p cache && cp benchmark/output_fixed_array.json
       # Run `github-action-benchmark` action
       - name: Store benchmark result
         uses: benchmark-action/github-action-benchmark@v1
@@ -33,7 +34,7 @@ jobs:
           # Where the output from the benchmark tool is stored
           output-file-path: benchmark/output_fixed_array.json
           # Where the previous data file is stored
-          external-data-json-path: ./cache/benchmark-data.json
+          external-data-json-path: ./cache/output_fixed_array.json.json
           # GitHub API token to make a commit comment
           github-token: ${{ secrets.GITHUB_TOKEN }}
           # Enable alert commit comment
