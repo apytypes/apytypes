@@ -1,0 +1,44 @@
+name: Benchmarks
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  # deployments permission to deploy GitHub pages website
+  deployments: write
+  # contents permission to update benchmark contents in gh-pages branch
+  contents: write
+
+jobs:
+  benchmark:
+    name: Performance regression check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install APyTypes (and dependencies)
+        run: python -m pip install -v .[test]
+      # Run benchmark with `go test -bench` and stores the output to a file
+      - name: Run benchmark
+        run: cd benchmark && pytest ci_fixed_array_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_fixed_array.json
+      # Download previous benchmark result from cache (if exists)
+      - name: Download previous benchmark data
+        uses: actions/cache@v4
+        with:
+          path: ./cache
+          key: ${{ runner.os }}-benchmark
+      # Run `github-action-benchmark` action
+      - name: Store benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: APyTypes Fixed-Point Array Benchmarks
+          # What benchmark tool the output.txt came from
+          tool: 'pytest'
+          # Where the output from the benchmark tool is stored
+          output-file-path: benchmark/output_fixed_array.json
+          # GitHub API token to make a commit comment
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Push and deploy GitHub pages branch automatically
+          auto-push: true
