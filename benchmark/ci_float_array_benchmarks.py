@@ -107,3 +107,15 @@ def test_float_matrix_creation_200(benchmark):
     a = np.random.rand(200, 200)
 
     benchmark(APyFloatArray.from_float, a, 4, 7)
+
+
+def test_float_matrix_to_numpy_20(benchmark):
+    a = APyFloatArray.from_float(np.random.rand(20, 20), 4, 7)
+
+    benchmark(lambda x: x.to_numpy(), a)
+
+
+def test_float_matrix_to_numpy_200(benchmark):
+    a = APyFloatArray.from_float(np.random.rand(200, 200), 4, 7)
+
+    benchmark(lambda x: x.to_numpy(), a)

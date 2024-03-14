@@ -107,3 +107,15 @@ def test_fixed_matrix_creation_200(benchmark):
     a = np.random.rand(200, 200)
 
     benchmark(APyFixedArray.from_float, a, 19, 1)
+
+
+def test_fixed_matrix_to_numpy_20(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(20, 20), 19, 1)
+
+    benchmark(lambda x: x.to_numpy(), a)
+
+
+def test_fixed_matrix_to_numpy_200(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(200, 200), 19, 1)
+
+    benchmark(lambda x: x.to_numpy(), a)

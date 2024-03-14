@@ -47,7 +47,7 @@ jobs:
       - name: Run fixed array benchmark
         run: cd benchmark && pytest ci_fixed_array_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_fixed_array.json
         # Run `github-action-benchmark` action
-      - name: Store fixed benchmark result
+      - name: Store fixed array benchmark result
         uses: benchmark-action/github-action-benchmark@v1
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
@@ -65,7 +65,7 @@ jobs:
       - name: Run float array benchmark
         run: cd benchmark && pytest ci_float_array_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_float_array.json
         # Run `github-action-benchmark` action
-      - name: Store float benchmark result
+      - name: Store float array benchmark result
         uses: benchmark-action/github-action-benchmark@v1
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
@@ -83,7 +83,7 @@ jobs:
       - name: Run fixed scalar benchmark
         run: cd benchmark && pytest ci_fixed_scalar_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_fixed_scalar.json
         # Run `github-action-benchmark` action
-      - name: Store fixed benchmark result
+      - name: Store fixed scalar benchmark result
         uses: benchmark-action/github-action-benchmark@v1
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
@@ -101,7 +101,7 @@ jobs:
       - name: Run float scalar benchmark
         run: cd benchmark && pytest ci_float_scalar_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_float_scalar.json
         # Run `github-action-benchmark` action
-      - name: Store float benchmark result
+      - name: Store float scalar benchmark result
         uses: benchmark-action/github-action-benchmark@v1
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
