@@ -1,6 +1,6 @@
 // Python object access through Pybind
 #include <nanobind/nanobind.h>
-namespace py = nanobind;
+namespace nb = nanobind;
 
 #include "apyfloat.h"
 #include "apytypes_common.h"
@@ -29,7 +29,7 @@ QuantizationContext::QuantizationContext(
 {
     if (new_seed.has_value() && new_mode != QuantizationMode::STOCH_WEIGHTED
         && new_mode != QuantizationMode::STOCH_EQUAL) {
-        throw py::value_error(
+        throw nb::value_error(
             "Seed for quantization was given for a non-stochastic quantization mode."
         );
     }
@@ -98,7 +98,7 @@ AccumulatorContext::AccumulatorContext(
     const bool any_apfloat_parameters
         = _exp_bits.has_value() || _man_bits.has_value() || _bias.has_value();
     if (any_apfixed_parameters == any_apfloat_parameters) {
-        throw py::value_error(
+        throw nb::value_error(
             "Invalid combination of parameters for accumulator context"
         );
     }

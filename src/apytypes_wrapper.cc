@@ -1,32 +1,32 @@
 #include "apytypes_common.h"
 #include <nanobind/nanobind.h>
 
-namespace py = nanobind;
+namespace nb = nanobind;
 
-void bind_accumulator_context(py::module_& m);
-void bind_common(py::module_& m);
-void bind_context_manager(py::module_& m);
-void bind_fixed(py::module_& m);
-void bind_fixed_array(py::module_& m);
-void bind_float(py::module_& m);
-void bind_float_array(py::module_& m);
-void bind_float_context(py::module_& m);
+void bind_accumulator_context(nb::module_& m);
+void bind_common(nb::module_& m);
+void bind_context_manager(nb::module_& m);
+void bind_fixed(nb::module_& m);
+void bind_fixed_array(nb::module_& m);
+void bind_float(nb::module_& m);
+void bind_float_array(nb::module_& m);
+void bind_float_context(nb::module_& m);
 
 NB_MODULE(_apytypes, m)
 {
     bind_common(m);
     bind_fixed(m);
     bind_fixed_array(m);
-    // bind_float(m);
-    // bind_float_array(m);
+    bind_float(m);
+    bind_float_array(m);
     bind_context_manager(m);
-    // bind_float_context(m);
+    bind_float_context(m);
     bind_accumulator_context(m);
 }
 
-void bind_common(py::module_& m)
+void bind_common(nb::module_& m)
 {
-    py::enum_<QuantizationMode>(m, "QuantizationMode")
+    nb::enum_<QuantizationMode>(m, "QuantizationMode")
         /*
          * Base quantization modes
          */
@@ -145,7 +145,7 @@ void bind_common(py::module_& m)
             R"pbdoc(Alias. Round to nearest, ties towards positive infinity.)pbdoc"
         );
 
-    py::enum_<OverflowMode>(m, "OverflowMode")
+    nb::enum_<OverflowMode>(m, "OverflowMode")
         .value(
             "WRAP",
             OverflowMode::WRAP,

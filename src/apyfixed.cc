@@ -4,7 +4,7 @@
 
 // Python object access through Pybind
 #include <nanobind/nanobind.h>
-namespace py = nanobind;
+namespace nb = nanobind;
 
 // Python details. These should be included before standard header files:
 // https://docs.python.org/3/c-api/intro.html#include-files
@@ -46,7 +46,7 @@ APyFixed::APyFixed(const APyFixed& other)
 
 //! Constructor: construct from a Python arbitrary long integer object
 APyFixed::APyFixed(
-    py::int_ python_long_int_bit_pattern,
+    nb::int_ python_long_int_bit_pattern,
     std::optional<int> bits,
     std::optional<int> int_bits,
     std::optional<int> frac_bits
@@ -85,11 +85,11 @@ APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end)
     : APyFixed(bits, int_bits)
 {
     if (std::distance(begin, end) <= 0) {
-        throw py::value_error(
+        throw nb::value_error(
             "APyFixed vector initialization needs appropriate vector size"
         );
     } else if (std::size_t(std::distance(begin, end)) != bits_to_limbs(bits)) {
-        throw py::value_error(
+        throw nb::value_error(
             "APyFixed vector initialization needs appropriate vector size"
         );
     }
@@ -456,7 +456,7 @@ void APyFixed::set_from_string_dec(const std::string& str)
 
     // Check the validity as a decimal string
     if (!is_valid_decimal_numeric_string(str_trimmed)) {
-        throw py::value_error("Not a valid decimal numeric string");
+        throw nb::value_error("Not a valid decimal numeric string");
     }
 
     // Test if negative. If so, remove the negative sign from the string.
@@ -562,10 +562,10 @@ void APyFixed::set_from_string(const std::string& str, int base)
 void APyFixed::set_from_double(double value)
 {
     if (std::isnan(value)) {
-        throw py::value_error("Cannot convert Nan to fixed-point");
+        throw nb::value_error("Cannot convert Nan to fixed-point");
     }
     if (std::isinf(value)) {
-        throw py::value_error("Cannot convert infinity to fixed-point");
+        throw nb::value_error("Cannot convert infinity to fixed-point");
     }
     std::fill(_data.begin(), _data.end(), 0);
     if constexpr (_LIMB_SIZE_BITS == 64) {
@@ -672,7 +672,7 @@ void APyFixed::set_from_apyfixed(const APyFixed& other)
     _twos_complement_overflow(_data.begin(), _data.end(), bits(), int_bits());
 }
 
-py::int_ APyFixed::to_bits() const
+nb::int_ APyFixed::to_bits() const
 {
     return python_limb_vec_to_long(_data, false, bits() % _LIMB_SIZE_BITS);
 }

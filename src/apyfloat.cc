@@ -1,5 +1,5 @@
 #include <nanobind/nanobind.h>
-namespace py = nanobind;
+namespace nb = nanobind;
 
 #include <climits>
 #include <cmath>
@@ -365,7 +365,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
     if ((res.man_bits + 5UL)
         > (sizeof(man_t) * CHAR_BIT
         )) { // +1 (leading one) +3 (guard bits) +1 (addition)
-        throw py::value_error(
+        throw nb::value_error(
             "The intermediate mantissa can potentially exceed "
             "its underlaying data type."
         );
@@ -473,7 +473,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     APyFloat res(std::max(exp_bits, y.exp_bits), std::max(man_bits, y.man_bits));
 
     if ((2ULL * res.man_bits + 1ULL) > (sizeof(man_t) * CHAR_BIT)) {
-        throw py::value_error(
+        throw nb::value_error(
             "The intermediate mantissa can potentially exceed "
             "its underlaying data type."
         );
@@ -624,7 +624,7 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     int tmp_exp_bits = std::max(norm_x.exp_bits, norm_y.exp_bits) + 1;
 
     if (tmp_man_bits > (sizeof(man_t) * CHAR_BIT)) {
-        throw py::value_error(
+        throw nb::value_error(
             "The intermediate mantissa can potentially exceed "
             "its underlaying data type."
         );
