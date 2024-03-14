@@ -682,7 +682,7 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
 }
 
 //! Retrieve the `bits` specifier from user provided optional bit specifiers.
-//! Throws `py::value_error` if the resulting number of bits is less than or equal to
+//! Throws `nb::value_error` if the resulting number of bits is less than or equal to
 //! zero, or if not exactly two of three bit specifiers are present.
 [[maybe_unused, nodiscard]] static APY_INLINE int bits_from_optional(
     std::optional<int> bits, std::optional<int> int_bits, std::optional<int> frac_bits
