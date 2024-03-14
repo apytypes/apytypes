@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710453930084,
+  "lastUpdate": 1710455732704,
   "repoUrl": "https://github.com/apytypes/apytypes",
   "entries": {
     "APyTypes Fixed-Point Array Benchmarks": [
@@ -258,6 +258,135 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.0001272138970110552",
             "extra": "mean: 5.90019776922964 msec\nrounds: 169"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "oscar.gustafsson@gmail.com",
+            "name": "Oscar Gustafsson",
+            "username": "oscargus"
+          },
+          "committer": {
+            "email": "oscar.gustafsson@gmail.com",
+            "name": "Oscar Gustafsson",
+            "username": "oscargus"
+          },
+          "distinct": true,
+          "id": "3645c23d83f768684f1de972d635f7bb935cf0b2",
+          "message": "Add floating-point array benchmarks",
+          "timestamp": "2024-03-14T23:32:28+01:00",
+          "tree_id": "f945074951f1f6976717904c6ba06f1f80377632",
+          "url": "https://github.com/apytypes/apytypes/commit/3645c23d83f768684f1de972d635f7bb935cf0b2"
+        },
+        "date": 1710455731550,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "benchmark/ci_fixed_array_benchmarks.py::test_fixed_matrix_multiplication_20",
+            "value": 25206.779835364006,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0000014623424121892164",
+            "extra": "mean: 39.67186632054619 usec\nrounds: 24671"
+          },
+          {
+            "name": "benchmark/ci_fixed_array_benchmarks.py::test_fixed_matrix_addition_20",
+            "value": 111600.81276801944,
+            "unit": "iter/sec",
+            "range": "stddev: 7.10038964695285e-7",
+            "extra": "mean: 8.960508218507904 usec\nrounds: 107562"
+          },
+          {
+            "name": "benchmark/ci_fixed_array_benchmarks.py::test_fixed_matrix_addition_200",
+            "value": 1216.6611038713868,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000026579469771188486",
+            "extra": "mean: 821.9215661765003 usec\nrounds: 1224"
+          },
+          {
+            "name": "benchmark/ci_fixed_array_benchmarks.py::test_fixed_matrix_elementwise_multiplication_20",
+            "value": 1020038.8050200236,
+            "unit": "iter/sec",
+            "range": "stddev: 5.8829573308483236e-8",
+            "extra": "mean: 980.3548601079053 nsec\nrounds: 100111"
+          },
+          {
+            "name": "benchmark/ci_fixed_array_benchmarks.py::test_fixed_matrix_elementwise_multiplication_200",
+            "value": 17038.044652275727,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0000020116075292016743",
+            "extra": "mean: 58.69218096376058 usec\nrounds: 17031"
+          },
+          {
+            "name": "benchmark/ci_fixed_array_benchmarks.py::test_fixed_matrix_negation_20",
+            "value": 185231.21348148488,
+            "unit": "iter/sec",
+            "range": "stddev: 3.8354369105608237e-7",
+            "extra": "mean: 5.398658148400872 usec\nrounds: 172414"
+          },
+          {
+            "name": "benchmark/ci_fixed_array_benchmarks.py::test_fixed_matrix_negation_200",
+            "value": 1956.39923846647,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00008861534662744222",
+            "extra": "mean: 511.1431145229096 usec\nrounds: 2052"
+          },
+          {
+            "name": "benchmark/ci_fixed_array_benchmarks.py::test_fixed_matrix_abs_20",
+            "value": 189868.52250601223,
+            "unit": "iter/sec",
+            "range": "stddev: 5.16150399824431e-7",
+            "extra": "mean: 5.266802452567327 usec\nrounds: 136185"
+          },
+          {
+            "name": "benchmark/ci_fixed_array_benchmarks.py::test_fixed_matrix_abs_200",
+            "value": 2340.8726443162745,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000005839742333054684",
+            "extra": "mean: 427.19111713661016 usec\nrounds: 2305"
+          },
+          {
+            "name": "benchmark/ci_fixed_array_benchmarks.py::test_fixed_scalar_matrix_addition_20",
+            "value": 195413.47477619306,
+            "unit": "iter/sec",
+            "range": "stddev: 4.275641716518049e-7",
+            "extra": "mean: 5.117354374591104 usec\nrounds: 182482"
+          },
+          {
+            "name": "benchmark/ci_fixed_array_benchmarks.py::test_fixed_scalar_matrix_addition_200",
+            "value": 2205.2680630689047,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0000257159346511986",
+            "extra": "mean: 453.4596118933386 usec\nrounds: 2203"
+          },
+          {
+            "name": "benchmark/ci_fixed_array_benchmarks.py::test_fixed_scalar_matrix_multiplication_20",
+            "value": 219005.5805263971,
+            "unit": "iter/sec",
+            "range": "stddev: 3.5913505497636e-7",
+            "extra": "mean: 4.566093693121525 usec\nrounds: 199641"
+          },
+          {
+            "name": "benchmark/ci_fixed_array_benchmarks.py::test_fixed_scalar_matrix_multiplication_200",
+            "value": 2482.536610665282,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000007182811767713702",
+            "extra": "mean: 402.8137976712518 usec\nrounds: 2491"
+          },
+          {
+            "name": "benchmark/ci_fixed_array_benchmarks.py::test_fixed_matrix_creation_20",
+            "value": 10652.448984611558,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000002866821776888217",
+            "extra": "mean: 93.87512687876676 usec\nrounds: 10577"
+          },
+          {
+            "name": "benchmark/ci_fixed_array_benchmarks.py::test_fixed_matrix_creation_200",
+            "value": 160.65043385496693,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00032862908638000443",
+            "extra": "mean: 6.2246952965143345 msec\nrounds: 172"
           }
         ]
       }
