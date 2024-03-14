@@ -1,66 +1,64 @@
 #include "apyfixed.h"
 #include "apytypes_common.h"
-#include "apytypes_util.h"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
+#include <nanobind/stl/optional.h>
 
-#include <optional> // std::optional, std::nullopt
+namespace nb = nanobind;
 
-namespace py = nanobind;
-
-void bind_fixed(py::module_& m)
+void bind_fixed(nb::module_& m)
 {
-    py::class_<APyFixed>(m, "APyFixed")
+    nb::class_<APyFixed>(m, "APyFixed")
 
         /*
          * Constructor: construct from a Python arbitrary long integer object
          */
         .def(
-            py::init<
-                py::int_,
+            nb::init<
+                nb::int_,
                 std::optional<int>,
                 std::optional<int>,
                 std::optional<int>>(),
-            py::arg("bit_pattern"),
-            py::arg("bits") = std::nullopt,
-            py::arg("int_bits") = std::nullopt,
-            py::arg("frac_bits") = std::nullopt
+            nb::arg("bit_pattern"),
+            nb::arg("bits") = nb::none(),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("frac_bits") = nb::none()
         )
 
         /*
          * Arithmetic operators
          */
-        .def(py::self == py::self)
-        .def(py::self != py::self)
-        .def(py::self < py::self)
-        .def(py::self <= py::self)
-        .def(py::self > py::self)
-        .def(py::self >= py::self)
+        .def(nb::self == nb::self)
+        .def(nb::self != nb::self)
+        .def(nb::self < nb::self)
+        .def(nb::self <= nb::self)
+        .def(nb::self > nb::self)
+        .def(nb::self >= nb::self)
 
-        .def(py::self == float())
-        .def(py::self != float())
-        .def(py::self < float())
-        .def(py::self > float())
-        .def(py::self <= float())
-        .def(py::self >= float())
+        .def(nb::self == float())
+        .def(nb::self != float())
+        .def(nb::self < float())
+        .def(nb::self > float())
+        .def(nb::self <= float())
+        .def(nb::self >= float())
 
-        .def(py::self + py::self)
-        .def(py::self - py::self)
-        .def(py::self * py::self)
-        .def(py::self / py::self)
-        .def(-py::self)
-        .def(py::self <<= int())
-        .def(py::self >>= int())
+        .def(nb::self + nb::self)
+        .def(nb::self - nb::self)
+        .def(nb::self * nb::self)
+        .def(nb::self / nb::self)
+        .def(-nb::self)
+        .def(nb::self <<= int())
+        .def(nb::self >>= int())
 
         // Addition with integers
-        .def(py::self + int())
+        .def(nb::self + int())
         .def(
             "__radd__",
             [](APyFixed& rhs, int lhs) { return rhs + lhs; },
-            py::is_operator()
+            nb::is_operator()
         )
-        .def(py::self - int())
+        .def(nb::self - int())
         .def(
             "__rsub__",
             [](APyFixed& rhs, int lhs) {
@@ -69,15 +67,15 @@ void bind_fixed(py::module_& m)
                 }
                 throw NotImplementedException("NotImplemented: __rsub__(int)");
             },
-            py::is_operator()
+            nb::is_operator()
         )
-        .def(py::self * int())
+        .def(nb::self * int())
         .def(
             "__rmul__",
             [](APyFixed& rhs, int lhs) { return rhs * lhs; },
-            py::is_operator()
+            nb::is_operator()
         )
-        //.def(py::self / int())
+        .def(nb::self / int())
 
         /*
          * Methods
@@ -128,7 +126,7 @@ void bind_fixed(py::module_& m)
             )pbdoc")
         .def_prop_ro("_is_negative", &APyFixed::is_negative)
         .def_prop_ro("_is_positive", &APyFixed::is_positive)
-        .def("is_identical", &APyFixed::is_identical, py::arg("other"), R"pbdoc(
+        .def("is_identical", &APyFixed::is_identical, nb::arg("other"), R"pbdoc(
             Test if two fixed-point objects are exactly identical.
 
             Two `APyFixed` objects are considered exactly identical if, and only if,
@@ -167,11 +165,11 @@ void bind_fixed(py::module_& m)
         .def(
             "resize",
             &APyFixed::resize,
-            py::arg("bits") = std::nullopt,
-            py::arg("int_bits") = std::nullopt,
-            py::arg("quantization") = QuantizationMode::TRN,
-            py::arg("overflow") = OverflowMode::WRAP,
-            py::arg("frac_bits") = std::nullopt,
+            nb::arg("bits") = nb::none(),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("quantization") = QuantizationMode::TRN,
+            nb::arg("overflow") = OverflowMode::WRAP,
+            nb::arg("frac_bits") = nb::none(),
             R"pbdoc(
             .. deprecated:: 0.1.pre
                Use :func:`~APyFixed.cast` instead.
@@ -180,11 +178,11 @@ void bind_fixed(py::module_& m)
         .def(
             "cast",
             &APyFixed::cast,
-            py::arg("bits") = std::nullopt,
-            py::arg("int_bits") = std::nullopt,
-            py::arg("quantization") = QuantizationMode::TRN,
-            py::arg("overflow") = OverflowMode::WRAP,
-            py::arg("frac_bits") = std::nullopt,
+            nb::arg("bits") = nb::none(),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("quantization") = QuantizationMode::TRN,
+            nb::arg("overflow") = OverflowMode::WRAP,
+            nb::arg("frac_bits") = nb::none(),
             R"pbdoc(
             Create a new resized fixed-point number based on the bit pattern in this
             fixed-point number.
@@ -242,18 +240,18 @@ void bind_fixed(py::module_& m)
         .def("__float__", &APyFixed::operator double)
         .def("__neg__", [](APyFixed& fix) { return -fix; })
         .def("__repr__", &APyFixed::repr)
-        .def("__str__", &APyFixed::to_string, py::arg("base") = 10)
+        .def("__str__", &APyFixed::to_string, nb::arg("base") = 10)
         .def(
             "__lshift__",
             &APyFixed::operator<<,
-            py::arg("shift_amnt"),
-            py::is_operator()
+            nb::arg("shift_amnt"),
+            nb::is_operator()
         )
         .def(
             "__rshift__",
             &APyFixed::operator>>,
-            py::arg("shift_amnt"),
-            py::is_operator()
+            nb::arg("shift_amnt"),
+            nb::is_operator()
         )
 
         /*
@@ -262,10 +260,10 @@ void bind_fixed(py::module_& m)
         .def_static(
             "from_float",
             &APyFixed::from_double,
-            py::arg("value"),
-            py::arg("bits") = std::nullopt,
-            py::arg("int_bits") = std::nullopt,
-            py::arg("frac_bits") = std::nullopt,
+            nb::arg("value"),
+            nb::arg("bits") = nb::none(),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("frac_bits") = nb::none(),
             R"pbdoc(
             Create an :class:`APyFixed` object from :class:`float`.
 
@@ -301,11 +299,11 @@ void bind_fixed(py::module_& m)
         .def_static(
             "from_str",
             &APyFixed::from_string,
-            py::arg("string_value"),
-            py::arg("bits") = std::nullopt,
-            py::arg("int_bits") = std::nullopt,
-            py::arg("base") = 10,
-            py::arg("frac_bits") = std::nullopt,
+            nb::arg("string_value"),
+            nb::arg("bits") = nb::none(),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("base") = 10,
+            nb::arg("frac_bits") = nb::none(),
             R"pbdoc(
             Create an :class:`APyFixed` object from :class:`str`.
 

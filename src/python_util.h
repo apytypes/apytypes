@@ -362,7 +362,7 @@ python_sequence_walk(const nanobind::sequence& py_seq)
                 // Element matching one of the PyTypes found, store it in container
                 result.push_back(py::cast<py::object>(*it_stack.top().iterator++));
             } else {
-                py::str repr = py::cast<py::str>(*it_stack.top().iterator);
+                auto repr = py::repr(*it_stack.top().iterator);
                 std::string repr_string = repr.c_str();
                 throw std::runtime_error(
                     std::string("Non <type>/sequence found when walking <type>: ")

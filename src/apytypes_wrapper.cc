@@ -17,10 +17,10 @@ NB_MODULE(_apytypes, m)
     bind_common(m);
     bind_fixed(m);
     bind_fixed_array(m);
-    bind_float(m);
-    bind_float_array(m);
+    // bind_float(m);
+    // bind_float_array(m);
     bind_context_manager(m);
-    bind_float_context(m);
+    // bind_float_context(m);
     bind_accumulator_context(m);
 }
 
