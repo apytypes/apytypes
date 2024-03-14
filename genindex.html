@@ -1,0 +1,1177 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
+
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 --><title>Index - APyTypes documentation</title>
+<link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">APyTypes  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">APyTypes  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of apytypes Python package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/quantizationoverflow.html">Quantization and overflow handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/context.html">Context handling</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="cpp_api/index.html">APyTypes C++ API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of APyTypes C++ API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="cpp_api/apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp_api/apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp_api/apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp_api/apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp_api/apytypes_common.html"><code class="docutils literal notranslate"><span class="pre">apytypes_common.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp_api/apytypes_util.html"><code class="docutils literal notranslate"><span class="pre">apytypes_util.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp_api/ieee754.html"><code class="docutils literal notranslate"><span class="pre">ieee754.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp_api/python_util.html"><code class="docutils literal notranslate"><span class="pre">python_util.h</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples/index.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/apyfloat.html">APyFloat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/apyfixed.html">APyFixed</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="comparison.html">Comparison</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          
+<section class="genindex-section">
+  <h1 id="index">Index</h1>
+  <div class="genindex-jumpbox"><a href="#_"><strong>_</strong></a> | <a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#J"><strong>J</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#Q"><strong>Q</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#W"><strong>W</strong></a></div>
+</section>
+<section id="_" class="genindex-section">
+  <h2>_</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/context.html#apytypes.AccumulatorContext.__init__">__init__ (apytypes.AccumulatorContext attribute)</a>
+
+        <ul>
+          <li><a href="api/apyfixed.html#apytypes.APyFixed.__init__">(apytypes.APyFixed attribute)</a>
+</li>
+          <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.__init__">(apytypes.APyFixedArray attribute)</a>
+</li>
+          <li><a href="api/apyfloat.html#apytypes.APyFloat.__init__">(apytypes.APyFloat attribute)</a>
+</li>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.__init__">(apytypes.APyFloatArray attribute)</a>
+</li>
+          <li><a href="api/context.html#apytypes.QuantizationContext.__init__">(apytypes.QuantizationContext attribute)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/quantizationoverflow.html#apytypes.OverflowMode.__init__">__init__() (apytypes.OverflowMode method)</a>
+
+        <ul>
+          <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.__init__">(apytypes.QuantizationMode method)</a>
+</li>
+        </ul></li>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv415_LIMB_SIZE_BITS">_LIMB_SIZE_BITS (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv416_LIMB_SIZE_BYTES">_LIMB_SIZE_BYTES (C++ member)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="A" class="genindex-section">
+  <h2>A</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv418AccumulatorContext">AccumulatorContext (C++ class)</a>
+
+        <ul>
+          <li><a href="api/context.html#apytypes.AccumulatorContext">(class in apytypes)</a>
+</li>
+        </ul></li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N18AccumulatorContext18AccumulatorContextENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEENSt8optionalI16QuantizationModeEENSt8optionalI12OverflowModeEENSt8optionalINSt7uint8_tEEENSt8optionalINSt7uint8_tEEENSt8optionalI5exp_tEE">AccumulatorContext::AccumulatorContext (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N18AccumulatorContext12current_modeE">AccumulatorContext::current_mode (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N18AccumulatorContext13enter_contextEv">AccumulatorContext::enter_context (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N18AccumulatorContext12exit_contextEv">AccumulatorContext::exit_context (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N18AccumulatorContext13previous_modeE">AccumulatorContext::previous_mode (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv417AccumulatorOption">AccumulatorOption (C++ struct)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N17AccumulatorOption4biasE">AccumulatorOption::bias (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N17AccumulatorOption4bitsE">AccumulatorOption::bits (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N17AccumulatorOption8exp_bitsE">AccumulatorOption::exp_bits (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N17AccumulatorOption8int_bitsE">AccumulatorOption::int_bits (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N17AccumulatorOption8man_bitsE">AccumulatorOption::man_bits (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N17AccumulatorOption8overflowE">AccumulatorOption::overflow (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N17AccumulatorOption12quantizationE">AccumulatorOption::quantization (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_util.html#c.APY_INLINE">APY_INLINE (C macro)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv48APyFixed">APyFixed (C++ class)</a>
+
+        <ul>
+          <li><a href="api/apyfixed.html#apytypes.APyFixed">(class in apytypes)</a>
+</li>
+        </ul></li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed3absEv">APyFixed::abs (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4I0EN8APyFixed8APyFixedEii3_IT3_IT">APyFixed::APyFixed (C++ function)</a>, <a href="cpp_api/apyfixed.html#_CPPv4N8APyFixed8APyFixedEN8nanobind4int_ENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">[1]</a>, <a href="cpp_api/apyfixed.html#_CPPv4N8APyFixed8APyFixedENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">[2]</a>, <a href="cpp_api/apyfixed.html#_CPPv4N8APyFixed8APyFixedERK8APyFixed">[3]</a>, <a href="cpp_api/apyfixed.html#_CPPv4N8APyFixed8APyFixedEii">[4]</a>, <a href="cpp_api/apyfixed.html#_CPPv4N8APyFixed8APyFixedEiiRKNSt6vectorI9mp_limb_tEE">[5]</a>, <a href="cpp_api/apyfixed.html#_CPPv4N8APyFixed8APyFixedEv">[6]</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed25bit_pattern_to_string_decEv">APyFixed::bit_pattern_to_string_dec (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed4bitsEv">APyFixed::bits (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed4castENSt8optionalIiEENSt8optionalIiEE16QuantizationMode12OverflowModeNSt8optionalIiEE">APyFixed::cast (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed15cast_correct_wlENSt6vectorI9mp_limb_tE8iteratorENSt6vectorI9mp_limb_tE8iteratorEii">APyFixed::cast_correct_wl (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed9frac_bitsEv">APyFixed::frac_bits (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4N8APyFixed11from_doubleEdNSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixed::from_double (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4N8APyFixed11from_stringENSt6stringENSt8optionalIiEENSt8optionalIiEEiNSt8optionalIiEE">APyFixed::from_string (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4N8APyFixed13increment_lsbEv">APyFixed::increment_lsb (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed8int_bitsEv">APyFixed::int_bits (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed12is_identicalERK8APyFixed">APyFixed::is_identical (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed11is_negativeEv">APyFixed::is_negative (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed11is_positiveEv">APyFixed::is_positive (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed7is_zeroEv">APyFixed::is_zero (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed5latexEv">APyFixed::latex (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixedcvdEv">APyFixed::operator double (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixedneERK8APyFixed">APyFixed::operator!= (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixedmlERK8APyFixed">APyFixed::operator* (C++ function)</a>, <a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixedmlEi">[1]</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixedplERK8APyFixed">APyFixed::operator+ (C++ function)</a>, <a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixedplEi">[1]</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixedmiERK8APyFixed">APyFixed::operator- (C++ function)</a>, <a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixedmiEi">[1]</a>, <a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixedmiEv">[2]</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixeddvERK8APyFixed">APyFixed::operator/ (C++ function)</a>, <a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixeddvEi">[1]</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixedltERK8APyFixed">APyFixed::operator&lt; (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixedlsEKi">APyFixed::operator&lt;&lt; (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4N8APyFixedlSEKi">APyFixed::operator&lt;&lt;= (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixedleERK8APyFixed">APyFixed::operator&lt;= (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixedeqERK8APyFixed">APyFixed::operator== (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixedgtERK8APyFixed">APyFixed::operator&gt; (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixedgeERK8APyFixed">APyFixed::operator&gt;= (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixedrsEKi">APyFixed::operator&gt;&gt; (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4N8APyFixedrSEKi">APyFixed::operator&gt;&gt;= (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed4reprEv">APyFixed::repr (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed6resizeENSt8optionalIiEENSt8optionalIiEE16QuantizationMode12OverflowModeNSt8optionalIiEE">APyFixed::resize (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4N8APyFixed17set_from_apyfixedERK8APyFixed">APyFixed::set_from_apyfixed (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4N8APyFixed15set_from_doubleEd">APyFixed::set_from_double (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4N8APyFixed15set_from_stringERKNSt6stringEi">APyFixed::set_from_string (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4N8APyFixed19set_from_string_decERKNSt6stringE">APyFixed::set_from_string_dec (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4N8APyFixed19set_from_string_hexERKNSt6stringE">APyFixed::set_from_string_hex (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4N8APyFixed19set_from_string_octERKNSt6stringE">APyFixed::set_from_string_oct (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed7to_bitsEv">APyFixed::to_bits (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed9to_doubleEv">APyFixed::to_double (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed9to_stringEi">APyFixed::to_string (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed13to_string_decEv">APyFixed::to_string_dec (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed13to_string_hexEv">APyFixed::to_string_hex (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed13to_string_octEv">APyFixed::to_string_oct (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed11vector_sizeEv">APyFixed::vector_size (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv413APyFixedArray">APyFixedArray (C++ class)</a>
+
+        <ul>
+          <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray">(class in apytypes)</a>
+</li>
+        </ul></li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray3absEv">APyFixedArray::abs (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray13APyFixedArrayERKN8nanobind8sequenceENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixedArray::APyFixedArray (C++ function)</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray13APyFixedArrayERKNSt6vectorINSt6size_tEEENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">[1]</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray13APyFixedArrayEv">[2]</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray4bitsEv">APyFixedArray::bits (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray4castENSt8optionalIiEENSt8optionalIiEE16QuantizationMode12OverflowModeNSt8optionalIiEE">APyFixedArray::cast (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray9frac_bitsEv">APyFixedArray::frac_bits (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray11from_doubleERKN8nanobind8sequenceENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixedArray::from_double (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray8get_itemENSt6size_tE">APyFixedArray::get_item (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray8int_bitsEv">APyFixedArray::int_bits (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray12is_identicalERK13APyFixedArray">APyFixedArray::is_identical (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray6matmulERK13APyFixedArray">APyFixedArray::matmul (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray4ndimEv">APyFixedArray::ndim (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArraymlERK13APyFixedArray">APyFixedArray::operator* (C++ function)</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArraymlERK8APyFixed">[1]</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArrayplERK13APyFixedArray">APyFixedArray::operator+ (C++ function)</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArrayplERK8APyFixed">[1]</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArraymiERK13APyFixedArray">APyFixedArray::operator- (C++ function)</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArraymiERK8APyFixed">[1]</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArraymiEv">[2]</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArraydvERK13APyFixedArray">APyFixedArray::operator/ (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArraylsEKi">APyFixedArray::operator&lt;&lt; (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArraylSEKi">APyFixedArray::operator&lt;&lt;= (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArrayrsEKi">APyFixedArray::operator&gt;&gt; (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArrayrSEKi">APyFixedArray::operator&gt;&gt;= (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray4reprEv">APyFixedArray::repr (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray6resizeENSt8optionalIiEENSt8optionalIiEE16QuantizationMode12OverflowModeNSt8optionalIiEE">APyFixedArray::resize (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray4rsubERK8APyFixed">APyFixedArray::rsub (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray5shapeEv">APyFixedArray::shape (C++ function)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray4sizeEv">APyFixedArray::size (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray8to_numpyEv">APyFixedArray::to_numpy (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray9transposeEv">APyFixedArray::transpose (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv48APyFloat">APyFloat (C++ class)</a>
+
+        <ul>
+          <li><a href="api/apyfloat.html#apytypes.APyFloat">(class in apytypes)</a>
+</li>
+        </ul></li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat3absERK8APyFloat">APyFloat::abs (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat8APyFloatERK12APyFloatDataNSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE">APyFloat::APyFloat (C++ function)</a>, <a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat8APyFloatEb5exp_t5man_tNSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE">[1]</a>, <a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat8APyFloatEi5exp_t5man_tNSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE">[2]</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat4castENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE">APyFloat::cast (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat16cast_to_bfloat16ENSt8optionalI16QuantizationModeEE">APyFloat::cast_to_bfloat16 (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat14cast_to_doubleENSt8optionalI16QuantizationModeEE">APyFloat::cast_to_double (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat12cast_to_halfENSt8optionalI16QuantizationModeEE">APyFloat::cast_to_half (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat14cast_to_singleENSt8optionalI16QuantizationModeEE">APyFloat::cast_to_single (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat9from_bitsEyNSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE">APyFloat::from_bits (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat11from_doubleEdNSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE">APyFloat::from_double (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat8get_biasEv">APyFloat::get_bias (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat8get_dataEv">APyFloat::get_data (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat7get_expEv">APyFloat::get_exp (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat12get_exp_bitsEv">APyFloat::get_exp_bits (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat7get_manEv">APyFloat::get_man (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat12get_man_bitsEv">APyFloat::get_man_bits (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat8get_signEv">APyFloat::get_sign (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat9ieee_biasENSt7uint8_tE">APyFloat::ieee_bias (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat9is_finiteEv">APyFloat::is_finite (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat12is_identicalERK8APyFloat">APyFloat::is_identical (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat6is_infEv">APyFloat::is_inf (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat6is_nanEv">APyFloat::is_nan (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat9is_normalEv">APyFloat::is_normal (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat12is_subnormalEv">APyFloat::is_subnormal (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat7is_zeroEv">APyFloat::is_zero (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat5latexEv">APyFloat::latex (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloatcvdEv">APyFloat::operator double (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloatneERK8APyFloat">APyFloat::operator!= (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloatanER8APyFloat">APyFloat::operator&amp; (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloatmlERK8APyFloat">APyFloat::operator* (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloatplE8APyFloat">APyFloat::operator+ (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloatmiERK8APyFloat">APyFloat::operator- (C++ function)</a>, <a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloatmiEv">[1]</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloatdvERK8APyFloat">APyFloat::operator/ (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloatltERK8APyFloat">APyFloat::operator&lt; (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloatleERK8APyFloat">APyFloat::operator&lt;= (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloateqERK8APyFloat">APyFloat::operator== (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloatgtERK8APyFloat">APyFloat::operator&gt; (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloatgeERK8APyFloat">APyFloat::operator&gt;= (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloateoER8APyFloat">APyFloat::operator^ (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloatorER8APyFloat">APyFloat::operator| (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloatcoEv">APyFloat::operator~ (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat3powERK8APyFloatRK8APyFloat">APyFloat::pow (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat4pownERK8APyFloati">APyFloat::pown (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat13pretty_stringEv">APyFloat::pretty_string (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat4reprEv">APyFloat::repr (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat6resizeENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE">APyFloat::resize (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat3strEv">APyFloat::str (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat7to_bitsEv">APyFloat::to_bits (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat9to_doubleEv">APyFloat::to_double (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv413APyFloatArray">APyFloatArray (C++ class)</a>
+
+        <ul>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray">(class in apytypes)</a>
+</li>
+        </ul></li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4N13APyFloatArray13APyFloatArrayERKN8nanobind8sequenceERKN8nanobind8sequenceERKN8nanobind8sequenceENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE">APyFloatArray::APyFloatArray (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4N13APyFloatArray19ArithmeticOperationE">APyFloatArray::ArithmeticOperation (C++ enum)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4N13APyFloatArray19ArithmeticOperation8ADDITIONE">APyFloatArray::ArithmeticOperation::ADDITION (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4N13APyFloatArray19ArithmeticOperation8DIVISIONE">APyFloatArray::ArithmeticOperation::DIVISION (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4N13APyFloatArray19ArithmeticOperation14MULTIPLICATIONE">APyFloatArray::ArithmeticOperation::MULTIPLICATION (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4N13APyFloatArray19ArithmeticOperation11SUBTRACTIONE">APyFloatArray::ArithmeticOperation::SUBTRACTION (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray4castENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE">APyFloatArray::cast (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray16cast_to_bfloat16ENSt8optionalI16QuantizationModeEE">APyFloatArray::cast_to_bfloat16 (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray14cast_to_doubleENSt8optionalI16QuantizationModeEE">APyFloatArray::cast_to_double (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray12cast_to_halfENSt8optionalI16QuantizationModeEE">APyFloatArray::cast_to_half (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray14cast_to_singleENSt8optionalI16QuantizationModeEE">APyFloatArray::cast_to_single (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4N13APyFloatArray11from_doubleERKN8nanobind8sequenceENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE">APyFloatArray::from_double (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray8get_biasEv">APyFloatArray::get_bias (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray12get_exp_bitsEv">APyFloatArray::get_exp_bits (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray8get_itemENSt6size_tE">APyFloatArray::get_item (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray12get_man_bitsEv">APyFloatArray::get_man_bits (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray8get_ndimEv">APyFloatArray::get_ndim (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray9get_shapeEv">APyFloatArray::get_shape (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray8get_sizeEv">APyFloatArray::get_size (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray12is_identicalERK13APyFloatArray">APyFloatArray::is_identical (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray6matmulERK13APyFloatArray">APyFloatArray::matmul (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArraymlERK13APyFloatArray">APyFloatArray::operator* (C++ function)</a>, <a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArraymlERK8APyFloat">[1]</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArrayplERK13APyFloatArray">APyFloatArray::operator+ (C++ function)</a>, <a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArrayplERK8APyFloat">[1]</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArraymiERK13APyFloatArray">APyFloatArray::operator- (C++ function)</a>, <a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArraymiERK8APyFloat">[1]</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArraydvERK13APyFloatArray">APyFloatArray::operator/ (C++ function)</a>, <a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArraydvERK8APyFloat">[1]</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray4reprEv">APyFloatArray::repr (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray6resizeENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE">APyFloatArray::resize (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray8to_numpyEv">APyFloatArray::to_numpy (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray9transposeEv">APyFloatArray::transpose (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv412APyFloatData">APyFloatData (C++ struct)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N12APyFloatData3expE">APyFloatData::exp (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N12APyFloatData3manE">APyFloatData::man (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4NK12APyFloatDataeqERK12APyFloatData">APyFloatData::operator== (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N12APyFloatData4signE">APyFloatData::sign (C++ member)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="B" class="genindex-section">
+  <h2>B</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/apyfloat.html#apytypes.APyFloat.bias">bias (apytypes.APyFloat property)</a>
+
+        <ul>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.bias">(apytypes.APyFloatArray property)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.bits">bits (apytypes.APyFixed property)</a>
+
+        <ul>
+          <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.bits">(apytypes.APyFixedArray property)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="C" class="genindex-section">
+  <h2>C</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.cast">cast (apytypes.APyFixed attribute)</a>
+
+        <ul>
+          <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.cast">(apytypes.APyFixedArray attribute)</a>
+</li>
+          <li><a href="api/apyfloat.html#apytypes.APyFloat.cast">(apytypes.APyFloat attribute)</a>
+</li>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.cast">(apytypes.APyFloatArray attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="api/apyfloat.html#apytypes.APyFloat.cast_to_bfloat16">cast_to_bfloat16 (apytypes.APyFloat attribute)</a>
+
+        <ul>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.cast_to_bfloat16">(apytypes.APyFloatArray attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="api/apyfloat.html#apytypes.APyFloat.cast_to_double">cast_to_double (apytypes.APyFloat attribute)</a>
+
+        <ul>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.cast_to_double">(apytypes.APyFloatArray attribute)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/apyfloat.html#apytypes.APyFloat.cast_to_half">cast_to_half (apytypes.APyFloat attribute)</a>
+
+        <ul>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.cast_to_half">(apytypes.APyFloatArray attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="api/apyfloat.html#apytypes.APyFloat.cast_to_single">cast_to_single (apytypes.APyFloat attribute)</a>
+
+        <ul>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.cast_to_single">(apytypes.APyFloatArray attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv414ContextManager">ContextManager (C++ class)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N14ContextManager13enter_contextEv">ContextManager::enter_context (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N14ContextManager12exit_contextEv">ContextManager::exit_context (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N14ContextManagerD0Ev">ContextManager::~ContextManager (C++ function)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="D" class="genindex-section">
+  <h2>D</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv416DoubleDabbleList">DoubleDabbleList (C++ struct)</a>
+</li>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv4N16DoubleDabbleList12_NIBBLE_MASKE">DoubleDabbleList::_NIBBLE_MASK (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv4N16DoubleDabbleList4dataE">DoubleDabbleList::data (C++ member)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv4N16DoubleDabbleList9do_dabbleEv">DoubleDabbleList::do_dabble (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv4N16DoubleDabbleList9do_doubleE9mp_limb_t">DoubleDabbleList::do_double (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv4N16DoubleDabbleList17do_reverse_dabbleEv">DoubleDabbleList::do_reverse_dabble (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv4N16DoubleDabbleList17do_reverse_doubleER9mp_limb_t">DoubleDabbleList::do_reverse_double (C++ function)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="E" class="genindex-section">
+  <h2>E</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/apyfloat.html#apytypes.APyFloat.exp">exp (apytypes.APyFloat property)</a>
+</li>
+        <li><a href="api/apyfloat.html#apytypes.APyFloat.exp_bits">exp_bits (apytypes.APyFloat property)</a>
+
+        <ul>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.exp_bits">(apytypes.APyFloatArray property)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv45exp_t">exp_t (C++ type)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="F" class="genindex-section">
+  <h2>F</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.frac_bits">frac_bits (apytypes.APyFixed property)</a>
+
+        <ul>
+          <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.frac_bits">(apytypes.APyFixedArray property)</a>
+</li>
+        </ul></li>
+        <li><a href="api/apyfloat.html#apytypes.APyFloat.from_bits">from_bits (apytypes.APyFloat attribute)</a>
+</li>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.from_float">from_float (apytypes.APyFixed attribute)</a>
+
+        <ul>
+          <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.from_float">(apytypes.APyFixedArray attribute)</a>
+</li>
+          <li><a href="api/apyfloat.html#apytypes.APyFloat.from_float">(apytypes.APyFloat attribute)</a>
+</li>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.from_float">(apytypes.APyFloatArray attribute)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.from_str">from_str (apytypes.APyFixed attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="G" class="genindex-section">
+  <h2>G</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv420get_accumulator_modev">get_accumulator_mode (C++ function)</a>
+</li>
+        <li><a href="cpp_api/python_util.html#c.GET_OB_DIGIT">GET_OB_DIGIT (C macro)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv421get_quantization_modev">get_quantization_mode (C++ function)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/quantizationoverflow.html#apytypes.get_quantization_mode">get_quantization_mode() (in module apytypes)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv421get_quantization_seedv">get_quantization_seed (C++ function)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.get_quantization_seed">get_quantization_seed() (in module apytypes)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="I" class="genindex-section">
+  <h2>I</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.int_bits">int_bits (apytypes.APyFixed property)</a>
+
+        <ul>
+          <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.int_bits">(apytypes.APyFixedArray property)</a>
+</li>
+        </ul></li>
+        <li><a href="api/apyfloat.html#apytypes.APyFloat.is_finite">is_finite (apytypes.APyFloat property)</a>
+</li>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.is_identical">is_identical (apytypes.APyFixed attribute)</a>
+
+        <ul>
+          <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.is_identical">(apytypes.APyFixedArray attribute)</a>
+</li>
+          <li><a href="api/apyfloat.html#apytypes.APyFloat.is_identical">(apytypes.APyFloat attribute)</a>
+</li>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.is_identical">(apytypes.APyFloatArray attribute)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/apyfloat.html#apytypes.APyFloat.is_inf">is_inf (apytypes.APyFloat property)</a>
+</li>
+        <li><a href="api/apyfloat.html#apytypes.APyFloat.is_nan">is_nan (apytypes.APyFloat property)</a>
+</li>
+        <li><a href="api/apyfloat.html#apytypes.APyFloat.is_normal">is_normal (apytypes.APyFloat property)</a>
+</li>
+        <li><a href="api/apyfloat.html#apytypes.APyFloat.is_subnormal">is_subnormal (apytypes.APyFloat property)</a>
+</li>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.is_zero">is_zero (apytypes.APyFixed property)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="J" class="genindex-section">
+  <h2>J</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.JAM">JAM (apytypes.QuantizationMode attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.JAM_UNBIASED">JAM_UNBIASED (apytypes.QuantizationMode attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="M" class="genindex-section">
+  <h2>M</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/apyfloat.html#apytypes.APyFloat.man">man (apytypes.APyFloat property)</a>
+</li>
+        <li><a href="api/apyfloat.html#apytypes.APyFloat.man_bits">man_bits (apytypes.APyFloat property)</a>
+
+        <ul>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.man_bits">(apytypes.APyFloatArray property)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv45man_t">man_t (C++ type)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="N" class="genindex-section">
+  <h2>N</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.ndim">ndim (apytypes.APyFixedArray property)</a>
+
+        <ul>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.ndim">(apytypes.APyFloatArray property)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv423NotImplementedException">NotImplementedException (C++ class)</a>
+</li>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv4N23NotImplementedException23NotImplementedExceptionENSt8optionalINSt6stringEEE">NotImplementedException::NotImplementedException (C++ function)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.OverflowMode.NUMERIC_STD">NUMERIC_STD (apytypes.OverflowMode attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="O" class="genindex-section">
+  <h2>O</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv412OverflowMode">OverflowMode (C++ enum)</a>
+
+        <ul>
+          <li><a href="api/quantizationoverflow.html#apytypes.OverflowMode">(class in apytypes)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N12OverflowMode11NUMERIC_STDE">OverflowMode::NUMERIC_STD (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N12OverflowMode3SATE">OverflowMode::SAT (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N12OverflowMode4WRAPE">OverflowMode::WRAP (C++ enumerator)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="P" class="genindex-section">
+  <h2>P</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/apyfloat.html#apytypes.APyFloat.pretty_string">pretty_string (apytypes.APyFloat attribute)</a>
+</li>
+        <li><a href="cpp_api/python_util.html#c.PyLong_DigitCount">PyLong_DigitCount (C macro)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/python_util.html#c.PyLong_IsNegative">PyLong_IsNegative (C macro)</a>
+</li>
+        <li><a href="cpp_api/python_util.html#c.PyLong_SetSignAndDigitCount">PyLong_SetSignAndDigitCount (C macro)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="Q" class="genindex-section">
+  <h2>Q</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv419QuantizationContext">QuantizationContext (C++ class)</a>
+
+        <ul>
+          <li><a href="api/context.html#apytypes.QuantizationContext">(class in apytypes)</a>
+</li>
+        </ul></li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N19QuantizationContext13enter_contextEv">QuantizationContext::enter_context (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N19QuantizationContext12exit_contextEv">QuantizationContext::exit_context (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N19QuantizationContext8new_modeE">QuantizationContext::new_mode (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N19QuantizationContext8new_seedE">QuantizationContext::new_seed (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N19QuantizationContext9prev_modeE">QuantizationContext::prev_mode (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N19QuantizationContext9prev_seedE">QuantizationContext::prev_seed (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N19QuantizationContext19QuantizationContextERK16QuantizationModeNSt8optionalINSt8uint64_tEEE">QuantizationContext::QuantizationContext (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv416QuantizationMode">QuantizationMode (C++ enum)</a>
+
+        <ul>
+          <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode">(class in apytypes)</a>
+</li>
+        </ul></li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N16QuantizationMode3JAME">QuantizationMode::JAM (C++ enumerator)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N16QuantizationMode12JAM_UNBIASEDE">QuantizationMode::JAM_UNBIASED (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N16QuantizationMode3RNDE">QuantizationMode::RND (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N16QuantizationMode8RND_CONVE">QuantizationMode::RND_CONV (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N16QuantizationMode12RND_CONV_ODDE">QuantizationMode::RND_CONV_ODD (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N16QuantizationMode7RND_INFE">QuantizationMode::RND_INF (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N16QuantizationMode11RND_MIN_INFE">QuantizationMode::RND_MIN_INF (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N16QuantizationMode8RND_ZEROE">QuantizationMode::RND_ZERO (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N16QuantizationMode11STOCH_EQUALE">QuantizationMode::STOCH_EQUAL (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N16QuantizationMode14STOCH_WEIGHTEDE">QuantizationMode::STOCH_WEIGHTED (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N16QuantizationMode3TRNE">QuantizationMode::TRN (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N16QuantizationMode7TRN_INFE">QuantizationMode::TRN_INF (C++ enumerator)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N16QuantizationMode8TRN_ZEROE">QuantizationMode::TRN_ZERO (C++ enumerator)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="R" class="genindex-section">
+  <h2>R</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv413random_numberv">random_number (C++ function)</a>
+</li>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.resize">resize (apytypes.APyFixed attribute)</a>
+
+        <ul>
+          <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.resize">(apytypes.APyFixedArray attribute)</a>
+</li>
+          <li><a href="api/apyfloat.html#apytypes.APyFloat.resize">(apytypes.APyFloat attribute)</a>
+</li>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.resize">(apytypes.APyFloatArray attribute)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.RND">RND (apytypes.QuantizationMode attribute)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.RND_CONV">RND_CONV (apytypes.QuantizationMode attribute)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.RND_CONV_ODD">RND_CONV_ODD (apytypes.QuantizationMode attribute)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.RND_INF">RND_INF (apytypes.QuantizationMode attribute)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.RND_MIN_INF">RND_MIN_INF (apytypes.QuantizationMode attribute)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.RND_ZERO">RND_ZERO (apytypes.QuantizationMode attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="S" class="genindex-section">
+  <h2>S</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/quantizationoverflow.html#apytypes.OverflowMode.SAT">SAT (apytypes.OverflowMode attribute)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv421set_quantization_mode16QuantizationMode">set_quantization_mode (C++ function)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.set_quantization_mode">set_quantization_mode() (in module apytypes)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv421set_quantization_seedNSt8uint64_tE">set_quantization_seed (C++ function)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.set_quantization_seed">set_quantization_seed() (in module apytypes)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.shape">shape (apytypes.APyFixedArray property)</a>
+
+        <ul>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.shape">(apytypes.APyFloatArray property)</a>
+</li>
+        </ul></li>
+        <li><a href="api/apyfloat.html#apytypes.APyFloat.sign">sign (apytypes.APyFloat property)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.STOCH_EQUAL">STOCH_EQUAL (apytypes.QuantizationMode attribute)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.STOCH_WEIGHTED">STOCH_WEIGHTED (apytypes.QuantizationMode attribute)</a>
+</li>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E15string_from_vecNSt6stringERKNSt6vectorI1TEE">string_from_vec (C++ function)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="T" class="genindex-section">
+  <h2>T</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.T">T (apytypes.APyFixedArray property)</a>
+
+        <ul>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.T">(apytypes.APyFloatArray property)</a>
+</li>
+        </ul></li>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TIES_AWAY">TIES_AWAY (apytypes.QuantizationMode attribute)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TIES_EVEN">TIES_EVEN (apytypes.QuantizationMode attribute)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TIES_NEG">TIES_NEG (apytypes.QuantizationMode attribute)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TIES_ODD">TIES_ODD (apytypes.QuantizationMode attribute)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TIES_POS">TIES_POS (apytypes.QuantizationMode attribute)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TIES_ZERO">TIES_ZERO (apytypes.QuantizationMode attribute)</a>
+</li>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.to_bits">to_bits (apytypes.APyFixed attribute)</a>
+
+        <ul>
+          <li><a href="api/apyfloat.html#apytypes.APyFloat.to_bits">(apytypes.APyFloat attribute)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TO_NEG">TO_NEG (apytypes.QuantizationMode attribute)</a>
+</li>
+        <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.to_numpy">to_numpy (apytypes.APyFixedArray attribute)</a>
+
+        <ul>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.to_numpy">(apytypes.APyFloatArray attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TO_POS">TO_POS (apytypes.QuantizationMode attribute)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TO_ZERO">TO_ZERO (apytypes.QuantizationMode attribute)</a>
+</li>
+        <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.transpose">transpose (apytypes.APyFixedArray attribute)</a>
+
+        <ul>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.transpose">(apytypes.APyFloatArray attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TRN">TRN (apytypes.QuantizationMode attribute)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TRN_INF">TRN_INF (apytypes.QuantizationMode attribute)</a>
+</li>
+        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TRN_ZERO">TRN_ZERO (apytypes.QuantizationMode attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="W" class="genindex-section">
+  <h2>W</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/quantizationoverflow.html#apytypes.OverflowMode.WRAP">WRAP (apytypes.OverflowMode attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, APyTypes authors
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    </body>
+</html>

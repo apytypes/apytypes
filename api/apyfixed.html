@@ -1,0 +1,541 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="APyFixedArray" href="apyfixedarray.html" /><link rel="prev" title="apytypes Python package" href="index.html" />
+
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+        <title>APyFixed - APyTypes documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">APyTypes  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">APyTypes  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of apytypes Python package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quantizationoverflow.html">Quantization and overflow handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="context.html">Context handling</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../cpp_api/index.html">APyTypes C++ API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of APyTypes C++ API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../cpp_api/apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cpp_api/apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cpp_api/apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cpp_api/apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cpp_api/apytypes_common.html"><code class="docutils literal notranslate"><span class="pre">apytypes_common.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cpp_api/apytypes_util.html"><code class="docutils literal notranslate"><span class="pre">apytypes_util.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cpp_api/ieee754.html"><code class="docutils literal notranslate"><span class="pre">ieee754.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cpp_api/python_util.html"><code class="docutils literal notranslate"><span class="pre">python_util.h</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/apyfloat.html">APyFloat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/apyfixed.html">APyFixed</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../comparison.html">Comparison</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="apyfixed">
+<h1><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code><a class="headerlink" href="#apyfixed" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="apytypes.APyFixed">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">APyFixed</span></span><a class="headerlink" href="#apytypes.APyFixed" title="Link to this definition">#</a></dt>
+<dd><p>Class for configurable fixed-point formats.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFixed.bits" title="apytypes.APyFixed.bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bits</span></code></a></dt><dd><p>Total number of bits.</p>
+</dd>
+<dt><a class="reference internal" href="#apytypes.APyFixed.frac_bits" title="apytypes.APyFixed.frac_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frac_bits</span></code></a></dt><dd><p>Number of fractional bits.</p>
+</dd>
+<dt><a class="reference internal" href="#apytypes.APyFixed.int_bits" title="apytypes.APyFixed.int_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int_bits</span></code></a></dt><dd><p>Number of integer bits.</p>
+</dd>
+<dt><a class="reference internal" href="#apytypes.APyFixed.is_zero" title="apytypes.APyFixed.is_zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_zero</span></code></a></dt><dd><p>True if the stored value equals zero, false otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.cast" title="apytypes.APyFixed.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a></p></td>
+<td><p>Create a new resized fixed-point number based on the bit pattern in this fixed-point number.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.from_float" title="apytypes.APyFixed.from_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_float</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.from_str" title="apytypes.APyFixed.from_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_str</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.is_identical" title="apytypes.APyFixed.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
+<td><p>Test if two fixed-point objects are exactly identical.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.resize" title="apytypes.APyFixed.resize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resize</span></code></a></p></td>
+<td><p><div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.1.pre.</span></p>
+</div>
+</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.to_bits" title="apytypes.APyFixed.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a></p></td>
+<td><p>Retrieve underlying bit-pattern in an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.APyFixed.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><a class="headerlink" href="#apytypes.APyFixed.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixed.bits">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bits</span></span><a class="headerlink" href="#apytypes.APyFixed.bits" title="Link to this definition">#</a></dt>
+<dd><p>Total number of bits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.APyFixed.cast">
+<span class="sig-name descname"><span class="pre">cast</span></span><a class="headerlink" href="#apytypes.APyFixed.cast" title="Link to this definition">#</a></dt>
+<dd><p>Create a new resized fixed-point number based on the bit pattern in this
+fixed-point number.</p>
+<p>This is the primary method for performing quantization, truncation,
+overflowing, and saturation when dealing with APyTypes fixed-point numbers.</p>
+<p>Exactly two of three bit-specifiers (<em>bits</em>, <em>int_bits</em>, <em>frac_bits</em>) needs
+to be set.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Total number of bits in the created fixed-point object</p>
+</dd>
+<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits in the created fixed-point object</p>
+</dd>
+<dt><strong>quantization</strong><span class="classifier"><a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode" title="apytypes.QuantizationMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode</span></code></a>, default: <a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode.TRN" title="apytypes.QuantizationMode.TRN"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode.TRN</span></code></a></span></dt><dd><p>Quantization mode to use in this cast</p>
+</dd>
+<dt><strong>overflow</strong><span class="classifier"><a class="reference internal" href="quantizationoverflow.html#apytypes.OverflowMode" title="apytypes.OverflowMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">OverflowMode</span></code></a>, default: <a class="reference internal" href="quantizationoverflow.html#apytypes.OverflowMode.WRAP" title="apytypes.OverflowMode.WRAP"><code class="xref py py-class docutils literal notranslate"><span class="pre">OverflowMode.WRAP</span></code></a></span></dt><dd><p>Overflowing mode to use in this cast</p>
+</dd>
+<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits in the created fixed-point object</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixed</span>
+<span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">QuantizationMode</span>
+<span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">OverflowMode</span>
+
+<span class="n">fx</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">2.125</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># Truncation (fx_a == 2.0)</span>
+<span class="n">fx_a</span> <span class="o">=</span> <span class="n">fx</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="n">QuantizationMode</span><span class="o">.</span><span class="n">TRN</span><span class="p">)</span>
+
+<span class="c1"># Quantization (fx_b == 2.25)</span>
+<span class="n">fx_b</span> <span class="o">=</span> <span class="n">fx</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="n">QuantizationMode</span><span class="o">.</span><span class="n">RND</span><span class="p">)</span>
+
+<span class="c1"># Two&#39;s complement overflowing (fx_c == -1.875)</span>
+<span class="n">fx_c</span> <span class="o">=</span> <span class="n">fx</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">overflow</span><span class="o">=</span><span class="n">OverflowMode</span><span class="o">.</span><span class="n">WRAP</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixed.frac_bits">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">frac_bits</span></span><a class="headerlink" href="#apytypes.APyFixed.frac_bits" title="Link to this definition">#</a></dt>
+<dd><p>Number of fractional bits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.APyFixed.from_float">
+<span class="sig-name descname"><span class="pre">from_float</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;nanobind.nb_func</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#apytypes.APyFixed.from_float" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.APyFixed.from_str">
+<span class="sig-name descname"><span class="pre">from_str</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;nanobind.nb_func</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#apytypes.APyFixed.from_str" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixed.int_bits">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">int_bits</span></span><a class="headerlink" href="#apytypes.APyFixed.int_bits" title="Link to this definition">#</a></dt>
+<dd><p>Number of integer bits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.APyFixed.is_identical">
+<span class="sig-name descname"><span class="pre">is_identical</span></span><a class="headerlink" href="#apytypes.APyFixed.is_identical" title="Link to this definition">#</a></dt>
+<dd><p>Test if two fixed-point objects are exactly identical.</p>
+<p>Two <cite>APyFixed</cite> objects are considered exactly identical if, and only if,
+they store the same fixed-point value, and have the exact same
+bit-specification (<em>bits</em>, <em>int_bits</em>, and <em>frac_bits</em>). This is a more
+restrictive test than <code class="docutils literal notranslate"><span class="pre">==</span></code>,  that only tests equality of the stored
+fixed-point value.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>other</strong><span class="classifier"><a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a></span></dt><dd><p>The fixed-point number to test identicality against</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixed</span>
+
+<span class="n">fx_a</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">fx_b</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># `fx_a` and `fx_b` store the same fixed-point value</span>
+<span class="k">assert</span> <span class="n">fx_a</span> <span class="o">==</span> <span class="n">fx_b</span>
+
+<span class="c1"># `fx_a` and `fx_b` differ in the `int_bits` specifier</span>
+<span class="k">assert</span> <span class="ow">not</span><span class="p">(</span><span class="n">fx_a</span><span class="o">.</span><span class="n">is_identical</span><span class="p">(</span><span class="n">fx_b</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixed.is_zero">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_zero</span></span><a class="headerlink" href="#apytypes.APyFixed.is_zero" title="Link to this definition">#</a></dt>
+<dd><p>True if the stored value equals zero, false otherwise.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.APyFixed.resize">
+<span class="sig-name descname"><span class="pre">resize</span></span><a class="headerlink" href="#apytypes.APyFixed.resize" title="Link to this definition">#</a></dt>
+<dd><div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.1.pre: </span>Use <a class="reference internal" href="#apytypes.APyFixed.cast" title="apytypes.APyFixed.cast"><code class="xref py py-func docutils literal notranslate"><span class="pre">cast()</span></code></a> instead.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.APyFixed.to_bits">
+<span class="sig-name descname"><span class="pre">to_bits</span></span><a class="headerlink" href="#apytypes.APyFixed.to_bits" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve underlying bit-pattern in an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixed</span>
+
+<span class="c1"># Create fixed-point number `fx_a` of value -5.75</span>
+<span class="n">fx_a</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="o">-</span><span class="mf">5.75</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="c1"># Returns: 164 == 0xA4 == 0b10100100</span>
+<span class="n">fx_a</span><span class="o">.</span><span class="n">to_bits</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="apyfixedarray.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, APyTypes authors
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a><ul>
+<li><a class="reference internal" href="#apytypes.APyFixed"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a><ul>
+<li><a class="reference internal" href="#apytypes.APyFixed.__init__"><code class="docutils literal notranslate"><span class="pre">APyFixed.__init__</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.bits"><code class="docutils literal notranslate"><span class="pre">APyFixed.bits</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.cast"><code class="docutils literal notranslate"><span class="pre">APyFixed.cast</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.frac_bits"><code class="docutils literal notranslate"><span class="pre">APyFixed.frac_bits</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.from_float"><code class="docutils literal notranslate"><span class="pre">APyFixed.from_float</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.from_str"><code class="docutils literal notranslate"><span class="pre">APyFixed.from_str</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.int_bits"><code class="docutils literal notranslate"><span class="pre">APyFixed.int_bits</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.is_identical"><code class="docutils literal notranslate"><span class="pre">APyFixed.is_identical</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.is_zero"><code class="docutils literal notranslate"><span class="pre">APyFixed.is_zero</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.resize"><code class="docutils literal notranslate"><span class="pre">APyFixed.resize</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.to_bits"><code class="docutils literal notranslate"><span class="pre">APyFixed.to_bits</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    </body>
+</html>

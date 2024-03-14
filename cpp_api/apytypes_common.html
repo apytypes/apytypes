@@ -1,0 +1,706 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="apytypes_util.h" href="apytypes_util.html" /><link rel="prev" title="APyFloatArray" href="apyfloatarray.html" />
+
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+        <title>apytypes_common.h - APyTypes documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">APyTypes  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">APyTypes  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of apytypes Python package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/quantizationoverflow.html">Quantization and overflow handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/context.html">Context handling</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">APyTypes C++ API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of APyTypes C++ API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">apytypes_common.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apytypes_util.html"><code class="docutils literal notranslate"><span class="pre">apytypes_util.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ieee754.html"><code class="docutils literal notranslate"><span class="pre">ieee754.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="python_util.html"><code class="docutils literal notranslate"><span class="pre">python_util.h</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/apyfloat.html">APyFloat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/apyfixed.html">APyFixed</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../comparison.html">Comparison</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="apytypes-common-h">
+<h1><code class="docutils literal notranslate"><span class="pre">apytypes_common.h</span></code><a class="headerlink" href="#apytypes-common-h" title="Link to this heading">#</a></h1>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-typedefs">Typedefs</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv45exp_t">
+<span id="_CPPv35exp_t"></span><span id="_CPPv25exp_t"></span><span class="target" id="apytypes__common_8h_1a328ec09903be862b4d34dcd3b572f1ec"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">exp_t</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint32_t</span></span><a class="headerlink" href="#_CPPv45exp_t" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv45man_t">
+<span id="_CPPv35man_t"></span><span id="_CPPv25man_t"></span><span class="target" id="apytypes__common_8h_1ac26f624c93742ce884cf91b8357dd7fb"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">man_t</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><a class="headerlink" href="#_CPPv45man_t" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-enums">Enums</p>
+<dl class="cpp enum-class">
+<dt class="sig sig-object cpp" id="_CPPv416QuantizationMode">
+<span id="_CPPv316QuantizationMode"></span><span id="_CPPv216QuantizationMode"></span><span class="target" id="apytypes__common_8h_1a0fa43965d631f6215453cf7e51b7fa64"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">QuantizationMode</span></span></span><a class="headerlink" href="#_CPPv416QuantizationMode" title="Link to this definition">#</a><br /></dt>
+<dd><p>Available quantization modes for <a class="reference internal" href="apyfixed.html#classAPyFixed"><span class="std std-ref">APyFixed</span></a> and <a class="reference internal" href="apyfloat.html#classAPyFloat"><span class="std std-ref">APyFloat</span></a></p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N16QuantizationMode3TRNE">
+<span id="_CPPv3N16QuantizationMode3TRNE"></span><span id="_CPPv2N16QuantizationMode3TRNE"></span><span class="target" id="apytypes__common_8h_1a0fa43965d631f6215453cf7e51b7fa64a974e77e3e6fea4fe2d5f199e8f6f521b"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TRN</span></span></span><a class="headerlink" href="#_CPPv4N16QuantizationMode3TRNE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N16QuantizationMode7TRN_INFE">
+<span id="_CPPv3N16QuantizationMode7TRN_INFE"></span><span id="_CPPv2N16QuantizationMode7TRN_INFE"></span><span class="target" id="apytypes__common_8h_1a0fa43965d631f6215453cf7e51b7fa64ac47c82d500749b753a5bd0a89876a9f5"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TRN_INF</span></span></span><a class="headerlink" href="#_CPPv4N16QuantizationMode7TRN_INFE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N16QuantizationMode8TRN_ZEROE">
+<span id="_CPPv3N16QuantizationMode8TRN_ZEROE"></span><span id="_CPPv2N16QuantizationMode8TRN_ZEROE"></span><span class="target" id="apytypes__common_8h_1a0fa43965d631f6215453cf7e51b7fa64aa24c6e8d62a7067b0c23d3aaf0354f45"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TRN_ZERO</span></span></span><a class="headerlink" href="#_CPPv4N16QuantizationMode8TRN_ZEROE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N16QuantizationMode3RNDE">
+<span id="_CPPv3N16QuantizationMode3RNDE"></span><span id="_CPPv2N16QuantizationMode3RNDE"></span><span class="target" id="apytypes__common_8h_1a0fa43965d631f6215453cf7e51b7fa64a477f9701a73bca06b17af65b469ecfda"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RND</span></span></span><a class="headerlink" href="#_CPPv4N16QuantizationMode3RNDE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N16QuantizationMode8RND_ZEROE">
+<span id="_CPPv3N16QuantizationMode8RND_ZEROE"></span><span id="_CPPv2N16QuantizationMode8RND_ZEROE"></span><span class="target" id="apytypes__common_8h_1a0fa43965d631f6215453cf7e51b7fa64a23003fc887a7152a51ffd914f3538925"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RND_ZERO</span></span></span><a class="headerlink" href="#_CPPv4N16QuantizationMode8RND_ZEROE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N16QuantizationMode7RND_INFE">
+<span id="_CPPv3N16QuantizationMode7RND_INFE"></span><span id="_CPPv2N16QuantizationMode7RND_INFE"></span><span class="target" id="apytypes__common_8h_1a0fa43965d631f6215453cf7e51b7fa64ab509ac067006956a93c80b7b7a2ea5e8"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RND_INF</span></span></span><a class="headerlink" href="#_CPPv4N16QuantizationMode7RND_INFE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N16QuantizationMode11RND_MIN_INFE">
+<span id="_CPPv3N16QuantizationMode11RND_MIN_INFE"></span><span id="_CPPv2N16QuantizationMode11RND_MIN_INFE"></span><span class="target" id="apytypes__common_8h_1a0fa43965d631f6215453cf7e51b7fa64aeab6c5ba5fe05f75b899768ea42d0b28"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RND_MIN_INF</span></span></span><a class="headerlink" href="#_CPPv4N16QuantizationMode11RND_MIN_INFE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N16QuantizationMode8RND_CONVE">
+<span id="_CPPv3N16QuantizationMode8RND_CONVE"></span><span id="_CPPv2N16QuantizationMode8RND_CONVE"></span><span class="target" id="apytypes__common_8h_1a0fa43965d631f6215453cf7e51b7fa64aee4fcc4d67c302ad5919e9e19ca7fd44"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RND_CONV</span></span></span><a class="headerlink" href="#_CPPv4N16QuantizationMode8RND_CONVE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N16QuantizationMode12RND_CONV_ODDE">
+<span id="_CPPv3N16QuantizationMode12RND_CONV_ODDE"></span><span id="_CPPv2N16QuantizationMode12RND_CONV_ODDE"></span><span class="target" id="apytypes__common_8h_1a0fa43965d631f6215453cf7e51b7fa64a3c831748053c4a24fd8097abe5273e3b"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RND_CONV_ODD</span></span></span><a class="headerlink" href="#_CPPv4N16QuantizationMode12RND_CONV_ODDE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N16QuantizationMode3JAME">
+<span id="_CPPv3N16QuantizationMode3JAME"></span><span id="_CPPv2N16QuantizationMode3JAME"></span><span class="target" id="apytypes__common_8h_1a0fa43965d631f6215453cf7e51b7fa64aa66e269a1b2177db417c794566bd6c51"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">JAM</span></span></span><a class="headerlink" href="#_CPPv4N16QuantizationMode3JAME" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N16QuantizationMode12JAM_UNBIASEDE">
+<span id="_CPPv3N16QuantizationMode12JAM_UNBIASEDE"></span><span id="_CPPv2N16QuantizationMode12JAM_UNBIASEDE"></span><span class="target" id="apytypes__common_8h_1a0fa43965d631f6215453cf7e51b7fa64a775d4283b6a3c352237275c1da0921d1"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">JAM_UNBIASED</span></span></span><a class="headerlink" href="#_CPPv4N16QuantizationMode12JAM_UNBIASEDE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N16QuantizationMode14STOCH_WEIGHTEDE">
+<span id="_CPPv3N16QuantizationMode14STOCH_WEIGHTEDE"></span><span id="_CPPv2N16QuantizationMode14STOCH_WEIGHTEDE"></span><span class="target" id="apytypes__common_8h_1a0fa43965d631f6215453cf7e51b7fa64ab0b32939027d8da2ff9f2b8e087ad27b"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">STOCH_WEIGHTED</span></span></span><a class="headerlink" href="#_CPPv4N16QuantizationMode14STOCH_WEIGHTEDE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N16QuantizationMode11STOCH_EQUALE">
+<span id="_CPPv3N16QuantizationMode11STOCH_EQUALE"></span><span id="_CPPv2N16QuantizationMode11STOCH_EQUALE"></span><span class="target" id="apytypes__common_8h_1a0fa43965d631f6215453cf7e51b7fa64a579cdb95b3f31285b8e0cab9fb1e6707"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">STOCH_EQUAL</span></span></span><a class="headerlink" href="#_CPPv4N16QuantizationMode11STOCH_EQUALE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="cpp enum-class">
+<dt class="sig sig-object cpp" id="_CPPv412OverflowMode">
+<span id="_CPPv312OverflowMode"></span><span id="_CPPv212OverflowMode"></span><span class="target" id="apytypes__common_8h_1aaed74633f50b02f984f4d6accf312402"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">OverflowMode</span></span></span><a class="headerlink" href="#_CPPv412OverflowMode" title="Link to this definition">#</a><br /></dt>
+<dd><p>Available overflowing modes for <a class="reference internal" href="apyfixed.html#classAPyFixed"><span class="std std-ref">APyFixed</span></a> and <a class="reference internal" href="apyfloat.html#classAPyFloat"><span class="std std-ref">APyFloat</span></a></p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12OverflowMode4WRAPE">
+<span id="_CPPv3N12OverflowMode4WRAPE"></span><span id="_CPPv2N12OverflowMode4WRAPE"></span><span class="target" id="apytypes__common_8h_1aaed74633f50b02f984f4d6accf312402ae1c8555fcf0ea2bb648a6fd527d658c0"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">WRAP</span></span></span><a class="headerlink" href="#_CPPv4N12OverflowMode4WRAPE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12OverflowMode3SATE">
+<span id="_CPPv3N12OverflowMode3SATE"></span><span id="_CPPv2N12OverflowMode3SATE"></span><span class="target" id="apytypes__common_8h_1aaed74633f50b02f984f4d6accf312402a684e1388a91900480c702ac5b8f6b4d8"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SAT</span></span></span><a class="headerlink" href="#_CPPv4N12OverflowMode3SATE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12OverflowMode11NUMERIC_STDE">
+<span id="_CPPv3N12OverflowMode11NUMERIC_STDE"></span><span id="_CPPv2N12OverflowMode11NUMERIC_STDE"></span><span class="target" id="apytypes__common_8h_1aaed74633f50b02f984f4d6accf312402acffa6bdebd3931debd6a65c85a6a4b3d"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NUMERIC_STD</span></span></span><a class="headerlink" href="#_CPPv4N12OverflowMode11NUMERIC_STDE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp">
+<span class="target" id="apytypes__common_8h_1ab1988b25bb545dbae10c8b5b326d6ead"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">std::string</span> <span class="pre">quantization_mode_to_string</span> <span class="pre">(QuantizationMode</span> <span class="pre">mode)</span></span></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp">
+<span class="target" id="apytypes__common_8h_1a3261f5670aacef722cbe1291f99ba364"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">std::string</span> <span class="pre">overflow_mode_to_string</span> <span class="pre">(OverflowMode</span> <span class="pre">mode)</span></span></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv421set_quantization_mode16QuantizationMode">
+<span id="_CPPv321set_quantization_mode16QuantizationMode"></span><span id="_CPPv221set_quantization_mode16QuantizationMode"></span><span id="set_quantization_mode__QuantizationMode"></span><span class="target" id="apytypes__common_8h_1a287a9459727a60ed253b1a91586a0e4e"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_quantization_mode</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">mode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421set_quantization_mode16QuantizationMode" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv421get_quantization_modev">
+<span id="_CPPv321get_quantization_modev"></span><span id="_CPPv221get_quantization_modev"></span><span id="get_quantization_mode"></span><span class="target" id="apytypes__common_8h_1aaa5c83662ddc9b50b3a5ac6e468af822"></span><a class="reference internal" href="#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_quantization_mode</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421get_quantization_modev" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv421set_quantization_seedNSt8uint64_tE">
+<span id="_CPPv321set_quantization_seedNSt8uint64_tE"></span><span id="_CPPv221set_quantization_seedNSt8uint64_tE"></span><span id="set_quantization_seed__std::uint64_t"></span><span class="target" id="apytypes__common_8h_1a4ae2ba32fd3b1f459ae7c16fd7c141e8"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_quantization_seed</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421set_quantization_seedNSt8uint64_tE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv421get_quantization_seedv">
+<span id="_CPPv321get_quantization_seedv"></span><span id="_CPPv221get_quantization_seedv"></span><span id="get_quantization_seed"></span><span class="target" id="apytypes__common_8h_1aab97b8dc5b35c8de6418276b6550b6a2"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_quantization_seed</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421get_quantization_seedv" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413random_numberv">
+<span id="_CPPv313random_numberv"></span><span id="_CPPv213random_numberv"></span><span id="random_number"></span><span class="target" id="apytypes__common_8h_1add5d8e2f18197e75a0c5326db48ffb10"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">random_number</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413random_numberv" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420get_accumulator_modev">
+<span id="_CPPv320get_accumulator_modev"></span><span id="_CPPv220get_accumulator_modev"></span><span id="get_accumulator_mode"></span><span class="target" id="apytypes__common_8h_1aee1d133307c38d9c5ad5be44ad33231f"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv417AccumulatorOption" title="AccumulatorOption"><span class="n"><span class="pre">AccumulatorOption</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_accumulator_mode</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420get_accumulator_modev" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv414ContextManager">
+<span id="_CPPv314ContextManager"></span><span id="_CPPv214ContextManager"></span><span id="ContextManager"></span><span class="target" id="classContextManager"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ContextManager</span></span></span><a class="headerlink" href="#_CPPv414ContextManager" title="Link to this definition">#</a><br /></dt>
+<dd><p>Subclassed by <a class="reference internal" href="#classAccumulatorContext"><span class="std std-ref">AccumulatorContext</span></a>, <a class="reference internal" href="#classQuantizationContext"><span class="std std-ref">QuantizationContext</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N14ContextManagerD0Ev">
+<span id="_CPPv3N14ContextManagerD0Ev"></span><span id="_CPPv2N14ContextManagerD0Ev"></span><span id="ContextManager::~ContextManager"></span><span class="target" id="classContextManager_1ad6bc87b06d4f5d12aa1b2e2f91d62320"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">~ContextManager</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">default</span></span><a class="headerlink" href="#_CPPv4N14ContextManagerD0Ev" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N14ContextManager13enter_contextEv">
+<span id="_CPPv3N14ContextManager13enter_contextEv"></span><span id="_CPPv2N14ContextManager13enter_contextEv"></span><span id="ContextManager::enter_context"></span><span class="target" id="classContextManager_1a93c1eb9f035fb965675ec6317a75d4ce"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">enter_context</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N14ContextManager13enter_contextEv" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N14ContextManager12exit_contextEv">
+<span id="_CPPv3N14ContextManager12exit_contextEv"></span><span id="_CPPv2N14ContextManager12exit_contextEv"></span><span id="ContextManager::exit_context"></span><span class="target" id="classContextManager_1a9e8beab33addb7974c504bb0f33bdaa0"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">exit_context</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N14ContextManager12exit_contextEv" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv419QuantizationContext">
+<span id="_CPPv319QuantizationContext"></span><span id="_CPPv219QuantizationContext"></span><span id="QuantizationContext"></span><span class="target" id="classQuantizationContext"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">QuantizationContext</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv414ContextManager" title="ContextManager"><span class="n"><span class="pre">ContextManager</span></span></a><a class="headerlink" href="#_CPPv419QuantizationContext" title="Link to this definition">#</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N19QuantizationContext19QuantizationContextERK16QuantizationModeNSt8optionalINSt8uint64_tEEE">
+<span id="_CPPv3N19QuantizationContext19QuantizationContextERK16QuantizationModeNSt8optionalINSt8uint64_tEEE"></span><span id="_CPPv2N19QuantizationContext19QuantizationContextERK16QuantizationModeNSt8optionalINSt8uint64_tEEE"></span><span id="QuantizationContext::QuantizationContext__QuantizationModeCR.std::optional:std::uint64_t:"></span><span class="target" id="classQuantizationContext_1aa56e06123cc8c20529747f22863e57d1"></span><span class="sig-name descname"><span class="n"><span class="pre">QuantizationContext</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">new_mode</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">new_seed</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N19QuantizationContext19QuantizationContextERK16QuantizationModeNSt8optionalINSt8uint64_tEEE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N19QuantizationContext13enter_contextEv">
+<span id="_CPPv3N19QuantizationContext13enter_contextEv"></span><span id="_CPPv2N19QuantizationContext13enter_contextEv"></span><span id="QuantizationContext::enter_context"></span><span class="target" id="classQuantizationContext_1a1bf179cebef706d77d4a83bc630a1f45"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">enter_context</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N19QuantizationContext13enter_contextEv" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N19QuantizationContext12exit_contextEv">
+<span id="_CPPv3N19QuantizationContext12exit_contextEv"></span><span id="_CPPv2N19QuantizationContext12exit_contextEv"></span><span id="QuantizationContext::exit_context"></span><span class="target" id="classQuantizationContext_1a84bc6f9f00559d4000c13f157c403572"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">exit_context</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N19QuantizationContext12exit_contextEv" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-private-members">Private Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19QuantizationContext8new_modeE">
+<span id="_CPPv3N19QuantizationContext8new_modeE"></span><span id="_CPPv2N19QuantizationContext8new_modeE"></span><span id="QuantizationContext::new_mode__QuantizationMode"></span><span class="target" id="classQuantizationContext_1a9a8f5384f66e4082c6809e665539251b"></span><a class="reference internal" href="#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">new_mode</span></span></span><a class="headerlink" href="#_CPPv4N19QuantizationContext8new_modeE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19QuantizationContext9prev_modeE">
+<span id="_CPPv3N19QuantizationContext9prev_modeE"></span><span id="_CPPv2N19QuantizationContext9prev_modeE"></span><span id="QuantizationContext::prev_mode__QuantizationMode"></span><span class="target" id="classQuantizationContext_1a56e1e21bc5c7984e9755a34dd5bd9373"></span><a class="reference internal" href="#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">prev_mode</span></span></span><a class="headerlink" href="#_CPPv4N19QuantizationContext9prev_modeE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19QuantizationContext8new_seedE">
+<span id="_CPPv3N19QuantizationContext8new_seedE"></span><span id="_CPPv2N19QuantizationContext8new_seedE"></span><span id="QuantizationContext::new_seed__std::uint64_t"></span><span class="target" id="classQuantizationContext_1a838f7a9adb5e773cb104cb0c8a898c8d"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">new_seed</span></span></span><a class="headerlink" href="#_CPPv4N19QuantizationContext8new_seedE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19QuantizationContext9prev_seedE">
+<span id="_CPPv3N19QuantizationContext9prev_seedE"></span><span id="_CPPv2N19QuantizationContext9prev_seedE"></span><span id="QuantizationContext::prev_seed__std::uint64_t"></span><span class="target" id="classQuantizationContext_1ac7dd6139b159d16b74ec9e13c5ff1a25"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">prev_seed</span></span></span><a class="headerlink" href="#_CPPv4N19QuantizationContext9prev_seedE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv412APyFloatData">
+<span id="_CPPv312APyFloatData"></span><span id="_CPPv212APyFloatData"></span><span id="APyFloatData"></span><span class="target" id="structAPyFloatData"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APyFloatData</span></span></span><a class="headerlink" href="#_CPPv412APyFloatData" title="Link to this definition">#</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK12APyFloatDataeqERK12APyFloatData">
+<span id="_CPPv3NK12APyFloatDataeqERK12APyFloatData"></span><span id="_CPPv2NK12APyFloatDataeqERK12APyFloatData"></span><span id="APyFloatData::eq-operator__APyFloatDataCRC"></span><span class="target" id="structAPyFloatData_1ab5a5b5ebd041eb3e7882a7be23af3f23"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">==</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv412APyFloatData" title="APyFloatData"><span class="n"><span class="pre">APyFloatData</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK12APyFloatDataeqERK12APyFloatData" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12APyFloatData4signE">
+<span id="_CPPv3N12APyFloatData4signE"></span><span id="_CPPv2N12APyFloatData4signE"></span><span id="APyFloatData::sign__b"></span><span class="target" id="structAPyFloatData_1a317e41e8876b64052e864fd9d258212e"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sign</span></span></span><a class="headerlink" href="#_CPPv4N12APyFloatData4signE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12APyFloatData3expE">
+<span id="_CPPv3N12APyFloatData3expE"></span><span id="_CPPv2N12APyFloatData3expE"></span><span id="APyFloatData::exp__exp_t"></span><span class="target" id="structAPyFloatData_1a3e212389896ec0c2bda27b71872c1c16"></span><a class="reference internal" href="#_CPPv45exp_t" title="exp_t"><span class="n"><span class="pre">exp_t</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">exp</span></span></span><a class="headerlink" href="#_CPPv4N12APyFloatData3expE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12APyFloatData3manE">
+<span id="_CPPv3N12APyFloatData3manE"></span><span id="_CPPv2N12APyFloatData3manE"></span><span id="APyFloatData::man__man_t"></span><span class="target" id="structAPyFloatData_1a81b3e7dac3e551d65f8ecf4d1af019a6"></span><a class="reference internal" href="#_CPPv45man_t" title="man_t"><span class="n"><span class="pre">man_t</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">man</span></span></span><a class="headerlink" href="#_CPPv4N12APyFloatData3manE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv417AccumulatorOption">
+<span id="_CPPv317AccumulatorOption"></span><span id="_CPPv217AccumulatorOption"></span><span id="AccumulatorOption"></span><span class="target" id="structAccumulatorOption"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AccumulatorOption</span></span></span><a class="headerlink" href="#_CPPv417AccumulatorOption" title="Link to this definition">#</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17AccumulatorOption4bitsE">
+<span id="_CPPv3N17AccumulatorOption4bitsE"></span><span id="_CPPv2N17AccumulatorOption4bitsE"></span><span id="AccumulatorOption::bits__i"></span><span class="target" id="structAccumulatorOption_1a73c68a5566b479abee5bb3067a449323"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bits</span></span></span><a class="headerlink" href="#_CPPv4N17AccumulatorOption4bitsE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17AccumulatorOption8int_bitsE">
+<span id="_CPPv3N17AccumulatorOption8int_bitsE"></span><span id="_CPPv2N17AccumulatorOption8int_bitsE"></span><span id="AccumulatorOption::int_bits__i"></span><span class="target" id="structAccumulatorOption_1a48d654c6fbfd7524b988cabb83a42ac5"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">int_bits</span></span></span><a class="headerlink" href="#_CPPv4N17AccumulatorOption8int_bitsE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17AccumulatorOption12quantizationE">
+<span id="_CPPv3N17AccumulatorOption12quantizationE"></span><span id="_CPPv2N17AccumulatorOption12quantizationE"></span><span id="AccumulatorOption::quantization__QuantizationMode"></span><span class="target" id="structAccumulatorOption_1a9ae1865711df45740fe0ef731b3ff47a"></span><a class="reference internal" href="#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">quantization</span></span></span><a class="headerlink" href="#_CPPv4N17AccumulatorOption12quantizationE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17AccumulatorOption8overflowE">
+<span id="_CPPv3N17AccumulatorOption8overflowE"></span><span id="_CPPv2N17AccumulatorOption8overflowE"></span><span id="AccumulatorOption::overflow__OverflowMode"></span><span class="target" id="structAccumulatorOption_1aac95bf740893559416bff2680d855328"></span><a class="reference internal" href="#_CPPv412OverflowMode" title="OverflowMode"><span class="n"><span class="pre">OverflowMode</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">overflow</span></span></span><a class="headerlink" href="#_CPPv4N17AccumulatorOption8overflowE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17AccumulatorOption8exp_bitsE">
+<span id="_CPPv3N17AccumulatorOption8exp_bitsE"></span><span id="_CPPv2N17AccumulatorOption8exp_bitsE"></span><span id="AccumulatorOption::exp_bits__i"></span><span class="target" id="structAccumulatorOption_1a805185fdc322e503acdde4aa4e633ecb"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">exp_bits</span></span></span><a class="headerlink" href="#_CPPv4N17AccumulatorOption8exp_bitsE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17AccumulatorOption8man_bitsE">
+<span id="_CPPv3N17AccumulatorOption8man_bitsE"></span><span id="_CPPv2N17AccumulatorOption8man_bitsE"></span><span id="AccumulatorOption::man_bits__i"></span><span class="target" id="structAccumulatorOption_1a54252af76730fa60714c585b1659dca1"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">man_bits</span></span></span><a class="headerlink" href="#_CPPv4N17AccumulatorOption8man_bitsE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17AccumulatorOption4biasE">
+<span id="_CPPv3N17AccumulatorOption4biasE"></span><span id="_CPPv2N17AccumulatorOption4biasE"></span><span id="AccumulatorOption::bias__exp_t"></span><span class="target" id="structAccumulatorOption_1a1ef498d5503e504450cd6dfe0634aecd"></span><a class="reference internal" href="#_CPPv45exp_t" title="exp_t"><span class="n"><span class="pre">exp_t</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bias</span></span></span><a class="headerlink" href="#_CPPv4N17AccumulatorOption4biasE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv418AccumulatorContext">
+<span id="_CPPv318AccumulatorContext"></span><span id="_CPPv218AccumulatorContext"></span><span id="AccumulatorContext"></span><span class="target" id="classAccumulatorContext"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AccumulatorContext</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv414ContextManager" title="ContextManager"><span class="n"><span class="pre">ContextManager</span></span></a><a class="headerlink" href="#_CPPv418AccumulatorContext" title="Link to this definition">#</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N18AccumulatorContext18AccumulatorContextENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEENSt8optionalI16QuantizationModeEENSt8optionalI12OverflowModeEENSt8optionalINSt7uint8_tEEENSt8optionalINSt7uint8_tEEENSt8optionalI5exp_tEE">
+<span id="_CPPv3N18AccumulatorContext18AccumulatorContextENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEENSt8optionalI16QuantizationModeEENSt8optionalI12OverflowModeEENSt8optionalINSt7uint8_tEEENSt8optionalINSt7uint8_tEEENSt8optionalI5exp_tEE"></span><span id="_CPPv2N18AccumulatorContext18AccumulatorContextENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEENSt8optionalI16QuantizationModeEENSt8optionalI12OverflowModeEENSt8optionalINSt7uint8_tEEENSt8optionalINSt7uint8_tEEENSt8optionalI5exp_tEE"></span><span id="AccumulatorContext::AccumulatorContext__std::optional:i:.std::optional:i:.std::optional:i:.std::optional:QuantizationMode:.std::optional:OverflowMode:.std::optional:std::uint8_t:.std::optional:std::uint8_t:.std::optional:exp_t:"></span><span class="target" id="classAccumulatorContext_1aa773b7376815550eb952a17a53c7afe6"></span><span class="sig-name descname"><span class="n"><span class="pre">AccumulatorContext</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bits</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">int_bits</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">frac_bits</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">quantization</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv412OverflowMode" title="OverflowMode"><span class="n"><span class="pre">OverflowMode</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">overflow</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint8_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint8_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv45exp_t" title="exp_t"><span class="n"><span class="pre">exp_t</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N18AccumulatorContext18AccumulatorContextENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEENSt8optionalI16QuantizationModeEENSt8optionalI12OverflowModeEENSt8optionalINSt7uint8_tEEENSt8optionalINSt7uint8_tEEENSt8optionalI5exp_tEE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N18AccumulatorContext13enter_contextEv">
+<span id="_CPPv3N18AccumulatorContext13enter_contextEv"></span><span id="_CPPv2N18AccumulatorContext13enter_contextEv"></span><span id="AccumulatorContext::enter_context"></span><span class="target" id="classAccumulatorContext_1ae25fdcf2464c2be8f84a9f5579d61eb5"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">enter_context</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N18AccumulatorContext13enter_contextEv" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N18AccumulatorContext12exit_contextEv">
+<span id="_CPPv3N18AccumulatorContext12exit_contextEv"></span><span id="_CPPv2N18AccumulatorContext12exit_contextEv"></span><span id="AccumulatorContext::exit_context"></span><span class="target" id="classAccumulatorContext_1ac3b2da4245b4a78c5b4b53114131c605"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">exit_context</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N18AccumulatorContext12exit_contextEv" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-private-members">Private Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N18AccumulatorContext12current_modeE">
+<span id="_CPPv3N18AccumulatorContext12current_modeE"></span><span id="_CPPv2N18AccumulatorContext12current_modeE"></span><span id="AccumulatorContext::current_mode__std::optional:AccumulatorOption:"></span><span class="target" id="classAccumulatorContext_1a7739f3495c67c17f576d8ba57ddc3cc1"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv417AccumulatorOption" title="AccumulatorOption"><span class="n"><span class="pre">AccumulatorOption</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">current_mode</span></span></span><a class="headerlink" href="#_CPPv4N18AccumulatorContext12current_modeE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N18AccumulatorContext13previous_modeE">
+<span id="_CPPv3N18AccumulatorContext13previous_modeE"></span><span id="_CPPv2N18AccumulatorContext13previous_modeE"></span><span id="AccumulatorContext::previous_mode__std::optional:AccumulatorOption:"></span><span class="target" id="classAccumulatorContext_1ab53e8ff83646278d44f1650b92637d43"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv417AccumulatorOption" title="AccumulatorOption"><span class="n"><span class="pre">AccumulatorOption</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">previous_mode</span></span></span><a class="headerlink" href="#_CPPv4N18AccumulatorContext13previous_modeE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="apytypes_util.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">apytypes_util.h</span></code></div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="apyfloatarray.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, APyTypes authors
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">apytypes_common.h</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv45exp_t"><code class="docutils literal notranslate"><span class="pre">exp_t</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv45man_t"><code class="docutils literal notranslate"><span class="pre">man_t</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv416QuantizationMode"><code class="docutils literal notranslate"><span class="pre">QuantizationMode</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N16QuantizationMode3TRNE"><code class="docutils literal notranslate"><span class="pre">QuantizationMode::TRN</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N16QuantizationMode7TRN_INFE"><code class="docutils literal notranslate"><span class="pre">QuantizationMode::TRN_INF</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N16QuantizationMode8TRN_ZEROE"><code class="docutils literal notranslate"><span class="pre">QuantizationMode::TRN_ZERO</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N16QuantizationMode3RNDE"><code class="docutils literal notranslate"><span class="pre">QuantizationMode::RND</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N16QuantizationMode8RND_ZEROE"><code class="docutils literal notranslate"><span class="pre">QuantizationMode::RND_ZERO</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N16QuantizationMode7RND_INFE"><code class="docutils literal notranslate"><span class="pre">QuantizationMode::RND_INF</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N16QuantizationMode11RND_MIN_INFE"><code class="docutils literal notranslate"><span class="pre">QuantizationMode::RND_MIN_INF</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N16QuantizationMode8RND_CONVE"><code class="docutils literal notranslate"><span class="pre">QuantizationMode::RND_CONV</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N16QuantizationMode12RND_CONV_ODDE"><code class="docutils literal notranslate"><span class="pre">QuantizationMode::RND_CONV_ODD</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N16QuantizationMode3JAME"><code class="docutils literal notranslate"><span class="pre">QuantizationMode::JAM</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N16QuantizationMode12JAM_UNBIASEDE"><code class="docutils literal notranslate"><span class="pre">QuantizationMode::JAM_UNBIASED</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N16QuantizationMode14STOCH_WEIGHTEDE"><code class="docutils literal notranslate"><span class="pre">QuantizationMode::STOCH_WEIGHTED</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N16QuantizationMode11STOCH_EQUALE"><code class="docutils literal notranslate"><span class="pre">QuantizationMode::STOCH_EQUAL</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv412OverflowMode"><code class="docutils literal notranslate"><span class="pre">OverflowMode</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N12OverflowMode4WRAPE"><code class="docutils literal notranslate"><span class="pre">OverflowMode::WRAP</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N12OverflowMode3SATE"><code class="docutils literal notranslate"><span class="pre">OverflowMode::SAT</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N12OverflowMode11NUMERIC_STDE"><code class="docutils literal notranslate"><span class="pre">OverflowMode::NUMERIC_STD</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv421set_quantization_mode16QuantizationMode"><code class="docutils literal notranslate"><span class="pre">set_quantization_mode()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv421get_quantization_modev"><code class="docutils literal notranslate"><span class="pre">get_quantization_mode()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv421set_quantization_seedNSt8uint64_tE"><code class="docutils literal notranslate"><span class="pre">set_quantization_seed()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv421get_quantization_seedv"><code class="docutils literal notranslate"><span class="pre">get_quantization_seed()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv413random_numberv"><code class="docutils literal notranslate"><span class="pre">random_number()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv420get_accumulator_modev"><code class="docutils literal notranslate"><span class="pre">get_accumulator_mode()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv414ContextManager"><code class="docutils literal notranslate"><span class="pre">ContextManager</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N14ContextManagerD0Ev"><code class="docutils literal notranslate"><span class="pre">ContextManager::~ContextManager()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14ContextManager13enter_contextEv"><code class="docutils literal notranslate"><span class="pre">ContextManager::enter_context()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14ContextManager12exit_contextEv"><code class="docutils literal notranslate"><span class="pre">ContextManager::exit_context()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv419QuantizationContext"><code class="docutils literal notranslate"><span class="pre">QuantizationContext</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N19QuantizationContext19QuantizationContextERK16QuantizationModeNSt8optionalINSt8uint64_tEEE"><code class="docutils literal notranslate"><span class="pre">QuantizationContext::QuantizationContext()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N19QuantizationContext13enter_contextEv"><code class="docutils literal notranslate"><span class="pre">QuantizationContext::enter_context()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N19QuantizationContext12exit_contextEv"><code class="docutils literal notranslate"><span class="pre">QuantizationContext::exit_context()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N19QuantizationContext8new_modeE"><code class="docutils literal notranslate"><span class="pre">QuantizationContext::new_mode</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N19QuantizationContext9prev_modeE"><code class="docutils literal notranslate"><span class="pre">QuantizationContext::prev_mode</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N19QuantizationContext8new_seedE"><code class="docutils literal notranslate"><span class="pre">QuantizationContext::new_seed</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N19QuantizationContext9prev_seedE"><code class="docutils literal notranslate"><span class="pre">QuantizationContext::prev_seed</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv412APyFloatData"><code class="docutils literal notranslate"><span class="pre">APyFloatData</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4NK12APyFloatDataeqERK12APyFloatData"><code class="docutils literal notranslate"><span class="pre">APyFloatData::operator==()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N12APyFloatData4signE"><code class="docutils literal notranslate"><span class="pre">APyFloatData::sign</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N12APyFloatData3expE"><code class="docutils literal notranslate"><span class="pre">APyFloatData::exp</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N12APyFloatData3manE"><code class="docutils literal notranslate"><span class="pre">APyFloatData::man</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv417AccumulatorOption"><code class="docutils literal notranslate"><span class="pre">AccumulatorOption</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N17AccumulatorOption4bitsE"><code class="docutils literal notranslate"><span class="pre">AccumulatorOption::bits</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N17AccumulatorOption8int_bitsE"><code class="docutils literal notranslate"><span class="pre">AccumulatorOption::int_bits</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N17AccumulatorOption12quantizationE"><code class="docutils literal notranslate"><span class="pre">AccumulatorOption::quantization</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N17AccumulatorOption8overflowE"><code class="docutils literal notranslate"><span class="pre">AccumulatorOption::overflow</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N17AccumulatorOption8exp_bitsE"><code class="docutils literal notranslate"><span class="pre">AccumulatorOption::exp_bits</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N17AccumulatorOption8man_bitsE"><code class="docutils literal notranslate"><span class="pre">AccumulatorOption::man_bits</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N17AccumulatorOption4biasE"><code class="docutils literal notranslate"><span class="pre">AccumulatorOption::bias</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv418AccumulatorContext"><code class="docutils literal notranslate"><span class="pre">AccumulatorContext</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N18AccumulatorContext18AccumulatorContextENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEENSt8optionalI16QuantizationModeEENSt8optionalI12OverflowModeEENSt8optionalINSt7uint8_tEEENSt8optionalINSt7uint8_tEEENSt8optionalI5exp_tEE"><code class="docutils literal notranslate"><span class="pre">AccumulatorContext::AccumulatorContext()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N18AccumulatorContext13enter_contextEv"><code class="docutils literal notranslate"><span class="pre">AccumulatorContext::enter_context()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N18AccumulatorContext12exit_contextEv"><code class="docutils literal notranslate"><span class="pre">AccumulatorContext::exit_context()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N18AccumulatorContext12current_modeE"><code class="docutils literal notranslate"><span class="pre">AccumulatorContext::current_mode</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N18AccumulatorContext13previous_modeE"><code class="docutils literal notranslate"><span class="pre">AccumulatorContext::previous_mode</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    </body>
+</html>

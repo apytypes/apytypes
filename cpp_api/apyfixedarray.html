@@ -1,0 +1,531 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="APyFloat" href="apyfloat.html" /><link rel="prev" title="APyFixed" href="apyfixed.html" />
+
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+        <title>APyFixedArray - APyTypes documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">APyTypes  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">APyTypes  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of apytypes Python package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/quantizationoverflow.html">Quantization and overflow handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/context.html">Context handling</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">APyTypes C++ API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of APyTypes C++ API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apytypes_common.html"><code class="docutils literal notranslate"><span class="pre">apytypes_common.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apytypes_util.html"><code class="docutils literal notranslate"><span class="pre">apytypes_util.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ieee754.html"><code class="docutils literal notranslate"><span class="pre">ieee754.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="python_util.html"><code class="docutils literal notranslate"><span class="pre">python_util.h</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/apyfloat.html">APyFloat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/apyfixed.html">APyFixed</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../comparison.html">Comparison</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="apyfixedarray">
+<h1><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code><a class="headerlink" href="#apyfixedarray" title="Link to this heading">#</a></h1>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv413APyFixedArray">
+<span id="_CPPv313APyFixedArray"></span><span id="_CPPv213APyFixedArray"></span><span id="APyFixedArray"></span><span class="target" id="classAPyFixedArray"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APyFixedArray</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><span class="n"><span class="pre">APyBuffer</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">mp_limb_t</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv413APyFixedArray" title="Link to this definition">#</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13APyFixedArray13APyFixedArrayEv">
+<span id="_CPPv3N13APyFixedArray13APyFixedArrayEv"></span><span id="_CPPv2N13APyFixedArray13APyFixedArrayEv"></span><span id="APyFixedArray::APyFixedArray"></span><span class="target" id="classAPyFixedArray_1a3b1775fc4a9b158cc9eb815b87bab85f"></span><span class="sig-name descname"><span class="n"><span class="pre">APyFixedArray</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">delete</span></span><a class="headerlink" href="#_CPPv4N13APyFixedArray13APyFixedArrayEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>No default (empty) constructed <a class="reference internal" href="#classAPyFixedArray"><span class="std std-ref">APyFixedArray</span></a> types. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13APyFixedArray13APyFixedArrayERKN8nanobind8sequenceENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">
+<span id="_CPPv3N13APyFixedArray13APyFixedArrayERKN8nanobind8sequenceENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE"></span><span id="_CPPv2N13APyFixedArray13APyFixedArrayERKN8nanobind8sequenceENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE"></span><span id="APyFixedArray::APyFixedArray__nanobind::sequenceCR.std::optional:i:.std::optional:i:.std::optional:i:"></span><span class="target" id="classAPyFixedArray_1aa2429cf341eab52fdb37b8236cc14030"></span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APyFixedArray</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">nanobind</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">sequence</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">bit_pattern_sequence</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bits</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">int_bits</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">frac_bits</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13APyFixedArray13APyFixedArrayERKN8nanobind8sequenceENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13APyFixedArray13APyFixedArrayERKNSt6vectorINSt6size_tEEENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">
+<span id="_CPPv3N13APyFixedArray13APyFixedArrayERKNSt6vectorINSt6size_tEEENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE"></span><span id="_CPPv2N13APyFixedArray13APyFixedArrayERKNSt6vectorINSt6size_tEEENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE"></span><span id="APyFixedArray::APyFixedArray__std::vector:std::s:CR.std::optional:i:.std::optional:i:.std::optional:i:"></span><span class="target" id="classAPyFixedArray_1a0cbc082ed555ed0253a61fb42c8837ba"></span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APyFixedArray</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">shape</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bits</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">int_bits</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">frac_bits</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13APyFixedArray13APyFixedArrayERKNSt6vectorINSt6size_tEEENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Constructor: specify only shape and word-length. Zero data on construction. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArrayplERK13APyFixedArray">
+<span id="_CPPv3NK13APyFixedArrayplERK13APyFixedArray"></span><span id="_CPPv2NK13APyFixedArrayplERK13APyFixedArray"></span><span id="APyFixedArray::add-operator__APyFixedArrayCRC"></span><span class="target" id="classAPyFixedArray_1a6066532ca0b7ab420e04b96541aa0989"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">+</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">rhs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArrayplERK13APyFixedArray" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArrayplERK8APyFixed">
+<span id="_CPPv3NK13APyFixedArrayplERK8APyFixed"></span><span id="_CPPv2NK13APyFixedArrayplERK8APyFixed"></span><span id="APyFixedArray::add-operator__APyFixedCRC"></span><span class="target" id="classAPyFixedArray_1a66c0e084786bffd0635afc6d015d29f8"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">+</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="apyfixed.html#_CPPv48APyFixed" title="APyFixed"><span class="n"><span class="pre">APyFixed</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">rhs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArrayplERK8APyFixed" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArraymiERK13APyFixedArray">
+<span id="_CPPv3NK13APyFixedArraymiERK13APyFixedArray"></span><span id="_CPPv2NK13APyFixedArraymiERK13APyFixedArray"></span><span id="APyFixedArray::sub-operator__APyFixedArrayCRC"></span><span class="target" id="classAPyFixedArray_1a8726d9cfb74efe3a826e8e9edb815013"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">rhs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArraymiERK13APyFixedArray" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArraymiERK8APyFixed">
+<span id="_CPPv3NK13APyFixedArraymiERK8APyFixed"></span><span id="_CPPv2NK13APyFixedArraymiERK8APyFixed"></span><span id="APyFixedArray::sub-operator__APyFixedCRC"></span><span class="target" id="classAPyFixedArray_1a3b42debcb4f0289ef4f62c7d8fd98ec1"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="apyfixed.html#_CPPv48APyFixed" title="APyFixed"><span class="n"><span class="pre">APyFixed</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">rhs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArraymiERK8APyFixed" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArraymlERK13APyFixedArray">
+<span id="_CPPv3NK13APyFixedArraymlERK13APyFixedArray"></span><span id="_CPPv2NK13APyFixedArraymlERK13APyFixedArray"></span><span id="APyFixedArray::mul-operator__APyFixedArrayCRC"></span><span class="target" id="classAPyFixedArray_1a7a4ce1695f1e159022b0504186651a95"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">*</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">rhs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArraymlERK13APyFixedArray" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArraymlERK8APyFixed">
+<span id="_CPPv3NK13APyFixedArraymlERK8APyFixed"></span><span id="_CPPv2NK13APyFixedArraymlERK8APyFixed"></span><span id="APyFixedArray::mul-operator__APyFixedCRC"></span><span class="target" id="classAPyFixedArray_1aaad081baf7ac5e5f0fd93e34d1f770d4"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">*</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="apyfixed.html#_CPPv48APyFixed" title="APyFixed"><span class="n"><span class="pre">APyFixed</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">rhs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArraymlERK8APyFixed" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArraydvERK13APyFixedArray">
+<span id="_CPPv3NK13APyFixedArraydvERK13APyFixedArray"></span><span id="_CPPv2NK13APyFixedArraydvERK13APyFixedArray"></span><span id="APyFixedArray::div-operator__APyFixedArrayCRC"></span><span class="target" id="classAPyFixedArray_1afc2f6f028d20ea42be6c0458512739ea"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">/</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">rhs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArraydvERK13APyFixedArray" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArraylsEKi">
+<span id="_CPPv3NK13APyFixedArraylsEKi"></span><span id="_CPPv2NK13APyFixedArraylsEKi"></span><span id="APyFixedArray::lshift-operator__iCC"></span><span class="target" id="classAPyFixedArray_1a225416af2122bfabca1e6a5e50bf25bb"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">&lt;&lt;</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">shift_val</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArraylsEKi" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArrayrsEKi">
+<span id="_CPPv3NK13APyFixedArrayrsEKi"></span><span id="_CPPv2NK13APyFixedArrayrsEKi"></span><span id="APyFixedArray::rshift-operator__iCC"></span><span class="target" id="classAPyFixedArray_1ad4d31675609643cec446255cfd7761e7"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">&gt;&gt;</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">shift_val</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArrayrsEKi" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13APyFixedArraylSEKi">
+<span id="_CPPv3N13APyFixedArraylSEKi"></span><span id="_CPPv2N13APyFixedArraylSEKi"></span><span id="APyFixedArray::lshift-assign-operator__iC"></span><span class="target" id="classAPyFixedArray_1aa4689580e505aa32c1b480c115257761"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">&lt;&lt;=</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">shift_val</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13APyFixedArraylSEKi" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13APyFixedArrayrSEKi">
+<span id="_CPPv3N13APyFixedArrayrSEKi"></span><span id="_CPPv2N13APyFixedArrayrSEKi"></span><span id="APyFixedArray::rshift-assign-operator__iC"></span><span class="target" id="classAPyFixedArray_1ac191eb8a5cc50eb4e1253954536df1fc"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">&gt;&gt;=</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">shift_val</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13APyFixedArrayrSEKi" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArray4rsubERK8APyFixed">
+<span id="_CPPv3NK13APyFixedArray4rsubERK8APyFixed"></span><span id="_CPPv2NK13APyFixedArray4rsubERK8APyFixed"></span><span id="APyFixedArray::rsub__APyFixedCRC"></span><span class="target" id="classAPyFixedArray_1a912df75777eae3d1777bcd4439b93ae4"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rsub</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="apyfixed.html#_CPPv48APyFixed" title="APyFixed"><span class="n"><span class="pre">APyFixed</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">rhs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArray4rsubERK8APyFixed" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArray6matmulERK13APyFixedArray">
+<span id="_CPPv3NK13APyFixedArray6matmulERK13APyFixedArray"></span><span id="_CPPv2NK13APyFixedArray6matmulERK13APyFixedArray"></span><span id="APyFixedArray::matmul__APyFixedArrayCRC"></span><span class="target" id="classAPyFixedArray_1a5b698de6cce23169e6d21897a77ca728"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">matmul</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">rhs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArray6matmulERK13APyFixedArray" title="Link to this definition">#</a><br /></dt>
+<dd><p>Matrix mutliplication. If both arguments ar 2-D tensors, this method performs the ordinary matrix multiplication. If input dimensions are greater than 2, this method performs stacked matrix multiplications, where the dimensions of last two dimensions are treated as matrices. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArray9transposeEv">
+<span id="_CPPv3NK13APyFixedArray9transposeEv"></span><span id="_CPPv2NK13APyFixedArray9transposeEv"></span><span id="APyFixedArray::transposeC"></span><span class="target" id="classAPyFixedArray_1a3e891fd7ee43997d9c9d6c76ad9c27ab"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">transpose</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArray9transposeEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Transposition function. For a 1-D array, returns an exact copy of <code class="docutils literal notranslate"><span class="pre">*this</span></code>. For a 2-D array, returns the matrix transposition of <code class="docutils literal notranslate"><span class="pre">*this</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArray4reprEv">
+<span id="_CPPv3NK13APyFixedArray4reprEv"></span><span id="_CPPv2NK13APyFixedArray4reprEv"></span><span id="APyFixedArray::reprC"></span><span class="target" id="classAPyFixedArray_1a9592d118c442a0288165f2f2b7e97e77"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">repr</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArray4reprEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Python <code class="docutils literal notranslate"><span class="pre">__repr__()</span></code> function. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArray5shapeEv">
+<span id="_CPPv3NK13APyFixedArray5shapeEv"></span><span id="_CPPv2NK13APyFixedArray5shapeEv"></span><span id="APyFixedArray::shapeC"></span><span class="target" id="classAPyFixedArray_1a77f6d4cd66b62bd5614e1b6c78d25b1d"></span><span class="n"><span class="pre">nanobind</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">tuple</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">shape</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArray5shapeEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Shape of the array. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArray4ndimEv">
+<span id="_CPPv3NK13APyFixedArray4ndimEv"></span><span id="_CPPv2NK13APyFixedArray4ndimEv"></span><span id="APyFixedArray::ndimC"></span><span class="target" id="classAPyFixedArray_1a2ad9365a816f8e9263219af5eaebe3dc"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ndim</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArray4ndimEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Number of dimensions. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArray8get_itemENSt6size_tE">
+<span id="_CPPv3NK13APyFixedArray8get_itemENSt6size_tE"></span><span id="_CPPv2NK13APyFixedArray8get_itemENSt6size_tE"></span><span id="APyFixedArray::get_item__std::sC"></span><span class="target" id="classAPyFixedArray_1a48f7b2ddaf46628d320996bb46e39a9f"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_item</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">idx</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArray8get_itemENSt6size_tE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Retrieve a single item. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArray4bitsEv">
+<span id="_CPPv3NK13APyFixedArray4bitsEv"></span><span id="_CPPv2NK13APyFixedArray4bitsEv"></span><span id="APyFixedArray::bitsC"></span><span class="target" id="classAPyFixedArray_1aa2c971914800893318669f54eeaf651a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bits</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArray4bitsEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Number of bits. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArray8int_bitsEv">
+<span id="_CPPv3NK13APyFixedArray8int_bitsEv"></span><span id="_CPPv2NK13APyFixedArray8int_bitsEv"></span><span id="APyFixedArray::int_bitsC"></span><span class="target" id="classAPyFixedArray_1a6892281b7e9f3778904ba32546fcda19"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">int_bits</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArray8int_bitsEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Number of integer bits. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArray9frac_bitsEv">
+<span id="_CPPv3NK13APyFixedArray9frac_bitsEv"></span><span id="_CPPv2NK13APyFixedArray9frac_bitsEv"></span><span id="APyFixedArray::frac_bitsC"></span><span class="target" id="classAPyFixedArray_1ad541ad6db06a01aeae28b88f737b37b0"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">frac_bits</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArray9frac_bitsEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Number of fractional bits. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArray8to_numpyEv">
+<span id="_CPPv3NK13APyFixedArray8to_numpyEv"></span><span id="_CPPv2NK13APyFixedArray8to_numpyEv"></span><span id="APyFixedArray::to_numpyC"></span><span class="target" id="classAPyFixedArray_1a1029a154aee8f51bebaf357d3554fad5"></span><span class="n"><span class="pre">nanobind</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ndarray</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">nanobind</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">numpy</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">to_numpy</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArray8to_numpyEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Convert to a NumPy array. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArray4sizeEv">
+<span id="_CPPv3NK13APyFixedArray4sizeEv"></span><span id="_CPPv2NK13APyFixedArray4sizeEv"></span><span id="APyFixedArray::sizeC"></span><span class="target" id="classAPyFixedArray_1a11fe145e83ab086fd4693f5e0f9dd144"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArray4sizeEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Length of the array. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArray3absEv">
+<span id="_CPPv3NK13APyFixedArray3absEv"></span><span id="_CPPv2NK13APyFixedArray3absEv"></span><span id="APyFixedArray::absC"></span><span class="target" id="classAPyFixedArray_1ac0e16982b3de5cdd6a7825f732779481"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">abs</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArray3absEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Elementwise absolute value. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArraymiEv">
+<span id="_CPPv3NK13APyFixedArraymiEv"></span><span id="_CPPv2NK13APyFixedArraymiEv"></span><span id="APyFixedArray::sub-operatorC"></span><span class="target" id="classAPyFixedArray_1abaf6f07995d33213ef0cf784521f00b8"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArraymiEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Elementwise unary negation. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArray4castENSt8optionalIiEENSt8optionalIiEE16QuantizationMode12OverflowModeNSt8optionalIiEE">
+<span id="_CPPv3NK13APyFixedArray4castENSt8optionalIiEENSt8optionalIiEE16QuantizationMode12OverflowModeNSt8optionalIiEE"></span><span id="_CPPv2NK13APyFixedArray4castENSt8optionalIiEENSt8optionalIiEE16QuantizationMode12OverflowModeNSt8optionalIiEE"></span><span id="APyFixedArray::cast__std::optional:i:.std::optional:i:.QuantizationMode.OverflowMode.std::optional:i:C"></span><span class="target" id="classAPyFixedArray_1a53c335272070ea6fd1ba0555e9e91ab5"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cast</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bits</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">int_bits</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <a class="reference internal" href="apytypes_common.html#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">quantization</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="apytypes_common.html#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="p"><span class="pre">::</span></span><a class="reference internal" href="apytypes_common.html#_CPPv4N16QuantizationMode3TRNE" title="QuantizationMode::TRN"><span class="n"><span class="pre">TRN</span></span></a>, <a class="reference internal" href="apytypes_common.html#_CPPv412OverflowMode" title="OverflowMode"><span class="n"><span class="pre">OverflowMode</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">overflow</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="apytypes_common.html#_CPPv412OverflowMode" title="OverflowMode"><span class="n"><span class="pre">OverflowMode</span></span></a><span class="p"><span class="pre">::</span></span><a class="reference internal" href="apytypes_common.html#_CPPv4N12OverflowMode4WRAPE" title="OverflowMode::WRAP"><span class="n"><span class="pre">WRAP</span></span></a>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">frac_bits</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArray4castENSt8optionalIiEENSt8optionalIiEE16QuantizationMode12OverflowModeNSt8optionalIiEE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a new <code class="docutils literal notranslate"><a class="reference internal" href="#classAPyFixedArray"><span class="std std-ref"><span class="pre">APyFixedArray</span></span></a></code> tensor object with the same <code class="docutils literal notranslate"><span class="pre">shape</span></code> and fixed-point values as <code class="docutils literal notranslate"><span class="pre">*this</span></code>, but with a new word-length. The underlying bit-pattern of each tensor element are copied into place, meaning that lowering the number of fractional bits may result in quantization, and lowering the number of integer bits may result in overflowing. Supports quantization and oveflow options on narrowing casts. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArray6resizeENSt8optionalIiEENSt8optionalIiEE16QuantizationMode12OverflowModeNSt8optionalIiEE">
+<span id="_CPPv3NK13APyFixedArray6resizeENSt8optionalIiEENSt8optionalIiEE16QuantizationMode12OverflowModeNSt8optionalIiEE"></span><span id="_CPPv2NK13APyFixedArray6resizeENSt8optionalIiEENSt8optionalIiEE16QuantizationMode12OverflowModeNSt8optionalIiEE"></span><span id="APyFixedArray::resize__std::optional:i:.std::optional:i:.QuantizationMode.OverflowMode.std::optional:i:C"></span><span class="target" id="classAPyFixedArray_1a9735f2e821295dc805dbef131d45e366"></span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">resize</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bits</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">int_bits</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <a class="reference internal" href="apytypes_common.html#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">quantization</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="apytypes_common.html#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="p"><span class="pre">::</span></span><a class="reference internal" href="apytypes_common.html#_CPPv4N16QuantizationMode3TRNE" title="QuantizationMode::TRN"><span class="n"><span class="pre">TRN</span></span></a>, <a class="reference internal" href="apytypes_common.html#_CPPv412OverflowMode" title="OverflowMode"><span class="n"><span class="pre">OverflowMode</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">overflow</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="apytypes_common.html#_CPPv412OverflowMode" title="OverflowMode"><span class="n"><span class="pre">OverflowMode</span></span></a><span class="p"><span class="pre">::</span></span><a class="reference internal" href="apytypes_common.html#_CPPv4N12OverflowMode4WRAPE" title="OverflowMode::WRAP"><span class="n"><span class="pre">WRAP</span></span></a>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">frac_bits</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArray6resizeENSt8optionalIiEENSt8optionalIiEE16QuantizationMode12OverflowModeNSt8optionalIiEE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFixedArray12is_identicalERK13APyFixedArray">
+<span id="_CPPv3NK13APyFixedArray12is_identicalERK13APyFixedArray"></span><span id="_CPPv2NK13APyFixedArray12is_identicalERK13APyFixedArray"></span><span id="APyFixedArray::is_identical__APyFixedArrayCRC"></span><span class="target" id="classAPyFixedArray_1a3402c79bef53477e3c5a23588200308f"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">is_identical</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFixedArray12is_identicalERK13APyFixedArray" title="Link to this definition">#</a><br /></dt>
+<dd><p>Test if <code class="docutils literal notranslate"><span class="pre">*this</span></code> is identical to another <code class="docutils literal notranslate"><a class="reference internal" href="#classAPyFixedArray"><span class="std std-ref"><span class="pre">APyFixedArray</span></span></a></code>. Two <code class="docutils literal notranslate"><a class="reference internal" href="#classAPyFixedArray"><span class="std std-ref"><span class="pre">APyFixedArray</span></span></a></code> objects are considered identical if, and only if:<ul class="simple">
+<li><p>They represent exatly the same tensor shape</p></li>
+<li><p>They store the exact same fixed-point values in all tensor elements</p></li>
+<li><p>They have the exact same bit format (<code class="docutils literal notranslate"><span class="pre">bits</span></code>, <code class="docutils literal notranslate"><span class="pre">int_bits</span></code>, and <code class="docutils literal notranslate"><span class="pre">frac_bits</span></code>) </p></li>
+</ul>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13APyFixedArray11from_doubleERKN8nanobind8sequenceENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">
+<span id="_CPPv3N13APyFixedArray11from_doubleERKN8nanobind8sequenceENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE"></span><span id="_CPPv2N13APyFixedArray11from_doubleERKN8nanobind8sequenceENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE"></span><span id="APyFixedArray::from_double__nanobind::sequenceCR.std::optional:i:.std::optional:i:.std::optional:i:"></span><span class="target" id="classAPyFixedArray_1a58902e465cf7e945dde2de60fc78ccbf"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv413APyFixedArray" title="APyFixedArray"><span class="n"><span class="pre">APyFixedArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">from_double</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">nanobind</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">sequence</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">double_seq</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bits</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">int_bits</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">frac_bits</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13APyFixedArray11from_doubleERKN8nanobind8sequenceENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Create an <code class="docutils literal notranslate"><a class="reference internal" href="#classAPyFixedArray"><span class="std std-ref"><span class="pre">APyFixedArray</span></span></a></code> tensor object initialized with values from a sequence of <code class="docutils literal notranslate"><span class="pre">doubles</span></code></p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="apyfloat.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="apyfixed.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, APyTypes authors
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv413APyFixedArray"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N13APyFixedArray13APyFixedArrayEv"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::APyFixedArray()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13APyFixedArray13APyFixedArrayERKN8nanobind8sequenceENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::APyFixedArray()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13APyFixedArray13APyFixedArrayERKNSt6vectorINSt6size_tEEENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::APyFixedArray()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArrayplERK13APyFixedArray"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::operator+()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArrayplERK8APyFixed"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::operator+()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArraymiERK13APyFixedArray"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::operator-()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArraymiERK8APyFixed"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::operator-()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArraymlERK13APyFixedArray"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::operator*()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArraymlERK8APyFixed"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::operator*()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArraydvERK13APyFixedArray"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::operator/()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArraylsEKi"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::operator&lt;&lt;()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArrayrsEKi"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::operator&gt;&gt;()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13APyFixedArraylSEKi"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::operator&lt;&lt;=()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13APyFixedArrayrSEKi"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::operator&gt;&gt;=()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArray4rsubERK8APyFixed"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::rsub()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArray6matmulERK13APyFixedArray"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::matmul()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArray9transposeEv"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::transpose()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArray4reprEv"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::repr()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArray5shapeEv"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::shape()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArray4ndimEv"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::ndim()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArray8get_itemENSt6size_tE"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::get_item()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArray4bitsEv"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::bits()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArray8int_bitsEv"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::int_bits()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArray9frac_bitsEv"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::frac_bits()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArray8to_numpyEv"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::to_numpy()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArray4sizeEv"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::size()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArray3absEv"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::abs()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArraymiEv"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::operator-()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArray4castENSt8optionalIiEENSt8optionalIiEE16QuantizationMode12OverflowModeNSt8optionalIiEE"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::cast()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArray6resizeENSt8optionalIiEENSt8optionalIiEE16QuantizationMode12OverflowModeNSt8optionalIiEE"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::resize()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFixedArray12is_identicalERK13APyFixedArray"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::is_identical()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13APyFixedArray11from_doubleERKN8nanobind8sequenceENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE"><code class="docutils literal notranslate"><span class="pre">APyFixedArray::from_double()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    </body>
+</html>

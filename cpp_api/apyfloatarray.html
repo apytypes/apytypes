@@ -1,0 +1,536 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="apytypes_common.h" href="apytypes_common.html" /><link rel="prev" title="APyFloat" href="apyfloat.html" />
+
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+        <title>APyFloatArray - APyTypes documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">APyTypes  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">APyTypes  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of apytypes Python package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/quantizationoverflow.html">Quantization and overflow handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/context.html">Context handling</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">APyTypes C++ API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of APyTypes C++ API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apytypes_common.html"><code class="docutils literal notranslate"><span class="pre">apytypes_common.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apytypes_util.html"><code class="docutils literal notranslate"><span class="pre">apytypes_util.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ieee754.html"><code class="docutils literal notranslate"><span class="pre">ieee754.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="python_util.html"><code class="docutils literal notranslate"><span class="pre">python_util.h</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/apyfloat.html">APyFloat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/apyfixed.html">APyFixed</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../comparison.html">Comparison</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="apyfloatarray">
+<h1><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code><a class="headerlink" href="#apyfloatarray" title="Link to this heading">#</a></h1>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv413APyFloatArray">
+<span id="_CPPv313APyFloatArray"></span><span id="_CPPv213APyFloatArray"></span><span id="APyFloatArray"></span><span class="target" id="classAPyFloatArray"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APyFloatArray</span></span></span><a class="headerlink" href="#_CPPv413APyFloatArray" title="Link to this definition">#</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-types">Public Types</p>
+<dl class="cpp enum-class">
+<dt class="sig sig-object cpp" id="_CPPv4N13APyFloatArray19ArithmeticOperationE">
+<span id="_CPPv3N13APyFloatArray19ArithmeticOperationE"></span><span id="_CPPv2N13APyFloatArray19ArithmeticOperationE"></span><span class="target" id="classAPyFloatArray_1a6ad6b9dcc4f34a0fe849a1a3847263a7"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ArithmeticOperation</span></span></span><a class="headerlink" href="#_CPPv4N13APyFloatArray19ArithmeticOperationE" title="Link to this definition">#</a><br /></dt>
+<dd><p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13APyFloatArray19ArithmeticOperation8ADDITIONE">
+<span id="_CPPv3N13APyFloatArray19ArithmeticOperation8ADDITIONE"></span><span id="_CPPv2N13APyFloatArray19ArithmeticOperation8ADDITIONE"></span><span class="target" id="classAPyFloatArray_1a6ad6b9dcc4f34a0fe849a1a3847263a7a8cc6c2a8240840901a7317b95658c073"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ADDITION</span></span></span><a class="headerlink" href="#_CPPv4N13APyFloatArray19ArithmeticOperation8ADDITIONE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13APyFloatArray19ArithmeticOperation11SUBTRACTIONE">
+<span id="_CPPv3N13APyFloatArray19ArithmeticOperation11SUBTRACTIONE"></span><span id="_CPPv2N13APyFloatArray19ArithmeticOperation11SUBTRACTIONE"></span><span class="target" id="classAPyFloatArray_1a6ad6b9dcc4f34a0fe849a1a3847263a7aed3bb6ba1ce237078773d777e178b822"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SUBTRACTION</span></span></span><a class="headerlink" href="#_CPPv4N13APyFloatArray19ArithmeticOperation11SUBTRACTIONE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13APyFloatArray19ArithmeticOperation14MULTIPLICATIONE">
+<span id="_CPPv3N13APyFloatArray19ArithmeticOperation14MULTIPLICATIONE"></span><span id="_CPPv2N13APyFloatArray19ArithmeticOperation14MULTIPLICATIONE"></span><span class="target" id="classAPyFloatArray_1a6ad6b9dcc4f34a0fe849a1a3847263a7af4e42c8a8e1f0086b97479eb8a0571ad"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MULTIPLICATION</span></span></span><a class="headerlink" href="#_CPPv4N13APyFloatArray19ArithmeticOperation14MULTIPLICATIONE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13APyFloatArray19ArithmeticOperation8DIVISIONE">
+<span id="_CPPv3N13APyFloatArray19ArithmeticOperation8DIVISIONE"></span><span id="_CPPv2N13APyFloatArray19ArithmeticOperation8DIVISIONE"></span><span class="target" id="classAPyFloatArray_1a6ad6b9dcc4f34a0fe849a1a3847263a7a72bbf163ab731bf04923a0975ccd2af5"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DIVISION</span></span></span><a class="headerlink" href="#_CPPv4N13APyFloatArray19ArithmeticOperation8DIVISIONE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13APyFloatArray13APyFloatArrayERKN8nanobind8sequenceERKN8nanobind8sequenceERKN8nanobind8sequenceENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE">
+<span id="_CPPv3N13APyFloatArray13APyFloatArrayERKN8nanobind8sequenceERKN8nanobind8sequenceERKN8nanobind8sequenceENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE"></span><span id="_CPPv2N13APyFloatArray13APyFloatArrayERKN8nanobind8sequenceERKN8nanobind8sequenceERKN8nanobind8sequenceENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE"></span><span id="APyFloatArray::APyFloatArray__nanobind::sequenceCR.nanobind::sequenceCR.nanobind::sequenceCR.std::uint8_t.std::uint8_t.std::optional:exp_t:"></span><span class="target" id="classAPyFloatArray_1a64009464453fb7b033d15735fb0e0761"></span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APyFloatArray</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">nanobind</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">sequence</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">sign_seq</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">nanobind</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">sequence</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">exp_seq</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">nanobind</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">sequence</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">man_seq</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">exp_bits</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">man_bits</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="apytypes_common.html#_CPPv45exp_t" title="exp_t"><span class="n"><span class="pre">exp_t</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bias</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13APyFloatArray13APyFloatArrayERKN8nanobind8sequenceERKN8nanobind8sequenceERKN8nanobind8sequenceENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArrayplERK13APyFloatArray">
+<span id="_CPPv3NK13APyFloatArrayplERK13APyFloatArray"></span><span id="_CPPv2NK13APyFloatArrayplERK13APyFloatArray"></span><span id="APyFloatArray::add-operator__APyFloatArrayCRC"></span><span class="target" id="classAPyFloatArray_1ace9a3b0be6621c45572197ef3535d3e6"></span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">+</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">rhs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArrayplERK13APyFloatArray" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArrayplERK8APyFloat">
+<span id="_CPPv3NK13APyFloatArrayplERK8APyFloat"></span><span id="_CPPv2NK13APyFloatArrayplERK8APyFloat"></span><span id="APyFloatArray::add-operator__APyFloatCRC"></span><span class="target" id="classAPyFloatArray_1a24e238c41b183049aaaaf0e559be3c59"></span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">+</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="apyfloat.html#_CPPv48APyFloat" title="APyFloat"><span class="n"><span class="pre">APyFloat</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">rhs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArrayplERK8APyFloat" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArraymiERK13APyFloatArray">
+<span id="_CPPv3NK13APyFloatArraymiERK13APyFloatArray"></span><span id="_CPPv2NK13APyFloatArraymiERK13APyFloatArray"></span><span id="APyFloatArray::sub-operator__APyFloatArrayCRC"></span><span class="target" id="classAPyFloatArray_1ae3c6693d32beac515fe114155233fe5e"></span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">rhs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArraymiERK13APyFloatArray" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArraymiERK8APyFloat">
+<span id="_CPPv3NK13APyFloatArraymiERK8APyFloat"></span><span id="_CPPv2NK13APyFloatArraymiERK8APyFloat"></span><span id="APyFloatArray::sub-operator__APyFloatCRC"></span><span class="target" id="classAPyFloatArray_1aa3e46013d7c29dbc0ef2905522a7d4bf"></span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="apyfloat.html#_CPPv48APyFloat" title="APyFloat"><span class="n"><span class="pre">APyFloat</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">rhs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArraymiERK8APyFloat" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArraymlERK13APyFloatArray">
+<span id="_CPPv3NK13APyFloatArraymlERK13APyFloatArray"></span><span id="_CPPv2NK13APyFloatArraymlERK13APyFloatArray"></span><span id="APyFloatArray::mul-operator__APyFloatArrayCRC"></span><span class="target" id="classAPyFloatArray_1aa487ffcdde4f22b63efe27463071171d"></span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">*</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">rhs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArraymlERK13APyFloatArray" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArraymlERK8APyFloat">
+<span id="_CPPv3NK13APyFloatArraymlERK8APyFloat"></span><span id="_CPPv2NK13APyFloatArraymlERK8APyFloat"></span><span id="APyFloatArray::mul-operator__APyFloatCRC"></span><span class="target" id="classAPyFloatArray_1a469bf7bfaf165f20d5b6c3f668383164"></span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">*</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="apyfloat.html#_CPPv48APyFloat" title="APyFloat"><span class="n"><span class="pre">APyFloat</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">rhs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArraymlERK8APyFloat" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArraydvERK13APyFloatArray">
+<span id="_CPPv3NK13APyFloatArraydvERK13APyFloatArray"></span><span id="_CPPv2NK13APyFloatArraydvERK13APyFloatArray"></span><span id="APyFloatArray::div-operator__APyFloatArrayCRC"></span><span class="target" id="classAPyFloatArray_1a21be47c3275f866ddf38c95438d84735"></span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">/</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">rhs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArraydvERK13APyFloatArray" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArraydvERK8APyFloat">
+<span id="_CPPv3NK13APyFloatArraydvERK8APyFloat"></span><span id="_CPPv2NK13APyFloatArraydvERK8APyFloat"></span><span id="APyFloatArray::div-operator__APyFloatCRC"></span><span class="target" id="classAPyFloatArray_1a4c8c97b9e5a9604213aec2ede64d4a48"></span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">/</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="apyfloat.html#_CPPv48APyFloat" title="APyFloat"><span class="n"><span class="pre">APyFloat</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">rhs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArraydvERK8APyFloat" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArray6matmulERK13APyFloatArray">
+<span id="_CPPv3NK13APyFloatArray6matmulERK13APyFloatArray"></span><span id="_CPPv2NK13APyFloatArray6matmulERK13APyFloatArray"></span><span id="APyFloatArray::matmul__APyFloatArrayCRC"></span><span class="target" id="classAPyFloatArray_1a0942e3fd61b725c7beca4df1b9a84ac8"></span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">matmul</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">rhs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArray6matmulERK13APyFloatArray" title="Link to this definition">#</a><br /></dt>
+<dd><p>Matrix mutliplication. If both arguments ar 2-D tensors, this method performs the ordinary matrix multiplication. If input dimensions are greater than 2, this method performs stacked matrix multiplications, where the dimensions of last two dimensions are treated as matrices. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArray4reprEv">
+<span id="_CPPv3NK13APyFloatArray4reprEv"></span><span id="_CPPv2NK13APyFloatArray4reprEv"></span><span id="APyFloatArray::reprC"></span><span class="target" id="classAPyFloatArray_1a824f42693f76526652397b252696e8be"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">repr</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArray4reprEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Python <code class="docutils literal notranslate"><span class="pre">__repr__()</span></code> function. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArray9get_shapeEv">
+<span id="_CPPv3NK13APyFloatArray9get_shapeEv"></span><span id="_CPPv2NK13APyFloatArray9get_shapeEv"></span><span id="APyFloatArray::get_shapeC"></span><span class="target" id="classAPyFloatArray_1af26b8494fc26d25052050784cb891711"></span><span class="n"><span class="pre">nanobind</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">tuple</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_shape</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArray9get_shapeEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Shape of the array. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArray8get_ndimEv">
+<span id="_CPPv3NK13APyFloatArray8get_ndimEv"></span><span id="_CPPv2NK13APyFloatArray8get_ndimEv"></span><span id="APyFloatArray::get_ndimC"></span><span class="target" id="classAPyFloatArray_1a69679d81e3bb2d7713e0168b7a21b6ff"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_ndim</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArray8get_ndimEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Number of dimensions. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArray8get_itemENSt6size_tE">
+<span id="_CPPv3NK13APyFloatArray8get_itemENSt6size_tE"></span><span id="_CPPv2NK13APyFloatArray8get_itemENSt6size_tE"></span><span id="APyFloatArray::get_item__std::sC"></span><span class="target" id="classAPyFloatArray_1a3a73b8eaa628276395537204298283a8"></span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_item</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">idx</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArray8get_itemENSt6size_tE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Retrieve a single item. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArray8get_sizeEv">
+<span id="_CPPv3NK13APyFloatArray8get_sizeEv"></span><span id="_CPPv2NK13APyFloatArray8get_sizeEv"></span><span id="APyFloatArray::get_sizeC"></span><span class="target" id="classAPyFloatArray_1a4fd0ca84a0e8328398330f3596207dd4"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArray8get_sizeEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Length of the array. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArray12is_identicalERK13APyFloatArray">
+<span id="_CPPv3NK13APyFloatArray12is_identicalERK13APyFloatArray"></span><span id="_CPPv2NK13APyFloatArray12is_identicalERK13APyFloatArray"></span><span id="APyFloatArray::is_identical__APyFloatArrayCRC"></span><span class="target" id="classAPyFloatArray_1ab9ad31b1b3c45ce1a93d2854dd7e6b63"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">is_identical</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArray12is_identicalERK13APyFloatArray" title="Link to this definition">#</a><br /></dt>
+<dd><p>Test if two <code class="docutils literal notranslate"><a class="reference internal" href="#classAPyFloatArray"><span class="std std-ref"><span class="pre">APyFloatArray</span></span></a></code> objects are identical. Two <code class="docutils literal notranslate"><a class="reference internal" href="#classAPyFloatArray"><span class="std std-ref"><span class="pre">APyFloatArray</span></span></a></code> objects are considered identical if, and only if:<ul class="simple">
+<li><p>They represent exatly the same tensor shape</p></li>
+<li><p>They store the exact same floating-point values in all tensor elements</p></li>
+<li><p>They have the exact same sized fields </p></li>
+</ul>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArray8to_numpyEv">
+<span id="_CPPv3NK13APyFloatArray8to_numpyEv"></span><span id="_CPPv2NK13APyFloatArray8to_numpyEv"></span><span id="APyFloatArray::to_numpyC"></span><span class="target" id="classAPyFloatArray_1a39f6e802d682993bfde09c2cab882c34"></span><span class="n"><span class="pre">nanobind</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ndarray</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">nanobind</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">numpy</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">to_numpy</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArray8to_numpyEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Convert to a NumPy array. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArray9transposeEv">
+<span id="_CPPv3NK13APyFloatArray9transposeEv"></span><span id="_CPPv2NK13APyFloatArray9transposeEv"></span><span id="APyFloatArray::transposeC"></span><span class="target" id="classAPyFloatArray_1a2a99feed53b2dd799ec60b0c9de37abf"></span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">transpose</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArray9transposeEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Transposition function. For a 1-D array, returns an exact copy of <code class="docutils literal notranslate"><span class="pre">*this</span></code>. For a 2-D array, returns the matrix transposition of <code class="docutils literal notranslate"><span class="pre">*this</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArray4castENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE">
+<span id="_CPPv3NK13APyFloatArray4castENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE"></span><span id="_CPPv2NK13APyFloatArray4castENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE"></span><span id="APyFloatArray::cast__std::uint8_t.std::uint8_t.std::optional:exp_t:.std::optional:QuantizationMode:C"></span><span class="target" id="classAPyFloatArray_1a1d1c1b75d584844d9c6879b7f8757b77"></span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cast</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">exp_bits</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">man_bits</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="apytypes_common.html#_CPPv45exp_t" title="exp_t"><span class="n"><span class="pre">exp_t</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bias</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="apytypes_common.html#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">quantization</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArray4castENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a copy of the tensor with the elements resized. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArray6resizeENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE">
+<span id="_CPPv3NK13APyFloatArray6resizeENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE"></span><span id="_CPPv2NK13APyFloatArray6resizeENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE"></span><span id="APyFloatArray::resize__std::uint8_t.std::uint8_t.std::optional:exp_t:.std::optional:QuantizationMode:C"></span><span class="target" id="classAPyFloatArray_1af8cef4ca3f65e2f9b9ec764949f6deca"></span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">resize</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">exp_bits</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">man_bits</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="apytypes_common.html#_CPPv45exp_t" title="exp_t"><span class="n"><span class="pre">exp_t</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bias</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="apytypes_common.html#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">quantization</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArray6resizeENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArray8get_biasEv">
+<span id="_CPPv3NK13APyFloatArray8get_biasEv"></span><span id="_CPPv2NK13APyFloatArray8get_biasEv"></span><span id="APyFloatArray::get_biasC"></span><span class="target" id="classAPyFloatArray_1ab682b50a14b5b1b8da5f25ade4d5d2b2"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="apytypes_common.html#_CPPv45exp_t" title="exp_t"><span class="n"><span class="pre">exp_t</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_bias</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArray8get_biasEv" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArray12get_man_bitsEv">
+<span id="_CPPv3NK13APyFloatArray12get_man_bitsEv"></span><span id="_CPPv2NK13APyFloatArray12get_man_bitsEv"></span><span id="APyFloatArray::get_man_bitsC"></span><span class="target" id="classAPyFloatArray_1a46780d4d640d7e03f1d133e3c892428c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_man_bits</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArray12get_man_bitsEv" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArray12get_exp_bitsEv">
+<span id="_CPPv3NK13APyFloatArray12get_exp_bitsEv"></span><span id="_CPPv2NK13APyFloatArray12get_exp_bitsEv"></span><span id="APyFloatArray::get_exp_bitsC"></span><span class="target" id="classAPyFloatArray_1a1d38fff44cccec53b31c7522064210f4"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_exp_bits</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArray12get_exp_bitsEv" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArray14cast_to_doubleENSt8optionalI16QuantizationModeEE">
+<span id="_CPPv3NK13APyFloatArray14cast_to_doubleENSt8optionalI16QuantizationModeEE"></span><span id="_CPPv2NK13APyFloatArray14cast_to_doubleENSt8optionalI16QuantizationModeEE"></span><span id="APyFloatArray::cast_to_double__std::optional:QuantizationMode:C"></span><span class="target" id="classAPyFloatArray_1a7e04e9078e061c3198d4f74081fd043e"></span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cast_to_double</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="apytypes_common.html#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">quantization</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArray14cast_to_doubleENSt8optionalI16QuantizationModeEE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArray14cast_to_singleENSt8optionalI16QuantizationModeEE">
+<span id="_CPPv3NK13APyFloatArray14cast_to_singleENSt8optionalI16QuantizationModeEE"></span><span id="_CPPv2NK13APyFloatArray14cast_to_singleENSt8optionalI16QuantizationModeEE"></span><span id="APyFloatArray::cast_to_single__std::optional:QuantizationMode:C"></span><span class="target" id="classAPyFloatArray_1add9b2ea505bddeaaaae5658c46f106cf"></span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cast_to_single</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="apytypes_common.html#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">quantization</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArray14cast_to_singleENSt8optionalI16QuantizationModeEE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArray12cast_to_halfENSt8optionalI16QuantizationModeEE">
+<span id="_CPPv3NK13APyFloatArray12cast_to_halfENSt8optionalI16QuantizationModeEE"></span><span id="_CPPv2NK13APyFloatArray12cast_to_halfENSt8optionalI16QuantizationModeEE"></span><span id="APyFloatArray::cast_to_half__std::optional:QuantizationMode:C"></span><span class="target" id="classAPyFloatArray_1aab9064bc970c2a0c0dd683070976d4e9"></span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cast_to_half</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="apytypes_common.html#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">quantization</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArray12cast_to_halfENSt8optionalI16QuantizationModeEE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13APyFloatArray16cast_to_bfloat16ENSt8optionalI16QuantizationModeEE">
+<span id="_CPPv3NK13APyFloatArray16cast_to_bfloat16ENSt8optionalI16QuantizationModeEE"></span><span id="_CPPv2NK13APyFloatArray16cast_to_bfloat16ENSt8optionalI16QuantizationModeEE"></span><span id="APyFloatArray::cast_to_bfloat16__std::optional:QuantizationMode:C"></span><span class="target" id="classAPyFloatArray_1abf5b7fb390517dcb2f6cd2afbd42ca50"></span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cast_to_bfloat16</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="apytypes_common.html#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">quantization</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13APyFloatArray16cast_to_bfloat16ENSt8optionalI16QuantizationModeEE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13APyFloatArray11from_doubleERKN8nanobind8sequenceENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE">
+<span id="_CPPv3N13APyFloatArray11from_doubleERKN8nanobind8sequenceENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE"></span><span id="_CPPv2N13APyFloatArray11from_doubleERKN8nanobind8sequenceENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE"></span><span id="APyFloatArray::from_double__nanobind::sequenceCR.std::uint8_t.std::uint8_t.std::optional:exp_t:.std::optional:QuantizationMode:"></span><span class="target" id="classAPyFloatArray_1a480f43d51c534ec611694660ef4df208"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv413APyFloatArray" title="APyFloatArray"><span class="n"><span class="pre">APyFloatArray</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">from_double</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">nanobind</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">sequence</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">double_seq</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">exp_bits</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">man_bits</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="apytypes_common.html#_CPPv45exp_t" title="exp_t"><span class="n"><span class="pre">exp_t</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bias</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="apytypes_common.html#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">quantization</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13APyFloatArray11from_doubleERKN8nanobind8sequenceENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Create an <code class="docutils literal notranslate"><a class="reference internal" href="#classAPyFloatArray"><span class="std std-ref"><span class="pre">APyFloatArray</span></span></a></code> tensor object initialized with values from a sequence of <code class="docutils literal notranslate"><span class="pre">doubles</span></code></p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="apytypes_common.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">apytypes_common.h</span></code></div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="apyfloat.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, APyTypes authors
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv413APyFloatArray"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N13APyFloatArray19ArithmeticOperationE"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::ArithmeticOperation</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N13APyFloatArray19ArithmeticOperation8ADDITIONE"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::ArithmeticOperation::ADDITION</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13APyFloatArray19ArithmeticOperation11SUBTRACTIONE"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::ArithmeticOperation::SUBTRACTION</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13APyFloatArray19ArithmeticOperation14MULTIPLICATIONE"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::ArithmeticOperation::MULTIPLICATION</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13APyFloatArray19ArithmeticOperation8DIVISIONE"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::ArithmeticOperation::DIVISION</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4N13APyFloatArray13APyFloatArrayERKN8nanobind8sequenceERKN8nanobind8sequenceERKN8nanobind8sequenceENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::APyFloatArray()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArrayplERK13APyFloatArray"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::operator+()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArrayplERK8APyFloat"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::operator+()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArraymiERK13APyFloatArray"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::operator-()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArraymiERK8APyFloat"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::operator-()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArraymlERK13APyFloatArray"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::operator*()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArraymlERK8APyFloat"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::operator*()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArraydvERK13APyFloatArray"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::operator/()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArraydvERK8APyFloat"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::operator/()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArray6matmulERK13APyFloatArray"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::matmul()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArray4reprEv"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::repr()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArray9get_shapeEv"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::get_shape()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArray8get_ndimEv"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::get_ndim()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArray8get_itemENSt6size_tE"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::get_item()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArray8get_sizeEv"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::get_size()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArray12is_identicalERK13APyFloatArray"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::is_identical()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArray8to_numpyEv"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::to_numpy()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArray9transposeEv"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::transpose()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArray4castENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::cast()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArray6resizeENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::resize()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArray8get_biasEv"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::get_bias()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArray12get_man_bitsEv"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::get_man_bits()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArray12get_exp_bitsEv"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::get_exp_bits()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArray14cast_to_doubleENSt8optionalI16QuantizationModeEE"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::cast_to_double()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArray14cast_to_singleENSt8optionalI16QuantizationModeEE"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::cast_to_single()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArray12cast_to_halfENSt8optionalI16QuantizationModeEE"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::cast_to_half()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13APyFloatArray16cast_to_bfloat16ENSt8optionalI16QuantizationModeEE"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::cast_to_bfloat16()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13APyFloatArray11from_doubleERKN8nanobind8sequenceENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE"><code class="docutils literal notranslate"><span class="pre">APyFloatArray::from_double()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    </body>
+</html>
