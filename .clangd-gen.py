@@ -19,13 +19,6 @@ python3_includes = subprocess.run(
     encoding="utf-8",
 )
 
-# Include files for Pybind11 using `pybind11-config`
-pybind11_includes = subprocess.run(
-    ["pybind11-config", "--includes"],
-    capture_output=True,
-    encoding="utf-8",
-)
-
 # Include files for Nanobind
 nanobind_includes = subprocess.run(
     ["python3", "-m", "nanobind", "--include_dir"],
@@ -41,7 +34,6 @@ compile_flags = [
     "-Wpedantic",
     "-Wno-deprecated",
     *str(python3_includes.stdout.strip()).split(" "),
-    *str(pybind11_includes.stdout.strip()).split(" "),
     *str(nanobind_includes.stdout.strip()).split(" "),
 ]
 
