@@ -11,7 +11,7 @@
         :class: sphx-glr-download-link-note
 
         :ref:`Go to the end <sphx_glr_download_examples_apyfloat.py>`
-        to download the full example code
+        to download the full example code.
 
 .. rst-class:: sphx-glr-example-title
 
@@ -179,11 +179,105 @@ Comparisons with integers and floats are supported
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 42-43
+.. GENERATED FROM PYTHON SOURCE LINES 42-44
+
+Arithmetic with Python integers and floats is supported, although *not recommended*, by
+automatically casting the number to the same format of the APyType-object
+
+.. GENERATED FROM PYTHON SOURCE LINES 44-46
+
+.. code-block:: Python
+
+    b + 1.125
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    APyFloat(sign=0, exp=4, man=2, exp_bits=3, man_bits=2)
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 47-48
+
+Which is equivalent to
+
+.. GENERATED FROM PYTHON SOURCE LINES 48-50
+
+.. code-block:: Python
+
+    b + APyFloat.from_float(1.125, exp_bits=b.exp_bits, man_bits=b.man_bits, bias=b.bias)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    APyFloat(sign=0, exp=4, man=2, exp_bits=3, man_bits=2)
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 51-53
+
+However, while it is convenient to let APyTypes convert numbers automatically,
+it is not recommended as it can yield unexpected results. Consider the expression
+
+.. GENERATED FROM PYTHON SOURCE LINES 53-55
+
+.. code-block:: Python
+
+    2 + 2 + APyFloat.from_float(8, exp_bits=4, man_bits=1)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    APyFloat(sign=0, exp=10, man=1, exp_bits=4, man_bits=1)
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 56-57
+
+which would yield a different result from
+
+.. GENERATED FROM PYTHON SOURCE LINES 57-59
+
+.. code-block:: Python
+
+    APyFloat.from_float(8, exp_bits=4, man_bits=1) + 2 + 2
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    APyFloat(sign=0, exp=10, man=0, exp_bits=4, man_bits=1)
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 60-61
 
 To change the word length of a APyFloat, the method :func:`~APyFloat.cast` can be used
 
-.. GENERATED FROM PYTHON SOURCE LINES 43-44
+.. GENERATED FROM PYTHON SOURCE LINES 61-62
 
 .. code-block:: Python
 
@@ -204,7 +298,7 @@ To change the word length of a APyFloat, the method :func:`~APyFloat.cast` can b
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.005 seconds)
+   **Total running time of the script:** (0 minutes 0.007 seconds)
 
 
 .. _sphx_glr_download_examples_apyfloat.py:
@@ -220,6 +314,10 @@ To change the word length of a APyFloat, the method :func:`~APyFloat.cast` can b
     .. container:: sphx-glr-download sphx-glr-download-python
 
       :download:`Download Python source code: apyfloat.py <apyfloat.py>`
+
+    .. container:: sphx-glr-download sphx-glr-download-zip
+
+      :download:`Download zipped: apyfloat.zip <apyfloat.zip>`
 
 
 .. only:: html

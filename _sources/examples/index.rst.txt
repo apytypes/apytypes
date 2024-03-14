@@ -14,6 +14,7 @@ These are examples of how APyTypes can be used.
 
     <div class="sphx-glr-thumbnails">
 
+.. thumbnail-parent-div-open
 
 .. raw:: html
 
@@ -51,6 +52,76 @@ These are examples of how APyTypes can be used.
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="It is possible to easily go between numpy and apytypes and therefore also use plotting tools like Matplotlib in an integrated manner.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_numpy_integration_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_numpy_integration.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">NumPy integration</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This illustrates the effect of performing a vector rotation using different number of fractional bits and different quantization schemes.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_vectorrotation_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_vectorrotation.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Fixed-point vector rotation</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="In this example a lookup table for floating-point reciprocals is designed, assuming that each bit is implemented using an N-ínput LUT, suitable for FPGA, and single-precision floating-point representation.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_reciprocal_lookup_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_reciprocal_lookup.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Reciprocal lookup table</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Reference models and code for verification can be written swiftly using APyTypes, and incorporated using cocotb. Below is an exhaustive test of an eight-bit floating-point multiplier with round to nearest, ties to even.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_test_fp8_mul_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_test_fp8_mul.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">cocotb integration</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
     </div>
 
 
@@ -59,6 +130,10 @@ These are examples of how APyTypes can be used.
 
    /examples/apyfloat
    /examples/apyfixed
+   /examples/numpy_integration
+   /examples/vectorrotation
+   /examples/reciprocal_lookup
+   /examples/test_fp8_mul
 
 
 .. only:: html

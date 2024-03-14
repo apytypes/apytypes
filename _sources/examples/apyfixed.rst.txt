@@ -11,7 +11,7 @@
         :class: sphx-glr-download-link-note
 
         :ref:`Go to the end <sphx_glr_download_examples_apyfixed.py>`
-        to download the full example code
+        to download the full example code.
 
 .. rst-class:: sphx-glr-example-title
 
@@ -47,7 +47,7 @@ bits) must be supplied.
  .. code-block:: none
 
 
-    APyFixed(7, bits=4, int_bits=2)
+    APyFixed(7, bits=6, int_bits=4)
 
 
 
@@ -112,7 +112,7 @@ A single integer bit is added to make sure that the computation does not overflo
  .. code-block:: none
 
 
-    APyFixed(62, bits=6, int_bits=4)
+    APyFixed(126, bits=7, int_bits=5)
 
 
 
@@ -136,7 +136,7 @@ integer bits and fractional bits of the included operands, respectively.
  .. code-block:: none
 
 
-    APyFixed(210, bits=10, int_bits=5)
+    APyFixed(210, bits=12, int_bits=7)
 
 
 
@@ -186,11 +186,105 @@ Comparisons with integers and floats are supported
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 46-47
+.. GENERATED FROM PYTHON SOURCE LINES 46-48
+
+Arithmetic with Python integers and floats is supported, although *not recommended*, by
+automatically casting the number to the same format of the APyType-object
+
+.. GENERATED FROM PYTHON SOURCE LINES 48-50
+
+.. code-block:: Python
+
+    b + 3.5
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    APyFixed(5, bits=6, int_bits=4)
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 51-52
+
+Which is equivalent to
+
+.. GENERATED FROM PYTHON SOURCE LINES 52-54
+
+.. code-block:: Python
+
+    b + APyFixed.from_float(3.5, int_bits=b.int_bits, frac_bits=b.frac_bits)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    APyFixed(5, bits=6, int_bits=4)
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 55-57
+
+However, while it is convenient to let APyTypes convert numbers automatically,
+it is not recommended as it can yield unexpected results. Consider the expression
+
+.. GENERATED FROM PYTHON SOURCE LINES 57-59
+
+.. code-block:: Python
+
+    1.25 + 1.25 + APyFixed.from_float(2, int_bits=4, frac_bits=1)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    APyFixed(9, bits=6, int_bits=5)
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 60-61
+
+which would yield a different result from
+
+.. GENERATED FROM PYTHON SOURCE LINES 61-63
+
+.. code-block:: Python
+
+    APyFixed.from_float(2, int_bits=4, frac_bits=1) + 1.25 + 1.25
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    APyFixed(10, bits=7, int_bits=6)
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 64-65
 
 To change the word length of a APyFixed, the method :func:`~APyFixed.cast` can be used
 
-.. GENERATED FROM PYTHON SOURCE LINES 47-48
+.. GENERATED FROM PYTHON SOURCE LINES 65-66
 
 .. code-block:: Python
 
@@ -204,7 +298,7 @@ To change the word length of a APyFixed, the method :func:`~APyFixed.cast` can b
  .. code-block:: none
 
 
-    APyFixed(15, bits=4, int_bits=3)
+    APyFixed(124, bits=7, int_bits=4)
 
 
 
@@ -227,6 +321,10 @@ To change the word length of a APyFixed, the method :func:`~APyFixed.cast` can b
     .. container:: sphx-glr-download sphx-glr-download-python
 
       :download:`Download Python source code: apyfixed.py <apyfixed.py>`
+
+    .. container:: sphx-glr-download sphx-glr-download-zip
+
+      :download:`Download zipped: apyfixed.zip <apyfixed.zip>`
 
 
 .. only:: html

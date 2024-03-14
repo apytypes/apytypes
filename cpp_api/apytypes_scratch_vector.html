@@ -1,0 +1,865 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="apytypes_simd.h" href="apytypes_simd.html" /><link rel="prev" title="apytypes_mp.h" href="apytypes_mp.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>apytypes_scratch_vector.h - APyTypes documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">APyTypes  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">APyTypes  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of apytypes Python package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/apycfixed.html"><code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apycfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/arrayfunctions.html">Array functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/context.html">Context handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/quantizationoverflow.html">Quantization and overflow handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/utils.html">Utility functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/codegeneration.html">Code generation</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">APyTypes C++ API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of APyTypes C++ API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="apybuffer.html"><code class="docutils literal notranslate"><span class="pre">apybuffer.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfixed_util.html"><code class="docutils literal notranslate"><span class="pre">apyfixed_util.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfloat_util.html"><code class="docutils literal notranslate"><span class="pre">apyfloat_util.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apytypes_common.html"><code class="docutils literal notranslate"><span class="pre">apytypes_common.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apytypes_mp.html"><code class="docutils literal notranslate"><span class="pre">apytypes_mp.h</span></code></a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">apytypes_scratch_vector.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apytypes_simd.html"><code class="docutils literal notranslate"><span class="pre">apytypes_simd.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apytypes_util.html"><code class="docutils literal notranslate"><span class="pre">apytypes_util.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="broadcast.html"><code class="docutils literal notranslate"><span class="pre">broadcast.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ieee754.html"><code class="docutils literal notranslate"><span class="pre">ieee754.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="python_util.html"><code class="docutils literal notranslate"><span class="pre">python_util.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="array_utils.html"><code class="docutils literal notranslate"><span class="pre">array_utils.h</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/apyfloat.html">APyFloat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/apyfixed.html">APyFixed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/numpy_integration.html">NumPy integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/vectorrotation.html">Fixed-point vector rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/reciprocal_lookup.html">Reciprocal lookup table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/test_fp8_mul.html">cocotb integration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../performance.html">Computational performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../comparison.html">Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../licenses.html">Licenses</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/cpp_api/apytypes_scratch_vector.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="apytypes-scratch-vector-h">
+<h1><code class="docutils literal notranslate"><span class="pre">apytypes_scratch_vector.h</span></code><a class="headerlink" href="#apytypes-scratch-vector-h" title="Link to this heading">¶</a></h1>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4I00E14SVIteratorBase">
+<span id="_CPPv3I00E14SVIteratorBase"></span><span id="_CPPv2I00E14SVIteratorBase"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PTR_T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classSVIteratorBase"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SVIteratorBase</span></span></span><a class="headerlink" href="#_CPPv4I00E14SVIteratorBase" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-types">Public Types</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N14SVIteratorBase10value_typeE">
+<span id="_CPPv3N14SVIteratorBase10value_typeE"></span><span id="_CPPv2N14SVIteratorBase10value_typeE"></span><span class="target" id="classSVIteratorBase_1a32417304c28a4a66155d12e0311fa210"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">value_type</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase::T"><span class="n"><span class="pre">T</span></span></a><a class="headerlink" href="#_CPPv4N14SVIteratorBase10value_typeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N14SVIteratorBase15difference_typeE">
+<span id="_CPPv3N14SVIteratorBase15difference_typeE"></span><span id="_CPPv2N14SVIteratorBase15difference_typeE"></span><span class="target" id="classSVIteratorBase_1a54f63d5bc634a7e5b15b57c046c79222"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">difference_type</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ptrdiff_t</span></span><a class="headerlink" href="#_CPPv4N14SVIteratorBase15difference_typeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N14SVIteratorBase9referenceE">
+<span id="_CPPv3N14SVIteratorBase9referenceE"></span><span id="_CPPv2N14SVIteratorBase9referenceE"></span><span class="target" id="classSVIteratorBase_1a13d4dd163cb11a860f15dc364ae3c57b"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reference</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N14SVIteratorBase10value_typeE" title="SVIteratorBase::value_type"><span class="n"><span class="pre">value_type</span></span></a><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4N14SVIteratorBase9referenceE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N14SVIteratorBase15const_referenceE">
+<span id="_CPPv3N14SVIteratorBase15const_referenceE"></span><span id="_CPPv2N14SVIteratorBase15const_referenceE"></span><span class="target" id="classSVIteratorBase_1a8d643984a7e11734608cc042ff36c3a8"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">const_reference</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N14SVIteratorBase10value_typeE" title="SVIteratorBase::value_type"><span class="n"><span class="pre">value_type</span></span></a><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4N14SVIteratorBase15const_referenceE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N14SVIteratorBase7pointerE">
+<span id="_CPPv3N14SVIteratorBase7pointerE"></span><span id="_CPPv2N14SVIteratorBase7pointerE"></span><span class="target" id="classSVIteratorBase_1a259de1d57b13306b019b45639909da60"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pointer</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase::PTR_T"><span class="n"><span class="pre">PTR_T</span></span></a><a class="headerlink" href="#_CPPv4N14SVIteratorBase7pointerE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N14SVIteratorBase17iterator_categoryE">
+<span id="_CPPv3N14SVIteratorBase17iterator_categoryE"></span><span id="_CPPv2N14SVIteratorBase17iterator_categoryE"></span><span class="target" id="classSVIteratorBase_1a4fca88a8d7e63edfc6757f0a2390f18e"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">iterator_category</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">random_access_iterator_tag</span></span><a class="headerlink" href="#_CPPv4N14SVIteratorBase17iterator_categoryE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N14SVIteratorBase14SVIteratorBaseE7pointer">
+<span id="_CPPv3N14SVIteratorBase14SVIteratorBaseE7pointer"></span><span id="_CPPv2N14SVIteratorBase14SVIteratorBaseE7pointer"></span><span id="SVIteratorBase::SVIteratorBase__pointer"></span><span class="target" id="classSVIteratorBase_1acac7ebafb6b55bec8ca6f3cc5bc6e86a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SVIteratorBase</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N14SVIteratorBase7pointerE" title="SVIteratorBase::pointer"><span class="n"><span class="pre">pointer</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">ptr</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N14SVIteratorBase14SVIteratorBaseE7pointer" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N14SVIteratorBaseppEv">
+<span id="_CPPv3N14SVIteratorBaseppEv"></span><span id="_CPPv2N14SVIteratorBaseppEv"></span><span id="SVIteratorBase::inc-operator"></span><span class="target" id="classSVIteratorBase_1ac31480311bf7d51a18100b8851a8380b"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase"><span class="n"><span class="pre">SVIteratorBase</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">++</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N14SVIteratorBaseppEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N14SVIteratorBasemmEv">
+<span id="_CPPv3N14SVIteratorBasemmEv"></span><span id="_CPPv2N14SVIteratorBasemmEv"></span><span id="SVIteratorBase::dec-operator"></span><span class="target" id="classSVIteratorBase_1a39526b41a14e56d699f6d6aadb55d190"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase"><span class="n"><span class="pre">SVIteratorBase</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">--</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N14SVIteratorBasemmEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N14SVIteratorBaseppEi">
+<span id="_CPPv3N14SVIteratorBaseppEi"></span><span id="_CPPv2N14SVIteratorBaseppEi"></span><span id="SVIteratorBase::inc-operator__i"></span><span class="target" id="classSVIteratorBase_1abf4eb4cd45f21bc6bdfbb3e2e40a09d5"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase"><span class="n"><span class="pre">SVIteratorBase</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">++</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N14SVIteratorBaseppEi" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N14SVIteratorBasemmEi">
+<span id="_CPPv3N14SVIteratorBasemmEi"></span><span id="_CPPv2N14SVIteratorBasemmEi"></span><span id="SVIteratorBase::dec-operator__i"></span><span class="target" id="classSVIteratorBase_1a040eb191a425d9924f5442b543d69f5a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase"><span class="n"><span class="pre">SVIteratorBase</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">--</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N14SVIteratorBasemmEi" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK14SVIteratorBaseplE15difference_type">
+<span id="_CPPv3NK14SVIteratorBaseplE15difference_type"></span><span id="_CPPv2NK14SVIteratorBaseplE15difference_type"></span><span id="SVIteratorBase::add-operator__difference_typeC"></span><span class="target" id="classSVIteratorBase_1a8a3d4aa05704494c2560e42b7027ff0b"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase"><span class="n"><span class="pre">SVIteratorBase</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">+</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N14SVIteratorBase15difference_typeE" title="SVIteratorBase::difference_type"><span class="n"><span class="pre">difference_type</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK14SVIteratorBaseplE15difference_type" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK14SVIteratorBasemiE15difference_type">
+<span id="_CPPv3NK14SVIteratorBasemiE15difference_type"></span><span id="_CPPv2NK14SVIteratorBasemiE15difference_type"></span><span id="SVIteratorBase::sub-operator__difference_typeC"></span><span class="target" id="classSVIteratorBase_1a2de73f0283d41ab0d6f50e2bd257431c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase"><span class="n"><span class="pre">SVIteratorBase</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N14SVIteratorBase15difference_typeE" title="SVIteratorBase::difference_type"><span class="n"><span class="pre">difference_type</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK14SVIteratorBasemiE15difference_type" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N14SVIteratorBasepLE15difference_type">
+<span id="_CPPv3N14SVIteratorBasepLE15difference_type"></span><span id="_CPPv2N14SVIteratorBasepLE15difference_type"></span><span id="SVIteratorBase::add-assign-operator__difference_type"></span><span class="target" id="classSVIteratorBase_1a2bec8cec4c39c94bec41592ec0d5b441"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase"><span class="n"><span class="pre">SVIteratorBase</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">+=</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N14SVIteratorBase15difference_typeE" title="SVIteratorBase::difference_type"><span class="n"><span class="pre">difference_type</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N14SVIteratorBasepLE15difference_type" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N14SVIteratorBasemIE15difference_type">
+<span id="_CPPv3N14SVIteratorBasemIE15difference_type"></span><span id="_CPPv2N14SVIteratorBasemIE15difference_type"></span><span id="SVIteratorBase::sub-assign-operator__difference_type"></span><span class="target" id="classSVIteratorBase_1a4e7d5d6a5f50592574a2b631ff14e34c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase"><span class="n"><span class="pre">SVIteratorBase</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-=</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N14SVIteratorBase15difference_typeE" title="SVIteratorBase::difference_type"><span class="n"><span class="pre">difference_type</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N14SVIteratorBasemIE15difference_type" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N14SVIteratorBaseixENSt6size_tE">
+<span id="_CPPv3N14SVIteratorBaseixENSt6size_tE"></span><span id="_CPPv2N14SVIteratorBaseixENSt6size_tE"></span><span id="SVIteratorBase::subscript-operator__std::s"></span><span class="target" id="classSVIteratorBase_1a35b956652ed2fe2b545b36da6fd5ded5"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N14SVIteratorBase9referenceE" title="SVIteratorBase::reference"><span class="n"><span class="pre">reference</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">[]</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N14SVIteratorBaseixENSt6size_tE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK14SVIteratorBaseixENSt6size_tE">
+<span id="_CPPv3NK14SVIteratorBaseixENSt6size_tE"></span><span id="_CPPv2NK14SVIteratorBaseixENSt6size_tE"></span><span id="SVIteratorBase::subscript-operator__std::sC"></span><span class="target" id="classSVIteratorBase_1a57eaeefb1f453ae94c3ae25cb80053f7"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N14SVIteratorBase15const_referenceE" title="SVIteratorBase::const_reference"><span class="n"><span class="pre">const_reference</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">[]</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK14SVIteratorBaseixENSt6size_tE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N14SVIteratorBasemlEv">
+<span id="_CPPv3N14SVIteratorBasemlEv"></span><span id="_CPPv2N14SVIteratorBasemlEv"></span><span id="SVIteratorBase::mul-operator"></span><span class="target" id="classSVIteratorBase_1a7e04a9063e4688ec0cbe1cdec56b68c2"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N14SVIteratorBase9referenceE" title="SVIteratorBase::reference"><span class="n"><span class="pre">reference</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">*</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N14SVIteratorBasemlEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK14SVIteratorBasemlEv">
+<span id="_CPPv3NK14SVIteratorBasemlEv"></span><span id="_CPPv2NK14SVIteratorBasemlEv"></span><span id="SVIteratorBase::mul-operatorC"></span><span class="target" id="classSVIteratorBase_1ad26dd6dcf5188acefd8f99baf112a086"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N14SVIteratorBase15const_referenceE" title="SVIteratorBase::const_reference"><span class="n"><span class="pre">const_reference</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">*</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK14SVIteratorBasemlEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK14SVIteratorBasemiE14SVIteratorBase">
+<span id="_CPPv3NK14SVIteratorBasemiE14SVIteratorBase"></span><span id="_CPPv2NK14SVIteratorBasemiE14SVIteratorBase"></span><span id="SVIteratorBase::sub-operator__SVIteratorBaseC"></span><span class="target" id="classSVIteratorBase_1ac77dbbf3f2fc8c9759a9a45ed521ca29"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase"><span class="n"><span class="pre">SVIteratorBase</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK14SVIteratorBasemiE14SVIteratorBase" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK14SVIteratorBaseeqE14SVIteratorBase">
+<span id="_CPPv3NK14SVIteratorBaseeqE14SVIteratorBase"></span><span id="_CPPv2NK14SVIteratorBaseeqE14SVIteratorBase"></span><span id="SVIteratorBase::eq-operator__SVIteratorBaseC"></span><span class="target" id="classSVIteratorBase_1a67a55073759a672a8802cff8759c01a4"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">==</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase"><span class="n"><span class="pre">SVIteratorBase</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK14SVIteratorBaseeqE14SVIteratorBase" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK14SVIteratorBaseneE14SVIteratorBase">
+<span id="_CPPv3NK14SVIteratorBaseneE14SVIteratorBase"></span><span id="_CPPv2NK14SVIteratorBaseneE14SVIteratorBase"></span><span id="SVIteratorBase::neq-operator__SVIteratorBaseC"></span><span class="target" id="classSVIteratorBase_1a49bd6a7a83fb8080d01352a043d9cd18"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">!=</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase"><span class="n"><span class="pre">SVIteratorBase</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK14SVIteratorBaseneE14SVIteratorBase" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK14SVIteratorBaseltE14SVIteratorBase">
+<span id="_CPPv3NK14SVIteratorBaseltE14SVIteratorBase"></span><span id="_CPPv2NK14SVIteratorBaseltE14SVIteratorBase"></span><span id="SVIteratorBase::lt-operator__SVIteratorBaseC"></span><span class="target" id="classSVIteratorBase_1ae08e41f28d08f226e218bda84c1976d6"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">&lt;</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase"><span class="n"><span class="pre">SVIteratorBase</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK14SVIteratorBaseltE14SVIteratorBase" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK14SVIteratorBasegtE14SVIteratorBase">
+<span id="_CPPv3NK14SVIteratorBasegtE14SVIteratorBase"></span><span id="_CPPv2NK14SVIteratorBasegtE14SVIteratorBase"></span><span id="SVIteratorBase::gt-operator__SVIteratorBaseC"></span><span class="target" id="classSVIteratorBase_1aff6ce016743bbc439c24ae633ed193f2"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">&gt;</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase"><span class="n"><span class="pre">SVIteratorBase</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK14SVIteratorBasegtE14SVIteratorBase" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK14SVIteratorBaseleE14SVIteratorBase">
+<span id="_CPPv3NK14SVIteratorBaseleE14SVIteratorBase"></span><span id="_CPPv2NK14SVIteratorBaseleE14SVIteratorBase"></span><span id="SVIteratorBase::lte-operator__SVIteratorBaseC"></span><span class="target" id="classSVIteratorBase_1a29e35d97bed8b86eaa259818eca04cf4"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">&lt;=</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase"><span class="n"><span class="pre">SVIteratorBase</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK14SVIteratorBaseleE14SVIteratorBase" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK14SVIteratorBasegeE14SVIteratorBase">
+<span id="_CPPv3NK14SVIteratorBasegeE14SVIteratorBase"></span><span id="_CPPv2NK14SVIteratorBasegeE14SVIteratorBase"></span><span id="SVIteratorBase::gte-operator__SVIteratorBaseC"></span><span class="target" id="classSVIteratorBase_1aa977e3fac3dbb005653eef05b3e4cf92"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">&gt;=</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase"><span class="n"><span class="pre">SVIteratorBase</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK14SVIteratorBasegeE14SVIteratorBase" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-private-members">Private Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N14SVIteratorBase4_ptrE">
+<span id="_CPPv3N14SVIteratorBase4_ptrE"></span><span id="_CPPv2N14SVIteratorBase4_ptrE"></span><span id="SVIteratorBase::_ptr__pointer"></span><span class="target" id="classSVIteratorBase_1a36bb49b0cfe64679d410dd9e7e89c7b7"></span><a class="reference internal" href="#_CPPv4N14SVIteratorBase7pointerE" title="SVIteratorBase::pointer"><span class="n"><span class="pre">pointer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_ptr</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span><a class="headerlink" href="#_CPPv4N14SVIteratorBase4_ptrE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4I0_NSt6size_tE0E13ScratchVector">
+<span id="_CPPv3I0_NSt6size_tE0E13ScratchVector"></span><span id="_CPPv2I0_NSt6size_tE0E13ScratchVector"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_N_SCRATCH_ELEMENTS</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">2</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Allocator</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">allocator</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector" title="ScratchVector::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classScratchVector"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ScratchVector</span></span></span><a class="headerlink" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-types">Public Types</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector10value_typeE">
+<span id="_CPPv3N13ScratchVector10value_typeE"></span><span id="_CPPv2N13ScratchVector10value_typeE"></span><span class="target" id="classScratchVector_1ae43803dc0ef374e4ee67bc53072e9270"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">value_type</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector" title="ScratchVector::T"><span class="n"><span class="pre">T</span></span></a><a class="headerlink" href="#_CPPv4N13ScratchVector10value_typeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector14allocator_typeE">
+<span id="_CPPv3N13ScratchVector14allocator_typeE"></span><span id="_CPPv2N13ScratchVector14allocator_typeE"></span><span class="target" id="classScratchVector_1a7464d4c328dfac00d48a27ac73c1832c"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">allocator_type</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">allocator</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector" title="ScratchVector::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N13ScratchVector14allocator_typeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector9size_typeE">
+<span id="_CPPv3N13ScratchVector9size_typeE"></span><span id="_CPPv2N13ScratchVector9size_typeE"></span><span class="target" id="classScratchVector_1a402672c6019fbf7e1c07b9843b2fef7b"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size_type</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><a class="headerlink" href="#_CPPv4N13ScratchVector9size_typeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector15difference_typeE">
+<span id="_CPPv3N13ScratchVector15difference_typeE"></span><span id="_CPPv2N13ScratchVector15difference_typeE"></span><span class="target" id="classScratchVector_1a403111497fa68bcac95a0dc7005a092c"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">difference_type</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ptrdiff_t</span></span><a class="headerlink" href="#_CPPv4N13ScratchVector15difference_typeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector9referenceE">
+<span id="_CPPv3N13ScratchVector9referenceE"></span><span id="_CPPv2N13ScratchVector9referenceE"></span><span class="target" id="classScratchVector_1a2f8b9051f9ae80d8d120c621b86dcf38"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reference</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector10value_typeE" title="ScratchVector::value_type"><span class="n"><span class="pre">value_type</span></span></a><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4N13ScratchVector9referenceE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector15const_referenceE">
+<span id="_CPPv3N13ScratchVector15const_referenceE"></span><span id="_CPPv2N13ScratchVector15const_referenceE"></span><span class="target" id="classScratchVector_1a6748e98834538134612b60084697cb85"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">const_reference</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector10value_typeE" title="ScratchVector::value_type"><span class="n"><span class="pre">value_type</span></span></a><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4N13ScratchVector15const_referenceE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector7pointerE">
+<span id="_CPPv3N13ScratchVector7pointerE"></span><span id="_CPPv2N13ScratchVector7pointerE"></span><span class="target" id="classScratchVector_1a6b53106c7a05770cadf95c3a39dccb12"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pointer</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">allocator_traits</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N13ScratchVector14allocator_typeE" title="ScratchVector::allocator_type"><span class="n"><span class="pre">allocator_type</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">pointer</span></span><a class="headerlink" href="#_CPPv4N13ScratchVector7pointerE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector13const_pointerE">
+<span id="_CPPv3N13ScratchVector13const_pointerE"></span><span id="_CPPv2N13ScratchVector13const_pointerE"></span><span class="target" id="classScratchVector_1a722a84475592b4637e0ade8900fa3716"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">const_pointer</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">allocator_traits</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N13ScratchVector14allocator_typeE" title="ScratchVector::allocator_type"><span class="n"><span class="pre">allocator_type</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">const_pointer</span></span><a class="headerlink" href="#_CPPv4N13ScratchVector13const_pointerE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector8iteratorE">
+<span id="_CPPv3N13ScratchVector8iteratorE"></span><span id="_CPPv2N13ScratchVector8iteratorE"></span><span class="target" id="classScratchVector_1a3f2fc115aa3f712a628737924823f391"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">iterator</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase"><span class="n"><span class="pre">SVIteratorBase</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector" title="ScratchVector::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector" title="ScratchVector::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N13ScratchVector8iteratorE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector14const_iteratorE">
+<span id="_CPPv3N13ScratchVector14const_iteratorE"></span><span id="_CPPv2N13ScratchVector14const_iteratorE"></span><span class="target" id="classScratchVector_1af88f924a0a3f26168389da4be363bbc7"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">const_iterator</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase" title="SVIteratorBase"><span class="n"><span class="pre">SVIteratorBase</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector" title="ScratchVector::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector" title="ScratchVector::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N13ScratchVector14const_iteratorE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector16reverse_iteratorE">
+<span id="_CPPv3N13ScratchVector16reverse_iteratorE"></span><span id="_CPPv2N13ScratchVector16reverse_iteratorE"></span><span class="target" id="classScratchVector_1a5a57534b0ae3cde30062534d802bec5e"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reverse_iterator</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">reverse_iterator</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N13ScratchVector8iteratorE" title="ScratchVector::iterator"><span class="n"><span class="pre">iterator</span></span></a><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N13ScratchVector16reverse_iteratorE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector22const_reverse_iteratorE">
+<span id="_CPPv3N13ScratchVector22const_reverse_iteratorE"></span><span id="_CPPv2N13ScratchVector22const_reverse_iteratorE"></span><span class="target" id="classScratchVector_1ab038cb88baf177e062125df20545d2dc"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">const_reverse_iterator</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">reverse_iterator</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N13ScratchVector14const_iteratorE" title="ScratchVector::const_iterator"><span class="n"><span class="pre">const_iterator</span></span></a><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N13ScratchVector22const_reverse_iteratorE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector13ScratchVectorEv">
+<span id="_CPPv3N13ScratchVector13ScratchVectorEv"></span><span id="_CPPv2N13ScratchVector13ScratchVectorEv"></span><span id="ScratchVector::ScratchVector"></span><span class="target" id="classScratchVector_1a8135c46c08e5b88bb6044f5acb2de3b1"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ScratchVector</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N13ScratchVector13ScratchVectorEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVectorD0Ev">
+<span id="_CPPv3N13ScratchVectorD0Ev"></span><span id="_CPPv2N13ScratchVectorD0Ev"></span><span id="ScratchVector::~ScratchVector"></span><span class="target" id="classScratchVector_1a8ee697bac9fda70107cb0cd49df03462"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">~ScratchVector</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13ScratchVectorD0Ev" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector13ScratchVectorE9size_typeRK1T">
+<span id="_CPPv3N13ScratchVector13ScratchVectorE9size_typeRK1T"></span><span id="_CPPv2N13ScratchVector13ScratchVectorE9size_typeRK1T"></span><span id="ScratchVector::ScratchVector__size_type.TCR"></span><span class="target" id="classScratchVector_1a8dc45672c6781dd5b219c917636d6bad"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ScratchVector</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N13ScratchVector9size_typeE" title="ScratchVector::size_type"><span class="n"><span class="pre">size_type</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">count</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector" title="ScratchVector::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13ScratchVector13ScratchVectorE9size_typeRK1T" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector13ScratchVectorE9size_type">
+<span id="_CPPv3N13ScratchVector13ScratchVectorE9size_type"></span><span id="_CPPv2N13ScratchVector13ScratchVectorE9size_type"></span><span id="ScratchVector::ScratchVector__size_type"></span><span class="target" id="classScratchVector_1a55a262c1da4daef72986179644277f01"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ScratchVector</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N13ScratchVector9size_typeE" title="ScratchVector::size_type"><span class="n"><span class="pre">size_type</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">count</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13ScratchVector13ScratchVectorE9size_type" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN13ScratchVector13ScratchVectorE7InputIt7InputIt">
+<span id="_CPPv3I0EN13ScratchVector13ScratchVectorE7InputIt7InputIt"></span><span id="_CPPv2I0EN13ScratchVector13ScratchVectorE7InputIt7InputIt"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">InputIt</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classScratchVector_1a7edab01c5422ed691f7524d150f72198"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ScratchVector</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0EN13ScratchVector13ScratchVectorE7InputIt7InputIt" title="ScratchVector::ScratchVector::InputIt"><span class="n"><span class="pre">InputIt</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">first</span></span>, <a class="reference internal" href="#_CPPv4I0EN13ScratchVector13ScratchVectorE7InputIt7InputIt" title="ScratchVector::ScratchVector::InputIt"><span class="n"><span class="pre">InputIt</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">last</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN13ScratchVector13ScratchVectorE7InputIt7InputIt" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector13ScratchVectorERK13ScratchVector">
+<span id="_CPPv3N13ScratchVector13ScratchVectorERK13ScratchVector"></span><span id="_CPPv2N13ScratchVector13ScratchVectorERK13ScratchVector"></span><span id="ScratchVector::ScratchVector__ScratchVectorCR"></span><span class="target" id="classScratchVector_1a20054b09a4087686fce4c20d071a183f"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ScratchVector</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector13ScratchVectorERK13ScratchVector" title="ScratchVector::ScratchVector"><span class="n"><span class="pre">ScratchVector</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13ScratchVector13ScratchVectorERK13ScratchVector" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector13ScratchVectorENSt16initializer_listI1TEE">
+<span id="_CPPv3N13ScratchVector13ScratchVectorENSt16initializer_listI1TEE"></span><span id="_CPPv2N13ScratchVector13ScratchVectorENSt16initializer_listI1TEE"></span><span id="ScratchVector::ScratchVector__std::initializer_list:T:"></span><span class="target" id="classScratchVector_1a8fb3952dc9420a8c8a9ba2c9ea92ea22"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ScratchVector</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">initializer_list</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector" title="ScratchVector::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">init</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13ScratchVector13ScratchVectorENSt16initializer_listI1TEE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0_bEN13ScratchVectoraSER13ScratchVectorRK25RANDOM_ACCESS_VECTOR_TYPE">
+<span id="_CPPv3I0_bEN13ScratchVectoraSERK25RANDOM_ACCESS_VECTOR_TYPE"></span><span id="_CPPv2I0_bEN13ScratchVectoraSERK25RANDOM_ACCESS_VECTOR_TYPE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RANDOM_ACCESS_VECTOR_TYPE</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SPECIALIZED</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">false</span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classScratchVector_1a5664ad4d260c6aae77c852b1fdb3d80a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector" title="ScratchVector"><span class="n"><span class="pre">ScratchVector</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">=</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0_bEN13ScratchVectoraSER13ScratchVectorRK25RANDOM_ACCESS_VECTOR_TYPE" title="ScratchVector::operator=::RANDOM_ACCESS_VECTOR_TYPE"><span class="n"><span class="pre">RANDOM_ACCESS_VECTOR_TYPE</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0_bEN13ScratchVectoraSER13ScratchVectorRK25RANDOM_ACCESS_VECTOR_TYPE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVectoraSERK13ScratchVector">
+<span id="_CPPv3N13ScratchVectoraSERK13ScratchVector"></span><span id="_CPPv2N13ScratchVectoraSERK13ScratchVector"></span><span id="ScratchVector::assign-operator__ScratchVectorCR"></span><span class="target" id="classScratchVector_1a87522baaa9285b0e88f575dc0bcd43fa"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector" title="ScratchVector"><span class="n"><span class="pre">ScratchVector</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">=</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector" title="ScratchVector"><span class="n"><span class="pre">ScratchVector</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13ScratchVectoraSERK13ScratchVector" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector5beginEv">
+<span id="_CPPv3N13ScratchVector5beginEv"></span><span id="_CPPv2N13ScratchVector5beginEv"></span><span id="ScratchVector::begin"></span><span class="target" id="classScratchVector_1a076ae014baed3d85b383712e35f25b14"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector8iteratorE" title="ScratchVector::iterator"><span class="n"><span class="pre">iterator</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">begin</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N13ScratchVector5beginEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13ScratchVector5beginEv">
+<span id="_CPPv3NK13ScratchVector5beginEv"></span><span id="_CPPv2NK13ScratchVector5beginEv"></span><span id="ScratchVector::beginC"></span><span class="target" id="classScratchVector_1aac52659c4a244012b5f56cee7bc516b8"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector14const_iteratorE" title="ScratchVector::const_iterator"><span class="n"><span class="pre">const_iterator</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">begin</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK13ScratchVector5beginEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13ScratchVector6cbeginEv">
+<span id="_CPPv3NK13ScratchVector6cbeginEv"></span><span id="_CPPv2NK13ScratchVector6cbeginEv"></span><span id="ScratchVector::cbeginC"></span><span class="target" id="classScratchVector_1a2501e1574b9aa3a6994d4189bca97575"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector14const_iteratorE" title="ScratchVector::const_iterator"><span class="n"><span class="pre">const_iterator</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cbegin</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK13ScratchVector6cbeginEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector3endEv">
+<span id="_CPPv3N13ScratchVector3endEv"></span><span id="_CPPv2N13ScratchVector3endEv"></span><span id="ScratchVector::end"></span><span class="target" id="classScratchVector_1a11a6660f3d9396a402c0e2877047f120"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector8iteratorE" title="ScratchVector::iterator"><span class="n"><span class="pre">iterator</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">end</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N13ScratchVector3endEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13ScratchVector3endEv">
+<span id="_CPPv3NK13ScratchVector3endEv"></span><span id="_CPPv2NK13ScratchVector3endEv"></span><span id="ScratchVector::endC"></span><span class="target" id="classScratchVector_1a3593c3654b535d5134eae06855358f18"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector14const_iteratorE" title="ScratchVector::const_iterator"><span class="n"><span class="pre">const_iterator</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">end</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK13ScratchVector3endEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13ScratchVector4cendEv">
+<span id="_CPPv3NK13ScratchVector4cendEv"></span><span id="_CPPv2NK13ScratchVector4cendEv"></span><span id="ScratchVector::cendC"></span><span class="target" id="classScratchVector_1a66bb69d3bbeee41d039b9236ce96f8dc"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector14const_iteratorE" title="ScratchVector::const_iterator"><span class="n"><span class="pre">const_iterator</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cend</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK13ScratchVector4cendEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector6rbeginEv">
+<span id="_CPPv3N13ScratchVector6rbeginEv"></span><span id="_CPPv2N13ScratchVector6rbeginEv"></span><span id="ScratchVector::rbegin"></span><span class="target" id="classScratchVector_1a284d19503f71f5137cae0650a7db3762"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector16reverse_iteratorE" title="ScratchVector::reverse_iterator"><span class="n"><span class="pre">reverse_iterator</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rbegin</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N13ScratchVector6rbeginEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13ScratchVector6rbeginEv">
+<span id="_CPPv3NK13ScratchVector6rbeginEv"></span><span id="_CPPv2NK13ScratchVector6rbeginEv"></span><span id="ScratchVector::rbeginC"></span><span class="target" id="classScratchVector_1aa1338d957a8d9b516f5526047d1e6683"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector22const_reverse_iteratorE" title="ScratchVector::const_reverse_iterator"><span class="n"><span class="pre">const_reverse_iterator</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rbegin</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK13ScratchVector6rbeginEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13ScratchVector7crbeginEv">
+<span id="_CPPv3NK13ScratchVector7crbeginEv"></span><span id="_CPPv2NK13ScratchVector7crbeginEv"></span><span id="ScratchVector::crbeginC"></span><span class="target" id="classScratchVector_1a1c1f9ccdf6e263a2154366750927cc5a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector22const_reverse_iteratorE" title="ScratchVector::const_reverse_iterator"><span class="n"><span class="pre">const_reverse_iterator</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">crbegin</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK13ScratchVector7crbeginEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector4rendEv">
+<span id="_CPPv3N13ScratchVector4rendEv"></span><span id="_CPPv2N13ScratchVector4rendEv"></span><span id="ScratchVector::rend"></span><span class="target" id="classScratchVector_1a736c45f3d15b2a9ed386e96c34df0814"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector16reverse_iteratorE" title="ScratchVector::reverse_iterator"><span class="n"><span class="pre">reverse_iterator</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rend</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N13ScratchVector4rendEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13ScratchVector4rendEv">
+<span id="_CPPv3NK13ScratchVector4rendEv"></span><span id="_CPPv2NK13ScratchVector4rendEv"></span><span id="ScratchVector::rendC"></span><span class="target" id="classScratchVector_1aae0b3cbd6946d8e78d581fd572009141"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector22const_reverse_iteratorE" title="ScratchVector::const_reverse_iterator"><span class="n"><span class="pre">const_reverse_iterator</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rend</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK13ScratchVector4rendEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13ScratchVector5crendEv">
+<span id="_CPPv3NK13ScratchVector5crendEv"></span><span id="_CPPv2NK13ScratchVector5crendEv"></span><span id="ScratchVector::crendC"></span><span class="target" id="classScratchVector_1ae7d5ffe616d1c7b318998c86c1ed0f90"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector22const_reverse_iteratorE" title="ScratchVector::const_reverse_iterator"><span class="n"><span class="pre">const_reverse_iterator</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">crend</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK13ScratchVector5crendEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13ScratchVector4sizeEv">
+<span id="_CPPv3NK13ScratchVector4sizeEv"></span><span id="_CPPv2NK13ScratchVector4sizeEv"></span><span id="ScratchVector::sizeC"></span><span class="target" id="classScratchVector_1adadd11fff69278648ed9878b947b927e"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector9size_typeE" title="ScratchVector::size_type"><span class="n"><span class="pre">size_type</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK13ScratchVector4sizeEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13ScratchVector8capacityEv">
+<span id="_CPPv3NK13ScratchVector8capacityEv"></span><span id="_CPPv2NK13ScratchVector8capacityEv"></span><span id="ScratchVector::capacityC"></span><span class="target" id="classScratchVector_1a39c6c2eb489fa31a9c23b94760c53f07"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector9size_typeE" title="ScratchVector::size_type"><span class="n"><span class="pre">size_type</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">capacity</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK13ScratchVector8capacityEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector4backEv">
+<span id="_CPPv3N13ScratchVector4backEv"></span><span id="_CPPv2N13ScratchVector4backEv"></span><span id="ScratchVector::back"></span><span class="target" id="classScratchVector_1aa93b1232b75766fbb5224c2e47346bc4"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector9referenceE" title="ScratchVector::reference"><span class="n"><span class="pre">reference</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">back</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13ScratchVector4backEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13ScratchVector4backEv">
+<span id="_CPPv3NK13ScratchVector4backEv"></span><span id="_CPPv2NK13ScratchVector4backEv"></span><span id="ScratchVector::backC"></span><span class="target" id="classScratchVector_1a092da523d6b904cf49d9a9832d6338a9"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector15const_referenceE" title="ScratchVector::const_reference"><span class="n"><span class="pre">const_reference</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">back</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13ScratchVector4backEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVectorixE9size_type">
+<span id="_CPPv3N13ScratchVectorixE9size_type"></span><span id="_CPPv2N13ScratchVectorixE9size_type"></span><span id="ScratchVector::subscript-operator__size_type"></span><span class="target" id="classScratchVector_1af5e60c708ac93262b9123b0586b338a9"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector9referenceE" title="ScratchVector::reference"><span class="n"><span class="pre">reference</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">[]</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N13ScratchVector9size_typeE" title="ScratchVector::size_type"><span class="n"><span class="pre">size_type</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">pos</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13ScratchVectorixE9size_type" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13ScratchVectorixE9size_type">
+<span id="_CPPv3NK13ScratchVectorixE9size_type"></span><span id="_CPPv2NK13ScratchVectorixE9size_type"></span><span id="ScratchVector::subscript-operator__size_typeC"></span><span class="target" id="classScratchVector_1aa97439b41a817344f596aa2a03aa115e"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector15const_referenceE" title="ScratchVector::const_reference"><span class="n"><span class="pre">const_reference</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">[]</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N13ScratchVector9size_typeE" title="ScratchVector::size_type"><span class="n"><span class="pre">size_type</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">pos</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13ScratchVectorixE9size_type" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector2atE9size_type">
+<span id="_CPPv3N13ScratchVector2atE9size_type"></span><span id="_CPPv2N13ScratchVector2atE9size_type"></span><span id="ScratchVector::at__size_type"></span><span class="target" id="classScratchVector_1a1bf5728bade966aab2396ddbcadfc1d5"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector9referenceE" title="ScratchVector::reference"><span class="n"><span class="pre">reference</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">at</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N13ScratchVector9size_typeE" title="ScratchVector::size_type"><span class="n"><span class="pre">size_type</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">pos</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13ScratchVector2atE9size_type" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13ScratchVector2atE9size_type">
+<span id="_CPPv3NK13ScratchVector2atE9size_type"></span><span id="_CPPv2NK13ScratchVector2atE9size_type"></span><span id="ScratchVector::at__size_typeC"></span><span class="target" id="classScratchVector_1ac5e859610a0af1eb4f93e88726ede733"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N13ScratchVector15const_referenceE" title="ScratchVector::const_reference"><span class="n"><span class="pre">const_reference</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">at</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N13ScratchVector9size_typeE" title="ScratchVector::size_type"><span class="n"><span class="pre">size_type</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">pos</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13ScratchVector2atE9size_type" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector6resizeE9size_type">
+<span id="_CPPv3N13ScratchVector6resizeE9size_type"></span><span id="_CPPv2N13ScratchVector6resizeE9size_type"></span><span id="ScratchVector::resize__size_type"></span><span class="target" id="classScratchVector_1a8ce3f59fbb50a4dea4f53fc58bd342e1"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">resize</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N13ScratchVector9size_typeE" title="ScratchVector::size_type"><span class="n"><span class="pre">size_type</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">count</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13ScratchVector6resizeE9size_type" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector9push_backERK1T">
+<span id="_CPPv3N13ScratchVector9push_backERK1T"></span><span id="_CPPv2N13ScratchVector9push_backERK1T"></span><span id="ScratchVector::push_back__TCR"></span><span class="target" id="classScratchVector_1a967a8200021483d19855b60481d9ec52"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">push_back</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector" title="ScratchVector::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13ScratchVector9push_backERK1T" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector8pop_backEv">
+<span id="_CPPv3N13ScratchVector8pop_backEv"></span><span id="_CPPv2N13ScratchVector8pop_backEv"></span><span id="ScratchVector::pop_back"></span><span class="target" id="classScratchVector_1a412d39b86fb0b0ef26a616f58b4d24a6"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pop_back</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13ScratchVector8pop_backEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13ScratchVectorcvNSt6vectorI1TEEEv">
+<span id="_CPPv3NK13ScratchVectorcvNSt6vectorI1TEEEv"></span><span id="_CPPv2NK13ScratchVectorcvNSt6vectorI1TEEEv"></span><span id="ScratchVector::castto-std::vector:T:-operatorC"></span><span class="target" id="classScratchVector_1ae72a26884067643718004365b4081132"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector" title="ScratchVector::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13ScratchVectorcvNSt6vectorI1TEEEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Convert a <code class="docutils literal notranslate"><a class="reference internal" href="#classScratchVector"><span class="std std-ref"><span class="pre">ScratchVector</span></span></a></code> into a <code class="docutils literal notranslate"><span class="pre">std::vector</span></code></p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-private-members">Private Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector5_sizeE">
+<span id="_CPPv3N13ScratchVector5_sizeE"></span><span id="_CPPv2N13ScratchVector5_sizeE"></span><span id="ScratchVector::_size__std::s"></span><span class="target" id="classScratchVector_1a06c7d226cefead799b1fc7e38a9b752b"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_size</span></span></span><a class="headerlink" href="#_CPPv4N13ScratchVector5_sizeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector9_capacityE">
+<span id="_CPPv3N13ScratchVector9_capacityE"></span><span id="_CPPv2N13ScratchVector9_capacityE"></span><span id="ScratchVector::_capacity__std::s"></span><span class="target" id="classScratchVector_1af9e9316ff08b259f400fd1ef164e5749"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_capacity</span></span></span><a class="headerlink" href="#_CPPv4N13ScratchVector9_capacityE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector13_scratch_dataE">
+<span id="_CPPv3N13ScratchVector13_scratch_dataE"></span><span id="_CPPv2N13ScratchVector13_scratch_dataE"></span><span id="ScratchVector::_scratch_data__std::array:T._N_SCRATCH_ELEMENTS:"></span><span class="target" id="classScratchVector_1a9a7a12b71f3ac3b77401c4eb3895e629"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector" title="ScratchVector::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector" title="ScratchVector::_N_SCRATCH_ELEMENTS"><span class="n"><span class="pre">_N_SCRATCH_ELEMENTS</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_scratch_data</span></span></span><a class="headerlink" href="#_CPPv4N13ScratchVector13_scratch_dataE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13ScratchVector4_ptrE">
+<span id="_CPPv3N13ScratchVector4_ptrE"></span><span id="_CPPv2N13ScratchVector4_ptrE"></span><span id="ScratchVector::_ptr__TP"></span><span class="target" id="classScratchVector_1a407c22235a5281bb86e5c153e376f537"></span><a class="reference internal" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector" title="ScratchVector::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">_ptr</span></span></span><a class="headerlink" href="#_CPPv4N13ScratchVector4_ptrE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="apytypes_simd.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">apytypes_simd.h</span></code></div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="apytypes_mp.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">apytypes_mp.h</span></code></div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023-2025, Oscar Gustafsson, Mikael Henriksson, Theodor Lindberg
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">apytypes_scratch_vector.h</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4I00E14SVIteratorBase"><code class="docutils literal notranslate"><span class="pre">SVIteratorBase</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N14SVIteratorBase10value_typeE"><code class="docutils literal notranslate"><span class="pre">value_type</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14SVIteratorBase15difference_typeE"><code class="docutils literal notranslate"><span class="pre">difference_type</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14SVIteratorBase9referenceE"><code class="docutils literal notranslate"><span class="pre">reference</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14SVIteratorBase15const_referenceE"><code class="docutils literal notranslate"><span class="pre">const_reference</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14SVIteratorBase7pointerE"><code class="docutils literal notranslate"><span class="pre">pointer</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14SVIteratorBase17iterator_categoryE"><code class="docutils literal notranslate"><span class="pre">iterator_category</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14SVIteratorBase14SVIteratorBaseE7pointer"><code class="docutils literal notranslate"><span class="pre">SVIteratorBase()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14SVIteratorBaseppEv"><code class="docutils literal notranslate"><span class="pre">operator++()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14SVIteratorBasemmEv"><code class="docutils literal notranslate"><span class="pre">operator--()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14SVIteratorBaseppEi"><code class="docutils literal notranslate"><span class="pre">operator++()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14SVIteratorBasemmEi"><code class="docutils literal notranslate"><span class="pre">operator--()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK14SVIteratorBaseplE15difference_type"><code class="docutils literal notranslate"><span class="pre">operator+()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK14SVIteratorBasemiE15difference_type"><code class="docutils literal notranslate"><span class="pre">operator-()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14SVIteratorBasepLE15difference_type"><code class="docutils literal notranslate"><span class="pre">operator+=()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14SVIteratorBasemIE15difference_type"><code class="docutils literal notranslate"><span class="pre">operator-=()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14SVIteratorBaseixENSt6size_tE"><code class="docutils literal notranslate"><span class="pre">operator[]()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK14SVIteratorBaseixENSt6size_tE"><code class="docutils literal notranslate"><span class="pre">operator[]()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14SVIteratorBasemlEv"><code class="docutils literal notranslate"><span class="pre">operator*()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK14SVIteratorBasemlEv"><code class="docutils literal notranslate"><span class="pre">operator*()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK14SVIteratorBasemiE14SVIteratorBase"><code class="docutils literal notranslate"><span class="pre">operator-()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK14SVIteratorBaseeqE14SVIteratorBase"><code class="docutils literal notranslate"><span class="pre">operator==()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK14SVIteratorBaseneE14SVIteratorBase"><code class="docutils literal notranslate"><span class="pre">operator!=()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK14SVIteratorBaseltE14SVIteratorBase"><code class="docutils literal notranslate"><span class="pre">operator&lt;()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK14SVIteratorBasegtE14SVIteratorBase"><code class="docutils literal notranslate"><span class="pre">operator&gt;()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK14SVIteratorBaseleE14SVIteratorBase"><code class="docutils literal notranslate"><span class="pre">operator&lt;=()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK14SVIteratorBasegeE14SVIteratorBase"><code class="docutils literal notranslate"><span class="pre">operator&gt;=()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14SVIteratorBase4_ptrE"><code class="docutils literal notranslate"><span class="pre">_ptr</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4I0_NSt6size_tE0E13ScratchVector"><code class="docutils literal notranslate"><span class="pre">ScratchVector</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector10value_typeE"><code class="docutils literal notranslate"><span class="pre">value_type</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector14allocator_typeE"><code class="docutils literal notranslate"><span class="pre">allocator_type</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector9size_typeE"><code class="docutils literal notranslate"><span class="pre">size_type</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector15difference_typeE"><code class="docutils literal notranslate"><span class="pre">difference_type</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector9referenceE"><code class="docutils literal notranslate"><span class="pre">reference</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector15const_referenceE"><code class="docutils literal notranslate"><span class="pre">const_reference</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector7pointerE"><code class="docutils literal notranslate"><span class="pre">pointer</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector13const_pointerE"><code class="docutils literal notranslate"><span class="pre">const_pointer</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector8iteratorE"><code class="docutils literal notranslate"><span class="pre">iterator</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector14const_iteratorE"><code class="docutils literal notranslate"><span class="pre">const_iterator</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector16reverse_iteratorE"><code class="docutils literal notranslate"><span class="pre">reverse_iterator</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector22const_reverse_iteratorE"><code class="docutils literal notranslate"><span class="pre">const_reverse_iterator</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector13ScratchVectorEv"><code class="docutils literal notranslate"><span class="pre">ScratchVector()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVectorD0Ev"><code class="docutils literal notranslate"><span class="pre">~ScratchVector()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector13ScratchVectorE9size_typeRK1T"><code class="docutils literal notranslate"><span class="pre">ScratchVector()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector13ScratchVectorE9size_type"><code class="docutils literal notranslate"><span class="pre">ScratchVector()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I0EN13ScratchVector13ScratchVectorE7InputIt7InputIt"><code class="docutils literal notranslate"><span class="pre">ScratchVector()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector13ScratchVectorERK13ScratchVector"><code class="docutils literal notranslate"><span class="pre">ScratchVector()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector13ScratchVectorENSt16initializer_listI1TEE"><code class="docutils literal notranslate"><span class="pre">ScratchVector()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I0_bEN13ScratchVectoraSER13ScratchVectorRK25RANDOM_ACCESS_VECTOR_TYPE"><code class="docutils literal notranslate"><span class="pre">operator=()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVectoraSERK13ScratchVector"><code class="docutils literal notranslate"><span class="pre">operator=()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector5beginEv"><code class="docutils literal notranslate"><span class="pre">begin()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13ScratchVector5beginEv"><code class="docutils literal notranslate"><span class="pre">begin()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13ScratchVector6cbeginEv"><code class="docutils literal notranslate"><span class="pre">cbegin()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector3endEv"><code class="docutils literal notranslate"><span class="pre">end()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13ScratchVector3endEv"><code class="docutils literal notranslate"><span class="pre">end()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13ScratchVector4cendEv"><code class="docutils literal notranslate"><span class="pre">cend()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector6rbeginEv"><code class="docutils literal notranslate"><span class="pre">rbegin()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13ScratchVector6rbeginEv"><code class="docutils literal notranslate"><span class="pre">rbegin()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13ScratchVector7crbeginEv"><code class="docutils literal notranslate"><span class="pre">crbegin()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector4rendEv"><code class="docutils literal notranslate"><span class="pre">rend()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13ScratchVector4rendEv"><code class="docutils literal notranslate"><span class="pre">rend()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13ScratchVector5crendEv"><code class="docutils literal notranslate"><span class="pre">crend()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13ScratchVector4sizeEv"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13ScratchVector8capacityEv"><code class="docutils literal notranslate"><span class="pre">capacity()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector4backEv"><code class="docutils literal notranslate"><span class="pre">back()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13ScratchVector4backEv"><code class="docutils literal notranslate"><span class="pre">back()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVectorixE9size_type"><code class="docutils literal notranslate"><span class="pre">operator[]()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13ScratchVectorixE9size_type"><code class="docutils literal notranslate"><span class="pre">operator[]()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector2atE9size_type"><code class="docutils literal notranslate"><span class="pre">at()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13ScratchVector2atE9size_type"><code class="docutils literal notranslate"><span class="pre">at()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector6resizeE9size_type"><code class="docutils literal notranslate"><span class="pre">resize()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector9push_backERK1T"><code class="docutils literal notranslate"><span class="pre">push_back()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector8pop_backEv"><code class="docutils literal notranslate"><span class="pre">pop_back()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK13ScratchVectorcvNSt6vectorI1TEEEv"><code class="docutils literal notranslate"><span class="pre">operator</span> <span class="pre">std::vector&lt;</span> <span class="pre">T</span> <span class="pre">&gt;()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector5_sizeE"><code class="docutils literal notranslate"><span class="pre">_size</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector9_capacityE"><code class="docutils literal notranslate"><span class="pre">_capacity</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector13_scratch_dataE"><code class="docutils literal notranslate"><span class="pre">_scratch_data</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ScratchVector4_ptrE"><code class="docutils literal notranslate"><span class="pre">_ptr</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    </body>
+</html>

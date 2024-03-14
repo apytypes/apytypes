@@ -1,0 +1,597 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="APyFixed" href="apyfixed.html" /><link rel="prev" title="APyTypes C++ API" href="index.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>apybuffer.h - APyTypes documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">APyTypes  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">APyTypes  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of apytypes Python package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/apycfixed.html"><code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apycfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/arrayfunctions.html">Array functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/context.html">Context handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/quantizationoverflow.html">Quantization and overflow handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/utils.html">Utility functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/codegeneration.html">Code generation</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">APyTypes C++ API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of APyTypes C++ API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">apybuffer.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfixed_util.html"><code class="docutils literal notranslate"><span class="pre">apyfixed_util.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfloat_util.html"><code class="docutils literal notranslate"><span class="pre">apyfloat_util.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apytypes_common.html"><code class="docutils literal notranslate"><span class="pre">apytypes_common.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apytypes_mp.html"><code class="docutils literal notranslate"><span class="pre">apytypes_mp.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apytypes_scratch_vector.html"><code class="docutils literal notranslate"><span class="pre">apytypes_scratch_vector.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apytypes_simd.html"><code class="docutils literal notranslate"><span class="pre">apytypes_simd.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apytypes_util.html"><code class="docutils literal notranslate"><span class="pre">apytypes_util.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="broadcast.html"><code class="docutils literal notranslate"><span class="pre">broadcast.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ieee754.html"><code class="docutils literal notranslate"><span class="pre">ieee754.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="python_util.html"><code class="docutils literal notranslate"><span class="pre">python_util.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="array_utils.html"><code class="docutils literal notranslate"><span class="pre">array_utils.h</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/apyfloat.html">APyFloat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/apyfixed.html">APyFixed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/numpy_integration.html">NumPy integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/vectorrotation.html">Fixed-point vector rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/reciprocal_lookup.html">Reciprocal lookup table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/test_fp8_mul.html">cocotb integration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../performance.html">Computational performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../comparison.html">Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../licenses.html">Licenses</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/cpp_api/apybuffer.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="apybuffer-h">
+<h1><code class="docutils literal notranslate"><span class="pre">apybuffer.h</span></code><a class="headerlink" href="#apybuffer-h" title="Link to this heading">¶</a></h1>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4I0E27NoDefaultConstructAllocator">
+<span id="_CPPv3I0E27NoDefaultConstructAllocator"></span><span id="_CPPv2I0E27NoDefaultConstructAllocator"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structNoDefaultConstructAllocator"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NoDefaultConstructAllocator</span></span></span><a class="headerlink" href="#_CPPv4I0E27NoDefaultConstructAllocator" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-types">Public Types</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N27NoDefaultConstructAllocator10value_typeE">
+<span id="_CPPv3N27NoDefaultConstructAllocator10value_typeE"></span><span id="_CPPv2N27NoDefaultConstructAllocator10value_typeE"></span><span class="target" id="structNoDefaultConstructAllocator_1a570bea2685ae231ea50e57deeb14e5d9"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">value_type</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E27NoDefaultConstructAllocator" title="NoDefaultConstructAllocator::T"><span class="n"><span class="pre">T</span></span></a><a class="headerlink" href="#_CPPv4N27NoDefaultConstructAllocator10value_typeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N27NoDefaultConstructAllocator9size_typeE">
+<span id="_CPPv3N27NoDefaultConstructAllocator9size_typeE"></span><span id="_CPPv2N27NoDefaultConstructAllocator9size_typeE"></span><span class="target" id="structNoDefaultConstructAllocator_1a22e6cb71b4f6c0263b655db6eef3f390"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size_type</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">allocator</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0E27NoDefaultConstructAllocator" title="NoDefaultConstructAllocator::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_type</span></span><a class="headerlink" href="#_CPPv4N27NoDefaultConstructAllocator9size_typeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N27NoDefaultConstructAllocator15difference_typeE">
+<span id="_CPPv3N27NoDefaultConstructAllocator15difference_typeE"></span><span id="_CPPv2N27NoDefaultConstructAllocator15difference_typeE"></span><span class="target" id="structNoDefaultConstructAllocator_1a8e492da379e1b3ec39c9f5166b6841ac"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">difference_type</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">allocator</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0E27NoDefaultConstructAllocator" title="NoDefaultConstructAllocator::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">difference_type</span></span><a class="headerlink" href="#_CPPv4N27NoDefaultConstructAllocator15difference_typeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N27NoDefaultConstructAllocator38propagate_on_container_move_assignmentE">
+<span id="_CPPv3N27NoDefaultConstructAllocator38propagate_on_container_move_assignmentE"></span><span id="_CPPv2N27NoDefaultConstructAllocator38propagate_on_container_move_assignmentE"></span><span class="target" id="structNoDefaultConstructAllocator_1a7156ba5995e95a55b537a9cbd5b5bdf0"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">propagate_on_container_move_assignment</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">true_type</span></span><a class="headerlink" href="#_CPPv4N27NoDefaultConstructAllocator38propagate_on_container_move_assignmentE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N27NoDefaultConstructAllocator15is_always_equalE">
+<span id="_CPPv3N27NoDefaultConstructAllocator15is_always_equalE"></span><span id="_CPPv2N27NoDefaultConstructAllocator15is_always_equalE"></span><span class="target" id="structNoDefaultConstructAllocator_1a4466b89780903724c6f53d79702c8503"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">is_always_equal</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">true_type</span></span><a class="headerlink" href="#_CPPv4N27NoDefaultConstructAllocator15is_always_equalE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N27NoDefaultConstructAllocator27NoDefaultConstructAllocatorEv">
+<span id="_CPPv3N27NoDefaultConstructAllocator27NoDefaultConstructAllocatorEv"></span><span id="_CPPv2N27NoDefaultConstructAllocator27NoDefaultConstructAllocatorEv"></span><span id="NoDefaultConstructAllocator::NoDefaultConstructAllocator"></span><span class="target" id="structNoDefaultConstructAllocator_1a2f77629af6ef95cfc38e3788babba718"></span><span class="sig-name descname"><span class="n"><span class="pre">NoDefaultConstructAllocator</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">default</span></span><a class="headerlink" href="#_CPPv4N27NoDefaultConstructAllocator27NoDefaultConstructAllocatorEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N27NoDefaultConstructAllocatorD0Ev">
+<span id="_CPPv3N27NoDefaultConstructAllocatorD0Ev"></span><span id="_CPPv2N27NoDefaultConstructAllocatorD0Ev"></span><span id="NoDefaultConstructAllocator::~NoDefaultConstructAllocator"></span><span class="target" id="structNoDefaultConstructAllocator_1a6ac5fe79ae32c3e477713ded820b684d"></span><span class="sig-name descname"><span class="n"><span class="pre">~NoDefaultConstructAllocator</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">default</span></span><a class="headerlink" href="#_CPPv4N27NoDefaultConstructAllocatorD0Ev" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N27NoDefaultConstructAllocator8allocateENSt6size_tE">
+<span id="_CPPv3N27NoDefaultConstructAllocator8allocateENSt6size_tE"></span><span id="_CPPv2N27NoDefaultConstructAllocator8allocateENSt6size_tE"></span><span id="NoDefaultConstructAllocator::allocate__std::s"></span><span class="target" id="structNoDefaultConstructAllocator_1a99efa689807a5323f65cab9cc2a3d4c4"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E27NoDefaultConstructAllocator" title="NoDefaultConstructAllocator::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">allocate</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N27NoDefaultConstructAllocator8allocateENSt6size_tE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N27NoDefaultConstructAllocator8allocateENSt6size_tEPKv">
+<span id="_CPPv3N27NoDefaultConstructAllocator8allocateENSt6size_tEPKv"></span><span id="_CPPv2N27NoDefaultConstructAllocator8allocateENSt6size_tEPKv"></span><span id="NoDefaultConstructAllocator::allocate__std::s.voidCP"></span><span class="target" id="structNoDefaultConstructAllocator_1a11798b2c92d3a1b0c5b8051840f202ee"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E27NoDefaultConstructAllocator" title="NoDefaultConstructAllocator::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">allocate</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">hint</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N27NoDefaultConstructAllocator8allocateENSt6size_tEPKv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N27NoDefaultConstructAllocator10deallocateEP1TNSt6size_tE">
+<span id="_CPPv3N27NoDefaultConstructAllocator10deallocateEP1TNSt6size_tE"></span><span id="_CPPv2N27NoDefaultConstructAllocator10deallocateEP1TNSt6size_tE"></span><span id="NoDefaultConstructAllocator::deallocate__TP.std::s"></span><span class="target" id="structNoDefaultConstructAllocator_1a588b0a86df4d441aff04cf89f768736b"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">deallocate</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E27NoDefaultConstructAllocator" title="NoDefaultConstructAllocator::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">p</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N27NoDefaultConstructAllocator10deallocateEP1TNSt6size_tE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN27NoDefaultConstructAllocatoreqEbRK27NoDefaultConstructAllocatorI1UE">
+<span id="_CPPv3I0EN27NoDefaultConstructAllocatoreqERK27NoDefaultConstructAllocatorI1UE"></span><span id="_CPPv2I0EN27NoDefaultConstructAllocatoreqERK27NoDefaultConstructAllocatorI1UE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structNoDefaultConstructAllocator_1ae37c1bfd62331a2f1231a244418c374f"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">==</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E27NoDefaultConstructAllocator" title="NoDefaultConstructAllocator"><span class="n"><span class="pre">NoDefaultConstructAllocator</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0EN27NoDefaultConstructAllocatoreqEbRK27NoDefaultConstructAllocatorI1UE" title="NoDefaultConstructAllocator::operator==::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">_</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I0EN27NoDefaultConstructAllocatoreqEbRK27NoDefaultConstructAllocatorI1UE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN27NoDefaultConstructAllocatorneEbRK27NoDefaultConstructAllocatorI1UE">
+<span id="_CPPv3I0EN27NoDefaultConstructAllocatorneERK27NoDefaultConstructAllocatorI1UE"></span><span id="_CPPv2I0EN27NoDefaultConstructAllocatorneERK27NoDefaultConstructAllocatorI1UE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structNoDefaultConstructAllocator_1aa7539ca3f13067fc4a80fbf2bfbbc98a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">!=</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E27NoDefaultConstructAllocator" title="NoDefaultConstructAllocator"><span class="n"><span class="pre">NoDefaultConstructAllocator</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0EN27NoDefaultConstructAllocatorneEbRK27NoDefaultConstructAllocatorI1UE" title="NoDefaultConstructAllocator::operator!=::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">_</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I0EN27NoDefaultConstructAllocatorneEbRK27NoDefaultConstructAllocatorI1UE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN27NoDefaultConstructAllocator6rebindE">
+<span id="_CPPv3I0EN27NoDefaultConstructAllocator6rebindE"></span><span id="_CPPv2I0EN27NoDefaultConstructAllocator6rebindE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structNoDefaultConstructAllocator_1_1rebind"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rebind</span></span></span><a class="headerlink" href="#_CPPv4I0EN27NoDefaultConstructAllocator6rebindE" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-types">Public Types</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N27NoDefaultConstructAllocator6rebind5otherE">
+<span id="_CPPv3N27NoDefaultConstructAllocator6rebind5otherE"></span><span id="_CPPv2N27NoDefaultConstructAllocator6rebind5otherE"></span><span id="NoDefaultConstructAllocator::rebind::other"></span><span class="target" id="structNoDefaultConstructAllocator_1_1rebind_1a0fd839963b3b6e8ecd7aefb7a6a59659"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E27NoDefaultConstructAllocator" title="NoDefaultConstructAllocator"><span class="n"><span class="pre">NoDefaultConstructAllocator</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0EN27NoDefaultConstructAllocator6rebindE" title="NoDefaultConstructAllocator::rebind::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">other</span></span></span><a class="headerlink" href="#_CPPv4N27NoDefaultConstructAllocator6rebind5otherE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4I00E9APyBuffer">
+<span id="_CPPv3I00E9APyBuffer"></span><span id="_CPPv2I00E9APyBuffer"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Allocator</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">allocator</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00E9APyBuffer" title="APyBuffer::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classAPyBuffer"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APyBuffer</span></span></span><a class="headerlink" href="#_CPPv4I00E9APyBuffer" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Subclassed by APyArray&lt; apy_limb_t, APyCFixedArray &gt;, APyArray&lt; apy_limb_t, APyFixedArray &gt;, APyArray&lt; APyFloatData, APyFloatArray &gt;, APyArray&lt; T, ARRAY_TYPE &gt;</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-types">Public Types</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv4N9APyBuffer11vector_typeE">
+<span id="_CPPv3N9APyBuffer11vector_typeE"></span><span id="_CPPv2N9APyBuffer11vector_typeE"></span><span class="target" id="classAPyBuffer_1ab95723289a9745e9353dd1688ac2f06c"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">vector_type</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00E9APyBuffer" title="APyBuffer::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00E9APyBuffer" title="APyBuffer::Allocator"><span class="n"><span class="pre">Allocator</span></span></a><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N9APyBuffer11vector_typeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK9APyBuffer4ndimEv">
+<span id="_CPPv3NK9APyBuffer4ndimEv"></span><span id="_CPPv2NK9APyBuffer4ndimEv"></span><span id="APyBuffer::ndimC"></span><span class="target" id="classAPyBuffer_1a06371109f03531211334a83c919d9e8c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ndim</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK9APyBuffer4ndimEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Retrieve number of array dimensions. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK9APyBuffer4sizeEv">
+<span id="_CPPv3NK9APyBuffer4sizeEv"></span><span id="_CPPv2NK9APyBuffer4sizeEv"></span><span id="APyBuffer::sizeC"></span><span class="target" id="classAPyBuffer_1a7b255e1b3803d582b536814c779af45d"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK9APyBuffer4sizeEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Retrieve array size. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK9APyBuffer5shapeEv">
+<span id="_CPPv3NK9APyBuffer5shapeEv"></span><span id="_CPPv2NK9APyBuffer5shapeEv"></span><span id="APyBuffer::shapeC"></span><span class="target" id="classAPyBuffer_1a78ce47f5097b464963b1c7eed91e3e48"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">shape</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK9APyBuffer5shapeEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Retrieve array shape. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK9APyBuffer16python_get_shapeEv">
+<span id="_CPPv3NK9APyBuffer16python_get_shapeEv"></span><span id="_CPPv2NK9APyBuffer16python_get_shapeEv"></span><span id="APyBuffer::python_get_shapeC"></span><span class="target" id="classAPyBuffer_1ae5b1298e21f37d6b4ac8c85136d943b7"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">nb</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">tuple</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">python_get_shape</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK9APyBuffer16python_get_shapeEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Retrieve array shape (exported to Python) </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-protected-functions">Protected Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9APyBuffer9APyBufferERKNSt6vectorINSt6size_tEEENSt6size_tE">
+<span id="_CPPv3N9APyBuffer9APyBufferERKNSt6vectorINSt6size_tEEENSt6size_tE"></span><span id="_CPPv2N9APyBuffer9APyBufferERKNSt6vectorINSt6size_tEEENSt6size_tE"></span><span id="APyBuffer::APyBuffer__std::vector:std::s:CR.std::s"></span><span class="target" id="classAPyBuffer_1ae7f845d434bda0fc12d3cce6dd04ef56"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APyBuffer</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">shape</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">itemsize</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9APyBuffer9APyBufferERKNSt6vectorINSt6size_tEEENSt6size_tE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>APyBuffers are to be inherited from. All fields and constructors are protected. </p>
+<p>Base constructor for creating a new <code class="docutils literal notranslate"><a class="reference internal" href="#classAPyBuffer"><span class="std std-ref"><span class="pre">APyBuffer</span></span></a></code></p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9APyBuffer9APyBufferERKNSt6vectorINSt6size_tEEENSt6size_tERR11vector_type">
+<span id="_CPPv3N9APyBuffer9APyBufferERKNSt6vectorINSt6size_tEEENSt6size_tERR11vector_type"></span><span id="_CPPv2N9APyBuffer9APyBufferERKNSt6vectorINSt6size_tEEENSt6size_tERR11vector_type"></span><span id="APyBuffer::APyBuffer__std::vector:std::s:CR.std::s.vector_typeRR"></span><span class="target" id="classAPyBuffer_1afca37d67e9fee5dc2ddc4f82124d6a45"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APyBuffer</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">shape</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">itemsize</span></span>, <a class="reference internal" href="#_CPPv4N9APyBuffer11vector_typeE" title="APyBuffer::vector_type"><span class="n"><span class="pre">vector_type</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">v</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9APyBuffer9APyBufferERKNSt6vectorINSt6size_tEEENSt6size_tERR11vector_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Base constructor for creating new <code class="docutils literal notranslate"><a class="reference internal" href="#classAPyBuffer"><span class="std std-ref"><span class="pre">APyBuffer</span></span></a></code> stealing data from another vector. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9APyBuffer13get_py_bufferEv">
+<span id="_CPPv3N9APyBuffer13get_py_bufferEv"></span><span id="_CPPv2N9APyBuffer13get_py_bufferEv"></span><span id="APyBuffer::get_py_buffer"></span><span class="target" id="classAPyBuffer_1a9f44b6b9cde01a8c556cf994387891a1"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">Py_buffer</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_py_buffer</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9APyBuffer13get_py_bufferEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Return a Python Buffer structure compatible with the Buffer Protocol. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9APyBuffer13buffer_resizeEKNSt6vectorINSt6size_tEEENSt6size_tE">
+<span id="_CPPv3N9APyBuffer13buffer_resizeEKNSt6vectorINSt6size_tEEENSt6size_tE"></span><span id="_CPPv2N9APyBuffer13buffer_resizeEKNSt6vectorINSt6size_tEEENSt6size_tE"></span><span id="APyBuffer::buffer_resize__std::vector:std::s:C.std::s"></span><span class="target" id="classAPyBuffer_1af07a0cd87c054d043918f810cbe2a6c1"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">buffer_resize</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">shape</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">itemsize</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9APyBuffer13buffer_resizeEKNSt6vectorINSt6size_tEEENSt6size_tE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Resize the underlying buffer without touching its data. Narrowing the buffer will result in loss of data. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-protected-attributes">Protected Attributes</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9APyBuffer9_itemsizeE">
+<span id="_CPPv3N9APyBuffer9_itemsizeE"></span><span id="_CPPv2N9APyBuffer9_itemsizeE"></span><span id="APyBuffer::_itemsize__std::s"></span><span class="target" id="classAPyBuffer_1a4e7e3e8b0f6c428e82faee5d82a4a7ed"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_itemsize</span></span></span><a class="headerlink" href="#_CPPv4N9APyBuffer9_itemsizeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9APyBuffer6_shapeE">
+<span id="_CPPv3N9APyBuffer6_shapeE"></span><span id="_CPPv2N9APyBuffer6_shapeE"></span><span id="APyBuffer::_shape__std::vector:std::s:"></span><span class="target" id="classAPyBuffer_1a82c008e9b7af2529a04849e1de61a771"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_shape</span></span></span><a class="headerlink" href="#_CPPv4N9APyBuffer6_shapeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9APyBuffer7_nitemsE">
+<span id="_CPPv3N9APyBuffer7_nitemsE"></span><span id="_CPPv2N9APyBuffer7_nitemsE"></span><span id="APyBuffer::_nitems__std::s"></span><span class="target" id="classAPyBuffer_1a4ec6e01e08c70ee10f7b1b547c684e7d"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_nitems</span></span></span><a class="headerlink" href="#_CPPv4N9APyBuffer7_nitemsE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9APyBuffer5_dataE">
+<span id="_CPPv3N9APyBuffer5_dataE"></span><span id="_CPPv2N9APyBuffer5_dataE"></span><span id="APyBuffer::_data__vector_type"></span><span class="target" id="classAPyBuffer_1aa67b12618b20f1df587ba55dbff2683a"></span><a class="reference internal" href="#_CPPv4N9APyBuffer11vector_typeE" title="APyBuffer::vector_type"><span class="n"><span class="pre">vector_type</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_data</span></span></span><a class="headerlink" href="#_CPPv4N9APyBuffer5_dataE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9APyBuffer5_ndimE">
+<span id="_CPPv3N9APyBuffer5_ndimE"></span><span id="_CPPv2N9APyBuffer5_ndimE"></span><span id="APyBuffer::_ndim__std::s"></span><span class="target" id="classAPyBuffer_1a501235c82f5c44e415b8025178d7de73"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_ndim</span></span></span><a class="headerlink" href="#_CPPv4N9APyBuffer5_ndimE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9APyBuffer8_stridesE">
+<span id="_CPPv3N9APyBuffer8_stridesE"></span><span id="_CPPv2N9APyBuffer8_stridesE"></span><span id="APyBuffer::_strides__std::vector:std::s:"></span><span class="target" id="classAPyBuffer_1aeb0e1f5da0187d03a8ec12ba1c49e98b"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_strides</span></span></span><a class="headerlink" href="#_CPPv4N9APyBuffer8_stridesE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="apyfixed.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">APyTypes C++ API</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023-2025, Oscar Gustafsson, Mikael Henriksson, Theodor Lindberg
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">apybuffer.h</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4I0E27NoDefaultConstructAllocator"><code class="docutils literal notranslate"><span class="pre">NoDefaultConstructAllocator</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N27NoDefaultConstructAllocator10value_typeE"><code class="docutils literal notranslate"><span class="pre">value_type</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N27NoDefaultConstructAllocator9size_typeE"><code class="docutils literal notranslate"><span class="pre">size_type</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N27NoDefaultConstructAllocator15difference_typeE"><code class="docutils literal notranslate"><span class="pre">difference_type</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N27NoDefaultConstructAllocator38propagate_on_container_move_assignmentE"><code class="docutils literal notranslate"><span class="pre">propagate_on_container_move_assignment</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N27NoDefaultConstructAllocator15is_always_equalE"><code class="docutils literal notranslate"><span class="pre">is_always_equal</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N27NoDefaultConstructAllocator27NoDefaultConstructAllocatorEv"><code class="docutils literal notranslate"><span class="pre">NoDefaultConstructAllocator()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N27NoDefaultConstructAllocatorD0Ev"><code class="docutils literal notranslate"><span class="pre">~NoDefaultConstructAllocator()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N27NoDefaultConstructAllocator8allocateENSt6size_tE"><code class="docutils literal notranslate"><span class="pre">allocate()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N27NoDefaultConstructAllocator8allocateENSt6size_tEPKv"><code class="docutils literal notranslate"><span class="pre">allocate()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N27NoDefaultConstructAllocator10deallocateEP1TNSt6size_tE"><code class="docutils literal notranslate"><span class="pre">deallocate()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I0EN27NoDefaultConstructAllocatoreqEbRK27NoDefaultConstructAllocatorI1UE"><code class="docutils literal notranslate"><span class="pre">operator==()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I0EN27NoDefaultConstructAllocatorneEbRK27NoDefaultConstructAllocatorI1UE"><code class="docutils literal notranslate"><span class="pre">operator!=()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I0EN27NoDefaultConstructAllocator6rebindE"><code class="docutils literal notranslate"><span class="pre">NoDefaultConstructAllocator::rebind</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N27NoDefaultConstructAllocator6rebind5otherE"><code class="docutils literal notranslate"><span class="pre">other</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4I00E9APyBuffer"><code class="docutils literal notranslate"><span class="pre">APyBuffer</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N9APyBuffer11vector_typeE"><code class="docutils literal notranslate"><span class="pre">vector_type</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK9APyBuffer4ndimEv"><code class="docutils literal notranslate"><span class="pre">ndim()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK9APyBuffer4sizeEv"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK9APyBuffer5shapeEv"><code class="docutils literal notranslate"><span class="pre">shape()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK9APyBuffer16python_get_shapeEv"><code class="docutils literal notranslate"><span class="pre">python_get_shape()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9APyBuffer9APyBufferERKNSt6vectorINSt6size_tEEENSt6size_tE"><code class="docutils literal notranslate"><span class="pre">APyBuffer()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9APyBuffer9APyBufferERKNSt6vectorINSt6size_tEEENSt6size_tERR11vector_type"><code class="docutils literal notranslate"><span class="pre">APyBuffer()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9APyBuffer13get_py_bufferEv"><code class="docutils literal notranslate"><span class="pre">get_py_buffer()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9APyBuffer13buffer_resizeEKNSt6vectorINSt6size_tEEENSt6size_tE"><code class="docutils literal notranslate"><span class="pre">buffer_resize()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9APyBuffer9_itemsizeE"><code class="docutils literal notranslate"><span class="pre">_itemsize</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9APyBuffer6_shapeE"><code class="docutils literal notranslate"><span class="pre">_shape</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9APyBuffer7_nitemsE"><code class="docutils literal notranslate"><span class="pre">_nitems</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9APyBuffer5_dataE"><code class="docutils literal notranslate"><span class="pre">_data</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9APyBuffer5_ndimE"><code class="docutils literal notranslate"><span class="pre">_ndim</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9APyBuffer8_stridesE"><code class="docutils literal notranslate"><span class="pre">_strides</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    </body>
+</html>

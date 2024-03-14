@@ -5,9 +5,14 @@
    :maxdepth: 1
    :caption: Contents:
 
+   apycfixed
+   apycfixedarray
    apyfixed
    apyfixedarray
    apyfloat
    apyfloatarray
-   quantizationoverflow
+   arrayfunctions
    context
+   quantizationoverflow
+   utils
+   codegeneration
