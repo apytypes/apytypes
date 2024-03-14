@@ -25,15 +25,6 @@ jobs:
           cd ..
           mkdir -p docs/_static/
           cp benchmark/benchmark.png docs/_static
-      # Run benchmark with `go test -bench` and stores the output to a file
-      - name: Run benchmark
-        run: cd benchmark && pytest ci_fixed_array_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_fixed_array.json
-      # Download previous benchmark result from cache (if exists)
-      - name: Download previous benchmark data
-        uses: actions/cache@v4
-        with:
-          path: ./cache
-          key: ${{ runner.os }}-benchmark
       - name: Sphinx build
         run: |
           cd docs
@@ -47,8 +38,16 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/_build/html
           keep_files: true
-      # Run `github-action-benchmark` action
-      - name: Store benchmark result
+      # Download previous benchmark result from cache (if exists)
+      - name: Download previous benchmark data
+        uses: actions/cache@v4
+        with:
+          path: ./cache
+          key: ${{ runner.os }}-benchmark
+      - name: Run fixed array benchmark
+        run: cd benchmark && pytest ci_fixed_array_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_fixed_array.json
+        # Run `github-action-benchmark` action
+      - name: Store fixed benchmark result
         uses: benchmark-action/github-action-benchmark@v1
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
@@ -63,3 +62,21 @@ jobs:
           auto-push: true
       - name: Copy previous file to cache
         run: mkdir -p cache && cp benchmark/output_fixed_array.json cache/
+      - name: Run float array benchmark
+        run: cd benchmark && pytest ci_float_array_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_float_array.json
+        # Run `github-action-benchmark` action
+      - name: Store float benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        with:
+          name: APyTypes Floating-Point Array Benchmarks
+          # What benchmark tool the output.txt came from
+          tool: 'pytest'
+          # Where the output from the benchmark tool is stored
+          output-file-path: benchmark/output_float_array.json
+          # GitHub API token to make a commit comment
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Push and deploy GitHub pages branch automatically
+          auto-push: true
+      - name: Copy previous file to cache
+        run: mkdir -p cache && cp benchmark/output_float_array.json cache/
