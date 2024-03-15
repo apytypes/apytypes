@@ -127,3 +127,6 @@ It is updated every documentation build and may vary over time as the code is fu
 
 .. image:: _static/benchmark.png
     :alt: Benchmark numbers for different fixed-point libraries.
+
+.. image:: _static/benchmark_relative.png
+    :alt: Benchmark relative to APyTypes for different fixed-point libraries.
