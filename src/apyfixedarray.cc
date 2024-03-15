@@ -3,6 +3,7 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
+#include <type_traits>
 namespace nb = nanobind;
 
 // Python details. These should be included before standard header files:
@@ -12,6 +13,7 @@ namespace nb = nanobind;
 // Standard header includes
 #include <algorithm> // std::copy, std::max, std::transform, etc...
 #include <cstddef>   // std::size_t
+#include <cstdint>   // std::int16, std::int32, std::int64, etc...
 #include <ios>       // std::dec, std::hex
 #include <optional>  // std::optional
 #include <sstream>   // std::stringstream
@@ -45,15 +47,31 @@ APyFixedArray::APyFixedArray(
         python_sequence_extract_shape(bit_pattern_sequence), bits, int_bits, frac_bits
     )
 {
+    // Specialized initialization for NumPy ndarrays
+    if (nb::isinstance<nb::ndarray<nb::numpy>>(bit_pattern_sequence)) {
+        auto ndarray = nb::cast<nb::ndarray<nb::numpy>>(bit_pattern_sequence);
+        _set_bits_from_numpy_ndarray(ndarray);
+
+        // Initialization complete
+        return;
+    }
+
     auto python_ints = python_sequence_walk<nb::int_>(bit_pattern_sequence);
+
+    // Caster for performing two's complement overflow
+    APyFixed caster(_bits, _int_bits);
     for (std::size_t i = 0; i < _data.size() / _itemsize; i++) {
 
-        // Two's complements overflowing in `APyFixed` constructor
         auto limb_vec
             = python_long_to_limb_vec(nb::cast<nb::int_>(python_ints[i]), _itemsize);
-        APyFixed fixed(_bits, _int_bits, limb_vec);
+
+        // Two's complements overflowing using caster type
+        std::copy_n(limb_vec.begin(), _itemsize, caster._data.begin());
+        caster._twos_complement_overflow(
+            caster._data.begin(), caster._data.end(), _bits, _int_bits
+        );
         std::copy_n(
-            fixed._data.begin(),          // src
+            caster._data.begin(),         // src
             _itemsize,                    // limbs to copy
             _data.begin() + i * _itemsize // dst
         );
@@ -629,6 +647,20 @@ APyFixedArray APyFixedArray::from_double(
     std::optional<int> frac_bits
 )
 {
+    // Special-case
+    if (nb::isinstance<nb::ndarray<nb::numpy>>(python_seq)) {
+        auto ndarray = nb::cast<nb::ndarray<nb::numpy>>(python_seq);
+        std::size_t ndim = ndarray.ndim();
+        std::vector<std::size_t> shape(ndim, 0);
+        for (std::size_t i = 0; i < ndim; i++) {
+            shape[i] = ndarray.shape(i);
+        }
+
+        APyFixedArray result(shape, bits, int_bits, frac_bits);
+        result._set_values_from_numpy_ndarray(ndarray);
+        return result;
+    }
+
     APyFixedArray result(
         python_sequence_extract_shape(python_seq), bits, int_bits, frac_bits
     );
@@ -943,4 +975,87 @@ void APyFixedArray::_cast(
             overflow
         );
     }
+}
+
+void APyFixedArray::_set_bits_from_numpy_ndarray(const nb::ndarray<nb::numpy>& ndarray)
+{
+#define CHECK_AND_SET_BITS_FROM_NPTYPE(__TYPE__)                                       \
+    do {                                                                               \
+        if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
+            auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
+            for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
+                mp_limb_t data;                                                        \
+                if (std::is_signed<__TYPE__>::value) {                                 \
+                    data = static_cast<mp_limb_signed_t>(ndarray_view.data()[i]);      \
+                } else {                                                               \
+                    data = static_cast<mp_limb_t>(ndarray_view.data()[i]);             \
+                }                                                                      \
+                _data[i * _itemsize] = data;                                           \
+                if (_itemsize > 0) {                                                   \
+                    std::fill_n(                                                       \
+                        _data.begin() + i * _itemsize + 1,                             \
+                        _itemsize - 1,                                                 \
+                        mp_limb_signed_t(data) < 0 ? -1 : 0                            \
+                    );                                                                 \
+                }                                                                      \
+            }                                                                          \
+            return;                                                                    \
+        }                                                                              \
+    } while (0)
+
+    // Each `CHECK_AND_SET_BITS_FROM_NPTYPE` checks the `dtype` of `ndarray` and
+    // converts all the data if it matches. If successful,
+    // `CHECK_AND_SET_BITS_FROM_NPTYPES` returns. Otherwise, the next attemted
+    // conversion will take place
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::int64_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::int32_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::int16_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::int8_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint64_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint32_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint16_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint8_t);
+
+    // None of the `CHECK_AND_SET_BITS_FROM_NPTYPE` succeeded. Unsupported type, throw
+    // an error. If possible, it would be nice to show a string representation of the
+    // `dtype`. Seems hard to achieve with nanobind, but please fix this if you find out
+    // how this can be achieved.
+    throw nb::type_error(
+        "APyFixedArray::_set_bits_from_numpy_ndarray(): "
+        "expecting integer `dtype`"
+    );
+}
+
+void APyFixedArray::_set_values_from_numpy_ndarray(const nb::ndarray<nb::numpy>& ndarray
+)
+{
+    // Make sure `ndim` of `*this` and `ndarray` are equal
+    if (_ndim != ndarray.ndim()) {
+        throw nb::type_error(fmt::format(
+                                 "APyFixedArray::_set_values_from_numpy_ndarray(): "
+                                 "[`_ndim` == {}] != [`ndarray.ndim()` == {}]",
+                                 _ndim,
+                                 ndarray.ndim()
+        )
+                                 .c_str());
+    }
+
+    // Make sure the shape of `*this` and `ndarray` are equal
+    for (std::size_t i = 0; i < _ndim; i++) {
+        if (_shape[i] != ndarray.shape(i)) {
+            throw nb::type_error(
+                fmt::format(
+                    "APyFixedArray::_set_values_from_numpy_ndarray(): "
+                    "[`_shape[{}]` == {}} != `[ndarray.shape({})` == {}",
+                    i,
+                    _shape[i],
+                    i,
+                    ndarray.shape(i)
+                )
+                    .c_str()
+            );
+        }
+    }
+
+    throw NotImplementedException("TODO: Do it...");
 }

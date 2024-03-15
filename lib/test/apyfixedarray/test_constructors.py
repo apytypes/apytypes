@@ -90,3 +90,39 @@ def test_incorrect_double_construction():
 
     with pytest.raises(ValueError, match="Cannot convert Infinity to fixed-point"):
         APyFixedArray.from_float([float("inf")], 4, 4)
+
+
+@pytest.mark.parametrize(
+    "dt",
+    [
+        "int64",
+        "int32",
+        "int16",
+        "int8",
+        "uint64",
+        "uint32",
+        "uint16",
+        "uint8",
+    ],
+)
+def test_base_constructor_ndarray(dt):
+
+    import numpy as np
+
+    np_ndarray = np.array(
+        [
+            [1, 2, 3],
+            [4, 5, 6],
+        ],
+        dtype=dt,
+    )
+    assert APyFixedArray(np_ndarray, bits=100, int_bits=50).is_identical(
+        APyFixedArray(
+            [
+                [1, 2, 3],
+                [4, 5, 6],
+            ],
+            bits=100,
+            int_bits=50,
+        )
+    )
