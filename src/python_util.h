@@ -276,10 +276,17 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
     }
 
     auto first_element_it = bit_pattern_sequence.begin();
-    if (nb::isinstance<nb::sequence>(*first_element_it)) {
+    if (nb::isinstance<nb::str>(*first_element_it)) {
+        // First element along this dimension is a string. We currently do not support
+        // having strings sequence array structures
+        throw std::runtime_error(
+            "python_sequence_extract_shape(): found string when extracting shape, "
+            "which is currently unsupported"
+        );
+    } else if (nb::isinstance<nb::sequence>(*first_element_it)) {
         // First element along this dimension is another sequence. Make sure all
-        // elements along this dimesions are also lists and recursivly evaluate their
-        // shapes.
+        // elements along this dimesions are also sequences and recursivly evaluate
+        // their shapes.
         std::vector<std::vector<std::size_t>> recursive_shapes;
         for (auto element : bit_pattern_sequence) {
             if (!nb::isinstance<nb::sequence>(element)) {
@@ -325,7 +332,7 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
 
 /*!
  * Walk a, possibly nested, Python sequence of iterable objects and convert every Python
- * object  (of type `<T>`, via `nb::cast<T>()`) and return them in a `std::vector<T>`.
+ * object (of type `<T>`, via `nb::cast<T>()`) and return them in a `std::vector<T>`.
  * The sequence is walked in a depth-first search manner. If any object in the sequence
  * `bit_pattern_sequence` does not match `<T>` or another Python sequence a
  * `std::runtime_error` exception to be raised.

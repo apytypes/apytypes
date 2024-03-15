@@ -49,6 +49,7 @@ public:
 [[maybe_unused, nodiscard]] static APY_INLINE unsigned int
 count_trailing_bits(std::uint64_t val)
 {
+    // Optimized on x86-64 using single `bsr` instruction since GCC-13.1
     unsigned int i = 0;
     while (val >>= 1ULL) {
         ++i;
