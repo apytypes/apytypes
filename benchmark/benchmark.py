@@ -75,6 +75,7 @@ for lib_name, file in libraries.items():
 # %%
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.ticker import FormatStrFormatter
 
 fig, ax = plt.subplots(layout="constrained", figsize=(8, 10))
 
@@ -97,3 +98,32 @@ ax.set_xticks(
 ax.legend(loc="upper left")
 ax.set_xbound((-0.5, len(benchmarks)))
 fig.savefig("benchmark.png")
+
+
+fig, ax = plt.subplots(layout="constrained", figsize=(8, 10))
+
+x = np.arange(len(benchmarks))  # the label locations
+width = 1 / (len(libraries) + 2)  # the width of the bars
+multiplier = 0
+
+for library, measurement in results.items():
+    offset = width * multiplier
+    rects = ax.bar(
+        x + offset,
+        np.log10(np.array(measurement) / np.array(results["APyTypes"])),
+        width,
+        label=library,
+    )
+    multiplier += 1
+
+# ax.set_yscale("log")
+ax.set_ylabel("Relative time")
+ax.set_xticks(
+    x + (len(libraries) - 1) * width / 2,
+    benchmarks.keys(),
+    rotation=90,
+)
+ax.yaxis.set_major_formatter(FormatStrFormatter("$10^{%d}$"))
+ax.legend(loc="upper right")
+ax.set_xbound((-0.5, len(benchmarks)))
+fig.savefig("benchmark_relative.png")
