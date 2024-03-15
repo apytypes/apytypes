@@ -1,5 +1,5 @@
 import pytest
-from apytypes import APyFloatArray, QuantizationMode
+from apytypes import APyFloatArray, APyFloat, QuantizationMode
 
 
 @pytest.mark.float_array
@@ -38,15 +38,9 @@ def test_to_numpy():
 def test_get_item():
     # ndim == 1
     fp_array = APyFloatArray.from_float([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
-    assert fp_array[0].is_identical(
-        APyFloatArray.from_float([1], exp_bits=10, man_bits=10)
-    )
-    assert fp_array[1].is_identical(
-        APyFloatArray.from_float([2], exp_bits=10, man_bits=10)
-    )
-    assert fp_array[5].is_identical(
-        APyFloatArray.from_float([6], exp_bits=10, man_bits=10)
-    )
+    assert fp_array[0].is_identical(APyFloat.from_float(1, exp_bits=10, man_bits=10))
+    assert fp_array[1].is_identical(APyFloat.from_float(2, exp_bits=10, man_bits=10))
+    assert fp_array[5].is_identical(APyFloat.from_float(6, exp_bits=10, man_bits=10))
     with pytest.raises(IndexError, match="APyFloatArray.__getitem__: index 6 is out"):
         fp_array[6]
 
@@ -79,12 +73,8 @@ def test_get_item():
 def test_iterator():
     fx_array = APyFloatArray.from_float([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
     iterator = iter(fx_array)
-    assert next(iterator).is_identical(
-        APyFloatArray.from_float([1], exp_bits=10, man_bits=10)
-    )
-    assert next(iterator).is_identical(
-        APyFloatArray.from_float([2], exp_bits=10, man_bits=10)
-    )
+    assert next(iterator).is_identical(APyFloat.from_float(1, exp_bits=10, man_bits=10))
+    assert next(iterator).is_identical(APyFloat.from_float(2, exp_bits=10, man_bits=10))
 
 
 @pytest.mark.float_array

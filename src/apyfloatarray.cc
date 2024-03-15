@@ -1,6 +1,7 @@
 // Python object access through Pybind
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
+#include <nanobind/stl/variant.h> // std::variant (with nanobind support)
 namespace nb = nanobind;
 
 #include "apyfloat.h"
@@ -267,7 +268,7 @@ size_t APyFloatArray::get_ndim() const { return shape.size(); }
 
 size_t APyFloatArray::get_size() const { return shape[0]; }
 
-APyFloatArray APyFloatArray::get_item(std::size_t idx) const
+std::variant<APyFloatArray, APyFloat> APyFloatArray::get_item(std::size_t idx) const
 {
     if (idx >= shape[0]) {
         throw std::out_of_range(fmt::format(
@@ -278,20 +279,27 @@ APyFloatArray APyFloatArray::get_item(std::size_t idx) const
         ));
     }
 
-    // New shape contains all dimensions except the very first one
-    auto new_shape = get_ndim() > 1
-        ? std::vector<std::size_t>(shape.begin() + 1, shape.end())
-        : std::vector<std::size_t> { 1 };
+    if (get_ndim() == 1) {
+        // One dimension, return APyFloat
+        APyFloat result(data[idx], exp_bits, man_bits, bias);
+        return result;
+    } else {
+        // New shape contains all dimensions except the very first one
+        auto new_shape = get_ndim() > 1
+            ? std::vector<std::size_t>(shape.begin() + 1, shape.end())
+            : std::vector<std::size_t> { 1 };
 
-    // Element stride is the new shape folded over multiplication
-    std::size_t element_stride
-        = std::accumulate(new_shape.begin(), new_shape.end(), 1, std::multiplies {});
+        // Element stride is the new shape folded over multiplication
+        std::size_t element_stride = std::accumulate(
+            new_shape.begin(), new_shape.end(), 1, std::multiplies {}
+        );
 
-    APyFloatArray result(new_shape, exp_bits, man_bits, bias);
-    std::copy_n(
-        data.begin() + idx * element_stride, element_stride, result.data.begin()
-    );
-    return result;
+        APyFloatArray result(new_shape, exp_bits, man_bits, bias);
+        std::copy_n(
+            data.begin() + idx * element_stride, element_stride, result.data.begin()
+        );
+        return result;
+    }
 }
 
 nb::ndarray<nb::numpy, double> APyFloatArray::to_numpy() const

@@ -514,7 +514,7 @@ std::variant<APyFixedArray, APyFixed> APyFixedArray::get_item(std::size_t idx) c
     }
 
     if (_ndim == 1) {
-        // One dimension, return an APyFixed
+        // One dimension, return APyFixed
         APyFixed result(_bits, _int_bits);
         std::copy_n(_data.begin() + idx * _itemsize, _itemsize, result._data.begin());
         return result;

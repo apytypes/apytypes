@@ -1,6 +1,8 @@
 #include "apyfloatarray_iterator.h"
 #include "apyfloatarray.h"
+
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/variant.h> // std::variant (with nanobind support)
 
 namespace nb = nanobind;
 
@@ -11,7 +13,7 @@ APyFloatArrayIterator::APyFloatArrayIterator(const APyFloatArray& array, nb::obj
 {
 }
 
-APyFloatArray APyFloatArrayIterator::next()
+std::variant<APyFloatArray, APyFloat> APyFloatArrayIterator::next()
 {
     if (index == array.get_size())
         throw nb::stop_iteration();

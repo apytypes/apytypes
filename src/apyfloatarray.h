@@ -5,8 +5,9 @@
 #include "apyfloat.h"
 #include "apytypes_common.h"
 #include <cstdint>
-#include <nanobind/nanobind.h> // nanobind::object
-#include <nanobind/ndarray.h>  // nanobind::ndarray
+#include <nanobind/nanobind.h>    // nanobind::object
+#include <nanobind/ndarray.h>     // nanobind::ndarray
+#include <nanobind/stl/variant.h> // std::variant (with nanobind support)
 #include <optional>
 #include <vector>
 
@@ -53,7 +54,7 @@ public:
     size_t get_ndim() const;
 
     //! Retrieve a single item
-    APyFloatArray get_item(std::size_t idx) const;
+    std::variant<APyFloatArray, APyFloat> get_item(std::size_t idx) const;
 
     //! Length of the array
     size_t get_size() const;
