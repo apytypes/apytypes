@@ -374,7 +374,7 @@ bool APyFixed::operator>=(const APyFixed& rhs) const
 APyFixed APyFixed::operator-() const
 {
     const int res_bits = _bits + 1;
-    APyFixed result(_bits + 1, _int_bits + 1);
+    APyFixed result(res_bits, _int_bits + 1);
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         // Result bits fits in a single limb. Use native negation
         result._data[0] = -_data[0];
@@ -395,14 +395,28 @@ APyFixed APyFixed::operator-() const
 
 APyFixed APyFixed::abs() const
 {
-    if (is_negative()) {
-        // Unary `operator-()` increases word length by one
-        return -*this;
-    } else {
-        // Incrase word length by one and return copy (extra bit guaranteed to be zero)
-        APyFixed result(_bits + 1, _int_bits + 1);
-        std::copy(_data.cbegin(), _data.cend(), result._data.begin());
+    const int res_bits = _bits + 1;
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        APyFixed result(res_bits, _int_bits + 1);
+        // Result bits fits in a single limb.
+        if (is_negative()) {
+            result._data[0] = -_data[0];
+        } else {
+            result._data[0] = _data[0];
+        }
         return result;
+    } else {
+
+        if (is_negative()) {
+            // Unary `operator-()` increases word length by one
+            return -*this;
+        } else {
+            // Incrase word length by one and return copy (extra bit guaranteed to be
+            // zero)
+            APyFixed result(_bits + 1, _int_bits + 1);
+            std::copy(_data.cbegin(), _data.cend(), result._data.begin());
+            return result;
+        }
     }
 }
 
