@@ -120,18 +120,25 @@ APyFixed APyFixed::operator+(const APyFixed& rhs) const
     APyFixed result(res_bits, res_int_bits);
     cast_correct_wl(result._data.begin(), result._data.end(), res_bits, res_int_bits);
 
-    APyFixed operand(res_bits, res_int_bits);
-    rhs.cast_correct_wl(
-        operand._data.begin(), operand._data.end(), res_bits, res_int_bits
-    );
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        // Result bits fits in a single limb. Use native addition
+        mp_limb_t operand = rhs._data[0];
+        operand <<= res_frac_bits - rhs.frac_bits();
+        result._data[0] = result._data[0] + operand;
+    } else {
+        // Result bits is more than one limb. Add with carry
+        APyFixed operand(res_bits, res_int_bits);
+        rhs.cast_correct_wl(
+            operand._data.begin(), operand._data.end(), res_bits, res_int_bits
+        );
+        mpn_add_n(
+            &result._data[0],    // dst
+            &result._data[0],    // src1
+            &operand._data[0],   // src2
+            result.vector_size() // limb vector length
+        );
+    }
 
-    // Add with carry and return
-    mpn_add_n(
-        &result._data[0],    // dst
-        &result._data[0],    // src1
-        &operand._data[0],   // src2
-        result.vector_size() // limb vector length
-    );
     return result;
 }
 
@@ -144,18 +151,24 @@ APyFixed APyFixed::operator-(const APyFixed& rhs) const
     APyFixed result(res_int_bits + res_frac_bits, res_int_bits);
     cast_correct_wl(result._data.begin(), result._data.end(), res_bits, res_int_bits);
 
-    APyFixed operand(res_bits, res_int_bits);
-    rhs.cast_correct_wl(
-        operand._data.begin(), operand._data.end(), res_bits, res_int_bits
-    );
-
-    // Subtract with carry and return
-    mpn_sub_n(
-        &result._data[0],    // dst
-        &result._data[0],    // src1
-        &operand._data[0],   // src2
-        result.vector_size() // limb vector length
-    );
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        // Result bits fits in a single limb. Use native subtracntion
+        mp_limb_t operand = rhs._data[0];
+        operand <<= res_frac_bits - rhs.frac_bits();
+        result._data[0] = result._data[0] - operand;
+    } else {
+        // Result bits is more than one limb. Add with carry
+        APyFixed operand(res_bits, res_int_bits);
+        rhs.cast_correct_wl(
+            operand._data.begin(), operand._data.end(), res_bits, res_int_bits
+        );
+        mpn_sub_n(
+            &result._data[0],    // dst
+            &result._data[0],    // src1
+            &operand._data[0],   // src2
+            result.vector_size() // limb vector length
+        );
+    }
     return result;
 }
 
@@ -164,39 +177,46 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
     const int res_int_bits = int_bits() + rhs.int_bits();
     const int res_frac_bits = frac_bits() + rhs.frac_bits();
     const bool sign_product = is_negative() ^ rhs.is_negative();
-    auto abs_operand1 = limb_vector_abs(_data.cbegin(), _data.cend());
-    auto abs_operand2 = limb_vector_abs(rhs._data.cbegin(), rhs._data.cend());
 
-    // `mpn_mul` requires:
-    // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
-    // most significant limb is zero."
+    // Result fixed-point number
     APyFixed result(res_int_bits + res_frac_bits, res_int_bits);
-    result._data.resize(abs_operand1.size() + abs_operand2.size());
 
-    // `mpn_mul` requires the limb vector length of the first operand to be
-    // greater than, or equally long as, the limb vector length of the second
-    // operand. Simply swap the operands (essentially a free operation in C++)
-    // if this is not the case.
-    if (abs_operand1.size() < abs_operand2.size()) {
-        std::swap(abs_operand1, abs_operand2);
-    }
+    if (unsigned(res_int_bits + res_frac_bits) <= _LIMB_SIZE_BITS) {
+        result._data[0] = _data[0] * rhs._data[0];
+    } else {
+        auto abs_operand1 = limb_vector_abs(_data.cbegin(), _data.cend());
+        auto abs_operand2 = limb_vector_abs(rhs._data.cbegin(), rhs._data.cend());
 
-    mpn_mul(
-        &result._data[0],    // dst
-        &abs_operand1[0],    // src1
-        abs_operand1.size(), // src1 limb vector length
-        &abs_operand2[0],    // src2
-        abs_operand2.size()  // src2 limb vector length
-    );
+        // `mpn_mul` requires:
+        // "The destination has to have space for `s1n` + `s2n` limbs, even if the
+        // product’s most significant limb is zero."
+        result._data.resize(abs_operand1.size() + abs_operand2.size());
 
-    // Shape the result vector back to the number of significant limbs
-    result._data.resize(bits_to_limbs(res_int_bits + res_frac_bits));
+        // `mpn_mul` requires the limb vector length of the first operand to be
+        // greater than, or equally long as, the limb vector length of the second
+        // operand. Simply swap the operands (essentially a free operation in C++)
+        // if this is not the case.
+        if (abs_operand1.size() < abs_operand2.size()) {
+            std::swap(abs_operand1, abs_operand2);
+        }
 
-    // Handle sign
-    if (sign_product) {
-        limb_vector_negate(
-            result._data.begin(), result._data.end(), result._data.begin()
+        mpn_mul(
+            &result._data[0],    // dst
+            &abs_operand1[0],    // src1
+            abs_operand1.size(), // src1 limb vector length
+            &abs_operand2[0],    // src2
+            abs_operand2.size()  // src2 limb vector length
         );
+
+        // Shape the result vector back to the number of significant limbs
+        result._data.resize(bits_to_limbs(res_int_bits + res_frac_bits));
+
+        // Handle sign
+        if (sign_product) {
+            limb_vector_negate(
+                result._data.begin(), result._data.end(), result._data.begin()
+            );
+        }
     }
     return result;
 }

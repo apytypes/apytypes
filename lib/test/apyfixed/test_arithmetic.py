@@ -84,6 +84,16 @@ def test_float_comparison():
     assert APyFixed.from_float(-1.0, 256, 128) >= -3.0
 
 
+def test_narrow_add_sub():
+    for a_bits in range(10, 30):
+        for b_bits in range(10, 30):
+            a = APyFixed.from_float(a_bits + b_bits, bits=a_bits + 20, int_bits=b_bits)
+            b = APyFixed.from_float(a_bits + b_bits, bits=b_bits + 20, int_bits=a_bits)
+            assert float(a + b) == float(2 * (a_bits + b_bits))
+            assert float(a - b) == 0.0
+            assert float(a * b) == float(a_bits + b_bits) ** 2
+
+
 def test_wide_operations():
     """
     Tests for wider additions and subtractions
