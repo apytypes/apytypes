@@ -395,3 +395,10 @@ def test_binary_logic():
     assert (a | b).is_identical(APyFloat(1, 7, 15, 3, 4))
     assert (a ^ b).is_identical(APyFloat(0, 6, 14, 3, 4))
     assert (~a).is_identical(APyFloat(0, 4, 8, 3, 4))
+
+
+@pytest.mark.xfail
+def test_long_div():
+    x = APyFloat(sign=0, exp=3, man=22, exp_bits=4, man_bits=7)
+    y = APyFloat(sign=1, exp=32763, man=813782734503116, exp_bits=16, man_bits=50)
+    x / y

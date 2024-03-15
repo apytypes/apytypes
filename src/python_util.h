@@ -267,8 +267,6 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
         }
         return res;
     };
-    // auto sequence_len
-    //     = std::distance(bit_pattern_sequence.begin(), bit_pattern_sequence.end());
     std::size_t sequence_len = nanobind_sequence_distance(bit_pattern_sequence);
 
     // Early exit
@@ -328,9 +326,9 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
 /*!
  * Walk a, possibly nested, Python sequence of iterable objects and convert every Python
  * object  (of type `<T>`, via `nb::cast<T>()`) and return them in a `std::vector<T>`.
- * The sequence is walked in a depth-first search manner. If any object in the
- * sequence `bit_pattern_sequence` does not match `<T>` or another Python sequence
- * a `std::runtime_error` exception to be raised.
+ * The sequence is walked in a depth-first search manner. If any object in the sequence
+ * `bit_pattern_sequence` does not match `<T>` or another Python sequence a
+ * `std::runtime_error` exception to be raised.
  */
 template <typename... PyTypes>
 [[maybe_unused]] static APY_INLINE std::vector<nanobind::object>
@@ -362,11 +360,14 @@ python_sequence_walk(const nanobind::sequence& py_seq)
                 // Element matching one of the PyTypes found, store it in container
                 result.push_back(nb::cast<nb::object>(*it_stack.top().iterator++));
             } else {
-                auto repr = nb::repr(*it_stack.top().iterator);
+                nb::object obj = nb::cast<nb::object>(*it_stack.top().iterator);
+                nb::type_object type = nb::cast<nb::type_object>(obj.type());
+                nb::str type_string = nb::str(type);
+                nb::str repr = nb::repr(obj);
                 std::string repr_string = repr.c_str();
                 throw std::runtime_error(
-                    std::string("Non <type>/sequence found when walking <type>: ")
-                    + repr_string
+                    std::string("Non <type>/sequence found when walking: '")
+                    + repr_string + "' of type: '" + type_string.c_str()
                 );
             }
         }

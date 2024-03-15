@@ -83,8 +83,8 @@ def test_numpy_creation(dt):
 
 
 def test_incorrect_double_construction():
-    with pytest.raises(ValueError, match="Cannot convert Nan to fixed-point"):
+    with pytest.raises(ValueError, match="Cannot convert NaN to fixed-point"):
         APyFixedArray.from_float([float("NaN")], 4, 4)
 
-    with pytest.raises(ValueError, match="Cannot convert infinity to fixed-point"):
+    with pytest.raises(ValueError, match="Cannot convert Infinity to fixed-point"):
         APyFixedArray.from_float([float("inf")], 4, 4)

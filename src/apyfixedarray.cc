@@ -12,6 +12,7 @@ namespace nb = nanobind;
 // Standard header includes
 #include <algorithm> // std::copy, std::max, std::transform, etc...
 #include <cstddef>   // std::size_t
+#include <cstdint>
 #include <ios>       // std::dec, std::hex
 #include <optional>  // std::optional
 #include <sstream>   // std::stringstream

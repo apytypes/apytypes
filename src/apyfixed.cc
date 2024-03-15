@@ -86,16 +86,36 @@ APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end)
 {
     if (std::distance(begin, end) <= 0) {
         throw nb::value_error(
-            "APyFixed vector initialization needs appropriate vector size"
+            "APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end): "
+            "`end` iterator points before `begin` iterator"
         );
-    } else if (std::size_t(std::distance(begin, end)) != bits_to_limbs(bits)) {
+    } else if (std::size_t(std::distance(begin, end)) > bits_to_limbs(bits)) {
         throw nb::value_error(
-            "APyFixed vector initialization needs appropriate vector size"
+            fmt::format(
+                "APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end): "
+                "[std::distance(`begin`, `end`)=={}] > [bits_to_limbs(`bits`)=={}], "
+                "[bits={}], [int_bits={}]",
+                std::distance(begin, end),
+                bits_to_limbs(bits),
+                bits,
+                int_bits
+            )
+                .c_str()
         );
     }
 
     // Copy data into resulting vector
     std::copy(begin, end, _data.begin());
+
+    // Sign-extend if necessary
+    if (std::size_t(std::distance(begin, end)) < bits_to_limbs(bits)) {
+        mp_limb_t sign_limb = mp_limb_signed_t(*--end) < 0 ? -1 : 0;
+        std::fill_n(
+            _data.begin() + std::distance(begin, end),
+            bits_to_limbs(bits) - std::distance(begin, end),
+            sign_limb
+        );
+    }
 
     // Two's-complements overflow bits outside of the range
     _twos_complement_overflow(_data.begin(), _data.end(), _bits, _int_bits);
@@ -582,10 +602,10 @@ void APyFixed::set_from_string(const std::string& str, int base)
 void APyFixed::set_from_double(double value)
 {
     if (std::isnan(value)) {
-        throw nb::value_error("Cannot convert Nan to fixed-point");
+        throw nb::value_error("Cannot convert NaN to fixed-point");
     }
     if (std::isinf(value)) {
-        throw nb::value_error("Cannot convert infinity to fixed-point");
+        throw nb::value_error("Cannot convert Infinity to fixed-point");
     }
     std::fill(_data.begin(), _data.end(), 0);
     if constexpr (_LIMB_SIZE_BITS == 64) {
