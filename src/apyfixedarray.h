@@ -256,6 +256,21 @@ private:
         QuantizationMode quantization,
         OverflowMode overflow
     ) const;
+
+    /*!
+     * Set the underlying bit values of `*this` from a NumPy NDArray object of integers.
+     * This member function assumes that the shape of `*this` and `ndarray` are equal.
+     */
+    void _set_bits_from_numpy_ndarray(const nanobind::ndarray<nanobind::numpy>& ndarray
+    );
+
+    /*
+     * Set the values of `*this` from a NumPy NDArray object of floats/integers. Unlike
+     * `_set_bits_from_numpy_ndarray`, this methods checks that the shape of `*this` and
+     * `ndarray` are equal and throws an exception otherwise.
+     */
+    void
+    _set_values_from_numpy_ndarray(const nanobind::ndarray<nanobind::numpy>& ndarray);
 };
 
 #endif // _APYFIXED_ARRAY_H
