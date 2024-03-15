@@ -179,6 +179,13 @@ def test_unary_minus():
     assert (--a).is_identical(APyFixed(-3, 5, 4))
     assert not (-a)._is_negative
 
+    a = APyFixed(-3, 300, 2)
+    assert a._is_negative
+    assert not a._is_positive
+    assert (-a).is_identical(APyFixed(3, 301, 3))
+    assert (--a).is_identical(APyFixed(-3, 302, 4))
+    assert not (-a)._is_negative
+
 
 def test_abs():
     a = APyFixed(-3, 3, 2)
@@ -197,6 +204,9 @@ def test_abs():
     assert abs(a).to_bits() == 3
     assert abs(b).to_bits() == 3
     assert abs(a).is_identical(abs(b))
+
+    a = APyFixed(-3, 300, 2)
+    assert abs(a).is_identical(APyFixed(3, 301, 3))
 
 
 def test_shift():

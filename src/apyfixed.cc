@@ -168,11 +168,11 @@ APyFixed APyFixed::operator-(const APyFixed& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
     const int res_bits = res_int_bits + res_frac_bits;
 
-    APyFixed result(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixed result(res_bits, res_int_bits);
     cast_correct_wl(result._data.begin(), result._data.end(), res_bits, res_int_bits);
 
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        // Result bits fits in a single limb. Use native subtracntion
+        // Result bits fits in a single limb. Use native subtraction
         mp_limb_t operand = rhs._data[0];
         operand <<= res_frac_bits - rhs.frac_bits();
         result._data[0] = result._data[0] - operand;
@@ -197,11 +197,12 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
     const int res_int_bits = int_bits() + rhs.int_bits();
     const int res_frac_bits = frac_bits() + rhs.frac_bits();
     const bool sign_product = is_negative() ^ rhs.is_negative();
+    const int res_bits = res_int_bits + res_frac_bits;
 
     // Result fixed-point number
-    APyFixed result(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixed result(res_bits, res_int_bits);
 
-    if (unsigned(res_int_bits + res_frac_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         result._data[0] = _data[0] * rhs._data[0];
     } else {
         auto abs_operand1 = limb_vector_abs(_data.cbegin(), _data.cend());
@@ -229,7 +230,7 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
         );
 
         // Shape the result vector back to the number of significant limbs
-        result._data.resize(bits_to_limbs(res_int_bits + res_frac_bits));
+        result._data.resize(bits_to_limbs(res_bits));
 
         // Handle sign
         if (sign_product) {
@@ -372,14 +373,23 @@ bool APyFixed::operator>=(const APyFixed& rhs) const
 
 APyFixed APyFixed::operator-() const
 {
-    // Invert all bits of *this, possibly append sign to new limb, and increment lsb
+    const int res_bits = _bits + 1;
     APyFixed result(_bits + 1, _int_bits + 1);
-    std::transform(_data.cbegin(), _data.cend(), result._data.begin(), std::bit_not {});
-    if (result.vector_size() > vector_size()) {
-        mp_limb_t sign = _data.back() & (mp_limb_t(1) << (_LIMB_SIZE_BITS - 1));
-        result._data.back() = sign ? 0 : mp_limb_signed_t(-1);
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        // Result bits fits in a single limb. Use native negation
+        result._data[0] = -_data[0];
+    } else {
+
+        // Invert all bits of *this, possibly append sign to new limb, and increment lsb
+        std::transform(
+            _data.cbegin(), _data.cend(), result._data.begin(), std::bit_not {}
+        );
+        if (result.vector_size() > vector_size()) {
+            mp_limb_t sign = _data.back() & (mp_limb_t(1) << (_LIMB_SIZE_BITS - 1));
+            result._data.back() = sign ? 0 : mp_limb_signed_t(-1);
+        }
+        result.increment_lsb();
     }
-    result.increment_lsb();
     return result;
 }
 
