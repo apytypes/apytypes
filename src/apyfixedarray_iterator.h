@@ -1,5 +1,8 @@
+#include "apyfixed.h"
 #include "apyfixedarray.h"
+
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/variant.h>
 
 #ifndef _APYFIXED_ARRAY_ITERATOR_H
 #define _APYFIXED_ARRAY_ITERATOR_H
@@ -7,7 +10,7 @@ struct APyFixedArrayIterator {
 public:
     APyFixedArrayIterator(const APyFixedArray& array, nanobind::object ref);
 
-    APyFixedArray next();
+    std::variant<APyFixedArray, APyFixed> next();
     const APyFixedArray& array;
 
 private:

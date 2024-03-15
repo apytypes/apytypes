@@ -5,8 +5,9 @@
 #ifndef _APYFIXED_ARRAY_H
 #define _APYFIXED_ARRAY_H
 
-#include <nanobind/nanobind.h> // nanobind::object
-#include <nanobind/ndarray.h>  // nanobind::array_t
+#include <nanobind/nanobind.h>    // nanobind::object
+#include <nanobind/ndarray.h>     // nanobind::array_t
+#include <nanobind/stl/variant.h> // std::variant (with nanobind support)
 
 #include "apybuffer.h"
 #include "apyfixed.h"
@@ -123,7 +124,7 @@ public:
     size_t ndim() const;
 
     //! Retrieve a single item
-    APyFixedArray get_item(std::size_t idx) const;
+    std::variant<APyFixedArray, APyFixed> get_item(std::size_t idx) const;
 
     //! Number of bits
     int bits() const noexcept { return _bits; }

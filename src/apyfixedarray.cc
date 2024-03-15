@@ -2,6 +2,7 @@
 #include "apybuffer.h"
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
+#include <nanobind/stl/variant.h> // std::variant (with nanobind support)
 namespace nb = nanobind;
 
 // Python details. These should be included before standard header files:
@@ -501,7 +502,7 @@ APyFixedArray APyFixedArray::operator-() const
     return result;
 }
 
-APyFixedArray APyFixedArray::get_item(std::size_t idx) const
+std::variant<APyFixedArray, APyFixed> APyFixedArray::get_item(std::size_t idx) const
 {
     if (idx >= _shape[0]) {
         throw std::out_of_range(fmt::format(
@@ -512,21 +513,28 @@ APyFixedArray APyFixedArray::get_item(std::size_t idx) const
         ));
     }
 
-    // New shape contains all dimensions except the very first one
-    auto new_shape = ndim() > 1
-        ? std::vector<std::size_t>(_shape.begin() + 1, _shape.end())
-        : std::vector<std::size_t> { 1 };
+    if (_ndim == 1) {
+        // One dimension, return an APyFixed
+        APyFixed result(_bits, _int_bits);
+        std::copy_n(_data.begin() + idx * _itemsize, _itemsize, result._data.begin());
+        return result;
+    } else {
+        // New shape contains all dimensions except the very first one
+        auto new_shape = ndim() > 1
+            ? std::vector<std::size_t>(_shape.begin() + 1, _shape.end())
+            : std::vector<std::size_t> { 1 };
 
-    // Element stride is the new shape folded over multiplication
-    std::size_t element_stride = fold_shape(new_shape);
+        // Element stride is the new shape folded over multiplication
+        std::size_t element_stride = fold_shape(new_shape);
 
-    APyFixedArray result(new_shape, _bits, _int_bits);
-    std::copy_n(
-        _data.begin() + idx * _itemsize * element_stride,
-        _itemsize * element_stride,
-        result._data.begin()
-    );
-    return result;
+        APyFixedArray result(new_shape, _bits, _int_bits);
+        std::copy_n(
+            _data.begin() + idx * _itemsize * element_stride,
+            _itemsize * element_stride,
+            result._data.begin()
+        );
+        return result;
+    }
 }
 
 nb::ndarray<nb::numpy, double> APyFixedArray::to_numpy() const

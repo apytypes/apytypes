@@ -1,4 +1,5 @@
 from apytypes import APyFixedArray
+from apytypes import APyFixed
 
 import pytest
 
@@ -36,9 +37,9 @@ def test_to_numpy():
 def test_get_item():
     # ndim == 1
     fx_array = APyFixedArray([1, 2, 3, 4, 5, 6], bits=10, int_bits=10)
-    assert fx_array[0].is_identical(APyFixedArray([1], bits=10, int_bits=10))
-    assert fx_array[1].is_identical(APyFixedArray([2], bits=10, int_bits=10))
-    assert fx_array[5].is_identical(APyFixedArray([6], bits=10, int_bits=10))
+    assert fx_array[0].is_identical(APyFixed(1, bits=10, int_bits=10))
+    assert fx_array[1].is_identical(APyFixed(2, bits=10, int_bits=10))
+    assert fx_array[5].is_identical(APyFixed(6, bits=10, int_bits=10))
     with pytest.raises(IndexError, match="APyFixedArray.__getitem__: index 6 is out"):
         fx_array[6]
 
@@ -64,8 +65,8 @@ def test_get_item():
 def test_iterator():
     fx_array = APyFixedArray([1, 2, 3, 4, 5, 6], bits=10, int_bits=10)
     iterator = iter(fx_array)
-    assert next(iterator).is_identical(APyFixedArray([1], bits=10, int_bits=10))
-    assert next(iterator).is_identical(APyFixedArray([2], bits=10, int_bits=10))
+    assert next(iterator).is_identical(APyFixed(1, bits=10, int_bits=10))
+    assert next(iterator).is_identical(APyFixed(2, bits=10, int_bits=10))
 
 
 def test_len():
