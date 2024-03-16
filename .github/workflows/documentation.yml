@@ -24,7 +24,7 @@ jobs:
           python benchmark.py
           cd ..
           mkdir -p docs/_static/
-          cp benchmark/benchmark.png docs/_static
+          cp benchmark/benchmark*.png docs/_static
       - name: Sphinx build
         run: |
           cd docs
