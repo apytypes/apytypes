@@ -913,17 +913,26 @@ APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) co
     // The new result array (`bit_specifier_sanitize()` called in constructor)
     APyFixedArray result(_shape, new_bits, new_int_bits);
 
+    auto shift_amount = new_bits - new_int_bits - frac_bits();
+    // If no shifting required and item sizes are the same, copy the whole block and
+    // return
+    if (!shift_amount && (_itemsize == result._itemsize)) {
+        // Copy data into the result
+        std::copy_n(
+            _data.begin(),                  // src
+            _itemsize * fold_shape(_shape), // limbs to copy
+            result._data.begin()            // dst
+        );
+        return result;
+    }
+
     // `APyFixed` with the same word length as `*this` for reusing quantization methods
     APyFixed fixed(_bits, _int_bits);
 
-    auto shift_amount = new_bits - new_int_bits - frac_bits();
     // For each scalar in the tensor...
     for (std::size_t i = 0; i < fold_shape(_shape); i++) {
 
         auto data_begin = _data.begin() + i * _itemsize;
-
-        bool result_is_negative
-            = limb_vector_is_negative(data_begin, data_begin + _itemsize);
 
         // Perform the resizing
         std::vector<mp_limb_t>::iterator it_begin
@@ -939,12 +948,14 @@ APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) co
         );
         // Sign-extend if required
         if (_itemsize < result._itemsize) {
+            bool result_is_negative
+                = limb_vector_is_negative(data_begin, data_begin + _itemsize);
             std::fill(
                 it_begin + _itemsize, it_end, result_is_negative ? mp_limb_t(-1) : 0
             );
         }
         // Shift if required
-        if (shift_amount >= 0) {
+        if (shift_amount > 0) {
             limb_vector_lsl(it_begin, it_end, shift_amount);
         }
     }
