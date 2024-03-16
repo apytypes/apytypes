@@ -247,17 +247,6 @@ public:
         std::optional<int> frac_bits = std::nullopt
     ) const;
 
-    //! The internal cast method when the word length is known to be correct.
-    //! Uses output iterators to place result onto its limb vector.
-    //! Requires that `std::distance(it_begin, it_end) == bits_to_limbs(bits)`.
-    void cast_correct_wl(
-        std::vector<mp_limb_t>::iterator it_begin,
-        std::vector<mp_limb_t>::iterator it_end,
-        int new_bits,
-        int new_int_bits,
-        unsigned int shift_amount
-    ) const;
-
 private:
     //! The internal cast method. Uses output iterators to place result onto its limb
     //! vector. Requires that `std::distance(it_begin, it_end) == bits_to_limbs(bits)`.
@@ -268,6 +257,17 @@ private:
         int new_int_bits,
         QuantizationMode quantization = QuantizationMode::TRN,
         OverflowMode overflow = OverflowMode::WRAP
+    ) const;
+
+    //! The internal cast method when the word length is known to be correct.
+    //! Uses output iterators to place result onto its limb vector.
+    //! Requires that `std::distance(it_begin, it_end) == bits_to_limbs(bits)`.
+    void _cast_correct_wl(
+        std::vector<mp_limb_t>::iterator it_begin,
+        std::vector<mp_limb_t>::iterator it_end,
+        int new_bits,
+        int new_int_bits,
+        unsigned int shift_amount
     ) const;
 
     //! Handle quantization of fixed-point numbers
