@@ -13,8 +13,7 @@ from apytypes._apytypes import get_float_quantization_mode
 from apytypes._apytypes import get_float_quantization_seed
 from apytypes._apytypes import set_float_quantization_mode
 from apytypes._apytypes import set_float_quantization_seed
-from . import _apytypes
-from . import _version
+from apytypes._version import version as __version__
 
 __all__: list = [
     "APyFixed",
@@ -33,4 +32,3 @@ __all__: list = [
     "get_float_quantization_seed",
     "set_float_quantization_seed",
 ]
-__version__: str = "0.0.1.dev0"
