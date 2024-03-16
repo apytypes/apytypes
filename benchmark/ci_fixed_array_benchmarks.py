@@ -31,6 +31,34 @@ def test_fixed_matrix_addition_200(benchmark):
     benchmark(lambda x, y: x + y, a, b)
 
 
+def test_fixed_matrix_addition_long_200(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(200, 200) - 0.5, 200, 1)
+    b = APyFixedArray.from_float(np.random.rand(200, 200) - 0.5, 200, 1)
+
+    benchmark(lambda x, y: x + y, a, b)
+
+
+def test_fixed_matrix_addition_different_wl_long_200(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(200, 200) - 0.5, 200, 1)
+    b = APyFixedArray.from_float(np.random.rand(200, 200) - 0.5, 167, 13)
+
+    benchmark(lambda x, y: x + y, a, b)
+
+
+def test_fixed_matrix_addition_20_different_wl(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(20, 20) - 0.5, 19, 1)
+    b = APyFixedArray.from_float(np.random.rand(20, 20) - 0.5, 15, 3)
+
+    benchmark(lambda x, y: x + y, a, b)
+
+
+def test_fixed_matrix_addition_200_different_wl(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(200, 200) - 0.5, 19, 1)
+    b = APyFixedArray.from_float(np.random.rand(200, 200) - 0.5, 15, 3)
+
+    benchmark(lambda x, y: x + y, a, b)
+
+
 def test_fixed_matrix_elementwise_multiplication_20(benchmark):
     a = APyFixedArray.from_float(np.random.rand(20, 20) - 0.5, 19, 1)
     b = APyFixedArray.from_float(np.random.rand(20, 20) - 0.5, 19, 1)
