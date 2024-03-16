@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ["ubuntu-latest"] # TODO: "windows-latest", "macos-12", "macos14"
+        os: ["ubuntu-latest", "macos-14"] # TODO: "macos-12", "windows-latest"
 
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +30,6 @@ jobs:
           path: ./wheelhouse/*.whl
           if-no-files-found: error
 
-
   # Official publication to PyPi (on new tags)
   publish-to-pypi:
     name: >-
@@ -46,11 +45,12 @@ jobs:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
 
     steps:
-    - name: Download all the dists
+    - name: Download all the wheels
       uses: actions/download-artifact@v4
       with:
-        name: python-package-distributions
-        path: dist/
+        pattern: apytypes-wheels-*
+        path: dist
+        merge-multiple: true
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
 
@@ -109,7 +109,7 @@ jobs:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
 
     steps:
-    - name: Download all the dists
+    - name: Download all the wheels
       uses: actions/download-artifact@v4
       with:
         pattern: apytypes-wheels-*
