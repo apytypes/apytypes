@@ -137,6 +137,10 @@ APyFloat APyFloat::cast(
     std::optional<QuantizationMode> quantization
 ) const
 {
+    if ((new_exp_bits == exp_bits) && (new_man_bits == man_bits)
+        && (new_bias == bias)) {
+        return *this;
+    }
     APyFloat res(new_exp_bits, new_man_bits, new_bias);
     res.sign = sign;
 
@@ -249,6 +253,10 @@ APyFloat APyFloat::cast_no_quant(
     std::uint8_t new_exp_bits, std::uint8_t new_man_bits, std::optional<exp_t> new_bias
 ) const
 {
+    if ((new_exp_bits == exp_bits) && (new_man_bits == man_bits)
+        && (new_bias == bias)) {
+        return *this;
+    }
     APyFloat res(new_exp_bits, new_man_bits, new_bias);
     res.sign = sign;
 
