@@ -41,6 +41,10 @@ def test_array_add():
         )
     )
 
+    a = APyFixedArray.from_float([1.2345, -5.4321], bits=256, int_bits=128)
+    b = APyFixedArray.from_float([9.8765, 5.6789], bits=25, int_bits=12)
+    assert (a + b).is_identical(b + a)
+
 
 def test_array_add_scalar():
     a = APyFixedArray([-5, -6, 7], bits=10, int_bits=5)
