@@ -254,7 +254,8 @@ public:
         std::vector<mp_limb_t>::iterator it_begin,
         std::vector<mp_limb_t>::iterator it_end,
         int new_bits,
-        int new_int_bits
+        int new_int_bits,
+        unsigned int shift_amount
     ) const;
 
 private:
