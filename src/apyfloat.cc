@@ -153,8 +153,6 @@ APyFloat APyFloat::cast(
     std::int64_t new_exp = (std::int64_t)exp - (std::int64_t)bias + is_subnormal()
         + (std::int64_t)res.bias;
 
-    const auto man_bits_delta = res.man_bits - man_bits;
-
     // Normalize the exponent and mantissa if convertering from a subnormal
     man_t prev_man = man;
     if (is_subnormal()) {
@@ -167,6 +165,8 @@ APyFloat APyFloat::cast(
     if (new_exp <= -static_cast<std::int64_t>(res.man_bits)) { // Exponent too small
         return res.construct_zero();
     }
+
+    const auto man_bits_delta = res.man_bits - man_bits;
 
     // Initial value for mantissa
     man_t new_man = (man_bits_delta > 0) ? (prev_man << man_bits_delta)
@@ -238,6 +238,52 @@ APyFloat APyFloat::cast(
 
     if (new_exp >= res.max_exponent()) {
         return res.construct_inf();
+    }
+
+    res.man = new_man;
+    res.exp = new_exp;
+    return res;
+}
+
+APyFloat APyFloat::cast_no_quant(
+    std::uint8_t new_exp_bits, std::uint8_t new_man_bits, std::optional<exp_t> new_bias
+) const
+{
+    APyFloat res(new_exp_bits, new_man_bits, new_bias);
+    res.sign = sign;
+
+    // Handle special values first
+    if (is_nan()) {
+        return res.construct_nan(sign);
+    } else if (is_inf()) {
+        return res.construct_inf(sign);
+    } else if (is_zero()) {
+        return res.construct_zero(sign);
+    }
+
+    // Initial value for exponent
+    std::int64_t new_exp = (std::int64_t)exp - (std::int64_t)bias + is_subnormal()
+        + (std::int64_t)res.bias;
+
+    // Normalize the exponent and mantissa if convertering from a subnormal
+    man_t prev_man = man;
+    if (is_subnormal()) {
+        const exp_t subn_adjustment = count_trailing_bits(man);
+        new_exp = new_exp - man_bits + subn_adjustment;
+        const man_t remainder = man % (1ULL << subn_adjustment);
+        prev_man = remainder << (man_bits - subn_adjustment);
+    }
+
+    // Initial value for mantissa
+    man_t new_man = prev_man << (res.man_bits - man_bits);
+
+    if (new_exp <= 0) { // The number will be converted to a subnormal in the new format
+        new_man |= res.leading_one();             // Add leading one
+        new_man <<= (res.man_bits + new_exp - 1); // Shift the difference between E_min
+                                                  // and exp
+        new_man /= 1ULL << res.man_bits; // Divide by the minimum subnorm (i.e. E_min)
+        new_man &= res.man_mask();       // Mask away the leading ones
+        new_exp = 0;
     }
 
     res.man = new_man;
@@ -404,11 +450,11 @@ APyFloat APyFloat::operator+(APyFloat y) const
     }
 
     if (x.is_zero()) {
-        return y.cast(res.exp_bits, res.man_bits, res.bias);
+        return y.cast_no_quant(res.exp_bits, res.man_bits, res.bias);
     }
 
     if (y.is_zero()) {
-        return x.cast(res.exp_bits, res.man_bits, res.bias);
+        return x.cast_no_quant(res.exp_bits, res.man_bits, res.bias);
     }
 
     std::int64_t new_exp = x.exp - x.bias + res.bias;
@@ -730,8 +776,8 @@ APyFloat APyFloat::operator&(APyFloat& rhs)
 {
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto lhs_big = cast(max_exp_bits, max_man_bits);
-    const auto rhs_big = rhs.cast(max_exp_bits, max_man_bits);
+    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits);
+    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits);
 
     APyFloat f(
         lhs_big.sign & rhs_big.sign,
@@ -747,8 +793,8 @@ APyFloat APyFloat::operator|(APyFloat& rhs)
 {
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto lhs_big = cast(max_exp_bits, max_man_bits);
-    const auto rhs_big = rhs.cast(max_exp_bits, max_man_bits);
+    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits);
+    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits);
 
     APyFloat f(
         lhs_big.sign | rhs_big.sign,
@@ -764,8 +810,8 @@ APyFloat APyFloat::operator^(APyFloat& rhs)
 {
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto lhs_big = cast(max_exp_bits, max_man_bits);
-    const auto rhs_big = rhs.cast(max_exp_bits, max_man_bits);
+    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits);
+    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits);
 
     APyFloat f(
         lhs_big.sign ^ rhs_big.sign,
@@ -807,8 +853,8 @@ bool APyFloat::operator==(const APyFloat& rhs) const
     // Cast operands to a larger format that can represent both numbers
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto lhs_big = cast(max_exp_bits, max_man_bits);
-    const auto rhs_big = rhs.cast(max_exp_bits, max_man_bits);
+    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits);
+    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits);
 
     return (lhs_big.exp == rhs_big.exp) && (lhs_big.man == rhs_big.man);
 }
@@ -847,8 +893,8 @@ bool APyFloat::operator<(const APyFloat& rhs) const
     // Cast operands to a larger format that can represent both numbers
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto lhs_big = cast(max_exp_bits, max_man_bits);
-    const auto rhs_big = rhs.cast(max_exp_bits, max_man_bits);
+    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits);
+    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits);
 
     bool ret {};
 
