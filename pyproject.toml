@@ -77,4 +77,7 @@ default.extend-words = { NDArray = "NDArray" }
 default.extend-identifiers = { NDArray = "NDArray" }
 
 [tool.cibuildwheel]
-skip = "pp*"  # APyTypes currently can not be build for PyPy
+skip = [
+    "pp*",      # APyTypes currently can not be build for PyPy ...
+    "*-win32",  # ... nor can it be build for 32-bit Windows systems
+]
