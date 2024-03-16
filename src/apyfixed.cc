@@ -611,7 +611,7 @@ void APyFixed::set_from_string_dec(const std::string& str)
     std::size_t binary_point_dec = str_trimmed.find('.');
     binary_point_dec = (binary_point_dec == std::string::npos) ? 0 : binary_point_dec;
     str_trimmed.erase(
-        std::remove(str_trimmed.begin(), str_trimmed.end(), '.'), str_trimmed.cend()
+        std::remove(str_trimmed.begin(), str_trimmed.end(), '.'), str_trimmed.end()
     );
 
     // Copy characters (from back) of the trimmed string into a BCD list

@@ -75,3 +75,6 @@ markers = [
 files.extend-exclude = ["extern", "docs/Doxyfile"]
 default.extend-words = { NDArray = "NDArray" }
 default.extend-identifiers = { NDArray = "NDArray" }
+
+[tool.cibuildwheel]
+skip = "pp*"  # APyTypes currently can not be build for PyPy
