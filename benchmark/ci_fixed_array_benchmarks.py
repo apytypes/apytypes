@@ -119,3 +119,15 @@ def test_fixed_matrix_to_numpy_200(benchmark):
     a = APyFixedArray.from_float(np.random.rand(200, 200), 19, 1)
 
     benchmark(lambda x: x.to_numpy(), a)
+
+
+def test_fixed_vector_sum_20(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(20), 19, 1)
+
+    benchmark(sum, a)
+
+
+def test_fixed_vector_max_20(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(20), 19, 1)
+
+    benchmark(max, a)
