@@ -916,6 +916,7 @@ APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) co
     // `APyFixed` with the same word length as `*this` for reusing quantization methods
     APyFixed fixed(_bits, _int_bits);
 
+    auto shift_amount = new_bits - new_int_bits - frac_bits();
     // For each scalar in the tensor...
     for (std::size_t i = 0; i < fold_shape(_shape); i++) {
 
@@ -931,7 +932,8 @@ APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) co
             result._data.begin() + (i + 0) * result._itemsize, // output start
             result._data.begin() + (i + 1) * result._itemsize, // output sentinel
             new_bits,
-            new_int_bits
+            new_int_bits,
+            shift_amount
         );
     }
 

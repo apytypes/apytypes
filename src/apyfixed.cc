@@ -138,18 +138,27 @@ APyFixed APyFixed::operator+(const APyFixed& rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
 
     APyFixed result(res_bits, res_int_bits);
-    cast_correct_wl(result._data.begin(), result._data.end(), res_bits, res_int_bits);
+    auto shift_amount = unsigned(res_frac_bits - frac_bits());
+    auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
+
+    cast_correct_wl(
+        result._data.begin(), result._data.end(), res_bits, res_int_bits, shift_amount
+    );
 
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         // Result bits fits in a single limb. Use native addition
         mp_limb_t operand = rhs._data[0];
-        operand <<= res_frac_bits - rhs.frac_bits();
+        operand <<= rhs_shift_amount;
         result._data[0] = result._data[0] + operand;
     } else {
         // Result bits is more than one limb. Add with carry
         APyFixed operand(res_bits, res_int_bits);
         rhs.cast_correct_wl(
-            operand._data.begin(), operand._data.end(), res_bits, res_int_bits
+            operand._data.begin(),
+            operand._data.end(),
+            res_bits,
+            res_int_bits,
+            rhs_shift_amount
         );
         mpn_add_n(
             &result._data[0],    // dst
@@ -168,19 +177,28 @@ APyFixed APyFixed::operator-(const APyFixed& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
     const int res_bits = res_int_bits + res_frac_bits;
 
+    auto shift_amount = unsigned(res_frac_bits - frac_bits());
+    auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
+
     APyFixed result(res_bits, res_int_bits);
-    cast_correct_wl(result._data.begin(), result._data.end(), res_bits, res_int_bits);
+    cast_correct_wl(
+        result._data.begin(), result._data.end(), res_bits, res_int_bits, shift_amount
+    );
 
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         // Result bits fits in a single limb. Use native subtraction
         mp_limb_t operand = rhs._data[0];
-        operand <<= res_frac_bits - rhs.frac_bits();
+        operand <<= rhs_shift_amount;
         result._data[0] = result._data[0] - operand;
     } else {
         // Result bits is more than one limb. Add with carry
         APyFixed operand(res_bits, res_int_bits);
         rhs.cast_correct_wl(
-            operand._data.begin(), operand._data.end(), res_bits, res_int_bits
+            operand._data.begin(),
+            operand._data.end(),
+            res_bits,
+            res_int_bits,
+            rhs_shift_amount
         );
         mpn_sub_n(
             &result._data[0],    // dst
@@ -889,7 +907,8 @@ void APyFixed::cast_correct_wl(
     std::vector<mp_limb_t>::iterator it_begin,
     std::vector<mp_limb_t>::iterator it_end,
     int new_bits,
-    int new_int_bits
+    int new_int_bits,
+    unsigned int shift_amount
 ) const
 {
     // Copy data into the result and sign extend
@@ -898,9 +917,8 @@ void APyFixed::cast_correct_wl(
     if (vector_size() < result_vector_size) {
         std::fill(it_begin + vector_size(), it_end, is_negative() ? mp_limb_t(-1) : 0);
     }
-    int new_frac_bits = new_bits - new_int_bits;
-    if (new_frac_bits - frac_bits() >= 0) {
-        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    if (shift_amount >= 0) {
+        limb_vector_lsl(it_begin, it_end, shift_amount);
     }
 }
 
