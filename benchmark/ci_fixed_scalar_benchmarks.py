@@ -52,6 +52,13 @@ def test_fixed_scalar_addition_short(benchmark):
     benchmark(lambda x, y: x + y, a, b)
 
 
+def test_fixed_scalar_addition_short_different_wl(benchmark):
+    a = APyFixed.from_float(np.random.rand(1)[0] - 0.5, 15, 3)
+    b = APyFixed.from_float(np.random.rand(1)[0] - 0.5, 20, 1)
+
+    benchmark(lambda x, y: x + y, a, b)
+
+
 def test_fixed_scalar_addition_long(benchmark):
     a = APyFixed.from_float(np.random.rand(1)[0] - 0.5, 200, 1)
     b = APyFixed.from_float(np.random.rand(1)[0] - 0.5, 200, 1)
@@ -82,3 +89,27 @@ def test_fixed_scalar_to_float_short(benchmark):
     a = APyFixed.from_float(np.random.rand(1)[0] - 0.5, 20, 1)
 
     benchmark(float, a)
+
+
+def test_fixed_scalar_negation_short(benchmark):
+    a = APyFixed.from_float(np.random.rand(1)[0] - 0.5, 20, 1)
+
+    benchmark(lambda x: -x, a)
+
+
+def test_fixed_scalar_negation_long(benchmark):
+    a = APyFixed.from_float(np.random.rand(1)[0] - 0.5, 200, 1)
+
+    benchmark(lambda x: -x, a)
+
+
+def test_fixed_scalar_abs_short(benchmark):
+    a = APyFixed.from_float(np.random.rand(1)[0] - 0.5, 20, 1)
+
+    benchmark(abs, a)
+
+
+def test_fixed_scalar_abs_long(benchmark):
+    a = APyFixed.from_float(np.random.rand(1)[0] - 0.5, 200, 1)
+
+    benchmark(abs, a)
