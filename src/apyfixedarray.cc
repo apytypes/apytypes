@@ -1,9 +1,7 @@
 // Python object access through Pybind
-#include "apybuffer.h"
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
-#include <type_traits>
 namespace nb = nanobind;
 
 // Python details. These should be included before standard header files:
@@ -21,14 +19,15 @@ namespace nb = nanobind;
 #include <string>    // std::string
 #include <vector>    // std::vector, std::swap
 
-#include <fmt/format.h>
-
+#include "apybuffer.h"
 #include "apyfixed.h"
 #include "apyfixedarray.h"
 #include "apyfixedarray_iterator.h"
 #include "apytypes_common.h"
 #include "apytypes_util.h"
 #include "python_util.h"
+
+#include <fmt/format.h>
 
 // GMP should be included after all other includes
 #include "../extern/mini-gmp/mini-gmp.h"
@@ -647,10 +646,15 @@ APyFixedArray APyFixedArray::from_double(
     std::optional<int> frac_bits
 )
 {
-    // Special-case
     if (nb::isinstance<nb::ndarray<nb::numpy>>(python_seq)) {
+        // Sequence is NumPy NDArray. Initialize using `_set_values_from_numpy_ndarray`
         auto ndarray = nb::cast<nb::ndarray<nb::numpy>>(python_seq);
         std::size_t ndim = ndarray.ndim();
+        if (ndim == 0) {
+            throw nb::type_error(
+                "APyFixedArray.from_float(): NDArray with ndim == 0 not supported"
+            );
+        }
         std::vector<std::size_t> shape(ndim, 0);
         for (std::size_t i = 0; i < ndim; i++) {
             shape[i] = ndarray.shape(i);
@@ -999,14 +1003,13 @@ void APyFixedArray::_set_bits_from_numpy_ndarray(const nb::ndarray<nb::numpy>& n
                     );                                                                 \
                 }                                                                      \
             }                                                                          \
-            return;                                                                    \
+            return; /* Conversion completed, exit function */                          \
         }                                                                              \
     } while (0)
 
-    // Each `CHECK_AND_SET_BITS_FROM_NPTYPE` checks the `dtype` of `ndarray` and
-    // converts all the data if it matches. If successful,
-    // `CHECK_AND_SET_BITS_FROM_NPTYPES` returns. Otherwise, the next attemted
-    // conversion will take place
+    // Each `CHECK_AND_SET_BITS_FROM_NPTYPE` checks the dtype of `ndarray` and converts
+    // all the data if it matches. If successful, `CHECK_AND_SET_BITS_FROM_NPTYPES`
+    // returns. Otherwise, the next attemted conversion will take place
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::int64_t);
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::int32_t);
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::int16_t);
@@ -1029,33 +1032,45 @@ void APyFixedArray::_set_bits_from_numpy_ndarray(const nb::ndarray<nb::numpy>& n
 void APyFixedArray::_set_values_from_numpy_ndarray(const nb::ndarray<nb::numpy>& ndarray
 )
 {
-    // Make sure `ndim` of `*this` and `ndarray` are equal
-    if (_ndim != ndarray.ndim()) {
-        throw nb::type_error(fmt::format(
-                                 "APyFixedArray::_set_values_from_numpy_ndarray(): "
-                                 "[`_ndim` == {}] != [`ndarray.ndim()` == {}]",
-                                 _ndim,
-                                 ndarray.ndim()
-        )
-                                 .c_str());
-    }
+    // Type caster used for converting.
+    APyFixed caster(bits(), int_bits());
 
-    // Make sure the shape of `*this` and `ndarray` are equal
-    for (std::size_t i = 0; i < _ndim; i++) {
-        if (_shape[i] != ndarray.shape(i)) {
-            throw nb::type_error(
-                fmt::format(
-                    "APyFixedArray::_set_values_from_numpy_ndarray(): "
-                    "[`_shape[{}]` == {}} != `[ndarray.shape({})` == {}",
-                    i,
-                    _shape[i],
-                    i,
-                    ndarray.shape(i)
-                )
-                    .c_str()
-            );
-        }
-    }
+#define CHECK_AND_SET_VALUES_FROM_NPTYPE(__TYPE__)                                     \
+    do {                                                                               \
+        if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
+            auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
+            for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
+                double data = static_cast<double>(ndarray_view.data()[i]);             \
+                caster.set_from_double(data);                                          \
+                std::copy_n(                                                           \
+                    caster._data.begin(), _itemsize, _data.begin() + i * _itemsize     \
+                );                                                                     \
+            }                                                                          \
+            return; /* Conversion completed, exit function */                          \
+        }                                                                              \
+    } while (0)
 
-    throw NotImplementedException("TODO: Do it...");
+    // Each `CHECK_AND_SET_VALUES_FROM_NPTYPE` checks the dtype of `ndarray` and
+    // converts all the data if it matches. If successful,
+    // `CHECK_AND_SET_VALUES_FROM_NPTYPES` returns. Otherwise, the next attemted
+    // conversion will take place
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(double);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(float);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int64_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int32_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int16_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int8_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint64_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint32_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint16_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint8_t);
+
+    // None of the `CHECK_AND_VALUES_FROM_NPTYPE` succeeded. Unsupported type, throw an
+    // error. If possible, it would be nice to show a string representation of the
+    // `dtype`. Seems hard to achieve with nanobind, but please fix this if you find out
+    // how this can be achieved.
+    throw nb::type_error(
+        "APyFixedArray::_set_values_from_numpy_ndarray(): "
+        "unsupported `dtype` expecting integer/float"
+    );
 }

@@ -69,10 +69,8 @@ def test_array_floating_point_construction():
         "uint8",
         "float64",
         "float32",
-        "float16",
     ],
 )
-@pytest.mark.xfail()
 def test_numpy_creation(dt):
     import numpy as np
 
