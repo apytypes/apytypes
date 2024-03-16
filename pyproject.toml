@@ -62,3 +62,6 @@ markers = [
     "float_array : custom marker for grouping tests for floating-point arrays",
     "slow : custom marker for grouping long running tests",
 ]
+
+[tool.cibuildwheel]
+skip = "pp*"  # APyTypes currently can not be build for PyPy
