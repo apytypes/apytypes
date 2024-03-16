@@ -537,9 +537,7 @@ std::variant<APyFixedArray, APyFixed> APyFixedArray::get_item(std::size_t idx) c
         return result;
     } else {
         // New shape contains all dimensions except the very first one
-        auto new_shape = ndim() > 1
-            ? std::vector<std::size_t>(_shape.begin() + 1, _shape.end())
-            : std::vector<std::size_t> { 1 };
+        auto new_shape = std::vector<std::size_t>(_shape.begin() + 1, _shape.end());
 
         // Element stride is the new shape folded over multiplication
         std::size_t element_stride = fold_shape(new_shape);
