@@ -285,9 +285,7 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::get_item(std::size_t idx) c
         return result;
     } else {
         // New shape contains all dimensions except the very first one
-        auto new_shape = get_ndim() > 1
-            ? std::vector<std::size_t>(shape.begin() + 1, shape.end())
-            : std::vector<std::size_t> { 1 };
+        auto new_shape = std::vector<std::size_t>(shape.begin() + 1, shape.end());
 
         // Element stride is the new shape folded over multiplication
         std::size_t element_stride = std::accumulate(
@@ -402,11 +400,36 @@ APyFloatArray APyFloatArray::cast(
     std::optional<QuantizationMode> quantization
 ) const
 {
+    if ((new_exp_bits == exp_bits) && (new_man_bits == man_bits)
+        && (new_bias == bias)) {
+        return *this;
+    }
+
     APyFloatArray result(shape, new_exp_bits, new_man_bits, new_bias);
 
     for (std::size_t i = 0; i < data.size(); i++) {
         result.data[i] = APyFloat(data[i], exp_bits, man_bits, bias)
                              .cast(new_exp_bits, new_man_bits, new_bias, quantization)
+                             .get_data();
+    }
+
+    return result;
+}
+
+APyFloatArray APyFloatArray::cast_no_quant(
+    std::uint8_t new_exp_bits, std::uint8_t new_man_bits, std::optional<exp_t> new_bias
+) const
+{
+    if ((new_exp_bits == exp_bits) && (new_man_bits == man_bits)
+        && (new_bias == bias)) {
+        return *this;
+    }
+
+    APyFloatArray result(shape, new_exp_bits, new_man_bits, new_bias);
+
+    for (std::size_t i = 0; i < data.size(); i++) {
+        result.data[i] = APyFloat(data[i], exp_bits, man_bits, bias)
+                             .cast_no_quant(new_exp_bits, new_man_bits, new_bias)
                              .get_data();
     }
 

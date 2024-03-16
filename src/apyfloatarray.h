@@ -97,6 +97,12 @@ public:
         std::optional<QuantizationMode> quantization = std::nullopt
     ) const;
 
+    APyFloatArray cast_no_quant(
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    ) const;
+
     APyFloatArray resize(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
