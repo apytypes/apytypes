@@ -81,3 +81,7 @@ skip = [
     "pp*",      # APyTypes currently can not be build for PyPy ...
     "*-win32",  # ... nor can it be build for 32-bit Windows systems
 ]
+
+[tool.cibuildwheel.macos.environment]
+# MacOS 10.14 is the first MacOS release with full support for C++17
+MACOSX_DEPLOYMENT_TARGET = "10.14"
