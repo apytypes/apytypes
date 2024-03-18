@@ -646,14 +646,18 @@ limb_vector_lsl(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
 {
     unsigned bit_idx = n % _LIMB_SIZE_BITS;
     unsigned limb_idx = n / _LIMB_SIZE_BITS;
-    std::vector<mp_limb_t> term(std::distance(it_begin, it_end), 0);
-    term[limb_idx] = mp_limb_t(1) << bit_idx;
-    return mpn_add_n(
-        &*it_begin, // dst
-        &*it_begin, // src1
-        &term[0],   // src2
-        term.size() // limb vector length
-    );
+    auto limbs = std::distance(it_begin, it_end);
+    if (limb_idx < limbs) {
+        std::vector<mp_limb_t> term(limbs, 0);
+        term[limb_idx] = mp_limb_t(1) << bit_idx;
+        return mpn_add_n(            /* notice carry return here */
+                         &*it_begin, // dst
+                         &*it_begin, // src1
+                         &term[0],   // src2
+                         term.size() // limb vector length
+        );
+    }
+    return 0;
 }
 
 //! Subtract a power-of-two (2 ^ `n`) from a limb vector. Returns borrow.
@@ -665,14 +669,18 @@ limb_vector_lsl(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
 {
     unsigned bit_idx = n % _LIMB_SIZE_BITS;
     unsigned limb_idx = n / _LIMB_SIZE_BITS;
-    std::vector<mp_limb_t> term(std::distance(it_begin, it_end), 0);
-    term[limb_idx] = mp_limb_t(1) << bit_idx;
-    return mpn_sub_n(
-        &*it_begin, // dst
-        &*it_begin, // src1
-        &term[0],   // src2
-        term.size() // limb_vector_length
-    );
+    auto limbs = std::distance(it_begin, it_end);
+    if (limb_idx < limbs) {
+        std::vector<mp_limb_t> term(limbs, 0);
+        term[limb_idx] = mp_limb_t(1) << bit_idx;
+        return mpn_sub_n(            /* notice carry return here */
+                         &*it_begin, // dst
+                         &*it_begin, // src1
+                         &term[0],   // src2
+                         term.size() // limb_vector_length
+        );
+    }
+    return 0;
 }
 
 //! Add a power-of-two (2 ^ `n`) onto a limb vector. Returns carry out

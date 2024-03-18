@@ -254,3 +254,41 @@ def test_not_implemented(mode):
 def test_issue_112():
     # Smoke test to make sure that it doesn't seg-fault
     APyFixed.from_float(123, int_bits=119, frac_bits=0).cast(4, 4)
+
+
+def test_issue_179():
+    #
+    # https://github.com/apytypes/apytypes/issues/179
+    #
+    # C++ function `limb_vector_add_pow2(n)` out-of-bounds access when `n` >= `n_limbs`.
+    # Test all corner out-of-bound cases for `limb_vector_add_pow2()`
+    #
+    a = APyFixed(0x8000000000000000, bits=64, int_bits=0)
+    b = a.cast(bits=64, int_bits=64)
+    c = a.cast(bits=64, int_bits=64, quantization=QuantizationMode.RND)
+    assert float(b) == -1.0
+    assert float(c) == 0.0
+
+    a = APyFixed(0x7FFFFFFFFFFFFFFF, bits=64, int_bits=-128)
+    b = a.cast(bits=64, int_bits=64)
+    c = a.cast(bits=64, int_bits=64, quantization=QuantizationMode.RND)
+    assert b.is_identical(APyFixed(0x0, bits=64, int_bits=64))
+    assert c.is_identical(APyFixed(0x0, bits=64, int_bits=64))
+
+    a = APyFixed(0xFFFFFFFFFFFFFFFF, bits=64, int_bits=-128)
+    b = a.cast(bits=64, int_bits=64)
+    c = a.cast(bits=64, int_bits=64, quantization=QuantizationMode.RND)
+    assert b.is_identical(APyFixed.from_float(-1, bits=64, int_bits=64))
+    assert c.is_identical(APyFixed.from_float(-1, bits=64, int_bits=64))
+
+    a = APyFixed(0x7FFFFFFFFFFFFFFF, bits=64, int_bits=128)
+    b = a.cast(bits=64, int_bits=64)
+    c = a.cast(bits=64, int_bits=64, quantization=QuantizationMode.RND)
+    assert b.is_identical(APyFixed(0, bits=64, int_bits=64))
+    assert c.is_identical(APyFixed(0, bits=64, int_bits=64))
+
+    a = APyFixed(0xFFFFFFFFFFFFFFFF, bits=64, int_bits=128)
+    b = a.cast(bits=64, int_bits=64)
+    c = a.cast(bits=64, int_bits=64, quantization=QuantizationMode.RND)
+    assert b.is_identical(APyFixed.from_float(0, bits=64, int_bits=64))
+    assert c.is_identical(APyFixed.from_float(0, bits=64, int_bits=64))
