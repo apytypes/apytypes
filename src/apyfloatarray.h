@@ -31,10 +31,12 @@ public:
     APyFloatArray operator+(const APyFloat& rhs) const;
     APyFloatArray operator-(const APyFloatArray& rhs) const;
     APyFloatArray operator-(const APyFloat& rhs) const;
+    APyFloatArray operator-() const;
     APyFloatArray operator*(const APyFloatArray& rhs) const;
     APyFloatArray operator*(const APyFloat& rhs) const;
     APyFloatArray operator/(const APyFloatArray& rhs) const;
     APyFloatArray operator/(const APyFloat& rhs) const;
+    APyFloatArray abs() const;
 
     /*!
      * Matrix mutliplication. If both arguments ar 2-D tensors, this method performs the

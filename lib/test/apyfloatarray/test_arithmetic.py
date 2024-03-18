@@ -108,6 +108,7 @@ def test_array_sub_scalar():
     a = APyFloatArray.from_float([12, 23, 34], 8, 10)
     b = APyFloat.from_float(8, 9, 8)
     assert (a - b).is_identical(APyFloatArray.from_float([4, 15, 26], 9, 10))
+    assert (b - a).is_identical(APyFloatArray.from_float([-4, -15, -26], 9, 10))
 
 
 @pytest.mark.float_array
@@ -257,3 +258,18 @@ def test_transpose():
             man_bits=2,
         )
     )
+
+
+@pytest.mark.float_array
+def test_unary_negation():
+    a = APyFloatArray.from_float([-4.25, 12, -5.5], 9, 10)
+    assert (-(-a)).is_identical(a)
+    b = APyFloatArray.from_float([4.25, -12, 5.5], 9, 10)
+    assert (-a).is_identical(b)
+
+
+@pytest.mark.float_array
+def test_abs():
+    a = APyFloatArray.from_float([-4.25, 12, -5.5], 9, 10)
+    b = APyFloatArray.from_float([4.25, 12, 5.5], 9, 10)
+    assert abs(a).is_identical(b)
