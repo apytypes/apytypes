@@ -90,6 +90,7 @@ void bind_float_array(nb::module_& m)
             nb::is_operator()
         )
         .def(nb::self - nb::self)
+        .def(-nb::self)
         .def(
             "__sub__",
             [](const APyFloatArray& a, int b) {
@@ -101,17 +102,17 @@ void bind_float_array(nb::module_& m)
             },
             nb::is_operator()
         )
-        // .def(
-        //     "__rsub__",
-        //     [](const APyFloatArray& a, int b) {
-        //         if (b == 0) {
-        //             return a;
-        //         } else {
-        //             throw nanobind::type_error("Cannot sub with int");
-        //         };
-        //     },
-        //     nb::is_operator()
-        // )
+        .def(
+            "__rsub__",
+            [](const APyFloatArray& a, int b) {
+                if (b == 0) {
+                    return -a;
+                } else {
+                    throw nanobind::type_error("Cannot sub with int");
+                };
+            },
+            nb::is_operator()
+        )
         .def(
             "__sub__",
             [](const APyFloatArray& a, float b) {
@@ -123,27 +124,27 @@ void bind_float_array(nb::module_& m)
             },
             nb::is_operator()
         )
-        // .def(
-        //     "__rsub__",
-        //     [](const APyFloatArray& a, float b) {
-        //         if (b == 0.) {
-        //             return a;
-        //         } else {
-        //             throw nanobind::type_error("Cannot sub with float");
-        //         };
-        //     },
-        //     nb::is_operator()
-        // )
+        .def(
+            "__rsub__",
+            [](const APyFloatArray& a, float b) {
+                if (b == 0.) {
+                    return -a;
+                } else {
+                    throw nanobind::type_error("Cannot sub with float");
+                };
+            },
+            nb::is_operator()
+        )
         .def(
             "__sub__",
             [](const APyFloatArray& a, APyFloat& b) { return a - b; },
             nb::is_operator()
         )
-        // .def(
-        //     "__rsub__",
-        //     [](const APyFloatArray& a, APyFloat& b) { return a - b; },
-        //     nb::is_operator()
-        // )
+        .def(
+            "__rsub__",
+            [](const APyFloatArray& a, APyFloat& b) { return (-a) + b; },
+            nb::is_operator()
+        )
         .def(nb::self * nb::self)
         .def(
             "__mul__",
@@ -211,17 +212,6 @@ void bind_float_array(nb::module_& m)
             },
             nb::is_operator()
         )
-        // .def(
-        //     "__rtruediv__",
-        //     [](const APyFloatArray& a, int b) {
-        //         if (b == 0) {
-        //             return a;
-        //         } else {
-        //             throw nanobind::type_error("Cannot divide with int");
-        //         };
-        //     },
-        //     nb::is_operator()
-        // )
         .def(
             "__truediv__",
             [](const APyFloatArray& a, float b) {
@@ -233,27 +223,13 @@ void bind_float_array(nb::module_& m)
             },
             nb::is_operator()
         )
-        // .def(
-        //     "__rtruediv__",
-        //     [](const APyFloatArray& a, float b) {
-        //         if (b == 0.) {
-        //             return a;
-        //         } else {
-        //             throw nanobind::type_error("Cannot divide with float");
-        //         };
-        //     },
-        //     nb::is_operator()
-        // )
         .def(
             "__truediv__",
             [](const APyFloatArray& a, APyFloat& b) { return a / b; },
             nb::is_operator()
         )
-        // .def(
-        //     "__rtruediv__",
-        //     [](const APyFloatArray& a, APyFloat& b) { return a / b; },
-        //     nb::is_operator()
-        // )
+        .def("__abs__", &APyFloatArray::abs)
+
         /*
          * Methods
          */

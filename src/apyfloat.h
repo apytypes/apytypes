@@ -117,7 +117,7 @@ public:
      * ******************************************************************************
      */
 
-    static APyFloat abs(const APyFloat& x);
+    APyFloat abs() const;
     static APyFloat pow(const APyFloat& x, const APyFloat& y);
     static APyFloat pown(const APyFloat& x, int n);
 

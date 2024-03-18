@@ -106,7 +106,6 @@ APyFloatArray APyFloatArray::perform_basic_arithmetic(
     APyFloatArray res(
         shape, std::max(exp_bits, rhs.exp_bits), std::max(man_bits, rhs.man_bits)
     );
-    res.bias = APyFloat::ieee_bias(res.exp_bits);
 
     APyFloat lhs_scalar(exp_bits, man_bits, bias);
     APyFloat rhs_scalar(rhs.exp_bits, rhs.man_bits, rhs.bias);
@@ -130,38 +129,6 @@ APyFloatArray APyFloatArray::perform_basic_arithmetic(
     return res;
 }
 
-APyFloatArray APyFloatArray::perform_basic_arithmetic(
-    const APyFloat& rhs, ArithmeticOperation op
-) const
-{
-    // Calculate new format
-    APyFloatArray res(
-        shape,
-        std::max(exp_bits, rhs.get_exp_bits()),
-        std::max(man_bits, rhs.get_man_bits())
-    );
-    res.bias = APyFloat::ieee_bias(res.exp_bits);
-
-    APyFloat lhs_scalar(exp_bits, man_bits, bias);
-    // Perform operations
-    for (std::size_t i = 0; i < data.size(); i++) {
-        lhs_scalar.set_data(data[i]);
-
-        if (op == ArithmeticOperation::ADDITION)
-            res.data[i] = (lhs_scalar + rhs).get_data();
-        else if (op == ArithmeticOperation::SUBTRACTION)
-            res.data[i] = (lhs_scalar - rhs).get_data();
-        else if (op == ArithmeticOperation::MULTIPLICATION)
-            res.data[i] = (lhs_scalar * rhs).get_data();
-        else if (op == ArithmeticOperation::DIVISION)
-            res.data[i] = (lhs_scalar / rhs).get_data();
-        else
-            throw NotImplementedException("Arithmetic operation not implemented yet");
-    }
-
-    return res;
-}
-
 APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
 {
     return perform_basic_arithmetic(rhs, ArithmeticOperation::ADDITION);
@@ -169,7 +136,21 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
 
 APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
 {
-    return perform_basic_arithmetic(rhs, ArithmeticOperation::ADDITION);
+    // Calculate new format
+    APyFloatArray res(
+        shape,
+        std::max(exp_bits, rhs.get_exp_bits()),
+        std::max(man_bits, rhs.get_man_bits())
+    );
+
+    APyFloat lhs_scalar(exp_bits, man_bits, bias);
+    // Perform operations
+    for (std::size_t i = 0; i < data.size(); i++) {
+        lhs_scalar.set_data(data[i]);
+        res.data[i] = (lhs_scalar + rhs).get_data();
+    }
+
+    return res;
 }
 
 APyFloatArray APyFloatArray::operator-(const APyFloatArray& rhs) const
@@ -179,7 +160,39 @@ APyFloatArray APyFloatArray::operator-(const APyFloatArray& rhs) const
 
 APyFloatArray APyFloatArray::operator-(const APyFloat& rhs) const
 {
-    return perform_basic_arithmetic(rhs, ArithmeticOperation::SUBTRACTION);
+    // Calculate new format
+    APyFloatArray res(
+        shape,
+        std::max(exp_bits, rhs.get_exp_bits()),
+        std::max(man_bits, rhs.get_man_bits())
+    );
+
+    APyFloat lhs_scalar(exp_bits, man_bits, bias);
+    // Perform operations
+    for (std::size_t i = 0; i < data.size(); i++) {
+        lhs_scalar.set_data(data[i]);
+        res.data[i] = (lhs_scalar - rhs).get_data();
+    }
+
+    return res;
+}
+
+APyFloatArray APyFloatArray::operator-() const
+{
+    auto res = *this;
+    for (std::size_t i = 0; i < res.data.size(); i++) {
+        res.data[i].sign = !res.data[i].sign;
+    }
+    return res;
+}
+
+APyFloatArray APyFloatArray::abs() const
+{
+    auto res = *this;
+    for (std::size_t i = 0; i < res.data.size(); i++) {
+        res.data[i].sign = false;
+    }
+    return res;
 }
 
 APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
@@ -189,7 +202,21 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
 
 APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
 {
-    return perform_basic_arithmetic(rhs, ArithmeticOperation::MULTIPLICATION);
+    // Calculate new format
+    APyFloatArray res(
+        shape,
+        std::max(exp_bits, rhs.get_exp_bits()),
+        std::max(man_bits, rhs.get_man_bits())
+    );
+
+    APyFloat lhs_scalar(exp_bits, man_bits, bias);
+    // Perform operations
+    for (std::size_t i = 0; i < data.size(); i++) {
+        lhs_scalar.set_data(data[i]);
+        res.data[i] = (lhs_scalar * rhs).get_data();
+    }
+
+    return res;
 }
 
 APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
@@ -199,7 +226,21 @@ APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
 
 APyFloatArray APyFloatArray::operator/(const APyFloat& rhs) const
 {
-    return perform_basic_arithmetic(rhs, ArithmeticOperation::DIVISION);
+    // Calculate new format
+    APyFloatArray res(
+        shape,
+        std::max(exp_bits, rhs.get_exp_bits()),
+        std::max(man_bits, rhs.get_man_bits())
+    );
+
+    APyFloat lhs_scalar(exp_bits, man_bits, bias);
+    // Perform operations
+    for (std::size_t i = 0; i < data.size(); i++) {
+        lhs_scalar.set_data(data[i]);
+        res.data[i] = (lhs_scalar / rhs).get_data();
+    }
+
+    return res;
 }
 
 APyFloatArray APyFloatArray::matmul(const APyFloatArray& rhs) const

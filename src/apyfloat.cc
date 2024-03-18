@@ -437,8 +437,8 @@ APyFloat APyFloat::operator+(APyFloat y) const
     }
 
     // Compute sign and swap operands if need to make sure |x| >= |y|
-    const APyFloat xabs = APyFloat::abs(x);
-    const APyFloat yabs = APyFloat::abs(y);
+    const APyFloat xabs = x.abs();
+    const APyFloat yabs = y.abs();
 
     if (xabs > yabs) {
         res.sign = x.sign;
@@ -737,7 +737,12 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
  * ******************************************************************************
  */
 
-APyFloat APyFloat::abs(const APyFloat& x) { return x.sign ? -x : x; }
+APyFloat APyFloat::abs() const
+{
+    auto res = *this;
+    res.sign = false;
+    return res;
+}
 
 APyFloat APyFloat::pow(const APyFloat& x, const APyFloat& y)
 {
