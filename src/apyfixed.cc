@@ -650,20 +650,36 @@ void APyFixed::set_from_double(double value)
         // Adjust the actual exponent (-1023) and
         // shift the data into its correct position
         auto left_shift_amnt = exp + frac_bits() - 52 - 1023;
-        if (left_shift_amnt >= 0) {
-            limb_vector_lsl(_data, left_shift_amnt);
-        } else {
-            auto right_shift_amount = -left_shift_amnt;
-            if (right_shift_amount - 1 < 64) {
-                // Round the value
-                _data[0] += mp_limb_t(1) << (-left_shift_amnt - 1);
+        if (unsigned(_bits) <= _LIMB_SIZE_BITS) {
+            if (left_shift_amnt >= 0) {
+                _data[0] <<= left_shift_amnt;
+            } else {
+                auto right_shift_amount = -left_shift_amnt;
+                if (right_shift_amount - 1 < 64) {
+                    // Round the value
+                    _data[0] += mp_limb_t(1) << (-left_shift_amnt - 1);
+                }
+                _data[0] >>= right_shift_amount;
             }
-            limb_vector_lsr(_data, right_shift_amount);
-        }
-
-        // Adjust result from sign
-        if (sign_of_double(value)) {
-            limb_vector_negate(_data.begin(), _data.end(), _data.begin());
+            // Adjust result from sign
+            if (sign_of_double(value)) {
+                _data[0] = -_data[0];
+            }
+        } else {
+            if (left_shift_amnt >= 0) {
+                limb_vector_lsl(_data, left_shift_amnt);
+            } else {
+                auto right_shift_amount = -left_shift_amnt;
+                if (right_shift_amount - 1 < 64) {
+                    // Round the value
+                    _data[0] += mp_limb_t(1) << (-left_shift_amnt - 1);
+                }
+                limb_vector_lsr(_data, right_shift_amount);
+            }
+            // Adjust result from sign
+            if (sign_of_double(value)) {
+                limb_vector_negate(_data.begin(), _data.end(), _data.begin());
+            }
         }
         _twos_complement_overflow(_data.begin(), _data.end(), bits(), int_bits());
     } else {
