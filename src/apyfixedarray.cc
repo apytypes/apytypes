@@ -547,8 +547,8 @@ size_t APyFixedArray::size() const { return _shape[0]; }
 APyFixedArray APyFixedArray::abs() const
 {
     // Increase word length of result by one
-    const int res_int_bits = int_bits() + 1;
-    const int res_bits = res_int_bits + frac_bits();
+    const int res_int_bits = _int_bits + 1;
+    const int res_bits = _bits + 1;
 
     // Adjust binary point
     APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
@@ -572,8 +572,8 @@ APyFixedArray APyFixedArray::abs() const
 
 APyFixedArray APyFixedArray::operator-() const
 { // Increase word length of result by one
-    const int res_int_bits = int_bits() + 1;
-    const int res_bits = res_int_bits + frac_bits();
+    const int res_int_bits = _int_bits + 1;
+    const int res_bits = _bits + 1;
     APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         for (std::size_t i = 0; i < fold_shape(_shape); i++) {

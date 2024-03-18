@@ -858,13 +858,19 @@ bool APyFloat::operator==(const APyFloat& rhs) const
         return false;
     }
 
-    // Cast operands to a larger format that can represent both numbers
-    const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
-    const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits);
-    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits);
+    if ((exp_bits == rhs.exp_bits) && (man_bits == rhs.man_bits)) {
+        return (exp == rhs.exp) && (man == rhs.man);
 
-    return (lhs_big.exp == rhs_big.exp) && (lhs_big.man == rhs_big.man);
+    } else {
+
+        // Cast operands to a larger format that can represent both numbers
+        const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
+        const auto max_man_bits = std::max(man_bits, rhs.man_bits);
+        const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits);
+        const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits);
+
+        return (lhs_big.exp == rhs_big.exp) && (lhs_big.man == rhs_big.man);
+    }
 }
 
 bool APyFloat::is_identical(const APyFloat& other) const
@@ -898,23 +904,29 @@ bool APyFloat::operator<(const APyFloat& rhs) const
         return sign;
     }
 
-    // Cast operands to a larger format that can represent both numbers
-    const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
-    const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits);
-    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits);
-
-    bool ret {};
-
-    if (lhs_big.exp < rhs_big.exp) {
-        ret = true;
-    } else if (lhs_big.exp == rhs_big.exp) {
-        ret = lhs_big.man < rhs_big.man;
+    if ((exp_bits == rhs.exp_bits) && (man_bits == rhs.man_bits)) {
+        if (exp < rhs.exp) {
+            return !sign;
+        }
+        if (exp == rhs.exp) {
+            return sign ^ (man < rhs.man);
+        }
+        return sign;
     } else {
-        ret = false;
-    }
+        // Cast operands to a larger format that can represent both numbers
+        const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
+        const auto max_man_bits = std::max(man_bits, rhs.man_bits);
+        const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits);
+        const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits);
 
-    return ret ^ sign;
+        if (lhs_big.exp < rhs_big.exp) {
+            return !sign;
+        }
+        if (lhs_big.exp == rhs_big.exp) {
+            return sign ^ (lhs_big.man < rhs_big.man);
+        }
+        return sign;
+    }
 }
 
 bool APyFloat::operator>=(const APyFloat& rhs) const
