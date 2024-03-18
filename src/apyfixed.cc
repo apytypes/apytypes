@@ -404,8 +404,7 @@ APyFixed APyFixed::abs() const
     const int res_bits = _bits + 1;
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         APyFixed result(res_bits, _int_bits + 1);
-        // Result bits fits in a single limb.
-        if (is_negative()) {
+        if (mp_limb_signed_t(_data[0]) < 0) {
             result._data[0] = -_data[0];
         } else {
             result._data[0] = _data[0];
@@ -419,7 +418,7 @@ APyFixed APyFixed::abs() const
         } else {
             // Incrase word length by one and return copy (extra bit guaranteed to be
             // zero)
-            APyFixed result(_bits + 1, _int_bits + 1);
+            APyFixed result(res_bits, _int_bits + 1);
             std::copy(_data.cbegin(), _data.cend(), result._data.begin());
             return result;
         }

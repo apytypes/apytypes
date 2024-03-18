@@ -341,10 +341,10 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
     //  most significant limb is zero."
     std::vector<mp_limb_t> res_tmp_vec(_itemsize + rhs.vector_size(), 0);
     std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
+    auto op1_begin = _data.begin();
     for (std::size_t i = 0; i < fold_shape(_shape); i++) {
         // Current working operands
-        auto op1_begin = _data.begin() + (i + 0) * _itemsize;
-        auto op1_end = _data.begin() + (i + 1) * _itemsize;
+        auto op1_end = op1_begin + _itemsize;
 
         // Evaluate resulting sign
         bool sign1 = mp_limb_signed_t(*(op1_end - 1)) < 0;
@@ -377,6 +377,7 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
                 result._data.begin() + (i + 0) * result._itemsize
             );
         }
+        op1_begin = op1_end;
     }
 
     return result;
@@ -545,26 +546,46 @@ size_t APyFixedArray::size() const { return _shape[0]; }
 
 APyFixedArray APyFixedArray::abs() const
 {
-    APyFixedArray result = _cast_correct_wl(bits() + 1, int_bits() + 1);
-    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
-        limb_vector_abs(
-            result._data.begin() + (i + 0) * result._itemsize,
-            result._data.begin() + (i + 1) * result._itemsize,
-            result._data.begin() + (i + 0) * result._itemsize
-        );
+    // Increase word length of result by one
+    const int res_int_bits = int_bits() + 1;
+    const int res_bits = res_int_bits + frac_bits();
+
+    // Adjust binary point
+    APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
+
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+            if (mp_limb_signed_t(result._data[i]) < 0) {
+                result._data[i] = -result._data[i];
+            }
+        }
+    } else {
+        auto it_begin = result._data.begin();
+        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+            auto it_end = it_begin + result._itemsize;
+            limb_vector_abs(it_begin, it_end, it_begin);
+            it_begin = it_end;
+        }
     }
     return result;
 }
 
 APyFixedArray APyFixedArray::operator-() const
-{
-    APyFixedArray result = _cast_correct_wl(bits() + 1, int_bits() + 1);
-    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
-        limb_vector_negate(
-            result._data.begin() + (i + 0) * result._itemsize,
-            result._data.begin() + (i + 1) * result._itemsize,
-            result._data.begin() + (i + 0) * result._itemsize
-        );
+{ // Increase word length of result by one
+    const int res_int_bits = int_bits() + 1;
+    const int res_bits = res_int_bits + frac_bits();
+    APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+            result._data[i] = -result._data[i];
+        }
+    } else {
+        auto it_begin = result._data.begin();
+        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+            auto it_end = it_begin + result._itemsize;
+            limb_vector_negate(it_begin, it_end, it_begin);
+            it_begin = it_end;
+        }
     }
     return result;
 }
@@ -976,43 +997,43 @@ APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) co
         // If shift if required
         if (shift_amount > 0) {
 
+            // Perform the resizing
+            std::vector<mp_limb_t>::iterator it_begin
+                = result._data.begin(); // output start
             // For each scalar in the tensor...
             for (std::size_t i = 0; i < fold_shape(_shape); i++) {
-                // Perform the resizing
-                std::vector<mp_limb_t>::iterator it_begin
-                    = result._data.begin() + (i + 0) * result._itemsize; // output start
-                std::vector<mp_limb_t>::iterator it_end = result._data.begin()
-                    + (i + 1) * result._itemsize; // output sentinel
-
+                std::vector<mp_limb_t>::iterator it_end
+                    = it_begin + result._itemsize; // output sentinel
                 limb_vector_lsl(it_begin, it_end, shift_amount);
+                it_begin = it_end;
             }
         }
         return result;
     }
     // For each scalar in the tensor...
+
+    std::vector<mp_limb_t>::iterator it_begin = result._data.begin(); // output start
+    auto data_begin = _data.begin();
     for (std::size_t i = 0; i < fold_shape(_shape); i++) {
 
-        auto data_begin = _data.begin() + i * _itemsize;
-
-        // Perform the resizing
-        std::vector<mp_limb_t>::iterator it_begin
-            = result._data.begin() + (i + 0) * result._itemsize; // output start
         std::vector<mp_limb_t>::iterator it_end
-            = result._data.begin() + (i + 1) * result._itemsize; // output sentinel
-
+            = it_begin + result._itemsize; // output sentinel
+        auto data_end = data_begin + _itemsize;
         // Copy data into the result
         std::copy_n(
             data_begin, // src
             _itemsize,  // limbs to copy
             it_begin    // dst
         );
-        bool result_is_negative
-            = limb_vector_is_negative(data_begin, data_begin + _itemsize);
+
+        bool result_is_negative = limb_vector_is_negative(data_begin, data_end);
         std::fill(it_begin + _itemsize, it_end, result_is_negative ? mp_limb_t(-1) : 0);
         // Shift if required
         if (shift_amount > 0) {
             limb_vector_lsl(it_begin, it_end, shift_amount);
         }
+        it_begin = it_end;
+        data_begin = data_end;
     }
 
     return result;
