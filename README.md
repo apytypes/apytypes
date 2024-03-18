@@ -4,6 +4,8 @@
 ![License](https://img.shields.io/github/license/apytypes/apytypes)
 ![Workflow Status](https://img.shields.io/github/actions/workflow/status/apytypes/apytypes/tests.yml)
 [![codecov](https://codecov.io/gh/apytypes/apytypes/graph/badge.svg?token=734MDWN7SU)](https://codecov.io/gh/apytypes/apytypes)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/:apytypes)
+
 
 ## Documentation
 
@@ -11,9 +13,18 @@
 
 ## Installation
 
-The package can be install by running `pip3 install .` from the top level of
-the project, and uninstalled by running `pip3 uninstall apytypes`.
-This should also install the required dependencies.
+APyTypes is available in the [Python Package Index](https://pypi.org/p/apytypes/) and
+can be installed with the [pip](https://pypi.org/p/pip/) package installer
+
+```bash
+pip install apytypes
+```
+
+Uninstall APyTypes with
+
+```bash
+pip uninstall apytypes
+```
 
 ### Running
 
