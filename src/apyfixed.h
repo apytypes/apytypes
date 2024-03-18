@@ -8,6 +8,7 @@
 #include <nanobind/nanobind.h> // nanobind::object
 
 #include "apytypes_common.h"
+#include "apytypes_scratch_vector.h"
 #include "apytypes_util.h"
 
 #include <cstddef>  // std::size_t
