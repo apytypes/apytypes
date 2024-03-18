@@ -38,9 +38,14 @@ public:
         std::optional<exp_t> bias = std::nullopt
     );
 
-    // This constructor is not exposed to Python
+    // These constructors are not exposed to Python
     APyFloat(
         const APyFloatData& data,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
+    APyFloat(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
@@ -161,6 +166,12 @@ public:
     inline std::uint8_t get_man_bits() const { return man_bits; }
     inline std::uint8_t get_exp_bits() const { return exp_bits; }
     inline APyFloatData get_data() const { return { sign, exp, man }; }
+    inline void set_data(const APyFloatData& data)
+    {
+        sign = data.sign;
+        exp = data.exp;
+        man = data.man;
+    }
 
     static inline exp_t ieee_bias(std::uint8_t exp_bits)
     {
@@ -193,11 +204,6 @@ private:
      */
 
     APyFloat() = default;
-    APyFloat(
-        std::uint8_t exp_bits,
-        std::uint8_t man_bits,
-        std::optional<exp_t> bias = std::nullopt
-    );
 
     /* ******************************************************************************
      * * Helper functions                                                           *

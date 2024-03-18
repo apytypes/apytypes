@@ -108,10 +108,12 @@ APyFloatArray APyFloatArray::perform_basic_arithmetic(
     );
     res.bias = APyFloat::ieee_bias(res.exp_bits);
 
+    APyFloat lhs_scalar(exp_bits, man_bits, bias);
+    APyFloat rhs_scalar(rhs.exp_bits, rhs.man_bits, rhs.bias);
     // Perform operation
     for (std::size_t i = 0; i < data.size(); i++) {
-        APyFloat lhs_scalar(data[i], exp_bits, man_bits, bias);
-        APyFloat rhs_scalar(rhs.data[i], rhs.exp_bits, rhs.man_bits, rhs.bias);
+        lhs_scalar.set_data(data[i]);
+        rhs_scalar.set_data(rhs.data[i]);
 
         if (op == ArithmeticOperation::ADDITION)
             res.data[i] = (lhs_scalar + rhs_scalar).get_data();
