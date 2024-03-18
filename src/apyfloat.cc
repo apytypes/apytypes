@@ -578,7 +578,8 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     // One of the operands should be scaled but since (a*scale)*b == (a*b)*scale
     // we can just scale the result.
     const exp_t man_bits_delta = std::abs(norm_x.man_bits - norm_y.man_bits);
-    if (unsigned(norm_x.man_bits + norm_y.man_bits + 4) <= _LIMB_SIZE_BITS) {
+    // +2 for hidden bits
+    if (unsigned(norm_x.man_bits + norm_y.man_bits + 2) <= _LIMB_SIZE_BITS) {
         new_man = mx * my;
         man_t one = 1ULL << (norm_x.man_bits + norm_y.man_bits);
         man_t two = one << 1;

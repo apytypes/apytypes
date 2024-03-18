@@ -404,14 +404,9 @@ APyFixed APyFixed::abs() const
     const int res_bits = _bits + 1;
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         APyFixed result(res_bits, _int_bits + 1);
-        if (mp_limb_signed_t(_data[0]) < 0) {
-            result._data[0] = -_data[0];
-        } else {
-            result._data[0] = _data[0];
-        }
+        result._data[0] = std::abs(mp_limb_signed_t(_data[0]));
         return result;
     } else {
-
         if (is_negative()) {
             // Unary `operator-()` increases word length by one
             return -*this;
@@ -636,7 +631,6 @@ void APyFixed::set_from_double(double value)
     if (std::isinf(value)) {
         throw nb::value_error("Cannot convert Infinity to fixed-point");
     }
-    std::fill(_data.begin(), _data.end(), 0);
     if constexpr (_LIMB_SIZE_BITS == 64) {
         mp_limb_signed_t exp = exp_of_double(value);
         mp_limb_t man = man_of_double(value);
@@ -645,19 +639,19 @@ void APyFixed::set_from_double(double value)
         if (exp) {
             man |= mp_limb_t(1) << 52;
         }
-        _data[0] = man;
 
         // Adjust the actual exponent (-1023) and
         // shift the data into its correct position
         auto left_shift_amnt = exp + frac_bits() - 52 - 1023;
         if (unsigned(_bits) <= _LIMB_SIZE_BITS) {
+            _data[0] = man;
             if (left_shift_amnt >= 0) {
                 _data[0] <<= left_shift_amnt;
             } else {
                 auto right_shift_amount = -left_shift_amnt;
                 if (right_shift_amount - 1 < 64) {
                     // Round the value
-                    _data[0] += mp_limb_t(1) << (-left_shift_amnt - 1);
+                    _data[0] += mp_limb_t(1) << (right_shift_amount - 1);
                 }
                 _data[0] >>= right_shift_amount;
             }
@@ -665,14 +659,17 @@ void APyFixed::set_from_double(double value)
             if (sign_of_double(value)) {
                 _data[0] = -_data[0];
             }
+            _data[0] = _twos_complement_overflow(_data[0], bits());
         } else {
+            std::fill(_data.begin(), _data.end(), 0);
+            _data[0] = man;
             if (left_shift_amnt >= 0) {
                 limb_vector_lsl(_data, left_shift_amnt);
             } else {
                 auto right_shift_amount = -left_shift_amnt;
                 if (right_shift_amount - 1 < 64) {
                     // Round the value
-                    _data[0] += mp_limb_t(1) << (-left_shift_amnt - 1);
+                    _data[0] += mp_limb_t(1) << (right_shift_amount - 1);
                 }
                 limb_vector_lsr(_data, right_shift_amount);
             }
@@ -680,8 +677,8 @@ void APyFixed::set_from_double(double value)
             if (sign_of_double(value)) {
                 limb_vector_negate(_data.begin(), _data.end(), _data.begin());
             }
+            _twos_complement_overflow(_data.begin(), _data.end(), bits(), int_bits());
         }
-        _twos_complement_overflow(_data.begin(), _data.end(), bits(), int_bits());
     } else {
         throw NotImplementedException(
             "Not implemented: APyFixed::set_from_double() for 32-bit systems"
@@ -1217,6 +1214,18 @@ void APyFixed::_overflow(
             overflow_mode_to_string(overflow)
         ));
     }
+}
+
+mp_limb_t inline APyFixed::_twos_complement_overflow(mp_limb_t value, int bits) const
+{
+    unsigned limb_shift_val = bits & (_LIMB_SIZE_BITS - 1);
+
+    if (limb_shift_val) {
+        auto shft_amnt = _LIMB_SIZE_BITS - limb_shift_val;
+        auto signed_limb = mp_limb_signed_t(value << shft_amnt) >> shft_amnt;
+        return mp_limb_t(signed_limb);
+    }
+    return value;
 }
 
 void APyFixed::_twos_complement_overflow(
