@@ -487,7 +487,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
     const int delta
         = (x.exp - x.bias - x.is_normal()) - (y.exp - y.bias - y.is_normal());
 
-    apy_my = apy_my >> delta;
+    apy_my >>= delta;
 
     // Perform addition/subtraction
     auto apy_res = (x.sign == y.sign) ? apy_mx + apy_my : apy_mx - apy_my;
@@ -508,7 +508,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
     if (leading_zeros) {
         if ((new_exp - leading_zeros) > 0) {
             new_exp -= leading_zeros;
-            apy_res = apy_res << leading_zeros;
+            apy_res <<= leading_zeros;
         } else {
             apy_res = (new_exp > 0) ? apy_res << int(new_exp - 1) : apy_res;
             new_exp = 0;
@@ -516,7 +516,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
     }
 
     int tmp_man_bits = res.man_bits + 1 + delta + c;
-    apy_res = apy_res << (tmp_man_bits - c);
+    apy_res <<= (tmp_man_bits - c);
     man_t new_man = static_cast<man_t>(apy_res.to_double());
     new_man &= (1ULL << (tmp_man_bits)) - 1;
 
@@ -584,7 +584,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     // Normalize result if needed
     if (new_exp < 0) {
         while (apy_res.to_double() < 1.0) {
-            apy_res = apy_res << 1;
+            apy_res <<= 1;
             new_exp++;
         }
     }
@@ -600,7 +600,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
 
     int tmp_man_bits = 2 * (res.man_bits) + c;
 
-    apy_res = apy_res << (tmp_man_bits - c);
+    apy_res <<= (tmp_man_bits - c);
     man_t new_man = static_cast<man_t>(apy_res.to_double());
     new_man &= (1ULL << (tmp_man_bits)) - 1;
 
@@ -676,7 +676,7 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
 
     // The result from the division will be in [1/2, 2) so normalization may be required
     if (apy_man_res.to_double() < 1.0) {
-        apy_man_res = apy_man_res << 1;
+        apy_man_res <<= 1;
     }
 
     int tmp_man_bits = res.man_bits + guard_bits;
