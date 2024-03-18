@@ -12,8 +12,9 @@
 
 ## Installation
 
-APyTypes is available in the [Python Package Index](https://pypi.org/p/apytypes/) and
-can be installed with the [pip](https://pypi.org/p/pip/) package installer:
+APyTypes is available in the
+[Python Package Index](https://pypi.org/p/apytypes/) and can be installed with
+the [pip](https://pypi.org/p/pip/) package installer:
 
 ```bash
 pip install apytypes
