@@ -550,22 +550,21 @@ APyFixedArray APyFixedArray::abs() const
     const int res_int_bits = _int_bits + 1;
     const int res_bits = _bits + 1;
 
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        // Resulting `APyFixedArray` fixed-point tensor
+        APyFixedArray result(_shape, res_bits, res_int_bits);
+        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+            result._data[i] = std::abs(mp_limb_signed_t(_data[i]));
+        }
+        return result;
+    }
     // Adjust binary point
     APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
-
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
-            if (mp_limb_signed_t(result._data[i]) < 0) {
-                result._data[i] = -result._data[i];
-            }
-        }
-    } else {
-        auto it_begin = result._data.begin();
-        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
-            auto it_end = it_begin + result._itemsize;
-            limb_vector_abs(it_begin, it_end, it_begin);
-            it_begin = it_end;
-        }
+    auto it_begin = result._data.begin();
+    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+        auto it_end = it_begin + result._itemsize;
+        limb_vector_abs(it_begin, it_end, it_begin);
+        it_begin = it_end;
     }
     return result;
 }
