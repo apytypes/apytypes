@@ -111,20 +111,29 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
     // Increase word length of result by one
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
+    const int res_bits = res_int_bits + res_frac_bits;
 
     // Adjust binary point
-    APyFixedArray result = _cast_correct_wl(res_int_bits + res_frac_bits, res_int_bits);
-    APyFixedArray imm
-        = rhs._cast_correct_wl(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
+        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+            mp_limb_t operand = rhs._data[i];
+            operand <<= rhs_shift_amount;
+            result._data[i] = result._data[i] + operand;
+        }
+    } else {
+        APyFixedArray imm = rhs._cast_correct_wl(res_bits, res_int_bits);
 
-    // Perform addition
-    for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
-        mpn_add_n(
-            &result._data[i], // dst
-            &result._data[i], // src1
-            &imm._data[i],    // src2
-            result._itemsize  // limb vector length
-        );
+        // Perform addition
+        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+            mpn_add_n(
+                &result._data[i], // dst
+                &result._data[i], // src1
+                &imm._data[i],    // src2
+                result._itemsize  // limb vector length
+            );
+        }
     }
 
     // Return result
@@ -136,21 +145,29 @@ APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
     // Increase word length of result by one
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
+    const int res_bits = res_int_bits + res_frac_bits;
 
     // Adjust binary point
-    APyFixedArray result = _cast_correct_wl(res_int_bits + res_frac_bits, res_int_bits);
-    APyFixed imm = rhs.cast(res_int_bits + res_frac_bits, res_int_bits);
-
-    // Perform addition
-    for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
-        mpn_add_n(
-            &result._data[i], // dst
-            &result._data[i], // src1
-            &imm._data[0],    // src2
-            result._itemsize  // limb vector length
-        );
+    APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
+        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+            mp_limb_t operand = rhs._data[0];
+            operand <<= rhs_shift_amount;
+            result._data[i] = result._data[i] + operand;
+        }
+    } else {
+        // Perform addition
+        APyFixed imm = rhs.cast(res_bits, res_int_bits);
+        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+            mpn_add_n(
+                &result._data[i], // dst
+                &result._data[i], // src1
+                &imm._data[0],    // src2
+                result._itemsize  // limb vector length
+            );
+        }
     }
-
     // Return result
     return result;
 }
@@ -169,20 +186,30 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
     // Increase word length of result by one
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
+    const int res_bits = res_int_bits + res_frac_bits;
 
     // Adjust binary point
-    APyFixedArray result = _cast_correct_wl(res_int_bits + res_frac_bits, res_int_bits);
-    APyFixedArray imm
-        = rhs._cast_correct_wl(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
+        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+            mp_limb_t operand = rhs._data[i];
+            operand <<= rhs_shift_amount;
+            result._data[i] = result._data[i] - operand;
+        }
+    } else {
 
-    // Perform addition
-    for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
-        mpn_sub_n(
-            &result._data[i], // dst
-            &result._data[i], // src1
-            &imm._data[i],    // src2
-            result._itemsize  // limb vector length
-        );
+        APyFixedArray imm = rhs._cast_correct_wl(res_bits, res_int_bits);
+
+        // Perform addition
+        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+            mpn_sub_n(
+                &result._data[i], // dst
+                &result._data[i], // src1
+                &imm._data[i],    // src2
+                result._itemsize  // limb vector length
+            );
+        }
     }
 
     // Return result
@@ -194,19 +221,29 @@ APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
     // Increase word length of result by one
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
+    const int res_bits = res_int_bits + res_frac_bits;
 
     // Adjust binary point
-    APyFixedArray result = _cast_correct_wl(res_int_bits + res_frac_bits, res_int_bits);
-    APyFixed imm = rhs.cast(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
+        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+            mp_limb_t operand = rhs._data[0];
+            operand <<= rhs_shift_amount;
+            result._data[i] = result._data[i] - operand;
+        }
+    } else {
+        APyFixed imm = rhs.cast(res_bits, res_int_bits);
 
-    // Perform addition
-    for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
-        mpn_sub_n(
-            &result._data[i], // dst
-            &result._data[i], // src1
-            &imm._data[0],    // src2
-            result._itemsize  // limb vector length
-        );
+        // Perform addition
+        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+            mpn_sub_n(
+                &result._data[i], // dst
+                &result._data[i], // src1
+                &imm._data[0],    // src2
+                result._itemsize  // limb vector length
+            );
+        }
     }
 
     // Return result
@@ -219,19 +256,30 @@ APyFixedArray APyFixedArray::rsub(const APyFixed& lhs) const
     // Increase word length of result by one
     const int res_int_bits = std::max(lhs.int_bits(), int_bits()) + 1;
     const int res_frac_bits = std::max(lhs.frac_bits(), frac_bits());
+    const int res_bits = res_int_bits + res_frac_bits;
 
     // Adjust binary point
-    APyFixedArray result = _cast_correct_wl(res_int_bits + res_frac_bits, res_int_bits);
-    APyFixed imm = lhs.cast(res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
 
-    // Perform addition
-    for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
-        mpn_sub_n(
-            &result._data[i], // dst
-            &imm._data[0],    // src1
-            &result._data[i], // src2
-            result._itemsize  // limb vector length
-        );
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        auto rhs_shift_amount = unsigned(res_frac_bits - lhs.frac_bits());
+        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+            mp_limb_t operand = lhs._data[0];
+            operand <<= rhs_shift_amount;
+            result._data[i] = operand - result._data[i];
+        }
+    } else {
+        APyFixed imm = lhs.cast(res_bits, res_int_bits);
+
+        // Perform addition
+        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+            mpn_sub_n(
+                &result._data[i], // dst
+                &imm._data[0],    // src1
+                &result._data[i], // src2
+                result._itemsize  // limb vector length
+            );
+        }
     }
 
     // Return result
@@ -251,9 +299,10 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
 
     const int res_int_bits = int_bits() + rhs.int_bits();
     const int res_frac_bits = frac_bits() + rhs.frac_bits();
+    const int res_bits = res_int_bits + res_frac_bits;
 
     // Resulting `APyFixedArray` fixed-point tensor
-    APyFixedArray result(_shape, res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result(_shape, res_bits, res_int_bits);
 
     // Perform multiplication for each element in the tensor. `checked_hadamard_product`
     // requires:
@@ -277,9 +326,10 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
 {
     const int res_int_bits = int_bits() + rhs.int_bits();
     const int res_frac_bits = frac_bits() + rhs.frac_bits();
+    const int res_bits = res_int_bits + res_frac_bits;
 
     // Resulting `APyFixedArray` fixed-point tensor
-    APyFixedArray result(_shape, res_int_bits + res_frac_bits, res_int_bits);
+    APyFixedArray result(_shape, res_bits, res_int_bits);
 
     auto op2_begin = rhs._data.begin() + (0) * rhs.vector_size();
     auto op2_end = rhs._data.begin() + (1) * rhs.vector_size();
@@ -724,12 +774,12 @@ void APyFixedArray::_checked_hadamard_product(
         // Perform multiplication for each element in the tensor. `mpn_mul` requires:
         // "The destination has to have space for `s1n` + `s2n` limbs, even if the
         // product's most significant limb is zero."
+        auto op1_begin = _data.begin();
+        auto op2_begin = rhs._data.begin();
         for (std::size_t i = 0; i < fold_shape(_shape); i++) {
             // Current working operands
-            auto op1_begin = _data.begin() + (i + 0) * _itemsize;
-            auto op1_end = _data.begin() + (i + 1) * _itemsize;
-            auto op2_begin = rhs._data.begin() + (i + 0) * rhs._itemsize;
-            auto op2_end = rhs._data.begin() + (i + 1) * rhs._itemsize;
+            auto op1_end = op1_begin + _itemsize;
+            auto op2_end = op2_begin + rhs._itemsize;
 
             // Evaluate resulting sign
             bool sign1 = mp_limb_signed_t(*(op1_end - 1)) < 0;
@@ -765,6 +815,9 @@ void APyFixedArray::_checked_hadamard_product(
                     res_out + (i + 0) * result_itemsize
                 );
             }
+
+            op1_begin = op1_end;
+            op2_begin = op2_end;
         }
     }
 }
