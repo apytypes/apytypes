@@ -47,8 +47,17 @@ APyFloat::APyFloat(
     , man(man)
 {
     if (bias.has_value() && bias.value() != ieee_bias()) {
-        print_warning("non 'ieee-like' biases is not sure to work yet.\n");
+        print_warning("non 'ieee-like' biases are not sure to work yet.\n");
     }
+
+    if (exp_bits > (sizeof(exp_t) * CHAR_BIT - 2)) {
+        throw nb::value_error("Too many bits for the exponent field.");
+    }
+
+    if (man_bits > 52) {
+        throw nb::value_error("Too many bits for the mantissa field.");
+    }
+
 }
 APyFloat::APyFloat(
     int sign,
@@ -60,6 +69,13 @@ APyFloat::APyFloat(
 )
     : APyFloat(bool(sign), exp, man, exp_bits, man_bits, bias)
 {
+    if (exp_bits > (sizeof(exp_t) * CHAR_BIT - 2)) {
+        throw nb::value_error("Too many bits for the exponent field.");
+    }
+
+    if (man_bits > 52) {
+        throw nb::value_error("Too many bits for the mantissa field.");
+    }
 }
 
 APyFloat::APyFloat(
@@ -72,6 +88,13 @@ APyFloat::APyFloat(
     , exp(0)
     , man(0)
 {
+    if (exp_bits > (sizeof(exp_t) * CHAR_BIT - 2)) {
+        throw nb::value_error("Too many bits for the exponent field.");
+    }
+
+    if (man_bits > 52) {
+        throw nb::value_error("Too many bits for the mantissa field.");
+    }
 }
 
 APyFloat::APyFloat(
@@ -87,6 +110,13 @@ APyFloat::APyFloat(
     , exp(data.exp)
     , man(data.man)
 {
+    if (exp_bits > (sizeof(exp_t) * CHAR_BIT - 2)) {
+        throw nb::value_error("Too many bits for the exponent field.");
+    }
+
+    if (man_bits > 52) {
+        throw nb::value_error("Too many bits for the mantissa field.");
+    }
 }
 
 /* **********************************************************************************
@@ -471,15 +501,6 @@ APyFloat APyFloat::operator+(APyFloat y) const
         return res.construct_nan();
     }
 
-    if ((res.man_bits + 5UL)
-        > (sizeof(man_t) * CHAR_BIT
-        )) { // +1 (leading one) +3 (guard bits) +1 (addition)
-        throw nb::value_error(
-            "The intermediate mantissa can potentially exceed "
-            "its underlaying data type."
-        );
-    }
-
     // Compute sign and swap operands if need to make sure |x| >= |y|
     const APyFloat xabs = x.abs();
     const APyFloat yabs = y.abs();
@@ -537,10 +558,10 @@ APyFloat APyFloat::operator+(APyFloat y) const
     auto apy_res = (x.sign == y.sign) ? apy_mx + apy_my : apy_mx - apy_my;
 
     int c = 0;
-    if (apy_res.to_double() >= 2.0) {
+    if (apy_res >= fx_two) {
         new_exp++;
         c = 1;
-    } else if (apy_res.to_double() >= 1.0 && new_exp == 0) {
+    } else if (apy_res >= fx_one && new_exp == 0) {
         new_exp++;
     }
 
@@ -717,14 +738,6 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     // Add leading one's
     man_t mx = norm_x.leading_bit() | norm_x.man;
     man_t my = norm_y.leading_bit() | norm_y.man;
-
-    // Align mantissas based on mixed formats
-    /*const auto man_bits_delta = man_bits - y.man_bits;
-    if (man_bits_delta < 0) {
-        mx <<= -man_bits_delta;
-    } else {
-        my <<= man_bits_delta;
-    }*/
 
     // Two integer bits, sign bit and leading one, and two extra guard bits
     const auto guard_bits = res.man_bits * 2;
