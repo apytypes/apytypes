@@ -131,7 +131,6 @@ def test_add_special_cases(x, y):
     ) == str(x + y)
 
 
-@pytest.mark.xfail
 @pytest.mark.float_add
 def test_long_add():
     x = APyFloat(sign=0, exp=3, man=22, exp_bits=4, man_bits=7)

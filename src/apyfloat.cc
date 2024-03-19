@@ -563,17 +563,9 @@ APyFloat APyFloat::operator+(APyFloat y) const
     man_t mx = x.leading_bit() | x.man;
     man_t my = y.leading_bit() | y.man;
 
-    // Align mantissas based on mixed formats
-    const auto man_bits_delta = x.man_bits - y.man_bits;
-    if (man_bits_delta < 0) {
-        mx <<= -man_bits_delta;
-    } else {
-        my <<= man_bits_delta;
-    }
-
     // Two integer bits, sign bit and leading one
-    APyFixed apy_mx(2 + res.man_bits, 2, std::vector<mp_limb_t>({ mx }));
-    APyFixed apy_my(2 + res.man_bits, 2, std::vector<mp_limb_t>({ my }));
+    APyFixed apy_mx(2 + x.man_bits, 2, std::vector<mp_limb_t>({ mx }));
+    APyFixed apy_my(2 + y.man_bits, 2, std::vector<mp_limb_t>({ my }));
 
     // Align mantissas based on exponent difference
     const int delta
@@ -584,10 +576,9 @@ APyFloat APyFloat::operator+(APyFloat y) const
     // Perform addition/subtraction
     auto apy_res = (x.sign == y.sign) ? apy_mx + apy_my : apy_mx - apy_my;
 
-    int c = 0;
     if (apy_res >= fx_two) {
         new_exp++;
-        c = 1;
+        apy_res >>= 1;
     } else if (apy_res >= fx_one && new_exp == 0) {
         new_exp++;
     }
@@ -602,18 +593,36 @@ APyFloat APyFloat::operator+(APyFloat y) const
             new_exp -= leading_zeros;
             apy_res <<= leading_zeros;
         } else {
-            apy_res = (new_exp > 0) ? apy_res << int(new_exp - 1) : apy_res;
+            if (new_exp > 0) {
+                apy_res <<= int(new_exp - 1);
+            }
             new_exp = 0;
         }
     }
 
-    int tmp_man_bits = res.man_bits + 1 + delta + c;
-    apy_res <<= (tmp_man_bits - c);
-    man_t new_man = static_cast<man_t>(apy_res.to_double());
-    new_man &= (1ULL << (tmp_man_bits)) - 1;
+    // Quantize mantissa
+    man_t new_man;
+    APyFloat::quantize_apymantissa(apy_res, res.sign, res.man_bits);
 
-    return APyFloat(res.sign, new_exp, new_man, res.exp_bits, tmp_man_bits)
-        .cast(res.exp_bits, res.man_bits, res.bias);
+    // Carry from quantization
+    if (apy_res >= fx_two) {
+        new_exp++;
+        apy_res >>= 1;
+    }
+    std::cout << "apy_res: " << apy_res << "\n";
+
+    if (new_exp >= res.max_exponent()) {
+        return res.construct_inf();
+    }
+
+    // Remove leading one
+    if (apy_res >= fx_one) {
+        apy_res = apy_res - fx_one;
+    }
+
+    res.man = (man_t)(apy_res << res.man_bits).to_double();
+    res.exp = new_exp;
+    return res;
 }
 
 APyFloat APyFloat::operator-(const APyFloat& y) const { return *this + (-y); }
