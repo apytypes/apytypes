@@ -10,6 +10,7 @@ namespace nb = nanobind;
 #include "apyfixed.h"
 #include "apyfloat.h"
 #include "apytypes_util.h"
+#include "python_util.h"
 
 #include "ieee754.h"
 
@@ -335,9 +336,23 @@ APyFloat& APyFloat::update_from_bits(unsigned long long bits)
     return *this;
 }
 
-unsigned long long APyFloat::to_bits() const
+
+nb::int_ APyFloat::to_bits() const
 {
-    return (sign << (exp_bits + man_bits)) | (exp << man_bits) | man;
+    mp_limb_t lower = man;
+    const int exp_man_bits = exp_bits + man_bits;
+    lower |= (std::uint64_t)exp << man_bits;
+    lower |= (std::uint64_t)sign << exp_man_bits;
+
+    const int bits = sizeof(mp_limb_t) * CHAR_BIT;
+    mp_limb_t higher = (std::uint64_t)exp >>  (bits - man_bits);
+
+    const int high_sign_delta = bits - exp_man_bits;
+    if (high_sign_delta < 0) {
+        higher |= sign << -high_sign_delta;
+    }
+
+    return python_limb_vec_to_long({lower, higher}, false, bits % (1+exp_man_bits));
 }
 
 std::string APyFloat::str() const { return fmt::format("{:g}", to_double()); }

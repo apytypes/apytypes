@@ -1,6 +1,8 @@
 #ifndef _APYFLOAT_H
 #define _APYFLOAT_H
 
+#include <nanobind/nanobind.h>
+
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -8,11 +10,7 @@
 #include "apyfixed.h"
 #include "apytypes_common.h"
 
-/*
- * Scalar floating-point type, vectorized version still needed.
- * Currently the IEEE 754-Standard is followed but it would also be
- * of interest to have an option to disable it and support more customization.
- */
+#include "../extern/mini-gmp/mini-gmp.h"
 
 class APyFloat {
 public:
@@ -72,7 +70,9 @@ public:
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
-    unsigned long long to_bits() const;
+    
+    //! Convert the underlying bit pattern to a Python long integer
+    nanobind::int_ to_bits() const;
 
     APyFloat cast(
         std::uint8_t exp_bits,
