@@ -26,6 +26,16 @@ void print_warning(const std::string msg)
 static const auto fx_one = APyFixed::from_double(1, 2, 2);
 static const auto fx_two = fx_one << 1;
 
+/*!
+ * Sizes of APyFloat datatypes
+ */
+static constexpr std::size_t _MAN_T_SIZE_BYTES = sizeof(man_t);
+static constexpr std::size_t _MAN_T_SIZE_BITS = 8 * _MAN_T_SIZE_BYTES;
+static constexpr std::size_t _EXP_T_SIZE_BYTES = sizeof(exp_t);
+static constexpr std::size_t _EXP_T_SIZE_BITS = 8 * _EXP_T_SIZE_BYTES;
+
+static constexpr std::size_t _MAN_LIMIT_BITS = _MAN_T_SIZE_BITS - 3;
+static constexpr std::size_t _EXP_LIMIT_BITS = _EXP_T_SIZE_BITS - 2;
 /* **********************************************************************************
  * * Constructors                                                                   *
  * **********************************************************************************
@@ -50,11 +60,11 @@ APyFloat::APyFloat(
         print_warning("non 'ieee-like' biases are not sure to work yet.\n");
     }
 
-    if (exp_bits > (sizeof(exp_t) * CHAR_BIT - 2)) {
+    if (exp_bits > _EXP_LIMIT_BITS) {
         throw nb::value_error("Too many bits for the exponent field.");
     }
 
-    if (man_bits > 52) {
+    if (man_bits > _MAN_LIMIT_BITS) {
         throw nb::value_error("Too many bits for the mantissa field.");
     }
 }
@@ -68,11 +78,11 @@ APyFloat::APyFloat(
 )
     : APyFloat(bool(sign), exp, man, exp_bits, man_bits, bias)
 {
-    if (exp_bits > (sizeof(exp_t) * CHAR_BIT - 2)) {
+    if (exp_bits > _EXP_LIMIT_BITS) {
         throw nb::value_error("Too many bits for the exponent field.");
     }
 
-    if (man_bits > 52) {
+    if (man_bits > _MAN_LIMIT_BITS) {
         throw nb::value_error("Too many bits for the mantissa field.");
     }
 }
@@ -87,11 +97,11 @@ APyFloat::APyFloat(
     , exp(0)
     , man(0)
 {
-    if (exp_bits > (sizeof(exp_t) * CHAR_BIT - 2)) {
+    if (exp_bits > _EXP_LIMIT_BITS) {
         throw nb::value_error("Too many bits for the exponent field.");
     }
 
-    if (man_bits > 52) {
+    if (man_bits > _MAN_LIMIT_BITS) {
         throw nb::value_error("Too many bits for the mantissa field.");
     }
 }
@@ -109,11 +119,11 @@ APyFloat::APyFloat(
     , exp(data.exp)
     , man(data.man)
 {
-    if (exp_bits > (sizeof(exp_t) * CHAR_BIT - 2)) {
+    if (exp_bits > _EXP_LIMIT_BITS) {
         throw nb::value_error("Too many bits for the exponent field.");
     }
 
-    if (man_bits > 52) {
+    if (man_bits > _MAN_LIMIT_BITS) {
         throw nb::value_error("Too many bits for the mantissa field.");
     }
 }
@@ -651,11 +661,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     man_t new_man;
     int tmp_man_bits;
 
-    // One of the operands should be scaled but since (a*scale)*b == (a*b)*scale
-    // we can just scale the result.
-    const exp_t man_bits_delta = std::abs(norm_x.man_bits - norm_y.man_bits);
-    // +2 for hidden bits
-    if (unsigned(norm_x.man_bits + norm_y.man_bits + 2) <= _LIMB_SIZE_BITS) {
+    if (unsigned(norm_x.man_bits + norm_y.man_bits + 2) <= _MAN_T_SIZE_BITS) {
         new_man = mx * my;
         man_t one = 1ULL << (norm_x.man_bits + norm_y.man_bits);
         man_t two = one << 1;

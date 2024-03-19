@@ -496,8 +496,8 @@ class TestAPyFloatQuantizationDiv:
 
 
 def test_convenience_cast():
-    a = APyFloat.from_float(1 / 7, 20, 40)
-    assert a.man_bits == 40
+    a = APyFloat.from_float(1 / 7, 20, 60)
+    assert a.man_bits == 60
     assert a.exp_bits == 20
 
     double = a.cast_to_double()
