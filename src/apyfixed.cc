@@ -1327,15 +1327,32 @@ ScratchVector<mp_limb_t> APyFixed::_data_asl(unsigned shift_val) const
  * *                     Forward define template member functions                   * *
  * ********************************************************************************** */
 
-template <>
-void APyFixed::_cast(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
-    int new_bits,
-    int new_int_bits,
-    QuantizationMode quantization,
-    OverflowMode overflow
-) const
-{
-    return _cast(it_begin, it_end, new_bits, new_int_bits, quantization, overflow);
-}
+template void APyFixed::_cast(
+    std::vector<mp_limb_t>::iterator,
+    std::vector<mp_limb_t>::iterator,
+    int,
+    int,
+    QuantizationMode,
+    OverflowMode
+) const;
+
+template void APyFixed::_twos_complement_overflow(
+    std::vector<mp_limb_t>::iterator, std::vector<mp_limb_t>::iterator, int, int
+) const;
+
+template void APyFixed::_twos_complement_overflow(
+    ScratchVector<mp_limb_t>::iterator, ScratchVector<mp_limb_t>::iterator, int, int
+) const;
+
+// template <>
+// void APyFixed::_cast<std::vector<mp_limb_t>::iterator, true>(
+//     std::vector<mp_limb_t>::iterator it_begin,
+//     std::vector<mp_limb_t>::iterator it_end,
+//     int new_bits,
+//     int new_int_bits,
+//     QuantizationMode quantization,
+//     OverflowMode overflow
+//) const
+//{
+//     _cast(it_begin, it_end, new_bits, new_int_bits, quantization, overflow);
+// }

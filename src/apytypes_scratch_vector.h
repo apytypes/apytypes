@@ -38,21 +38,13 @@ public:
         : _ptr { ptr }
     {
     }
-    ScratchVectorIteratorBase& operator++()
-    {
-        ++_ptr;
-        return *this;
-    }
+    ScratchVectorIteratorBase& operator++() { return ++_ptr, *this; }
+    ScratchVectorIteratorBase& operator--() { return --_ptr, *this; }
     ScratchVectorIteratorBase operator++(int)
     {
         auto res = *this;
         ++_ptr;
         return res;
-    }
-    ScratchVectorIteratorBase& operator--()
-    {
-        --_ptr;
-        return *this;
     }
     ScratchVectorIteratorBase operator--(int)
     {
@@ -60,7 +52,7 @@ public:
         --_ptr;
         return res;
     }
-    ScratchVectorIteratorBase operator+(difference_type n)
+    ScratchVectorIteratorBase operator+(difference_type n) const
     {
         return ScratchVectorIteratorBase(_ptr + n);
     }
@@ -69,11 +61,11 @@ public:
         _ptr += n;
         return *this;
     }
-    difference_type operator-(ScratchVectorIteratorBase other)
+    difference_type operator-(ScratchVectorIteratorBase other) const
     {
         return _ptr - other._ptr;
     }
-    ScratchVectorIteratorBase operator-(difference_type n)
+    ScratchVectorIteratorBase operator-(difference_type n) const
     {
         return ScratchVectorIteratorBase(_ptr - n);
     }
@@ -87,12 +79,24 @@ public:
     reference operator*() { return *_ptr; }
     const_reference operator*() const { return *_ptr; }
 
-    bool operator==(ScratchVectorIteratorBase other) { return _ptr == other._ptr; }
-    bool operator!=(ScratchVectorIteratorBase other) { return _ptr != other._ptr; }
-    bool operator<(ScratchVectorIteratorBase other) { return _ptr < other._ptr; }
-    bool operator>(ScratchVectorIteratorBase other) { return _ptr > other._ptr; }
-    bool operator<=(ScratchVectorIteratorBase other) { return _ptr <= other._ptr; }
-    bool operator>=(ScratchVectorIteratorBase other) { return _ptr >= other._ptr; }
+    bool operator==(ScratchVectorIteratorBase other) const
+    {
+        return _ptr == other._ptr;
+    }
+    bool operator!=(ScratchVectorIteratorBase other) const
+    {
+        return _ptr != other._ptr;
+    }
+    bool operator<(ScratchVectorIteratorBase other) const { return _ptr < other._ptr; }
+    bool operator>(ScratchVectorIteratorBase other) const { return _ptr > other._ptr; }
+    bool operator<=(ScratchVectorIteratorBase other) const
+    {
+        return _ptr <= other._ptr;
+    }
+    bool operator>=(ScratchVectorIteratorBase other) const
+    {
+        return _ptr >= other._ptr;
+    }
 
 private:
     pointer _ptr;
@@ -209,14 +213,7 @@ public:
         }
     };
 
-    const_iterator cbegin() const noexcept
-    {
-        if (_vector_data.size()) {
-            return const_iterator(&*std::cbegin(_vector_data));
-        } else {
-            return const_iterator(&*std::cbegin(_scratch_data));
-        }
-    }
+    const_iterator cbegin() const noexcept { return begin(); }
 
     iterator end() noexcept
     {
@@ -236,14 +233,7 @@ public:
         }
     }
 
-    const_iterator cend() const noexcept
-    {
-        if (_vector_data.size()) {
-            return const_iterator(&*std::cend(_vector_data));
-        } else {
-            return const_iterator(&*(std::begin(_scratch_data) + _size));
-        }
-    }
+    const_iterator cend() const noexcept { return end(); }
 
     reverse_iterator rbegin() noexcept
     {
