@@ -426,7 +426,10 @@ nb::int_ APyFloat::to_bits() const
         higher |= sign << -high_sign_delta;
     }
 
-    return python_limb_vec_to_long({ lower, higher }, false, bits % (1 + exp_man_bits));
+    auto limb_vec = std::vector<mp_limb_t> { lower, higher };
+    return python_limb_vec_to_long(
+        limb_vec.begin(), limb_vec.end(), false, bits % (1 + exp_man_bits)
+    );
 }
 
 std::string APyFloat::str() const { return fmt::format("{:g}", to_double()); }

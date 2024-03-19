@@ -162,7 +162,6 @@
  */
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE nanobind::int_ python_limb_vec_to_long(
-    // const std::vector<mp_limb_t>& vec,
     RANDOM_ACCESS_ITERATOR begin,
     RANDOM_ACCESS_ITERATOR end,
     bool vec_is_signed = false,
