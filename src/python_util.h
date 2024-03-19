@@ -201,7 +201,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 
     // Number of significant bits in the absolute value limb vector
     std::size_t significant_bits = _LIMB_SIZE_BITS * limb_vec_abs.size()
-        - limb_vector_leading_zeros(limb_vec_abs);
+        - limb_vector_leading_zeros(limb_vec_abs.begin(), limb_vec_abs.end());
 
     // Number of resulting Python digits in the Python long
     std::size_t python_digits

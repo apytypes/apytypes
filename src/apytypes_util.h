@@ -69,12 +69,15 @@ count_trailing_bits(std::uint64_t val)
 }
 
 //! Count the number of significant limbs in limb vector
+template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t
-significant_limbs(const std::vector<mp_limb_t>& vector)
+significant_limbs(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
 {
     auto is_non_zero = [](auto n) { return n != 0; };
-    auto back_non_zero_it = std::find_if(vector.crbegin(), vector.crend(), is_non_zero);
-    return std::distance(vector.begin(), back_non_zero_it.base());
+    auto back_non_zero_it = std::find_if(
+        std::reverse_iterator(end), std::reverse_iterator(begin), is_non_zero
+    );
+    return std::distance(begin, back_non_zero_it.base());
 }
 
 //! Quickly perform `1 + ceil(log2(x))` for unsigned integer (`mp_limb_t`) `x` if
@@ -90,13 +93,16 @@ significant_limbs(const std::vector<mp_limb_t>& vector)
     return result;
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t
-limb_vector_leading_zeros(const std::vector<mp_limb_t>& vec)
+limb_vector_leading_zeros(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
 {
     auto is_non_zero = [](auto n) { return n != 0; };
-    auto rev_non_zero_it = std::find_if(vec.crbegin(), vec.crend(), is_non_zero);
-    std::size_t zero_limbs = std::distance(rev_non_zero_it.base(), vec.cend());
-    if (rev_non_zero_it != vec.crend()) {
+    auto rev_non_zero_it = std::find_if(
+        std::reverse_iterator(end), std::reverse_iterator(begin), is_non_zero
+    );
+    std::size_t zero_limbs = std::distance(rev_non_zero_it.base(), end);
+    if (rev_non_zero_it != std::reverse_iterator(begin)) {
         return _LIMB_SIZE_BITS * (zero_limbs + 1) - bit_width(*rev_non_zero_it);
     } else {
         return _LIMB_SIZE_BITS * zero_limbs;
