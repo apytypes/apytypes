@@ -38,23 +38,23 @@ public:
         : _ptr { ptr }
     {
     }
-    ScratchVectorIteratorBase& operator++(int)
+    ScratchVectorIteratorBase& operator++()
     {
         ++_ptr;
         return *this;
     }
-    ScratchVectorIteratorBase operator++()
+    ScratchVectorIteratorBase operator++(int)
     {
         auto res = *this;
         ++_ptr;
         return res;
     }
-    ScratchVectorIteratorBase& operator--(int)
+    ScratchVectorIteratorBase& operator--()
     {
         --_ptr;
         return *this;
     }
-    ScratchVectorIteratorBase operator--()
+    ScratchVectorIteratorBase operator--(int)
     {
         auto res = *this;
         --_ptr;
@@ -139,7 +139,7 @@ public:
     }
 
     explicit ScratchVector(size_type count)
-        : ScratchVector(count, T {})
+        : ScratchVector(count, T())
     {
         /* Zero-initialization */
     }
@@ -155,12 +155,11 @@ public:
                 "iterator last before iterator first"
             );
         } else if (std::distance(first, last) < std::ptrdiff_t(_N_SCRATCH_ELEMENTS)) {
-            _size = distance;
             std::copy(first, last, std::begin(_scratch_data));
         } else {
-            _size = distance;
             _vector_data = std::vector<T>(first, last);
         }
+        _size = distance;
     }
 
     ScratchVector(const ScratchVector& other)
@@ -179,7 +178,7 @@ public:
         : ScratchVector()
     {
         _size = init.size();
-        if (init.size() < _N_SCRATCH_ELEMENTS) {
+        if (init.size() <= _N_SCRATCH_ELEMENTS) {
             std::copy(init.begin(), init.end(), std::begin(_scratch_data));
         } else {
             _vector_data = std::vector<T>(init);
@@ -192,55 +191,55 @@ public:
 
     iterator begin() noexcept
     {
-        if (_size <= _N_SCRATCH_ELEMENTS) {
-            return iterator(&*std::begin(_scratch_data));
-        } else {
+        if (_vector_data.size()) {
             return iterator(&*std::begin(_vector_data));
+        } else {
+            return iterator(&*std::begin(_scratch_data));
         }
     }
 
     const_iterator begin() const noexcept
     {
-        if (_size <= _N_SCRATCH_ELEMENTS) {
-            return const_iterator(&*std::cbegin(_scratch_data));
-        } else {
+        if (_vector_data.size()) {
             return const_iterator(&*std::cbegin(_vector_data));
+        } else {
+            return const_iterator(&*std::cbegin(_scratch_data));
         }
     };
 
     const_iterator cbegin() const noexcept
     {
-        if (_size <= _N_SCRATCH_ELEMENTS) {
-            return const_iterator(&*std::cbegin(_scratch_data));
-        } else {
+        if (_vector_data.size()) {
             return const_iterator(&*std::cbegin(_vector_data));
+        } else {
+            return const_iterator(&*std::cbegin(_scratch_data));
         }
     }
 
     iterator end() noexcept
     {
-        if (_size <= _N_SCRATCH_ELEMENTS) {
-            return iterator(&*(std::begin(_scratch_data) + _size));
-        } else {
+        if (_vector_data.size()) {
             return iterator(&*std::end(_vector_data));
+        } else {
+            return iterator(&*(std::begin(_scratch_data) + _size));
         }
     }
 
     const_iterator end() const noexcept
     {
-        if (_size <= _N_SCRATCH_ELEMENTS) {
-            return const_iterator(&*(std::cbegin(_scratch_data) + _size));
-        } else {
+        if (_vector_data.size()) {
             return const_iterator(&*std::cend(_vector_data));
+        } else {
+            return const_iterator(&*(std::cbegin(_scratch_data) + _size));
         }
     }
 
     const_iterator cend() const noexcept
     {
-        if (_size <= _N_SCRATCH_ELEMENTS) {
-            return const_iterator(&*(std::begin(_scratch_data) + _size));
-        } else {
+        if (_vector_data.size()) {
             return const_iterator(&*std::cend(_vector_data));
+        } else {
+            return const_iterator(&*(std::begin(_scratch_data) + _size));
         }
     }
 
@@ -252,19 +251,19 @@ public:
 
     reference operator[](size_type pos)
     {
-        if (_size <= _N_SCRATCH_ELEMENTS) {
-            return _scratch_data[pos];
-        } else {
+        if (_vector_data.size()) {
             return _vector_data[pos];
+        } else {
+            return _scratch_data[pos];
         }
     }
 
     const_reference operator[](size_type pos) const
     {
-        if (_size <= _N_SCRATCH_ELEMENTS) {
-            return _scratch_data[pos];
-        } else {
+        if (_vector_data.size()) {
             return _vector_data[pos];
+        } else {
+            return _scratch_data[pos];
         }
     }
 
@@ -302,6 +301,7 @@ public:
             // Heap vector already in use. Just keep on using it, it is free at this
             // point
             _vector_data.resize(count);
+            _size = count;
         } else if (count > _N_SCRATCH_ELEMENTS) {
             // Upsizing to the heap vector. Initialize heap vector and copy data
             _vector_data = std::vector<T>(count);
@@ -310,8 +310,11 @@ public:
                 std::end(_scratch_data),
                 std::begin(_vector_data)
             );
+            _size = count;
+        } else {
+            // Resizing withing the scratch array
+            _size = count;
         }
-        _size = count;
     }
 
     ScratchVector& operator=(const ScratchVector& other)
@@ -329,7 +332,7 @@ public:
     ScratchVector& operator=(const std::vector<T>& other)
     {
         _size = other.size();
-        if (_size < _N_SCRATCH_ELEMENTS) {
+        if (_size <= _N_SCRATCH_ELEMENTS) {
             std::copy(std::begin(other), std::end(other), std::begin(_scratch_data));
         } else {
             _vector_data = other;
@@ -344,7 +347,7 @@ public:
     //
     // TODO: Make explicit!!
     //
-    operator const std::vector<T>()
+    operator std::vector<T>() const
     {
         if (_vector_data.size() > 0) {
             return _vector_data;

@@ -52,8 +52,7 @@ class APyFixed {
 private:
     int _bits;
     int _int_bits;
-    // ScratchVector<mp_limb_t, 1> _data;
-    std::vector<mp_limb_t> _data;
+    ScratchVector<mp_limb_t> _data;
     // `mp_limb_t` is the underlying data type used for arithmetic in APyFixed (from the
     // GMP library). It is either a 32-bit or a 64-bit unsigned int, depending on the
     // target architecture.
@@ -410,7 +409,7 @@ private:
 
 private:
     // Sign preserving automatic size extending arithmetic left shift
-    std::vector<mp_limb_t> _data_asl(unsigned shift_val) const;
+    ScratchVector<mp_limb_t> _data_asl(unsigned shift_val) const;
 
     //! `APyFixedArray` is a friend class of APyFixed, and can access all data of an
     //! `APyFixed` object
