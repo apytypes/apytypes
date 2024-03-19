@@ -65,7 +65,7 @@ public:
     operator double() const;
 
     static APyFloat from_bits(
-        unsigned long long bits,
+        nanobind::int_ python_long_int_bit_pattern,
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
@@ -209,7 +209,7 @@ private:
      * * Helper functions                                                           *
      * ******************************************************************************
      */
-    APyFloat& update_from_bits(unsigned long long bits);
+    APyFloat& update_from_bits(nanobind::int_ python_long_int_bit_pattern);
     APyFloat& update_from_double(
         double value, std::optional<QuantizationMode> quantization = std::nullopt
     );
@@ -225,7 +225,7 @@ private:
         return ((1ULL << exp_bits) - 1);
     } // Max exponent with bias
     inline exp_t ieee_bias() const { return ieee_bias(exp_bits); }
-    inline man_t man_mask() const { return ((1ULL << man_bits) - 1); }
+    inline man_t man_mask() const { return man_bits == 64 ? -1 : ((1ULL << man_bits) - 1); }
     inline man_t leading_one() const { return (1ULL << man_bits); }
     inline man_t leading_bit() const
     {

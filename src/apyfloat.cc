@@ -313,26 +313,36 @@ double APyFloat::to_double() const
 APyFloat::operator double() const { return to_double(); }
 
 APyFloat APyFloat::from_bits(
-    unsigned long long bits,
+    nb::int_ python_long_int_bit_pattern,
     std::uint8_t exp_bits,
     std::uint8_t man_bits,
     std::optional<exp_t> bias
 )
 {
     APyFloat f(exp_bits, man_bits, bias);
-    return f.update_from_bits(bits);
+    return f.update_from_bits(python_long_int_bit_pattern);
 }
 
-APyFloat& APyFloat::update_from_bits(unsigned long long bits)
+APyFloat& APyFloat::update_from_bits(nb::int_ python_long_int_bit_pattern)
 {
-    man = bits & man_mask();
-    bits >>= man_bits;
+    auto data_vec = python_long_to_limb_vec(python_long_int_bit_pattern);
+    auto low = data_vec[0];
+    
+    man = low & man_mask();
 
-    exp = bits & exp_mask();
-    bits >>= exp_bits;
+    low >>= man_bits;
+    exp = low & exp_mask();
+    low >>= exp_bits;
+    sign = low & 1;
 
-    sign = bits != 0;
-
+    const int exp_man_bits = man_bits + exp_bits;
+    if (data_vec.size() > 1) {
+        auto high = data_vec[1];
+        const int bits_left = exp_man_bits - 64;
+        exp |= (high & (exp_mask() >> (exp_bits-bits_left))) << (exp_bits-bits_left);
+        high >>= bits_left;
+        sign |= high & 1;
+    }
     return *this;
 }
 
