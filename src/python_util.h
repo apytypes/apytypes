@@ -160,10 +160,11 @@
  * Convert a limb vector (`std::vector<mp_limb_t>`) to a Python long integer object
  * wrapped in a `Pybind11::int_`.
  */
+template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE nanobind::int_ python_limb_vec_to_long(
     // const std::vector<mp_limb_t>& vec,
-    std::vector<mp_limb_t>::const_iterator begin,
-    std::vector<mp_limb_t>::const_iterator end,
+    RANDOM_ACCESS_ITERATOR begin,
+    RANDOM_ACCESS_ITERATOR end,
     bool vec_is_signed = false,
     std::optional<unsigned> bits_last_limb = std::nullopt
 )

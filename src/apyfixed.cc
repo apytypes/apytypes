@@ -256,9 +256,9 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
 
     // Absolute value numerator and denominator
     bool sign_product = is_negative() ^ rhs.is_negative();
-    std::vector<mp_limb_t> abs_den(rhs._data.size());
+    ScratchVector<mp_limb_t> abs_den(rhs._data.size());
     limb_vector_abs(rhs._data.cbegin(), rhs._data.cend(), abs_den.begin());
-    std::vector<mp_limb_t> abs_num;
+    ScratchVector<mp_limb_t> abs_num;
     if (is_negative()) {
         abs_num = (-*this)._data_asl(rhs.frac_bits());
     } else {
@@ -698,15 +698,16 @@ double APyFixed::to_double() const
         mp_limb_signed_t exp {};
         bool sign = is_negative();
 
-        std::vector<mp_limb_t> man_vec = limb_vector_abs(_data.cbegin(), _data.cend());
+        ScratchVector<mp_limb_t> man_vec(std::distance(_data.cbegin(), _data.cend()));
+        limb_vector_abs(_data.cbegin(), _data.cend(), man_vec.begin());
         unsigned man_leading_zeros = limb_vector_leading_zeros(man_vec);
 
         // Shift the mantissa into position and set the mantissa and exponent part
         int left_shift_amnt = 53 - _LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
         if (left_shift_amnt > 0) {
-            limb_vector_lsl(man_vec, left_shift_amnt);
+            limb_vector_lsl(man_vec.begin(), man_vec.end(), left_shift_amnt);
         } else {
-            limb_vector_lsr(man_vec, -left_shift_amnt);
+            limb_vector_lsr(man_vec.begin(), man_vec.end(), -left_shift_amnt);
         }
         man = man_vec[0];
         exp = 1023 + 52 - left_shift_amnt - frac_bits();
@@ -728,7 +729,7 @@ double APyFixed::to_double() const
 void APyFixed::set_from_apyfixed(const APyFixed& other)
 {
     // Copy data from `other` limb vector shift binary point into position
-    std::vector<mp_limb_t> other_data_copy { other._data };
+    ScratchVector<mp_limb_t> other_data_copy { other._data };
     if (frac_bits() <= other.frac_bits()) {
         limb_vector_asr(
             other_data_copy.begin(),
@@ -773,7 +774,7 @@ std::string APyFixed::bit_pattern_to_string_dec() const
 {
     std::stringstream ss {};
 
-    std::vector<mp_limb_t> data = _data;
+    ScratchVector<mp_limb_t> data = _data;
     if (bits() % _LIMB_SIZE_BITS) {
         mp_limb_t and_mask = (mp_limb_t(1) << (bits() % _LIMB_SIZE_BITS)) - 1;
         data.back() &= and_mask;
@@ -912,6 +913,19 @@ void APyFixed::_cast(
 
     // Then perform overflowing
     _overflow(it_begin, it_end, new_bits, new_int_bits, overflow);
+}
+
+template <>
+void APyFixed::_cast(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    int new_bits,
+    int new_int_bits,
+    QuantizationMode quantization,
+    OverflowMode overflow
+) const
+{
+    return _cast(it_begin, it_end, new_bits, new_int_bits, quantization, overflow);
 }
 
 template <class RANDOM_ACCESS_ITERATOR>
@@ -1288,7 +1302,7 @@ void APyFixed::_twos_complement_overflow(
 
 // Sign preserving automatic size extending arithmetic left shift. Returns a new
 // limb vector with the shifted content.
-std::vector<mp_limb_t> APyFixed::_data_asl(unsigned shift_val) const
+ScratchVector<mp_limb_t> APyFixed::_data_asl(unsigned shift_val) const
 {
     if (shift_val == 0) {
         return _data;
@@ -1297,7 +1311,7 @@ std::vector<mp_limb_t> APyFixed::_data_asl(unsigned shift_val) const
     // Perform the left-shift
     unsigned vec_skip_val = shift_val / _LIMB_SIZE_BITS;
     unsigned bit_shift_val = shift_val % _LIMB_SIZE_BITS;
-    std::vector<mp_limb_t> result(bits_to_limbs(bits() + shift_val), 0);
+    ScratchVector<mp_limb_t> result(bits_to_limbs(bits() + shift_val), 0);
     std::copy(_data.cbegin(), _data.cend(), result.begin() + vec_skip_val);
     mpn_lshift(
         &result[0],    // dst
