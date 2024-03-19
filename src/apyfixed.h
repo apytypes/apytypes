@@ -252,9 +252,10 @@ public:
 private:
     //! The internal cast method. Uses output iterators to place result onto its limb
     //! vector. Requires that `std::distance(it_begin, it_end) == bits_to_limbs(bits)`.
+    template <class RANDOM_ACCESS_ITERATOR>
     void _cast(
-        std::vector<mp_limb_t>::iterator it_begin,
-        std::vector<mp_limb_t>::iterator it_end,
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
         int new_bits,
         int new_int_bits,
         QuantizationMode quantization = QuantizationMode::TRN,
@@ -264,113 +265,127 @@ private:
     //! The internal cast method when the word length is known to be correct.
     //! Uses output iterators to place result onto its limb vector.
     //! Requires that `std::distance(it_begin, it_end) == bits_to_limbs(bits)`.
+    template <class RANDOM_ACCESS_ITERATOR>
     void _cast_correct_wl(
-        std::vector<mp_limb_t>::iterator it_begin,
-        std::vector<mp_limb_t>::iterator it_end,
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
         unsigned int shift_amount
     ) const;
 
     //! Handle quantization of fixed-point numbers
+    template <class RANDOM_ACCESS_ITERATOR>
     void _quantize(
-        std::vector<mp_limb_t>::iterator it_begin,
-        std::vector<mp_limb_t>::iterator it_end,
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
         int new_bits,
         int new_int_bits,
         QuantizationMode quantization
     ) const;
 
     //! Quantize towards minus infinity
+    template <class RANDOM_ACCESS_ITERATOR>
     void _quantize_trn(
-        std::vector<mp_limb_t>::iterator it_begin,
-        std::vector<mp_limb_t>::iterator it_end,
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
         int new_bits,
         int new_int_bits
     ) const;
 
     //! Quantize towards +/- infinity (away from zero)
+    template <class RANDOM_ACCESS_ITERATOR>
     void _quantize_trn_inf(
-        std::vector<mp_limb_t>::iterator it_begin,
-        std::vector<mp_limb_t>::iterator it_end,
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
         int new_bits,
         int new_int_bits
     ) const;
 
     //! Quantize towards zero
+    template <class RANDOM_ACCESS_ITERATOR>
     void _quantize_trn_zero(
-        std::vector<mp_limb_t>::iterator it_begin,
-        std::vector<mp_limb_t>::iterator it_end,
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
         int new_bits,
         int new_int_bits
     ) const;
 
     //! Round to nearest, ties toward plus infinity
+    template <class RANDOM_ACCESS_ITERATOR>
     void _quantize_rnd(
-        std::vector<mp_limb_t>::iterator it_begin,
-        std::vector<mp_limb_t>::iterator it_end,
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
         int new_bits,
         int new_int_bits
     ) const;
 
     //! Round to nearest, ties toward plus infinity
+    template <class RANDOM_ACCESS_ITERATOR>
     void _quantize_rnd_zero(
-        std::vector<mp_limb_t>::iterator it_begin,
-        std::vector<mp_limb_t>::iterator it_end,
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
         int new_bits,
         int new_int_bits
     ) const;
 
     //! Round to nearest, ties toward +/- infinity (away from zero)
+    template <class RANDOM_ACCESS_ITERATOR>
     void _quantize_rnd_inf(
-        std::vector<mp_limb_t>::iterator it_begin,
-        std::vector<mp_limb_t>::iterator it_end,
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
         int new_bits,
         int new_int_bits
     ) const;
 
     //! Round to nearest, ties toward minus infinity
+    template <class RANDOM_ACCESS_ITERATOR>
     void _quantize_rnd_min_inf(
-        std::vector<mp_limb_t>::iterator it_begin,
-        std::vector<mp_limb_t>::iterator it_end,
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
         int new_bits,
         int new_int_bits
     ) const;
 
     //! Round to nearest, ties toward even quantization steps
+    template <class RANDOM_ACCESS_ITERATOR>
     void _quantize_rnd_conv(
-        std::vector<mp_limb_t>::iterator it_begin,
-        std::vector<mp_limb_t>::iterator it_end,
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
         int new_bits,
         int new_int_bits
     ) const;
 
     //! Round to nearest, ties toward odd quantization steps
+    template <class RANDOM_ACCESS_ITERATOR>
     void _quantize_rnd_conv_odd(
-        std::vector<mp_limb_t>::iterator it_begin,
-        std::vector<mp_limb_t>::iterator it_end,
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
         int new_bits,
         int new_int_bits
     ) const;
 
     //! Quantization through jamming
+    template <class RANDOM_ACCESS_ITERATOR>
     void _quantize_jam(
-        std::vector<mp_limb_t>::iterator it_begin,
-        std::vector<mp_limb_t>::iterator it_end,
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
         int new_bits,
         int new_int_bits
     ) const;
 
     //! Quantization through unbiased jamming
+    template <class RANDOM_ACCESS_ITERATOR>
     void _quantize_jam_unbiased(
-        std::vector<mp_limb_t>::iterator it_begin,
-        std::vector<mp_limb_t>::iterator it_end,
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
         int new_bits,
         int new_int_bits
     ) const;
 
     //! Handle overflowing of fixed-point numbers
+    template <class RANDOM_ACCESS_ITERATOR>
     void _overflow(
-        std::vector<mp_limb_t>::iterator it_begin,
-        std::vector<mp_limb_t>::iterator it_end,
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
         int new_bits,
         int new_int_bits,
         OverflowMode overflow
@@ -378,9 +393,10 @@ private:
 
     // Perform two's complement overflowing. This method sign-extends any bits outside
     // of the APyFixed range.
+    template <class RANDOM_ACCESS_ITERATOR>
     void _twos_complement_overflow(
-        std::vector<mp_limb_t>::iterator it_begin,
-        std::vector<mp_limb_t>::iterator it_end,
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
         int bits,
         int int_bits
     ) const;

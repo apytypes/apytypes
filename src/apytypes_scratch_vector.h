@@ -25,13 +25,13 @@
 template <typename T, typename PTR_T> class ScratchVectorIteratorBase {
 public:
     using value_type = T;
-    using allocator_type = std::allocator<T>;
-    using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
     using reference = value_type&;
     using const_reference = const value_type&;
-    using pointer = typename std::allocator_traits<allocator_type>::pointer;
-    using const_pointer = typename std::allocator_traits<allocator_type>::const_pointer;
+    using pointer = PTR_T;
+
+    /* Iterator category */
+    using iterator_category = std::random_access_iterator_tag;
 
     /* Random access iterator */
     ScratchVectorIteratorBase(T* ptr)
@@ -87,7 +87,7 @@ public:
     bool operator>=(ScratchVectorIteratorBase other) { return _ptr >= other._ptr; }
 
 private:
-    PTR_T _ptr;
+    pointer _ptr;
 };
 
 template <typename T, std::size_t _N_SCRATCH_ELEMENTS = 1> class ScratchVector {

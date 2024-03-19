@@ -1014,7 +1014,6 @@ APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) co
                 limb_vector_lsl_inner(
                     it_begin,
                     it_end,
-                    shift_amount,
                     limb_skip,
                     limb_shift,
                     result._itemsize
@@ -1051,7 +1050,7 @@ APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) co
             // Shift if required
             // Note that it is not possible to shift out any data here
             limb_vector_lsl_inner(
-                it_begin, it_end, shift_amount, limb_skip, limb_shift, result._itemsize
+                it_begin, it_end, limb_skip, limb_shift, result._itemsize
             );
             it_begin = it_end;
             data_begin = data_end;

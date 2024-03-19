@@ -886,9 +886,10 @@ APyFixed APyFixed::resize(
     return cast(bits, int_bits, quantization, overflow, frac_bits);
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_cast(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits,
     QuantizationMode quantization,
@@ -913,9 +914,10 @@ void APyFixed::_cast(
     _overflow(it_begin, it_end, new_bits, new_int_bits, overflow);
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_cast_correct_wl(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     unsigned int shift_amount
 ) const
 {
@@ -930,9 +932,10 @@ void APyFixed::_cast_correct_wl(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits,
     QuantizationMode quantization
@@ -980,9 +983,10 @@ void APyFixed::_quantize(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_trn(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -995,9 +999,10 @@ void APyFixed::_quantize_trn(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_trn_inf(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1016,9 +1021,10 @@ void APyFixed::_quantize_trn_inf(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_trn_zero(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1037,9 +1043,10 @@ void APyFixed::_quantize_trn_zero(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_rnd(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1054,9 +1061,10 @@ void APyFixed::_quantize_rnd(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_rnd_zero(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1077,9 +1085,10 @@ void APyFixed::_quantize_rnd_zero(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_rnd_inf(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1100,9 +1109,10 @@ void APyFixed::_quantize_rnd_inf(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_rnd_min_inf(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1125,9 +1135,10 @@ void APyFixed::_quantize_rnd_min_inf(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_rnd_conv(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1148,9 +1159,10 @@ void APyFixed::_quantize_rnd_conv(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_rnd_conv_odd(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1171,9 +1183,10 @@ void APyFixed::_quantize_rnd_conv_odd(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_jam(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1187,9 +1200,10 @@ void APyFixed::_quantize_jam(
     limb_vector_set_bit(it_begin, it_end, 0, true);
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_jam_unbiased(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1206,9 +1220,10 @@ void APyFixed::_quantize_jam_unbiased(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_overflow(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits,
     OverflowMode overflow
@@ -1238,9 +1253,10 @@ mp_limb_t inline APyFixed::_twos_complement_overflow(mp_limb_t value, int bits) 
     return value;
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_twos_complement_overflow(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int bits,
     int int_bits
 ) const

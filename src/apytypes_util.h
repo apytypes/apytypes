@@ -497,10 +497,9 @@ string_trim_zeros(const std::string& str)
 }
 
 //! Perform arithmetic right shift on a limb vector. Accelerated using GMP.
+template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE void limb_vector_asr(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
-    unsigned shift_amnt
+    RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned shift_amnt
 )
 {
     // Return early if no shift or no vector
@@ -548,10 +547,9 @@ limb_vector_asr(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
 }
 
 //! Perform logical right shift on a limb vector. Accelerated using GMP.
+template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE void limb_vector_lsr(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
-    unsigned shift_amnt
+    RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned shift_amnt
 )
 {
     // Return early if no shift or no vector
@@ -593,10 +591,10 @@ limb_vector_lsr(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
 }
 
 //! Perform logical left shift on a limb vector. Accelerated using GMP.
+template <class RANDOM_ACCESS_ITERATOR>
 static APY_INLINE void limb_vector_lsl_inner(
-    std::vector<mp_limb_t>::iterator& it_begin,
-    std::vector<mp_limb_t>::iterator& it_end,
-    unsigned int shift_amnt,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     unsigned int limb_skip,
     unsigned int limb_shift,
     unsigned int vec_size
@@ -623,10 +621,9 @@ static APY_INLINE void limb_vector_lsl_inner(
 }
 
 //! Perform logical left shift on a limb vector. Accelerated using GMP.
-static APY_INLINE void limb_vector_lsl(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
-    unsigned shift_amnt
+template <class RANDOM_ACCESS_ITERATOR>
+[[maybe_unused]] static APY_INLINE void limb_vector_lsl(
+    RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned shift_amnt
 )
 {
     // Return early if no shift or no vector
@@ -642,7 +639,7 @@ static APY_INLINE void limb_vector_lsl(
     }
     unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
     limb_vector_lsl_inner(
-        it_begin, it_end, shift_amnt, limb_skip, limb_shift, vec_size
+        it_begin, it_end, limb_skip, limb_shift, vec_size
     );
 }
 
@@ -654,10 +651,9 @@ limb_vector_lsl(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
 }
 
 //! Add a power-of-two (2 ^ `n`) onto a limb vector. Returns carry out.
+template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE mp_limb_t limb_vector_add_pow2(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
-    unsigned n
+    RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned n
 )
 {
     unsigned bit_idx = n % _LIMB_SIZE_BITS;
@@ -677,10 +673,9 @@ limb_vector_lsl(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
 }
 
 //! Subtract a power-of-two (2 ^ `n`) from a limb vector. Returns borrow.
+template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE mp_limb_t limb_vector_sub_pow2(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
-    unsigned n
+    RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned n
 )
 {
     unsigned bit_idx = n % _LIMB_SIZE_BITS;
@@ -741,9 +736,9 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
 }
 
 //! Test if the value of a limb vector is negative
+template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE bool limb_vector_is_negative(
-    std::vector<mp_limb_t>::const_iterator cbegin_it,
-    std::vector<mp_limb_t>::const_iterator cend_it
+    RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it
 )
 {
     (void)cbegin_it;
@@ -751,10 +746,9 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
 }
 
 //! Reduce the first `n` bits in a limb vector over bitwise `or`. Returns bool.
+template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE bool limb_vector_or_reduce(
-    std::vector<mp_limb_t>::const_iterator cbegin_it,
-    std::vector<mp_limb_t>::const_iterator cend_it,
-    unsigned n
+    RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it, unsigned n
 )
 {
     if (cend_it <= cbegin_it) {
@@ -785,10 +779,9 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
 }
 
 //! Test if the `n`-th bit is set in a limb vector
+template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE bool limb_vector_test_bit(
-    std::vector<mp_limb_t>::const_iterator cbegin_it,
-    std::vector<mp_limb_t>::const_iterator cend_it,
-    unsigned n
+    RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it, unsigned n
 )
 {
     (void)cend_it;
@@ -800,11 +793,9 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
 }
 
 //! Set the `n`-th bit (zero indexed) of a limb vector to `bit`
+template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE void limb_vector_set_bit(
-    std::vector<mp_limb_t>::iterator begin_it,
-    std::vector<mp_limb_t>::iterator end_it,
-    unsigned n,
-    bool bit
+    RANDOM_ACCESS_ITERATOR begin_it, RANDOM_ACCESS_ITERATOR end_it, unsigned n, bool bit
 )
 {
     (void)end_it;
@@ -821,10 +812,11 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
  * to `std::vector<mp_limb_t>`. This function guarantees
  * that `result.size() == input.size()`.
  */
+template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
 [[maybe_unused]] static APY_INLINE mp_limb_t limb_vector_negate(
-    std::vector<mp_limb_t>::const_iterator cbegin_it,
-    std::vector<mp_limb_t>::const_iterator cend_it,
-    std::vector<mp_limb_t>::iterator res_it
+    RANDOM_ACCESS_ITERATOR_IN cbegin_it,
+    RANDOM_ACCESS_ITERATOR_IN cend_it,
+    RANDOM_ACCESS_ITERATOR_OUT res_it
 )
 {
     if (cend_it <= cbegin_it) {
@@ -840,10 +832,9 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
  * to `std::vector<mp_limb_t>`. This function guarantees
  * that `result.size() == input.size()`.
  */
-[[maybe_unused, nodiscard]] static APY_INLINE std::vector<mp_limb_t> limb_vector_negate(
-    std::vector<mp_limb_t>::const_iterator cbegin_it,
-    std::vector<mp_limb_t>::const_iterator cend_it
-)
+template <class RANDOM_ACCESS_ITERATOR>
+[[maybe_unused, nodiscard]] static APY_INLINE std::vector<mp_limb_t>
+limb_vector_negate(RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it)
 {
     if (cend_it <= cbegin_it) {
         return {};
@@ -855,10 +846,11 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
 }
 
 //! Take the two's complement absolute value of a limb vector in place
+template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
 [[maybe_unused]] static APY_INLINE void limb_vector_abs(
-    std::vector<mp_limb_t>::const_iterator cbegin_it,
-    std::vector<mp_limb_t>::const_iterator cend_it,
-    std::vector<mp_limb_t>::iterator res_it
+    RANDOM_ACCESS_ITERATOR_IN cbegin_it,
+    RANDOM_ACCESS_ITERATOR_IN cend_it,
+    RANDOM_ACCESS_ITERATOR_OUT res_it
 )
 {
     if (cend_it <= cbegin_it) {
@@ -872,10 +864,9 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
 }
 
 //! Take the two's complement absolute value of a limb vector
-[[maybe_unused, nodiscard]] static APY_INLINE std::vector<mp_limb_t> limb_vector_abs(
-    std::vector<mp_limb_t>::const_iterator cbegin_it,
-    std::vector<mp_limb_t>::const_iterator cend_it
-)
+template <class RANDOM_ACCESS_ITERATOR>
+[[maybe_unused, nodiscard]] static APY_INLINE std::vector<mp_limb_t>
+limb_vector_abs(RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it)
 {
     if (cend_it <= cbegin_it) {
         return {};
