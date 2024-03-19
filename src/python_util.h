@@ -161,21 +161,24 @@
  * wrapped in a `Pybind11::int_`.
  */
 [[maybe_unused]] static APY_INLINE nanobind::int_ python_limb_vec_to_long(
-    const std::vector<mp_limb_t>& vec,
+    // const std::vector<mp_limb_t>& vec,
+    std::vector<mp_limb_t>::const_iterator begin,
+    std::vector<mp_limb_t>::const_iterator end,
     bool vec_is_signed = false,
     std::optional<unsigned> bits_last_limb = std::nullopt
 )
 {
     // Guard for empty vectors
-    if (vec.size() == 0) {
+    auto size = std::distance(begin, end);
+    if (size <= 0) {
         return nanobind::steal<nanobind::int_>((PyObject*)PyLong_New(0));
     }
 
     // Extract sign of limb vector
-    bool sign = vec_is_signed ? mp_limb_signed_t(vec.back()) < 0 : false;
+    bool sign = vec_is_signed ? mp_limb_signed_t(*--end) < 0 : false;
 
     // Take absolute value of limb vector
-    std::vector<mp_limb_t> limb_vec_abs = vec;
+    std::vector<mp_limb_t> limb_vec_abs(begin, end);
     if (sign) {
         std::transform(
             limb_vec_abs.cbegin(),
