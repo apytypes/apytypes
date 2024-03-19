@@ -267,8 +267,10 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
 
     // `mpn_tdiv_rq` requires that the number of significant limbs in the
     // numerator is greater than or equal to that of the denominator.
-    std::size_t num_significant_limbs = significant_limbs(abs_num);
-    std::size_t den_significant_limbs = significant_limbs(abs_den);
+    std::size_t num_significant_limbs
+        = significant_limbs(abs_num.begin(), abs_num.end());
+    std::size_t den_significant_limbs
+        = significant_limbs(abs_den.begin(), abs_den.end());
     if (num_significant_limbs < den_significant_limbs) {
         // Early return zero
         return result;
@@ -458,7 +460,8 @@ std::string APyFixed::to_string_dec() const
     APyFixed abs_val = abs();
 
     // Convert this number to BCD with the double-dabble algorithm
-    std::vector<mp_limb_t> bcd_limb_list = double_dabble(abs_val._data);
+    std::vector<mp_limb_t> bcd_limb_list
+        = double_dabble(static_cast<std::vector<mp_limb_t>>(abs_val._data));
     std::size_t bcd_limb_list_start_size = bcd_limb_list.size();
 
     // Divide BCD limb list by two, one time per fractional bit (if any)
@@ -700,7 +703,8 @@ double APyFixed::to_double() const
 
         ScratchVector<mp_limb_t> man_vec(std::distance(_data.cbegin(), _data.cend()));
         limb_vector_abs(_data.cbegin(), _data.cend(), man_vec.begin());
-        unsigned man_leading_zeros = limb_vector_leading_zeros(man_vec);
+        unsigned man_leading_zeros
+            = limb_vector_leading_zeros(man_vec.begin(), man_vec.end());
 
         // Shift the mantissa into position and set the mantissa and exponent part
         int left_shift_amnt = 53 - _LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
@@ -781,7 +785,7 @@ std::string APyFixed::bit_pattern_to_string_dec() const
     }
 
     // Double-dabble for binary-to-BCD conversion
-    ss << bcds_to_string(double_dabble(data));
+    ss << bcds_to_string(double_dabble(static_cast<std::vector<mp_limb_t>>(data)));
 
     return ss.str();
 }
@@ -913,19 +917,6 @@ void APyFixed::_cast(
 
     // Then perform overflowing
     _overflow(it_begin, it_end, new_bits, new_int_bits, overflow);
-}
-
-template <>
-void APyFixed::_cast(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
-    int new_bits,
-    int new_int_bits,
-    QuantizationMode quantization,
-    OverflowMode overflow
-) const
-{
-    return _cast(it_begin, it_end, new_bits, new_int_bits, quantization, overflow);
 }
 
 template <class RANDOM_ACCESS_ITERATOR>
@@ -1330,4 +1321,21 @@ ScratchVector<mp_limb_t> APyFixed::_data_asl(unsigned shift_val) const
     }
 
     return result;
+}
+
+/* ********************************************************************************** *
+ * *                     Forward define template member functions                   * *
+ * ********************************************************************************** */
+
+template <>
+void APyFixed::_cast(
+    std::vector<mp_limb_t>::iterator it_begin,
+    std::vector<mp_limb_t>::iterator it_end,
+    int new_bits,
+    int new_int_bits,
+    QuantizationMode quantization,
+    OverflowMode overflow
+) const
+{
+    return _cast(it_begin, it_end, new_bits, new_int_bits, quantization, overflow);
 }

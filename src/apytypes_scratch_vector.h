@@ -17,7 +17,7 @@
 #include <array>            // std::array
 #include <cstddef>          // std::size_t, std::ptrdiff_t
 #include <initializer_list> // std::initializer_list
-#include <iterator>         // std::begin, std::end, std::prev
+#include <iterator>         // std::begin, std::end, std::make_reverse_iterator
 #include <memory>           // std::allocator_traits
 #include <stdexcept>        // std::out_of_range
 #include <vector>           // std::vector
@@ -114,6 +114,8 @@ public:
     using const_pointer = typename std::allocator_traits<allocator_type>::const_pointer;
     using iterator = ScratchVectorIteratorBase<T, T*>;
     using const_iterator = ScratchVectorIteratorBase<const T, const T*>;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
     /* ****************************************************************************** *
      * *                             Constructors                                   * *
@@ -243,6 +245,33 @@ public:
         }
     }
 
+    reverse_iterator rbegin() noexcept
+    {
+        return std::make_reverse_iterator(begin() + _size);
+    }
+
+    const_reverse_iterator rbegin() const noexcept
+    {
+        return std::make_reverse_iterator(begin() + _size);
+    }
+
+    const_reverse_iterator crbegin() const noexcept
+    {
+        return std::make_reverse_iterator(begin() + _size);
+    }
+
+    reverse_iterator rend() noexcept { return std::make_reverse_iterator(begin()); }
+
+    const_reverse_iterator rend() const noexcept
+    {
+        return std::make_reverse_iterator(begin());
+    }
+
+    const_reverse_iterator crend() const noexcept
+    {
+        return std::make_reverse_iterator(begin());
+    }
+
     /* ****************************************************************************** *
      * *                                Methods                                     * *
      * ****************************************************************************** */
@@ -344,10 +373,7 @@ public:
 
     const_reference back() const { return *--std::end(*this); }
 
-    //
-    // TODO: Make explicit!!
-    //
-    operator std::vector<T>() const
+    explicit operator std::vector<T>() const
     {
         if (_vector_data.size() > 0) {
             return _vector_data;
