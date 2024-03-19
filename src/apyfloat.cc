@@ -205,11 +205,11 @@ APyFloat APyFloat::cast(
 
     auto man_bits_delta = res.man_bits - man_bits;
 
-    if (new_exp
-        <= 0) { // The number will be converted to a subnormal in the new format;
+    // Check if the number will be converted to a subnormal
+    if (new_exp <= 0) {
         prev_man |= leading_one();
-        man_bits_delta += new_exp
-            - 1; // Divide by the minimum subnorm (i.e. E_min) using quantization
+        // Prepare for right shift to adjust the mantissa
+        man_bits_delta += new_exp - 1;
         new_exp = 0;
     }
 
@@ -726,7 +726,6 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
 
 APyFloat APyFloat::operator/(const APyFloat& y) const
 {
-    // std::cout << "== div ==\n";
     APyFloat res(std::max(exp_bits, y.exp_bits), std::max(man_bits, y.man_bits));
 
     // Calculate sign
@@ -750,8 +749,9 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     const APyFloat norm_x = is_subnormal() ? normalized() : *this;
     const APyFloat norm_y = y.is_subnormal() ? y.normalized() : y;
 
-    std::int64_t new_exp
-        = (norm_x.exp - norm_x.bias) - (norm_y.exp - norm_y.bias) + res.bias;
+    std::int64_t new_exp = ((std::int64_t)norm_x.exp - (std::int64_t)norm_x.bias)
+        - ((std::int64_t)norm_y.exp - (std::int64_t)norm_y.bias)
+        + (std::int64_t)res.bias;
 
     // Add leading one's
     man_t mx = norm_x.leading_bit() | norm_x.man;
@@ -769,42 +769,41 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
         2 + guard_bits + norm_y.man_bits, 2, std::vector<mp_limb_t>({ 0, my })
     );
 
-    // Determines if the exponent needs to be decremented
-    int dec_exp = (apy_mx < apy_my) ? 1 : 0;
-
     auto apy_man_res = apy_mx / apy_my;
-
-    // std::cout << "apy_mx: " << apy_mx << " apy_my: " << apy_my << " apy_man_res: " <<
-    // apy_man_res <<  "\n";
 
     // The result from the division will be in [1/2, 2) so normalization may be required
     if (apy_man_res < fx_one) {
         apy_man_res <<= 1;
+        new_exp--;
     }
 
-    // std::cout << "apy_man_res: " << apy_man_res <<  "\n";
+    // Handle subnormal case
+    if (new_exp <= 0) {
+        apy_man_res >>= std::abs(new_exp) + 1;
+        new_exp = 0;
+    }
+
+    // Quantize mantissa
+    man_t new_man;
     APyFloat::quantize_apymantissa(apy_man_res, res.sign, res.man_bits);
-    // std::cout << "apy_man_res: " << apy_man_res <<  "\n";
+
+    // Carry from quantization
+    if (apy_man_res >= fx_two) {
+        new_exp++;
+        apy_man_res >>= 1;
+    }
+
+    // Check limits
+    if (new_exp >= res.max_exponent()) {
+        return res.construct_inf();
+    }
 
     if (apy_man_res >= fx_one) { // Remove leading one
         apy_man_res = apy_man_res - fx_one;
     }
-
-    man_t new_man = (man_t)(apy_man_res << res.man_bits).to_double();
-    // std::cout << "new_man: " << new_man <<  "new_exp - dec_exp: " << new_exp -
-    // dec_exp << "\n";
-
-    int tmp_exp_bits = std::max(norm_x.exp_bits, norm_y.exp_bits) + 1;
-
-    exp_t extended_bias = APyFloat::ieee_bias(tmp_exp_bits);
-    new_exp = new_exp - dec_exp - res.bias + extended_bias;
-    // std::cout << "new_exp: " << new_exp << " new_man: " << new_man << "
-    // extended_bias: " << extended_bias <<"\n";
-
-    return APyFloat(
-               res.sign, new_exp, new_man, tmp_exp_bits, res.man_bits, extended_bias
-    )
-        .cast(res.exp_bits, res.man_bits, res.bias);
+    res.man = (man_t)(apy_man_res << res.man_bits).to_double();
+    res.exp = new_exp;
+    return res;
 }
 
 /* ******************************************************************************

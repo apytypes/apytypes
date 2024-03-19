@@ -59,7 +59,7 @@ def test_div_all(x_bits, y_bits):
         ans = x / y
         ref = APyFloat.from_float(float(x) / float(y), 4, 3)
         print(f"{float(x)} / {float(y)} = {float(ref)} != {float(ans)}")
-        print(f"{x!r} / {y!r} = {ref!r} != {ans!r}")
+        print(f"{x!r} / {y!r} = (ref){ref!r} != (ans){ans!r}")
         assert (
             ans.is_identical(ref)
             or (ans.is_nan and ref.is_nan)
@@ -129,6 +129,17 @@ def test_add_special_cases(x, y):
     assert str(
         float(APyFloat.from_float(x, 4, 4) + APyFloat.from_float(y, 4, 4))
     ) == str(x + y)
+
+
+@pytest.mark.xfail
+@pytest.mark.float_add
+def test_long_add():
+    x = APyFloat(sign=0, exp=3, man=22, exp_bits=4, man_bits=7)
+    y = APyFloat(sign=1, exp=32763, man=813782734503116, exp_bits=16, man_bits=52)
+    assert x + y == APyFloat.from_float(float(x) + float(y), exp_bits=16, man_bits=52)
+
+    x = APyFloat.from_float(5200, exp_bits=17, man_bits=52)
+    assert x + y == APyFloat.from_float(float(x) + float(y), exp_bits=17, man_bits=52)
 
 
 # Subtraction
@@ -258,6 +269,16 @@ def test_mul_special_cases(x, y, sign):
     ) == str(x * sign * y)
 
 
+@pytest.mark.float_mul
+def test_long_mul():
+    x = APyFloat(sign=0, exp=3, man=22, exp_bits=4, man_bits=7)
+    y = APyFloat(sign=1, exp=32763, man=813782734503116, exp_bits=16, man_bits=52)
+    assert x * y == APyFloat.from_float(float(x) * float(y), exp_bits=16, man_bits=52)
+
+    x = APyFloat.from_float(5200, exp_bits=17, man_bits=52)
+    assert x * y == APyFloat.from_float(float(x) * float(y), exp_bits=17, man_bits=52)
+
+
 @pytest.mark.float_div
 @pytest.mark.parametrize("exp", list(perm(["5", "8"], 2)))
 @pytest.mark.parametrize("man", list(perm(["5", "8"], 2)))
@@ -302,6 +323,16 @@ def test_div_special_cases(x, y):
             assert s == "inf"
         else:
             assert s == "nan"
+
+
+@pytest.mark.float_div
+def test_long_div():
+    x = APyFloat(sign=0, exp=3, man=22, exp_bits=4, man_bits=7)
+    y = APyFloat(sign=1, exp=32763, man=813782734503116, exp_bits=16, man_bits=52)
+    assert x / y == APyFloat.from_float(float(x) / float(y), exp_bits=16, man_bits=52)
+
+    x = APyFloat.from_float(5200, exp_bits=17, man_bits=52)
+    assert x / y == APyFloat.from_float(float(x) / float(y), exp_bits=17, man_bits=52)
 
 
 # Power
@@ -395,10 +426,3 @@ def test_binary_logic():
     assert (a | b).is_identical(APyFloat(1, 7, 15, 3, 4))
     assert (a ^ b).is_identical(APyFloat(0, 6, 14, 3, 4))
     assert (~a).is_identical(APyFloat(0, 4, 8, 3, 4))
-
-
-@pytest.mark.xfail
-def test_long_div():
-    x = APyFloat(sign=0, exp=3, man=22, exp_bits=4, man_bits=7)
-    y = APyFloat(sign=1, exp=32763, man=813782734503116, exp_bits=16, man_bits=50)
-    x / y
