@@ -573,18 +573,22 @@ APyFixedArray APyFixedArray::operator-() const
 { // Increase word length of result by one
     const int res_int_bits = _int_bits + 1;
     const int res_bits = _bits + 1;
-    APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
+
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        // Resulting `APyFixedArray` fixed-point tensor
+        APyFixedArray result(_shape, res_bits, res_int_bits);
         for (std::size_t i = 0; i < fold_shape(_shape); i++) {
-            result._data[i] = -result._data[i];
+            result._data[i] = -_data[i];
         }
-    } else {
-        auto it_begin = result._data.begin();
-        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
-            auto it_end = it_begin + result._itemsize;
-            limb_vector_negate(it_begin, it_end, it_begin);
-            it_begin = it_end;
-        }
+        return result;
+    }
+    // Adjust binary point
+    APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
+    auto it_begin = result._data.begin();
+    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+        auto it_end = it_begin + result._itemsize;
+        limb_vector_negate(it_begin, it_end, it_begin);
+        it_begin = it_end;
     }
     return result;
 }
