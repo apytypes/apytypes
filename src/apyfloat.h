@@ -70,7 +70,7 @@ public:
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
-    
+
     //! Convert the underlying bit pattern to a Python long integer
     nanobind::int_ to_bits() const;
 
@@ -225,7 +225,10 @@ private:
         return ((1ULL << exp_bits) - 1);
     } // Max exponent with bias
     inline exp_t ieee_bias() const { return ieee_bias(exp_bits); }
-    inline man_t man_mask() const { return man_bits == 64 ? -1 : ((1ULL << man_bits) - 1); }
+    inline man_t man_mask() const
+    {
+        return man_bits == 64 ? -1 : ((1ULL << man_bits) - 1);
+    }
     inline man_t leading_one() const { return (1ULL << man_bits); }
     inline man_t leading_bit() const
     {
@@ -233,7 +236,11 @@ private:
     }
 
     APyFloat normalized() const;
-    static void quantize_apymantissa(APyFixed &apyman, int bits, std::optional<QuantizationMode> quantization = std::nullopt);
+    static void quantize_apymantissa(
+        APyFixed& apyman,
+        int bits,
+        std::optional<QuantizationMode> quantization = std::nullopt
+    );
 
     int leading_zeros_apyfixed(APyFixed fx) const;
 };

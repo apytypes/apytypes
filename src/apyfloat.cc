@@ -57,7 +57,6 @@ APyFloat::APyFloat(
     if (man_bits > 52) {
         throw nb::value_error("Too many bits for the mantissa field.");
     }
-
 }
 APyFloat::APyFloat(
     int sign,
@@ -333,15 +332,18 @@ APyFloat APyFloat::cast_no_quant(
     return res;
 }
 
-void APyFloat::quantize_apymantissa(APyFixed &apyman, int bits, std::optional<QuantizationMode> quantization) {
+void APyFloat::quantize_apymantissa(
+    APyFixed& apyman, int bits, std::optional<QuantizationMode> quantization
+)
+{
     const auto mode = quantization.value_or(get_quantization_mode());
     if (mode == QuantizationMode::STOCH_WEIGHTED) {
-         std::vector<mp_limb_t> rnd_data = {random_number(), random_number(), 0};
-         APyFixed rnd_num(_LIMB_SIZE_BITS * 3, _LIMB_SIZE_BITS - bits, rnd_data);
-         apyman = apyman + rnd_num;
+        std::vector<mp_limb_t> rnd_data = { random_number(), random_number(), 0 };
+        APyFixed rnd_num(_LIMB_SIZE_BITS * 3, _LIMB_SIZE_BITS - bits, rnd_data);
+        apyman = apyman + rnd_num;
     } else if (mode == QuantizationMode::STOCH_EQUAL) {
         const mp_limb_t rnd = random_number() % 2 ? -1 : 0;
-        std::vector<mp_limb_t> rnd_data = {rnd, rnd, 0};
+        std::vector<mp_limb_t> rnd_data = { rnd, rnd, 0 };
         APyFixed rnd_num(_LIMB_SIZE_BITS * 3, _LIMB_SIZE_BITS - bits, rnd_data);
         apyman = apyman + rnd_num;
     } else {
@@ -376,7 +378,7 @@ APyFloat& APyFloat::update_from_bits(nb::int_ python_long_int_bit_pattern)
 {
     auto data_vec = python_long_to_limb_vec(python_long_int_bit_pattern);
     auto low = data_vec[0];
-    
+
     man = low & man_mask();
 
     low >>= man_bits;
@@ -388,13 +390,13 @@ APyFloat& APyFloat::update_from_bits(nb::int_ python_long_int_bit_pattern)
     if (data_vec.size() > 1) {
         auto high = data_vec[1];
         const int bits_left = exp_man_bits - 64;
-        exp |= (high & (exp_mask() >> (exp_bits-bits_left))) << (exp_bits-bits_left);
+        exp |= (high & (exp_mask() >> (exp_bits - bits_left)))
+            << (exp_bits - bits_left);
         high >>= bits_left;
         sign |= high & 1;
     }
     return *this;
 }
-
 
 nb::int_ APyFloat::to_bits() const
 {
@@ -404,14 +406,14 @@ nb::int_ APyFloat::to_bits() const
     lower |= (std::uint64_t)sign << exp_man_bits;
 
     const int bits = _LIMB_SIZE_BITS;
-    mp_limb_t higher = (std::uint64_t)exp >>  (bits - man_bits);
+    mp_limb_t higher = (std::uint64_t)exp >> (bits - man_bits);
 
     const int high_sign_delta = bits - exp_man_bits;
     if (high_sign_delta < 0) {
         higher |= sign << -high_sign_delta;
     }
 
-    return python_limb_vec_to_long({lower, higher}, false, bits % (1+exp_man_bits));
+    return python_limb_vec_to_long({ lower, higher }, false, bits % (1 + exp_man_bits));
 }
 
 std::string APyFloat::str() const { return fmt::format("{:g}", to_double()); }
@@ -665,7 +667,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         if (apy_res >= fx_two) {
             apy_res >>= 1;
             new_exp++;
-        }  
+        }
 
         // Handle subnormal case
         if (new_exp <= 0) {
@@ -686,7 +688,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         if (new_exp >= res.max_exponent()) {
             return res.construct_inf();
         }
-        
+
         if (apy_res >= fx_one) { // Remove leading one
             apy_res = apy_res - fx_one;
         }
