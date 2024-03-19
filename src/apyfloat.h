@@ -233,6 +233,7 @@ private:
     }
 
     APyFloat normalized() const;
+    static void quantize_apymantissa(APyFixed &apyman, int bits, std::optional<QuantizationMode> quantization = std::nullopt);
 
     int leading_zeros_apyfixed(APyFixed fx) const;
 };

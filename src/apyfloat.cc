@@ -23,6 +23,9 @@ void print_warning(const std::string msg)
     }
 }
 
+static const auto fx_one = APyFixed::from_double(1, 2, 2);
+static const auto fx_two = fx_one << 1;
+
 /* **********************************************************************************
  * * Constructors                                                                   *
  * **********************************************************************************
@@ -300,6 +303,22 @@ APyFloat APyFloat::cast_no_quant(
     return res;
 }
 
+void APyFloat::quantize_apymantissa(APyFixed &apyman, int bits, std::optional<QuantizationMode> quantization) {
+    const auto mode = quantization.value_or(get_quantization_mode());
+    if (mode == QuantizationMode::STOCH_WEIGHTED) {
+         std::vector<mp_limb_t> rnd_data = {random_number(), random_number(), 0};
+         APyFixed rnd_num(_LIMB_SIZE_BITS * 3, _LIMB_SIZE_BITS - bits, rnd_data);
+         apyman = apyman + rnd_num;
+    } else if (mode == QuantizationMode::STOCH_EQUAL) {
+        const mp_limb_t rnd = random_number() % 2 ? -1 : 0;
+        std::vector<mp_limb_t> rnd_data = {rnd, rnd, 0};
+        APyFixed rnd_num(_LIMB_SIZE_BITS * 3, _LIMB_SIZE_BITS - bits, rnd_data);
+        apyman = apyman + rnd_num;
+    } else {
+        apyman = apyman.cast(3 + bits, 3, mode);
+    }
+}
+
 double APyFloat::to_double() const
 {
     const auto apytypes_d = cast(11, 52);
@@ -354,7 +373,7 @@ nb::int_ APyFloat::to_bits() const
     lower |= (std::uint64_t)exp << man_bits;
     lower |= (std::uint64_t)sign << exp_man_bits;
 
-    const int bits = sizeof(mp_limb_t) * CHAR_BIT;
+    const int bits = _LIMB_SIZE_BITS;
     mp_limb_t higher = (std::uint64_t)exp >>  (bits - man_bits);
 
     const int high_sign_delta = bits - exp_man_bits;
@@ -562,13 +581,6 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
 {
     APyFloat res(std::max(exp_bits, y.exp_bits), std::max(man_bits, y.man_bits));
 
-    if ((2ULL * res.man_bits + 1ULL) > (sizeof(man_t) * CHAR_BIT)) {
-        throw nb::value_error(
-            "The intermediate mantissa can potentially exceed "
-            "its underlaying data type."
-        );
-    }
-
     // Calculate sign
     res.sign = sign ^ y.sign;
 
@@ -594,6 +606,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     man_t mx = norm_x.leading_bit() | norm_x.man;
     man_t my = norm_y.leading_bit() | norm_y.man;
 
+    // Tentative exponent
     std::int64_t new_exp = ((std::int64_t)norm_x.exp - (std::int64_t)norm_x.bias)
         + ((std::int64_t)norm_y.exp - (std::int64_t)norm_y.bias) + res.bias;
 
@@ -621,36 +634,46 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         }
         tmp_man_bits = norm_x.man_bits + norm_y.man_bits + c;
     } else {
-
         // Two integer bits, sign bit and leading one
         APyFixed apy_mx(2 + norm_x.man_bits, 2, std::vector<mp_limb_t>({ mx }));
         APyFixed apy_my(2 + norm_y.man_bits, 2, std::vector<mp_limb_t>({ my }));
 
         auto apy_res = (apy_mx * apy_my);
 
-        // Normalize result if needed
-        if (new_exp < 0) {
-            while (apy_res.to_double() < 1.0) {
-                apy_res <<= 1;
-                new_exp++;
-            }
-        }
-
-        // Perform quantization
-        const double apy_res_d = apy_res.to_double();
-
-        int c = 0;
-        if (apy_res_d >= 2.0) { // Carry
+        // Carry from multiplication
+        if (apy_res >= fx_two) {
+            apy_res >>= 1;
             new_exp++;
-            c = 1;
+        }  
+
+        // Handle subnormal case
+        if (new_exp <= 0) {
+            apy_res >>= std::abs(new_exp) + 1;
+            new_exp = 0;
         }
 
-        tmp_man_bits = 2 * (res.man_bits);
+        // Quantize mantissa
+        man_t new_man;
+        APyFloat::quantize_apymantissa(apy_res, res.man_bits);
 
-        apy_res <<= tmp_man_bits;
-        new_man = static_cast<man_t>(apy_res.to_double());
-        tmp_man_bits += c;
+        // Carry from quantization
+        if (apy_res >= fx_two) {
+            new_exp++;
+            apy_res >>= 1;
+        }
+
+        if (new_exp >= res.max_exponent()) {
+            return res.construct_inf();
+        }
+        
+        if (apy_res >= fx_one) { // Remove leading one
+            apy_res = apy_res - fx_one;
+        }
+        res.man = (man_t)(apy_res << res.man_bits).to_double();
+        res.exp = new_exp;
+        return res;
     }
+
     new_man &= (1ULL << (tmp_man_bits)) - 1;
 
     int tmp_exp_bits = std::max(norm_x.exp_bits, norm_y.exp_bits) + 1;
