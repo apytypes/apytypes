@@ -333,10 +333,11 @@ APyFloat APyFloat::cast_no_quant(
 }
 
 void APyFloat::quantize_apymantissa(
-    APyFixed& apyman, int bits, std::optional<QuantizationMode> quantization
+    APyFixed& apyman, bool sign, int bits, std::optional<QuantizationMode> quantization
 )
 {
-    const auto mode = quantization.value_or(get_quantization_mode());
+    auto mode = quantization.value_or(get_quantization_mode());
+    mode = APyFloat::translate_quantization_mode(mode, sign);
     if (mode == QuantizationMode::STOCH_WEIGHTED) {
         std::vector<mp_limb_t> rnd_data = { random_number(), random_number(), 0 };
         APyFixed rnd_num(_LIMB_SIZE_BITS * 3, _LIMB_SIZE_BITS - bits, rnd_data);
@@ -348,6 +349,19 @@ void APyFloat::quantize_apymantissa(
         apyman = apyman + rnd_num;
     } else {
         apyman = apyman.cast(3 + bits, 3, mode);
+    }
+}
+
+QuantizationMode
+APyFloat::translate_quantization_mode(QuantizationMode quantization, bool sign)
+{
+    switch (quantization) {
+    case QuantizationMode::TRN_INF: // TO_POSITIVE
+        return sign ? QuantizationMode::TRN : QuantizationMode::TRN_INF;
+    case QuantizationMode::TRN: // TO_NEGATIVE
+        return sign ? QuantizationMode::TRN_INF : QuantizationMode::TRN;
+    default:
+        return quantization;
     }
 }
 
@@ -677,7 +691,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
 
         // Quantize mantissa
         man_t new_man;
-        APyFloat::quantize_apymantissa(apy_res, res.man_bits);
+        APyFloat::quantize_apymantissa(apy_res, res.sign, res.man_bits);
 
         // Carry from quantization
         if (apy_res >= fx_two) {
@@ -731,8 +745,8 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     }
 
     // Normalize both inputs
-    APyFloat norm_x = is_subnormal() ? normalized() : *this;
-    APyFloat norm_y = y.is_subnormal() ? y.normalized() : y;
+    const APyFloat norm_x = is_subnormal() ? normalized() : *this;
+    const APyFloat norm_y = y.is_subnormal() ? y.normalized() : y;
 
     std::int64_t new_exp
         = (norm_x.exp - norm_x.bias) - (norm_y.exp - norm_y.bias) + res.bias;
@@ -741,19 +755,16 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     man_t mx = norm_x.leading_bit() | norm_x.man;
     man_t my = norm_y.leading_bit() | norm_y.man;
 
-    // Two integer bits, sign bit and leading one, and two extra guard bits
-    const auto guard_bits = res.man_bits * 2;
+    // At least 3 + max(x.man_bits, y.man_bits) bits are needed,
+    // using a size of _LIMB_SIZE_BITS makes initialization quick and easy.
+    const auto guard_bits = _LIMB_SIZE_BITS;
 
     // Two integer bits, sign bit and leading one
     APyFixed apy_mx(
-        2 + guard_bits + norm_x.man_bits,
-        2,
-        std::vector<mp_limb_t>({ mx << guard_bits })
+        2 + guard_bits + norm_x.man_bits, 2, std::vector<mp_limb_t>({ 0, mx })
     );
     APyFixed apy_my(
-        2 + guard_bits + norm_y.man_bits,
-        2,
-        std::vector<mp_limb_t>({ my << guard_bits })
+        2 + guard_bits + norm_y.man_bits, 2, std::vector<mp_limb_t>({ 0, my })
     );
 
     // Determines if the exponent needs to be decremented
@@ -762,25 +773,19 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     auto apy_man_res = apy_mx / apy_my;
 
     // The result from the division will be in [1/2, 2) so normalization may be required
-    if (apy_man_res.to_double() < 1.0) {
+    if (apy_man_res < fx_one) {
         apy_man_res <<= 1;
     }
 
-    int tmp_man_bits = res.man_bits + guard_bits;
-    apy_man_res = apy_man_res << tmp_man_bits;
-    man_t new_man = static_cast<man_t>(apy_man_res.to_double());
+    APyFloat::quantize_apymantissa(apy_man_res, res.sign, res.man_bits);
 
-    const auto lower_man_mask = (1 << guard_bits) - 1;
-    new_man &= (res.man_mask() << guard_bits) | lower_man_mask;
+    if (apy_man_res >= fx_one) { // Remove leading one
+        apy_man_res = apy_man_res - fx_one;
+    }
+
+    man_t new_man = (man_t)(apy_man_res << res.man_bits).to_double();
 
     int tmp_exp_bits = std::max(norm_x.exp_bits, norm_y.exp_bits) + 1;
-
-    if (tmp_man_bits > (sizeof(man_t) * CHAR_BIT)) {
-        throw nb::value_error(
-            "The intermediate mantissa can potentially exceed "
-            "its underlaying data type."
-        );
-    }
 
     exp_t extended_bias = APyFloat::ieee_bias(tmp_exp_bits);
     new_exp = new_exp - res.bias + extended_bias;
@@ -790,7 +795,7 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
                new_exp - dec_exp,
                new_man,
                tmp_exp_bits,
-               tmp_man_bits,
+               res.man_bits,
                extended_bias
     )
         .cast(res.exp_bits, res.man_bits, res.bias);
