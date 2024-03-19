@@ -34,7 +34,7 @@ public:
     using iterator_category = std::random_access_iterator_tag;
 
     /* Random access iterator */
-    ScratchVectorIteratorBase(T* ptr)
+    ScratchVectorIteratorBase(pointer ptr)
         : _ptr { ptr }
     {
     }
@@ -47,7 +47,7 @@ public:
     {
         auto res = *this;
         ++_ptr;
-        return *res;
+        return res;
     }
     ScratchVectorIteratorBase& operator--(int)
     {
@@ -58,7 +58,7 @@ public:
     {
         auto res = *this;
         --_ptr;
-        return *res;
+        return res;
     }
     ScratchVectorIteratorBase operator+(difference_type n)
     {
@@ -69,6 +69,10 @@ public:
         _ptr += n;
         return *this;
     }
+    difference_type operator-(ScratchVectorIteratorBase other)
+    {
+        return _ptr - other._ptr;
+    }
     ScratchVectorIteratorBase operator-(difference_type n)
     {
         return ScratchVectorIteratorBase(_ptr - n);
@@ -78,7 +82,11 @@ public:
         _ptr -= n;
         return *this;
     }
-    T& operator[](std::size_t n) { return _ptr[n]; }
+    reference operator[](std::size_t n) { return _ptr[n]; }
+    const_reference operator[](std::size_t n) const { return _ptr[n]; }
+    reference operator*() { return *_ptr; }
+    const_reference operator*() const { return *_ptr; }
+
     bool operator==(ScratchVectorIteratorBase other) { return _ptr == other._ptr; }
     bool operator!=(ScratchVectorIteratorBase other) { return _ptr != other._ptr; }
     bool operator<(ScratchVectorIteratorBase other) { return _ptr < other._ptr; }
@@ -106,11 +114,6 @@ public:
     using const_pointer = typename std::allocator_traits<allocator_type>::const_pointer;
     using iterator = ScratchVectorIteratorBase<T, T*>;
     using const_iterator = ScratchVectorIteratorBase<const T, const T*>;
-
-    // using iterator = typename std::vector<T>::iterator;
-    // using const_iterator = typename std::vector<T>::const_iterator;
-    // using reverse_iterator = typename std::vector<T>::reverse_iterator;
-    // using const_reverse_iterator = typename std::vector<T>::const_reverse_iterator;
 
     /* ****************************************************************************** *
      * *                             Constructors                                   * *
@@ -190,54 +193,54 @@ public:
     iterator begin() noexcept
     {
         if (_size <= _N_SCRATCH_ELEMENTS) {
-            return iterator(std::begin(_scratch_data));
+            return iterator(&*std::begin(_scratch_data));
         } else {
-            return std::begin(_vector_data);
+            return iterator(&*std::begin(_vector_data));
         }
     }
 
     const_iterator begin() const noexcept
     {
         if (_size <= _N_SCRATCH_ELEMENTS) {
-            return const_iterator(std::begin(_scratch_data));
+            return const_iterator(&*std::cbegin(_scratch_data));
         } else {
-            return std::cbegin(_vector_data);
+            return const_iterator(&*std::cbegin(_vector_data));
         }
     };
+
+    const_iterator cbegin() const noexcept
+    {
+        if (_size <= _N_SCRATCH_ELEMENTS) {
+            return const_iterator(&*std::cbegin(_scratch_data));
+        } else {
+            return const_iterator(&*std::cbegin(_vector_data));
+        }
+    }
 
     iterator end() noexcept
     {
         if (_size <= _N_SCRATCH_ELEMENTS) {
-            return iterator(std::begin(_scratch_data) + _size);
+            return iterator(&*(std::begin(_scratch_data) + _size));
         } else {
-            return std::end(_vector_data);
+            return iterator(&*std::end(_vector_data));
         }
     }
 
     const_iterator end() const noexcept
     {
         if (_size <= _N_SCRATCH_ELEMENTS) {
-            return const_iterator(std::begin(_scratch_data) + _size);
+            return const_iterator(&*(std::cbegin(_scratch_data) + _size));
         } else {
-            return std::cend(_vector_data);
-        }
-    }
-
-    const_iterator cbegin() const noexcept
-    {
-        if (_size <= _N_SCRATCH_ELEMENTS) {
-            return const_iterator(std::begin(_scratch_data));
-        } else {
-            return std::cbegin(_vector_data);
+            return const_iterator(&*std::cend(_vector_data));
         }
     }
 
     const_iterator cend() const noexcept
     {
         if (_size <= _N_SCRATCH_ELEMENTS) {
-            return const_iterator(std::begin(_scratch_data) + _size);
+            return const_iterator(&*(std::begin(_scratch_data) + _size));
         } else {
-            return std::cend(_vector_data);
+            return const_iterator(&*std::cend(_vector_data));
         }
     }
 
