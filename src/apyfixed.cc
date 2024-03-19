@@ -256,8 +256,8 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
 
     // Absolute value numerator and denominator
     bool sign_product = is_negative() ^ rhs.is_negative();
-    std::vector<mp_limb_t> abs_den
-        = limb_vector_abs(rhs._data.cbegin(), rhs._data.cend());
+    std::vector<mp_limb_t> abs_den(rhs._data.size());
+    limb_vector_abs(rhs._data.cbegin(), rhs._data.cend(), abs_den.begin());
     std::vector<mp_limb_t> abs_num;
     if (is_negative()) {
         abs_num = (-*this)._data_asl(rhs.frac_bits());
@@ -664,14 +664,14 @@ void APyFixed::set_from_double(double value)
             std::fill(_data.begin(), _data.end(), 0);
             _data[0] = man;
             if (left_shift_amnt >= 0) {
-                limb_vector_lsl(_data, left_shift_amnt);
+                limb_vector_lsl(_data.begin(), _data.end(), left_shift_amnt);
             } else {
                 auto right_shift_amount = -left_shift_amnt;
                 if (right_shift_amount - 1 < 64) {
                     // Round the value
                     _data[0] += mp_limb_t(1) << (right_shift_amount - 1);
                 }
-                limb_vector_lsr(_data, right_shift_amount);
+                limb_vector_lsr(_data.begin(), _data.end(), right_shift_amount);
             }
             // Adjust result from sign
             if (sign_of_double(value)) {
@@ -730,9 +730,17 @@ void APyFixed::set_from_apyfixed(const APyFixed& other)
     // Copy data from `other` limb vector shift binary point into position
     std::vector<mp_limb_t> other_data_copy { other._data };
     if (frac_bits() <= other.frac_bits()) {
-        limb_vector_asr(other_data_copy, other.frac_bits() - frac_bits());
+        limb_vector_asr(
+            other_data_copy.begin(),
+            other_data_copy.end(),
+            other.frac_bits() - frac_bits()
+        );
     } else {
-        limb_vector_lsl(other_data_copy, frac_bits() - other.frac_bits());
+        limb_vector_lsl(
+            other_data_copy.begin(),
+            other_data_copy.end(),
+            frac_bits() - other.frac_bits()
+        );
     }
 
     // Copy binary point-adjusted data
@@ -756,7 +764,9 @@ void APyFixed::set_from_apyfixed(const APyFixed& other)
 
 nb::int_ APyFixed::to_bits() const
 {
-    return python_limb_vec_to_long(_data, false, bits() % _LIMB_SIZE_BITS);
+    return python_limb_vec_to_long(
+        _data.begin(), _data.end(), false, bits() % _LIMB_SIZE_BITS
+    );
 }
 
 std::string APyFixed::bit_pattern_to_string_dec() const
