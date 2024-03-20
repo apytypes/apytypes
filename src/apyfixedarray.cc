@@ -1057,31 +1057,55 @@ void APyFixedArray::_cast(
     // For each scalar in the tensor...
     std::size_t result_limbs = bits_to_limbs(new_bits);
     std::size_t pad_limbs = bits_to_limbs(std::max(new_bits, _bits)) - result_limbs;
-    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
-
-        // Copy data into temporary `APyFixed` and sign extend
-        std::copy_n(
-            _data.begin() + i * _itemsize, // src
-            _itemsize,                     // limbs to copy
-            caster._data.begin()           // dst
-        );
-        if (caster.vector_size() > _itemsize) {
-            std::fill_n(
-                caster._data.begin() + _itemsize,
-                caster.vector_size() - _itemsize,
-                mp_limb_signed_t(*--(_data.begin() + (i + 1) * _itemsize)) < 0 ? -1 : 0
+    auto caster_vector_size_offset = caster.vector_size() - _itemsize;
+    auto data_begin = _data.begin();
+    if (caster_vector_size_offset) {
+        auto caster_offset = caster._data.begin() + _itemsize;
+        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+            auto data_end = data_begin + _itemsize;
+            // Copy data into temporary `APyFixed` and sign extend
+            std::copy_n(
+                data_begin,          // src
+                _itemsize,           // limbs to copy
+                caster._data.begin() // dst
             );
-        }
+            std::fill_n(
+                caster_offset,
+                caster_vector_size_offset,
+                mp_limb_signed_t(*--(data_end)) < 0 ? -1 : 0
+            );
 
-        // Perform the resizing
-        caster._cast(
-            it_begin + (i + 0) * result_limbs,             // output start
-            it_begin + (i + 1) * result_limbs + pad_limbs, // output sentinel
-            new_bits,
-            new_int_bits,
-            quantization,
-            overflow
-        );
+            // Perform the resizing
+            caster._cast(
+                it_begin + (i + 0) * result_limbs,             // output start
+                it_begin + (i + 1) * result_limbs + pad_limbs, // output sentinel
+                new_bits,
+                new_int_bits,
+                quantization,
+                overflow
+            );
+            data_begin = data_end;
+        }
+    } else {
+        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+            // Copy data into temporary `APyFixed` and sign extend
+            std::copy_n(
+                data_begin,          // src
+                _itemsize,           // limbs to copy
+                caster._data.begin() // dst
+            );
+
+            // Perform the resizing
+            caster._cast(
+                it_begin + (i + 0) * result_limbs,             // output start
+                it_begin + (i + 1) * result_limbs + pad_limbs, // output sentinel
+                new_bits,
+                new_int_bits,
+                quantization,
+                overflow
+            );
+            data_begin += _itemsize;
+        }
     }
 }
 
