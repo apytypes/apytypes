@@ -937,8 +937,8 @@ APyFloat APyFloat::operator&(APyFloat& rhs)
         lhs_big.sign & rhs_big.sign,
         lhs_big.exp & rhs_big.exp,
         lhs_big.man & rhs_big.man,
-        exp_bits,
-        man_bits
+        max_exp_bits,
+        max_man_bits
     );
     return f;
 }
