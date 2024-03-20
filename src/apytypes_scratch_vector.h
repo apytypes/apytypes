@@ -109,7 +109,7 @@ private:
     pointer _ptr;
 };
 
-template <typename T, std::size_t _N_SCRATCH_ELEMENTS = 1> class ScratchVector {
+template <typename T, std::size_t _N_SCRATCH_ELEMENTS = 2> class ScratchVector {
 public:
     /* ****************************************************************************** *
      * *                          Vector name aliasing                              * *
