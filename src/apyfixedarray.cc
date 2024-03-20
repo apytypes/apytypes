@@ -982,6 +982,9 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
     return result;
 }
 
+//! Cast values to a longer (at least not shorter) word length
+//! This code has moved all conditions out of the for-loop to speed up the execution
+//! and instead there are multiple for-loops doing similar operations.
 APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) const
 {
 
@@ -989,56 +992,93 @@ APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) co
     APyFixedArray result(_shape, new_bits, new_int_bits);
 
     auto shift_amount = new_bits - new_int_bits - frac_bits();
+    std::vector<mp_limb_t>::iterator it_begin = result._data.begin(); // output start
     // If item sizes are the same, copy the whole block
     if (_itemsize == result._itemsize) {
+        auto size = fold_shape(_shape);
         // Copy data into the result
         std::copy_n(
-            _data.begin(),                  // src
-            _itemsize * fold_shape(_shape), // limbs to copy
-            result._data.begin()            // dst
+            _data.begin(),       // src
+            _itemsize * size,    // limbs to copy
+            result._data.begin() // dst
         );
         // If shift if required
         if (shift_amount > 0) {
-
-            // Perform the resizing
-            std::vector<mp_limb_t>::iterator it_begin
-                = result._data.begin(); // output start
+            unsigned limb_skip = shift_amount / _LIMB_SIZE_BITS;
+            unsigned limb_shift = shift_amount % _LIMB_SIZE_BITS;
             // For each scalar in the tensor...
-            for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+            // Note that it is not possible to shift out any data here
+            for (std::size_t i = 0; i < size; i++) {
                 std::vector<mp_limb_t>::iterator it_end
                     = it_begin + result._itemsize; // output sentinel
-                limb_vector_lsl(it_begin, it_end, shift_amount);
+                limb_vector_lsl_inner(
+                    it_begin,
+                    it_end,
+                    shift_amount,
+                    limb_skip,
+                    limb_shift,
+                    result._itemsize
+                );
                 it_begin = it_end;
             }
         }
         return result;
     }
-    // For each scalar in the tensor...
 
-    std::vector<mp_limb_t>::iterator it_begin = result._data.begin(); // output start
     auto data_begin = _data.begin();
-    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+    // Compute limb skip and shift once
+    unsigned limb_skip = shift_amount / _LIMB_SIZE_BITS;
+    unsigned limb_shift = shift_amount % _LIMB_SIZE_BITS;
+    // Shift if required
+    if (shift_amount > 0) {
+        // For each scalar in the tensor...
+        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
 
-        std::vector<mp_limb_t>::iterator it_end
-            = it_begin + result._itemsize; // output sentinel
-        auto data_end = data_begin + _itemsize;
-        // Copy data into the result
-        std::copy_n(
-            data_begin, // src
-            _itemsize,  // limbs to copy
-            it_begin    // dst
-        );
+            std::vector<mp_limb_t>::iterator it_end
+                = it_begin + result._itemsize; // output sentinel
+            auto data_end = data_begin + _itemsize;
+            // Copy data into the result
+            std::copy_n(
+                data_begin, // src
+                _itemsize,  // limbs to copy
+                it_begin    // dst
+            );
 
-        bool result_is_negative = limb_vector_is_negative(data_begin, data_end);
-        std::fill(it_begin + _itemsize, it_end, result_is_negative ? mp_limb_t(-1) : 0);
-        // Shift if required
-        if (shift_amount > 0) {
-            limb_vector_lsl(it_begin, it_end, shift_amount);
+            bool result_is_negative = limb_vector_is_negative(data_begin, data_end);
+            std::fill(
+                it_begin + _itemsize, it_end, result_is_negative ? mp_limb_t(-1) : 0
+            );
+            // Shift if required
+            // Note that it is not possible to shift out any data here
+            limb_vector_lsl_inner(
+                it_begin, it_end, shift_amount, limb_skip, limb_shift, result._itemsize
+            );
+            it_begin = it_end;
+            data_begin = data_end;
         }
-        it_begin = it_end;
-        data_begin = data_end;
-    }
+    } else {
+        // For each scalar in the tensor...
+        // Same as above, but no shift so only copy and sign-extend
+        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
 
+            std::vector<mp_limb_t>::iterator it_end
+                = it_begin + result._itemsize; // output sentinel
+            auto data_end = data_begin + _itemsize;
+            // Copy data into the result
+            std::copy_n(
+                data_begin, // src
+                _itemsize,  // limbs to copy
+                it_begin    // dst
+            );
+
+            bool result_is_negative = limb_vector_is_negative(data_begin, data_end);
+            std::fill(
+                it_begin + _itemsize, it_end, result_is_negative ? mp_limb_t(-1) : 0
+            );
+            it_begin = it_end;
+            data_begin = data_end;
+        }
+    }
     return result;
 }
 
@@ -1060,6 +1100,7 @@ void APyFixedArray::_cast(
     auto caster_vector_size_offset = caster.vector_size() - _itemsize;
     auto data_begin = _data.begin();
     if (caster_vector_size_offset) {
+        // Need to sign-extend additional limbs
         auto caster_offset = caster._data.begin() + _itemsize;
         for (std::size_t i = 0; i < fold_shape(_shape); i++) {
             auto data_end = data_begin + _itemsize;
@@ -1135,9 +1176,10 @@ void APyFixedArray::_set_bits_from_numpy_ndarray(const nb::ndarray<nb::numpy>& n
         }                                                                              \
     } while (0)
 
-    // Each `CHECK_AND_SET_BITS_FROM_NPTYPE` checks the dtype of `ndarray` and converts
-    // all the data if it matches. If successful, `CHECK_AND_SET_BITS_FROM_NPTYPES`
-    // returns. Otherwise, the next attemted conversion will take place
+    // Each `CHECK_AND_SET_BITS_FROM_NPTYPE` checks the dtype of `ndarray` and
+    // converts all the data if it matches. If successful,
+    // `CHECK_AND_SET_BITS_FROM_NPTYPES` returns. Otherwise, the next attemted
+    // conversion will take place
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::int64_t);
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::int32_t);
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::int16_t);
@@ -1147,10 +1189,10 @@ void APyFixedArray::_set_bits_from_numpy_ndarray(const nb::ndarray<nb::numpy>& n
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint16_t);
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint8_t);
 
-    // None of the `CHECK_AND_SET_BITS_FROM_NPTYPE` succeeded. Unsupported type, throw
-    // an error. If possible, it would be nice to show a string representation of the
-    // `dtype`. Seems hard to achieve with nanobind, but please fix this if you find out
-    // how this can be achieved.
+    // None of the `CHECK_AND_SET_BITS_FROM_NPTYPE` succeeded. Unsupported type,
+    // throw an error. If possible, it would be nice to show a string representation
+    // of the `dtype`. Seems hard to achieve with nanobind, but please fix this if
+    // you find out how this can be achieved.
     throw nb::type_error(
         "APyFixedArray::_set_bits_from_numpy_ndarray(): "
         "expecting integer `dtype`"
@@ -1193,10 +1235,10 @@ void APyFixedArray::_set_values_from_numpy_ndarray(const nb::ndarray<nb::numpy>&
     CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint16_t);
     CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint8_t);
 
-    // None of the `CHECK_AND_VALUES_FROM_NPTYPE` succeeded. Unsupported type, throw an
-    // error. If possible, it would be nice to show a string representation of the
-    // `dtype`. Seems hard to achieve with nanobind, but please fix this if you find out
-    // how this can be achieved.
+    // None of the `CHECK_AND_VALUES_FROM_NPTYPE` succeeded. Unsupported type, throw
+    // an error. If possible, it would be nice to show a string representation of
+    // the `dtype`. Seems hard to achieve with nanobind, but please fix this if you
+    // find out how this can be achieved.
     throw nb::type_error(
         "APyFixedArray::_set_values_from_numpy_ndarray(): "
         "unsupported `dtype` expecting integer/float"

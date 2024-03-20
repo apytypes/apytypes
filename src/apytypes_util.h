@@ -593,7 +593,37 @@ limb_vector_lsr(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
 }
 
 //! Perform logical left shift on a limb vector. Accelerated using GMP.
-[[maybe_unused]] static APY_INLINE void limb_vector_lsl(
+static APY_INLINE void limb_vector_lsl_inner(
+    std::vector<mp_limb_t>::iterator& it_begin,
+    std::vector<mp_limb_t>::iterator& it_end,
+    unsigned int shift_amnt,
+    unsigned int limb_skip,
+    unsigned int limb_shift,
+    unsigned int vec_size
+)
+{
+    if (limb_skip) {
+        for (auto it = it_end - 1; it != it_begin + limb_skip - 1; --it) {
+            *it = *(it - limb_skip);
+        }
+        for (auto it = it_begin; it != it_begin + limb_skip; it++) {
+            *it = 0;
+        }
+    }
+
+    // Perform the in-limb shifting
+    if (limb_shift) {
+        mpn_lshift(
+            &*it_begin, // dst
+            &*it_begin, // src
+            vec_size,   // limb vector size
+            limb_shift  // shift amount
+        );
+    }
+}
+
+//! Perform logical left shift on a limb vector. Accelerated using GMP.
+static APY_INLINE void limb_vector_lsl(
     std::vector<mp_limb_t>::iterator it_begin,
     std::vector<mp_limb_t>::iterator it_end,
     unsigned shift_amnt
@@ -609,25 +639,11 @@ limb_vector_lsr(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
     if (limb_skip >= vec_size) {
         std::fill(it_begin, it_end, 0);
         return; // early return
-    } else if (limb_skip) {
-        for (auto it = it_end - 1; it != it_begin + limb_skip - 1; --it) {
-            *it = *(it - limb_skip);
-        }
-        for (auto it = it_begin; it != it_begin + limb_skip; it++) {
-            *it = 0;
-        }
     }
-
     unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
-    // Perform the in-limb shifting
-    if (limb_shift) {
-        mpn_lshift(
-            &*it_begin, // dst
-            &*it_begin, // src
-            vec_size,   // limb vector size
-            limb_shift  // shift amount
-        );
-    }
+    limb_vector_lsl_inner(
+        it_begin, it_end, shift_amnt, limb_skip, limb_shift, vec_size
+    );
 }
 
 //! Perform logical left shift on a limb vector. Accelerated using GMP.
