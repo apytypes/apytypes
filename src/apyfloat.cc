@@ -315,14 +315,16 @@ APyFloat APyFloat::cast_no_quant(
     // Initial value for mantissa
     man_t new_man = prev_man << (res.man_bits - man_bits);
 
-    if (new_exp <= 0) { // The number will be converted to a subnormal in the new format
-        new_man |= res.leading_one();             // Add leading one
-        new_man <<= (res.man_bits + new_exp - 1); // Shift the difference between E_min
+    // This can only happen here if we play around with bias values, which we currently
+    // do not, so commenting out for now
+    /* if (new_exp <= 0) { // The number will be converted to a subnormal in the new
+    format new_man |= res.leading_one();             // Add leading one new_man <<=
+    (res.man_bits + new_exp - 1); // Shift the difference between E_min
                                                   // and exp
         new_man /= 1ULL << res.man_bits; // Divide by the minimum subnorm (i.e. E_min)
         new_man &= res.man_mask();       // Mask away the leading ones
         new_exp = 0;
-    }
+    } */
 
     res.man = new_man;
     res.exp = new_exp;
