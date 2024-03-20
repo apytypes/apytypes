@@ -350,6 +350,18 @@ def test_power():
 
 @pytest.mark.xfail()
 @pytest.mark.float_pow
+def test_negative_power():
+    """Test the power function with negative exponent."""
+    assert APyFloat.from_float(4.5, 8, 10) ** -2 == APyFloat.from_float(4.5**-2, 8, 10)
+    assert APyFloat.from_float(-4.5, 8, 10) ** -3 == APyFloat.from_float(
+        (-4.5) ** -3, 8, 10
+    )
+    assert APyFloat.from_float(-8.125, 8, 10) ** -4 == APyFloat.from_float(
+        (-8.125) ** -4, 8, 10
+    )
+
+
+@pytest.mark.float_pow
 def test_long_power():
     """Test the power function with long format."""
     assert APyFloat.from_float(4.5, 11, 52) ** 2 == APyFloat.from_float(4.5**2, 11, 52)
@@ -358,6 +370,21 @@ def test_long_power():
     )
     assert APyFloat.from_float(-8.125, 11, 52) ** 4 == APyFloat.from_float(
         (-8.125) ** 4, 11, 52
+    )
+
+
+@pytest.mark.xfail()
+@pytest.mark.float_pow
+def test_negative_long_power():
+    """Test the power function with long format and negative exponent."""
+    assert APyFloat.from_float(4.5, 11, 52) ** -2 == APyFloat.from_float(
+        4.5**-2, 11, 52
+    )
+    assert APyFloat.from_float(-4.5, 11, 52) ** -3 == APyFloat.from_float(
+        (-4.5) ** -3, 11, 52
+    )
+    assert APyFloat.from_float(-8.125, 11, 52) ** -4 == APyFloat.from_float(
+        (-8.125) ** -4, 11, 52
     )
 
 

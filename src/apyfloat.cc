@@ -871,23 +871,63 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
         }
     }
 
-    const exp_t max_exp_bits = x.exp_bits + (count_trailing_bits(n) + 1);
+    const int abs_n = std::abs(n);
+
+    const int max_exp_bits = x.exp_bits + (count_trailing_bits(abs_n) + 1);
+    int extended_man_bits {};
     const exp_t extended_bias = (1 << (max_exp_bits - 1)) - 1;
 
     std::int64_t new_exp
         = (static_cast<std::int64_t>(x.exp) - x.bias) * n + extended_bias;
-    std::uint64_t new_man = std::pow(x.leading_bit() | x.man, n);
 
-    // Perform quantization
-    const man_t trailing_bits = count_trailing_bits(new_man);
+    std::uint64_t new_man = 0, mx = x.leading_bit() | x.man;
 
-    // If a leading one was added, mask it away
-    if (x.is_normal()) {
-        new_man &= (1ULL << trailing_bits) - 1;
+    // Check is done for 52 since std::pow uses double
+    if ((std::abs(n) * (x.man_bits + x.is_subnormal()) + 1) <= 52) {
+        new_man = std::pow(mx, abs_n);
+
+        // Perform quantization
+        extended_man_bits = count_trailing_bits(new_man);
+
+        // If a leading one was added, mask it away
+        if (x.is_normal()) {
+            new_man &= (1ULL << extended_man_bits) - 1;
+        }
+    } else {
+        const APyFixed apy_mx(2 + x.man_bits, 2, std::vector<mp_limb_t>({ mx }));
+        auto apy_res = apy_mx;
+        for (auto i = 1; i < abs_n; i++) {
+            apy_res = apy_res * apy_mx;
+        }
+
+        // Normalize mantissa
+        while (apy_res > fx_two) {
+            apy_res >>= 1;
+            new_exp++;
+        }
+
+        // Quantize mantissa
+        APyFloat::quantize_apymantissa(apy_res, new_sign, x.man_bits);
+        // Carry from quantization
+        if (apy_res >= fx_two) {
+            new_exp++;
+            apy_res >>= 1;
+        }
+
+        if (apy_res >= fx_one) { // Remove leading one
+            apy_res = apy_res - fx_one;
+        }
+        new_man = (man_t)(apy_res << x.man_bits).to_double();
+        extended_man_bits = x.man_bits;
     }
 
     return APyFloat(
-               new_sign, new_exp, new_man, max_exp_bits, trailing_bits, extended_bias
+               new_sign,
+               new_exp,
+               new_man,
+               max_exp_bits,
+               extended_man_bits,
+               extended_bias
     )
         .cast(x.exp_bits, x.man_bits, x.bias);
 }
