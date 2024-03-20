@@ -676,6 +676,20 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
             c = 1;
         }
         tmp_man_bits = norm_x.man_bits + norm_y.man_bits + c;
+        new_man &= (1ULL << (tmp_man_bits)) - 1;
+
+        int tmp_exp_bits = std::max(norm_x.exp_bits, norm_y.exp_bits) + 1;
+        exp_t extended_bias = APyFloat::ieee_bias(tmp_exp_bits);
+        new_exp = new_exp - res.bias + extended_bias;
+
+        // This circumvents the check of the mantissa in the constructors.
+        // TODO: handle this differently
+        APyFloat larger_float(
+            res.sign, new_exp, new_man, tmp_exp_bits, 0, extended_bias
+        );
+        larger_float.man_bits = tmp_man_bits;
+        return larger_float.cast(res.exp_bits, res.man_bits, res.bias);
+
     } else {
         // Two integer bits, sign bit and leading one
         APyFixed apy_mx(2 + norm_x.man_bits, 2, std::vector<mp_limb_t>({ mx }));
@@ -715,18 +729,6 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         res.exp = new_exp;
         return res;
     }
-
-    new_man &= (1ULL << (tmp_man_bits)) - 1;
-
-    int tmp_exp_bits = std::max(norm_x.exp_bits, norm_y.exp_bits) + 1;
-    exp_t extended_bias = APyFloat::ieee_bias(tmp_exp_bits);
-    new_exp = new_exp - res.bias + extended_bias;
-
-    // This circumvents the check of the mantissa in the constructors.
-    // TODO: handle this differently
-    APyFloat larger_float(res.sign, new_exp, new_man, tmp_exp_bits, 0, extended_bias);
-    larger_float.man_bits = tmp_man_bits;
-    return larger_float.cast(res.exp_bits, res.man_bits, res.bias);
 }
 
 APyFloat APyFloat::operator/(const APyFloat& y) const
