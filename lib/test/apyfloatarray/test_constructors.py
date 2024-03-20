@@ -21,7 +21,9 @@ def test_explicit_constructor():
     assert arr.man_bits == 5
     assert arr.bias == 7  # Default when using 4 exponent bits
 
-    arr2d = APyFloatArray([[0, 1], [0, 1]], [[2, 3], [2, 3]], [[4, 5], [4, 5]], 6, 7)
+    arr2d = APyFloatArray(
+        [[False, True], [0, 1]], [[2, 3], [2, 3]], [[4, 5], [4, 5]], 6, 7
+    )
     assert len(arr2d) == 2
     assert arr2d.shape == (2, 2)
     assert arr2d.exp_bits == 6

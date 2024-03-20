@@ -296,3 +296,22 @@ def test_huge_extending_cast(mode):
     assert a.cast(1000, 500, mode).is_identical(
         APyFixedArray.from_float([-0.75, 0.5], 1000, 500)
     )
+
+
+@pytest.mark.parametrize(
+    "mode",
+    [
+        QuantizationMode.TRN,
+        QuantizationMode.TRN_INF,
+        QuantizationMode.TRN_ZERO,
+        QuantizationMode.RND,
+        QuantizationMode.RND_INF,
+        QuantizationMode.RND_MIN_INF,
+        QuantizationMode.RND_ZERO,
+        QuantizationMode.RND_CONV,
+        QuantizationMode.RND_CONV_ODD,
+    ],
+)
+def test_huge_cast_away_significant_bits(mode):
+    a = APyFixedArray.from_float([-0.75, 0.5], 10, 5)
+    a.cast(1000, 1200, mode).is_identical(APyFixedArray([0, 0], 1000, 1200))
