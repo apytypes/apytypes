@@ -119,13 +119,6 @@ APyFloat::APyFloat(
     , exp(data.exp)
     , man(data.man)
 {
-    if (exp_bits > _EXP_LIMIT_BITS) {
-        throw nb::value_error("Too many bits for the exponent field.");
-    }
-
-    if (man_bits > _MAN_LIMIT_BITS) {
-        throw nb::value_error("Too many bits for the mantissa field.");
-    }
 }
 
 /* **********************************************************************************
@@ -601,7 +594,6 @@ APyFloat APyFloat::operator+(APyFloat y) const
     }
 
     // Quantize mantissa
-    man_t new_man;
     APyFloat::quantize_apymantissa(apy_res, res.sign, res.man_bits);
 
     // Carry from quantization
@@ -666,11 +658,10 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     std::int64_t new_exp = ((std::int64_t)norm_x.exp - (std::int64_t)norm_x.bias)
         + ((std::int64_t)norm_y.exp - (std::int64_t)norm_y.bias) + res.bias;
 
-    man_t new_man;
     int tmp_man_bits;
 
     if (unsigned(norm_x.man_bits + norm_y.man_bits + 2) <= _MAN_T_SIZE_BITS) {
-        new_man = mx * my;
+        man_t new_man = mx * my;
         man_t one = 1ULL << (norm_x.man_bits + norm_y.man_bits);
         man_t two = one << 1;
         if (new_exp < 0) {
@@ -705,7 +696,6 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         }
 
         // Quantize mantissa
-        man_t new_man;
         APyFloat::quantize_apymantissa(apy_res, res.sign, res.man_bits);
 
         // Carry from quantization
@@ -799,7 +789,6 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     }
 
     // Quantize mantissa
-    man_t new_man;
     APyFloat::quantize_apymantissa(apy_man_res, res.sign, res.man_bits);
 
     // Carry from quantization
@@ -939,6 +928,11 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
 
 APyFloat APyFloat::operator&(APyFloat& rhs)
 {
+    if (same_type_as(rhs)) {
+        APyFloat f(sign & rhs.sign, exp & rhs.exp, man & rhs.man, exp_bits, man_bits);
+        return f;
+    }
+
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
     const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits);
@@ -948,14 +942,18 @@ APyFloat APyFloat::operator&(APyFloat& rhs)
         lhs_big.sign & rhs_big.sign,
         lhs_big.exp & rhs_big.exp,
         lhs_big.man & rhs_big.man,
-        max_exp_bits,
-        max_man_bits
+        exp_bits,
+        man_bits
     );
     return f;
 }
 
 APyFloat APyFloat::operator|(APyFloat& rhs)
 {
+    if (same_type_as(rhs)) {
+        APyFloat f(sign | rhs.sign, exp | rhs.exp, man | rhs.man, exp_bits, man_bits);
+        return f;
+    }
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
     const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits);
@@ -973,6 +971,10 @@ APyFloat APyFloat::operator|(APyFloat& rhs)
 
 APyFloat APyFloat::operator^(APyFloat& rhs)
 {
+    if (same_type_as(rhs)) {
+        APyFloat f(sign ^ rhs.sign, exp ^ rhs.exp, man ^ rhs.man, exp_bits, man_bits);
+        return f;
+    }
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
     const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits);
@@ -1015,9 +1017,8 @@ bool APyFloat::operator==(const APyFloat& rhs) const
         return false;
     }
 
-    if ((exp_bits == rhs.exp_bits) && (man_bits == rhs.man_bits)) {
+    if (same_type_as(rhs)) {
         return (exp == rhs.exp) && (man == rhs.man);
-
     } else {
 
         // Cast operands to a larger format that can represent both numbers
@@ -1061,7 +1062,7 @@ bool APyFloat::operator<(const APyFloat& rhs) const
         return sign;
     }
 
-    if ((exp_bits == rhs.exp_bits) && (man_bits == rhs.man_bits)) {
+    if (same_type_as(rhs)) {
         if (exp < rhs.exp) {
             return !sign;
         }
@@ -1180,6 +1181,12 @@ int APyFloat::leading_zeros_apyfixed(APyFixed fx) const
         zeros++;
     }
     return zeros;
+}
+
+APY_INLINE bool APyFloat::same_type_as(APyFloat other) const
+{
+    return man_bits == other.man_bits && exp_bits == other.exp_bits
+        && bias == other.bias;
 }
 
 /*
