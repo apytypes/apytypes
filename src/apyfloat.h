@@ -243,6 +243,7 @@ private:
     translate_quantization_mode(QuantizationMode quantization, bool sign);
 
     int leading_zeros_apyfixed(APyFixed fx) const;
+    APY_INLINE bool same_type_as(APyFloat other) const;
 };
 
 #endif // _APYFLOAT_H
