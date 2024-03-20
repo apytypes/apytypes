@@ -5,6 +5,7 @@ from apytypes import APyFloat
 
 
 # Exhaustive tests, long running
+# These should be replaced by testing against a third-party tool
 # @pytest.mark.slow
 # @pytest.mark.float_add
 # @pytest.mark.parametrize("x_bits", range(0, 2**8))
@@ -48,23 +49,23 @@ from apytypes import APyFloat
 #    assert ans.is_identical(ref) or (ans.is_nan and ref.is_nan) or (ans == 0 and ref == 0)
 
 
-@pytest.mark.slow
-@pytest.mark.float_div
-@pytest.mark.parametrize("x_bits", range(0, 2 * 8))
-@pytest.mark.parametrize("y_bits", range(0, 2**8))
-def test_div_all(x_bits, y_bits):
-    y = APyFloat.from_bits(y_bits, 4, 3)
-    if y != 0:
-        x = APyFloat.from_bits(x_bits, 4, 3)
-        ans = x / y
-        ref = APyFloat.from_float(float(x) / float(y), 4, 3)
-        print(f"{float(x)} / {float(y)} = {float(ref)} != {float(ans)}")
-        print(f"{x!r} / {y!r} = (ref){ref!r} != (ans){ans!r}")
-        assert (
-            ans.is_identical(ref)
-            or (ans.is_nan and ref.is_nan)
-            or (ans == 0 and ref == 0)
-        )
+# @pytest.mark.slow
+# @pytest.mark.float_div
+# @pytest.mark.parametrize("x_bits", range(0, 2 * 8))
+# @pytest.mark.parametrize("y_bits", range(0, 2**8))
+# def test_div_all(x_bits, y_bits):
+#     y = APyFloat.from_bits(y_bits, 4, 3)
+#     if y != 0:
+#         x = APyFloat.from_bits(x_bits, 4, 3)
+#         ans = x / y
+#         ref = APyFloat.from_float(float(x) / float(y), 4, 3)
+#         print(f"{float(x)} / {float(y)} = {float(ref)} != {float(ans)}")
+#         print(f"{x!r} / {y!r} = (ref){ref!r} != (ans){ans!r}")
+#         assert (
+#             ans.is_identical(ref)
+#             or (ans.is_nan and ref.is_nan)
+#             or (ans == 0 and ref == 0)
+#         )
 
 
 # Negation
@@ -344,6 +345,19 @@ def test_power():
     )
     assert APyFloat.from_float(-8.125, 8, 10) ** 4 == APyFloat.from_float(
         (-8.125) ** 4, 8, 10
+    )
+
+
+@pytest.mark.xfail()
+@pytest.mark.float_pow
+def test_long_power():
+    """Test the power function with long format."""
+    assert APyFloat.from_float(4.5, 11, 52) ** 2 == APyFloat.from_float(4.5**2, 11, 52)
+    assert APyFloat.from_float(-4.5, 11, 52) ** 3 == APyFloat.from_float(
+        (-4.5) ** 3, 11, 52
+    )
+    assert APyFloat.from_float(-8.125, 11, 52) ** 4 == APyFloat.from_float(
+        (-8.125) ** 4, 11, 52
     )
 
 

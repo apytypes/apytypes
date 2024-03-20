@@ -609,7 +609,6 @@ APyFloat APyFloat::operator+(APyFloat y) const
         new_exp++;
         apy_res >>= 1;
     }
-    std::cout << "apy_res: " << apy_res << "\n";
 
     if (new_exp >= res.max_exponent()) {
         return res.construct_inf();
