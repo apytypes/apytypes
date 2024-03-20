@@ -258,11 +258,11 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
     bool sign_product = is_negative() ^ rhs.is_negative();
     ScratchVector<mp_limb_t> abs_den(rhs._data.size());
     limb_vector_abs(rhs._data.cbegin(), rhs._data.cend(), abs_den.begin());
-    ScratchVector<mp_limb_t> abs_num;
+    ScratchVector<mp_limb_t> abs_num(1 + bits_to_limbs(bits() + rhs.frac_bits()));
     if (is_negative()) {
-        abs_num = (-*this)._data_asl(rhs.frac_bits());
+        (-*this)._data_asl(abs_num.begin(), abs_num.end(), rhs.frac_bits());
     } else {
-        abs_num = (*this)._data_asl(rhs.frac_bits());
+        (*this)._data_asl(abs_num.begin(), abs_num.end(), rhs.frac_bits());
     }
 
     // `mpn_tdiv_rq` requires that the number of significant limbs in the
@@ -1291,24 +1291,24 @@ void APyFixed::_twos_complement_overflow(
  * *                          Private member functions                              * *
  * ********************************************************************************** */
 
-// Sign preserving automatic size extending arithmetic left shift. Returns a new
-// limb vector with the shifted content.
-ScratchVector<mp_limb_t> APyFixed::_data_asl(unsigned shift_val) const
+template <typename RANDOM_ACCESS_ITERATOR>
+void APyFixed::_data_asl(
+    RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned shift_val
+) const
 {
     if (shift_val == 0) {
-        return _data;
+        return;
     }
 
     // Perform the left-shift
     unsigned vec_skip_val = shift_val / _LIMB_SIZE_BITS;
     unsigned bit_shift_val = shift_val % _LIMB_SIZE_BITS;
-    ScratchVector<mp_limb_t> result(bits_to_limbs(bits() + shift_val), 0);
-    std::copy(_data.cbegin(), _data.cend(), result.begin() + vec_skip_val);
+    std::copy(_data.cbegin(), _data.cend(), it_begin + vec_skip_val);
     mpn_lshift(
-        &result[0],    // dst
-        &result[0],    // src
-        result.size(), // limb vector length
-        bit_shift_val  // shift amount
+        &*it_begin,                      // dst
+        &*it_begin,                      // src
+        std::distance(it_begin, it_end), // limb vector length
+        bit_shift_val                    // shift amount
     );
 
     // Append sign bits for "arithmetic" shift
@@ -1317,10 +1317,8 @@ ScratchVector<mp_limb_t> APyFixed::_data_asl(unsigned shift_val) const
         mp_limb_t sign_int = mp_limb_signed_t(_data.back()) >> (_LIMB_SIZE_BITS - 1);
         mp_limb_t or_mask
             = ~((mp_limb_t(1) << (bits() + shift_val) % _LIMB_SIZE_BITS) - 1);
-        result.back() |= or_mask & sign_int;
+        *std::prev(it_end) |= or_mask & sign_int;
     }
-
-    return result;
 }
 
 /* ********************************************************************************** *
@@ -1343,16 +1341,3 @@ template void APyFixed::_twos_complement_overflow(
 template void APyFixed::_twos_complement_overflow(
     ScratchVector<mp_limb_t>::iterator, ScratchVector<mp_limb_t>::iterator, int, int
 ) const;
-
-// template <>
-// void APyFixed::_cast<std::vector<mp_limb_t>::iterator, true>(
-//     std::vector<mp_limb_t>::iterator it_begin,
-//     std::vector<mp_limb_t>::iterator it_end,
-//     int new_bits,
-//     int new_int_bits,
-//     QuantizationMode quantization,
-//     OverflowMode overflow
-//) const
-//{
-//     _cast(it_begin, it_end, new_bits, new_int_bits, quantization, overflow);
-// }
