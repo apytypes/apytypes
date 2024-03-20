@@ -732,10 +732,11 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     exp_t extended_bias = APyFloat::ieee_bias(tmp_exp_bits);
     new_exp = new_exp - res.bias + extended_bias;
 
-    return APyFloat(
-               res.sign, new_exp, new_man, tmp_exp_bits, tmp_man_bits, extended_bias
-    )
-        .cast(res.exp_bits, res.man_bits, res.bias);
+    // This circumvents the check of the mantissa in the constructors.
+    // TODO: handle this differently
+    APyFloat larger_float(res.sign, new_exp, new_man, tmp_exp_bits, 0, extended_bias);
+    larger_float.man_bits = tmp_man_bits;
+    return larger_float.cast(res.exp_bits, res.man_bits, res.bias);
 }
 
 APyFloat APyFloat::operator/(const APyFloat& y) const
