@@ -97,13 +97,6 @@ APyFloat::APyFloat(
     , exp(0)
     , man(0)
 {
-    if (exp_bits > _EXP_LIMIT_BITS) {
-        throw nb::value_error("Too many bits for the exponent field.");
-    }
-
-    if (man_bits > _MAN_LIMIT_BITS) {
-        throw nb::value_error("Too many bits for the mantissa field.");
-    }
 }
 
 APyFloat::APyFloat(
