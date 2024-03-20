@@ -69,3 +69,10 @@ def test_bit_conversion_nan_e5m2(absx, sign, ans):
         eval(f'{"-" if sign == "1" else ""}{ans}'), 5, 2
     ).to_bits()
     assert (bits & 0x3) != 0
+
+
+def test_long_python_integer():
+    val = 0xF000000FFFFFFFFFF
+    a = APyFloat.from_bits(val, 27, 40)
+    assert a.is_identical(APyFloat(1, 117440512, 1099511627775, 27, 40))
+    assert a.to_bits() == val
