@@ -408,8 +408,14 @@ private:
      * ****************************************************************************** */
 
 private:
-    // Sign preserving automatic size extending arithmetic left shift
-    ScratchVector<mp_limb_t> _data_asl(unsigned shift_val) const;
+    //! Sign preserving automatic size extending arithmetic left shift. Result must have
+    //! enough space for `bits_to_limbs(bits() + shift_val)` many limbs.
+    template <typename RANDOM_ACCESS_ITERATOR>
+    void _data_asl(
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
+        unsigned shift_val
+    ) const;
 
     //! `APyFixedArray` is a friend class of APyFixed, and can access all data of an
     //! `APyFixed` object
