@@ -282,7 +282,7 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
     if (nb::isinstance<nb::str>(*first_element_it)) {
         // First element along this dimension is a string. We currently do not support
         // having strings sequence array structures
-        throw std::runtime_error(
+        throw std::domain_error(
             "python_sequence_extract_shape(): found string when extracting shape, "
             "which is currently unsupported"
         );
@@ -294,7 +294,7 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
         for (auto element : bit_pattern_sequence) {
             if (!nb::isinstance<nb::sequence>(element)) {
                 // Non-sequence detected along dimension of sequences
-                throw std::runtime_error("Inhomogeneous sequence shape");
+                throw std::domain_error("Inhomogeneous sequence shape");
             }
 
             recursive_shapes.push_back(
@@ -306,7 +306,7 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
         for (const auto& shape : recursive_shapes) {
             if (shape != recursive_shapes[0]) {
                 // Inhomogeneous detected
-                throw std::runtime_error("Inhomogeneous sequence shape");
+                throw std::domain_error("Inhomogeneous sequence shape");
             }
         }
 
@@ -323,7 +323,7 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
         for (auto element : bit_pattern_sequence) {
             if (nb::isinstance<nb::sequence>(element)) {
                 // Sequence detected along dimension of non-sequence
-                throw std::runtime_error("Inhomogeneous sequence shape");
+                throw std::domain_error("Inhomogeneous sequence shape");
             }
         }
 
@@ -338,7 +338,7 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
  * object (of type `<T>`, via `nb::cast<T>()`) and return them in a `std::vector<T>`.
  * The sequence is walked in a depth-first search manner. If any object in the sequence
  * `bit_pattern_sequence` does not match `<T>` or another Python sequence a
- * `std::runtime_error` exception to be raised.
+ * `std::domain_error` exception to be raised.
  */
 template <typename... PyTypes>
 [[maybe_unused]] static APY_INLINE std::vector<nanobind::object>
@@ -375,7 +375,7 @@ python_sequence_walk(const nanobind::sequence& py_seq)
                 nb::str type_string = nb::str(type);
                 nb::str repr = nb::repr(obj);
                 std::string repr_string = repr.c_str();
-                throw std::runtime_error(
+                throw std::domain_error(
                     std::string("Non <type>/sequence found when walking: '")
                     + repr_string + "' of type: '" + type_string.c_str()
                 );

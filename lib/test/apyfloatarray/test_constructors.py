@@ -6,9 +6,9 @@ from apytypes import APyFloatArray
 def test_constructor_raises():
     with pytest.raises(ValueError, match="Shape mismatch"):
         APyFloatArray([1], [5, 2], [4], 10, 10)
-    with pytest.raises(RuntimeError, match="Inhomogeneous sequence"):
+    with pytest.raises(ValueError, match="Inhomogeneous sequence"):
         APyFloatArray([1, 2], [5, 2], [4, "str"], 10, 10)
-    with pytest.raises(RuntimeError, match="Not.*implemented.*bias"):
+    with pytest.raises(ValueError, match="Not.*implemented.*bias"):
         APyFloatArray([1], [5], [4], 10, 10, 12)
 
 

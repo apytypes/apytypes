@@ -247,7 +247,7 @@ def test_huge_extending_cast(mode):
     ],
 )
 def test_not_implemented(mode):
-    with pytest.raises(RuntimeError, match=r"Not implemented"):
+    with pytest.raises(ValueError, match=r"Not implemented"):
         APyFixed(0, 1, 0).cast(bits=1, int_bits=0, quantization=mode)
 
 
