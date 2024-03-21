@@ -668,9 +668,8 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         // This circumvents the check of the mantissa in the constructors.
         // TODO: handle this differently
         APyFloat larger_float(
-            res.sign, new_exp, new_man, tmp_exp_bits, 0, extended_bias
+            res.sign, new_exp, new_man, tmp_exp_bits, tmp_man_bits, extended_bias
         );
-        larger_float.man_bits = tmp_man_bits;
         return larger_float.cast(res.exp_bits, res.man_bits, res.bias);
 
     } else {
