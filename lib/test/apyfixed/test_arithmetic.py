@@ -186,6 +186,13 @@ def test_unary_minus():
     assert (--a).is_identical(APyFixed(-3, 302, 4))
     assert not (-a)._is_negative
 
+    a = APyFixed(-3, 64, 5)
+    assert a._is_negative
+    assert not a._is_positive
+    assert (-a).is_identical(APyFixed(3, 65, 6))
+    assert (--a).is_identical(APyFixed(-3, 66, 7))
+    assert not (-a)._is_negative
+
 
 def test_abs():
     a = APyFixed(-3, 3, 2)
