@@ -263,15 +263,15 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
     ScratchVector<mp_limb_t> abs_num(1 + bits_to_limbs(bits() + rhs.frac_bits()));
     abs()._data_asl(abs_num.begin(), abs_num.end(), rhs.frac_bits());
 
-    // `mpn_tdiv_qr` requires that the number of significant limb in the
-    // numerator is greater than zero.
-    auto num_significant_limbs = significant_limbs(abs_num.begin(), abs_num.end());
+    // `mpn_tdiv_qr` requires that the number of significant limbs in denominator
+    std::size_t den_significant_limbs
+        = significant_limbs(abs_den.begin(), abs_den.end());
     mpn_div_qr(
-        &result._data[0],      // Quotient
-        &abs_num[0],           // Numerator
-        num_significant_limbs, // Numerator significant limbs
-        &abs_den[0],           // Denominator
-        abs_den.size()         // Denominator significant limbs
+        &result._data[0],     // Quotient
+        &abs_num[0],          // Numerator
+        abs_num.size(),       // Numerator significant limbs
+        &abs_den[0],          // Denominator
+        den_significant_limbs // Denominator significant limbs
     );
     if (sign_product) {
         limb_vector_negate(
