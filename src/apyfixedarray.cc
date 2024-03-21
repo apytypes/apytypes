@@ -332,14 +332,22 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
 
     // Resulting `APyFixedArray` fixed-point tensor
     APyFixedArray result(_shape, res_bits, res_int_bits);
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        for (std::size_t i = 0; i < _data.size(); i++) {
+            result._data[i] = _data[i] * rhs._data[0];
+        }
+        return result;
+    }
 
-    auto op2_begin = rhs._data.begin() + (0) * rhs.vector_size();
-    auto op2_end = rhs._data.begin() + (1) * rhs.vector_size();
+    // Compute abs and sign of rhs (op2)
+    auto op2_begin = rhs._data.begin();
+    auto op2_end = rhs._data.begin() + rhs.vector_size();
     bool sign2 = mp_limb_signed_t(*(op2_end - 1)) < 0;
     std::vector<mp_limb_t> op2_abs = limb_vector_abs(op2_begin, op2_end);
 
     // Perform multiplication for each element in the tensor. `mpn_mul` requires:
-    // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
+    // "The destination has to have space for `s1n` + `s2n` limbs, even if the
+    // product’s
     //  most significant limb is zero."
     std::vector<mp_limb_t> res_tmp_vec(_itemsize + rhs.vector_size(), 0);
     std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
@@ -381,7 +389,6 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
         }
         op1_begin = op1_end;
     }
-
     return result;
 }
 
