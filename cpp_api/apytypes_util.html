@@ -247,7 +247,7 @@
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp">
-<span class="target" id="apytypes__util_8h_1ae12c90ca7686138bc3a092cc2772e32a"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">std::size_t</span> <span class="pre">significant_limbs</span> <span class="pre">(const</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;</span> <span class="pre">&amp;vector)</span></span></dt>
+<span class="target" id="apytypes__util_8h_1a126dd5bff026e2acde7e708608b50b45"></span><span class="sig-name descname"><span class="pre">template&lt;class</span> <span class="pre">RANDOM_ACCESS_ITERATOR&gt;</span> <span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">std::size_t</span> <span class="pre">significant_limbs</span> <span class="pre">(RANDOM_ACCESS_ITERATOR</span> <span class="pre">begin,</span> <span class="pre">RANDOM_ACCESS_ITERATOR</span> <span class="pre">end)</span></span></dt>
 <dd><p>Count the number of significant limbs in limb vector. </p>
 </dd></dl>
 
@@ -259,7 +259,7 @@
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp">
-<span class="target" id="apytypes__util_8h_1a6cf414f1599059f334f77d32587934c2"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">std::size_t</span> <span class="pre">limb_vector_leading_zeros</span> <span class="pre">(const</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;</span> <span class="pre">&amp;vec)</span></span></dt>
+<span class="target" id="apytypes__util_8h_1aacb18f06f1f84ba08e51435fc8ec11a8"></span><span class="sig-name descname"><span class="pre">template&lt;class</span> <span class="pre">RANDOM_ACCESS_ITERATOR&gt;</span> <span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">std::size_t</span> <span class="pre">limb_vector_leading_zeros</span> <span class="pre">(RANDOM_ACCESS_ITERATOR</span> <span class="pre">begin,</span> <span class="pre">RANDOM_ACCESS_ITERATOR</span> <span class="pre">end)</span></span></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
@@ -360,7 +360,7 @@
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp">
-<span class="target" id="apytypes__util_8h_1aaf4dec39c411192a4b7dd771d4ce7630"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">void</span> <span class="pre">limb_vector_asr</span> <span class="pre">(std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::iterator</span> <span class="pre">it_begin,</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::iterator</span> <span class="pre">it_end,</span> <span class="pre">unsigned</span> <span class="pre">shift_amnt)</span></span></dt>
+<span class="target" id="apytypes__util_8h_1adb913d38c516a424fcef4057c8bdf587"></span><span class="sig-name descname"><span class="pre">template&lt;class</span> <span class="pre">RANDOM_ACCESS_ITERATOR&gt;</span> <span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">void</span> <span class="pre">limb_vector_asr</span> <span class="pre">(RANDOM_ACCESS_ITERATOR</span> <span class="pre">it_begin,</span> <span class="pre">RANDOM_ACCESS_ITERATOR</span> <span class="pre">it_end,</span> <span class="pre">unsigned</span> <span class="pre">shift_amnt)</span></span></dt>
 <dd><p>Perform arithmetic right shift on a limb vector. Accelerated using GMP. </p>
 </dd></dl>
 
@@ -372,7 +372,7 @@
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp">
-<span class="target" id="apytypes__util_8h_1aa274017665db168a066f48d7374ca5f2"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">void</span> <span class="pre">limb_vector_lsr</span> <span class="pre">(std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::iterator</span> <span class="pre">it_begin,</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::iterator</span> <span class="pre">it_end,</span> <span class="pre">unsigned</span> <span class="pre">shift_amnt)</span></span></dt>
+<span class="target" id="apytypes__util_8h_1ab1120e5c88ed431713f1ae0115ca29cf"></span><span class="sig-name descname"><span class="pre">template&lt;class</span> <span class="pre">RANDOM_ACCESS_ITERATOR&gt;</span> <span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">void</span> <span class="pre">limb_vector_lsr</span> <span class="pre">(RANDOM_ACCESS_ITERATOR</span> <span class="pre">it_begin,</span> <span class="pre">RANDOM_ACCESS_ITERATOR</span> <span class="pre">it_end,</span> <span class="pre">unsigned</span> <span class="pre">shift_amnt)</span></span></dt>
 <dd><p>Perform logical right shift on a limb vector. Accelerated using GMP. </p>
 </dd></dl>
 
@@ -384,13 +384,13 @@
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp">
-<span class="target" id="apytypes__util_8h_1a97f7b8fd0e3b55c4b532785bfb63b05d"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">void</span> <span class="pre">limb_vector_lsl_inner</span> <span class="pre">(std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::iterator</span> <span class="pre">&amp;it_begin,</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::iterator</span> <span class="pre">&amp;it_end,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">shift_amnt,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">limb_skip,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">limb_shift,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">vec_size)</span></span></dt>
+<span class="target" id="apytypes__util_8h_1a5853ed301068b1d8fa96f6bc5a70ae97"></span><span class="sig-name descname"><span class="pre">template&lt;class</span> <span class="pre">RANDOM_ACCESS_ITERATOR&gt;</span> <span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">void</span> <span class="pre">limb_vector_lsl_inner</span> <span class="pre">(RANDOM_ACCESS_ITERATOR</span> <span class="pre">it_begin,</span> <span class="pre">RANDOM_ACCESS_ITERATOR</span> <span class="pre">it_end,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">limb_skip,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">limb_shift,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">vec_size)</span></span></dt>
 <dd><p>Perform logical left shift on a limb vector. Accelerated using GMP. </p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp">
-<span class="target" id="apytypes__util_8h_1a5618a7bc96f1d127f07e521f24b67d88"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">void</span> <span class="pre">limb_vector_lsl</span> <span class="pre">(std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::iterator</span> <span class="pre">it_begin,</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::iterator</span> <span class="pre">it_end,</span> <span class="pre">unsigned</span> <span class="pre">shift_amnt)</span></span></dt>
+<span class="target" id="apytypes__util_8h_1ab0259f2a115c0c161990fa5cc24cdd58"></span><span class="sig-name descname"><span class="pre">template&lt;class</span> <span class="pre">RANDOM_ACCESS_ITERATOR&gt;</span> <span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">void</span> <span class="pre">limb_vector_lsl</span> <span class="pre">(RANDOM_ACCESS_ITERATOR</span> <span class="pre">it_begin,</span> <span class="pre">RANDOM_ACCESS_ITERATOR</span> <span class="pre">it_end,</span> <span class="pre">unsigned</span> <span class="pre">shift_amnt)</span></span></dt>
 <dd><p>Perform logical left shift on a limb vector. Accelerated using GMP. </p>
 </dd></dl>
 
@@ -402,13 +402,13 @@
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp">
-<span class="target" id="apytypes__util_8h_1afdce274dae1598d6206e3b241261debd"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">mp_limb_t</span> <span class="pre">limb_vector_add_pow2</span> <span class="pre">(std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::iterator</span> <span class="pre">it_begin,</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::iterator</span> <span class="pre">it_end,</span> <span class="pre">unsigned</span> <span class="pre">n)</span></span></dt>
+<span class="target" id="apytypes__util_8h_1ad76224edd777e6a91ef5857abcd236a6"></span><span class="sig-name descname"><span class="pre">template&lt;class</span> <span class="pre">RANDOM_ACCESS_ITERATOR&gt;</span> <span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">mp_limb_t</span> <span class="pre">limb_vector_add_pow2</span> <span class="pre">(RANDOM_ACCESS_ITERATOR</span> <span class="pre">it_begin,</span> <span class="pre">RANDOM_ACCESS_ITERATOR</span> <span class="pre">it_end,</span> <span class="pre">unsigned</span> <span class="pre">n)</span></span></dt>
 <dd><p>Add a power-of-two (2 ^ <code class="docutils literal notranslate"><span class="pre">n</span></code>) onto a limb vector. Returns carry out. </p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp">
-<span class="target" id="apytypes__util_8h_1a49e555f4291d7ce7953cb5ea2efb01b6"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">mp_limb_t</span> <span class="pre">limb_vector_sub_pow2</span> <span class="pre">(std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::iterator</span> <span class="pre">it_begin,</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::iterator</span> <span class="pre">it_end,</span> <span class="pre">unsigned</span> <span class="pre">n)</span></span></dt>
+<span class="target" id="apytypes__util_8h_1a4195fa392853f8f2932d408bfb0590d2"></span><span class="sig-name descname"><span class="pre">template&lt;class</span> <span class="pre">RANDOM_ACCESS_ITERATOR&gt;</span> <span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">mp_limb_t</span> <span class="pre">limb_vector_sub_pow2</span> <span class="pre">(RANDOM_ACCESS_ITERATOR</span> <span class="pre">it_begin,</span> <span class="pre">RANDOM_ACCESS_ITERATOR</span> <span class="pre">it_end,</span> <span class="pre">unsigned</span> <span class="pre">n)</span></span></dt>
 <dd><p>Subtract a power-of-two (2 ^ <code class="docutils literal notranslate"><span class="pre">n</span></code>) from a limb vector. Returns borrow. </p>
 </dd></dl>
 
@@ -432,49 +432,49 @@
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp">
-<span class="target" id="apytypes__util_8h_1a3f4c1d57dd022bdba39c406e6a03d204"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">bool</span> <span class="pre">limb_vector_is_negative</span> <span class="pre">(std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::const_iterator</span> <span class="pre">cbegin_it,</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::const_iterator</span> <span class="pre">cend_it)</span></span></dt>
+<span class="target" id="apytypes__util_8h_1a2fc21643403a78cfd6d1700e5d5b8f38"></span><span class="sig-name descname"><span class="pre">template&lt;class</span> <span class="pre">RANDOM_ACCESS_ITERATOR&gt;</span> <span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">bool</span> <span class="pre">limb_vector_is_negative</span> <span class="pre">(RANDOM_ACCESS_ITERATOR</span> <span class="pre">cbegin_it,</span> <span class="pre">RANDOM_ACCESS_ITERATOR</span> <span class="pre">cend_it)</span></span></dt>
 <dd><p>Test if the value of a limb vector is negative. </p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp">
-<span class="target" id="apytypes__util_8h_1a481c4a97eb52eba4a825c8ea0cd460b6"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">bool</span> <span class="pre">limb_vector_or_reduce</span> <span class="pre">(std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::const_iterator</span> <span class="pre">cbegin_it,</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::const_iterator</span> <span class="pre">cend_it,</span> <span class="pre">unsigned</span> <span class="pre">n)</span></span></dt>
+<span class="target" id="apytypes__util_8h_1a80380da8d84e4fea371e4c476ba0baff"></span><span class="sig-name descname"><span class="pre">template&lt;class</span> <span class="pre">RANDOM_ACCESS_ITERATOR&gt;</span> <span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">bool</span> <span class="pre">limb_vector_or_reduce</span> <span class="pre">(RANDOM_ACCESS_ITERATOR</span> <span class="pre">cbegin_it,</span> <span class="pre">RANDOM_ACCESS_ITERATOR</span> <span class="pre">cend_it,</span> <span class="pre">unsigned</span> <span class="pre">n)</span></span></dt>
 <dd><p>Reduce the first <code class="docutils literal notranslate"><span class="pre">n</span></code> bits in a limb vector over bitwise <code class="docutils literal notranslate"><span class="pre">or</span></code>. Returns bool. </p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp">
-<span class="target" id="apytypes__util_8h_1a28bcd7d94a8260971b0b6969ae607aec"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">bool</span> <span class="pre">limb_vector_test_bit</span> <span class="pre">(std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::const_iterator</span> <span class="pre">cbegin_it,</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::const_iterator</span> <span class="pre">cend_it,</span> <span class="pre">unsigned</span> <span class="pre">n)</span></span></dt>
+<span class="target" id="apytypes__util_8h_1a4b35d21873cf4151cc2c62bd99e4e758"></span><span class="sig-name descname"><span class="pre">template&lt;class</span> <span class="pre">RANDOM_ACCESS_ITERATOR&gt;</span> <span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">bool</span> <span class="pre">limb_vector_test_bit</span> <span class="pre">(RANDOM_ACCESS_ITERATOR</span> <span class="pre">cbegin_it,</span> <span class="pre">RANDOM_ACCESS_ITERATOR</span> <span class="pre">cend_it,</span> <span class="pre">unsigned</span> <span class="pre">n)</span></span></dt>
 <dd><p>Test if the <code class="docutils literal notranslate"><span class="pre">n</span></code>-th bit is set in a limb vector. </p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp">
-<span class="target" id="apytypes__util_8h_1a62affc41e2dd7e9c8f8cb24594d0c482"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">void</span> <span class="pre">limb_vector_set_bit</span> <span class="pre">(std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::iterator</span> <span class="pre">begin_it,</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::iterator</span> <span class="pre">end_it,</span> <span class="pre">unsigned</span> <span class="pre">n,</span> <span class="pre">bool</span> <span class="pre">bit)</span></span></dt>
+<span class="target" id="apytypes__util_8h_1a42ccbd801cda2a668c7bb923cdb2ee08"></span><span class="sig-name descname"><span class="pre">template&lt;class</span> <span class="pre">RANDOM_ACCESS_ITERATOR&gt;</span> <span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">void</span> <span class="pre">limb_vector_set_bit</span> <span class="pre">(RANDOM_ACCESS_ITERATOR</span> <span class="pre">begin_it,</span> <span class="pre">RANDOM_ACCESS_ITERATOR</span> <span class="pre">end_it,</span> <span class="pre">unsigned</span> <span class="pre">n,</span> <span class="pre">bool</span> <span class="pre">bit)</span></span></dt>
 <dd><p>Set the <code class="docutils literal notranslate"><span class="pre">n</span></code>-th bit (zero indexed) of a limb vector to <code class="docutils literal notranslate"><span class="pre">bit</span></code></p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp">
-<span class="target" id="apytypes__util_8h_1a4aec30079fdc84226c5b28494adc34e4"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">mp_limb_t</span> <span class="pre">limb_vector_negate</span> <span class="pre">(std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::const_iterator</span> <span class="pre">cbegin_it,</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::const_iterator</span> <span class="pre">cend_it,</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::iterator</span> <span class="pre">res_it)</span></span></dt>
+<span class="target" id="apytypes__util_8h_1afbd8c655d3954341f89270ae3c94051f"></span><span class="sig-name descname"><span class="pre">template&lt;class</span> <span class="pre">RANDOM_ACCESS_ITERATOR_IN,</span> <span class="pre">class</span> <span class="pre">RANDOM_ACCESS_ITERATOR_OUT&gt;</span> <span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">mp_limb_t</span> <span class="pre">limb_vector_negate</span> <span class="pre">(RANDOM_ACCESS_ITERATOR_IN</span> <span class="pre">cbegin_it,</span> <span class="pre">RANDOM_ACCESS_ITERATOR_IN</span> <span class="pre">cend_it,</span> <span class="pre">RANDOM_ACCESS_ITERATOR_OUT</span> <span class="pre">res_it)</span></span></dt>
 <dd><p>Non-limb extending negation of limb vector from constant reference to <code class="docutils literal notranslate"><span class="pre">std::vector&lt;mp_limb_t&gt;</span></code>. This function guarantees that <code class="docutils literal notranslate"><span class="pre">result.size()</span> <span class="pre">==</span> <span class="pre">input.size()</span></code>. </p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp">
-<span class="target" id="apytypes__util_8h_1ac4c23a15445b69efdd4485233dc407c6"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;</span> <span class="pre">limb_vector_negate</span> <span class="pre">(std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::const_iterator</span> <span class="pre">cbegin_it,</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::const_iterator</span> <span class="pre">cend_it)</span></span></dt>
+<span class="target" id="apytypes__util_8h_1a2e74964e9121fc54b7555ec16abab8d0"></span><span class="sig-name descname"><span class="pre">template&lt;class</span> <span class="pre">RANDOM_ACCESS_ITERATOR&gt;</span> <span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;</span> <span class="pre">limb_vector_negate</span> <span class="pre">(RANDOM_ACCESS_ITERATOR</span> <span class="pre">cbegin_it,</span> <span class="pre">RANDOM_ACCESS_ITERATOR</span> <span class="pre">cend_it)</span></span></dt>
 <dd><p>Non-limb extending negation of limb vector from constant reference to <code class="docutils literal notranslate"><span class="pre">std::vector&lt;mp_limb_t&gt;</span></code>. This function guarantees that <code class="docutils literal notranslate"><span class="pre">result.size()</span> <span class="pre">==</span> <span class="pre">input.size()</span></code>. </p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp">
-<span class="target" id="apytypes__util_8h_1ae33e1b9945a924de05e019a60666be07"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">void</span> <span class="pre">limb_vector_abs</span> <span class="pre">(std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::const_iterator</span> <span class="pre">cbegin_it,</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::const_iterator</span> <span class="pre">cend_it,</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::iterator</span> <span class="pre">res_it)</span></span></dt>
+<span class="target" id="apytypes__util_8h_1afd981a68bca1f1a8e917a83bade15d86"></span><span class="sig-name descname"><span class="pre">template&lt;class</span> <span class="pre">RANDOM_ACCESS_ITERATOR_IN,</span> <span class="pre">class</span> <span class="pre">RANDOM_ACCESS_ITERATOR_OUT&gt;</span> <span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">void</span> <span class="pre">limb_vector_abs</span> <span class="pre">(RANDOM_ACCESS_ITERATOR_IN</span> <span class="pre">cbegin_it,</span> <span class="pre">RANDOM_ACCESS_ITERATOR_IN</span> <span class="pre">cend_it,</span> <span class="pre">RANDOM_ACCESS_ITERATOR_OUT</span> <span class="pre">res_it)</span></span></dt>
 <dd><p>Take the two’s complement absolute value of a limb vector in place. </p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp">
-<span class="target" id="apytypes__util_8h_1a60359e5263bed30de367d6db2afd8863"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;</span> <span class="pre">limb_vector_abs</span> <span class="pre">(std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::const_iterator</span> <span class="pre">cbegin_it,</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;::const_iterator</span> <span class="pre">cend_it)</span></span></dt>
+<span class="target" id="apytypes__util_8h_1a02aeb6917a63e7cbc1794d0f2588ef88"></span><span class="sig-name descname"><span class="pre">template&lt;class</span> <span class="pre">RANDOM_ACCESS_ITERATOR&gt;</span> <span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">std::vector&lt;</span> <span class="pre">mp_limb_t</span> <span class="pre">&gt;</span> <span class="pre">limb_vector_abs</span> <span class="pre">(RANDOM_ACCESS_ITERATOR</span> <span class="pre">cbegin_it,</span> <span class="pre">RANDOM_ACCESS_ITERATOR</span> <span class="pre">cend_it)</span></span></dt>
 <dd><p>Take the two’s complement absolute value of a limb vector. </p>
 </dd></dl>
 
