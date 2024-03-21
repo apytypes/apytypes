@@ -1101,56 +1101,29 @@ void APyFixedArray::_cast(
     // For each scalar in the tensor...
     std::size_t result_limbs = bits_to_limbs(new_bits);
     std::size_t pad_limbs = bits_to_limbs(std::max(new_bits, _bits)) - result_limbs;
-    auto caster_vector_size_offset = caster.vector_size() - _itemsize;
     auto data_begin = _data.begin();
-    if (caster_vector_size_offset) {
-        // Need to sign-extend additional limbs
-        auto caster_offset = caster._data.begin() + _itemsize;
-        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
-            auto data_end = data_begin + _itemsize;
-            // Copy data into temporary `APyFixed` and sign extend
-            std::copy_n(
-                data_begin,          // src
-                _itemsize,           // limbs to copy
-                caster._data.begin() // dst
-            );
-            std::fill_n(
-                caster_offset,
-                caster_vector_size_offset,
-                mp_limb_signed_t(*--(data_end)) < 0 ? -1 : 0
-            );
+    auto it_start = it_begin;
+    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+        // Copy data into temporary `APyFixed` and sign extend
+        std::copy_n(
+            data_begin,          // src
+            _itemsize,           // limbs to copy
+            caster._data.begin() // dst
+        );
 
-            // Perform the resizing
-            caster._cast(
-                it_begin + (i + 0) * result_limbs,             // output start
-                it_begin + (i + 1) * result_limbs + pad_limbs, // output sentinel
-                new_bits,
-                new_int_bits,
-                quantization,
-                overflow
-            );
-            data_begin = data_end;
-        }
-    } else {
-        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
-            // Copy data into temporary `APyFixed` and sign extend
-            std::copy_n(
-                data_begin,          // src
-                _itemsize,           // limbs to copy
-                caster._data.begin() // dst
-            );
+        auto it_end_ = it_start + result_limbs;
 
-            // Perform the resizing
-            caster._cast(
-                it_begin + (i + 0) * result_limbs,             // output start
-                it_begin + (i + 1) * result_limbs + pad_limbs, // output sentinel
-                new_bits,
-                new_int_bits,
-                quantization,
-                overflow
-            );
-            data_begin += _itemsize;
-        }
+        // Perform the resizing
+        caster._cast(
+            it_start,            // output start
+            it_end_ + pad_limbs, // output sentinel
+            new_bits,
+            new_int_bits,
+            quantization,
+            overflow
+        );
+        data_begin += _itemsize;
+        it_start = it_end_;
     }
 }
 

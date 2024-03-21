@@ -633,7 +633,7 @@ void APyFixed::set_from_double(double value)
             man |= mp_limb_t(1) << 52;
         }
 
-        // Adjust the actual exponent (-1023) and
+        // Adjust the actual exponent with bias (-1023) and
         // shift the data into its correct position
         auto left_shift_amnt = exp + frac_bits() - 52 - 1023;
         if (unsigned(_bits) <= _LIMB_SIZE_BITS) {
