@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="apytypes Python package" href="api/index.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Comparison" href="comparison.html" /><link rel="prev" title="APyFixed" href="examples/apyfixed.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>APyTypes documentation</title>
+        <title>Compute performance - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -128,7 +128,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">APyTypes  documentation</div></a>
+      <a href="index.html"><div class="brand">APyTypes  documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -139,7 +139,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -148,7 +148,7 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
   <span class="sidebar-brand-text">APyTypes  documentation</span>
@@ -160,7 +160,7 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of apytypes Python package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
@@ -186,7 +186,7 @@
 <li class="toctree-l2"><a class="reference internal" href="examples/apyfixed.html">APyFixed</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="performance.html">Compute performance</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Compute performance</a></li>
 <li class="toctree-l1"><a class="reference internal" href="comparison.html">Comparison</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
 </ul>
@@ -217,38 +217,36 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          <section id="welcome-to-apytypes-documentation">
-<h1>Welcome to APyTypes’ documentation!<a class="headerlink" href="#welcome-to-apytypes-documentation" title="Link to this heading">#</a></h1>
-<p>APyTypes is a Python library to simplify finite word length design and simulation.
-Written in C++, the focus is on performance and flexibility.</p>
-<p>To install APyTypes, do</p>
-<p>Now, have a look at the examples and play around. Using an enhanced terminal, like
-Jupyter Notebooks or Spyder, will provide a nicer output of the numbers.</p>
-<div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="api/index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cpp_api/index.html">APyTypes C++ API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="performance.html">Compute performance</a></li>
-<li class="toctree-l1"><a class="reference internal" href="comparison.html">Comparison</a></li>
-<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
-</ul>
-</div>
+          <section id="compute-performance">
+<h1>Compute performance<a class="headerlink" href="#compute-performance" title="Link to this heading">#</a></h1>
+<p>One of the key design criteria of APyTypes is compute performance. Now, using custom word lengths will always
+be much slower compared to using word lengths directly supported in hardware. By far. Hence, do not expect
+APyTypes to compete with, e.g., NumPy in pure computational speed. Also, pure C++-libraries like ac-types
+and ap-types are template-based. Hence, they know the word length at compile time and can therefore optimize
+the code. APyTypes must do this dynamically.</p>
+<p>Still, there are some ways to improve the performance when running APyTypes. This section will list best
+practices and expand over time.</p>
+<p>To track the computational speed of some selected operations over time, as the code evolves and hopefully improves,
+see <a class="reference external" href="https://apytypes.github.io/apytypes/dev/bench/">here</a>.
+These graphs are updated after every commit. However, as they are executed as part of the CI, one can expect
+a bit of variation. It should still be possible to note significant changes though.</p>
+<section id="use-arrays-if-possible">
+<h2>Use arrays if possible<a class="headerlink" href="#use-arrays-if-possible" title="Link to this heading">#</a></h2>
+<p>As the overhead of going between Python and C++ is significant for a single number (about 90%),
+it very much makes sense to use arrays when possible.</p>
 </section>
-<section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">#</a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
-</ul>
+<section id="inplace-shifting-for-fixed-point">
+<h2>Inplace shifting for fixed-point<a class="headerlink" href="#inplace-shifting-for-fixed-point" title="Link to this heading">#</a></h2>
+<p>Shifting is used to move the binary point of fixed-point numbers. Hence, this will only involve updating the
+number of integer/fractional bits. However, it may also involve creating a new object, so it is preferred to
+use inplace shifting if possible.</p>
+</section>
 </section>
 
         </article>
@@ -256,16 +254,26 @@ Jupyter Notebooks or Spyder, will provide a nicer output of the numbers.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="api/index.html">
+          <a class="next-page" href="comparison.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</div>
+                <div class="title">Comparison</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          
+          <a class="prev-page" href="examples/apyfixed.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">APyFixed</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -284,8 +292,28 @@ Jupyter Notebooks or Spyder, will provide a nicer output of the numbers.</p>
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Compute performance</a><ul>
+<li><a class="reference internal" href="#use-arrays-if-possible">Use arrays if possible</a></li>
+<li><a class="reference internal" href="#inplace-shifting-for-fixed-point">Inplace shifting for fixed-point</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

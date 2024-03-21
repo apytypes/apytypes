@@ -119,14 +119,14 @@ Comparison matrix
 .. [#apytypesfootnote] This is a design choice since ``apytypes``  is aimed at simulating shorter custom formats. However, there are unlimited word length support for fixed-point values which can be used for floating-point as well.
 
 
-Benchmark
----------
+Performance Comparison
+----------------------
 
 This benchmark compares relevant fixed-point libraries from the list above.
 It is updated every documentation build and may vary over time as the code is further optimized.
 
-.. image:: _static/benchmark.png
+.. image:: _static/comparison.png
     :alt: Benchmark numbers for different fixed-point libraries.
 
-.. image:: _static/benchmark_relative.png
+.. image:: _static/comparison_relative.png
     :alt: Benchmark relative to APyTypes for different fixed-point libraries.
