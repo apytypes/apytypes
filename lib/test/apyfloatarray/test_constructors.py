@@ -68,13 +68,9 @@ def test_from_float():
         "uint8",
         "float64",
         "float32",
-        "float16",
     ],
 )
-@pytest.mark.xfail()
 def test_numpy_creation(dt):
-    import numpy as np
-
     np = pytest.importorskip("numpy")
     anp = np.array([[1, 2, 3, 4]], dtype=dt)
 

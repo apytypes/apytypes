@@ -384,6 +384,25 @@ APyFloatArray APyFloatArray::from_double(
         );
     }
 
+    if (nb::isinstance<nb::ndarray<nb::numpy>>(double_seq)) {
+        // Sequence is NumPy NDArray. Initialize using `_set_values_from_numpy_ndarray`
+        auto ndarray = nb::cast<nb::ndarray<nb::numpy>>(double_seq);
+        std::size_t ndim = ndarray.ndim();
+        if (ndim == 0) {
+            throw nb::type_error(
+                "APyFixedArray.from_float(): NDArray with ndim == 0 not supported"
+            );
+        }
+        std::vector<std::size_t> shape(ndim, 0);
+        for (std::size_t i = 0; i < ndim; i++) {
+            shape[i] = ndarray.shape(i);
+        }
+
+        APyFloatArray result(shape, exp_bits, man_bits, bias);
+        result._set_values_from_numpy_ndarray(ndarray);
+        return result;
+    }
+
     APyFloatArray result(
         python_sequence_extract_shape(double_seq), exp_bits, man_bits, bias
     );
@@ -409,6 +428,50 @@ APyFloatArray APyFloatArray::from_double(
         result.data[i] = { fp.get_sign(), fp.get_exp(), fp.get_man() };
     }
     return result;
+}
+
+void APyFloatArray::_set_values_from_numpy_ndarray(const nb::ndarray<nb::numpy>& ndarray
+)
+{
+    // Type caster used for converting.
+    APyFloat caster(man_bits, exp_bits);
+
+#define CHECK_AND_SET_VALUES_FROM_NPTYPE(__TYPE__)                                     \
+    do {                                                                               \
+        if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
+            auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
+            for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
+                double d = static_cast<double>(ndarray_view.data()[i]);                \
+                const auto fp = APyFloat::from_double(d, exp_bits, man_bits, bias);    \
+                data[i] = { fp.get_sign(), fp.get_exp(), fp.get_man() };               \
+            }                                                                          \
+            return; /* Conversion completed, exit function */                          \
+        }                                                                              \
+    } while (0)
+
+    // Each `CHECK_AND_SET_VALUES_FROM_NPTYPE` checks the dtype of `ndarray` and
+    // converts all the data if it matches. If successful,
+    // `CHECK_AND_SET_VALUES_FROM_NPTYPES` returns. Otherwise, the next attemted
+    // conversion will take place
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(double);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(float);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int64_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int32_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int16_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int8_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint64_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint32_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint16_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint8_t);
+
+    // None of the `CHECK_AND_VALUES_FROM_NPTYPE` succeeded. Unsupported type, throw
+    // an error. If possible, it would be nice to show a string representation of
+    // the `dtype`. Seems hard to achieve with nanobind, but please fix this if you
+    // find out how this can be achieved.
+    throw nb::type_error(
+        "APyFixedArray::_set_values_from_numpy_ndarray(): "
+        "unsupported `dtype` expecting integer/float"
+    );
 }
 
 APyFloatArray APyFloatArray::transpose() const

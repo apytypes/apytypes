@@ -191,6 +191,14 @@ public:
     APyFloat
     cast_to_bfloat16(std::optional<QuantizationMode> quantization = std::nullopt) const;
 
+    /* ******************************************************************************
+     * * Helper functions                                                           *
+     * ******************************************************************************
+     */
+    APyFloat& update_from_double(
+        double value, std::optional<QuantizationMode> quantization = std::nullopt
+    );
+
 private:
     std::uint8_t exp_bits, man_bits;
     exp_t bias;
@@ -210,9 +218,6 @@ private:
      * ******************************************************************************
      */
     APyFloat& update_from_bits(nanobind::int_ python_long_int_bit_pattern);
-    APyFloat& update_from_double(
-        double value, std::optional<QuantizationMode> quantization = std::nullopt
-    );
 
     APyFloat construct_zero(std::optional<bool> new_sign = std::nullopt) const;
     APyFloat construct_inf(std::optional<bool> new_sign = std::nullopt) const;

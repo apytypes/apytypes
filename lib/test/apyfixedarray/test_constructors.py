@@ -72,8 +72,6 @@ def test_array_floating_point_construction():
     ],
 )
 def test_numpy_creation(dt):
-    import numpy as np
-
     np = pytest.importorskip("numpy")
     anp = np.array([[1, 2, 3, 4]], dtype=dt)
 
@@ -104,9 +102,7 @@ def test_incorrect_double_construction():
     ],
 )
 def test_base_constructor_ndarray(dt):
-
-    import numpy as np
-
+    np = pytest.importorskip("numpy")
     np_ndarray = np.array(
         [
             [1, 2, 3],
