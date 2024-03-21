@@ -644,9 +644,7 @@ template <class RANDOM_ACCESS_ITERATOR>
         return; // early return
     }
     unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
-    limb_vector_lsl_inner(
-        it_begin, it_end, limb_skip, limb_shift, vec_size
-    );
+    limb_vector_lsl_inner(it_begin, it_end, limb_skip, limb_shift, vec_size);
 }
 
 //! Perform logical left shift on a limb vector. Accelerated using GMP.
