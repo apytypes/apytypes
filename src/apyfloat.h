@@ -25,6 +25,7 @@ public:
      * ******************************************************************************
      */
 
+    // These constructors are not exposed to Python
     explicit APyFloat(
         bool sign,
         exp_t exp,
@@ -33,16 +34,6 @@ public:
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
-    explicit APyFloat(
-        int sign,
-        exp_t exp,
-        man_t man,
-        std::uint8_t exp_bits,
-        std::uint8_t man_bits,
-        std::optional<exp_t> bias = std::nullopt
-    );
-
-    // These constructors are not exposed to Python
     APyFloat(
         const APyFloatData& data,
         std::uint8_t exp_bits,
@@ -59,6 +50,16 @@ public:
      * * Methods for conversions                                                    *
      * ******************************************************************************
      */
+    // Factory function for Python interface
+    static void create_in_place(
+        APyFloat* apyfloat,
+        int sign,
+        exp_t exp,
+        man_t man,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
 
     static APyFloat from_double(
         double value,
