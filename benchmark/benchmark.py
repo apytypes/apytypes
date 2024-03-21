@@ -97,6 +97,7 @@ ax.set_xticks(
 )
 ax.legend(loc="upper left")
 ax.set_xbound((-0.5, len(benchmarks)))
+ax.grid(True, which="major", axis="y")
 fig.savefig("benchmark.png")
 
 
@@ -105,7 +106,8 @@ fig, ax = plt.subplots(layout="constrained", figsize=(8, 10))
 x = np.arange(len(benchmarks))  # the label locations
 width = 1 / (len(libraries) + 2)  # the width of the bars
 multiplier = 0
-ax.axhline(1, lw=width)
+ax.axhline(1, lw=2, color="C0", zorder=-2)
+ax.grid(True, which="major", axis="y")
 
 for library, measurement in results.items():
     offset = width * multiplier
