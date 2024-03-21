@@ -33,7 +33,7 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_examples_apyfloat.py` (``apyfloat.py``)
-     - 00:00.006
+     - 00:00.005
      - 0.0
    * - :ref:`sphx_glr_examples_apyfixed.py` (``apyfixed.py``)
      - 00:00.002
