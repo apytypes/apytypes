@@ -18,13 +18,13 @@ jobs:
           sudo apt-get install -yy doxygen
           python -m pip install --upgrade pip
           python -m pip install -v .[docs,comparison,benchmark]
-      - name: Run comparison benchmarks
+      - name: Run comparisons
         run: |
-          cd benchmark
-          python benchmark.py
+          cd comparison
+          python comparison.py
           cd ..
           mkdir -p docs/_static/
-          cp benchmark/benchmark*.png docs/_static
+          cp comparison/comparison*.png docs/_static
       - name: Sphinx build
         run: |
           cd docs
