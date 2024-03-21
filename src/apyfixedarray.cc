@@ -637,11 +637,12 @@ std::variant<APyFixedArray, APyFixed> APyFixedArray::get_item(std::size_t idx) c
 
 nb::ndarray<nb::numpy, double> APyFixedArray::to_numpy() const
 {
+    auto size = fold_shape(_shape);
     // Dynamically allocate data to be passed to python
-    double* result_data = new double[fold_shape(_shape)];
+    double* result_data = new double[size];
 
     APyFixed type_caster(bits(), int_bits());
-    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+    for (std::size_t i = 0; i < size; i++) {
         std::copy_n(
             std::begin(_data) + i * _itemsize, _itemsize, std::begin(type_caster._data)
         );
