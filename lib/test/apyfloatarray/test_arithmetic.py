@@ -177,7 +177,6 @@ def test_array_div():
     b = APyFloatArray.from_float([1, 0.125, 2.5, 12], 5, 7)
     ans = APyFloatArray.from_float([3, -0.75, -5, 8], 6, 7)
     assert (a / b).is_identical(ans)
-    assert (a / b).is_identical(ans)
 
     a = APyFloatArray.from_float(
         [
@@ -204,7 +203,6 @@ def test_array_div():
         man_bits=8,
     )
     assert (a / b).is_identical(ans)
-    assert (a / b).is_identical(ans)
 
 
 @pytest.mark.float_array
@@ -212,7 +210,13 @@ def test_array_div_scalar():
     a = APyFloatArray.from_float([4, 12, 40], 9, 10)
     b = APyFloat.from_float(8, 9, 8)
     assert (a / b).is_identical(APyFloatArray.from_float([0.5, 1.5, 5], 9, 10))
-    assert (a / b).is_identical(APyFloatArray.from_float([0.5, 1.5, 5], 9, 10))
+
+
+@pytest.mark.float_array
+def test_array_rdiv_scalar():
+    a = APyFloatArray.from_float([4, 5, 32], 9, 10)
+    b = APyFloat.from_float(8, 5, 8)
+    assert (b / a).is_identical(APyFloatArray.from_float([2, 1.6, 0.25], 9, 10))
 
 
 @pytest.mark.float_array

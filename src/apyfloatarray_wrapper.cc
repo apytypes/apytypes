@@ -228,6 +228,11 @@ void bind_float_array(nb::module_& m)
             [](const APyFloatArray& a, APyFloat& b) { return a / b; },
             nb::is_operator()
         )
+        .def(
+            "__rtruediv__",
+            [](const APyFloatArray& a, APyFloat& b) { return a.rtruediv(b); },
+            nb::is_operator()
+        )
         .def("__abs__", &APyFloatArray::abs)
 
         /*

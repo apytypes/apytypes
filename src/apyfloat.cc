@@ -630,8 +630,8 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     }
 
     // Normalize both inputs
-    APyFloat norm_x = is_subnormal() ? normalized() : *this;
-    APyFloat norm_y = y.is_subnormal() ? y.normalized() : y;
+    APyFloat norm_x = normalized();
+    APyFloat norm_y = y.normalized();
 
     // Add leading one's
     man_t mx = norm_x.leading_bit() | norm_x.man;
@@ -736,8 +736,8 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     }
 
     // Normalize both inputs
-    const APyFloat norm_x = is_subnormal() ? normalized() : *this;
-    const APyFloat norm_y = y.is_subnormal() ? y.normalized() : y;
+    const APyFloat norm_x = normalized();
+    const APyFloat norm_y = y.normalized();
 
     std::int64_t new_exp = ((std::int64_t)norm_x.exp - (std::int64_t)norm_x.bias)
         - ((std::int64_t)norm_y.exp - (std::int64_t)norm_y.bias)
@@ -1092,10 +1092,10 @@ bool APyFloat::operator>(const APyFloat& rhs) const
  */
 
 // True if and only if x is normal (not zero, subnormal, infinite, or NaN).
-bool APyFloat::is_normal() const { return is_finite() && !is_subnormal(); }
+bool APyFloat::is_normal() const { return exp != 0 && exp != max_exponent(); }
 
 // True if and only if x is zero, subnormal, or normal.
-bool APyFloat::is_finite() const { return is_subnormal() || exp != max_exponent(); }
+bool APyFloat::is_finite() const { return exp == 0 || exp != max_exponent(); }
 
 // True if and only if x is subnormal. Zero is also considered a subnormal
 // number.
@@ -1147,22 +1147,15 @@ APyFloat APyFloat::normalized() const
         true_exp--;
     }
 
-    APyFloat res;
-    res.man_bits = man_bits;
-    res.exp_bits = exp_bits + 1;
-    res.sign = sign;
-    res.bias = res.ieee_bias();
-    res.exp = true_exp + res.bias + 1;
-    res.man = new_man;
-
-    return res;
+    return APyFloat(sign, true_exp + 1, new_man, exp_bits + 1, man_bits);
 }
 
 int APyFloat::leading_zeros_apyfixed(APyFixed fx) const
 {
     int zeros = 0;
-    while (fx.to_double() < 1.0) {
-        fx = fx << 1;
+    auto tmp_fx = fx;
+    while (tmp_fx.to_double() < 1.0) {
+        tmp_fx <<= 1;
         zeros++;
     }
     return zeros;
