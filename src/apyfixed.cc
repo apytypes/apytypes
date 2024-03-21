@@ -368,7 +368,8 @@ bool APyFixed::operator<(const APyFixed& rhs) const
 
 bool APyFixed::operator<=(const APyFixed& rhs) const
 {
-    return (*this < rhs) || (*this == rhs);
+    auto diff = *this - rhs;
+    return diff.is_negative() || diff.is_zero();
 }
 
 bool APyFixed::operator>(const APyFixed& rhs) const
@@ -378,7 +379,8 @@ bool APyFixed::operator>(const APyFixed& rhs) const
 
 bool APyFixed::operator>=(const APyFixed& rhs) const
 {
-    return (*this > rhs) || (*this == rhs);
+    auto diff = rhs - *this;
+    return diff.is_negative() || diff.is_zero();
 }
 
 APyFixed APyFixed::operator-() const
