@@ -80,24 +80,12 @@ APyFloatArray::APyFloatArray(
  * *                            Binary arithmetic operators                         * *
  * ********************************************************************************* */
 
-APyFloatArray APyFloatArray::perform_basic_arithmetic(
-    const APyFloatArray& rhs, ArithmeticOperation op
-) const
+APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
 {
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (shape != rhs.shape) {
-        std::string op_str;
-        if (op == ArithmeticOperation::ADDITION)
-            op_str = "add";
-        else if (op == ArithmeticOperation::SUBTRACTION)
-            op_str = "sub";
-        else if (op == ArithmeticOperation::MULTIPLICATION)
-            op_str = "mul";
-        else if (op == ArithmeticOperation::DIVISION)
-            op_str = "truediv";
         throw std::length_error(fmt::format(
-            "APyFloatArray.__{}__: shape missmatch, lhs.shape={}, rhs.shape={}",
-            op_str,
+            "APyFloatArray.__add__: shape missmatch, lhs.shape={}, rhs.shape={}",
             string_from_vec(shape),
             string_from_vec(rhs.shape)
         ));
@@ -115,24 +103,10 @@ APyFloatArray APyFloatArray::perform_basic_arithmetic(
         lhs_scalar.set_data(data[i]);
         rhs_scalar.set_data(rhs.data[i]);
 
-        if (op == ArithmeticOperation::ADDITION)
-            res.data[i] = (lhs_scalar + rhs_scalar).get_data();
-        else if (op == ArithmeticOperation::SUBTRACTION)
-            res.data[i] = (lhs_scalar - rhs_scalar).get_data();
-        else if (op == ArithmeticOperation::MULTIPLICATION)
-            res.data[i] = (lhs_scalar * rhs_scalar).get_data();
-        else if (op == ArithmeticOperation::DIVISION)
-            res.data[i] = (lhs_scalar / rhs_scalar).get_data();
-        else
-            throw NotImplementedException("Arithmetic operation not implemented yet");
+        res.data[i] = (lhs_scalar + rhs_scalar).get_data();
     }
 
     return res;
-}
-
-APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
-{
-    return perform_basic_arithmetic(rhs, ArithmeticOperation::ADDITION);
 }
 
 APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
@@ -156,7 +130,31 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
 
 APyFloatArray APyFloatArray::operator-(const APyFloatArray& rhs) const
 {
-    return perform_basic_arithmetic(rhs, ArithmeticOperation::SUBTRACTION);
+    // Make sure `_shape` of `*this` and `rhs` are the same
+    if (shape != rhs.shape) {
+        throw std::length_error(fmt::format(
+            "APyFloatArray.__sub__: shape missmatch, lhs.shape={}, rhs.shape={}",
+            string_from_vec(shape),
+            string_from_vec(rhs.shape)
+        ));
+    }
+
+    // Calculate new format
+    APyFloatArray res(
+        shape, std::max(exp_bits, rhs.exp_bits), std::max(man_bits, rhs.man_bits)
+    );
+
+    APyFloat lhs_scalar(exp_bits, man_bits, bias);
+    APyFloat rhs_scalar(rhs.exp_bits, rhs.man_bits, rhs.bias);
+    // Perform operation
+    for (std::size_t i = 0; i < data.size(); i++) {
+        lhs_scalar.set_data(data[i]);
+        rhs_scalar.set_data(rhs.data[i]);
+
+        res.data[i] = (lhs_scalar - rhs_scalar).get_data();
+    }
+
+    return res;
 }
 
 APyFloatArray APyFloatArray::operator-(const APyFloat& rhs) const
@@ -198,7 +196,31 @@ APyFloatArray APyFloatArray::abs() const
 
 APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
 {
-    return perform_basic_arithmetic(rhs, ArithmeticOperation::MULTIPLICATION);
+    // Make sure `_shape` of `*this` and `rhs` are the same
+    if (shape != rhs.shape) {
+        throw std::length_error(fmt::format(
+            "APyFloatArray.__mul__: shape missmatch, lhs.shape={}, rhs.shape={}",
+            string_from_vec(shape),
+            string_from_vec(rhs.shape)
+        ));
+    }
+
+    // Calculate new format
+    APyFloatArray res(
+        shape, std::max(exp_bits, rhs.exp_bits), std::max(man_bits, rhs.man_bits)
+    );
+
+    APyFloat lhs_scalar(exp_bits, man_bits, bias);
+    APyFloat rhs_scalar(rhs.exp_bits, rhs.man_bits, rhs.bias);
+    // Perform operation
+    for (std::size_t i = 0; i < data.size(); i++) {
+        lhs_scalar.set_data(data[i]);
+        rhs_scalar.set_data(rhs.data[i]);
+
+        res.data[i] = (lhs_scalar * rhs_scalar).get_data();
+    }
+
+    return res;
 }
 
 APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
@@ -222,7 +244,31 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
 
 APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
 {
-    return perform_basic_arithmetic(rhs, ArithmeticOperation::DIVISION);
+    // Make sure `_shape` of `*this` and `rhs` are the same
+    if (shape != rhs.shape) {
+        throw std::length_error(fmt::format(
+            "APyFloatArray.__truediv__: shape missmatch, lhs.shape={}, rhs.shape={}",
+            string_from_vec(shape),
+            string_from_vec(rhs.shape)
+        ));
+    }
+
+    // Calculate new format
+    APyFloatArray res(
+        shape, std::max(exp_bits, rhs.exp_bits), std::max(man_bits, rhs.man_bits)
+    );
+
+    APyFloat lhs_scalar(exp_bits, man_bits, bias);
+    APyFloat rhs_scalar(rhs.exp_bits, rhs.man_bits, rhs.bias);
+    // Perform operation
+    for (std::size_t i = 0; i < data.size(); i++) {
+        lhs_scalar.set_data(data[i]);
+        rhs_scalar.set_data(rhs.data[i]);
+
+        res.data[i] = (lhs_scalar / rhs_scalar).get_data();
+    }
+
+    return res;
 }
 
 APyFloatArray APyFloatArray::operator/(const APyFloat& rhs) const
@@ -239,6 +285,25 @@ APyFloatArray APyFloatArray::operator/(const APyFloat& rhs) const
     for (std::size_t i = 0; i < data.size(); i++) {
         lhs_scalar.set_data(data[i]);
         res.data[i] = (lhs_scalar / rhs).get_data();
+    }
+
+    return res;
+}
+
+APyFloatArray APyFloatArray::rtruediv(const APyFloat& lhs) const
+{
+    // Calculate new format
+    APyFloatArray res(
+        shape,
+        std::max(exp_bits, lhs.get_exp_bits()),
+        std::max(man_bits, lhs.get_man_bits())
+    );
+
+    APyFloat rhs_scalar(exp_bits, man_bits, bias);
+    // Perform operations
+    for (std::size_t i = 0; i < data.size(); i++) {
+        rhs_scalar.set_data(data[i]);
+        res.data[i] = (lhs / rhs_scalar).get_data();
     }
 
     return res;
@@ -422,7 +487,7 @@ APyFloatArray APyFloatArray::from_double(
             throw std::domain_error("Invalid Python objects in sequence");
         }
         APyFloat apytypes_double(
-            sign_of_double(d), exp_of_double(d), man_of_double(d), 11, 52
+            sign_of_double(d), exp_t(exp_of_double(d)), man_of_double(d), 11, 52
         );
         APyFloat fp = apytypes_double.cast(exp_bits, man_bits, bias, quantization_mode);
         result.data[i] = { fp.get_sign(), fp.get_exp(), fp.get_man() };
@@ -443,9 +508,9 @@ void APyFloatArray::_set_values_from_numpy_ndarray(
             auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
             for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
                 double value = static_cast<double>(ndarray_view.data()[i]);            \
-                double_caster.sign = sign_of_double(value);                            \
-                double_caster.exp = exp_of_double(value);                              \
-                double_caster.man = man_of_double(value);                              \
+                double_caster.set_data({ sign_of_double(value),                        \
+                                         exp_t(exp_of_double(value)),                  \
+                                         man_of_double(value) });                      \
                 APyFloat fp                                                            \
                     = double_caster.cast(exp_bits, man_bits, bias, quantization);      \
                 data[i] = { fp.get_sign(), fp.get_exp(), fp.get_man() };               \

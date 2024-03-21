@@ -37,6 +37,7 @@ public:
     APyFloatArray operator/(const APyFloatArray& rhs) const;
     APyFloatArray operator/(const APyFloat& rhs) const;
     APyFloatArray abs() const;
+    APyFloatArray rtruediv(const APyFloat& rhs) const;
 
     /*!
      * Matrix mutliplication. If both arguments ar 2-D tensors, this method performs the
@@ -147,11 +148,6 @@ private:
     exp_t bias;
     std::vector<std::size_t> shape;
     std::vector<APyFloatData> data;
-
-    APyFloatArray
-    perform_basic_arithmetic(const APyFloatArray& rhs, ArithmeticOperation op) const;
-    APyFloatArray
-    perform_basic_arithmetic(const APyFloat& rhs, ArithmeticOperation op) const;
 
     //! Fold the `_shape` field over multiplication
     std::size_t fold_shape() const;

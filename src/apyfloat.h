@@ -14,12 +14,6 @@
 
 class APyFloat {
 public:
-    std::uint8_t exp_bits, man_bits;
-    exp_t bias;
-    bool sign;
-    exp_t exp; // Biased exponent
-    man_t man; // Hidden one
-
     /* ******************************************************************************
      * * Constructors                                                               *
      * ******************************************************************************
@@ -166,14 +160,14 @@ public:
     bool is_nan() const;
     bool is_inf() const;
 
-    inline bool get_sign() const { return sign; }
-    inline man_t get_man() const { return man; }
-    inline exp_t get_exp() const { return exp; }
-    inline exp_t get_bias() const { return bias; }
-    inline std::uint8_t get_man_bits() const { return man_bits; }
-    inline std::uint8_t get_exp_bits() const { return exp_bits; }
-    inline APyFloatData get_data() const { return { sign, exp, man }; }
-    inline void set_data(const APyFloatData& data)
+    APY_INLINE bool get_sign() const { return sign; }
+    APY_INLINE man_t get_man() const { return man; }
+    APY_INLINE exp_t get_exp() const { return exp; }
+    APY_INLINE exp_t get_bias() const { return bias; }
+    APY_INLINE std::uint8_t get_man_bits() const { return man_bits; }
+    APY_INLINE std::uint8_t get_exp_bits() const { return exp_bits; }
+    APY_INLINE APyFloatData get_data() const { return { sign, exp, man }; }
+    APY_INLINE void set_data(const APyFloatData& data)
     {
         sign = data.sign;
         exp = data.exp;
@@ -199,6 +193,12 @@ public:
     cast_to_bfloat16(std::optional<QuantizationMode> quantization = std::nullopt) const;
 
 private:
+    std::uint8_t exp_bits, man_bits;
+    exp_t bias;
+    bool sign;
+    exp_t exp; // Biased exponent
+    man_t man; // Hidden one
+
     /* ******************************************************************************
      * * Non-Python accessible constructors                                         *
      * ******************************************************************************
