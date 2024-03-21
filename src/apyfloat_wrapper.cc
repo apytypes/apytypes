@@ -9,31 +9,11 @@ void bind_float(nb::module_& m)
 {
     nb::class_<APyFloat>(m, "APyFloat")
         /*
-         * Constructors
+         * Constructor
          */
         .def(
-            nb::init<
-                bool,
-                exp_t,
-                man_t,
-                std::uint8_t,
-                std::uint8_t,
-                std::optional<exp_t>>(),
-            nb::arg("sign"),
-            nb::arg("exp"),
-            nb::arg("man"),
-            nb::arg("exp_bits"),
-            nb::arg("man_bits"),
-            nb::arg("bias") = nb::none()
-        )
-        .def(
-            nb::init<
-                int,
-                exp_t,
-                man_t,
-                std::uint8_t,
-                std::uint8_t,
-                std::optional<exp_t>>(),
+            "__init__",
+            &APyFloat::create_in_place,
             nb::arg("sign"),
             nb::arg("exp"),
             nb::arg("man"),
