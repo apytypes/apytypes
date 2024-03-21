@@ -148,17 +148,18 @@ APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
 
     // Adjust binary point
+    auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
     APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
             mp_limb_t operand = rhs._data[0];
             operand <<= rhs_shift_amount;
             result._data[i] = result._data[i] + operand;
         }
     } else {
+        APyFixed imm(res_bits, res_int_bits);
+        rhs._cast_correct_wl(imm._data.begin(), imm._data.end(), rhs_shift_amount);
         // Perform addition
-        APyFixed imm = rhs.cast(res_bits, res_int_bits);
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
             mpn_add_n(
                 &result._data[i], // dst
@@ -225,17 +226,18 @@ APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
 
     // Adjust binary point
     APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
+    auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
             mp_limb_t operand = rhs._data[0];
             operand <<= rhs_shift_amount;
             result._data[i] = result._data[i] - operand;
         }
     } else {
-        APyFixed imm = rhs.cast(res_bits, res_int_bits);
+        APyFixed imm(res_bits, res_int_bits);
+        rhs._cast_correct_wl(imm._data.begin(), imm._data.end(), rhs_shift_amount);
 
-        // Perform addition
+        // Perform subtraction
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
             mpn_sub_n(
                 &result._data[i], // dst
@@ -260,18 +262,18 @@ APyFixedArray APyFixedArray::rsub(const APyFixed& lhs) const
 
     // Adjust binary point
     APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
-
+    auto lhs_shift_amount = unsigned(res_frac_bits - lhs.frac_bits());
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        auto rhs_shift_amount = unsigned(res_frac_bits - lhs.frac_bits());
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
             mp_limb_t operand = lhs._data[0];
-            operand <<= rhs_shift_amount;
+            operand <<= lhs_shift_amount;
             result._data[i] = operand - result._data[i];
         }
     } else {
-        APyFixed imm = lhs.cast(res_bits, res_int_bits);
+        APyFixed imm(res_bits, res_int_bits);
+        lhs._cast_correct_wl(imm._data.begin(), imm._data.end(), lhs_shift_amount);
 
-        // Perform addition
+        // Perform subtraction
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
             mpn_sub_n(
                 &result._data[i], // dst
