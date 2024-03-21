@@ -59,6 +59,14 @@ def test_array_add_scalar():
     assert (a + b).is_identical(c + d)
     assert (b + a).is_identical(d + c)
 
+    z = APyFixed.from_float(0, bits=100, int_bits=50)
+    assert (a + z).is_identical(
+        APyFixedArray.from_float([-5, -6, 7], bits=101, int_bits=51)
+    )
+    assert (z + a).is_identical(
+        APyFixedArray.from_float([-5, -6, 7], bits=101, int_bits=51)
+    )
+
 
 def test_array_sum():
     a = APyFixedArray([-5, -6, 7, -1], bits=10, int_bits=5)
@@ -111,6 +119,11 @@ def test_array_sub_scalar():
     d = APyFixed.from_float(3, bits=100, int_bits=50)
     assert (a - b).is_identical(c - d)
     assert (b - a).is_identical(d - c)
+
+    z = APyFixed.from_float(0, bits=100, int_bits=50)
+    assert (a - z).is_identical(
+        APyFixedArray.from_float([-5, -6, 7], bits=101, int_bits=51)
+    )
 
 
 def test_array_mul():

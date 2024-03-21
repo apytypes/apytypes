@@ -495,10 +495,22 @@ std::string APyFloat::latex() const
 
 APyFloat APyFloat::operator+(APyFloat y) const
 {
-    APyFloat x = *this;
-    APyFloat res(std::max(x.exp_bits, y.exp_bits), std::max(x.man_bits, y.man_bits));
+    auto res_exp_bits = std::max(exp_bits, y.exp_bits);
+    auto res_man_bits = std::max(man_bits, y.man_bits);
 
-    // Handle the NaN cases first, other special cases are further down
+    // Handle the zero cases, other special cases are further down
+    if (is_zero()) {
+        return y.cast_no_quant(res_exp_bits, res_man_bits);
+    }
+
+    if (y.is_zero()) {
+        return cast_no_quant(res_exp_bits, res_man_bits);
+    }
+
+    APyFloat x = *this;
+    APyFloat res(res_exp_bits, res_man_bits);
+
+    // Handle the NaN cases, other special cases are further down
     if (x.is_nan() || y.is_nan()
         || ((x.is_inf() && y.is_inf()) && (x.sign != y.sign))) {
         return res.construct_nan();
@@ -523,14 +535,6 @@ APyFloat APyFloat::operator+(APyFloat y) const
     // Handle other special cases
     if ((x.is_inf() || y.is_inf())) {
         return res.construct_inf();
-    }
-
-    if (x.is_zero()) {
-        return y.cast_no_quant(res.exp_bits, res.man_bits, res.bias);
-    }
-
-    if (y.is_zero()) {
-        return x.cast_no_quant(res.exp_bits, res.man_bits, res.bias);
     }
 
     std::int64_t new_exp = x.exp - x.bias + res.bias;
