@@ -138,16 +138,16 @@ APyFixed APyFixed::operator+(const APyFixed& rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
 
     APyFixed result(res_bits, res_int_bits);
-    auto shift_amount = unsigned(res_frac_bits - frac_bits());
+    auto left_shift_amount = unsigned(res_frac_bits - frac_bits());
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
 
-    _cast_correct_wl(result._data.begin(), result._data.end(), shift_amount);
+    _cast_correct_wl(result._data.begin(), result._data.end(), left_shift_amount);
 
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         // Result bits fits in a single limb. Use native addition
         mp_limb_t operand = rhs._data[0];
         operand <<= rhs_shift_amount;
-        result._data[0] = result._data[0] + operand;
+        result._data[0] += operand;
     } else {
         // Result bits is more than one limb. Add with carry
         APyFixed operand(res_bits, res_int_bits);
@@ -171,17 +171,17 @@ APyFixed APyFixed::operator-(const APyFixed& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
     const int res_bits = res_int_bits + res_frac_bits;
 
-    auto shift_amount = unsigned(res_frac_bits - frac_bits());
+    APyFixed result(res_bits, res_int_bits);
+    auto left_shift_amount = unsigned(res_frac_bits - frac_bits());
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
 
-    APyFixed result(res_bits, res_int_bits);
-    _cast_correct_wl(result._data.begin(), result._data.end(), shift_amount);
+    _cast_correct_wl(result._data.begin(), result._data.end(), left_shift_amount);
 
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         // Result bits fits in a single limb. Use native subtraction
         mp_limb_t operand = rhs._data[0];
         operand <<= rhs_shift_amount;
-        result._data[0] = result._data[0] - operand;
+        result._data[0] -= operand;
     } else {
         // Result bits is more than one limb. Add with carry
         APyFixed operand(res_bits, res_int_bits);
@@ -202,58 +202,70 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
 {
     const int res_int_bits = int_bits() + rhs.int_bits();
     const int res_frac_bits = frac_bits() + rhs.frac_bits();
-    const bool sign_product = is_negative() ^ rhs.is_negative();
     const int res_bits = res_int_bits + res_frac_bits;
 
     // Result fixed-point number
     APyFixed result(res_bits, res_int_bits);
 
+    // Single-limb result specialization
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         result._data[0] = _data[0] * rhs._data[0];
-    } else {
-        auto abs_operand1 = limb_vector_abs(_data.cbegin(), _data.cend());
-        auto abs_operand2 = limb_vector_abs(rhs._data.cbegin(), rhs._data.cend());
+        return result; // early exit
+    }
 
-        // `mpn_mul` requires:
-        // "The destination has to have space for `s1n` + `s2n` limbs, even if the
-        // product’s most significant limb is zero."
-        result._data.resize(abs_operand1.size() + abs_operand2.size());
+    const bool sign_product = is_negative() ^ rhs.is_negative();
+    auto abs_operand1 = limb_vector_abs(_data.cbegin(), _data.cend());
+    auto abs_operand2 = limb_vector_abs(rhs._data.cbegin(), rhs._data.cend());
 
-        // `mpn_mul` requires the limb vector length of the first operand to be
-        // greater than, or equally long as, the limb vector length of the second
-        // operand. Simply swap the operands (essentially a free operation in C++)
-        // if this is not the case.
-        if (abs_operand1.size() < abs_operand2.size()) {
-            std::swap(abs_operand1, abs_operand2);
-        }
+    // `mpn_mul` requires:
+    // "The destination has to have space for `s1n` + `s2n` limbs, even if the
+    // product’s most significant limb is zero."
+    result._data.resize(abs_operand1.size() + abs_operand2.size());
 
-        mpn_mul(
-            &result._data[0],    // dst
-            &abs_operand1[0],    // src1
-            abs_operand1.size(), // src1 limb vector length
-            &abs_operand2[0],    // src2
-            abs_operand2.size()  // src2 limb vector length
+    // `mpn_mul` requires the limb vector length of the first operand to be
+    // greater than, or equally long as, the limb vector length of the second
+    // operand. Simply swap the operands (essentially a free operation in C++)
+    // if this is not the case.
+    if (abs_operand1.size() < abs_operand2.size()) {
+        std::swap(abs_operand1, abs_operand2);
+    }
+
+    mpn_mul(
+        &result._data[0],    // dst
+        &abs_operand1[0],    // src1
+        abs_operand1.size(), // src1 limb vector length
+        &abs_operand2[0],    // src2
+        abs_operand2.size()  // src2 limb vector length
+    );
+
+    // Shape the rsult vector back to the number of significant limbs
+    result._data.resize(bits_to_limbs(res_bits));
+
+    // Handle sign
+    if (sign_product) {
+        limb_vector_negate(
+            result._data.begin(), result._data.end(), result._data.begin()
         );
-
-        // Shape the result vector back to the number of significant limbs
-        result._data.resize(bits_to_limbs(res_bits));
-
-        // Handle sign
-        if (sign_product) {
-            limb_vector_negate(
-                result._data.begin(), result._data.end(), result._data.begin()
-            );
-        }
     }
     return result;
 }
 
 APyFixed APyFixed::operator/(const APyFixed& rhs) const
 {
-    const bool sign_product = is_negative() ^ rhs.is_negative();
     const int res_bits = bits() + std::max(rhs.bits() - rhs.int_bits(), 0) + 1;
     const int res_int_bits = int_bits() + rhs.bits() - rhs.int_bits() + 1;
     APyFixed result(res_bits, res_int_bits);
+
+    // Single-limb result specialization
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        mp_limb_signed_t numerator = _data[0] << rhs.frac_bits();
+        mp_limb_signed_t denominator = rhs._data[0];
+        result._data[0] = numerator / denominator;
+        return result; // early exit
+    }
+
+    // Resulting sign
+    const bool sign_product = is_negative() ^ rhs.is_negative();
 
     // Absolute value denominator
     ScratchVector<mp_limb_t> abs_den(rhs._data.size());
@@ -922,7 +934,7 @@ void APyFixed::_cast_correct_wl(
     if (vector_size() < result_vector_size) {
         std::fill(it_begin + vector_size(), it_end, is_negative() ? mp_limb_t(-1) : 0);
     }
-    if (shift_amount >= 0) {
+    if (shift_amount > 0) {
         limb_vector_lsl(it_begin, it_end, shift_amount);
     }
 }

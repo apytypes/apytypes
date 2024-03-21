@@ -638,12 +638,12 @@ template <class RANDOM_ACCESS_ITERATOR>
     }
 
     std::size_t vec_size = std::distance(it_begin, it_end);
+    unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
     unsigned limb_skip = shift_amnt / _LIMB_SIZE_BITS;
     if (limb_skip >= vec_size) {
         std::fill(it_begin, it_end, 0);
         return; // early return
     }
-    unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
     limb_vector_lsl_inner(it_begin, it_end, limb_skip, limb_shift, vec_size);
 }
 
