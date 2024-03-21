@@ -8,7 +8,7 @@ Written in C++, the focus is on performance and flexibility.
 
 To install APyTypes, do
 
-.. codeblock:: bash
+.. code-block:: bash
 
    pip install apytypes
 
