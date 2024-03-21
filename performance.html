@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Comparison" href="comparison.html" /><link rel="prev" title="APyFixed" href="examples/apyfixed.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>Compute performance - APyTypes documentation</title>
+        <title>Computational performance - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -186,7 +186,7 @@
 <li class="toctree-l2"><a class="reference internal" href="examples/apyfixed.html">APyFixed</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Compute performance</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Computational performance</a></li>
 <li class="toctree-l1"><a class="reference internal" href="comparison.html">Comparison</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
 </ul>
@@ -223,9 +223,9 @@
           </label>
         </div>
         <article role="main">
-          <section id="compute-performance">
-<h1>Compute performance<a class="headerlink" href="#compute-performance" title="Link to this heading">#</a></h1>
-<p>One of the key design criteria of APyTypes is compute performance. Now, using custom word lengths will always
+          <section id="computational-performance">
+<h1>Computational performance<a class="headerlink" href="#computational-performance" title="Link to this heading">#</a></h1>
+<p>One of the key design criteria of APyTypes is computational performance. Now, using custom word lengths will always
 be much slower compared to using word lengths directly supported in hardware. By far. Hence, do not expect
 APyTypes to compete with, e.g., NumPy in pure computational speed. Also, pure C++-libraries like ac-types
 and ap-types are template-based. Hence, they know the word length at compile time and can therefore optimize
@@ -246,6 +246,11 @@ it very much makes sense to use arrays when possible.</p>
 <p>Shifting is used to move the binary point of fixed-point numbers. Hence, this will only involve updating the
 number of integer/fractional bits. However, it may also involve creating a new object, so it is preferred to
 use inplace shifting if possible.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">a</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>   <span class="c1"># slower</span>
+<span class="n">a</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span>   <span class="c1"># faster</span>
+</pre></div>
+</div>
 </section>
 </section>
 
@@ -304,7 +309,7 @@ use inplace shifting if possible.</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Compute performance</a><ul>
+<li><a class="reference internal" href="#">Computational performance</a><ul>
 <li><a class="reference internal" href="#use-arrays-if-possible">Use arrays if possible</a></li>
 <li><a class="reference internal" href="#inplace-shifting-for-fixed-point">Inplace shifting for fixed-point</a></li>
 </ul>

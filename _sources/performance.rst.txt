@@ -1,7 +1,7 @@
-Compute performance
-===================
+Computational performance
+=========================
 
-One of the key design criteria of APyTypes is compute performance. Now, using custom word lengths will always
+One of the key design criteria of APyTypes is computational performance. Now, using custom word lengths will always
 be much slower compared to using word lengths directly supported in hardware. By far. Hence, do not expect
 APyTypes to compete with, e.g., NumPy in pure computational speed. Also, pure C++-libraries like ac-types
 and ap-types are template-based. Hence, they know the word length at compile time and can therefore optimize
@@ -28,7 +28,7 @@ Shifting is used to move the binary point of fixed-point numbers. Hence, this wi
 number of integer/fractional bits. However, it may also involve creating a new object, so it is preferred to
 use inplace shifting if possible.
 
-.. codeblock:: Python
+.. code-block:: Python
 
     a = APyFixed(5, 6, 4)
     a = a >> 1   # slower
