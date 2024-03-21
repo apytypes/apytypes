@@ -1324,7 +1324,7 @@ void APyFixed::_data_asl(
 }
 
 /* ********************************************************************************** *
- * *                     Forward define template member functions                   * *
+ * *                       Explicit template instantiations                         * *
  * ********************************************************************************** */
 
 template void APyFixed::_cast(
