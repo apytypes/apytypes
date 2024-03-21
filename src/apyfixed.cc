@@ -250,45 +250,35 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
 
 APyFixed APyFixed::operator/(const APyFixed& rhs) const
 {
+    const bool sign_product = is_negative() ^ rhs.is_negative();
     const int res_bits = bits() + std::max(rhs.bits() - rhs.int_bits(), 0) + 1;
     const int res_int_bits = int_bits() + rhs.bits() - rhs.int_bits() + 1;
     APyFixed result(res_bits, res_int_bits);
 
-    // Absolute value numerator and denominator
-    bool sign_product = is_negative() ^ rhs.is_negative();
+    // Absolute value denominator
     ScratchVector<mp_limb_t> abs_den(rhs._data.size());
     limb_vector_abs(rhs._data.cbegin(), rhs._data.cend(), abs_den.begin());
-    ScratchVector<mp_limb_t> abs_num(1 + bits_to_limbs(bits() + rhs.frac_bits()));
-    if (is_negative()) {
-        (-*this)._data_asl(abs_num.begin(), abs_num.end(), rhs.frac_bits());
-    } else {
-        (*this)._data_asl(abs_num.begin(), abs_num.end(), rhs.frac_bits());
-    }
 
-    // `mpn_tdiv_rq` requires that the number of significant limbs in the
-    // numerator is greater than or equal to that of the denominator.
-    std::size_t num_significant_limbs
-        = significant_limbs(abs_num.begin(), abs_num.end());
-    std::size_t den_significant_limbs
-        = significant_limbs(abs_den.begin(), abs_den.end());
-    if (num_significant_limbs < den_significant_limbs) {
-        // Early return zero
-        return result;
-    } else {
-        mpn_div_qr(
-            &result._data[0],      // Quotient
-            &abs_num[0],           // Numerator
-            num_significant_limbs, // Numerator significant limbs
-            &abs_den[0],           // Denominator
-            den_significant_limbs  // Denominator significant limbs
+    // Absolute value left-shifted numerator
+    ScratchVector<mp_limb_t> abs_num(1 + bits_to_limbs(bits() + rhs.frac_bits()));
+    abs()._data_asl(abs_num.begin(), abs_num.end(), rhs.frac_bits());
+
+    // `mpn_tdiv_qr` requires that the number of significant limb in the
+    // numerator is greater than zero.
+    auto num_significant_limbs = significant_limbs(abs_num.begin(), abs_num.end());
+    mpn_div_qr(
+        &result._data[0],      // Quotient
+        &abs_num[0],           // Numerator
+        num_significant_limbs, // Numerator significant limbs
+        &abs_den[0],           // Denominator
+        abs_den.size()         // Denominator significant limbs
+    );
+    if (sign_product) {
+        limb_vector_negate(
+            result._data.begin(), result._data.end(), result._data.begin()
         );
-        if (sign_product) {
-            limb_vector_negate(
-                result._data.begin(), result._data.end(), result._data.begin()
-            );
-        }
-        return result;
     }
+    return result;
 }
 
 APyFixed APyFixed::operator+(int rhs) const
@@ -1297,7 +1287,7 @@ void APyFixed::_data_asl(
 ) const
 {
     if (shift_val == 0) {
-        return;
+        std::copy(_data.cbegin(), _data.cend(), it_begin);
     }
 
     // Perform the left-shift
