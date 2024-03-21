@@ -2,12 +2,12 @@ import importlib
 import timeit
 
 libraries = {
-    "APyTypes": "bench_apytypes",
-    "fxpmath": "bench_fxpmath",
-    "numfi": "bench_numfi",
-    "fpbinary": "bench_fpbinary",
-    "fixedpoint": "bench_fixedpoint",
-    "spfpm": "bench_spfpm",
+    "APyTypes": "compare_apytypes",
+    "fxpmath": "compare_fxpmath",
+    "numfi": "compare_numfi",
+    "fpbinary": "compare_fpbinary",
+    "fixedpoint": "compare_fixedpoint",
+    "spfpm": "compare_spfpm",
 }
 
 CREATE_TWO_SCALARS = (
@@ -98,7 +98,7 @@ ax.set_xticks(
 ax.legend(loc="upper left")
 ax.set_xbound((-0.5, len(benchmarks)))
 ax.grid(True, which="major", axis="y")
-fig.savefig("benchmark.png")
+fig.savefig("comparison.png")
 
 
 fig, ax = plt.subplots(layout="constrained", figsize=(8, 10))
@@ -129,4 +129,4 @@ ax.set_xticks(
 )
 ax.legend(loc="upper right")
 ax.set_xbound((-0.5, len(benchmarks)))
-fig.savefig("benchmark_relative.png")
+fig.savefig("comparison_relative.png")
