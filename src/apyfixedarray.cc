@@ -148,8 +148,11 @@ APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
 
     // Adjust binary point
-    auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
     APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
+    if (rhs.is_zero()) {
+        return result;
+    }
+    auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
             mp_limb_t operand = rhs._data[0];
@@ -226,6 +229,9 @@ APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
 
     // Adjust binary point
     APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
+    if (rhs.is_zero()) {
+        return result;
+    }
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {

@@ -111,12 +111,14 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
 
 APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
 {
+    auto new_exp_bits = std::max(exp_bits, rhs.get_exp_bits());
+    auto new_man_bits = std::max(man_bits, rhs.get_man_bits());
+    if (rhs.is_zero()) {
+        return cast_no_quant(new_exp_bits, new_man_bits);
+    }
+
     // Calculate new format
-    APyFloatArray res(
-        shape,
-        std::max(exp_bits, rhs.get_exp_bits()),
-        std::max(man_bits, rhs.get_man_bits())
-    );
+    APyFloatArray res(shape, new_exp_bits, new_man_bits);
 
     APyFloat lhs_scalar(exp_bits, man_bits, bias);
     // Perform operations
@@ -159,12 +161,14 @@ APyFloatArray APyFloatArray::operator-(const APyFloatArray& rhs) const
 
 APyFloatArray APyFloatArray::operator-(const APyFloat& rhs) const
 {
+    auto new_exp_bits = std::max(exp_bits, rhs.get_exp_bits());
+    auto new_man_bits = std::max(man_bits, rhs.get_man_bits());
+    if (rhs.is_zero()) {
+        return cast_no_quant(new_exp_bits, new_man_bits);
+    }
+
     // Calculate new format
-    APyFloatArray res(
-        shape,
-        std::max(exp_bits, rhs.get_exp_bits()),
-        std::max(man_bits, rhs.get_man_bits())
-    );
+    APyFloatArray res(shape, new_exp_bits, new_man_bits);
 
     APyFloat lhs_scalar(exp_bits, man_bits, bias);
     // Perform operations
