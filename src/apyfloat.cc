@@ -59,15 +59,8 @@ APyFloat::APyFloat(
     if (bias.has_value() && bias.value() != ieee_bias()) {
         print_warning("non 'ieee-like' biases are not sure to work yet.\n");
     }
-
-    if (exp_bits > _EXP_LIMIT_BITS) {
-        throw nb::value_error("Too many bits for the exponent field.");
-    }
-
-    if (man_bits > _MAN_LIMIT_BITS) {
-        throw nb::value_error("Too many bits for the mantissa field.");
-    }
 }
+
 APyFloat::APyFloat(
     int sign,
     exp_t exp,
@@ -78,13 +71,6 @@ APyFloat::APyFloat(
 )
     : APyFloat(bool(sign), exp, man, exp_bits, man_bits, bias)
 {
-    if (exp_bits > _EXP_LIMIT_BITS) {
-        throw nb::value_error("Too many bits for the exponent field.");
-    }
-
-    if (man_bits > _MAN_LIMIT_BITS) {
-        throw nb::value_error("Too many bits for the mantissa field.");
-    }
 }
 
 APyFloat::APyFloat(
@@ -127,23 +113,10 @@ APyFloat APyFloat::from_double(
     std::optional<QuantizationMode> quantization
 )
 {
-    APyFloat f(exp_bits, man_bits);
-    return f.update_from_double(value, quantization);
-}
-
-APyFloat&
-APyFloat::update_from_double(double value, std::optional<QuantizationMode> quantization)
-{
-
-    // Initialize an APyFloat from the double
     APyFloat apytypes_double(
-        sign_of_double(value), exp_of_double(value), man_of_double(value), 11, 52
+        sign_of_double(value), exp_of_double(value), man_of_double(value), 11, 52, 1023
     );
-
-    // Cast it to the correct format
-    *this = apytypes_double.cast(exp_bits, man_bits, bias, quantization);
-
-    return *this;
+    return apytypes_double.cast(exp_bits, man_bits, bias, quantization);
 }
 
 APyFloat APyFloat::resize(
