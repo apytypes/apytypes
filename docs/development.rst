@@ -11,7 +11,7 @@ Installation
 
 To install APyTypes from a cloned git-version, do:
 
-`` code-block:: bash
+.. code-block:: bash
 
     python -m pip install .
 
@@ -20,7 +20,7 @@ during development.
 
 If you want to run tests, instead doing
 
-`` code-block:: bash
+.. code-block:: bash
 
     python -m pip install .[test]
 

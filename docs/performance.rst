@@ -29,6 +29,7 @@ number of integer/fractional bits. However, it may also involve creating a new o
 use inplace shifting if possible.
 
 .. codeblock:: Python
+
     a = APyFixed(5, 6, 4)
     a = a >> 1   # slower
     a >>= 1   # faster
