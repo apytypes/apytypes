@@ -230,11 +230,13 @@
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><a class="reference internal" href="#apytypes.APyFloat.bias" title="apytypes.APyFloat.bias"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bias</span></code></a></dt><dd><p>(self) -&gt; int</p>
+<dt><a class="reference internal" href="#apytypes.APyFloat.bias" title="apytypes.APyFloat.bias"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bias</span></code></a></dt><dd><p>Exponent bias.</p>
+</dd>
+<dt><a class="reference internal" href="#apytypes.APyFloat.bits" title="apytypes.APyFloat.bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bits</span></code></a></dt><dd><p>Total number of bits.</p>
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyFloat.exp" title="apytypes.APyFloat.exp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exp</span></code></a></dt><dd><p>(self) -&gt; int</p>
 </dd>
-<dt><a class="reference internal" href="#apytypes.APyFloat.exp_bits" title="apytypes.APyFloat.exp_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exp_bits</span></code></a></dt><dd><p>(self) -&gt; int</p>
+<dt><a class="reference internal" href="#apytypes.APyFloat.exp_bits" title="apytypes.APyFloat.exp_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exp_bits</span></code></a></dt><dd><p>Number of exponent bits.</p>
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyFloat.is_finite" title="apytypes.APyFloat.is_finite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_finite</span></code></a></dt><dd><p>True if and only if x is zero, subnormal, or normal.</p>
 </dd>
@@ -248,7 +250,7 @@
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyFloat.man" title="apytypes.APyFloat.man"><code class="xref py py-obj docutils literal notranslate"><span class="pre">man</span></code></a></dt><dd><p>(self) -&gt; int</p>
 </dd>
-<dt><a class="reference internal" href="#apytypes.APyFloat.man_bits" title="apytypes.APyFloat.man_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">man_bits</span></code></a></dt><dd><p>(self) -&gt; int</p>
+<dt><a class="reference internal" href="#apytypes.APyFloat.man_bits" title="apytypes.APyFloat.man_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">man_bits</span></code></a></dt><dd><p>Number of mantissa bits.</p>
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyFloat.sign" title="apytypes.APyFloat.sign"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sign</span></code></a></dt><dd><p>(self) -&gt; bool</p>
 </dd>
@@ -306,7 +308,27 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloat.bias">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bias</span></span><a class="headerlink" href="#apytypes.APyFloat.bias" title="Link to this definition">#</a></dt>
-<dd><p>(self) -&gt; int</p>
+<dd><p>Exponent bias.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFloat.bits">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bits</span></span><a class="headerlink" href="#apytypes.APyFloat.bits" title="Link to this definition">#</a></dt>
+<dd><p>Total number of bits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -399,7 +421,14 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_q
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloat.exp_bits">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">exp_bits</span></span><a class="headerlink" href="#apytypes.APyFloat.exp_bits" title="Link to this definition">#</a></dt>
-<dd><p>(self) -&gt; int</p>
+<dd><p>Number of exponent bits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -501,7 +530,14 @@ the same sign, exponent, mantissa, and format.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloat.man_bits">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">man_bits</span></span><a class="headerlink" href="#apytypes.APyFloat.man_bits" title="Link to this definition">#</a></dt>
-<dd><p>(self) -&gt; int</p>
+<dd><p>Number of mantissa bits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -591,6 +627,7 @@ the same sign, exponent, mantissa, and format.</p>
 <li><a class="reference internal" href="#apytypes.APyFloat"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a><ul>
 <li><a class="reference internal" href="#apytypes.APyFloat.__init__"><code class="docutils literal notranslate"><span class="pre">APyFloat.__init__</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.bias"><code class="docutils literal notranslate"><span class="pre">APyFloat.bias</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloat.bits"><code class="docutils literal notranslate"><span class="pre">APyFloat.bits</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.cast"><code class="docutils literal notranslate"><span class="pre">APyFloat.cast</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.cast_to_bfloat16"><code class="docutils literal notranslate"><span class="pre">APyFloat.cast_to_bfloat16</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.cast_to_double"><code class="docutils literal notranslate"><span class="pre">APyFloat.cast_to_double</span></code></a></li>
