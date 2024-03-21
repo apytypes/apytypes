@@ -41,6 +41,33 @@ static constexpr std::size_t _EXP_LIMIT_BITS = _EXP_T_SIZE_BITS - 2;
  * **********************************************************************************
  */
 
+void APyFloat::create_in_place(
+    APyFloat* apyfloat,
+    int sign,
+    exp_t exp,
+    man_t man,
+    std::uint8_t exp_bits,
+    std::uint8_t man_bits,
+    std::optional<exp_t> bias
+)
+{
+    const exp_t ieee_bias = APyFloat::ieee_bias(exp_bits);
+    if (bias.has_value() && bias.value() != ieee_bias) {
+        print_warning("non 'ieee-like' biases are not sure to work yet.\n");
+    }
+
+    if (exp_bits > _EXP_LIMIT_BITS) {
+        throw nb::value_error("Too many bits for the exponent field.");
+    }
+
+    if (man_bits > _MAN_LIMIT_BITS) {
+        throw nb::value_error("Too many bits for the mantissa field.");
+    }
+
+    new (apyfloat)
+        APyFloat(sign, exp, man, exp_bits, man_bits, bias.value_or(ieee_bias));
+}
+
 APyFloat::APyFloat(
     bool sign,
     exp_t exp,
@@ -56,35 +83,6 @@ APyFloat::APyFloat(
     , exp(exp)
     , man(man)
 {
-    if (bias.has_value() && bias.value() != ieee_bias()) {
-        print_warning("non 'ieee-like' biases are not sure to work yet.\n");
-    }
-
-    if (exp_bits > _EXP_LIMIT_BITS) {
-        throw nb::value_error("Too many bits for the exponent field.");
-    }
-
-    if (man_bits > _MAN_LIMIT_BITS) {
-        throw nb::value_error("Too many bits for the mantissa field.");
-    }
-}
-APyFloat::APyFloat(
-    int sign,
-    exp_t exp,
-    man_t man,
-    std::uint8_t exp_bits,
-    std::uint8_t man_bits,
-    std::optional<exp_t> bias
-)
-    : APyFloat(bool(sign), exp, man, exp_bits, man_bits, bias)
-{
-    if (exp_bits > _EXP_LIMIT_BITS) {
-        throw nb::value_error("Too many bits for the exponent field.");
-    }
-
-    if (man_bits > _MAN_LIMIT_BITS) {
-        throw nb::value_error("Too many bits for the mantissa field.");
-    }
 }
 
 APyFloat::APyFloat(
