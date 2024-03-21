@@ -87,8 +87,9 @@ public:
         std::optional<QuantizationMode> quantization = std::nullopt
     );
 
-    void
-    _set_values_from_numpy_ndarray(const nanobind::ndarray<nanobind::numpy>& ndarray);
+    void _set_values_from_numpy_ndarray(
+        const nanobind::ndarray<nanobind::numpy>& ndarray, QuantizationMode quantization
+    );
 
     //! Transposition function. For a 1-D array, returns an exact copy of `*this`. For
     //! a 2-D array, returns the matrix transposition of `*this`.

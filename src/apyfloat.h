@@ -14,6 +14,12 @@
 
 class APyFloat {
 public:
+    std::uint8_t exp_bits, man_bits;
+    exp_t bias;
+    bool sign;
+    exp_t exp; // Biased exponent
+    man_t man; // Hidden one
+
     /* ******************************************************************************
      * * Constructors                                                               *
      * ******************************************************************************
@@ -191,21 +197,7 @@ public:
     APyFloat
     cast_to_bfloat16(std::optional<QuantizationMode> quantization = std::nullopt) const;
 
-    /* ******************************************************************************
-     * * Helper functions                                                           *
-     * ******************************************************************************
-     */
-    APyFloat& update_from_double(
-        double value, std::optional<QuantizationMode> quantization = std::nullopt
-    );
-
 private:
-    std::uint8_t exp_bits, man_bits;
-    exp_t bias;
-    bool sign;
-    exp_t exp; // Biased exponent
-    man_t man; // Hidden one
-
     /* ******************************************************************************
      * * Non-Python accessible constructors                                         *
      * ******************************************************************************

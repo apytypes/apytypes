@@ -6,6 +6,7 @@ namespace nb = nanobind;
 
 #include "apyfloat.h"
 #include "apyfloatarray.h"
+#include "ieee754.h"
 #include "python_util.h"
 #include <algorithm>
 #include <fmt/format.h>
@@ -384,6 +385,8 @@ APyFloatArray APyFloatArray::from_double(
         );
     }
 
+    auto quantization_mode = quantization.value_or(get_quantization_mode());
+
     if (nb::isinstance<nb::ndarray<nb::numpy>>(double_seq)) {
         // Sequence is NumPy NDArray. Initialize using `_set_values_from_numpy_ndarray`
         auto ndarray = nb::cast<nb::ndarray<nb::numpy>>(double_seq);
@@ -399,7 +402,7 @@ APyFloatArray APyFloatArray::from_double(
         }
 
         APyFloatArray result(shape, exp_bits, man_bits, bias);
-        result._set_values_from_numpy_ndarray(ndarray);
+        result._set_values_from_numpy_ndarray(ndarray, quantization_mode);
         return result;
     }
 
@@ -418,31 +421,33 @@ APyFloatArray APyFloatArray::from_double(
         } else {
             throw std::domain_error("Invalid Python objects in sequence");
         }
-        const auto fp = APyFloat::from_double(
-            d,
-            exp_bits,
-            man_bits,
-            result.bias,
-            quantization.value_or(get_quantization_mode())
+        APyFloat apytypes_double(
+            sign_of_double(d), exp_of_double(d), man_of_double(d), 11, 52
         );
+        APyFloat fp = apytypes_double.cast(exp_bits, man_bits, bias, quantization_mode);
         result.data[i] = { fp.get_sign(), fp.get_exp(), fp.get_man() };
     }
     return result;
 }
 
-void APyFloatArray::_set_values_from_numpy_ndarray(const nb::ndarray<nb::numpy>& ndarray
+void APyFloatArray::_set_values_from_numpy_ndarray(
+    const nb::ndarray<nb::numpy>& ndarray, QuantizationMode quantization
 )
 {
-    // Type caster used for converting.
-    APyFloat caster(man_bits, exp_bits);
+    // Double value used for converting.
+    APyFloat double_caster(11, 52, 1023);
 
 #define CHECK_AND_SET_VALUES_FROM_NPTYPE(__TYPE__)                                     \
     do {                                                                               \
         if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
             auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
             for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
-                double d = static_cast<double>(ndarray_view.data()[i]);                \
-                const auto fp = APyFloat::from_double(d, exp_bits, man_bits, bias);    \
+                double value = static_cast<double>(ndarray_view.data()[i]);            \
+                double_caster.sign = sign_of_double(value);                            \
+                double_caster.exp = exp_of_double(value);                              \
+                double_caster.man = man_of_double(value);                              \
+                APyFloat fp                                                            \
+                    = double_caster.cast(exp_bits, man_bits, bias, quantization);      \
                 data[i] = { fp.get_sign(), fp.get_exp(), fp.get_man() };               \
             }                                                                          \
             return; /* Conversion completed, exit function */                          \
