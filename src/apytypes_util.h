@@ -37,10 +37,10 @@ static constexpr std::size_t _LIMB_SIZE_BYTES = sizeof(mp_limb_t);
 static constexpr std::size_t _LIMB_SIZE_BITS = 8 * _LIMB_SIZE_BYTES;
 
 //! Not implemented exception
-class NotImplementedException : public std::logic_error {
+class NotImplementedException : public std::domain_error {
 public:
     NotImplementedException(std::optional<std::string> msg = std::nullopt)
-        : std::logic_error(msg.value_or("Not implemented yet")) {};
+        : std::domain_error(msg.value_or("Not implemented yet")) {};
 };
 
 /*!

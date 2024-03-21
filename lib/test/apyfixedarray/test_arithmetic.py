@@ -195,7 +195,7 @@ def test_array_prod():
 def test_transpose():
 
     # High-dimensional transor transposition not implemented
-    with pytest.raises(RuntimeError, match="Not implemented: high-dimensional"):
+    with pytest.raises(ValueError, match="Not implemented: high-dimensional"):
         APyFixedArray([[[1]]], 1, 0).T
 
     # 1-D transposition simply returns the input (just like NumPy-arrays)

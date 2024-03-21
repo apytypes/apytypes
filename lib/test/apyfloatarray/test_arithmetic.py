@@ -226,7 +226,7 @@ def test_array_div_int_float():
 def test_transpose():
 
     # High-dimensional transor transposition not implemented
-    with pytest.raises(RuntimeError, match="Not implemented: high-dimensional"):
+    with pytest.raises(ValueError, match="Not implemented: high-dimensional"):
         APyFloatArray([[[1]]], [[[1]]], [[[1]]], 3, 3).T
 
     # 1-D transposition simply returns the input (just like NumPy-arrays)
