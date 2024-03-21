@@ -643,7 +643,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
 
     int tmp_man_bits;
 
-    if (unsigned(norm_x.man_bits + norm_y.man_bits + 2) <= _MAN_T_SIZE_BITS) {
+    if (unsigned(norm_x.man_bits + norm_y.man_bits) + 2 <= _MAN_T_SIZE_BITS) {
         man_t new_man = mx * my;
         man_t one = 1ULL << (norm_x.man_bits + norm_y.man_bits);
         man_t two = one << 1;

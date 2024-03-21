@@ -120,6 +120,7 @@ public:
     inline exp_t get_bias() const { return bias; }
     inline std::uint8_t get_man_bits() const { return man_bits; }
     inline std::uint8_t get_exp_bits() const { return exp_bits; }
+    inline std::uint8_t get_bits() const { return exp_bits + man_bits + 1; }
 
     enum class ArithmeticOperation { ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION };
 
