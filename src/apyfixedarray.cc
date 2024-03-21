@@ -1021,11 +1021,7 @@ APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) co
                 std::vector<mp_limb_t>::iterator it_end
                     = it_begin + result._itemsize; // output sentinel
                 limb_vector_lsl_inner(
-                    it_begin,
-                    it_end,
-                    limb_skip,
-                    limb_shift,
-                    result._itemsize
+                    it_begin, it_end, limb_skip, limb_shift, result._itemsize
                 );
                 it_begin = it_end;
             }
