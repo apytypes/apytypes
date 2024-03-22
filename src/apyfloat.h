@@ -19,6 +19,7 @@ public:
      * ******************************************************************************
      */
 
+    // These constructors are not exposed to Python
     explicit APyFloat(
         bool sign,
         exp_t exp,
@@ -27,16 +28,6 @@ public:
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
-    explicit APyFloat(
-        int sign,
-        exp_t exp,
-        man_t man,
-        std::uint8_t exp_bits,
-        std::uint8_t man_bits,
-        std::optional<exp_t> bias = std::nullopt
-    );
-
-    // These constructors are not exposed to Python
     APyFloat(
         const APyFloatData& data,
         std::uint8_t exp_bits,
@@ -53,6 +44,16 @@ public:
      * * Methods for conversions                                                    *
      * ******************************************************************************
      */
+    // Factory function for Python interface
+    static void create_in_place(
+        APyFloat* apyfloat,
+        int sign,
+        exp_t exp,
+        man_t man,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
 
     static APyFloat from_double(
         double value,
@@ -159,14 +160,15 @@ public:
     bool is_nan() const;
     bool is_inf() const;
 
-    inline bool get_sign() const { return sign; }
-    inline man_t get_man() const { return man; }
-    inline exp_t get_exp() const { return exp; }
-    inline exp_t get_bias() const { return bias; }
-    inline std::uint8_t get_man_bits() const { return man_bits; }
-    inline std::uint8_t get_exp_bits() const { return exp_bits; }
-    inline APyFloatData get_data() const { return { sign, exp, man }; }
-    inline void set_data(const APyFloatData& data)
+    APY_INLINE bool get_sign() const { return sign; }
+    APY_INLINE man_t get_man() const { return man; }
+    APY_INLINE exp_t get_exp() const { return exp; }
+    APY_INLINE exp_t get_bias() const { return bias; }
+    APY_INLINE std::uint8_t get_man_bits() const { return man_bits; }
+    APY_INLINE std::uint8_t get_exp_bits() const { return exp_bits; }
+    APY_INLINE std::uint8_t get_bits() const { return man_bits + exp_bits + 1; }
+    APY_INLINE APyFloatData get_data() const { return { sign, exp, man }; }
+    APY_INLINE void set_data(const APyFloatData& data)
     {
         sign = data.sign;
         exp = data.exp;
@@ -210,9 +212,6 @@ private:
      * ******************************************************************************
      */
     APyFloat& update_from_bits(nanobind::int_ python_long_int_bit_pattern);
-    APyFloat& update_from_double(
-        double value, std::optional<QuantizationMode> quantization = std::nullopt
-    );
 
     APyFloat construct_zero(std::optional<bool> new_sign = std::nullopt) const;
     APyFloat construct_inf(std::optional<bool> new_sign = std::nullopt) const;

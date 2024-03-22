@@ -37,6 +37,7 @@ public:
     APyFloatArray operator/(const APyFloatArray& rhs) const;
     APyFloatArray operator/(const APyFloat& rhs) const;
     APyFloatArray abs() const;
+    APyFloatArray rtruediv(const APyFloat& rhs) const;
 
     /*!
      * Matrix mutliplication. If both arguments ar 2-D tensors, this method performs the
@@ -87,6 +88,10 @@ public:
         std::optional<QuantizationMode> quantization = std::nullopt
     );
 
+    void _set_values_from_numpy_ndarray(
+        const nanobind::ndarray<nanobind::numpy>& ndarray, QuantizationMode quantization
+    );
+
     //! Transposition function. For a 1-D array, returns an exact copy of `*this`. For
     //! a 2-D array, returns the matrix transposition of `*this`.
     APyFloatArray transpose() const;
@@ -115,6 +120,7 @@ public:
     inline exp_t get_bias() const { return bias; }
     inline std::uint8_t get_man_bits() const { return man_bits; }
     inline std::uint8_t get_exp_bits() const { return exp_bits; }
+    inline std::uint8_t get_bits() const { return exp_bits + man_bits + 1; }
 
     enum class ArithmeticOperation { ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION };
 
@@ -143,11 +149,6 @@ private:
     exp_t bias;
     std::vector<std::size_t> shape;
     std::vector<APyFloatData> data;
-
-    APyFloatArray
-    perform_basic_arithmetic(const APyFloatArray& rhs, ArithmeticOperation op) const;
-    APyFloatArray
-    perform_basic_arithmetic(const APyFloat& rhs, ArithmeticOperation op) const;
 
     //! Fold the `_shape` field over multiplication
     std::size_t fold_shape() const;

@@ -138,16 +138,16 @@ APyFixed APyFixed::operator+(const APyFixed& rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
 
     APyFixed result(res_bits, res_int_bits);
-    auto shift_amount = unsigned(res_frac_bits - frac_bits());
+    auto left_shift_amount = unsigned(res_frac_bits - frac_bits());
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
 
-    _cast_correct_wl(result._data.begin(), result._data.end(), shift_amount);
+    _cast_correct_wl(result._data.begin(), result._data.end(), left_shift_amount);
 
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         // Result bits fits in a single limb. Use native addition
         mp_limb_t operand = rhs._data[0];
         operand <<= rhs_shift_amount;
-        result._data[0] = result._data[0] + operand;
+        result._data[0] += operand;
     } else {
         // Result bits is more than one limb. Add with carry
         APyFixed operand(res_bits, res_int_bits);
@@ -171,17 +171,17 @@ APyFixed APyFixed::operator-(const APyFixed& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
     const int res_bits = res_int_bits + res_frac_bits;
 
-    auto shift_amount = unsigned(res_frac_bits - frac_bits());
+    APyFixed result(res_bits, res_int_bits);
+    auto left_shift_amount = unsigned(res_frac_bits - frac_bits());
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
 
-    APyFixed result(res_bits, res_int_bits);
-    _cast_correct_wl(result._data.begin(), result._data.end(), shift_amount);
+    _cast_correct_wl(result._data.begin(), result._data.end(), left_shift_amount);
 
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         // Result bits fits in a single limb. Use native subtraction
         mp_limb_t operand = rhs._data[0];
         operand <<= rhs_shift_amount;
-        result._data[0] = result._data[0] - operand;
+        result._data[0] -= operand;
     } else {
         // Result bits is more than one limb. Add with carry
         APyFixed operand(res_bits, res_int_bits);
@@ -202,48 +202,50 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
 {
     const int res_int_bits = int_bits() + rhs.int_bits();
     const int res_frac_bits = frac_bits() + rhs.frac_bits();
-    const bool sign_product = is_negative() ^ rhs.is_negative();
     const int res_bits = res_int_bits + res_frac_bits;
 
     // Result fixed-point number
     APyFixed result(res_bits, res_int_bits);
 
+    // Single-limb result specialization
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         result._data[0] = _data[0] * rhs._data[0];
-    } else {
-        auto abs_operand1 = limb_vector_abs(_data.cbegin(), _data.cend());
-        auto abs_operand2 = limb_vector_abs(rhs._data.cbegin(), rhs._data.cend());
+        return result; // early exit
+    }
 
-        // `mpn_mul` requires:
-        // "The destination has to have space for `s1n` + `s2n` limbs, even if the
-        // product’s most significant limb is zero."
-        result._data.resize(abs_operand1.size() + abs_operand2.size());
+    const bool sign_product = is_negative() ^ rhs.is_negative();
+    auto abs_operand1 = limb_vector_abs(_data.cbegin(), _data.cend());
+    auto abs_operand2 = limb_vector_abs(rhs._data.cbegin(), rhs._data.cend());
 
-        // `mpn_mul` requires the limb vector length of the first operand to be
-        // greater than, or equally long as, the limb vector length of the second
-        // operand. Simply swap the operands (essentially a free operation in C++)
-        // if this is not the case.
-        if (abs_operand1.size() < abs_operand2.size()) {
-            std::swap(abs_operand1, abs_operand2);
-        }
+    // `mpn_mul` requires:
+    // "The destination has to have space for `s1n` + `s2n` limbs, even if the
+    // product’s most significant limb is zero."
+    result._data.resize(abs_operand1.size() + abs_operand2.size());
 
-        mpn_mul(
-            &result._data[0],    // dst
-            &abs_operand1[0],    // src1
-            abs_operand1.size(), // src1 limb vector length
-            &abs_operand2[0],    // src2
-            abs_operand2.size()  // src2 limb vector length
+    // `mpn_mul` requires the limb vector length of the first operand to be
+    // greater than, or equally long as, the limb vector length of the second
+    // operand. Simply swap the operands (essentially a free operation in C++)
+    // if this is not the case.
+    if (abs_operand1.size() < abs_operand2.size()) {
+        std::swap(abs_operand1, abs_operand2);
+    }
+
+    mpn_mul(
+        &result._data[0],    // dst
+        &abs_operand1[0],    // src1
+        abs_operand1.size(), // src1 limb vector length
+        &abs_operand2[0],    // src2
+        abs_operand2.size()  // src2 limb vector length
+    );
+
+    // Shape the rsult vector back to the number of significant limbs
+    result._data.resize(bits_to_limbs(res_bits));
+
+    // Handle sign
+    if (sign_product) {
+        limb_vector_negate(
+            result._data.begin(), result._data.end(), result._data.begin()
         );
-
-        // Shape the result vector back to the number of significant limbs
-        result._data.resize(bits_to_limbs(res_bits));
-
-        // Handle sign
-        if (sign_product) {
-            limb_vector_negate(
-                result._data.begin(), result._data.end(), result._data.begin()
-            );
-        }
     }
     return result;
 }
@@ -254,39 +256,41 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
     const int res_int_bits = int_bits() + rhs.bits() - rhs.int_bits() + 1;
     APyFixed result(res_bits, res_int_bits);
 
-    // Absolute value numerator and denominator
-    bool sign_product = is_negative() ^ rhs.is_negative();
-    std::vector<mp_limb_t> abs_den
-        = limb_vector_abs(rhs._data.cbegin(), rhs._data.cend());
-    std::vector<mp_limb_t> abs_num;
-    if (is_negative()) {
-        abs_num = (-*this)._data_asl(rhs.frac_bits());
-    } else {
-        abs_num = (*this)._data_asl(rhs.frac_bits());
+    // Single-limb result specialization
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        mp_limb_signed_t numerator = _data[0] << rhs.frac_bits();
+        mp_limb_signed_t denominator = rhs._data[0];
+        result._data[0] = numerator / denominator;
+        return result; // early exit
     }
 
-    // `mpn_tdiv_rq` requires that the number of significant limbs in the
-    // numerator is greater than or equal to that of the denominator.
-    std::size_t num_significant_limbs = significant_limbs(abs_num);
-    std::size_t den_significant_limbs = significant_limbs(abs_den);
-    if (num_significant_limbs < den_significant_limbs) {
-        // Early return zero
-        return result;
-    } else {
-        mpn_div_qr(
-            &result._data[0],      // Quotient
-            &abs_num[0],           // Numerator
-            num_significant_limbs, // Numerator significant limbs
-            &abs_den[0],           // Denominator
-            den_significant_limbs  // Denominator significant limbs
+    // Resulting sign
+    const bool sign_product = is_negative() ^ rhs.is_negative();
+
+    // Absolute value denominator
+    ScratchVector<mp_limb_t> abs_den(rhs._data.size());
+    limb_vector_abs(rhs._data.cbegin(), rhs._data.cend(), abs_den.begin());
+
+    // Absolute value left-shifted numerator
+    ScratchVector<mp_limb_t> abs_num(1 + bits_to_limbs(bits() + rhs.frac_bits()));
+    abs()._data_asl(abs_num.begin(), abs_num.end(), rhs.frac_bits());
+
+    // `mpn_tdiv_qr` requires that the number of significant limbs in denominator
+    std::size_t den_significant_limbs
+        = significant_limbs(abs_den.begin(), abs_den.end());
+    mpn_div_qr(
+        &result._data[0],     // Quotient
+        &abs_num[0],          // Numerator
+        abs_num.size(),       // Numerator significant limbs
+        &abs_den[0],          // Denominator
+        den_significant_limbs // Denominator significant limbs
+    );
+    if (sign_product) {
+        limb_vector_negate(
+            result._data.begin(), result._data.end(), result._data.begin()
         );
-        if (sign_product) {
-            limb_vector_negate(
-                result._data.begin(), result._data.end(), result._data.begin()
-            );
-        }
-        return result;
     }
+    return result;
 }
 
 APyFixed APyFixed::operator+(int rhs) const
@@ -364,7 +368,8 @@ bool APyFixed::operator<(const APyFixed& rhs) const
 
 bool APyFixed::operator<=(const APyFixed& rhs) const
 {
-    return (*this < rhs) || (*this == rhs);
+    auto diff = *this - rhs;
+    return diff.is_negative() || diff.is_zero();
 }
 
 bool APyFixed::operator>(const APyFixed& rhs) const
@@ -374,7 +379,8 @@ bool APyFixed::operator>(const APyFixed& rhs) const
 
 bool APyFixed::operator>=(const APyFixed& rhs) const
 {
-    return (*this > rhs) || (*this == rhs);
+    auto diff = rhs - *this;
+    return diff.is_negative() || diff.is_zero();
 }
 
 APyFixed APyFixed::operator-() const
@@ -458,7 +464,8 @@ std::string APyFixed::to_string_dec() const
     APyFixed abs_val = abs();
 
     // Convert this number to BCD with the double-dabble algorithm
-    std::vector<mp_limb_t> bcd_limb_list = double_dabble(abs_val._data);
+    std::vector<mp_limb_t> bcd_limb_list
+        = double_dabble(static_cast<std::vector<mp_limb_t>>(abs_val._data));
     std::size_t bcd_limb_list_start_size = bcd_limb_list.size();
 
     // Divide BCD limb list by two, one time per fractional bit (if any)
@@ -640,7 +647,7 @@ void APyFixed::set_from_double(double value)
             man |= mp_limb_t(1) << 52;
         }
 
-        // Adjust the actual exponent (-1023) and
+        // Adjust the actual exponent with bias (-1023) and
         // shift the data into its correct position
         auto left_shift_amnt = exp + frac_bits() - 52 - 1023;
         if (unsigned(_bits) <= _LIMB_SIZE_BITS) {
@@ -664,14 +671,14 @@ void APyFixed::set_from_double(double value)
             std::fill(_data.begin(), _data.end(), 0);
             _data[0] = man;
             if (left_shift_amnt >= 0) {
-                limb_vector_lsl(_data, left_shift_amnt);
+                limb_vector_lsl(_data.begin(), _data.end(), left_shift_amnt);
             } else {
                 auto right_shift_amount = -left_shift_amnt;
                 if (right_shift_amount - 1 < 64) {
                     // Round the value
                     _data[0] += mp_limb_t(1) << (right_shift_amount - 1);
                 }
-                limb_vector_lsr(_data, right_shift_amount);
+                limb_vector_lsr(_data.begin(), _data.end(), right_shift_amount);
             }
             // Adjust result from sign
             if (sign_of_double(value)) {
@@ -698,15 +705,17 @@ double APyFixed::to_double() const
         mp_limb_signed_t exp {};
         bool sign = is_negative();
 
-        std::vector<mp_limb_t> man_vec = limb_vector_abs(_data.cbegin(), _data.cend());
-        unsigned man_leading_zeros = limb_vector_leading_zeros(man_vec);
+        ScratchVector<mp_limb_t> man_vec(std::distance(_data.cbegin(), _data.cend()));
+        limb_vector_abs(_data.cbegin(), _data.cend(), man_vec.begin());
+        unsigned man_leading_zeros
+            = limb_vector_leading_zeros(man_vec.begin(), man_vec.end());
 
         // Shift the mantissa into position and set the mantissa and exponent part
         int left_shift_amnt = 53 - _LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
         if (left_shift_amnt > 0) {
-            limb_vector_lsl(man_vec, left_shift_amnt);
+            limb_vector_lsl(man_vec.begin(), man_vec.end(), left_shift_amnt);
         } else {
-            limb_vector_lsr(man_vec, -left_shift_amnt);
+            limb_vector_lsr(man_vec.begin(), man_vec.end(), -left_shift_amnt);
         }
         man = man_vec[0];
         exp = 1023 + 52 - left_shift_amnt - frac_bits();
@@ -728,11 +737,19 @@ double APyFixed::to_double() const
 void APyFixed::set_from_apyfixed(const APyFixed& other)
 {
     // Copy data from `other` limb vector shift binary point into position
-    std::vector<mp_limb_t> other_data_copy { other._data };
+    ScratchVector<mp_limb_t> other_data_copy { other._data };
     if (frac_bits() <= other.frac_bits()) {
-        limb_vector_asr(other_data_copy, other.frac_bits() - frac_bits());
+        limb_vector_asr(
+            other_data_copy.begin(),
+            other_data_copy.end(),
+            other.frac_bits() - frac_bits()
+        );
     } else {
-        limb_vector_lsl(other_data_copy, frac_bits() - other.frac_bits());
+        limb_vector_lsl(
+            other_data_copy.begin(),
+            other_data_copy.end(),
+            frac_bits() - other.frac_bits()
+        );
     }
 
     // Copy binary point-adjusted data
@@ -756,21 +773,23 @@ void APyFixed::set_from_apyfixed(const APyFixed& other)
 
 nb::int_ APyFixed::to_bits() const
 {
-    return python_limb_vec_to_long(_data, false, bits() % _LIMB_SIZE_BITS);
+    return python_limb_vec_to_long(
+        _data.begin(), _data.end(), false, bits() % _LIMB_SIZE_BITS
+    );
 }
 
 std::string APyFixed::bit_pattern_to_string_dec() const
 {
     std::stringstream ss {};
 
-    std::vector<mp_limb_t> data = _data;
+    ScratchVector<mp_limb_t> data = _data;
     if (bits() % _LIMB_SIZE_BITS) {
         mp_limb_t and_mask = (mp_limb_t(1) << (bits() % _LIMB_SIZE_BITS)) - 1;
         data.back() &= and_mask;
     }
 
     // Double-dabble for binary-to-BCD conversion
-    ss << bcds_to_string(double_dabble(data));
+    ss << bcds_to_string(double_dabble(static_cast<std::vector<mp_limb_t>>(data)));
 
     return ss.str();
 }
@@ -876,9 +895,10 @@ APyFixed APyFixed::resize(
     return cast(bits, int_bits, quantization, overflow, frac_bits);
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_cast(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits,
     QuantizationMode quantization,
@@ -903,9 +923,10 @@ void APyFixed::_cast(
     _overflow(it_begin, it_end, new_bits, new_int_bits, overflow);
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_cast_correct_wl(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     unsigned int shift_amount
 ) const
 {
@@ -915,14 +936,15 @@ void APyFixed::_cast_correct_wl(
     if (vector_size() < result_vector_size) {
         std::fill(it_begin + vector_size(), it_end, is_negative() ? mp_limb_t(-1) : 0);
     }
-    if (shift_amount >= 0) {
+    if (shift_amount > 0) {
         limb_vector_lsl(it_begin, it_end, shift_amount);
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits,
     QuantizationMode quantization
@@ -970,9 +992,10 @@ void APyFixed::_quantize(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_trn(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -985,9 +1008,10 @@ void APyFixed::_quantize_trn(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_trn_inf(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1006,9 +1030,10 @@ void APyFixed::_quantize_trn_inf(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_trn_zero(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1027,9 +1052,10 @@ void APyFixed::_quantize_trn_zero(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_rnd(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1044,9 +1070,10 @@ void APyFixed::_quantize_rnd(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_rnd_zero(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1067,9 +1094,10 @@ void APyFixed::_quantize_rnd_zero(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_rnd_inf(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1090,9 +1118,10 @@ void APyFixed::_quantize_rnd_inf(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_rnd_min_inf(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1115,9 +1144,10 @@ void APyFixed::_quantize_rnd_min_inf(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_rnd_conv(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1138,9 +1168,10 @@ void APyFixed::_quantize_rnd_conv(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_rnd_conv_odd(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1161,9 +1192,10 @@ void APyFixed::_quantize_rnd_conv_odd(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_jam(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1177,9 +1209,10 @@ void APyFixed::_quantize_jam(
     limb_vector_set_bit(it_begin, it_end, 0, true);
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_quantize_jam_unbiased(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits
 ) const
@@ -1196,9 +1229,10 @@ void APyFixed::_quantize_jam_unbiased(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_overflow(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
     int new_int_bits,
     OverflowMode overflow
@@ -1228,9 +1262,10 @@ mp_limb_t inline APyFixed::_twos_complement_overflow(mp_limb_t value, int bits) 
     return value;
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_twos_complement_overflow(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     int bits,
     int int_bits
 ) const
@@ -1260,24 +1295,24 @@ void APyFixed::_twos_complement_overflow(
  * *                          Private member functions                              * *
  * ********************************************************************************** */
 
-// Sign preserving automatic size extending arithmetic left shift. Returns a new
-// limb vector with the shifted content.
-std::vector<mp_limb_t> APyFixed::_data_asl(unsigned shift_val) const
+template <typename RANDOM_ACCESS_ITERATOR>
+void APyFixed::_data_asl(
+    RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned shift_val
+) const
 {
     if (shift_val == 0) {
-        return _data;
+        std::copy(_data.cbegin(), _data.cend(), it_begin);
     }
 
     // Perform the left-shift
     unsigned vec_skip_val = shift_val / _LIMB_SIZE_BITS;
     unsigned bit_shift_val = shift_val % _LIMB_SIZE_BITS;
-    std::vector<mp_limb_t> result(bits_to_limbs(bits() + shift_val), 0);
-    std::copy(_data.cbegin(), _data.cend(), result.begin() + vec_skip_val);
+    std::copy(_data.cbegin(), _data.cend(), it_begin + vec_skip_val);
     mpn_lshift(
-        &result[0],    // dst
-        &result[0],    // src
-        result.size(), // limb vector length
-        bit_shift_val  // shift amount
+        &*it_begin,                      // dst
+        &*it_begin,                      // src
+        std::distance(it_begin, it_end), // limb vector length
+        bit_shift_val                    // shift amount
     );
 
     // Append sign bits for "arithmetic" shift
@@ -1286,8 +1321,27 @@ std::vector<mp_limb_t> APyFixed::_data_asl(unsigned shift_val) const
         mp_limb_t sign_int = mp_limb_signed_t(_data.back()) >> (_LIMB_SIZE_BITS - 1);
         mp_limb_t or_mask
             = ~((mp_limb_t(1) << (bits() + shift_val) % _LIMB_SIZE_BITS) - 1);
-        result.back() |= or_mask & sign_int;
+        *std::prev(it_end) |= or_mask & sign_int;
     }
-
-    return result;
 }
+
+/* ********************************************************************************** *
+ * *                       Explicit template instantiations                         * *
+ * ********************************************************************************** */
+
+template void APyFixed::_cast(
+    std::vector<mp_limb_t>::iterator,
+    std::vector<mp_limb_t>::iterator,
+    int,
+    int,
+    QuantizationMode,
+    OverflowMode
+) const;
+
+template void APyFixed::_twos_complement_overflow(
+    std::vector<mp_limb_t>::iterator, std::vector<mp_limb_t>::iterator, int, int
+) const;
+
+template void APyFixed::_twos_complement_overflow(
+    ScratchVector<mp_limb_t>::iterator, ScratchVector<mp_limb_t>::iterator, int, int
+) const;

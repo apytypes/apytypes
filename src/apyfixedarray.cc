@@ -149,16 +149,20 @@ APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
 
     // Adjust binary point
     APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
+    if (rhs.is_zero()) {
+        return result;
+    }
+    auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
             mp_limb_t operand = rhs._data[0];
             operand <<= rhs_shift_amount;
             result._data[i] = result._data[i] + operand;
         }
     } else {
+        APyFixed imm(res_bits, res_int_bits);
+        rhs._cast_correct_wl(imm._data.begin(), imm._data.end(), rhs_shift_amount);
         // Perform addition
-        APyFixed imm = rhs.cast(res_bits, res_int_bits);
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
             mpn_add_n(
                 &result._data[i], // dst
@@ -225,17 +229,21 @@ APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
 
     // Adjust binary point
     APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
+    if (rhs.is_zero()) {
+        return result;
+    }
+    auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
             mp_limb_t operand = rhs._data[0];
             operand <<= rhs_shift_amount;
             result._data[i] = result._data[i] - operand;
         }
     } else {
-        APyFixed imm = rhs.cast(res_bits, res_int_bits);
+        APyFixed imm(res_bits, res_int_bits);
+        rhs._cast_correct_wl(imm._data.begin(), imm._data.end(), rhs_shift_amount);
 
-        // Perform addition
+        // Perform subtraction
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
             mpn_sub_n(
                 &result._data[i], // dst
@@ -260,18 +268,18 @@ APyFixedArray APyFixedArray::rsub(const APyFixed& lhs) const
 
     // Adjust binary point
     APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
-
+    auto lhs_shift_amount = unsigned(res_frac_bits - lhs.frac_bits());
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        auto rhs_shift_amount = unsigned(res_frac_bits - lhs.frac_bits());
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
             mp_limb_t operand = lhs._data[0];
-            operand <<= rhs_shift_amount;
+            operand <<= lhs_shift_amount;
             result._data[i] = operand - result._data[i];
         }
     } else {
-        APyFixed imm = lhs.cast(res_bits, res_int_bits);
+        APyFixed imm(res_bits, res_int_bits);
+        lhs._cast_correct_wl(imm._data.begin(), imm._data.end(), lhs_shift_amount);
 
-        // Perform addition
+        // Perform subtraction
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
             mpn_sub_n(
                 &result._data[i], // dst
@@ -330,14 +338,22 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
 
     // Resulting `APyFixedArray` fixed-point tensor
     APyFixedArray result(_shape, res_bits, res_int_bits);
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        for (std::size_t i = 0; i < _data.size(); i++) {
+            result._data[i] = _data[i] * rhs._data[0];
+        }
+        return result;
+    }
 
-    auto op2_begin = rhs._data.begin() + (0) * rhs.vector_size();
-    auto op2_end = rhs._data.begin() + (1) * rhs.vector_size();
+    // Compute abs and sign of rhs (op2)
+    auto op2_begin = rhs._data.begin();
+    auto op2_end = rhs._data.begin() + rhs.vector_size();
     bool sign2 = mp_limb_signed_t(*(op2_end - 1)) < 0;
     std::vector<mp_limb_t> op2_abs = limb_vector_abs(op2_begin, op2_end);
 
     // Perform multiplication for each element in the tensor. `mpn_mul` requires:
-    // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
+    // "The destination has to have space for `s1n` + `s2n` limbs, even if the
+    // product’s
     //  most significant limb is zero."
     std::vector<mp_limb_t> res_tmp_vec(_itemsize + rhs.vector_size(), 0);
     std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
@@ -379,7 +395,6 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
         }
         op1_begin = op1_end;
     }
-
     return result;
 }
 
@@ -628,11 +643,12 @@ std::variant<APyFixedArray, APyFixed> APyFixedArray::get_item(std::size_t idx) c
 
 nb::ndarray<nb::numpy, double> APyFixedArray::to_numpy() const
 {
+    auto size = fold_shape(_shape);
     // Dynamically allocate data to be passed to python
-    double* result_data = new double[fold_shape(_shape)];
+    double* result_data = new double[size];
 
     APyFixed type_caster(bits(), int_bits());
-    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+    for (std::size_t i = 0; i < size; i++) {
         std::copy_n(
             std::begin(_data) + i * _itemsize, _itemsize, std::begin(type_caster._data)
         );
@@ -982,6 +998,9 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
     return result;
 }
 
+//! Cast values to a longer (at least not shorter) word length
+//! This code has moved all conditions out of the for-loop to speed up the execution
+//! and instead there are multiple for-loops doing similar operations.
 APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) const
 {
 
@@ -989,56 +1008,88 @@ APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) co
     APyFixedArray result(_shape, new_bits, new_int_bits);
 
     auto shift_amount = new_bits - new_int_bits - frac_bits();
+    std::vector<mp_limb_t>::iterator it_begin = result._data.begin(); // output start
     // If item sizes are the same, copy the whole block
     if (_itemsize == result._itemsize) {
+        auto size = fold_shape(_shape);
         // Copy data into the result
         std::copy_n(
-            _data.begin(),                  // src
-            _itemsize * fold_shape(_shape), // limbs to copy
-            result._data.begin()            // dst
+            _data.begin(),       // src
+            _itemsize * size,    // limbs to copy
+            result._data.begin() // dst
         );
         // If shift if required
         if (shift_amount > 0) {
-
-            // Perform the resizing
-            std::vector<mp_limb_t>::iterator it_begin
-                = result._data.begin(); // output start
+            unsigned limb_skip = shift_amount / _LIMB_SIZE_BITS;
+            unsigned limb_shift = shift_amount % _LIMB_SIZE_BITS;
             // For each scalar in the tensor...
-            for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+            // Note that it is not possible to shift out any data here
+            for (std::size_t i = 0; i < size; i++) {
                 std::vector<mp_limb_t>::iterator it_end
                     = it_begin + result._itemsize; // output sentinel
-                limb_vector_lsl(it_begin, it_end, shift_amount);
+                limb_vector_lsl_inner(
+                    it_begin, it_end, limb_skip, limb_shift, result._itemsize
+                );
                 it_begin = it_end;
             }
         }
         return result;
     }
-    // For each scalar in the tensor...
 
-    std::vector<mp_limb_t>::iterator it_begin = result._data.begin(); // output start
     auto data_begin = _data.begin();
-    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+    // Compute limb skip and shift once
+    unsigned limb_skip = shift_amount / _LIMB_SIZE_BITS;
+    unsigned limb_shift = shift_amount % _LIMB_SIZE_BITS;
+    // Shift if required
+    if (shift_amount > 0) {
+        // For each scalar in the tensor...
+        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
 
-        std::vector<mp_limb_t>::iterator it_end
-            = it_begin + result._itemsize; // output sentinel
-        auto data_end = data_begin + _itemsize;
-        // Copy data into the result
-        std::copy_n(
-            data_begin, // src
-            _itemsize,  // limbs to copy
-            it_begin    // dst
-        );
+            std::vector<mp_limb_t>::iterator it_end
+                = it_begin + result._itemsize; // output sentinel
+            auto data_end = data_begin + _itemsize;
+            // Copy data into the result
+            std::copy_n(
+                data_begin, // src
+                _itemsize,  // limbs to copy
+                it_begin    // dst
+            );
 
-        bool result_is_negative = limb_vector_is_negative(data_begin, data_end);
-        std::fill(it_begin + _itemsize, it_end, result_is_negative ? mp_limb_t(-1) : 0);
-        // Shift if required
-        if (shift_amount > 0) {
-            limb_vector_lsl(it_begin, it_end, shift_amount);
+            bool result_is_negative = limb_vector_is_negative(data_begin, data_end);
+            std::fill(
+                it_begin + _itemsize, it_end, result_is_negative ? mp_limb_t(-1) : 0
+            );
+            // Shift if required
+            // Note that it is not possible to shift out any data here
+            limb_vector_lsl_inner(
+                it_begin, it_end, limb_skip, limb_shift, result._itemsize
+            );
+            it_begin = it_end;
+            data_begin = data_end;
         }
-        it_begin = it_end;
-        data_begin = data_end;
-    }
+    } else {
+        // For each scalar in the tensor...
+        // Same as above, but no shift so only copy and sign-extend
+        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
 
+            std::vector<mp_limb_t>::iterator it_end
+                = it_begin + result._itemsize; // output sentinel
+            auto data_end = data_begin + _itemsize;
+            // Copy data into the result
+            std::copy_n(
+                data_begin, // src
+                _itemsize,  // limbs to copy
+                it_begin    // dst
+            );
+
+            bool result_is_negative = limb_vector_is_negative(data_begin, data_end);
+            std::fill(
+                it_begin + _itemsize, it_end, result_is_negative ? mp_limb_t(-1) : 0
+            );
+            it_begin = it_end;
+            data_begin = data_end;
+        }
+    }
     return result;
 }
 
@@ -1057,31 +1108,29 @@ void APyFixedArray::_cast(
     // For each scalar in the tensor...
     std::size_t result_limbs = bits_to_limbs(new_bits);
     std::size_t pad_limbs = bits_to_limbs(std::max(new_bits, _bits)) - result_limbs;
+    auto data_begin = _data.begin();
+    auto it_start = it_begin;
     for (std::size_t i = 0; i < fold_shape(_shape); i++) {
-
         // Copy data into temporary `APyFixed` and sign extend
         std::copy_n(
-            _data.begin() + i * _itemsize, // src
-            _itemsize,                     // limbs to copy
-            caster._data.begin()           // dst
+            data_begin,          // src
+            _itemsize,           // limbs to copy
+            caster._data.begin() // dst
         );
-        if (caster.vector_size() > _itemsize) {
-            std::fill_n(
-                caster._data.begin() + _itemsize,
-                caster.vector_size() - _itemsize,
-                mp_limb_signed_t(*--(_data.begin() + (i + 1) * _itemsize)) < 0 ? -1 : 0
-            );
-        }
+
+        auto it_end_ = it_start + result_limbs;
 
         // Perform the resizing
         caster._cast(
-            it_begin + (i + 0) * result_limbs,             // output start
-            it_begin + (i + 1) * result_limbs + pad_limbs, // output sentinel
+            it_start,            // output start
+            it_end_ + pad_limbs, // output sentinel
             new_bits,
             new_int_bits,
             quantization,
             overflow
         );
+        data_begin += _itemsize;
+        it_start = it_end_;
     }
 }
 
@@ -1111,9 +1160,10 @@ void APyFixedArray::_set_bits_from_numpy_ndarray(const nb::ndarray<nb::numpy>& n
         }                                                                              \
     } while (0)
 
-    // Each `CHECK_AND_SET_BITS_FROM_NPTYPE` checks the dtype of `ndarray` and converts
-    // all the data if it matches. If successful, `CHECK_AND_SET_BITS_FROM_NPTYPES`
-    // returns. Otherwise, the next attemted conversion will take place
+    // Each `CHECK_AND_SET_BITS_FROM_NPTYPE` checks the dtype of `ndarray` and
+    // converts all the data if it matches. If successful,
+    // `CHECK_AND_SET_BITS_FROM_NPTYPES` returns. Otherwise, the next attemted
+    // conversion will take place
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::int64_t);
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::int32_t);
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::int16_t);
@@ -1123,10 +1173,10 @@ void APyFixedArray::_set_bits_from_numpy_ndarray(const nb::ndarray<nb::numpy>& n
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint16_t);
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint8_t);
 
-    // None of the `CHECK_AND_SET_BITS_FROM_NPTYPE` succeeded. Unsupported type, throw
-    // an error. If possible, it would be nice to show a string representation of the
-    // `dtype`. Seems hard to achieve with nanobind, but please fix this if you find out
-    // how this can be achieved.
+    // None of the `CHECK_AND_SET_BITS_FROM_NPTYPE` succeeded. Unsupported type,
+    // throw an error. If possible, it would be nice to show a string representation
+    // of the `dtype`. Seems hard to achieve with nanobind, but please fix this if
+    // you find out how this can be achieved.
     throw nb::type_error(
         "APyFixedArray::_set_bits_from_numpy_ndarray(): "
         "expecting integer `dtype`"
@@ -1169,10 +1219,10 @@ void APyFixedArray::_set_values_from_numpy_ndarray(const nb::ndarray<nb::numpy>&
     CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint16_t);
     CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint8_t);
 
-    // None of the `CHECK_AND_VALUES_FROM_NPTYPE` succeeded. Unsupported type, throw an
-    // error. If possible, it would be nice to show a string representation of the
-    // `dtype`. Seems hard to achieve with nanobind, but please fix this if you find out
-    // how this can be achieved.
+    // None of the `CHECK_AND_VALUES_FROM_NPTYPE` succeeded. Unsupported type, throw
+    // an error. If possible, it would be nice to show a string representation of
+    // the `dtype`. Seems hard to achieve with nanobind, but please fix this if you
+    // find out how this can be achieved.
     throw nb::type_error(
         "APyFixedArray::_set_values_from_numpy_ndarray(): "
         "unsupported `dtype` expecting integer/float"

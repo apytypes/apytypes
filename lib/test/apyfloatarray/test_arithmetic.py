@@ -59,6 +59,13 @@ def test_array_add_scalar():
     assert (a + b).is_identical(APyFloatArray.from_float([20, 31, 42], 9, 10))
     assert (b + a).is_identical(APyFloatArray.from_float([20, 31, 42], 9, 10))
 
+    z810 = APyFloat.from_float(0, 8, 10)
+    z98 = APyFloat.from_float(0, 9, 8)
+    assert (a + z810).is_identical(a)
+    assert (a + z98).is_identical(APyFloatArray.from_float([12, 23, 34], 9, 10))
+    assert (z810 + a).is_identical(a)
+    assert (z98 + a).is_identical(APyFloatArray.from_float([12, 23, 34], 9, 10))
+
 
 @pytest.mark.float_array
 def test_array_add_int_float():
@@ -109,6 +116,11 @@ def test_array_sub_scalar():
     b = APyFloat.from_float(8, 9, 8)
     assert (a - b).is_identical(APyFloatArray.from_float([4, 15, 26], 9, 10))
     assert (b - a).is_identical(APyFloatArray.from_float([-4, -15, -26], 9, 10))
+
+    z810 = APyFloat.from_float(0, 8, 10)
+    z98 = APyFloat.from_float(0, 9, 8)
+    assert (a - z810).is_identical(a)
+    assert (a - z98).is_identical(APyFloatArray.from_float([12, 23, 34], 9, 10))
 
 
 @pytest.mark.float_array
@@ -177,7 +189,6 @@ def test_array_div():
     b = APyFloatArray.from_float([1, 0.125, 2.5, 12], 5, 7)
     ans = APyFloatArray.from_float([3, -0.75, -5, 8], 6, 7)
     assert (a / b).is_identical(ans)
-    assert (a / b).is_identical(ans)
 
     a = APyFloatArray.from_float(
         [
@@ -204,7 +215,6 @@ def test_array_div():
         man_bits=8,
     )
     assert (a / b).is_identical(ans)
-    assert (a / b).is_identical(ans)
 
 
 @pytest.mark.float_array
@@ -212,7 +222,13 @@ def test_array_div_scalar():
     a = APyFloatArray.from_float([4, 12, 40], 9, 10)
     b = APyFloat.from_float(8, 9, 8)
     assert (a / b).is_identical(APyFloatArray.from_float([0.5, 1.5, 5], 9, 10))
-    assert (a / b).is_identical(APyFloatArray.from_float([0.5, 1.5, 5], 9, 10))
+
+
+@pytest.mark.float_array
+def test_array_rdiv_scalar():
+    a = APyFloatArray.from_float([4, 5, 32], 9, 10)
+    b = APyFloat.from_float(8, 5, 8)
+    assert (b / a).is_identical(APyFloatArray.from_float([2, 1.6, 0.25], 9, 10))
 
 
 @pytest.mark.float_array
@@ -226,7 +242,7 @@ def test_array_div_int_float():
 def test_transpose():
 
     # High-dimensional transor transposition not implemented
-    with pytest.raises(RuntimeError, match="Not implemented: high-dimensional"):
+    with pytest.raises(ValueError, match="Not implemented: high-dimensional"):
         APyFloatArray([[[1]]], [[[1]]], [[[1]]], 3, 3).T
 
     # 1-D transposition simply returns the input (just like NumPy-arrays)

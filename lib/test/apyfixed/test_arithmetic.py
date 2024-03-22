@@ -186,6 +186,13 @@ def test_unary_minus():
     assert (--a).is_identical(APyFixed(-3, 302, 4))
     assert not (-a)._is_negative
 
+    a = APyFixed(-3, 64, 5)
+    assert a._is_negative
+    assert not a._is_positive
+    assert (-a).is_identical(APyFixed(3, 65, 6))
+    assert (--a).is_identical(APyFixed(-3, 66, 7))
+    assert not (-a)._is_negative
+
 
 def test_abs():
     a = APyFixed(-3, 3, 2)
@@ -251,3 +258,17 @@ def test_prod():
         APyFixed.from_float(0.7, int_bits=4, frac_bits=7),
     ]
     assert math.prod(s).is_identical(APyFixed(900, bits=18, int_bits=6))
+
+
+def test_issue_198():
+    # Smoke test for hang:
+    # https://github.com/apytypes/apytypes/issues/198
+    a = APyFixed.from_float(0.37, 320, 160)
+    b = APyFixed.from_float(-1.54, 320, 160)
+    assert (a / b).is_identical(
+        APyFixed(
+            6243497100631984462763194459586332611497196285329942301718313919250743477639531240240612206126983591179650087934981576964032895475068432139224293,
+            bits=481,
+            int_bits=321,
+        )
+    )

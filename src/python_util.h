@@ -160,22 +160,25 @@
  * Convert a limb vector (`std::vector<mp_limb_t>`) to a Python long integer object
  * wrapped in a `Pybind11::int_`.
  */
+template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE nanobind::int_ python_limb_vec_to_long(
-    const std::vector<mp_limb_t>& vec,
+    RANDOM_ACCESS_ITERATOR begin,
+    RANDOM_ACCESS_ITERATOR end,
     bool vec_is_signed = false,
     std::optional<unsigned> bits_last_limb = std::nullopt
 )
 {
     // Guard for empty vectors
-    if (vec.size() == 0) {
+    auto size = std::distance(begin, end);
+    if (size <= 0) {
         return nanobind::steal<nanobind::int_>((PyObject*)PyLong_New(0));
     }
 
     // Extract sign of limb vector
-    bool sign = vec_is_signed ? mp_limb_signed_t(vec.back()) < 0 : false;
+    bool sign = vec_is_signed ? mp_limb_signed_t(*--end) < 0 : false;
 
     // Take absolute value of limb vector
-    std::vector<mp_limb_t> limb_vec_abs = vec;
+    std::vector<mp_limb_t> limb_vec_abs(begin, end);
     if (sign) {
         std::transform(
             limb_vec_abs.cbegin(),
@@ -197,7 +200,7 @@
 
     // Number of significant bits in the absolute value limb vector
     std::size_t significant_bits = _LIMB_SIZE_BITS * limb_vec_abs.size()
-        - limb_vector_leading_zeros(limb_vec_abs);
+        - limb_vector_leading_zeros(limb_vec_abs.begin(), limb_vec_abs.end());
 
     // Number of resulting Python digits in the Python long
     std::size_t python_digits
@@ -279,7 +282,7 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
     if (nb::isinstance<nb::str>(*first_element_it)) {
         // First element along this dimension is a string. We currently do not support
         // having strings sequence array structures
-        throw std::runtime_error(
+        throw std::domain_error(
             "python_sequence_extract_shape(): found string when extracting shape, "
             "which is currently unsupported"
         );
@@ -291,7 +294,7 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
         for (auto element : bit_pattern_sequence) {
             if (!nb::isinstance<nb::sequence>(element)) {
                 // Non-sequence detected along dimension of sequences
-                throw std::runtime_error("Inhomogeneous sequence shape");
+                throw std::domain_error("Inhomogeneous sequence shape");
             }
 
             recursive_shapes.push_back(
@@ -303,7 +306,7 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
         for (const auto& shape : recursive_shapes) {
             if (shape != recursive_shapes[0]) {
                 // Inhomogeneous detected
-                throw std::runtime_error("Inhomogeneous sequence shape");
+                throw std::domain_error("Inhomogeneous sequence shape");
             }
         }
 
@@ -320,7 +323,7 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
         for (auto element : bit_pattern_sequence) {
             if (nb::isinstance<nb::sequence>(element)) {
                 // Sequence detected along dimension of non-sequence
-                throw std::runtime_error("Inhomogeneous sequence shape");
+                throw std::domain_error("Inhomogeneous sequence shape");
             }
         }
 
@@ -335,7 +338,7 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
  * object (of type `<T>`, via `nb::cast<T>()`) and return them in a `std::vector<T>`.
  * The sequence is walked in a depth-first search manner. If any object in the sequence
  * `bit_pattern_sequence` does not match `<T>` or another Python sequence a
- * `std::runtime_error` exception to be raised.
+ * `std::domain_error` exception to be raised.
  */
 template <typename... PyTypes>
 [[maybe_unused]] static APY_INLINE std::vector<nanobind::object>
@@ -372,7 +375,7 @@ python_sequence_walk(const nanobind::sequence& py_seq)
                 nb::str type_string = nb::str(type);
                 nb::str repr = nb::repr(obj);
                 std::string repr_string = repr.c_str();
-                throw std::runtime_error(
+                throw std::domain_error(
                     std::string("Non <type>/sequence found when walking: '")
                     + repr_string + "' of type: '" + type_string.c_str()
                 );

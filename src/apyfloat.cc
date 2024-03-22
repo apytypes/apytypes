@@ -41,6 +41,33 @@ static constexpr std::size_t _EXP_LIMIT_BITS = _EXP_T_SIZE_BITS - 2;
  * **********************************************************************************
  */
 
+void APyFloat::create_in_place(
+    APyFloat* apyfloat,
+    int sign,
+    exp_t exp,
+    man_t man,
+    std::uint8_t exp_bits,
+    std::uint8_t man_bits,
+    std::optional<exp_t> bias
+)
+{
+    const exp_t ieee_bias = APyFloat::ieee_bias(exp_bits);
+    if (bias.has_value() && bias.value() != ieee_bias) {
+        print_warning("non 'ieee-like' biases are not sure to work yet.\n");
+    }
+
+    if (exp_bits > _EXP_LIMIT_BITS) {
+        throw nb::value_error("Too many bits for the exponent field.");
+    }
+
+    if (man_bits > _MAN_LIMIT_BITS) {
+        throw nb::value_error("Too many bits for the mantissa field.");
+    }
+
+    new (apyfloat)
+        APyFloat(sign, exp, man, exp_bits, man_bits, bias.value_or(ieee_bias));
+}
+
 APyFloat::APyFloat(
     bool sign,
     exp_t exp,
@@ -56,35 +83,6 @@ APyFloat::APyFloat(
     , exp(exp)
     , man(man)
 {
-    if (bias.has_value() && bias.value() != ieee_bias()) {
-        print_warning("non 'ieee-like' biases are not sure to work yet.\n");
-    }
-
-    if (exp_bits > _EXP_LIMIT_BITS) {
-        throw nb::value_error("Too many bits for the exponent field.");
-    }
-
-    if (man_bits > _MAN_LIMIT_BITS) {
-        throw nb::value_error("Too many bits for the mantissa field.");
-    }
-}
-APyFloat::APyFloat(
-    int sign,
-    exp_t exp,
-    man_t man,
-    std::uint8_t exp_bits,
-    std::uint8_t man_bits,
-    std::optional<exp_t> bias
-)
-    : APyFloat(bool(sign), exp, man, exp_bits, man_bits, bias)
-{
-    if (exp_bits > _EXP_LIMIT_BITS) {
-        throw nb::value_error("Too many bits for the exponent field.");
-    }
-
-    if (man_bits > _MAN_LIMIT_BITS) {
-        throw nb::value_error("Too many bits for the mantissa field.");
-    }
 }
 
 APyFloat::APyFloat(
@@ -127,23 +125,10 @@ APyFloat APyFloat::from_double(
     std::optional<QuantizationMode> quantization
 )
 {
-    APyFloat f(exp_bits, man_bits);
-    return f.update_from_double(value, quantization);
-}
-
-APyFloat&
-APyFloat::update_from_double(double value, std::optional<QuantizationMode> quantization)
-{
-
-    // Initialize an APyFloat from the double
     APyFloat apytypes_double(
-        sign_of_double(value), exp_of_double(value), man_of_double(value), 11, 52
+        sign_of_double(value), exp_of_double(value), man_of_double(value), 11, 52, 1023
     );
-
-    // Cast it to the correct format
-    *this = apytypes_double.cast(exp_bits, man_bits, bias, quantization);
-
-    return *this;
+    return apytypes_double.cast(exp_bits, man_bits, bias, quantization);
 }
 
 APyFloat APyFloat::resize(
@@ -426,7 +411,10 @@ nb::int_ APyFloat::to_bits() const
         higher |= sign << -high_sign_delta;
     }
 
-    return python_limb_vec_to_long({ lower, higher }, false, bits % (1 + exp_man_bits));
+    auto limb_vec = std::vector<mp_limb_t> { lower, higher };
+    return python_limb_vec_to_long(
+        limb_vec.begin(), limb_vec.end(), false, bits % (1 + exp_man_bits)
+    );
 }
 
 std::string APyFloat::str() const { return fmt::format("{:g}", to_double()); }
@@ -507,10 +495,22 @@ std::string APyFloat::latex() const
 
 APyFloat APyFloat::operator+(APyFloat y) const
 {
-    APyFloat x = *this;
-    APyFloat res(std::max(x.exp_bits, y.exp_bits), std::max(x.man_bits, y.man_bits));
+    auto res_exp_bits = std::max(exp_bits, y.exp_bits);
+    auto res_man_bits = std::max(man_bits, y.man_bits);
 
-    // Handle the NaN cases first, other special cases are further down
+    // Handle the zero cases, other special cases are further down
+    if (is_zero()) {
+        return y.cast_no_quant(res_exp_bits, res_man_bits);
+    }
+
+    if (y.is_zero()) {
+        return cast_no_quant(res_exp_bits, res_man_bits);
+    }
+
+    APyFloat x = *this;
+    APyFloat res(res_exp_bits, res_man_bits);
+
+    // Handle the NaN cases, other special cases are further down
     if (x.is_nan() || y.is_nan()
         || ((x.is_inf() && y.is_inf()) && (x.sign != y.sign))) {
         return res.construct_nan();
@@ -535,14 +535,6 @@ APyFloat APyFloat::operator+(APyFloat y) const
     // Handle other special cases
     if ((x.is_inf() || y.is_inf())) {
         return res.construct_inf();
-    }
-
-    if (x.is_zero()) {
-        return y.cast_no_quant(res.exp_bits, res.man_bits, res.bias);
-    }
-
-    if (y.is_zero()) {
-        return x.cast_no_quant(res.exp_bits, res.man_bits, res.bias);
     }
 
     std::int64_t new_exp = x.exp - x.bias + res.bias;
@@ -642,8 +634,8 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     }
 
     // Normalize both inputs
-    APyFloat norm_x = is_subnormal() ? normalized() : *this;
-    APyFloat norm_y = y.is_subnormal() ? y.normalized() : y;
+    APyFloat norm_x = normalized();
+    APyFloat norm_y = y.normalized();
 
     // Add leading one's
     man_t mx = norm_x.leading_bit() | norm_x.man;
@@ -655,7 +647,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
 
     int tmp_man_bits;
 
-    if (unsigned(norm_x.man_bits + norm_y.man_bits + 2) <= _MAN_T_SIZE_BITS) {
+    if (unsigned(norm_x.man_bits + norm_y.man_bits) + 2 <= _MAN_T_SIZE_BITS) {
         man_t new_man = mx * my;
         man_t one = 1ULL << (norm_x.man_bits + norm_y.man_bits);
         man_t two = one << 1;
@@ -680,9 +672,8 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         // This circumvents the check of the mantissa in the constructors.
         // TODO: handle this differently
         APyFloat larger_float(
-            res.sign, new_exp, new_man, tmp_exp_bits, 0, extended_bias
+            res.sign, new_exp, new_man, tmp_exp_bits, tmp_man_bits, extended_bias
         );
-        larger_float.man_bits = tmp_man_bits;
         return larger_float.cast(res.exp_bits, res.man_bits, res.bias);
 
     } else {
@@ -748,8 +739,8 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     }
 
     // Normalize both inputs
-    const APyFloat norm_x = is_subnormal() ? normalized() : *this;
-    const APyFloat norm_y = y.is_subnormal() ? y.normalized() : y;
+    const APyFloat norm_x = normalized();
+    const APyFloat norm_y = y.normalized();
 
     std::int64_t new_exp = ((std::int64_t)norm_x.exp - (std::int64_t)norm_x.bias)
         - ((std::int64_t)norm_y.exp - (std::int64_t)norm_y.bias)
@@ -1104,10 +1095,10 @@ bool APyFloat::operator>(const APyFloat& rhs) const
  */
 
 // True if and only if x is normal (not zero, subnormal, infinite, or NaN).
-bool APyFloat::is_normal() const { return is_finite() && !is_subnormal(); }
+bool APyFloat::is_normal() const { return exp != 0 && exp != max_exponent(); }
 
 // True if and only if x is zero, subnormal, or normal.
-bool APyFloat::is_finite() const { return is_subnormal() || exp != max_exponent(); }
+bool APyFloat::is_finite() const { return exp == 0 || exp != max_exponent(); }
 
 // True if and only if x is subnormal. Zero is also considered a subnormal
 // number.
@@ -1159,22 +1150,15 @@ APyFloat APyFloat::normalized() const
         true_exp--;
     }
 
-    APyFloat res;
-    res.man_bits = man_bits;
-    res.exp_bits = exp_bits + 1;
-    res.sign = sign;
-    res.bias = res.ieee_bias();
-    res.exp = true_exp + res.bias + 1;
-    res.man = new_man;
-
-    return res;
+    return APyFloat(sign, true_exp + 1, new_man, exp_bits + 1, man_bits);
 }
 
 int APyFloat::leading_zeros_apyfixed(APyFixed fx) const
 {
     int zeros = 0;
-    while (fx.to_double() < 1.0) {
-        fx = fx << 1;
+    auto tmp_fx = fx;
+    while (tmp_fx.to_double() < 1.0) {
+        tmp_fx <<= 1;
         zeros++;
     }
     return zeros;

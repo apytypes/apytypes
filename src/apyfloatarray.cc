@@ -6,6 +6,7 @@ namespace nb = nanobind;
 
 #include "apyfloat.h"
 #include "apyfloatarray.h"
+#include "ieee754.h"
 #include "python_util.h"
 #include <algorithm>
 #include <fmt/format.h>
@@ -79,24 +80,12 @@ APyFloatArray::APyFloatArray(
  * *                            Binary arithmetic operators                         * *
  * ********************************************************************************* */
 
-APyFloatArray APyFloatArray::perform_basic_arithmetic(
-    const APyFloatArray& rhs, ArithmeticOperation op
-) const
+APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
 {
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (shape != rhs.shape) {
-        std::string op_str;
-        if (op == ArithmeticOperation::ADDITION)
-            op_str = "add";
-        else if (op == ArithmeticOperation::SUBTRACTION)
-            op_str = "sub";
-        else if (op == ArithmeticOperation::MULTIPLICATION)
-            op_str = "mul";
-        else if (op == ArithmeticOperation::DIVISION)
-            op_str = "truediv";
         throw std::length_error(fmt::format(
-            "APyFloatArray.__{}__: shape missmatch, lhs.shape={}, rhs.shape={}",
-            op_str,
+            "APyFloatArray.__add__: shape missmatch, lhs.shape={}, rhs.shape={}",
             string_from_vec(shape),
             string_from_vec(rhs.shape)
         ));
@@ -114,34 +103,22 @@ APyFloatArray APyFloatArray::perform_basic_arithmetic(
         lhs_scalar.set_data(data[i]);
         rhs_scalar.set_data(rhs.data[i]);
 
-        if (op == ArithmeticOperation::ADDITION)
-            res.data[i] = (lhs_scalar + rhs_scalar).get_data();
-        else if (op == ArithmeticOperation::SUBTRACTION)
-            res.data[i] = (lhs_scalar - rhs_scalar).get_data();
-        else if (op == ArithmeticOperation::MULTIPLICATION)
-            res.data[i] = (lhs_scalar * rhs_scalar).get_data();
-        else if (op == ArithmeticOperation::DIVISION)
-            res.data[i] = (lhs_scalar / rhs_scalar).get_data();
-        else
-            throw NotImplementedException("Arithmetic operation not implemented yet");
+        res.data[i] = (lhs_scalar + rhs_scalar).get_data();
     }
 
     return res;
 }
 
-APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
-{
-    return perform_basic_arithmetic(rhs, ArithmeticOperation::ADDITION);
-}
-
 APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
 {
+    auto new_exp_bits = std::max(exp_bits, rhs.get_exp_bits());
+    auto new_man_bits = std::max(man_bits, rhs.get_man_bits());
+    if (rhs.is_zero()) {
+        return cast_no_quant(new_exp_bits, new_man_bits);
+    }
+
     // Calculate new format
-    APyFloatArray res(
-        shape,
-        std::max(exp_bits, rhs.get_exp_bits()),
-        std::max(man_bits, rhs.get_man_bits())
-    );
+    APyFloatArray res(shape, new_exp_bits, new_man_bits);
 
     APyFloat lhs_scalar(exp_bits, man_bits, bias);
     // Perform operations
@@ -155,17 +132,43 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
 
 APyFloatArray APyFloatArray::operator-(const APyFloatArray& rhs) const
 {
-    return perform_basic_arithmetic(rhs, ArithmeticOperation::SUBTRACTION);
+    // Make sure `_shape` of `*this` and `rhs` are the same
+    if (shape != rhs.shape) {
+        throw std::length_error(fmt::format(
+            "APyFloatArray.__sub__: shape missmatch, lhs.shape={}, rhs.shape={}",
+            string_from_vec(shape),
+            string_from_vec(rhs.shape)
+        ));
+    }
+
+    // Calculate new format
+    APyFloatArray res(
+        shape, std::max(exp_bits, rhs.exp_bits), std::max(man_bits, rhs.man_bits)
+    );
+
+    APyFloat lhs_scalar(exp_bits, man_bits, bias);
+    APyFloat rhs_scalar(rhs.exp_bits, rhs.man_bits, rhs.bias);
+    // Perform operation
+    for (std::size_t i = 0; i < data.size(); i++) {
+        lhs_scalar.set_data(data[i]);
+        rhs_scalar.set_data(rhs.data[i]);
+
+        res.data[i] = (lhs_scalar - rhs_scalar).get_data();
+    }
+
+    return res;
 }
 
 APyFloatArray APyFloatArray::operator-(const APyFloat& rhs) const
 {
+    auto new_exp_bits = std::max(exp_bits, rhs.get_exp_bits());
+    auto new_man_bits = std::max(man_bits, rhs.get_man_bits());
+    if (rhs.is_zero()) {
+        return cast_no_quant(new_exp_bits, new_man_bits);
+    }
+
     // Calculate new format
-    APyFloatArray res(
-        shape,
-        std::max(exp_bits, rhs.get_exp_bits()),
-        std::max(man_bits, rhs.get_man_bits())
-    );
+    APyFloatArray res(shape, new_exp_bits, new_man_bits);
 
     APyFloat lhs_scalar(exp_bits, man_bits, bias);
     // Perform operations
@@ -197,7 +200,31 @@ APyFloatArray APyFloatArray::abs() const
 
 APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
 {
-    return perform_basic_arithmetic(rhs, ArithmeticOperation::MULTIPLICATION);
+    // Make sure `_shape` of `*this` and `rhs` are the same
+    if (shape != rhs.shape) {
+        throw std::length_error(fmt::format(
+            "APyFloatArray.__mul__: shape missmatch, lhs.shape={}, rhs.shape={}",
+            string_from_vec(shape),
+            string_from_vec(rhs.shape)
+        ));
+    }
+
+    // Calculate new format
+    APyFloatArray res(
+        shape, std::max(exp_bits, rhs.exp_bits), std::max(man_bits, rhs.man_bits)
+    );
+
+    APyFloat lhs_scalar(exp_bits, man_bits, bias);
+    APyFloat rhs_scalar(rhs.exp_bits, rhs.man_bits, rhs.bias);
+    // Perform operation
+    for (std::size_t i = 0; i < data.size(); i++) {
+        lhs_scalar.set_data(data[i]);
+        rhs_scalar.set_data(rhs.data[i]);
+
+        res.data[i] = (lhs_scalar * rhs_scalar).get_data();
+    }
+
+    return res;
 }
 
 APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
@@ -221,7 +248,31 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
 
 APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
 {
-    return perform_basic_arithmetic(rhs, ArithmeticOperation::DIVISION);
+    // Make sure `_shape` of `*this` and `rhs` are the same
+    if (shape != rhs.shape) {
+        throw std::length_error(fmt::format(
+            "APyFloatArray.__truediv__: shape missmatch, lhs.shape={}, rhs.shape={}",
+            string_from_vec(shape),
+            string_from_vec(rhs.shape)
+        ));
+    }
+
+    // Calculate new format
+    APyFloatArray res(
+        shape, std::max(exp_bits, rhs.exp_bits), std::max(man_bits, rhs.man_bits)
+    );
+
+    APyFloat lhs_scalar(exp_bits, man_bits, bias);
+    APyFloat rhs_scalar(rhs.exp_bits, rhs.man_bits, rhs.bias);
+    // Perform operation
+    for (std::size_t i = 0; i < data.size(); i++) {
+        lhs_scalar.set_data(data[i]);
+        rhs_scalar.set_data(rhs.data[i]);
+
+        res.data[i] = (lhs_scalar / rhs_scalar).get_data();
+    }
+
+    return res;
 }
 
 APyFloatArray APyFloatArray::operator/(const APyFloat& rhs) const
@@ -238,6 +289,25 @@ APyFloatArray APyFloatArray::operator/(const APyFloat& rhs) const
     for (std::size_t i = 0; i < data.size(); i++) {
         lhs_scalar.set_data(data[i]);
         res.data[i] = (lhs_scalar / rhs).get_data();
+    }
+
+    return res;
+}
+
+APyFloatArray APyFloatArray::rtruediv(const APyFloat& lhs) const
+{
+    // Calculate new format
+    APyFloatArray res(
+        shape,
+        std::max(exp_bits, lhs.get_exp_bits()),
+        std::max(man_bits, lhs.get_man_bits())
+    );
+
+    APyFloat rhs_scalar(exp_bits, man_bits, bias);
+    // Perform operations
+    for (std::size_t i = 0; i < data.size(); i++) {
+        rhs_scalar.set_data(data[i]);
+        res.data[i] = (lhs / rhs_scalar).get_data();
     }
 
     return res;
@@ -384,6 +454,27 @@ APyFloatArray APyFloatArray::from_double(
         );
     }
 
+    auto quantization_mode = quantization.value_or(get_quantization_mode());
+
+    if (nb::isinstance<nb::ndarray<nb::numpy>>(double_seq)) {
+        // Sequence is NumPy NDArray. Initialize using `_set_values_from_numpy_ndarray`
+        auto ndarray = nb::cast<nb::ndarray<nb::numpy>>(double_seq);
+        std::size_t ndim = ndarray.ndim();
+        if (ndim == 0) {
+            throw nb::type_error(
+                "APyFixedArray.from_float(): NDArray with ndim == 0 not supported"
+            );
+        }
+        std::vector<std::size_t> shape(ndim, 0);
+        for (std::size_t i = 0; i < ndim; i++) {
+            shape[i] = ndarray.shape(i);
+        }
+
+        APyFloatArray result(shape, exp_bits, man_bits, bias);
+        result._set_values_from_numpy_ndarray(ndarray, quantization_mode);
+        return result;
+    }
+
     APyFloatArray result(
         python_sequence_extract_shape(double_seq), exp_bits, man_bits, bias
     );
@@ -399,16 +490,62 @@ APyFloatArray APyFloatArray::from_double(
         } else {
             throw std::domain_error("Invalid Python objects in sequence");
         }
-        const auto fp = APyFloat::from_double(
-            d,
-            exp_bits,
-            man_bits,
-            result.bias,
-            quantization.value_or(get_quantization_mode())
+        APyFloat apytypes_double(
+            sign_of_double(d), exp_t(exp_of_double(d)), man_of_double(d), 11, 52
         );
+        APyFloat fp = apytypes_double.cast(exp_bits, man_bits, bias, quantization_mode);
         result.data[i] = { fp.get_sign(), fp.get_exp(), fp.get_man() };
     }
     return result;
+}
+
+void APyFloatArray::_set_values_from_numpy_ndarray(
+    const nb::ndarray<nb::numpy>& ndarray, QuantizationMode quantization
+)
+{
+    // Double value used for converting.
+    APyFloat double_caster(11, 52, 1023);
+
+#define CHECK_AND_SET_VALUES_FROM_NPTYPE(__TYPE__)                                     \
+    do {                                                                               \
+        if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
+            auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
+            for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
+                double value = static_cast<double>(ndarray_view.data()[i]);            \
+                double_caster.set_data({ sign_of_double(value),                        \
+                                         exp_t(exp_of_double(value)),                  \
+                                         man_of_double(value) });                      \
+                APyFloat fp                                                            \
+                    = double_caster.cast(exp_bits, man_bits, bias, quantization);      \
+                data[i] = { fp.get_sign(), fp.get_exp(), fp.get_man() };               \
+            }                                                                          \
+            return; /* Conversion completed, exit function */                          \
+        }                                                                              \
+    } while (0)
+
+    // Each `CHECK_AND_SET_VALUES_FROM_NPTYPE` checks the dtype of `ndarray` and
+    // converts all the data if it matches. If successful,
+    // `CHECK_AND_SET_VALUES_FROM_NPTYPES` returns. Otherwise, the next attemted
+    // conversion will take place
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(double);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(float);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int64_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int32_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int16_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int8_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint64_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint32_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint16_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint8_t);
+
+    // None of the `CHECK_AND_VALUES_FROM_NPTYPE` succeeded. Unsupported type, throw
+    // an error. If possible, it would be nice to show a string representation of
+    // the `dtype`. Seems hard to achieve with nanobind, but please fix this if you
+    // find out how this can be achieved.
+    throw nb::type_error(
+        "APyFixedArray::_set_values_from_numpy_ndarray(): "
+        "unsupported `dtype` expecting integer/float"
+    );
 }
 
 APyFloatArray APyFloatArray::transpose() const

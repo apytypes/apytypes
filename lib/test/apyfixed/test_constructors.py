@@ -98,6 +98,7 @@ def test_string_construction():
     assert APyFixed.from_str("512", 10, 10).to_bits() == 0x200
     assert APyFixed.from_str("-511", 10, 10).to_bits() == 0x201
     assert APyFixed.from_str("-512", 10, 10).to_bits() == 0x200
+    assert APyFixed.from_str("512", 10, 14).to_bits() == 0x20
 
     fx_a = APyFixed.from_str(
         "28948022309329048855892746252171976963317496166410141009892066118088846737408",
@@ -126,6 +127,9 @@ def test_string_construction():
         "257136662269306798708182072507551281664490003441493733349403017982015"
         "56238154807942919433116912841796875"
     )
+
+    with pytest.raises(ValueError, match="Not a valid decimal numeric string"):
+        APyFixed.from_str("Foo", 4, 4)
 
 
 def test_incorrect_double_construction():

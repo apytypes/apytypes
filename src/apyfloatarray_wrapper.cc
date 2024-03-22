@@ -228,6 +228,11 @@ void bind_float_array(nb::module_& m)
             [](const APyFloatArray& a, APyFloat& b) { return a / b; },
             nb::is_operator()
         )
+        .def(
+            "__rtruediv__",
+            [](const APyFloatArray& a, APyFloat& b) { return a.rtruediv(b); },
+            nb::is_operator()
+        )
         .def("__abs__", &APyFloatArray::abs)
 
         /*
@@ -243,6 +248,14 @@ void bind_float_array(nb::module_& m)
 
         .def_prop_ro("man_bits", &APyFloatArray::get_man_bits, R"pbdoc(
             Number of mantissa bits.
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc")
+
+        .def_prop_ro("bits", &APyFloat::get_bits, R"pbdoc(
+            Total number of bits.
 
             Returns
             -------

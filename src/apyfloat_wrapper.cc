@@ -9,31 +9,11 @@ void bind_float(nb::module_& m)
 {
     nb::class_<APyFloat>(m, "APyFloat")
         /*
-         * Constructors
+         * Constructor
          */
         .def(
-            nb::init<
-                bool,
-                exp_t,
-                man_t,
-                std::uint8_t,
-                std::uint8_t,
-                std::optional<exp_t>>(),
-            nb::arg("sign"),
-            nb::arg("exp"),
-            nb::arg("man"),
-            nb::arg("exp_bits"),
-            nb::arg("man_bits"),
-            nb::arg("bias") = nb::none()
-        )
-        .def(
-            nb::init<
-                int,
-                exp_t,
-                man_t,
-                std::uint8_t,
-                std::uint8_t,
-                std::optional<exp_t>>(),
+            "__init__",
+            &APyFloat::create_in_place,
             nb::arg("sign"),
             nb::arg("exp"),
             nb::arg("man"),
@@ -350,9 +330,34 @@ void bind_float(nb::module_& m)
         .def_prop_ro("sign", &APyFloat::get_sign)
         .def_prop_ro("man", &APyFloat::get_man)
         .def_prop_ro("exp", &APyFloat::get_exp)
-        .def_prop_ro("bias", &APyFloat::get_bias)
-        .def_prop_ro("man_bits", &APyFloat::get_man_bits)
-        .def_prop_ro("exp_bits", &APyFloat::get_exp_bits)
+        .def_prop_ro("bias", &APyFloat::get_bias, R"pbdoc(
+            Exponent bias.
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc")
+        .def_prop_ro("man_bits", &APyFloat::get_man_bits, R"pbdoc(
+            Number of mantissa bits.
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc")
+        .def_prop_ro("exp_bits", &APyFloat::get_exp_bits, R"pbdoc(
+            Number of exponent bits.
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc")
+        .def_prop_ro("bits", &APyFloat::get_bits, R"pbdoc(
+            Total number of bits.
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc")
 
         /*
          * Convenience methods
