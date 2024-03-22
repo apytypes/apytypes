@@ -29,10 +29,24 @@ public:
         std::optional<exp_t> bias = std::nullopt
     );
     APyFloat(
+        bool sign,
+        exp_t exp,
+        man_t man,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        exp_t bias
+    );
+    APyFloat(
         const APyFloatData& data,
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
+    );
+    APyFloat(
+        const APyFloatData& data,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        exp_t bias
     );
     APyFloat(
         std::uint8_t exp_bits,
@@ -91,7 +105,7 @@ public:
     APyFloat
     cast_from_double(std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias) const;
 
-    APyFloat _cast_to_double(QuantizationMode quantization) const;
+    APyFloat _cast_to_double() const;
 
     APyFloat resize(
         std::uint8_t exp_bits,

@@ -479,7 +479,7 @@ APyFloatArray APyFloatArray::from_double(
 
     auto py_obj = python_sequence_walk<nb::float_, nb::int_>(double_seq);
 
-    APyFloat apytypes_double(11, 52);
+    APyFloat apytypes_double(11, 52, 1023);
     auto actual_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
     for (std::size_t i = 0; i < result.data.size(); i++) {
         double d;
@@ -759,23 +759,23 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
 APyFloatArray APyFloatArray::cast_to_double(std::optional<QuantizationMode> quantization
 ) const
 {
-    return cast(11, 52, std::nullopt, quantization);
+    return cast(11, 52, 1023, quantization);
 }
 
 APyFloatArray APyFloatArray::cast_to_single(std::optional<QuantizationMode> quantization
 ) const
 {
-    return cast(8, 23, std::nullopt, quantization);
+    return cast(8, 23, 127, quantization);
 }
 
 APyFloatArray APyFloatArray::cast_to_half(std::optional<QuantizationMode> quantization
 ) const
 {
-    return cast(5, 10, std::nullopt, quantization);
+    return cast(5, 10, 15, quantization);
 }
 
 APyFloatArray
 APyFloatArray::cast_to_bfloat16(std::optional<QuantizationMode> quantization) const
 {
-    return cast(8, 7, std::nullopt, quantization);
+    return cast(8, 7, 127, quantization);
 }
