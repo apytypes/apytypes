@@ -84,13 +84,11 @@ public:
         const nanobind::sequence& double_seq,
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
-        std::optional<exp_t> bias = std::nullopt,
-        std::optional<QuantizationMode> quantization = std::nullopt
+        std::optional<exp_t> bias = std::nullopt
     );
 
-    void _set_values_from_numpy_ndarray(
-        const nanobind::ndarray<nanobind::numpy>& ndarray, QuantizationMode quantization
-    );
+    void
+    _set_values_from_numpy_ndarray(const nanobind::ndarray<nanobind::numpy>& ndarray);
 
     //! Transposition function. For a 1-D array, returns an exact copy of `*this`. For
     //! a 2-D array, returns the matrix transposition of `*this`.

@@ -121,14 +121,13 @@ APyFloat APyFloat::from_double(
     double value,
     std::uint8_t exp_bits,
     std::uint8_t man_bits,
-    std::optional<exp_t> bias,
-    std::optional<QuantizationMode> quantization
+    std::optional<exp_t> bias
 )
 {
     APyFloat apytypes_double(
         sign_of_double(value), exp_of_double(value), man_of_double(value), 11, 52, 1023
     );
-    return apytypes_double.cast(exp_bits, man_bits, bias, quantization);
+    return apytypes_double.cast(exp_bits, man_bits, bias, QuantizationMode::RND_CONV);
 }
 
 APyFloat APyFloat::resize(
@@ -209,6 +208,11 @@ APyFloat APyFloat::cast(
         T = (prev_man & ((1ULL << (bits_to_discard - 1)) - 1)) != 0;
 
         switch (quantization.value_or(get_quantization_mode())) {
+        case QuantizationMode::RND_CONV: // TIES_TO_EVEN
+            // Using 'new_man' directly here is fine since G can only be '0' or '1',
+            // thus calculating the LSB of 'new_man' is not needed.
+            B = G & (new_man | T);
+            break;
         case QuantizationMode::TRN_INF: // TO_POSITIVE
             B = sign ? 0 : (G | T);
             break;
@@ -217,11 +221,6 @@ APyFloat APyFloat::cast(
             break;
         case QuantizationMode::TRN_ZERO: // TO_ZERO
             B = 0;
-            break;
-        case QuantizationMode::RND_CONV: // TIES_TO_EVEN
-            // Using 'new_man' directly here is fine since G can only be '0' or '1',
-            // thus calculating the LSB of 'new_man' is not needed.
-            B = G & (new_man | T);
             break;
         case QuantizationMode::RND_INF: // TIES_TO_AWAY
             B = G;
@@ -351,7 +350,7 @@ APyFloat::translate_quantization_mode(QuantizationMode quantization, bool sign)
 
 double APyFloat::to_double() const
 {
-    const auto apytypes_d = cast(11, 52);
+    const auto apytypes_d = cast(11, 52, 1023);
     double d {};
     set_sign_of_double(d, apytypes_d.sign);
     set_exp_of_double(d, apytypes_d.exp);

@@ -458,43 +458,6 @@ class TestAPyFloatQuantization:
                 break
 
 
-# Floating-point divison is implemented quite differently and should therefore be tested seperately
-@pytest.mark.float_div
-@pytest.mark.parametrize("a", [14, 20])
-@pytest.mark.parametrize("b", [14, 20])
-@pytest.mark.parametrize("sign", [1, -1])
-class TestAPyFloatQuantizationDiv:
-    def test_to_pos(self, a, b, sign):
-        with QuantizationContext(QuantizationMode.TO_POS):
-            assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
-                b, 5, 5
-            ) == APyFloat.from_float(sign * a / b, 5, 5)
-
-    def test_to_neg(self, a, b, sign):
-        with QuantizationContext(QuantizationMode.TO_NEG):
-            assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
-                b, 5, 5
-            ) == APyFloat.from_float(sign * a / b, 5, 5)
-
-    def test_to_zero(self, a, b, sign):
-        with QuantizationContext(QuantizationMode.TO_ZERO):
-            assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
-                b, 5, 5
-            ) == APyFloat.from_float(sign * a / b, 5, 5)
-
-    def test_to_ties_even(self, a, b, sign):
-        with QuantizationContext(QuantizationMode.TIES_EVEN):
-            assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
-                b, 5, 5
-            ) == APyFloat.from_float(sign * a / b, 5, 5)
-
-    def test_to_ties_away(self, a, b, sign):
-        with QuantizationContext(QuantizationMode.TIES_AWAY):
-            assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
-                b, 5, 5
-            ) == APyFloat.from_float(sign * a / b, 5, 5)
-
-
 def test_convenience_cast():
     a = APyFloat.from_float(1 / 7, 20, 60)
     assert a.man_bits == 60

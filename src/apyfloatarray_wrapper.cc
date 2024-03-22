@@ -315,7 +315,6 @@ void bind_float_array(nb::module_& m)
             nb::arg("exp_bits") = nb::none(),
             nb::arg("man_bits") = nb::none(),
             nb::arg("bias") = nb::none(),
-            nb::arg("quantization") = nb::none(),
             R"pbdoc(
             Create an :class:`APyFloatArray` object from a sequence of :class:`float`.
 
@@ -330,9 +329,6 @@ void bind_float_array(nb::module_& m)
                 Number of mantissa bits in the created fixed-point tensor
             bias : int, optional
                 Bias in the created fixed-point tensor
-            quantization : :class:`QuantizationMode`, optional
-                Quantization mode to use. If not provided, the global mode,
-                see :func:`get_quantization_mode`, is used.
 
             Returns
             -------
