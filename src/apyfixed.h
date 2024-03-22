@@ -184,11 +184,14 @@ public:
     //! Retrieve leading zeros
     std::size_t leading_zeros() const;
 
+    //! Retrieve leading ones
+    std::size_t leading_ones() const;
+
     //! Retrieve leading fractional zeros
     std::size_t leading_fractional_zeros() const;
 
-    //! Retrieve leading sign
-    std::size_t leading_sign() const;
+    //! Retrieve leading signs
+    std::size_t leading_signs() const;
 
     /* ****************************************************************************** *
      *                           Conversion to other types                            *

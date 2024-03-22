@@ -255,8 +255,8 @@ void bind_fixed(nb::module_& m)
             )pbdoc"
         )
         .def(
-            "leading_sign",
-            &APyFixed::leading_sign,
+            "leading_signs",
+            &APyFixed::leading_signs,
             R"pbdoc(
             Retrieve the number of leading signs.
 

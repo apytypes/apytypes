@@ -5,6 +5,7 @@
 #ifndef _APYTYPES_UTIL_H
 #define _APYTYPES_UTIL_H
 
+#include <iostream>
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 
@@ -82,7 +83,7 @@ significant_limbs(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
 
 //! Quickly perform `1 + ceil(log2(x))` for unsigned integer (`mp_limb_t`) `x` if
 //! `x` is non-zero and return the value. If `x` is zero, return zero.
-[[maybe_unused]] static APY_INLINE std::size_t bit_width(mp_limb_t x)
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t bit_width(mp_limb_t x)
 {
     // Optimized on x86-64 using single `bsr` instruction since GCC-13.1
     std::size_t result = 0;
@@ -93,6 +94,45 @@ significant_limbs(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
     return result;
 }
 
+//! Compute the number of leading zeros in a single limb
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t leading_zeros(mp_limb_t n)
+{
+    std::cout << "leading_zeros of: " << n << std::endl;
+    if (n == 0) {
+        return _LIMB_SIZE_BITS;
+    } else {
+        std::size_t zeros = 0;
+        while (mp_limb_signed_t(n) > 0) {
+            n <<= 1;
+            zeros++;
+        }
+        return zeros;
+    }
+}
+
+//! Compute the number of leading ones in a single limb
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t leading_ones(mp_limb_t n)
+{
+    std::cout << "leading_ones of: " << n << std::endl;
+    if (n == 0) {
+        return 0;
+    } else {
+        std::size_t ones = 0;
+        while (mp_limb_signed_t(n) < 0) {
+            n <<= 1;
+            ones++;
+        }
+        return ones;
+    }
+}
+
+//! Compute the number of leading signs in a single limb
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t leading_signs(mp_limb_t n)
+{
+    return mp_limb_signed_t(n) < 0 ? leading_ones(n) : leading_zeros(n);
+}
+
+//! Retrieve the number of leading zeros of a limb vector
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t
 limb_vector_leading_zeros(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
@@ -102,18 +142,32 @@ limb_vector_leading_zeros(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR e
         std::reverse_iterator(end), std::reverse_iterator(begin), is_non_zero
     );
     std::size_t zero_limbs = std::distance(rev_non_zero_it.base(), end);
-    if (rev_non_zero_it != std::reverse_iterator(begin)) {
-        return _LIMB_SIZE_BITS * (zero_limbs + 1) - bit_width(*rev_non_zero_it);
-    } else {
+    if (rev_non_zero_it.base() == begin) {
+        // All limbs are zero limbs
         return _LIMB_SIZE_BITS * zero_limbs;
+    } else {
+        // Some of the limbs is non-zero
+        // return _LIMB_SIZE_BITS * (zero_limbs + 1) - bit_width(*rev_non_zero_it);
+        return _LIMB_SIZE_BITS * zero_limbs + leading_zeros(*rev_non_zero_it);
     }
 }
 
+//! Retrieve the number of leading signs of a limb vector, minus one.
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t
-limb_vector_leading_sign(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
+limb_vector_leading_ones(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
 {
-    throw NotImplementedException();
+    auto is_not_all_ones = [](auto n) { return n != mp_limb_t(-1); };
+    auto rev_not_all_ones_it = std::find_if(
+        std::reverse_iterator(end), std::reverse_iterator(begin), is_not_all_ones
+    );
+    std::size_t all_ones_limbs = std::distance(rev_not_all_ones_it.base(), end);
+    if (rev_not_all_ones_it.base() == begin) {
+        // All limbs are ones limbs
+        return _LIMB_SIZE_BITS * all_ones_limbs;
+    } else {
+        return _LIMB_SIZE_BITS * all_ones_limbs + leading_ones(*rev_not_all_ones_it);
+    }
 }
 
 //! Quickly count the number of nibbles in an unsigned `mp_limb_t`
