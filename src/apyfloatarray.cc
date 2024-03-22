@@ -421,7 +421,7 @@ nb::ndarray<nb::numpy, double> APyFloatArray::to_numpy() const
     auto apy_f = APyFloat(exp_bits, man_bits, bias);
     for (std::size_t i = 0; i < fold_shape(); i++) {
         apy_f.set_data(data[i]);
-        result_data[i] = double(apy_f);
+        result_data[i] = apy_f.to_double();
     }
 
     // Delete 'data' when the 'owner' capsule expires
