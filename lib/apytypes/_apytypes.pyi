@@ -262,6 +262,33 @@ class APyFixed:
             assert not(fx_a.is_identical(fx_b))
         """
 
+    def leading_fractional_zeros(self) -> int:
+        """
+        Retrieve the number of leading zeros after the binary fixed-point.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    def leading_sign(self) -> int:
+        """
+        Retrieve the number of leading signs, minus one.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    def leading_zeros(self) -> int:
+        """
+        Retrieve the number of leading zeros.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
     def resize(
         self,
         bits: int | None = None,

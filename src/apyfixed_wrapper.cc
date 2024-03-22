@@ -232,6 +232,39 @@ void bind_fixed(nb::module_& m)
         )
         .def_prop_ro("_vector_size", &APyFixed::vector_size)
         .def("_repr_latex_", &APyFixed::latex)
+        .def(
+            "leading_zeros",
+            &APyFixed::leading_zeros,
+            R"pbdoc(
+            Retrieve the number of leading zeros.
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc"
+        )
+        .def(
+            "leading_fractional_zeros",
+            &APyFixed::leading_fractional_zeros,
+            R"pbdoc(
+            Retrieve the number of leading zeros after the binary fixed-point.
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc"
+        )
+        .def(
+            "leading_sign",
+            &APyFixed::leading_sign,
+            R"pbdoc(
+            Retrieve the number of leading signs.
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc"
+        )
 
         /*
          * Dunder methods

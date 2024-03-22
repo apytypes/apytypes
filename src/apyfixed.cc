@@ -819,6 +819,24 @@ bool APyFixed::is_identical(const APyFixed& other) const
     return bits() == other.bits() && int_bits() == other.int_bits() && *this == other;
 }
 
+std::size_t APyFixed::leading_zeros() const
+{
+    std::size_t leading_zeros = limb_vector_leading_zeros(_data.begin(), _data.end());
+    if (leading_zeros == 0) {
+        return 0;
+    } else {
+        std::size_t utilized_bits_last_limb = ((bits() - 1) % _LIMB_SIZE_BITS) + 1;
+        return leading_zeros - (_LIMB_SIZE_BITS - utilized_bits_last_limb);
+    }
+}
+
+std::size_t APyFixed::leading_fractional_zeros() const
+{
+    throw NotImplementedException();
+}
+
+std::size_t APyFixed::leading_sign() const { throw NotImplementedException(); }
+
 /* ********************************************************************************** *
  * *                           Static member functions                              * *
  * ********************************************************************************** */

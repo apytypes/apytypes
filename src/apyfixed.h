@@ -181,6 +181,15 @@ public:
     //! same number of integer bits, and the same number of fractional bits
     bool is_identical(const APyFixed& other) const;
 
+    //! Retrieve leading zeros
+    std::size_t leading_zeros() const;
+
+    //! Retrieve leading fractional zeros
+    std::size_t leading_fractional_zeros() const;
+
+    //! Retrieve leading sign
+    std::size_t leading_sign() const;
+
     /* ****************************************************************************** *
      *                           Conversion to other types                            *
      * ****************************************************************************** */
@@ -390,8 +399,8 @@ private:
         OverflowMode overflow
     ) const;
 
-    // Perform two's complement overflowing. This method sign-extends any bits outside
-    // of the APyFixed range.
+    //! Perform two's complement overflowing. This method sign-extends any bits outside
+    //! of the APyFixed range.
     template <class RANDOM_ACCESS_ITERATOR>
     void _twos_complement_overflow(
         RANDOM_ACCESS_ITERATOR it_begin,

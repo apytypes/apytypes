@@ -109,6 +109,13 @@ limb_vector_leading_zeros(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR e
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR>
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t
+limb_vector_leading_sign(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
+{
+    throw NotImplementedException();
+}
+
 //! Quickly count the number of nibbles in an unsigned `mp_limb_t`
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t nibble_width(mp_limb_t x)
 {
