@@ -91,6 +91,8 @@ public:
     APyFloat
     cast_from_double(std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias) const;
 
+    APyFloat _cast_to_double(QuantizationMode quantization) const;
+
     APyFloat resize(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
