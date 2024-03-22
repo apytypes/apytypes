@@ -837,14 +837,47 @@ std::size_t APyFixed::leading_ones() const
     if (leading_ones == 0) {
         return 0;
     } else {
-        std::size_t utilized_bits_last_limb = ((bits() - 1) % _LIMB_SIZE_BITS) + 1;
+        std::size_t utilized_bits_last_limb = (bits() - 1) % _LIMB_SIZE_BITS + 1;
         return leading_ones - (_LIMB_SIZE_BITS - utilized_bits_last_limb);
     }
 }
 
 std::size_t APyFixed::leading_fractional_zeros() const
 {
-    throw NotImplementedException();
+    int frac_bits = bits() - int_bits();
+    if (frac_bits <= 0) {
+        return 0; // early return
+    }
+
+    std::size_t utilized_full_frac_limbs = frac_bits / _LIMB_SIZE_BITS;
+    std::size_t utilized_frac_bits_last_limb = frac_bits % _LIMB_SIZE_BITS;
+    std::cout << "Utilized full frac limbs: " << utilized_full_frac_limbs << std::endl;
+    std::cout << "Utilized frac bits last limb: " << utilized_frac_bits_last_limb
+              << std::endl;
+
+    std::size_t leading_frac_bits_full_limbs = limb_vector_leading_zeros(
+        _data.begin(), _data.begin() + utilized_full_frac_limbs
+    );
+
+    std::size_t leading_frac_bits_last_limb = 0;
+    if (utilized_frac_bits_last_limb) {
+        mp_limb_t mask = (1 << utilized_frac_bits_last_limb) - 1;
+        mp_limb_t limb = _data[utilized_full_frac_limbs];
+        limb &= mask;
+        leading_frac_bits_last_limb
+            = ::leading_zeros(limb) - (_LIMB_SIZE_BITS - utilized_frac_bits_last_limb);
+    }
+
+    std::cout << "leading_frac_bits_full_limbs: " << leading_frac_bits_full_limbs
+              << std::endl;
+    std::cout << "leading_frac_bits_last_limb: " << leading_frac_bits_last_limb
+              << std::endl;
+
+    if (leading_frac_bits_last_limb != utilized_frac_bits_last_limb) {
+        return leading_frac_bits_last_limb;
+    } else {
+        return leading_frac_bits_last_limb + leading_frac_bits_full_limbs;
+    }
 }
 
 std::size_t APyFixed::leading_signs() const

@@ -5,7 +5,6 @@
 #ifndef _APYTYPES_UTIL_H
 #define _APYTYPES_UTIL_H
 
-#include <iostream>
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 
@@ -97,7 +96,6 @@ significant_limbs(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
 //! Compute the number of leading zeros in a single limb
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t leading_zeros(mp_limb_t n)
 {
-    std::cout << "leading_zeros of: " << n << std::endl;
     if (n == 0) {
         return _LIMB_SIZE_BITS;
     } else {
@@ -113,7 +111,6 @@ significant_limbs(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
 //! Compute the number of leading ones in a single limb
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t leading_ones(mp_limb_t n)
 {
-    std::cout << "leading_ones of: " << n << std::endl;
     if (n == 0) {
         return 0;
     } else {
@@ -124,12 +121,6 @@ significant_limbs(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
         }
         return ones;
     }
-}
-
-//! Compute the number of leading signs in a single limb
-[[maybe_unused, nodiscard]] static APY_INLINE std::size_t leading_signs(mp_limb_t n)
-{
-    return mp_limb_signed_t(n) < 0 ? leading_ones(n) : leading_zeros(n);
 }
 
 //! Retrieve the number of leading zeros of a limb vector
@@ -147,7 +138,6 @@ limb_vector_leading_zeros(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR e
         return _LIMB_SIZE_BITS * zero_limbs;
     } else {
         // Some of the limbs is non-zero
-        // return _LIMB_SIZE_BITS * (zero_limbs + 1) - bit_width(*rev_non_zero_it);
         return _LIMB_SIZE_BITS * zero_limbs + leading_zeros(*rev_non_zero_it);
     }
 }
