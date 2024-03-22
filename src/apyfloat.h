@@ -59,8 +59,7 @@ public:
         double value,
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
-        std::optional<exp_t> bias = std::nullopt,
-        std::optional<QuantizationMode> quantization = std::nullopt
+        std::optional<exp_t> bias = std::nullopt
     );
     double to_double() const;
     operator double() const;

@@ -32,7 +32,6 @@ void bind_float(nb::module_& m)
             nb::arg("exp_bits"),
             nb::arg("man_bits"),
             nb::arg("bias") = nb::none(),
-            nb::arg("quantization") = nb::none(),
             R"pbdoc(
             Create an :class:`APyFloat` object from a :class:`float`.
 
@@ -46,9 +45,6 @@ void bind_float(nb::module_& m)
                 Number of mantissa bits.
             bias : int, optional
                 Bias.
-            quantization : :class:`QuantizationMode`, optional
-                Quantization mode to use. If not provided, the global mode,
-                see :func:`get_quantization_mode`, is used.
 
             Returns
             -------

@@ -418,8 +418,9 @@ nb::ndarray<nb::numpy, double> APyFloatArray::to_numpy() const
 {
     // Dynamically allocate data to be passed to python
     double* result_data = new double[fold_shape()];
+    auto apy_f = APyFloat(exp_bits, man_bits, bias);
     for (std::size_t i = 0; i < fold_shape(); i++) {
-        const auto apy_f = APyFloat(data.at(i), exp_bits, man_bits, bias);
+        apy_f.set_data(data[i]);
         result_data[i] = double(apy_f);
     }
 
@@ -444,8 +445,7 @@ APyFloatArray APyFloatArray::from_double(
     const nanobind::sequence& double_seq,
     std::uint8_t exp_bits,
     std::uint8_t man_bits,
-    std::optional<exp_t> bias,
-    std::optional<QuantizationMode> quantization
+    std::optional<exp_t> bias
 )
 {
     if (bias.has_value() && bias.value() != APyFloat::ieee_bias(exp_bits)) {
@@ -453,8 +453,6 @@ APyFloatArray APyFloatArray::from_double(
             "Not implemented: APyFloatArray with non IEEE-like bias"
         );
     }
-
-    auto quantization_mode = quantization.value_or(get_quantization_mode());
 
     if (nb::isinstance<nb::ndarray<nb::numpy>>(double_seq)) {
         // Sequence is NumPy NDArray. Initialize using `_set_values_from_numpy_ndarray`
@@ -471,7 +469,7 @@ APyFloatArray APyFloatArray::from_double(
         }
 
         APyFloatArray result(shape, exp_bits, man_bits, bias);
-        result._set_values_from_numpy_ndarray(ndarray, quantization_mode);
+        result._set_values_from_numpy_ndarray(ndarray);
         return result;
     }
 
@@ -481,6 +479,7 @@ APyFloatArray APyFloatArray::from_double(
 
     auto py_obj = python_sequence_walk<nb::float_, nb::int_>(double_seq);
 
+    APyFloat apytypes_double(11, 52);
     for (std::size_t i = 0; i < result.data.size(); i++) {
         double d;
         if (nb::isinstance<nb::float_>(py_obj[i])) {
@@ -490,17 +489,18 @@ APyFloatArray APyFloatArray::from_double(
         } else {
             throw std::domain_error("Invalid Python objects in sequence");
         }
-        APyFloat apytypes_double(
-            sign_of_double(d), exp_t(exp_of_double(d)), man_of_double(d), 11, 52
+        apytypes_double.set_data(
+            { sign_of_double(d), exp_t(exp_of_double(d)), man_of_double(d) }
         );
-        APyFloat fp = apytypes_double.cast(exp_bits, man_bits, bias, quantization_mode);
+        APyFloat fp = apytypes_double.cast(
+            exp_bits, man_bits, bias, QuantizationMode::RND_CONV
+        );
         result.data[i] = { fp.get_sign(), fp.get_exp(), fp.get_man() };
     }
     return result;
 }
 
-void APyFloatArray::_set_values_from_numpy_ndarray(
-    const nb::ndarray<nb::numpy>& ndarray, QuantizationMode quantization
+void APyFloatArray::_set_values_from_numpy_ndarray(const nb::ndarray<nb::numpy>& ndarray
 )
 {
     // Double value used for converting.
@@ -515,8 +515,9 @@ void APyFloatArray::_set_values_from_numpy_ndarray(
                 double_caster.set_data({ sign_of_double(value),                        \
                                          exp_t(exp_of_double(value)),                  \
                                          man_of_double(value) });                      \
-                APyFloat fp                                                            \
-                    = double_caster.cast(exp_bits, man_bits, bias, quantization);      \
+                APyFloat fp = double_caster.cast(                                      \
+                    exp_bits, man_bits, bias, QuantizationMode::RND_CONV               \
+                );                                                                     \
                 data[i] = { fp.get_sign(), fp.get_exp(), fp.get_man() };               \
             }                                                                          \
             return; /* Conversion completed, exit function */                          \
