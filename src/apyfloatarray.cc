@@ -480,6 +480,7 @@ APyFloatArray APyFloatArray::from_double(
     auto py_obj = python_sequence_walk<nb::float_, nb::int_>(double_seq);
 
     APyFloat apytypes_double(11, 52);
+    auto actual_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
     for (std::size_t i = 0; i < result.data.size(); i++) {
         double d;
         if (nb::isinstance<nb::float_>(py_obj[i])) {
@@ -492,9 +493,7 @@ APyFloatArray APyFloatArray::from_double(
         apytypes_double.set_data(
             { sign_of_double(d), exp_t(exp_of_double(d)), man_of_double(d) }
         );
-        APyFloat fp = apytypes_double.cast(
-            exp_bits, man_bits, bias, QuantizationMode::RND_CONV
-        );
+        APyFloat fp = apytypes_double.cast_from_double(exp_bits, man_bits, actual_bias);
         result.data[i] = { fp.get_sign(), fp.get_exp(), fp.get_man() };
     }
     return result;
@@ -515,9 +514,8 @@ void APyFloatArray::_set_values_from_numpy_ndarray(const nb::ndarray<nb::numpy>&
                 double_caster.set_data({ sign_of_double(value),                        \
                                          exp_t(exp_of_double(value)),                  \
                                          man_of_double(value) });                      \
-                APyFloat fp = double_caster.cast(                                      \
-                    exp_bits, man_bits, bias, QuantizationMode::RND_CONV               \
-                );                                                                     \
+                APyFloat fp                                                            \
+                    = double_caster.cast_from_double(exp_bits, man_bits, bias);        \
                 data[i] = { fp.get_sign(), fp.get_exp(), fp.get_man() };               \
             }                                                                          \
             return; /* Conversion completed, exit function */                          \
