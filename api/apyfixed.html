@@ -259,6 +259,18 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.is_identical" title="apytypes.APyFixed.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
 <td><p>Test if two fixed-point objects are exactly identical.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.leading_fractional_zeros" title="apytypes.APyFixed.leading_fractional_zeros"><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_fractional_zeros</span></code></a></p></td>
+<td><p>Retrieve the number of leading zeros after the binary fixed-point.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.leading_ones" title="apytypes.APyFixed.leading_ones"><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_ones</span></code></a></p></td>
+<td><p>Retrieve the number of leading ones.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.leading_signs" title="apytypes.APyFixed.leading_signs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_signs</span></code></a></p></td>
+<td><p>Retrieve the number of leading signs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixed.leading_zeros" title="apytypes.APyFixed.leading_zeros"><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_zeros</span></code></a></p></td>
+<td><p>Retrieve the number of leading zeros.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixed.resize" title="apytypes.APyFixed.resize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resize</span></code></a></p></td>
 <td><p><div class="deprecated">
 <p><span class="versionmodified deprecated">Deprecated since version 0.1.pre.</span></p>
@@ -418,6 +430,58 @@ fixed-point value.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.APyFixed.leading_fractional_zeros">
+<span class="sig-name descname"><span class="pre">leading_fractional_zeros</span></span><a class="headerlink" href="#apytypes.APyFixed.leading_fractional_zeros" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve the number of leading zeros after the binary fixed-point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.APyFixed.leading_ones">
+<span class="sig-name descname"><span class="pre">leading_ones</span></span><a class="headerlink" href="#apytypes.APyFixed.leading_ones" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve the number of leading ones.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.APyFixed.leading_signs">
+<span class="sig-name descname"><span class="pre">leading_signs</span></span><a class="headerlink" href="#apytypes.APyFixed.leading_signs" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve the number of leading signs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.APyFixed.leading_zeros">
+<span class="sig-name descname"><span class="pre">leading_zeros</span></span><a class="headerlink" href="#apytypes.APyFixed.leading_zeros" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve the number of leading zeros.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="apytypes.APyFixed.resize">
 <span class="sig-name descname"><span class="pre">resize</span></span><a class="headerlink" href="#apytypes.APyFixed.resize" title="Link to this definition">#</a></dt>
 <dd><div class="deprecated">
@@ -518,6 +582,10 @@ fixed-point value.</p>
 <li><a class="reference internal" href="#apytypes.APyFixed.int_bits"><code class="docutils literal notranslate"><span class="pre">APyFixed.int_bits</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixed.is_identical"><code class="docutils literal notranslate"><span class="pre">APyFixed.is_identical</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixed.is_zero"><code class="docutils literal notranslate"><span class="pre">APyFixed.is_zero</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.leading_fractional_zeros"><code class="docutils literal notranslate"><span class="pre">APyFixed.leading_fractional_zeros</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.leading_ones"><code class="docutils literal notranslate"><span class="pre">APyFixed.leading_ones</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.leading_signs"><code class="docutils literal notranslate"><span class="pre">APyFixed.leading_signs</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.leading_zeros"><code class="docutils literal notranslate"><span class="pre">APyFixed.leading_zeros</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixed.resize"><code class="docutils literal notranslate"><span class="pre">APyFixed.resize</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixed.to_bits"><code class="docutils literal notranslate"><span class="pre">APyFixed.to_bits</span></code></a></li>
 </ul>
