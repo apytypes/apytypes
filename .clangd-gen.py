@@ -26,7 +26,6 @@ nanobind_includes = subprocess.run(
     encoding="utf-8",
 )
 
-
 compile_flags = [
     "-std=c++17",
     "-Wall",
@@ -34,7 +33,7 @@ compile_flags = [
     "-Wpedantic",
     "-Wno-deprecated",
     *str(python3_includes.stdout.strip()).split(" "),
-    *str(nanobind_includes.stdout.strip()).split(" "),
+    *[ '-I' + s for s in nanobind_includes.stdout.strip().split(" ") ]
 ]
 
 # Produce the .clangd configuration

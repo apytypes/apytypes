@@ -37,7 +37,7 @@ docs = [
     "sphinx_gallery",
 ]
 test = ["numpy", "pytest"]
-dev = ["pybind11-stubgen"]
+dev = ["pybind11-stubgen", "nanobind"]
 benchmark = ["numpy", "pytest", "pytest-benchmark"]
 comparison = [
     "fpbinary",
