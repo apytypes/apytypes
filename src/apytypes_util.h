@@ -20,41 +20,90 @@
 #include <string>     // std::string
 #include <vector>     // std::vector
 
-// GMP should be included after all other includes
+/*
+ * Include Microsoft instrinsics if using Microsoft Visual C/C++ compiler
+ */
+#if defined(_MSC_VEC)
+#include <intrin.h>
+#endif
+
+/*
+ * GMP should be included after all other includes
+ */
 #include "../extern/mini-gmp/mini-gmp.h"
 
-// APY_INLINE Macro for conditional inlining
+/*
+ * Conditional inlining of utility functions if profiling `_APY_PROFILING`
+ */
 #ifdef _APY_PROFILING
 #define APY_INLINE
 #else
 #define APY_INLINE inline
 #endif
 
-/*!
+/*
  * Sizes of GMP limbs (underlying words)
  */
 static constexpr std::size_t _LIMB_SIZE_BYTES = sizeof(mp_limb_t);
 static constexpr std::size_t _LIMB_SIZE_BITS = 8 * _LIMB_SIZE_BYTES;
 
-//! Not implemented exception
+/*
+ * Not implemented exception
+ */
 class NotImplementedException : public std::domain_error {
 public:
     NotImplementedException(std::optional<std::string> msg = std::nullopt)
         : std::domain_error(msg.value_or("Not implemented yet")) {};
 };
 
-/*!
- * Count the number of trailing bits after the most significant `1`.
- */
-[[maybe_unused, nodiscard]] static APY_INLINE unsigned int
-count_trailing_bits(std::uint64_t val)
+//! Compute the number of leading zeros in integer
+template <typename INT_TYPE>
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t leading_zeros(INT_TYPE n)
 {
-    // Optimized on x86-64 using single `bsr` instruction since GCC-13.1
-    unsigned int i = 0;
-    while (val >>= 1ULL) {
-        ++i;
+#if defined(__GNUC__)
+    // GNU C-compatible compiler (including Clang and MacOS Xcode)
+    if constexpr (sizeof(INT_TYPE) == 8) {
+        return n == 0 ? 64 : __builtin_clzll(n);
+    } else {
+        return n == 0 ? 32 : __builtin_clz(n);
     }
-    return i;
+#elif defined(_MSC_VER)
+    // Microsoft Visual C/C++ compiler
+    if constexpr (sizeof(INT_TYPE) == 8) {
+        return __lzcnt64(n);
+    } else {
+        return __lzcnt(n);
+    }
+#else
+    // No leading zeros intrinsic found. We could implement this function using a
+    // bit-counting while-loop, but fail for now so we can clearly see which systems are
+    // missing out on these intrinsics.
+    static_assert(false, "leading_zeros(INT_TYPE n): No intrinsic available.");
+#endif
+}
+
+//! Compute number of leading ones in integer
+template <typename INT_TYPE>
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t leading_ones(INT_TYPE n)
+{
+    return leading_zeros(~n);
+}
+
+//! Compute bit-width (`1 + ceil(log2(n))` for unsigned) integer `n`. If `n` is zero,
+//! return zero
+template <typename INT_TYPE>
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t bit_width(INT_TYPE n)
+{
+    constexpr std::size_t BITS_PER_BYTE = 8;
+    return BITS_PER_BYTE * sizeof(INT_TYPE) - leading_zeros(n);
+}
+
+//! Compute number of trailing bits after most significant `1` in an integer
+template <typename INT_TYPE>
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t count_trailing_bits(INT_TYPE n
+)
+{
+    return bit_width(n) - 1;
 }
 
 //! Quickly evaluate how many limbs are requiered to to store a `bits` bit word
@@ -78,49 +127,6 @@ significant_limbs(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
         std::reverse_iterator(end), std::reverse_iterator(begin), is_non_zero
     );
     return std::distance(begin, back_non_zero_it.base());
-}
-
-//! Quickly perform `1 + ceil(log2(x))` for unsigned integer (`mp_limb_t`) `x` if
-//! `x` is non-zero and return the value. If `x` is zero, return zero.
-[[maybe_unused, nodiscard]] static APY_INLINE std::size_t bit_width(mp_limb_t x)
-{
-    // Optimized on x86-64 using single `bsr` instruction since GCC-13.1
-    std::size_t result = 0;
-    while (x) {
-        x >>= 1;
-        result++;
-    }
-    return result;
-}
-
-//! Compute the number of leading zeros in a single limb
-[[maybe_unused, nodiscard]] static APY_INLINE std::size_t leading_zeros(mp_limb_t n)
-{
-    if (n == 0) {
-        return _LIMB_SIZE_BITS;
-    } else {
-        std::size_t zeros = 0;
-        while (mp_limb_signed_t(n) > 0) {
-            n <<= 1;
-            zeros++;
-        }
-        return zeros;
-    }
-}
-
-//! Compute the number of leading ones in a single limb
-[[maybe_unused, nodiscard]] static APY_INLINE std::size_t leading_ones(mp_limb_t n)
-{
-    if (n == 0) {
-        return 0;
-    } else {
-        std::size_t ones = 0;
-        while (mp_limb_signed_t(n) < 0) {
-            n <<= 1;
-            ones++;
-        }
-        return ones;
-    }
 }
 
 //! Retrieve the number of leading zeros of a limb vector
