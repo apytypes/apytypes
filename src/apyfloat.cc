@@ -97,6 +97,16 @@ APyFloat::APyFloat(
 {
 }
 
+APyFloat::APyFloat(std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias)
+    : exp_bits(exp_bits)
+    , man_bits(man_bits)
+    , bias(bias)
+    , sign(false)
+    , exp(0)
+    , man(0)
+{
+}
+
 APyFloat::APyFloat(
     const APyFloatData& data,
     std::uint8_t exp_bits,
@@ -127,7 +137,9 @@ APyFloat APyFloat::from_double(
     APyFloat apytypes_double(
         sign_of_double(value), exp_of_double(value), man_of_double(value), 11, 52, 1023
     );
-    return apytypes_double.cast(exp_bits, man_bits, bias, QuantizationMode::RND_CONV);
+    return apytypes_double.cast_from_double(
+        exp_bits, man_bits, bias.value_or(APyFloat::ieee_bias(exp_bits))
+    );
 }
 
 APyFloat APyFloat::resize(
@@ -246,6 +258,86 @@ APyFloat APyFloat::cast(
         default:
             throw NotImplementedException("APyFloat: Unknown quantization mode.");
         }
+
+        new_man += B;
+        if (static_cast<std::uint64_t>(new_man) > res.man_mask()) {
+            ++new_exp;
+            new_man = 0;
+        }
+    }
+
+    if (new_exp >= res.max_exponent()) {
+        return res.construct_inf();
+    }
+
+    res.man = new_man;
+    res.exp = new_exp;
+    return res;
+}
+
+APyFloat APyFloat::cast_from_double(
+    std::uint8_t new_exp_bits, std::uint8_t new_man_bits, exp_t new_bias
+) const
+{
+    if ((new_exp_bits == 11) && (new_man_bits == 52) && (new_bias == 1023)) {
+        return *this;
+    }
+    APyFloat res(new_exp_bits, new_man_bits, new_bias);
+    res.sign = sign;
+
+    // Handle special values first
+    if (is_nan()) {
+        return res.construct_nan(sign);
+    } else if (is_inf()) {
+        return res.construct_inf(sign);
+    } else if (is_zero()) {
+        return res.construct_zero(sign);
+    }
+
+    // Initial value for exponent
+    std::int64_t new_exp
+        = (std::int64_t)exp - 1023 + is_subnormal() + (std::int64_t)res.bias;
+
+    // Normalize the exponent and mantissa if convertering from a subnormal
+    man_t prev_man = man;
+    if (is_subnormal()) {
+        const exp_t subn_adjustment = count_trailing_bits(man);
+        new_exp = new_exp - 52 + subn_adjustment;
+        const man_t remainder = man % (1ULL << subn_adjustment);
+        prev_man = remainder << (man_bits - subn_adjustment);
+    }
+
+    if (new_exp <= -static_cast<std::int64_t>(res.man_bits)) { // Exponent too small
+        return res.construct_zero();
+    }
+
+    auto man_bits_delta = res.man_bits - 52;
+
+    // Check if the number will be converted to a subnormal
+    if (new_exp <= 0) {
+        prev_man |= leading_one();
+        // Prepare for right shift to adjust the mantissa
+        man_bits_delta += new_exp - 1;
+        new_exp = 0;
+    }
+
+    // Initial value for mantissa
+    man_t new_man = (man_bits_delta > 0) ? (prev_man << man_bits_delta)
+                                         : (prev_man >> -man_bits_delta);
+
+    if (man_bits_delta < 0) { // Quantization of mantissa needed
+        // Calculate quantization bit
+        man_t G, // Guard (bit after LSB)
+            T,   // Sticky bit, logical OR of all the bits after the guard bit
+            B;   // Quantization bit to add to LSB
+
+        const man_t bits_to_discard = std::abs(man_bits_delta);
+        G = (prev_man >> (bits_to_discard - 1)) & 1;
+        T = (prev_man & ((1ULL << (bits_to_discard - 1)) - 1)) != 0;
+
+        // Using 'new_man' directly here is fine since G can only be '0' or '1',
+        // thus calculating the LSB of 'new_man' is not needed.
+        B = G & (new_man | T);
 
         new_man += B;
         if (static_cast<std::uint64_t>(new_man) > res.man_mask()) {
@@ -1174,20 +1266,20 @@ APY_INLINE bool APyFloat::same_type_as(APyFloat other) const
  */
 APyFloat APyFloat::cast_to_double(std::optional<QuantizationMode> quantization) const
 {
-    return cast(11, 52, std::nullopt, quantization);
+    return cast(11, 52, 1023, quantization);
 }
 
 APyFloat APyFloat::cast_to_single(std::optional<QuantizationMode> quantization) const
 {
-    return cast(8, 23, std::nullopt, quantization);
+    return cast(8, 23, 127, quantization);
 }
 
 APyFloat APyFloat::cast_to_half(std::optional<QuantizationMode> quantization) const
 {
-    return cast(5, 10, std::nullopt, quantization);
+    return cast(5, 10, 15, quantization);
 }
 
 APyFloat APyFloat::cast_to_bfloat16(std::optional<QuantizationMode> quantization) const
 {
-    return cast(8, 7, std::nullopt, quantization);
+    return cast(8, 7, 127, quantization);
 }

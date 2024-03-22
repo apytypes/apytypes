@@ -39,6 +39,7 @@ public:
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
+    APyFloat(std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias);
 
     /* ******************************************************************************
      * * Methods for conversions                                                    *
@@ -86,6 +87,9 @@ public:
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     ) const;
+
+    APyFloat
+    cast_from_double(std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias) const;
 
     APyFloat resize(
         std::uint8_t exp_bits,
