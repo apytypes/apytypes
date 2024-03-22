@@ -86,6 +86,23 @@ APyFloat::APyFloat(
 }
 
 APyFloat::APyFloat(
+    bool sign,
+    exp_t exp,
+    man_t man,
+    std::uint8_t exp_bits,
+    std::uint8_t man_bits,
+    exp_t bias
+)
+    : exp_bits(exp_bits)
+    , man_bits(man_bits)
+    , bias(bias)
+    , sign(sign)
+    , exp(exp)
+    , man(man)
+{
+}
+
+APyFloat::APyFloat(
     std::uint8_t exp_bits, std::uint8_t man_bits, std::optional<exp_t> bias
 )
     : exp_bits(exp_bits)
@@ -116,6 +133,18 @@ APyFloat::APyFloat(
     : exp_bits(exp_bits)
     , man_bits(man_bits)
     , bias(bias.value_or(ieee_bias()))
+    , sign(data.sign)
+    , exp(data.exp)
+    , man(data.man)
+{
+}
+
+APyFloat::APyFloat(
+    const APyFloatData& data, std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias
+)
+    : exp_bits(exp_bits)
+    , man_bits(man_bits)
+    , bias(bias)
     , sign(data.sign)
     , exp(data.exp)
     , man(data.man)
@@ -275,7 +304,7 @@ APyFloat APyFloat::cast(
     return res;
 }
 
-APyFloat APyFloat::_cast_to_double(QuantizationMode quantization) const
+APyFloat APyFloat::_cast_to_double() const
 {
     if ((11 == exp_bits) && (52 == man_bits) && (1023 == bias)) {
         return *this;
@@ -333,45 +362,9 @@ APyFloat APyFloat::_cast_to_double(QuantizationMode quantization) const
         G = (prev_man >> (bits_to_discard - 1)) & 1;
         T = (prev_man & ((1ULL << (bits_to_discard - 1)) - 1)) != 0;
 
-        switch (quantization) {
-        case QuantizationMode::RND_CONV: // TIES_TO_EVEN
-            // Using 'new_man' directly here is fine since G can only be '0' or '1',
-            // thus calculating the LSB of 'new_man' is not needed.
-            B = G & (new_man | T);
-            break;
-        case QuantizationMode::TRN_INF: // TO_POSITIVE
-            B = sign ? 0 : (G | T);
-            break;
-        case QuantizationMode::TRN: // TO_NEGATIVE
-            B = sign ? (G | T) : 0;
-            break;
-        case QuantizationMode::TRN_ZERO: // TO_ZERO
-            B = 0;
-            break;
-        case QuantizationMode::RND_INF: // TIES_TO_AWAY
-            B = G;
-            break;
-        case QuantizationMode::RND_ZERO: // TIES_TO_ZERO
-            B = G & T;
-            break;
-        case QuantizationMode::JAM:
-            B = 0;
-            new_man |= 1;
-            break;
-        case QuantizationMode::STOCH_WEIGHTED: {
-            const man_t trailing_bits = prev_man & ((1ULL << bits_to_discard) - 1);
-            const man_t weight = random_number() & ((1ULL << bits_to_discard) - 1);
-            // Since the weight won't be greater than the discarded bits,
-            // this will never round an already exact number.
-            B = (trailing_bits + weight) >> bits_to_discard;
-        } break;
-        case QuantizationMode::STOCH_EQUAL:
-            // Only perform the quantization if the result is not exact.
-            B = (G || T) ? random_number() & 1 : 0;
-            break;
-        default:
-            throw NotImplementedException("APyFloat: Unknown quantization mode.");
-        }
+        // Using 'new_man' directly here is fine since G can only be '0' or '1',
+        // thus calculating the LSB of 'new_man' is not needed.
+        B = G & (new_man | T);
 
         new_man += B;
         if (static_cast<std::uint64_t>(new_man) > (1ULL << 52) - 1) {
@@ -556,7 +549,7 @@ APyFloat::translate_quantization_mode(QuantizationMode quantization, bool sign)
 
 double APyFloat::to_double() const
 {
-    const auto apytypes_d = _cast_to_double(QuantizationMode::RND_CONV);
+    const auto apytypes_d = _cast_to_double();
     double d {};
     set_sign_of_double(d, apytypes_d.sign);
     set_exp_of_double(d, apytypes_d.exp);
@@ -1380,7 +1373,7 @@ APY_INLINE bool APyFloat::same_type_as(APyFloat other) const
  */
 APyFloat APyFloat::cast_to_double(std::optional<QuantizationMode> quantization) const
 {
-    return _cast_to_double(quantization.value_or(get_quantization_mode()));
+    return cast(11, 52, 1023, quantization);
 }
 
 APyFloat APyFloat::cast_to_single(std::optional<QuantizationMode> quantization) const
