@@ -77,3 +77,18 @@ def test_numpy_creation(dt):
     a = APyFloatArray.from_float(anp, 4, 2)
 
     assert np.all(a.to_numpy() == anp.astype(np.float64))
+
+
+def test_special_value_numpy_from_double():
+    np = pytest.importorskip("numpy")
+    a = np.asarray([[1e-323, float("inf")], [float("nan"), 0.0]])
+    b = APyFloatArray.from_float(a, 14, 60)
+    c = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[7118, 16383], [16383, 0]],
+        [[0, 0], [1, 0]],
+        exp_bits=14,
+        man_bits=60,
+        bias=8191,
+    )
+    assert b.is_identical(c)

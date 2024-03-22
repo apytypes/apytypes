@@ -460,21 +460,24 @@ class TestAPyFloatQuantization:
 
 def test_convenience_cast():
     a = APyFloat.from_float(1 / 7, 20, 60)
-    assert a.man_bits == 60
-    assert a.exp_bits == 20
+    assert a.is_identical(
+        APyFloat(sign=0, exp=524284, man=164703072086692352, exp_bits=20, man_bits=60)
+    )
 
     double = a.cast_to_double()
-    assert double.man_bits == 52
-    assert double.exp_bits == 11
+    assert double.is_identical(
+        APyFloat(sign=0, exp=1020, man=643371375338642, exp_bits=11, man_bits=52)
+    )
 
     single = a.cast_to_single()
-    assert single.man_bits == 23
-    assert single.exp_bits == 8
+    assert single.is_identical(
+        APyFloat(sign=0, exp=124, man=1198373, exp_bits=8, man_bits=23)
+    )
 
     half = a.cast_to_half()
-    assert half.man_bits == 10
-    assert half.exp_bits == 5
+    assert half.is_identical(APyFloat(sign=0, exp=12, man=146, exp_bits=5, man_bits=10))
 
     bfloat16 = a.cast_to_bfloat16()
-    assert bfloat16.man_bits == 7
-    assert bfloat16.exp_bits == 8
+    assert bfloat16.is_identical(
+        APyFloat(sign=0, exp=124, man=18, exp_bits=8, man_bits=7)
+    )

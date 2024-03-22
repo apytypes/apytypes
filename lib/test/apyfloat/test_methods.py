@@ -76,3 +76,25 @@ def test_long_python_integer():
     a = APyFloat.from_bits(val, 27, 40)
     assert a.is_identical(APyFloat(1, 117440512, 1099511627775, 27, 40))
     assert a.to_bits() == val
+
+
+def test_convert_to_double():
+    a = APyFloat(0, 1, 1, 13, 60)
+    assert float(a) == 0.0
+
+    a = APyFloat(0, 8100, 1, 13, 60)
+    assert a.is_finite
+    assert float(a) == float("inf")
+    assert float(-a) == float("-inf")
+
+    a = APyFloat(0, 0, 7, 11, 54)
+    assert float(a) == 1e-323
+
+    a = APyFloat(0, 0, 1, 11, 52)
+    assert float(a) == 5e-324
+
+
+def test_from_float():
+    a = APyFloat(0, 0, 1, 11, 52)
+    b = APyFloat.from_float(5e-324, 11, 52)
+    b.is_identical(a)
