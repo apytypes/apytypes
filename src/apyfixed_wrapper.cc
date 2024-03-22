@@ -233,6 +233,17 @@ void bind_fixed(nb::module_& m)
         .def_prop_ro("_vector_size", &APyFixed::vector_size)
         .def("_repr_latex_", &APyFixed::latex)
         .def(
+            "leading_ones",
+            &APyFixed::leading_ones,
+            R"pbdoc(
+            Retrieve the number of leading ones.
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc"
+        )
+        .def(
             "leading_zeros",
             &APyFixed::leading_zeros,
             R"pbdoc(

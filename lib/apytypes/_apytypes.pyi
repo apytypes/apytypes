@@ -271,6 +271,15 @@ class APyFixed:
         :class:`int`
         """
 
+    def leading_ones(self) -> int:
+        """
+        Retrieve the number of leading ones.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
     def leading_signs(self) -> int:
         """
         Retrieve the number of leading signs.

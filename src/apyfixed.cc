@@ -3,7 +3,6 @@
  */
 
 // Python object access through Pybind
-#include <iostream>
 #include <nanobind/nanobind.h>
 namespace nb = nanobind;
 
@@ -851,9 +850,6 @@ std::size_t APyFixed::leading_fractional_zeros() const
 
     std::size_t utilized_full_frac_limbs = frac_bits / _LIMB_SIZE_BITS;
     std::size_t utilized_frac_bits_last_limb = frac_bits % _LIMB_SIZE_BITS;
-    std::cout << "Utilized full frac limbs: " << utilized_full_frac_limbs << std::endl;
-    std::cout << "Utilized frac bits last limb: " << utilized_frac_bits_last_limb
-              << std::endl;
 
     std::size_t leading_frac_bits_full_limbs = limb_vector_leading_zeros(
         _data.begin(), _data.begin() + utilized_full_frac_limbs
@@ -867,11 +863,6 @@ std::size_t APyFixed::leading_fractional_zeros() const
         leading_frac_bits_last_limb
             = ::leading_zeros(limb) - (_LIMB_SIZE_BITS - utilized_frac_bits_last_limb);
     }
-
-    std::cout << "leading_frac_bits_full_limbs: " << leading_frac_bits_full_limbs
-              << std::endl;
-    std::cout << "leading_frac_bits_last_limb: " << leading_frac_bits_last_limb
-              << std::endl;
 
     if (leading_frac_bits_last_limb != utilized_frac_bits_last_limb) {
         return leading_frac_bits_last_limb;

@@ -348,6 +348,10 @@ def test_leading_signs():
 
 
 def test_leading_fractional_zeros():
+
+    # Code coverage test
+    assert APyFixed(0x00, bits=8, frac_bits=0).leading_fractional_zeros() == 0
+
     # Less than full-limb test
     assert APyFixed(0xFF_F, bits=12, frac_bits=4).leading_fractional_zeros() == 0
     assert APyFixed(0xFF_7, bits=12, frac_bits=4).leading_fractional_zeros() == 1
