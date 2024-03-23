@@ -33,7 +33,7 @@ compile_flags = [
     "-Wpedantic",
     "-Wno-deprecated",
     *str(python3_includes.stdout.strip()).split(" "),
-    *[ '-I' + s for s in nanobind_includes.stdout.strip().split(" ") ]
+    *["-I" + s for s in nanobind_includes.stdout.strip().split(" ")],
 ]
 
 # Produce the .clangd configuration

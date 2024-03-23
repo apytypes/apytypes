@@ -1353,13 +1353,18 @@ APyFloat APyFloat::normalized() const
 
 int APyFloat::leading_zeros_apyfixed(APyFixed fx) const
 {
-    int zeros = 0;
-    auto tmp_fx = fx;
-    while (tmp_fx.to_double() < 1.0) {
-        tmp_fx <<= 1;
-        zeros++;
+    if (fx.is_negative()) {
+        // Calculate the number of left shifts needed to make fx positive
+        return fx.leading_ones() + 1;
     }
-    return zeros;
+
+    // Calculate the number of left shifts needed to make fx>=1.0
+    const int zeros = fx.leading_zeros() - fx.int_bits();
+    if (zeros < 0) {
+        return 0;
+    } else {
+        return zeros + 1;
+    }
 }
 
 APY_INLINE bool APyFloat::same_type_as(APyFloat other) const
