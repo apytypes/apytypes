@@ -1353,11 +1353,6 @@ APyFloat APyFloat::normalized() const
 
 int APyFloat::leading_zeros_apyfixed(APyFixed fx) const
 {
-    if (fx.is_negative()) {
-        // Calculate the number of left shifts needed to make fx positive
-        return fx.leading_ones() + 1;
-    }
-
     // Calculate the number of left shifts needed to make fx>=1.0
     const int zeros = fx.leading_zeros() - fx.int_bits();
     if (zeros < 0) {
