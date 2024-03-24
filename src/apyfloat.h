@@ -96,11 +96,28 @@ public:
         std::optional<QuantizationMode> quantization = std::nullopt
     ) const;
 
+    APyFloat _cast(
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        exp_t bias,
+        std::optional<QuantizationMode> quantization = std::nullopt
+    ) const;
+
+    APyFloat _cast(
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        exp_t bias,
+        QuantizationMode quantization
+    ) const;
+
     APyFloat cast_no_quant(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     ) const;
+
+    APyFloat
+    cast_no_quant(std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias) const;
 
     APyFloat
     cast_from_double(std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias) const;
