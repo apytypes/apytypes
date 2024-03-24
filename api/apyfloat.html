@@ -236,25 +236,31 @@
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyFloat.bits" title="apytypes.APyFloat.bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bits</span></code></a></dt><dd><p>Total number of bits.</p>
 </dd>
-<dt><a class="reference internal" href="#apytypes.APyFloat.exp" title="apytypes.APyFloat.exp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exp</span></code></a></dt><dd><p>(self) -&gt; int</p>
+<dt><a class="reference internal" href="#apytypes.APyFloat.exp" title="apytypes.APyFloat.exp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exp</span></code></a></dt><dd><p>Exponent bits with bias.</p>
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyFloat.exp_bits" title="apytypes.APyFloat.exp_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exp_bits</span></code></a></dt><dd><p>Number of exponent bits.</p>
 </dd>
-<dt><a class="reference internal" href="#apytypes.APyFloat.is_finite" title="apytypes.APyFloat.is_finite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_finite</span></code></a></dt><dd><p>True if and only if x is zero, subnormal, or normal.</p>
+<dt><a class="reference internal" href="#apytypes.APyFloat.is_finite" title="apytypes.APyFloat.is_finite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_finite</span></code></a></dt><dd><p>True if and only if value is zero, subnormal, or normal.</p>
 </dd>
-<dt><a class="reference internal" href="#apytypes.APyFloat.is_inf" title="apytypes.APyFloat.is_inf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_inf</span></code></a></dt><dd><p>True if and only if x is infinite.</p>
+<dt><a class="reference internal" href="#apytypes.APyFloat.is_inf" title="apytypes.APyFloat.is_inf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_inf</span></code></a></dt><dd><p>True if and only if value is infinite.</p>
 </dd>
-<dt><a class="reference internal" href="#apytypes.APyFloat.is_nan" title="apytypes.APyFloat.is_nan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_nan</span></code></a></dt><dd><p>True if and only if x is NaN.</p>
+<dt><a class="reference internal" href="#apytypes.APyFloat.is_nan" title="apytypes.APyFloat.is_nan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_nan</span></code></a></dt><dd><p>True if and only if value is NaN.</p>
 </dd>
-<dt><a class="reference internal" href="#apytypes.APyFloat.is_normal" title="apytypes.APyFloat.is_normal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_normal</span></code></a></dt><dd><p>True if and only if x is normal (not zero, subnormal, infinite, or NaN).</p>
+<dt><a class="reference internal" href="#apytypes.APyFloat.is_normal" title="apytypes.APyFloat.is_normal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_normal</span></code></a></dt><dd><p>True if and only if value is normal (not zero, subnormal, infinite, or NaN).</p>
 </dd>
-<dt><a class="reference internal" href="#apytypes.APyFloat.is_subnormal" title="apytypes.APyFloat.is_subnormal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_subnormal</span></code></a></dt><dd><p>True if and only if x is normal (not zero, subnormal, infinite, or NaN).</p>
+<dt><a class="reference internal" href="#apytypes.APyFloat.is_subnormal" title="apytypes.APyFloat.is_subnormal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_subnormal</span></code></a></dt><dd><p>True if and only if value is subnormal.</p>
 </dd>
-<dt><a class="reference internal" href="#apytypes.APyFloat.man" title="apytypes.APyFloat.man"><code class="xref py py-obj docutils literal notranslate"><span class="pre">man</span></code></a></dt><dd><p>(self) -&gt; int</p>
+<dt><a class="reference internal" href="#apytypes.APyFloat.man" title="apytypes.APyFloat.man"><code class="xref py py-obj docutils literal notranslate"><span class="pre">man</span></code></a></dt><dd><p>Mantissa bits.</p>
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyFloat.man_bits" title="apytypes.APyFloat.man_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">man_bits</span></code></a></dt><dd><p>Number of mantissa bits.</p>
 </dd>
-<dt><a class="reference internal" href="#apytypes.APyFloat.sign" title="apytypes.APyFloat.sign"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sign</span></code></a></dt><dd><p>(self) -&gt; bool</p>
+<dt><a class="reference internal" href="#apytypes.APyFloat.sign" title="apytypes.APyFloat.sign"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sign</span></code></a></dt><dd><p>Sign bit.</p>
+</dd>
+<dt><a class="reference internal" href="#apytypes.APyFloat.true_exp" title="apytypes.APyFloat.true_exp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">true_exp</span></code></a></dt><dd><p>Exponent value.</p>
+</dd>
+<dt><a class="reference internal" href="#apytypes.APyFloat.true_man" title="apytypes.APyFloat.true_man"><code class="xref py py-obj docutils literal notranslate"><span class="pre">true_man</span></code></a></dt><dd><p>Mantissa value.</p>
+</dd>
+<dt><a class="reference internal" href="#apytypes.APyFloat.true_sign" title="apytypes.APyFloat.true_sign"><code class="xref py py-obj docutils literal notranslate"><span class="pre">true_sign</span></code></a></dt><dd><p>Sign value.</p>
 </dd>
 </dl>
 </dd>
@@ -285,7 +291,7 @@
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloat.is_identical" title="apytypes.APyFloat.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
-<td><p>Test if two <cite>APyFloat</cite> objects are identical.</p></td>
+<td><p>Test if two <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> objects are identical.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloat.pretty_string" title="apytypes.APyFloat.pretty_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pretty_string</span></code></a></p></td>
 <td><p></p></td>
@@ -417,7 +423,20 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_q
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloat.exp">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">exp</span></span><a class="headerlink" href="#apytypes.APyFloat.exp" title="Link to this definition">#</a></dt>
-<dd><p>(self) -&gt; int</p>
+<dd><p>Exponent bits with bias.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloat.true_exp" title="apytypes.APyFloat.true_exp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">true_exp</span></code></a></dt><dd></dd>
+</dl>
+</div>
 </dd></dl>
 
 <dl class="py property">
@@ -446,7 +465,7 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_q
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloat.is_finite">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_finite</span></span><a class="headerlink" href="#apytypes.APyFloat.is_finite" title="Link to this definition">#</a></dt>
-<dd><p>True if and only if x is zero, subnormal, or normal.</p>
+<dd><p>True if and only if value is zero, subnormal, or normal.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -459,8 +478,8 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_q
 <dl class="py attribute">
 <dt class="sig sig-object py" id="apytypes.APyFloat.is_identical">
 <span class="sig-name descname"><span class="pre">is_identical</span></span><a class="headerlink" href="#apytypes.APyFloat.is_identical" title="Link to this definition">#</a></dt>
-<dd><p>Test if two <cite>APyFloat</cite> objects are identical.</p>
-<p>Two <cite>APyFixed</cite> objects are considered identical if, and only if,  they have
+<dd><p>Test if two <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> objects are identical.</p>
+<p>Two <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> objects are considered identical if, and only if,  they have
 the same sign, exponent, mantissa, and format.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -474,7 +493,7 @@ the same sign, exponent, mantissa, and format.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloat.is_inf">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_inf</span></span><a class="headerlink" href="#apytypes.APyFloat.is_inf" title="Link to this definition">#</a></dt>
-<dd><p>True if and only if x is infinite.</p>
+<dd><p>True if and only if value is infinite.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -487,7 +506,7 @@ the same sign, exponent, mantissa, and format.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloat.is_nan">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_nan</span></span><a class="headerlink" href="#apytypes.APyFloat.is_nan" title="Link to this definition">#</a></dt>
-<dd><p>True if and only if x is NaN.</p>
+<dd><p>True if and only if value is NaN.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -500,7 +519,7 @@ the same sign, exponent, mantissa, and format.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloat.is_normal">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_normal</span></span><a class="headerlink" href="#apytypes.APyFloat.is_normal" title="Link to this definition">#</a></dt>
-<dd><p>True if and only if x is normal (not zero, subnormal, infinite, or NaN).</p>
+<dd><p>True if and only if value is normal (not zero, subnormal, infinite, or NaN).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -513,7 +532,8 @@ the same sign, exponent, mantissa, and format.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloat.is_subnormal">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_subnormal</span></span><a class="headerlink" href="#apytypes.APyFloat.is_subnormal" title="Link to this definition">#</a></dt>
-<dd><p>True if and only if x is normal (not zero, subnormal, infinite, or NaN).</p>
+<dd><p>True if and only if value is subnormal.</p>
+<p>Zero is considered subnormal.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -526,7 +546,21 @@ the same sign, exponent, mantissa, and format.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloat.man">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">man</span></span><a class="headerlink" href="#apytypes.APyFloat.man" title="Link to this definition">#</a></dt>
-<dd><p>(self) -&gt; int</p>
+<dd><p>Mantissa bits.</p>
+<p>These are without a possible hidden one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloat.true_man" title="apytypes.APyFloat.true_man"><code class="xref py py-obj docutils literal notranslate"><span class="pre">true_man</span></code></a></dt><dd></dd>
+</dl>
+</div>
 </dd></dl>
 
 <dl class="py property">
@@ -558,13 +592,86 @@ the same sign, exponent, mantissa, and format.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloat.sign">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sign</span></span><a class="headerlink" href="#apytypes.APyFloat.sign" title="Link to this definition">#</a></dt>
-<dd><p>(self) -&gt; bool</p>
+<dd><p>Sign bit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloat.true_sign" title="apytypes.APyFloat.true_sign"><code class="xref py py-obj docutils literal notranslate"><span class="pre">true_sign</span></code></a></dt><dd></dd>
+</dl>
+</div>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="apytypes.APyFloat.to_bits">
 <span class="sig-name descname"><span class="pre">to_bits</span></span><a class="headerlink" href="#apytypes.APyFloat.to_bits" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFloat.true_exp">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">true_exp</span></span><a class="headerlink" href="#apytypes.APyFloat.true_exp" title="Link to this definition">#</a></dt>
+<dd><p>Exponent value.</p>
+<p>The bias value is subtracted and exponent adjusted in case of
+a subnormal number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloat.exp" title="apytypes.APyFloat.exp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exp</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFloat.true_man">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">true_man</span></span><a class="headerlink" href="#apytypes.APyFloat.true_man" title="Link to this definition">#</a></dt>
+<dd><p>Mantissa value.</p>
+<p>These are with a possible hidden one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloat.man" title="apytypes.APyFloat.man"><code class="xref py py-obj docutils literal notranslate"><span class="pre">man</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFloat.true_sign">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">true_sign</span></span><a class="headerlink" href="#apytypes.APyFloat.true_sign" title="Link to this definition">#</a></dt>
+<dd><p>Sign value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloat.sign" title="apytypes.APyFloat.sign"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sign</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
 
 </dd></dl>
 
@@ -651,6 +758,9 @@ the same sign, exponent, mantissa, and format.</p>
 <li><a class="reference internal" href="#apytypes.APyFloat.resize"><code class="docutils literal notranslate"><span class="pre">APyFloat.resize</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.sign"><code class="docutils literal notranslate"><span class="pre">APyFloat.sign</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.to_bits"><code class="docutils literal notranslate"><span class="pre">APyFloat.to_bits</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloat.true_exp"><code class="docutils literal notranslate"><span class="pre">APyFloat.true_exp</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloat.true_man"><code class="docutils literal notranslate"><span class="pre">APyFloat.true_man</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloat.true_sign"><code class="docutils literal notranslate"><span class="pre">APyFloat.true_sign</span></code></a></li>
 </ul>
 </li>
 </ul>
