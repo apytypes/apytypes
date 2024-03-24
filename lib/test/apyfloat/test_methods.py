@@ -98,3 +98,21 @@ def test_from_float():
     a = APyFloat(0, 0, 1, 11, 52)
     b = APyFloat.from_float(5e-324, 11, 52)
     b.is_identical(a)
+
+
+def test_properties():
+    a = APyFloat(0, 3, 4, 4, 6)
+    assert a.man == 4
+    assert a.true_man == 68
+    assert a.exp == 3
+    assert a.true_exp == -4
+    assert a.sign == False
+    assert a.true_sign == 1
+
+    a = APyFloat(1, 0, 4, 4, 6)
+    assert a.man == 4
+    assert a.true_man == 4
+    assert a.exp == 0
+    assert a.true_exp == -6
+    assert a.sign == True
+    assert a.true_sign == -1

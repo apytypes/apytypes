@@ -275,44 +275,46 @@ void bind_float(nb::module_& m)
          * Non-computational properties
          */
         .def_prop_ro("is_normal", &APyFloat::is_normal, R"pbdoc(
-            True if and only if x is normal (not zero, subnormal, infinite, or NaN).
+            True if and only if value is normal (not zero, subnormal, infinite, or NaN).
 
             Returns
             -------
             :class:`bool`
             )pbdoc")
         .def_prop_ro("is_subnormal", &APyFloat::is_subnormal, R"pbdoc(
-            True if and only if x is normal (not zero, subnormal, infinite, or NaN).
+            True if and only if value is subnormal.
+
+            Zero is considered subnormal.
 
             Returns
             -------
             :class:`bool`
             )pbdoc")
         .def_prop_ro("is_finite", &APyFloat::is_finite, R"pbdoc(
-            True if and only if x is zero, subnormal, or normal.
+            True if and only if value is zero, subnormal, or normal.
 
             Returns
             -------
             :class:`bool`
             )pbdoc")
         .def_prop_ro("is_nan", &APyFloat::is_nan, R"pbdoc(
-            True if and only if x is NaN.
+            True if and only if value is NaN.
 
             Returns
             -------
             :class:`bool`
             )pbdoc")
         .def_prop_ro("is_inf", &APyFloat::is_inf, R"pbdoc(
-            True if and only if x is infinite.
+            True if and only if value is infinite.
 
             Returns
             -------
             :class:`bool`
             )pbdoc")
         .def("is_identical", &APyFloat::is_identical, nb::arg("other"), R"pbdoc(
-            Test if two `APyFloat` objects are identical.
+            Test if two :py:class:`APyFloat` objects are identical.
 
-            Two `APyFixed` objects are considered identical if, and only if,  they have
+            Two :py:class:`APyFloat` objects are considered identical if, and only if,  they have
             the same sign, exponent, mantissa, and format.
 
             Returns
@@ -323,9 +325,81 @@ void bind_float(nb::module_& m)
         /*
          * Properties
          */
-        .def_prop_ro("sign", &APyFloat::get_sign)
-        .def_prop_ro("man", &APyFloat::get_man)
-        .def_prop_ro("exp", &APyFloat::get_exp)
+        .def_prop_ro("sign", &APyFloat::get_sign, R"pbdoc(
+            Sign bit.
+
+            See also
+            --------
+            true_sign
+
+            Returns
+            -------
+            :class:`bool`
+            )pbdoc")
+        .def_prop_ro(
+            "true_sign", [](APyFloat& a) { return a.get_sign() ? -1 : 1; }, R"pbdoc(
+            Sign value.
+
+            See also
+            --------
+            sign
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc"
+        )
+        .def_prop_ro("man", &APyFloat::get_man, R"pbdoc(
+            Mantissa bits.
+
+            These are without a possible hidden one.
+
+            See also
+            --------
+            true_man
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc")
+        .def_prop_ro("true_man", &APyFloat::true_man, R"pbdoc(
+            Mantissa value.
+
+            These are with a possible hidden one.
+
+            See also
+            --------
+            man
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc")
+        .def_prop_ro("exp", &APyFloat::get_exp, R"pbdoc(
+            Exponent bits with bias.
+
+            See also
+            --------
+            true_exp
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc")
+        .def_prop_ro("true_exp", &APyFloat::true_exp, R"pbdoc(
+            Exponent value.
+
+            The bias value is subtracted and exponent adjusted in case of
+            a subnormal number.
+
+            See also
+            --------
+            exp
+
+            Returns
+            -------
+            :class:`int`
+            )pbdoc")
         .def_prop_ro("bias", &APyFloat::get_bias, R"pbdoc(
             Exponent bias.
 
