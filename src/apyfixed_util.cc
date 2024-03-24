@@ -1,7 +1,5 @@
-#include <nanobind/nanobind.h>
-namespace nb = nanobind;
-
 #include <cmath>
+#include <fmt/format.h>
 
 #include "apyfixed_util.h"
 #include "apytypes_util.h"
@@ -15,21 +13,18 @@ mp_limb_t twos_complement_overflow(mp_limb_t value, int bits)
     unsigned limb_shift_val = bits & (_LIMB_SIZE_BITS - 1);
 
     if (limb_shift_val) {
-        auto shft_amnt = _LIMB_SIZE_BITS - limb_shift_val;
-        auto signed_limb = mp_limb_signed_t(value << shft_amnt) >> shft_amnt;
+        auto shift_amnt = _LIMB_SIZE_BITS - limb_shift_val;
+        auto signed_limb = mp_limb_signed_t(value << shift_amnt) >> shift_amnt;
         return mp_limb_t(signed_limb);
     }
     return value;
 }
 
 //! Specialized method when only one limb is used
-mp_limb_t get_data_from_double(double value, int bits, int frac_bits)
+mp_limb_t get_data_from_double(double value, int bits, int frac_bits, int shift_amnt)
 {
-    if (std::isnan(value)) {
-        throw nb::value_error("Cannot convert NaN to fixed-point");
-    }
-    if (std::isinf(value)) {
-        throw nb::value_error("Cannot convert Infinity to fixed-point");
+    if (std::isnan(value) || std::isinf(value)) {
+        throw std::domain_error(fmt::format("Cannot convert {} to fixed-point", value));
     }
     if constexpr (_LIMB_SIZE_BITS == 64) {
         mp_limb_signed_t exp = exp_of_double(value);
@@ -57,7 +52,10 @@ mp_limb_t get_data_from_double(double value, int bits, int frac_bits)
         if (sign_of_double(value)) {
             man = -man;
         }
-        return twos_complement_overflow(man, bits);
+
+        // Two's complement overflow
+        man = mp_limb_t(mp_limb_signed_t(man << shift_amnt) >> shift_amnt);
+        return man;
     } else {
         throw NotImplementedException(
             "Not implemented: get_data_from_double() for 32-bit systems"

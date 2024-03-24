@@ -8,6 +8,6 @@
 
 mp_limb_t twos_complement_overflow(mp_limb_t value, int bits);
 
-mp_limb_t get_data_from_double(double value, int bits, int frac_bits);
+mp_limb_t get_data_from_double(double value, int bits, int frac_bits, int shift_amnt);
 
 #endif // _APYFIXED_UTIL_H

@@ -633,12 +633,10 @@ void APyFixed::set_from_string(const std::string& str, int base)
 
 void APyFixed::set_from_double(double value)
 {
-    if (std::isnan(value)) {
-        throw nb::value_error("Cannot convert NaN to fixed-point");
+    if (std::isnan(value) || std::isinf(value)) {
+        throw std::domain_error(fmt::format("Cannot convert {} to fixed-point", value));
     }
-    if (std::isinf(value)) {
-        throw nb::value_error("Cannot convert Infinity to fixed-point");
-    }
+
     if constexpr (_LIMB_SIZE_BITS == 64) {
         mp_limb_signed_t exp = exp_of_double(value);
         mp_limb_t man = man_of_double(value);

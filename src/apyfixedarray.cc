@@ -1202,9 +1202,11 @@ void APyFixedArray::_set_values_from_numpy_ndarray(const nb::ndarray<nb::numpy>&
             auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
             if (unsigned(_bits) <= _LIMB_SIZE_BITS) {                                  \
                 int fr_bits = frac_bits();                                             \
+                unsigned limb_shift_val = bits() & (_LIMB_SIZE_BITS - 1);              \
+                auto shft_amnt = _LIMB_SIZE_BITS - limb_shift_val;                     \
                 for (std::size_t i = 0; i < ndarray.size(); i++) {                     \
                     double data = static_cast<double>(ndarray_view.data()[i]);         \
-                    _data[i] = get_data_from_double(data, bits(), fr_bits);            \
+                    _data[i] = get_data_from_double(data, bits(), fr_bits, shft_amnt); \
                 }                                                                      \
             } else {                                                                   \
                 APyFixed caster(bits(), int_bits());                                   \
