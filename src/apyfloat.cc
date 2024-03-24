@@ -208,8 +208,7 @@ APyFloat APyFloat::cast(
     }
 
     // Initial value for exponent
-    std::int64_t new_exp = (std::int64_t)exp - (std::int64_t)bias + is_subnormal()
-        + (std::int64_t)res.bias;
+    std::int64_t new_exp = true_exp() + (std::int64_t)res.bias;
 
     // Normalize the exponent and mantissa if convertering from a subnormal
     man_t prev_man = man;
@@ -322,8 +321,7 @@ APyFloat APyFloat::_cast_to_double() const
     }
 
     // Initial value for exponent
-    std::int64_t new_exp
-        = (std::int64_t)exp - (std::int64_t)bias + is_subnormal() + 1023;
+    std::int64_t new_exp = true_exp() + 1023;
 
     // Normalize the exponent and mantissa if convertering from a subnormal
     man_t prev_man = man;
@@ -483,8 +481,7 @@ APyFloat APyFloat::cast_no_quant(
     }
 
     // Initial value for exponent
-    std::int64_t new_exp = (std::int64_t)exp - (std::int64_t)bias + is_subnormal()
-        + (std::int64_t)res.bias;
+    std::int64_t new_exp = true_exp() + (std::int64_t)res.bias;
 
     // Normalize the exponent and mantissa if convertering from a subnormal
     man_t prev_man = man;
@@ -738,8 +735,8 @@ APyFloat APyFloat::operator+(APyFloat y) const
     std::int64_t new_exp = x.exp - x.bias + res.bias;
 
     // Conditionally add leading one's
-    man_t mx = x.leading_bit() | x.man;
-    man_t my = y.leading_bit() | y.man;
+    man_t mx = x.true_man();
+    man_t my = y.true_man();
 
     // Two integer bits, sign bit and leading one
     APyFixed apy_mx(2 + x.man_bits, 2, std::vector<mp_limb_t>({ mx }));
@@ -836,8 +833,8 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     APyFloat norm_y = y.normalized();
 
     // Add leading one's
-    man_t mx = norm_x.leading_bit() | norm_x.man;
-    man_t my = norm_y.leading_bit() | norm_y.man;
+    man_t mx = norm_x.true_man();
+    man_t my = norm_y.true_man();
 
     // Tentative exponent
     std::int64_t new_exp = ((std::int64_t)norm_x.exp - (std::int64_t)norm_x.bias)
@@ -867,8 +864,6 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         exp_t extended_bias = APyFloat::ieee_bias(tmp_exp_bits);
         new_exp = new_exp - res.bias + extended_bias;
 
-        // This circumvents the check of the mantissa in the constructors.
-        // TODO: handle this differently
         APyFloat larger_float(
             res.sign, new_exp, new_man, tmp_exp_bits, tmp_man_bits, extended_bias
         );
@@ -945,8 +940,8 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
         + (std::int64_t)res.bias;
 
     // Add leading one's
-    man_t mx = norm_x.leading_bit() | norm_x.man;
-    man_t my = norm_y.leading_bit() | norm_y.man;
+    man_t mx = norm_x.true_man();
+    man_t my = norm_y.true_man();
 
     // At least 3 + max(x.man_bits, y.man_bits) bits are needed,
     // using a size of _LIMB_SIZE_BITS makes initialization quick and easy.
@@ -1055,10 +1050,10 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
     std::int64_t new_exp
         = (static_cast<std::int64_t>(x.exp) - x.bias) * n + extended_bias;
 
-    std::uint64_t new_man = 0, mx = x.leading_bit() | x.man;
+    std::uint64_t new_man = 0, mx = x.true_man();
 
     // Check is done for 52 since std::pow uses double
-    if ((std::abs(n) * (x.man_bits + x.is_subnormal()) + 1) <= 52) {
+    if ((abs_n * (x.man_bits + x.is_normal()) + 1) <= 52) {
         new_man = std::pow(mx, abs_n);
 
         // Perform quantization
@@ -1292,23 +1287,23 @@ bool APyFloat::operator>(const APyFloat& rhs) const
  * ******************************************************************************
  */
 
-// True if and only if x is normal (not zero, subnormal, infinite, or NaN).
+//! True if and only if x is normal (not zero, subnormal, infinite, or NaN).
 bool APyFloat::is_normal() const { return exp != 0 && exp != max_exponent(); }
 
-// True if and only if x is zero, subnormal, or normal.
+//! True if and only if x is zero, subnormal, or normal.
 bool APyFloat::is_finite() const { return exp == 0 || exp != max_exponent(); }
 
-// True if and only if x is subnormal. Zero is also considered a subnormal
-// number.
+//! True if and only if x is subnormal. Zero is also considered a subnormal
+//! number.
 bool APyFloat::is_subnormal() const { return exp == 0; }
 
-// True if and only if x is zero.
+//! True if and only if x is zero.
 bool APyFloat::is_zero() const { return exp == 0 && man == 0; }
 
-// True if and only if x is NaN.
+//! True if and only if x is NaN.
 bool APyFloat::is_nan() const { return exp == max_exponent() && man != 0; }
 
-// True if and only if x is infinite.
+//! True if and only if x is infinite.
 bool APyFloat::is_inf() const { return exp == max_exponent() && man == 0; }
 
 /* ******************************************************************************
@@ -1334,6 +1329,7 @@ APyFloat::construct_nan(std::optional<bool> new_sign, man_t payload /*= 1*/) con
     );
 }
 
+//! Add matissa bits so that a number is no longer subnormal
 APyFloat APyFloat::normalized() const
 {
     if (!is_subnormal() || is_zero()) {
@@ -1341,25 +1337,21 @@ APyFloat APyFloat::normalized() const
     }
 
     man_t new_man = man;
-    std::int64_t true_exp = exp - bias;
+    std::int64_t new_exp = true_exp();
 
     while (!(new_man & leading_one())) {
         new_man <<= 1;
-        true_exp--;
+        new_exp--;
     }
 
-    return APyFloat(sign, true_exp + 1, new_man, exp_bits + 1, man_bits);
+    return APyFloat(sign, new_exp, new_man, exp_bits + 1, man_bits);
 }
 
-int APyFloat::leading_zeros_apyfixed(APyFixed fx) const
+int APY_INLINE APyFloat::leading_zeros_apyfixed(APyFixed fx) const
 {
     // Calculate the number of left shifts needed to make fx>=1.0
     const int zeros = fx.leading_zeros() - fx.int_bits();
-    if (zeros < 0) {
-        return 0;
-    } else {
-        return zeros + 1;
-    }
+    return std::max(0, zeros + 1);
 }
 
 APY_INLINE bool APyFloat::same_type_as(APyFloat other) const

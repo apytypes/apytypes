@@ -187,6 +187,12 @@ public:
     APY_INLINE std::uint8_t get_exp_bits() const { return exp_bits; }
     APY_INLINE std::uint8_t get_bits() const { return man_bits + exp_bits + 1; }
     APY_INLINE APyFloatData get_data() const { return { sign, exp, man }; }
+    APY_INLINE man_t true_man() const { return leading_bit() | man; }
+    APY_INLINE std::int64_t true_exp() const
+    {
+        return (std::int64_t)exp - (std::int64_t)bias + is_subnormal();
+    }
+
     APY_INLINE void set_data(const APyFloatData& data)
     {
         sign = data.sign;
