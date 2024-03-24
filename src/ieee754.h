@@ -11,7 +11,7 @@
 #include "apytypes_util.h"
 #include <cstdint> // uint64_t
 #include <cstring> // std::memcpy
-#include <limits>  // std::numiric_limits
+#include <limits>  // std::numeric_limits
 
 /*
  * For an easy C++17 compatible byte-swap expression, see:

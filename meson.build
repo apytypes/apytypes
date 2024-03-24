@@ -47,6 +47,7 @@ py3.extension_module(
     sources : files([
         'extern/mini-gmp/mini-gmp.c',
         'src/apyfixed.cc',
+        'src/apyfixed_util.cc',
         'src/apyfixed_wrapper.cc',
         'src/apyfixedarray.cc',
         'src/apyfixedarray_iterator.cc',
