@@ -1009,17 +1009,26 @@ APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) co
 
     auto shift_amount = new_bits - new_int_bits - frac_bits();
     std::vector<mp_limb_t>::iterator it_begin = result._data.begin(); // output start
+    auto size = fold_shape(_shape);
     // If item sizes are the same, copy the whole block
     if (_itemsize == result._itemsize) {
-        auto size = fold_shape(_shape);
         // Copy data into the result
         std::copy_n(
-            _data.begin(),       // src
-            _itemsize * size,    // limbs to copy
-            result._data.begin() // dst
+            _data.begin(),    // src
+            _itemsize * size, // limbs to copy
+            it_begin          // dst
         );
         // If shift if required
         if (shift_amount > 0) {
+            // Short data optimization, single limb
+            if (_itemsize == 1) {
+                // For each scalar in the tensor...
+                // Note that it is not possible to shift out any data here
+                for (std::size_t i = 0; i < size; i++) {
+                    result._data[i] = _data[i] << shift_amount;
+                }
+                return result;
+            }
             unsigned limb_skip = shift_amount / _LIMB_SIZE_BITS;
             unsigned limb_shift = shift_amount % _LIMB_SIZE_BITS;
             // For each scalar in the tensor...
@@ -1043,7 +1052,7 @@ APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) co
     // Shift if required
     if (shift_amount > 0) {
         // For each scalar in the tensor...
-        for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+        for (std::size_t i = 0; i < size; i++) {
 
             std::vector<mp_limb_t>::iterator it_end
                 = it_begin + result._itemsize; // output sentinel
