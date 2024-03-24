@@ -25,6 +25,7 @@ namespace nb = nanobind;
 #include <fmt/format.h>
 
 #include "apyfixed.h"
+#include "apyfixed_util.h"
 #include "apytypes_util.h"
 #include "ieee754.h"
 #include "python_util.h"
@@ -666,7 +667,7 @@ void APyFixed::set_from_double(double value)
             if (sign_of_double(value)) {
                 _data[0] = -_data[0];
             }
-            _data[0] = _twos_complement_overflow(_data[0], bits());
+            _data[0] = twos_complement_overflow(_data[0], bits());
         } else {
             std::fill(_data.begin(), _data.end(), 0);
             _data[0] = man;
@@ -1309,18 +1310,6 @@ void APyFixed::_overflow(
             overflow_mode_to_string(overflow)
         ));
     }
-}
-
-mp_limb_t inline APyFixed::_twos_complement_overflow(mp_limb_t value, int bits) const
-{
-    unsigned limb_shift_val = bits & (_LIMB_SIZE_BITS - 1);
-
-    if (limb_shift_val) {
-        auto shft_amnt = _LIMB_SIZE_BITS - limb_shift_val;
-        auto signed_limb = mp_limb_signed_t(value << shft_amnt) >> shft_amnt;
-        return mp_limb_t(signed_limb);
-    }
-    return value;
 }
 
 template <class RANDOM_ACCESS_ITERATOR>

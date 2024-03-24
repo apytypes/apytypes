@@ -412,9 +412,6 @@ private:
         int int_bits
     ) const;
 
-    // Simple version for single limbs
-    mp_limb_t inline _twos_complement_overflow(mp_limb_t value, int bits) const;
-
     /* ****************************************************************************** *
      *                           Private helper methods                               *
      * ****************************************************************************** */

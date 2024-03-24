@@ -21,6 +21,7 @@ namespace nb = nanobind;
 
 #include "apybuffer.h"
 #include "apyfixed.h"
+#include "apyfixed_util.h"
 #include "apyfixedarray.h"
 #include "apyfixedarray_iterator.h"
 #include "apytypes_common.h"
@@ -1195,19 +1196,25 @@ void APyFixedArray::_set_bits_from_numpy_ndarray(const nb::ndarray<nb::numpy>& n
 void APyFixedArray::_set_values_from_numpy_ndarray(const nb::ndarray<nb::numpy>& ndarray
 )
 {
-    // Type caster used for converting.
-    APyFixed caster(bits(), int_bits());
-
 #define CHECK_AND_SET_VALUES_FROM_NPTYPE(__TYPE__)                                     \
     do {                                                                               \
         if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
             auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
-            for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
-                double data = static_cast<double>(ndarray_view.data()[i]);             \
-                caster.set_from_double(data);                                          \
-                std::copy_n(                                                           \
-                    caster._data.begin(), _itemsize, _data.begin() + i * _itemsize     \
-                );                                                                     \
+            if (unsigned(_bits) <= _LIMB_SIZE_BITS) {                                  \
+                int fr_bits = frac_bits();                                             \
+                for (std::size_t i = 0; i < ndarray.size(); i++) {                     \
+                    double data = static_cast<double>(ndarray_view.data()[i]);         \
+                    _data[i] = get_data_from_double(data, bits(), fr_bits);            \
+                }                                                                      \
+            } else {                                                                   \
+                APyFixed caster(bits(), int_bits());                                   \
+                for (std::size_t i = 0; i < ndarray.size(); i++) {                     \
+                    double data = static_cast<double>(ndarray_view.data()[i]);         \
+                    caster.set_from_double(data);                                      \
+                    std::copy_n(                                                       \
+                        caster._data.begin(), _itemsize, _data.begin() + i * _itemsize \
+                    );                                                                 \
+                }                                                                      \
             }                                                                          \
             return; /* Conversion completed, exit function */                          \
         }                                                                              \
