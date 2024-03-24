@@ -191,6 +191,36 @@ APyFloat APyFloat::cast(
     std::optional<QuantizationMode> quantization
 ) const
 {
+    return _cast(
+        new_exp_bits,
+        new_man_bits,
+        new_bias.value_or(APyFloat::ieee_bias(new_exp_bits)),
+        quantization.value_or(get_quantization_mode())
+    );
+}
+
+APyFloat APyFloat::_cast(
+    std::uint8_t new_exp_bits,
+    std::uint8_t new_man_bits,
+    exp_t new_bias,
+    std::optional<QuantizationMode> quantization
+) const
+{
+    return _cast(
+        new_exp_bits,
+        new_man_bits,
+        new_bias,
+        quantization.value_or(get_quantization_mode())
+    );
+}
+
+APyFloat APyFloat::_cast(
+    std::uint8_t new_exp_bits,
+    std::uint8_t new_man_bits,
+    exp_t new_bias,
+    QuantizationMode quantization
+) const
+{
     if ((new_exp_bits == exp_bits) && (new_man_bits == man_bits)
         && (new_bias == bias)) {
         return *this;
@@ -247,7 +277,7 @@ APyFloat APyFloat::cast(
         G = (prev_man >> (bits_to_discard - 1)) & 1;
         T = (prev_man & ((1ULL << (bits_to_discard - 1)) - 1)) != 0;
 
-        switch (quantization.value_or(get_quantization_mode())) {
+        switch (quantization) {
         case QuantizationMode::RND_CONV: // TIES_TO_EVEN
             // Using 'new_man' directly here is fine since G can only be '0' or '1',
             // thus calculating the LSB of 'new_man' is not needed.
@@ -462,6 +492,14 @@ APyFloat APyFloat::cast_from_double(
 
 APyFloat APyFloat::cast_no_quant(
     std::uint8_t new_exp_bits, std::uint8_t new_man_bits, std::optional<exp_t> new_bias
+) const
+{
+    return cast_no_quant(
+        new_exp_bits, new_man_bits, new_bias.value_or(APyFloat::ieee_bias(new_exp_bits))
+    );
+}
+APyFloat APyFloat::cast_no_quant(
+    std::uint8_t new_exp_bits, std::uint8_t new_man_bits, exp_t new_bias
 ) const
 {
     if ((new_exp_bits == exp_bits) && (new_man_bits == man_bits)
@@ -867,7 +905,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         APyFloat larger_float(
             res.sign, new_exp, new_man, tmp_exp_bits, tmp_man_bits, extended_bias
         );
-        return larger_float.cast(res.exp_bits, res.man_bits, res.bias);
+        return larger_float._cast(res.exp_bits, res.man_bits, res.bias);
 
     } else {
         // Two integer bits, sign bit and leading one
@@ -1099,7 +1137,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
                extended_man_bits,
                extended_bias
     )
-        .cast(x.exp_bits, x.man_bits, x.bias);
+        ._cast(x.exp_bits, x.man_bits, x.bias);
 }
 
 /* ******************************************************************************
@@ -1365,20 +1403,20 @@ APY_INLINE bool APyFloat::same_type_as(APyFloat other) const
  */
 APyFloat APyFloat::cast_to_double(std::optional<QuantizationMode> quantization) const
 {
-    return cast(11, 52, 1023, quantization);
+    return _cast(11, 52, 1023, quantization);
 }
 
 APyFloat APyFloat::cast_to_single(std::optional<QuantizationMode> quantization) const
 {
-    return cast(8, 23, 127, quantization);
+    return _cast(8, 23, 127, quantization);
 }
 
 APyFloat APyFloat::cast_to_half(std::optional<QuantizationMode> quantization) const
 {
-    return cast(5, 10, 15, quantization);
+    return _cast(5, 10, 15, quantization);
 }
 
 APyFloat APyFloat::cast_to_bfloat16(std::optional<QuantizationMode> quantization) const
 {
-    return cast(8, 7, 127, quantization);
+    return _cast(8, 7, 127, quantization);
 }

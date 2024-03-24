@@ -580,6 +580,35 @@ APyFloatArray APyFloatArray::cast(
     std::optional<QuantizationMode> quantization
 ) const
 {
+    return _cast(
+        new_exp_bits,
+        new_man_bits,
+        new_bias.value_or(APyFloat::ieee_bias(new_exp_bits)),
+        quantization.value_or(get_quantization_mode())
+    );
+}
+APyFloatArray APyFloatArray::_cast(
+    std::uint8_t new_exp_bits,
+    std::uint8_t new_man_bits,
+    exp_t new_bias,
+    std::optional<QuantizationMode> quantization
+) const
+{
+    return _cast(
+        new_exp_bits,
+        new_man_bits,
+        new_bias,
+        quantization.value_or(get_quantization_mode())
+    );
+}
+
+APyFloatArray APyFloatArray::_cast(
+    std::uint8_t new_exp_bits,
+    std::uint8_t new_man_bits,
+    exp_t new_bias,
+    QuantizationMode quantization
+) const
+{
     if ((new_exp_bits == exp_bits) && (new_man_bits == man_bits)
         && (new_bias == bias)) {
         return *this;
@@ -589,7 +618,7 @@ APyFloatArray APyFloatArray::cast(
 
     for (std::size_t i = 0; i < data.size(); i++) {
         result.data[i] = APyFloat(data[i], exp_bits, man_bits, bias)
-                             .cast(new_exp_bits, new_man_bits, new_bias, quantization)
+                             ._cast(new_exp_bits, new_man_bits, new_bias, quantization)
                              .get_data();
     }
 
@@ -657,6 +686,9 @@ APyFloatArray APyFloatArray::checked_inner_product(const APyFloatArray& rhs) con
     auto tmp_exp_bits = max_exp_bits;
     auto tmp_man_bits = max_man_bits;
 
+    // Hadamard product of `*this` and `rhs`
+    APyFloatArray hadamard;
+
     // If an accumulator is used, the operands must be resized before the
     // multiplication. This is because the products would otherwise get quantized too
     // early.
@@ -668,11 +700,6 @@ APyFloatArray APyFloatArray::checked_inner_product(const APyFloatArray& rhs) con
         tmp_exp_bits = acc_option.exp_bits;
         tmp_man_bits = acc_option.man_bits;
         set_quantization_mode(acc_option.quantization);
-    }
-
-    // Hadamard product of `*this` and `rhs`
-    APyFloatArray hadamard;
-    if (get_accumulator_mode().has_value()) {
         hadamard = this->cast(tmp_exp_bits, tmp_man_bits)
             * rhs.cast(tmp_exp_bits, tmp_man_bits);
     } else {
@@ -759,23 +786,23 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
 APyFloatArray APyFloatArray::cast_to_double(std::optional<QuantizationMode> quantization
 ) const
 {
-    return cast(11, 52, 1023, quantization);
+    return _cast(11, 52, 1023, quantization);
 }
 
 APyFloatArray APyFloatArray::cast_to_single(std::optional<QuantizationMode> quantization
 ) const
 {
-    return cast(8, 23, 127, quantization);
+    return _cast(8, 23, 127, quantization);
 }
 
 APyFloatArray APyFloatArray::cast_to_half(std::optional<QuantizationMode> quantization
 ) const
 {
-    return cast(5, 10, 15, quantization);
+    return _cast(5, 10, 15, quantization);
 }
 
 APyFloatArray
 APyFloatArray::cast_to_bfloat16(std::optional<QuantizationMode> quantization) const
 {
-    return cast(8, 7, 127, quantization);
+    return _cast(8, 7, 127, quantization);
 }
