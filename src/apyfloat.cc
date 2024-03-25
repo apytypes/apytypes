@@ -1367,7 +1367,7 @@ APyFloat::construct_nan(std::optional<bool> new_sign, man_t payload /*= 1*/) con
     );
 }
 
-//! Add matissa bits so that a number is no longer subnormal
+//! Add mantissa bits so that a number is no longer subnormal
 APyFloat APyFloat::normalized() const
 {
     if (!is_subnormal() || is_zero()) {
@@ -1382,7 +1382,11 @@ APyFloat APyFloat::normalized() const
         new_exp--;
     }
 
-    return APyFloat(sign, new_exp, new_man, exp_bits + 1, man_bits);
+    // Add bias
+    const auto ieee_bias = APyFloat::ieee_bias(exp_bits + 1);
+    new_exp += ieee_bias;
+
+    return APyFloat(sign, new_exp, new_man, exp_bits + 1, man_bits, ieee_bias);
 }
 
 int APY_INLINE APyFloat::leading_zeros_apyfixed(APyFixed fx) const

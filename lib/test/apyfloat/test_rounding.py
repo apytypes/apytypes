@@ -36,8 +36,6 @@ class TestAPyFloatQuantizationDiv:
             res = APyFloat(1, 15, 1, 5, 2) / APyFloat(0, 15, 2, 5, 2)
             assert res == APyFloat(1, 14, 2, 5, 2)
 
-    # Fails due to bug in division for subnormals (issue https://github.com/apytypes/apytypes/issues/235)
-    @pytest.mark.xfail()
     def test_to_ties_even(self):
         with QuantizationContext(QuantizationMode.TIES_EVEN):
             # 1.25 / 1.5 should quantize to closes which is 0.875
@@ -57,7 +55,7 @@ class TestAPyFloatQuantizationDiv:
             assert res == APyFloat(1, 15, 1, 5, 2)
 
             # 2**-16 / 2 should tie to 0
-            res = APyFloat(0, 0, 3, 5, 2) / APyFloat(0, 16, 0, 5, 2)
+            res = APyFloat(0, 0, 1, 5, 2) / APyFloat(0, 16, 0, 5, 2)
             assert res == APyFloat(0, 0, 0, 5, 2)
 
             # -2**-16 / 2 should tie to 0
@@ -72,8 +70,6 @@ class TestAPyFloatQuantizationDiv:
             res = APyFloat(1, 0, 3, 5, 2) / APyFloat(0, 16, 0, 5, 2)
             assert res == APyFloat(1, 0, 2, 5, 2)
 
-    # Fails due to bug in division for subnormals (issue https://github.com/apytypes/apytypes/issues/235)
-    @pytest.mark.xfail()
     def test_to_ties_away(self):
         with QuantizationContext(QuantizationMode.TIES_AWAY):
             # 1.25 / 1.5 should quantize to closes which is 0.875
@@ -93,7 +89,7 @@ class TestAPyFloatQuantizationDiv:
             assert res == APyFloat(1, 15, 1, 5, 2)
 
             # 2**-16 / 2 should tie to 2**-16
-            res = APyFloat(0, 0, 3, 5, 2) / APyFloat(0, 16, 0, 5, 2)
+            res = APyFloat(0, 0, 1, 5, 2) / APyFloat(0, 16, 0, 5, 2)
             assert res == APyFloat(0, 0, 1, 5, 2)
 
             # -2**-16 / 2 should tie to 2**-16

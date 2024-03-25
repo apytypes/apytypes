@@ -326,6 +326,19 @@ def test_div_special_cases(x, y):
 
 
 @pytest.mark.float_div
+def test_subnormal_div():
+    # Subnormal divided by 1
+    # Related to https://github.com/apytypes/apytypes/issues/235
+    x = APyFloat(sign=0, exp=0, man=1, exp_bits=4, man_bits=7)
+    y = APyFloat(sign=0, exp=7, man=0, exp_bits=4, man_bits=7)
+    res = x / y
+
+    assert res == APyFloat(sign=0, exp=0, man=1, exp_bits=4, man_bits=7)
+
+    # More test cases to be added
+
+
+@pytest.mark.float_div
 def test_long_div():
     x = APyFloat(sign=0, exp=3, man=22, exp_bits=4, man_bits=7)
     y = APyFloat(sign=1, exp=32763, man=813782734503116, exp_bits=16, man_bits=52)
