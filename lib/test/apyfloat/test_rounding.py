@@ -3,8 +3,182 @@ from apytypes import APyFloat, QuantizationMode, QuantizationContext
 import pytest
 
 
+@pytest.mark.xfail()
+def test_issue_245():
+    # Smoke test for jamming rounding when adding with zero
+    # https://github.com/apytypes/apytypes/issues/245
+    with QuantizationContext(QuantizationMode.JAM):
+        res = APyFloat(0, 15, 0, 5, 2) + APyFloat(0, 0, 0, 5, 2)
+        assert res == APyFloat(0, 15, 1, 5, 2)
+
+
+@pytest.mark.float_add
+class TestAPyFloatQuantizationAddSub:
+    """
+    Test class for the different quantization modes for addition in APyFloat.
+    If subtraction is implemented as 'a + (-b)' then this also tests the quantization modes for subtraction.
+    """
+
+    def test_to_pos(self):
+        with QuantizationContext(QuantizationMode.TO_POS):
+            # 1.5 + very small number should quantize to 1.75
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
+            assert res == APyFloat(0, 15, 3, 5, 2)
+
+            # -1.5 + very small number should quantize to 1.25
+            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
+            assert res == APyFloat(1, 15, 1, 5, 2)
+
+    def test_to_neg(self):
+        with QuantizationContext(QuantizationMode.TO_NEG):
+            # 1.5 + very small number should quantize to 1.5
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
+            assert res == APyFloat(0, 15, 2, 5, 2)
+
+            # -1.5 + very small number should quantize to 1.5
+            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
+            assert res == APyFloat(1, 15, 2, 5, 2)
+
+    def test_to_zero(self):
+        with QuantizationContext(QuantizationMode.TO_ZERO):
+            # 1.5 + relatively big number (0.21875) should still quantize to 1.5
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(
+                sign=0, exp=12, man=3, exp_bits=5, man_bits=2
+            )
+            assert res == APyFloat(0, 15, 2, 5, 2)
+
+            # -1.5 + relatively big negative number (0.21875) should still quantize to -1.5
+            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(
+                sign=1, exp=12, man=3, exp_bits=5, man_bits=2
+            )
+            assert res == APyFloat(1, 15, 2, 5, 2)
+
+    def test_to_ties_even(self):
+        with QuantizationContext(QuantizationMode.TIES_EVEN):
+            # 1.5 + relatively big number (0.21875) should quantize to 1.75
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(
+                sign=0, exp=12, man=3, exp_bits=5, man_bits=2
+            )
+            assert res == APyFloat(0, 15, 3, 5, 2)
+
+            # -1.5 + relatively big negative number (0.21875) should quantize to -1.75
+            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(
+                sign=1, exp=12, man=3, exp_bits=5, man_bits=2
+            )
+            assert res == APyFloat(1, 15, 3, 5, 2)
+
+            # 1.5 + very small number should quantize to 1.5
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
+            assert res == APyFloat(0, 15, 2, 5, 2)
+
+            # -1.5 + very small negative number should quantize to 1.5
+            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
+            assert res == APyFloat(1, 15, 2, 5, 2)
+
+            # 1.5 + tie should quantize to 1.5
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 12, 0, 5, 2)
+            assert res == APyFloat(0, 15, 2, 5, 2)
+
+            # -1.5 + negative tie should quantize to -1.5
+            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(1, 12, 0, 5, 2)
+            assert res == APyFloat(1, 15, 2, 5, 2)
+
+            # 1.75 + tie should quantize to 2.0
+            res = APyFloat(0, 15, 3, 5, 2) + APyFloat(0, 12, 0, 5, 2)
+            assert res == APyFloat(0, 16, 0, 5, 2)
+
+            # -1.75 + negative tie should quantize to -2.0
+            res = APyFloat(1, 15, 3, 5, 2) + APyFloat(1, 12, 0, 5, 2)
+            assert res == APyFloat(1, 16, 0, 5, 2)
+
+    def test_to_ties_away(self):
+        with QuantizationContext(QuantizationMode.TIES_EVEN):
+            # 1.5 + relatively big number (0.21875) should quantize to 1.75
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(
+                sign=0, exp=12, man=3, exp_bits=5, man_bits=2
+            )
+            assert res == APyFloat(0, 15, 3, 5, 2)
+
+            # -1.5 + relatively big negative number (0.21875) should quantize to -1.75
+            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(
+                sign=1, exp=12, man=3, exp_bits=5, man_bits=2
+            )
+            assert res == APyFloat(1, 15, 3, 5, 2)
+
+            # 1.5 + very small number should quantize to 1.5
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
+            assert res == APyFloat(0, 15, 2, 5, 2)
+
+            # -1.5 + very small negative number should quantize to 1.5
+            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
+            assert res == APyFloat(1, 15, 2, 5, 2)
+
+            # 1.5 + tie should quantize to 1.75
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 12, 0, 5, 2)
+            assert res == APyFloat(0, 15, 2, 5, 2)
+
+            # -1.5 + negative tie should quantize to -1.75
+            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(1, 12, 0, 5, 2)
+            assert res == APyFloat(1, 15, 2, 5, 2)
+
+            # 1.75 + tie should quantize to 2.0
+            res = APyFloat(0, 15, 3, 5, 2) + APyFloat(0, 12, 0, 5, 2)
+            assert res == APyFloat(0, 16, 0, 5, 2)
+
+            # -1.75 + negative tie should quantize to -2.0
+            res = APyFloat(1, 15, 3, 5, 2) + APyFloat(1, 12, 0, 5, 2)
+            assert res == APyFloat(1, 16, 0, 5, 2)
+
+    def test_jam(self):
+        with QuantizationContext(QuantizationMode.JAM):
+            # 1.5 + very small number should quantize to 1.75
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
+            assert res == APyFloat(0, 15, 3, 5, 2)
+
+            # -1.25 + very small number should quantize to -1.25
+            res = APyFloat(1, 15, 1, 5, 2) + APyFloat(0, 1, 0, 5, 2)
+            assert res == APyFloat(1, 15, 1, 5, 2)
+
+            # 1.0 + 1.0 should become 2.5
+            res = APyFloat(0, 15, 0, 5, 2) + APyFloat(0, 15, 0, 5, 2)
+            assert res == APyFloat(0, 16, 1, 5, 2)
+
+    def test_stoch_weighted(self):
+        with QuantizationContext(QuantizationMode.STOCH_WEIGHTED):
+            # 1.5 + 0.125 should quantize to 1.5 or 1.75
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 12, 0, 5, 2)
+            assert (res == APyFloat(0, 15, 2, 5, 2)) or (
+                res == APyFloat(0, 15, 3, 5, 2)
+            )
+
+            res = APyFloat(0, 1023, 0, 11, 52) + APyFloat(
+                0, 1022, (1 << 52) - 1, 11, 52
+            )
+            assert (res == APyFloat(0, 1024, 0, 11, 52)) or (
+                res == APyFloat(0, 1023, 4503599627370495, 11, 52)
+            )
+
+    def test_stoch_equal(self):
+        with QuantizationContext(QuantizationMode.STOCH_EQUAL):
+            # 1.5 + 0.125 should quantize to 1.5 or 1.75
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 12, 0, 5, 2)
+            assert (res == APyFloat(0, 15, 2, 5, 2)) or (
+                res == APyFloat(0, 15, 3, 5, 2)
+            )
+
+            res = APyFloat(0, 1023, 0, 11, 52) + APyFloat(
+                0, 1022, (1 << 52) - 1, 11, 52
+            )
+            assert (res == APyFloat(0, 1024, 0, 11, 52)) or (
+                res == APyFloat(0, 1023, 4503599627370495, 11, 52)
+            )
+
+
 @pytest.mark.float_div
 class TestAPyFloatQuantizationDiv:
+    """
+    Test class for the different quantization modes for division in APyFloat.
+    """
 
     def test_to_pos(self):
         with QuantizationContext(QuantizationMode.TO_POS):
