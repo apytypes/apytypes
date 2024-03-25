@@ -804,7 +804,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     (void)cbegin_it;
-    return mp_limb_signed_t(*--cend_it) < 0;
+    return mp_limb_signed_t(*std::prev(cend_it)) < 0;
 }
 
 //! Reduce the first `n` bits in a limb vector over bitwise `or`. Returns bool.

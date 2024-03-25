@@ -114,7 +114,7 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
     const int res_bits = res_int_bits + res_frac_bits;
 
-    // Adjust binary point
+    // Special case #1: Operands and results fit in single limb
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         APyFixedArray result(_shape, res_bits, res_int_bits);
         // At most one must be shifted, but hope that this does not kill the
@@ -125,8 +125,40 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
             result._data[i]
                 = (_data[i] << lhs_shift_amount) + (rhs._data[i] << rhs_shift_amount);
         }
-        return result;
+        return result; // early exit
     }
+
+    // Special case #2: Operands and result have equally many limbs
+    auto res_limbs = bits_to_limbs(res_bits);
+    auto lhs_limbs = bits_to_limbs(bits());
+    auto rhs_limbs = bits_to_limbs(rhs.bits());
+    if (res_limbs == lhs_limbs && res_limbs == rhs_limbs) {
+        if (frac_bits() <= rhs.frac_bits()) {
+            APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
+            for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+                mpn_add_n(
+                    &result._data[i], // dst
+                    &result._data[i], // src1
+                    &rhs._data[i],    // src2
+                    result._itemsize  // limb vector length
+                );
+            }
+            return result;
+        } else {
+            APyFixedArray result = rhs._cast_correct_wl(res_bits, res_int_bits);
+            for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+                mpn_add_n(
+                    &result._data[i], // dst
+                    &result._data[i], // src1
+                    &_data[i],        // src2
+                    result._itemsize  // limb vector length
+                );
+            }
+            return result;
+        }
+    }
+
+    // Most general case that work in all situations
     APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
     APyFixedArray imm = rhs._cast_correct_wl(res_bits, res_int_bits);
 
@@ -589,7 +621,8 @@ APyFixedArray APyFixedArray::abs() const
 }
 
 APyFixedArray APyFixedArray::operator-() const
-{ // Increase word length of result by one
+{
+    // Increase word length of result by one
     const int res_int_bits = _int_bits + 1;
     const int res_bits = _bits + 1;
 
@@ -1012,7 +1045,7 @@ APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) co
     APyFixedArray result(_shape, new_bits, new_int_bits);
 
     auto shift_amount = new_bits - new_int_bits - frac_bits();
-    std::vector<mp_limb_t>::iterator it_begin = result._data.begin(); // output start
+    auto it_begin = result._data.begin(); // output start
     auto size = fold_shape(_shape);
     // If item sizes are the same, copy the whole block
     if (_itemsize == result._itemsize) {
@@ -1031,15 +1064,14 @@ APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) co
                 for (std::size_t i = 0; i < size; i++) {
                     result._data[i] = _data[i] << shift_amount;
                 }
-                return result;
+                return result; // early exit
             }
             unsigned limb_skip = shift_amount / _LIMB_SIZE_BITS;
             unsigned limb_shift = shift_amount % _LIMB_SIZE_BITS;
             // For each scalar in the tensor...
             // Note that it is not possible to shift out any data here
             for (std::size_t i = 0; i < size; i++) {
-                std::vector<mp_limb_t>::iterator it_end
-                    = it_begin + result._itemsize; // output sentinel
+                auto it_end = it_begin + result._itemsize; // output sentinel
                 limb_vector_lsl_inner(
                     it_begin, it_end, limb_skip, limb_shift, result._itemsize
                 );
@@ -1057,9 +1089,7 @@ APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) co
         unsigned limb_shift = shift_amount % _LIMB_SIZE_BITS;
         // For each scalar in the tensor...
         for (std::size_t i = 0; i < size; i++) {
-
-            std::vector<mp_limb_t>::iterator it_end
-                = it_begin + result._itemsize; // output sentinel
+            auto it_end = it_begin + result._itemsize; // output sentinel
             auto data_end = data_begin + _itemsize;
             // Copy data into the result
             std::copy_n(
@@ -1084,9 +1114,7 @@ APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) co
         // For each scalar in the tensor...
         // Same as above, but no shift so only copy and sign-extend
         for (std::size_t i = 0; i < fold_shape(_shape); i++) {
-
-            std::vector<mp_limb_t>::iterator it_end
-                = it_begin + result._itemsize; // output sentinel
+            auto it_end = it_begin + result._itemsize; // output sentinel
             auto data_end = data_begin + _itemsize;
             // Copy data into the result
             std::copy_n(
