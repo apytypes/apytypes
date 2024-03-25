@@ -248,8 +248,8 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
 
 APyFixed APyFixed::operator/(const APyFixed& rhs) const
 {
-    const int res_bits = bits() + std::max(rhs.bits() - rhs.int_bits(), 0) + 1;
-    const int res_int_bits = int_bits() + rhs.bits() - rhs.int_bits() + 1;
+    const int res_bits = bits() + std::max(rhs.frac_bits(), 0) + 1;
+    const int res_int_bits = int_bits() + rhs.frac_bits() + 1;
     APyFixed result(res_bits, res_int_bits);
 
     // Single-limb result specialization
@@ -268,19 +268,26 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
     limb_vector_abs(rhs._data.cbegin(), rhs._data.cend(), abs_den.begin());
 
     // Absolute value left-shifted numerator
-    ScratchVector<mp_limb_t> abs_num(1 + bits_to_limbs(bits() + rhs.frac_bits()));
+    ScratchVector<mp_limb_t> abs_num(bits_to_limbs(res_bits));
     abs()._data_asl(abs_num.begin(), abs_num.end(), rhs.frac_bits());
 
     // `mpn_tdiv_qr` requires that the number of significant limbs in denominator
     std::size_t den_significant_limbs
         = significant_limbs(abs_den.begin(), abs_den.end());
-    mpn_div_qr(
-        &result._data[0],     // Quotient
-        &abs_num[0],          // Numerator
-        abs_num.size(),       // Numerator significant limbs
-        &abs_den[0],          // Denominator
-        den_significant_limbs // Denominator significant limbs
-    );
+    if (den_significant_limbs > abs_num.size()) {
+        // GMP requires that the numerator has more or equally many limbs as the
+        // denominator. If this is not the case, the result is identically equal to
+        // zero.
+        return result; // early exit
+    } else {
+        mpn_div_qr(
+            &result._data[0],     // Quotient
+            &abs_num[0],          // Numerator
+            abs_num.size(),       // Numerator significant limbs
+            &abs_den[0],          // Denominator
+            den_significant_limbs // Denominator significant limbs
+        );
+    }
     if (sign_product) {
         limb_vector_negate(
             result._data.begin(), result._data.end(), result._data.begin()

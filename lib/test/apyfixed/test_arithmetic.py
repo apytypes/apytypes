@@ -184,9 +184,9 @@ def test_mixed_width_operations():
     assert (fx_b * fx_a).is_identical(fx_a * fx_b)
 
     assert (fx_a / fx_b).is_identical(APyFixed(104, bits=37, int_bits=29))
-    # assert (fx_b / fx_a).is_identical(...) Segmentation fault
+    assert (fx_b / fx_a).is_identical(APyFixed(2558241, bits=109, int_bits=89))
     assert (fx_a / fx_a).is_identical(APyFixed(256, bits=25, int_bits=17))
-    # assert (fx_b / fx_b).is_identical(...) Segmentation fault
+    assert (fx_b / fx_b).is_identical(APyFixed(1048576, bits=121, int_bits=101))
 
 
 def test_unary_minus():
