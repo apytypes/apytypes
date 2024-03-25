@@ -123,13 +123,39 @@ def test_add_overflow():
 
 
 @pytest.mark.float_add
-@pytest.mark.parametrize("x", [0.0, 1.0, float("inf"), float("nan")])
-@pytest.mark.parametrize("y", [0.0, 1.0, float("inf"), float("nan")])
-def test_add_special_cases(x, y):
-    """Test the special cases for addition."""
-    assert str(
-        float(APyFloat.from_float(x, 4, 4) + APyFloat.from_float(y, 4, 4))
-    ) == str(x + y)
+@pytest.mark.parametrize("num", [APyFloat(0, 17, 123, 5, 7), APyFloat(0, 0, 123, 5, 7)])
+def test_add_zero(num):
+    assert (num + APyFloat(0, 0, 0, 5, 7)).is_identical(num)
+    assert (APyFloat(0, 0, 0, 5, 7) + num).is_identical(num)
+
+
+@pytest.mark.float_add
+@pytest.mark.parametrize("num", [APyFloat(0, 17, 123, 5, 7), APyFloat(0, 0, 123, 5, 7)])
+def test_add_inf(num):
+    assert (num + APyFloat(0, 0x1F, 0, 5, 7)).is_identical(APyFloat(0, 0x1F, 0, 5, 7))
+    assert (APyFloat(0, 0x1F, 0, 5, 7) + num).is_identical(APyFloat(0, 0x1F, 0, 5, 7))
+
+
+@pytest.mark.float_add
+@pytest.mark.parametrize("num", [APyFloat(0, 17, 123, 5, 7), APyFloat(0, 0, 123, 5, 7)])
+def test_add_nan(num):
+    assert (num + APyFloat(0, 0x1F, 1, 5, 7)).is_nan
+    assert (APyFloat(0, 0x1F, 1, 5, 7) + num).is_nan
+
+
+@pytest.mark.float_add
+def test_add_inf_nan():
+    # Infinity with NaN
+    assert (APyFloat(0, 0x1F, 0, 5, 7) + APyFloat(0, 0x1F, 1, 5, 7)).is_nan
+    assert (APyFloat(0, 0x1F, 1, 5, 7) + APyFloat(0, 0x1F, 0, 5, 7)).is_nan
+
+    # Infinity with infinity
+    assert (APyFloat(0, 0x1F, 0, 5, 7) + APyFloat(0, 0x1F, 0, 5, 7)).is_identical(
+        APyFloat(0, 0x1F, 0, 5, 7)
+    )
+
+    # NaN with NaN
+    assert (APyFloat(0, 0x1F, 1, 5, 7) + APyFloat(0, 0x1F, 1, 5, 7)).is_nan
 
 
 @pytest.mark.float_add
@@ -194,37 +220,43 @@ def test_sub_diff_sign(lhs, rhs):
 
 
 @pytest.mark.float_sub
-@pytest.mark.parametrize(
-    "lhs,rhs",
-    list(perm(["APyFloat.from_float(5.75, 15, 5)", "APyFloat.from_float(0.0, 5, 12)"])),
-)
-def test_sub_zero(lhs, rhs):
-    # Subtraction when one operand is zero
-    expr = None
-    assert float(eval(expr := f"{lhs} - {rhs}")) == (
-        5.75 * (-1 if eval(lhs) == 0 else 1)
-    )
-    res = eval(expr)
-    assert res.exp_bits == 15
-    assert res.man_bits == 12
-
-
-@pytest.mark.float_sub
 def test_sub_overflow():
     """Test that a subtraction can overflow."""
     assert (APyFloat(1, 0b11110, 1, 5, 2) - APyFloat(0, 0b11110, 3, 5, 3)).is_inf
 
 
 @pytest.mark.float_sub
-@pytest.mark.parametrize("x", [0.0, 1.0, float("inf"), float("nan")])
-@pytest.mark.parametrize("y", [0.0, 1.0, float("inf"), float("nan")])
-def test_sub_special_cases(x, y):
-    """Test the special cases for addition."""
-    s = str(float(APyFloat.from_float(x, 4, 4) - APyFloat.from_float(y, 4, 4)))
-    if x == 0 and y == 0 or x == 1 and y == 1:  # Python writes this as 0.0
-        assert s == "-0.0"
-    else:
-        assert s == str(x - y)
+@pytest.mark.parametrize("num", [APyFloat(0, 17, 123, 5, 7), APyFloat(0, 0, 123, 5, 7)])
+def test_sub_zero(num):
+    assert (num - APyFloat(0, 0, 0, 5, 7)).is_identical(num)
+    assert (APyFloat(0, 0, 0, 5, 7) - num).is_identical(-num)
+
+
+@pytest.mark.float_sub
+@pytest.mark.parametrize("num", [APyFloat(0, 17, 123, 5, 7), APyFloat(0, 0, 123, 5, 7)])
+def test_sub_inf(num):
+    assert (num - APyFloat(0, 0x1F, 0, 5, 7)).is_identical(APyFloat(1, 0x1F, 0, 5, 7))
+    assert (APyFloat(0, 0x1F, 0, 5, 7) - num).is_identical(APyFloat(0, 0x1F, 0, 5, 7))
+
+
+@pytest.mark.float_sub
+@pytest.mark.parametrize("num", [APyFloat(0, 17, 123, 5, 7), APyFloat(0, 0, 123, 5, 7)])
+def test_sub_nan(num):
+    assert (num - APyFloat(0, 0x1F, 1, 5, 7)).is_nan
+    assert (APyFloat(0, 0x1F, 1, 5, 7) - num).is_nan
+
+
+@pytest.mark.float_sub
+def test_add_inf_nan():
+    # Infinity with NaN
+    assert (APyFloat(0, 0x1F, 0, 5, 7) - APyFloat(0, 0x1F, 1, 5, 7)).is_nan
+    assert (APyFloat(0, 0x1F, 1, 5, 7) - APyFloat(0, 0x1F, 0, 5, 7)).is_nan
+
+    # Infinity with infinity
+    assert (APyFloat(0, 0x1F, 0, 5, 7) - APyFloat(0, 0x1F, 0, 5, 7)).is_nan
+
+    # NaN with NaN
+    assert (APyFloat(0, 0x1F, 1, 5, 7) - APyFloat(0, 0x1F, 1, 5, 7)).is_nan
 
 
 # Multiplication
