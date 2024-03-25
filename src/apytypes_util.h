@@ -567,7 +567,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     // Return early if no shift or no vector
-    if (it_end <= it_begin || !shift_amnt) {
+    if (!shift_amnt) {
         return;
     }
 
@@ -617,7 +617,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     // Return early if no shift or no vector
-    if (it_end <= it_begin || !shift_amnt) {
+    if (!shift_amnt) {
         return;
     }
 
@@ -691,17 +691,17 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     // Return early if no shift or no vector
-    if (!shift_amnt || it_end <= it_begin) {
+    if (!shift_amnt) {
         return;
     }
 
     std::size_t vec_size = std::distance(it_begin, it_end);
-    unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
     unsigned limb_skip = shift_amnt / _LIMB_SIZE_BITS;
     if (limb_skip >= vec_size) {
         std::fill(it_begin, it_end, 0);
         return; // early return
     }
+    unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
     limb_vector_lsl_inner(it_begin, it_end, limb_skip, limb_shift, vec_size);
 }
 
@@ -718,10 +718,10 @@ template <class RANDOM_ACCESS_ITERATOR>
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned n
 )
 {
-    unsigned bit_idx = n % _LIMB_SIZE_BITS;
     unsigned limb_idx = n / _LIMB_SIZE_BITS;
     auto limbs = std::distance(it_begin, it_end);
     if (limb_idx < limbs) {
+        unsigned bit_idx = n % _LIMB_SIZE_BITS;
         std::vector<mp_limb_t> term(limbs, 0);
         term[limb_idx] = mp_limb_t(1) << bit_idx;
         return mpn_add_n(            /* notice carry return here */

@@ -324,7 +324,7 @@ APyFixed APyFixed::operator/(int rhs) const
     if (rhs == 1) {
         return *this;
     }
-    throw NotImplementedException("Not implemented: APyFixed.__mul__(int)");
+    throw NotImplementedException("Not implemented: APyFixed.__div__(int)");
 }
 
 APyFixed APyFixed::operator<<(const int shift_val) const
@@ -701,7 +701,7 @@ double APyFixed::to_double() const
 
         // Shift the mantissa into position and set the mantissa and exponent part
         int left_shift_amnt = 53 - _LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
-        if (left_shift_amnt > 0) {
+        if (left_shift_amnt >= 0) {
             limb_vector_lsl(man_vec.begin(), man_vec.end(), left_shift_amnt);
         } else {
             limb_vector_lsr(man_vec.begin(), man_vec.end(), -left_shift_amnt);
@@ -1051,10 +1051,11 @@ void APyFixed::_quantize_trn(
 ) const
 {
     int new_frac_bits = new_bits - new_int_bits;
-    if (frac_bits() <= new_frac_bits) {
-        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    auto left_shift_amnt = new_frac_bits - frac_bits();
+    if (left_shift_amnt >= 0) {
+        limb_vector_lsl(it_begin, it_end, left_shift_amnt);
     } else {
-        limb_vector_asr(it_begin, it_end, frac_bits() - new_frac_bits);
+        limb_vector_asr(it_begin, it_end, -left_shift_amnt);
     }
 }
 
@@ -1067,10 +1068,11 @@ void APyFixed::_quantize_trn_inf(
 ) const
 {
     int new_frac_bits = new_bits - new_int_bits;
-    if (frac_bits() <= new_frac_bits) {
-        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    auto left_shift_amnt = new_frac_bits - frac_bits();
+    if (left_shift_amnt >= 0) {
+        limb_vector_lsl(it_begin, it_end, left_shift_amnt);
     } else {
-        unsigned start_idx = frac_bits() - new_frac_bits;
+        unsigned start_idx = -left_shift_amnt;
         if (!limb_vector_is_negative(it_begin, it_end)) {
             if (limb_vector_or_reduce(it_begin, it_end, start_idx)) {
                 limb_vector_add_pow2(it_begin, it_end, start_idx);
@@ -1089,10 +1091,11 @@ void APyFixed::_quantize_trn_zero(
 ) const
 {
     int new_frac_bits = new_bits - new_int_bits;
-    if (frac_bits() <= new_frac_bits) {
-        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    auto left_shift_amnt = new_frac_bits - frac_bits();
+    if (left_shift_amnt >= 0) {
+        limb_vector_lsl(it_begin, it_end, left_shift_amnt);
     } else {
-        unsigned start_idx = frac_bits() - new_frac_bits;
+        unsigned start_idx = -left_shift_amnt;
         if (limb_vector_is_negative(it_begin, it_end)) {
             if (limb_vector_or_reduce(it_begin, it_end, start_idx)) {
                 limb_vector_add_pow2(it_begin, it_end, start_idx);
@@ -1111,10 +1114,11 @@ void APyFixed::_quantize_rnd(
 ) const
 {
     int new_frac_bits = new_bits - new_int_bits;
-    if (frac_bits() <= new_frac_bits) {
-        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    auto left_shift_amnt = new_frac_bits - frac_bits();
+    if (left_shift_amnt >= 0) {
+        limb_vector_lsl(it_begin, it_end, left_shift_amnt);
     } else {
-        unsigned start_idx = frac_bits() - new_frac_bits;
+        unsigned start_idx = -left_shift_amnt;
         limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
         limb_vector_asr(it_begin, it_end, start_idx);
     }
@@ -1129,10 +1133,11 @@ void APyFixed::_quantize_rnd_zero(
 ) const
 {
     int new_frac_bits = new_bits - new_int_bits;
-    if (frac_bits() <= new_frac_bits) {
-        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    auto left_shift_amnt = new_frac_bits - frac_bits();
+    if (left_shift_amnt >= 0) {
+        limb_vector_lsl(it_begin, it_end, left_shift_amnt);
     } else {
-        unsigned start_idx = frac_bits() - new_frac_bits;
+        unsigned start_idx = -left_shift_amnt;
         if (limb_vector_is_negative(it_begin, it_end)) {
             limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
         } else {
@@ -1153,10 +1158,11 @@ void APyFixed::_quantize_rnd_inf(
 ) const
 {
     int new_frac_bits = new_bits - new_int_bits;
-    if (frac_bits() <= new_frac_bits) {
-        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    auto left_shift_amnt = new_frac_bits - frac_bits();
+    if (left_shift_amnt >= 0) {
+        limb_vector_lsl(it_begin, it_end, left_shift_amnt);
     } else {
-        unsigned start_idx = frac_bits() - new_frac_bits;
+        unsigned start_idx = -left_shift_amnt;
         if (!limb_vector_is_negative(it_begin, it_end)) {
             limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
         } else {
@@ -1177,10 +1183,11 @@ void APyFixed::_quantize_rnd_min_inf(
 ) const
 {
     int new_frac_bits = new_bits - new_int_bits;
-    if (frac_bits() <= new_frac_bits) {
-        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    auto left_shift_amnt = new_frac_bits - frac_bits();
+    if (left_shift_amnt >= 0) {
+        limb_vector_lsl(it_begin, it_end, left_shift_amnt);
     } else {
-        unsigned start_idx = frac_bits() - new_frac_bits;
+        unsigned start_idx = -left_shift_amnt;
         if (!limb_vector_is_negative(it_begin, it_end)) {
             if (limb_vector_or_reduce(it_begin, it_end, start_idx - 1)) {
                 limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
@@ -1203,10 +1210,11 @@ void APyFixed::_quantize_rnd_conv(
 ) const
 {
     int new_frac_bits = new_bits - new_int_bits;
-    if (frac_bits() <= new_frac_bits) {
-        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    auto left_shift_amnt = new_frac_bits - frac_bits();
+    if (left_shift_amnt >= 0) {
+        limb_vector_lsl(it_begin, it_end, left_shift_amnt);
     } else {
-        unsigned start_idx = frac_bits() - new_frac_bits;
+        unsigned start_idx = -left_shift_amnt;
         if (limb_vector_or_reduce(it_begin, it_end, start_idx - 1)) {
             limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
         } else {
@@ -1227,10 +1235,11 @@ void APyFixed::_quantize_rnd_conv_odd(
 ) const
 {
     int new_frac_bits = new_bits - new_int_bits;
-    if (frac_bits() <= new_frac_bits) {
-        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    auto left_shift_amnt = new_frac_bits - frac_bits();
+    if (left_shift_amnt >= 0) {
+        limb_vector_lsl(it_begin, it_end, left_shift_amnt);
     } else {
-        unsigned start_idx = frac_bits() - new_frac_bits;
+        unsigned start_idx = -left_shift_amnt;
         if (limb_vector_or_reduce(it_begin, it_end, start_idx - 1)) {
             limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
         } else {
@@ -1251,10 +1260,11 @@ void APyFixed::_quantize_jam(
 ) const
 {
     int new_frac_bits = new_bits - new_int_bits;
-    if (frac_bits() <= new_frac_bits) {
-        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    auto left_shift_amnt = new_frac_bits - frac_bits();
+    if (left_shift_amnt >= 0) {
+        limb_vector_lsl(it_begin, it_end, left_shift_amnt);
     } else {
-        limb_vector_asr(it_begin, it_end, frac_bits() - new_frac_bits);
+        limb_vector_asr(it_begin, it_end, -left_shift_amnt);
     }
     limb_vector_set_bit(it_begin, it_end, 0, true);
 }
@@ -1268,10 +1278,11 @@ void APyFixed::_quantize_jam_unbiased(
 ) const
 {
     int new_frac_bits = new_bits - new_int_bits;
-    if (frac_bits() <= new_frac_bits) {
-        limb_vector_lsl(it_begin, it_end, new_frac_bits - frac_bits());
+    auto left_shift_amnt = new_frac_bits - frac_bits();
+    if (left_shift_amnt >= 0) {
+        limb_vector_lsl(it_begin, it_end, left_shift_amnt);
     } else {
-        unsigned start_idx = frac_bits() - new_frac_bits;
+        unsigned start_idx = -left_shift_amnt;
         if (limb_vector_or_reduce(it_begin, it_end, start_idx)) {
             limb_vector_set_bit(it_begin, it_end, start_idx, true);
         }
