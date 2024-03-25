@@ -856,7 +856,7 @@ std::size_t APyFixed::leading_fractional_zeros() const
 
     std::size_t leading_frac_bits_last_limb = 0;
     if (utilized_frac_bits_last_limb) {
-        mp_limb_t mask = (1 << utilized_frac_bits_last_limb) - 1;
+        mp_limb_t mask = (mp_limb_t(1) << utilized_frac_bits_last_limb) - 1;
         mp_limb_t limb = _data[utilized_full_frac_limbs];
         limb &= mask;
         leading_frac_bits_last_limb

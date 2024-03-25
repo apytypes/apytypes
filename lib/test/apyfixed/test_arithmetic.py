@@ -397,3 +397,11 @@ def test_leading_fractional_zeros():
         APyFixed(0xE_800FF00FF00FF00F, bits=68, frac_bits=64).leading_fractional_zeros()
         == 0
     )
+
+
+def test_issue_224():
+    # Smoke test for faulty number of leading zeros
+    # https://github.com/apytypes/apytypes/issues/224
+    x = APyFixed(39726548548812, bits=55, int_bits=3)  # approx 0.008821065777556036
+    assert x.leading_zeros() == 9
+    assert x.leading_fractional_zeros() == 6

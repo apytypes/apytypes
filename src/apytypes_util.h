@@ -56,7 +56,7 @@ public:
         : std::domain_error(msg.value_or("Not implemented yet")) {};
 };
 
-//! Compute the number of leading zeros in integer
+//! Compute the number of leading zeros in an integer
 template <typename INT_TYPE>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t leading_zeros(INT_TYPE n)
 {
@@ -82,15 +82,15 @@ template <typename INT_TYPE>
 #endif
 }
 
-//! Compute number of leading ones in integer
+//! Compute number of leading ones in an integer
 template <typename INT_TYPE>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t leading_ones(INT_TYPE n)
 {
     return leading_zeros(~n);
 }
 
-//! Compute bit-width (`1 + ceil(log2(n))` for unsigned) integer `n`. If `n` is zero,
-//! return zero
+//! Compute bit-width (`1 + ceil(log2(n))` for unsigned `n`) of an integer `n`. If `n`
+//! is zero, return zero.
 template <typename INT_TYPE>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t bit_width(INT_TYPE n)
 {
@@ -143,7 +143,7 @@ limb_vector_leading_zeros(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR e
         // All limbs are zero limbs
         return _LIMB_SIZE_BITS * zero_limbs;
     } else {
-        // Some of the limbs is non-zero
+        // Some of the limbs are non-zero
         return _LIMB_SIZE_BITS * zero_limbs + leading_zeros(*rev_non_zero_it);
     }
 }
@@ -162,6 +162,7 @@ limb_vector_leading_ones(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR en
         // All limbs are ones limbs
         return _LIMB_SIZE_BITS * all_ones_limbs;
     } else {
+        // Some of the limbs are not all ones
         return _LIMB_SIZE_BITS * all_ones_limbs + leading_ones(*rev_not_all_ones_it);
     }
 }
