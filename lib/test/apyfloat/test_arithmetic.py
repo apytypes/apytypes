@@ -118,8 +118,14 @@ def test_add_representable(exp, man, sign, lhs, rhs):
 @pytest.mark.float_add
 def test_add_overflow():
     """Test that an addition can overflow."""
-    assert (APyFloat(0, 0b11110, 3, 5, 2) + APyFloat(0, 0b11110, 3, 5, 2)).is_inf
-    assert (APyFloat(1, 0b11110, 3, 5, 2) + APyFloat(1, 0b11110, 3, 5, 2)).is_inf
+    # To positive infinity
+    assert (APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2)).is_inf
+
+    # To negative infinity
+    assert (APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2)).is_inf
+
+    # Overflow to infinity after quantization
+    assert (APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 27, 0, 5, 2)).is_inf
 
 
 @pytest.mark.float_add
