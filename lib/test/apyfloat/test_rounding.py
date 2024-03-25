@@ -3,41 +3,152 @@ from apytypes import APyFloat, QuantizationMode, QuantizationContext
 import pytest
 
 
-@pytest.mark.xfail()
 @pytest.mark.float_div
-@pytest.mark.parametrize("a", [14, 20])
-@pytest.mark.parametrize("b", [14, 20])
-@pytest.mark.parametrize("sign", [1, -1])
 class TestAPyFloatQuantizationDiv:
-    def test_to_pos(self, a, b, sign):
+
+    def test_to_pos(self):
         with QuantizationContext(QuantizationMode.TO_POS):
-            assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
-                b, 5, 5
-            ) == APyFloat.from_float(sign * a / b, 5, 5)
+            # 1.5 / 1.25 (=1.2) should quantize to 1.25
+            res = APyFloat(0, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
+            assert res == APyFloat(0, 15, 1, 5, 2)
 
-    def test_to_neg(self, a, b, sign):
+            # -1.5 / 1.25 (=-1.2) should quantize to -1
+            res = APyFloat(1, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
+            assert res == APyFloat(1, 15, 0, 5, 2)
+
+    def test_to_neg(self):
         with QuantizationContext(QuantizationMode.TO_NEG):
-            assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
-                b, 5, 5
-            ) == APyFloat.from_float(sign * a / b, 5, 5)
+            # 1.5 / 1.25 (=1.2) should quantize to 1.0
+            res = APyFloat(0, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
+            assert res == APyFloat(0, 15, 0, 5, 2)
 
-    def test_to_zero(self, a, b, sign):
+            # -1.5 / 1.25 (=-1.2) should quantize to -1.25
+            res = APyFloat(1, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
+            assert res == APyFloat(1, 15, 1, 5, 2)
+
+    def test_to_zero(self):
         with QuantizationContext(QuantizationMode.TO_ZERO):
-            assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
-                b, 5, 5
-            ) == APyFloat.from_float(sign * a / b, 5, 5)
+            # 1.25 / 1.5 should quantize to 0.75
+            res = APyFloat(0, 15, 1, 5, 2) / APyFloat(0, 15, 2, 5, 2)
+            assert res == APyFloat(0, 14, 2, 5, 2)
 
-    def test_to_ties_even(self, a, b, sign):
+            # -1.25 / 1.5 should quantize to -0.75
+            res = APyFloat(1, 15, 1, 5, 2) / APyFloat(0, 15, 2, 5, 2)
+            assert res == APyFloat(1, 14, 2, 5, 2)
+
+    # Fails due to bug in division for subnormals (issue https://github.com/apytypes/apytypes/issues/235)
+    @pytest.mark.xfail()
+    def test_to_ties_even(self):
         with QuantizationContext(QuantizationMode.TIES_EVEN):
-            assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
-                b, 5, 5
-            ) == APyFloat.from_float(sign * a / b, 5, 5)
+            # 1.25 / 1.5 should quantize to closes which is 0.875
+            res = APyFloat(0, 15, 1, 5, 2) / APyFloat(0, 15, 2, 5, 2)
+            assert res == APyFloat(0, 14, 3, 5, 2)
 
-    def test_to_ties_away(self, a, b, sign):
+            # -1.25 / 1.5 should quantize to closes which is 0.875
+            res = APyFloat(1, 15, 1, 5, 2) / APyFloat(0, 15, 2, 5, 2)
+            assert res == APyFloat(1, 14, 3, 5, 2)
+
+            # 1.5 / 1.25 (=1.2) should quantize to closest which is 1.25
+            res = APyFloat(0, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
+            assert res == APyFloat(0, 15, 1, 5, 2)
+
+            # -1.5 / 1.25 (=-1.2) should quantize to closes which is -1.25
+            res = APyFloat(1, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
+            assert res == APyFloat(1, 15, 1, 5, 2)
+
+            # 2**-16 / 2 should tie to 0
+            res = APyFloat(0, 0, 3, 5, 2) / APyFloat(0, 16, 0, 5, 2)
+            assert res == APyFloat(0, 0, 0, 5, 2)
+
+            # -2**-16 / 2 should tie to 0
+            res = APyFloat(1, 0, 1, 5, 2) / APyFloat(0, 16, 0, 5, 2)
+            assert res == APyFloat(1, 0, 0, 5, 2)
+
+            # 3*2**-16 / 2 should tie to 2*2**-16
+            res = APyFloat(0, 0, 3, 5, 2) / APyFloat(0, 16, 0, 5, 2)
+            assert res == APyFloat(0, 0, 2, 5, 2)
+
+            # -3*2**-16 / 2 should tie to -2*2**-16
+            res = APyFloat(1, 0, 3, 5, 2) / APyFloat(0, 16, 0, 5, 2)
+            assert res == APyFloat(1, 0, 2, 5, 2)
+
+    # Fails due to bug in division for subnormals (issue https://github.com/apytypes/apytypes/issues/235)
+    @pytest.mark.xfail()
+    def test_to_ties_away(self):
         with QuantizationContext(QuantizationMode.TIES_AWAY):
-            assert APyFloat.from_float(sign * a, 5, 5) / APyFloat.from_float(
-                b, 5, 5
-            ) == APyFloat.from_float(sign * a / b, 5, 5)
+            # 1.25 / 1.5 should quantize to closes which is 0.875
+            res = APyFloat(0, 15, 1, 5, 2) / APyFloat(0, 15, 2, 5, 2)
+            assert res == APyFloat(0, 14, 3, 5, 2)
+
+            # -1.25 / 1.5 should quantize to closes which is 0.875
+            res = APyFloat(1, 15, 1, 5, 2) / APyFloat(0, 15, 2, 5, 2)
+            assert res == APyFloat(1, 14, 3, 5, 2)
+
+            # 1.5 / 1.25 (=1.2) should quantize to closest which is 1.25
+            res = APyFloat(0, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
+            assert res == APyFloat(0, 15, 1, 5, 2)
+
+            # -1.5 / 1.25 (=-1.2) should quantize to closes which is -1.25
+            res = APyFloat(1, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
+            assert res == APyFloat(1, 15, 1, 5, 2)
+
+            # 2**-16 / 2 should tie to 2**-16
+            res = APyFloat(0, 0, 3, 5, 2) / APyFloat(0, 16, 0, 5, 2)
+            assert res == APyFloat(0, 0, 1, 5, 2)
+
+            # -2**-16 / 2 should tie to 2**-16
+            res = APyFloat(1, 0, 1, 5, 2) / APyFloat(0, 16, 0, 5, 2)
+            assert res == APyFloat(1, 0, 1, 5, 2)
+
+            # 3*2**-16 / 2 should tie to 2*2**-16
+            res = APyFloat(0, 0, 3, 5, 2) / APyFloat(0, 16, 0, 5, 2)
+            assert res == APyFloat(0, 0, 2, 5, 2)
+
+            # -3*2**-16 / 2 should tie to -2*2**-16
+            res = APyFloat(1, 0, 3, 5, 2) / APyFloat(0, 16, 0, 5, 2)
+            assert res == APyFloat(1, 0, 2, 5, 2)
+
+    def test_jam(self):
+        with QuantizationContext(QuantizationMode.JAM):
+            # 1.5 / 1.25 (=1.2) should quantize to 1.25
+            res = APyFloat(0, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
+            assert res == APyFloat(0, 15, 1, 5, 2)
+
+            # -1.5 / 1.25 (=-1.2) should quantize to -1.25
+            res = APyFloat(1, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
+            assert res == APyFloat(1, 15, 1, 5, 2)
+
+            # 4 / 2 (=2) should quantize to 2.25
+            res = APyFloat(0, 17, 0, 5, 2) / APyFloat(0, 16, 0, 5, 2)
+            assert res == APyFloat(0, 16, 1, 5, 2)
+
+    def test_stoch_weighted(self):
+        with QuantizationContext(QuantizationMode.STOCH_WEIGHTED):
+            # 1.5 / 1.25 (=1.2) should quantize to 1.0 or 1.25
+            res = APyFloat(0, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
+            assert (res == APyFloat(0, 15, 0, 5, 2)) or (
+                res == APyFloat(0, 15, 1, 5, 2)
+            )
+
+            # 1.something / 2 can round to either 0.5 or 0.5(something)
+            res = APyFloat(0, 1023, 1, 11, 52) / APyFloat(0, 1024, 0, 11, 52)
+            assert (res == APyFloat(0, 1022, 0, 11, 52)) or (
+                res == APyFloat(0, 1022, 1, 11, 52)
+            )
+
+    def test_stoch_equal(self):
+        with QuantizationContext(QuantizationMode.STOCH_EQUAL):
+            # 1.5 / 1.25 (=1.2) should quantize to 1.0 or 1.25
+            res = APyFloat(0, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
+            assert (res == APyFloat(0, 15, 0, 5, 2)) or (
+                res == APyFloat(0, 15, 1, 5, 2)
+            )
+
+            # 1.something / 2 can quantize to either 0.5 or 0.5(something)
+            res = APyFloat(0, 1023, 1, 11, 52) / APyFloat(0, 1024, 0, 11, 52)
+            assert (res == APyFloat(0, 1022, 0, 11, 52)) or (
+                res == APyFloat(0, 1022, 1, 11, 52)
+            )
 
 
 class TestAPyFloatQuantization:
