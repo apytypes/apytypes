@@ -123,6 +123,29 @@ def test_add_overflow():
 
 
 @pytest.mark.float_add
+def test_add_subnormals():
+    # Add two subnormal numbers
+    assert (APyFloat(0, 0, 1, 5, 3) + APyFloat(0, 0, 2, 5, 3)).is_identical(
+        APyFloat(0, 0, 3, 5, 3)
+    )
+
+    # Addition of subnormal numbers resulting in normal number
+    assert (APyFloat(0, 0, 7, 5, 3) + APyFloat(0, 0, 1, 5, 3)).is_identical(
+        APyFloat(0, 1, 0, 5, 3)
+    )
+
+    # Add subnormal to normal number
+    assert (APyFloat(0, 0, 1, 4, 3) + APyFloat(0, 1, 0, 4, 3)).is_identical(
+        APyFloat(0, 1, 1, 4, 3)
+    )
+
+    # Add subnormal to big normal number
+    assert (APyFloat(0, 0, 1, 4, 3) + APyFloat(0, 7, 0, 4, 3)).is_identical(
+        APyFloat(0, 7, 0, 4, 3)
+    )
+
+
+@pytest.mark.float_add
 @pytest.mark.parametrize("num", [APyFloat(0, 17, 123, 5, 7), APyFloat(0, 0, 123, 5, 7)])
 def test_add_zero(num):
     assert (num + APyFloat(0, 0, 0, 5, 7)).is_identical(num)
