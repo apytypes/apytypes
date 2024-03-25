@@ -109,7 +109,7 @@ APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end)
 
     // Sign-extend if necessary
     if (std::size_t(std::distance(begin, end)) < bits_to_limbs(bits)) {
-        mp_limb_t sign_limb = mp_limb_signed_t(*--end) < 0 ? -1 : 0;
+        mp_limb_t sign_limb = mp_limb_signed_t(*std::prev(end)) < 0 ? -1 : 0;
         std::fill_n(
             _data.begin() + std::distance(begin, end),
             bits_to_limbs(bits) - std::distance(begin, end),
@@ -141,14 +141,12 @@ APyFixed APyFixed::operator+(const APyFixed& rhs) const
     auto left_shift_amount = unsigned(res_frac_bits - frac_bits());
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
 
-    _cast_correct_wl(result._data.begin(), result._data.end(), left_shift_amount);
-
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         // Result bits fits in a single limb. Use native addition
-        mp_limb_t operand = rhs._data[0];
-        operand <<= rhs_shift_amount;
-        result._data[0] += operand;
+        result._data[0]
+            = (_data[0] << left_shift_amount) + (rhs._data[0] << rhs_shift_amount);
     } else {
+        _cast_correct_wl(result._data.begin(), result._data.end(), left_shift_amount);
         // Result bits is more than one limb. Add with carry
         APyFixed operand(res_bits, res_int_bits);
         rhs._cast_correct_wl(
@@ -175,14 +173,12 @@ APyFixed APyFixed::operator-(const APyFixed& rhs) const
     auto left_shift_amount = unsigned(res_frac_bits - frac_bits());
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
 
-    _cast_correct_wl(result._data.begin(), result._data.end(), left_shift_amount);
-
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         // Result bits fits in a single limb. Use native subtraction
-        mp_limb_t operand = rhs._data[0];
-        operand <<= rhs_shift_amount;
-        result._data[0] -= operand;
+        result._data[0]
+            = (_data[0] << left_shift_amount) - (rhs._data[0] << rhs_shift_amount);
     } else {
+        _cast_correct_wl(result._data.begin(), result._data.end(), left_shift_amount);
         // Result bits is more than one limb. Add with carry
         APyFixed operand(res_bits, res_int_bits);
         rhs._cast_correct_wl(
@@ -986,9 +982,7 @@ void APyFixed::_cast_correct_wl(
     if (vector_size() < result_vector_size) {
         std::fill(it_begin + vector_size(), it_end, is_negative() ? mp_limb_t(-1) : 0);
     }
-    if (shift_amount > 0) {
-        limb_vector_lsl(it_begin, it_end, shift_amount);
-    }
+    limb_vector_lsl(it_begin, it_end, shift_amount);
 }
 
 template <class RANDOM_ACCESS_ITERATOR>

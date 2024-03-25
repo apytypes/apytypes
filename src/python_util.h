@@ -175,7 +175,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     }
 
     // Extract sign of limb vector
-    bool sign = vec_is_signed ? mp_limb_signed_t(*--end) < 0 : false;
+    bool sign = vec_is_signed ? mp_limb_signed_t(*std::prev(end)) < 0 : false;
 
     // Take absolute value of limb vector
     std::vector<mp_limb_t> limb_vec_abs(begin, end);
