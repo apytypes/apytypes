@@ -116,3 +116,35 @@ def test_properties():
     assert a.true_exp == -6
     assert a.sign == True
     assert a.true_sign == -1
+
+    # Subnormal number
+    a = APyFloat(0, 0, 1, 5, 2)
+    assert a.is_finite
+    assert not a.is_normal
+    assert a.is_subnormal
+    assert not a.is_nan
+    assert not a.is_inf
+
+    # Normal number
+    a = APyFloat(0, 1, 1, 5, 2)
+    assert a.is_finite
+    assert a.is_normal
+    assert not a.is_subnormal
+    assert not a.is_nan
+    assert not a.is_inf
+
+    # Infinity
+    a = APyFloat(0, 31, 0, 5, 2)
+    assert not a.is_finite
+    assert not a.is_normal
+    assert not a.is_subnormal
+    assert not a.is_nan
+    assert a.is_inf
+
+    # NaN
+    a = APyFloat(0, 31, 1, 5, 2)
+    assert not a.is_finite
+    assert not a.is_normal
+    assert not a.is_subnormal
+    assert a.is_nan
+    assert not a.is_inf
