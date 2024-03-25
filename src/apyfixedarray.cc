@@ -115,26 +115,29 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
 
     // Adjust binary point
-    APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        APyFixedArray result(_shape, res_bits, res_int_bits);
+        // At most one must be shifted, but hope that this does not kill the
+        // performance.
         auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
+        auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
-            mp_limb_t operand = rhs._data[i];
-            operand <<= rhs_shift_amount;
-            result._data[i] = result._data[i] + operand;
+            result._data[i]
+                = (_data[i] << lhs_shift_amount) + (rhs._data[i] << rhs_shift_amount);
         }
-    } else {
-        APyFixedArray imm = rhs._cast_correct_wl(res_bits, res_int_bits);
+        return result;
+    }
+    APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
+    APyFixedArray imm = rhs._cast_correct_wl(res_bits, res_int_bits);
 
-        // Perform addition
-        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
-            mpn_add_n(
-                &result._data[i], // dst
-                &result._data[i], // src1
-                &imm._data[i],    // src2
-                result._itemsize  // limb vector length
-            );
-        }
+    // Perform addition
+    for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+        mpn_add_n(
+            &result._data[i], // dst
+            &result._data[i], // src1
+            &imm._data[i],    // src2
+            result._itemsize  // limb vector length
+        );
     }
 
     // Return result
@@ -155,9 +158,9 @@ APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
     }
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        mp_limb_t operand = rhs._data[0];
+        operand <<= rhs_shift_amount;
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
-            mp_limb_t operand = rhs._data[0];
-            operand <<= rhs_shift_amount;
             result._data[i] = result._data[i] + operand;
         }
     } else {
@@ -193,28 +196,31 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
     const int res_bits = res_int_bits + res_frac_bits;
 
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        APyFixedArray result(_shape, res_bits, res_int_bits);
+        // At most one must be shifted, but hope that this does not kill the
+        // performance.
+        auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
+        auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
+        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+            result._data[i]
+                = (_data[i] << lhs_shift_amount) - (rhs._data[i] << rhs_shift_amount);
+        }
+        return result;
+    }
+
     // Adjust binary point
     APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
-        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
-            mp_limb_t operand = rhs._data[i];
-            operand <<= rhs_shift_amount;
-            result._data[i] = result._data[i] - operand;
-        }
-    } else {
+    APyFixedArray imm = rhs._cast_correct_wl(res_bits, res_int_bits);
 
-        APyFixedArray imm = rhs._cast_correct_wl(res_bits, res_int_bits);
-
-        // Perform addition
-        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
-            mpn_sub_n(
-                &result._data[i], // dst
-                &result._data[i], // src1
-                &imm._data[i],    // src2
-                result._itemsize  // limb vector length
-            );
-        }
+    // Perform addition
+    for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+        mpn_sub_n(
+            &result._data[i], // dst
+            &result._data[i], // src1
+            &imm._data[i],    // src2
+            result._itemsize  // limb vector length
+        );
     }
 
     // Return result
@@ -235,9 +241,9 @@ APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
     }
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        mp_limb_t operand = rhs._data[0];
+        operand <<= rhs_shift_amount;
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
-            mp_limb_t operand = rhs._data[0];
-            operand <<= rhs_shift_amount;
             result._data[i] = result._data[i] - operand;
         }
     } else {
@@ -271,9 +277,9 @@ APyFixedArray APyFixedArray::rsub(const APyFixed& lhs) const
     APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
     auto lhs_shift_amount = unsigned(res_frac_bits - lhs.frac_bits());
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        mp_limb_t operand = lhs._data[0];
+        operand <<= lhs_shift_amount;
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
-            mp_limb_t operand = lhs._data[0];
-            operand <<= lhs_shift_amount;
             result._data[i] = operand - result._data[i];
         }
     } else {
@@ -1047,11 +1053,11 @@ APyFixedArray APyFixedArray::_cast_correct_wl(int new_bits, int new_int_bits) co
     }
 
     auto data_begin = _data.begin();
-    // Compute limb skip and shift once
-    unsigned limb_skip = shift_amount / _LIMB_SIZE_BITS;
-    unsigned limb_shift = shift_amount % _LIMB_SIZE_BITS;
     // Shift if required
     if (shift_amount > 0) {
+        // Compute limb skip and shift once
+        unsigned limb_skip = shift_amount / _LIMB_SIZE_BITS;
+        unsigned limb_shift = shift_amount % _LIMB_SIZE_BITS;
         // For each scalar in the tensor...
         for (std::size_t i = 0; i < size; i++) {
 
