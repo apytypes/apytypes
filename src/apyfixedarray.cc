@@ -575,11 +575,11 @@ APyFixedArray APyFixedArray::abs() const
         return result;
     }
     // Adjust binary point
-    APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
-    auto it_begin = result._data.begin();
+    APyFixedArray result(_shape, res_bits, res_int_bits);
+    auto it_begin = _data.begin();
     for (std::size_t i = 0; i < fold_shape(_shape); i++) {
-        auto it_end = it_begin + result._itemsize;
-        limb_vector_abs(it_begin, it_end, it_begin);
+        auto it_end = it_begin + _itemsize;
+        limb_vector_abs(it_begin, it_end, result._data.begin() + i * result._itemsize);
         it_begin = it_end;
     }
     return result;

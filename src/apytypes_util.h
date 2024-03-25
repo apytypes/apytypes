@@ -813,10 +813,6 @@ template <class RANDOM_ACCESS_ITERATOR>
     RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it, unsigned n
 )
 {
-    if (cend_it <= cbegin_it) {
-        return false; // Early exit
-    }
-
     (void)cend_it;
     const unsigned full_limbs = n / _LIMB_SIZE_BITS;
 
@@ -881,10 +877,6 @@ template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
     RANDOM_ACCESS_ITERATOR_OUT res_it
 )
 {
-    if (cend_it <= cbegin_it) {
-        return 0;
-    }
-
     std::transform(cbegin_it, cend_it, res_it, std::bit_not {});
     return mpn_add_1(&*res_it, &*res_it, std::distance(cbegin_it, cend_it), 1);
 }
@@ -898,10 +890,6 @@ template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::vector<mp_limb_t>
 limb_vector_negate(RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it)
 {
-    if (cend_it <= cbegin_it) {
-        return {};
-    }
-
     std::vector<mp_limb_t> result(std::distance(cbegin_it, cend_it), 0);
     limb_vector_negate(cbegin_it, cend_it, result.begin());
     return result;
@@ -915,9 +903,6 @@ template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
     RANDOM_ACCESS_ITERATOR_OUT res_it
 )
 {
-    if (cend_it <= cbegin_it) {
-        return;
-    }
     if (mp_limb_signed_t(*(cend_it - 1)) < 0) {
         limb_vector_negate(cbegin_it, cend_it, res_it);
     } else {
@@ -930,10 +915,6 @@ template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::vector<mp_limb_t>
 limb_vector_abs(RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it)
 {
-    if (cend_it <= cbegin_it) {
-        return {};
-    }
-
     std::vector<mp_limb_t> result(std::distance(cbegin_it, cend_it), 0);
     limb_vector_abs(cbegin_it, cend_it, result.begin());
     return result;
@@ -950,6 +931,19 @@ template <typename T> std::string string_from_vec(const std::vector<T>& vec)
         ss << d << ", ";
     }
     return ss.str().substr(0, ss.str().length() - 2);
+}
+
+[[maybe_unused, nodiscard]] static APY_INLINE mp_limb_t
+twos_complement_overflow(mp_limb_t value, int bits)
+{
+    unsigned limb_shift_val = bits & (_LIMB_SIZE_BITS - 1);
+
+    if (limb_shift_val) {
+        auto shift_amnt = _LIMB_SIZE_BITS - limb_shift_val;
+        auto signed_limb = mp_limb_signed_t(value << shift_amnt) >> shift_amnt;
+        return mp_limb_t(signed_limb);
+    }
+    return value;
 }
 
 #endif // _APYTYPES_UTIL_H
