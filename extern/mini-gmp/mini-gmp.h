@@ -128,7 +128,7 @@ static inline size_t mini_gmp_bit_width(mp_limb_t x)
 #define MPN_NORMALIZE(DST, NLIMBS)                                                     \
     do {                                                                               \
         while ((NLIMBS) > 0) {                                                         \
-            if ((DST)[(NLIMBS)-1] != 0)                                                \
+            if ((DST)[(NLIMBS) - 1] != 0)                                              \
                 break;                                                                 \
             (NLIMBS)--;                                                                \
         }                                                                              \
@@ -139,17 +139,17 @@ static inline size_t mini_gmp_bit_width(mp_limb_t x)
         int __cnt;                                                                     \
         mp_bitcnt_t __totbits;                                                         \
         assert((size) > 0);                                                            \
-        assert((ptr)[(size)-1] != 0);                                                  \
-        COUNT_LEADING_ZEROS(__cnt, (ptr)[(size)-1]);                                   \
+        assert((ptr)[(size) - 1] != 0);                                                \
+        COUNT_LEADING_ZEROS(__cnt, (ptr)[(size) - 1]);                                 \
         __totbits = (mp_bitcnt_t)(size) * GMP_NUMB_BITS - (__cnt - GMP_NAIL_BITS);     \
-        (result) = (__totbits + (base2exp)-1) / (base2exp);                            \
+        (result) = (__totbits + (base2exp) - 1) / (base2exp);                          \
     } while (0)
 
 #define MPN_COPY_INCR(dst, src, n)                                                     \
     do {                                                                               \
         assert((n) >= 0);                                                              \
         if ((n) != 0) {                                                                \
-            mp_size_t __n = (n)-1;                                                     \
+            mp_size_t __n = (n) - 1;                                                   \
             mp_ptr __dst = (dst);                                                      \
             mp_srcptr __src = (src);                                                   \
             mp_limb_t __x;                                                             \

@@ -361,10 +361,9 @@ std::string APyFloatArray::repr() const
     }
     ss << "shape=(";
     ss << string_from_vec(shape);
-    ss << "), "
-       << "exp_bits=" << static_cast<unsigned>(exp_bits) << ", "
-       << "man_bits=" << static_cast<unsigned>(man_bits) << ", "
-       << "bias=" << bias << ")";
+    ss << "), " << "exp_bits=" << static_cast<unsigned>(exp_bits) << ", "
+       << "man_bits=" << static_cast<unsigned>(man_bits) << ", " << "bias=" << bias
+       << ")";
     return ss.str();
 }
 
