@@ -25,7 +25,6 @@ namespace nb = nanobind;
 #include <fmt/format.h>
 
 #include "apyfixed.h"
-#include "apyfixed_util.h"
 #include "apytypes_util.h"
 #include "ieee754.h"
 #include "python_util.h"
@@ -409,22 +408,13 @@ APyFixed APyFixed::operator-() const
 APyFixed APyFixed::abs() const
 {
     const int res_bits = _bits + 1;
+    APyFixed result(res_bits, _int_bits + 1);
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        APyFixed result(res_bits, _int_bits + 1);
         result._data[0] = std::abs(mp_limb_signed_t(_data[0]));
-        return result;
     } else {
-        if (is_negative()) {
-            // Unary `operator-()` increases word length by one
-            return -*this;
-        } else {
-            // Incrase word length by one and return copy (extra bit guaranteed to be
-            // zero)
-            APyFixed result(res_bits, _int_bits + 1);
-            std::copy(_data.cbegin(), _data.cend(), result._data.begin());
-            return result;
-        }
+        limb_vector_abs(_data.begin(), _data.end(), result._data.begin());
     }
+    return result;
 }
 
 /* ********************************************************************************** *

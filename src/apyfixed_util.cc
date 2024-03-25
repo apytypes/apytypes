@@ -8,18 +8,6 @@
 // GMP should be included after all other includes
 #include "../extern/mini-gmp/mini-gmp.h"
 
-mp_limb_t twos_complement_overflow(mp_limb_t value, int bits)
-{
-    unsigned limb_shift_val = bits & (_LIMB_SIZE_BITS - 1);
-
-    if (limb_shift_val) {
-        auto shift_amnt = _LIMB_SIZE_BITS - limb_shift_val;
-        auto signed_limb = mp_limb_signed_t(value << shift_amnt) >> shift_amnt;
-        return mp_limb_t(signed_limb);
-    }
-    return value;
-}
-
 //! Specialized method when only one limb is used
 mp_limb_t get_data_from_double(double value, int bits, int frac_bits, int shift_amnt)
 {
