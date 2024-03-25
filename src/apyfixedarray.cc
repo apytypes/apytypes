@@ -121,7 +121,7 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
         // performance.
         auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
         auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
-        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+        for (std::size_t i = 0; i < result._data.size(); i++) {
             result._data[i]
                 = (_data[i] << lhs_shift_amount) + (rhs._data[i] << rhs_shift_amount);
         }
@@ -158,9 +158,8 @@ APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
     }
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        mp_limb_t operand = rhs._data[0];
-        operand <<= rhs_shift_amount;
-        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+        mp_limb_t operand = rhs._data[0] << rhs_shift_amount;
+        for (std::size_t i = 0; i < result._data.size(); i++) {
             result._data[i] = result._data[i] + operand;
         }
     } else {
@@ -202,7 +201,7 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
         // performance.
         auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
         auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
-        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+        for (std::size_t i = 0; i < result._data.size(); i++) {
             result._data[i]
                 = (_data[i] << lhs_shift_amount) - (rhs._data[i] << rhs_shift_amount);
         }
@@ -241,9 +240,8 @@ APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
     }
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        mp_limb_t operand = rhs._data[0];
-        operand <<= rhs_shift_amount;
-        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+        mp_limb_t operand = rhs._data[0] << rhs_shift_amount;
+        for (std::size_t i = 0; i < result._data.size(); i++) {
             result._data[i] = result._data[i] - operand;
         }
     } else {
@@ -277,9 +275,8 @@ APyFixedArray APyFixedArray::rsub(const APyFixed& lhs) const
     APyFixedArray result = _cast_correct_wl(res_bits, res_int_bits);
     auto lhs_shift_amount = unsigned(res_frac_bits - lhs.frac_bits());
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        mp_limb_t operand = lhs._data[0];
-        operand <<= lhs_shift_amount;
-        for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
+        mp_limb_t operand = lhs._data[0] << lhs_shift_amount;
+        for (std::size_t i = 0; i < result._data.size(); i++) {
             result._data[i] = operand - result._data[i];
         }
     } else {
