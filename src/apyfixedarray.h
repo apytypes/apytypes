@@ -238,7 +238,9 @@ private:
         std::optional<AccumulatorOption> mode // optional accumulation mode
     ) const;
 
-    APyFixedArray _cast_correct_wl(int new_bits, int new_int_bits) const;
+    void _cast_correct_wl(
+        std::vector<mp_limb_t>::iterator output_it, int new_bits, int new_int_bits
+    ) const;
 
     /*!
      * The internal cast method used to place cast data onto a pair of iterators.
