@@ -293,7 +293,7 @@ def test_sub_nan(num):
 
 
 @pytest.mark.float_sub
-def test_add_inf_nan():
+def test_sub_inf_nan():
     # Infinity with NaN
     assert (APyFloat(0, 0x1F, 0, 5, 7) - APyFloat(0, 0x1F, 1, 5, 7)).is_nan
     assert (APyFloat(0, 0x1F, 1, 5, 7) - APyFloat(0, 0x1F, 0, 5, 7)).is_nan
