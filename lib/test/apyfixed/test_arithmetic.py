@@ -171,6 +171,24 @@ def test_wide_operations():
     assert fx_a * fx_b == fx_b * fx_a
 
 
+def test_mixed_width_operations():
+    """
+    Tests for mixed-width operations additions and subtractions
+    """
+    fx_a = APyFixed(1779, 16, 8)
+    fx_b = APyFixed(17777779, 100, 80)
+    assert (fx_a + fx_b).is_identical(APyFixed(25064563, bits=101, int_bits=81))
+    assert (fx_b + fx_a).is_identical(fx_a + fx_b)
+
+    assert (fx_a * fx_b).is_identical(APyFixed(31626668841, bits=116, int_bits=88))
+    assert (fx_b * fx_a).is_identical(fx_a * fx_b)
+
+    assert (fx_a / fx_b).is_identical(APyFixed(104, bits=37, int_bits=29))
+    # assert (fx_b / fx_a).is_identical(...) Segmentation fault
+    assert (fx_a / fx_a).is_identical(APyFixed(256, bits=25, int_bits=17))
+    # assert (fx_b / fx_b).is_identical(...) Segmentation fault
+
+
 def test_unary_minus():
     a = APyFixed(-3, 3, 2)
     assert a._is_negative
