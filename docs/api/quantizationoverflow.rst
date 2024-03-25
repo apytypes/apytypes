@@ -5,6 +5,9 @@ Quantization and overflow handling
    :members:
    :undoc-members:
 
+.. image:: _static/quantization.png
+   :alt: Illustration of the different quantization modes
+
 .. autoclass:: apytypes.OverflowMode
    :members:
    :undoc-members:

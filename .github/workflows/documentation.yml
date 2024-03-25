@@ -25,6 +25,13 @@ jobs:
           cd ..
           mkdir -p docs/_static/
           cp comparison/comparison*.png docs/_static
+      - name: Generate plots
+        run: |
+          cd docs/_plots
+          python quantization.py
+          cp *.png ../_static
+          cd ..
+          cd ..
       - name: Sphinx build
         run: |
           cd docs
