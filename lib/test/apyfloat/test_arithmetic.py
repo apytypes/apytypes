@@ -248,6 +248,29 @@ def test_sub_overflow():
     assert (APyFloat(1, 0b11110, 1, 5, 2) - APyFloat(0, 0b11110, 3, 5, 3)).is_inf
 
 
+@pytest.mark.float_add
+def test_sub_subnormals():
+    # Subtract two subnormal numbers
+    assert (APyFloat(0, 0, 1, 5, 3) - APyFloat(0, 0, 2, 5, 3)).is_identical(
+        APyFloat(1, 0, 1, 5, 3)
+    )
+
+    # Subtraction of subnormal numbers resulting in normal number
+    assert (APyFloat(1, 0, 7, 5, 3) - APyFloat(0, 0, 1, 5, 3)).is_identical(
+        APyFloat(1, 1, 0, 5, 3)
+    )
+
+    # Subtract subnormal from normal number
+    assert (APyFloat(0, 1, 0, 4, 3) - APyFloat(0, 0, 1, 4, 3)).is_identical(
+        APyFloat(0, 0, 7, 4, 3)
+    )
+
+    # Subtract subnormal from big normal number
+    assert (APyFloat(0, 7, 0, 4, 3) - APyFloat(0, 0, 1, 4, 3)).is_identical(
+        APyFloat(0, 7, 0, 4, 3)
+    )
+
+
 @pytest.mark.float_sub
 @pytest.mark.parametrize("num", [APyFloat(0, 17, 123, 5, 7), APyFloat(0, 0, 123, 5, 7)])
 def test_sub_zero(num):
