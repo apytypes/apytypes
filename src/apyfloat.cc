@@ -847,7 +847,8 @@ APyFloat APyFloat::operator-() const
 
 APyFloat APyFloat::operator*(const APyFloat& y) const
 {
-    APyFloat res(std::max(exp_bits, y.exp_bits), std::max(man_bits, y.man_bits));
+    auto res_exp_bits = std::max(exp_bits, y.exp_bits);
+    APyFloat res(res_exp_bits, std::max(man_bits, y.man_bits));
 
     // Calculate sign
     res.sign = sign ^ y.sign;
@@ -865,49 +866,61 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     if (is_zero() || y.is_zero()) {
         return res.construct_zero();
     }
-
-    // Normalize both inputs
-    APyFloat norm_x = normalized();
-    APyFloat norm_y = y.normalized();
-
-    // Add leading one's
-    man_t mx = norm_x.true_man();
-    man_t my = norm_y.true_man();
-
-    // Tentative exponent
-    std::int64_t new_exp = ((std::int64_t)norm_x.exp - (std::int64_t)norm_x.bias)
-        + ((std::int64_t)norm_y.exp - (std::int64_t)norm_y.bias) + res.bias;
-
     const auto quantization = get_quantization_mode();
-
-    if (unsigned(norm_x.man_bits + norm_y.man_bits) + 2 <= _MAN_T_SIZE_BITS) {
-        man_t new_man = mx * my;
-        man_t one = 1ULL << (norm_x.man_bits + norm_y.man_bits);
+    auto sum_man_bits = man_bits + y.man_bits;
+    if (unsigned(sum_man_bits) + 2 <= _MAN_T_SIZE_BITS) {
+        // Tentative exponent
+        std::int64_t new_exp = true_exp() + y.true_exp();
+        man_t mx = true_man();
+        man_t my = y.true_man();
+        man_t one = 1ULL << sum_man_bits;
         man_t two = one << 1;
-        if (new_exp < 0) {
-            while (new_man < one) {
-                new_man <<= 1;
-                new_exp++;
-            }
+
+        man_t new_man = mx * my;
+
+        // In case of denormalized data
+        while (new_man < one) {
+            new_man <<= 1;
+            new_exp--;
         }
-        int c = 0;
-        if (new_man >= two) { // Carry
+
+        auto tmp_man_bits = sum_man_bits;
+        // Result may be larger than two
+        if (new_man >= two) {
             new_exp++;
-            c = 1;
+            tmp_man_bits++;
         }
-        int tmp_man_bits = norm_x.man_bits + norm_y.man_bits + c;
-        new_man &= (1ULL << (tmp_man_bits)) - 1;
 
-        int tmp_exp_bits = std::max(norm_x.exp_bits, norm_y.exp_bits) + 1;
+        // Remove leading one
+        new_man &= (1ULL << tmp_man_bits) - 1;
+
+        // Possible use more exponent bits
+        int tmp_exp_bits = res_exp_bits;
         exp_t extended_bias = APyFloat::ieee_bias(tmp_exp_bits);
-        new_exp = new_exp - res.bias + extended_bias;
-
+        while (new_exp + extended_bias < 0) {
+            tmp_exp_bits++;
+            extended_bias = APyFloat::ieee_bias(tmp_exp_bits);
+        }
+        new_exp = new_exp + extended_bias;
+        // Use longer format for intermediate result
         APyFloat larger_float(
             res.sign, new_exp, new_man, tmp_exp_bits, tmp_man_bits, extended_bias
         );
         return larger_float._cast(res.exp_bits, res.man_bits, res.bias, quantization);
 
     } else {
+        // Normalize both inputs
+        APyFloat norm_x = normalized();
+        APyFloat norm_y = y.normalized();
+
+        // Add leading one's
+        man_t mx = norm_x.true_man();
+        man_t my = norm_y.true_man();
+
+        // Tentative exponent
+        std::int64_t new_exp = ((std::int64_t)norm_x.exp - (std::int64_t)norm_x.bias)
+            + ((std::int64_t)norm_y.exp - (std::int64_t)norm_y.bias) + res.bias;
+
         // Two integer bits, sign bit and leading one
         APyFixed apy_mx(2 + norm_x.man_bits, 2, std::vector<mp_limb_t>({ mx }));
         APyFixed apy_my(2 + norm_y.man_bits, 2, std::vector<mp_limb_t>({ my }));
