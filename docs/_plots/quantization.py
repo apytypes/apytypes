@@ -1,6 +1,7 @@
 from apytypes import APyFixedArray, QuantizationMode
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import IndexLocator
 
 modes = [
     "QuantizationMode.TRN",
@@ -35,6 +36,8 @@ for i, q in enumerate(modes):
     ax.plot(afx, aqfx, "o")
     ax.plot(aifx, aiqfx, "ro")
     ax.plot(ahfx, ahqfx, "yo")
+    ax.xaxis.set_major_locator(IndexLocator(1, 0))
+    ax.yaxis.set_major_locator(IndexLocator(1, 0))
     ax.set_title(q.split(".")[1])
     ax.set_xlim(-3.2, 3.2)
     ax.set_ylim(-3.2, 3.2)
@@ -44,7 +47,9 @@ for i, q in enumerate(modes):
     ax.grid(True)
     ax = axs[2 * (i // 3) + 1, i % 3]
     err = a - aqfx
-    ax.hist(err, bins, align="left", weights=1 / len(err) * np.ones(len(err)))
+    ax.hist(
+        err, bins, align="left", weights=1 / len(err) * np.ones(len(err)), rwidth=0.8
+    )
     ax.axvline(float(sum(err)) / len(err), color="r")
     ax.grid(True)
     ax.set_xlim(-1.1, 1.1)
