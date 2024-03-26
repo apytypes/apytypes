@@ -16,11 +16,12 @@ namespace nb = nanobind;
 #include <cstddef>    // std::size_t
 #include <cstring>    // std::memcpy
 #include <functional> // std::bit_not
-#include <iterator>   // std::back_inserter
-#include <optional>   // std::optional
-#include <sstream>    // std::stringstream
-#include <string>     // std::string
-#include <vector>     // std::vector, std::swap
+#include <iostream>
+#include <iterator> // std::back_inserter
+#include <optional> // std::optional
+#include <sstream>  // std::stringstream
+#include <string>   // std::string
+#include <vector>   // std::vector, std::swap
 
 #include <fmt/format.h>
 
@@ -31,6 +32,9 @@ namespace nb = nanobind;
 
 // GMP should be included after all other includes
 #include "../extern/mini-gmp/mini-gmp.h"
+
+static const auto fx_one = APyFixed::from_double(1, 2, 2);
+static const auto fx_two = fx_one << 1;
 
 /* ********************************************************************************** *
  * *                            Python constructors                                 * *
@@ -870,6 +874,30 @@ std::size_t APyFixed::leading_signs() const
     } else {
         return leading_zeros();
     }
+}
+
+bool APyFixed::greater_than_equal_two() const
+{
+    if (is_zero()) {
+        return false;
+    }
+    if (unsigned(_bits) <= _LIMB_SIZE_BITS) {
+        mp_limb_t two = mp_limb_t(1ULL) << (frac_bits() + 1);
+        return _data[0] >= two;
+    }
+    return *this >= fx_two;
+}
+
+bool APyFixed::greater_than_equal_one() const
+{
+    if (is_zero()) {
+        return false;
+    }
+    if (unsigned(_bits) <= _LIMB_SIZE_BITS) {
+        mp_limb_t one = mp_limb_t(1ULL) << frac_bits();
+        return _data[0] >= one;
+    }
+    return *this >= fx_one;
 }
 
 /* ********************************************************************************** *

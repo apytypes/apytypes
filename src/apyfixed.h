@@ -193,6 +193,12 @@ public:
     //! Retrieve leading signs
     std::size_t leading_signs() const;
 
+    //! Compare if greater than equal 2
+    bool greater_than_equal_two() const;
+
+    //! Compare if greater than equal 1
+    bool greater_than_equal_one() const;
+
     /* ****************************************************************************** *
      *                           Conversion to other types                            *
      * ****************************************************************************** */
