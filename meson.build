@@ -1,7 +1,12 @@
 project(
     'apytypes',
     'cpp', 'c',
-    default_options : ['cpp_std=c++17', 'c_std=c17'],
+    default_options: [
+        'cpp_std=c++17',
+        'c_std=c17',
+        'b_vscrt=from_buildtype',
+        'b_ndebug=if-release',
+    ],
     version : '0.0.1.dev0',
 )
 
@@ -10,8 +15,23 @@ py3 = import('python').find_installation('python3', pure: false)
 py3_dep = py3.dependency()
 
 # Nanobind dependency
-nanobind_dep = dependency('nanobind')
+nanobind_dep = dependency(
+    'nanobind',
+    default_options: [
+        'buildtype=release',
+    ]
+)
 
+# Google Highway SIMD dynamic dispatching library
+hwy_dep = dependency(
+    'highway',
+    version: '>=1.0.7',
+    default_options: [
+        'buildtype=release',
+        'b_vscrt=from_buildtype',
+        'b_ndebug=if-release',
+    ],
+)
 
 py3.install_sources(
   [
@@ -60,8 +80,9 @@ py3.extension_module(
         'src/apytypes_common.cc',
         'src/apytypes_context_wrapper.cc',
         'src/apytypes_wrapper.cc',
+        'src/apytypes_simd.cc',
     ]),
-    dependencies : [py3_dep, nanobind_dep, fmt_dep],
+    dependencies : [py3_dep, nanobind_dep, hwy_dep, fmt_dep],
     subdir: 'apytypes',
     install: true
 )

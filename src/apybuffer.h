@@ -10,12 +10,37 @@
 // https://docs.python.org/3/c-api/intro.html#include-files
 #include <Python.h>
 
-#include <algorithm>  // std::reverse
+#include <algorithm> // std::reverse
+#include <cstdlib>
 #include <functional> // std::multiplies
 #include <numeric>    // std::accumulate
-#include <vector>     // std::vector
+#include <type_traits>
+#include <vector> // std::vector
+
+#include <hwy/aligned_allocator.h>
 
 #include "apytypes_util.h"
+
+template <typename T> struct AlignedAllocator {
+    using value_type = T;
+    using size_type = std::size_t;
+    using difference_type = std::size_t;
+    using propagate_on_container_move_assignment = std::true_type;
+    using is_always_equal = std::true_type;
+
+    // Allocate SIMD aligned data
+    [[nodiscard]] T* allocate(size_type n)
+    {
+        return (T*)hwy::AllocateAlignedBytes(sizeof(T) * n, nullptr, nullptr);
+    };
+
+    // Free SIMD aligned data
+    void deallocate(T* ptr, size_type n)
+    {
+        (void)n;
+        hwy::FreeAlignedBytes(ptr, nullptr, nullptr);
+    }
+};
 
 //! Fold a shape under multiplication
 [[maybe_unused]] static APY_INLINE std::size_t
@@ -40,7 +65,7 @@ strides_from_shape(const std::vector<std::size_t>& shape, std::size_t itemsize =
     return strides;
 }
 
-template <typename T> class APyBuffer {
+template <typename T, typename Allocator = AlignedAllocator<T>> class APyBuffer {
 
     // APyBuffers are to be inherited from. All fields and constructors are protected.
 protected:
@@ -88,7 +113,7 @@ protected:
     std::size_t _itemsize;             // Size of item (in number of objects `T`)
     std::vector<std::size_t> _shape;   // Shape (in number of objects `T`)
     std::vector<std::size_t> _strides; // Stides (in bytes)
-    std::vector<T> _data;
+    std::vector<T, Allocator> _data;
     std::size_t _ndim;
 };
 

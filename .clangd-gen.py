@@ -26,6 +26,7 @@ nanobind_includes = subprocess.run(
     encoding="utf-8",
 )
 
+
 compile_flags = [
     "-std=c++17",
     "-Wall",
@@ -34,6 +35,7 @@ compile_flags = [
     "-Wno-deprecated",
     *str(python3_includes.stdout.strip()).split(" "),
     *["-I" + s for s in nanobind_includes.stdout.strip().split(" ")],
+    "-Isubprojects/highway",
 ]
 
 # Produce the .clangd configuration

@@ -1,0 +1,26 @@
+#ifndef _APYTYPES_SIMD_H
+#define _APYTYPES_SIMD_H
+
+#include <vector>
+
+#include "apybuffer.h"
+
+/*
+ * GMP should be included after all other includes
+ */
+#include "../extern/mini-gmp/mini-gmp.h"
+
+namespace simd {
+
+void limb_vector_shift_add_n(
+    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
+    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src2_begin,
+    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::size_t src1_shift_amount,
+    std::size_t src2_shift_amount,
+    std::size_t size
+);
+
+};
+
+#endif

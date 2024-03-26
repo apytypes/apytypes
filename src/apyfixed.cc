@@ -25,6 +25,7 @@ namespace nb = nanobind;
 
 #include <fmt/format.h>
 
+#include "apybuffer.h"
 #include "apyfixed.h"
 #include "apytypes_util.h"
 #include "ieee754.h"
@@ -1437,8 +1438,8 @@ void APyFixed::_data_asl(
  * ********************************************************************************** */
 
 template void APyFixed::_cast(
-    std::vector<mp_limb_t>::iterator,
-    std::vector<mp_limb_t>::iterator,
+    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator,
+    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator,
     int,
     int,
     QuantizationMode,
