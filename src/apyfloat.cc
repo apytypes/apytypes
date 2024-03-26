@@ -870,7 +870,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     auto sum_man_bits = man_bits + y.man_bits;
     if (unsigned(sum_man_bits) + 2 <= _MAN_T_SIZE_BITS) {
         // Tentative exponent
-        std::int64_t new_exp = true_exp() + y.true_exp();
+        std::int64_t tmp_exp = true_exp() + y.true_exp();
         man_t mx = true_man();
         man_t my = y.true_man();
         man_t one = 1ULL << sum_man_bits;
@@ -878,36 +878,42 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
 
         man_t new_man = mx * my;
 
+        auto new_man_bits = sum_man_bits;
         // In case of denormalized data
-        while (new_man < one) {
-            new_man <<= 1;
-            new_exp--;
+        if (new_man < one) {
+            do {
+                new_man <<= 1;
+                tmp_exp--;
+            } while (new_man < one);
+            // Remove leading one
+            new_man &= one - 1;
+        } else {
+            // Result may be larger than two
+            if (new_man >= two) {
+                tmp_exp++;
+                new_man_bits++;
+                // Remove leading one
+                new_man &= two - 1;
+            } else {
+                // Remove leading one
+                new_man &= one - 1;
+            }
         }
 
-        auto tmp_man_bits = sum_man_bits;
-        // Result may be larger than two
-        if (new_man >= two) {
-            new_exp++;
-            tmp_man_bits++;
+        // Possibly use more exponent bits
+        int new_exp_bits = res_exp_bits;
+        exp_t extended_bias = APyFloat::ieee_bias(new_exp_bits);
+        auto new_exp = tmp_exp + extended_bias;
+        while (new_exp <= 0) {
+            new_exp_bits++;
+            extended_bias = APyFloat::ieee_bias(new_exp_bits);
+            new_exp = tmp_exp + extended_bias;
         }
-
-        // Remove leading one
-        new_man &= (1ULL << tmp_man_bits) - 1;
-
-        // Possible use more exponent bits
-        int tmp_exp_bits = res_exp_bits;
-        exp_t extended_bias = APyFloat::ieee_bias(tmp_exp_bits);
-        while (new_exp + extended_bias < 0) {
-            tmp_exp_bits++;
-            extended_bias = APyFloat::ieee_bias(tmp_exp_bits);
-        }
-        new_exp = new_exp + extended_bias;
         // Use longer format for intermediate result
         APyFloat larger_float(
-            res.sign, new_exp, new_man, tmp_exp_bits, tmp_man_bits, extended_bias
+            res.sign, new_exp, new_man, new_exp_bits, new_man_bits, extended_bias
         );
         return larger_float._cast(res.exp_bits, res.man_bits, res.bias, quantization);
-
     } else {
         // Normalize both inputs
         APyFloat norm_x = normalized();
