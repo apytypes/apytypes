@@ -878,8 +878,6 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     std::int64_t new_exp = ((std::int64_t)norm_x.exp - (std::int64_t)norm_x.bias)
         + ((std::int64_t)norm_y.exp - (std::int64_t)norm_y.bias) + res.bias;
 
-    int tmp_man_bits;
-
     const auto quantization = get_quantization_mode();
 
     if (unsigned(norm_x.man_bits + norm_y.man_bits) + 2 <= _MAN_T_SIZE_BITS) {
@@ -897,7 +895,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
             new_exp++;
             c = 1;
         }
-        tmp_man_bits = norm_x.man_bits + norm_y.man_bits + c;
+        int tmp_man_bits = norm_x.man_bits + norm_y.man_bits + c;
         new_man &= (1ULL << (tmp_man_bits)) - 1;
 
         int tmp_exp_bits = std::max(norm_x.exp_bits, norm_y.exp_bits) + 1;
