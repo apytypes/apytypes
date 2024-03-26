@@ -1036,27 +1036,22 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
         new_exp--;
     }
 
+    // Check limits
+    if (new_exp >= res.max_exponent()) {
+        return res.construct_inf();
+    }
+
     // Handle subnormal case
     if (new_exp <= 0) {
         apy_man_res >>= std::abs(new_exp) + 1;
         new_exp = 0;
     }
 
-    // Quantize mantissa
+    // Quantize mantissa. This will never create carry.
     APyFloat::quantize_apymantissa(apy_man_res, res.sign, res.man_bits, quantization);
 
-    // Carry from quantization
-    if (apy_man_res.greater_than_equal_two()) {
-        new_exp++;
-        apy_man_res >>= 1;
-    }
-
-    // Check limits
-    if (new_exp >= res.max_exponent()) {
-        return res.construct_inf();
-    }
-
-    if (apy_man_res.greater_than_equal_one()) { // Remove leading one
+    // Remove leading one
+    if (apy_man_res.greater_than_equal_one()) {
         apy_man_res = apy_man_res - fx_one;
     }
     apy_man_res <<= res.man_bits;
