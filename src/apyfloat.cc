@@ -563,7 +563,7 @@ void APyFloat::quantize_apymantissa(
         APyFixed rnd_num(_LIMB_SIZE_BITS * 3, _LIMB_SIZE_BITS - bits, rnd_data);
         apyman = apyman + rnd_num;
     } else {
-        apyman = apyman.cast(3 + bits, 3, quantization);
+        apyman = apyman.cast_no_overflow(3 + bits, 3, quantization);
     }
 }
 
@@ -997,7 +997,7 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
 
     auto apy_man_res = apy_mx / apy_my;
 
-    // The result from the division will be in [1/2, 2) so normalization may be required
+    // The result from the division will be in (1/2, 2) so normalization may be required
     if (!apy_man_res.greater_than_equal_one()) {
         apy_man_res <<= 1;
         new_exp--;

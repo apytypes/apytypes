@@ -266,6 +266,10 @@ public:
         std::optional<int> frac_bits = std::nullopt
     ) const;
 
+    APyFixed cast_no_overflow(
+        int bits, int int_bits, QuantizationMode quantization = QuantizationMode::TRN
+    ) const;
+
 private:
     //! The internal cast method. Uses output iterators to place result onto its limb
     //! vector. Requires that `std::distance(it_begin, it_end) == bits_to_limbs(bits)`.
@@ -277,6 +281,17 @@ private:
         int new_int_bits,
         QuantizationMode quantization = QuantizationMode::TRN,
         OverflowMode overflow = OverflowMode::WRAP
+    ) const;
+
+    //! The internal cast method. Uses output iterators to place result onto its limb
+    //! vector. Requires that `std::distance(it_begin, it_end) == bits_to_limbs(bits)`.
+    template <class RANDOM_ACCESS_ITERATOR>
+    void _cast_no_overflow(
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
+        int new_bits,
+        int new_int_bits,
+        QuantizationMode quantization = QuantizationMode::TRN
     ) const;
 
     //! The internal cast method when the word length is known to be correct.
