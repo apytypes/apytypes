@@ -383,6 +383,16 @@ def test_mul_short_subnormal():
     y = APyFloat(sign=0, exp=5, man=50, exp_bits=5, man_bits=10)
     assert (x * y).is_identical(APyFloat(sign=0, exp=0, man=6, exp_bits=5, man_bits=10))
 
+    x = APyFloat(sign=0, exp=1, man=10, exp_bits=4, man_bits=10)
+    y = APyFloat(sign=0, exp=1, man=20, exp_bits=4, man_bits=10)
+    assert (x * y).is_identical(
+        APyFloat(sign=0, exp=0, man=16, exp_bits=4, man_bits=10)
+    )
+
+    x = APyFloat(sign=0, exp=1, man=10, exp_bits=5, man_bits=15)
+    y = APyFloat(sign=0, exp=1, man=20, exp_bits=5, man_bits=15)
+    assert (x * y).is_identical(APyFloat(sign=0, exp=0, man=2, exp_bits=5, man_bits=15))
+
 
 @pytest.mark.float_mul
 def test_long_mul():
@@ -413,6 +423,11 @@ def test_long_mul():
     y = APyFloat(sign=0, exp=4090, man=50, exp_bits=12, man_bits=50)
     assert (x * y).is_identical(
         APyFloat(sign=0, exp=4095, man=0, exp_bits=12, man_bits=50)
+    )
+    x = APyFloat(sign=0, exp=1, man=10, exp_bits=4, man_bits=40)
+    y = APyFloat(sign=0, exp=1, man=20, exp_bits=4, man_bits=40)
+    assert (x * y).is_identical(
+        APyFloat(sign=0, exp=0, man=17179869184, exp_bits=4, man_bits=40)
     )
 
 
