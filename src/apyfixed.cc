@@ -878,9 +878,6 @@ std::size_t APyFixed::leading_signs() const
 
 bool APyFixed::greater_than_equal_two() const
 {
-    if (is_zero()) {
-        return false;
-    }
     if (unsigned(_bits) <= _LIMB_SIZE_BITS) {
         mp_limb_t two = mp_limb_t(1ULL) << (frac_bits() + 1);
         return _data[0] >= two;
@@ -890,9 +887,6 @@ bool APyFixed::greater_than_equal_two() const
 
 bool APyFixed::greater_than_equal_one() const
 {
-    if (is_zero()) {
-        return false;
-    }
     if (unsigned(_bits) <= _LIMB_SIZE_BITS) {
         mp_limb_t one = mp_limb_t(1ULL) << frac_bits();
         return _data[0] >= one;
@@ -962,6 +956,29 @@ APyFixed APyFixed::cast(
     return result;
 }
 
+APyFixed
+APyFixed::cast_no_overflow(int bits, int int_bits, QuantizationMode quantization) const
+{
+    // Sanitize the input
+    int new_bits = bits;
+    int new_int_bits = int_bits;
+
+    // Result that temporarily can hold all the necessary bits
+    APyFixed result(std::max(new_bits, _bits), std::max(new_int_bits, _int_bits));
+    _cast_no_overflow(
+        result._data.begin(), // output start
+        result._data.end(),   // output sentinel
+        new_bits,
+        new_int_bits,
+        quantization
+    );
+
+    result._bits = new_bits;
+    result._int_bits = new_int_bits;
+    result._data.resize(bits_to_limbs(new_bits));
+    return result;
+}
+
 APyFixed APyFixed::resize(
     std::optional<int> bits,
     std::optional<int> int_bits,
@@ -986,10 +1003,21 @@ void APyFixed::_cast(
     OverflowMode overflow
 ) const
 {
-    if (it_end <= it_begin) {
-        return; // Early exit
-    }
+    _cast_no_overflow(it_begin, it_end, new_bits, new_int_bits, quantization);
 
+    // Then perform overflowing
+    _overflow(it_begin, it_end, new_bits, new_int_bits, overflow);
+}
+
+template <class RANDOM_ACCESS_ITERATOR>
+void APyFixed::_cast_no_overflow(
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
+    int new_bits,
+    int new_int_bits,
+    QuantizationMode quantization
+) const
+{
     // Copy data into the result and sign extend
     std::size_t result_vector_size = std::distance(it_begin, it_end);
     std::copy_n(_data.begin(), std::min(vector_size(), result_vector_size), it_begin);
@@ -997,11 +1025,8 @@ void APyFixed::_cast(
         std::fill(it_begin + vector_size(), it_end, is_negative() ? mp_limb_t(-1) : 0);
     }
 
-    // First perform quantization
+    // Perform quantization
     _quantize(it_begin, it_end, new_bits, new_int_bits, quantization);
-
-    // Then perform overflowing
-    _overflow(it_begin, it_end, new_bits, new_int_bits, overflow);
 }
 
 template <class RANDOM_ACCESS_ITERATOR>
