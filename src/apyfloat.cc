@@ -731,17 +731,19 @@ APyFloat APyFloat::operator+(APyFloat y) const
 
     const auto quantization = get_quantization_mode();
 
+    const auto res_bias = APyFloat::ieee_bias(res_exp_bits);
+
     // Handle the zero cases, other special cases are further down
     if (is_zero()) {
-        return y.cast_no_quant(res_exp_bits, res_man_bits);
+        return y.cast_no_quant(res_exp_bits, res_man_bits, res_bias);
     }
 
     if (y.is_zero()) {
-        return cast_no_quant(res_exp_bits, res_man_bits);
+        return cast_no_quant(res_exp_bits, res_man_bits, res_bias);
     }
 
     APyFloat x = *this;
-    APyFloat res(res_exp_bits, res_man_bits);
+    APyFloat res(res_exp_bits, res_man_bits, res_bias);
 
     // Handle the NaN cases, other special cases are further down
     if (x.is_nan() || y.is_nan()
@@ -942,7 +944,8 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         if (apy_res.greater_than_equal_one()) { // Remove leading one
             apy_res = apy_res - fx_one;
         }
-        res.man = (man_t)(apy_res << res.man_bits).to_double();
+        apy_res <<= res.man_bits;
+        res.man = (man_t)(apy_res).to_double();
         res.exp = new_exp;
         return res;
     }
@@ -1026,7 +1029,8 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     if (apy_man_res.greater_than_equal_one()) { // Remove leading one
         apy_man_res = apy_man_res - fx_one;
     }
-    res.man = (man_t)(apy_man_res << res.man_bits).to_double();
+    apy_man_res <<= res.man_bits;
+    res.man = (man_t)(apy_man_res).to_double();
     res.exp = new_exp;
     return res;
 }
@@ -1129,7 +1133,8 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
         if (apy_res.greater_than_equal_one()) { // Remove leading one
             apy_res = apy_res - fx_one;
         }
-        new_man = (man_t)(apy_res << x.man_bits).to_double();
+        apy_res <<= x.man_bits;
+        new_man = (man_t)(apy_res).to_double();
         extended_man_bits = x.man_bits;
     }
 
@@ -1158,8 +1163,9 @@ APyFloat APyFloat::operator&(APyFloat& rhs)
 
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits);
-    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits);
+    const auto ieee_bias = APyFloat::ieee_bias(max_exp_bits);
+    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
+    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
 
     APyFloat f(
         lhs_big.sign & rhs_big.sign,
@@ -1179,8 +1185,9 @@ APyFloat APyFloat::operator|(APyFloat& rhs)
     }
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits);
-    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits);
+    const auto ieee_bias = APyFloat::ieee_bias(max_exp_bits);
+    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
+    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
 
     APyFloat f(
         lhs_big.sign | rhs_big.sign,
@@ -1200,8 +1207,9 @@ APyFloat APyFloat::operator^(APyFloat& rhs)
     }
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits);
-    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits);
+    const auto ieee_bias = APyFloat::ieee_bias(max_exp_bits);
+    const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
+    const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
 
     APyFloat f(
         lhs_big.sign ^ rhs_big.sign,
@@ -1247,8 +1255,9 @@ bool APyFloat::operator==(const APyFloat& rhs) const
         // Cast operands to a larger format that can represent both numbers
         const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
         const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-        const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits);
-        const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits);
+        const auto ieee_bias = APyFloat::ieee_bias(max_exp_bits);
+        const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
+        const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
 
         return (lhs_big.exp == rhs_big.exp) && (lhs_big.man == rhs_big.man);
     }
@@ -1297,8 +1306,9 @@ bool APyFloat::operator<(const APyFloat& rhs) const
         // Cast operands to a larger format that can represent both numbers
         const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
         const auto max_man_bits = std::max(man_bits, rhs.man_bits);
-        const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits);
-        const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits);
+        const auto ieee_bias = APyFloat::ieee_bias(max_exp_bits);
+        const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
+        const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
 
         if (lhs_big.exp < rhs_big.exp) {
             return !sign;
