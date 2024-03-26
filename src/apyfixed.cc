@@ -580,7 +580,7 @@ void APyFixed::set_from_string_dec(const std::string& str)
 
     // Adjust limb vector if negative fractional bits are present
     if (frac_bits() + 1 < 0) {
-        limb_vector_asr(data, -(frac_bits() + 1));
+        limb_vector_asr(data.begin(), data.end(), -(frac_bits() + 1));
     }
 
     // Copy the data into the result vector
