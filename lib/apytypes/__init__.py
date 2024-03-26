@@ -13,6 +13,7 @@ from apytypes._apytypes import (
     set_quantization_mode,
     get_quantization_seed,
     set_quantization_seed,
+    get_simd_version_str,
 )
 
 from apytypes._version import version as __version__
@@ -31,6 +32,7 @@ __all__ = [
     "set_quantization_mode",
     "get_quantization_seed",
     "set_quantization_seed",
+    "get_simd_version_str",
 ]
 
 APyFloat.__doc__ = """

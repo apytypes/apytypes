@@ -335,3 +335,12 @@ def test_huge_extending_cast(mode):
     assert a.cast(1000, 500, mode).is_identical(
         APyFixedArray.from_float([-0.75, 0.5], 1000, 500)
     )
+
+
+def test_long_matrix_addition():
+    np = pytest.importorskip("numpy")
+    a = APyFixedArray(range(10000), bits=20, int_bits=20)
+    b = APyFixedArray(range(10000), bits=20, int_bits=20)
+    assert (a + b).is_identical(
+        APyFixedArray(2 * np.array(range(10000)), bits=21, int_bits=21)
+    )

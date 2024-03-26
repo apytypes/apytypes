@@ -25,6 +25,7 @@ namespace nb = nanobind;
 #include "apyfixedarray.h"
 #include "apyfixedarray_iterator.h"
 #include "apytypes_common.h"
+#include "apytypes_simd.h"
 #include "apytypes_util.h"
 #include "python_util.h"
 
@@ -126,13 +127,26 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
     // Special case #1: Operands and results fit in single limb
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         APyFixedArray result(_shape, res_bits, res_int_bits);
-        // At most one must be shifted, but hope that this does not kill the
-        // performance.
-        auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
-        auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
-        for (std::size_t i = 0; i < result._data.size(); i++) {
-            result._data[i]
-                = (_data[i] << lhs_shift_amount) + (rhs._data[i] << rhs_shift_amount);
+        if (frac_bits() == res_frac_bits) {
+            // Only shift right-hand size (`rhs`)
+            auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
+            simd::limb_vector_shift_add(
+                rhs._data.begin(),
+                _data.begin(),
+                result._data.begin(),
+                rhs_shift_amount,
+                result._data.size()
+            );
+        } else {
+            // Only shift left-hand side (`*this`)
+            auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
+            simd::limb_vector_shift_add(
+                _data.begin(),
+                rhs._data.begin(),
+                result._data.begin(),
+                lhs_shift_amount,
+                result._data.size()
+            );
         }
         return result; // early exit
     }
@@ -917,12 +931,13 @@ APyFixedArray APyFixedArray::from_double(
  * *                            Private member functions                            * *
  * ********************************************************************************** */
 
+template <typename RANDOM_ACCESS_ITERATOR>
 void APyFixedArray::_checked_hadamard_product(
     const APyFixedArray& rhs,
-    std::vector<mp_limb_t>::iterator res_out, // output iterator
-    std::vector<mp_limb_t>& prod_tmp,         // scratch: product result
-    std::vector<mp_limb_t>& op1_abs,          // scratch: absolute value operand 1
-    std::vector<mp_limb_t>& op2_abs           // scratch: absolute value operand 2
+    RANDOM_ACCESS_ITERATOR res_out,   // output iterator
+    std::vector<mp_limb_t>& prod_tmp, // scratch: product result
+    std::vector<mp_limb_t>& op1_abs,  // scratch: absolute value operand 1
+    std::vector<mp_limb_t>& op2_abs   // scratch: absolute value operand 2
 ) const
 {
     std::size_t res_bits = _bits + rhs._bits;
@@ -1125,8 +1140,9 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
 //! Cast values to a longer (at least not shorter) word length
 //! This code has moved all conditions out of the for-loop to speed up the execution
 //! and instead there are multiple for-loops doing similar operations.
+template <typename RANDOM_ACCESS_ITERATOR>
 void APyFixedArray::_cast_correct_wl(
-    std::vector<mp_limb_t>::iterator output_it, int new_bits, int new_int_bits
+    RANDOM_ACCESS_ITERATOR output_it, int new_bits, int new_int_bits
 ) const
 {
     auto result_itemsize = bits_to_limbs(new_bits);
@@ -1220,9 +1236,10 @@ void APyFixedArray::_cast_correct_wl(
     }
 }
 
+template <typename RANDOM_ACCESS_ITERATOR>
 void APyFixedArray::_cast(
-    std::vector<mp_limb_t>::iterator it_begin,
-    std::vector<mp_limb_t>::iterator it_end,
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
     APyFixed& caster,
     int new_bits,
     int new_int_bits,

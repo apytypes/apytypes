@@ -204,12 +204,13 @@ private:
      * shape of `*this` and `rhs` are equally long. Anyghing else is undefined
      * behaviour.
      */
+    template <typename RANDOM_ACCESS_ITERATOR>
     void _checked_hadamard_product(
-        const APyFixedArray& rhs,                 // rhs
-        std::vector<mp_limb_t>::iterator res_out, // output iterator
-        std::vector<mp_limb_t>& prod_scratch,     // scratch: product result
-        std::vector<mp_limb_t>& op1_scratch,      // scratch: absolute value operand 1
-        std::vector<mp_limb_t>& op2_scratch       // scratch: absolute value operand 2
+        const APyFixedArray& rhs,             // rhs
+        RANDOM_ACCESS_ITERATOR res_out,       // output iterator
+        std::vector<mp_limb_t>& prod_scratch, // scratch: product result
+        std::vector<mp_limb_t>& op1_scratch,  // scratch: absolute value operand 1
+        std::vector<mp_limb_t>& op2_scratch   // scratch: absolute value operand 2
     ) const;
 
     /*!
@@ -238,8 +239,9 @@ private:
         std::optional<AccumulatorOption> mode // optional accumulation mode
     ) const;
 
+    template <typename RANDOM_ACCESS_ITERATOR>
     void _cast_correct_wl(
-        std::vector<mp_limb_t>::iterator output_it, int new_bits, int new_int_bits
+        RANDOM_ACCESS_ITERATOR output_it, int new_bits, int new_int_bits
     ) const;
 
     /*!
@@ -249,9 +251,10 @@ private:
      *   * The `caster` must be an `APyFixed` object with same bit specifier as `*this`
      *   * If `new_bits` > `_bits`, the output must contain pad limbs
      */
+    template <typename RANDOM_ACCESS_ITERATOR>
     void _cast(
-        std::vector<mp_limb_t>::iterator it_begin,
-        std::vector<mp_limb_t>::iterator it_end,
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
         APyFixed& caster,
         int new_bits,
         int new_int_bits,

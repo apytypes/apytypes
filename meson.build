@@ -3,6 +3,7 @@ project(
     'cpp', 'c',
     default_options : ['cpp_std=c++17', 'c_std=c17', 'b_lto=true'],
     version : run_command(find_program('python3'), '-m', 'setuptools_scm', check: true).stdout().strip(),
+    ],
 )
 
 # Python module incudes
@@ -12,6 +13,16 @@ py3_dep = py3.dependency()
 # Nanobind dependency
 nanobind_dep = dependency('nanobind')
 
+# Google Highway SIMD dynamic dispatching library
+# Thanks germandiagogomez for the Meson/CMake fix for Google Highway
+cmake = import('cmake')
+cmake_opts = cmake.subproject_options()
+if get_option('buildtype') == 'release'
+    cmake_opts.add_cmake_defines({'CMAKE_BUILD_TYPE': 'Release'})
+endif
+
+hwy = cmake.subproject('highway', options: cmake_opts)
+hwy_dep = hwy.dependency('hwy', include_type: 'system')
 
 py3.install_sources(
   [
@@ -61,8 +72,9 @@ py3.extension_module(
         'src/apytypes_common.cc',
         'src/apytypes_context_wrapper.cc',
         'src/apytypes_wrapper.cc',
+        'src/apytypes_simd.cc',
     ]),
-    dependencies : [py3_dep, nanobind_dep, fmt_dep],
+    dependencies : [py3_dep, nanobind_dep, hwy_dep, fmt_dep],
     subdir: 'apytypes',
     install: true
 )

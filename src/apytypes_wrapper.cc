@@ -1,4 +1,5 @@
 #include "apytypes_common.h"
+#include "apytypes_simd.h"
 #include <nanobind/nanobind.h>
 
 namespace nb = nanobind;
@@ -171,4 +172,7 @@ void bind_common(nb::module_& m)
     m.def("get_quantization_mode", &get_quantization_mode);
     m.def("set_quantization_seed", &set_quantization_seed);
     m.def("get_quantization_seed", &get_quantization_seed);
+
+    /* Get the APyTypes SIMD version string */
+    m.def("get_simd_version_str", &simd::get_simd_version_str);
 }

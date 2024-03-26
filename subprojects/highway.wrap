@@ -1,0 +1,9 @@
+[wrap-git]
+method = cmake
+url = https://github.com/google/highway
+revision = 1.1.0
+depth = 1
+clone_recursive = False
+
+[provide]
+highway = hwy_dep
