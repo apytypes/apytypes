@@ -217,7 +217,7 @@ public:
         man = data.man;
     }
 
-    static inline exp_t ieee_bias(std::uint8_t exp_bits)
+    APY_INLINE static exp_t ieee_bias(std::uint8_t exp_bits)
     {
         return (1ULL << (exp_bits - 1)) - 1;
     }
@@ -260,30 +260,27 @@ private:
     APyFloat
     construct_nan(std::optional<bool> new_sign = std::nullopt, man_t payload = 1) const;
 
-    inline exp_t exp_mask() const { return ((1ULL << exp_bits) - 1); }
-    inline exp_t max_exponent() const
+    APY_INLINE exp_t exp_mask() const { return ((1ULL << exp_bits) - 1); }
+    APY_INLINE exp_t max_exponent() const
     {
         return ((1ULL << exp_bits) - 1);
     } // Max exponent with bias
-    inline exp_t ieee_bias() const { return ieee_bias(exp_bits); }
-    inline man_t man_mask() const { return (1ULL << man_bits) - 1; }
-    inline man_t leading_one() const { return (1ULL << man_bits); }
-    inline man_t leading_bit() const
+    APY_INLINE exp_t ieee_bias() const { return ieee_bias(exp_bits); }
+    APY_INLINE man_t man_mask() const { return (1ULL << man_bits) - 1; }
+    APY_INLINE man_t leading_one() const { return (1ULL << man_bits); }
+    APY_INLINE man_t leading_bit() const
     {
         return (static_cast<man_t>(is_normal()) << man_bits);
     }
 
     APyFloat normalized() const;
     static void quantize_apymantissa(
-        APyFixed& apyman,
-        bool sign,
-        int bits,
-        std::optional<QuantizationMode> quantization = std::nullopt
+        APyFixed& apyman, bool sign, int bits, QuantizationMode quantization
     );
     static QuantizationMode
     translate_quantization_mode(QuantizationMode quantization, bool sign);
 
-    int leading_zeros_apyfixed(APyFixed fx) const;
+    APY_INLINE int leading_zeros_apyfixed(APyFixed fx) const;
     APY_INLINE bool same_type_as(APyFloat other) const;
 };
 

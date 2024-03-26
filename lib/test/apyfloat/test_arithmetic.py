@@ -467,6 +467,18 @@ def test_power():
     assert APyFloat.from_float(-8.125, 8, 10) ** 4 == APyFloat.from_float(
         (-8.125) ** 4, 8, 10
     )
+    # Sqrt(2) (triggers carry)
+    a = APyFloat(sign=0, exp=510, man=27146, exp_bits=10, man_bits=16)
+    # Wrong
+    # (a**2).is_identical(APyFloat(sign=0, exp=510, man=0, exp_bits=10, man_bits=16))
+    (a**4).is_identical(APyFloat(sign=0, exp=509, man=0, exp_bits=10, man_bits=16))
+
+    a = APyFloat(sign=0, exp=511, man=1865452045155277, exp_bits=10, man_bits=52)
+    (a**2).is_identical(APyFloat(sign=0, exp=512, man=1, exp_bits=10, man_bits=52))
+
+    # Cube root of three
+    a = APyFloat(sign=0, exp=511, man=1116352409, exp_bits=10, man_bits=32)
+    (a**3).is_identical(APyFloat(sign=0, exp=512, man=0, exp_bits=10, man_bits=32))
 
 
 @pytest.mark.xfail()

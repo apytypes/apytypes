@@ -3,13 +3,24 @@ from apytypes import APyFloat, QuantizationMode, QuantizationContext
 import pytest
 
 
-@pytest.mark.xfail()
 def test_issue_245():
-    # Smoke test for jamming rounding when adding with zero
+    # Test that jamming bit is not applied when result is zero
     # https://github.com/apytypes/apytypes/issues/245
     with QuantizationContext(QuantizationMode.JAM):
         res = APyFloat(0, 15, 0, 5, 2) + APyFloat(0, 0, 0, 5, 2)
-        assert res.is_identical(APyFloat(0, 15, 1, 5, 2))
+        assert res.is_identical(APyFloat(0, 15, 0, 5, 2))
+
+    with QuantizationContext(QuantizationMode.JAM):
+        res = APyFloat(0, 15, 0, 5, 2) - APyFloat(0, 0, 0, 5, 2)
+        assert res.is_identical(APyFloat(0, 15, 0, 5, 2))
+
+    with QuantizationContext(QuantizationMode.JAM):
+        res = APyFloat(0, 15, 0, 5, 2) * APyFloat(0, 0, 0, 5, 2)
+        assert res.is_identical(APyFloat(0, 0, 0, 5, 2))
+
+    with QuantizationContext(QuantizationMode.JAM):
+        res = APyFloat(0, 0, 0, 5, 2) / APyFloat(0, 15, 0, 5, 2)
+        assert res.is_identical(APyFloat(0, 0, 0, 5, 2))
 
 
 @pytest.mark.float_add

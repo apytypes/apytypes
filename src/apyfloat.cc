@@ -550,22 +550,21 @@ APyFloat APyFloat::cast_no_quant(
 }
 
 void APyFloat::quantize_apymantissa(
-    APyFixed& apyman, bool sign, int bits, std::optional<QuantizationMode> quantization
+    APyFixed& apyman, bool sign, int bits, QuantizationMode quantization
 )
 {
-    auto mode = quantization.value_or(get_quantization_mode());
-    mode = APyFloat::translate_quantization_mode(mode, sign);
-    if (mode == QuantizationMode::STOCH_WEIGHTED) {
+    quantization = APyFloat::translate_quantization_mode(quantization, sign);
+    if (quantization == QuantizationMode::STOCH_WEIGHTED) {
         std::vector<mp_limb_t> rnd_data = { random_number(), random_number(), 0 };
         APyFixed rnd_num(_LIMB_SIZE_BITS * 3, _LIMB_SIZE_BITS - bits, rnd_data);
         apyman = apyman + rnd_num;
-    } else if (mode == QuantizationMode::STOCH_EQUAL) {
+    } else if (quantization == QuantizationMode::STOCH_EQUAL) {
         const mp_limb_t rnd = random_number() % 2 ? -1 : 0;
         std::vector<mp_limb_t> rnd_data = { rnd, rnd, 0 };
         APyFixed rnd_num(_LIMB_SIZE_BITS * 3, _LIMB_SIZE_BITS - bits, rnd_data);
         apyman = apyman + rnd_num;
     } else {
-        apyman = apyman.cast(3 + bits, 3, mode);
+        apyman = apyman.cast(3 + bits, 3, quantization);
     }
 }
 
@@ -728,8 +727,10 @@ std::string APyFloat::latex() const
 
 APyFloat APyFloat::operator+(APyFloat y) const
 {
-    auto res_exp_bits = std::max(exp_bits, y.exp_bits);
-    auto res_man_bits = std::max(man_bits, y.man_bits);
+    const auto res_exp_bits = std::max(exp_bits, y.exp_bits);
+    const auto res_man_bits = std::max(man_bits, y.man_bits);
+
+    const auto quantization = get_quantization_mode();
 
     // Handle the zero cases, other special cases are further down
     if (is_zero()) {
@@ -776,15 +777,12 @@ APyFloat APyFloat::operator+(APyFloat y) const
     man_t mx = x.true_man();
     man_t my = y.true_man();
 
+    // Align mantissas based on exponent difference
+    const int delta = x.true_exp() - y.true_exp();
+
     // Two integer bits, sign bit and leading one
     APyFixed apy_mx(2 + x.man_bits, 2, std::vector<mp_limb_t>({ mx }));
-    APyFixed apy_my(2 + y.man_bits, 2, std::vector<mp_limb_t>({ my }));
-
-    // Align mantissas based on exponent difference
-    const int delta
-        = (x.exp - x.bias - x.is_normal()) - (y.exp - y.bias - y.is_normal());
-
-    apy_my >>= delta;
+    APyFixed apy_my(2 + y.man_bits, 2 - delta, std::vector<mp_limb_t>({ my }));
 
     // Perform addition/subtraction
     auto apy_res = (x.sign == y.sign) ? apy_mx + apy_my : apy_mx - apy_my;
@@ -792,7 +790,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
     if (apy_res >= fx_two) {
         new_exp++;
         apy_res >>= 1;
-    } else if (apy_res >= fx_one && new_exp == 0) {
+    } else if (new_exp == 0 && apy_res >= fx_one) {
         new_exp++;
     }
 
@@ -802,7 +800,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
 
     int leading_zeros = leading_zeros_apyfixed(apy_res);
     if (leading_zeros) {
-        if ((new_exp - leading_zeros) > 0) {
+        if (new_exp > leading_zeros) {
             new_exp -= leading_zeros;
             apy_res <<= leading_zeros;
         } else {
@@ -814,7 +812,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
     }
 
     // Quantize mantissa
-    APyFloat::quantize_apymantissa(apy_res, res.sign, res.man_bits);
+    APyFloat::quantize_apymantissa(apy_res, res.sign, res.man_bits, quantization);
 
     // Carry from quantization
     if (apy_res >= fx_two) {
@@ -880,6 +878,8 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
 
     int tmp_man_bits;
 
+    const auto quantization = get_quantization_mode();
+
     if (unsigned(norm_x.man_bits + norm_y.man_bits) + 2 <= _MAN_T_SIZE_BITS) {
         man_t new_man = mx * my;
         man_t one = 1ULL << (norm_x.man_bits + norm_y.man_bits);
@@ -905,7 +905,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         APyFloat larger_float(
             res.sign, new_exp, new_man, tmp_exp_bits, tmp_man_bits, extended_bias
         );
-        return larger_float._cast(res.exp_bits, res.man_bits, res.bias);
+        return larger_float._cast(res.exp_bits, res.man_bits, res.bias, quantization);
 
     } else {
         // Two integer bits, sign bit and leading one
@@ -927,7 +927,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         }
 
         // Quantize mantissa
-        APyFloat::quantize_apymantissa(apy_res, res.sign, res.man_bits);
+        APyFloat::quantize_apymantissa(apy_res, res.sign, res.man_bits, quantization);
 
         // Carry from quantization
         if (apy_res >= fx_two) {
@@ -969,6 +969,8 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
         return res.construct_inf();
     }
 
+    const auto quantization = get_quantization_mode();
+
     // Normalize both inputs
     const APyFloat norm_x = normalized();
     const APyFloat norm_y = y.normalized();
@@ -1008,7 +1010,7 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     }
 
     // Quantize mantissa
-    APyFloat::quantize_apymantissa(apy_man_res, res.sign, res.man_bits);
+    APyFloat::quantize_apymantissa(apy_man_res, res.sign, res.man_bits, quantization);
 
     // Carry from quantization
     if (apy_man_res >= fx_two) {
@@ -1079,6 +1081,8 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
         }
     }
 
+    const auto quantization = get_quantization_mode();
+
     const int abs_n = std::abs(n);
 
     const int max_exp_bits = x.exp_bits + (count_trailing_bits(abs_n) + 1);
@@ -1115,7 +1119,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
         }
 
         // Quantize mantissa
-        APyFloat::quantize_apymantissa(apy_res, new_sign, x.man_bits);
+        APyFloat::quantize_apymantissa(apy_res, new_sign, x.man_bits, quantization);
         // Carry from quantization
         if (apy_res >= fx_two) {
             new_exp++;
@@ -1137,7 +1141,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
                extended_man_bits,
                extended_bias
     )
-        ._cast(x.exp_bits, x.man_bits, x.bias);
+        ._cast(x.exp_bits, x.man_bits, x.bias, quantization);
 }
 
 /* ******************************************************************************
@@ -1325,24 +1329,24 @@ bool APyFloat::operator>(const APyFloat& rhs) const
  * ******************************************************************************
  */
 
-//! True if and only if x is normal (not zero, subnormal, infinite, or NaN).
+//! True if and only if value is normal (not zero, subnormal, infinite, or NaN).
 bool APyFloat::is_normal() const { return exp != 0 && exp != max_exponent(); }
 
-//! True if and only if x is zero, subnormal, or normal.
+//! True if and only if value is zero, subnormal, or normal.
 bool APyFloat::is_finite() const { return exp == 0 || exp != max_exponent(); }
 
-//! True if and only if x is subnormal. Zero is also considered a subnormal
+//! True if and only if value is subnormal. Zero is also considered a subnormal
 //! number.
 bool APyFloat::is_subnormal() const { return exp == 0; }
 
-//! True if and only if x is zero.
+//! True if and only if value is zero.
 bool APyFloat::is_zero() const { return exp == 0 && man == 0; }
 
-//! True if and only if x is NaN.
-bool APyFloat::is_nan() const { return exp == max_exponent() && man != 0; }
+//! True if and only if value is NaN.
+bool APyFloat::is_nan() const { return man != 0 && exp == max_exponent(); }
 
-//! True if and only if x is infinite.
-bool APyFloat::is_inf() const { return exp == max_exponent() && man == 0; }
+//! True if and only if value is infinite.
+bool APyFloat::is_inf() const { return man == 0 && exp == max_exponent(); }
 
 /* ******************************************************************************
  * * Helper functions                                                           *
@@ -1389,7 +1393,7 @@ APyFloat APyFloat::normalized() const
     return APyFloat(sign, new_exp, new_man, exp_bits + 1, man_bits, ieee_bias);
 }
 
-int APY_INLINE APyFloat::leading_zeros_apyfixed(APyFixed fx) const
+APY_INLINE int APyFloat::leading_zeros_apyfixed(APyFixed fx) const
 {
     // Calculate the number of left shifts needed to make fx>=1.0
     const int zeros = fx.leading_zeros() - fx.int_bits();
