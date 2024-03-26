@@ -189,12 +189,36 @@ def test_add_inf_nan():
 
 @pytest.mark.float_add
 def test_long_add():
-    x = APyFloat(sign=0, exp=3, man=22, exp_bits=4, man_bits=7)
-    y = APyFloat(sign=1, exp=32763, man=813782734503116, exp_bits=16, man_bits=52)
-    assert x + y == APyFloat.from_float(float(x) + float(y), exp_bits=16, man_bits=52)
+    """Some tests for sanity checking addition with long formats."""
 
-    x = APyFloat.from_float(5200, exp_bits=17, man_bits=52)
-    assert x + y == APyFloat.from_float(float(x) + float(y), exp_bits=17, man_bits=52)
+    # 2.5 + 24.5 = 27.0
+    x = APyFloat(sign=0, exp=1024, man=0x4000000000000, exp_bits=11, man_bits=52)
+    y = APyFloat(sign=0, exp=1027, man=0x8400000000000, exp_bits=11, man_bits=52)
+    res = x + y
+    assert res.is_identical(
+        APyFloat(sign=0, exp=1027, man=0xAC00000000000, exp_bits=11, man_bits=52)
+    )
+
+    # Add two subnormals
+    x = APyFloat(sign=0, exp=0, man=23, exp_bits=11, man_bits=61)
+    y = APyFloat(sign=0, exp=0, man=71, exp_bits=11, man_bits=61)
+    res = x + y
+    assert res.is_identical(APyFloat(sign=0, exp=0, man=94, exp_bits=11, man_bits=61))
+
+    # Mixed formats. 1.75 + (-5) = -3.25
+    x = APyFloat(sign=0, exp=7, man=6, exp_bits=4, man_bits=3)
+    y = APyFloat(sign=1, exp=1025, man=0x4000000000000, exp_bits=11, man_bits=52)
+    res = x + y
+    assert res.is_identical(
+        APyFloat(sign=1, exp=1024, man=0xA000000000000, exp_bits=11, man_bits=52)
+    )
+
+    # 1.234324 + 5.21343 = 6.447754
+    # These numbers cannot be represented exactly but should be performed as the following
+    x = APyFloat(0, 1023, 0x3BFCA85CAAFBC, 11, 52)
+    y = APyFloat(0, 1025, 0x4DA8D64D7F0ED, 11, 52)
+    res = x + y
+    assert res.is_identical(APyFloat(0, 1025, 0x9CA80064A9CDC, 11, 52))
 
 
 # Subtraction
