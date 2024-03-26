@@ -24,7 +24,6 @@ void print_warning(const std::string msg)
 }
 
 static const auto fx_one = APyFixed::from_double(1, 2, 2);
-static const auto fx_two = fx_one << 1;
 
 /*!
  * Sizes of APyFloat datatypes
@@ -787,10 +786,10 @@ APyFloat APyFloat::operator+(APyFloat y) const
     // Perform addition/subtraction
     auto apy_res = (x.sign == y.sign) ? apy_mx + apy_my : apy_mx - apy_my;
 
-    if (apy_res >= fx_two) {
+    if (apy_res.greater_than_equal_two()) {
         new_exp++;
         apy_res >>= 1;
-    } else if (new_exp == 0 && apy_res >= fx_one) {
+    } else if (new_exp == 0 && apy_res.greater_than_equal_one()) {
         new_exp++;
     }
 
@@ -815,7 +814,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
     APyFloat::quantize_apymantissa(apy_res, res.sign, res.man_bits, quantization);
 
     // Carry from quantization
-    if (apy_res >= fx_two) {
+    if (apy_res.greater_than_equal_two()) {
         new_exp++;
         apy_res >>= 1;
     }
@@ -825,11 +824,12 @@ APyFloat APyFloat::operator+(APyFloat y) const
     }
 
     // Remove leading one
-    if (apy_res >= fx_one) {
+    if (apy_res.greater_than_equal_one()) {
         apy_res = apy_res - fx_one;
     }
 
-    res.man = (man_t)(apy_res << res.man_bits).to_double();
+    apy_res <<= res.man_bits;
+    res.man = (man_t)(apy_res).to_double();
     res.exp = new_exp;
     return res;
 }
@@ -915,7 +915,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         auto apy_res = (apy_mx * apy_my);
 
         // Carry from multiplication
-        if (apy_res >= fx_two) {
+        if (apy_res.greater_than_equal_two()) {
             apy_res >>= 1;
             new_exp++;
         }
@@ -930,7 +930,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         APyFloat::quantize_apymantissa(apy_res, res.sign, res.man_bits, quantization);
 
         // Carry from quantization
-        if (apy_res >= fx_two) {
+        if (apy_res.greater_than_equal_two()) {
             new_exp++;
             apy_res >>= 1;
         }
@@ -939,7 +939,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
             return res.construct_inf();
         }
 
-        if (apy_res >= fx_one) { // Remove leading one
+        if (apy_res.greater_than_equal_one()) { // Remove leading one
             apy_res = apy_res - fx_one;
         }
         res.man = (man_t)(apy_res << res.man_bits).to_double();
@@ -998,7 +998,7 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     auto apy_man_res = apy_mx / apy_my;
 
     // The result from the division will be in [1/2, 2) so normalization may be required
-    if (apy_man_res < fx_one) {
+    if (!apy_man_res.greater_than_equal_one()) {
         apy_man_res <<= 1;
         new_exp--;
     }
@@ -1013,7 +1013,7 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     APyFloat::quantize_apymantissa(apy_man_res, res.sign, res.man_bits, quantization);
 
     // Carry from quantization
-    if (apy_man_res >= fx_two) {
+    if (apy_man_res.greater_than_equal_two()) {
         new_exp++;
         apy_man_res >>= 1;
     }
@@ -1023,7 +1023,7 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
         return res.construct_inf();
     }
 
-    if (apy_man_res >= fx_one) { // Remove leading one
+    if (apy_man_res.greater_than_equal_one()) { // Remove leading one
         apy_man_res = apy_man_res - fx_one;
     }
     res.man = (man_t)(apy_man_res << res.man_bits).to_double();
@@ -1113,7 +1113,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
         }
 
         // Normalize mantissa
-        while (apy_res > fx_two) {
+        while (apy_res.greater_than_equal_two()) {
             apy_res >>= 1;
             new_exp++;
         }
@@ -1121,12 +1121,12 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
         // Quantize mantissa
         APyFloat::quantize_apymantissa(apy_res, new_sign, x.man_bits, quantization);
         // Carry from quantization
-        if (apy_res >= fx_two) {
+        if (apy_res.greater_than_equal_two()) {
             new_exp++;
             apy_res >>= 1;
         }
 
-        if (apy_res >= fx_one) { // Remove leading one
+        if (apy_res.greater_than_equal_one()) { // Remove leading one
             apy_res = apy_res - fx_one;
         }
         new_man = (man_t)(apy_res << x.man_bits).to_double();
