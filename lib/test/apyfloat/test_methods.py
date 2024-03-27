@@ -1,6 +1,21 @@
 from itertools import permutations as perm
 import pytest
-from apytypes import APyFloat, APyFixed
+from apytypes import APyFloat
+
+
+def test_scalar_constructor_raises():
+    # Too many exponent bits
+    with pytest.raises(ValueError, match=".*exponent"):
+        APyFloat(0, 0, 0, 100, 5)
+    # Too many mantissa bits
+    with pytest.raises(ValueError, match=".*mantissa"):
+        APyFloat(0, 0, 0, 5, 100)
+
+
+def test_scalar_depricated_raises():
+    # The method 'resize' was depricated and changed to 'cast'
+    with pytest.warns(DeprecationWarning, match=".*cast"):
+        APyFloat(0, 0, 0, 7, 10).resize(10, 43)
 
 
 @pytest.mark.float_special
@@ -105,17 +120,21 @@ def test_properties():
     assert a.man == 4
     assert a.true_man == 68
     assert a.exp == 3
+    assert a.bias == 7
     assert a.true_exp == -4
     assert a.sign == False
     assert a.true_sign == 1
+    assert a.bits == 11
 
     a = APyFloat(1, 0, 4, 4, 6)
     assert a.man == 4
     assert a.true_man == 4
     assert a.exp == 0
+    assert a.bias == 7
     assert a.true_exp == -6
     assert a.sign == True
     assert a.true_sign == -1
+    assert a.bits == 11
 
     # Subnormal number
     a = APyFloat(0, 0, 1, 5, 2)
