@@ -413,7 +413,7 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
                                         static_cast<man_t>(1) };
                     } else {
                         res.data[i] = { res_sign,
-                                        static_cast<exp_t>(res_max_exponent),
+                                        static_cast<exp_t>(0),
                                         static_cast<man_t>(0) };
                     }
                 }
