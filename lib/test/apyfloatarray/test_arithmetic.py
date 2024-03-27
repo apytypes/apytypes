@@ -260,6 +260,61 @@ def test_array_mul_scalar():
     assert (a * b).is_identical(APyFloatArray.from_float([4, 12, 40], 9, 10))
     assert (b * a).is_identical(APyFloatArray.from_float([4, 12, 40], 9, 10))
 
+    a = APyFloatArray.from_float([0, 1.75, -7.75], 8, 10)
+    b = APyFloat.from_float(7.5, 9, 8)
+    assert (a * b).is_identical(
+        APyFloatArray([0, 0, 1], [0, 258, 260], [0, 656, 836], exp_bits=9, man_bits=10)
+    )
+    assert (b * a).is_identical(
+        APyFloatArray([0, 0, 1], [0, 258, 260], [0, 656, 836], exp_bits=9, man_bits=10)
+    )
+
+    a = APyFloatArray([0, 1], [0, 0], [7, 14], 4, 5)
+    b = APyFloat(0, 0, 11, 4, 5)
+    assert (a * b).is_identical(
+        APyFloatArray([0, 1], [0, 0], [0, 0], exp_bits=4, man_bits=5)
+    )
+    assert (b * a).is_identical(
+        APyFloatArray([0, 1], [0, 0], [0, 0], exp_bits=4, man_bits=5)
+    )
+
+    a = APyFloatArray.from_float([0.5, 1.5, 5], 10, 35)
+    b = APyFloat.from_float(8, 10, 35)
+    assert (a * b).is_identical(APyFloatArray.from_float([4, 12, 40], 10, 35))
+    assert (b * a).is_identical(APyFloatArray.from_float([4, 12, 40], 10, 35))
+
+    a = APyFloatArray.from_float([0.5, 1.5, 5], 8, 10)
+    b = APyFloat.from_float(0, 9, 8)
+    assert (a * b).is_identical(APyFloatArray.from_float([0, 0, 0], 9, 10))
+    assert (b * a).is_identical(APyFloatArray.from_float([0, 0, 0], 9, 10))
+
+    a = APyFloatArray.from_float([0.5, 0, -5], 8, 10)
+    b = APyFloat.from_float(float("inf"), 9, 8)
+    assert (a * b).is_identical(
+        APyFloatArray.from_float([float("inf"), float("nan"), -float("inf")], 9, 10)
+    )
+    assert (b * a).is_identical(
+        APyFloatArray.from_float([float("inf"), float("nan"), -float("inf")], 9, 10)
+    )
+
+    a = APyFloatArray.from_float([0.5, 0, -5], 8, 10)
+    b = APyFloat.from_float(float("nan"), 9, 8)
+    assert (a * b).is_identical(
+        APyFloatArray.from_float([float("nan"), float("nan"), -float("nan")], 9, 10)
+    )
+    assert (b * a).is_identical(
+        APyFloatArray.from_float([float("nan"), float("nan"), -float("nan")], 9, 10)
+    )
+
+    a = APyFloatArray.from_float([float("inf"), float("nan"), -float("inf")], 8, 10)
+    b = APyFloat.from_float(0, 9, 8)
+    assert (a * b).is_identical(
+        APyFloatArray.from_float([float("nan"), float("nan"), -float("nan")], 9, 10)
+    )
+    assert (b * a).is_identical(
+        APyFloatArray.from_float([float("nan"), float("nan"), -float("nan")], 9, 10)
+    )
+
 
 @pytest.mark.float_array
 def test_array_mul_int_float():
