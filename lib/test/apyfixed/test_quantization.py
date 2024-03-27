@@ -41,6 +41,17 @@ def test_trn_zero():
     assert float(APyFixed.from_float(0.875, 4, 1).cast(3, 2, mode)) == 0.5
 
 
+def test_trn_mag():
+    mode = QuantizationMode.TRN_MAG
+    assert float(APyFixed.from_float(-0.75, 3, 1).cast(5, 1, mode)) == -0.75
+    assert float(APyFixed.from_float(-0.75, 3, 1).cast(2, 1, mode)) == -0.5
+    assert float(APyFixed.from_float(-0.75, 4, 1).cast(3, 1, mode)) == -0.5
+    assert float(APyFixed.from_float(-0.875, 4, 1).cast(3, 1, mode)) == -0.75
+    assert float(APyFixed.from_float(0.75, 3, 1).cast(2, 1, mode)) == 0.5
+    assert float(APyFixed.from_float(0.75, 4, 1).cast(3, 1, mode)) == 0.75
+    assert float(APyFixed.from_float(0.875, 4, 1).cast(3, 1, mode)) == 0.75
+
+
 def test_rnd():
     mode = QuantizationMode.RND
     assert float(APyFixed.from_float(-0.75, 3, 1).cast(5, 1, mode)) == -0.75

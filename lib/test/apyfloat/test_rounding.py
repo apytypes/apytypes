@@ -1002,6 +1002,123 @@ class TestAPyFloatQuantization:
             .is_identical(APyFloat(1, 5, 0b101, 5, 3))
         )
 
+    def test_quantization_unbiased_jamming(self):
+        apytypes.set_quantization_mode(QuantizationMode.JAM_UNBIASED)
+        # Quantization from 0.xx
+        assert (
+            APyFloat(0, 5, 0b10000, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b100, 5, 3))
+        )
+        assert (
+            APyFloat(0, 5, 0b10001, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b101, 5, 3))
+        )
+
+        # Quantization from 1.xx
+        assert (
+            APyFloat(0, 5, 0b10100, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b101, 5, 3))
+        )
+        assert (
+            APyFloat(0, 5, 0b10101, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b101, 5, 3))
+        )
+
+    def test_quantization_magnitude_truncation(self):
+        # Shouldn't be used for floating-point
+        apytypes.set_quantization_mode(QuantizationMode.TRN_MAG)
+        # Quantization from 0.xx
+        assert (
+            APyFloat(0, 5, 0b10000, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b100, 5, 3))
+        )
+        assert (
+            APyFloat(0, 5, 0b10001, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b100, 5, 3))
+        )
+        assert (
+            APyFloat(0, 5, 0b10010, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b100, 5, 3))
+        )
+        assert (
+            APyFloat(0, 5, 0b10011, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b100, 5, 3))
+        )
+
+        # Quantization from 1.xx
+        assert (
+            APyFloat(0, 5, 0b10100, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b101, 5, 3))
+        )
+        assert (
+            APyFloat(0, 5, 0b10101, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b101, 5, 3))
+        )
+        assert (
+            APyFloat(0, 5, 0b10110, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b101, 5, 3))
+        )
+        assert (
+            APyFloat(0, 5, 0b10111, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b101, 5, 3))
+        )
+
+        # Quantization from 0.xx, negative sign
+        assert (
+            APyFloat(1, 5, 0b10000, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(1, 5, 0b101, 5, 3))
+        )
+        assert (
+            APyFloat(1, 5, 0b10001, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(1, 5, 0b101, 5, 3))
+        )
+        assert (
+            APyFloat(1, 5, 0b10010, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(1, 5, 0b101, 5, 3))
+        )
+        assert (
+            APyFloat(1, 5, 0b10011, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(1, 5, 0b101, 5, 3))
+        )
+
+        # Quantization from 1.xx, negative sign
+        assert (
+            APyFloat(1, 5, 0b10100, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(1, 5, 0b110, 5, 3))
+        )
+        assert (
+            APyFloat(1, 5, 0b10101, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(1, 5, 0b110, 5, 3))
+        )
+        assert (
+            APyFloat(1, 5, 0b10110, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(1, 5, 0b110, 5, 3))
+        )
+        assert (
+            APyFloat(1, 5, 0b10111, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(1, 5, 0b110, 5, 3))
+        )
+
     def test_quantization_stochastic_weighted(self):
         """
         A bit naive, but test that a value can be rounded both up and down in 1000 tries.

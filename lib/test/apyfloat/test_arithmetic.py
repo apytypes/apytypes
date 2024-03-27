@@ -422,9 +422,12 @@ def test_long_mul():
     assert (x * y).is_identical(
         APyFloat(sign=0, exp=0, man=6047313952768, exp_bits=16, man_bits=50)
     )
-    # x = APyFloat(sign=0, exp=0, man=11, exp_bits=4, man_bits=20)
-    # y = APyFloat(sign=0, exp=5, man=50, exp_bits=16, man_bits=50)
-    # x * y should be 0, but returns inf.
+    x = APyFloat(sign=0, exp=0, man=11, exp_bits=4, man_bits=20)
+    y = APyFloat(sign=0, exp=5, man=50, exp_bits=16, man_bits=50)
+    assert (x * y).is_identical(
+        APyFloat(sign=0, exp=0, man=2952790016, exp_bits=16, man_bits=50)
+    )
+
     x = APyFloat(sign=0, exp=1020, man=11, exp_bits=10, man_bits=9)
     y = APyFloat(sign=0, exp=4090, man=50, exp_bits=12, man_bits=50)
     assert (x * y).is_identical(
