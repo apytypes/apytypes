@@ -115,6 +115,35 @@ def test_from_float():
     b.is_identical(a)
 
 
+def test_casting_special_numbers():
+    # Cast -0 to -0
+    a = APyFloat(1, 0, 0, 5, 7)
+    a = a.cast(10, 34)
+    assert a.is_identical(APyFloat(1, 0, 0, 10, 34))
+
+    # Cast -inf to -inf
+    a = APyFloat(1, 31, 0, 5, 7)
+    a = a.cast(11, 34)
+    assert a.is_identical(APyFloat(1, 2047, 0, 11, 34))
+
+    # Cast NaN to NaN
+    a = APyFloat(0, 31, 123, 5, 7)
+    a = a.cast(11, 34)
+    assert a.is_nan
+    assert a.exp_bits == 11
+    assert a.man_bits == 34
+
+    # Cast subnormal to normal
+    a = APyFloat(0, 0, 1, 4, 3)
+    a = a.cast(5, 3)
+    assert a.is_identical(APyFloat(0, 6, 0, 5, 3))
+
+    # Cast normal to subnormal
+    a = APyFloat(0, 6, 0, 5, 3)
+    a = a.cast(4, 3)
+    assert a.is_identical(APyFloat(0, 0, 1, 4, 3))
+
+
 def test_properties():
     a = APyFloat(0, 3, 4, 4, 6)
     assert a.man == 4
