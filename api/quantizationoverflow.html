@@ -334,6 +334,11 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.QuantizationMode.TRN_MAG">
+<span class="sig-name descname"><span class="pre">TRN_MAG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">QuantizationMode.TRN_MAG</span></em><a class="headerlink" href="#apytypes.QuantizationMode.TRN_MAG" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="apytypes.QuantizationMode.TRN_ZERO">
 <span class="sig-name descname"><span class="pre">TRN_ZERO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">QuantizationMode.TO_ZERO</span></em><a class="headerlink" href="#apytypes.QuantizationMode.TRN_ZERO" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
@@ -345,6 +350,14 @@
 
 </dd></dl>
 
+<p>The following figure illustrates the effect of the different quantization modes
+on quantizing a floating-point number with three fractional bits to none.
+The dots corresponds to different values, where the red dots correspond to
+numbers that were initially an integer and yellow dots to numbers that are
+exactly between two integers (ties). Below each plot is an error distribution
+histogram, where the red line indicates the bias (average error) of the quantization. Note that
+the bias will converge towards zero the more bits are quantized away (except for
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">QuantizationMode.TRN</span></code>, which will converge towards a half).</p>
 <img alt="Illustration of the different quantization modes" src="../_images/quantization.png" />
 <dl class="py class">
 <dt class="sig sig-object py" id="apytypes.OverflowMode">
@@ -471,6 +484,7 @@
 <li><a class="reference internal" href="#apytypes.QuantizationMode.TO_ZERO"><code class="docutils literal notranslate"><span class="pre">QuantizationMode.TO_ZERO</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.QuantizationMode.TRN"><code class="docutils literal notranslate"><span class="pre">QuantizationMode.TRN</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.QuantizationMode.TRN_INF"><code class="docutils literal notranslate"><span class="pre">QuantizationMode.TRN_INF</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.QuantizationMode.TRN_MAG"><code class="docutils literal notranslate"><span class="pre">QuantizationMode.TRN_MAG</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.QuantizationMode.TRN_ZERO"><code class="docutils literal notranslate"><span class="pre">QuantizationMode.TRN_ZERO</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.QuantizationMode.__init__"><code class="docutils literal notranslate"><span class="pre">QuantizationMode.__init__()</span></code></a></li>
 </ul>

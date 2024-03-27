@@ -5,6 +5,15 @@ Quantization and overflow handling
    :members:
    :undoc-members:
 
+The following figure illustrates the effect of the different quantization modes
+on quantizing a floating-point number with three fractional bits to none.
+The dots corresponds to different values, where the red dots correspond to
+numbers that were initially an integer and yellow dots to numbers that are
+exactly between two integers (ties). Below each plot is an error distribution
+histogram, where the red line indicates the bias (average error) of the quantization. Note that
+the bias will converge towards zero the more bits are quantized away (except for
+:py:attr:`QuantizationMode.TRN`, which will converge towards a half).
+
 .. image:: ../_static/quantization.png
    :alt: Illustration of the different quantization modes
 
