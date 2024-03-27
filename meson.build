@@ -2,7 +2,7 @@ project(
     'apytypes',
     'cpp', 'c',
     default_options : ['cpp_std=c++17', 'c_std=c17'],
-    version : '0.0.1.dev0',
+    version : '0.0.1',
 )
 
 # Python module incudes

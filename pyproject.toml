@@ -14,9 +14,12 @@ description = "Python package for custom fixed-point and floating-point formats"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
-    "Programming Language :: Python :: 3",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
 ]
 
 [project.urls]
@@ -62,3 +65,13 @@ markers = [
     "float_array : custom marker for grouping tests for floating-point arrays",
     "slow : custom marker for grouping long running tests",
 ]
+
+[tool.cibuildwheel]
+skip = [
+    "pp*",      # APyTypes currently can not be build for PyPy ...
+    "*-win32",  # ... nor can it be build for 32-bit Windows systems
+]
+
+[tool.cibuildwheel.macos.environment]
+# MacOS 10.14 is the first MacOS release with full support for C++17
+MACOSX_DEPLOYMENT_TARGET = "10.14"

@@ -11,8 +11,7 @@ from apytypes._apytypes import get_quantization_mode
 from apytypes._apytypes import get_quantization_seed
 from apytypes._apytypes import set_quantization_mode
 from apytypes._apytypes import set_quantization_seed
-from . import _apytypes
-from . import _version
+from apytypes._version import version as __version__
 
 __all__: list = [
     "APyFixed",
@@ -29,4 +28,3 @@ __all__: list = [
     "get_quantization_seed",
     "set_quantization_seed",
 ]
-__version__: str = "0.0.1.dev0"
