@@ -493,20 +493,56 @@ def test_subnormal_div():
     x = APyFloat(sign=0, exp=0, man=1, exp_bits=4, man_bits=7)
     y = APyFloat(sign=0, exp=7, man=0, exp_bits=4, man_bits=7)
     res = x / y
+    assert res.is_identical(x)
 
-    assert res == APyFloat(sign=0, exp=0, man=1, exp_bits=4, man_bits=7)
+    x = APyFloat(sign=0, exp=0, man=1, exp_bits=11, man_bits=60)
+    res = x / y
+    assert res.is_identical(x)
 
     # More test cases to be added
 
 
 @pytest.mark.float_div
 def test_long_div():
-    x = APyFloat(sign=0, exp=3, man=22, exp_bits=4, man_bits=7)
-    y = APyFloat(sign=1, exp=32763, man=813782734503116, exp_bits=16, man_bits=52)
-    assert x / y == APyFloat.from_float(float(x) / float(y), exp_bits=16, man_bits=52)
+    # Division between two long formats
+    x = APyFloat(sign=0, exp=1036, man=1123081534184704, exp_bits=11, man_bits=52)
+    y = APyFloat(sign=1, exp=1031, man=178161345727614, exp_bits=11, man_bits=52)
+    res = x / y
+    assert res.is_identical(
+        APyFloat(sign=1, exp=1028, man=908961869920955, exp_bits=11, man_bits=52)
+    )
 
-    x = APyFloat.from_float(5200, exp_bits=17, man_bits=52)
-    assert x / y == APyFloat.from_float(float(x) / float(y), exp_bits=17, man_bits=52)
+    # Test that division can underflow
+    x = APyFloat(sign=0, exp=1, man=1123081534184704, exp_bits=11, man_bits=52)
+    y = APyFloat(sign=1, exp=1078, man=178161345727614, exp_bits=11, man_bits=52)
+    res = x / y
+    assert res.is_identical(APyFloat(sign=1, exp=0, man=0, exp_bits=11, man_bits=52))
+
+    # Test that division can overflow
+    x = APyFloat(sign=0, exp=1, man=1123081534184704, exp_bits=11, man_bits=52)
+    y = APyFloat(sign=1, exp=1078, man=178161345727614, exp_bits=11, man_bits=52)
+    res = y / x
+    assert res.is_identical(APyFloat(sign=1, exp=2047, man=0, exp_bits=11, man_bits=52))
+
+    # Test division with mixed formats
+    x = APyFloat(sign=0, exp=7, man=2, exp_bits=4, man_bits=3)
+    y = APyFloat(sign=1, exp=1025, man=1970324836974592, exp_bits=11, man_bits=52)
+    res = x / y
+    assert res.is_identical(
+        APyFloat(sign=1, exp=1020, man=3328747550665149, exp_bits=11, man_bits=52)
+    )
+
+    # Test division with 1
+    x = APyFloat(sign=0, exp=0, man=1, exp_bits=14, man_bits=59)
+    y = APyFloat(sign=0, exp=1023, man=0, exp_bits=11, man_bits=59)
+    res = x / y
+    assert res.is_identical(x)
+
+    # Quantization should round x.man to 2 with division with 2
+    x = APyFloat(sign=0, exp=0, man=3, exp_bits=14, man_bits=59)
+    y = APyFloat(sign=0, exp=1024, man=0, exp_bits=11, man_bits=59)
+    res = x / y
+    assert res.is_identical(APyFloat(sign=0, exp=0, man=2, exp_bits=14, man_bits=59))
 
 
 # Power
