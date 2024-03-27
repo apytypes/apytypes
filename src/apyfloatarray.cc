@@ -237,34 +237,38 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
             const bool res_sign = x.sign ^ y.sign;
 
             const bool x_is_subnormal = (x.exp == 0);
-            const bool x_is_nan = (x.exp == x_max_exponent && x.man != 0);
-            const bool x_is_inf = (x.exp == x_max_exponent && x.man == 0);
-            const bool x_is_zero = (x_is_subnormal && x.man == 0);
+            const bool x_is_maxexp = (x.exp == x_max_exponent);
             const bool y_is_subnormal = (y.exp == 0);
-            const bool y_is_nan = (y.exp == y_max_exponent && y.man != 0);
-            const bool y_is_inf = (y.exp == y_max_exponent && y.man == 0);
-            const bool y_is_zero = (y_is_subnormal && y.man == 0);
+            const bool y_is_maxexp = (y.exp == y_max_exponent);
 
             // Handle special operands
-            if ((x_is_nan || y_is_nan) || (x_is_inf && y_is_zero)
-                || (x_is_zero && y_is_inf)) {
-                res.data[i] = { res_sign,
-                                static_cast<exp_t>(res_max_exponent),
-                                static_cast<man_t>(1) };
-                continue;
-            }
+            if (x_is_maxexp || x_is_subnormal || y_is_maxexp || y_is_subnormal) {
+                const bool x_is_nan = (x_is_maxexp && x.man != 0);
+                const bool x_is_inf = (x_is_maxexp && x.man == 0);
+                const bool x_is_zero = (x_is_subnormal && x.man == 0);
+                const bool y_is_nan = (y_is_maxexp && y.man != 0);
+                const bool y_is_inf = (y_is_maxexp && y.man == 0);
+                const bool y_is_zero = (y_is_subnormal && y.man == 0);
+                if ((x_is_nan || y_is_nan) || (x_is_inf && y_is_zero)
+                    || (x_is_zero && y_is_inf)) {
+                    res.data[i] = { res_sign,
+                                    static_cast<exp_t>(res_max_exponent),
+                                    static_cast<man_t>(1) };
+                    continue;
+                }
 
-            if (x_is_inf || y_is_inf) {
-                res.data[i] = { res_sign,
-                                static_cast<exp_t>(res_max_exponent),
-                                static_cast<man_t>(0) };
-                continue;
-            }
+                if (x_is_inf || y_is_inf) {
+                    res.data[i] = { res_sign,
+                                    static_cast<exp_t>(res_max_exponent),
+                                    static_cast<man_t>(0) };
+                    continue;
+                }
 
-            if (x_is_zero || y_is_zero) {
-                res.data[i]
-                    = { res_sign, static_cast<exp_t>(0), static_cast<man_t>(0) };
-                continue;
+                if (x_is_zero || y_is_zero) {
+                    res.data[i]
+                        = { res_sign, static_cast<exp_t>(0), static_cast<man_t>(0) };
+                    continue;
+                }
             }
 
             // Tentative exponent
@@ -337,11 +341,174 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
 APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
 {
     // Calculate new format
-    APyFloatArray res(
-        shape,
-        std::max(exp_bits, rhs.get_exp_bits()),
-        std::max(man_bits, rhs.get_man_bits())
-    );
+    const auto res_exp_bits = std::max(exp_bits, rhs.get_exp_bits());
+    const auto res_man_bits = std::max(man_bits, rhs.get_man_bits());
+    const auto res_bias = APyFloat::ieee_bias(res_exp_bits);
+    APyFloatArray res(shape, res_exp_bits, res_man_bits, res_bias);
+
+    const int sum_man_bits = man_bits + rhs.get_man_bits();
+    const auto quantization = get_quantization_mode();
+
+    if (unsigned(sum_man_bits) + 2 <= _MAN_T_SIZE_BITS) {
+        const auto x_max_exponent = ((1ULL << exp_bits) - 1);
+        const auto y_max_exponent = ((1ULL << rhs.get_exp_bits()) - 1);
+        const auto res_max_exponent = ((1ULL << res_exp_bits) - 1);
+        const man_t ref_one = 1ULL << sum_man_bits;
+        const auto mask_one = ref_one - 1;
+        const man_t two = ref_one << 1;
+        const auto mask_two = two - 1;
+        const std::int64_t bias_sum = bias + rhs.get_bias();
+        const auto y = rhs.get_data();
+        const bool y_is_subnormal = (y.exp == 0);
+        const bool y_is_maxexp = (y.exp == y_max_exponent);
+        const bool y_is_nan = (y_is_maxexp && y.man != 0);
+        const bool y_is_inf = (y_is_maxexp && y.man == 0);
+        const bool y_is_zero = (y_is_subnormal && y.man == 0);
+        const bool y_special = y_is_maxexp || y_is_zero;
+        const auto exp_offset = (std::int64_t)y.exp + y_is_subnormal - bias_sum;
+        const man_t my
+            = (static_cast<man_t>(!y_is_subnormal) << rhs.get_man_bits()) | y.man;
+
+        if (y_special) {
+            if (y_is_nan) {
+                for (std::size_t i = 0; i < data.size(); i++) {
+                    // Calculate sign
+                    const bool res_sign = data[i].sign ^ y.sign;
+                    res.data[i] = { res_sign,
+                                    static_cast<exp_t>(res_max_exponent),
+                                    static_cast<man_t>(1) };
+                }
+                return res;
+            }
+            if (y_is_inf) {
+                for (std::size_t i = 0; i < data.size(); i++) {
+                    const auto x = data[i];
+                    const bool x_is_subnormal = (x.exp == 0);
+                    const bool x_is_maxexp = (x.exp == x_max_exponent);
+                    const bool x_is_nan = (x_is_maxexp && x.man != 0);
+                    const bool x_is_zero = (x_is_subnormal && x.man == 0);
+                    // Calculate sign
+                    const bool res_sign = x.sign ^ y.sign;
+                    if (x_is_zero || x_is_nan) {
+                        res.data[i] = { res_sign,
+                                        static_cast<exp_t>(res_max_exponent),
+                                        static_cast<man_t>(1) };
+                    } else {
+                        res.data[i] = { res_sign,
+                                        static_cast<exp_t>(res_max_exponent),
+                                        static_cast<man_t>(0) };
+                    }
+                }
+                return res;
+            }
+            if (y_is_zero) {
+                for (std::size_t i = 0; i < data.size(); i++) {
+                    const auto x = data[i];
+                    const bool x_is_maxexp = (x.exp == x_max_exponent);
+                    // Calculate sign
+                    const bool res_sign = x.sign ^ y.sign;
+                    if (x_is_maxexp) {
+                        res.data[i] = { res_sign,
+                                        static_cast<exp_t>(res_max_exponent),
+                                        static_cast<man_t>(1) };
+                    } else {
+                        res.data[i] = { res_sign,
+                                        static_cast<exp_t>(res_max_exponent),
+                                        static_cast<man_t>(0) };
+                    }
+                }
+                return res;
+            }
+        }
+
+        // Perform operation
+        for (std::size_t i = 0; i < data.size(); i++) {
+            const auto x = data[i];
+
+            // Calculate sign
+            const bool res_sign = x.sign ^ y.sign;
+
+            const bool x_is_subnormal = (x.exp == 0);
+            const bool x_is_maxexp = (x.exp == x_max_exponent);
+
+            // Handle special operands
+            // All cases where y is special is handled outside of this loop
+            if (x_is_maxexp || x_is_subnormal) {
+                const bool x_is_nan = (x_is_maxexp && x.man != 0);
+                const bool x_is_inf = (x_is_maxexp && x.man == 0);
+                const bool x_is_zero = (x_is_subnormal && x.man == 0);
+                if (x_is_nan) {
+                    res.data[i] = { res_sign,
+                                    static_cast<exp_t>(res_max_exponent),
+                                    static_cast<man_t>(1) };
+                    continue;
+                }
+
+                if (x_is_inf) {
+                    res.data[i] = { res_sign,
+                                    static_cast<exp_t>(res_max_exponent),
+                                    static_cast<man_t>(0) };
+                    continue;
+                }
+
+                if (x_is_zero) {
+                    res.data[i]
+                        = { res_sign, static_cast<exp_t>(0), static_cast<man_t>(0) };
+                    continue;
+                }
+            }
+
+            // Tentative exponent
+            std::int64_t tmp_exp = (std::int64_t)x.exp + x_is_subnormal + exp_offset;
+            const man_t mx = (static_cast<man_t>(!x_is_subnormal) << man_bits) | x.man;
+
+            man_t new_man = mx * my;
+
+            auto new_man_bits = sum_man_bits;
+            auto one = ref_one;
+            // In case of denormalized data
+            if (new_man < one) {
+                int cnt = 0;
+                do {
+                    one >>= 1;
+                    cnt++;
+                } while (new_man < one);
+                tmp_exp -= cnt;
+                new_man_bits -= cnt;
+                // Remove leading one
+                new_man &= one - 1;
+            } else {
+                // Result may be larger than two
+                if (new_man >= two) {
+                    tmp_exp++;
+                    new_man_bits++;
+                    // Remove leading one
+                    new_man &= mask_two;
+                } else {
+                    // Remove leading one
+                    new_man &= mask_one;
+                }
+            }
+
+            // Possibly use more exponent bits
+            int new_exp_bits = res_exp_bits;
+            exp_t extended_bias = res_bias;
+            auto new_exp = tmp_exp + extended_bias;
+            while (new_exp <= 0) {
+                new_exp_bits++;
+                extended_bias = APyFloat::ieee_bias(new_exp_bits);
+                new_exp = tmp_exp + extended_bias;
+            }
+            // Use longer format for intermediate result
+            APyFloat larger_float(
+                res_sign, new_exp, new_man, new_exp_bits, new_man_bits, extended_bias
+            );
+            res.data[i]
+                = larger_float._cast(res_exp_bits, res_man_bits, res_bias, quantization)
+                      .get_data();
+        }
+        return res;
+    }
 
     APyFloat lhs_scalar(exp_bits, man_bits, bias);
     // Perform operations
