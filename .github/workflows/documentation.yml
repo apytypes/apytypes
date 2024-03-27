@@ -27,10 +27,9 @@ jobs:
           cp comparison/comparison*.png docs/_static
       - name: Generate plots
         run: |
-          cd docs/_plots
-          python quantization.py
-          cp *.png ../_static
-          cd ..
+          cd docs
+          python _plots/quantization.py
+          cp quantization.png _static
           cd ..
       - name: Sphinx build
         run: |

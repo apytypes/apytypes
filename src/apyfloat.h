@@ -12,6 +12,17 @@
 
 #include "../extern/mini-gmp/mini-gmp.h"
 
+/*!
+ * Sizes of APyFloat datatypes
+ */
+static constexpr std::size_t _MAN_T_SIZE_BYTES = sizeof(man_t);
+static constexpr std::size_t _MAN_T_SIZE_BITS = 8 * _MAN_T_SIZE_BYTES;
+static constexpr std::size_t _EXP_T_SIZE_BYTES = sizeof(exp_t);
+static constexpr std::size_t _EXP_T_SIZE_BITS = 8 * _EXP_T_SIZE_BYTES;
+
+static constexpr std::size_t _MAN_LIMIT_BITS = _MAN_T_SIZE_BITS - 3;
+static constexpr std::size_t _EXP_LIMIT_BITS = _EXP_T_SIZE_BITS - 2;
+
 class APyFloat {
 public:
     /* ******************************************************************************
@@ -216,11 +227,17 @@ public:
         exp = data.exp;
         man = data.man;
     }
+    APY_INLINE void set_sign(bool new_sign) { sign = new_sign; }
 
     APY_INLINE static exp_t ieee_bias(std::uint8_t exp_bits)
     {
         return (1ULL << (exp_bits - 1)) - 1;
     }
+
+    APyFloat construct_zero(std::optional<bool> new_sign = std::nullopt) const;
+    APyFloat construct_inf(std::optional<bool> new_sign = std::nullopt) const;
+    APyFloat
+    construct_nan(std::optional<bool> new_sign = std::nullopt, man_t payload = 1) const;
 
     /* ******************************************************************************
      * * Convenience methods                                                        *
@@ -254,11 +271,6 @@ private:
      * ******************************************************************************
      */
     APyFloat& update_from_bits(nanobind::int_ python_long_int_bit_pattern);
-
-    APyFloat construct_zero(std::optional<bool> new_sign = std::nullopt) const;
-    APyFloat construct_inf(std::optional<bool> new_sign = std::nullopt) const;
-    APyFloat
-    construct_nan(std::optional<bool> new_sign = std::nullopt, man_t payload = 1) const;
 
     APY_INLINE exp_t exp_mask() const { return ((1ULL << exp_bits) - 1); }
     APY_INLINE exp_t max_exponent() const

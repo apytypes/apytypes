@@ -25,16 +25,6 @@ void print_warning(const std::string msg)
 
 static const auto fx_one = APyFixed::from_double(1, 2, 2);
 
-/*!
- * Sizes of APyFloat datatypes
- */
-static constexpr std::size_t _MAN_T_SIZE_BYTES = sizeof(man_t);
-static constexpr std::size_t _MAN_T_SIZE_BITS = 8 * _MAN_T_SIZE_BYTES;
-static constexpr std::size_t _EXP_T_SIZE_BYTES = sizeof(exp_t);
-static constexpr std::size_t _EXP_T_SIZE_BITS = 8 * _EXP_T_SIZE_BYTES;
-
-static constexpr std::size_t _MAN_LIMIT_BITS = _MAN_T_SIZE_BITS - 3;
-static constexpr std::size_t _EXP_LIMIT_BITS = _EXP_T_SIZE_BITS - 2;
 /* **********************************************************************************
  * * Constructors                                                                   *
  * **********************************************************************************
@@ -915,7 +905,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
 
         // Possibly use more exponent bits
         int new_exp_bits = res_exp_bits;
-        exp_t extended_bias = APyFloat::ieee_bias(new_exp_bits);
+        exp_t extended_bias = res.bias;
         auto new_exp = tmp_exp + extended_bias;
         while (new_exp <= 0) {
             new_exp_bits++;
@@ -1423,7 +1413,7 @@ APyFloat APyFloat::normalized() const
 
     // Possibly use more exponent bits
     int new_exp_bits = exp_bits;
-    exp_t extended_bias = APyFloat::ieee_bias(new_exp_bits);
+    exp_t extended_bias = bias;
     auto new_exp = tmp_exp + extended_bias;
     while (new_exp <= 0) {
         new_exp_bits++;
