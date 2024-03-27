@@ -439,6 +439,19 @@ def test_long_mul():
         APyFloat(sign=0, exp=0, man=17179869184, exp_bits=4, man_bits=40)
     )
 
+    # Test that quantization can generate carry
+    # The mantissa product will be very close to 2 and thus round up
+    x = APyFloat(sign=0, exp=1023, man=4503599627370494, exp_bits=11, man_bits=52)
+    y = APyFloat(sign=0, exp=1023, man=1, exp_bits=11, man_bits=52)
+    res = x * y
+    assert res.is_identical(APyFloat(sign=0, exp=1024, man=0, exp_bits=11, man_bits=52))
+
+    # Check that multiplication can overflow
+    x = APyFloat(sign=0, exp=2000, man=4503599627370494, exp_bits=11, man_bits=60)
+    y = APyFloat(sign=0, exp=2000, man=66454545455555, exp_bits=11, man_bits=60)
+    res = x * y
+    assert res.is_identical(APyFloat(sign=0, exp=2047, man=0, exp_bits=11, man_bits=60))
+
 
 @pytest.mark.float_div
 @pytest.mark.parametrize("exp", list(perm(["5", "8"], 2)))
