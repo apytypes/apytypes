@@ -341,6 +341,15 @@ private:
         int new_int_bits
     ) const;
 
+    //! Fixed-point magnitude truncation
+    template <class RANDOM_ACCESS_ITERATOR>
+    void _quantize_trn_mag(
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
+        int new_bits,
+        int new_int_bits
+    ) const;
+
     //! Round to nearest, ties toward plus infinity
     template <class RANDOM_ACCESS_ITERATOR>
     void _quantize_rnd(

@@ -291,6 +291,9 @@ APyFloat APyFloat::_cast(
         case QuantizationMode::TRN_ZERO: // TO_ZERO
             B = 0;
             break;
+        case QuantizationMode::TRN_MAG: // Does not really make sense for floating-point
+            B = sign;
+            break;
         case QuantizationMode::RND_INF: // TIES_TO_AWAY
             B = G;
             break;
@@ -300,6 +303,12 @@ APyFloat APyFloat::_cast(
         case QuantizationMode::JAM:
             B = 0;
             new_man |= 1;
+            break;
+        case QuantizationMode::JAM_UNBIASED:
+            B = 0;
+            if (T || G) {
+                new_man |= 1;
+            }
             break;
         case QuantizationMode::STOCH_WEIGHTED: {
             const man_t trailing_bits = prev_man & ((1ULL << bits_to_discard) - 1);
@@ -868,6 +877,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     }
     const auto quantization = get_quantization_mode();
     auto sum_man_bits = man_bits + y.man_bits;
+
     if (unsigned(sum_man_bits) + 2 <= _MAN_T_SIZE_BITS) {
         // Tentative exponent
         std::int64_t tmp_exp = true_exp() + y.true_exp();
@@ -881,10 +891,13 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         auto new_man_bits = sum_man_bits;
         // In case of denormalized data
         if (new_man < one) {
+            int cnt = 0;
             do {
-                new_man <<= 1;
-                tmp_exp--;
+                one >>= 1;
+                cnt++;
             } while (new_man < one);
+            tmp_exp -= cnt;
+            new_man_bits -= cnt;
             // Remove leading one
             new_man &= one - 1;
         } else {
@@ -1406,18 +1419,24 @@ APyFloat APyFloat::normalized() const
     }
 
     man_t new_man = man;
-    std::int64_t new_exp = true_exp();
+    std::int64_t tmp_exp = true_exp();
 
     while (!(new_man & leading_one())) {
         new_man <<= 1;
-        new_exp--;
+        tmp_exp--;
     }
 
-    // Add bias
-    const auto ieee_bias = APyFloat::ieee_bias(exp_bits + 1);
-    new_exp += ieee_bias;
+    // Possibly use more exponent bits
+    int new_exp_bits = exp_bits;
+    exp_t extended_bias = APyFloat::ieee_bias(new_exp_bits);
+    auto new_exp = tmp_exp + extended_bias;
+    while (new_exp <= 0) {
+        new_exp_bits++;
+        extended_bias = APyFloat::ieee_bias(new_exp_bits);
+        new_exp = tmp_exp + extended_bias;
+    }
 
-    return APyFloat(sign, new_exp, new_man, exp_bits + 1, man_bits, ieee_bias);
+    return APyFloat(sign, new_exp, new_man, new_exp_bits, man_bits, extended_bias);
 }
 
 APY_INLINE int APyFloat::leading_zeros_apyfixed(APyFixed fx) const

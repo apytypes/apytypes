@@ -38,12 +38,17 @@ void bind_common(nb::module_& m)
         .value(
             "TRN_ZERO",
             QuantizationMode::TRN_ZERO,
-            R"pbdoc(Magnitude truncation (round towards zero).)pbdoc"
+            R"pbdoc(Unbiased magnitude truncation (round towards zero).)pbdoc"
         )
         .value(
             "TRN_INF",
             QuantizationMode::TRN_INF,
             R"pbdoc(Round towards positive infinity.)pbdoc"
+        )
+        .value(
+            "TRN_MAG",
+            QuantizationMode::TRN_MAG,
+            R"pbdoc(Magnitude truncation (round towards zero), fixed-point friendly variant (add sign-bit).)pbdoc"
         )
         .value(
             "RND",

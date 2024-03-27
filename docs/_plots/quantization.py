@@ -5,16 +5,17 @@ from matplotlib.ticker import IndexLocator
 
 modes = [
     "QuantizationMode.TRN",
-    "QuantizationMode.TRN_INF",
     "QuantizationMode.TRN_ZERO",
+    "QuantizationMode.TRN_MAG",
+    "QuantizationMode.TRN_INF",
+    "QuantizationMode.JAM",
+    "QuantizationMode.JAM_UNBIASED",
     "QuantizationMode.RND",
     "QuantizationMode.RND_CONV",
     "QuantizationMode.RND_CONV_ODD",
     "QuantizationMode.RND_INF",
     "QuantizationMode.RND_MIN_INF",
     "QuantizationMode.RND_ZERO",
-    "QuantizationMode.JAM",
-    "QuantizationMode.JAM_UNBIASED",
 ]
 a = np.arange(-3, 2.9, 0.125)
 ai = np.arange(-3, 2.1, 1)
@@ -55,6 +56,4 @@ for i, q in enumerate(modes):
     ax.set_xlim(-1.1, 1.1)
     ax.set_ylim(0, 0.14)
     ax.set_xlabel("x - Q(x)")
-for ax in axs[6:8, 2]:
-    ax.remove()
 fig.savefig("quantization.png")

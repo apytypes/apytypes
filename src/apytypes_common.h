@@ -14,7 +14,8 @@
 enum class QuantizationMode {
     TRN,            // !< Truncation, quantization toward minus infinity
     TRN_INF,        // !< Truncation, quantization toward plus infinity
-    TRN_ZERO,       // !< Magnitude truncation, quantization toward zero
+    TRN_ZERO,       // !< Unbiased magnitude truncation, quantization toward zero
+    TRN_MAG,        // !< Magnitude truncation, quantization toward zero
     RND,            // !< Round to nearest, ties toward plus inf
     RND_ZERO,       // !< Round to nearest, ties toward zero
     RND_INF,        // !< Round to nearest, ties away from zero
@@ -46,6 +47,8 @@ quantization_mode_to_string(QuantizationMode mode)
         return "QuantizationMode::TRN_INF";
     case QuantizationMode::TRN_ZERO:
         return "QuantizationMode::TRN_ZERO";
+    case QuantizationMode::TRN_MAG:
+        return "QuantizationMode::TRN_MAG";
     case QuantizationMode::RND:
         return "QuantizationMode::RND";
     case QuantizationMode::RND_ZERO:
