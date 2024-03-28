@@ -35,6 +35,9 @@ jobs:
         python -m pip install --upgrade pip
     - name: Install APyTypes
       run: |
+        #python3 -m pip install meson ninja
+        #meson --buildtype release builddir
+        #meson compile -v -C builddir
         python -m pip install .[test] -v
     - name: Test with pytest
       run: |

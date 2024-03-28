@@ -28,6 +28,7 @@ nanobind_includes = subprocess.run(
     encoding="utf-8",
 )
 
+
 compile_flags = [
     "-std=c++17",
     "-Wall",
@@ -37,6 +38,7 @@ compile_flags = [
     f"-I{os.path.abspath('./subprojects/fmt-10.2.0/include')}",
     *str(python3_includes.stdout.strip()).split(" "),
     *["-I" + s for s in nanobind_includes.stdout.strip().split(" ")],
+    "-Isubprojects/highway",
 ]
 
 # Produce the .clangd configuration
