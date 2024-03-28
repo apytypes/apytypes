@@ -878,27 +878,23 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
 
         man_t new_man = mx * my;
 
-        auto new_man_bits = sum_man_bits;
+        const auto new_man_bits = sum_man_bits + 1;
         // In case of denormalized data
         if (new_man < one) {
-            int cnt = sum_man_bits - bit_width(new_man) + 1;
-            one >>= cnt;
+            int cnt = new_man_bits - bit_width(new_man);
+            new_man <<= cnt + 1;
             tmp_exp -= cnt;
-            new_man_bits -= cnt;
-            // Remove leading one
-            new_man &= one - 1;
         } else {
             // Result may be larger than two
             if (new_man >= two) {
                 tmp_exp++;
-                new_man_bits++;
-                // Remove leading one
-                new_man &= two - 1;
             } else {
-                // Remove leading one
-                new_man &= one - 1;
+                // Align with longer result
+                new_man <<= 1;
             }
         }
+        // Remove leading one
+        new_man &= two - 1;
 
         // Possibly use more exponent bits
         int new_exp_bits = res_exp_bits;

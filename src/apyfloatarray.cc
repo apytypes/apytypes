@@ -219,14 +219,20 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
     const auto quantization = get_quantization_mode();
 
     if (unsigned(sum_man_bits) + 2 <= _MAN_T_SIZE_BITS) {
+        // Compute constants for reuse
         const auto x_max_exponent = ((1ULL << exp_bits) - 1);
         const auto y_max_exponent = ((1ULL << rhs.exp_bits) - 1);
         const auto res_max_exponent = ((1ULL << res_exp_bits) - 1);
-        const man_t ref_one = 1ULL << sum_man_bits;
-        const auto mask_one = ref_one - 1;
-        const man_t two = ref_one << 1;
+        const man_t one = 1ULL << sum_man_bits;
+        const man_t two = one << 1;
         const auto mask_two = two - 1;
         const std::int64_t bias_sum = bias + rhs.bias;
+        const auto new_man_bits = sum_man_bits + 1;
+        const auto new_exp_bits = bit_width(bias_sum + new_man_bits) + 1;
+        const auto extended_bias = APyFloat::ieee_bias(new_exp_bits);
+        // Use longer format for intermediate result
+        APyFloat larger_float(new_exp_bits, new_man_bits, extended_bias);
+
         // Perform operation
         for (std::size_t i = 0; i < data.size(); i++) {
             const auto x = data[i];
@@ -281,42 +287,26 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
 
             man_t new_man = mx * my;
 
-            auto new_man_bits = sum_man_bits;
-            auto one = ref_one;
             // In case of denormalized data
             if (new_man < one) {
-                int cnt = sum_man_bits - bit_width(new_man) + 1;
-                one >>= cnt;
+                int cnt = new_man_bits - bit_width(new_man);
+                new_man <<= cnt + 1;
                 tmp_exp -= cnt;
-                new_man_bits -= cnt;
-                // Remove leading one
-                new_man &= one - 1;
             } else {
                 // Result may be larger than two
                 if (new_man >= two) {
                     tmp_exp++;
-                    new_man_bits++;
-                    // Remove leading one
-                    new_man &= mask_two;
                 } else {
-                    // Remove leading one
-                    new_man &= mask_one;
+                    // Align with longer result
+                    new_man <<= 1;
                 }
             }
+            // Remove leading one
+            new_man &= mask_two;
 
-            // Possibly use more exponent bits
-            int new_exp_bits = res_exp_bits;
-            exp_t extended_bias = res_bias;
             auto new_exp = tmp_exp + extended_bias;
-            while (new_exp <= 0) {
-                new_exp_bits++;
-                extended_bias = APyFloat::ieee_bias(new_exp_bits);
-                new_exp = tmp_exp + extended_bias;
-            }
             // Use longer format for intermediate result
-            APyFloat larger_float(
-                res_sign, new_exp, new_man, new_exp_bits, new_man_bits, extended_bias
-            );
+            larger_float.set_data({ res_sign, (exp_t)new_exp, new_man });
             res.data[i]
                 = larger_float._cast(res_exp_bits, res_man_bits, res_bias, quantization)
                       .get_data();
@@ -348,6 +338,7 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
     const auto quantization = get_quantization_mode();
 
     if (unsigned(sum_man_bits) + 2 <= _MAN_T_SIZE_BITS) {
+        // Compute constants for reuse
         const auto x_max_exponent = ((1ULL << exp_bits) - 1);
         const auto y_max_exponent = ((1ULL << rhs.get_exp_bits()) - 1);
         const auto res_max_exponent = ((1ULL << res_exp_bits) - 1);
@@ -410,16 +401,19 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
             return res;
         }
 
-        // Compute some constants to be reused
-        const man_t ref_one = 1ULL << sum_man_bits;
-        const auto mask_one = ref_one - 1;
-        const man_t two = ref_one << 1;
+        // Compute more constants to be reused
+        const man_t one = 1ULL << sum_man_bits;
+        const man_t two = one << 1;
         const auto mask_two = two - 1;
         const std::int64_t bias_sum = bias + rhs.get_bias();
         const std::int64_t exp_offset = (std::int64_t)y.exp + y_is_subnormal - bias_sum;
         const man_t my
             = (static_cast<man_t>(!y_is_subnormal) << rhs.get_man_bits()) | y.man;
-
+        const auto new_man_bits = sum_man_bits + 1;
+        const auto new_exp_bits = bit_width(bias_sum + new_man_bits) + 1;
+        const auto extended_bias = APyFloat::ieee_bias(new_exp_bits);
+        // Use longer format for intermediate result
+        APyFloat larger_float(new_exp_bits, new_man_bits, extended_bias);
         // Perform operation
         for (std::size_t i = 0; i < data.size(); i++) {
             const auto x = data[i];
@@ -463,42 +457,26 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
 
             man_t new_man = mx * my;
 
-            auto new_man_bits = sum_man_bits;
-            auto one = ref_one;
             // In case of denormalized data
             if (new_man < one) {
-                int cnt = sum_man_bits - bit_width(new_man) + 1;
-                one >>= cnt;
+                int cnt = new_man_bits - bit_width(new_man);
+                new_man <<= cnt + 1;
                 tmp_exp -= cnt;
-                new_man_bits -= cnt;
-                // Remove leading one
-                new_man &= one - 1;
             } else {
                 // Result may be larger than two
                 if (new_man >= two) {
                     tmp_exp++;
-                    new_man_bits++;
-                    // Remove leading one
-                    new_man &= mask_two;
                 } else {
-                    // Remove leading one
-                    new_man &= mask_one;
+                    // Align with longer result
+                    new_man <<= 1;
                 }
             }
+            // Remove leading one
+            new_man &= mask_two;
 
-            // Possibly use more exponent bits
-            int new_exp_bits = res_exp_bits;
-            exp_t extended_bias = res_bias;
             auto new_exp = tmp_exp + extended_bias;
-            while (new_exp <= 0) {
-                new_exp_bits++;
-                extended_bias = APyFloat::ieee_bias(new_exp_bits);
-                new_exp = tmp_exp + extended_bias;
-            }
             // Use longer format for intermediate result
-            APyFloat larger_float(
-                res_sign, new_exp, new_man, new_exp_bits, new_man_bits, extended_bias
-            );
+            larger_float.set_data({ res_sign, (exp_t)new_exp, new_man });
             res.data[i]
                 = larger_float._cast(res_exp_bits, res_man_bits, res_bias, quantization)
                       .get_data();
