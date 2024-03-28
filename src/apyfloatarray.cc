@@ -9,7 +9,6 @@ namespace nb = nanobind;
 #include "ieee754.h"
 #include "python_util.h"
 #include <algorithm>
-#include <cassert>
 #include <fmt/format.h>
 #include <stdexcept>
 #include <string>
@@ -242,15 +241,14 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
             const bool y_is_maxexp = (y.exp == y_max_exponent);
 
             // Handle special operands
-            if (x_is_maxexp || x_is_subnormal || y_is_maxexp || y_is_subnormal) {
+            if (x_is_maxexp || y_is_maxexp) {
                 const bool x_is_nan = (x_is_maxexp && x.man != 0);
                 const bool x_is_inf = (x_is_maxexp && x.man == 0);
-                const bool x_is_zero = (x_is_subnormal && x.man == 0);
                 const bool y_is_nan = (y_is_maxexp && y.man != 0);
                 const bool y_is_inf = (y_is_maxexp && y.man == 0);
-                const bool y_is_zero = (y_is_subnormal && y.man == 0);
-                if ((x_is_nan || y_is_nan) || (x_is_inf && y_is_zero)
-                    || (x_is_zero && y_is_inf)) {
+                if (x_is_nan || y_is_nan || (x_is_inf && y_is_subnormal && y.man == 0)
+                    || (y_is_inf && x_is_subnormal && x.man == 0)) {
+                    // Set to nan
                     res.data[i] = { res_sign,
                                     static_cast<exp_t>(res_max_exponent),
                                     static_cast<man_t>(1) };
@@ -258,17 +256,20 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
                 }
 
                 if (x_is_inf || y_is_inf) {
+                    // Set to inf
                     res.data[i] = { res_sign,
                                     static_cast<exp_t>(res_max_exponent),
                                     static_cast<man_t>(0) };
                     continue;
                 }
+            }
 
-                if (x_is_zero || y_is_zero) {
-                    res.data[i]
-                        = { res_sign, static_cast<exp_t>(0), static_cast<man_t>(0) };
-                    continue;
-                }
+            // x is zero or y is zero (and the other is not inf)
+            if ((x_is_subnormal && x.man == 0) || (y_is_subnormal && y.man == 0)) {
+                // Set to zero
+                res.data[i]
+                    = { res_sign, static_cast<exp_t>(0), static_cast<man_t>(0) };
+                continue;
             }
 
             // Tentative exponent
@@ -284,11 +285,8 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
             auto one = ref_one;
             // In case of denormalized data
             if (new_man < one) {
-                int cnt = 0;
-                do {
-                    one >>= 1;
-                    cnt++;
-                } while (new_man < one);
+                int cnt = sum_man_bits - bit_width(new_man) + 1;
+                one >>= cnt;
                 tmp_exp -= cnt;
                 new_man_bits -= cnt;
                 // Remove leading one
@@ -353,73 +351,74 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
         const auto x_max_exponent = ((1ULL << exp_bits) - 1);
         const auto y_max_exponent = ((1ULL << rhs.get_exp_bits()) - 1);
         const auto res_max_exponent = ((1ULL << res_exp_bits) - 1);
-        const man_t ref_one = 1ULL << sum_man_bits;
-        const auto mask_one = ref_one - 1;
-        const man_t two = ref_one << 1;
-        const auto mask_two = two - 1;
-        const std::int64_t bias_sum = bias + rhs.get_bias();
         const auto y = rhs.get_data();
-        const bool y_is_subnormal = (y.exp == 0);
         const bool y_is_maxexp = (y.exp == y_max_exponent);
-        const bool y_is_nan = (y_is_maxexp && y.man != 0);
-        const bool y_is_inf = (y_is_maxexp && y.man == 0);
-        const bool y_is_zero = (y_is_subnormal && y.man == 0);
-        const bool y_special = y_is_maxexp || y_is_zero;
-        const auto exp_offset = (std::int64_t)y.exp + y_is_subnormal - bias_sum;
-        const man_t my
-            = (static_cast<man_t>(!y_is_subnormal) << rhs.get_man_bits()) | y.man;
 
-        if (y_special) {
-            if (y_is_nan) {
+        if (y_is_maxexp) {
+            // y is nan
+            if (y.man != 0) {
                 for (std::size_t i = 0; i < data.size(); i++) {
                     // Calculate sign
                     const bool res_sign = data[i].sign ^ y.sign;
+                    // Set to nan
                     res.data[i] = { res_sign,
                                     static_cast<exp_t>(res_max_exponent),
                                     static_cast<man_t>(1) };
                 }
                 return res;
             }
-            if (y_is_inf) {
-                for (std::size_t i = 0; i < data.size(); i++) {
-                    const auto x = data[i];
-                    const bool x_is_subnormal = (x.exp == 0);
-                    const bool x_is_maxexp = (x.exp == x_max_exponent);
-                    const bool x_is_nan = (x_is_maxexp && x.man != 0);
-                    const bool x_is_zero = (x_is_subnormal && x.man == 0);
-                    // Calculate sign
-                    const bool res_sign = x.sign ^ y.sign;
-                    if (x_is_zero || x_is_nan) {
-                        res.data[i] = { res_sign,
-                                        static_cast<exp_t>(res_max_exponent),
-                                        static_cast<man_t>(1) };
-                    } else {
-                        res.data[i] = { res_sign,
-                                        static_cast<exp_t>(res_max_exponent),
-                                        static_cast<man_t>(0) };
-                    }
+            // Y is inf
+            for (std::size_t i = 0; i < data.size(); i++) {
+                const auto x = data[i];
+                // Calculate sign
+                const bool res_sign = x.sign ^ y.sign;
+                // X is zero or nan
+                if ((x.exp == 0 && x.man == 0)
+                    || (x.exp == x_max_exponent && x.man != 0)) {
+                    // Set to nan
+                    res.data[i] = { res_sign,
+                                    static_cast<exp_t>(res_max_exponent),
+                                    static_cast<man_t>(1) };
+                } else {
+                    // Set to inf
+                    res.data[i] = { res_sign,
+                                    static_cast<exp_t>(res_max_exponent),
+                                    static_cast<man_t>(0) };
                 }
-                return res;
             }
-            if (y_is_zero) {
-                for (std::size_t i = 0; i < data.size(); i++) {
-                    const auto x = data[i];
-                    const bool x_is_maxexp = (x.exp == x_max_exponent);
-                    // Calculate sign
-                    const bool res_sign = x.sign ^ y.sign;
-                    if (x_is_maxexp) {
-                        res.data[i] = { res_sign,
-                                        static_cast<exp_t>(res_max_exponent),
-                                        static_cast<man_t>(1) };
-                    } else {
-                        res.data[i] = { res_sign,
-                                        static_cast<exp_t>(0),
-                                        static_cast<man_t>(0) };
-                    }
-                }
-                return res;
-            }
+            return res;
         }
+        const bool y_is_subnormal = (y.exp == 0);
+        // y is zero
+        if (y_is_subnormal && y.man == 0) {
+            for (std::size_t i = 0; i < data.size(); i++) {
+                const auto x = data[i];
+                // Calculate sign
+                const bool res_sign = x.sign ^ y.sign;
+                // X is inf or nan
+                if (x.exp == x_max_exponent) {
+                    // Set to nan
+                    res.data[i] = { res_sign,
+                                    static_cast<exp_t>(res_max_exponent),
+                                    static_cast<man_t>(1) };
+                } else {
+                    // Set to zero
+                    res.data[i]
+                        = { res_sign, static_cast<exp_t>(0), static_cast<man_t>(0) };
+                }
+            }
+            return res;
+        }
+
+        // Compute some constants to be reused
+        const man_t ref_one = 1ULL << sum_man_bits;
+        const auto mask_one = ref_one - 1;
+        const man_t two = ref_one << 1;
+        const auto mask_two = two - 1;
+        const std::int64_t bias_sum = bias + rhs.get_bias();
+        const std::int64_t exp_offset = (std::int64_t)y.exp + y_is_subnormal - bias_sum;
+        const man_t my
+            = (static_cast<man_t>(!y_is_subnormal) << rhs.get_man_bits()) | y.man;
 
         // Perform operation
         for (std::size_t i = 0; i < data.size(); i++) {
@@ -434,24 +433,24 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
             // Handle special operands
             // All cases where y is special is handled outside of this loop
             if (x_is_maxexp || x_is_subnormal) {
-                const bool x_is_nan = (x_is_maxexp && x.man != 0);
-                const bool x_is_inf = (x_is_maxexp && x.man == 0);
-                const bool x_is_zero = (x_is_subnormal && x.man == 0);
-                if (x_is_nan) {
+                // x is nan
+                if (x_is_maxexp && x.man != 0) {
                     res.data[i] = { res_sign,
                                     static_cast<exp_t>(res_max_exponent),
                                     static_cast<man_t>(1) };
                     continue;
                 }
 
-                if (x_is_inf) {
+                // x is inf
+                if (x_is_maxexp && x.man == 0) {
                     res.data[i] = { res_sign,
                                     static_cast<exp_t>(res_max_exponent),
                                     static_cast<man_t>(0) };
                     continue;
                 }
 
-                if (x_is_zero) {
+                // x is zero (x is subnormal here)
+                if (x.man == 0) {
                     res.data[i]
                         = { res_sign, static_cast<exp_t>(0), static_cast<man_t>(0) };
                     continue;
@@ -468,11 +467,8 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
             auto one = ref_one;
             // In case of denormalized data
             if (new_man < one) {
-                int cnt = 0;
-                do {
-                    one >>= 1;
-                    cnt++;
-                } while (new_man < one);
+                int cnt = sum_man_bits - bit_width(new_man) + 1;
+                one >>= cnt;
                 tmp_exp -= cnt;
                 new_man_bits -= cnt;
                 // Remove leading one
