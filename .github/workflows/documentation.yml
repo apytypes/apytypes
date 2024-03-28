@@ -33,9 +33,9 @@ jobs:
           cp quantization.png _static
           cp performancescale.png _static
           cd ..
+      # Remove all instances of APY_INLINE, except the define itself,
+      # as it breaks doc generation
       - name: Remove APY_INLINE
-        # Remove all instances of APY_INLINE, except the define itself,
-        # as it breaks doc generation
         run: |
           sed -i "s/static APY_INLINE/static inline/g" src/*.h src/*.cc
           sed -i "s/    APY_INLINE/    inline/g" src/*.h src/*.cc
@@ -53,6 +53,10 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/_build/html
           keep_files: true
+      # Checkout previous version so that doc-files can be written
+      - name: Restore APY_INLINE
+        run: |
+          git checkout -- src/apybuffer.h src/apyfloat.cc src/apyfloat.h src/apytypes_common.h src/apytypes_util.h src/ieee754.h src/python_util.h
       # Download previous benchmark result from cache (if exists)
       - name: Download previous benchmark data
         uses: actions/cache@v4
