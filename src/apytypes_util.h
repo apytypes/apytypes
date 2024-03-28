@@ -712,6 +712,38 @@ limb_vector_lsl(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
     limb_vector_lsl(vec.begin(), vec.end(), shift_amnt);
 }
 
+//! Test if value in limb vector is greater than or equal to a non-negative power-of-two
+//! (>= 2 ^ `n` for unsigned `n`)
+template <class RANDOM_ACCESS_ITERATOR>
+[[maybe_unused, nodiscard]] static APY_INLINE bool limb_vector_gte_pow2(
+    RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned n
+)
+{
+    unsigned bit_idx = n % _LIMB_SIZE_BITS;
+    unsigned limb_idx = n / _LIMB_SIZE_BITS;
+    std::size_t n_limbs = std::distance(it_begin, it_end);
+
+    if (limb_idx >= n_limbs) {
+        // The power-of-two is outside of the limb vector range
+        return false;
+    }
+
+    // In the first limb, test for `bit_idx` up-to `_LIMB_SIZE_BITS - 1`
+    mp_limb_t mask = ~((mp_limb_t(1) << bit_idx) - 1);
+    if (mask & it_begin[limb_idx]) {
+        return true;
+    }
+
+    // In the remaining limbs, test if any bit at all is set
+    for (std::size_t i = limb_idx + 1; i < n_limbs; i++) {
+        if (it_begin[i]) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 //! Add a power-of-two (2 ^ `n`) onto a limb vector. Returns carry out.
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE mp_limb_t limb_vector_add_pow2(

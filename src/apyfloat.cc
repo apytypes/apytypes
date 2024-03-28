@@ -787,10 +787,10 @@ APyFloat APyFloat::operator+(APyFloat y) const
     // Perform addition/subtraction
     auto apy_res = (x.sign == y.sign) ? apy_mx + apy_my : apy_mx - apy_my;
 
-    if (apy_res.greater_than_equal_two()) {
+    if (apy_res.greater_than_equal_pow2(1)) {
         new_exp++;
         apy_res >>= 1;
-    } else if (new_exp == 0 && apy_res.greater_than_equal_one()) {
+    } else if (new_exp == 0 && apy_res.greater_than_equal_pow2(0)) {
         new_exp++;
     }
 
@@ -815,7 +815,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
     APyFloat::quantize_apymantissa(apy_res, res.sign, res.man_bits, quantization);
 
     // Carry from quantization
-    if (apy_res.greater_than_equal_two()) {
+    if (apy_res.greater_than_equal_pow2(1)) {
         new_exp++;
         apy_res >>= 1;
     }
@@ -825,7 +825,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
     }
 
     // Remove leading one
-    if (apy_res.greater_than_equal_one()) {
+    if (apy_res.greater_than_equal_pow2(0)) {
         apy_res = apy_res - fx_one;
     }
 
@@ -930,7 +930,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         auto apy_res = (apy_mx * apy_my);
 
         // Carry from multiplication
-        if (apy_res.greater_than_equal_two()) {
+        if (apy_res.greater_than_equal_pow2(1)) {
             apy_res >>= 1;
             new_exp++;
         }
@@ -945,7 +945,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         APyFloat::quantize_apymantissa(apy_res, res.sign, res.man_bits, quantization);
 
         // Carry from quantization
-        if (apy_res.greater_than_equal_two()) {
+        if (apy_res.greater_than_equal_pow2(1)) {
             new_exp++;
             apy_res >>= 1;
         }
@@ -954,7 +954,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
             return res.construct_inf();
         }
 
-        if (apy_res.greater_than_equal_one()) { // Remove leading one
+        if (apy_res.greater_than_equal_pow2(0)) { // Remove leading one
             apy_res = apy_res - fx_one;
         }
         apy_res <<= res.man_bits;
@@ -1014,7 +1014,7 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     auto apy_man_res = apy_mx / apy_my;
 
     // The result from the division will be in (1/2, 2) so normalization may be required
-    if (!apy_man_res.greater_than_equal_one()) {
+    if (!apy_man_res.greater_than_equal_pow2(0)) {
         apy_man_res <<= 1;
         new_exp--;
     }
@@ -1034,7 +1034,7 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     APyFloat::quantize_apymantissa(apy_man_res, res.sign, res.man_bits, quantization);
 
     // Remove leading one
-    if (apy_man_res.greater_than_equal_one()) {
+    if (apy_man_res.greater_than_equal_pow2(0)) {
         apy_man_res = apy_man_res - fx_one;
     }
     apy_man_res <<= res.man_bits;
@@ -1125,7 +1125,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
         }
 
         // Normalize mantissa
-        while (apy_res.greater_than_equal_two()) {
+        while (apy_res.greater_than_equal_pow2(1)) {
             apy_res >>= 1;
             new_exp++;
         }
@@ -1133,12 +1133,12 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
         // Quantize mantissa
         APyFloat::quantize_apymantissa(apy_res, new_sign, x.man_bits, quantization);
         // Carry from quantization
-        if (apy_res.greater_than_equal_two()) {
+        if (apy_res.greater_than_equal_pow2(1)) {
             new_exp++;
             apy_res >>= 1;
         }
 
-        if (apy_res.greater_than_equal_one()) { // Remove leading one
+        if (apy_res.greater_than_equal_pow2(0)) { // Remove leading one
             apy_res = apy_res - fx_one;
         }
         apy_res <<= x.man_bits;

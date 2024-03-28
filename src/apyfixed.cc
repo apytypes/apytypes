@@ -16,12 +16,11 @@ namespace nb = nanobind;
 #include <cstddef>    // std::size_t
 #include <cstring>    // std::memcpy
 #include <functional> // std::bit_not
-#include <iostream>
-#include <iterator> // std::back_inserter
-#include <optional> // std::optional
-#include <sstream>  // std::stringstream
-#include <string>   // std::string
-#include <vector>   // std::vector, std::swap
+#include <iterator>   // std::back_inserter
+#include <optional>   // std::optional
+#include <sstream>    // std::stringstream
+#include <string>     // std::string
+#include <vector>     // std::vector, std::swap
 
 #include <fmt/format.h>
 
@@ -869,25 +868,14 @@ std::size_t APyFixed::leading_signs() const
     return is_negative() ? leading_ones() : leading_zeros();
 }
 
-bool APyFixed::greater_than_equal_two() const
+bool APyFixed::greater_than_equal_pow2(int n) const
 {
-    static const auto fx_one = APyFixed::from_double(1, 2, 2);
-    static const auto fx_two = fx_one << 1;
-    if (unsigned(_bits) <= _LIMB_SIZE_BITS) {
-        mp_limb_t two = mp_limb_t(1ULL) << (frac_bits() + 1);
-        return _data[0] >= two;
+    if (is_negative()) {
+        return false;
+    } else {
+        unsigned test_binary_point = std::max(0, frac_bits() + n);
+        return limb_vector_gte_pow2(_data.begin(), _data.end(), test_binary_point);
     }
-    return *this >= fx_two;
-}
-
-bool APyFixed::greater_than_equal_one() const
-{
-    static const auto fx_one = APyFixed::from_double(1, 2, 2);
-    if (unsigned(_bits) <= _LIMB_SIZE_BITS) {
-        mp_limb_t one = mp_limb_t(1ULL) << frac_bits();
-        return _data[0] >= one;
-    }
-    return *this >= fx_one;
 }
 
 /* ********************************************************************************** *
