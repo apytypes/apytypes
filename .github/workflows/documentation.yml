@@ -29,8 +29,17 @@ jobs:
         run: |
           cd docs
           python _plots/quantization.py
+          python _plots/performancescale.py
           cp quantization.png _static
+          cp performancescale.png _static
           cd ..
+      - name: Remove APY_INLINE
+        # Remove all instances of APY_INLINE, except the define itself,
+        # as it breaks doc generation
+        run: |
+          sed -i "s/static APY_INLINE/static inline/g" src/*.h src/*.cc
+          sed -i "s/    APY_INLINE/    inline/g" src/*.h src/*.cc
+          sed -i "s/^APY_INLINE/inline/g" src/*.h src/*.cc
       - name: Sphinx build
         run: |
           cd docs
