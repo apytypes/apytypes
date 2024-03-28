@@ -196,6 +196,10 @@ public:
     //! Test if value is greater than equal to a integer power-of-two (>= 2 ^ `n`)
     bool greater_than_equal_pow2(int n) const;
 
+    //! Test if positive value is greater than equal to a integer power-of-two (>= 2 ^
+    //! `n`)
+    bool positive_greater_than_equal_pow2(int n) const;
+
     /* ****************************************************************************** *
      *                           Conversion to other types                            *
      * ****************************************************************************** */

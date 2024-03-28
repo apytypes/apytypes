@@ -873,9 +873,14 @@ bool APyFixed::greater_than_equal_pow2(int n) const
     if (is_negative()) {
         return false;
     } else {
-        unsigned test_binary_point = std::max(0, frac_bits() + n);
-        return limb_vector_gte_pow2(_data.begin(), _data.end(), test_binary_point);
+        return positive_greater_than_equal_pow2(n);
     }
+}
+
+bool APyFixed::positive_greater_than_equal_pow2(int n) const
+{
+    unsigned test_binary_point = std::max(0, frac_bits() + n);
+    return limb_vector_gte_pow2(_data.begin(), _data.end(), test_binary_point);
 }
 
 /* ********************************************************************************** *
