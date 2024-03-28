@@ -139,7 +139,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -217,7 +217,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -228,8 +228,8 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
 <dl class="cpp function">
-<dt class="sig sig-object cpp">
-<span class="target" id="ieee754_8h_1a0be817bca61d065fb2564735b705ba89"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">bool</span> <span class="pre">_MACHINE_IS_NATIVE_LITTLE_ENDIAN</span> <span class="pre">()</span></span></dt>
+<dt class="sig sig-object cpp" id="_CPPv432_MACHINE_IS_NATIVE_LITTLE_ENDIANv">
+<span id="_CPPv332_MACHINE_IS_NATIVE_LITTLE_ENDIANv"></span><span id="_CPPv232_MACHINE_IS_NATIVE_LITTLE_ENDIANv"></span><span id="_MACHINE_IS_NATIVE_LITTLE_ENDIAN"></span><span class="target" id="ieee754_8h_1ade88a2faec917d870786ddc91d4ef894"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_MACHINE_IS_NATIVE_LITTLE_ENDIAN</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432_MACHINE_IS_NATIVE_LITTLE_ENDIANv" title="Link to this definition">#</a><br /></dt>
 <dd><p>Test target machine native endianness in pure C++. Optimized away to single <code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">false</span></code>, depending on endianness, on all tested machines using most C++17 compatible compilers (godbolt.org):<ul class="simple">
 <li><p>All GCC version supporting C++17</p></li>
 <li><p>All Clang version supporting C++17</p></li>
@@ -239,47 +239,47 @@
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp">
-<span class="target" id="ieee754_8h_1adc47875cabf813b58ba9cceec33c15ac"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">uint64_t</span> <span class="pre">type_pun_double_to_uint64_t</span> <span class="pre">(double</span> <span class="pre">d)</span></span></dt>
+<dt class="sig sig-object cpp" id="_CPPv427type_pun_double_to_uint64_td">
+<span id="_CPPv327type_pun_double_to_uint64_td"></span><span id="_CPPv227type_pun_double_to_uint64_td"></span><span id="type_pun_double_to_uint64_t__double"></span><span class="target" id="ieee754_8h_1a69cb04164564629f6b511d486d3e7004"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">type_pun_double_to_uint64_t</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">d</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427type_pun_double_to_uint64_td" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp">
-<span class="target" id="ieee754_8h_1a4daeab11831dff42223609ce20f5f62c"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">double</span> <span class="pre">type_pun_uint64_t_to_double</span> <span class="pre">(uint64_t</span> <span class="pre">num)</span></span></dt>
+<dt class="sig sig-object cpp" id="_CPPv427type_pun_uint64_t_to_double8uint64_t">
+<span id="_CPPv327type_pun_uint64_t_to_double8uint64_t"></span><span id="_CPPv227type_pun_uint64_t_to_double8uint64_t"></span><span id="type_pun_uint64_t_to_double__uint64_t"></span><span class="target" id="ieee754_8h_1aa1cc75f60ebc48822c49e211db85bf31"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">type_pun_uint64_t_to_double</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">num</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427type_pun_uint64_t_to_double8uint64_t" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp">
-<span class="target" id="ieee754_8h_1accc67a13f2e84d7633074a31cb3da359"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">bool</span> <span class="pre">sign_of_double</span> <span class="pre">(double</span> <span class="pre">d)</span></span></dt>
+<dt class="sig sig-object cpp" id="_CPPv414sign_of_doubled">
+<span id="_CPPv314sign_of_doubled"></span><span id="_CPPv214sign_of_doubled"></span><span id="sign_of_double__double"></span><span class="target" id="ieee754_8h_1ae33b5e20a19fdca5eaa7a132520ae1e2"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sign_of_double</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">d</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414sign_of_doubled" title="Link to this definition">#</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp">
-<span class="target" id="ieee754_8h_1a76154a09b670d8aee45ce5c04f8f30e1"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">int64_t</span> <span class="pre">exp_of_double</span> <span class="pre">(double</span> <span class="pre">d)</span></span></dt>
+<dt class="sig sig-object cpp" id="_CPPv413exp_of_doubled">
+<span id="_CPPv313exp_of_doubled"></span><span id="_CPPv213exp_of_doubled"></span><span id="exp_of_double__double"></span><span class="target" id="ieee754_8h_1a939ca83e7e434034b8022982dee2ca65"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">exp_of_double</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">d</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413exp_of_doubled" title="Link to this definition">#</a><br /></dt>
 <dd><p>Returns the <em>biased</em> exponent of a <code class="docutils literal notranslate"><span class="pre">double</span></code> in a <code class="docutils literal notranslate"><span class="pre">int64_t</span></code>. Return value range: [0, 2048) </p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp">
-<span class="target" id="ieee754_8h_1aa305affa0570f3885e2c8c5550262919"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">uint64_t</span> <span class="pre">man_of_double</span> <span class="pre">(double</span> <span class="pre">d)</span></span></dt>
+<dt class="sig sig-object cpp" id="_CPPv413man_of_doubled">
+<span id="_CPPv313man_of_doubled"></span><span id="_CPPv213man_of_doubled"></span><span id="man_of_double__double"></span><span class="target" id="ieee754_8h_1aa72b9d649c0b91ece5c4e45fc5f5719f"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">man_of_double</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">d</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413man_of_doubled" title="Link to this definition">#</a><br /></dt>
 <dd><p>Returns significand/mantissa of a <code class="docutils literal notranslate"><span class="pre">double</span></code> (without the hidden one) in a <code class="docutils literal notranslate"><span class="pre">uint64_t</span></code>. Range of returned value: [0, 4503599627370496) </p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp">
-<span class="target" id="ieee754_8h_1a088e0287e7998365b1e87f9564b2b5bb"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">void</span> <span class="pre">set_sign_of_double</span> <span class="pre">(double</span> <span class="pre">&amp;d,</span> <span class="pre">bool</span> <span class="pre">sign)</span></span></dt>
+<dt class="sig sig-object cpp" id="_CPPv418set_sign_of_doubleRdb">
+<span id="_CPPv318set_sign_of_doubleRdb"></span><span id="_CPPv218set_sign_of_doubleRdb"></span><span id="set_sign_of_double__doubleR.b"></span><span class="target" id="ieee754_8h_1a26cddd5803c238eb0dc04e3d19aa1ea7"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_sign_of_double</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">d</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sign</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418set_sign_of_doubleRdb" title="Link to this definition">#</a><br /></dt>
 <dd><p>[Un]set the sign of a <code class="docutils literal notranslate"><span class="pre">double</span></code> type from a <code class="docutils literal notranslate"><span class="pre">bool</span></code></p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp">
-<span class="target" id="ieee754_8h_1a6b1ccad6b4644ffe593284c702ef9f57"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">void</span> <span class="pre">set_exp_of_double</span> <span class="pre">(double</span> <span class="pre">&amp;d,</span> <span class="pre">int64_t</span> <span class="pre">exp)</span></span></dt>
+<dt class="sig sig-object cpp" id="_CPPv417set_exp_of_doubleRd7int64_t">
+<span id="_CPPv317set_exp_of_doubleRd7int64_t"></span><span id="_CPPv217set_exp_of_doubleRd7int64_t"></span><span id="set_exp_of_double__doubleR.int64_t"></span><span class="target" id="ieee754_8h_1ac62d5f1f4f9324536a15a8da5361aabb"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_exp_of_double</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">d</span></span>, <span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">exp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417set_exp_of_doubleRd7int64_t" title="Link to this definition">#</a><br /></dt>
 <dd><p>Set the exponent part of a <code class="docutils literal notranslate"><span class="pre">double</span></code> from <code class="docutils literal notranslate"><span class="pre">int64_t</span></code>. Domain of argument <code class="docutils literal notranslate"><span class="pre">int64_t</span></code>: [0, 2048) </p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp">
-<span class="target" id="ieee754_8h_1a9633d14aeb428a14f73153089d1e4d5a"></span><span class="sig-name descname"><span class="pre">static</span> <span class="pre">APY_INLINE</span> <span class="pre">void</span> <span class="pre">set_man_of_double</span> <span class="pre">(double</span> <span class="pre">&amp;d,</span> <span class="pre">uint64_t</span> <span class="pre">man)</span></span></dt>
+<dt class="sig sig-object cpp" id="_CPPv417set_man_of_doubleRd8uint64_t">
+<span id="_CPPv317set_man_of_doubleRd8uint64_t"></span><span id="_CPPv217set_man_of_doubleRd8uint64_t"></span><span id="set_man_of_double__doubleR.uint64_t"></span><span class="target" id="ieee754_8h_1a277fdc396b1a7d9a7d9ab18fdd895600"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_man_of_double</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">d</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">man</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417set_man_of_doubleRd8uint64_t" title="Link to this definition">#</a><br /></dt>
 <dd><p>Set the mantissa poart of a <code class="docutils literal notranslate"><span class="pre">double</span></code> from <code class="docutils literal notranslate"><span class="pre">uint64_t</span></code>. Domain of argument <code class="docutils literal notranslate"><span class="pre">uint64_t</span></code>: [0, 4503599627370496) </p>
 </dd></dl>
 
@@ -329,8 +329,35 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">ieee754.h</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv432_MACHINE_IS_NATIVE_LITTLE_ENDIANv"><code class="docutils literal notranslate"><span class="pre">_MACHINE_IS_NATIVE_LITTLE_ENDIAN()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv427type_pun_double_to_uint64_td"><code class="docutils literal notranslate"><span class="pre">type_pun_double_to_uint64_t()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv427type_pun_uint64_t_to_double8uint64_t"><code class="docutils literal notranslate"><span class="pre">type_pun_uint64_t_to_double()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv414sign_of_doubled"><code class="docutils literal notranslate"><span class="pre">sign_of_double()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv413exp_of_doubled"><code class="docutils literal notranslate"><span class="pre">exp_of_double()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv413man_of_doubled"><code class="docutils literal notranslate"><span class="pre">man_of_double()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv418set_sign_of_doubleRdb"><code class="docutils literal notranslate"><span class="pre">set_sign_of_double()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv417set_exp_of_doubleRd7int64_t"><code class="docutils literal notranslate"><span class="pre">set_exp_of_double()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv417set_man_of_doubleRd8uint64_t"><code class="docutils literal notranslate"><span class="pre">set_man_of_double()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
