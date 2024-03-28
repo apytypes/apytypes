@@ -89,8 +89,8 @@ APyFixedArray::APyFixedArray(
     std::optional<int> frac_bits
 )
     : APyBuffer(shape, bits_to_limbs(bits_from_optional(bits, int_bits, frac_bits)))
-    , _bits { bits_from_optional(bits, int_bits, frac_bits) }
-    , _int_bits { int_bits_from_optional(bits, int_bits, frac_bits) }
+    , _bits { bits.has_value() ? *bits : *int_bits + *frac_bits }
+    , _int_bits { int_bits.has_value() ? *int_bits : *bits - *frac_bits }
 {
 }
 
@@ -758,9 +758,9 @@ APyFixedArray APyFixedArray::cast(
     std::optional<int> frac_bits
 ) const
 {
-    // Sanitize the input
+    // Sanitize the input (bit-specifier validity tested in `bits_from_optional()`)
     int new_bits = bits_from_optional(bits, int_bits, frac_bits);
-    int new_int_bits = int_bits_from_optional(bits, int_bits, frac_bits);
+    int new_int_bits = int_bits.has_value() ? *int_bits : *bits - *frac_bits;
 
     // The new result array (`bit_specifier_sanitize()` called in constructor)
     std::size_t result_limbs = bits_to_limbs(new_bits);

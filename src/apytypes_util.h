@@ -788,15 +788,6 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
     return result;
 }
 
-//! Retrieve the `int_bits` specifier from user provided optional bit specifiers.
-//! Assumes exactly two of three bit specifiers are set.
-[[maybe_unused, nodiscard]] static APY_INLINE int int_bits_from_optional(
-    std::optional<int> bits, std::optional<int> int_bits, std::optional<int> frac_bits
-)
-{
-    return int_bits.has_value() ? *int_bits : *bits - *frac_bits;
-}
-
 //! Test if the value of a limb vector is negative
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE bool limb_vector_is_negative(

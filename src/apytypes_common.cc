@@ -109,7 +109,7 @@ AccumulatorContext::AccumulatorContext(
     if (any_apfixed_parameters) {
         // Extract the input
         int acc_bits = bits_from_optional(bits, int_bits, frac_bits);
-        int acc_int_bits = int_bits_from_optional(bits, int_bits, frac_bits);
+        int acc_int_bits = int_bits.has_value() ? *int_bits : *bits - *frac_bits;
 
         // Store the previous accumulator mode
         previous_mode = global_accumulator_option;

@@ -12,6 +12,8 @@
 
 import subprocess
 
+import os
+
 # Include files for Python details using `python3-config`
 python3_includes = subprocess.run(
     ["python3-config", "--includes"],
@@ -32,6 +34,7 @@ compile_flags = [
     "-Wextra",
     "-Wpedantic",
     "-Wno-deprecated",
+    f"-I{os.path.abspath('./subprojects/fmt-10.2.0/include')}",
     *str(python3_includes.stdout.strip()).split(" "),
     *["-I" + s for s in nanobind_includes.stdout.strip().split(" ")],
 ]

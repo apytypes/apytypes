@@ -33,9 +33,6 @@ namespace nb = nanobind;
 // GMP should be included after all other includes
 #include "../extern/mini-gmp/mini-gmp.h"
 
-static const auto fx_one = APyFixed::from_double(1, 2, 2);
-static const auto fx_two = fx_one << 1;
-
 /* ********************************************************************************** *
  * *                            Python constructors                                 * *
  * ********************************************************************************** */
@@ -70,7 +67,7 @@ APyFixed::APyFixed(
     std::optional<int> bits, std::optional<int> int_bits, std::optional<int> frac_bits
 )
     : _bits { bits_from_optional(bits, int_bits, frac_bits) }
-    , _int_bits { int_bits_from_optional(bits, int_bits, frac_bits) }
+    , _int_bits { int_bits.has_value() ? *int_bits : *bits - *frac_bits }
     , _data(bits_to_limbs(_bits), 0)
 {
 }
@@ -869,15 +866,13 @@ std::size_t APyFixed::leading_fractional_zeros() const
 
 std::size_t APyFixed::leading_signs() const
 {
-    if (is_negative()) {
-        return leading_ones();
-    } else {
-        return leading_zeros();
-    }
+    return is_negative() ? leading_ones() : leading_zeros();
 }
 
 bool APyFixed::greater_than_equal_two() const
 {
+    static const auto fx_one = APyFixed::from_double(1, 2, 2);
+    static const auto fx_two = fx_one << 1;
     if (unsigned(_bits) <= _LIMB_SIZE_BITS) {
         mp_limb_t two = mp_limb_t(1ULL) << (frac_bits() + 1);
         return _data[0] >= two;
@@ -887,6 +882,7 @@ bool APyFixed::greater_than_equal_two() const
 
 bool APyFixed::greater_than_equal_one() const
 {
+    static const auto fx_one = APyFixed::from_double(1, 2, 2);
     if (unsigned(_bits) <= _LIMB_SIZE_BITS) {
         mp_limb_t one = mp_limb_t(1ULL) << frac_bits();
         return _data[0] >= one;
@@ -935,9 +931,9 @@ APyFixed APyFixed::cast(
     std::optional<int> frac_bits
 ) const
 {
-    // Sanitize the input
+    // Sanitize the input (bit-specifier validity tested in `bits_from_optional()`)
     int new_bits = bits_from_optional(bits, int_bits, frac_bits);
-    int new_int_bits = int_bits_from_optional(bits, int_bits, frac_bits);
+    int new_int_bits = int_bits.has_value() ? *int_bits : *bits - *frac_bits;
 
     // Result that temporarily can hold all the necessary bits
     APyFixed result(std::max(new_bits, _bits), std::max(new_int_bits, _int_bits));
