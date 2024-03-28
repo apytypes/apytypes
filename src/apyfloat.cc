@@ -881,11 +881,8 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         auto new_man_bits = sum_man_bits;
         // In case of denormalized data
         if (new_man < one) {
-            int cnt = 0;
-            do {
-                one >>= 1;
-                cnt++;
-            } while (new_man < one);
+            int cnt = sum_man_bits - bit_width(new_man) + 1;
+            one >>= cnt;
             tmp_exp -= cnt;
             new_man_bits -= cnt;
             // Remove leading one

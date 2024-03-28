@@ -315,6 +315,15 @@ def test_array_mul_scalar():
         APyFloatArray.from_float([float("nan"), float("nan"), -float("nan")], 9, 10)
     )
 
+    a = APyFloatArray.from_float([float("inf"), float("nan"), -float("inf")], 8, 10)
+    b = APyFloat(0, 3, 27, 9, 8)
+    assert (a * b).is_identical(
+        APyFloatArray.from_float([float("inf"), float("nan"), -float("inf")], 9, 10)
+    )
+    assert (b * a).is_identical(
+        APyFloatArray.from_float([float("inf"), float("nan"), -float("inf")], 9, 10)
+    )
+
 
 @pytest.mark.float_array
 def test_array_mul_int_float():
