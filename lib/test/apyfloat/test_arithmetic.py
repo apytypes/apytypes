@@ -119,36 +119,35 @@ def test_add_representable(exp, man, sign, lhs, rhs):
 def test_add_overflow():
     """Test that an addition can overflow."""
     # To positive infinity
-    assert (APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2)).is_inf
+    res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2)
+    assert res.is_inf
 
     # To negative infinity
-    assert (APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2)).is_inf
+    res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2)
+    assert res.is_inf
 
     # Overflow to infinity after quantization
-    assert (APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 27, 0, 5, 2)).is_inf
+    res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 27, 0, 5, 2)
+    assert res.is_inf
 
 
 @pytest.mark.float_add
 def test_add_subnormals():
     # Add two subnormal numbers
-    assert (APyFloat(0, 0, 1, 5, 3) + APyFloat(0, 0, 2, 5, 3)).is_identical(
-        APyFloat(0, 0, 3, 5, 3)
-    )
+    res = APyFloat(0, 0, 1, 5, 3) + APyFloat(0, 0, 2, 5, 3)
+    assert res.is_identical(APyFloat(0, 0, 3, 5, 3))
 
     # Addition of subnormal numbers resulting in normal number
-    assert (APyFloat(0, 0, 7, 5, 3) + APyFloat(0, 0, 1, 5, 3)).is_identical(
-        APyFloat(0, 1, 0, 5, 3)
-    )
+    res = APyFloat(0, 0, 7, 5, 3) + APyFloat(0, 0, 1, 5, 3)
+    assert res.is_identical(APyFloat(0, 1, 0, 5, 3))
 
     # Add subnormal to normal number
-    assert (APyFloat(0, 0, 1, 4, 3) + APyFloat(0, 1, 0, 4, 3)).is_identical(
-        APyFloat(0, 1, 1, 4, 3)
-    )
+    res = APyFloat(0, 0, 1, 4, 3) + APyFloat(0, 1, 0, 4, 3)
+    assert res.is_identical(APyFloat(0, 1, 1, 4, 3))
 
     # Add subnormal to big normal number
-    assert (APyFloat(0, 0, 1, 4, 3) + APyFloat(0, 7, 0, 4, 3)).is_identical(
-        APyFloat(0, 7, 0, 4, 3)
-    )
+    res = APyFloat(0, 0, 1, 4, 3) + APyFloat(0, 7, 0, 4, 3)
+    assert res.is_identical(APyFloat(0, 7, 0, 4, 3))
 
 
 @pytest.mark.float_add
@@ -188,8 +187,8 @@ def test_add_inf_nan():
 
 
 @pytest.mark.float_add
-def test_long_add():
-    """Some tests for sanity checking addition with long formats."""
+def test_add_double():
+    """Some tests for sanity checking addition with binary64. This uses the faster path."""
 
     # 2.5 + 24.5 = 27.0
     x = APyFloat(sign=0, exp=1024, man=0x4000000000000, exp_bits=11, man_bits=52)
@@ -219,6 +218,12 @@ def test_long_add():
     y = APyFloat(0, 1025, 0x4DA8D64D7F0ED, 11, 52)
     res = x + y
     assert res.is_identical(APyFloat(0, 1025, 0x9CA80064A9CDC, 11, 52))
+
+
+@pytest.mark.float_add
+def test_long_add():
+    """TODO: some tests for sanity checking addition with longer formats."""
+    pass
 
 
 # Subtraction
@@ -281,24 +286,20 @@ def test_sub_overflow():
 @pytest.mark.float_add
 def test_sub_subnormals():
     # Subtract two subnormal numbers
-    assert (APyFloat(0, 0, 1, 5, 3) - APyFloat(0, 0, 2, 5, 3)).is_identical(
-        APyFloat(1, 0, 1, 5, 3)
-    )
+    res = APyFloat(0, 0, 1, 5, 3) - APyFloat(0, 0, 2, 5, 3)
+    assert res.is_identical(APyFloat(1, 0, 1, 5, 3))
 
     # Subtraction of subnormal numbers resulting in normal number
-    assert (APyFloat(1, 0, 7, 5, 3) - APyFloat(0, 0, 1, 5, 3)).is_identical(
-        APyFloat(1, 1, 0, 5, 3)
-    )
+    res = APyFloat(1, 0, 7, 5, 3) - APyFloat(0, 0, 1, 5, 3)
+    assert res.is_identical(APyFloat(1, 1, 0, 5, 3))
 
     # Subtract subnormal from normal number
-    assert (APyFloat(0, 1, 0, 4, 3) - APyFloat(0, 0, 1, 4, 3)).is_identical(
-        APyFloat(0, 0, 7, 4, 3)
-    )
+    res = APyFloat(0, 1, 0, 4, 3) - APyFloat(0, 0, 1, 4, 3)
+    assert res.is_identical(APyFloat(0, 0, 7, 4, 3))
 
     # Subtract subnormal from big normal number
-    assert (APyFloat(0, 7, 0, 4, 3) - APyFloat(0, 0, 1, 4, 3)).is_identical(
-        APyFloat(0, 7, 0, 4, 3)
-    )
+    res = APyFloat(0, 7, 0, 4, 3) - APyFloat(0, 0, 1, 4, 3)
+    assert res.is_identical(APyFloat(0, 7, 0, 4, 3))
 
 
 @pytest.mark.float_sub

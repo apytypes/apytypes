@@ -771,6 +771,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
         return res.construct_inf();
     }
 
+    // Tentative exponent
     std::int64_t new_exp = x.exp - x.bias + res.bias;
 
     // Conditionally add leading one's
@@ -778,11 +779,79 @@ APyFloat APyFloat::operator+(APyFloat y) const
     man_t my = y.true_man();
 
     // Align mantissas based on exponent difference
-    const int delta = x.true_exp() - y.true_exp();
+    const unsigned exp_delta = x.true_exp() - y.true_exp();
+
+    // +5 to give room for leading one, carry, and 3 guard bits
+    const unsigned int max_man_bits = res.man_bits + 5;
+    if (max_man_bits <= _MAN_T_SIZE_BITS) {
+        // Align mantissa based on format, also add room for guard bits
+        const int man_bits_delta = x.man_bits - y.man_bits;
+        if (man_bits_delta > 0) {
+            mx <<= 3;
+            my <<= 3 + man_bits_delta;
+        } else {
+            mx <<= 3 - man_bits_delta;
+            my <<= 3;
+        }
+
+        // Align mantissa based on difference in exponent
+        man_t highY = my >> std::min(max_man_bits, exp_delta);
+        man_t lowY {}; // Used as sticky bit
+        if (exp_delta <= 3) {
+            lowY = 0;
+        } else if (exp_delta >= max_man_bits) {
+            lowY = 1;
+        } else {
+            lowY = (my << (_MAN_T_SIZE_BITS - exp_delta)) != 0;
+        }
+        highY |= lowY;
+
+        // Perform addition / subtraction
+        man_t new_man = (x.sign == y.sign) ? mx + highY : mx - highY;
+
+        int c = 0;
+        const man_t res_leading_one = res.leading_one() << 3;
+        if (new_man & (res_leading_one << 1)) { // Carry
+            c = 1;
+            new_exp++;
+        } else if (new_man & res_leading_one) {
+            // If the exponent is zero, then this a carry from addition with subnormals
+            if (new_exp == 0) {
+                new_exp++;
+            }
+        } else { // Cancellation
+            const unsigned int man_leading_zeros = leading_zeros(new_man);
+            const unsigned int man_shift
+                = man_leading_zeros - (_MAN_T_SIZE_BITS - res.man_bits - 4);
+
+            // TODO: Double check this logic
+            if (new_exp > man_shift) {
+                new_exp -= man_shift;
+                new_man <<= man_shift;
+            } else {
+                new_exp = 0;
+            }
+        }
+
+        // Check for overflow.
+        // This is also checked in '_cast'm so this should probably be re-written
+        if (new_exp >= res.max_exponent()) {
+            return res.construct_inf(res.sign);
+        }
+
+        new_man &= (res_leading_one << c) - 1;
+
+        // Use longer format for intermediate result
+        APyFloat larger_float(
+            res.sign, new_exp, new_man, exp_bits, max_man_bits - 2 + c, res.bias
+        );
+        return larger_float._cast(res.exp_bits, res.man_bits, res.bias, quantization);
+    }
+    // Slower path
 
     // Two integer bits, sign bit and leading one
     APyFixed apy_mx(2 + x.man_bits, 2, std::vector<mp_limb_t>({ mx }));
-    APyFixed apy_my(2 + y.man_bits, 2 - delta, std::vector<mp_limb_t>({ my }));
+    APyFixed apy_my(2 + y.man_bits, 2 - exp_delta, std::vector<mp_limb_t>({ my }));
 
     // Perform addition/subtraction
     auto apy_res = (x.sign == y.sign) ? apy_mx + apy_my : apy_mx - apy_my;
