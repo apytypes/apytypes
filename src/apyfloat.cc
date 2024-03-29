@@ -772,7 +772,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
     }
 
     // Tentative exponent
-    std::int64_t new_exp = x.exp - x.bias + res.bias;
+    std::int64_t new_exp = x.true_exp() + res.bias;
 
     // Conditionally add leading one's
     man_t mx = x.true_man();
@@ -815,35 +815,35 @@ APyFloat APyFloat::operator+(APyFloat y) const
             c = 1;
             new_exp++;
         } else if (new_man & res_leading_one) {
-            // If the exponent is zero, then this a carry from addition with subnormals
-            if (new_exp == 0) {
-                new_exp++;
-            }
-        } else { // Cancellation
+            // Do nothing
+        } else { // Cancellation or addition with subnormals
+            // Mantissa should be shifted until 1.xx is obtained or new_exp equals 0
             const unsigned int man_leading_zeros = leading_zeros(new_man);
-            const unsigned int man_shift
+            const unsigned int normalizing_shift
                 = man_leading_zeros - (_MAN_T_SIZE_BITS - res.man_bits - 4);
 
-            // TODO: Double check this logic
-            if (new_exp > man_shift) {
-                new_exp -= man_shift;
-                new_man <<= man_shift;
+            if (new_exp > normalizing_shift) {
+                new_man <<= normalizing_shift;
+                new_exp -= normalizing_shift;
             } else {
+                // The result will be a subnormal
+                // -1 compensates for the potential leading 1
+                new_man <<= new_exp - 1;
                 new_exp = 0;
             }
         }
 
         // Check for overflow.
-        // This is also checked in '_cast'm so this should probably be re-written
+        // This is also checked in '_cast' so this should probably be re-written
         if (new_exp >= res.max_exponent()) {
-            return res.construct_inf(res.sign);
+            return res.construct_inf();
         }
 
         new_man &= (res_leading_one << c) - 1;
 
-        // Use longer format for intermediate result
+        // Use longer format for intermediate result. +3 from the added guard bits
         APyFloat larger_float(
-            res.sign, new_exp, new_man, exp_bits, max_man_bits - 2 + c, res.bias
+            res.sign, new_exp, new_man, exp_bits, res.man_bits + 3 + c, res.bias
         );
         return larger_float._cast(res.exp_bits, res.man_bits, res.bias, quantization);
     }
