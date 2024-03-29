@@ -782,6 +782,8 @@ APyFloat APyFloat::operator+(APyFloat y) const
     const unsigned exp_delta = x.true_exp() - y.true_exp();
 
     // +5 to give room for leading one, carry, and 3 guard bits
+    // A tighter bound would sometimes be sufficient, but checking that is probably not
+    // worth it
     const unsigned int max_man_bits = res.man_bits + 5;
     if (max_man_bits <= _MAN_T_SIZE_BITS) {
         // Align mantissa based on format, also add room for guard bits
@@ -809,25 +811,29 @@ APyFloat APyFloat::operator+(APyFloat y) const
         // Perform addition / subtraction
         man_t new_man = (x.sign == y.sign) ? mx + highY : mx - highY;
 
+        // Check for carry and cancellation
         int c = 0;
         const man_t res_leading_one = res.leading_one() << 3;
-        if (new_man & (res_leading_one << 1)) { // Carry
+        if (new_man & (res_leading_one << 1)) {
+            // Carry
             c = 1;
             new_exp++;
         } else if (new_man & res_leading_one) {
             // Do nothing
-        } else { // Cancellation or addition with subnormals
+        } else {
+            // Cancellation or addition with subnormals
             // Mantissa should be shifted until 1.xx is obtained or new_exp equals 0
             const unsigned int man_leading_zeros = leading_zeros(new_man);
-            const unsigned int normalizing_shift
-                = man_leading_zeros - (_MAN_T_SIZE_BITS - res.man_bits - 4);
+            const unsigned int normalizing_shift = man_leading_zeros
+                - (_MAN_T_SIZE_BITS - res.man_bits - 4
+                ); // -4 for leading 1 and 3 guard bits
 
             if (new_exp > normalizing_shift) {
                 new_man <<= normalizing_shift;
                 new_exp -= normalizing_shift;
             } else {
                 // The result will be a subnormal
-                // -1 compensates for the potential leading 1
+                // -1 is for compensating that 1.xx is not desired here
                 new_man <<= new_exp - 1;
                 new_exp = 0;
             }
@@ -867,15 +873,16 @@ APyFloat APyFloat::operator+(APyFloat y) const
         return res.construct_inf();
     }
 
-    int leading_zeros = leading_zeros_apyfixed(apy_res);
+    // Check for cancellation
+    const int leading_zeros = leading_zeros_apyfixed(apy_res);
     if (leading_zeros) {
         if (new_exp > leading_zeros) {
             new_exp -= leading_zeros;
             apy_res <<= leading_zeros;
         } else {
-            if (new_exp > 0) {
-                apy_res <<= int(new_exp - 1);
-            }
+            // The result will be a subnormal
+            // -1 is for compensating that 1.xx is not desired here
+            apy_res <<= int(new_exp - 1);
             new_exp = 0;
         }
     }
@@ -889,6 +896,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
         apy_res >>= 1;
     }
 
+    // Check for overflow
     if (new_exp >= res.max_exponent()) {
         return res.construct_inf();
     }

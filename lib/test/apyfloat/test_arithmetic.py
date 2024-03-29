@@ -222,8 +222,35 @@ def test_add_double():
 
 @pytest.mark.float_add
 def test_long_add():
-    """TODO: some tests for sanity checking addition with longer formats."""
-    pass
+    """Some tests for sanity checking addition with longer formats."""
+    # 2.5 + 24.5 = 27.0
+    x = APyFloat(sign=0, exp=1024, man=0x4000000000000 << 8, exp_bits=11, man_bits=60)
+    y = APyFloat(sign=0, exp=1027, man=0x8400000000000 << 8, exp_bits=11, man_bits=60)
+    res = x + y
+    assert res.is_identical(
+        APyFloat(sign=0, exp=1027, man=0xAC00000000000 << 8, exp_bits=11, man_bits=60)
+    )
+
+    # Add two subnormals
+    x = APyFloat(sign=0, exp=0, man=23, exp_bits=11, man_bits=61)
+    y = APyFloat(sign=0, exp=0, man=71, exp_bits=11, man_bits=61)
+    res = x + y
+    assert res.is_identical(APyFloat(sign=0, exp=0, man=94, exp_bits=11, man_bits=61))
+
+    # Mixed formats. 1.75 + (-5) = -3.25
+    x = APyFloat(sign=0, exp=7, man=6, exp_bits=4, man_bits=3)
+    y = APyFloat(sign=1, exp=1025, man=0x4000000000000 << 8, exp_bits=11, man_bits=60)
+    res = x + y
+    assert res.is_identical(
+        APyFloat(sign=1, exp=1024, man=0xA000000000000 << 8, exp_bits=11, man_bits=60)
+    )
+
+    # 1.234324 + 5.21343 = 6.447754
+    # These numbers cannot be represented exactly but should be performed as the following
+    x = APyFloat(0, 1023, 0x3BFCA85CAAFBC << 8, 11, 60)
+    y = APyFloat(0, 1025, 0x4DA8D64D7F0ED << 8, 11, 60)
+    res = x + y
+    assert res.is_identical(APyFloat(0, 1025, 0x9CA80064A9CDC << 8, 11, 60))
 
 
 # Subtraction
