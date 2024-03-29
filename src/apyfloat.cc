@@ -865,32 +865,28 @@ APyFloat APyFloat::operator+(APyFloat y) const
     if (apy_res.positive_greater_than_equal_pow2(1)) {
         new_exp++;
         apy_res >>= 1;
-    } else if (new_exp == 0 && apy_res.positive_greater_than_equal_pow2(0)) {
-        new_exp++;
-    }
-
-    if (new_exp >= res.max_exponent()) {
-        return res.construct_inf();
-    }
-
-    // Check for cancellation
-    const int leading_zeros = leading_zeros_apyfixed(apy_res);
-    if (leading_zeros) {
-        if (new_exp > leading_zeros) {
-            new_exp -= leading_zeros;
-            apy_res <<= leading_zeros;
-        } else {
-            // The result will be a subnormal
-            // -1 is for compensating that 1.xx is not desired here
-            apy_res <<= int(new_exp - 1);
-            new_exp = 0;
+    } else {
+        // Check for cancellation by counting the number of left shifts needed to make
+        // fx>=1.0
+        const int leading_zeros = leading_zeros_apyfixed(apy_res);
+        if (leading_zeros) {
+            if (new_exp > leading_zeros) {
+                new_exp -= leading_zeros;
+                apy_res <<= leading_zeros;
+            } else {
+                // The result will be a subnormal
+                // -1 is for compensating that 1.xx is not desired here
+                apy_res <<= int(new_exp - 1);
+                new_exp = 0;
+            }
         }
     }
 
     // Quantize mantissa
     APyFloat::quantize_apymantissa(apy_res, res.sign, res.man_bits, quantization);
 
-    // Carry from quantization
+    // Carry from quantization. In practice, the exponent will never be incremented
+    // twice
     if (apy_res.positive_greater_than_equal_pow2(1)) {
         new_exp++;
         apy_res >>= 1;

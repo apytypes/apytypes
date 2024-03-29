@@ -237,6 +237,12 @@ def test_long_add():
     res = x + y
     assert res.is_identical(APyFloat(sign=0, exp=0, man=94, exp_bits=11, man_bits=61))
 
+    # Add two subnormals that becomes a normal number
+    x = APyFloat(sign=0, exp=0, man=(1 << 61) - 1, exp_bits=11, man_bits=61)
+    y = APyFloat(sign=0, exp=0, man=1, exp_bits=11, man_bits=61)
+    res = x + y
+    assert res.is_identical(APyFloat(sign=0, exp=1, man=0, exp_bits=11, man_bits=61))
+
     # Mixed formats. 1.75 + (-5) = -3.25
     x = APyFloat(sign=0, exp=7, man=6, exp_bits=4, man_bits=3)
     y = APyFloat(sign=1, exp=1025, man=0x4000000000000 << 8, exp_bits=11, man_bits=60)
@@ -251,6 +257,29 @@ def test_long_add():
     y = APyFloat(0, 1025, 0x4DA8D64D7F0ED << 8, 11, 60)
     res = x + y
     assert res.is_identical(APyFloat(0, 1025, 0x9CA80064A9CDC << 8, 11, 60))
+
+    # Test carry from addition of mantissas
+    x = APyFloat(0, 1023, 1 << 59, 11, 60)
+    res = x + x
+    assert res.is_identical(APyFloat(0, 1024, 1 << 59, 11, 60))
+
+    # Test carry from addition of mantissas can overflow to infinity
+    x = APyFloat(0, 2046, 1 << 59, 11, 60)
+    y = APyFloat(0, 2046, 1 << 59, 11, 60)
+    res = x + y
+    assert res.is_identical(APyFloat(0, 2047, 0, 11, 60))
+
+    # Test carry from quantization
+    x = APyFloat(0, 1023, (1 << 60) - 1, 11, 60)
+    y = APyFloat(0, 1023 - 61, 0, 11, 60)  # Tie break
+    res = x + y
+    assert res.is_identical(APyFloat(0, 1024, 0, 11, 60))
+
+    # Test carry from quantization can overflow to infinity
+    x = APyFloat(0, 2046, (1 << 60) - 1, 11, 60)
+    y = APyFloat(0, 2046 - 61, 0, 11, 60)  # Tie break
+    res = x + y
+    assert res.is_identical(APyFloat(0, 2047, 0, 11, 60))
 
 
 # Subtraction
