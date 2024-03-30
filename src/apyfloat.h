@@ -121,6 +121,10 @@ public:
         QuantizationMode quantization
     ) const;
 
+    //! Change the number of mantissa bits. The number is assumed not be NaN or Inf.
+    //! The exponent is updated in case of carry.
+    void cast_mantissa(std::uint8_t man_bits, QuantizationMode quantization);
+
     APyFloat cast_no_quant(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,

@@ -242,93 +242,109 @@ APyFloat APyFloat::_cast(
         return res.construct_zero();
     }
 
-    auto man_bits_delta = res.man_bits - man_bits;
-
     // Check if the number will be converted to a subnormal
+    exp_t subn_adjustment {};
     if (new_exp <= 0) {
         prev_man |= leading_one();
         // Prepare for right shift to adjust the mantissa
-        man_bits_delta += new_exp - 1;
+        subn_adjustment = -new_exp + 1;
         new_exp = 0;
     }
 
-    // Initial value for mantissa
-    man_t new_man = (man_bits_delta > 0) ? (prev_man << man_bits_delta)
-                                         : (prev_man >> -man_bits_delta);
-
-    if (man_bits_delta < 0) { // Quantization of mantissa needed
-        // Calculate quantization bit
-        man_t G, // Guard (bit after LSB)
-            T,   // Sticky bit, logical OR of all the bits after the guard bit
-            B;   // Quantization bit to add to LSB
-
-        const man_t bits_to_discard = std::abs(man_bits_delta);
-        G = (prev_man >> (bits_to_discard - 1)) & 1;
-        T = (prev_man & ((1ULL << (bits_to_discard - 1)) - 1)) != 0;
-
-        switch (quantization) {
-        case QuantizationMode::RND_CONV: // TIES_TO_EVEN
-            // Using 'new_man' directly here is fine since G can only be '0' or '1',
-            // thus calculating the LSB of 'new_man' is not needed.
-            B = G & (new_man | T);
-            break;
-        case QuantizationMode::TRN_INF: // TO_POSITIVE
-            B = sign ? 0 : (G | T);
-            break;
-        case QuantizationMode::TRN: // TO_NEGATIVE
-            B = sign ? (G | T) : 0;
-            break;
-        case QuantizationMode::TRN_ZERO: // TO_ZERO
-            B = 0;
-            break;
-        case QuantizationMode::TRN_MAG: // Does not really make sense for floating-point
-            B = sign;
-            break;
-        case QuantizationMode::RND_INF: // TIES_TO_AWAY
-            B = G;
-            break;
-        case QuantizationMode::RND_ZERO: // TIES_TO_ZERO
-            B = G & T;
-            break;
-        case QuantizationMode::JAM:
-            B = 0;
-            new_man |= 1;
-            break;
-        case QuantizationMode::JAM_UNBIASED:
-            B = 0;
-            if (T || G) {
-                new_man |= 1;
-            }
-            break;
-        case QuantizationMode::STOCH_WEIGHTED: {
-            const man_t trailing_bits = prev_man & ((1ULL << bits_to_discard) - 1);
-            const man_t weight = random_number() & ((1ULL << bits_to_discard) - 1);
-            // Since the weight won't be greater than the discarded bits,
-            // this will never round an already exact number.
-            B = (trailing_bits + weight) >> bits_to_discard;
-        } break;
-        case QuantizationMode::STOCH_EQUAL:
-            // Only perform the quantization if the result is not exact.
-            B = (G || T) ? random_number() & 1 : 0;
-            break;
-        default:
-            throw NotImplementedException("APyFloat: Unknown quantization mode.");
-        }
-
-        new_man += B;
-        if (static_cast<std::uint64_t>(new_man) > res.man_mask()) {
-            ++new_exp;
-            new_man = 0;
-        }
-    }
-
-    if (new_exp >= res.max_exponent()) {
-        return res.construct_inf();
-    }
-
-    res.man = new_man;
+    // Cast mantissa
     res.exp = new_exp;
+    // The mantissa is temporarely set to a larger format in order to use
+    // 'cast_mantissa'
+    res.man = prev_man;
+    res.man_bits = man_bits + subn_adjustment;
+
+    res.cast_mantissa(new_man_bits, quantization);
     return res;
+}
+
+void APyFloat::cast_mantissa(std::uint8_t new_man_bits, QuantizationMode quantization)
+{
+    auto man_bits_delta = man_bits - new_man_bits;
+    man_bits = new_man_bits;
+
+    // Check if only zeros should be added
+    if (man_bits_delta <= 0) {
+        man <<= -man_bits_delta;
+        return;
+    }
+
+    // Quantization needed. Initial value for mantissa
+    man_t new_man = man >> man_bits_delta;
+
+    // Calculate quantization bit
+    man_t G, // Guard (bit after LSB)
+        T,   // Sticky bit, logical OR of all the bits after the guard bit
+        B;   // Quantization bit to add to LSB
+
+    G = (man >> (man_bits_delta - 1)) & 1;
+    T = (man & ((1ULL << (man_bits_delta - 1)) - 1)) != 0;
+
+    switch (quantization) {
+    case QuantizationMode::RND_CONV: // TIES_TO_EVEN
+        // Using 'new_man' directly here is fine since G can only be '0' or '1',
+        // thus calculating the LSB of 'new_man' is not needed.
+        B = G & (new_man | T);
+        break;
+    case QuantizationMode::TRN_INF: // TO_POSITIVE
+        B = sign ? 0 : (G | T);
+        break;
+    case QuantizationMode::TRN: // TO_NEGATIVE
+        B = sign ? (G | T) : 0;
+        break;
+    case QuantizationMode::TRN_ZERO: // TO_ZERO
+        B = 0;
+        break;
+    case QuantizationMode::TRN_MAG: // Does not really make sense for floating-point
+        B = sign;
+        break;
+    case QuantizationMode::RND_INF: // TIES_TO_AWAY
+        B = G;
+        break;
+    case QuantizationMode::RND_ZERO: // TIES_TO_ZERO
+        B = G & T;
+        break;
+    case QuantizationMode::JAM:
+        B = 0;
+        new_man |= 1;
+        break;
+    case QuantizationMode::JAM_UNBIASED:
+        B = 0;
+        if (T || G) {
+            new_man |= 1;
+        }
+        break;
+    case QuantizationMode::STOCH_WEIGHTED: {
+        const man_t trailing_bits = man & ((1ULL << man_bits_delta) - 1);
+        const man_t weight = random_number() & ((1ULL << man_bits_delta) - 1);
+        // Since the weight won't be greater than the discarded bits,
+        // this will never round an already exact number.
+        B = (trailing_bits + weight) >> man_bits_delta;
+    } break;
+    case QuantizationMode::STOCH_EQUAL:
+        // Only perform the quantization if the result is not exact.
+        B = (G || T) ? random_number() & 1 : 0;
+        break;
+    default:
+        throw NotImplementedException("APyFloat: Unknown quantization mode.");
+    }
+
+    new_man += B;
+    if (new_man & leading_one()) {
+        ++exp;
+        new_man = 0;
+    }
+
+    // Check for overflow
+    if (exp >= max_exponent()) {
+        *this = construct_inf();
+    } else {
+        man = new_man;
+    }
 }
 
 APyFloat APyFloat::_cast_to_double() const
@@ -848,11 +864,14 @@ APyFloat APyFloat::operator+(APyFloat y) const
 
         new_man &= (res_leading_one << c) - 1;
 
-        // Use longer format for intermediate result. +3 from the added guard bits
-        APyFloat larger_float(
-            res.sign, new_exp, new_man, exp_bits, res.man_bits + 3 + c, res.bias
-        );
-        return larger_float._cast(res.exp_bits, res.man_bits, res.bias, quantization);
+        // Use longer format for intermediate result and quantize mantissa
+        res.exp = new_exp;
+        res.man = new_man;
+        res.man_bits = res.man_bits + 3 + c; // +3 is from the added guard bits
+        res.cast_mantissa(
+            res_man_bits, quantization
+        ); // The exponent is also updated here if needed
+        return res;
     }
     // Slower path
 

@@ -414,13 +414,15 @@ def test_mul_mixed(exp, man, sign, lhs, rhs):
 @pytest.mark.float_mul
 def test_mul_overflow():
     """Test that a multiplication can overflow to infinity."""
-    assert (APyFloat(0, 0b11110, 1, 5, 2) * APyFloat(0, 0b11110, 3, 5, 3)).is_inf
+    res = APyFloat(0, 0b11110, 1, 5, 2) * APyFloat(0, 0b11110, 3, 5, 3)
+    assert res.is_inf
 
 
 @pytest.mark.float_mul
 def test_mul_underflow():
     """Test that a multiplication can underflow to zero."""
-    assert (APyFloat(0, 1, 1, 5, 2) * APyFloat(0, 1, 3, 5, 3)) == 0
+    res = APyFloat(0, 1, 1, 5, 2) * APyFloat(0, 1, 3, 5, 3)
+    assert res == 0
 
 
 @pytest.mark.float_mul
