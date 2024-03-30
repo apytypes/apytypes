@@ -785,7 +785,8 @@ APyFloat APyFloat::operator+(APyFloat y) const
     // A tighter bound would sometimes be sufficient, but checking that is probably not
     // worth it
     const unsigned int max_man_bits = res.man_bits + 5;
-    if (max_man_bits <= _MAN_T_SIZE_BITS) {
+    if ((max_man_bits <= _MAN_T_SIZE_BITS)
+        && (quantization != QuantizationMode::STOCH_WEIGHTED)) {
         // Align mantissa based on format, also add room for guard bits
         const int man_bits_delta = x.man_bits - y.man_bits;
         if (man_bits_delta > 0) {
