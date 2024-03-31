@@ -767,17 +767,29 @@ APyFloat APyFloat::operator+(APyFloat y) const
     }
 
     // Compute sign and swap operands if need to make sure |x| >= |y|
-    const APyFloat xabs = x.abs();
-    const APyFloat yabs = y.abs();
-
-    if (xabs < yabs) {
-        res.sign = y.sign;
-        std::swap(x, y);
-    } else {
-        if (x.sign != y.sign && xabs == yabs) {
-            return res.construct_zero(true);
+    if (x.same_type_as(y)) {
+        if (x.exp < y.exp || (x.exp == y.exp && x.man < y.man)) {
+            res.sign = y.sign;
+            std::swap(x, y);
+        } else {
+            if (x.sign != y.sign && x.exp == y.exp && x.man == y.man) {
+                return res.construct_zero(true);
+            }
+            res.sign = x.sign;
         }
-        res.sign = x.sign;
+    } else {
+        const APyFloat xabs = x.abs();
+        const APyFloat yabs = y.abs();
+
+        if (xabs < yabs) {
+            res.sign = y.sign;
+            std::swap(x, y);
+        } else {
+            if (x.sign != y.sign && xabs == yabs) {
+                return res.construct_zero(true);
+            }
+            res.sign = x.sign;
+        }
     }
     // Handle other special cases
     if ((x.is_inf() || y.is_inf())) {
