@@ -243,7 +243,7 @@ APyFloat APyFloat::_cast(
     }
 
     // Check if the number will be converted to a subnormal
-    exp_t subn_adjustment {};
+    exp_t subn_adjustment = 0;
     if (new_exp <= 0) {
         prev_man |= leading_one();
         // Prepare for right shift to adjust the mantissa
@@ -253,7 +253,7 @@ APyFloat APyFloat::_cast(
 
     // Cast mantissa
     res.exp = new_exp;
-    // The mantissa is temporarely set to a larger format in order to use
+    // The mantissa is temporarily set to a larger format in order to use
     // 'cast_mantissa'
     res.man = prev_man;
     res.man_bits = man_bits + subn_adjustment;
@@ -741,9 +741,7 @@ std::string APyFloat::latex() const
 
 APyFloat APyFloat::operator+(APyFloat y) const
 {
-    std::uint8_t res_exp_bits, res_man_bits;
-    exp_t res_bias;
-
+    APyFloat res, x;
     // Handle the zero cases, other special cases are further down
     if (same_type_as(y)) {
         if (is_zero()) {
@@ -752,30 +750,14 @@ APyFloat APyFloat::operator+(APyFloat y) const
         if (y.is_zero()) {
             return *this;
         }
-        res_exp_bits = exp_bits;
-        res_man_bits = man_bits;
-        res_bias = bias;
-    } else {
-        res_exp_bits = std::max(exp_bits, y.exp_bits);
-        res_man_bits = std::max(man_bits, y.man_bits);
-        res_bias = APyFloat::ieee_bias(res_exp_bits);
-        if (is_zero()) {
-            return y.cast_no_quant(res_exp_bits, res_man_bits, res_bias);
+        res = APyFloat(exp_bits, man_bits, bias);
+        // Handle the NaN cases, other special cases are further down
+        if (((sign != y.sign) && (is_inf() && y.is_inf())) || is_nan() || y.is_nan()) {
+            return res.construct_nan();
         }
-        if (y.is_zero()) {
-            return cast_no_quant(res_exp_bits, res_man_bits, res_bias);
-        }
-    }
-    APyFloat res(res_exp_bits, res_man_bits, res_bias);
 
-    // Handle the NaN cases, other special cases are further down
-    if (((sign != y.sign) && (is_inf() && y.is_inf())) || is_nan() || y.is_nan()) {
-        return res.construct_nan();
-    }
-
-    APyFloat x = *this;
-    // Compute sign and swap operands if need to make sure |x| >= |y|
-    if (x.same_type_as(y)) {
+        x = *this;
+        // Compute sign and swap operands if need to make sure |x| >= |y|
         if (x.exp < y.exp || (x.exp == y.exp && x.man < y.man)) {
             res.sign = y.sign;
             std::swap(x, y);
@@ -786,6 +768,22 @@ APyFloat APyFloat::operator+(APyFloat y) const
             res.sign = x.sign;
         }
     } else {
+        std::uint8_t res_exp_bits = std::max(exp_bits, y.exp_bits);
+        std::uint8_t res_man_bits = std::max(man_bits, y.man_bits);
+        exp_t res_bias = APyFloat::ieee_bias(res_exp_bits);
+        if (is_zero()) {
+            return y.cast_no_quant(res_exp_bits, res_man_bits, res_bias);
+        }
+        if (y.is_zero()) {
+            return cast_no_quant(res_exp_bits, res_man_bits, res_bias);
+        }
+        res = APyFloat(res_exp_bits, res_man_bits, res_bias);
+        // Handle the NaN cases, other special cases are further down
+        if (((sign != y.sign) && (is_inf() && y.is_inf())) || is_nan() || y.is_nan()) {
+            return res.construct_nan();
+        }
+
+        x = *this;
         const APyFloat xabs = x.abs();
         const APyFloat yabs = y.abs();
 
@@ -799,6 +797,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
             res.sign = x.sign;
         }
     }
+
     // Handle other special cases
     if ((x.is_inf() || y.is_inf())) {
         return res.construct_inf();
@@ -885,6 +884,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
         // Use longer format for intermediate result and quantize mantissa
         res.exp = new_exp;
         res.man = new_man;
+        std::uint8_t res_man_bits = res.man_bits;
         res.man_bits = res.man_bits + 3 + c; // +3 is from the added guard bits
         res.cast_mantissa(
             res_man_bits, quantization
