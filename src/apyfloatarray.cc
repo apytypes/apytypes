@@ -91,6 +91,145 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
         ));
     }
 
+    const auto quantization = get_quantization_mode();
+    // +5 to give room for leading one, carry, and 3 guard bits
+    const unsigned int max_man_bits = man_bits + 5;
+    if (same_type_as(rhs) && (max_man_bits <= _MAN_T_SIZE_BITS)
+        && (quantization != QuantizationMode::STOCH_WEIGHTED)) {
+        // Result array
+        APyFloatArray res(shape, exp_bits, man_bits);
+
+        APyFloatData x, y;
+        const exp_t res_max_exponent = ((1ULL << exp_bits) - 1);
+        bool res_sign;
+        const man_t res_leading_one = (1ULL << man_bits) << 3;
+        const man_t carry_res_leading_one = res_leading_one << 1;
+        const std::uint8_t tmp_man_bits
+            = man_bits + 4; // 4 for leading 1 and 3 guard bits
+        const auto shift_normalization_const = _MAN_T_SIZE_BITS - tmp_man_bits;
+        const auto man_mask = carry_res_leading_one - 1;
+        // Perform operation
+        for (std::size_t i = 0; i < data.size(); i++) {
+            x = data[i];
+            y = rhs.data[i];
+            if (x.exp == 0 && x.man == 0) {
+                res.data[i] = y;
+                continue;
+            }
+            if (y.exp == 0 && y.man == 0) {
+                res.data[i] = x;
+                continue;
+            }
+            // Handle the NaN cases, other special cases are further down
+            if ((x.sign != y.sign && x.exp == res_max_exponent && x.man == 0
+                 && y.exp == res_max_exponent && y.man == 0)
+                || (x.exp == res_max_exponent && x.man != 0)
+                || (y.exp == res_max_exponent && y.man != 0)) {
+                // Set to NaN
+                res.data[i] = { x.sign,
+                                static_cast<exp_t>(res_max_exponent),
+                                static_cast<man_t>(1) };
+                continue;
+            }
+
+            // Compute sign and swap operands if need to make sure |x| >= |y|
+            if (x.exp < y.exp || (x.exp == y.exp && x.man < y.man)) {
+                res_sign = y.sign;
+                std::swap(x, y);
+            } else {
+                if (x.sign != y.sign && x.exp == y.exp && x.man == y.man) {
+                    // Set to zero
+                    res.data[i]
+                        = { true, static_cast<exp_t>(0), static_cast<man_t>(0) };
+                    continue;
+                }
+                res_sign = x.sign;
+            }
+
+            // Handle other special cases
+            if (((x.exp == res_max_exponent && x.man == 0)
+                 || (y.exp == res_max_exponent && y.man == 0))) {
+                // Inf
+                res.data[i] = { x.sign,
+                                static_cast<exp_t>(res_max_exponent),
+                                static_cast<man_t>(0) };
+                continue;
+            }
+
+            // Tentative exponent
+            std::int64_t new_exp = x.exp;
+
+            // Conditionally add leading one's, also add room for guard bits
+            man_t mx = ((x.exp != 0 && x.exp != res_max_exponent) ? res_leading_one : 0)
+                | (x.man << 3);
+            man_t my = ((y.exp != 0 && y.exp != res_max_exponent) ? res_leading_one : 0)
+                | (y.man << 3);
+
+            // Align mantissas based on exponent difference
+            const unsigned exp_delta = x.exp - y.exp;
+
+            // Align mantissa based on difference in exponent
+            man_t highY;
+            if (exp_delta <= 3) {
+                highY = my >> exp_delta;
+            } else if (exp_delta >= max_man_bits) {
+                highY = (my >> max_man_bits) | 1;
+            } else {
+                highY = (my >> std::min(max_man_bits, exp_delta))
+                    | ((my << (_MAN_T_SIZE_BITS - exp_delta)) != 0);
+            }
+
+            // Perform addition / subtraction
+            man_t new_man = (x.sign == y.sign) ? mx + highY : mx - highY;
+
+            // Check for carry and cancellation
+            if (new_man & carry_res_leading_one) {
+                // Carry
+                new_exp++;
+            } else if (new_man & res_leading_one) {
+                // Align mantissa to carry option
+                new_man <<= 1;
+            } else {
+                // Cancellation or addition with subnormals
+                // Mantissa should be shifted until 1.xx is obtained or new_exp equals 0
+                const unsigned int man_leading_zeros = leading_zeros(new_man);
+                const unsigned int normalizing_shift
+                    = man_leading_zeros - shift_normalization_const;
+
+                if (new_exp > normalizing_shift) {
+                    new_man <<= normalizing_shift + 1;
+                    new_exp -= normalizing_shift;
+                } else {
+                    // The result will be a subnormal
+                    new_man <<= new_exp;
+                    new_exp = 0;
+                }
+            }
+
+            // Check for overflow.
+            // This is also checked in 'cast_mantissa' so this should probably be
+            // re-written
+            if (new_exp >= res_max_exponent) {
+                // Inf
+                res.data[i] = { x.sign,
+                                static_cast<exp_t>(res_max_exponent),
+                                static_cast<man_t>(0) };
+                continue;
+            }
+
+            new_man &= man_mask;
+
+            // Use longer format for intermediate result and quantize mantissa
+            APyFloat res_scalar(
+                res_sign, new_exp, new_man, exp_bits, tmp_man_bits, bias
+            );
+            res_scalar.cast_mantissa(
+                man_bits, quantization
+            ); // The exponent is also updated here if needed
+            res.data[i] = res_scalar.get_data();
+        }
+        return res;
+    }
     // Calculate new format
     APyFloatArray res(
         shape, std::max(exp_bits, rhs.exp_bits), std::max(man_bits, rhs.man_bits)
@@ -689,6 +828,18 @@ bool APyFloatArray::is_identical(const APyFloatArray& other) const
 
     return same_spec
         && std::equal(data.begin(), data.end(), other.data.begin(), other.data.end());
+}
+
+APY_INLINE bool APyFloatArray::same_type_as(APyFloatArray other) const
+{
+    return man_bits == other.man_bits && exp_bits == other.exp_bits
+        && bias == other.bias;
+}
+
+APY_INLINE bool APyFloatArray::same_type_as(APyFloat other) const
+{
+    return man_bits == other.get_man_bits() && exp_bits == other.get_exp_bits()
+        && bias == other.get_bias();
 }
 
 APyFloatArray APyFloatArray::from_double(

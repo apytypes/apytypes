@@ -71,6 +71,9 @@ public:
      */
     bool is_identical(const APyFloatArray& other) const;
 
+    APY_INLINE bool same_type_as(APyFloatArray other) const;
+    APY_INLINE bool same_type_as(APyFloat other) const;
+
     //! Convert to a NumPy array
     nanobind::ndarray<nanobind::numpy, double> to_numpy() const;
 
