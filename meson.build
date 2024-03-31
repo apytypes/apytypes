@@ -53,6 +53,7 @@ py3.extension_module(
         'src/apyfixedarray_iterator.cc',
         'src/apyfixedarray_wrapper.cc',
         'src/apyfloat.cc',
+        'src/apyfloat_util.cc',
         'src/apyfloat_wrapper.cc',
         'src/apyfloatarray.cc',
         'src/apyfloatarray_iterator.cc',

@@ -51,6 +51,54 @@ def test_array_add():
     assert (a + b).is_identical(ans)
     assert (b + a).is_identical(ans)
 
+    a = APyFloatArray.from_float(
+        [
+            [0.0, float("nan"), float("inf"), 25.0, 255.0],
+            [-float("inf"), 2.0**127, 2.0**-130, 2.0**127, float("inf")],
+        ],
+        exp_bits=8,
+        man_bits=8,
+    )
+    b = APyFloatArray.from_float(
+        [
+            [6, 2.5, 7.5, -24.0, -3],
+            [-4.0, 2.0**127 - 2.0**118, 2.0**-132, 1, -float("inf")],
+        ],
+        exp_bits=8,
+        man_bits=8,
+    )
+    ans = APyFloatArray.from_float(
+        [
+            [6.0, float("nan"), float("inf"), 1.0, 252],
+            [
+                -float("inf"),
+                float("inf"),
+                2.0**-130 + 2.0**-132,
+                2.0**127,
+                float("nan"),
+            ],
+        ],
+        exp_bits=8,
+        man_bits=8,
+    )
+    assert (a + b).is_identical(ans)
+    # Different sign of final nan
+    ans = APyFloatArray.from_float(
+        [
+            [6.0, float("nan"), float("inf"), 1.0, 252],
+            [
+                -float("inf"),
+                float("inf"),
+                2.0**-130 + 2.0**-132,
+                2.0**127,
+                -float("nan"),
+            ],
+        ],
+        exp_bits=8,
+        man_bits=8,
+    )
+    assert (b + a).is_identical(ans)
+
 
 @pytest.mark.float_array
 def test_array_add_scalar():
