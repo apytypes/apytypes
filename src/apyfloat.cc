@@ -770,18 +770,15 @@ APyFloat APyFloat::operator+(APyFloat y) const
     const APyFloat xabs = x.abs();
     const APyFloat yabs = y.abs();
 
-    if (xabs > yabs) {
-        res.sign = x.sign;
-    } else if (xabs < yabs) {
+    if (xabs < yabs) {
         res.sign = y.sign;
         std::swap(x, y);
     } else {
-        if (x.sign != y.sign) {
+        if (x.sign != y.sign && xabs == yabs) {
             return res.construct_zero(true);
         }
-        res.sign = x.sign | y.sign;
+        res.sign = x.sign;
     }
-
     // Handle other special cases
     if ((x.is_inf() || y.is_inf())) {
         return res.construct_inf();
@@ -798,8 +795,8 @@ APyFloat APyFloat::operator+(APyFloat y) const
     const unsigned exp_delta = x.true_exp() - y.true_exp();
 
     // +5 to give room for leading one, carry, and 3 guard bits
-    // A tighter bound would sometimes be sufficient, but checking that is probably not
-    // worth it
+    // A tighter bound would sometimes be sufficient, but checking that is probably
+    // not worth it
     const unsigned int max_man_bits = res.man_bits + 5;
     if ((max_man_bits <= _MAN_T_SIZE_BITS)
         && (quantization != QuantizationMode::STOCH_WEIGHTED)) {
@@ -886,8 +883,8 @@ APyFloat APyFloat::operator+(APyFloat y) const
         new_exp++;
         apy_res >>= 1;
     } else {
-        // Check for cancellation by counting the number of left shifts needed to make
-        // fx>=1.0
+        // Check for cancellation by counting the number of left shifts needed to
+        // make fx>=1.0
         const int leading_zeros = leading_zeros_apyfixed(apy_res);
         if (leading_zeros) {
             if (new_exp > leading_zeros) {
@@ -1106,7 +1103,8 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
 
     auto apy_man_res = apy_mx / apy_my;
 
-    // The result from the division will be in (1/2, 2) so normalization may be required
+    // The result from the division will be in (1/2, 2) so normalization may be
+    // required
     if (!apy_man_res.positive_greater_than_equal_pow2(0)) {
         apy_man_res <<= 1;
         new_exp--;
