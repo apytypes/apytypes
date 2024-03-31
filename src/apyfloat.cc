@@ -741,31 +741,39 @@ std::string APyFloat::latex() const
 
 APyFloat APyFloat::operator+(APyFloat y) const
 {
-    const auto res_exp_bits = std::max(exp_bits, y.exp_bits);
-    const auto res_man_bits = std::max(man_bits, y.man_bits);
-
-    const auto quantization = get_quantization_mode();
-
-    const auto res_bias = APyFloat::ieee_bias(res_exp_bits);
+    std::uint8_t res_exp_bits, res_man_bits;
+    exp_t res_bias;
 
     // Handle the zero cases, other special cases are further down
-    if (is_zero()) {
-        return y.cast_no_quant(res_exp_bits, res_man_bits, res_bias);
+    if (same_type_as(y)) {
+        if (is_zero()) {
+            return y;
+        }
+        if (y.is_zero()) {
+            return *this;
+        }
+        res_exp_bits = exp_bits;
+        res_man_bits = man_bits;
+        res_bias = bias;
+    } else {
+        res_exp_bits = std::max(exp_bits, y.exp_bits);
+        res_man_bits = std::max(man_bits, y.man_bits);
+        res_bias = APyFloat::ieee_bias(res_exp_bits);
+        if (is_zero()) {
+            return y.cast_no_quant(res_exp_bits, res_man_bits, res_bias);
+        }
+        if (y.is_zero()) {
+            return cast_no_quant(res_exp_bits, res_man_bits, res_bias);
+        }
     }
-
-    if (y.is_zero()) {
-        return cast_no_quant(res_exp_bits, res_man_bits, res_bias);
-    }
-
-    APyFloat x = *this;
     APyFloat res(res_exp_bits, res_man_bits, res_bias);
 
     // Handle the NaN cases, other special cases are further down
-    if (x.is_nan() || y.is_nan()
-        || ((x.is_inf() && y.is_inf()) && (x.sign != y.sign))) {
+    if (((sign != y.sign) && (is_inf() && y.is_inf())) || is_nan() || y.is_nan()) {
         return res.construct_nan();
     }
 
+    APyFloat x = *this;
     // Compute sign and swap operands if need to make sure |x| >= |y|
     if (x.same_type_as(y)) {
         if (x.exp < y.exp || (x.exp == y.exp && x.man < y.man)) {
@@ -796,6 +804,8 @@ APyFloat APyFloat::operator+(APyFloat y) const
         return res.construct_inf();
     }
 
+    const auto quantization = get_quantization_mode();
+
     // Tentative exponent
     std::int64_t new_exp = x.true_exp() + res.bias;
 
@@ -823,16 +833,15 @@ APyFloat APyFloat::operator+(APyFloat y) const
         }
 
         // Align mantissa based on difference in exponent
-        man_t highY = my >> std::min(max_man_bits, exp_delta);
-        man_t lowY {}; // Used as sticky bit
+        man_t highY;
         if (exp_delta <= 3) {
-            lowY = 0;
+            highY = my >> exp_delta;
         } else if (exp_delta >= max_man_bits) {
-            lowY = 1;
+            highY = (my >> max_man_bits) | 1;
         } else {
-            lowY = (my << (_MAN_T_SIZE_BITS - exp_delta)) != 0;
+            highY = (my >> std::min(max_man_bits, exp_delta))
+                | ((my << (_MAN_T_SIZE_BITS - exp_delta)) != 0);
         }
-        highY |= lowY;
 
         // Perform addition / subtraction
         man_t new_man = (x.sign == y.sign) ? mx + highY : mx - highY;
@@ -866,7 +875,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
         }
 
         // Check for overflow.
-        // This is also checked in '_cast' so this should probably be re-written
+        // This is also checked in 'cast_mantissa' so this should probably be re-written
         if (new_exp >= res.max_exponent()) {
             return res.construct_inf();
         }
