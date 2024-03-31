@@ -5,6 +5,7 @@
 namespace nb = nanobind;
 
 #include "apyfloat.h"
+#include "apyfloat_util.h"
 #include "apyfloatarray.h"
 #include "ieee754.h"
 #include "python_util.h"
@@ -102,7 +103,8 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
         APyFloatData x, y;
         const exp_t res_max_exponent = ((1ULL << exp_bits) - 1);
         bool res_sign;
-        const man_t res_leading_one = (1ULL << man_bits) << 3;
+        const man_t final_res_leading_one = (1ULL << man_bits);
+        const man_t res_leading_one = final_res_leading_one << 3;
         const man_t carry_res_leading_one = res_leading_one << 1;
         const std::uint8_t tmp_man_bits
             = man_bits + 4; // 4 for leading 1 and 3 guard bits
@@ -112,6 +114,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
         for (std::size_t i = 0; i < data.size(); i++) {
             x = data[i];
             y = rhs.data[i];
+            // Handle zero cases
             if (x.exp == 0 && x.man == 0) {
                 res.data[i] = y;
                 continue;
@@ -120,18 +123,38 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
                 res.data[i] = x;
                 continue;
             }
-            // Handle the NaN cases, other special cases are further down
-            if ((x.sign != y.sign && x.exp == res_max_exponent && x.man == 0
-                 && y.exp == res_max_exponent && y.man == 0)
-                || (x.exp == res_max_exponent && x.man != 0)
-                || (y.exp == res_max_exponent && y.man != 0)) {
-                // Set to NaN
-                res.data[i] = { x.sign,
-                                static_cast<exp_t>(res_max_exponent),
-                                static_cast<man_t>(1) };
-                continue;
-            }
+            bool x_is_max_exponent = x.exp == res_max_exponent;
+            bool y_is_max_exponent = y.exp == res_max_exponent;
 
+            // Handle the NaN and inf cases
+            if (x_is_max_exponent || y_is_max_exponent) {
+                if ((x_is_max_exponent && x.man != 0)
+                    || (y_is_max_exponent && y.man != 0)
+                    || (x_is_max_exponent && y_is_max_exponent && x.sign != y.sign)) {
+                    // Set to NaN
+                    res.data[i] = { x.sign,
+                                    static_cast<exp_t>(res_max_exponent),
+                                    static_cast<man_t>(1) };
+                    continue;
+                }
+
+                // Handle inf cases
+                if (x_is_max_exponent && x.man == 0) {
+                    // Set to inf
+                    res.data[i] = { x.sign,
+                                    static_cast<exp_t>(res_max_exponent),
+                                    static_cast<man_t>(0) };
+                    continue;
+                }
+
+                if (y_is_max_exponent && y.man == 0) {
+                    // Set to inf
+                    res.data[i] = { y.sign,
+                                    static_cast<exp_t>(res_max_exponent),
+                                    static_cast<man_t>(0) };
+                    continue;
+                }
+            }
             // Compute sign and swap operands if need to make sure |x| >= |y|
             if (x.exp < y.exp || (x.exp == y.exp && x.man < y.man)) {
                 res_sign = y.sign;
@@ -146,24 +169,13 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
                 res_sign = x.sign;
             }
 
-            // Handle other special cases
-            if (((x.exp == res_max_exponent && x.man == 0)
-                 || (y.exp == res_max_exponent && y.man == 0))) {
-                // Inf
-                res.data[i] = { x.sign,
-                                static_cast<exp_t>(res_max_exponent),
-                                static_cast<man_t>(0) };
-                continue;
-            }
-
             // Tentative exponent
             std::int64_t new_exp = x.exp;
 
             // Conditionally add leading one's, also add room for guard bits
-            man_t mx = ((x.exp != 0 && x.exp != res_max_exponent) ? res_leading_one : 0)
-                | (x.man << 3);
-            man_t my = ((y.exp != 0 && y.exp != res_max_exponent) ? res_leading_one : 0)
-                | (y.man << 3);
+            // Note that exp can never be res_max_exponent here
+            man_t mx = ((x.exp != 0) ? res_leading_one : 0) | (x.man << 3);
+            man_t my = ((y.exp != 0) ? res_leading_one : 0) | (y.man << 3);
 
             // Align mantissas based on exponent difference
             const unsigned exp_delta = x.exp - y.exp;
@@ -175,8 +187,8 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
             } else if (exp_delta >= max_man_bits) {
                 highY = (my >> max_man_bits) | 1;
             } else {
-                highY = (my >> std::min(max_man_bits, exp_delta))
-                    | ((my << (_MAN_T_SIZE_BITS - exp_delta)) != 0);
+                highY
+                    = (my >> exp_delta) | ((my << (_MAN_T_SIZE_BITS - exp_delta)) != 0);
             }
 
             // Perform addition / subtraction
@@ -187,7 +199,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
                 // Carry
                 new_exp++;
             } else if (new_man & res_leading_one) {
-                // Align mantissa to carry option
+                // Align mantissa to carry case
                 new_man <<= 1;
             } else {
                 // Cancellation or addition with subnormals
@@ -201,32 +213,30 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
                     new_exp -= normalizing_shift;
                 } else {
                     // The result will be a subnormal
-                    new_man <<= new_exp;
+                    new_man <<= new_exp + 1;
                     new_exp = 0;
                 }
             }
 
-            // Check for overflow.
-            // This is also checked in 'cast_mantissa' so this should probably be
-            // re-written
+            new_man &= man_mask;
+
+            man_t res_man = quantize_mantissa(new_man, 4, res_sign, quantization);
+            if (res_man & final_res_leading_one) {
+                ++new_exp;
+                res_man = 0;
+            }
+
+            // Check for overflow
             if (new_exp >= res_max_exponent) {
                 // Inf
                 res.data[i] = { x.sign,
                                 static_cast<exp_t>(res_max_exponent),
                                 static_cast<man_t>(0) };
-                continue;
+            } else {
+                res.data[i] = { res_sign,
+                                static_cast<exp_t>(new_exp),
+                                static_cast<man_t>(res_man) };
             }
-
-            new_man &= man_mask;
-
-            // Use longer format for intermediate result and quantize mantissa
-            APyFloat res_scalar(
-                res_sign, new_exp, new_man, exp_bits, tmp_man_bits, bias
-            );
-            res_scalar.cast_mantissa(
-                man_bits, quantization
-            ); // The exponent is also updated here if needed
-            res.data[i] = res_scalar.get_data();
         }
         return res;
     }

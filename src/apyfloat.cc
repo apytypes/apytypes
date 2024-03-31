@@ -9,6 +9,7 @@ namespace nb = nanobind;
 
 #include "apyfixed.h"
 #include "apyfloat.h"
+#include "apyfloat_util.h"
 #include "apytypes_util.h"
 #include "python_util.h"
 
@@ -273,67 +274,7 @@ void APyFloat::cast_mantissa(std::uint8_t new_man_bits, QuantizationMode quantiz
         return;
     }
 
-    // Quantization needed. Initial value for mantissa
-    man_t new_man = man >> man_bits_delta;
-
-    // Calculate quantization bit
-    man_t G, // Guard (bit after LSB)
-        T,   // Sticky bit, logical OR of all the bits after the guard bit
-        B;   // Quantization bit to add to LSB
-
-    G = (man >> (man_bits_delta - 1)) & 1;
-    T = (man & ((1ULL << (man_bits_delta - 1)) - 1)) != 0;
-
-    switch (quantization) {
-    case QuantizationMode::RND_CONV: // TIES_TO_EVEN
-        // Using 'new_man' directly here is fine since G can only be '0' or '1',
-        // thus calculating the LSB of 'new_man' is not needed.
-        B = G & (new_man | T);
-        break;
-    case QuantizationMode::TRN_INF: // TO_POSITIVE
-        B = sign ? 0 : (G | T);
-        break;
-    case QuantizationMode::TRN: // TO_NEGATIVE
-        B = sign ? (G | T) : 0;
-        break;
-    case QuantizationMode::TRN_ZERO: // TO_ZERO
-        B = 0;
-        break;
-    case QuantizationMode::TRN_MAG: // Does not really make sense for floating-point
-        B = sign;
-        break;
-    case QuantizationMode::RND_INF: // TIES_TO_AWAY
-        B = G;
-        break;
-    case QuantizationMode::RND_ZERO: // TIES_TO_ZERO
-        B = G & T;
-        break;
-    case QuantizationMode::JAM:
-        B = 0;
-        new_man |= 1;
-        break;
-    case QuantizationMode::JAM_UNBIASED:
-        B = 0;
-        if (T || G) {
-            new_man |= 1;
-        }
-        break;
-    case QuantizationMode::STOCH_WEIGHTED: {
-        const man_t trailing_bits = man & ((1ULL << man_bits_delta) - 1);
-        const man_t weight = random_number() & ((1ULL << man_bits_delta) - 1);
-        // Since the weight won't be greater than the discarded bits,
-        // this will never round an already exact number.
-        B = (trailing_bits + weight) >> man_bits_delta;
-    } break;
-    case QuantizationMode::STOCH_EQUAL:
-        // Only perform the quantization if the result is not exact.
-        B = (G || T) ? random_number() & 1 : 0;
-        break;
-    default:
-        throw NotImplementedException("APyFloat: Unknown quantization mode.");
-    }
-
-    new_man += B;
+    man_t new_man = quantize_mantissa(man, man_bits_delta, sign, quantization);
     if (new_man & leading_one()) {
         ++exp;
         new_man = 0;
@@ -838,8 +779,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
         } else if (exp_delta >= max_man_bits) {
             highY = (my >> max_man_bits) | 1;
         } else {
-            highY = (my >> std::min(max_man_bits, exp_delta))
-                | ((my << (_MAN_T_SIZE_BITS - exp_delta)) != 0);
+            highY = (my >> exp_delta) | ((my << (_MAN_T_SIZE_BITS - exp_delta)) != 0);
         }
 
         // Perform addition / subtraction
