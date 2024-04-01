@@ -813,12 +813,6 @@ APyFloat APyFloat::operator+(APyFloat y) const
             }
         }
 
-        // Check for overflow.
-        // This is also checked in 'cast_mantissa' so this should probably be re-written
-        if (new_exp >= res.max_exponent()) {
-            return res.construct_inf();
-        }
-
         new_man &= (res_leading_one << c) - 1;
 
         // Use longer format for intermediate result and quantize mantissa

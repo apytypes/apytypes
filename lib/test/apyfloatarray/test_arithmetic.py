@@ -114,6 +114,42 @@ def test_array_add_scalar():
     assert (z810 + a).is_identical(a)
     assert (z98 + a).is_identical(APyFloatArray.from_float([12, 23, 34], 9, 10))
 
+    a = APyFloatArray.from_float([12, -23, 34], 8, 8)
+    b = APyFloat.from_float(8, 8, 8)
+    ans = APyFloatArray.from_float([20, -15, 42], 8, 8)
+    assert (a + b).is_identical(ans)
+    assert (b + a).is_identical(ans)
+
+    a = APyFloatArray.from_float(
+        [2.0**127, 1 + 2**-8, 2, 0, float("inf"), float("nan"), 1, 2**-7, 1 - 2**-7],
+        8,
+        8,
+    )
+    b = APyFloat.from_float(-1, 8, 8)
+    ans = APyFloatArray.from_float(
+        [2.0**127, 2**-8, 1, -1, float("inf"), float("nan"), 0, 2**-7 - 1, -(2**-7)],
+        8,
+        8,
+    )
+    assert (a + b).is_identical(ans)
+    assert (b + a).is_identical(ans)
+
+    a = APyFloatArray.from_float([12, -23, 34], 8, 8)
+    b = APyFloat.from_float(float("nan"), 8, 8)
+    ans = APyFloatArray.from_float([float("nan"), -float("nan"), float("nan")], 8, 8)
+    assert (a + b).is_identical(ans)
+    assert (b + a).is_identical(ans)
+
+    a = APyFloatArray.from_float(
+        [-float("inf"), float("nan"), float("inf"), 0, 5], 8, 8
+    )
+    b = APyFloat.from_float(float("inf"), 8, 8)
+    ans = APyFloatArray.from_float(
+        [-float("nan"), float("nan"), float("inf"), float("inf"), float("inf")], 8, 8
+    )
+    assert (a + b).is_identical(ans)
+    assert (b + a).is_identical(ans)
+
 
 @pytest.mark.float_array
 def test_array_add_int_float():
