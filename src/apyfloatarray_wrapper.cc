@@ -297,7 +297,7 @@ void bind_float_array(nb::module_& m)
         .def("to_numpy", &APyFloatArray::to_numpy, R"pbdoc(
             Return array as a :class:`numpy.ndarray` of :class:`numpy.float64`.
 
-            The returned array has the same `shape` and stored value as `self`. This
+            The returned array has the same `shape` and values as `self`. This
             method rounds away from infinity on ties.
 
             Returns

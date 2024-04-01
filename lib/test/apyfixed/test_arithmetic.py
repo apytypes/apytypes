@@ -294,125 +294,125 @@ def test_issue_198():
 
 def test_leading_zeros():
     # Less than full-limb test
-    assert APyFixed(0x000, bits=12, int_bits=0).leading_zeros() == 12
-    assert APyFixed(0x001, bits=12, int_bits=0).leading_zeros() == 11
-    assert APyFixed(0x002, bits=12, int_bits=0).leading_zeros() == 10
-    assert APyFixed(0x003, bits=12, int_bits=0).leading_zeros() == 10
-    assert APyFixed(0x004, bits=12, int_bits=0).leading_zeros() == 9
-    assert APyFixed(0x7FF, bits=12, int_bits=0).leading_zeros() == 1
-    assert APyFixed(0x800, bits=12, int_bits=0).leading_zeros() == 0
-    assert APyFixed(0xFFF, bits=12, int_bits=0).leading_zeros() == 0
+    assert APyFixed(0x000, bits=12, int_bits=0).leading_zeros == 12
+    assert APyFixed(0x001, bits=12, int_bits=0).leading_zeros == 11
+    assert APyFixed(0x002, bits=12, int_bits=0).leading_zeros == 10
+    assert APyFixed(0x003, bits=12, int_bits=0).leading_zeros == 10
+    assert APyFixed(0x004, bits=12, int_bits=0).leading_zeros == 9
+    assert APyFixed(0x7FF, bits=12, int_bits=0).leading_zeros == 1
+    assert APyFixed(0x800, bits=12, int_bits=0).leading_zeros == 0
+    assert APyFixed(0xFFF, bits=12, int_bits=0).leading_zeros == 0
 
     # Full-limb test
-    assert APyFixed(0x0000000000000000, bits=64, int_bits=0).leading_zeros() == 64
-    assert APyFixed(0x0000000000000001, bits=64, int_bits=0).leading_zeros() == 63
-    assert APyFixed(0x0000000000000002, bits=64, int_bits=0).leading_zeros() == 62
-    assert APyFixed(0x0000000000000003, bits=64, int_bits=0).leading_zeros() == 62
-    assert APyFixed(0x0000000000000004, bits=64, int_bits=0).leading_zeros() == 61
-    assert APyFixed(0x1000000000000000, bits=64, int_bits=0).leading_zeros() == 3
-    assert APyFixed(0x2000000000000000, bits=64, int_bits=0).leading_zeros() == 2
-    assert APyFixed(0x4000000000000000, bits=64, int_bits=0).leading_zeros() == 1
-    assert APyFixed(0x8000000000000000, bits=64, int_bits=0).leading_zeros() == 0
-    assert APyFixed(0xFFFFFFFFFFFFFFFF, bits=64, int_bits=0).leading_zeros() == 0
+    assert APyFixed(0x0000000000000000, bits=64, int_bits=0).leading_zeros == 64
+    assert APyFixed(0x0000000000000001, bits=64, int_bits=0).leading_zeros == 63
+    assert APyFixed(0x0000000000000002, bits=64, int_bits=0).leading_zeros == 62
+    assert APyFixed(0x0000000000000003, bits=64, int_bits=0).leading_zeros == 62
+    assert APyFixed(0x0000000000000004, bits=64, int_bits=0).leading_zeros == 61
+    assert APyFixed(0x1000000000000000, bits=64, int_bits=0).leading_zeros == 3
+    assert APyFixed(0x2000000000000000, bits=64, int_bits=0).leading_zeros == 2
+    assert APyFixed(0x4000000000000000, bits=64, int_bits=0).leading_zeros == 1
+    assert APyFixed(0x8000000000000000, bits=64, int_bits=0).leading_zeros == 0
+    assert APyFixed(0xFFFFFFFFFFFFFFFF, bits=64, int_bits=0).leading_zeros == 0
 
     # Two-limb test
-    assert APyFixed(0x000000000000000000, bits=72, int_bits=0).leading_zeros() == 72
-    assert APyFixed(0x000000000000000001, bits=72, int_bits=0).leading_zeros() == 71
-    assert APyFixed(0x000000000000000002, bits=72, int_bits=0).leading_zeros() == 70
-    assert APyFixed(0x000000000000000003, bits=72, int_bits=0).leading_zeros() == 70
-    assert APyFixed(0x000000000000000004, bits=72, int_bits=0).leading_zeros() == 69
-    assert APyFixed(0x00FFFFFFFFFFFFFFFF, bits=72, int_bits=0).leading_zeros() == 8
-    assert APyFixed(0x01FFFFFFFFFFFFFFFF, bits=72, int_bits=0).leading_zeros() == 7
-    assert APyFixed(0xFFFFFFFFFFFFFFFFFF, bits=72, int_bits=0).leading_zeros() == 0
+    assert APyFixed(0x000000000000000000, bits=72, int_bits=0).leading_zeros == 72
+    assert APyFixed(0x000000000000000001, bits=72, int_bits=0).leading_zeros == 71
+    assert APyFixed(0x000000000000000002, bits=72, int_bits=0).leading_zeros == 70
+    assert APyFixed(0x000000000000000003, bits=72, int_bits=0).leading_zeros == 70
+    assert APyFixed(0x000000000000000004, bits=72, int_bits=0).leading_zeros == 69
+    assert APyFixed(0x00FFFFFFFFFFFFFFFF, bits=72, int_bits=0).leading_zeros == 8
+    assert APyFixed(0x01FFFFFFFFFFFFFFFF, bits=72, int_bits=0).leading_zeros == 7
+    assert APyFixed(0xFFFFFFFFFFFFFFFFFF, bits=72, int_bits=0).leading_zeros == 0
 
 
 def test_leading_signs():
     # Less than full-limb test
-    assert APyFixed(0xFF0, bits=12, int_bits=0).leading_signs() == 8
-    assert APyFixed(0x000, bits=12, int_bits=0).leading_signs() == 12
-    assert APyFixed(0x001, bits=12, int_bits=0).leading_signs() == 11
-    assert APyFixed(0x002, bits=12, int_bits=0).leading_signs() == 10
-    assert APyFixed(0x003, bits=12, int_bits=0).leading_signs() == 10
-    assert APyFixed(0x004, bits=12, int_bits=0).leading_signs() == 9
-    assert APyFixed(0x7FF, bits=12, int_bits=0).leading_signs() == 1
-    assert APyFixed(0x800, bits=12, int_bits=0).leading_signs() == 1
-    assert APyFixed(0xFF0, bits=12, int_bits=0).leading_signs() == 8
-    assert APyFixed(0xFFF, bits=12, int_bits=0).leading_signs() == 12
+    assert APyFixed(0xFF0, bits=12, int_bits=0).leading_signs == 8
+    assert APyFixed(0x000, bits=12, int_bits=0).leading_signs == 12
+    assert APyFixed(0x001, bits=12, int_bits=0).leading_signs == 11
+    assert APyFixed(0x002, bits=12, int_bits=0).leading_signs == 10
+    assert APyFixed(0x003, bits=12, int_bits=0).leading_signs == 10
+    assert APyFixed(0x004, bits=12, int_bits=0).leading_signs == 9
+    assert APyFixed(0x7FF, bits=12, int_bits=0).leading_signs == 1
+    assert APyFixed(0x800, bits=12, int_bits=0).leading_signs == 1
+    assert APyFixed(0xFF0, bits=12, int_bits=0).leading_signs == 8
+    assert APyFixed(0xFFF, bits=12, int_bits=0).leading_signs == 12
 
     # Full-limb test
-    assert APyFixed(0x0000000000000000, bits=64, int_bits=0).leading_signs() == 64
-    assert APyFixed(0x0000000000000001, bits=64, int_bits=0).leading_signs() == 63
-    assert APyFixed(0x0000000000000002, bits=64, int_bits=0).leading_signs() == 62
-    assert APyFixed(0x0000000000000003, bits=64, int_bits=0).leading_signs() == 62
-    assert APyFixed(0x0000000000000004, bits=64, int_bits=0).leading_signs() == 61
-    assert APyFixed(0x1000000000000000, bits=64, int_bits=0).leading_signs() == 3
-    assert APyFixed(0x2000000000000000, bits=64, int_bits=0).leading_signs() == 2
-    assert APyFixed(0x4000000000000000, bits=64, int_bits=0).leading_signs() == 1
-    assert APyFixed(0x8000000000000000, bits=64, int_bits=0).leading_signs() == 1
-    assert APyFixed(0xC000000000000000, bits=64, int_bits=0).leading_signs() == 2
-    assert APyFixed(0xFFFFFFFFFFFFFF00, bits=64, int_bits=0).leading_signs() == 56
-    assert APyFixed(0xFFFFFFFFFFFFFFFF, bits=64, int_bits=0).leading_signs() == 64
+    assert APyFixed(0x0000000000000000, bits=64, int_bits=0).leading_signs == 64
+    assert APyFixed(0x0000000000000001, bits=64, int_bits=0).leading_signs == 63
+    assert APyFixed(0x0000000000000002, bits=64, int_bits=0).leading_signs == 62
+    assert APyFixed(0x0000000000000003, bits=64, int_bits=0).leading_signs == 62
+    assert APyFixed(0x0000000000000004, bits=64, int_bits=0).leading_signs == 61
+    assert APyFixed(0x1000000000000000, bits=64, int_bits=0).leading_signs == 3
+    assert APyFixed(0x2000000000000000, bits=64, int_bits=0).leading_signs == 2
+    assert APyFixed(0x4000000000000000, bits=64, int_bits=0).leading_signs == 1
+    assert APyFixed(0x8000000000000000, bits=64, int_bits=0).leading_signs == 1
+    assert APyFixed(0xC000000000000000, bits=64, int_bits=0).leading_signs == 2
+    assert APyFixed(0xFFFFFFFFFFFFFF00, bits=64, int_bits=0).leading_signs == 56
+    assert APyFixed(0xFFFFFFFFFFFFFFFF, bits=64, int_bits=0).leading_signs == 64
 
     # Two-limb test
-    assert APyFixed(0x000000000000000000, bits=72, int_bits=0).leading_signs() == 72
-    assert APyFixed(0x000000000000000001, bits=72, int_bits=0).leading_signs() == 71
-    assert APyFixed(0x000000000000000002, bits=72, int_bits=0).leading_signs() == 70
-    assert APyFixed(0x000000000000000003, bits=72, int_bits=0).leading_signs() == 70
-    assert APyFixed(0x000000000000000004, bits=72, int_bits=0).leading_signs() == 69
-    assert APyFixed(0x00FFFFFFFFFFFFFFFF, bits=72, int_bits=0).leading_signs() == 8
-    assert APyFixed(0x01FFFFFFFFFFFFFFFF, bits=72, int_bits=0).leading_signs() == 7
-    assert APyFixed(0xFFFFFFFFFFFFFFFFFF, bits=72, int_bits=0).leading_signs() == 72
-    assert APyFixed(0xFFFFFFFFFFFFFFFFF0, bits=72, int_bits=0).leading_signs() == 68
+    assert APyFixed(0x000000000000000000, bits=72, int_bits=0).leading_signs == 72
+    assert APyFixed(0x000000000000000001, bits=72, int_bits=0).leading_signs == 71
+    assert APyFixed(0x000000000000000002, bits=72, int_bits=0).leading_signs == 70
+    assert APyFixed(0x000000000000000003, bits=72, int_bits=0).leading_signs == 70
+    assert APyFixed(0x000000000000000004, bits=72, int_bits=0).leading_signs == 69
+    assert APyFixed(0x00FFFFFFFFFFFFFFFF, bits=72, int_bits=0).leading_signs == 8
+    assert APyFixed(0x01FFFFFFFFFFFFFFFF, bits=72, int_bits=0).leading_signs == 7
+    assert APyFixed(0xFFFFFFFFFFFFFFFFFF, bits=72, int_bits=0).leading_signs == 72
+    assert APyFixed(0xFFFFFFFFFFFFFFFFF0, bits=72, int_bits=0).leading_signs == 68
 
 
 def test_leading_fractional_zeros():
 
     # Code coverage test
-    assert APyFixed(0x00, bits=8, frac_bits=0).leading_fractional_zeros() == 0
+    assert APyFixed(0x00, bits=8, frac_bits=0).leading_fractional_zeros == 0
 
     # Less than full-limb test
-    assert APyFixed(0xFF_F, bits=12, frac_bits=4).leading_fractional_zeros() == 0
-    assert APyFixed(0xFF_7, bits=12, frac_bits=4).leading_fractional_zeros() == 1
-    assert APyFixed(0x00_3, bits=12, frac_bits=4).leading_fractional_zeros() == 2
-    assert APyFixed(0x0F_1, bits=12, frac_bits=4).leading_fractional_zeros() == 3
-    assert APyFixed(0xFF_0, bits=12, frac_bits=4).leading_fractional_zeros() == 4
-    assert APyFixed(0x00_0, bits=12, frac_bits=4).leading_fractional_zeros() == 4
+    assert APyFixed(0xFF_F, bits=12, frac_bits=4).leading_fractional_zeros == 0
+    assert APyFixed(0xFF_7, bits=12, frac_bits=4).leading_fractional_zeros == 1
+    assert APyFixed(0x00_3, bits=12, frac_bits=4).leading_fractional_zeros == 2
+    assert APyFixed(0x0F_1, bits=12, frac_bits=4).leading_fractional_zeros == 3
+    assert APyFixed(0xFF_0, bits=12, frac_bits=4).leading_fractional_zeros == 4
+    assert APyFixed(0x00_0, bits=12, frac_bits=4).leading_fractional_zeros == 4
 
     # Multi-limb boundary test
     assert (
-        APyFixed(0x0_0000000000000000, bits=68, frac_bits=64).leading_fractional_zeros()
+        APyFixed(0x0_0000000000000000, bits=68, frac_bits=64).leading_fractional_zeros
         == 64
     )
     assert (
-        APyFixed(0x1_0000000000000001, bits=68, frac_bits=64).leading_fractional_zeros()
+        APyFixed(0x1_0000000000000001, bits=68, frac_bits=64).leading_fractional_zeros
         == 63
     )
     assert (
-        APyFixed(0x2_0000000000000002, bits=68, frac_bits=64).leading_fractional_zeros()
+        APyFixed(0x2_0000000000000002, bits=68, frac_bits=64).leading_fractional_zeros
         == 62
     )
     assert (
-        APyFixed(0x3_0000000000000003, bits=68, frac_bits=64).leading_fractional_zeros()
+        APyFixed(0x3_0000000000000003, bits=68, frac_bits=64).leading_fractional_zeros
         == 62
     )
     assert (
-        APyFixed(0x0_1FFFFFFFFFFFFFFF, bits=68, frac_bits=64).leading_fractional_zeros()
+        APyFixed(0x0_1FFFFFFFFFFFFFFF, bits=68, frac_bits=64).leading_fractional_zeros
         == 3
     )
     assert (
-        APyFixed(0x1_200FF00FF00FF00F, bits=68, frac_bits=64).leading_fractional_zeros()
+        APyFixed(0x1_200FF00FF00FF00F, bits=68, frac_bits=64).leading_fractional_zeros
         == 2
     )
     assert (
-        APyFixed(0x1_300FF00FF00FF00F, bits=68, frac_bits=64).leading_fractional_zeros()
+        APyFixed(0x1_300FF00FF00FF00F, bits=68, frac_bits=64).leading_fractional_zeros
         == 2
     )
     assert (
-        APyFixed(0xF_400FF00FF00FF00F, bits=68, frac_bits=64).leading_fractional_zeros()
+        APyFixed(0xF_400FF00FF00FF00F, bits=68, frac_bits=64).leading_fractional_zeros
         == 1
     )
     assert (
-        APyFixed(0xE_800FF00FF00FF00F, bits=68, frac_bits=64).leading_fractional_zeros()
+        APyFixed(0xE_800FF00FF00FF00F, bits=68, frac_bits=64).leading_fractional_zeros
         == 0
     )
 
@@ -421,5 +421,5 @@ def test_issue_224():
     # Smoke test for faulty number of leading zeros
     # https://github.com/apytypes/apytypes/issues/224
     x = APyFixed(39726548548812, bits=55, int_bits=3)  # approx 0.008821065777556036
-    assert x.leading_zeros() == 9
-    assert x.leading_fractional_zeros() == 6
+    assert x.leading_zeros == 9
+    assert x.leading_fractional_zeros == 6

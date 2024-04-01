@@ -93,3 +93,6 @@ def setup(app):
 
 # Do not expect each method to have a separate page
 numpydoc_class_members_toctree = False
+
+# Do not add full paths
+python_use_unqualified_type_names = True
