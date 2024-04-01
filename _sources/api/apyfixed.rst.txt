@@ -2,5 +2,15 @@
 ============
 
 .. autoclass:: apytypes.APyFixed
-   :members:
-   :undoc-members:
+
+   .. automethod:: __init__
+
+   .. automethod:: from_float
+
+   .. automethod:: from_str
+
+   .. automethod:: cast
+
+   .. automethod:: to_bits
+
+   .. automethod:: is_identical
