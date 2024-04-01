@@ -52,7 +52,6 @@ benchmarks = {
     "Matrix addition": ("c = a + b", CREATE_TWO_ARRAYS),
     "Matrix abs": ("c = abs(a)", CREATE_TWO_ARRAYS),
     "Matrix negation": ("c = -a", CREATE_TWO_ARRAYS),
-    "Matrix transpose": ("c = a.T", CREATE_TWO_ARRAYS),
     "Elementwise matrix multiplication": ("c = a * b", CREATE_TWO_ARRAYS),
     "Matrix multiplication": ("c = a @ b", CREATE_TWO_ARRAYS),
 }

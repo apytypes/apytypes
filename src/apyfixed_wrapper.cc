@@ -130,9 +130,9 @@ void bind_fixed(nb::module_& m)
             Test if two fixed-point objects are exactly identical.
 
             Two `APyFixed` objects are considered exactly identical if, and only if,
-            they store the same fixed-point value, and have the exact same
+            they represent the same fixed-point value, and have the exact same
             bit-specification (*bits*, *int_bits*, and *frac_bits*). This is a more
-            restrictive test than ``==``,  that only tests equality of the stored
+            restrictive test than ``==``,  that only tests equality of the numerical
             fixed-point value.
 
             Parameters
@@ -160,7 +160,7 @@ void bind_fixed(nb::module_& m)
                 assert not(fx_a.is_identical(fx_b))
             )pbdoc")
         .def_prop_ro("is_zero", &APyFixed::is_zero, R"pbdoc(
-            True if the stored value equals zero, false otherwise.
+            True if the value equals zero, false otherwise.
             )pbdoc")
         .def(
             "resize",
@@ -232,44 +232,44 @@ void bind_fixed(nb::module_& m)
         )
         .def_prop_ro("_vector_size", &APyFixed::vector_size)
         .def("_repr_latex_", &APyFixed::latex)
-        .def(
+        .def_prop_ro(
             "leading_ones",
             &APyFixed::leading_ones,
             R"pbdoc(
-            Retrieve the number of leading ones.
+            Number of leading ones.
 
             Returns
             -------
             :class:`int`
             )pbdoc"
         )
-        .def(
+        .def_prop_ro(
             "leading_zeros",
             &APyFixed::leading_zeros,
             R"pbdoc(
-            Retrieve the number of leading zeros.
+            Number of leading zeros.
 
             Returns
             -------
             :class:`int`
             )pbdoc"
         )
-        .def(
+        .def_prop_ro(
             "leading_fractional_zeros",
             &APyFixed::leading_fractional_zeros,
             R"pbdoc(
-            Retrieve the number of leading zeros after the binary fixed-point.
+            Number of leading zeros after the binary fixed-point.
 
             Returns
             -------
             :class:`int`
             )pbdoc"
         )
-        .def(
+        .def_prop_ro(
             "leading_signs",
             &APyFixed::leading_signs,
             R"pbdoc(
-            Retrieve the number of leading signs.
+            Number of leading signs.
 
             Returns
             -------
