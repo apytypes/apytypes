@@ -50,3 +50,8 @@ def test_latex():
         == r"$\left(1 + \frac{2}{2^{2}}\right)2^{1-1} = 6\times 2^{-2} = 1.5$"
     )
     assert APyFloat.from_float(float("NaN"), 2, 2)._repr_latex_() == r"$\textrm{NaN}$"
+
+    assert (
+        APyFloat.from_float(800, 6, 8)._repr_latex_()
+        == r"$\left(1 + \frac{144}{2^{8}}\right)2^{40-31} = 400\times 2^{1} = 800$"
+    )

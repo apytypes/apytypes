@@ -798,10 +798,14 @@ std::string APyFixed::repr() const
 
 std::string APyFixed::latex() const
 {
-    std::string str = (this->is_negative() ? "$-" : "$");
-    str += "\\frac{" + bit_pattern_to_string_dec() + "}{2^{"
-        + std::to_string(frac_bits()) + "}} = " + fmt::format("{:g}", float(*this))
-        + "$";
+    std::string str;
+    if (this->is_negative()) {
+        str = "$-\\frac{" + bit_pattern_to_string_dec() + "}{2^{"
+            + std::to_string(frac_bits()) + "}} = " + to_string_dec() + "$";
+    } else {
+        str = "$\\frac{" + bit_pattern_to_string_dec() + "}{2^{"
+            + std::to_string(frac_bits()) + "}} = " + to_string_dec() + "$";
+    }
 
     return str;
 }

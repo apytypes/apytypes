@@ -665,14 +665,34 @@ std::string APyFloat::latex() const
     if (sign) {
         str += "-";
     }
-    str += std::to_string((is_normal() ? ((1ULL << man_bits) + man) : man))
-        + "\\times 2^{"
-        + std::to_string(
-               static_cast<std::int64_t>(exp) - bias - man_bits + 1 - is_normal()
-        )
-        + "} = " + fmt::format("{:g}", float(*this)) + "$";
+    str += std::to_string(true_man()) + "\\times 2^{"
+        + std::to_string(true_exp() - man_bits) + "} = " + to_fixed().to_string_dec()
+        + "$";
 
     return str;
+}
+
+APyFixed APyFloat::to_fixed() const
+{
+    if (is_nan()) {
+        throw nb::value_error("Cannot convert NaN to APyFixed.");
+    } else if (is_inf()) {
+        throw nb::value_error("Cannot convert inf to APyFixed.");
+    } else if (is_zero()) {
+        return APyFixed(1, 1, std::vector<mp_limb_t>({ 0 }));
+    }
+
+    APyFixed res(man_bits + 2, 2, std::vector<mp_limb_t>({ true_man() }));
+    if (sign) {
+        res = -res;
+    }
+    exp_t exponent = true_exp();
+    if (exponent <= 0) {
+        res >>= -exponent;
+    } else {
+        res <<= exponent;
+    }
+    return res;
 }
 
 /* ******************************************************************************
