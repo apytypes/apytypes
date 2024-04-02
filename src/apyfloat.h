@@ -298,6 +298,7 @@ private:
 
     APY_INLINE int leading_zeros_apyfixed(APyFixed fx) const;
     APY_INLINE bool same_type_as(APyFloat other) const;
+    APyFixed to_fixed() const;
 };
 
 #endif // _APYFLOAT_H

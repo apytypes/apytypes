@@ -158,7 +158,7 @@
 
 /*!
  * Convert a limb vector (`std::vector<mp_limb_t>`) to a Python long integer object
- * wrapped in a `Pybind11::int_`.
+ * wrapped in a `nanobind::int_`.
  */
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE nanobind::int_ python_limb_vec_to_long(
@@ -247,7 +247,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     }
     PyLong_SetSignAndDigitCount(result, sign, python_digits);
 
-    // Do a PyBind11 steal of the object and return
+    // Do a nanobind steal of the object and return
     return nanobind::steal<nanobind::int_>((PyObject*)result);
 }
 

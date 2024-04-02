@@ -39,3 +39,8 @@ def test_latex():
         APyFixed.from_float(-1.25, int_bits=2, frac_bits=4)._repr_latex_()
         == r"$-\frac{44}{2^{4}} = -1.25$"
     )
+
+    assert (
+        APyFixed.from_float(1.25, int_bits=2, frac_bits=4)._repr_latex_()
+        == r"$\frac{20}{2^{4}} = 1.25$"
+    )
