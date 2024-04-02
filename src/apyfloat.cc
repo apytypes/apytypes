@@ -241,6 +241,8 @@ APyFloat APyFloat::_cast(
 
     if (new_exp <= -static_cast<std::int64_t>(res.man_bits)) { // Exponent too small
         return res.construct_zero();
+    } else if (new_exp >= res.max_exponent()) {
+        return res.construct_inf();
     }
 
     // Check if the number will be converted to a subnormal
@@ -1131,7 +1133,7 @@ APyFloat APyFloat::pow(const APyFloat& x, const APyFloat& y)
 APyFloat APyFloat::pown(const APyFloat& x, int n)
 {
     // Handling of special cases based on the 754-2019 standard
-    if (x.is_nan()) {
+    if (x.is_nan() || (n == 1)) {
         return x;
     }
 

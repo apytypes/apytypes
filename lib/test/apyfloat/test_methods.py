@@ -115,6 +115,28 @@ def test_from_float():
     b.is_identical(a)
 
 
+def test_cast_special_cases():
+    # Only change the number of exponent bits
+    a = APyFloat(1, 15, 4, 5, 3)
+    a = a.cast(4, 3)
+    assert a.is_identical(APyFloat(1, 7, 4, 4, 3))
+
+    # Only change the number of mantissa bits
+    a = APyFloat(1, 15, 4, 5, 3)
+    a = a.cast(4, 2)
+    assert a.is_identical(APyFloat(1, 7, 2, 4, 2))
+
+    # Cast from big number becomes infinity
+    a = APyFloat(1, 30, 4, 5, 3)
+    a = a.cast(4, 3)
+    assert a.is_identical(APyFloat(1, 15, 0, 4, 3))
+
+    # Cast from small number becomes zero (for TIES_EVEN)
+    a = APyFloat(0, 0, 1, 5, 3)
+    a = a.cast(4, 3)
+    assert a.is_identical(APyFloat(0, 0, 0, 4, 3))
+
+
 def test_casting_special_numbers():
     # Cast -0 to -0
     a = APyFloat(1, 0, 0, 5, 7)

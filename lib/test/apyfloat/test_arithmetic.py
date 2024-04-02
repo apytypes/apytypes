@@ -656,6 +656,10 @@ def test_power():
     a = APyFloat(sign=0, exp=511, man=1116352409, exp_bits=10, man_bits=32)
     (a**3).is_identical(APyFloat(sign=0, exp=512, man=0, exp_bits=10, man_bits=32))
 
+    # Test identity
+    a = APyFloat(sign=0, exp=511, man=1116352409, exp_bits=10, man_bits=32)
+    (a**1).is_identical(a)
+
 
 @pytest.mark.float_pow
 def test_power_subnormal_res():
@@ -707,6 +711,21 @@ def test_long_power():
     res = APyFloat.from_float(1.75, 11, 52) ** 3
     assert res.is_identical(APyFloat.from_float(1.75**3, 11, 52))
 
+    # Test overflow
+    # Related to https://github.com/apytypes/apytypes/issues/288
+    res = APyFloat(0, 30, 1, 5, 60) ** 2
+    assert res.is_identical(APyFloat(0, 31, 0, 5, 60))
+    res = APyFloat(0, 30, 1, 5, 60) ** 1000
+    assert res.is_identical(APyFloat(0, 31, 0, 5, 60))
+
+    # Test underflow
+    res = APyFloat(1, 0, 1, 5, 60) ** 1000
+    assert res.is_identical(APyFloat(0, 0, 0, 5, 60))
+
+    # Test identity
+    a = APyFloat(sign=0, exp=511, man=1116352409, exp_bits=20, man_bits=61)
+    (a**1).is_identical(a)
+
 
 @pytest.mark.xfail()
 @pytest.mark.float_pow
@@ -726,16 +745,18 @@ def test_negative_long_power():
 @pytest.mark.float_pow
 def test_power_overflow():
     """Test that the power function can overflow to infinity."""
-    assert float(APyFloat(0, 0b11110, 1, 5, 2) ** 2) == float("inf")
-    assert float(APyFloat(1, 0b11110, 1, 5, 2) ** 3) == float("-inf")
+    res = APyFloat(0, 30, 1, 5, 4) ** 2
+    assert res.is_identical(APyFloat(0, 31, 0, 5, 4))
+    # Related to https://github.com/apytypes/apytypes/issues/288
+    res = APyFloat(1, 30, 1, 5, 4) ** 1001
+    assert res.is_identical(APyFloat(1, 31, 0, 5, 4))
 
 
 @pytest.mark.float_pow
 def test_power_underflow():
     """Test that the power function can underflow to zero."""
-    res = APyFloat(0, 1, 1, 5, 2) ** 3
-    assert res.is_identical(APyFloat(0, 0, 0, 5, 2))
-
+    res = APyFloat(1, 1, 1, 5, 2) ** 3
+    assert res.is_identical(APyFloat(1, 0, 0, 5, 2))
     res = APyFloat(0, 0, 1, 5, 2) ** 2
     assert res.is_identical(APyFloat(0, 0, 0, 5, 2))
 
