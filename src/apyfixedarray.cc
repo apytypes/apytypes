@@ -270,18 +270,14 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
         // performance.
         auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
         auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
-        // simd::limb_vector_shift_sub(
-        //     _data.begin(),
-        //     rhs._data.begin(),
-        //     result._data.begin(),
-        //     lhs_shift_amount,
-        //     rhs_shift_amount,
-        //     result._data.size()
-        //);
-        for (std::size_t i = 0; i < result._data.size(); i++) {
-            result._data[i]
-                = (_data[i] << lhs_shift_amount) - (rhs._data[i] << rhs_shift_amount);
-        }
+        simd::limb_vector_shift_sub(
+            _data.begin(),
+            rhs._data.begin(),
+            result._data.begin(),
+            lhs_shift_amount,
+            rhs_shift_amount,
+            result._data.size()
+        );
         return result;
     }
 

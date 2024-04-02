@@ -47,7 +47,35 @@ namespace HWY_NAMESPACE { // required: unique per target
         }
     }
 
-    HWY_ATTR std::string _apytypes_simd_version_str()
+    HWY_ATTR void _hwy_limb_vector_shift_sub(
+        mp_limb_t* HWY_RESTRICT dst,
+        const mp_limb_t* HWY_RESTRICT src1,
+        const mp_limb_t* HWY_RESTRICT src2,
+        unsigned src1_shift_amount,
+        unsigned src2_shift_amount,
+        std::size_t size
+    )
+    {
+        constexpr const hn::ScalableTag<mp_limb_t> d;
+
+        // Loop counter
+        std::size_t i = 0;
+
+        // Full SIMD lane Shift-and-Add
+        for (; i < (size - size % hn::Lanes(d)); i += hn::Lanes(d)) {
+            const auto v1 = hn::ShiftLeftSame(hn::Load(d, src1 + i), src1_shift_amount);
+            const auto v2 = hn::ShiftLeftSame(hn::Load(d, src2 + i), src2_shift_amount);
+            const auto res = hn::Sub(v1, v2);
+            hn::Store(res, d, dst + i);
+        }
+
+        // Remaining Shift-and-Adds
+        for (; i < size; i++) {
+            dst[i] = (src1[i] << src1_shift_amount) - (src2[i] << src2_shift_amount);
+        }
+    }
+
+    HWY_ATTR std::string _hwy_simd_version_str()
     {
         constexpr const hn::ScalableTag<mp_limb_t> d;
         return fmt::format(
@@ -71,13 +99,13 @@ namespace HWY_NAMESPACE { // required: unique per target
 
 namespace simd {
 
+HWY_EXPORT(_hwy_simd_version_str);
 HWY_EXPORT(_hwy_limb_vector_shift_add);
-
-HWY_EXPORT(_apytypes_simd_version_str);
+HWY_EXPORT(_hwy_limb_vector_shift_sub);
 
 std::string get_simd_version_str()
 {
-    return HWY_DYNAMIC_DISPATCH(_apytypes_simd_version_str)();
+    return HWY_DYNAMIC_DISPATCH(_hwy_simd_version_str)();
 }
 
 void limb_vector_shift_add(
@@ -90,6 +118,25 @@ void limb_vector_shift_add(
 )
 {
     return HWY_DYNAMIC_DISPATCH(_hwy_limb_vector_shift_add)(
+        &*dst_begin,
+        &*src1_begin,
+        &*src2_begin,
+        src1_shift_amount,
+        src2_shift_amount,
+        size
+    );
+}
+
+void limb_vector_shift_sub(
+    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
+    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src2_begin,
+    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::size_t src1_shift_amount,
+    std::size_t src2_shift_amount,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_limb_vector_shift_sub)(
         &*dst_begin,
         &*src1_begin,
         &*src2_begin,
