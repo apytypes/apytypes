@@ -2,9 +2,9 @@ Context handling
 ================
 
 .. autoclass:: apytypes.QuantizationContext
-   :members:
-   :undoc-members:
+
+   .. automethod:: __init__
 
 .. autoclass:: apytypes.AccumulatorContext
-   :members:
-   :undoc-members:
+
+   .. automethod:: __init__
