@@ -75,6 +75,32 @@ namespace HWY_NAMESPACE { // required: unique per target
         }
     }
 
+    HWY_ATTR void _hwy_limb_vector_mul(
+        mp_limb_t* HWY_RESTRICT dst,
+        const mp_limb_t* HWY_RESTRICT src1,
+        const mp_limb_t* HWY_RESTRICT src2,
+        std::size_t size
+    )
+    {
+        constexpr const hn::ScalableTag<mp_limb_t> d;
+
+        // Loop counter
+        std::size_t i = 0;
+
+        // Full SIMD lane Shift-and-Add
+        for (; i < (size - size % hn::Lanes(d)); i += hn::Lanes(d)) {
+            const auto v1 = hn::Load(d, src1 + i);
+            const auto v2 = hn::Load(d, src2 + i);
+            const auto res = hn::Mul(v1, v2);
+            hn::Store(res, d, dst + i);
+        }
+
+        // Remaining Shift-and-Adds
+        for (; i < size; i++) {
+            dst[i] = src1[i] * src2[i];
+        }
+    }
+
     HWY_ATTR std::string _hwy_simd_version_str()
     {
         constexpr const hn::ScalableTag<mp_limb_t> d;
@@ -102,6 +128,7 @@ namespace simd {
 HWY_EXPORT(_hwy_simd_version_str);
 HWY_EXPORT(_hwy_limb_vector_shift_add);
 HWY_EXPORT(_hwy_limb_vector_shift_sub);
+HWY_EXPORT(_hwy_limb_vector_mul);
 
 std::string get_simd_version_str()
 {
@@ -143,6 +170,18 @@ void limb_vector_shift_sub(
         src1_shift_amount,
         src2_shift_amount,
         size
+    );
+}
+
+void limb_vector_mul(
+    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
+    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src2_begin,
+    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_limb_vector_mul)(
+        &*dst_begin, &*src1_begin, &*src2_begin, size
     );
 }
 

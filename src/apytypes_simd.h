@@ -43,6 +43,17 @@ void limb_vector_shift_sub(
     std::size_t size
 );
 
+/*
+ * Perform signed multiplication of the the elements in `src1_begin` with `src2_begin`
+ * and store the result in `dst_begin`, for `size` number of elements
+ */
+void limb_vector_mul(
+    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
+    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src2_begin,
+    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::size_t size
+);
+
 };
 
 #endif

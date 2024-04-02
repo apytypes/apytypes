@@ -266,8 +266,6 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
     // Special case #1: Operands and results fit in single limb
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         APyFixedArray result(_shape, res_bits, res_int_bits);
-        // At most one must be shifted, but hope that this does not kill the
-        // performance.
         auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
         auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
         simd::limb_vector_shift_sub(
@@ -935,10 +933,9 @@ void APyFixedArray::_checked_hadamard_product(
 {
     std::size_t res_bits = _bits + rhs._bits;
     if (res_bits <= _LIMB_SIZE_BITS) {
-        // Native multiplication supported
-        for (std::size_t i = 0; i < _data.size(); i++) {
-            *(res_out + i) = _data[i] * rhs._data[i];
-        }
+        simd::limb_vector_mul(
+            _data.begin(), rhs._data.begin(), res_out, fold_shape(_shape)
+        );
     } else {
         // Perform multiplication for each element in the tensor. `mpn_mul` requires:
         // "The destination has to have space for `s1n` + `s2n` limbs, even if the
