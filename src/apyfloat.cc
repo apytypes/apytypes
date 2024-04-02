@@ -1164,24 +1164,37 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
     const int abs_n = std::abs(n);
 
     const int max_exp_bits = x.exp_bits + (count_trailing_bits(abs_n) + 1);
-    int extended_man_bits {};
-    const exp_t extended_bias = (1 << (max_exp_bits - 1)) - 1;
+    const exp_t extended_bias = APyFloat::ieee_bias(max_exp_bits);
+
+    int tmp_man_bits = x.man_bits;
 
     std::int64_t new_exp
         = (static_cast<std::int64_t>(x.exp) - x.bias) * n + extended_bias;
 
     std::uint64_t new_man = 0, mx = x.true_man();
 
+    const int x_is_normal = x.is_normal();
+    const int max_man_bits = abs_n * (x.man_bits + x_is_normal);
+
     // Check is done for 52 since std::pow uses double
-    if ((abs_n * (x.man_bits + x.is_normal()) + 1) <= 52) {
+    if (max_man_bits <= 52) {
         new_man = std::pow(mx, abs_n);
 
-        // Perform quantization
-        extended_man_bits = count_trailing_bits(new_man);
+        // Calculate carries from mantissa to perform normalization
+        const int man_width = bit_width(new_man);
+        const int num_bits_no_carry
+            = max_man_bits - abs_n + 1; // width if no carry was generated
+        const int carries = man_width - num_bits_no_carry;
+
+        // carries < 0 can occur with subnormal numbers
+        if (carries >= 0) {
+            new_exp += carries;
+            tmp_man_bits = man_width - x_is_normal;
+        }
 
         // If a leading one was added, mask it away
-        if (x.is_normal()) {
-            new_man &= (1ULL << extended_man_bits) - 1;
+        if (x_is_normal) {
+            new_man &= (1ULL << tmp_man_bits) - 1;
         }
     } else {
         const APyFixed apy_mx(2 + x.man_bits, 2, std::vector<mp_limb_t>({ mx }));
@@ -1209,16 +1222,10 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
         }
         apy_res <<= x.man_bits;
         new_man = (man_t)(apy_res).to_double();
-        extended_man_bits = x.man_bits;
     }
 
     return APyFloat(
-               new_sign,
-               new_exp,
-               new_man,
-               max_exp_bits,
-               extended_man_bits,
-               extended_bias
+               new_sign, new_exp, new_man, max_exp_bits, tmp_man_bits, extended_bias
     )
         ._cast(x.exp_bits, x.man_bits, x.bias, quantization);
 }
