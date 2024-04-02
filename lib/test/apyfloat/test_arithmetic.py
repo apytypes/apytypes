@@ -619,8 +619,23 @@ def test_long_div():
 
 # Power
 @pytest.mark.float_pow
+def test_issue_253():
+    # Smoke test for carry not being handled correctly in fast path
+    # https://github.com/apytypes/apytypes/issues/253
+    a = APyFloat(0, 510, 2**16 - 1, 10, 16)
+    res = a**2
+    ref = a * a
+    assert res.is_identical(ref)
+
+    # Test a larger normalization
+    a = APyFloat(0, 15, 3, 5, 2)
+    res = a**6
+    assert res.is_identical(APyFloat(sign=0, exp=19, man=3, exp_bits=5, man_bits=2))
+
+
+@pytest.mark.float_pow
 def test_power():
-    """Test the power function."""
+    """General tests of the power function."""
     assert APyFloat.from_float(4.5, 8, 10) ** 2 == APyFloat.from_float(4.5**2, 8, 10)
     assert APyFloat.from_float(-4.5, 8, 10) ** 3 == APyFloat.from_float(
         (-4.5) ** 3, 8, 10
@@ -628,18 +643,40 @@ def test_power():
     assert APyFloat.from_float(-8.125, 8, 10) ** 4 == APyFloat.from_float(
         (-8.125) ** 4, 8, 10
     )
-    # Sqrt(2) (triggers carry)
+    # 1/sqrt(2)
     a = APyFloat(sign=0, exp=510, man=27146, exp_bits=10, man_bits=16)
-    # Wrong
-    # (a**2).is_identical(APyFloat(sign=0, exp=510, man=0, exp_bits=10, man_bits=16))
+    (a**2).is_identical(APyFloat(sign=0, exp=510, man=0, exp_bits=10, man_bits=16))
     (a**4).is_identical(APyFloat(sign=0, exp=509, man=0, exp_bits=10, man_bits=16))
 
+    # sqrt(2)
     a = APyFloat(sign=0, exp=511, man=1865452045155277, exp_bits=10, man_bits=52)
     (a**2).is_identical(APyFloat(sign=0, exp=512, man=1, exp_bits=10, man_bits=52))
 
     # Cube root of three
     a = APyFloat(sign=0, exp=511, man=1116352409, exp_bits=10, man_bits=32)
     (a**3).is_identical(APyFloat(sign=0, exp=512, man=0, exp_bits=10, man_bits=32))
+
+
+@pytest.mark.float_pow
+def test_power_subnormal_res():
+    """Test that the result can become a subnormal number."""
+    a = APyFloat(0, 7, 0, 5, 2)  # 2**-8
+    res = a**2
+    assert res.is_identical(APyFloat(0, 0, 1, 5, 2))
+
+    # Same test but with many mantissa bits in relation to exponent bits
+    a = APyFloat(0, 7, 0, 5, 20)  # 2**-8
+    res = a**2
+    assert res.is_identical(APyFloat(0, 0, 1 << 18, 5, 20))
+
+    # Similar test but with long format
+    a = APyFloat(0, 486, 0, 11, 52)
+    res = a**2
+    assert res.is_identical(APyFloat(0, 0, 1, 11, 52))
+
+    a = APyFloat(0, 488, 0, 11, 52)
+    res = a**2
+    assert res.is_identical(APyFloat(0, 0, 16, 11, 52))
 
 
 @pytest.mark.xfail()
@@ -665,6 +702,10 @@ def test_long_power():
     assert APyFloat.from_float(-8.125, 11, 52) ** 4 == APyFloat.from_float(
         (-8.125) ** 4, 11, 52
     )
+
+    # Test carry
+    res = APyFloat.from_float(1.75, 11, 52) ** 3
+    assert res.is_identical(APyFloat.from_float(1.75**3, 11, 52))
 
 
 @pytest.mark.xfail()
@@ -692,7 +733,11 @@ def test_power_overflow():
 @pytest.mark.float_pow
 def test_power_underflow():
     """Test that the power function can underflow to zero."""
-    assert float(APyFloat(0, 1, 1, 5, 2) ** 3) == 0
+    res = APyFloat(0, 1, 1, 5, 2) ** 3
+    assert res.is_identical(APyFloat(0, 0, 0, 5, 2))
+
+    res = APyFloat(0, 0, 1, 5, 2) ** 2
+    assert res.is_identical(APyFloat(0, 0, 0, 5, 2))
 
 
 @pytest.mark.float_pow
