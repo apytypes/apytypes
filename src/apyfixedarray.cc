@@ -127,27 +127,16 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
     // Special case #1: Operands and results fit in single limb
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         APyFixedArray result(_shape, res_bits, res_int_bits);
-        if (frac_bits() == res_frac_bits) {
-            // Only shift right-hand size (`rhs`)
-            auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
-            simd::limb_vector_shift_add(
-                rhs._data.begin(),
-                _data.begin(),
-                result._data.begin(),
-                rhs_shift_amount,
-                result._data.size()
-            );
-        } else {
-            // Only shift left-hand side (`*this`)
-            auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
-            simd::limb_vector_shift_add(
-                _data.begin(),
-                rhs._data.begin(),
-                result._data.begin(),
-                lhs_shift_amount,
-                result._data.size()
-            );
-        }
+        auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
+        auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
+        simd::limb_vector_shift_add(
+            _data.begin(),
+            rhs._data.begin(),
+            result._data.begin(),
+            lhs_shift_amount,
+            rhs_shift_amount,
+            result._data.size()
+        );
         return result; // early exit
     }
 
@@ -281,6 +270,14 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
         // performance.
         auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
         auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
+        // simd::limb_vector_shift_sub(
+        //     _data.begin(),
+        //     rhs._data.begin(),
+        //     result._data.begin(),
+        //     lhs_shift_amount,
+        //     rhs_shift_amount,
+        //     result._data.size()
+        //);
         for (std::size_t i = 0; i < result._data.size(); i++) {
             result._data[i]
                 = (_data[i] << lhs_shift_amount) - (rhs._data[i] << rhs_shift_amount);

@@ -19,37 +19,37 @@ namespace HWY_NAMESPACE { // required: unique per target
     // Can skip hn:: prefixes if already inside hwy::HWY_NAMESPACE.
     namespace hn = hwy::HWY_NAMESPACE;
 
-    HWY_ATTR void _internal_limb_vector_simd_shift_add(
+    HWY_ATTR void _hwy_limb_vector_shift_add(
         mp_limb_t* HWY_RESTRICT dst,
         const mp_limb_t* HWY_RESTRICT src1,
         const mp_limb_t* HWY_RESTRICT src2,
         unsigned src1_shift_amount,
+        unsigned src2_shift_amount,
         std::size_t size
     )
     {
-        const hn::ScalableTag<mp_limb_t> d;
+        constexpr const hn::ScalableTag<mp_limb_t> d;
 
         // Loop counter
         std::size_t i = 0;
 
         // Full SIMD lane Shift-and-Add
         for (; i < (size - size % hn::Lanes(d)); i += hn::Lanes(d)) {
-            const auto v1 = hn::Load(d, src1 + i);
-            const auto v2 = hn::Load(d, src2 + i);
-            const auto v3 = hn::ShiftLeftSame(v1, src1_shift_amount);
-            const auto res = hn::Add(v3, v2);
+            const auto v1 = hn::ShiftLeftSame(hn::Load(d, src1 + i), src1_shift_amount);
+            const auto v2 = hn::ShiftLeftSame(hn::Load(d, src2 + i), src2_shift_amount);
+            const auto res = hn::Add(v1, v2);
             hn::Store(res, d, dst + i);
         }
 
         // Remaining Shift-and-Adds
         for (; i < size; i++) {
-            dst[i] = (src1[i] << src1_shift_amount) + src2[i];
+            dst[i] = (src1[i] << src1_shift_amount) + (src2[i] << src2_shift_amount);
         }
     }
 
     HWY_ATTR std::string _apytypes_simd_version_str()
     {
-        const hn::ScalableTag<mp_limb_t> d;
+        constexpr const hn::ScalableTag<mp_limb_t> d;
         return fmt::format(
             "APyTypes SIMD: {{ "
             "'SIMD Runtime Target': '{}', "
@@ -71,7 +71,7 @@ namespace HWY_NAMESPACE { // required: unique per target
 
 namespace simd {
 
-HWY_EXPORT(_internal_limb_vector_simd_shift_add);
+HWY_EXPORT(_hwy_limb_vector_shift_add);
 
 HWY_EXPORT(_apytypes_simd_version_str);
 
@@ -85,11 +85,17 @@ void limb_vector_shift_add(
     std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src2_begin,
     std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
     std::size_t src1_shift_amount,
+    std::size_t src2_shift_amount,
     std::size_t size
 )
 {
-    return HWY_DYNAMIC_DISPATCH(_internal_limb_vector_simd_shift_add)(
-        &*dst_begin, &*src1_begin, &*src2_begin, src1_shift_amount, size
+    return HWY_DYNAMIC_DISPATCH(_hwy_limb_vector_shift_add)(
+        &*dst_begin,
+        &*src1_begin,
+        &*src2_begin,
+        src1_shift_amount,
+        src2_shift_amount,
+        size
     );
 }
 
