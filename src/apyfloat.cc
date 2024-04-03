@@ -1178,9 +1178,8 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
     const int x_is_normal = x.is_normal();
     const int max_man_bits = abs_n * (x.man_bits + x_is_normal);
 
-    // Check is done for 52 since std::pow uses double
-    if (max_man_bits <= 52) {
-        new_man = std::pow(mx, abs_n);
+    if (max_man_bits <= _MAN_T_SIZE_BITS) {
+        new_man = ipow(mx, abs_n);
 
         // Calculate carries from mantissa to perform normalization
         const int man_width = bit_width(new_man);
