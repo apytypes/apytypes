@@ -30,8 +30,7 @@ jobs:
           cd docs
           python _plots/quantization.py
           python _plots/performancescale.py
-          cp quantization.png _static
-          cp performancescale.png _static
+          cp *.png _static
           cd ..
       # Remove all instances of APY_INLINE, except the define itself,
       # as it breaks doc generation
