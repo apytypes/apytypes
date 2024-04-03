@@ -1,6 +1,4 @@
-
 #include "apyfloat_util.h"
-#include "apytypes_common.h"
 
 /* Helper function */
 man_t quantize_mantissa(
@@ -70,4 +68,26 @@ man_t quantize_mantissa(
     }
     res_man += B;
     return res_man;
+}
+
+man_t ipow(man_t base, unsigned int n)
+{
+    // Solution from
+    // https://stackoverflow.com/questions/101439/the-most-efficient-way-to-implement-an-integer-based-power-function-powint-int
+    man_t result = 1;
+    for (;;) {
+        if (n & 1) {
+            result *= base;
+        }
+
+        n >>= 1;
+
+        if (!n) {
+            break;
+        }
+
+        base *= base;
+    }
+
+    return result;
 }
