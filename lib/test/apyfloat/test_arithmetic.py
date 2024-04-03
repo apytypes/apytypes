@@ -732,13 +732,14 @@ def test_negative_power():
 @pytest.mark.float_pow
 def test_long_power():
     """Test the power function with long format."""
-    assert APyFloat.from_float(4.5, 11, 52) ** 2 == APyFloat.from_float(4.5**2, 11, 52)
-    assert APyFloat.from_float(-4.5, 11, 52) ** 3 == APyFloat.from_float(
-        (-4.5) ** 3, 11, 52
-    )
-    assert APyFloat.from_float(-8.125, 11, 52) ** 4 == APyFloat.from_float(
-        (-8.125) ** 4, 11, 52
-    )
+    res = APyFloat.from_float(4.5, 11, 52) ** 2
+    assert res.is_identical(APyFloat.from_float(4.5**2, 11, 52))
+
+    res = APyFloat.from_float(-4.5, 11, 52) ** 3
+    assert res.is_identical(APyFloat.from_float((-4.5) ** 3, 11, 52))
+
+    res = APyFloat.from_float(-8.125, 11, 52) ** 4
+    assert res.is_identical(APyFloat.from_float((-8.125) ** 4, 11, 52))
 
     # Test carry
     res = APyFloat.from_float(1.75, 11, 52) ** 3
