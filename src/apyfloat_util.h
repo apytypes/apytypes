@@ -1,6 +1,7 @@
 #ifndef _APYFLOAT_UTIL_H
 #define _APYFLOAT_UTIL_H
 
+#include "apyfixed.h"
 #include "apytypes_common.h"
 
 man_t quantize_mantissa(
@@ -9,5 +10,8 @@ man_t quantize_mantissa(
 
 //! Fast integer power by squaring.
 man_t ipow(man_t base, unsigned int n);
+
+//! Fast integer power by squaring.
+APyFixed ipow_apyfixed(APyFixed base, unsigned int n);
 
 #endif // _APYFLOAT_UTIL_H

@@ -91,3 +91,32 @@ man_t ipow(man_t base, unsigned int n)
 
     return result;
 }
+
+static const APyFixed fx_one(2, 2, std::vector<mp_limb_t>({ 1 }));
+
+APyFixed ipow_apyfixed(APyFixed base, unsigned int n)
+{
+    // Early exit for one of the most common cases
+    if (n == 2) {
+        return base * base;
+    }
+    // Because how APyFloat::pown is written, we know n will be >= 2,
+    // this fact can probably be used to optimize this code further.
+
+    APyFixed result = fx_one;
+    for (;;) {
+        if (n & 1) {
+            result = result * base; // Until *= is implemented
+        }
+
+        n >>= 1;
+
+        if (!n) {
+            break;
+        }
+
+        base = base * base; // Until *= is implemented
+    }
+
+    return result;
+}
