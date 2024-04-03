@@ -633,6 +633,11 @@ def test_issue_253():
     assert res.is_identical(APyFloat(sign=0, exp=19, man=3, exp_bits=5, man_bits=2))
 
 
+def test_not_implemented_yet_power_apyfloat():
+    with pytest.raises(ValueError, match="Not implemented"):
+        APyFloat(0, 5, 4, 4, 7) ** APyFloat(0, 5, 4, 4, 7)
+
+
 @pytest.mark.float_pow
 def test_power():
     """General tests of the power function."""
@@ -710,6 +715,15 @@ def test_long_power():
     # Test carry
     res = APyFloat.from_float(1.75, 11, 52) ** 3
     assert res.is_identical(APyFloat.from_float(1.75**3, 11, 52))
+
+    # Test carry from quantization
+    res = (
+        APyFloat(
+            sign=0, exp=1023, man=(932726022577638 << 2) | 1, exp_bits=11, man_bits=53
+        )
+        ** 2
+    )
+    assert res.is_identical(APyFloat(0, 1024, 0, 11, 53))
 
     # Test overflow
     # Related to https://github.com/apytypes/apytypes/issues/288

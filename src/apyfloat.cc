@@ -1126,7 +1126,7 @@ APyFloat APyFloat::abs() const
 APyFloat APyFloat::pow(const APyFloat& x, const APyFloat& y)
 {
     throw NotImplementedException(
-        "APyFloat: Power to another APyFloat has not yet been implemented."
+        "Not implemented: APyFloat to the power of another APyFloat."
     );
 }
 
