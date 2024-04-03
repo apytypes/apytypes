@@ -240,11 +240,7 @@
 </li>
           <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.__init__">(apytypes.APyFloatArray method)</a>
 </li>
-          <li><a href="api/quantizationoverflow.html#apytypes.OverflowMode.__init__">(apytypes.OverflowMode method)</a>
-</li>
           <li><a href="api/context.html#apytypes.QuantizationContext.__init__">(apytypes.QuantizationContext method)</a>
-</li>
-          <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.__init__">(apytypes.QuantizationMode method)</a>
 </li>
         </ul></li>
     </ul></td>
@@ -699,11 +695,13 @@
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv48bcd_mul2RNSt6vectorINSt7uint8_tEEE">bcd_mul2 (C++ function)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apytypes_util.html#_CPPv414bcds_to_stringKNSt6vectorI9mp_limb_tEE">bcds_to_string (C++ function)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E9bit_widthNSt6size_tE8INT_TYPE">bit_width (C++ function)</a>
+</li>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.bits">bits (apytypes.APyFixed property)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv418bits_from_optionalNSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">bits_from_optional (C++ function)</a>
 </li>
@@ -811,6 +809,8 @@
   <h2>F</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.frac_bits">frac_bits (apytypes.APyFixed property)</a>
+</li>
         <li><a href="api/apyfloat.html#apytypes.APyFloat.from_bits">from_bits() (apytypes.APyFloat method)</a>
 </li>
         <li><a href="api/apyfixed.html#apytypes.APyFixed.from_float">from_float() (apytypes.APyFixed method)</a>
@@ -859,6 +859,8 @@
   <h2>I</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.int_bits">int_bits (apytypes.APyFixed property)</a>
+</li>
         <li><a href="api/apyfixed.html#apytypes.APyFixed.is_identical">is_identical() (apytypes.APyFixed method)</a>
 
         <ul>
@@ -872,6 +874,8 @@
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apytypes_util.html#_CPPv431is_valid_decimal_numeric_stringRKNSt6stringE">is_valid_decimal_numeric_string (C++ function)</a>
+</li>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.is_zero">is_zero (apytypes.APyFixed property)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -895,10 +899,22 @@
   <h2>L</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E12leading_onesNSt6size_tE8INT_TYPE">leading_ones (C++ function)</a>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.leading_fractional_zeros">leading_fractional_zeros (apytypes.APyFixed property)</a>
 </li>
-        <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E13leading_zerosNSt6size_tE8INT_TYPE">leading_zeros (C++ function)</a>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.leading_ones">leading_ones (apytypes.APyFixed property)</a>
+
+        <ul>
+          <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E12leading_onesNSt6size_tE8INT_TYPE">(C++ function)</a>
 </li>
+        </ul></li>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.leading_signs">leading_signs (apytypes.APyFixed property)</a>
+</li>
+        <li><a href="api/apyfixed.html#apytypes.APyFixed.leading_zeros">leading_zeros (apytypes.APyFixed property)</a>
+
+        <ul>
+          <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E13leading_zerosNSt6size_tE8INT_TYPE">(C++ function)</a>
+</li>
+        </ul></li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4I00E15limb_vector_absv25RANDOM_ACCESS_ITERATOR_IN25RANDOM_ACCESS_ITERATOR_IN26RANDOM_ACCESS_ITERATOR_OUT">limb_vector_abs (C++ function)</a>, <a href="cpp_api/apytypes_util.html#_CPPv4I0E15limb_vector_absNSt6vectorI9mp_limb_tEE22RANDOM_ACCESS_ITERATOR22RANDOM_ACCESS_ITERATOR">[1]</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv420limb_vector_add_pow2RNSt6vectorI9mp_limb_tEEj">limb_vector_add_pow2 (C++ function)</a>, <a href="cpp_api/apytypes_util.html#_CPPv4I0E20limb_vector_add_pow29mp_limb_t22RANDOM_ACCESS_ITERATOR22RANDOM_ACCESS_ITERATORj">[1]</a>
@@ -907,12 +923,12 @@
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E20limb_vector_gte_pow2b22RANDOM_ACCESS_ITERATOR22RANDOM_ACCESS_ITERATORj">limb_vector_gte_pow2 (C++ function)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E23limb_vector_is_negativeb22RANDOM_ACCESS_ITERATOR22RANDOM_ACCESS_ITERATOR">limb_vector_is_negative (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E24limb_vector_leading_onesNSt6size_tE22RANDOM_ACCESS_ITERATOR22RANDOM_ACCESS_ITERATOR">limb_vector_leading_ones (C++ function)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E25limb_vector_leading_zerosNSt6size_tE22RANDOM_ACCESS_ITERATOR22RANDOM_ACCESS_ITERATOR">limb_vector_leading_zeros (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv415limb_vector_lslRNSt6vectorI9mp_limb_tEEj">limb_vector_lsl (C++ function)</a>, <a href="cpp_api/apytypes_util.html#_CPPv4I0E15limb_vector_lslv22RANDOM_ACCESS_ITERATOR22RANDOM_ACCESS_ITERATORj">[1]</a>
@@ -1131,17 +1147,13 @@
 </li>
         <li><a href="api/quantizationoverflow.html#apytypes.set_quantization_seed">set_quantization_seed() (in module apytypes)</a>
 </li>
-        <li><a href="cpp_api/ieee754.html#_CPPv418set_sign_of_doubleRdb">set_sign_of_double (C++ function)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/ieee754.html#_CPPv418set_sign_of_doubleRdb">set_sign_of_double (C++ function)</a>
+</li>
         <li><a href="cpp_api/ieee754.html#_CPPv414sign_of_doubled">sign_of_double (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E17significant_limbsNSt6size_tE22RANDOM_ACCESS_ITERATOR22RANDOM_ACCESS_ITERATOR">significant_limbs (C++ function)</a>
-</li>
-        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.STOCH_EQUAL">STOCH_EQUAL (apytypes.QuantizationMode attribute)</a>
-</li>
-        <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.STOCH_WEIGHTED">STOCH_WEIGHTED (apytypes.QuantizationMode attribute)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E15string_from_vecNSt6stringERKNSt6vectorI1TEE">string_from_vec (C++ function)</a>
 </li>

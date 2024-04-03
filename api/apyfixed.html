@@ -232,21 +232,21 @@
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">bits</span></code></dt><dd><p>Total number of bits.</p>
+<dt><a class="reference internal" href="#apytypes.APyFixed.bits" title="apytypes.APyFixed.bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bits</span></code></a></dt><dd><p>Total number of bits.</p>
 </dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">frac_bits</span></code></dt><dd><p>Number of fractional bits.</p>
+<dt><a class="reference internal" href="#apytypes.APyFixed.frac_bits" title="apytypes.APyFixed.frac_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frac_bits</span></code></a></dt><dd><p>Number of fractional bits.</p>
 </dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">int_bits</span></code></dt><dd><p>Number of integer bits.</p>
+<dt><a class="reference internal" href="#apytypes.APyFixed.int_bits" title="apytypes.APyFixed.int_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int_bits</span></code></a></dt><dd><p>Number of integer bits.</p>
 </dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_zero</span></code></dt><dd><p>True if the value equals zero, false otherwise.</p>
+<dt><a class="reference internal" href="#apytypes.APyFixed.is_zero" title="apytypes.APyFixed.is_zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_zero</span></code></a></dt><dd><p>True if the value equals zero, false otherwise.</p>
 </dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_fractional_zeros</span></code></dt><dd><p>Number of leading zeros after the binary fixed-point.</p>
+<dt><a class="reference internal" href="#apytypes.APyFixed.leading_fractional_zeros" title="apytypes.APyFixed.leading_fractional_zeros"><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_fractional_zeros</span></code></a></dt><dd><p>Number of leading zeros after the binary fixed-point.</p>
 </dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_ones</span></code></dt><dd><p>Number of leading ones.</p>
+<dt><a class="reference internal" href="#apytypes.APyFixed.leading_ones" title="apytypes.APyFixed.leading_ones"><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_ones</span></code></a></dt><dd><p>Number of leading ones.</p>
 </dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_signs</span></code></dt><dd><p>Number of leading signs.</p>
+<dt><a class="reference internal" href="#apytypes.APyFixed.leading_signs" title="apytypes.APyFixed.leading_signs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_signs</span></code></a></dt><dd><p>Number of leading signs.</p>
 </dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_zeros</span></code></dt><dd><p>Number of leading zeros.</p>
+<dt><a class="reference internal" href="#apytypes.APyFixed.leading_zeros" title="apytypes.APyFixed.leading_zeros"><code class="xref py py-obj docutils literal notranslate"><span class="pre">leading_zeros</span></code></a></dt><dd><p>Number of leading zeros.</p>
 </dd>
 </dl>
 </dd>
@@ -279,11 +279,16 @@
 </tbody>
 </table>
 </div>
+<section id="constructor">
+<h2>Constructor<a class="headerlink" href="#constructor" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFixed.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bit_pattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#apytypes.APyFixed.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
+</section>
+<section id="creation-from-other-types">
+<h2>Creation from other types<a class="headerlink" href="#creation-from-other-types" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFixed.from_float">
 <span class="sig-name descname"><span class="pre">from_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixed" title="APyFixed"><span class="pre">APyFixed</span></a></span></span><a class="headerlink" href="#apytypes.APyFixed.from_float" title="Link to this definition">#</a></dt>
@@ -358,6 +363,9 @@ to be set.</p>
 </div>
 </dd></dl>
 
+</section>
+<section id="change-word-length">
+<h2>Change word length<a class="headerlink" href="#change-word-length" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFixed.cast">
 <span class="sig-name descname"><span class="pre">cast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode" title="QuantizationMode"><span class="pre">QuantizationMode</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">QuantizationMode.TO_NEG</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overflow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quantizationoverflow.html#apytypes.OverflowMode" title="OverflowMode"><span class="pre">OverflowMode</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">OverflowMode.WRAP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixed" title="APyFixed"><span class="pre">APyFixed</span></a></span></span><a class="headerlink" href="#apytypes.APyFixed.cast" title="Link to this definition">#</a></dt>
@@ -407,6 +415,9 @@ to be set.</p>
 </div>
 </dd></dl>
 
+</section>
+<section id="get-bit-representation">
+<h2>Get bit representation<a class="headerlink" href="#get-bit-representation" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFixed.to_bits">
 <span class="sig-name descname"><span class="pre">to_bits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#apytypes.APyFixed.to_bits" title="Link to this definition">#</a></dt>
@@ -430,6 +441,9 @@ to be set.</p>
 </div>
 </dd></dl>
 
+</section>
+<section id="comparison">
+<h2>Comparison<a class="headerlink" href="#comparison" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFixed.is_identical">
 <span class="sig-name descname"><span class="pre">is_identical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#apytypes.APyFixed" title="APyFixed"><span class="pre">APyFixed</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#apytypes.APyFixed.is_identical" title="Link to this definition">#</a></dt>
@@ -467,6 +481,113 @@ fixed-point value.</p>
 </div>
 </dd></dl>
 
+</section>
+<section id="properties">
+<h2>Properties<a class="headerlink" href="#properties" title="Link to this heading">#</a></h2>
+<section id="word-length">
+<h3>Word length<a class="headerlink" href="#word-length" title="Link to this heading">#</a></h3>
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixed.bits">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bits</span></span><a class="headerlink" href="#apytypes.APyFixed.bits" title="Link to this definition">#</a></dt>
+<dd><p>Total number of bits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixed.int_bits">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">int_bits</span></span><a class="headerlink" href="#apytypes.APyFixed.int_bits" title="Link to this definition">#</a></dt>
+<dd><p>Number of integer bits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixed.frac_bits">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">frac_bits</span></span><a class="headerlink" href="#apytypes.APyFixed.frac_bits" title="Link to this definition">#</a></dt>
+<dd><p>Number of fractional bits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="bit-pattern-information">
+<h3>Bit pattern information<a class="headerlink" href="#bit-pattern-information" title="Link to this heading">#</a></h3>
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixed.is_zero">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_zero</span></span><a class="headerlink" href="#apytypes.APyFixed.is_zero" title="Link to this definition">#</a></dt>
+<dd><p>True if the value equals zero, false otherwise.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixed.leading_fractional_zeros">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">leading_fractional_zeros</span></span><a class="headerlink" href="#apytypes.APyFixed.leading_fractional_zeros" title="Link to this definition">#</a></dt>
+<dd><p>Number of leading zeros after the binary fixed-point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixed.leading_ones">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">leading_ones</span></span><a class="headerlink" href="#apytypes.APyFixed.leading_ones" title="Link to this definition">#</a></dt>
+<dd><p>Number of leading ones.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixed.leading_signs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">leading_signs</span></span><a class="headerlink" href="#apytypes.APyFixed.leading_signs" title="Link to this definition">#</a></dt>
+<dd><p>Number of leading signs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFixed.leading_zeros">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">leading_zeros</span></span><a class="headerlink" href="#apytypes.APyFixed.leading_zeros" title="Link to this definition">#</a></dt>
+<dd><p>Number of leading zeros.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
 </dd></dl>
 
 </section>
@@ -534,6 +655,14 @@ fixed-point value.</p>
 <li><a class="reference internal" href="#apytypes.APyFixed.cast"><code class="docutils literal notranslate"><span class="pre">APyFixed.cast()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixed.to_bits"><code class="docutils literal notranslate"><span class="pre">APyFixed.to_bits()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixed.is_identical"><code class="docutils literal notranslate"><span class="pre">APyFixed.is_identical()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.bits"><code class="docutils literal notranslate"><span class="pre">APyFixed.bits</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.int_bits"><code class="docutils literal notranslate"><span class="pre">APyFixed.int_bits</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.frac_bits"><code class="docutils literal notranslate"><span class="pre">APyFixed.frac_bits</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.is_zero"><code class="docutils literal notranslate"><span class="pre">APyFixed.is_zero</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.leading_fractional_zeros"><code class="docutils literal notranslate"><span class="pre">APyFixed.leading_fractional_zeros</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.leading_ones"><code class="docutils literal notranslate"><span class="pre">APyFixed.leading_ones</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.leading_signs"><code class="docutils literal notranslate"><span class="pre">APyFixed.leading_signs</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixed.leading_zeros"><code class="docutils literal notranslate"><span class="pre">APyFixed.leading_zeros</span></code></a></li>
 </ul>
 </li>
 </ul>
