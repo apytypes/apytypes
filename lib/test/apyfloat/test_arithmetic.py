@@ -281,6 +281,18 @@ def test_long_add():
     res = x + y
     assert res.is_identical(APyFloat(0, 2047, 0, 11, 60))
 
+    # Test subtracting infinities
+    x = APyFloat(0, 2047, 0, 11, 60)
+    y = APyFloat(1, 2047, 0, 11, 60)
+    res = x + y
+    assert res.is_nan
+
+    # Test subtracting two equal numbers
+    x = APyFloat(0, 1046, 1232143, 11, 60)
+    y = APyFloat(1, 1046, 1232143, 11, 60)
+    res = x + y
+    assert res.is_identical(APyFloat(1, 0, 0, 11, 60))
+
 
 # Subtraction
 # Because subtraction is implemented as 'a+(-b)', the tests for addition will also cover subtraction,
@@ -318,19 +330,26 @@ def test_sub_diff_exp(lhs, rhs):
 
 
 @pytest.mark.float_sub
-@pytest.mark.parametrize(
-    "lhs,rhs",
-    list(perm(["APyFloat.from_float(12, 9, 4)", "APyFloat.from_float(-4, 5, 14)"])),
-)
-def test_sub_diff_sign(lhs, rhs):
+def test_sub_diff_sign():
     # Subtract two numbers that have different sign
-    expr = None
-    assert float(eval(expr := f"{lhs} - {rhs}")) == (
-        16.0 * (-1 if eval(lhs) < 0 else 1)
-    )
-    res = eval(expr)
-    assert res.exp_bits == 9
-    assert res.man_bits == 14
+    # 12 - -4
+    res = APyFloat(0, 258, 8, 9, 4) - APyFloat(1, 17, 0, 5, 14)
+    assert res.is_identical(APyFloat(0, 259, 0, 9, 14))
+
+    # -4 - 12
+    res = APyFloat(1, 17, 0, 5, 14) - APyFloat(0, 258, 8, 9, 4)
+    assert res.is_identical(APyFloat(1, 259, 0, 9, 14))
+
+
+@pytest.mark.float_sub
+def test_sub_res_zero():
+    # 12 - 12, same format
+    res = APyFloat(0, 258, 8, 9, 4) - APyFloat(0, 258, 8, 9, 4)
+    assert res.is_identical(APyFloat(1, 0, 0, 9, 4))
+
+    # 12 - 12, different format
+    res = APyFloat(0, 258, 4, 9, 3) - APyFloat(0, 258, 8, 9, 4)
+    assert res.is_identical(APyFloat(1, 0, 0, 9, 4))
 
 
 @pytest.mark.float_sub
@@ -384,12 +403,21 @@ def test_sub_inf_nan():
     # Infinity with NaN
     assert (APyFloat(0, 0x1F, 0, 5, 7) - APyFloat(0, 0x1F, 1, 5, 7)).is_nan
     assert (APyFloat(0, 0x1F, 1, 5, 7) - APyFloat(0, 0x1F, 0, 5, 7)).is_nan
+    assert (
+        APyFloat(0, 0x1F, 1, 5, 8) - APyFloat(0, 0x1F, 0, 5, 7)
+    ).is_nan  # Different format
 
     # Infinity with infinity
     assert (APyFloat(0, 0x1F, 0, 5, 7) - APyFloat(0, 0x1F, 0, 5, 7)).is_nan
+    assert (
+        APyFloat(0, 0x1F, 0, 5, 5) - APyFloat(0, 0x1F, 0, 5, 7)
+    ).is_nan  # Different format
 
     # NaN with NaN
     assert (APyFloat(0, 0x1F, 1, 5, 7) - APyFloat(0, 0x1F, 1, 5, 7)).is_nan
+    assert (
+        APyFloat(0, 0x1F, 1, 5, 8) - APyFloat(0, 0x1F, 1, 5, 7)
+    ).is_nan  # Different format
 
 
 # Multiplication
