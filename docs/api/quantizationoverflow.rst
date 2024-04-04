@@ -17,21 +17,21 @@ the bias will converge towards zero the more bits are quantized away (except for
 
    .. autoattribute:: TIES_POS
 
-      Round to nearest, ties towards positive infinity.
+      Round to nearest, ties toward positive infinity.
 
    .. image:: ../_static/TIES_POS.png
-      :alt: Illustration of round to nearest, ties towards positive
+      :alt: Illustration of round to nearest, ties toward positive infinity
 
    .. autoattribute:: TIES_EVEN
 
-      Round to nearest, ties towards even.
+      Round to nearest, ties to even.
 
    .. image:: ../_static/TIES_EVEN.png
       :alt: Illustration of round to nearest, ties to even
 
    .. autoattribute:: TIES_ODD
 
-      Round to nearest, ties towards odd.
+      Round to nearest, ties to odd.
 
    .. image:: ../_static/TIES_ODD.png
       :alt: Illustration of round to nearest, ties to odd
@@ -45,17 +45,17 @@ the bias will converge towards zero the more bits are quantized away (except for
 
    .. autoattribute:: TIES_NEG
 
-      Round to nearest, ties towards negative infinity.
+      Round to nearest, ties toward negative infinity.
 
    .. image:: ../_static/TIES_NEG.png
-      :alt: Illustration of round to nearest, ties towards negative inifinity
+      :alt: Illustration of round to nearest, ties toward negative inifinity
 
    .. autoattribute:: TIES_ZERO
 
       Round to nearest, ties towards zero.
 
    .. image:: ../_static/TIES_ZERO.png
-      :alt: Illustration of round to nearest, ties towards zero
+      :alt: Illustration of round to nearest, ties toward zero
 
    .. autoattribute:: TO_NEG
 
@@ -118,7 +118,7 @@ the bias will converge towards zero the more bits are quantized away (except for
 
    .. autoattribute:: RND
 
-      Fixed-point rounding. Round to nearest, ties towards positive infinity. Alias for :attr:`TIES_POS`.
+      Fixed-point rounding. Round to nearest, ties toward positive infinity. Alias for :attr:`TIES_POS`.
 
    .. autoattribute:: RND_CONV
 
@@ -134,11 +134,11 @@ the bias will converge towards zero the more bits are quantized away (except for
 
    .. autoattribute:: RND_MIN_INF
 
-      Round to nearest, ties towards negative infinity. Alias for :attr:`TIES_NEG`.
+      Round to nearest, ties toward negative infinity. Alias for :attr:`TIES_NEG`.
 
    .. autoattribute:: RND_ZERO
 
-      Round to nearest, ties towards zero. Alias for :attr:`TIES_ZERO`.
+      Round to nearest, ties toward zero. Alias for :attr:`TIES_ZERO`.
 
 .. autoclass:: apytypes.OverflowMode
 
