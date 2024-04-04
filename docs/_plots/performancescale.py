@@ -41,7 +41,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import FormatStrFormatter
 
-fig, ax = plt.subplots(layout="constrained", figsize=(8, 6))
+fig, ax = plt.subplots(layout="constrained", figsize=(8, 6.5))
 
 x = np.arange(len(benchmarks))  # the label locations
 

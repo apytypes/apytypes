@@ -24,8 +24,6 @@ void print_warning(const std::string msg)
     }
 }
 
-static const auto fx_one = APyFixed::from_double(1, 2, 2);
-
 /* **********************************************************************************
  * * Constructors                                                                   *
  * **********************************************************************************
@@ -1176,7 +1174,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
     std::uint64_t new_man = 0, mx = x.true_man();
 
     const int x_is_normal = x.is_normal();
-    const int max_man_bits = abs_n * (x.man_bits + x_is_normal);
+    const unsigned int max_man_bits = abs_n * (x.man_bits + x_is_normal);
 
     if (max_man_bits <= _MAN_T_SIZE_BITS) {
         new_man = ipow(mx, abs_n);
@@ -1414,30 +1412,6 @@ bool APyFloat::operator>(const APyFloat& rhs) const
 }
 
 /* ******************************************************************************
- * * Non-computational functions                                                *
- * ******************************************************************************
- */
-
-//! True if and only if value is normal (not zero, subnormal, infinite, or NaN).
-bool APyFloat::is_normal() const { return exp != 0 && exp != max_exponent(); }
-
-//! True if and only if value is zero, subnormal, or normal.
-bool APyFloat::is_finite() const { return exp == 0 || exp != max_exponent(); }
-
-//! True if and only if value is subnormal. Zero is also considered a subnormal
-//! number.
-bool APyFloat::is_subnormal() const { return exp == 0; }
-
-//! True if and only if value is zero.
-bool APyFloat::is_zero() const { return exp == 0 && man == 0; }
-
-//! True if and only if value is NaN.
-bool APyFloat::is_nan() const { return man != 0 && exp == max_exponent(); }
-
-//! True if and only if value is infinite.
-bool APyFloat::is_inf() const { return man == 0 && exp == max_exponent(); }
-
-/* ******************************************************************************
  * * Helper functions                                                           *
  * ******************************************************************************
  */
@@ -1486,19 +1460,6 @@ APyFloat APyFloat::normalized() const
     }
 
     return APyFloat(sign, new_exp, new_man, new_exp_bits, man_bits, extended_bias);
-}
-
-APY_INLINE int APyFloat::leading_zeros_apyfixed(APyFixed fx) const
-{
-    // Calculate the number of left shifts needed to make fx>=1.0
-    const int zeros = fx.leading_zeros() - fx.int_bits();
-    return std::max(0, zeros + 1);
-}
-
-APY_INLINE bool APyFloat::same_type_as(APyFloat other) const
-{
-    return man_bits == other.man_bits && exp_bits == other.exp_bits
-        && bias == other.bias;
 }
 
 /*

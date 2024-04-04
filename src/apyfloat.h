@@ -195,21 +195,29 @@ public:
     bool operator>=(const APyFloat& rhs) const;
     bool operator>(const APyFloat& rhs) const;
 
-    //! Test if two floating-point numbers are identical, i.e., has the same value, and
-    //! the same format
-    bool is_identical(const APyFloat& other) const;
-
     /* ******************************************************************************
      * * Non-computational functions                                                *
      * ******************************************************************************
      */
 
-    bool is_normal() const;
-    bool is_subnormal() const;
-    bool is_zero() const;
-    bool is_finite() const;
-    bool is_nan() const;
-    bool is_inf() const;
+    //! True if and only if value is normal (not zero, subnormal, infinite, or NaN).
+    APY_INLINE bool is_normal() const { return exp != 0 && exp != max_exponent(); }
+
+    //! True if and only if value is zero, subnormal, or normal.
+    APY_INLINE bool is_finite() const { return exp == 0 || exp != max_exponent(); }
+
+    //! True if and only if value is subnormal. Zero is also considered a subnormal
+    //! number.
+    APY_INLINE bool is_subnormal() const { return exp == 0; }
+
+    //! True if and only if value is zero.
+    APY_INLINE bool is_zero() const { return exp == 0 && man == 0; }
+
+    //! True if and only if value is NaN.
+    APY_INLINE bool is_nan() const { return man != 0 && exp == max_exponent(); }
+
+    //! True if and only if value is infinite.
+    APY_INLINE bool is_inf() const { return man == 0 && exp == max_exponent(); }
 
     APY_INLINE bool get_sign() const { return sign; }
     APY_INLINE man_t get_man() const { return man; }
@@ -242,6 +250,10 @@ public:
     APyFloat construct_inf(std::optional<bool> new_sign = std::nullopt) const;
     APyFloat
     construct_nan(std::optional<bool> new_sign = std::nullopt, man_t payload = 1) const;
+
+    //! Test if two floating-point numbers are identical, i.e., has the same value, and
+    //! the same format
+    bool is_identical(const APyFloat& other) const;
 
     /* ******************************************************************************
      * * Convenience methods                                                        *
@@ -296,9 +308,15 @@ private:
     static QuantizationMode
     translate_quantization_mode(QuantizationMode quantization, bool sign);
 
-    APY_INLINE int leading_zeros_apyfixed(APyFixed fx) const;
-    APY_INLINE bool same_type_as(APyFloat other) const;
     APyFixed to_fixed() const;
+
+    //! Test if two floating-point numbers are identical, i.e., has the same value, and
+    //! the same format
+    APY_INLINE bool same_type_as(const APyFloat& other) const
+    {
+        return man_bits == other.man_bits && exp_bits == other.exp_bits
+            && bias == other.bias;
+    }
 };
 
 #endif // _APYFLOAT_H
