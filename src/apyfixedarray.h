@@ -274,6 +274,16 @@ private:
      */
     void
     _set_values_from_numpy_ndarray(const nanobind::ndarray<nanobind::numpy>& ndarray);
+
+    APY_INLINE bool same_type_as(const APyFixedArray& other) const
+    {
+        return _bits == other._bits && _int_bits == other._int_bits;
+    }
+
+    APY_INLINE bool same_type_as(const APyFixed& other) const
+    {
+        return _bits == other.bits() && _int_bits == other.int_bits();
+    }
 };
 
 #endif // _APYFIXED_ARRAY_H

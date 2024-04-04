@@ -109,6 +109,15 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
         ));
     }
 
+    // Fast path for identical word lengths
+    if (same_type_as(rhs) && unsigned(_bits) <= _LIMB_SIZE_BITS - 1) {
+        APyFixedArray result(_shape, _bits + 1, _int_bits + 1);
+        for (std::size_t i = 0; i < result._data.size(); i++) {
+            result._data[i] = _data[i] + rhs._data[i];
+        }
+        return result; // early exit
+    }
+
     // Increase word length of result by one
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
@@ -183,6 +192,15 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
 
 APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
 {
+    // Fast path for identical word lengths
+    if (same_type_as(rhs) && unsigned(_bits) <= _LIMB_SIZE_BITS - 1) {
+        APyFixedArray result(_shape, _bits + 1, _int_bits + 1);
+        for (std::size_t i = 0; i < result._data.size(); i++) {
+            result._data[i] = _data[i] + rhs._data[0];
+        }
+        return result; // early exit
+    }
+
     // Increase word length of result by one
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
@@ -226,6 +244,15 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
             string_from_vec(_shape),
             string_from_vec(rhs._shape)
         ));
+    }
+
+    // Fast path for identical word lengths
+    if (same_type_as(rhs) && unsigned(_bits) <= _LIMB_SIZE_BITS - 1) {
+        APyFixedArray result(_shape, _bits + 1, _int_bits + 1);
+        for (std::size_t i = 0; i < result._data.size(); i++) {
+            result._data[i] = _data[i] - rhs._data[i];
+        }
+        return result; // early exit
     }
 
     // Increase word length of result by one
@@ -302,6 +329,15 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
 
 APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
 {
+    // Fast path for identical word lengths
+    if (same_type_as(rhs) && unsigned(_bits) <= _LIMB_SIZE_BITS - 1) {
+        APyFixedArray result(_shape, _bits + 1, _int_bits + 1);
+        for (std::size_t i = 0; i < result._data.size(); i++) {
+            result._data[i] = _data[i] - rhs._data[0];
+        }
+        return result; // early exit
+    }
+
     // Increase word length of result by one
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
