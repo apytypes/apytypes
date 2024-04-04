@@ -3,17 +3,38 @@
 
 .. autoclass:: apytypes.APyFloatArray
 
+   Constructor
+   -----------
+
    .. automethod:: __init__
+
+   Creation from other types
+   -------------------------
 
    .. automethod:: from_float
 
+   Change word length
+   ------------------
+
    .. automethod:: cast
 
-   .. automethod:: to_numpy
+   Comparison
+   ----------
 
    .. automethod:: is_identical
 
+   Convert to NumPy
+   ----------------
+
+   .. automethod:: to_numpy
+
+   Tranposition
+   ------------
+
    .. automethod:: transpose
+
+   Convenience casting methods
+   ---------------------------
 
    .. automethod:: cast_to_bfloat16
 
@@ -22,3 +43,29 @@
    .. automethod:: cast_to_half
 
    .. automethod:: cast_to_single
+
+   Properties
+   ----------
+
+   Word length
+   ^^^^^^^^^^^
+
+   .. autoproperty:: bits
+
+   .. autoproperty:: exp_bits
+
+   .. autoproperty:: man_bits
+
+   .. autoproperty:: bias
+
+   Array properties
+   ^^^^^^^^^^^^^^^^
+
+   .. autoproperty:: ndim
+
+   .. autoproperty:: shape
+
+   Tranposition
+   ^^^^^^^^^^^^
+
+   .. autoproperty:: T
