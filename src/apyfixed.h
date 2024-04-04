@@ -136,16 +136,16 @@ public:
 
 public:
     //! Retrieve the `bits` specifier
-    int bits() const noexcept { return _bits; }
+    APY_INLINE int bits() const noexcept { return _bits; }
 
     //! Retrieve the `int_bits` specifier
-    int int_bits() const noexcept { return _int_bits; }
+    APY_INLINE int int_bits() const noexcept { return _int_bits; }
 
     //! Retrieve the `frac_bits` specifier
-    int frac_bits() const noexcept { return _bits - _int_bits; }
+    APY_INLINE int frac_bits() const noexcept { return _bits - _int_bits; }
 
     //! Retrieve the number of elements in the underlying limb data vector
-    std::size_t vector_size() const noexcept { return _data.size(); }
+    APY_INLINE std::size_t vector_size() const noexcept { return _data.size(); }
 
     //! Unary negation
     APyFixed operator-() const;
@@ -468,7 +468,7 @@ public:
  *                        Output to C++ streaming objects                             *
  * ********************************************************************************** */
 
-static inline std::ostream& operator<<(std::ostream& os, const APyFixed& x)
+static APY_INLINE std::ostream& operator<<(std::ostream& os, const APyFixed& x)
 {
     if ((os.flags() & std::ios::hex) != 0) {
         os << x.to_string(16);

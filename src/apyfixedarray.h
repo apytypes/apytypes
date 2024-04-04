@@ -127,13 +127,13 @@ public:
     std::variant<APyFixedArray, APyFixed> get_item(std::size_t idx) const;
 
     //! Number of bits
-    int bits() const noexcept { return _bits; }
+    APY_INLINE int bits() const noexcept { return _bits; }
 
     //! Number of integer bits
-    int int_bits() const noexcept { return _int_bits; }
+    APY_INLINE int int_bits() const noexcept { return _int_bits; }
 
     //! Number of fractional bits
-    int frac_bits() const noexcept { return _bits - _int_bits; }
+    APY_INLINE int frac_bits() const noexcept { return _bits - _int_bits; }
 
     //! Convert to a NumPy array
     nanobind::ndarray<nanobind::numpy, double> to_numpy() const;
