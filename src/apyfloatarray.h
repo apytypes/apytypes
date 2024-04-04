@@ -71,8 +71,17 @@ public:
      */
     bool is_identical(const APyFloatArray& other) const;
 
-    APY_INLINE bool same_type_as(APyFloatArray other) const;
-    APY_INLINE bool same_type_as(APyFloat other) const;
+    APY_INLINE bool same_type_as(const APyFloatArray& other) const
+    {
+        return man_bits == other.man_bits && exp_bits == other.exp_bits
+            && bias == other.bias;
+    }
+
+    APY_INLINE bool same_type_as(const APyFloat& other) const
+    {
+        return man_bits == other.get_man_bits() && exp_bits == other.get_exp_bits()
+            && bias == other.get_bias();
+    }
 
     //! Convert to a NumPy array
     nanobind::ndarray<nanobind::numpy, double> to_numpy() const;
@@ -132,10 +141,10 @@ public:
         std::optional<QuantizationMode> quantization = std::nullopt
     ) const;
 
-    inline exp_t get_bias() const { return bias; }
-    inline std::uint8_t get_man_bits() const { return man_bits; }
-    inline std::uint8_t get_exp_bits() const { return exp_bits; }
-    inline std::uint8_t get_bits() const { return exp_bits + man_bits + 1; }
+    APY_INLINE exp_t get_bias() const { return bias; }
+    APY_INLINE std::uint8_t get_man_bits() const { return man_bits; }
+    APY_INLINE std::uint8_t get_exp_bits() const { return exp_bits; }
+    APY_INLINE std::uint8_t get_bits() const { return exp_bits + man_bits + 1; }
 
     enum class ArithmeticOperation { ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION };
 

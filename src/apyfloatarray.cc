@@ -964,18 +964,6 @@ bool APyFloatArray::is_identical(const APyFloatArray& other) const
         && std::equal(data.begin(), data.end(), other.data.begin(), other.data.end());
 }
 
-APY_INLINE bool APyFloatArray::same_type_as(APyFloatArray other) const
-{
-    return man_bits == other.man_bits && exp_bits == other.exp_bits
-        && bias == other.bias;
-}
-
-APY_INLINE bool APyFloatArray::same_type_as(APyFloat other) const
-{
-    return man_bits == other.get_man_bits() && exp_bits == other.get_exp_bits()
-        && bias == other.get_bias();
-}
-
 APyFloatArray APyFloatArray::from_double(
     const nanobind::sequence& double_seq,
     std::uint8_t exp_bits,
