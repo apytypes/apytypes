@@ -31,14 +31,16 @@ template <typename T> struct AlignedAllocator {
     // Allocate SIMD aligned data
     [[nodiscard]] T* allocate(size_type n)
     {
-        return (T*)hwy::AllocateAlignedBytes(sizeof(T) * n, nullptr, nullptr);
+        //return (T*)hwy::AllocateAlignedBytes(sizeof(T) * n, nullptr, nullptr);
+        return new T[n];
     };
 
     // Free SIMD aligned data
     void deallocate(T* ptr, size_type n)
     {
         (void)n;
-        hwy::FreeAlignedBytes(ptr, nullptr, nullptr);
+        //hwy::FreeAlignedBytes(ptr, nullptr, nullptr);
+        delete[] ptr;
     }
 };
 

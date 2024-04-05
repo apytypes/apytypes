@@ -25,17 +25,17 @@ namespace HWY_NAMESPACE { // required: unique per target
         const mp_limb_t* HWY_RESTRICT src2,
         unsigned src1_shift_amount,
         unsigned src2_shift_amount,
-        std::size_t size
+        const std::size_t size
     )
     {
         constexpr const hn::ScalableTag<mp_limb_t> d;
 
         std::size_t i = 0;
         for (; i < (size - size % hn::Lanes(d)); i += hn::Lanes(d)) {
-            const auto v1 = hn::ShiftLeftSame(hn::Load(d, src1 + i), src1_shift_amount);
-            const auto v2 = hn::ShiftLeftSame(hn::Load(d, src2 + i), src2_shift_amount);
+            const auto v1 = hn::ShiftLeftSame(hn::LoadU(d, src1 + i), src1_shift_amount);
+            const auto v2 = hn::ShiftLeftSame(hn::LoadU(d, src2 + i), src2_shift_amount);
             const auto res = hn::Add(v1, v2);
-            hn::Store(res, d, dst + i);
+            hn::StoreU(res, d, dst + i);
         }
         for (; i < size; i++) {
             dst[i] = (src1[i] << src1_shift_amount) + (src2[i] << src2_shift_amount);
@@ -48,17 +48,17 @@ namespace HWY_NAMESPACE { // required: unique per target
         const mp_limb_t* HWY_RESTRICT src2,
         unsigned src1_shift_amount,
         unsigned src2_shift_amount,
-        std::size_t size
+        const std::size_t size
     )
     {
         constexpr const hn::ScalableTag<mp_limb_t> d;
 
         std::size_t i = 0;
         for (; i < (size - size % hn::Lanes(d)); i += hn::Lanes(d)) {
-            const auto v1 = hn::ShiftLeftSame(hn::Load(d, src1 + i), src1_shift_amount);
-            const auto v2 = hn::ShiftLeftSame(hn::Load(d, src2 + i), src2_shift_amount);
+            const auto v1 = hn::ShiftLeftSame(hn::LoadU(d, src1 + i), src1_shift_amount);
+            const auto v2 = hn::ShiftLeftSame(hn::LoadU(d, src2 + i), src2_shift_amount);
             const auto res = hn::Sub(v1, v2);
-            hn::Store(res, d, dst + i);
+            hn::StoreU(res, d, dst + i);
         }
         for (; i < size; i++) {
             dst[i] = (src1[i] << src1_shift_amount) - (src2[i] << src2_shift_amount);
@@ -69,17 +69,17 @@ namespace HWY_NAMESPACE { // required: unique per target
         mp_limb_t* HWY_RESTRICT dst,
         const mp_limb_t* HWY_RESTRICT src1,
         const mp_limb_t* HWY_RESTRICT src2,
-        std::size_t size
+        const std::size_t size
     )
     {
         constexpr const hn::ScalableTag<mp_limb_t> d;
 
         std::size_t i = 0;
         for (; i < (size - size % hn::Lanes(d)); i += hn::Lanes(d)) {
-            const auto v1 = hn::Load(d, src1 + i);
-            const auto v2 = hn::Load(d, src2 + i);
+            const auto v1 = hn::LoadU(d, src1 + i);
+            const auto v2 = hn::LoadU(d, src2 + i);
             const auto res = hn::Mul(v1, v2);
-            hn::Store(res, d, dst + i);
+            hn::StoreU(res, d, dst + i);
         }
         for (; i < size; i++) {
             dst[i] = src1[i] * src2[i];
@@ -90,17 +90,17 @@ namespace HWY_NAMESPACE { // required: unique per target
         mp_limb_t* HWY_RESTRICT dst,
         const mp_limb_t* HWY_RESTRICT src1,
         const mp_limb_t* HWY_RESTRICT src2,
-        std::size_t size
+        const std::size_t size
     )
     {
         constexpr const hn::ScalableTag<mp_limb_t> d;
 
         std::size_t i = 0;
         for (; i < (size - size % hn::Lanes(d)); i += hn::Lanes(d)) {
-            const auto v1 = hn::Load(d, src1 + i);
-            const auto v2 = hn::Load(d, src2 + i);
+            const auto v1 = hn::LoadU(d, src1 + i);
+            const auto v2 = hn::LoadU(d, src2 + i);
             const auto res = hn::Add(v1, v2);
-            hn::Store(res, d, dst + i);
+            hn::StoreU(res, d, dst + i);
         }
         for (; i < size; i++) {
             dst[i] = src1[i] + src2[i];
@@ -111,17 +111,17 @@ namespace HWY_NAMESPACE { // required: unique per target
         mp_limb_t* HWY_RESTRICT dst,
         const mp_limb_t* HWY_RESTRICT src1,
         const mp_limb_t* HWY_RESTRICT src2,
-        std::size_t size
+        const std::size_t size
     )
     {
         constexpr const hn::ScalableTag<mp_limb_t> d;
 
         std::size_t i = 0;
         for (; i < (size - size % hn::Lanes(d)); i += hn::Lanes(d)) {
-            const auto v1 = hn::Load(d, src1 + i);
-            const auto v2 = hn::Load(d, src2 + i);
+            const auto v1 = hn::LoadU(d, src1 + i);
+            const auto v2 = hn::LoadU(d, src2 + i);
             const auto res = hn::Sub(v1, v2);
-            hn::Store(res, d, dst + i);
+            hn::StoreU(res, d, dst + i);
         }
         for (; i < size; i++) {
             dst[i] = src1[i] - src2[i];
@@ -132,7 +132,7 @@ namespace HWY_NAMESPACE { // required: unique per target
         mp_limb_t* HWY_RESTRICT dst,
         const mp_limb_t* HWY_RESTRICT src1,
         mp_limb_t constant,
-        std::size_t size
+        const std::size_t size
     )
     {
         constexpr const hn::ScalableTag<mp_limb_t> d;
@@ -140,9 +140,9 @@ namespace HWY_NAMESPACE { // required: unique per target
         const auto c1 = hn::Set(d, constant);
         std::size_t i = 0;
         for (; i < (size - size % hn::Lanes(d)); i += hn::Lanes(d)) {
-            const auto v1 = hn::Load(d, src1 + i);
+            const auto v1 = hn::LoadU(d, src1 + i);
             const auto res = hn::Add(v1, c1);
-            hn::Store(res, d, dst + i);
+            hn::StoreU(res, d, dst + i);
         }
         for (; i < size; i++) {
             dst[i] = src1[i] + constant;
@@ -153,7 +153,7 @@ namespace HWY_NAMESPACE { // required: unique per target
         mp_limb_t* HWY_RESTRICT dst,
         const mp_limb_t* HWY_RESTRICT src1,
         mp_limb_t constant,
-        std::size_t size
+        const std::size_t size
     )
     {
         constexpr const hn::ScalableTag<mp_limb_t> d;
@@ -161,9 +161,9 @@ namespace HWY_NAMESPACE { // required: unique per target
         const auto c1 = hn::Set(d, constant);
         std::size_t i = 0;
         for (; i < (size - size % hn::Lanes(d)); i += hn::Lanes(d)) {
-            const auto v1 = hn::Load(d, src1 + i);
+            const auto v1 = hn::LoadU(d, src1 + i);
             const auto res = hn::Sub(v1, c1);
-            hn::Store(res, d, dst + i);
+            hn::StoreU(res, d, dst + i);
         }
         for (; i < size; i++) {
             dst[i] = src1[i] - constant;
@@ -174,7 +174,7 @@ namespace HWY_NAMESPACE { // required: unique per target
         mp_limb_t* HWY_RESTRICT dst,
         const mp_limb_t* HWY_RESTRICT src1,
         mp_limb_t constant,
-        std::size_t size
+        const std::size_t size
     )
     {
         constexpr const hn::ScalableTag<mp_limb_t> d;
@@ -182,9 +182,9 @@ namespace HWY_NAMESPACE { // required: unique per target
         const auto c1 = hn::Set(d, constant);
         std::size_t i = 0;
         for (; i < (size - size % hn::Lanes(d)); i += hn::Lanes(d)) {
-            const auto v1 = hn::Load(d, src1 + i);
+            const auto v1 = hn::LoadU(d, src1 + i);
             const auto res = hn::Sub(c1, v1);
-            hn::Store(res, d, dst + i);
+            hn::StoreU(res, d, dst + i);
         }
         for (; i < size; i++) {
             dst[i] = constant - src1[i];

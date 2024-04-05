@@ -1,3 +1,8 @@
+/*!
+ * This file contains declarations of vectorized arithmetic operations that tries to
+ * make a best-effort attempt in parallelizing the operation using SIMD instructions.
+ */
+
 #ifndef _APYTYPES_SIMD_H
 #define _APYTYPES_SIMD_H
 
