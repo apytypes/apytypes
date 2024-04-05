@@ -19,7 +19,7 @@ namespace HWY_NAMESPACE { // required: unique per target
     // Can skip hn:: prefixes if already inside hwy::HWY_NAMESPACE.
     namespace hn = hwy::HWY_NAMESPACE;
 
-    HWY_ATTR void _hwy_limb_vector_shift_add(
+    HWY_ATTR void _hwy_vector_shift_add(
         mp_limb_t* HWY_RESTRICT dst,
         const mp_limb_t* HWY_RESTRICT src1,
         const mp_limb_t* HWY_RESTRICT src2,
@@ -47,7 +47,7 @@ namespace HWY_NAMESPACE { // required: unique per target
         }
     }
 
-    HWY_ATTR void _hwy_limb_vector_shift_sub(
+    HWY_ATTR void _hwy_vector_shift_sub(
         mp_limb_t* HWY_RESTRICT dst,
         const mp_limb_t* HWY_RESTRICT src1,
         const mp_limb_t* HWY_RESTRICT src2,
@@ -75,7 +75,7 @@ namespace HWY_NAMESPACE { // required: unique per target
         }
     }
 
-    HWY_ATTR void _hwy_limb_vector_mul(
+    HWY_ATTR void _hwy_vector_mul(
         mp_limb_t* HWY_RESTRICT dst,
         const mp_limb_t* HWY_RESTRICT src1,
         const mp_limb_t* HWY_RESTRICT src2,
@@ -126,16 +126,16 @@ namespace HWY_NAMESPACE { // required: unique per target
 namespace simd {
 
 HWY_EXPORT(_hwy_simd_version_str);
-HWY_EXPORT(_hwy_limb_vector_shift_add);
-HWY_EXPORT(_hwy_limb_vector_shift_sub);
-HWY_EXPORT(_hwy_limb_vector_mul);
+HWY_EXPORT(_hwy_vector_shift_add);
+HWY_EXPORT(_hwy_vector_shift_sub);
+HWY_EXPORT(_hwy_vector_mul);
 
 std::string get_simd_version_str()
 {
     return HWY_DYNAMIC_DISPATCH(_hwy_simd_version_str)();
 }
 
-void limb_vector_shift_add(
+void vector_shift_add(
     std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
     std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src2_begin,
     std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
@@ -144,7 +144,7 @@ void limb_vector_shift_add(
     std::size_t size
 )
 {
-    return HWY_DYNAMIC_DISPATCH(_hwy_limb_vector_shift_add)(
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_shift_add)(
         &*dst_begin,
         &*src1_begin,
         &*src2_begin,
@@ -154,7 +154,7 @@ void limb_vector_shift_add(
     );
 }
 
-void limb_vector_shift_sub(
+void vector_shift_sub(
     std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
     std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src2_begin,
     std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
@@ -163,7 +163,7 @@ void limb_vector_shift_sub(
     std::size_t size
 )
 {
-    return HWY_DYNAMIC_DISPATCH(_hwy_limb_vector_shift_sub)(
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_shift_sub)(
         &*dst_begin,
         &*src1_begin,
         &*src2_begin,
@@ -173,14 +173,14 @@ void limb_vector_shift_sub(
     );
 }
 
-void limb_vector_mul(
+void vector_mul(
     std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
     std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src2_begin,
     std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
     std::size_t size
 )
 {
-    return HWY_DYNAMIC_DISPATCH(_hwy_limb_vector_mul)(
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_mul)(
         &*dst_begin, &*src1_begin, &*src2_begin, size
     );
 }

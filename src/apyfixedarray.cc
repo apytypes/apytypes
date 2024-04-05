@@ -129,7 +129,7 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
         APyFixedArray result(_shape, res_bits, res_int_bits);
         auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
         auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
-        simd::limb_vector_shift_add(
+        simd::vector_shift_add(
             _data.begin(),
             rhs._data.begin(),
             result._data.begin(),
@@ -268,7 +268,7 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
         APyFixedArray result(_shape, res_bits, res_int_bits);
         auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
         auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
-        simd::limb_vector_shift_sub(
+        simd::vector_shift_sub(
             _data.begin(),
             rhs._data.begin(),
             result._data.begin(),
@@ -933,9 +933,8 @@ void APyFixedArray::_checked_hadamard_product(
 {
     std::size_t res_bits = _bits + rhs._bits;
     if (res_bits <= _LIMB_SIZE_BITS) {
-        simd::limb_vector_mul(
-            _data.begin(), rhs._data.begin(), res_out, fold_shape(_shape)
-        );
+        // Native multiplication supported
+        simd::vector_mul(_data.begin(), rhs._data.begin(), res_out, fold_shape(_shape));
     } else {
         // Perform multiplication for each element in the tensor. `mpn_mul` requires:
         // "The destination has to have space for `s1n` + `s2n` limbs, even if the
