@@ -174,5 +174,5 @@ void bind_common(nb::module_& m)
     m.def("get_quantization_seed", &get_quantization_seed);
 
     /* Get the APyTypes SIMD version string */
-    m.def("get_simd_version_str", &simd::get_simd_version_str);
+    m.def("_get_simd_version_str", &simd::get_simd_version_str);
 }

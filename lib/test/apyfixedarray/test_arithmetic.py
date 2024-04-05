@@ -17,14 +17,16 @@ def test_array_raises():
 
 
 def test_array_add():
-    a = APyFixedArray([-5, -6, 7], bits=10, int_bits=5)
-    b = APyFixedArray([1, -2, 3], bits=7, int_bits=2)
-    assert (a + b).is_identical(APyFixedArray([-4, -8, 10], bits=11, int_bits=6))
+    a = APyFixedArray([-5, -6, 7, 8, 9], bits=10, int_bits=5)
+    b = APyFixedArray([1, -2, 3, -2, -1], bits=7, int_bits=2)
+    assert (a + b).is_identical(APyFixedArray([-4, -8, 10, 6, 8], bits=11, int_bits=6))
     assert (a + b).is_identical(b + a)
 
-    a = APyFixedArray([1, 2, 3], bits=10, frac_bits=0)
-    b = APyFixedArray([1, 2, 3], bits=10, frac_bits=3)
-    assert (a + b).is_identical(APyFixedArray([9, 18, 27], bits=14, frac_bits=3))
+    a = APyFixedArray([1, 2, 3, 4, 5], bits=10, frac_bits=0)
+    b = APyFixedArray([1, 2, 3, 8, 7], bits=10, frac_bits=3)
+    assert (a + b).is_identical(
+        APyFixedArray([9, 18, 27, 40, 47], bits=14, frac_bits=3)
+    )
     assert (a + b).is_identical(b + a)
 
     a = APyFixedArray.from_float([1.2345, -5.4321], bits=256, int_bits=128)
@@ -47,10 +49,14 @@ def test_array_add():
 
 
 def test_array_add_scalar():
-    a = APyFixedArray([-5, -6, 7], bits=10, int_bits=5)
+    a = APyFixedArray([-5, -6, 7, 10, -11], bits=10, int_bits=5)
     b = APyFixed(3, bits=7, int_bits=2)
-    assert (a + b).is_identical(APyFixedArray([2046, 2045, 10], bits=11, int_bits=6))
-    assert (b + a).is_identical(APyFixedArray([2046, 2045, 10], bits=11, int_bits=6))
+    assert (a + b).is_identical(
+        APyFixedArray([-2, -3, 10, 13, -8], bits=11, int_bits=6)
+    )
+    assert (b + a).is_identical(
+        APyFixedArray([-2, -3, 10, 13, -8], bits=11, int_bits=6)
+    )
 
     a = APyFixedArray([-5, -6, 7], bits=7, int_bits=4)
     b = APyFixed(3, bits=7, int_bits=4)
@@ -87,19 +93,21 @@ def test_array_sum():
 
 
 def test_array_sub():
-    a = APyFixedArray([-5, -6, 7], bits=10, int_bits=5)
-    b = APyFixedArray([1, -2, 3], bits=7, int_bits=2)
-    assert (a - b).is_identical(APyFixedArray([-6, -4, 4], bits=11, int_bits=6))
-    assert (b - a).is_identical(APyFixedArray([6, 4, -4], bits=11, int_bits=6))
+    a = APyFixedArray([-5, -6, 7, 8, 9], bits=10, int_bits=5)
+    b = APyFixedArray([1, -2, 3, -2, -1], bits=7, int_bits=2)
+    assert (a - b).is_identical(APyFixedArray([-6, -4, 4, 10, 10], bits=11, int_bits=6))
+    assert (b - a).is_identical(
+        APyFixedArray([6, 4, -4, -10, -10], bits=11, int_bits=6)
+    )
 
-    a = APyFixedArray([-5, -6, 7], bits=7, int_bits=4)
-    b = APyFixedArray([1, -2, 3], bits=7, int_bits=4)
-    assert (a - b).is_identical(APyFixedArray([250, 252, 4], bits=8, int_bits=5))
-
-    a = APyFixedArray([1, 2, 3], bits=10, frac_bits=0)
-    b = APyFixedArray([1, 2, 3], bits=10, frac_bits=3)
-    assert (a - b).is_identical(APyFixedArray([7, 14, 21], bits=14, frac_bits=3))
-    assert (b - a).is_identical(APyFixedArray([-7, -14, -21], bits=14, frac_bits=3))
+    a = APyFixedArray([1, 2, 3, 4, 5], bits=10, frac_bits=0)
+    b = APyFixedArray([1, 2, 3, 8, 7], bits=10, frac_bits=3)
+    assert (a - b).is_identical(
+        APyFixedArray([7, 14, 21, 24, 33], bits=14, frac_bits=3)
+    )
+    assert (b - a).is_identical(
+        APyFixedArray([-7, -14, -21, -24, -33], bits=14, frac_bits=3)
+    )
 
     a = APyFixedArray.from_float([1.2345, -5.4321], bits=256, int_bits=128)
     b = APyFixedArray.from_float([9.8765, 5.6789], bits=256, int_bits=128)
@@ -116,9 +124,9 @@ def test_array_sub():
 
 
 def test_array_sub_scalar():
-    a = APyFixedArray([-5, -6, 7], bits=10, int_bits=5)
+    a = APyFixedArray([-5, -6, 7, 10, -11], bits=10, int_bits=5)
     b = APyFixed(3, bits=7, int_bits=2)
-    assert (a - b).is_identical(APyFixedArray([2040, 2039, 4], bits=11, int_bits=6))
+    assert (a - b).is_identical(APyFixedArray([-8, -9, 4, 7, -14], bits=11, int_bits=6))
     assert (-(b - a)).is_identical((a - b).cast(12, 7))
 
     a = APyFixedArray([-5, -6, 7], bits=7, int_bits=4)

@@ -49,5 +49,3 @@ print("CompileFlags:\n" + TAB + "Add: [")
 for flag in compile_flags:
     print(2 * TAB + flag + ",")
 print(TAB + "]")
-
-APYTYPES_DIR = os.path.dirname(os.path.realpath(__file__))

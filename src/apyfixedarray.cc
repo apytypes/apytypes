@@ -110,15 +110,6 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
         ));
     }
 
-    // Fast path for identical word lengths
-    if (same_type_as(rhs) && unsigned(_bits) <= _LIMB_SIZE_BITS - 1) {
-        APyFixedArray result(_shape, _bits + 1, _int_bits + 1);
-        for (std::size_t i = 0; i < result._data.size(); i++) {
-            result._data[i] = _data[i] + rhs._data[i];
-        }
-        return result; // early exit
-    }
-
     // Increase word length of result by one
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
@@ -127,16 +118,27 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
     // Special case #1: Operands and results fit in single limb
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         APyFixedArray result(_shape, res_bits, res_int_bits);
-        auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
-        auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
-        simd::vector_shift_add(
-            _data.begin(),
-            rhs._data.begin(),
-            result._data.begin(),
-            lhs_shift_amount,
-            rhs_shift_amount,
-            result._data.size()
-        );
+        if (frac_bits() == rhs.frac_bits()) {
+            // Equally many fractional bits. Just add the data onto eachother
+            simd::vector_add(
+                _data.begin(),
+                rhs._data.begin(),
+                result._data.begin(),
+                result._data.size()
+            );
+        } else {
+            // Shift data first, than add.
+            auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
+            auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
+            simd::vector_shift_add(
+                _data.begin(),
+                rhs._data.begin(),
+                result._data.begin(),
+                lhs_shift_amount,
+                rhs_shift_amount,
+                result._data.size()
+            );
+        }
         return result; // early exit
     }
 
@@ -218,9 +220,9 @@ APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         mp_limb_t operand = rhs._data[0] << rhs_shift_amount;
-        for (std::size_t i = 0; i < result._data.size(); i++) {
-            result._data[i] = result._data[i] + operand;
-        }
+        simd::vector_add_const(
+            result._data.begin(), operand, result._data.begin(), result._data.size()
+        );
     } else {
         APyFixed imm(res_bits, res_int_bits);
         rhs._cast_correct_wl(imm._data.begin(), imm._data.end(), rhs_shift_amount);
@@ -249,15 +251,6 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
         ));
     }
 
-    // Fast path for identical word lengths
-    if (same_type_as(rhs) && unsigned(_bits) <= _LIMB_SIZE_BITS - 1) {
-        APyFixedArray result(_shape, _bits + 1, _int_bits + 1);
-        for (std::size_t i = 0; i < result._data.size(); i++) {
-            result._data[i] = _data[i] - rhs._data[i];
-        }
-        return result; // early exit
-    }
-
     // Increase word length of result by one
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
@@ -266,17 +259,28 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
     // Special case #1: Operands and results fit in single limb
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         APyFixedArray result(_shape, res_bits, res_int_bits);
-        auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
-        auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
-        simd::vector_shift_sub(
-            _data.begin(),
-            rhs._data.begin(),
-            result._data.begin(),
-            lhs_shift_amount,
-            rhs_shift_amount,
-            result._data.size()
-        );
-        return result;
+        if (frac_bits() == rhs.frac_bits()) {
+            // Right-hand side and left-hand side have equally many fractional bits
+            simd::vector_sub(
+                _data.begin(),
+                rhs._data.begin(),
+                result._data.begin(),
+                result._data.size()
+            );
+        } else {
+            // Shift data first, than subtract.
+            auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
+            auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
+            simd::vector_shift_sub(
+                _data.begin(),
+                rhs._data.begin(),
+                result._data.begin(),
+                lhs_shift_amount,
+                rhs_shift_amount,
+                result._data.size()
+            );
+        }
+        return result; // early return
     }
 
     // Special case #2: Operands and result have equally many limbs
@@ -357,9 +361,9 @@ APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         mp_limb_t operand = rhs._data[0] << rhs_shift_amount;
-        for (std::size_t i = 0; i < result._data.size(); i++) {
-            result._data[i] = result._data[i] - operand;
-        }
+        simd::vector_sub_const(
+            result._data.begin(), operand, result._data.begin(), result._data.size()
+        );
     } else {
         APyFixed imm(res_bits, res_int_bits);
         rhs._cast_correct_wl(imm._data.begin(), imm._data.end(), rhs_shift_amount);
@@ -393,9 +397,9 @@ APyFixedArray APyFixedArray::rsub(const APyFixed& lhs) const
     auto lhs_shift_amount = unsigned(res_frac_bits - lhs.frac_bits());
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         mp_limb_t operand = lhs._data[0] << lhs_shift_amount;
-        for (std::size_t i = 0; i < result._data.size(); i++) {
-            result._data[i] = operand - result._data[i];
-        }
+        simd::vector_rsub_const(
+            result._data.begin(), operand, result._data.begin(), result._data.size()
+        );
     } else {
         APyFixed imm(res_bits, res_int_bits);
         lhs._cast_correct_wl(imm._data.begin(), imm._data.end(), lhs_shift_amount);

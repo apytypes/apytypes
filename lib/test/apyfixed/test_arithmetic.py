@@ -423,7 +423,3 @@ def test_issue_224():
     x = APyFixed(39726548548812, bits=55, int_bits=3)  # approx 0.008821065777556036
     assert x.leading_zeros == 9
     assert x.leading_fractional_zeros == 6
-
-
-def pytest_collection_finish(session):
-    print("Hello")
