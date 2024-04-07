@@ -1,6 +1,6 @@
 /*!
  * This file contains declarations of vectorized arithmetic operations that tries to
- * make a best-effort attempt in parallelizing the operation using SIMD instructions.
+ * make a best-effort attempt in parallelizing operations using SIMD instructions.
  */
 
 #ifndef _APYTYPES_SIMD_H
@@ -26,9 +26,9 @@ std::string get_simd_version_str();
  * * Add the shifted values (`src1` + `src2`) and store them in `dst_begin`
  */
 void vector_shift_add(
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src2_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::vector<mp_limb_t>::const_iterator src1_begin,
+    std::vector<mp_limb_t>::const_iterator src2_begin,
+    std::vector<mp_limb_t>::iterator dst_begin,
     std::size_t src1_shift_amount,
     std::size_t src2_shift_amount,
     std::size_t size
@@ -40,9 +40,9 @@ void vector_shift_add(
  * * Subtract the shifted values (`src1` - `src2`) and store them in `dst_begin`
  */
 void vector_shift_sub(
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src2_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::vector<mp_limb_t>::const_iterator src1_begin,
+    std::vector<mp_limb_t>::const_iterator src2_begin,
+    std::vector<mp_limb_t>::iterator dst_begin,
     std::size_t src1_shift_amount,
     std::size_t src2_shift_amount,
     std::size_t size
@@ -53,9 +53,9 @@ void vector_shift_sub(
  * and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_mul(
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src2_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::vector<mp_limb_t>::const_iterator src1_begin,
+    std::vector<mp_limb_t>::const_iterator src2_begin,
+    std::vector<mp_limb_t>::iterator dst_begin,
     std::size_t size
 );
 
@@ -64,9 +64,9 @@ void vector_mul(
  * and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_add(
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src2_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::vector<mp_limb_t>::const_iterator src1_begin,
+    std::vector<mp_limb_t>::const_iterator src2_begin,
+    std::vector<mp_limb_t>::iterator dst_begin,
     std::size_t size
 );
 
@@ -75,9 +75,9 @@ void vector_add(
  * and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_sub(
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src2_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::vector<mp_limb_t>::const_iterator src1_begin,
+    std::vector<mp_limb_t>::const_iterator src2_begin,
+    std::vector<mp_limb_t>::iterator dst_begin,
     std::size_t size
 );
 
@@ -86,9 +86,9 @@ void vector_sub(
  * and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_add_const(
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
+    std::vector<mp_limb_t>::const_iterator src1_begin,
     mp_limb_t constant,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::vector<mp_limb_t>::iterator dst_begin,
     std::size_t size
 );
 
@@ -97,9 +97,9 @@ void vector_add_const(
  * and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_sub_const(
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
+    std::vector<mp_limb_t>::const_iterator src1_begin,
     mp_limb_t constant,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::vector<mp_limb_t>::iterator dst_begin,
     std::size_t size
 );
 
@@ -108,9 +108,9 @@ void vector_sub_const(
  * `src1_begin` and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_rsub_const(
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
+    std::vector<mp_limb_t>::const_iterator src1_begin,
     mp_limb_t constant,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::vector<mp_limb_t>::iterator dst_begin,
     std::size_t size
 );
 

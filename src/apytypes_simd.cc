@@ -4,14 +4,12 @@
 #include <hwy/foreach_target.h>                   // must come before highway.h
 #include <hwy/highway.h>
 
+#include <fmt/format.h>
 #include <string>
 #include <vector>
 
-#include <fmt/format.h>
-
-#include "apybuffer.h"
-
 #include "../extern/mini-gmp/mini-gmp.h"
+#include "apytypes_util.h"
 
 namespace simd {
 namespace HWY_NAMESPACE { // required: unique per target
@@ -32,8 +30,10 @@ namespace HWY_NAMESPACE { // required: unique per target
 
         std::size_t i = 0;
         for (; i < (size - size % hn::Lanes(d)); i += hn::Lanes(d)) {
-            const auto v1 = hn::ShiftLeftSame(hn::LoadU(d, src1 + i), src1_shift_amount);
-            const auto v2 = hn::ShiftLeftSame(hn::LoadU(d, src2 + i), src2_shift_amount);
+            const auto v1
+                = hn::ShiftLeftSame(hn::LoadU(d, src1 + i), src1_shift_amount);
+            const auto v2
+                = hn::ShiftLeftSame(hn::LoadU(d, src2 + i), src2_shift_amount);
             const auto res = hn::Add(v1, v2);
             hn::StoreU(res, d, dst + i);
         }
@@ -55,8 +55,10 @@ namespace HWY_NAMESPACE { // required: unique per target
 
         std::size_t i = 0;
         for (; i < (size - size % hn::Lanes(d)); i += hn::Lanes(d)) {
-            const auto v1 = hn::ShiftLeftSame(hn::LoadU(d, src1 + i), src1_shift_amount);
-            const auto v2 = hn::ShiftLeftSame(hn::LoadU(d, src2 + i), src2_shift_amount);
+            const auto v1
+                = hn::ShiftLeftSame(hn::LoadU(d, src1 + i), src1_shift_amount);
+            const auto v2
+                = hn::ShiftLeftSame(hn::LoadU(d, src2 + i), src2_shift_amount);
             const auto res = hn::Sub(v1, v2);
             hn::StoreU(res, d, dst + i);
         }
@@ -231,9 +233,9 @@ std::string get_simd_version_str()
 }
 
 void vector_shift_add(
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src2_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::vector<mp_limb_t>::const_iterator src1_begin,
+    std::vector<mp_limb_t>::const_iterator src2_begin,
+    std::vector<mp_limb_t>::iterator dst_begin,
     std::size_t src1_shift_amount,
     std::size_t src2_shift_amount,
     std::size_t size
@@ -250,9 +252,9 @@ void vector_shift_add(
 }
 
 void vector_shift_sub(
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src2_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::vector<mp_limb_t>::const_iterator src1_begin,
+    std::vector<mp_limb_t>::const_iterator src2_begin,
+    std::vector<mp_limb_t>::iterator dst_begin,
     std::size_t src1_shift_amount,
     std::size_t src2_shift_amount,
     std::size_t size
@@ -269,9 +271,9 @@ void vector_shift_sub(
 }
 
 void vector_mul(
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src2_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::vector<mp_limb_t>::const_iterator src1_begin,
+    std::vector<mp_limb_t>::const_iterator src2_begin,
+    std::vector<mp_limb_t>::iterator dst_begin,
     std::size_t size
 )
 {
@@ -281,9 +283,9 @@ void vector_mul(
 }
 
 void vector_add(
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src2_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::vector<mp_limb_t>::const_iterator src1_begin,
+    std::vector<mp_limb_t>::const_iterator src2_begin,
+    std::vector<mp_limb_t>::iterator dst_begin,
     std::size_t size
 )
 {
@@ -293,9 +295,9 @@ void vector_add(
 }
 
 void vector_sub(
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src2_begin,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::vector<mp_limb_t>::const_iterator src1_begin,
+    std::vector<mp_limb_t>::const_iterator src2_begin,
+    std::vector<mp_limb_t>::iterator dst_begin,
     std::size_t size
 )
 {
@@ -305,9 +307,9 @@ void vector_sub(
 }
 
 void vector_add_const(
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
+    std::vector<mp_limb_t>::const_iterator src1_begin,
     mp_limb_t constant,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::vector<mp_limb_t>::iterator dst_begin,
     std::size_t size
 )
 {
@@ -317,9 +319,9 @@ void vector_add_const(
 }
 
 void vector_sub_const(
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
+    std::vector<mp_limb_t>::const_iterator src1_begin,
     mp_limb_t constant,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::vector<mp_limb_t>::iterator dst_begin,
     std::size_t size
 )
 {
@@ -329,9 +331,9 @@ void vector_sub_const(
 }
 
 void vector_rsub_const(
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::const_iterator src1_begin,
+    std::vector<mp_limb_t>::const_iterator src1_begin,
     mp_limb_t constant,
-    std::vector<mp_limb_t, AlignedAllocator<mp_limb_t>>::iterator dst_begin,
+    std::vector<mp_limb_t>::iterator dst_begin,
     std::size_t size
 )
 {
