@@ -1,5 +1,6 @@
 import re
 from apytypes import (
+    APyFloat,
     APyFloatArray,
     AccumulatorContext,
     QuantizationContext,
@@ -62,7 +63,7 @@ def test_inner_product():
     b = APyFloatArray.from_float([9, 8, 7, 6, 5, 4, 3, 2], exp_bits=6, man_bits=7)
     print(a @ b)
     assert (a @ b).is_identical(b @ a)
-    assert (b @ a).is_identical(APyFloatArray.from_float([156], exp_bits=6, man_bits=8))
+    assert (b @ a).is_identical(APyFloat.from_float(156, exp_bits=6, man_bits=8))
 
 
 @pytest.mark.float_array
@@ -160,4 +161,4 @@ def test_matrix_multiplication_accumulator_context():
     )
 
     with AccumulatorContext(exp_bits=10, man_bits=3):
-        assert (a @ b).is_identical(APyFloatArray.from_float([192], 4, 3))
+        assert (a @ b).is_identical(APyFloat.from_float(192, 4, 3))
