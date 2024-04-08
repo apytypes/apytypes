@@ -1265,20 +1265,23 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
     // Resulting `APyFloatArray`
     APyFloatArray result(res_shape, max_exp_bits, max_man_bits);
 
+    // Current row from lhs (`*this`)
+    APyFloatArray current_row({ shape[1] }, exp_bits, man_bits);
+
+    // Current column from rhs
+    APyFloatArray current_column({ rhs.shape[0] }, rhs.exp_bits, rhs.man_bits);
     for (std::size_t x = 0; x < res_cols; x++) {
 
         // Copy column from `rhs` and use as the current working column. As reading
         // columns from `rhs` is cache-inefficient, we like to do this only once for
         // each element in the resulting matrix.
-        APyFloatArray current_column({ rhs.shape[0] }, rhs.exp_bits, rhs.man_bits);
         for (std::size_t col = 0; col < rhs.shape[0]; col++) {
             current_column.data[col] = rhs.data[x + col * res_cols];
         }
 
         for (std::size_t y = 0; y < res_shape[0]; y++) {
 
-            // Current row from lhs (`*this`)
-            APyFloatArray current_row({ shape[1] }, exp_bits, man_bits);
+            // Copy row from `lhs` and use as the current working column.
             for (std::size_t i = 0; i < shape[1]; i++) {
                 current_row.data[i] = data[i + y * shape[1]];
             }
