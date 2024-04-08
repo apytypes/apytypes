@@ -835,7 +835,8 @@ APyFloatArray APyFloatArray::rtruediv(const APyFloat& lhs) const
     return res;
 }
 
-APyFloatArray APyFloatArray::matmul(const APyFloatArray& rhs) const
+std::variant<APyFloatArray, APyFloat> APyFloatArray::matmul(const APyFloatArray& rhs
+) const
 {
     if (get_ndim() == 1 && rhs.get_ndim() == 1) {
         if (shape[0] == rhs.shape[0]) {
@@ -1199,13 +1200,13 @@ std::size_t APyFloatArray::fold_shape() const
 
 // Evaluate the inner between two vectors. This method assumes that the the shape of
 // both `*this` and `rhs` are equally long. Anything else is undefined behaviour.
-APyFloatArray APyFloatArray::checked_inner_product(const APyFloatArray& rhs) const
+APyFloat APyFloatArray::checked_inner_product(const APyFloatArray& rhs) const
 {
     const std::uint8_t max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const std::uint8_t max_man_bits = std::max(man_bits, rhs.man_bits);
 
     if (shape[0] == 0) {
-        return APyFloatArray({ 0 }, max_exp_bits, max_man_bits);
+        return APyFloat(0, 0, 0, max_exp_bits, max_man_bits);
     }
 
     auto tmp_exp_bits = max_exp_bits;
@@ -1239,18 +1240,14 @@ APyFloatArray APyFloatArray::checked_inner_product(const APyFloatArray& rhs) con
         sum = sum + tmp;
     }
 
-    APyFloatArray result({ 1 }, max_exp_bits, max_man_bits);
-
     // The result must be quantized back if an accumulator was used.
     if (get_accumulator_mode().has_value()) {
-        result.data[0] = sum.cast(max_exp_bits, max_man_bits).get_data();
-    } else {
-        result.data[0] = sum.get_data();
+        sum = sum.cast(max_exp_bits, max_man_bits);
     }
 
     // Change the quantization mode back, even if it wasn't changed
     set_quantization_mode(orig_quant_mode);
-    return result;
+    return sum;
 }
 
 // Evaluate the matrix product between two 2D matrices. This method assumes that the
@@ -1287,20 +1284,12 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
             }
 
             // Perform the inner product
-            APyFloatArray current_res
-                = current_column.checked_inner_product(current_row);
-            assert(current_res.shape == std::vector<std::size_t> { 1 });
+            APyFloat current_res = current_column.checked_inner_product(current_row);
             assert(current_res.exp_bits == result.exp_bits);
             assert(current_res.man_bits == result.man_bits);
 
             // Copy into the resulting vector
-            // result.data.insert(result.data.begin(), current_res.data.begin(),
-            // current_res.data.end());
-            std::copy_n(
-                current_res.data.begin(), // src
-                current_res.data.size(),  // limbs to copy
-                result.data.begin() + x + y * res_cols
-            );
+            result.data[x + y * res_cols] = current_res.get_data();
         }
     }
 

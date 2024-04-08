@@ -45,7 +45,7 @@ public:
      * method performs stacked matrix multiplications, where the dimensions of last two
      * dimensions are treated as matrices.
      */
-    APyFloatArray matmul(const APyFloatArray& rhs) const;
+    std::variant<APyFloatArray, APyFloat> matmul(const APyFloatArray& rhs) const;
 
     //! Python `__repr__()` function
     std::string repr() const;
@@ -182,7 +182,7 @@ private:
      * of both `*this` and `rhs` are equally long. Anything else is undefined
      * behaviour.
      */
-    APyFloatArray checked_inner_product(const APyFloatArray& rhs) const;
+    APyFloat checked_inner_product(const APyFloatArray& rhs) const;
 
     /*!
      * Evaluate the matrix product between two 2D matrices. This method assumes that
