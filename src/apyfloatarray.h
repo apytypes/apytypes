@@ -182,7 +182,12 @@ private:
      * of both `*this` and `rhs` are equally long. Anything else is undefined
      * behaviour.
      */
-    APyFloat checked_inner_product(const APyFloatArray& rhs) const;
+    APyFloat checked_inner_product(
+        const APyFloatArray& rhs,
+        std::optional<AccumulatorOption> accumulator_mode,
+        const std::uint8_t max_exp_bits,
+        const std::uint8_t max_man_bits
+    ) const;
 
     /*!
      * Evaluate the matrix product between two 2D matrices. This method assumes that
