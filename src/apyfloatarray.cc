@@ -842,7 +842,12 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::matmul(const APyFloatArray&
         if (shape[0] == rhs.shape[0]) {
             // Dimensionality for a standard scalar inner product checks out.
             // Perform the checked inner product.
-            return checked_inner_product(rhs);
+            return checked_inner_product(
+                rhs,
+                get_accumulator_mode(),
+                std::max(exp_bits, rhs.exp_bits),
+                std::max(man_bits, rhs.man_bits)
+            );
         }
     }
     if (get_ndim() == 2 && (rhs.get_ndim() == 2 || rhs.get_ndim() == 1)) {
@@ -1200,11 +1205,13 @@ std::size_t APyFloatArray::fold_shape() const
 
 // Evaluate the inner between two vectors. This method assumes that the the shape of
 // both `*this` and `rhs` are equally long. Anything else is undefined behaviour.
-APyFloat APyFloatArray::checked_inner_product(const APyFloatArray& rhs) const
+APyFloat APyFloatArray::checked_inner_product(
+    const APyFloatArray& rhs,
+    std::optional<AccumulatorOption> accumulator_mode,
+    const std::uint8_t max_exp_bits,
+    const std::uint8_t max_man_bits
+) const
 {
-    const std::uint8_t max_exp_bits = std::max(exp_bits, rhs.exp_bits);
-    const std::uint8_t max_man_bits = std::max(man_bits, rhs.man_bits);
-
     if (shape[0] == 0) {
         return APyFloat(0, 0, 0, max_exp_bits, max_man_bits);
     }
@@ -1221,8 +1228,8 @@ APyFloat APyFloatArray::checked_inner_product(const APyFloatArray& rhs) const
 
     const auto orig_quant_mode = get_quantization_mode();
 
-    if (get_accumulator_mode().has_value()) {
-        const auto acc_option = get_accumulator_mode().value();
+    if (accumulator_mode.has_value()) {
+        const auto acc_option = accumulator_mode.value();
         tmp_exp_bits = acc_option.exp_bits;
         tmp_man_bits = acc_option.man_bits;
         set_quantization_mode(acc_option.quantization);
@@ -1241,12 +1248,12 @@ APyFloat APyFloatArray::checked_inner_product(const APyFloatArray& rhs) const
     }
 
     // The result must be quantized back if an accumulator was used.
-    if (get_accumulator_mode().has_value()) {
+    if (accumulator_mode.has_value()) {
         sum = sum.cast(max_exp_bits, max_man_bits);
+        // Change the quantization mode back, even if it wasn't changed
+        set_quantization_mode(orig_quant_mode);
     }
 
-    // Change the quantization mode back, even if it wasn't changed
-    set_quantization_mode(orig_quant_mode);
     return sum;
 }
 
@@ -1261,6 +1268,8 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
     const std::uint8_t max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const std::uint8_t max_man_bits = std::max(man_bits, rhs.man_bits);
     const auto res_cols = rhs.shape.size() > 1 ? rhs.shape[1] : 1;
+
+    auto accumulator_mode = get_accumulator_mode();
 
     // Resulting `APyFloatArray`
     APyFloatArray result(res_shape, max_exp_bits, max_man_bits);
@@ -1285,7 +1294,9 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
             std::copy_n(&data[y * shape[1]], shape[1], current_row.data.begin());
 
             // Perform the inner product
-            APyFloat current_res = current_column.checked_inner_product(current_row);
+            APyFloat current_res = current_column.checked_inner_product(
+                current_row, accumulator_mode, max_exp_bits, max_man_bits
+            );
             assert(current_res.exp_bits == result.exp_bits);
             assert(current_res.man_bits == result.man_bits);
 
