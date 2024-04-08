@@ -1281,10 +1281,8 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
 
         for (std::size_t y = 0; y < res_shape[0]; y++) {
 
-            // Copy row from `lhs` and use as the current working column.
-            for (std::size_t i = 0; i < shape[1]; i++) {
-                current_row.data[i] = data[i + y * shape[1]];
-            }
+            // Copy row from lhs (*this)
+            std::copy_n(&data[y * shape[1]], shape[1], current_row.data.begin());
 
             // Perform the inner product
             APyFloat current_res = current_column.checked_inner_product(current_row);
