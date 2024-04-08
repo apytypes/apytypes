@@ -44,8 +44,8 @@ APyFixedArray::APyFixedArray(
     std::optional<int> frac_bits
 )
     : APyFixedArray(
-        python_sequence_extract_shape(bit_pattern_sequence), bits, int_bits, frac_bits
-    )
+          python_sequence_extract_shape(bit_pattern_sequence), bits, int_bits, frac_bits
+      )
 {
     // Specialized initialization for NumPy ndarrays
     if (nb::isinstance<nb::ndarray<nb::numpy>>(bit_pattern_sequence)) {
@@ -655,9 +655,8 @@ std::string APyFixedArray::repr() const
     }
     ss << "], shape=(";
     ss << string_from_vec(_shape);
-    ss << "), "
-       << "bits=" << std::dec << bits() << ", "
-       << "int_bits=" << std::dec << int_bits() << ")";
+    ss << "), " << "bits=" << std::dec << bits() << ", " << "int_bits=" << std::dec
+       << int_bits() << ")";
     return ss.str();
 }
 
