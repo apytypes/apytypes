@@ -239,8 +239,6 @@ APyFloat APyFloat::_cast(
 
     if (new_exp <= -static_cast<std::int64_t>(res.man_bits)) { // Exponent too small
         return res.construct_zero();
-    } else if (new_exp >= res.max_exponent()) {
-        return res.construct_inf();
     }
 
     // Check if the number will be converted to a subnormal
@@ -270,7 +268,11 @@ void APyFloat::cast_mantissa(std::uint8_t new_man_bits, QuantizationMode quantiz
 
     // Check if only zeros should be added
     if (man_bits_delta <= 0) {
-        man <<= -man_bits_delta;
+        if (exp >= max_exponent()) {
+            *this = construct_inf();
+        } else {
+            man <<= -man_bits_delta;
+        }
         return;
     }
 
