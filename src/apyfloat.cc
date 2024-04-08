@@ -932,26 +932,25 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         return res.construct_zero();
     }
     const auto quantization = get_quantization_mode();
-    auto sum_man_bits = man_bits + y.man_bits;
+    auto new_man_bits = man_bits + y.man_bits;
 
-    if (unsigned(sum_man_bits) + 2 <= _MAN_T_SIZE_BITS) {
+    if (unsigned(new_man_bits) + 2 <= _MAN_T_SIZE_BITS) {
         // Tentative exponent
         std::int64_t tmp_exp = true_exp() + y.true_exp();
         man_t mx = true_man();
         man_t my = y.true_man();
-        man_t one = 1ULL << sum_man_bits;
+        man_t one = 1ULL << new_man_bits;
         man_t two = one << 1;
 
         man_t new_man = mx * my;
 
-        auto new_man_bits = sum_man_bits;
-
         // Carry from multiplication
-        if (new_man & (one << 1)) {
+        if (new_man & two) {
             new_man_bits++;
             one = two;
             tmp_exp++;
         }
+
         std::int64_t new_exp = tmp_exp + res.bias;
 
         // Handle subnormal case
