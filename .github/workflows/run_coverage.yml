@@ -17,6 +17,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
@@ -25,9 +27,10 @@ jobs:
       run: |
         sudo apt-get install -yy lcov
         python -m pip install --upgrade pip
-        python -m pip install pytest-cov gcovr ninja meson-python numpy
+        python -m pip install pytest-cov gcovr ninja meson-python numpy setuptools_scm
     - name: Install APyTypes
       run: |
+        git fetch --tags
         export CPPFLAGS='-O0 --coverage -fprofile-abs-path'
         python -m pip install --no-deps --no-build-isolation -v --editable .
         unset CPPFLAGS

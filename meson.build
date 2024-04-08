@@ -1,8 +1,8 @@
 project(
     'apytypes',
     'cpp', 'c',
-    default_options : ['cpp_std=c++17', 'c_std=c17'],
-    version : '0.0.1.dev0',
+    default_options : ['cpp_std=c++17', 'c_std=c17', 'b_lto=true'],
+    version : run_command(find_program('python3'), '-m', 'setuptools_scm', check: true).stdout().strip(),
 )
 
 # Python module incudes
