@@ -468,23 +468,23 @@ def test_mul_special_cases(x, y, sign):
 def test_mul_short_subnormal():
     x = APyFloat(sign=0, exp=0, man=11, exp_bits=4, man_bits=9)
     y = APyFloat(sign=0, exp=5, man=50, exp_bits=5, man_bits=10)
-    assert (x * y).is_identical(APyFloat(sign=0, exp=0, man=6, exp_bits=5, man_bits=10))
+    res = x * y
+    assert res.is_identical(APyFloat(sign=0, exp=0, man=6, exp_bits=5, man_bits=10))
 
     x = APyFloat(sign=0, exp=1, man=10, exp_bits=4, man_bits=10)
     y = APyFloat(sign=0, exp=1, man=20, exp_bits=4, man_bits=10)
-    assert (x * y).is_identical(
-        APyFloat(sign=0, exp=0, man=16, exp_bits=4, man_bits=10)
-    )
+    res = x * y
+    assert res.is_identical(APyFloat(sign=0, exp=0, man=16, exp_bits=4, man_bits=10))
 
     x = APyFloat(sign=0, exp=1, man=10, exp_bits=5, man_bits=15)
     y = APyFloat(sign=0, exp=1, man=20, exp_bits=5, man_bits=15)
-    assert (x * y).is_identical(APyFloat(sign=0, exp=0, man=2, exp_bits=5, man_bits=15))
+    res = x * y
+    assert res.is_identical(APyFloat(sign=0, exp=0, man=2, exp_bits=5, man_bits=15))
 
-    a = APyFloat(0, 3, 10, 4, 10)
-    b = APyFloat(0, 4, 10, 4, 10)
-    assert (a * b).is_identical(
-        APyFloat(sign=0, exp=0, man=522, exp_bits=4, man_bits=10)
-    )
+    x = APyFloat(0, 3, 10, 4, 10)
+    y = APyFloat(0, 4, 10, 4, 10)
+    res = x * y
+    assert res.is_identical(APyFloat(sign=0, exp=0, man=522, exp_bits=4, man_bits=10))
 
 
 @pytest.mark.float_mul

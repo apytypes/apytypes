@@ -912,7 +912,8 @@ APyFloat APyFloat::operator-() const
 APyFloat APyFloat::operator*(const APyFloat& y) const
 {
     auto res_exp_bits = std::max(exp_bits, y.exp_bits);
-    APyFloat res(res_exp_bits, std::max(man_bits, y.man_bits));
+    auto res_man_bits = std::max(man_bits, y.man_bits);
+    APyFloat res(res_exp_bits, res_man_bits);
 
     // Calculate sign
     res.sign = sign ^ y.sign;
@@ -943,38 +944,30 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
 
         man_t new_man = mx * my;
 
-        const auto new_man_bits = sum_man_bits + 1;
-        // In case of denormalized data
-        if (new_man < one) {
-            int cnt = new_man_bits - bit_width(new_man);
-            new_man <<= cnt + 1;
-            tmp_exp -= cnt;
-        } else {
-            // Result may be larger than two
-            if (new_man >= two) {
-                tmp_exp++;
-            } else {
-                // Align with longer result
-                new_man <<= 1;
-            }
-        }
-        // Remove leading one
-        new_man &= two - 1;
+        auto new_man_bits = sum_man_bits;
 
-        // Possibly use more exponent bits
-        int new_exp_bits = res_exp_bits;
-        exp_t extended_bias = res.bias;
-        auto new_exp = tmp_exp + extended_bias;
-        while (new_exp <= 0) {
-            new_exp_bits++;
-            extended_bias = APyFloat::ieee_bias(new_exp_bits);
-            new_exp = tmp_exp + extended_bias;
+        // Carry from multiplication
+        if (new_man & (one << 1)) {
+            new_man_bits++;
+            one = two;
+            tmp_exp++;
         }
-        // Use longer format for intermediate result
-        APyFloat larger_float(
-            res.sign, new_exp, new_man, new_exp_bits, new_man_bits, extended_bias
-        );
-        return larger_float._cast(res.exp_bits, res.man_bits, res.bias, quantization);
+        std::int64_t new_exp = tmp_exp + res.bias;
+
+        // Handle subnormal case
+        if (new_exp <= 0) {
+            new_man_bits += -new_exp + 1;
+            new_exp = 0;
+            one = two;
+        }
+
+        // Quantize mantissa
+        new_man &= one - 1;
+        res.man = new_man;
+        res.man_bits = new_man_bits;
+        res.exp = new_exp;
+        res.cast_mantissa(res_man_bits, quantization);
+        return res;
     } else {
         // Normalize both inputs
         APyFloat norm_x = normalized();
