@@ -1231,10 +1231,12 @@ APyFloatArray APyFloatArray::checked_inner_product(const APyFloatArray& rhs) con
         hadamard = *this * rhs;
     }
 
-    APyFloat sum = APyFloat(0, 0, 0, tmp_exp_bits, max_man_bits);
+    APyFloat sum(0, 0, 0, tmp_exp_bits, tmp_man_bits);
+    APyFloat tmp(0, 0, 0, tmp_exp_bits, tmp_man_bits);
+
     for (std::size_t i = 0; i < hadamard.data.size(); i++) {
-        const APyFloatData scalar = hadamard.data.at(i);
-        sum = sum + APyFloat(scalar, tmp_exp_bits, tmp_man_bits);
+        tmp.set_data(hadamard.data.at(i));
+        sum = sum + tmp;
     }
 
     APyFloatArray result({ 1 }, max_exp_bits, max_man_bits);
