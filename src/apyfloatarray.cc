@@ -939,10 +939,11 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::get_item(std::size_t idx) c
 
 nb::ndarray<nb::numpy, double> APyFloatArray::to_numpy() const
 {
+    auto n_elements = data.size();
     // Dynamically allocate data to be passed to python
-    double* result_data = new double[fold_shape()];
+    double* result_data = new double[n_elements];
     auto apy_f = APyFloat(exp_bits, man_bits, bias);
-    for (std::size_t i = 0; i < fold_shape(); i++) {
+    for (std::size_t i = 0; i < n_elements; i++) {
         apy_f.set_data(data[i]);
         result_data[i] = apy_f.to_double();
     }
@@ -1231,7 +1232,7 @@ APyFloatArray APyFloatArray::checked_inner_product(const APyFloatArray& rhs) con
     }
 
     APyFloat sum = APyFloat(0, 0, 0, tmp_exp_bits, max_man_bits);
-    for (std::size_t i = 0; i < hadamard.fold_shape(); i++) {
+    for (std::size_t i = 0; i < hadamard.data.size(); i++) {
         const APyFloatData scalar = hadamard.data.at(i);
         sum = sum + APyFloat(scalar, tmp_exp_bits, tmp_man_bits);
     }
