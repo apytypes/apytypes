@@ -265,11 +265,13 @@ void APyFloat::cast_mantissa(std::uint8_t new_man_bits, QuantizationMode quantiz
 {
     auto man_bits_delta = man_bits - new_man_bits;
     man_bits = new_man_bits;
+    const auto max_exp = max_exponent();
 
     // Check if only zeros should be added
     if (man_bits_delta <= 0) {
-        if (exp >= max_exponent()) {
-            *this = construct_inf();
+        if (exp >= max_exp) {
+            exp = max_exp;
+            man = 0;
         } else {
             man <<= -man_bits_delta;
         }
@@ -283,8 +285,9 @@ void APyFloat::cast_mantissa(std::uint8_t new_man_bits, QuantizationMode quantiz
     }
 
     // Check for overflow
-    if (exp >= max_exponent()) {
-        *this = construct_inf();
+    if (exp >= max_exp) {
+        exp = max_exp;
+        man = 0;
     } else {
         man = new_man;
     }
