@@ -1297,8 +1297,8 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
             APyFloat current_res = current_column.checked_inner_product(
                 current_row, accumulator_mode, max_exp_bits, max_man_bits
             );
-            assert(current_res.exp_bits == result.exp_bits);
-            assert(current_res.man_bits == result.man_bits);
+            assert(current_res.get_exp_bits() == result.get_exp_bits());
+            assert(current_res.get_man_bits() == result.get_man_bits());
 
             // Copy into the resulting vector
             result.data[x + y * res_cols] = current_res.get_data();
