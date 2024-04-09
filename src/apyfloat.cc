@@ -1155,13 +1155,9 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
 
     const int abs_n = std::abs(n);
 
-    const int max_exp_bits = x.exp_bits + (count_trailing_bits(abs_n) + 1);
-    const exp_t extended_bias = APyFloat::ieee_bias(max_exp_bits);
-
     int tmp_man_bits = x.man_bits;
 
-    std::int64_t new_exp
-        = (static_cast<std::int64_t>(x.exp) - x.bias) * n + extended_bias;
+    std::int64_t new_exp = (static_cast<std::int64_t>(x.exp) - x.bias) * n + x.bias;
 
     std::uint64_t new_man = 0, mx = x.true_man();
 
@@ -1183,39 +1179,57 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
             tmp_man_bits = man_width - x_is_normal;
         }
 
+        // Handle subnormal case
+        if (new_exp <= 0) {
+            tmp_man_bits += -new_exp + 1;
+            new_exp = 0;
+        }
+
         // If a leading one was added, mask it away
         if (x_is_normal) {
             new_man &= (1ULL << tmp_man_bits) - 1;
         }
-    } else {
-        const APyFixed apy_mx(2 + x.man_bits, 2, std::vector<mp_limb_t>({ mx }));
-        APyFixed apy_res = ipow_apyfixed(apy_mx, abs_n);
 
-        // Normalize mantissa
-        while (apy_res.positive_greater_than_equal_pow2(1)) {
-            apy_res >>= 1;
-            new_exp++;
-        }
-
-        // Quantize mantissa
-        APyFloat::quantize_apymantissa(apy_res, new_sign, x.man_bits, quantization);
-        // Carry from quantization
-        if (apy_res.positive_greater_than_equal_pow2(1)) {
-            new_exp++;
-            apy_res >>= 1;
-        }
-
-        if (apy_res.positive_greater_than_equal_pow2(0)) { // Remove leading one
-            apy_res = apy_res - fx_one;
-        }
-        apy_res <<= x.man_bits;
-        new_man = (man_t)(apy_res).to_double();
+        APyFloat res(new_sign, new_exp, new_man, x.exp_bits, tmp_man_bits, x.bias);
+        res.cast_mantissa(x.man_bits, quantization);
+        return res;
     }
 
-    return APyFloat(
-               new_sign, new_exp, new_man, max_exp_bits, tmp_man_bits, extended_bias
-    )
-        ._cast(x.exp_bits, x.man_bits, x.bias, quantization);
+    // Slow path
+    const APyFixed apy_mx(2 + x.man_bits, 2, std::vector<mp_limb_t>({ mx }));
+    APyFixed apy_res = ipow_apyfixed(apy_mx, abs_n);
+
+    // Normalize mantissa
+    while (apy_res.positive_greater_than_equal_pow2(1)) {
+        apy_res >>= 1;
+        new_exp++;
+    }
+
+    // Handle subnormal case
+    if (new_exp <= 0) {
+        apy_res >>= std::abs(new_exp) + 1;
+        new_exp = 0;
+    }
+
+    // Quantize mantissa
+    APyFloat::quantize_apymantissa(apy_res, new_sign, x.man_bits, quantization);
+
+    // Carry from quantization
+    if (apy_res.positive_greater_than_equal_pow2(1)) {
+        new_exp++;
+        apy_res >>= 1;
+    }
+
+    if (new_exp >= x.max_exponent()) {
+        return x.construct_inf();
+    }
+
+    if (apy_res.positive_greater_than_equal_pow2(0)) { // Remove leading one
+        apy_res = apy_res - fx_one;
+    }
+    apy_res <<= x.man_bits;
+    new_man = (man_t)(apy_res).to_double();
+    return APyFloat(new_sign, new_exp, new_man, x.exp_bits, x.man_bits, x.bias);
 }
 
 /* ******************************************************************************
