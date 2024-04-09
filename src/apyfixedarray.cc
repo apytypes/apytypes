@@ -175,7 +175,7 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
         return result;
     }
 
-    // Most general case that work in all situations
+    // Most general case that work in all situations (slowest)
     APyFixedArray result(_shape, res_bits, res_int_bits);
     APyFixedArray imm(_shape, res_bits, res_int_bits);
     _cast_correct_wl(result._data.begin(), res_bits, res_int_bits);
@@ -217,6 +217,7 @@ APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
     if (rhs.is_zero()) {
         return result;
     }
+
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         mp_limb_t operand = rhs._data[0] << rhs_shift_amount;
@@ -424,7 +425,7 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (_shape != rhs._shape) {
         throw std::length_error(fmt::format(
-            "APyFixedArray.__mul__: shape missmatch, lhs.shape={}, rhs.shape={}",
+            "APyFixedArray.__mul__: shape missmatch, lhs.shape=({}), rhs.shape=({})",
             string_from_vec(_shape),
             string_from_vec(rhs._shape)
         ));
@@ -560,31 +561,7 @@ APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
         if (_shape[0] == rhs._shape[0]) {
             // Dimensionality for a standard scalar inner product checks out. Perform
             // the checked inner product.
-            int res_bits = bits() + rhs.bits() + bit_width(_shape[0] - 1);
-            int res_int_bits = int_bits() + rhs.int_bits() + bit_width(_shape[0] - 1);
-            APyFixedArray result({ 1 }, res_bits, res_int_bits);
-            APyFixedArray hadamard_scratch(
-                _shape, bits() + rhs.bits(), int_bits() + rhs.int_bits()
-            );
-            std::vector<mp_limb_t> prod_scratch(_itemsize + rhs._itemsize);
-            std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
-            std::vector<mp_limb_t> op2_abs(bits_to_limbs(rhs.bits()));
-            std::optional<AccumulatorOption> mode = get_accumulator_mode();
-            _checked_inner_product(
-                rhs,
-                result,           // dst
-                hadamard_scratch, // scratch memory: hadamard product
-                prod_scratch,     // scratch memory: product
-                op1_abs,          // scratch memory: operand 1 absolute value
-                op2_abs,          // scratch memroy: operand 2 absolute value
-                mode
-            );
-            if (mode.has_value()) {
-                result._bits = mode->bits;
-                result._int_bits = mode->int_bits;
-                result.buffer_resize(result._shape, bits_to_limbs(mode->bits));
-            }
-            return result;
+            return _checked_inner_product(rhs, get_accumulator_mode());
         }
     }
     if (ndim() == 2 && (rhs.ndim() == 2 || rhs.ndim() == 1)) {
@@ -939,6 +916,7 @@ void APyFixedArray::_checked_hadamard_product(
     if (res_bits <= _LIMB_SIZE_BITS) {
         // Native multiplication supported
         simd::vector_mul(_data.begin(), rhs._data.begin(), res_out, fold_shape(_shape));
+        return; // early exit
     } else {
         // Perform multiplication for each element in the tensor. `mpn_mul` requires:
         // "The destination has to have space for `s1n` + `s2n` limbs, even if the
@@ -992,14 +970,68 @@ void APyFixedArray::_checked_hadamard_product(
     }
 }
 
-void APyFixedArray::_checked_inner_product(
+APyFixedArray APyFixedArray::_checked_inner_product(
+    const APyFixedArray& rhs,             // rhs
+    std::optional<AccumulatorOption> mode // optional accumulation mode
+) const
+{
+    int res_bits = bits() + rhs.bits() + bit_width(_shape[0] - 1);
+    int res_int_bits = int_bits() + rhs.int_bits() + bit_width(_shape[0] - 1);
+    APyFixedArray result({ 1 }, res_bits, res_int_bits);
+
+    if (!mode.has_value()) {
+        if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+            // Fastest path, no accumulation mode and accumulation can be performed
+            // using single limbs.
+            // simd::vector_multiply_accumulate(
+            //    _data.begin(), rhs._data.begin(), result._data[0], _data.size()
+            //);
+            // TODO: SIMD this shit
+            mp_limb_t res = 0;
+            for (std::size_t i = 0; i < _data.size(); i++) {
+                res += mp_limb_signed_t(_data[i]) * mp_limb_signed_t(rhs._data[i]);
+            }
+            result._data[0] = res;
+            return result;
+        } else {
+            // Scratch memories used for inner product
+            std::vector<mp_limb_t> prod_scratch(_itemsize + rhs._itemsize);
+            std::vector<mp_limb_t> op1_scratch(bits_to_limbs(bits()));
+            std::vector<mp_limb_t> op2_scratch(bits_to_limbs(rhs.bits()));
+            APyFixedArray hadamard_scratch(
+                _shape, bits() + rhs.bits(), int_bits() + rhs.int_bits()
+            );
+            _checked_inner_product_full(
+                rhs, result, hadamard_scratch, prod_scratch, op1_scratch, op2_scratch
+            );
+            return result;
+        }
+    } else { /* mode.has_value() */
+
+        // Scratch memories used for inner product
+        std::vector<mp_limb_t> prod_scratch(_itemsize + rhs._itemsize);
+        std::vector<mp_limb_t> op1_scratch(bits_to_limbs(bits()));
+        std::vector<mp_limb_t> op2_scratch(bits_to_limbs(rhs.bits()));
+        APyFixedArray hadamard_scratch(
+            _shape, bits() + rhs.bits(), int_bits() + rhs.int_bits()
+        );
+        _checked_inner_product_acc(
+            rhs, result, hadamard_scratch, prod_scratch, op1_scratch, op2_scratch, *mode
+        );
+        result._bits = mode->bits;
+        result._int_bits = mode->int_bits;
+        result.buffer_resize(result._shape, bits_to_limbs(mode->bits));
+        return result;
+    }
+}
+
+void APyFixedArray::_checked_inner_product_full(
     const APyFixedArray& rhs,             // rhs
     APyFixedArray& result,                // result
     APyFixedArray& hadamard_scratch,      // scratch: hadamard product
     std::vector<mp_limb_t>& prod_scratch, // scratch: product result
     std::vector<mp_limb_t>& op1_scratch,  // scratch: absolute value operand 1
-    std::vector<mp_limb_t>& op2_scratch,  // scratch: absolute value operand 2
-    std::optional<AccumulatorOption> mode // optional accumulation mode
+    std::vector<mp_limb_t>& op2_scratch   // scratch: absolute value operand 2
 ) const
 {
     // Early exit for empty arrays
@@ -1012,122 +1044,205 @@ void APyFixedArray::_checked_inner_product(
         rhs, hadamard_scratch._data.begin(), prod_scratch, op1_scratch, op2_scratch
     );
 
-    auto n_elements = fold_shape(_shape);
-
-    // Handle global accumulator context
-    if (mode.has_value()) {
-
-        // Accumulator setting specified
-        APyFixedArray hadamard_new = hadamard_scratch.cast(
-            mode->bits, mode->int_bits, mode->quantization, mode->overflow
+    // Accumulate the result
+    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+        mpn_add(
+            &*std::begin(result._data),                              // dst
+            &*std::begin(result._data),                              // src1
+            result._data.size(),                                     // src1 limbs
+            &hadamard_scratch._data[i * hadamard_scratch._itemsize], // src2
+            hadamard_scratch._itemsize                               // src2 limbs
         );
-        std::size_t hadamard_itemsize = bits_to_limbs(mode->bits);
-        for (std::size_t i = 0; i < n_elements; i++) {
-            mpn_add(
-                &*result._data.begin(),                          // dst
-                &*result._data.begin(),                          // src1
-                result._data.size(),                             // src1 limb length
-                &hadamard_new._data[i * hadamard_itemsize],      // src2
-                std::min(hadamard_itemsize, result._data.size()) // src2 limb length
-            );
-        }
-
-    } else {
-
-        // No accumulator setting specified
-        std::size_t hadamard_itemsize = hadamard_scratch._itemsize;
-        for (std::size_t i = 0; i < n_elements; i++) {
-            mpn_add(
-                &*result._data.begin(),                          // dst
-                &*result._data.begin(),                          // src1
-                result._data.size(),                             // src1 limb length
-                &hadamard_scratch._data[i * hadamard_itemsize],  // src2
-                std::min(hadamard_itemsize, result._data.size()) // src2 limb length
-            );
-        }
     }
 }
 
-// Evaluate the matrix product between two 2D matrices. This method assumes that the
-// shape of `*this` and `rhs` have been checked to match a 2d matrix multiplication.
+void APyFixedArray::_checked_inner_product_acc(
+    const APyFixedArray& rhs,             // rhs
+    APyFixedArray& result,                // result
+    APyFixedArray& hadamard_scratch,      // scratch: hadamard product
+    std::vector<mp_limb_t>& prod_scratch, // scratch: product result
+    std::vector<mp_limb_t>& op1_scratch,  // scratch: absolute value operand 1
+    std::vector<mp_limb_t>& op2_scratch,  // scratch: absolute value operand 2
+    const AccumulatorOption& mode         // accumulation mode
+) const
+{
+    // Early exit for empty arrays
+    if (_shape[0] == 0) {
+        return;
+    }
+
+    // Hadamard product of `*this` and `rhs`
+    _checked_hadamard_product(
+        rhs, hadamard_scratch._data.begin(), prod_scratch, op1_scratch, op2_scratch
+    );
+
+    APyFixedArray hadamard_new = hadamard_scratch.cast(
+        mode.bits, mode.int_bits, mode.quantization, mode.overflow
+    );
+
+    // Accumulate the result
+    std::size_t hadamard_itemsize = bits_to_limbs(mode.bits);
+    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+        mpn_add(
+            &*std::begin(result._data),                      // dst
+            &*std::begin(result._data),                      // src1
+            result._data.size(),                             // src1 limbs
+            &hadamard_new._data[i * hadamard_itemsize],      // src2
+            std::min(hadamard_itemsize, result._data.size()) // src2 limbs
+        );
+    }
+}
+
 APyFixedArray APyFixedArray::_checked_2d_matmul(
     const APyFixedArray& rhs, std::optional<AccumulatorOption> mode
 ) const
 {
     // Resulting shape
+    const std::size_t res_cols = rhs._shape.size() > 1 ? rhs._shape[1] : 1;
     std::vector<std::size_t> res_shape = rhs._shape.size() > 1
         ? std::vector<std::size_t> { _shape[0], rhs._shape[1] } // rhs is 2-D
         : std::vector<std::size_t> { _shape[0] };               // rhs is 1-D
-    const auto res_cols = rhs._shape.size() > 1 ? rhs._shape[1] : 1;
 
     // Resulting number of bits
     std::size_t res_bits = bits() + rhs.bits() + bit_width(_shape[1] - 1);
     std::size_t res_int_bits = int_bits() + rhs.int_bits() + bit_width(_shape[1] - 1);
 
-    // Resulting `APyFixedArray`
+    // Result tensor and a working column from `rhs`
     APyFixedArray result(res_shape, res_bits, res_int_bits);
-    if (mode.has_value()) {
-        result._itemsize = bits_to_limbs(mode->bits);
+    APyFixedArray current_col({ rhs._shape[0] }, rhs.bits(), rhs.int_bits());
+
+    /*
+     * Special case #1: No accumulator mode specified and resulting matrix elements fit
+     * into a single limb. This is the fastest `_checked_2d_matmul` path.
+     */
+    if (!mode.has_value()) {
+        if (res_bits <= _LIMB_SIZE_BITS) {
+            for (std::size_t x = 0; x < res_cols; x++) {
+                // Copy column from `rhs` and use as the current working column. As
+                // reading columns from `rhs` is cache-inefficient, we like to do this
+                // only once for each element in the resulting matrix.
+                for (std::size_t row = 0; row < rhs._shape[0]; row++) {
+                    current_col._data[row] = rhs._data[x + row * res_cols];
+                }
+                for (std::size_t y = 0; y < res_shape[0]; y++) {
+                    // TODO: SIMD this shit
+                    mp_limb_t res = 0;
+                    for (std::size_t i = 0; i < _shape[1]; i++) {
+                        res += mp_limb_signed_t(_data[y * _shape[1] + i])
+                            * mp_limb_signed_t(current_col._data[i]);
+                    }
+                    result._data[y * res_cols + x] = res;
+                }
+            }
+            return result; // early exit
+        }
     }
 
-    // Scratch memories for avoiding memory allocation and de-allocation
+    /*
+     * General case: This always works but is slower than the special cases.
+     */
+    // Scratch memories for avoiding memory (de-)allocation
+    std::vector<mp_limb_t> prod_scratch(_itemsize + rhs._itemsize);
+    std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
+    std::vector<mp_limb_t> op2_abs(bits_to_limbs(rhs.bits()));
+    APyFixedArray current_res({ 1 }, res_bits, res_int_bits);
+    APyFixedArray current_row({ _shape[1] }, bits(), int_bits());
     APyFixedArray hadamard_tmp(
         { rhs._shape[0] }, bits() + rhs.bits(), int_bits() + rhs.int_bits()
     );
-    std::vector<mp_limb_t> prod_tmp(_itemsize + rhs._itemsize);
-    std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
-    std::vector<mp_limb_t> op2_abs(bits_to_limbs(rhs.bits()));
+    if (!mode.has_value()) {
 
-    // Perform the 2D matrix multiplication
-    APyFixedArray current_column({ rhs._shape[0] }, rhs.bits(), rhs.int_bits());
-    APyFixedArray current_row({ _shape[1] }, bits(), int_bits());
-    APyFixedArray current_res({ 1 }, res_bits, res_int_bits);
-    for (std::size_t x = 0; x < res_cols; x++) {
+        for (std::size_t x = 0; x < res_cols; x++) {
+            // Copy column from `rhs` and use as the current working column. As
+            // reading columns from `rhs` is cache-inefficient, we like to do this
+            // only once for each element in the resulting matrix.
+            for (std::size_t row = 0; row < rhs._shape[0]; row++) {
+                std::copy_n(
+                    rhs._data.begin() + (x + row * res_cols) * rhs._itemsize,
+                    rhs._itemsize,
+                    current_col._data.begin() + row * rhs._itemsize
+                );
+            }
+            for (std::size_t y = 0; y < res_shape[0]; y++) {
+                // Copy current row from lhs (`*this`)
+                std::copy_n(
+                    _data.begin() + (y * _shape[1] * _itemsize), // src
+                    _itemsize * _shape[1],                       // limbs to copy
+                    current_row._data.begin()                    // dst
+                );
 
-        // Copy column from `rhs` and use as the current working column. As reading
-        // columns from `rhs` is cache-inefficient, we like to do this only once for
-        // each element in the resulting matrix.
-        for (std::size_t row = 0; row < rhs._shape[0]; row++) {
-            std::copy_n(
-                rhs._data.begin() + (x + row * res_cols) * rhs._itemsize,
-                rhs._itemsize,
-                current_column._data.begin() + row * rhs._itemsize
-            );
+                // Perform the inner product
+                current_col._checked_inner_product_full(
+                    current_row,
+                    current_res,
+                    hadamard_tmp,
+                    prod_scratch,
+                    op1_abs,
+                    op2_abs
+                );
+
+                // Copy into the resulting vector
+                std::copy_n(
+                    current_res._data.begin(),
+                    result._itemsize,
+                    result._data.begin() + (y * res_cols + x) * result._itemsize
+                );
+
+                std::fill(current_res._data.begin(), current_res._data.end(), 0);
+            }
+        }
+        return result;
+
+    } else { /* mode.has_value() */
+
+        result._itemsize = bits_to_limbs(mode->bits);
+        for (std::size_t x = 0; x < res_cols; x++) {
+            // Copy column from `rhs` and use as the current working column. As
+            // reading columns from `rhs` is cache-inefficient, we like to do this
+            // only once for each element in the resulting matrix.
+            for (std::size_t row = 0; row < rhs._shape[0]; row++) {
+                std::copy_n(
+                    rhs._data.begin() + (x + row * res_cols) * rhs._itemsize,
+                    rhs._itemsize,
+                    current_col._data.begin() + row * rhs._itemsize
+                );
+            }
+            for (std::size_t y = 0; y < res_shape[0]; y++) {
+                // Copy current row from lhs (`*this`)
+                std::copy_n(
+                    _data.begin() + (y * _shape[1] * _itemsize), // src
+                    _itemsize * _shape[1],                       // limbs to copy
+                    current_row._data.begin()                    // dst
+                );
+
+                // Perform the inner product
+                current_col._checked_inner_product_acc(
+                    current_row,
+                    current_res,
+                    hadamard_tmp,
+                    prod_scratch,
+                    op1_abs,
+                    op2_abs,
+                    *mode
+                );
+
+                // Copy into the resulting vector
+                std::copy_n(
+                    current_res._data.begin(),
+                    result._itemsize,
+                    result._data.begin() + (y * res_cols + x) * result._itemsize
+                );
+
+                std::fill(current_res._data.begin(), current_res._data.end(), 0);
+            }
         }
 
-        for (std::size_t y = 0; y < res_shape[0]; y++) {
-
-            // Copy current row from lhs (`*this`)
-            std::copy_n(
-                _data.begin() + (y * _shape[1] * _itemsize), // src
-                _itemsize * _shape[1],                       // limbs to copy
-                current_row._data.begin()                    // dst
-            );
-
-            // Perform the inner product
-            current_column._checked_inner_product(
-                current_row, current_res, hadamard_tmp, prod_tmp, op1_abs, op2_abs, mode
-            );
-
-            // Copy into the resulting vector
-            std::copy_n(
-                current_res._data.begin(),
-                result._itemsize,
-                result._data.begin() + (y * res_cols + x) * result._itemsize
-            );
-
-            std::fill(current_res._data.begin(), current_res._data.end(), 0);
-        }
-    }
-
-    if (mode.has_value()) {
         result._bits = mode->bits;
         result._int_bits = mode->int_bits;
         result._itemsize = bits_to_limbs(mode->bits);
         result._data.resize(result._itemsize * fold_shape(result._shape));
+        return result;
     }
-
-    return result;
 }
 
 //! Cast values to a longer (at least not shorter) word length
