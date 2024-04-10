@@ -125,6 +125,15 @@ public:
     //! The exponent is updated in case of carry.
     void cast_mantissa(std::uint8_t man_bits, QuantizationMode quantization);
 
+    //! Decrease (not increase) the number of mantissa bits.
+    //! The number is assumed not be NaN or Inf.
+    //! The exponent is updated in case of carry.
+    void cast_mantissa_shorter(std::uint8_t man_bits, QuantizationMode quantization);
+
+    //! Change the number of mantissa bits. The number is assumed not be NaN or Inf.
+    //! The exponent is assumed to be 0 and is updated in case of carry.
+    void cast_mantissa_subnormal(std::uint8_t man_bits, QuantizationMode quantization);
+
     APyFloat cast_no_quant(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
@@ -201,23 +210,26 @@ public:
      */
 
     //! True if and only if value is normal (not zero, subnormal, infinite, or NaN).
-    APY_INLINE bool is_normal() const { return exp != 0 && exp != max_exponent(); }
+    APY_INLINE bool is_normal() const { return !is_subnormal() && !is_max_exponent(); }
 
     //! True if and only if value is zero, subnormal, or normal.
-    APY_INLINE bool is_finite() const { return exp == 0 || exp != max_exponent(); }
+    APY_INLINE bool is_finite() const { return is_subnormal() || !is_max_exponent(); }
 
     //! True if and only if value is subnormal. Zero is also considered a subnormal
     //! number.
     APY_INLINE bool is_subnormal() const { return exp == 0; }
 
     //! True if and only if value is zero.
-    APY_INLINE bool is_zero() const { return exp == 0 && man == 0; }
+    APY_INLINE bool is_zero() const { return is_subnormal() && man == 0; }
 
     //! True if and only if value is NaN.
-    APY_INLINE bool is_nan() const { return man != 0 && exp == max_exponent(); }
+    APY_INLINE bool is_nan() const { return man != 0 && is_max_exponent(); }
 
     //! True if and only if value is infinite.
-    APY_INLINE bool is_inf() const { return man == 0 && exp == max_exponent(); }
+    APY_INLINE bool is_inf() const { return man == 0 && is_max_exponent(); }
+
+    //! True if and only if value is infinite or NaN.
+    APY_INLINE bool is_max_exponent() const { return exp == max_exponent(); }
 
     APY_INLINE bool get_sign() const { return sign; }
     APY_INLINE man_t get_man() const { return man; }

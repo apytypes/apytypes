@@ -496,11 +496,11 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
         const auto x_max_exponent = ((1ULL << exp_bits) - 1);
         const auto y_max_exponent = ((1ULL << rhs.exp_bits) - 1);
         const auto res_max_exponent = ((1ULL << res_exp_bits) - 1);
+        const auto new_man_bits = sum_man_bits + 1;
         const man_t one = 1ULL << sum_man_bits;
-        const man_t two = one << 1;
+        const man_t two = 1ULL << new_man_bits;
         const auto mask_two = two - 1;
         const std::int64_t bias_sum = bias + rhs.bias;
-        const auto new_man_bits = sum_man_bits + 1;
         const auto new_exp_bits = bit_width(bias_sum + new_man_bits) + 1;
         const auto extended_bias = APyFloat::ieee_bias(new_exp_bits);
         // Use longer format for intermediate result
