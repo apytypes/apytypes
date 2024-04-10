@@ -1120,9 +1120,9 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
                 }
                 for (std::size_t y = 0; y < res_shape[0]; y++) {
                     result._data[y * res_cols + x] = simd::vector_multiply_accumulate(
-                        _data.begin() + (y * _shape[1]),
-                        current_col._data.begin(),
-                        _shape[1]
+                        _data.begin() + (y * _shape[1]), // src1
+                        current_col._data.begin(),       // src2
+                        _shape[1]                        // multiply-accumulate length
                     );
                 }
             }
