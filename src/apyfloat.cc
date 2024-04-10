@@ -228,7 +228,7 @@ APyFloat APyFloat::_cast(
     // Initial value for exponent
     std::int64_t new_exp = true_exp() + (std::int64_t)res.bias;
 
-    // Normalize the exponent and mantissa if convertering from a subnormal
+    // Normalize the exponent and mantissa if converting from a subnormal
     man_t prev_man = man;
     if (is_subnormal()) {
         const exp_t subn_adjustment = count_trailing_bits(man);
@@ -242,21 +242,23 @@ APyFloat APyFloat::_cast(
     }
 
     // Check if the number will be converted to a subnormal
-    exp_t subn_adjustment = 0;
     if (new_exp <= 0) {
         prev_man |= leading_one();
-        // Prepare for right shift to adjust the mantissa
-        subn_adjustment = -new_exp + 1;
-        new_exp = 0;
+        res.exp = 0;
+        // Cast mantissa
+        // The mantissa is temporarily set to a larger format in order to use
+        // 'cast_mantissa_subnormal'
+        res.man = prev_man;
+        res.man_bits = man_bits + -new_exp + 1;
+
+        res.cast_mantissa_subnormal(new_man_bits, quantization);
+        return res;
     }
 
     // Cast mantissa
     res.exp = new_exp;
-    // The mantissa is temporarily set to a larger format in order to use
-    // 'cast_mantissa'
     res.man = prev_man;
-    res.man_bits = man_bits + subn_adjustment;
-
+    res.man_bits = man_bits;
     res.cast_mantissa(new_man_bits, quantization);
     return res;
 }
@@ -287,6 +289,54 @@ void APyFloat::cast_mantissa(std::uint8_t new_man_bits, QuantizationMode quantiz
     // Check for overflow
     if (exp >= max_exp) {
         exp = max_exp;
+        man = 0;
+    } else {
+        man = new_man;
+    }
+}
+
+// Simplified version of cast_mantissa when it is known that new_man_bits is shorter
+// than man_bits
+void APyFloat::cast_mantissa_shorter(
+    std::uint8_t new_man_bits, QuantizationMode quantization
+)
+{
+    auto man_bits_delta = man_bits - new_man_bits;
+    man_bits = new_man_bits;
+    const auto max_exp = max_exponent();
+
+    man_t new_man = quantize_mantissa(man, man_bits_delta, sign, quantization);
+    if (new_man & leading_one()) {
+        ++exp;
+        new_man = 0;
+    }
+
+    // Check for overflow
+    if (exp >= max_exp) {
+        exp = max_exp;
+        man = 0;
+    } else {
+        man = new_man;
+    }
+}
+
+// Simplified version of cast_mantissa with exp = 0
+void APyFloat::cast_mantissa_subnormal(
+    std::uint8_t new_man_bits, QuantizationMode quantization
+)
+{
+    auto man_bits_delta = man_bits - new_man_bits;
+    man_bits = new_man_bits;
+
+    // Check if only zeros should be added
+    if (man_bits_delta <= 0) {
+        man <<= -man_bits_delta;
+        return;
+    }
+
+    man_t new_man = quantize_mantissa(man, man_bits_delta, sign, quantization);
+    if (new_man & leading_one()) {
+        exp = 1;
         man = 0;
     } else {
         man = new_man;
@@ -845,7 +895,7 @@ APyFloat APyFloat::operator+(APyFloat y) const
         res.man = new_man;
         std::uint8_t res_man_bits = res.man_bits;
         res.man_bits = res.man_bits + 3 + c; // +3 is from the added guard bits
-        res.cast_mantissa(
+        res.cast_mantissa_shorter(
             res_man_bits, quantization
         ); // The exponent is also updated here if needed
         return res;
@@ -924,17 +974,19 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     res.sign = sign ^ y.sign;
 
     // Handle special operands
-    if ((is_nan() || y.is_nan()) || (is_inf() && y.is_zero())
-        || (is_zero() && y.is_inf())) {
-        return res.construct_nan();
-    }
+    if (is_max_exponent() || y.is_max_exponent() || is_zero() || y.is_zero()) {
+        if ((is_nan() || y.is_nan()) || (is_inf() && y.is_zero())
+            || (is_zero() && y.is_inf())) {
+            return res.construct_nan();
+        }
 
-    if ((is_inf() || y.is_inf())) {
-        return res.construct_inf();
-    }
+        if ((is_inf() || y.is_inf())) {
+            return res.construct_inf();
+        }
 
-    if (is_zero() || y.is_zero()) {
-        return res.construct_zero();
+        if (is_zero() || y.is_zero()) {
+            return res.construct_zero();
+        }
     }
     const auto quantization = get_quantization_mode();
     const unsigned int sum_man_bits = man_bits + y.man_bits;
@@ -946,8 +998,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         std::int64_t tmp_exp = true_exp() + y.true_exp() + res.bias;
         man_t mx = true_man();
         man_t my = y.true_man();
-        man_t one = 1ULL << sum_man_bits;
-        man_t two = one << 1;
+        man_t two = 1ULL << new_man_bits;
 
         man_t new_man = mx * my;
 
@@ -960,6 +1011,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
                 new_man_bits -= tmp_exp;
                 tmp_exp = 0;
             } else {
+                // Align with longer result
                 new_man <<= 1;
             }
         }
@@ -970,7 +1022,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         res.man = new_man;
         res.man_bits = new_man_bits;
         res.exp = tmp_exp;
-        res.cast_mantissa(res_man_bits, quantization);
+        res.cast_mantissa_shorter(res_man_bits, quantization);
         return res;
     } else {
         // Normalize both inputs
@@ -1196,7 +1248,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
         }
 
         APyFloat res(new_sign, new_exp, new_man, x.exp_bits, tmp_man_bits, x.bias);
-        res.cast_mantissa(x.man_bits, quantization);
+        res.cast_mantissa_shorter(x.man_bits, quantization);
         return res;
     }
 
