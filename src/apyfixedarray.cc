@@ -981,17 +981,11 @@ APyFixedArray APyFixedArray::_checked_inner_product(
 
     if (!mode.has_value()) {
         if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-            // Fastest path, no accumulation mode and accumulation can be performed
-            // using single limbs.
-            // simd::vector_multiply_accumulate(
-            //    _data.begin(), rhs._data.begin(), result._data[0], _data.size()
-            //);
-            // TODO: SIMD this shit
-            mp_limb_t res = 0;
-            for (std::size_t i = 0; i < _data.size(); i++) {
-                res += mp_limb_signed_t(_data[i]) * mp_limb_signed_t(rhs._data[i]);
-            }
-            result._data[0] = res;
+            // Fastest path, no accumulation mode specified and result fit in a single
+            // limb.
+            result._data[0] = simd::vector_multiply_accumulate(
+                _data.begin(), rhs._data.begin(), _data.size()
+            );
             return result;
         } else {
             // Scratch memories used for inner product
@@ -1125,13 +1119,11 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
                     current_col._data[row] = rhs._data[x + row * res_cols];
                 }
                 for (std::size_t y = 0; y < res_shape[0]; y++) {
-                    // TODO: SIMD this shit
-                    mp_limb_t res = 0;
-                    for (std::size_t i = 0; i < _shape[1]; i++) {
-                        res += mp_limb_signed_t(_data[y * _shape[1] + i])
-                            * mp_limb_signed_t(current_col._data[i]);
-                    }
-                    result._data[y * res_cols + x] = res;
+                    result._data[y * res_cols + x] = simd::vector_multiply_accumulate(
+                        _data.begin() + (y * _shape[1]),
+                        current_col._data.begin(),
+                        _shape[1]
+                    );
                 }
             }
             return result; // early exit

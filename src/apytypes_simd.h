@@ -114,6 +114,16 @@ void vector_rsub_const(
     std::size_t size
 );
 
-};
+/*!
+ * Multiply (signed) and accumulate all elements from `src1_begin` with `src2_begin`,
+ * for `size` number of elements.
+ */
+mp_limb_t vector_multiply_accumulate(
+    std::vector<mp_limb_t>::const_iterator src1_begin,
+    std::vector<mp_limb_t>::const_iterator src2_begin,
+    std::size_t size
+);
+
+}; // namespace simd
 
 #endif
