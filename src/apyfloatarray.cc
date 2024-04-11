@@ -945,11 +945,10 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::get_item(std::size_t idx) c
 
 nb::ndarray<nb::numpy, double> APyFloatArray::to_numpy() const
 {
-    auto n_elements = data.size();
     // Dynamically allocate data to be passed to python
-    double* result_data = new double[n_elements];
+    double* result_data = new double[data.size()];
     auto apy_f = APyFloat(exp_bits, man_bits, bias);
-    for (std::size_t i = 0; i < n_elements; i++) {
+    for (std::size_t i = 0; i < data.size(); i++) {
         apy_f.set_data(data[i]);
         result_data[i] = apy_f.to_double();
     }
