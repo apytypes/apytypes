@@ -142,7 +142,7 @@ private:
     std::uint64_t new_seed, prev_seed;
 };
 
-// Set the global quantization mdoe
+// Set the global quantization mode
 void set_quantization_mode(QuantizationMode mode);
 
 // Retrieve the global quantization mode
@@ -154,7 +154,7 @@ void set_quantization_seed(std::uint64_t);
 // Get the global seed for stochastic quantization
 std::uint64_t get_quantization_seed();
 
-// Retreive a random 64-bit number
+// Retrieve a random 64-bit number
 std::uint64_t random_number();
 
 using exp_t = std::uint32_t;

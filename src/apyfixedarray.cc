@@ -45,8 +45,8 @@ APyFixedArray::APyFixedArray(
     std::optional<int> frac_bits
 )
     : APyFixedArray(
-        python_sequence_extract_shape(bit_pattern_sequence), bits, int_bits, frac_bits
-    )
+          python_sequence_extract_shape(bit_pattern_sequence), bits, int_bits, frac_bits
+      )
 {
     // Specialized initialization for NumPy ndarrays
     if (nb::isinstance<nb::ndarray<nb::numpy>>(bit_pattern_sequence)) {
@@ -105,7 +105,7 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (_shape != rhs._shape) {
         throw std::length_error(fmt::format(
-            "APyFixedArray.__add__: shape missmatch, lhs.shape={}, rhs.shape={}",
+            "APyFixedArray.__add__: shape mismatch, lhs.shape={}, rhs.shape={}",
             string_from_vec(_shape),
             string_from_vec(rhs._shape)
         ));
@@ -247,7 +247,7 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (_shape != rhs._shape) {
         throw std::length_error(fmt::format(
-            "APyFixedArray.__sub__: shape missmatch, lhs.shape={}, rhs.shape={}",
+            "APyFixedArray.__sub__: shape mismatch, lhs.shape={}, rhs.shape={}",
             string_from_vec(_shape),
             string_from_vec(rhs._shape)
         ));
@@ -426,7 +426,7 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (_shape != rhs._shape) {
         throw std::length_error(fmt::format(
-            "APyFixedArray.__mul__: shape missmatch, lhs.shape=({}), rhs.shape=({})",
+            "APyFixedArray.__mul__: shape mismatch, lhs.shape=({}), rhs.shape=({})",
             string_from_vec(_shape),
             string_from_vec(rhs._shape)
         ));
@@ -457,7 +457,7 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
             result._data.begin(), // dst
             prod_tmp,             // scratch memory: product
             op1_abs,              // scratch memory: operand 1 absolute value
-            op2_abs               // scratch memroy: operand 2 absolute value
+            op2_abs               // scratch memory: operand 2 absolute value
         );
     }
 
@@ -574,7 +574,7 @@ APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
     }
     if (ndim() == 2 && (rhs.ndim() == 2 || rhs.ndim() == 1)) {
         if (_shape[1] == rhs._shape[0]) {
-            // Dimensionality for a standard 2D matrix mutliplication checks out.
+            // Dimensionality for a standard 2D matrix multiplication checks out.
             // Perform the checked 2D matrix
             return _checked_2d_matmul(rhs, get_accumulator_mode());
         }
@@ -582,7 +582,7 @@ APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
 
     // Unsupported `__matmul__` dimensionality, raise exception
     throw std::length_error(fmt::format(
-        "APyFixedArray.__matmul__: input shape missmatch, lhs: ({}), rhs: ({})",
+        "APyFixedArray.__matmul__: input shape mismatch, lhs: ({}), rhs: ({})",
         string_from_vec(_shape),
         string_from_vec(rhs._shape)
     ));
@@ -649,9 +649,8 @@ std::string APyFixedArray::repr() const
     }
     ss << "], shape=(";
     ss << string_from_vec(_shape);
-    ss << "), "
-       << "bits=" << std::dec << bits() << ", "
-       << "int_bits=" << std::dec << int_bits() << ")";
+    ss << "), " << "bits=" << std::dec << bits() << ", " << "int_bits=" << std::dec
+       << int_bits() << ")";
     return ss.str();
 }
 
@@ -1405,7 +1404,7 @@ void APyFixedArray::_set_bits_from_numpy_ndarray(const nb::ndarray<nb::numpy>& n
 
     // Each `CHECK_AND_SET_BITS_FROM_NPTYPE` checks the dtype of `ndarray` and
     // converts all the data if it matches. If successful,
-    // `CHECK_AND_SET_BITS_FROM_NPTYPES` returns. Otherwise, the next attemted
+    // `CHECK_AND_SET_BITS_FROM_NPTYPES` returns. Otherwise, the next attempted
     // conversion will take place
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::int64_t);
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::int32_t);
@@ -1457,7 +1456,7 @@ void APyFixedArray::_set_values_from_numpy_ndarray(const nb::ndarray<nb::numpy>&
 
     // Each `CHECK_AND_SET_VALUES_FROM_NPTYPE` checks the dtype of `ndarray` and
     // converts all the data if it matches. If successful,
-    // `CHECK_AND_SET_VALUES_FROM_NPTYPES` returns. Otherwise, the next attemted
+    // `CHECK_AND_SET_VALUES_FROM_NPTYPES` returns. Otherwise, the next attempted
     // conversion will take place
     CHECK_AND_SET_VALUES_FROM_NPTYPE(double);
     CHECK_AND_SET_VALUES_FROM_NPTYPE(float);

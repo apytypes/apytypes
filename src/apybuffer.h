@@ -1,5 +1,5 @@
 /*
- * APyTypes buffer array, for using arrays and exposing its Python Buffer Protocal.
+ * APyTypes buffer array, for using arrays and exposing its Python Buffer Protocol.
  * Buffer Protocol documentation: https://docs.python.org/3/c-api/buffer.html
  */
 

@@ -21,7 +21,7 @@
 #include <vector>     // std::vector
 
 /*
- * Include Microsoft instrinsics if using Microsoft Visual C/C++ compiler
+ * Include Microsoft intrinsics if using Microsoft Visual C/C++ compiler
  */
 #if defined(_MSC_VEC)
 #include <intrin.h>
@@ -106,7 +106,7 @@ template <typename INT_TYPE>
     return bit_width(n) - 1;
 }
 
-//! Quickly evaluate how many limbs are requiered to to store a `bits` bit word
+//! Quickly evaluate how many limbs are required to to store a `bits` bit word
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t bits_to_limbs(std::size_t bits
 )
 {
@@ -274,7 +274,7 @@ nibble_list_shift_right_once(std::vector<std::uint8_t>& nibble_list)
 //! double-dabble and reverse double-dable algorithm.
 struct DoubleDabbleList {
 
-    //! Mask with a bit in every possition where a nibble starts
+    //! Mask with a bit in every position where a nibble starts
     static constexpr mp_limb_t _NIBBLE_MASK = _LIMB_SIZE_BITS == 64
         ? 0x1111111111111111 // 64-bit architecture
         : 0x11111111;        // 32-bit architecture
@@ -372,7 +372,7 @@ bcds_to_string(const std::vector<mp_limb_t> bcds)
     // The first limb *should not* be padded with zeros
     ss << *bcds.crbegin();
 
-    // Any remaing limbs *should* must be zero padded
+    // Any remaining limbs *should* must be zero padded
     for (auto limb_it = bcds.crbegin() + 1; limb_it != bcds.crend(); ++limb_it) {
         ss << std::setw(2 * _LIMB_SIZE_BYTES) << std::setfill('0') << *limb_it;
     }

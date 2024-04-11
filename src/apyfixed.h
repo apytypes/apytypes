@@ -119,7 +119,7 @@ public:
     APyFixed operator/(int rhs) const;
 
     /* ****************************************************************************** *
-     *                          Binary comparion operators                            *
+     *                          Binary comparison operators                            *
      * ****************************************************************************** */
 
 public:

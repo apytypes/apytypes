@@ -367,7 +367,7 @@ void bind_float_array(nb::module_& m)
             Test if two :class:`APyFloatArray` objects are identical.
 
             Two :class:`APyFloatArray` objects are considered identical if, and only if:
-              * They represent exatly the same tensor shape
+              * They represent exactly the same tensor shape
               * They store the exact same floating-ppint values in all tensor elements
               * They have the exact same bit format (`exp_bits`, `man_bits`, and `bias`)
 

@@ -5,7 +5,7 @@ project(
     version : run_command(find_program('python3'), '-m', 'setuptools_scm', check: true).stdout().strip(),
 )
 
-# Python module incudes
+# Python module includes
 py3 = import('python').find_installation('python3', pure: false)
 py3_dep = py3.dependency()
 

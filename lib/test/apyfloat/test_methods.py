@@ -12,8 +12,8 @@ def test_scalar_constructor_raises():
         APyFloat(0, 0, 0, 5, 100)
 
 
-def test_scalar_depricated_raises():
-    # The method 'resize' was depricated and changed to 'cast'
+def test_scalar_deprecated_raises():
+    # The method 'resize' was deprecated and changed to 'cast'
     with pytest.warns(DeprecationWarning, match=".*cast"):
         APyFloat(0, 0, 0, 7, 10).resize(10, 43)
 

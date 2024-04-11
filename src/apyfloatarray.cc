@@ -86,7 +86,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (shape != rhs.shape) {
         throw std::length_error(fmt::format(
-            "APyFloatArray.__add__: shape missmatch, lhs.shape={}, rhs.shape={}",
+            "APyFloatArray.__add__: shape mismatch, lhs.shape={}, rhs.shape={}",
             string_from_vec(shape),
             string_from_vec(rhs.shape)
         ));
@@ -440,7 +440,7 @@ APyFloatArray APyFloatArray::operator-(const APyFloatArray& rhs) const
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (shape != rhs.shape) {
         throw std::length_error(fmt::format(
-            "APyFloatArray.__sub__: shape missmatch, lhs.shape={}, rhs.shape={}",
+            "APyFloatArray.__sub__: shape mismatch, lhs.shape={}, rhs.shape={}",
             string_from_vec(shape),
             string_from_vec(rhs.shape)
         ));
@@ -476,7 +476,7 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (shape != rhs.shape) {
         throw std::length_error(fmt::format(
-            "APyFloatArray.__mul__: shape missmatch, lhs.shape={}, rhs.shape={}",
+            "APyFloatArray.__mul__: shape mismatch, lhs.shape={}, rhs.shape={}",
             string_from_vec(shape),
             string_from_vec(rhs.shape)
         ));
@@ -772,7 +772,7 @@ APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (shape != rhs.shape) {
         throw std::length_error(fmt::format(
-            "APyFloatArray.__truediv__: shape missmatch, lhs.shape={}, "
+            "APyFloatArray.__truediv__: shape mismatch, lhs.shape={}, "
             "rhs.shape={}",
             string_from_vec(shape),
             string_from_vec(rhs.shape)
@@ -852,7 +852,7 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::matmul(const APyFloatArray&
     }
     if (get_ndim() == 2 && (rhs.get_ndim() == 2 || rhs.get_ndim() == 1)) {
         if (shape[1] == rhs.shape[0]) {
-            // Dimensionality for a standard 2D matrix mutliplication checks out.
+            // Dimensionality for a standard 2D matrix multiplication checks out.
             // Perform the checked 2D matrix
             return checked_2d_matmul(rhs);
         }
@@ -860,7 +860,7 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::matmul(const APyFloatArray&
 
     // Unsupported `__matmul__` dimensionality, raise exception
     throw std::length_error(fmt::format(
-        "APyFloatArray.__matmul__: input shape missmatch, lhs: ({}), rhs: ({})",
+        "APyFloatArray.__matmul__: input shape mismatch, lhs: ({}), rhs: ({})",
         string_from_vec(shape),
         string_from_vec(rhs.shape)
     ));
@@ -889,10 +889,9 @@ std::string APyFloatArray::repr() const
     }
     ss << "shape=(";
     ss << string_from_vec(shape);
-    ss << "), "
-       << "exp_bits=" << static_cast<unsigned>(exp_bits) << ", "
-       << "man_bits=" << static_cast<unsigned>(man_bits) << ", "
-       << "bias=" << bias << ")";
+    ss << "), " << "exp_bits=" << static_cast<unsigned>(exp_bits) << ", "
+       << "man_bits=" << static_cast<unsigned>(man_bits) << ", " << "bias=" << bias
+       << ")";
     return ss.str();
 }
 
@@ -1054,7 +1053,7 @@ void APyFloatArray::_set_values_from_numpy_ndarray(const nb::ndarray<nb::numpy>&
 
     // Each `CHECK_AND_SET_VALUES_FROM_NPTYPE` checks the dtype of `ndarray` and
     // converts all the data if it matches. If successful,
-    // `CHECK_AND_SET_VALUES_FROM_NPTYPES` returns. Otherwise, the next attemted
+    // `CHECK_AND_SET_VALUES_FROM_NPTYPES` returns. Otherwise, the next attempted
     // conversion will take place
     CHECK_AND_SET_VALUES_FROM_NPTYPE(double);
     CHECK_AND_SET_VALUES_FROM_NPTYPE(float);

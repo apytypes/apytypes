@@ -6,13 +6,13 @@ from apytypes import APyFloat, APyFloatArray
 def test_array_raises():
     a = APyFloatArray([1], [5], [4], 10, 10)
     b = APyFloatArray([1, 2], [5, 3], [4, 4], 10, 10)
-    with pytest.raises(ValueError, match="APyFloatArray.__add__: shape missmatch"):
+    with pytest.raises(ValueError, match="APyFloatArray.__add__: shape mismatch"):
         _ = a + b
-    with pytest.raises(ValueError, match="APyFloatArray.__sub__: shape missmatch"):
+    with pytest.raises(ValueError, match="APyFloatArray.__sub__: shape mismatch"):
         _ = a - b
-    with pytest.raises(ValueError, match="APyFloatArray.__mul__: shape missmatch"):
+    with pytest.raises(ValueError, match="APyFloatArray.__mul__: shape mismatch"):
         _ = a * b
-    with pytest.raises(ValueError, match="APyFloatArray.__truediv__: shape missmatch"):
+    with pytest.raises(ValueError, match="APyFloatArray.__truediv__: shape mismatch"):
         _ = a / b
 
 

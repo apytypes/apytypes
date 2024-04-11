@@ -6,7 +6,7 @@ builddir/
 _version.py
 _version.pyi
 
-# Apple debuging symbol files
+# Apple debugging symbol files
 *.dSYM
 
 # Documentation ignores

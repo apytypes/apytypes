@@ -520,7 +520,7 @@ class APyFixedArray:
         Test if two :class:`APyFixedArray` objects are identical.
 
         Two :class:`APyFixedArray` objects are considered identical if, and only if:
-          * They represent exatly the same tensor shape
+          * They represent exactly the same tensor shape
           * They store the exact same fixed-point values in all tensor elements
           * They have the exact same bit specification (`bits`, `int_bits`, and
             `frac_bits` are all equal)
@@ -1139,7 +1139,7 @@ class APyFloatArray:
         Test if two :class:`APyFloatArray` objects are identical.
 
         Two :class:`APyFloatArray` objects are considered identical if, and only if:
-          * They represent exatly the same tensor shape
+          * They represent exactly the same tensor shape
           * They store the exact same floating-ppint values in all tensor elements
           * They have the exact same bit format (`exp_bits`, `man_bits`, and `bias`)
 
@@ -1332,7 +1332,7 @@ class QuantizationMode:
 
       TRN_INF : Round towards positive infinity.
 
-      RND : Round to nearest, ties towards postive infinity (standard 'round' for fixed-point).
+      RND : Round to nearest, ties towards positive infinity (standard 'round' for fixed-point).
 
       RND_ZERO : Round to nearest, ties toward zero.
 
