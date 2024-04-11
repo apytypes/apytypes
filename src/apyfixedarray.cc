@@ -116,9 +116,11 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
     const int res_bits = res_int_bits + res_frac_bits;
 
+    // Resulting vector
+    APyFixedArray result(_shape, res_bits, res_int_bits);
+
     // Special case #1: Operands and results fit in single limb
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        APyFixedArray result(_shape, res_bits, res_int_bits);
         if (frac_bits() == rhs.frac_bits()) {
             // Equally many fractional bits. Just add the data onto eachother
             simd::vector_add(
@@ -146,7 +148,6 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
     // Special case #2: Operands and result have equally many limbs
     auto res_limbs = bits_to_limbs(res_bits);
     if (res_limbs == _itemsize && res_limbs == rhs._itemsize) {
-        APyFixedArray result(_shape, res_bits, res_int_bits);
         const mp_limb_t* src1_ptr;
         const mp_limb_t* src2_ptr;
         if (frac_bits() == rhs.frac_bits()) {
@@ -164,7 +165,6 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
             src1_ptr = &result._data[0];
             src2_ptr = &_data[0];
         }
-
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
             mpn_add_n(
                 &result._data[i], // dst
@@ -177,7 +177,6 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
     }
 
     // Most general case that work in all situations (slowest)
-    APyFixedArray result(_shape, res_bits, res_int_bits);
     APyFixedArray imm(_shape, res_bits, res_int_bits);
     _cast_correct_wl(result._data.begin(), res_bits, res_int_bits);
     rhs._cast_correct_wl(imm._data.begin(), res_bits, res_int_bits);
@@ -212,8 +211,10 @@ APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
     const int res_bits = res_int_bits + res_frac_bits;
 
-    // Adjust binary point
+    // Resulting vector
     APyFixedArray result(_shape, res_bits, res_int_bits);
+
+    // Adjust binary point
     _cast_correct_wl(result._data.begin(), res_bits, res_int_bits);
     if (rhs.is_zero()) {
         return result;
@@ -258,9 +259,11 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
     const int res_bits = res_int_bits + res_frac_bits;
 
+    // Resulting vector
+    APyFixedArray result(_shape, res_bits, res_int_bits);
+
     // Special case #1: Operands and results fit in single limb
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        APyFixedArray result(_shape, res_bits, res_int_bits);
         if (frac_bits() == rhs.frac_bits()) {
             // Right-hand side and left-hand side have equally many fractional bits
             simd::vector_sub(
@@ -282,13 +285,12 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
                 result._data.size()
             );
         }
-        return result; // early return
+        return result; // early exit
     }
 
     // Special case #2: Operands and result have equally many limbs
     auto res_limbs = bits_to_limbs(res_bits);
     if (res_limbs == _itemsize && res_limbs == rhs._itemsize) {
-        APyFixedArray result(_shape, res_bits, res_int_bits);
         const mp_limb_t* src1_ptr;
         const mp_limb_t* src2_ptr;
         if (frac_bits() == rhs.frac_bits()) {
@@ -315,11 +317,10 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
                 result._itemsize  // limb vector length
             );
         }
-        return result;
+        return result; // early exit
     }
 
     // Most general case that work in all situations
-    APyFixedArray result(_shape, res_bits, res_int_bits);
     APyFixedArray imm(_shape, res_bits, res_int_bits);
     _cast_correct_wl(result._data.begin(), res_bits, res_int_bits);
     rhs._cast_correct_wl(imm._data.begin(), res_bits, res_int_bits);
@@ -334,7 +335,6 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
         );
     }
 
-    // Return result
     return result;
 }
 
@@ -354,8 +354,10 @@ APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
     const int res_bits = res_int_bits + res_frac_bits;
 
-    // Adjust binary point
+    // Resulting vector
     APyFixedArray result(_shape, res_bits, res_int_bits);
+
+    // Adjust binary point
     _cast_correct_wl(result._data.begin(), res_bits, res_int_bits);
     if (rhs.is_zero()) {
         return result;
@@ -381,7 +383,6 @@ APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
         }
     }
 
-    // Return result
     return result;
 }
 
@@ -472,23 +473,24 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
 
     // Resulting `APyFixedArray` fixed-point tensor
     APyFixedArray result(_shape, res_bits, res_int_bits);
+
+    // Special case #1: The resulting number of bits fit in a single limb
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         for (std::size_t i = 0; i < _data.size(); i++) {
             result._data[i] = _data[i] * rhs._data[0];
         }
-        return result;
+        return result; // early exit
     }
 
-    // Compute abs and sign of rhs (op2)
+    // General case: This always works but is slower than the special cases.
     auto op2_begin = rhs._data.begin();
     auto op2_end = rhs._data.begin() + rhs.vector_size();
     bool sign2 = mp_limb_signed_t(*(op2_end - 1)) < 0;
     std::vector<mp_limb_t> op2_abs = limb_vector_abs(op2_begin, op2_end);
 
     // Perform multiplication for each element in the tensor. `mpn_mul` requires:
-    // "The destination has to have space for `s1n` + `s2n` limbs, even if the
-    // product’s
-    //  most significant limb is zero."
+    // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
+    // most significant limbs are zero."
     std::vector<mp_limb_t> res_tmp_vec(_itemsize + rhs.vector_size(), 0);
     std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
     auto op1_begin = _data.begin();
@@ -1098,7 +1100,7 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
     std::size_t res_bits = bits() + rhs.bits() + bit_width(_shape[1] - 1);
     std::size_t res_int_bits = int_bits() + rhs.int_bits() + bit_width(_shape[1] - 1);
 
-    // Result tensor and a working column from `rhs`
+    // Resulting tensor and a working column from `rhs`
     APyFixedArray result(res_shape, res_bits, res_int_bits);
     APyFixedArray current_col({ rhs._shape[0] }, rhs.bits(), rhs.int_bits());
 
@@ -1130,7 +1132,7 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
     /*
      * General case: This always works but is slower than the special cases.
      */
-    // Scratch memories for avoiding memory (de-)allocation
+    // Scratch memories for avoiding memory re-allocation
     std::vector<mp_limb_t> prod_scratch(_itemsize + rhs._itemsize);
     std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
     std::vector<mp_limb_t> op2_abs(bits_to_limbs(rhs.bits()));

@@ -257,6 +257,9 @@ private:
      * Store the result in the vector pointed to by `res_out`. This method assumes that
      * the shape of `*this` and `rhs` are equally long. Anyghing else is undefined
      * behaviour.
+     *
+     * NOTE: Use `simd::vector_mul` if you know that the resulting number of bits fit in
+     * a single limb.
      */
     template <typename RANDOM_ACCESS_ITERATOR>
     void _checked_hadamard_product(

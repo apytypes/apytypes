@@ -284,8 +284,9 @@ public:
     ) const;
 
 private:
-    //! The internal cast method. Uses output iterators to place result onto its limb
-    //! vector. Requires that `std::distance(it_begin, it_end) == bits_to_limbs(bits)`.
+    //! The internal cast method. Uses output iterators to place the result into the
+    //! iterator region pointed to by `it_begin` and `it_end`. Requires that:
+    //! `std::distance(it_begin, it_end) == bits_to_limbs(std::max(_bits, new_bits))`.
     template <class RANDOM_ACCESS_ITERATOR>
     void _cast(
         RANDOM_ACCESS_ITERATOR it_begin,
@@ -455,6 +456,15 @@ private:
         int int_bits
     ) const;
 
+    //! Perform saturating overflow.
+    template <class RANDOM_ACCESS_ITERATOR>
+    void _overflow_saturate(
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
+        int bits,
+        int int_bits
+    ) const;
+
     /* ****************************************************************************** *
      *                           Private helper methods                               *
      * ****************************************************************************** */
@@ -467,6 +477,14 @@ private:
         RANDOM_ACCESS_ITERATOR it_begin,
         RANDOM_ACCESS_ITERATOR it_end,
         unsigned shift_val
+    ) const;
+
+    //! Copy the raw bits from `*this` onto the iterator region pointed to `it_begin`
+    //! and `it_end`. If `std::distance(it_begin, it_end) > self->vector_size()`, then
+    //! the data is (limb) sign-extended.
+    template <typename RANDOM_ACCESS_ITERATOR>
+    void _copy_and_sign_extend(
+        RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end
     ) const;
 
     //! `APyFixedArray` is a friend class of APyFixed, and can access all data of an

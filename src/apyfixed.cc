@@ -1057,7 +1057,11 @@ void APyFixed::_cast(
     OverflowMode overflow
 ) const
 {
-    _cast_no_overflow(it_begin, it_end, new_bits, new_int_bits, quantization);
+    // Copy data into the result and sign extend
+    _copy_and_sign_extend(it_begin, it_end);
+
+    // First perform quantization
+    _quantize(it_begin, it_end, new_bits, new_int_bits, quantization);
 
     // Then perform overflowing
     _overflow(it_begin, it_end, new_bits, new_int_bits, overflow);
@@ -1073,11 +1077,7 @@ void APyFixed::_cast_no_overflow(
 ) const
 {
     // Copy data into the result and sign extend
-    std::size_t result_vector_size = std::distance(it_begin, it_end);
-    std::copy_n(_data.begin(), std::min(vector_size(), result_vector_size), it_begin);
-    if (vector_size() < result_vector_size) {
-        std::fill(it_begin + vector_size(), it_end, is_negative() ? mp_limb_t(-1) : 0);
-    }
+    _copy_and_sign_extend(it_begin, it_end);
 
     // Perform quantization
     _quantize(it_begin, it_end, new_bits, new_int_bits, quantization);
@@ -1108,6 +1108,13 @@ void APyFixed::_quantize(
     QuantizationMode quantization
 ) const
 {
+    /*
+     * Note to authors trying to implement quantization modes: All the quantization
+     * methods (e.g., `_quantize_trn_zero()`) assumes that that the data being quantized
+     * has already been copied into the iterator region pointed to by `it_begin` and
+     * `it_end`. These set of methods simply shift the data in the iterator region into
+     * the correct place and performs any necessary quantization bit-fiddling.
+     */
     switch (quantization) {
     case QuantizationMode::TRN:
         _quantize_trn(it_begin, it_end, new_bits, new_int_bits);
@@ -1411,9 +1418,19 @@ void APyFixed::_overflow(
     OverflowMode overflow
 ) const
 {
+    /*
+     * Note to authors trying to implement overflowing modes: All the overflow methods
+     * (e.g., `_overflow_saturate()`) assumes assumes that the data being overflown has
+     * already been copied into the iterator region pointed to by `it_begin` and
+     * `it_end`, and has been shifted into place. These set of methods simply perform
+     * any necessary overflow bit-fiddling.
+     */
     switch (overflow) {
     case OverflowMode::WRAP:
         _twos_complement_overflow(it_begin, it_end, new_bits, new_int_bits);
+        break;
+    case OverflowMode::SAT:
+        _overflow_saturate(it_begin, it_end, new_bits, new_int_bits);
         break;
     default:
         throw NotImplementedException(fmt::format(
@@ -1452,6 +1469,19 @@ void APyFixed::_twos_complement_overflow(
     }
 }
 
+//! Perform saturating overflow.
+template <class RANDOM_ACCESS_ITERATOR>
+void APyFixed::_overflow_saturate(
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
+    int bits,
+    int int_bits
+) const
+{
+    (void)int_bits;
+    throw NotImplementedException();
+}
+
 /* ********************************************************************************** *
  * *                          Private member functions                              * *
  * ********************************************************************************** */
@@ -1483,6 +1513,18 @@ void APyFixed::_data_asl(
         mp_limb_t or_mask
             = ~((mp_limb_t(1) << (bits() + shift_val) % _LIMB_SIZE_BITS) - 1);
         *std::prev(it_end) |= or_mask & sign_int;
+    }
+}
+
+template <typename RANDOM_ACCESS_ITERATOR>
+void APyFixed::_copy_and_sign_extend(
+    RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end
+) const
+{
+    std::size_t result_vector_size = std::distance(it_begin, it_end);
+    std::copy_n(_data.begin(), std::min(vector_size(), result_vector_size), it_begin);
+    if (vector_size() < result_vector_size) {
+        std::fill(it_begin + vector_size(), it_end, is_negative() ? mp_limb_t(-1) : 0);
     }
 }
 
