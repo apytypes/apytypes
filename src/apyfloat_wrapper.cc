@@ -106,7 +106,17 @@ void bind_float(nb::module_& m)
         .def(nb::self - nb::self)
         .def(nb::self * nb::self)
         .def(nb::self / nb::self)
-
+        .def(
+            "__add__",
+            [](const APyFloat& a, int b) {
+                if (b == 0) {
+                    return a;
+                } else {
+                    throw nanobind::type_error("Cannot add with int");
+                };
+            },
+            nb::is_operator()
+        )
         .def(
             "__radd__",
             [](const APyFloat& a, int b) {
@@ -285,17 +295,7 @@ void bind_float(nb::module_& m)
             [](const APyFloat& a, const APyFixed& b) { return a > b; },
             nb::is_operator()
         )
-        .def(
-            "__add__",
-            [](const APyFloat& a, int b) {
-                if (b == 0) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot add with int");
-                };
-            },
-            nb::is_operator()
-        )
+
         /*
          * Logic operators
          */
