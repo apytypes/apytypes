@@ -72,12 +72,14 @@
    Bit pattern information
    ^^^^^^^^^^^^^^^^^^^^^^^
 
+   .. autoproperty:: is_finite
+
    .. autoproperty:: is_inf
 
    .. autoproperty:: is_nan
 
-   .. autoproperty:: is_finite
-
    .. autoproperty:: is_normal
 
    .. autoproperty:: is_subnormal
+
+   .. autoproperty:: is_zero
