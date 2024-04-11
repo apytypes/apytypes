@@ -1481,7 +1481,7 @@ bool APyFloat::operator>(const APyFloat& rhs) const
     }
 }
 
-/* bool APyFloat::operator==(const double rhs) const
+bool APyFloat::operator==(const double rhs) const
 {
     APyFloat rhs_fp(
         sign_of_double(rhs), exp_of_double(rhs), man_of_double(rhs), 11, 52, 1023
@@ -1527,7 +1527,19 @@ bool APyFloat::operator>(const double rhs) const
         sign_of_double(rhs), exp_of_double(rhs), man_of_double(rhs), 11, 52, 1023
     );
     return (*this > rhs_fp);
-} */
+}
+
+bool APyFloat::operator==(const float rhs) const { return *this == (double)rhs; }
+
+bool APyFloat::operator!=(const float rhs) const { return *this != (double)rhs; }
+
+bool APyFloat::operator<=(const float rhs) const { return *this < (double)rhs; }
+
+bool APyFloat::operator<(const float rhs) const { return *this < (double)rhs; }
+
+bool APyFloat::operator>=(const float rhs) const { return *this >= (double)rhs; }
+
+bool APyFloat::operator>(const float rhs) const { return *this > (double)rhs; }
 
 bool APyFloat::operator==(const APyFixed& rhs) const
 {
