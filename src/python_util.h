@@ -288,7 +288,7 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
         );
     } else if (nb::isinstance<nb::sequence>(*first_element_it)) {
         // First element along this dimension is another sequence. Make sure all
-        // elements along this dimesions are also sequences and recursivly evaluate
+        // elements along this dimensions are also sequences and recursively evaluate
         // their shapes.
         std::vector<std::vector<std::size_t>> recursive_shapes;
         for (auto element : bit_pattern_sequence) {

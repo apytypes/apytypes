@@ -6,10 +6,10 @@ from apytypes import QuantizationMode
 import pytest
 
 
-def test_dimension_missmatch_raises():
+def test_dimension_mismatch_raises():
 
     ##
-    # Vector inner product missmatch
+    # Vector inner product mismatch
     #
     a = APyFixedArray([1, 2, 3], bits=10, int_bits=10)
     b = APyFixedArray([4, 5], bits=10, int_bits=10)
@@ -17,7 +17,7 @@ def test_dimension_missmatch_raises():
     with pytest.raises(
         ValueError,
         match=re.escape(
-            "APyFixedArray.__matmul__: input shape missmatch, lhs: (3), rhs: (2)"
+            "APyFixedArray.__matmul__: input shape mismatch, lhs: (3), rhs: (2)"
         ),
     ):
         _ = a @ b
@@ -25,13 +25,13 @@ def test_dimension_missmatch_raises():
     with pytest.raises(
         ValueError,
         match=re.escape(
-            "APyFixedArray.__matmul__: input shape missmatch, lhs: (2), rhs: (3)"
+            "APyFixedArray.__matmul__: input shape mismatch, lhs: (2), rhs: (3)"
         ),
     ):
         _ = b @ a
 
     ##
-    # 2D matrix multiplication missmatch
+    # 2D matrix multiplication mismatch
     #
     a = APyFixedArray([[1, 2, 3], [4, 5, 6]], bits=10, int_bits=10)
     b = APyFixedArray([[1, 2], [3, 4], [5, 6]], bits=10, int_bits=10)
@@ -42,7 +42,7 @@ def test_dimension_missmatch_raises():
     with pytest.raises(
         ValueError,
         match=re.escape(
-            "APyFixedArray.__matmul__: input shape missmatch, lhs: (2, 3), rhs: (2, 3)"
+            "APyFixedArray.__matmul__: input shape mismatch, lhs: (2, 3), rhs: (2, 3)"
         ),
     ):
         _ = a @ a
@@ -50,7 +50,7 @@ def test_dimension_missmatch_raises():
     with pytest.raises(
         ValueError,
         match=re.escape(
-            "APyFixedArray.__matmul__: input shape missmatch, lhs: (3, 2), rhs: (3, 2)"
+            "APyFixedArray.__matmul__: input shape mismatch, lhs: (3, 2), rhs: (3, 2)"
         ),
     ):
         _ = b @ b

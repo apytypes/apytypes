@@ -25,10 +25,10 @@ class TestAccumulatorContext:
             with AccumulatorContext():
                 pass
 
-        with AccumulatorContext(bits=5, int_bits=2):  # should not thow
+        with AccumulatorContext(bits=5, int_bits=2):  # should not raise
             pass
 
-        with AccumulatorContext(exp_bits=5, man_bits=2):  # should not thow
+        with AccumulatorContext(exp_bits=5, man_bits=2):  # should not raise
             pass
 
         with pytest.raises(

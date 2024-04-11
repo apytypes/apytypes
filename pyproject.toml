@@ -70,3 +70,8 @@ markers = [
     "float_array : custom marker for grouping tests for floating-point arrays",
     "slow : custom marker for grouping long running tests",
 ]
+
+[tool.typos]
+files.extend-exclude = ["extern", "docs/Doxyfile"]
+default.extend-words = { NDArray = "NDArray" }
+default.extend-identifiers = { NDArray = "NDArray" }

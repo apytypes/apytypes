@@ -48,7 +48,7 @@ the bias will converge towards zero the more bits are quantized away (except for
       Round to nearest, ties toward negative infinity.
 
    .. image:: ../_static/TIES_NEG.png
-      :alt: Illustration of round to nearest, ties toward negative inifinity
+      :alt: Illustration of round to nearest, ties toward negative infinity
 
    .. autoattribute:: TIES_ZERO
 
@@ -126,7 +126,7 @@ the bias will converge towards zero the more bits are quantized away (except for
 
    .. autoattribute:: RND_CONV_ODD
 
-      Altenate unbiased fixed-point rounding. Round to nearest, ties to odd. Alias for :attr:`TIES_ODD`.
+      Alternate unbiased fixed-point rounding. Round to nearest, ties to odd. Alias for :attr:`TIES_ODD`.
 
    .. autoattribute:: RND_INF
 

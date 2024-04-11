@@ -99,7 +99,7 @@ public:
     APyFixedArray rsub(const APyFixed& rhs) const;
 
     /*!
-     * Matrix mutliplication. If both arguments ar 2-D tensors, this method performs the
+     * Matrix multiplication. If both arguments ar 2-D tensors, this method performs the
      * ordinary matrix multiplication. If input dimensions are greater than 2, this
      * method performs stacked matrix multiplications, where the dimensions of last two
      * dimensions are treated as matrices.
@@ -152,7 +152,7 @@ public:
      * fixed-point values as `*this`, but with a new word-length. The underlying
      * bit-pattern of each tensor element are copied into place, meaning that lowering
      * the number of fractional bits may result in quantization, and lowering the number
-     * of integer bits may result in overflowing. Supports quantization and oveflow
+     * of integer bits may result in overflowing. Supports quantization and overflow
      * options on narrowing casts.
      */
     APyFixedArray cast(
@@ -174,7 +174,7 @@ public:
     /*!
      * Test if `*this` is identical to another `APyFixedArray`. Two `APyFixedArray`
      * objects are considered identical if, and only if:
-     *   * They represent exatly the same tensor shape
+     *   * They represent exactly the same tensor shape
      *   * They store the exact same fixed-point values in all tensor elements
      *   * They have the exact same bit format (`bits`, `int_bits`, and `frac_bits`)
      */
@@ -223,7 +223,7 @@ private:
     /*!
      * Evaluate the inner product between `*this` and `rhs` using scratch memories. This
      * method assumes that no accumulator context is being used. Store the
-     * single-element (possbly multiple-limb) result in `result`. This method assumes
+     * single-element (possibly multiple-limb) result in `result`. This method assumes
      * that the the shape of both `*this` and `rhs` are equally long. Anything else is
      * undefined behaviour.
      */
@@ -291,8 +291,9 @@ private:
     ) const;
 
     /*!
-     * Set the underlying bit values of `*this` from a NumPy NDArray object of integers.
-     * This member function assumes that the shape of `*this` and `ndarray` are equal.
+     * Set the underlying bit values of `*this` from a NumPy NDArray object of
+     * integers. This member function assumes that the shape of `*this` and `ndarray`
+     * are equal.
      */
     void _set_bits_from_numpy_ndarray(const nanobind::ndarray<nanobind::numpy>& ndarray
     );

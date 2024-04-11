@@ -40,7 +40,7 @@ public:
     APyFloatArray rtruediv(const APyFloat& rhs) const;
 
     /*!
-     * Matrix mutliplication. If both arguments ar 2-D tensors, this method performs the
+     * Matrix multiplication. If both arguments ar 2-D tensors, this method performs the
      * ordinary matrix multiplication. If input dimensions are greater than 2, this
      * method performs stacked matrix multiplications, where the dimensions of last two
      * dimensions are treated as matrices.
@@ -65,7 +65,7 @@ public:
     /*!
      * Test if two `APyFloatArray` objects are identical. Two `APyFloatArray` objects
      * are considered identical if, and only if:
-     *   * They represent exatly the same tensor shape
+     *   * They represent exactly the same tensor shape
      *   * They store the exact same floating-point values in all tensor elements
      *   * They have the exact same sized fields
      */

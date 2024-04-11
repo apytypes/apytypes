@@ -54,7 +54,7 @@ void bind_common(nb::module_& m)
         .value(
             "RND",
             QuantizationMode::RND,
-            R"pbdoc(Round to nearest, ties towards postive infinity (standard 'round' for fixed-point).)pbdoc"
+            R"pbdoc(Round to nearest, ties towards positive infinity (standard 'round' for fixed-point).)pbdoc"
         )
         .value(
             "RND_ZERO",

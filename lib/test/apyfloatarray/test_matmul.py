@@ -11,28 +11,28 @@ import pytest
 
 
 @pytest.mark.float_array
-def test_dimension_missmatch_raises():
+def test_dimension_mismatch_raises():
 
     ##
-    # Vector inner product missmatch
+    # Vector inner product mismatch
     #
     a = APyFloatArray([1, 0], [5, 8], [9, 10], exp_bits=10, man_bits=10)
     b = APyFloatArray([0, 0, 0], [5, 5, 9], [1, 2, 3], exp_bits=10, man_bits=10)
 
     with pytest.raises(
         ValueError,
-        match="APyFloatArray.__matmul__: input shape missmatch",
+        match="APyFloatArray.__matmul__: input shape mismatch",
     ):
         _ = a @ b
 
     with pytest.raises(
         ValueError,
-        match="APyFloatArray.__matmul__: input shape missmatch",
+        match="APyFloatArray.__matmul__: input shape mismatch",
     ):
         _ = b @ a
 
     ##
-    # 2D matrix multiplication missmatch
+    # 2D matrix multiplication mismatch
     #
     a = APyFloatArray.from_float([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
     b = APyFloatArray.from_float([[1, 2], [3, 4], [5, 6]], exp_bits=10, man_bits=10)
@@ -43,7 +43,7 @@ def test_dimension_missmatch_raises():
     with pytest.raises(
         ValueError,
         match=re.escape(
-            "APyFloatArray.__matmul__: input shape missmatch, lhs: (2, 3), rhs: (2, 3)"
+            "APyFloatArray.__matmul__: input shape mismatch, lhs: (2, 3), rhs: (2, 3)"
         ),
     ):
         _ = a @ a
@@ -51,7 +51,7 @@ def test_dimension_missmatch_raises():
     with pytest.raises(
         ValueError,
         match=re.escape(
-            "APyFloatArray.__matmul__: input shape missmatch, lhs: (3, 2), rhs: (3, 2)"
+            "APyFloatArray.__matmul__: input shape mismatch, lhs: (3, 2), rhs: (3, 2)"
         ),
     ):
         _ = b @ b

@@ -4,7 +4,7 @@ Development
 APyTypes is an open source project and contributions are very welcome!
 From bug reports, through enhancement suggestions, to better documentation and code.
 
-Here, there will be some devleopment information to be expanded over time.
+Here, there will be some development information to be expanded over time.
 
 Installation
 ------------
