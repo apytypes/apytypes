@@ -161,3 +161,23 @@ def test_inf_comparison():
     assert APyFloat.from_float(float("inf"), 5, 5) != APyFloat.from_float(
         float("-inf"), 5, 5
     )
+
+
+@pytest.mark.float_comp
+def test_signed_zero_comparison():
+    a = APyFloat(0, 0, 0, 5, 10)
+    b = APyFloat(1, 0, 0, 5, 10)
+
+    assert a == b
+    assert not (a != b)
+    assert not (a > b)
+    assert a >= b
+    assert not (a < b)
+    assert a <= b
+
+    assert b == a
+    assert not (b != a)
+    assert not (b > a)
+    assert b >= a
+    # assert not(b < a)
+    assert b <= a
