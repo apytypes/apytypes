@@ -100,3 +100,10 @@ def test_cast():
     fp_array = APyFloatArray.from_float([1.125, -1.875], exp_bits=10, man_bits=15)
     ans = APyFloatArray.from_float([1, -1.75], exp_bits=5, man_bits=2)
     assert fp_array.cast(5, 2, quantization=QuantizationMode.TO_ZERO).is_identical(ans)
+
+
+@pytest.mark.float_array
+def test_python_sum():
+    fx_array = APyFloatArray.from_float([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
+    assert sum(fx_array) == 21
+    assert sum(fx_array).is_identical(APyFloat.from_float(21, 10, 10))
