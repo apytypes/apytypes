@@ -250,6 +250,8 @@
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyFloat.is_subnormal" title="apytypes.APyFloat.is_subnormal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_subnormal</span></code></a></dt><dd><p>True if and only if value is subnormal.</p>
 </dd>
+<dt><a class="reference internal" href="#apytypes.APyFloat.is_zero" title="apytypes.APyFloat.is_zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_zero</span></code></a></dt><dd><p>True if and only if value is zero.</p>
+</dd>
 <dt><a class="reference internal" href="#apytypes.APyFloat.man" title="apytypes.APyFloat.man"><code class="xref py py-obj docutils literal notranslate"><span class="pre">man</span></code></a></dt><dd><p>Mantissa bits.</p>
 </dd>
 <dt><a class="reference internal" href="#apytypes.APyFloat.man_bits" title="apytypes.APyFloat.man_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">man_bits</span></code></a></dt><dd><p>Number of mantissa bits.</p>
@@ -650,6 +652,19 @@ a subnormal number.</p>
 <section id="bit-pattern-information">
 <h3>Bit pattern information<a class="headerlink" href="#bit-pattern-information" title="Link to this heading">#</a></h3>
 <dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFloat.is_finite">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_finite</span></span><a class="headerlink" href="#apytypes.APyFloat.is_finite" title="Link to this definition">#</a></dt>
+<dd><p>True if and only if value is zero, subnormal, or normal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFloat.is_inf">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_inf</span></span><a class="headerlink" href="#apytypes.APyFloat.is_inf" title="Link to this definition">#</a></dt>
 <dd><p>True if and only if value is infinite.</p>
@@ -666,19 +681,6 @@ a subnormal number.</p>
 <dt class="sig sig-object py" id="apytypes.APyFloat.is_nan">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_nan</span></span><a class="headerlink" href="#apytypes.APyFloat.is_nan" title="Link to this definition">#</a></dt>
 <dd><p>True if and only if value is NaN.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></dt><dd></dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="apytypes.APyFloat.is_finite">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_finite</span></span><a class="headerlink" href="#apytypes.APyFloat.is_finite" title="Link to this definition">#</a></dt>
-<dd><p>True if and only if value is zero, subnormal, or normal.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -706,6 +708,19 @@ a subnormal number.</p>
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_subnormal</span></span><a class="headerlink" href="#apytypes.APyFloat.is_subnormal" title="Link to this definition">#</a></dt>
 <dd><p>True if and only if value is subnormal.</p>
 <p>Zero is considered subnormal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="apytypes.APyFloat.is_zero">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_zero</span></span><a class="headerlink" href="#apytypes.APyFloat.is_zero" title="Link to this definition">#</a></dt>
+<dd><p>True if and only if value is zero.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -798,11 +813,12 @@ a subnormal number.</p>
 <li><a class="reference internal" href="#apytypes.APyFloat.true_sign"><code class="docutils literal notranslate"><span class="pre">APyFloat.true_sign</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.true_exp"><code class="docutils literal notranslate"><span class="pre">APyFloat.true_exp</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.true_man"><code class="docutils literal notranslate"><span class="pre">APyFloat.true_man</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloat.is_finite"><code class="docutils literal notranslate"><span class="pre">APyFloat.is_finite</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.is_inf"><code class="docutils literal notranslate"><span class="pre">APyFloat.is_inf</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.is_nan"><code class="docutils literal notranslate"><span class="pre">APyFloat.is_nan</span></code></a></li>
-<li><a class="reference internal" href="#apytypes.APyFloat.is_finite"><code class="docutils literal notranslate"><span class="pre">APyFloat.is_finite</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.is_normal"><code class="docutils literal notranslate"><span class="pre">APyFloat.is_normal</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.is_subnormal"><code class="docutils literal notranslate"><span class="pre">APyFloat.is_subnormal</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloat.is_zero"><code class="docutils literal notranslate"><span class="pre">APyFloat.is_zero</span></code></a></li>
 </ul>
 </li>
 </ul>
