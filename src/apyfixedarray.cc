@@ -52,18 +52,19 @@ APyFixedArray::APyFixedArray(
     if (nb::isinstance<nb::ndarray<nb::numpy>>(bit_pattern_sequence)) {
         auto ndarray = nb::cast<nb::ndarray<nb::numpy>>(bit_pattern_sequence);
         _set_bits_from_numpy_ndarray(ndarray);
-
-        // Initialization complete
-        return;
+        return; // initialization completed
     }
-
-    auto python_ints = python_sequence_walk<nb::int_>(bit_pattern_sequence);
 
     // Caster for performing two's complement overflow
     APyFixed caster(_bits, _int_bits);
+
+    // 1D vector of Python int object (`nb::int_` objects)
+    std::vector<nb::object> python_ints
+        = python_sequence_walk<nb::int_>(bit_pattern_sequence);
+
     for (std::size_t i = 0; i < _data.size() / _itemsize; i++) {
 
-        auto limb_vec
+        std::vector<mp_limb_t> limb_vec
             = python_long_to_limb_vec(nb::cast<nb::int_>(python_ints[i]), _itemsize);
 
         // Two's complements overflowing using caster type
@@ -438,20 +439,27 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
     // Resulting `APyFixedArray` fixed-point tensor
     APyFixedArray result(_shape, res_bits, res_int_bits);
 
-    // Perform multiplication for each element in the tensor. `checked_hadamard_product`
-    // requires:
-    // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
-    //  most significant limb is zero."
-    std::vector<mp_limb_t> prod_tmp(_itemsize + rhs._itemsize);
-    std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
-    std::vector<mp_limb_t> op2_abs(bits_to_limbs(rhs.bits()));
-    _checked_hadamard_product(
-        rhs,                  // rhs
-        result._data.begin(), // dst
-        prod_tmp,             // scratch memory: product
-        op1_abs,              // scratch memory: operand 1 absolute value
-        op2_abs               // scratch memroy: operand 2 absolute value
-    );
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        simd::vector_mul(
+            std::begin(_data),        // src1
+            std::begin(rhs._data),    // src2
+            std::begin(result._data), // dst
+            result._data.size()       // elements
+        );
+    } else {
+        // `_checked_hadamard_product` requires: "The destination has to have space for
+        // `s1n` + `s2n` limbs, even if the product’s most significant limb is zero."
+        std::vector<mp_limb_t> prod_tmp(_itemsize + rhs._itemsize);
+        std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
+        std::vector<mp_limb_t> op2_abs(bits_to_limbs(rhs.bits()));
+        _checked_hadamard_product(
+            rhs,                  // rhs
+            result._data.begin(), // dst
+            prod_tmp,             // scratch memory: product
+            op1_abs,              // scratch memory: operand 1 absolute value
+            op2_abs               // scratch memroy: operand 2 absolute value
+        );
+    }
 
     return result;
 }
@@ -906,10 +914,10 @@ APyFixedArray APyFixedArray::from_double(
 template <typename RANDOM_ACCESS_ITERATOR>
 void APyFixedArray::_checked_hadamard_product(
     const APyFixedArray& rhs,
-    RANDOM_ACCESS_ITERATOR res_out,   // output iterator
-    std::vector<mp_limb_t>& prod_tmp, // scratch: product result
-    std::vector<mp_limb_t>& op1_abs,  // scratch: absolute value operand 1
-    std::vector<mp_limb_t>& op2_abs   // scratch: absolute value operand 2
+    RANDOM_ACCESS_ITERATOR res_out,       // output iterator
+    std::vector<mp_limb_t>& prod_scratch, // scratch: product result
+    std::vector<mp_limb_t>& op1_scratch,  // scratch: absolute value operand 1
+    std::vector<mp_limb_t>& op2_scratch   // scratch: absolute value operand 2
 ) const
 {
     std::size_t res_bits = _bits + rhs._bits;
@@ -935,31 +943,31 @@ void APyFixedArray::_checked_hadamard_product(
             bool result_sign = sign1 ^ sign2;
 
             // Retrieve the absolute value of both operands, as required by GMP
-            limb_vector_abs(op1_begin, op1_end, op1_abs.begin());
-            limb_vector_abs(op2_begin, op2_end, op2_abs.begin());
+            limb_vector_abs(op1_begin, op1_end, op1_scratch.begin());
+            limb_vector_abs(op2_begin, op2_end, op2_scratch.begin());
 
             // Perform the multiplication
             mpn_mul(
-                &prod_tmp[0],   // dst
-                &op1_abs[0],    // src1
-                op1_abs.size(), // src1 limb vector length
-                &op2_abs[0],    // src2
-                op2_abs.size()  // src2 limb vector length
+                &prod_scratch[0],   // dst
+                &op1_scratch[0],    // src1
+                op1_scratch.size(), // src1 limb vector length
+                &op2_scratch[0],    // src2
+                op2_scratch.size()  // src2 limb vector length
             );
 
             int result_itemsize = bits_to_limbs(bits() + rhs.bits());
             if (result_sign) {
                 // Negate result
                 limb_vector_negate(
-                    prod_tmp.begin(),
-                    prod_tmp.begin() + result_itemsize,
+                    prod_scratch.begin(),
+                    prod_scratch.begin() + result_itemsize,
                     res_out + (i + 0) * result_itemsize
                 );
             } else {
                 // Copy into resulting vector
                 std::copy(
-                    prod_tmp.begin(),
-                    prod_tmp.begin() + result_itemsize,
+                    prod_scratch.begin(),
+                    prod_scratch.begin() + result_itemsize,
                     res_out + (i + 0) * result_itemsize
                 );
             }
@@ -987,7 +995,7 @@ APyFixedArray APyFixedArray::_checked_inner_product(
                 _data.begin(), rhs._data.begin(), _data.size()
             );
             return result;
-        } else {
+        } else { /* unsigned(res_bits) > _LIMB_SIZE_BITS */
             // Scratch memories used for inner product
             std::vector<mp_limb_t> prod_scratch(_itemsize + rhs._itemsize);
             std::vector<mp_limb_t> op1_scratch(bits_to_limbs(bits()));
@@ -1028,11 +1036,6 @@ void APyFixedArray::_checked_inner_product_full(
     std::vector<mp_limb_t>& op2_scratch   // scratch: absolute value operand 2
 ) const
 {
-    // Early exit for empty arrays
-    if (_shape[0] == 0) {
-        return;
-    }
-
     // Hadamard product of `*this` and `rhs`
     _checked_hadamard_product(
         rhs, hadamard_scratch._data.begin(), prod_scratch, op1_scratch, op2_scratch
@@ -1060,11 +1063,6 @@ void APyFixedArray::_checked_inner_product_acc(
     const AccumulatorOption& mode         // accumulation mode
 ) const
 {
-    // Early exit for empty arrays
-    if (_shape[0] == 0) {
-        return;
-    }
-
     // Hadamard product of `*this` and `rhs`
     _checked_hadamard_product(
         rhs, hadamard_scratch._data.begin(), prod_scratch, op1_scratch, op2_scratch
