@@ -1355,7 +1355,7 @@ void APyFixedArray::_cast(
     auto it_start = it_begin;
     auto n_elements = fold_shape(_shape);
     for (std::size_t i = 0; i < n_elements; i++) {
-        // Copy data into temporary `APyFixed` and sign extend
+        // Copy data into caster `APyFixed`. No sign-extension.
         std::copy_n(
             data_begin,          // src
             _itemsize,           // limbs to copy

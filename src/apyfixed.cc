@@ -994,7 +994,7 @@ APyFixed APyFixed::cast(
     int new_int_bits = int_bits.has_value() ? *int_bits : *bits - *frac_bits;
 
     // Result that temporarily can hold all the necessary bits
-    APyFixed result(std::max(new_bits, _bits), std::max(new_int_bits, _int_bits));
+    APyFixed result(std::max(new_bits, _bits), new_int_bits);
     _cast(
         result._data.begin(), // output start
         result._data.end(),   // output sentinel
@@ -1005,7 +1005,6 @@ APyFixed APyFixed::cast(
     );
 
     result._bits = new_bits;
-    result._int_bits = new_int_bits;
     result._data.resize(bits_to_limbs(new_bits));
     return result;
 }
@@ -1449,22 +1448,22 @@ void APyFixed::_twos_complement_overflow(
 ) const
 {
     (void)int_bits;
-    unsigned limb_shift_val = bits & (_LIMB_SIZE_BITS - 1);
-    std::size_t n_out_limbs = std::distance(it_begin, it_end);
-    std::size_t significant_limbs = bits_to_limbs(bits);
-    auto limb_it = it_begin + significant_limbs - 1;
+    std::size_t total_limbs_out = std::distance(it_begin, it_end);
+    std::size_t significant_limbs_out = bits_to_limbs(bits);
+    unsigned significant_bits_last_limb = bits & (_LIMB_SIZE_BITS - 1);
+    auto mslimb_it = it_begin + significant_limbs_out - 1;
 
-    if (limb_shift_val) {
-        auto shft_amnt = _LIMB_SIZE_BITS - limb_shift_val;
-        auto signed_limb = mp_limb_signed_t(*limb_it << shft_amnt) >> shft_amnt;
-        *limb_it = mp_limb_t(signed_limb);
+    if (significant_bits_last_limb) {
+        auto shift_amount = _LIMB_SIZE_BITS - significant_bits_last_limb;
+        auto signed_limb = mp_limb_signed_t(*mslimb_it << shift_amount) >> shift_amount;
+        *mslimb_it = mp_limb_t(signed_limb);
     }
 
-    if (n_out_limbs > significant_limbs) {
+    if (total_limbs_out > significant_limbs_out) {
         std::fill_n(
-            it_begin + significant_limbs,
-            n_out_limbs - significant_limbs,
-            mp_limb_signed_t(*limb_it) < 0 ? -1 : 0
+            it_begin + significant_limbs_out,
+            total_limbs_out - significant_limbs_out,
+            mp_limb_signed_t(*mslimb_it) < 0 ? -1 : 0
         );
     }
 }
