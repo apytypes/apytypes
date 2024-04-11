@@ -1450,11 +1450,11 @@ void APyFixed::_twos_complement_overflow(
     (void)int_bits;
     std::size_t total_limbs_out = std::distance(it_begin, it_end);
     std::size_t significant_limbs_out = bits_to_limbs(bits);
-    unsigned significant_bits_last_limb = bits & (_LIMB_SIZE_BITS - 1);
+    unsigned bits_last_limb = bits % _LIMB_SIZE_BITS;
     auto mslimb_it = it_begin + significant_limbs_out - 1;
 
-    if (significant_bits_last_limb) {
-        auto shift_amount = _LIMB_SIZE_BITS - significant_bits_last_limb;
+    if (bits_last_limb) {
+        auto shift_amount = _LIMB_SIZE_BITS - bits_last_limb;
         auto signed_limb = mp_limb_signed_t(*mslimb_it << shift_amount) >> shift_amount;
         *mslimb_it = mp_limb_t(signed_limb);
     }
