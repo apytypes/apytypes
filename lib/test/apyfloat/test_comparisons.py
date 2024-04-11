@@ -43,6 +43,34 @@ def test_comparisons_with_apyfixed():
     assert APyFloat.from_float(float("inf"), 4, 3) > APyFixed.from_float(1000, 16, 16)
     assert APyFloat.from_float(0, 4, 5) <= APyFixed.from_float(0, 16, 16)
     assert APyFloat.from_float(0.125, 4, 3) >= APyFixed.from_float(0.125, 16, 16)
+    assert not (
+        APyFloat.from_float(float("inf"), 4, 3) == APyFixed.from_float(1000, 16, 16)
+    )
+    assert not (
+        APyFloat.from_float(float("nan"), 4, 3) == APyFixed.from_float(1000, 16, 16)
+    )
+    assert APyFloat.from_float(float("nan"), 4, 3) != APyFixed.from_float(1000, 16, 16)
+    assert APyFloat.from_float(float("inf"), 4, 3) != APyFixed.from_float(1000, 16, 16)
+    assert APyFloat.from_float(float("inf"), 4, 3) >= APyFixed.from_float(1000, 16, 16)
+    assert not (
+        APyFloat.from_float(float("nan"), 4, 3) >= APyFixed.from_float(1000, 16, 16)
+    )
+    assert APyFloat.from_float(float("inf"), 4, 3) > APyFixed.from_float(1000, 16, 16)
+    assert not (
+        APyFloat.from_float(float("nan"), 4, 3) > APyFixed.from_float(1000, 16, 16)
+    )
+    assert not (
+        APyFloat.from_float(float("inf"), 4, 3) <= APyFixed.from_float(1000, 16, 16)
+    )
+    assert not (
+        APyFloat.from_float(float("nan"), 4, 3) <= APyFixed.from_float(1000, 16, 16)
+    )
+    assert not (
+        APyFloat.from_float(float("inf"), 4, 3) < APyFixed.from_float(1000, 16, 16)
+    )
+    assert not (
+        APyFloat.from_float(float("nan"), 4, 3) < APyFixed.from_float(1000, 16, 16)
+    )
 
 
 @pytest.mark.float_comp
