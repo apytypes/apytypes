@@ -217,11 +217,13 @@ APyFloat APyFloat::_cast(
     res.sign = sign;
 
     // Handle special values first
-    if (is_nan()) {
-        return res.construct_nan(sign);
-    } else if (is_inf()) {
+    if (is_max_exponent()) {
+        if (man) {
+            return res.construct_nan(sign);
+        }
         return res.construct_inf(sign);
-    } else if (is_zero()) {
+    }
+    if (is_zero()) {
         return res.construct_zero(sign);
     }
 
@@ -352,11 +354,14 @@ APyFloat APyFloat::_cast_to_double() const
     res.sign = sign;
 
     // Handle special values first
-    if (is_nan()) {
-        return res.construct_nan(sign);
-    } else if (is_inf()) {
+    if (is_max_exponent()) {
+        if (man) {
+            return res.construct_nan(sign);
+        }
         return res.construct_inf(sign);
-    } else if (is_zero()) {
+    }
+
+    if (is_zero()) {
         return res.construct_zero(sign);
     }
 
@@ -431,11 +436,13 @@ APyFloat APyFloat::cast_from_double(
     res.sign = sign;
 
     // Handle special values first
-    if (is_nan()) {
-        return res.construct_nan(sign);
-    } else if (is_inf()) {
+    if (exp == 2047) {
+        if (man) {
+            return res.construct_nan(sign);
+        }
         return res.construct_inf(sign);
-    } else if (is_zero()) {
+    }
+    if (is_zero()) {
         return res.construct_zero(sign);
     }
 
@@ -508,23 +515,22 @@ APyFloat APyFloat::cast_no_quant(
         new_exp_bits, new_man_bits, new_bias.value_or(APyFloat::ieee_bias(new_exp_bits))
     );
 }
+
 APyFloat APyFloat::cast_no_quant(
     std::uint8_t new_exp_bits, std::uint8_t new_man_bits, exp_t new_bias
 ) const
 {
-    if ((new_exp_bits == exp_bits) && (new_man_bits == man_bits)
-        && (new_bias == bias)) {
-        return *this;
-    }
     APyFloat res(new_exp_bits, new_man_bits, new_bias);
     res.sign = sign;
 
     // Handle special values first
-    if (is_nan()) {
-        return res.construct_nan(sign);
-    } else if (is_inf()) {
+    if (is_max_exponent()) {
+        if (man) {
+            return res.construct_nan(sign);
+        }
         return res.construct_inf(sign);
-    } else if (is_zero()) {
+    }
+    if (is_zero()) {
         return res.construct_zero(sign);
     }
 
@@ -755,24 +761,26 @@ APyFixed APyFloat::to_fixed() const
  * ******************************************************************************
  */
 
-APyFloat APyFloat::operator+(APyFloat y) const
+APyFloat APyFloat::operator+(const APyFloat& rhs) const
 {
-    APyFloat res, x;
+    APyFloat res, x, y;
     // Handle the zero cases, other special cases are further down
-    if (same_type_as(y)) {
+    if (same_type_as(rhs)) {
         if (is_zero()) {
-            return y;
+            return rhs;
         }
-        if (y.is_zero()) {
+        if (rhs.is_zero()) {
             return *this;
         }
         res = APyFloat(exp_bits, man_bits, bias);
         // Handle the NaN cases, other special cases are further down
-        if (((sign != y.sign) && (is_inf() && y.is_inf())) || is_nan() || y.is_nan()) {
+        if (((sign != rhs.sign) && (is_inf() && rhs.is_inf())) || is_nan()
+            || rhs.is_nan()) {
             return res.construct_nan();
         }
 
         x = *this;
+        y = rhs;
         // Compute sign and swap operands if need to make sure |x| >= |y|
         if (x.exp < y.exp || (x.exp == y.exp && x.man < y.man)) {
             res.sign = y.sign;
@@ -784,22 +792,24 @@ APyFloat APyFloat::operator+(APyFloat y) const
             res.sign = x.sign;
         }
     } else {
-        std::uint8_t res_exp_bits = std::max(exp_bits, y.exp_bits);
-        std::uint8_t res_man_bits = std::max(man_bits, y.man_bits);
+        std::uint8_t res_exp_bits = std::max(exp_bits, rhs.exp_bits);
+        std::uint8_t res_man_bits = std::max(man_bits, rhs.man_bits);
         exp_t res_bias = APyFloat::ieee_bias(res_exp_bits);
         if (is_zero()) {
-            return y.cast_no_quant(res_exp_bits, res_man_bits, res_bias);
+            return rhs.cast_no_quant(res_exp_bits, res_man_bits, res_bias);
         }
-        if (y.is_zero()) {
+        if (rhs.is_zero()) {
             return cast_no_quant(res_exp_bits, res_man_bits, res_bias);
         }
         res = APyFloat(res_exp_bits, res_man_bits, res_bias);
         // Handle the NaN cases, other special cases are further down
-        if (((sign != y.sign) && (is_inf() && y.is_inf())) || is_nan() || y.is_nan()) {
+        if (((sign != rhs.sign) && (is_inf() && rhs.is_inf())) || is_nan()
+            || rhs.is_nan()) {
             return res.construct_nan();
         }
 
         x = *this;
+        y = rhs;
         const APyFloat xabs = x.abs();
         const APyFloat yabs = y.abs();
 
@@ -1472,6 +1482,108 @@ bool APyFloat::operator>(const APyFloat& rhs) const
     } else {
         return !(*this < rhs);
     }
+}
+
+/* bool APyFloat::operator==(const double rhs) const
+{
+    APyFloat rhs_fp(
+        sign_of_double(rhs), exp_of_double(rhs), man_of_double(rhs), 11, 52, 1023
+    );
+    return (*this == rhs_fp);
+}
+
+bool APyFloat::operator!=(const double rhs) const
+{
+    APyFloat rhs_fp(
+        sign_of_double(rhs), exp_of_double(rhs), man_of_double(rhs), 11, 52, 1023
+    );
+    return (*this != rhs_fp);
+}
+
+bool APyFloat::operator<=(const double rhs) const
+{
+    APyFloat rhs_fp(
+        sign_of_double(rhs), exp_of_double(rhs), man_of_double(rhs), 11, 52, 1023
+    );
+    return (*this < rhs_fp) || (*this == rhs_fp);
+}
+
+bool APyFloat::operator<(const double rhs) const
+{
+    APyFloat rhs_fp(
+        sign_of_double(rhs), exp_of_double(rhs), man_of_double(rhs), 11, 52, 1023
+    );
+    return (*this < rhs_fp);
+}
+
+bool APyFloat::operator>=(const double rhs) const
+{
+    APyFloat rhs_fp(
+        sign_of_double(rhs), exp_of_double(rhs), man_of_double(rhs), 11, 52, 1023
+    );
+    return (*this > rhs_fp) || (*this == rhs_fp);
+}
+
+bool APyFloat::operator>(const double rhs) const
+{
+    APyFloat rhs_fp(
+        sign_of_double(rhs), exp_of_double(rhs), man_of_double(rhs), 11, 52, 1023
+    );
+    return (*this > rhs_fp);
+} */
+
+bool APyFloat::operator==(const APyFixed& rhs) const
+{
+    if (is_max_exponent()) {
+        return false;
+    }
+    return ((to_fixed()) == rhs);
+}
+
+bool APyFloat::operator!=(const APyFixed& rhs) const
+{
+    if (is_max_exponent()) {
+        return true;
+    }
+    return ((to_fixed()) != rhs);
+}
+
+bool APyFloat::operator<=(const APyFixed& rhs) const
+{
+    if (is_max_exponent()) {
+        return false;
+    }
+    return ((to_fixed()) <= rhs);
+}
+
+bool APyFloat::operator<(const APyFixed& rhs) const
+{
+    if (is_max_exponent()) {
+        return false;
+    }
+    return ((to_fixed()) < rhs);
+}
+
+bool APyFloat::operator>=(const APyFixed& rhs) const
+{
+    if (is_nan()) {
+        return false;
+    }
+    if (is_inf()) {
+        return true;
+    }
+    return ((to_fixed()) >= rhs);
+}
+
+bool APyFloat::operator>(const APyFixed& rhs) const
+{
+    if (is_nan()) {
+        return false;
+    }
+    if (is_inf()) {
+        return true;
+    }
+    return ((to_fixed()) > rhs);
 }
 
 /* ******************************************************************************

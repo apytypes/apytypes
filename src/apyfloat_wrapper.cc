@@ -1,3 +1,4 @@
+#include "apyfixed.h"
 #include "apyfloat.h"
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
@@ -106,30 +107,6 @@ void bind_float(nb::module_& m)
         .def(nb::self * nb::self)
         .def(nb::self / nb::self)
 
-        .def(nb::self == nb::self)
-        .def(nb::self != nb::self)
-        .def(nb::self < nb::self)
-        .def(nb::self > nb::self)
-        .def(nb::self <= nb::self)
-        .def(nb::self >= nb::self)
-
-        .def(nb::self == float())
-        .def(nb::self != float())
-        .def(nb::self < float())
-        .def(nb::self > float())
-        .def(nb::self <= float())
-        .def(nb::self >= float())
-        .def(
-            "__add__",
-            [](const APyFloat& a, int b) {
-                if (b == 0) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot add with int");
-                };
-            },
-            nb::is_operator()
-        )
         .def(
             "__radd__",
             [](const APyFloat& a, int b) {
@@ -258,6 +235,70 @@ void bind_float(nb::module_& m)
         .def("__pow__", &APyFloat::pow)
         .def("__pow__", &APyFloat::pown)
 
+        /*
+         * Binary comparison operators
+         */
+        // APyFloat
+        .def(nb::self == nb::self)
+        .def(nb::self != nb::self)
+        .def(nb::self < nb::self)
+        .def(nb::self > nb::self)
+        .def(nb::self <= nb::self)
+        .def(nb::self >= nb::self)
+
+        // float, double
+        .def(nb::self == float())
+        .def(nb::self != float())
+        .def(nb::self < float())
+        .def(nb::self > float())
+        .def(nb::self <= float())
+        .def(nb::self >= float())
+
+        // APyFixed
+        .def(
+            "__eq__",
+            [](const APyFloat& a, const APyFixed& b) { return a == b; },
+            nb::is_operator()
+        )
+        .def(
+            "__ne__",
+            [](const APyFloat& a, const APyFixed& b) { return a != b; },
+            nb::is_operator()
+        )
+        .def(
+            "__le__",
+            [](const APyFloat& a, const APyFixed& b) { return a <= b; },
+            nb::is_operator()
+        )
+        .def(
+            "__lt__",
+            [](const APyFloat& a, const APyFixed& b) { return a < b; },
+            nb::is_operator()
+        )
+        .def(
+            "__ge__",
+            [](const APyFloat& a, const APyFixed& b) { return a >= b; },
+            nb::is_operator()
+        )
+        .def(
+            "__gt__",
+            [](const APyFloat& a, const APyFixed& b) { return a > b; },
+            nb::is_operator()
+        )
+        .def(
+            "__add__",
+            [](const APyFloat& a, int b) {
+                if (b == 0) {
+                    return a;
+                } else {
+                    throw nanobind::type_error("Cannot add with int");
+                };
+            },
+            nb::is_operator()
+        )
+        /*
+         * Logic operators
+         */
         .def(
             "__and__", [](APyFloat& a, APyFloat& b) { return a & b; }, nb::is_operator()
         )
@@ -274,6 +315,13 @@ void bind_float(nb::module_& m)
         /*
          * Non-computational properties
          */
+        .def_prop_ro("is_zero", &APyFloat::is_zero, R"pbdoc(
+            True if and only if value is zero.
+
+            Returns
+            -------
+            :class:`bool`
+            )pbdoc")
         .def_prop_ro("is_normal", &APyFloat::is_normal, R"pbdoc(
             True if and only if value is normal (not zero, subnormal, infinite, or NaN).
 

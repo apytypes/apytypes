@@ -194,6 +194,7 @@ def test_properties():
     assert a.is_subnormal
     assert not a.is_nan
     assert not a.is_inf
+    assert not a.is_zero
 
     # Normal number
     a = APyFloat(0, 1, 1, 5, 2)
@@ -202,6 +203,7 @@ def test_properties():
     assert not a.is_subnormal
     assert not a.is_nan
     assert not a.is_inf
+    assert not a.is_zero
 
     # Infinity
     a = APyFloat(0, 31, 0, 5, 2)
@@ -210,6 +212,7 @@ def test_properties():
     assert not a.is_subnormal
     assert not a.is_nan
     assert a.is_inf
+    assert not a.is_zero
 
     # NaN
     a = APyFloat(0, 31, 1, 5, 2)
@@ -218,3 +221,13 @@ def test_properties():
     assert not a.is_subnormal
     assert a.is_nan
     assert not a.is_inf
+    assert not a.is_zero
+
+    # Zero
+    a = APyFloat(0, 0, 0, 5, 2)
+    assert a.is_finite
+    assert not a.is_normal
+    assert a.is_subnormal
+    assert not a.is_nan
+    assert not a.is_inf
+    assert a.is_zero

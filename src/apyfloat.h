@@ -167,7 +167,7 @@ public:
      * ******************************************************************************
      */
 
-    APyFloat operator+(APyFloat rhs) const;
+    APyFloat operator+(const APyFloat& rhs) const;
     APyFloat operator-(const APyFloat& rhs) const;
     APyFloat operator-() const;
     APyFloat operator*(const APyFloat& rhs) const;
@@ -203,6 +203,18 @@ public:
     bool operator<(const APyFloat& rhs) const;
     bool operator>=(const APyFloat& rhs) const;
     bool operator>(const APyFloat& rhs) const;
+    /* bool operator==(const double rhs) const;
+    bool operator!=(const double rhs) const;
+    bool operator<=(const double rhs) const;
+    bool operator<(const double rhs) const;
+    bool operator>=(const double rhs) const;
+    bool operator>(const double rhs) const; */
+    bool operator==(const APyFixed& rhs) const;
+    bool operator!=(const APyFixed& rhs) const;
+    bool operator<=(const APyFixed& rhs) const;
+    bool operator<(const APyFixed& rhs) const;
+    bool operator>=(const APyFixed& rhs) const;
+    bool operator>(const APyFixed& rhs) const;
 
     /* ******************************************************************************
      * * Non-computational functions                                                *
