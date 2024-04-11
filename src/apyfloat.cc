@@ -347,9 +347,6 @@ void APyFloat::cast_mantissa_subnormal(
 
 APyFloat APyFloat::_cast_to_double() const
 {
-    if ((11 == exp_bits) && (52 == man_bits) && (1023 == bias)) {
-        return *this;
-    }
     APyFloat res(11, 52, 1023);
     res.sign = sign;
 
