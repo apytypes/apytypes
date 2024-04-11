@@ -285,6 +285,8 @@ public:
     //! the same format
     bool is_identical(const APyFloat& other) const;
 
+    APyFixed to_fixed() const;
+
     /* ******************************************************************************
      * * Convenience methods                                                        *
      * ******************************************************************************
@@ -337,8 +339,6 @@ private:
     );
     static QuantizationMode
     translate_quantization_mode(QuantizationMode quantization, bool sign);
-
-    APyFixed to_fixed() const;
 
     //! Test if two floating-point numbers are identical, i.e., has the same value, and
     //! the same format
