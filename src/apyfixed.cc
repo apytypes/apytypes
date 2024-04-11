@@ -25,6 +25,7 @@ namespace nb = nanobind;
 #include <fmt/format.h>
 
 #include "apyfixed.h"
+#include "apyfloat.h"
 #include "apytypes_util.h"
 #include "ieee754.h"
 #include "python_util.h"
@@ -385,6 +386,66 @@ bool APyFixed::operator>=(const APyFixed& rhs) const
     auto diff = rhs - *this;
     return diff.is_negative() || diff.is_zero();
 }
+
+bool APyFixed::operator==(const double rhs) const
+{
+    APyFloat rhs_fp(
+        sign_of_double(rhs), exp_of_double(rhs), man_of_double(rhs), 11, 52, 1023
+    );
+    return (*this == rhs_fp.to_fixed());
+}
+
+bool APyFixed::operator!=(const double rhs) const
+{
+    APyFloat rhs_fp(
+        sign_of_double(rhs), exp_of_double(rhs), man_of_double(rhs), 11, 52, 1023
+    );
+    return (*this != rhs_fp.to_fixed());
+}
+
+bool APyFixed::operator<=(const double rhs) const
+{
+    APyFloat rhs_fp(
+        sign_of_double(rhs), exp_of_double(rhs), man_of_double(rhs), 11, 52, 1023
+    );
+    return (*this <= rhs_fp.to_fixed());
+}
+
+bool APyFixed::operator<(const double rhs) const
+{
+    APyFloat rhs_fp(
+        sign_of_double(rhs), exp_of_double(rhs), man_of_double(rhs), 11, 52, 1023
+    );
+    return (*this < rhs_fp.to_fixed());
+}
+
+bool APyFixed::operator>=(const double rhs) const
+{
+    APyFloat rhs_fp(
+        sign_of_double(rhs), exp_of_double(rhs), man_of_double(rhs), 11, 52, 1023
+    );
+    return (*this >= rhs_fp.to_fixed());
+}
+
+bool APyFixed::operator>(const double rhs) const
+{
+    APyFloat rhs_fp(
+        sign_of_double(rhs), exp_of_double(rhs), man_of_double(rhs), 11, 52, 1023
+    );
+    return (*this > rhs_fp.to_fixed());
+}
+
+bool APyFixed::operator==(const float rhs) const { return *this == (double)rhs; }
+
+bool APyFixed::operator!=(const float rhs) const { return *this != (double)rhs; }
+
+bool APyFixed::operator<=(const float rhs) const { return *this <= (double)rhs; }
+
+bool APyFixed::operator<(const float rhs) const { return *this < (double)rhs; }
+
+bool APyFixed::operator>=(const float rhs) const { return *this >= (double)rhs; }
+
+bool APyFixed::operator>(const float rhs) const { return *this > (double)rhs; }
 
 APyFixed APyFixed::operator-() const
 {
