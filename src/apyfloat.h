@@ -203,12 +203,18 @@ public:
     bool operator<(const APyFloat& rhs) const;
     bool operator>=(const APyFloat& rhs) const;
     bool operator>(const APyFloat& rhs) const;
-    /* bool operator==(const double rhs) const;
+    bool operator==(const double rhs) const;
     bool operator!=(const double rhs) const;
     bool operator<=(const double rhs) const;
     bool operator<(const double rhs) const;
     bool operator>=(const double rhs) const;
-    bool operator>(const double rhs) const; */
+    bool operator>(const double rhs) const;
+    bool operator==(const float rhs) const;
+    bool operator!=(const float rhs) const;
+    bool operator<=(const float rhs) const;
+    bool operator<(const float rhs) const;
+    bool operator>=(const float rhs) const;
+    bool operator>(const float rhs) const;
     bool operator==(const APyFixed& rhs) const;
     bool operator!=(const APyFixed& rhs) const;
     bool operator<=(const APyFixed& rhs) const;
