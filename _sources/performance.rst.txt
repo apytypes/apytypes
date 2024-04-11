@@ -21,7 +21,7 @@ Use arrays if possible
 As the overhead of going between Python and C++ is significant for a single number (about 90%),
 it very much makes sense to use arrays when possible.
 
-See the figure below for the effect of using arrays and the current operation speeds avaialble.
+See the figure below for the effect of using arrays and the current operation speeds available.
 
 .. note::
     This figure is generated as part of the documentation build and is continuously updated.
