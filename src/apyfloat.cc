@@ -239,7 +239,8 @@ APyFloat APyFloat::_cast(
         prev_man = remainder << (man_bits - subn_adjustment);
     }
 
-    if (new_exp <= -static_cast<std::int64_t>(res.man_bits)) { // Exponent too small
+    if (new_exp < -static_cast<std::int64_t>(res.man_bits
+        )) { // Exponent too small after rounding
         return res.construct_zero();
     }
 
@@ -456,7 +457,8 @@ APyFloat APyFloat::cast_from_double(
         prev_man = remainder << (man_bits - subn_adjustment);
     }
 
-    if (new_exp <= -static_cast<std::int64_t>(res.man_bits)) { // Exponent too small
+    if (new_exp < -static_cast<std::int64_t>(res.man_bits
+        )) { // Exponent too small after rounding
         return res.construct_zero();
     }
 

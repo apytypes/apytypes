@@ -1195,3 +1195,14 @@ def test_convenience_cast():
     assert bfloat16.is_identical(
         APyFloat(sign=0, exp=124, man=18, exp_bits=8, man_bits=7)
     )
+
+
+def test_issue_188():
+    # Actually tests the rounding upon construction from float
+    x = APyFloat(sign=0, exp=0, man=1, exp_bits=4, man_bits=3)
+    y = APyFloat(sign=0, exp=7, man=1, exp_bits=4, man_bits=3)
+
+    res1 = x / y
+    res2 = APyFloat.from_float(float(x) / float(y), exp_bits=4, man_bits=3)
+
+    assert res1 == res2
