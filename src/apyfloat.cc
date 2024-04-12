@@ -16,6 +16,12 @@ namespace nb = nanobind;
 
 #include "ieee754.h"
 
+/*!
+ * APyFloat word length limits.
+ */
+static constexpr std::size_t _MAN_LIMIT_BITS = _MAN_T_SIZE_BITS - 3;
+static constexpr std::size_t _EXP_LIMIT_BITS = _EXP_T_SIZE_BITS - 2;
+
 constexpr bool PRINT_WARNINGS = false;
 
 void print_warning(const std::string msg)
@@ -988,37 +994,43 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     const auto quantization = get_quantization_mode();
     const unsigned int sum_man_bits = man_bits + y.man_bits;
 
-    if (sum_man_bits + 2 <= _MAN_T_SIZE_BITS) {
-        const auto new_man_bits = sum_man_bits + 1;
+    if (sum_man_bits + 3 <= _MAN_T_SIZE_BITS) {
+        const auto new_man_bits = sum_man_bits + 2;
         const auto man_bits_delta = new_man_bits - res.man_bits;
 
         // Tentative exponent
         std::int64_t tmp_exp = true_exp() + y.true_exp() + res.bias;
-        man_t mx = true_man();
-        man_t my = y.true_man();
-        man_t two = 1ULL << new_man_bits;
+        const man_t mx = true_man();
+        const man_t my = y.true_man();
+        const man_t two = 1ULL << (new_man_bits);
+        const man_t two_before = 1ULL << (new_man_bits - 1);
+        const man_t two_res = res.leading_one();
 
         man_t new_man = mx * my;
 
         // Check carry from multiplication
-        if (new_man & two) {
+        if (new_man & two_before) {
             tmp_exp++;
+            new_man <<= 1;
         } else {
             // Check for subnormal
-            if (tmp_exp <= 0) {
-                new_man
-                    >>= -tmp_exp; // This should not always work, TODO: write test case
+            if (tmp_exp == 0) {
+                new_man <<= 1;
+            } else if (tmp_exp < 0) {
+                new_man = (new_man >> (-tmp_exp - 1))
+                    | ((new_man & ((1 << -tmp_exp) - 1)) != 0);
                 tmp_exp = 0;
             } else {
                 // Align with longer result
-                new_man <<= 1;
+                new_man <<= 2;
             }
         }
 
         new_man = quantize_mantissa(
             new_man & (two - 1), man_bits_delta, sign, quantization
         );
-        if (new_man & two) {
+
+        if (new_man >= two_res) {
             ++tmp_exp;
             new_man = 0;
         }

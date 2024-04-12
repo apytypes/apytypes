@@ -12,17 +12,6 @@
 
 #include "../extern/mini-gmp/mini-gmp.h"
 
-/*!
- * Sizes of APyFloat datatypes
- */
-static constexpr std::size_t _MAN_T_SIZE_BYTES = sizeof(man_t);
-static constexpr std::size_t _MAN_T_SIZE_BITS = 8 * _MAN_T_SIZE_BYTES;
-static constexpr std::size_t _EXP_T_SIZE_BYTES = sizeof(exp_t);
-static constexpr std::size_t _EXP_T_SIZE_BITS = 8 * _EXP_T_SIZE_BYTES;
-
-static constexpr std::size_t _MAN_LIMIT_BITS = _MAN_T_SIZE_BITS - 3;
-static constexpr std::size_t _EXP_LIMIT_BITS = _EXP_T_SIZE_BITS - 2;
-
 class APyFloat {
 public:
     /* ******************************************************************************
