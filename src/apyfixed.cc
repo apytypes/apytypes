@@ -1433,7 +1433,6 @@ void APyFixed::_overflow_twos_complement(
 ) const
 {
     (void)int_bits;
-
     if (bits % _LIMB_SIZE_BITS) {
         auto mslimb_it = it_begin + bits_to_limbs(bits) - 1;
         auto shift_amount = _LIMB_SIZE_BITS - (bits % _LIMB_SIZE_BITS);

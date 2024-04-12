@@ -106,14 +106,17 @@ template <typename INT_TYPE>
     return bit_width(n) - 1;
 }
 
-//! Quickly evaluate how many limbs are required to to store a `bits` bit word
+//! Quickly evaluate how many limbs are required to to store a `bits` bit word.
+//! Undefined behaviour when `bits` is equal to zero.
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t bits_to_limbs(std::size_t bits
 )
 {
-    if (bits % _LIMB_SIZE_BITS == 0) {
-        return bits / _LIMB_SIZE_BITS;
+    static_assert(_LIMB_SIZE_BITS == 64 || _LIMB_SIZE_BITS == 32);
+
+    if constexpr (_LIMB_SIZE_BITS == 64) {
+        return ((bits - 1) >> 6) + 1;
     } else {
-        return bits / _LIMB_SIZE_BITS + 1;
+        return ((bits - 1) >> 5) + 1;
     }
 }
 
