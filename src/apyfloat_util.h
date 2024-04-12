@@ -2,8 +2,17 @@
 #define _APYFLOAT_UTIL_H
 
 #include "apyfixed.h"
-#include "apyfloat_util.h"
 #include "apytypes_common.h"
+
+/*!
+ * Sizes of APyFloat datatypes
+ */
+static constexpr std::size_t _MAN_T_SIZE_BYTES = sizeof(man_t);
+static constexpr std::size_t _MAN_T_SIZE_BITS = 8 * _MAN_T_SIZE_BYTES;
+static constexpr std::size_t _EXP_T_SIZE_BYTES = sizeof(exp_t);
+static constexpr std::size_t _EXP_T_SIZE_BITS = 8 * _EXP_T_SIZE_BYTES;
+
+static const APyFixed fx_one(2, 2, std::vector<mp_limb_t>({ 1 }));
 
 //! Quantize mantissa
 man_t APY_INLINE quantize_mantissa(

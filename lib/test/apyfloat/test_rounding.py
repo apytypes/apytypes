@@ -185,6 +185,63 @@ class TestAPyFloatQuantizationAddSub:
             )
 
 
+@pytest.mark.float_mul
+class TestAPyFloatQuantizationMul:
+    """
+    Test class for the different quantization modes for multiplication in APyFloat.
+    """
+
+    def test_to_pos(self):
+        with QuantizationContext(QuantizationMode.TO_POS):
+            # Should round up
+            res = APyFloat(0, 7, 6, 4, 3) * APyFloat(0, 7, 1, 4, 3)
+            assert res.is_identical(APyFloat(0, 8, 0, 4, 3))
+
+            # Should round down
+            res = APyFloat(1, 7, 6, 4, 3) * APyFloat(0, 7, 1, 4, 3)
+            assert res.is_identical(APyFloat(1, 7, 7, 4, 3))
+
+            # Close to +0 should quantize to subnormal
+            res = APyFloat(0, 1, 0, 4, 3) * APyFloat(0, 1, 1, 4, 3)
+            assert res.is_identical(APyFloat(0, 0, 1, 4, 3))
+
+            # Close to -0 should quantize to 0
+            res = APyFloat(1, 1, 0, 4, 3) * APyFloat(0, 1, 1, 4, 3)
+            assert res.is_identical(APyFloat(1, 0, 0, 4, 3))
+
+            # Same two tests but with subnormal operands
+            res = APyFloat(0, 0, 1, 4, 3) * APyFloat(0, 0, 1, 4, 3)
+            assert res.is_identical(APyFloat(0, 0, 1, 4, 3))
+
+            res = APyFloat(1, 0, 1, 4, 3) * APyFloat(0, 0, 1, 4, 3)
+            assert res.is_identical(APyFloat(1, 0, 0, 4, 3))
+
+    def test_to_neg(self):
+        with QuantizationContext(QuantizationMode.TO_NEG):
+            # Should round down
+            res = APyFloat(0, 7, 6, 4, 3) * APyFloat(0, 7, 1, 4, 3)
+            assert res.is_identical(APyFloat(0, 7, 7, 4, 3))
+
+            # Should round down
+            res = APyFloat(1, 7, 6, 4, 3) * APyFloat(0, 7, 1, 4, 3)
+            assert res.is_identical(APyFloat(1, 8, 0, 4, 3))
+
+            # Close to +0 should quantize to zero
+            res = APyFloat(0, 1, 0, 4, 3) * APyFloat(0, 1, 1, 4, 3)
+            assert res.is_identical(APyFloat(0, 0, 0, 4, 3))
+
+            # Close to -0 should quantize to subnormal
+            res = APyFloat(1, 1, 0, 4, 3) * APyFloat(0, 1, 1, 4, 3)
+            assert res.is_identical(APyFloat(1, 0, 1, 4, 3))
+
+            # Same two tests but with subnormal operands
+            res = APyFloat(0, 0, 1, 4, 3) * APyFloat(0, 0, 1, 4, 3)
+            assert res.is_identical(APyFloat(0, 0, 0, 4, 3))
+
+            res = APyFloat(1, 0, 1, 4, 3) * APyFloat(0, 0, 1, 4, 3)
+            assert res.is_identical(APyFloat(1, 0, 1, 4, 3))
+
+
 @pytest.mark.float_div
 class TestAPyFloatQuantizationDiv:
     """
