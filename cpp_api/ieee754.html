@@ -228,14 +228,9 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv432_MACHINE_IS_NATIVE_LITTLE_ENDIANv">
-<span id="_CPPv332_MACHINE_IS_NATIVE_LITTLE_ENDIANv"></span><span id="_CPPv232_MACHINE_IS_NATIVE_LITTLE_ENDIANv"></span><span id="_MACHINE_IS_NATIVE_LITTLE_ENDIAN"></span><span class="target" id="ieee754_8h_1ade88a2faec917d870786ddc91d4ef894"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_MACHINE_IS_NATIVE_LITTLE_ENDIAN</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432_MACHINE_IS_NATIVE_LITTLE_ENDIANv" title="Link to this definition">#</a><br /></dt>
-<dd><p>Test target machine native endianness in pure C++. Optimized away to single <code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">false</span></code>, depending on endianness, on all tested machines using most C++17 compatible compilers (godbolt.org):<ul class="simple">
-<li><p>All GCC version supporting C++17</p></li>
-<li><p>All Clang version supporting C++17</p></li>
-<li><p>All versions of MSVC available at compiler explorer… </p></li>
-</ul>
-</p>
+<dt class="sig sig-object cpp" id="_CPPv423target_is_little_endianv">
+<span id="_CPPv323target_is_little_endianv"></span><span id="_CPPv223target_is_little_endianv"></span><span id="target_is_little_endianCE"></span><span class="target" id="ieee754_8h_1a34eeaecbe6fd7f4705a1844ddd6e3c5b"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">target_is_little_endian</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423target_is_little_endianv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Test target machine native little-endianness. </p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -342,7 +337,7 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">ieee754.h</span></code></a><ul>
-<li><a class="reference internal" href="#_CPPv432_MACHINE_IS_NATIVE_LITTLE_ENDIANv"><code class="docutils literal notranslate"><span class="pre">_MACHINE_IS_NATIVE_LITTLE_ENDIAN()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv423target_is_little_endianv"><code class="docutils literal notranslate"><span class="pre">target_is_little_endian()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv427type_pun_double_to_uint64_td"><code class="docutils literal notranslate"><span class="pre">type_pun_double_to_uint64_t()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv427type_pun_uint64_t_to_double8uint64_t"><code class="docutils literal notranslate"><span class="pre">type_pun_uint64_t_to_double()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv414sign_of_doubled"><code class="docutils literal notranslate"><span class="pre">sign_of_double()</span></code></a></li>
