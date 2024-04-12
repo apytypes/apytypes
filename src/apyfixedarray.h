@@ -293,7 +293,7 @@ private:
     void _set_bits_from_numpy_ndarray(const nanobind::ndarray<nanobind::numpy>& ndarray
     );
 
-    /*
+    /*!
      * Set the values of `*this` from a NumPy NDArray object of floats/integers. This
      * member function assumes that the shape of `*this` and `ndarray` are equal. The
      * elements in `ndarray` are explicitly converted to `double` before being copied
@@ -302,12 +302,13 @@ private:
     void
     _set_values_from_numpy_ndarray(const nanobind::ndarray<nanobind::numpy>& ndarray);
 
+    //! Check if object are of the same type, i.e., same number of bits.
     APY_INLINE bool same_type_as(const APyFixedArray& other) const
     {
         return _bits == other._bits && _int_bits == other._int_bits;
     }
 
-    //! Test if the APyFixed is of the same type.
+    //! Test if the APyFixed is of the same type, i.e., same number of bits.
     APY_INLINE bool same_type_as(const APyFixed& other) const
     {
         return _bits == other.bits() && _int_bits == other.int_bits();

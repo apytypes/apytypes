@@ -82,21 +82,30 @@ void bind_float(nb::module_& m)
             nb::arg("exp_bits"),
             nb::arg("man_bits"),
             nb::arg("bias") = nb::none(),
-            nb::arg("quantization") = nb::none()
-        )
-        // Deprecated, but keep around for paper review
-        .def(
-            "resize",
-            &APyFloat::resize,
-            nb::arg("exp_bits"),
-            nb::arg("man_bits"),
-            nb::arg("bias") = nb::none(),
             nb::arg("quantization") = nb::none(),
             R"pbdoc(
-            .. deprecated:: 0.1.pre
-               Use :func:`~APyFloat.cast` instead.
-            )pbdoc"
+            Resize the floating-point number.
 
+            This is the primary method for performing quantization when dealing with
+            APyTypes floating-point numbers.
+
+            Parameters
+            ----------
+            exp_bits : int
+                Number of exponent bits in the result.
+            man_bits : int
+                Number of mantissa bits in the result.
+            bias : int, optional
+                Bias used in the result.
+            quantization : :class:`QuantizationMode`, optional.
+                Quantization mode to use in this cast. If None, use the global
+                quantization mode.
+
+            Returns
+            -------
+            :class:`APyFloat`
+
+            )pbdoc"
         )
         /*
          * Arithmetic operators

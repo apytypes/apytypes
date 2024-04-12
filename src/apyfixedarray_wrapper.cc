@@ -298,19 +298,6 @@ void bind_fixed_array(nb::module_& m)
             :class:`APyFixedArray`
             )pbdoc")
         .def(
-            "resize",
-            &APyFixedArray::resize,
-            nb::arg("bits") = nb::none(),
-            nb::arg("int_bits") = nb::none(),
-            nb::arg("quantization") = QuantizationMode::TRN,
-            nb::arg("overflow") = OverflowMode::WRAP,
-            nb::arg("frac_bits") = nb::none(),
-            R"pbdoc(
-            .. deprecated:: 0.1.pre
-               Use :func:`~APyFixedArray.cast` instead.
-            )pbdoc"
-        )
-        .def(
             "cast",
             &APyFixedArray::cast,
             nb::arg("bits") = nb::none(),
@@ -319,11 +306,10 @@ void bind_fixed_array(nb::module_& m)
             nb::arg("overflow") = OverflowMode::WRAP,
             nb::arg("frac_bits") = nb::none(),
             R"pbdoc(
-            Create a new resized fixed-point array based on the bit pattern in this
-            fixed-point array.
+            Resize the fixed-point array.
 
-            This is the primary method for performing quantization, truncation, overflowing,
-            and saturation when dealing with APyTypes fixed-point numbers.
+            This is the primary method for performing quantization and overflowing/saturation
+            when dealing with APyTypes fixed-point arrays.
 
             Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
             to be set.
@@ -331,15 +317,15 @@ void bind_fixed_array(nb::module_& m)
             Parameters
             ----------
             bits : int, optional
-                Total number of bits in the created fixed-point array.
+                Total number of bits in the result.
             int_bits : int, optional
-                Number of integer bits in the created fixed-point array-
+                Number of integer bits in the result.
             quantization : :class:`QuantizationMode`, default: :class:`QuantizationMode.TRN`
                 Quantization mode to use in this cast.
             overflow : :class:`OverflowMode`, default: :class:`OverflowMode.WRAP`
                 Overflowing mode to use in this cast.
             frac_bits : int, optional
-                Number of fractional bits in the created fixed-point array.
+                Number of fractional bits in the result.
 
             Returns
             -------
@@ -363,6 +349,8 @@ void bind_fixed_array(nb::module_& m)
             The initialized fixed-point values are the one closest to the
             input floating-point value, rounded away from zero on ties. Exactly two of
             the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) has to be set.
+
+            Using NumPy arrays as input is in general faster than e.g. lists.
 
             Parameters
             ----------

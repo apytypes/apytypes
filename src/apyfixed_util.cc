@@ -8,7 +8,7 @@
 // GMP should be included after all other includes
 #include "../extern/mini-gmp/mini-gmp.h"
 
-//! Specialized method when only one limb is used
+// Specialized method when only one limb is used
 mp_limb_t get_data_from_double(double value, int bits, int frac_bits, int shift_amnt)
 {
     if (std::isnan(value) || std::isinf(value)) {
@@ -49,4 +49,31 @@ mp_limb_t get_data_from_double(double value, int bits, int frac_bits, int shift_
             "Not implemented: get_data_from_double() for 32-bit systems"
         );
     }
+}
+
+APyFixed ipow(APyFixed base, unsigned int n)
+{
+    // Early exit for one of the most common cases
+    if (n == 2) {
+        return base * base;
+    }
+    // Because how APyFloat::pown is written, we know n will be >= 2,
+    // this fact can probably be used to optimize this code further.
+
+    APyFixed result = fx_one;
+    for (;;) {
+        if (n & 1) {
+            result = result * base; // Until *= is implemented
+        }
+
+        n >>= 1;
+
+        if (!n) {
+            break;
+        }
+
+        base = base * base; // Until *= is implemented
+    }
+
+    return result;
 }

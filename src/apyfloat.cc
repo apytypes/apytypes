@@ -8,6 +8,7 @@ namespace nb = nanobind;
 #include <fmt/format.h>
 
 #include "apyfixed.h"
+#include "apyfixed_util.h"
 #include "apyfloat.h"
 #include "apyfloat_util.h"
 #include "apytypes_util.h"
@@ -1250,7 +1251,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
 
     // Slow path
     const APyFixed apy_mx(2 + x.man_bits, 2, std::vector<mp_limb_t>({ mx }));
-    APyFixed apy_res = ipow_apyfixed(apy_mx, abs_n);
+    APyFixed apy_res = ipow(apy_mx, abs_n);
 
     // Normalize mantissa
     while (apy_res.positive_greater_than_equal_pow2(1)) {

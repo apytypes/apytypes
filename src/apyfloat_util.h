@@ -5,8 +5,7 @@
 #include "apyfloat_util.h"
 #include "apytypes_common.h"
 
-static const APyFixed fx_one(2, 2, std::vector<mp_limb_t>({ 1 }));
-
+//! Quantize mantissa
 man_t APY_INLINE quantize_mantissa(
     man_t man, std::uint8_t bits_to_quantize, bool sign, QuantizationMode quantization
 )
@@ -78,9 +77,6 @@ man_t APY_INLINE quantize_mantissa(
 
 //! Fast integer power by squaring.
 man_t ipow(man_t base, unsigned int n);
-
-//! Fast integer power by squaring.
-APyFixed ipow_apyfixed(APyFixed base, unsigned int n);
 
 APY_INLINE int leading_zeros_apyfixed(const APyFixed& fx)
 {
