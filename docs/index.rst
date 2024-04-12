@@ -25,6 +25,7 @@ Jupyter Notebooks or Spyder, will provide a nicer output of the numbers.
    performance
    comparison
    development
+   publications
 
 Indices and tables
 ==================
