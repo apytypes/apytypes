@@ -171,7 +171,8 @@ limb_vector_leading_ones(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR en
 }
 
 //! Quickly count the number of nibbles in an unsigned `mp_limb_t`
-[[maybe_unused, nodiscard]] static APY_INLINE std::size_t nibble_width(mp_limb_t x)
+template <typename INT_TYPE>
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t nibble_width(INT_TYPE x)
 {
     std::size_t bits = bit_width(x);
     if (bits % 4 == 0) {
@@ -233,44 +234,6 @@ from_nibble_list(const std::vector<std::uint8_t>& nibble_list)
         result[limb_i] = limb;
     }
     return result;
-}
-
-//! Shift a nibble list left by one stage. Modifies the content of input `nibble_list`
-//! Assumes that the `back()` element of the input `nibble_list` is the most significant
-//! nibble.
-[[maybe_unused]] static APY_INLINE bool
-nibble_list_shift_left_once(std::vector<std::uint8_t>& nibble_list)
-{
-    if (nibble_list.size() == 0) {
-        return false;
-    }
-
-    bool output_bit = nibble_list.back() >= 8;
-    for (int i = nibble_list.size() - 1; i > 0; i--) {
-        nibble_list[i] = (nibble_list[i] << 1) & 0xF;
-        nibble_list[i] += nibble_list[i - 1] >= 8 ? 1 : 0;
-    }
-    nibble_list[0] = (nibble_list[0] << 1) & 0xF;
-    return output_bit;
-}
-
-//! Shift a nibble list right by one stage. Modifies the content of input `nibble_list`.
-//! Assumes that the `back()` element of the input `nibble_list` is the least
-//! significant nibble.
-[[maybe_unused]] static APY_INLINE bool
-nibble_list_shift_right_once(std::vector<std::uint8_t>& nibble_list)
-{
-    if (nibble_list.size() == 0) {
-        return false;
-    }
-
-    bool output_bit = nibble_list.back() & 0x1;
-    for (int i = nibble_list.size() - 1; i > 0; i--) {
-        nibble_list[i] >>= 1;
-        nibble_list[i] += nibble_list[i - 1] & 0x1 ? 0x8 : 0x0;
-    }
-    nibble_list[0] >>= 1;
-    return output_bit;
 }
 
 //! Double-Dabble helper class with proporate methods for performing the

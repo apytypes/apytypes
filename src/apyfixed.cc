@@ -1417,6 +1417,9 @@ void APyFixed::_overflow(
     case OverflowMode::SAT:
         _overflow_saturate(it_begin, it_end, new_bits, new_int_bits);
         break;
+    case OverflowMode::NUMERIC_STD:
+        throw NotImplementedException("APyFixed::_overflow: OverflowMode::NUMERIC_STD");
+        break;
     default:
         throw NotImplementedException(fmt::format(
             "Not implemented: APyFixed.cast(): with overflow mode: {}",
