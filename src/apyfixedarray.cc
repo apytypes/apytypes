@@ -69,7 +69,7 @@ APyFixedArray::APyFixedArray(
 
         // Two's complements overflowing using caster type
         std::copy_n(limb_vec.begin(), _itemsize, caster._data.begin());
-        caster._twos_complement_overflow(
+        caster._overflow_twos_complement(
             caster._data.begin(), caster._data.end(), _bits, _int_bits
         );
         std::copy_n(

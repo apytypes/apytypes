@@ -55,7 +55,7 @@ APyFixed::APyFixed(
     : APyFixed(bits, int_bits, frac_bits)
 {
     _data = python_long_to_limb_vec(python_long_int_bit_pattern, _data.size());
-    _twos_complement_overflow(_data.begin(), _data.end(), _bits, _int_bits);
+    _overflow_twos_complement(_data.begin(), _data.end(), _bits, _int_bits);
 }
 
 /* ********************************************************************************** *
@@ -119,7 +119,7 @@ APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end)
     }
 
     // Two's-complements overflow bits outside of the range
-    _twos_complement_overflow(_data.begin(), _data.end(), _bits, _int_bits);
+    _overflow_twos_complement(_data.begin(), _data.end(), _bits, _int_bits);
 }
 
 //! Construction from std::vector<mp_limb_t>
@@ -652,7 +652,7 @@ void APyFixed::set_from_string_dec(const std::string& str)
     }
 
     // Two's complement overflow and we're done
-    _twos_complement_overflow(_data.begin(), _data.end(), bits(), int_bits());
+    _overflow_twos_complement(_data.begin(), _data.end(), bits(), int_bits());
 }
 
 void APyFixed::set_from_string_hex(const std::string& str)
@@ -737,7 +737,7 @@ void APyFixed::set_from_double(double value)
             if (sign_of_double(value)) {
                 limb_vector_negate(_data.begin(), _data.end(), _data.begin());
             }
-            _twos_complement_overflow(_data.begin(), _data.end(), bits(), int_bits());
+            _overflow_twos_complement(_data.begin(), _data.end(), bits(), int_bits());
         }
     } else {
         throw NotImplementedException(
@@ -821,7 +821,7 @@ void APyFixed::set_from_apyfixed(const APyFixed& other)
         );
     }
 
-    _twos_complement_overflow(_data.begin(), _data.end(), bits(), int_bits());
+    _overflow_twos_complement(_data.begin(), _data.end(), bits(), int_bits());
 }
 
 nb::int_ APyFixed::to_bits() const
@@ -1426,7 +1426,7 @@ void APyFixed::_overflow(
      */
     switch (overflow) {
     case OverflowMode::WRAP:
-        _twos_complement_overflow(it_begin, it_end, new_bits, new_int_bits);
+        _overflow_twos_complement(it_begin, it_end, new_bits, new_int_bits);
         break;
     case OverflowMode::SAT:
         _overflow_saturate(it_begin, it_end, new_bits, new_int_bits);
@@ -1440,7 +1440,7 @@ void APyFixed::_overflow(
 }
 
 template <class RANDOM_ACCESS_ITERATOR>
-void APyFixed::_twos_complement_overflow(
+void APyFixed::_overflow_twos_complement(
     RANDOM_ACCESS_ITERATOR it_begin,
     RANDOM_ACCESS_ITERATOR it_end,
     int bits,
@@ -1540,10 +1540,10 @@ template void APyFixed::_cast(
     OverflowMode
 ) const;
 
-template void APyFixed::_twos_complement_overflow(
+template void APyFixed::_overflow_twos_complement(
     std::vector<mp_limb_t>::iterator, std::vector<mp_limb_t>::iterator, int, int
 ) const;
 
-template void APyFixed::_twos_complement_overflow(
+template void APyFixed::_overflow_twos_complement(
     ScratchVector<mp_limb_t>::iterator, ScratchVector<mp_limb_t>::iterator, int, int
 ) const;

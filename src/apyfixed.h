@@ -449,7 +449,7 @@ private:
     //! Perform two's complement overflowing. This method sign-extends any bits outside
     //! of the APyFixed range.
     template <class RANDOM_ACCESS_ITERATOR>
-    void _twos_complement_overflow(
+    void _overflow_twos_complement(
         RANDOM_ACCESS_ITERATOR it_begin,
         RANDOM_ACCESS_ITERATOR it_end,
         int bits,

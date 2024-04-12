@@ -18,7 +18,7 @@ def test_arithmetic_operations():
     assert (b / a).is_identical(APyFixed.from_float(-0.5, int_bits=7, frac_bits=3))
 
 
-def test_twos_complement_overflow():
+def test_overflow_twos_complement():
     assert float(APyFixed(1 << 127, 128, 1)) == -1.0
     assert float(APyFixed(1 << 126, 128, 1)) == 0.5
     assert float(APyFixed(0xFFFFFFFF0 << 92, 96, 1)) == 0.0
