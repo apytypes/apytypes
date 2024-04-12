@@ -300,7 +300,7 @@
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloat.to_bits" title="apytypes.APyFloat.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Get the bit-representation of an <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -310,7 +310,38 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloat.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sign</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">man</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">man_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#apytypes.APyFloat.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Create an <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>sign</strong><span class="classifier">bool or int</span></dt><dd><p>The sign of the float. False/0 means positive. True/non-zero means negative.</p>
+</dd>
+<dt><strong>exp</strong><span class="classifier">int</span></dt><dd><p>Exponent of the float as stored, i.e., actual value + bias.</p>
+</dd>
+<dt><strong>man</strong><span class="classifier">int</span></dt><dd><p>Mantissa of the float as stored, i.e., without a hidden one.</p>
+</dd>
+<dt><strong>exp_bits</strong><span class="classifier">int</span></dt><dd><p>Number of exponent bits.</p>
+</dd>
+<dt><strong>man_bits</strong><span class="classifier">int</span></dt><dd><p>Number of mantissa bits.</p>
+</dd>
+<dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloat</span>
+
+<span class="c1"># `a`, initialized from floating-point values.</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">APyFloat</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.35</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
 
 </section>
 <section id="creation-from-other-types">
@@ -322,13 +353,13 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>float_sequence</strong><span class="classifier">float</span></dt><dd><p>Floating-point value to initialize from.</p>
+<dt><strong>value</strong><span class="classifier">float</span></dt><dd><p>Floating-point value to initialize from.</p>
 </dd>
 <dt><strong>exp_bits</strong><span class="classifier">int</span></dt><dd><p>Number of exponent bits.</p>
 </dd>
-<dt><strong>man_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of mantissa bits.</p>
+<dt><strong>man_bits</strong><span class="classifier">int</span></dt><dd><p>Number of mantissa bits.</p>
 </dd>
-<dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Bias.</p>
+<dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
 </dl>
 </dd>
@@ -350,7 +381,33 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloat.from_bits">
 <span class="sig-name descname"><span class="pre">from_bits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">man_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></span><a class="headerlink" href="#apytypes.APyFloat.from_bits" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Create an <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> object from a bit-representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>bits</strong><span class="classifier">int</span></dt><dd><p>The bit-representation for the float.</p>
+</dd>
+<dt><strong>exp_bits</strong><span class="classifier">int</span></dt><dd><p>Number of exponent bits.</p>
+</dd>
+<dt><strong>man_bits</strong><span class="classifier">int</span></dt><dd><p>Number of mantissa bits.</p>
+</dd>
+<dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloat.to_bits" title="apytypes.APyFloat.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
 
 </section>
 <section id="change-word-length">
@@ -368,7 +425,7 @@ APyTypes floating-point numbers.</p>
 </dd>
 <dt><strong>man_bits</strong><span class="classifier">int</span></dt><dd><p>Number of mantissa bits in the result.</p>
 </dd>
-<dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Bias used in the result.</p>
+<dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
 <dt><strong>quantization</strong><span class="classifier"><a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode" title="apytypes.QuantizationMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode</span></code></a>, optional.</span></dt><dd><p>Quantization mode to use in this cast. If None, use the global
 quantization mode.</p>
@@ -389,7 +446,21 @@ quantization mode.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloat.to_bits">
 <span class="sig-name descname"><span class="pre">to_bits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#apytypes.APyFloat.to_bits" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the bit-representation of an <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloat.from_bits" title="apytypes.APyFloat.from_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_bits</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
 
 </section>
 <section id="comparison">
