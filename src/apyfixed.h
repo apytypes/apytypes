@@ -217,6 +217,7 @@ public:
      * ****************************************************************************** */
 
 public:
+    //! Convert number to double.
     double to_double() const;
     std::string to_string(int base = 10) const;
     std::string to_string_hex() const;

@@ -163,19 +163,6 @@ void bind_fixed(nb::module_& m)
             True if the value equals zero, false otherwise.
             )pbdoc")
         .def(
-            "resize",
-            &APyFixed::resize,
-            nb::arg("bits") = nb::none(),
-            nb::arg("int_bits") = nb::none(),
-            nb::arg("quantization") = QuantizationMode::TRN,
-            nb::arg("overflow") = OverflowMode::WRAP,
-            nb::arg("frac_bits") = nb::none(),
-            R"pbdoc(
-            .. deprecated:: 0.1.pre
-               Use :func:`~APyFixed.cast` instead.
-            )pbdoc"
-        )
-        .def(
             "cast",
             &APyFixed::cast,
             nb::arg("bits") = nb::none(),
@@ -184,11 +171,10 @@ void bind_fixed(nb::module_& m)
             nb::arg("overflow") = OverflowMode::WRAP,
             nb::arg("frac_bits") = nb::none(),
             R"pbdoc(
-            Create a new resized fixed-point number based on the bit pattern in this
-            fixed-point number.
+            Resize the fixed-point number.
 
-            This is the primary method for performing quantization, truncation,
-            overflowing, and saturation when dealing with APyTypes fixed-point numbers.
+            This is the primary method for performing quantization and
+            overflowing/saturation when dealing with APyTypes fixed-point numbers.
 
             Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
             to be set.
@@ -196,15 +182,15 @@ void bind_fixed(nb::module_& m)
             Parameters
             ----------
             bits : int, optional
-                Total number of bits in the created fixed-point object
+                Total number of bits in the result.
             int_bits : int, optional
-                Number of integer bits in the created fixed-point object
+                Number of integer bits in the result.
             quantization : :class:`QuantizationMode`, default: :class:`QuantizationMode.TRN`
-                Quantization mode to use in this cast
+                Quantization mode to use in this cast.
             overflow : :class:`OverflowMode`, default: :class:`OverflowMode.WRAP`
-                Overflowing mode to use in this cast
+                Overflowing mode to use in this cast.
             frac_bits : int, optional
-                Number of fractional bits in the created fixed-point object
+                Number of fractional bits in the result.
 
             Returns
             -------

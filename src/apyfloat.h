@@ -134,21 +134,30 @@ public:
     //! The exponent is assumed to be 0 and is updated in case of carry.
     void cast_mantissa_subnormal(std::uint8_t man_bits, QuantizationMode quantization);
 
+    //! Change the number of mantissa and exponent bits for cases where it is known that
+    //! quantization does not happen, i.e., the resulting number of bits is not shorter.
     APyFloat cast_no_quant(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     ) const;
 
+    //! Change the number of mantissa and exponent bits for cases where it is known that
+    //! quantization does not happen, i.e., the resulting number of bits is not shorter.
     APyFloat
     cast_no_quant(std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias) const;
 
+    //! Simplified casting when the input is known to correspond to a double.
     APyFloat
     cast_from_double(std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias) const;
 
+    //! Simplified casting when the input is known that the result will correspond to a
+    //! double.
     APyFloat _cast_to_double() const;
 
+    //! String representation
     std::string str() const;
+    //! Python representation
     std::string repr() const;
     std::string pretty_string() const;
 
