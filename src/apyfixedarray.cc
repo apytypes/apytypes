@@ -486,7 +486,8 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
     auto op2_begin = rhs._data.begin();
     auto op2_end = rhs._data.begin() + rhs.vector_size();
     bool sign2 = mp_limb_signed_t(*(op2_end - 1)) < 0;
-    std::vector<mp_limb_t> op2_abs = limb_vector_abs(op2_begin, op2_end);
+    std::vector<mp_limb_t> op2_abs(std::distance(op2_begin, op2_end));
+    limb_vector_abs(op2_begin, op2_end, op2_abs.begin());
 
     // Perform multiplication for each element in the tensor. `mpn_mul` requires:
     // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s

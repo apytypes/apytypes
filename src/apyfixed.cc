@@ -210,36 +210,37 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
         return result; // early exit
     }
 
-    const bool sign_product = is_negative() ^ rhs.is_negative();
-    auto abs_operand1 = limb_vector_abs(_data.cbegin(), _data.cend());
-    auto abs_operand2 = limb_vector_abs(rhs._data.cbegin(), rhs._data.cend());
+    ScratchVector<mp_limb_t> abs_op1(std::distance(_data.begin(), _data.end()));
+    ScratchVector<mp_limb_t> abs_op2(std::distance(rhs._data.begin(), rhs._data.end()));
+    limb_vector_abs(_data.begin(), _data.end(), abs_op1.begin());
+    limb_vector_abs(rhs._data.begin(), rhs._data.end(), abs_op2.begin());
 
     // `mpn_mul` requires:
     // "The destination has to have space for `s1n` + `s2n` limbs, even if the
     // product’s most significant limb is zero."
-    result._data.resize(abs_operand1.size() + abs_operand2.size());
+    result._data.resize(abs_op1.size() + abs_op2.size());
 
     // `mpn_mul` requires the limb vector length of the first operand to be
     // greater than, or equally long as, the limb vector length of the second
     // operand. Simply swap the operands (essentially a free operation in C++)
     // if this is not the case.
-    if (abs_operand1.size() < abs_operand2.size()) {
-        std::swap(abs_operand1, abs_operand2);
+    if (abs_op1.size() < abs_op2.size()) {
+        std::swap(abs_op1, abs_op2);
     }
 
     mpn_mul(
-        &result._data[0],    // dst
-        &abs_operand1[0],    // src1
-        abs_operand1.size(), // src1 limb vector length
-        &abs_operand2[0],    // src2
-        abs_operand2.size()  // src2 limb vector length
+        &result._data[0], // dst
+        &abs_op1[0],      // src1
+        abs_op1.size(),   // src1 limb vector length
+        &abs_op2[0],      // src2
+        abs_op2.size()    // src2 limb vector length
     );
 
     // Shape the rsult vector back to the number of significant limbs
     result._data.resize(bits_to_limbs(res_bits));
 
     // Handle sign
-    if (sign_product) {
+    if (is_negative() ^ rhs.is_negative()) {
         limb_vector_negate(
             result._data.begin(), result._data.end(), result._data.begin()
         );
@@ -641,7 +642,7 @@ void APyFixed::set_from_string_dec(const std::string& str)
 
     // Adjust limb vector if negative fractional bits are present
     if (frac_bits() + 1 < 0) {
-        limb_vector_asr(data, -(frac_bits() + 1));
+        limb_vector_asr(data.begin(), data.end(), -(frac_bits() + 1));
     }
 
     // Copy the data into the result vector
@@ -1434,9 +1435,9 @@ void APyFixed::_overflow_twos_complement(
 {
     (void)int_bits;
     if (bits % _LIMB_SIZE_BITS) {
-        auto mslimb_it = it_begin + bits_to_limbs(bits) - 1;
-        auto shift_amount = _LIMB_SIZE_BITS - (bits % _LIMB_SIZE_BITS);
-        *mslimb_it = mp_limb_signed_t(*mslimb_it << shift_amount) >> shift_amount;
+        RANDOM_ACCESS_ITERATOR ms_limb_it = it_begin + bits_to_limbs(bits) - 1;
+        unsigned shift_amount = _LIMB_SIZE_BITS - (bits % _LIMB_SIZE_BITS);
+        *ms_limb_it = mp_limb_signed_t(*ms_limb_it << shift_amount) >> shift_amount;
     }
 }
 

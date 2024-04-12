@@ -606,13 +606,6 @@ template <class RANDOM_ACCESS_ITERATOR>
     }
 }
 
-//! Perform arithmetic right shift on a limb vector. Accelerated using GMP.
-[[maybe_unused]] static APY_INLINE void
-limb_vector_asr(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
-{
-    limb_vector_asr(vec.begin(), vec.end(), shift_amnt);
-}
-
 //! Perform logical right shift on a limb vector. Accelerated using GMP.
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE void limb_vector_lsr(
@@ -648,13 +641,6 @@ template <class RANDOM_ACCESS_ITERATOR>
             limb_shift  // shift amount
         );
     }
-}
-
-//! Perform logical right shift on a limb vector. Accelerated using GMP.
-[[maybe_unused]] static APY_INLINE void
-limb_vector_lsr(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
-{
-    limb_vector_lsr(vec.begin(), vec.end(), shift_amnt);
 }
 
 //! Perform logical left shift on a limb vector. Accelerated using GMP.
@@ -706,13 +692,6 @@ template <class RANDOM_ACCESS_ITERATOR>
     }
     unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
     limb_vector_lsl_inner(it_begin, it_end, limb_skip, limb_shift, vec_size);
-}
-
-//! Perform logical left shift on a limb vector. Accelerated using GMP.
-[[maybe_unused]] static APY_INLINE void
-limb_vector_lsl(std::vector<mp_limb_t>& vec, unsigned shift_amnt)
-{
-    limb_vector_lsl(vec.begin(), vec.end(), shift_amnt);
 }
 
 //! Test if value in limb vector is greater than or equal to a non-negative power-of-two
@@ -907,20 +886,6 @@ template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
     return mpn_add_1(&*res_it, &*res_it, std::distance(cbegin_it, cend_it), 1);
 }
 
-/*!
- * Non-limb extending negation of limb vector from constant reference
- * to `std::vector<mp_limb_t>`. This function guarantees
- * that `result.size() == input.size()`.
- */
-template <class RANDOM_ACCESS_ITERATOR>
-[[maybe_unused, nodiscard]] static APY_INLINE std::vector<mp_limb_t>
-limb_vector_negate(RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it)
-{
-    std::vector<mp_limb_t> result(std::distance(cbegin_it, cend_it), 0);
-    limb_vector_negate(cbegin_it, cend_it, result.begin());
-    return result;
-}
-
 //! Take the two's complement absolute value of a limb vector in place
 template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
 [[maybe_unused]] static APY_INLINE void limb_vector_abs(
@@ -934,16 +899,6 @@ template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
     } else {
         std::copy(cbegin_it, cend_it, res_it);
     }
-}
-
-//! Take the two's complement absolute value of a limb vector
-template <class RANDOM_ACCESS_ITERATOR>
-[[maybe_unused, nodiscard]] static APY_INLINE std::vector<mp_limb_t>
-limb_vector_abs(RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it)
-{
-    std::vector<mp_limb_t> result(std::distance(cbegin_it, cend_it), 0);
-    limb_vector_abs(cbegin_it, cend_it, result.begin());
-    return result;
 }
 
 template <typename T> std::string string_from_vec(const std::vector<T>& vec)
