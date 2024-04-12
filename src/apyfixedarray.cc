@@ -677,19 +677,16 @@ APyFixedArray APyFixedArray::abs() const
     const int res_int_bits = _int_bits + 1;
     const int res_bits = _bits + 1;
 
+    // Resulting `APyFixedArray` fixed-point tensor
+    APyFixedArray result(_shape, res_bits, res_int_bits);
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        // Resulting `APyFixedArray` fixed-point tensor
-        APyFixedArray result(_shape, res_bits, res_int_bits);
         for (std::size_t i = 0; i < _data.size(); i++) {
             result._data[i] = std::abs(mp_limb_signed_t(_data[i]));
         }
         return result;
     }
-    // Adjust binary point
-    APyFixedArray result(_shape, res_bits, res_int_bits);
     auto it_begin = _data.begin();
-    auto n_elements = fold_shape(_shape);
-    for (std::size_t i = 0; i < n_elements; i++) {
+    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
         auto it_end = it_begin + _itemsize;
         limb_vector_abs(it_begin, it_end, result._data.begin() + i * result._itemsize);
         it_begin = it_end;
@@ -703,20 +700,18 @@ APyFixedArray APyFixedArray::operator-() const
     const int res_int_bits = _int_bits + 1;
     const int res_bits = _bits + 1;
 
+    // Resulting `APyFixedArray` fixed-point tensor
+    APyFixedArray result(_shape, res_bits, res_int_bits);
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        // Resulting `APyFixedArray` fixed-point tensor
-        APyFixedArray result(_shape, res_bits, res_int_bits);
         for (std::size_t i = 0; i < _data.size(); i++) {
             result._data[i] = -_data[i];
         }
         return result;
     }
-    // Adjust binary point
-    APyFixedArray result(_shape, res_bits, res_int_bits);
+    // Sign-extend in case an additional limb is required
     _cast_correct_wl(result._data.begin(), res_bits, res_int_bits);
     auto it_begin = result._data.begin();
-    auto n_elements = fold_shape(_shape);
-    for (std::size_t i = 0; i < n_elements; i++) {
+    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
         auto it_end = it_begin + result._itemsize;
         limb_vector_negate(it_begin, it_end, it_begin);
         it_begin = it_end;
