@@ -163,14 +163,6 @@ public:
         std::optional<int> frac_bits = std::nullopt
     ) const;
 
-    APyFixedArray resize(
-        std::optional<int> bits = std::nullopt,
-        std::optional<int> int_bits = std::nullopt,
-        QuantizationMode quantization = QuantizationMode::TRN,
-        OverflowMode overflow = OverflowMode::WRAP,
-        std::optional<int> frac_bits = std::nullopt
-    ) const;
-
     /*!
      * Test if `*this` is identical to another `APyFixedArray`. Two `APyFixedArray`
      * objects are considered identical if, and only if:

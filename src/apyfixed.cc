@@ -1032,20 +1032,6 @@ APyFixed::cast_no_overflow(int bits, int int_bits, QuantizationMode quantization
     return result;
 }
 
-APyFixed APyFixed::resize(
-    std::optional<int> bits,
-    std::optional<int> int_bits,
-    QuantizationMode quantization,
-    OverflowMode overflow,
-    std::optional<int> frac_bits
-) const
-{
-    PyErr_WarnEx(
-        PyExc_DeprecationWarning, "resize() is deprecated, use cast() instead.", 1
-    );
-    return cast(bits, int_bits, quantization, overflow, frac_bits);
-}
-
 template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_cast(
     RANDOM_ACCESS_ITERATOR it_begin,

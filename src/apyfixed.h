@@ -271,14 +271,6 @@ public:
         std::optional<int> frac_bits = std::nullopt
     ) const;
 
-    APyFixed resize(
-        std::optional<int> bits = std::nullopt,
-        std::optional<int> int_bits = std::nullopt,
-        QuantizationMode quantization = QuantizationMode::TRN,
-        OverflowMode overflow = OverflowMode::WRAP,
-        std::optional<int> frac_bits = std::nullopt
-    ) const;
-
     APyFixed cast_no_overflow(
         int bits, int int_bits, QuantizationMode quantization = QuantizationMode::TRN
     ) const;
