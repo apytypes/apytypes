@@ -12,8 +12,6 @@ static constexpr std::size_t _MAN_T_SIZE_BITS = 8 * _MAN_T_SIZE_BYTES;
 static constexpr std::size_t _EXP_T_SIZE_BYTES = sizeof(exp_t);
 static constexpr std::size_t _EXP_T_SIZE_BITS = 8 * _EXP_T_SIZE_BYTES;
 
-static const APyFixed fx_one(2, 2, std::vector<mp_limb_t>({ 1 }));
-
 //! Quantize mantissa
 man_t APY_INLINE quantize_mantissa(
     man_t man, std::uint8_t bits_to_quantize, bool sign, QuantizationMode quantization

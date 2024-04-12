@@ -491,20 +491,19 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
     const int sum_man_bits = man_bits + rhs.man_bits;
     const auto quantization = get_quantization_mode();
 
-    if (unsigned(sum_man_bits) + 2 <= _MAN_T_SIZE_BITS) {
+    if (unsigned(sum_man_bits) + 3 <= _MAN_T_SIZE_BITS) {
         // Compute constants for reuse
         const auto x_max_exponent = ((1ULL << exp_bits) - 1);
         const auto y_max_exponent = ((1ULL << rhs.exp_bits) - 1);
-        const auto res_max_exponent = ((1ULL << res_exp_bits) - 1);
-        const auto new_man_bits = sum_man_bits + 1;
-        const man_t one = 1ULL << sum_man_bits;
-        const man_t two = 1ULL << new_man_bits;
+        const exp_t res_max_exponent = ((1ULL << res_exp_bits) - 1);
+        const auto new_man_bits = sum_man_bits + 2;
+        const man_t two = 1ULL << (new_man_bits);
+        const man_t two_before = 1ULL << (new_man_bits - 1);
+        const man_t two_res = 1 << res_man_bits;
         const auto mask_two = two - 1;
-        const std::int64_t bias_sum = bias + rhs.bias;
-        const auto new_exp_bits = bit_width(bias_sum + new_man_bits) + 1;
-        const auto extended_bias = APyFloat::ieee_bias(new_exp_bits);
-        // Use longer format for intermediate result
-        APyFloat larger_float(new_exp_bits, new_man_bits, extended_bias);
+        const auto man_bits_delta = new_man_bits - res_man_bits;
+        const std::int64_t bias_sum = bias + rhs.bias - res_bias;
+        exp_t new_exp;
 
         // Perform operation
         for (std::size_t i = 0; i < data.size(); i++) {
@@ -560,29 +559,43 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
 
             man_t new_man = mx * my;
 
-            // In case of denormalized data
-            if (new_man < one) {
-                int cnt = new_man_bits - bit_width(new_man);
-                new_man <<= cnt + 1;
-                tmp_exp -= cnt;
+            // Check carry from multiplication
+            if (new_man & two_before) {
+                tmp_exp++;
+                new_man <<= 1;
             } else {
-                // Result may be larger than two
-                if (new_man >= two) {
-                    tmp_exp++;
+                // Check for subnormal
+                if (tmp_exp == 0) {
+                    new_man <<= 1;
+                } else if (tmp_exp < 0) {
+                    new_man = (new_man >> (-tmp_exp - 1))
+                        | ((new_man & ((1 << -tmp_exp) - 1)) != 0);
+                    tmp_exp = 0;
                 } else {
                     // Align with longer result
-                    new_man <<= 1;
+                    new_man <<= 2;
                 }
             }
-            // Remove leading one
-            new_man &= mask_two;
 
-            auto new_exp = tmp_exp + extended_bias;
-            // Use longer format for intermediate result
-            larger_float.set_data({ res_sign, (exp_t)new_exp, new_man });
-            res.data[i]
-                = larger_float._cast(res_exp_bits, res_man_bits, res_bias, quantization)
-                      .get_data();
+            new_man = quantize_mantissa(
+                new_man & mask_two, man_bits_delta, res_sign, quantization
+            );
+
+            if (new_man >= two_res) {
+                ++tmp_exp;
+                new_man = 0;
+            }
+
+            // Check for overflow
+            if (tmp_exp >= res_max_exponent) {
+                new_exp = res_max_exponent;
+                new_man = 0;
+            } else {
+                new_exp = tmp_exp;
+            }
+            res.data[i] = { res_sign,
+                            static_cast<exp_t>(new_exp),
+                            static_cast<man_t>(new_man) };
         }
         return res;
     }
