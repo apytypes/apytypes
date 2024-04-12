@@ -43,9 +43,9 @@ strides_from_shape(const std::vector<std::size_t>& shape, std::size_t itemsize =
 
 template <typename T, typename Allocator = std::allocator<T>> class APyBuffer {
 
-    // APyBuffers are to be inherited from. All fields and constructors are protected.
+    //! APyBuffers are to be inherited from. All fields and constructors are protected.
 protected:
-    // Base constructor for creating a new `APyBuffer`
+    //! Base constructor for creating a new `APyBuffer`
     APyBuffer(const std::vector<std::size_t>& shape, std::size_t itemsize = 1)
         : _itemsize { itemsize }
         , _shape { shape }
@@ -55,7 +55,7 @@ protected:
     {
     }
 
-    // Retrieve a Python Buffer structure compatible with the Buffer Protocol
+    //! Retrieve a Python Buffer structure compatible with the Buffer Protocol
     Py_buffer get_py_buffer()
     {
         return Py_buffer {
@@ -73,8 +73,8 @@ protected:
         };
     }
 
-    // Resize the underlying buffer without touching its data. Narrowing the buffer will
-    // result in loss of data.
+    //! Resize the underlying buffer without touching its data. Narrowing the buffer
+    //! will result in loss of data.
     void buffer_resize(const std::vector<std::size_t> shape, std::size_t itemsize)
     {
         if ((_itemsize != itemsize) || (_shape != shape)) {
@@ -86,9 +86,9 @@ protected:
         }
     }
 
-    std::size_t _itemsize;             // Size of item (in number of objects `T`)
-    std::vector<std::size_t> _shape;   // Shape (in number of objects `T`)
-    std::vector<std::size_t> _strides; // Stides (in bytes)
+    std::size_t _itemsize;             //! Size of item (in number of objects `T`)
+    std::vector<std::size_t> _shape;   //! Shape (in number of objects `T`)
+    std::vector<std::size_t> _strides; //! Stides (in bytes)
     std::vector<T, Allocator> _data;
     std::size_t _ndim;
 };
