@@ -890,6 +890,50 @@ template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
     }
 }
 
+//! Test if the bits in a limb vector are all zeros starting from bit `n` (zero
+//! indexed). Bit `n` is assumed to be located in the first limb.
+template <class RANDOM_ACCESS_ITERATOR>
+[[maybe_unused]] static APY_INLINE bool limb_vector_all_zeros(
+    RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it, unsigned n = 0
+)
+{
+    mp_limb_t mask = ~((mp_limb_t(1) << n) - 1);
+    if (*cbegin_it & mask) {
+        // One or more bits in the masked first limb are non-zero
+        return false;
+    } else {
+        // Test if remaining limbs are all full zero limbs
+        for (auto it = cbegin_it + 1; it != cend_it; ++it) {
+            if (*it != 0) {
+                return false;
+            }
+        }
+        return true; // All zeros
+    }
+}
+
+//! Test if the bits in a limb vector are all ones starting from bit `n` (zero indexed).
+//! Bit `n` is assumed to be located in the first limb.
+template <class RANDOM_ACCESS_ITERATOR>
+[[maybe_unused]] static APY_INLINE bool limb_vector_all_ones(
+    RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it, unsigned n = 0
+)
+{
+    mp_limb_t mask = ~((mp_limb_t(1) << n) - 1);
+    if (~*cbegin_it & mask) {
+        // One ore more bits in the masked first limb are non-ones
+        return false;
+    } else {
+        // Test if remaining limbs are all full zero limbs
+        for (auto it = cbegin_it + 1; it != cend_it; ++it) {
+            if (*it != mp_limb_t(-1)) {
+                return false;
+            }
+        }
+        return true; // All ones
+    }
+}
+
 template <typename T> std::string string_from_vec(const std::vector<T>& vec)
 {
     if (vec.size() == 0) {

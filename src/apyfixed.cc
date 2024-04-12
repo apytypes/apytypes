@@ -1449,7 +1449,25 @@ void APyFixed::_overflow_saturate(
     int int_bits
 ) const
 {
-    throw NotImplementedException();
+    (void)int_bits;
+    RANDOM_ACCESS_ITERATOR ms_limb_it = it_begin + bits_to_limbs(bits) - 1;
+    std::size_t utilized_bits_last_limb = (bits - 1) % _LIMB_SIZE_BITS + 1;
+
+    mp_limb_t sign_limb = mp_limb_signed_t(*std::prev(it_end)) < 0 ? -1 : 0;
+    if (sign_limb) {
+        // Number is negative
+        if (!limb_vector_all_ones(ms_limb_it, it_end, utilized_bits_last_limb - 1)) {
+            // Saturate to most negative number
+            std::fill(it_begin, ms_limb_it, 0);
+            *ms_limb_it = ~((mp_limb_t(1) << (utilized_bits_last_limb - 1)) - 1);
+        }
+    } else {
+        // Number is positive
+        if (!limb_vector_all_zeros(ms_limb_it, it_end, utilized_bits_last_limb - 1)) {
+            std::fill(it_begin, ms_limb_it, mp_limb_t(-1));
+            *ms_limb_it = (mp_limb_t(1) << (utilized_bits_last_limb - 1)) - 1;
+        }
+    }
 }
 
 /* ********************************************************************************** *
