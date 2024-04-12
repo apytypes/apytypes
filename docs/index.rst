@@ -3,14 +3,23 @@
 Welcome to APyTypes' documentation!
 ===================================
 
-APyTypes is a Python library to simplify finite word length design and simulation.
+APyTypes is a Python library providing algorithmic data types, both fixed- and floating-point in Python.
+The main purpose is to simplify finite word length design and simulation.
 Written in C++, the focus is on performance and flexibility.
 
-To install APyTypes, do
+To install APyTypes, once available at PyPi, do
 
 .. code-block:: bash
 
    pip install apytypes
+
+For now, to install the latest version from source, do:
+
+.. code-block:: bash
+
+   pip install git+https://github.com/apytypes/apytypes.git
+
+Or look at the :ref:`development` instructions.
 
 Now, have a look at the examples and play around. Using an enhanced terminal, like
 Jupyter Notebooks or Spyder, will provide a nicer output of the numbers.
