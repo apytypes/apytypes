@@ -1418,11 +1418,10 @@ void APyFixed::_overflow(
 ) const
 {
     /*
-     * Note to authors trying to implement overflowing modes: All the overflow methods
-     * (e.g., `_overflow_saturate()`) assumes assumes that the data being overflown has
-     * already been copied into the iterator region pointed to by `it_begin` and
-     * `it_end`, and has been shifted into place. These set of methods simply perform
-     * any necessary overflow bit-fiddling.
+     * All overflow methods (e.g., `_overflow_saturate()`) assume that data being
+     * overflown has been copied to the iterator region [ `it_begin`, `it_end` ), and is
+     * shifted so that the binary point location is correct. The overflowing methods
+     * only manipulates bits in: [ `it_begin`, `it_begin + bits_to_limbs(new_bits)` ).
      */
     switch (overflow) {
     case OverflowMode::WRAP:
@@ -1448,27 +1447,14 @@ void APyFixed::_overflow_twos_complement(
 ) const
 {
     (void)int_bits;
-    std::size_t total_limbs_out = std::distance(it_begin, it_end);
-    std::size_t significant_limbs_out = bits_to_limbs(bits);
-    unsigned bits_last_limb = bits % _LIMB_SIZE_BITS;
-    auto mslimb_it = it_begin + significant_limbs_out - 1;
 
-    if (bits_last_limb) {
-        auto shift_amount = _LIMB_SIZE_BITS - bits_last_limb;
-        auto signed_limb = mp_limb_signed_t(*mslimb_it << shift_amount) >> shift_amount;
-        *mslimb_it = mp_limb_t(signed_limb);
-    }
-
-    if (total_limbs_out > significant_limbs_out) {
-        std::fill_n(
-            it_begin + significant_limbs_out,
-            total_limbs_out - significant_limbs_out,
-            mp_limb_signed_t(*mslimb_it) < 0 ? -1 : 0
-        );
+    if (bits % _LIMB_SIZE_BITS) {
+        auto mslimb_it = it_begin + bits_to_limbs(bits) - 1;
+        auto shift_amount = _LIMB_SIZE_BITS - (bits % _LIMB_SIZE_BITS);
+        *mslimb_it = mp_limb_signed_t(*mslimb_it << shift_amount) >> shift_amount;
     }
 }
 
-//! Perform saturating overflow.
 template <class RANDOM_ACCESS_ITERATOR>
 void APyFixed::_overflow_saturate(
     RANDOM_ACCESS_ITERATOR it_begin,
@@ -1477,7 +1463,6 @@ void APyFixed::_overflow_saturate(
     int int_bits
 ) const
 {
-    (void)int_bits;
     throw NotImplementedException();
 }
 
