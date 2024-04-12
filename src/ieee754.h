@@ -18,18 +18,26 @@
  * https://en.cppreference.com/w/cpp/language/fold
  */
 
-//! Test target machine native endianness in pure C++. Optimized away to single `true`
-//! or `false`, depending on endianness, on all tested machines using most C++17
-//! compatible compilers (godbolt.org):
-//! * All GCC version supporting C++17
-//! * All Clang version supporting C++17
-//! * All versions of MSVC available at compiler explorer...
-[[maybe_unused]] static APY_INLINE bool _MACHINE_IS_NATIVE_LITTLE_ENDIAN()
+//! Test target machine native little-endianness
+[[maybe_unused]] static constexpr bool target_is_little_endian()
 {
-    uint32_t deadbeef = 0xDEADBEEF;
-    uint8_t arr[4];
-    std::memcpy(arr, &deadbeef, sizeof(deadbeef));
-    return arr[0] == uint8_t(0xEF) ? true : false;
+#if defined(_MSC_VER)
+    // Microsoft Visual C/C++ compiler. Windows x86/64 systems are always little endian.
+    // Assume for now that we don't compile for XBOX-360 or any other Microsoft
+    // big-endian architectures.
+    return true;
+#elif defined(__GNUC__) && defined(__BYTE_ORDER__)
+    // GNU C-compatible compiler (including Clang and MacOS Xcode) with macro
+    // __BYTE_ORDER__ specified
+    return __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__;
+#else
+    // Failure: could not reliably detect the byte-order of the target architecture.
+    static_assert(
+        false,
+        "apytype_util.h: `constexpr bool is_little_endian()` could not find native "
+        "endianness"
+    );
+#endif
 }
 
 [[maybe_unused]] static APY_INLINE uint64_t type_pun_double_to_uint64_t(double d)
@@ -57,7 +65,7 @@
 [[maybe_unused]] static APY_INLINE bool sign_of_double(double d)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
-    if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
+    if constexpr (target_is_little_endian()) {
         return bool(double_pun & (uint64_t(1) << 63));
     } else { // std::endiand::native == std::endian::big
         throw NotImplementedException();
@@ -69,7 +77,7 @@
 [[maybe_unused]] static APY_INLINE int64_t exp_of_double(double d)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
-    if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
+    if constexpr (target_is_little_endian()) {
         return (double_pun << 1) >> 53;
     } else { // std::endiand::native == std::endian::big
         throw NotImplementedException();
@@ -81,7 +89,7 @@
 [[maybe_unused]] static APY_INLINE uint64_t man_of_double(double d)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
-    if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
+    if constexpr (target_is_little_endian()) {
         return double_pun & 0x000FFFFFFFFFFFFF;
     } else { // std::endiand::native == std::endian::big
         throw NotImplementedException();
@@ -92,7 +100,7 @@
 [[maybe_unused]] static APY_INLINE void set_sign_of_double(double& d, bool sign)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
-    if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
+    if constexpr (target_is_little_endian()) {
         double_pun &= 0x7FFFFFFFFFFFFFFF;
         double_pun |= (uint64_t(sign) << 63);
     } else {
@@ -106,7 +114,7 @@
 [[maybe_unused]] static APY_INLINE void set_exp_of_double(double& d, int64_t exp)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
-    if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
+    if constexpr (target_is_little_endian()) {
         double_pun &= 0x800FFFFFFFFFFFFF;
         double_pun |= 0x7FF0000000000000 & (uint64_t(exp) << 52);
     } else {
@@ -120,7 +128,7 @@
 [[maybe_unused]] static APY_INLINE void set_man_of_double(double& d, uint64_t man)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
-    if (_MACHINE_IS_NATIVE_LITTLE_ENDIAN()) {
+    if constexpr (target_is_little_endian()) {
         double_pun &= 0xFFF0000000000000;
         double_pun |= 0x000FFFFFFFFFFFFF & man;
     } else {
