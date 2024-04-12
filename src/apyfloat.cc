@@ -989,7 +989,8 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     const unsigned int sum_man_bits = man_bits + y.man_bits;
 
     if (sum_man_bits + 2 <= _MAN_T_SIZE_BITS) {
-        auto new_man_bits = sum_man_bits + 1;
+        const auto new_man_bits = sum_man_bits + 1;
+        const auto man_bits_delta = new_man_bits - res.man_bits;
 
         // Tentative exponent
         std::int64_t tmp_exp = true_exp() + y.true_exp() + res.bias;
@@ -1005,7 +1006,8 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         } else {
             // Check for subnormal
             if (tmp_exp <= 0) {
-                new_man_bits -= tmp_exp;
+                new_man
+                    >>= -tmp_exp; // This should not always work, TODO: write test case
                 tmp_exp = 0;
             } else {
                 // Align with longer result
@@ -1013,13 +1015,23 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
             }
         }
 
-        // Remove leading one
-        new_man &= two - 1;
+        new_man = quantize_mantissa(
+            new_man & (two - 1), man_bits_delta, sign, quantization
+        );
+        if (new_man & two) {
+            ++tmp_exp;
+            new_man = 0;
+        }
 
-        res.man = new_man;
-        res.man_bits = new_man_bits;
-        res.exp = tmp_exp;
-        res.cast_mantissa_shorter(res_man_bits, quantization);
+        // Check for overflow
+        const auto max_exp = res.max_exponent();
+        if (tmp_exp >= max_exp) {
+            res.exp = max_exp;
+            res.man = 0;
+        } else {
+            res.man = new_man;
+            res.exp = tmp_exp;
+        }
         return res;
     } else {
         // Normalize both inputs
