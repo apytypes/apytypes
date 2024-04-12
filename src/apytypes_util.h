@@ -694,8 +694,8 @@ template <class RANDOM_ACCESS_ITERATOR>
     limb_vector_lsl_inner(it_begin, it_end, limb_skip, limb_shift, vec_size);
 }
 
-//! Test if value in limb vector is greater than or equal to a non-negative power-of-two
-//! (>= 2 ^ `n` for unsigned `n`)
+//! Test if positive integer value in limb vector is greater than or equal to a
+//! non-negative power-of-two (>= 2 ^ `n` for unsigned `n`)
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE bool limb_vector_gte_pow2(
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned n
@@ -770,13 +770,6 @@ template <class RANDOM_ACCESS_ITERATOR>
     return 0;
 }
 
-//! Add a power-of-two (2 ^ `n`) onto a limb vector. Returns carry out
-[[maybe_unused]] static APY_INLINE mp_limb_t
-limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
-{
-    return limb_vector_add_pow2(vec.begin(), vec.end(), n);
-}
-
 //! Retrieve the `bits` specifier from user provided optional bit specifiers.
 //! Throws `nb::value_error` if the resulting number of bits is less than or equal to
 //! zero, or if not exactly two of three bit specifiers are present.
@@ -802,7 +795,7 @@ limb_vector_add_pow2(std::vector<mp_limb_t>& vec, unsigned n)
     return result;
 }
 
-//! Test if the value of a limb vector is negative
+//! Test if two's complement value in a limb vector is negative
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE bool limb_vector_is_negative(
     RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it
@@ -841,7 +834,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     return false;
 }
 
-//! Test if the `n`-th bit is set in a limb vector
+//! Test if the `n` -th bit (zero indexed) is set in a limb vector
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE bool limb_vector_test_bit(
     RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it, unsigned n
@@ -855,7 +848,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     return mask & limb;
 }
 
-//! Set the `n`-th bit (zero indexed) of a limb vector to `bit`
+//! Set the `n` -th bit (zero indexed) of a limb vector to `bit`
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE void limb_vector_set_bit(
     RANDOM_ACCESS_ITERATOR begin_it, RANDOM_ACCESS_ITERATOR end_it, unsigned n, bool bit
@@ -870,11 +863,7 @@ template <class RANDOM_ACCESS_ITERATOR>
         = (begin_it[limb_idx] & bit_unmask) | (mp_limb_t(bit) << bit_idx);
 }
 
-/*!
- * Non-limb extending negation of limb vector from constant reference
- * to `std::vector<mp_limb_t>`. This function guarantees
- * that `result.size() == input.size()`.
- */
+//! Take the two's complement negative value of a limb vector and place onto `res_out`
 template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
 [[maybe_unused]] static APY_INLINE mp_limb_t limb_vector_negate(
     RANDOM_ACCESS_ITERATOR_IN cbegin_it,
@@ -886,7 +875,7 @@ template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
     return mpn_add_1(&*res_it, &*res_it, std::distance(cbegin_it, cend_it), 1);
 }
 
-//! Take the two's complement absolute value of a limb vector in place
+//! Take the two's complement absolute value of a limb vector and place onto `res_out`
 template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
 [[maybe_unused]] static APY_INLINE void limb_vector_abs(
     RANDOM_ACCESS_ITERATOR_IN cbegin_it,
