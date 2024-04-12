@@ -70,7 +70,7 @@ public:
      * * Methods for conversions                                                    *
      * ******************************************************************************
      */
-    // Factory function for Python interface
+    //! Factory function for Python interface
     static void create_in_place(
         APyFloat* apyfloat,
         int sign,
@@ -81,6 +81,7 @@ public:
         std::optional<exp_t> bias = std::nullopt
     );
 
+    //! Create APyFloat from double
     static APyFloat from_double(
         double value,
         std::uint8_t exp_bits,
@@ -90,6 +91,7 @@ public:
     double to_double() const;
     operator double() const;
 
+    //! Create APyFloat from bit-representation
     static APyFloat from_bits(
         nanobind::int_ python_long_int_bit_pattern,
         std::uint8_t exp_bits,

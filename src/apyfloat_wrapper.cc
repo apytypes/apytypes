@@ -20,7 +20,39 @@ void bind_float(nb::module_& m)
             nb::arg("man"),
             nb::arg("exp_bits"),
             nb::arg("man_bits"),
-            nb::arg("bias") = nb::none()
+            nb::arg("bias") = nb::none(),
+            R"pbdoc(
+            Create an :class:`APyFloat` object.
+
+            Parameters
+            ----------
+            sign : bool or int
+                The sign of the float. False/0 means positive. True/non-zero means negative.
+            exp : int
+                Exponent of the float as stored, i.e., actual value + bias.
+            man : int
+                Mantissa of the float as stored, i.e., without a hidden one.
+            exp_bits : int
+                Number of exponent bits.
+            man_bits : int
+                Number of mantissa bits.
+            bias : int, optional
+                Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+            Returns
+            -------
+            :class:`APyFloat`
+
+            Examples
+            --------
+
+            .. code-block:: python
+
+                from apytypes import APyFloat
+
+                # `a`, initialized from floating-point values.
+                a = APyFloat.from_float(1.35, exp_bits=10, man_bits=15)
+            )pbdoc"
         )
 
         /*
@@ -38,14 +70,14 @@ void bind_float(nb::module_& m)
 
             Parameters
             ----------
-            float_sequence : float
+            value : float
                 Floating-point value to initialize from.
             exp_bits : int
                 Number of exponent bits.
-            man_bits : int, optional
+            man_bits : int
                 Number of mantissa bits.
             bias : int, optional
-                Bias.
+                Bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
             Returns
             -------
@@ -69,9 +101,43 @@ void bind_float(nb::module_& m)
             nb::arg("bits"),
             nb::arg("exp_bits"),
             nb::arg("man_bits"),
-            nb::arg("bias") = nb::none()
+            nb::arg("bias") = nb::none(),
+            R"pbdoc(
+            Create an :class:`APyFloat` object from a bit-representation.
+
+            Parameters
+            ----------
+            bits : int
+                The bit-representation for the float.
+            exp_bits : int
+                Number of exponent bits.
+            man_bits : int
+                Number of mantissa bits.
+            bias : int, optional
+                Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+            See also
+            --------
+            to_bits
+
+            Returns
+            -------
+            :class:`APyFloat`
+
+            )pbdoc"
         )
-        .def("to_bits", &APyFloat::to_bits)
+        .def("to_bits", &APyFloat::to_bits, R"pbdoc(
+            Get the bit-representation of an :class:`APyFloat`.
+
+            See also
+            --------
+            from_bits
+
+            Returns
+            -------
+            :class:`int`
+
+            )pbdoc")
         .def("__str__", &APyFloat::str)
         .def("__repr__", &APyFloat::repr)
         .def("pretty_string", &APyFloat::pretty_string)
@@ -96,7 +162,7 @@ void bind_float(nb::module_& m)
             man_bits : int
                 Number of mantissa bits in the result.
             bias : int, optional
-                Bias used in the result.
+                Bias. If not provided, *bias* is ``2**exp_bits - 1``.
             quantization : :class:`QuantizationMode`, optional.
                 Quantization mode to use in this cast. If None, use the global
                 quantization mode.
@@ -504,7 +570,6 @@ void bind_float(nb::module_& m)
 
             Parameters
             ----------
-
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use. If not provided, the global mode,
                 see :func:`get_quantization_mode`, is used.
@@ -525,7 +590,6 @@ void bind_float(nb::module_& m)
 
             Parameters
             ----------
-
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use. If not provided, the global mode,
                 see :func:`get_quantization_mode`, is used.
@@ -546,7 +610,6 @@ void bind_float(nb::module_& m)
 
             Parameters
             ----------
-
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use. If not provided, the global mode,
                 see :func:`get_quantization_mode`, is used.
@@ -567,7 +630,6 @@ void bind_float(nb::module_& m)
 
             Parameters
             ----------
-
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use. If not provided, the global mode,
                 see :func:`get_quantization_mode`, is used.
