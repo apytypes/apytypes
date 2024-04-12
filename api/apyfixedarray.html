@@ -189,6 +189,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../performance.html">Computational performance</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../comparison.html">Comparison</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications</a></li>
 </ul>
 
 </div>
@@ -251,7 +252,7 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.cast" title="apytypes.APyFixedArray.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a></p></td>
-<td><p>Create a new resized fixed-point array based on the bit pattern in this fixed-point array.</p></td>
+<td><p>Resize the fixed-point array.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.from_float" title="apytypes.APyFixedArray.from_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_float</span></code></a></p></td>
 <td><p></p></td>
@@ -259,16 +260,10 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.is_identical" title="apytypes.APyFixedArray.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
 <td><p>Test if two <a class="reference internal" href="#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> objects are identical.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">resize</span></code></p></td>
-<td><p><div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version 0.1.pre.</span></p>
-</div>
-</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.to_numpy" title="apytypes.APyFixedArray.to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.to_numpy" title="apytypes.APyFixedArray.to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code></a></p></td>
 <td><p>Return array as a <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.float64</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.transpose" title="apytypes.APyFixedArray.transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.transpose" title="apytypes.APyFixedArray.transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code></a></p></td>
 <td><p>Return the transposition of the array.</p></td>
 </tr>
 </tbody>
@@ -291,6 +286,7 @@
 <p>The initialized fixed-point values are the one closest to the
 input floating-point value, rounded away from zero on ties. Exactly two of
 the three bit-specifiers (<cite>bits</cite>, <cite>int_bits</cite>, <cite>frac_bits</cite>) has to be set.</p>
+<p>Using NumPy arrays as input is in general faster than e.g. lists.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -336,24 +332,23 @@ from the sequence shape.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.cast">
 <span class="sig-name descname"><span class="pre">cast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode" title="QuantizationMode"><span class="pre">QuantizationMode</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">QuantizationMode.TO_NEG</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overflow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quantizationoverflow.html#apytypes.OverflowMode" title="OverflowMode"><span class="pre">OverflowMode</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">OverflowMode.WRAP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.cast" title="Link to this definition">#</a></dt>
-<dd><p>Create a new resized fixed-point array based on the bit pattern in this
-fixed-point array.</p>
-<p>This is the primary method for performing quantization, truncation, overflowing,
-and saturation when dealing with APyTypes fixed-point numbers.</p>
+<dd><p>Resize the fixed-point array.</p>
+<p>This is the primary method for performing quantization and overflowing/saturation
+when dealing with APyTypes fixed-point arrays.</p>
 <p>Exactly two of three bit-specifiers (<em>bits</em>, <em>int_bits</em>, <em>frac_bits</em>) needs
 to be set.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Total number of bits in the created fixed-point array.</p>
+<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Total number of bits in the result.</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits in the created fixed-point array-</p>
+<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits in the result.</p>
 </dd>
 <dt><strong>quantization</strong><span class="classifier"><a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode" title="apytypes.QuantizationMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode</span></code></a>, default: <a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode.TRN" title="apytypes.QuantizationMode.TRN"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode.TRN</span></code></a></span></dt><dd><p>Quantization mode to use in this cast.</p>
 </dd>
 <dt><strong>overflow</strong><span class="classifier"><a class="reference internal" href="quantizationoverflow.html#apytypes.OverflowMode" title="apytypes.OverflowMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">OverflowMode</span></code></a>, default: <a class="reference internal" href="quantizationoverflow.html#apytypes.OverflowMode.WRAP" title="apytypes.OverflowMode.WRAP"><code class="xref py py-class docutils literal notranslate"><span class="pre">OverflowMode.WRAP</span></code></a></span></dt><dd><p>Overflowing mode to use in this cast.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits in the created fixed-point array.</p>
+<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits in the result.</p>
 </dd>
 </dl>
 </dd>
@@ -554,7 +549,7 @@ transposition of <cite>self</cite>.</p>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2024, APyTypes authors
+                Copyright &#169; 2024, Oscar Gustafsson, Mikael Henriksson, Theodor Lindberg
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             

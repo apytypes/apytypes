@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Publications" href="publications.html" /><link rel="prev" title="Comparison" href="comparison.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="Development" href="development.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>Development - APyTypes documentation</title>
+        <title>Publications - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -188,8 +188,8 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="performance.html">Computational performance</a></li>
 <li class="toctree-l1"><a class="reference internal" href="comparison.html">Comparison</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Development</a></li>
-<li class="toctree-l1"><a class="reference internal" href="publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Publications</a></li>
 </ul>
 
 </div>
@@ -224,50 +224,28 @@
           </label>
         </div>
         <article role="main">
-          <section id="development">
-<h1>Development<a class="headerlink" href="#development" title="Link to this heading">#</a></h1>
-<p>APyTypes is an open source project and contributions are very welcome!
-From bug reports, through enhancement suggestions, to better documentation and code.</p>
-<p>Here, there will be some development information to be expanded over time.</p>
-<section id="pre-requisites">
-<h2>Pre-requisites<a class="headerlink" href="#pre-requisites" title="Link to this heading">#</a></h2>
-<p>Most required packages will be installed during the installation process, but a few things are required:</p>
+          <section id="publications">
+<h1>Publications<a class="headerlink" href="#publications" title="Link to this heading">#</a></h1>
+<section id="how-to-cite-apytypes">
+<h2>How to cite APyTypes<a class="headerlink" href="#how-to-cite-apytypes" title="Link to this heading">#</a></h2>
+<p>Please use any of the publications below, and/or the Zenodo DOI available for
+every release.</p>
+</section>
+<section id="publications-on-apytypes">
+<h2>Publications on APyTypes<a class="headerlink" href="#publications-on-apytypes" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>A C/C++ compiler supporting at least C++ 17.</p></li>
-<li><p>CMake</p></li>
+<li><p>T. Lindberg, M. Henriksson, and O. Gustafsson, “APyTypes: Flexible Fixed-
+and Floating-Point Types for Word Length Simulation in Python,” in <em>Workshop
+for Open-Source Design Automation</em>, 2024.</p></li>
+<li><p>M. Henriksson, T. Lindberg, and O. Gustafsson, “APyTypes: Algorithmic Data
+Types in Python for Efficient Simulation of Finite Word-Length Effects,” in
+<em>IEEE Symp. Computer Arithmetic</em>, 2024.</p></li>
 </ul>
 </section>
-<section id="clone-the-repository">
-<h2>Clone the repository<a class="headerlink" href="#clone-the-repository" title="Link to this heading">#</a></h2>
-<p>To clone the repository, do</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/apytypes/apytypes.git
-</pre></div>
-</div>
-<p>However, if you want to contribute to the development, it is preferred to first
-fork your own copy and then clone that. See the next section.</p>
-</section>
-<section id="fork-and-clone">
-<h2>Fork and clone<a class="headerlink" href="#fork-and-clone" title="Link to this heading">#</a></h2>
-<p>Go to <a class="reference external" href="https://github.com/apytypes/apytypes">the repository in GitHub</a> and
-then click the Fork button. This will create a copy of APyTypes in your own user
-space. Now, click the Code button and clone using either ssh (preferred) or https.
-For ssh to work you need to set up ssh keys.</p>
-</section>
-<section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
-<p>To install APyTypes from a cloned git-version, make sure that you stand in the
-directory containing the cloned git-version, then do:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.
-</pre></div>
-</div>
-<p>Any change in the C++-code will require a reinstallation, so this is something done frequently
-during development.</p>
-<p>If you want to run tests, instead doing</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.<span class="o">[</span>test<span class="o">]</span>
-</pre></div>
-</div>
-<p>will also install the test dependencies required. (This only needs to be done once, or when the
-dependencies are updated.)</p>
+<section id="publications-using-citing-apytypes">
+<h2>Publications using/citing APyTypes<a class="headerlink" href="#publications-using-citing-apytypes" title="Link to this heading">#</a></h2>
+<p>Please contact <a class="reference external" href="mailto:oscar&#46;gustafsson&#37;&#52;&#48;liu&#46;se">oscar<span>&#46;</span>gustafsson<span>&#64;</span>liu<span>&#46;</span>se</a> if you are using APyTypes for a
+publication and would like to have it listed here.</p>
 </section>
 </section>
 
@@ -276,23 +254,15 @@ dependencies are updated.)</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="publications.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">Publications</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="comparison.html">
+          
+          <a class="prev-page" href="development.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Comparison</div>
+                <div class="title">Development</div>
                 
               </div>
             </a>
@@ -326,11 +296,10 @@ dependencies are updated.)</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Development</a><ul>
-<li><a class="reference internal" href="#pre-requisites">Pre-requisites</a></li>
-<li><a class="reference internal" href="#clone-the-repository">Clone the repository</a></li>
-<li><a class="reference internal" href="#fork-and-clone">Fork and clone</a></li>
-<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#">Publications</a><ul>
+<li><a class="reference internal" href="#how-to-cite-apytypes">How to cite APyTypes</a></li>
+<li><a class="reference internal" href="#publications-on-apytypes">Publications on APyTypes</a></li>
+<li><a class="reference internal" href="#publications-using-citing-apytypes">Publications using/citing APyTypes</a></li>
 </ul>
 </li>
 </ul>
