@@ -820,20 +820,6 @@ APyFixedArray APyFixedArray::cast(
     return result;
 }
 
-APyFixedArray APyFixedArray::resize(
-    std::optional<int> bits,
-    std::optional<int> int_bits,
-    QuantizationMode quantization,
-    OverflowMode overflow,
-    std::optional<int> frac_bits
-) const
-{
-    PyErr_WarnEx(
-        PyExc_DeprecationWarning, "resize() is deprecated, use cast() instead.", 1
-    );
-    return cast(bits, int_bits, quantization, overflow, frac_bits);
-}
-
 /* ********************************************************************************** *
  * *                      Static conversion from other types                          *
  * ********************************************************************************** */

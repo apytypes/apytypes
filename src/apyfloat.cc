@@ -159,19 +159,6 @@ APyFloat APyFloat::from_double(
     );
 }
 
-APyFloat APyFloat::resize(
-    std::uint8_t new_exp_bits,
-    std::uint8_t new_man_bits,
-    std::optional<exp_t> new_bias,
-    std::optional<QuantizationMode> quantization
-) const
-{
-    PyErr_WarnEx(
-        PyExc_DeprecationWarning, "resize() is deprecated, use cast() instead.", 1
-    );
-    return cast(new_exp_bits, new_man_bits, new_bias, quantization);
-}
-
 APyFloat APyFloat::cast(
     std::uint8_t new_exp_bits,
     std::uint8_t new_man_bits,
