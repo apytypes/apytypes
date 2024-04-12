@@ -242,6 +242,7 @@ public:
      * ****************************************************************************** */
 
 public:
+    //! Create APyFixed from double.
     static APyFixed from_double(
         double value,
         std::optional<int> bits = std::nullopt,
@@ -249,6 +250,7 @@ public:
         std::optional<int> frac_bits = std::nullopt
     );
 
+    //! Create APyFixed from string.
     static APyFixed from_string(
         std::string string_value,
         std::optional<int> bits = std::nullopt,
@@ -271,6 +273,8 @@ public:
         std::optional<int> frac_bits = std::nullopt
     ) const;
 
+    //! Simplified cast methods for internal use when it is known that the result will
+    //! not overflow
     APyFixed cast_no_overflow(
         int bits, int int_bits, QuantizationMode quantization = QuantizationMode::TRN
     ) const;

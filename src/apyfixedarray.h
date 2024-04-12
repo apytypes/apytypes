@@ -307,6 +307,7 @@ private:
         return _bits == other._bits && _int_bits == other._int_bits;
     }
 
+    //! Test if the APyFixed is of the same type.
     APY_INLINE bool same_type_as(const APyFixed& other) const
     {
         return _bits == other.bits() && _int_bits == other.int_bits();
