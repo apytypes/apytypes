@@ -62,11 +62,10 @@ private:
      * ****************************************************************************** */
 
 public:
-    //! No default constructed APyFixed types
+    //! No default constructed `APyFixed` objects
     APyFixed() = delete;
 
-    //! Constructor: construct from a Python arbitrary long integer object and
-    //! optionally set bit specifiers
+    //! Main Python-exposed `APyFixed` constructor
     explicit APyFixed(
         nanobind::int_ python_long_int_bit_pattern,
         std::optional<int> bits = std::nullopt,
@@ -79,24 +78,30 @@ public:
      * ****************************************************************************** */
 
 public:
-    //! Constructor: initialize from other APyFixed
+    //! Construct a copy from `other`.
     APyFixed(const APyFixed& other);
 
-    //! Constructor: specify only size, and zero data on construction
+    //! Construct a zero-initialized number with `bits` and `int_bits`. Undefined
+    //! behaviour if `bits < 1`.
     explicit APyFixed(int bits, int int_bits);
 
-    //! Constructor: specify only size, and zero data on construction
+    //! Construct a zero-initialized number from bit specification. Throws
+    //! `nanobind::value_error` if not exactly two of three bit specifiers (`bits`,
+    //! `int_bits`, `frac_bits`) are set, or if the resulting number of `bits` is less
+    //! than one.
     explicit APyFixed(
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt
     );
 
-    //! Constructor: specify size and initialize underlying vector from iterators
+    //! Construct a number with `bits` and `int_bits`, and initialize underlying
+    //! bit-pattern from iterator pair [ `begin`, `end` ).
     template <typename _IT>
     explicit APyFixed(int bits, int int_bits, _IT begin, _IT end);
 
-    //! Constructor: specify size and initialize underlying bits using vector
+    //! Construct a number with `bits` and `int_bits`, and initialize underlying
+    //! bit-pattern from limb-vector `vec`.
     explicit APyFixed(int bits, int int_bits, const std::vector<mp_limb_t>& vec);
 
     /* ****************************************************************************** *

@@ -1218,9 +1218,6 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
     }
 }
 
-//! Cast values to a longer (at least not shorter) word length
-//! This code has moved all conditions out of the for-loop to speed up the execution
-//! and instead there are multiple for-loops doing similar operations.
 template <typename RANDOM_ACCESS_ITERATOR>
 void APyFixedArray::_cast_correct_wl(
     RANDOM_ACCESS_ITERATOR output_it, int new_bits, int new_int_bits

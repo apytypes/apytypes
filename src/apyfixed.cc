@@ -37,7 +37,6 @@ namespace nb = nanobind;
  * *                            Python constructors                                 * *
  * ********************************************************************************** */
 
-//! Constructor: specify size and initialize from another APyFixed number
 APyFixed::APyFixed(const APyFixed& other)
     : _bits { other._bits }
     , _int_bits { other._int_bits }
@@ -45,7 +44,6 @@ APyFixed::APyFixed(const APyFixed& other)
 {
 }
 
-//! Constructor: construct from a Python arbitrary long integer object
 APyFixed::APyFixed(
     nb::int_ python_long_int_bit_pattern,
     std::optional<int> bits,
@@ -62,7 +60,6 @@ APyFixed::APyFixed(
  * *                       More C++ accessible constructors                         * *
  * ********************************************************************************** */
 
-//! Constructor: specify only size and zero data on construction
 APyFixed::APyFixed(
     std::optional<int> bits, std::optional<int> int_bits, std::optional<int> frac_bits
 )
@@ -72,7 +69,6 @@ APyFixed::APyFixed(
 {
 }
 
-//! Constructor: specify only size and zero data on construction
 APyFixed::APyFixed(int bits, int int_bits)
     : _bits { bits }
     , _int_bits { int_bits }
@@ -80,7 +76,6 @@ APyFixed::APyFixed(int bits, int int_bits)
 {
 }
 
-//! Underlying vector iterator-based constructor
 template <typename _IT>
 APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end)
     : APyFixed(bits, int_bits)
@@ -122,7 +117,6 @@ APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end)
     _overflow_twos_complement(_data.begin(), _data.end(), _bits, _int_bits);
 }
 
-//! Construction from std::vector<mp_limb_t>
 APyFixed::APyFixed(int bits, int int_bits, const std::vector<mp_limb_t>& vec)
     : APyFixed(bits, int_bits, vec.begin(), vec.end())
 {
