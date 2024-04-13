@@ -454,6 +454,17 @@ def test_mul_underflow():
 
 
 @pytest.mark.float_mul
+@pytest.mark.xfail
+def test_mul_with_one():
+    """Test multiplication with one."""
+    a = APyFloat(0, 7, 0, 4, 4)  # One
+    for exp in reversed(range(14)):  # Skip nan
+        for man in reversed(range(16)):
+            b = APyFloat(0, exp, man, 4, 4)
+            assert (a * b).is_identical(b)
+
+
+@pytest.mark.float_mul
 @pytest.mark.parametrize("x", [0.0, 1.0, float("inf"), float("nan")])
 @pytest.mark.parametrize("y", [0.0, 1.0, float("inf"), float("nan")])
 @pytest.mark.parametrize("sign", [1, -1])
