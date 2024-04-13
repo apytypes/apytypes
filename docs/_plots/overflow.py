@@ -17,7 +17,7 @@ aifx = APyFixedArray.from_float(ai, 7, 4)
 ahfx = APyFixedArray.from_float(ah, 7, 4)
 
 for mode in modes:
-    fig, ax = plt.subplots(layout="constrained", figsize=(8, 2))
+    fig, ax = plt.subplots(layout="constrained", figsize=(8, 3.6))
     aqfx = afx.cast(4, 1, overflow=eval(mode))
     aiqfx = aifx.cast(4, 1, overflow=eval(mode))
     ax.set_aspect("equal")
