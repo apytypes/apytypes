@@ -1158,10 +1158,12 @@ APyFloatArray APyFloatArray::_cast(
 
     APyFloatArray result(shape, new_exp_bits, new_man_bits, new_bias);
 
+    APyFloat caster(exp_bits, man_bits, bias);
     for (std::size_t i = 0; i < data.size(); i++) {
-        result.data[i] = APyFloat(data[i], exp_bits, man_bits, bias)
-                             ._cast(new_exp_bits, new_man_bits, new_bias, quantization)
-                             .get_data();
+        caster.set_data(data[i]);
+        result.data[i]
+            = caster._cast(new_exp_bits, new_man_bits, new_bias, quantization)
+                  .get_data();
     }
 
     return result;
@@ -1178,10 +1180,11 @@ APyFloatArray APyFloatArray::cast_no_quant(
 
     APyFloatArray result(shape, new_exp_bits, new_man_bits, new_bias);
 
+    APyFloat caster(exp_bits, man_bits, bias);
     for (std::size_t i = 0; i < data.size(); i++) {
-        result.data[i] = APyFloat(data[i], exp_bits, man_bits, bias)
-                             .cast_no_quant(new_exp_bits, new_man_bits, new_bias)
-                             .get_data();
+        caster.set_data(data[i]);
+        result.data[i]
+            = caster.cast_no_quant(new_exp_bits, new_man_bits, new_bias).get_data();
     }
 
     return result;
@@ -1229,13 +1232,7 @@ APyFloat APyFloatArray::checked_inner_product(
         hadamard = *this * rhs;
     }
 
-    APyFloat sum(0, 0, 0, tmp_exp_bits, tmp_man_bits);
-    APyFloat tmp(0, 0, 0, tmp_exp_bits, tmp_man_bits);
-
-    for (std::size_t i = 0; i < hadamard.data.size(); i++) {
-        tmp.set_data(hadamard.data.at(i));
-        sum = sum + tmp;
-    }
+    APyFloat sum = hadamard.vector_sum();
 
     // The result must be quantized back if an accumulator was used.
     if (accumulator_mode.has_value()) {
@@ -1244,6 +1241,19 @@ APyFloat APyFloatArray::checked_inner_product(
         set_quantization_mode(orig_quant_mode);
     }
 
+    return sum;
+}
+
+// Compute sum of all elements
+APyFloat APyFloatArray::vector_sum() const
+{
+    APyFloat sum(0, 0, 0, exp_bits, man_bits);
+    APyFloat tmp(0, 0, 0, exp_bits, man_bits);
+
+    for (std::size_t i = 0; i < data.size(); i++) {
+        tmp.set_data(data[i]);
+        sum = sum + tmp;
+    }
     return sum;
 }
 
