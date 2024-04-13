@@ -168,11 +168,57 @@ void bind_common(nb::module_& m)
             R"pbdoc(Remove MSBs, but keep the most significant bit. As ieee.numeric_std resize for signed.)pbdoc"
         );
 
-    m.def("set_quantization_mode", &set_quantization_mode);
-    m.def("get_quantization_mode", &get_quantization_mode);
-    m.def("set_quantization_seed", &set_quantization_seed);
-    m.def("get_quantization_seed", &get_quantization_seed);
+    m.def("set_quantization_mode", &set_quantization_mode, nb::arg("mode"), R"pbdoc(
+        Set current quantization context.
 
-    /* Get the APyTypes SIMD version string */
-    m.def("_get_simd_version_str", &simd::get_simd_version_str);
+        Parameters
+        ----------
+        mode : :class:`QuantizationMode`
+            The quantization mode to use.
+
+        See also
+        --------
+        get_quantization_mode
+        )pbdoc")
+        .def("get_quantization_mode", &get_quantization_mode, R"pbdoc(
+        Get current quantization context.
+
+        Returns
+        -------
+        :class:`QuantizationMode`
+
+        See also
+        --------
+        set_quantization_mode
+        )pbdoc")
+        .def("set_quantization_seed", &set_quantization_seed, nb::arg("seed"), R"pbdoc(
+        Set current quantization seed.
+
+        The quantization seed is used for stochastic quantization.
+
+        Parameters
+        ----------
+        seed : int
+            The quantization seed to use.
+
+        See also
+        --------
+        get_quantization_seed
+        )pbdoc")
+        .def("get_quantization_seed", &get_quantization_seed, R"pbdoc(
+        Set current quantization seed.
+
+        The quantization seed is used for stochastic quantization.
+
+        Returns
+        -------
+        :class:`int`
+
+        See also
+        --------
+        set_quantization_seed
+        )pbdoc")
+
+        /* Get the APyTypes SIMD version string */
+        .def("_get_simd_version_str", &simd::get_simd_version_str);
 }
