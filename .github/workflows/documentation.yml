@@ -32,6 +32,7 @@ jobs:
           cd docs
           python _plots/quantization.py
           python _plots/performancescale.py
+          python _plots/overflow.py
           cp *.png _static
           cd ..
       # Remove all instances of APY_INLINE, except the define itself,
