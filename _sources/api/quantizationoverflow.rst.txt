@@ -11,7 +11,7 @@ the bias will converge towards zero the more bits are quantized away (except for
 :py:attr:`QuantizationMode.TRN`, which will converge towards a half).
 
 .. image:: ../_static/quantization.png
-   :alt: Illustration of the different quantization modes
+   :alt: Illustration of the different quantization modes.
 
 .. autoclass:: apytypes.QuantizationMode
 
@@ -146,9 +146,15 @@ the bias will converge towards zero the more bits are quantized away (except for
 
       Two's complement wrapping.
 
+   .. image:: ../_static/WRAP.png
+      :alt: Illustration of two's complement wrapping
+
    .. autoattribute:: SAT
 
       Two's complement saturation.
+
+   .. image:: ../_static/SAT.png
+      :alt: Illustration of two's complement saturation
 
    .. autoattribute:: NUMERIC_STD
 
