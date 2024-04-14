@@ -1008,7 +1008,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
 
         man_t new_man = mx * my;
 
-        // Check carry from multiplication
+        // Check result from multiplication larger than/equal two
         if (new_man & two_before) {
             tmp_exp++;
             new_man <<= 1;
@@ -1064,7 +1064,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
 
         auto apy_res = (apy_mx * apy_my);
 
-        // Carry from multiplication
+        // Check result from multiplication larger than/equal two
         if (apy_res.positive_greater_than_equal_pow2(1)) {
             apy_res >>= 1;
             new_exp++;

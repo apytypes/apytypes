@@ -263,7 +263,8 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
     const auto quantization = get_quantization_mode();
     // +5 to give room for leading one, carry, and 3 guard bits
     const unsigned int max_man_bits = man_bits + 5;
-    if (same_type_as(rhs) && (max_man_bits <= _MAN_T_SIZE_BITS)
+    const bool same_types = same_type_as(rhs);
+    if (same_types && (max_man_bits <= _MAN_T_SIZE_BITS)
         && (quantization != QuantizationMode::STOCH_WEIGHTED)) {
 
         // Handle zero
@@ -419,6 +420,9 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
     auto new_exp_bits = std::max(exp_bits, rhs.get_exp_bits());
     auto new_man_bits = std::max(man_bits, rhs.get_man_bits());
     if (rhs.is_zero()) {
+        if (same_types) {
+            return *this;
+        }
         return cast_no_quant(new_exp_bits, new_man_bits);
     }
 
@@ -1187,11 +1191,6 @@ APyFloatArray APyFloatArray::cast_no_quant(
     std::uint8_t new_exp_bits, std::uint8_t new_man_bits, std::optional<exp_t> new_bias
 ) const
 {
-    if ((new_exp_bits == exp_bits) && (new_man_bits == man_bits)
-        && (new_bias == bias)) {
-        return *this;
-    }
-
     APyFloatArray result(shape, new_exp_bits, new_man_bits, new_bias);
 
     APyFloat caster(exp_bits, man_bits, bias);
@@ -1239,9 +1238,11 @@ APyFloat APyFloatArray::checked_inner_product(
         const auto acc_option = accumulator_mode.value();
         tmp_exp_bits = acc_option.exp_bits;
         tmp_man_bits = acc_option.man_bits;
+        auto tmp_bias = APyFloat::ieee_bias(tmp_exp_bits);
         set_quantization_mode(acc_option.quantization);
-        hadamard = this->cast(tmp_exp_bits, tmp_man_bits)
-            * rhs.cast(tmp_exp_bits, tmp_man_bits);
+        hadamard
+            = this->_cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization)
+            * rhs._cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization);
     } else {
         hadamard = *this * rhs;
     }

@@ -107,3 +107,10 @@ def test_python_sum():
     fx_array = APyFloatArray.from_float([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
     assert sum(fx_array) == 21
     assert sum(fx_array).is_identical(APyFloat.from_float(21, 10, 10))
+
+
+def test_round_trip_conversion():
+    for exp in reversed(range(15)):  # Skip nan/inf
+        for man in reversed(range(16)):
+            a = APyFloatArray([0], [exp], [man], 4, 4)
+            assert (APyFloatArray.from_float(a.to_numpy(), 4, 4)).is_identical(a)

@@ -458,10 +458,11 @@ def test_mul_underflow():
 def test_mul_with_one():
     """Test multiplication with one."""
     a = APyFloat(0, 7, 0, 4, 4)  # One
-    for exp in reversed(range(14)):  # Skip nan
+    for exp in reversed(range(15)):  # Skip nan/inf
         for man in reversed(range(16)):
             b = APyFloat(0, exp, man, 4, 4)
             assert (a * b).is_identical(b)
+            assert (b * a).is_identical(b)
 
 
 @pytest.mark.float_mul
@@ -595,6 +596,16 @@ def test_div_special_cases(x, y):
             assert s == "inf"
         else:
             assert s == "nan"
+
+
+@pytest.mark.float_div
+def test_div_with_one():
+    """Test division with one."""
+    a = APyFloat(0, 7, 0, 4, 4)  # One
+    for exp in reversed(range(15)):  # Skip nan/inf
+        for man in reversed(range(16)):
+            b = APyFloat(0, exp, man, 4, 4)
+            assert (b / a).is_identical(b)
 
 
 @pytest.mark.float_div

@@ -72,3 +72,9 @@ def test_iterator():
 def test_len():
     fx_array = APyFixedArray([1, 2, 3, 4, 5, 6], bits=10, int_bits=10)
     assert len(fx_array) == 6
+
+
+def test_round_trip_conversion():
+    for bits in range(256):
+        a = APyFixedArray([bits], 8, 4)
+        assert (APyFixedArray.from_float(a.to_numpy(), 8, 4)).is_identical(a)

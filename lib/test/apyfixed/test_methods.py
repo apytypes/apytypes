@@ -87,3 +87,9 @@ def test_is_negative():
     assert not a._is_negative
     a = APyFixed(-3, 3, 2)
     assert a._is_negative
+
+
+def test_round_trip_conversion():
+    for bits in range(256):
+        a = APyFixed(bits, 8, 4)
+        assert (APyFixed.from_float(float(a), 8, 4)).is_identical(a)

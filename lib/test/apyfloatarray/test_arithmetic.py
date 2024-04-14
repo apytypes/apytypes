@@ -120,6 +120,12 @@ def test_array_add_scalar():
     assert (a + b).is_identical(ans)
     assert (b + a).is_identical(ans)
 
+    a = APyFloatArray.from_float([12, -23, 34], 8, 60)
+    b = APyFloat.from_float(0, 8, 60)
+    ans = APyFloatArray.from_float([12, -23, 34], 8, 60)
+    assert (a + b).is_identical(ans)
+    assert (b + a).is_identical(ans)
+
     a = APyFloatArray.from_float(
         [2.0**127, 1 + 2**-8, 2, 0, float("inf"), float("nan"), 1, 2**-7, 1 - 2**-7],
         8,
@@ -342,6 +348,12 @@ def test_array_mul():
     assert (a * b).is_identical(ans)
     assert (b * a).is_identical(ans)
 
+    a = APyFloatArray([0, 1], [7, 12], [30, 14], 4, 5)
+    b = APyFloatArray([0, 1], [7, 12], [1, 14], 4, 5)
+    ans = APyFloatArray([0, 0], [8, 15], [0, 0], exp_bits=4, man_bits=5, bias=7)
+    assert (a * b).is_identical(ans)
+    assert (b * a).is_identical(ans)
+
 
 @pytest.mark.float_array
 def test_array_mul_scalar():
@@ -413,6 +425,18 @@ def test_array_mul_scalar():
     a = APyFloatArray([0, 1], [7, 6], [0, 31], 4, 5)
     b = APyFloat(0, 0, 5, 4, 5)
     ans = APyFloatArray([0, 1], [1, 0], [5, 5], 4, 5)
+    assert (a * b).is_identical(ans)
+    assert (b * a).is_identical(ans)
+
+    a = APyFloatArray([0, 1], [7, 12], [30, 14], 4, 5)
+    b = APyFloat(0, 7, 1, 4, 5)
+    ans = APyFloatArray([0, 1], [8, 12], [0, 15], exp_bits=4, man_bits=5, bias=7)
+    assert (a * b).is_identical(ans)
+    assert (b * a).is_identical(ans)
+
+    a = APyFloatArray([0, 1], [7, 12], [30, 14], 4, 5)
+    b = APyFloat(1, 12, 14, 4, 5)
+    ans = APyFloatArray([1, 0], [13, 15], [13, 0], exp_bits=4, man_bits=5, bias=7)
     assert (a * b).is_identical(ans)
     assert (b * a).is_identical(ans)
 
