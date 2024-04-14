@@ -225,3 +225,10 @@ def test_properties():
     assert not a.is_nan
     assert not a.is_inf
     assert a.is_zero
+
+
+def test_round_trip_conversion():
+    for exp in reversed(range(15)):  # Skip nan
+        for man in reversed(range(16)):
+            a = APyFloat(0, exp, man, 4, 4)
+            assert (APyFloat.from_float(float(a), 4, 4)).is_identical(a)
