@@ -305,8 +305,8 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
         } else {
             // Left-hand side has more fractional bits. Upsize `rhs`
             rhs._cast_correct_wl(result._data.begin(), res_bits, res_int_bits);
-            src1_ptr = &result._data[0];
-            src2_ptr = &_data[0];
+            src1_ptr = &_data[0];
+            src2_ptr = &result._data[0];
         }
 
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
