@@ -75,6 +75,29 @@ def test_inner_product():
         )
     )
 
+    a = APyFixedArray([-1, 2, -3, 4, -5, 6, -7, 8], bits=10, int_bits=10)
+    b = APyFixedArray([-9, -8, 7, 6, -5, -4, 3, 2], bits=10, int_bits=5)
+    assert (a @ b).is_identical(APyFixedArray([8388600], bits=23, int_bits=18))
+    assert (b @ a).is_identical(APyFixedArray([8388600], bits=23, int_bits=18))
+
+    a = APyFixedArray([[-1, 2], [-3, 4], [-5, 6], [-7, 8]], bits=10, int_bits=10)
+    b = APyFixedArray([[-9, -8, 7, 6], [-5, -4, 3, 2]], bits=10, int_bits=5)
+    assert (a @ b).is_identical(
+        APyFixedArray(
+            [
+                [2097151, 0, 2097151, 2097150],
+                [7, 8, 2097143, 2097142],
+                [15, 16, 2097135, 2097134],
+                [23, 24, 2097127, 2097126],
+            ],
+            bits=21,
+            int_bits=16,
+        )
+    )
+    assert (b @ a).is_identical(
+        APyFixedArray([[4194260, 40], [4194292, 8]], bits=22, int_bits=17)
+    )
+
 
 def test_inner_product_accumulator_context():
     a = APyFixedArray.from_float([0.25, 0.50], int_bits=1, frac_bits=2)

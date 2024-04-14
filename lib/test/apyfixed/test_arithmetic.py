@@ -189,6 +189,27 @@ def test_mixed_width_operations():
     assert (fx_b / fx_b).is_identical(APyFixed(1048576, bits=121, int_bits=101))
 
 
+def test_negative_fractional_bits_operations():
+    """
+    Tests for mixed-width operations additions and subtractions
+    """
+    fx_a = APyFixed(1779, 16, 20)
+    fx_b = APyFixed(1779, 16, 30)
+    s = APyFixed(1823475, bits=27, int_bits=31)
+    assert (fx_a + fx_b).is_identical(s)
+    assert (fx_b + fx_a).is_identical(s)
+
+    p = APyFixed(3164841, bits=32, int_bits=50)
+    assert (fx_a * fx_b).is_identical(p)
+    assert (fx_b * fx_a).is_identical(p)
+
+    # These are not correct
+    # assert (fx_a / fx_b).is_identical(APyFixed(0, bits=17, int_bits=7))
+    # assert (fx_b / fx_a).is_identical(APyFixed(90402, bits=17, int_bits=27))
+    # assert (fx_a / fx_a).is_identical(APyFixed(90402, bits=17, int_bits=17))
+    # assert (fx_b / fx_b).is_identical(APyFixed(0, bits=17, int_bits=17))
+
+
 def test_unary_minus():
     a = APyFixed(-3, 3, 2)
     assert a._is_negative
@@ -423,3 +444,15 @@ def test_issue_224():
     x = APyFixed(39726548548812, bits=55, int_bits=3)  # approx 0.008821065777556036
     assert x.leading_zeros == 9
     assert x.leading_fractional_zeros == 6
+
+
+def test_operation_with_numbers():
+    a = APyFixed(5, 6, 2)
+    # Integer
+    assert (a + 0).is_identical(a)
+    assert (0 + a).is_identical(a)
+    assert (a - 0).is_identical(a)
+    assert (0 - a).is_identical(-a)
+    assert (a * 1).is_identical(a)
+    assert (1 * a).is_identical(a)
+    assert (a / 1).is_identical(a)
