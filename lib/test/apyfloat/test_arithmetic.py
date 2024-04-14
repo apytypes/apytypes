@@ -899,3 +899,22 @@ def test_binary_logic():
     assert (a | d).is_identical(APyFloat(1, 31, 29, 5, 6))
     assert (a ^ d).is_identical(APyFloat(1, 16, 29, 5, 6))
     assert (~d).is_identical(APyFloat(1, 0, 62, 5, 6))
+
+
+def test_operation_with_numbers():
+    a = APyFloat(0, 5, 10, 4, 5)
+    # Integer
+    assert (a + 0).is_identical(a)
+    assert (0 + a).is_identical(a)
+    assert (a - 0).is_identical(a)
+    assert (0 - a).is_identical(-a)
+    assert (a * 1).is_identical(a)
+    assert (1 * a).is_identical(a)
+
+    # Float
+    assert (a + 0.0).is_identical(a)
+    assert (0.0 + a).is_identical(a)
+    assert (a - 0.0).is_identical(a)
+    assert (0.0 - a).is_identical(-a)
+    assert (a * 1.0).is_identical(a)
+    assert (1.0 * a).is_identical(a)

@@ -114,3 +114,47 @@ def test_round_trip_conversion():
         for man in reversed(range(16)):
             a = APyFloatArray([0], [exp], [man], 4, 4)
             assert (APyFloatArray.from_float(a.to_numpy(), 4, 4)).is_identical(a)
+
+
+def test_convenience_cast():
+    a = APyFloatArray.from_float([0.893820, 3e20, -float("inf"), float("nan")], 10, 50)
+    assert a.cast_to_double().is_identical(
+        APyFloatArray(
+            [0, 0, 1, 0],
+            [1022, 1091, 2047, 2047],
+            [3547215210502096, 74037091379504, 0, 1],
+            exp_bits=11,
+            man_bits=52,
+            bias=1023,
+        )
+    )
+    assert a.cast_to_single().is_identical(
+        APyFloatArray(
+            [0, 0, 1, 0],
+            [126, 195, 255, 255],
+            [6607203, 137905, 0, 1],
+            exp_bits=8,
+            man_bits=23,
+            bias=127,
+        )
+    )
+    assert a.cast_to_half().is_identical(
+        APyFloatArray(
+            [0, 0, 1, 0],
+            [14, 31, 31, 31],
+            [807, 0, 0, 1],
+            exp_bits=5,
+            man_bits=10,
+            bias=15,
+        )
+    )
+    assert a.cast_to_bfloat16().is_identical(
+        APyFloatArray(
+            [0, 0, 1, 0],
+            [126, 195, 255, 255],
+            [101, 2, 0, 1],
+            exp_bits=8,
+            man_bits=7,
+            bias=127,
+        )
+    )

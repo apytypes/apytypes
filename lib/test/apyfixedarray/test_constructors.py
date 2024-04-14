@@ -88,6 +88,15 @@ def test_incorrect_double_construction():
         APyFixedArray.from_float([0.3, float("inf")], 4, 4)
 
 
+def test_incorrect_double_construction_from_numpy():
+    np = pytest.importorskip("numpy")
+    with pytest.raises(ValueError, match="Cannot convert nan to fixed-point"):
+        APyFixedArray.from_float(np.asarray([float("NaN"), 0.3]), 4, 4)
+
+    with pytest.raises(ValueError, match="Cannot convert inf to fixed-point"):
+        APyFixedArray.from_float(np.asarray([0.3, float("inf")]), 4, 4)
+
+
 @pytest.mark.parametrize(
     "dt",
     [

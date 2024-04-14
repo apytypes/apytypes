@@ -43,9 +43,37 @@ def test_array_add():
         )
     )
 
+    a = APyFixedArray.from_float([1.2345, -5.4321], bits=255, int_bits=128)
+    b = APyFixedArray.from_float([9.8765, 5.6789], bits=255, int_bits=128)
+    assert (a + b).is_identical(b + a)
+    assert (a + b).is_identical(
+        APyFixedArray(
+            [
+                1890438689429273631655157447261587243008,
+                41990844078043715238373627614040424448,
+            ],
+            bits=256,
+            int_bits=129,
+        )
+    )
+
     a = APyFixedArray.from_float([1.2345, -5.4321], bits=256, int_bits=128)
     b = APyFixedArray.from_float([9.8765, 5.6789], bits=25, int_bits=12)
     assert (a + b).is_identical(b + a)
+
+    a = APyFixedArray.from_float([1.2345, -5.4321], bits=252, int_bits=128)
+    b = APyFixedArray.from_float([9.8765, 5.6789], bits=252, int_bits=130)
+    assert (a + b).is_identical(b + a)
+    assert (a + b).is_identical(
+        APyFixedArray(
+            [
+                236304836178659203956894680907698405376,
+                5248855509755464404796703451755053056,
+            ],
+            bits=255,
+            int_bits=131,
+        )
+    )
 
 
 def test_array_add_scalar():
@@ -119,6 +147,53 @@ def test_array_sub():
             ],
             bits=257,
             int_bits=129,
+        )
+    )
+
+    a = APyFixedArray.from_float([1.2345, -5.4321], bits=255, int_bits=128)
+    b = APyFixedArray.from_float([9.8765, 5.6789], bits=255, int_bits=128)
+    assert (a - b).is_identical(
+        APyFixedArray(
+            [
+                115792089237316195423570985008687907851799624558175188917373909031040791347200,
+                115792089237316195423570985008687907851379545976211290445581358423608704106496,
+            ],
+            bits=256,
+            int_bits=129,
+        )
+    )
+    assert (b - a).is_identical(
+        APyFixedArray(
+            [
+                1470360107465375122083674976872338292736,
+                1890438689429273593876225584304425533440,
+            ],
+            bits=256,
+            int_bits=129,
+        )
+    )
+
+    a = APyFixedArray.from_float([1.2345, -5.4321], bits=252, int_bits=128)
+    b = APyFixedArray.from_float([9.8765, 5.6789], bits=252, int_bits=130)
+    # a - b is not correct
+    assert (a - b).is_identical(
+        APyFixedArray(
+            [
+                183795013433171890260459372109042286592,
+                236304836178659199234528198038053191680,
+            ],
+            bits=255,
+            int_bits=131,
+        )
+    )
+    assert (b - a).is_identical(
+        APyFixedArray(
+            [
+                183795013433171890260459372109042286592,
+                236304836178659199234528198038053191680,
+            ],
+            bits=255,
+            int_bits=131,
         )
     )
 
