@@ -476,9 +476,12 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
 
     // Special case #1: The resulting number of bits fit in a single limb
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        for (std::size_t i = 0; i < _data.size(); i++) {
-            result._data[i] = _data[i] * rhs._data[0];
-        }
+        simd::vector_mul_const(
+            std::begin(_data),        // src1
+            rhs._data[0],             // src2
+            std::begin(result._data), // dst
+            result._data.size()       // elements
+        );
         return result; // early exit
     }
 

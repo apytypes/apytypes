@@ -60,6 +60,17 @@ void vector_mul(
 );
 
 /*!
+ * Perform signed multiplication of the the elements in `src1_begin` with a constant
+ * `constant` and store the result in `dst_begin`, for `size` number of elements.
+ */
+void vector_mul_const(
+    std::vector<mp_limb_t>::const_iterator src1_begin,
+    mp_limb_t constant,
+    std::vector<mp_limb_t>::iterator dst_begin,
+    std::size_t size
+);
+
+/*!
  * Perform addition of the the elements in `src1_begin` with `src2_begin`
  * and store the result in `dst_begin`, for `size` number of elements.
  */

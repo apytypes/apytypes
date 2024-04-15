@@ -10,6 +10,7 @@ APyTypes C++ API
    apyfloat
    apyfloatarray
    apytypes_common
+   apytypes_simd
    apytypes_util
    ieee754
    python_util
