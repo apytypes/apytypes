@@ -174,6 +174,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cpp_api/apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp_api/apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp_api/apytypes_common.html"><code class="docutils literal notranslate"><span class="pre">apytypes_common.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp_api/apytypes_simd.html"><code class="docutils literal notranslate"><span class="pre">apytypes_simd.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp_api/apytypes_util.html"><code class="docutils literal notranslate"><span class="pre">apytypes_util.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp_api/ieee754.html"><code class="docutils literal notranslate"><span class="pre">ieee754.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp_api/python_util.html"><code class="docutils literal notranslate"><span class="pre">python_util.h</span></code></a></li>
@@ -1216,13 +1217,37 @@
           <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.shape">(apytypes.APyFloatArray property)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/apyfloat.html#apytypes.APyFloat.sign">sign (apytypes.APyFloat property)</a>
 </li>
         <li><a href="cpp_api/ieee754.html#_CPPv414sign_of_doubled">sign_of_double (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E17significant_limbsNSt6size_tE22RANDOM_ACCESS_ITERATOR22RANDOM_ACCESS_ITERATOR">significant_limbs (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_simd.html#_CPPv44simd">simd (C++ type)</a>
+</li>
+        <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd20get_simd_version_strEv">simd::get_simd_version_str (C++ function)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd10vector_addENSt6vectorI9mp_limb_tE14const_iteratorENSt6vectorI9mp_limb_tE14const_iteratorENSt6vectorI9mp_limb_tE8iteratorENSt6size_tE">simd::vector_add (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd16vector_add_constENSt6vectorI9mp_limb_tE14const_iteratorE9mp_limb_tNSt6vectorI9mp_limb_tE8iteratorENSt6size_tE">simd::vector_add_const (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd10vector_mulENSt6vectorI9mp_limb_tE14const_iteratorENSt6vectorI9mp_limb_tE14const_iteratorENSt6vectorI9mp_limb_tE8iteratorENSt6size_tE">simd::vector_mul (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd16vector_mul_constENSt6vectorI9mp_limb_tE14const_iteratorE9mp_limb_tNSt6vectorI9mp_limb_tE8iteratorENSt6size_tE">simd::vector_mul_const (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd26vector_multiply_accumulateENSt6vectorI9mp_limb_tE14const_iteratorENSt6vectorI9mp_limb_tE14const_iteratorENSt6size_tE">simd::vector_multiply_accumulate (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd17vector_rsub_constENSt6vectorI9mp_limb_tE14const_iteratorE9mp_limb_tNSt6vectorI9mp_limb_tE8iteratorENSt6size_tE">simd::vector_rsub_const (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd16vector_shift_addENSt6vectorI9mp_limb_tE14const_iteratorENSt6vectorI9mp_limb_tE14const_iteratorENSt6vectorI9mp_limb_tE8iteratorENSt6size_tENSt6size_tENSt6size_tE">simd::vector_shift_add (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd16vector_shift_subENSt6vectorI9mp_limb_tE14const_iteratorENSt6vectorI9mp_limb_tE14const_iteratorENSt6vectorI9mp_limb_tE8iteratorENSt6size_tENSt6size_tENSt6size_tE">simd::vector_shift_sub (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd10vector_subENSt6vectorI9mp_limb_tE14const_iteratorENSt6vectorI9mp_limb_tE14const_iteratorENSt6vectorI9mp_limb_tE8iteratorENSt6size_tE">simd::vector_sub (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd16vector_sub_constENSt6vectorI9mp_limb_tE14const_iteratorE9mp_limb_tNSt6vectorI9mp_limb_tE8iteratorENSt6size_tE">simd::vector_sub_const (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E15string_from_vecNSt6stringERKNSt6vectorI1TEE">string_from_vec (C++ function)</a>
 </li>
