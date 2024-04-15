@@ -1046,21 +1046,16 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         }
         return res;
     } else {
-        // Normalize both inputs
-        APyFloat norm_x = normalized();
-        APyFloat norm_y = y.normalized();
-
-        // Add leading one's
-        man_t mx = norm_x.true_man();
-        man_t my = norm_y.true_man();
+        // Get actual mantissa
+        man_t mx = true_man();
+        man_t my = y.true_man();
 
         // Tentative exponent
-        std::int64_t new_exp = ((std::int64_t)norm_x.exp - (std::int64_t)norm_x.bias)
-            + ((std::int64_t)norm_y.exp - (std::int64_t)norm_y.bias) + res.bias;
+        std::int64_t new_exp = true_exp() + y.true_exp() + res.bias;
 
         // Two integer bits, sign bit and leading one
-        APyFixed apy_mx(2 + norm_x.man_bits, 2, std::vector<mp_limb_t>({ mx }));
-        APyFixed apy_my(2 + norm_y.man_bits, 2, std::vector<mp_limb_t>({ my }));
+        APyFixed apy_mx(2 + man_bits, 2, std::vector<mp_limb_t>({ mx }));
+        APyFixed apy_my(2 + y.man_bits, 2, std::vector<mp_limb_t>({ my }));
 
         auto apy_res = (apy_mx * apy_my);
 
