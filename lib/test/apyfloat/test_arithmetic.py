@@ -466,6 +466,17 @@ def test_mul_with_one():
 
 
 @pytest.mark.float_mul
+def test_long_mul_with_one():
+    """Test long multiplication with one."""
+    a = APyFloat.from_float(1.0, 10, 50)  # One
+    for exp in reversed(range(1023)):  # Skip nan/inf
+        for man in reversed(range(4)):  # Try subset
+            b = APyFloat(0, exp, man, 10, 50)
+            assert (a * b).is_identical(b)
+            assert (b * a).is_identical(b)
+
+
+@pytest.mark.float_mul
 @pytest.mark.parametrize("x", [0.0, 1.0, float("inf"), float("nan")])
 @pytest.mark.parametrize("y", [0.0, 1.0, float("inf"), float("nan")])
 @pytest.mark.parametrize("sign", [1, -1])
@@ -605,6 +616,16 @@ def test_div_with_one():
     for exp in reversed(range(15)):  # Skip nan/inf
         for man in reversed(range(16)):
             b = APyFloat(0, exp, man, 4, 4)
+            assert (b / a).is_identical(b)
+
+
+@pytest.mark.float_mul
+def test_long_div_with_one():
+    """Test long division with one."""
+    a = APyFloat.from_float(1.0, 10, 50)  # One
+    for exp in reversed(range(1023)):  # Skip nan/inf
+        for man in reversed(range(4)):  # Try subset
+            b = APyFloat(0, exp, man, 10, 50)
             assert (b / a).is_identical(b)
 
 
