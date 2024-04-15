@@ -10,6 +10,27 @@ def test_constructor_raises():
         APyFloatArray([1, 2], [5, 2], [4, "str"], 10, 10)
     with pytest.raises(ValueError, match="Not.*implemented.*bias"):
         APyFloatArray([1], [5], [4], 10, 10, 12)
+    with pytest.raises(ValueError, match="python_sequence_extract_shape"):
+        APyFloatArray(["foo"], [5], [4], 10, 10)
+    with pytest.raises(ValueError, match="python_sequence_extract_shape"):
+        APyFloatArray([1], ["foo"], [4], 10, 10)
+    with pytest.raises(ValueError, match="python_sequence_extract_shape"):
+        APyFloatArray([1], [5], ["foo"], 10, 10)
+    with pytest.raises(
+        ValueError, match="Non <type>/sequence found when walking: '1.0'"
+    ):
+        APyFloatArray([1.0], [4], [4], 10, 10)
+    with pytest.raises(
+        ValueError, match="Non <type>/sequence found when walking: '<class 'range'>'"
+    ):
+        APyFloatArray([True], [range], [4], 10, 10)
+    with pytest.raises(
+        ValueError,
+        match="Non <type>/sequence found when walking: '<class 'apytypes._apytypes.APyFloatArray'>'",
+    ):
+        APyFloatArray([True], [4], [APyFloatArray], 10, 10)
+    with pytest.raises(ValueError, match="Not.*implemented.*bias"):
+        APyFloatArray.from_float([1, 5], 10, 10, 12)
 
 
 @pytest.mark.float_array
@@ -94,3 +115,12 @@ def test_special_value_numpy_from_double():
         bias=8191,
     )
     assert b.is_identical(c)
+
+
+def test_from_numpy_raises():
+    np = pytest.importorskip("numpy")
+    a = np.asarray([[1e-323, float("inf")], [float("nan"), 0.0]], dtype="half")
+    with pytest.raises(
+        TypeError, match="APyFloatArray::_set_values_from_numpy_ndarray"
+    ):
+        b = APyFloatArray.from_float(a, 14, 60)
