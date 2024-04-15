@@ -139,3 +139,67 @@ def test_overflow_numeric_std():
     assert (
         float(APyFixed(0x13, 8, 8).cast(1, 1, overflow=OverflowMode.NUMERIC_STD)) == 0.0
     )
+
+    # Negative multi-limb
+    assert (
+        APyFixed(0xC0000000000000003, 68, 68)
+        .cast(68, 68, overflow=OverflowMode.NUMERIC_STD)
+        .is_identical(APyFixed(0xC0000000000000003, 68, 68))
+    )
+    assert (
+        APyFixed(0xC0000000000000003, 68, 68)
+        .cast(67, 67, overflow=OverflowMode.NUMERIC_STD)
+        .is_identical(APyFixed(0x40000000000000003, 67, 67))
+    )
+    assert (
+        APyFixed(0xC0000000000000003, 68, 68)
+        .cast(66, 66, overflow=OverflowMode.NUMERIC_STD)
+        .is_identical(APyFixed(0x20000000000000003, 66, 66))
+    )
+    assert (
+        APyFixed(0xC0000000000000003, 68, 68)
+        .cast(65, 65, overflow=OverflowMode.NUMERIC_STD)
+        .is_identical(APyFixed(0x10000000000000003, 65, 65))
+    )
+    assert (
+        APyFixed(0xC0000000000000003, 68, 68)
+        .cast(64, 64, overflow=OverflowMode.NUMERIC_STD)
+        .is_identical(APyFixed(0x8000000000000003, 64, 64))
+    )
+    assert (
+        APyFixed(0xC0000000000000003, 68, 68)
+        .cast(63, 63, overflow=OverflowMode.NUMERIC_STD)
+        .is_identical(APyFixed(0x4000000000000003, 63, 63))
+    )
+
+    # Positive multi-limb
+    assert (
+        APyFixed(0x10000000000000003, 68, 68)
+        .cast(68, 68, overflow=OverflowMode.NUMERIC_STD)
+        .is_identical(APyFixed(0x10000000000000003, 68, 68))
+    )
+    assert (
+        APyFixed(0x10000000000000003, 68, 68)
+        .cast(67, 67, overflow=OverflowMode.NUMERIC_STD)
+        .is_identical(APyFixed(0x10000000000000003, 67, 67))
+    )
+    assert (
+        APyFixed(0x10000000000000003, 68, 68)
+        .cast(66, 66, overflow=OverflowMode.NUMERIC_STD)
+        .is_identical(APyFixed(0x10000000000000003, 66, 66))
+    )
+    assert (
+        APyFixed(0x10000000000000003, 68, 68)
+        .cast(65, 65, overflow=OverflowMode.NUMERIC_STD)
+        .is_identical(APyFixed(0x03, 65, 65))
+    )
+    assert (
+        APyFixed(0x10000000000000003, 68, 68)
+        .cast(64, 64, overflow=OverflowMode.NUMERIC_STD)
+        .is_identical(APyFixed(0x03, 64, 64))
+    )
+    assert (
+        APyFixed(0x10000000000000003, 68, 68)
+        .cast(63, 63, overflow=OverflowMode.NUMERIC_STD)
+        .is_identical(APyFixed(0x03, 63, 63))
+    )

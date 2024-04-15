@@ -6,7 +6,7 @@ from matplotlib.ticker import IndexLocator
 modes = [
     "OverflowMode.WRAP",
     "OverflowMode.SAT",
-    # "OverflowMode.NUMERIC_STD",
+    "OverflowMode.NUMERIC_STD",
 ]
 a = np.arange(-3, 2.9, 0.125)
 ai = np.arange(-3, 2.1, 1)
