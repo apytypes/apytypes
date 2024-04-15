@@ -89,3 +89,53 @@ def test_overflow_saturation():
         .cast(63, 63, overflow=OverflowMode.SAT)
         .is_identical(APyFixed(0x3FFFFFFFFFFFFFFF, 63, 63))
     )
+
+
+def test_overflow_numeric_std():
+    # Negative single non-full limb
+    assert (
+        float(APyFixed(0xC3, 8, 8).cast(8, 8, overflow=OverflowMode.NUMERIC_STD))
+        == -61.0
+    )
+    assert (
+        float(APyFixed(0xC3, 8, 8).cast(7, 7, overflow=OverflowMode.NUMERIC_STD))
+        == -61.0
+    )
+    assert (
+        float(APyFixed(0xC3, 8, 8).cast(6, 6, overflow=OverflowMode.NUMERIC_STD))
+        == -29.0
+    )
+    assert (
+        float(APyFixed(0xC3, 8, 8).cast(5, 5, overflow=OverflowMode.NUMERIC_STD))
+        == -13.0
+    )
+    assert (
+        float(APyFixed(0xC3, 8, 8).cast(1, 1, overflow=OverflowMode.NUMERIC_STD))
+        == -1.0
+    )
+
+    # Positive single non-full limb
+    assert (
+        float(APyFixed(0x13, 8, 8).cast(8, 8, overflow=OverflowMode.NUMERIC_STD))
+        == 19.0
+    )
+    assert (
+        float(APyFixed(0x13, 8, 8).cast(7, 7, overflow=OverflowMode.NUMERIC_STD))
+        == 19.0
+    )
+    assert (
+        float(APyFixed(0x13, 8, 8).cast(6, 6, overflow=OverflowMode.NUMERIC_STD))
+        == 19.0
+    )
+    assert (
+        float(APyFixed(0x13, 8, 8).cast(5, 5, overflow=OverflowMode.NUMERIC_STD)) == 3.0
+    )
+    assert (
+        float(APyFixed(0x13, 8, 8).cast(4, 4, overflow=OverflowMode.NUMERIC_STD)) == 3.0
+    )
+    assert (
+        float(APyFixed(0x13, 8, 8).cast(2, 2, overflow=OverflowMode.NUMERIC_STD)) == 1.0
+    )
+    assert (
+        float(APyFixed(0x13, 8, 8).cast(1, 1, overflow=OverflowMode.NUMERIC_STD)) == 0.0
+    )
