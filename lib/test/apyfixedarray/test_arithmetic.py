@@ -426,3 +426,22 @@ def test_long_matrix_addition():
     assert (a + b).is_identical(
         APyFixedArray(2 * np.array(range(10000)), bits=21, int_bits=21)
     )
+
+
+def test_operation_with_numbers():
+    a = APyFixedArray([5, 7, -1], 6, 2)
+    # Integer
+    assert (a + 0).is_identical(a)
+    assert (0 + a).is_identical(a)
+    assert (a - 0).is_identical(a)
+    assert (0 - a).is_identical(-a)
+    assert (a * 1).is_identical(a)
+    assert (1 * a).is_identical(a)
+
+    # Float
+    assert (a + 0.0).is_identical(a)
+    assert (0.0 + a).is_identical(a)
+    assert (a - 0.0).is_identical(a)
+    assert (0.0 - a).is_identical(-a)
+    assert (a * 1.0).is_identical(a)
+    assert (1.0 * a).is_identical(a)

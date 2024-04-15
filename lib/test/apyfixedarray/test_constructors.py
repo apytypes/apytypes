@@ -129,3 +129,15 @@ def test_base_constructor_ndarray(dt):
             int_bits=50,
         )
     )
+
+
+def test_from_numpy_raises():
+    np = pytest.importorskip("numpy")
+    a = np.asarray([[0.0, 1.0]], dtype="half")
+    with pytest.raises(
+        TypeError, match="APyFixedArray::_set_values_from_numpy_ndarray"
+    ):
+        b = APyFixedArray.from_float(a, 14, 4)
+    a = np.asarray([[0.0, 1.0]])
+    with pytest.raises(TypeError, match="APyFixedArray::_set_bits_from_numpy_ndarray"):
+        b = APyFixedArray(a, 14, 4)

@@ -1020,7 +1020,7 @@ APyFloatArray APyFloatArray::from_double(
         std::size_t ndim = ndarray.ndim();
         if (ndim == 0) {
             throw nb::type_error(
-                "APyFixedArray.from_float(): NDArray with ndim == 0 not supported"
+                "APyFloatArray.from_float(): NDArray with ndim == 0 not supported"
             );
         }
         std::vector<std::size_t> shape(ndim, 0);
@@ -1102,7 +1102,7 @@ void APyFloatArray::_set_values_from_numpy_ndarray(const nb::ndarray<nb::numpy>&
     // the `dtype`. Seems hard to achieve with nanobind, but please fix this if you
     // find out how this can be achieved.
     throw nb::type_error(
-        "APyFixedArray::_set_values_from_numpy_ndarray(): "
+        "APyFloatArray::_set_values_from_numpy_ndarray(): "
         "unsupported `dtype` expecting integer/float"
     );
 }

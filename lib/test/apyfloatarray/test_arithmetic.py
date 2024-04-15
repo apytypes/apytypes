@@ -218,6 +218,8 @@ def test_array_sub_int_float():
     a = APyFloatArray.from_float([12, 23, 34], 8, 10)
     assert (a - 0).is_identical(a)
     assert (a - 0.0).is_identical(a)
+    assert (0 - a).is_identical(-a)
+    assert (0 - a).is_identical(-a)
 
 
 @pytest.mark.float_array
