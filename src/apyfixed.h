@@ -472,15 +472,6 @@ private:
      * ****************************************************************************** */
 
 private:
-    //! Sign preserving automatic size extending arithmetic left shift. Result must have
-    //! enough space for `bits_to_limbs(bits() + shift_val)` many limbs.
-    template <typename RANDOM_ACCESS_ITERATOR>
-    void _data_asl(
-        RANDOM_ACCESS_ITERATOR it_begin,
-        RANDOM_ACCESS_ITERATOR it_end,
-        unsigned shift_val
-    ) const;
-
     //! Copy the raw bits from `*this` onto the iterator region pointed to `it_begin`
     //! and `it_end`. If `std::distance(it_begin, it_end) > self->vector_size()`, then
     //! the data is (limb) sign-extended.

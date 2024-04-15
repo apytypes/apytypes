@@ -244,20 +244,17 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
 
 APyFixed APyFixed::operator/(const APyFixed& rhs) const
 {
-    const int res_bits = bits() + std::max(rhs.frac_bits(), 0) + 1;
     const int res_int_bits = int_bits() + rhs.frac_bits() + 1;
+    const int res_frac_bits = frac_bits() + rhs.int_bits();
+    const int res_bits = res_int_bits + res_frac_bits;
     APyFixed result(res_bits, res_int_bits);
 
-    // Single-limb result specialization
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        mp_limb_signed_t numerator = _data[0] << rhs.frac_bits();
+        mp_limb_signed_t numerator = _data[0] << rhs.bits();
         mp_limb_signed_t denominator = rhs._data[0];
         result._data[0] = numerator / denominator;
         return result; // early exit
     }
-
-    // Resulting sign
-    const bool sign_product = is_negative() ^ rhs.is_negative();
 
     // Absolute value denominator
     ScratchVector<mp_limb_t> abs_den(rhs._data.size());
@@ -265,26 +262,22 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
 
     // Absolute value left-shifted numerator
     ScratchVector<mp_limb_t> abs_num(bits_to_limbs(res_bits));
-    abs()._data_asl(abs_num.begin(), abs_num.end(), rhs.frac_bits());
+    limb_vector_abs(_data.begin(), _data.end(), abs_num.begin());
+    limb_vector_lsl(abs_num.begin(), abs_num.end(), rhs.bits());
 
-    // `mpn_tdiv_qr` requires that the number of significant limbs in denominator
+    // `mpn_tdiv_qr` requires the number of *significant* limbs in denominator
     std::size_t den_significant_limbs
         = significant_limbs(abs_den.begin(), abs_den.end());
-    if (den_significant_limbs > abs_num.size()) {
-        // GMP requires that the numerator has more or equally many limbs as the
-        // denominator. If this is not the case, the result is identically equal to
-        // zero.
-        return result; // early exit
-    } else {
-        mpn_div_qr(
-            &result._data[0],     // Quotient
-            &abs_num[0],          // Numerator
-            abs_num.size(),       // Numerator significant limbs
-            &abs_den[0],          // Denominator
-            den_significant_limbs // Denominator significant limbs
-        );
-    }
-    if (sign_product) {
+    mpn_div_qr(
+        &result._data[0],     // Quotient
+        &abs_num[0],          // Numerator
+        abs_num.size(),       // Numerator significant limbs
+        &abs_den[0],          // Denominator
+        den_significant_limbs // Denominator significant limbs
+    );
+
+    // Negate result if negative
+    if (is_negative() ^ rhs.is_negative()) {
         limb_vector_negate(
             result._data.begin(), result._data.end(), result._data.begin()
         );
@@ -1431,6 +1424,7 @@ void APyFixed::_overflow_twos_complement(
 ) const
 {
     (void)int_bits;
+    (void)it_end;
     if (bits % _LIMB_SIZE_BITS) {
         RANDOM_ACCESS_ITERATOR ms_limb_it = it_begin + bits_to_limbs(bits) - 1;
         unsigned shift_amount = _LIMB_SIZE_BITS - (bits % _LIMB_SIZE_BITS);
@@ -1470,36 +1464,6 @@ void APyFixed::_overflow_saturate(
 /* ********************************************************************************** *
  * *                          Private member functions                              * *
  * ********************************************************************************** */
-
-template <typename RANDOM_ACCESS_ITERATOR>
-void APyFixed::_data_asl(
-    RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned shift_val
-) const
-{
-    if (shift_val == 0) {
-        std::copy(_data.cbegin(), _data.cend(), it_begin);
-    }
-
-    // Perform the left-shift
-    unsigned vec_skip_val = shift_val / _LIMB_SIZE_BITS;
-    unsigned bit_shift_val = shift_val % _LIMB_SIZE_BITS;
-    std::copy(_data.cbegin(), _data.cend(), it_begin + vec_skip_val);
-    mpn_lshift(
-        &*it_begin,                      // dst
-        &*it_begin,                      // src
-        std::distance(it_begin, it_end), // limb vector length
-        bit_shift_val                    // shift amount
-    );
-
-    // Append sign bits for "arithmetic" shift
-    if ((bits() + shift_val) % _LIMB_SIZE_BITS > 0) {
-        // Arithmetic right-shift
-        mp_limb_t sign_int = mp_limb_signed_t(_data.back()) >> (_LIMB_SIZE_BITS - 1);
-        mp_limb_t or_mask
-            = ~((mp_limb_t(1) << (bits() + shift_val) % _LIMB_SIZE_BITS) - 1);
-        *std::prev(it_end) |= or_mask & sign_int;
-    }
-}
 
 template <typename RANDOM_ACCESS_ITERATOR>
 void APyFixed::_copy_and_sign_extend(

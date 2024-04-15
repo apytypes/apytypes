@@ -56,6 +56,20 @@ public:
         : std::domain_error(msg.value_or("Not implemented yet")) {};
 };
 
+//! Mark code path unreachable. Allows the compiler to make further control-flow
+//! optimizations. Calling this function under any circumstance is undefined behaviour.
+[[maybe_unused, noreturn]] static inline void apytypes_unreachable()
+{
+    // Uses compiler specific extensions if possible.
+    // Even if no extension is used, undefined behavior is still raised by
+    // an empty function body and the noreturn attribute.
+#if defined(_MSC_VER) && !defined(__clang__) // MSVC
+    __assume(false);
+#else // GCC, Clang
+    __builtin_unreachable();
+#endif
+}
+
 //! Compute the number of leading zeros in an integer
 template <typename INT_TYPE>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t leading_zeros(INT_TYPE n)
@@ -120,7 +134,7 @@ template <typename INT_TYPE>
     }
 }
 
-//! Count the number of significant limbs in limb vector
+//! Count the number of significant limbs in unsigned limb vector
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t
 significant_limbs(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
