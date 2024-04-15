@@ -206,5 +206,5 @@ def test_signed_zero_comparison():
     assert not (b != a)
     assert not (b > a)
     assert b >= a
-    # assert not(b < a)
+    assert not (b < a)
     assert b <= a

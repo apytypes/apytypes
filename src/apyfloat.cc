@@ -1451,7 +1451,9 @@ bool APyFloat::operator<(const APyFloat& rhs) const
         return false;
     }
 
-    if (sign != rhs.sign && !(is_zero() && rhs.is_zero())) {
+    if (is_zero() && rhs.is_zero()) {
+        return false;
+    } else if (sign != rhs.sign) {
         return sign;
     }
 
