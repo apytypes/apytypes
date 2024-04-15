@@ -467,6 +467,15 @@ private:
         int int_bits
     ) const;
 
+    //! Perform VHDL `numeric_std` signed resize overflowing
+    template <class RANDOM_ACCESS_ITERATOR>
+    void _overflow_numeric_std(
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
+        int bits,
+        int int_bits
+    ) const;
+
     /* ****************************************************************************** *
      *                           Private helper methods                               *
      * ****************************************************************************** */

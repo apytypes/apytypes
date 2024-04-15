@@ -1393,7 +1393,7 @@ void APyFixed::_overflow(
 {
     /*
      * All overflow methods (e.g., `_overflow_saturate()`) assume that data being
-     * overflown has been copied to the iterator region [ `it_begin`, `it_end` ), and is
+     * overflown has been copied to the iterator region [ `it_begin`, `it_end` ) and is
      * shifted so that the binary point location is correct. The overflowing methods
      * only manipulates bits in: [ `it_begin`, `it_begin + bits_to_limbs(new_bits)` ).
      */
@@ -1405,7 +1405,7 @@ void APyFixed::_overflow(
         _overflow_saturate(it_begin, it_end, new_bits, new_int_bits);
         break;
     case OverflowMode::NUMERIC_STD:
-        throw NotImplementedException("APyFixed::_overflow: OverflowMode::NUMERIC_STD");
+        _overflow_numeric_std(it_begin, it_end, new_bits, new_int_bits);
         break;
     default:
         throw NotImplementedException(fmt::format(
@@ -1444,20 +1444,39 @@ void APyFixed::_overflow_saturate(
     RANDOM_ACCESS_ITERATOR ms_limb_it = it_begin + bits_to_limbs(bits) - 1;
     std::size_t utilized_bits_last_limb = (bits - 1) % _LIMB_SIZE_BITS + 1;
 
-    mp_limb_t sign_limb = mp_limb_signed_t(*std::prev(it_end)) < 0 ? -1 : 0;
-    if (sign_limb) {
-        // Number is negative
+    bool sign = mp_limb_signed_t(*std::prev(it_end)) < 0;
+    if (sign) {
         if (!limb_vector_all_ones(ms_limb_it, it_end, utilized_bits_last_limb - 1)) {
-            // Saturate to most negative number
             std::fill(it_begin, ms_limb_it, 0);
             *ms_limb_it = ~((mp_limb_t(1) << (utilized_bits_last_limb - 1)) - 1);
         }
-    } else {
-        // Number is positive
+    } else { /* !sign */
         if (!limb_vector_all_zeros(ms_limb_it, it_end, utilized_bits_last_limb - 1)) {
             std::fill(it_begin, ms_limb_it, mp_limb_t(-1));
             *ms_limb_it = (mp_limb_t(1) << (utilized_bits_last_limb - 1)) - 1;
         }
+    }
+}
+
+template <class RANDOM_ACCESS_ITERATOR>
+void APyFixed::_overflow_numeric_std(
+    RANDOM_ACCESS_ITERATOR it_begin,
+    RANDOM_ACCESS_ITERATOR it_end,
+    int bits,
+    int int_bits
+) const
+{
+    (void)int_bits;
+    RANDOM_ACCESS_ITERATOR ms_limb_it = it_begin + bits_to_limbs(bits) - 1;
+    std::size_t utilized_bits_last_limb = (bits - 1) % _LIMB_SIZE_BITS + 1;
+
+    bool sign = mp_limb_signed_t(*std::prev(it_end)) < 0;
+    if (sign) {
+        // Force a `1` into the sign position (and above)
+        *ms_limb_it |= ~((mp_limb_t(1) << (utilized_bits_last_limb - 1)) - 1);
+    } else { /* !sign */
+        // Force a `0` into the sign position (and above)
+        *ms_limb_it &= ((mp_limb_t(1) << (utilized_bits_last_limb - 1)) - 1);
     }
 }
 
