@@ -63,6 +63,20 @@ void vector_shift_div_signed(
     std::size_t size
 );
 
+/*
+ * For each element in the iterator regions [ `*_begin`, `*_begin + size` ):
+ * * Shift element in `src1_begin` left by `src1_shift_amount`
+ * * Divide shifted element (numerator) by `constant` (denominator) and store the
+ *   result in `dst_begin`
+ */
+void vector_shift_div_const_signed(
+    std::vector<mp_limb_t>::const_iterator src1_begin,
+    mp_limb_t constant,
+    std::vector<mp_limb_t>::iterator dst_begin,
+    unsigned src1_shift_amount,
+    std::size_t size
+);
+
 /*!
  * Perform signed multiplication of the the elements in `src1_begin` with `src2_begin`
  * and store the result in `dst_begin`, for `size` number of elements.

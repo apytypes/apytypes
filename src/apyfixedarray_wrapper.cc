@@ -136,7 +136,6 @@ void bind_fixed_array(nb::module_& m)
             },
             nb::is_operator()
         )
-        //.def(nb::self - APyFixed(1,0))
         .def(
             "__sub__",
             [](const APyFixedArray& a, const APyFixed& b) { return a - b; },
@@ -203,6 +202,11 @@ void bind_fixed_array(nb::module_& m)
             nb::is_operator()
         )
         .def(nb::self / nb::self)
+        .def(
+            "__truediv__",
+            [](const APyFixedArray& a, const APyFixed& b) { return a / b; },
+            nb::is_operator()
+        )
         .def(-nb::self)
         .def(nb::self <<= int(), nb::rv_policy::none)
         .def(nb::self >>= int(), nb::rv_policy::none)

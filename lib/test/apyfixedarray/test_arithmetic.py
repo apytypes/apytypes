@@ -331,6 +331,31 @@ def test_array_div():
     )
 
 
+def test_array_div_scalar():
+    a = APyFixedArray.from_float([-5, -6, 7, 8, 9, 5], bits=10, int_bits=5)
+    b = APyFixed.from_float(2.25, bits=6, int_bits=4)
+    assert (a / b).is_identical(
+        APyFixedArray([129935, 129707, 1592, 1820, 2048, 1137], bits=17, int_bits=8)
+    )
+
+    a = APyFixedArray.from_float([-5, -6, 7, 8, 9, 5], bits=100, int_bits=50)
+    b = APyFixed.from_float(2.25, bits=123, int_bits=10)
+    assert (a / b).is_identical(
+        APyFixedArray(
+            [
+                26959946667150639794667015087019630673637144422538010433315595033714,
+                26959946667150639794667015087019630673637144422537498023757991990614,
+                3586866903221301703,
+                4099276460824344803,
+                4611686018427387904,
+                2562047788015215502,
+            ],
+            bits=224,
+            int_bits=164,
+        )
+    )
+
+
 def test_array_prod():
     a = APyFixedArray([-5, -6, 7, -1], bits=10, int_bits=5)
     assert math.prod(a).is_identical(APyFixed(1099511627566, bits=40, int_bits=20))

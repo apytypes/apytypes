@@ -537,6 +537,67 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
     return result;
 }
 
+APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
+{
+    const int res_int_bits = int_bits() + rhs.frac_bits() + 1;
+    const int res_frac_bits = frac_bits() + rhs.int_bits();
+    const int res_bits = res_int_bits + res_frac_bits;
+    APyFixedArray result(_shape, res_bits, res_int_bits);
+
+    // Special case #1: The resulting number of bits fit in a single limb
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        simd::vector_shift_div_const_signed(
+            std::begin(_data),        // src1 (numerator)
+            rhs._data[0],             // src2 (constant denominator)
+            std::begin(result._data), // dst
+            rhs.bits(),               // numerator shift amount
+            _data.size()              // vector elements
+        );
+        return result; // early exit
+    }
+
+    // General case: This always works but is slower than the special cases.
+    // Absolute value denominator
+    ScratchVector<mp_limb_t> abs_den(rhs.vector_size());
+    bool den_sign = limb_vector_abs(
+        std::begin(rhs._data), std::end(rhs._data), std::begin(abs_den)
+    );
+
+    // Absolute value left-shifted numerator
+    ScratchVector<mp_limb_t> abs_num(bits_to_limbs(res_bits));
+
+    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+        std::fill(std::begin(abs_num), std::end(abs_num), 0);
+        bool num_sign = limb_vector_abs(
+            std::begin(_data) + (i + 0) * _itemsize,
+            std::begin(_data) + (i + 1) * _itemsize,
+            std::begin(abs_num)
+        );
+        limb_vector_lsl(abs_num.begin(), abs_num.end(), rhs.bits());
+
+        // `mpn_tdiv_qr` requires the number of *significant* limbs in denominator
+        std::size_t den_significant_limbs
+            = significant_limbs(std::begin(abs_den), std::end(abs_den));
+        mpn_div_qr(
+            &result._data[i * result._itemsize], // Quotient
+            &abs_num[0],                         // Numerator
+            abs_num.size(),                      // Numerator limbs
+            &abs_den[0],                         // Denominator
+            den_significant_limbs                // Denominator significant limbs
+        );
+
+        // Negate result if negative
+        if (num_sign ^ den_sign) {
+            limb_vector_negate(
+                std::begin(result._data) + (i + 0) * result._itemsize,
+                std::begin(result._data) + (i + 1) * result._itemsize,
+                std::begin(result._data) + (i + 0) * result._itemsize
+            );
+        }
+    }
+    return result;
+}
+
 APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
 {
     const int res_int_bits = int_bits() + rhs.int_bits();
