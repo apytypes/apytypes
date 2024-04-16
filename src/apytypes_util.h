@@ -783,6 +783,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 }
 
 //! Reduce the first `n` bits in a limb vector over bitwise `or`. Returns bool.
+//! Undefined behaviour if bit `n` is located outside the limb vector
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE bool limb_vector_or_reduce(
     RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it, unsigned n
@@ -811,7 +812,8 @@ template <class RANDOM_ACCESS_ITERATOR>
     return false;
 }
 
-//! Test if the `n` -th bit (zero indexed) is set in a limb vector
+//! Test if the `n` -th bit (zero indexed) is set in a limb vector. Undefined behaviour
+//! if bit `n` is located outside the limb vector.
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE bool limb_vector_test_bit(
     RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it, unsigned n
@@ -825,7 +827,8 @@ template <class RANDOM_ACCESS_ITERATOR>
     return mask & limb;
 }
 
-//! Set the `n` -th bit (zero indexed) of a limb vector to `bit`
+//! Set the `n` -th bit (zero indexed) of a limb vector to `bit`. Undefined behaviour if
+//! bit `n` is located outside the limb vector.
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE void limb_vector_set_bit(
     RANDOM_ACCESS_ITERATOR begin_it, RANDOM_ACCESS_ITERATOR end_it, unsigned n, bool bit

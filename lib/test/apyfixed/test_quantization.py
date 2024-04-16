@@ -303,3 +303,25 @@ def test_issue_179():
     c = a.cast(bits=64, int_bits=64, quantization=QuantizationMode.RND)
     assert b.is_identical(APyFixed.from_float(0, bits=64, int_bits=64))
     assert c.is_identical(APyFixed.from_float(0, bits=64, int_bits=64))
+
+
+@pytest.mark.parametrize(
+    "mode",
+    [
+        QuantizationMode.TRN,
+        QuantizationMode.TRN_INF,
+        QuantizationMode.TRN_ZERO,
+        QuantizationMode.RND,
+        QuantizationMode.RND_INF,
+        QuantizationMode.RND_MIN_INF,
+        QuantizationMode.RND_ZERO,
+        QuantizationMode.RND_CONV,
+        QuantizationMode.RND_CONV_ODD,
+        QuantizationMode.JAM_UNBIASED,
+    ],
+)
+def test_quantize_away_all_bits(mode):
+    # These tests are used to trigger invalid memory accesses using Valgrind memcheck.
+    # Please leave them be.
+    a = APyFixed(0, bits=62002, int_bits=-12984)
+    assert float(a.cast(63, 3, quantization=mode)) == 0.0
