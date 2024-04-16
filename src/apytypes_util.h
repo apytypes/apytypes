@@ -852,19 +852,22 @@ template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
     return mpn_add_1(&*res_it, &*res_it, std::distance(cbegin_it, cend_it), 1);
 }
 
-//! Take the two's complement absolute value of a limb vector and place onto `res_out`
+//! Take the two's complement absolute value of a limb vector and place onto `res_out`.
+//! Returns `true` if the argument is negative
 template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
-[[maybe_unused]] static APY_INLINE void limb_vector_abs(
+[[maybe_unused]] static APY_INLINE bool limb_vector_abs(
     RANDOM_ACCESS_ITERATOR_IN cbegin_it,
     RANDOM_ACCESS_ITERATOR_IN cend_it,
     RANDOM_ACCESS_ITERATOR_OUT res_it
 )
 {
-    if (mp_limb_signed_t(*(cend_it - 1)) < 0) {
+    bool is_negative = mp_limb_signed_t(*std::prev(cend_it)) < 0;
+    if (is_negative) {
         limb_vector_negate(cbegin_it, cend_it, res_it);
     } else {
         std::copy(cbegin_it, cend_it, res_it);
     }
+    return is_negative;
 }
 
 //! Test if the bits in a limb vector are all zeros starting from bit `n` (zero

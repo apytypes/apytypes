@@ -202,6 +202,7 @@ void bind_fixed_array(nb::module_& m)
             },
             nb::is_operator()
         )
+        .def(nb::self / nb::self)
         .def(-nb::self)
         .def(nb::self <<= int(), nb::rv_policy::none)
         .def(nb::self >>= int(), nb::rv_policy::none)

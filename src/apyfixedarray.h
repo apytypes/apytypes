@@ -92,6 +92,7 @@ public:
     APyFixedArray operator*(const APyFixedArray& rhs) const;
     APyFixedArray operator*(const APyFixed& rhs) const;
     APyFixedArray operator/(const APyFixedArray& rhs) const;
+    APyFixedArray operator/(const APyFixed& rhs) const;
     APyFixedArray operator<<(const int shift_val) const;
     APyFixedArray operator>>(const int shift_val) const;
     APyFixedArray& operator<<=(const int shift_val);

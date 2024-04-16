@@ -271,7 +271,7 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
     mpn_div_qr(
         &result._data[0],     // Quotient
         &abs_num[0],          // Numerator
-        abs_num.size(),       // Numerator significant limbs
+        abs_num.size(),       // Numerator limbs
         &abs_den[0],          // Denominator
         den_significant_limbs // Denominator significant limbs
     );
