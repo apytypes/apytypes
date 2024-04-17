@@ -783,7 +783,8 @@ template <class RANDOM_ACCESS_ITERATOR>
 }
 
 //! Reduce the first `n` bits in a limb vector over bitwise `or`. Returns bool.
-//! Undefined behaviour if bit `n` is located outside the limb vector
+//! Unconditionally returns `false` when `n == 0`. Undefined behaviour if `n` is
+//! greater than the number of bits in the limb vector.
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE bool limb_vector_or_reduce(
     RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it, unsigned n
