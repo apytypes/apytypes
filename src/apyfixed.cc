@@ -1429,8 +1429,16 @@ void APyFixed::_quantize_jam_unbiased(
             if (limb_vector_or_reduce(it_begin, it_end, start_idx)) {
                 limb_vector_set_bit(it_begin, it_end, start_idx, true);
             }
+            limb_vector_asr(it_begin, it_end, start_idx);
+        } else {
+            bool jam = limb_vector_or_reduce(it_begin, it_end, _bits);
+            if (limb_vector_is_negative(it_begin, it_end)) {
+                std::fill(it_begin, it_end, -1);
+            } else {
+                std::fill(it_begin, it_end, 0);
+            }
+            limb_vector_set_bit(it_begin, it_end, 0, jam);
         }
-        limb_vector_asr(it_begin, it_end, start_idx);
     }
 }
 

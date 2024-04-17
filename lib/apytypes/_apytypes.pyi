@@ -1424,6 +1424,7 @@ class QuantizationMode:
     TO_ZERO: typing.ClassVar[QuantizationMode]  # value = <QuantizationMode.TRN_ZERO: 2>
     TRN: typing.ClassVar[QuantizationMode]  # value = <QuantizationMode.TRN: 0>
     TRN_INF: typing.ClassVar[QuantizationMode]  # value = <QuantizationMode.TRN_INF: 1>
+    TRN_MAG: typing.ClassVar[QuantizationMode]
     TRN_ZERO: typing.ClassVar[
         QuantizationMode
     ]  # value = <QuantizationMode.TRN_ZERO: 2>

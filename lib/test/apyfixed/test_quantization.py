@@ -14,6 +14,22 @@ def test_trn():
     assert float(APyFixed.from_float(0.75, 4, 1).cast(3, 1, mode)) == 0.75
     assert float(APyFixed.from_float(0.875, 4, 1).cast(3, 1, mode)) == 0.75
 
+    assert float(APyFixed(0b10000, 5, 0).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b10001, 5, 0).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b11111, 5, 0).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b01001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01000, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00000, 5, 0).cast(5, 5, mode)) == 0.0
+
+    assert float(APyFixed(0b10000, 5, -1).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b10001, 5, -1).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b11111, 5, -1).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b01001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01000, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00000, 5, -1).cast(5, 5, mode)) == 0.0
+
 
 def test_trn_inf():
     mode = QuantizationMode.TRN_INF
@@ -26,6 +42,22 @@ def test_trn_inf():
     assert float(APyFixed.from_float(0.75, 4, 1).cast(3, 1, mode)) == 0.75
     assert float(APyFixed.from_float(0.875, 4, 1).cast(3, 1, mode)) == -1.0
     assert float(APyFixed.from_float(0.875, 4, 1).cast(3, 2, mode)) == 1.0
+
+    assert float(APyFixed(0b10000, 5, 0).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b10001, 5, 0).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b11111, 5, 0).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b01001, 5, 0).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b01000, 5, 0).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b00001, 5, 0).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b00000, 5, 0).cast(5, 5, mode)) == 0.0
+
+    assert float(APyFixed(0b10000, 5, -1).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b10001, 5, -1).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b11111, 5, -1).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b01001, 5, -1).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b01000, 5, -1).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b00001, 5, -1).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b00000, 5, -1).cast(5, 5, mode)) == 0.0
 
 
 def test_trn_zero():
@@ -40,6 +72,22 @@ def test_trn_zero():
     assert float(APyFixed.from_float(0.875, 4, 1).cast(3, 1, mode)) == 0.75
     assert float(APyFixed.from_float(0.875, 4, 1).cast(3, 2, mode)) == 0.5
 
+    assert float(APyFixed(0b10000, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b10001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b11111, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01000, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00000, 5, 0).cast(5, 5, mode)) == 0.0
+
+    assert float(APyFixed(0b10000, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b10001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b11111, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01000, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00000, 5, -1).cast(5, 5, mode)) == 0.0
+
 
 def test_trn_mag():
     mode = QuantizationMode.TRN_MAG
@@ -50,6 +98,22 @@ def test_trn_mag():
     assert float(APyFixed.from_float(0.75, 3, 1).cast(2, 1, mode)) == 0.5
     assert float(APyFixed.from_float(0.75, 4, 1).cast(3, 1, mode)) == 0.75
     assert float(APyFixed.from_float(0.875, 4, 1).cast(3, 1, mode)) == 0.75
+
+    assert float(APyFixed(0b10000, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b10001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b11111, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01000, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00000, 5, 0).cast(5, 5, mode)) == 0.0
+
+    assert float(APyFixed(0b10000, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b10001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b11111, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01000, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00000, 5, -1).cast(5, 5, mode)) == 0.0
 
 
 def test_rnd():
@@ -64,6 +128,22 @@ def test_rnd():
     assert float(APyFixed.from_float(0.875, 4, 1).cast(3, 2, mode)) == 1.0
     assert float(APyFixed.from_float(0.875, 4, 1).cast(3, 1, mode)) == -1.0
 
+    assert float(APyFixed(0b10000, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b10001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b11111, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01000, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00000, 5, 0).cast(5, 5, mode)) == 0.0
+
+    assert float(APyFixed(0b10000, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b10001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b11111, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01000, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00000, 5, -1).cast(5, 5, mode)) == 0.0
+
 
 def test_rnd_zero():
     mode = QuantizationMode.RND_ZERO
@@ -76,6 +156,22 @@ def test_rnd_zero():
     assert float(APyFixed.from_float(0.75, 4, 1).cast(3, 1, mode)) == 0.75
     assert float(APyFixed.from_float(0.875, 4, 1).cast(3, 2, mode)) == 1.0
     assert float(APyFixed.from_float(0.875, 4, 1).cast(3, 1, mode)) == 0.75
+
+    assert float(APyFixed(0b10000, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b10001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b11111, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01000, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00000, 5, 0).cast(5, 5, mode)) == 0.0
+
+    assert float(APyFixed(0b10000, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b10001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b11111, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01000, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00000, 5, -1).cast(5, 5, mode)) == 0.0
 
 
 def test_rnd_inf():
@@ -96,6 +192,22 @@ def test_rnd_inf():
     assert float(APyFixed.from_float(-0.25, 4, 2).cast(2, 2, mode)) == 0.0
     assert float(APyFixed.from_float(-0.50, 4, 2).cast(2, 2, mode)) == -1.0
     assert float(APyFixed.from_float(-0.75, 4, 2).cast(2, 2, mode)) == -1.0
+
+    assert float(APyFixed(0b10000, 5, 0).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b10001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b11111, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01000, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00000, 5, 0).cast(5, 5, mode)) == 0.0
+
+    assert float(APyFixed(0b10000, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b10001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b11111, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01000, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00000, 5, -1).cast(5, 5, mode)) == 0.0
 
 
 def test_rnd_min_inf():
@@ -118,6 +230,22 @@ def test_rnd_min_inf():
     assert float(APyFixed.from_float(-0.50, 4, 2).cast(2, 2, mode)) == -1.0
     assert float(APyFixed.from_float(-0.75, 4, 2).cast(2, 2, mode)) == -1.0
 
+    assert float(APyFixed(0b10000, 5, 0).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b10001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b11111, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01000, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00000, 5, 0).cast(5, 5, mode)) == 0.0
+
+    assert float(APyFixed(0b10000, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b10001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b11111, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01000, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00000, 5, -1).cast(5, 5, mode)) == 0.0
+
 
 def test_rnd_conv():
     mode = QuantizationMode.RND_CONV
@@ -137,7 +265,19 @@ def test_rnd_conv():
 
     assert float(APyFixed(0b10000, 5, 0).cast(5, 5, mode)) == 0.0
     assert float(APyFixed(0b10001, 5, 0).cast(5, 5, mode)) == 0.0
-    assert float(APyFixed(0b01111, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b11111, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01000, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00000, 5, 0).cast(5, 5, mode)) == 0.0
+
+    assert float(APyFixed(0b10000, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b10001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b11111, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01000, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00000, 5, -1).cast(5, 5, mode)) == 0.0
 
 
 def test_rnd_conv_odd():
@@ -159,6 +299,18 @@ def test_rnd_conv_odd():
     assert float(APyFixed(0b10000, 5, 0).cast(5, 5, mode)) == -1.0
     assert float(APyFixed(0b10001, 5, 0).cast(5, 5, mode)) == 0.0
     assert float(APyFixed(0b11111, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01000, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00000, 5, 0).cast(5, 5, mode)) == 0.0
+
+    assert float(APyFixed(0b10000, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b10001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b11111, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01000, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b00000, 5, -1).cast(5, 5, mode)) == 0.0
 
 
 def test_jam():
@@ -185,6 +337,22 @@ def test_jam():
     assert float(APyFixed.from_float(2.00, 5, 3).cast(3, 3, mode)) == 3.0
     assert float(APyFixed.from_float(2.25, 5, 3).cast(3, 3, mode)) == 3.0
 
+    assert float(APyFixed(0b10000, 5, 0).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b10001, 5, 0).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b11111, 5, 0).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b01001, 5, 0).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b01000, 5, 0).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b00001, 5, 0).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b00000, 5, 0).cast(5, 5, mode)) == 1.0
+
+    assert float(APyFixed(0b10000, 5, -1).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b10001, 5, -1).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b11111, 5, -1).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b01001, 5, -1).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b01000, 5, -1).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b00001, 5, -1).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b00000, 5, -1).cast(5, 5, mode)) == 1.0
+
 
 def test_jam_unbiased():
     mode = QuantizationMode.JAM_UNBIASED
@@ -209,6 +377,22 @@ def test_jam_unbiased():
     assert float(APyFixed.from_float(1.75, 5, 3).cast(3, 3, mode)) == 1.0
     assert float(APyFixed.from_float(2.00, 5, 3).cast(3, 3, mode)) == 2.0
     assert float(APyFixed.from_float(2.25, 5, 3).cast(3, 3, mode)) == 3.0
+
+    assert float(APyFixed(0b10000, 5, 0).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b10001, 5, 0).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b11111, 5, 0).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b01001, 5, 0).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b01000, 5, 0).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b00001, 5, 0).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b00000, 5, 0).cast(5, 5, mode)) == 0.0
+
+    assert float(APyFixed(0b10000, 5, -1).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b10001, 5, -1).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b11111, 5, -1).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b01001, 5, -1).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b01000, 5, -1).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b00001, 5, -1).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b00000, 5, -1).cast(5, 5, mode)) == 0.0
 
 
 def test_stochastic_weighted():
