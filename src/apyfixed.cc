@@ -1164,13 +1164,20 @@ void APyFixed::_quantize_trn_inf(
         limb_vector_lsl(it_begin, it_end, left_shift_amnt);
     } else {
         unsigned start_idx = -left_shift_amnt;
-        if (start_idx < unsigned(_bits)) {
-            if (!limb_vector_is_negative(it_begin, it_end)
-                && limb_vector_or_reduce(it_begin, it_end, start_idx)) {
-                limb_vector_add_pow2(it_begin, it_end, start_idx);
+        if (limb_vector_is_negative(it_begin, it_end)) {
+            limb_vector_asr(it_begin, it_end, start_idx);
+        } else { /* !limb_vector_is_negative(it_begin, it_end) */
+            if (start_idx < unsigned(_bits)) {
+                if (limb_vector_or_reduce(it_begin, it_end, start_idx)) {
+                    limb_vector_add_pow2(it_begin, it_end, start_idx);
+                }
+                limb_vector_asr(it_begin, it_end, start_idx);
+            } else {
+                mp_limb_t add_one = limb_vector_or_reduce(it_begin, it_end, _bits);
+                std::fill(it_begin, it_end, 0);
+                *it_begin = add_one;
             }
         }
-        limb_vector_asr(it_begin, it_end, start_idx);
     }
 }
 
@@ -1188,13 +1195,18 @@ void APyFixed::_quantize_trn_zero(
         limb_vector_lsl(it_begin, it_end, left_shift_amnt);
     } else {
         unsigned start_idx = -left_shift_amnt;
-        if (start_idx < unsigned(_bits)) {
-            if (limb_vector_is_negative(it_begin, it_end)
-                && limb_vector_or_reduce(it_begin, it_end, start_idx)) {
-                limb_vector_add_pow2(it_begin, it_end, start_idx);
+        if (!limb_vector_is_negative(it_begin, it_end)) {
+            limb_vector_asr(it_begin, it_end, start_idx);
+        } else { /* limb_vector_is_negative(it_begin, it_end) */
+            if (start_idx < unsigned(_bits)) {
+                if (limb_vector_or_reduce(it_begin, it_end, start_idx)) {
+                    limb_vector_add_pow2(it_begin, it_end, start_idx);
+                }
+                limb_vector_asr(it_begin, it_end, start_idx);
+            } else {
+                std::fill(it_begin, it_end, 0);
             }
         }
-        limb_vector_asr(it_begin, it_end, start_idx);
     }
 }
 
@@ -1212,12 +1224,16 @@ void APyFixed::_quantize_trn_mag(
         limb_vector_lsl(it_begin, it_end, left_shift_amnt);
     } else {
         unsigned start_idx = -left_shift_amnt;
-        if (start_idx < unsigned(_bits)) {
-            if (limb_vector_is_negative(it_begin, it_end)) {
+        if (!limb_vector_is_negative(it_begin, it_end)) {
+            limb_vector_asr(it_begin, it_end, start_idx);
+        } else { /* limb_vector_is_negative(it_begin, it_end) */
+            if (start_idx < unsigned(_bits)) {
                 limb_vector_add_pow2(it_begin, it_end, start_idx);
+                limb_vector_asr(it_begin, it_end, start_idx);
+            } else {
+                std::fill(it_begin, it_end, 0);
             }
         }
-        limb_vector_asr(it_begin, it_end, start_idx);
     }
 }
 
@@ -1237,8 +1253,10 @@ void APyFixed::_quantize_rnd(
         unsigned start_idx = -left_shift_amnt;
         if (start_idx <= unsigned(_bits)) {
             limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
+            limb_vector_asr(it_begin, it_end, start_idx);
+        } else {
+            std::fill(it_begin, it_end, 0);
         }
-        limb_vector_asr(it_begin, it_end, start_idx);
     }
 }
 
@@ -1261,8 +1279,10 @@ void APyFixed::_quantize_rnd_zero(
                 || limb_vector_or_reduce(it_begin, it_end, start_idx - 1)) {
                 limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
             }
+            limb_vector_asr(it_begin, it_end, start_idx);
+        } else {
+            std::fill(it_begin, it_end, 0);
         }
-        limb_vector_asr(it_begin, it_end, start_idx);
     }
 }
 
@@ -1285,8 +1305,10 @@ void APyFixed::_quantize_rnd_inf(
                 || limb_vector_or_reduce(it_begin, it_end, start_idx - 1)) {
                 limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
             }
+            limb_vector_asr(it_begin, it_end, start_idx);
+        } else {
+            std::fill(it_begin, it_end, 0);
         }
-        limb_vector_asr(it_begin, it_end, start_idx);
     }
 }
 
@@ -1308,8 +1330,10 @@ void APyFixed::_quantize_rnd_min_inf(
             if (limb_vector_or_reduce(it_begin, it_end, start_idx - 1)) {
                 limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
             }
+            limb_vector_asr(it_begin, it_end, start_idx);
+        } else {
+            std::fill(it_begin, it_end, 0);
         }
-        limb_vector_asr(it_begin, it_end, start_idx);
     }
 }
 
@@ -1332,8 +1356,10 @@ void APyFixed::_quantize_rnd_conv(
                 || limb_vector_or_reduce(it_begin, it_end, start_idx - 1)) {
                 limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
             }
+            limb_vector_asr(it_begin, it_end, start_idx);
+        } else {
+            std::fill(it_begin, it_end, 0);
         }
-        limb_vector_asr(it_begin, it_end, start_idx);
     }
 }
 
@@ -1356,8 +1382,14 @@ void APyFixed::_quantize_rnd_conv_odd(
                 || limb_vector_or_reduce(it_begin, it_end, start_idx - 1)) {
                 limb_vector_add_pow2(it_begin, it_end, start_idx - 1);
             }
+            limb_vector_asr(it_begin, it_end, start_idx);
+        } else if (start_idx == unsigned(_bits)) {
+            bool fill_neg = limb_vector_is_negative(it_begin, it_end)
+                && !limb_vector_or_reduce(it_begin, it_end, start_idx - 1);
+            std::fill(it_begin, it_end, fill_neg ? -1 : 0);
+        } else {
+            std::fill(it_begin, it_end, 0);
         }
-        limb_vector_asr(it_begin, it_end, start_idx);
     }
 }
 

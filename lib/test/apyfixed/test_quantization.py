@@ -135,6 +135,10 @@ def test_rnd_conv():
     assert float(APyFixed.from_float(1.50, 5, 3).cast(3, 3, mode)) == 2.0
     assert float(APyFixed.from_float(1.75, 5, 3).cast(3, 3, mode)) == 2.0
 
+    assert float(APyFixed(0b10000, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b10001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01111, 5, 0).cast(5, 5, mode)) == 0.0
+
 
 def test_rnd_conv_odd():
     mode = QuantizationMode.RND_CONV_ODD
@@ -151,6 +155,10 @@ def test_rnd_conv_odd():
     assert float(APyFixed.from_float(1.25, 5, 3).cast(3, 3, mode)) == 1.0
     assert float(APyFixed.from_float(1.50, 5, 3).cast(3, 3, mode)) == 1.0
     assert float(APyFixed.from_float(1.75, 5, 3).cast(3, 3, mode)) == 2.0
+
+    assert float(APyFixed(0b10000, 5, 0).cast(5, 5, mode)) == -1.0
+    assert float(APyFixed(0b10001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b11111, 5, 0).cast(5, 5, mode)) == 0.0
 
 
 def test_jam():
@@ -290,7 +298,7 @@ def test_issue_179():
     b = a.cast(bits=64, int_bits=64)
     c = a.cast(bits=64, int_bits=64, quantization=QuantizationMode.RND)
     assert b.is_identical(APyFixed.from_float(-1, bits=64, int_bits=64))
-    assert c.is_identical(APyFixed.from_float(-1, bits=64, int_bits=64))
+    assert c.is_identical(APyFixed.from_float(0, bits=64, int_bits=64))
 
     a = APyFixed(0x7FFFFFFFFFFFFFFF, bits=64, int_bits=128)
     b = a.cast(bits=64, int_bits=64)
@@ -320,8 +328,107 @@ def test_issue_179():
         QuantizationMode.JAM_UNBIASED,
     ],
 )
-def test_quantize_away_all_bits(mode):
-    # These tests are used to trigger invalid memory accesses using Valgrind memcheck.
-    # Please leave them be.
+def test_issue_335(mode):
+    # Smoke test for GitHub issue #335.
+    # These tests are designed to trigger invalid memory access using Valgrind memcheck.
+    # Please don't remove it.
     a = APyFixed(0, bits=62002, int_bits=-12984)
     assert float(a.cast(63, 3, quantization=mode)) == 0.0
+
+
+def test_quantize_away_all_bits():
+    # Quantize away all of the bits. These are non-realistic quantizations, but need to
+    # work nonetheless.
+
+    mode = QuantizationMode.TRN
+    assert (
+        APyFixed(0b00, bits=2, int_bits=0)
+        .cast(bits=200, int_bits=400, quantization=mode)
+        .is_identical(APyFixed(0, bits=200, int_bits=400))
+    )
+    assert (
+        APyFixed(0b01, bits=2, int_bits=0)
+        .cast(bits=200, int_bits=400, quantization=mode)
+        .is_identical(APyFixed(0, bits=200, int_bits=400))
+    )
+    assert (
+        APyFixed(0b11, bits=2, int_bits=0)
+        .cast(bits=200, int_bits=400, quantization=mode)
+        .is_identical(APyFixed(-1, bits=200, int_bits=400))
+    )
+
+    mode = QuantizationMode.TRN_INF
+    assert (
+        APyFixed(0b00, bits=2, int_bits=0)
+        .cast(bits=200, int_bits=400, quantization=mode)
+        .is_identical(APyFixed(0, bits=200, int_bits=400))
+    )
+    assert (
+        APyFixed(0b01, bits=2, int_bits=0)
+        .cast(bits=200, int_bits=400, quantization=mode)
+        .is_identical(APyFixed(1, bits=200, int_bits=400))
+    )
+    assert (
+        APyFixed(0b11, bits=2, int_bits=0)
+        .cast(bits=200, int_bits=400, quantization=mode)
+        .is_identical(APyFixed(-1, bits=200, int_bits=400))
+    )
+
+    mode = QuantizationMode.TRN_ZERO
+    assert (
+        APyFixed(0b00, bits=2, int_bits=0)
+        .cast(bits=200, int_bits=400, quantization=mode)
+        .is_identical(APyFixed(0, bits=200, int_bits=400))
+    )
+    assert (
+        APyFixed(0b01, bits=2, int_bits=0)
+        .cast(bits=200, int_bits=400, quantization=mode)
+        .is_identical(APyFixed(0, bits=200, int_bits=400))
+    )
+    assert (
+        APyFixed(0b11, bits=2, int_bits=0)
+        .cast(bits=200, int_bits=400, quantization=mode)
+        .is_identical(APyFixed(0, bits=200, int_bits=400))
+    )
+
+    mode = QuantizationMode.TRN_MAG
+    assert (
+        APyFixed(0b00, bits=2, int_bits=0)
+        .cast(bits=200, int_bits=400, quantization=mode)
+        .is_identical(APyFixed(0, bits=200, int_bits=400))
+    )
+    assert (
+        APyFixed(0b01, bits=2, int_bits=0)
+        .cast(bits=200, int_bits=400, quantization=mode)
+        .is_identical(APyFixed(0, bits=200, int_bits=400))
+    )
+    assert (
+        APyFixed(0b11, bits=2, int_bits=0)
+        .cast(bits=200, int_bits=400, quantization=mode)
+        .is_identical(APyFixed(0, bits=200, int_bits=400))
+    )
+
+    round_nearest_modes = [
+        QuantizationMode.RND,
+        QuantizationMode.RND_ZERO,
+        QuantizationMode.RND_INF,
+        QuantizationMode.RND_MIN_INF,
+        QuantizationMode.RND_CONV,
+        QuantizationMode.RND_CONV_ODD,
+    ]
+    for mode in round_nearest_modes:
+        assert (
+            APyFixed(0b00, bits=2, int_bits=0)
+            .cast(bits=200, int_bits=400, quantization=mode)
+            .is_identical(APyFixed(0, bits=200, int_bits=400))
+        )
+        assert (
+            APyFixed(0b01, bits=2, int_bits=0)
+            .cast(bits=200, int_bits=400, quantization=mode)
+            .is_identical(APyFixed(0, bits=200, int_bits=400))
+        )
+        assert (
+            APyFixed(0b11, bits=2, int_bits=0)
+            .cast(bits=200, int_bits=400, quantization=mode)
+            .is_identical(APyFixed(0, bits=200, int_bits=400))
+        )
