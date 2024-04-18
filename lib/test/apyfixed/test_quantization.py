@@ -34,6 +34,35 @@ def test_trn():
 def test_trn_inf():
     mode = QuantizationMode.TRN_INF
     assert float(APyFixed.from_float(-0.75, 3, 1).cast(5, 1, mode)) == -0.75
+    assert float(APyFixed.from_float(-0.75, 3, 1).cast(2, 1, mode)) == -0.5
+    assert float(APyFixed.from_float(-0.75, 4, 1).cast(3, 1, mode)) == -0.75
+    assert float(APyFixed.from_float(-0.875, 4, 1).cast(3, 1, mode)) == -0.75
+    assert float(APyFixed.from_float(0.75, 3, 1).cast(2, 2, mode)) == 1.0
+    assert float(APyFixed.from_float(0.75, 3, 1).cast(2, 1, mode)) == -1.0
+    assert float(APyFixed.from_float(0.75, 4, 1).cast(3, 1, mode)) == 0.75
+    assert float(APyFixed.from_float(0.875, 4, 1).cast(3, 1, mode)) == -1.0
+    assert float(APyFixed.from_float(0.875, 4, 1).cast(3, 2, mode)) == 1.0
+
+    assert float(APyFixed(0b10000, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b10001, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b11111, 5, 0).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01001, 5, 0).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b01000, 5, 0).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b00001, 5, 0).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b00000, 5, 0).cast(5, 5, mode)) == 0.0
+
+    assert float(APyFixed(0b10000, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b10001, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b11111, 5, -1).cast(5, 5, mode)) == 0.0
+    assert float(APyFixed(0b01001, 5, -1).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b01000, 5, -1).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b00001, 5, -1).cast(5, 5, mode)) == 1.0
+    assert float(APyFixed(0b00000, 5, -1).cast(5, 5, mode)) == 0.0
+
+
+def test_trn_away():
+    mode = QuantizationMode.TRN_AWAY
+    assert float(APyFixed.from_float(-0.75, 3, 1).cast(5, 1, mode)) == -0.75
     assert float(APyFixed.from_float(-0.75, 3, 1).cast(2, 1, mode)) == -1.0
     assert float(APyFixed.from_float(-0.75, 4, 1).cast(3, 1, mode)) == -0.75
     assert float(APyFixed.from_float(-0.875, 4, 1).cast(3, 1, mode)) == -1.0
@@ -541,7 +570,7 @@ def test_quantize_away_all_bits():
         .is_identical(APyFixed(-1, bits=200, int_bits=400))
     )
 
-    mode = QuantizationMode.TRN_INF
+    mode = QuantizationMode.TRN_AWAY
     assert (
         APyFixed(0b00, bits=2, int_bits=0)
         .cast(bits=200, int_bits=400, quantization=mode)

@@ -366,6 +366,15 @@ private:
         int new_int_bits
     ) const;
 
+    //! Quantize away from zero
+    template <class RANDOM_ACCESS_ITERATOR>
+    void _quantize_trn_away(
+        RANDOM_ACCESS_ITERATOR it_begin,
+        RANDOM_ACCESS_ITERATOR it_end,
+        int new_bits,
+        int new_int_bits
+    ) const;
+
     //! Round to nearest, ties toward plus infinity
     template <class RANDOM_ACCESS_ITERATOR>
     void _quantize_rnd(

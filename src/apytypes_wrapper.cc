@@ -29,6 +29,59 @@ void bind_common(nb::module_& m)
 {
     nb::enum_<QuantizationMode>(m, "QuantizationMode")
         /*
+         * Floating point aliases, must come before base modes
+         */
+        .value(
+            "TO_NEG",
+            QuantizationMode::TRN,
+            R"pbdoc(Alias. Round towards negative infinity.)pbdoc"
+        )
+        .value(
+            "TO_ZERO",
+            QuantizationMode::TRN_ZERO,
+            R"pbdoc(Alias. Round towards zero.)pbdoc"
+        )
+        .value(
+            "TO_POS",
+            QuantizationMode::TRN_INF,
+            R"pbdoc(Alias. Round towards positive infinity.)pbdoc"
+        )
+        .value(
+            "TO_AWAY",
+            QuantizationMode::TRN_AWAY,
+            R"pbdoc(Alias. Truncate away from zero.)pbdoc"
+        )
+        .value(
+            "TIES_ZERO",
+            QuantizationMode::RND_ZERO,
+            R"pbdoc(Alias. Round to nearest, ties toward zero.)pbdoc"
+        )
+        .value(
+            "TIES_AWAY",
+            QuantizationMode::RND_INF,
+            R"pbdoc(Alias. Round to nearest, ties away from zero.)pbdoc"
+        )
+        .value(
+            "TIES_EVEN",
+            QuantizationMode::RND_CONV,
+            R"pbdoc(Alias. Round to nearest, ties to even.)pbdoc"
+        )
+        .value(
+            "TIES_ODD",
+            QuantizationMode::RND_CONV_ODD,
+            R"pbdoc(Alias. Round to nearest, ties to odd.)pbdoc"
+        )
+        .value(
+            "TIES_NEG",
+            QuantizationMode::RND_MIN_INF,
+            R"pbdoc(Alias. Round to nearest, ties towards negative infinity.)pbdoc"
+        )
+        .value(
+            "TIES_POS",
+            QuantizationMode::RND,
+            R"pbdoc(Alias. Round to nearest, ties towards positive infinity.)pbdoc"
+        )
+        /*
          * Base quantization modes
          */
         .value(
@@ -45,6 +98,11 @@ void bind_common(nb::module_& m)
             "TRN_INF",
             QuantizationMode::TRN_INF,
             R"pbdoc(Round towards positive infinity.)pbdoc"
+        )
+        .value(
+            "TRN_AWAY",
+            QuantizationMode::TRN_AWAY,
+            R"pbdoc(Truncate away from zero.)pbdoc"
         )
         .value(
             "TRN_MAG",
@@ -100,55 +158,6 @@ void bind_common(nb::module_& m)
             "STOCH_EQUAL",
             QuantizationMode::STOCH_EQUAL,
             R"pbdoc(Stochastic rounding with equal probability.)pbdoc"
-        )
-
-        /*
-         * Floating point aliases
-         */
-        .value(
-            "TO_NEG",
-            QuantizationMode::TRN,
-            R"pbdoc(Alias. Round towards negative infinity.)pbdoc"
-        )
-        .value(
-            "TO_ZERO",
-            QuantizationMode::TRN_ZERO,
-            R"pbdoc(Alias. Round towards zero.)pbdoc"
-        )
-        .value(
-            "TO_POS",
-            QuantizationMode::TRN_INF,
-            R"pbdoc(Alias. Round towards positive infinity.)pbdoc"
-        )
-        .value(
-            "TIES_ZERO",
-            QuantizationMode::RND_ZERO,
-            R"pbdoc(Alias. Round to nearest, ties toward zero.)pbdoc"
-        )
-        .value(
-            "TIES_AWAY",
-            QuantizationMode::RND_INF,
-            R"pbdoc(Alias. Round to nearest, ties away from zero.)pbdoc"
-        )
-        .value(
-            "TIES_EVEN",
-            QuantizationMode::RND_CONV,
-            R"pbdoc(Alias. Round to nearest, ties to even.)pbdoc"
-        )
-        .value(
-            "TIES_ODD",
-            QuantizationMode::RND_CONV_ODD,
-            R"pbdoc(Alias. Round to nearest, ties to odd.)pbdoc"
-        )
-        .value(
-            "TIES_NEG",
-            QuantizationMode::RND_MIN_INF,
-            R"pbdoc(Alias. Round to nearest, ties towards negative infinity.)pbdoc"
-        )
-        .value(
-            "TIES_POS",
-            QuantizationMode::RND,
-            R"pbdoc(Alias. Round to nearest, ties towards positive infinity.)pbdoc"
         );
 
     nb::enum_<OverflowMode>(m, "OverflowMode")

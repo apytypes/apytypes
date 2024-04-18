@@ -4,18 +4,19 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import IndexLocator
 
 modes = [
-    "QuantizationMode.TIES_POS",
-    "QuantizationMode.TIES_EVEN",
-    "QuantizationMode.TIES_ODD",
-    "QuantizationMode.TIES_AWAY",
-    "QuantizationMode.TIES_NEG",
-    "QuantizationMode.TIES_ZERO",
-    "QuantizationMode.TO_NEG",
-    "QuantizationMode.TO_POS",
-    "QuantizationMode.TO_ZERO",
-    "QuantizationMode.TRN_MAG",
+    "QuantizationMode.RND",
+    "QuantizationMode.RND_CONV",
+    "QuantizationMode.RND_CONV_ODD",
+    "QuantizationMode.RND_INF",
+    "QuantizationMode.RND_MIN_INF",
+    "QuantizationMode.RND_ZERO",
+    "QuantizationMode.TRN",
+    "QuantizationMode.TRN_INF",
+    "QuantizationMode.TRN_ZERO",
+    "QuantizationMode.TRN_AWAY",
     "QuantizationMode.JAM",
     "QuantizationMode.JAM_UNBIASED",
+    "QuantizationMode.TRN_MAG",
 ]
 a = np.arange(-3, 2.9, 0.125)
 ai = np.arange(-3, 2.1, 1)
@@ -25,7 +26,11 @@ afx = APyFixedArray.from_float(a, 7, 4)
 aifx = APyFixedArray.from_float(ai, 7, 4)
 ahfx = APyFixedArray.from_float(ah, 7, 4)
 fig, axs = plt.subplots(
-    8, 3, layout="constrained", height_ratios=[8, 1, 8, 1, 8, 1, 8, 1], figsize=(8, 16)
+    10,
+    3,
+    layout="constrained",
+    height_ratios=[8, 1, 8, 1, 8, 1, 8, 1, 8, 1],
+    figsize=(8, 20),
 )
 for i, q in enumerate(modes):
     aqfx = afx.cast(4, 4, eval(q))
@@ -56,6 +61,13 @@ for i, q in enumerate(modes):
     ax.set_xlim(-1.1, 1.1)
     ax.set_ylim(0, 0.14)
     ax.set_xlabel("x - Q(x)")
+
+for i in range(len(modes), 15):
+    ax = axs[2 * (i // 3), i % 3]
+    fig.delaxes(ax)
+    ax = axs[2 * (i // 3) + 1, i % 3]
+    fig.delaxes(ax)
+
 fig.savefig("quantization.png")
 
 
