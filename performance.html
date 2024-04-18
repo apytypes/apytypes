@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Comparison" href="comparison.html" /><link rel="prev" title="APyFixed" href="examples/apyfixed.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.6 and Furo 2024.01.29 -->
         <title>Computational performance - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
@@ -226,7 +226,7 @@
         </div>
         <article role="main">
           <section id="computational-performance">
-<h1>Computational performance<a class="headerlink" href="#computational-performance" title="Link to this heading">#</a></h1>
+<h1>Computational performance<a class="headerlink" href="#computational-performance" title="Link to this heading">¶</a></h1>
 <p>One of the key design criteria of APyTypes is computational performance. Now, using custom word lengths will always
 be much slower compared to using word lengths directly supported in hardware. By far. Hence, do not expect
 APyTypes to compete with, e.g., NumPy in pure computational speed. Also, pure C++-libraries like ac-types
@@ -239,7 +239,7 @@ see <a class="reference external" href="https://apytypes.github.io/apytypes/dev/
 These graphs are updated after every commit. However, as they are executed as part of the CI, one can expect
 a bit of variation. It should still be possible to note significant changes though.</p>
 <section id="use-arrays-if-possible">
-<h2>Use arrays if possible<a class="headerlink" href="#use-arrays-if-possible" title="Link to this heading">#</a></h2>
+<h2>Use arrays if possible<a class="headerlink" href="#use-arrays-if-possible" title="Link to this heading">¶</a></h2>
 <p>As the overhead of going between Python and C++ is significant for a single number (about 90%),
 it very much makes sense to use arrays when possible.</p>
 <p>See the figure below for the effect of using arrays and the current operation speeds available.</p>
@@ -251,7 +251,7 @@ The actual performance may differ depending on compiler, processor, etc.</p>
 <img alt="Illustration of the obtained performance as a function of array size" src="_images/performancescale.png" />
 </section>
 <section id="inplace-shifting-for-fixed-point">
-<h2>Inplace shifting for fixed-point<a class="headerlink" href="#inplace-shifting-for-fixed-point" title="Link to this heading">#</a></h2>
+<h2>Inplace shifting for fixed-point<a class="headerlink" href="#inplace-shifting-for-fixed-point" title="Link to this heading">¶</a></h2>
 <p>Shifting is used to move the binary point of fixed-point numbers. Hence, this will only involve updating the
 number of integer/fractional bits. However, it may also involve creating a new object, so it is preferred to
 use inplace shifting if possible.</p>
@@ -333,7 +333,7 @@ use inplace shifting if possible.</p>
     </aside>
   </div>
 </div><script src="_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
