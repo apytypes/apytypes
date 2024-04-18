@@ -234,10 +234,11 @@
 <p><a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a> is an arbitrary precision two’s complement fixed-point scalar type. In
 many ways it behaves like the built-in Python types <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> and <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, in
 that it can be used within ordinary arithmetic expressions. Every fixed-point instance
-has an associated wordlength, <code class="code docutils literal notranslate"><span class="pre">bits</span></code>, <code class="code docutils literal notranslate"><span class="pre">int_bits</span></code>, and <code class="code docutils literal notranslate"><span class="pre">frac_bits</span></code>,
-referred to as fixed-point bit specifiers. The bit specifiers determine the location of
-the binary fixed-point and the total word length. Only two of three bit specifers need
-to be set to uniquly determine the fixed-point format.</p>
+has an associated wordlength. <code class="code docutils literal notranslate"><span class="pre">bits</span></code>, <code class="code docutils literal notranslate"><span class="pre">int_bits</span></code>, and <code class="code docutils literal notranslate"><span class="pre">frac_bits</span></code> are
+referred to as the fixed-point bit specifiers, and these determine the location of the
+binary fixed-point and the total word length. Only two of three bit specifers need to be
+set to uniquly determine the fixed-point format.</p>
+<p>In general, the fixed-point representation, with it’s bit specifiers, is described by:</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\underbrace{
@@ -250,18 +251,18 @@ to be set to uniquly determine the fixed-point format.</p>
     }_{\text{frac_bits}}
 }_{\text{bits}}\]</div>
 </div>
-<p>The following is an example of a fixed-point number with <code class="code docutils literal notranslate"><span class="pre">bits=7</span></code>,
-<code class="code docutils literal notranslate"><span class="pre">int_bits=5</span></code>, and <code class="code docutils literal notranslate"><span class="pre">frac_bits=2</span></code>, with the stored value -6.75.</p>
+<p>The following is an example of a fixed-point number with <code class="code docutils literal notranslate"><span class="pre">bits=8</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">int_bits=5</span></code>, and <code class="code docutils literal notranslate"><span class="pre">frac_bits=3</span></code>, that has a stored value of -6.625:</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\begin{align*}
-    1 \, 1 \, 0 \, 0 \, 1 \, . \, 0 \, 1_{2} = \frac{-27_{10}}{2^2} = -6.75_{10}
+    1 \, 1 \, 0 \, 0 \, 1 \,.\, 0 \, 1 \, 1_{2} = \frac{-53_{10}}{2^3} = -6.625_{10}
 \end{align*}\]</div>
 </div>
 <p>APyFixed uses static word-length inference to determine word lengths of results
 to arithmetic operations. This ensures that overflow __never__ occurs unless explicitly
 instructed to by a user through the <a class="reference internal" href="#apytypes.APyFixed.cast" title="apytypes.APyFixed.cast"><code class="xref py py-func docutils literal notranslate"><span class="pre">cast()</span></code></a> method. The following table shows word
-lengths of arithmetic operations.</p>
+lengths of elementary arithmetic operations.</p>
 <div class="table-wrapper colwidths-given docutils container" id="id1">
 <table class="docutils align-default" id="id1">
 <caption><span class="caption-text">Word-length of fixed-point arithmetic operations</span><a class="headerlink" href="#id1" title="Link to this table">¶</a></caption>
