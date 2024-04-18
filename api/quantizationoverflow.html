@@ -267,7 +267,13 @@ the bias will converge towards zero the more bits are quantized away (except for
 </dd></dl>
 
 <img alt="Illustration of round to nearest, ties away from zero" src="../_images/RND_INF.png" />
-<img alt="Illustration of round to nearest, ties toward negative infinity" src="_static/RND_NEG.png" />
+<dl class="py attribute">
+<dt class="sig sig-object py" id="apytypes.QuantizationMode.RND_MIN_INF">
+<span class="sig-name descname"><span class="pre">RND_MIN_INF</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">QuantizationMode.RND_MIN_INF</span></em><a class="headerlink" href="#apytypes.QuantizationMode.RND_MIN_INF" title="Link to this definition">¶</a></dt>
+<dd><p>Round to nearest, ties toward negative infinity.</p>
+</dd></dl>
+
+<img alt="Illustration of round to nearest, ties toward negative infinity" src="../_images/RND_MIN_INF.png" />
 <dl class="py attribute">
 <dt class="sig sig-object py" id="apytypes.QuantizationMode.RND_ZERO">
 <span class="sig-name descname"><span class="pre">RND_ZERO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">QuantizationMode.RND_ZERO</span></em><a class="headerlink" href="#apytypes.QuantizationMode.RND_ZERO" title="Link to this definition">¶</a></dt>
@@ -303,7 +309,7 @@ the bias will converge towards zero the more bits are quantized away (except for
 <dd><p>Round away from zero.</p>
 </dd></dl>
 
-<img alt="Illustration of round away from zero" src="../_images/TRN_ZERO.png" />
+<img alt="Illustration of round away from zero" src="../_images/TRN_AWAY.png" />
 <dl class="py attribute">
 <dt class="sig sig-object py" id="apytypes.QuantizationMode.TRN_MAG">
 <span class="sig-name descname"><span class="pre">TRN_MAG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">QuantizationMode.TRN_MAG</span></em><a class="headerlink" href="#apytypes.QuantizationMode.TRN_MAG" title="Link to this definition">¶</a></dt>
@@ -378,7 +384,7 @@ the bias will converge towards zero the more bits are quantized away (except for
 <dl class="py attribute">
 <dt class="sig sig-object py" id="apytypes.QuantizationMode.TIES_NEG">
 <span class="sig-name descname"><span class="pre">TIES_NEG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">QuantizationMode.RND_MIN_INF</span></em><a class="headerlink" href="#apytypes.QuantizationMode.TIES_NEG" title="Link to this definition">¶</a></dt>
-<dd><p>Round to nearest, ties toward negative infinity. Alias for <code class="xref py py-attr docutils literal notranslate"><span class="pre">RND_MIN_INF</span></code>.</p>
+<dd><p>Round to nearest, ties toward negative infinity. Alias for <a class="reference internal" href="#apytypes.QuantizationMode.RND_MIN_INF" title="apytypes.QuantizationMode.RND_MIN_INF"><code class="xref py py-attr docutils literal notranslate"><span class="pre">RND_MIN_INF</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -560,6 +566,7 @@ the bias will converge towards zero the more bits are quantized away (except for
 <li><a class="reference internal" href="#apytypes.QuantizationMode.RND_CONV"><code class="docutils literal notranslate"><span class="pre">QuantizationMode.RND_CONV</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.QuantizationMode.RND_CONV_ODD"><code class="docutils literal notranslate"><span class="pre">QuantizationMode.RND_CONV_ODD</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.QuantizationMode.RND_INF"><code class="docutils literal notranslate"><span class="pre">QuantizationMode.RND_INF</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.QuantizationMode.RND_MIN_INF"><code class="docutils literal notranslate"><span class="pre">QuantizationMode.RND_MIN_INF</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.QuantizationMode.RND_ZERO"><code class="docutils literal notranslate"><span class="pre">QuantizationMode.RND_ZERO</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.QuantizationMode.TRN"><code class="docutils literal notranslate"><span class="pre">QuantizationMode.TRN</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.QuantizationMode.TRN_INF"><code class="docutils literal notranslate"><span class="pre">QuantizationMode.TRN_INF</span></code></a></li>
