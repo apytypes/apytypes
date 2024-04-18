@@ -43,11 +43,11 @@ the bias will converge towards zero the more bits are quantized away (except for
    .. image:: ../_static/RND_INF.png
       :alt: Illustration of round to nearest, ties away from zero
 
-   .. autoattribute:: RND_NEG
+   .. autoattribute:: RND_MIN_INF
 
       Round to nearest, ties toward negative infinity.
 
-   .. image:: ../_static/RND_NEG.png
+   .. image:: ../_static/RND_MIN_INF.png
       :alt: Illustration of round to nearest, ties toward negative infinity
 
    .. autoattribute:: RND_ZERO
@@ -84,7 +84,7 @@ the bias will converge towards zero the more bits are quantized away (except for
 
       Round away from zero.
 
-   .. image:: ../_static/TRN_ZERO.png
+   .. image:: ../_static/TRN_AWAY.png
       :alt: Illustration of round away from zero
 
    .. autoattribute:: TRN_MAG
