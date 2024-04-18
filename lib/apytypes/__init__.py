@@ -45,10 +45,12 @@ Class for configurable scalar fixed-point formats.
 :class:`APyFixed` is an arbitrary precision two's complement fixed-point scalar type. In
 many ways it behaves like the built-in Python types :class:`int` and :class:`float`, in
 that it can be used within ordinary arithmetic expressions. Every fixed-point instance
-has an associated wordlength, :code:`bits`, :code:`int_bits`, and :code:`frac_bits`,
-referred to as fixed-point bit specifiers. The bit specifiers determine the location of
-the binary fixed-point and the total word length. Only two of three bit specifers need
-to be set to uniquly determine the fixed-point format.
+has an associated wordlength. :code:`bits`, :code:`int_bits`, and :code:`frac_bits` are
+referred to as the fixed-point bit specifiers, and these determine the location of the
+binary fixed-point and the total word length. Only two of three bit specifers need to be
+set to uniquly determine the fixed-point format.
+
+In general, the fixed-point representation, with it's bit specifiers, is described by:
 
 .. math::
     \underbrace{
@@ -61,18 +63,18 @@ to be set to uniquly determine the fixed-point format.
         }_{\text{frac_bits}}
     }_{\text{bits}}
 
-The following is an example of a fixed-point number with :code:`bits=7`,
-:code:`int_bits=5`, and :code:`frac_bits=2`, with the stored value -6.75.
+The following is an example of a fixed-point number with :code:`bits=8`,
+:code:`int_bits=5`, and :code:`frac_bits=3`, that has a stored value of -6.625:
 
 .. math::
     \begin{align*}
-        1 \, 1 \, 0 \, 0 \, 1 \, . \, 0 \, 1_{2} = \frac{-27_{10}}{2^2} = -6.75_{10}
+        1 \, 1 \, 0 \, 0 \, 1 \,.\, 0 \, 1 \, 1_{2} = \frac{-53_{10}}{2^3} = -6.625_{10}
     \end{align*}
 
 APyFixed uses static word-length inference to determine word lengths of results
 to arithmetic operations. This ensures that overflow __never__ occurs unless explicitly
 instructed to by a user through the :func:`cast` method. The following table shows word
-lengths of arithmetic operations.
+lengths of elementary arithmetic operations.
 
 .. list-table:: Word-length of fixed-point arithmetic operations
    :widths: 12 44 44
