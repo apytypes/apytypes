@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1713457064537,
+  "lastUpdate": 1713457094295,
   "repoUrl": "https://github.com/apytypes/apytypes",
   "entries": {
     "APyTypes Fixed-Point Array Benchmarks": [
@@ -68527,6 +68527,149 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 7.415214283160185e-9",
             "extra": "mean: 184.31847765765676 nsec\nrounds: 54876"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mikael.henriksson@liu.se",
+            "name": "Mikael Henriksson",
+            "username": "miklhh"
+          },
+          "committer": {
+            "email": "mikael.henriksson@liu.se",
+            "name": "Mikael Henriksson",
+            "username": "miklhh"
+          },
+          "distinct": true,
+          "id": "680202344ac78e6d4cbcbaf83094764ac5966103",
+          "message": "doc: more fixed-point touchups",
+          "timestamp": "2024-04-18T18:11:50+02:00",
+          "tree_id": "eb129856d77248dd233468e8bd4e039ee81dd6ea",
+          "url": "https://github.com/apytypes/apytypes/commit/680202344ac78e6d4cbcbaf83094764ac5966103"
+        },
+        "date": 1713457093824,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "benchmark/ci_fixed_scalar_benchmarks.py::test_fixed_scalar_multiplication_short",
+            "value": 5148805.675824389,
+            "unit": "iter/sec",
+            "range": "stddev: 1.0567824914138348e-8",
+            "extra": "mean: 194.2197983301973 nsec\nrounds: 51718"
+          },
+          {
+            "name": "benchmark/ci_fixed_scalar_benchmarks.py::test_fixed_scalar_multiplication_long",
+            "value": 2705554.36734333,
+            "unit": "iter/sec",
+            "range": "stddev: 3.608838639709528e-8",
+            "extra": "mean: 369.6100185862917 nsec\nrounds: 191939"
+          },
+          {
+            "name": "benchmark/ci_fixed_scalar_benchmarks.py::test_fixed_scalar_multiplication_mixed",
+            "value": 2677574.484032662,
+            "unit": "iter/sec",
+            "range": "stddev: 4.3753165514948655e-8",
+            "extra": "mean: 373.4723369838832 nsec\nrounds: 196890"
+          },
+          {
+            "name": "benchmark/ci_fixed_scalar_benchmarks.py::test_fixed_scalar_division_short",
+            "value": 4796087.899268651,
+            "unit": "iter/sec",
+            "range": "stddev: 1.206512328876157e-8",
+            "extra": "mean: 208.50326787230125 nsec\nrounds: 49240"
+          },
+          {
+            "name": "benchmark/ci_fixed_scalar_benchmarks.py::test_fixed_scalar_division_long",
+            "value": 2414696.2293486167,
+            "unit": "iter/sec",
+            "range": "stddev: 4.013168939227826e-8",
+            "extra": "mean: 414.1307663654819 nsec\nrounds: 198847"
+          },
+          {
+            "name": "benchmark/ci_fixed_scalar_benchmarks.py::test_fixed_scalar_division_mixed",
+            "value": 2682463.161523327,
+            "unit": "iter/sec",
+            "range": "stddev: 3.335448614106047e-8",
+            "extra": "mean: 372.79169919041 nsec\nrounds: 195313"
+          },
+          {
+            "name": "benchmark/ci_fixed_scalar_benchmarks.py::test_fixed_scalar_addition_short",
+            "value": 5113472.422167937,
+            "unit": "iter/sec",
+            "range": "stddev: 1.1400942540792895e-8",
+            "extra": "mean: 195.56182520214054 nsec\nrounds: 51293"
+          },
+          {
+            "name": "benchmark/ci_fixed_scalar_benchmarks.py::test_fixed_scalar_addition_short_different_wl",
+            "value": 4821659.712636007,
+            "unit": "iter/sec",
+            "range": "stddev: 1.0370909911281543e-8",
+            "extra": "mean: 207.39746469031178 nsec\nrounds: 48641"
+          },
+          {
+            "name": "benchmark/ci_fixed_scalar_benchmarks.py::test_fixed_scalar_addition_long",
+            "value": 3839803.919672436,
+            "unit": "iter/sec",
+            "range": "stddev: 2.7804882062091825e-8",
+            "extra": "mean: 260.42996489395284 nsec\nrounds: 190840"
+          },
+          {
+            "name": "benchmark/ci_fixed_scalar_benchmarks.py::test_fixed_scalar_addition_mixed",
+            "value": 3263615.0713615683,
+            "unit": "iter/sec",
+            "range": "stddev: 2.819331943067039e-8",
+            "extra": "mean: 306.4086842761946 nsec\nrounds: 195695"
+          },
+          {
+            "name": "benchmark/ci_fixed_scalar_benchmarks.py::test_fixed_scalar_creation_short",
+            "value": 6270831.3666689,
+            "unit": "iter/sec",
+            "range": "stddev: 1.0132737308151742e-8",
+            "extra": "mean: 159.46848855087512 nsec\nrounds: 63416"
+          },
+          {
+            "name": "benchmark/ci_fixed_scalar_benchmarks.py::test_fixed_scalar_creation_long",
+            "value": 4953358.9344795905,
+            "unit": "iter/sec",
+            "range": "stddev: 1.2150703510251435e-8",
+            "extra": "mean: 201.88320960129928 nsec\nrounds: 49461"
+          },
+          {
+            "name": "benchmark/ci_fixed_scalar_benchmarks.py::test_fixed_scalar_to_float_short",
+            "value": 9516612.819614278,
+            "unit": "iter/sec",
+            "range": "stddev: 6.937338034554845e-9",
+            "extra": "mean: 105.07940366541118 nsec\nrounds: 96154"
+          },
+          {
+            "name": "benchmark/ci_fixed_scalar_benchmarks.py::test_fixed_scalar_negation_short",
+            "value": 5258213.227377041,
+            "unit": "iter/sec",
+            "range": "stddev: 1.2094622370640654e-8",
+            "extra": "mean: 190.17867035010224 nsec\nrounds: 53232"
+          },
+          {
+            "name": "benchmark/ci_fixed_scalar_benchmarks.py::test_fixed_scalar_negation_long",
+            "value": 4686691.635900052,
+            "unit": "iter/sec",
+            "range": "stddev: 1.0010933613210807e-8",
+            "extra": "mean: 213.37012922714214 nsec\nrounds: 46662"
+          },
+          {
+            "name": "benchmark/ci_fixed_scalar_benchmarks.py::test_fixed_scalar_abs_short",
+            "value": 8139926.180853105,
+            "unit": "iter/sec",
+            "range": "stddev: 7.105357693071395e-9",
+            "extra": "mean: 122.85123695013615 nsec\nrounds: 80561"
+          },
+          {
+            "name": "benchmark/ci_fixed_scalar_benchmarks.py::test_fixed_scalar_abs_long",
+            "value": 5674679.439747862,
+            "unit": "iter/sec",
+            "range": "stddev: 8.507360557732395e-9",
+            "extra": "mean: 176.22140785528438 nsec\nrounds: 58337"
           }
         ]
       }
