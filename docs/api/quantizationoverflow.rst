@@ -15,74 +15,81 @@ the bias will converge towards zero the more bits are quantized away (except for
 
 .. autoclass:: apytypes.QuantizationMode
 
-   .. autoattribute:: TIES_POS
+   .. autoattribute:: RND
 
       Round to nearest, ties toward positive infinity.
 
-   .. image:: ../_static/TIES_POS.png
+   .. image:: ../_static/RND.png
       :alt: Illustration of round to nearest, ties toward positive infinity
 
-   .. autoattribute:: TIES_EVEN
+   .. autoattribute:: RND_CONV
 
       Round to nearest, ties to even.
 
-   .. image:: ../_static/TIES_EVEN.png
+   .. image:: ../_static/RND_CONV.png
       :alt: Illustration of round to nearest, ties to even
 
-   .. autoattribute:: TIES_ODD
+   .. autoattribute:: RND_CONV_ODD
 
       Round to nearest, ties to odd.
 
-   .. image:: ../_static/TIES_ODD.png
+   .. image:: ../_static/RND_CONV_ODD.png
       :alt: Illustration of round to nearest, ties to odd
 
-   .. autoattribute:: TIES_AWAY
+   .. autoattribute:: RND_INF
 
       Round to nearest, ties away from zero.
 
-   .. image:: ../_static/TIES_AWAY.png
+   .. image:: ../_static/RND_INF.png
       :alt: Illustration of round to nearest, ties away from zero
 
-   .. autoattribute:: TIES_NEG
+   .. autoattribute:: RND_NEG
 
       Round to nearest, ties toward negative infinity.
 
-   .. image:: ../_static/TIES_NEG.png
+   .. image:: ../_static/RND_NEG.png
       :alt: Illustration of round to nearest, ties toward negative infinity
 
-   .. autoattribute:: TIES_ZERO
+   .. autoattribute:: RND_ZERO
 
       Round to nearest, ties towards zero.
 
-   .. image:: ../_static/TIES_ZERO.png
+   .. image:: ../_static/RND_ZERO.png
       :alt: Illustration of round to nearest, ties toward zero
 
-   .. autoattribute:: TO_NEG
+   .. autoattribute:: TRN
 
-      Rounding towards negative infinity (truncation).
+      Round towards negative infinity (truncation).
 
       Implementation: remove additional bits.
 
-   .. image:: ../_static/TO_NEG.png
+   .. image:: ../_static/TRN.png
       :alt: Illustration of tounding towards negative infinity (truncation)
 
-   .. autoattribute:: TO_POS
+   .. autoattribute:: TRN_INF
 
-      Rounding away from zero.
+      Round towards positive infinity.
 
-   .. image:: ../_static/TO_POS.png
-      :alt: Illustration of rounding away from zero
+   .. image:: ../_static/TRN_INF.png
+      :alt: Illustration of rounding towards positive infinity
 
-   .. autoattribute:: TO_ZERO
+   .. autoattribute:: TRN_ZERO
 
-      Rounding towards zero (unbiased magnitude truncation).
+      Round towards zero (unbiased magnitude truncation).
 
-   .. image:: ../_static/TO_ZERO.png
-      :alt: Illustration of rounding towards zero (unbiased magnitude truncation)
+   .. image:: ../_static/TRN_ZERO.png
+      :alt: Illustration of round towards zero (unbiased magnitude truncation)
+
+   .. autoattribute:: TRN_AWAY
+
+      Round away from zero.
+
+   .. image:: ../_static/TRN_ZERO.png
+      :alt: Illustration of round away from zero
 
    .. autoattribute:: TRN_MAG
 
-      Magnitude truncation.
+      Fixed-point magnitude truncation (add sign-bit).
 
    .. image:: ../_static/TRN_MAG.png
       :alt: Illustration of magnitude truncation
@@ -104,41 +111,45 @@ the bias will converge towards zero the more bits are quantized away (except for
    Aliases
    -------
 
-   .. autoattribute:: TRN
+   .. autoattribute:: TO_NEG
 
-      Fixed-point truncation. Round towards negative infinity. Alias for :attr:`TO_NEG`.
+      Fixed-point truncation. Round towards negative infinity. Alias for :attr:`TRN`.
 
-   .. autoattribute:: TRN_INF
+   .. autoattribute:: TO_POS
 
-      Round towards positive infinity. Alias for :attr:`TO_POS`.
+      Round towards positive infinity. Alias for :attr:`TRN_INF`.
 
-   .. autoattribute:: TRN_ZERO
+   .. autoattribute:: TO_ZERO
 
-      Unbiased magnitude truncation. Round towards zero. Alias for :attr:`TO_ZERO`.
+      Unbiased magnitude truncation. Round towards zero. Alias for :attr:`TRN_ZERO`.
 
-   .. autoattribute:: RND
+   .. autoattribute:: TO_AWAY
 
-      Fixed-point rounding. Round to nearest, ties toward positive infinity. Alias for :attr:`TIES_POS`.
+      Unbiased magnitude truncation. Round towards zero. Alias for :attr:`TRN_AWAY`.
 
-   .. autoattribute:: RND_CONV
+   .. autoattribute:: TIES_POS
 
-      Unbiased fixed-point rounding. Round to nearest, ties to even. Alias for :attr:`TIES_EVEN`.
+      Fixed-point rounding. Round to nearest, ties toward positive infinity. Alias for :attr:`RND`.
 
-   .. autoattribute:: RND_CONV_ODD
+   .. autoattribute:: TIES_EVEN
 
-      Alternate unbiased fixed-point rounding. Round to nearest, ties to odd. Alias for :attr:`TIES_ODD`.
+      Unbiased fixed-point rounding. Round to nearest, ties to even. Alias for :attr:`RND_CONV`.
 
-   .. autoattribute:: RND_INF
+   .. autoattribute:: TIES_ODD
 
-      Round to nearest, ties away from zero. Alias for :attr:`TIES_AWAY`.
+      Alternate unbiased fixed-point rounding. Round to nearest, ties to odd. Alias for :attr:`RND_CONV_ODD`.
 
-   .. autoattribute:: RND_MIN_INF
+   .. autoattribute:: TIES_AWAY
 
-      Round to nearest, ties toward negative infinity. Alias for :attr:`TIES_NEG`.
+      Round to nearest, ties away from zero. Alias for :attr:`RND_INF`.
 
-   .. autoattribute:: RND_ZERO
+   .. autoattribute:: TIES_NEG
 
-      Round to nearest, ties toward zero. Alias for :attr:`TIES_ZERO`.
+      Round to nearest, ties toward negative infinity. Alias for :attr:`RND_MIN_INF`.
+
+   .. autoattribute:: TIES_ZERO
+
+      Round to nearest, ties toward zero. Alias for :attr:`RND_ZERO`.
 
 .. autoclass:: apytypes.OverflowMode
 
