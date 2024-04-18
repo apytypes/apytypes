@@ -35,10 +35,65 @@ __all__ = [
     "_get_simd_version_str",
 ]
 
-APyFloat.__doc__ = """
+APyFloat.__doc__ = r"""
 Class for configurable floating-point formats.
 """
 
-APyFixed.__doc__ = """
-Class for configurable fixed-point formats.
+APyFixed.__doc__ = r"""
+Class for configurable scalar fixed-point formats.
+
+:class:`APyFixed` is an arbitrary precision two's complement fixed-point scalar type. In
+many ways it behaves like the built-in Python types :class:`int` and :class:`float`, in
+that it can be used within ordinary arithmetic expressions. Every fixed-point instance
+has an associated wordlength, :code:`bits`, :code:`int_bits`, and :code:`frac_bits`,
+referred to as fixed-point bit specifiers. The bit specifiers determine the location of
+the binary fixed-point and the total word length. Only two of three bit specifers need
+to be set to uniquly determine the fixed-point format.
+
+.. math::
+    \underbrace{
+        \underbrace{
+            x_{n-1} \;\; x_{n-2} \; \ldots \; x_{k+1} \;\; x_{k}
+        }_{\text{int_bits}}
+        \; . \;
+        \underbrace{
+            x_{k-1} \;\; x_{k-2} \; \ldots \; x_{1} \;\; x_{0}
+        }_{\text{frac_bits}}
+    }_{\text{bits}}
+
+The following is an example of a fixed-point number with :code:`bits=7`,
+:code:`int_bits=5`, and :code:`frac_bits=2`, with the stored value -6.75.
+
+.. math::
+    \begin{align*}
+        1 \, 1 \, 0 \, 0 \, 1 \, . \, 0 \, 1_{2} = \frac{-27_{10}}{2^2} = -6.75_{10}
+    \end{align*}
+
+APyFixed uses static word-length inference to determine word lengths of results
+to arithmetic operations. This ensures that overflow __never__ occurs unless explicitly
+instructed to by a user through the :func:`cast` method. The following table shows word
+lengths of arithmetic operations.
+
+.. list-table:: Word-length of fixed-point arithmetic operations
+   :widths: 12 44 44
+   :header-rows: 1
+
+   * - Operation
+     - Result :code:`int_bits`
+     - Result :code:`frac_bits`
+   * - :code:`a + b`
+     - :code:`max(a.int_bits, b.int_bits) + 1`
+     - :code:`max(a.frac_bits, b.frac_bits)`
+   * - :code:`a - b`
+     - :code:`max(a.int_bits, b.int_bits) + 1`
+     - :code:`max(a.frac_bits, b.frac_bits)`
+   * - :code:`a * b`
+     - :code:`a.int_bits + b.int_bits`
+     - :code:`a.frac_bits + b.frac_bits`
+   * - :code:`a / b`
+     - :code:`a.int_bits + b.frac_bits`
+     - :code:`a.frac_bits + b.int_bits`
+   * - :code:`-a`
+     - :code:`a.int_bits + 1`
+     - :code:`a.frac_bits`
 """
