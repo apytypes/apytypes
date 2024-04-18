@@ -712,14 +712,12 @@ template <class RANDOM_ACCESS_ITERATOR>
     unsigned limb_idx = n / _LIMB_SIZE_BITS;
     auto limbs = std::distance(it_begin, it_end);
     if (limb_idx < limbs) {
-        unsigned bit_idx = n % _LIMB_SIZE_BITS;
-        std::vector<mp_limb_t> term(limbs, 0);
-        term[limb_idx] = mp_limb_t(1) << bit_idx;
-        return mpn_add_n(            /* notice carry return here */
-                         &*it_begin, // dst
-                         &*it_begin, // src1
-                         &term[0],   // src2
-                         term.size() // limb vector length
+        mp_limb_t term_limb = mp_limb_t(1) << (n % _LIMB_SIZE_BITS);
+        return mpn_add_1(
+            &*(it_begin + limb_idx), // dst
+            &*(it_begin + limb_idx), // src1
+            limbs - limb_idx,        // src1 limb length
+            term_limb                // src2
         );
     }
     return 0;
@@ -731,17 +729,15 @@ template <class RANDOM_ACCESS_ITERATOR>
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned n
 )
 {
-    unsigned bit_idx = n % _LIMB_SIZE_BITS;
     unsigned limb_idx = n / _LIMB_SIZE_BITS;
     auto limbs = std::distance(it_begin, it_end);
     if (limb_idx < limbs) {
-        std::vector<mp_limb_t> term(limbs, 0);
-        term[limb_idx] = mp_limb_t(1) << bit_idx;
-        return mpn_sub_n(            /* notice carry return here */
-                         &*it_begin, // dst
-                         &*it_begin, // src1
-                         &term[0],   // src2
-                         term.size() // limb_vector_length
+        mp_limb_t term_limb = mp_limb_t(1) << (n % _LIMB_SIZE_BITS);
+        return mpn_sub_1(
+            &*(it_begin + limb_idx), // dst
+            &*(it_begin + limb_idx), // src1
+            limbs - limb_idx,        // src1 limb length
+            term_limb                // src2
         );
     }
     return 0;
