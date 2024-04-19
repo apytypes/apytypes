@@ -609,6 +609,96 @@ class TestAPyFloatQuantization:
             .is_identical(APyFloat(1, 5, 0b110, 5, 3))
         )  # Round up
 
+    def test_quantization_to_away(self):
+        apytypes.set_quantization_mode(QuantizationMode.TO_AWAY)
+        # Quantization from 0.xx
+        assert (
+            APyFloat(0, 5, 0b10000, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b100, 5, 3))
+        )  # No quantization needed
+        assert (
+            APyFloat(0, 5, 0b10001, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b101, 5, 3))
+        )  # Round up
+        assert (
+            APyFloat(0, 5, 0b10010, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b101, 5, 3))
+        )  # Tie break, round up
+        assert (
+            APyFloat(0, 5, 0b10011, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b101, 5, 3))
+        )  # Round up
+
+        # Quantization from 1.xx
+        assert (
+            APyFloat(0, 5, 0b10100, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b101, 5, 3))
+        )  # No quantization needed
+        assert (
+            APyFloat(0, 5, 0b10101, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b110, 5, 3))
+        )  # Round up
+        assert (
+            APyFloat(0, 5, 0b10110, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b110, 5, 3))
+        )  # Tie break, round up
+        assert (
+            APyFloat(0, 5, 0b10111, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(0, 5, 0b110, 5, 3))
+        )  # Round up
+
+        # Quantization from 0.xx, negative sign
+        assert (
+            APyFloat(1, 5, 0b10000, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(1, 5, 0b100, 5, 3))
+        )  # No quantization needed
+        assert (
+            APyFloat(1, 5, 0b10001, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(1, 5, 0b101, 5, 3))
+        )  # Round down
+        assert (
+            APyFloat(1, 5, 0b10010, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(1, 5, 0b101, 5, 3))
+        )  # Tie break, round down
+        assert (
+            APyFloat(1, 5, 0b10011, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(1, 5, 0b101, 5, 3))
+        )  # Round down
+
+        # Quantization from 1.xx, negative sign
+        assert (
+            APyFloat(1, 5, 0b10100, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(1, 5, 0b101, 5, 3))
+        )  # No quantization needed
+        assert (
+            APyFloat(1, 5, 0b10101, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(1, 5, 0b110, 5, 3))
+        )  # Round down
+        assert (
+            APyFloat(1, 5, 0b10110, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(1, 5, 0b110, 5, 3))
+        )  # Tie break, round down
+        assert (
+            APyFloat(1, 5, 0b10111, 5, 5)
+            .cast(5, 3)
+            .is_identical(APyFloat(1, 5, 0b110, 5, 3))
+        )  # Round down
+
     def test_quantization_to_zero(self):
         apytypes.set_quantization_mode(QuantizationMode.TO_ZERO)
         # Quantization from 0.xx
