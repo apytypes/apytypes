@@ -346,8 +346,9 @@ def test_array_mul():
 
     a = APyFloatArray([0, 1], [6, 7], [7, 14], 4, 5)
     b = APyFloatArray([0, 1], [1, 0], [7, 14], 4, 5)
-    ans = APyFloatArray([0, 0], [0, 1], [24, 20], exp_bits=4, man_bits=5, bias=7)
-    assert (a * b).is_identical(ans)
+    ans = APyFloatArray([0, 0], [0, 0], [24, 20], exp_bits=4, man_bits=5, bias=7)
+    res = a * b
+    assert res.is_identical(ans)
     assert (b * a).is_identical(ans)
 
     a = APyFloatArray([0, 1], [7, 12], [30, 14], 4, 5)
@@ -355,6 +356,41 @@ def test_array_mul():
     ans = APyFloatArray([0, 0], [8, 15], [0, 0], exp_bits=4, man_bits=5, bias=7)
     assert (a * b).is_identical(ans)
     assert (b * a).is_identical(ans)
+
+    # Subnormals
+    x = APyFloatArray([0], [0], [11], exp_bits=4, man_bits=9)
+    y = APyFloatArray([0], [5], [50], exp_bits=5, man_bits=10)
+    res = x * y
+    assert res.is_identical(APyFloatArray([0], [0], [6], exp_bits=5, man_bits=10))
+
+    x = APyFloatArray([0], [1], [10], exp_bits=4, man_bits=10)
+    y = APyFloatArray([0], [1], [20], exp_bits=4, man_bits=10)
+    res = x * y
+    assert res.is_identical(APyFloatArray([0], [0], [16], exp_bits=4, man_bits=10))
+
+    x = APyFloatArray([0], [1], [10], exp_bits=5, man_bits=15)
+    y = APyFloatArray([0], [1], [20], exp_bits=5, man_bits=15)
+    res = x * y
+    assert res.is_identical(APyFloatArray([0], [0], [2], exp_bits=5, man_bits=15))
+
+    x = APyFloatArray([0], [3], [10], 4, 10)
+    y = APyFloatArray([0], [4], [10], 4, 10)
+    res = x * y
+    assert res.is_identical(APyFloatArray([0], [0], [522], exp_bits=4, man_bits=10))
+
+    # 1.0 x subn
+    res = APyFloatArray([0], [7], [0], 4, 3) * APyFloatArray([0], [0], [1], 4, 3)
+    assert res.is_identical(APyFloatArray([0], [0], [1], 4, 3))
+
+    res = APyFloatArray([0], [7], [0], 4, 3) * APyFloatArray([0], [0], [2], 4, 3)
+    assert res.is_identical(APyFloatArray([0], [0], [2], 4, 3))
+
+    # 2.0 x subn
+    res = APyFloatArray([0], [8], [0], 4, 3) * APyFloatArray([0], [0], [1], 4, 3)
+    assert res.is_identical(APyFloatArray([0], [0], [2], 4, 3))
+
+    res = APyFloatArray([0], [8], [0], 4, 3) * APyFloatArray([0], [0], [2], 4, 3)
+    assert res.is_identical(APyFloatArray([0], [0], [4], 4, 3))
 
 
 @pytest.mark.float_array
