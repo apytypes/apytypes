@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="APyFixedArray" href="apyfixedarray.html" /><link rel="prev" title="apytypes Python package" href="index.html" />
 
-    <!-- Generated with Sphinx 7.3.6 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
         <title>APyFixed - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
@@ -234,11 +234,11 @@
 <p><a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a> is an arbitrary precision two’s complement fixed-point scalar type. In
 many ways it behaves like the built-in Python types <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> and <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, in
 that it can be used within ordinary arithmetic expressions. Every fixed-point instance
-has an associated wordlength. <code class="code docutils literal notranslate"><span class="pre">bits</span></code>, <code class="code docutils literal notranslate"><span class="pre">int_bits</span></code>, and <code class="code docutils literal notranslate"><span class="pre">frac_bits</span></code> are
-referred to as the fixed-point bit specifiers, and these determine the location of the
-binary fixed-point and the total word length. Only two of three bit specifers need to be
-set to uniquly determine the fixed-point format.</p>
-<p>In general, the fixed-point representation, with it’s bit specifiers, is described by:</p>
+has an associated word length, determined by its <code class="code docutils literal notranslate"><span class="pre">bits</span></code>, <code class="code docutils literal notranslate"><span class="pre">int_bits</span></code>, and
+<code class="code docutils literal notranslate"><span class="pre">frac_bits</span></code> bit specifiers. These specifiers determine the location of the binary
+fixed-point and the total word length. Only two of three bit specifers need to be set to
+uniquly determine the complete fixed-point format.</p>
+<p>In general, the fixed-point representation is described by:</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\underbrace{
