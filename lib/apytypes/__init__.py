@@ -45,12 +45,12 @@ Class for configurable scalar fixed-point formats.
 :class:`APyFixed` is an arbitrary precision two's complement fixed-point scalar type. In
 many ways it behaves like the built-in Python types :class:`int` and :class:`float`, in
 that it can be used within ordinary arithmetic expressions. Every fixed-point instance
-has an associated wordlength. :code:`bits`, :code:`int_bits`, and :code:`frac_bits` are
-referred to as the fixed-point bit specifiers, and these determine the location of the
-binary fixed-point and the total word length. Only two of three bit specifers need to be
-set to uniquly determine the fixed-point format.
+has an associated word length, determined by its :code:`bits`, :code:`int_bits`, and
+:code:`frac_bits` bit specifiers. These specifiers determine the location of the binary
+fixed-point and the total word length. Only two of three bit specifers need to be set to
+uniquly determine the complete fixed-point format.
 
-In general, the fixed-point representation, with it's bit specifiers, is described by:
+In general, the fixed-point representation is described by:
 
 .. math::
     \underbrace{
