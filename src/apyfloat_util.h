@@ -29,10 +29,13 @@ man_t APY_INLINE quantize_mantissa(
     T = (man & ((1ULL << (bits_to_quantize - 1)) - 1)) != 0;
 
     switch (quantization) {
-    case QuantizationMode::RND_CONV: // TIES_TO_EVEN
+    case QuantizationMode::RND_CONV: // TIES_EVEN
         // Using 'res_man' directly here is fine since G can only be '0' or '1',
         // thus calculating the LSB of 'res_man' is not needed.
         B = G & (res_man | T);
+        break;
+    case QuantizationMode::RND_CONV_ODD: // TIES_ODD
+        B = G & ((res_man ^ 1) | T);
         break;
     case QuantizationMode::TRN_INF: // TO_POSITIVE
         B = sign ? 0 : (G | T);
@@ -50,11 +53,17 @@ man_t APY_INLINE quantize_mantissa(
                                     // floating-point
         B = sign;
         break;
-    case QuantizationMode::RND_INF: // TIES_TO_AWAY
+    case QuantizationMode::RND_INF: // TIES_AWAY
         B = G;
         break;
-    case QuantizationMode::RND_ZERO: // TIES_TO_ZERO
+    case QuantizationMode::RND_ZERO: // TIES_ZERO
         B = G & T;
+        break;
+    case QuantizationMode::RND: // TIES_POS
+        B = G & (T | !sign);
+        break;
+    case QuantizationMode::RND_MIN_INF: // TIES_NEG
+        B = G & (T | sign);
         break;
     case QuantizationMode::JAM:
         B = 0;
@@ -78,8 +87,10 @@ man_t APY_INLINE quantize_mantissa(
         B = (G || T) ? random_number() & 1 : 0;
         break;
     default:
-        throw NotImplementedException("APyFloat: Unknown or invalid quantization mode."
-        );
+        throw NotImplementedException(fmt::format(
+            "Not implemented: quantization mode '{}'",
+            quantization_mode_to_string(quantization)
+        ));
     }
     res_man += B;
     return res_man;
