@@ -502,7 +502,8 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
         const exp_t res_max_exponent = ((1ULL << res_exp_bits) - 1);
         const auto new_man_bits = sum_man_bits + 2;
         const man_t two = 1ULL << (new_man_bits);
-        const man_t two_before = 1ULL << (new_man_bits - 1);
+        const man_t two_before = two >> 1;
+        const man_t one_before = two >> 2;
         const man_t two_res = 1 << res_man_bits;
         const auto mask_two = two - 1;
         const auto man_bits_delta = new_man_bits - res_man_bits;
@@ -563,22 +564,27 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
 
             man_t new_man = mx * my;
 
-            // Check carry from multiplication
+            // Check result from multiplication larger than/equal two
             if (new_man & two_before) {
                 tmp_exp++;
                 new_man <<= 1;
-            } else {
-                // Check for subnormal
+            } else if (new_man & one_before) {
+                // Align with longer result
                 if (tmp_exp == 0) {
                     new_man <<= 1;
-                } else if (tmp_exp < 0) {
-                    new_man = (new_man >> (-tmp_exp - 1))
-                        | ((new_man & ((1 << -tmp_exp) - 1)) != 0);
-                    tmp_exp = 0;
                 } else {
-                    // Align with longer result
                     new_man <<= 2;
                 }
+            } else {
+                // One or two of the operands were subnormal
+                new_man <<= std::max(tmp_exp + 1, (std::int64_t)0);
+                tmp_exp = 0;
+            }
+
+            if (tmp_exp < 0) {
+                new_man = (new_man >> (-tmp_exp + 1))
+                    | ((new_man & ((1 << (-tmp_exp + 1)) - 1)) != 0);
+                tmp_exp = 0;
             }
 
             new_man = quantize_mantissa(
