@@ -1,6 +1,7 @@
 __pycache__/
 builddir/
 .vscode/
+.spyproject/
 *.so
 *~
 _version.py

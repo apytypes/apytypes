@@ -454,7 +454,6 @@ def test_mul_underflow():
 
 
 @pytest.mark.float_mul
-@pytest.mark.xfail
 def test_mul_with_one():
     """Test multiplication with one."""
     a = APyFloat(0, 7, 0, 4, 4)  # One
@@ -508,6 +507,13 @@ def test_mul_short_subnormal():
     y = APyFloat(0, 4, 10, 4, 10)
     res = x * y
     assert res.is_identical(APyFloat(sign=0, exp=0, man=522, exp_bits=4, man_bits=10))
+
+    # 2.0 x subn
+    res = APyFloat(0, 8, 0, 4, 3) * APyFloat(0, 0, 1, 4, 3)
+    assert res.is_identical(APyFloat(0, 0, 2, 4, 3))
+
+    res = APyFloat(0, 8, 0, 4, 3) * APyFloat(0, 0, 2, 4, 3)
+    assert res.is_identical(APyFloat(0, 0, 4, 4, 3))
 
 
 @pytest.mark.float_mul
