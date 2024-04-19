@@ -586,6 +586,10 @@ APyFloat::translate_quantization_mode(QuantizationMode quantization, bool sign)
         return sign ? QuantizationMode::TRN : QuantizationMode::TRN_INF;
     case QuantizationMode::TRN: // TO_NEGATIVE
         return sign ? QuantizationMode::TRN_INF : QuantizationMode::TRN;
+    case QuantizationMode::RND: // TIES_POS
+        return sign ? QuantizationMode::RND_ZERO : QuantizationMode::RND;
+    case QuantizationMode::RND_MIN_INF: // TIES_NEG
+        return sign ? QuantizationMode::RND : QuantizationMode::RND_ZERO;
     default:
         return quantization;
     }
