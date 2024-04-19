@@ -45,21 +45,21 @@ Class for configurable scalar fixed-point formats.
 :class:`APyFixed` is an arbitrary precision two's complement fixed-point scalar type. In
 many ways it behaves like the built-in Python types :class:`int` and :class:`float`, in
 that it can be used within ordinary arithmetic expressions. Every fixed-point instance
-has an associated word length, determined by its :code:`bits`, :code:`int_bits`, and
-:code:`frac_bits` bit specifiers. These specifiers determine the location of the binary
-fixed-point and the total word length. Only two of three bit specifers need to be set to
-uniquly determine the complete fixed-point format.
+has an associated word length, determined by its :attr:`bits`, :attr:`int_bits`, and
+:attr:`frac_bits` bit specifiers. These specifiers determine the location of the binary
+fix-point and the total word length. Only two of three bit specifers need to be set to
+uniquely determine the complete fixed-point format.
 
 In general, the fixed-point representation is described by:
 
 .. math::
     \underbrace{
         \underbrace{
-            x_{n-1} \;\; x_{n-2} \; \ldots \; x_{k+1} \;\; x_{k}
+            x_{n-1} \; x_{n-2} \; \ldots \; x_{k+1} \; x_{k}
         }_{\text{int_bits}}
         \; . \;
         \underbrace{
-            x_{k-1} \;\; x_{k-2} \; \ldots \; x_{1} \;\; x_{0}
+            x_{k-1} \; x_{k-2} \; \ldots \; x_{1} \; x_{0}
         }_{\text{frac_bits}}
     }_{\text{bits}}
 
@@ -71,10 +71,10 @@ The following is an example of a fixed-point number with :code:`bits=8`,
         1 \, 1 \, 0 \, 0 \, 1 \,.\, 0 \, 1 \, 1_{2} = \frac{-53_{10}}{2^3} = -6.625_{10}
     \end{align*}
 
-APyFixed uses static word-length inference to determine word lengths of results
-to arithmetic operations. This ensures that overflow __never__ occurs unless explicitly
-instructed to by a user through the :func:`cast` method. The following table shows word
-lengths of elementary arithmetic operations.
+APyFixed uses static word-length inference to determine word lengths of results to
+arithmetic operations. This ensures that overflow or quantization **never** occurs
+unless explicitly instructed to by a user through the :func:`cast` method. The following
+table shows word lengths of elementary arithmetic operations.
 
 .. list-table:: Word-length of fixed-point arithmetic operations
    :widths: 12 44 44
