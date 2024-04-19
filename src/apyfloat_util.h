@@ -40,6 +40,9 @@ man_t APY_INLINE quantize_mantissa(
     case QuantizationMode::TRN: // TO_NEGATIVE
         B = sign ? (G | T) : 0;
         break;
+    case QuantizationMode::TRN_AWAY: // TO_AWAY
+        B = G | T;
+        break;
     case QuantizationMode::TRN_ZERO: // TO_ZERO
         B = 0;
         break;

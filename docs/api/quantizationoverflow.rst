@@ -125,7 +125,7 @@ the bias will converge towards zero the more bits are quantized away (except for
 
    .. autoattribute:: TO_AWAY
 
-      Unbiased magnitude truncation. Round towards zero. Alias for :attr:`TRN_AWAY`.
+      Round away from zero. Alias for :attr:`TRN_AWAY`.
 
    .. autoattribute:: TIES_POS
 
