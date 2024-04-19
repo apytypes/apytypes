@@ -81,8 +81,8 @@ table shows word lengths of elementary arithmetic operations.
    :header-rows: 1
 
    * - Operation
-     - Result :code:`int_bits`
-     - Result :code:`frac_bits`
+     - Result :attr:`int_bits`
+     - Result :attr:`frac_bits`
    * - :code:`a + b`
      - :code:`max(a.int_bits, b.int_bits) + 1`
      - :code:`max(a.frac_bits, b.frac_bits)`
