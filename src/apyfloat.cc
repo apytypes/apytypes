@@ -563,7 +563,6 @@ void APyFloat::quantize_apymantissa(
     APyFixed& apyman, bool sign, int bits, QuantizationMode quantization
 )
 {
-    quantization = APyFloat::translate_quantization_mode(quantization, sign);
     if (quantization == QuantizationMode::STOCH_WEIGHTED) {
         std::vector<mp_limb_t> rnd_data = { random_number(), random_number(), 0 };
         APyFixed rnd_num(_LIMB_SIZE_BITS * 3, _LIMB_SIZE_BITS - bits, rnd_data);
@@ -574,6 +573,7 @@ void APyFloat::quantize_apymantissa(
         APyFixed rnd_num(_LIMB_SIZE_BITS * 3, _LIMB_SIZE_BITS - bits, rnd_data);
         apyman = apyman + rnd_num;
     } else {
+        quantization = APyFloat::translate_quantization_mode(quantization, sign);
         apyman = apyman.cast_no_overflow(3 + bits, 3, quantization);
     }
 }
