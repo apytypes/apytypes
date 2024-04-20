@@ -409,10 +409,10 @@ def test_array_mul_scalar():
         APyFloatArray([0, 0, 1], [0, 258, 260], [0, 656, 836], exp_bits=9, man_bits=10)
     )
 
-    a = APyFloatArray([0, 1], [0, 0], [7, 14], 4, 5)
+    a = APyFloatArray([0, 1], [0, 0], [5, 14], 4, 5)
     b = APyFloat(0, 0, 11, 4, 5)
-    assert (a * b).is_identical(APyFloatArray([0, 1], [0, 0], [0, 0], 4, 5))
-    assert (b * a).is_identical(APyFloatArray([0, 1], [0, 0], [0, 0], 4, 5))
+    assert (a * b).is_identical(APyFloatArray([0, 1], [0, 0], [0, 1], 4, 5))
+    assert (b * a).is_identical(APyFloatArray([0, 1], [0, 0], [0, 1], 4, 5))
 
     a = APyFloatArray.from_float([0.5, 1.5, 5], 10, 35)
     b = APyFloat.from_float(8, 10, 35)
@@ -462,7 +462,19 @@ def test_array_mul_scalar():
 
     a = APyFloatArray([0, 1], [7, 6], [0, 31], 4, 5)
     b = APyFloat(0, 0, 5, 4, 5)
-    ans = APyFloatArray([0, 1], [1, 0], [5, 5], 4, 5)
+    ans = APyFloatArray([0, 1], [0, 0], [5, 5], 4, 5)
+    assert (a * b).is_identical(ans)
+    assert (b * a).is_identical(ans)
+
+    a = APyFloatArray([0, 1], [4, 0], [0, 31], 4, 5)
+    b = APyFloat(0, 0, 5, 4, 5)
+    ans = APyFloatArray([0, 1], [0, 0], [1, 1], 4, 5)
+    assert (a * b).is_identical(ans)
+    assert (b * a).is_identical(ans)
+
+    a = APyFloatArray([0, 1], [6, 7], [31, 0], 4, 5)
+    b = APyFloat(0, 7, 31, 4, 5)
+    ans = APyFloatArray([0, 1], [7, 7], [30, 31], 4, 5)
     assert (a * b).is_identical(ans)
     assert (b * a).is_identical(ans)
 
@@ -594,3 +606,25 @@ def test_abs():
     a = APyFloatArray.from_float([-4.25, 12, -5.5], 9, 10)
     b = APyFloatArray.from_float([4.25, 12, 5.5], 9, 10)
     assert abs(a).is_identical(b)
+
+
+@pytest.mark.float_mul
+def test_array_mul_with_one():
+    """Test multiplication with one."""
+    a = APyFloatArray([0], [7], [0], 4, 4)  # One
+    for exp in reversed(range(15)):  # Skip nan/inf
+        for man in reversed(range(16)):
+            b = APyFloatArray([0], [exp], [man], 4, 4)
+            assert (a * b).is_identical(b)
+            assert (b * a).is_identical(b)
+
+
+@pytest.mark.float_mul
+def test_scalar_array_mul_with_one():
+    """Test multiplication with one."""
+    a = APyFloat(0, 7, 0, 4, 4)  # Scalar one
+    for exp in reversed(range(15)):  # Skip nan/inf
+        for man in reversed(range(16)):
+            b = APyFloatArray([0], [exp], [man], 4, 4)
+            assert (a * b).is_identical(b)
+            assert (b * a).is_identical(b)
