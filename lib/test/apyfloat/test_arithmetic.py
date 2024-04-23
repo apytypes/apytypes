@@ -452,6 +452,12 @@ def test_mul_underflow():
     res = APyFloat(0, 1, 1, 5, 2) * APyFloat(0, 1, 3, 5, 3)
     assert res == 0
 
+    res = APyFloat(0, 0, 31, 4, 5) * APyFloat(0, 0, 5, 4, 5)
+    assert res == 0
+
+    res = APyFloat(0, 0, 31, 4, 5) * APyFloat(0, 1, 1, 4, 5)
+    assert res == 0
+
 
 @pytest.mark.float_mul
 def test_mul_with_one():
@@ -514,6 +520,26 @@ def test_mul_short_subnormal():
 
     res = APyFloat(0, 8, 0, 4, 3) * APyFloat(0, 0, 2, 4, 3)
     assert res.is_identical(APyFloat(0, 0, 4, 4, 3))
+
+    # 4.0 x subn
+    res = APyFloat(0, 9, 0, 4, 3) * APyFloat(0, 0, 1, 4, 3)
+    assert res.is_identical(APyFloat(0, 0, 4, 4, 3))
+
+    # subnormal becoming normal
+    res = APyFloat(0, 10, 0, 4, 3) * APyFloat(0, 0, 1, 4, 3)
+    assert res.is_identical(APyFloat(0, 1, 0, 4, 3))
+
+    # 0.5 x subn
+    res = APyFloat(0, 6, 0, 4, 3) * APyFloat(0, 0, 4, 4, 3)
+    assert res.is_identical(APyFloat(0, 0, 2, 4, 3))
+
+    # 0.25 x subn
+    res = APyFloat(0, 5, 0, 4, 3) * APyFloat(0, 0, 4, 4, 3)
+    assert res.is_identical(APyFloat(0, 0, 1, 4, 3))
+
+    # 0.125 x subn
+    res = APyFloat(0, 4, 0, 4, 3) * APyFloat(0, 0, 4, 4, 3)
+    assert res.is_identical(APyFloat(0, 0, 0, 4, 3))
 
 
 @pytest.mark.float_mul
@@ -592,11 +618,15 @@ def test_div_overflow():
     """Test that a division can overflow to infinity."""
     assert (APyFloat(0, 30, 1, 5, 2) / APyFloat(0, 1, 3, 5, 2)).is_inf
 
+    assert (APyFloat(0, 30, 1, 5, 2) / APyFloat(0, 0, 3, 5, 2)).is_inf
+
 
 @pytest.mark.float_div
 def test_div_underflow():
-    """Test that a multiplication can underflow to zero."""
+    """Test that a division can underflow to zero."""
     assert (APyFloat(0, 1, 3, 5, 2) / APyFloat(1, 30, 3, 5, 2)) == 0
+
+    assert (APyFloat(0, 0, 3, 5, 2) / APyFloat(1, 30, 3, 5, 2)) == 0
 
 
 @pytest.mark.float_div
