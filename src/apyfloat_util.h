@@ -47,8 +47,7 @@ man_t APY_INLINE quantize_mantissa(
         B = G | T;
         break;
     case QuantizationMode::TRN_ZERO: // TO_ZERO
-        B = 0;
-        break;
+        return res_man;
     case QuantizationMode::TRN_MAG: // Does not really make sense for
                                     // floating-point
         B = sign;
@@ -66,15 +65,9 @@ man_t APY_INLINE quantize_mantissa(
         B = G & (T | sign);
         break;
     case QuantizationMode::JAM:
-        B = 0;
-        res_man |= 1;
-        break;
+        return res_man | 1;
     case QuantizationMode::JAM_UNBIASED:
-        B = 0;
-        if (T || G) {
-            res_man |= 1;
-        }
-        break;
+        return res_man | (T | G);
     case QuantizationMode::STOCH_WEIGHTED: {
         const man_t trailing_bits = man & ((1ULL << bits_to_quantize) - 1);
         const man_t weight = random_number() & ((1ULL << bits_to_quantize) - 1);
@@ -92,7 +85,10 @@ man_t APY_INLINE quantize_mantissa(
             quantization_mode_to_string(quantization)
         ));
     }
-    res_man += B;
+
+    if (B) {
+        res_man++;
+    }
     return res_man;
 }
 
