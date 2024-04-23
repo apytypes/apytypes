@@ -541,6 +541,12 @@ def test_mul_short_subnormal():
     res = APyFloat(0, 4, 0, 4, 3) * APyFloat(0, 0, 4, 4, 3)
     assert res.is_identical(APyFloat(0, 0, 0, 4, 3))
 
+    # Two normal numbers that generate carry, but with subnormal result
+    a = APyFloat(sign=1, exp=2, man=957, exp_bits=5, man_bits=10)
+    b = APyFloat(sign=0, exp=12, man=1015, exp_bits=5, man_bits=10)
+    res = a * b
+    assert res.is_identical(APyFloat(sign=1, exp=0, man=986, exp_bits=5, man_bits=10))
+
 
 @pytest.mark.float_mul
 def test_long_mul():
