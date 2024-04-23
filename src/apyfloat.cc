@@ -1020,11 +1020,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
             new_man <<= 1;
         } else if (new_man & one_before) {
             // Align with longer result
-            if (tmp_exp == 0) {
-                new_man <<= 1;
-            } else {
-                new_man <<= 2;
-            }
+            new_man <<= 2;
         } else {
             // One or two of the operands were subnormal.
             // If the exponent is positive, the result is normalized by
@@ -1034,15 +1030,11 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
                 std::min(tmp_exp, (std::int64_t)leading_zeros), (std::int64_t)0
             );
             tmp_exp -= shift;
-            // Align with longer result
-            if (tmp_exp == 0) {
-                new_man <<= shift + 1;
-            } else {
-                new_man <<= shift + 2;
-            }
+            // + 2 to align with longer result
+            new_man <<= shift + 2;
         }
 
-        if (tmp_exp < 0) {
+        if (tmp_exp <= 0) {
             new_man = (new_man >> (-tmp_exp + 1))
                 | ((new_man & ((1 << (-tmp_exp + 1)) - 1)) != 0);
             tmp_exp = 0;

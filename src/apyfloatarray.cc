@@ -570,18 +570,21 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
                 new_man <<= 1;
             } else if (new_man & one_before) {
                 // Align with longer result
-                if (tmp_exp == 0) {
-                    new_man <<= 1;
-                } else {
-                    new_man <<= 2;
-                }
+                new_man <<= 2;
             } else {
-                // One or two of the operands were subnormal
-                new_man <<= std::max(tmp_exp + 1, (std::int64_t)0);
-                tmp_exp = 0;
+                // One or two of the operands were subnormal.
+                // If the exponent is positive, the result is normalized by
+                // left-shifting until the exponent is zero or the mantissa is 1.xx
+                const int leading_zeros = 1 + sum_man_bits - bit_width(new_man);
+                const int shift = std::max(
+                    std::min(tmp_exp, (std::int64_t)leading_zeros), (std::int64_t)0
+                );
+                tmp_exp -= shift;
+                // + 2 to align with longer result
+                new_man <<= shift + 2;
             }
 
-            if (tmp_exp < 0) {
+            if (tmp_exp <= 0) {
                 // Shift and add sticky bit
                 new_man = (new_man >> (-tmp_exp + 1))
                     | ((new_man & ((1 << (-tmp_exp + 1)) - 1)) != 0);
@@ -762,18 +765,21 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
                 new_man <<= 1;
             } else if (new_man & one_before) {
                 // Align with longer result
-                if (tmp_exp == 0) {
-                    new_man <<= 1;
-                } else {
-                    new_man <<= 2;
-                }
+                new_man <<= 2;
             } else {
-                // One or two of the operands were subnormal
-                new_man <<= std::max(tmp_exp + 1, (std::int64_t)0);
-                tmp_exp = 0;
+                // One or two of the operands were subnormal.
+                // If the exponent is positive, the result is normalized by
+                // left-shifting until the exponent is zero or the mantissa is 1.xx
+                const int leading_zeros = 1 + sum_man_bits - bit_width(new_man);
+                const int shift = std::max(
+                    std::min(tmp_exp, (std::int64_t)leading_zeros), (std::int64_t)0
+                );
+                tmp_exp -= shift;
+                // + 2 to align with longer result
+                new_man <<= shift + 2;
             }
 
-            if (tmp_exp < 0) {
+            if (tmp_exp <= 0) {
                 // Shift and add sticky bit
                 new_man = (new_man >> (-tmp_exp + 1))
                     | ((new_man & ((1 << (-tmp_exp + 1)) - 1)) != 0);

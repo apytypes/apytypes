@@ -392,6 +392,32 @@ def test_array_mul():
     res = APyFloatArray([0], [8], [0], 4, 3) * APyFloatArray([0], [0], [2], 4, 3)
     assert res.is_identical(APyFloatArray([0], [0], [4], 4, 3))
 
+    # 4.0 x subn
+    res = APyFloatArray([0], [9], [0], 4, 3) * APyFloatArray([0], [0], [1], 4, 3)
+    assert res.is_identical(APyFloatArray([0], [0], [4], 4, 3))
+
+    # subnormal becoming normal
+    res = APyFloatArray([0], [10], [0], 4, 3) * APyFloatArray([0], [0], [1], 4, 3)
+    assert res.is_identical(APyFloatArray([0], [1], [0], 4, 3))
+
+    # 0.5 x subn
+    res = APyFloatArray([0], [6], [0], 4, 3) * APyFloatArray([0], [0], [4], 4, 3)
+    assert res.is_identical(APyFloatArray([0], [0], [2], 4, 3))
+
+    # 0.25 x subn
+    res = APyFloatArray([0], [5], [0], 4, 3) * APyFloatArray([0], [0], [4], 4, 3)
+    assert res.is_identical(APyFloatArray([0], [0], [1], 4, 3))
+
+    # 0.125 x subn
+    res = APyFloatArray([0], [4], [0], 4, 3) * APyFloatArray([0], [0], [4], 4, 3)
+    assert res.is_identical(APyFloatArray([0], [0], [0], 4, 3))
+
+    # Two normal numbers that generate carry, but with subnormal result
+    a = APyFloat(sign=1, exp=2, man=957, exp_bits=5, man_bits=10)
+    b = APyFloatArray([0], [12], [1015], 5, 10)
+    res = a * b
+    assert res.is_identical(APyFloatArray([1], [0], [986], 5, 10))
+
 
 @pytest.mark.float_array
 def test_array_mul_scalar():
@@ -411,8 +437,8 @@ def test_array_mul_scalar():
 
     a = APyFloatArray([0, 1], [0, 0], [5, 14], 4, 5)
     b = APyFloat(0, 0, 11, 4, 5)
-    assert (a * b).is_identical(APyFloatArray([0, 1], [0, 0], [0, 1], 4, 5))
-    assert (b * a).is_identical(APyFloatArray([0, 1], [0, 0], [0, 1], 4, 5))
+    assert (a * b).is_identical(APyFloatArray([0, 1], [0, 0], [0, 0], 4, 5))
+    assert (b * a).is_identical(APyFloatArray([0, 1], [0, 0], [0, 0], 4, 5))
 
     a = APyFloatArray.from_float([0.5, 1.5, 5], 10, 35)
     b = APyFloat.from_float(8, 10, 35)
@@ -468,7 +494,7 @@ def test_array_mul_scalar():
 
     a = APyFloatArray([0, 1], [4, 0], [0, 31], 4, 5)
     b = APyFloat(0, 0, 5, 4, 5)
-    ans = APyFloatArray([0, 1], [0, 0], [1, 1], 4, 5)
+    ans = APyFloatArray([0, 1], [0, 0], [1, 0], 4, 5)
     assert (a * b).is_identical(ans)
     assert (b * a).is_identical(ans)
 
@@ -489,6 +515,46 @@ def test_array_mul_scalar():
     ans = APyFloatArray([1, 0], [13, 15], [13, 0], exp_bits=4, man_bits=5, bias=7)
     assert (a * b).is_identical(ans)
     assert (b * a).is_identical(ans)
+
+    # 1.0 x subn
+    res = APyFloat(0, 7, 0, 4, 3) * APyFloatArray([0], [0], [1], 4, 3)
+    assert res.is_identical(APyFloatArray([0], [0], [1], 4, 3))
+
+    res = APyFloat(0, 7, 0, 4, 3) * APyFloatArray([0], [0], [2], 4, 3)
+    assert res.is_identical(APyFloatArray([0], [0], [2], 4, 3))
+
+    # 2.0 x subn
+    res = APyFloat(0, 8, 0, 4, 3) * APyFloatArray([0], [0], [1], 4, 3)
+    assert res.is_identical(APyFloatArray([0], [0], [2], 4, 3))
+
+    res = APyFloat(0, 8, 0, 4, 3) * APyFloatArray([0], [0], [2], 4, 3)
+    assert res.is_identical(APyFloatArray([0], [0], [4], 4, 3))
+
+    # 4.0 x subn
+    res = APyFloat(0, 9, 0, 4, 3) * APyFloatArray([0], [0], [1], 4, 3)
+    assert res.is_identical(APyFloatArray([0], [0], [4], 4, 3))
+
+    # subnormal becoming normal
+    res = APyFloat(0, 10, 0, 4, 3) * APyFloatArray([0], [0], [1], 4, 3)
+    assert res.is_identical(APyFloatArray([0], [1], [0], 4, 3))
+
+    # 0.5 x subn
+    res = APyFloat(0, 6, 0, 4, 3) * APyFloatArray([0], [0], [4], 4, 3)
+    assert res.is_identical(APyFloatArray([0], [0], [2], 4, 3))
+
+    # 0.25 x subn
+    res = APyFloat(0, 5, 0, 4, 3) * APyFloatArray([0], [0], [4], 4, 3)
+    assert res.is_identical(APyFloatArray([0], [0], [1], 4, 3))
+
+    # 0.125 x subn
+    res = APyFloat(0, 4, 0, 4, 3) * APyFloatArray([0], [0], [4], 4, 3)
+    assert res.is_identical(APyFloatArray([0], [0], [0], 4, 3))
+
+    # Two normal numbers that generate carry, but with subnormal result
+    a = APyFloatArray([1], [2], [957], 5, 10)
+    b = APyFloatArray([0], [12], [1015], 5, 10)
+    res = a * b
+    assert res.is_identical(APyFloatArray([1], [0], [986], 5, 10))
 
 
 @pytest.mark.float_array
