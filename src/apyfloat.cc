@@ -1026,9 +1026,20 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
                 new_man <<= 2;
             }
         } else {
-            // One or two of the operands were subnormal
-            new_man <<= std::max(tmp_exp + 1, (std::int64_t)0);
-            tmp_exp = 0;
+            // One or two of the operands were subnormal.
+            // If the exponent is positive, the result is normalized by
+            // left-shifting until the exponent is zero or the mantissa is 1.xx
+            const int leading_zeros = 1 + sum_man_bits - bit_width(new_man);
+            const int shift = std::max(
+                std::min(tmp_exp, (std::int64_t)leading_zeros), (std::int64_t)0
+            );
+            tmp_exp -= shift;
+            // Align with longer result
+            if (tmp_exp == 0) {
+                new_man <<= shift + 1;
+            } else {
+                new_man <<= shift + 2;
+            }
         }
 
         if (tmp_exp < 0) {
