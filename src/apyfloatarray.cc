@@ -114,12 +114,14 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
         for (std::size_t i = 0; i < data.size(); i++) {
             x = data[i];
             y = rhs.data[i];
+            bool x_is_zero_exponent = (x.exp == 0);
             // Handle zero cases
-            if (x.exp == 0 && x.man == 0) {
+            if (x_is_zero_exponent && x.man == 0) {
                 res.data[i] = y;
                 continue;
             }
-            if (y.exp == 0 && y.man == 0) {
+            bool y_is_zero_exponent = (y.exp == 0);
+            if (y_is_zero_exponent && y.man == 0) {
                 res.data[i] = x;
                 continue;
             }
@@ -159,6 +161,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
             if (x.exp < y.exp || (x.exp == y.exp && x.man < y.man)) {
                 res_sign = y.sign;
                 std::swap(x, y);
+                std::swap(x_is_zero_exponent, y_is_zero_exponent);
             } else {
                 if (x.sign != y.sign && x.exp == y.exp && x.man == y.man) {
                     // Set to zero
@@ -170,15 +173,15 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
             }
 
             // Tentative exponent
-            std::int64_t new_exp = x.exp + (x.exp == 0);
+            std::int64_t new_exp = x.exp + x_is_zero_exponent;
 
             // Conditionally add leading one's, also add room for guard bits
             // Note that exp can never be res_max_exponent here
-            man_t mx = ((x.exp != 0) ? res_leading_one : 0) | (x.man << 3);
-            man_t my = ((y.exp != 0) ? res_leading_one : 0) | (y.man << 3);
+            man_t mx = (x_is_zero_exponent ? 0 : res_leading_one) | (x.man << 3);
+            man_t my = (y_is_zero_exponent ? 0 : res_leading_one) | (y.man << 3);
 
             // Align mantissas based on exponent difference
-            const unsigned exp_delta = x.exp + (x.exp == 0) - y.exp - (y.exp == 0);
+            const unsigned exp_delta = new_exp - y.exp - y_is_zero_exponent;
 
             // Align mantissa based on difference in exponent
             man_t highY;
@@ -346,16 +349,18 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
                 res_sign = x.sign;
             }
 
+            bool x_is_zero_exponent = (x.exp == 0);
+            bool y_is_zero_exponent = (y.exp == 0);
             // Tentative exponent
-            std::int64_t new_exp = x.exp + (x.exp == 0);
+            std::int64_t new_exp = x.exp + x_is_zero_exponent;
 
             // Conditionally add leading one's, also add room for guard bits
             // Note that exp can never be res_max_exponent here
-            man_t mx = ((x.exp != 0) ? res_leading_one : 0) | (x.man << 3);
-            man_t my = ((y.exp != 0) ? res_leading_one : 0) | (y.man << 3);
+            man_t mx = (x_is_zero_exponent ? 0 : res_leading_one) | (x.man << 3);
+            man_t my = (y_is_zero_exponent ? 0 : res_leading_one) | (y.man << 3);
 
             // Align mantissas based on exponent difference
-            const unsigned exp_delta = x.exp + (x.exp == 0) - y.exp - (y.exp == 0);
+            const unsigned exp_delta = new_exp - y.exp - y_is_zero_exponent;
 
             // Align mantissa based on difference in exponent
             man_t highY;
