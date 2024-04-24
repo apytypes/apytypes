@@ -106,7 +106,7 @@ def test_convert_to_double():
 def test_from_float():
     a = APyFloat(0, 0, 1, 11, 52)
     b = APyFloat.from_float(5e-324, 11, 52)
-    b.is_identical(a)
+    assert b.is_identical(a)
 
 
 def test_cast_special_cases():
