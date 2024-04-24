@@ -178,7 +178,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
             man_t my = ((y.exp != 0) ? res_leading_one : 0) | (y.man << 3);
 
             // Align mantissas based on exponent difference
-            const unsigned exp_delta = x.exp - y.exp;
+            const unsigned exp_delta = x.exp + (x.exp == 0) - y.exp - (y.exp == 0);
 
             // Align mantissa based on difference in exponent
             man_t highY;
@@ -355,7 +355,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
             man_t my = ((y.exp != 0) ? res_leading_one : 0) | (y.man << 3);
 
             // Align mantissas based on exponent difference
-            const unsigned exp_delta = x.exp - y.exp;
+            const unsigned exp_delta = x.exp + (x.exp == 0) - y.exp - (y.exp == 0);
 
             // Align mantissa based on difference in exponent
             man_t highY;
