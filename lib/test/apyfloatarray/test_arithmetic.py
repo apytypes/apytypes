@@ -113,10 +113,6 @@ def test_array_add():
     assert res.is_identical(ans)
     assert (b + a).is_identical(ans)
 
-
-@pytest.mark.xfail
-@pytest.mark.float_array
-def test_array_add_fail():
     a = APyFloatArray([1], [2], [1], 4, 4)
     b = APyFloatArray([0], [1], [15], 4, 4)
     ans = APyFloatArray([1], [0], [3], 4, 4)
@@ -202,10 +198,6 @@ def test_array_add_scalar():
     assert res.is_identical(ans)
     assert (b + a).is_identical(ans)
 
-
-@pytest.mark.xfail
-@pytest.mark.float_array
-def test_scalar_array_add_fail():
     a = APyFloatArray([1], [2], [1], 4, 4)
     b = APyFloat(0, 1, 15, 4, 4)
     ans = APyFloatArray([1], [0], [3], 4, 4)
