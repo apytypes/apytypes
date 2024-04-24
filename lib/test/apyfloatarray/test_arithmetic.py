@@ -99,6 +99,31 @@ def test_array_add():
     )
     assert (b + a).is_identical(ans)
 
+    a = APyFloatArray([1], [2], [1], 4, 4)
+    b = APyFloatArray([0], [0], [15], 4, 4)
+    ans = APyFloatArray([1], [1], [3], 4, 4)
+    res = a + b
+    assert res.is_identical(ans)
+    assert (b + a).is_identical(ans)
+
+    a = APyFloatArray([0, 0], [0, 14], [3, 15], 4, 4)
+    b = APyFloatArray([0, 0], [0, 14], [5, 2], 4, 4)
+    ans = APyFloatArray([0, 0], [0, 15], [8, 0], 4, 4)
+    res = a + b
+    assert res.is_identical(ans)
+    assert (b + a).is_identical(ans)
+
+
+@pytest.mark.xfail
+@pytest.mark.float_array
+def test_array_add_fail():
+    a = APyFloatArray([1], [2], [1], 4, 4)
+    b = APyFloatArray([0], [1], [15], 4, 4)
+    ans = APyFloatArray([1], [0], [3], 4, 4)
+    res = a + b
+    assert res.is_identical(ans)
+    assert (b + a).is_identical(ans)
+
 
 @pytest.mark.float_array
 def test_array_add_scalar():
@@ -154,6 +179,38 @@ def test_array_add_scalar():
         [-float("nan"), float("nan"), float("inf"), float("inf"), float("inf")], 8, 8
     )
     assert (a + b).is_identical(ans)
+    assert (b + a).is_identical(ans)
+
+    a = APyFloat(1, 2, 1, 4, 4)
+    b = APyFloatArray([0], [0], [15], 4, 4)
+    ans = APyFloatArray([1], [1], [3], 4, 4)
+    res = a + b
+    assert res.is_identical(ans)
+    assert (b + a).is_identical(ans)
+
+    a = APyFloatArray([0], [0], [3], 4, 4)
+    b = APyFloat(0, 0, 5, 4, 4)
+    ans = APyFloatArray([0], [0], [8], 4, 4)
+    res = a + b
+    assert res.is_identical(ans)
+    assert (b + a).is_identical(ans)
+
+    a = APyFloatArray([0], [14], [15], 4, 4)
+    b = APyFloat(0, 14, 2, 4, 4)
+    ans = APyFloatArray([0], [15], [0], 4, 4)
+    res = a + b
+    assert res.is_identical(ans)
+    assert (b + a).is_identical(ans)
+
+
+@pytest.mark.xfail
+@pytest.mark.float_array
+def test_scalar_array_add_fail():
+    a = APyFloatArray([1], [2], [1], 4, 4)
+    b = APyFloat(0, 1, 15, 4, 4)
+    ans = APyFloatArray([1], [0], [3], 4, 4)
+    res = a + b
+    assert res.is_identical(ans)
     assert (b + a).is_identical(ans)
 
 
@@ -227,7 +284,8 @@ def test_array_mul():
     a = APyFloatArray.from_float([0, 0.125, 2.5, 12], 5, 7)
     b = APyFloatArray.from_float([3, -0.75, -5, 8], 6, 5)
     ans = APyFloatArray.from_float([0, -0.09375, -12.5, 96], 6, 7)
-    assert (a * b).is_identical(ans)
+    res = a * b
+    assert res.is_identical(ans)
     assert (a * b).is_identical(ans)
 
     a = APyFloatArray.from_float(
@@ -254,7 +312,8 @@ def test_array_mul():
         exp_bits=8,
         man_bits=8,
     )
-    assert (a * b).is_identical(ans)
+    res = a * b
+    assert res.is_identical(ans)
     assert (b * a).is_identical(ans)
 
     a = APyFloatArray.from_float(
@@ -281,7 +340,8 @@ def test_array_mul():
         exp_bits=12,
         man_bits=40,
     )
-    assert (a * b).is_identical(ans)
+    res = a * b
+    assert res.is_identical(ans)
     assert (b * a).is_identical(ans)
 
     a = APyFloatArray.from_float(
@@ -308,7 +368,8 @@ def test_array_mul():
         exp_bits=8,
         man_bits=8,
     )
-    assert (a * b).is_identical(ans)
+    res = a * b
+    assert res.is_identical(ans)
     assert (b * a).is_identical(ans)
 
     a = APyFloatArray.from_float(
@@ -335,13 +396,15 @@ def test_array_mul():
         exp_bits=12,
         man_bits=35,
     )
-    assert (a * b).is_identical(ans)
+    res = a * b
+    assert res.is_identical(ans)
     assert (b * a).is_identical(ans)
 
     a = APyFloatArray([False, True, True], [60, 127, 0], [10, 192, 10], 8, 20)
     b = APyFloatArray([True, False, True], [60, 127, 0], [192, 192, 15], 8, 20)
     ans = APyFloatArray([1, 1, 0], [0, 127, 0], [4097, 384, 0], exp_bits=8, man_bits=20)
-    assert (a * b).is_identical(ans)
+    res = a * b
+    assert res.is_identical(ans)
     assert (b * a).is_identical(ans)
 
     a = APyFloatArray([0, 1], [6, 7], [7, 14], 4, 5)
@@ -354,7 +417,8 @@ def test_array_mul():
     a = APyFloatArray([0, 1], [7, 12], [30, 14], 4, 5)
     b = APyFloatArray([0, 1], [7, 12], [1, 14], 4, 5)
     ans = APyFloatArray([0, 0], [8, 15], [0, 0], exp_bits=4, man_bits=5, bias=7)
-    assert (a * b).is_identical(ans)
+    res = a * b
+    assert res.is_identical(ans)
     assert (b * a).is_identical(ans)
 
     # Subnormals
