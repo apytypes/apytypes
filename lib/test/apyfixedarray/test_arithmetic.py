@@ -225,13 +225,15 @@ def test_array_sub_scalar():
 def test_array_mul():
     a = APyFixedArray([-5, -6, 7, 8], bits=10, int_bits=5)
     b = APyFixedArray([1, -2, 3, -4], bits=7, int_bits=3)
-    assert (a * b).is_identical(APyFixedArray([-5, 12, 21, -32], bits=17, int_bits=8))
+    res = a * b
+    assert res.is_identical(APyFixedArray([-5, 12, 21, -32], bits=17, int_bits=8))
     assert (a * b).is_identical(b * a)
 
     a = APyFixedArray.from_float([1.2345, 5.4321], bits=128, int_bits=64)
     b = APyFixedArray.from_float([9.8765, 5.6789], bits=128, int_bits=64)
     assert (a * b).is_identical(b * a)
-    assert (a * b).is_identical(
+    res = a * b
+    assert res.is_identical(
         APyFixedArray(
             [
                 4148906114766443653661449407827571376128,
@@ -245,7 +247,8 @@ def test_array_mul():
     a = APyFixedArray.from_float([1.2345, 5.4321], bits=256, int_bits=128)
     b = APyFixedArray.from_float([9.8765, 5.6789], bits=256, int_bits=128)
     assert (a * b).is_identical(b * a)
-    assert (a * b).is_identical(
+    res = a * b
+    assert res.is_identical(
         APyFixedArray(
             [
                 0xC314A4095F245001AC14C660A2000000000000000000000000000000000000000,
@@ -260,23 +263,28 @@ def test_array_mul():
 def test_array_mul_scalar():
     a = APyFixedArray([-5, -6, 7, 8, 9], bits=10, int_bits=5)
     b = APyFixed(3, bits=7, int_bits=2)
-    assert (a * b).is_identical(
+    res = a * b
+    assert res.is_identical(
         APyFixedArray([131057, 131054, 21, 24, 27], bits=17, int_bits=7)
     )
-    assert (b * a).is_identical(
+    res = b * a
+    assert res.is_identical(
         APyFixedArray([131057, 131054, 21, 24, 27], bits=17, int_bits=7)
     )
     b = APyFixed(-3, bits=7, int_bits=2)
-    assert (a * b).is_identical(
+    res = a * b
+    assert res.is_identical(
         APyFixedArray([15, 18, 131051, 131048, 131045], bits=17, int_bits=7)
     )
-    assert (b * a).is_identical(
+    res = b * a
+    assert res.is_identical(
         APyFixedArray([15, 18, 131051, 131048, 131045], bits=17, int_bits=7)
     )
 
     a = APyFixedArray([-5, -6, 7], bits=100, int_bits=50)
     b = APyFixed(3, bits=27, int_bits=20)
-    assert (a * b).is_identical(
+    res = a * b
+    assert res.is_identical(
         APyFixedArray(
             [
                 170141183460469231731687303715884105713,

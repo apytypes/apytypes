@@ -466,8 +466,10 @@ def test_mul_with_one():
     for exp in reversed(range(15)):  # Skip nan/inf
         for man in reversed(range(16)):
             b = APyFloat(0, exp, man, 4, 4)
-            assert (a * b).is_identical(b)
-            assert (b * a).is_identical(b)
+            res = a * b
+            assert res.is_identical(b)
+            res = b * a
+            assert res.is_identical(b)
 
 
 @pytest.mark.float_mul
@@ -477,8 +479,10 @@ def test_long_mul_with_one():
     for exp in reversed(range(1023)):  # Skip nan/inf
         for man in reversed(range(4)):  # Try subset
             b = APyFloat(0, exp, man, 10, 50)
-            assert (a * b).is_identical(b)
-            assert (b * a).is_identical(b)
+            res = a * b
+            assert res.is_identical(b)
+            res = b * a
+            assert res.is_identical(b)
 
 
 @pytest.mark.float_mul
@@ -557,33 +561,37 @@ def test_long_mul():
     x = APyFloat.from_float(5200, exp_bits=17, man_bits=52)
     assert x * y == APyFloat.from_float(float(x) * float(y), exp_bits=17, man_bits=52)
     x = APyFloat(sign=0, exp=3, man=122, exp_bits=4, man_bits=7)
-    assert (x * y).is_identical(
+    res = x * y
+    assert res.is_identical(
         APyFloat(sign=1, exp=32760, man=689156585396703, exp_bits=16, man_bits=52)
     )
     x = APyFloat(sign=0, exp=3, man=2**20 - 1, exp_bits=4, man_bits=20)
     y = APyFloat(sign=0, exp=32760, man=2**50 - 1, exp_bits=16, man_bits=50)
-    assert (x * y).is_identical(
+    res = x * y
+    assert res.is_identical(
         APyFloat(sign=0, exp=32757, man=1125898833100799, exp_bits=16, man_bits=50)
     )
     x = APyFloat(sign=0, exp=0, man=11, exp_bits=4, man_bits=9)
     y = APyFloat(sign=0, exp=5, man=50, exp_bits=16, man_bits=50)
-    assert (x * y).is_identical(
+    res = x * y
+    assert res.is_identical(
         APyFloat(sign=0, exp=0, man=6047313952768, exp_bits=16, man_bits=50)
     )
     x = APyFloat(sign=0, exp=0, man=11, exp_bits=4, man_bits=20)
     y = APyFloat(sign=0, exp=5, man=50, exp_bits=16, man_bits=50)
-    assert (x * y).is_identical(
+    res = x * y
+    assert res.is_identical(
         APyFloat(sign=0, exp=0, man=2952790016, exp_bits=16, man_bits=50)
     )
 
     x = APyFloat(sign=0, exp=1020, man=11, exp_bits=10, man_bits=9)
     y = APyFloat(sign=0, exp=4090, man=50, exp_bits=12, man_bits=50)
-    assert (x * y).is_identical(
-        APyFloat(sign=0, exp=4095, man=0, exp_bits=12, man_bits=50)
-    )
+    res = x * y
+    assert res.is_identical(APyFloat(sign=0, exp=4095, man=0, exp_bits=12, man_bits=50))
     x = APyFloat(sign=0, exp=1, man=10, exp_bits=4, man_bits=40)
     y = APyFloat(sign=0, exp=1, man=20, exp_bits=4, man_bits=40)
-    assert (x * y).is_identical(
+    res = x * y
+    assert res.is_identical(
         APyFloat(sign=0, exp=0, man=17179869184, exp_bits=4, man_bits=40)
     )
 
@@ -658,7 +666,8 @@ def test_div_with_one():
     for exp in reversed(range(15)):  # Skip nan/inf
         for man in reversed(range(16)):
             b = APyFloat(0, exp, man, 4, 4)
-            assert (b / a).is_identical(b)
+            res = b / a
+            assert res.is_identical(b)
 
 
 @pytest.mark.float_mul
@@ -668,7 +677,8 @@ def test_long_div_with_one():
     for exp in reversed(range(1023)):  # Skip nan/inf
         for man in reversed(range(4)):  # Try subset
             b = APyFloat(0, exp, man, 10, 50)
-            assert (b / a).is_identical(b)
+            res = b / a
+            assert res.is_identical(b)
 
 
 @pytest.mark.float_div
@@ -763,20 +773,25 @@ def test_power():
     )
     # 1/sqrt(2)
     a = APyFloat(sign=0, exp=510, man=27146, exp_bits=10, man_bits=16)
-    (a**2).is_identical(APyFloat(sign=0, exp=510, man=0, exp_bits=10, man_bits=16))
-    (a**4).is_identical(APyFloat(sign=0, exp=509, man=0, exp_bits=10, man_bits=16))
+    res = a**2
+    assert res.is_identical(APyFloat(sign=0, exp=510, man=0, exp_bits=10, man_bits=16))
+    res = a**4
+    assert res.is_identical(APyFloat(sign=0, exp=509, man=0, exp_bits=10, man_bits=16))
 
     # sqrt(2)
     a = APyFloat(sign=0, exp=511, man=1865452045155277, exp_bits=10, man_bits=52)
-    (a**2).is_identical(APyFloat(sign=0, exp=512, man=1, exp_bits=10, man_bits=52))
+    res = a**2
+    assert res.is_identical(APyFloat(sign=0, exp=512, man=1, exp_bits=10, man_bits=52))
 
     # Cube root of three
     a = APyFloat(sign=0, exp=511, man=1116352409, exp_bits=10, man_bits=32)
-    (a**3).is_identical(APyFloat(sign=0, exp=512, man=0, exp_bits=10, man_bits=32))
+    res = a**3
+    assert res.is_identical(APyFloat(sign=0, exp=512, man=0, exp_bits=10, man_bits=32))
 
     # Test identity
     a = APyFloat(sign=0, exp=511, man=1116352409, exp_bits=10, man_bits=32)
-    (a**1).is_identical(a)
+    res = a**1
+    assert res.is_identical(a)
 
 
 @pytest.mark.float_pow
@@ -852,7 +867,8 @@ def test_long_power():
 
     # Test identity
     a = APyFloat(sign=0, exp=511, man=1116352409, exp_bits=20, man_bits=61)
-    (a**1).is_identical(a)
+    res = a**1
+    assert res.is_identical(a)
 
 
 @pytest.mark.xfail()
