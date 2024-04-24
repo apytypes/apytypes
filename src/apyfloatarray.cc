@@ -1289,7 +1289,154 @@ APyFloat APyFloatArray::checked_inner_product(
 // Compute sum of all elements
 APyFloat APyFloatArray::vector_sum() const
 {
+    const auto quantization = get_quantization_mode();
+    // +5 to give room for leading one, carry, and 3 guard bits
+    const unsigned int max_man_bits = man_bits + 5;
     APyFloat sum(0, 0, 0, exp_bits, man_bits);
+    if ((max_man_bits <= _MAN_T_SIZE_BITS)
+        && (quantization != QuantizationMode::STOCH_WEIGHTED)) {
+
+        APyFloatData x, y;
+        const exp_t res_max_exponent = ((1ULL << exp_bits) - 1);
+        bool res_sign;
+        const man_t final_res_leading_one = (1ULL << man_bits);
+        const man_t res_leading_one = final_res_leading_one << 3;
+        const man_t carry_res_leading_one = res_leading_one << 1;
+        const std::uint8_t tmp_man_bits
+            = man_bits + 4; // 4 for leading 1 and 3 guard bits
+        const auto shift_normalization_const = _MAN_T_SIZE_BITS - tmp_man_bits;
+        const auto man_mask = carry_res_leading_one - 1;
+        // Perform operation
+        for (std::size_t i = 0; i < data.size(); i++) {
+            x = data[i];
+            y = sum.get_data();
+            bool x_is_zero_exponent = (x.exp == 0);
+            // Handle zero cases
+            if (x_is_zero_exponent && x.man == 0) {
+                continue;
+            }
+            bool y_is_zero_exponent = (y.exp == 0);
+            if (y_is_zero_exponent && y.man == 0) {
+                sum.set_data(x);
+                continue;
+            }
+            bool x_is_max_exponent = x.exp == res_max_exponent;
+            bool y_is_max_exponent = y.exp == res_max_exponent;
+
+            // Handle the NaN and inf cases
+            if (x_is_max_exponent || y_is_max_exponent) {
+                if ((x_is_max_exponent && x.man != 0)
+                    || (y_is_max_exponent && y.man != 0)
+                    || (x_is_max_exponent && y_is_max_exponent && x.sign != y.sign)) {
+                    // Set to NaN
+                    sum.set_data({ false,
+                                   static_cast<exp_t>(res_max_exponent),
+                                   static_cast<man_t>(1) });
+                    return sum;
+                }
+
+                // Handle inf cases
+                if (x_is_max_exponent && x.man == 0) {
+                    // Set to inf
+                    // No early return as later values may be NaN
+                    sum.set_data({ x.sign,
+                                   static_cast<exp_t>(res_max_exponent),
+                                   static_cast<man_t>(0) });
+                    continue;
+                }
+
+                if (y_is_max_exponent && y.man == 0) {
+                    // Keep at inf
+                    // No early return as later values may be NaN
+                    continue;
+                }
+            }
+            // Compute sign and swap operands if need to make sure |x| >= |y|
+            if (x.exp < y.exp || (x.exp == y.exp && x.man < y.man)) {
+                res_sign = y.sign;
+                std::swap(x, y);
+                std::swap(x_is_zero_exponent, y_is_zero_exponent);
+            } else {
+                if (x.sign != y.sign && x.exp == y.exp && x.man == y.man) {
+                    // Set to zero
+                    sum.set_data({ false, static_cast<exp_t>(0), static_cast<man_t>(0) }
+                    );
+                    continue;
+                }
+                res_sign = x.sign;
+            }
+
+            // Tentative exponent
+            std::int64_t new_exp = x.exp + x_is_zero_exponent;
+
+            // Conditionally add leading one's, also add room for guard bits
+            // Note that exp can never be res_max_exponent here
+            man_t mx = (x_is_zero_exponent ? 0 : res_leading_one) | (x.man << 3);
+            man_t my = (y_is_zero_exponent ? 0 : res_leading_one) | (y.man << 3);
+
+            // Align mantissas based on exponent difference
+            const unsigned exp_delta = new_exp - y.exp - y_is_zero_exponent;
+
+            // Align mantissa based on difference in exponent
+            man_t highY;
+            if (exp_delta <= 3) {
+                highY = my >> exp_delta;
+            } else if (exp_delta >= max_man_bits) {
+                highY = (my >> max_man_bits) | 1;
+            } else {
+                highY
+                    = (my >> exp_delta) | ((my << (_MAN_T_SIZE_BITS - exp_delta)) != 0);
+            }
+
+            // Perform addition / subtraction
+            man_t new_man = (x.sign == y.sign) ? mx + highY : mx - highY;
+
+            // Check for carry and cancellation
+            if (new_man & carry_res_leading_one) {
+                // Carry
+                new_exp++;
+            } else if (new_man & res_leading_one) {
+                // Align mantissa to carry case
+                new_man <<= 1;
+            } else {
+                // Cancellation or addition with subnormals
+                // Mantissa should be shifted until 1.xx is obtained or new_exp equals 0
+                const unsigned int man_leading_zeros = leading_zeros(new_man);
+                const unsigned int normalizing_shift
+                    = man_leading_zeros - shift_normalization_const;
+
+                if (new_exp > normalizing_shift) {
+                    new_man <<= normalizing_shift + 1;
+                    new_exp -= normalizing_shift;
+                } else {
+                    // The result will be a subnormal
+                    new_man <<= new_exp;
+                    new_exp = 0;
+                }
+            }
+
+            new_man &= man_mask;
+
+            man_t res_man = quantize_mantissa(new_man, 4, res_sign, quantization);
+            if (res_man & final_res_leading_one) {
+                ++new_exp;
+                res_man = 0;
+            }
+
+            // Check for overflow
+            if (new_exp >= res_max_exponent) {
+                // Inf
+                sum.set_data({ x.sign,
+                               static_cast<exp_t>(res_max_exponent),
+                               static_cast<man_t>(0) });
+            } else {
+                sum.set_data({ res_sign,
+                               static_cast<exp_t>(new_exp),
+                               static_cast<man_t>(res_man) });
+            }
+        }
+        return sum;
+    }
     APyFloat tmp(0, 0, 0, exp_bits, man_bits);
 
     for (std::size_t i = 0; i < data.size(); i++) {
