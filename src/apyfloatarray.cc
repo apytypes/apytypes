@@ -170,7 +170,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
             }
 
             // Tentative exponent
-            std::int64_t new_exp = x.exp;
+            std::int64_t new_exp = x.exp + (x.exp == 0);
 
             // Conditionally add leading one's, also add room for guard bits
             // Note that exp can never be res_max_exponent here
@@ -213,7 +213,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
                     new_exp -= normalizing_shift;
                 } else {
                     // The result will be a subnormal
-                    new_man <<= new_exp + 1;
+                    new_man <<= new_exp;
                     new_exp = 0;
                 }
             }
@@ -347,7 +347,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
             }
 
             // Tentative exponent
-            std::int64_t new_exp = x.exp;
+            std::int64_t new_exp = x.exp + (x.exp == 0);
 
             // Conditionally add leading one's, also add room for guard bits
             // Note that exp can never be res_max_exponent here
@@ -390,7 +390,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
                     new_exp -= normalizing_shift;
                 } else {
                     // The result will be a subnormal
-                    new_man <<= new_exp + 1;
+                    new_man <<= new_exp;
                     new_exp = 0;
                 }
             }
