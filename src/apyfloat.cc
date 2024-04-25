@@ -121,21 +121,6 @@ APyFloat::APyFloat(std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias)
 }
 
 APyFloat::APyFloat(
-    const APyFloatData& data,
-    std::uint8_t exp_bits,
-    std::uint8_t man_bits,
-    std::optional<exp_t> bias
-)
-    : exp_bits(exp_bits)
-    , man_bits(man_bits)
-    , bias(bias.value_or(ieee_bias()))
-    , sign(data.sign)
-    , exp(data.exp)
-    , man(data.man)
-{
-}
-
-APyFloat::APyFloat(
     const APyFloatData& data, std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias
 )
     : exp_bits(exp_bits)
@@ -674,26 +659,6 @@ std::string APyFloat::repr() const
         + ", man_bits=" + std::to_string(man_bits)
         + (bias == ieee_bias() ? std::string() : ", bias=" + std::to_string(bias))
         + ")";
-    return str;
-}
-
-std::string APyFloat::pretty_string() const
-{
-    std::string str = "fp<" + std::to_string(exp_bits) + "," + std::to_string(man_bits)
-        + (sign ? ">(-" : ">(");
-
-    if (is_nan()) {
-        return str + "NaN)";
-    } else if (is_inf()) {
-        return str + "inf)";
-    }
-
-    str += "2**"
-        + std::to_string(
-               static_cast<std::int64_t>(exp) - bias - man_bits + 1 - is_normal()
-        )
-        + "*" + std::to_string((is_normal() << man_bits) | man) + ")";
-
     return str;
 }
 

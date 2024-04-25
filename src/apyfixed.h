@@ -210,9 +210,6 @@ public:
     //! Retrieve leading signs
     std::size_t leading_signs() const;
 
-    //! Test if value is greater than equal to a integer power-of-two (>= 2 ^ `n`)
-    bool greater_than_equal_pow2(int n) const;
-
     //! Test if positive value is greater than equal to a integer power-of-two (>= 2 ^
     //! `n`)
     bool positive_greater_than_equal_pow2(int n) const;
@@ -237,7 +234,6 @@ public:
 
 public:
     void set_from_double(double value);
-    void set_from_apyfixed(const APyFixed& fixed);
     void set_from_string(const std::string& str, int base = 10);
     void set_from_string_hex(const std::string& str);
     void set_from_string_oct(const std::string& str);
