@@ -298,19 +298,6 @@ class APyFixed:
         :class:`int`
         """
 
-    def resize(
-        self,
-        bits: int | None = None,
-        int_bits: int | None = None,
-        quantization: QuantizationMode = QuantizationMode.TRN,
-        overflow: OverflowMode = OverflowMode.WRAP,
-        frac_bits: int | None = None,
-    ) -> APyFixed:
-        """
-        .. deprecated:: 0.1.pre
-           Use :func:`~APyFixed.cast` instead.
-        """
-
     def to_bits(self) -> int:
         """
         Retrieve underlying bit-pattern in an :class:`int`.
@@ -538,19 +525,6 @@ class APyFixedArray:
         :class:`bool`
         """
 
-    def resize(
-        self,
-        bits: int | None = None,
-        int_bits: int | None = None,
-        quantization: QuantizationMode = QuantizationMode.TRN,
-        overflow: OverflowMode = OverflowMode.WRAP,
-        frac_bits: int | None = None,
-    ) -> APyFixedArray:
-        """
-        .. deprecated:: 0.1.pre
-           Use :func:`~APyFixedArray.cast` instead.
-        """
-
     def to_numpy(self) -> numpy.ndarray[numpy.float64]:
         """
         Return array as a :class:`numpy.ndarray` of :class:`numpy.float64`.
@@ -776,8 +750,8 @@ class APyFloat:
     def _repr_latex_(self) -> str: ...
     def cast(
         self,
-        exp_bits: int,
-        man_bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
         bias: int | None = None,
         quantization: QuantizationMode | None = None,
     ) -> APyFloat: ...
@@ -865,19 +839,6 @@ class APyFloat:
         Returns
         -------
         :class:`bool`
-        """
-
-    def pretty_string(self) -> str: ...
-    def resize(
-        self,
-        exp_bits: int,
-        man_bits: int,
-        bias: int | None = None,
-        quantization: QuantizationMode | None = None,
-    ) -> APyFloat:
-        """
-        .. deprecated:: 0.1.pre
-           Use :func:`~APyFloat.cast` instead.
         """
 
     def to_bits(self) -> int: ...
@@ -1057,8 +1018,8 @@ class APyFloatArray:
     def __truediv__(self, arg0: APyFloat) -> APyFloatArray: ...
     def cast(
         self,
-        exp_bits: int,
-        man_bits: int,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
         bias: int | None = None,
         quantization: QuantizationMode | None = None,
     ) -> APyFloatArray: ...
@@ -1154,18 +1115,6 @@ class APyFloatArray:
         Returns
         -------
         :class:`bool`
-        """
-
-    def resize(
-        self,
-        exp_bits: int,
-        man_bits: int,
-        bias: int | None = None,
-        quantization: QuantizationMode | None = None,
-    ) -> APyFloatArray:
-        """
-        .. deprecated:: 0.1.pre
-           Use :func:`~APyFloatArray.cast` instead.
         """
 
     def to_numpy(self) -> numpy.ndarray[numpy.float64]:
