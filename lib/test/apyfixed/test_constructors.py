@@ -99,6 +99,10 @@ def test_string_construction():
     assert APyFixed.from_str("-511", 10, 10).to_bits() == 0x201
     assert APyFixed.from_str("-512", 10, 10).to_bits() == 0x200
     assert APyFixed.from_str("512", 10, 14).to_bits() == 0x20
+    assert APyFixed.from_str("1.0", 10, 9).to_bits() == 2
+    assert APyFixed.from_str("1.000000", 10, 9).to_bits() == 2
+    assert APyFixed.from_str("10.00", 10, 9).to_bits() == 20
+    assert APyFixed.from_str(".0625000", 10, 2).to_bits() == 16
 
     fx_a = APyFixed.from_str(
         "28948022309329048855892746252171976963317496166410141009892066118088846737408",
