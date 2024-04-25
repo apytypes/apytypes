@@ -1292,11 +1292,11 @@ APyFloat APyFloatArray::vector_sum() const
     const auto quantization = get_quantization_mode();
     // +5 to give room for leading one, carry, and 3 guard bits
     const unsigned int max_man_bits = man_bits + 5;
-    APyFloat sum(0, 0, 0, exp_bits, man_bits);
+    APyFloat ret(0, 0, 0, exp_bits, man_bits);
     if ((max_man_bits <= _MAN_T_SIZE_BITS)
         && (quantization != QuantizationMode::STOCH_WEIGHTED)) {
-
         APyFloatData x, y;
+        APyFloatData sum = { false, static_cast<exp_t>(0), static_cast<man_t>(0) };
         const exp_t res_max_exponent = ((1ULL << exp_bits) - 1);
         bool res_sign;
         const man_t final_res_leading_one = (1ULL << man_bits);
@@ -1309,7 +1309,7 @@ APyFloat APyFloatArray::vector_sum() const
         // Perform operation
         for (std::size_t i = 0; i < data.size(); i++) {
             x = data[i];
-            y = sum.get_data();
+            y = sum;
             bool x_is_zero_exponent = (x.exp == 0);
             // Handle zero cases
             if (x_is_zero_exponent && x.man == 0) {
@@ -1317,7 +1317,7 @@ APyFloat APyFloatArray::vector_sum() const
             }
             bool y_is_zero_exponent = (y.exp == 0);
             if (y_is_zero_exponent && y.man == 0) {
-                sum.set_data(x);
+                sum = x;
                 continue;
             }
             bool x_is_max_exponent = x.exp == res_max_exponent;
@@ -1329,19 +1329,19 @@ APyFloat APyFloatArray::vector_sum() const
                     || (y_is_max_exponent && y.man != 0)
                     || (x_is_max_exponent && y_is_max_exponent && x.sign != y.sign)) {
                     // Set to NaN
-                    sum.set_data({ false,
+                    ret.set_data({ false,
                                    static_cast<exp_t>(res_max_exponent),
                                    static_cast<man_t>(1) });
-                    return sum;
+                    return ret;
                 }
 
                 // Handle inf cases
                 if (x_is_max_exponent && x.man == 0) {
                     // Set to inf
                     // No early return as later values may be NaN
-                    sum.set_data({ x.sign,
-                                   static_cast<exp_t>(res_max_exponent),
-                                   static_cast<man_t>(0) });
+                    sum = { x.sign,
+                            static_cast<exp_t>(res_max_exponent),
+                            static_cast<man_t>(0) };
                     continue;
                 }
 
@@ -1359,8 +1359,7 @@ APyFloat APyFloatArray::vector_sum() const
             } else {
                 if (x.sign != y.sign && x.exp == y.exp && x.man == y.man) {
                     // Set to zero
-                    sum.set_data({ false, static_cast<exp_t>(0), static_cast<man_t>(0) }
-                    );
+                    sum = { false, static_cast<exp_t>(0), static_cast<man_t>(0) };
                     continue;
                 }
                 res_sign = x.sign;
@@ -1426,24 +1425,25 @@ APyFloat APyFloatArray::vector_sum() const
             // Check for overflow
             if (new_exp >= res_max_exponent) {
                 // Inf
-                sum.set_data({ x.sign,
-                               static_cast<exp_t>(res_max_exponent),
-                               static_cast<man_t>(0) });
+                sum = { x.sign,
+                        static_cast<exp_t>(res_max_exponent),
+                        static_cast<man_t>(0) };
             } else {
-                sum.set_data({ res_sign,
-                               static_cast<exp_t>(new_exp),
-                               static_cast<man_t>(res_man) });
+                sum = { res_sign,
+                        static_cast<exp_t>(new_exp),
+                        static_cast<man_t>(res_man) };
             }
         }
-        return sum;
+        ret.set_data(sum);
+        return ret;
     }
     APyFloat tmp(0, 0, 0, exp_bits, man_bits);
 
     for (std::size_t i = 0; i < data.size(); i++) {
         tmp.set_data(data[i]);
-        sum = sum + tmp;
+        ret = ret + tmp;
     }
-    return sum;
+    return ret;
 }
 
 // Evaluate the matrix product between two 2D matrices. This method assumes that the
