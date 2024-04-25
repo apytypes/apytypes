@@ -26,7 +26,9 @@ void context_exit_handler(
 
 void bind_float_context(nb::module_& m)
 {
-    nb::class_<QuantizationContext, ContextManager>(m, "QuantizationContext")
+    nb::class_<APyFloatQuantizationContext, ContextManager>(
+        m, "APyFloatQuantizationContext"
+    )
         .def(
             nb::init<QuantizationMode, std::optional<std::uint64_t>>(),
             nb::arg("quantization"),

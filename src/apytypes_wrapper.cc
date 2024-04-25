@@ -177,7 +177,11 @@ void bind_common(nb::module_& m)
             R"pbdoc(Remove MSBs, but keep the most significant bit. As ieee.numeric_std resize for signed.)pbdoc"
         );
 
-    m.def("set_quantization_mode", &set_quantization_mode, nb::arg("mode"), R"pbdoc(
+    m.def(
+         "set_quantization_mode_float",
+         &set_quantization_mode_float,
+         nb::arg("mode"),
+         R"pbdoc(
         Set current quantization context.
 
         Parameters
@@ -187,9 +191,10 @@ void bind_common(nb::module_& m)
 
         See also
         --------
-        get_quantization_mode
-        )pbdoc")
-        .def("get_quantization_mode", &get_quantization_mode, R"pbdoc(
+        get_quantization_mode_float
+        )pbdoc"
+    )
+        .def("get_quantization_mode_float", &get_quantization_mode_float, R"pbdoc(
         Get current quantization context.
 
         Returns
@@ -198,9 +203,13 @@ void bind_common(nb::module_& m)
 
         See also
         --------
-        set_quantization_mode
+        set_quantization_mode_float
         )pbdoc")
-        .def("set_quantization_seed", &set_quantization_seed, nb::arg("seed"), R"pbdoc(
+        .def(
+            "set_quantization_seed_float",
+            &set_quantization_seed_float,
+            nb::arg("seed"),
+            R"pbdoc(
         Set current quantization seed.
 
         The quantization seed is used for stochastic quantization.
@@ -212,9 +221,10 @@ void bind_common(nb::module_& m)
 
         See also
         --------
-        get_quantization_seed
-        )pbdoc")
-        .def("get_quantization_seed", &get_quantization_seed, R"pbdoc(
+        get_quantization_seed_float
+        )pbdoc"
+        )
+        .def("get_quantization_seed_float", &get_quantization_seed_float, R"pbdoc(
         Set current quantization seed.
 
         The quantization seed is used for stochastic quantization.
@@ -225,7 +235,7 @@ void bind_common(nb::module_& m)
 
         See also
         --------
-        set_quantization_seed
+        set_quantization_seed_float
         )pbdoc")
 
         /* Get the APyTypes SIMD version string */

@@ -1,24 +1,24 @@
 import apytypes
-from apytypes import APyFloat, QuantizationMode, QuantizationContext
+from apytypes import APyFloat, QuantizationMode, APyFloatQuantizationContext
 import pytest
 
 
 def test_issue_245():
     # Test that jamming bit is not applied when result is zero
     # https://github.com/apytypes/apytypes/issues/245
-    with QuantizationContext(QuantizationMode.JAM):
+    with APyFloatQuantizationContext(QuantizationMode.JAM):
         res = APyFloat(0, 15, 0, 5, 2) + APyFloat(0, 0, 0, 5, 2)
         assert res.is_identical(APyFloat(0, 15, 0, 5, 2))
 
-    with QuantizationContext(QuantizationMode.JAM):
+    with APyFloatQuantizationContext(QuantizationMode.JAM):
         res = APyFloat(0, 15, 0, 5, 2) - APyFloat(0, 0, 0, 5, 2)
         assert res.is_identical(APyFloat(0, 15, 0, 5, 2))
 
-    with QuantizationContext(QuantizationMode.JAM):
+    with APyFloatQuantizationContext(QuantizationMode.JAM):
         res = APyFloat(0, 15, 0, 5, 2) * APyFloat(0, 0, 0, 5, 2)
         assert res.is_identical(APyFloat(0, 0, 0, 5, 2))
 
-    with QuantizationContext(QuantizationMode.JAM):
+    with APyFloatQuantizationContext(QuantizationMode.JAM):
         res = APyFloat(0, 0, 0, 5, 2) / APyFloat(0, 15, 0, 5, 2)
         assert res.is_identical(APyFloat(0, 0, 0, 5, 2))
 
@@ -31,7 +31,7 @@ class TestAPyFloatQuantizationAddSub:
     """
 
     def test_to_pos(self):
-        with QuantizationContext(QuantizationMode.TO_POS):
+        with APyFloatQuantizationContext(QuantizationMode.TO_POS):
             # 1.5 + very small number should quantize to 1.75
             res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
             assert res.is_identical(APyFloat(0, 15, 3, 5, 2))
@@ -41,7 +41,7 @@ class TestAPyFloatQuantizationAddSub:
             assert res.is_identical(APyFloat(1, 15, 1, 5, 2))
 
     def test_to_neg(self):
-        with QuantizationContext(QuantizationMode.TO_NEG):
+        with APyFloatQuantizationContext(QuantizationMode.TO_NEG):
             # 1.5 + very small number should quantize to 1.5
             res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
             assert res.is_identical(APyFloat(0, 15, 2, 5, 2))
@@ -51,7 +51,7 @@ class TestAPyFloatQuantizationAddSub:
             assert res.is_identical(APyFloat(1, 15, 2, 5, 2))
 
     def test_to_zero(self):
-        with QuantizationContext(QuantizationMode.TO_ZERO):
+        with APyFloatQuantizationContext(QuantizationMode.TO_ZERO):
             # 1.5 + relatively big number (0.21875) should still quantize to 1.5
             res = APyFloat(0, 15, 2, 5, 2) + APyFloat(
                 sign=0, exp=12, man=3, exp_bits=5, man_bits=2
@@ -65,7 +65,7 @@ class TestAPyFloatQuantizationAddSub:
             assert res.is_identical(APyFloat(1, 15, 2, 5, 2))
 
     def test_to_ties_even(self):
-        with QuantizationContext(QuantizationMode.TIES_EVEN):
+        with APyFloatQuantizationContext(QuantizationMode.TIES_EVEN):
             # 1.5 + relatively big number (0.21875) should quantize to 1.75
             res = APyFloat(0, 15, 2, 5, 2) + APyFloat(
                 sign=0, exp=12, man=3, exp_bits=5, man_bits=2
@@ -103,7 +103,7 @@ class TestAPyFloatQuantizationAddSub:
             assert res.is_identical(APyFloat(1, 16, 0, 5, 2))
 
     def test_to_ties_away(self):
-        with QuantizationContext(QuantizationMode.TIES_EVEN):
+        with APyFloatQuantizationContext(QuantizationMode.TIES_EVEN):
             # 1.5 + relatively big number (0.21875) should quantize to 1.75
             res = APyFloat(0, 15, 2, 5, 2) + APyFloat(
                 sign=0, exp=12, man=3, exp_bits=5, man_bits=2
@@ -141,7 +141,7 @@ class TestAPyFloatQuantizationAddSub:
             assert res.is_identical(APyFloat(1, 16, 0, 5, 2))
 
     def test_jam(self):
-        with QuantizationContext(QuantizationMode.JAM):
+        with APyFloatQuantizationContext(QuantizationMode.JAM):
             # 1.5 + very small number should quantize to 1.75
             res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
             assert res.is_identical(APyFloat(0, 15, 3, 5, 2))
@@ -155,7 +155,7 @@ class TestAPyFloatQuantizationAddSub:
             assert res.is_identical(APyFloat(0, 16, 1, 5, 2))
 
     def test_stoch_weighted(self):
-        with QuantizationContext(QuantizationMode.STOCH_WEIGHTED):
+        with APyFloatQuantizationContext(QuantizationMode.STOCH_WEIGHTED):
             # 1.5 + 0.125 should quantize to 1.5 or 1.75
             res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 12, 0, 5, 2)
             assert res.is_identical(APyFloat(0, 15, 2, 5, 2)) or (
@@ -170,7 +170,7 @@ class TestAPyFloatQuantizationAddSub:
             )
 
     def test_stoch_equal(self):
-        with QuantizationContext(QuantizationMode.STOCH_EQUAL):
+        with APyFloatQuantizationContext(QuantizationMode.STOCH_EQUAL):
             # 1.5 + 0.125 should quantize to 1.5 or 1.75
             res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 12, 0, 5, 2)
             assert res.is_identical(APyFloat(0, 15, 2, 5, 2)) or (
@@ -192,7 +192,7 @@ class TestAPyFloatQuantizationMul:
     """
 
     def test_to_pos(self):
-        with QuantizationContext(QuantizationMode.TO_POS):
+        with APyFloatQuantizationContext(QuantizationMode.TO_POS):
             # Should round up
             res = APyFloat(0, 7, 6, 4, 3) * APyFloat(0, 7, 1, 4, 3)
             assert res.is_identical(APyFloat(0, 8, 0, 4, 3))
@@ -217,7 +217,7 @@ class TestAPyFloatQuantizationMul:
             assert res.is_identical(APyFloat(1, 0, 0, 4, 3))
 
     def test_to_neg(self):
-        with QuantizationContext(QuantizationMode.TO_NEG):
+        with APyFloatQuantizationContext(QuantizationMode.TO_NEG):
             # Should round down
             res = APyFloat(0, 7, 6, 4, 3) * APyFloat(0, 7, 1, 4, 3)
             assert res.is_identical(APyFloat(0, 7, 7, 4, 3))
@@ -249,7 +249,7 @@ class TestAPyFloatQuantizationDiv:
     """
 
     def test_to_pos(self):
-        with QuantizationContext(QuantizationMode.TO_POS):
+        with APyFloatQuantizationContext(QuantizationMode.TO_POS):
             # 1.5 / 1.25 (=1.2) should quantize to 1.25
             res = APyFloat(0, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
             assert res.is_identical(APyFloat(0, 15, 1, 5, 2))
@@ -259,7 +259,7 @@ class TestAPyFloatQuantizationDiv:
             assert res.is_identical(APyFloat(1, 15, 0, 5, 2))
 
     def test_to_neg(self):
-        with QuantizationContext(QuantizationMode.TO_NEG):
+        with APyFloatQuantizationContext(QuantizationMode.TO_NEG):
             # 1.5 / 1.25 (=1.2) should quantize to 1.0
             res = APyFloat(0, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
             assert res.is_identical(APyFloat(0, 15, 0, 5, 2))
@@ -269,7 +269,7 @@ class TestAPyFloatQuantizationDiv:
             assert res.is_identical(APyFloat(1, 15, 1, 5, 2))
 
     def test_to_zero(self):
-        with QuantizationContext(QuantizationMode.TO_ZERO):
+        with APyFloatQuantizationContext(QuantizationMode.TO_ZERO):
             # 1.25 / 1.5 should quantize to 0.75
             res = APyFloat(0, 15, 1, 5, 2) / APyFloat(0, 15, 2, 5, 2)
             assert res.is_identical(APyFloat(0, 14, 2, 5, 2))
@@ -279,7 +279,7 @@ class TestAPyFloatQuantizationDiv:
             assert res.is_identical(APyFloat(1, 14, 2, 5, 2))
 
     def test_to_ties_even(self):
-        with QuantizationContext(QuantizationMode.TIES_EVEN):
+        with APyFloatQuantizationContext(QuantizationMode.TIES_EVEN):
             # 1.25 / 1.5 should quantize to closes which is 0.875
             res = APyFloat(0, 15, 1, 5, 2) / APyFloat(0, 15, 2, 5, 2)
             assert res.is_identical(APyFloat(0, 14, 3, 5, 2))
@@ -313,7 +313,7 @@ class TestAPyFloatQuantizationDiv:
             assert res.is_identical(APyFloat(1, 0, 2, 5, 2))
 
     def test_to_ties_away(self):
-        with QuantizationContext(QuantizationMode.TIES_AWAY):
+        with APyFloatQuantizationContext(QuantizationMode.TIES_AWAY):
             # 1.25 / 1.5 should quantize to closes which is 0.875
             res = APyFloat(0, 15, 1, 5, 2) / APyFloat(0, 15, 2, 5, 2)
             assert res.is_identical(APyFloat(0, 14, 3, 5, 2))
@@ -347,7 +347,7 @@ class TestAPyFloatQuantizationDiv:
             assert res.is_identical(APyFloat(1, 0, 2, 5, 2))
 
     def test_jam(self):
-        with QuantizationContext(QuantizationMode.JAM):
+        with APyFloatQuantizationContext(QuantizationMode.JAM):
             # 1.5 / 1.25 (=1.2) should quantize to 1.25
             res = APyFloat(0, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
             assert res.is_identical(APyFloat(0, 15, 1, 5, 2))
@@ -361,7 +361,7 @@ class TestAPyFloatQuantizationDiv:
             assert res.is_identical(APyFloat(0, 16, 1, 5, 2))
 
     def test_stoch_weighted(self):
-        with QuantizationContext(QuantizationMode.STOCH_WEIGHTED):
+        with APyFloatQuantizationContext(QuantizationMode.STOCH_WEIGHTED):
             # 1.5 / 1.25 (=1.2) should quantize to 1.0 or 1.25
             res = APyFloat(0, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
             assert res.is_identical(APyFloat(0, 15, 0, 5, 2)) or (
@@ -375,7 +375,7 @@ class TestAPyFloatQuantizationDiv:
             )
 
     def test_stoch_equal(self):
-        with QuantizationContext(QuantizationMode.STOCH_EQUAL):
+        with APyFloatQuantizationContext(QuantizationMode.STOCH_EQUAL):
             # 1.5 / 1.25 (=1.2) should quantize to 1.0 or 1.25
             res = APyFloat(0, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
             assert res.is_identical(APyFloat(0, 15, 0, 5, 2)) or (
@@ -398,14 +398,14 @@ class TestAPyFloatQuantization:
 
     def setup_class(self):
         """Save the current quantization mode so that it can be restored later for other tests."""
-        self.default_mode = apytypes.get_quantization_mode()
+        self.default_mode = apytypes.get_quantization_mode_float()
 
     def teardown_class(self):
         """Restore quantization mode."""
-        apytypes.set_quantization_mode(self.default_mode)
+        apytypes.set_quantization_mode_float(self.default_mode)
 
     def test_quantization_mantissa_overflow(self):
-        apytypes.set_quantization_mode(QuantizationMode.TO_POS)
+        apytypes.set_quantization_mode_float(QuantizationMode.TO_POS)
         assert (
             APyFloat(0, 5, 0b11111, 5, 5)
             .cast(5, 3)
@@ -417,7 +417,7 @@ class TestAPyFloatQuantization:
             .is_identical(APyFloat(0, 0b11111, 0b000, 5, 3))
         )  # Quantization becomes inf
 
-        apytypes.set_quantization_mode(QuantizationMode.TO_NEG)
+        apytypes.set_quantization_mode_float(QuantizationMode.TO_NEG)
         assert (
             APyFloat(1, 5, 0b11111, 5, 5)
             .cast(5, 3)
@@ -430,7 +430,7 @@ class TestAPyFloatQuantization:
         )  # Quantization becomes -inf
 
     def test_quantization_to_pos(self):
-        apytypes.set_quantization_mode(QuantizationMode.TO_POS)
+        apytypes.set_quantization_mode_float(QuantizationMode.TO_POS)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -520,7 +520,7 @@ class TestAPyFloatQuantization:
         )  # Round down
 
     def test_quantization_to_neg(self):
-        apytypes.set_quantization_mode(QuantizationMode.TO_NEG)
+        apytypes.set_quantization_mode_float(QuantizationMode.TO_NEG)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -610,7 +610,7 @@ class TestAPyFloatQuantization:
         )  # Round up
 
     def test_quantization_to_away(self):
-        apytypes.set_quantization_mode(QuantizationMode.TO_AWAY)
+        apytypes.set_quantization_mode_float(QuantizationMode.TO_AWAY)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -700,7 +700,7 @@ class TestAPyFloatQuantization:
         )  # Round down
 
     def test_quantization_to_zero(self):
-        apytypes.set_quantization_mode(QuantizationMode.TO_ZERO)
+        apytypes.set_quantization_mode_float(QuantizationMode.TO_ZERO)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -790,7 +790,7 @@ class TestAPyFloatQuantization:
         )  # Round down
 
     def test_quantization_ties_even(self):
-        apytypes.set_quantization_mode(QuantizationMode.TIES_EVEN)
+        apytypes.set_quantization_mode_float(QuantizationMode.TIES_EVEN)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -880,7 +880,7 @@ class TestAPyFloatQuantization:
         )  # Round up
 
     def test_quantization_ties_odd(self):
-        apytypes.set_quantization_mode(QuantizationMode.TIES_ODD)
+        apytypes.set_quantization_mode_float(QuantizationMode.TIES_ODD)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -970,7 +970,7 @@ class TestAPyFloatQuantization:
         )  # Round up
 
     def test_quantization_ties_pos(self):
-        apytypes.set_quantization_mode(QuantizationMode.TIES_POS)
+        apytypes.set_quantization_mode_float(QuantizationMode.TIES_POS)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -1060,7 +1060,7 @@ class TestAPyFloatQuantization:
         )  # Round up
 
     def test_quantization_ties_neg(self):
-        apytypes.set_quantization_mode(QuantizationMode.TIES_NEG)
+        apytypes.set_quantization_mode_float(QuantizationMode.TIES_NEG)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -1150,7 +1150,7 @@ class TestAPyFloatQuantization:
         )  # Round up
 
     def test_quantization_ties_away(self):
-        apytypes.set_quantization_mode(QuantizationMode.TIES_AWAY)
+        apytypes.set_quantization_mode_float(QuantizationMode.TIES_AWAY)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -1240,7 +1240,7 @@ class TestAPyFloatQuantization:
         )  # Round up
 
     def test_quantization_ties_to_zero(self):
-        apytypes.set_quantization_mode(QuantizationMode.TIES_ZERO)
+        apytypes.set_quantization_mode_float(QuantizationMode.TIES_ZERO)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -1330,7 +1330,7 @@ class TestAPyFloatQuantization:
         )  # Round up
 
     def test_quantization_jamming(self):
-        apytypes.set_quantization_mode(QuantizationMode.JAM)
+        apytypes.set_quantization_mode_float(QuantizationMode.JAM)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -1420,7 +1420,7 @@ class TestAPyFloatQuantization:
         )
 
     def test_quantization_unbiased_jamming(self):
-        apytypes.set_quantization_mode(QuantizationMode.JAM_UNBIASED)
+        apytypes.set_quantization_mode_float(QuantizationMode.JAM_UNBIASED)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -1447,7 +1447,7 @@ class TestAPyFloatQuantization:
 
     def test_quantization_magnitude_truncation(self):
         # Shouldn't be used for floating-point
-        apytypes.set_quantization_mode(QuantizationMode.TRN_MAG)
+        apytypes.set_quantization_mode_float(QuantizationMode.TRN_MAG)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -1541,7 +1541,7 @@ class TestAPyFloatQuantization:
         A bit naive, but test that a value can be rounded both up and down in 1000 tries.
         An exact value should however not be rounded.
         """
-        apytypes.set_quantization_mode(QuantizationMode.STOCH_WEIGHTED)
+        apytypes.set_quantization_mode_float(QuantizationMode.STOCH_WEIGHTED)
         larger_format = APyFloat(0, 5, 0b10000, 5, 5)
         assert larger_format.cast(5, 3).is_identical(APyFloat(0, 5, 0b100, 5, 3))
 
@@ -1567,7 +1567,7 @@ class TestAPyFloatQuantization:
         A bit naive, but test that a value can be rounded both up and down in 1000 tries.
         An exact value should however not be rounded.
         """
-        apytypes.set_quantization_mode(QuantizationMode.STOCH_EQUAL)
+        apytypes.set_quantization_mode_float(QuantizationMode.STOCH_EQUAL)
         larger_format = APyFloat(0, 5, 0b10000, 5, 5)
         assert larger_format.cast(5, 3).is_identical(APyFloat(0, 5, 0b100, 5, 3))
 

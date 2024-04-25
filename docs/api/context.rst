@@ -1,7 +1,7 @@
 Context handling
 ================
 
-.. autoclass:: apytypes.QuantizationContext
+.. autoclass:: apytypes.APyFloatQuantizationContext
 
    .. automethod:: __init__
 
