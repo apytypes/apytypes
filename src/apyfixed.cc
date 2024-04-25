@@ -775,43 +775,6 @@ double APyFixed::to_double() const
     }
 }
 
-void APyFixed::set_from_apyfixed(const APyFixed& other)
-{
-    // Copy data from `other` limb vector shift binary point into position
-    ScratchVector<mp_limb_t> other_data_copy { other._data };
-    if (frac_bits() <= other.frac_bits()) {
-        limb_vector_asr(
-            other_data_copy.begin(),
-            other_data_copy.end(),
-            other.frac_bits() - frac_bits()
-        );
-    } else {
-        limb_vector_lsl(
-            other_data_copy.begin(),
-            other_data_copy.end(),
-            frac_bits() - other.frac_bits()
-        );
-    }
-
-    // Copy binary point-adjusted data
-    if (vector_size() <= other_data_copy.size()) {
-        std::copy(
-            other_data_copy.cbegin(),
-            other_data_copy.cbegin() + vector_size(),
-            _data.begin()
-        );
-    } else {
-        std::copy(other_data_copy.cbegin(), other_data_copy.cend(), _data.begin());
-        std::fill(
-            _data.begin() + other_data_copy.size(),
-            _data.end(),
-            other.is_negative() ? -1 : 0
-        );
-    }
-
-    _overflow_twos_complement(_data.begin(), _data.end(), bits(), int_bits());
-}
-
 nb::int_ APyFixed::to_bits() const
 {
     return python_limb_vec_to_long(
@@ -919,15 +882,6 @@ std::size_t APyFixed::leading_fractional_zeros() const
 std::size_t APyFixed::leading_signs() const
 {
     return is_negative() ? leading_ones() : leading_zeros();
-}
-
-bool APyFixed::greater_than_equal_pow2(int n) const
-{
-    if (is_negative()) {
-        return false;
-    } else {
-        return positive_greater_than_equal_pow2(n);
-    }
 }
 
 bool APyFixed::positive_greater_than_equal_pow2(int n) const

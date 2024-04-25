@@ -40,12 +40,6 @@ public:
         const APyFloatData& data,
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
-        std::optional<exp_t> bias = std::nullopt
-    );
-    APyFloat(
-        const APyFloatData& data,
-        std::uint8_t exp_bits,
-        std::uint8_t man_bits,
         exp_t bias
     );
     APyFloat(
@@ -150,7 +144,6 @@ public:
     std::string str() const;
     //! Python representation
     std::string repr() const;
-    std::string pretty_string() const;
 
     //! LaTeX representation
     std::string latex() const;
