@@ -157,11 +157,11 @@ public:
      * options on narrowing casts.
      */
     APyFixedArray cast(
-        std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
-        std::optional<QuantizationMode> quantization = QuantizationMode::TRN,
-        std::optional<OverflowMode> overflow = OverflowMode::WRAP,
-        std::optional<int> frac_bits = std::nullopt
+        std::optional<int> frac_bits = std::nullopt,
+        std::optional<QuantizationMode> quantization = std::nullopt,
+        std::optional<OverflowMode> overflow = std::nullopt,
+        std::optional<int> bits = std::nullopt
     ) const;
 
     /*!

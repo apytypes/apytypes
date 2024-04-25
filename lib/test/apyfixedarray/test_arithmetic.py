@@ -203,7 +203,7 @@ def test_array_sub_scalar():
     a = APyFixedArray([-5, -6, 7, 10, -11], bits=10, int_bits=5)
     b = APyFixed(3, bits=7, int_bits=2)
     assert (a - b).is_identical(APyFixedArray([-8, -9, 4, 7, -14], bits=11, int_bits=6))
-    assert (-(b - a)).is_identical((a - b).cast(12, 7))
+    assert (-(b - a)).is_identical((a - b).cast(7, 5))
 
     a = APyFixedArray([-5, -6, 7], bits=7, int_bits=4)
     b = APyFixed(3, bits=7, int_bits=4)
@@ -471,7 +471,7 @@ def test_abs():
 )
 def test_huge_narrowing_cast(mode):
     a = APyFixedArray.from_float([-0.75, 0.5], 1000, 500)
-    assert a.cast(10, 5, mode).is_identical(
+    assert a.cast(5, 5, mode).is_identical(
         APyFixedArray.from_float([-0.75, 0.5], 10, 5)
     )
 
@@ -493,9 +493,9 @@ def test_huge_narrowing_cast(mode):
 )
 def test_huge_extending_cast(mode):
     a = APyFixedArray.from_float([-0.75, 0.5], 10, 5)
-    print(a.cast(1000, 500, mode))
+    print(a.cast(500, 500, mode))
     print(APyFixedArray.from_float([-0.75, 0.5], 1000, 500))
-    assert a.cast(1000, 500, mode).is_identical(
+    assert a.cast(500, 500, mode).is_identical(
         APyFixedArray.from_float([-0.75, 0.5], 1000, 500)
     )
 

@@ -917,11 +917,11 @@ bool APyFixedArray::is_identical(const APyFixedArray& other) const
 }
 
 APyFixedArray APyFixedArray::cast(
-    std::optional<int> bits,
     std::optional<int> int_bits,
+    std::optional<int> frac_bits,
     std::optional<QuantizationMode> quantization,
     std::optional<OverflowMode> overflow,
-    std::optional<int> frac_bits
+    std::optional<int> bits
 ) const
 {
     // Sanitize the input (bit-specifier validity tested in `bits_from_optional()`)
@@ -1192,7 +1192,7 @@ void APyFixedArray::_checked_inner_product_acc(
     );
 
     APyFixedArray hadamard_new = hadamard_scratch.cast(
-        mode.bits, mode.int_bits, mode.quantization, mode.overflow
+        mode.int_bits, mode.bits - mode.int_bits, mode.quantization, mode.overflow
     );
 
     // Accumulate the result

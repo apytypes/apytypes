@@ -478,11 +478,11 @@ class APyFixedArray:
     def __truediv__(self, arg0: APyFixed) -> APyFixedArray: ...
     def cast(
         self,
-        bits: int | None = None,
         int_bits: int | None = None,
-        quantization: QuantizationMode = None,
-        overflow: OverflowMode = None,
         frac_bits: int | None = None,
+        quantization: QuantizationMode | None = None,
+        overflow: OverflowMode | None = None,
+        bits: int | None = None,
     ) -> APyFixedArray:
         """
         Create a new resized fixed-point array based on the bit pattern in this
@@ -496,16 +496,16 @@ class APyFixedArray:
 
         Parameters
         ----------
-        bits : int, optional
-            Total number of bits in the created fixed-point array.
         int_bits : int, optional
             Number of integer bits in the created fixed-point array-
-        quantization : :class:`QuantizationMode`, default: :class:`QuantizationMode.TRN`
-            Quantization mode to use in this cast.
-        overflow : :class:`OverflowMode`, default: :class:`OverflowMode.WRAP`
-            Overflowing mode to use in this cast.
         frac_bits : int, optional
             Number of fractional bits in the created fixed-point array.
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use in this cast.
+        overflow : :class:`OverflowMode`, optional
+            Overflowing mode to use in this cast.
+        bits : int, optional
+            Total number of bits in the created fixed-point array.
 
         Returns
         -------
