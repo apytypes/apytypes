@@ -13,12 +13,12 @@ __all__ = [
     "AccumulatorContext",
     "ContextManager",
     "OverflowMode",
-    "QuantizationContext",
+    "APyFloatQuantizationContext",
     "QuantizationMode",
-    "get_quantization_mode",
-    "get_quantization_seed",
-    "set_quantization_mode",
-    "set_quantization_seed",
+    "get_quantization_mode_float",
+    "get_quantization_seed_float",
+    "set_quantization_mode_float",
+    "set_quantization_seed_float",
 ]
 
 class APyFixed:
@@ -653,7 +653,7 @@ class APyFloat:
             Bias.
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use. If not provided, the global mode,
-            see :func:`get_quantization_mode`, is used.
+            see :func:`get_quantization_mode_float`, is used.
 
         Returns
         -------
@@ -772,7 +772,7 @@ class APyFloat:
 
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use. If not provided, the global mode,
-            see :func:`get_quantization_mode`, is used.
+            see :func:`get_quantization_mode_float`, is used.
         """
 
     def cast_to_double(self, quantization: QuantizationMode | None = None) -> APyFloat:
@@ -790,7 +790,7 @@ class APyFloat:
 
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use. If not provided, the global mode,
-            see :func:`get_quantization_mode`, is used.
+            see :func:`get_quantization_mode_float`, is used.
         """
 
     def cast_to_half(self, quantization: QuantizationMode | None = None) -> APyFloat:
@@ -808,7 +808,7 @@ class APyFloat:
 
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use. If not provided, the global mode,
-            see :func:`get_quantization_mode`, is used.
+            see :func:`get_quantization_mode_float`, is used.
         """
 
     def cast_to_single(self, quantization: QuantizationMode | None = None) -> APyFloat:
@@ -826,7 +826,7 @@ class APyFloat:
 
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use. If not provided, the global mode,
-            see :func:`get_quantization_mode`, is used.
+            see :func:`get_quantization_mode_float`, is used.
         """
 
     def is_identical(self, other: APyFloat) -> bool:
@@ -930,7 +930,7 @@ class APyFloatArray:
             Bias in the created fixed-point tensor
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use. If not provided, the global mode,
-            see :func:`get_quantization_mode`, is used.
+            see :func:`get_quantization_mode_float`, is used.
 
         Returns
         -------
@@ -1040,7 +1040,7 @@ class APyFloatArray:
 
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use. If not provided, the global mode,
-            see :func:`get_quantization_mode`, is used.
+            see :func:`get_quantization_mode_float`, is used.
         """
 
     def cast_to_double(
@@ -1060,7 +1060,7 @@ class APyFloatArray:
 
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use. If not provided, the global mode,
-            see :func:`get_quantization_mode`, is used.
+            see :func:`get_quantization_mode_float`, is used.
         """
 
     def cast_to_half(
@@ -1080,7 +1080,7 @@ class APyFloatArray:
 
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use. If not provided, the global mode,
-            see :func:`get_quantization_mode`, is used.
+            see :func:`get_quantization_mode_float`, is used.
         """
 
     def cast_to_single(
@@ -1100,7 +1100,7 @@ class APyFloatArray:
 
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use. If not provided, the global mode,
-            see :func:`get_quantization_mode`, is used.
+            see :func:`get_quantization_mode_float`, is used.
         """
 
     def is_identical(self, other: APyFloatArray) -> bool:
@@ -1267,7 +1267,7 @@ class OverflowMode:
     @property
     def value(self) -> int: ...
 
-class QuantizationContext(ContextManager):
+class APyFloatQuantizationContext(ContextManager):
     def __enter__(self: ContextManager) -> None: ...
     def __exit__(
         self: ContextManager,
@@ -1395,7 +1395,7 @@ class QuantizationMode:
     @property
     def value(self) -> int: ...
 
-def get_quantization_mode() -> QuantizationMode: ...
-def get_quantization_seed() -> int: ...
-def set_quantization_mode(arg0: QuantizationMode) -> None: ...
-def set_quantization_seed(arg0: int) -> None: ...
+def get_quantization_mode_float() -> QuantizationMode: ...
+def get_quantization_seed_float() -> int: ...
+def set_quantization_mode_float(arg0: QuantizationMode) -> None: ...
+def set_quantization_seed_float(arg0: int) -> None: ...

@@ -3,7 +3,7 @@ from apytypes import (
     APyFloat,
     APyFloatArray,
     AccumulatorContext,
-    QuantizationContext,
+    APyFloatQuantizationContext,
     QuantizationMode,
 )
 
@@ -123,12 +123,12 @@ def test_matrix_multiplication_accumulator_context():
         man_bits=3,
     )
 
-    # Changing only the rounding mode will produce the same answer as the QuantizationContext
+    # Changing only the rounding mode will produce the same answer as the APyFloatQuantizationContext
     ans = None
-    with QuantizationContext(QuantizationMode.TO_POS):
+    with APyFloatQuantizationContext(QuantizationMode.TO_POS):
         ans = A @ B
 
-    with QuantizationContext(QuantizationMode.TO_NEG):
+    with APyFloatQuantizationContext(QuantizationMode.TO_NEG):
         print(A @ B)
 
     with AccumulatorContext(

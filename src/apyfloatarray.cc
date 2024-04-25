@@ -92,7 +92,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
         ));
     }
 
-    const auto quantization = get_quantization_mode();
+    const auto quantization = get_quantization_mode_float();
     // +5 to give room for leading one, carry, and 3 guard bits
     const unsigned int max_man_bits = man_bits + 5;
     if (same_type_as(rhs) && (max_man_bits <= _MAN_T_SIZE_BITS)
@@ -263,7 +263,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
 
 APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
 {
-    const auto quantization = get_quantization_mode();
+    const auto quantization = get_quantization_mode_float();
     // +5 to give room for leading one, carry, and 3 guard bits
     const unsigned int max_man_bits = man_bits + 5;
     const bool same_types = same_type_as(rhs);
@@ -498,7 +498,7 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
     APyFloatArray res(shape, res_exp_bits, res_man_bits, res_bias);
 
     const int sum_man_bits = man_bits + rhs.man_bits;
-    const auto quantization = get_quantization_mode();
+    const auto quantization = get_quantization_mode_float();
 
     if (unsigned(sum_man_bits) + 3 <= _MAN_T_SIZE_BITS) {
         // Compute constants for reuse
@@ -641,7 +641,7 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
     APyFloatArray res(shape, res_exp_bits, res_man_bits, res_bias);
 
     const int sum_man_bits = man_bits + rhs.get_man_bits();
-    const auto quantization = get_quantization_mode();
+    const auto quantization = get_quantization_mode_float();
 
     if (unsigned(sum_man_bits) + 3 <= _MAN_T_SIZE_BITS) {
         // Compute constants for reuse
@@ -1172,7 +1172,7 @@ APyFloatArray APyFloatArray::cast(
         actual_exp_bits,
         new_man_bits.value_or(man_bits),
         new_bias.value_or(APyFloat::ieee_bias(actual_exp_bits)),
-        quantization.value_or(get_quantization_mode())
+        quantization.value_or(get_quantization_mode_float())
     );
 }
 APyFloatArray APyFloatArray::_cast(
@@ -1186,7 +1186,7 @@ APyFloatArray APyFloatArray::_cast(
         new_exp_bits,
         new_man_bits,
         new_bias,
-        quantization.value_or(get_quantization_mode())
+        quantization.value_or(get_quantization_mode_float())
     );
 }
 
@@ -1260,14 +1260,14 @@ APyFloat APyFloatArray::checked_inner_product(
     // multiplication. This is because the products would otherwise get quantized
     // too early.
 
-    const auto orig_quant_mode = get_quantization_mode();
+    const auto orig_quant_mode = get_quantization_mode_float();
 
     if (accumulator_mode.has_value()) {
         const auto acc_option = accumulator_mode.value();
         tmp_exp_bits = acc_option.exp_bits;
         tmp_man_bits = acc_option.man_bits;
         auto tmp_bias = APyFloat::ieee_bias(tmp_exp_bits);
-        set_quantization_mode(acc_option.quantization);
+        set_quantization_mode_float(acc_option.quantization);
         hadamard
             = this->_cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization)
             * rhs._cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization);
@@ -1281,7 +1281,7 @@ APyFloat APyFloatArray::checked_inner_product(
     if (accumulator_mode.has_value()) {
         sum = sum.cast(max_exp_bits, max_man_bits);
         // Change the quantization mode back, even if it wasn't changed
-        set_quantization_mode(orig_quant_mode);
+        set_quantization_mode_float(orig_quant_mode);
     }
 
     return sum;
@@ -1290,7 +1290,7 @@ APyFloat APyFloatArray::checked_inner_product(
 // Compute sum of all elements
 APyFloat APyFloatArray::vector_sum() const
 {
-    const auto quantization = get_quantization_mode();
+    const auto quantization = get_quantization_mode_float();
     // +5 to give room for leading one, carry, and 3 guard bits
     const unsigned int max_man_bits = man_bits + 5;
     APyFloat ret(0, 0, 0, exp_bits, man_bits);

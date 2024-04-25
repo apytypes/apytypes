@@ -5,12 +5,12 @@ from apytypes._apytypes import APyFloat
 from apytypes._apytypes import APyFloatArray
 from apytypes._apytypes import AccumulatorContext
 from apytypes._apytypes import OverflowMode
-from apytypes._apytypes import QuantizationContext
+from apytypes._apytypes import APyFloatQuantizationContext
 from apytypes._apytypes import QuantizationMode
-from apytypes._apytypes import get_quantization_mode
-from apytypes._apytypes import get_quantization_seed
-from apytypes._apytypes import set_quantization_mode
-from apytypes._apytypes import set_quantization_seed
+from apytypes._apytypes import get_quantization_mode_float
+from apytypes._apytypes import get_quantization_seed_float
+from apytypes._apytypes import set_quantization_mode_float
+from apytypes._apytypes import set_quantization_seed_float
 from . import _apytypes
 from . import _version
 
@@ -21,12 +21,12 @@ __all__: list = [
     "APyFloatArray",
     "AccumulatorContext",
     "OverflowMode",
-    "QuantizationContext",
+    "APyFloatQuantizationContext",
     "QuantizationMode",
     "__version__",
-    "get_quantization_mode",
-    "set_quantization_mode",
-    "get_quantization_seed",
-    "set_quantization_seed",
+    "get_quantization_mode_float",
+    "set_quantization_mode_float",
+    "get_quantization_seed_float",
+    "set_quantization_seed_float",
 ]
 __version__: str = "0.0.1.dev0"

@@ -119,10 +119,10 @@ public:
  * Python example using nested contexts:
  *
  * ```
- * with QuantizationContext(QuantizationMode.TO_NEG):
+ * with APyFloatQuantizationContext(QuantizationMode.TO_NEG):
  *     # Operations now round towards negative infinity
  *     ...
- *     with QuantizationContext(QuantizationMode.TO_POS):
+ *     with APyFloatQuantizationContext(QuantizationMode.TO_POS):
  *         # Operations now round towards positive infinity
  *         ...
  *     # Operations now round towards negative infinity again
@@ -131,9 +131,9 @@ public:
  * ```
  */
 
-class QuantizationContext : public ContextManager {
+class APyFloatQuantizationContext : public ContextManager {
 public:
-    QuantizationContext(
+    APyFloatQuantizationContext(
         const QuantizationMode& new_mode,
         std::optional<std::uint64_t> new_seed = std::nullopt
     );
@@ -145,20 +145,20 @@ private:
     std::uint64_t new_seed, prev_seed;
 };
 
-// Set the global quantization mode
-void set_quantization_mode(QuantizationMode mode);
+//! Set the global quantization mode for APyFloat
+void set_quantization_mode_float(QuantizationMode mode);
 
-// Retrieve the global quantization mode
-QuantizationMode get_quantization_mode();
+//! Retrieve the global quantization mode for APyFloat
+QuantizationMode get_quantization_mode_float();
 
-// Set the global seed for stochastic quantization
-void set_quantization_seed(std::uint64_t);
+//! Set the global seed for stochastic quantization for APyFloat
+void set_quantization_seed_float(std::uint64_t);
 
-// Get the global seed for stochastic quantization
-std::uint64_t get_quantization_seed();
+//! Get the global seed for stochastic quantization for APyFloat
+std::uint64_t get_quantization_seed_float();
 
-// Retrieve a random 64-bit number
-std::uint64_t random_number();
+//! Retrieve a random 64-bit number from the random number engine used for APyFloat
+std::uint64_t random_number_float();
 
 using exp_t = std::uint32_t;
 using man_t = std::uint64_t;
