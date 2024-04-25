@@ -40,8 +40,8 @@ public:
     APyFloatArray rtruediv(const APyFloat& rhs) const;
 
     /*!
-     * Matrix multiplication. If both arguments ar 2-D tensors, this method performs the
-     * ordinary matrix multiplication. If input dimensions are greater than 2, this
+     * Matrix multiplication. If both arguments are 2-D tensors, this method performs
+     * the ordinary matrix multiplication. If input dimensions are greater than 2, this
      * method performs stacked matrix multiplications, where the dimensions of last two
      * dimensions are treated as matrices.
      */
@@ -108,8 +108,8 @@ public:
 
     //! Returns a copy of the tensor with the elements resized.
     APyFloatArray cast(
-        std::uint8_t exp_bits,
-        std::uint8_t man_bits,
+        std::optional<uint8_t> exp_bits,
+        std::optional<uint8_t> man_bits,
         std::optional<exp_t> bias = std::nullopt,
         std::optional<QuantizationMode> quantization = std::nullopt
     ) const;
@@ -132,13 +132,6 @@ public:
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
-    ) const;
-
-    APyFloatArray resize(
-        std::uint8_t exp_bits,
-        std::uint8_t man_bits,
-        std::optional<exp_t> bias = std::nullopt,
-        std::optional<QuantizationMode> quantization = std::nullopt
     ) const;
 
     APY_INLINE exp_t get_bias() const { return bias; }

@@ -406,21 +406,21 @@ void bind_float_array(nb::module_& m)
         .def(
             "cast",
             &APyFloatArray::cast,
-            nb::arg("exp_bits"),
-            nb::arg("man_bits"),
+            nb::arg("exp_bits") = nb::none(),
+            nb::arg("man_bits") = nb::none(),
             nb::arg("bias") = nb::none(),
             nb::arg("quantization") = nb::none(),
             R"pbdoc(
-            Resize the floating-point number.
+            Change format of the floating-point number.
 
             This is the primary method for performing quantization when dealing with
             APyTypes floating-point numbers.
 
             Parameters
             ----------
-            exp_bits : int
+            exp_bits : int, optional
                 Number of exponent bits in the result.
-            man_bits : int
+            man_bits : int, optional
                 Number of mantissa bits in the result.
             bias : int, optional
                 Bias used in the result.

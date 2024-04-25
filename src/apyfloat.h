@@ -92,8 +92,8 @@ public:
     nanobind::int_ to_bits() const;
 
     APyFloat cast(
-        std::uint8_t exp_bits,
-        std::uint8_t man_bits,
+        std::optional<uint8_t> exp_bits,
+        std::optional<uint8_t> man_bits,
         std::optional<exp_t> bias = std::nullopt,
         std::optional<QuantizationMode> quantization = std::nullopt
     ) const;

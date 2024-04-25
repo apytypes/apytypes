@@ -171,7 +171,7 @@ void bind_fixed(nb::module_& m)
             nb::arg("overflow") = OverflowMode::WRAP,
             nb::arg("frac_bits") = nb::none(),
             R"pbdoc(
-            Resize the fixed-point number.
+            Change format of the fixed-point number.
 
             This is the primary method for performing quantization and
             overflowing/saturation when dealing with APyTypes fixed-point numbers.
