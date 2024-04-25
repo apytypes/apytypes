@@ -19,11 +19,11 @@ def test_arithmetic_operations():
 
 
 def test_overflow_twos_complement():
-    assert float(APyFixed(1 << 127, 128, 1)) == -1.0
-    assert float(APyFixed(1 << 126, 128, 1)) == 0.5
-    assert float(APyFixed(0xFFFFFFFF0 << 92, 96, 1)) == 0.0
-    assert float(APyFixed(0xFFFFFFFF8 << 92, 96, 1)) == -1.0
-    assert float(APyFixed(0xFFFFFFFF4 << 92, 96, 1)) == 0.5
+    assert float(APyFixed(1 << 127, 1, 127)) == -1.0
+    assert float(APyFixed(1 << 126, 1, 127)) == 0.5
+    assert float(APyFixed(0xFFFFFFFF0 << 92, 1, 95)) == 0.0
+    assert float(APyFixed(0xFFFFFFFF8 << 92, 1, 95)) == -1.0
+    assert float(APyFixed(0xFFFFFFFF4 << 92, 1, 95)) == 0.5
 
 
 def test_binary_comparison():
@@ -188,8 +188,8 @@ def test_mixed_width_operations():
     """
     Tests for mixed-width operations additions and subtractions
     """
-    fx_a = APyFixed(1779, 16, 8)
-    fx_b = APyFixed(17777779, 100, 80)
+    fx_a = APyFixed(1779, int_bits=8, frac_bits=8)
+    fx_b = APyFixed(17777779, int_bits=80, frac_bits=20)
     assert (fx_a + fx_b).is_identical(APyFixed(25064563, bits=101, int_bits=81))
     assert (fx_b + fx_a).is_identical(fx_a + fx_b)
 
@@ -210,8 +210,8 @@ def test_negative_fractional_bits_operations():
     """
     Tests for mixed-width operations additions and subtractions
     """
-    fx_a = APyFixed(1779, 16, 20)
-    fx_b = APyFixed(1779, 16, 30)
+    fx_a = APyFixed(1779, int_bits=20, frac_bits=-4)
+    fx_b = APyFixed(1779, int_bits=30, frac_bits=-14)
     s = APyFixed(1823475, bits=27, int_bits=31)
     assert (fx_a + fx_b).is_identical(s)
     assert (fx_b + fx_a).is_identical(s)
@@ -227,56 +227,56 @@ def test_negative_fractional_bits_operations():
 
 
 def test_unary_minus():
-    a = APyFixed(-3, 3, 2)
+    a = APyFixed(-3, int_bits=2, frac_bits=1)
     assert a._is_negative
     assert not a._is_positive
-    assert (-a).is_identical(APyFixed(3, 4, 3))
-    assert (--a).is_identical(APyFixed(-3, 5, 4))
+    assert (-a).is_identical(APyFixed(3, 3, 1))
+    assert (--a).is_identical(APyFixed(-3, 4, 1))
     assert not (-a)._is_negative
 
-    a = APyFixed(-3, 300, 2)
+    a = APyFixed(-3, int_bits=2, frac_bits=298)
     assert a._is_negative
     assert not a._is_positive
-    assert (-a).is_identical(APyFixed(3, 301, 3))
-    assert (--a).is_identical(APyFixed(-3, 302, 4))
+    assert (-a).is_identical(APyFixed(3, int_bits=3, frac_bits=298))
+    assert (--a).is_identical(APyFixed(-3, int_bits=4, frac_bits=298))
     assert not (-a)._is_negative
 
-    a = APyFixed(-3, 64, 5)
+    a = APyFixed(-3, int_bits=5, frac_bits=59)
     assert a._is_negative
     assert not a._is_positive
-    assert (-a).is_identical(APyFixed(3, 65, 6))
-    assert (--a).is_identical(APyFixed(-3, 66, 7))
+    assert (-a).is_identical(APyFixed(3, int_bits=6, frac_bits=59))
+    assert (--a).is_identical(APyFixed(-3, int_bits=7, frac_bits=59))
     assert not (-a)._is_negative
 
 
 def test_abs():
-    a = APyFixed(-3, 3, 2)
-    assert abs(a).is_identical(APyFixed(3, 4, 3))
+    a = APyFixed(-3, 2, 1)
+    assert abs(a).is_identical(APyFixed(3, 3, 1))
     assert not abs(a)._is_negative
-    a = APyFixed(-4, 3, 2)
+    a = APyFixed(-4, 2, 1)
     assert a._is_negative
-    assert abs(a).is_identical(APyFixed(4, 4, 3))
+    assert abs(a).is_identical(APyFixed(4, 3, 1))
     assert not abs(a)._is_negative
     assert abs(a)._is_positive
 
     # Both positive and negative fixed-point values have word length increased on
     # absolute value. Related GitHub issue: #15
-    a = APyFixed(3, 3, 2)
-    b = APyFixed(-3, 3, 2)
+    a = APyFixed(3, 2, 1)
+    b = APyFixed(-3, 2, 1)
     assert abs(a).to_bits() == 3
     assert abs(b).to_bits() == 3
     assert abs(a).is_identical(abs(b))
 
-    a = APyFixed(-3, 300, 2)
-    assert abs(a).is_identical(APyFixed(3, 301, 3))
+    a = APyFixed(-3, 2, 298)
+    assert abs(a).is_identical(APyFixed(3, 3, 298))
 
 
 def test_shift():
     a = APyFixed(-3, bits=3, int_bits=2)
-    assert (a >> 2).is_identical(APyFixed(-3, 3, 0))
-    assert (a << 7).is_identical(APyFixed(-3, 3, 9))
-    assert (a >> -2).is_identical(APyFixed(-3, 3, 4))
-    assert (a << -7).is_identical(APyFixed(-3, 3, -5))
+    assert (a >> 2).is_identical(APyFixed(-3, bits=3, int_bits=0))
+    assert (a << 7).is_identical(APyFixed(-3, bits=3, int_bits=9))
+    assert (a >> -2).is_identical(APyFixed(-3, bits=3, int_bits=4))
+    assert (a << -7).is_identical(APyFixed(-3, bits=3, int_bits=-5))
 
     a = APyFixed(-3, bits=3, int_bits=2)
     b = a << 2
@@ -318,8 +318,8 @@ def test_prod():
 def test_issue_198():
     # Smoke test for hang:
     # https://github.com/apytypes/apytypes/issues/198
-    a = APyFixed.from_float(0.37, 320, 160)
-    b = APyFixed.from_float(-1.54, 320, 160)
+    a = APyFixed.from_float(0.37, bits=320, int_bits=160)
+    b = APyFixed.from_float(-1.54, bits=320, int_bits=160)
     assert (a / b).is_identical(
         APyFixed(
             9124881235244390437282343211400582649786457014497119861158385035798550334417354773011825622634742286365594170616862341739107325461683793130579692109045501048385049337084316871381549559677925492,

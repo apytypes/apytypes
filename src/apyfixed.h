@@ -68,9 +68,9 @@ public:
     //! Main Python-exposed `APyFixed` constructor
     explicit APyFixed(
         nanobind::int_ python_long_int_bit_pattern,
-        std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
-        std::optional<int> frac_bits = std::nullopt
+        std::optional<int> frac_bits = std::nullopt,
+        std::optional<int> bits = std::nullopt
     );
 
     /* ****************************************************************************** *
@@ -90,9 +90,9 @@ public:
     //! `int_bits`, `frac_bits`) are set, or if the resulting number of `bits` is less
     //! than one.
     explicit APyFixed(
-        std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
-        std::optional<int> frac_bits = std::nullopt
+        std::optional<int> frac_bits = std::nullopt,
+        std::optional<int> bits = std::nullopt
     );
 
     //! Construct a number with `bits` and `int_bits`, and initialize underlying
@@ -247,18 +247,18 @@ public:
     //! Create APyFixed from double.
     static APyFixed from_double(
         double value,
-        std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
-        std::optional<int> frac_bits = std::nullopt
+        std::optional<int> frac_bits = std::nullopt,
+        std::optional<int> bits = std::nullopt
     );
 
     //! Create APyFixed from string.
     static APyFixed from_string(
         std::string string_value,
-        std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt,
         int base = 10,
-        std::optional<int> frac_bits = std::nullopt
+        std::optional<int> bits = std::nullopt
     );
 
     /* ****************************************************************************** *

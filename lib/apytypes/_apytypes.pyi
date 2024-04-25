@@ -33,9 +33,9 @@ class APyFixed:
     @staticmethod
     def from_float(
         value: float,
-        bits: int | None = None,
         int_bits: int | None = None,
         frac_bits: int | None = None,
+        bits: int | None = None,
     ) -> APyFixed:
         """
         Create an :class:`APyFixed` object from :class:`float`.
@@ -51,12 +51,12 @@ class APyFixed:
         ----------
         value : float
             Floating point value to initialize from
-        bits : int, optional
-            Total number of bits in the created fixed-point object
         int_bits : int, optional
             Number of integer bits in the created fixed-point object
         frac_bits : int, optional
             Number of fractional bits in the created fixed-point object
+        bits : int, optional
+            Total number of bits in the created fixed-point object
 
         Examples
         --------
@@ -72,10 +72,10 @@ class APyFixed:
     @staticmethod
     def from_str(
         string_value: str,
-        bits: int | None = None,
         int_bits: int | None = None,
-        base: int = 10,
         frac_bits: int | None = None,
+        base: int = 10,
+        bits: int | None = None,
     ) -> APyFixed:
         """
         Create an :class:`APyFixed` object from :class:`str`.
@@ -87,14 +87,14 @@ class APyFixed:
         ----------
         string_value : str
             String to initialize the value from
-        bits : int, optional
-            Total number of bits in the created fixed-point object
         int_bits : int, optional
             Number of integer bits in the created fixed-point object
-        base : int, default: 10
-            Numeric base used in `string_value`
         frac_bits : int, optional
             Number of fractional bits in the created fixed-point object
+        base : int, default: 10
+            Numeric base used in `string_value`
+        bits : int, optional
+            Total number of bits in the created fixed-point object
 
         Examples
         --------

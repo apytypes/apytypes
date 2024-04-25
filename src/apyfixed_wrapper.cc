@@ -21,9 +21,9 @@ void bind_fixed(nb::module_& m)
                 std::optional<int>,
                 std::optional<int>>(),
             nb::arg("bit_pattern"),
-            nb::arg("bits") = nb::none(),
             nb::arg("int_bits") = nb::none(),
-            nb::arg("frac_bits") = nb::none()
+            nb::arg("frac_bits") = nb::none(),
+            nb::arg("bits") = nb::none()
         )
 
         /*
@@ -291,9 +291,9 @@ void bind_fixed(nb::module_& m)
             "from_float",
             &APyFixed::from_double,
             nb::arg("value"),
-            nb::arg("bits") = nb::none(),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
+            nb::arg("bits") = nb::none(),
             R"pbdoc(
             Create an :class:`APyFixed` object from :class:`float`.
 
@@ -308,12 +308,12 @@ void bind_fixed(nb::module_& m)
             ----------
             value : float
                 Floating point value to initialize from
-            bits : int, optional
-                Total number of bits in the created fixed-point object
             int_bits : int, optional
                 Number of integer bits in the created fixed-point object
             frac_bits : int, optional
                 Number of fractional bits in the created fixed-point object
+            bits : int, optional
+                Total number of bits in the created fixed-point object
 
             Examples
             --------
@@ -330,10 +330,10 @@ void bind_fixed(nb::module_& m)
             "from_str",
             &APyFixed::from_string,
             nb::arg("string_value"),
-            nb::arg("bits") = nb::none(),
             nb::arg("int_bits") = nb::none(),
-            nb::arg("base") = 10,
             nb::arg("frac_bits") = nb::none(),
+            nb::arg("base") = 10,
+            nb::arg("bits") = nb::none(),
             R"pbdoc(
             Create an :class:`APyFixed` object from :class:`str`.
 
@@ -344,14 +344,14 @@ void bind_fixed(nb::module_& m)
             ----------
             string_value : str
                 String to initialize the value from
-            bits : int, optional
-                Total number of bits in the created fixed-point object
             int_bits : int, optional
                 Number of integer bits in the created fixed-point object
-            base : int, default: 10
-                Numeric base used in `string_value`
             frac_bits : int, optional
                 Number of fractional bits in the created fixed-point object
+            base : int, default: 10
+                Numeric base used in `string_value`
+            bits : int, optional
+                Total number of bits in the created fixed-point object
 
             Examples
             --------

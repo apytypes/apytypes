@@ -20,20 +20,20 @@ def test_bit_specifier_getters():
       * `int_bits()`
       * `frac_bits()`
     """
-    assert APyFixed(0, 12345, 12).bits == 12345
-    assert APyFixed(0, 12345, 12).int_bits == 12
-    assert APyFixed(0, 12345, 12).frac_bits == 12345 - 12
+    assert APyFixed(0, bits=12345, int_bits=12).bits == 12345
+    assert APyFixed(0, bits=12345, int_bits=12).int_bits == 12
+    assert APyFixed(0, bits=12345, int_bits=12).frac_bits == 12345 - 12
 
 
 def test_to_float():
-    assert float(APyFixed(0, 1, 0)) == 0.0
-    assert float(APyFixed(0, 1234, 123)) == 0.0
-    assert float(APyFixed(0, 1234, -123)) == 0.0
-    assert float(APyFixed(0, 1234, 12345)) == 0.0
-    assert float(APyFixed(0b00100, 5, 1)) == 0.25
-    assert float(APyFixed(0b11100, 5, 1)) == -0.25
-    assert float(APyFixed(0x48, 8, 4)) == 4.5
-    assert float(APyFixed(0x558 << 128, 128 + 12, 8)) == 85.5
+    assert float(APyFixed(0, bits=1, int_bits=0)) == 0.0
+    assert float(APyFixed(0, bits=1234, int_bits=123)) == 0.0
+    assert float(APyFixed(0, bits=1234, int_bits=-123)) == 0.0
+    assert float(APyFixed(0, bits=1234, int_bits=12345)) == 0.0
+    assert float(APyFixed(0b00100, int_bits=1, frac_bits=4)) == 0.25
+    assert float(APyFixed(0b11100, int_bits=1, frac_bits=4)) == -0.25
+    assert float(APyFixed(0x48, int_bits=4, frac_bits=4)) == 4.5
+    assert float(APyFixed(0x558 << 128, bits=128 + 12, int_bits=8)) == 85.5
 
 
 def test_is_zero():
@@ -50,49 +50,49 @@ def test_to_string():
     Test `__str__` and `to_string` methods
     """
     assert (
-        str(APyFixed((1 << 512) + (1 << 123) + (1 << 64) + (1 << 63), 1000, 1000))
+        str(APyFixed((1 << 512) + (1 << 123) + (1 << 64) + (1 << 63), 1000, 0))
         == "13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486061487577849091273580847006241813168128"
     )
     assert (
-        str(APyFixed((1 << 512) + (1 << 123) + (1 << 64) + (1 << 63), 1000, 900))
+        str(APyFixed((1 << 512) + (1 << 123) + (1 << 64) + (1 << 63), 900, 100))
         == "10576895500643977583230644928524336637254474927428499508554380724390492659780981533203027367035444557561459392400373741256704.0000000000218278728425502777099609375"
     )
     assert (
-        str(APyFixed((1 << 999) + (1 << 123) + (1 << 64) + (1 << 63), 1000, 1000))
+        str(APyFixed((1 << 999) + (1 << 123) + (1 << 64) + (1 << 63), 1000, 0))
         == "-5357543035931336604742125245300009052807024058527668037218751941851755255624680612465991894078479290637973364587765734125935726428461570217992288787349287401967283887412115492710537302531185570938977091076523237491790970633699383779582771973038531457285598238843260450006248636499301292846010026950656"
     )
     assert (
-        str(APyFixed((1 << 999) + (1 << 123) + (1 << 64) + (1 << 63), 1000, 900))
+        str(APyFixed((1 << 999) + (1 << 123) + (1 << 64) + (1 << 63), 900, 100))
         == "-4226356249085321970818718279332132852150778608288972177023685672213391220453798875795338047101257503157395159946057029431058780476021484298004311827703516615267093471992040673349852141411411528424193863265689507233184226342012493910707175190136291811916308647181895598079.9999999999781721271574497222900390625"
     )
 
 
 def test_is_positive():
-    a = APyFixed(4, 3, 2)
+    a = APyFixed(4, int_bits=2, frac_bits=1)
     assert not a._is_positive
-    a = APyFixed(3, 3, 2)
+    a = APyFixed(3, int_bits=2, frac_bits=1)
     assert a._is_positive
-    a = APyFixed(0, 3, 2)
+    a = APyFixed(0, int_bits=2, frac_bits=1)
     assert not a._is_positive
-    a = APyFixed(-3, 3, 2)
+    a = APyFixed(-3, int_bits=2, frac_bits=1)
     assert not a._is_positive
 
 
 def test_is_negative():
-    a = APyFixed(4, 3, 2)
+    a = APyFixed(4, int_bits=2, frac_bits=1)
     assert a._is_negative
-    a = APyFixed(3, 3, 2)
+    a = APyFixed(3, int_bits=2, frac_bits=1)
     assert not a._is_negative
-    a = APyFixed(0, 3, 2)
+    a = APyFixed(0, int_bits=2, frac_bits=1)
     assert not a._is_negative
-    a = APyFixed(-3, 3, 2)
+    a = APyFixed(-3, int_bits=2, frac_bits=1)
     assert a._is_negative
 
 
 def test_round_trip_conversion():
     for bits in range(256):
-        a = APyFixed(bits, 8, 4)
-        assert (APyFixed.from_float(float(a), 8, 4)).is_identical(a)
+        a = APyFixed(bits, bits=8, int_bits=4)
+        assert (APyFixed.from_float(float(a), bits=8, int_bits=4)).is_identical(a)
 
 
 def test_fixed_cast_throws():

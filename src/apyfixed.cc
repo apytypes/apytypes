@@ -47,11 +47,11 @@ APyFixed::APyFixed(const APyFixed& other)
 
 APyFixed::APyFixed(
     nb::int_ python_long_int_bit_pattern,
-    std::optional<int> bits,
     std::optional<int> int_bits,
-    std::optional<int> frac_bits
+    std::optional<int> frac_bits,
+    std::optional<int> bits
 )
-    : APyFixed(bits, int_bits, frac_bits)
+    : APyFixed(int_bits, frac_bits, bits)
 {
     _data = python_long_to_limb_vec(python_long_int_bit_pattern, _data.size());
     _overflow_twos_complement(_data.begin(), _data.end(), _bits, _int_bits);
@@ -62,7 +62,7 @@ APyFixed::APyFixed(
  * ********************************************************************************** */
 
 APyFixed::APyFixed(
-    std::optional<int> bits, std::optional<int> int_bits, std::optional<int> frac_bits
+    std::optional<int> int_bits, std::optional<int> frac_bits, std::optional<int> bits
 )
     : _bits { bits_from_optional(bits, int_bits, frac_bits) }
     , _int_bits { int_bits.has_value() ? *int_bits : *bits - *frac_bits }
@@ -897,25 +897,25 @@ bool APyFixed::positive_greater_than_equal_pow2(int n) const
 
 APyFixed APyFixed::from_double(
     double value,
-    std::optional<int> bits,
     std::optional<int> int_bits,
-    std::optional<int> frac_bits
+    std::optional<int> frac_bits,
+    std::optional<int> bits
 )
 {
-    APyFixed result(bits, int_bits, frac_bits);
+    APyFixed result(int_bits, frac_bits, bits);
     result.set_from_double(value);
     return result;
 }
 
 APyFixed APyFixed::from_string(
     std::string string_value,
-    std::optional<int> bits,
     std::optional<int> int_bits,
+    std::optional<int> frac_bits,
     int base,
-    std::optional<int> frac_bits
+    std::optional<int> bits
 )
 {
-    APyFixed result(bits, int_bits, frac_bits);
+    APyFixed result(int_bits, frac_bits, bits);
     result.set_from_string(string_value, base);
     return result;
 }

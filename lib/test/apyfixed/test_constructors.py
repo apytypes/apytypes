@@ -36,11 +36,11 @@ def test_constructor():
 
     # Integers that dont fit a single Python digit
     assert (
-        APyFixed(1234567898765432123456789, 100, 50).to_bits()
+        APyFixed(1234567898765432123456789, int_bits=50, frac_bits=50).to_bits()
         == 1234567898765432123456789
     )
     assert (
-        APyFixed(-1234567898765432123456789, 100, 50).to_bits()
+        APyFixed(-1234567898765432123456789, int_bits=50, frac_bits=50).to_bits()
         == 2**100 - 1234567898765432123456789
     )
 
@@ -56,53 +56,53 @@ def test_floating_point_construction():
 
     # Zero floating point numbers
     assert APyFixed.from_float(0.0, bits=1, int_bits=0).to_bits() == 0
-    assert APyFixed.from_float(-0.0, 1234, -1000).to_bits() == 0
-    assert APyFixed.from_float(0.0, 1234, 1000).to_bits() == 0
-    assert APyFixed.from_float(0.0, 1234, 1000).to_bits() == 0
+    assert APyFixed.from_float(-0.0, bits=1234, int_bits=-1000).to_bits() == 0
+    assert APyFixed.from_float(0.0, bits=1234, int_bits=1000).to_bits() == 0
+    assert APyFixed.from_float(0.0, bits=1234, int_bits=1000).to_bits() == 0
 
     # Integer tests
-    assert APyFixed.from_float(123.0, 64, 64).to_bits() == 123
-    assert APyFixed.from_float(-123.0, 64, 64).to_bits() == 2**64 - 123
-    assert APyFixed.from_float(pow(2.0, 52.0) + 0.0, 64, 64).to_bits() == (1 << 52) + 0
-    assert APyFixed.from_float(pow(2.0, 52.0) + 1.0, 64, 64).to_bits() == (1 << 52) + 1
-    assert APyFixed.from_float(pow(2.0, 53.0) + 0.0, 64, 64).to_bits() == (1 << 53) + 0
+    assert APyFixed.from_float(123.0, 64, 0).to_bits() == 123
+    assert APyFixed.from_float(-123.0, 64, 0).to_bits() == 2**64 - 123
+    assert APyFixed.from_float(pow(2.0, 52.0) + 0.0, 64, 0).to_bits() == (1 << 52) + 0
+    assert APyFixed.from_float(pow(2.0, 52.0) + 1.0, 64, 0).to_bits() == (1 << 52) + 1
+    assert APyFixed.from_float(pow(2.0, 53.0) + 0.0, 64, 0).to_bits() == (1 << 53) + 0
     assert (
-        APyFixed.from_float(pow(2.0, 53.0) + 1.0, 64, 64).to_bits()
+        APyFixed.from_float(pow(2.0, 53.0) + 1.0, 64, 0).to_bits()
         == (1 << 53) + 0  # Precision was lost when adding 1 onto 2^53
     )
     assert (
-        APyFixed.from_float(pow(2.0, 123.0) - pow(2.0, 152), 30, 153).to_bits()
+        APyFixed.from_float(pow(2.0, 123.0) - pow(2.0, 152), 153, -123).to_bits()
         == (1 << 29) + 1
     )
-    assert APyFixed.from_float(pow(2.0, 123.0) - pow(2.0, 152), 29, 153).to_bits() == (
-        1 << 28
-    )
+    assert APyFixed.from_float(
+        pow(2.0, 123.0) - pow(2.0, 152), 153, -124
+    ).to_bits() == (1 << 28)
 
     # Fractional number testing
-    assert float(APyFixed.from_float(123.125, 64, 0)) == 0.125
-    assert APyFixed.from_float(-pow(2.0, -127.0), 1, -126).to_bits() == 1
+    assert float(APyFixed.from_float(123.125, 0, 64)) == 0.125
+    assert APyFixed.from_float(-pow(2.0, -127.0), bits=1, int_bits=-126).to_bits() == 1
     assert (
-        APyFixed.from_float(-1.0 + pow(2.0, -53), 55, 2).to_bits()
+        APyFixed.from_float(-1.0 + pow(2.0, -53), bits=55, int_bits=2).to_bits()
         == (1 << 54) + (1 << 53) + 1
     )
 
     # Round away from infinity on tie
-    assert APyFixed.from_float(0.24, 2, 1).to_bits() == 0  #  0.00
-    assert APyFixed.from_float(0.25, 2, 1).to_bits() == 1  #  0.25
-    assert APyFixed.from_float(-0.25, 2, 1).to_bits() == 3  # -0.25
-    assert APyFixed.from_float(-0.24, 2, 1).to_bits() == 0  #  0.00
+    assert APyFixed.from_float(0.24, 1, 1).to_bits() == 0  #  0.00
+    assert APyFixed.from_float(0.25, 1, 1).to_bits() == 1  #  0.25
+    assert APyFixed.from_float(-0.25, 1, 1).to_bits() == 3  # -0.25
+    assert APyFixed.from_float(-0.24, 1, 1).to_bits() == 0  #  0.00
 
 
 def test_string_construction():
-    assert APyFixed.from_str("511", 10, 10).to_bits() == 0x1FF
-    assert APyFixed.from_str("512", 10, 10).to_bits() == 0x200
-    assert APyFixed.from_str("-511", 10, 10).to_bits() == 0x201
-    assert APyFixed.from_str("-512", 10, 10).to_bits() == 0x200
-    assert APyFixed.from_str("512", 10, 14).to_bits() == 0x20
-    assert APyFixed.from_str("1.0", 10, 9).to_bits() == 2
-    assert APyFixed.from_str("1.000000", 10, 9).to_bits() == 2
-    assert APyFixed.from_str("10.00", 10, 9).to_bits() == 20
-    assert APyFixed.from_str(".0625000", 10, 2).to_bits() == 16
+    assert APyFixed.from_str("511", 10, 0).to_bits() == 0x1FF
+    assert APyFixed.from_str("512", 10, 0).to_bits() == 0x200
+    assert APyFixed.from_str("-511", 10, 0).to_bits() == 0x201
+    assert APyFixed.from_str("-512", 10, 0).to_bits() == 0x200
+    assert APyFixed.from_str("512", 14, -4).to_bits() == 0x20
+    assert APyFixed.from_str("1.0", 9, 1).to_bits() == 2
+    assert APyFixed.from_str("1.000000", 9, 1).to_bits() == 2
+    assert APyFixed.from_str("10.00", 9, 1).to_bits() == 20
+    assert APyFixed.from_str(".0625000", 2, 8).to_bits() == 16
 
     fx_a = APyFixed.from_str(
         "28948022309329048855892746252171976963317496166410141009892066118088846737408",
