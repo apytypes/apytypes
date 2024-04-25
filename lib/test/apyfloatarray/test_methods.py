@@ -101,6 +101,12 @@ def test_cast():
     ans = APyFloatArray.from_float([1, -1.75], exp_bits=5, man_bits=2)
     assert fp_array.cast(5, 2, quantization=QuantizationMode.TO_ZERO).is_identical(ans)
 
+    fp_array = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=10, man_bits=15)
+    ans = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=4, man_bits=15)
+    assert fp_array.cast(4).is_identical(ans)
+    ans = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=10, man_bits=5)
+    assert fp_array.cast(man_bits=5).is_identical(ans)
+
 
 @pytest.mark.float_array
 def test_python_sum():

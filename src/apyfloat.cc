@@ -168,16 +168,17 @@ APyFloat APyFloat::from_double(
 }
 
 APyFloat APyFloat::cast(
-    std::uint8_t new_exp_bits,
-    std::uint8_t new_man_bits,
+    std::optional<uint8_t> new_exp_bits,
+    std::optional<uint8_t> new_man_bits,
     std::optional<exp_t> new_bias,
     std::optional<QuantizationMode> quantization
 ) const
 {
+    const auto actual_exp_bits = new_exp_bits.value_or(exp_bits);
     return _cast(
-        new_exp_bits,
-        new_man_bits,
-        new_bias.value_or(APyFloat::ieee_bias(new_exp_bits)),
+        actual_exp_bits,
+        new_man_bits.value_or(man_bits),
+        new_bias.value_or(APyFloat::ieee_bias(actual_exp_bits)),
         quantization.value_or(get_quantization_mode())
     );
 }

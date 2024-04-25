@@ -1623,3 +1623,11 @@ def test_issue_188():
     res2 = APyFloat.from_float(float(x) / float(y), exp_bits=4, man_bits=3)
 
     assert res1 == res2
+
+
+def test_cast_only_one_size():
+    x = APyFloat(0, 5, 10, 5, 5)
+    assert (x.cast(4)).is_identical(APyFloat(0, 0, 3, 4, 5))
+    assert (x.cast(6)).is_identical(APyFloat(0, 21, 10, 6, 5))
+    assert (x.cast(man_bits=4)).is_identical(APyFloat(0, 5, 5, 5, 4))
+    assert (x.cast(man_bits=6)).is_identical(APyFloat(0, 5, 20, 5, 6))
