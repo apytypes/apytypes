@@ -455,7 +455,7 @@ void bind_float_array(nb::module_& m)
 
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use. If not provided, the global mode,
-                see :func:`get_quantization_mode_float`, is used.
+                see :func:`get_float_quantization_mode`, is used.
             )pbdoc"
         )
         .def(
@@ -476,7 +476,7 @@ void bind_float_array(nb::module_& m)
 
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use. If not provided, the global mode,
-                see :func:`get_quantization_mode_float`, is used.
+                see :func:`get_float_quantization_mode`, is used.
             )pbdoc"
         )
         .def(
@@ -497,7 +497,7 @@ void bind_float_array(nb::module_& m)
 
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use. If not provided, the global mode,
-                see :func:`get_quantization_mode_float`, is used.
+                see :func:`get_float_quantization_mode`, is used.
             )pbdoc"
         )
         .def(
@@ -518,7 +518,7 @@ void bind_float_array(nb::module_& m)
 
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use. If not provided, the global mode,
-                see :func:`get_quantization_mode_float`, is used.
+                see :func:`get_float_quantization_mode`, is used.
             )pbdoc"
         );
 

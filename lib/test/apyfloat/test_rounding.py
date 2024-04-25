@@ -398,14 +398,14 @@ class TestAPyFloatQuantization:
 
     def setup_class(self):
         """Save the current quantization mode so that it can be restored later for other tests."""
-        self.default_mode = apytypes.get_quantization_mode_float()
+        self.default_mode = apytypes.get_float_quantization_mode()
 
     def teardown_class(self):
         """Restore quantization mode."""
-        apytypes.set_quantization_mode_float(self.default_mode)
+        apytypes.set_float_quantization_mode(self.default_mode)
 
     def test_quantization_mantissa_overflow(self):
-        apytypes.set_quantization_mode_float(QuantizationMode.TO_POS)
+        apytypes.set_float_quantization_mode(QuantizationMode.TO_POS)
         assert (
             APyFloat(0, 5, 0b11111, 5, 5)
             .cast(5, 3)
@@ -417,7 +417,7 @@ class TestAPyFloatQuantization:
             .is_identical(APyFloat(0, 0b11111, 0b000, 5, 3))
         )  # Quantization becomes inf
 
-        apytypes.set_quantization_mode_float(QuantizationMode.TO_NEG)
+        apytypes.set_float_quantization_mode(QuantizationMode.TO_NEG)
         assert (
             APyFloat(1, 5, 0b11111, 5, 5)
             .cast(5, 3)
@@ -430,7 +430,7 @@ class TestAPyFloatQuantization:
         )  # Quantization becomes -inf
 
     def test_quantization_to_pos(self):
-        apytypes.set_quantization_mode_float(QuantizationMode.TO_POS)
+        apytypes.set_float_quantization_mode(QuantizationMode.TO_POS)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -520,7 +520,7 @@ class TestAPyFloatQuantization:
         )  # Round down
 
     def test_quantization_to_neg(self):
-        apytypes.set_quantization_mode_float(QuantizationMode.TO_NEG)
+        apytypes.set_float_quantization_mode(QuantizationMode.TO_NEG)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -610,7 +610,7 @@ class TestAPyFloatQuantization:
         )  # Round up
 
     def test_quantization_to_away(self):
-        apytypes.set_quantization_mode_float(QuantizationMode.TO_AWAY)
+        apytypes.set_float_quantization_mode(QuantizationMode.TO_AWAY)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -700,7 +700,7 @@ class TestAPyFloatQuantization:
         )  # Round down
 
     def test_quantization_to_zero(self):
-        apytypes.set_quantization_mode_float(QuantizationMode.TO_ZERO)
+        apytypes.set_float_quantization_mode(QuantizationMode.TO_ZERO)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -790,7 +790,7 @@ class TestAPyFloatQuantization:
         )  # Round down
 
     def test_quantization_ties_even(self):
-        apytypes.set_quantization_mode_float(QuantizationMode.TIES_EVEN)
+        apytypes.set_float_quantization_mode(QuantizationMode.TIES_EVEN)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -880,7 +880,7 @@ class TestAPyFloatQuantization:
         )  # Round up
 
     def test_quantization_ties_odd(self):
-        apytypes.set_quantization_mode_float(QuantizationMode.TIES_ODD)
+        apytypes.set_float_quantization_mode(QuantizationMode.TIES_ODD)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -970,7 +970,7 @@ class TestAPyFloatQuantization:
         )  # Round up
 
     def test_quantization_ties_pos(self):
-        apytypes.set_quantization_mode_float(QuantizationMode.TIES_POS)
+        apytypes.set_float_quantization_mode(QuantizationMode.TIES_POS)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -1060,7 +1060,7 @@ class TestAPyFloatQuantization:
         )  # Round up
 
     def test_quantization_ties_neg(self):
-        apytypes.set_quantization_mode_float(QuantizationMode.TIES_NEG)
+        apytypes.set_float_quantization_mode(QuantizationMode.TIES_NEG)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -1150,7 +1150,7 @@ class TestAPyFloatQuantization:
         )  # Round up
 
     def test_quantization_ties_away(self):
-        apytypes.set_quantization_mode_float(QuantizationMode.TIES_AWAY)
+        apytypes.set_float_quantization_mode(QuantizationMode.TIES_AWAY)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -1240,7 +1240,7 @@ class TestAPyFloatQuantization:
         )  # Round up
 
     def test_quantization_ties_to_zero(self):
-        apytypes.set_quantization_mode_float(QuantizationMode.TIES_ZERO)
+        apytypes.set_float_quantization_mode(QuantizationMode.TIES_ZERO)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -1330,7 +1330,7 @@ class TestAPyFloatQuantization:
         )  # Round up
 
     def test_quantization_jamming(self):
-        apytypes.set_quantization_mode_float(QuantizationMode.JAM)
+        apytypes.set_float_quantization_mode(QuantizationMode.JAM)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -1420,7 +1420,7 @@ class TestAPyFloatQuantization:
         )
 
     def test_quantization_unbiased_jamming(self):
-        apytypes.set_quantization_mode_float(QuantizationMode.JAM_UNBIASED)
+        apytypes.set_float_quantization_mode(QuantizationMode.JAM_UNBIASED)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -1447,7 +1447,7 @@ class TestAPyFloatQuantization:
 
     def test_quantization_magnitude_truncation(self):
         # Shouldn't be used for floating-point
-        apytypes.set_quantization_mode_float(QuantizationMode.TRN_MAG)
+        apytypes.set_float_quantization_mode(QuantizationMode.TRN_MAG)
         # Quantization from 0.xx
         assert (
             APyFloat(0, 5, 0b10000, 5, 5)
@@ -1541,7 +1541,7 @@ class TestAPyFloatQuantization:
         A bit naive, but test that a value can be rounded both up and down in 1000 tries.
         An exact value should however not be rounded.
         """
-        apytypes.set_quantization_mode_float(QuantizationMode.STOCH_WEIGHTED)
+        apytypes.set_float_quantization_mode(QuantizationMode.STOCH_WEIGHTED)
         larger_format = APyFloat(0, 5, 0b10000, 5, 5)
         assert larger_format.cast(5, 3).is_identical(APyFloat(0, 5, 0b100, 5, 3))
 
@@ -1567,7 +1567,7 @@ class TestAPyFloatQuantization:
         A bit naive, but test that a value can be rounded both up and down in 1000 tries.
         An exact value should however not be rounded.
         """
-        apytypes.set_quantization_mode_float(QuantizationMode.STOCH_EQUAL)
+        apytypes.set_float_quantization_mode(QuantizationMode.STOCH_EQUAL)
         larger_format = APyFloat(0, 5, 0b10000, 5, 5)
         assert larger_format.cast(5, 3).is_identical(APyFloat(0, 5, 0b100, 5, 3))
 

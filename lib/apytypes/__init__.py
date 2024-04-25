@@ -10,10 +10,10 @@ from apytypes._apytypes import (
     OverflowMode,
     APyFloatQuantizationContext,
     QuantizationMode,
-    get_quantization_mode_float,
-    set_quantization_mode_float,
-    get_quantization_seed_float,
-    set_quantization_seed_float,
+    get_float_quantization_mode,
+    set_float_quantization_mode,
+    get_float_quantization_seed,
+    set_float_quantization_seed,
     _get_simd_version_str,
 )
 
@@ -30,10 +30,10 @@ __all__ = [
     "APyFloatQuantizationContext",
     "QuantizationMode",
     "__version__",
-    "get_quantization_mode_float",
-    "set_quantization_mode_float",
-    "get_quantization_seed_float",
-    "set_quantization_seed_float",
+    "get_float_quantization_mode",
+    "set_float_quantization_mode",
+    "get_float_quantization_seed",
+    "set_float_quantization_seed",
     "_get_simd_version_str",
 ]
 
