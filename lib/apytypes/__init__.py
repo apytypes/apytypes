@@ -3,9 +3,10 @@ from __future__ import annotations
 from apytypes._apytypes import (
     APyFixed,
     APyFixedArray,
+    APyFixedAccumulatorContext,
     APyFloat,
     APyFloatArray,
-    AccumulatorContext,
+    APyFloatAccumulatorContext,
     OverflowMode,
     APyFloatQuantizationContext,
     QuantizationMode,
@@ -21,9 +22,10 @@ from apytypes._version import version as __version__
 __all__ = [
     "APyFixed",
     "APyFixedArray",
+    "APyFixedAccumulatorContext",
     "APyFloat",
     "APyFloatArray",
-    "AccumulatorContext",
+    "APyFloatAccumulatorContext",
     "OverflowMode",
     "APyFloatQuantizationContext",
     "QuantizationMode",

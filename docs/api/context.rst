@@ -5,6 +5,10 @@ Context handling
 
    .. automethod:: __init__
 
-.. autoclass:: apytypes.AccumulatorContext
+.. autoclass:: apytypes.APyFixedAccumulatorContext
+
+   .. automethod:: __init__
+
+.. autoclass:: apytypes.APyFloatAccumulatorContext
 
    .. automethod:: __init__

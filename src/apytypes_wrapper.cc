@@ -11,7 +11,7 @@ void bind_fixed(nb::module_& m);
 void bind_fixed_array(nb::module_& m);
 void bind_float(nb::module_& m);
 void bind_float_array(nb::module_& m);
-void bind_float_context(nb::module_& m);
+void bind_quantization_context(nb::module_& m);
 
 NB_MODULE(_apytypes, m)
 {
@@ -21,7 +21,7 @@ NB_MODULE(_apytypes, m)
     bind_float(m);
     bind_float_array(m);
     bind_context_manager(m);
-    bind_float_context(m);
+    bind_quantization_context(m);
     bind_accumulator_context(m);
 }
 

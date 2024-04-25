@@ -177,7 +177,7 @@ private:
      */
     APyFloat checked_inner_product(
         const APyFloatArray& rhs,
-        std::optional<AccumulatorOption> accumulator_mode,
+        std::optional<APyFloatAccumulatorOption> accumulator_mode,
         const std::uint8_t max_exp_bits,
         const std::uint8_t max_man_bits
     ) const;
