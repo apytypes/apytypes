@@ -32,37 +32,57 @@ man_t APY_INLINE quantize_mantissa(
     case QuantizationMode::RND_CONV: // TIES_EVEN
         // Using 'res_man' directly here is fine since G can only be '0' or '1',
         // thus calculating the LSB of 'res_man' is not needed.
-        B = G & (res_man | T);
+        if (!(G & (res_man | T))) {
+            return res_man;
+        }
         break;
     case QuantizationMode::RND_CONV_ODD: // TIES_ODD
-        B = G & ((res_man ^ 1) | T);
+        if (!(G & ((res_man ^ 1) | T))) {
+            return res_man;
+        }
         break;
     case QuantizationMode::TRN_INF: // TO_POSITIVE
-        B = sign ? 0 : (G | T);
+        if (!(sign ? 0 : (G | T))) {
+            return res_man;
+        }
         break;
     case QuantizationMode::TRN: // TO_NEGATIVE
-        B = sign ? (G | T) : 0;
+        if (!(sign ? (G | T) : 0)) {
+            return res_man;
+        }
         break;
     case QuantizationMode::TRN_AWAY: // TO_AWAY
-        B = G | T;
+        if (!(G | T)) {
+            return res_man;
+        }
         break;
     case QuantizationMode::TRN_ZERO: // TO_ZERO
         return res_man;
     case QuantizationMode::TRN_MAG: // Does not really make sense for
                                     // floating-point
-        B = sign;
+        if (!sign) {
+            return res_man;
+        }
         break;
     case QuantizationMode::RND_INF: // TIES_AWAY
-        B = G;
+        if (!G) {
+            return res_man;
+        }
         break;
     case QuantizationMode::RND_ZERO: // TIES_ZERO
-        B = G & T;
+        if (!(G & T)) {
+            return res_man;
+        }
         break;
     case QuantizationMode::RND: // TIES_POS
-        B = G & (T | !sign);
+        if (!(G & (T | !sign))) {
+            return res_man;
+        }
         break;
     case QuantizationMode::RND_MIN_INF: // TIES_NEG
-        B = G & (T | sign);
+        if (!(G & (T | sign))) {
+            return res_man;
+        }
         break;
     case QuantizationMode::JAM:
         return res_man | 1;
@@ -73,11 +93,15 @@ man_t APY_INLINE quantize_mantissa(
         const man_t weight = random_number() & ((1ULL << bits_to_quantize) - 1);
         // Since the weight won't be greater than the discarded bits,
         // this will never round an already exact number.
-        B = (trailing_bits + weight) >> bits_to_quantize;
+        if (!((trailing_bits + weight) >> bits_to_quantize)) {
+            return res_man;
+        }
     } break;
     case QuantizationMode::STOCH_EQUAL:
         // Only perform the quantization if the result is not exact.
-        B = (G || T) ? random_number() & 1 : 0;
+        if (!(G || T) || (random_number() & 1)) {
+            return res_man;
+        }
         break;
     default:
         throw NotImplementedException(fmt::format(
@@ -86,10 +110,7 @@ man_t APY_INLINE quantize_mantissa(
         ));
     }
 
-    if (B) {
-        res_man++;
-    }
-    return res_man;
+    return ++res_man;
 }
 
 //! Fast integer power by squaring.
