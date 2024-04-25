@@ -178,40 +178,63 @@ struct APyFloatData {
  * *                          Accumulator context for APyFixed                      * *
  * ********************************************************************************** */
 
-// Accumulator type
-struct AccumulatorOption {
+// Accumulator type for APyFixed
+struct APyFixedAccumulatorOption {
     int bits;
     int int_bits;
     QuantizationMode quantization;
     OverflowMode overflow;
-
-    // APyFloat specific options
-    int exp_bits;
-    int man_bits;
-    exp_t bias;
 };
 
 // Accumulator context
-class AccumulatorContext : public ContextManager {
+class APyFixedAccumulatorContext : public ContextManager {
 public:
-    AccumulatorContext(
+    APyFixedAccumulatorContext(
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<QuantizationMode> quantization = std::nullopt,
-        std::optional<OverflowMode> overflow = std::nullopt,
-        std::optional<std::uint8_t> = std::nullopt,
-        std::optional<std::uint8_t> = std::nullopt,
-        std::optional<exp_t> = std::nullopt
+        std::optional<OverflowMode> overflow = std::nullopt
     );
     void enter_context() override;
     void exit_context() override;
 
 private:
-    std::optional<AccumulatorOption> current_mode, previous_mode;
+    std::optional<APyFixedAccumulatorOption> current_mode, previous_mode;
 };
 
-// Retrieve the global accumulator mode
-std::optional<AccumulatorOption> get_accumulator_mode();
+//! Retrieve the global accumulator mode for APyFixed
+std::optional<APyFixedAccumulatorOption> get_accumulator_mode_fixed();
+
+/* ********************************************************************************** *
+ * *                          Accumulator context for APyFloat                      * *
+ * ********************************************************************************** */
+
+// Accumulator type for APyFloat
+struct APyFloatAccumulatorOption {
+    std::uint8_t exp_bits;
+    std::uint8_t man_bits;
+    exp_t bias;
+    QuantizationMode quantization;
+};
+
+// Accumulator context
+class APyFloatAccumulatorContext : public ContextManager {
+public:
+    APyFloatAccumulatorContext(
+        std::optional<std::uint8_t> = std::nullopt,
+        std::optional<std::uint8_t> = std::nullopt,
+        std::optional<exp_t> = std::nullopt,
+        std::optional<QuantizationMode> quantization = std::nullopt
+    );
+    void enter_context() override;
+    void exit_context() override;
+
+private:
+    std::optional<APyFloatAccumulatorOption> current_mode, previous_mode;
+};
+
+//! Retrieve the global accumulator mode for APyFloat
+std::optional<APyFloatAccumulatorOption> get_accumulator_mode_float();
 
 #endif // _APYTYPES_COMMON_H

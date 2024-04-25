@@ -198,8 +198,8 @@ private:
      * Anything else is undefined behaviour. Return result in a new `APyFixedArray`.
      */
     APyFixedArray _checked_2d_matmul(
-        const APyFixedArray& rhs,             // rhs
-        std::optional<AccumulatorOption> mode // optional accumulation mode
+        const APyFixedArray& rhs,                     // rhs
+        std::optional<APyFixedAccumulatorOption> mode // optional accumulation mode
     ) const;
 
     /*!
@@ -209,8 +209,8 @@ private:
      * in a new `APyFixedArray`.
      */
     APyFixedArray _checked_inner_product(
-        const APyFixedArray& rhs,             // rhs
-        std::optional<AccumulatorOption> mode // optional accumulation mode
+        const APyFixedArray& rhs,                     // rhs
+        std::optional<APyFixedAccumulatorOption> mode // optional accumulation mode
     ) const;
 
     /*!
@@ -242,7 +242,7 @@ private:
         std::vector<mp_limb_t>& prod_scratch, // scratch: product result
         std::vector<mp_limb_t>& op1_scratch,  // scratch: absolute value operand 1
         std::vector<mp_limb_t>& op2_scratch,  // scratch: absolute value operand 2
-        const AccumulatorOption& mode         // accumulation mode
+        const APyFixedAccumulatorOption& mode // accumulation mode
     ) const;
 
     /*!

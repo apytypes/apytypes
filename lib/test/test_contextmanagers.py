@@ -1,5 +1,10 @@
 import apytypes
-from apytypes import APyFloatQuantizationContext, QuantizationMode, AccumulatorContext
+from apytypes import (
+    APyFloatQuantizationContext,
+    QuantizationMode,
+    APyFloatAccumulatorContext,
+    APyFixedAccumulatorContext,
+)
 import pytest
 
 
@@ -10,7 +15,7 @@ def test_context_kw_only():
     Nanobind <= v1.9.2, we wait with this until gets a tagged release.
     """
     with pytest.raises(TypeError):  # keyword only
-        with AccumulatorContext(5, 2):
+        with APyFixedAccumulatorContext(5, 2):
             pass
 
 
@@ -21,31 +26,29 @@ class TestAccumulatorContext:
     """
 
     def test_raises(self):
-        with pytest.raises(ValueError, match="Invalid.*parameters"):
-            with AccumulatorContext():
+        with pytest.raises(ValueError, match="Both.*must be specified"):
+            with APyFloatAccumulatorContext():
                 pass
 
-        with AccumulatorContext(bits=5, int_bits=2):  # should not raise
-            pass
-
-        with AccumulatorContext(exp_bits=5, man_bits=2):  # should not raise
-            pass
-
-        with pytest.raises(
-            ValueError, match="Invalid.*parameters"
-        ):  # mixing APyFixed and APyFloat parameters not allowed
-            with AccumulatorContext(bits=5, int_bits=2, exp_bits=5, man_bits=2):
+        with pytest.raises(ValueError, match=".*specification needs"):
+            with APyFixedAccumulatorContext():
                 pass
+
+        with APyFixedAccumulatorContext(bits=5, int_bits=2):  # should not raise
+            pass
+
+        with APyFloatAccumulatorContext(exp_bits=5, man_bits=2):  # should not raise
+            pass
 
     def test_with_quantization_context(self):
-        """Test that the AccumulatorContext interacts correctly with the QuanizationContext."""
+        """Test that the APyFloatAccumulatorContext interacts correctly with the APyFloatQuanizationContext."""
         with APyFloatQuantizationContext(QuantizationMode.TO_POS):
             assert apytypes.get_quantization_mode_float() == QuantizationMode.TO_POS
 
-            with AccumulatorContext(exp_bits=5, man_bits=3):
+            with APyFloatAccumulatorContext(exp_bits=5, man_bits=3):
                 assert apytypes.get_quantization_mode_float() == QuantizationMode.TO_POS
 
-            with AccumulatorContext(
+            with APyFloatAccumulatorContext(
                 exp_bits=5, man_bits=3, quantization=QuantizationMode.TO_NEG
             ):
                 assert apytypes.get_quantization_mode_float() == QuantizationMode.TO_POS

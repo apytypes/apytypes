@@ -2,7 +2,7 @@ import re
 from apytypes import (
     APyFloat,
     APyFloatArray,
-    AccumulatorContext,
+    APyFloatAccumulatorContext,
     APyFloatQuantizationContext,
     QuantizationMode,
 )
@@ -131,7 +131,7 @@ def test_matrix_multiplication_accumulator_context():
     with APyFloatQuantizationContext(QuantizationMode.TO_NEG):
         print(A @ B)
 
-    with AccumulatorContext(
+    with APyFloatAccumulatorContext(
         exp_bits=4, man_bits=3, quantization=QuantizationMode.TO_POS
     ):
         print(ans)
@@ -139,7 +139,7 @@ def test_matrix_multiplication_accumulator_context():
         assert ans.is_identical(A @ B)
 
     # Using more mantissa bits, the result will be the same
-    with AccumulatorContext(
+    with APyFloatAccumulatorContext(
         exp_bits=4, man_bits=10, quantization=QuantizationMode.TIES_EVEN
     ):
         assert (A @ B).is_identical(
@@ -159,7 +159,7 @@ def test_matrix_multiplication_accumulator_context():
         man_bits=3,
     )
 
-    with AccumulatorContext(exp_bits=10, man_bits=3):
+    with APyFloatAccumulatorContext(exp_bits=10, man_bits=3):
         assert (a @ b).is_identical(APyFloat.from_float(192, 4, 3))
 
 

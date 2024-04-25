@@ -7,10 +7,11 @@ __all__ = [
     "APyFixed",
     "APyFixedArray",
     "APyFixedArrayIterator",
+    "APyFixedAccumulatorContext",
     "APyFloat",
     "APyFloatArray",
     "APyFloatArrayIterator",
-    "AccumulatorContext",
+    "APyFloatAccumulatorContext",
     "ContextManager",
     "OverflowMode",
     "APyFloatQuantizationContext",
@@ -1211,7 +1212,24 @@ class APyFloatArrayIterator:
     def __iter__(self) -> APyFloatArrayIterator: ...
     def __next__(self) -> typing.Union[APyFloatArray, APyFloat]: ...
 
-class AccumulatorContext(ContextManager):
+class APyFloatAccumulatorContext(ContextManager):
+    def __enter__(self: ContextManager) -> None: ...
+    def __exit__(
+        self: ContextManager,
+        arg0: type | None,
+        arg1: typing.Any | None,
+        arg2: typing.Any | None,
+    ) -> None: ...
+    def __init__(
+        self,
+        *,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        quantization: QuantizationMode | None = None,
+    ) -> None: ...
+
+class APyFixedAccumulatorContext(ContextManager):
     def __enter__(self: ContextManager) -> None: ...
     def __exit__(
         self: ContextManager,
@@ -1227,9 +1245,6 @@ class AccumulatorContext(ContextManager):
         frac_bits: int | None = None,
         quantization: QuantizationMode | None = None,
         overflow: OverflowMode | None = None,
-        exp_bits: int | None = None,
-        man_bits: int | None = None,
-        bias: int | None = None,
     ) -> None: ...
 
 class ContextManager:

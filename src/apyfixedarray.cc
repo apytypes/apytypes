@@ -708,14 +708,14 @@ APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
         if (_shape[0] == rhs._shape[0]) {
             // Dimensionality for a standard scalar inner product checks out. Perform
             // the checked inner product.
-            return _checked_inner_product(rhs, get_accumulator_mode());
+            return _checked_inner_product(rhs, get_accumulator_mode_fixed());
         }
     }
     if (ndim() == 2 && (rhs.ndim() == 2 || rhs.ndim() == 1)) {
         if (_shape[1] == rhs._shape[0]) {
             // Dimensionality for a standard 2D matrix multiplication checks out.
             // Perform the checked 2D matrix
-            return _checked_2d_matmul(rhs, get_accumulator_mode());
+            return _checked_2d_matmul(rhs, get_accumulator_mode_fixed());
         }
     }
 
@@ -1098,8 +1098,8 @@ void APyFixedArray::_checked_hadamard_product(
 }
 
 APyFixedArray APyFixedArray::_checked_inner_product(
-    const APyFixedArray& rhs,             // rhs
-    std::optional<AccumulatorOption> mode // optional accumulation mode
+    const APyFixedArray& rhs,                     // rhs
+    std::optional<APyFixedAccumulatorOption> mode // optional accumulation mode
 ) const
 {
     int res_bits = bits() + rhs.bits() + bit_width(_shape[0] - 1);
@@ -1179,7 +1179,7 @@ void APyFixedArray::_checked_inner_product_acc(
     std::vector<mp_limb_t>& prod_scratch, // scratch: product result
     std::vector<mp_limb_t>& op1_scratch,  // scratch: absolute value operand 1
     std::vector<mp_limb_t>& op2_scratch,  // scratch: absolute value operand 2
-    const AccumulatorOption& mode         // accumulation mode
+    const APyFixedAccumulatorOption& mode // accumulation mode
 ) const
 {
     // Hadamard product of `*this` and `rhs`
@@ -1205,7 +1205,7 @@ void APyFixedArray::_checked_inner_product_acc(
 }
 
 APyFixedArray APyFixedArray::_checked_2d_matmul(
-    const APyFixedArray& rhs, std::optional<AccumulatorOption> mode
+    const APyFixedArray& rhs, std::optional<APyFixedAccumulatorOption> mode
 ) const
 {
     // Resulting shape

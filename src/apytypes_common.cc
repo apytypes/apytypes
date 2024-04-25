@@ -12,14 +12,17 @@ namespace nb = nanobind;
  * ********************************************************************************** */
 
 // Global quantization mode
-static QuantizationMode global_quantization_mode = QuantizationMode::RND_CONV;
+static QuantizationMode global_quantization_mode_float = QuantizationMode::RND_CONV;
 
 // Get the global quantization mode
-QuantizationMode get_quantization_mode_float() { return global_quantization_mode; }
+QuantizationMode get_quantization_mode_float()
+{
+    return global_quantization_mode_float;
+}
 
 void set_quantization_mode_float(QuantizationMode mode)
 {
-    global_quantization_mode = mode;
+    global_quantization_mode_float = mode;
 }
 
 APyFloatQuantizationContext::APyFloatQuantizationContext(
@@ -51,7 +54,7 @@ void APyFloatQuantizationContext::exit_context()
 }
 
 /* ********************************************************************************** *
- * *                          Random number engine                                  * *
+ * *                          Random number engine for APyFloat                     * *
  * ********************************************************************************** */
 
 // This creates a random seed on every program start.
@@ -76,65 +79,94 @@ std::uint64_t random_number_float() { return gen64(); }
  * ********************************************************************************** */
 
 // Global accumulator option (default value: std::nullopt)
-static std::optional<AccumulatorOption> global_accumulator_option;
+static std::optional<APyFixedAccumulatorOption> global_accumulator_option_fixed;
 
 // Retrieve the global accumulator mode
-std::optional<AccumulatorOption> get_accumulator_mode()
+std::optional<APyFixedAccumulatorOption> get_accumulator_mode_fixed()
 {
-    return global_accumulator_option;
+    return global_accumulator_option_fixed;
 }
 
-AccumulatorContext::AccumulatorContext(
+APyFixedAccumulatorContext::APyFixedAccumulatorContext(
     std::optional<int> bits,
     std::optional<int> int_bits,
     std::optional<int> frac_bits,
     std::optional<QuantizationMode> quantization,
-    std::optional<OverflowMode> overflow,
-    std::optional<std::uint8_t> _exp_bits,
-    std::optional<std::uint8_t> _man_bits,
-    std::optional<exp_t> _bias
+    std::optional<OverflowMode> overflow
 )
 {
-    // Check that APyFixed specific parameters are mixed with APyFloat parameters
-    const bool any_apfixed_parameters = bits.has_value() || int_bits.has_value()
-        || frac_bits.has_value() || overflow.has_value();
-    const bool any_apfloat_parameters
-        = _exp_bits.has_value() || _man_bits.has_value() || _bias.has_value();
-    if (any_apfixed_parameters == any_apfloat_parameters) {
-        throw nb::value_error(
-            "Invalid combination of parameters for accumulator context"
-        );
-    }
+    // Store the previous accumulator mode
+    previous_mode = global_accumulator_option_fixed;
 
-    AccumulatorOption new_mode = get_accumulator_mode().value_or(AccumulatorOption {});
-    QuantizationMode acc_quantization;
+    // Extract the input
+    APyFixedAccumulatorOption new_mode
+        = get_accumulator_mode_fixed().value_or(APyFixedAccumulatorOption {});
 
-    if (any_apfixed_parameters) {
-        // Extract the input
-        int acc_bits = bits_from_optional(bits, int_bits, frac_bits);
-        int acc_int_bits = int_bits.has_value() ? *int_bits : *bits - *frac_bits;
+    new_mode.bits = bits_from_optional(bits, int_bits, frac_bits);
+    new_mode.int_bits = int_bits.has_value() ? *int_bits : *bits - *frac_bits;
+    new_mode.quantization = quantization.value_or(QuantizationMode::TRN);
+    new_mode.overflow = overflow.value_or(OverflowMode::WRAP);
 
-        // Store the previous accumulator mode
-        previous_mode = global_accumulator_option;
-
-        acc_quantization = quantization.value_or(QuantizationMode::TRN);
-        OverflowMode acc_overflow_mode = overflow.value_or(OverflowMode::WRAP);
-
-        // Set the current mode
-        new_mode.bits = acc_bits;
-        new_mode.int_bits = acc_int_bits;
-        new_mode.quantization = acc_quantization;
-        new_mode.overflow = acc_overflow_mode;
-    } else {
-        new_mode.exp_bits = _exp_bits.value();
-        new_mode.man_bits = _man_bits.value();
-        new_mode.bias = _bias.value_or(APyFloat::ieee_bias(new_mode.exp_bits));
-        acc_quantization = quantization.value_or(get_quantization_mode_float());
-    }
-
-    new_mode.quantization = acc_quantization;
+    // Set the current mode
     current_mode = new_mode;
 }
 
-void AccumulatorContext::enter_context() { global_accumulator_option = current_mode; }
-void AccumulatorContext::exit_context() { global_accumulator_option = previous_mode; }
+void APyFixedAccumulatorContext::enter_context()
+{
+    global_accumulator_option_fixed = current_mode;
+}
+void APyFixedAccumulatorContext::exit_context()
+{
+    global_accumulator_option_fixed = previous_mode;
+}
+
+/* ********************************************************************************** *
+ * *                      Accumulator context for APyFloatArray                     * *
+ * ********************************************************************************** */
+
+// Global accumulator option (default value: std::nullopt)
+static std::optional<APyFloatAccumulatorOption> global_accumulator_option_float;
+
+// Retrieve the global accumulator mode
+std::optional<APyFloatAccumulatorOption> get_accumulator_mode_float()
+{
+    return global_accumulator_option_float;
+}
+
+APyFloatAccumulatorContext::APyFloatAccumulatorContext(
+    std::optional<std::uint8_t> exp_bits,
+    std::optional<std::uint8_t> man_bits,
+    std::optional<exp_t> bias,
+    std::optional<QuantizationMode> quantization
+)
+{
+    // Store the previous accumulator mode§
+    previous_mode = global_accumulator_option_float;
+
+    // Extract the input
+    APyFloatAccumulatorOption new_mode
+        = get_accumulator_mode_float().value_or(APyFloatAccumulatorOption {});
+
+    if (!exp_bits.has_value() || !man_bits.has_value()) {
+        throw nb::value_error(
+            "Both the exponent bits and mantissa bits must be specified."
+        );
+    }
+
+    new_mode.exp_bits = exp_bits.value();
+    new_mode.man_bits = man_bits.value();
+    new_mode.bias = bias.value_or(APyFloat::ieee_bias(new_mode.exp_bits));
+    new_mode.quantization = quantization.value_or(get_quantization_mode_float());
+
+    // Set the current mode
+    current_mode = new_mode;
+}
+
+void APyFloatAccumulatorContext::enter_context()
+{
+    global_accumulator_option_float = current_mode;
+}
+void APyFloatAccumulatorContext::exit_context()
+{
+    global_accumulator_option_float = previous_mode;
+}

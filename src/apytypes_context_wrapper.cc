@@ -24,7 +24,7 @@ void context_exit_handler(
     cm.exit_context();
 }
 
-void bind_float_context(nb::module_& m)
+void bind_quantization_context(nb::module_& m)
 {
     nb::class_<APyFloatQuantizationContext, ContextManager>(
         m, "APyFloatQuantizationContext"
@@ -47,27 +47,48 @@ void bind_float_context(nb::module_& m)
 
 void bind_accumulator_context(nb::module_& m)
 {
-    nb::class_<AccumulatorContext, ContextManager>(m, "AccumulatorContext")
+    nb::class_<APyFixedAccumulatorContext, ContextManager>(
+        m, "APyFixedAccumulatorContext"
+    )
         .def(
             nb::init<
                 std::optional<int>,
                 std::optional<int>,
                 std::optional<int>,
                 std::optional<QuantizationMode>,
-                std::optional<OverflowMode>,
-                std::optional<std::uint8_t>,
-                std::optional<std::uint8_t>,
-                std::optional<exp_t>>(),
+                std::optional<OverflowMode>>(),
             // nb::kw_only() is added in NanoBind v2.0.0
             // nb::kw_only(), // All parameters are keyword only
             nb::arg("bits") = nb::none(),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("quantization") = nb::none(),
-            nb::arg("overflow") = nb::none(),
+            nb::arg("overflow") = nb::none()
+        )
+        .def("__enter__", &context_enter_handler)
+        .def(
+            "__exit__",
+            &context_exit_handler,
+            nb::arg("exc_type") = nb::none(),
+            nb::arg("exc_value") = nb::none(),
+            nb::arg("traceback") = nb::none()
+        );
+
+    nb::class_<APyFloatAccumulatorContext, ContextManager>(
+        m, "APyFloatAccumulatorContext"
+    )
+        .def(
+            nb::init<
+                std::optional<std::uint8_t>,
+                std::optional<std::uint8_t>,
+                std::optional<exp_t>,
+                std::optional<QuantizationMode>>(),
+            // nb::kw_only() is added in NanoBind v2.0.0
+            // nb::kw_only(), // All parameters are keyword only
             nb::arg("exp_bits") = nb::none(),
             nb::arg("man_bits") = nb::none(),
-            nb::arg("bias") = nb::none()
+            nb::arg("bias") = nb::none(),
+            nb::arg("quantization") = nb::none()
         )
         .def("__enter__", &context_enter_handler)
         .def(

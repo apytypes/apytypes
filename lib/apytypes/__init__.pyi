@@ -1,9 +1,10 @@
 from __future__ import annotations
 from apytypes._apytypes import APyFixed
 from apytypes._apytypes import APyFixedArray
+from apytypes._apytypes import APyFixedAccumulatorContext
 from apytypes._apytypes import APyFloat
 from apytypes._apytypes import APyFloatArray
-from apytypes._apytypes import AccumulatorContext
+from apytypes._apytypes import APyFloatAccumulatorContext
 from apytypes._apytypes import OverflowMode
 from apytypes._apytypes import APyFloatQuantizationContext
 from apytypes._apytypes import QuantizationMode
@@ -17,9 +18,10 @@ from . import _version
 __all__: list = [
     "APyFixed",
     "APyFixedArray",
+    "APyFixedAccumulatorContext",
     "APyFloat",
     "APyFloatArray",
-    "AccumulatorContext",
+    "APyFloatAccumulatorContext",
     "OverflowMode",
     "APyFloatQuantizationContext",
     "QuantizationMode",

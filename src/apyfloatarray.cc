@@ -902,7 +902,7 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::matmul(const APyFloatArray&
             // Perform the checked inner product.
             return checked_inner_product(
                 rhs,
-                get_accumulator_mode(),
+                get_accumulator_mode_float(),
                 std::max(exp_bits, rhs.exp_bits),
                 std::max(man_bits, rhs.man_bits)
             );
@@ -1241,7 +1241,7 @@ std::size_t APyFloatArray::fold_shape() const
 // both `*this` and `rhs` are equally long. Anything else is undefined behaviour.
 APyFloat APyFloatArray::checked_inner_product(
     const APyFloatArray& rhs,
-    std::optional<AccumulatorOption> accumulator_mode,
+    std::optional<APyFloatAccumulatorOption> accumulator_mode,
     const std::uint8_t max_exp_bits,
     const std::uint8_t max_man_bits
 ) const
@@ -1459,7 +1459,7 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
     const std::uint8_t max_man_bits = std::max(man_bits, rhs.man_bits);
     const auto res_cols = rhs.shape.size() > 1 ? rhs.shape[1] : 1;
 
-    auto accumulator_mode = get_accumulator_mode();
+    auto accumulator_mode = get_accumulator_mode_float();
 
     // Resulting `APyFloatArray`
     APyFloatArray result(res_shape, max_exp_bits, max_man_bits);
