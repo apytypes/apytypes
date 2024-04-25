@@ -1249,42 +1249,32 @@ APyFloat APyFloatArray::checked_inner_product(
     if (shape[0] == 0) {
         return APyFloat(0, 0, 0, max_exp_bits, max_man_bits);
     }
-
-    auto tmp_exp_bits = max_exp_bits;
-    auto tmp_man_bits = max_man_bits;
-
     // Hadamard product of `*this` and `rhs`
     APyFloatArray hadamard;
 
-    // If an accumulator is used, the operands must be resized before the
-    // multiplication. This is because the products would otherwise get quantized
-    // too early.
-
-    const auto orig_quant_mode = get_quantization_mode();
-
     if (accumulator_mode.has_value()) {
+
+        const auto orig_quant_mode = get_quantization_mode();
         const auto acc_option = accumulator_mode.value();
-        tmp_exp_bits = acc_option.exp_bits;
-        tmp_man_bits = acc_option.man_bits;
-        auto tmp_bias = APyFloat::ieee_bias(tmp_exp_bits);
+        const auto tmp_exp_bits = acc_option.exp_bits;
+        const auto tmp_man_bits = acc_option.man_bits;
+        const auto tmp_bias = APyFloat::ieee_bias(tmp_exp_bits);
         set_quantization_mode(acc_option.quantization);
+        // If an accumulator is used, the operands must be resized before the
+        // multiplication. This is because the products would otherwise get quantized
+        // too early.
         hadamard
             = this->_cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization)
             * rhs._cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization);
-    } else {
-        hadamard = *this * rhs;
-    }
-
-    APyFloat sum = hadamard.vector_sum();
-
-    // The result must be quantized back if an accumulator was used.
-    if (accumulator_mode.has_value()) {
+        APyFloat sum = hadamard.vector_sum();
+        // The result must be quantized back if an accumulator was used.
         sum = sum.cast(max_exp_bits, max_man_bits);
-        // Change the quantization mode back, even if it wasn't changed
+        // Change the quantization mode back
         set_quantization_mode(orig_quant_mode);
+        return sum;
     }
-
-    return sum;
+    hadamard = *this * rhs;
+    return hadamard.vector_sum();
 }
 
 // Compute sum of all elements
@@ -1464,34 +1454,131 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
     // Resulting `APyFloatArray`
     APyFloatArray result(res_shape, max_exp_bits, max_man_bits);
 
+    // Hadamard product of `*this` and `rhs`
+    APyFloatArray hadamard;
+
+    // Case 1: In an accumulator context
+    if (accumulator_mode.has_value()) {
+        const auto orig_quant_mode = get_quantization_mode();
+        const auto acc_option = accumulator_mode.value();
+        const auto tmp_exp_bits = acc_option.exp_bits;
+        const auto tmp_man_bits = acc_option.man_bits;
+        const auto tmp_bias = APyFloat::ieee_bias(tmp_exp_bits);
+        set_quantization_mode(acc_option.quantization);
+
+        APyFloatArray lhsc
+            = _cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization);
+        APyFloatArray rhsc
+            = rhs._cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization);
+        // Current row from lhs (`*this`)
+        APyFloatArray current_row({ shape[1] }, tmp_exp_bits, tmp_man_bits);
+
+        // Current column from rhs
+        APyFloatArray current_column({ rhs.shape[0] }, tmp_exp_bits, tmp_exp_bits);
+        for (std::size_t x = 0; x < res_cols; x++) {
+
+            // Copy column from `rhs` and use as the current working column. As reading
+            // columns from `rhs` is cache-inefficient, we like to do this only once for
+            // each element in the resulting matrix.
+            for (std::size_t col = 0; col < rhsc.shape[0]; col++) {
+                current_column.data[col] = rhsc.data[x + col * res_cols];
+            }
+
+            for (std::size_t y = 0; y < res_shape[0]; y++) {
+
+                // Copy row from lhs (*this)
+                std::copy_n(
+                    &lhsc.data[y * shape[1]], shape[1], current_row.data.begin()
+                );
+
+                // Perform the inner product
+                hadamard = current_column * current_row;
+                APyFloat sum = hadamard.vector_sum();
+                // The result must be quantized back if an accumulator was used.
+                sum = sum.cast(max_exp_bits, max_man_bits);
+
+                assert(sum.get_exp_bits() == result.get_exp_bits());
+                assert(sum.get_man_bits() == result.get_man_bits());
+
+                // Copy into the resulting vector
+                result.data[x + y * res_cols] = sum.get_data();
+            }
+        }
+        // Change the quantization mode back
+        set_quantization_mode(orig_quant_mode);
+
+        return result;
+    }
+
+    // Case 2: Same word lengths, no need to cast anything
+    if (same_type_as(rhs)) {
+        // Current row from lhs (`*this`)
+        APyFloatArray current_row({ shape[1] }, max_exp_bits, max_man_bits);
+
+        // Current column from rhs
+        APyFloatArray current_column({ rhs.shape[0] }, max_exp_bits, max_man_bits);
+        for (std::size_t x = 0; x < res_cols; x++) {
+
+            // Copy column from `rhs` and use as the current working column. As reading
+            // columns from `rhs` is cache-inefficient, we like to do this only once for
+            // each element in the resulting matrix.
+            for (std::size_t col = 0; col < rhs.shape[0]; col++) {
+                current_column.data[col] = rhs.data[x + col * res_cols];
+            }
+
+            for (std::size_t y = 0; y < res_shape[0]; y++) {
+
+                // Copy row from lhs (*this)
+                std::copy_n(&data[y * shape[1]], shape[1], current_row.data.begin());
+
+                // Perform the inner product
+                hadamard = current_column * current_row;
+                APyFloat sum = hadamard.vector_sum();
+
+                assert(sum.get_exp_bits() == result.get_exp_bits());
+                assert(sum.get_man_bits() == result.get_man_bits());
+
+                // Copy into the resulting vector
+                result.data[x + y * res_cols] = sum.get_data();
+            }
+        }
+
+        return result;
+    }
+
+    // Case 3: Not same word lengths, cast to same (not shorter) word lengths
+
+    APyFloatArray lhsc = cast_no_quant(max_exp_bits, max_man_bits);
+    APyFloatArray rhsc = rhs.cast_no_quant(max_exp_bits, max_man_bits);
+
     // Current row from lhs (`*this`)
-    APyFloatArray current_row({ shape[1] }, exp_bits, man_bits);
+    APyFloatArray current_row({ shape[1] }, max_exp_bits, max_man_bits);
 
     // Current column from rhs
-    APyFloatArray current_column({ rhs.shape[0] }, rhs.exp_bits, rhs.man_bits);
+    APyFloatArray current_column({ rhs.shape[0] }, max_exp_bits, max_man_bits);
     for (std::size_t x = 0; x < res_cols; x++) {
 
         // Copy column from `rhs` and use as the current working column. As reading
         // columns from `rhs` is cache-inefficient, we like to do this only once for
         // each element in the resulting matrix.
         for (std::size_t col = 0; col < rhs.shape[0]; col++) {
-            current_column.data[col] = rhs.data[x + col * res_cols];
+            current_column.data[col] = rhsc.data[x + col * res_cols];
         }
 
         for (std::size_t y = 0; y < res_shape[0]; y++) {
 
             // Copy row from lhs (*this)
-            std::copy_n(&data[y * shape[1]], shape[1], current_row.data.begin());
+            std::copy_n(&lhsc.data[y * shape[1]], shape[1], current_row.data.begin());
 
             // Perform the inner product
-            APyFloat current_res = current_column.checked_inner_product(
-                current_row, accumulator_mode, max_exp_bits, max_man_bits
-            );
-            assert(current_res.get_exp_bits() == result.get_exp_bits());
-            assert(current_res.get_man_bits() == result.get_man_bits());
+            hadamard = current_column * current_row;
+            APyFloat sum = hadamard.vector_sum();
+
+            assert(sum.get_exp_bits() == result.get_exp_bits());
+            assert(sum.get_man_bits() == result.get_man_bits());
 
             // Copy into the resulting vector
-            result.data[x + y * res_cols] = current_res.get_data();
+            result.data[x + y * res_cols] = sum.get_data();
         }
     }
 
