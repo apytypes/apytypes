@@ -93,3 +93,30 @@ def test_round_trip_conversion():
     for bits in range(256):
         a = APyFixed(bits, 8, 4)
         assert (APyFixed.from_float(float(a), 8, 4)).is_identical(a)
+
+
+def test_fixed_cast_throws():
+    # Only specifying `bits` in a cast raises
+    with pytest.raises(ValueError, match="Fixed-point casting bit specification needs"):
+        APyFixed(0, int_bits=10, frac_bits=5).cast(bits=7)
+
+    # Specifying `bits`, `int_bits` and `frac_bits` in a cast raises
+    with pytest.raises(ValueError, match="Fixed-point casting bit specification needs"):
+        APyFixed(0, int_bits=10, frac_bits=5).cast(bits=7, int_bits=2, frac_bits=5)
+
+    # Casting `bits` to zero or less raises exception
+    for i in range(-5, 0 + 1):
+        with pytest.raises(ValueError, match="Fixed-point casting bit specification"):
+            APyFixed(0, int_bits=10, frac_bits=5).cast(bits=0, int_bits=0)
+
+    # Only specifying `int_bits` or `frac_bits` does *not* throw
+    APyFixed(0, int_bits=10, frac_bits=5).cast(7)
+    APyFixed(0, int_bits=10, frac_bits=5).cast(int_bits=7)
+    APyFixed(0, int_bits=10, frac_bits=5).cast(frac_bits=7)
+
+    # Any two-combination of bit-specifiers does not throw
+    APyFixed(0, int_bits=10, frac_bits=5).cast(bits=5, int_bits=2)
+    APyFixed(0, int_bits=10, frac_bits=5).cast(bits=5, frac_bits=2)
+    APyFixed(0, int_bits=10, frac_bits=5).cast(int_bits=5, frac_bits=2)
+
+    # Casting to a negative number of `bits` casts

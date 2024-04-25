@@ -932,9 +932,9 @@ APyFixed APyFixed::cast(
     std::optional<int> bits
 ) const
 {
-    // Sanitize the input (bit-specifier validity tested in `bits_from_optional()`)
-    int new_bits = bits_from_optional(bits, int_bits, frac_bits);
-    int new_int_bits = int_bits.has_value() ? *int_bits : *bits - *frac_bits;
+    // Sanitize the input (bit-specifier validity tested in `bits_from_optional_cast()`)
+    const auto [new_bits, new_int_bits]
+        = bits_from_optional_cast(bits, int_bits, frac_bits, _bits, _int_bits);
 
     const APyFixedCastOption cast_option = get_fixed_cast_mode();
     const auto quantization_mode = quantization.value_or(cast_option.quantization);

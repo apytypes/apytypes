@@ -17,7 +17,13 @@ nanobind_dep = dependency('nanobind')
 cmake = import('cmake')
 cmake_opts = cmake.subproject_options()
 if get_option('buildtype') == 'release'
-    cmake_opts.add_cmake_defines({'CMAKE_BUILD_TYPE': 'Release', 'HWY_ENABLE_TESTS' : 'OFF', 'HWY_ENABLE_CONTRIB' : 'OFF', 'HWY_ENABLE_INSTALL' : 'OFF', 'HWY_ENABLE_EXAMPLES' : 'OFF'})
+    cmake_opts.add_cmake_defines({
+      'CMAKE_BUILD_TYPE'    : 'Release',
+      'HWY_ENABLE_TESTS'    : 'OFF',
+      'HWY_ENABLE_CONTRIB'  : 'OFF',
+      'HWY_ENABLE_INSTALL'  : 'OFF',
+      'HWY_ENABLE_EXAMPLES' : 'OFF'
+    })
 endif
 
 hwy = cmake.subproject('highway', options: cmake_opts)

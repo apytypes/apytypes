@@ -644,3 +644,13 @@ def test_quantize_away_all_bits():
             .cast(bits=200, int_bits=400, quantization=mode)
             .is_identical(APyFixed(0, bits=200, int_bits=400))
         )
+
+
+def test_one_specifier():
+    # It is possible to specify only `int_bits` or `frac_bits`. Doing so preserves the
+    # other specifier.
+    a = APyFixed(0b0011_1100, int_bits=4, frac_bits=4)
+    assert float(a) == 3.75
+    assert float(a.cast(1)) == -0.25
+    assert float(a.cast(int_bits=1)) == -0.25
+    assert float(a.cast(frac_bits=1)) == 3.5

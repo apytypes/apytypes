@@ -18,7 +18,8 @@
 #include <regex>      // std::regex, std::regex_replace
 #include <sstream>    // std::stringstream
 #include <string>     // std::string
-#include <vector>     // std::vector
+#include <tuple>
+#include <vector> // std::vector
 
 /*
  * Include Microsoft intrinsics if using Microsoft Visual C/C++ compiler
@@ -745,16 +746,16 @@ template <class RANDOM_ACCESS_ITERATOR>
 
 //! Retrieve the `bits` specifier from user provided optional bit specifiers.
 //! Throws `nb::value_error` if the resulting number of bits is less than or equal to
-//! zero, or if not exactly two of three bit specifiers are present.
+//! zero, or if not exactly two of three bit specifiers are set.
 [[maybe_unused, nodiscard]] static APY_INLINE int bits_from_optional(
     std::optional<int> bits, std::optional<int> int_bits, std::optional<int> frac_bits
 )
 {
-    int num_bit_spec = bits.has_value() + int_bits.has_value() + frac_bits.has_value();
-    if (num_bit_spec != 2) {
+    int n_bit_spec = bits.has_value() + int_bits.has_value() + frac_bits.has_value();
+    if (n_bit_spec != 2) {
         throw nanobind::value_error(
             "Fixed-point bit specification needs exactly two of three bit specifiers "
-            "(bits, int_bits, frac_bits) set"
+            "(`bits`, `int_bits`, `frac_bits`) set"
         );
     }
 
@@ -766,6 +767,45 @@ template <class RANDOM_ACCESS_ITERATOR>
     }
 
     return result;
+}
+
+//! Retrieve a two-tuple of ints (`bits`, `int_bits`) for a set of optional
+//! bit-specifiers used in the casting context. Throws `nanobind::value_error` if
+//! parameters do not add up, or if resulting `bits` is smaller than or equal to zero.
+[[maybe_unused, nodiscard]] static APY_INLINE std::tuple<int, int>
+bits_from_optional_cast(
+    std::optional<int> bits,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits,
+    int current_bits,
+    int current_int_bits
+)
+{
+    std::optional<std::tuple<int, int>> result = std::nullopt;
+    int n_bit_spec = bits.has_value() + int_bits.has_value() + frac_bits.has_value();
+    if (n_bit_spec == 1 && !bits.has_value()) {
+        if (int_bits.has_value()) {
+            result = { current_bits - current_int_bits + *int_bits, *int_bits };
+        } else { /* frac_bits.has_value() */
+            result = { current_int_bits + *frac_bits, current_int_bits };
+        }
+    } else if (n_bit_spec == 2) {
+        if (bits.has_value()) {
+            result = { *bits, int_bits.has_value() ? *int_bits : *bits - *frac_bits };
+        } else { /* int_bits.has_value() && frac_bits.has_value() */
+            result = { *int_bits + *frac_bits, *int_bits };
+        }
+    }
+
+    if (!result.has_value() || std::get<0>(*result) <= 0) {
+        throw nanobind::value_error(
+            "Fixed-point casting bit specification needs exactly one of `int_bits` or "
+            "`frac_bits` set, or exactly two of three specifiers (`bits`, `int_bits`, "
+            "`frac_bits`) set"
+        );
+    }
+
+    return *result;
 }
 
 //! Test if two's complement value in a limb vector is negative
