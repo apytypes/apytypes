@@ -925,11 +925,11 @@ APyFixed APyFixed::from_string(
  * ********************************************************************************** */
 
 APyFixed APyFixed::cast(
-    std::optional<int> bits,
     std::optional<int> int_bits,
+    std::optional<int> frac_bits,
     std::optional<QuantizationMode> quantization,
     std::optional<OverflowMode> overflow,
-    std::optional<int> frac_bits
+    std::optional<int> bits
 ) const
 {
     // Sanitize the input (bit-specifier validity tested in `bits_from_optional()`)

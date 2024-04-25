@@ -268,11 +268,11 @@ public:
 public:
     //! Publicly exposed cast method
     APyFixed cast(
-        std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt,
         std::optional<QuantizationMode> quantization = std::nullopt,
         std::optional<OverflowMode> overflow = std::nullopt,
-        std::optional<int> frac_bits = std::nullopt
+        std::optional<int> bits = std::nullopt
     ) const;
 
     //! Simplified cast methods for internal use when it is known that the result will

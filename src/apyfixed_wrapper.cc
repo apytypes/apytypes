@@ -165,11 +165,11 @@ void bind_fixed(nb::module_& m)
         .def(
             "cast",
             &APyFixed::cast,
-            nb::arg("bits") = nb::none(),
             nb::arg("int_bits") = nb::none(),
+            nb::arg("frac_bits") = nb::none(),
             nb::arg("quantization") = nb::none(),
             nb::arg("overflow") = nb::none(),
-            nb::arg("frac_bits") = nb::none(),
+            nb::arg("bits") = nb::none(),
             R"pbdoc(
             Change format of the fixed-point number.
 
@@ -181,16 +181,16 @@ void bind_fixed(nb::module_& m)
 
             Parameters
             ----------
-            bits : int, optional
-                Total number of bits in the result.
             int_bits : int, optional
                 Number of integer bits in the result.
-            quantization : :class:`QuantizationMode`, default: :class:`QuantizationMode.TRN`
-                Quantization mode to use in this cast.
-            overflow : :class:`OverflowMode`, default: :class:`OverflowMode.WRAP`
-                Overflowing mode to use in this cast.
             frac_bits : int, optional
                 Number of fractional bits in the result.
+            quantization : :class:`QuantizationMode`, optional
+                Quantization mode to use in this cast.
+            overflow : :class:`OverflowMode`, optional
+                Overflowing mode to use in this cast.
+            bits : int, optional
+                Total number of bits in the result.
 
             Returns
             -------
