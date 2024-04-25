@@ -15,6 +15,8 @@ def test_homogeneous_shape():
     with pytest.raises(ValueError, match="Inhomogeneous sequence shape"):
         APyFixedArray([[1, 2], [3]], bits=10, int_bits=10)
     with pytest.raises(ValueError, match="Inhomogeneous sequence shape"):
+        APyFixedArray([[1, 2], 3], bits=10, int_bits=10)
+    with pytest.raises(ValueError, match="Inhomogeneous sequence shape"):
         APyFixedArray([range(3), [3, 4], (6, 7, 8)], bits=10, int_bits=10)
     with pytest.raises(ValueError, match="Inhomogeneous sequence shape"):
         APyFixedArray([range(3), [3, 4, 5], (7, 8)], bits=10, int_bits=10)
