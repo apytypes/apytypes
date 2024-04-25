@@ -15,12 +15,12 @@ namespace nb = nanobind;
 static QuantizationMode global_quantization_mode_float = QuantizationMode::RND_CONV;
 
 // Get the global quantization mode
-QuantizationMode get_quantization_mode_float()
+QuantizationMode get_float_quantization_mode()
 {
     return global_quantization_mode_float;
 }
 
-void set_quantization_mode_float(QuantizationMode mode)
+void set_float_quantization_mode(QuantizationMode mode)
 {
     global_quantization_mode_float = mode;
 }
@@ -29,9 +29,9 @@ APyFloatQuantizationContext::APyFloatQuantizationContext(
     const QuantizationMode& new_mode, std::optional<std::uint64_t> new_seed
 )
     : new_mode(new_mode)
-    , prev_mode(get_quantization_mode_float())
-    , new_seed(new_seed.value_or(get_quantization_seed_float()))
-    , prev_seed(get_quantization_seed_float())
+    , prev_mode(get_float_quantization_mode())
+    , new_seed(new_seed.value_or(get_float_quantization_seed()))
+    , prev_seed(get_float_quantization_seed())
 {
     if (new_seed.has_value() && new_mode != QuantizationMode::STOCH_WEIGHTED
         && new_mode != QuantizationMode::STOCH_EQUAL) {
@@ -43,14 +43,14 @@ APyFloatQuantizationContext::APyFloatQuantizationContext(
 
 void APyFloatQuantizationContext::enter_context()
 {
-    set_quantization_mode_float(new_mode);
-    set_quantization_seed_float(new_seed);
+    set_float_quantization_mode(new_mode);
+    set_float_quantization_seed(new_seed);
 }
 
 void APyFloatQuantizationContext::exit_context()
 {
-    set_quantization_mode_float(prev_mode);
-    set_quantization_seed_float(prev_seed);
+    set_float_quantization_mode(prev_mode);
+    set_float_quantization_seed(prev_seed);
 }
 
 /* ********************************************************************************** *
@@ -64,13 +64,13 @@ std::uint64_t quantization_seed = std::random_device {}();
 // be reproducible.
 std::mt19937_64 gen64(quantization_seed);
 
-void set_quantization_seed_float(std::uint64_t seed)
+void set_float_quantization_seed(std::uint64_t seed)
 {
     quantization_seed = seed;
     gen64.seed(seed);
 }
 
-std::uint64_t get_quantization_seed_float() { return quantization_seed; }
+std::uint64_t get_float_quantization_seed() { return quantization_seed; }
 
 std::uint64_t random_number_float() { return gen64(); }
 
@@ -156,7 +156,7 @@ APyFloatAccumulatorContext::APyFloatAccumulatorContext(
     new_mode.exp_bits = exp_bits.value();
     new_mode.man_bits = man_bits.value();
     new_mode.bias = bias.value_or(APyFloat::ieee_bias(new_mode.exp_bits));
-    new_mode.quantization = quantization.value_or(get_quantization_mode_float());
+    new_mode.quantization = quantization.value_or(get_float_quantization_mode());
 
     // Set the current mode
     current_mode = new_mode;

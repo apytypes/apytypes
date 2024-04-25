@@ -164,7 +164,7 @@ APyFloat APyFloat::cast(
         actual_exp_bits,
         new_man_bits.value_or(man_bits),
         new_bias.value_or(APyFloat::ieee_bias(actual_exp_bits)),
-        quantization.value_or(get_quantization_mode_float())
+        quantization.value_or(get_float_quantization_mode())
     );
 }
 
@@ -179,7 +179,7 @@ APyFloat APyFloat::_cast(
         new_exp_bits,
         new_man_bits,
         new_bias,
-        quantization.value_or(get_quantization_mode_float())
+        quantization.value_or(get_float_quantization_mode())
     );
 }
 
@@ -794,7 +794,7 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
         return res.construct_inf();
     }
 
-    const auto quantization = get_quantization_mode_float();
+    const auto quantization = get_float_quantization_mode();
 
     // Tentative exponent
     std::int64_t new_exp = x.true_exp() + res.bias;
@@ -963,7 +963,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
             return res.construct_zero();
         }
     }
-    const auto quantization = get_quantization_mode_float();
+    const auto quantization = get_float_quantization_mode();
     const unsigned int sum_man_bits = man_bits + y.man_bits;
 
     if (sum_man_bits + 3 <= _MAN_T_SIZE_BITS) {
@@ -1101,7 +1101,7 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
         return res.construct_inf();
     }
 
-    const auto quantization = get_quantization_mode_float();
+    const auto quantization = get_float_quantization_mode();
 
     // Normalize both inputs
     const APyFloat norm_x = normalized();
@@ -1210,7 +1210,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
         }
     }
 
-    const auto quantization = get_quantization_mode_float();
+    const auto quantization = get_float_quantization_mode();
 
     const int abs_n = std::abs(n);
 

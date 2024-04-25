@@ -146,16 +146,16 @@ private:
 };
 
 //! Set the global quantization mode for APyFloat
-void set_quantization_mode_float(QuantizationMode mode);
+void set_float_quantization_mode(QuantizationMode mode);
 
 //! Retrieve the global quantization mode for APyFloat
-QuantizationMode get_quantization_mode_float();
+QuantizationMode get_float_quantization_mode();
 
 //! Set the global seed for stochastic quantization for APyFloat
-void set_quantization_seed_float(std::uint64_t);
+void set_float_quantization_seed(std::uint64_t);
 
 //! Get the global seed for stochastic quantization for APyFloat
-std::uint64_t get_quantization_seed_float();
+std::uint64_t get_float_quantization_seed();
 
 //! Retrieve a random 64-bit number from the random number engine used for APyFloat
 std::uint64_t random_number_float();

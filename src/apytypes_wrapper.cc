@@ -178,8 +178,8 @@ void bind_common(nb::module_& m)
         );
 
     m.def(
-         "set_quantization_mode_float",
-         &set_quantization_mode_float,
+         "set_float_quantization_mode",
+         &set_float_quantization_mode,
          nb::arg("mode"),
          R"pbdoc(
         Set current quantization context.
@@ -191,10 +191,10 @@ void bind_common(nb::module_& m)
 
         See also
         --------
-        get_quantization_mode_float
+        get_float_quantization_mode
         )pbdoc"
     )
-        .def("get_quantization_mode_float", &get_quantization_mode_float, R"pbdoc(
+        .def("get_float_quantization_mode", &get_float_quantization_mode, R"pbdoc(
         Get current quantization context.
 
         Returns
@@ -203,11 +203,11 @@ void bind_common(nb::module_& m)
 
         See also
         --------
-        set_quantization_mode_float
+        set_float_quantization_mode
         )pbdoc")
         .def(
-            "set_quantization_seed_float",
-            &set_quantization_seed_float,
+            "set_float_quantization_seed",
+            &set_float_quantization_seed,
             nb::arg("seed"),
             R"pbdoc(
         Set current quantization seed.
@@ -221,10 +221,10 @@ void bind_common(nb::module_& m)
 
         See also
         --------
-        get_quantization_seed_float
+        get_float_quantization_seed
         )pbdoc"
         )
-        .def("get_quantization_seed_float", &get_quantization_seed_float, R"pbdoc(
+        .def("get_float_quantization_seed", &get_float_quantization_seed, R"pbdoc(
         Set current quantization seed.
 
         The quantization seed is used for stochastic quantization.
@@ -235,7 +235,7 @@ void bind_common(nb::module_& m)
 
         See also
         --------
-        set_quantization_seed_float
+        set_float_quantization_seed
         )pbdoc")
 
         /* Get the APyTypes SIMD version string */

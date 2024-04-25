@@ -176,10 +176,10 @@ the bias will converge towards zero the more bits are quantized away (except for
    .. image:: ../_static/NUMERIC_STD.png
       :alt: Illustration of numeric_std overflowing
 
-.. autofunction:: apytypes.get_quantization_mode_float
+.. autofunction:: apytypes.get_float_quantization_mode
 
-.. autofunction:: apytypes.set_quantization_mode_float
+.. autofunction:: apytypes.set_float_quantization_mode
 
-.. autofunction:: apytypes.get_quantization_seed_float
+.. autofunction:: apytypes.get_float_quantization_seed
 
-.. autofunction:: apytypes.set_quantization_seed_float
+.. autofunction:: apytypes.set_float_quantization_seed
