@@ -238,6 +238,8 @@
 </li>
           <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.__init__">(apytypes.APyFixedArray method)</a>
 </li>
+          <li><a href="api/context.html#apytypes.APyFixedCastContext.__init__">(apytypes.APyFixedCastContext method)</a>
+</li>
           <li><a href="api/apyfloat.html#apytypes.APyFloat.__init__">(apytypes.APyFloat method)</a>
 </li>
           <li><a href="api/context.html#apytypes.APyFloatAccumulatorContext.__init__">(apytypes.APyFloatAccumulatorContext method)</a>
@@ -277,7 +279,7 @@
 </li>
         <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed4bitsEv">APyFixed::bits (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed4castENSt8optionalIiEENSt8optionalIiEE16QuantizationMode12OverflowModeNSt8optionalIiEE">APyFixed::cast (C++ function)</a>
+        <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed4castENSt8optionalIiEENSt8optionalIiEENSt8optionalI16QuantizationModeEENSt8optionalI12OverflowModeEENSt8optionalIiEE">APyFixed::cast (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed16cast_no_overflowEii16QuantizationMode">APyFixed::cast_no_overflow (C++ function)</a>
 </li>
@@ -405,7 +407,7 @@
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray4bitsEv">APyFixedArray::bits (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray4castENSt8optionalIiEENSt8optionalIiEE16QuantizationMode12OverflowModeNSt8optionalIiEE">APyFixedArray::cast (C++ function)</a>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray4castENSt8optionalIiEENSt8optionalIiEENSt8optionalI16QuantizationModeEENSt8optionalI12OverflowModeEENSt8optionalIiEE">APyFixedArray::cast (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray9frac_bitsEv">APyFixedArray::frac_bits (C++ function)</a>
 </li>
@@ -449,6 +451,28 @@
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray9transposeEv">APyFixedArray::transpose (C++ function)</a>
 </li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv419APyFixedCastContext">APyFixedCastContext (C++ class)</a>
+
+        <ul>
+          <li><a href="api/context.html#apytypes.APyFixedCastContext">(class in apytypes)</a>
+</li>
+        </ul></li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N19APyFixedCastContext19APyFixedCastContextENSt8optionalI16QuantizationModeEENSt8optionalI12OverflowModeEE">APyFixedCastContext::APyFixedCastContext (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N19APyFixedCastContext12current_modeE">APyFixedCastContext::current_mode (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N19APyFixedCastContext13enter_contextEv">APyFixedCastContext::enter_context (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N19APyFixedCastContext12exit_contextEv">APyFixedCastContext::exit_context (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N19APyFixedCastContext13previous_modeE">APyFixedCastContext::previous_mode (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv418APyFixedCastOption">APyFixedCastOption (C++ struct)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N18APyFixedCastOption8overflowE">APyFixedCastOption::overflow (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv4N18APyFixedCastOption12quantizationE">APyFixedCastOption::quantization (C++ member)</a>
+</li>
         <li><a href="cpp_api/apyfloat.html#_CPPv48APyFloat">APyFloat (C++ class)</a>
 
         <ul>
@@ -479,6 +503,8 @@
 </li>
         <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat14cast_to_doubleENSt8optionalI16QuantizationModeEE">APyFloat::cast_to_double (C++ function)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat12cast_to_halfENSt8optionalI16QuantizationModeEE">APyFloat::cast_to_half (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat14cast_to_singleENSt8optionalI16QuantizationModeEE">APyFloat::cast_to_single (C++ function)</a>
@@ -489,8 +515,6 @@
 </li>
         <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat14construct_zeroENSt8optionalIbEE">APyFloat::construct_zero (C++ function)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat15create_in_placeEP8APyFloati5exp_t5man_tNSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE">APyFloat::create_in_place (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat9from_bitsEN8nanobind4int_ENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE">APyFloat::from_bits (C++ function)</a>
@@ -904,6 +928,8 @@
         <li><a href="cpp_api/apytypes_common.html#_CPPv426get_accumulator_mode_fixedv">get_accumulator_mode_fixed (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_common.html#_CPPv426get_accumulator_mode_floatv">get_accumulator_mode_float (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_common.html#_CPPv419get_fixed_cast_modev">get_fixed_cast_mode (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_common.html#_CPPv427get_float_quantization_modev">get_float_quantization_mode (C++ function)</a>
 </li>

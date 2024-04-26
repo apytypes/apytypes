@@ -390,6 +390,12 @@
 </dd></dl>
 
 <dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419get_fixed_cast_modev">
+<span id="_CPPv319get_fixed_cast_modev"></span><span id="_CPPv219get_fixed_cast_modev"></span><span id="get_fixed_cast_mode"></span><span class="target" id="apytypes__common_8h_1ae99a92d84ea2748183de4027404bb46b"></span><a class="reference internal" href="#_CPPv418APyFixedCastOption" title="APyFixedCastOption"><span class="n"><span class="pre">APyFixedCastOption</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_fixed_cast_mode</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419get_fixed_cast_modev" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Retrieve the global cast mode for <a class="reference internal" href="apyfixed.html#classAPyFixed"><span class="std std-ref">APyFixed</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv426get_accumulator_mode_fixedv">
 <span id="_CPPv326get_accumulator_mode_fixedv"></span><span id="_CPPv226get_accumulator_mode_fixedv"></span><span id="get_accumulator_mode_fixed"></span><span class="target" id="apytypes__common_8h_1a647978eb0a048758b7d49236585a878e"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv425APyFixedAccumulatorOption" title="APyFixedAccumulatorOption"><span class="n"><span class="pre">APyFixedAccumulatorOption</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_accumulator_mode_fixed</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426get_accumulator_mode_fixedv" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Retrieve the global accumulator mode for <a class="reference internal" href="apyfixed.html#classAPyFixed"><span class="std std-ref">APyFixed</span></a>. </p>
@@ -405,7 +411,7 @@
 <dl class="cpp class">
 <dt class="sig sig-object cpp" id="_CPPv414ContextManager">
 <span id="_CPPv314ContextManager"></span><span id="_CPPv214ContextManager"></span><span id="ContextManager"></span><span class="target" id="classContextManager"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ContextManager</span></span></span><a class="headerlink" href="#_CPPv414ContextManager" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Subclassed by <a class="reference internal" href="#classAPyFixedAccumulatorContext"><span class="std std-ref">APyFixedAccumulatorContext</span></a>, <a class="reference internal" href="#classAPyFloatAccumulatorContext"><span class="std std-ref">APyFloatAccumulatorContext</span></a>, <a class="reference internal" href="#classAPyFloatQuantizationContext"><span class="std std-ref">APyFloatQuantizationContext</span></a></p>
+<dd><p>Subclassed by <a class="reference internal" href="#classAPyFixedAccumulatorContext"><span class="std std-ref">APyFixedAccumulatorContext</span></a>, <a class="reference internal" href="#classAPyFixedCastContext"><span class="std std-ref">APyFixedCastContext</span></a>, <a class="reference internal" href="#classAPyFloatAccumulatorContext"><span class="std std-ref">APyFloatAccumulatorContext</span></a>, <a class="reference internal" href="#classAPyFloatQuantizationContext"><span class="std std-ref">APyFloatQuantizationContext</span></a></p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
@@ -498,6 +504,60 @@
 <dl class="cpp var">
 <dt class="sig sig-object cpp" id="_CPPv4N12APyFloatData3manE">
 <span id="_CPPv3N12APyFloatData3manE"></span><span id="_CPPv2N12APyFloatData3manE"></span><span id="APyFloatData::man__man_t"></span><span class="target" id="structAPyFloatData_1a81b3e7dac3e551d65f8ecf4d1af019a6"></span><a class="reference internal" href="#_CPPv45man_t" title="man_t"><span class="n"><span class="pre">man_t</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">man</span></span></span><a class="headerlink" href="#_CPPv4N12APyFloatData3manE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv418APyFixedCastOption">
+<span id="_CPPv318APyFixedCastOption"></span><span id="_CPPv218APyFixedCastOption"></span><span id="APyFixedCastOption"></span><span class="target" id="structAPyFixedCastOption"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APyFixedCastOption</span></span></span><a class="headerlink" href="#_CPPv418APyFixedCastOption" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N18APyFixedCastOption12quantizationE">
+<span id="_CPPv3N18APyFixedCastOption12quantizationE"></span><span id="_CPPv2N18APyFixedCastOption12quantizationE"></span><span id="APyFixedCastOption::quantization__QuantizationMode"></span><span class="target" id="structAPyFixedCastOption_1a0812be581c6acb6d5e47da5d38ed7fac"></span><a class="reference internal" href="#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">quantization</span></span></span><a class="headerlink" href="#_CPPv4N18APyFixedCastOption12quantizationE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N18APyFixedCastOption8overflowE">
+<span id="_CPPv3N18APyFixedCastOption8overflowE"></span><span id="_CPPv2N18APyFixedCastOption8overflowE"></span><span id="APyFixedCastOption::overflow__OverflowMode"></span><span class="target" id="structAPyFixedCastOption_1a1b6e3ee1e5895d1cc0bc0c4c25cce6fb"></span><a class="reference internal" href="#_CPPv412OverflowMode" title="OverflowMode"><span class="n"><span class="pre">OverflowMode</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">overflow</span></span></span><a class="headerlink" href="#_CPPv4N18APyFixedCastOption8overflowE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv419APyFixedCastContext">
+<span id="_CPPv319APyFixedCastContext"></span><span id="_CPPv219APyFixedCastContext"></span><span id="APyFixedCastContext"></span><span class="target" id="classAPyFixedCastContext"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APyFixedCastContext</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv414ContextManager" title="ContextManager"><span class="n"><span class="pre">ContextManager</span></span></a><a class="headerlink" href="#_CPPv419APyFixedCastContext" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N19APyFixedCastContext19APyFixedCastContextENSt8optionalI16QuantizationModeEENSt8optionalI12OverflowModeEE">
+<span id="_CPPv3N19APyFixedCastContext19APyFixedCastContextENSt8optionalI16QuantizationModeEENSt8optionalI12OverflowModeEE"></span><span id="_CPPv2N19APyFixedCastContext19APyFixedCastContextENSt8optionalI16QuantizationModeEENSt8optionalI12OverflowModeEE"></span><span id="APyFixedCastContext::APyFixedCastContext__std::optional:QuantizationMode:.std::optional:OverflowMode:"></span><span class="target" id="classAPyFixedCastContext_1a31e003d83736c87b5b6370a5d3c40427"></span><span class="sig-name descname"><span class="n"><span class="pre">APyFixedCastContext</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv416QuantizationMode" title="QuantizationMode"><span class="n"><span class="pre">QuantizationMode</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">quantization</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv412OverflowMode" title="OverflowMode"><span class="n"><span class="pre">OverflowMode</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">overflow</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N19APyFixedCastContext19APyFixedCastContextENSt8optionalI16QuantizationModeEENSt8optionalI12OverflowModeEE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N19APyFixedCastContext13enter_contextEv">
+<span id="_CPPv3N19APyFixedCastContext13enter_contextEv"></span><span id="_CPPv2N19APyFixedCastContext13enter_contextEv"></span><span id="APyFixedCastContext::enter_context"></span><span class="target" id="classAPyFixedCastContext_1a21b0ec2f214d25807f576687378ab4c2"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">enter_context</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N19APyFixedCastContext13enter_contextEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N19APyFixedCastContext12exit_contextEv">
+<span id="_CPPv3N19APyFixedCastContext12exit_contextEv"></span><span id="_CPPv2N19APyFixedCastContext12exit_contextEv"></span><span id="APyFixedCastContext::exit_context"></span><span class="target" id="classAPyFixedCastContext_1a351105acea502be6cb7c046f7d1c38fa"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">exit_context</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N19APyFixedCastContext12exit_contextEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-private-members">Private Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19APyFixedCastContext12current_modeE">
+<span id="_CPPv3N19APyFixedCastContext12current_modeE"></span><span id="_CPPv2N19APyFixedCastContext12current_modeE"></span><span id="APyFixedCastContext::current_mode__APyFixedCastOption"></span><span class="target" id="classAPyFixedCastContext_1a54592321308e830b617f5c207db9a43e"></span><a class="reference internal" href="#_CPPv418APyFixedCastOption" title="APyFixedCastOption"><span class="n"><span class="pre">APyFixedCastOption</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">current_mode</span></span></span><a class="headerlink" href="#_CPPv4N19APyFixedCastContext12current_modeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19APyFixedCastContext13previous_modeE">
+<span id="_CPPv3N19APyFixedCastContext13previous_modeE"></span><span id="_CPPv2N19APyFixedCastContext13previous_modeE"></span><span id="APyFixedCastContext::previous_mode__APyFixedCastOption"></span><span class="target" id="classAPyFixedCastContext_1a5d2adac91730252178d0de2664cf9398"></span><a class="reference internal" href="#_CPPv418APyFixedCastOption" title="APyFixedCastOption"><span class="n"><span class="pre">APyFixedCastOption</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">previous_mode</span></span></span><a class="headerlink" href="#_CPPv4N19APyFixedCastContext13previous_modeE" title="Link to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 </div>
@@ -722,6 +782,7 @@
 <li><a class="reference internal" href="#_CPPv427set_float_quantization_seedNSt8uint64_tE"><code class="docutils literal notranslate"><span class="pre">set_float_quantization_seed()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv427get_float_quantization_seedv"><code class="docutils literal notranslate"><span class="pre">get_float_quantization_seed()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv419random_number_floatv"><code class="docutils literal notranslate"><span class="pre">random_number_float()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv419get_fixed_cast_modev"><code class="docutils literal notranslate"><span class="pre">get_fixed_cast_mode()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv426get_accumulator_mode_fixedv"><code class="docutils literal notranslate"><span class="pre">get_accumulator_mode_fixed()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv426get_accumulator_mode_floatv"><code class="docutils literal notranslate"><span class="pre">get_accumulator_mode_float()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv414ContextManager"><code class="docutils literal notranslate"><span class="pre">ContextManager</span></code></a><ul>
@@ -745,6 +806,19 @@
 <li><a class="reference internal" href="#_CPPv4N12APyFloatData4signE"><code class="docutils literal notranslate"><span class="pre">APyFloatData::sign</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N12APyFloatData3expE"><code class="docutils literal notranslate"><span class="pre">APyFloatData::exp</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N12APyFloatData3manE"><code class="docutils literal notranslate"><span class="pre">APyFloatData::man</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv418APyFixedCastOption"><code class="docutils literal notranslate"><span class="pre">APyFixedCastOption</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N18APyFixedCastOption12quantizationE"><code class="docutils literal notranslate"><span class="pre">APyFixedCastOption::quantization</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N18APyFixedCastOption8overflowE"><code class="docutils literal notranslate"><span class="pre">APyFixedCastOption::overflow</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv419APyFixedCastContext"><code class="docutils literal notranslate"><span class="pre">APyFixedCastContext</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N19APyFixedCastContext19APyFixedCastContextENSt8optionalI16QuantizationModeEENSt8optionalI12OverflowModeEE"><code class="docutils literal notranslate"><span class="pre">APyFixedCastContext::APyFixedCastContext()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N19APyFixedCastContext13enter_contextEv"><code class="docutils literal notranslate"><span class="pre">APyFixedCastContext::enter_context()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N19APyFixedCastContext12exit_contextEv"><code class="docutils literal notranslate"><span class="pre">APyFixedCastContext::exit_context()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N19APyFixedCastContext12current_modeE"><code class="docutils literal notranslate"><span class="pre">APyFixedCastContext::current_mode</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N19APyFixedCastContext13previous_modeE"><code class="docutils literal notranslate"><span class="pre">APyFixedCastContext::previous_mode</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#_CPPv425APyFixedAccumulatorOption"><code class="docutils literal notranslate"><span class="pre">APyFixedAccumulatorOption</span></code></a><ul>
