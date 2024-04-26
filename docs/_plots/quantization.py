@@ -22,9 +22,9 @@ a = np.arange(-3, 2.9, 0.125)
 ai = np.arange(-3, 2.1, 1)
 ah = np.arange(-2.5, 2.6, 1)
 bins = np.arange(-1, 1.1, 0.125)
-afx = APyFixedArray.from_float(a, 7, 4)
-aifx = APyFixedArray.from_float(ai, 7, 4)
-ahfx = APyFixedArray.from_float(ah, 7, 4)
+afx = APyFixedArray.from_float(a, int_bits=4, frac_bits=3)
+aifx = APyFixedArray.from_float(ai, int_bits=4, frac_bits=3)
+ahfx = APyFixedArray.from_float(ah, int_bits=4, frac_bits=3)
 fig, axs = plt.subplots(
     10,
     3,
@@ -33,9 +33,9 @@ fig, axs = plt.subplots(
     figsize=(8, 20),
 )
 for i, q in enumerate(modes):
-    aqfx = afx.cast(4, 4, eval(q))
-    aiqfx = aifx.cast(4, 4, eval(q))
-    ahqfx = ahfx.cast(4, 4, eval(q))
+    aqfx = afx.cast(int_bits=4, frac_bits=0, quantization=eval(q))
+    aiqfx = aifx.cast(int_bits=4, frac_bits=0, quantization=eval(q))
+    ahqfx = ahfx.cast(int_bits=4, frac_bits=0, quantization=eval(q))
     ax = axs[2 * (i // 3), i % 3]
     ax.set_aspect("equal")
     ax.plot((-3, 2.875), (-3, 2.875), "g")
@@ -78,9 +78,9 @@ a = np.arange(-4, 3.9, 0.125)
 ai = np.arange(-4, 3.1, 1)
 ah = np.arange(-3.5, 3.6, 1)
 bins = np.arange(-1, 1.1, 0.125)
-afx = APyFixedArray.from_float(a, 7, 4)
-aifx = APyFixedArray.from_float(ai, 7, 4)
-ahfx = APyFixedArray.from_float(ah, 7, 4)
+afx = APyFixedArray.from_float(a, int_bits=4, frac_bits=3)
+aifx = APyFixedArray.from_float(ai, int_bits=4, frac_bits=3)
+ahfx = APyFixedArray.from_float(ah, int_bits=4, frac_bits=3)
 
 l = len(a) // 2
 for q in modes:
@@ -89,9 +89,9 @@ for q in modes:
     fig.suptitle(name)
     gs = gridspec.GridSpec(3, 2, figure=fig)
     ax = fig.add_subplot(gs[:, 0])
-    aqfx = afx.cast(4, 4, eval(q))
-    aiqfx = aifx.cast(4, 4, eval(q))
-    ahqfx = ahfx.cast(4, 4, eval(q))
+    aqfx = afx.cast(int_bits=4, frac_bits=0, quantization=eval(q))
+    aiqfx = aifx.cast(int_bits=4, frac_bits=0, quantization=eval(q))
+    ahqfx = ahfx.cast(int_bits=4, frac_bits=0, quantization=eval(q))
     ax.set_aspect("equal")
     ax.plot((-4, 3.875), (-4, 3.875), "g")
     ax.plot(afx, aqfx, "o")

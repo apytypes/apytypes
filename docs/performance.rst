@@ -39,6 +39,6 @@ use inplace shifting if possible.
 
 .. code-block:: Python
 
-    a = APyFixed(5, 6, 4)
+    a = APyFixed(5, bits=6, int_bits=4)
     a = a >> 1   # slower
     a >>= 1   # faster

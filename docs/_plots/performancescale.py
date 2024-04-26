@@ -1,9 +1,9 @@
 # %%
 import timeit
 
-CREATE_TWO_FIXED_VECTORS = "import numpy as np; a = APyFixedArray.from_float(np.random.rand({l}) - 0.5, 20, 10); b = APyFixedArray.from_float(np.random.rand({l}) - 0.5, 20, 10)"
-CREATE_TWO_LONG_FIXED_VECTORS = "import numpy as np; a = APyFixedArray.from_float(np.random.rand({l}) - 0.5, 300, 150); b = APyFixedArray.from_float(np.random.rand({l}) - 0.5, 300, 150)"
-CREATE_TWO_FIXED_VECTORS_DIFFERENT_WL = "import numpy as np; a = APyFixedArray.from_float(np.random.rand({l}) - 0.5, 32, 16); b = APyFixedArray.from_float(np.random.rand({l}) - 0.5, 12, 2)"
+CREATE_TWO_FIXED_VECTORS = "import numpy as np; a = APyFixedArray.from_float(np.random.rand({l}) - 0.5, int_bits=10, frac_bits=10); b = APyFixedArray.from_float(np.random.rand({l}) - 0.5, int_bits=10, frac_bits=10)"
+CREATE_TWO_LONG_FIXED_VECTORS = "import numpy as np; a = APyFixedArray.from_float(np.random.rand({l}) - 0.5, int_bits=150, frac_bits=150); b = APyFixedArray.from_float(np.random.rand({l}) - 0.5, int_bits=150, frac_bits=150)"
+CREATE_TWO_FIXED_VECTORS_DIFFERENT_WL = "import numpy as np; a = APyFixedArray.from_float(np.random.rand({l}) - 0.5, int_bits=16, frac_bits=16); b = APyFixedArray.from_float(np.random.rand({l}) - 0.5, int_bits=12, frac_bits=2)"
 CREATE_TWO_FLOAT_VECTORS = "import numpy as np; a = APyFloatArray.from_float(np.random.rand({l}) - 0.5, 5, 8); b = APyFloatArray.from_float(np.random.rand({l}) - 0.5, 5, 8)"
 benchmarks = {
     "Fixed-point addition, 20-bit": ("c = a + b", CREATE_TWO_FIXED_VECTORS),
