@@ -108,7 +108,7 @@ public:
 };
 
 /* ********************************************************************************** *
- * *                          Quantization context for APyFloat * *
+ * *                          Quantization context for APyFloat                     * *
  * ********************************************************************************** */
 
 /*
@@ -173,6 +173,31 @@ struct APyFloatData {
             == std::make_tuple(other.sign, other.exp, other.man);
     }
 };
+
+/* ********************************************************************************** *
+ * *                          Cast context for APyFixed                             * *
+ * ********************************************************************************** */
+
+struct APyFixedCastOption {
+    QuantizationMode quantization;
+    OverflowMode overflow;
+};
+
+class APyFixedCastContext : public ContextManager {
+public:
+    APyFixedCastContext(
+        std::optional<QuantizationMode> quantization = std::nullopt,
+        std::optional<OverflowMode> overflow = std::nullopt
+    );
+    void enter_context() override;
+    void exit_context() override;
+
+private:
+    std::optional<APyFixedCastOption> current_mode, previous_mode;
+};
+
+//! Retrieve the global cast mode for APyFixed
+std::optional<APyFixedCastOption> get_fixed_cast_mode();
 
 /* ********************************************************************************** *
  * *                          Accumulator context for APyFixed                      * *

@@ -2,6 +2,7 @@ from __future__ import annotations
 from apytypes._apytypes import APyFixed
 from apytypes._apytypes import APyFixedArray
 from apytypes._apytypes import APyFixedAccumulatorContext
+from apytypes._apytypes import APyFixedCastContext
 from apytypes._apytypes import APyFloat
 from apytypes._apytypes import APyFloatArray
 from apytypes._apytypes import APyFloatAccumulatorContext
@@ -19,6 +20,7 @@ __all__: list = [
     "APyFixed",
     "APyFixedArray",
     "APyFixedAccumulatorContext",
+    "APyFixedCastContext",
     "APyFloat",
     "APyFloatArray",
     "APyFloatAccumulatorContext",

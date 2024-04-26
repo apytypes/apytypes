@@ -1,6 +1,10 @@
 Context handling
 ================
 
+.. autoclass:: apytypes.APyFixedCastContext
+
+   .. automethod:: __init__
+
 .. autoclass:: apytypes.APyFloatQuantizationContext
 
    .. automethod:: __init__

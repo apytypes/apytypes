@@ -45,6 +45,26 @@ void bind_quantization_context(nb::module_& m)
         );
 }
 
+void bind_cast_context(nb::module_& m)
+{
+    nb::class_<APyFixedCastContext, ContextManager>(m, "APyFixedCastContext")
+        .def(
+            nb::init<std::optional<QuantizationMode>, std::optional<OverflowMode>>(),
+            // nb::kw_only() is added in NanoBind v2.0.0
+            // nb::kw_only(), // All parameters are keyword only
+            nb::arg("quantization") = nb::none(),
+            nb::arg("overflow") = nb::none()
+        )
+        .def("__enter__", &context_enter_handler)
+        .def(
+            "__exit__",
+            &context_exit_handler,
+            nb::arg("exc_type") = nb::none(),
+            nb::arg("exc_value") = nb::none(),
+            nb::arg("traceback") = nb::none()
+        );
+}
+
 void bind_accumulator_context(nb::module_& m)
 {
     nb::class_<APyFixedAccumulatorContext, ContextManager>(

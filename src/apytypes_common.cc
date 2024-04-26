@@ -75,6 +75,40 @@ std::uint64_t get_float_quantization_seed() { return quantization_seed; }
 std::uint64_t random_number_float() { return gen64(); }
 
 /* ********************************************************************************** *
+ * *                      Cast context for APyFixed                                 * *
+ * ********************************************************************************** */
+
+// Global accumulator option (default value: std::nullopt)
+static std::optional<APyFixedCastOption> global_cast_option_fixed;
+
+APyFixedCastContext::APyFixedCastContext(
+    std::optional<QuantizationMode> quantization, std::optional<OverflowMode> overflow
+)
+{
+    if (!quantization.has_value() && !overflow.has_value()) {
+        throw nb::value_error(
+            "Either quantization mode or overflow mode must be specified."
+        );
+    }
+
+    // Store the previous accumulator mode
+    previous_mode = global_cast_option_fixed;
+
+    // Extract the input
+    APyFixedCastOption new_mode
+        = global_cast_option_fixed.value_or(APyFixedCastOption {});
+
+    new_mode.quantization = quantization.value_or(QuantizationMode::TRN);
+    new_mode.overflow = overflow.value_or(OverflowMode::WRAP);
+
+    // Set the current mode
+    current_mode = new_mode;
+}
+
+void APyFixedCastContext::enter_context() { global_cast_option_fixed = current_mode; }
+void APyFixedCastContext::exit_context() { global_cast_option_fixed = previous_mode; }
+
+/* ********************************************************************************** *
  * *                      Accumulator context for APyFixedArray                     * *
  * ********************************************************************************** */
 

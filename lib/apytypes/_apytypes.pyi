@@ -8,6 +8,7 @@ __all__ = [
     "APyFixedArray",
     "APyFixedArrayIterator",
     "APyFixedAccumulatorContext",
+    "APyFixedCastContext",
     "APyFloat",
     "APyFloatArray",
     "APyFloatArrayIterator",
@@ -1243,6 +1244,21 @@ class APyFixedAccumulatorContext(ContextManager):
         bits: int | None = None,
         int_bits: int | None = None,
         frac_bits: int | None = None,
+        quantization: QuantizationMode | None = None,
+        overflow: OverflowMode | None = None,
+    ) -> None: ...
+
+class APyFixedCastContext(ContextManager):
+    def __enter__(self: ContextManager) -> None: ...
+    def __exit__(
+        self: ContextManager,
+        arg0: type | None,
+        arg1: typing.Any | None,
+        arg2: typing.Any | None,
+    ) -> None: ...
+    def __init__(
+        self,
+        *,
         quantization: QuantizationMode | None = None,
         overflow: OverflowMode | None = None,
     ) -> None: ...
