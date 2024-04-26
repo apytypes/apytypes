@@ -224,25 +224,25 @@ def test_matrix_multiplication_accumulator_context():
         int_bits=2, frac_bits=4, quantization=QuantizationMode.TRN
     ):
         assert (A @ B).is_identical(
-            APyFixedArray.from_float([[0.3125, 0.5000], [0.8125, 1.2500]], 6, 2)
+            APyFixedArray.from_float([[0.3125, 0.5000], [0.8125, 1.2500]], 2, 4)
         )
     with APyFixedAccumulatorContext(
         int_bits=2, frac_bits=3, quantization=QuantizationMode.TRN
     ):
         assert (A @ B).is_identical(
-            APyFixedArray.from_float([[0.2500, 0.5000], [0.7500, 1.2500]], 5, 2)
+            APyFixedArray.from_float([[0.2500, 0.5000], [0.7500, 1.2500]], 2, 3)
         )
     with APyFixedAccumulatorContext(
         int_bits=2, frac_bits=2, quantization=QuantizationMode.TRN
     ):
         assert (A @ B).is_identical(
-            APyFixedArray.from_float([[0.0000, 0.5000], [0.7500, 1.2500]], 4, 2)
+            APyFixedArray.from_float([[0.0000, 0.5000], [0.7500, 1.2500]], 2, 2)
         )
     with APyFixedAccumulatorContext(
         int_bits=2, frac_bits=1, quantization=QuantizationMode.TRN
     ):
         assert (A @ B).is_identical(
-            APyFixedArray.from_float([[0.0000, 0.0000], [0.5000, 1.0000]], 3, 2)
+            APyFixedArray.from_float([[0.0000, 0.0000], [0.5000, 1.0000]], 2, 1)
         )
 
     # Quantization, ties to plus infinity quantization
@@ -250,25 +250,25 @@ def test_matrix_multiplication_accumulator_context():
         int_bits=2, frac_bits=4, quantization=QuantizationMode.RND
     ):
         assert (A @ B).is_identical(
-            APyFixedArray.from_float([[0.3125, 0.5000], [0.8125, 1.2500]], 6, 2)
+            APyFixedArray.from_float([[0.3125, 0.5000], [0.8125, 1.2500]], 2, 4)
         )
     with APyFixedAccumulatorContext(
         int_bits=2, frac_bits=3, quantization=QuantizationMode.RND
     ):
         assert (A @ B).is_identical(
-            APyFixedArray.from_float([[0.3750, 0.5000], [0.875, 1.2500]], 5, 2)
+            APyFixedArray.from_float([[0.3750, 0.5000], [0.875, 1.2500]], 2, 3)
         )
     with APyFixedAccumulatorContext(
         int_bits=2, frac_bits=2, quantization=QuantizationMode.RND
     ):
         assert (A @ B).is_identical(
-            APyFixedArray.from_float([[0.5000, 0.5000], [0.7500, 1.2500]], 4, 2)
+            APyFixedArray.from_float([[0.5000, 0.5000], [0.7500, 1.2500]], 2, 2)
         )
     with APyFixedAccumulatorContext(
         int_bits=2, frac_bits=1, quantization=QuantizationMode.RND
     ):
         assert (A @ B).is_identical(
-            APyFixedArray.from_float([[0.0000, 1.0000], [1.0000, 1.5000]], 3, 2)
+            APyFixedArray.from_float([[0.0000, 1.0000], [1.0000, 1.5000]], 2, 1)
         )
 
 

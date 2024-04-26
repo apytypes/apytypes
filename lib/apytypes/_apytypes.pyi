@@ -137,9 +137,9 @@ class APyFixed:
     def __init__(
         self,
         bit_pattern: int,
-        bits: int | None = None,
         int_bits: int | None = None,
         frac_bits: int | None = None,
+        bits: int | None = None,
     ) -> None: ...
     @typing.overload
     def __le__(self, arg0: APyFixed) -> bool: ...
@@ -383,12 +383,12 @@ class APyFixedArray:
         float_sequence : sequence of float
             Floating point values to initialize from. The tensor shape will be taken
             from the sequence shape.
-        bits : int, optional
-            Total number of bits in the created fixed-point tensor
         int_bits : int, optional
             Number of integer bits in the created fixed-point tensor
         frac_bits : int, optional
             Number of fractional bits in the created fixed-point tensor
+        bits : int, optional
+            Total number of bits in the created fixed-point tensor
 
         Returns
         -------
@@ -429,9 +429,9 @@ class APyFixedArray:
     def __init__(
         self,
         bit_pattern_sequence: typing.Sequence,
-        bits: int | None = None,
         int_bits: int | None = None,
         frac_bits: int | None = None,
+        bits: int | None = None,
     ) -> None: ...
     def __iter__(self) -> APyFixedArrayIterator: ...
     def __len__(self) -> int: ...

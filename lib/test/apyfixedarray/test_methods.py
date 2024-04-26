@@ -23,7 +23,7 @@ def test_to_numpy():
     np = pytest.importorskip("numpy")
 
     assert np.array_equal(APyFixedArray([], 1, 0).to_numpy(), np.array([]))
-    assert np.array_equal(APyFixedArray([1], 2, 2).to_numpy(), np.array([1.0]))
+    assert np.array_equal(APyFixedArray([1], 2, 0).to_numpy(), np.array([1.0]))
 
     float_seq = [
         [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
@@ -75,6 +75,6 @@ def test_len():
 
 
 def test_round_trip_conversion():
-    for bits in range(256):
-        a = APyFixedArray([bits], 8, 4)
-        assert (APyFixedArray.from_float(a.to_numpy(), 8, 4)).is_identical(a)
+    for bit_pattern in range(256):
+        a = APyFixedArray([bit_pattern], int_bits=4, frac_bits=4)
+        assert (APyFixedArray.from_float(a.to_numpy(), 4, 4)).is_identical(a)

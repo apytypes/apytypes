@@ -14,7 +14,7 @@ void bind_fixed_array(nb::module_& m)
     nb::class_<APyFixedArray>(m, "APyFixedArray")
 
         /*
-         * Constructor: construct from a list of Python integers
+         * Constructor: construct from a Python sequence of integers
          */
         .def(
             nb::init<
@@ -23,9 +23,9 @@ void bind_fixed_array(nb::module_& m)
                 std::optional<int>,
                 std::optional<int>>(),
             nb::arg("bit_pattern_sequence"),
-            nb::arg("bits") = nb::none(),
             nb::arg("int_bits") = nb::none(),
-            nb::arg("frac_bits") = nb::none()
+            nb::arg("frac_bits") = nb::none(),
+            nb::arg("bits") = nb::none()
         )
 
         /*
@@ -345,9 +345,9 @@ void bind_fixed_array(nb::module_& m)
             "from_float",
             &APyFixedArray::from_double,
             nb::arg("float_sequence"),
-            nb::arg("bits") = nb::none(),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
+            nb::arg("bits") = nb::none(),
             R"pbdoc(
             Create an :class:`APyFixedArray` object from a sequence of :class:`float`.
 
@@ -362,12 +362,12 @@ void bind_fixed_array(nb::module_& m)
             float_sequence : sequence of float
                 Floating point values to initialize from. The tensor shape will be taken
                 from the sequence shape.
-            bits : int, optional
-                Total number of bits in the created fixed-point tensor
             int_bits : int, optional
                 Number of integer bits in the created fixed-point tensor
             frac_bits : int, optional
                 Number of fractional bits in the created fixed-point tensor
+            bits : int, optional
+                Total number of bits in the created fixed-point tensor
 
             Returns
             -------

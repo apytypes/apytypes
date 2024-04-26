@@ -64,9 +64,9 @@ public:
 
     explicit APyFixedArray(
         const nanobind::sequence& bit_pattern_sequence,
-        std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
-        std::optional<int> frac_bits = std::nullopt
+        std::optional<int> frac_bits = std::nullopt,
+        std::optional<int> bits = std::nullopt
     );
 
     /* ****************************************************************************** *
@@ -181,9 +181,9 @@ public:
     //! of `doubles`
     static APyFixedArray from_double(
         const nanobind::sequence& double_seq,
-        std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
-        std::optional<int> frac_bits = std::nullopt
+        std::optional<int> frac_bits = std::nullopt,
+        std::optional<int> bits = std::nullopt
     );
 
 private:

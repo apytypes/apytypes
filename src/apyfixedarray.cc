@@ -40,9 +40,9 @@ namespace nb = nanobind;
 
 APyFixedArray::APyFixedArray(
     const nb::sequence& bit_pattern_sequence,
-    std::optional<int> bits,
     std::optional<int> int_bits,
-    std::optional<int> frac_bits
+    std::optional<int> frac_bits,
+    std::optional<int> bits
 )
     : APyFixedArray(
           python_sequence_extract_shape(bit_pattern_sequence), bits, int_bits, frac_bits
@@ -967,9 +967,9 @@ APyFixedArray APyFixedArray::cast(
 
 APyFixedArray APyFixedArray::from_double(
     const nb::sequence& python_seq,
-    std::optional<int> bits,
     std::optional<int> int_bits,
-    std::optional<int> frac_bits
+    std::optional<int> frac_bits,
+    std::optional<int> bits
 )
 {
     if (nb::isinstance<nb::ndarray<nb::numpy>>(python_seq)) {

@@ -470,10 +470,8 @@ def test_abs():
     ],
 )
 def test_huge_narrowing_cast(mode):
-    a = APyFixedArray.from_float([-0.75, 0.5], 1000, 500)
-    assert a.cast(5, 5, mode).is_identical(
-        APyFixedArray.from_float([-0.75, 0.5], 10, 5)
-    )
+    a = APyFixedArray.from_float([-0.75, 0.5], 500, 500)
+    assert a.cast(5, 5, mode).is_identical(APyFixedArray.from_float([-0.75, 0.5], 5, 5))
 
 
 @pytest.mark.parametrize(
@@ -492,11 +490,11 @@ def test_huge_narrowing_cast(mode):
     ],
 )
 def test_huge_extending_cast(mode):
-    a = APyFixedArray.from_float([-0.75, 0.5], 10, 5)
+    a = APyFixedArray.from_float([-0.75, 0.5], 5, 5)
     print(a.cast(500, 500, mode))
-    print(APyFixedArray.from_float([-0.75, 0.5], 1000, 500))
+    print(APyFixedArray.from_float([-0.75, 0.5], 500, 500))
     assert a.cast(500, 500, mode).is_identical(
-        APyFixedArray.from_float([-0.75, 0.5], 1000, 500)
+        APyFixedArray.from_float([-0.75, 0.5], 500, 500)
     )
 
 
@@ -510,7 +508,7 @@ def test_long_matrix_addition():
 
 
 def test_operation_with_numbers():
-    a = APyFixedArray([5, 7, -1], 6, 2)
+    a = APyFixedArray([5, 7, -1], bits=6, int_bits=2)
     # Integer
     assert (a + 0).is_identical(a)
     assert (0 + a).is_identical(a)
