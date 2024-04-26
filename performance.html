@@ -255,7 +255,7 @@ The actual performance may differ depending on compiler, processor, etc.</p>
 <p>Shifting is used to move the binary point of fixed-point numbers. Hence, this will only involve updating the
 number of integer/fractional bits. However, it may also involve creating a new object, so it is preferred to
 use inplace shifting if possible.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">bits</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">a</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>   <span class="c1"># slower</span>
 <span class="n">a</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span>   <span class="c1"># faster</span>
 </pre></div>

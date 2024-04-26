@@ -47,7 +47,7 @@ bits) must be supplied.
  .. code-block:: none
 
 
-    APyFixed(7, bits=4, int_bits=2)
+    APyFixed(7, bits=6, int_bits=4)
 
 
 
@@ -112,7 +112,7 @@ A single integer bit is added to make sure that the computation does not overflo
  .. code-block:: none
 
 
-    APyFixed(62, bits=6, int_bits=4)
+    APyFixed(126, bits=7, int_bits=5)
 
 
 
@@ -136,7 +136,7 @@ integer bits and fractional bits of the included operands, respectively.
  .. code-block:: none
 
 
-    APyFixed(210, bits=10, int_bits=5)
+    APyFixed(210, bits=12, int_bits=7)
 
 
 
@@ -204,7 +204,7 @@ To change the word length of a APyFixed, the method :func:`~APyFixed.cast` can b
  .. code-block:: none
 
 
-    APyFixed(15, bits=4, int_bits=3)
+    APyFixed(124, bits=7, int_bits=4)
 
 
 
