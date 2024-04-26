@@ -919,14 +919,18 @@ bool APyFixedArray::is_identical(const APyFixedArray& other) const
 APyFixedArray APyFixedArray::cast(
     std::optional<int> bits,
     std::optional<int> int_bits,
-    QuantizationMode quantization,
-    OverflowMode overflow,
+    std::optional<QuantizationMode> quantization,
+    std::optional<OverflowMode> overflow,
     std::optional<int> frac_bits
 ) const
 {
     // Sanitize the input (bit-specifier validity tested in `bits_from_optional()`)
     int new_bits = bits_from_optional(bits, int_bits, frac_bits);
     int new_int_bits = int_bits.has_value() ? *int_bits : *bits - *frac_bits;
+
+    const APyFixedCastOption cast_option = get_fixed_cast_mode();
+    const auto quantization_mode = quantization.value_or(cast_option.quantization);
+    const auto overflow_mode = overflow.value_or(cast_option.overflow);
 
     // The new result array (`bit_specifier_sanitize()` called in constructor)
     std::size_t result_limbs = bits_to_limbs(new_bits);
@@ -947,8 +951,8 @@ APyFixedArray APyFixedArray::cast(
         caster,
         new_bits,
         new_int_bits,
-        quantization,
-        overflow
+        quantization_mode,
+        overflow_mode
     );
 
     result._bits = new_bits;
