@@ -45,7 +45,7 @@ APyFixedArray::APyFixedArray(
     std::optional<int> bits
 )
     : APyFixedArray(
-          python_sequence_extract_shape(bit_pattern_sequence), bits, int_bits, frac_bits
+          python_sequence_extract_shape(bit_pattern_sequence), int_bits, frac_bits, bits
       )
 {
     // Specialized initialization for NumPy ndarrays
@@ -85,10 +85,19 @@ APyFixedArray::APyFixedArray(
  * ********************************************************************************** */
 
 APyFixedArray::APyFixedArray(
+    const std::vector<std::size_t>& shape, int bits, int int_bits
+)
+    : APyBuffer(shape, bits_to_limbs(bits))
+    , _bits { bits }
+    , _int_bits { int_bits }
+{
+}
+
+APyFixedArray::APyFixedArray(
     const std::vector<std::size_t>& shape,
-    std::optional<int> bits,
     std::optional<int> int_bits,
-    std::optional<int> frac_bits
+    std::optional<int> frac_bits,
+    std::optional<int> bits
 )
     : APyBuffer(shape, bits_to_limbs(bits_from_optional(bits, int_bits, frac_bits)))
     , _bits { bits.has_value() ? *bits : *int_bits + *frac_bits }
@@ -986,13 +995,13 @@ APyFixedArray APyFixedArray::from_double(
             shape[i] = ndarray.shape(i);
         }
 
-        APyFixedArray result(shape, bits, int_bits, frac_bits);
+        APyFixedArray result(shape, int_bits, frac_bits, bits);
         result._set_values_from_numpy_ndarray(ndarray);
         return result;
     }
 
     APyFixedArray result(
-        python_sequence_extract_shape(python_seq), bits, int_bits, frac_bits
+        python_sequence_extract_shape(python_seq), int_bits, frac_bits, bits
     );
 
     // Extract all Python doubles and integers

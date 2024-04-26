@@ -75,10 +75,15 @@ public:
 
     //! Constructor: specify only shape and word-length. Zero data on construction
     explicit APyFixedArray(
+        const std::vector<std::size_t>& shape, int bits, int int_bits
+    );
+
+    //! Constructor: specify only shape and word-length. Zero data on construction
+    explicit APyFixedArray(
         const std::vector<std::size_t>& shape,
-        std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
-        std::optional<int> frac_bits = std::nullopt
+        std::optional<int> frac_bits = std::nullopt,
+        std::optional<int> bits = std::nullopt
     );
 
     /* ****************************************************************************** *
