@@ -937,7 +937,6 @@ APyFixed APyFixed::cast(
     int new_int_bits = int_bits.has_value() ? *int_bits : *bits - *frac_bits;
 
     const APyFixedCastOption cast_option = get_fixed_cast_mode();
-
     const auto quantization_mode = quantization.value_or(cast_option.quantization);
     const auto overflow_mode = overflow.value_or(cast_option.overflow);
 

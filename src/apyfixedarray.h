@@ -159,8 +159,8 @@ public:
     APyFixedArray cast(
         std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
-        QuantizationMode quantization = QuantizationMode::TRN,
-        OverflowMode overflow = OverflowMode::WRAP,
+        std::optional<QuantizationMode> quantization = QuantizationMode::TRN,
+        std::optional<OverflowMode> overflow = OverflowMode::WRAP,
         std::optional<int> frac_bits = std::nullopt
     ) const;
 
