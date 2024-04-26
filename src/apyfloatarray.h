@@ -188,7 +188,7 @@ private:
      * multiplication.
      */
     APyFloatArray checked_2d_matmul(const APyFloatArray& rhs) const;
-    APyFloat vector_sum() const;
+    APyFloat vector_sum(const QuantizationMode quantization) const;
 };
 
 #endif

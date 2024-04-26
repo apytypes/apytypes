@@ -1246,51 +1246,40 @@ APyFloat APyFloatArray::checked_inner_product(
     const std::uint8_t max_man_bits
 ) const
 {
-    if (shape[0] == 0) {
-        return APyFloat(0, 0, 0, max_exp_bits, max_man_bits);
-    }
-
-    auto tmp_exp_bits = max_exp_bits;
-    auto tmp_man_bits = max_man_bits;
-
-    // Hadamard product of `*this` and `rhs`
-    APyFloatArray hadamard;
-
-    // If an accumulator is used, the operands must be resized before the
-    // multiplication. This is because the products would otherwise get quantized
-    // too early.
-
-    const auto orig_quant_mode = get_float_quantization_mode();
-
+    // No accumulator context set
     if (accumulator_mode.has_value()) {
+        const auto orig_quant_mode = get_float_quantization_mode();
         const auto acc_option = accumulator_mode.value();
-        tmp_exp_bits = acc_option.exp_bits;
-        tmp_man_bits = acc_option.man_bits;
-        auto tmp_bias = APyFloat::ieee_bias(tmp_exp_bits);
+        const auto tmp_exp_bits = acc_option.exp_bits;
+        const auto tmp_man_bits = acc_option.man_bits;
+        const auto tmp_bias = APyFloat::ieee_bias(tmp_exp_bits);
         set_float_quantization_mode(acc_option.quantization);
-        hadamard
+        // If an accumulator is used, the operands must be resized before the
+        // multiplication. This is because the products would otherwise get quantized
+        // too early.
+
+        // Hadamard product of `*this` and `rhs`
+        APyFloatArray hadamard
             = this->_cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization)
             * rhs._cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization);
-    } else {
-        hadamard = *this * rhs;
-    }
-
-    APyFloat sum = hadamard.vector_sum();
-
-    // The result must be quantized back if an accumulator was used.
-    if (accumulator_mode.has_value()) {
+        APyFloat sum = hadamard.vector_sum(acc_option.quantization);
+        // The result must be quantized back if an accumulator was used.
         sum = sum.cast(max_exp_bits, max_man_bits);
         // Change the quantization mode back, even if it wasn't changed
         set_float_quantization_mode(orig_quant_mode);
+        return sum;
     }
+    // No accumulator context
 
+    // Hadamard product of `*this` and `rhs`
+    APyFloatArray hadamard = *this * rhs;
+    APyFloat sum = hadamard.vector_sum(get_float_quantization_mode());
     return sum;
 }
 
 // Compute sum of all elements
-APyFloat APyFloatArray::vector_sum() const
+APyFloat APyFloatArray::vector_sum(const QuantizationMode quantization) const
 {
-    const auto quantization = get_float_quantization_mode();
     // +5 to give room for leading one, carry, and 3 guard bits
     const unsigned int max_man_bits = man_bits + 5;
     APyFloat ret(0, 0, 0, exp_bits, man_bits);
