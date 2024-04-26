@@ -1450,6 +1450,46 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
 
     auto accumulator_mode = get_accumulator_mode_float();
 
+    // Accumulator mode set
+    if (accumulator_mode.has_value()) {
+        // Resulting `APyFloatArray`
+        APyFloatArray result(res_shape, max_exp_bits, max_man_bits);
+
+        // Current row from lhs (`*this`)
+        APyFloatArray current_row({ shape[1] }, exp_bits, man_bits);
+
+        // Current column from rhs
+        APyFloatArray current_column({ rhs.shape[0] }, rhs.exp_bits, rhs.man_bits);
+        for (std::size_t x = 0; x < res_cols; x++) {
+
+            // Copy column from `rhs` and use as the current working column. As reading
+            // columns from `rhs` is cache-inefficient, we like to do this only once for
+            // each element in the resulting matrix.
+            for (std::size_t col = 0; col < rhs.shape[0]; col++) {
+                current_column.data[col] = rhs.data[x + col * res_cols];
+            }
+
+            for (std::size_t y = 0; y < res_shape[0]; y++) {
+
+                // Copy row from lhs (*this)
+                std::copy_n(&data[y * shape[1]], shape[1], current_row.data.begin());
+
+                // Perform the inner product
+                APyFloat current_res = current_column.checked_inner_product(
+                    current_row, accumulator_mode, max_exp_bits, max_man_bits
+                );
+                assert(current_res.get_exp_bits() == result.get_exp_bits());
+                assert(current_res.get_man_bits() == result.get_man_bits());
+
+                // Copy into the resulting vector
+                result.data[x + y * res_cols] = current_res.get_data();
+            }
+        }
+        return result;
+    }
+
+    // No accumulator mode
+
     // Resulting `APyFloatArray`
     APyFloatArray result(res_shape, max_exp_bits, max_man_bits);
 
@@ -1458,6 +1498,8 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
 
     // Current column from rhs
     APyFloatArray current_column({ rhs.shape[0] }, rhs.exp_bits, rhs.man_bits);
+
+    const QuantizationMode quantization = get_float_quantization_mode();
     for (std::size_t x = 0; x < res_cols; x++) {
 
         // Copy column from `rhs` and use as the current working column. As reading
@@ -1473,14 +1515,14 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
             std::copy_n(&data[y * shape[1]], shape[1], current_row.data.begin());
 
             // Perform the inner product
-            APyFloat current_res = current_column.checked_inner_product(
-                current_row, accumulator_mode, max_exp_bits, max_man_bits
-            );
-            assert(current_res.get_exp_bits() == result.get_exp_bits());
-            assert(current_res.get_man_bits() == result.get_man_bits());
+            // Hadamard product of `current_column` and `current_row`
+            APyFloatArray hadamard = current_column * current_row;
+            APyFloat sum = hadamard.vector_sum(quantization);
+            assert(sum.get_exp_bits() == result.get_exp_bits());
+            assert(sum.get_man_bits() == result.get_man_bits());
 
             // Copy into the resulting vector
-            result.data[x + y * res_cols] = current_res.get_data();
+            result.data[x + y * res_cols] = sum.get_data();
         }
     }
 
