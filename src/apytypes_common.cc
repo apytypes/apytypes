@@ -124,11 +124,11 @@ std::optional<APyFixedAccumulatorOption> get_accumulator_mode_fixed()
 }
 
 APyFixedAccumulatorContext::APyFixedAccumulatorContext(
-    std::optional<int> bits,
     std::optional<int> int_bits,
     std::optional<int> frac_bits,
     std::optional<QuantizationMode> quantization,
-    std::optional<OverflowMode> overflow
+    std::optional<OverflowMode> overflow,
+    std::optional<int> bits
 )
 {
     // Store the previous accumulator mode

@@ -74,16 +74,16 @@ void bind_accumulator_context(nb::module_& m)
             nb::init<
                 std::optional<int>,
                 std::optional<int>,
-                std::optional<int>,
                 std::optional<QuantizationMode>,
-                std::optional<OverflowMode>>(),
+                std::optional<OverflowMode>,
+                std::optional<int>>(),
             // nb::kw_only() is added in NanoBind v2.0.0
             // nb::kw_only(), // All parameters are keyword only
-            nb::arg("bits") = nb::none(),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("quantization") = nb::none(),
-            nb::arg("overflow") = nb::none()
+            nb::arg("overflow") = nb::none(),
+            nb::arg("bits") = nb::none()
         )
         .def("__enter__", &context_enter_handler)
         .def(

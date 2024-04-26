@@ -367,9 +367,9 @@ class APyFixedArray:
     @staticmethod
     def from_float(
         float_sequence: typing.Sequence,
-        bits: int | None = None,
         int_bits: int | None = None,
         frac_bits: int | None = None,
+        bits: int | None = None,
     ) -> APyFixedArray:
         """
         Create an :class:`APyFixedArray` object from a sequence of :class:`float`.
@@ -1241,11 +1241,11 @@ class APyFixedAccumulatorContext(ContextManager):
     def __init__(
         self,
         *,
-        bits: int | None = None,
         int_bits: int | None = None,
         frac_bits: int | None = None,
         quantization: QuantizationMode | None = None,
         overflow: OverflowMode | None = None,
+        bits: int | None = None,
     ) -> None: ...
 
 class APyFixedCastContext(ContextManager):

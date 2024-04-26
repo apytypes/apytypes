@@ -215,11 +215,11 @@ struct APyFixedAccumulatorOption {
 class APyFixedAccumulatorContext : public ContextManager {
 public:
     APyFixedAccumulatorContext(
-        std::optional<int> bits = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<QuantizationMode> quantization = std::nullopt,
-        std::optional<OverflowMode> overflow = std::nullopt
+        std::optional<OverflowMode> overflow = std::nullopt,
+        std::optional<int> bits = std::nullopt
     );
     void enter_context() override;
     void exit_context() override;
