@@ -529,13 +529,15 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
             const bool y_is_maxexp = (y.exp == y_max_exponent);
 
             // Handle special operands
-            if (x_is_maxexp || y_is_maxexp) {
+            if (x_is_maxexp || y_is_maxexp || x_is_subnormal || y_is_subnormal) {
                 const bool x_is_nan = (x_is_maxexp && x.man != 0);
                 const bool x_is_inf = (x_is_maxexp && x.man == 0);
                 const bool y_is_nan = (y_is_maxexp && y.man != 0);
                 const bool y_is_inf = (y_is_maxexp && y.man == 0);
-                if (x_is_nan || y_is_nan || (x_is_inf && y_is_subnormal && y.man == 0)
-                    || (y_is_inf && x_is_subnormal && x.man == 0)) {
+                const bool x_is_zero = (x_is_subnormal && x.man == 0);
+                const bool y_is_zero = (y_is_subnormal && y.man == 0);
+                if (x_is_nan || y_is_nan || (x_is_inf && y_is_zero)
+                    || (y_is_inf && x_is_zero)) {
                     // Set to nan
                     res.data[i] = { res_sign,
                                     static_cast<exp_t>(res_max_exponent),
@@ -550,14 +552,14 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
                                     static_cast<man_t>(0) };
                     continue;
                 }
-            }
 
-            // x is zero or y is zero (and the other is not inf)
-            if ((x_is_subnormal && x.man == 0) || (y_is_subnormal && y.man == 0)) {
-                // Set to zero
-                res.data[i]
-                    = { res_sign, static_cast<exp_t>(0), static_cast<man_t>(0) };
-                continue;
+                // x is zero or y is zero (and the other is not inf)
+                if (x_is_zero || y_is_zero) {
+                    // Set to zero
+                    res.data[i]
+                        = { res_sign, static_cast<exp_t>(0), static_cast<man_t>(0) };
+                    continue;
+                }
             }
 
             // Tentative exponent

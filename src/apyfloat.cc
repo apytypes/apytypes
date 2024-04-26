@@ -371,16 +371,16 @@ APyFloat APyFloat::_cast_to_double() const
     }
 
     // Initial value for mantissa
-    man_t new_man = (man_bits_delta > 0) ? (prev_man << man_bits_delta)
-                                         : (prev_man >> -man_bits_delta);
+    man_t new_man;
 
     if (man_bits_delta < 0) { // Quantization of mantissa needed
+        const man_t bits_to_discard = -man_bits_delta;
+        new_man = (prev_man >> bits_to_discard);
         // Calculate quantization bit
         man_t G, // Guard (bit after LSB)
             T,   // Sticky bit, logical OR of all the bits after the guard bit
             B;   // Quantization bit to add to LSB
 
-        const man_t bits_to_discard = std::abs(man_bits_delta);
         G = (prev_man >> (bits_to_discard - 1)) & 1;
         T = (prev_man & ((1ULL << (bits_to_discard - 1)) - 1)) != 0;
 
@@ -393,6 +393,8 @@ APyFloat APyFloat::_cast_to_double() const
             ++new_exp;
             new_man = 0;
         }
+    } else {
+        new_man = (prev_man << man_bits_delta);
     }
 
     if (new_exp >= 2047) {
@@ -426,44 +428,47 @@ APyFloat APyFloat::cast_from_double(
     }
 
     // Initial value for exponent
-    std::int64_t new_exp
-        = (std::int64_t)exp - 1023 + is_subnormal() + (std::int64_t)res.bias;
+    std::int64_t new_exp;
 
     // Normalize the exponent and mantissa if convertering from a subnormal
-    man_t prev_man = man;
+    man_t prev_man;
     if (is_subnormal()) {
         const exp_t subn_adjustment = count_trailing_bits(man);
-        new_exp = new_exp - 52 + subn_adjustment;
+        new_exp = (std::int64_t)exp - 1074 + (std::int64_t)res.bias + subn_adjustment;
         const man_t remainder = man % (1ULL << subn_adjustment);
         prev_man = remainder << (man_bits - subn_adjustment);
+    } else {
+        new_exp = (std::int64_t)exp - 1023 + (std::int64_t)res.bias;
+        prev_man = man;
     }
 
-    if (new_exp < -static_cast<std::int64_t>(res.man_bits
-        )) { // Exponent too small after rounding
-        return res.construct_zero();
-    }
-
-    auto man_bits_delta = res.man_bits - 52;
+    std::int8_t man_bits_delta;
 
     // Check if the number will be converted to a subnormal
     if (new_exp <= 0) {
+        if (new_exp < -static_cast<std::int64_t>(res.man_bits)) {
+            // Exponent too small after rounding
+            return res.construct_zero();
+        }
         prev_man |= leading_one();
         // Prepare for right shift to adjust the mantissa
-        man_bits_delta += new_exp - 1;
+        man_bits_delta = res.man_bits + new_exp - 53;
         new_exp = 0;
+    } else {
+        man_bits_delta = res.man_bits - 52;
     }
 
     // Initial value for mantissa
-    man_t new_man = (man_bits_delta > 0) ? (prev_man << man_bits_delta)
-                                         : (prev_man >> -man_bits_delta);
+    man_t new_man;
 
     if (man_bits_delta < 0) { // Quantization of mantissa needed
+        const man_t bits_to_discard = -man_bits_delta;
+        new_man = prev_man >> bits_to_discard;
         // Calculate quantization bit
         man_t G, // Guard (bit after LSB)
             T,   // Sticky bit, logical OR of all the bits after the guard bit
             B;   // Quantization bit to add to LSB
 
-        const man_t bits_to_discard = std::abs(man_bits_delta);
         G = (prev_man >> (bits_to_discard - 1)) & 1;
         T = (prev_man & ((1ULL << (bits_to_discard - 1)) - 1)) != 0;
 
@@ -476,6 +481,8 @@ APyFloat APyFloat::cast_from_double(
             ++new_exp;
             new_man = 0;
         }
+    } else {
+        new_man = (prev_man << man_bits_delta);
     }
 
     if (new_exp >= res.max_exponent()) {
@@ -555,7 +562,7 @@ void APyFloat::quantize_apymantissa(
         APyFixed rnd_num(_LIMB_SIZE_BITS * 3, _LIMB_SIZE_BITS - bits, rnd_data);
         apyman = apyman + rnd_num;
     } else if (quantization == QuantizationMode::STOCH_EQUAL) {
-        const mp_limb_t rnd = random_number_float() % 2 ? -1 : 0;
+        const mp_limb_t rnd = -(random_number_float() % 2);
         std::vector<mp_limb_t> rnd_data = { rnd, rnd, 0 };
         APyFixed rnd_num(_LIMB_SIZE_BITS * 3, _LIMB_SIZE_BITS - bits, rnd_data);
         apyman = apyman + rnd_num;
@@ -1190,7 +1197,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
         return APyFloat(0, x.bias, 0, x.exp_bits, x.man_bits, x.bias); // Return '1'
     }
 
-    bool new_sign = ((n % 2) == 0) ? false : x.sign;
+    bool new_sign = x.sign & (n % 2);
 
     if (x.is_zero()) {
         if (n < 0) {
@@ -1201,7 +1208,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
     }
 
     if (x.is_inf()) {
-        new_sign = x.sign ? new_sign : false;
+        new_sign &= x.sign;
 
         if (n > 0) {
             return x.construct_inf(new_sign);
