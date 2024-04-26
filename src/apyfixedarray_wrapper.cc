@@ -323,12 +323,12 @@ void bind_fixed_array(nb::module_& m)
             ----------
             int_bits : int, optional
                 Number of integer bits in the result.
+            frac_bits : int, optional
+                Number of fractional bits in the result.
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use in this cast.
             overflow : :class:`OverflowMode`, optional
                 Overflowing mode to use in this cast.
-            frac_bits : int, optional
-                Number of fractional bits in the result.
             bits : int, optional
                 Total number of bits in the result.
 
