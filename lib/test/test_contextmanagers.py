@@ -2,8 +2,10 @@ import apytypes
 from apytypes import (
     APyFloatQuantizationContext,
     QuantizationMode,
+    OverflowMode,
     APyFloatAccumulatorContext,
     APyFixedAccumulatorContext,
+    APyFixedCastContext,
 )
 import pytest
 
@@ -16,6 +18,29 @@ def test_context_kw_only():
     """
     with pytest.raises(TypeError):  # keyword only
         with APyFixedAccumulatorContext(5, 2):
+            pass
+
+
+class TestCastContext:
+    """
+    This test class doesn't test if cast itself works,
+    just that the context manager acts correctly.
+    """
+
+    def test_raises(self):
+        with pytest.raises(ValueError, match=".*must be specified"):
+            with APyFixedCastContext():
+                pass
+
+        with APyFixedCastContext(quantization=QuantizationMode.TRN):  # should not raise
+            pass
+
+        with APyFixedCastContext(overflow=OverflowMode.SAT):  # should not raise
+            pass
+
+        with APyFixedCastContext(
+            quantization=QuantizationMode.TRN, overflow=OverflowMode.SAT
+        ):  # should not raise
             pass
 
 
