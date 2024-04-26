@@ -1,12 +1,5 @@
 import apytypes
-from apytypes import (
-    APyFloatQuantizationContext,
-    QuantizationMode,
-    OverflowMode,
-    APyFloatAccumulatorContext,
-    APyFixedAccumulatorContext,
-    APyFixedCastContext,
-)
+from apytypes import *
 import pytest
 
 
@@ -42,6 +35,119 @@ class TestCastContext:
             quantization=QuantizationMode.TRN, overflow=OverflowMode.SAT
         ):  # should not raise
             pass
+
+    def test_with_cast_context(self):
+        a = APyFixed.from_float(1.25, int_bits=3, frac_bits=2)
+        # TRN by default
+        assert (_ := a.cast(int_bits=3, frac_bits=1)).is_identical(
+            APyFixed(2, bits=4, int_bits=3)
+        )
+
+        with APyFixedCastContext(quantization=QuantizationMode.TRN_INF):
+            assert (_ := a.cast(int_bits=3, frac_bits=1)).is_identical(
+                APyFixed(3, bits=4, int_bits=3)
+            )
+
+        # TRN by default again
+        assert (_ := a.cast(int_bits=3, frac_bits=1)).is_identical(
+            APyFixed(2, bits=4, int_bits=3)
+        )
+
+    def test_cast_context_override(self):
+        a = APyFixed.from_float(1.25, int_bits=3, frac_bits=2)
+
+        with APyFixedCastContext(quantization=QuantizationMode.TRN_INF):
+            assert (_ := a.cast(int_bits=3, frac_bits=1)).is_identical(
+                APyFixed(3, bits=4, int_bits=3)
+            )
+
+            # Use TRN explicitly inside context
+            assert (
+                _ := a.cast(int_bits=3, frac_bits=1, quantization=QuantizationMode.TRN)
+            ).is_identical(APyFixed(2, bits=4, int_bits=3))
+
+    def test_cast_context_nested(self):
+        a = APyFixed.from_float(1.25, int_bits=3, frac_bits=2)
+        # TRN by default
+        assert (_ := a.cast(int_bits=3, frac_bits=1)).is_identical(
+            APyFixed(2, bits=4, int_bits=3)
+        )
+
+        with APyFixedCastContext(quantization=QuantizationMode.TRN_INF):
+            assert (_ := a.cast(int_bits=3, frac_bits=1)).is_identical(
+                APyFixed(3, bits=4, int_bits=3)
+            )
+
+            with APyFixedCastContext(quantization=QuantizationMode.TRN):
+                assert (_ := a.cast(int_bits=3, frac_bits=1)).is_identical(
+                    APyFixed(2, bits=4, int_bits=3)
+                )
+
+            assert (_ := a.cast(int_bits=3, frac_bits=1)).is_identical(
+                APyFixed(3, bits=4, int_bits=3)
+            )
+
+        assert (_ := a.cast(int_bits=3, frac_bits=1)).is_identical(
+            APyFixed(2, bits=4, int_bits=3)
+        )
+
+    def test_cast_context_overflow(self):
+        """
+        If the previous tests pass for the quantization mode, then overflow should also work.
+        These are therefore more like sanity tests.
+        """
+        a = APyFixed.from_float(4, int_bits=4, frac_bits=0)
+        # WRAP by default
+        assert (_ := a.cast(int_bits=3, frac_bits=0)).is_identical(
+            APyFixed(4, bits=3, int_bits=3)
+        )
+
+        # Set only overflow mode
+        with APyFixedCastContext(overflow=OverflowMode.SAT):
+            assert (_ := a.cast(int_bits=3, frac_bits=0)).is_identical(
+                APyFixed(3, bits=3, int_bits=3)
+            )
+
+        # Override overflow mode
+        with APyFixedCastContext(overflow=OverflowMode.SAT):
+            assert (
+                _ := a.cast(int_bits=3, frac_bits=0, overflow=OverflowMode.WRAP)
+            ).is_identical(APyFixed(4, bits=3, int_bits=3))
+
+        # Nested contexts
+        with APyFixedCastContext(overflow=OverflowMode.SAT):
+            assert (_ := a.cast(int_bits=3, frac_bits=0)).is_identical(
+                APyFixed(3, bits=3, int_bits=3)
+            )
+
+            with APyFixedCastContext(overflow=OverflowMode.WRAP):
+                assert (_ := a.cast(int_bits=3, frac_bits=0)).is_identical(
+                    APyFixed(4, bits=3, int_bits=3)
+                )
+
+            assert (_ := a.cast(int_bits=3, frac_bits=0)).is_identical(
+                APyFixed(3, bits=3, int_bits=3)
+            )
+
+        # Set both quantization mode and overflow mode
+        a = APyFixed.from_float(3.5, int_bits=3, frac_bits=1)
+        quantization_mode = QuantizationMode.TRN_INF
+        overflow_mode = OverflowMode.SAT
+        assert (
+            _ := a.cast(
+                int_bits=3,
+                frac_bits=0,
+                quantization=quantization_mode,
+                overflow=overflow_mode,
+            )
+        ).is_identical(APyFixed(3, int_bits=3, frac_bits=0))
+
+        with APyFixedCastContext(
+            quantization=quantization_mode, overflow=overflow_mode
+        ):
+            assert (_ := a.cast(int_bits=3, frac_bits=0)).is_identical(
+                APyFixed(3, int_bits=3, frac_bits=0)
+            )
 
 
 class TestAccumulatorContext:

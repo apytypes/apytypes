@@ -193,11 +193,11 @@ public:
     void exit_context() override;
 
 private:
-    std::optional<APyFixedCastOption> current_mode, previous_mode;
+    APyFixedCastOption current_mode, previous_mode;
 };
 
 //! Retrieve the global cast mode for APyFixed
-std::optional<APyFixedCastOption> get_fixed_cast_mode();
+APyFixedCastOption get_fixed_cast_mode();
 
 /* ********************************************************************************** *
  * *                          Accumulator context for APyFixed                      * *
