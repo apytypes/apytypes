@@ -167,8 +167,8 @@ void bind_fixed(nb::module_& m)
             &APyFixed::cast,
             nb::arg("bits") = nb::none(),
             nb::arg("int_bits") = nb::none(),
-            nb::arg("quantization") = QuantizationMode::TRN,
-            nb::arg("overflow") = OverflowMode::WRAP,
+            nb::arg("quantization") = nb::none(),
+            nb::arg("overflow") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             R"pbdoc(
             Change format of the fixed-point number.

@@ -26,6 +26,7 @@ namespace nb = nanobind;
 
 #include "apyfixed.h"
 #include "apyfloat.h"
+#include "apytypes_common.h"
 #include "apytypes_util.h"
 #include "ieee754.h"
 #include "python_util.h"
@@ -926,14 +927,19 @@ APyFixed APyFixed::from_string(
 APyFixed APyFixed::cast(
     std::optional<int> bits,
     std::optional<int> int_bits,
-    QuantizationMode quantization,
-    OverflowMode overflow,
+    std::optional<QuantizationMode> quantization,
+    std::optional<OverflowMode> overflow,
     std::optional<int> frac_bits
 ) const
 {
     // Sanitize the input (bit-specifier validity tested in `bits_from_optional()`)
     int new_bits = bits_from_optional(bits, int_bits, frac_bits);
     int new_int_bits = int_bits.has_value() ? *int_bits : *bits - *frac_bits;
+
+    const APyFixedCastOption cast_option = get_fixed_cast_mode();
+
+    const auto quantization_mode = quantization.value_or(cast_option.quantization);
+    const auto overflow_mode = overflow.value_or(cast_option.overflow);
 
     // Result that temporarily can hold all the necessary bits
     APyFixed result(std::max(new_bits, _bits), new_int_bits);
@@ -942,8 +948,8 @@ APyFixed APyFixed::cast(
         result._data.end(),   // output sentinel
         new_bits,
         new_int_bits,
-        quantization,
-        overflow
+        quantization_mode,
+        overflow_mode
     );
 
     result._bits = new_bits;
