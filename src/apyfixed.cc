@@ -1089,8 +1089,11 @@ void APyFixed::_quantize(
         break;
     default:
         throw NotImplementedException(fmt::format(
-            "Not implemented: APyFixed.cast(): with quantization mode: {}",
-            quantization_mode_to_string(quantization)
+            "Not implemented: APyFixed::_quantize() with mode {}",
+            quantization == QuantizationMode::STOCH_WEIGHTED ? "`STOCH_WEIGHTED`"
+                : quantization == QuantizationMode::STOCH_EQUAL
+                ? "`STOCH_EQUAL`"
+                : "unknown (did you pass `int` as `QuantizationMode`?)"
         ));
     }
 }
@@ -1470,8 +1473,8 @@ void APyFixed::_overflow(
         break;
     default:
         throw NotImplementedException(fmt::format(
-            "Not implemented: APyFixed.cast(): with overflow mode: {}",
-            overflow_mode_to_string(overflow)
+            "Not implemented: APyFixed::_overflow(): with mode: {}",
+            "unknown (did you pass `int` as `OverflowMode`?)"
         ));
     }
 }

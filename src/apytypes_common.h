@@ -8,9 +8,7 @@
 
 #include "apytypes_util.h"
 
-/*!
- * Available quantization modes for APyFixed and APyFloat
- */
+//! Quantization modes in APyTypes
 enum class QuantizationMode {
     TRN,            // !< Truncation, quantization toward minus infinity
     TRN_INF,        // !< Truncation, quantization toward plus infinity
@@ -29,72 +27,12 @@ enum class QuantizationMode {
     STOCH_EQUAL     // !< Stochastic quantization with equal probability
 };
 
-/*!
- * Available overflowing modes for APyFixed and APyFloat
- */
+//! Overflowing modes in APyTypes
 enum class OverflowMode {
     WRAP,        // !< Drop bits left of the MSB (two's complement overflowing)
     SAT,         // !< Saturate on overflow
     NUMERIC_STD, // !< Drop bits left of the MSB, but keep the most significant bit
 };
-
-[[maybe_unused]] static APY_INLINE std::string
-quantization_mode_to_string(QuantizationMode mode)
-{
-    switch (mode) {
-    case QuantizationMode::TRN:
-        return "QuantizationMode::TRN";
-    case QuantizationMode::TRN_INF:
-        return "QuantizationMode::TRN_INF";
-    case QuantizationMode::TRN_ZERO:
-        return "QuantizationMode::TRN_ZERO";
-    case QuantizationMode::TRN_AWAY:
-        return "QuantizationMode::TRN_AWAY";
-    case QuantizationMode::TRN_MAG:
-        return "QuantizationMode::TRN_MAG";
-    case QuantizationMode::RND:
-        return "QuantizationMode::RND";
-    case QuantizationMode::RND_ZERO:
-        return "QuantizationMode::RND_ZERO";
-    case QuantizationMode::RND_INF:
-        return "QuantizationMode::RND_INF";
-    case QuantizationMode::RND_MIN_INF:
-        return "QuantizationMode::RND_MIN_INF";
-    case QuantizationMode::RND_CONV:
-        return "QuantizationMode::RND_CONV";
-    case QuantizationMode::RND_CONV_ODD:
-        return "QuantizationMode::RND_CONV_ODD";
-    case QuantizationMode::JAM:
-        return "QuantizationMode::JAM";
-    case QuantizationMode::JAM_UNBIASED:
-        return "QuantizationMode::JAM_UNBIASED";
-    case QuantizationMode::STOCH_WEIGHTED:
-        return "QuantizationMode::STOCH_WEIGHTED";
-    case QuantizationMode::STOCH_EQUAL:
-        return "QuantizationMode::STOCH_EQUAL";
-    default:
-        throw NotImplementedException(
-            "Not implemented: quantization_mode_to_string(), missing specifier"
-        );
-    }
-}
-
-[[maybe_unused]] static APY_INLINE std::string overflow_mode_to_string(OverflowMode mode
-)
-{
-    switch (mode) {
-    case OverflowMode::WRAP:
-        return "OverflowMode::WRAP";
-    case OverflowMode::SAT:
-        return "OverflowMode::SAT";
-    case OverflowMode::NUMERIC_STD:
-        return "OverflowMode::NUMERIC_STD";
-    default:
-        throw NotImplementedException(
-            "Not implemented: quantization_mode_to_string(), missing specifier"
-        );
-    }
-}
 
 /* ********************************************************************************** *
  * *                          Context management for APyTypes                       * *

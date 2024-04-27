@@ -88,8 +88,8 @@ man_t APY_INLINE quantize_mantissa(
         break;
     default:
         throw NotImplementedException(fmt::format(
-            "Not implemented: quantization mode '{}'",
-            quantization_mode_to_string(quantization)
+            "Not implemented: quantize_mantissa() with mode {}",
+            "unknown (did you pass `int` as `QuantizationMode`?)"
         ));
     }
     res_man += B;
