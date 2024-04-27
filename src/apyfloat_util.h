@@ -87,10 +87,10 @@ man_t APY_INLINE quantize_mantissa(
         B = (G || T) ? random_number_float() & 1 : 0;
         break;
     default:
-        throw NotImplementedException(fmt::format(
-            "Not implemented: quantize_mantissa() with mode {}",
+        throw NotImplementedException(
+            "Not implemented: quantize_mantissa() with "
             "unknown (did you pass `int` as `QuantizationMode`?)"
-        ));
+        );
     }
     res_man += B;
     return res_man;
