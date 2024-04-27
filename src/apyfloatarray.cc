@@ -1487,9 +1487,6 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
     // Resulting `APyFloatArray`
     APyFloatArray result(res_shape, max_exp_bits, max_man_bits, res_bias);
 
-    // Current row from lhs (`*this`)
-    APyFloatArray current_row({ shape[1] }, exp_bits, man_bits, bias);
-
     // Current column from rhs
     APyFloatArray current_column(
         { rhs.shape[0] }, rhs.exp_bits, rhs.man_bits, rhs.bias
@@ -1505,6 +1502,11 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
         const auto tmp_bias = APyFloat::ieee_bias(tmp_exp_bits);
         set_float_quantization_mode(acc_option.quantization);
 
+        // Current row from lhs (`*this`)
+        APyFloatArray current_row({ shape[1] }, tmp_exp_bits, tmp_man_bits, tmp_bias);
+
+        APyFloatArray casted_this
+            = _cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization);
         for (std::size_t x = 0; x < res_cols; x++) {
 
             // Copy column from `rhs` and use as the current working column. As reading
@@ -1520,16 +1522,15 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
             for (std::size_t y = 0; y < res_shape[0]; y++) {
 
                 // Copy row from lhs (*this)
-                std::copy_n(&data[y * shape[1]], shape[1], current_row.data.begin());
+                std::copy_n(
+                    &casted_this.data[y * shape[1]], shape[1], current_row.data.begin()
+                );
                 // If an accumulator is used, the operands must be resized before the
                 // multiplication. This is because the products would otherwise get
                 // quantized too early.
 
                 // Hadamard product of `*this` and `rhs`
-                APyFloatArray hadamard = casted_current_column
-                    * current_row._cast(
-                        tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization
-                    );
+                APyFloatArray hadamard = casted_current_column * current_row;
                 APyFloat sum = hadamard.vector_sum(acc_option.quantization);
                 // The result must be quantized back if an accumulator was used.
                 sum = sum.cast(
@@ -1549,6 +1550,9 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
     }
 
     // No accumulator mode
+
+    // Current row from lhs (`*this`)
+    APyFloatArray current_row({ shape[1] }, exp_bits, man_bits, bias);
 
     for (std::size_t x = 0; x < res_cols; x++) {
 
