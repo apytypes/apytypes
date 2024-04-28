@@ -3,6 +3,7 @@
 #define _APYFLOAT_ARRAY_H
 
 #include "apyfloat.h"
+#include "apyfloat_util.h"
 #include "apytypes_common.h"
 #include <cstdint>
 #include <nanobind/nanobind.h>    // nanobind::object
@@ -188,7 +189,8 @@ private:
      * multiplication.
      */
     APyFloatArray checked_2d_matmul(const APyFloatArray& rhs) const;
-    APyFloat vector_sum(const QuantizationMode quantization) const;
+    APyFloat
+    vector_sum(const quantization_function q_fun, const bool is_stoch_weighted) const;
 };
 
 #endif

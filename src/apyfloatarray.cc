@@ -110,6 +110,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
             = man_bits + 4; // 4 for leading 1 and 3 guard bits
         const auto shift_normalization_const = _MAN_T_SIZE_BITS - tmp_man_bits;
         const auto man_mask = carry_res_leading_one - 1;
+        const quantization_function q_fun = get_quantization_function(quantization);
         // Perform operation
         for (std::size_t i = 0; i < data.size(); i++) {
             x = data[i];
@@ -223,9 +224,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
 
             new_man &= man_mask;
 
-            quantize_mantissa(
-                new_man, new_exp, 4, res_sign, final_res_leading_one, 3, 7, quantization
-            );
+            q_fun(new_man, new_exp, 4, res_sign, final_res_leading_one, 3, 7);
 
             // Check for overflow
             if (new_exp >= res_max_exponent) {
@@ -308,6 +307,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
         const bool y_is_zero_exponent = (y.exp == 0);
         const std::int64_t true_y_exp = y.exp + y_is_zero_exponent;
         const man_t my = (y_is_zero_exponent ? 0 : res_leading_one) | (y.man << 3);
+        const quantization_function q_fun = get_quantization_function(quantization);
 
         // Perform operation
         for (std::size_t i = 0; i < data.size(); i++) {
@@ -413,9 +413,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
 
             new_man &= man_mask;
 
-            quantize_mantissa(
-                new_man, new_exp, 4, res_sign, final_res_leading_one, 3, 7, quantization
-            );
+            q_fun(new_man, new_exp, 4, res_sign, final_res_leading_one, 3, 7);
 
             // Check for overflow
             if (new_exp >= res_max_exponent) {
@@ -522,6 +520,7 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
         const man_t sticky_constant = (1ULL << man_bits_delta_dec) - 1;
         const std::int64_t bias_sum = bias + rhs.bias - res.bias;
         exp_t new_exp;
+        const quantization_function q_fun = get_quantization_function(quantization);
 
         // Perform operation
         for (std::size_t i = 0; i < data.size(); i++) {
@@ -608,15 +607,14 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
 
             new_man &= mask_two;
             new_exp = static_cast<exp_t>(tmp_exp);
-            quantize_mantissa(
+            q_fun(
                 new_man,
                 new_exp,
                 man_bits_delta,
                 res_sign,
                 two_res,
                 man_bits_delta_dec,
-                sticky_constant,
-                quantization
+                sticky_constant
             );
 
             // Check for overflow
@@ -734,6 +732,7 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
         const auto man_bits_delta_dec = man_bits_delta - 1;
         const man_t sticky_constant = (1ULL << man_bits_delta_dec) - 1;
         exp_t new_exp;
+        const quantization_function q_fun = get_quantization_function(quantization);
         // Perform operation
         for (std::size_t i = 0; i < data.size(); i++) {
             const auto x = data[i];
@@ -806,15 +805,14 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
 
             new_man &= mask_two;
             new_exp = static_cast<exp_t>(tmp_exp);
-            quantize_mantissa(
+            q_fun(
                 new_man,
                 new_exp,
                 man_bits_delta,
                 res_sign,
                 two_res,
                 man_bits_delta_dec,
-                sticky_constant,
-                quantization
+                sticky_constant
             );
 
             // Check for overflow
@@ -1276,7 +1274,10 @@ APyFloat APyFloatArray::checked_inner_product(
         APyFloatArray hadamard
             = this->_cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization)
             * rhs._cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization);
-        APyFloat sum = hadamard.vector_sum(acc_option.quantization);
+        APyFloat sum = hadamard.vector_sum(
+            get_quantization_function(acc_option.quantization),
+            acc_option.quantization == QuantizationMode::STOCH_WEIGHTED
+        );
         // The result must be quantized back if an accumulator was used.
         sum = sum.cast(max_exp_bits, max_man_bits);
         // Change the quantization mode back, even if it wasn't changed
@@ -1287,18 +1288,22 @@ APyFloat APyFloatArray::checked_inner_product(
 
     // Hadamard product of `*this` and `rhs`
     APyFloatArray hadamard = *this * rhs;
-    APyFloat sum = hadamard.vector_sum(get_float_quantization_mode());
+    auto q_mode = get_float_quantization_mode();
+    APyFloat sum = hadamard.vector_sum(
+        get_quantization_function(q_mode), q_mode == QuantizationMode::STOCH_WEIGHTED
+    );
     return sum;
 }
 
 // Compute sum of all elements
-APyFloat APyFloatArray::vector_sum(const QuantizationMode quantization) const
+APyFloat APyFloatArray::vector_sum(
+    const quantization_function q_fun, const bool is_stoch_weighted
+) const
 {
     // +5 to give room for leading one, carry, and 3 guard bits
     const unsigned int max_man_bits = man_bits + 5;
     APyFloat ret(0, 0, 0, exp_bits, man_bits);
-    if ((max_man_bits <= _MAN_T_SIZE_BITS)
-        && (quantization != QuantizationMode::STOCH_WEIGHTED)) {
+    if ((max_man_bits <= _MAN_T_SIZE_BITS) && !is_stoch_weighted) {
         APyFloatData x;
         bool sum_sign = false;
         exp_t sum_exp = 0;
@@ -1434,9 +1439,7 @@ APyFloat APyFloatArray::vector_sum(const QuantizationMode quantization) const
 
             sum_man &= man_mask;
 
-            quantize_mantissa(
-                sum_man, sum_exp, 4, sum_sign, final_res_leading_one, 3, 7, quantization
-            );
+            q_fun(sum_man, sum_exp, 4, sum_sign, final_res_leading_one, 3, 7);
 
             // Check for overflow
             if (sum_exp >= res_max_exponent) {
@@ -1490,7 +1493,10 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
         const auto tmp_man_bits = acc_option.man_bits;
         const auto tmp_bias = APyFloat::ieee_bias(tmp_exp_bits);
         set_float_quantization_mode(acc_option.quantization);
-
+        const quantization_function q_fun
+            = get_quantization_function(acc_option.quantization);
+        const bool is_stoch_weighted
+            = acc_option.quantization == QuantizationMode::STOCH_WEIGHTED;
         // Current row from lhs (`*this`)
         APyFloatArray current_row({ shape[1] }, tmp_exp_bits, tmp_man_bits, tmp_bias);
 
@@ -1520,7 +1526,7 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
 
                 // Hadamard product of `*this` and `rhs`
                 APyFloatArray hadamard = casted_current_column * current_row;
-                APyFloat sum = hadamard.vector_sum(acc_option.quantization);
+                APyFloat sum = hadamard.vector_sum(q_fun, is_stoch_weighted);
                 // The result must be quantized back if an accumulator was used.
                 sum = sum.cast(
                     max_exp_bits, max_man_bits, res_bias, acc_option.quantization
@@ -1542,6 +1548,8 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
 
     // Current row from lhs (`*this`)
     APyFloatArray current_row({ shape[1] }, exp_bits, man_bits, bias);
+    const quantization_function q_fun = get_quantization_function(orig_quant_mode);
+    const bool is_stoch_weighted = orig_quant_mode == QuantizationMode::STOCH_WEIGHTED;
 
     for (std::size_t x = 0; x < res_cols; x++) {
 
@@ -1560,7 +1568,7 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
             // Perform the inner product
             // Hadamard product of `current_column` and `current_row`
             APyFloatArray hadamard = current_column * current_row;
-            APyFloat sum = hadamard.vector_sum(orig_quant_mode);
+            APyFloat sum = hadamard.vector_sum(q_fun, is_stoch_weighted);
             assert(sum.get_exp_bits() == result.get_exp_bits());
             assert(sum.get_man_bits() == result.get_man_bits());
 

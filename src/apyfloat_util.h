@@ -1,6 +1,8 @@
 #ifndef _APYFLOAT_UTIL_H
 #define _APYFLOAT_UTIL_H
 
+#include <functional>
+
 #include "apyfixed.h"
 #include "apytypes_common.h"
 
@@ -12,6 +14,9 @@ static constexpr std::size_t _MAN_T_SIZE_BITS = 8 * _MAN_T_SIZE_BYTES;
 static constexpr std::size_t _EXP_T_SIZE_BYTES = sizeof(exp_t);
 static constexpr std::size_t _EXP_T_SIZE_BITS = 8 * _EXP_T_SIZE_BYTES;
 
+typedef std::function<
+    void(man_t&, exp_t&, std::uint8_t, bool, man_t, std::uint8_t, man_t)>
+    quantization_function;
 //! Quantize mantissa
 void APY_INLINE quantize_mantissa(
     man_t& man,
@@ -129,8 +134,174 @@ void APY_INLINE quantize_mantissa(
     );
 }
 
-//! Fast integer power by squaring.
-man_t ipow(man_t base, unsigned int n);
+//! Quantize mantissa with round to nearest, ties to even
+void quantize_mantissa_rnd_conv(
+    man_t& man,
+    exp_t& exp,
+    std::uint8_t bits_to_quantize,
+    bool sign,
+    man_t man_msb_constant,
+    std::uint8_t bits_to_quantize_dec,
+    man_t sticky_constant
+);
+
+//! Quantize mantissa with round to nearest, ties to odd
+void quantize_mantissa_rnd_conv_odd(
+    man_t& man,
+    exp_t& exp,
+    std::uint8_t bits_to_quantize,
+    bool sign,
+    man_t man_msb_constant,
+    std::uint8_t bits_to_quantize_dec,
+    man_t sticky_constant
+);
+
+//! Quantize mantissa with round to nearest, ties away from zero
+void quantize_mantissa_rnd_inf(
+    man_t& man,
+    exp_t& exp,
+    std::uint8_t bits_to_quantize,
+    bool sign,
+    man_t man_msb_constant,
+    std::uint8_t bits_to_quantize_dec,
+    man_t sticky_constant
+);
+
+//! Quantize mantissa with round to nearest, ties towards zero
+void quantize_mantissa_rnd_zero(
+    man_t& man,
+    exp_t& exp,
+    std::uint8_t bits_to_quantize,
+    bool sign,
+    man_t man_msb_constant,
+    std::uint8_t bits_to_quantize_dec,
+    man_t sticky_constant
+);
+
+//! Quantize mantissa with round to nearest, ties to positive infinity
+void quantize_mantissa_rnd(
+    man_t& man,
+    exp_t& exp,
+    std::uint8_t bits_to_quantize,
+    bool sign,
+    man_t man_msb_constant,
+    std::uint8_t bits_to_quantize_dec,
+    man_t sticky_constant
+);
+
+//! Quantize mantissa with round to nearest, ties to negative infinity
+void quantize_mantissa_rnd_min_inf(
+    man_t& man,
+    exp_t& exp,
+    std::uint8_t bits_to_quantize,
+    bool sign,
+    man_t man_msb_constant,
+    std::uint8_t bits_to_quantize_dec,
+    man_t sticky_constant
+);
+
+//! Quantize mantissa with round towards positive infinity
+void quantize_mantissa_trn_inf(
+    man_t& man,
+    exp_t& exp,
+    std::uint8_t bits_to_quantize,
+    bool sign,
+    man_t man_msb_constant,
+    std::uint8_t bits_to_quantize_dec,
+    man_t sticky_constant
+);
+
+//! Quantize mantissa with round towards negative infinity
+void quantize_mantissa_trn(
+    man_t& man,
+    exp_t& exp,
+    std::uint8_t bits_to_quantize,
+    bool sign,
+    man_t man_msb_constant,
+    std::uint8_t bits_to_quantize_dec,
+    man_t sticky_constant
+);
+
+//! Quantize mantissa with round away from zero
+void quantize_mantissa_trn_away(
+    man_t& man,
+    exp_t& exp,
+    std::uint8_t bits_to_quantize,
+    bool sign,
+    man_t man_msb_constant,
+    std::uint8_t bits_to_quantize_dec,
+    man_t sticky_constant
+);
+
+//! Quantize mantissa with round towards zero (truncation)
+void quantize_mantissa_trn_zero(
+    man_t& man,
+    exp_t& exp,
+    std::uint8_t bits_to_quantize,
+    bool sign,
+    man_t man_msb_constant,
+    std::uint8_t bits_to_quantize_dec,
+    man_t sticky_constant
+);
+
+//! Quantize mantissa with magnitude truncation
+//! Does not really make sense for floating-point
+void quantize_mantissa_trn_mag(
+    man_t& man,
+    exp_t& exp,
+    std::uint8_t bits_to_quantize,
+    bool sign,
+    man_t man_msb_constant,
+    std::uint8_t bits_to_quantize_dec,
+    man_t sticky_constant
+);
+
+//! Quantize mantissa with von Neumann rounding (jamming)
+void quantize_mantissa_jam(
+    man_t& man,
+    exp_t& exp,
+    std::uint8_t bits_to_quantize,
+    bool sign,
+    man_t man_msb_constant,
+    std::uint8_t bits_to_quantize_dec,
+    man_t sticky_constant
+);
+
+//! Quantize mantissa with unbiased von Neumann rounding (unbiased jamming)
+void quantize_mantissa_jam_unbiased(
+    man_t& man,
+    exp_t& exp,
+    std::uint8_t bits_to_quantize,
+    bool sign,
+    man_t man_msb_constant,
+    std::uint8_t bits_to_quantize_dec,
+    man_t sticky_constant
+);
+
+//! Quantize mantissa weighted stochastic rounding
+void quantize_mantissa_stoch_weighted(
+    man_t& man,
+    exp_t& exp,
+    std::uint8_t bits_to_quantize,
+    bool sign,
+    man_t man_msb_constant,
+    std::uint8_t bits_to_quantize_dec,
+    man_t sticky_constant
+);
+
+//! Quantize mantissa unweighted stochastic rounding
+void quantize_mantissa_stoch_equal(
+    man_t& man,
+    exp_t& exp,
+    std::uint8_t bits_to_quantize,
+    bool sign,
+    man_t man_msb_constant,
+    std::uint8_t bits_to_quantize_dec,
+    man_t sticky_constant
+);
+
+//! Get quantization method
+quantization_function get_quantization_function(QuantizationMode quantization);
 
 APY_INLINE int leading_zeros_apyfixed(const APyFixed& fx)
 {
@@ -138,5 +309,8 @@ APY_INLINE int leading_zeros_apyfixed(const APyFixed& fx)
     const int zeros = fx.leading_zeros() - fx.int_bits();
     return std::max(0, zeros + 1);
 }
+
+//! Fast integer power by squaring.
+man_t ipow(man_t base, unsigned int n);
 
 #endif // _APYFLOAT_UTIL_H
