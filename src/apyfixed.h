@@ -108,6 +108,11 @@ public:
      *                         Binary arithmetic operators                            *
      * ****************************************************************************** */
 
+private:
+    //! Base method for adding/subtracting two `APyFixed`
+    template <template <class...> class base_op, template <class...> class ripple_c_op>
+    inline APyFixed _APYFIXED_BASE_ADD_SUB(const APyFixed& rhs) const;
+
 public:
     APyFixed operator+(const APyFixed& rhs) const;
     APyFixed operator-(const APyFixed& rhs) const;

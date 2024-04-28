@@ -12,6 +12,7 @@ namespace nb = nanobind;
 
 // Standard header includes
 #include <algorithm>  // std::copy, std::max, std::transform, etc...
+#include <cassert>    // assert()
 #include <cmath>      // std::isinf, std::isnan
 #include <cstddef>    // std::size_t
 #include <cstring>    // std::memcpy
@@ -81,25 +82,8 @@ template <typename _IT>
 APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end)
     : APyFixed(bits, int_bits)
 {
-    if (std::distance(begin, end) <= 0) {
-        throw nb::value_error(
-            "APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end): "
-            "`end` iterator points before `begin` iterator"
-        );
-    } else if (std::size_t(std::distance(begin, end)) > bits_to_limbs(bits)) {
-        throw nb::value_error(
-            fmt::format(
-                "APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end): "
-                "[std::distance(`begin`, `end`)=={}] > [bits_to_limbs(`bits`)=={}], "
-                "[bits={}], [int_bits={}]",
-                std::distance(begin, end),
-                bits_to_limbs(bits),
-                bits,
-                int_bits
-            )
-                .c_str()
-        );
-    }
+    assert(std::distance(begin, end) > 0);
+    assert(std::distance(begin, end) <= ptrdiff_t(bits_to_limbs(bits)));
 
     // Copy data into resulting vector
     std::copy(begin, end, _data.begin());
@@ -127,7 +111,9 @@ APyFixed::APyFixed(int bits, int int_bits, const std::vector<mp_limb_t>& vec)
  * *                            Arithmetic member functions                         * *
  * ********************************************************************************** */
 
-APyFixed APyFixed::operator+(const APyFixed& rhs) const
+//! Base `APyFixed` addition/subtraction routine
+template <template <class...> class base_op, template <class...> class ripple_carry_op>
+inline APyFixed APyFixed::_APYFIXED_BASE_ADD_SUB(const APyFixed& rhs) const
 {
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
@@ -138,17 +124,18 @@ APyFixed APyFixed::operator+(const APyFixed& rhs) const
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
 
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        // Result bits fits in a single limb. Use native addition
-        result._data[0]
-            = (_data[0] << left_shift_amount) + (rhs._data[0] << rhs_shift_amount);
+        // Result bits fits in a single limb. Use native operation
+        result._data[0] = base_op {}(
+            _data[0] << left_shift_amount, rhs._data[0] << rhs_shift_amount
+        );
     } else {
         _cast_correct_wl(result._data.begin(), result._data.end(), left_shift_amount);
-        // Result bits is more than one limb. Add with carry
+        // Resulting number of bits is more than one limb. Use ripple-carry operation
         APyFixed operand(res_bits, res_int_bits);
         rhs._cast_correct_wl(
             operand._data.begin(), operand._data.end(), rhs_shift_amount
         );
-        mpn_add_n(
+        ripple_carry_op {}(
             &result._data[0],    // dst
             &result._data[0],    // src1
             &operand._data[0],   // src2
@@ -159,35 +146,14 @@ APyFixed APyFixed::operator+(const APyFixed& rhs) const
     return result;
 }
 
+APyFixed APyFixed::operator+(const APyFixed& rhs) const
+{
+    return _APYFIXED_BASE_ADD_SUB<std::plus, mpn_add_n_functor>(rhs);
+}
+
 APyFixed APyFixed::operator-(const APyFixed& rhs) const
 {
-    const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
-    const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
-    const int res_bits = res_int_bits + res_frac_bits;
-
-    APyFixed result(res_bits, res_int_bits);
-    auto left_shift_amount = unsigned(res_frac_bits - frac_bits());
-    auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
-
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        // Result bits fits in a single limb. Use native subtraction
-        result._data[0]
-            = (_data[0] << left_shift_amount) - (rhs._data[0] << rhs_shift_amount);
-    } else {
-        _cast_correct_wl(result._data.begin(), result._data.end(), left_shift_amount);
-        // Result bits is more than one limb. Add with carry
-        APyFixed operand(res_bits, res_int_bits);
-        rhs._cast_correct_wl(
-            operand._data.begin(), operand._data.end(), rhs_shift_amount
-        );
-        mpn_sub_n(
-            &result._data[0],    // dst
-            &result._data[0],    // src1
-            &operand._data[0],   // src2
-            result.vector_size() // limb vector length
-        );
-    }
-    return result;
+    return _APYFIXED_BASE_ADD_SUB<std::minus, mpn_sub_n_functor>(rhs);
 }
 
 APyFixed APyFixed::operator*(const APyFixed& rhs) const

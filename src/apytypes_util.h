@@ -980,4 +980,19 @@ twos_complement_overflow(mp_limb_t value, int bits)
     return value;
 }
 
+//! Macro for creating a void-specialization state-less functor `FUNCTOR_NAME` from a
+//! function `FUNC_NAME`. The void-specialization functor allows template argument
+//! deduction to be performed once its function is called. Neat!
+#define CREATE_FUNCTOR_FROM_FUNC(FUNCTOR_NAME, FUNC_NAME)                              \
+    template <typename... T> struct FUNCTOR_NAME { };                                  \
+    template <> struct FUNCTOR_NAME<> {                                                \
+        template <typename... T> auto operator()(T... t) const                         \
+        {                                                                              \
+            return FUNC_NAME(t...);                                                    \
+        }                                                                              \
+    }
+
+CREATE_FUNCTOR_FROM_FUNC(mpn_add_n_functor, mpn_add_n);
+CREATE_FUNCTOR_FROM_FUNC(mpn_sub_n_functor, mpn_sub_n);
+
 #endif // _APYTYPES_UTIL_H
