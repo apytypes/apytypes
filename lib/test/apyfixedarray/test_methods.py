@@ -75,6 +75,8 @@ def test_len():
 
 
 def test_round_trip_conversion():
+    # Skip this test if `NumPy` is not present on the machine
+    pytest.importorskip("numpy")
     for bit_pattern in range(256):
         a = APyFixedArray([bit_pattern], int_bits=4, frac_bits=4)
         assert (APyFixedArray.from_float(a.to_numpy(), 4, 4)).is_identical(a)

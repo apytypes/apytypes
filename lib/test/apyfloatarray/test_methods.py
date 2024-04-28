@@ -116,6 +116,8 @@ def test_python_sum():
 
 
 def test_round_trip_conversion():
+    # Skip this test if `NumPy` is not present on the machine
+    pytest.importorskip("numpy")
     for exp in reversed(range(15)):  # Skip nan/inf
         for man in reversed(range(16)):
             a = APyFloatArray([0], [exp], [man], 4, 4)
