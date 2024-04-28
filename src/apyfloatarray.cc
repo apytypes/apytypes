@@ -173,7 +173,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
             }
 
             // Tentative exponent
-            std::int64_t new_exp = x.exp + x_is_zero_exponent;
+            exp_t new_exp = x.exp + x_is_zero_exponent;
 
             // Conditionally add leading one's, also add room for guard bits
             // Note that exp can never be res_max_exponent here
@@ -223,23 +223,18 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
 
             new_man &= man_mask;
 
-            man_t res_man = quantize_mantissa(new_man, 4, res_sign, quantization);
-            if (res_man & final_res_leading_one) {
-                ++new_exp;
-                res_man = 0;
-            }
+            quantize_mantissa(
+                new_man, new_exp, 4, res_sign, final_res_leading_one, quantization
+            );
 
             // Check for overflow
             if (new_exp >= res_max_exponent) {
-                // Inf
-                res.data[i] = { x.sign,
-                                static_cast<exp_t>(res_max_exponent),
-                                static_cast<man_t>(0) };
-            } else {
-                res.data[i] = { res_sign,
-                                static_cast<exp_t>(new_exp),
-                                static_cast<man_t>(res_man) };
+                new_exp = res_max_exponent;
+                new_man = 0;
             }
+            res.data[i] = { res_sign,
+                            static_cast<exp_t>(new_exp),
+                            static_cast<man_t>(new_man) };
         }
         return res;
     }
@@ -347,14 +342,14 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
             }
 
             const bool x_is_zero_exponent = (x.exp == 0);
-            const std::int64_t true_x_exp = x.exp + x_is_zero_exponent;
+            const exp_t true_x_exp = x.exp + x_is_zero_exponent;
 
             // Conditionally add leading one's, also add room for guard bits
             // Note that exp can never be res_max_exponent here
             man_t mx = (x_is_zero_exponent ? 0 : res_leading_one) | (x.man << 3);
 
             // Tentative exponent
-            std::int64_t new_exp;
+            exp_t new_exp;
             // Tentative mantissa
             man_t new_man;
             // Compute sign and swap operands if need to make sure |x| >= |y|
@@ -418,23 +413,18 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
 
             new_man &= man_mask;
 
-            man_t res_man = quantize_mantissa(new_man, 4, res_sign, quantization);
-            if (res_man & final_res_leading_one) {
-                ++new_exp;
-                res_man = 0;
-            }
+            quantize_mantissa(
+                new_man, new_exp, 4, res_sign, final_res_leading_one, quantization
+            );
 
             // Check for overflow
             if (new_exp >= res_max_exponent) {
-                // Inf
-                res.data[i] = { res_sign,
-                                static_cast<exp_t>(res_max_exponent),
-                                static_cast<man_t>(0) };
-            } else {
-                res.data[i] = { res_sign,
-                                static_cast<exp_t>(new_exp),
-                                static_cast<man_t>(res_man) };
+                new_exp = res_max_exponent;
+                new_man = 0;
             }
+            res.data[i] = { res_sign,
+                            static_cast<exp_t>(new_exp),
+                            static_cast<man_t>(new_man) };
         }
         return res;
     }
@@ -520,15 +510,15 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
         // Compute constants for reuse
         const auto x_max_exponent = ((1ULL << exp_bits) - 1);
         const auto y_max_exponent = ((1ULL << rhs.exp_bits) - 1);
-        const exp_t res_max_exponent = ((1ULL << res_exp_bits) - 1);
+        const exp_t res_max_exponent = ((1ULL << res.exp_bits) - 1);
         const auto new_man_bits = sum_man_bits + 2;
         const man_t two = 1ULL << new_man_bits;
         const man_t two_before = two >> 1;
         const man_t one_before = 1ULL << sum_man_bits;
-        const man_t two_res = 1 << res_man_bits;
+        const man_t two_res = 1 << res.man_bits;
         const auto mask_two = two - 1;
-        const auto man_bits_delta = new_man_bits - res_man_bits;
-        const std::int64_t bias_sum = bias + rhs.bias - res_bias;
+        const auto man_bits_delta = new_man_bits - res.man_bits;
+        const std::int64_t bias_sum = bias + rhs.bias - res.bias;
         exp_t new_exp;
 
         // Perform operation
@@ -614,22 +604,16 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
                 tmp_exp = 0;
             }
 
-            new_man = quantize_mantissa(
-                new_man & mask_two, man_bits_delta, res_sign, quantization
+            new_man &= mask_two;
+            new_exp = static_cast<exp_t>(tmp_exp);
+            quantize_mantissa(
+                new_man, new_exp, man_bits_delta, res_sign, two_res, quantization
             );
 
-            // Carry in quantization
-            if (new_man >= two_res) {
-                ++tmp_exp;
-                new_man = 0;
-            }
-
             // Check for overflow
-            if (tmp_exp >= res_max_exponent) {
+            if (new_exp >= res_max_exponent) {
                 new_exp = res_max_exponent;
                 new_man = 0;
-            } else {
-                new_exp = tmp_exp;
             }
             res.data[i] = { res_sign,
                             static_cast<exp_t>(new_exp),
@@ -809,22 +793,16 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
                 tmp_exp = 0;
             }
 
-            new_man = quantize_mantissa(
-                new_man & mask_two, man_bits_delta, res_sign, quantization
+            new_man &= mask_two;
+            new_exp = static_cast<exp_t>(tmp_exp);
+            quantize_mantissa(
+                new_man, new_exp, man_bits_delta, res_sign, two_res, quantization
             );
 
-            // Carry in quantization
-            if (new_man >= two_res) {
-                ++tmp_exp;
-                new_man = 0;
-            }
-
             // Check for overflow
-            if (tmp_exp >= res_max_exponent) {
+            if (new_exp >= res_max_exponent) {
                 new_exp = res_max_exponent;
                 new_man = 0;
-            } else {
-                new_exp = tmp_exp;
             }
             res.data[i] = { res_sign,
                             static_cast<exp_t>(new_exp),
@@ -1371,8 +1349,8 @@ APyFloat APyFloatArray::vector_sum(const QuantizationMode quantization) const
                 continue;
             }
 
-            const std::int64_t true_x_exp = x.exp + x_is_zero_exponent;
-            const std::int64_t true_sum_exp = sum_exp + sum_is_zero_exponent;
+            const exp_t true_x_exp = x.exp + x_is_zero_exponent;
+            const exp_t true_sum_exp = sum_exp + sum_is_zero_exponent;
             // Conditionally add leading one's, also add room for guard bits
             // Note that exp can never be res_max_exponent here
             man_t mx = (x_is_zero_exponent ? 0 : res_leading_one) | (x.man << 3);
@@ -1438,11 +1416,9 @@ APyFloat APyFloatArray::vector_sum(const QuantizationMode quantization) const
 
             sum_man &= man_mask;
 
-            sum_man = quantize_mantissa(sum_man, 4, sum_sign, quantization);
-            if (sum_man & final_res_leading_one) {
-                ++sum_exp;
-                sum_man = 0;
-            }
+            quantize_mantissa(
+                sum_man, sum_exp, 4, sum_sign, final_res_leading_one, quantization
+            );
 
             // Check for overflow
             if (sum_exp >= res_max_exponent) {

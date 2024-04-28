@@ -264,18 +264,12 @@ void APyFloat::cast_mantissa(std::uint8_t new_man_bits, QuantizationMode quantiz
         return;
     }
 
-    man_t new_man = quantize_mantissa(man, man_bits_delta, sign, quantization);
-    if (new_man & leading_one()) {
-        ++exp;
-        new_man = 0;
-    }
+    quantize_mantissa(man, exp, man_bits_delta, sign, leading_one(), quantization);
 
     // Check for overflow
     if (exp >= max_exp) {
         exp = max_exp;
         man = 0;
-    } else {
-        man = new_man;
     }
 }
 
@@ -288,19 +282,12 @@ void APyFloat::cast_mantissa_shorter(
     auto man_bits_delta = man_bits - new_man_bits;
     man_bits = new_man_bits;
     const auto max_exp = max_exponent();
-
-    man_t new_man = quantize_mantissa(man, man_bits_delta, sign, quantization);
-    if (new_man & leading_one()) {
-        ++exp;
-        new_man = 0;
-    }
+    quantize_mantissa(man, exp, man_bits_delta, sign, leading_one(), quantization);
 
     // Check for overflow
     if (exp >= max_exp) {
         exp = max_exp;
         man = 0;
-    } else {
-        man = new_man;
     }
 }
 
@@ -318,13 +305,7 @@ void APyFloat::cast_mantissa_subnormal(
         return;
     }
 
-    man_t new_man = quantize_mantissa(man, man_bits_delta, sign, quantization);
-    if (new_man & leading_one()) {
-        exp = 1;
-        man = 0;
-    } else {
-        man = new_man;
-    }
+    quantize_mantissa(man, exp, man_bits_delta, sign, leading_one(), quantization);
 }
 
 APyFloat APyFloat::_cast_to_double() const
@@ -1014,23 +995,20 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
             tmp_exp = 0;
         }
 
-        new_man = quantize_mantissa(
-            new_man & (two - 1), man_bits_delta, sign, quantization
+        exp_t res_exp = static_cast<exp_t>(tmp_exp);
+        new_man &= (two - 1);
+        quantize_mantissa(
+            new_man, res_exp, man_bits_delta, sign, two_res, quantization
         );
-
-        if (new_man >= two_res) {
-            ++tmp_exp;
-            new_man = 0;
-        }
 
         // Check for overflow
         const auto max_exp = res.max_exponent();
-        if (tmp_exp >= max_exp) {
+        if (res_exp >= max_exp) {
             res.exp = max_exp;
             res.man = 0;
         } else {
             res.man = new_man;
-            res.exp = tmp_exp;
+            res.exp = res_exp;
         }
         return res;
     } else {
