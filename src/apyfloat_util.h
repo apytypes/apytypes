@@ -13,13 +13,15 @@ static constexpr std::size_t _EXP_T_SIZE_BYTES = sizeof(exp_t);
 static constexpr std::size_t _EXP_T_SIZE_BITS = 8 * _EXP_T_SIZE_BYTES;
 
 //! Quantize mantissa
-man_t APY_INLINE quantize_mantissa(
-    man_t man, std::uint8_t bits_to_quantize, bool sign, QuantizationMode quantization
+void APY_INLINE quantize_mantissa(
+    man_t& man,
+    exp_t& exp,
+    std::uint8_t bits_to_quantize,
+    bool sign,
+    man_t man_msb_constant,
+    QuantizationMode quantization
 )
 {
-    // Initial value for mantissa
-    man_t res_man = man >> bits_to_quantize;
-
     // Calculate quantization bit
     man_t G, // Guard (bit after LSB)
         T,   // Sticky bit, logical OR of all the bits after the guard bit
@@ -27,6 +29,9 @@ man_t APY_INLINE quantize_mantissa(
 
     G = (man >> (bits_to_quantize - 1)) & 1;
     T = (man & ((1ULL << (bits_to_quantize - 1)) - 1)) != 0;
+
+    // Initial value for mantissa
+    man_t res_man = man >> bits_to_quantize;
 
     switch (quantization) {
     case QuantizationMode::RND_CONV: // TIES_EVEN
@@ -92,8 +97,12 @@ man_t APY_INLINE quantize_mantissa(
             "unknown (did you pass `int` as `QuantizationMode`?)"
         );
     }
-    res_man += B;
-    return res_man;
+    man = res_man;
+    man += B;
+    if (man & man_msb_constant) {
+        ++exp;
+        man = 0;
+    }
 }
 
 //! Fast integer power by squaring.
