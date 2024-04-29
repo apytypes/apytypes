@@ -236,6 +236,12 @@
 <span class="target" id="apytypes__util_8h_1acf2da4e0fcdb1037efaecffef6dfca74"></span><span class="sig-name descname"><span class="n"><span class="pre">APY_INLINE</span></span></span><a class="headerlink" href="#c.APY_INLINE" title="Link to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.CREATE_FUNCTOR_FROM_FUNC">
+<span class="target" id="apytypes__util_8h_1ae7180541e288d3371f133622e6ded8d8"></span><span class="sig-name descname"><span class="n"><span class="pre">CREATE_FUNCTOR_FROM_FUNC</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">FUNCTOR_NAME</span></span>, <span class="n"><span class="pre">FUNC_NAME</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.CREATE_FUNCTOR_FROM_FUNC" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Macro for creating a void-specialization state-less functor <code class="docutils literal notranslate"><span class="pre">FUNCTOR_NAME</span></code> from a function <code class="docutils literal notranslate"><span class="pre">FUNC_NAME</span></code>. The void-specialization functor allows template argument deduction to be performed once its function is called. Neat! </p>
+</dd></dl>
+
 </div>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
@@ -489,6 +495,16 @@
 <span id="_CPPv324twos_complement_overflow9mp_limb_ti"></span><span id="_CPPv224twos_complement_overflow9mp_limb_ti"></span><span id="twos_complement_overflow__mp_limb_t.i"></span><span class="target" id="apytypes__util_8h_1adba4e68c5c116a1d985ea9235ec9389d"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">mp_limb_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">twos_complement_overflow</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">mp_limb_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bits</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424twos_complement_overflow9mp_limb_ti" title="Link to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424CREATE_FUNCTOR_FROM_FUNC17mpn_add_n_functor9mpn_add_n">
+<span id="_CPPv324CREATE_FUNCTOR_FROM_FUNC17mpn_add_n_functor9mpn_add_n"></span><span id="_CPPv224CREATE_FUNCTOR_FROM_FUNC17mpn_add_n_functor9mpn_add_n"></span><span id="CREATE_FUNCTOR_FROM_FUNC__mpn_add_n_functor.mpn_add_n"></span><span class="target" id="apytypes__util_8h_1a02270f74ac4663214861301e9e2f6392"></span><span class="sig-name descname"><span class="n"><span class="pre">CREATE_FUNCTOR_FROM_FUNC</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">mpn_add_n_functor</span></span>, <span class="n"><span class="pre">mpn_add_n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424CREATE_FUNCTOR_FROM_FUNC17mpn_add_n_functor9mpn_add_n" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424CREATE_FUNCTOR_FROM_FUNC17mpn_sub_n_functor9mpn_sub_n">
+<span id="_CPPv324CREATE_FUNCTOR_FROM_FUNC17mpn_sub_n_functor9mpn_sub_n"></span><span id="_CPPv224CREATE_FUNCTOR_FROM_FUNC17mpn_sub_n_functor9mpn_sub_n"></span><span id="CREATE_FUNCTOR_FROM_FUNC__mpn_sub_n_functor.mpn_sub_n"></span><span class="target" id="apytypes__util_8h_1a94c0199b71e51941c1a25d1ed2d3b31f"></span><span class="sig-name descname"><span class="n"><span class="pre">CREATE_FUNCTOR_FROM_FUNC</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">mpn_sub_n_functor</span></span>, <span class="n"><span class="pre">mpn_sub_n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424CREATE_FUNCTOR_FROM_FUNC17mpn_sub_n_functor9mpn_sub_n" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
 </div>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-variables">Variables</p>
@@ -668,6 +684,8 @@
 <li><a class="reference internal" href="#_CPPv4I0E20limb_vector_all_onesb22RANDOM_ACCESS_ITERATOR22RANDOM_ACCESS_ITERATORj"><code class="docutils literal notranslate"><span class="pre">limb_vector_all_ones()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4I0E15string_from_vecNSt6stringERKNSt6vectorI1TEE"><code class="docutils literal notranslate"><span class="pre">string_from_vec()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv424twos_complement_overflow9mp_limb_ti"><code class="docutils literal notranslate"><span class="pre">twos_complement_overflow()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv424CREATE_FUNCTOR_FROM_FUNC17mpn_add_n_functor9mpn_add_n"><code class="docutils literal notranslate"><span class="pre">CREATE_FUNCTOR_FROM_FUNC()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv424CREATE_FUNCTOR_FROM_FUNC17mpn_sub_n_functor9mpn_sub_n"><code class="docutils literal notranslate"><span class="pre">CREATE_FUNCTOR_FROM_FUNC()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv416_LIMB_SIZE_BYTES"><code class="docutils literal notranslate"><span class="pre">_LIMB_SIZE_BYTES</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv415_LIMB_SIZE_BITS"><code class="docutils literal notranslate"><span class="pre">_LIMB_SIZE_BITS</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv423NotImplementedException"><code class="docutils literal notranslate"><span class="pre">NotImplementedException</span></code></a><ul>
