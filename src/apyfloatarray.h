@@ -22,6 +22,9 @@ public:
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
+    std::vector<APyFloatData> data;
+    std::uint8_t exp_bits, man_bits;
+    exp_t bias;
 
     /* ****************************************************************************** *
      * *                       Binary arithmetic operators                          * *
@@ -162,10 +165,7 @@ private:
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
-    std::uint8_t exp_bits, man_bits;
-    exp_t bias;
     std::vector<std::size_t> shape;
-    std::vector<APyFloatData> data;
 
     //! Fold the `_shape` field over multiplication
     std::size_t fold_shape() const;
@@ -189,6 +189,11 @@ private:
      */
     APyFloatArray checked_2d_matmul(const APyFloatArray& rhs) const;
     APyFloat vector_sum(const QuantizationMode quantization) const;
+    void hadamard_multiplication(
+        const APyFloatArray& rhs,
+        APyFloatArray& res,
+        const QuantizationMode quantization
+    ) const;
 };
 
 #endif
