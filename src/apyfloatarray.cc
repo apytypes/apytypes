@@ -102,7 +102,6 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
 
         APyFloatData x, y;
         const exp_t res_max_exponent = ((1ULL << exp_bits) - 1);
-        bool res_sign;
         const man_t final_res_leading_one = (1ULL << man_bits);
         const man_t res_leading_one = final_res_leading_one << 3;
         const man_t carry_res_leading_one = res_leading_one << 1;
@@ -159,17 +158,12 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
             }
             // Compute sign and swap operands if need to make sure |x| >= |y|
             if (x.exp < y.exp || (x.exp == y.exp && x.man < y.man)) {
-                res_sign = y.sign;
                 std::swap(x, y);
                 std::swap(x_is_zero_exponent, y_is_zero_exponent);
-            } else {
-                if (x.sign != y.sign && x.exp == y.exp && x.man == y.man) {
-                    // Set to zero
-                    res.data[i]
-                        = { true, static_cast<exp_t>(0), static_cast<man_t>(0) };
-                    continue;
-                }
-                res_sign = x.sign;
+            } else if (x.sign != y.sign && x.exp == y.exp && x.man == y.man) {
+                // Set to zero
+                res.data[i] = { true, static_cast<exp_t>(0), static_cast<man_t>(0) };
+                continue;
             }
 
             // Tentative exponent
@@ -224,7 +218,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
             new_man &= man_mask;
 
             quantize_mantissa(
-                new_man, new_exp, 4, res_sign, final_res_leading_one, 3, 7, quantization
+                new_man, new_exp, 4, x.sign, final_res_leading_one, 3, 7, quantization
             );
 
             // Check for overflow
@@ -232,9 +226,8 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
                 new_exp = res_max_exponent;
                 new_man = 0;
             }
-            res.data[i] = { res_sign,
-                            static_cast<exp_t>(new_exp),
-                            static_cast<man_t>(new_man) };
+            res.data[i]
+                = { x.sign, static_cast<exp_t>(new_exp), static_cast<man_t>(new_man) };
         }
         return res;
     }
@@ -291,12 +284,10 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
                     res.data[i] = { y.sign,
                                     static_cast<exp_t>(res_max_exponent),
                                     static_cast<man_t>(0) };
-                    continue;
                 }
             }
             return res;
         }
-        bool res_sign;
         const man_t final_res_leading_one = (1ULL << man_bits);
         const man_t res_leading_one = final_res_leading_one << 3;
         const man_t carry_res_leading_one = res_leading_one << 1;
@@ -308,7 +299,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
         const bool y_is_zero_exponent = (y.exp == 0);
         const std::int64_t true_y_exp = y.exp + y_is_zero_exponent;
         const man_t my = (y_is_zero_exponent ? 0 : res_leading_one) | (y.man << 3);
-
+        bool res_sign;
         // Perform operation
         for (std::size_t i = 0; i < data.size(); i++) {
             x = data[i];
@@ -1059,11 +1050,7 @@ APyFloatArray APyFloatArray::from_double(
         // `_set_values_from_numpy_ndarray`
         auto ndarray = nb::cast<nb::ndarray<nb::numpy>>(double_seq);
         std::size_t ndim = ndarray.ndim();
-        if (ndim == 0) {
-            throw nb::type_error(
-                "APyFloatArray.from_float(): NDArray with ndim == 0 not supported"
-            );
-        }
+        assert(ndim > 0);
         std::vector<std::size_t> shape(ndim, 0);
         for (std::size_t i = 0; i < ndim; i++) {
             shape[i] = ndarray.shape(i);

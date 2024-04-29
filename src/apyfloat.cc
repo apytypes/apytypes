@@ -337,14 +337,13 @@ APyFloat APyFloat::_cast_to_double() const
         prev_man = remainder << (man_bits - subn_adjustment);
     }
 
-    if (new_exp <= -52) { // Exponent too small
-        return res.construct_zero();
-    }
-
     auto man_bits_delta = 52 - man_bits;
 
     // Check if the number will be converted to a subnormal
     if (new_exp <= 0) {
+        if (new_exp <= -52) { // Exponent too small
+            return res.construct_zero();
+        }
         prev_man |= leading_one();
         // Prepare for right shift to adjust the mantissa
         man_bits_delta += new_exp - 1;
@@ -423,7 +422,7 @@ APyFloat APyFloat::cast_from_double(
         prev_man = man;
     }
 
-    std::int8_t man_bits_delta;
+    std::int8_t man_bits_delta = res.man_bits - 52;
 
     // Check if the number will be converted to a subnormal
     if (new_exp <= 0) {
@@ -433,10 +432,8 @@ APyFloat APyFloat::cast_from_double(
         }
         prev_man |= leading_one();
         // Prepare for right shift to adjust the mantissa
-        man_bits_delta = res.man_bits + new_exp - 53;
+        man_bits_delta += new_exp - 1;
         new_exp = 0;
-    } else {
-        man_bits_delta = res.man_bits - 52;
     }
 
     // Initial value for mantissa
@@ -736,13 +733,9 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
         y = rhs;
         // Compute sign and swap operands if need to make sure |x| >= |y|
         if (x.exp < y.exp || (x.exp == y.exp && x.man < y.man)) {
-            res.sign = y.sign;
             std::swap(x, y);
-        } else {
-            if (x.sign != y.sign && x.exp == y.exp && x.man == y.man) {
-                return res.construct_zero(true);
-            }
-            res.sign = x.sign;
+        } else if (x.sign != y.sign && x.exp == y.exp && x.man == y.man) {
+            return res.construct_zero(true);
         }
     } else {
         std::uint8_t res_exp_bits = std::max(exp_bits, rhs.exp_bits);
@@ -767,15 +760,14 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
         const APyFloat yabs = y.abs();
 
         if (xabs < yabs) {
-            res.sign = y.sign;
             std::swap(x, y);
         } else {
             if (x.sign != y.sign && xabs == yabs) {
                 return res.construct_zero(true);
             }
-            res.sign = x.sign;
         }
     }
+    res.sign = x.sign;
 
     // Handle other special cases
     if ((x.is_inf() || y.is_inf())) {
@@ -913,6 +905,7 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
     }
 
     apy_res <<= res.man_bits;
+    // TODO: Get bit-pattern directly
     res.man = (man_t)(apy_res).to_double();
     res.exp = new_exp;
     return res;
