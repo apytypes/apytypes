@@ -1,6 +1,7 @@
 from apytypes import APyFixed
 
 import math
+import pytest
 
 
 def test_arithmetic_operations():
@@ -61,27 +62,34 @@ def test_binary_comparison():
     assert APyFixed.from_float(-1.0, 256, 128) >= APyFixed.from_float(-3.0, 256, 128)
 
 
-def test_float_comparison():
-    assert not APyFixed.from_float(0.0, 256, 128) == 1.0
-    assert APyFixed.from_float(0.0, 256, 128) != 1.0
-    assert APyFixed.from_float(0.0, 256, 128) < 1.0
-    assert APyFixed.from_float(0.0, 256, 128) <= 1.0
-    assert not APyFixed.from_float(0.0, 256, 128) > 1.0
-    assert not APyFixed.from_float(0.0, 256, 128) >= 1.0
+@pytest.mark.parametrize(
+    "type",
+    [
+        int,
+        float,
+    ],
+)
+def test_float_and_int_comparison(type):
+    assert not APyFixed.from_float(0.0, 256, 128) == type(1.0)
+    assert APyFixed.from_float(0.0, 256, 128) != type(1.0)
+    assert APyFixed.from_float(0.0, 256, 128) < type(1.0)
+    assert APyFixed.from_float(0.0, 256, 128) <= type(1.0)
+    assert not APyFixed.from_float(0.0, 256, 128) > type(1.0)
+    assert not APyFixed.from_float(0.0, 256, 128) >= type(1.0)
 
-    assert APyFixed.from_float(1.0, 256, 128) == 1.0
-    assert not APyFixed.from_float(1.0, 256, 128) != 1.0
-    assert not APyFixed.from_float(1.0, 256, 128) < 1.0
-    assert APyFixed.from_float(1.0, 256, 128) <= 1.0
-    assert not APyFixed.from_float(1.0, 256, 128) > 1.0
-    assert APyFixed.from_float(1.0, 256, 128) >= 1.0
+    assert APyFixed.from_float(1.0, 256, 128) == type(1.0)
+    assert not APyFixed.from_float(1.0, 256, 128) != type(1.0)
+    assert not APyFixed.from_float(1.0, 256, 128) < type(1.0)
+    assert APyFixed.from_float(1.0, 256, 128) <= type(1.0)
+    assert not APyFixed.from_float(1.0, 256, 128) > type(1.0)
+    assert APyFixed.from_float(1.0, 256, 128) >= type(1.0)
 
-    assert not APyFixed.from_float(-1.0, 256, 128) == -3.0
-    assert APyFixed.from_float(-1.0, 256, 128) != -3.0
-    assert not APyFixed.from_float(-1.0, 256, 128) < -3.0
-    assert not APyFixed.from_float(-1.0, 256, 128) <= -3.0
-    assert APyFixed.from_float(-1.0, 256, 128) > -3.0
-    assert APyFixed.from_float(-1.0, 256, 128) >= -3.0
+    assert not APyFixed.from_float(-1.0, 256, 128) == type(-3.0)
+    assert APyFixed.from_float(-1.0, 256, 128) != type(-3.0)
+    assert not APyFixed.from_float(-1.0, 256, 128) < type(-3.0)
+    assert not APyFixed.from_float(-1.0, 256, 128) <= type(-3.0)
+    assert APyFixed.from_float(-1.0, 256, 128) > type(-3.0)
+    assert APyFixed.from_float(-1.0, 256, 128) >= type(-3.0)
 
 
 def test_narrow_add_sub():
