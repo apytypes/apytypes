@@ -19,6 +19,8 @@ void APY_INLINE quantize_mantissa(
     std::uint8_t bits_to_quantize,
     bool sign,
     man_t man_msb_constant,
+    std::uint8_t bits_to_quantize_dec,
+    man_t sticky_constant,
     QuantizationMode quantization
 )
 {
@@ -27,8 +29,8 @@ void APY_INLINE quantize_mantissa(
         T,   // Sticky bit, logical OR of all the bits after the guard bit
         B;   // Quantization bit to add to LSB
 
-    G = (man >> (bits_to_quantize - 1)) & 1;
-    T = (man & ((1ULL << (bits_to_quantize - 1)) - 1)) != 0;
+    G = (man >> bits_to_quantize_dec) & 1;
+    T = (man & sticky_constant) != 0;
 
     // Initial value for mantissa
     man_t res_man = man >> bits_to_quantize;
@@ -103,6 +105,28 @@ void APY_INLINE quantize_mantissa(
         ++exp;
         man = 0;
     }
+}
+
+//! Quantize mantissa
+void APY_INLINE quantize_mantissa(
+    man_t& man,
+    exp_t& exp,
+    std::uint8_t bits_to_quantize,
+    bool sign,
+    man_t man_msb_constant,
+    QuantizationMode quantization
+)
+{
+    quantize_mantissa(
+        man,
+        exp,
+        bits_to_quantize,
+        sign,
+        man_msb_constant,
+        bits_to_quantize - 1,
+        (1ULL << (bits_to_quantize - 1)) - 1,
+        quantization
+    );
 }
 
 //! Fast integer power by squaring.

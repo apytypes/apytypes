@@ -224,7 +224,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
             new_man &= man_mask;
 
             quantize_mantissa(
-                new_man, new_exp, 4, res_sign, final_res_leading_one, quantization
+                new_man, new_exp, 4, res_sign, final_res_leading_one, 3, 7, quantization
             );
 
             // Check for overflow
@@ -414,7 +414,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
             new_man &= man_mask;
 
             quantize_mantissa(
-                new_man, new_exp, 4, res_sign, final_res_leading_one, quantization
+                new_man, new_exp, 4, res_sign, final_res_leading_one, 3, 7, quantization
             );
 
             // Check for overflow
@@ -498,8 +498,8 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
     }
 
     // Calculate new format
-    const auto res_exp_bits = std::max(exp_bits, rhs.exp_bits);
-    const auto res_man_bits = std::max(man_bits, rhs.man_bits);
+    const uint8_t res_exp_bits = std::max(exp_bits, rhs.exp_bits);
+    const uint8_t res_man_bits = std::max(man_bits, rhs.man_bits);
     const auto res_bias = APyFloat::ieee_bias(res_exp_bits);
     APyFloatArray res(shape, res_exp_bits, res_man_bits, res_bias);
 
@@ -508,16 +508,18 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
 
     if (unsigned(sum_man_bits) + 3 <= _MAN_T_SIZE_BITS) {
         // Compute constants for reuse
-        const auto x_max_exponent = ((1ULL << exp_bits) - 1);
-        const auto y_max_exponent = ((1ULL << rhs.exp_bits) - 1);
+        const exp_t x_max_exponent = ((1ULL << exp_bits) - 1);
+        const exp_t y_max_exponent = ((1ULL << rhs.exp_bits) - 1);
         const exp_t res_max_exponent = ((1ULL << res.exp_bits) - 1);
-        const auto new_man_bits = sum_man_bits + 2;
+        const uint8_t new_man_bits = sum_man_bits + 2;
         const man_t two = 1ULL << new_man_bits;
         const man_t two_before = two >> 1;
         const man_t one_before = 1ULL << sum_man_bits;
         const man_t two_res = 1 << res.man_bits;
-        const auto mask_two = two - 1;
-        const auto man_bits_delta = new_man_bits - res.man_bits;
+        const man_t mask_two = two - 1;
+        const uint8_t man_bits_delta = new_man_bits - res.man_bits;
+        const uint8_t man_bits_delta_dec = man_bits_delta - 1;
+        const man_t sticky_constant = (1ULL << man_bits_delta_dec) - 1;
         const std::int64_t bias_sum = bias + rhs.bias - res.bias;
         exp_t new_exp;
 
@@ -607,7 +609,14 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
             new_man &= mask_two;
             new_exp = static_cast<exp_t>(tmp_exp);
             quantize_mantissa(
-                new_man, new_exp, man_bits_delta, res_sign, two_res, quantization
+                new_man,
+                new_exp,
+                man_bits_delta,
+                res_sign,
+                two_res,
+                man_bits_delta_dec,
+                sticky_constant,
+                quantization
             );
 
             // Check for overflow
@@ -722,6 +731,8 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
         const man_t two_res = 1 << res_man_bits;
         const auto mask_two = two - 1;
         const auto man_bits_delta = new_man_bits - res_man_bits;
+        const auto man_bits_delta_dec = man_bits_delta - 1;
+        const man_t sticky_constant = (1ULL << man_bits_delta_dec) - 1;
         exp_t new_exp;
         // Perform operation
         for (std::size_t i = 0; i < data.size(); i++) {
@@ -796,7 +807,14 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
             new_man &= mask_two;
             new_exp = static_cast<exp_t>(tmp_exp);
             quantize_mantissa(
-                new_man, new_exp, man_bits_delta, res_sign, two_res, quantization
+                new_man,
+                new_exp,
+                man_bits_delta,
+                res_sign,
+                two_res,
+                man_bits_delta_dec,
+                sticky_constant,
+                quantization
             );
 
             // Check for overflow
@@ -1417,7 +1435,7 @@ APyFloat APyFloatArray::vector_sum(const QuantizationMode quantization) const
             sum_man &= man_mask;
 
             quantize_mantissa(
-                sum_man, sum_exp, 4, sum_sign, final_res_leading_one, quantization
+                sum_man, sum_exp, 4, sum_sign, final_res_leading_one, 3, 7, quantization
             );
 
             // Check for overflow
