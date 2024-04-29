@@ -31,7 +31,7 @@ benchmarks = {
     "Scalar negation, 32-bit": ("c = -a", CREATE_TWO_SCALARS),
     "Scalar right-shift, 32-bit": ("c = a >> 5", CREATE_TWO_SCALARS),
     "Scalar to float, 32-bit": ("c = float(a)", CREATE_TWO_SCALARS),
-    "Scalar creation, 320-bit": ("lib.create_scalar(0.37, 320, 160)", "pass"),
+    "Scalar creation, 320-bit": ("lib.create_scalar(0.37, 160, 160)", "pass"),
     "Scalar addition, 320-bit": ("c = a + b", CREATE_TWO_LONG_SCALARS),
     "Scalar multiplication, 320-bit": ("c = a * b", CREATE_TWO_LONG_SCALARS),
     "Scalar division, 320-bit": ("c = a / b", CREATE_TWO_LONG_SCALARS),
@@ -46,7 +46,7 @@ benchmarks = {
     "200-element vector summation": ("sum(a)", CREATE_VECTOR),
     "20-element vector product": ("math.prod(a)", CREATE_SHORT_VECTOR),
     "Matrix creation": (
-        "lib.create_array(a, 32, 16)",
+        "lib.create_array(a, 16, 16)",
         "import numpy as np; a = np.random.rand(200, 200)",
     ),
     "Matrix addition": ("c = a + b", CREATE_TWO_ARRAYS),
