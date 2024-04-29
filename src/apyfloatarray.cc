@@ -493,9 +493,16 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
     const uint8_t res_man_bits = std::max(man_bits, rhs.man_bits);
     const auto res_bias = APyFloat::ieee_bias(res_exp_bits);
     APyFloatArray res(shape, res_exp_bits, res_man_bits, res_bias);
-
-    const int sum_man_bits = man_bits + rhs.man_bits;
     const auto quantization = get_float_quantization_mode();
+    hadamard_multiplication(rhs, res, quantization);
+    return res;
+}
+
+void APyFloatArray::hadamard_multiplication(
+    const APyFloatArray& rhs, APyFloatArray& res, const QuantizationMode quantization
+) const
+{
+    const int sum_man_bits = man_bits + rhs.man_bits;
 
     if (unsigned(sum_man_bits) + 3 <= _MAN_T_SIZE_BITS) {
         // Compute constants for reuse
@@ -512,7 +519,6 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
         const uint8_t man_bits_delta_dec = man_bits_delta - 1;
         const man_t sticky_constant = (1ULL << man_bits_delta_dec) - 1;
         const std::int64_t bias_sum = bias + rhs.bias - res.bias;
-        exp_t new_exp;
 
         // Perform operation
         for (std::size_t i = 0; i < data.size(); i++) {
@@ -598,7 +604,7 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
             }
 
             new_man &= mask_two;
-            new_exp = static_cast<exp_t>(tmp_exp);
+            exp_t new_exp = static_cast<exp_t>(tmp_exp);
             quantize_mantissa(
                 new_man,
                 new_exp,
@@ -619,19 +625,17 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
                             static_cast<exp_t>(new_exp),
                             static_cast<man_t>(new_man) };
         }
-        return res;
-    }
-    APyFloat lhs_scalar(exp_bits, man_bits, bias);
-    APyFloat rhs_scalar(rhs.exp_bits, rhs.man_bits, rhs.bias);
-    // Perform operation
-    for (std::size_t i = 0; i < data.size(); i++) {
-        lhs_scalar.set_data(data[i]);
-        rhs_scalar.set_data(rhs.data[i]);
+    } else {
+        APyFloat lhs_scalar(exp_bits, man_bits, bias);
+        APyFloat rhs_scalar(rhs.exp_bits, rhs.man_bits, rhs.bias);
+        // Perform operation
+        for (std::size_t i = 0; i < data.size(); i++) {
+            lhs_scalar.set_data(data[i]);
+            rhs_scalar.set_data(rhs.data[i]);
 
-        res.data[i] = (lhs_scalar * rhs_scalar).get_data();
+            res.data[i] = (lhs_scalar * rhs_scalar).get_data();
+        }
     }
-
-    return res;
 }
 
 APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
@@ -649,7 +653,7 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
         // Compute constants for reuse
         const auto x_max_exponent = ((1ULL << exp_bits) - 1);
         const auto y_max_exponent = ((1ULL << rhs.get_exp_bits()) - 1);
-        const exp_t res_max_exponent = ((1ULL << res_exp_bits) - 1);
+        const exp_t res_max_exponent = ((1ULL << res.exp_bits) - 1);
         const auto y = rhs.get_data();
         const bool y_is_maxexp = (y.exp == y_max_exponent);
 
@@ -1249,25 +1253,32 @@ APyFloat APyFloatArray::checked_inner_product(
 {
     // No accumulator context set
     if (accumulator_mode.has_value()) {
-        const auto orig_quant_mode = get_float_quantization_mode();
         const auto acc_option = accumulator_mode.value();
         const auto tmp_exp_bits = acc_option.exp_bits;
         const auto tmp_man_bits = acc_option.man_bits;
         const auto tmp_bias = APyFloat::ieee_bias(tmp_exp_bits);
-        set_float_quantization_mode(acc_option.quantization);
         // If an accumulator is used, the operands must be resized before the
         // multiplication. This is because the products would otherwise get quantized
         // too early.
 
+        APyFloatArray hadamard(shape, tmp_exp_bits, tmp_man_bits, tmp_bias);
         // Hadamard product of `*this` and `rhs`
-        APyFloatArray hadamard
-            = this->_cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization)
-            * rhs._cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization);
+        (this->_cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization))
+            .hadamard_multiplication(
+                rhs._cast(
+                    tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization
+                ),
+                hadamard,
+                acc_option.quantization
+            );
         APyFloat sum = hadamard.vector_sum(acc_option.quantization);
         // The result must be quantized back if an accumulator was used.
-        sum = sum.cast(max_exp_bits, max_man_bits);
-        // Change the quantization mode back, even if it wasn't changed
-        set_float_quantization_mode(orig_quant_mode);
+        sum = sum._cast(
+            max_exp_bits,
+            max_man_bits,
+            APyFloat::ieee_bias(max_exp_bits),
+            acc_option.quantization
+        );
         return sum;
     }
     // No accumulator context
@@ -1468,19 +1479,16 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
         { rhs.shape[0] }, rhs.exp_bits, rhs.man_bits, rhs.bias
     );
 
-    const auto orig_quant_mode = get_float_quantization_mode();
-
     // Accumulator mode set
     if (accumulator_mode.has_value()) {
         const auto acc_option = accumulator_mode.value();
         const auto tmp_exp_bits = acc_option.exp_bits;
         const auto tmp_man_bits = acc_option.man_bits;
         const auto tmp_bias = APyFloat::ieee_bias(tmp_exp_bits);
-        set_float_quantization_mode(acc_option.quantization);
 
         // Current row from lhs (`*this`)
         APyFloatArray current_row({ shape[1] }, tmp_exp_bits, tmp_man_bits, tmp_bias);
-
+        APyFloatArray hadamard({ shape[1] }, tmp_exp_bits, tmp_man_bits, tmp_bias);
         APyFloatArray casted_this
             = _cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization);
         for (std::size_t x = 0; x < res_cols; x++) {
@@ -1506,10 +1514,12 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
                 // quantized too early.
 
                 // Hadamard product of `*this` and `rhs`
-                APyFloatArray hadamard = casted_current_column * current_row;
+                casted_current_column.hadamard_multiplication(
+                    current_row, hadamard, acc_option.quantization
+                );
                 APyFloat sum = hadamard.vector_sum(acc_option.quantization);
                 // The result must be quantized back if an accumulator was used.
-                sum = sum.cast(
+                sum = sum._cast(
                     max_exp_bits, max_man_bits, res_bias, acc_option.quantization
                 );
 
@@ -1520,8 +1530,6 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
                 result.data[x + y * res_cols] = sum.get_data();
             }
         }
-        // Change the quantization mode back, even if it wasn't changed
-        set_float_quantization_mode(orig_quant_mode);
         return result;
     }
 
@@ -1529,6 +1537,8 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
 
     // Current row from lhs (`*this`)
     APyFloatArray current_row({ shape[1] }, exp_bits, man_bits, bias);
+    const auto quantization = get_float_quantization_mode();
+    APyFloatArray hadamard({ shape[1] }, max_exp_bits, max_man_bits, res_bias);
 
     for (std::size_t x = 0; x < res_cols; x++) {
 
@@ -1546,8 +1556,8 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
 
             // Perform the inner product
             // Hadamard product of `current_column` and `current_row`
-            APyFloatArray hadamard = current_column * current_row;
-            APyFloat sum = hadamard.vector_sum(orig_quant_mode);
+            current_column.hadamard_multiplication(current_row, hadamard, quantization);
+            APyFloat sum = hadamard.vector_sum(quantization);
             assert(sum.get_exp_bits() == result.get_exp_bits());
             assert(sum.get_man_bits() == result.get_man_bits());
 
