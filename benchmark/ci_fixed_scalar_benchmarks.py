@@ -76,13 +76,13 @@ def test_fixed_scalar_addition_mixed(benchmark):
 def test_fixed_scalar_creation_short(benchmark):
     a = np.random.rand(1)[0] - 0.5
 
-    benchmark(APyFixed.from_float, a, bits=20, int_bits=1)
+    benchmark(APyFixed.from_float, a, 1, 19)
 
 
 def test_fixed_scalar_creation_long(benchmark):
     a = np.random.rand(1)[0] - 0.5
 
-    benchmark(APyFixed.from_float, a, bits=200, int_bits=1)
+    benchmark(APyFixed.from_float, a, 1, 199)
 
 
 def test_fixed_scalar_to_float_short(benchmark):

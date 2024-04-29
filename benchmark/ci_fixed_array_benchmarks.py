@@ -128,13 +128,13 @@ def test_fixed_scalar_matrix_multiplication_200(benchmark):
 def test_fixed_matrix_creation_20(benchmark):
     a = np.random.rand(20, 20)
 
-    benchmark(APyFixedArray.from_float, a, bits=19, int_bits=1)
+    benchmark(APyFixedArray.from_float, a, 1, 19)
 
 
 def test_fixed_matrix_creation_200(benchmark):
     a = np.random.rand(200, 200)
 
-    benchmark(APyFixedArray.from_float, a, bits=19, int_bits=1)
+    benchmark(APyFixedArray.from_float, a, 1, 19)
 
 
 def test_fixed_matrix_to_numpy_20(benchmark):
