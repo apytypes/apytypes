@@ -494,20 +494,27 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
     const auto res_bias = APyFloat::ieee_bias(res_exp_bits);
     APyFloatArray res(shape, res_exp_bits, res_man_bits, res_bias);
     const auto quantization = get_float_quantization_mode();
-    hadamard_multiplication(rhs, res, quantization);
+    hadamard_multiplication(
+        &rhs.data[0], rhs.exp_bits, rhs.man_bits, rhs.bias, res, quantization
+    );
     return res;
 }
 
 void APyFloatArray::hadamard_multiplication(
-    const APyFloatArray& rhs, APyFloatArray& res, const QuantizationMode quantization
+    const APyFloatData* rhs,
+    const uint8_t rhs_exp_bits,
+    const uint8_t rhs_man_bits,
+    const exp_t rhs_bias,
+    APyFloatArray& res,
+    const QuantizationMode quantization
 ) const
 {
-    const int sum_man_bits = man_bits + rhs.man_bits;
+    const int sum_man_bits = man_bits + rhs_man_bits;
 
     if (unsigned(sum_man_bits) + 3 <= _MAN_T_SIZE_BITS) {
         // Compute constants for reuse
         const exp_t x_max_exponent = ((1ULL << exp_bits) - 1);
-        const exp_t y_max_exponent = ((1ULL << rhs.exp_bits) - 1);
+        const exp_t y_max_exponent = ((1ULL << rhs_exp_bits) - 1);
         const exp_t res_max_exponent = ((1ULL << res.exp_bits) - 1);
         const uint8_t new_man_bits = sum_man_bits + 2;
         const man_t two = 1ULL << new_man_bits;
@@ -518,12 +525,12 @@ void APyFloatArray::hadamard_multiplication(
         const uint8_t man_bits_delta = new_man_bits - res.man_bits;
         const uint8_t man_bits_delta_dec = man_bits_delta - 1;
         const man_t sticky_constant = (1ULL << man_bits_delta_dec) - 1;
-        const std::int64_t bias_sum = bias + rhs.bias - res.bias;
+        const std::int64_t bias_sum = bias + rhs_bias - res.bias;
 
         // Perform operation
         for (std::size_t i = 0; i < data.size(); i++) {
             const auto x = data[i];
-            const auto y = rhs.data[i];
+            const auto y = rhs[i];
 
             // Calculate sign
             const bool res_sign = x.sign ^ y.sign;
@@ -572,7 +579,7 @@ void APyFloatArray::hadamard_multiplication(
                 + (std::int64_t)y.exp + y_is_subnormal - bias_sum;
             const man_t mx = (static_cast<man_t>(!x_is_subnormal) << man_bits) | x.man;
             const man_t my
-                = (static_cast<man_t>(!y_is_subnormal) << rhs.man_bits) | y.man;
+                = (static_cast<man_t>(!y_is_subnormal) << rhs_man_bits) | y.man;
 
             man_t new_man = mx * my;
 
@@ -627,11 +634,11 @@ void APyFloatArray::hadamard_multiplication(
         }
     } else {
         APyFloat lhs_scalar(exp_bits, man_bits, bias);
-        APyFloat rhs_scalar(rhs.exp_bits, rhs.man_bits, rhs.bias);
+        APyFloat rhs_scalar(rhs_exp_bits, rhs_man_bits, rhs_bias);
         // Perform operation
         for (std::size_t i = 0; i < data.size(); i++) {
             lhs_scalar.set_data(data[i]);
-            rhs_scalar.set_data(rhs.data[i]);
+            rhs_scalar.set_data(rhs[i]);
 
             res.data[i] = (lhs_scalar * rhs_scalar).get_data();
         }
@@ -1265,9 +1272,13 @@ APyFloat APyFloatArray::checked_inner_product(
         // Hadamard product of `*this` and `rhs`
         (this->_cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization))
             .hadamard_multiplication(
-                rhs._cast(
-                    tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization
-                ),
+                &rhs._cast(
+                        tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization
+                )
+                     .data[0],
+                tmp_exp_bits,
+                tmp_man_bits,
+                tmp_bias,
                 hadamard,
                 acc_option.quantization
             );
@@ -1486,8 +1497,6 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
         const auto tmp_man_bits = acc_option.man_bits;
         const auto tmp_bias = APyFloat::ieee_bias(tmp_exp_bits);
 
-        // Current row from lhs (`*this`)
-        APyFloatArray current_row({ shape[1] }, tmp_exp_bits, tmp_man_bits, tmp_bias);
         APyFloatArray hadamard({ shape[1] }, tmp_exp_bits, tmp_man_bits, tmp_bias);
         APyFloatArray casted_this
             = _cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization);
@@ -1504,18 +1513,18 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
                 tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization
             );
             for (std::size_t y = 0; y < res_shape[0]; y++) {
-
-                // Copy row from lhs (*this)
-                std::copy_n(
-                    &casted_this.data[y * shape[1]], shape[1], current_row.data.begin()
-                );
                 // If an accumulator is used, the operands must be resized before the
                 // multiplication. This is because the products would otherwise get
                 // quantized too early.
 
                 // Hadamard product of `*this` and `rhs`
                 casted_current_column.hadamard_multiplication(
-                    current_row, hadamard, acc_option.quantization
+                    &casted_this.data[y * shape[1]],
+                    tmp_exp_bits,
+                    tmp_man_bits,
+                    tmp_bias,
+                    hadamard,
+                    acc_option.quantization
                 );
                 APyFloat sum = hadamard.vector_sum(acc_option.quantization);
                 // The result must be quantized back if an accumulator was used.
@@ -1535,8 +1544,6 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
 
     // No accumulator mode
 
-    // Current row from lhs (`*this`)
-    APyFloatArray current_row({ shape[1] }, exp_bits, man_bits, bias);
     const auto quantization = get_float_quantization_mode();
     APyFloatArray hadamard({ shape[1] }, max_exp_bits, max_man_bits, res_bias);
 
@@ -1550,13 +1557,11 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
         }
 
         for (std::size_t y = 0; y < res_shape[0]; y++) {
-
-            // Copy row from lhs (*this)
-            std::copy_n(&data[y * shape[1]], shape[1], current_row.data.begin());
-
             // Perform the inner product
             // Hadamard product of `current_column` and `current_row`
-            current_column.hadamard_multiplication(current_row, hadamard, quantization);
+            current_column.hadamard_multiplication(
+                &data[y * shape[1]], exp_bits, man_bits, bias, hadamard, quantization
+            );
             APyFloat sum = hadamard.vector_sum(quantization);
             assert(sum.get_exp_bits() == result.get_exp_bits());
             assert(sum.get_man_bits() == result.get_man_bits());

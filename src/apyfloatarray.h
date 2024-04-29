@@ -190,7 +190,10 @@ private:
     APyFloatArray checked_2d_matmul(const APyFloatArray& rhs) const;
     APyFloat vector_sum(const QuantizationMode quantization) const;
     void hadamard_multiplication(
-        const APyFloatArray& rhs,
+        const APyFloatData* rhs,
+        const uint8_t rhs_exp_bits,
+        const uint8_t rhs_man_bits,
+        const exp_t rhs_bias,
         APyFloatArray& res,
         const QuantizationMode quantization
     ) const;
