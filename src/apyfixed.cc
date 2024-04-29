@@ -559,9 +559,15 @@ std::string APyFixed::to_string_dec() const
     return result;
 }
 
-std::string APyFixed::to_string_hex() const { throw NotImplementedException(); }
+std::string APyFixed::to_string_hex() const
+{
+    throw NotImplementedException("APyFixed::to_string_hex()");
+}
 
-std::string APyFixed::to_string_oct() const { throw NotImplementedException(); }
+std::string APyFixed::to_string_oct() const
+{
+    throw NotImplementedException("APyFixed::to_string_oct()");
+}
 
 std::string APyFixed::to_string(int base) const
 {
@@ -576,7 +582,10 @@ std::string APyFixed::to_string(int base) const
         return to_string_dec();
         break;
     default:
-        throw NotImplementedException();
+        throw nb::value_error(
+            fmt::format("APyFixed::to_string(base={}): base is not supported", base)
+                .c_str()
+        );
         break;
     }
 }

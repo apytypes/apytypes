@@ -62,13 +62,7 @@ def test_binary_comparison():
     assert APyFixed.from_float(-1.0, 256, 128) >= APyFixed.from_float(-3.0, 256, 128)
 
 
-@pytest.mark.parametrize(
-    "type",
-    [
-        int,
-        float,
-    ],
-)
+@pytest.mark.parametrize("type", [int, float])
 def test_float_and_int_comparison(type):
     assert not APyFixed.from_float(0.0, 256, 128) == type(1.0)
     assert APyFixed.from_float(0.0, 256, 128) != type(1.0)
