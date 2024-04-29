@@ -47,7 +47,7 @@ APyFixed::APyFixed(const APyFixed& other)
 }
 
 APyFixed::APyFixed(
-    nb::int_ python_long_int_bit_pattern,
+    const nb::int_& python_long_int_bit_pattern,
     std::optional<int> int_bits,
     std::optional<int> frac_bits,
     std::optional<int> bits
@@ -339,6 +339,60 @@ bool APyFixed::operator>=(const APyFixed& rhs) const
 {
     auto diff = rhs - *this;
     return diff.is_negative() || diff.is_zero();
+}
+
+bool APyFixed::operator==(const nb::int_& rhs) const
+{
+    const std::vector<mp_limb_t> limb_vec = python_long_to_limb_vec(rhs);
+    APyFixed rhs_fixed(
+        _LIMB_SIZE_BITS * limb_vec.size(), _LIMB_SIZE_BITS * limb_vec.size(), limb_vec
+    );
+    return *this == rhs_fixed;
+}
+
+bool APyFixed::operator!=(const nb::int_& rhs) const
+{
+    const std::vector<mp_limb_t> limb_vec = python_long_to_limb_vec(rhs);
+    APyFixed rhs_fixed(
+        _LIMB_SIZE_BITS * limb_vec.size(), _LIMB_SIZE_BITS * limb_vec.size(), limb_vec
+    );
+    return *this != rhs_fixed;
+}
+
+bool APyFixed::operator<(const nb::int_& rhs) const
+{
+    const std::vector<mp_limb_t> limb_vec = python_long_to_limb_vec(rhs);
+    APyFixed rhs_fixed(
+        _LIMB_SIZE_BITS * limb_vec.size(), _LIMB_SIZE_BITS * limb_vec.size(), limb_vec
+    );
+    return *this < rhs_fixed;
+}
+
+bool APyFixed::operator<=(const nb::int_& rhs) const
+{
+    const std::vector<mp_limb_t> limb_vec = python_long_to_limb_vec(rhs);
+    APyFixed rhs_fixed(
+        _LIMB_SIZE_BITS * limb_vec.size(), _LIMB_SIZE_BITS * limb_vec.size(), limb_vec
+    );
+    return *this <= rhs_fixed;
+}
+
+bool APyFixed::operator>(const nb::int_& rhs) const
+{
+    const std::vector<mp_limb_t> limb_vec = python_long_to_limb_vec(rhs);
+    APyFixed rhs_fixed(
+        _LIMB_SIZE_BITS * limb_vec.size(), _LIMB_SIZE_BITS * limb_vec.size(), limb_vec
+    );
+    return *this > rhs_fixed;
+}
+
+bool APyFixed::operator>=(const nb::int_& rhs) const
+{
+    const std::vector<mp_limb_t> limb_vec = python_long_to_limb_vec(rhs);
+    APyFixed rhs_fixed(
+        _LIMB_SIZE_BITS * limb_vec.size(), _LIMB_SIZE_BITS * limb_vec.size(), limb_vec
+    );
+    return *this >= rhs_fixed;
 }
 
 bool APyFixed::operator==(const double rhs) const

@@ -91,10 +91,11 @@
  * Python arbitrary long integer object to GMP limb vector
  */
 [[maybe_unused]] static APY_INLINE std::vector<mp_limb_t> python_long_to_limb_vec(
-    nanobind::int_ py_long_int, std::optional<std::size_t> n_exact_limbs = std::nullopt
+    const nanobind::int_& py_long_int,
+    std::optional<std::size_t> n_exact_limbs = std::nullopt
 )
 {
-    PyLongObject* py_long = (PyLongObject*)py_long_int.ptr();
+    const PyLongObject* py_long = (const PyLongObject*)py_long_int.ptr();
     long py_long_digits = PyLong_DigitCount(py_long);
     bool py_long_is_negative = PyLong_IsNegative(py_long);
 

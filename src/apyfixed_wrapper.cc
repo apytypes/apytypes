@@ -36,6 +36,13 @@ void bind_fixed(nb::module_& m)
         .def(nb::self > nb::self)
         .def(nb::self >= nb::self)
 
+        .def(nb::self == nb::int_())
+        .def(nb::self != nb::int_())
+        .def(nb::self < nb::int_())
+        .def(nb::self <= nb::int_())
+        .def(nb::self > nb::int_())
+        .def(nb::self >= nb::int_())
+
         .def(nb::self == float())
         .def(nb::self != float())
         .def(nb::self < float())

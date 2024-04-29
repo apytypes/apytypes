@@ -65,9 +65,12 @@ public:
     //! No default constructed `APyFixed` objects
     APyFixed() = delete;
 
+    //! Construct a copy from `other`.
+    APyFixed(const APyFixed& other);
+
     //! Main Python-exposed `APyFixed` constructor
     explicit APyFixed(
-        nanobind::int_ python_long_int_bit_pattern,
+        const nanobind::int_& python_long_int_bit_pattern,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
@@ -78,9 +81,6 @@ public:
      * ****************************************************************************** */
 
 public:
-    //! Construct a copy from `other`.
-    APyFixed(const APyFixed& other);
-
     //! Construct a zero-initialized number with `bits` and `int_bits`. Undefined
     //! behaviour if `bits < 1`.
     explicit APyFixed(int bits, int int_bits);
@@ -139,12 +139,21 @@ public:
     bool operator<=(const APyFixed& rhs) const;
     bool operator>(const APyFixed& rhs) const;
     bool operator>=(const APyFixed& rhs) const;
+
+    bool operator==(const nanobind::int_& rhs) const;
+    bool operator!=(const nanobind::int_& rhs) const;
+    bool operator<(const nanobind::int_& rhs) const;
+    bool operator<=(const nanobind::int_& rhs) const;
+    bool operator>(const nanobind::int_& rhs) const;
+    bool operator>=(const nanobind::int_& rhs) const;
+
     bool operator==(const double rhs) const;
     bool operator!=(const double rhs) const;
     bool operator<=(const double rhs) const;
     bool operator<(const double rhs) const;
     bool operator>=(const double rhs) const;
     bool operator>(const double rhs) const;
+
     bool operator==(const float rhs) const;
     bool operator!=(const float rhs) const;
     bool operator<=(const float rhs) const;
