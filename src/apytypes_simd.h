@@ -6,6 +6,8 @@
 #ifndef _APYTYPES_SIMD_H
 #define _APYTYPES_SIMD_H
 
+#include "apytypes_util.h"
+
 #include <string>
 #include <vector>
 
@@ -34,6 +36,19 @@ void vector_shift_add(
     std::size_t size
 );
 
+/*
+ * For each element in the iterator regions [ `*_begin`, `*_begin + size` ):
+ * * Shift element in `src1_begin` left by `src1_shift_amount`
+ * * Add shifted element to `constant` and store the result in `dst_begin`
+ */
+void vector_shift_add_const(
+    std::vector<mp_limb_t>::const_iterator src1_begin,
+    mp_limb_t constant,
+    std::vector<mp_limb_t>::iterator dst_begin,
+    unsigned src1_shift_amount,
+    std::size_t size
+);
+
 /*!
  * For each element in the iterator regions [ `*_begin`, `*_begin + size` ):
  * * Shift element in `src1_begin` left by `src1_shift_amount`
@@ -46,6 +61,19 @@ void vector_shift_sub(
     std::vector<mp_limb_t>::iterator dst_begin,
     unsigned src1_shift_amount,
     unsigned src2_shift_amount,
+    std::size_t size
+);
+
+/*
+ * For each element in the iterator regions [ `*_begin`, `*_begin + size` ):
+ * * Shift element in `src1_begin` left by `src1_shift_amount`
+ * * Subtract `constant` from shifted element and store the result in `dst_begin`
+ */
+void vector_shift_sub_const(
+    std::vector<mp_limb_t>::const_iterator src1_begin,
+    mp_limb_t constant,
+    std::vector<mp_limb_t>::iterator dst_begin,
+    unsigned src1_shift_amount,
     std::size_t size
 );
 
@@ -163,6 +191,15 @@ mp_limb_t vector_multiply_accumulate(
     std::vector<mp_limb_t>::const_iterator src2_begin,
     std::size_t size
 );
+
+CREATE_FUNCTOR_FROM_FUNC(add_functor, vector_add);
+CREATE_FUNCTOR_FROM_FUNC(sub_functor, vector_sub);
+CREATE_FUNCTOR_FROM_FUNC(add_const_functor, vector_add_const);
+CREATE_FUNCTOR_FROM_FUNC(sub_const_functor, vector_sub_const);
+CREATE_FUNCTOR_FROM_FUNC(shift_add_functor, vector_shift_add);
+CREATE_FUNCTOR_FROM_FUNC(shift_sub_functor, vector_shift_sub);
+CREATE_FUNCTOR_FROM_FUNC(shift_add_const_functor, vector_shift_add_const);
+CREATE_FUNCTOR_FROM_FUNC(shift_sub_const_functor, vector_shift_sub_const);
 
 }; // namespace simd
 

@@ -43,6 +43,30 @@ namespace HWY_NAMESPACE { // required: unique per target
         }
     }
 
+    HWY_ATTR void _hwy_vector_shift_add_const(
+        mp_limb_t* HWY_RESTRICT dst,
+        const mp_limb_t* HWY_RESTRICT src1,
+        mp_limb_t constant,
+        unsigned src1_shift_amount,
+        const std::size_t size
+    )
+    {
+        constexpr const hn::ScalableTag<mp_limb_t> d;
+        const std::size_t size_simd = size - size % hn::Lanes(d);
+
+        std::size_t i = 0;
+        const auto c1 = hn::Set(d, constant);
+        for (; i < size_simd; i += hn::Lanes(d)) {
+            const auto v1
+                = hn::ShiftLeftSame(hn::LoadU(d, src1 + i), src1_shift_amount);
+            const auto res = hn::Add(v1, c1);
+            hn::StoreU(res, d, dst + i);
+        }
+        for (; i < size; i++) {
+            dst[i] = (src1[i] << src1_shift_amount) + constant;
+        }
+    }
+
     HWY_ATTR void _hwy_vector_shift_sub(
         mp_limb_t* HWY_RESTRICT dst,
         const mp_limb_t* HWY_RESTRICT src1,
@@ -66,6 +90,30 @@ namespace HWY_NAMESPACE { // required: unique per target
         }
         for (; i < size; i++) {
             dst[i] = (src1[i] << src1_shift_amount) - (src2[i] << src2_shift_amount);
+        }
+    }
+
+    HWY_ATTR void _hwy_vector_shift_sub_const(
+        mp_limb_t* HWY_RESTRICT dst,
+        const mp_limb_t* HWY_RESTRICT src1,
+        mp_limb_t constant,
+        unsigned src1_shift_amount,
+        const std::size_t size
+    )
+    {
+        constexpr const hn::ScalableTag<mp_limb_t> d;
+        const std::size_t size_simd = size - size % hn::Lanes(d);
+
+        std::size_t i = 0;
+        const auto c1 = hn::Set(d, constant);
+        for (; i < size_simd; i += hn::Lanes(d)) {
+            const auto v1
+                = hn::ShiftLeftSame(hn::LoadU(d, src1 + i), src1_shift_amount);
+            const auto res = hn::Sub(v1, c1);
+            hn::StoreU(res, d, dst + i);
+        }
+        for (; i < size; i++) {
+            dst[i] = (src1[i] << src1_shift_amount) - constant;
         }
     }
 
@@ -324,7 +372,9 @@ namespace simd {
 HWY_EXPORT(_hwy_simd_version_str);
 
 HWY_EXPORT(_hwy_vector_shift_add);
+HWY_EXPORT(_hwy_vector_shift_add_const);
 HWY_EXPORT(_hwy_vector_shift_sub);
+HWY_EXPORT(_hwy_vector_shift_sub_const);
 HWY_EXPORT(_hwy_vector_shift_div_signed);
 HWY_EXPORT(_hwy_vector_shift_div_const_signed);
 HWY_EXPORT(_hwy_vector_mul);
@@ -360,6 +410,19 @@ void vector_shift_add(
     );
 }
 
+void vector_shift_add_const(
+    std::vector<mp_limb_t>::const_iterator src1_begin,
+    mp_limb_t constant,
+    std::vector<mp_limb_t>::iterator dst_begin,
+    unsigned src1_shift_amount,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_shift_add_const)(
+        &*dst_begin, &*src1_begin, constant, src1_shift_amount, size
+    );
+}
+
 void vector_shift_sub(
     std::vector<mp_limb_t>::const_iterator src1_begin,
     std::vector<mp_limb_t>::const_iterator src2_begin,
@@ -376,6 +439,19 @@ void vector_shift_sub(
         src1_shift_amount,
         src2_shift_amount,
         size
+    );
+}
+
+void vector_shift_sub_const(
+    std::vector<mp_limb_t>::const_iterator src1_begin,
+    mp_limb_t constant,
+    std::vector<mp_limb_t>::iterator dst_begin,
+    unsigned src1_shift_amount,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_shift_sub_const)(
+        &*dst_begin, &*src1_begin, constant, src1_shift_amount, size
     );
 }
 

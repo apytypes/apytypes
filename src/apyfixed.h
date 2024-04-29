@@ -109,9 +109,9 @@ public:
      * ****************************************************************************** */
 
 private:
-    //! Base method for adding/subtracting two `APyFixed`
-    template <template <class...> class base_op, template <class...> class ripple_c_op>
-    inline APyFixed _APYFIXED_BASE_ADD_SUB(const APyFixed& rhs) const;
+    //! Base addition/subtraction routine for two `APyFixed`
+    template <class base_op, class ripple_carry_op>
+    inline APyFixed _apyfixed_base_add_sub(const APyFixed& rhs) const;
 
 public:
     APyFixed operator+(const APyFixed& rhs) const;

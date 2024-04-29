@@ -111,9 +111,8 @@ APyFixed::APyFixed(int bits, int int_bits, const std::vector<mp_limb_t>& vec)
  * *                            Arithmetic member functions                         * *
  * ********************************************************************************** */
 
-//! Base `APyFixed` addition/subtraction routine
-template <template <class...> class base_op, template <class...> class ripple_carry_op>
-inline APyFixed APyFixed::_APYFIXED_BASE_ADD_SUB(const APyFixed& rhs) const
+template <class base_op, class ripple_carry_op>
+inline APyFixed APyFixed::_apyfixed_base_add_sub(const APyFixed& rhs) const
 {
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
     const int res_frac_bits = std::max(rhs.frac_bits(), frac_bits());
@@ -148,12 +147,12 @@ inline APyFixed APyFixed::_APYFIXED_BASE_ADD_SUB(const APyFixed& rhs) const
 
 APyFixed APyFixed::operator+(const APyFixed& rhs) const
 {
-    return _APYFIXED_BASE_ADD_SUB<std::plus, mpn_add_n_functor>(rhs);
+    return _apyfixed_base_add_sub<std::plus<>, mpn_add_n_functor<>>(rhs);
 }
 
 APyFixed APyFixed::operator-(const APyFixed& rhs) const
 {
-    return _APYFIXED_BASE_ADD_SUB<std::minus, mpn_sub_n_functor>(rhs);
+    return _apyfixed_base_add_sub<std::minus<>, mpn_sub_n_functor<>>(rhs);
 }
 
 APyFixed APyFixed::operator*(const APyFixed& rhs) const

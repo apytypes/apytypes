@@ -79,6 +79,7 @@ def test_array_add():
 
 
 def test_array_add_scalar():
+    # Equally many fractional bits
     a = APyFixedArray([-5, -6, 7, 10, -11], bits=10, int_bits=5)
     b = APyFixed(3, bits=7, int_bits=2)
     assert (a + b).is_identical(
@@ -86,6 +87,16 @@ def test_array_add_scalar():
     )
     assert (b + a).is_identical(
         APyFixedArray([-2, -3, 10, 13, -8], bits=11, int_bits=6)
+    )
+
+    # Different number of fractional bits
+    a = APyFixedArray([-5, -6, 7, 10, -11], bits=11, int_bits=5)
+    b = APyFixed(3, bits=7, int_bits=2)
+    assert (a + b).is_identical(
+        APyFixedArray([1, 0, 13, 16, 4091], bits=12, int_bits=6)
+    )
+    assert (b + a).is_identical(
+        APyFixedArray([1, 0, 13, 16, 4091], bits=12, int_bits=6)
     )
 
     a = APyFixedArray([-5, -6, 7], bits=7, int_bits=4)
@@ -200,10 +211,21 @@ def test_array_sub():
 
 
 def test_array_sub_scalar():
+    # Same number of fractional bits
     a = APyFixedArray([-5, -6, 7, 10, -11], bits=10, int_bits=5)
     b = APyFixed(3, bits=7, int_bits=2)
     assert (a - b).is_identical(APyFixedArray([-8, -9, 4, 7, -14], bits=11, int_bits=6))
     assert (-(b - a)).is_identical((a - b).cast(7, 5))
+
+    # Different number of fractional bits
+    a = APyFixedArray([-5, -6, 7, 10, -11], bits=11, int_bits=5)
+    b = APyFixed(3, bits=7, int_bits=2)
+    assert (a - b).is_identical(
+        APyFixedArray([4085, 4084, 1, 4, 4079], bits=12, int_bits=6)
+    )
+    assert (b - a).is_identical(
+        APyFixedArray([11, 12, 4095, 4092, 17], bits=12, int_bits=6)
+    )
 
     a = APyFixedArray([-5, -6, 7], bits=7, int_bits=4)
     b = APyFixed(3, bits=7, int_bits=4)
@@ -491,8 +513,6 @@ def test_huge_narrowing_cast(mode):
 )
 def test_huge_extending_cast(mode):
     a = APyFixedArray.from_float([-0.75, 0.5], 5, 5)
-    print(a.cast(500, 500, mode))
-    print(APyFixedArray.from_float([-0.75, 0.5], 500, 500))
     assert a.cast(500, 500, mode).is_identical(
         APyFixedArray.from_float([-0.75, 0.5], 500, 500)
     )
