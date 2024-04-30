@@ -95,11 +95,16 @@
     std::optional<std::size_t> n_exact_limbs = std::nullopt
 )
 {
+    static_assert(
+        PYLONG_BITS_IN_DIGIT <= _LIMB_SIZE_BITS,
+        "`_LIMB_SIZE_BITS` has to be longer than a single Python digit"
+    );
+
     const PyLongObject* py_long = (const PyLongObject*)py_long_int.ptr();
     long py_long_digits = PyLong_DigitCount(py_long);
     bool py_long_is_negative = PyLong_IsNegative(py_long);
 
-    std::vector<mp_limb_t> result;
+    std::vector<mp_limb_t> result {};
     if (py_long_digits == 0) {
         // Python integer is zero
         result = { 0 };
