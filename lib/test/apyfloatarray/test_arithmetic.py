@@ -474,6 +474,16 @@ def test_array_mul():
     res = a * b
     assert res.is_identical(APyFloatArray([1], [0], [986], 5, 10))
 
+    # Subnormal becoming normal after quantization
+    x = APyFloatArray(
+        [0], [0], [4503599627370495], exp_bits=11, man_bits=52
+    )  # (2.22507e-308)
+    y = APyFloatArray(
+        [0], [1023], [1], exp_bits=11, man_bits=52
+    )  # Slightly larger than 1
+    res = x * y
+    assert res.is_identical(APyFloatArray([0], [1], [0], exp_bits=11, man_bits=52))
+
 
 @pytest.mark.float_array
 def test_array_mul_scalar():
@@ -624,6 +634,14 @@ def test_array_mul_scalar():
     res = a * b
     assert res.is_identical(APyFloatArray([1], [0], [986], 5, 10))
 
+    # Subnormal becoming normal after quantization
+    x = APyFloatArray(
+        [0], [0], [4503599627370495], exp_bits=11, man_bits=52
+    )  # (2.22507e-308)
+    y = APyFloat(0, 1023, 1, exp_bits=11, man_bits=52)  # Slightly larger than 1
+    res = x * y
+    assert res.is_identical(APyFloatArray([0], [1], [0], exp_bits=11, man_bits=52))
+
 
 @pytest.mark.float_array
 def test_array_mul_int_float():
@@ -667,12 +685,34 @@ def test_array_div():
     )
     assert (a / b).is_identical(ans)
 
+    res = APyFloatArray([0], [1], [1023], exp_bits=5, man_bits=10) / APyFloatArray(
+        [0], [16], [0], exp_bits=5, man_bits=10
+    )
+    assert res.is_identical(APyFloatArray([0], [1], [0], exp_bits=5, man_bits=10))
+
+    # -2 / -8.98847e+307
+    res = APyFloatArray(
+        [1], [1023], [4503599627370495], exp_bits=11, man_bits=52
+    ) / APyFloatArray([1], [2046], [0], exp_bits=11, man_bits=52)
+    assert res.is_identical(APyFloatArray([0], [1], [0], exp_bits=11, man_bits=52))
+
 
 @pytest.mark.float_array
 def test_array_div_scalar():
     a = APyFloatArray.from_float([4, 12, 40], 9, 10)
     b = APyFloat.from_float(8, 9, 8)
     assert (a / b).is_identical(APyFloatArray.from_float([0.5, 1.5, 5], 9, 10))
+
+    res = APyFloatArray([0], [1], [1023], exp_bits=5, man_bits=10) / APyFloat(
+        0, 16, 0, exp_bits=5, man_bits=10
+    )
+    assert res.is_identical(APyFloatArray([0], [1], [0], exp_bits=5, man_bits=10))
+
+    # -2 / -8.98847e+307
+    res = APyFloatArray(
+        [1], [1023], [4503599627370495], exp_bits=11, man_bits=52
+    ) / APyFloat(1, 2046, 0, exp_bits=11, man_bits=52)
+    assert res.is_identical(APyFloatArray([0], [1], [0], exp_bits=11, man_bits=52))
 
 
 @pytest.mark.float_array
