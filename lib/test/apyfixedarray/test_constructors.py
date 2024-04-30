@@ -82,6 +82,30 @@ def test_numpy_creation(dt):
     assert np.all(a.to_numpy() == anp.astype(np.double))
 
 
+@pytest.mark.parametrize(
+    "dt",
+    [
+        "int64",
+        "int32",
+        "int16",
+        "int8",
+        "uint64",
+        "uint32",
+        "uint16",
+        "uint8",
+        "float64",
+        "float32",
+    ],
+)
+def test_numpy_creation_from_array(dt):
+    np = pytest.importorskip("numpy")
+    anp = np.array([[1, 2, 3, 4]], dtype=dt)
+
+    a = APyFixedArray.from_array(anp, 5, 4)
+
+    assert np.all(a.to_numpy() == anp.astype(np.double))
+
+
 def test_incorrect_double_construction():
     with pytest.raises(ValueError, match="Cannot convert nan to fixed-point"):
         APyFixedArray.from_float([float("NaN"), 0.3], 4, 4)
@@ -136,9 +160,7 @@ def test_base_constructor_ndarray(dt):
 def test_from_numpy_raises():
     np = pytest.importorskip("numpy")
     a = np.asarray([[0.0, 1.0]], dtype="half")
-    with pytest.raises(
-        TypeError, match="APyFixedArray::_set_values_from_numpy_ndarray"
-    ):
+    with pytest.raises(TypeError, match="APyFixedArray::_set_values_from_ndarray"):
         b = APyFixedArray.from_float(a, 14, 4)
     a = np.asarray([[0.0, 1.0]])
     with pytest.raises(TypeError, match="APyFixedArray::_set_bits_from_numpy_ndarray"):

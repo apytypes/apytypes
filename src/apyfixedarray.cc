@@ -881,22 +881,9 @@ APyFixedArray APyFixedArray::from_double(
 )
 {
     if (nb::isinstance<nb::ndarray<nb::numpy>>(python_seq)) {
-        // Sequence is NumPy NDArray. Initialize using `_set_values_from_numpy_ndarray`
-        auto ndarray = nb::cast<nb::ndarray<nb::numpy>>(python_seq);
-        std::size_t ndim = ndarray.ndim();
-        if (ndim == 0) {
-            throw nb::type_error(
-                "APyFixedArray.from_float(): NDArray with ndim == 0 not supported"
-            );
-        }
-        std::vector<std::size_t> shape(ndim, 0);
-        for (std::size_t i = 0; i < ndim; i++) {
-            shape[i] = ndarray.shape(i);
-        }
-
-        APyFixedArray result(shape, int_bits, frac_bits, bits);
-        result._set_values_from_numpy_ndarray(ndarray);
-        return result;
+        // Sequence is NumPy NDArray. Initialize using `from_array`
+        auto ndarray = nb::cast<nb::ndarray<>>(python_seq);
+        return from_array(ndarray, int_bits, frac_bits, bits);
     }
 
     APyFixedArray result(
@@ -935,6 +922,29 @@ APyFixedArray APyFixedArray::from_double(
         }
     }
 
+    return result;
+}
+
+APyFixedArray APyFixedArray::from_array(
+    const nb::ndarray<>& ndarray,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits,
+    std::optional<int> bits
+)
+{
+    std::size_t ndim = ndarray.ndim();
+    if (ndim == 0) {
+        throw nb::type_error(
+            "APyFixedArray.from_float(): NDArray with ndim == 0 not supported"
+        );
+    }
+    std::vector<std::size_t> shape(ndim, 0);
+    for (std::size_t i = 0; i < ndim; i++) {
+        shape[i] = ndarray.shape(i);
+    }
+
+    APyFixedArray result(shape, int_bits, frac_bits, bits);
+    result._set_values_from_ndarray(ndarray);
     return result;
 }
 
@@ -1454,8 +1464,7 @@ void APyFixedArray::_set_bits_from_numpy_ndarray(const nb::ndarray<nb::numpy>& n
     );
 }
 
-void APyFixedArray::_set_values_from_numpy_ndarray(const nb::ndarray<nb::numpy>& ndarray
-)
+void APyFixedArray::_set_values_from_ndarray(const nb::ndarray<>& ndarray)
 {
 #define CHECK_AND_SET_VALUES_FROM_NPTYPE(__TYPE__)                                     \
     do {                                                                               \
@@ -1503,7 +1512,7 @@ void APyFixedArray::_set_values_from_numpy_ndarray(const nb::ndarray<nb::numpy>&
     // the `dtype`. Seems hard to achieve with nanobind, but please fix this if you
     // find out how this can be achieved.
     throw nb::type_error(
-        "APyFixedArray::_set_values_from_numpy_ndarray(): "
+        "APyFixedArray::_set_values_from_ndarray(): "
         "unsupported `dtype` expecting integer/float"
     );
 }
