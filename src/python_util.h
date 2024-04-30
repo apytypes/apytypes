@@ -97,7 +97,7 @@
 {
     static_assert(
         PYLONG_BITS_IN_DIGIT <= _LIMB_SIZE_BITS,
-        "`_LIMB_SIZE_BITS` has to be longer than a single Python digit"
+        "`_LIMB_SIZE_BITS` need to at least as long as a single CPython digit"
     );
 
     const PyLongObject* py_long = (const PyLongObject*)py_long_int.ptr();
