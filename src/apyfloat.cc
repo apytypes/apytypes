@@ -1050,6 +1050,12 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
 
         if (apy_res.positive_greater_than_equal_pow2(0)) { // Remove leading one
             apy_res = apy_res - fx_one;
+
+            // If a leading one is present while the exponent is zero,
+            // then it 'acts like a carry' and creates a normal number
+            if (new_exp == 0) {
+                new_exp = 1;
+            }
         }
         apy_res <<= res.man_bits;
         res.man = (man_t)(apy_res).to_double();
@@ -1131,6 +1137,12 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     // Remove leading one
     if (apy_man_res.positive_greater_than_equal_pow2(0)) {
         apy_man_res = apy_man_res - fx_one;
+
+        // If a leading one is present while the exponent is zero,
+        // then it 'acts like a carry' and creates a normal number
+        if (new_exp == 0) {
+            new_exp = 1;
+        }
     }
     apy_man_res <<= res.man_bits;
     res.man = (man_t)(apy_man_res).to_double();

@@ -608,6 +608,16 @@ def test_long_mul():
     res = x * y
     assert res.is_identical(APyFloat(sign=0, exp=2047, man=0, exp_bits=11, man_bits=60))
 
+    # Subnormal becoming normal after quantization
+    x = APyFloat(
+        sign=0, exp=0, man=4503599627370495, exp_bits=11, man_bits=52
+    )  # (2.22507e-308)
+    y = APyFloat(
+        sign=0, exp=1023, man=1, exp_bits=11, man_bits=52
+    )  # Slightly larger than 1
+    res = x * y
+    assert res.is_identical(APyFloat(sign=0, exp=1, man=0, exp_bits=11, man_bits=52))
+
 
 @pytest.mark.float_div
 @pytest.mark.parametrize("exp", list(perm(["5", "8"], 2)))
@@ -695,6 +705,21 @@ def test_subnormal_div():
     assert res.is_identical(x)
 
     # More test cases to be added
+
+
+@pytest.mark.float_div
+def test_subnormal_quant_div():
+    """Subnormal becoming normal after quantization."""
+    res = APyFloat(sign=0, exp=1, man=1023, exp_bits=5, man_bits=10) / APyFloat(
+        sign=0, exp=16, man=0, exp_bits=5, man_bits=10
+    )
+    assert res.is_identical(APyFloat(sign=0, exp=1, man=0, exp_bits=5, man_bits=10))
+
+    # -2 / -8.98847e+307
+    res = APyFloat(
+        sign=1, exp=1023, man=4503599627370495, exp_bits=11, man_bits=52
+    ) / APyFloat(sign=1, exp=2046, man=0, exp_bits=11, man_bits=52)
+    assert res.is_identical(APyFloat(sign=0, exp=1, man=0, exp_bits=11, man_bits=52))
 
 
 @pytest.mark.float_div
