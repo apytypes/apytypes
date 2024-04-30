@@ -201,6 +201,14 @@ public:
         std::optional<int> bits = std::nullopt
     );
 
+    //! Create an `APyFixedArray` tensor object from an ndarray
+    static APyFixedArray from_array(
+        const nanobind::ndarray<>& double_seq,
+        std::optional<int> int_bits = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt,
+        std::optional<int> bits = std::nullopt
+    );
+
 private:
     /* ****************************************************************************** *
      * *                          Private member functions                          * *
@@ -320,8 +328,7 @@ private:
      * elements in `ndarray` are explicitly converted to `double` before being copied
      * into `*this`.
      */
-    void
-    _set_values_from_numpy_ndarray(const nanobind::ndarray<nanobind::numpy>& ndarray);
+    void _set_values_from_ndarray(const nanobind::ndarray<>& ndarray);
 
     //! Check if object are of the same type, i.e., same number of bits.
     APY_INLINE bool same_type_as(const APyFixedArray& other) const

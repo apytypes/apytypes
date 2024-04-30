@@ -320,7 +320,7 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            float_sequence : sequence of float
+            float_sequence : sequence of float or ndarray
                 Floating point values to initialize from. The tensor shape will be taken
                 from the sequence shape.
             exp_bits : int
@@ -354,6 +354,14 @@ void bind_float_array(nb::module_& m)
                     man_bits=2
                 )
             )pbdoc"
+        )
+        .def_static(
+            "from_float",
+            &APyFloatArray::from_array,
+            nb::arg("float_sequence"),
+            nb::arg("exp_bits") = nb::none(),
+            nb::arg("man_bits") = nb::none(),
+            nb::arg("bias") = nb::none()
         )
 
         /*

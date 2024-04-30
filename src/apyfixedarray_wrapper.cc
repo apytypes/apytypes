@@ -359,7 +359,7 @@ void bind_fixed_array(nb::module_& m)
 
             Parameters
             ----------
-            float_sequence : sequence of float
+            float_sequence : sequence of float or ndarray
                 Floating point values to initialize from. The tensor shape will be taken
                 from the sequence shape.
             int_bits : int, optional
@@ -393,6 +393,14 @@ void bind_fixed_array(nb::module_& m)
                     frac_bits=0
                 )
             )pbdoc"
+        )
+        .def_static(
+            "from_float",
+            &APyFixedArray::from_array,
+            nb::arg("float_sequence"),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("frac_bits") = nb::none(),
+            nb::arg("bits") = nb::none()
         )
 
         /*

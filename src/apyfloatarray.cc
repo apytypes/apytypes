@@ -1056,22 +1056,6 @@ APyFloatArray APyFloatArray::from_double(
         );
     }
 
-    if (nb::isinstance<nb::ndarray<nb::numpy>>(double_seq)) {
-        // Sequence is NumPy NDArray. Initialize using
-        // `_set_values_from_numpy_ndarray`
-        auto ndarray = nb::cast<nb::ndarray<nb::numpy>>(double_seq);
-        std::size_t ndim = ndarray.ndim();
-        assert(ndim > 0);
-        std::vector<std::size_t> shape(ndim, 0);
-        for (std::size_t i = 0; i < ndim; i++) {
-            shape[i] = ndarray.shape(i);
-        }
-
-        APyFloatArray result(shape, exp_bits, man_bits, bias);
-        result._set_values_from_numpy_ndarray(ndarray);
-        return result;
-    }
-
     APyFloatArray result(
         python_sequence_extract_shape(double_seq), exp_bits, man_bits, bias
     );
@@ -1098,8 +1082,32 @@ APyFloatArray APyFloatArray::from_double(
     return result;
 }
 
-void APyFloatArray::_set_values_from_numpy_ndarray(const nb::ndarray<nb::numpy>& ndarray
+APyFloatArray APyFloatArray::from_array(
+    const nb::ndarray<>& ndarray,
+    std::uint8_t exp_bits,
+    std::uint8_t man_bits,
+    std::optional<exp_t> bias
 )
+{
+    if (bias.has_value() && bias.value() != APyFloat::ieee_bias(exp_bits)) {
+        throw NotImplementedException(
+            "Not implemented: APyFloatArray with non IEEE-like bias"
+        );
+    }
+
+    std::size_t ndim = ndarray.ndim();
+    assert(ndim > 0);
+    std::vector<std::size_t> shape(ndim, 0);
+    for (std::size_t i = 0; i < ndim; i++) {
+        shape[i] = ndarray.shape(i);
+    }
+
+    APyFloatArray result(shape, exp_bits, man_bits, bias);
+    result._set_values_from_ndarray(ndarray);
+    return result;
+}
+
+void APyFloatArray::_set_values_from_ndarray(const nb::ndarray<>& ndarray)
 {
     // Double value used for converting.
     APyFloat double_caster(11, 52, 1023);
@@ -1141,7 +1149,7 @@ void APyFloatArray::_set_values_from_numpy_ndarray(const nb::ndarray<nb::numpy>&
     // the `dtype`. Seems hard to achieve with nanobind, but please fix this if you
     // find out how this can be achieved.
     throw nb::type_error(
-        "APyFloatArray::_set_values_from_numpy_ndarray(): "
+        "APyFloatArray::_set_values_from_ndarray(): "
         "unsupported `dtype` expecting integer/float"
     );
 }
