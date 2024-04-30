@@ -11,6 +11,8 @@
    Creation from other types
    -------------------------
 
+   .. automethod:: from_array
+
    .. automethod:: from_float
 
    Change word length

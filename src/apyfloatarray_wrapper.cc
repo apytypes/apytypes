@@ -355,6 +355,33 @@ void bind_float_array(nb::module_& m)
                 )
             )pbdoc"
         )
+        .def_static(
+            "from_array",
+            &APyFloatArray::from_array,
+            nb::arg("ndarray"),
+            nb::arg("exp_bits") = nb::none(),
+            nb::arg("man_bits") = nb::none(),
+            nb::arg("bias") = nb::none(),
+            R"pbdoc(
+            Create an :class:`APyFloatArray` object from an ndarray.
+
+            Parameters
+            ----------
+            ndarray : ndarray
+                Values to initialize from. The tensor shape will be taken from the ndarray shape.
+            exp_bits : int
+                Number of exponent bits in the created fixed-point tensor
+            man_bits : int, optional
+                Number of mantissa bits in the created fixed-point tensor
+            bias : int, optional
+                Bias in the created fixed-point tensor
+
+            Returns
+            -------
+            :class:`APyFloatArray`
+
+            )pbdoc"
+        )
 
         /*
          * Dunder methods

@@ -394,6 +394,39 @@ void bind_fixed_array(nb::module_& m)
                 )
             )pbdoc"
         )
+        .def_static(
+            "from_array",
+            &APyFixedArray::from_array,
+            nb::arg("ndarray"),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("frac_bits") = nb::none(),
+            nb::arg("bits") = nb::none(),
+            R"pbdoc(
+            Create an :class:`APyFixedArray` object from an ndarray.
+
+            The initialized fixed-point values are the one closest to the
+            input floating-point value, rounded away from zero on ties. Exactly two of
+            the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) has to be set.
+
+            Using NumPy arrays as input is in general faster than e.g. lists.
+
+            Parameters
+            ----------
+            ndarray : ndarray
+                Values to initialize from. The tensor shape will be taken from the ndarray shape.
+            int_bits : int, optional
+                Number of integer bits in the created fixed-point tensor
+            frac_bits : int, optional
+                Number of fractional bits in the created fixed-point tensor
+            bits : int, optional
+                Total number of bits in the created fixed-point tensor
+
+            Returns
+            -------
+            :class:`APyFixedArray`
+
+            )pbdoc"
+        )
 
         /*
          * Dunder methods

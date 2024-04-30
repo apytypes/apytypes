@@ -102,6 +102,30 @@ def test_numpy_creation(dt):
     assert np.all(a.to_numpy() == anp.astype(np.float64))
 
 
+@pytest.mark.parametrize(
+    "dt",
+    [
+        "int64",
+        "int32",
+        "int16",
+        "int8",
+        "uint64",
+        "uint32",
+        "uint16",
+        "uint8",
+        "float64",
+        "float32",
+    ],
+)
+def test_numpy_array_creation(dt):
+    np = pytest.importorskip("numpy")
+    anp = np.array([[1, 2, 3, 4]], dtype=dt)
+
+    a = APyFloatArray.from_array(anp, 4, 2)
+
+    assert np.all(a.to_numpy() == anp.astype(np.float64))
+
+
 def test_special_value_numpy_from_double():
     np = pytest.importorskip("numpy")
     a = np.asarray([[1e-323, float("inf")], [float("nan"), 0.0]])
@@ -120,7 +144,5 @@ def test_special_value_numpy_from_double():
 def test_from_numpy_raises():
     np = pytest.importorskip("numpy")
     a = np.asarray([[1e-323, float("inf")], [float("nan"), 0.0]], dtype="half")
-    with pytest.raises(
-        TypeError, match="APyFloatArray::_set_values_from_numpy_ndarray"
-    ):
+    with pytest.raises(TypeError, match="APyFloatArray::_set_values_from_ndarray"):
         b = APyFloatArray.from_float(a, 14, 60)
