@@ -132,7 +132,7 @@ void APY_INLINE quantize_mantissa(
 //! Fast integer power by squaring.
 man_t ipow(man_t base, unsigned int n);
 
-APY_INLINE int leading_zeros_apyfixed(const APyFixed& fx)
+APY_INLINE unsigned int leading_zeros_apyfixed(const APyFixed& fx)
 {
     // Calculate the number of left shifts needed to make fx>=1.0
     const int zeros = fx.leading_zeros() - fx.int_bits();
