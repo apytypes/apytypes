@@ -158,6 +158,7 @@ public:
     APyFloat operator-() const;
     APyFloat operator*(const APyFloat& rhs) const;
     APyFloat operator/(const APyFloat& rhs) const;
+    APyFloat& operator+=(const APyFloat& rhs);
 
     /* ******************************************************************************
      * * Mathematical functions                                                     *
@@ -261,6 +262,10 @@ public:
     {
         return (1ULL << (exp_bits - 1)) - 1;
     }
+
+    void set_to_zero(std::optional<bool> new_sign = std::nullopt);
+    void set_to_inf(std::optional<bool> new_sign = std::nullopt);
+    void set_to_nan(std::optional<bool> new_sign = std::nullopt, man_t payload = 1);
 
     APyFloat construct_zero(std::optional<bool> new_sign = std::nullopt) const;
     APyFloat construct_inf(std::optional<bool> new_sign = std::nullopt) const;

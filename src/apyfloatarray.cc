@@ -1476,7 +1476,7 @@ APyFloat APyFloatArray::vector_sum(const QuantizationMode quantization) const
 
     for (std::size_t i = 0; i < data.size(); i++) {
         tmp.set_data(data[i]);
-        ret = ret + tmp;
+        ret += tmp;
     }
     return ret;
 }

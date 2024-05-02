@@ -2,6 +2,7 @@
 namespace nb = nanobind;
 
 #include <algorithm>
+#include <cassert>
 #include <climits>
 #include <cmath>
 #include <iostream>
@@ -726,65 +727,70 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
         // Handle the NaN cases, other special cases are further down
         if (((sign != rhs.sign) && (is_inf() && rhs.is_inf())) || is_nan()
             || rhs.is_nan()) {
-            return res.construct_nan();
+            res.set_to_nan();
+            return res;
+        }
+        if (sign != rhs.sign && exp == rhs.exp && man == rhs.man) {
+            res.set_to_zero(true);
+            return res;
         }
 
         x = *this;
         y = rhs;
         // Compute sign and swap operands if need to make sure |x| >= |y|
-        if (x.exp < y.exp || (x.exp == y.exp && x.man < y.man)) {
+        if (exp < rhs.exp || (exp == rhs.exp && man < rhs.man)) {
             std::swap(x, y);
-        } else if (x.sign != y.sign && x.exp == y.exp && x.man == y.man) {
-            return res.construct_zero(true);
         }
     } else {
         std::uint8_t res_exp_bits = std::max(exp_bits, rhs.exp_bits);
         std::uint8_t res_man_bits = std::max(man_bits, rhs.man_bits);
         exp_t res_bias = APyFloat::ieee_bias(res_exp_bits);
+        // Cast once to resulting word length to get faster comparisons later
+        x = cast_no_quant(res_exp_bits, res_man_bits, res_bias);
+        y = rhs.cast_no_quant(res_exp_bits, res_man_bits, res_bias);
         if (is_zero()) {
-            return rhs.cast_no_quant(res_exp_bits, res_man_bits, res_bias);
+            return y;
         }
         if (rhs.is_zero()) {
-            return cast_no_quant(res_exp_bits, res_man_bits, res_bias);
+            return x;
         }
         res = APyFloat(res_exp_bits, res_man_bits, res_bias);
         // Handle the NaN cases, other special cases are further down
         if (((sign != rhs.sign) && (is_inf() && rhs.is_inf())) || is_nan()
             || rhs.is_nan()) {
-            return res.construct_nan();
+            res.set_to_nan();
+            return res;
         }
 
-        x = *this;
-        y = rhs;
-        const APyFloat xabs = x.abs();
-        const APyFloat yabs = y.abs();
+        if (sign != rhs.sign && x.exp == y.exp && x.man == y.man) {
+            res.set_to_zero(true);
+            return res;
+        }
 
-        if (xabs < yabs) {
+        if (x.abs() < y.abs()) {
             std::swap(x, y);
-        } else {
-            if (x.sign != y.sign && xabs == yabs) {
-                return res.construct_zero(true);
-            }
         }
     }
     res.sign = x.sign;
 
     // Handle other special cases
-    if ((x.is_inf() || y.is_inf())) {
-        return res.construct_inf();
+    if ((is_inf() || rhs.is_inf())) {
+        res.set_to_inf();
+        return res;
     }
 
     const auto quantization = get_float_quantization_mode();
 
+    const auto x_true_exp = x.true_exp();
     // Tentative exponent
-    std::int64_t new_exp = x.true_exp() + res.bias;
+    std::int64_t new_exp = x_true_exp + res.bias;
 
     // Conditionally add leading one's
     man_t mx = x.true_man();
     man_t my = y.true_man();
 
     // Align mantissas based on exponent difference
-    const unsigned exp_delta = x.true_exp() - y.true_exp();
+    const unsigned exp_delta = x_true_exp - y.true_exp();
 
     // +5 to give room for leading one, carry, and 3 guard bits
     // A tighter bound would sometimes be sufficient, but checking that is probably
@@ -792,15 +798,9 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
     const unsigned int max_man_bits = res.man_bits + 5;
     if ((max_man_bits <= _MAN_T_SIZE_BITS)
         && (quantization != QuantizationMode::STOCH_WEIGHTED)) {
-        // Align mantissa based on format, also add room for guard bits
-        const int man_bits_delta = x.man_bits - y.man_bits;
-        if (man_bits_delta > 0) {
-            mx <<= 3;
-            my <<= 3 + man_bits_delta;
-        } else {
-            mx <<= 3 - man_bits_delta;
-            my <<= 3;
-        }
+        // Add room for guard bits
+        mx <<= 3;
+        my <<= 3;
 
         // Align mantissa based on difference in exponent
         man_t highY;
@@ -813,7 +813,7 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
         }
 
         // Perform addition / subtraction
-        man_t new_man = (x.sign == y.sign) ? mx + highY : mx - highY;
+        man_t new_man = (sign == rhs.sign) ? mx + highY : mx - highY;
 
         // Check for carry and cancellation
         int c = 0;
@@ -918,6 +918,123 @@ APyFloat APyFloat::operator-() const
     auto res = *this;
     res.sign = !sign;
     return res;
+}
+
+APyFloat& APyFloat::operator+=(const APyFloat& rhs)
+{
+    assert(same_type_as(rhs));
+    // Check that only the slow case is using this method
+    // If this fails, add a fast path
+    assert(man_bits + 5 > _MAN_T_SIZE_BITS);
+
+    // Handle the zero cases, other special cases are further down
+    if (is_zero()) {
+        sign = rhs.sign;
+        man = rhs.man;
+        exp = rhs.exp;
+        return *this;
+    }
+    if (rhs.is_zero()) {
+        return *this;
+    }
+    // Handle the NaN cases, other special cases are further down
+    if (((sign != rhs.sign) && (is_inf() && rhs.is_inf())) || is_nan()
+        || rhs.is_nan()) {
+        set_to_nan();
+        return *this;
+    }
+
+    // Compute if the signs are the same to be able to overwrite this.sign
+    bool same_sign = sign == rhs.sign;
+
+    if (!same_sign && exp == rhs.exp && man == rhs.man) {
+        set_to_zero(true);
+        return *this;
+    }
+
+    const APyFloat* x = &*this;
+    const APyFloat* y = &rhs;
+    // Compute sign and swap operands if need to make sure |x| >= |y|
+    if (exp < rhs.exp || (exp == rhs.exp && man < rhs.man)) {
+        sign = rhs.sign;
+        std::swap(x, y);
+    }
+
+    // Handle other special cases
+    if ((is_inf() || rhs.is_inf())) {
+        set_to_inf();
+        return *this;
+    }
+
+    const auto quantization = get_float_quantization_mode();
+
+    // Compute smaller exponent so that one can overwrite exp later
+    exp_t smaller_exp = y->exp + y->is_subnormal();
+
+    // Conditionally add leading one's
+    man_t mx = x->true_man();
+    man_t my = y->true_man();
+
+    // Tentative exponent, write directly
+    exp = x->exp + x->is_subnormal();
+
+    // Align mantissas based on exponent difference
+    const unsigned exp_delta = exp - smaller_exp;
+
+    // Slower path only as fast path is not currently used
+
+    // Two integer bits, sign bit and leading one
+    APyFixed apy_mx(2 + man_bits, 2, std::vector<mp_limb_t>({ mx }));
+    APyFixed apy_my(2 + man_bits, 2 - exp_delta, std::vector<mp_limb_t>({ my }));
+
+    // Perform addition/subtraction
+    auto apy_res = (same_sign) ? apy_mx + apy_my : apy_mx - apy_my;
+
+    if (apy_res.positive_greater_than_equal_pow2(1)) {
+        exp++;
+        apy_res >>= 1;
+    } else {
+        // Check for cancellation by counting the number of left shifts needed to
+        // make fx>=1.0
+        const unsigned int leading_zeros = leading_zeros_apyfixed(apy_res);
+        if (leading_zeros) {
+            if (exp > leading_zeros) {
+                exp -= leading_zeros;
+                apy_res <<= leading_zeros;
+            } else {
+                // The result will be a subnormal
+                // -1 is for compensating that 1.xx is not desired here
+                apy_res <<= int(exp - 1);
+                exp = 0;
+            }
+        }
+    }
+
+    // Quantize mantissa
+    APyFloat::quantize_apymantissa(apy_res, sign, man_bits, quantization);
+
+    // Carry from quantization. In practice, the exponent will never be incremented
+    // twice
+    if (apy_res.positive_greater_than_equal_pow2(1)) {
+        exp++;
+        apy_res >>= 1;
+    }
+
+    // Check for overflow
+    if (exp >= max_exponent()) {
+        set_to_inf();
+        return *this;
+    }
+
+    // Remove leading one
+    if (apy_res.positive_greater_than_equal_pow2(0)) {
+        apy_res = apy_res - fx_one;
+    }
+
+    apy_res <<= man_bits;
+    // TODO: Get bit-pattern directly
+    man = (man_t)(apy_res).to_double();
+    return *this;
 }
 
 APyFloat APyFloat::operator*(const APyFloat& y) const
@@ -1586,6 +1703,22 @@ bool APyFloat::operator>(const APyFixed& rhs) const
  * * Helper functions                                                           *
  * ******************************************************************************
  */
+
+void APyFloat::set_to_zero(std::optional<bool> new_sign)
+{
+    sign = new_sign.value_or(sign);
+    exp = 0;
+    man = 0;
+}
+
+void APyFloat::set_to_inf(std::optional<bool> new_sign) { set_to_nan(new_sign, 0); }
+
+void APyFloat::set_to_nan(std::optional<bool> new_sign, man_t payload /*= 1*/)
+{
+    sign = new_sign.value_or(sign);
+    exp = max_exponent();
+    man = payload;
+}
 
 APyFloat APyFloat::construct_zero(std::optional<bool> new_sign) const
 {
