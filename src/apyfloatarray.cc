@@ -273,7 +273,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
             for (std::size_t i = 0; i < data.size(); i++) {
                 x = data[i];
                 bool x_is_max_exponent = x.exp == res_max_exponent;
-                if ((y.man != 0) || (x_is_max_exponent && x.man != 0)
+                if (y.man != 0 || (x_is_max_exponent && x.man != 0)
                     || (x.sign != y.sign && x_is_max_exponent)) {
                     // Set to NaN
                     res.data[i] = { x.sign,
@@ -1223,8 +1223,7 @@ APyFloatArray APyFloatArray::_cast(
     QuantizationMode quantization
 ) const
 {
-    if ((new_exp_bits == exp_bits) && (new_man_bits == man_bits)
-        && (new_bias == bias)) {
+    if (new_exp_bits == exp_bits && new_man_bits == man_bits && new_bias == bias) {
         return *this;
     }
 
