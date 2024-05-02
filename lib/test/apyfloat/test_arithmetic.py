@@ -158,7 +158,17 @@ def test_add_zero(num):
 
 
 @pytest.mark.float_add
-@pytest.mark.parametrize("num", [APyFloat(0, 17, 123, 5, 7), APyFloat(0, 0, 123, 5, 7)])
+@pytest.mark.parametrize(
+    "num",
+    [
+        APyFloat(0, 17, 123, 5, 7),
+        APyFloat(0, 0, 123, 5, 7),
+        APyFloat(1, 17, 123, 5, 7),
+        APyFloat(1, 0, 123, 5, 7),
+        APyFloat(0, 7, 23, 4, 5),
+        APyFloat(1, 7, 23, 4, 5),
+    ],
+)
 def test_add_inf(num):
     assert (num + APyFloat(0, 0x1F, 0, 5, 7)).is_identical(APyFloat(0, 0x1F, 0, 5, 7))
     assert (APyFloat(0, 0x1F, 0, 5, 7) + num).is_identical(APyFloat(0, 0x1F, 0, 5, 7))
@@ -385,7 +395,17 @@ def test_sub_zero(num):
 
 
 @pytest.mark.float_sub
-@pytest.mark.parametrize("num", [APyFloat(0, 17, 123, 5, 7), APyFloat(0, 0, 123, 5, 7)])
+@pytest.mark.parametrize(
+    "num",
+    [
+        APyFloat(0, 17, 123, 5, 7),
+        APyFloat(0, 0, 123, 5, 7),
+        APyFloat(1, 17, 123, 5, 7),
+        APyFloat(1, 0, 123, 5, 7),
+        APyFloat(0, 7, 23, 4, 6),
+        APyFloat(0, 0, 23, 4, 6),
+    ],
+)
 def test_sub_inf(num):
     assert (num - APyFloat(0, 0x1F, 0, 5, 7)).is_identical(APyFloat(1, 0x1F, 0, 5, 7))
     assert (APyFloat(0, 0x1F, 0, 5, 7) - num).is_identical(APyFloat(0, 0x1F, 0, 5, 7))
