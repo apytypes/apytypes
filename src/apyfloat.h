@@ -325,11 +325,6 @@ private:
     }
 
     APyFloat normalized() const;
-    static void quantize_apymantissa(
-        APyFixed& apyman, bool sign, int bits, QuantizationMode quantization
-    );
-    static QuantizationMode
-    translate_quantization_mode(QuantizationMode quantization, bool sign);
 
     //! Test if two floating-point numbers are identical, i.e., has the same value, and
     //! the same format

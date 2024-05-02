@@ -531,43 +531,6 @@ APyFloat APyFloat::cast_no_quant(
     return res;
 }
 
-void APyFloat::quantize_apymantissa(
-    APyFixed& apyman, bool sign, int bits, QuantizationMode quantization
-)
-{
-    if (quantization == QuantizationMode::STOCH_WEIGHTED) {
-        std::vector<mp_limb_t> rnd_data
-            = { random_number_float(), random_number_float(), 0 };
-        APyFixed rnd_num(_LIMB_SIZE_BITS * 3, _LIMB_SIZE_BITS - bits, rnd_data);
-        apyman = apyman + rnd_num;
-    } else if (quantization == QuantizationMode::STOCH_EQUAL) {
-        const mp_limb_t rnd = -(random_number_float() % 2);
-        std::vector<mp_limb_t> rnd_data = { rnd, rnd, 0 };
-        APyFixed rnd_num(_LIMB_SIZE_BITS * 3, _LIMB_SIZE_BITS - bits, rnd_data);
-        apyman = apyman + rnd_num;
-    } else {
-        quantization = APyFloat::translate_quantization_mode(quantization, sign);
-        apyman = apyman.cast_no_overflow(3 + bits, 3, quantization);
-    }
-}
-
-QuantizationMode
-APyFloat::translate_quantization_mode(QuantizationMode quantization, bool sign)
-{
-    switch (quantization) {
-    case QuantizationMode::TRN_INF: // TO_POSITIVE
-        return sign ? QuantizationMode::TRN : QuantizationMode::TRN_INF;
-    case QuantizationMode::TRN: // TO_NEGATIVE
-        return sign ? QuantizationMode::TRN_INF : QuantizationMode::TRN;
-    case QuantizationMode::RND: // TIES_POS
-        return sign ? QuantizationMode::RND_ZERO : QuantizationMode::RND;
-    case QuantizationMode::RND_MIN_INF: // TIES_NEG
-        return sign ? QuantizationMode::RND : QuantizationMode::RND_ZERO;
-    default:
-        return quantization;
-    }
-}
-
 double APyFloat::to_double() const
 {
     const auto apytypes_d = _cast_to_double();
@@ -885,7 +848,7 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
     }
 
     // Quantize mantissa
-    APyFloat::quantize_apymantissa(apy_res, res.sign, res.man_bits, quantization);
+    quantize_apymantissa(apy_res, res.sign, res.man_bits, quantization);
 
     // Carry from quantization. In practice, the exponent will never be incremented
     // twice
@@ -1011,7 +974,7 @@ APyFloat& APyFloat::operator+=(const APyFloat& rhs)
     }
 
     // Quantize mantissa
-    APyFloat::quantize_apymantissa(apy_res, sign, man_bits, quantization);
+    quantize_apymantissa(apy_res, sign, man_bits, quantization);
 
     // Carry from quantization. In practice, the exponent will never be incremented
     // twice
@@ -1153,7 +1116,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         }
 
         // Quantize mantissa
-        APyFloat::quantize_apymantissa(apy_res, res.sign, res.man_bits, quantization);
+        quantize_apymantissa(apy_res, res.sign, res.man_bits, quantization);
 
         // Carry from quantization
         if (apy_res.positive_greater_than_equal_pow2(1)) {
@@ -1249,7 +1212,7 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     }
 
     // Quantize mantissa. This will never create carry.
-    APyFloat::quantize_apymantissa(apy_man_res, res.sign, res.man_bits, quantization);
+    quantize_apymantissa(apy_man_res, res.sign, res.man_bits, quantization);
 
     // Remove leading one
     if (apy_man_res.positive_greater_than_equal_pow2(0)) {
@@ -1378,7 +1341,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
     }
 
     // Quantize mantissa
-    APyFloat::quantize_apymantissa(apy_res, new_sign, x.man_bits, quantization);
+    quantize_apymantissa(apy_res, new_sign, x.man_bits, quantization);
 
     // Carry from quantization
     if (apy_res.positive_greater_than_equal_pow2(1)) {
