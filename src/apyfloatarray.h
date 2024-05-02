@@ -103,13 +103,13 @@ public:
 
     //! Create an `APyFloatArray` tensor object initialized with values from an ndarray
     static APyFloatArray from_array(
-        const nanobind::ndarray<>& ndarray,
+        const nanobind::ndarray<nanobind::c_contig>& ndarray,
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
 
-    void _set_values_from_ndarray(const nanobind::ndarray<>& ndarray);
+    void _set_values_from_ndarray(const nanobind::ndarray<nanobind::c_contig>& ndarray);
 
     //! Transposition function. For a 1-D array, returns an exact copy of `*this`. For
     //! a 2-D array, returns the matrix transposition of `*this`.

@@ -312,8 +312,8 @@ void bind_float_array(nb::module_& m)
             "from_float",
             &APyFloatArray::from_double,
             nb::arg("float_sequence"),
-            nb::arg("exp_bits") = nb::none(),
-            nb::arg("man_bits") = nb::none(),
+            nb::arg("exp_bits"),
+            nb::arg("man_bits"),
             nb::arg("bias") = nb::none(),
             R"pbdoc(
             Create an :class:`APyFloatArray` object from a sequence of :class:`float`.
@@ -325,7 +325,7 @@ void bind_float_array(nb::module_& m)
                 from the sequence shape.
             exp_bits : int
                 Number of exponent bits in the created fixed-point tensor
-            man_bits : int, optional
+            man_bits : int
                 Number of mantissa bits in the created fixed-point tensor
             bias : int, optional
                 Bias in the created fixed-point tensor
@@ -359,8 +359,8 @@ void bind_float_array(nb::module_& m)
             "from_array",
             &APyFloatArray::from_array,
             nb::arg("ndarray"),
-            nb::arg("exp_bits") = nb::none(),
-            nb::arg("man_bits") = nb::none(),
+            nb::arg("exp_bits"),
+            nb::arg("man_bits"),
             nb::arg("bias") = nb::none(),
             R"pbdoc(
             Create an :class:`APyFloatArray` object from an ndarray.
@@ -371,7 +371,7 @@ void bind_float_array(nb::module_& m)
                 Values to initialize from. The tensor shape will be taken from the ndarray shape.
             exp_bits : int
                 Number of exponent bits in the created fixed-point tensor
-            man_bits : int, optional
+            man_bits : int
                 Number of mantissa bits in the created fixed-point tensor
             bias : int, optional
                 Bias in the created fixed-point tensor
@@ -379,6 +379,24 @@ void bind_float_array(nb::module_& m)
             Returns
             -------
             :class:`APyFloatArray`
+
+            Examples
+            --------
+
+            .. code-block:: python
+
+                from apytypes import APyFloatArray
+                import numpy as np
+
+                # Array `a`, initialized from NumPy ndarray
+                a = APyFloatArray.from_array(
+                    np.array([
+                        [1.0, 2.0, 3.0],
+                        [4.0, 5.0, 6.0],
+                    ]),
+                    man_bits=10,
+                    exp_bits=10
+                )
 
             )pbdoc"
         )

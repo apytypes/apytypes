@@ -426,7 +426,7 @@ class APyFixedArray:
 
     @staticmethod
     def from_array(
-        float_sequence: typing.Sequence,
+        float_array,
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
@@ -709,7 +709,7 @@ class APyFloat:
             Floating-point value to initialize from.
         exp_bits : int
             Number of exponent bits.
-        man_bits : int, optional
+        man_bits : int
             Number of mantissa bits.
         bias : int, optional
             Bias.
@@ -971,8 +971,8 @@ class APyFloatArray:
     @staticmethod
     def from_float(
         float_sequence: typing.Sequence,
-        exp_bits: int = None,
-        man_bits: int = None,
+        exp_bits: int,
+        man_bits: int,
         bias: int | None = None,
         quantization: QuantizationMode | None = None,
     ) -> APyFloatArray:
@@ -986,7 +986,7 @@ class APyFloatArray:
             from the sequence shape.
         exp_bits : int
             Number of exponent bits in the created fixed-point tensor
-        man_bits : int, optional
+        man_bits : int
             Number of mantissa bits in the created fixed-point tensor
         bias : int, optional
             Bias in the created fixed-point tensor
@@ -1016,6 +1016,55 @@ class APyFloatArray:
                 ],
                 exp_bits=5,
                 man_bits=2
+            )
+        """
+
+    @staticmethod
+    def from_array(
+        float_sequence,
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
+        quantization: QuantizationMode | None = None,
+    ) -> APyFloatArray:
+        """
+        Create an :class:`APyFloatArray` object from a sequence of :class:`float`.
+
+        Parameters
+        ----------
+        float_sequence : sequence of float
+            Floating point values to initialize from. The tensor shape will be taken
+            from the sequence shape.
+        exp_bits : int
+            Number of exponent bits in the created fixed-point tensor
+        man_bits : int
+            Number of mantissa bits in the created fixed-point tensor
+        bias : int, optional
+            Bias in the created fixed-point tensor
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use. If not provided, the global mode,
+            see :func:`get_float_quantization_mode`, is used.
+
+        Returns
+        -------
+        :class:`APyFloatArray`
+
+        Examples
+        --------
+
+        .. code-block:: python
+
+            from apytypes import APyFloatArray
+            import numpy as np
+
+            # Array `a`, initialized from NumPy ndarray
+            a = APyFloatArray.from_array(
+                np.array([
+                    [1.0, 2.0, 3.0],
+                    [4.0, 5.0, 6.0],
+                ]),
+                man_bits=10,
+                exp_bits=10
             )
         """
 

@@ -1044,15 +1044,15 @@ bool APyFloatArray::is_identical(const APyFloatArray& other) const
 }
 
 APyFloatArray APyFloatArray::from_double(
-    const nanobind::sequence& double_seq,
+    const nb::sequence& double_seq,
     std::uint8_t exp_bits,
     std::uint8_t man_bits,
     std::optional<exp_t> bias
 )
 {
-    if (nb::isinstance<nb::ndarray<nb::numpy>>(double_seq)) {
-        // Sequence is NumPy NDArray. Initialize using `from_array`.
-        auto ndarray = nb::cast<nb::ndarray<>>(double_seq);
+    if (nb::isinstance<nb::ndarray<>>(double_seq)) {
+        // Sequence is NDArray. Initialize using `from_array`.
+        auto ndarray = nb::cast<nb::ndarray<nb::c_contig>>(double_seq);
         return from_array(ndarray, exp_bits, man_bits, bias);
     }
 
@@ -1089,7 +1089,7 @@ APyFloatArray APyFloatArray::from_double(
 }
 
 APyFloatArray APyFloatArray::from_array(
-    const nanobind::ndarray<>& ndarray,
+    const nb::ndarray<nb::c_contig>& ndarray,
     std::uint8_t exp_bits,
     std::uint8_t man_bits,
     std::optional<exp_t> bias
@@ -1113,7 +1113,7 @@ APyFloatArray APyFloatArray::from_array(
     return result;
 }
 
-void APyFloatArray::_set_values_from_ndarray(const nb::ndarray<>& ndarray)
+void APyFloatArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& ndarray)
 {
     // Double value used for converting.
     APyFloat double_caster(11, 52, 1023);

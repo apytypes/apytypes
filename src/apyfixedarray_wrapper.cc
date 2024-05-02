@@ -425,6 +425,23 @@ void bind_fixed_array(nb::module_& m)
             -------
             :class:`APyFixedArray`
 
+            Examples
+            --------
+
+            .. code-block:: python
+
+                from apytypes import APyFixedArray
+                import numpy as np
+
+                # Array `a`, initialized from NumPy ndarray
+                a = APyFixedArray.from_array(
+                    np.array([
+                        [1.0, 2.0, 3.0],
+                        [4.0, 5.0, 6.0],
+                    ]),
+                    int_bits=10,
+                    frac_bits=0
+                )
             )pbdoc"
         )
 

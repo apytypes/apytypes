@@ -146,3 +146,24 @@ def test_from_numpy_raises():
     a = np.asarray([[1e-323, float("inf")], [float("nan"), 0.0]], dtype="half")
     with pytest.raises(TypeError, match="APyFloatArray::_set_values_from_ndarray"):
         b = APyFloatArray.from_float(a, 14, 60)
+
+
+def test_c_striding():
+    np = pytest.importorskip("numpy")
+    a = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
+
+    # `from_float()`
+    assert APyFloatArray.from_float(a, man_bits=10, exp_bits=10).is_identical(
+        APyFloatArray.from_float([[1, 2, 3], [4, 5, 6]], man_bits=10, exp_bits=10)
+    )
+    assert APyFloatArray.from_float(a.T, man_bits=10, exp_bits=10).is_identical(
+        APyFloatArray.from_float([[1, 4], [2, 5], [3, 6]], man_bits=10, exp_bits=10)
+    )
+
+    # `from_array()`
+    assert APyFloatArray.from_array(a, man_bits=10, exp_bits=10).is_identical(
+        APyFloatArray.from_float([[1, 2, 3], [4, 5, 6]], man_bits=10, exp_bits=10)
+    )
+    assert APyFloatArray.from_array(a.T, man_bits=10, exp_bits=10).is_identical(
+        APyFloatArray.from_float([[1, 4], [2, 5], [3, 6]], man_bits=10, exp_bits=10)
+    )
