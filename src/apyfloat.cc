@@ -191,8 +191,7 @@ APyFloat APyFloat::_cast(
     QuantizationMode quantization
 ) const
 {
-    if ((new_exp_bits == exp_bits) && (new_man_bits == man_bits)
-        && (new_bias == bias)) {
+    if (new_exp_bits == exp_bits && new_man_bits == man_bits && new_bias == bias) {
         return *this;
     }
     APyFloat res(new_exp_bits, new_man_bits, new_bias);
@@ -391,7 +390,7 @@ APyFloat APyFloat::cast_from_double(
     std::uint8_t new_exp_bits, std::uint8_t new_man_bits, exp_t new_bias
 ) const
 {
-    if ((new_exp_bits == 11) && (new_man_bits == 52) && (new_bias == 1023)) {
+    if (new_exp_bits == 11 && new_man_bits == 52 && new_bias == 1023) {
         return *this;
     }
     APyFloat res(new_exp_bits, new_man_bits, new_bias);
@@ -688,7 +687,7 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
         }
         res = APyFloat(exp_bits, man_bits, bias);
         // Handle the NaN cases, other special cases are further down
-        if (((sign != rhs.sign) && (is_inf() && rhs.is_inf())) || is_nan()
+        if ((sign != rhs.sign && is_inf() && rhs.is_inf()) || is_nan()
             || rhs.is_nan()) {
             res.set_to_nan();
             return res;
@@ -719,7 +718,7 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
         }
         res = APyFloat(res_exp_bits, res_man_bits, res_bias);
         // Handle the NaN cases, other special cases are further down
-        if (((sign != rhs.sign) && (is_inf() && rhs.is_inf())) || is_nan()
+        if ((sign != rhs.sign && is_inf() && rhs.is_inf()) || is_nan()
             || rhs.is_nan()) {
             res.set_to_nan();
             return res;
@@ -737,7 +736,7 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
     res.sign = x.sign;
 
     // Handle other special cases
-    if ((is_inf() || rhs.is_inf())) {
+    if (is_inf() || rhs.is_inf()) {
         res.set_to_inf();
         return res;
     }
@@ -759,8 +758,8 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
     // A tighter bound would sometimes be sufficient, but checking that is probably
     // not worth it
     const unsigned int max_man_bits = res.man_bits + 5;
-    if ((max_man_bits <= _MAN_T_SIZE_BITS)
-        && (quantization != QuantizationMode::STOCH_WEIGHTED)) {
+    if (max_man_bits <= _MAN_T_SIZE_BITS
+        && quantization != QuantizationMode::STOCH_WEIGHTED) {
         // Add room for guard bits
         mx <<= 3;
         my <<= 3;
@@ -901,8 +900,7 @@ APyFloat& APyFloat::operator+=(const APyFloat& rhs)
         return *this;
     }
     // Handle the NaN cases, other special cases are further down
-    if (((sign != rhs.sign) && (is_inf() && rhs.is_inf())) || is_nan()
-        || rhs.is_nan()) {
+    if ((sign != rhs.sign && is_inf() && rhs.is_inf()) || is_nan() || rhs.is_nan()) {
         set_to_nan();
         return *this;
     }
@@ -924,7 +922,7 @@ APyFloat& APyFloat::operator+=(const APyFloat& rhs)
     }
 
     // Handle other special cases
-    if ((is_inf() || rhs.is_inf())) {
+    if (is_inf() || rhs.is_inf()) {
         set_to_inf();
         return *this;
     }
@@ -1011,12 +1009,12 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
 
     // Handle special operands
     if (is_max_exponent() || y.is_max_exponent() || is_zero() || y.is_zero()) {
-        if ((is_nan() || y.is_nan()) || (is_inf() && y.is_zero())
+        if (is_nan() || y.is_nan() || (is_inf() && y.is_zero())
             || (is_zero() && y.is_inf())) {
             return res.construct_nan();
         }
 
-        if ((is_inf() || y.is_inf())) {
+        if (is_inf() || y.is_inf()) {
             return res.construct_inf();
         }
 
@@ -1152,7 +1150,7 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     res.sign = sign ^ y.sign;
 
     // Handle special operands
-    if ((is_nan() || y.is_nan()) || (is_zero() && y.is_zero())
+    if (is_nan() || y.is_nan() || (is_zero() && y.is_zero())
         || (is_inf() && y.is_inf())) {
         return res.construct_nan();
     }
