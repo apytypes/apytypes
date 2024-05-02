@@ -48,10 +48,10 @@ APyFixedArray::APyFixedArray(
           python_sequence_extract_shape(bit_pattern_sequence), int_bits, frac_bits, bits
       )
 {
-    // Specialized initialization for NumPy ndarrays
-    if (nb::isinstance<nb::ndarray<nb::numpy>>(bit_pattern_sequence)) {
-        auto ndarray = nb::cast<nb::ndarray<nb::numpy>>(bit_pattern_sequence);
-        _set_bits_from_numpy_ndarray(ndarray);
+    // Specialized initialization for NDArray
+    if (nb::isinstance<nb::ndarray<>>(bit_pattern_sequence)) {
+        auto ndarray = nb::cast<nb::ndarray<nb::c_contig>>(bit_pattern_sequence);
+        _set_bits_from_ndarray(ndarray);
         return; // initialization completed
     }
 
@@ -880,9 +880,9 @@ APyFixedArray APyFixedArray::from_double(
     std::optional<int> bits
 )
 {
-    if (nb::isinstance<nb::ndarray<nb::numpy>>(python_seq)) {
-        // Sequence is NumPy NDArray. Initialize using `from_array`
-        auto ndarray = nb::cast<nb::ndarray<>>(python_seq);
+    if (nb::isinstance<nb::ndarray<>>(python_seq)) {
+        // Sequence is NDArray. Initialize using `from_array`
+        auto ndarray = nb::cast<nb::ndarray<nb::c_contig>>(python_seq);
         return from_array(ndarray, int_bits, frac_bits, bits);
     }
 
@@ -926,7 +926,7 @@ APyFixedArray APyFixedArray::from_double(
 }
 
 APyFixedArray APyFixedArray::from_array(
-    const nb::ndarray<>& ndarray,
+    const nb::ndarray<nb::c_contig>& ndarray,
     std::optional<int> int_bits,
     std::optional<int> frac_bits,
     std::optional<int> bits
@@ -1415,7 +1415,7 @@ void APyFixedArray::_cast(
     }
 }
 
-void APyFixedArray::_set_bits_from_numpy_ndarray(const nb::ndarray<nb::numpy>& ndarray)
+void APyFixedArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& ndarray)
 {
 #define CHECK_AND_SET_BITS_FROM_NPTYPE(__TYPE__)                                       \
     do {                                                                               \
@@ -1437,7 +1437,7 @@ void APyFixedArray::_set_bits_from_numpy_ndarray(const nb::ndarray<nb::numpy>& n
                     );                                                                 \
                 }                                                                      \
             }                                                                          \
-            return; /* Conversion completed, exit function */                          \
+            return; /* Conversion completed, exit `_set_bits_from_ndarray()` */        \
         }                                                                              \
     } while (0)
 
@@ -1459,12 +1459,12 @@ void APyFixedArray::_set_bits_from_numpy_ndarray(const nb::ndarray<nb::numpy>& n
     // of the `dtype`. Seems hard to achieve with nanobind, but please fix this if
     // you find out how this can be achieved.
     throw nb::type_error(
-        "APyFixedArray::_set_bits_from_numpy_ndarray(): "
+        "APyFixedArray::_set_bits_from_ndarray(): "
         "expecting integer `dtype`"
     );
 }
 
-void APyFixedArray::_set_values_from_ndarray(const nb::ndarray<>& ndarray)
+void APyFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& ndarray)
 {
 #define CHECK_AND_SET_VALUES_FROM_NPTYPE(__TYPE__)                                     \
     do {                                                                               \
@@ -1488,7 +1488,7 @@ void APyFixedArray::_set_values_from_ndarray(const nb::ndarray<>& ndarray)
                     );                                                                 \
                 }                                                                      \
             }                                                                          \
-            return; /* Conversion completed, exit function */                          \
+            return; /* Conversion completed, exit `_set_values_from_ndarray()` */      \
         }                                                                              \
     } while (0)
 

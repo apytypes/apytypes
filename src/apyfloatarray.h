@@ -1,4 +1,3 @@
-
 #ifndef _APYFLOAT_ARRAY_H
 #define _APYFLOAT_ARRAY_H
 

@@ -163,5 +163,34 @@ def test_from_numpy_raises():
     with pytest.raises(TypeError, match="APyFixedArray::_set_values_from_ndarray"):
         b = APyFixedArray.from_float(a, 14, 4)
     a = np.asarray([[0.0, 1.0]])
-    with pytest.raises(TypeError, match="APyFixedArray::_set_bits_from_numpy_ndarray"):
+    with pytest.raises(TypeError, match="APyFixedArray::_set_bits_from_ndarray"):
         b = APyFixedArray(a, 14, 4)
+
+
+def test_c_striding():
+    np = pytest.importorskip("numpy")
+    a = np.array([[1, 2, 3], [4, 5, 6]])
+
+    # `from_float()`
+    assert APyFixedArray.from_float(a, int_bits=10, frac_bits=0).is_identical(
+        APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+    )
+    assert APyFixedArray.from_float(a.T, int_bits=10, frac_bits=0).is_identical(
+        APyFixedArray([[1, 4], [2, 5], [3, 6]], int_bits=10, frac_bits=0)
+    )
+
+    # `from_array()`
+    assert APyFixedArray.from_array(a, int_bits=10, frac_bits=0).is_identical(
+        APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+    )
+    assert APyFixedArray.from_array(a.T, int_bits=10, frac_bits=0).is_identical(
+        APyFixedArray([[1, 4], [2, 5], [3, 6]], int_bits=10, frac_bits=0)
+    )
+
+    # `__init__()`
+    assert APyFixedArray(a, int_bits=10, frac_bits=0).is_identical(
+        APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+    )
+    assert APyFixedArray(a.T, int_bits=10, frac_bits=0).is_identical(
+        APyFixedArray([[1, 4], [2, 5], [3, 6]], int_bits=10, frac_bits=0)
+    )

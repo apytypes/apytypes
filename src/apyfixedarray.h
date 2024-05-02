@@ -203,7 +203,7 @@ public:
 
     //! Create an `APyFixedArray` tensor object initialized with values from an ndarray
     static APyFixedArray from_array(
-        const nanobind::ndarray<>& double_seq,
+        const nanobind::ndarray<nanobind::c_contig>& double_seq,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
@@ -315,20 +315,18 @@ private:
     ) const;
 
     /*!
-     * Set the underlying bit values of `*this` from a NumPy NDArray object of
-     * integers. This member function assumes that the shape of `*this` and `ndarray`
-     * are equal.
+     * Set the underlying bit values of `*this` from a NDArray object of integers. This
+     * member function assumes that the shape of `*this` and `ndarray` are equal.
      */
-    void _set_bits_from_numpy_ndarray(const nanobind::ndarray<nanobind::numpy>& ndarray
-    );
+    void _set_bits_from_ndarray(const nanobind::ndarray<nanobind::c_contig>& ndarray);
 
     /*!
-     * Set the values of `*this` from a NumPy NDArray object of floats/integers. This
-     * member function assumes that the shape of `*this` and `ndarray` are equal. The
-     * elements in `ndarray` are explicitly converted to `double` before being copied
-     * into `*this`.
+     * Set the values of `*this` from a NDArray object of floats/integers. This member
+     * function assumes that the shape of `*this` and `ndarray` are equal. The elements
+     * in `ndarray` are explicitly converted to `double` before being copied into
+     * `*this`.
      */
-    void _set_values_from_ndarray(const nanobind::ndarray<>& ndarray);
+    void _set_values_from_ndarray(const nanobind::ndarray<nanobind::c_contig>& ndarray);
 
     //! Check if object are of the same type, i.e., same number of bits.
     APY_INLINE bool same_type_as(const APyFixedArray& other) const
