@@ -139,4 +139,9 @@ APY_INLINE unsigned int leading_zeros_apyfixed(const APyFixed& fx)
     return std::max(0, zeros + 1);
 }
 
+void quantize_apymantissa(
+    APyFixed& apyman, bool sign, int bits, QuantizationMode quantization
+);
+QuantizationMode translate_quantization_mode(QuantizationMode quantization, bool sign);
+
 #endif // _APYFLOAT_UTIL_H
