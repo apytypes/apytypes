@@ -182,6 +182,15 @@ def test_inner_product_with_zero_intermediate():
 
 
 @pytest.mark.float_array
+def test_inner_product_with_zero_intermediate_long():
+    a = APyFloatArray([0, 0, 0], [511, 511, 400], [0, 3, 2], exp_bits=10, man_bits=60)
+    b = APyFloatArray([0, 1, 0], [511, 511, 500], [3, 0, 2], exp_bits=10, man_bits=60)
+    assert (a @ b).is_identical(b @ a)
+    assert (b @ a).is_identical(APyFloat(0, 389, 4, 10, 60))
+    assert (a @ b).is_identical(sum(a * b))
+
+
+@pytest.mark.float_array
 def test_inner_product_with_nan():
     a = APyFloatArray([0, 0, 0], [15, 7, 8], [0, 3, 2], exp_bits=4, man_bits=4)
     b = APyFloatArray([0, 1, 0], [0, 7, 6], [0, 0, 2], exp_bits=4, man_bits=4)
@@ -191,11 +200,29 @@ def test_inner_product_with_nan():
 
 
 @pytest.mark.float_array
+def test_inner_product_with_nan_long():
+    a = APyFloatArray([0, 0, 0], [1023, 511, 80], [0, 3, 2], exp_bits=10, man_bits=60)
+    b = APyFloatArray([0, 1, 0], [0, 511, 60], [0, 0, 2], exp_bits=10, man_bits=60)
+    assert (a @ b).is_identical(b @ a)
+    assert (b @ a).is_identical(APyFloat(0, 1023, 1, 10, 60))
+    assert (a @ b).is_identical(sum(a * b))
+
+
+@pytest.mark.float_array
 def test_inner_product_with_inf_intermediate():
     a = APyFloatArray([0, 0, 0], [7, 14, 8], [0, 3, 2], exp_bits=4, man_bits=4)
     b = APyFloatArray([1, 0, 0], [7, 14, 6], [0, 0, 2], exp_bits=4, man_bits=4)
     assert (a @ b).is_identical(b @ a)
     assert (b @ a).is_identical(APyFloat(0, 15, 0, 4, 4))
+    assert (a @ b).is_identical(sum(a * b))
+
+
+@pytest.mark.float_array
+def test_inner_product_with_inf_intermediate_long():
+    a = APyFloatArray([0, 0, 0], [511, 1000, 520], [0, 3, 2], exp_bits=10, man_bits=60)
+    b = APyFloatArray([1, 0, 0], [511, 1000, 500], [0, 0, 2], exp_bits=10, man_bits=60)
+    assert (a @ b).is_identical(b @ a)
+    assert (b @ a).is_identical(APyFloat(0, 1023, 0, 10, 60))
     assert (a @ b).is_identical(sum(a * b))
 
 
@@ -218,8 +245,30 @@ def test_inner_product_with_inf_from_summation():
 
 
 @pytest.mark.float_array
+def test_inner_product_with_inf_from_summation_long():
+    a = APyFloatArray(
+        [0, 0, 0], [1020, 512, 1032], [0, 10000000, 200000000], exp_bits=10, man_bits=60
+    )
+    b = APyFloatArray(
+        [0, 0, 0], [513, 1020, 500], [0, 10000000, 2000000000], exp_bits=10, man_bits=60
+    )
+    assert (a @ b).is_identical(b @ a)
+    assert (b @ a).is_identical(APyFloat(0, 1023, 0, 10, 60))
+    assert (a @ b).is_identical(sum(a * b))
+
+
+@pytest.mark.float_array
 def test_inner_product_long():
     a = APyFloatArray.from_float([1, 2, 3, 4, 5, 6, 7, 8], exp_bits=5, man_bits=62)
     b = APyFloatArray.from_float([9, 8, 7, 6, 5, 4, 3, 2], exp_bits=6, man_bits=62)
     assert (a @ b).is_identical(b @ a)
     assert (b @ a).is_identical(APyFloat.from_float(156, exp_bits=6, man_bits=62))
+
+
+@pytest.mark.float_array
+def test_inner_product_with_cancellation_long():
+    a = APyFloatArray([0, 0, 0], [511, 511, 500], [0, 3, 2], exp_bits=10, man_bits=60)
+    b = APyFloatArray([0, 1, 0], [511, 511, 500], [3, 1, 2], exp_bits=10, man_bits=60)
+    assert (a @ b).is_identical(b @ a)
+    assert (b @ a).is_identical(APyFloat(0, 488, 1152921504598458368, 10, 60))
+    assert (a @ b).is_identical(sum(a * b))

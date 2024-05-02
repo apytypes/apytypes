@@ -686,22 +686,25 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
             return *this;
         }
         res = APyFloat(exp_bits, man_bits, bias);
-        // Handle the NaN cases, other special cases are further down
-        if ((sign != rhs.sign && is_inf() && rhs.is_inf()) || is_nan()
-            || rhs.is_nan()) {
-            res.set_to_nan();
+        // Handle the NaN and inf cases
+        if (is_max_exponent() || rhs.is_max_exponent()) {
+            if (is_nan() || rhs.is_nan()
+                || (sign != rhs.sign && is_inf() && rhs.is_inf())) {
+                res.set_to_nan();
+                return res;
+            }
+            res.sign = is_max_exponent() ? sign : rhs.sign;
+            res.set_to_inf();
             return res;
         }
-        if (sign != rhs.sign && exp == rhs.exp && man == rhs.man) {
-            res.set_to_zero(true);
-            return res;
-        }
-
         x = *this;
         y = rhs;
         // Compute sign and swap operands if need to make sure |x| >= |y|
         if (exp < rhs.exp || (exp == rhs.exp && man < rhs.man)) {
             std::swap(x, y);
+        } else if (sign != rhs.sign && exp == rhs.exp && man == rhs.man) {
+            res.set_to_zero(true);
+            return res;
         }
     } else {
         std::uint8_t res_exp_bits = std::max(exp_bits, rhs.exp_bits);
@@ -717,29 +720,25 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
             return x;
         }
         res = APyFloat(res_exp_bits, res_man_bits, res_bias);
-        // Handle the NaN cases, other special cases are further down
-        if ((sign != rhs.sign && is_inf() && rhs.is_inf()) || is_nan()
-            || rhs.is_nan()) {
-            res.set_to_nan();
+        // Handle the NaN and inf cases
+        if (is_max_exponent() || rhs.is_max_exponent()) {
+            if (is_nan() || rhs.is_nan()
+                || (sign != rhs.sign && is_inf() && rhs.is_inf())) {
+                res.set_to_nan();
+                return res;
+            }
+            res.sign = is_max_exponent() ? sign : rhs.sign;
+            res.set_to_inf();
             return res;
         }
-
-        if (sign != rhs.sign && x.exp == y.exp && x.man == y.man) {
+        if (x.abs() < y.abs()) {
+            std::swap(x, y);
+        } else if (sign != rhs.sign && x.exp == y.exp && x.man == y.man) {
             res.set_to_zero(true);
             return res;
         }
-
-        if (x.abs() < y.abs()) {
-            std::swap(x, y);
-        }
     }
     res.sign = x.sign;
-
-    // Handle other special cases
-    if (is_inf() || rhs.is_inf()) {
-        res.set_to_inf();
-        return res;
-    }
 
     const auto quantization = get_float_quantization_mode();
 
@@ -755,8 +754,8 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
     const unsigned exp_delta = x_true_exp - y.true_exp();
 
     // +5 to give room for leading one, carry, and 3 guard bits
-    // A tighter bound would sometimes be sufficient, but checking that is probably
-    // not worth it
+    // A tighter bound would sometimes be sufficient, but checking that is
+    // probably not worth it
     const unsigned int max_man_bits = res.man_bits + 5;
     if (max_man_bits <= _MAN_T_SIZE_BITS
         && quantization != QuantizationMode::STOCH_WEIGHTED) {
@@ -788,7 +787,8 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
             // Do nothing
         } else {
             // Cancellation or addition with subnormals
-            // Mantissa should be shifted until 1.xx is obtained or new_exp equals 0
+            // Mantissa should be shifted until 1.xx is obtained or new_exp
+            // equals 0
             const unsigned int man_leading_zeros = leading_zeros(new_man);
             const unsigned int normalizing_shift = man_leading_zeros
                 - (_MAN_T_SIZE_BITS - res.man_bits - 4
@@ -830,8 +830,8 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
         new_exp++;
         apy_res >>= 1;
     } else {
-        // Check for cancellation by counting the number of left shifts needed to
-        // make fx>=1.0
+        // Check for cancellation by counting the number of left shifts needed
+        // to make fx>=1.0
         const int leading_zeros = leading_zeros_apyfixed(apy_res);
         if (leading_zeros) {
             if (new_exp > leading_zeros) {
@@ -849,8 +849,8 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
     // Quantize mantissa
     quantize_apymantissa(apy_res, res.sign, res.man_bits, quantization);
 
-    // Carry from quantization. In practice, the exponent will never be incremented
-    // twice
+    // Carry from quantization. In practice, the exponent will never be
+    // incremented twice
     if (apy_res.positive_greater_than_equal_pow2(1)) {
         new_exp++;
         apy_res >>= 1;
@@ -899,31 +899,31 @@ APyFloat& APyFloat::operator+=(const APyFloat& rhs)
     if (rhs.is_zero()) {
         return *this;
     }
-    // Handle the NaN cases, other special cases are further down
-    if ((sign != rhs.sign && is_inf() && rhs.is_inf()) || is_nan() || rhs.is_nan()) {
-        set_to_nan();
+    // Handle the NaN and inf cases
+    if (is_max_exponent() || rhs.is_max_exponent()) {
+        if (is_nan() || rhs.is_nan()
+            || (sign != rhs.sign && is_inf() && rhs.is_inf())) {
+            set_to_nan();
+            return *this;
+        }
+        if (rhs.is_max_exponent()) {
+            sign = rhs.sign;
+            set_to_inf();
+        }
+        // Otherwise *this is already inf so nothing should be done, just return
         return *this;
     }
 
     // Compute if the signs are the same to be able to overwrite this.sign
     bool same_sign = sign == rhs.sign;
-
-    if (!same_sign && exp == rhs.exp && man == rhs.man) {
-        set_to_zero(true);
-        return *this;
-    }
-
     const APyFloat* x = &*this;
     const APyFloat* y = &rhs;
     // Compute sign and swap operands if need to make sure |x| >= |y|
     if (exp < rhs.exp || (exp == rhs.exp && man < rhs.man)) {
         sign = rhs.sign;
         std::swap(x, y);
-    }
-
-    // Handle other special cases
-    if (is_inf() || rhs.is_inf()) {
-        set_to_inf();
+    } else if (!same_sign && exp == rhs.exp && man == rhs.man) {
+        set_to_zero(true);
         return *this;
     }
 
@@ -955,8 +955,8 @@ APyFloat& APyFloat::operator+=(const APyFloat& rhs)
         exp++;
         apy_res >>= 1;
     } else {
-        // Check for cancellation by counting the number of left shifts needed to
-        // make fx>=1.0
+        // Check for cancellation by counting the number of left shifts needed
+        // to make fx>=1.0
         const unsigned int leading_zeros = leading_zeros_apyfixed(apy_res);
         if (leading_zeros) {
             if (exp > leading_zeros) {
@@ -974,8 +974,8 @@ APyFloat& APyFloat::operator+=(const APyFloat& rhs)
     // Quantize mantissa
     quantize_apymantissa(apy_res, sign, man_bits, quantization);
 
-    // Carry from quantization. In practice, the exponent will never be incremented
-    // twice
+    // Carry from quantization. In practice, the exponent will never be
+    // incremented twice
     if (apy_res.positive_greater_than_equal_pow2(1)) {
         exp++;
         apy_res >>= 1;
@@ -1229,7 +1229,7 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
 }
 
 /* ******************************************************************************
- * * Mathematical functions                                                     *
+ * * Mathematical functions *
  * ******************************************************************************
  */
 
@@ -1360,7 +1360,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
 }
 
 /* ******************************************************************************
- * * Binary logic operators                                                     *
+ * * Binary logic operators *
  * ******************************************************************************
  */
 
@@ -1444,7 +1444,7 @@ APyFloat APyFloat::operator~()
 }
 
 /* ******************************************************************************
- * * Binary comparison operators                                                *
+ * * Binary comparison operators *
  * ******************************************************************************
  */
 
@@ -1661,7 +1661,7 @@ bool APyFloat::operator>(const APyFixed& rhs) const
 }
 
 /* ******************************************************************************
- * * Helper functions                                                           *
+ * * Helper functions *
  * ******************************************************************************
  */
 
