@@ -316,8 +316,8 @@ void bind_fixed_array(nb::module_& m)
             This is the primary method for performing quantization and overflowing/saturation
             when dealing with APyTypes fixed-point arrays.
 
-            Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
-            to be set.
+            Exactly two of three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must
+            be set.
 
             Parameters
             ----------
@@ -352,8 +352,8 @@ void bind_fixed_array(nb::module_& m)
             Create an :class:`APyFixedArray` object from a sequence of :class:`float`.
 
             The initialized fixed-point values are the one closest to the
-            input floating-point value, rounded away from zero on ties. Exactly two of
-            the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) has to be set.
+            input floating-point values, rounded away from zero on ties. Exactly two of
+            the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
             Using NumPy arrays as input is in general faster than e.g. lists.
 
@@ -406,7 +406,7 @@ void bind_fixed_array(nb::module_& m)
 
             The initialized fixed-point values are the one closest to the
             input floating-point value, rounded away from zero on ties. Exactly two of
-            the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) has to be set.
+            the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
             Using NumPy arrays as input is in general faster than e.g. lists.
 

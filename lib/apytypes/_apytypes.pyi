@@ -40,12 +40,9 @@ class APyFixed:
         """
         Create an :class:`APyFixed` object from :class:`float`.
 
-        The initialized fixed-point value is the one closest to the
-        input floating-point value, rounded away from zero on ties. Exactly two of
-        the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) needs to be set.
-
-        Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
-        to be set.
+        The initialized fixed-point value is the one closest to the input floating-point
+        value, rounded away from zero on ties. Exactly two of the three bit-specifiers
+        (`bits`, `int_bits`, `frac_bits`) must be set.
 
         Parameters
         ----------
@@ -80,8 +77,8 @@ class APyFixed:
         """
         Create an :class:`APyFixed` object from :class:`str`.
 
-        Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
-        to be set.
+        Exactly two of three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be
+        set.
 
         Parameters
         ----------
@@ -201,8 +198,8 @@ class APyFixed:
         This is the primary method for performing quantization, truncation,
         overflowing, and saturation when dealing with APyTypes fixed-point numbers.
 
-        Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
-        to be set.
+        Exactly two of three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be
+        set.
 
         Parameters
         ----------
@@ -247,7 +244,7 @@ class APyFixed:
 
         Two `APyFixed` objects are considered exactly identical if, and only if,
         they store the same fixed-point value, and have the exact same
-        bit-specification (*bits*, *int_bits*, and *frac_bits*). This is a more
+        bit-specification (`bits`, `int_bits`, and `frac_bits`). This is a more
         restrictive test than ``==``,  that only tests equality of the stored
         fixed-point value.
 
@@ -386,9 +383,9 @@ class APyFixedArray:
         """
         Create an :class:`APyFixedArray` object from a sequence of :class:`float`.
 
-        The initialized fixed-point values are the one closest to the
-        input floating-point value, rounded away from zero on ties. Exactly two of
-        the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) has to be set.
+        The initialized fixed-point values are the ones closest to the input
+        floating-point values, rounded away from zero on ties. Exactly two of the three
+        bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
         Parameters
         ----------
@@ -423,6 +420,57 @@ class APyFixedArray:
                     [4.0, 5.0, 6.0],
                 ],
                 bits=5,
+                frac_bits=0
+            )
+        """
+
+    @staticmethod
+    def from_array(
+        float_sequence: typing.Sequence,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> APyFixedArray:
+        """
+        Create an :class:`APyFixedArray` object from an ndarray.
+
+        The initialized fixed-point values are the ones closest to the input
+        floating-point values, rounded away from zero on ties. Exactly two of the three
+        bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
+
+        Using ndarrays as input is generally faster than e.g. lists.
+
+        Parameters
+        ----------
+        float_sequence : sequence of float
+            Floating point values to initialize from. The tensor shape will be taken
+            from the sequence shape.
+        int_bits : int, optional
+            Number of integer bits in the created fixed-point tensor
+        frac_bits : int, optional
+            Number of fractional bits in the created fixed-point tensor
+        bits : int, optional
+            Total number of bits in the created fixed-point tensor
+
+        Returns
+        -------
+        :class:`APyFixedArray`
+
+        Examples
+        --------
+
+        .. code-block:: python
+
+            from apytypes import APyFixedArray
+            import numpy as np
+
+            # Array `a`, initialized from NumPy ndarray
+            a = APyFixedArray.from_array(
+                np.array([
+                    [1.0, 2.0, 3.0],
+                    [4.0, 5.0, 6.0],
+                ]),
+                int_bits=10,
                 frac_bits=0
             )
         """
@@ -503,8 +551,8 @@ class APyFixedArray:
         This is the primary method for performing quantization, truncation, overflowing,
         and saturation when dealing with APyTypes fixed-point numbers.
 
-        Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
-        to be set.
+        Exactly two of three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must
+        be set.
 
         Parameters
         ----------

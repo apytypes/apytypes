@@ -138,7 +138,7 @@ void bind_fixed(nb::module_& m)
 
             Two `APyFixed` objects are considered exactly identical if, and only if,
             they represent the same fixed-point value, and have the exact same
-            bit-specification (*bits*, *int_bits*, and *frac_bits*). This is a more
+            bit-specification (`bits`, `int_bits`, and `frac_bits`). This is a more
             restrictive test than ``==``,  that only tests equality of the numerical
             fixed-point value.
 
@@ -183,7 +183,7 @@ void bind_fixed(nb::module_& m)
             This is the primary method for performing quantization and
             overflowing/saturation when dealing with APyTypes fixed-point numbers.
 
-            Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
+            Exactly two of three bit-specifiers (`bits`, `int_bits`, `frac_bits`) needs
             to be set.
 
             Parameters
@@ -304,12 +304,9 @@ void bind_fixed(nb::module_& m)
             R"pbdoc(
             Create an :class:`APyFixed` object from :class:`float`.
 
-            The initialized fixed-point value is the one closest to the
-            input floating-point value, rounded away from zero on ties. Exactly two of
-            the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) needs to be set.
-
-            Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
-            to be set.
+            The initialized fixed-point value is the one closest to the input
+            floating-point value, rounded away from zero on ties. Exactly two of the
+            three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
             Parameters
             ----------
@@ -344,8 +341,8 @@ void bind_fixed(nb::module_& m)
             R"pbdoc(
             Create an :class:`APyFixed` object from :class:`str`.
 
-            Exactly two of three bit-specifiers (*bits*, *int_bits*, *frac_bits*) needs
-            to be set.
+            Exactly two of three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must
+            be set.
 
             Parameters
             ----------
