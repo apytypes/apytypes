@@ -273,6 +273,38 @@ def print_summary(summary, log_file: str, seed: int) -> None:
     )
 
 
+# Solution from: https://stackoverflow.com/questions/3173320/text-progress-bar-in-terminal-with-block-characters
+def printProgressBar(
+    iteration,
+    total,
+    prefix="",
+    suffix="",
+    decimals=1,
+    length=100,
+    fill="█",
+    printEnd="\r",
+):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + "-" * (length - filledLength)
+    print(f"\r{prefix} |{bar}| {percent}% {suffix}", end=printEnd)
+    # Print New Line on Complete
+    if iteration == total:
+        print()
+
+
 if __name__ == "__main__":
     parser = set_up_argument_parser()
     args = parser.parse_args()
@@ -294,6 +326,12 @@ if __name__ == "__main__":
 
     open(output_file, "w").close()  # Clear output file
 
+    if "all" in args.operations:
+        args.operations = []
+        for format in ["f16", "f32", "f64"]:
+            for op in ["_add", "_sub", "_mul", "_div"]:
+                args.operations.append(format + op)
+
     if "all" in args.quant_modes:
         args.quant_modes = [
             "ties_even",
@@ -304,11 +342,10 @@ if __name__ == "__main__":
             "jam",
         ]
 
-    if "all" in args.operations:
-        args.operations = []
-        for format in ["f16", "f32", "f64"]:
-            for op in ["_add", "_sub", "_mul", "_div"]:
-                args.operations.append(format + op)
+    if not args.verbose:
+        iteration = 0
+        total_iterations = len(args.operations) * len(args.quant_modes)
+        printProgressBar(iteration, total_iterations)
 
     for op in args.operations:
         summary[op] = {}
@@ -331,6 +368,10 @@ if __name__ == "__main__":
             summary[op][quant_arg] = run_berkeley_test(
                 op, quant_mode, test_file, output_file, args.verbose
             )
+
+            if not args.verbose:
+                iteration += 1
+                printProgressBar(iteration, total_iterations)
 
             if summary[op][quant_arg][0] != 0:
                 any_test_failed = True
