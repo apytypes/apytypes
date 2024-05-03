@@ -55,3 +55,25 @@ If you want to run tests, instead doing
 
 will also install the test dependencies required. (This only needs to be done once, or when the
 dependencies are updated.)
+
+Run test suite
+------------
+
+To run all test cases do:
+
+.. code-block:: bash
+
+    python -m pytest lib
+
+
+Randomly generated test cases from `Berkeley TestFloat <http://www.jhauser.us/arithmetic/TestFloat.html>`_ can be run for floating-point scalars.
+These are not executed by using pytest but instead with a dedicated Python script.
+To use it, start by installing Berkeley TestFloat, and make sure to add the binary testfloat_gen to your PATH.
+You can then see example usage of the script by running
+
+.. code-block:: bash
+
+    cd lib/test/apyfloat/
+    python run_berkeley_cases.py -h
+
+These are intended to more long running tests. If any bugs or deviations are found, dedicated tests should be added to the regular test suite.

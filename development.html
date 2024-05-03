@@ -272,6 +272,22 @@ during development.</p>
 <p>will also install the test dependencies required. (This only needs to be done once, or when the
 dependencies are updated.)</p>
 </section>
+<section id="run-test-suite">
+<h2>Run test suite<a class="headerlink" href="#run-test-suite" title="Link to this heading">¶</a></h2>
+<p>To run all test cases do:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>lib
+</pre></div>
+</div>
+<p>Randomly generated test cases from <a class="reference external" href="http://www.jhauser.us/arithmetic/TestFloat.html">Berkeley TestFloat</a> can be run for floating-point scalars.
+These are not executed by using pytest but instead with a dedicated Python script.
+To use it, start by installing Berkeley TestFloat, and make sure to add the binary testfloat_gen to your PATH.
+You can then see example usage of the script by running</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>lib/test/apyfloat/
+python<span class="w"> </span>run_berkeley_cases.py<span class="w"> </span>-h
+</pre></div>
+</div>
+<p>These are intended to more long running tests. If any bugs or deviations are found, dedicated tests should be added to the regular test suite.</p>
+</section>
 </section>
 
         </article>
@@ -334,6 +350,7 @@ dependencies are updated.)</p>
 <li><a class="reference internal" href="#clone-the-repository">Clone the repository</a></li>
 <li><a class="reference internal" href="#fork-and-clone">Fork and clone</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#run-test-suite">Run test suite</a></li>
 </ul>
 </li>
 </ul>
