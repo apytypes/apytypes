@@ -169,7 +169,7 @@ def set_up_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-op",
         "--operations",
-        help="operations to test, see section 6 at http://www.jhauser.us/arithmetic/TestFloat-3/doc/TestFloat-general.html",
+        help="operations to test, choose 'all' to test everything, otherwise see section 6 at http://www.jhauser.us/arithmetic/TestFloat-3/doc/TestFloat-general.html",
         nargs="*",
         type=str,
         default=None,
@@ -303,6 +303,12 @@ if __name__ == "__main__":
             "to_pos",
             "jam",
         ]
+
+    if "all" in args.operations:
+        args.operations = []
+        for format in ["f16", "f32", "f64"]:
+            for op in ["_add", "_sub", "_mul", "_div"]:
+                args.operations.append(format + op)
 
     for op in args.operations:
         summary[op] = {}
