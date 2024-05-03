@@ -32,66 +32,109 @@ void APY_INLINE quantize_mantissa(
     G = (man >> bits_to_quantize_dec) & 1;
     T = (man & sticky_constant) != 0;
 
-    // Initial value for mantissa
-    man_t res_man = man >> bits_to_quantize;
-
     switch (quantization) {
     case QuantizationMode::RND_CONV: // TIES_EVEN
         // Using 'res_man' directly here is fine since G can only be '0' or '1',
         // thus calculating the LSB of 'res_man' is not needed.
-        B = G & (res_man | T);
+        man >>= bits_to_quantize;
+        B = (G & (man | T));
+        if (!B) {
+            return;
+        };
         break;
     case QuantizationMode::RND_CONV_ODD: // TIES_ODD
-        B = G & ((res_man ^ 1) | T);
+        man >>= bits_to_quantize;
+        B = (G & ((man ^ 1) | T));
+        if (!B) {
+            return;
+        };
         break;
     case QuantizationMode::TRN_INF: // TO_POSITIVE
-        B = sign ? 0 : (G | T);
+        man >>= bits_to_quantize;
+        B = (!sign) & (G | T);
+        if (!B) {
+            return;
+        };
         break;
     case QuantizationMode::TRN: // TO_NEGATIVE
-        B = sign ? (G | T) : 0;
+        man >>= bits_to_quantize;
+        B = sign & (G | T);
+        if (!B) {
+            return;
+        };
         break;
     case QuantizationMode::TRN_AWAY: // TO_AWAY
+        man >>= bits_to_quantize;
         B = G | T;
+        if (!B) {
+            return;
+        };
         break;
     case QuantizationMode::TRN_ZERO: // TO_ZERO
-        B = 0;
-        break;
+        man >>= bits_to_quantize;
+        return;
     case QuantizationMode::TRN_MAG: // Does not really make sense for
                                     // floating-point
-        B = sign;
-        break;
-    case QuantizationMode::RND_INF: // TIES_AWAY
-        B = G;
-        break;
-    case QuantizationMode::RND_ZERO: // TIES_ZERO
-        B = G & T;
-        break;
-    case QuantizationMode::RND: // TIES_POS
-        B = G & (T | !sign);
-        break;
-    case QuantizationMode::RND_MIN_INF: // TIES_NEG
-        B = G & (T | sign);
-        break;
-    case QuantizationMode::JAM:
-        B = 0;
-        res_man |= 1;
-        break;
-    case QuantizationMode::JAM_UNBIASED:
-        B = 0;
-        if (T || G) {
-            res_man |= 1;
+        man >>= bits_to_quantize;
+        if (!sign) {
+            return;
         }
         break;
+    case QuantizationMode::RND_INF: // TIES_AWAY
+        man >>= bits_to_quantize;
+        if (!G) {
+            return;
+        };
+        break;
+    case QuantizationMode::RND_ZERO: // TIES_ZERO
+        man >>= bits_to_quantize;
+        B = G & T;
+        if (!B) {
+            return;
+        };
+        break;
+    case QuantizationMode::RND: // TIES_POS
+        man >>= bits_to_quantize;
+        B = G & (T | !sign);
+        if (!B) {
+            return;
+        };
+        break;
+    case QuantizationMode::RND_MIN_INF: // TIES_NEG
+        man >>= bits_to_quantize;
+        B = G & (T | sign);
+        if (!B) {
+            return;
+        };
+        break;
+    case QuantizationMode::JAM:
+        man >>= bits_to_quantize;
+        man |= 1;
+        return;
+    case QuantizationMode::JAM_UNBIASED:
+        man >>= bits_to_quantize;
+        if (T || G) {
+            man |= 1;
+        }
+        return;
     case QuantizationMode::STOCH_WEIGHTED: {
         const man_t trailing_bits = man & ((1ULL << bits_to_quantize) - 1);
         const man_t weight = random_number_float() & ((1ULL << bits_to_quantize) - 1);
         // Since the weight won't be greater than the discarded bits,
         // this will never round an already exact number.
         B = (trailing_bits + weight) >> bits_to_quantize;
+        man >>= bits_to_quantize;
+        if (!B) {
+            return;
+        };
     } break;
     case QuantizationMode::STOCH_EQUAL:
         // Only perform the quantization if the result is not exact.
+        man >>= bits_to_quantize;
         B = (G || T) ? random_number_float() & 1 : 0;
+        if (!B) {
+            return;
+        };
         break;
     default:
         throw NotImplementedException(
@@ -99,8 +142,8 @@ void APY_INLINE quantize_mantissa(
             "unknown (did you pass `int` as `QuantizationMode`?)"
         );
     }
-    man = res_man;
-    man += B;
+    man++;
+    // Carry from adding one LSB
     if (man & man_msb_constant) {
         ++exp;
         man = 0;
