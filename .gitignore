@@ -22,3 +22,4 @@ docs/xml/
 
 subprojects/*/
 benchmark/benchmark.png
+**/berkeley_tests/
