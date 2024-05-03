@@ -1,11 +1,21 @@
+"""
+This is a script for running tests from Berkeley TestFloat.
+Note, in order to use the script one must have the binary testfloat_gen in PATH.
+The arguments are much like the arguments to testfloat_gen which one can read more about here: http://www.jhauser.us/arithmetic/TestFloat-3/doc/testfloat_gen.html
+
+Information about how to use the script can be found by running "python run_berkeley_cases.py -h".
+"""
+
 import argparse
 from apytypes import APyFloat, QuantizationMode, APyFloatQuantizationContext
+import itertools
 import os
 import random
 import subprocess
 import sys
 
 
+# Directory where all test files will be created
 TEST_DIR = "./berkeley_tests/"
 
 
@@ -23,7 +33,7 @@ def read_test_cases(testfile: str):
 def generate_berkeley_test(
     operation: str,
     quantization: QuantizationMode,
-    level: int = 1,
+    level: int = 2,
     seed: int = None,
     verbose: bool = False,
     filename: str = None,
@@ -147,7 +157,7 @@ def run_berkeley_test(
 
     if verbose:
         if not tests_failed:
-            print(f"ALL {tests_total} TESTS PASSED")
+            print(f"{tests_total} / {tests_total} TESTS PASSED")
         else:
             print(f"{tests_failed}/{tests_total} FAILED")
 
@@ -169,7 +179,7 @@ def set_up_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-op",
         "--operations",
-        help="operations to test, choose 'all' to test everything, otherwise see section 6 at http://www.jhauser.us/arithmetic/TestFloat-3/doc/TestFloat-general.html",
+        help="operations to test, choose 'all_arith' and 'all_cast' to test everything, otherwise see section 6 at http://www.jhauser.us/arithmetic/TestFloat-3/doc/TestFloat-general.html",
         nargs="*",
         type=str,
         default=None,
@@ -246,12 +256,13 @@ def translate_quant_mode_berkeley_arg(quant_mode: QuantizationMode) -> str:
             raise ValueError("Quantization mode {quant_mode} not supported")
 
 
-def print_summary(summary, log_file: str, seed: int) -> None:
+def print_summary(summary, output_file: str, seed: int, level: int) -> None:
     """
     summary: { 'operation' : { quantization_mode: (tests_failed, tests_total) }, ... }
     """
     print("================ Summary ================")
-    print(f"Log file: {log_file}")
+    print(f"Output file: {output_file}")
+    print(f"Test level: {level}")
     print(f"Seed: {seed}")
     failed_tests = 0
     total_tests = 0
@@ -260,7 +271,9 @@ def print_summary(summary, log_file: str, seed: int) -> None:
         for quant in summary[op]:
             total_tests += summary[op][quant][1]
             if summary[op][quant][0] == 0:
-                print(f"\t{quant}: ALL {summary[op][quant][1]} TESTS PASSED")
+                print(
+                    f"\t{quant}: {summary[op][quant][1]} / {summary[op][quant][1]} TESTS PASSED"
+                )
             else:
                 print(
                     f"\t{quant}: {summary[op][quant][0]} / {summary[op][quant][1]} TESTS FAILED"
@@ -326,11 +339,32 @@ if __name__ == "__main__":
 
     open(output_file, "w").close()  # Clear output file
 
-    if "all" in args.operations:
-        args.operations = []
-        for format in ["f16", "f32", "f64"]:
-            for op in ["_add", "_sub", "_mul", "_div"]:
-                args.operations.append(format + op)
+    # Handle special arguments "all*"
+    if "all_arith" in args.operations or "all" in args.operations:
+        # First remove any specified arithmetic tests to avoid duplicates
+        for op in list(args.operations):
+            if op[3:] in ["_add", "_sub", "_mul", "_div"]:
+                args.operations.remove(op)
+
+        # Now add all arithmetic tests
+        prod = itertools.product(
+            ["f16", "f32", "f64"], ["_add", "_sub", "_mul", "_div"]
+        )
+        args.operations += ["".join(x) for x in prod]
+
+    if "all_cast" in args.operations or "all" in args.operations:
+        # First remove any specified cast tests to avoid duplicates
+        for op in list(args.operations):
+            if "to" in op:
+                args.operations.remove(op)
+
+        # Now add all cast tests
+        perms = itertools.permutations(["f16", "f32", "f64"], 2)
+        args.operations += ["_to_".join(x) for x in perms]
+
+    for arg in ["all", "all_arith", "all_cast"]:
+        if arg in args.operations:
+            args.operations.remove(arg)
 
     if "all" in args.quant_modes:
         args.quant_modes = [
@@ -376,5 +410,5 @@ if __name__ == "__main__":
             if summary[op][quant_arg][0] != 0:
                 any_test_failed = True
 
-    print_summary(summary, output_file, seed)
+    print_summary(summary, output_file, seed, args.level)
     sys.exit(-1 if any_test_failed else 0)
