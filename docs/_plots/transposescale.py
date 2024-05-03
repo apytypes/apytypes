@@ -19,46 +19,30 @@ CREATE_TWO_NUMPY_INT32_MATRICES = "import numpy as np; a = np.array(np.round((np
 CREATE_TWO_NUMPY_INT16_MATRICES = "import numpy as np; a = np.array(np.round((np.random.rand({l}, {l})-0.5)*(2**15)), dtype='int16'); b = np.array(np.round((np.random.rand({l}, {l})-0.5)*(2**15)), dtype='int16')"
 benchmarks = {
     "APyTypes fixed-point, 15-bit": ("c = a @ b", CREATE_TWO_FIXED_15_MATRICES),
-    "APyTypes fixed-point, 31-bit": ("c = a @ b", CREATE_TWO_FIXED_31_MATRICES),
-    "APyTypes e5m2 floating-point": ("c = a @ b", CREATE_TWO_FLOAT_E5M2_MATRICES),
-    "APyTypes bloat16 floating-point": (
-        "c = a @ b",
-        CREATE_TWO_FLOAT_BFLOAT16_MATRICES,
+    "APyTypes transposed fixed-point, 15-bit": (
+        "c = a @ b.T",
+        CREATE_TWO_FIXED_15_MATRICES,
     ),
     "APyTypes half floating-point": ("c = a @ b", CREATE_TWO_FLOAT_HALF_MATRICES),
-    "APyTypes single floating-point": ("c = a @ b", CREATE_TWO_FLOAT_SINGLE_MATRICES),
-    "APyTypes double floating-point": ("c = a @ b", CREATE_TWO_FLOAT_DOUBLE_MATRICES),
-    "Numpy (ml_dtypes) e5m2 floating-point": (
-        "c = a @ b",
-        CREATE_TWO_NUMPY_E5M2_MATRICES,
-    ),
-    "Numpy (ml_dtypes) bfloat floating-point": (
-        "c = a @ b",
-        CREATE_TWO_NUMPY_BFLOAT16_MATRICES,
+    "APyTypes transposed half floating-point": (
+        "c = a @ b.T",
+        CREATE_TWO_FLOAT_HALF_MATRICES,
     ),
     "Numpy half floating-point": (
         "c = a @ b",
         CREATE_TWO_NUMPY_HALF_MATRICES,
     ),
-    "Numpy single floating-point": (
-        "c = a @ b",
-        CREATE_TWO_NUMPY_SINGLE_MATRICES,
-    ),
-    "Numpy double floating-point": (
-        "c = a @ b",
-        CREATE_TWO_NUMPY_FLOAT_MATRICES,
+    "Numpy transposed half floating-point": (
+        "c = a @ b.T",
+        CREATE_TWO_NUMPY_HALF_MATRICES,
     ),
     "Numpy 16-bit integer": (
         "c = a @ b",
         CREATE_TWO_NUMPY_INT16_MATRICES,
     ),
-    "Numpy 32-bit integer": (
-        "c = a @ b",
-        CREATE_TWO_NUMPY_INT32_MATRICES,
-    ),
-    "Numpy 64-bit integer": (
-        "c = a @ b",
-        CREATE_TWO_NUMPY_INT64_MATRICES,
+    "Numpy transposed 16-bit integer": (
+        "c = a @ b.T",
+        CREATE_TWO_NUMPY_INT16_MATRICES,
     ),
 }
 
@@ -92,4 +76,4 @@ ax.set_ylabel("Operations/s")
 ax.set_xlabel("Square matrix size")
 ax.legend(loc="upper left")
 ax.grid(True)
-fig.savefig("matrixmultscale.png")
+fig.savefig("transposescale.png")
