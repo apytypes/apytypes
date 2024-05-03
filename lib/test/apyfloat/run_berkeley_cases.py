@@ -71,7 +71,7 @@ def function_under_test(operation: str):
     """Based on the operation, return a lambda of the operation to test."""
     match operation:
         case "to":
-            raise ValueError(f"Operation '{operation}' not implemented")
+            return lambda x, exp_bits, man_bits: x.cast(exp_bits, man_bits)
         case "add":
             return lambda x, y: x + y
         case "sub":
@@ -105,7 +105,22 @@ def run_berkeley_test(
 
     if "to" in operation:
         to_exp_bits, to_man_bits = parse_format(args[2])
-        raise NotImplementedError("Generating tests for casting is not supported yet")
+        with open(output_file, "a") as f:
+            for test in test_cases:
+                tests_total += 1
+                lhs = APyFloat.from_bits(test[0], exp_bits, man_bits)
+                ref = APyFloat.from_bits(test[1], to_exp_bits, to_man_bits)
+                try:
+                    res = func_under_test(lhs, to_exp_bits, to_man_bits)
+                except Exception as e:
+                    f.write(f"lhs: {lhs!r}, ref: {ref!r}, res: {res!r}\n")
+                    f.write(f"Exception: {e}")
+                else:
+                    if (ref.is_nan and not res.is_nan) or (
+                        not ref.is_nan and not res.is_identical(ref)
+                    ):
+                        f.write(f"lhs: {lhs!r}, ref: {ref!r}, res: {res!r}\n")
+                        tests_failed += 1
     else:
         with APyFloatQuantizationContext(quantization):
             with open(output_file, "a") as f:
@@ -147,7 +162,7 @@ def set_up_argument_parser() -> argparse.ArgumentParser:
         help="quantization modes to test",
         nargs="*",
         type=str,
-        choices=["ties_even", "ties_away", "to_zero", "to_neg", "to_pos", "jam"],
+        choices=["all", "ties_even", "ties_away", "to_zero", "to_neg", "to_pos", "jam"],
         default=["ties_even"],
     )
 
@@ -278,6 +293,16 @@ if __name__ == "__main__":
     any_test_failed = False
 
     open(output_file, "w").close()  # Clear output file
+
+    if "all" in args.quant_modes:
+        args.quant_modes = [
+            "ties_even",
+            "ties_away",
+            "to_zero",
+            "to_neg",
+            "to_pos",
+            "jam",
+        ]
 
     for op in args.operations:
         summary[op] = {}
