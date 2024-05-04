@@ -290,7 +290,7 @@ def print_summary(summary, output_file: str, seed: int, level: int) -> None:
 
     success_rate = (1 - float(failed_tests) / total_tests) * 100
     print(
-        f"Ran {total_tests} tests in total whereof {failed_tests} failed, giving a {success_rate:.2f}% overall success rate."
+        f"Ran {total_tests} tests in total whereof {failed_tests} failed, giving an overall success rate of {success_rate:.2f}%."
     )
 
 
