@@ -243,7 +243,7 @@ def translate_quant_arg(quant_mode: str) -> QuantizationMode:
         case "jam_unbiased":
             return QuantizationMode.JAM_UNBIASED
         case _:
-            raise ValueError("Quantization mode {quant_mode} not supported")
+            raise ValueError(f"Quantization mode {quant_mode} not supported")
 
 
 def translate_quant_mode_berkeley_arg(quant_mode: QuantizationMode) -> str:
@@ -386,7 +386,7 @@ if __name__ == "__main__":
             "to_zero",
             "to_neg",
             "to_pos",
-            "jam",
+            "jam_unbiased",
         ]
 
     if not args.verbose:
