@@ -172,7 +172,15 @@ def set_up_argument_parser() -> argparse.ArgumentParser:
         help="quantization modes to test",
         nargs="*",
         type=str,
-        choices=["all", "ties_even", "ties_away", "to_zero", "to_neg", "to_pos", "jam"],
+        choices=[
+            "all",
+            "ties_even",
+            "ties_away",
+            "to_zero",
+            "to_neg",
+            "to_pos",
+            "jam_unbiased",
+        ],
         default=["ties_even"],
     )
 
@@ -232,8 +240,8 @@ def translate_quant_arg(quant_mode: str) -> QuantizationMode:
             return QuantizationMode.TO_NEG
         case "to_pos":
             return QuantizationMode.TO_POS
-        case "jam":
-            return QuantizationMode.JAM
+        case "jam_unbiased":
+            return QuantizationMode.JAM_UNBIASED
         case _:
             raise ValueError("Quantization mode {quant_mode} not supported")
 
@@ -250,7 +258,7 @@ def translate_quant_mode_berkeley_arg(quant_mode: QuantizationMode) -> str:
             return "-rmin"
         case QuantizationMode.TO_POS:
             return "-rmax"
-        case QuantizationMode.JAM:
+        case QuantizationMode.JAM_UNBIASED:
             return "-rodd"
         case _:
             raise ValueError("Quantization mode {quant_mode} not supported")
@@ -321,6 +329,11 @@ def printProgressBar(
 if __name__ == "__main__":
     parser = set_up_argument_parser()
     args = parser.parse_args()
+
+    # Some operation to test must be specified
+    if not args.operations:
+        parser.print_help()
+        sys.exit(-1)
 
     if not os.path.exists(TEST_DIR):
         if args.verbose:
