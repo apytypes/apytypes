@@ -223,8 +223,13 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
 
             // Check for overflow
             if (new_exp >= res_max_exponent) {
-                new_exp = res_max_exponent;
-                new_man = 0;
+                if (do_infinity(quantization, x.sign)) {
+                    new_exp = res_max_exponent;
+                    new_man = 0;
+                } else {
+                    new_exp = res_max_exponent - 1;
+                    new_man = man_mask;
+                }
             }
             res.data[i]
                 = { x.sign, static_cast<exp_t>(new_exp), static_cast<man_t>(new_man) };
@@ -410,8 +415,13 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
 
             // Check for overflow
             if (new_exp >= res_max_exponent) {
-                new_exp = res_max_exponent;
-                new_man = 0;
+                if (do_infinity(quantization, res_sign)) {
+                    new_exp = res_max_exponent;
+                    new_man = 0;
+                } else {
+                    new_exp = res_max_exponent - 1;
+                    new_man = man_mask;
+                }
             }
             res.data[i] = { res_sign,
                             static_cast<exp_t>(new_exp),
@@ -521,6 +531,7 @@ void APyFloatArray::hadamard_multiplication(
         const man_t two_before = two >> 1;
         const man_t one_before = 1ULL << sum_man_bits;
         const man_t two_res = 1 << res.man_bits;
+        const man_t max_man = one_before - 1;
         const man_t mask_two = two - 1;
         const uint8_t man_bits_delta = new_man_bits - res.man_bits;
         const uint8_t man_bits_delta_dec = man_bits_delta - 1;
@@ -625,8 +636,13 @@ void APyFloatArray::hadamard_multiplication(
 
             // Check for overflow
             if (new_exp >= res_max_exponent) {
-                new_exp = res_max_exponent;
-                new_man = 0;
+                if (do_infinity(quantization, res_sign)) {
+                    new_exp = res_max_exponent;
+                    new_man = 0;
+                } else {
+                    new_exp = res_max_exponent - 1;
+                    new_man = max_man;
+                }
             }
             res.data[i] = { res_sign,
                             static_cast<exp_t>(new_exp),
@@ -731,6 +747,7 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
         const man_t two_before = two >> 1;
         const man_t one_before = 1ULL << sum_man_bits;
         const man_t two_res = 1 << res_man_bits;
+        const man_t max_man = two_res - 1;
         const auto mask_two = two - 1;
         const auto man_bits_delta = new_man_bits - res_man_bits;
         const auto man_bits_delta_dec = man_bits_delta - 1;
@@ -821,8 +838,13 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
 
             // Check for overflow
             if (new_exp >= res_max_exponent) {
-                new_exp = res_max_exponent;
-                new_man = 0;
+                if (do_infinity(quantization, res_sign)) {
+                    new_exp = res_max_exponent;
+                    new_man = 0;
+                } else {
+                    new_exp = res_max_exponent - 1;
+                    new_man = max_man;
+                }
             }
             res.data[i] = { res_sign,
                             static_cast<exp_t>(new_exp),

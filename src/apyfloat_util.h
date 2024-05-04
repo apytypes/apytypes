@@ -129,6 +129,23 @@ void APY_INLINE quantize_mantissa(
     );
 }
 
+//! Check if one should saturate to infinity or maximum normal number
+bool APY_INLINE do_infinity(QuantizationMode mode, bool sign)
+{
+    switch (mode) {
+    case QuantizationMode::TRN_ZERO:     // TO_ZERO
+    case QuantizationMode::JAM:          // JAM
+    case QuantizationMode::JAM_UNBIASED: // JAM_UNBIASED
+        return false;
+    case QuantizationMode::TRN: // TO_NEG
+        return sign;
+    case QuantizationMode::TRN_INF: // TO_POS
+        return !sign;
+    default:
+        return true;
+    }
+}
+
 //! Fast integer power by squaring.
 man_t ipow(man_t base, unsigned int n);
 

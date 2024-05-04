@@ -287,7 +287,12 @@ void APyFloat::cast_mantissa_shorter(
     // Check for overflow
     if (exp >= max_exp) {
         exp = max_exp;
-        man = 0;
+        if (do_infinity(get_float_quantization_mode(), sign)) {
+            man = 0;
+        } else {
+            exp--;
+            man = man_mask();
+        }
     }
 }
 
@@ -464,7 +469,13 @@ APyFloat APyFloat::cast_from_double(
     }
 
     if (new_exp >= res.max_exponent()) {
-        return res.construct_inf();
+        if (do_infinity(get_float_quantization_mode(), res.sign)) {
+            new_exp = res.max_exponent();
+            new_man = 0;
+        } else {
+            new_exp = res.max_exponent() - 1;
+            new_man = res.man_mask();
+        }
     }
 
     res.man = new_man;
@@ -858,7 +869,14 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
 
     // Check for overflow
     if (new_exp >= res.max_exponent()) {
-        return res.construct_inf();
+        if (do_infinity(quantization, res.sign)) {
+            res.exp = res.max_exponent();
+            res.man = 0;
+        } else {
+            res.exp = res.max_exponent() - 1;
+            res.man = res.man_mask();
+        }
+        return res;
     }
 
     // Remove leading one
@@ -1075,8 +1093,13 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         // Check for overflow
         const auto max_exp = res.max_exponent();
         if (res_exp >= max_exp) {
-            res.exp = max_exp;
-            res.man = 0;
+            if (do_infinity(quantization, res.sign)) {
+                res.exp = max_exp;
+                res.man = 0;
+            } else {
+                res.exp = max_exp - 1;
+                res.man = res.man_mask();
+            }
         } else {
             res.man = new_man;
             res.exp = res_exp;
@@ -1123,7 +1146,14 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         }
 
         if (new_exp >= res.max_exponent()) {
-            return res.construct_inf();
+            if (do_infinity(quantization, res.sign)) {
+                res.exp = res.max_exponent();
+                res.man = 0;
+            } else {
+                res.exp = res.max_exponent() - 1;
+                res.man = res.man_mask();
+            }
+            return res;
         }
 
         if (apy_res.positive_greater_than_equal_pow2(0)) { // Remove leading one
@@ -1200,7 +1230,14 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
 
     // Check limits
     if (new_exp >= res.max_exponent()) {
-        return res.construct_inf();
+        if (do_infinity(quantization, res.sign)) {
+            res.exp = res.max_exponent();
+            res.man = 0;
+        } else {
+            res.exp = res.max_exponent() - 1;
+            res.man = res.man_mask();
+        }
+        return res;
     }
 
     // Handle subnormal case
