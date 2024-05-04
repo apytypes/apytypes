@@ -218,19 +218,17 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
             new_man &= man_mask;
 
             quantize_mantissa(
-                new_man, new_exp, 4, x.sign, final_res_leading_one, 3, 7, quantization
+                new_man,
+                new_exp,
+                res_max_exponent,
+                4,
+                x.sign,
+                final_res_leading_one,
+                3,
+                7,
+                quantization
             );
 
-            // Check for overflow
-            if (new_exp >= res_max_exponent) {
-                if (do_infinity(quantization, x.sign)) {
-                    new_exp = res_max_exponent;
-                    new_man = 0;
-                } else {
-                    new_exp = res_max_exponent - 1;
-                    new_man = man_mask;
-                }
-            }
             res.data[i]
                 = { x.sign, static_cast<exp_t>(new_exp), static_cast<man_t>(new_man) };
         }
@@ -410,19 +408,17 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
             new_man &= man_mask;
 
             quantize_mantissa(
-                new_man, new_exp, 4, res_sign, final_res_leading_one, 3, 7, quantization
+                new_man,
+                new_exp,
+                res_max_exponent,
+                4,
+                res_sign,
+                final_res_leading_one,
+                3,
+                7,
+                quantization
             );
 
-            // Check for overflow
-            if (new_exp >= res_max_exponent) {
-                if (do_infinity(quantization, res_sign)) {
-                    new_exp = res_max_exponent;
-                    new_man = 0;
-                } else {
-                    new_exp = res_max_exponent - 1;
-                    new_man = man_mask;
-                }
-            }
             res.data[i] = { res_sign,
                             static_cast<exp_t>(new_exp),
                             static_cast<man_t>(new_man) };
@@ -531,7 +527,6 @@ void APyFloatArray::hadamard_multiplication(
         const man_t two_before = two >> 1;
         const man_t one_before = 1ULL << sum_man_bits;
         const man_t two_res = 1 << res.man_bits;
-        const man_t max_man = one_before - 1;
         const man_t mask_two = two - 1;
         const uint8_t man_bits_delta = new_man_bits - res.man_bits;
         const uint8_t man_bits_delta_dec = man_bits_delta - 1;
@@ -626,6 +621,7 @@ void APyFloatArray::hadamard_multiplication(
             quantize_mantissa(
                 new_man,
                 new_exp,
+                res_max_exponent,
                 man_bits_delta,
                 res_sign,
                 two_res,
@@ -634,16 +630,6 @@ void APyFloatArray::hadamard_multiplication(
                 quantization
             );
 
-            // Check for overflow
-            if (new_exp >= res_max_exponent) {
-                if (do_infinity(quantization, res_sign)) {
-                    new_exp = res_max_exponent;
-                    new_man = 0;
-                } else {
-                    new_exp = res_max_exponent - 1;
-                    new_man = max_man;
-                }
-            }
             res.data[i] = { res_sign,
                             static_cast<exp_t>(new_exp),
                             static_cast<man_t>(new_man) };
@@ -747,7 +733,6 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
         const man_t two_before = two >> 1;
         const man_t one_before = 1ULL << sum_man_bits;
         const man_t two_res = 1 << res_man_bits;
-        const man_t max_man = two_res - 1;
         const auto mask_two = two - 1;
         const auto man_bits_delta = new_man_bits - res_man_bits;
         const auto man_bits_delta_dec = man_bits_delta - 1;
@@ -828,6 +813,7 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
             quantize_mantissa(
                 new_man,
                 new_exp,
+                res_max_exponent,
                 man_bits_delta,
                 res_sign,
                 two_res,
@@ -836,16 +822,6 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
                 quantization
             );
 
-            // Check for overflow
-            if (new_exp >= res_max_exponent) {
-                if (do_infinity(quantization, res_sign)) {
-                    new_exp = res_max_exponent;
-                    new_man = 0;
-                } else {
-                    new_exp = res_max_exponent - 1;
-                    new_man = max_man;
-                }
-            }
             res.data[i] = { res_sign,
                             static_cast<exp_t>(new_exp),
                             static_cast<man_t>(new_man) };
@@ -1479,14 +1455,19 @@ APyFloat APyFloatArray::vector_sum(const QuantizationMode quantization) const
             sum_man &= man_mask;
 
             quantize_mantissa(
-                sum_man, sum_exp, 4, sum_sign, final_res_leading_one, 3, 7, quantization
+                sum_man,
+                sum_exp,
+                res_max_exponent,
+                4,
+                sum_sign,
+                final_res_leading_one,
+                3,
+                7,
+                quantization
             );
 
             // Check for overflow
-            if (sum_exp >= res_max_exponent) {
-                // Inf
-                sum_exp = res_max_exponent;
-                sum_man = 0;
+            if (sum_exp == res_max_exponent) {
                 sum_is_max_exponent = true;
             }
         }
