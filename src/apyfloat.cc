@@ -264,13 +264,9 @@ void APyFloat::cast_mantissa(std::uint8_t new_man_bits, QuantizationMode quantiz
         return;
     }
 
-    quantize_mantissa(man, exp, man_bits_delta, sign, leading_one(), quantization);
-
-    // Check for overflow
-    if (exp >= max_exp) {
-        exp = max_exp;
-        man = 0;
-    }
+    quantize_mantissa(
+        man, exp, max_exp, man_bits_delta, sign, leading_one(), quantization
+    );
 }
 
 // Simplified version of cast_mantissa when it is known that new_man_bits is shorter
@@ -282,18 +278,9 @@ void APyFloat::cast_mantissa_shorter(
     auto man_bits_delta = man_bits - new_man_bits;
     man_bits = new_man_bits;
     const auto max_exp = max_exponent();
-    quantize_mantissa(man, exp, man_bits_delta, sign, leading_one(), quantization);
-
-    // Check for overflow
-    if (exp >= max_exp) {
-        exp = max_exp;
-        if (do_infinity(get_float_quantization_mode(), sign)) {
-            man = 0;
-        } else {
-            exp--;
-            man = man_mask();
-        }
-    }
+    quantize_mantissa(
+        man, exp, max_exp, man_bits_delta, sign, leading_one(), quantization
+    );
 }
 
 // Simplified version of cast_mantissa with exp = 0
@@ -310,7 +297,10 @@ void APyFloat::cast_mantissa_subnormal(
         return;
     }
 
-    quantize_mantissa(man, exp, man_bits_delta, sign, leading_one(), quantization);
+    // The overflow check with max_exponent() is not needed here, but send it anyway
+    quantize_mantissa(
+        man, exp, max_exponent(), man_bits_delta, sign, leading_one(), quantization
+    );
 }
 
 APyFloat APyFloat::_cast_to_double() const
@@ -1087,23 +1077,17 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         exp_t res_exp = static_cast<exp_t>(tmp_exp);
         new_man &= (two - 1);
         quantize_mantissa(
-            new_man, res_exp, man_bits_delta, sign, two_res, quantization
+            new_man,
+            res_exp,
+            res.max_exponent(),
+            man_bits_delta,
+            sign,
+            two_res,
+            quantization
         );
 
-        // Check for overflow
-        const auto max_exp = res.max_exponent();
-        if (res_exp >= max_exp) {
-            if (do_infinity(quantization, res.sign)) {
-                res.exp = max_exp;
-                res.man = 0;
-            } else {
-                res.exp = max_exp - 1;
-                res.man = res.man_mask();
-            }
-        } else {
-            res.man = new_man;
-            res.exp = res_exp;
-        }
+        res.man = new_man;
+        res.exp = res_exp;
         return res;
     } else {
         // Normalize both inputs

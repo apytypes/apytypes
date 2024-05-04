@@ -12,10 +12,28 @@ static constexpr std::size_t _MAN_T_SIZE_BITS = 8 * _MAN_T_SIZE_BYTES;
 static constexpr std::size_t _EXP_T_SIZE_BYTES = sizeof(exp_t);
 static constexpr std::size_t _EXP_T_SIZE_BITS = 8 * _EXP_T_SIZE_BYTES;
 
+//! Check if one should saturate to infinity or maximum normal number
+bool APY_INLINE do_infinity(QuantizationMode mode, bool sign)
+{
+    switch (mode) {
+    case QuantizationMode::TRN_ZERO:     // TO_ZERO
+    case QuantizationMode::JAM:          // JAM
+    case QuantizationMode::JAM_UNBIASED: // JAM_UNBIASED
+        return false;
+    case QuantizationMode::TRN: // TO_NEG
+        return sign;
+    case QuantizationMode::TRN_INF: // TO_POS
+        return !sign;
+    default:
+        return true;
+    }
+}
+
 //! Quantize mantissa
 void APY_INLINE quantize_mantissa(
     man_t& man,
     exp_t& exp,
+    exp_t max_exp,
     std::uint8_t bits_to_quantize,
     bool sign,
     man_t man_msb_constant,
@@ -99,11 +117,23 @@ void APY_INLINE quantize_mantissa(
             "unknown (did you pass `int` as `QuantizationMode`?)"
         );
     }
+
     man = res_man;
     man += B;
     if (man & man_msb_constant) {
         ++exp;
         man = 0;
+    }
+
+    // Check for overflow. This must always be checked since other methods depend on it.
+    if (exp >= max_exp) {
+        if (do_infinity(quantization, sign)) {
+            exp = max_exp;
+            man = 0;
+        } else {
+            exp = max_exp - 1;
+            man = man_msb_constant - 1;
+        }
     }
 }
 
@@ -111,6 +141,7 @@ void APY_INLINE quantize_mantissa(
 void APY_INLINE quantize_mantissa(
     man_t& man,
     exp_t& exp,
+    exp_t max_exp,
     std::uint8_t bits_to_quantize,
     bool sign,
     man_t man_msb_constant,
@@ -120,6 +151,7 @@ void APY_INLINE quantize_mantissa(
     quantize_mantissa(
         man,
         exp,
+        max_exp,
         bits_to_quantize,
         sign,
         man_msb_constant,
@@ -127,23 +159,6 @@ void APY_INLINE quantize_mantissa(
         (1ULL << (bits_to_quantize - 1)) - 1,
         quantization
     );
-}
-
-//! Check if one should saturate to infinity or maximum normal number
-bool APY_INLINE do_infinity(QuantizationMode mode, bool sign)
-{
-    switch (mode) {
-    case QuantizationMode::TRN_ZERO:     // TO_ZERO
-    case QuantizationMode::JAM:          // JAM
-    case QuantizationMode::JAM_UNBIASED: // JAM_UNBIASED
-        return false;
-    case QuantizationMode::TRN: // TO_NEG
-        return sign;
-    case QuantizationMode::TRN_INF: // TO_POS
-        return !sign;
-    default:
-        return true;
-    }
 }
 
 //! Fast integer power by squaring.
