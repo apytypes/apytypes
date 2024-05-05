@@ -48,7 +48,7 @@ def test_array_add():
     ans = APyFloatArray.from_float(
         [
             [7.0, 4.5, 10.5],
-            [-8.0, 15.0, -0.0],
+            [-8.0, 15.0, 0.0],
         ],
         exp_bits=8,
         man_bits=8,
@@ -246,7 +246,7 @@ def test_array_sub():
     ans = APyFloatArray.from_float(
         [
             [-5, -0.5, -4.5],
-            [-0.0, -25.0, -12.0],
+            [0.0, -25.0, -12.0],
         ],
         exp_bits=8,
         man_bits=8,

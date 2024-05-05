@@ -162,7 +162,9 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
                 std::swap(x_is_zero_exponent, y_is_zero_exponent);
             } else if (x.sign != y.sign && x.exp == y.exp && x.man == y.man) {
                 // Set to zero
-                res.data[i] = { true, static_cast<exp_t>(0), static_cast<man_t>(0) };
+                res.data[i] = { quantization == QuantizationMode::TRN,
+                                static_cast<exp_t>(0),
+                                static_cast<man_t>(0) };
                 continue;
             }
 

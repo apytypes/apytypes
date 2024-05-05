@@ -24,6 +24,47 @@ def test_issue_245():
 
 
 @pytest.mark.float_add
+@pytest.mark.float_sub
+@pytest.mark.parametrize("man", [10, 60])
+def test_add_sub_zero_sign(man):
+    pos_zero = APyFloat(0, 0, 0, 5, 10)
+    neg_zero = APyFloat(1, 0, 0, 5, man)
+    non_zero = APyFloat.from_float(1.0, 5, man)
+    modes = (
+        QuantizationMode.TIES_EVEN,
+        QuantizationMode.TO_ZERO,
+        QuantizationMode.TO_POS,
+    )
+
+    for mode in modes:
+        with APyFloatQuantizationContext(mode):
+            assert (_ := pos_zero + pos_zero).sign == False
+            assert (_ := pos_zero + neg_zero).sign == False
+            assert (_ := neg_zero + pos_zero).sign == False
+            assert (_ := neg_zero + neg_zero).sign == True
+
+            assert (_ := pos_zero - pos_zero).sign == False
+            assert (_ := pos_zero - neg_zero).sign == False
+            assert (_ := neg_zero - pos_zero).sign == True
+            assert (_ := neg_zero - neg_zero).sign == False
+
+            assert (_ := non_zero + (-non_zero)).sign == False
+
+    with APyFloatQuantizationContext(QuantizationMode.TO_NEG):
+        assert (_ := pos_zero + pos_zero).sign == False
+        assert (_ := pos_zero + neg_zero).sign == True
+        assert (_ := neg_zero + pos_zero).sign == True
+        assert (_ := neg_zero + neg_zero).sign == True
+
+        assert (_ := pos_zero - pos_zero).sign == True
+        assert (_ := pos_zero - neg_zero).sign == False
+        assert (_ := neg_zero - pos_zero).sign == True
+        assert (_ := neg_zero - neg_zero).sign == True
+
+        assert (_ := non_zero - non_zero).sign == True
+
+
+@pytest.mark.float_add
 class TestAPyFloatQuantizationAddSub:
     """
     Test class for the different quantization modes for addition in APyFloat.

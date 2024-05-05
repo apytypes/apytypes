@@ -4,70 +4,6 @@ import pytest
 from apytypes import APyFloat
 
 
-# Exhaustive tests, long running
-# These should be replaced by testing against a third-party tool
-# @pytest.mark.slow
-# @pytest.mark.float_add
-# @pytest.mark.parametrize("x_bits", range(0, 2**8))
-# @pytest.mark.parametrize("y_bits", range(0, 2**8))
-# def test_add_all(x_bits, y_bits):
-#    y = APyFloat.from_bits(y_bits, 4, 3)
-#    x = APyFloat.from_bits(x_bits, 4, 3)
-#    ans = x + y
-#    ref = APyFloat.from_float(float(x) + float(y), 4, 3)
-#    print(f'{float(x)} + {float(y)} = {float(ref)} != {float(ans)}')
-#    print(f'{x!r} + {y!r} = {ref!r} != {ans!r}')
-#    assert ans == ref or (ans.is_nan and ref.is_nan) or (ans == 0 and ref == 0)
-
-
-# @pytest.mark.slow
-# @pytest.mark.float_sub
-# @pytest.mark.parametrize("x_bits", range(0, 2**8))
-# @pytest.mark.parametrize("y_bits", range(0, 2**8))
-# def test_sub_all(x_bits, y_bits):
-#    y = APyFloat.from_bits(y_bits, 4, 3)
-#    x = APyFloat.from_bits(x_bits, 4, 3)
-#    ans = x - y
-#    ref = APyFloat.from_float(float(x) - float(y), 4, 3)
-#    print(f'{float(x)} - {float(y)} = {float(ref)} != {float(ans)}')
-#    print(f'{x!r} - {y!r} = {ref!r} != {ans!r}')
-#    assert ans == ref or (ans.is_nan and ref.is_nan) or (ans == 0 and ref == 0)
-
-
-# @pytest.mark.slow
-# @pytest.mark.float_mul
-# @pytest.mark.parametrize("x_bits", range(0, 2**8))
-# @pytest.mark.parametrize("y_bits", range(0, 2**8))
-# def test_mul_all(x_bits, y_bits):
-#    y = APyFloat.from_bits(y_bits, 4, 3)
-#    x = APyFloat.from_bits(x_bits, 4, 3)
-#    ans = x * y
-#    prod = float(x) * float(y)
-#    ref = APyFloat.from_float(prod, 4, 3)
-#    print(f'{float(x)} * {float(y)} = {float(ref)}({prod}) != {float(ans)}')
-#    print(f'{x!r} * {y!r} = {ref!r} != {ans!r}')
-#    assert ans.is_identical(ref) or (ans.is_nan and ref.is_nan) or (ans == 0 and ref == 0)
-
-
-# @pytest.mark.slow
-# @pytest.mark.float_div
-# @pytest.mark.parametrize("x_bits", range(0, 2 * 8))
-# @pytest.mark.parametrize("y_bits", range(0, 2**8))
-# def test_div_all(x_bits, y_bits):
-#     y = APyFloat.from_bits(y_bits, 4, 3)
-#     if y != 0:
-#         x = APyFloat.from_bits(x_bits, 4, 3)
-#         ans = x / y
-#         ref = APyFloat.from_float(float(x) / float(y), 4, 3)
-#         print(f"{float(x)} / {float(y)} = {float(ref)} != {float(ans)}")
-#         print(f"{x!r} / {y!r} = (ref){ref!r} != (ans){ans!r}")
-#         assert (
-#             ans.is_identical(ref)
-#             or (ans.is_nan and ref.is_nan)
-#             or (ans == 0 and ref == 0)
-#         )
-
-
 # Negation
 @pytest.mark.parametrize("sign", ["-", ""])
 @pytest.mark.parametrize(
@@ -301,7 +237,7 @@ def test_long_add():
     x = APyFloat(0, 1046, 1232143, 11, 60)
     y = APyFloat(1, 1046, 1232143, 11, 60)
     res = x + y
-    assert res.is_identical(APyFloat(1, 0, 0, 11, 60))
+    assert res.is_identical(APyFloat(0, 0, 0, 11, 60))
 
 
 # Subtraction
@@ -355,11 +291,11 @@ def test_sub_diff_sign():
 def test_sub_res_zero():
     # 12 - 12, same format
     res = APyFloat(0, 258, 8, 9, 4) - APyFloat(0, 258, 8, 9, 4)
-    assert res.is_identical(APyFloat(1, 0, 0, 9, 4))
+    assert res.is_identical(APyFloat(0, 0, 0, 9, 4))
 
     # 12 - 12, different format
     res = APyFloat(0, 258, 4, 9, 3) - APyFloat(0, 258, 8, 9, 4)
-    assert res.is_identical(APyFloat(1, 0, 0, 9, 4))
+    assert res.is_identical(APyFloat(0, 0, 0, 9, 4))
 
 
 @pytest.mark.float_sub
