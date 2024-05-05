@@ -670,7 +670,14 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
     APyFloat res, x, y;
     // Handle the zero cases, other special cases are further down
     if (same_type_as(rhs)) {
+        // Sign is currently not handled correctly if both operands are zero
         if (is_zero()) {
+            if (rhs.is_zero()) {
+                const bool new_sign = (sign == rhs.sign)
+                    ? sign
+                    : get_float_quantization_mode() == QuantizationMode::TRN;
+                return construct_zero(new_sign);
+            }
             return rhs;
         }
         if (rhs.is_zero()) {
@@ -694,7 +701,8 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
         if (exp < rhs.exp || (exp == rhs.exp && man < rhs.man)) {
             std::swap(x, y);
         } else if (sign != rhs.sign && exp == rhs.exp && man == rhs.man) {
-            res.set_to_zero(true);
+            // +0 for all quantization modes except TO_NEG
+            res.set_to_zero(get_float_quantization_mode() == QuantizationMode::TRN);
             return res;
         }
     } else {
@@ -704,13 +712,20 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
         // Cast once to resulting word length to get faster comparisons later
         x = cast_no_quant(res_exp_bits, res_man_bits, res_bias);
         y = rhs.cast_no_quant(res_exp_bits, res_man_bits, res_bias);
+        res = APyFloat(res_exp_bits, res_man_bits, res_bias);
+
         if (is_zero()) {
+            if (y.is_zero()) {
+                const bool new_sign = (sign == y.sign)
+                    ? sign
+                    : get_float_quantization_mode() == QuantizationMode::TRN;
+                return res.construct_zero(new_sign);
+            }
             return y;
         }
         if (rhs.is_zero()) {
             return x;
         }
-        res = APyFloat(res_exp_bits, res_man_bits, res_bias);
         // Handle the NaN and inf cases
         if (is_max_exponent() || rhs.is_max_exponent()) {
             if (is_nan() || rhs.is_nan()
@@ -725,7 +740,8 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
         if (x.abs() < y.abs()) {
             std::swap(x, y);
         } else if (sign != rhs.sign && x.exp == y.exp && x.man == y.man) {
-            res.set_to_zero(true);
+            // +0 for all quantization modes except TO_NEG
+            res.set_to_zero(get_float_quantization_mode() == QuantizationMode::TRN);
             return res;
         }
     }
@@ -889,9 +905,17 @@ APyFloat& APyFloat::operator+=(const APyFloat& rhs)
 
     // Handle the zero cases, other special cases are further down
     if (is_zero()) {
-        sign = rhs.sign;
-        man = rhs.man;
-        exp = rhs.exp;
+        if (rhs.is_zero()) {
+            sign = (sign == rhs.sign)
+                ? sign
+                : get_float_quantization_mode() == QuantizationMode::TRN;
+            exp = 0;
+            man = 0;
+        } else {
+            sign = rhs.sign;
+            man = rhs.man;
+            exp = rhs.exp;
+        }
         return *this;
     }
     if (rhs.is_zero()) {
@@ -916,16 +940,15 @@ APyFloat& APyFloat::operator+=(const APyFloat& rhs)
     bool same_sign = sign == rhs.sign;
     const APyFloat* x = &*this;
     const APyFloat* y = &rhs;
+    const auto quantization = get_float_quantization_mode();
     // Compute sign and swap operands if need to make sure |x| >= |y|
     if (exp < rhs.exp || (exp == rhs.exp && man < rhs.man)) {
         sign = rhs.sign;
         std::swap(x, y);
     } else if (!same_sign && exp == rhs.exp && man == rhs.man) {
-        set_to_zero(true);
+        set_to_zero(quantization == QuantizationMode::TRN);
         return *this;
     }
-
-    const auto quantization = get_float_quantization_mode();
 
     // Compute smaller exponent so that one can overwrite exp later
     exp_t smaller_exp = y->exp + y->is_subnormal();

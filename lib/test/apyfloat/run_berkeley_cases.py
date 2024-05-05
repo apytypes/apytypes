@@ -14,6 +14,7 @@ from apytypes import (
     APyFloatQuantizationContext,
 )
 import itertools
+import math
 import os
 import random
 import subprocess
@@ -324,9 +325,10 @@ def print_summary(summary, output_file: str, seed: int, level: int) -> None:
                 )
                 failed_tests += summary[op][quant][0]
 
-    success_rate = (1 - float(failed_tests) / total_tests) * 100
+    # Round percentage down so it doesn't show 100% success even if something failed
+    success_rate = math.floor((1 - float(failed_tests) / total_tests) * 10000) / 100.0
     print(
-        f"Ran {total_tests} tests in total whereof {failed_tests} failed, giving an overall success rate of {success_rate:.2f}%."
+        f"Ran {total_tests} tests in total whereof {failed_tests} failed, giving an overall success rate of {success_rate}%."
     )
 
 
