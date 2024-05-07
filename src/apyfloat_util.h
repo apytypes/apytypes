@@ -161,6 +161,21 @@ void APY_INLINE quantize_mantissa(
     );
 }
 
+man_t APY_INLINE
+quantize_close_to_zero(bool sign, int64_t man, QuantizationMode quantization)
+{
+    switch (quantization) {
+    case QuantizationMode::TRN_AWAY:
+        return 1;
+    case QuantizationMode::TRN:
+        return sign;
+    case QuantizationMode::TRN_INF:
+        return !sign;
+    default:
+        return 0;
+    }
+}
+
 //! Fast integer power by squaring.
 man_t ipow(man_t base, unsigned int n);
 

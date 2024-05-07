@@ -610,6 +610,13 @@ void APyFloatArray::hadamard_multiplication(
             }
 
             if (tmp_exp <= 0) {
+                if (tmp_exp < -static_cast<std::int64_t>(res.man_bits)) {
+                    // Exponent too small after rounding
+                    man_t res_man
+                        = quantize_close_to_zero(res_sign, new_man, quantization);
+                    res.data[i] = { res_sign, 0, res_man };
+                    continue;
+                }
                 // Shift and add sticky bit
                 new_man = (new_man >> (-tmp_exp + 1))
                     | ((new_man & ((1 << (-tmp_exp + 1)) - 1)) != 0);
@@ -802,6 +809,13 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
             }
 
             if (tmp_exp <= 0) {
+                if (tmp_exp < -static_cast<std::int64_t>(res.man_bits)) {
+                    // Exponent too small after rounding
+                    man_t res_man
+                        = quantize_close_to_zero(res_sign, new_man, quantization);
+                    res.data[i] = { res_sign, 0, res_man };
+                    continue;
+                }
                 // Shift and add sticky bit
                 new_man = (new_man >> (-tmp_exp + 1))
                     | ((new_man & ((1 << (-tmp_exp + 1)) - 1)) != 0);

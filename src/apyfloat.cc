@@ -220,13 +220,14 @@ APyFloat APyFloat::_cast(
         prev_man = remainder << (man_bits - subn_adjustment);
     }
 
-    if (new_exp < -static_cast<std::int64_t>(res.man_bits
-        )) { // Exponent too small after rounding
-        return res.construct_zero();
-    }
-
     // Check if the number will be converted to a subnormal
     if (new_exp <= 0) {
+        if (new_exp < -static_cast<std::int64_t>(res.man_bits)) {
+            // Exponent too small after rounding
+            res.man = quantize_close_to_zero(sign, prev_man, quantization);
+            res.exp = 0;
+            return res;
+        }
         prev_man |= leading_one();
         res.exp = 0;
         // Cast mantissa
@@ -1081,6 +1082,12 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         }
 
         if (tmp_exp <= 0) {
+            if (tmp_exp < -static_cast<std::int64_t>(res.man_bits)) {
+                // Exponent too small after rounding
+                res.man = quantize_close_to_zero(sign, new_man, quantization);
+                res.exp = 0;
+                return res;
+            }
             new_man = (new_man >> (-tmp_exp + 1))
                 | ((new_man & ((1 << (-tmp_exp + 1)) - 1)) != 0);
             tmp_exp = 0;
