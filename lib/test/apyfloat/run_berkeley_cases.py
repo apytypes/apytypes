@@ -115,22 +115,23 @@ def run_berkeley_test(
 
     if "to" in operation:
         to_exp_bits, to_man_bits = parse_format(args[2])
-        with open(output_file, "a") as f:
-            for test in test_cases:
-                tests_total += 1
-                lhs = APyFloat.from_bits(test[0], exp_bits, man_bits)
-                ref = APyFloat.from_bits(test[1], to_exp_bits, to_man_bits)
-                try:
-                    res = func_under_test(lhs, to_exp_bits, to_man_bits)
-                except Exception as e:
-                    f.write(f"lhs: {lhs!r}, ref: {ref!r}, res: {res!r}\n")
-                    f.write(f"Exception: {e}")
-                else:
-                    if (ref.is_nan and not res.is_nan) or (
-                        not ref.is_nan and not res.is_identical(ref)
-                    ):
+        with APyFloatQuantizationContext(quantization):
+            with open(output_file, "a") as f:
+                for test in test_cases:
+                    tests_total += 1
+                    lhs = APyFloat.from_bits(test[0], exp_bits, man_bits)
+                    ref = APyFloat.from_bits(test[1], to_exp_bits, to_man_bits)
+                    try:
+                        res = func_under_test(lhs, to_exp_bits, to_man_bits)
+                    except Exception as e:
                         f.write(f"lhs: {lhs!r}, ref: {ref!r}, res: {res!r}\n")
-                        tests_failed += 1
+                        f.write(f"Exception: {e}")
+                    else:
+                        if (ref.is_nan and not res.is_nan) or (
+                            not ref.is_nan and not res.is_identical(ref)
+                        ):
+                            f.write(f"lhs: {lhs!r}, ref: {ref!r}, res: {res!r}\n")
+                            tests_failed += 1
     else:
         with APyFloatQuantizationContext(quantization):
             with open(output_file, "a") as f:
