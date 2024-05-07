@@ -8,18 +8,20 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 
-#include <algorithm>  // std::find
-#include <cstddef>    // std::size_t
-#include <functional> // std::bit_not
-#include <iomanip>    // std::setfill, std::setw
-#include <ios>        // std::hex
-#include <iterator>   // std::distance
-#include <optional>   // std::optional, std::nullopt
-#include <regex>      // std::regex, std::regex_replace
-#include <sstream>    // std::stringstream
-#include <string>     // std::string
-#include <tuple>
-#include <vector> // std::vector
+#include <algorithm>        // std::find
+#include <cstddef>          // std::size_t
+#include <cstdint>          // int64_t
+#include <functional>       // std::bit_not
+#include <initializer_list> // std::initializer_list
+#include <iomanip>          // std::setfill, std::setw
+#include <ios>              // std::hex
+#include <iterator>         // std::distance
+#include <optional>         // std::optional, std::nullopt
+#include <regex>            // std::regex, std::regex_replace
+#include <sstream>          // std::stringstream
+#include <string>           // std::string
+#include <tuple>            // std::tuple
+#include <vector>           // std::vector
 
 /*
  * Include Microsoft intrinsics if using Microsoft Visual C/C++ compiler
@@ -127,7 +129,6 @@ template <typename INT_TYPE>
 )
 {
     static_assert(_LIMB_SIZE_BITS == 64 || _LIMB_SIZE_BITS == 32);
-
     if constexpr (_LIMB_SIZE_BITS == 64) {
         return ((bits - 1) >> 6) + 1;
     } else {
@@ -952,6 +953,27 @@ template <class RANDOM_ACCESS_ITERATOR>
         }
         return true; // All ones
     }
+}
+
+//! Create a limb vector `std::vector<mp_limb_t>` from one or more `uint64_t`. On 32-bit
+//! systems, the limb vector will contain exactly two limbs for each `uint64_t`. One
+//! 64-bit systems, the limb vector will contain exactly one limb per `uint64_t`.
+[[maybe_unused, nodiscard]] static APY_INLINE std::vector<mp_limb_t>
+limb_vector_from_uint64_t(std::initializer_list<uint64_t> list)
+{
+    static_assert(_LIMB_SIZE_BITS == 32 || _LIMB_SIZE_BITS == 64);
+    std::vector<mp_limb_t> result {};
+    if constexpr (_LIMB_SIZE_BITS == 32) {
+        for (uint64_t n : list) {
+            result.push_back(mp_limb_t(n));
+            result.push_back(mp_limb_t(n >> 32));
+        }
+    } else { /* _LIMB_SIZE_BITS == 64 */
+        for (uint64_t n : list) {
+            result.push_back(mp_limb_t(n));
+        }
+    }
+    return result;
 }
 
 template <typename T> std::string string_from_vec(const std::vector<T>& vec)

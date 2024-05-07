@@ -662,7 +662,7 @@ APyFixed APyFloat::to_fixed() const
         return APyFixed(1, 1, std::vector<mp_limb_t>({ 0 }));
     }
 
-    APyFixed res(man_bits + 2, 2, std::vector<mp_limb_t>({ true_man() }));
+    APyFixed res(man_bits + 2, 2, limb_vector_from_uint64_t({ true_man() }));
     if (sign) {
         res = -res;
     }
@@ -826,8 +826,8 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
     // Slower path
 
     // Two integer bits, sign bit and leading one
-    APyFixed apy_mx(2 + x.man_bits, 2, std::vector<mp_limb_t>({ mx }));
-    APyFixed apy_my(2 + y.man_bits, 2 - exp_delta, std::vector<mp_limb_t>({ my }));
+    APyFixed apy_mx(2 + x.man_bits, 2, limb_vector_from_uint64_t({ mx }));
+    APyFixed apy_my(2 + y.man_bits, 2 - exp_delta, limb_vector_from_uint64_t({ my }));
 
     // Perform addition/subtraction
     auto apy_res = (x.sign == y.sign) ? apy_mx + apy_my : apy_mx - apy_my;
@@ -958,8 +958,8 @@ APyFloat& APyFloat::operator+=(const APyFloat& rhs)
     // Slower path only as fast path is not currently used
 
     // Two integer bits, sign bit and leading one
-    APyFixed apy_mx(2 + man_bits, 2, std::vector<mp_limb_t>({ mx }));
-    APyFixed apy_my(2 + man_bits, 2 - exp_delta, std::vector<mp_limb_t>({ my }));
+    APyFixed apy_mx(2 + man_bits, 2, limb_vector_from_uint64_t({ mx }));
+    APyFixed apy_my(2 + man_bits, 2 - exp_delta, limb_vector_from_uint64_t({ my }));
 
     // Perform addition/subtraction
     auto apy_res = (same_sign) ? apy_mx + apy_my : apy_mx - apy_my;
@@ -1115,8 +1115,8 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
             + ((std::int64_t)norm_y.exp - (std::int64_t)norm_y.bias) + res.bias;
 
         // Two integer bits, sign bit and leading one
-        APyFixed apy_mx(2 + norm_x.man_bits, 2, std::vector<mp_limb_t>({ mx }));
-        APyFixed apy_my(2 + norm_y.man_bits, 2, std::vector<mp_limb_t>({ my }));
+        APyFixed apy_mx(2 + norm_x.man_bits, 2, limb_vector_from_uint64_t({ mx }));
+        APyFixed apy_my(2 + norm_y.man_bits, 2, limb_vector_from_uint64_t({ my }));
 
         auto apy_res = (apy_mx * apy_my);
 
@@ -1209,10 +1209,10 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
 
     // Two integer bits, sign bit and leading one
     APyFixed apy_mx(
-        2 + guard_bits + norm_x.man_bits, 2, std::vector<mp_limb_t>({ 0, mx })
+        2 + guard_bits + norm_x.man_bits, 2, limb_vector_from_uint64_t({ 0, mx })
     );
     APyFixed apy_my(
-        2 + guard_bits + norm_y.man_bits, 2, std::vector<mp_limb_t>({ 0, my })
+        2 + guard_bits + norm_y.man_bits, 2, limb_vector_from_uint64_t({ 0, my })
     );
 
     auto apy_man_res = apy_mx / apy_my;
@@ -1356,7 +1356,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
     }
 
     // Slow path
-    const APyFixed apy_mx(2 + x.man_bits, 2, std::vector<mp_limb_t>({ mx }));
+    const APyFixed apy_mx(2 + x.man_bits, 2, limb_vector_from_uint64_t({ mx }));
     APyFixed apy_res = ipow(apy_mx, abs_n);
 
     // Normalize mantissa

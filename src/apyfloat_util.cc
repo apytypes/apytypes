@@ -28,8 +28,9 @@ void quantize_apymantissa(
 )
 {
     if (quantization == QuantizationMode::STOCH_WEIGHTED) {
-        std::vector<mp_limb_t> rnd_data
-            = { random_number_float(), random_number_float(), 0 };
+        std::vector<mp_limb_t> rnd_data = limb_vector_from_uint64_t(
+            { random_number_float(), random_number_float(), 0 }
+        );
         APyFixed rnd_num(_LIMB_SIZE_BITS * 3, _LIMB_SIZE_BITS - bits, rnd_data);
         apyman = apyman + rnd_num;
     } else if (quantization == QuantizationMode::STOCH_EQUAL) {
