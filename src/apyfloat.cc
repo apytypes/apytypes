@@ -256,8 +256,13 @@ void APyFloat::cast_mantissa(std::uint8_t new_man_bits, QuantizationMode quantiz
     // Check if only zeros should be added
     if (man_bits_delta <= 0) {
         if (exp >= max_exp) {
-            exp = max_exp;
-            man = 0;
+            if (do_infinity(quantization, sign)) {
+                exp = max_exp;
+                man = 0;
+            } else {
+                exp = max_exp - 1;
+                man = leading_one() - 1;
+            }
         } else {
             man <<= -man_bits_delta;
         }
@@ -990,8 +995,15 @@ APyFloat& APyFloat::operator+=(const APyFloat& rhs)
     }
 
     // Check for overflow
-    if (exp >= max_exponent()) {
-        set_to_inf();
+    const exp_t max_exp = max_exponent();
+    if (exp >= max_exp) {
+        if (do_infinity(quantization, sign)) {
+            exp = max_exp;
+            man = 0;
+        } else {
+            exp = max_exp - 1;
+            man = leading_one() - 1;
+        }
         return *this;
     }
 
