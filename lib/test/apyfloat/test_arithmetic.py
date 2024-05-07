@@ -478,6 +478,10 @@ def test_mul_underflow():
     res = APyFloat(0, 0, 31, 4, 5) * APyFloat(0, 1, 1, 4, 5)
     assert res == 0
 
+    # From GH#406
+    res = APyFloat(0, 53, 32895, 8, 23) * APyFloat(1, 1, 1999049, 8, 23)
+    assert res == 0
+
 
 @pytest.mark.float_mul
 def test_mul_with_one():
