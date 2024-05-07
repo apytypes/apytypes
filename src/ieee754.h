@@ -72,13 +72,13 @@
     }
 }
 
-//! Returns the *biased* exponent of a `double` in a `int64_t`.
+//! Returns the biased exponent of a `double` in a `int64_t`.
 //! Return value range: [0, 2048)
-[[maybe_unused]] static APY_INLINE int64_t exp_of_double(double d)
+[[maybe_unused]] static APY_INLINE int exp_of_double(double d)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
     if constexpr (target_is_little_endian()) {
-        return (double_pun << 1) >> 53;
+        return static_cast<int>((double_pun << 1) >> 53);
     } else { // std::endiand::native == std::endian::big
         throw NotImplementedException();
     }
@@ -109,9 +109,9 @@
     d = type_pun_uint64_t_to_double(double_pun);
 }
 
-//! Set the exponent part of a `double` from `int64_t`.
-//! Domain of argument `int64_t`: [0, 2048)
-[[maybe_unused]] static APY_INLINE void set_exp_of_double(double& d, int64_t exp)
+//! Set the exponent part of a `double` from `int`.
+//! Domain of argument `exp`: [0, 2048)
+[[maybe_unused]] static APY_INLINE void set_exp_of_double(double& d, int exp)
 {
     uint64_t double_pun = type_pun_double_to_uint64_t(d);
     if constexpr (target_is_little_endian()) {
@@ -123,7 +123,7 @@
     d = type_pun_uint64_t_to_double(double_pun);
 }
 
-//! Set the mantissa poart of a `double` from `uint64_t`.
+//! Set the mantissa part of a `double` from `uint64_t`.
 //! Domain of argument `uint64_t`: [0, 4503599627370496)
 [[maybe_unused]] static APY_INLINE void set_man_of_double(double& d, uint64_t man)
 {

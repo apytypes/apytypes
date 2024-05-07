@@ -698,7 +698,7 @@ void APyFixed::set_from_double(double value)
         throw std::domain_error(fmt::format("Cannot convert {} to fixed-point", value));
     }
 
-    int64_t exp = exp_of_double(value);
+    int exp = exp_of_double(value);
     uint64_t man = man_of_double(value);
 
     // Append mantissa hidden one
@@ -707,7 +707,7 @@ void APyFixed::set_from_double(double value)
     }
 
     // Left-shift amount needed to align floating binary point with fixed binary point
-    int64_t left_shift_amnt = exp + frac_bits() - 52 - 1023;
+    int left_shift_amnt = exp + frac_bits() - 52 - 1023;
 
     // Zero limb vector data
     std::fill(_data.begin(), _data.end(), 0);
@@ -785,7 +785,7 @@ double APyFixed::to_double() const
     }
 
     uint64_t man {};
-    int64_t exp {};
+    int exp {};
     bool sign = is_negative();
 
     if constexpr (_LIMB_SIZE_BITS == 64) {
