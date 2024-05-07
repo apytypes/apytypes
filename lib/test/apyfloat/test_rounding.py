@@ -40,6 +40,14 @@ class TestAPyFloatQuantizationAddSub:
             res = APyFloat(1, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
             assert res.is_identical(APyFloat(1, 15, 1, 5, 2))
 
+            # Two big positive numbers should become infinity
+            res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2)
+            assert res.is_identical(APyFloat(0, 31, 0, 5, 2))
+
+            # Two big negative numbers should saturate
+            res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2)
+            assert res.is_identical(APyFloat(1, 30, 3, 5, 2))
+
     def test_to_neg(self):
         with APyFloatQuantizationContext(QuantizationMode.TO_NEG):
             # 1.5 + very small number should quantize to 1.5
@@ -49,6 +57,14 @@ class TestAPyFloatQuantizationAddSub:
             # -1.5 + very small number should quantize to 1.5
             res = APyFloat(1, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
             assert res.is_identical(APyFloat(1, 15, 2, 5, 2))
+
+            # Two big positive numbers should saturate
+            res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2)
+            assert res.is_identical(APyFloat(0, 30, 3, 5, 2))
+
+            # Two big negative numbers should become infinity
+            res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2)
+            assert res.is_identical(APyFloat(1, 31, 0, 5, 2))
 
     def test_to_zero(self):
         with APyFloatQuantizationContext(QuantizationMode.TO_ZERO):
@@ -63,6 +79,14 @@ class TestAPyFloatQuantizationAddSub:
                 sign=1, exp=12, man=3, exp_bits=5, man_bits=2
             )
             assert res.is_identical(APyFloat(1, 15, 2, 5, 2))
+
+            # Two big positive numbers should saturate
+            res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2)
+            assert res.is_identical(APyFloat(0, 30, 3, 5, 2))
+
+            # Two big negative numbers should saturate
+            res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2)
+            assert res.is_identical(APyFloat(1, 30, 3, 5, 2))
 
     def test_to_ties_even(self):
         with APyFloatQuantizationContext(QuantizationMode.TIES_EVEN):
@@ -102,6 +126,14 @@ class TestAPyFloatQuantizationAddSub:
             res = APyFloat(1, 15, 3, 5, 2) + APyFloat(1, 12, 0, 5, 2)
             assert res.is_identical(APyFloat(1, 16, 0, 5, 2))
 
+            # Two big positive numbers should become infinity
+            res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2)
+            assert res.is_identical(APyFloat(0, 31, 0, 5, 2))
+
+            # Two big negative numbers should become infinity
+            res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2)
+            assert res.is_identical(APyFloat(1, 31, 0, 5, 2))
+
     def test_to_ties_away(self):
         with APyFloatQuantizationContext(QuantizationMode.TIES_EVEN):
             # 1.5 + relatively big number (0.21875) should quantize to 1.75
@@ -140,6 +172,14 @@ class TestAPyFloatQuantizationAddSub:
             res = APyFloat(1, 15, 3, 5, 2) + APyFloat(1, 12, 0, 5, 2)
             assert res.is_identical(APyFloat(1, 16, 0, 5, 2))
 
+            # Two big positive numbers should become infinity
+            res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2)
+            assert res.is_identical(APyFloat(0, 31, 0, 5, 2))
+
+            # Two big negative numbers should become infinity
+            res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2)
+            assert res.is_identical(APyFloat(1, 31, 0, 5, 2))
+
     def test_jam(self):
         with APyFloatQuantizationContext(QuantizationMode.JAM):
             # 1.5 + very small number should quantize to 1.75
@@ -153,6 +193,14 @@ class TestAPyFloatQuantizationAddSub:
             # 1.0 + 1.0 should become 2.5
             res = APyFloat(0, 15, 0, 5, 2) + APyFloat(0, 15, 0, 5, 2)
             assert res.is_identical(APyFloat(0, 16, 1, 5, 2))
+
+            # Two big positive numbers should saturate
+            res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2)
+            assert res.is_identical(APyFloat(0, 30, 3, 5, 2))
+
+            # Two big negative numbers should saturate
+            res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2)
+            assert res.is_identical(APyFloat(1, 30, 3, 5, 2))
 
     def test_stoch_weighted(self):
         with APyFloatQuantizationContext(QuantizationMode.STOCH_WEIGHTED):
@@ -216,6 +264,14 @@ class TestAPyFloatQuantizationMul:
             res = APyFloat(1, 0, 1, 4, 3) * APyFloat(0, 0, 1, 4, 3)
             assert res.is_identical(APyFloat(1, 0, 0, 4, 3))
 
+            # Big positive number should become infinity
+            res = APyFloat(0, 30, 3, 5, 2) * APyFloat(0, 30, 3, 5, 2)
+            assert res.is_identical(APyFloat(0, 31, 0, 5, 2))
+
+            # Big negative number should saturate
+            res = APyFloat(1, 30, 3, 5, 2) * APyFloat(0, 30, 3, 5, 2)
+            assert res.is_identical(APyFloat(1, 30, 3, 5, 2))
+
     def test_to_neg(self):
         with APyFloatQuantizationContext(QuantizationMode.TO_NEG):
             # Should round down
@@ -241,6 +297,14 @@ class TestAPyFloatQuantizationMul:
             res = APyFloat(1, 0, 1, 4, 3) * APyFloat(0, 0, 1, 4, 3)
             assert res.is_identical(APyFloat(1, 0, 1, 4, 3))
 
+            # Big positive number should saturate
+            res = APyFloat(0, 30, 3, 5, 2) * APyFloat(0, 30, 3, 5, 2)
+            assert res.is_identical(APyFloat(0, 30, 3, 5, 2))
+
+            # Big negative number should become infinity
+            res = APyFloat(1, 30, 3, 5, 2) * APyFloat(0, 30, 3, 5, 2)
+            assert res.is_identical(APyFloat(1, 31, 0, 5, 2))
+
 
 @pytest.mark.float_div
 class TestAPyFloatQuantizationDiv:
@@ -258,6 +322,14 @@ class TestAPyFloatQuantizationDiv:
             res = APyFloat(1, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
             assert res.is_identical(APyFloat(1, 15, 0, 5, 2))
 
+            # Should become infinity
+            res = APyFloat(0, 30, 3, 5, 2) / APyFloat(0, 0, 3, 5, 2)
+            assert res.is_identical(APyFloat(0, 31, 0, 5, 2))
+
+            # Should saturate
+            res = APyFloat(0, 30, 3, 5, 2) / APyFloat(1, 0, 3, 5, 2)
+            assert res.is_identical(APyFloat(1, 30, 3, 5, 2))
+
     def test_to_neg(self):
         with APyFloatQuantizationContext(QuantizationMode.TO_NEG):
             # 1.5 / 1.25 (=1.2) should quantize to 1.0
@@ -268,6 +340,14 @@ class TestAPyFloatQuantizationDiv:
             res = APyFloat(1, 15, 2, 5, 2) / APyFloat(0, 15, 1, 5, 2)
             assert res.is_identical(APyFloat(1, 15, 1, 5, 2))
 
+            # Should saturate
+            res = APyFloat(0, 30, 3, 5, 2) / APyFloat(0, 0, 3, 5, 2)
+            assert res.is_identical(APyFloat(0, 30, 3, 5, 2))
+
+            # Should become infinity
+            res = APyFloat(0, 30, 3, 5, 2) / APyFloat(1, 0, 3, 5, 2)
+            assert res.is_identical(APyFloat(1, 31, 0, 5, 2))
+
     def test_to_zero(self):
         with APyFloatQuantizationContext(QuantizationMode.TO_ZERO):
             # 1.25 / 1.5 should quantize to 0.75
@@ -277,6 +357,14 @@ class TestAPyFloatQuantizationDiv:
             # -1.25 / 1.5 should quantize to -0.75
             res = APyFloat(1, 15, 1, 5, 2) / APyFloat(0, 15, 2, 5, 2)
             assert res.is_identical(APyFloat(1, 14, 2, 5, 2))
+
+            # Should saturate
+            res = APyFloat(0, 30, 3, 5, 2) / APyFloat(0, 0, 3, 5, 2)
+            assert res.is_identical(APyFloat(0, 30, 3, 5, 2))
+
+            # Should saturate
+            res = APyFloat(0, 30, 3, 5, 2) / APyFloat(1, 0, 3, 5, 2)
+            assert res.is_identical(APyFloat(1, 30, 3, 5, 2))
 
     def test_to_ties_even(self):
         with APyFloatQuantizationContext(QuantizationMode.TIES_EVEN):
@@ -312,6 +400,14 @@ class TestAPyFloatQuantizationDiv:
             res = APyFloat(1, 0, 3, 5, 2) / APyFloat(0, 16, 0, 5, 2)
             assert res.is_identical(APyFloat(1, 0, 2, 5, 2))
 
+            # Should become infinity
+            res = APyFloat(0, 30, 3, 5, 2) / APyFloat(0, 0, 3, 5, 2)
+            assert res.is_identical(APyFloat(0, 31, 0, 5, 2))
+
+            # Should become infinity
+            res = APyFloat(0, 30, 3, 5, 2) / APyFloat(1, 0, 3, 5, 2)
+            assert res.is_identical(APyFloat(1, 31, 0, 5, 2))
+
     def test_to_ties_away(self):
         with APyFloatQuantizationContext(QuantizationMode.TIES_AWAY):
             # 1.25 / 1.5 should quantize to closes which is 0.875
@@ -346,6 +442,14 @@ class TestAPyFloatQuantizationDiv:
             res = APyFloat(1, 0, 3, 5, 2) / APyFloat(0, 16, 0, 5, 2)
             assert res.is_identical(APyFloat(1, 0, 2, 5, 2))
 
+            # Should become infinity
+            res = APyFloat(0, 30, 3, 5, 2) / APyFloat(0, 0, 3, 5, 2)
+            assert res.is_identical(APyFloat(0, 31, 0, 5, 2))
+
+            # Should become infinity
+            res = APyFloat(0, 30, 3, 5, 2) / APyFloat(1, 0, 3, 5, 2)
+            assert res.is_identical(APyFloat(1, 31, 0, 5, 2))
+
     def test_jam(self):
         with APyFloatQuantizationContext(QuantizationMode.JAM):
             # 1.5 / 1.25 (=1.2) should quantize to 1.25
@@ -359,6 +463,14 @@ class TestAPyFloatQuantizationDiv:
             # 4 / 2 (=2) should quantize to 2.25
             res = APyFloat(0, 17, 0, 5, 2) / APyFloat(0, 16, 0, 5, 2)
             assert res.is_identical(APyFloat(0, 16, 1, 5, 2))
+
+            # Should saturate
+            res = APyFloat(0, 30, 3, 5, 2) / APyFloat(0, 0, 3, 5, 2)
+            assert res.is_identical(APyFloat(0, 30, 3, 5, 2))
+
+            # Should saturate
+            res = APyFloat(0, 30, 3, 5, 2) / APyFloat(1, 0, 3, 5, 2)
+            assert res.is_identical(APyFloat(1, 30, 3, 5, 2))
 
     def test_stoch_weighted(self):
         with APyFloatQuantizationContext(QuantizationMode.STOCH_WEIGHTED):
@@ -519,6 +631,15 @@ class TestAPyFloatQuantization:
             .is_identical(APyFloat(1, 5, 0b101, 5, 3))
         )  # Round down
 
+        # Test handling of infinities
+        assert (
+            APyFloat(0, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(0, 15, 0, 4, 3))
+        )  # Should become infinity
+
+        assert (
+            APyFloat(1, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(1, 14, 7, 4, 3))
+        )  # Should saturate
+
     def test_quantization_to_neg(self):
         apytypes.set_float_quantization_mode(QuantizationMode.TO_NEG)
         # Quantization from 0.xx
@@ -608,6 +729,15 @@ class TestAPyFloatQuantization:
             .cast(5, 3)
             .is_identical(APyFloat(1, 5, 0b110, 5, 3))
         )  # Round up
+
+        # Test handling of infinities
+        assert (
+            APyFloat(0, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(0, 14, 7, 4, 3))
+        )  # Should saturate
+
+        assert (
+            APyFloat(1, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(1, 15, 0, 4, 3))
+        )  # Should become infinity
 
     def test_quantization_to_away(self):
         apytypes.set_float_quantization_mode(QuantizationMode.TO_AWAY)
@@ -699,6 +829,15 @@ class TestAPyFloatQuantization:
             .is_identical(APyFloat(1, 5, 0b110, 5, 3))
         )  # Round down
 
+        # Test handling of infinities
+        assert (
+            APyFloat(0, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(0, 15, 0, 4, 3))
+        )  # Should become infinity
+
+        assert (
+            APyFloat(1, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(1, 15, 0, 4, 3))
+        )  # Should become infinity
+
     def test_quantization_to_zero(self):
         apytypes.set_float_quantization_mode(QuantizationMode.TO_ZERO)
         # Quantization from 0.xx
@@ -788,6 +927,15 @@ class TestAPyFloatQuantization:
             .cast(5, 3)
             .is_identical(APyFloat(1, 5, 0b101, 5, 3))
         )  # Round down
+
+        # Test handling of infinities
+        assert (
+            APyFloat(0, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(0, 14, 7, 4, 3))
+        )  # Should saturate
+
+        assert (
+            APyFloat(1, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(1, 14, 7, 4, 3))
+        )  # Should saturate
 
     def test_quantization_ties_even(self):
         apytypes.set_float_quantization_mode(QuantizationMode.TIES_EVEN)
@@ -879,6 +1027,15 @@ class TestAPyFloatQuantization:
             .is_identical(APyFloat(1, 5, 0b110, 5, 3))
         )  # Round up
 
+        # Test handling of infinities
+        assert (
+            APyFloat(0, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(0, 15, 0, 4, 3))
+        )  # Should become infinity
+
+        assert (
+            APyFloat(1, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(1, 15, 0, 4, 3))
+        )  # Should become infinity
+
     def test_quantization_ties_odd(self):
         apytypes.set_float_quantization_mode(QuantizationMode.TIES_ODD)
         # Quantization from 0.xx
@@ -968,6 +1125,15 @@ class TestAPyFloatQuantization:
             .cast(5, 3)
             .is_identical(APyFloat(1, 5, 0b110, 5, 3))
         )  # Round up
+
+        # Test handling of infinities
+        assert (
+            APyFloat(0, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(0, 15, 0, 4, 3))
+        )  # Should become infinity
+
+        assert (
+            APyFloat(1, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(1, 15, 0, 4, 3))
+        )  # Should become infinity
 
     def test_quantization_ties_pos(self):
         apytypes.set_float_quantization_mode(QuantizationMode.TIES_POS)
@@ -1059,6 +1225,15 @@ class TestAPyFloatQuantization:
             .is_identical(APyFloat(1, 5, 0b110, 5, 3))
         )  # Round up
 
+        # Test handling of infinities
+        assert (
+            APyFloat(0, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(0, 15, 0, 4, 3))
+        )  # Should become infinity
+
+        assert (
+            APyFloat(1, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(1, 15, 0, 4, 3))
+        )  # Should become infinity
+
     def test_quantization_ties_neg(self):
         apytypes.set_float_quantization_mode(QuantizationMode.TIES_NEG)
         # Quantization from 0.xx
@@ -1148,6 +1323,15 @@ class TestAPyFloatQuantization:
             .cast(5, 3)
             .is_identical(APyFloat(1, 5, 0b110, 5, 3))
         )  # Round up
+
+        # Test handling of infinities
+        assert (
+            APyFloat(0, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(0, 15, 0, 4, 3))
+        )  # Should become infinity
+
+        assert (
+            APyFloat(1, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(1, 15, 0, 4, 3))
+        )  # Should become infinity
 
     def test_quantization_ties_away(self):
         apytypes.set_float_quantization_mode(QuantizationMode.TIES_AWAY)
@@ -1239,6 +1423,15 @@ class TestAPyFloatQuantization:
             .is_identical(APyFloat(1, 5, 0b110, 5, 3))
         )  # Round up
 
+        # Test handling of infinities
+        assert (
+            APyFloat(0, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(0, 15, 0, 4, 3))
+        )  # Should become infinity
+
+        assert (
+            APyFloat(1, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(1, 15, 0, 4, 3))
+        )  # Should become infinity
+
     def test_quantization_ties_to_zero(self):
         apytypes.set_float_quantization_mode(QuantizationMode.TIES_ZERO)
         # Quantization from 0.xx
@@ -1328,6 +1521,15 @@ class TestAPyFloatQuantization:
             .cast(5, 3)
             .is_identical(APyFloat(1, 5, 0b110, 5, 3))
         )  # Round up
+
+        # Test handling of infinities
+        assert (
+            APyFloat(0, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(0, 15, 0, 4, 3))
+        )  # Should become infinity
+
+        assert (
+            APyFloat(1, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(1, 15, 0, 4, 3))
+        )  # Should become infinity
 
     def test_quantization_jamming(self):
         apytypes.set_float_quantization_mode(QuantizationMode.JAM)
@@ -1419,6 +1621,15 @@ class TestAPyFloatQuantization:
             .is_identical(APyFloat(1, 5, 0b101, 5, 3))
         )
 
+        # Test handling of infinities
+        assert (
+            APyFloat(0, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(0, 14, 7, 4, 3))
+        )  # Should saturate
+
+        assert (
+            APyFloat(1, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(1, 14, 7, 4, 3))
+        )  # Should saturate
+
     def test_quantization_unbiased_jamming(self):
         apytypes.set_float_quantization_mode(QuantizationMode.JAM_UNBIASED)
         # Quantization from 0.xx
@@ -1444,6 +1655,15 @@ class TestAPyFloatQuantization:
             .cast(5, 3)
             .is_identical(APyFloat(0, 5, 0b101, 5, 3))
         )
+
+        # Test handling of infinities
+        assert (
+            APyFloat(0, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(0, 14, 7, 4, 3))
+        )  # Should saturate
+
+        assert (
+            APyFloat(1, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(1, 14, 7, 4, 3))
+        )  # Should saturate
 
     def test_quantization_magnitude_truncation(self):
         # Shouldn't be used for floating-point
@@ -1535,6 +1755,15 @@ class TestAPyFloatQuantization:
             .cast(5, 3)
             .is_identical(APyFloat(1, 5, 0b110, 5, 3))
         )
+
+        # Test handling of infinities
+        assert (
+            APyFloat(0, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(0, 15, 0, 4, 3))
+        )  # Should become infinity
+
+        assert (
+            APyFloat(1, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(1, 15, 0, 4, 3))
+        )  # Should become infinity
 
     def test_quantization_stochastic_weighted(self):
         """

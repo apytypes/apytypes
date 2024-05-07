@@ -1,5 +1,10 @@
 import pytest
-from apytypes import APyFloat, APyFloatArray
+from apytypes import (
+    APyFloat,
+    APyFloatArray,
+    APyFloatQuantizationContext,
+    QuantizationMode,
+)
 
 
 @pytest.mark.float_array
@@ -804,3 +809,139 @@ def test_scalar_array_mul_with_one():
             res = a * b
             assert res.is_identical(b)
             assert (b * a).is_identical(b)
+
+
+def test_array_infinity_saturation_cast():
+    # Big positive number should become infinity
+    res = APyFloatArray([0], [30], [2], 5, 2).cast(4, 2)
+    assert res.is_identical(APyFloatArray([0], [15], [0], 4, 2))
+
+    # Big negative number should become infinity
+    res = APyFloatArray([1], [30], [2], 5, 2).cast(4, 2)
+    assert res.is_identical(APyFloatArray([1], [15], [0], 4, 2))
+
+    with APyFloatQuantizationContext(QuantizationMode.TO_ZERO):
+        # Big positive number should saturate
+        res = APyFloatArray([0], [30], [2], 5, 2).cast(4, 2)
+        assert res.is_identical(APyFloatArray([0], [14], [3], 4, 2))
+
+        # Big negative number should saturate
+        res = APyFloatArray([1], [30], [2], 5, 2).cast(4, 2)
+        assert res.is_identical(APyFloatArray([1], [14], [3], 4, 2))
+
+
+@pytest.mark.float_mul
+def test_array_infinity_saturation_mul():
+    # Array x Scalar
+    # Big positive number should become infinity
+    res = APyFloatArray([0], [30], [2], 5, 2) * APyFloat(0, 30, 3, 5, 2)
+    assert res.is_identical(APyFloatArray([0], [31], [0], 5, 2))
+
+    # Big negative number should become infinity
+    res = APyFloatArray([1], [30], [2], 5, 2) * APyFloat(0, 30, 3, 5, 2)
+    assert res.is_identical(APyFloatArray([1], [31], [0], 5, 2))
+
+    with APyFloatQuantizationContext(QuantizationMode.TO_ZERO):
+        # Big positive number should saturate
+        res = APyFloatArray([0], [30], [2], 5, 2) * APyFloat(0, 30, 3, 5, 2)
+        assert res.is_identical(APyFloatArray([0], [30], [3], 5, 2))
+
+        # Big negative number should saturate
+        res = APyFloatArray([1], [30], [2], 5, 2) * APyFloat(0, 30, 3, 5, 2)
+        assert res.is_identical(APyFloatArray([1], [30], [3], 5, 2))
+
+    # Array x Array
+    # Big positive number should become infinity
+    res = APyFloatArray([0], [30], [2], 5, 2) * APyFloatArray([0], [30], [2], 5, 2)
+    assert res.is_identical(APyFloatArray([0], [31], [0], 5, 2))
+
+    # Big negative number should become infinity
+    res = APyFloatArray([1], [30], [2], 5, 2) * APyFloatArray([0], [30], [2], 5, 2)
+    assert res.is_identical(APyFloatArray([1], [31], [0], 5, 2))
+
+    with APyFloatQuantizationContext(QuantizationMode.TO_ZERO):
+        # Big positive number should saturate
+        res = APyFloatArray([0], [30], [2], 5, 2) * APyFloatArray([0], [30], [2], 5, 2)
+        assert res.is_identical(APyFloatArray([0], [30], [3], 5, 2))
+
+        # Big negative number should saturate
+        res = APyFloatArray([1], [30], [2], 5, 2) * APyFloatArray([0], [30], [2], 5, 2)
+        assert res.is_identical(APyFloatArray([1], [30], [3], 5, 2))
+
+
+@pytest.mark.float_add
+def test_array_infinity_saturation_add():
+    # Array x Scalar
+    # Big positive number should become infinity
+    res = APyFloatArray([0], [30], [2], 5, 2) + APyFloat(0, 30, 3, 5, 2)
+    assert res.is_identical(APyFloatArray([0], [31], [0], 5, 2))
+
+    # Big negative number should become infinity
+    res = APyFloatArray([1], [30], [2], 5, 2) + APyFloat(1, 30, 3, 5, 2)
+    assert res.is_identical(APyFloatArray([1], [31], [0], 5, 2))
+
+    with APyFloatQuantizationContext(QuantizationMode.TO_ZERO):
+        # Big positive number should saturate
+        res = APyFloatArray([0], [30], [2], 5, 2) + APyFloat(0, 30, 3, 5, 2)
+        assert res.is_identical(APyFloatArray([0], [30], [3], 5, 2))
+
+        # Big negative number should saturate
+        res = APyFloatArray([1], [30], [2], 5, 2) + APyFloat(1, 30, 3, 5, 2)
+        assert res.is_identical(APyFloatArray([1], [30], [3], 5, 2))
+
+    # Array x Array
+    # Big positive number should become infinity
+    res = APyFloatArray([0], [30], [2], 5, 2) + APyFloatArray([0], [30], [2], 5, 2)
+    assert res.is_identical(APyFloatArray([0], [31], [0], 5, 2))
+
+    # Big negative number should become infinity
+    res = APyFloatArray([1], [30], [2], 5, 2) + APyFloatArray([1], [30], [2], 5, 2)
+    assert res.is_identical(APyFloatArray([1], [31], [0], 5, 2))
+
+    with APyFloatQuantizationContext(QuantizationMode.TO_ZERO):
+        # Big positive number should saturate
+        res = APyFloatArray([0], [30], [2], 5, 2) + APyFloatArray([0], [30], [2], 5, 2)
+        assert res.is_identical(APyFloatArray([0], [30], [3], 5, 2))
+
+        # Big negative number should saturate
+        res = APyFloatArray([1], [30], [2], 5, 2) + APyFloatArray([1], [30], [2], 5, 2)
+        assert res.is_identical(APyFloatArray([1], [30], [3], 5, 2))
+
+
+@pytest.mark.float_div
+def test_array_infinity_saturation_div():
+    # Array x Scalar
+    # Big positive number should become infinity
+    res = APyFloatArray([0], [30], [2], 5, 2) / APyFloat(0, 1, 3, 5, 2)
+    assert res.is_identical(APyFloatArray([0], [31], [0], 5, 2))
+
+    # Big negative number should become infinity
+    res = APyFloatArray([1], [30], [2], 5, 2) / APyFloat(0, 1, 3, 5, 2)
+    assert res.is_identical(APyFloatArray([1], [31], [0], 5, 2))
+
+    with APyFloatQuantizationContext(QuantizationMode.TO_ZERO):
+        # Big positive number should saturate
+        res = APyFloatArray([0], [30], [2], 5, 2) / APyFloat(0, 1, 3, 5, 2)
+        assert res.is_identical(APyFloatArray([0], [30], [3], 5, 2))
+
+        # Big negative number should saturate
+        res = APyFloatArray([1], [30], [2], 5, 2) / APyFloat(0, 1, 3, 5, 2)
+        assert res.is_identical(APyFloatArray([1], [30], [3], 5, 2))
+
+    # Array x Array
+    # Big positive number should become infinity
+    res = APyFloatArray([0], [30], [2], 5, 2) / APyFloatArray([0], [1], [2], 5, 2)
+    assert res.is_identical(APyFloatArray([0], [31], [0], 5, 2))
+
+    # Big negative number should become infinity
+    res = APyFloatArray([1], [30], [2], 5, 2) / APyFloatArray([0], [1], [2], 5, 2)
+    assert res.is_identical(APyFloatArray([1], [31], [0], 5, 2))
+
+    with APyFloatQuantizationContext(QuantizationMode.TO_ZERO):
+        # Big positive number should saturate
+        res = APyFloatArray([0], [30], [2], 5, 2) / APyFloatArray([0], [1], [2], 5, 2)
+        assert res.is_identical(APyFloatArray([0], [30], [3], 5, 2))
+
+        # Big negative number should saturate
+        res = APyFloatArray([1], [30], [2], 5, 2) / APyFloatArray([0], [1], [2], 5, 2)
+        assert res.is_identical(APyFloatArray([1], [30], [3], 5, 2))
