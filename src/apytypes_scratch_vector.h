@@ -290,6 +290,15 @@ public:
         _ptr = tmp;
     }
 
+    void push_back(const T& value)
+    {
+        std::size_t old_size = _size;
+        resize(old_size + 1);
+        _ptr[old_size] = value;
+    }
+
+    void pop_back() { resize(_size - 1); }
+
     // Convert a `ScratchVector` into a `std::vector`
     explicit operator std::vector<T>() const { return std::vector<T>(begin(), end()); }
 

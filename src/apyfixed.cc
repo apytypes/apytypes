@@ -698,72 +698,97 @@ void APyFixed::set_from_double(double value)
         throw std::domain_error(fmt::format("Cannot convert {} to fixed-point", value));
     }
 
+    int64_t exp = exp_of_double(value);
+    uint64_t man = man_of_double(value);
+
+    // Append mantissa hidden one
+    if (exp) {
+        man |= uint64_t(1) << 52;
+    }
+
+    // Left-shift amount needed to align floating binary point with fixed binary point
+    int64_t left_shift_amnt = exp + frac_bits() - 52 - 1023;
+
+    // Zero limb vector data
+    std::fill(_data.begin(), _data.end(), 0);
+
     if constexpr (_LIMB_SIZE_BITS == 64) {
-        mp_limb_signed_t exp = exp_of_double(value);
-        mp_limb_t man = man_of_double(value);
 
-        // Append mantissa hidden one
-        if (exp) {
-            man |= mp_limb_t(1) << 52;
-        }
-
-        // Adjust the actual exponent with bias (-1023) and
-        // shift the data into its correct position
-        auto left_shift_amnt = exp + frac_bits() - 52 - 1023;
-        if (unsigned(_bits) <= _LIMB_SIZE_BITS) {
-            _data[0] = man;
-            if (left_shift_amnt >= 0) {
-                _data[0] <<= left_shift_amnt;
-            } else {
-                auto right_shift_amount = -left_shift_amnt;
-                if (right_shift_amount - 1 < 64) {
-                    // Round the value
-                    _data[0] += mp_limb_t(1) << (right_shift_amount - 1);
-                }
-                _data[0] >>= right_shift_amount;
-            }
-            // Adjust result from sign
-            if (sign_of_double(value)) {
-                _data[0] = -_data[0];
-            }
-            _data[0] = twos_complement_overflow(_data[0], bits());
+        _data[0] = man;
+        if (left_shift_amnt >= 0) {
+            limb_vector_lsl(_data.begin(), _data.end(), left_shift_amnt);
         } else {
-            std::fill(_data.begin(), _data.end(), 0);
-            _data[0] = man;
-            if (left_shift_amnt >= 0) {
-                limb_vector_lsl(_data.begin(), _data.end(), left_shift_amnt);
-            } else {
-                auto right_shift_amount = -left_shift_amnt;
-                if (right_shift_amount - 1 < 64) {
-                    // Round the value
-                    _data[0] += mp_limb_t(1) << (right_shift_amount - 1);
-                }
-                limb_vector_lsr(_data.begin(), _data.end(), right_shift_amount);
+            auto right_shift_amount = -left_shift_amnt;
+            if (right_shift_amount - 1 < 64) {
+                // Round the value
+                _data[0] += mp_limb_t(1) << (right_shift_amount - 1);
             }
-            // Adjust result from sign
-            if (sign_of_double(value)) {
-                limb_vector_negate(_data.begin(), _data.end(), _data.begin());
-            }
-            _overflow_twos_complement(_data.begin(), _data.end(), bits(), int_bits());
+            limb_vector_lsr(_data.begin(), _data.end(), right_shift_amount);
         }
-    } else {
-        throw NotImplementedException(
-            "Not implemented: APyFixed::set_from_double() for 32-bit systems"
-        );
+
+        // Adjust result from sign
+        if (sign_of_double(value)) {
+            limb_vector_negate(_data.begin(), _data.end(), _data.begin());
+        }
+        _overflow_twos_complement(_data.begin(), _data.end(), bits(), int_bits());
+
+    } else { /* _LIMB_SIZE_BITS == 32 */
+
+        bool pop_back = false;
+        _data[0] = man & 0xFFFFFFFF;
+        if (_data.size() == 1) {
+            _data.push_back(mp_limb_t(man >> 32));
+            pop_back = true;
+        } else {
+            _data[1] = mp_limb_t(man >> 32);
+        }
+
+        if (left_shift_amnt >= 0) {
+            limb_vector_lsl(_data.begin(), _data.end(), left_shift_amnt);
+        } else {
+            auto right_shift_amount = -left_shift_amnt;
+            if (right_shift_amount - 1 < 64) {
+                // Round the value
+                if (right_shift_amount - 1 >= 32) {
+                    _data[1] += mp_limb_t(1) << (right_shift_amount - 1 - 32);
+                } else {
+                    // The mantissa is at most 53 bits (two limbs)
+                    mpn_add_1(
+                        &_data[0],                               // dst
+                        &_data[0],                               // src
+                        2,                                       // limb vector len
+                        mp_limb_t(1) << (right_shift_amount - 1) // single limb
+                    );
+                }
+            }
+            limb_vector_lsr(_data.begin(), _data.end(), right_shift_amount);
+        }
+
+        // Adjust result from sign
+        if (sign_of_double(value)) {
+            limb_vector_negate(_data.begin(), _data.end(), _data.begin());
+        }
+        _overflow_twos_complement(_data.begin(), _data.end(), bits(), int_bits());
+
+        // Pop of temporary limb
+        if (pop_back) {
+            _data.pop_back();
+        }
     }
 }
 
 double APyFixed::to_double() const
 {
-    if constexpr (_LIMB_SIZE_BITS == 64) {
-        // Early exit if zero
-        if (is_zero()) {
-            return 0.0;
-        }
+    // Early exit if zero
+    if (is_zero()) {
+        return 0.0;
+    }
 
-        mp_limb_t man {};
-        mp_limb_signed_t exp {};
-        bool sign = is_negative();
+    uint64_t man {};
+    int64_t exp {};
+    bool sign = is_negative();
+
+    if constexpr (_LIMB_SIZE_BITS == 64) {
 
         ScratchVector<mp_limb_t> man_vec(std::distance(_data.cbegin(), _data.cend()));
         limb_vector_abs(_data.cbegin(), _data.cend(), man_vec.begin());
@@ -773,25 +798,47 @@ double APyFixed::to_double() const
         // Shift the mantissa into position and set the mantissa and exponent part
         int left_shift_amnt = 53 - _LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
         if (left_shift_amnt >= 0) {
-            limb_vector_lsl(man_vec.begin(), man_vec.end(), left_shift_amnt);
+            limb_vector_lsl(man_vec.begin(), man_vec.end(), +left_shift_amnt);
         } else {
             limb_vector_lsr(man_vec.begin(), man_vec.end(), -left_shift_amnt);
         }
         man = man_vec[0];
         exp = 1023 + 52 - left_shift_amnt - frac_bits();
 
-        // Return the result
-        double result {};
-        set_sign_of_double(result, sign);
-        set_exp_of_double(result, exp);
-        set_man_of_double(result, man);
-        return result;
-    } else {
-        // Not implemented for 32-bit system yet...
-        throw NotImplementedException(
-            "Not implemented: APyFixed::to_double() for 32-bit systems"
-        );
+    } else { /* _LIMB_SIZE_BITS == 32 */
+
+        ScratchVector<mp_limb_t> man_vec(std::max(
+            std::distance(_data.cbegin(), _data.cend()),
+            ScratchVector<mp_limb_t>::difference_type(2)
+        ));
+        if (_data.size() == 1) {
+            man_vec[0] = _data[0];
+            man_vec[1] = mp_limb_signed_t(_data[0]) < 0 ? -1 : 0;
+        } else {
+            std::copy(_data.begin(), _data.end(), man_vec.begin());
+        }
+        limb_vector_abs(man_vec.cbegin(), man_vec.cend(), man_vec.begin());
+        unsigned man_leading_zeros
+            = limb_vector_leading_zeros(man_vec.begin(), man_vec.end());
+
+        // Shift the mantissa into position and set the mantissa and exponent part
+        int left_shift_amnt = 53 - _LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
+        if (left_shift_amnt >= 0) {
+            limb_vector_lsl(man_vec.begin(), man_vec.end(), +left_shift_amnt);
+        } else {
+            limb_vector_lsr(man_vec.begin(), man_vec.end(), -left_shift_amnt);
+        }
+        man = uint64_t(man_vec[0]);
+        man |= uint64_t(man_vec[1]) << 32;
+        exp = 1023 + 52 - left_shift_amnt - frac_bits();
     }
+
+    // Return the result
+    double result {};
+    set_sign_of_double(result, sign);
+    set_exp_of_double(result, exp);
+    set_man_of_double(result, man);
+    return result;
 }
 
 nb::int_ APyFixed::to_bits() const
