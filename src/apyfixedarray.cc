@@ -538,11 +538,15 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
     }
 
     // General case: This always works but is slower than the special cases.
-    // Absolute value denominator
+
+    // Absolute value denominator. `mpn_tdiv_qr` requires the number of *significant*
+    // limbs in denominator
     ScratchVector<mp_limb_t> abs_den(rhs.vector_size());
     bool den_sign = limb_vector_abs(
         std::begin(rhs._data), std::end(rhs._data), std::begin(abs_den)
     );
+    std::size_t den_significant_limbs
+        = significant_limbs(std::begin(abs_den), std::end(abs_den));
 
     // Absolute value left-shifted numerator
     ScratchVector<mp_limb_t> abs_num(bits_to_limbs(res_bits));
@@ -555,6 +559,63 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
             std::begin(abs_num)
         );
         limb_vector_lsl(abs_num.begin(), abs_num.end(), rhs.bits());
+
+        mpn_div_qr(
+            &result._data[i * result._itemsize], // Quotient
+            &abs_num[0],                         // Numerator
+            abs_num.size(),                      // Numerator limbs
+            &abs_den[0],                         // Denominator
+            den_significant_limbs                // Denominator significant limbs
+        );
+
+        // Negate result if negative
+        if (num_sign ^ den_sign) {
+            limb_vector_negate(
+                std::begin(result._data) + (i + 0) * result._itemsize,
+                std::begin(result._data) + (i + 1) * result._itemsize,
+                std::begin(result._data) + (i + 0) * result._itemsize
+            );
+        }
+    }
+    return result;
+}
+
+APyFixedArray APyFixedArray::rdiv(const APyFixed& rhs) const
+{
+    const int res_int_bits = rhs.int_bits() + frac_bits() + 1;
+    const int res_frac_bits = rhs.frac_bits() + int_bits();
+    const int res_bits = res_int_bits + res_frac_bits;
+    APyFixedArray result(_shape, res_bits, res_int_bits);
+
+    // Special case #1: The resulting number of bits fit in a single limb
+    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        simd::vector_rdiv_const_signed(
+            std::begin(_data),        // src2 (denominator)
+            rhs._data[0] << bits(),   // src1 (constant numerator)
+            std::begin(result._data), // dst
+            _data.size()              // vector elements
+        );
+        return result;
+    }
+
+    // General case: This always works but is slower than the special cases.
+
+    // Absolute value denominator
+    ScratchVector<mp_limb_t> abs_den(_itemsize);
+
+    // Absolute value left-shifted numerator
+    ScratchVector<mp_limb_t> abs_num(bits_to_limbs(res_bits));
+    bool num_sign = limb_vector_abs(
+        std::begin(rhs._data), std::end(rhs._data), std::begin(abs_num)
+    );
+    limb_vector_lsl(std::begin(abs_num), std::end(abs_num), bits());
+
+    for (std::size_t i = 0; i < _nitems; i++) {
+        bool den_sign = limb_vector_abs(
+            std::begin(_data) + (i + 0) * _itemsize,
+            std::begin(_data) + (i + 1) * _itemsize,
+            std::begin(abs_den)
+        );
 
         // `mpn_tdiv_qr` requires the number of *significant* limbs in denominator
         std::size_t den_significant_limbs
@@ -971,6 +1032,7 @@ void APyFixedArray::_checked_hadamard_product(
         // product's most significant limb is zero."
         auto op1_begin = _data.begin();
         auto op2_begin = rhs._data.begin();
+        std::size_t result_itemsize = bits_to_limbs(bits() + rhs.bits());
         for (std::size_t i = 0; i < _nitems; i++) {
             // Current working operands
             auto op1_end = op1_begin + _itemsize;
@@ -994,7 +1056,6 @@ void APyFixedArray::_checked_hadamard_product(
                 op2_scratch.size()  // src2 limb vector length
             );
 
-            int result_itemsize = bits_to_limbs(bits() + rhs.bits());
             if (result_sign) {
                 // Negate result
                 limb_vector_negate(
@@ -1010,7 +1071,6 @@ void APyFixedArray::_checked_hadamard_product(
                     res_out + (i + 0) * result_itemsize
                 );
             }
-
             op1_begin = op1_end;
             op2_begin = op2_end;
         }

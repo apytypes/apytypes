@@ -207,6 +207,12 @@ void bind_fixed_array(nb::module_& m)
             [](const APyFixedArray& a, const APyFixed& b) { return a / b; },
             nb::is_operator()
         )
+        .def(
+            "__rtruediv__",
+            [](const APyFixedArray& a, const APyFixed& b) { return a.rdiv(b); },
+            nb::is_operator()
+
+        )
         .def(-nb::self)
         .def(nb::self <<= int(), nb::rv_policy::none)
         .def(nb::self >>= int(), nb::rv_policy::none)

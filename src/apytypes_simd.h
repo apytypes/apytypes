@@ -36,7 +36,7 @@ void vector_shift_add(
     std::size_t size
 );
 
-/*
+/*!
  * For each element in the iterator regions [ `*_begin`, `*_begin + size` ):
  * * Shift element in `src1_begin` left by `src1_shift_amount`
  * * Add shifted element to `constant` and store the result in `dst_begin`
@@ -64,7 +64,7 @@ void vector_shift_sub(
     std::size_t size
 );
 
-/*
+/*!
  * For each element in the iterator regions [ `*_begin`, `*_begin + size` ):
  * * Shift element in `src1_begin` left by `src1_shift_amount`
  * * Subtract `constant` from shifted element and store the result in `dst_begin`
@@ -77,7 +77,7 @@ void vector_shift_sub_const(
     std::size_t size
 );
 
-/*
+/*!
  * For each element in the iterator regions [ `*_begin`, `*_begin + size` ):
  * * Shift element in `src1_begin` left by `src1_shift_amount`
  * * Divide shifted element (numerator) by `src2_begin` (denominator) and store the
@@ -91,7 +91,7 @@ void vector_shift_div_signed(
     std::size_t size
 );
 
-/*
+/*!
  * For each element in the iterator regions [ `*_begin`, `*_begin + size` ):
  * * Shift element in `src1_begin` left by `src1_shift_amount`
  * * Divide shifted element (numerator) by `constant` (denominator) and store the
@@ -176,6 +176,18 @@ void vector_mul_const(
  * `src1_begin` and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_rsub_const(
+    std::vector<mp_limb_t>::const_iterator src1_begin,
+    mp_limb_t constant,
+    std::vector<mp_limb_t>::iterator dst_begin,
+    std::size_t size
+);
+
+/*!
+ * For each element in the iterator regions [ `*_begin`, `*_begin + size` ):
+ * * Divide `constant` (numerator) by the element in `src1_begin` (signed)
+ * * Store the result in `dst_begin`
+ */
+void vector_rdiv_const_signed(
     std::vector<mp_limb_t>::const_iterator src1_begin,
     mp_limb_t constant,
     std::vector<mp_limb_t>::iterator dst_begin,
