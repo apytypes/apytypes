@@ -117,7 +117,8 @@ public:
 
     //! Change the number of mantissa bits. The number is assumed not be NaN or Inf.
     //! The exponent is assumed to be 0 and is updated in case of carry.
-    void cast_mantissa_subnormal(std::uint8_t man_bits, QuantizationMode quantization);
+    void
+    cast_mantissa_subnormal(std::uint8_t man_bits_delta, QuantizationMode quantization);
 
     //! Change the number of mantissa and exponent bits for cases where it is known that
     //! quantization does not happen, i.e., the resulting number of bits is not shorter.
