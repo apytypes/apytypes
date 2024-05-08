@@ -160,8 +160,8 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
         return result; // early exit
     }
 
-    ScratchVector<mp_limb_t> abs_op1(std::distance(_data.begin(), _data.end()));
-    ScratchVector<mp_limb_t> abs_op2(std::distance(rhs._data.begin(), rhs._data.end()));
+    ScratchVector<mp_limb_t> abs_op1(_data.size());
+    ScratchVector<mp_limb_t> abs_op2(rhs._data.size());
     limb_vector_abs(_data.begin(), _data.end(), abs_op1.begin());
     limb_vector_abs(rhs._data.begin(), rhs._data.end(), abs_op2.begin());
 
@@ -200,6 +200,10 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
 
 APyFixed APyFixed::operator/(const APyFixed& rhs) const
 {
+    if (rhs.is_zero()) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "abc");
+    }
+
     const int res_int_bits = int_bits() + rhs.frac_bits() + 1;
     const int res_frac_bits = frac_bits() + rhs.int_bits();
     const int res_bits = res_int_bits + res_frac_bits;
@@ -495,8 +499,7 @@ bool APyFixed::is_positive() const noexcept
 
 bool APyFixed::is_zero() const noexcept
 {
-    auto limb_non_zero = [](mp_limb_t limb) { return limb != 0; };
-    return std::find_if(_data.begin(), _data.end(), limb_non_zero) == _data.end();
+    return limb_vector_is_zero(std::begin(_data), std::end(_data));
 }
 
 // Increment the LSB without making the fixed-point number wider. Returns carry out
@@ -790,7 +793,7 @@ double APyFixed::to_double() const
 
     if constexpr (_LIMB_SIZE_BITS == 64) {
 
-        ScratchVector<mp_limb_t> man_vec(std::distance(_data.cbegin(), _data.cend()));
+        ScratchVector<mp_limb_t> man_vec(_data.size());
         limb_vector_abs(_data.cbegin(), _data.cend(), man_vec.begin());
         unsigned man_leading_zeros
             = limb_vector_leading_zeros(man_vec.begin(), man_vec.end());
@@ -807,10 +810,7 @@ double APyFixed::to_double() const
 
     } else { /* _LIMB_SIZE_BITS == 32 */
 
-        ScratchVector<mp_limb_t> man_vec(std::max(
-            std::distance(_data.cbegin(), _data.cend()),
-            ScratchVector<mp_limb_t>::difference_type(2)
-        ));
+        ScratchVector<mp_limb_t> man_vec(std::max(_data.size(), std::size_t(2)));
         if (_data.size() == 1) {
             man_vec[0] = _data[0];
             man_vec[1] = mp_limb_signed_t(_data[0]) < 0 ? -1 : 0;

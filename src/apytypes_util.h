@@ -819,6 +819,14 @@ template <class RANDOM_ACCESS_ITERATOR>
     return mp_limb_signed_t(*std::prev(cend_it)) < 0;
 }
 
+//! Test if the stored value of a limb vector is zero (all limbs are zero)
+template <class RANDOM_ACCESS_ITERATOR>
+[[maybe_unused, nodiscard]] static APY_INLINE bool
+limb_vector_is_zero(RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it)
+{
+    return std::all_of(cbegin_it, cend_it, [](auto n) { return n == 0; });
+}
+
 //! Reduce the first `n` bits in a limb vector over bitwise `or`. Returns bool.
 //! Unconditionally returns `false` when `n == 0`. Undefined behaviour if `n` is
 //! greater than the number of bits in the limb vector.
