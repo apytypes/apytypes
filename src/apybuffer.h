@@ -28,16 +28,15 @@ fold_shape(const std::vector<std::size_t>& shape)
 //! Retrieve the byte-strides from a shape
 template <typename T>
 [[maybe_unused]] static APY_INLINE std::vector<std::size_t>
-strides_from_shape(const std::vector<std::size_t>& shape, std::size_t itemsize = 1)
+byte_strides_from_shape(const std::vector<std::size_t>& shape, std::size_t itemsize = 1)
 {
     std::size_t n_bytes = sizeof(T) * itemsize;
     std::vector<std::size_t> strides(shape.size(), 0);
     for (std::size_t i = 0; i < shape.size(); i++) {
-        strides[i] = std::accumulate(
+        strides[shape.size() - 1 - i] = std::accumulate(
             shape.crbegin(), shape.crbegin() + i, n_bytes, std::multiplies {}
         );
     }
-    std::reverse(strides.begin(), strides.end());
     return strides;
 }
 
@@ -49,27 +48,29 @@ protected:
     APyBuffer(const std::vector<std::size_t>& shape, std::size_t itemsize = 1)
         : _itemsize { itemsize }
         , _shape { shape }
-        , _strides { strides_from_shape<T>(shape, itemsize) }
-        , _data(itemsize * fold_shape(shape))
+        , _nitems { fold_shape(shape) }
+        , _data(itemsize * _nitems)
         , _ndim { shape.size() }
+        , _strides {} // uninitialized on construction (is initialized on demand)
     {
     }
 
     //! Retrieve a Python Buffer structure compatible with the Buffer Protocol
     Py_buffer get_py_buffer()
     {
+        _strides = byte_strides_from_shape<T>(_shape, _itemsize);
         return Py_buffer {
-            (void*)&_data[0],                           // void       *buf
-            nullptr,                                    // PyObject   *obj
-            fold_shape(_shape) * _itemsize * sizeof(T), // Py_ssize_t len
-            _itemsize * sizeof(T),                      // Py_ssize_t itemsize
-            0,                                          // int        readonly
-            _ndim,                                      // int        ndim
-            nullptr,                                    // char       *format
-            (Py_ssize_t*)&_shape[0],                    // Py_ssize_t *shape
-            (Py_ssize_t*)&_strides[0],                  // Py_ssize_t *strides
-            nullptr,                                    // Py_ssize_t suboffsets
-            nullptr                                     // void       *internal
+            (void*)&_data[0],                // void       *buf
+            nullptr,                         // PyObject   *obj
+            _nitems * _itemsize * sizeof(T), // Py_ssize_t len
+            _itemsize * sizeof(T),           // Py_ssize_t itemsize
+            0,                               // int        readonly
+            _ndim,                           // int        ndim
+            nullptr,                         // char       *format
+            (Py_ssize_t*)&_shape[0],         // Py_ssize_t *shape
+            (Py_ssize_t*)&_strides[0],       // Py_ssize_t *strides
+            nullptr,                         // Py_ssize_t suboffsets
+            nullptr                          // void       *internal
         };
     }
 
@@ -80,17 +81,20 @@ protected:
         if ((_itemsize != itemsize) || (_shape != shape)) {
             _itemsize = itemsize;
             _shape = shape;
-            _strides = strides_from_shape<T>(shape, itemsize);
-            _data.resize(itemsize * fold_shape(shape));
+            _nitems = fold_shape(shape);
+            _data.resize(itemsize * _nitems);
             _ndim = shape.size();
+            /* `_strides` are updated on demand */
         }
     }
 
-    std::size_t _itemsize;             //! Size of item (in number of objects `T`)
-    std::vector<std::size_t> _shape;   //! Shape (in number of objects `T`)
-    std::vector<std::size_t> _strides; //! Stides (in bytes)
-    std::vector<T, Allocator> _data;
-    std::size_t _ndim;
+    std::size_t _itemsize;             // Size of a single item (in number of `T`)
+    std::vector<std::size_t> _shape;   // Shape, number of items along each dimension
+    std::size_t _nitems;               // Total number of items in buffer
+    std::vector<T, Allocator> _data;   // Underlying data vector
+    std::size_t _ndim;                 // Number of dimensions
+    std::vector<std::size_t> _strides; // Byte-strides (uninitialized until the member
+                                       // function `get_py_buffer()` is called)
 };
 
 #endif // _APYBUFFER_H

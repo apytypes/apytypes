@@ -408,7 +408,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
     // Absolute value left-shifted numerator
     ScratchVector<mp_limb_t> abs_num(bits_to_limbs(res_bits));
 
-    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+    for (std::size_t i = 0; i < _nitems; i++) {
         std::fill(std::begin(abs_num), std::end(abs_num), 0);
         bool den_sign = limb_vector_abs(
             std::begin(rhs._data) + (i + 0) * rhs._itemsize,
@@ -474,7 +474,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
     // Absolute value left-shifted numerator
     ScratchVector<mp_limb_t> abs_num(bits_to_limbs(res_bits));
 
-    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+    for (std::size_t i = 0; i < _nitems; i++) {
         std::fill(std::begin(abs_num), std::end(abs_num), 0);
         bool num_sign = limb_vector_abs(
             std::begin(_data) + (i + 0) * _itemsize,
@@ -539,8 +539,7 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
     std::vector<mp_limb_t> res_tmp_vec(_itemsize + rhs.vector_size(), 0);
     std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
     auto op1_begin = _data.begin();
-    auto n_elements = fold_shape(_shape);
-    for (std::size_t i = 0; i < n_elements; i++) {
+    for (std::size_t i = 0; i < _nitems; i++) {
         // Current working operands
         auto op1_end = op1_begin + _itemsize;
 
@@ -731,7 +730,7 @@ APyFixedArray APyFixedArray::abs() const
         return result;
     }
     auto it_begin = _data.begin();
-    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+    for (std::size_t i = 0; i < _nitems; i++) {
         auto it_end = it_begin + _itemsize;
         limb_vector_abs(it_begin, it_end, result._data.begin() + i * result._itemsize);
         it_begin = it_end;
@@ -756,7 +755,7 @@ APyFixedArray APyFixedArray::operator-() const
     // Sign-extend in case an additional limb is required
     _cast_correct_wl(result._data.begin(), res_bits, res_int_bits);
     auto it_begin = result._data.begin();
-    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+    for (std::size_t i = 0; i < _nitems; i++) {
         auto it_end = it_begin + result._itemsize;
         limb_vector_negate(it_begin, it_end, it_begin);
         it_begin = it_end;
@@ -799,7 +798,7 @@ std::variant<APyFixedArray, APyFixed> APyFixedArray::get_item(std::size_t idx) c
 
 nb::ndarray<nb::numpy, double> APyFixedArray::to_numpy() const
 {
-    auto size = fold_shape(_shape);
+    auto size = _nitems;
     // Dynamically allocate data to be passed to python
     double* result_data = new double[size];
 
@@ -964,7 +963,7 @@ void APyFixedArray::_checked_hadamard_product(
     std::size_t res_bits = _bits + rhs._bits;
     if (res_bits <= _LIMB_SIZE_BITS) {
         // Native multiplication supported
-        simd::vector_mul(_data.begin(), rhs._data.begin(), res_out, fold_shape(_shape));
+        simd::vector_mul(_data.begin(), rhs._data.begin(), res_out, _nitems);
         return; // early exit
     } else {
         // Perform multiplication for each element in the tensor. `mpn_mul` requires:
@@ -972,8 +971,7 @@ void APyFixedArray::_checked_hadamard_product(
         // product's most significant limb is zero."
         auto op1_begin = _data.begin();
         auto op2_begin = rhs._data.begin();
-        auto n_elements = fold_shape(_shape);
-        for (std::size_t i = 0; i < n_elements; i++) {
+        for (std::size_t i = 0; i < _nitems; i++) {
             // Current working operands
             auto op1_end = op1_begin + _itemsize;
             auto op2_end = op2_begin + rhs._itemsize;
@@ -1083,7 +1081,7 @@ void APyFixedArray::_checked_inner_product_full(
     );
 
     // Accumulate the result
-    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+    for (std::size_t i = 0; i < _nitems; i++) {
         mpn_add(
             &*std::begin(result._data),                              // dst
             &*std::begin(result._data),                              // src1
@@ -1115,7 +1113,7 @@ void APyFixedArray::_checked_inner_product_acc(
 
     // Accumulate the result
     std::size_t hadamard_itemsize = bits_to_limbs(mode.bits);
-    for (std::size_t i = 0; i < fold_shape(_shape); i++) {
+    for (std::size_t i = 0; i < _nitems; i++) {
         mpn_add(
             &*std::begin(result._data),                      // dst
             &*std::begin(result._data),                      // src1
@@ -1271,7 +1269,7 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
         result._bits = mode->bits;
         result._int_bits = mode->int_bits;
         result._itemsize = bits_to_limbs(mode->bits);
-        result._data.resize(result._itemsize * fold_shape(result._shape));
+        result._data.resize(result._itemsize * result._nitems);
         return result;
     }
 }
@@ -1284,15 +1282,14 @@ void APyFixedArray::_cast_correct_wl(
     auto result_itemsize = bits_to_limbs(new_bits);
     auto shift_amount = new_bits - new_int_bits - frac_bits();
     auto it_begin = output_it;
-    auto n_elements = fold_shape(_shape);
 
     // If item sizes are the same, copy the whole block
     if (_itemsize == result_itemsize) {
         // Copy data into the result
         std::copy_n(
-            _data.begin(),          // src
-            _itemsize * n_elements, // limbs to copy
-            it_begin                // dst
+            _data.begin(),       // src
+            _itemsize * _nitems, // limbs to copy
+            it_begin             // dst
         );
         // If shift if required
         if (shift_amount > 0) {
@@ -1300,7 +1297,7 @@ void APyFixedArray::_cast_correct_wl(
             if (_itemsize == 1) {
                 // For each scalar in the tensor...
                 // Note that it is not possible to shift out any data here
-                for (std::size_t i = 0; i < n_elements; i++) {
+                for (std::size_t i = 0; i < _nitems; i++) {
                     output_it[i] = _data[i] << shift_amount;
                 }
                 return; // early exit
@@ -1309,7 +1306,7 @@ void APyFixedArray::_cast_correct_wl(
             unsigned limb_shift = shift_amount % _LIMB_SIZE_BITS;
             // For each scalar in the tensor...
             // Note that it is not possible to shift out any data here
-            for (std::size_t i = 0; i < n_elements; i++) {
+            for (std::size_t i = 0; i < _nitems; i++) {
                 auto it_end = it_begin + result_itemsize; // output sentinel
                 limb_vector_lsl_inner(
                     it_begin, it_end, limb_skip, limb_shift, result_itemsize
@@ -1327,7 +1324,7 @@ void APyFixedArray::_cast_correct_wl(
         unsigned limb_skip = shift_amount / _LIMB_SIZE_BITS;
         unsigned limb_shift = shift_amount % _LIMB_SIZE_BITS;
         // For each scalar in the tensor...
-        for (std::size_t i = 0; i < n_elements; i++) {
+        for (std::size_t i = 0; i < _nitems; i++) {
             auto it_end = it_begin + result_itemsize; // output sentinel
             auto data_end = data_begin + _itemsize;
             // Copy data into the result
@@ -1352,7 +1349,7 @@ void APyFixedArray::_cast_correct_wl(
     } else {
         // For each scalar in the tensor...
         // Same as above, but no shift so only copy and sign-extend
-        for (std::size_t i = 0; i < n_elements; i++) {
+        for (std::size_t i = 0; i < _nitems; i++) {
             auto it_end = it_begin + result_itemsize; // output sentinel
             auto data_end = data_begin + _itemsize;
             // Copy data into the result
@@ -1390,8 +1387,7 @@ void APyFixedArray::_cast(
     std::size_t pad_limbs = bits_to_limbs(std::max(new_bits, _bits)) - result_limbs;
     auto data_begin = _data.begin();
     auto it_start = it_begin;
-    auto n_elements = fold_shape(_shape);
-    for (std::size_t i = 0; i < n_elements; i++) {
+    for (std::size_t i = 0; i < _nitems; i++) {
         // Copy data into caster `APyFixed`. No sign-extension.
         std::copy_n(
             data_begin,          // src
