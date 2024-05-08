@@ -119,3 +119,15 @@ def test_float_matrix_to_numpy_200(benchmark):
     a = APyFloatArray.from_float(np.random.rand(200, 200), 4, 7)
 
     benchmark(lambda x: x.to_numpy(), a)
+
+
+def test_float_matrix_cast_20(benchmark):
+    a = APyFloatArray.from_float(np.random.rand(20, 20) - 0.5, 8, 20)
+
+    benchmark(lambda x: x.cast(4, 7), a)
+
+
+def test_float_matrix_cast_200(benchmark):
+    a = APyFloatArray.from_float(np.random.rand(200, 200) - 0.5, 8, 20)
+
+    benchmark(lambda x: x.cast(4, 7), a)
