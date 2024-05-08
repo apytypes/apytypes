@@ -588,9 +588,7 @@ nb::int_ APyFloat::to_bits() const
     }
 
     auto limb_vec = limb_vector_from_uint64_t({ lower, higher });
-    return python_limb_vec_to_long(
-        limb_vec.begin(), limb_vec.end(), false, bits % (1 + exp_man_bits)
-    );
+    return python_limb_vec_to_long(limb_vec.begin(), limb_vec.end(), false);
 }
 
 std::string APyFloat::str() const { return fmt::format("{:g}", to_double()); }
