@@ -574,20 +574,20 @@ APyFloat& APyFloat::update_from_bits(nb::int_ python_long_int_bit_pattern)
 
 nb::int_ APyFloat::to_bits() const
 {
-    mp_limb_t lower = man;
+    std::uint64_t lower = man;
     const int exp_man_bits = exp_bits + man_bits;
     lower |= (std::uint64_t)exp << man_bits;
     lower |= (std::uint64_t)sign << exp_man_bits;
 
-    const int bits = _LIMB_SIZE_BITS;
-    mp_limb_t higher = (std::uint64_t)exp >> (bits - man_bits);
+    const int bits = 64;
+    std::uint64_t higher = (std::uint64_t)exp >> (bits - man_bits);
 
     const int high_sign_delta = bits - exp_man_bits;
     if (high_sign_delta < 0) {
         higher |= sign << -high_sign_delta;
     }
 
-    auto limb_vec = std::vector<mp_limb_t> { lower, higher };
+    auto limb_vec = limb_vector_from_uint64_t({ lower, higher });
     return python_limb_vec_to_long(
         limb_vec.begin(), limb_vec.end(), false, bits % (1 + exp_man_bits)
     );
@@ -1198,18 +1198,16 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     man_t mx = norm_x.true_man();
     man_t my = norm_y.true_man();
 
-    // At least 3 + max(x.man_bits, y.man_bits) bits are needed,
-    // using a size of _LIMB_SIZE_BITS makes initialization quick and easy.
-    const auto guard_bits = _LIMB_SIZE_BITS;
+    // Guard bits for getting enough fractional bits out of fixed-point division
+    const auto guard_bits = 64;
 
     // Two integer bits, sign bit and leading one
     APyFixed apy_mx(
-        2 + guard_bits + norm_x.man_bits, 2, limb_vector_from_uint64_t({ 0, mx })
+        2 + guard_bits + norm_x.man_bits, 2, limb_vector_from_uint64_t({ mx })
     );
     APyFixed apy_my(
-        2 + guard_bits + norm_y.man_bits, 2, limb_vector_from_uint64_t({ 0, my })
+        2 + guard_bits + norm_y.man_bits, 2, limb_vector_from_uint64_t({ my })
     );
-
     auto apy_man_res = apy_mx / apy_my;
 
     // The result from the division will be in (1/2, 2) so normalization may be
