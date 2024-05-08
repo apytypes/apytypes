@@ -231,12 +231,9 @@ APyFloat APyFloat::_cast(
         prev_man |= leading_one();
         res.exp = 0;
         // Cast mantissa
-        // The mantissa is temporarily set to a larger format in order to use
-        // 'cast_mantissa_subnormal'
         res.man = prev_man;
-        res.man_bits = man_bits + -new_exp + 1;
-
-        res.cast_mantissa_subnormal(new_man_bits, quantization);
+        std::uint8_t man_bits_delta = 1 - new_exp;
+        res.cast_mantissa_subnormal(man_bits_delta, quantization);
         return res;
     }
 
@@ -291,18 +288,9 @@ void APyFloat::cast_mantissa_shorter(
 
 // Simplified version of cast_mantissa with exp = 0
 void APyFloat::cast_mantissa_subnormal(
-    std::uint8_t new_man_bits, QuantizationMode quantization
+    std::uint8_t man_bits_delta, QuantizationMode quantization
 )
 {
-    auto man_bits_delta = man_bits - new_man_bits;
-    man_bits = new_man_bits;
-
-    // Check if only zeros should be added
-    if (man_bits_delta <= 0) {
-        man <<= -man_bits_delta;
-        return;
-    }
-
     // The overflow check with max_exponent() is not needed here, but send it anyway
     quantize_mantissa(
         man, exp, max_exponent(), man_bits_delta, sign, leading_one(), quantization
