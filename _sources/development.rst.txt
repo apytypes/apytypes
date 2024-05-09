@@ -66,7 +66,7 @@ To run all test cases do:
     python -m pytest lib
 
 
-Randomly generated test cases from `Berkeley TestFloat <http://www.jhauser.us/arithmetic/TestFloat.html>`_ can be run for floating-point scalars.
+Randomly generated test cases from `Berkeley TestFloat <http://www.jhauser.us/arithmetic/TestFloat.html>`_ can be run for the floating-point datatypes.
 These are not executed by using pytest but instead with a dedicated Python script.
 To use it, start by installing Berkeley TestFloat, and make sure to add the binary testfloat_gen to your PATH.
 You can then see example usage of the script by running
