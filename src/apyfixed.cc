@@ -201,8 +201,8 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
 APyFixed APyFixed::operator/(const APyFixed& rhs) const
 {
     if (rhs.is_zero()) {
-        // TODO: Raise a Python `ZeroDivisionError` here when possible
-        throw nb::value_error("fixed-point division by zero");
+        PyErr_SetString(PyExc_ZeroDivisionError, "fixed-point division by zero");
+        throw nb::python_error();
     }
 
     const int res_int_bits = int_bits() + rhs.frac_bits() + 1;

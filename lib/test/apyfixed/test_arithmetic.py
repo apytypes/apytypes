@@ -18,6 +18,10 @@ def test_arithmetic_operations():
     assert (a / b).is_identical(APyFixed.from_float(-1.65625, int_bits=6, frac_bits=6))
     assert (b / a).is_identical(APyFixed.from_float(-0.59375, int_bits=7, frac_bits=5))
 
+    # Division-by-zero throws a ZeroDivisionError
+    with pytest.raises(ZeroDivisionError, match="fixed-point division by zero"):
+        _ = APyFixed.from_float(1.0, 10, 10) / APyFixed.from_float(0.0, 10, 10)
+
 
 def test_overflow_twos_complement():
     assert float(APyFixed(1 << 127, 1, 127)) == -1.0
