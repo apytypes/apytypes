@@ -7,7 +7,12 @@ Information about how to use the script can be found by running "python run_berk
 """
 
 import argparse
-from apytypes import APyFloat, QuantizationMode, APyFloatQuantizationContext
+from apytypes import (
+    APyFloat,
+    APyFloatArray,
+    QuantizationMode,
+    APyFloatQuantizationContext,
+)
 import itertools
 import os
 import random
@@ -96,12 +101,25 @@ def function_under_test(operation: str):
             raise ValueError(f"Operation '{operation}' not recognized")
 
 
+def scalar_to_array(scalar: APyFloat) -> APyFloatArray:
+    """Convert a floating-point scalar to an array of shape 1."""
+    return APyFloatArray(
+        [scalar.sign],
+        [scalar.exp],
+        [scalar.man],
+        [scalar.bias],
+        scalar.exp_bits,
+        scalar.man_bits,
+    )
+
+
 def run_berkeley_test(
     operation: str,
     quantization: QuantizationMode,
     test_file: str,
     output_file: str,
     verbose: bool = False,
+    test_array: bool = False,
 ) -> None:
     test_cases = read_test_cases(test_file)
 
@@ -121,6 +139,10 @@ def run_berkeley_test(
                     tests_total += 1
                     lhs = APyFloat.from_bits(test[0], exp_bits, man_bits)
                     ref = APyFloat.from_bits(test[1], to_exp_bits, to_man_bits)
+                    if test_array:
+                        lhs = scalar_to_array(lhs)
+                        ref = scalar_to_array(ref)
+
                     try:
                         res = func_under_test(lhs, to_exp_bits, to_man_bits)
                     except Exception as e:
@@ -140,6 +162,11 @@ def run_berkeley_test(
                     lhs = APyFloat.from_bits(test[0], exp_bits, man_bits)
                     rhs = APyFloat.from_bits(test[1], exp_bits, man_bits)
                     ref = APyFloat.from_bits(test[2], exp_bits, man_bits)
+                    if test_array:
+                        lhs = scalar_to_array(lhs)
+                        rhs = scalar_to_array(rhs)
+                        ref = scalar_to_array(ref)
+
                     try:
                         res = func_under_test(lhs, rhs)
                     except Exception as e:
@@ -222,6 +249,14 @@ def set_up_argument_parser() -> argparse.ArgumentParser:
         "-v",
         "--verbose",
         help="increase output verbosity",
+        action="store_true",
+        default=False,
+    )
+
+    parser.add_argument(
+        "-ar",
+        "--array",
+        help="run tests using the array class",
         action="store_true",
         default=False,
     )
