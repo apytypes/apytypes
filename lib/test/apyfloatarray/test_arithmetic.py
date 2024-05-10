@@ -870,6 +870,73 @@ def test_array_infinity_saturation_mul():
 
 
 @pytest.mark.float_add
+@pytest.mark.float_sub
+@pytest.mark.float_array
+@pytest.mark.parametrize("man", [10, 60])
+@pytest.mark.parametrize("with_scalar", [False, True])
+def test_array_add_sub_zero_sign(man, with_scalar):
+    pos_zero = APyFloatArray([0], [0], [0], 5, 10)
+    neg_zero = APyFloatArray([1], [0], [0], 5, man)
+    non_zero = APyFloatArray.from_float([1.0], 5, man)
+
+    # Scalar equivalents
+    pos_zero_scal = APyFloat(0, 0, 0, 5, 10)
+    neg_zero_scal = APyFloat(1, 0, 0, 5, man)
+    non_zero_scal = APyFloat.from_float(1.0, 5, man)
+
+    modes = (
+        QuantizationMode.TIES_EVEN,
+        QuantizationMode.TO_ZERO,
+        QuantizationMode.TO_POS,
+    )
+
+    for mode in modes:
+        with APyFloatQuantizationContext(mode):
+            rhs = pos_zero_scal if with_scalar else pos_zero
+            assert (_ := pos_zero + rhs)[0].sign == False
+            rhs = neg_zero_scal if with_scalar else neg_zero
+            assert (_ := pos_zero + rhs)[0].sign == False
+            rhs = pos_zero_scal if with_scalar else pos_zero
+            assert (_ := neg_zero + rhs)[0].sign == False
+            rhs = neg_zero_scal if with_scalar else neg_zero
+            assert (_ := neg_zero + rhs)[0].sign == True
+
+            rhs = pos_zero_scal if with_scalar else pos_zero
+            assert (_ := pos_zero - rhs)[0].sign == False
+            rhs = neg_zero_scal if with_scalar else neg_zero
+            assert (_ := pos_zero - rhs)[0].sign == False
+            rhs = pos_zero_scal if with_scalar else pos_zero
+            assert (_ := neg_zero - rhs)[0].sign == True
+            rhs = neg_zero_scal if with_scalar else neg_zero
+            assert (_ := neg_zero - rhs)[0].sign == False
+
+            rhs = non_zero_scal if with_scalar else non_zero
+            assert (_ := non_zero + (-rhs))[0].sign == False
+
+    with APyFloatQuantizationContext(QuantizationMode.TO_NEG):
+        rhs = pos_zero_scal if with_scalar else pos_zero
+        assert (_ := pos_zero + rhs)[0].sign == False
+        rhs = neg_zero_scal if with_scalar else neg_zero
+        assert (_ := pos_zero + rhs)[0].sign == True
+        rhs = pos_zero_scal if with_scalar else pos_zero
+        assert (_ := neg_zero + rhs)[0].sign == True
+        rhs = neg_zero_scal if with_scalar else neg_zero
+        assert (_ := neg_zero + rhs)[0].sign == True
+
+        rhs = pos_zero_scal if with_scalar else pos_zero
+        assert (_ := pos_zero - pos_zero)[0].sign == True
+        rhs = neg_zero_scal if with_scalar else neg_zero
+        assert (_ := pos_zero - rhs)[0].sign == False
+        rhs = pos_zero_scal if with_scalar else pos_zero
+        assert (_ := neg_zero - rhs)[0].sign == True
+        rhs = neg_zero_scal if with_scalar else neg_zero
+        assert (_ := neg_zero - rhs)[0].sign == True
+
+        rhs = non_zero_scal if with_scalar else non_zero
+        assert (_ := non_zero - rhs)[0].sign == True
+
+
+@pytest.mark.float_add
 def test_array_infinity_saturation_add():
     # Array x Scalar
     # Big positive number should become infinity

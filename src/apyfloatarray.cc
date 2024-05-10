@@ -93,6 +93,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
     }
 
     const auto quantization = get_float_quantization_mode();
+    const bool is_to_neg = quantization == QuantizationMode::TRN;
     // +5 to give room for leading one, carry, and 3 guard bits
     const unsigned int max_man_bits = man_bits + 5;
     if (same_type_as(rhs) && (max_man_bits <= _MAN_T_SIZE_BITS)
@@ -114,12 +115,15 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
             x = data[i];
             y = rhs.data[i];
             bool x_is_zero_exponent = (x.exp == 0);
+            bool y_is_zero_exponent = (y.exp == 0);
             // Handle zero cases
             if (x_is_zero_exponent && x.man == 0) {
+                if (y_is_zero_exponent && y.man == 0) {
+                    y.sign = (x.sign == y.sign) ? x.sign : is_to_neg;
+                }
                 res.data[i] = y;
                 continue;
             }
-            bool y_is_zero_exponent = (y.exp == 0);
             if (y_is_zero_exponent && y.man == 0) {
                 res.data[i] = x;
                 continue;
@@ -162,9 +166,8 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
                 std::swap(x_is_zero_exponent, y_is_zero_exponent);
             } else if (x.sign != y.sign && x.exp == y.exp && x.man == y.man) {
                 // Set to zero
-                res.data[i] = { quantization == QuantizationMode::TRN,
-                                static_cast<exp_t>(0),
-                                static_cast<man_t>(0) };
+                res.data[i]
+                    = { is_to_neg, static_cast<exp_t>(0), static_cast<man_t>(0) };
                 continue;
             }
 
@@ -260,13 +263,10 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
     // +5 to give room for leading one, carry, and 3 guard bits
     const unsigned int max_man_bits = man_bits + 5;
     const bool same_types = same_type_as(rhs);
+    const bool is_to_neg = quantization == QuantizationMode::TRN;
     if (same_types && (max_man_bits <= _MAN_T_SIZE_BITS)
         && (quantization != QuantizationMode::STOCH_WEIGHTED)) {
 
-        // Handle zero
-        if (rhs.is_zero()) {
-            return *this;
-        }
         const exp_t res_max_exponent = ((1ULL << exp_bits) - 1);
         APyFloatData x;
         // Result array
@@ -310,7 +310,11 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
             x = data[i];
             // Handle zero case
             if (x.exp == 0 && x.man == 0) {
-                res.data[i] = y;
+                if (y_is_zero_exponent && y.man == 0) {
+                    res.data[i].sign = (x.sign == y.sign) ? x.sign : is_to_neg;
+                } else {
+                    res.data[i] = y;
+                }
                 continue;
             }
             bool x_is_max_exponent = x.exp == res_max_exponent;
@@ -333,7 +337,8 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
             // Check if sum is zero
             if (x.sign != y.sign && x.exp == y.exp && x.man == y.man) {
                 // Set to zero
-                res.data[i] = { false, static_cast<exp_t>(0), static_cast<man_t>(0) };
+                res.data[i]
+                    = { is_to_neg, static_cast<exp_t>(0), static_cast<man_t>(0) };
                 continue;
             }
 
@@ -429,12 +434,6 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
     }
     auto new_exp_bits = std::max(exp_bits, rhs.get_exp_bits());
     auto new_man_bits = std::max(man_bits, rhs.get_man_bits());
-    if (rhs.is_zero()) {
-        if (same_types) {
-            return *this;
-        }
-        return cast_no_quant(new_exp_bits, new_man_bits);
-    }
 
     // Calculate new format
     APyFloatArray res(shape, new_exp_bits, new_man_bits);
