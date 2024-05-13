@@ -106,6 +106,14 @@ public:
         QuantizationMode quantization
     ) const;
 
+    //! Core cast method when it is known that the bit widths are not the same
+    APyFloat _checked_cast(
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        exp_t bias,
+        QuantizationMode quantization
+    ) const;
+
     //! Change the number of mantissa bits. The number is assumed not be NaN or Inf.
     //! The exponent is updated in case of carry.
     void cast_mantissa(std::uint8_t man_bits, QuantizationMode quantization);

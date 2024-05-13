@@ -194,19 +194,33 @@ APyFloat APyFloat::_cast(
     if (new_exp_bits == exp_bits && new_man_bits == man_bits && new_bias == bias) {
         return *this;
     }
+    return _checked_cast(new_exp_bits, new_man_bits, new_bias, quantization);
+}
+
+APyFloat APyFloat::_checked_cast(
+    std::uint8_t new_exp_bits,
+    std::uint8_t new_man_bits,
+    exp_t new_bias,
+    QuantizationMode quantization
+) const
+{
     APyFloat res(new_exp_bits, new_man_bits, new_bias);
-    res.sign = sign;
 
     // Handle special values first
     if (is_max_exponent()) {
         if (man) {
-            return res.construct_nan(sign);
+            res.set_to_nan(sign);
+            return res;
         }
-        return res.construct_inf(sign);
+        res.set_to_inf(sign);
+        return res;
     }
     if (is_zero()) {
-        return res.construct_zero(sign);
+        res.set_to_zero(sign);
+        return res;
     }
+
+    res.sign = sign;
 
     // Initial value for exponent
     std::int64_t new_exp = true_exp() + (std::int64_t)res.bias;
@@ -300,20 +314,23 @@ void APyFloat::cast_mantissa_subnormal(
 APyFloat APyFloat::_cast_to_double() const
 {
     APyFloat res(11, 52, 1023);
-    res.sign = sign;
 
     // Handle special values first
     if (is_max_exponent()) {
         if (man) {
-            return res.construct_nan(sign);
+            res.set_to_nan(sign);
+            return res;
         }
-        return res.construct_inf(sign);
+        res.set_to_inf(sign);
+        return res;
     }
 
     if (is_zero()) {
-        return res.construct_zero(sign);
+        res.set_to_zero(sign);
+        return res;
     }
 
+    res.sign = sign;
     // Initial value for exponent
     std::int64_t new_exp = true_exp() + 1023;
 
@@ -331,7 +348,8 @@ APyFloat APyFloat::_cast_to_double() const
     // Check if the number will be converted to a subnormal
     if (new_exp <= 0) {
         if (new_exp <= -52) { // Exponent too small
-            return res.construct_zero();
+            res.set_to_zero();
+            return res;
         }
         prev_man |= leading_one();
         // Prepare for right shift to adjust the mantissa
@@ -367,7 +385,8 @@ APyFloat APyFloat::_cast_to_double() const
     }
 
     if (new_exp >= 2047) {
-        return res.construct_inf();
+        res.set_to_inf();
+        return res;
     }
 
     res.man = new_man;
@@ -383,18 +402,22 @@ APyFloat APyFloat::cast_from_double(
         return *this;
     }
     APyFloat res(new_exp_bits, new_man_bits, new_bias);
-    res.sign = sign;
 
     // Handle special values first
     if (exp == 2047) {
         if (man) {
-            return res.construct_nan(sign);
+            res.set_to_nan(sign);
+            return res;
         }
-        return res.construct_inf(sign);
+        res.set_to_inf(sign);
+        return res;
     }
     if (is_zero()) {
-        return res.construct_zero(sign);
+        res.set_to_zero(sign);
+        return res;
     }
+
+    res.sign = sign;
 
     // Initial value for exponent
     std::int64_t new_exp;
@@ -417,7 +440,8 @@ APyFloat APyFloat::cast_from_double(
     if (new_exp <= 0) {
         if (new_exp < -static_cast<std::int64_t>(res.man_bits)) {
             // Exponent too small after rounding
-            return res.construct_zero();
+            res.set_to_zero();
+            return res;
         }
         prev_man |= leading_one();
         // Prepare for right shift to adjust the mantissa
@@ -719,7 +743,8 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
                 const bool new_sign = (sign == y.sign)
                     ? sign
                     : get_float_quantization_mode() == QuantizationMode::TRN;
-                return res.construct_zero(new_sign);
+                res.set_to_zero(new_sign);
+                return res;
             }
             return y;
         }

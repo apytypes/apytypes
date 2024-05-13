@@ -1236,8 +1236,14 @@ APyFloatArray APyFloatArray::_cast(
     QuantizationMode quantization
 ) const
 {
+    // If same parameters, do not quantize
     if (new_exp_bits == exp_bits && new_man_bits == man_bits && new_bias == bias) {
         return *this;
+    }
+
+    // If longer word lengths, use simpler/faster method
+    if (new_exp_bits >= exp_bits && new_man_bits >= man_bits) {
+        return cast_no_quant(new_exp_bits, new_man_bits, new_bias);
     }
 
     APyFloatArray result(shape, new_exp_bits, new_man_bits, new_bias);
@@ -1246,7 +1252,7 @@ APyFloatArray APyFloatArray::_cast(
     for (std::size_t i = 0; i < data.size(); i++) {
         caster.set_data(data[i]);
         result.data[i]
-            = caster._cast(new_exp_bits, new_man_bits, new_bias, quantization)
+            = caster._checked_cast(new_exp_bits, new_man_bits, new_bias, quantization)
                   .get_data();
     }
 
