@@ -191,7 +191,7 @@ APyFloatAccumulatorContext::APyFloatAccumulatorContext(
 
     new_mode.exp_bits = exp_bits.value();
     new_mode.man_bits = man_bits.value();
-    new_mode.bias = bias.value_or(APyFloat::ieee_bias(new_mode.exp_bits));
+    new_mode.bias = bias;
     new_mode.quantization = quantization.value_or(get_float_quantization_mode());
 
     // Set the current mode

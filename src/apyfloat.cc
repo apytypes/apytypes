@@ -732,7 +732,8 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
     } else {
         std::uint8_t res_exp_bits = std::max(exp_bits, rhs.exp_bits);
         std::uint8_t res_man_bits = std::max(man_bits, rhs.man_bits);
-        exp_t res_bias = APyFloat::ieee_bias(res_exp_bits);
+        exp_t res_bias
+            = calc_bias(res_exp_bits, exp_bits, bias, rhs.exp_bits, rhs.bias);
         // Cast once to resulting word length to get faster comparisons later
         x = cast_no_quant(res_exp_bits, res_man_bits, res_bias);
         y = rhs.cast_no_quant(res_exp_bits, res_man_bits, res_bias);
@@ -1053,9 +1054,10 @@ APyFloat& APyFloat::operator+=(const APyFloat& rhs)
 
 APyFloat APyFloat::operator*(const APyFloat& y) const
 {
-    auto res_exp_bits = std::max(exp_bits, y.exp_bits);
-    auto res_man_bits = std::max(man_bits, y.man_bits);
-    APyFloat res(res_exp_bits, res_man_bits);
+    const auto res_exp_bits = std::max(exp_bits, y.exp_bits);
+    const auto res_man_bits = std::max(man_bits, y.man_bits);
+    const auto res_bias = calc_bias(res_exp_bits, exp_bits, bias, y.exp_bits, y.bias);
+    APyFloat res(res_exp_bits, res_man_bits, res_bias);
 
     // Calculate sign
     res.sign = sign ^ y.sign;
@@ -1209,7 +1211,10 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
 
 APyFloat APyFloat::operator/(const APyFloat& y) const
 {
-    APyFloat res(std::max(exp_bits, y.exp_bits), std::max(man_bits, y.man_bits));
+    const auto res_exp_bits = std::max(exp_bits, y.exp_bits);
+    const auto res_man_bits = std::max(man_bits, y.man_bits);
+    const auto res_bias = calc_bias(res_exp_bits, exp_bits, bias, y.exp_bits, y.bias);
+    APyFloat res(res_exp_bits, res_man_bits, res_bias);
 
     // Calculate sign
     res.sign = sign ^ y.sign;
