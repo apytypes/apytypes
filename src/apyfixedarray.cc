@@ -766,8 +766,9 @@ std::string APyFixedArray::repr() const
     }
     ss << "], shape=(";
     ss << string_from_vec(_shape);
-    ss << "), " << "bits=" << std::dec << bits() << ", " << "int_bits=" << std::dec
-       << int_bits() << ")";
+    ss << "), "
+       << "bits=" << std::dec << bits() << ", "
+       << "int_bits=" << std::dec << int_bits() << ")";
     return ss.str();
 }
 
