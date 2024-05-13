@@ -491,6 +491,7 @@ APyFloat APyFloat::cast_from_double(
     return res;
 }
 
+//! Cast to a larger format
 APyFloat APyFloat::cast_no_quant(
     std::uint8_t new_exp_bits, std::uint8_t new_man_bits, std::optional<exp_t> new_bias
 ) const
@@ -734,23 +735,20 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
         std::uint8_t res_man_bits = std::max(man_bits, rhs.man_bits);
         exp_t res_bias
             = calc_bias(res_exp_bits, exp_bits, bias, rhs.exp_bits, rhs.bias);
-        // Cast once to resulting word length to get faster comparisons later
-        x = cast_no_quant(res_exp_bits, res_man_bits, res_bias);
-        y = rhs.cast_no_quant(res_exp_bits, res_man_bits, res_bias);
         res = APyFloat(res_exp_bits, res_man_bits, res_bias);
 
         if (is_zero()) {
-            if (y.is_zero()) {
-                const bool new_sign = (sign == y.sign)
+            if (rhs.is_zero()) {
+                const bool new_sign = (sign == rhs.sign)
                     ? sign
                     : get_float_quantization_mode() == QuantizationMode::TRN;
                 res.set_to_zero(new_sign);
                 return res;
             }
-            return y;
+            return rhs.cast(res_exp_bits, res_man_bits, res_bias);
         }
         if (rhs.is_zero()) {
-            return x;
+            return cast(res_exp_bits, res_man_bits, res_bias);
         }
         // Handle the NaN and inf cases
         if (is_max_exponent() || rhs.is_max_exponent()) {
@@ -763,9 +761,13 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
             res.set_to_inf();
             return res;
         }
+
+        x = cast_no_quant(res_exp_bits, res_man_bits, bias);
+        y = rhs.cast_no_quant(res_exp_bits, res_man_bits, rhs.bias);
+
         if (x.abs() < y.abs()) {
             std::swap(x, y);
-        } else if (sign != rhs.sign && x.exp == y.exp && x.man == y.man) {
+        } else if (sign != rhs.sign && x.true_exp() == y.true_exp() && x.man == y.man) {
             // +0 for all quantization modes except TO_NEG
             res.set_to_zero(get_float_quantization_mode() == QuantizationMode::TRN);
             return res;
@@ -1758,7 +1760,7 @@ void APyFloat::set_to_nan(std::optional<bool> new_sign, man_t payload /*= 1*/)
 
 APyFloat APyFloat::construct_zero(std::optional<bool> new_sign) const
 {
-    return APyFloat(new_sign.value_or(sign), 0, 0, exp_bits, man_bits);
+    return APyFloat(new_sign.value_or(sign), 0, 0, exp_bits, man_bits, bias);
 }
 
 APyFloat APyFloat::construct_inf(std::optional<bool> new_sign) const
@@ -1770,7 +1772,7 @@ APyFloat
 APyFloat::construct_nan(std::optional<bool> new_sign, man_t payload /*= 1*/) const
 {
     return APyFloat(
-        new_sign.value_or(sign), max_exponent(), payload, exp_bits, man_bits
+        new_sign.value_or(sign), max_exponent(), payload, exp_bits, man_bits, bias
     );
 }
 

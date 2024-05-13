@@ -37,8 +37,6 @@ calc_bias(int new_exp_bits, int exp_bits1, exp_t bias1, int exp_bits2, exp_t bia
              + ((bias2 + 1) << (new_exp_bits - exp_bits2)))
             >> 1)
         - 1;
-    // return std::min(((bias1 + 1) << (new_exp_bits - exp_bits1)), ((bias2 + 1) <<
-    // (new_exp_bits - exp_bits2))) - 1;
 }
 
 //! Quantize mantissa

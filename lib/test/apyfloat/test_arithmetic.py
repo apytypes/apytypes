@@ -132,6 +132,77 @@ def test_add_inf_nan():
     assert (APyFloat(0, 0x1F, 1, 5, 7) + APyFloat(0, 0x1F, 1, 5, 7)).is_nan
 
 
+@pytest.mark.float_sub
+def test_sub_mixed_bias():
+    # Test that the implementation doesn't do "x.cast() - y.cast()"
+    x = APyFloat(sign=0, exp=30, man=0, exp_bits=5, man_bits=2, bias=14)
+    y = APyFloat(sign=0, exp=30, man=0, exp_bits=5, man_bits=2, bias=16)
+    assert (_ := x - y).is_identical(
+        APyFloat(sign=0, exp=30, man=2, exp_bits=5, man_bits=2, bias=15)
+    )
+
+    # Test subtraction when two numbers are equal but with different formats
+    x = APyFloat(sign=0, exp=14, man=0, exp_bits=5, man_bits=2, bias=14)
+    y = APyFloat(sign=0, exp=21, man=0, exp_bits=5, man_bits=2, bias=21)
+    assert (_ := x - y).is_identical(
+        APyFloat(sign=0, exp=0, man=0, exp_bits=5, man_bits=2, bias=17)
+    )
+
+
+@pytest.mark.float_add
+def test_add_mixed_bias_overflow():
+    """Test that a result can overflow to infinity due to a change in bias."""
+    x = APyFloat(sign=0, exp=21, man=0, exp_bits=5, man_bits=2, bias=5)
+    y = APyFloat(sign=0, exp=0, man=0, exp_bits=5, man_bits=2, bias=25)
+
+    # Add with zero
+    assert (_ := x + y).is_identical(
+        APyFloat(sign=0, exp=31, man=0, exp_bits=5, man_bits=2, bias=15)
+    )
+
+    # Add with zero but with larger bias difference
+    y = APyFloat(sign=0, exp=0, man=0, exp_bits=5, man_bits=2, bias=27)
+    assert (_ := x + y).is_identical(
+        APyFloat(sign=0, exp=31, man=0, exp_bits=5, man_bits=2, bias=16)
+    )
+
+    # Add with small normal number
+    y = APyFloat(sign=0, exp=1, man=1, exp_bits=5, man_bits=2, bias=28)
+    assert (_ := x + y).is_identical(
+        APyFloat(sign=0, exp=31, man=0, exp_bits=5, man_bits=2, bias=16)
+    )
+
+    # Add with subnormal number
+    y = APyFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=2, bias=28)
+    assert (_ := x + y).is_identical(
+        APyFloat(sign=0, exp=31, man=0, exp_bits=5, man_bits=2, bias=16)
+    )
+
+
+@pytest.mark.float_add
+def test_add_mixed_bias_underflow():
+    """Test that a result can become zero due to a change in bias."""
+    x = APyFloat(sign=0, exp=0, man=0, exp_bits=5, man_bits=2, bias=5)
+    y = APyFloat(sign=0, exp=1, man=1, exp_bits=5, man_bits=2, bias=25)
+
+    # Add with zero
+    assert (_ := x + y).is_identical(
+        APyFloat(sign=0, exp=0, man=0, exp_bits=5, man_bits=2, bias=15)
+    )
+
+    # Add with zero but with larger bias difference
+    y = APyFloat(sign=0, exp=1, man=1, exp_bits=5, man_bits=2, bias=27)
+    assert (_ := x + y).is_identical(
+        APyFloat(sign=0, exp=0, man=0, exp_bits=5, man_bits=2, bias=16)
+    )
+
+    # Add with subnormal number
+    y = APyFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=2, bias=28)
+    assert (_ := x + y).is_identical(
+        APyFloat(sign=0, exp=0, man=0, exp_bits=5, man_bits=2, bias=16)
+    )
+
+
 @pytest.mark.float_add
 def test_add_double():
     """Some tests for sanity checking addition with binary64. This uses the faster path."""
