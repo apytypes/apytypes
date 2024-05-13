@@ -1,4 +1,4 @@
-// Python object access through Pybind
+// Python object access through Nanobind
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
@@ -474,6 +474,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
     }
 
     // General case: This always works but is slower than the special cases.
+
     // Absolute value denominator
     ScratchVector<mp_limb_t> abs_den(rhs._itemsize);
 
@@ -602,18 +603,28 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& rhs) const
     // Absolute value denominator
     ScratchVector<mp_limb_t> abs_den(_itemsize);
 
-    // Absolute value left-shifted numerator
-    ScratchVector<mp_limb_t> abs_num(result._itemsize);
+    // Absolute value left-shifted numerator. As `mpn_div_qr` alters the numerator on
+    // call, we allocate twice it's size. The first half [ `0`, `result._itemsize` ) is
+    // passed to `mpn_div_qr` and [ `result._item_size`, `2*result._itemsize` ) is used
+    // to cache the left-shifted absolute numerator.
+    ScratchVector<mp_limb_t> abs_num(2 * result._itemsize);
     bool num_sign = limb_vector_abs(
-        std::begin(rhs._data), std::end(rhs._data), std::begin(abs_num)
+        std::begin(rhs._data),
+        std::end(rhs._data),
+        std::begin(abs_num) + result._itemsize
     );
-    limb_vector_lsl(std::begin(abs_num), std::end(abs_num), bits());
+    limb_vector_lsl(std::begin(abs_num) + result._itemsize, std::end(abs_num), bits());
 
     for (std::size_t i = 0; i < _nitems; i++) {
         bool den_sign = limb_vector_abs(
             std::begin(_data) + (i + 0) * _itemsize,
             std::begin(_data) + (i + 1) * _itemsize,
             std::begin(abs_den)
+        );
+        std::copy_n(
+            std::begin(abs_num) + result._itemsize,
+            result._itemsize,
+            std::begin(abs_num)
         );
 
         // `mpn_tdiv_qr` requires the number of *significant* limbs in denominator
@@ -622,7 +633,7 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& rhs) const
         mpn_div_qr(
             &result._data[i * result._itemsize], // Quotient
             &abs_num[0],                         // Numerator
-            abs_num.size(),                      // Numerator limbs
+            result._itemsize,                    // Numerator limbs
             &abs_den[0],                         // Denominator
             den_significant_limbs                // Denominator significant limbs
         );
