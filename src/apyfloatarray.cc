@@ -99,7 +99,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
     if (same_type_as(rhs) && (max_man_bits <= _MAN_T_SIZE_BITS)
         && (quantization != QuantizationMode::STOCH_WEIGHTED)) {
         // Result array
-        APyFloatArray res(shape, exp_bits, man_bits);
+        APyFloatArray res(shape, exp_bits, man_bits, bias);
 
         APyFloatData x, y;
         const exp_t res_max_exponent = ((1ULL << exp_bits) - 1);
@@ -240,9 +240,11 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
         return res;
     }
     // Calculate new format
-    APyFloatArray res(
-        shape, std::max(exp_bits, rhs.exp_bits), std::max(man_bits, rhs.man_bits)
-    );
+    const auto res_exp_bits = std::max(exp_bits, rhs.exp_bits);
+    const auto res_man_bits = std::max(man_bits, rhs.man_bits);
+    const auto res_bias
+        = calc_bias(res_exp_bits, exp_bits, bias, rhs.exp_bits, rhs.bias);
+    APyFloatArray res(shape, res_exp_bits, res_man_bits, res_bias);
 
     APyFloat lhs_scalar(exp_bits, man_bits, bias);
     APyFloat rhs_scalar(rhs.exp_bits, rhs.man_bits, rhs.bias);
@@ -270,7 +272,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
         const exp_t res_max_exponent = ((1ULL << exp_bits) - 1);
         APyFloatData x;
         // Result array
-        APyFloatArray res(shape, exp_bits, man_bits);
+        APyFloatArray res(shape, exp_bits, man_bits, bias);
         APyFloatData y = rhs.get_data();
         bool y_is_max_exponent = y.exp == res_max_exponent;
 
@@ -434,9 +436,11 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
     }
     auto new_exp_bits = std::max(exp_bits, rhs.get_exp_bits());
     auto new_man_bits = std::max(man_bits, rhs.get_man_bits());
+    const auto res_bias
+        = calc_bias(new_exp_bits, exp_bits, bias, rhs.get_exp_bits(), rhs.get_bias());
 
     // Calculate new format
-    APyFloatArray res(shape, new_exp_bits, new_man_bits);
+    APyFloatArray res(shape, new_exp_bits, new_man_bits, res_bias);
 
     APyFloat lhs_scalar(exp_bits, man_bits, bias);
     // Perform operations
@@ -498,7 +502,8 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
     // Calculate new format
     const uint8_t res_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const uint8_t res_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto res_bias = APyFloat::ieee_bias(res_exp_bits);
+    const auto res_bias
+        = calc_bias(res_exp_bits, exp_bits, bias, rhs.exp_bits, rhs.bias);
     APyFloatArray res(shape, res_exp_bits, res_man_bits, res_bias);
     const auto quantization = get_float_quantization_mode();
     hadamard_multiplication(
@@ -660,7 +665,8 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
     // Calculate new format
     const auto res_exp_bits = std::max(exp_bits, rhs.get_exp_bits());
     const auto res_man_bits = std::max(man_bits, rhs.get_man_bits());
-    const auto res_bias = APyFloat::ieee_bias(res_exp_bits);
+    const auto res_bias
+        = calc_bias(res_exp_bits, exp_bits, bias, rhs.get_exp_bits(), rhs.get_bias());
     APyFloatArray res(shape, res_exp_bits, res_man_bits, res_bias);
 
     const int sum_man_bits = man_bits + rhs.get_man_bits();
@@ -867,9 +873,11 @@ APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
     }
 
     // Calculate new format
-    APyFloatArray res(
-        shape, std::max(exp_bits, rhs.exp_bits), std::max(man_bits, rhs.man_bits)
-    );
+    const auto res_exp_bits = std::max(exp_bits, rhs.exp_bits);
+    const auto res_man_bits = std::max(man_bits, rhs.man_bits);
+    const auto res_bias
+        = calc_bias(res_exp_bits, exp_bits, bias, rhs.exp_bits, rhs.bias);
+    APyFloatArray res(shape, res_exp_bits, res_man_bits, res_bias);
 
     APyFloat lhs_scalar(exp_bits, man_bits, bias);
     APyFloat rhs_scalar(rhs.exp_bits, rhs.man_bits, rhs.bias);
@@ -887,11 +895,11 @@ APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
 APyFloatArray APyFloatArray::operator/(const APyFloat& rhs) const
 {
     // Calculate new format
-    APyFloatArray res(
-        shape,
-        std::max(exp_bits, rhs.get_exp_bits()),
-        std::max(man_bits, rhs.get_man_bits())
-    );
+    const auto res_exp_bits = std::max(exp_bits, rhs.get_exp_bits());
+    const auto res_man_bits = std::max(man_bits, rhs.get_man_bits());
+    const auto res_bias
+        = calc_bias(res_exp_bits, exp_bits, bias, rhs.get_exp_bits(), rhs.get_bias());
+    APyFloatArray res(shape, res_exp_bits, res_man_bits, res_bias);
 
     APyFloat lhs_scalar(exp_bits, man_bits, bias);
     // Perform operations
@@ -1296,7 +1304,10 @@ APyFloat APyFloatArray::checked_inner_product(
         const auto acc_option = accumulator_mode.value();
         const auto tmp_exp_bits = acc_option.exp_bits;
         const auto tmp_man_bits = acc_option.man_bits;
-        const auto tmp_bias = APyFloat::ieee_bias(tmp_exp_bits);
+        const auto tmp_bias = acc_option.bias.value_or(
+            calc_bias(tmp_exp_bits, exp_bits, bias, rhs.exp_bits, rhs.bias)
+        );
+        ;
         // If an accumulator is used, the operands must be resized before the
         // multiplication. This is because the products would otherwise get quantized
         // too early.
@@ -1338,7 +1349,7 @@ APyFloat APyFloatArray::vector_sum(const QuantizationMode quantization) const
 {
     // +5 to give room for leading one, carry, and 3 guard bits
     const unsigned int max_man_bits = man_bits + 5;
-    APyFloat ret(0, 0, 0, exp_bits, man_bits);
+    APyFloat ret(0, 0, 0, exp_bits, man_bits, bias);
     if ((max_man_bits <= _MAN_T_SIZE_BITS)
         && (quantization != QuantizationMode::STOCH_WEIGHTED)) {
         APyFloatData x;
@@ -1496,7 +1507,7 @@ APyFloat APyFloatArray::vector_sum(const QuantizationMode quantization) const
         ret.set_data({ sum_sign, sum_exp, sum_man });
         return ret;
     }
-    APyFloat tmp(0, 0, 0, exp_bits, man_bits);
+    APyFloat tmp(0, 0, 0, exp_bits, man_bits, bias);
 
     for (std::size_t i = 0; i < data.size(); i++) {
         tmp.set_data(data[i]);
@@ -1533,7 +1544,10 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
         const auto acc_option = accumulator_mode.value();
         const auto tmp_exp_bits = acc_option.exp_bits;
         const auto tmp_man_bits = acc_option.man_bits;
-        const auto tmp_bias = APyFloat::ieee_bias(tmp_exp_bits);
+
+        const auto tmp_bias = acc_option.bias.value_or(
+            calc_bias(tmp_exp_bits, exp_bits, bias, rhs.exp_bits, rhs.bias)
+        );
 
         APyFloatArray hadamard({ shape[1] }, tmp_exp_bits, tmp_man_bits, tmp_bias);
         APyFloatArray casted_this

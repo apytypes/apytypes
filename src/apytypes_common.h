@@ -177,7 +177,7 @@ std::optional<APyFixedAccumulatorOption> get_accumulator_mode_fixed();
 struct APyFloatAccumulatorOption {
     std::uint8_t exp_bits;
     std::uint8_t man_bits;
-    exp_t bias;
+    std::optional<exp_t> bias;
     QuantizationMode quantization;
 };
 

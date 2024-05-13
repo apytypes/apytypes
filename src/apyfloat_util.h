@@ -29,6 +29,18 @@ bool APY_INLINE do_infinity(QuantizationMode mode, bool sign)
     }
 }
 
+//! Calculate new bias
+exp_t APY_INLINE
+calc_bias(int new_exp_bits, int exp_bits1, exp_t bias1, int exp_bits2, exp_t bias2)
+{
+    return ((((bias1 + 1) << (new_exp_bits - exp_bits1))
+             + ((bias2 + 1) << (new_exp_bits - exp_bits2)))
+            >> 1)
+        - 1;
+    // return std::min(((bias1 + 1) << (new_exp_bits - exp_bits1)), ((bias2 + 1) <<
+    // (new_exp_bits - exp_bits2))) - 1;
+}
+
 //! Quantize mantissa
 void APY_INLINE quantize_mantissa(
     man_t& man,
