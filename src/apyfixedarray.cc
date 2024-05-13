@@ -147,8 +147,7 @@ inline APyFixedArray APyFixedArray::_apyfixedarray_base_add_sub(const APyFixedAr
     }
 
     // Special case #2: Operands and result have equally many limbs
-    auto res_limbs = bits_to_limbs(res_bits);
-    if (res_limbs == _itemsize && res_limbs == rhs._itemsize) {
+    if (result._itemsize == _itemsize && result._itemsize == rhs._itemsize) {
         const mp_limb_t* src1_ptr;
         const mp_limb_t* src2_ptr;
         if (frac_bits() == rhs.frac_bits()) {
@@ -359,8 +358,8 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
         // `_checked_hadamard_product` requires: "The destination has to have space for
         // `s1n` + `s2n` limbs, even if the product’s most significant limb is zero."
         std::vector<mp_limb_t> prod_tmp(_itemsize + rhs._itemsize);
-        std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
-        std::vector<mp_limb_t> op2_abs(bits_to_limbs(rhs.bits()));
+        std::vector<mp_limb_t> op1_abs(_itemsize);
+        std::vector<mp_limb_t> op2_abs(rhs._itemsize);
         _checked_hadamard_product(
             rhs,                  // rhs
             result._data.begin(), // dst
@@ -397,14 +396,14 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
     auto op2_begin = rhs._data.begin();
     auto op2_end = rhs._data.begin() + rhs.vector_size();
     bool sign2 = mp_limb_signed_t(*(op2_end - 1)) < 0;
-    std::vector<mp_limb_t> op2_abs(std::distance(op2_begin, op2_end));
+    std::vector<mp_limb_t> op2_abs(rhs.vector_size());
     limb_vector_abs(op2_begin, op2_end, op2_abs.begin());
 
     // Perform multiplication for each element in the tensor. `mpn_mul` requires:
     // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
     // most significant limbs are zero."
     std::vector<mp_limb_t> res_tmp_vec(_itemsize + rhs.vector_size(), 0);
-    std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
+    std::vector<mp_limb_t> op1_abs(_itemsize);
     auto op1_begin = _data.begin();
     for (std::size_t i = 0; i < _nitems; i++) {
         // Current working operands
@@ -479,7 +478,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
     ScratchVector<mp_limb_t> abs_den(rhs._itemsize);
 
     // Absolute value left-shifted numerator
-    ScratchVector<mp_limb_t> abs_num(bits_to_limbs(res_bits));
+    ScratchVector<mp_limb_t> abs_num(result._itemsize);
 
     for (std::size_t i = 0; i < _nitems; i++) {
         std::fill(std::begin(abs_num), std::end(abs_num), 0);
@@ -549,7 +548,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
         = significant_limbs(std::begin(abs_den), std::end(abs_den));
 
     // Absolute value left-shifted numerator
-    ScratchVector<mp_limb_t> abs_num(bits_to_limbs(res_bits));
+    ScratchVector<mp_limb_t> abs_num(result._itemsize);
 
     for (std::size_t i = 0; i < _nitems; i++) {
         std::fill(std::begin(abs_num), std::end(abs_num), 0);
@@ -604,7 +603,7 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& rhs) const
     ScratchVector<mp_limb_t> abs_den(_itemsize);
 
     // Absolute value left-shifted numerator
-    ScratchVector<mp_limb_t> abs_num(bits_to_limbs(res_bits));
+    ScratchVector<mp_limb_t> abs_num(result._itemsize);
     bool num_sign = limb_vector_abs(
         std::begin(rhs._data), std::end(rhs._data), std::begin(abs_num)
     );
@@ -1021,7 +1020,7 @@ void APyFixedArray::_checked_hadamard_product(
     std::vector<mp_limb_t>& op2_scratch   // scratch: absolute value operand 2
 ) const
 {
-    std::size_t res_bits = _bits + rhs._bits;
+    std::size_t res_bits = bits() + rhs.bits();
     if (res_bits <= _LIMB_SIZE_BITS) {
         // Native multiplication supported
         simd::vector_mul(_data.begin(), rhs._data.begin(), res_out, _nitems);
@@ -1032,7 +1031,7 @@ void APyFixedArray::_checked_hadamard_product(
         // product's most significant limb is zero."
         auto op1_begin = _data.begin();
         auto op2_begin = rhs._data.begin();
-        std::size_t result_itemsize = bits_to_limbs(bits() + rhs.bits());
+        std::size_t result_itemsize = bits_to_limbs(res_bits);
         for (std::size_t i = 0; i < _nitems; i++) {
             // Current working operands
             auto op1_end = op1_begin + _itemsize;
@@ -1097,8 +1096,8 @@ APyFixedArray APyFixedArray::_checked_inner_product(
         } else { /* unsigned(res_bits) > _LIMB_SIZE_BITS */
             // Scratch memories used for inner product
             std::vector<mp_limb_t> prod_scratch(_itemsize + rhs._itemsize);
-            std::vector<mp_limb_t> op1_scratch(bits_to_limbs(bits()));
-            std::vector<mp_limb_t> op2_scratch(bits_to_limbs(rhs.bits()));
+            std::vector<mp_limb_t> op1_scratch(_itemsize);
+            std::vector<mp_limb_t> op2_scratch(rhs._itemsize);
             APyFixedArray hadamard_scratch(
                 _shape, bits() + rhs.bits(), int_bits() + rhs.int_bits()
             );
@@ -1111,8 +1110,8 @@ APyFixedArray APyFixedArray::_checked_inner_product(
 
         // Scratch memories used for inner product
         std::vector<mp_limb_t> prod_scratch(_itemsize + rhs._itemsize);
-        std::vector<mp_limb_t> op1_scratch(bits_to_limbs(bits()));
-        std::vector<mp_limb_t> op2_scratch(bits_to_limbs(rhs.bits()));
+        std::vector<mp_limb_t> op1_scratch(_itemsize);
+        std::vector<mp_limb_t> op2_scratch(rhs._itemsize);
         APyFixedArray hadamard_scratch(
             _shape, bits() + rhs.bits(), int_bits() + rhs.int_bits()
         );
@@ -1232,8 +1231,8 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
      */
     // Scratch memories for avoiding memory re-allocation
     std::vector<mp_limb_t> prod_scratch(_itemsize + rhs._itemsize);
-    std::vector<mp_limb_t> op1_abs(bits_to_limbs(bits()));
-    std::vector<mp_limb_t> op2_abs(bits_to_limbs(rhs.bits()));
+    std::vector<mp_limb_t> op1_abs(_itemsize);
+    std::vector<mp_limb_t> op2_abs(rhs._itemsize);
     APyFixedArray current_res({ 1 }, res_bits, res_int_bits);
     APyFixedArray current_row({ _shape[1] }, bits(), int_bits());
     APyFixedArray hadamard_tmp(
