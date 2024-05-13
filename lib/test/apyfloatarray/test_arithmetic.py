@@ -1012,3 +1012,110 @@ def test_array_infinity_saturation_div():
         # Big negative number should saturate
         res = APyFloatArray([1], [30], [2], 5, 2) / APyFloatArray([0], [1], [2], 5, 2)
         assert res.is_identical(APyFloatArray([1], [30], [3], 5, 2))
+
+
+@pytest.mark.float_add
+@pytest.mark.parametrize("with_scalar", [False, True])
+def test_array_add_mixed_bias_overflow(with_scalar):
+    """Test that a result can overflow to infinity due to a change in bias."""
+    x = APyFloatArray([0], [21], [0], exp_bits=5, man_bits=2, bias=5)
+
+    if with_scalar:
+        y = APyFloat(sign=0, exp=0, man=0, exp_bits=5, man_bits=2, bias=25)
+    else:
+        y = APyFloatArray([0], [0], [0], exp_bits=5, man_bits=2, bias=25)
+
+    # Add with zero
+    assert (_ := x + y).is_identical(
+        APyFloatArray([0], [31], [0], exp_bits=5, man_bits=2, bias=15)
+    )
+
+    # Add with zero but with larger bias difference
+    if with_scalar:
+        y = APyFloat(sign=0, exp=0, man=0, exp_bits=5, man_bits=2, bias=27)
+    else:
+        y = APyFloatArray([0], [0], [0], exp_bits=5, man_bits=2, bias=27)
+    assert (_ := x + y).is_identical(
+        APyFloatArray([0], [31], [0], exp_bits=5, man_bits=2, bias=16)
+    )
+
+    # Add with small normal number
+    if with_scalar:
+        y = APyFloat(sign=0, exp=1, man=1, exp_bits=5, man_bits=2, bias=28)
+    else:
+        y = APyFloatArray([0], [1], [1], exp_bits=5, man_bits=2, bias=28)
+    assert (_ := x + y).is_identical(
+        APyFloatArray([0], [31], [0], exp_bits=5, man_bits=2, bias=16)
+    )
+
+    # Add with subnormal number
+    if with_scalar:
+        y = APyFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=2, bias=28)
+    else:
+        y = APyFloatArray([0], [0], [1], exp_bits=5, man_bits=2, bias=28)
+    assert (_ := x + y).is_identical(
+        APyFloatArray([0], [31], [0], exp_bits=5, man_bits=2, bias=16)
+    )
+
+
+@pytest.mark.float_add
+@pytest.mark.parametrize("with_scalar", [False, True])
+def test_array_add_mixed_bias_underflow(with_scalar):
+    """Test that a result can become zero due to a change in bias."""
+    x = APyFloatArray([0], [0], [0], exp_bits=5, man_bits=2, bias=5)
+
+    if with_scalar:
+        y = APyFloat(sign=0, exp=1, man=1, exp_bits=5, man_bits=2, bias=25)
+    else:
+        y = APyFloatArray([0], [1], [1], exp_bits=5, man_bits=2, bias=25)
+
+    # Add with zero
+    assert (_ := x + y).is_identical(
+        APyFloatArray([0], [0], [0], exp_bits=5, man_bits=2, bias=15)
+    )
+
+    # Add with zero but with larger bias difference
+    if with_scalar:
+        y = APyFloat(sign=0, exp=1, man=1, exp_bits=5, man_bits=2, bias=27)
+    else:
+        y = APyFloatArray([0], [1], [1], exp_bits=5, man_bits=2, bias=28)
+    assert (_ := x + y).is_identical(
+        APyFloatArray([0], [0], [0], exp_bits=5, man_bits=2, bias=16)
+    )
+
+    # Add with subnormal number
+    if with_scalar:
+        y = APyFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=2, bias=28)
+    else:
+        y = APyFloatArray([0], [0], [1], exp_bits=5, man_bits=2, bias=28)
+    assert (_ := x + y).is_identical(
+        APyFloatArray([0], [0], [0], exp_bits=5, man_bits=2, bias=16)
+    )
+
+
+@pytest.mark.float_sub
+@pytest.mark.parametrize("with_scalar", [False, True])
+def test_array_sub_mixed_bias(with_scalar):
+    # Test that the implementation doesn't do "x.cast() - y.cast()"
+    x = APyFloatArray([0], [30], [0], exp_bits=5, man_bits=2, bias=14)
+
+    if with_scalar:
+        y = APyFloat(sign=0, exp=30, man=0, exp_bits=5, man_bits=2, bias=16)
+    else:
+        y = APyFloatArray([0], [30], [0], exp_bits=5, man_bits=2, bias=16)
+
+    assert (_ := x - y).is_identical(
+        APyFloatArray([0], [30], [2], exp_bits=5, man_bits=2, bias=15)
+    )
+
+    # Test subtraction when two numbers are equal but with different formats
+    x = APyFloatArray([0], [14], [0], exp_bits=5, man_bits=2, bias=14)
+
+    if with_scalar:
+        y = APyFloat(sign=0, exp=21, man=0, exp_bits=5, man_bits=2, bias=21)
+    else:
+        y = APyFloatArray([0], [21], [0], exp_bits=5, man_bits=2, bias=21)
+
+    assert (_ := x - y).is_identical(
+        APyFloatArray([0], [0], [0], exp_bits=5, man_bits=2, bias=17)
+    )

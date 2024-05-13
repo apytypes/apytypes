@@ -25,12 +25,7 @@ APyFloatArray::APyFloatArray(
     : exp_bits(exp_bits)
     , man_bits(man_bits)
 {
-    this->bias = APyFloat::ieee_bias(exp_bits);
-    if (bias.value_or(this->bias) != this->bias) {
-        throw NotImplementedException(
-            "Not implemented: APyFloatArray with non IEEE-like bias"
-        );
-    }
+    this->bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
 
     const auto signs_shape = python_sequence_extract_shape(sign_seq);
     const auto exps_shape = python_sequence_extract_shape(exp_seq);
