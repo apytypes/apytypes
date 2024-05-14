@@ -1,5 +1,9 @@
 #include "apyfloat_util.h"
+#include <fmt/format.h>
 #include <math.h>
+#include <nanobind/nanobind.h>
+
+namespace nb = nanobind;
 
 /* Helper functions */
 man_t ipow(man_t base, unsigned int n)
@@ -68,5 +72,29 @@ QuantizationMode translate_quantization_mode(QuantizationMode quantization, bool
         return sign ? QuantizationMode::RND : QuantizationMode::RND_ZERO;
     default:
         return quantization;
+    }
+}
+
+void check_exponent_format(std::uint8_t exp_bits)
+{
+    if (exp_bits > _EXP_LIMIT_BITS) {
+        throw nb::value_error(fmt::format(
+                                  "Exponent bits can at most be {} but {} was given",
+                                  _EXP_LIMIT_BITS,
+                                  (unsigned int)exp_bits
+        )
+                                  .c_str());
+    }
+}
+
+void check_mantissa_format(std::uint8_t man_bits)
+{
+    if (man_bits > _MAN_LIMIT_BITS) {
+        throw nb::value_error(fmt::format(
+                                  "Mantissa bits can at most be {} but {} was given",
+                                  _MAN_LIMIT_BITS,
+                                  (unsigned int)man_bits
+        )
+                                  .c_str());
     }
 }

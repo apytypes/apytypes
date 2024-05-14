@@ -16,6 +16,20 @@ def test_is_identical():
 
 
 @pytest.mark.float_array
+def test_array_from_float_raises():
+    # Too many exponent bits
+    with pytest.raises(
+        ValueError, match="Exponent bits can at most be .. but 100 was given"
+    ):
+        APyFloatArray.from_float([0], 100, 5)
+    # Too many mantissa bits
+    with pytest.raises(
+        ValueError, match="Mantissa bits can at most be .. but 100 was given"
+    ):
+        APyFloatArray.from_float([0], 5, 100)
+
+
+@pytest.mark.float_array
 def test_to_numpy():
     # Skip this test if `NumPy` is not present on the machine
     np = pytest.importorskip("numpy")

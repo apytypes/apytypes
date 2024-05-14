@@ -17,12 +17,6 @@ namespace nb = nanobind;
 
 #include "ieee754.h"
 
-/*!
- * APyFloat word length limits.
- */
-static constexpr std::size_t _MAN_LIMIT_BITS = _MAN_T_SIZE_BITS - 3;
-static constexpr std::size_t _EXP_LIMIT_BITS = _EXP_T_SIZE_BITS - 2;
-
 /* **********************************************************************************
  * * Constructors                                                                   *
  * **********************************************************************************
@@ -40,23 +34,8 @@ void APyFloat::create_in_place(
 {
     const exp_t ieee_bias = APyFloat::ieee_bias(exp_bits);
 
-    if (exp_bits > _EXP_LIMIT_BITS) {
-        throw nb::value_error(fmt::format(
-                                  "Exponent bits can at most be {} but {} was given",
-                                  _EXP_LIMIT_BITS,
-                                  (unsigned int)exp_bits
-        )
-                                  .c_str());
-    }
-
-    if (man_bits > _MAN_LIMIT_BITS) {
-        throw nb::value_error(fmt::format(
-                                  "Mantissa bits can at most be {} but {} was given",
-                                  _MAN_LIMIT_BITS,
-                                  (unsigned int)man_bits
-        )
-                                  .c_str());
-    }
+    check_exponent_format(exp_bits);
+    check_mantissa_format(man_bits);
 
     new (apyfloat)
         APyFloat(sign, exp, man, exp_bits, man_bits, bias.value_or(ieee_bias));
@@ -142,6 +121,9 @@ APyFloat APyFloat::from_double(
     std::optional<exp_t> bias
 )
 {
+    check_exponent_format(exp_bits);
+    check_mantissa_format(man_bits);
+
     APyFloat apytypes_double(
         sign_of_double(value), exp_of_double(value), man_of_double(value), 11, 52, 1023
     );
@@ -566,6 +548,9 @@ APyFloat APyFloat::from_bits(
     std::optional<exp_t> bias
 )
 {
+    check_exponent_format(exp_bits);
+    check_mantissa_format(man_bits);
+
     APyFloat f(exp_bits, man_bits, bias);
     return f.update_from_bits(python_long_int_bit_pattern);
 }

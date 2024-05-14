@@ -1067,6 +1067,9 @@ APyFloatArray APyFloatArray::from_double(
     std::optional<exp_t> bias
 )
 {
+    check_exponent_format(exp_bits);
+    check_mantissa_format(man_bits);
+
     if (nb::isinstance<nb::ndarray<>>(double_seq)) {
         // Sequence is NDArray. Initialize using `from_array`.
         auto ndarray = nb::cast<nb::ndarray<nb::c_contig>>(double_seq);

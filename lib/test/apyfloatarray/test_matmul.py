@@ -259,10 +259,10 @@ def test_inner_product_with_inf_from_summation_long():
 
 @pytest.mark.float_array
 def test_inner_product_long():
-    a = APyFloatArray.from_float([1, 2, 3, 4, 5, 6, 7, 8], exp_bits=5, man_bits=62)
-    b = APyFloatArray.from_float([9, 8, 7, 6, 5, 4, 3, 2], exp_bits=6, man_bits=62)
+    a = APyFloatArray.from_float([1, 2, 3, 4, 5, 6, 7, 8], exp_bits=5, man_bits=61)
+    b = APyFloatArray.from_float([9, 8, 7, 6, 5, 4, 3, 2], exp_bits=6, man_bits=61)
     assert (a @ b).is_identical(b @ a)
-    assert (b @ a).is_identical(APyFloat.from_float(156, exp_bits=6, man_bits=62))
+    assert (b @ a).is_identical(APyFloat.from_float(156, exp_bits=6, man_bits=61))
 
 
 @pytest.mark.float_array

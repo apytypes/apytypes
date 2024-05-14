@@ -12,6 +12,12 @@ static constexpr std::size_t _MAN_T_SIZE_BITS = 8 * _MAN_T_SIZE_BYTES;
 static constexpr std::size_t _EXP_T_SIZE_BYTES = sizeof(exp_t);
 static constexpr std::size_t _EXP_T_SIZE_BITS = 8 * _EXP_T_SIZE_BYTES;
 
+/*!
+ * APyFloat word length limits.
+ */
+static constexpr std::size_t _MAN_LIMIT_BITS = _MAN_T_SIZE_BITS - 3;
+static constexpr std::size_t _EXP_LIMIT_BITS = _EXP_T_SIZE_BITS - 2;
+
 //! Check if one should saturate to infinity or maximum normal number
 bool APY_INLINE do_infinity(QuantizationMode mode, bool sign)
 {
@@ -207,4 +213,9 @@ void quantize_apymantissa(
 );
 QuantizationMode translate_quantization_mode(QuantizationMode quantization, bool sign);
 
+//! Check that the number of exponent bits is allowed, throw otherwise
+void check_exponent_format(std::uint8_t exp_bits);
+
+//! Check that the number of mantissa bits is allowed, throw otherwise
+void check_mantissa_format(std::uint8_t man_bits);
 #endif // _APYFLOAT_UTIL_H
