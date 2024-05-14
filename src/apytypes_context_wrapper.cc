@@ -99,8 +99,8 @@ void bind_accumulator_context(nb::module_& m)
     )
         .def(
             nb::init<
-                std::optional<std::uint8_t>,
-                std::optional<std::uint8_t>,
+                std::optional<int>,
+                std::optional<int>,
                 std::optional<exp_t>,
                 std::optional<QuantizationMode>>(),
             // nb::kw_only() is added in NanoBind v2.0.0

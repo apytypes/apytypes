@@ -185,8 +185,8 @@ struct APyFloatAccumulatorOption {
 class APyFloatAccumulatorContext : public ContextManager {
 public:
     APyFloatAccumulatorContext(
-        std::optional<std::uint8_t> = std::nullopt,
-        std::optional<std::uint8_t> = std::nullopt,
+        std::optional<int> = std::nullopt,
+        std::optional<int> = std::nullopt,
         std::optional<exp_t> = std::nullopt,
         std::optional<QuantizationMode> quantization = std::nullopt
     );

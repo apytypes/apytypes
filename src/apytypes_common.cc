@@ -3,6 +3,7 @@
 namespace nb = nanobind;
 
 #include "apyfloat.h"
+#include "apyfloat_util.h"
 #include "apytypes_common.h"
 #include "apytypes_util.h"
 #include <random>
@@ -170,8 +171,8 @@ std::optional<APyFloatAccumulatorOption> get_accumulator_mode_float()
 }
 
 APyFloatAccumulatorContext::APyFloatAccumulatorContext(
-    std::optional<std::uint8_t> exp_bits,
-    std::optional<std::uint8_t> man_bits,
+    std::optional<int> exp_bits,
+    std::optional<int> man_bits,
     std::optional<exp_t> bias,
     std::optional<QuantizationMode> quantization
 )
@@ -188,6 +189,9 @@ APyFloatAccumulatorContext::APyFloatAccumulatorContext(
             "Both the exponent bits and mantissa bits must be specified."
         );
     }
+
+    check_exponent_format(exp_bits.value());
+    check_mantissa_format(man_bits.value());
 
     new_mode.exp_bits = exp_bits.value();
     new_mode.man_bits = man_bits.value();
