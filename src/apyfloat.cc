@@ -5,7 +5,6 @@ namespace nb = nanobind;
 #include <cassert>
 #include <climits>
 #include <cmath>
-#include <iostream>
 
 #include <fmt/format.h>
 
@@ -24,15 +23,6 @@ namespace nb = nanobind;
 static constexpr std::size_t _MAN_LIMIT_BITS = _MAN_T_SIZE_BITS - 3;
 static constexpr std::size_t _EXP_LIMIT_BITS = _EXP_T_SIZE_BITS - 2;
 
-constexpr bool PRINT_WARNINGS = false;
-
-void print_warning(const std::string msg)
-{
-    if constexpr (PRINT_WARNINGS) {
-        std::cerr << "Warning: " << msg;
-    }
-}
-
 /* **********************************************************************************
  * * Constructors                                                                   *
  * **********************************************************************************
@@ -49,16 +39,23 @@ void APyFloat::create_in_place(
 )
 {
     const exp_t ieee_bias = APyFloat::ieee_bias(exp_bits);
-    if (bias.has_value() && bias.value() != ieee_bias) {
-        print_warning("non 'ieee-like' biases are not sure to work yet.\n");
-    }
 
     if (exp_bits > _EXP_LIMIT_BITS) {
-        throw nb::value_error("Too many bits for the exponent field.");
+        throw nb::value_error(fmt::format(
+                                  "Exponent bits can at most be {} but {} was given",
+                                  _EXP_LIMIT_BITS,
+                                  (unsigned int)exp_bits
+        )
+                                  .c_str());
     }
 
     if (man_bits > _MAN_LIMIT_BITS) {
-        throw nb::value_error("Too many bits for the mantissa field.");
+        throw nb::value_error(fmt::format(
+                                  "Mantissa bits can at most be {} but {} was given",
+                                  _MAN_LIMIT_BITS,
+                                  (unsigned int)man_bits
+        )
+                                  .c_str());
     }
 
     new (apyfloat)

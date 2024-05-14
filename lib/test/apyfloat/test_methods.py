@@ -5,10 +5,14 @@ from apytypes import APyFloat
 
 def test_scalar_constructor_raises():
     # Too many exponent bits
-    with pytest.raises(ValueError, match=".*exponent"):
+    with pytest.raises(
+        ValueError, match="Exponent bits can at most be .. but 100 was given"
+    ):
         APyFloat(0, 0, 0, 100, 5)
     # Too many mantissa bits
-    with pytest.raises(ValueError, match=".*mantissa"):
+    with pytest.raises(
+        ValueError, match="Mantissa bits can at most be .. but 100 was given"
+    ):
         APyFloat(0, 0, 0, 5, 100)
 
 
