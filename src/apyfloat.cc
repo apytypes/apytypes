@@ -575,7 +575,7 @@ APyFloat APyFloat::from_bits(
 APyFloat& APyFloat::update_from_bits(nb::int_ python_long_int_bit_pattern)
 {
     auto data_vec = python_long_to_limb_vec(python_long_int_bit_pattern);
-    auto low = data_vec[0];
+    uint64_t low = uint64_t_from_limb_vector(data_vec, 0);
 
     man = low & man_mask();
 

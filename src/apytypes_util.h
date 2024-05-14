@@ -984,6 +984,26 @@ limb_vector_from_uint64_t(std::initializer_list<uint64_t> list)
     return result;
 }
 
+//! Read a 64-bit value from a limb vector. If `_LIMB_SIZE_BITS == 64`, this results in
+//! a normal vector read without bounds checking. If `_LIMB_SIZE_BITS == 32`, the second
+//! 32-bits limb is bound-checked and the result upper 32-bits are zeroed if
+//! out-of-bounds.
+[[maybe_unused, nodiscard]] static APY_INLINE uint64_t
+uint64_t_from_limb_vector(const std::vector<mp_limb_t>& limb_vec, std::size_t n)
+{
+    static_assert(_LIMB_SIZE_BITS == 32 || _LIMB_SIZE_BITS == 64);
+    if constexpr (_LIMB_SIZE_BITS == 64) {
+        // No bound-checking for 64-bit limbs
+        return limb_vec[n];
+    } else { /* _LIMB_SIZE_BITS == 32 */
+        if (n + 1 < limb_vec.size()) {
+            return uint64_t(limb_vec[n]) | (uint64_t(limb_vec[n + 1]) << 32);
+        } else {
+            return uint64_t(limb_vec[n]);
+        }
+    }
+}
+
 template <typename T> std::string string_from_vec(const std::vector<T>& vec)
 {
     if (vec.size() == 0) {

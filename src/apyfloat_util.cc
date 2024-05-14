@@ -31,12 +31,12 @@ void quantize_apymantissa(
         std::vector<mp_limb_t> rnd_data = limb_vector_from_uint64_t(
             { random_number_float(), random_number_float(), 0 }
         );
-        APyFixed rnd_num(_LIMB_SIZE_BITS * 3, _LIMB_SIZE_BITS - bits, rnd_data);
+        APyFixed rnd_num(64 * 3, 64 - bits, rnd_data);
         apyman = apyman + rnd_num;
     } else if (quantization == QuantizationMode::STOCH_EQUAL) {
         const mp_limb_t rnd = -(random_number_float() % 2);
-        std::vector<mp_limb_t> rnd_data = { rnd, rnd, 0 };
-        APyFixed rnd_num(_LIMB_SIZE_BITS * 3, _LIMB_SIZE_BITS - bits, rnd_data);
+        std::vector<mp_limb_t> rnd_data = limb_vector_from_uint64_t({ rnd, rnd, 0 });
+        APyFixed rnd_num(64 * 3, 64 - bits, rnd_data);
         apyman = apyman + rnd_num;
     } else {
         quantization = translate_quantization_mode(quantization, sign);
