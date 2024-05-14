@@ -1201,10 +1201,15 @@ APyFloatArray APyFloatArray::cast(
     std::optional<QuantizationMode> quantization
 ) const
 {
-    auto actual_exp_bits = new_exp_bits.value_or(exp_bits);
+    const auto actual_exp_bits = new_exp_bits.value_or(exp_bits);
+    const auto actual_man_bits = new_man_bits.value_or(man_bits);
+
+    check_exponent_format(actual_exp_bits);
+    check_mantissa_format(actual_man_bits);
+
     return _cast(
         actual_exp_bits,
-        new_man_bits.value_or(man_bits),
+        actual_man_bits,
         new_bias.value_or(APyFloat::ieee_bias(actual_exp_bits)),
         quantization.value_or(get_float_quantization_mode())
     );
