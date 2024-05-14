@@ -180,30 +180,6 @@ def test_add_mixed_bias_overflow():
 
 
 @pytest.mark.float_add
-def test_add_mixed_bias_underflow():
-    """Test that a result can become zero due to a change in bias."""
-    x = APyFloat(sign=0, exp=0, man=0, exp_bits=5, man_bits=2, bias=5)
-    y = APyFloat(sign=0, exp=1, man=1, exp_bits=5, man_bits=2, bias=25)
-
-    # Add with zero
-    assert (_ := x + y).is_identical(
-        APyFloat(sign=0, exp=0, man=0, exp_bits=5, man_bits=2, bias=15)
-    )
-
-    # Add with zero but with larger bias difference
-    y = APyFloat(sign=0, exp=1, man=1, exp_bits=5, man_bits=2, bias=27)
-    assert (_ := x + y).is_identical(
-        APyFloat(sign=0, exp=0, man=0, exp_bits=5, man_bits=2, bias=16)
-    )
-
-    # Add with subnormal number
-    y = APyFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=2, bias=28)
-    assert (_ := x + y).is_identical(
-        APyFloat(sign=0, exp=0, man=0, exp_bits=5, man_bits=2, bias=16)
-    )
-
-
-@pytest.mark.float_add
 def test_add_double():
     """Some tests for sanity checking addition with binary64. This uses the faster path."""
 

@@ -276,7 +276,7 @@ def test_inner_product_with_cancellation_long():
 
 @pytest.mark.float_array
 def test_array_matmul_mixed_bias():
-    # Test that the implementation doesn't do "x.cast() @ y.cast()"
+    """Test that the implementation doesn't do "x.cast() @ y.cast()"."""
     x = APyFloatArray([0], [30], [0], exp_bits=5, man_bits=2, bias=14)
     y = APyFloatArray([0], [15], [0], exp_bits=5, man_bits=2, bias=16)
     assert (_ := x @ y).is_identical(
@@ -440,3 +440,169 @@ def test_array_matmul_mixed_bias_overflow():
             man_bits=2,
         )
     )
+
+
+@pytest.mark.xfail()
+@pytest.mark.float_array
+def test_matrix_mul_acc_context_mixed_bias():
+    """Test that the accumulator doesn't cast prematurely. All test cases here use an accumulator that shouldn't have any effect."""
+    x = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[30, 0], [0, 0]],
+        [[0, 0], [0, 0]],
+        exp_bits=5,
+        man_bits=2,
+        bias=14,
+    )
+    y = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[15, 0], [0, 0]],
+        [[0, 0], [0, 0]],
+        exp_bits=5,
+        man_bits=2,
+        bias=16,
+    )
+
+    with APyFloatAccumulatorContext(exp_bits=5, man_bits=2, bias=15):
+        assert (_ := x @ y.T).is_identical(
+            APyFloatArray(
+                [[0, 0], [0, 0]],
+                [[30, 0], [0, 0]],
+                [[0, 0], [0, 0]],
+                exp_bits=5,
+                man_bits=2,
+                bias=15,
+            )
+        )
+
+    x = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[14, 0], [0, 0]],
+        [[0, 0], [0, 0]],
+        exp_bits=5,
+        man_bits=2,
+        bias=14,
+    )
+    y = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[21, 0], [0, 0]],
+        [[0, 0], [0, 0]],
+        exp_bits=5,
+        man_bits=2,
+        bias=21,
+    )
+
+    with APyFloatAccumulatorContext(exp_bits=5, man_bits=2, bias=17):
+        assert (_ := x @ y.T).is_identical(
+            APyFloatArray(
+                [[0, 0], [0, 0]],
+                [[17, 0], [0, 0]],
+                [[0, 0], [0, 0]],
+                exp_bits=5,
+                man_bits=2,
+                bias=17,
+            )
+        )
+
+
+@pytest.mark.xfail()
+@pytest.mark.float_array
+def test_matrix_mul_acc_context_mixed_bias_overflow():
+    """Test that the accumulator doesn't cast prematurely. All test cases here use an accumulator that shouldn't have any effect."""
+    x = APyFloatArray([0], [21], [0], exp_bits=5, man_bits=2, bias=5)
+    y = APyFloatArray([0], [25], [0], exp_bits=5, man_bits=2, bias=25)
+
+    # Multiply with one
+    with APyFloatAccumulatorContext(exp_bits=5, man_bits=2, bias=15):
+        assert (_ := x @ y).is_identical(
+            APyFloat(0, 31, 0, exp_bits=5, man_bits=2, bias=15)
+        )
+
+    # Multiply with one but with larger bias difference
+    y = APyFloatArray([0], [27], [0], exp_bits=5, man_bits=2, bias=27)
+    with APyFloatAccumulatorContext(exp_bits=5, man_bits=2, bias=16):
+        assert (_ := x @ y).is_identical(
+            APyFloat(0, 31, 0, exp_bits=5, man_bits=2, bias=16)
+        )
+
+    # Should become one
+    x = APyFloatArray([0], [30], [0], exp_bits=5, man_bits=2, bias=3)
+    y = APyFloatArray([0], [1], [0], exp_bits=5, man_bits=2, bias=28)
+    with APyFloatAccumulatorContext(exp_bits=5, man_bits=2):
+        assert (_ := x @ y).is_identical(APyFloat(0, 15, 0, exp_bits=5, man_bits=2))
+
+    # Same tests again but now (2, 2) matrices
+    x = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[21, 0], [0, 0]],
+        [[0, 0], [0, 0]],
+        exp_bits=5,
+        man_bits=2,
+        bias=5,
+    )
+    y = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[25, 0], [0, 0]],
+        [[0, 0], [0, 0]],
+        exp_bits=5,
+        man_bits=2,
+        bias=25,
+    )
+    with APyFloatAccumulatorContext(exp_bits=5, man_bits=2):
+        assert (_ := x @ y.T).is_identical(
+            APyFloatArray(
+                [[0, 0], [0, 0]],
+                [[31, 0], [0, 0]],
+                [[0, 0], [0, 0]],
+                exp_bits=5,
+                man_bits=2,
+                bias=15,
+            )
+        )
+
+    y = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[27, 0], [0, 0]],
+        [[0, 0], [0, 0]],
+        exp_bits=5,
+        man_bits=2,
+        bias=27,
+    )
+    with APyFloatAccumulatorContext(exp_bits=5, man_bits=2, bias=16):
+        assert (_ := x @ y.T).is_identical(
+            APyFloatArray(
+                [[0, 0], [0, 0]],
+                [[31, 0], [0, 0]],
+                [[0, 0], [0, 0]],
+                exp_bits=5,
+                man_bits=2,
+                bias=16,
+            )
+        )
+
+    x = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[30, 0], [0, 0]],
+        [[0, 0], [0, 0]],
+        exp_bits=5,
+        man_bits=2,
+        bias=3,
+    )
+    y = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[1, 0], [0, 0]],
+        [[0, 0], [0, 0]],
+        exp_bits=5,
+        man_bits=2,
+        bias=28,
+    )
+    with APyFloatAccumulatorContext(exp_bits=5, man_bits=2):
+        assert (_ := x @ y.T).is_identical(
+            APyFloatArray(
+                [[0, 0], [0, 0]],
+                [[15, 0], [0, 0]],
+                [[0, 0], [0, 0]],
+                exp_bits=5,
+                man_bits=2,
+            )
+        )

@@ -29,7 +29,7 @@ bool APY_INLINE do_infinity(QuantizationMode mode, bool sign)
     }
 }
 
-//! Calculate new bias
+//! Calculate new bias. Assumes new_exp_bits is larger than exp_bits1 and exp_bits2.
 exp_t APY_INLINE
 calc_bias(int new_exp_bits, int exp_bits1, exp_t bias1, int exp_bits2, exp_t bias2)
 {
@@ -38,6 +38,12 @@ calc_bias(int new_exp_bits, int exp_bits1, exp_t bias1, int exp_bits2, exp_t bia
             >> 1)
         - 1;
 }
+
+//! General calculation of new bias. Should only be used if new_exp_bits can be strictly
+//! less than exp_bits1 or exp_bits2.
+exp_t calc_bias_general(
+    int new_exp_bits, int exp_bits1, exp_t bias1, int exp_bits2, exp_t bias2
+);
 
 //! Quantize mantissa
 void APY_INLINE quantize_mantissa(

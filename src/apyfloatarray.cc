@@ -1073,12 +1073,6 @@ APyFloatArray APyFloatArray::from_double(
         return from_array(ndarray, exp_bits, man_bits, bias);
     }
 
-    if (bias.has_value() && bias.value() != APyFloat::ieee_bias(exp_bits)) {
-        throw NotImplementedException(
-            "Not implemented: APyFloatArray with non IEEE-like bias"
-        );
-    }
-
     APyFloatArray result(
         python_sequence_extract_shape(double_seq), exp_bits, man_bits, bias
     );
@@ -1112,12 +1106,6 @@ APyFloatArray APyFloatArray::from_array(
     std::optional<exp_t> bias
 )
 {
-    if (bias.has_value() && bias.value() != APyFloat::ieee_bias(exp_bits)) {
-        throw NotImplementedException(
-            "Not implemented: APyFloatArray with non IEEE-like bias"
-        );
-    }
-
     std::size_t ndim = ndarray.ndim();
     assert(ndim > 0);
     std::vector<std::size_t> shape(ndim, 0);
@@ -1306,6 +1294,7 @@ APyFloat APyFloatArray::checked_inner_product(
         // If an accumulator is used, the operands must be resized before the
         // multiplication. This is because the products would otherwise get quantized
         // too early.
+        // NOTE: This assumes that the format of the accumulator is larger
 
         APyFloatArray hadamard(shape, tmp_exp_bits, tmp_man_bits, tmp_bias);
         // Hadamard product of `*this` and `rhs`
@@ -1326,7 +1315,7 @@ APyFloat APyFloatArray::checked_inner_product(
         sum = sum._cast(
             max_exp_bits,
             max_man_bits,
-            APyFloat::ieee_bias(max_exp_bits),
+            calc_bias_general(max_exp_bits, exp_bits, bias, rhs.exp_bits, rhs.bias),
             acc_option.quantization
         );
         return sum;
