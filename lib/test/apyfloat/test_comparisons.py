@@ -208,3 +208,98 @@ def test_signed_zero_comparison():
     assert b >= a
     assert not (b < a)
     assert b <= a
+
+
+@pytest.mark.float_comp
+def test_mixed_bias_comparisons():
+    """Comparisons where all fields are different."""
+    # x and y are equal
+    x = APyFloat(sign=0, exp=5, man=1, exp_bits=5, man_bits=2, bias=5)
+    y = APyFloat(sign=0, exp=25, man=1, exp_bits=5, man_bits=2, bias=25)
+    assert x == y
+    assert x >= y
+    assert x <= y
+    assert not x > y
+    assert not x < y
+    assert not x != y
+
+    # Two normal numbers but y is smaller
+    y = APyFloat(sign=0, exp=5, man=1, exp_bits=5, man_bits=2, bias=6)
+    assert not x == y
+    assert x >= y
+    assert not x <= y
+    assert x > y
+    assert not x < y
+    assert x != y
+
+    # Two equal subnormal numbers
+    x = APyFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=2, bias=5)
+    y = APyFloat(sign=0, exp=0, man=2, exp_bits=5, man_bits=2, bias=6)
+    assert x == y
+    assert x >= y
+    assert x <= y
+    assert not x > y
+    assert not x < y
+    assert not x != y
+
+    # Two subnormal numbers but y is slightly larger
+    y = APyFloat(sign=0, exp=0, man=3, exp_bits=5, man_bits=2, bias=6)
+    assert not x == y
+    assert not x >= y
+    assert x <= y
+    assert not x > y
+    assert x < y
+    assert x != y
+
+    # Subnormal number equal to normal number
+    x = APyFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=2, bias=5)
+    y = APyFloat(sign=0, exp=1, man=0, exp_bits=5, man_bits=2, bias=7)
+    assert x == y
+    assert x >= y
+    assert x <= y
+    assert not x > y
+    assert not x < y
+    assert not x != y
+
+
+@pytest.mark.float_comp
+def test_mixed_format_comparisons():
+    """Comparisons with mixed formats."""
+    # x and y are equal
+    x = APyFloat(sign=0, exp=5, man=2, exp_bits=4, man_bits=3, bias=5)
+    y = APyFloat(sign=0, exp=25, man=1, exp_bits=5, man_bits=2, bias=25)
+    assert x == y
+    assert x >= y
+    assert x <= y
+    assert not x > y
+    assert not x < y
+    assert not x != y
+
+    # Two normal numbers but y is smaller
+    y = APyFloat(sign=0, exp=7, man=3, exp_bits=5, man_bits=5, bias=8)
+    assert not x == y
+    assert x >= y
+    assert not x <= y
+    assert x > y
+    assert not x < y
+    assert x != y
+
+    # Two equal subnormal numbers
+    x = APyFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=2, bias=5)
+    y = APyFloat(sign=0, exp=0, man=4, exp_bits=4, man_bits=3, bias=6)
+    assert x == y
+    assert x >= y
+    assert x <= y
+    assert not x > y
+    assert not x < y
+    assert not x != y
+
+    # Two subnormal numbers but y is slightly larger
+    x = APyFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=2, bias=5)
+    y = APyFloat(sign=0, exp=0, man=5, exp_bits=4, man_bits=3, bias=6)
+    assert not x == y
+    assert not x >= y
+    assert x <= y
+    assert not x > y
+    assert x < y
+    assert x != y
