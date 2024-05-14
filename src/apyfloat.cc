@@ -1323,6 +1323,10 @@ APyFloat APyFloat::pow(const APyFloat& x, const APyFloat& y)
 
 APyFloat APyFloat::pown(const APyFloat& x, int n)
 {
+    if (n < 0) {
+        throw NotImplementedException("Not implemented: power with negative integers.");
+    }
+
     // Handling of special cases based on the 754-2019 standard
     if (x.is_nan() || (n == 1)) {
         return x;
