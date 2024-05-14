@@ -1,4 +1,5 @@
 import pytest
+import numpy as np
 from apytypes import APyFloatArray, APyFloat, QuantizationMode
 
 
@@ -19,27 +20,46 @@ def test_is_identical():
 def test_array_from_float_raises():
     # Too many exponent bits
     with pytest.raises(
-        ValueError, match="Exponent bits can at most be .. but 100 was given"
+        ValueError,
+        match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloatArray.from_float([0], 100, 5)
+        APyFloatArray.from_float([0], 300, 5)
     # Too many mantissa bits
     with pytest.raises(
-        ValueError, match="Mantissa bits can at most be .. but 100 was given"
+        ValueError,
+        match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloatArray.from_float([0], 5, 100)
+        APyFloatArray.from_float([0], 5, 300)
 
 
 def test_array_cast_raises():
     # Too many exponent bits
     with pytest.raises(
-        ValueError, match="Exponent bits can at most be .. but 100 was given"
+        ValueError,
+        match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloatArray([0], [0], [0], 5, 5).cast(100, 5)
+        APyFloatArray([0], [0], [0], 5, 5).cast(300, 5)
     # Too many mantissa bits
     with pytest.raises(
-        ValueError, match="Mantissa bits can at most be .. but 100 was given"
+        ValueError,
+        match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloatArray([0], [0], [0], 5, 5).cast(5, 100)
+        APyFloatArray([0], [0], [0], 5, 5).cast(5, 300)
+
+
+def test_array_from_array_raises():
+    # Too many exponent bits
+    with pytest.raises(
+        ValueError,
+        match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+    ):
+        APyFloatArray.from_array(np.array([[1, 2, 3, 4]]), 5, 5).cast(300, 5)
+    # Too many mantissa bits
+    with pytest.raises(
+        ValueError,
+        match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
+    ):
+        APyFloatArray.from_array(np.array([[1, 2, 3, 4]]), 5, 5).cast(5, 300)
 
 
 @pytest.mark.float_array

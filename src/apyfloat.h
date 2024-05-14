@@ -59,16 +59,16 @@ public:
         int sign,
         exp_t exp,
         man_t man,
-        std::uint8_t exp_bits,
-        std::uint8_t man_bits,
+        int exp_bits,
+        int man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
 
     //! Create APyFloat from double
     static APyFloat from_double(
         double value,
-        std::uint8_t exp_bits,
-        std::uint8_t man_bits,
+        int exp_bits,
+        int man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
     double to_double() const;
@@ -77,8 +77,8 @@ public:
     //! Create APyFloat from bit-representation
     static APyFloat from_bits(
         nanobind::int_ python_long_int_bit_pattern,
-        std::uint8_t exp_bits,
-        std::uint8_t man_bits,
+        int exp_bits,
+        int man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
 
@@ -86,8 +86,8 @@ public:
     nanobind::int_ to_bits() const;
 
     APyFloat cast(
-        std::optional<uint8_t> exp_bits,
-        std::optional<uint8_t> man_bits,
+        std::optional<int> exp_bits,
+        std::optional<int> man_bits,
         std::optional<exp_t> bias = std::nullopt,
         std::optional<QuantizationMode> quantization = std::nullopt
     ) const;

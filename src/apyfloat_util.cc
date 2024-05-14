@@ -75,25 +75,27 @@ QuantizationMode translate_quantization_mode(QuantizationMode quantization, bool
     }
 }
 
-void check_exponent_format(std::uint8_t exp_bits)
+void check_exponent_format(int exp_bits)
 {
-    if (exp_bits > _EXP_LIMIT_BITS) {
+    if ((exp_bits > _EXP_LIMIT_BITS) || (exp_bits < 0)) {
         throw nb::value_error(fmt::format(
-                                  "Exponent bits can at most be {} but {} was given",
+                                  "Exponent bits must be a non-negative integer less "
+                                  "or equal to {} but {} was given",
                                   _EXP_LIMIT_BITS,
-                                  (unsigned int)exp_bits
+                                  exp_bits
         )
                                   .c_str());
     }
 }
 
-void check_mantissa_format(std::uint8_t man_bits)
+void check_mantissa_format(int man_bits)
 {
-    if (man_bits > _MAN_LIMIT_BITS) {
+    if ((man_bits > _MAN_LIMIT_BITS) || (man_bits < 0)) {
         throw nb::value_error(fmt::format(
-                                  "Mantissa bits can at most be {} but {} was given",
+                                  "Mantissa bits must be a non-negative integer less "
+                                  "or equal to {} but {} was given",
                                   _MAN_LIMIT_BITS,
-                                  (unsigned int)man_bits
+                                  man_bits
         )
                                   .c_str());
     }
