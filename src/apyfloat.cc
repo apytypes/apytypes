@@ -32,13 +32,10 @@ void APyFloat::create_in_place(
     std::optional<exp_t> bias
 )
 {
-    const exp_t ieee_bias = APyFloat::ieee_bias(exp_bits);
-
     check_exponent_format(exp_bits);
     check_mantissa_format(man_bits);
 
-    new (apyfloat)
-        APyFloat(sign, exp, man, exp_bits, man_bits, bias.value_or(ieee_bias));
+    new (apyfloat) APyFloat(sign, exp, man, exp_bits, man_bits, bias);
 }
 
 APyFloat::APyFloat(

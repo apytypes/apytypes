@@ -13,7 +13,6 @@
 class APyFloatArray {
 public:
     explicit APyFloatArray(
-
         const nanobind::sequence& sign_seq,
         const nanobind::sequence& exp_seq,
         const nanobind::sequence& man_seq,
@@ -91,6 +90,17 @@ public:
     /* ****************************************************************************** *
      *                       Static conversion from other types                       *
      * ****************************************************************************** */
+
+    //! Factory function for Python interface
+    static void create_in_place(
+        APyFloatArray* apyfloatarray,
+        const nanobind::sequence& sign_seq,
+        const nanobind::sequence& exp_seq,
+        const nanobind::sequence& man_seq,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
 
     //! Create an `APyFloatArray` tensor object initialized with values from a sequence
     //! of `doubles`

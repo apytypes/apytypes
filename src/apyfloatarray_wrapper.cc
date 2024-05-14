@@ -16,19 +16,36 @@ void bind_float_array(nb::module_& m)
          * Constructor: construct from a list of Python integers
          */
         .def(
-            nb::init<
-                const nb::sequence&,
-                const nb::sequence&,
-                const nb::sequence&,
-                std::uint8_t,
-                std::uint8_t,
-                std::optional<int>>(),
+            "__init__",
+            &APyFloatArray::create_in_place,
             nb::arg("signs"),
             nb::arg("exps"),
             nb::arg("mans"),
             nb::arg("exp_bits"),
             nb::arg("man_bits"),
-            nb::arg("bias") = nb::none()
+            nb::arg("bias") = nb::none(),
+            R"pbdoc(
+            Create an :class:`APyFloat` object.
+
+            Parameters
+            ----------
+            signs : sequence of bools or ints
+                The sign of the float. False/0 means positive. True/non-zero means negative.
+            exps : sequence of ints
+                Exponents of the floats as stored, i.e., actual value + bias.
+            mans : sequence of ints
+                Mantissas of the floats as stored, i.e., without a hidden one.
+            exp_bits : int
+                Number of exponent bits.
+            man_bits : int
+                Number of mantissa bits.
+            bias : int, optional
+                Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+            Returns
+            -------
+            :class:`APyFloatArray`
+            )pbdoc"
         )
 
         /*

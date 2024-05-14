@@ -42,16 +42,6 @@ void bind_float(nb::module_& m)
             Returns
             -------
             :class:`APyFloat`
-
-            Examples
-            --------
-
-            .. code-block:: python
-
-                from apytypes import APyFloat
-
-                # `a`, initialized from floating-point values.
-                a = APyFloat.from_float(1.35, exp_bits=10, man_bits=15)
             )pbdoc"
         )
 
