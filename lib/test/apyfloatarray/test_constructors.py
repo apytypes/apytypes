@@ -27,6 +27,15 @@ def test_constructor_raises():
         match="Non <type>/sequence found when walking: '<class 'apytypes._apytypes.APyFloatArray'>'",
     ):
         APyFloatArray([True], [4], [APyFloatArray], 10, 10)
+    with pytest.raises(
+        ValueError, match="Exponent bits can at most be .. but 100 was given"
+    ):
+        APyFloatArray([0], [0], [0], 100, 5)
+    # Too many mantissa bits
+    with pytest.raises(
+        ValueError, match="Mantissa bits can at most be .. but 100 was given"
+    ):
+        APyFloatArray([0], [0], [0], 5, 100)
 
 
 @pytest.mark.float_array

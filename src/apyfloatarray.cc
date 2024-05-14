@@ -14,6 +14,23 @@ namespace nb = nanobind;
 #include <stdexcept>
 #include <string>
 
+void APyFloatArray::create_in_place(
+    APyFloatArray* apyfloatarray,
+    const nanobind::sequence& sign_seq,
+    const nanobind::sequence& exp_seq,
+    const nanobind::sequence& man_seq,
+    std::uint8_t exp_bits,
+    std::uint8_t man_bits,
+    std::optional<exp_t> bias
+)
+{
+    check_exponent_format(exp_bits);
+    check_mantissa_format(man_bits);
+
+    new (apyfloatarray)
+        APyFloatArray(sign_seq, exp_seq, man_seq, exp_bits, man_bits, bias);
+}
+
 APyFloatArray::APyFloatArray(
     const nanobind::sequence& sign_seq,
     const nanobind::sequence& exp_seq,
