@@ -27,8 +27,6 @@ def test_constructor_raises():
         match="Non <type>/sequence found when walking: '<class 'apytypes._apytypes.APyFloatArray'>'",
     ):
         APyFloatArray([True], [4], [APyFloatArray], 10, 10)
-    with pytest.raises(ValueError, match="Not.*implemented.*bias"):
-        APyFloatArray.from_float([1, 5], 10, 10, 12)
 
 
 @pytest.mark.float_array

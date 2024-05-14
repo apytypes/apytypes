@@ -1,4 +1,5 @@
 #include "apyfloat_util.h"
+#include <math.h>
 
 /* Helper functions */
 man_t ipow(man_t base, unsigned int n)
@@ -21,6 +22,16 @@ man_t ipow(man_t base, unsigned int n)
     }
 
     return result;
+}
+
+exp_t calc_bias_general(
+    int new_exp_bits, int exp_bits1, exp_t bias1, int exp_bits2, exp_t bias2
+)
+{
+    return ((double)(bias1 + 1) / (1 << exp_bits1)
+            + (double)(bias2 + 1) / (1 << exp_bits2))
+        * (1 << (new_exp_bits - 1))
+        - 1;
 }
 
 void quantize_apymantissa(
