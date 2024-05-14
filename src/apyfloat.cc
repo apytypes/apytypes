@@ -140,9 +140,14 @@ APyFloat APyFloat::cast(
 ) const
 {
     const auto actual_exp_bits = new_exp_bits.value_or(exp_bits);
+    const auto actual_man_bits = new_man_bits.value_or(man_bits);
+
+    check_exponent_format(actual_exp_bits);
+    check_mantissa_format(actual_man_bits);
+
     return _cast(
         actual_exp_bits,
-        new_man_bits.value_or(man_bits),
+        actual_man_bits,
         new_bias.value_or(APyFloat::ieee_bias(actual_exp_bits)),
         quantization.value_or(get_float_quantization_mode())
     );
@@ -727,10 +732,10 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
                 res.set_to_zero(new_sign);
                 return res;
             }
-            return rhs.cast(res_exp_bits, res_man_bits, res_bias);
+            return rhs._cast(res_exp_bits, res_man_bits, res_bias);
         }
         if (rhs.is_zero()) {
-            return cast(res_exp_bits, res_man_bits, res_bias);
+            return _cast(res_exp_bits, res_man_bits, res_bias);
         }
         // Handle the NaN and inf cases
         if (is_max_exponent() || rhs.is_max_exponent()) {
