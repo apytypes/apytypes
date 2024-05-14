@@ -272,3 +272,171 @@ def test_inner_product_with_cancellation_long():
     assert (a @ b).is_identical(b @ a)
     assert (b @ a).is_identical(APyFloat(0, 488, 1152921504598458368, 10, 60))
     assert (a @ b).is_identical(sum(a * b))
+
+
+@pytest.mark.float_array
+def test_array_matmul_mixed_bias():
+    # Test that the implementation doesn't do "x.cast() @ y.cast()"
+    x = APyFloatArray([0], [30], [0], exp_bits=5, man_bits=2, bias=14)
+    y = APyFloatArray([0], [15], [0], exp_bits=5, man_bits=2, bias=16)
+    assert (_ := x @ y).is_identical(
+        APyFloat(0, 30, 0, exp_bits=5, man_bits=2, bias=15)
+    )
+
+    # Multiply two one's but with different formats
+    x = APyFloatArray([0], [14], [0], exp_bits=5, man_bits=2, bias=14)
+    y = APyFloatArray([0], [21], [0], exp_bits=5, man_bits=2, bias=21)
+    assert (_ := x @ y).is_identical(
+        APyFloat(0, 17, 0, exp_bits=5, man_bits=2, bias=17)
+    )
+
+    # Same tests again but with (2, 2) matrices
+    x = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[30, 0], [0, 0]],
+        [[0, 0], [0, 0]],
+        exp_bits=5,
+        man_bits=2,
+        bias=14,
+    )
+    y = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[15, 0], [0, 0]],
+        [[0, 0], [0, 0]],
+        exp_bits=5,
+        man_bits=2,
+        bias=16,
+    )
+    assert (_ := x @ y.T).is_identical(
+        APyFloatArray(
+            [[0, 0], [0, 0]],
+            [[30, 0], [0, 0]],
+            [[0, 0], [0, 0]],
+            exp_bits=5,
+            man_bits=2,
+            bias=15,
+        )
+    )
+
+    x = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[14, 0], [0, 0]],
+        [[0, 0], [0, 0]],
+        exp_bits=5,
+        man_bits=2,
+        bias=14,
+    )
+    y = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[21, 0], [0, 0]],
+        [[0, 0], [0, 0]],
+        exp_bits=5,
+        man_bits=2,
+        bias=21,
+    )
+    assert (_ := x @ y.T).is_identical(
+        APyFloatArray(
+            [[0, 0], [0, 0]],
+            [[17, 0], [0, 0]],
+            [[0, 0], [0, 0]],
+            exp_bits=5,
+            man_bits=2,
+            bias=17,
+        )
+    )
+
+
+@pytest.mark.float_array
+def test_array_matmul_mixed_bias_overflow():
+    """Test that a result can overflow to infinity due to a change in bias."""
+    x = APyFloatArray([0], [21], [0], exp_bits=5, man_bits=2, bias=5)
+    y = APyFloatArray([0], [25], [0], exp_bits=5, man_bits=2, bias=25)
+
+    # Multiply with one
+    assert (_ := x @ y).is_identical(
+        APyFloat(0, 31, 0, exp_bits=5, man_bits=2, bias=15)
+    )
+
+    # Multiply with one but with larger bias difference
+    y = APyFloatArray([0], [27], [0], exp_bits=5, man_bits=2, bias=27)
+    assert (_ := x @ y).is_identical(
+        APyFloat(0, 31, 0, exp_bits=5, man_bits=2, bias=16)
+    )
+
+    # Should become one
+    x = APyFloatArray([0], [30], [0], exp_bits=5, man_bits=2, bias=3)
+    y = APyFloatArray([0], [1], [0], exp_bits=5, man_bits=2, bias=28)
+    assert (_ := x @ y).is_identical(APyFloat(0, 15, 0, exp_bits=5, man_bits=2))
+
+    # Same tests again but now (2, 2) matrices
+    x = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[21, 0], [0, 0]],
+        [[0, 0], [0, 0]],
+        exp_bits=5,
+        man_bits=2,
+        bias=5,
+    )
+    y = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[25, 0], [0, 0]],
+        [[0, 0], [0, 0]],
+        exp_bits=5,
+        man_bits=2,
+        bias=25,
+    )
+    assert (_ := x @ y.T).is_identical(
+        APyFloatArray(
+            [[0, 0], [0, 0]],
+            [[31, 0], [0, 0]],
+            [[0, 0], [0, 0]],
+            exp_bits=5,
+            man_bits=2,
+            bias=15,
+        )
+    )
+
+    y = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[27, 0], [0, 0]],
+        [[0, 0], [0, 0]],
+        exp_bits=5,
+        man_bits=2,
+        bias=27,
+    )
+    assert (_ := x @ y.T).is_identical(
+        APyFloatArray(
+            [[0, 0], [0, 0]],
+            [[31, 0], [0, 0]],
+            [[0, 0], [0, 0]],
+            exp_bits=5,
+            man_bits=2,
+            bias=16,
+        )
+    )
+
+    x = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[30, 0], [0, 0]],
+        [[0, 0], [0, 0]],
+        exp_bits=5,
+        man_bits=2,
+        bias=3,
+    )
+    y = APyFloatArray(
+        [[0, 0], [0, 0]],
+        [[1, 0], [0, 0]],
+        [[0, 0], [0, 0]],
+        exp_bits=5,
+        man_bits=2,
+        bias=28,
+    )
+    assert (_ := x @ y.T).is_identical(
+        APyFloatArray(
+            [[0, 0], [0, 0]],
+            [[15, 0], [0, 0]],
+            [[0, 0], [0, 0]],
+            exp_bits=5,
+            man_bits=2,
+        )
+    )

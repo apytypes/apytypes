@@ -1521,7 +1521,8 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
         : std::vector<std::size_t> { shape[0] };              // rhs is 1-D
     const std::uint8_t max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const std::uint8_t max_man_bits = std::max(man_bits, rhs.man_bits);
-    const auto res_bias = APyFloat::ieee_bias(max_exp_bits);
+    const auto res_bias
+        = calc_bias(max_exp_bits, exp_bits, bias, rhs.exp_bits, rhs.bias);
     const auto res_cols = rhs.shape.size() > 1 ? rhs.shape[1] : 1;
 
     auto accumulator_mode = get_accumulator_mode_float();
