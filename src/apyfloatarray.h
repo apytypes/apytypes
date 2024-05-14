@@ -97,8 +97,8 @@ public:
         const nanobind::sequence& sign_seq,
         const nanobind::sequence& exp_seq,
         const nanobind::sequence& man_seq,
-        std::uint8_t exp_bits,
-        std::uint8_t man_bits,
+        int exp_bits,
+        int man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
 
@@ -106,16 +106,16 @@ public:
     //! of `doubles`
     static APyFloatArray from_double(
         const nanobind::sequence& double_seq,
-        std::uint8_t exp_bits,
-        std::uint8_t man_bits,
+        int exp_bits,
+        int man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
 
     //! Create an `APyFloatArray` tensor object initialized with values from an ndarray
     static APyFloatArray from_array(
         const nanobind::ndarray<nanobind::c_contig>& ndarray,
-        std::uint8_t exp_bits,
-        std::uint8_t man_bits,
+        int exp_bits,
+        int man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
 
@@ -127,8 +127,8 @@ public:
 
     //! Returns a copy of the tensor with the elements resized.
     APyFloatArray cast(
-        std::optional<uint8_t> exp_bits,
-        std::optional<uint8_t> man_bits,
+        std::optional<int> exp_bits,
+        std::optional<int> man_bits,
         std::optional<exp_t> bias = std::nullopt,
         std::optional<QuantizationMode> quantization = std::nullopt
     ) const;

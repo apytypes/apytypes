@@ -27,8 +27,8 @@ void APyFloat::create_in_place(
     int sign,
     exp_t exp,
     man_t man,
-    std::uint8_t exp_bits,
-    std::uint8_t man_bits,
+    int exp_bits,
+    int man_bits,
     std::optional<exp_t> bias
 )
 {
@@ -112,10 +112,7 @@ APyFloat::APyFloat(
  */
 
 APyFloat APyFloat::from_double(
-    double value,
-    std::uint8_t exp_bits,
-    std::uint8_t man_bits,
-    std::optional<exp_t> bias
+    double value, int exp_bits, int man_bits, std::optional<exp_t> bias
 )
 {
     check_exponent_format(exp_bits);
@@ -130,8 +127,8 @@ APyFloat APyFloat::from_double(
 }
 
 APyFloat APyFloat::cast(
-    std::optional<uint8_t> new_exp_bits,
-    std::optional<uint8_t> new_man_bits,
+    std::optional<int> new_exp_bits,
+    std::optional<int> new_man_bits,
     std::optional<exp_t> new_bias,
     std::optional<QuantizationMode> quantization
 ) const
@@ -545,8 +542,8 @@ APyFloat::operator double() const { return to_double(); }
 
 APyFloat APyFloat::from_bits(
     nb::int_ python_long_int_bit_pattern,
-    std::uint8_t exp_bits,
-    std::uint8_t man_bits,
+    int exp_bits,
+    int man_bits,
     std::optional<exp_t> bias
 )
 {

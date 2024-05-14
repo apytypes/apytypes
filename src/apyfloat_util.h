@@ -214,8 +214,8 @@ void quantize_apymantissa(
 QuantizationMode translate_quantization_mode(QuantizationMode quantization, bool sign);
 
 //! Check that the number of exponent bits is allowed, throw otherwise
-void check_exponent_format(std::uint8_t exp_bits);
+void check_exponent_format(int exp_bits);
 
 //! Check that the number of mantissa bits is allowed, throw otherwise
-void check_mantissa_format(std::uint8_t man_bits);
+void check_mantissa_format(int man_bits);
 #endif // _APYFLOAT_UTIL_H

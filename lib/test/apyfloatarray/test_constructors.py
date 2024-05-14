@@ -28,14 +28,16 @@ def test_constructor_raises():
     ):
         APyFloatArray([True], [4], [APyFloatArray], 10, 10)
     with pytest.raises(
-        ValueError, match="Exponent bits can at most be .. but 100 was given"
+        ValueError,
+        match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloatArray([0], [0], [0], 100, 5)
+        APyFloatArray([0], [0], [0], 300, 5)
     # Too many mantissa bits
     with pytest.raises(
-        ValueError, match="Mantissa bits can at most be .. but 100 was given"
+        ValueError,
+        match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloatArray([0], [0], [0], 5, 100)
+        APyFloatArray([0], [0], [0], 5, 300)
 
 
 @pytest.mark.float_array

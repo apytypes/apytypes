@@ -19,8 +19,8 @@ void APyFloatArray::create_in_place(
     const nanobind::sequence& sign_seq,
     const nanobind::sequence& exp_seq,
     const nanobind::sequence& man_seq,
-    std::uint8_t exp_bits,
-    std::uint8_t man_bits,
+    int exp_bits,
+    int man_bits,
     std::optional<exp_t> bias
 )
 {
@@ -1079,8 +1079,8 @@ bool APyFloatArray::is_identical(const APyFloatArray& other) const
 
 APyFloatArray APyFloatArray::from_double(
     const nb::sequence& double_seq,
-    std::uint8_t exp_bits,
-    std::uint8_t man_bits,
+    int exp_bits,
+    int man_bits,
     std::optional<exp_t> bias
 )
 {
@@ -1121,11 +1121,14 @@ APyFloatArray APyFloatArray::from_double(
 
 APyFloatArray APyFloatArray::from_array(
     const nb::ndarray<nb::c_contig>& ndarray,
-    std::uint8_t exp_bits,
-    std::uint8_t man_bits,
+    int exp_bits,
+    int man_bits,
     std::optional<exp_t> bias
 )
 {
+    check_exponent_format(exp_bits);
+    check_mantissa_format(man_bits);
+
     std::size_t ndim = ndarray.ndim();
     assert(ndim > 0);
     std::vector<std::size_t> shape(ndim, 0);
@@ -1212,8 +1215,8 @@ APyFloatArray APyFloatArray::transpose() const
 }
 
 APyFloatArray APyFloatArray::cast(
-    std::optional<uint8_t> new_exp_bits,
-    std::optional<uint8_t> new_man_bits,
+    std::optional<int> new_exp_bits,
+    std::optional<int> new_man_bits,
     std::optional<exp_t> new_bias,
     std::optional<QuantizationMode> quantization
 ) const
