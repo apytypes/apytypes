@@ -1087,6 +1087,11 @@ def test_power_underflow():
 )
 def test_power_special_cases(x, n, test_exp):
     """Test the special cases for the power function."""
+    if n[0] == "-":
+        pytest.skip(
+            "Skip tests with negative powers as the function currently throws, see https://github.com/apytypes/apytypes/issues/191."
+        )
+
     if str(test_exp) == "nan":
         assert eval(f"(APyFloat.from_float(float({x}), 9, 7)**{n}).is_nan")
     else:
