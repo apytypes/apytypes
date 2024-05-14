@@ -10,12 +10,22 @@ def test_scalar_constructor_raises():
         match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
         APyFloat(0, 0, 0, 300, 5)
+    with pytest.raises(
+        ValueError,
+        match="Exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+    ):
+        APyFloat(0, 0, 0, -300, 5)
     # Too many mantissa bits
     with pytest.raises(
         ValueError,
         match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
         APyFloat(0, 0, 0, 5, 300)
+    with pytest.raises(
+        ValueError,
+        match="Mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+    ):
+        APyFloat(0, 0, 0, 5, -300)
 
 
 def test_scalar_from_float_raises():
@@ -25,12 +35,22 @@ def test_scalar_from_float_raises():
         match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
         APyFloat.from_float(0, 300, 5)
+    with pytest.raises(
+        ValueError,
+        match="Exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+    ):
+        APyFloat.from_float(0, -300, 5)
     # Too many mantissa bits
     with pytest.raises(
         ValueError,
         match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
         APyFloat.from_float(0, 5, 300)
+    with pytest.raises(
+        ValueError,
+        match="Mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+    ):
+        APyFloat.from_float(0, 5, -300)
 
 
 def test_scalar_from_bits_raises():
@@ -40,12 +60,22 @@ def test_scalar_from_bits_raises():
         match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
         APyFloat.from_bits(0, 300, 5)
+    with pytest.raises(
+        ValueError,
+        match="Exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+    ):
+        APyFloat.from_bits(0, -300, 5)
     # Too many mantissa bits
     with pytest.raises(
         ValueError,
         match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
         APyFloat.from_bits(0, 5, 300)
+    with pytest.raises(
+        ValueError,
+        match="Mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+    ):
+        APyFloat.from_bits(0, 5, -300)
 
 
 def test_scalar_cast_raises():
@@ -55,12 +85,22 @@ def test_scalar_cast_raises():
         match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
         APyFloat(0, 0, 0, 5, 5).cast(300, 5)
+    with pytest.raises(
+        ValueError,
+        match="Exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+    ):
+        APyFloat(0, 0, 0, 5, 5).cast(-300, 5)
     # Too many mantissa bits
     with pytest.raises(
         ValueError,
         match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
         APyFloat(0, 0, 0, 5, 5).cast(5, 300)
+    with pytest.raises(
+        ValueError,
+        match="Mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+    ):
+        APyFloat(0, 0, 0, 5, 5).cast(5, -300)
 
 
 @pytest.mark.float_special
