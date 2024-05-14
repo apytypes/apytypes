@@ -59,11 +59,39 @@ void mp_get_memory_functions(
     void* (**)(size_t), void* (**)(void*, size_t, size_t), void (**)(void*, size_t)
 );
 
-/*
- * GMP limb types
- */
+/* ********************************************************************************** *
+ * *                               GMP limb types                                   * *
+ * ********************************************************************************** */
+
+#if !defined(COMPILER_LIMB_SIZE)
+#error "C Macro `COMPILER_LIMB_SIZE` not specified. Must be set during compilation."
+#else /* defined(COMPILER_LIMB_SIZE) */
+#if COMPILER_LIMB_SIZE == 32
+typedef uint32_t mp_limb_t;
+typedef int32_t mp_limb_signed_t;
+#elif COMPILER_LIMB_SIZE == 64
 typedef uint64_t mp_limb_t;
 typedef int64_t mp_limb_signed_t;
+#elif COMPILER_LIMB_SIZE == NATIVE
+#if SIZE_MAX == 4294967295ull             /* 32-bit system detected */
+typedef uint32_t mp_limb_t;
+typedef int32_t mp_limb_signed_t;
+#elif SIZE_MAX == 18446744073709551615ull /* 64-bit system detected */
+typedef uint64_t mp_limb_t;
+typedef int64_t mp_limb_signed_t;
+#else
+#error "Could not detect native target architecture word size."
+#endif
+#else
+#error "C Macro `COMPILER_LIMB_SIZE` must be one of `32`, `64` or `NATIVE`"
+#endif
+
+#endif
+
+/* ********************************************************************************** *
+ * *                               Other GMP types                                  * *
+ * ********************************************************************************** */
+
 typedef long mp_size_t;
 typedef unsigned long mp_bitcnt_t;
 

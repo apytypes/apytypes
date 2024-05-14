@@ -5,6 +5,12 @@ project(
     version : run_command(find_program('python3'), '-m', 'setuptools_scm', check: true).stdout().strip(),
 )
 
+# Specify the compile-time limb size. Exactly one of `32`, `64` or `NATIVE`
+add_project_arguments(
+    '-DCOMPILER_LIMB_SIZE=NATIVE',
+    language: ['cpp', 'c'],
+)
+
 # Python module includes
 py3 = import('python').find_installation('python3', pure: false)
 py3_dep = py3.dependency()
@@ -18,11 +24,11 @@ cmake = import('cmake')
 cmake_opts = cmake.subproject_options()
 if get_option('buildtype') == 'release'
     cmake_opts.add_cmake_defines({
-      'CMAKE_BUILD_TYPE'    : 'Release',
-      'HWY_ENABLE_TESTS'    : 'OFF',
-      'HWY_ENABLE_CONTRIB'  : 'OFF',
-      'HWY_ENABLE_INSTALL'  : 'OFF',
-      'HWY_ENABLE_EXAMPLES' : 'OFF'
+        'CMAKE_BUILD_TYPE'    : 'Release',
+        'HWY_ENABLE_TESTS'    : 'OFF',
+        'HWY_ENABLE_CONTRIB'  : 'OFF',
+        'HWY_ENABLE_INSTALL'  : 'OFF',
+        'HWY_ENABLE_EXAMPLES' : 'OFF'
     })
 endif
 
@@ -30,12 +36,12 @@ hwy = cmake.subproject('highway', options: cmake_opts)
 hwy_dep = hwy.dependency('hwy', include_type: 'system')
 
 py3.install_sources(
-  [
-    'lib/apytypes/__init__.py',
-    'lib/apytypes/__init__.pyi',
-    'lib/apytypes/_apytypes.pyi',
-  ],
-  subdir: 'apytypes'
+    [
+        'lib/apytypes/__init__.py',
+        'lib/apytypes/__init__.pyi',
+        'lib/apytypes/_apytypes.pyi',
+    ],
+    subdir: 'apytypes'
 )
 
 # Version handling
@@ -43,14 +49,15 @@ fs = import('fs')
 if fs.exists('_version.py')
     py3.install_sources('_version.py', subdir: 'apytypes')
 else
-  cfg = configuration_data()
-  cfg.set_quoted('VCS_TAG', meson.project_version())
-  configure_file(
-    input: 'lib/apytypes/_version.py.in', output: '_version.py',
-    configuration: cfg,
-    install: true,
-    install_tag: 'python-runtime',
-    install_dir: py3.get_install_dir() / 'apytypes')
+    cfg = configuration_data()
+    cfg.set_quoted('VCS_TAG', meson.project_version())
+    configure_file(
+        input: 'lib/apytypes/_version.py.in', output: '_version.py',
+        configuration: cfg,
+        install: true,
+        install_tag: 'python-runtime',
+        install_dir: py3.get_install_dir() / 'apytypes'
+    )
 endif
 
 # fmt
@@ -81,5 +88,5 @@ py3.extension_module(
     ]),
     dependencies : [py3_dep, nanobind_dep, hwy_dep, fmt_dep],
     subdir: 'apytypes',
-    install: true
+    install: true,
 )
