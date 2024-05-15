@@ -77,7 +77,7 @@ QuantizationMode translate_quantization_mode(QuantizationMode quantization, bool
 
 void check_exponent_format(int exp_bits)
 {
-    if ((exp_bits > _EXP_LIMIT_BITS) || (exp_bits < 0)) {
+    if ((unsigned(exp_bits) > _EXP_LIMIT_BITS) || (exp_bits < 0)) {
         throw nb::value_error(fmt::format(
                                   "Exponent bits must be a non-negative integer less "
                                   "or equal to {} but {} was given",
@@ -90,7 +90,7 @@ void check_exponent_format(int exp_bits)
 
 void check_mantissa_format(int man_bits)
 {
-    if ((man_bits > _MAN_LIMIT_BITS) || (man_bits < 0)) {
+    if ((unsigned(man_bits) > _MAN_LIMIT_BITS) || (man_bits < 0)) {
         throw nb::value_error(fmt::format(
                                   "Mantissa bits must be a non-negative integer less "
                                   "or equal to {} but {} was given",
