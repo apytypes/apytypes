@@ -29,9 +29,10 @@ class APyFixed {
 
     static_assert(
         (sizeof(mp_limb_t) == 8 || sizeof(mp_limb_t) == 4),
-        "The GMP `mp_limb_t` data type is either 64 bit or 32 bit. Any other limb size "
+        "The GMP `mp_limb_t` data type is either 64-bit or 32-bit. Any other limb size "
         "is unsupported. This assumption should hold true always, according to the GMP "
-        "documentation"
+        "documentation. The size of limbs is specified during compilation with the C "
+        "Macro `COMPILER_LIMB_SIZE`."
     );
     static_assert(
         (-1 >> 1 == -1),
@@ -62,7 +63,8 @@ private:
      * ****************************************************************************** */
 
 public:
-    //! No default constructed `APyFixed` objects
+    //! No default (empty) constructed `APyFixed` objects. At lesast the bit-specifiers
+    //! has to be set during construction.
     APyFixed() = delete;
 
     //! Construct a copy from `other`.

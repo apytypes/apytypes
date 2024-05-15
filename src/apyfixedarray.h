@@ -31,9 +31,10 @@ class APyFixedArray : public APyBuffer<mp_limb_t> {
 
     static_assert(
         (sizeof(mp_limb_t) == 8 || sizeof(mp_limb_t) == 4),
-        "The GMP `mp_limb_t` data type is either 64 bit or 32 bit. Any other limb size "
+        "The GMP `mp_limb_t` data type is either 64-bit or 32-bit. Any other limb size "
         "is unsupported. This assumption should hold true always, according to the GMP "
-        "documentation"
+        "documentation. The size of limbs is specified during compilation with the C "
+        "Macro `COMPILER_LIMB_SIZE`."
     );
     static_assert(
         (-1 >> 1 == -1),
@@ -59,7 +60,8 @@ class APyFixedArray : public APyBuffer<mp_limb_t> {
      * ****************************************************************************** */
 
 public:
-    //! No default (empty) constructed APyFixedArray types
+    //! No default (empty) constructed `APyFixedArray` objects. At lesast the
+    //! bit-specifiers and shape has to be set during construction.
     APyFixedArray() = delete;
 
     explicit APyFixedArray(
@@ -73,12 +75,12 @@ public:
      * *                     Non-Python accessible constructors                     * *
      * ****************************************************************************** */
 
-    //! Constructor: specify only shape and word-length. Zero data on construction
+    //! Constructor: specify only shape and word-length. Zero data on construction.
     explicit APyFixedArray(
         const std::vector<std::size_t>& shape, int bits, int int_bits
     );
 
-    //! Constructor: specify only shape and word-length. Zero data on construction
+    //! Constructor: specify only shape and word-length. Zero data on construction.
     explicit APyFixedArray(
         const std::vector<std::size_t>& shape,
         std::optional<int> int_bits = std::nullopt,
@@ -91,7 +93,7 @@ public:
      * ****************************************************************************** */
 
 private:
-    //! Base addition/subtraction routine for two `APyFixedArray`
+    //! Base addition/subtraction routine for `APyFixedArray`
     template <class ripple_carry_op, class simd_op, class simd_shift_op>
     inline APyFixedArray _apyfixedarray_base_add_sub(const APyFixedArray& rhs) const;
 
@@ -328,18 +330,6 @@ private:
      * `*this`.
      */
     void _set_values_from_ndarray(const nanobind::ndarray<nanobind::c_contig>& ndarray);
-
-    //! Check if object are of the same type, i.e., same number of bits.
-    APY_INLINE bool same_type_as(const APyFixedArray& other) const
-    {
-        return _bits == other._bits && _int_bits == other._int_bits;
-    }
-
-    //! Test if the APyFixed is of the same type, i.e., same number of bits.
-    APY_INLINE bool same_type_as(const APyFixed& other) const
-    {
-        return _bits == other.bits() && _int_bits == other.int_bits();
-    }
 };
 
 #endif // _APYFIXED_ARRAY_H
