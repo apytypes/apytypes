@@ -183,9 +183,9 @@ public:
      * ******************************************************************************
      */
 
-    APyFloat operator&(APyFloat& rhs);
-    APyFloat operator|(APyFloat& rhs);
-    APyFloat operator^(APyFloat& rhs);
+    APyFloat operator&(const APyFloat& rhs);
+    APyFloat operator|(const APyFloat& rhs);
+    APyFloat operator^(const APyFloat& rhs);
     APyFloat operator~();
 
     /* ******************************************************************************

@@ -1426,7 +1426,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
  * ******************************************************************************
  */
 
-APyFloat APyFloat::operator&(APyFloat& rhs)
+APyFloat APyFloat::operator&(const APyFloat& rhs)
 {
     if (same_type_as(rhs)) {
         APyFloat f(sign & rhs.sign, exp & rhs.exp, man & rhs.man, exp_bits, man_bits);
@@ -1449,7 +1449,7 @@ APyFloat APyFloat::operator&(APyFloat& rhs)
     return f;
 }
 
-APyFloat APyFloat::operator|(APyFloat& rhs)
+APyFloat APyFloat::operator|(const APyFloat& rhs)
 {
     if (same_type_as(rhs)) {
         APyFloat f(sign | rhs.sign, exp | rhs.exp, man | rhs.man, exp_bits, man_bits);
@@ -1471,7 +1471,7 @@ APyFloat APyFloat::operator|(APyFloat& rhs)
     return f;
 }
 
-APyFloat APyFloat::operator^(APyFloat& rhs)
+APyFloat APyFloat::operator^(const APyFloat& rhs)
 {
     if (same_type_as(rhs)) {
         APyFloat f(sign ^ rhs.sign, exp ^ rhs.exp, man ^ rhs.man, exp_bits, man_bits);
