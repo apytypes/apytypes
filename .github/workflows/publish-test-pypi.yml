@@ -1,13 +1,37 @@
-name: Publish APyTypes to PyPi and TestPyPi
+name: Build wheels and publish APyTypes to PyPi
 
-# This workflow runs on all pushes, which is needed to capture tag pushes
-on: push
+on:
+  # Save CI by only running this on release branches or tags.
+  push:
+    branches:
+      - main
+      - v[0-9]+.[0-9]+.x
+    tags:
+      - v*
+  # Also allow running this action on PRs if requested by applying the
+  # "Run cibuildwheel" label.
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
 
 jobs:
 
   # Wheel-building job-step using cibuildwheel
   build:
     name: Build wheel ${{ matrix.os }} 📦
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      github.event_name == 'pull_request' && (
+        (
+          github.event.action == 'labeled' &&
+          github.event.label.name == 'CI: Run cibuildwheel'
+        ) ||
+        contains(github.event.pull_request.labels.*.name,
+                 'CI: Run cibuildwheel')
+      )
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -33,7 +57,7 @@ jobs:
   # Official publication to PyPi (on new tags)
   publish-to-pypi:
     name: Publish to PyPI 📦
-    if: startsWith(github.ref, 'refs/tags/')  # only publish to PyPI on tag pushes
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')  # only publish to PyPI on tag pushes
     needs:
     - build
     runs-on: ubuntu-latest
