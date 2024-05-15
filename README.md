@@ -5,6 +5,12 @@
 [![License](https://img.shields.io/github/license/apytypes/apytypes)](https://github.com/apytypes/apytypes/blob/main/LICENSE.txt)
 ![Workflow Status](https://img.shields.io/github/actions/workflow/status/apytypes/apytypes/tests.yml)
 [![codecov](https://codecov.io/gh/apytypes/apytypes/graph/badge.svg?token=734MDWN7SU)](https://codecov.io/gh/apytypes/apytypes)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11197885.svg)](https://doi.org/10.5281/zenodo.11197885)
+
+APyTypes is a Python library providing algorithmic scalar and array data types,
+both fixed- and floating-point in Python. The main purpose is to simplify finite
+word length design and simulation. Written in C++, the focus is on performance and
+flexibility.
 
 ## Documentation
 
@@ -31,7 +37,7 @@ pip uninstall apytypes
 The package can now be used as:
 
 ```python
-$ python3
+$ python
 >>> from apytypes import APyFixed
 >>> fx_a = APyFixed.from_float(3.5, 8, 4)
 >>> print(fx_a)
@@ -47,5 +53,5 @@ APyFixed(bit_pattern=304, bits=11, int_bits=5)
 
 ### Tests
 
-Test dependencies can be installed by running `pip3 install [.test]` and then
+Test dependencies can be installed by running `pip install [.test]` and then
 executed by `pytest`.
