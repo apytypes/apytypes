@@ -26,12 +26,6 @@ the [pip](https://pypi.org/p/pip/) package installer:
 pip install apytypes
 ```
 
-Uninstall APyTypes with:
-
-```bash
-pip uninstall apytypes
-```
-
 ### Running
 
 The package can now be used as:
@@ -39,14 +33,14 @@ The package can now be used as:
 ```python
 $ python
 >>> from apytypes import APyFixed
->>> fx_a = APyFixed.from_float(3.5, 8, 4)
+>>> fx_a = APyFixed.from_float(3.5, 4, 4)
 >>> print(fx_a)
 3.5
 >>> fx_a
-APyFixed(bit_pattern=56, bits=8, int_bits=4)
+APyFixed(56, bits=8, int_bits=4)
 >>> fx_b = APyFixed.from_float(1.25, 9, 3)
 >>> fx_a + fx_b
-APyFixed(bit_pattern=304, bits=11, int_bits=5)
+APyFixed(304, bits=11, int_bits=5)
 >>> print(fx_a + fx_b)
 4.75
 ```
