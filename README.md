@@ -38,7 +38,7 @@ $ python
 3.5
 >>> fx_a
 APyFixed(56, bits=8, int_bits=4)
->>> fx_b = APyFixed.from_float(1.25, 9, 3)
+>>> fx_b = APyFixed.from_float(1.25, 3, 6)
 >>> fx_a + fx_b
 APyFixed(304, bits=11, int_bits=5)
 >>> print(fx_a + fx_b)

@@ -11,7 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- v0.1.1 Smaller fixes in quantization for floating-point scalar multiplication.
+### Fixed
+
+- Smaller fixes in quantization for floating-point scalar multiplication.
 
 ### Removed
 
