@@ -224,8 +224,12 @@ APyFloat APyFloat::_checked_cast(
         res.exp = 0;
         // Cast mantissa
         res.man = prev_man;
-        std::uint8_t man_bits_delta = 1 - new_exp;
-        res.cast_mantissa_subnormal(man_bits_delta, quantization);
+        const int man_bits_delta = 1 - new_exp + (man_bits - new_man_bits);
+        if (man_bits_delta > 0) {
+            res.cast_mantissa_subnormal(man_bits_delta, quantization);
+        } else {
+            res.man <<= -man_bits_delta;
+        }
         return res;
     }
 

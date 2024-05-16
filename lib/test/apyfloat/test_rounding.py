@@ -1164,6 +1164,13 @@ class TestAPyFloatQuantization:
             APyFloat(1, 30, 0, 5, 5).cast(4, 3).is_identical(APyFloat(1, 15, 0, 4, 3))
         )  # Should become infinity
 
+        # From https://github.com/apytypes/apytypes/issues/406
+        res = APyFloat(sign=0, exp=103, man=0, exp_bits=8, man_bits=23).cast(5, 10)
+        assert res.is_identical(APyFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=10))
+
+        res = APyFloat(sign=0, exp=103, man=1, exp_bits=8, man_bits=23).cast(5, 10)
+        assert res.is_identical(APyFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=10))
+
     def test_quantization_ties_odd(self):
         apytypes.set_float_quantization_mode(QuantizationMode.TIES_ODD)
         # Quantization from 0.xx
@@ -1944,6 +1951,12 @@ class TestAPyFloatQuantization:
                 pytest.fail(f"{larger_format} was rounded to {smaller_format}")
             if done_down and done_up:
                 break
+
+    def test_quantization_subnormal_shift(self):
+        """Result will be subnormal but require a left shift."""
+        assert (_ := APyFloat(0, 0, 1, 4, 4).cast(4, 10)).is_identical(
+            APyFloat(sign=0, exp=0, man=64, exp_bits=4, man_bits=10)
+        )
 
 
 def test_convenience_cast():
