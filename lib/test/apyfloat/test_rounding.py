@@ -381,6 +381,58 @@ class TestAPyFloatQuantizationMul:
                 APyFloat(sign=1, exp=0, man=1, exp_bits=5, man_bits=10)
             )
 
+    def test_stoch_weighted(self):
+        with APyFloatQuantizationContext(QuantizationMode.STOCH_WEIGHTED):
+            # 1.25 * 1.25 should quantize to 1.5 or 1.75
+            res = APyFloat(0, 15, 1, 5, 2) * APyFloat(0, 15, 1, 5, 2)
+            assert res.is_identical(APyFloat(0, 15, 2, 5, 2)) or (
+                res.is_identical(APyFloat(0, 15, 3, 5, 2))
+            )
+
+            res = APyFloat(0, 15, 1, 5, 52) * APyFloat(0, 15, 1, 5, 52)
+            assert res.is_identical(APyFloat(0, 15, 2, 5, 52)) or (
+                res.is_identical(APyFloat(0, 15, 3, 5, 52))
+            )
+
+            # Should quantize to zero or smallest subnormal
+            res = APyFloat(0, 1, 0, 4, 2) * APyFloat(0, 1, 0, 4, 2)
+            assert res.is_identical(APyFloat(0, 0, 0, 4, 2)) or (
+                res.is_identical(APyFloat(0, 0, 1, 4, 2))
+            )
+
+            res = APyFloat(0, 0, (1 << 27) - 1, 4, 52) * APyFloat(
+                0, 0, (1 << 30) - 1, 4, 52
+            )
+            assert res.is_identical(APyFloat(0, 0, 0, 4, 52)) or (
+                res.is_identical(APyFloat(0, 0, 1, 4, 52))
+            )
+
+    def test_stoch_equal(self):
+        with APyFloatQuantizationContext(QuantizationMode.STOCH_EQUAL):
+            # 1.25 * 1.25 should quantize to 1.5 or 1.75
+            res = APyFloat(0, 15, 1, 5, 2) * APyFloat(0, 15, 1, 5, 2)
+            assert res.is_identical(APyFloat(0, 15, 2, 5, 2)) or (
+                res.is_identical(APyFloat(0, 15, 3, 5, 2))
+            )
+
+            res = APyFloat(0, 15, 1, 5, 52) * APyFloat(0, 15, 1, 5, 52)
+            assert res.is_identical(APyFloat(0, 15, 2, 5, 52)) or (
+                res.is_identical(APyFloat(0, 15, 3, 5, 52))
+            )
+
+            # Should quantize to zero or smallest subnormal
+            res = APyFloat(0, 1, 0, 4, 2) * APyFloat(0, 1, 0, 4, 2)
+            assert res.is_identical(APyFloat(0, 0, 0, 4, 2)) or (
+                res.is_identical(APyFloat(0, 0, 1, 4, 2))
+            )
+
+            res = APyFloat(0, 0, (1 << 27) - 1, 4, 52) * APyFloat(
+                0, 0, (1 << 30) - 1, 4, 52
+            )
+            assert res.is_identical(APyFloat(0, 0, 0, 4, 52)) or (
+                res.is_identical(APyFloat(0, 0, 1, 4, 52))
+            )
+
 
 @pytest.mark.float_div
 class TestAPyFloatQuantizationDiv:
