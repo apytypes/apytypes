@@ -272,9 +272,30 @@ public:
         return (1ULL << (exp_bits - 1)) - 1;
     }
 
-    void set_to_zero(std::optional<bool> new_sign = std::nullopt);
-    void set_to_inf(std::optional<bool> new_sign = std::nullopt);
-    void set_to_nan(std::optional<bool> new_sign = std::nullopt, man_t payload = 1);
+    APY_INLINE void set_to_zero(bool new_sign)
+    {
+        sign = new_sign;
+        exp = 0;
+        man = 0;
+    }
+
+    APY_INLINE void set_to_zero()
+    {
+        exp = 0;
+        man = 0;
+    }
+
+    APY_INLINE void set_to_inf()
+    {
+        exp = max_exponent();
+        man = 0;
+    }
+
+    APY_INLINE void set_to_nan()
+    {
+        exp = max_exponent();
+        man = 1;
+    }
 
     APyFloat construct_zero(std::optional<bool> new_sign = std::nullopt) const;
     APyFloat construct_inf(std::optional<bool> new_sign = std::nullopt) const;

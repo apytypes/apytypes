@@ -184,21 +184,21 @@ APyFloat APyFloat::_checked_cast(
 {
     APyFloat res(new_exp_bits, new_man_bits, new_bias);
 
+    res.sign = sign;
+
     // Handle special values first
     if (is_max_exponent()) {
         if (man) {
-            res.set_to_nan(sign);
+            res.set_to_nan();
             return res;
         }
-        res.set_to_inf(sign);
+        res.set_to_inf();
         return res;
     }
     if (is_zero()) {
-        res.set_to_zero(sign);
+        res.set_to_zero();
         return res;
     }
-
-    res.sign = sign;
 
     // Initial value for exponent
     std::int64_t new_exp = true_exp() + (std::int64_t)res.bias;
@@ -293,22 +293,22 @@ APyFloat APyFloat::_cast_to_double() const
 {
     APyFloat res(11, 52, 1023);
 
+    res.sign = sign;
     // Handle special values first
     if (is_max_exponent()) {
         if (man) {
-            res.set_to_nan(sign);
+            res.set_to_nan();
             return res;
         }
-        res.set_to_inf(sign);
+        res.set_to_inf();
         return res;
     }
 
     if (is_zero()) {
-        res.set_to_zero(sign);
+        res.set_to_zero();
         return res;
     }
 
-    res.sign = sign;
     // Initial value for exponent
     std::int64_t new_exp = true_exp() + 1023;
 
@@ -381,21 +381,20 @@ APyFloat APyFloat::cast_from_double(
     }
     APyFloat res(new_exp_bits, new_man_bits, new_bias);
 
+    res.sign = sign;
     // Handle special values first
     if (exp == 2047) {
         if (man) {
-            res.set_to_nan(sign);
+            res.set_to_nan();
             return res;
         }
-        res.set_to_inf(sign);
+        res.set_to_inf();
         return res;
     }
     if (is_zero()) {
-        res.set_to_zero(sign);
+        res.set_to_zero();
         return res;
     }
-
-    res.sign = sign;
 
     // Initial value for exponent
     std::int64_t new_exp;
@@ -489,12 +488,15 @@ APyFloat APyFloat::cast_no_quant(
     // Handle special values first
     if (is_max_exponent()) {
         if (man) {
-            return res.construct_nan(sign);
+            res.set_to_nan();
+            return res;
         }
-        return res.construct_inf(sign);
+        res.set_to_inf();
+        return res;
     }
     if (is_zero()) {
-        return res.construct_zero(sign);
+        res.set_to_zero();
+        return res;
     }
 
     // Initial value for exponent
@@ -1049,15 +1051,18 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     if (is_max_exponent() || y.is_max_exponent() || is_zero() || y.is_zero()) {
         if (is_nan() || y.is_nan() || (is_inf() && y.is_zero())
             || (is_zero() && y.is_inf())) {
-            return res.construct_nan();
+            res.set_to_nan();
+            return res;
         }
 
         if (is_inf() || y.is_inf()) {
-            return res.construct_inf();
+            res.set_to_inf();
+            return res;
         }
 
         if (is_zero() || y.is_zero()) {
-            return res.construct_zero();
+            res.set_to_zero();
+            return res;
         }
     }
     const auto quantization = get_float_quantization_mode();
@@ -1205,15 +1210,18 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
     // Handle special operands
     if (is_nan() || y.is_nan() || (is_zero() && y.is_zero())
         || (is_inf() && y.is_inf())) {
-        return res.construct_nan();
+        res.set_to_nan();
+        return res;
     }
 
     if (is_zero() || y.is_inf()) {
-        return res.construct_zero();
+        res.set_to_zero();
+        return res;
     }
 
     if (is_inf() || y.is_zero()) {
-        return res.construct_inf();
+        res.set_to_inf();
+        return res;
     }
 
     const auto quantization = get_float_quantization_mode();
@@ -1726,22 +1734,6 @@ bool APyFloat::operator>(const APyFixed& rhs) const
  * * Helper functions *
  * ******************************************************************************
  */
-
-void APyFloat::set_to_zero(std::optional<bool> new_sign)
-{
-    sign = new_sign.value_or(sign);
-    exp = 0;
-    man = 0;
-}
-
-void APyFloat::set_to_inf(std::optional<bool> new_sign) { set_to_nan(new_sign, 0); }
-
-void APyFloat::set_to_nan(std::optional<bool> new_sign, man_t payload /*= 1*/)
-{
-    sign = new_sign.value_or(sign);
-    exp = max_exponent();
-    man = payload;
-}
 
 APyFloat APyFloat::construct_zero(std::optional<bool> new_sign) const
 {
