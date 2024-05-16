@@ -184,15 +184,20 @@ void APY_INLINE quantize_mantissa(
 }
 
 man_t APY_INLINE
-quantize_close_to_zero(bool sign, int64_t man, QuantizationMode quantization)
+quantize_close_to_zero(bool sign, man_t man, QuantizationMode quantization)
 {
     switch (quantization) {
     case QuantizationMode::TRN_AWAY:
+    case QuantizationMode::JAM:
+    case QuantizationMode::JAM_UNBIASED:
         return 1;
     case QuantizationMode::TRN:
         return sign;
     case QuantizationMode::TRN_INF:
         return !sign;
+    case QuantizationMode::STOCH_EQUAL:
+        // STOCH_WEIGHTED should not use this function
+        return random_number_float() & 1;
     default:
         return 0;
     }

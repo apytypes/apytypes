@@ -1101,7 +1101,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         if (tmp_exp <= 0) {
             if (tmp_exp < -static_cast<std::int64_t>(res.man_bits)) {
                 // Exponent too small after rounding
-                res.man = quantize_close_to_zero(sign, new_man, quantization);
+                res.man = quantize_close_to_zero(res.sign, new_man, quantization);
                 res.exp = 0;
                 return res;
             }
@@ -1117,7 +1117,7 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
             res_exp,
             res.max_exponent(),
             man_bits_delta,
-            sign,
+            res.sign,
             two_res,
             quantization
         );

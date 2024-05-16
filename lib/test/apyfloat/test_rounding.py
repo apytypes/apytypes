@@ -313,6 +313,19 @@ class TestAPyFloatQuantizationMul:
             res = APyFloat(1, 30, 3, 5, 2) * APyFloat(0, 30, 3, 5, 2)
             assert res.is_identical(APyFloat(1, 30, 3, 5, 2))
 
+            # Tests from https://github.com/apytypes/apytypes/issues/406
+            res = APyFloat(1, 1, 1023, 5, 10) * APyFloat(1, 26, 80, 5, 10)
+            assert res.is_identical(
+                APyFloat(sign=0, exp=13, man=80, exp_bits=5, man_bits=10)
+            )
+
+            res = APyFloat(sign=0, exp=2, man=72, exp_bits=5, man_bits=10) * APyFloat(
+                sign=0, exp=0, man=58, exp_bits=5, man_bits=10
+            )
+            assert res.is_identical(
+                APyFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=10)
+            )
+
     def test_to_neg(self):
         with APyFloatQuantizationContext(QuantizationMode.TO_NEG):
             # Should round down
@@ -345,6 +358,28 @@ class TestAPyFloatQuantizationMul:
             # Big negative number should become infinity
             res = APyFloat(1, 30, 3, 5, 2) * APyFloat(0, 30, 3, 5, 2)
             assert res.is_identical(APyFloat(1, 31, 0, 5, 2))
+
+    def test_jam(self):
+        # TODO: more tests
+        with APyFloatQuantizationContext(QuantizationMode.JAM):
+            # Test jamming for subnormal result
+            res = APyFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=10) * APyFloat(
+                sign=1, exp=0, man=1, exp_bits=5, man_bits=10
+            )
+            assert res.is_identical(
+                APyFloat(sign=1, exp=0, man=1, exp_bits=5, man_bits=10)
+            )
+
+    def test_jam_unbiased(self):
+        # TODO: more tests
+        with APyFloatQuantizationContext(QuantizationMode.JAM_UNBIASED):
+            # Test jamming for subnormal result
+            res = APyFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=10) * APyFloat(
+                sign=1, exp=0, man=1, exp_bits=5, man_bits=10
+            )
+            assert res.is_identical(
+                APyFloat(sign=1, exp=0, man=1, exp_bits=5, man_bits=10)
+            )
 
 
 @pytest.mark.float_div
