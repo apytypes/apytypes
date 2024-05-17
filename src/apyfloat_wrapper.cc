@@ -625,7 +625,7 @@ void bind_float(nb::module_& m)
             )pbdoc"
         )
         .def("next_up", &APyFloat::next_up, R"pbdoc(
-            Get the least floating-point number in the same format that compares greater.
+            Get the smallest floating-point number in the same format that compares greater.
 
             See also
             --------
@@ -637,7 +637,7 @@ void bind_float(nb::module_& m)
 
             )pbdoc")
         .def("next_down", &APyFloat::next_down, R"pbdoc(
-            Get the least floating-point number in the same format that compares less.
+            Get the smallest floating-point number in the same format that compares less.
 
             See also
             --------

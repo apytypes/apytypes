@@ -30,8 +30,11 @@
 
    .. automethod:: is_identical
 
-   Convenience casting methods
+   Convenience methods
    ---------------------------
+
+   Casting
+   ^^^^^^^
 
    .. automethod:: cast_to_bfloat16
 
@@ -40,6 +43,13 @@
    .. automethod:: cast_to_half
 
    .. automethod:: cast_to_single
+
+   Calculations
+   ^^^^^^^
+
+   .. automethod:: next_up
+
+   .. automethod:: next_down
 
    Properties
    ----------

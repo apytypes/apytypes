@@ -907,6 +907,24 @@ class APyFloat:
         """
 
     def to_bits(self) -> int: ...
+    def next_up(self) -> APyFloat:
+        """
+        Get the smallest floating-point number in the same format that compares greater.
+
+        Returns
+        -------
+        :class:`APyFloat`
+        """
+
+    def next_down(self) -> APyFloat:
+        """
+        Get the smallest floating-point number in the same format that compares less.
+
+        Returns
+        -------
+        :class:`APyFloat`
+        """
+
     @property
     def bias(self) -> int: ...
     @property

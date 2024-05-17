@@ -9,8 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Methods `next_up()` and `next_down()` for floating-point,
-  based on the IEEE-754 standard.
+- Added methods `next_up()` and `next_down()` for floating-point scalars.
 - Broadcasting support [as NumPy](https://numpy.org/doc/stable/user/basics.broadcasting.html)
   - `APyFixedArray.broadcast_to()`
   - `APyFloatArray.broadcast_to()`
