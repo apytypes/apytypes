@@ -71,33 +71,28 @@ static APY_INLINE void broadcast_data_copy(
     std::vector<std::size_t> dst_stride = strides_from_shape(dst_shape);
 
     // Compute the adjusted source shape
-    std::size_t index_diff = dst_shape.size() - src_shape.size();
+    std::size_t shape_index_diff = dst_shape.size() - src_shape.size();
     std::vector<std::size_t> src_shape_adjusted(dst_shape.size());
     for (std::size_t i = 0; i < dst_shape.size(); i++) {
-        if (i < index_diff) {
+        if (i < shape_index_diff) {
             src_shape_adjusted[i] = 1;
         } else {
-            src_shape_adjusted[i] = src_shape[i - index_diff];
+            src_shape_adjusted[i] = src_shape[i - shape_index_diff];
         }
     }
 
-    // Compute the broadcasting vector
-    std::vector<std::size_t> broadcast_vector(dst_shape.size());
-    for (std::size_t i = 0; i < dst_shape.size(); i++) {
-        broadcast_vector[i] = dst_shape[i] - src_shape_adjusted[i] + 1;
-    }
-
     // Compute broadcast offsets (stride-weighted permutations of broadcasting vector)
-    std::vector<std::size_t> broadcast_offset(broadcast_elements);
+    std::vector<std::size_t> broadcast_offsets(broadcast_elements);
+    std::vector<std::size_t> broadcast_cord(src_shape_adjusted.size());
     for (std::size_t i = 0; i < broadcast_elements; i++) {
         std::size_t index = i;
-        std::vector<std::size_t> broadcast_cord(src_shape_adjusted.size());
         for (std::size_t j = dst_shape.size(); j--;) {
             if (index == 0) {
                 break;
             }
-            broadcast_cord[j] = index % broadcast_vector[j];
-            index /= broadcast_vector[j];
+            std::size_t broadcast_factor = dst_shape[j] - src_shape_adjusted[j] + 1;
+            broadcast_cord[j] = index % broadcast_factor;
+            index /= broadcast_factor;
         }
 
         // Convert broadcast coordinate to weighted offset
@@ -105,7 +100,7 @@ static APY_INLINE void broadcast_data_copy(
         for (std::size_t j = 0; j < broadcast_cord.size(); j++) {
             offset += dst_stride[j] * broadcast_cord[j];
         }
-        broadcast_offset[i] = offset;
+        broadcast_offsets[i] = offset;
     }
 
     // Loop over elements in the source vector and broadcast
@@ -121,7 +116,7 @@ static APY_INLINE void broadcast_data_copy(
             index /= src_shape_adjusted[j];
         }
 
-        // Convert source coordinate for the i-th element to reference destination index
+        // Convert source coordinate to destination index
         std::size_t dst_idx = 0;
         for (std::size_t j = 0; j < src_cord.size(); j++) {
             dst_idx += dst_stride[j] * src_cord[j];
@@ -132,7 +127,7 @@ static APY_INLINE void broadcast_data_copy(
             std::copy_n(
                 src_it + i * itemsize,
                 itemsize,
-                dst_it + (dst_idx + broadcast_offset[j]) * itemsize
+                dst_it + (dst_idx + broadcast_offsets[j]) * itemsize
             );
         }
     }
