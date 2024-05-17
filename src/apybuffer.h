@@ -18,13 +18,6 @@
 
 #include "apytypes_util.h"
 
-//! Fold a shape under multiplication
-[[maybe_unused]] static APY_INLINE std::size_t
-fold_shape(const std::vector<std::size_t>& shape)
-{
-    return std::accumulate(shape.cbegin(), shape.cend(), 1, std::multiplies {});
-}
-
 //! Retrieve the byte-strides from a shape
 template <typename T>
 [[maybe_unused]] static APY_INLINE std::vector<std::size_t>

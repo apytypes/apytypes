@@ -2,6 +2,7 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
+#include <variant>
 namespace nb = nanobind;
 
 // Python details. These should be included before standard header files:
@@ -27,6 +28,7 @@ namespace nb = nanobind;
 #include "apytypes_common.h"
 #include "apytypes_simd.h"
 #include "apytypes_util.h"
+#include "broadcast.h"
 #include "python_util.h"
 
 #include <fmt/format.h>
@@ -738,6 +740,46 @@ APyFixedArray APyFixedArray::transpose() const
 /* ********************************************************************************** *
  * *                               Other methods                                    * *
  * ********************************************************************************** */
+
+APyFixedArray APyFixedArray::broadcast_to(const std::vector<std::size_t> shape) const
+{
+    if (!is_broadcastable(_shape, shape)) {
+        throw nb::value_error(
+            fmt::format(
+                "Operands could not be broadcast together with shapes: ({}), ({})",
+                string_from_vec(_shape),
+                string_from_vec(shape)
+            )
+                .c_str()
+        );
+    }
+
+    APyFixedArray result(shape, bits(), int_bits());
+    broadcast_data_copy(
+        std::begin(_data),        // src
+        std::begin(result._data), // dst
+        _shape,                   // src shape
+        shape,                    // dst shape
+        _itemsize                 // itemsize
+    );
+
+    return result;
+}
+
+APyFixedArray
+APyFixedArray::broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape) const
+{
+    std::vector<std::size_t> cpp_shape {};
+    if (std::holds_alternative<nb::tuple>(shape)) {
+        auto nb_tuple = std::get<nb::tuple>(shape);
+        for (const auto& tuple_element : nb_tuple) {
+            cpp_shape.push_back(nb::cast<std::size_t>(tuple_element));
+        }
+    } else { /* std::holds_alternative<nb::int_> */
+        cpp_shape.push_back(static_cast<std::size_t>(std::get<nb::int_>(shape)));
+    }
+    return broadcast_to(cpp_shape);
+}
 
 std::string APyFixedArray::repr() const
 {

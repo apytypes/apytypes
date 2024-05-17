@@ -343,6 +343,7 @@ void bind_fixed_array(nb::module_& m)
             :class:`APyFixedArray`
             )pbdoc"
         )
+        .def("broadcast_to", &APyFixedArray::broadcast_to_python, nb::arg("shape"))
 
         /*
          * Static methods

@@ -16,6 +16,7 @@
 #include <iomanip>          // std::setfill, std::setw
 #include <ios>              // std::hex
 #include <iterator>         // std::distance
+#include <numeric>          // std::accumulate, std::multiplies
 #include <optional>         // std::optional, std::nullopt
 #include <regex>            // std::regex, std::regex_replace
 #include <sstream>          // std::stringstream
@@ -1028,6 +1029,26 @@ twos_complement_overflow(mp_limb_t value, int bits)
         return mp_limb_t(signed_limb);
     }
     return value;
+}
+
+//! Fold a shape under multiplication
+[[maybe_unused]] static APY_INLINE std::size_t
+fold_shape(const std::vector<std::size_t>& shape)
+{
+    return std::accumulate(shape.cbegin(), shape.cend(), 1, std::multiplies {});
+}
+
+//! Compute the strides from a shape
+[[maybe_unused]] static APY_INLINE std::vector<std::size_t>
+strides_from_shape(const std::vector<std::size_t>& shape)
+{
+    std::vector<std::size_t> strides(shape.size(), 0);
+    for (std::size_t i = 0; i < shape.size(); i++) {
+        strides[shape.size() - 1 - i] = std::accumulate(
+            shape.crbegin(), shape.crbegin() + i, 1, std::multiplies {}
+        );
+    }
+    return strides;
 }
 
 //! Macro for creating a void-specialization state-less functor `FUNCTOR_NAME` from a
