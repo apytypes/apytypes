@@ -8,6 +8,7 @@
 #include <nanobind/nanobind.h>    // nanobind::object
 #include <nanobind/ndarray.h>     // nanobind::array_t
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
+namespace nb = nanobind;
 
 #include "apybuffer.h"
 #include "apyfixed.h"
@@ -65,7 +66,7 @@ public:
     APyFixedArray() = delete;
 
     explicit APyFixedArray(
-        const nanobind::sequence& bit_pattern_sequence,
+        const nb::sequence& bit_pattern_sequence,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
@@ -137,7 +138,7 @@ public:
     std::string repr() const;
 
     //! Shape of the array
-    nanobind::tuple shape() const;
+    nb::tuple shape() const;
 
     //! Number of dimensions
     size_t ndim() const;
@@ -155,7 +156,7 @@ public:
     APY_INLINE int frac_bits() const noexcept { return _bits - _int_bits; }
 
     //! Convert to a NumPy array
-    nanobind::ndarray<nanobind::numpy, double> to_numpy() const;
+    nb::ndarray<nb::numpy, double> to_numpy() const;
 
     //! Length of the array
     size_t size() const;
@@ -198,7 +199,7 @@ public:
     //! Create an `APyFixedArray` tensor object initialized with values from a sequence
     //! of `doubles`
     static APyFixedArray from_double(
-        const nanobind::sequence& double_seq,
+        const nb::sequence& double_seq,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
@@ -206,7 +207,7 @@ public:
 
     //! Create an `APyFixedArray` tensor object initialized with values from an ndarray
     static APyFixedArray from_array(
-        const nanobind::ndarray<nanobind::c_contig>& double_seq,
+        const nb::ndarray<nb::c_contig>& double_seq,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
@@ -321,7 +322,7 @@ private:
      * Set the underlying bit values of `*this` from a NDArray object of integers. This
      * member function assumes that the shape of `*this` and `ndarray` are equal.
      */
-    void _set_bits_from_ndarray(const nanobind::ndarray<nanobind::c_contig>& ndarray);
+    void _set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& ndarray);
 
     /*!
      * Set the values of `*this` from a NDArray object of floats/integers. This member
@@ -329,7 +330,7 @@ private:
      * in `ndarray` are explicitly converted to `double` before being copied into
      * `*this`.
      */
-    void _set_values_from_ndarray(const nanobind::ndarray<nanobind::c_contig>& ndarray);
+    void _set_values_from_ndarray(const nb::ndarray<nb::c_contig>& ndarray);
 };
 
 #endif // _APYFIXED_ARRAY_H

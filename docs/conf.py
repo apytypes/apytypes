@@ -38,6 +38,7 @@ html_static_path = ["_static"]
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
+    "nanobind": ("https://nanobind.readthedocs.io/en/latest/", None),
 }
 
 # Breathe Configuration
@@ -48,10 +49,17 @@ breathe_projects_source = {
         "../src/",
         [
             "apytypes_common.cc",
+            "apytypes_simd.cc",
             "apyfixed.cc",
             "apyfixedarray.cc",
+            "apyfixedarray_iterator.cc",
+            "apyfixed_util.cc",
+            "apyfixed_wrapper.cc",
             "apyfloat.cc",
             "apyfloatarray.cc",
+            "apyfloatarray_iterator.cc",
+            "apyfloat_util.cc",
+            "apyfloat_wrapper.cc",
             "apytypes_context_wrapper.cc",
         ],
     )
