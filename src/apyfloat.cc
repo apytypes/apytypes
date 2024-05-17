@@ -1807,3 +1807,63 @@ APyFloat APyFloat::cast_to_bfloat16(std::optional<QuantizationMode> quantization
 {
     return _cast(8, 7, 127, quantization);
 }
+
+APyFloat APyFloat::next_up() const
+{
+    if (is_zero()) {
+        return APyFloat(0, 0, 1, exp_bits, man_bits, bias);
+    } else if (is_nan()) {
+        return *this;
+    }
+
+    if (sign) {
+        const man_t new_man = man - 1; // Underflow is defined for unsigned numbers
+
+        if (new_man >= leading_one()) {
+            return APyFloat(1, exp - 1, man_mask(), exp_bits, man_bits, bias);
+        }
+        return APyFloat(1, exp, new_man, exp_bits, man_bits, bias);
+    }
+
+    if (is_max_exponent()) {
+        return *this;
+    }
+
+    const man_t new_man = man + 1;
+
+    if (new_man >= leading_one()) {
+        return APyFloat(0, exp + 1, 0, exp_bits, man_bits, bias);
+    }
+    return APyFloat(0, exp, new_man, exp_bits, man_bits, bias);
+}
+
+APyFloat APyFloat::next_down() const
+{
+    // next_down(x) should behave as -next_up(-x)
+
+    if (is_zero()) {
+        return APyFloat(1, 0, 1, exp_bits, man_bits, bias);
+    } else if (is_nan()) {
+        return *this;
+    }
+
+    if (sign) {
+        if (is_max_exponent()) {
+            return *this;
+        }
+
+        const man_t new_man = man + 1;
+
+        if (new_man >= leading_one()) {
+            return APyFloat(1, exp + 1, 0, exp_bits, man_bits, bias);
+        }
+        return APyFloat(1, exp, new_man, exp_bits, man_bits, bias);
+    }
+
+    const man_t new_man = man - 1; // Underflow is defined for unsigned numbers
+
+    if (new_man >= leading_one()) {
+        return APyFloat(0, exp - 1, man_mask(), exp_bits, man_bits, bias);
+    }
+    return APyFloat(0, exp, new_man, exp_bits, man_bits, bias);
+}

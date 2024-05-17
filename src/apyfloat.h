@@ -320,6 +320,12 @@ public:
     cast_to_half(std::optional<QuantizationMode> quantization = std::nullopt) const;
     APyFloat
     cast_to_bfloat16(std::optional<QuantizationMode> quantization = std::nullopt) const;
+    //! The least floating-point number in the same format that compares greater.
+    //! Based on the IEEE-754 standard.
+    APyFloat next_up() const;
+    //! The least floating-point number in the same format that compares less.
+    //! Based on the IEEE-754 standard.
+    APyFloat next_down() const;
 
 private:
     std::uint8_t exp_bits, man_bits;

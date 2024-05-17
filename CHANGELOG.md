@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Methods `next_up()` and `next_down()` for floating-point,
+  based on the IEEE-754 standard.
+
 ### Changed
 
 ### Fixed

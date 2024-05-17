@@ -623,5 +623,29 @@ void bind_float(nb::module_& m)
                 Quantization mode to use. If not provided, the global mode,
                 see :func:`get_float_quantization_mode`, is used.
             )pbdoc"
-        );
+        )
+        .def("next_up", &APyFloat::next_up, R"pbdoc(
+            Get the least floating-point number in the same format that compares greater.
+
+            See also
+            --------
+            next_down
+
+            Returns
+            -------
+            :class:`APyFloat`
+
+            )pbdoc")
+        .def("next_down", &APyFloat::next_down, R"pbdoc(
+            Get the least floating-point number in the same format that compares less.
+
+            See also
+            --------
+            next_up
+
+            Returns
+            -------
+            :class:`APyFloat`
+
+            )pbdoc");
 }
