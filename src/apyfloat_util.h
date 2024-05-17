@@ -19,7 +19,7 @@ static constexpr std::size_t _MAN_LIMIT_BITS = _MAN_T_SIZE_BITS - 3;
 static constexpr std::size_t _EXP_LIMIT_BITS = _EXP_T_SIZE_BITS - 2;
 
 //! Check if one should saturate to infinity or maximum normal number
-bool APY_INLINE do_infinity(QuantizationMode mode, bool sign)
+APY_INLINE bool do_infinity(QuantizationMode mode, bool sign)
 {
     switch (mode) {
     case QuantizationMode::TRN_ZERO:     // TO_ZERO
@@ -36,7 +36,7 @@ bool APY_INLINE do_infinity(QuantizationMode mode, bool sign)
 }
 
 //! Calculate new bias. Assumes new_exp_bits is larger than exp_bits1 and exp_bits2.
-exp_t APY_INLINE
+APY_INLINE exp_t
 calc_bias(int new_exp_bits, int exp_bits1, exp_t bias1, int exp_bits2, exp_t bias2)
 {
     return ((((bias1 + 1) << (new_exp_bits - exp_bits1))
@@ -52,7 +52,7 @@ exp_t calc_bias_general(
 );
 
 //! Quantize mantissa
-void APY_INLINE quantize_mantissa(
+APY_INLINE void quantize_mantissa(
     man_t& man,
     exp_t& exp,
     exp_t max_exp,
@@ -160,7 +160,7 @@ void APY_INLINE quantize_mantissa(
 }
 
 //! Quantize mantissa
-void APY_INLINE quantize_mantissa(
+APY_INLINE void quantize_mantissa(
     man_t& man,
     exp_t& exp,
     exp_t max_exp,
@@ -183,7 +183,7 @@ void APY_INLINE quantize_mantissa(
     );
 }
 
-man_t APY_INLINE
+APY_INLINE man_t
 quantize_close_to_zero(bool sign, man_t man, QuantizationMode quantization)
 {
     switch (quantization) {

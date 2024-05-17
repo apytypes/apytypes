@@ -57,7 +57,7 @@ will also install the test dependencies required. (This only needs to be done on
 dependencies are updated.)
 
 Run test suite
-------------
+--------------
 
 To run all test cases do:
 
