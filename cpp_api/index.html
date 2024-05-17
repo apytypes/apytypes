@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="APyFixed" href="apyfixed.html" /><link rel="prev" title="Context handling" href="../api/context.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="apybuffer.h" href="apybuffer.html" /><link rel="prev" title="Context handling" href="../api/context.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
         <title>APyTypes C++ API - APyTypes documentation</title>
@@ -228,11 +228,15 @@
 </ul>
 </li>
 <li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">APyTypes C++ API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of APyTypes C++ API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="apybuffer.html"><code class="docutils literal notranslate"><span class="pre">apybuffer.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfixed_util.html"><code class="docutils literal notranslate"><span class="pre">apyfixed_util.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfloat_util.html"><code class="docutils literal notranslate"><span class="pre">apyfloat_util.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apytypes_common.html"><code class="docutils literal notranslate"><span class="pre">apytypes_common.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apytypes_scratch_vector.html"><code class="docutils literal notranslate"><span class="pre">apytypes_scratch_vector.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apytypes_simd.html"><code class="docutils literal notranslate"><span class="pre">apytypes_simd.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apytypes_util.html"><code class="docutils literal notranslate"><span class="pre">apytypes_util.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="ieee754.html"><code class="docutils literal notranslate"><span class="pre">ieee754.h</span></code></a></li>
@@ -293,11 +297,15 @@
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="apybuffer.html"><code class="docutils literal notranslate"><span class="pre">apybuffer.h</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="apyfixed_util.html"><code class="docutils literal notranslate"><span class="pre">apyfixed_util.h</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="apyfloat_util.html"><code class="docutils literal notranslate"><span class="pre">apyfloat_util.h</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="apytypes_common.html"><code class="docutils literal notranslate"><span class="pre">apytypes_common.h</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="apytypes_scratch_vector.html"><code class="docutils literal notranslate"><span class="pre">apytypes_scratch_vector.h</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="apytypes_simd.html"><code class="docutils literal notranslate"><span class="pre">apytypes_simd.h</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="apytypes_util.html"><code class="docutils literal notranslate"><span class="pre">apytypes_util.h</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="ieee754.html"><code class="docutils literal notranslate"><span class="pre">ieee754.h</span></code></a></li>
@@ -311,12 +319,12 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="apyfixed.html">
+          <a class="next-page" href="apybuffer.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></div>
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">apybuffer.h</span></code></div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
