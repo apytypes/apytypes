@@ -323,3 +323,43 @@ def test_round_trip_conversion():
         for man in reversed(range(16)):
             a = APyFloat(0, exp, man, 4, 4)
             assert (APyFloat.from_float(float(a), 4, 4)).is_identical(a)
+
+
+@pytest.mark.parametrize(
+    "apyfloat, test_exp",
+    [
+        # First some general tests
+        (APyFloat(0, 0, 1, 4, 3), APyFloat(0, 0, 2, 4, 3)),
+        (APyFloat(0, 5, 2, 4, 3), APyFloat(0, 5, 3, 4, 3)),
+        # Mantissa overflow
+        (APyFloat(0, 0, 7, 4, 3), APyFloat(0, 1, 0, 4, 3)),
+        (APyFloat(0, 5, 7, 4, 3), APyFloat(0, 6, 0, 4, 3)),
+        # Special numbers
+        (APyFloat(0, 15, 0, 4, 3), APyFloat(0, 15, 0, 4, 3)),  # inf
+        (APyFloat(0, 15, 1, 4, 3), APyFloat(0, 15, 1, 4, 3)),  # nan
+        (APyFloat(0, 0, 0, 4, 3), APyFloat(0, 0, 1, 4, 3)),  # +0
+        # General tests for negative numbers
+        (APyFloat(1, 0, 2, 4, 3), APyFloat(1, 0, 1, 4, 3)),
+        (APyFloat(1, 5, 2, 4, 3), APyFloat(1, 5, 1, 4, 3)),
+        # Mantissa underflow
+        (APyFloat(1, 1, 0, 4, 3), APyFloat(1, 0, 7, 4, 3)),
+        (APyFloat(1, 5, 0, 4, 3), APyFloat(1, 4, 7, 4, 3)),
+        # Special numbers
+        (APyFloat(1, 15, 0, 4, 3), APyFloat(1, 14, 7, 4, 3)),  # -inf
+        (APyFloat(1, 15, 1, 4, 3), APyFloat(1, 15, 1, 4, 3)),  # -nan
+        (APyFloat(1, 0, 0, 4, 3), APyFloat(0, 0, 1, 4, 3)),  # -0
+        (APyFloat(1, 0, 1, 4, 3), APyFloat(1, 0, 0, 4, 3)),  # Smallest negative number
+    ],
+)
+def test_next_up(apyfloat, test_exp):
+    assert (_ := apyfloat.next_up()).is_identical(test_exp)
+
+
+@pytest.mark.parametrize("bit_pattern", list(range(2**7)))
+def test_next_down(bit_pattern):
+    """Test next_down by making use of the property: next_down(x) == -next_up(-x)."""
+    apyfloat = APyFloat.from_bits(bit_pattern, 3, 3)
+    neg_apyfloat = -apyfloat
+    res = apyfloat.next_down()
+    ref = -(neg_apyfloat.next_up())
+    assert res.is_identical(ref)
