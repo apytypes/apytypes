@@ -20,8 +20,13 @@ public:
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
+    //! Vector with values
     std::vector<APyFloatData> data;
-    std::uint8_t exp_bits, man_bits;
+    //! Number of exponent bits
+    std::uint8_t exp_bits;
+    //! Number of mantissa bits
+    std::uint8_t man_bits;
+    //! Exponent bias
     exp_t bias;
 
     /* ****************************************************************************** *

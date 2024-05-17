@@ -6,6 +6,7 @@
 #define _APYFIXED_H
 
 #include <nanobind/nanobind.h> // nanobind::object
+namespace nb = nanobind;
 
 #include "apytypes_common.h"
 #include "apytypes_scratch_vector.h"
@@ -72,7 +73,7 @@ public:
 
     //! Main Python-exposed `APyFixed` constructor
     explicit APyFixed(
-        const nanobind::int_& python_long_int_bit_pattern,
+        const nb::int_& python_long_int_bit_pattern,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
@@ -116,18 +117,30 @@ private:
     inline APyFixed _apyfixed_base_add_sub(const APyFixed& rhs) const;
 
 public:
+    //! Addition of another APyFixed
     APyFixed operator+(const APyFixed& rhs) const;
+    //! Subtraction of another APyFixed
     APyFixed operator-(const APyFixed& rhs) const;
+    //! Multiplication of another APyFixed
     APyFixed operator*(const APyFixed& rhs) const;
+    //! Division of another APyFixed
     APyFixed operator/(const APyFixed& rhs) const;
+    //! Left-shift (moving the binary point)
     APyFixed operator<<(const int shift_val) const;
+    //! Right-shift (moving the binary point)
     APyFixed operator>>(const int shift_val) const;
+    //! In-place left-shift (moving the binary point)
     APyFixed& operator<<=(const int shift_val);
+    //! In-place right-shift (moving the binary point)
     APyFixed& operator>>=(const int shift_val);
 
+    //! Addition of int
     APyFixed operator+(int rhs) const;
+    //! Subtraction of int
     APyFixed operator-(int rhs) const;
+    //! Multiplication of int
     APyFixed operator*(int rhs) const;
+    //! Division of int
     APyFixed operator/(int rhs) const;
 
     /* ****************************************************************************** *
@@ -142,12 +155,12 @@ public:
     bool operator>(const APyFixed& rhs) const;
     bool operator>=(const APyFixed& rhs) const;
 
-    bool operator==(const nanobind::int_& rhs) const;
-    bool operator!=(const nanobind::int_& rhs) const;
-    bool operator<(const nanobind::int_& rhs) const;
-    bool operator<=(const nanobind::int_& rhs) const;
-    bool operator>(const nanobind::int_& rhs) const;
-    bool operator>=(const nanobind::int_& rhs) const;
+    bool operator==(const nb::int_& rhs) const;
+    bool operator!=(const nb::int_& rhs) const;
+    bool operator<(const nb::int_& rhs) const;
+    bool operator<=(const nb::int_& rhs) const;
+    bool operator>(const nb::int_& rhs) const;
+    bool operator>=(const nb::int_& rhs) const;
 
     bool operator==(const double rhs) const;
     bool operator!=(const double rhs) const;
@@ -199,7 +212,7 @@ public:
     mp_limb_t increment_lsb() noexcept;
 
     //! Convert the underlying bit pattern to a Python long integer
-    nanobind::int_ to_bits() const;
+    nb::int_ to_bits() const;
 
     //! Convert the underlying bit pattern to decimal and return in a string
     std::string bit_pattern_to_string_dec() const;

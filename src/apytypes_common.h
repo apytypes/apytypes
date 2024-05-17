@@ -102,9 +102,9 @@ using exp_t = std::uint32_t;
 using man_t = std::uint64_t;
 
 struct APyFloatData {
-    bool sign;
-    exp_t exp; // Biased exponent
-    man_t man; // Hidden one
+    bool sign; //! Sign bit
+    exp_t exp; //! Biased exponent
+    man_t man; //! Mantissa with hidden one
     bool operator==(const APyFloatData& other) const
     {
         return std::make_tuple(sign, exp, man)
@@ -117,8 +117,8 @@ struct APyFloatData {
  * ********************************************************************************** */
 
 struct APyFixedCastOption {
-    QuantizationMode quantization;
-    OverflowMode overflow;
+    QuantizationMode quantization; //! Quantization mode to use for cast operations
+    OverflowMode overflow;         //! Overflow mode to use for cast operations
 };
 
 class APyFixedCastContext : public ContextManager {
@@ -143,10 +143,11 @@ APyFixedCastOption get_fixed_cast_mode();
 
 // Accumulator type for APyFixed
 struct APyFixedAccumulatorOption {
-    int bits;
-    int int_bits;
-    QuantizationMode quantization;
-    OverflowMode overflow;
+    int bits;     //! Total number of bits to use for accumulator
+    int int_bits; //! Number of integer bits to use for accumulator
+    QuantizationMode
+        quantization;      //! Quantization mode to use for multiplication result
+    OverflowMode overflow; //! Overflow mode to apply after each accumulation
 };
 
 // Accumulator context
