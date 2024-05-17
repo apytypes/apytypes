@@ -8,7 +8,7 @@
 #include "../extern/mini-gmp/mini-gmp.h"
 
 //! Constant fixed-point one for convenience
-static const APyFixed fx_one(2, 2, std::vector<mp_limb_t>({ 1 }));
+const APyFixed fx_one(2, 2, std::vector<mp_limb_t>({ 1 }));
 
 //! Specialized method when only one limb is used
 mp_limb_t get_data_from_double(double value, int bits, int frac_bits, int shift_amnt);
