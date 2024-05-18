@@ -7,6 +7,7 @@ namespace nb = nanobind;
 #include "apyfloat.h"
 #include "apyfloat_util.h"
 #include "apyfloatarray.h"
+#include "broadcast.h"
 #include "ieee754.h"
 #include "python_util.h"
 #include <algorithm>
@@ -1186,6 +1187,29 @@ void APyFloatArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& nd
         "APyFloatArray::_set_values_from_ndarray(): "
         "unsupported `dtype` expecting integer/float"
     );
+}
+
+APyFloatArray APyFloatArray::broadcast_to(const std::vector<std::size_t> shape) const
+{
+    if (!is_broadcastable(this->shape, shape)) {
+        throw nb::value_error(
+            fmt::format(
+                "Operands could not be broadcast together with shapes: ({}), ({})",
+                string_from_vec(this->shape),
+                string_from_vec(shape)
+            )
+                .c_str()
+        );
+    }
+    APyFloatArray result(shape, exp_bits, man_bits, bias);
+    broadcast_data_copy(data.begin(), result.data.begin(), this->shape, shape);
+    return result;
+}
+
+APyFloatArray
+APyFloatArray::broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape) const
+{
+    return broadcast_to(cpp_shape_from_python_shape(shape));
 }
 
 APyFloatArray APyFloatArray::transpose() const

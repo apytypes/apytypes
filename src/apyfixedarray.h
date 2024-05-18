@@ -137,8 +137,8 @@ public:
     //! Broadcast to a new shape
     APyFixedArray broadcast_to(const std::vector<std::size_t> shape) const;
 
-    APyFixedArray
-    broadcast_to_python(const std::variant<nanobind::tuple, nanobind::int_> shape
+    //! Python-exposed `broadcast_to`
+    APyFixedArray broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
     ) const;
 
     //! Python `__repr__()` function

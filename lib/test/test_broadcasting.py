@@ -17,16 +17,16 @@ def all_shapes(ndim: int, dim_elements: int) -> List[Tuple[int, ...]]:
     "apyarray_from_float",
     [
         lambda f: APyFixedArray.from_float(f, int_bits=100, frac_bits=0),
-        # lambda f: APyFloatArray.from_float(f, man_bits=20, exp_bits=15),
+        lambda f: APyFloatArray.from_float(f, man_bits=20, exp_bits=15),
     ],
 )
 def test_array_broadcast_to(apyarray_from_float):
     np = pytest.importorskip("numpy")
 
     MAX_NDIM = 3
-    MAX_DIM_ELEMENTS = 4
+    MAX_DIM_ELEMENTS = 3
 
-    # Iterate over all possible source and destination shapes
+    # Iterate over all possible source and destination shapes and test
     for src_ndim, dst_ndim in product(range(1, MAX_NDIM + 1), range(1, MAX_NDIM + 1)):
         src_shapes = all_shapes(src_ndim, MAX_DIM_ELEMENTS)
         dst_shapes = all_shapes(dst_ndim, MAX_DIM_ELEMENTS)
@@ -44,3 +44,8 @@ def test_array_broadcast_to(apyarray_from_float):
                     np.broadcast_to(numpy_src, dst_shape)
                 with pytest.raises(ValueError, match="Operands could not be broadcast"):
                     apy_src.broadcast_to(dst_shape)
+
+    # Also test `broadcast_to` with integer
+    assert np.all(
+        apyarray_from_float([1.0]).broadcast_to(9).to_numpy() == np.ones((9,))
+    )

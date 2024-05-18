@@ -452,6 +452,7 @@ void bind_float_array(nb::module_& m)
             -------
             :class:`APyFloatArray`
             )pbdoc")
+        .def("broadcast_to", &APyFloatArray::broadcast_to_python, nb::arg("shape"))
 
         // Iteration and friends
         .def("__getitem__", &APyFloatArray::get_item, nb::arg("idx"))

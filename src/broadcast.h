@@ -38,10 +38,8 @@ static APY_INLINE bool is_broadcastable(
     // Iterate shapes from the trailing (right-most) dimensions
     auto [src_it, dst_it] = std::make_tuple(src_shape.crbegin(), dst_shape.crbegin());
     while (src_it != src_shape.crend() && dst_it != dst_shape.crend()) {
-        if (*src_it != 1) {
-            if (*src_it != *dst_it) {
-                return false;
-            }
+        if (*src_it != 1 && *src_it != *dst_it) {
+            return false;
         }
         ++src_it;
         ++dst_it;

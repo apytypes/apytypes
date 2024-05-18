@@ -1,7 +1,6 @@
 #include "apyfixed.h"
 #include "apyfixedarray.h"
 #include "apyfixedarray_iterator.h"
-#include "apytypes_common.h"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>

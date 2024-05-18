@@ -755,30 +755,14 @@ APyFixedArray APyFixedArray::broadcast_to(const std::vector<std::size_t> shape) 
     }
 
     APyFixedArray result(shape, bits(), int_bits());
-    broadcast_data_copy(
-        std::begin(_data),        // src
-        std::begin(result._data), // dst
-        _shape,                   // src shape
-        shape,                    // dst shape
-        _itemsize                 // itemsize
-    );
-
+    broadcast_data_copy(_data.begin(), result._data.begin(), _shape, shape, _itemsize);
     return result;
 }
 
 APyFixedArray
 APyFixedArray::broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape) const
 {
-    std::vector<std::size_t> cpp_shape {};
-    if (std::holds_alternative<nb::tuple>(shape)) {
-        auto nb_tuple = std::get<nb::tuple>(shape);
-        for (const auto& tuple_element : nb_tuple) {
-            cpp_shape.push_back(nb::cast<std::size_t>(tuple_element));
-        }
-    } else { /* std::holds_alternative<nb::int_> */
-        cpp_shape.push_back(static_cast<std::size_t>(std::get<nb::int_>(shape)));
-    }
-    return broadcast_to(cpp_shape);
+    return broadcast_to(cpp_shape_from_python_shape(shape));
 }
 
 std::string APyFixedArray::repr() const

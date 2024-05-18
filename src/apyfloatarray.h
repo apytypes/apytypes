@@ -126,6 +126,17 @@ public:
 
     void _set_values_from_ndarray(const nanobind::ndarray<nanobind::c_contig>& ndarray);
 
+    /* ****************************************************************************** *
+     * *                          Public member functions                           * *
+     * ****************************************************************************** */
+
+    //! Broadcast to a new shape
+    APyFloatArray broadcast_to(const std::vector<std::size_t> shape) const;
+
+    //! Python-exposed `broadcast_to`
+    APyFloatArray broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
+    ) const;
+
     //! Transposition function. For a 1-D array, returns an exact copy of `*this`. For
     //! a 2-D array, returns the matrix transposition of `*this`.
     APyFloatArray transpose() const;

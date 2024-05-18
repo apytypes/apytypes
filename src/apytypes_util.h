@@ -22,6 +22,7 @@
 #include <sstream>          // std::stringstream
 #include <string>           // std::string
 #include <tuple>            // std::tuple
+#include <variant>          // std::variant
 #include <vector>           // std::vector
 
 /*
@@ -1049,6 +1050,22 @@ strides_from_shape(const std::vector<std::size_t>& shape)
         );
     }
     return strides;
+}
+
+//! Create a C++ shape vector (`std::vector<std::size_t>`) from a Python shape object
+//! (`std::variant<nanobind::tuple, nanobind::int_>`).
+static APY_INLINE std::vector<std::size_t>
+cpp_shape_from_python_shape(const std::variant<nanobind::tuple, nanobind::int_>& shape)
+{
+    std::vector<std::size_t> cpp_shape {};
+    if (std::holds_alternative<nanobind::tuple>(shape)) {
+        for (const auto& element : std::get<nanobind::tuple>(shape)) {
+            cpp_shape.push_back(nanobind::cast<std::size_t>(element));
+        }
+    } else {
+        cpp_shape.push_back(static_cast<std::size_t>(std::get<nanobind::int_>(shape)));
+    }
+    return cpp_shape;
 }
 
 //! Macro for creating a void-specialization state-less functor `FUNCTOR_NAME` from a
