@@ -21,11 +21,8 @@ static APY_INLINE bool is_broadcastable(
         return false;
     }
 
-    // Can not broadcast if either source or destination has any zero-dimension
+    // Can not broadcast if destination shape has any zero-dimension
     auto is_zero = [](auto n) { return n == 0; };
-    if (std::any_of(std::begin(src_shape), std::end(src_shape), is_zero)) {
-        return false;
-    }
     if (std::any_of(std::begin(dst_shape), std::end(dst_shape), is_zero)) {
         return false;
     }
