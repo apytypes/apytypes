@@ -8,8 +8,8 @@
 #include "apytypes_util.h"
 
 #include <algorithm> // std::any_of, std::copy_n
-#include <tuple>
-#include <vector> // std::vector
+#include <tuple>     // std::make_tuple
+#include <vector>    // std::vector
 
 //! Test if the shape `src_shape` can be broadcast to `dst_shape`
 static APY_INLINE bool is_broadcastable(
@@ -50,85 +50,74 @@ static APY_INLINE bool is_broadcastable(
     return true;
 }
 
+//! Compute the destination index of source index `i` based on a `broadcasting_rule`.
+//! The destination index is weighted using `strides`. Uses an intermediate working
+//! vector `coord` to perform the computation. This function assumes that
+//! `strides.size() == coord.size() == broadcast_rule.size()`
+template <typename FUNC>
+static APY_INLINE std::size_t src_to_dst_idx(
+    std::size_t i,
+    FUNC&& broadcast_rule,
+    const std::vector<std::size_t>& strides,
+    std::vector<std::size_t>& coord
+)
+{
+    std::fill(std::begin(coord), std::end(coord), 0);
+    for (std::size_t j = coord.size(); j--;) {
+        if (i == 0) {
+            break;
+        }
+        coord[j] = i % broadcast_rule(j);
+        i /= broadcast_rule(j);
+    }
+
+    std::size_t offset = 0;
+    for (std::size_t j = 0; j < strides.size(); j++) {
+        offset += strides[j] * coord[j];
+    }
+    return offset;
+}
+
 //! Perform a broadcast by copying data. This function assumes that `src_shape` can be
 //! broadcast to `dst_shape`, i.e., `is_broadcastable(src_shape, dst_shape) == true`. It
 //! further assumes that the data in `src` is stored in C-style order and that `dst` has
 //! enough space to store the broadcast result.
 template <typename RANDOM_ACCESS_CONST_ITERATOR, typename RANDOM_ACCESS_ITERATOR>
 static APY_INLINE void broadcast_data_copy(
-    RANDOM_ACCESS_CONST_ITERATOR src_it,
-    RANDOM_ACCESS_ITERATOR dst_it,
+    RANDOM_ACCESS_CONST_ITERATOR src,
+    RANDOM_ACCESS_ITERATOR dst,
     const std::vector<std::size_t>& src_shape,
     const std::vector<std::size_t>& dst_shape,
-    std::size_t itemsize = 1 // TODO
+    std::size_t itemsize = 1
 )
 {
     std::size_t src_elements = fold_shape(src_shape);
     std::size_t dst_elements = fold_shape(dst_shape);
     std::size_t broadcast_elements = dst_elements / src_elements;
 
-    // Compute the destination stride vector
+    // Destination strides and intermediate woorking coordinate vector
     std::vector<std::size_t> dst_stride = strides_from_shape(dst_shape);
+    std::vector<std::size_t> coord(dst_shape.size());
 
-    // Compute the adjusted source shape
-    std::size_t shape_index_diff = dst_shape.size() - src_shape.size();
-    std::vector<std::size_t> src_shape_adjusted(dst_shape.size());
-    for (std::size_t i = 0; i < dst_shape.size(); i++) {
-        if (i < shape_index_diff) {
-            src_shape_adjusted[i] = 1;
-        } else {
-            src_shape_adjusted[i] = src_shape[i - shape_index_diff];
-        }
-    }
+    // Lambda for left-padded source shape
+    auto src_shape_adjst = [&](std::size_t i) -> std::size_t {
+        std::size_t shape_idx_diff = dst_shape.size() - src_shape.size();
+        return i < shape_idx_diff ? 1 : src_shape[i - shape_idx_diff];
+    };
 
     // Compute broadcast offsets (stride-weighted permutations of broadcasting vector)
+    auto broadcast_vec = [&](auto j) { return dst_shape[j] - src_shape_adjst(j) + 1; };
     std::vector<std::size_t> broadcast_offsets(broadcast_elements);
-    std::vector<std::size_t> broadcast_cord(src_shape_adjusted.size());
     for (std::size_t i = 0; i < broadcast_elements; i++) {
-        std::size_t index = i;
-        for (std::size_t j = dst_shape.size(); j--;) {
-            if (index == 0) {
-                break;
-            }
-            std::size_t broadcast_factor = dst_shape[j] - src_shape_adjusted[j] + 1;
-            broadcast_cord[j] = index % broadcast_factor;
-            index /= broadcast_factor;
-        }
-
-        // Convert broadcast coordinate to weighted offset
-        std::size_t offset = 0;
-        for (std::size_t j = 0; j < broadcast_cord.size(); j++) {
-            offset += dst_stride[j] * broadcast_cord[j];
-        }
-        broadcast_offsets[i] = offset;
+        broadcast_offsets[i] = src_to_dst_idx(i, broadcast_vec, dst_stride, coord);
     }
 
-    // Loop over elements in the source vector and broadcast
-    std::vector<std::size_t> src_cord(src_shape_adjusted.size());
+    // Loop over elements in the source vector and broadcast to the destination
     for (std::size_t i = 0; i < src_elements; i++) {
-        // Compute the source coordinate for the i-th source element
-        std::size_t index = i;
-        for (std::size_t j = src_shape_adjusted.size(); j--;) {
-            if (index == 0) {
-                break;
-            }
-            src_cord[j] = index % src_shape_adjusted[j];
-            index /= src_shape_adjusted[j];
-        }
-
-        // Convert source coordinate to destination index
-        std::size_t dst_idx = 0;
-        for (std::size_t j = 0; j < src_cord.size(); j++) {
-            dst_idx += dst_stride[j] * src_cord[j];
-        }
-
-        // Broadcast the data
-        for (std::size_t j = 0; j < broadcast_elements; j++) {
-            std::copy_n(
-                src_it + i * itemsize,
-                itemsize,
-                dst_it + (dst_idx + broadcast_offsets[j]) * itemsize
-            );
-        }
+        auto dst_idx = src_to_dst_idx(i, src_shape_adjst, dst_stride, coord);
+        auto broadcast = [&](auto j) {
+            std::copy_n(src + i * itemsize, itemsize, dst + (dst_idx + j) * itemsize);
+        };
+        std::for_each(broadcast_offsets.begin(), broadcast_offsets.end(), broadcast);
     }
 }
