@@ -183,6 +183,8 @@ APY_INLINE void quantize_mantissa(
     );
 }
 
+//! Quantize mantissa when the result is guaranteed to be either be 0 or 1.
+//! Quantization mode `STOCH_WEIGHTED` should be used with this function.
 APY_INLINE man_t
 quantize_close_to_zero(bool sign, man_t man, QuantizationMode quantization)
 {
@@ -206,16 +208,19 @@ quantize_close_to_zero(bool sign, man_t man, QuantizationMode quantization)
 //! Fast integer power by squaring.
 man_t ipow(man_t base, unsigned int n);
 
+//! Get the number of left shifts needed to make fx>=1.0
 APY_INLINE unsigned int leading_zeros_apyfixed(const APyFixed& fx)
 {
-    // Calculate the number of left shifts needed to make fx>=1.0
     const int zeros = fx.leading_zeros() - fx.int_bits();
     return std::max(0, zeros + 1);
 }
 
+//! Quantize mantissa stored as an `APyFixed`
 void quantize_apymantissa(
     APyFixed& apyman, bool sign, int bits, QuantizationMode quantization
 );
+//! Translate the quantization mode for floating-point to the fixed-point equivalent.
+//! This is used for the mantissa so the sign must be taken into account.
 QuantizationMode translate_quantization_mode(QuantizationMode quantization, bool sign);
 
 //! Check that the number of exponent bits is allowed, throw otherwise

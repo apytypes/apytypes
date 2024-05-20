@@ -37,7 +37,7 @@ enum class OverflowMode {
 /* ********************************************************************************** *
  * *                          Context management for APyTypes                       * *
  * ********************************************************************************** */
-
+// Base class defining the interface for context managers
 class ContextManager {
 public:
     virtual ~ContextManager() = default;
