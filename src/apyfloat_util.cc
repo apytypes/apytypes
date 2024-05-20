@@ -48,6 +48,7 @@ void quantize_apymantissa(
         );
         APyFixed rnd_num(64 * 3, 64 - bits, rnd_data);
         apyman = apyman + rnd_num;
+        apyman = apyman.cast_no_overflow(2 + bits, 2, QuantizationMode::TRN);
     } else if (quantization == QuantizationMode::STOCH_EQUAL) {
         const mp_limb_t rnd = -(random_number_float() % 2);
         std::vector<mp_limb_t> rnd_data = limb_vector_from_uint64_t({ rnd, rnd, 0 });

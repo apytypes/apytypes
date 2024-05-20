@@ -988,12 +988,13 @@ limb_vector_from_uint64_t(std::initializer_list<uint64_t> list)
     return result;
 }
 
-//! Read a 64-bit value from a limb vector. If `_LIMB_SIZE_BITS == 64`, this results in
-//! a normal vector read without bounds checking. If `_LIMB_SIZE_BITS == 32`, the second
-//! 32-bits limb is bound-checked and the result upper 32-bits are zeroed if
+//! Read an unsigned 64-bit value from a limb vector. If `_LIMB_SIZE_BITS == 64`, this
+//! results in a normal vector read without bounds checking. If `_LIMB_SIZE_BITS == 32`,
+//! the second 32-bits limb is bound-checked and the result upper 32-bits are zeroed if
 //! out-of-bounds.
+template <typename VECTOR_TYPE>
 [[maybe_unused, nodiscard]] static APY_INLINE uint64_t
-uint64_t_from_limb_vector(const std::vector<mp_limb_t>& limb_vec, std::size_t n)
+uint64_t_from_limb_vector(const VECTOR_TYPE& limb_vec, std::size_t n)
 {
     static_assert(_LIMB_SIZE_BITS == 32 || _LIMB_SIZE_BITS == 64);
     if constexpr (_LIMB_SIZE_BITS == 64) {

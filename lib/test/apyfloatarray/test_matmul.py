@@ -270,7 +270,7 @@ def test_inner_product_with_cancellation_long():
     a = APyFloatArray([0, 0, 0], [511, 511, 500], [0, 3, 2], exp_bits=10, man_bits=60)
     b = APyFloatArray([0, 1, 0], [511, 511, 500], [3, 1, 2], exp_bits=10, man_bits=60)
     assert (a @ b).is_identical(b @ a)
-    assert (b @ a).is_identical(APyFloat(0, 488, 1152921504598458368, 10, 60))
+    assert (b @ a).is_identical(APyFloat(0, 488, 1152921504598458376, 10, 60))
     assert (a @ b).is_identical(sum(a * b))
 
 

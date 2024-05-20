@@ -895,9 +895,7 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
         apy_res = apy_res - fx_one;
     }
 
-    apy_res <<= res.man_bits;
-    // TODO: Get bit-pattern directly
-    res.man = (man_t)(apy_res).to_double();
+    res.man = apy_res.get_lsbs();
     res.exp = new_exp;
     return res;
 }
@@ -1035,9 +1033,7 @@ APyFloat& APyFloat::operator+=(const APyFloat& rhs)
         apy_res = apy_res - fx_one;
     }
 
-    apy_res <<= man_bits;
-    // TODO: Get bit-pattern directly
-    man = (man_t)(apy_res).to_double();
+    man = apy_res.get_lsbs();
     return *this;
 }
 

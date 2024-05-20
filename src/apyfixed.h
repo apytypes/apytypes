@@ -243,6 +243,10 @@ public:
     //! `n`)
     bool positive_greater_than_equal_pow2(int n) const;
 
+    //! Retrieve the least significant 64-bits from the underlying limb-vector
+    //! (convenience function used in `APyFloat`)
+    uint64_t get_lsbs() const { return uint64_t_from_limb_vector(_data, 0); }
+
     /* ****************************************************************************** *
      *                           Conversion to other types                            *
      * ****************************************************************************** */
