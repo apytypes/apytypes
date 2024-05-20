@@ -40,7 +40,52 @@ __all__ = [
 ]
 
 APyFloat.__doc__ = r"""
-Class for configurable floating-point formats.
+:class:`APyFloat` is a class for floating-point scalars with configurable formats. The
+implementation is a generalization of the IEEE 754 standard, meaning that features like
+subnormals, infinities, and NaN, are still supported. The format is defined
+by the number of exponent and mantissa bits, and a non-negative bias. These fields are
+named :attr:`exp_bits`, :attr:`man_bits`, and :attr:`bias` respectively. Similar to the hardware
+representation of a floating-point number, the value is stored using three fields;
+a sign bit :attr:`sign`, a biased exponent :attr:`exp`, and an integral mantissa with a hidden one :attr:`man`.
+The value of a *normal* number would thus be
+
+.. math::
+    (-1)^{\texttt{sign}} \times 2^{\texttt{exp} - \texttt{bias}} \times (1 + \texttt{man} \times 2^{\texttt{-man_bits}}).
+
+In general, if the bias is not explicitly given for a format :class:`APyFloat` will default to an IEEE-like bias
+using the formula
+
+.. math::
+    \texttt{bias} = 2^{\texttt{exp_bits - 1}} - 1.
+
+Arithmetic can be performed similarly to the operations of the built-in type
+:class:`float` in Python. The resulting word length from operations will be
+the same as the input operands', but if the operands do not share the same format, the resulting
+bit widths of the exponent and mantissa field will be the maximum of its inputs:
+
+.. code-block:: Python
+
+    from apytypes import APyFloat
+    a = APyFixed.from_float(1.25, exp_bits=5, man_bits=2)
+    b = APyFixed.from_float(1.75, exp_bits=5, man_bits=2)
+    # Operands with same format, result will have exp_bits=5, man_bits=2
+    c = a + b
+
+    d = APyFixed.from_float(1.75, exp_bits=4, man_bits=4)
+    # Operands with different formats, result will have exp_bits=5, man_bits=4
+    e = a + d
+
+
+If the operands of an arithmetic operation have IEEE-like biases, then the result will
+also have an IEEE-like bias -- based on the resulting number of exponent bits.
+To support operations with biases deviating from the standard, the bias of the resulting format
+is calculated as the "average" of the inputs' biases:
+
+.. math::
+    \texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp_bits}_2} \right ) \times 2^{\texttt{exp_bits}_3}}{2} - 1,
+
+where exp_bits_1 and exp_bits_2 are the bit widths of the operands, bias_1 and bias_2 are the input biases, and exp_bits_3 is the target bit width.
+Note that this formula still results in an IEEE-like bias when the inputs use IEEE-like biases.
 """
 
 APyFixed.__doc__ = r"""
