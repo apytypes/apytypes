@@ -7,19 +7,19 @@ def test_repr():
     arr = APyFloatArray([], [], [], 6, 7)
     assert (
         repr(arr)
-        == "APyFloatArray([], [], [], shape=(0), exp_bits=6, man_bits=7, bias=31)"
+        == "APyFloatArray([], [], [], shape=(0,), exp_bits=6, man_bits=7, bias=31)"
     )
 
     arr = APyFloatArray([1], [5], [3], 5, 2)
     assert (
         repr(arr)
-        == "APyFloatArray([1], [5], [3], shape=(1), exp_bits=5, man_bits=2, bias=15)"
+        == "APyFloatArray([1], [5], [3], shape=(1,), exp_bits=5, man_bits=2, bias=15)"
     )
 
     arr = APyFloatArray([1, 0], [5, 10], [3, 1], 5, 2)
     assert (
         repr(arr)
-        == "APyFloatArray([1, 0], [5, 10], [3, 1], shape=(2), exp_bits=5, man_bits=2, bias=15)"
+        == "APyFloatArray([1, 0], [5, 10], [3, 1], shape=(2,), exp_bits=5, man_bits=2, bias=15)"
     )
 
     arr = APyFloatArray([[1, 0]], [[5, 10]], [[3, 1]], 5, 2)

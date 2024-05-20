@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Smaller fixes in quantization for floating-point scalar multiplication.
 - Fix in floating-point `cast`-method when result became subnormal.
+- Fix bug in `APyFixedArray.__truediv__()` where program crashes on long-limb zero
+  denominators.
+- Fix bug where single-dimensional tuple representations missed out on a comma
 
 ### Removed
 

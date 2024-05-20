@@ -17,7 +17,7 @@ def test_dimension_mismatch_raises():
     with pytest.raises(
         ValueError,
         match=re.escape(
-            "APyFixedArray.__matmul__: input shape mismatch, lhs: (3), rhs: (2)"
+            "APyFixedArray.__matmul__: input shape mismatch, lhs: (3,), rhs: (2,)"
         ),
     ):
         _ = a @ b
@@ -25,7 +25,7 @@ def test_dimension_mismatch_raises():
     with pytest.raises(
         ValueError,
         match=re.escape(
-            "APyFixedArray.__matmul__: input shape mismatch, lhs: (2), rhs: (3)"
+            "APyFixedArray.__matmul__: input shape mismatch, lhs: (2,), rhs: (3,)"
         ),
     ):
         _ = b @ a

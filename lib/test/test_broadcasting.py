@@ -66,6 +66,14 @@ def test_array_broadcast_to_raises(apyarray_from_float):
 
 
 @pytest.mark.parametrize(
+    "a_shape, b_shape",
+    [
+        ((5, 1, 3, 4), (5, 5, 1, 4)),
+        ((1, 3, 4), (5, 5, 1, 4)),
+        ((5, 1, 3, 4), (5, 1, 4)),
+    ],
+)
+@pytest.mark.parametrize(
     "bin_func",
     [
         lambda a, b: a + b,
@@ -75,9 +83,8 @@ def test_array_broadcast_to_raises(apyarray_from_float):
     ],
 )
 @pytest.mark.parametrize("from_float", apytypes_from_float_generators)
-def test_array_broadcast_arithmetic(bin_func, from_float):
+def test_array_broadcast_arithmetic(bin_func, from_float, a_shape, b_shape):
     np = pytest.importorskip("numpy")
-    a_shape, b_shape = ((5, 1, 3, 4), (5, 5, 1, 4))
     a = np.arange(1, np.prod(a_shape) + 1).reshape(a_shape)
     b = np.ones(b_shape)
     ref = bin_func(a, b)

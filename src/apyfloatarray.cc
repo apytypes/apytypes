@@ -101,8 +101,8 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
         if (broadcast_shape.size() == 0) {
             throw std::length_error(fmt::format(
                 "APyFloatArray.__add__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                string_from_vec(shape),
-                string_from_vec(rhs.shape)
+                tuple_string_from_vec(shape),
+                tuple_string_from_vec(rhs.shape)
             ));
         }
         return broadcast_to(broadcast_shape) + rhs.broadcast_to(broadcast_shape);
@@ -475,8 +475,8 @@ APyFloatArray APyFloatArray::operator-(const APyFloatArray& rhs) const
         if (broadcast_shape.size() == 0) {
             throw std::length_error(fmt::format(
                 "APyFloatArray.__sub__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                string_from_vec(shape),
-                string_from_vec(rhs.shape)
+                tuple_string_from_vec(shape),
+                tuple_string_from_vec(rhs.shape)
             ));
         }
         return broadcast_to(broadcast_shape) - rhs.broadcast_to(broadcast_shape);
@@ -515,20 +515,11 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
         if (broadcast_shape.size() == 0) {
             throw std::length_error(fmt::format(
                 "APyFloatArray.__mul__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                string_from_vec(shape),
-                string_from_vec(rhs.shape)
+                tuple_string_from_vec(shape),
+                tuple_string_from_vec(rhs.shape)
             ));
         }
         return broadcast_to(broadcast_shape) * rhs.broadcast_to(broadcast_shape);
-    }
-
-    // Make sure `_shape` of `*this` and `rhs` are the same
-    if (shape != rhs.shape) {
-        throw std::length_error(fmt::format(
-            "APyFloatArray.__mul__: shape mismatch, lhs.shape={}, rhs.shape={}",
-            string_from_vec(shape),
-            string_from_vec(rhs.shape)
-        ));
     }
 
     // Calculate new format
@@ -899,21 +890,11 @@ APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
         if (broadcast_shape.size() == 0) {
             throw std::length_error(fmt::format(
                 "APyFloatArray.__truediv__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                string_from_vec(shape),
-                string_from_vec(rhs.shape)
+                tuple_string_from_vec(shape),
+                tuple_string_from_vec(rhs.shape)
             ));
         }
         return broadcast_to(broadcast_shape) / rhs.broadcast_to(broadcast_shape);
-    }
-
-    // Make sure `_shape` of `*this` and `rhs` are the same
-    if (shape != rhs.shape) {
-        throw std::length_error(fmt::format(
-            "APyFloatArray.__truediv__: shape mismatch, lhs.shape={}, "
-            "rhs.shape={}",
-            string_from_vec(shape),
-            string_from_vec(rhs.shape)
-        ));
     }
 
     // Calculate new format
@@ -999,9 +980,9 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::matmul(const APyFloatArray&
 
     // Unsupported `__matmul__` dimensionality, raise exception
     throw std::length_error(fmt::format(
-        "APyFloatArray.__matmul__: input shape mismatch, lhs: ({}), rhs: ({})",
-        string_from_vec(shape),
-        string_from_vec(rhs.shape)
+        "APyFloatArray.__matmul__: input shape mismatch, lhs: {}, rhs: {}",
+        tuple_string_from_vec(shape),
+        tuple_string_from_vec(rhs.shape)
     ));
 }
 
@@ -1026,9 +1007,9 @@ std::string APyFloatArray::repr() const
     } else {
         ss << "[], [], [], ";
     }
-    ss << "shape=(";
-    ss << string_from_vec(shape);
-    ss << "), "
+    ss << "shape=";
+    ss << tuple_string_from_vec(shape);
+    ss << ", "
        << "exp_bits=" << static_cast<unsigned>(exp_bits) << ", "
        << "man_bits=" << static_cast<unsigned>(man_bits) << ", "
        << "bias=" << bias << ")";
@@ -1225,9 +1206,9 @@ APyFloatArray APyFloatArray::broadcast_to(const std::vector<std::size_t> shape) 
     if (!is_broadcastable(this->shape, shape)) {
         throw nb::value_error(
             fmt::format(
-                "Operands could not be broadcast together with shapes: ({}), ({})",
-                string_from_vec(this->shape),
-                string_from_vec(shape)
+                "Operands could not be broadcast together with shapes: {}, {}",
+                tuple_string_from_vec(this->shape),
+                tuple_string_from_vec(shape)
             )
                 .c_str()
         );

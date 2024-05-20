@@ -360,6 +360,11 @@ def test_array_div():
         )
     )
 
+    # Does not die
+    a = APyFixedArray.from_float([5], bits=100, int_bits=50)
+    b = APyFixedArray.from_float([0], bits=250, int_bits=100)
+    assert (a / b).is_identical(APyFixedArray([0], bits=351, int_bits=201))
+
 
 def test_array_div_scalar():
     a = APyFixedArray.from_float([-5, -6, 7, 8, 9, 5], bits=10, int_bits=5)

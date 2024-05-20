@@ -8,6 +8,8 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 
+#include "fmt/format.h"
+
 #include <algorithm>        // std::find
 #include <cstddef>          // std::size_t
 #include <cstdint>          // int64_t
@@ -1006,17 +1008,22 @@ uint64_t_from_limb_vector(const std::vector<mp_limb_t>& limb_vec, std::size_t n)
     }
 }
 
-template <typename T> std::string string_from_vec(const std::vector<T>& vec)
+//! Construct a Python tuple-literal-string from a vector of `T`. The type `T` must be
+//! convertible to string through both a `std::stringstream` and `fmt::format({})`.
+template <typename T> std::string tuple_string_from_vec(const std::vector<T>& vec)
 {
     if (vec.size() == 0) {
-        return "";
+        return "()";
+    } else if (vec.size() == 1) {
+        return fmt::format("({},)", vec[0]);
+    } else {
+        std::stringstream ss;
+        ss << "(";
+        for (auto& d : vec) {
+            ss << d << ", ";
+        }
+        return ss.str().substr(0, ss.str().length() - 2).append(")");
     }
-
-    std::stringstream ss;
-    for (auto& d : vec) {
-        ss << d << ", ";
-    }
-    return ss.str().substr(0, ss.str().length() - 2);
 }
 
 [[maybe_unused, nodiscard]] static APY_INLINE mp_limb_t

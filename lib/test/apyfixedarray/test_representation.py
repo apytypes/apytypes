@@ -6,11 +6,11 @@ import pytest
 def test_array_representation():
     assert (
         APyFixedArray([], bits=1, int_bits=-5).__repr__()
-        == "APyFixedArray([], shape=(0), bits=1, int_bits=-5)"
+        == "APyFixedArray([], shape=(0,), bits=1, int_bits=-5)"
     )
     assert (
         APyFixedArray([1, 2, 3], bits=2, int_bits=2).__repr__()
-        == "APyFixedArray([1, 2, 3], shape=(3), bits=2, int_bits=2)"
+        == "APyFixedArray([1, 2, 3], shape=(3,), bits=2, int_bits=2)"
     )
     assert (
         APyFixedArray([range(5, 8), range(3)], bits=10, int_bits=20).__repr__()
