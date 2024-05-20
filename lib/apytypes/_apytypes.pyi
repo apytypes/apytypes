@@ -918,7 +918,7 @@ class APyFloat:
 
     def next_down(self) -> APyFloat:
         """
-        Get the smallest floating-point number in the same format that compares less.
+        Get the largest floating-point number in the same format that compares less.
 
         Returns
         -------

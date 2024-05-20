@@ -322,7 +322,7 @@ public:
     cast_to_bfloat16(std::optional<QuantizationMode> quantization = std::nullopt) const;
     //! Get the smallest floating-point number in the same format that compares greater.
     APyFloat next_up() const;
-    //! Get the smallest floating-point number in the same format that compares less.
+    //! Get the largest floating-point number in the same format that compares less.
     APyFloat next_down() const;
 
 private:
