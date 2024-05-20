@@ -15,3 +15,5 @@ issues and PRs.
 - [ ] new and changed code is tested
 - [ ] relevant changes added to [CHANGELOG.md](https://github.com/apytypes/apytypes/blob/main/CHANGELOG.md)
 - [ ] new functionality is documented
+
+pr-changelog
