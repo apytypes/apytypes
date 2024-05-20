@@ -20,6 +20,9 @@ public:
      */
 
     // These constructors are not exposed to Python
+
+    //! Constructor with optional bias, all fields are set.
+    //! If no bias is given, an IEEE-like bias will be used.
     explicit APyFloat(
         bool sign,
         exp_t exp,
@@ -28,6 +31,7 @@ public:
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
+    //! Constructor setting all fields, no optionals
     APyFloat(
         bool sign,
         exp_t exp,
@@ -36,17 +40,23 @@ public:
         std::uint8_t man_bits,
         exp_t bias
     );
+    //! Constructor setting data fields using a struct, mostly used by the APyFloatArray
+    //! class
     APyFloat(
         const APyFloatData& data,
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         exp_t bias
     );
+    //! Constructor where only the format is specified, with an optional bias. Data
+    //! fields are initialized to zero. If no bias is given, an IEEE-like bias will be
+    //! used.
     APyFloat(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
+    //! Constructor only specifying the format, data fields are initialized to zero
     APyFloat(std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias);
 
     /* ******************************************************************************
@@ -71,6 +81,7 @@ public:
         int man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
+    //! Cast to double
     double to_double() const;
     operator double() const;
 
@@ -85,6 +96,7 @@ public:
     //! Convert the underlying bit pattern to a Python long integer
     nanobind::int_ to_bits() const;
 
+    //! Cast method exposed to Python
     APyFloat cast(
         std::optional<int> exp_bits,
         std::optional<int> man_bits,
@@ -92,6 +104,7 @@ public:
         std::optional<QuantizationMode> quantization = std::nullopt
     ) const;
 
+    //! Internal cast method when format is given fully
     APyFloat _cast(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
@@ -99,6 +112,7 @@ public:
         std::optional<QuantizationMode> quantization = std::nullopt
     ) const;
 
+    //! Internal cast method when format and quantization mode is given
     APyFloat _cast(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
@@ -174,8 +188,11 @@ public:
      * ******************************************************************************
      */
 
+    // Absolute value
     APyFloat abs() const;
+    //! Power function with another APyFloat as the exponent
     static APyFloat pow(const APyFloat& x, const APyFloat& y);
+    //! Power function with integer exponent
     static APyFloat pown(const APyFloat& x, int n);
 
     /* ******************************************************************************
@@ -245,33 +262,50 @@ public:
     //! True if and only if value is infinite or NaN.
     APY_INLINE bool is_max_exponent() const { return exp == max_exponent(); }
 
+    //! Retrieve the stored sign
     APY_INLINE bool get_sign() const { return sign; }
+    //! Retrieve the stored mantissa, i.e. without leading one
     APY_INLINE man_t get_man() const { return man; }
+    //! Retrieve the stored exponent, i.e. with bias added
     APY_INLINE exp_t get_exp() const { return exp; }
+    //! Retrieve the bias
     APY_INLINE exp_t get_bias() const { return bias; }
+    //! Retrieve the bit width of the mantissa field
     APY_INLINE std::uint8_t get_man_bits() const { return man_bits; }
+    //! Retrieve the bit width of the exponent field
     APY_INLINE std::uint8_t get_exp_bits() const { return exp_bits; }
+    //! Retrieve the bit width of the entire floating-point format
     APY_INLINE std::uint8_t get_bits() const { return man_bits + exp_bits + 1; }
+    //! Retrieve all data fields packed in a struct
     APY_INLINE APyFloatData get_data() const { return { sign, exp, man }; }
-    APY_INLINE man_t true_man() const { return leading_bit() | man; }
+    //! Retrieve the mantissa with potential leading one
+    APY_INLINE man_t true_man() const
+    {
+        return ((static_cast<man_t>(is_normal()) << man_bits) | man);
+    }
+    //! Retrieve the mantissa with potential leading one
     APY_INLINE std::int64_t true_exp() const
     {
         return (std::int64_t)exp - (std::int64_t)bias + is_subnormal();
     }
 
+    //! Set the data fields using a struct
     APY_INLINE void set_data(const APyFloatData& data)
     {
         sign = data.sign;
         exp = data.exp;
         man = data.man;
     }
+    //! Set the sign
     APY_INLINE void set_sign(bool new_sign) { sign = new_sign; }
 
+    //! Calculate the IEEE-like bias based on the number of exponent bits
     APY_INLINE static exp_t ieee_bias(std::uint8_t exp_bits)
     {
         return (1ULL << (exp_bits - 1)) - 1;
     }
 
+    //! Set floating-point object to positive or negative zero
     APY_INLINE void set_to_zero(bool new_sign)
     {
         sign = new_sign;
@@ -279,26 +313,35 @@ public:
         man = 0;
     }
 
+    //! Set floating-point object to zero
     APY_INLINE void set_to_zero()
     {
         exp = 0;
         man = 0;
     }
 
+    //! Set floating-point object to infinity
     APY_INLINE void set_to_inf()
     {
         exp = max_exponent();
         man = 0;
     }
 
+    //! Set floating-point object to NaN
     APY_INLINE void set_to_nan()
     {
         exp = max_exponent();
         man = 1;
     }
 
+    //! Factory method for creating a floating-point object in the same format
+    //! with a value of positive or negative zero.
     APyFloat construct_zero(std::optional<bool> new_sign = std::nullopt) const;
+    //! Factory method for creating a floating-point object in the same format
+    //! with a value of positive or negative infinity.
     APyFloat construct_inf(std::optional<bool> new_sign = std::nullopt) const;
+    //! Factory method for creating a floating-point object in the same format
+    //! with a value of NaN.
     APyFloat
     construct_nan(std::optional<bool> new_sign = std::nullopt, man_t payload = 1) const;
 
@@ -306,18 +349,27 @@ public:
     //! the same format
     bool is_identical(const APyFloat& other) const;
 
+    //! Convert to a fixed-point object
     APyFixed to_fixed() const;
 
     /* ******************************************************************************
      * * Convenience methods                                                        *
      * ******************************************************************************
      */
+    //! Convenience method when target format is known to correspond to a
+    //! double-precision floating-point
     APyFloat
     cast_to_double(std::optional<QuantizationMode> quantization = std::nullopt) const;
+    //! Convenience method when target format is known to correspond to a
+    //! single-precision floating-point
     APyFloat
     cast_to_single(std::optional<QuantizationMode> quantization = std::nullopt) const;
+    //! Convenience method when target format is known to correspond to a half-precision
+    //! floating-point
     APyFloat
     cast_to_half(std::optional<QuantizationMode> quantization = std::nullopt) const;
+    //! Convenience method when target format is known to correspond to a 16-bit brain
+    //! float
     APyFloat
     cast_to_bfloat16(std::optional<QuantizationMode> quantization = std::nullopt) const;
     //! Get the smallest floating-point number in the same format that compares greater.
@@ -343,21 +395,25 @@ private:
      * * Helper functions                                                           *
      * ******************************************************************************
      */
+
+    //! Update data fields based on a bit pattern
     APyFloat& update_from_bits(nanobind::int_ python_long_int_bit_pattern);
 
+    //! Create a bit mask for the exponent field
     APY_INLINE exp_t exp_mask() const { return ((1ULL << exp_bits) - 1); }
+    //! Calculate the maximum value for the exponent field
     APY_INLINE exp_t max_exponent() const
     {
         return ((1ULL << exp_bits) - 1);
     } // Max exponent with bias
+    //! Calculate the IEEE-like bias for this particular format
     APY_INLINE exp_t ieee_bias() const { return ieee_bias(exp_bits); }
+    //! Create a bit mask for the mantissa field
     APY_INLINE man_t man_mask() const { return (1ULL << man_bits) - 1; }
+    //! Create a bit mask for the leading one
     APY_INLINE man_t leading_one() const { return (1ULL << man_bits); }
-    APY_INLINE man_t leading_bit() const
-    {
-        return (static_cast<man_t>(is_normal()) << man_bits);
-    }
 
+    //! Create a floating-point object that is normalized
     APyFloat normalized() const;
 
     //! Test if two floating-point numbers are identical, i.e., has the same value, and

@@ -12,6 +12,8 @@
 
 class APyFloatArray {
 public:
+    //! Constructor taking a sequence of signs, biased exponents, and mantissas.
+    //! If no bias is given, an IEEE-like bias will be used.
     explicit APyFloatArray(
         const nanobind::sequence& sign_seq,
         const nanobind::sequence& exp_seq,
@@ -42,7 +44,9 @@ public:
     APyFloatArray operator*(const APyFloat& rhs) const;
     APyFloatArray operator/(const APyFloatArray& rhs) const;
     APyFloatArray operator/(const APyFloat& rhs) const;
+    //! Absolute value
     APyFloatArray abs() const;
+    //! Elementwise division with floating-point scalar
     APyFloatArray rtruediv(const APyFloat& rhs) const;
 
     /*!
@@ -77,12 +81,14 @@ public:
      */
     bool is_identical(const APyFloatArray& other) const;
 
+    //! Test if two `APyFloatArray` objects have the same format
     APY_INLINE bool same_type_as(const APyFloatArray& other) const
     {
         return man_bits == other.man_bits && exp_bits == other.exp_bits
             && bias == other.bias;
     }
 
+    //! Test if the `APyFloatArray` object has the same format as a `APyFloat` object
     APY_INLINE bool same_type_as(const APyFloat& other) const
     {
         return man_bits == other.get_man_bits() && exp_bits == other.get_exp_bits()
@@ -124,6 +130,7 @@ public:
         std::optional<exp_t> bias = std::nullopt
     );
 
+    //! Set data fields based on an and-array of doubles
     void _set_values_from_ndarray(const nanobind::ndarray<nanobind::c_contig>& ndarray);
 
     /* ****************************************************************************** *
@@ -149,6 +156,7 @@ public:
         std::optional<QuantizationMode> quantization = std::nullopt
     ) const;
 
+    //! Internal cast method when format is given fully
     APyFloatArray _cast(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
@@ -156,6 +164,7 @@ public:
         std::optional<QuantizationMode> quantization = std::nullopt
     ) const;
 
+    //! Internal cast method when format and quantization mode is given
     APyFloatArray _cast(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
@@ -163,34 +172,47 @@ public:
         QuantizationMode quantization
     ) const;
 
+    //! Change the number of mantissa and exponent bits for cases where it is known that
+    //! quantization does not happen, i.e., the resulting number of bits is not shorter.
     APyFloatArray cast_no_quant(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     ) const;
-
+    //! Retrieve the bias
     APY_INLINE exp_t get_bias() const { return bias; }
+    //! Retrieve the bit width of the mantissa field
     APY_INLINE std::uint8_t get_man_bits() const { return man_bits; }
+    //! Retrieve the bit width of the exponent field
     APY_INLINE std::uint8_t get_exp_bits() const { return exp_bits; }
+    //! Retrieve the bit width of the entire floating-point format
     APY_INLINE std::uint8_t get_bits() const { return exp_bits + man_bits + 1; }
-
-    enum class ArithmeticOperation { ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION };
 
     /* ******************************************************************************
      * * Convenience methods                                                        *
      * ******************************************************************************
      */
+    //! Convenience method when target format is known to correspond to a
+    //! double-precision floating-point
     APyFloatArray
     cast_to_double(std::optional<QuantizationMode> quantization = std::nullopt) const;
+    //! Convenience method when target format is known to correspond to a
+    //! single-precision floating-point
     APyFloatArray
     cast_to_single(std::optional<QuantizationMode> quantization = std::nullopt) const;
+    //! Convenience method when target format is known to correspond to a half-precision
+    //! floating-point
     APyFloatArray
     cast_to_half(std::optional<QuantizationMode> quantization = std::nullopt) const;
+    //! Convenience method when target format is known to correspond to a 16-bit brain
+    //! float
     APyFloatArray
     cast_to_bfloat16(std::optional<QuantizationMode> quantization = std::nullopt) const;
 
 private:
+    //! Default constructor
     APyFloatArray() = default;
+    //! Constructor specifying only the shape and format of the array
     APyFloatArray(
         const std::vector<std::size_t>& shape,
         exp_t exp_bits,
@@ -220,7 +242,13 @@ private:
      * multiplication.
      */
     APyFloatArray checked_2d_matmul(const APyFloatArray& rhs) const;
+    //! Compute the sum of all elements
     APyFloat vector_sum(const QuantizationMode quantization) const;
+    /*!
+     * Perform hadamard multiplication of `*this` and `rhs`, and store result in `res`.
+     * This method assumes that the shape of `*this` and `rhs` are equal,
+     * anything else is undefined behaviour.
+     */
     void hadamard_multiplication(
         const APyFloatData* rhs,
         const uint8_t rhs_exp_bits,
