@@ -30,10 +30,15 @@
 
    .. automethod:: to_numpy
 
-   Tranposition
-   ------------
+   Transposition
+   -------------
 
    .. automethod:: transpose
+
+   Broadcasting
+   ------------
+
+   .. automethod:: broadcast_to
 
    Properties
    ----------
@@ -54,7 +59,7 @@
 
    .. autoproperty:: shape
 
-   Tranposition
-   ^^^^^^^^^^^^
+   Transposition
+   ^^^^^^^^^^^^^
 
    .. autoproperty:: T

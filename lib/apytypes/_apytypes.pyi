@@ -574,6 +574,7 @@ class APyFixedArray:
         :class:`APyFixedArray`
         """
 
+    def broadcast_to(self, shape: tuple | int) -> APyFixedArray: ...
     def is_identical(self, other: APyFixedArray) -> bool:
         """
         Test if two :class:`APyFixedArray` objects are identical.
@@ -1156,6 +1157,7 @@ class APyFloatArray:
             see :func:`get_float_quantization_mode`, is used.
         """
 
+    def broadcast_to(self, shape: tuple | int) -> APyFloatArray: ...
     def cast_to_double(
         self, quantization: QuantizationMode | None = None
     ) -> APyFloatArray:

@@ -342,7 +342,24 @@ void bind_fixed_array(nb::module_& m)
             :class:`APyFixedArray`
             )pbdoc"
         )
-        .def("broadcast_to", &APyFixedArray::broadcast_to_python, nb::arg("shape"))
+        .def(
+            "broadcast_to",
+            &APyFixedArray::broadcast_to_python,
+            nb::arg("shape"),
+            R"pbdoc(
+            Broadcast array to new shape.
+
+            Parameters
+            ----------
+            shape : tuple or int
+                The shape to broadcast to. A single integer ``i`` is interpreted as ``(i,)``.
+
+            Returns
+            -------
+            :class:`APyFixedArray`
+
+            )pbdoc"
+        )
 
         /*
          * Static methods
@@ -369,11 +386,11 @@ void bind_fixed_array(nb::module_& m)
                 Floating point values to initialize from. The tensor shape will be taken
                 from the sequence shape.
             int_bits : int, optional
-                Number of integer bits in the created fixed-point tensor
+                Number of integer bits in the created fixed-point tensor.
             frac_bits : int, optional
-                Number of fractional bits in the created fixed-point tensor
+                Number of fractional bits in the created fixed-point tensor.
             bits : int, optional
-                Total number of bits in the created fixed-point tensor
+                Total number of bits in the created fixed-point tensor.
 
             Returns
             -------
@@ -421,11 +438,11 @@ void bind_fixed_array(nb::module_& m)
             ndarray : ndarray
                 Values to initialize from. The tensor shape will be taken from the ndarray shape.
             int_bits : int, optional
-                Number of integer bits in the created fixed-point tensor
+                Number of integer bits in the created fixed-point tensor.
             frac_bits : int, optional
-                Number of fractional bits in the created fixed-point tensor
+                Number of fractional bits in the created fixed-point tensor.
             bits : int, optional
-                Total number of bits in the created fixed-point tensor
+                Total number of bits in the created fixed-point tensor.
 
             Returns
             -------

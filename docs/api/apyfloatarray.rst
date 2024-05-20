@@ -35,6 +35,11 @@
 
    .. automethod:: transpose
 
+   Broadcasting
+   ------------
+
+   .. automethod:: broadcast_to
+
    Convenience casting methods
    ---------------------------
 

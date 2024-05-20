@@ -452,7 +452,24 @@ void bind_float_array(nb::module_& m)
             -------
             :class:`APyFloatArray`
             )pbdoc")
-        .def("broadcast_to", &APyFloatArray::broadcast_to_python, nb::arg("shape"))
+        .def(
+            "broadcast_to",
+            &APyFloatArray::broadcast_to_python,
+            nb::arg("shape"),
+            R"pbdoc(
+            Broadcast array to new shape.
+
+            Parameters
+            ----------
+            shape : tuple or int
+                The shape to broadcast to. A single integer ``i`` is interpreted as ``(i,)``.
+
+            Returns
+            -------
+            :class:`APyFloatArray`
+
+            )pbdoc"
+        )
 
         // Iteration and friends
         .def("__getitem__", &APyFloatArray::get_item, nb::arg("idx"))
