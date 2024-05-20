@@ -88,6 +88,19 @@ where exp_bits_1 and exp_bits_2 are the bit widths of the operands, bias_1 and b
 Note that this formula still results in an IEEE-like bias when the inputs use IEEE-like biases.
 """
 
+APyFloatArray.__doc__ = r"""
+Class for multidimensional arrays with configurable floating-point formats.
+
+:class:`APyFloatArray` is a class for multidimensional arrays with configurable
+floating-point formats. The interface is much like the one of NumPy,
+and direct plotting is supported by most functions in Matplotlib.
+:class:`APyFloatArray` should always be preferred, if possible, when working with
+arrays as it allows for better performance, and integration with other features of APyTypes.
+
+For information about the workings of floating-point numbers, see its scalar
+equivalent :class:`APyFloat`.
+"""
+
 APyFixed.__doc__ = r"""
 Class for configurable scalar fixed-point formats.
 
