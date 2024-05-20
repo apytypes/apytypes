@@ -1041,12 +1041,12 @@ fold_shape(const std::vector<std::size_t>& shape)
 
 //! Compute the strides from a shape
 [[maybe_unused]] static APY_INLINE std::vector<std::size_t>
-strides_from_shape(const std::vector<std::size_t>& shape)
+strides_from_shape(const std::vector<std::size_t>& shape, std::size_t acc_base = 1)
 {
     std::vector<std::size_t> strides(shape.size(), 0);
     for (std::size_t i = 0; i < shape.size(); i++) {
         strides[shape.size() - 1 - i] = std::accumulate(
-            shape.crbegin(), shape.crbegin() + i, 1, std::multiplies {}
+            shape.crbegin(), shape.crbegin() + i, acc_base, std::multiplies {}
         );
     }
     return strides;
@@ -1054,8 +1054,9 @@ strides_from_shape(const std::vector<std::size_t>& shape)
 
 //! Create a C++ shape vector (`std::vector<std::size_t>`) from a Python shape object
 //! (`std::variant<nanobind::tuple, nanobind::int_>`).
-static APY_INLINE std::vector<std::size_t>
-cpp_shape_from_python_shape(const std::variant<nanobind::tuple, nanobind::int_>& shape)
+static APY_INLINE std::vector<std::size_t> cpp_shape_from_python_shape_like(
+    const std::variant<nanobind::tuple, nanobind::int_>& shape
+)
 {
     std::vector<std::size_t> cpp_shape {};
     if (std::holds_alternative<nanobind::tuple>(shape)) {

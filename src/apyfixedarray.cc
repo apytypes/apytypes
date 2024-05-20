@@ -247,13 +247,16 @@ inline APyFixedArray APyFixedArray::_apyfixed_base_add_sub(const APyFixed& rhs) 
 
 APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
 {
-    // Make sure `_shape` of `*this` and `rhs` are the same
     if (_shape != rhs._shape) {
-        throw std::length_error(fmt::format(
-            "APyFixedArray.__add__: shape mismatch, lhs.shape={}, rhs.shape={}",
-            string_from_vec(_shape),
-            string_from_vec(rhs._shape)
-        ));
+        auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
+        if (broadcast_shape.size() == 0) {
+            throw std::length_error(fmt::format(
+                "APyFixedArray.__add__: shape mismatch, lhs.shape={}, rhs.shape={}",
+                string_from_vec(_shape),
+                string_from_vec(rhs._shape)
+            ));
+        }
+        return broadcast_to(broadcast_shape) + rhs.broadcast_to(broadcast_shape);
     }
 
     return _apyfixedarray_base_add_sub<
@@ -272,13 +275,16 @@ APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
 
 APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
 {
-    // Make sure `_shape` of `*this` and `rhs` are the same
     if (_shape != rhs._shape) {
-        throw std::length_error(fmt::format(
-            "APyFixedArray.__sub__: shape mismatch, lhs.shape={}, rhs.shape={}",
-            string_from_vec(_shape),
-            string_from_vec(rhs._shape)
-        ));
+        auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
+        if (broadcast_shape.size() == 0) {
+            throw std::length_error(fmt::format(
+                "APyFixedArray.__sub__: shape mismatch, lhs.shape={}, rhs.shape={}",
+                string_from_vec(_shape),
+                string_from_vec(rhs._shape)
+            ));
+        }
+        return broadcast_to(broadcast_shape) - rhs.broadcast_to(broadcast_shape);
     }
 
     return _apyfixedarray_base_add_sub<
@@ -333,13 +339,16 @@ APyFixedArray APyFixedArray::rsub(const APyFixed& lhs) const
 
 APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
 {
-    // Make sure `_shape` of `*this` and `rhs` are the same
     if (_shape != rhs._shape) {
-        throw std::length_error(fmt::format(
-            "APyFixedArray.__mul__: shape mismatch, lhs.shape=({}), rhs.shape=({})",
-            string_from_vec(_shape),
-            string_from_vec(rhs._shape)
-        ));
+        auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
+        if (broadcast_shape.size() == 0) {
+            throw std::length_error(fmt::format(
+                "APyFixedArray.__mul__: shape mismatch, lhs.shape={}, rhs.shape={}",
+                string_from_vec(_shape),
+                string_from_vec(rhs._shape)
+            ));
+        }
+        return broadcast_to(broadcast_shape) * rhs.broadcast_to(broadcast_shape);
     }
 
     const int res_int_bits = int_bits() + rhs.int_bits();
@@ -451,11 +460,15 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
 {
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (_shape != rhs._shape) {
-        throw std::length_error(fmt::format(
-            "APyFixedArray.__div__: shape mismatch, lhs.shape=({}), rhs.shape=({})",
-            string_from_vec(_shape),
-            string_from_vec(rhs._shape)
-        ));
+        auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
+        if (broadcast_shape.size() == 0) {
+            throw std::length_error(fmt::format(
+                "APyFixedArray.__div__: shape mismatch, lhs.shape={}, rhs.shape={}",
+                string_from_vec(_shape),
+                string_from_vec(rhs._shape)
+            ));
+        }
+        return broadcast_to(broadcast_shape) / rhs.broadcast_to(broadcast_shape);
     }
 
     const int res_int_bits = int_bits() + rhs.frac_bits() + 1;
@@ -485,6 +498,12 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
 
     for (std::size_t i = 0; i < _nitems; i++) {
         std::fill(std::begin(abs_num), std::end(abs_num), 0);
+        if (limb_vector_is_zero(
+                std::begin(rhs._data) + (i + 0) * rhs._itemsize,
+                std::begin(rhs._data) + (i + 1) * rhs._itemsize
+            )) {
+            continue;
+        }
         bool den_sign = limb_vector_abs(
             std::begin(rhs._data) + (i + 0) * rhs._itemsize,
             std::begin(rhs._data) + (i + 1) * rhs._itemsize,
@@ -762,7 +781,7 @@ APyFixedArray APyFixedArray::broadcast_to(const std::vector<std::size_t> shape) 
 APyFixedArray
 APyFixedArray::broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape) const
 {
-    return broadcast_to(cpp_shape_from_python_shape(shape));
+    return broadcast_to(cpp_shape_from_python_shape_like(shape));
 }
 
 std::string APyFixedArray::repr() const

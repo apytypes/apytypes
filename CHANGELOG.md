@@ -11,13 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Methods `next_up()` and `next_down()` for floating-point,
   based on the IEEE-754 standard.
+- Broadcasting support [as NumPy](https://numpy.org/doc/stable/user/basics.broadcasting.html)
+  - `APyFixedArray.broadcast_to()`
+  - `APyFloatArray.broadcast_to()`
+  - Automatic broadcasting on array arithmetic
 
 ### Changed
 
 ### Fixed
 
 - Smaller fixes in quantization for floating-point scalar multiplication.
-- Fix in floating-point 'cast'-method when result became subnormal.
+- Fix in floating-point `cast`-method when result became subnormal.
 
 ### Removed
 

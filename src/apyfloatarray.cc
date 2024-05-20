@@ -96,13 +96,16 @@ APyFloatArray::APyFloatArray(
 
 APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
 {
-    // Make sure `_shape` of `*this` and `rhs` are the same
     if (shape != rhs.shape) {
-        throw std::length_error(fmt::format(
-            "APyFloatArray.__add__: shape mismatch, lhs.shape={}, rhs.shape={}",
-            string_from_vec(shape),
-            string_from_vec(rhs.shape)
-        ));
+        auto broadcast_shape = smallest_broadcastable_shape(shape, rhs.shape);
+        if (broadcast_shape.size() == 0) {
+            throw std::length_error(fmt::format(
+                "APyFloatArray.__add__: shape mismatch, lhs.shape={}, rhs.shape={}",
+                string_from_vec(shape),
+                string_from_vec(rhs.shape)
+            ));
+        }
+        return broadcast_to(broadcast_shape) + rhs.broadcast_to(broadcast_shape);
     }
 
     const auto quantization = get_float_quantization_mode();
@@ -467,14 +470,18 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
 
 APyFloatArray APyFloatArray::operator-(const APyFloatArray& rhs) const
 {
-    // Make sure `_shape` of `*this` and `rhs` are the same
     if (shape != rhs.shape) {
-        throw std::length_error(fmt::format(
-            "APyFloatArray.__sub__: shape mismatch, lhs.shape={}, rhs.shape={}",
-            string_from_vec(shape),
-            string_from_vec(rhs.shape)
-        ));
+        auto broadcast_shape = smallest_broadcastable_shape(shape, rhs.shape);
+        if (broadcast_shape.size() == 0) {
+            throw std::length_error(fmt::format(
+                "APyFloatArray.__sub__: shape mismatch, lhs.shape={}, rhs.shape={}",
+                string_from_vec(shape),
+                string_from_vec(rhs.shape)
+            ));
+        }
+        return broadcast_to(broadcast_shape) - rhs.broadcast_to(broadcast_shape);
     }
+
     return operator+(-rhs);
 }
 
@@ -503,6 +510,18 @@ APyFloatArray APyFloatArray::abs() const
 
 APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
 {
+    if (shape != rhs.shape) {
+        auto broadcast_shape = smallest_broadcastable_shape(shape, rhs.shape);
+        if (broadcast_shape.size() == 0) {
+            throw std::length_error(fmt::format(
+                "APyFloatArray.__mul__: shape mismatch, lhs.shape={}, rhs.shape={}",
+                string_from_vec(shape),
+                string_from_vec(rhs.shape)
+            ));
+        }
+        return broadcast_to(broadcast_shape) * rhs.broadcast_to(broadcast_shape);
+    }
+
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (shape != rhs.shape) {
         throw std::length_error(fmt::format(
@@ -875,6 +894,18 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
 
 APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
 {
+    if (shape != rhs.shape) {
+        auto broadcast_shape = smallest_broadcastable_shape(shape, rhs.shape);
+        if (broadcast_shape.size() == 0) {
+            throw std::length_error(fmt::format(
+                "APyFloatArray.__truediv__: shape mismatch, lhs.shape={}, rhs.shape={}",
+                string_from_vec(shape),
+                string_from_vec(rhs.shape)
+            ));
+        }
+        return broadcast_to(broadcast_shape) / rhs.broadcast_to(broadcast_shape);
+    }
+
     // Make sure `_shape` of `*this` and `rhs` are the same
     if (shape != rhs.shape) {
         throw std::length_error(fmt::format(
@@ -1209,7 +1240,7 @@ APyFloatArray APyFloatArray::broadcast_to(const std::vector<std::size_t> shape) 
 APyFloatArray
 APyFloatArray::broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape) const
 {
-    return broadcast_to(cpp_shape_from_python_shape(shape));
+    return broadcast_to(cpp_shape_from_python_shape_like(shape));
 }
 
 APyFloatArray APyFloatArray::transpose() const

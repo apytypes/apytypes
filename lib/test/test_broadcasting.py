@@ -5,18 +5,18 @@ from typing import List, Tuple
 from itertools import product
 
 
-def all_shapes(ndim: int, dim_elements: int) -> List[Tuple[int, ...]]:
+def all_shapes(ndim: int, dim_elements: int):
     """
     Retrieve a list of all possible shapes with `ndim` dimensions, spanning from one to
     `dim_elements` (inclusive)
     """
-    return list(product(*[range(1, dim_elements + 1) for _ in range(ndim)]))
+    return product(range(1, dim_elements + 1), repeat=ndim)
 
 
 # APyTypes array convenience generators
 apytypes_from_float_generators = [
-    lambda f: APyFixedArray.from_float(f, int_bits=100, frac_bits=0),
-    lambda f: APyFloatArray.from_float(f, man_bits=20, exp_bits=15),
+    lambda f: APyFixedArray.from_float(f, int_bits=200, frac_bits=0),  # multi-limb int
+    lambda f: APyFloatArray.from_float(f, man_bits=52, exp_bits=11),  # double-precision
 ]
 
 
@@ -63,3 +63,23 @@ def test_array_broadcast_to_raises(apyarray_from_float):
     # Can not broadcast if the destination number-of-dimensions is zero
     with pytest.raises(ValueError, match="Operands could not be broadcast together"):
         apyarray_from_float([1.0]).broadcast_to(tuple())
+
+
+@pytest.mark.parametrize(
+    "bin_func",
+    [
+        lambda a, b: a + b,
+        lambda a, b: a - b,
+        lambda a, b: a / b,
+        lambda a, b: a * b,
+    ],
+)
+@pytest.mark.parametrize("from_float", apytypes_from_float_generators)
+def test_array_broadcast_arithmetic(bin_func, from_float):
+    np = pytest.importorskip("numpy")
+    a_shape, b_shape = ((5, 1, 3, 4), (5, 5, 1, 4))
+    a = np.arange(1, np.prod(a_shape) + 1).reshape(a_shape)
+    b = np.ones(b_shape)
+    ref = bin_func(a, b)
+    acc = bin_func(from_float(a), from_float(b))
+    assert np.all(ref == acc)

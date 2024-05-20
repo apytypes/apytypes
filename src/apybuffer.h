@@ -18,21 +18,6 @@
 
 #include "apytypes_util.h"
 
-//! Retrieve the byte-strides from a shape
-template <typename T>
-[[maybe_unused]] static APY_INLINE std::vector<std::size_t>
-byte_strides_from_shape(const std::vector<std::size_t>& shape, std::size_t itemsize = 1)
-{
-    std::size_t n_bytes = sizeof(T) * itemsize;
-    std::vector<std::size_t> strides(shape.size(), 0);
-    for (std::size_t i = 0; i < shape.size(); i++) {
-        strides[shape.size() - 1 - i] = std::accumulate(
-            shape.crbegin(), shape.crbegin() + i, n_bytes, std::multiplies {}
-        );
-    }
-    return strides;
-}
-
 template <typename T, typename Allocator = std::allocator<T>> class APyBuffer {
 
     //! APyBuffers are to be inherited from. All fields and constructors are protected.
@@ -51,7 +36,7 @@ protected:
     //! Retrieve a Python Buffer structure compatible with the Buffer Protocol
     Py_buffer get_py_buffer()
     {
-        _strides = byte_strides_from_shape<T>(_shape, _itemsize);
+        _strides = strides_from_shape(_shape, _itemsize * sizeof(T));
         return Py_buffer {
             (void*)&_data[0],                // void       *buf
             nullptr,                         // PyObject   *obj

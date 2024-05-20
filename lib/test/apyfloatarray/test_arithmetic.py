@@ -9,7 +9,7 @@ from apytypes import (
 
 @pytest.mark.float_array
 def test_array_raises():
-    a = APyFloatArray([1], [5], [4], 10, 10)
+    a = APyFloatArray([1, 2, 3], [5, 2, 3], [4, 2, 3], 10, 10)
     b = APyFloatArray([1, 2], [5, 3], [4, 4], 10, 10)
     with pytest.raises(ValueError, match="APyFloatArray.__add__: shape mismatch"):
         _ = a + b

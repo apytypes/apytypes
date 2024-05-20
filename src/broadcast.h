@@ -11,20 +11,22 @@
 #include <tuple>     // std::make_tuple
 #include <vector>    // std::vector
 
-//! Test if the shape `src_shape` can be broadcast to `dst_shape`
+//! Test if `src_shape` can be broadcast to `dst_shape`
 static APY_INLINE bool is_broadcastable(
     const std::vector<std::size_t>& src_shape, const std::vector<std::size_t>& dst_shape
 )
 {
-    // Can not broadcast if either source or destination shape are zero-dimensional
+    // Can not broadcast if either shape is zero-dimensional
     if (src_shape.size() == 0 || dst_shape.size() == 0) {
         return false;
     }
 
-    // Can not broadcast if destination shape has any zero-dimension
+    // Can not broadcast if either shape has a zero dimension
     auto is_zero = [](auto n) { return n == 0; };
-    if (std::any_of(std::begin(dst_shape), std::end(dst_shape), is_zero)) {
-        return false;
+    for (const auto& shape : { src_shape, dst_shape }) {
+        if (std::any_of(std::begin(shape), std::end(shape), is_zero)) {
+            return false;
+        }
     }
 
     // Can not broadcast if destination shape has fewer dimensions than source shape
@@ -45,30 +47,68 @@ static APY_INLINE bool is_broadcastable(
     return true;
 }
 
-//! Compute the destination index of source index `i` based on a `broadcasting_rule`.
-//! The destination index is weighted using `strides`. Uses an intermediate working
-//! vector `coord` to perform the computation. This function assumes that
-//! `strides.size() == coord.size() == broadcast_rule.size()`
-template <typename FUNC>
-static APY_INLINE std::size_t src_to_dst_idx(
-    std::size_t i,
-    FUNC&& broadcast_rule,
-    const std::vector<std::size_t>& strides,
-    std::vector<std::size_t>& coord
+//! Get the smallest broadcastable shape from `shape1` and `shape2`. Returns an empty
+//! vector `_.size() == 0` if the shapes can not be broadcast together.
+static APY_INLINE std::vector<std::size_t> smallest_broadcastable_shape(
+    const std::vector<std::size_t>& shape1, const std::vector<std::size_t>& shape2
 )
 {
-    std::fill(std::begin(coord), std::end(coord), 0);
-    for (std::size_t j = coord.size(); j--;) {
+    // Can not broadcast if either shape is zero-dimensional
+    if (shape1.size() == 0 || shape2.size() == 0) {
+        return {};
+    }
+
+    // Can not broadcast if any shape dimension is zero
+    auto is_zero = [](auto n) { return n == 0; };
+    for (const auto& shape : { shape1, shape2 }) {
+        if (std::any_of(std::begin(shape), std::end(shape), is_zero)) {
+            return {};
+        }
+    }
+
+    // Iterate shapes from the trailing (right-most) dimensions
+    std::vector<std::size_t> result {};
+    auto [shape1_it, shape2_it] = std::make_tuple(shape1.crbegin(), shape2.crbegin());
+    while (shape1_it != shape1.crend() && shape2_it != shape2.crend()) {
+        if (*shape1_it != 1 && *shape2_it != 1 && *shape1_it != *shape2_it) {
+            // Dimension disallows broadcasting
+            return {};
+        }
+        result.push_back(std::max(*shape1_it, *shape2_it));
+        ++shape1_it;
+        ++shape2_it;
+    }
+
+    // Add remaining shapes from the more high-dimensional shape
+    for (; shape1_it < shape1.crend(); ++shape1_it) {
+        result.push_back(*shape1_it);
+    }
+    for (; shape2_it < shape2.crend(); ++shape2_it) {
+        result.push_back(*shape2_it);
+    }
+
+    // Reverse the dimensions and return
+    std::reverse(std::begin(result), std::end(result));
+    assert(is_broadcastable(shape1, result));
+    assert(is_broadcastable(shape2, result));
+    return result;
+}
+
+//! Compute the destination index of source index `i` based on a `broadcasting_rule`.
+//! The destination index is weighted using `strides`. This function assumes
+//! that `strides.size() == broadcast_rule.size()`
+template <typename FUNC>
+static APY_INLINE std::size_t src_to_dst_idx(
+    std::size_t i, FUNC&& broadcast_rule, const std::vector<std::size_t>& strides
+)
+{
+    std::size_t offset = 0;
+    for (std::size_t j = strides.size(); j--;) {
         if (i == 0) {
             break;
         }
-        coord[j] = i % broadcast_rule(j);
+        offset += strides[j] * (i % broadcast_rule(j));
         i /= broadcast_rule(j);
-    }
-
-    std::size_t offset = 0;
-    for (std::size_t j = 0; j < strides.size(); j++) {
-        offset += strides[j] * coord[j];
     }
     return offset;
 }
@@ -90,9 +130,13 @@ static APY_INLINE void broadcast_data_copy(
     std::size_t dst_elements = fold_shape(dst_shape);
     std::size_t broadcast_elements = dst_elements / src_elements;
 
+    if (src_elements == dst_elements) {
+        std::copy_n(src, src_elements * itemsize, dst);
+        return; // early exit
+    }
+
     // Destination strides and intermediate woorking coordinate vector
     std::vector<std::size_t> dst_stride = strides_from_shape(dst_shape);
-    std::vector<std::size_t> coord(dst_shape.size());
 
     // Lambda for left-padded source shape
     auto src_shape_adjst = [&](std::size_t i) -> std::size_t {
@@ -104,12 +148,12 @@ static APY_INLINE void broadcast_data_copy(
     auto broadcast_vec = [&](auto j) { return dst_shape[j] - src_shape_adjst(j) + 1; };
     std::vector<std::size_t> broadcast_offsets(broadcast_elements);
     for (std::size_t i = 0; i < broadcast_elements; i++) {
-        broadcast_offsets[i] = src_to_dst_idx(i, broadcast_vec, dst_stride, coord);
+        broadcast_offsets[i] = src_to_dst_idx(i, broadcast_vec, dst_stride);
     }
 
     // Loop over elements in the source vector and broadcast to the destination
     for (std::size_t i = 0; i < src_elements; i++) {
-        auto dst_idx = src_to_dst_idx(i, src_shape_adjst, dst_stride, coord);
+        auto dst_idx = src_to_dst_idx(i, src_shape_adjst, dst_stride);
         auto broadcast = [&](auto j) {
             std::copy_n(src + i * itemsize, itemsize, dst + (dst_idx + j) * itemsize);
         };
