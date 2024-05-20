@@ -239,6 +239,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../cpp_api/apytypes_scratch_vector.html"><code class="docutils literal notranslate"><span class="pre">apytypes_scratch_vector.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../cpp_api/apytypes_simd.html"><code class="docutils literal notranslate"><span class="pre">apytypes_simd.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../cpp_api/apytypes_util.html"><code class="docutils literal notranslate"><span class="pre">apytypes_util.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cpp_api/broadcast.html"><code class="docutils literal notranslate"><span class="pre">broadcast.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../cpp_api/ieee754.html"><code class="docutils literal notranslate"><span class="pre">ieee754.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../cpp_api/python_util.html"><code class="docutils literal notranslate"><span class="pre">python_util.h</span></code></a></li>
 </ul>
@@ -319,22 +320,25 @@
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.cast" title="apytypes.APyFixedArray.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.broadcast_to" title="apytypes.APyFixedArray.broadcast_to"><code class="xref py py-obj docutils literal notranslate"><span class="pre">broadcast_to</span></code></a></p></td>
+<td><p>Broadcast array to new shape.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.cast" title="apytypes.APyFixedArray.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a></p></td>
 <td><p>Change format of the fixed-point array.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.from_array" title="apytypes.APyFixedArray.from_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_array</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.from_array" title="apytypes.APyFixedArray.from_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_array</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.from_float" title="apytypes.APyFixedArray.from_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_float</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.from_float" title="apytypes.APyFixedArray.from_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_float</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.is_identical" title="apytypes.APyFixedArray.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.is_identical" title="apytypes.APyFixedArray.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
 <td><p>Test if two <a class="reference internal" href="#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> objects are identical.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.to_numpy" title="apytypes.APyFixedArray.to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.to_numpy" title="apytypes.APyFixedArray.to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code></a></p></td>
 <td><p>Return array as a <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.float64</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.transpose" title="apytypes.APyFixedArray.transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.transpose" title="apytypes.APyFixedArray.transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code></a></p></td>
 <td><p>Return the transposition of the array.</p></td>
 </tr>
 </tbody>
@@ -363,11 +367,11 @@ the three bit-specifiers (<cite>bits</cite>, <cite>int_bits</cite>, <cite>frac_b
 <dd class="field-odd"><dl class="simple">
 <dt><strong>ndarray</strong><span class="classifier">ndarray</span></dt><dd><p>Values to initialize from. The tensor shape will be taken from the ndarray shape.</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits in the created fixed-point tensor</p>
+<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits in the created fixed-point tensor.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits in the created fixed-point tensor</p>
+<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits in the created fixed-point tensor.</p>
 </dd>
-<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Total number of bits in the created fixed-point tensor</p>
+<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Total number of bits in the created fixed-point tensor.</p>
 </dd>
 </dl>
 </dd>
@@ -408,11 +412,11 @@ the three bit-specifiers (<cite>bits</cite>, <cite>int_bits</cite>, <cite>frac_b
 <dt><strong>float_sequence</strong><span class="classifier">sequence of float</span></dt><dd><p>Floating point values to initialize from. The tensor shape will be taken
 from the sequence shape.</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits in the created fixed-point tensor</p>
+<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits in the created fixed-point tensor.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits in the created fixed-point tensor</p>
+<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits in the created fixed-point tensor.</p>
 </dd>
-<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Total number of bits in the created fixed-point tensor</p>
+<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Total number of bits in the created fixed-point tensor.</p>
 </dd>
 </dl>
 </dd>
@@ -519,8 +523,8 @@ method rounds away from infinity on ties.</p>
 </dd></dl>
 
 </section>
-<section id="tranposition">
-<h2>Tranposition<a class="headerlink" href="#tranposition" title="Link to this heading">¶</a></h2>
+<section id="transposition">
+<h2>Transposition<a class="headerlink" href="#transposition" title="Link to this heading">¶</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.transpose">
 <span class="sig-name descname"><span class="pre">transpose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.transpose" title="Link to this definition">¶</a></dt>
@@ -533,6 +537,28 @@ transposition of <cite>self</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="broadcasting">
+<h2>Broadcasting<a class="headerlink" href="#broadcasting" title="Link to this heading">¶</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFixedArray.broadcast_to">
+<span class="sig-name descname"><span class="pre">broadcast_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.broadcast_to" title="Link to this definition">¶</a></dt>
+<dd><p>Broadcast array to new shape.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>shape</strong><span class="classifier">tuple or int</span></dt><dd><p>The shape to broadcast to. A single integer <code class="docutils literal notranslate"><span class="pre">i</span></code> is interpreted as <code class="docutils literal notranslate"><span class="pre">(i,)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
 <dt><a class="reference internal" href="#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></dt><dd></dd>
 </dl>
 </dd>
@@ -614,7 +640,7 @@ transposition of <cite>self</cite>.</p>
 
 </section>
 <section id="id1">
-<h3>Tranposition<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<h3>Transposition<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
 <dl class="py property">
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.T">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">T</span></span><a class="headerlink" href="#apytypes.APyFixedArray.T" title="Link to this definition">¶</a></dt>
@@ -699,6 +725,7 @@ transposition of <cite>self</cite>.</p>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.is_identical"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.is_identical()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.to_numpy"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.to_numpy()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.transpose"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.transpose()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixedArray.broadcast_to"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.broadcast_to()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.bits"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.bits</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.int_bits"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.int_bits</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.frac_bits"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.frac_bits</span></code></a></li>

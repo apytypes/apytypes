@@ -237,6 +237,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cpp_api/apytypes_scratch_vector.html"><code class="docutils literal notranslate"><span class="pre">apytypes_scratch_vector.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp_api/apytypes_simd.html"><code class="docutils literal notranslate"><span class="pre">apytypes_simd.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp_api/apytypes_util.html"><code class="docutils literal notranslate"><span class="pre">apytypes_util.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp_api/broadcast.html"><code class="docutils literal notranslate"><span class="pre">broadcast.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp_api/ieee754.html"><code class="docutils literal notranslate"><span class="pre">ieee754.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp_api/python_util.html"><code class="docutils literal notranslate"><span class="pre">python_util.h</span></code></a></li>
 </ul>
@@ -500,6 +501,10 @@
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray13APyFixedArrayERKN2nb8sequenceENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixedArray::APyFixedArray (C++ function)</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray13APyFixedArrayERKNSt6vectorINSt6size_tEEENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">[1]</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray13APyFixedArrayERKNSt6vectorINSt6size_tEEEii">[2]</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray13APyFixedArrayEv">[3]</a>
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray4bitsEv">APyFixedArray::bits (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray12broadcast_toEKNSt6vectorINSt6size_tEEE">APyFixedArray::broadcast_to (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray19broadcast_to_pythonEKNSt7variantIN2nb5tupleEN2nb4int_EEE">APyFixedArray::broadcast_to_python (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray4castENSt8optionalIiEENSt8optionalIiEENSt8optionalI16QuantizationModeEENSt8optionalI12OverflowModeEENSt8optionalIiEE">APyFixedArray::cast (C++ function)</a>
 </li>
@@ -773,6 +778,10 @@
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4N13APyFloatArray4biasE">APyFloatArray::bias (C++ member)</a>
 </li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray12broadcast_toEKNSt6vectorINSt6size_tEEE">APyFloatArray::broadcast_to (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray19broadcast_to_pythonEKNSt7variantIN2nb5tupleEN2nb4int_EEE">APyFloatArray::broadcast_to_python (C++ function)</a>
+</li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray4castENSt8optionalIiEENSt8optionalIiEENSt8optionalI5exp_tEENSt8optionalI16QuantizationModeEE">APyFloatArray::cast (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray13cast_no_quantENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE">APyFloatArray::cast_no_quant (C++ function)</a>
@@ -891,8 +900,6 @@
         </ul></li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E9bit_widthNSt6size_tE8INT_TYPE">bit_width (C++ function)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/apyfixed.html#apytypes.APyFixed.bits">bits (apytypes.APyFixed property)</a>
 
         <ul>
@@ -903,14 +910,22 @@
           <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.bits">(apytypes.APyFloatArray property)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apytypes_util.html#_CPPv418bits_from_optionalNSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">bits_from_optional (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv423bits_from_optional_castNSt8optionalIiEENSt8optionalIiEENSt8optionalIiEEii">bits_from_optional_cast (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv413bits_to_limbsNSt6size_tE">bits_to_limbs (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apybuffer.html#_CPPv4I0E23byte_strides_from_shapeNSt6vectorINSt6size_tEEERKNSt6vectorINSt6size_tEEENSt6size_tE">byte_strides_from_shape (C++ function)</a>
+        <li><a href="cpp_api/broadcast.html#_CPPv4I00E19broadcast_data_copyv28RANDOM_ACCESS_CONST_ITERATOR22RANDOM_ACCESS_ITERATORRKNSt6vectorINSt6size_tEEERKNSt6vectorINSt6size_tEEENSt6size_tE">broadcast_data_copy (C++ function)</a>
 </li>
+        <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.broadcast_to">broadcast_to() (apytypes.APyFixedArray method)</a>
+
+        <ul>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.broadcast_to">(apytypes.APyFloatArray method)</a>
+</li>
+        </ul></li>
     </ul></td>
   </tr></table>
 </section>
@@ -972,6 +987,8 @@
         <li><a href="cpp_api/apytypes_common.html#_CPPv4N14ContextManagerD0Ev">ContextManager::~ContextManager (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E19count_trailing_bitsNSt6size_tE8INT_TYPE">count_trailing_bits (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv432cpp_shape_from_python_shape_likeRKNSt7variantIN8nanobind5tupleEN8nanobind4int_EEE">cpp_shape_from_python_shape_like (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#c.CREATE_FUNCTOR_FROM_FUNC">CREATE_FUNCTOR_FROM_FUNC (C macro)</a>
 
@@ -1037,7 +1054,7 @@
   <h2>F</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="cpp_api/apybuffer.html#_CPPv410fold_shapeRKNSt6vectorINSt6size_tEEE">fold_shape (C++ function)</a>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv410fold_shapeRKNSt6vectorINSt6size_tEEE">fold_shape (C++ function)</a>
 </li>
         <li><a href="api/apyfixed.html#apytypes.APyFixed.frac_bits">frac_bits (apytypes.APyFixed property)</a>
 
@@ -1112,6 +1129,8 @@
 </li>
         </ul></li>
         <li><a href="cpp_api/apyfixed_util.html#_CPPv44ipow8APyFixedj">ipow (C++ function)</a>, <a href="cpp_api/apyfloat_util.html#_CPPv44ipow5man_tj">[1]</a>
+</li>
+        <li><a href="cpp_api/broadcast.html#_CPPv416is_broadcastableRKNSt6vectorINSt6size_tEEERKNSt6vectorINSt6size_tEEE">is_broadcastable (C++ function)</a>
 </li>
         <li><a href="api/apyfloat.html#apytypes.APyFloat.is_finite">is_finite (apytypes.APyFloat property)</a>
 </li>
@@ -1501,10 +1520,10 @@
         </ul></li>
         <li><a href="api/apyfloat.html#apytypes.APyFloat.sign">sign (apytypes.APyFloat property)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/ieee754.html#_CPPv414sign_of_doubled">sign_of_double (C++ function)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E17significant_limbsNSt6size_tE22RANDOM_ACCESS_ITERATOR22RANDOM_ACCESS_ITERATOR">significant_limbs (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_simd.html#_CPPv44simd">simd (C++ type)</a>
@@ -1543,7 +1562,11 @@
 </li>
         <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd16vector_sub_constENSt6vectorI9mp_limb_tE14const_iteratorE9mp_limb_tNSt6vectorI9mp_limb_tE8iteratorENSt6size_tE">simd::vector_sub_const (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E15string_from_vecNSt6stringERKNSt6vectorI1TEE">string_from_vec (C++ function)</a>
+        <li><a href="cpp_api/broadcast.html#_CPPv428smallest_broadcastable_shapeRKNSt6vectorINSt6size_tEEERKNSt6vectorINSt6size_tEEE">smallest_broadcastable_shape (C++ function)</a>
+</li>
+        <li><a href="cpp_api/broadcast.html#_CPPv4I0E14src_to_dst_idxNSt6size_tENSt6size_tERR4FUNCRKNSt6vectorINSt6size_tEEE">src_to_dst_idx (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv418strides_from_shapeRKNSt6vectorINSt6size_tEEENSt6size_tE">strides_from_shape (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv430string_trim_leading_whitespaceRKNSt6stringE">string_trim_leading_whitespace (C++ function)</a>
 </li>
@@ -1674,6 +1697,8 @@
         <li><a href="api/apyfloat.html#apytypes.APyFloat.true_man">true_man (apytypes.APyFloat property)</a>
 </li>
         <li><a href="api/apyfloat.html#apytypes.APyFloat.true_sign">true_sign (apytypes.APyFloat property)</a>
+</li>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E21tuple_string_from_vecNSt6stringERKNSt6vectorI1TEE">tuple_string_from_vec (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv424twos_complement_overflow9mp_limb_ti">twos_complement_overflow (C++ function)</a>
 </li>

@@ -16,5 +16,6 @@ APyTypes C++ API
    apytypes_scratch_vector
    apytypes_simd
    apytypes_util
+   broadcast
    ieee754
    python_util

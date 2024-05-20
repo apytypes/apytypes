@@ -239,6 +239,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../cpp_api/apytypes_scratch_vector.html"><code class="docutils literal notranslate"><span class="pre">apytypes_scratch_vector.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../cpp_api/apytypes_simd.html"><code class="docutils literal notranslate"><span class="pre">apytypes_simd.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../cpp_api/apytypes_util.html"><code class="docutils literal notranslate"><span class="pre">apytypes_util.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cpp_api/broadcast.html"><code class="docutils literal notranslate"><span class="pre">broadcast.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../cpp_api/ieee754.html"><code class="docutils literal notranslate"><span class="pre">ieee754.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../cpp_api/python_util.html"><code class="docutils literal notranslate"><span class="pre">python_util.h</span></code></a></li>
 </ul>
@@ -321,34 +322,37 @@
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast" title="apytypes.APyFloatArray.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.broadcast_to" title="apytypes.APyFloatArray.broadcast_to"><code class="xref py py-obj docutils literal notranslate"><span class="pre">broadcast_to</span></code></a></p></td>
+<td><p>Broadcast array to new shape.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast" title="apytypes.APyFloatArray.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a></p></td>
 <td><p>Change format of the floating-point number.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_bfloat16" title="apytypes.APyFloatArray.cast_to_bfloat16"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_bfloat16</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_bfloat16" title="apytypes.APyFloatArray.cast_to_bfloat16"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_bfloat16</span></code></a></p></td>
 <td><p>Cast to bfloat16 format.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_double" title="apytypes.APyFloatArray.cast_to_double"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_double</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_double" title="apytypes.APyFloatArray.cast_to_double"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_double</span></code></a></p></td>
 <td><p>Cast to IEEE 754 binary64 (double-precision) format.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_half" title="apytypes.APyFloatArray.cast_to_half"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_half</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_half" title="apytypes.APyFloatArray.cast_to_half"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_half</span></code></a></p></td>
 <td><p>Cast to IEEE 754 binary16 (half-precision) format.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_single" title="apytypes.APyFloatArray.cast_to_single"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_single</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_single" title="apytypes.APyFloatArray.cast_to_single"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast_to_single</span></code></a></p></td>
 <td><p>Cast to IEEE 754 binary32 (single-precision) format.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.from_array" title="apytypes.APyFloatArray.from_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_array</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.from_array" title="apytypes.APyFloatArray.from_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_array</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.from_float" title="apytypes.APyFloatArray.from_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_float</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.from_float" title="apytypes.APyFloatArray.from_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_float</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.is_identical" title="apytypes.APyFloatArray.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.is_identical" title="apytypes.APyFloatArray.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
 <td><p>Test if two <a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> objects are identical.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.to_numpy" title="apytypes.APyFloatArray.to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.to_numpy" title="apytypes.APyFloatArray.to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code></a></p></td>
 <td><p>Return array as a <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.float64</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.transpose" title="apytypes.APyFloatArray.transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.transpose" title="apytypes.APyFloatArray.transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code></a></p></td>
 <td><p>Return the transposition of the array.</p></td>
 </tr>
 </tbody>
@@ -559,6 +563,28 @@ transposition of <cite>self</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="broadcasting">
+<h2>Broadcasting<a class="headerlink" href="#broadcasting" title="Link to this heading">¶</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFloatArray.broadcast_to">
+<span class="sig-name descname"><span class="pre">broadcast_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.broadcast_to" title="Link to this definition">¶</a></dt>
+<dd><p>Broadcast array to new shape.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>shape</strong><span class="classifier">tuple or int</span></dt><dd><p>The shape to broadcast to. A single integer <code class="docutils literal notranslate"><span class="pre">i</span></code> is interpreted as <code class="docutils literal notranslate"><span class="pre">(i,)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
 <dt><a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></dt><dd></dd>
 </dl>
 </dd>
@@ -817,6 +843,7 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_f
 <li><a class="reference internal" href="#apytypes.APyFloatArray.is_identical"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.is_identical()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloatArray.to_numpy"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.to_numpy()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloatArray.transpose"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.transpose()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloatArray.broadcast_to"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.broadcast_to()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_bfloat16"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.cast_to_bfloat16()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_double"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.cast_to_double()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_half"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.cast_to_half()</span></code></a></li>
