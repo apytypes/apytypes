@@ -45,7 +45,7 @@
    .. automethod:: cast_to_single
 
    Calculations
-   ^^^^^^^
+   ^^^^^^^^^^^^
 
    .. automethod:: next_up
 

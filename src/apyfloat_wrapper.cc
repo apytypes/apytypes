@@ -58,6 +58,8 @@ void bind_float(nb::module_& m)
             R"pbdoc(
             Create an :class:`APyFloat` object from a :class:`float`.
 
+            The quantization mode used is :class:`QuantizationMode.TIES_EVEN`.
+
             Parameters
             ----------
             value : float
@@ -82,6 +84,10 @@ void bind_float(nb::module_& m)
 
                 # `a`, initialized from floating-point values.
                 a = APyFloat.from_float(1.35, exp_bits=10, man_bits=15)
+
+            See also
+            --------
+            from_bits
             )pbdoc"
         )
         .def("__float__", &APyFloat::operator double)
@@ -106,27 +112,47 @@ void bind_float(nb::module_& m)
             bias : int, optional
                 Bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
-            See also
-            --------
-            to_bits
-
             Returns
             -------
             :class:`APyFloat`
 
+            Examples
+            --------
+
+            .. code-block:: python
+
+                from apytypes import APyFloat
+
+                # `a`, initialized to -1.5 from a bit pattern.
+                a = APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
+
+            See also
+            --------
+            to_bits
+            from_float
             )pbdoc"
         )
         .def("to_bits", &APyFloat::to_bits, R"pbdoc(
             Get the bit-representation of an :class:`APyFloat`.
 
-            See also
-            --------
-            from_bits
-
             Returns
             -------
             :class:`int`
 
+            Examples
+            --------
+
+            .. code-block:: python
+
+                from apytypes import APyFloat
+
+                # `a`, initialized to -1.5 from a bit pattern.
+                a = APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
+                a.to_bits() == 0b1_01111_10 # True
+
+            See also
+            --------
+            from_bits
             )pbdoc")
         .def("__str__", &APyFloat::str)
         .def("__repr__", &APyFloat::repr)
