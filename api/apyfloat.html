@@ -300,8 +300,7 @@
 <dt class="sig sig-object py" id="apytypes.APyFloat">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">APyFloat</span></span><a class="headerlink" href="#apytypes.APyFloat" title="Link to this definition">¶</a></dt>
 <dd><p>Floating-point scalar with configurable format.</p>
-<p>The
-implementation is a generalization of the IEEE 754 standard, meaning that features like
+<p>The implementation is a generalization of the IEEE 754 standard, meaning that features like
 subnormals, infinities, and NaN, are still supported. The format is defined
 by the number of exponent and mantissa bits, and a non-negative bias. These fields are
 named <a class="reference internal" href="#apytypes.APyFloat.exp_bits" title="apytypes.APyFloat.exp_bits"><code class="xref py py-attr docutils literal notranslate"><span class="pre">exp_bits</span></code></a>, <a class="reference internal" href="#apytypes.APyFloat.man_bits" title="apytypes.APyFloat.man_bits"><code class="xref py py-attr docutils literal notranslate"><span class="pre">man_bits</span></code></a>, and <a class="reference internal" href="#apytypes.APyFloat.bias" title="apytypes.APyFloat.bias"><code class="xref py py-attr docutils literal notranslate"><span class="pre">bias</span></code></a> respectively. Similar to the hardware
@@ -320,7 +319,8 @@ using the formula</p>
 </div>
 <p>Arithmetic can be performed similarly to the operations of the built-in type
 <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> in Python. The resulting word length from operations will be
-the same as the input operands’, but if the operands do not share the same format, the resulting
+the same as the input operands’ by quantizing to nearest number with ties to even (<a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode.TIES_EVEN" title="apytypes.QuantizationMode.TIES_EVEN"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode.TIES_EVEN</span></code></a>).
+If the operands do not share the same format, the resulting
 bit widths of the exponent and mantissa field will be the maximum of its inputs:</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloat</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.25</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
