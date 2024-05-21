@@ -61,7 +61,7 @@ jobs:
       # Checkout previous version so that doc-files can be written
       - name: Restore APY_INLINE
         run: |
-          git checkout -- src/apybuffer.h src/apyfloat.h src/apyfixed.h src/apytypes_common.h src/apytypes_util.h src/ieee754.h src/python_util.h src/apyfloatarray.h src/apyfixedarray.h src/apyfloat_util.h
+          git checkout -- src/apybuffer.h src/apyfloat.h src/apyfixed.h src/apytypes_common.h src/apytypes_util.h src/ieee754.h src/python_util.h src/apyfloatarray.h src/apyfixedarray.h src/apyfloat_util.h src/benchmark.h
       # Download previous benchmark result from cache (if exists)
       - name: Download previous benchmark data
         uses: actions/cache@v4
