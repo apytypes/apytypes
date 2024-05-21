@@ -40,7 +40,9 @@ __all__ = [
 ]
 
 APyFloat.__doc__ = r"""
-:class:`APyFloat` is a class for floating-point scalars with configurable formats. The
+Floating-point scalar with configurable format.
+
+The
 implementation is a generalization of the IEEE 754 standard, meaning that features like
 subnormals, infinities, and NaN, are still supported. The format is defined
 by the number of exponent and mantissa bits, and a non-negative bias. These fields are
