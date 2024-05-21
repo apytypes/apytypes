@@ -151,6 +151,9 @@ the bias will converge towards zero the more bits are quantized away (except for
 
       Round to nearest, ties toward zero. Alias for :attr:`RND_ZERO`.
 
+   Overflow modes
+   --------------
+
 .. autoclass:: apytypes.OverflowMode
 
    .. autoattribute:: WRAP
@@ -176,6 +179,9 @@ the bias will converge towards zero the more bits are quantized away (except for
    .. image:: ../_static/NUMERIC_STD.png
       :alt: Illustration of numeric_std overflowing
 
+   Utility functions
+   -----------------
+
 .. autofunction:: apytypes.get_float_quantization_mode
 
 .. autofunction:: apytypes.set_float_quantization_mode
@@ -183,3 +189,34 @@ the bias will converge towards zero the more bits are quantized away (except for
 .. autofunction:: apytypes.get_float_quantization_seed
 
 .. autofunction:: apytypes.set_float_quantization_seed
+
+   Sign of zero for floating-point
+   -------------------------------
+
+   For multiplication and division the sign is always the XOR of the operands' signs, but for
+   addition and subtraction the sign depends on the quantization mode.
+   Below is a table showing what the sign of zero will be in different cases.
+   Using this table one can derive the sign for subtraction as well.
+
+.. list-table:: Sign of zero in floating-point addition
+   :widths: 30 25 40
+   :header-rows: 1
+
+   * - :math:`x + y`
+     - TO_NEG
+     - Other modes
+   * - :math:`(+0) + (+0)`
+     - :math:`+0`
+     - :math:`+0`
+   * - :math:`(+0) + (-0)`
+     - :math:`-0`
+     - :math:`+0`
+   * - :math:`(-0) + (+0)`
+     - :math:`-0`
+     - :math:`+0`
+   * - :math:`(-0) + (-0)`
+     - :math:`-0`
+     - :math:`-0`
+   * - :math:`x + y, x = -y`
+     - :math:`-0`
+     - :math:`+0`
