@@ -349,6 +349,8 @@ void bind_fixed_array(nb::module_& m)
             R"pbdoc(
             Broadcast array to new shape.
 
+            .. versionadded:: 0.2
+
             Parameters
             ----------
             shape : tuple or int
