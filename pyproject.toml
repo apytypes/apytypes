@@ -65,7 +65,6 @@ install = ['--skip-subprojects']
 [tool.setuptools_scm]
 version_scheme = "release-branch-semver"
 local_scheme = "node-and-date"
-write_to = "lib/apytypes/_version.py"
 parentdir_prefix_version = "apytypes-"
 fallback_version = "0.0+UNKNOWN"
 
