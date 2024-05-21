@@ -120,12 +120,12 @@ In general, the fixed-point representation is described by:
     \underbrace{
         \underbrace{
             x_{n-1} \; x_{n-2} \; \ldots \; x_{k+1} \; x_{k}
-        }_{\text{int_bits}}
+        }_{\mathrm{int\_bits}}
         \; . \;
         \underbrace{
             x_{k-1} \; x_{k-2} \; \ldots \; x_{1} \; x_{0}
-        }_{\text{frac_bits}}
-    }_{\text{bits}}
+        }_{\mathrm{frac\_bits}}
+    }_{\mathrm{bits}}
 
 The following is an example of a fixed-point number with :code:`bits=8`,
 :code:`int_bits=5`, and :code:`frac_bits=3`, that has a stored value of -6.625:
