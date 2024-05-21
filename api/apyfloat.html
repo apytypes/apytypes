@@ -298,7 +298,50 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="apytypes.APyFloat">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">APyFloat</span></span><a class="headerlink" href="#apytypes.APyFloat" title="Link to this definition">¶</a></dt>
-<dd><p>Class for configurable floating-point formats.</p>
+<dd><p>Floating-point scalar with configurable format.</p>
+<p>The
+implementation is a generalization of the IEEE 754 standard, meaning that features like
+subnormals, infinities, and NaN, are still supported. The format is defined
+by the number of exponent and mantissa bits, and a non-negative bias. These fields are
+named <a class="reference internal" href="#apytypes.APyFloat.exp_bits" title="apytypes.APyFloat.exp_bits"><code class="xref py py-attr docutils literal notranslate"><span class="pre">exp_bits</span></code></a>, <a class="reference internal" href="#apytypes.APyFloat.man_bits" title="apytypes.APyFloat.man_bits"><code class="xref py py-attr docutils literal notranslate"><span class="pre">man_bits</span></code></a>, and <a class="reference internal" href="#apytypes.APyFloat.bias" title="apytypes.APyFloat.bias"><code class="xref py py-attr docutils literal notranslate"><span class="pre">bias</span></code></a> respectively. Similar to the hardware
+representation of a floating-point number, the value is stored using three fields;
+a sign bit <a class="reference internal" href="#apytypes.APyFloat.sign" title="apytypes.APyFloat.sign"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sign</span></code></a>, a biased exponent <a class="reference internal" href="#apytypes.APyFloat.exp" title="apytypes.APyFloat.exp"><code class="xref py py-attr docutils literal notranslate"><span class="pre">exp</span></code></a>, and an integral mantissa with a hidden one <a class="reference internal" href="#apytypes.APyFloat.man" title="apytypes.APyFloat.man"><code class="xref py py-attr docutils literal notranslate"><span class="pre">man</span></code></a>.
+The value of a <em>normal</em> number would thus be</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[(-1)^{\texttt{sign}} \times 2^{\texttt{exp} - \texttt{bias}} \times (1 + \texttt{man} \times 2^{\texttt{-man_bits}}).\]</div>
+</div>
+<p>In general, if the bias is not explicitly given for a format <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> will default to an IEEE-like bias
+using the formula</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\texttt{bias} = 2^{\texttt{exp_bits - 1}} - 1.\]</div>
+</div>
+<p>Arithmetic can be performed similarly to the operations of the built-in type
+<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> in Python. The resulting word length from operations will be
+the same as the input operands’, but if the operands do not share the same format, the resulting
+bit widths of the exponent and mantissa field will be the maximum of its inputs:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloat</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.25</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.75</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="c1"># Operands with same format, result will have exp_bits=5, man_bits=2</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+
+<span class="n">d</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.75</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="c1"># Operands with different formats, result will have exp_bits=5, man_bits=4</span>
+<span class="n">e</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">d</span>
+</pre></div>
+</div>
+<p>If the operands of an arithmetic operation have IEEE-like biases, then the result will
+also have an IEEE-like bias – based on the resulting number of exponent bits.
+To support operations with biases deviating from the standard, the bias of the resulting format
+is calculated as the “average” of the inputs’ biases:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp_bits}_2} \right ) \times 2^{\texttt{exp_bits}_3}}{2} - 1,\]</div>
+</div>
+<p>where exp_bits_1 and exp_bits_2 are the bit widths of the operands, bias_1 and bias_2 are the input biases, and exp_bits_3 is the target bit width.
+Note that this formula still results in an IEEE-like bias when the inputs use IEEE-like biases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -365,11 +408,11 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloat.is_identical" title="apytypes.APyFloat.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
 <td><p>Test if two <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> objects are identical.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_down</span></code></p></td>
-<td><p>Get the least floating-point number in the same format that compares less.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloat.next_down" title="apytypes.APyFloat.next_down"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_down</span></code></a></p></td>
+<td><p>Get the largest floating-point number in the same format that compares less.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_up</span></code></p></td>
-<td><p>Get the least floating-point number in the same format that compares greater.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloat.next_up" title="apytypes.APyFloat.next_up"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_up</span></code></a></p></td>
+<td><p>Get the smallest floating-point number in the same format that compares greater.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloat.to_bits" title="apytypes.APyFloat.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a></p></td>
 <td><p>Get the bit-representation of an <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>.</p></td>
@@ -415,6 +458,7 @@
 <dt class="sig sig-object py" id="apytypes.APyFloat.from_float">
 <span class="sig-name descname"><span class="pre">from_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">man_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></span><a class="headerlink" href="#apytypes.APyFloat.from_float" title="Link to this definition">¶</a></dt>
 <dd><p>Create an <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> object from a <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>.</p>
+<p>The quantization mode used is <a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode.TIES_EVEN" title="apytypes.QuantizationMode.TIES_EVEN"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode.TIES_EVEN</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -434,6 +478,12 @@
 </dl>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloat.from_bits" title="apytypes.APyFloat.from_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_bits</span></code></a></dt><dd></dd>
+</dl>
+</div>
 <p class="rubric">Examples</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloat</span>
 
@@ -470,7 +520,15 @@
 <p class="admonition-title">See also</p>
 <dl class="simple">
 <dt><a class="reference internal" href="#apytypes.APyFloat.to_bits" title="apytypes.APyFloat.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a></dt><dd></dd>
+<dt><a class="reference internal" href="#apytypes.APyFloat.from_float" title="apytypes.APyFloat.from_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_float</span></code></a></dt><dd></dd>
 </dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloat</span>
+
+<span class="c1"># `a`, initialized to -1.5 from a bit pattern.</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">APyFloat</span><span class="o">.</span><span class="n">from_bits</span><span class="p">(</span><span class="mb">0b1_01111_10</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
 </div>
 </dd></dl>
 
@@ -525,6 +583,14 @@ quantization mode.</p>
 <dt><a class="reference internal" href="#apytypes.APyFloat.from_bits" title="apytypes.APyFloat.from_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_bits</span></code></a></dt><dd></dd>
 </dl>
 </div>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloat</span>
+
+<span class="c1"># `a`, initialized to -1.5 from a bit pattern.</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">APyFloat</span><span class="o">.</span><span class="n">from_bits</span><span class="p">(</span><span class="mb">0b1_01111_10</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">a</span><span class="o">.</span><span class="n">to_bits</span><span class="p">()</span> <span class="o">==</span> <span class="mb">0b1_01111_10</span> <span class="c1"># True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>
@@ -546,8 +612,10 @@ the same sign, exponent, mantissa, and format.</p>
 </dd></dl>
 
 </section>
-<section id="convenience-casting-methods">
-<h2>Convenience casting methods<a class="headerlink" href="#convenience-casting-methods" title="Link to this heading">¶</a></h2>
+<section id="convenience-methods">
+<h2>Convenience methods<a class="headerlink" href="#convenience-methods" title="Link to this heading">¶</a></h2>
+<section id="casting">
+<h3>Casting<a class="headerlink" href="#casting" title="Link to this heading">¶</a></h3>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloat.cast_to_bfloat16">
 <span class="sig-name descname"><span class="pre">cast_to_bfloat16</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode" title="QuantizationMode"><span class="pre">QuantizationMode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></span><a class="headerlink" href="#apytypes.APyFloat.cast_to_bfloat16" title="Link to this definition">¶</a></dt>
@@ -624,6 +692,48 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_f
 </dl>
 </dd></dl>
 
+</section>
+<section id="calculations">
+<h3>Calculations<a class="headerlink" href="#calculations" title="Link to this heading">¶</a></h3>
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFloat.next_up">
+<span class="sig-name descname"><span class="pre">next_up</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></span><a class="headerlink" href="#apytypes.APyFloat.next_up" title="Link to this definition">¶</a></dt>
+<dd><p>Get the smallest floating-point number in the same format that compares greater.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloat.next_down" title="apytypes.APyFloat.next_down"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_down</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFloat.next_down">
+<span class="sig-name descname"><span class="pre">next_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></span><a class="headerlink" href="#apytypes.APyFloat.next_down" title="Link to this definition">¶</a></dt>
+<dd><p>Get the largest floating-point number in the same format that compares less.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloat.next_up" title="apytypes.APyFloat.next_up"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_up</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+
+</section>
 </section>
 <section id="properties">
 <h2>Properties<a class="headerlink" href="#properties" title="Link to this heading">¶</a></h2>
@@ -957,6 +1067,8 @@ a subnormal number.</p>
 <li><a class="reference internal" href="#apytypes.APyFloat.cast_to_double"><code class="docutils literal notranslate"><span class="pre">APyFloat.cast_to_double()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.cast_to_half"><code class="docutils literal notranslate"><span class="pre">APyFloat.cast_to_half()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.cast_to_single"><code class="docutils literal notranslate"><span class="pre">APyFloat.cast_to_single()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloat.next_up"><code class="docutils literal notranslate"><span class="pre">APyFloat.next_up()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloat.next_down"><code class="docutils literal notranslate"><span class="pre">APyFloat.next_down()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.bits"><code class="docutils literal notranslate"><span class="pre">APyFloat.bits</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.exp_bits"><code class="docutils literal notranslate"><span class="pre">APyFloat.exp_bits</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloat.man_bits"><code class="docutils literal notranslate"><span class="pre">APyFloat.man_bits</span></code></a></li>
@@ -992,5 +1104,6 @@ a subnormal number.</p>
     <script src="../_static/scripts/furo.js?v=4e2eecee"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>
