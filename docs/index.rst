@@ -35,6 +35,7 @@ Jupyter Notebooks or Spyder, will provide a nicer output of the numbers.
    comparison
    development
    publications
+   changelog
 
 Indices and tables
 ==================

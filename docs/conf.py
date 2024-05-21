@@ -21,6 +21,7 @@ extensions = [
     "numpydoc",  # Needs to be loaded *after* autodoc.
     "sphinx_copybutton",
     "breathe",
+    "m2r2",
 ]
 
 
