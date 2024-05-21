@@ -42,8 +42,7 @@ __all__ = [
 APyFloat.__doc__ = r"""
 Floating-point scalar with configurable format.
 
-The
-implementation is a generalization of the IEEE 754 standard, meaning that features like
+The implementation is a generalization of the IEEE 754 standard, meaning that features like
 subnormals, infinities, and NaN, are still supported. The format is defined
 by the number of exponent and mantissa bits, and a non-negative bias. These fields are
 named :attr:`exp_bits`, :attr:`man_bits`, and :attr:`bias` respectively. Similar to the hardware
@@ -62,7 +61,8 @@ using the formula
 
 Arithmetic can be performed similarly to the operations of the built-in type
 :class:`float` in Python. The resulting word length from operations will be
-the same as the input operands', but if the operands do not share the same format, the resulting
+the same as the input operands' by quantizing to nearest number with ties to even (:class:`QuantizationMode.TIES_EVEN`).
+If the operands do not share the same format, the resulting
 bit widths of the exponent and mantissa field will be the maximum of its inputs:
 
 .. code-block:: Python
@@ -101,6 +101,41 @@ arrays as it allows for better performance, and integration with other features 
 
 For information about the workings of floating-point numbers, see its scalar
 equivalent :class:`APyFloat`.
+"""
+
+APyFloatQuantizationContext.__doc__ = r"""
+Context for changing the quantization mode used for floating-point operations.
+
+If not specified explicitly, floating-point operations will use the quantization mode that is set globally,
+which is :class:`QuantizationMode.TIES_EVEN` by default. The mode however can be changed using the static method
+:func:`apytypes.set_float_quantization_mode`, or, preferably, by using a so called quantization context.
+With a quantization context one can change the quantization mode used by all operation within a specific section
+in the code:
+
+.. code-block:: Python
+
+    import random
+    from apytypes import APyFloat, QuantizationMode
+    from apytypes import APyFloatQuantizationContext
+
+    # Addition using the default round to nearest, ties even
+    a = APyFloat.from_float(random.uniform(-100, 100), exp_bits=5, man_bits=10)
+    b = APyFloat.from_float(random.uniform(-100, 100), exp_bits=5, man_bits=10)
+    c = a + b
+
+    # Addition using round towards zero
+    mode = QuantizationMode.TO_ZERO
+    with APyFloatQuantizationContext(quantization=mode):
+        d = a + b
+
+    # Stochastic rounding with an optional seed
+    mode = QuantizationMode.STOCH_WEIGHTED
+    with APyFloatQuantizationContext(quantization=mode, seed=0x1234):
+        d = a + b
+
+
+The quantization mode is reverted automatically upon exiting the context.
+Nesting the contexts is also possible.
 """
 
 APyFixed.__doc__ = r"""

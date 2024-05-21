@@ -1,6 +1,9 @@
 Quantization and overflow handling
 ==================================
 
+Quantization modes
+------------------
+
 The following figure illustrates the effect of the different quantization modes
 on quantizing a fixed-point number with three fractional bits to none.
 The dots corresponds to different values, where the red dots correspond to
@@ -151,34 +154,6 @@ the bias will converge towards zero the more bits are quantized away (except for
 
       Round to nearest, ties toward zero. Alias for :attr:`RND_ZERO`.
 
-   Overflow modes
-   --------------
-
-.. autoclass:: apytypes.OverflowMode
-
-   .. autoattribute:: WRAP
-
-      Two's complement wrapping.
-
-   .. image:: ../_static/WRAP.png
-      :alt: Illustration of two's complement wrapping
-
-   .. autoattribute:: SAT
-
-      Two's complement saturation.
-
-   .. image:: ../_static/SAT.png
-      :alt: Illustration of two's complement saturation
-
-   .. autoattribute:: NUMERIC_STD
-
-      Keep sign bit and remove intermediate bits.
-
-      As ``resize`` for ``signed`` in ``ieee.numeric_std``.
-
-   .. image:: ../_static/NUMERIC_STD.png
-      :alt: Illustration of numeric_std overflowing
-
    Utility functions
    -----------------
 
@@ -220,3 +195,31 @@ the bias will converge towards zero the more bits are quantized away (except for
    * - :math:`x + y, x = -y`
      - :math:`-0`
      - :math:`+0`
+
+Overflow modes
+--------------
+
+.. autoclass:: apytypes.OverflowMode
+
+   .. autoattribute:: WRAP
+
+      Two's complement wrapping.
+
+   .. image:: ../_static/WRAP.png
+      :alt: Illustration of two's complement wrapping
+
+   .. autoattribute:: SAT
+
+      Two's complement saturation.
+
+   .. image:: ../_static/SAT.png
+      :alt: Illustration of two's complement saturation
+
+   .. autoattribute:: NUMERIC_STD
+
+      Keep sign bit and remove intermediate bits.
+
+      As ``resize`` for ``signed`` in ``ieee.numeric_std``.
+
+   .. image:: ../_static/NUMERIC_STD.png
+      :alt: Illustration of numeric_std overflowing
