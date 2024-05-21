@@ -108,8 +108,8 @@ Context for changing the quantization mode used for floating-point operations.
 
 If not specified explicitly, floating-point operations will use the quantization mode that is set globally,
 which is :class:`QuantizationMode.TIES_EVEN` by default. The mode however can be changed using the static method
-:func:`apytypes.set_float_quantization_mode`, or, preferably, by using a so called quantization context.
-With a quantization context one can change the quantization mode used by all operation within a specific section
+:func:`apytypes.set_float_quantization_mode`, or, preferably, by using a so-called quantization context.
+With a quantization context one can change the quantization mode used by all operations within a specific section
 in the code:
 
 .. code-block:: Python
@@ -124,18 +124,51 @@ in the code:
     c = a + b
 
     # Addition using round towards zero
-    mode = QuantizationMode.TO_ZERO
+    m = QuantizationMode.TO_ZERO
     with APyFloatQuantizationContext(quantization=mode):
         d = a + b
 
     # Stochastic rounding with an optional seed
-    mode = QuantizationMode.STOCH_WEIGHTED
-    with APyFloatQuantizationContext(quantization=mode, seed=0x1234):
-        d = a + b
+    m = QuantizationMode.STOCH_WEIGHTED
+    s = 0x1234
+    with APyFloatQuantizationContext(quantization=mode, quantization_seed=s):
+        e = a + b
 
 
 The quantization mode is reverted automatically upon exiting the context.
 Nesting the contexts is also possible.
+"""
+
+APyFloatAccumulatorContext.__doc__ = r"""
+Context for using custom accumulators when performing inner products and matrix multiplications.
+
+Inner products and matrix multiplications will by default perform the summation in the resulting format
+of the operands, but with :class:`APyFloatAccumulatorContext` a custom accumulator can be simulated
+as seen in the example below.
+
+.. code-block:: Python
+
+    import numpy as np
+    from apytypes import APyFloatArray, QuantizationMode
+    from apytypes import APyFloatAccumulatorContext
+
+    An = np.random.normal(1, 2, size=(100, 100))
+    A = APyFloatArray.from_float(An, exp_bits=5, man_bits=10)
+
+    bn = np.random.uniform(0, 1, size=100),
+    b = APyFloatArray.from_float(bn, exp_bits=5, man_bits=10)
+
+    # Normal matrix multiplication
+    c = A @ b.T
+
+    # Matrix multiplication using stochastic quantization and a wider accumulator
+    m = QuantizationMode.STOCH_WEIGHTED
+    with APyFloatAccumulatorContext(exp_bits=6, man_bits=15, quantization=m):
+        d = A @ b.T
+
+
+If no quantization mode is specified to the accumulator context it will fallback to the mode set globally,
+see :class:`APyFloatQuantizationContext`.
 """
 
 APyFixed.__doc__ = r"""
