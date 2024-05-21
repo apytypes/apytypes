@@ -1146,3 +1146,16 @@ def test_operation_with_numbers():
     assert (0.0 - a).is_identical(-a)
     assert (a * 1.0).is_identical(a)
     assert (1.0 * a).is_identical(a)
+
+
+def test_mantissa_full_range():
+    """
+    Support for utilizing the full mantissa range during addition/subraction was added
+    in #440
+    """
+    a = APyFloat(sign=0, exp=1023, man=0, exp_bits=11, man_bits=61)
+    b = APyFloat(sign=0, exp=1023 - 61, man=0, exp_bits=11, man_bits=61)
+    assert (a + b) == APyFloat(sign=0, exp=1023, man=1, exp_bits=11, man_bits=61)
+    assert (a - b) == APyFloat(
+        sign=0, exp=1022, man=(1 << 61) - 2, exp_bits=11, man_bits=61
+    )
