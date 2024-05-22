@@ -973,6 +973,26 @@ APyFixed APyFixed::from_double(
     return result;
 }
 
+APyFixed APyFixed::from_integer(
+    const nb::int_& value,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits,
+    std::optional<int> bits
+)
+{
+    // Create APyFixed object with correct integer value
+    APyFixed tmp(value, int_bits, 0, bits);
+
+    // Now the fractional bits must be added
+    const int target_bits = bits_from_optional(bits, int_bits, frac_bits);
+    const int f_bits = target_bits - tmp.int_bits();
+
+    APyFixed res(target_bits, tmp._int_bits);
+    tmp._cast_correct_wl(res._data.begin(), res._data.end(), f_bits);
+
+    return res;
+}
+
 APyFixed APyFixed::from_string(
     std::string string_value,
     std::optional<int> int_bits,

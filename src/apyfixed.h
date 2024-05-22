@@ -285,6 +285,14 @@ public:
         std::optional<int> bits = std::nullopt
     );
 
+    //! Create APyFixed from Python integer.
+    static APyFixed from_integer(
+        const nb::int_& value,
+        std::optional<int> int_bits = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt,
+        std::optional<int> bits = std::nullopt
+    );
+
     //! Create APyFixed from string.
     static APyFixed from_string(
         std::string string_value,
