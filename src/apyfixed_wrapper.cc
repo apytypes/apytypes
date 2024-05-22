@@ -43,12 +43,12 @@ void bind_fixed(nb::module_& m)
         .def(nb::self > nb::int_())
         .def(nb::self >= nb::int_())
 
-        .def(nb::self == float())
-        .def(nb::self != float())
-        .def(nb::self < float())
-        .def(nb::self > float())
-        .def(nb::self <= float())
-        .def(nb::self >= float())
+        .def(nb::self == double())
+        .def(nb::self != double())
+        .def(nb::self < double())
+        .def(nb::self > double())
+        .def(nb::self <= double())
+        .def(nb::self >= double())
 
         .def(nb::self + nb::self)
         .def(nb::self - nb::self)
@@ -59,30 +59,36 @@ void bind_fixed(nb::module_& m)
         .def(nb::self >>= int(), nb::rv_policy::none)
 
         // Addition with integers
-        .def(nb::self + int())
+        .def(nb::self + nb::int_())
         .def(
             "__radd__",
-            [](APyFixed& rhs, int lhs) { return rhs + lhs; },
+            [](const APyFixed& rhs, const nb::int_& lhs) { return rhs + lhs; },
             nb::is_operator()
         )
-        .def(nb::self - int())
+        .def(nb::self - nb::int_())
         .def(
             "__rsub__",
-            [](APyFixed& rhs, int lhs) {
-                if (lhs == 0) {
-                    return -rhs;
-                }
-                throw NotImplementedException("NotImplemented: __rsub__(int)");
+            [](const APyFixed& rhs, const nb::int_& lhs) {
+                return APyFixed::from_integer(lhs, rhs.int_bits(), rhs.frac_bits())
+                    - rhs;
             },
             nb::is_operator()
         )
-        .def(nb::self * int())
+        .def(nb::self * nb::int_())
         .def(
             "__rmul__",
-            [](APyFixed& rhs, int lhs) { return rhs * lhs; },
+            [](const APyFixed& rhs, const nb::int_& lhs) { return rhs * lhs; },
             nb::is_operator()
         )
-        .def(nb::self / int())
+        .def(nb::self / nb::int_())
+        .def(
+            "__rtruediv__",
+            [](const APyFixed& rhs, const nb::int_& lhs) {
+                return APyFixed::from_integer(lhs, rhs.int_bits(), rhs.frac_bits())
+                    / rhs;
+            },
+            nb::is_operator()
+        )
 
         /*
          * Methods

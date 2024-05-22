@@ -246,38 +246,24 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
     return result;
 }
 
-APyFixed APyFixed::operator+(int rhs) const
+APyFixed APyFixed::operator+(const nb::int_& rhs) const
 {
-    // TODO
-    if (rhs == 0) {
-        return *this;
-    }
-    throw NotImplementedException("Not implemented: APyFixed.__add__(int)");
+    return *this + APyFixed::from_integer(rhs, _int_bits, frac_bits());
 }
 
-APyFixed APyFixed::operator-(int rhs) const
+APyFixed APyFixed::operator-(const nb::int_& rhs) const
 {
-    // TODO
-    if (rhs == 0) {
-        return *this;
-    }
-    throw NotImplementedException("Not implemented: APyFixed.__sub__(int)");
+    return *this - APyFixed::from_integer(rhs, _int_bits, frac_bits());
 }
 
-APyFixed APyFixed::operator*(int rhs) const
+APyFixed APyFixed::operator*(const nb::int_& rhs) const
 {
-    if (rhs == 1) {
-        return *this;
-    }
-    throw NotImplementedException("Not implemented: APyFixed.__mul__(int)");
+    return *this * APyFixed::from_integer(rhs, _int_bits, frac_bits());
 }
 
-APyFixed APyFixed::operator/(int rhs) const
+APyFixed APyFixed::operator/(const nb::int_& rhs) const
 {
-    if (rhs == 1) {
-        return *this;
-    }
-    throw NotImplementedException("Not implemented: APyFixed.__div__(int)");
+    return *this / APyFixed::from_integer(rhs, _int_bits, frac_bits());
 }
 
 APyFixed APyFixed::operator<<(const int shift_val) const

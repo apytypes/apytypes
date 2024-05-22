@@ -318,7 +318,7 @@ def test_prod():
         APyFixed.from_float(0.3, int_bits=2, frac_bits=5),
         APyFixed.from_float(0.7, int_bits=4, frac_bits=7),
     ]
-    assert math.prod(s).is_identical(APyFixed(900, bits=18, int_bits=6))
+    assert math.prod(s).is_identical(APyFixed(28800, bits=25, int_bits=8))
 
 
 def test_issue_198():
@@ -477,11 +477,25 @@ def test_issue_224():
 
 def test_operation_with_numbers():
     a = APyFixed(5, 6, 2)
-    # Integer
-    assert (a + 0).is_identical(a)
-    assert (0 + a).is_identical(a)
-    assert (a - 0).is_identical(a)
-    assert (0 - a).is_identical(-a)
-    assert (a * 1).is_identical(a)
-    assert (1 * a).is_identical(a)
-    assert (a / 1).is_identical(a)
+    one = APyFixed(4, 6, 2)
+    zero = APyFixed(0, 6, 2)
+
+    # Integer identities
+    assert (_ := a + 0).is_identical(_ := a + zero)
+    assert (_ := 0 + a).is_identical(_ := zero + a)
+    assert (_ := a - 0).is_identical(_ := a - zero)
+    assert (_ := 0 - a).is_identical(_ := zero - a)
+    assert (_ := a * 1).is_identical(_ := a * one)
+    assert (_ := 1 * a).is_identical(_ := one * a)
+    assert (_ := a / 1).is_identical(_ := a / one)
+
+    # Other integer operations
+    neg_two = APyFixed(248, bits=8, int_bits=6)
+    assert (_ := a + (-2)).is_identical(_ := a + neg_two)
+    assert (_ := (-2) + a).is_identical(_ := neg_two + a)
+    assert (_ := a - (-2)).is_identical(_ := a - neg_two)
+    assert (_ := (-2) - a).is_identical(_ := neg_two - a)
+    assert (_ := a * (-2)).is_identical(_ := a * neg_two)
+    assert (_ := (-2) * a).is_identical(_ := neg_two * a)
+    assert (_ := a / (-2)).is_identical(_ := a / neg_two)
+    assert (_ := (-2) / a).is_identical(_ := neg_two / a)
