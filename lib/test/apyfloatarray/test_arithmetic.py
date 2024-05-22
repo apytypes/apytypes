@@ -212,15 +212,6 @@ def test_array_add_scalar():
 
 
 @pytest.mark.float_array
-def test_array_add_int_float():
-    a = APyFloatArray.from_float([12, 23, 34], 8, 10)
-    assert (a + 0).is_identical(a)
-    assert (0 + a).is_identical(a)
-    assert (a + 0.0).is_identical(a)
-    assert (0.0 + a).is_identical(a)
-
-
-@pytest.mark.float_array
 def test_array_sub():
     a = APyFloatArray.from_float([0, 0.125, 2.5, 12], 5, 7)
     b = APyFloatArray.from_float([3, -0.75, -5, 8], 6, 5)
@@ -265,15 +256,6 @@ def test_array_sub_scalar():
     z98 = APyFloat.from_float(0, 9, 8)
     assert (a - z810).is_identical(a)
     assert (a - z98).is_identical(APyFloatArray.from_float([12, 23, 34], 9, 10))
-
-
-@pytest.mark.float_array
-def test_array_sub_int_float():
-    a = APyFloatArray.from_float([12, 23, 34], 8, 10)
-    assert (a - 0).is_identical(a)
-    assert (a - 0.0).is_identical(a)
-    assert (0 - a).is_identical(-a)
-    assert (0 - a).is_identical(-a)
 
 
 @pytest.mark.float_array
@@ -649,15 +631,6 @@ def test_array_mul_scalar():
 
 
 @pytest.mark.float_array
-def test_array_mul_int_float():
-    a = APyFloatArray.from_float([12, 23, 34], 8, 10)
-    assert (a * 1).is_identical(a)
-    assert (1 * a).is_identical(a)
-    assert (a * 1.0).is_identical(a)
-    assert (1.0 * a).is_identical(a)
-
-
-@pytest.mark.float_array
 def test_array_div():
     a = APyFloatArray.from_float([3, -0.09375, -12.5, 96], 6, 6)
     b = APyFloatArray.from_float([1, 0.125, 2.5, 12], 5, 7)
@@ -725,13 +698,6 @@ def test_array_rdiv_scalar():
     a = APyFloatArray.from_float([4, 5, 32], 9, 10)
     b = APyFloat.from_float(8, 5, 8)
     assert (b / a).is_identical(APyFloatArray.from_float([2, 1.6, 0.25], 9, 10))
-
-
-@pytest.mark.float_array
-def test_array_div_int_float():
-    a = APyFloatArray.from_float([4, 12, 40], 9, 10)
-    assert (a / 1).is_identical(a)
-    assert (a / 1.0).is_identical(a)
 
 
 @pytest.mark.float_array
@@ -1023,6 +989,7 @@ def test_array_add_sub_zero_sign(man, with_scalar):
         assert (_ := non_zero - rhs)[0].sign == True
 
 
+@pytest.mark.float_array
 @pytest.mark.float_add
 def test_array_infinity_saturation_add():
     # Array x Scalar
@@ -1062,6 +1029,7 @@ def test_array_infinity_saturation_add():
         assert res.is_identical(APyFloatArray([1], [30], [3], 5, 2))
 
 
+@pytest.mark.float_array
 @pytest.mark.float_div
 def test_array_infinity_saturation_div():
     # Array x Scalar
@@ -1101,6 +1069,7 @@ def test_array_infinity_saturation_div():
         assert res.is_identical(APyFloatArray([1], [30], [3], 5, 2))
 
 
+@pytest.mark.float_array
 @pytest.mark.float_add
 @pytest.mark.parametrize("with_scalar", [False, True])
 def test_array_add_mixed_bias_overflow(with_scalar):
@@ -1145,6 +1114,7 @@ def test_array_add_mixed_bias_overflow(with_scalar):
     )
 
 
+@pytest.mark.float_array
 @pytest.mark.float_add
 @pytest.mark.parametrize("with_scalar", [False, True])
 def test_array_add_mixed_bias_underflow(with_scalar):
@@ -1180,6 +1150,7 @@ def test_array_add_mixed_bias_underflow(with_scalar):
     )
 
 
+@pytest.mark.float_array
 @pytest.mark.float_sub
 @pytest.mark.parametrize("with_scalar", [False, True])
 def test_array_sub_mixed_bias(with_scalar):
@@ -1206,3 +1177,47 @@ def test_array_sub_mixed_bias(with_scalar):
     assert (_ := x - y).is_identical(
         APyFloatArray([0], [0], [0], exp_bits=5, man_bits=2, bias=17)
     )
+
+
+@pytest.mark.float_array
+def test_array_operation_with_numbers():
+    a = APyFloatArray([0], [15], [2], 5, 2)  # 1.75
+
+    # Integer
+    assert (a + 0).is_identical(a)
+    assert (0 + a).is_identical(a)
+    assert (a - 0).is_identical(a)
+    assert (0 - a).is_identical(-a)
+    assert (a * 1).is_identical(a)
+    assert (1 * a).is_identical(a)
+    assert (a / 1).is_identical(a)
+
+    # Integer raises
+    with pytest.raises(TypeError, match="Cannot add with int"):
+        assert (_ := a + 1).is_identical(APyFloatArray([0], [16], [2], 5, 2))
+    with pytest.raises(TypeError, match="Cannot add with int"):
+        assert (_ := 1 + a).is_identical(APyFloatArray([0], [16], [2], 5, 2))
+    with pytest.raises(TypeError, match="Cannot subtract with int"):
+        assert (_ := a - 1).is_identical(APyFloatArray([0], [14], [2], 5, 2))
+    with pytest.raises(TypeError, match="Cannot subtract with int"):
+        assert (_ := 1 - a).is_identical(APyFloatArray([1], [14], [2], 5, 2))
+    with pytest.raises(TypeError, match="Cannot multiply with int"):
+        assert (_ := a * 2).is_identical(APyFloatArray([0], [16], [3], 5, 2))
+    with pytest.raises(TypeError, match="Cannot multiply with int"):
+        assert (_ := 2 * a).is_identical(APyFloatArray([0], [16], [3], 5, 2))
+    with pytest.raises(TypeError, match="Cannot divide with int"):
+        assert (_ := a / 2).is_identical(APyFloatArray([0], [14], [3], 5, 2))
+    with pytest.raises(TypeError, match="Cannot divide with int"):
+        assert (_ := 1 / a).is_identical(APyFloatArray([0], [14], [1], 5, 2))
+
+    # Float
+    q_one = 1.125  # Should quantize to one
+    q_zero = 0.125  # Should quantize to zero
+    assert (_ := a + q_zero).is_identical(a)
+    assert (_ := q_zero + a).is_identical(a)
+    assert (_ := a - q_zero).is_identical(a)
+    assert (_ := q_zero - a).is_identical(-a)
+    assert (_ := a * q_one).is_identical(a)
+    assert (_ := q_one * a).is_identical(a)
+    assert (_ := a / q_one).is_identical(a)
+    assert (_ := q_one / a).is_identical(APyFloatArray([0], [14], [1], 5, 2))
