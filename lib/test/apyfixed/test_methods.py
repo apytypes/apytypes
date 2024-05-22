@@ -120,3 +120,23 @@ def test_fixed_cast_throws():
     APyFixed(0, int_bits=10, frac_bits=5).cast(int_bits=5, frac_bits=2)
 
     # Casting to a negative number of `bits` casts
+
+
+def test_from_integer():
+    assert APyFixed.from_int(3, 5, 0).is_identical(APyFixed(3, int_bits=5, frac_bits=0))
+    assert APyFixed.from_int(3, 5, 1).is_identical(APyFixed(6, int_bits=5, frac_bits=1))
+    assert APyFixed.from_int(-3, 5, 0).is_identical(APyFixed(29, bits=5, int_bits=5))
+
+    # from_int currently wraps around
+    assert APyFixed.from_int(17, 5, 0).is_identical(
+        APyFixed(17, int_bits=5, frac_bits=0)
+    )
+    assert APyFixed.from_int(17, 4, 0).is_identical(
+        APyFixed(1, int_bits=4, frac_bits=0)
+    )
+
+    # Test long integer (256 bits)
+    int_val = 0xFF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF
+    assert APyFixed.from_int(int_val, 257, 0).is_identical(
+        APyFixed(int_val, int_bits=257, frac_bits=0)
+    )
