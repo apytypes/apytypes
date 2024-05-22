@@ -200,10 +200,10 @@ public:
      * ******************************************************************************
      */
 
-    APyFloat operator&(const APyFloat& rhs);
-    APyFloat operator|(const APyFloat& rhs);
-    APyFloat operator^(const APyFloat& rhs);
-    APyFloat operator~();
+    APyFloat operator&(const APyFloat& rhs) const;
+    APyFloat operator|(const APyFloat& rhs) const;
+    APyFloat operator^(const APyFloat& rhs) const;
+    APyFloat operator~() const;
 
     /* ******************************************************************************
      * * Binary comparison operators                                                *

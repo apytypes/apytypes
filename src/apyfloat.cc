@@ -663,7 +663,7 @@ APyFixed APyFloat::to_fixed() const
     if (sign) {
         res = -res;
     }
-    exp_t exponent = true_exp();
+    const exp_t exponent = true_exp();
     if (exponent <= 0) {
         res >>= -exponent;
     } else {
@@ -842,8 +842,10 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
     // Slower path
 
     // Two integer bits, sign bit and leading one
-    APyFixed apy_mx(2 + x.man_bits, 2, limb_vector_from_uint64_t({ mx }));
-    APyFixed apy_my(2 + y.man_bits, 2 - exp_delta, limb_vector_from_uint64_t({ my }));
+    const APyFixed apy_mx(2 + x.man_bits, 2, limb_vector_from_uint64_t({ mx }));
+    const APyFixed apy_my(
+        2 + y.man_bits, 2 - exp_delta, limb_vector_from_uint64_t({ my })
+    );
 
     // Perform addition/subtraction
     auto apy_res = (x.sign == y.sign) ? apy_mx + apy_my : apy_mx - apy_my;
@@ -950,7 +952,7 @@ APyFloat& APyFloat::operator+=(const APyFloat& rhs)
     }
 
     // Compute if the signs are the same to be able to overwrite this.sign
-    bool same_sign = sign == rhs.sign;
+    const bool same_sign = sign == rhs.sign;
     const APyFloat* x = &*this;
     const APyFloat* y = &rhs;
     const auto quantization = get_float_quantization_mode();
@@ -964,11 +966,11 @@ APyFloat& APyFloat::operator+=(const APyFloat& rhs)
     }
 
     // Compute smaller exponent so that one can overwrite exp later
-    exp_t smaller_exp = y->exp + y->is_subnormal();
+    const exp_t smaller_exp = y->exp + y->is_subnormal();
 
     // Conditionally add leading one's
-    man_t mx = x->true_man();
-    man_t my = y->true_man();
+    const man_t mx = x->true_man();
+    const man_t my = y->true_man();
 
     // Tentative exponent, write directly
     exp = x->exp + x->is_subnormal();
@@ -979,8 +981,10 @@ APyFloat& APyFloat::operator+=(const APyFloat& rhs)
     // Slower path only as fast path is not currently used
 
     // Two integer bits, sign bit and leading one
-    APyFixed apy_mx(2 + man_bits, 2, limb_vector_from_uint64_t({ mx }));
-    APyFixed apy_my(2 + man_bits, 2 - exp_delta, limb_vector_from_uint64_t({ my }));
+    const APyFixed apy_mx(2 + man_bits, 2, limb_vector_from_uint64_t({ mx }));
+    const APyFixed apy_my(
+        2 + man_bits, 2 - exp_delta, limb_vector_from_uint64_t({ my })
+    );
 
     // Perform addition/subtraction
     auto apy_res = (same_sign) ? apy_mx + apy_my : apy_mx - apy_my;
@@ -1136,16 +1140,20 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
         APyFloat norm_y = y.normalized();
 
         // Add leading one's
-        man_t mx = norm_x.true_man();
-        man_t my = norm_y.true_man();
+        const man_t mx = norm_x.true_man();
+        const man_t my = norm_y.true_man();
 
         // Tentative exponent
         std::int64_t new_exp = ((std::int64_t)norm_x.exp - (std::int64_t)norm_x.bias)
             + ((std::int64_t)norm_y.exp - (std::int64_t)norm_y.bias) + res.bias;
 
         // Two integer bits, sign bit and leading one
-        APyFixed apy_mx(2 + norm_x.man_bits, 2, limb_vector_from_uint64_t({ mx }));
-        APyFixed apy_my(2 + norm_y.man_bits, 2, limb_vector_from_uint64_t({ my }));
+        const APyFixed apy_mx(
+            2 + norm_x.man_bits, 2, limb_vector_from_uint64_t({ mx })
+        );
+        const APyFixed apy_my(
+            2 + norm_y.man_bits, 2, limb_vector_from_uint64_t({ my })
+        );
 
         auto apy_res = (apy_mx * apy_my);
 
@@ -1235,17 +1243,17 @@ APyFloat APyFloat::operator/(const APyFloat& y) const
         + (std::int64_t)res.bias;
 
     // Add leading one's
-    man_t mx = norm_x.true_man();
-    man_t my = norm_y.true_man();
+    const man_t mx = norm_x.true_man();
+    const man_t my = norm_y.true_man();
 
     // Guard bits for getting enough fractional bits out of fixed-point division
     const auto guard_bits = 64;
 
     // Two integer bits, sign bit and leading one
-    APyFixed apy_mx(
+    const APyFixed apy_mx(
         2 + guard_bits + norm_x.man_bits, 2, limb_vector_from_uint64_t({ mx })
     );
-    APyFixed apy_my(
+    const APyFixed apy_my(
         2 + guard_bits + norm_y.man_bits, 2, limb_vector_from_uint64_t({ my })
     );
     auto apy_man_res = apy_mx / apy_my;
@@ -1434,11 +1442,12 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
  * ******************************************************************************
  */
 
-APyFloat APyFloat::operator&(const APyFloat& rhs)
+APyFloat APyFloat::operator&(const APyFloat& rhs) const
 {
     if (same_type_as(rhs)) {
-        APyFloat f(sign & rhs.sign, exp & rhs.exp, man & rhs.man, exp_bits, man_bits);
-        return f;
+        return APyFloat(
+            sign & rhs.sign, exp & rhs.exp, man & rhs.man, exp_bits, man_bits
+        );
     }
 
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
@@ -1447,21 +1456,21 @@ APyFloat APyFloat::operator&(const APyFloat& rhs)
     const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
     const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
 
-    APyFloat f(
+    return APyFloat(
         lhs_big.sign & rhs_big.sign,
         lhs_big.exp & rhs_big.exp,
         lhs_big.man & rhs_big.man,
         max_exp_bits,
         max_man_bits
     );
-    return f;
 }
 
-APyFloat APyFloat::operator|(const APyFloat& rhs)
+APyFloat APyFloat::operator|(const APyFloat& rhs) const
 {
     if (same_type_as(rhs)) {
-        APyFloat f(sign | rhs.sign, exp | rhs.exp, man | rhs.man, exp_bits, man_bits);
-        return f;
+        return APyFloat(
+            sign | rhs.sign, exp | rhs.exp, man | rhs.man, exp_bits, man_bits
+        );
     }
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
@@ -1469,21 +1478,21 @@ APyFloat APyFloat::operator|(const APyFloat& rhs)
     const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
     const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
 
-    APyFloat f(
+    return APyFloat(
         lhs_big.sign | rhs_big.sign,
         lhs_big.exp | rhs_big.exp,
         lhs_big.man | rhs_big.man,
         max_exp_bits,
         max_man_bits
     );
-    return f;
 }
 
-APyFloat APyFloat::operator^(const APyFloat& rhs)
+APyFloat APyFloat::operator^(const APyFloat& rhs) const
 {
     if (same_type_as(rhs)) {
-        APyFloat f(sign ^ rhs.sign, exp ^ rhs.exp, man ^ rhs.man, exp_bits, man_bits);
-        return f;
+        return APyFloat(
+            sign ^ rhs.sign, exp ^ rhs.exp, man ^ rhs.man, exp_bits, man_bits
+        );
     }
     const auto max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const auto max_man_bits = std::max(man_bits, rhs.man_bits);
@@ -1491,26 +1500,24 @@ APyFloat APyFloat::operator^(const APyFloat& rhs)
     const auto lhs_big = cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
     const auto rhs_big = rhs.cast_no_quant(max_exp_bits, max_man_bits, ieee_bias);
 
-    APyFloat f(
+    return APyFloat(
         lhs_big.sign ^ rhs_big.sign,
         lhs_big.exp ^ rhs_big.exp,
         lhs_big.man ^ rhs_big.man,
         max_exp_bits,
         max_man_bits
     );
-    return f;
 }
 
-APyFloat APyFloat::operator~()
+APyFloat APyFloat::operator~() const
 {
-    APyFloat f(
+    return APyFloat(
         !sign,
         ~exp & ((1ULL << exp_bits) - 1),
         ~man & ((1ULL << man_bits) - 1),
         exp_bits,
         man_bits
     );
-    return f;
 }
 
 /* ******************************************************************************
