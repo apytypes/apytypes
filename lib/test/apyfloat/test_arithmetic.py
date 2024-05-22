@@ -1130,7 +1130,8 @@ def test_binary_logic():
 
 
 def test_operation_with_numbers():
-    a = APyFloat(0, 5, 10, 4, 5)
+    a = APyFloat(0, 15, 2, 5, 2)  # 1.75
+
     # Integer
     assert (a + 0).is_identical(a)
     assert (0 + a).is_identical(a)
@@ -1138,14 +1139,37 @@ def test_operation_with_numbers():
     assert (0 - a).is_identical(-a)
     assert (a * 1).is_identical(a)
     assert (1 * a).is_identical(a)
+    assert (a / 1).is_identical(a)
+
+    # Integer raises
+    with pytest.raises(TypeError, match="Cannot add with int"):
+        assert (_ := a + 1).is_identical(APyFloat(0, 16, 2, 5, 2))
+    with pytest.raises(TypeError, match="Cannot add with int"):
+        assert (_ := 1 + a).is_identical(APyFloat(0, 16, 2, 5, 2))
+    with pytest.raises(TypeError, match="Cannot subtract with int"):
+        assert (_ := a - 1).is_identical(APyFloat(0, 14, 2, 5, 2))
+    with pytest.raises(TypeError, match="Cannot subtract with int"):
+        assert (_ := 1 - a).is_identical(APyFloat(1, 14, 2, 5, 2))
+    with pytest.raises(TypeError, match="Cannot multiply with int"):
+        assert (_ := a * 2).is_identical(APyFloat(0, 16, 3, 5, 2))
+    with pytest.raises(TypeError, match="Cannot multiply with int"):
+        assert (_ := 2 * a).is_identical(APyFloat(0, 16, 3, 5, 2))
+    with pytest.raises(TypeError, match="Cannot divide with int"):
+        assert (_ := a / 2).is_identical(APyFloat(0, 14, 3, 5, 2))
+    with pytest.raises(TypeError, match="Cannot divide with int"):
+        assert (_ := 1 / a).is_identical(APyFloat(0, 14, 1, 5, 2))
 
     # Float
-    assert (a + 0.0).is_identical(a)
-    assert (0.0 + a).is_identical(a)
-    assert (a - 0.0).is_identical(a)
-    assert (0.0 - a).is_identical(-a)
-    assert (a * 1.0).is_identical(a)
-    assert (1.0 * a).is_identical(a)
+    q_one = 1.125  # Should quantize to one
+    q_zero = 0.125  # Should quantize to zero
+    assert (_ := a + q_zero).is_identical(a)
+    assert (_ := q_zero + a).is_identical(a)
+    assert (_ := a - q_zero).is_identical(a)
+    assert (_ := q_zero - a).is_identical(-a)
+    assert (_ := a * q_one).is_identical(a)
+    assert (_ := q_one * a).is_identical(a)
+    assert (_ := a / q_one).is_identical(a)
+    assert (_ := q_one / a).is_identical(APyFloat(0, 14, 1, 5, 2))
 
 
 def test_mantissa_full_range():

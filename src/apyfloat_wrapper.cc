@@ -221,23 +221,21 @@ void bind_float(nb::module_& m)
 
         .def(
             "__add__",
-            [](const APyFloat& a, float b) {
-                if (b == 0.) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot add with float");
-                };
+            [](const APyFloat& a, double b) {
+                return a
+                    + APyFloat::from_double(
+                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+                    );
             },
             nb::is_operator()
         )
         .def(
             "__radd__",
-            [](const APyFloat& a, float b) {
-                if (b == 0.) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot add with float");
-                };
+            [](const APyFloat& a, double b) {
+                return APyFloat::from_double(
+                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+                       )
+                    + a;
             },
             nb::is_operator()
         )
@@ -266,23 +264,21 @@ void bind_float(nb::module_& m)
 
         .def(
             "__sub__",
-            [](const APyFloat& a, float b) {
-                if (b == 0.) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot subtract with float");
-                };
+            [](const APyFloat& a, double b) {
+                return a
+                    - APyFloat::from_double(
+                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+                    );
             },
             nb::is_operator()
         )
         .def(
             "__rsub__",
-            [](const APyFloat& a, float b) {
-                if (b == 0.) {
-                    return -a;
-                } else {
-                    throw nanobind::type_error("Cannot subtract with float");
-                };
+            [](const APyFloat& a, double b) {
+                return APyFloat::from_double(
+                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+                       )
+                    - a;
             },
             nb::is_operator()
         )
@@ -310,23 +306,59 @@ void bind_float(nb::module_& m)
         )
         .def(
             "__mul__",
-            [](const APyFloat& a, float b) {
-                if (b == 1.) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot multiply with float");
-                };
+            [](const APyFloat& a, double b) {
+                return a
+                    * APyFloat::from_double(
+                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+                    );
             },
             nb::is_operator()
         )
         .def(
             "__rmul__",
-            [](const APyFloat& a, float b) {
-                if (b == 1.) {
+            [](const APyFloat& a, double b) {
+                return APyFloat::from_double(
+                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+                       )
+                    * a;
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__truediv__",
+            [](const APyFloat& a, int b) {
+                if (b == 1) {
                     return a;
                 } else {
-                    throw nanobind::type_error("Cannot multiply with float");
+                    throw nanobind::type_error("Cannot divide with int");
                 };
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__rtruediv__",
+            [](const APyFloat& a, int b) {
+                throw nanobind::type_error("Cannot divide with int");
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__truediv__",
+            [](const APyFloat& a, double b) {
+                return a
+                    / APyFloat::from_double(
+                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+                    );
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__rtruediv__",
+            [](const APyFloat& a, double b) {
+                return APyFloat::from_double(
+                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+                       )
+                    / a;
             },
             nb::is_operator()
         )
@@ -347,12 +379,12 @@ void bind_float(nb::module_& m)
         .def(nb::self >= nb::self)
 
         // float, double
-        .def(nb::self == float())
-        .def(nb::self != float())
-        .def(nb::self < float())
-        .def(nb::self > float())
-        .def(nb::self <= float())
-        .def(nb::self >= float())
+        .def(nb::self == double())
+        .def(nb::self != double())
+        .def(nb::self < double())
+        .def(nb::self > double())
+        .def(nb::self <= double())
+        .def(nb::self >= double())
 
         // APyFixed
         .def(
