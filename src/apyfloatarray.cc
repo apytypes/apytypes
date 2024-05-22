@@ -97,7 +97,7 @@ APyFloatArray::APyFloatArray(
 APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
 {
     if (shape != rhs.shape) {
-        auto broadcast_shape = smallest_broadcastable_shape(shape, rhs.shape);
+        const auto broadcast_shape = smallest_broadcastable_shape(shape, rhs.shape);
         if (broadcast_shape.size() == 0) {
             throw std::length_error(fmt::format(
                 "APyFloatArray.__add__: shape mismatch, lhs.shape={}, rhs.shape={}",
@@ -1044,11 +1044,10 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::get_item(std::size_t idx) c
 
     if (get_ndim() == 1) {
         // One dimension, return APyFloat
-        APyFloat result(data[idx], exp_bits, man_bits, bias);
-        return result;
+        return APyFloat(data[idx], exp_bits, man_bits, bias);
     } else {
         // New shape contains all dimensions except the very first one
-        auto new_shape = std::vector<std::size_t>(shape.begin() + 1, shape.end());
+        const auto new_shape = std::vector<std::size_t>(shape.begin() + 1, shape.end());
 
         // Element stride is the new shape folded over multiplication
         std::size_t element_stride = std::accumulate(
@@ -1110,7 +1109,7 @@ APyFloatArray APyFloatArray::from_double(
         python_sequence_extract_shape(double_seq), exp_bits, man_bits, bias
     );
 
-    auto py_obj = python_sequence_walk<nb::float_, nb::int_>(double_seq);
+    const auto py_obj = python_sequence_walk<nb::float_, nb::int_>(double_seq);
 
     APyFloat apytypes_double(11, 52, 1023);
     auto actual_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
@@ -1142,7 +1141,7 @@ APyFloatArray APyFloatArray::from_array(
     check_exponent_format(exp_bits);
     check_mantissa_format(man_bits);
 
-    std::size_t ndim = ndarray.ndim();
+    const std::size_t ndim = ndarray.ndim();
     assert(ndim > 0);
     std::vector<std::size_t> shape(ndim, 0);
     for (std::size_t i = 0; i < ndim; i++) {
@@ -1473,7 +1472,8 @@ APyFloat APyFloatArray::vector_sum(const QuantizationMode quantization) const
             // Conditionally add leading one's, also add room for guard bits
             // Note that exp can never be res_max_exponent here
             man_t mx = (x_is_zero_exponent ? 0 : res_leading_one) | (x.man << 3);
-            man_t msum = (sum_is_zero_exponent ? 0 : res_leading_one) | (sum_man << 3);
+            const man_t msum
+                = (sum_is_zero_exponent ? 0 : res_leading_one) | (sum_man << 3);
 
             // Compute sign and swap operands if need to make sure |x| >= |y|
             if (x.exp < sum_exp || (x.exp == sum_exp && x.man < sum_man)) {
@@ -1578,7 +1578,7 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
         = calc_bias(max_exp_bits, exp_bits, bias, rhs.exp_bits, rhs.bias);
     const auto res_cols = rhs.shape.size() > 1 ? rhs.shape[1] : 1;
 
-    auto accumulator_mode = get_accumulator_mode_float();
+    const auto accumulator_mode = get_accumulator_mode_float();
 
     // Resulting `APyFloatArray`
     APyFloatArray result(res_shape, max_exp_bits, max_man_bits, res_bias);

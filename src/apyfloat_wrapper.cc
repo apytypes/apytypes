@@ -422,16 +422,22 @@ void bind_float(nb::module_& m)
          * Logic operators
          */
         .def(
-            "__and__", [](APyFloat& a, APyFloat& b) { return a & b; }, nb::is_operator()
+            "__and__",
+            [](const APyFloat& a, const APyFloat& b) { return a & b; },
+            nb::is_operator()
         )
         .def(
-            "__or__", [](APyFloat& a, APyFloat& b) { return a | b; }, nb::is_operator()
+            "__or__",
+            [](const APyFloat& a, const APyFloat& b) { return a | b; },
+            nb::is_operator()
         )
         .def(
-            "__xor__", [](APyFloat& a, APyFloat& b) { return a ^ b; }, nb::is_operator()
+            "__xor__",
+            [](const APyFloat& a, const APyFloat& b) { return a ^ b; },
+            nb::is_operator()
         )
         .def(
-            "__invert__", [](APyFloat& a) { return ~a; }, nb::is_operator()
+            "__invert__", [](const APyFloat& a) { return ~a; }, nb::is_operator()
         )
 
         /*
@@ -507,7 +513,9 @@ void bind_float(nb::module_& m)
             :class:`bool`
             )pbdoc")
         .def_prop_ro(
-            "true_sign", [](APyFloat& a) { return a.get_sign() ? -1 : 1; }, R"pbdoc(
+            "true_sign",
+            [](const APyFloat& a) { return a.get_sign() ? -1 : 1; },
+            R"pbdoc(
             Sign value.
 
             See also
