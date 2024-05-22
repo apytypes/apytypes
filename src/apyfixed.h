@@ -135,13 +135,13 @@ public:
     APyFixed& operator>>=(const int shift_val);
 
     //! Addition of int
-    APyFixed operator+(int rhs) const;
+    APyFixed operator+(const nb::int_& rhs) const;
     //! Subtraction of int
-    APyFixed operator-(int rhs) const;
+    APyFixed operator-(const nb::int_& rhs) const;
     //! Multiplication of int
-    APyFixed operator*(int rhs) const;
+    APyFixed operator*(const nb::int_& rhs) const;
     //! Division of int
-    APyFixed operator/(int rhs) const;
+    APyFixed operator/(const nb::int_& rhs) const;
 
     /* ****************************************************************************** *
      *                          Binary comparison operators                            *
