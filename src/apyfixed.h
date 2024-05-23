@@ -277,6 +277,14 @@ public:
      * ****************************************************************************** */
 
 public:
+    //! Create APyFixed from Python float or int.
+    static APyFixed from_number(
+        const nb::object& py_obj,
+        std::optional<int> int_bits = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt,
+        std::optional<int> bits = std::nullopt
+    );
+
     //! Create APyFixed from double.
     static APyFixed from_double(
         double value,

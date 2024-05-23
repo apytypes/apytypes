@@ -376,13 +376,13 @@ void bind_fixed(nb::module_& m)
          */
         .def_static(
             "from_float",
-            &APyFixed::from_double,
+            &APyFixed::from_number,
             nb::arg("value"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyFixed` object from :class:`float`.
+            Create an :class:`APyFixed` object from an :class:`int` or :class:`float`.
 
             The initialized fixed-point value is the one closest to the input
             floating-point value, rounded away from zero on ties. Exactly two of the
@@ -408,40 +408,6 @@ void bind_fixed(nb::module_& m)
                 # Fixed-point `fx_a`, initialized from the floating-point value 1.234,
                 # rounded to 1.25 as it is the closest representable number
                 fx_a = APyFixed.from_float(1.234, int_bits=2, frac_bits=2)
-            )pbdoc"
-        )
-        .def_static(
-            "from_int",
-            &APyFixed::from_integer,
-            nb::arg("value"),
-            nb::arg("int_bits") = nb::none(),
-            nb::arg("frac_bits") = nb::none(),
-            nb::arg("bits") = nb::none(),
-            R"pbdoc(
-            Create an :class:`APyFixed` object from :class:`int`.
-
-            The initialized fixed-point value equals the integer value. Exactly two of the
-            three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
-
-            Parameters
-            ----------
-            value : int
-                Integer value to initialize from
-            int_bits : int, optional
-                Number of integer bits in the created fixed-point object
-            frac_bits : int, optional
-                Number of fractional bits in the created fixed-point object
-            bits : int, optional
-                Total number of bits in the created fixed-point object
-
-            Examples
-            --------
-            .. code-block:: python
-
-                from apytypes import APyFixed
-
-                # Fixed-point `fx_a`, initialized from the integer value 2
-                fx_a = APyFixed.from_int(2, int_bits=3, frac_bits=2)
             )pbdoc"
         )
         .def_static(
