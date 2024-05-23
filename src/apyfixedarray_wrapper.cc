@@ -33,29 +33,21 @@ void bind_fixed_array(nb::module_& m)
         .def(nb::self + nb::self)
         .def(
             "__add__",
-            [](const APyFixedArray& a, int b) {
-                if (b == 0) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot add with non-zero int");
-                };
+            [](const APyFixedArray& a, const nb::int_& b) {
+                return a + APyFixed::from_integer(b, a.int_bits(), a.frac_bits());
             },
             nb::is_operator()
         )
         .def(
             "__radd__",
-            [](const APyFixedArray& a, int b) {
-                if (b == 0) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot reverse add with non-zero int");
-                };
+            [](const APyFixedArray& a, const nb::int_& b) {
+                return a + APyFixed::from_integer(b, a.int_bits(), a.frac_bits());
             },
             nb::is_operator()
         )
         .def(
             "__add__",
-            [](const APyFixedArray& a, float b) {
+            [](const APyFixedArray& a, double b) {
                 if (b == 0.) {
                     return a;
                 } else {
@@ -66,7 +58,7 @@ void bind_fixed_array(nb::module_& m)
         )
         .def(
             "__radd__",
-            [](const APyFixedArray& a, float b) {
+            [](const APyFixedArray& a, double b) {
                 if (b == 0.) {
                     return a;
                 } else {
@@ -89,25 +81,15 @@ void bind_fixed_array(nb::module_& m)
         .def(nb::self - nb::self)
         .def(
             "__sub__",
-            [](const APyFixedArray& a, const int b) {
-                if (b == 0) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot subtract with non-zero int");
-                };
+            [](const APyFixedArray& a, const nb::int_& b) {
+                return a - APyFixed::from_integer(b, a.int_bits(), a.frac_bits());
             },
             nb::is_operator()
         )
         .def(
             "__rsub__",
-            [](const APyFixedArray& a, const int b) {
-                if (b == 0) {
-                    return -a;
-                } else {
-                    throw nanobind::type_error(
-                        "Cannot reverse subtract with non-zero int"
-                    );
-                };
+            [](const APyFixedArray& a, const nb::int_& b) {
+                return a.rsub(APyFixed::from_integer(b, a.int_bits(), a.frac_bits()));
             },
             nb::is_operator()
         )
@@ -158,23 +140,15 @@ void bind_fixed_array(nb::module_& m)
         )
         .def(
             "__mul__",
-            [](const APyFixedArray& a, const int b) {
-                if (b == 1) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot multiply with int");
-                };
+            [](const APyFixedArray& a, const nb::int_& b) {
+                return a * APyFixed::from_integer(b, a.int_bits(), a.frac_bits());
             },
             nb::is_operator()
         )
         .def(
             "__rmul__",
-            [](const APyFixedArray& a, const int b) {
-                if (b == 1) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot reverse multiply with int");
-                };
+            [](const APyFixedArray& a, const nb::int_& b) {
+                return a * APyFixed::from_integer(b, a.int_bits(), a.frac_bits());
             },
             nb::is_operator()
         )
@@ -211,6 +185,20 @@ void bind_fixed_array(nb::module_& m)
             [](const APyFixedArray& a, const APyFixed& b) { return a.rdiv(b); },
             nb::is_operator()
 
+        )
+        .def(
+            "__truediv__",
+            [](const APyFixedArray& a, const nb::int_& b) {
+                return a / APyFixed::from_integer(b, a.int_bits(), a.frac_bits());
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__rtruediv__",
+            [](const APyFixedArray& a, const nb::int_& b) {
+                return a.rdiv(APyFixed::from_integer(b, a.int_bits(), a.frac_bits()));
+            },
+            nb::is_operator()
         )
         .def(-nb::self)
         .def(nb::self <<= int(), nb::rv_policy::none)

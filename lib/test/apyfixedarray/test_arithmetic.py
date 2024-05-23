@@ -551,19 +551,26 @@ def test_long_matrix_addition():
 
 
 def test_operation_with_numbers():
-    a = APyFixedArray([5, 7, -1], bits=6, int_bits=2)
-    # Integer
-    assert (a + 0).is_identical(a)
-    assert (0 + a).is_identical(a)
-    assert (a - 0).is_identical(a)
-    assert (0 - a).is_identical(-a)
-    assert (a * 1).is_identical(a)
-    assert (1 * a).is_identical(a)
+    a = APyFixedArray([5], 6, 2)
+    one = APyFixedArray([4], 6, 2)
+    zero = APyFixedArray([0], 6, 2)
 
-    # Float
-    assert (a + 0.0).is_identical(a)
-    assert (0.0 + a).is_identical(a)
-    assert (a - 0.0).is_identical(a)
-    assert (0.0 - a).is_identical(-a)
-    assert (a * 1.0).is_identical(a)
-    assert (1.0 * a).is_identical(a)
+    # Integer identities
+    assert (_ := a + 0).is_identical(_ := a + zero)
+    assert (_ := 0 + a).is_identical(_ := zero + a)
+    assert (_ := a - 0).is_identical(_ := a - zero)
+    assert (_ := 0 - a).is_identical(_ := zero - a)
+    assert (_ := a * 1).is_identical(_ := a * one)
+    assert (_ := 1 * a).is_identical(_ := one * a)
+    assert (_ := a / 1).is_identical(_ := a / one)
+
+    # Other integer operations
+    neg_two = APyFixedArray([248], bits=8, int_bits=6)
+    assert (_ := a + (-2)).is_identical(_ := a + neg_two)
+    assert (_ := (-2) + a).is_identical(_ := neg_two + a)
+    assert (_ := a - (-2)).is_identical(_ := a - neg_two)
+    assert (_ := (-2) - a).is_identical(_ := neg_two - a)
+    assert (_ := a * (-2)).is_identical(_ := a * neg_two)
+    assert (_ := (-2) * a).is_identical(_ := neg_two * a)
+    assert (_ := a / (-2)).is_identical(_ := a / neg_two)
+    assert (_ := (-2) / a).is_identical(_ := neg_two / a)
