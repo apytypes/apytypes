@@ -301,6 +301,10 @@ public:
         std::optional<int> bits = std::nullopt
     );
 
+    //! Create APyFixed from Python integer without specifying the format.
+    //! The format will be big enough to accommodate the Python integer.
+    static APyFixed from_unspecified_integer(const nb::int_& value);
+
     //! Create APyFixed from string.
     static APyFixed from_string(
         std::string string_value,

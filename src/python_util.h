@@ -88,11 +88,12 @@
 }
 
 /*!
- * Python arbitrary long integer object to GMP limb vector
+ * Python arbitrary long integer object to GMP limb vector. If `n_min_limbs` is set, at
+ * least that many limbs will be available in the result.
  */
 [[maybe_unused]] static APY_INLINE std::vector<mp_limb_t> python_long_to_limb_vec(
     const nanobind::int_& py_long_int,
-    std::optional<std::size_t> n_exact_limbs = std::nullopt
+    std::optional<std::size_t> n_min_limbs = std::nullopt
 )
 {
     static_assert(
@@ -104,7 +105,7 @@
     long py_long_digits = PyLong_DigitCount(py_long);
     bool py_long_is_negative = PyLong_IsNegative(py_long);
 
-    std::vector<mp_limb_t> result {};
+    std::vector<mp_limb_t> result;
     if (py_long_digits == 0) {
         // Python integer is zero
         result = { 0 };
@@ -129,8 +130,8 @@
 
         // Compute how many limbs to copy
         std::size_t limb_copy_count {};
-        if (n_exact_limbs.has_value()) {
-            limb_copy_count = std::min(*n_exact_limbs, mpz_size(mpz_from_py_long));
+        if (n_min_limbs.has_value()) {
+            limb_copy_count = std::min(*n_min_limbs, mpz_size(mpz_from_py_long));
         } else {
             limb_copy_count = mpz_size(mpz_from_py_long);
         }
@@ -148,17 +149,15 @@
     }
 
     // Possibly extend the vector
-    if (n_exact_limbs.has_value() && *n_exact_limbs > result.size()) {
-        std::fill_n(std::back_inserter(result), *n_exact_limbs - result.size(), 0);
+    if (n_min_limbs.has_value() && *n_min_limbs > result.size()) {
+        std::fill_n(std::back_inserter(result), *n_min_limbs - result.size(), 0);
     }
 
     // Negate limb vector if negative
     if (py_long_is_negative) {
-        std::transform(result.begin(), result.end(), result.begin(), std::bit_not {});
-        mpn_add_1(&result[0], &result[0], result.size(), 1);
+        limb_vector_negate(std::begin(result), std::end(result), std::begin(result));
     }
 
-    // Return the result
     return result;
 }
 

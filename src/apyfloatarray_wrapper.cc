@@ -337,16 +337,16 @@ void bind_float_array(nb::module_& m)
         .def_static(
             "from_float",
             &APyFloatArray::from_double,
-            nb::arg("float_sequence"),
+            nb::arg("number_sequence"),
             nb::arg("exp_bits"),
             nb::arg("man_bits"),
             nb::arg("bias") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyFloatArray` object from a sequence of :class:`float`.
+            Create an :class:`APyFloatArray` object from a sequence of :class:`int` or :class:`float`.
 
             Parameters
             ----------
-            float_sequence : sequence of float
+            float_sequence : sequence of numbers
                 Floating point values to initialize from. The tensor shape will be taken
                 from the sequence shape.
             exp_bits : int

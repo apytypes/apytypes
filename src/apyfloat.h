@@ -75,8 +75,22 @@ public:
     );
 
     //! Create APyFloat from double
+    static APyFloat from_number(
+        const nb::object& py_obj,
+        int exp_bits,
+        int man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
+    //! Create APyFloat from double
     static APyFloat from_double(
         double value,
+        int exp_bits,
+        int man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
+    //! Create APyFloat from Python integer
+    static APyFloat from_integer(
+        const nb::int_ value,
         int exp_bits,
         int man_bits,
         std::optional<exp_t> bias = std::nullopt

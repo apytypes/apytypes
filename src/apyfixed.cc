@@ -1011,6 +1011,20 @@ APyFixed APyFixed::from_integer(
     return result;
 }
 
+APyFixed APyFixed::from_unspecified_integer(const nb::int_& value)
+{
+    std::vector<mp_limb_t> limbs = python_long_to_limb_vec(value);
+
+    // If the value is positive but the MSB is set, adding a zero limb
+    // will prevent it from representing a negative value.
+    if (!PyLong_IsNegative((const PyLongObject*)value.ptr())
+        && limb_vector_is_negative(std::begin(limbs), std::end(limbs))) {
+        limbs.push_back(0);
+    }
+    const std::size_t res_bits = limbs.size() * _LIMB_SIZE_BITS;
+    return APyFixed(res_bits, res_bits, limbs.begin(), limbs.end());
+}
+
 APyFixed APyFixed::from_string(
     std::string string_value,
     std::optional<int> int_bits,
