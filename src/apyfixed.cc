@@ -947,6 +947,29 @@ bool APyFixed::positive_greater_than_equal_pow2(int n) const
  * *                           Static member functions                              * *
  * ********************************************************************************** */
 
+APyFixed APyFixed::from_number(
+    const nb::object& py_obj,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits,
+    std::optional<int> bits
+)
+{
+    if (nb::isinstance<nb::int_>(py_obj)) {
+        return APyFixed::from_integer(
+            nb::cast<nb::int_>(py_obj), int_bits, frac_bits, bits
+        );
+    } else if (nb::isinstance<nb::float_>(py_obj)) {
+        const auto d = static_cast<double>(nb::cast<nb::float_>(py_obj));
+        return APyFixed::from_double(d, int_bits, frac_bits, bits);
+    } else {
+        const nb::type_object type = nb::cast<nb::type_object>(py_obj.type());
+        const nb::str type_string = nb::str(type);
+        throw std::domain_error(
+            std::string("Non supported type: ") + type_string.c_str()
+        );
+    }
+}
+
 APyFixed APyFixed::from_double(
     double value,
     std::optional<int> int_bits,

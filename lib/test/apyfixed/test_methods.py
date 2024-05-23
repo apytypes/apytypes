@@ -122,26 +122,37 @@ def test_fixed_cast_throws():
     # Casting to a negative number of `bits` casts
 
 
-def test_from_integer():
-    assert APyFixed.from_int(3, 5, 0).is_identical(APyFixed(3, int_bits=5, frac_bits=0))
-    assert APyFixed.from_int(3, 5, 1).is_identical(APyFixed(6, int_bits=5, frac_bits=1))
-    assert APyFixed.from_int(-3, 5, 0).is_identical(APyFixed(29, bits=5, int_bits=5))
+def test_from_float_with_non_floats():
+    assert APyFixed.from_float(3, 5, 0).is_identical(
+        APyFixed(3, int_bits=5, frac_bits=0)
+    )
+    assert APyFixed.from_float(3, 5, 1).is_identical(
+        APyFixed(6, int_bits=5, frac_bits=1)
+    )
+    assert APyFixed.from_float(-3, 5, 0).is_identical(APyFixed(29, bits=5, int_bits=5))
 
-    # from_int currently wraps around
-    assert APyFixed.from_int(17, 5, 0).is_identical(
+    # from_float currently wraps around
+    assert APyFixed.from_float(17, 5, 0).is_identical(
         APyFixed(17, int_bits=5, frac_bits=0)
     )
-    assert APyFixed.from_int(17, 4, 0).is_identical(
+    assert APyFixed.from_float(17, 4, 0).is_identical(
         APyFixed(1, int_bits=4, frac_bits=0)
     )
 
     # Test long integer (256 bits)
     int_val = 0xFF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF
-    assert APyFixed.from_int(int_val, 257, 0).is_identical(
+    assert APyFixed.from_float(int_val, 257, 0).is_identical(
         APyFixed(int_val, int_bits=257, frac_bits=0)
     )
 
     # Test negative number of fractioal bits
-    assert APyFixed.from_int(14, int_bits=6, frac_bits=-1).is_identical(
+    assert APyFixed.from_float(14, int_bits=6, frac_bits=-1).is_identical(
         APyFixed(7, bits=5, int_bits=6)
     )
+
+    # Test from bool
+    APyFixed.from_float(True, 5, 0).is_identical(APyFixed(1, int_bits=5, frac_bits=0))
+
+    # Raise for string
+    with pytest.raises(ValueError, match="Non supported type"):
+        APyFixed.from_float("14", 5, 0)

@@ -67,40 +67,6 @@ class APyFixed:
         """
 
     @staticmethod
-    def from_int(
-        value: float,
-        int_bits: int | None = None,
-        frac_bits: int | None = None,
-        bits: int | None = None,
-    ) -> APyFixed:
-        """
-        Create an :class:`APyFixed` object from :class:`int`.
-
-        The initialized fixed-point value equals the integer value. Exactly two of the
-        three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
-
-        Parameters
-        ----------
-        value : int
-            Integer value to initialize from
-        int_bits : int, optional
-            Number of integer bits in the created fixed-point object
-        frac_bits : int, optional
-            Number of fractional bits in the created fixed-point object
-        bits : int, optional
-            Total number of bits in the created fixed-point object
-
-        Examples
-        --------
-        .. code-block:: python
-
-            from apytypes import APyFixed
-
-            # Fixed-point `fx_a`, initialized from the integer value 2
-            fx_a = APyFixed.from_int(2, int_bits=3, frac_bits=2)
-        """
-
-    @staticmethod
     def from_str(
         string_value: str,
         int_bits: int | None = None,
