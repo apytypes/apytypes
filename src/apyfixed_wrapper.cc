@@ -58,7 +58,7 @@ void bind_fixed(nb::module_& m)
         .def(nb::self <<= int(), nb::rv_policy::none)
         .def(nb::self >>= int(), nb::rv_policy::none)
 
-        // Addition with integers
+        // Operations with integers
         .def(nb::self + nb::int_())
         .def(
             "__radd__",
@@ -85,6 +85,80 @@ void bind_fixed(nb::module_& m)
             "__rtruediv__",
             [](const APyFixed& rhs, const nb::int_& lhs) {
                 return APyFixed::from_integer(lhs, rhs.int_bits(), rhs.frac_bits())
+                    / rhs;
+            },
+            nb::is_operator()
+        )
+
+        // Operations with floats
+        .def(
+            "__add__",
+            [](const APyFixed& lhs, double rhs) {
+                return lhs
+                    + APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits());
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__radd__",
+            [](const APyFixed& rhs, double lhs) {
+                return rhs
+                    + APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits());
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__sub__",
+            [](const APyFixed& lhs, double rhs) {
+                return lhs
+                    - APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits());
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__rsub__",
+            [](const APyFixed& rhs, double lhs) {
+                return APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits())
+                    - rhs;
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__mul__",
+            [](const APyFixed& lhs, double rhs) {
+                return lhs
+                    * APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits());
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__rmul__",
+            [](const APyFixed& rhs, double lhs) {
+                return rhs
+                    * APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits());
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__radd__",
+            [](const APyFixed& rhs, double lhs) {
+                return rhs
+                    * APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits());
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__truediv__",
+            [](const APyFixed& lhs, double rhs) {
+                return lhs
+                    / APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits());
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__rtruediv__",
+            [](const APyFixed& rhs, double lhs) {
+                return APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits())
                     / rhs;
             },
             nb::is_operator()

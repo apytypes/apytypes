@@ -130,7 +130,7 @@ def test_array_sum():
         bits=8,
         int_bits=6,
     )
-    assert sum(b).is_identical(APyFixedArray([20, 28, 36], bits=9, int_bits=7))
+    assert sum(b).is_identical(APyFixedArray([20, 28, 36], bits=10, int_bits=8))
 
 
 def test_array_sub():
@@ -421,7 +421,7 @@ def test_array_prod():
         int_bits=6,
     )
     assert math.prod(b).is_identical(
-        APyFixedArray([64, 160, 288], bits=16, int_bits=12)
+        APyFixedArray([256, 640, 1152], bits=24, int_bits=18)
     )
 
 
@@ -550,7 +550,7 @@ def test_long_matrix_addition():
     )
 
 
-def test_operation_with_numbers():
+def test_operation_with_integers():
     a = APyFixedArray([5], 6, 2)
     one = APyFixedArray([4], 6, 2)
     zero = APyFixedArray([0], 6, 2)
@@ -574,3 +574,29 @@ def test_operation_with_numbers():
     assert (_ := (-2) * a).is_identical(_ := neg_two * a)
     assert (_ := a / (-2)).is_identical(_ := a / neg_two)
     assert (_ := (-2) / a).is_identical(_ := neg_two / a)
+
+
+def test_operation_with_floats():
+    a = APyFixedArray([5], 6, 2)
+    one = APyFixedArray([4], 6, 2)
+    zero = APyFixedArray([0], 6, 2)
+
+    # Identities
+    assert (_ := a + 0.0).is_identical(_ := a + zero)
+    assert (_ := 0.0 + a).is_identical(_ := zero + a)
+    assert (_ := a - 0.0).is_identical(_ := a - zero)
+    assert (_ := 0.0 - a).is_identical(_ := zero - a)
+    assert (_ := a * 1.0).is_identical(_ := a * one)
+    assert (_ := 1.0 * a).is_identical(_ := one * a)
+    assert (_ := a / 1.0).is_identical(_ := a / one)
+
+    # Other operations. 2.125 should quantize to -2.25
+    b = APyFixed(247, bits=8, int_bits=6)
+    assert (_ := a + (-2.125)).is_identical(_ := a + b)
+    assert (_ := (-2.125) + a).is_identical(_ := b + a)
+    assert (_ := a - (-2.125)).is_identical(_ := a - b)
+    assert (_ := (-2.125) - a).is_identical(_ := b - a)
+    assert (_ := a * (-2.125)).is_identical(_ := a * b)
+    assert (_ := (-2.125) * a).is_identical(_ := b * a)
+    assert (_ := a / (-2.125)).is_identical(_ := a / b)
+    assert (_ := (-2.125) / a).is_identical(_ := b / a)
