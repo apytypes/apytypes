@@ -1090,7 +1090,7 @@ bool APyFloatArray::is_identical(const APyFloatArray& other) const
 }
 
 APyFloatArray APyFloatArray::from_double(
-    const nb::sequence& double_seq,
+    const nb::sequence& number_seq,
     int exp_bits,
     int man_bits,
     std::optional<exp_t> bias
@@ -1099,34 +1099,37 @@ APyFloatArray APyFloatArray::from_double(
     check_exponent_format(exp_bits);
     check_mantissa_format(man_bits);
 
-    if (nb::isinstance<nb::ndarray<>>(double_seq)) {
+    if (nb::isinstance<nb::ndarray<>>(number_seq)) {
         // Sequence is NDArray. Initialize using `from_array`.
-        auto ndarray = nb::cast<nb::ndarray<nb::c_contig>>(double_seq);
+        auto ndarray = nb::cast<nb::ndarray<nb::c_contig>>(number_seq);
         return from_array(ndarray, exp_bits, man_bits, bias);
     }
 
     APyFloatArray result(
-        python_sequence_extract_shape(double_seq), exp_bits, man_bits, bias
+        python_sequence_extract_shape(number_seq), exp_bits, man_bits, bias
     );
 
-    const auto py_obj = python_sequence_walk<nb::float_, nb::int_>(double_seq);
+    const auto py_obj = python_sequence_walk<nb::float_, nb::int_>(number_seq);
+    const auto actual_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
 
-    APyFloat apytypes_double(11, 52, 1023);
-    auto actual_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
     for (std::size_t i = 0; i < result.data.size(); i++) {
-        double d;
         if (nb::isinstance<nb::float_>(py_obj[i])) {
-            d = static_cast<double>(nb::cast<nb::float_>(py_obj[i]));
+            result.data[i] = APyFloat::from_double(
+                                 (double)nb::cast<nb::float_>(py_obj[i]),
+                                 exp_bits,
+                                 man_bits,
+                                 actual_bias
+            )
+                                 .get_data();
         } else if (nb::isinstance<nb::int_>(py_obj[i])) {
-            d = static_cast<int>(nb::cast<nb::int_>(py_obj[i]));
+            result.data[i]
+                = APyFloat::from_integer(
+                      nb::cast<nb::int_>(py_obj[i]), exp_bits, man_bits, actual_bias
+                )
+                      .get_data();
         } else {
             throw std::domain_error("Invalid Python objects in sequence");
         }
-        apytypes_double.set_data(
-            { sign_of_double(d), exp_t(exp_of_double(d)), man_of_double(d) }
-        );
-        APyFloat fp = apytypes_double.cast_from_double(exp_bits, man_bits, actual_bias);
-        result.data[i] = { fp.get_sign(), fp.get_exp(), fp.get_man() };
     }
     return result;
 }

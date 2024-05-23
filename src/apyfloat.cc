@@ -111,6 +111,26 @@ APyFloat::APyFloat(
  * **********************************************************************************
  */
 
+APyFloat APyFloat::from_number(
+    const nb::object& py_obj, int exp_bits, int man_bits, std::optional<exp_t> bias
+)
+{
+    if (nb::isinstance<nb::int_>(py_obj)) {
+        return APyFloat::from_integer(
+            nb::cast<nb::int_>(py_obj), exp_bits, man_bits, bias
+        );
+    } else if (nb::isinstance<nb::float_>(py_obj)) {
+        const auto d = static_cast<double>(nb::cast<nb::float_>(py_obj));
+        return APyFloat::from_double(d, exp_bits, man_bits, bias);
+    } else {
+        const nb::type_object type = nb::cast<nb::type_object>(py_obj.type());
+        const nb::str type_string = nb::str(type);
+        throw std::domain_error(
+            std::string("Non supported type: ") + type_string.c_str()
+        );
+    }
+}
+
 APyFloat APyFloat::from_double(
     double value, int exp_bits, int man_bits, std::optional<exp_t> bias
 )
@@ -124,6 +144,62 @@ APyFloat APyFloat::from_double(
     return apytypes_double.cast_from_double(
         exp_bits, man_bits, bias.value_or(APyFloat::ieee_bias(exp_bits))
     );
+}
+
+APyFloat APyFloat::from_integer(
+    const nb::int_ value, int exp_bits, int man_bits, std::optional<exp_t> bias
+)
+{
+    check_exponent_format(exp_bits);
+    check_mantissa_format(man_bits);
+
+    APyFixed apyfixed = APyFixed::from_unspecified_integer(value);
+
+    const exp_t actual_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
+
+    if (apyfixed.is_zero()) {
+        return APyFloat(0, 0, 0, exp_bits, man_bits, actual_bias);
+    }
+
+    APyFloat res(exp_bits, man_bits, actual_bias);
+
+    // Get sign
+    if (apyfixed.is_negative()) {
+        res.sign = true;
+        apyfixed = apyfixed.abs();
+    } else {
+        res.sign = false;
+    }
+
+    // Calculate exponent
+    const exp_t target_exp
+        = apyfixed.bits() - apyfixed.leading_zeros() - 1; // The bit width minus 1
+    std::uint64_t tmp_exp = target_exp + res.bias;
+
+    // Calculate mantissa
+    apyfixed >>= target_exp;
+    apyfixed = apyfixed.cast(3, man_bits, QuantizationMode::RND_CONV);
+
+    // Check for overflow
+    if (apyfixed.positive_greater_than_equal_pow2(1)) {
+        ++tmp_exp;
+        apyfixed >>= 1;
+    }
+
+    // Check for overflow
+    if (tmp_exp >= res.max_exponent()) {
+        res.exp = res.max_exponent();
+        res.man = 0;
+    } else {
+        res.exp = tmp_exp;
+        // Remove leading one
+        if (apyfixed.positive_greater_than_equal_pow2(0)) {
+            apyfixed = apyfixed - fx_one;
+        }
+        res.man = apyfixed.get_lsbs();
+    }
+
+    return res;
 }
 
 APyFloat APyFloat::cast(

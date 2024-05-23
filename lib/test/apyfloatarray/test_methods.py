@@ -40,6 +40,56 @@ def test_array_from_float_raises():
         match="Mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
         APyFloatArray.from_float([0], 5, -300)
+    with pytest.raises(
+        ValueError,
+        match="python_sequence_extract_shape",
+    ):
+        APyFloatArray.from_float(["0"], 5, 10)
+
+
+def test_from_float_with_non_floats():
+    a = APyFloatArray.from_float([16], exp_bits=4, man_bits=2)
+    assert a.is_identical(APyFloatArray([0], [11], [0], exp_bits=4, man_bits=2))
+
+    # Should quantize to 16.0
+    a = APyFloatArray.from_float([17], exp_bits=4, man_bits=2)
+    assert a.is_identical(APyFloatArray([0], [11], [0], exp_bits=4, man_bits=2))
+
+    # Should quantize to -20.0
+    a = APyFloatArray.from_float([-19], exp_bits=4, man_bits=2)
+    assert a.is_identical(APyFloatArray([1], [11], [1], exp_bits=4, man_bits=2))
+
+    # Tie break, should quantize to 16.0
+    a = APyFloatArray.from_float([18], exp_bits=4, man_bits=2)
+    assert a.is_identical(APyFloatArray([0], [11], [0], exp_bits=4, man_bits=2))
+
+    # Tie break, should quantize to 24.0
+    a = APyFloatArray.from_float([22], exp_bits=4, man_bits=2)
+    assert a.is_identical(APyFloatArray([0], [11], [2], exp_bits=4, man_bits=2))
+
+    # Should quantize to 28.0
+    a = APyFloatArray.from_float([29], exp_bits=4, man_bits=2)
+    assert a.is_identical(APyFloatArray([0], [11], [3], exp_bits=4, man_bits=2))
+
+    # Should quantize to 32.0
+    a = APyFloatArray.from_float([31], exp_bits=4, man_bits=2)
+    assert a.is_identical(APyFloatArray([0], [12], [0], exp_bits=4, man_bits=2))
+
+    # 152-bit number, should become negative infinity
+    a = APyFloatArray.from_float(
+        [-0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF], exp_bits=4, man_bits=2
+    )
+    assert a.is_identical(APyFloatArray([1], [15], [0], exp_bits=4, man_bits=2))
+
+    # Test with bool and non IEEE-like bias
+    a = APyFloatArray.from_float([True], exp_bits=4, man_bits=2, bias=4)
+    assert a.is_identical(APyFloatArray([0], [4], [0], exp_bits=4, man_bits=2, bias=4))
+
+    # Test with big integer
+    a = APyFloatArray.from_float([2**2047], exp_bits=28, man_bits=2)
+    assert a.is_identical(
+        APyFloatArray([0], [(2047 + (2**27) - 1)], [0], exp_bits=28, man_bits=2)
+    )
 
 
 def test_array_cast_raises():

@@ -390,7 +390,7 @@ void bind_fixed(nb::module_& m)
 
             Parameters
             ----------
-            value : float
+            value : int, float
                 Floating point value to initialize from
             int_bits : int, optional
                 Number of integer bits in the created fixed-point object

@@ -50,19 +50,19 @@ void bind_float(nb::module_& m)
          */
         .def_static(
             "from_float",
-            &APyFloat::from_double,
+            &APyFloat::from_number,
             nb::arg("value"),
             nb::arg("exp_bits"),
             nb::arg("man_bits"),
             nb::arg("bias") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyFloat` object from a :class:`float`.
+            Create an :class:`APyFloat` object from an :class:`int` or :class:`float`.
 
             The quantization mode used is :class:`QuantizationMode.TIES_EVEN`.
 
             Parameters
             ----------
-            value : float
+            value : int, float
                 Floating-point value to initialize from.
             exp_bits : int
                 Number of exponent bits.

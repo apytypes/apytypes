@@ -51,6 +51,11 @@ def test_scalar_from_float_raises():
         match="Mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
         APyFloat.from_float(0, 5, -300)
+    with pytest.raises(
+        ValueError,
+        match="Non supported type",
+    ):
+        APyFloat.from_float("0", 5, 10)
 
 
 def test_scalar_from_bits_raises():
@@ -198,6 +203,53 @@ def test_from_float():
     a = APyFloat(0, 0, 1, 11, 52)
     b = APyFloat.from_float(5e-324, 11, 52)
     assert b.is_identical(a)
+
+
+def test_from_float_with_non_floats():
+    a = APyFloat.from_float(16, exp_bits=4, man_bits=2)
+    assert a.is_identical(APyFloat(sign=0, exp=11, man=0, exp_bits=4, man_bits=2))
+
+    # Should quantize to 16.0
+    a = APyFloat.from_float(17, exp_bits=4, man_bits=2)
+    assert a.is_identical(APyFloat(sign=0, exp=11, man=0, exp_bits=4, man_bits=2))
+
+    # Should quantize to -20.0
+    a = APyFloat.from_float(-19, exp_bits=4, man_bits=2)
+    assert a.is_identical(APyFloat(sign=1, exp=11, man=1, exp_bits=4, man_bits=2))
+
+    # Tie break, should quantize to 16.0
+    a = APyFloat.from_float(18, exp_bits=4, man_bits=2)
+    assert a.is_identical(APyFloat(sign=0, exp=11, man=0, exp_bits=4, man_bits=2))
+
+    # Tie break, should quantize to 24.0
+    a = APyFloat.from_float(22, exp_bits=4, man_bits=2)
+    assert a.is_identical(APyFloat(sign=0, exp=11, man=2, exp_bits=4, man_bits=2))
+
+    # Should quantize to 28.0
+    a = APyFloat.from_float(29, exp_bits=4, man_bits=2)
+    assert a.is_identical(APyFloat(sign=0, exp=11, man=3, exp_bits=4, man_bits=2))
+
+    # Should quantize to 32.0
+    a = APyFloat.from_float(31, exp_bits=4, man_bits=2)
+    assert a.is_identical(APyFloat(sign=0, exp=12, man=0, exp_bits=4, man_bits=2))
+
+    # 152-bit number, should become negative infinity
+    a = APyFloat.from_float(
+        -0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF, exp_bits=4, man_bits=2
+    )
+    assert a.is_identical(APyFloat(sign=1, exp=15, man=0, exp_bits=4, man_bits=2))
+
+    # Test with bool and non IEEE-like bias
+    a = APyFloat.from_float(True, exp_bits=4, man_bits=2, bias=4)
+    assert a.is_identical(
+        APyFloat(sign=0, exp=4, man=0, exp_bits=4, man_bits=2, bias=4)
+    )
+
+    # Test with big integer
+    a = APyFloat.from_float(2**2047, exp_bits=28, man_bits=2)
+    assert a.is_identical(
+        APyFloat(sign=0, exp=(2047 + (2**27) - 1), man=0, exp_bits=28, man_bits=2)
+    )
 
 
 def test_cast_special_cases():
