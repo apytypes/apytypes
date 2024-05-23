@@ -140,3 +140,8 @@ def test_from_integer():
     assert APyFixed.from_int(int_val, 257, 0).is_identical(
         APyFixed(int_val, int_bits=257, frac_bits=0)
     )
+
+    # Test negative number of fractioal bits
+    assert APyFixed.from_int(14, int_bits=6, frac_bits=-1).is_identical(
+        APyFixed(7, bits=5, int_bits=6)
+    )

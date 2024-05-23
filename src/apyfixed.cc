@@ -966,17 +966,26 @@ APyFixed APyFixed::from_integer(
     std::optional<int> bits
 )
 {
-    // Create APyFixed object with correct integer value
-    APyFixed tmp(value, int_bits, 0, bits);
+    // Extract things bit widths
+    const int res_bits = bits_from_optional(bits, int_bits, frac_bits);
+    const int res_int_bits = int_bits.has_value() ? *int_bits : *bits - *frac_bits;
 
-    // Now the fractional bits must be added
-    const int target_bits = bits_from_optional(bits, int_bits, frac_bits);
-    const int f_bits = target_bits - tmp.int_bits();
+    APyFixed result(res_bits, res_int_bits);
+    result._data = python_long_to_limb_vec(value, result._data.size());
 
-    APyFixed res(target_bits, tmp._int_bits);
-    tmp._cast_correct_wl(res._data.begin(), res._data.end(), f_bits);
+    // Adjust the number
+    if (result.frac_bits() > 0) {
+        limb_vector_lsl(result._data.begin(), result._data.end(), result.frac_bits());
+    } else { /* result.frac_bits() <= 0 */
+        limb_vector_asr(result._data.begin(), result._data.end(), -result.frac_bits());
+    }
 
-    return res;
+    // Two's-complements overflow bits outside of the range
+    result._overflow_twos_complement(
+        result._data.begin(), result._data.end(), res_bits, res_int_bits
+    );
+
+    return result;
 }
 
 APyFixed APyFixed::from_string(
