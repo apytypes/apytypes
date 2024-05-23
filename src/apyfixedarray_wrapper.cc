@@ -47,24 +47,17 @@ void bind_fixed_array(nb::module_& m)
         )
         .def(
             "__add__",
-            [](const APyFixedArray& a, double b) {
-                if (b == 0.) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot add with non-zero float");
-                };
+            [](const APyFixedArray& lhs, double rhs) {
+                return lhs
+                    + APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits());
             },
             nb::is_operator()
         )
         .def(
             "__radd__",
-            [](const APyFixedArray& a, double b) {
-                if (b == 0.) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot reverse add with non-zero float"
-                    );
-                };
+            [](const APyFixedArray& rhs, double lhs) {
+                return rhs
+                    + APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits());
             },
             nb::is_operator()
         )
@@ -95,25 +88,18 @@ void bind_fixed_array(nb::module_& m)
         )
         .def(
             "__sub__",
-            [](const APyFixedArray& a, const float b) {
-                if (b == 0.) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot subtract with non-zero float");
-                };
+            [](const APyFixedArray& lhs, double rhs) {
+                return lhs
+                    - APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits());
             },
             nb::is_operator()
         )
         .def(
             "__rsub__",
-            [](const APyFixedArray& a, float const b) {
-                if (b == 0.) {
-                    return -a;
-                } else {
-                    throw nanobind::type_error(
-                        "Cannot reverse subtract with non-zero float"
-                    );
-                };
+            [](const APyFixedArray& rhs, double lhs) {
+                return rhs.rsub(
+                    APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits())
+                );
             },
             nb::is_operator()
         )
@@ -154,23 +140,17 @@ void bind_fixed_array(nb::module_& m)
         )
         .def(
             "__mul__",
-            [](const APyFixedArray& a, const float b) {
-                if (b == 1.) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot multiply with float");
-                };
+            [](const APyFixedArray& lhs, double rhs) {
+                return lhs
+                    * APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits());
             },
             nb::is_operator()
         )
         .def(
             "__rmul__",
-            [](const APyFixedArray& a, const float b) {
-                if (b == 1.) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot multiply with float");
-                };
+            [](const APyFixedArray& rhs, double lhs) {
+                return rhs
+                    * APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits());
             },
             nb::is_operator()
         )
@@ -197,6 +177,23 @@ void bind_fixed_array(nb::module_& m)
             "__rtruediv__",
             [](const APyFixedArray& a, const nb::int_& b) {
                 return a.rdiv(APyFixed::from_integer(b, a.int_bits(), a.frac_bits()));
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__truediv__",
+            [](const APyFixedArray& lhs, double rhs) {
+                return lhs
+                    / APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits());
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__rtruediv__",
+            [](const APyFixedArray& rhs, double lhs) {
+                return rhs.rdiv(
+                    APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits())
+                );
             },
             nb::is_operator()
         )

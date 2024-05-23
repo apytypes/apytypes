@@ -475,7 +475,7 @@ def test_issue_224():
     assert x.leading_fractional_zeros == 6
 
 
-def test_operation_with_numbers():
+def test_operation_with_integers():
     a = APyFixed(5, 6, 2)
     one = APyFixed(4, 6, 2)
     zero = APyFixed(0, 6, 2)
@@ -499,3 +499,29 @@ def test_operation_with_numbers():
     assert (_ := (-2) * a).is_identical(_ := neg_two * a)
     assert (_ := a / (-2)).is_identical(_ := a / neg_two)
     assert (_ := (-2) / a).is_identical(_ := neg_two / a)
+
+
+def test_operation_with_floats():
+    a = APyFixed(5, 6, 2)
+    one = APyFixed(4, 6, 2)
+    zero = APyFixed(0, 6, 2)
+
+    # Identities
+    assert (_ := a + 0.0).is_identical(_ := a + zero)
+    assert (_ := 0.0 + a).is_identical(_ := zero + a)
+    assert (_ := a - 0.0).is_identical(_ := a - zero)
+    assert (_ := 0.0 - a).is_identical(_ := zero - a)
+    assert (_ := a * 1.0).is_identical(_ := a * one)
+    assert (_ := 1.0 * a).is_identical(_ := one * a)
+    assert (_ := a / 1.0).is_identical(_ := a / one)
+
+    # Other operations. 2.125 should quantize to -2.25
+    b = APyFixed(247, bits=8, int_bits=6)
+    assert (_ := a + (-2.125)).is_identical(_ := a + b)
+    assert (_ := (-2.125) + a).is_identical(_ := b + a)
+    assert (_ := a - (-2.125)).is_identical(_ := a - b)
+    assert (_ := (-2.125) - a).is_identical(_ := b - a)
+    assert (_ := a * (-2.125)).is_identical(_ := a * b)
+    assert (_ := (-2.125) * a).is_identical(_ := b * a)
+    assert (_ := a / (-2.125)).is_identical(_ := a / b)
+    assert (_ := (-2.125) / a).is_identical(_ := b / a)
