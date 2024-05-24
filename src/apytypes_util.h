@@ -135,7 +135,7 @@ template <typename INT_TYPE>
     static_assert(_LIMB_SIZE_BITS == 64 || _LIMB_SIZE_BITS == 32);
     if constexpr (_LIMB_SIZE_BITS == 64) {
         return ((bits - 1) >> 6) + 1;
-    } else {
+    } else { /* _LIMB_SIZE_BITS == 32 */
         return ((bits - 1) >> 5) + 1;
     }
 }
@@ -257,7 +257,7 @@ from_nibble_list(const std::vector<std::uint8_t>& nibble_list)
 }
 
 //! Double-Dabble helper class with proporate methods for performing the
-//! double-dabble and reverse double-dable algorithm.
+//! double-dabble and reverse double-dabble algorithm.
 struct DoubleDabbleList {
 
     //! Mask with a bit in every position where a nibble starts

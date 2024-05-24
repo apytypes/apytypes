@@ -18,7 +18,9 @@
 
 namespace simd {
 
-//! Retrieve a string for
+//! Retrieve a string with active runtime SIMD information. Example:
+//! "APyTypes SIMD: { 'SIMD Runtime Target': 'AVX2', 'Runtime Parallel-Limb Support': "
+//! "4 x 64-bit' }"
 std::string get_simd_version_str();
 
 /*!
@@ -204,6 +206,9 @@ mp_limb_t vector_multiply_accumulate(
     std::size_t size
 );
 
+/*
+ * Functor export from functions
+ */
 CREATE_FUNCTOR_FROM_FUNC(add_functor, vector_add);
 CREATE_FUNCTOR_FROM_FUNC(sub_functor, vector_sub);
 CREATE_FUNCTOR_FROM_FUNC(add_const_functor, vector_add_const);

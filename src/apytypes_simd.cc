@@ -374,7 +374,7 @@ namespace HWY_NAMESPACE { // required: unique per target
             "APyTypes SIMD: {{ "
             "'SIMD Runtime Target': '{}', "
             "'Runtime Parallel-Limb Support': '{} x {}-bit'"
-            "}}",
+            " }}",
             hwy::TargetName(HWY_TARGET),
             hn::Lanes(d),
             _LIMB_SIZE_BITS
