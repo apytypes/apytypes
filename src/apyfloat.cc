@@ -115,6 +115,9 @@ APyFloat APyFloat::from_number(
     const nb::object& py_obj, int exp_bits, int man_bits, std::optional<exp_t> bias
 )
 {
+    check_exponent_format(exp_bits);
+    check_mantissa_format(man_bits);
+
     if (nb::isinstance<nb::int_>(py_obj)) {
         return APyFloat::from_integer(
             nb::cast<nb::int_>(py_obj), exp_bits, man_bits, bias
@@ -135,9 +138,6 @@ APyFloat APyFloat::from_double(
     double value, int exp_bits, int man_bits, std::optional<exp_t> bias
 )
 {
-    check_exponent_format(exp_bits);
-    check_mantissa_format(man_bits);
-
     APyFloat apytypes_double(
         sign_of_double(value), exp_of_double(value), man_of_double(value), 11, 52, 1023
     );
@@ -150,9 +150,6 @@ APyFloat APyFloat::from_integer(
     const nb::int_ value, int exp_bits, int man_bits, std::optional<exp_t> bias
 )
 {
-    check_exponent_format(exp_bits);
-    check_mantissa_format(man_bits);
-
     APyFixed apyfixed = APyFixed::from_unspecified_integer(value);
 
     const exp_t actual_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));

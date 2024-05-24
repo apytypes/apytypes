@@ -198,167 +198,161 @@ void bind_float(nb::module_& m)
         .def(nb::self / nb::self)
         .def(
             "__add__",
-            [](const APyFloat& a, int b) {
-                if (b == 0) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot add with int");
-                };
+            [](const APyFloat& lhs, const nb::int_& rhs) {
+                return lhs
+                    + APyFloat::from_integer(
+                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
+                    );
             },
             nb::is_operator()
         )
         .def(
             "__radd__",
-            [](const APyFloat& a, int b) {
-                if (b == 0) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot add with int");
-                };
+            [](const APyFloat& rhs, const nb::int_& lhs) {
+                return rhs
+                    + APyFloat::from_integer(
+                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
+                    );
             },
             nb::is_operator()
         )
-
         .def(
             "__add__",
-            [](const APyFloat& a, double b) {
-                return a
+            [](const APyFloat& lhs, double rhs) {
+                return lhs
                     + APyFloat::from_double(
-                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
                     );
             },
             nb::is_operator()
         )
         .def(
             "__radd__",
-            [](const APyFloat& a, double b) {
+            [](const APyFloat& rhs, double lhs) {
                 return APyFloat::from_double(
-                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
                        )
-                    + a;
+                    + rhs;
             },
             nb::is_operator()
         )
         .def(
             "__sub__",
-            [](const APyFloat& a, int b) {
-                if (b == 0) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot subtract with int");
-                };
+            [](const APyFloat& lhs, const nb::int_& rhs) {
+                return lhs
+                    - APyFloat::from_integer(
+                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
+                    );
             },
             nb::is_operator()
         )
         .def(
             "__rsub__",
-            [](const APyFloat& a, int b) {
-                if (b == 0) {
-                    return -a;
-                } else {
-                    throw nanobind::type_error("Cannot subtract with int");
-                };
+            [](const APyFloat& rhs, const nb::int_& lhs) {
+                return APyFloat::from_integer(
+                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
+                       )
+                    - rhs;
             },
             nb::is_operator()
         )
-
         .def(
             "__sub__",
-            [](const APyFloat& a, double b) {
-                return a
+            [](const APyFloat& lhs, double rhs) {
+                return lhs
                     - APyFloat::from_double(
-                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
                     );
             },
             nb::is_operator()
         )
         .def(
             "__rsub__",
-            [](const APyFloat& a, double b) {
+            [](const APyFloat& rhs, double lhs) {
                 return APyFloat::from_double(
-                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
                        )
-                    - a;
+                    - rhs;
             },
             nb::is_operator()
         )
         .def(
             "__mul__",
-            [](const APyFloat& a, int b) {
-                if (b == 1) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot multiply with int");
-                };
+            [](const APyFloat& lhs, const nb::int_& rhs) {
+                return lhs
+                    * APyFloat::from_integer(
+                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
+                    );
             },
             nb::is_operator()
         )
         .def(
             "__rmul__",
-            [](const APyFloat& a, int b) {
-                if (b == 1) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot multiply with int");
-                };
+            [](const APyFloat& rhs, const nb::int_& lhs) {
+                return rhs
+                    * APyFloat::from_integer(
+                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
+                    );
             },
             nb::is_operator()
         )
         .def(
             "__mul__",
-            [](const APyFloat& a, double b) {
-                return a
+            [](const APyFloat& lhs, double rhs) {
+                return lhs
                     * APyFloat::from_double(
-                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
                     );
             },
             nb::is_operator()
         )
         .def(
             "__rmul__",
-            [](const APyFloat& a, double b) {
+            [](const APyFloat& rhs, double lhs) {
                 return APyFloat::from_double(
-                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
                        )
-                    * a;
+                    * rhs;
             },
             nb::is_operator()
         )
         .def(
             "__truediv__",
-            [](const APyFloat& a, int b) {
-                if (b == 1) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot divide with int");
-                };
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__rtruediv__",
-            [](const APyFloat& a, int b) {
-                throw nanobind::type_error("Cannot divide with int");
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__truediv__",
-            [](const APyFloat& a, double b) {
-                return a
-                    / APyFloat::from_double(
-                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+            [](const APyFloat& lhs, const nb::int_& rhs) {
+                return lhs
+                    / APyFloat::from_integer(
+                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
                     );
             },
             nb::is_operator()
         )
         .def(
             "__rtruediv__",
-            [](const APyFloat& a, double b) {
-                return APyFloat::from_double(
-                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+            [](const APyFloat& rhs, const nb::int_& lhs) {
+                return APyFloat::from_integer(
+                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
                        )
-                    / a;
+                    / rhs;
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__truediv__",
+            [](const APyFloat& lhs, double rhs) {
+                return lhs
+                    / APyFloat::from_double(
+                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
+                    );
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__rtruediv__",
+            [](const APyFloat& rhs, double lhs) {
+                return APyFloat::from_double(
+                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
+                       )
+                    / rhs;
             },
             nb::is_operator()
         )
@@ -389,32 +383,32 @@ void bind_float(nb::module_& m)
         // APyFixed
         .def(
             "__eq__",
-            [](const APyFloat& a, const APyFixed& b) { return a == b; },
+            [](const APyFloat& rhs, const APyFixed& lhs) { return rhs == lhs; },
             nb::is_operator()
         )
         .def(
             "__ne__",
-            [](const APyFloat& a, const APyFixed& b) { return a != b; },
+            [](const APyFloat& rhs, const APyFixed& lhs) { return rhs != lhs; },
             nb::is_operator()
         )
         .def(
             "__le__",
-            [](const APyFloat& a, const APyFixed& b) { return a <= b; },
+            [](const APyFloat& rhs, const APyFixed& lhs) { return rhs <= lhs; },
             nb::is_operator()
         )
         .def(
             "__lt__",
-            [](const APyFloat& a, const APyFixed& b) { return a < b; },
+            [](const APyFloat& rhs, const APyFixed& lhs) { return rhs < lhs; },
             nb::is_operator()
         )
         .def(
             "__ge__",
-            [](const APyFloat& a, const APyFixed& b) { return a >= b; },
+            [](const APyFloat& rhs, const APyFixed& lhs) { return rhs >= lhs; },
             nb::is_operator()
         )
         .def(
             "__gt__",
-            [](const APyFloat& a, const APyFixed& b) { return a > b; },
+            [](const APyFloat& rhs, const APyFixed& lhs) { return rhs > lhs; },
             nb::is_operator()
         )
 
@@ -423,21 +417,21 @@ void bind_float(nb::module_& m)
          */
         .def(
             "__and__",
-            [](const APyFloat& a, const APyFloat& b) { return a & b; },
+            [](const APyFloat& rhs, const APyFloat& lhs) { return rhs & lhs; },
             nb::is_operator()
         )
         .def(
             "__or__",
-            [](const APyFloat& a, const APyFloat& b) { return a | b; },
+            [](const APyFloat& rhs, const APyFloat& lhs) { return rhs | lhs; },
             nb::is_operator()
         )
         .def(
             "__xor__",
-            [](const APyFloat& a, const APyFloat& b) { return a ^ b; },
+            [](const APyFloat& rhs, const APyFloat& lhs) { return rhs ^ lhs; },
             nb::is_operator()
         )
         .def(
-            "__invert__", [](const APyFloat& a) { return ~a; }, nb::is_operator()
+            "__invert__", [](const APyFloat& rhs) { return ~rhs; }, nb::is_operator()
         )
 
         /*
@@ -514,7 +508,7 @@ void bind_float(nb::module_& m)
             )pbdoc")
         .def_prop_ro(
             "true_sign",
-            [](const APyFloat& a) { return a.get_sign() ? -1 : 1; },
+            [](const APyFloat& rhs) { return rhs.get_sign() ? -1 : 1; },
             R"pbdoc(
             Sign value.
 
