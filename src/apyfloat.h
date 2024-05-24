@@ -170,6 +170,8 @@ public:
     cast_no_quant(std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias) const;
 
     //! Simplified casting when the input is known to correspond to a double.
+    //! Values too large will become infinity, and not saturate depending on the
+    //! quantization mode.
     APyFloat
     cast_from_double(std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias) const;
 
@@ -236,12 +238,6 @@ public:
     bool operator<(const double rhs) const;
     bool operator>=(const double rhs) const;
     bool operator>(const double rhs) const;
-    bool operator==(const float rhs) const;
-    bool operator!=(const float rhs) const;
-    bool operator<=(const float rhs) const;
-    bool operator<(const float rhs) const;
-    bool operator>=(const float rhs) const;
-    bool operator>(const float rhs) const;
     bool operator==(const APyFixed& rhs) const;
     bool operator!=(const APyFixed& rhs) const;
     bool operator<=(const APyFixed& rhs) const;

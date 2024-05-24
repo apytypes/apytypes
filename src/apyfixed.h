@@ -169,13 +169,6 @@ public:
     bool operator>=(const double rhs) const;
     bool operator>(const double rhs) const;
 
-    bool operator==(const float rhs) const;
-    bool operator!=(const float rhs) const;
-    bool operator<=(const float rhs) const;
-    bool operator<(const float rhs) const;
-    bool operator>=(const float rhs) const;
-    bool operator>(const float rhs) const;
-
     /* ****************************************************************************** *
      *                        Other public member functions                           *
      * ****************************************************************************** */
