@@ -5,6 +5,9 @@
  * https://numpy.org/doc/stable/user/basics.broadcasting.html
  */
 
+#ifndef _BROADCAST_H
+#define _BROADCAST_H
+
 #include "apytypes_util.h"
 
 #include <algorithm> // std::any_of, std::copy_n
@@ -160,3 +163,5 @@ static APY_INLINE void broadcast_data_copy(
         std::for_each(broadcast_offsets.begin(), broadcast_offsets.end(), broadcast);
     }
 }
+
+#endif // _BROADCAST_H
