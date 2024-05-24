@@ -1,34 +1,23 @@
-from __future__ import annotations
-from apytypes._apytypes import APyFixed
-from apytypes._apytypes import APyFixedArray
-from apytypes._apytypes import APyFixedAccumulatorContext
-from apytypes._apytypes import APyFixedCastContext
-from apytypes._apytypes import APyFloat
-from apytypes._apytypes import APyFloatArray
-from apytypes._apytypes import APyFloatAccumulatorContext
-from apytypes._apytypes import OverflowMode
-from apytypes._apytypes import APyFloatQuantizationContext
-from apytypes._apytypes import QuantizationMode
-from apytypes._apytypes import get_float_quantization_mode
-from apytypes._apytypes import get_float_quantization_seed
-from apytypes._apytypes import set_float_quantization_mode
-from apytypes._apytypes import set_float_quantization_seed
-from apytypes._version import version as __version__
+import __future__
 
-__all__: list = [
-    "APyFixed",
-    "APyFixedArray",
-    "APyFixedAccumulatorContext",
-    "APyFixedCastContext",
-    "APyFloat",
-    "APyFloatArray",
-    "APyFloatAccumulatorContext",
-    "OverflowMode",
-    "APyFloatQuantizationContext",
-    "QuantizationMode",
-    "__version__",
-    "get_float_quantization_mode",
-    "set_float_quantization_mode",
-    "get_float_quantization_seed",
-    "set_float_quantization_seed",
-]
+from ._apytypes import (
+    APyFixed as APyFixed,
+    APyFixedAccumulatorContext as APyFixedAccumulatorContext,
+    APyFixedArray as APyFixedArray,
+    APyFixedCastContext as APyFixedCastContext,
+    APyFloat as APyFloat,
+    APyFloatAccumulatorContext as APyFloatAccumulatorContext,
+    APyFloatArray as APyFloatArray,
+    APyFloatQuantizationContext as APyFloatQuantizationContext,
+    OverflowMode as OverflowMode,
+    QuantizationMode as QuantizationMode,
+    get_float_quantization_mode as get_float_quantization_mode,
+    get_float_quantization_seed as get_float_quantization_seed,
+    set_float_quantization_mode as set_float_quantization_mode,
+    set_float_quantization_seed as set_float_quantization_seed
+)
+
+
+__all__: list = ['APyFixed', 'APyFixedArray', 'APyFixedAccumulatorContext', 'APyFixedCastContext', 'APyFloat', 'APyFloatArray', 'APyFloatAccumulatorContext', 'OverflowMode', 'APyFloatQuantizationContext', 'QuantizationMode', '__version__', 'get_float_quantization_mode', 'set_float_quantization_mode', 'get_float_quantization_seed', 'set_float_quantization_seed', '_get_simd_version_str']
+
+annotations: __future__._Feature = ...
