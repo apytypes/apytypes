@@ -277,7 +277,7 @@ void bind_float_array(nb::module_& m)
             :class:`int`
             )pbdoc")
 
-        .def_prop_ro("bits", &APyFloat::get_bits, R"pbdoc(
+        .def_prop_ro("bits", &APyFloatArray::get_bits, R"pbdoc(
             Total number of bits.
 
             Returns

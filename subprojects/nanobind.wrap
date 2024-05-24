@@ -1,7 +1,7 @@
 [wrap-git]
 method = cmake
 url = https://github.com/wjakob/nanobind/
-revision = v1.9.2
+revision = v2.0.0
 depth = 1
 clone-recursive = True
 
