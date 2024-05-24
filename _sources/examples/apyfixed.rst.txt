@@ -186,11 +186,105 @@ Comparisons with integers and floats are supported
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 46-47
+.. GENERATED FROM PYTHON SOURCE LINES 46-48
+
+Arithmetic with Python integers and floats is supported, although *not recommended*, by
+automatically casting the number to the same format of the APyType-object
+
+.. GENERATED FROM PYTHON SOURCE LINES 48-50
+
+.. code-block:: Python
+
+    b + 3.5
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    APyFixed(5, bits=6, int_bits=4)
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 51-52
+
+Which is equivalent to
+
+.. GENERATED FROM PYTHON SOURCE LINES 52-54
+
+.. code-block:: Python
+
+    b + APyFixed.from_float(3.5, int_bits=b.int_bits, frac_bits=b.frac_bits)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    APyFixed(5, bits=6, int_bits=4)
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 55-57
+
+However, while it is convenient to let APyTypes convert numbers automatically,
+it is not recommended as it can yield unexpected results. Consider the expression
+
+.. GENERATED FROM PYTHON SOURCE LINES 57-59
+
+.. code-block:: Python
+
+    1.25 + 1.25 + APyFixed.from_float(2, int_bits=4, frac_bits=1)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    APyFixed(9, bits=6, int_bits=5)
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 60-61
+
+which would yield a different result from
+
+.. GENERATED FROM PYTHON SOURCE LINES 61-63
+
+.. code-block:: Python
+
+    APyFixed.from_float(2, int_bits=4, frac_bits=1) + 1.25 + 1.25
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    APyFixed(10, bits=7, int_bits=6)
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 64-65
 
 To change the word length of a APyFixed, the method :func:`~APyFixed.cast` can be used
 
-.. GENERATED FROM PYTHON SOURCE LINES 47-48
+.. GENERATED FROM PYTHON SOURCE LINES 65-66
 
 .. code-block:: Python
 
@@ -211,7 +305,7 @@ To change the word length of a APyFixed, the method :func:`~APyFixed.cast` can b
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.002 seconds)
+   **Total running time of the script:** (0 minutes 0.003 seconds)
 
 
 .. _sphx_glr_download_examples_apyfixed.py:

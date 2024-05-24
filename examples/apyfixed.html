@@ -360,6 +360,36 @@ integer bits and fractional bits of the included operands, respectively.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(True, True)
 </pre></div>
 </div>
+<p>Arithmetic with Python integers and floats is supported, although <em>not recommended</em>, by
+automatically casting the number to the same format of the APyType-object</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">b</span></a> <span class="o">+</span> <span class="mf">3.5</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFixed(5, bits=6, int_bits=4)
+</pre></div>
+</div>
+<p>Which is equivalent to</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">b</span></a> <span class="o">+</span> <a href="../api/apyfixed.html#apytypes.APyFixed.from_float" title="apytypes.APyFixed.from_float" class="sphx-glr-backref-module-apytypes-APyFixed sphx-glr-backref-type-py-method"><span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span></a><span class="p">(</span><span class="mf">3.5</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><a href="../api/apyfixed.html#apytypes.APyFixed.int_bits" title="apytypes.APyFixed.int_bits" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-property"><span class="n">b</span><span class="o">.</span><span class="n">int_bits</span></a><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><a href="../api/apyfixed.html#apytypes.APyFixed.frac_bits" title="apytypes.APyFixed.frac_bits" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-property"><span class="n">b</span><span class="o">.</span><span class="n">frac_bits</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFixed(5, bits=6, int_bits=4)
+</pre></div>
+</div>
+<p>However, while it is convenient to let APyTypes convert numbers automatically,
+it is not recommended as it can yield unexpected results. Consider the expression</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="mf">1.25</span> <span class="o">+</span> <span class="mf">1.25</span> <span class="o">+</span> <a href="../api/apyfixed.html#apytypes.APyFixed.from_float" title="apytypes.APyFixed.from_float" class="sphx-glr-backref-module-apytypes-APyFixed sphx-glr-backref-type-py-method"><span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span></a><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFixed(9, bits=6, int_bits=5)
+</pre></div>
+</div>
+<p>which would yield a different result from</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/apyfixed.html#apytypes.APyFixed.from_float" title="apytypes.APyFixed.from_float" class="sphx-glr-backref-module-apytypes-APyFixed sphx-glr-backref-type-py-method"><span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span></a><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.25</span> <span class="o">+</span> <span class="mf">1.25</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFixed(10, bits=7, int_bits=6)
+</pre></div>
+</div>
 <p>To change the word length of a APyFixed, the method <code class="xref py py-func docutils literal notranslate"><span class="pre">cast()</span></code> can be used</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">a</span></a> <span class="o">+</span> <a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">b</span></a><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
 </pre></div>
@@ -367,7 +397,7 @@ integer bits and fractional bits of the included operands, respectively.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFixed(124, bits=7, int_bits=4)
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.002 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.003 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-apyfixed-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/2cae3500da720d045fddba63b9a7af26/apyfixed.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">apyfixed.ipynb</span></code></a></p>
