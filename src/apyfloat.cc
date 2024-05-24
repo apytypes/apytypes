@@ -531,13 +531,8 @@ APyFloat APyFloat::cast_from_double(
     }
 
     if (new_exp >= res.max_exponent()) {
-        if (do_infinity(get_float_quantization_mode(), res.sign)) {
-            new_exp = res.max_exponent();
-            new_man = 0;
-        } else {
-            new_exp = res.max_exponent() - 1;
-            new_man = res.man_mask();
-        }
+        new_exp = res.max_exponent() - 1;
+        new_man = res.man_mask();
     }
 
     res.man = new_man;
@@ -1743,18 +1738,6 @@ bool APyFloat::operator>(const double rhs) const
     );
     return (*this > rhs_fp);
 }
-
-bool APyFloat::operator==(const float rhs) const { return *this == (double)rhs; }
-
-bool APyFloat::operator!=(const float rhs) const { return *this != (double)rhs; }
-
-bool APyFloat::operator<=(const float rhs) const { return *this <= (double)rhs; }
-
-bool APyFloat::operator<(const float rhs) const { return *this < (double)rhs; }
-
-bool APyFloat::operator>=(const float rhs) const { return *this >= (double)rhs; }
-
-bool APyFloat::operator>(const float rhs) const { return *this > (double)rhs; }
 
 bool APyFloat::operator==(const APyFixed& rhs) const
 {

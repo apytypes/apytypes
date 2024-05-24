@@ -424,18 +424,6 @@ bool APyFixed::operator>(const double rhs) const
     return (*this > rhs_fp.to_fixed());
 }
 
-bool APyFixed::operator==(const float rhs) const { return *this == (double)rhs; }
-
-bool APyFixed::operator!=(const float rhs) const { return *this != (double)rhs; }
-
-bool APyFixed::operator<=(const float rhs) const { return *this <= (double)rhs; }
-
-bool APyFixed::operator<(const float rhs) const { return *this < (double)rhs; }
-
-bool APyFixed::operator>=(const float rhs) const { return *this >= (double)rhs; }
-
-bool APyFixed::operator>(const float rhs) const { return *this > (double)rhs; }
-
 APyFixed APyFixed::operator-() const
 {
     const int res_bits = _bits + 1;

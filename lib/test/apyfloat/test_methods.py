@@ -204,6 +204,10 @@ def test_from_float():
     b = APyFloat.from_float(5e-324, 11, 52)
     assert b.is_identical(a)
 
+    # Big float should become infinity
+    a = APyFloat.from_float(-(2**10), 4, 15)
+    assert a.is_identical(APyFloat(1, 15, 0, 4, 15))
+
 
 def test_from_float_with_non_floats():
     a = APyFloat.from_float(16, exp_bits=4, man_bits=2)
