@@ -39,5 +39,23 @@ str(a)
 (b >= 7, a < -1.2)
 
 # %%
+# Arithmetic with Python integers and floats is supported, although *not recommended*, by
+# automatically casting the number to the same format of the APyType-object
+b + 1.125
+
+# %%
+# Which is equivalent to
+b + APyFloat.from_float(1.125, exp_bits=b.exp_bits, man_bits=b.man_bits, bias=b.bias)
+
+# %%
+# However, while it is convenient to let APyTypes convert numbers automatically,
+# it is not recommended as it can yield unexpected results. Consider the expression
+2 + 2 + APyFloat.from_float(8, exp_bits=4, man_bits=1)
+
+# %%
+# which would yield a different result from
+APyFloat.from_float(8, exp_bits=4, man_bits=1) + 2 + 2
+
+# %%
 # To change the word length of a APyFloat, the method :func:`~APyFloat.cast` can be used
 (a + b).cast(4, 3)
