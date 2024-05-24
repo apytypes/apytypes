@@ -305,7 +305,8 @@ and this project adheres to <a class="reference external" href="https://semver.o
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Added methods <code class="docutils literal notranslate"><span class="pre">next_up()</span></code> and <code class="docutils literal notranslate"><span class="pre">next_down()</span></code> for floating-point scalars.</p></li>
-<li><p>Broadcasting support <a class="reference external" href="https://numpy.org/doc/stable/user/basics.broadcasting.html">as NumPy</a></p>
+<li><p>Broadcasting support
+<a class="reference external" href="https://numpy.org/doc/stable/user/basics.broadcasting.html">as NumPy</a>.</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">APyFixedArray.broadcast_to()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">APyFloatArray.broadcast_to()</span></code></p></li>
@@ -313,10 +314,15 @@ and this project adheres to <a class="reference external" href="https://semver.o
 </ul>
 </li>
 <li><p>Support arithmetic between APyTypes classes and Python’s built-in floats and ints.</p></li>
+<li><p>Support for automatic stub generation added.</p></li>
 </ul>
 </section>
 <section id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Updated <a class="reference external" href="https://github.com/wjakob/nanobind">nanobind</a> dependency from v1.9.2 to
+v2.0.0.</p></li>
+</ul>
 </section>
 <section id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">¶</a></h3>
@@ -325,7 +331,7 @@ and this project adheres to <a class="reference external" href="https://semver.o
 <li><p>Fix in floating-point <code class="docutils literal notranslate"><span class="pre">cast</span></code>-method when result became subnormal.</p></li>
 <li><p>Fix bug in <code class="docutils literal notranslate"><span class="pre">APyFixedArray.__truediv__()</span></code> where program crashes on long-limb zero
 denominators.</p></li>
-<li><p>Fix bug where single-dimensional tuple representations missed out on a comma</p></li>
+<li><p>Fix bug where single-dimensional tuple representations missed out on a comma.</p></li>
 </ul>
 </section>
 <section id="removed">
