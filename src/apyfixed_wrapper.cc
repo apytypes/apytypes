@@ -355,7 +355,6 @@ void bind_fixed(nb::module_& m)
          */
         .def("__abs__", &APyFixed::abs)
         .def("__float__", &APyFixed::operator double)
-        .def("__neg__", [](APyFixed& fix) { return -fix; })
         .def("__repr__", &APyFixed::repr)
         .def("__str__", &APyFixed::to_string, nb::arg("base") = 10)
         .def(
