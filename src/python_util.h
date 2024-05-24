@@ -2,6 +2,9 @@
  * Python utility functions and helpers
  */
 
+#ifndef _PYTHON_UTIL_H
+#define _PYTHON_UTIL_H
+
 // Python object access through Pybind
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
@@ -391,3 +394,5 @@ python_sequence_walk(const nanobind::sequence& py_seq)
     // Return the result
     return result;
 }
+
+#endif // _PYTHON_UTIL_H
