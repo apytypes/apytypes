@@ -1017,7 +1017,7 @@ APyFixed APyFixed::from_unspecified_integer(const nb::int_& value)
 
     // If the value is positive but the MSB is set, adding a zero limb
     // will prevent it from representing a negative value.
-    if (!PyLong_IsNegative((const PyLongObject*)value.ptr())
+    if (!python_long_is_negative(value)
         && limb_vector_is_negative(std::begin(limbs), std::end(limbs))) {
         limbs.push_back(0);
     }
