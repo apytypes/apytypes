@@ -91,6 +91,16 @@
 }
 
 /*!
+ * Test if Python long integer (`nb::int_`) is negative
+ */
+[[maybe_unused]] static APY_INLINE bool
+python_long_is_negative(const nanobind::int_& py_long_int)
+{
+    const PyLongObject* py_long = (const PyLongObject*)py_long_int.ptr();
+    return PyLong_IsNegative(py_long);
+}
+
+/*!
  * Python arbitrary long integer object to GMP limb vector. If `n_min_limbs` is set, at
  * least that many limbs will be available in the result.
  */
