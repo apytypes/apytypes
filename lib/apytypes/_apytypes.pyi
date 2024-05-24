@@ -4,7 +4,6 @@ from typing import Annotated, overload
 
 from numpy.typing import ArrayLike
 
-
 class APyFixed:
     r"""
     Class for configurable scalar fixed-point formats.
@@ -67,131 +66,94 @@ class APyFixed:
          - :code:`a.frac_bits`
     """
 
-    def __init__(self, bit_pattern: int, int_bits: int | None = None, frac_bits: int | None = None, bits: int | None = None) -> None: ...
-
+    def __init__(
+        self,
+        bit_pattern: int,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> None: ...
     @overload
     def __eq__(self, arg: APyFixed, /) -> bool: ...
-
     @overload
     def __eq__(self, arg: int, /) -> bool: ...
-
     @overload
     def __eq__(self, arg: float, /) -> bool: ...
-
     @overload
     def __ne__(self, arg: APyFixed, /) -> bool: ...
-
     @overload
     def __ne__(self, arg: int, /) -> bool: ...
-
     @overload
     def __ne__(self, arg: float, /) -> bool: ...
-
     @overload
     def __lt__(self, arg: APyFixed, /) -> bool: ...
-
     @overload
     def __lt__(self, arg: int, /) -> bool: ...
-
     @overload
     def __lt__(self, arg: float, /) -> bool: ...
-
     @overload
     def __le__(self, arg: APyFixed, /) -> bool: ...
-
     @overload
     def __le__(self, arg: int, /) -> bool: ...
-
     @overload
     def __le__(self, arg: float, /) -> bool: ...
-
     @overload
     def __gt__(self, arg: APyFixed, /) -> bool: ...
-
     @overload
     def __gt__(self, arg: int, /) -> bool: ...
-
     @overload
     def __gt__(self, arg: float, /) -> bool: ...
-
     @overload
     def __ge__(self, arg: APyFixed, /) -> bool: ...
-
     @overload
     def __ge__(self, arg: int, /) -> bool: ...
-
     @overload
     def __ge__(self, arg: float, /) -> bool: ...
-
     @overload
     def __add__(self, arg: APyFixed, /) -> APyFixed: ...
-
     @overload
     def __add__(self, arg: int, /) -> APyFixed: ...
-
     @overload
     def __add__(self, arg: float, /) -> APyFixed: ...
-
     @overload
     def __sub__(self, arg: APyFixed, /) -> APyFixed: ...
-
     @overload
     def __sub__(self, arg: int, /) -> APyFixed: ...
-
     @overload
     def __sub__(self, arg: float, /) -> APyFixed: ...
-
     @overload
     def __mul__(self, arg: APyFixed, /) -> APyFixed: ...
-
     @overload
     def __mul__(self, arg: int, /) -> APyFixed: ...
-
     @overload
     def __mul__(self, arg: float, /) -> APyFixed: ...
-
     @overload
     def __truediv__(self, arg: APyFixed, /) -> APyFixed: ...
-
     @overload
     def __truediv__(self, arg: int, /) -> APyFixed: ...
-
     @overload
     def __truediv__(self, arg: float, /) -> APyFixed: ...
-
     def __neg__(self) -> APyFixed: ...
-
     def __ilshift__(self, arg: int, /) -> APyFixed: ...
-
     def __irshift__(self, arg: int, /) -> APyFixed: ...
-
     @overload
     def __radd__(self, arg: int, /) -> APyFixed: ...
-
     @overload
     def __radd__(self, arg: float, /) -> APyFixed: ...
-
     @overload
     def __radd__(self, arg: float, /) -> APyFixed: ...
-
     @overload
     def __rsub__(self, arg: int, /) -> APyFixed: ...
-
     @overload
     def __rsub__(self, arg: float, /) -> APyFixed: ...
-
     @overload
     def __rmul__(self, arg: int, /) -> APyFixed: ...
-
     @overload
     def __rmul__(self, arg: float, /) -> APyFixed: ...
-
     @overload
     def __rtruediv__(self, arg: int, /) -> APyFixed: ...
-
     @overload
     def __rtruediv__(self, arg: float, /) -> APyFixed: ...
-
     def to_bits(self) -> int:
         """
         Retrieve underlying bit-pattern in an :class:`int`.
@@ -282,7 +244,14 @@ class APyFixed:
     def is_zero(self) -> bool:
         """True if the value equals zero, false otherwise."""
 
-    def cast(self, int_bits: int | None = None, frac_bits: int | None = None, quantization: QuantizationMode | None = None, overflow: OverflowMode | None = None, bits: int | None = None) -> APyFixed:
+    def cast(
+        self,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        quantization: QuantizationMode | None = None,
+        overflow: OverflowMode | None = None,
+        bits: int | None = None,
+    ) -> APyFixed:
         """
         Change format of the fixed-point number.
 
@@ -370,19 +339,18 @@ class APyFixed:
         """
 
     def __abs__(self) -> APyFixed: ...
-
     def __float__(self) -> float: ...
-
     def __repr__(self) -> str: ...
-
     def __str__(self, base: int = 10) -> str: ...
-
     def __lshift__(self, shift_amnt: int) -> APyFixed: ...
-
     def __rshift__(self, shift_amnt: int) -> APyFixed: ...
-
     @staticmethod
-    def from_float(value: object, int_bits: int | None = None, frac_bits: int | None = None, bits: int | None = None) -> APyFixed:
+    def from_float(
+        value: object,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> APyFixed:
         """
         Create an :class:`APyFixed` object from an :class:`int` or :class:`float`.
 
@@ -413,7 +381,13 @@ class APyFixed:
         """
 
     @staticmethod
-    def from_str(string_value: str, int_bits: int | None = None, frac_bits: int | None = None, base: int = 10, bits: int | None = None) -> APyFixed:
+    def from_str(
+        string_value: str,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        base: int = 10,
+        bits: int | None = None,
+    ) -> APyFixed:
         """
         Create an :class:`APyFixed` object from :class:`str`.
 
@@ -454,105 +428,89 @@ class APyFixed:
         """
 
 class APyFixedAccumulatorContext(ContextManager):
-    def __init__(self, int_bits: int | None = None, frac_bits: int | None = None, quantization: QuantizationMode | None = None, overflow: OverflowMode | None = None, bits: int | None = None) -> None: ...
-
+    def __init__(
+        self,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        quantization: QuantizationMode | None = None,
+        overflow: OverflowMode | None = None,
+        bits: int | None = None,
+    ) -> None: ...
     def __enter__(self) -> None: ...
-
-    def __exit__(self, exc_type: object | None = None, exc_value: object | None = None, traceback: object | None = None) -> None: ...
+    def __exit__(
+        self,
+        exc_type: object | None = None,
+        exc_value: object | None = None,
+        traceback: object | None = None,
+    ) -> None: ...
 
 class APyFixedArray:
-    def __init__(self, bit_pattern_sequence: Sequence, int_bits: int | None = None, frac_bits: int | None = None, bits: int | None = None) -> None: ...
-
+    def __init__(
+        self,
+        bit_pattern_sequence: Sequence,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> None: ...
     @overload
     def __add__(self, arg: APyFixedArray, /) -> APyFixedArray: ...
-
     @overload
     def __add__(self, arg: int, /) -> APyFixedArray: ...
-
     @overload
     def __add__(self, arg: float, /) -> APyFixedArray: ...
-
     @overload
     def __add__(self, arg: APyFixed, /) -> APyFixedArray: ...
-
     @overload
     def __radd__(self, arg: int, /) -> APyFixedArray: ...
-
     @overload
     def __radd__(self, arg: float, /) -> APyFixedArray: ...
-
     @overload
     def __radd__(self, arg: APyFixed, /) -> APyFixedArray: ...
-
     @overload
     def __sub__(self, arg: APyFixedArray, /) -> APyFixedArray: ...
-
     @overload
     def __sub__(self, arg: int, /) -> APyFixedArray: ...
-
     @overload
     def __sub__(self, arg: float, /) -> APyFixedArray: ...
-
     @overload
     def __sub__(self, arg: APyFixed, /) -> APyFixedArray: ...
-
     @overload
     def __rsub__(self, arg: int, /) -> APyFixedArray: ...
-
     @overload
     def __rsub__(self, arg: float, /) -> APyFixedArray: ...
-
     @overload
     def __rsub__(self, arg: APyFixed, /) -> APyFixedArray: ...
-
     @overload
     def __mul__(self, arg: APyFixedArray, /) -> APyFixedArray: ...
-
     @overload
     def __mul__(self, arg: APyFixed, /) -> APyFixedArray: ...
-
     @overload
     def __mul__(self, arg: int, /) -> APyFixedArray: ...
-
     @overload
     def __mul__(self, arg: float, /) -> APyFixedArray: ...
-
     @overload
     def __rmul__(self, arg: APyFixed, /) -> APyFixedArray: ...
-
     @overload
     def __rmul__(self, arg: int, /) -> APyFixedArray: ...
-
     @overload
     def __rmul__(self, arg: float, /) -> APyFixedArray: ...
-
     @overload
     def __truediv__(self, arg: APyFixedArray, /) -> APyFixedArray: ...
-
     @overload
     def __truediv__(self, arg: APyFixed, /) -> APyFixedArray: ...
-
     @overload
     def __truediv__(self, arg: int, /) -> APyFixedArray: ...
-
     @overload
     def __truediv__(self, arg: float, /) -> APyFixedArray: ...
-
     @overload
     def __rtruediv__(self, arg: APyFixed, /) -> APyFixedArray: ...
-
     @overload
     def __rtruediv__(self, arg: int, /) -> APyFixedArray: ...
-
     @overload
     def __rtruediv__(self, arg: float, /) -> APyFixedArray: ...
-
     def __neg__(self) -> APyFixedArray: ...
-
     def __ilshift__(self, arg: int, /) -> APyFixedArray: ...
-
     def __irshift__(self, arg: int, /) -> APyFixedArray: ...
-
     @property
     def bits(self) -> int:
         """
@@ -615,7 +573,7 @@ class APyFixedArray:
         :class:`APyFixedArray`
         """
 
-    def to_numpy(self) -> Annotated[ArrayLike, dict(dtype='float64')]:
+    def to_numpy(self) -> Annotated[ArrayLike, dict(dtype="float64")]:
         """
         Return array as a :class:`numpy.ndarray` of :class:`numpy.float64`.
 
@@ -658,7 +616,14 @@ class APyFixedArray:
         :class:`APyFixedArray`
         """
 
-    def cast(self, int_bits: int | None = None, frac_bits: int | None = None, quantization: QuantizationMode | None = None, overflow: OverflowMode | None = None, bits: int | None = None) -> APyFixedArray:
+    def cast(
+        self,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        quantization: QuantizationMode | None = None,
+        overflow: OverflowMode | None = None,
+        bits: int | None = None,
+    ) -> APyFixedArray:
         """
         Change format of the fixed-point array.
 
@@ -703,7 +668,12 @@ class APyFixedArray:
         """
 
     @staticmethod
-    def from_float(float_sequence: Sequence, int_bits: int | None = None, frac_bits: int | None = None, bits: int | None = None) -> APyFixedArray:
+    def from_float(
+        float_sequence: Sequence,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> APyFixedArray:
         """
         Create an :class:`APyFixedArray` object from a sequence of :class:`float`.
 
@@ -751,7 +721,12 @@ class APyFixedArray:
         """
 
     @staticmethod
-    def from_array(ndarray: Annotated[ArrayLike, dict(order='C')], int_bits: int | None = None, frac_bits: int | None = None, bits: int | None = None) -> APyFixedArray:
+    def from_array(
+        ndarray: Annotated[ArrayLike, dict(order="C")],
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> APyFixedArray:
         """
         Create an :class:`APyFixedArray` object from an ndarray.
 
@@ -796,34 +771,32 @@ class APyFixedArray:
         """
 
     def __lshift__(self, shift_amnt: int) -> APyFixedArray: ...
-
     def __matmul__(self, rhs: APyFixedArray) -> APyFixedArray: ...
-
     def __repr__(self) -> str: ...
-
     def __rshift__(self, shift_amnt: int) -> APyFixedArray: ...
-
     def __abs__(self) -> APyFixedArray: ...
-
     def __getitem__(self, idx: int) -> APyFixedArray | APyFixed: ...
-
     def __len__(self) -> int: ...
-
     def __iter__(self) -> APyFixedArrayIterator: ...
-
-    def __array__(self) -> Annotated[ArrayLike, dict(dtype='float64')]: ...
+    def __array__(self) -> Annotated[ArrayLike, dict(dtype="float64")]: ...
 
 class APyFixedArrayIterator:
     def __iter__(self) -> APyFixedArrayIterator: ...
-
     def __next__(self) -> APyFixedArray | APyFixed: ...
 
 class APyFixedCastContext(ContextManager):
-    def __init__(self, quantization: QuantizationMode | None = None, overflow: OverflowMode | None = None) -> None: ...
-
+    def __init__(
+        self,
+        quantization: QuantizationMode | None = None,
+        overflow: OverflowMode | None = None,
+    ) -> None: ...
     def __enter__(self) -> None: ...
-
-    def __exit__(self, exc_type: object | None = None, exc_value: object | None = None, traceback: object | None = None) -> None: ...
+    def __exit__(
+        self,
+        exc_type: object | None = None,
+        exc_value: object | None = None,
+        traceback: object | None = None,
+    ) -> None: ...
 
 class APyFloat:
     r"""
@@ -877,7 +850,15 @@ class APyFloat:
     Note that this formula still results in an IEEE-like bias when the inputs use IEEE-like biases.
     """
 
-    def __init__(self, sign: int, exp: int, man: int, exp_bits: int, man_bits: int, bias: int | None = None) -> None:
+    def __init__(
+        self,
+        sign: int,
+        exp: int,
+        man: int,
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
+    ) -> None:
         """
         Create an :class:`APyFloat` object.
 
@@ -902,7 +883,9 @@ class APyFloat:
         """
 
     @staticmethod
-    def from_float(value: object, exp_bits: int, man_bits: int, bias: int | None = None) -> APyFloat:
+    def from_float(
+        value: object, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyFloat:
         """
         Create an :class:`APyFloat` object from an :class:`int` or :class:`float`.
 
@@ -939,9 +922,10 @@ class APyFloat:
         """
 
     def __float__(self) -> float: ...
-
     @staticmethod
-    def from_bits(bits: int, exp_bits: int, man_bits: int, bias: int | None = None) -> APyFloat:
+    def from_bits(
+        bits: int, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyFloat:
         """
         Create an :class:`APyFloat` object from a bit-representation.
 
@@ -1001,10 +985,14 @@ class APyFloat:
         """
 
     def __str__(self) -> str: ...
-
     def __repr__(self) -> str: ...
-
-    def cast(self, exp_bits: int | None = None, man_bits: int | None = None, bias: int | None = None, quantization: QuantizationMode | None = None) -> APyFloat:
+    def cast(
+        self,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        quantization: QuantizationMode | None = None,
+    ) -> APyFloat:
         """
         Change format of the floating-point number.
 
@@ -1030,136 +1018,90 @@ class APyFloat:
 
     @overload
     def __add__(self, arg: APyFloat, /) -> APyFloat: ...
-
     @overload
     def __add__(self, arg: int, /) -> APyFloat: ...
-
     @overload
     def __add__(self, arg: float, /) -> APyFloat: ...
-
     def __neg__(self) -> APyFloat: ...
-
     @overload
     def __sub__(self, arg: APyFloat, /) -> APyFloat: ...
-
     @overload
     def __sub__(self, arg: int, /) -> APyFloat: ...
-
     @overload
     def __sub__(self, arg: float, /) -> APyFloat: ...
-
     @overload
     def __mul__(self, arg: APyFloat, /) -> APyFloat: ...
-
     @overload
     def __mul__(self, arg: int, /) -> APyFloat: ...
-
     @overload
     def __mul__(self, arg: float, /) -> APyFloat: ...
-
     @overload
     def __truediv__(self, arg: APyFloat, /) -> APyFloat: ...
-
     @overload
     def __truediv__(self, arg: int, /) -> APyFloat: ...
-
     @overload
     def __truediv__(self, arg: float, /) -> APyFloat: ...
-
     @overload
     def __radd__(self, arg: int, /) -> APyFloat: ...
-
     @overload
     def __radd__(self, arg: float, /) -> APyFloat: ...
-
     @overload
     def __rsub__(self, arg: int, /) -> APyFloat: ...
-
     @overload
     def __rsub__(self, arg: float, /) -> APyFloat: ...
-
     @overload
     def __rmul__(self, arg: int, /) -> APyFloat: ...
-
     @overload
     def __rmul__(self, arg: float, /) -> APyFloat: ...
-
     @overload
     def __rtruediv__(self, arg: int, /) -> APyFloat: ...
-
     @overload
     def __rtruediv__(self, arg: float, /) -> APyFloat: ...
-
     def __abs__(self) -> APyFloat: ...
-
     @overload
     def __pow__(self, arg: APyFloat, /) -> APyFloat: ...
-
     @overload
     def __pow__(self, arg: int, /) -> APyFloat: ...
-
     @overload
     def __eq__(self, arg: APyFloat, /) -> bool: ...
-
     @overload
     def __eq__(self, arg: float, /) -> bool: ...
-
     @overload
     def __eq__(self, arg: APyFixed, /) -> bool: ...
-
     @overload
     def __ne__(self, arg: APyFloat, /) -> bool: ...
-
     @overload
     def __ne__(self, arg: float, /) -> bool: ...
-
     @overload
     def __ne__(self, arg: APyFixed, /) -> bool: ...
-
     @overload
     def __lt__(self, arg: APyFloat, /) -> bool: ...
-
     @overload
     def __lt__(self, arg: float, /) -> bool: ...
-
     @overload
     def __lt__(self, arg: APyFixed, /) -> bool: ...
-
     @overload
     def __gt__(self, arg: APyFloat, /) -> bool: ...
-
     @overload
     def __gt__(self, arg: float, /) -> bool: ...
-
     @overload
     def __gt__(self, arg: APyFixed, /) -> bool: ...
-
     @overload
     def __le__(self, arg: APyFloat, /) -> bool: ...
-
     @overload
     def __le__(self, arg: float, /) -> bool: ...
-
     @overload
     def __le__(self, arg: APyFixed, /) -> bool: ...
-
     @overload
     def __ge__(self, arg: APyFloat, /) -> bool: ...
-
     @overload
     def __ge__(self, arg: float, /) -> bool: ...
-
     @overload
     def __ge__(self, arg: APyFixed, /) -> bool: ...
-
     def __and__(self, arg: APyFloat, /) -> APyFloat: ...
-
     def __or__(self, arg: APyFloat, /) -> APyFloat: ...
-
     def __xor__(self, arg: APyFloat, /) -> APyFloat: ...
-
     def __invert__(self) -> APyFloat: ...
-
     @property
     def is_zero(self) -> bool:
         """
@@ -1416,7 +1358,9 @@ class APyFloat:
             see :func:`get_float_quantization_mode`, is used.
         """
 
-    def cast_to_bfloat16(self, quantization: QuantizationMode | None = None) -> APyFloat:
+    def cast_to_bfloat16(
+        self, quantization: QuantizationMode | None = None
+    ) -> APyFloat:
         """
         Cast to bfloat16 format.
 
@@ -1492,11 +1436,20 @@ class APyFloatAccumulatorContext(ContextManager):
     see :class:`APyFloatQuantizationContext`.
     """
 
-    def __init__(self, exp_bits: int | None = None, man_bits: int | None = None, bias: int | None = None, quantization: QuantizationMode | None = None) -> None: ...
-
+    def __init__(
+        self,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        quantization: QuantizationMode | None = None,
+    ) -> None: ...
     def __enter__(self) -> None: ...
-
-    def __exit__(self, exc_type: object | None = None, exc_value: object | None = None, traceback: object | None = None) -> None: ...
+    def __exit__(
+        self,
+        exc_type: object | None = None,
+        exc_value: object | None = None,
+        traceback: object | None = None,
+    ) -> None: ...
 
 class APyFloatArray:
     """
@@ -1512,7 +1465,15 @@ class APyFloatArray:
     equivalent :class:`APyFloat`.
     """
 
-    def __init__(self, signs: Sequence, exps: Sequence, mans: Sequence, exp_bits: int, man_bits: int, bias: int | None = None) -> None:
+    def __init__(
+        self,
+        signs: Sequence,
+        exps: Sequence,
+        mans: Sequence,
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
+    ) -> None:
         """
         Create an :class:`APyFloat` object.
 
@@ -1538,92 +1499,62 @@ class APyFloatArray:
 
     @overload
     def __add__(self, arg: APyFloatArray, /) -> APyFloatArray: ...
-
     @overload
     def __add__(self, arg: int, /) -> APyFloatArray: ...
-
     @overload
     def __add__(self, arg: float, /) -> APyFloatArray: ...
-
     @overload
     def __add__(self, arg: APyFloat, /) -> APyFloatArray: ...
-
     @overload
     def __radd__(self, arg: int, /) -> APyFloatArray: ...
-
     @overload
     def __radd__(self, arg: float, /) -> APyFloatArray: ...
-
     @overload
     def __radd__(self, arg: APyFloat, /) -> APyFloatArray: ...
-
     @overload
     def __sub__(self, arg: APyFloatArray, /) -> APyFloatArray: ...
-
     @overload
     def __sub__(self, arg: int, /) -> APyFloatArray: ...
-
     @overload
     def __sub__(self, arg: float, /) -> APyFloatArray: ...
-
     @overload
     def __sub__(self, arg: APyFloat, /) -> APyFloatArray: ...
-
     def __neg__(self) -> APyFloatArray: ...
-
     @overload
     def __rsub__(self, arg: int, /) -> APyFloatArray: ...
-
     @overload
     def __rsub__(self, arg: float, /) -> APyFloatArray: ...
-
     @overload
     def __rsub__(self, arg: APyFloat, /) -> APyFloatArray: ...
-
     @overload
     def __mul__(self, arg: APyFloatArray, /) -> APyFloatArray: ...
-
     @overload
     def __mul__(self, arg: int, /) -> APyFloatArray: ...
-
     @overload
     def __mul__(self, arg: float, /) -> APyFloatArray: ...
-
     @overload
     def __mul__(self, arg: APyFloat, /) -> APyFloatArray: ...
-
     @overload
     def __rmul__(self, arg: int, /) -> APyFloatArray: ...
-
     @overload
     def __rmul__(self, arg: float, /) -> APyFloatArray: ...
-
     @overload
     def __rmul__(self, arg: APyFloat, /) -> APyFloatArray: ...
-
     @overload
     def __truediv__(self, arg: APyFloatArray, /) -> APyFloatArray: ...
-
     @overload
     def __truediv__(self, arg: int, /) -> APyFloatArray: ...
-
     @overload
     def __truediv__(self, arg: float, /) -> APyFloatArray: ...
-
     @overload
     def __truediv__(self, arg: APyFloat, /) -> APyFloatArray: ...
-
     @overload
     def __rtruediv__(self, arg: int, /) -> APyFloatArray: ...
-
     @overload
     def __rtruediv__(self, arg: float, /) -> APyFloatArray: ...
-
     @overload
     def __rtruediv__(self, arg: APyFloat, /) -> APyFloatArray: ...
-
     def __abs__(self) -> APyFloatArray: ...
-
     @property
     def exp_bits(self) -> int:
         """
@@ -1696,7 +1627,7 @@ class APyFloatArray:
         :class:`APyFloatArray`
         """
 
-    def to_numpy(self) -> Annotated[ArrayLike, dict(dtype='float64')]:
+    def to_numpy(self) -> Annotated[ArrayLike, dict(dtype="float64")]:
         """
         Return array as a :class:`numpy.ndarray` of :class:`numpy.float64`.
 
@@ -1709,7 +1640,9 @@ class APyFloatArray:
         """
 
     @staticmethod
-    def from_float(number_sequence: Sequence, exp_bits: int, man_bits: int, bias: int | None = None) -> APyFloatArray:
+    def from_float(
+        number_sequence: Sequence, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyFloatArray:
         """
         Create an :class:`APyFloatArray` object from a sequence of :class:`int` or :class:`float`.
 
@@ -1751,7 +1684,12 @@ class APyFloatArray:
         """
 
     @staticmethod
-    def from_array(ndarray: Annotated[ArrayLike, dict(order='C')], exp_bits: int, man_bits: int, bias: int | None = None) -> APyFloatArray:
+    def from_array(
+        ndarray: Annotated[ArrayLike, dict(order="C")],
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
+    ) -> APyFloatArray:
         """
         Create an :class:`APyFloatArray` object from an ndarray.
 
@@ -1790,11 +1728,8 @@ class APyFloatArray:
         """
 
     def __matmul__(self, rhs: APyFloatArray) -> APyFloatArray | APyFloat: ...
-
     def __repr__(self) -> str: ...
-
     def __len__(self) -> int: ...
-
     def is_identical(self, other: APyFloatArray) -> bool:
         """
         Test if two :class:`APyFloatArray` objects are identical.
@@ -1842,12 +1777,15 @@ class APyFloatArray:
         """
 
     def __getitem__(self, idx: int) -> APyFloatArray | APyFloat: ...
-
     def __iter__(self) -> APyFloatArrayIterator: ...
-
-    def __array__(self) -> Annotated[ArrayLike, dict(dtype='float64')]: ...
-
-    def cast(self, exp_bits: int | None = None, man_bits: int | None = None, bias: int | None = None, quantization: QuantizationMode | None = None) -> APyFloatArray:
+    def __array__(self) -> Annotated[ArrayLike, dict(dtype="float64")]: ...
+    def cast(
+        self,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        quantization: QuantizationMode | None = None,
+    ) -> APyFloatArray:
         """
         Change format of the floating-point number.
 
@@ -1871,7 +1809,9 @@ class APyFloatArray:
         :class:`APyFloat`
         """
 
-    def cast_to_double(self, quantization: QuantizationMode | None = None) -> APyFloatArray:
+    def cast_to_double(
+        self, quantization: QuantizationMode | None = None
+    ) -> APyFloatArray:
         """
         Cast to IEEE 754 binary64 (double-precision) format.
 
@@ -1889,7 +1829,9 @@ class APyFloatArray:
             see :func:`get_float_quantization_mode`, is used.
         """
 
-    def cast_to_single(self, quantization: QuantizationMode | None = None) -> APyFloatArray:
+    def cast_to_single(
+        self, quantization: QuantizationMode | None = None
+    ) -> APyFloatArray:
         """
         Cast to IEEE 754 binary32 (single-precision) format.
 
@@ -1907,7 +1849,9 @@ class APyFloatArray:
             see :func:`get_float_quantization_mode`, is used.
         """
 
-    def cast_to_half(self, quantization: QuantizationMode | None = None) -> APyFloatArray:
+    def cast_to_half(
+        self, quantization: QuantizationMode | None = None
+    ) -> APyFloatArray:
         """
         Cast to IEEE 754 binary16 (half-precision) format.
 
@@ -1925,7 +1869,9 @@ class APyFloatArray:
             see :func:`get_float_quantization_mode`, is used.
         """
 
-    def cast_to_bfloat16(self, quantization: QuantizationMode | None = None) -> APyFloatArray:
+    def cast_to_bfloat16(
+        self, quantization: QuantizationMode | None = None
+    ) -> APyFloatArray:
         """
         Cast to bfloat16 format.
 
@@ -1945,7 +1891,6 @@ class APyFloatArray:
 
 class APyFloatArrayIterator:
     def __iter__(self) -> APyFloatArrayIterator: ...
-
     def __next__(self) -> APyFloatArray | APyFloat: ...
 
 class APyFloatQuantizationContext(ContextManager):
@@ -1985,11 +1930,16 @@ class APyFloatQuantizationContext(ContextManager):
     Nesting the contexts is also possible.
     """
 
-    def __init__(self, quantization: QuantizationMode, quantization_seed: int | None = None) -> None: ...
-
+    def __init__(
+        self, quantization: QuantizationMode, quantization_seed: int | None = None
+    ) -> None: ...
     def __enter__(self) -> None: ...
-
-    def __exit__(self, exc_type: object | None = None, exc_value: object | None = None, traceback: object | None = None) -> None: ...
+    def __exit__(
+        self,
+        exc_type: object | None = None,
+        exc_value: object | None = None,
+        traceback: object | None = None,
+    ) -> None: ...
 
 class ContextManager:
     pass

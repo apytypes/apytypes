@@ -10,13 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added methods `next_up()` and `next_down()` for floating-point scalars.
-- Broadcasting support [as NumPy](https://numpy.org/doc/stable/user/basics.broadcasting.html)
+- Broadcasting support
+  [as NumPy](https://numpy.org/doc/stable/user/basics.broadcasting.html).
   - `APyFixedArray.broadcast_to()`
   - `APyFloatArray.broadcast_to()`
   - Automatic broadcasting on array arithmetic
 - Support arithmetic between APyTypes classes and Python's built-in floats and ints.
+- Support for automatic stub generation added.
 
 ### Changed
+
+- Updated [nanobind](https://github.com/wjakob/nanobind) dependency from v1.9.2 to
+  v2.0.0.
 
 ### Fixed
 
@@ -24,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix in floating-point `cast`-method when result became subnormal.
 - Fix bug in `APyFixedArray.__truediv__()` where program crashes on long-limb zero
   denominators.
-- Fix bug where single-dimensional tuple representations missed out on a comma
+- Fix bug where single-dimensional tuple representations missed out on a comma.
 
 ### Removed
 

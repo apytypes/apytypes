@@ -50,8 +50,6 @@ void bind_cast_context(nb::module_& m)
     nb::class_<APyFixedCastContext, ContextManager>(m, "APyFixedCastContext")
         .def(
             nb::init<std::optional<QuantizationMode>, std::optional<OverflowMode>>(),
-            // nb::kw_only() is added in NanoBind v2.0.0
-            // nb::kw_only(), // All parameters are keyword only
             nb::arg("quantization") = nb::none(),
             nb::arg("overflow") = nb::none()
         )
@@ -77,8 +75,6 @@ void bind_accumulator_context(nb::module_& m)
                 std::optional<QuantizationMode>,
                 std::optional<OverflowMode>,
                 std::optional<int>>(),
-            // nb::kw_only() is added in NanoBind v2.0.0
-            // nb::kw_only(), // All parameters are keyword only
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("quantization") = nb::none(),
@@ -103,8 +99,6 @@ void bind_accumulator_context(nb::module_& m)
                 std::optional<int>,
                 std::optional<exp_t>,
                 std::optional<QuantizationMode>>(),
-            // nb::kw_only() is added in NanoBind v2.0.0
-            // nb::kw_only(), // All parameters are keyword only
             nb::arg("exp_bits") = nb::none(),
             nb::arg("man_bits") = nb::none(),
             nb::arg("bias") = nb::none(),

@@ -3,17 +3,6 @@ from apytypes import *
 import pytest
 
 
-@pytest.mark.xfail()
-def test_context_kw_only():
-    """
-    This method should raise a `TypeError`, but since kw-only arguments are not part of
-    Nanobind <= v1.9.2, we wait with this until gets a tagged release.
-    """
-    with pytest.raises(TypeError):  # keyword only
-        with APyFixedAccumulatorContext(5, 2):
-            pass
-
-
 class TestCastContext:
     """
     This test class doesn't test if cast itself works,
