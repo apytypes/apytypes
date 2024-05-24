@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `APyFixedArray.broadcast_to()`
   - `APyFloatArray.broadcast_to()`
   - Automatic broadcasting on array arithmetic
+- Support arithmetic between APyTypes classes and Python's built-in floats and ints.
 
 ### Changed
 
