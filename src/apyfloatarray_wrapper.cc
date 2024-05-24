@@ -13,7 +13,7 @@ void bind_float_array(nb::module_& m)
     nb::class_<APyFloatArray>(m, "APyFloatArray")
 
         /*
-         * Constructor: construct from a list of Python integers
+         * Constructor: construct from rhs list of Python integers
          */
         .def(
             "__init__",
@@ -34,7 +34,7 @@ void bind_float_array(nb::module_& m)
             exps : sequence of ints
                 Exponents of the floats as stored, i.e., actual value + bias.
             mans : sequence of ints
-                Mantissas of the floats as stored, i.e., without a hidden one.
+                Mantissas of the floats as stored, i.e., without rhs hidden one.
             exp_bits : int
                 Number of exponent bits.
             man_bits : int
@@ -54,209 +54,206 @@ void bind_float_array(nb::module_& m)
         .def(nb::self + nb::self)
         .def(
             "__add__",
-            [](const APyFloatArray& a, int b) {
-                if (b == 0) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot add with int");
-                };
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__radd__",
-            [](const APyFloatArray& a, int b) {
-                if (b == 0) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot add with int");
-                };
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__add__",
-            [](const APyFloatArray& a, double b) {
-                return a
-                    + APyFloat::from_double(
-                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+            [](const APyFloatArray& lhs, const nb::int_& rhs) {
+                return lhs
+                    + APyFloat::from_integer(
+                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
                     );
             },
             nb::is_operator()
         )
         .def(
             "__radd__",
-            [](const APyFloatArray& a, double b) {
-                return a
-                    + APyFloat::from_double(
-                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+            [](const APyFloatArray& rhs, const nb::int_& lhs) {
+                return rhs
+                    + APyFloat::from_integer(
+                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
                     );
             },
             nb::is_operator()
         )
         .def(
             "__add__",
-            [](const APyFloatArray& a, const APyFloat& b) { return a + b; },
+            [](const APyFloatArray& lhs, double rhs) {
+                return lhs
+                    + APyFloat::from_double(
+                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
+                    );
+            },
             nb::is_operator()
         )
         .def(
             "__radd__",
-            [](const APyFloatArray& a, const APyFloat& b) { return a + b; },
+            [](const APyFloatArray& rhs, double lhs) {
+                return rhs
+                    + APyFloat::from_double(
+                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
+                    );
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__add__",
+            [](const APyFloatArray& lhs, const APyFloat& rhs) { return lhs + rhs; },
+            nb::is_operator()
+        )
+        .def(
+            "__radd__",
+            [](const APyFloatArray& rhs, const APyFloat& lhs) { return rhs + lhs; },
             nb::is_operator()
         )
         .def(nb::self - nb::self)
         .def(-nb::self)
         .def(
             "__sub__",
-            [](const APyFloatArray& a, int b) {
-                if (b == 0) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot subtract with int");
-                };
+            [](const APyFloatArray& lhs, const nb::int_& rhs) {
+                return lhs
+                    - APyFloat::from_integer(
+                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
+                    );
             },
             nb::is_operator()
         )
         .def(
             "__rsub__",
-            [](const APyFloatArray& a, int b) {
-                if (b == 0) {
-                    return -a;
-                } else {
-                    throw nanobind::type_error("Cannot subtract with int");
-                };
+            [](const APyFloatArray& rhs, const nb::int_& lhs) {
+                return (-rhs)
+                    + APyFloat::from_integer(
+                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
+                    );
             },
             nb::is_operator()
         )
         .def(
             "__sub__",
-            [](const APyFloatArray& a, double b) {
-                return a
+            [](const APyFloatArray& lhs, double rhs) {
+                return lhs
                     - APyFloat::from_double(
-                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
                     );
             },
             nb::is_operator()
         )
         .def(
             "__rsub__",
-            [](const APyFloatArray& a, double b) {
-                return (-a)
+            [](const APyFloatArray& rhs, double lhs) {
+                return (-rhs)
                     + APyFloat::from_double(
-                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
                     );
             },
             nb::is_operator()
         )
         .def(
             "__sub__",
-            [](const APyFloatArray& a, const APyFloat& b) { return a - b; },
+            [](const APyFloatArray& lhs, const APyFloat& rhs) { return lhs - rhs; },
             nb::is_operator()
         )
         .def(
             "__rsub__",
-            [](const APyFloatArray& a, const APyFloat& b) { return (-a) + b; },
+            [](const APyFloatArray& rhs, const APyFloat& lhs) { return (-rhs) + lhs; },
             nb::is_operator()
         )
         .def(nb::self * nb::self)
         .def(
             "__mul__",
-            [](const APyFloatArray& a, int b) {
-                if (b == 1) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot multiply with int");
-                };
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__rmul__",
-            [](const APyFloatArray& a, int b) {
-                if (b == 1) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot multiply with int");
-                };
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__mul__",
-            [](const APyFloatArray& a, double b) {
-                return a
-                    * APyFloat::from_double(
-                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+            [](const APyFloatArray& lhs, const nb::int_& rhs) {
+                return lhs
+                    * APyFloat::from_integer(
+                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
                     );
             },
             nb::is_operator()
         )
         .def(
             "__rmul__",
-            [](const APyFloatArray& a, double b) {
-                return a
-                    * APyFloat::from_double(
-                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+            [](const APyFloatArray& rhs, const nb::int_& lhs) {
+                return rhs
+                    * APyFloat::from_integer(
+                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
                     );
             },
             nb::is_operator()
         )
         .def(
             "__mul__",
-            [](const APyFloatArray& a, const APyFloat& b) { return a * b; },
+            [](const APyFloatArray& lhs, double rhs) {
+                return lhs
+                    * APyFloat::from_double(
+                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
+                    );
+            },
             nb::is_operator()
         )
         .def(
             "__rmul__",
-            [](const APyFloatArray& a, const APyFloat& b) { return a * b; },
+            [](const APyFloatArray& rhs, double lhs) {
+                return rhs
+                    * APyFloat::from_double(
+                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
+                    );
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__mul__",
+            [](const APyFloatArray& lhs, const APyFloat& rhs) { return lhs * rhs; },
+            nb::is_operator()
+        )
+        .def(
+            "__rmul__",
+            [](const APyFloatArray& rhs, const APyFloat& lhs) { return rhs * lhs; },
             nb::is_operator()
         )
         .def(nb::self / nb::self)
         .def(
             "__truediv__",
-            [](const APyFloatArray& a, int b) {
-                if (b == 1) {
-                    return a;
-                } else {
-                    throw nanobind::type_error("Cannot divide with int");
-                };
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__rtruediv__",
-            [](const APyFloatArray& a, int b) {
-                throw nanobind::type_error("Cannot divide with int");
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__truediv__",
-            [](const APyFloatArray& a, double b) {
-                return a
-                    / APyFloat::from_double(
-                           b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+            [](const APyFloatArray& lhs, const nb::int_& rhs) {
+                return lhs
+                    / APyFloat::from_integer(
+                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
                     );
             },
             nb::is_operator()
         )
         .def(
             "__rtruediv__",
-            [](const APyFloatArray& a, double b) {
-                return a.rtruediv(APyFloat::from_double(
-                    b, a.get_exp_bits(), a.get_man_bits(), a.get_bias()
+            [](const APyFloatArray& rhs, const nb::int_& lhs) {
+                return rhs.rtruediv(APyFloat::from_integer(
+                    lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
                 ));
             },
             nb::is_operator()
         )
         .def(
             "__truediv__",
-            [](const APyFloatArray& a, const APyFloat& b) { return a / b; },
+            [](const APyFloatArray& lhs, double rhs) {
+                return lhs
+                    / APyFloat::from_double(
+                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
+                    );
+            },
             nb::is_operator()
         )
         .def(
             "__rtruediv__",
-            [](const APyFloatArray& a, const APyFloat& b) { return a.rtruediv(b); },
+            [](const APyFloatArray& rhs, double lhs) {
+                return rhs.rtruediv(APyFloat::from_double(
+                    lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
+                ));
+            },
+            nb::is_operator()
+        )
+        .def(
+            "__truediv__",
+            [](const APyFloatArray& lhs, const APyFloat& rhs) { return lhs / rhs; },
+            nb::is_operator()
+        )
+        .def(
+            "__rtruediv__",
+            [](const APyFloatArray& rhs, const APyFloat& lhs) {
+                return rhs.rtruediv(lhs);
+            },
             nb::is_operator()
         )
         .def("__abs__", &APyFloatArray::abs)
@@ -321,7 +318,7 @@ void bind_float_array(nb::module_& m)
             :class:`APyFloatArray`
             )pbdoc")
         .def("to_numpy", &APyFloatArray::to_numpy, R"pbdoc(
-            Return array as a :class:`numpy.ndarray` of :class:`numpy.float64`.
+            Return array as rhs :class:`numpy.ndarray` of :class:`numpy.float64`.
 
             The returned array has the same `shape` and values as `self`. This
             method rounds away from infinity on ties.
@@ -342,11 +339,11 @@ void bind_float_array(nb::module_& m)
             nb::arg("man_bits"),
             nb::arg("bias") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyFloatArray` object from a sequence of :class:`int` or :class:`float`.
+            Create an :class:`APyFloatArray` object from rhs sequence of :class:`int` or :class:`float`.
 
             Parameters
             ----------
-            float_sequence : sequence of numbers
+            number_sequence : sequence of numbers
                 Floating point values to initialize from. The tensor shape will be taken
                 from the sequence shape.
             exp_bits : int
@@ -367,11 +364,11 @@ void bind_float_array(nb::module_& m)
 
                 from apytypes import APyFloatArray
 
-                # Array `a`, initialized from floating-point values.
-                a = APyFloatArray.from_float([1.0, 1.25, 1.49], exp_bits=10, man_bits=15)
+                # Array `rhs`, initialized from floating-point values.
+                rhs = APyFloatArray.from_float([1.0, 1.25, 1.49], exp_bits=10, man_bits=15)
 
-                # Array `b` (2 x 3 matrix), initialized from floating-point values.
-                b = APyFloatArray.from_float(
+                # Array `lhs` (2 x 3 matrix), initialized from floating-point values.
+                lhs = APyFloatArray.from_float(
                     [
                         [1.0, 2.0, 3.0],
                         [4.0, 5.0, 6.0],
@@ -414,8 +411,8 @@ void bind_float_array(nb::module_& m)
                 from apytypes import APyFloatArray
                 import numpy as np
 
-                # Array `a`, initialized from NumPy ndarray
-                a = APyFloatArray.from_array(
+                # Array `rhs`, initialized from NumPy ndarray
+                rhs = APyFloatArray.from_array(
                     np.array([
                         [1.0, 2.0, 3.0],
                         [4.0, 5.0, 6.0],
@@ -450,11 +447,11 @@ void bind_float_array(nb::module_& m)
         .def("transpose", &APyFloatArray::transpose, R"pbdoc(
             Return the transposition of the array.
 
-            If the dimension of `self` is one, this method returns the a copy of `self`.
+            If the dimension of `self` is one, this method returns the rhs copy of `self`.
             If the dimension of `self` is two, this method returns the matrix
             transposition of `self`.
 
-            Higher order transposition has not been implemented and will raise a
+            Higher order transposition has not been implemented and will raise rhs
             `NotImplementedException`.
 
             Returns
@@ -473,7 +470,7 @@ void bind_float_array(nb::module_& m)
             Parameters
             ----------
             shape : tuple or int
-                The shape to broadcast to. A single integer ``i`` is interpreted as ``(i,)``.
+                The shape to broadcast to. rhs single integer ``i`` is interpreted as ``(i,)``.
 
             Returns
             -------

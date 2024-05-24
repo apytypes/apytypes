@@ -1132,7 +1132,7 @@ def test_binary_logic():
 def test_operation_with_numbers():
     a = APyFloat(0, 15, 2, 5, 2)  # 1.75
 
-    # Integer
+    # Integer identities
     assert (a + 0).is_identical(a)
     assert (0 + a).is_identical(a)
     assert (a - 0).is_identical(a)
@@ -1141,25 +1141,19 @@ def test_operation_with_numbers():
     assert (1 * a).is_identical(a)
     assert (a / 1).is_identical(a)
 
-    # Integer raises
-    with pytest.raises(TypeError, match="Cannot add with int"):
-        assert (_ := a + 1).is_identical(APyFloat(0, 16, 2, 5, 2))
-    with pytest.raises(TypeError, match="Cannot add with int"):
-        assert (_ := 1 + a).is_identical(APyFloat(0, 16, 2, 5, 2))
-    with pytest.raises(TypeError, match="Cannot subtract with int"):
-        assert (_ := a - 1).is_identical(APyFloat(0, 14, 2, 5, 2))
-    with pytest.raises(TypeError, match="Cannot subtract with int"):
-        assert (_ := 1 - a).is_identical(APyFloat(1, 14, 2, 5, 2))
-    with pytest.raises(TypeError, match="Cannot multiply with int"):
-        assert (_ := a * 2).is_identical(APyFloat(0, 16, 3, 5, 2))
-    with pytest.raises(TypeError, match="Cannot multiply with int"):
-        assert (_ := 2 * a).is_identical(APyFloat(0, 16, 3, 5, 2))
-    with pytest.raises(TypeError, match="Cannot divide with int"):
-        assert (_ := a / 2).is_identical(APyFloat(0, 14, 3, 5, 2))
-    with pytest.raises(TypeError, match="Cannot divide with int"):
-        assert (_ := 1 / a).is_identical(APyFloat(0, 14, 1, 5, 2))
+    # Operations with floats
+    q_eight = 9  # Should quantize to eight
+    eight = APyFloat(0, 18, 0, 5, 2)
+    assert (_ := a + q_eight).is_identical(a + eight)
+    assert (_ := q_eight + a).is_identical(eight + a)
+    assert (_ := a - q_eight).is_identical(a - eight)
+    assert (_ := q_eight - a).is_identical(eight - a)
+    assert (_ := a * q_eight).is_identical(a * eight)
+    assert (_ := q_eight * a).is_identical(eight * a)
+    assert (_ := a / q_eight).is_identical(a / eight)
+    assert (_ := q_eight / a).is_identical(eight / a)
 
-    # Float
+    # Operations with floats
     q_one = 1.125  # Should quantize to one
     q_zero = 0.125  # Should quantize to zero
     assert (_ := a + q_zero).is_identical(a)
