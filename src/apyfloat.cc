@@ -1758,38 +1758,48 @@ bool APyFloat::operator!=(const APyFixed& rhs) const
 bool APyFloat::operator<=(const APyFixed& rhs) const
 {
     if (is_max_exponent()) {
+        if (man == 0) { // inf
+            return sign;
+        }
         return false;
     }
+
     return ((to_fixed()) <= rhs);
 }
 
 bool APyFloat::operator<(const APyFixed& rhs) const
 {
     if (is_max_exponent()) {
+        if (man == 0) { // inf
+            return sign;
+        }
         return false;
     }
+
     return ((to_fixed()) < rhs);
 }
 
 bool APyFloat::operator>=(const APyFixed& rhs) const
 {
-    if (is_nan()) {
+    if (is_max_exponent()) {
+        if (man == 0) { // inf
+            return !sign;
+        }
         return false;
     }
-    if (is_inf()) {
-        return true;
-    }
+
     return ((to_fixed()) >= rhs);
 }
 
 bool APyFloat::operator>(const APyFixed& rhs) const
 {
-    if (is_nan()) {
+    if (is_max_exponent()) {
+        if (man == 0) { // inf
+            return !sign;
+        }
         return false;
     }
-    if (is_inf()) {
-        return true;
-    }
+
     return ((to_fixed()) > rhs);
 }
 

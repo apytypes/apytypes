@@ -1652,11 +1652,11 @@ class APyFloatArray:
             Floating point values to initialize from. The tensor shape will be taken
             from the sequence shape.
         exp_bits : int
-            Number of exponent bits in the created fixed-point tensor
+            Number of exponent bits in the created floating-point tensor
         man_bits : int
-            Number of mantissa bits in the created fixed-point tensor
+            Number of mantissa bits in the created floating-point tensor
         bias : int, optional
-            Bias in the created fixed-point tensor
+            Bias in the created floating-point tensor
 
         Returns
         -------
