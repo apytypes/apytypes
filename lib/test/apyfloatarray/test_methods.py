@@ -1,5 +1,4 @@
 import pytest
-import numpy as np
 from apytypes import APyFloatArray, APyFloat, QuantizationMode
 
 
@@ -118,6 +117,9 @@ def test_array_cast_raises():
 
 
 def test_array_from_array_raises():
+    # Skip this test if `NumPy` is not present on the machine
+    np = pytest.importorskip("numpy")
+
     # Too many exponent bits
     with pytest.raises(
         ValueError,
