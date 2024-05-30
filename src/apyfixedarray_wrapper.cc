@@ -379,29 +379,29 @@ void bind_fixed_array(nb::module_& m)
             bits : int, optional
                 Total number of bits in the created fixed-point tensor.
 
-            Returns
-            -------
-            :class:`APyFixedArray`
-
             Examples
             --------
 
-            .. code-block:: python
+            >>> from apytypes import APyFixedArray
 
-                from apytypes import APyFixedArray
+            Array `a`, initialized from floating-point values.
 
-                # Array `a`, initialized from floating-point values.
-                a = APyFixedArray.from_float([1.0, 1.25, 1.49], int_bits=2, frac_bits=2)
+            >>> a = APyFixedArray.from_float([1.0, 1.25, 1.49], int_bits=2, frac_bits=2)
 
-                # Array `b` (2 x 3 matrix), initialized from floating-point values.
-                b = APyFixedArray.from_float(
-                    [
-                        [1.0, 2.0, 3.0],
-                        [4.0, 5.0, 6.0],
-                    ],
-                    bits=5,
-                    frac_bits=0
-                )
+            Array `b` (2 x 3 matrix), initialized from floating-point values.
+
+            >>> b = APyFixedArray.from_float(
+            ...     [
+            ...         [1.0, 2.0, 3.0],
+            ...         [4.0, 5.0, 6.0],
+            ...     ],
+            ...     bits=5,
+            ...     frac_bits=0
+            ... )
+
+            Returns
+            -------
+            :class:`APyFixedArray`
             )pbdoc"
         )
         .def_static(
@@ -431,27 +431,26 @@ void bind_fixed_array(nb::module_& m)
             bits : int, optional
                 Total number of bits in the created fixed-point tensor.
 
-            Returns
-            -------
-            :class:`APyFixedArray`
-
             Examples
             --------
 
-            .. code-block:: python
+            >>> from apytypes import APyFixedArray
+            >>> import numpy as np
 
-                from apytypes import APyFixedArray
-                import numpy as np
+            Array `a`, initialized from NumPy ndarray
 
-                # Array `a`, initialized from NumPy ndarray
-                a = APyFixedArray.from_array(
-                    np.array([
-                        [1.0, 2.0, 3.0],
-                        [4.0, 5.0, 6.0],
-                    ]),
-                    int_bits=10,
-                    frac_bits=0
-                )
+            >>> a = APyFixedArray.from_array(
+            ...     np.array([
+            ...         [1.0, 2.0, 3.0],
+            ...         [4.0, 5.0, 6.0],
+            ...     ]),
+            ...     int_bits=10,
+            ...     frac_bits=0
+            ... )
+
+            Returns
+            -------
+            :class:`APyFixedArray`
             )pbdoc"
         )
 

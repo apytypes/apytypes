@@ -43,7 +43,8 @@ def test_add_representable(exp, man, sign, lhs, rhs):
     print(repr(APyFloat.from_float(f, e, m)))
     assert float(
         eval(
-            expr := f"APyFloat.from_float({sign[0]}{lhs}, {exp[0]}, {man[0]}) + APyFloat.from_float({sign[1]}{rhs}, {exp[1]}, {man[1]})"
+            expr
+            := f"APyFloat.from_float({sign[0]}{lhs}, {exp[0]}, {man[0]}) + APyFloat.from_float({sign[1]}{rhs}, {exp[1]}, {man[1]})"
         )
     ) == (float(eval(f"{sign[0]}{lhs} + {sign[1]}{rhs}")))
     res = eval(expr)
@@ -434,7 +435,8 @@ def test_mul_mixed(exp, man, sign, lhs, rhs):
     expr = None
     assert float(
         eval(
-            expr := f"APyFloat.from_float({sign[0]}{lhs}, {exp[0]}, {man[0]}) * APyFloat.from_float({sign[1]}{rhs}, {exp[1]}, {man[1]})"
+            expr
+            := f"APyFloat.from_float({sign[0]}{lhs}, {exp[0]}, {man[0]}) * APyFloat.from_float({sign[1]}{rhs}, {exp[1]}, {man[1]})"
         )
     ) == (float(eval(f"{sign[0]}{lhs} * {sign[1]}{rhs}")))
     res = eval(expr)
@@ -702,7 +704,8 @@ def test_div_mixed_formats(exp, man, sign, lhs, rhs):
     expr = None
     assert float(
         eval(
-            expr := f"APyFloat.from_float({sign[0]}{lhs}, {exp[0]}, {man[0]}) / APyFloat.from_float({sign[1]}{rhs}, {exp[1]}, {man[1]})"
+            expr
+            := f"APyFloat.from_float({sign[0]}{lhs}, {exp[0]}, {man[0]}) / APyFloat.from_float({sign[1]}{rhs}, {exp[1]}, {man[1]})"
         )
     ) == (float(eval(f"{sign[0]}{lhs} / {sign[1]}{rhs}")))
     res = eval(expr)

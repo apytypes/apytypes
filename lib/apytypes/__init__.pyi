@@ -1,5 +1,6 @@
 import __future__
 
+from . import _apytypes as _apytypes, _version as _version
 from ._apytypes import (
     APyFixed as APyFixed,
     APyFixedAccumulatorContext as APyFixedAccumulatorContext,
@@ -11,6 +12,7 @@ from ._apytypes import (
     APyFloatQuantizationContext as APyFloatQuantizationContext,
     OverflowMode as OverflowMode,
     QuantizationMode as QuantizationMode,
+    _get_simd_version_str as _get_simd_version_str,
     get_float_quantization_mode as get_float_quantization_mode,
     get_float_quantization_seed as get_float_quantization_seed,
     set_float_quantization_mode as set_float_quantization_mode,
