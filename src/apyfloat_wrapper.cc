@@ -71,19 +71,18 @@ void bind_float(nb::module_& m)
             bias : int, optional
                 Bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
-            Returns
-            -------
-            :class:`APyFloat`
-
             Examples
             --------
 
-            .. code-block:: python
+            >>> from apytypes import APyFloat
 
-                from apytypes import APyFloat
+            `a`, initialized from floating-point values.
 
-                # `a`, initialized from floating-point values.
-                a = APyFloat.from_float(1.35, exp_bits=10, man_bits=15)
+            >>> a = APyFloat.from_float(1.35, exp_bits=10, man_bits=15)
+
+            Returns
+            -------
+            :class:`APyFloat`
 
             See also
             --------
@@ -112,19 +111,18 @@ void bind_float(nb::module_& m)
             bias : int, optional
                 Bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
-            Returns
-            -------
-            :class:`APyFloat`
-
             Examples
             --------
 
-            .. code-block:: python
+            >>> from apytypes import APyFloat
 
-                from apytypes import APyFloat
+            `a`, initialized to -1.5 from a bit pattern.
 
-                # `a`, initialized to -1.5 from a bit pattern.
-                a = APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
+            >>> a = APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
+
+            Returns
+            -------
+            :class:`APyFloat`
 
             See also
             --------
@@ -135,20 +133,22 @@ void bind_float(nb::module_& m)
         .def("to_bits", &APyFloat::to_bits, R"pbdoc(
             Get the bit-representation of an :class:`APyFloat`.
 
-            Returns
-            -------
-            :class:`int`
-
             Examples
             --------
 
-            .. code-block:: python
+            >>> from apytypes import APyFloat
 
-                from apytypes import APyFloat
+            `a`, initialized to -1.5 from a bit pattern.
 
-                # `a`, initialized to -1.5 from a bit pattern.
-                a = APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
-                a.to_bits() == 0b1_01111_10 # True
+            >>> a = APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
+            >>> a
+            APyFloat(sign=1, exp=15, man=2, exp_bits=5, man_bits=2)
+            >>> a.to_bits() == 0b1_01111_10
+            True
+
+            Returns
+            -------
+            :class:`int`
 
             See also
             --------

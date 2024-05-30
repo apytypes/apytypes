@@ -12,7 +12,6 @@ import pytest
 
 @pytest.mark.float_array
 def test_dimension_mismatch_raises():
-
     ##
     # Vector inner product mismatch
     #

@@ -158,21 +158,22 @@ class APyFixed:
         """
         Retrieve underlying bit-pattern in an :class:`int`.
 
+        Examples
+        --------
+        >>> from apytypes import APyFixed
+
+        Create fixed-point number `fx_a` of value -5.75
+
+        >>> fx_a = APyFixed.from_float(-5.75, int_bits=4, frac_bits=4)
+
+        Returns: 164 == 0xA4 == 0b10100100
+
+        >>> fx_a.to_bits()
+        164
+
         Returns
         -------
         :class:`int`
-
-        Examples
-        --------
-        .. code-block:: python
-
-            from apytypes import APyFixed
-
-            # Create fixed-point number `fx_a` of value -5.75
-            fx_a = APyFixed.from_float(-5.75, int_bits=4, frac_bits=4)
-
-            # Returns: 164 == 0xA4 == 0b10100100
-            fx_a.to_bits()
         """
 
     @property
@@ -220,24 +221,25 @@ class APyFixed:
         other : :class:`APyFixed`
             The fixed-point number to test identicality against
 
+        Examples
+        --------
+        >>> from apytypes import APyFixed
+        >>> fx_a = APyFixed.from_float(2.0, int_bits=3, frac_bits=3)
+        >>> fx_b = APyFixed.from_float(2.0, int_bits=4, frac_bits=3)
+
+        `fx_a` and `fx_b` store the same fixed-point value
+
+        >>> fx_a == fx_b
+        True
+
+        `fx_a` and `fx_b` differ in the `int_bits` specifier
+
+        >>> fx_a.is_identical(fx_b)
+        False
+
         Returns
         -------
         :class:`bool`
-
-        Examples
-        --------
-        .. code-block:: python
-
-            from apytypes import APyFixed
-
-            fx_a = APyFixed.from_float(2.0, int_bits=3, frac_bits=3)
-            fx_b = APyFixed.from_float(2.0, int_bits=4, frac_bits=3)
-
-            # `fx_a` and `fx_b` store the same fixed-point value
-            assert fx_a == fx_b
-
-            # `fx_a` and `fx_b` differ in the `int_bits` specifier
-            assert not(fx_a.is_identical(fx_b))
         """
 
     @property
@@ -274,28 +276,33 @@ class APyFixed:
         bits : int, optional
             Total number of bits in the result.
 
+        Examples
+        --------
+        >>> from apytypes import APyFixed
+        >>> from apytypes import QuantizationMode
+        >>> from apytypes import OverflowMode
+        >>> fx = APyFixed.from_float(2.125, int_bits=3, frac_bits=3)
+
+        Truncation (2.0)
+
+        >>> fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.TRN)
+        APyFixed(8, bits=5, int_bits=3)
+
+        Rounding (2.25)
+
+        >>> fx.cast(
+        ...     int_bits=3, frac_bits=2, quantization=QuantizationMode.RND
+        ... )  # doctest: +SKIP
+        APyFixed(8, bits=5, int_bits=3)
+
+        Two's complement overflowing (-1.875)
+
+        >>> fx.cast(int_bits=2, frac_bits=3, overflow=OverflowMode.WRAP)
+        APyFixed(17, bits=5, int_bits=2)
+
         Returns
         -------
         :class:`APyFixed`
-
-        Examples
-        --------
-        .. code-block:: python
-
-            from apytypes import APyFixed
-            from apytypes import QuantizationMode
-            from apytypes import OverflowMode
-
-            fx = APyFixed.from_float(2.125, int_bits=3, frac_bits=3)
-
-            # Truncation (fx_a == 2.0)
-            fx_a = fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.TRN)
-
-            # Quantization (fx_b == 2.25)
-            fx_b = fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.RND)
-
-            # Two's complement overflowing (fx_c == -1.875)
-            fx_c = fx.cast(int_bits=2, frac_bits=3, overflow=OverflowMode.WRAP)
         """
 
     @property
@@ -371,13 +378,20 @@ class APyFixed:
 
         Examples
         --------
-        .. code-block:: python
+        >>> from apytypes import APyFixed
+        >>> fx_a = APyFixed.from_float(1.234, int_bits=2, frac_bits=2)
 
-            from apytypes import APyFixed
+        Fixed-point `fx_a`, initialized from the floating-point value 1.234,
+        rounded to 1.25 as it is the closest representable number
 
-            # Fixed-point `fx_a`, initialized from the floating-point value 1.234,
-            # rounded to 1.25 as it is the closest representable number
-            fx_a = APyFixed.from_float(1.234, int_bits=2, frac_bits=2)
+        >>> fx_a
+        APyFixed(5, bits=4, int_bits=2)
+        >>> str(fx_a)
+        '1.25'
+
+        Returns
+        -------
+        :class:`APyFixed`
         """
 
     @staticmethod
@@ -409,22 +423,25 @@ class APyFixed:
 
         Examples
         --------
-        .. code-block:: python
+        >>> from apytypes import APyFixed
 
-            from apytypes import APyFixed
+        Larger fixed-point value initialization from a string (base-10)
 
-            # Larger fixed-point value initialization from a string (base-10)
-            fx_a = APyFixed.from_str(
-                "-1376018206341311063223476816643087998331620501540496640."
-                "021222579872958058370179355618716816066859017361262100333952697594702"
-                "314679773970519809467311447652539955943903993200932791396783892142688"
-                "708904952458654442554723081083186210082207584128592922850820472478833"
-                "257136662269306798708182072507551281664490003441493733349403017982015"
-                "56238154807942919433116912841796875",
-                bits=511,
-                int_bits=199,
-                base=10
-            )
+        >>> fx_a = APyFixed.from_str(
+        ...     "-1376018206341311063223476816643087998331620501540496640."
+        ...     "021222579872958058370179355618716816066859017361262100333952697594702"
+        ...     "314679773970519809467311447652539955943903993200932791396783892142688"
+        ...     "708904952458654442554723081083186210082207584128592922850820472478833"
+        ...     "257136662269306798708182072507551281664490003441493733349403017982015"
+        ...     "56238154807942919433116912841796875",
+        ...     bits=511,
+        ...     int_bits=199,
+        ...     base=10,
+        ... )
+
+        Returns
+        -------
+        :class:`APyFixed`
         """
 
 class APyFixedAccumulatorContext(ContextManager):
@@ -695,29 +712,29 @@ class APyFixedArray:
         bits : int, optional
             Total number of bits in the created fixed-point tensor.
 
-        Returns
-        -------
-        :class:`APyFixedArray`
-
         Examples
         --------
 
-        .. code-block:: python
+        >>> from apytypes import APyFixedArray
 
-            from apytypes import APyFixedArray
+        Array `a`, initialized from floating-point values.
 
-            # Array `a`, initialized from floating-point values.
-            a = APyFixedArray.from_float([1.0, 1.25, 1.49], int_bits=2, frac_bits=2)
+        >>> a = APyFixedArray.from_float([1.0, 1.25, 1.49], int_bits=2, frac_bits=2)
 
-            # Array `b` (2 x 3 matrix), initialized from floating-point values.
-            b = APyFixedArray.from_float(
-                [
-                    [1.0, 2.0, 3.0],
-                    [4.0, 5.0, 6.0],
-                ],
-                bits=5,
-                frac_bits=0
-            )
+        Array `b` (2 x 3 matrix), initialized from floating-point values.
+
+        >>> b = APyFixedArray.from_float(
+        ...     [
+        ...         [1.0, 2.0, 3.0],
+        ...         [4.0, 5.0, 6.0],
+        ...     ],
+        ...     bits=5,
+        ...     frac_bits=0,
+        ... )
+
+        Returns
+        -------
+        :class:`APyFixedArray`
         """
 
     @staticmethod
@@ -747,27 +764,28 @@ class APyFixedArray:
         bits : int, optional
             Total number of bits in the created fixed-point tensor.
 
-        Returns
-        -------
-        :class:`APyFixedArray`
-
         Examples
         --------
 
-        .. code-block:: python
+        >>> from apytypes import APyFixedArray
+        >>> import numpy as np
 
-            from apytypes import APyFixedArray
-            import numpy as np
+        Array `a`, initialized from NumPy ndarray
 
-            # Array `a`, initialized from NumPy ndarray
-            a = APyFixedArray.from_array(
-                np.array([
-                    [1.0, 2.0, 3.0],
-                    [4.0, 5.0, 6.0],
-                ]),
-                int_bits=10,
-                frac_bits=0
-            )
+        >>> a = APyFixedArray.from_array(
+        ...     np.array(
+        ...         [
+        ...             [1.0, 2.0, 3.0],
+        ...             [4.0, 5.0, 6.0],
+        ...         ]
+        ...     ),
+        ...     int_bits=10,
+        ...     frac_bits=0,
+        ... )
+
+        Returns
+        -------
+        :class:`APyFixedArray`
         """
 
     def __lshift__(self, shift_amnt: int) -> APyFixedArray: ...
@@ -825,18 +843,24 @@ class APyFloat:
     If the operands do not share the same format, the resulting
     bit widths of the exponent and mantissa field will be the maximum of its inputs:
 
-    .. code-block:: Python
+    Examples
+    --------
 
-        from apytypes import APyFloat
-        a = APyFixed.from_float(1.25, exp_bits=5, man_bits=2)
-        b = APyFixed.from_float(1.75, exp_bits=5, man_bits=2)
-        # Operands with same format, result will have exp_bits=5, man_bits=2
-        c = a + b
+    >>> from apytypes import APyFloat
+    >>> a = APyFloat.from_float(1.25, exp_bits=5, man_bits=2)
+    >>> b = APyFloat.from_float(1.75, exp_bits=5, man_bits=2)
 
-        d = APyFixed.from_float(1.75, exp_bits=4, man_bits=4)
-        # Operands with different formats, result will have exp_bits=5, man_bits=4
-        e = a + d
+    Operands with same format, result will have exp_bits=5, man_bits=2
 
+    >>> a + b
+    APyFloat(sign=0, exp=16, man=2, exp_bits=5, man_bits=2)
+
+    >>> d = APyFloat.from_float(1.75, exp_bits=4, man_bits=4)
+
+    Operands with different formats, result will have exp_bits=5, man_bits=4
+
+    >>> a + d
+    APyFloat(sign=0, exp=16, man=8, exp_bits=5, man_bits=4)
 
     If the operands of an arithmetic operation have IEEE-like biases, then the result will
     also have an IEEE-like bias -- based on the resulting number of exponent bits.
@@ -846,7 +870,8 @@ class APyFloat:
     .. math::
         \texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp_bits}_2} \right ) \times 2^{\texttt{exp_bits}_3}}{2} - 1,
 
-    where exp_bits_1 and exp_bits_2 are the bit widths of the operands, bias_1 and bias_2 are the input biases, and exp_bits_3 is the target bit width.
+    where :math:`\texttt{exp_bits}_1` and :math:`\texttt{exp_bits}_2` are the bit widths of the operands, :math:`\texttt{bias}_1` and :math:`\texttt{bias}_2` are the
+    input biases, and :math:`\texttt{exp_bits}_3` is the target bit width.
     Note that this formula still results in an IEEE-like bias when the inputs use IEEE-like biases.
     """
 
@@ -902,19 +927,18 @@ class APyFloat:
         bias : int, optional
             Bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
-        Returns
-        -------
-        :class:`APyFloat`
-
         Examples
         --------
 
-        .. code-block:: python
+        >>> from apytypes import APyFloat
 
-            from apytypes import APyFloat
+        `a`, initialized from floating-point values.
 
-            # `a`, initialized from floating-point values.
-            a = APyFloat.from_float(1.35, exp_bits=10, man_bits=15)
+        >>> a = APyFloat.from_float(1.35, exp_bits=10, man_bits=15)
+
+        Returns
+        -------
+        :class:`APyFloat`
 
         See also
         --------
@@ -940,19 +964,18 @@ class APyFloat:
         bias : int, optional
             Bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
-        Returns
-        -------
-        :class:`APyFloat`
-
         Examples
         --------
 
-        .. code-block:: python
+        >>> from apytypes import APyFloat
 
-            from apytypes import APyFloat
+        `a`, initialized to -1.5 from a bit pattern.
 
-            # `a`, initialized to -1.5 from a bit pattern.
-            a = APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
+        >>> a = APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
+
+        Returns
+        -------
+        :class:`APyFloat`
 
         See also
         --------
@@ -964,20 +987,22 @@ class APyFloat:
         """
         Get the bit-representation of an :class:`APyFloat`.
 
-        Returns
-        -------
-        :class:`int`
-
         Examples
         --------
 
-        .. code-block:: python
+        >>> from apytypes import APyFloat
 
-            from apytypes import APyFloat
+        `a`, initialized to -1.5 from a bit pattern.
 
-            # `a`, initialized to -1.5 from a bit pattern.
-            a = APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
-            a.to_bits() == 0b1_01111_10 # True
+        >>> a = APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
+        >>> a
+        APyFloat(sign=1, exp=15, man=2, exp_bits=5, man_bits=2)
+        >>> a.to_bits() == 0b1_01111_10
+        True
+
+        Returns
+        -------
+        :class:`int`
 
         See also
         --------
@@ -1411,25 +1436,28 @@ class APyFloatAccumulatorContext(ContextManager):
     of the operands, but with :class:`APyFloatAccumulatorContext` a custom accumulator can be simulated
     as seen in the example below.
 
-    .. code-block:: Python
+    Examples
+    --------
 
-        import numpy as np
-        from apytypes import APyFloatArray, QuantizationMode
-        from apytypes import APyFloatAccumulatorContext
+    >>> import numpy as np
+    >>> from apytypes import APyFloatArray, QuantizationMode
+    >>> from apytypes import APyFloatAccumulatorContext
 
-        An = np.random.normal(1, 2, size=(100, 100))
-        A = APyFloatArray.from_float(An, exp_bits=5, man_bits=10)
+    >>> An = np.random.normal(1, 2, size=(100, 100))
+    >>> A = APyFloatArray.from_float(An, exp_bits=5, man_bits=10)
 
-        bn = np.random.uniform(0, 1, size=100),
-        b = APyFloatArray.from_float(bn, exp_bits=5, man_bits=10)
+    >>> bn = (np.random.uniform(0, 1, size=100),)
+    >>> b = APyFloatArray.from_float(bn, exp_bits=5, man_bits=10)
 
-        # Normal matrix multiplication
-        c = A @ b.T
+    Normal matrix multiplication
 
-        # Matrix multiplication using stochastic quantization and a wider accumulator
-        m = QuantizationMode.STOCH_WEIGHTED
-        with APyFloatAccumulatorContext(exp_bits=6, man_bits=15, quantization=m):
-            d = A @ b.T
+    >>> c = A @ b.T
+
+    Matrix multiplication using stochastic quantization and a wider accumulator
+
+    >>> m = QuantizationMode.STOCH_WEIGHTED
+    >>> with APyFloatAccumulatorContext(exp_bits=6, man_bits=15, quantization=m):
+    ...     d = A @ b.T
 
 
     If no quantization mode is specified to the accumulator context it will fallback to the mode set globally,
@@ -1658,29 +1686,29 @@ class APyFloatArray:
         bias : int, optional
             Bias in the created floating-point tensor
 
-        Returns
-        -------
-        :class:`APyFloatArray`
-
         Examples
         --------
 
-        .. code-block:: python
+        >>> from apytypes import APyFloatArray
 
-            from apytypes import APyFloatArray
+        Array `a`, initialized from floating-point values.
 
-            # Array `a`, initialized from floating-point values.
-            a = APyFloatArray.from_float([1.0, 1.25, 1.49], exp_bits=10, man_bits=15)
+        >>> a = APyFloatArray.from_float([1.0, 1.25, 1.49], exp_bits=10, man_bits=15)
 
-            # Array `lhs` (2 x 3 matrix), initialized from floating-point values.
-            lhs = APyFloatArray.from_float(
-                [
-                    [1.0, 2.0, 3.0],
-                    [4.0, 5.0, 6.0],
-                ],
-                exp_bits=5,
-                man_bits=2
-            )
+        Array `lhs` (2 x 3 matrix), initialized from floating-point values.
+
+        >>> lhs = APyFloatArray.from_float(
+        ...     [
+        ...         [1.0, 2.0, 3.0],
+        ...         [4.0, 5.0, 6.0],
+        ...     ],
+        ...     exp_bits=5,
+        ...     man_bits=2,
+        ... )
+
+        Returns
+        -------
+        :class:`APyFloatArray`
         """
 
     @staticmethod
@@ -1698,33 +1726,34 @@ class APyFloatArray:
         ndarray : ndarray
             Values to initialize from. The tensor shape will be taken from the ndarray shape.
         exp_bits : int
-            Number of exponent bits in the created fixed-point tensor
+            Number of exponent bits in the created floating-point tensor
         man_bits : int
-            Number of mantissa bits in the created fixed-point tensor
+            Number of mantissa bits in the created floating-point tensor
         bias : int, optional
-            Bias in the created fixed-point tensor
-
-        Returns
-        -------
-        :class:`APyFloatArray`
+            Bias in the created floating-point tensor
 
         Examples
         --------
 
-        .. code-block:: python
+        >>> from apytypes import APyFloatArray
+        >>> import numpy as np
 
-            from apytypes import APyFloatArray
-            import numpy as np
+        Array `a`, initialized from NumPy ndarray
 
-            # Array `a`, initialized from NumPy ndarray
-            a = APyFloatArray.from_array(
-                np.array([
-                    [1.0, 2.0, 3.0],
-                    [4.0, 5.0, 6.0],
-                ]),
-                man_bits=10,
-                exp_bits=10
-            )
+        >>> a = APyFloatArray.from_array(
+        ...     np.array(
+        ...         [
+        ...             [1.0, 2.0, 3.0],
+        ...             [4.0, 5.0, 6.0],
+        ...         ]
+        ...     ),
+        ...     man_bits=10,
+        ...     exp_bits=10,
+        ... )
+
+        Returns
+        -------
+        :class:`APyFloatArray`
         """
 
     def __matmul__(self, rhs: APyFloatArray) -> APyFloatArray | APyFloat: ...
@@ -1901,30 +1930,35 @@ class APyFloatQuantizationContext(ContextManager):
     which is :class:`QuantizationMode.TIES_EVEN` by default. The mode however can be changed using the static method
     :func:`apytypes.set_float_quantization_mode`, or, preferably, by using a so-called quantization context.
     With a quantization context one can change the quantization mode used by all operations within a specific section
-    in the code:
+    in the code.
 
-    .. code-block:: Python
+    Examples
+    --------
 
-        import random
-        from apytypes import APyFloat, QuantizationMode
-        from apytypes import APyFloatQuantizationContext
+    >>> from apytypes import APyFloat, QuantizationMode
+    >>> from apytypes import APyFloatQuantizationContext
 
-        # Addition using the default round to nearest, ties even
-        a = APyFloat.from_float(random.uniform(-100, 100), exp_bits=5, man_bits=10)
-        b = APyFloat.from_float(random.uniform(-100, 100), exp_bits=5, man_bits=10)
-        c = a + b
+    Addition using the default round to nearest, ties even
 
-        # Addition using round towards zero
-        m = QuantizationMode.TO_ZERO
-        with APyFloatQuantizationContext(quantization=mode):
-            d = a + b
+    >>> a = APyFloat.from_float(0.123, exp_bits=5, man_bits=10)
+    >>> b = APyFloat.from_float(3.21, exp_bits=5, man_bits=10)
+    >>> a + b
+    APyFloat(sign=0, exp=16, man=683, exp_bits=5, man_bits=10)
 
-        # Stochastic rounding with an optional seed
-        m = QuantizationMode.STOCH_WEIGHTED
-        s = 0x1234
-        with APyFloatQuantizationContext(quantization=mode, quantization_seed=s):
-            e = a + b
+    Addition using round towards zero
 
+    >>> m = QuantizationMode.TO_ZERO
+    >>> with APyFloatQuantizationContext(quantization=m):
+    ...     a + b
+    APyFloat(sign=0, exp=16, man=682, exp_bits=5, man_bits=10)
+
+    Stochastic rounding with an optional seed
+
+    >>> m = QuantizationMode.STOCH_WEIGHTED
+    >>> s = 0x1234
+    >>> with APyFloatQuantizationContext(quantization=m, quantization_seed=s):
+    ...     a + b
+    APyFloat(sign=0, exp=16, man=683, exp_bits=5, man_bits=10)
 
     The quantization mode is reverted automatically upon exiting the context.
     Nesting the contexts is also possible.

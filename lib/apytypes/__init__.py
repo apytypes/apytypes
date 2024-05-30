@@ -65,18 +65,24 @@ the same as the input operands' by quantizing to nearest number with ties to eve
 If the operands do not share the same format, the resulting
 bit widths of the exponent and mantissa field will be the maximum of its inputs:
 
-.. code-block:: Python
+Examples
+--------
 
-    from apytypes import APyFloat
-    a = APyFixed.from_float(1.25, exp_bits=5, man_bits=2)
-    b = APyFixed.from_float(1.75, exp_bits=5, man_bits=2)
-    # Operands with same format, result will have exp_bits=5, man_bits=2
-    c = a + b
+>>> from apytypes import APyFloat
+>>> a = APyFloat.from_float(1.25, exp_bits=5, man_bits=2)
+>>> b = APyFloat.from_float(1.75, exp_bits=5, man_bits=2)
 
-    d = APyFixed.from_float(1.75, exp_bits=4, man_bits=4)
-    # Operands with different formats, result will have exp_bits=5, man_bits=4
-    e = a + d
+Operands with same format, result will have exp_bits=5, man_bits=2
 
+>>> a + b
+APyFloat(sign=0, exp=16, man=2, exp_bits=5, man_bits=2)
+
+>>> d = APyFloat.from_float(1.75, exp_bits=4, man_bits=4)
+
+Operands with different formats, result will have exp_bits=5, man_bits=4
+
+>>> a + d
+APyFloat(sign=0, exp=16, man=8, exp_bits=5, man_bits=4)
 
 If the operands of an arithmetic operation have IEEE-like biases, then the result will
 also have an IEEE-like bias -- based on the resulting number of exponent bits.
@@ -86,7 +92,8 @@ is calculated as the "average" of the inputs' biases:
 .. math::
     \texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp_bits}_2} \right ) \times 2^{\texttt{exp_bits}_3}}{2} - 1,
 
-where exp_bits_1 and exp_bits_2 are the bit widths of the operands, bias_1 and bias_2 are the input biases, and exp_bits_3 is the target bit width.
+where :math:`\texttt{exp_bits}_1` and :math:`\texttt{exp_bits}_2` are the bit widths of the operands, :math:`\texttt{bias}_1` and :math:`\texttt{bias}_2` are the
+input biases, and :math:`\texttt{exp_bits}_3` is the target bit width.
 Note that this formula still results in an IEEE-like bias when the inputs use IEEE-like biases.
 """
 
@@ -110,30 +117,35 @@ If not specified explicitly, floating-point operations will use the quantization
 which is :class:`QuantizationMode.TIES_EVEN` by default. The mode however can be changed using the static method
 :func:`apytypes.set_float_quantization_mode`, or, preferably, by using a so-called quantization context.
 With a quantization context one can change the quantization mode used by all operations within a specific section
-in the code:
+in the code.
 
-.. code-block:: Python
+Examples
+--------
 
-    import random
-    from apytypes import APyFloat, QuantizationMode
-    from apytypes import APyFloatQuantizationContext
+>>> from apytypes import APyFloat, QuantizationMode
+>>> from apytypes import APyFloatQuantizationContext
 
-    # Addition using the default round to nearest, ties even
-    a = APyFloat.from_float(random.uniform(-100, 100), exp_bits=5, man_bits=10)
-    b = APyFloat.from_float(random.uniform(-100, 100), exp_bits=5, man_bits=10)
-    c = a + b
+Addition using the default round to nearest, ties even
 
-    # Addition using round towards zero
-    m = QuantizationMode.TO_ZERO
-    with APyFloatQuantizationContext(quantization=mode):
-        d = a + b
+>>> a = APyFloat.from_float(0.123, exp_bits=5, man_bits=10)
+>>> b = APyFloat.from_float(3.21, exp_bits=5, man_bits=10)
+>>> a + b
+APyFloat(sign=0, exp=16, man=683, exp_bits=5, man_bits=10)
 
-    # Stochastic rounding with an optional seed
-    m = QuantizationMode.STOCH_WEIGHTED
-    s = 0x1234
-    with APyFloatQuantizationContext(quantization=mode, quantization_seed=s):
-        e = a + b
+Addition using round towards zero
 
+>>> m = QuantizationMode.TO_ZERO
+>>> with APyFloatQuantizationContext(quantization=m):
+...     a + b
+APyFloat(sign=0, exp=16, man=682, exp_bits=5, man_bits=10)
+
+Stochastic rounding with an optional seed
+
+>>> m = QuantizationMode.STOCH_WEIGHTED
+>>> s = 0x1234
+>>> with APyFloatQuantizationContext(quantization=m, quantization_seed=s):
+...     a + b
+APyFloat(sign=0, exp=16, man=683, exp_bits=5, man_bits=10)
 
 The quantization mode is reverted automatically upon exiting the context.
 Nesting the contexts is also possible.
@@ -146,25 +158,28 @@ Inner products and matrix multiplications will by default perform the summation 
 of the operands, but with :class:`APyFloatAccumulatorContext` a custom accumulator can be simulated
 as seen in the example below.
 
-.. code-block:: Python
+Examples
+--------
 
-    import numpy as np
-    from apytypes import APyFloatArray, QuantizationMode
-    from apytypes import APyFloatAccumulatorContext
+>>> import numpy as np
+>>> from apytypes import APyFloatArray, QuantizationMode
+>>> from apytypes import APyFloatAccumulatorContext
 
-    An = np.random.normal(1, 2, size=(100, 100))
-    A = APyFloatArray.from_float(An, exp_bits=5, man_bits=10)
+>>> An = np.random.normal(1, 2, size=(100, 100))
+>>> A = APyFloatArray.from_float(An, exp_bits=5, man_bits=10)
 
-    bn = np.random.uniform(0, 1, size=100),
-    b = APyFloatArray.from_float(bn, exp_bits=5, man_bits=10)
+>>> bn = np.random.uniform(0, 1, size=100),
+>>> b = APyFloatArray.from_float(bn, exp_bits=5, man_bits=10)
 
-    # Normal matrix multiplication
-    c = A @ b.T
+Normal matrix multiplication
 
-    # Matrix multiplication using stochastic quantization and a wider accumulator
-    m = QuantizationMode.STOCH_WEIGHTED
-    with APyFloatAccumulatorContext(exp_bits=6, man_bits=15, quantization=m):
-        d = A @ b.T
+>>> c = A @ b.T
+
+Matrix multiplication using stochastic quantization and a wider accumulator
+
+>>> m = QuantizationMode.STOCH_WEIGHTED
+>>> with APyFloatAccumulatorContext(exp_bits=6, man_bits=15, quantization=m):
+...     d = A @ b.T
 
 
 If no quantization mode is specified to the accumulator context it will fallback to the mode set globally,

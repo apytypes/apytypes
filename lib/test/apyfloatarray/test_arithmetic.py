@@ -702,7 +702,6 @@ def test_array_rdiv_scalar():
 
 @pytest.mark.float_array
 def test_transpose():
-
     # High-dimensional transor transposition not implemented
     with pytest.raises(ValueError, match="Not implemented: high-dimensional"):
         APyFloatArray([[[1]]], [[[1]]], [[[1]]], 3, 3).T

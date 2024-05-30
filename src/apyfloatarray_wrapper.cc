@@ -353,29 +353,29 @@ void bind_float_array(nb::module_& m)
             bias : int, optional
                 Bias in the created floating-point tensor
 
-            Returns
-            -------
-            :class:`APyFloatArray`
-
             Examples
             --------
 
-            .. code-block:: python
+            >>> from apytypes import APyFloatArray
 
-                from apytypes import APyFloatArray
+            Array `a`, initialized from floating-point values.
 
-                # Array `a`, initialized from floating-point values.
-                a = APyFloatArray.from_float([1.0, 1.25, 1.49], exp_bits=10, man_bits=15)
+            >>> a = APyFloatArray.from_float([1.0, 1.25, 1.49], exp_bits=10, man_bits=15)
 
-                # Array `lhs` (2 x 3 matrix), initialized from floating-point values.
-                lhs = APyFloatArray.from_float(
-                    [
-                        [1.0, 2.0, 3.0],
-                        [4.0, 5.0, 6.0],
-                    ],
-                    exp_bits=5,
-                    man_bits=2
-                )
+            Array `lhs` (2 x 3 matrix), initialized from floating-point values.
+
+            >>> lhs = APyFloatArray.from_float(
+            ...     [
+            ...         [1.0, 2.0, 3.0],
+            ...         [4.0, 5.0, 6.0],
+            ...     ],
+            ...     exp_bits=5,
+            ...     man_bits=2
+            ... )
+
+            Returns
+            -------
+            :class:`APyFloatArray`
             )pbdoc"
         )
         .def_static(
@@ -399,28 +399,26 @@ void bind_float_array(nb::module_& m)
             bias : int, optional
                 Bias in the created floating-point tensor
 
-            Returns
-            -------
-            :class:`APyFloatArray`
-
             Examples
             --------
 
-            .. code-block:: python
+            >>> from apytypes import APyFloatArray
+            >>> import numpy as np
 
-                from apytypes import APyFloatArray
-                import numpy as np
+            Array `a`, initialized from NumPy ndarray
 
-                # Array `a`, initialized from NumPy ndarray
-                a = APyFloatArray.from_array(
-                    np.array([
-                        [1.0, 2.0, 3.0],
-                        [4.0, 5.0, 6.0],
-                    ]),
-                    man_bits=10,
-                    exp_bits=10
-                )
+            >>> a = APyFloatArray.from_array(
+            ...     np.array([
+            ...         [1.0, 2.0, 3.0],
+            ...         [4.0, 5.0, 6.0],
+            ...     ]),
+            ...     man_bits=10,
+            ...     exp_bits=10
+            ... )
 
+            Returns
+            -------
+            :class:`APyFloatArray`
             )pbdoc"
         )
 

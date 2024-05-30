@@ -173,21 +173,22 @@ void bind_fixed(nb::module_& m)
             R"pbdoc(
             Retrieve underlying bit-pattern in an :class:`int`.
 
+            Examples
+            --------
+            >>> from apytypes import APyFixed
+
+            Create fixed-point number `fx_a` of value -5.75
+
+            >>> fx_a = APyFixed.from_float(-5.75, int_bits=4, frac_bits=4)
+
+            Returns: 164 == 0xA4 == 0b10100100
+
+            >>> fx_a.to_bits()
+            164
+
             Returns
             -------
             :class:`int`
-
-            Examples
-            --------
-            .. code-block:: python
-
-                from apytypes import APyFixed
-
-                # Create fixed-point number `fx_a` of value -5.75
-                fx_a = APyFixed.from_float(-5.75, int_bits=4, frac_bits=4)
-
-                # Returns: 164 == 0xA4 == 0b10100100
-                fx_a.to_bits()
             )pbdoc"
         )
         .def_prop_ro("bits", &APyFixed::bits, R"pbdoc(
@@ -227,24 +228,25 @@ void bind_fixed(nb::module_& m)
             other : :class:`APyFixed`
                 The fixed-point number to test identicality against
 
+            Examples
+            --------
+            >>> from apytypes import APyFixed
+            >>> fx_a = APyFixed.from_float(2.0, int_bits=3, frac_bits=3)
+            >>> fx_b = APyFixed.from_float(2.0, int_bits=4, frac_bits=3)
+
+            `fx_a` and `fx_b` store the same fixed-point value
+
+            >>> fx_a == fx_b
+            True
+
+            `fx_a` and `fx_b` differ in the `int_bits` specifier
+
+            >>> fx_a.is_identical(fx_b)
+            False
+
             Returns
             -------
             :class:`bool`
-
-            Examples
-            --------
-            .. code-block:: python
-
-                from apytypes import APyFixed
-
-                fx_a = APyFixed.from_float(2.0, int_bits=3, frac_bits=3)
-                fx_b = APyFixed.from_float(2.0, int_bits=4, frac_bits=3)
-
-                # `fx_a` and `fx_b` store the same fixed-point value
-                assert fx_a == fx_b
-
-                # `fx_a` and `fx_b` differ in the `int_bits` specifier
-                assert not(fx_a.is_identical(fx_b))
             )pbdoc")
         .def_prop_ro("is_zero", &APyFixed::is_zero, R"pbdoc(
             True if the value equals zero, false otherwise.
@@ -279,28 +281,31 @@ void bind_fixed(nb::module_& m)
             bits : int, optional
                 Total number of bits in the result.
 
+            Examples
+            --------
+            >>> from apytypes import APyFixed
+            >>> from apytypes import QuantizationMode
+            >>> from apytypes import OverflowMode
+            >>> fx = APyFixed.from_float(2.125, int_bits=3, frac_bits=3)
+
+            Truncation (2.0)
+
+            >>> fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.TRN)
+            APyFixed(8, bits=5, int_bits=3)
+
+            Rounding (2.25)
+
+            >>> fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.RND) # doctest: +SKIP
+            APyFixed(8, bits=5, int_bits=3)
+
+            Two's complement overflowing (-1.875)
+
+            >>> fx.cast(int_bits=2, frac_bits=3, overflow=OverflowMode.WRAP)
+            APyFixed(17, bits=5, int_bits=2)
+
             Returns
             -------
             :class:`APyFixed`
-
-            Examples
-            --------
-            .. code-block:: python
-
-                from apytypes import APyFixed
-                from apytypes import QuantizationMode
-                from apytypes import OverflowMode
-
-                fx = APyFixed.from_float(2.125, int_bits=3, frac_bits=3)
-
-                # Truncation (fx_a == 2.0)
-                fx_a = fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.TRN)
-
-                # Quantization (fx_b == 2.25)
-                fx_b = fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.RND)
-
-                # Two's complement overflowing (fx_c == -1.875)
-                fx_c = fx.cast(int_bits=2, frac_bits=3, overflow=OverflowMode.WRAP)
             )pbdoc"
         )
         .def_prop_ro("_vector_size", &APyFixed::vector_size)
@@ -400,13 +405,20 @@ void bind_fixed(nb::module_& m)
 
             Examples
             --------
-            .. code-block:: python
+            >>> from apytypes import APyFixed
+            >>> fx_a = APyFixed.from_float(1.234, int_bits=2, frac_bits=2)
 
-                from apytypes import APyFixed
+            Fixed-point `fx_a`, initialized from the floating-point value 1.234,
+            rounded to 1.25 as it is the closest representable number
 
-                # Fixed-point `fx_a`, initialized from the floating-point value 1.234,
-                # rounded to 1.25 as it is the closest representable number
-                fx_a = APyFixed.from_float(1.234, int_bits=2, frac_bits=2)
+            >>> fx_a
+            APyFixed(5, bits=4, int_bits=2)
+            >>> str(fx_a)
+            '1.25'
+
+            Returns
+            -------
+            :class:`APyFixed`
             )pbdoc"
         )
         .def_static(
@@ -438,22 +450,25 @@ void bind_fixed(nb::module_& m)
 
             Examples
             --------
-            .. code-block:: python
+            >>> from apytypes import APyFixed
 
-                from apytypes import APyFixed
+            Larger fixed-point value initialization from a string (base-10)
 
-                # Larger fixed-point value initialization from a string (base-10)
-                fx_a = APyFixed.from_str(
-                    "-1376018206341311063223476816643087998331620501540496640."
-                    "021222579872958058370179355618716816066859017361262100333952697594702"
-                    "314679773970519809467311447652539955943903993200932791396783892142688"
-                    "708904952458654442554723081083186210082207584128592922850820472478833"
-                    "257136662269306798708182072507551281664490003441493733349403017982015"
-                    "56238154807942919433116912841796875",
-                    bits=511,
-                    int_bits=199,
-                    base=10
-                )
+            >>> fx_a = APyFixed.from_str(
+            ...     "-1376018206341311063223476816643087998331620501540496640."
+            ...     "021222579872958058370179355618716816066859017361262100333952697594702"
+            ...     "314679773970519809467311447652539955943903993200932791396783892142688"
+            ...     "708904952458654442554723081083186210082207584128592922850820472478833"
+            ...     "257136662269306798708182072507551281664490003441493733349403017982015"
+            ...     "56238154807942919433116912841796875",
+            ...     bits=511,
+            ...     int_bits=199,
+            ...     base=10
+            ... )
+
+            Returns
+            -------
+            :class:`APyFixed`
             )pbdoc"
         );
 }

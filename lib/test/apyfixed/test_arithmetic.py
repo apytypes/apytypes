@@ -416,7 +416,6 @@ def test_leading_signs():
 
 
 def test_leading_fractional_zeros():
-
     # Code coverage test
     assert APyFixed(0x00, bits=8, frac_bits=0).leading_fractional_zeros == 0
 

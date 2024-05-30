@@ -426,7 +426,6 @@ def test_array_prod():
 
 
 def test_transpose():
-
     # High-dimensional transor transposition not implemented
     with pytest.raises(ValueError, match="Not implemented: high-dimensional"):
         APyFixedArray([[[1]]], 1, 0).T
