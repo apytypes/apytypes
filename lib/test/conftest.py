@@ -11,4 +11,4 @@ def pytest_collection_finish(session):
 
         print(f" * NumPy version: {np.__version__}")
     except ImportError:
-        print(f" * No NumPy support detected")
+        print(" * No NumPy support detected")

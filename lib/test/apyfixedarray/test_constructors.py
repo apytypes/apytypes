@@ -161,10 +161,10 @@ def test_from_numpy_raises():
     np = pytest.importorskip("numpy")
     a = np.asarray([[0.0, 1.0]], dtype="half")
     with pytest.raises(TypeError, match="APyFixedArray::_set_values_from_ndarray"):
-        b = APyFixedArray.from_float(a, 14, 4)
+        APyFixedArray.from_float(a, 14, 4)
     a = np.asarray([[0.0, 1.0]])
     with pytest.raises(TypeError, match="APyFixedArray::_set_bits_from_ndarray"):
-        b = APyFixedArray(a, 14, 4)
+        APyFixedArray(a, 14, 4)
 
 
 def test_c_striding():

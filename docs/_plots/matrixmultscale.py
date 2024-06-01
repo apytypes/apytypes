@@ -1,5 +1,6 @@
 # %%
 import timeit
+import matplotlib.pyplot as plt
 
 CREATE_TWO_FIXED_15_MATRICES = "import numpy as np; a = APyFixedArray.from_float(np.random.rand({l}, {l}) - 0.5, 1, 14); b = APyFixedArray.from_float(np.random.rand({l}, {l}) - 0.5, 1, 14)"
 CREATE_TWO_FIXED_31_MATRICES = "import numpy as np; a = APyFixedArray.from_float(np.random.rand({l}, {l}) - 0.5, 1, 30); b = APyFixedArray.from_float(np.random.rand({l}, {l}) - 0.5, 1, 30)"
@@ -67,17 +68,13 @@ results = dict()
 for name, (func, setup) in benchmarks.items():
     results[name] = []
     for count in counts:
-        setup_tmp = (
-            f"from apytypes import APyFixedArray, APyFloatArray;"
-            + setup.format(l=count)
+        setup_tmp = "from apytypes import APyFixedArray, APyFloatArray;" + setup.format(
+            l=count
         )
         num, timing = timeit.Timer(stmt=func, setup=setup_tmp).autorange()
         results[name].append(num * (count**3) / timing)
 
 # %%
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.ticker import FormatStrFormatter
 
 fig, ax = plt.subplots(layout="constrained", figsize=(8, 8))
 

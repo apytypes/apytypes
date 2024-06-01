@@ -1,8 +1,6 @@
 from apytypes import APyFixed
 from apytypes import OverflowMode
 
-import pytest
-
 
 def test_overflow_twos_complement():
     print(float(APyFixed(0xFF, 8, 8)))

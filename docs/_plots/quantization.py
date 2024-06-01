@@ -1,6 +1,7 @@
-from apytypes import APyFixedArray, QuantizationMode
+from apytypes import APyFixedArray, QuantizationMode  # noqa: F401
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 from matplotlib.ticker import IndexLocator
 
 modes = [
@@ -72,8 +73,6 @@ fig.savefig("quantization.png")
 
 
 # %%
-import matplotlib.gridspec as gridspec
-
 a = np.arange(-4, 3.9, 0.125)
 ai = np.arange(-4, 3.1, 1)
 ah = np.arange(-3.5, 3.6, 1)
@@ -82,7 +81,7 @@ afx = APyFixedArray.from_float(a, int_bits=4, frac_bits=3)
 aifx = APyFixedArray.from_float(ai, int_bits=4, frac_bits=3)
 ahfx = APyFixedArray.from_float(ah, int_bits=4, frac_bits=3)
 
-l = len(a) // 2
+half = len(a) // 2
 for q in modes:
     fig = plt.figure(figsize=(8, 4), layout="constrained")
     name = q.split(".")[1]
@@ -119,8 +118,10 @@ for q in modes:
 
     ax = fig.add_subplot(gs[1, 1])
     err = a - aqfx
-    ax.hist(err[:l], bins, align="left", weights=1 / l * np.ones(l), rwidth=0.8)
-    ax.axvline(float(sum(err[:l])) / l, color="r")
+    ax.hist(
+        err[:half], bins, align="left", weights=1 / half * np.ones(half), rwidth=0.8
+    )
+    ax.axvline(float(sum(err[:half])) / half, color="r")
     ax.grid(True)
     ax.set_xlim(-1.1, 1.1)
     ax.set_ylim(0, 0.14)
@@ -129,8 +130,10 @@ for q in modes:
 
     ax = fig.add_subplot(gs[2, 1])
     err = a - aqfx
-    ax.hist(err[l:], bins, align="left", weights=1 / l * np.ones(l), rwidth=0.8)
-    ax.axvline(float(sum(err[l:])) / l, color="r")
+    ax.hist(
+        err[half:], bins, align="left", weights=1 / half * np.ones(half), rwidth=0.8
+    )
+    ax.axvline(float(sum(err[half:])) / half, color="r")
     ax.grid(True)
     ax.set_xlim(-1.1, 1.1)
     ax.set_ylim(0, 0.14)

@@ -1,5 +1,6 @@
-import importlib
 import timeit
+import matplotlib.pyplot as plt
+import numpy as np
 
 libraries = {
     "APyTypes": "compare_apytypes",
@@ -72,10 +73,6 @@ for lib_name, file in libraries.items():
             print(f"{lib_name} {name}: Error")
 
 # %%
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.ticker import FormatStrFormatter
-
 fig, ax = plt.subplots(layout="constrained", figsize=(8, 10))
 
 x = np.arange(len(benchmarks))  # the label locations

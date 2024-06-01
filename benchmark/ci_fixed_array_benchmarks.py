@@ -1,6 +1,5 @@
 from apytypes import APyFixedArray, APyFixed
 import numpy as np
-import pytest
 
 
 def test_fixed_matrix_multiplication_20(benchmark):

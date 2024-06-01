@@ -1,6 +1,5 @@
 from apytypes import APyFloatArray, APyFloat
 import numpy as np
-import pytest
 
 
 def test_float_matrix_multiplication_20(benchmark):

@@ -1,7 +1,5 @@
 from apytypes import APyFixedArray
 
-import pytest
-
 
 def test_array_representation():
     assert (
