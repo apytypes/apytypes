@@ -383,18 +383,19 @@ the three bit-specifiers (<cite>bits</cite>, <cite>int_bits</cite>, <cite>frac_b
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
-<span class="c1"># Array `a`, initialized from NumPy ndarray</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
-        <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
-        <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
-    <span class="p">]),</span>
-    <span class="n">int_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-    <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
-<span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</pre></div>
+</div>
+<p>Array <cite>a</cite>, initialized from NumPy ndarray</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+<span class="gp">... </span>        <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">]),</span>
+<span class="gp">... </span>    <span class="n">int_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
+<span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -428,20 +429,22 @@ from the sequence shape.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span>
-
-<span class="c1"># Array `a`, initialized from floating-point values.</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.49</span><span class="p">],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-
-<span class="c1"># Array `b` (2 x 3 matrix), initialized from floating-point values.</span>
-<span class="n">b</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
-    <span class="p">[</span>
-        <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
-        <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
-    <span class="p">],</span>
-    <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-    <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
-<span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span>
+</pre></div>
+</div>
+<p>Array <cite>a</cite>, initialized from floating-point values.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.49</span><span class="p">],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Array <cite>b</cite> (2 x 3 matrix), initialized from floating-point values.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[</span>
+<span class="gp">... </span>        <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span>    <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
+<span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>

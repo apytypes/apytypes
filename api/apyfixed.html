@@ -444,13 +444,23 @@ three bit-specifiers (<cite>bits</cite>, <cite>int_bits</cite>, <cite>frac_bits<
 </dd>
 </dl>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a></dt><dd></dd>
+</dl>
+</dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixed</span>
-
-<span class="c1"># Fixed-point `fx_a`, initialized from the floating-point value 1.234,</span>
-<span class="c1"># rounded to 1.25 as it is the closest representable number</span>
-<span class="n">fx_a</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.234</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.234</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Fixed-point <cite>fx_a</cite>, initialized from the floating-point value 1.234,
+rounded to 1.25 as it is the closest representable number</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span>
+<span class="go">APyFixed(5, bits=4, int_bits=2)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">fx_a</span><span class="p">)</span>
+<span class="go">&#39;1.25&#39;</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -476,22 +486,28 @@ be set.</p>
 </dd>
 </dl>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a></dt><dd></dd>
+</dl>
+</dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixed</span>
-
-<span class="c1"># Larger fixed-point value initialization from a string (base-10)</span>
-<span class="n">fx_a</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span>
-    <span class="s2">&quot;-1376018206341311063223476816643087998331620501540496640.&quot;</span>
-    <span class="s2">&quot;021222579872958058370179355618716816066859017361262100333952697594702&quot;</span>
-    <span class="s2">&quot;314679773970519809467311447652539955943903993200932791396783892142688&quot;</span>
-    <span class="s2">&quot;708904952458654442554723081083186210082207584128592922850820472478833&quot;</span>
-    <span class="s2">&quot;257136662269306798708182072507551281664490003441493733349403017982015&quot;</span>
-    <span class="s2">&quot;56238154807942919433116912841796875&quot;</span><span class="p">,</span>
-    <span class="n">bits</span><span class="o">=</span><span class="mi">511</span><span class="p">,</span>
-    <span class="n">int_bits</span><span class="o">=</span><span class="mi">199</span><span class="p">,</span>
-    <span class="n">base</span><span class="o">=</span><span class="mi">10</span>
-<span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixed</span>
+</pre></div>
+</div>
+<p>Larger fixed-point value initialization from a string (base-10)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">&quot;-1376018206341311063223476816643087998331620501540496640.&quot;</span>
+<span class="gp">... </span>    <span class="s2">&quot;021222579872958058370179355618716816066859017361262100333952697594702&quot;</span>
+<span class="gp">... </span>    <span class="s2">&quot;314679773970519809467311447652539955943903993200932791396783892142688&quot;</span>
+<span class="gp">... </span>    <span class="s2">&quot;708904952458654442554723081083186210082207584128592922850820472478833&quot;</span>
+<span class="gp">... </span>    <span class="s2">&quot;257136662269306798708182072507551281664490003441493733349403017982015&quot;</span>
+<span class="gp">... </span>    <span class="s2">&quot;56238154807942919433116912841796875&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">bits</span><span class="o">=</span><span class="mi">511</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">int_bits</span><span class="o">=</span><span class="mi">199</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">base</span><span class="o">=</span><span class="mi">10</span>
+<span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -529,20 +545,25 @@ to be set.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixed</span>
-<span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">QuantizationMode</span>
-<span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">OverflowMode</span>
-
-<span class="n">fx</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">2.125</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-
-<span class="c1"># Truncation (fx_a == 2.0)</span>
-<span class="n">fx_a</span> <span class="o">=</span> <span class="n">fx</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="n">QuantizationMode</span><span class="o">.</span><span class="n">TRN</span><span class="p">)</span>
-
-<span class="c1"># Quantization (fx_b == 2.25)</span>
-<span class="n">fx_b</span> <span class="o">=</span> <span class="n">fx</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="n">QuantizationMode</span><span class="o">.</span><span class="n">RND</span><span class="p">)</span>
-
-<span class="c1"># Two&#39;s complement overflowing (fx_c == -1.875)</span>
-<span class="n">fx_c</span> <span class="o">=</span> <span class="n">fx</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">overflow</span><span class="o">=</span><span class="n">OverflowMode</span><span class="o">.</span><span class="n">WRAP</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">QuantizationMode</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">OverflowMode</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fx</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">2.125</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Truncation (2.0)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fx</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="n">QuantizationMode</span><span class="o">.</span><span class="n">TRN</span><span class="p">)</span>
+<span class="go">APyFixed(8, bits=5, int_bits=3)</span>
+</pre></div>
+</div>
+<p>Rounding (2.25)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fx</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="n">QuantizationMode</span><span class="o">.</span><span class="n">RND</span><span class="p">)</span> 
+<span class="go">APyFixed(8, bits=5, int_bits=3)</span>
+</pre></div>
+</div>
+<p>Two’s complement overflowing (-1.875)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fx</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">overflow</span><span class="o">=</span><span class="n">OverflowMode</span><span class="o">.</span><span class="n">WRAP</span><span class="p">)</span>
+<span class="go">APyFixed(17, bits=5, int_bits=2)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -562,13 +583,16 @@ to be set.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixed</span>
-
-<span class="c1"># Create fixed-point number `fx_a` of value -5.75</span>
-<span class="n">fx_a</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="o">-</span><span class="mf">5.75</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-
-<span class="c1"># Returns: 164 == 0xA4 == 0b10100100</span>
-<span class="n">fx_a</span><span class="o">.</span><span class="n">to_bits</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixed</span>
+</pre></div>
+</div>
+<p>Create fixed-point number <cite>fx_a</cite> of value -5.75</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="o">-</span><span class="mf">5.75</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Returns: 164 == 0xA4 == 0b10100100</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span><span class="o">.</span><span class="n">to_bits</span><span class="p">()</span>
+<span class="go">164</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -599,16 +623,19 @@ fixed-point value.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixed</span>
-
-<span class="n">fx_a</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">fx_b</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-
-<span class="c1"># `fx_a` and `fx_b` store the same fixed-point value</span>
-<span class="k">assert</span> <span class="n">fx_a</span> <span class="o">==</span> <span class="n">fx_b</span>
-
-<span class="c1"># `fx_a` and `fx_b` differ in the `int_bits` specifier</span>
-<span class="k">assert</span> <span class="ow">not</span><span class="p">(</span><span class="n">fx_a</span><span class="o">.</span><span class="n">is_identical</span><span class="p">(</span><span class="n">fx_b</span><span class="p">))</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fx_b</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><cite>fx_a</cite> and <cite>fx_b</cite> store the same fixed-point value</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span> <span class="o">==</span> <span class="n">fx_b</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p><cite>fx_a</cite> and <cite>fx_b</cite> differ in the <cite>int_bits</cite> specifier</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span><span class="o">.</span><span class="n">is_identical</span><span class="p">(</span><span class="n">fx_b</span><span class="p">)</span>
+<span class="go">False</span>
 </pre></div>
 </div>
 </dd></dl>

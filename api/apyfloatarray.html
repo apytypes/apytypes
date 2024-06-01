@@ -425,18 +425,19 @@ equivalent <a class="reference internal" href="apyfloat.html#apytypes.APyFloat" 
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloatArray</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
-<span class="c1"># Array `a`, initialized from NumPy ndarray</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
-        <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
-        <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
-    <span class="p">]),</span>
-    <span class="n">man_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-    <span class="n">exp_bits</span><span class="o">=</span><span class="mi">10</span>
-<span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloatArray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</pre></div>
+</div>
+<p>Array <cite>a</cite>, initialized from NumPy ndarray</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+<span class="gp">... </span>        <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">]),</span>
+<span class="gp">... </span>    <span class="n">man_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">exp_bits</span><span class="o">=</span><span class="mi">10</span>
+<span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -466,20 +467,22 @@ from the sequence shape.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloatArray</span>
-
-<span class="c1"># Array `a`, initialized from floating-point values.</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.49</span><span class="p">],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
-
-<span class="c1"># Array `lhs` (2 x 3 matrix), initialized from floating-point values.</span>
-<span class="n">lhs</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
-    <span class="p">[</span>
-        <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
-        <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
-    <span class="p">],</span>
-    <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-    <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span>
-<span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloatArray</span>
+</pre></div>
+</div>
+<p>Array <cite>a</cite>, initialized from floating-point values.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.49</span><span class="p">],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Array <cite>lhs</cite> (2 x 3 matrix), initialized from floating-point values.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lhs</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[</span>
+<span class="gp">... </span>        <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span>    <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span>
+<span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>

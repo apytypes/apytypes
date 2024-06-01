@@ -322,15 +322,23 @@ using the formula</p>
 the same as the input operands’ by quantizing to nearest number with ties to even (<a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode.TIES_EVEN" title="apytypes.QuantizationMode.TIES_EVEN"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode.TIES_EVEN</span></code></a>).
 If the operands do not share the same format, the resulting
 bit widths of the exponent and mantissa field will be the maximum of its inputs:</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloat</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.25</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">b</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.75</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="c1"># Operands with same format, result will have exp_bits=5, man_bits=2</span>
-<span class="n">c</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
-
-<span class="n">d</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.75</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-<span class="c1"># Operands with different formats, result will have exp_bits=5, man_bits=4</span>
-<span class="n">e</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">d</span>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloat</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFloat</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.25</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">APyFloat</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.75</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Operands with same format, result will have exp_bits=5, man_bits=2</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+<span class="go">APyFloat(sign=0, exp=16, man=2, exp_bits=5, man_bits=2)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">APyFloat</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.75</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Operands with different formats, result will have exp_bits=5, man_bits=4</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">+</span> <span class="n">d</span>
+<span class="go">APyFloat(sign=0, exp=16, man=8, exp_bits=5, man_bits=4)</span>
 </pre></div>
 </div>
 <p>If the operands of an arithmetic operation have IEEE-like biases, then the result will
@@ -341,7 +349,8 @@ is calculated as the “average” of the inputs’ biases:</p>
 <div class="math notranslate nohighlight">
 \[\texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp_bits}_2} \right ) \times 2^{\texttt{exp_bits}_3}}{2} - 1,\]</div>
 </div>
-<p>where exp_bits_1 and exp_bits_2 are the bit widths of the operands, bias_1 and bias_2 are the input biases, and exp_bits_3 is the target bit width.
+<p>where <span class="math notranslate nohighlight">\(\texttt{exp_bits}_1\)</span> and <span class="math notranslate nohighlight">\(\texttt{exp_bits}_2\)</span> are the bit widths of the operands, <span class="math notranslate nohighlight">\(\texttt{bias}_1\)</span> and <span class="math notranslate nohighlight">\(\texttt{bias}_2\)</span> are the
+input biases, and <span class="math notranslate nohighlight">\(\texttt{exp_bits}_3\)</span> is the target bit width.
 Note that this formula still results in an IEEE-like bias when the inputs use IEEE-like biases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
@@ -486,10 +495,11 @@ Note that this formula still results in an IEEE-like bias when the inputs use IE
 </dl>
 </div>
 <p class="rubric">Examples</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloat</span>
-
-<span class="c1"># `a`, initialized from floating-point values.</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">APyFloat</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.35</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloat</span>
+</pre></div>
+</div>
+<p><cite>a</cite>, initialized from floating-point values.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFloat</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.35</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -525,10 +535,11 @@ Note that this formula still results in an IEEE-like bias when the inputs use IE
 </dl>
 </div>
 <p class="rubric">Examples</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloat</span>
-
-<span class="c1"># `a`, initialized to -1.5 from a bit pattern.</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">APyFloat</span><span class="o">.</span><span class="n">from_bits</span><span class="p">(</span><span class="mb">0b1_01111_10</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloat</span>
+</pre></div>
+</div>
+<p><cite>a</cite>, initialized to -1.5 from a bit pattern.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFloat</span><span class="o">.</span><span class="n">from_bits</span><span class="p">(</span><span class="mb">0b1_01111_10</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -585,11 +596,15 @@ quantization mode.</p>
 </dl>
 </div>
 <p class="rubric">Examples</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloat</span>
-
-<span class="c1"># `a`, initialized to -1.5 from a bit pattern.</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">APyFloat</span><span class="o">.</span><span class="n">from_bits</span><span class="p">(</span><span class="mb">0b1_01111_10</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">a</span><span class="o">.</span><span class="n">to_bits</span><span class="p">()</span> <span class="o">==</span> <span class="mb">0b1_01111_10</span> <span class="c1"># True</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloat</span>
+</pre></div>
+</div>
+<p><cite>a</cite>, initialized to -1.5 from a bit pattern.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFloat</span><span class="o">.</span><span class="n">from_bits</span><span class="p">(</span><span class="mb">0b1_01111_10</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
+<span class="go">APyFloat(sign=1, exp=15, man=2, exp_bits=5, man_bits=2)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">to_bits</span><span class="p">()</span> <span class="o">==</span> <span class="mb">0b1_01111_10</span>
+<span class="go">True</span>
 </pre></div>
 </div>
 </dd></dl>
