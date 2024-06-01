@@ -17,11 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automatic broadcasting on array arithmetic
 - Support arithmetic between APyTypes classes and Python's built-in floats and ints.
 - Support for automatic stub generation added.
+- Docstrings are made compatible with
+  [doctest](https://docs.python.org/3/library/doctest.html), which is
+  run in the CI.
+- Linting using [ruff](https://docs.astral.sh/ruff/) is added to pre-commit and CI.
 
 ### Changed
 
 - Updated [nanobind](https://github.com/wjakob/nanobind) dependency from v1.9.2 to
   v2.0.0.
+- [ruff](https://docs.astral.sh/ruff/) is used instead of black to format the code.
 
 ### Fixed
 
