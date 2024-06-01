@@ -162,7 +162,7 @@ def test_from_numpy_raises():
     np = pytest.importorskip("numpy")
     a = np.asarray([[1e-323, float("inf")], [float("nan"), 0.0]], dtype="half")
     with pytest.raises(TypeError, match="APyFloatArray::_set_values_from_ndarray"):
-        b = APyFloatArray.from_float(a, 14, 60)
+        APyFloatArray.from_float(a, 14, 60)
 
 
 def test_c_striding():

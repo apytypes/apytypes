@@ -1,4 +1,4 @@
-from apytypes import APyFixedArray, OverflowMode
+from apytypes import APyFixedArray, OverflowMode  # noqa: F401
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import IndexLocator

@@ -1,5 +1,7 @@
 # %%
 import timeit
+import matplotlib.pyplot as plt
+import numpy as np
 
 CREATE_TWO_FIXED_VECTORS = "import numpy as np; a = APyFixedArray.from_float(np.random.rand({l}) - 0.5, int_bits=10, frac_bits=10); b = APyFixedArray.from_float(np.random.rand({l}) - 0.5, int_bits=10, frac_bits=10)"
 CREATE_TWO_LONG_FIXED_VECTORS = "import numpy as np; a = APyFixedArray.from_float(np.random.rand({l}) - 0.5, int_bits=150, frac_bits=150); b = APyFixedArray.from_float(np.random.rand({l}) - 0.5, int_bits=150, frac_bits=150)"
@@ -29,17 +31,13 @@ results = dict()
 for name, (func, setup) in benchmarks.items():
     results[name] = []
     for count in counts:
-        setup_tmp = (
-            f"from apytypes import APyFixedArray, APyFloatArray;"
-            + setup.format(l=count)
+        setup_tmp = "from apytypes import APyFixedArray, APyFloatArray;" + setup.format(
+            l=count
         )
         num, timing = timeit.Timer(stmt=func, setup=setup_tmp).autorange()
         results[name].append(num * count / timing)
 
 # %%
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.ticker import FormatStrFormatter
 
 fig, ax = plt.subplots(layout="constrained", figsize=(8, 6.5))
 

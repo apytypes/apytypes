@@ -1,5 +1,17 @@
-import apytypes
-from apytypes import *
+from apytypes import (
+    APyFixedCastContext,
+    QuantizationMode,
+    OverflowMode,
+    APyFixed,
+    APyFixedArray,
+    APyFloatAccumulatorContext,
+    APyFixedAccumulatorContext,
+    APyFloatQuantizationContext,
+    get_float_quantization_mode,
+    get_float_quantization_seed,
+    set_float_quantization_mode,
+    set_float_quantization_seed,
+)
 import pytest
 
 
@@ -242,15 +254,15 @@ class TestAccumulatorContext:
     def test_with_quantization_context(self):
         """Test that the APyFloatAccumulatorContext interacts correctly with the APyFloatQuanizationContext."""
         with APyFloatQuantizationContext(QuantizationMode.TO_POS):
-            assert apytypes.get_float_quantization_mode() == QuantizationMode.TO_POS
+            assert get_float_quantization_mode() == QuantizationMode.TO_POS
 
             with APyFloatAccumulatorContext(exp_bits=5, man_bits=3):
-                assert apytypes.get_float_quantization_mode() == QuantizationMode.TO_POS
+                assert get_float_quantization_mode() == QuantizationMode.TO_POS
 
             with APyFloatAccumulatorContext(
                 exp_bits=5, man_bits=3, quantization=QuantizationMode.TO_NEG
             ):
-                assert apytypes.get_float_quantization_mode() == QuantizationMode.TO_POS
+                assert get_float_quantization_mode() == QuantizationMode.TO_POS
 
 
 class TestQuantizationContext:
@@ -263,78 +275,64 @@ class TestQuantizationContext:
 
     def setup_class(self):
         """Save the current quantization mode so that it can be restored later for other tests."""
-        self.default_mode = apytypes.get_float_quantization_mode()
+        self.default_mode = get_float_quantization_mode()
 
     def teardown_class(self):
         """Restore quantization mode."""
-        apytypes.set_float_quantization_mode(self.default_mode)
+        set_float_quantization_mode(self.default_mode)
 
     def test_default_mode(self):
-        assert apytypes.get_float_quantization_mode() == QuantizationMode.TIES_EVEN
+        assert get_float_quantization_mode() == QuantizationMode.TIES_EVEN
 
     def test_prerequisite(self):
         """Make sure get/set works for the quantization mode to begin with."""
-        apytypes.set_float_quantization_mode(QuantizationMode.TO_POS)
-        assert apytypes.get_float_quantization_mode() == QuantizationMode.TO_POS
-        apytypes.set_float_quantization_mode(QuantizationMode.TO_NEG)
-        assert apytypes.get_float_quantization_mode() == QuantizationMode.TO_NEG
+        set_float_quantization_mode(QuantizationMode.TO_POS)
+        assert get_float_quantization_mode() == QuantizationMode.TO_POS
+        set_float_quantization_mode(QuantizationMode.TO_NEG)
+        assert get_float_quantization_mode() == QuantizationMode.TO_NEG
 
-        apytypes.set_float_quantization_seed(5)
-        assert apytypes.get_float_quantization_seed() == 5
-        apytypes.set_float_quantization_seed(1 << 57)
-        assert apytypes.get_float_quantization_seed() == (1 << 57)
+        set_float_quantization_seed(5)
+        assert get_float_quantization_seed() == 5
+        set_float_quantization_seed(1 << 57)
+        assert get_float_quantization_seed() == (1 << 57)
 
     def test_not_nested(self):
         """Single layer of context."""
         # Test setting a non-stochastic quantization mode
-        apytypes.set_float_quantization_mode(QuantizationMode.TO_POS)
+        set_float_quantization_mode(QuantizationMode.TO_POS)
         with APyFloatQuantizationContext(QuantizationMode.TO_NEG):
-            assert apytypes.get_float_quantization_mode() == QuantizationMode.TO_NEG
-        assert apytypes.get_float_quantization_mode() == QuantizationMode.TO_POS
+            assert get_float_quantization_mode() == QuantizationMode.TO_NEG
+        assert get_float_quantization_mode() == QuantizationMode.TO_POS
 
         # Test setting a stochastic quantization mode without changing the seed
-        apytypes.set_float_quantization_seed(123)
+        set_float_quantization_seed(123)
         with APyFloatQuantizationContext(QuantizationMode.STOCH_EQUAL):
-            assert (
-                apytypes.get_float_quantization_mode() == QuantizationMode.STOCH_EQUAL
-            )
-            assert apytypes.get_float_quantization_seed() == 123
-        assert apytypes.get_float_quantization_mode() == QuantizationMode.TO_POS
-        assert apytypes.get_float_quantization_seed() == 123
+            assert get_float_quantization_mode() == QuantizationMode.STOCH_EQUAL
+            assert get_float_quantization_seed() == 123
+        assert get_float_quantization_mode() == QuantizationMode.TO_POS
+        assert get_float_quantization_seed() == 123
 
         # Test setting a stochastic quantization mode and changing the seed
         with APyFloatQuantizationContext(QuantizationMode.STOCH_WEIGHTED, 77):
-            assert (
-                apytypes.get_float_quantization_mode()
-                == QuantizationMode.STOCH_WEIGHTED
-            )
-            assert apytypes.get_float_quantization_seed() == 77
-        assert apytypes.get_float_quantization_mode() == QuantizationMode.TO_POS
-        assert apytypes.get_float_quantization_seed() == 123
+            assert get_float_quantization_mode() == QuantizationMode.STOCH_WEIGHTED
+            assert get_float_quantization_seed() == 77
+        assert get_float_quantization_mode() == QuantizationMode.TO_POS
+        assert get_float_quantization_seed() == 123
 
     def test_nested(self):
         """Nested context layers."""
-        apytypes.set_float_quantization_mode(QuantizationMode.TO_POS)
-        apytypes.set_float_quantization_seed(123)
+        set_float_quantization_mode(QuantizationMode.TO_POS)
+        set_float_quantization_seed(123)
         with APyFloatQuantizationContext(QuantizationMode.STOCH_WEIGHTED, 456):
-            assert (
-                apytypes.get_float_quantization_mode()
-                == QuantizationMode.STOCH_WEIGHTED
-            )
-            assert apytypes.get_float_quantization_seed() == 456
+            assert get_float_quantization_mode() == QuantizationMode.STOCH_WEIGHTED
+            assert get_float_quantization_seed() == 456
             with APyFloatQuantizationContext(QuantizationMode.STOCH_EQUAL, 789):
-                assert (
-                    apytypes.get_float_quantization_mode()
-                    == QuantizationMode.STOCH_EQUAL
-                )
-                assert apytypes.get_float_quantization_seed() == 789
-            assert (
-                apytypes.get_float_quantization_mode()
-                == QuantizationMode.STOCH_WEIGHTED
-            )
-            assert apytypes.get_float_quantization_seed() == 456
-        assert apytypes.get_float_quantization_mode() == QuantizationMode.TO_POS
-        assert apytypes.get_float_quantization_seed() == 123
+                assert get_float_quantization_mode() == QuantizationMode.STOCH_EQUAL
+                assert get_float_quantization_seed() == 789
+            assert get_float_quantization_mode() == QuantizationMode.STOCH_WEIGHTED
+            assert get_float_quantization_seed() == 456
+        assert get_float_quantization_mode() == QuantizationMode.TO_POS
+        assert get_float_quantization_seed() == 123
 
     def test_raised_exception(self):
         """Make sure an exception is raised if a seed is given for APyFloatQuantizationContext with a non-stochastic quantization mode."""

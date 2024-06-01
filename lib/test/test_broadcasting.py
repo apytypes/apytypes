@@ -1,7 +1,6 @@
 from apytypes import APyFixedArray, APyFloatArray
 
 import pytest
-from typing import List, Tuple
 from itertools import product
 
 
