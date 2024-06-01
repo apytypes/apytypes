@@ -36,6 +36,7 @@ docs = [
     "furo>=2024",
     "matplotlib>=3.7",
     "numpydoc>=1.7",
+    "setuptools<70",  # Pin to get around limitation in m2r2
     "sphinx>=7",
     "sphinx_copybutton>=0.5",
     "sphinx_gallery>=0.16",
