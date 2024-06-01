@@ -298,6 +298,8 @@
 <h1>Development<a class="headerlink" href="#development" title="Link to this heading">¶</a></h1>
 <p>APyTypes is an open source project and contributions are very welcome!
 From bug reports, through enhancement suggestions, to better documentation and code.</p>
+<p>The development happens at <a class="reference external" href="https://github.com/apytypes/apytypes">https://github.com/apytypes/apytypes</a>
+where you also can provide suggestions and report bugs.</p>
 <p>Here, there will be some development information to be expanded over time.</p>
 <section id="pre-requisites">
 <h2>Pre-requisites<a class="headerlink" href="#pre-requisites" title="Link to this heading">¶</a></h2>
@@ -345,6 +347,15 @@ dependencies are updated.)</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>lib
 </pre></div>
 </div>
+</section>
+<section id="update-stub-files">
+<h2>Update stub files<a class="headerlink" href="#update-stub-files" title="Link to this heading">¶</a></h2>
+<p>There is a script in the root directory <code class="docutils literal notranslate"><span class="pre">stubgen.sh</span></code> that must be executed to update
+the stub-files in case any additional Python-level methods or classes are added or if
+argument names or Python-level docstrings are changed.</p>
+</section>
+<section id="run-floating-point-tests-vs-berkeley-testfloat">
+<h2>Run floating-point tests vs Berkeley TestFloat<a class="headerlink" href="#run-floating-point-tests-vs-berkeley-testfloat" title="Link to this heading">¶</a></h2>
 <p>Randomly generated test cases from <a class="reference external" href="http://www.jhauser.us/arithmetic/TestFloat.html">Berkeley TestFloat</a> can be run for the floating-point datatypes.
 These are not executed by using pytest but instead with a dedicated Python script.
 To use it, start by installing Berkeley TestFloat, and make sure to add the binary testfloat_gen to your PATH.
@@ -418,6 +429,8 @@ python<span class="w"> </span>run_berkeley_cases.py<span class="w"> </span>-h
 <li><a class="reference internal" href="#fork-and-clone">Fork and clone</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#run-test-suite">Run test suite</a></li>
+<li><a class="reference internal" href="#update-stub-files">Update stub files</a></li>
+<li><a class="reference internal" href="#run-floating-point-tests-vs-berkeley-testfloat">Run floating-point tests vs Berkeley TestFloat</a></li>
 </ul>
 </li>
 </ul>

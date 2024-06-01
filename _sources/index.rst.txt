@@ -43,3 +43,7 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+APyTypes is developed by the Division of Computer Engineering at Linköping University, Sweden.
+
+.. image:: _static/liu-white.svg

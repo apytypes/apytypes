@@ -4,6 +4,9 @@ Development
 APyTypes is an open source project and contributions are very welcome!
 From bug reports, through enhancement suggestions, to better documentation and code.
 
+The development happens at `https://github.com/apytypes/apytypes <https://github.com/apytypes/apytypes>`_
+where you also can provide suggestions and report bugs.
+
 Here, there will be some development information to be expanded over time.
 
 Pre-requisites
@@ -65,6 +68,15 @@ To run all test cases do:
 
     python -m pytest lib
 
+Update stub files
+-----------------
+
+There is a script in the root directory ``stubgen.sh`` that must be executed to update
+the stub-files in case any additional Python-level methods or classes are added or if
+argument names or Python-level docstrings are changed.
+
+Run floating-point tests vs Berkeley TestFloat
+----------------------------------------------
 
 Randomly generated test cases from `Berkeley TestFloat <http://www.jhauser.us/arithmetic/TestFloat.html>`_ can be run for the floating-point datatypes.
 These are not executed by using pytest but instead with a dedicated Python script.
