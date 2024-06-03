@@ -47,3 +47,7 @@ Indices and tables
 APyTypes is developed by the Division of Computer Engineering at Linköping University, Sweden.
 
 .. image:: _static/liu-white.svg
+   :class: only-dark
+
+.. image:: _static/liu-black.svg
+   :class: only-light
