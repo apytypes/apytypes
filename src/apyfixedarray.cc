@@ -839,6 +839,90 @@ APyFixedArray::broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
     return broadcast_to(cpp_shape_from_python_shape_like(shape));
 }
 
+APyFixedArray
+APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) const
+{
+    if (ndim() != 1 || other.ndim() != 1) {
+        throw nanobind::value_error(
+            fmt::format(
+                "can only convolve 1D arrays (lhs.ndim = {}, rhs.ndim = {})",
+                ndim(),
+                other.ndim()
+            )
+                .c_str()
+        );
+    }
+
+    // "Swap" `*this` and `other` based on length?
+    bool swap = _shape[0] < other._shape[0];
+
+    // The longer array
+    const APyFixedArray* a = swap ? &other : this;
+
+    // Make an intermediate reverse copy of the shorter array
+    APyFixedArray b = swap
+        ? APyFixedArray({ _shape[0] }, bits(), int_bits())
+        : APyFixedArray({ other._shape[0] }, other.bits(), other.int_bits());
+    if (swap) {
+        multi_limb_reverse(_data.begin(), _data.end(), b._data.begin(), _itemsize);
+    } else {
+        multi_limb_reverse(
+            other._data.begin(), other._data.end(), b._data.begin(), other._itemsize
+        );
+    }
+
+    // Do the convolution
+    const int extra_bits = bit_width(a->_shape[0] - 1);
+    const int res_bits = bits() + other.bits() + extra_bits;
+    const int res_int_bits = int_bits() + other.int_bits() + extra_bits;
+    std::vector<std::size_t> res_shape { a->_shape[0] + b._shape[0] - 1 };
+    APyFixedArray result(res_shape, res_bits, res_int_bits);
+
+    auto src1_limbs = a->_itemsize;
+    auto src2_limbs = b._itemsize;
+    auto dst_limbs = result._itemsize;
+
+    // Head (`b` limits the inner product length)
+    for (std::size_t i = 0; i < b._shape[0]; i++) {
+        auto src1 = std::cbegin(a->_data);
+        auto src2 = std::cbegin(b._data) + b._itemsize * (b._shape[0] - i - 1);
+        auto dst = std::begin(result._data) + i * result._itemsize;
+        inner_product(src1, src2, dst, src1_limbs, src2_limbs, dst_limbs, i + 1);
+    }
+
+    // Center (full inner product length)
+    std::size_t full_length = std::min(a->_shape[0], b._shape[0]);
+    for (std::size_t i = 0; i < a->_shape[0] - b._shape[0]; i++) {
+        auto src1 = std::cbegin(a->_data) + i * a->_itemsize;
+        auto src2 = std::cbegin(b._data);
+        auto dst = std::begin(result._data) + result._itemsize * (b._shape[0] + i - 1);
+        inner_product(src1, src2, dst, src1_limbs, src2_limbs, dst_limbs, full_length);
+    }
+
+    // Tail (`a` limits the inner product length)
+    for (std::size_t i = 0; i < b._shape[0]; i++) {
+        auto n = full_length - i;
+        auto src1
+            = std::cbegin(a->_data) + a->_itemsize * (a->_shape[0] - b._shape[0] + i);
+        auto src2 = std::cbegin(b._data);
+        auto dst = std::begin(result._data) + result._itemsize * (a->_shape[0] + i - 1);
+        inner_product(src1, src2, dst, src1_limbs, src2_limbs, dst_limbs, n);
+    }
+
+    if (mode == "full") {
+        return result;
+    } else if (mode == "same") {
+        throw NotImplementedException();
+    } else if (mode == "valid") {
+        throw NotImplementedException();
+    } else {
+        throw nanobind::value_error(
+            fmt::format("mode={} must be one of 'full', 'valid' or 'same'", mode)
+                .c_str()
+        );
+    }
+}
+
 std::string APyFixedArray::repr() const
 {
     std::stringstream ss {};
@@ -907,9 +991,9 @@ nb::tuple APyFixedArray::shape() const
 }
 
 // The dimension in the array
-size_t APyFixedArray::ndim() const { return _shape.size(); }
+size_t APyFixedArray::ndim() const noexcept { return _shape.size(); }
 
-size_t APyFixedArray::size() const { return _shape[0]; }
+size_t APyFixedArray::size() const noexcept { return _shape[0]; }
 
 APyFixedArray APyFixedArray::abs() const
 {
