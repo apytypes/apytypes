@@ -435,6 +435,12 @@ void bind_fixed_array(nb::module_& m)
 
             )pbdoc"
         )
+        .def(
+            "convolve",
+            &APyFixedArray::convolve,
+            nb::arg("other"),
+            nb::arg("mode") = "full"
+        )
 
         .def(
             "squeeze",

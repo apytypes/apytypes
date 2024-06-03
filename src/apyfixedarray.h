@@ -141,8 +141,12 @@ public:
     APyFixedArray broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
     ) const;
 
+    //! Squeeze this array. Returns new `APyFixedArray`.
     APyFixedArray
     squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
+
+    //! Perform a linear convolution with `other` using `mode`
+    APyFixedArray convolve(const APyFixedArray& other, const std::string& mode) const;
 
     //! Python `__repr__()` function
     std::string repr() const;
@@ -159,7 +163,7 @@ public:
     nb::tuple shape() const;
 
     //! Number of dimensions
-    size_t ndim() const;
+    size_t ndim() const noexcept;
 
     //! Retrieve a single item
     std::variant<APyFixedArray, APyFixed> get_item(std::size_t idx) const;
@@ -177,7 +181,7 @@ public:
     nb::ndarray<nb::numpy, double> to_numpy() const;
 
     //! Length of the array
-    size_t size() const;
+    size_t size() const noexcept;
 
     //! Elementwise absolute value
     APyFixedArray abs() const;
