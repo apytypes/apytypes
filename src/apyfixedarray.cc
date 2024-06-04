@@ -883,7 +883,7 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
     auto dst_limbs = result._itemsize;
 
     // Head (`b` limits the inner product length)
-    for (std::size_t i = 0; i < b._shape[0]; i++) {
+    for (std::size_t i = 0; i < b._shape[0] - 1; i++) {
         auto src1 = std::cbegin(a->_data);
         auto src2 = std::cbegin(b._data) + b._itemsize * (b._shape[0] - i - 1);
         auto dst = std::begin(result._data) + i * result._itemsize;
@@ -892,7 +892,7 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
 
     // Center (full inner product length)
     std::size_t full_length = std::min(a->_shape[0], b._shape[0]);
-    for (std::size_t i = 0; i < a->_shape[0] - b._shape[0]; i++) {
+    for (std::size_t i = 0; i < a->_shape[0] - b._shape[0] + 1; i++) {
         auto src1 = std::cbegin(a->_data) + i * a->_itemsize;
         auto src2 = std::cbegin(b._data);
         auto dst = std::begin(result._data) + result._itemsize * (b._shape[0] + i - 1);
@@ -900,7 +900,7 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
     }
 
     // Tail (`a` limits the inner product length)
-    for (std::size_t i = 0; i < b._shape[0]; i++) {
+    for (std::size_t i = 1; i < b._shape[0]; i++) {
         auto n = full_length - i;
         auto src1
             = std::cbegin(a->_data) + a->_itemsize * (a->_shape[0] - b._shape[0] + i);
