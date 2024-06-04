@@ -1,7 +1,16 @@
 from apytypes import APyFixedArray
 
+import pytest
 
-def test_single_limb_convolve():
+
+def test_raises():
+    with pytest.raises(ValueError, match="can only convolve 1D arrays"):
+        APyFixedArray([[1]], 1, 0).convolve(APyFixedArray([1], 1, 0))
+    with pytest.raises(ValueError, match="can only convolve 1D arrays"):
+        APyFixedArray([1], 1, 0).convolve(APyFixedArray([[1]], 1, 0))
+
+
+def test_single_limb_convolve_full():
     # Test #1, equally many array elements
     a = APyFixedArray.from_float([1, 2, 3, 4], int_bits=10, frac_bits=3)
     b = APyFixedArray.from_float([5, 2, 5, 4], int_bits=8, frac_bits=5)
@@ -23,4 +32,32 @@ def test_single_limb_convolve():
     assert b.convolve(a).is_identical(result)
 
 
+def test_multi_limb_convolve_full():
+    # Test #1, equally many array elements
+    a = APyFixedArray.from_float([1, 2, 3, 4], int_bits=100, frac_bits=300)
+    b = APyFixedArray.from_float([5, 2, 5, 4], int_bits=80, frac_bits=50)
+    result = APyFixedArray.from_float(
+        [5, 12, 24, 40, 31, 32, 16], int_bits=182, frac_bits=350
+    )
+    assert a.convolve(b).is_identical(result)
+    assert b.convolve(a).is_identical(result)
+
+    # Test #2, different number of array elements
+    a = APyFixedArray.from_float([1, 2, 3, 4], int_bits=100, frac_bits=300)
+    b = APyFixedArray.from_float(
+        [5, 2, 5, 4, 9, 2, 9, 5, 2, 3], int_bits=80, frac_bits=50
+    )
+    result = APyFixedArray.from_float(
+        [5, 12, 24, 40, 40, 52, 56, 65, 47, 58, 32, 17, 12], int_bits=184, frac_bits=350
+    )
+    assert a.convolve(b).is_identical(result)
+    assert b.convolve(a).is_identical(result)
+
+
 # TODO: Test long word-lengths and in accumulator contexts
+@pytest.mark.parametrize("mode", ["same", "valid"])
+def test_not_implemented(mode):
+    a = APyFixedArray.from_float([1, 2, 3, 4], int_bits=10, frac_bits=3)
+    b = APyFixedArray.from_float([5, 2, 5, 4], int_bits=8, frac_bits=5)
+    with pytest.raises(ValueError, match="Not implemented yet"):
+        a.convolve(b, mode=mode)
