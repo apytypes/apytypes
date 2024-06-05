@@ -253,6 +253,57 @@ def test_round_trip_conversion():
             assert (APyFloatArray.from_float(a.to_numpy(), 4, 4)).is_identical(a)
 
 
+def test_squeeze():
+    a = APyFloatArray.from_float([[1], [2], [3]], exp_bits=10, man_bits=10)
+    b = a.squeeze()
+    assert (b).is_identical(
+        APyFloatArray.from_float([1, 2, 3], exp_bits=10, man_bits=10)
+    )
+    c = APyFloatArray.from_float(
+        [[[1, 2], [3, 4], [5, 6], [7, 8]]], exp_bits=10, man_bits=10
+    )
+    d = c.squeeze()
+    assert (d).is_identical(
+        APyFloatArray.from_float(
+            [[1, 2], [3, 4], [5, 6], [7, 8]], exp_bits=10, man_bits=10
+        )
+    )
+    e = APyFloatArray.from_float([1, 2, 3], exp_bits=10, man_bits=10)
+    f = e.squeeze()
+    assert f.is_identical(e)
+    g = APyFloatArray.from_float([[[[[[[[2]]]]]]]], exp_bits=10, man_bits=10)
+    h = g.squeeze()
+    assert h.is_identical(APyFloatArray.from_float([2], exp_bits=10, man_bits=10))
+    i = APyFloatArray.from_float([], exp_bits=10, man_bits=10)
+    j = APyFloatArray.from_float([[]], exp_bits=10, man_bits=10)
+    k = i.squeeze()
+    z = j.squeeze()
+    assert k.is_identical(i)
+    assert z.is_identical(i)
+    m = APyFloatArray.from_float([[1], [2], [3]], exp_bits=10, man_bits=10)
+    with pytest.raises(ValueError):
+        _ = m.squeeze(axis=0)
+    m1 = m.squeeze(axis=1)
+    assert m1.is_identical(
+        APyFloatArray.from_float([1, 2, 3], exp_bits=10, man_bits=10)
+    )
+    with pytest.raises(IndexError):
+        _ = m.squeeze(axis=2)
+
+    n = APyFloatArray.from_float([[[[[[[[2]]]]]]]], exp_bits=10, man_bits=10)
+    o = n.squeeze((0, 1, 2, 3))
+    assert o.is_identical(APyFloatArray.from_float([[[[2]]]], exp_bits=10, man_bits=10))
+    p = n.squeeze((0, 1, 3))
+    assert p.is_identical(
+        APyFloatArray.from_float([[[[[2]]]]], exp_bits=10, man_bits=10)
+    )
+    q = APyFloatArray.from_float([[[1]], [[2]], [[3]], [[4]]], exp_bits=10, man_bits=10)
+    with pytest.raises(ValueError):
+        _ = q.squeeze((0, 1, 2))
+    with pytest.raises(IndexError):
+        _ = m.squeeze((1, 4))
+
+
 def test_convenience_cast():
     a = APyFloatArray.from_float([0.893820, 3e20, -float("inf"), float("nan")], 10, 50)
     assert a.cast_to_double().is_identical(

@@ -348,6 +348,15 @@ void bind_fixed_array(nb::module_& m)
             )pbdoc"
         )
 
+        .def(
+            "squeeze",
+            &APyFixedArray::squeeze,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Squeeze the matrix, removing dimensions of size 1.
+            )pbdoc"
+        )
+
         /*
          * Static methods
          */

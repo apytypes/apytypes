@@ -477,6 +477,15 @@ void bind_float_array(nb::module_& m)
             )pbdoc"
         )
 
+        .def(
+            "squeeze",
+            &APyFloatArray::squeeze,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Squeeze the matrix, removing dimensions of size 1.
+            )pbdoc"
+        )
+
         // Iteration and friends
         .def("__getitem__", &APyFloatArray::get_item, nb::arg("idx"))
         .def(

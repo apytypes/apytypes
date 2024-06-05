@@ -18,6 +18,47 @@ def test_ndim():
     assert APyFixedArray([range(3), range(3)], bits=1, int_bits=0).ndim == 2
 
 
+def test_squeeze():
+    a = APyFixedArray([[1], [2], [3]], bits=2, int_bits=2)
+    b = a.squeeze()
+    assert (b).is_identical(APyFixedArray([1, 2, 3], bits=2, int_bits=2))
+    c = APyFixedArray([[[1, 2], [3, 4], [5, 6], [7, 8]]], bits=4, int_bits=4)
+    d = c.squeeze()
+    assert (d).is_identical(
+        APyFixedArray([[1, 2], [3, 4], [5, 6], [7, 8]], bits=4, int_bits=4)
+    )
+    e = APyFixedArray([1, 2, 3], bits=2, int_bits=2)
+    f = e.squeeze()
+    assert f.is_identical(e)
+    g = APyFixedArray([[[[[[[[2]]]]]]]], bits=2, int_bits=2)
+    h = g.squeeze()
+    assert h.is_identical(APyFixedArray([2], bits=2, int_bits=2))
+    i = APyFixedArray([], bits=4, int_bits=4)
+    j = APyFixedArray([[]], bits=4, int_bits=4)
+    k = i.squeeze()
+    z = j.squeeze()
+    assert k.is_identical(i)
+    assert z.is_identical(i)
+    m = APyFixedArray([[1], [2], [3]], bits=2, int_bits=2)
+    with pytest.raises(ValueError):
+        _ = m.squeeze(axis=0)
+    m1 = m.squeeze(axis=1)
+    assert m1.is_identical(APyFixedArray([1, 2, 3], bits=2, int_bits=2))
+    with pytest.raises(IndexError):
+        _ = m.squeeze(axis=2)
+
+    n = APyFixedArray([[[[[[[[2]]]]]]]], bits=2, int_bits=2)
+    o = n.squeeze((0, 1, 2, 3))
+    assert o.is_identical(APyFixedArray([[[[2]]]], bits=2, int_bits=2))
+    p = n.squeeze((0, 1, 3))
+    assert p.is_identical(APyFixedArray([[[[[2]]]]], bits=2, int_bits=2))
+    q = APyFixedArray([[[1]], [[2]], [[3]], [[4]]], bits=2, int_bits=2)
+    with pytest.raises(ValueError):
+        _ = q.squeeze((0, 1, 2))
+    with pytest.raises(IndexError):
+        _ = m.squeeze((1, 4))
+
+
 def test_to_numpy():
     # Skip this test if `NumPy` is not present on the machine
     np = pytest.importorskip("numpy")

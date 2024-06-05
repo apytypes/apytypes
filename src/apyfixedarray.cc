@@ -15,6 +15,7 @@ namespace nb = nanobind;
 #include <cstdint>   // std::int16, std::int32, std::int64, etc...
 #include <ios>       // std::dec, std::hex
 #include <optional>  // std::optional
+#include <set>       // std::set
 #include <sstream>   // std::stringstream
 #include <stdexcept> // std::length_error
 #include <string>    // std::string
@@ -775,6 +776,59 @@ APyFixedArray APyFixedArray::broadcast_to(const std::vector<std::size_t> shape) 
 
     APyFixedArray result(shape, bits(), int_bits());
     broadcast_data_copy(_data.begin(), result._data.begin(), _shape, shape, _itemsize);
+    return result;
+}
+
+APyFixedArray
+APyFixedArray::squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis) const
+{
+    std::vector<std::size_t> shape = _shape;
+    std::set<int> axis_set;
+    if (axis.has_value()) {
+        // given an int or tuple of ints, remove the specified dimensions if size is one
+        // or throw an error
+        auto ax = axis.value();
+        nb::tuple axis_tuple;
+
+        if (std::holds_alternative<nb::tuple>(ax)) {
+            axis_tuple = std::get<nb::tuple>(ax);
+        } else if (std::holds_alternative<nb::int_>(ax)) {
+            int axis = int(std::get<nb::int_>(ax));
+            axis_tuple = nb::make_tuple(axis);
+        }
+        for (auto ptr = axis_tuple.begin(); ptr != axis_tuple.end(); ptr++) {
+            int axis_n = int(nanobind::cast<nb::int_>(*ptr));
+            if (axis_n >= int(shape.size())) {
+                throw nb::index_error(
+                    "specified axis with larger than number of dimensions in the "
+                    "APyFixedArray"
+                );
+            }
+            axis_set.insert(axis_n);
+        }
+        int cnt = 0;
+        auto predicate = [&](std::size_t dim) {
+            if (axis_set.find(cnt) != axis_set.end() && dim != 1) {
+                throw nb::value_error(
+                    "cannot select an axis to squeeze that has size other than one"
+                );
+            }
+            return axis_set.find(cnt++) != axis_set.end() && dim == 1;
+        };
+        shape.erase(std::remove_if(shape.begin(), shape.end(), predicate), shape.end());
+    } else {
+        // Given no specified axis, remove all dimensions of size one.
+        auto predicate = [](std::size_t dim) { return dim == 1; };
+        shape.erase(std::remove_if(shape.begin(), shape.end(), predicate), shape.end());
+    }
+    // if all dimensions where one, set the dimension to one, to avoid an error
+    if (shape.size() == 0) {
+        shape = { 1 };
+    }
+
+    // create the resulting Array and copy the data
+    APyFixedArray result(shape, bits(), int_bits());
+    std::copy_n(_data.begin(), _data.size(), result._data.begin());
     return result;
 }
 

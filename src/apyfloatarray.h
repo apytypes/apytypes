@@ -140,6 +140,9 @@ public:
     //! Broadcast to a new shape
     APyFloatArray broadcast_to(const std::vector<std::size_t> shape) const;
 
+    APyFloatArray
+    squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
+
     //! Python-exposed `broadcast_to`
     APyFloatArray broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
     ) const;
