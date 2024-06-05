@@ -12,6 +12,7 @@ namespace nb = nanobind;
 #include "python_util.h"
 #include <algorithm>
 #include <fmt/format.h>
+#include <set>
 #include <stdexcept>
 #include <string>
 
@@ -984,6 +985,62 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::matmul(const APyFloatArray&
         tuple_string_from_vec(shape),
         tuple_string_from_vec(rhs.shape)
     ));
+}
+
+APyFloatArray
+APyFloatArray::squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis) const
+{
+    std::vector<std::size_t> _shape = shape;
+    std::set<int> axis_set;
+    if (axis.has_value()) {
+        auto ax = axis.value();
+        nb::tuple axis_tuple;
+
+        if (std::holds_alternative<nb::tuple>(ax)) {
+            axis_tuple = std::get<nb::tuple>(ax);
+        } else if (std::holds_alternative<nb::int_>(ax)) {
+            int axis = int(std::get<nb::int_>(ax));
+            axis_tuple = nb::make_tuple(axis);
+        }
+        for (auto ptr = axis_tuple.begin(); ptr != axis_tuple.end(); ptr++) {
+            int axis_n = int(nanobind::cast<nb::int_>(*ptr));
+            if (axis_n >= int(_shape.size())) {
+                throw nb::index_error(
+                    "specified axis with larger than number of dimensions in the "
+                    "APyFloatArray"
+                );
+            }
+            axis_set.insert(axis_n);
+        }
+        // precidate to squeeze without specified axes
+        int cnt = 0;
+        auto predicate = [&](std::size_t dim) {
+            if (axis_set.find(cnt) != axis_set.end() && dim != 1) {
+                throw nb::value_error(
+                    "cannot select an axis to squeeze that has size other than one"
+                );
+            }
+            return axis_set.find(cnt++) != axis_set.end() && dim == 1;
+        };
+        _shape.erase(
+            std::remove_if(_shape.begin(), _shape.end(), predicate), _shape.end()
+        );
+    } else {
+        // precidate to squeeze without specified axes
+        auto predicate = [](std::size_t dim) { return dim == 1; };
+        _shape.erase(
+            std::remove_if(_shape.begin(), _shape.end(), predicate), _shape.end()
+        );
+    }
+
+    if (_shape.size() == 0) {
+        _shape = { 1 };
+    }
+
+    // create the resulting Array and copy the data
+    APyFloatArray result(_shape, exp_bits, man_bits, bias);
+    std::copy_n(data.begin(), data.size(), result.data.begin());
+    return result;
 }
 
 std::string APyFloatArray::repr() const
