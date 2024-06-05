@@ -634,6 +634,15 @@ void bind_fixed_array(nb::module_& m)
             )pbdoc"
         )
 
+        .def(
+            "sum",
+            &APyFixedArray::sum,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            returns a summated array according to the specified axes. If no axis given returns a summation of the whole array
+            )pbdoc"
+        )
+
         /*
          * Static methods
          */
