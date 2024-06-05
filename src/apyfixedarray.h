@@ -148,6 +148,10 @@ public:
     //! Perform a linear convolution with `other` using `mode`
     APyFixedArray convolve(const APyFixedArray& other, const std::string& mode) const;
 
+    //! Sum over one or more axes.
+    APyFixedArray
+    sum(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
+
     //! Python `__repr__()` function
     std::string repr() const;
 

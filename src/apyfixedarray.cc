@@ -836,6 +836,67 @@ APyFixedArray::squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis) co
     return result;
 }
 
+APyFixedArray APyFixedArray::sum(std::optional<std::variant<nb::int_, nb::tuple>> axis
+) const
+{
+    std::set<int> axis_set;
+    if (axis.has_value()) {
+        nb::tuple axes_tuple;
+        auto axis_val = axis.value();
+        if (std::holds_alternative<nb::tuple>(axis_val)) {
+            axes_tuple = std::get<nb::tuple>(axis_val);
+        } else if (std::holds_alternative<nb::int_>(axis_val)) {
+            axes_tuple = nb::make_tuple(std::get<nb::int_>(axis_val));
+        }
+        for (auto ptr = axes_tuple.begin(); ptr != axes_tuple.end(); ptr++) {
+            int axis_n = int(nanobind::cast<nb::int_>(*ptr));
+            axis_set.insert(axis_n);
+        }
+    } else {
+        for (std::size_t i = 0; i < _shape.size(); i++) {
+            axis_set.insert(i);
+        }
+    }
+
+    int summed_elements = 1;
+    for (std::size_t i = 0; i < _shape.size(); i++) {
+        if (axis_set.find(i) != axis_set.end()) {
+            summed_elements *= _shape[i];
+        }
+    }
+    int bit_increase = std::ceil(std::log2(summed_elements));
+
+    std::size_t length = _data.size();
+    std::size_t step = _data.size();
+    std::vector<mp_limb_t> res = _data;
+    std::vector<std::size_t> shape;
+    std::size_t res_size_end = 1;
+    for (int x = 0; x < _shape.size(); x++) {
+        step /= _shape[x];
+        if (axis_set.find(x) == axis_set.end()) {
+            res_size_end *= _shape[x];
+            shape.push_back(_shape[x]);
+            continue;
+        }
+        std::size_t sections = length / _shape[x];
+        std::vector<mp_limb_t> temp;
+        for (std::size_t i = 0; i < sections; i++) {
+            temp.push_back(0);
+        }
+        for (std::size_t i = 0; i < length; i++) {
+            temp[i % step + (i - i % (step * _shape[x])) / (step * _shape[x])]
+                += res[i];
+        }
+        res.swap(temp);
+        length = temp.size();
+    }
+    const int res_bits = _bits + bit_increase;
+    const int res_int_bits = _int_bits + bit_increase;
+    APyFixedArray result(shape, res_bits, res_int_bits);
+    std::copy_n(res.begin(), res_size_end, result._data.begin());
+    return result;
+}
+
 APyFixedArray
 APyFixedArray::broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape) const
 {

@@ -59,6 +59,12 @@ def test_squeeze():
         _ = m.squeeze((1, 4))
 
 
+def test_sum():
+    a = APyFixedArray([[1, 2], [3, 4], [5, 6], [7, 8]], bits=4, int_bits=4)
+    b = a.sum()
+    assert b.is_identical(APyFixedArray([36], bits=6, int_bits=6))
+
+
 def test_to_numpy():
     # Skip this test if `NumPy` is not present on the machine
     np = pytest.importorskip("numpy")
