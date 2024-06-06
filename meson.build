@@ -40,6 +40,9 @@ py3.install_sources(
         'lib/apytypes/__init__.py',
         'lib/apytypes/__init__.pyi',
         'lib/apytypes/_apytypes.pyi',
+        'lib/apytypes/_array_functions.py',
+        'lib/apytypes/_array_functions.pyi',
+        'lib/apytypes/_typing.py',
         'lib/apytypes/py.typed',
     ],
     subdir: 'apytypes'

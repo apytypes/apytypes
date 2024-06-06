@@ -11,3 +11,4 @@
    apyfloatarray
    quantizationoverflow
    context
+   arrayfunctions

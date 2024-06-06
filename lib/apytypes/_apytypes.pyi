@@ -684,6 +684,9 @@ class APyFixedArray:
         :class:`APyFixedArray`
         """
 
+    def squeeze(self, axis: int | tuple | None = None) -> APyFixedArray:
+        """Squeeze the matrix, removing dimensions of size 1."""
+
     @staticmethod
     def from_float(
         float_sequence: Sequence,
@@ -1804,6 +1807,9 @@ class APyFloatArray:
         -------
         :class:`APyFloatArray`
         """
+
+    def squeeze(self, axis: int | tuple | None = None) -> APyFloatArray:
+        """Squeeze the matrix, removing dimensions of size 1."""
 
     def __getitem__(self, idx: int) -> APyFloatArray | APyFloat: ...
     def __iter__(self) -> APyFloatArrayIterator: ...
