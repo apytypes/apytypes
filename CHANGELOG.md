@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [doctest](https://docs.python.org/3/library/doctest.html), which is
   run in the CI.
 - Linting using [ruff](https://docs.astral.sh/ruff/) is added to pre-commit and CI.
+- Array manipulation and mathematical functions added:
+  - `squeeze()`
 
 ### Changed
 

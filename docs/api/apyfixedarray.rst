@@ -35,6 +35,11 @@
 
    .. automethod:: transpose
 
+   Array shape manipulation
+   ------------------------
+
+   .. automethod:: squeeze
+
    Broadcasting
    ------------
 

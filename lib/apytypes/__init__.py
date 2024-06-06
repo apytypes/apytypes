@@ -18,6 +18,8 @@ from apytypes._apytypes import (
     _get_simd_version_str,
 )
 
+from apytypes._array_functions import squeeze
+
 from apytypes._version import version as __version__
 
 __all__ = [
@@ -37,6 +39,7 @@ __all__ = [
     "get_float_quantization_seed",
     "set_float_quantization_seed",
     "_get_simd_version_str",
+    "squeeze",
 ]
 
 APyFloat.__doc__ = r"""
