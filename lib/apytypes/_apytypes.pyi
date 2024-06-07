@@ -1670,6 +1670,37 @@ class APyFloatArray:
         :class:`numpy.ndarray`
         """
 
+    def reshape(self, number_sequence: tuple) -> APyFloatArray:
+        """
+        Reshape the APyFloatArray to the specified shape without changing its data.
+
+        Parameters
+        ----------
+        new_shape : `tuple`
+            The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.
+
+        Returns
+        -------
+        :class:`APyFloatArray`
+
+        Raises
+        ------
+        ValueError
+            If negative dimensions less than -1 are provided, if the total size of the new array is not unchanged and divisible by the known dimensions, or if the total number of elements does not match the original array.
+
+        Examples
+        --------
+        >>> a = APyFloatArray([2, 3])
+        >>> a.reshape((3, 2))
+        APyFloatArray of shape (3, 2)
+
+        >>> a.reshape((6,))
+        APyFloatArray of shape (6,)
+
+        >>> a.reshape((3, -1))
+        APyFloatArray of shape (3, 2)
+        """
+
     @staticmethod
     def from_float(
         number_sequence: Sequence, exp_bits: int, man_bits: int, bias: int | None = None
@@ -1790,26 +1821,6 @@ class APyFloatArray:
         Returns
         -------
         :class:`APyFloatArray`
-        """
-
-    def reshape(self, new_shape: tuple[int]) -> APyFloatArray:
-        """
-        Reshape the array to the specified shape.
-
-        Parameters
-        ----------
-        new_shape : :class:`tuple` of :class:`int`
-            The desired shape for the array. The total number of elements must remain the same.
-
-        Returns
-        -------
-        :class:`APyFloatArray`
-            A new APyFloatArray instance with the specified shape.
-
-        Raises
-        ------
-        :class:`ValueError`
-            If the total number of elements does not match the original array.
         """
 
     def broadcast_to(self, shape: tuple | int) -> APyFloatArray:

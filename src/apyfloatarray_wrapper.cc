@@ -328,22 +328,33 @@ void bind_float_array(nb::module_& m)
             :class:`numpy.ndarray`
             )pbdoc")
         .def("reshape", &APyFloatArray::reshape, nb::arg("number_sequence"), R"pbdoc(
-            Reshape the array to the specified shape.
+        Reshape the APyFloatArray to the specified shape without changing its data.
 
-            Parameters
-            ----------
-            new_shape : tuple of int
-                The desired shape for the array. The total number of elements must remain the same.
+        Parameters
+        ----------
+        new_shape : `tuple`
+            The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.
 
-            Returns
-            -------
-            APyFloatArray
-                A new APyFloatArray instance with the specified shape.
+        Returns
+        -------
+        :class:`APyFloatArray`
 
-            Raises
-            ------
-            ValueError
-                If the total number of elements does not match the original array.
+        Raises
+        ------
+        ValueError
+            If negative dimensions less than -1 are provided, if the total size of the new array is not unchanged and divisible by the known dimensions, or if the total number of elements does not match the original array.
+
+        Examples
+        --------
+        >>> a = APyFloatArray([2, 3])
+        >>> a.reshape((3, 2))
+        APyFloatArray of shape (3, 2)
+
+        >>> a.reshape((6,))
+        APyFloatArray of shape (6,)
+
+        >>> a.reshape((3, -1))
+        APyFloatArray of shape (3, 2)
             )pbdoc")
 
         /*
