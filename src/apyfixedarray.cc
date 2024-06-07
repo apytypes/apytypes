@@ -853,60 +853,52 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
         );
     }
 
-    // "Swap" `*this` and `other` based on length?
+    // "Swap" `*this` and `other` based on length.
     bool swap = _shape[0] < other._shape[0];
 
-    // The longer array
+    // Let `a` be a pointer to the longer array
     const APyFixedArray* a = swap ? &other : this;
 
-    // Make an intermediate reverse copy of the shorter array
-    APyFixedArray b = swap
-        ? APyFixedArray({ _shape[0] }, bits(), int_bits())
-        : APyFixedArray({ other._shape[0] }, other.bits(), other.int_bits());
-    if (swap) {
-        multi_limb_reverse(_data.begin(), _data.end(), b._data.begin(), _itemsize);
-    } else {
-        multi_limb_reverse(
-            other._data.begin(), other._data.end(), b._data.begin(), other._itemsize
+    // Let `b` be a pointer to an intermediate reverse copy of the shorter array
+    APyFixedArray b_cpy = swap ? *this : other;
+    multi_limb_reverse(std::begin(b_cpy._data), std::end(b_cpy._data), b_cpy._itemsize);
+    const APyFixedArray* b = &b_cpy;
+
+    // Result vector
+    const int extra_bits = bit_width(a->_shape[0] - 1);
+    const int res_bits = a->bits() + b->bits() + extra_bits;
+    const int res_int_bits = a->int_bits() + b->int_bits() + extra_bits;
+    APyFixedArray result({ a->_shape[0] + b->_shape[0] - 1 }, res_bits, res_int_bits);
+
+    // Head (`b` limits the inner product length)
+    for (std::size_t i = 0; i < b->_shape[0] - 1; i++) {
+        auto src1 = std::cbegin(a->_data);
+        auto src2 = std::cbegin(b->_data) + b->_itemsize * (b->_shape[0] - i - 1);
+        auto dst = std::begin(result._data) + i * result._itemsize;
+        inner_product(
+            src1, src2, dst, a->_itemsize, b->_itemsize, result._itemsize, i + 1
         );
     }
 
-    // Do the convolution
-    const int extra_bits = bit_width(a->_shape[0] - 1);
-    const int res_bits = bits() + other.bits() + extra_bits;
-    const int res_int_bits = int_bits() + other.int_bits() + extra_bits;
-    std::vector<std::size_t> res_shape { a->_shape[0] + b._shape[0] - 1 };
-    APyFixedArray result(res_shape, res_bits, res_int_bits);
-
-    auto src1_limbs = a->_itemsize;
-    auto src2_limbs = b._itemsize;
-    auto dst_limbs = result._itemsize;
-
-    // Head (`b` limits the inner product length)
-    for (std::size_t i = 0; i < b._shape[0] - 1; i++) {
-        auto src1 = std::cbegin(a->_data);
-        auto src2 = std::cbegin(b._data) + b._itemsize * (b._shape[0] - i - 1);
-        auto dst = std::begin(result._data) + i * result._itemsize;
-        inner_product(src1, src2, dst, src1_limbs, src2_limbs, dst_limbs, i + 1);
-    }
-
     // Center (full inner product length)
-    std::size_t full_length = std::min(a->_shape[0], b._shape[0]);
-    for (std::size_t i = 0; i < a->_shape[0] - b._shape[0] + 1; i++) {
+    std::size_t full_length = std::min(a->_shape[0], b->_shape[0]);
+    for (std::size_t i = 0; i < a->_shape[0] - b->_shape[0] + 1; i++) {
         auto src1 = std::cbegin(a->_data) + i * a->_itemsize;
-        auto src2 = std::cbegin(b._data);
-        auto dst = std::begin(result._data) + result._itemsize * (b._shape[0] + i - 1);
-        inner_product(src1, src2, dst, src1_limbs, src2_limbs, dst_limbs, full_length);
+        auto src2 = std::cbegin(b->_data);
+        auto dst = std::begin(result._data) + result._itemsize * (b->_shape[0] + i - 1);
+        inner_product(
+            src1, src2, dst, a->_itemsize, b->_itemsize, result._itemsize, full_length
+        );
     }
 
     // Tail (`a` limits the inner product length)
-    for (std::size_t i = 1; i < b._shape[0]; i++) {
+    for (std::size_t i = 1; i < b->_shape[0]; i++) {
         auto n = full_length - i;
         auto src1
-            = std::cbegin(a->_data) + a->_itemsize * (a->_shape[0] - b._shape[0] + i);
-        auto src2 = std::cbegin(b._data);
+            = std::cbegin(a->_data) + a->_itemsize * (a->_shape[0] - b->_shape[0] + i);
+        auto src2 = std::cbegin(b->_data);
         auto dst = std::begin(result._data) + result._itemsize * (a->_shape[0] + i - 1);
-        inner_product(src1, src2, dst, src1_limbs, src2_limbs, dst_limbs, n);
+        inner_product(src1, src2, dst, a->_itemsize, b->_itemsize, result._itemsize, n);
     }
 
     if (mode == "full") {
@@ -917,7 +909,9 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
         throw NotImplementedException();
     } else {
         throw nanobind::value_error(
-            fmt::format("mode={} must be one of 'full', 'valid' or 'same'", mode)
+            fmt::format(
+                "mode='{}' non-valid. Must be one of 'full', 'same', or 'same'", mode
+            )
                 .c_str()
         );
     }

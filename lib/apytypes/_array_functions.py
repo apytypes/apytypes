@@ -28,16 +28,49 @@ def squeeze(a, axis=None):
     return squeeze(axis=axis)
 
 
+def convolve(a, v, mode="full"):
+    """
+    Return the discrete linear convolution of two one-dimensional arrays.
+
+    Parameters
+    ----------
+    a : :class:`APyFloatArray` or :class:`APyFixedArray`
+        First one-dimensional array of length :code:`M`
+
+    v : :class:`APyFloatArray` or :class:`APyFixedArray`
+        Second one-dimensional array of length :code:`N`.
+
+    mode : string, default: 'full'
+        'full':
+            Returns the full convolution for each point of overlap. The resulting
+            single-dimensional shape will have length :code:`N + M - 1`. Boundary
+            effects occurs for points where the `a` and `v` do not overlap completely.
+        'same':
+            Returns a convolution of length :code:`max(M, N)`. Boundary effects still
+            occur around the edges of the result.
+        'valid':
+            Returns the convoltuion for each point of full overlap. The resulting
+            single-dimensional shape will have length :code:`max(M, N) - min(M, N) + 1`
+    """
+    try:
+        return a.convolve(v, mode=mode)
+    except AttributeError:
+        raise TypeError("Can only perform convoltuion of same-type apytypes arrays")
+
+
 def reshape(a, new_shape):
     """
-    Reshape an APyFixedArray or APyFloatArray to the specified shape without changing its data.
+    Reshape an APyFixedArray or APyFloatArray to the specified shape without changing
+    its data.
 
     Parameters
     ----------
     a : :class:`APyFloatArray` or :class:`APyFixedArray`
         The array to reshape.
     new_shape : tuple of ints
-        The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.
+        The new shape should be compatible with the original shape. If a dimension is
+        -1, its value will be inferred from the length of the array and remaining
+        dimensions. Only one dimension can be -1.
 
     Returns
     -------
@@ -47,7 +80,9 @@ def reshape(a, new_shape):
     Raises
     ------
     ValueError
-        If negative dimensions less than -1 are provided, if the total size of the new array is not unchanged and divisible by the known dimensions, or if the total number of elements does not match the original array.
+        If negative dimensions less than -1 are provided, if the total size of the new
+        array is not unchanged and divisible by the known dimensions, or if the total
+        number of elements does not match the original array.
 
     Examples
     --------
