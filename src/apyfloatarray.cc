@@ -1074,6 +1074,11 @@ std::string APyFloatArray::repr() const
 }
 
 // The shape of the array
+APyFloatArray APyFloatArray::reshape(nb::tuple new_shape)
+{
+    return APyFloatArray(shape, exp_bits, man_bits);
+}
+
 nanobind::tuple APyFloatArray::get_shape() const
 {
     nb::list result_list;

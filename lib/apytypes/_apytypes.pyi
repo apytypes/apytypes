@@ -1792,6 +1792,26 @@ class APyFloatArray:
         :class:`APyFloatArray`
         """
 
+    def reshape(self, new_shape: tuple[int]) -> APyFloatArray:
+        """
+        Reshape the array to the specified shape.
+
+        Parameters
+        ----------
+        new_shape : :class:`tuple` of :class:`int`
+            The desired shape for the array. The total number of elements must remain the same.
+
+        Returns
+        -------
+        :class:`APyFloatArray`
+            A new APyFloatArray instance with the specified shape.
+
+        Raises
+        ------
+        :class:`ValueError`
+            If the total number of elements does not match the original array.
+        """
+
     def broadcast_to(self, shape: tuple | int) -> APyFloatArray:
         """
         Broadcast array to new shape.
