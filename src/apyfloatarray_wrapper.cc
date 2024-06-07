@@ -346,6 +346,7 @@ void bind_float_array(nb::module_& m)
 
         Examples
         --------
+        >>> from apytypes import APyFloatArray
         >>> signs = [0, 0, 1, 1]
         >>> exps = [127, 128, 128, 129]
         >>> mans = [0, 0, 4194304, 0]
@@ -363,6 +364,8 @@ void bind_float_array(nb::module_& m)
         >>> arr.reshape((2, -1)).to_numpy()
         array([[ 1.,  2.],
                [-3., -4.]])
+
+        --------
             )pbdoc")
 
         /*

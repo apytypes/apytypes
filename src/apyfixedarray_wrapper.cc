@@ -272,10 +272,10 @@ void bind_fixed_array(nb::module_& m)
         new_shape : `tuple`
             The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.
 
+
         Returns
         -------
         :class:`APyFixedArray`
-
         Raises
         ------
         ValueError
@@ -283,6 +283,7 @@ void bind_fixed_array(nb::module_& m)
 
         Examples
         --------
+        >>> from apytypes import APyFixedArray
         >>> a = APyFixedArray([2, 3, 4, 5], int_bits=2, frac_bits=1)
         >>> a.to_numpy()
         array([ 1. ,  1.5, -2. , -1.5])
@@ -297,7 +298,9 @@ void bind_fixed_array(nb::module_& m)
         >>> a.reshape((2, -1)).to_numpy()
         array([[ 1. ,  1.5],
                [-2. , -1.5]])
-            )pbdoc")
+
+        --------
+             )pbdoc")
 
         .def("is_identical", &APyFixedArray::is_identical, nb::arg("other"), R"pbdoc(
             Test if two :class:`APyFixedArray` objects are identical.
@@ -311,6 +314,7 @@ void bind_fixed_array(nb::module_& m)
             Returns
             -------
             :class:`bool`
+
             )pbdoc")
 
         .def("transpose", &APyFixedArray::transpose, R"pbdoc(

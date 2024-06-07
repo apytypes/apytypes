@@ -611,10 +611,10 @@ class APyFixedArray:
         new_shape : `tuple`
             The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.
 
+
         Returns
         -------
         :class:`APyFixedArray`
-
         Raises
         ------
         ValueError
@@ -622,6 +622,7 @@ class APyFixedArray:
 
         Examples
         --------
+        >>> from apytypes import APyFixedArray
         >>> a = APyFixedArray([2, 3, 4, 5], int_bits=2, frac_bits=1)
         >>> a.to_numpy()
         array([ 1. ,  1.5, -2. , -1.5])
@@ -636,6 +637,8 @@ class APyFixedArray:
         >>> a.reshape((2, -1)).to_numpy()
         array([[ 1. ,  1.5],
                [-2. , -1.5]])
+
+        --------
         """
 
     def is_identical(self, other: APyFixedArray) -> bool:
@@ -1726,6 +1729,7 @@ class APyFloatArray:
 
         Examples
         --------
+        >>> from apytypes import APyFloatArray
         >>> signs = [0, 0, 1, 1]
         >>> exps = [127, 128, 128, 129]
         >>> mans = [0, 0, 4194304, 0]
@@ -1745,6 +1749,8 @@ class APyFloatArray:
         >>> arr.reshape((2, -1)).to_numpy()
         array([[ 1.,  2.],
                [-3., -4.]])
+
+        --------
         """
 
     @staticmethod

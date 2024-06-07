@@ -51,6 +51,7 @@ def reshape(a, new_shape):
 
     Examples
     --------
+    >>> from apytypes import reshape, APyFixedArray
     >>> a = APyFixedArray([2, 3, 4, 5], int_bits=2, frac_bits=1)
     >>> a.to_numpy()
     array([ 1. ,  1.5, -2. , -1.5])
