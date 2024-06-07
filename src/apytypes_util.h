@@ -1060,21 +1060,32 @@ strides_from_shape(const std::vector<std::size_t>& shape, std::size_t acc_base =
     return strides;
 }
 
-//! Multi-limb reverse function. If the output iterator range is located within the
-//! source iterator range [ `begin_it`, `end_it` ), the behaviour is undefined.
-template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
+//! In-place multi-limb swap function
+template <typename RANDOM_ACCESS_ITERATOR_INOUT>
+[[maybe_unused]] static APY_INLINE void multi_limb_swap(
+    RANDOM_ACCESS_ITERATOR_INOUT a_it,
+    RANDOM_ACCESS_ITERATOR_INOUT b_it,
+    std::size_t itemsize
+)
+{
+    for (std::size_t i = 0; i < itemsize; i++) {
+        std::swap(*(a_it + i), *(b_it + i));
+    }
+}
+
+//! In-place multi-limb reverse function
+template <typename RANDOM_ACCESS_ITERATOR_INOUT>
 [[maybe_unused]] static APY_INLINE void multi_limb_reverse(
-    RANDOM_ACCESS_ITERATOR_IN begin_it,
-    RANDOM_ACCESS_ITERATOR_IN end_it,
-    RANDOM_ACCESS_ITERATOR_OUT dst_it,
+    RANDOM_ACCESS_ITERATOR_INOUT begin_it,
+    RANDOM_ACCESS_ITERATOR_INOUT end_it,
     std::size_t itemsize
 )
 {
     auto n_items = std::distance(begin_it, end_it) / itemsize;
-    for (std::size_t i = 0; i < n_items; i++) {
-        auto src = begin_it + (i * itemsize);
-        auto dst = dst_it + itemsize * (n_items - i - 1);
-        std::copy_n(src, itemsize, dst);
+    for (std::size_t i = 0; i < (n_items + 1) / 2; i++) {
+        auto it1 = begin_it + (i * itemsize);
+        auto it2 = begin_it + itemsize * (n_items - i - 1);
+        multi_limb_swap(it1, it2, itemsize);
     }
 }
 

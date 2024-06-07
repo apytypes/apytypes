@@ -18,7 +18,12 @@ from apytypes._apytypes import (
     _get_simd_version_str,
 )
 
-from apytypes._array_functions import squeeze, reshape, shape
+from apytypes._array_functions import (
+    squeeze,
+    convolve,
+    reshape,
+    shape
+)
 
 from apytypes._version import version as __version__
 
@@ -40,6 +45,7 @@ __all__ = [
     "set_float_quantization_seed",
     "_get_simd_version_str",
     "squeeze",
+    "convolve",
     "reshape",
     "shape",
 ]
