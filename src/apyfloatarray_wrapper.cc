@@ -327,6 +327,24 @@ void bind_float_array(nb::module_& m)
             -------
             :class:`numpy.ndarray`
             )pbdoc")
+        .def("reshape", &APyFloatArray::reshape, nb::arg("number_sequence"), R"pbdoc(
+            Reshape the array to the specified shape.
+
+            Parameters
+            ----------
+            new_shape : tuple of int
+                The desired shape for the array. The total number of elements must remain the same.
+
+            Returns
+            -------
+            APyFloatArray
+                A new APyFloatArray instance with the specified shape.
+
+            Raises
+            ------
+            ValueError
+                If the total number of elements does not match the original array.
+            )pbdoc")
 
         /*
          * Static methods
