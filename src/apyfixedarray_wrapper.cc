@@ -264,6 +264,41 @@ void bind_fixed_array(nb::module_& m)
             :class:`numpy.ndarray`
             )pbdoc")
 
+        .def("reshape", &APyFixedArray::reshape, nb::arg("number_sequence"), R"pbdoc(
+        Reshape the APyFixedArray to the specified shape without changing its data.
+
+        Parameters
+        ----------
+        new_shape : `tuple`
+            The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.
+
+        Returns
+        -------
+        :class:`APyFixedArray`
+
+        Raises
+        ------
+        ValueError
+            If negative dimensions less than -1 are provided, if the total size of the new array is not unchanged and divisible by the known dimensions, or if the total number of elements does not match the original array.
+
+        Examples
+        --------
+        >>> a = APyFixedArray([2, 3, 4, 5], int_bits=2, frac_bits=1)
+        >>> a.to_numpy()
+        array([ 1. ,  1.5, -2. , -1.5])
+
+        >>> a.reshape((2, 2)).to_numpy()
+        array([[ 1. ,  1.5],
+               [-2. , -1.5]])
+
+        >>> a.reshape((4,)).to_numpy()
+        array([ 1. ,  1.5, -2. , -1.5])
+
+        >>> a.reshape((2, -1)).to_numpy()
+        array([[ 1. ,  1.5],
+               [-2. , -1.5]])
+            )pbdoc")
+
         .def("is_identical", &APyFixedArray::is_identical, nb::arg("other"), R"pbdoc(
             Test if two :class:`APyFixedArray` objects are identical.
 

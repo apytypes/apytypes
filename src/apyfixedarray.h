@@ -147,6 +147,8 @@ public:
     //! Python `__repr__()` function
     std::string repr() const;
 
+    APyFixedArray reshape(nb::tuple new_shape) const;
+
     //! Shape of the array
     nb::tuple shape() const;
 

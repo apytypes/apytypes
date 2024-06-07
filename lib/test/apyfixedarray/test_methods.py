@@ -121,3 +121,135 @@ def test_round_trip_conversion():
     for bit_pattern in range(256):
         a = APyFixedArray([bit_pattern], int_bits=4, frac_bits=4)
         assert (APyFixedArray.from_float(a.to_numpy(), 4, 4)).is_identical(a)
+
+
+def test_reshape():
+
+    nums = [
+        5,
+        10,
+        15,
+        20,
+        25,
+        30,
+        35,
+        40,
+        45,
+        50,
+        55,
+        60,
+    ]
+
+    # Creating 1D array to be reshaped
+    arr = APyFixedArray(nums, bits=20, int_bits=10)
+
+    possible_shapes = [(1, 12), (2, 6), (3, 4), (4, 3), (6, 2), (12, 1)]
+    possible_shapes += [(-1, 12), (2, -1), (3, -1), (4, -1), (-1, 3), (-1, 2), (12, -1)]
+
+    for shape in possible_shapes:
+        reshaped_arr = arr.reshape(shape)
+        for i, row in enumerate(reshaped_arr):
+            for j, float_ in enumerate(row):
+                arr_index = i * reshaped_arr.shape[1] + j
+                if not APyFixed.is_identical(arr[arr_index], float_):
+                    pytest.fail(f"Mismatch at index {arr_index} during reshape")
+
+        go_back = reshaped_arr.reshape(arr.shape)
+        if not APyFixedArray.is_identical(go_back, arr):
+            pytest.fail(f"Mismatch after reshaping back at index {arr_index}")
+
+    possible_3d_shapes = [
+        (1, 1, 12),
+        (1, 2, 6),
+        (1, 3, 4),
+        (1, 4, 3),
+        (1, 6, 2),
+        (1, 12, 1),
+        (2, 1, 6),
+        (2, 2, 3),
+        (2, 3, 2),
+        (2, 6, 1),
+        (3, 1, 4),
+        (3, 2, 2),
+        (3, 4, 1),
+        (4, 1, 3),
+        (4, 3, 1),
+        (6, 1, 2),
+        (6, 2, 1),
+        (12, 1, 1),
+        (-1, 2, 2),
+        (1, -1, 2),
+        (6, 1, -1),
+    ]
+
+    for shape in possible_3d_shapes:
+        reshaped_arr = arr.reshape(shape)
+        for i, matrix in enumerate(reshaped_arr):
+            for j, row in enumerate(matrix):
+                for k, float_ in enumerate(row):
+                    arr_index = (
+                        i * reshaped_arr.shape[1] * reshaped_arr.shape[2]
+                        + j * reshaped_arr.shape[2]
+                        + k
+                    )
+                    if not APyFixed.is_identical(arr[arr_index], float_):
+                        pytest.fail(f"Mismatch at index {arr_index} during reshape")
+
+        go_back = reshaped_arr.reshape(arr.shape)
+        if not APyFixedArray.is_identical(go_back, arr):
+            pytest.fail(f"Mismatch after reshaping back at index {arr_index}")
+
+    nums = [[5, 10, 6], [15, 20, 3]]
+
+    # 6 elems
+    arr = APyFixedArray(nums, bits=10, int_bits=10)
+
+    # Examples where reshape should raise a ValueError
+    invalid_shapes = [
+        (1, 2, 50),  # 100
+        (1, 2),  # 2
+        (1, 4, 3),  # 12
+        (2, 4),  # 8
+        (2, 2),  # 4
+    ]
+
+    for shape in invalid_shapes:
+        with pytest.raises(
+            ValueError,
+            match="Total number of elements does not match the original array.",
+        ):
+            g = arr.reshape(shape)
+            print("Reshaped array with shape {}: {}".format(shape, g))
+
+    # Examples where reshape should not raise a ValueError
+    valid_shapes = [
+        (6,),
+        (3, 2),
+        (1, 6),
+        (6, 1),
+        (2, 3),
+        (-1,),
+        (-1, 2),
+        (1, -1),
+        (6, -1),
+        (3, -1),
+    ]
+
+    for shape in valid_shapes:
+        try:
+            g = arr.reshape(shape)
+            if g is arr:
+                pytest.fail(
+                    "Reshape should return a new array, now returns a modified one"
+                )
+            # print("Reshaped array with shape {}: {}".format(shape, g))
+        except ValueError:
+            pytest.fail("Unexpected ValueError for shape {}".format(shape))
+
+    neg_one_input_tests = [(-2,), (-1, -1), (4, -1), (-2, 3), (-999, 12)]
+    for bad_input in neg_one_input_tests:
+        with pytest.raises(
+            ValueError,
+            match=r"Negative dimensions less than -1 are not allowed.|Only one dimension can be -1.|The total size of new array must be unchanged and divisible by the known dimensions.",
+        ):
+            arr.reshape(bad_input)

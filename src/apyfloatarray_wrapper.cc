@@ -346,15 +346,23 @@ void bind_float_array(nb::module_& m)
 
         Examples
         --------
-        >>> a = APyFloatArray([2, 3])
-        >>> a.reshape((3, 2))
-        APyFloatArray of shape (3, 2)
+        >>> signs = [0, 0, 1, 1]
+        >>> exps = [127, 128, 128, 129]
+        >>> mans = [0, 0, 4194304, 0]
+        >>> arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23)
+        >>> arr.to_numpy()
+        array([ 1.,  2., -3., -4.])
 
-        >>> a.reshape((6,))
-        APyFloatArray of shape (6,)
+        >>> arr.reshape((2, 2)).to_numpy()
+        array([[ 1.,  2.],
+               [-3., -4.]])
 
-        >>> a.reshape((3, -1))
-        APyFloatArray of shape (3, 2)
+        >>> arr.reshape((4,)).to_numpy()
+        array([ 1.,  2., -3., -4.])
+
+        >>> arr.reshape((2, -1)).to_numpy()
+        array([[ 1.,  2.],
+               [-3., -4.]])
             )pbdoc")
 
         /*

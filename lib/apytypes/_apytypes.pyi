@@ -602,6 +602,42 @@ class APyFixedArray:
         :class:`numpy.ndarray`
         """
 
+    def reshape(self, number_sequence: tuple) -> APyFixedArray:
+        """
+        Reshape the APyFixedArray to the specified shape without changing its data.
+
+        Parameters
+        ----------
+        new_shape : `tuple`
+            The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.
+
+        Returns
+        -------
+        :class:`APyFixedArray`
+
+        Raises
+        ------
+        ValueError
+            If negative dimensions less than -1 are provided, if the total size of the new array is not unchanged and divisible by the known dimensions, or if the total number of elements does not match the original array.
+
+        Examples
+        --------
+        >>> a = APyFixedArray([2, 3, 4, 5], int_bits=2, frac_bits=1)
+        >>> a.to_numpy()
+        array([ 1. ,  1.5, -2. , -1.5])
+
+        >>> a.reshape((2, 2)).to_numpy()
+        array([[ 1. ,  1.5],
+               [-2. , -1.5]])
+
+        >>> a.reshape((4,)).to_numpy()
+        array([ 1. ,  1.5, -2. , -1.5])
+
+        >>> a.reshape((2, -1)).to_numpy()
+        array([[ 1. ,  1.5],
+               [-2. , -1.5]])
+        """
+
     def is_identical(self, other: APyFixedArray) -> bool:
         """
         Test if two :class:`APyFixedArray` objects are identical.
@@ -1690,15 +1726,23 @@ class APyFloatArray:
 
         Examples
         --------
-        >>> a = APyFloatArray([2, 3])
-        >>> a.reshape((3, 2))
-        APyFloatArray of shape (3, 2)
+        >>> signs = [0, 0, 1, 1]
+        >>> exps = [127, 128, 128, 129]
+        >>> mans = [0, 0, 4194304, 0]
+        >>> arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23)
+        >>> arr.to_numpy()
+        array([ 1.,  2., -3., -4.])
 
-        >>> a.reshape((6,))
-        APyFloatArray of shape (6,)
+        >>> arr.reshape((2, 2)).to_numpy()
+        array([[ 1.,  2.],
+               [-3., -4.]])
 
-        >>> a.reshape((3, -1))
-        APyFloatArray of shape (3, 2)
+        >>> arr.reshape((4,)).to_numpy()
+        array([ 1.,  2., -3., -4.])
+
+        >>> arr.reshape((2, -1)).to_numpy()
+        array([[ 1.,  2.],
+               [-3., -4.]])
         """
 
     @staticmethod
