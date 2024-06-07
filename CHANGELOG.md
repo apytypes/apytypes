@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Linting using [ruff](https://docs.astral.sh/ruff/) is added to pre-commit and CI.
 - Array manipulation and mathematical functions added:
   - `squeeze()`
+  - `reshape()`
 
 ### Changed
 

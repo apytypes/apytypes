@@ -414,12 +414,11 @@ def test_reshape():
         if not APyFloatArray.is_identical(go_back, arr):
             pytest.fail(f"Mismatch after reshaping back at index {arr_index}")
 
-    signs = [[1, 0, 5], [0, 1, 5]]
+    signs = [[52, 15, 32], [12, 43, 5]]
     exps = [[5, 10, 6], [15, 20, 3]]
     mans = [[3, 1, 2], [4, 2, 8]]
 
-    # 6 elems
-    arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=5, man_bits=2)
+    arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23)
 
     # Examples where reshape should raise a ValueError
     invalid_shapes = [
@@ -470,6 +469,3 @@ def test_reshape():
             match=r"Negative dimensions less than -1 are not allowed.|Only one dimension can be -1.|The total size of new array must be unchanged and divisible by the known dimensions.",
         ):
             arr.reshape(bad_input)
-
-
-test_reshape()
