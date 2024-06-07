@@ -349,8 +349,81 @@ def test_convenience_cast():
 
 
 @pytest.mark.float_array
-def test_reshape():
+@pytest.mark.parametrize(
+    "shape, is_valid, is_invalid, test_neg_one",
+    [
+        ((6,), True, False, False),  # Valid shapes
+        ((3, 2), True, False, False),
+        ((1, 6), True, False, False),
+        ((6, 1), True, False, False),
+        ((2, 3), True, False, False),
+        ((-1,), True, False, False),
+        ((-1, 2), True, False, False),
+        ((1, -1), True, False, False),
+        ((6, -1), True, False, False),
+        ((3, -1), True, False, False),
+        ((1, 2, 50), False, True, False),  # Invalid shapes
+        ((1, 2), False, True, False),
+        ((1, 4, 3), False, True, False),
+        ((2, 4), False, True, False),
+        ((2, 2), False, True, False),
+        ((-2,), False, False, True),  # Invalid negatives
+        ((-1, -1), False, False, True),
+        ((4, -1), False, False, True),
+        ((-2, 3), False, False, True),
+        ((-999, 12), False, False, True),
+    ],
+)
+def test_reshape(shape, is_valid, is_invalid, test_neg_one):
+    signs = [[52, 15, 32], [12, 43, 5]]
+    exps = [[5, 10, 6], [15, 20, 3]]
+    mans = [[3, 1, 2], [4, 2, 8]]
 
+    arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23)
+
+    if is_invalid:
+        with pytest.raises(
+            ValueError,
+            match="Total number of elements does not match the original array.",
+        ):
+            arr.reshape(shape)
+    elif test_neg_one:
+        with pytest.raises(
+            ValueError,
+            match=r"Negative dimensions less than -1 are not allowed.|Only one dimension can be -1.|The total size of new array must be unchanged and divisible by the known dimensions.",
+        ):
+            arr.reshape(shape)
+    elif is_valid:
+        try:
+            g = arr.reshape(shape)
+            if g is arr:
+                pytest.fail(
+                    "Reshape should return a new array, now returns a modified one"
+                )
+        except ValueError:
+            pytest.fail(f"Unexpected ValueError for shape {shape}")
+
+
+@pytest.mark.float_array
+@pytest.mark.parametrize(
+    "shape",
+    [
+        (1, 12),
+        (2, 6),
+        (3, 4),
+        (4, 3),
+        (6, 2),
+        (12, 1),
+        (-1, 12),
+        (2, -1),
+        (3, -1),
+        (4, -1),
+        (-1, 3),
+        (-1, 2),
+        (12, -1),
+    ],
+)
+def test_reshape_2d(shape):
     signs = [1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0]
     exps = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
     mans = [3, 1, 4, 2, 6, 5, 8, 7, 9, 0, 2, 3]
@@ -358,22 +431,22 @@ def test_reshape():
     # Creating 1D array to be reshaped
     arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=5, man_bits=2)
 
-    possible_shapes = [(1, 12), (2, 6), (3, 4), (4, 3), (6, 2), (12, 1)]
-    possible_shapes += [(-1, 12), (2, -1), (3, -1), (4, -1), (-1, 3), (-1, 2), (12, -1)]
+    reshaped_arr = arr.reshape(shape)
+    for i, row in enumerate(reshaped_arr):
+        for j, float_ in enumerate(row):
+            arr_index = i * reshaped_arr.shape[1] + j
+            if not APyFloat.is_identical(arr[arr_index], float_):
+                pytest.fail(f"Mismatch at index {arr_index} during reshape")
 
-    for shape in possible_shapes:
-        reshaped_arr = arr.reshape(shape)
-        for i, row in enumerate(reshaped_arr):
-            for j, float_ in enumerate(row):
-                arr_index = i * reshaped_arr.shape[1] + j
-                if not APyFloat.is_identical(arr[arr_index], float_):
-                    pytest.fail(f"Mismatch at index {arr_index} during reshape")
+    go_back = reshaped_arr.reshape(arr.shape)
+    if not APyFloatArray.is_identical(go_back, arr):
+        pytest.fail(f"Mismatch after reshaping back at index {arr_index}")
 
-        go_back = reshaped_arr.reshape(arr.shape)
-        if not APyFloatArray.is_identical(go_back, arr):
-            pytest.fail(f"Mismatch after reshaping back at index {arr_index}")
 
-    possible_3d_shapes = [
+@pytest.mark.float_array
+@pytest.mark.parametrize(
+    "shape",
+    [
         (1, 1, 12),
         (1, 2, 6),
         (1, 3, 4),
@@ -395,77 +468,28 @@ def test_reshape():
         (-1, 2, 2),
         (1, -1, 2),
         (6, 1, -1),
-    ]
+    ],
+)
+def test_reshape_3d(shape):
+    signs = [1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0]
+    exps = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
+    mans = [3, 1, 4, 2, 6, 5, 8, 7, 9, 0, 2, 3]
 
-    for shape in possible_3d_shapes:
-        reshaped_arr = arr.reshape(shape)
-        for i, matrix in enumerate(reshaped_arr):
-            for j, row in enumerate(matrix):
-                for k, float_ in enumerate(row):
-                    arr_index = (
-                        i * reshaped_arr.shape[1] * reshaped_arr.shape[2]
-                        + j * reshaped_arr.shape[2]
-                        + k
-                    )
-                    if not APyFloat.is_identical(arr[arr_index], float_):
-                        pytest.fail(f"Mismatch at index {arr_index} during reshape")
+    # Creating 1D array to be reshaped
+    arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=5, man_bits=2)
 
-        go_back = reshaped_arr.reshape(arr.shape)
-        if not APyFloatArray.is_identical(go_back, arr):
-            pytest.fail(f"Mismatch after reshaping back at index {arr_index}")
-
-    signs = [[52, 15, 32], [12, 43, 5]]
-    exps = [[5, 10, 6], [15, 20, 3]]
-    mans = [[3, 1, 2], [4, 2, 8]]
-
-    arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23)
-
-    # Examples where reshape should raise a ValueError
-    invalid_shapes = [
-        (1, 2, 50),  # 100
-        (1, 2),  # 2
-        (1, 4, 3),  # 12
-        (2, 4),  # 8
-        (2, 2),  # 4
-    ]
-
-    for shape in invalid_shapes:
-        with pytest.raises(
-            ValueError,
-            match="Total number of elements does not match the original array.",
-        ):
-            g = arr.reshape(shape)
-            print("Reshaped array with shape {}: {}".format(shape, g))
-
-    # Examples where reshape should not raise a ValueError
-    valid_shapes = [
-        (6,),
-        (3, 2),
-        (1, 6),
-        (6, 1),
-        (2, 3),
-        (-1,),
-        (-1, 2),
-        (1, -1),
-        (6, -1),
-        (3, -1),
-    ]
-
-    for shape in valid_shapes:
-        try:
-            g = arr.reshape(shape)
-            if g is arr:
-                pytest.fail(
-                    "Reshape should return a new array, now returns a modified one"
+    reshaped_arr = arr.reshape(shape)
+    for i, matrix in enumerate(reshaped_arr):
+        for j, row in enumerate(matrix):
+            for k, float_ in enumerate(row):
+                arr_index = (
+                    i * reshaped_arr.shape[1] * reshaped_arr.shape[2]
+                    + j * reshaped_arr.shape[2]
+                    + k
                 )
-            # print("Reshaped array with shape {}: {}".format(shape, g))
-        except ValueError:
-            pytest.fail("Unexpected ValueError for shape {}".format(shape))
+                if not APyFloat.is_identical(arr[arr_index], float_):
+                    pytest.fail(f"Mismatch at index {arr_index} during reshape")
 
-    neg_one_input_tests = [(-2,), (-1, -1), (4, -1), (-2, 3), (-999, 12)]
-    for bad_input in neg_one_input_tests:
-        with pytest.raises(
-            ValueError,
-            match=r"Negative dimensions less than -1 are not allowed.|Only one dimension can be -1.|The total size of new array must be unchanged and divisible by the known dimensions.",
-        ):
-            arr.reshape(bad_input)
+    go_back = reshaped_arr.reshape(arr.shape)
+    if not APyFloatArray.is_identical(go_back, arr):
+        pytest.fail(f"Mismatch after reshaping back at index {arr_index}")
