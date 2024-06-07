@@ -137,6 +137,7 @@ public:
      * *                          Public member functions                           * *
      * ****************************************************************************** */
 
+    //! Reshape into a new shape
     APyFloatArray reshape(nb::tuple new_shape);
     //! Broadcast to a new shape
     APyFloatArray broadcast_to(const std::vector<std::size_t> shape) const;

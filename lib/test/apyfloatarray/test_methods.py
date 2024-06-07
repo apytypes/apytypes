@@ -359,6 +359,7 @@ def test_reshape():
     arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=5, man_bits=2)
 
     possible_shapes = [(1, 12), (2, 6), (3, 4), (4, 3), (6, 2), (12, 1)]
+    possible_shapes += [(-1, 12), (2, -1), (3, -1), (4, -1), (-1, 3), (-1, 2), (12, -1)]
 
     for shape in possible_shapes:
         reshaped_arr = arr.reshape(shape)
@@ -391,6 +392,9 @@ def test_reshape():
         (6, 1, 2),
         (6, 2, 1),
         (12, 1, 1),
+        (-1, 2, 2),
+        (1, -1, 2),
+        (6, 1, -1),
     ]
 
     for shape in possible_3d_shapes:
@@ -441,6 +445,11 @@ def test_reshape():
         (1, 6),
         (6, 1),
         (2, 3),
+        (-1,),
+        (-1, 2),
+        (1, -1),
+        (6, -1),
+        (3, -1),
     ]
 
     for shape in valid_shapes:
@@ -453,6 +462,14 @@ def test_reshape():
             # print("Reshaped array with shape {}: {}".format(shape, g))
         except ValueError:
             pytest.fail("Unexpected ValueError for shape {}".format(shape))
+
+    neg_one_input_tests = [(-2,), (-1, -1), (4, -1), (-2, 3), (-999, 12)]
+    for bad_input in neg_one_input_tests:
+        with pytest.raises(
+            ValueError,
+            match=r"Negative dimensions less than -1 are not allowed.|Only one dimension can be -1.|The total size of new array must be unchanged and divisible by the known dimensions.",
+        ):
+            arr.reshape(bad_input)
 
 
 test_reshape()
