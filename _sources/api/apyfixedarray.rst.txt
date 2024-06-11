@@ -40,6 +40,8 @@
 
    .. automethod:: squeeze
 
+   .. automethod:: reshape
+
    Broadcasting
    ------------
 

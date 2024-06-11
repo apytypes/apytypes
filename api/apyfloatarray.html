@@ -359,13 +359,16 @@ equivalent <a class="reference internal" href="apyfloat.html#apytypes.APyFloat" 
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.is_identical" title="apytypes.APyFloatArray.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
 <td><p>Test if two <a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> objects are identical.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.squeeze" title="apytypes.APyFloatArray.squeeze"><code class="xref py py-obj docutils literal notranslate"><span class="pre">squeeze</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.reshape" title="apytypes.APyFloatArray.reshape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reshape</span></code></a></p></td>
+<td><p>Reshape the APyFloatArray to the specified shape without changing its data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.squeeze" title="apytypes.APyFloatArray.squeeze"><code class="xref py py-obj docutils literal notranslate"><span class="pre">squeeze</span></code></a></p></td>
 <td><p>Squeeze the matrix, removing dimensions of size 1.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.to_numpy" title="apytypes.APyFloatArray.to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.to_numpy" title="apytypes.APyFloatArray.to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code></a></p></td>
 <td><p>Return array as a <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.float64</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.transpose" title="apytypes.APyFloatArray.transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.transpose" title="apytypes.APyFloatArray.transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code></a></p></td>
 <td><p>Return the transposition of the array.</p></td>
 </tr>
 </tbody>
@@ -592,6 +595,56 @@ transposition of <cite>self</cite>.</p>
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.squeeze">
 <span class="sig-name descname"><span class="pre">squeeze</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.squeeze" title="Link to this definition">¶</a></dt>
 <dd><p>Squeeze the matrix, removing dimensions of size 1.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFloatArray.reshape">
+<span class="sig-name descname"><span class="pre">reshape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_sequence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><span class="pre">tuple</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.reshape" title="Link to this definition">¶</a></dt>
+<dd><p>Reshape the APyFloatArray to the specified shape without changing its data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>new_shape</strong><span class="classifier"><cite>tuple</cite></span></dt><dd><p>The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If negative dimensions less than -1 are provided, if the total size of the new array is not unchanged and divisible by the known dimensions, or if the total number of elements does not match the original array.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloatArray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">signs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exps</span> <span class="o">=</span> <span class="p">[</span><span class="mi">127</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">129</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mans</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4194304</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="p">(</span><span class="n">signs</span><span class="o">=</span><span class="n">signs</span><span class="p">,</span> <span class="n">exps</span><span class="o">=</span><span class="n">exps</span><span class="p">,</span> <span class="n">mans</span><span class="o">=</span><span class="n">mans</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">23</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="go">array([ 1.,  2., -3., -4.])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="go">array([[ 1.,  2.],</span>
+<span class="go">       [-3., -4.]])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">4</span><span class="p">,))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="go">array([ 1.,  2., -3., -4.])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="go">array([[ 1.,  2.],</span>
+<span class="go">       [-3., -4.]])</span>
+</pre></div>
+</div>
+<hr class="docutils" />
 </dd></dl>
 
 </section>
@@ -872,6 +925,7 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_f
 <li><a class="reference internal" href="#apytypes.APyFloatArray.to_numpy"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.to_numpy()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloatArray.transpose"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.transpose()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloatArray.squeeze"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.squeeze()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloatArray.reshape"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.reshape()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloatArray.broadcast_to"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.broadcast_to()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_bfloat16"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.cast_to_bfloat16()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloatArray.cast_to_double"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.cast_to_double()</span></code></a></li>

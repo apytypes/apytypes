@@ -337,13 +337,16 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.is_identical" title="apytypes.APyFixedArray.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
 <td><p>Test if two <a class="reference internal" href="#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> objects are identical.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.squeeze" title="apytypes.APyFixedArray.squeeze"><code class="xref py py-obj docutils literal notranslate"><span class="pre">squeeze</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.reshape" title="apytypes.APyFixedArray.reshape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reshape</span></code></a></p></td>
+<td><p>Reshape the APyFixedArray to the specified shape without changing its data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.squeeze" title="apytypes.APyFixedArray.squeeze"><code class="xref py py-obj docutils literal notranslate"><span class="pre">squeeze</span></code></a></p></td>
 <td><p>Squeeze the matrix, removing dimensions of size 1.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.to_numpy" title="apytypes.APyFixedArray.to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.to_numpy" title="apytypes.APyFixedArray.to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code></a></p></td>
 <td><p>Return array as a <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.float64</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.transpose" title="apytypes.APyFixedArray.transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.transpose" title="apytypes.APyFixedArray.transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code></a></p></td>
 <td><p>Return the transposition of the array.</p></td>
 </tr>
 </tbody>
@@ -560,6 +563,54 @@ transposition of <cite>self</cite>.</p>
 <dd><p>Squeeze the matrix, removing dimensions of size 1.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFixedArray.reshape">
+<span class="sig-name descname"><span class="pre">reshape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_sequence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><span class="pre">tuple</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.reshape" title="Link to this definition">¶</a></dt>
+<dd><p>Reshape the APyFixedArray to the specified shape without changing its data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>new_shape</strong><span class="classifier"><cite>tuple</cite></span></dt><dd><p>The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></dt><dd></dd>
+<dt>Raises</dt><dd></dd>
+</dl>
+<blockquote>
+<div></div></blockquote>
+<dl class="simple">
+<dt>ValueError</dt><dd><p>If negative dimensions less than -1 are provided, if the total size of the new array is not unchanged and divisible by the known dimensions, or if the total number of elements does not match the original array.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="go">array([ 1. ,  1.5, -2. , -1.5])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="go">array([[ 1. ,  1.5],</span>
+<span class="go">       [-2. , -1.5]])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">4</span><span class="p">,))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="go">array([ 1. ,  1.5, -2. , -1.5])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="go">array([[ 1. ,  1.5],</span>
+<span class="go">       [-2. , -1.5]])</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+</dd></dl>
+
 </section>
 <section id="broadcasting">
 <h2>Broadcasting<a class="headerlink" href="#broadcasting" title="Link to this heading">¶</a></h2>
@@ -746,6 +797,7 @@ transposition of <cite>self</cite>.</p>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.to_numpy"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.to_numpy()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.transpose"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.transpose()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.squeeze"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.squeeze()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixedArray.reshape"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.reshape()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.broadcast_to"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.broadcast_to()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.bits"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.bits</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.int_bits"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.int_bits</span></code></a></li>

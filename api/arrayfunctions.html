@@ -325,6 +325,46 @@
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="apytypes.reshape">
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">reshape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.reshape" title="Link to this definition">¶</a></dt>
+<dd><p>Reshape an APyFixedArray or APyFloatArray to the specified shape without changing its data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>a</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>The array to reshape.</p>
+</dd>
+<dt><strong>new_shape</strong><span class="classifier">tuple of ints</span></dt><dd><p>The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>reshaped</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>The reshaped array.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If negative dimensions less than -1 are provided, if the total size of the new array is not unchanged and divisible by the known dimensions, or if the total number of elements does not match the original array.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">reshape</span><span class="p">,</span> <span class="n">APyFixedArray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="go">array([ 1. ,  1.5, -2. , -1.5])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">APyTypes</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="go">array([[ 1. ,  1.5],</span>
+<span class="go">       [-2. , -1.5]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </section>
 
         </article>
@@ -384,6 +424,7 @@
             <ul>
 <li><a class="reference internal" href="#">Array functions</a><ul>
 <li><a class="reference internal" href="#apytypes.squeeze"><code class="docutils literal notranslate"><span class="pre">squeeze()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.reshape"><code class="docutils literal notranslate"><span class="pre">reshape()</span></code></a></li>
 </ul>
 </li>
 </ul>
