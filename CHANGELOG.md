@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Array manipulation and mathematical functions added:
   - `squeeze()`
   - `reshape()`
+- Added `array_utils.h` to contain shared functions between float and fixed arrays.
 
 ### Changed
 
