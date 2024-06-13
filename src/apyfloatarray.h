@@ -138,7 +138,11 @@ public:
      * ****************************************************************************** */
 
     //! Reshape into a new shape
-    APyFloatArray reshape(nb::tuple new_shape);
+    APyFloatArray reshape(nb::tuple new_shape) const;
+
+    //! Reshape flatten into 1d shape
+    APyFloatArray flatten() const;
+
     //! Broadcast to a new shape
     APyFloatArray broadcast_to(const std::vector<std::size_t> shape) const;
 

@@ -493,3 +493,26 @@ def test_reshape_3d(shape):
     go_back = reshaped_arr.reshape(arr.shape)
     if not APyFloatArray.is_identical(go_back, arr):
         pytest.fail(f"Mismatch after reshaping back at index {arr_index}")
+
+
+@pytest.mark.float_array
+@pytest.mark.parametrize(
+    "shape",
+    [
+        (1, 1, 12),
+        (1, 2, 6),
+        (1, 3, 4),
+        (1, 4, 3),
+        (1, 6, 2),
+    ],
+)
+def test_flatten(shape):
+    signs = [1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0]
+    exps = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
+    mans = [3, 1, 4, 2, 6, 5, 8, 7, 9, 0, 2, 3]
+
+    # manually create 1d arr
+    arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=5, man_bits=2)
+    reshaped = arr.reshape(shape)
+    if not APyFloatArray.is_identical(reshaped.flatten(), arr):
+        pytest.fail(f"Flatten didn't return to original 1d list after reshape {shape}")

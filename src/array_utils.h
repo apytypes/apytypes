@@ -8,7 +8,7 @@ namespace nb = nanobind;
 #include <vector>
 
 static APY_INLINE std::vector<std::size_t>
-get_python_shape(nb::tuple new_shape, size_t elem_count)
+shape_from_tuple(nb::tuple new_shape, size_t elem_count)
 {
     std::vector<std::size_t> new_shape_vec;
     std::size_t reshape_size = 1;
