@@ -874,13 +874,22 @@ std::string APyFixedArray::repr() const
 
 APyFixedArray APyFixedArray::reshape(nb::tuple new_shape) const
 {
+    // Argument checking and error handling
     std::size_t elem_count = ::fold_shape(_shape);
-    std::vector<std::size_t> new_shape_vec = ::get_python_shape(new_shape, elem_count);
+    std::vector<std::size_t> new_shape_vec = ::shape_from_tuple(new_shape, elem_count);
+
     APyFixedArray result = APyFixedArray(new_shape_vec, _bits, _int_bits);
     std::copy_n(this->_data.begin(), _data.size(), result._data.begin());
 
     return result;
 }
+
+APyFixedArray APyFixedArray::flatten() const
+{
+    // Reuse the reshape function to flatten the array
+    return this->reshape(nb::make_tuple(-1));
+}
+
 // The shape of the array
 nb::tuple APyFixedArray::shape() const
 {

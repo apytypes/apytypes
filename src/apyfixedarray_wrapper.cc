@@ -302,6 +302,29 @@ void bind_fixed_array(nb::module_& m)
         --------
              )pbdoc")
 
+        .def("flatten", &APyFixedArray::flatten, R"pbdoc(
+        Reshape the APyFixedArray to the specified shape without changing its data.
+
+        Returns
+        -------
+        :class:`APyFixedArray`
+        Raises
+        ------
+
+        Examples
+        --------
+        >>> from apytypes import APyFixedArray
+        >>> arr = APyFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
+        >>> arr.to_numpy()
+        array([[ 1. ,  1.5],
+               [-2. , -1.5]])
+
+        >>> arr.flatten().to_numpy()
+        array([ 1. ,  1.5, -2. , -1.5])
+
+        --------
+             )pbdoc")
+
         .def("is_identical", &APyFixedArray::is_identical, nb::arg("other"), R"pbdoc(
             Test if two :class:`APyFixedArray` objects are identical.
 

@@ -368,6 +368,30 @@ void bind_float_array(nb::module_& m)
         --------
             )pbdoc")
 
+        .def("flatten", &APyFloatArray::flatten, R"pbdoc(
+        Return a copy of the array collapsed into one dimension.
+
+        Returns
+        -------
+        :class:`APyFloatArray`
+
+        Examples
+        --------
+        >>> from apytypes import APyFloatArray
+        >>> signs = [[0, 0], [1, 1]]
+        >>> exps = [[127, 128], [128, 129]]
+        >>> mans = [[0, 0], [4194304, 0]]
+        >>> arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23)
+        >>> arr.to_numpy()
+        array([[ 1.,  2.],
+               [-3., -4.]])
+
+        >>> arr.flatten().to_numpy()
+        array([ 1.,  2., -3., -4.])
+
+        --------
+            )pbdoc")
+
         /*
          * Static methods
          */

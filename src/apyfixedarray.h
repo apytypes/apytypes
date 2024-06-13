@@ -149,6 +149,9 @@ public:
 
     APyFixedArray reshape(nb::tuple new_shape) const;
 
+    //! Reshape flatten into 1d shape
+    APyFixedArray flatten() const;
+
     //! Shape of the array
     nb::tuple shape() const;
 
