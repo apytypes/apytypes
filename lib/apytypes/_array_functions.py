@@ -66,3 +66,30 @@ def reshape(a, new_shape):
     except AttributeError:
         raise TypeError(f"Cannot reshape {type(a)}")
     return reshape(new_shape)
+
+
+def shape(arr):
+    """
+    Return the shape of an array.
+
+    Parameters
+    ----------
+    arr : :class:`APyFloatArray` or :class:`APyFixedArray`
+        Input data.
+
+    Returns
+    -------
+    :class:`tuple` of :class:`int`
+        Shape of the input array.
+
+    Raises
+    ------
+    TypeError
+        If the input does not have a `shape` attribute.
+
+    """
+    try:
+        shape = arr.shape
+    except AttributeError:
+        raise TypeError(f"{type(arr)} has no shape")
+    return shape

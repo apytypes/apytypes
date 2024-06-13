@@ -22,7 +22,7 @@ from ._apytypes import (
     set_float_quantization_mode as set_float_quantization_mode,
     set_float_quantization_seed as set_float_quantization_seed,
 )
-from ._array_functions import reshape as reshape, squeeze as squeeze
+from ._array_functions import reshape as reshape, shape as shape, squeeze as squeeze
 
 __all__: list = [
     "APyFixed",
@@ -43,6 +43,7 @@ __all__: list = [
     "_get_simd_version_str",
     "squeeze",
     "reshape",
+    "shape",
 ]
 
 annotations: __future__._Feature = ...

@@ -1,4 +1,4 @@
-from apytypes import squeeze, reshape, APyFixedArray
+from apytypes import squeeze, reshape, shape, APyFixedArray
 
 
 def test_squeeze():
@@ -16,3 +16,12 @@ def test_reshape():
     assert b.shape == (2, 1)
     c = reshape(b, (-1,))
     assert c.shape == (2,)
+
+
+def test_shape():
+    a = APyFixedArray([[1, 2]], 3, 0)
+    assert shape(a) == (1, 2)
+    b = reshape(a, (2, 1))
+    assert shape(b) == (2, 1)
+    c = reshape(b, (-1,))
+    assert shape(c) == (2,)
