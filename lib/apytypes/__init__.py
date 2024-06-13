@@ -18,7 +18,7 @@ from apytypes._apytypes import (
     _get_simd_version_str,
 )
 
-from apytypes._array_functions import squeeze, reshape
+from apytypes._array_functions import squeeze, reshape, shape
 
 from apytypes._version import version as __version__
 
@@ -41,6 +41,7 @@ __all__ = [
     "_get_simd_version_str",
     "squeeze",
     "reshape",
+    "shape",
 ]
 
 APyFloat.__doc__ = r"""
