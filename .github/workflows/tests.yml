@@ -23,7 +23,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13-dev"]
-        os: ["macos-12", "ubuntu-latest", "windows-latest", "macos-14"]
+        os: ["macos-12", "ubuntu-latest", "windows-2019", "macos-14"]
         numpy-version: ["1.26.4", "2.0.0rc2"]
         exclude:
           # Only test NumPy2 on 3.12 for now
