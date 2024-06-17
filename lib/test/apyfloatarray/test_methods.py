@@ -304,6 +304,51 @@ def test_squeeze():
         _ = m.squeeze((1, 4))
 
 
+def test_sum():
+    a = APyFloatArray.from_float(
+        [[1, 2], [3, 4], [5, 6], [7, 8]], exp_bits=10, man_bits=10
+    )
+    b = a.sum()
+    assert b.is_identical(APyFloatArray.from_float([36], exp_bits=10, man_bits=10))
+    c = APyFloatArray.from_float([[0, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
+    d = c.sum((0, 1))
+    e = c.sum(0)
+    f = c.sum(1)
+    assert d.is_identical(APyFloatArray.from_float([15], exp_bits=10, man_bits=10))
+    assert e.is_identical(APyFloatArray.from_float([3, 5, 7], exp_bits=10, man_bits=10))
+    assert f.is_identical(APyFloatArray.from_float([3, 12], exp_bits=10, man_bits=10))
+
+    # test for size larger than 32 and 64 when number over multiple limbs
+    g = APyFloatArray.from_float([[0, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
+    h = g.sum(0)
+    assert h.is_identical(APyFloatArray.from_float([3, 5, 7], exp_bits=10, man_bits=10))
+    j = APyFloatArray.from_float([[0, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
+    k = j.sum(0)
+    assert k.is_identical(APyFloatArray.from_float([3, 5, 7], exp_bits=10, man_bits=10))
+
+    # test some float and negative summation
+    j = APyFloatArray.from_float([0.2, 1.4, 3.3], exp_bits=10, man_bits=10)
+    k = j.sum()
+    assert k.is_identical(APyFloatArray.from_float([4.904], exp_bits=10, man_bits=10))
+    m = APyFloatArray.from_float(
+        [0.333333, 1.333333, 3.33333], exp_bits=10, man_bits=10
+    )
+    n = m.sum()
+    assert n.is_identical(APyFloatArray.from_float([5], exp_bits=10, man_bits=10))
+
+    o = APyFloatArray.from_float([[-1, -2], [-3, -4]], exp_bits=10, man_bits=10)
+    p = o.sum(1)
+    assert p.is_identical(APyFloatArray.from_float([-3, -7], exp_bits=10, man_bits=10))
+
+    q = APyFloatArray.from_float([[-1, -2], [1, 2]], exp_bits=10, man_bits=10)
+    r = q.sum(0)
+    assert r.is_identical(APyFloatArray.from_float([0, 0], exp_bits=10, man_bits=10))
+
+    m = APyFloatArray.from_float([1, 2, 3], exp_bits=10, man_bits=10)
+    with pytest.raises(IndexError):
+        _ = m.sum(1)
+
+
 def test_convenience_cast():
     a = APyFloatArray.from_float([0.893820, 3e20, -float("inf"), float("nan")], 10, 50)
     assert a.cast_to_double().is_identical(

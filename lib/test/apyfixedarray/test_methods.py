@@ -95,6 +95,10 @@ def test_sum():
     r = q.sum(0)
     assert r.is_identical(APyFixedArray([0, 0], frac_bits=0, int_bits=6))
 
+    m = APyFixedArray([1, 2, 3], bits=2, int_bits=2)
+    with pytest.raises(IndexError):
+        _ = m.sum(1)
+
 
 def test_to_numpy():
     # Skip this test if `NumPy` is not present on the machine

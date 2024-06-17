@@ -117,6 +117,10 @@ public:
     //! Perform a linear convolution with `other` using `mode`
     APyFloatArray convolve(const APyFloatArray& other, const std::string& mode) const;
 
+    //! Sum over one or more axes
+    APyFloatArray
+    sum(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
+
     //! Python-exposed `broadcast_to`
     APyFloatArray broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
     ) const;

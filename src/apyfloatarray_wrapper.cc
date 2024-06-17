@@ -627,6 +627,52 @@ void bind_float_array(nb::module_& m)
             )pbdoc"
         )
 
+        .def(
+            "sum",
+            &APyFloatArray::sum,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Returns a copy of the array summated across the specified axes and increases number of bits to contain the new values.
+
+            Parameters
+            ----------
+            axis : tuple, int, optional
+                The axes to summate across. Will summate the whole array if no int or tuple is specified
+
+            Returns
+            -------
+            :class:`APyFloatArray`
+
+            Raises
+            -------
+            TypeError
+                If .....
+
+            Examples
+            -------
+
+            >>> from apytypes import APyFloatArray
+
+            Array `a`, array to summate across
+
+            >>> a = APyFloatArray(
+            ...     [1,2,3,4,5,6],
+            ...     int_bits=5,
+            ...     frac_bits=0
+            ... )
+
+            Array `b`, returned array where the specified axes are summated
+            >>> b = a.sum()
+            In this case `b` will be equal to `c`
+            >>> c = APyFloatArray(
+            ...     [21],
+            ...     int_bits=8,
+            ...     frac_bits=0
+            ... )
+
+            )pbdoc"
+        )
+
         // Iteration and friends
         .def("__getitem__", &APyFloatArray::get_item, nb::arg("idx"))
         .def(

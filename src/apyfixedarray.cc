@@ -850,6 +850,12 @@ APyFixedArray APyFixedArray::sum(std::optional<std::variant<nb::int_, nb::tuple>
         }
         for (auto ptr = axes_tuple.begin(); ptr != axes_tuple.end(); ptr++) {
             int axis_n = int(nanobind::cast<nb::int_>(*ptr));
+            if (axis_n >= int(_shape.size())) {
+                throw nb::index_error(
+                    "specified axis with larger than number of dimensions in the "
+                    "APyFixedArray"
+                );
+            }
             axis_set.insert(axis_n);
         }
     } else {
@@ -878,21 +884,19 @@ APyFixedArray APyFixedArray::sum(std::optional<std::variant<nb::int_, nb::tuple>
 
     std::vector<mp_limb_t> res = result._data;
     std::vector<std::size_t> shape;
-    for (int x = 0; x < _shape.size(); x++) {
+    for (std::size_t x = 0; x < _shape.size(); x++) {
         if (axis_set.find(x) == axis_set.end()) {
             sec_length /= _shape[x];
             shape.push_back(_shape[x]);
             continue;
         }
         std::vector<mp_limb_t> temp;
-        std::size_t res_length = sec_length / _shape[x];
-        std::size_t elements = res.size() / result._itemsize;
         for (std::size_t i = 0; i < res.size() / _shape[x]; i++) {
             temp.push_back(0);
         }
-        for (std::size_t i = 0; i < elements; i++) {
 
-            std::size_t pos_in_sec = i % res_length;
+        for (std::size_t i = 0; i < res.size() / result._itemsize; i++) {
+            std::size_t pos_in_sec = i % (sec_length / _shape[x]);
             std::size_t sec_pos = (i - i % sec_length) / _shape[x];
             // Perform ripple-carry operation on the limbs
             auto pos = (pos_in_sec + sec_pos) * result._itemsize;
