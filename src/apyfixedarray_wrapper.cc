@@ -639,7 +639,44 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::sum,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            returns a summated array according to the specified axes. If no axis given returns a summation of the whole array
+            Returns a copy of the array summated across the specified axes and increases number of bits to contain the new values.
+
+            Parameters
+            ----------
+            axis : tuple, int, optional
+                The axes to summate across. Will summate the whole array if no int or tuple is specified
+
+            Returns
+            -------
+            :class:`APyFixedArray`
+
+            Raises
+            -------
+            TypeError
+                If .....
+
+            Examples
+            -------
+
+            >>> from apytypes import APyFixedArray
+
+            Array `a`, array to summate across
+
+            >>> a = APyFixedArray(
+            ...     [1,2,3,4,5,6],
+            ...     int_bits=5,
+            ...     frac_bits=0
+            ... )
+
+            Array `b`, returned array where the specified axes are summated
+            >>> b = a.sum()
+            In this case `b` will be equal to `c`
+            >>> c = APyFixedArray(
+            ...     [21],
+            ...     int_bits=8,
+            ...     frac_bits=0
+            ... )
+
             )pbdoc"
         )
 
