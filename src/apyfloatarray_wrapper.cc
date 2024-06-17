@@ -606,7 +606,24 @@ void bind_float_array(nb::module_& m)
             &APyFloatArray::squeeze,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Squeeze the matrix, removing dimensions of size 1.
+            Removes dimensions of size 1 at the specified axes, if no axís is given removoves all dimensions with size 1.
+
+            Parameters
+            ----------
+            axis : tuple, int, optional
+                The axes to squeeze, a given axis with a size other than 1 will result in an error. no given axes  will be remove all dimensions of size 1.
+
+            Returns
+            -------
+            :class:`APyFloatArray`
+
+            Raises
+            -------
+            ValueError
+                If given an axis of a size other than 1 a ValueError will be thrown.
+            IndexError
+                If a specified axis is outside of the existing number of dimensions for the array
+
             )pbdoc"
         )
 

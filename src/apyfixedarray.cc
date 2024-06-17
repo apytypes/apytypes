@@ -866,35 +866,53 @@ APyFixedArray APyFixedArray::sum(std::optional<std::variant<nb::int_, nb::tuple>
     }
     int bit_increase = std::ceil(std::log2(summed_elements));
 
-    std::size_t length = _data.size();
-    std::size_t step = _data.size();
-    std::vector<mp_limb_t> res = _data;
+    const int res_int_bits = int_bits() + bit_increase;
+    const int res_frac_bits = frac_bits();
+    const int res_bits = res_int_bits + res_frac_bits;
+
+    // Resulting vector
+    APyFixedArray result(_shape, res_bits, res_int_bits);
+    _cast_correct_wl(result._data.begin(), res_bits, res_int_bits);
+
+    std::size_t sec_length = result._nitems;
+
+    std::vector<mp_limb_t> res = result._data;
     std::vector<std::size_t> shape;
-    std::size_t res_size_end = 1;
     for (int x = 0; x < _shape.size(); x++) {
-        step /= _shape[x];
         if (axis_set.find(x) == axis_set.end()) {
-            res_size_end *= _shape[x];
+            sec_length /= _shape[x];
             shape.push_back(_shape[x]);
             continue;
         }
-        std::size_t sections = length / _shape[x];
         std::vector<mp_limb_t> temp;
-        for (std::size_t i = 0; i < sections; i++) {
+        std::size_t res_length = sec_length / _shape[x];
+        std::size_t elements = res.size() / result._itemsize;
+        for (std::size_t i = 0; i < res.size() / _shape[x]; i++) {
             temp.push_back(0);
         }
-        for (std::size_t i = 0; i < length; i++) {
-            temp[i % step + (i - i % (step * _shape[x])) / (step * _shape[x])]
-                += res[i];
+        for (std::size_t i = 0; i < elements; i++) {
+
+            std::size_t pos_in_sec = i % res_length;
+            std::size_t sec_pos = (i - i % sec_length) / _shape[x];
+            // Perform ripple-carry operation on the limbs
+            auto pos = (pos_in_sec + sec_pos) * result._itemsize;
+            mpn_add_n_functor<> {}(
+                &temp[pos],                 // dst
+                &temp[pos],                 // src1
+                &res[i * result._itemsize], // src2
+                result._itemsize            // limb vector length
+            );
         }
+        sec_length /= _shape[x];
         res.swap(temp);
-        length = temp.size();
     }
-    const int res_bits = _bits + bit_increase;
-    const int res_int_bits = _int_bits + bit_increase;
-    APyFixedArray result(shape, res_bits, res_int_bits);
-    std::copy_n(res.begin(), res_size_end, result._data.begin());
-    return result;
+    if (!shape.size()) {
+        shape.push_back(1);
+    }
+
+    APyFixedArray result2(shape, res_bits, res_int_bits);
+    std::copy_n(res.begin(), res.size(), result2._data.begin());
+    return result2;
 }
 
 APyFixedArray

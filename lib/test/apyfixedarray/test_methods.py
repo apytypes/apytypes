@@ -60,9 +60,40 @@ def test_squeeze():
 
 
 def test_sum():
-    a = APyFixedArray([[1, 2], [3, 4], [5, 6], [7, 8]], bits=4, int_bits=4)
+    a = APyFixedArray([[1, 2], [3, 4], [5, 6], [7, 8]], bits=5, int_bits=5)
     b = a.sum()
-    assert b.is_identical(APyFixedArray([36], bits=6, int_bits=6))
+    assert b.is_identical(APyFixedArray([36], bits=8, int_bits=8))
+    c = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=5)
+    d = c.sum((0, 1))
+    e = c.sum(0)
+    f = c.sum(1)
+    assert d.is_identical(APyFixedArray([15], bits=8, int_bits=8))
+    assert e.is_identical(APyFixedArray([3, 5, 7], bits=6, int_bits=6))
+    assert f.is_identical(APyFixedArray([3, 12], bits=7, int_bits=7))
+
+    # test for size larger than 32 and 64 when number over multiple limbs
+    g = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
+    h = g.sum(0)
+    assert h.is_identical(APyFixedArray([3, 5, 7], frac_bits=0, int_bits=34))
+    j = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=65)
+    k = j.sum(0)
+    assert k.is_identical(APyFixedArray([3, 5, 7], frac_bits=0, int_bits=66))
+
+    # test some float and negative summation
+    j = APyFixedArray.from_float([0.2, 1.4, 3.3], frac_bits=3, int_bits=5)
+    k = j.sum()
+    assert k.is_identical(APyFixedArray([39], frac_bits=3, int_bits=7))
+    m = APyFixedArray.from_float([0.333333, 1.333333, 3.33333], frac_bits=3, int_bits=5)
+    n = m.sum()
+    assert n.is_identical(APyFixedArray([41], frac_bits=3, int_bits=7))
+
+    o = APyFixedArray([[-1, -2], [-3, -4]], frac_bits=0, int_bits=5)
+    p = o.sum(1)
+    assert p.is_identical(APyFixedArray([-3, -7], frac_bits=0, int_bits=6))
+
+    q = APyFixedArray([[-1, -2], [1, 2]], frac_bits=0, int_bits=5)
+    r = q.sum(0)
+    assert r.is_identical(APyFixedArray([0, 0], frac_bits=0, int_bits=6))
 
 
 def test_to_numpy():
