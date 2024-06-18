@@ -1023,9 +1023,9 @@ APyFixedArray::nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis) con
 
 APyFixedArray APyFixedArray::cumsum(std::optional<nb::int_> axis) const
 {
-    int cs_axis;
-    std::vector<std::size_t> shape;
-    std::size_t elements = 0;
+    int cs_axis = int(_shape.size());
+    std::vector<std::size_t> shape = { _nitems };
+    std::size_t elements = _nitems;
     if (axis.has_value()) {
         cs_axis = int(axis.value());
         if (cs_axis >= int(_shape.size())) {
@@ -1036,12 +1036,8 @@ APyFixedArray APyFixedArray::cumsum(std::optional<nb::int_> axis) const
         }
         elements = _shape[cs_axis];
         shape = _shape;
-    } else {
-        shape = { _nitems };
-        cs_axis = int(_shape.size());
-        elements = _nitems;
     }
-    // kan inte skicka in dim här
+
     int bit_increase = std::ceil(std::log2(elements));
     const int res_int_bits = int_bits() + bit_increase;
     const int res_frac_bits = frac_bits();
@@ -1049,7 +1045,7 @@ APyFixedArray APyFixedArray::cumsum(std::optional<nb::int_> axis) const
     std::size_t sec_length = _nitems;
     for (std::size_t i = 0; i < _shape.size(); i++) {
         sec_length /= _shape[i];
-        if (i == cs_axis) {
+        if (i == std::size_t(cs_axis)) {
             break;
         }
     }

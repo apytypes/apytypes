@@ -134,6 +134,8 @@ public:
     //! summation across its own axis, treating Nan as 0.
     APyFloatArray nancumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
+    APyFloatArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
+
     //! Python-exposed `broadcast_to`
     APyFloatArray broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
     ) const;
