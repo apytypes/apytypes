@@ -123,6 +123,11 @@ public:
 
     APyFloatArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
+    APyFloatArray
+    nansum(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
+
+    APyFloatArray nancumsum(std::optional<nb::int_> axis = std::nullopt) const;
+
     //! Python-exposed `broadcast_to`
     APyFloatArray broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
     ) const;
