@@ -40,7 +40,7 @@ def convolve(a, v, mode="full"):
     v : :class:`APyFloatArray` or :class:`APyFixedArray`
         Second one-dimensional array of length :code:`N`.
 
-    mode : string, default: 'full'
+    mode : {'full', 'same', 'valid'}, default: 'full'
         'full':
             Returns the full convolution for each point of overlap. The resulting
             single-dimensional shape will have length :code:`N + M - 1`. Boundary

@@ -73,9 +73,12 @@ APyFixedArray::APyFixedArray(
 
         // Two's complements overflowing using caster type
         std::copy_n(limb_vec.begin(), _itemsize, caster._data.begin());
-        caster._overflow_twos_complement(
+        _overflow_twos_complement(
             caster._data.begin(), caster._data.end(), _bits, _int_bits
         );
+        // caster._overflow_twos_complement(
+        //     caster._data.begin(), caster._data.end(), _bits, _int_bits
+        //);
         std::copy_n(
             caster._data.begin(),         // src
             _itemsize,                    // limbs to copy
@@ -870,7 +873,7 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
     const int res_int_bits = a->int_bits() + b->int_bits() + extra_bits;
     APyFixedArray result({ a->_shape[0] + b->_shape[0] - 1 }, res_bits, res_int_bits);
 
-    // Head (`b` limits the inner product length)
+    // Head (`b` limits length of the inner product length)
     for (std::size_t i = 0; i < b->_shape[0] - 1; i++) {
         auto src1 = std::cbegin(a->_data);
         auto src2 = std::cbegin(b->_data) + b->_itemsize * (b->_shape[0] - i - 1);
@@ -891,7 +894,7 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
         );
     }
 
-    // Tail (`a` limits the inner product length)
+    // Tail (`a` limits length of the inner product length)
     for (std::size_t i = 1; i < b->_shape[0]; i++) {
         auto n = full_length - i;
         auto src1
