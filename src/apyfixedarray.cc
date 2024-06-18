@@ -1021,6 +1021,58 @@ APyFixedArray::nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis) con
     return this->sum(axis);
 }
 
+APyFixedArray APyFixedArray::cumsum(std::optional<nb::int_> axis) const
+{
+    int cs_axis;
+    std::vector<std::size_t> shape;
+    std::size_t elements = 0;
+    if (axis.has_value()) {
+        cs_axis = int(axis.value());
+        if (cs_axis >= int(_shape.size())) {
+            throw nb::index_error(
+                "specified axis with larger than number of dimensions in the "
+                "APyFixedArray"
+            );
+        }
+        elements = _shape[cs_axis];
+        shape = _shape;
+    } else {
+        shape = { _nitems };
+        cs_axis = int(_shape.size());
+        elements = _nitems;
+    }
+    // kan inte skicka in dim här
+    int bit_increase = std::ceil(std::log2(elements));
+    const int res_int_bits = int_bits() + bit_increase;
+    const int res_frac_bits = frac_bits();
+    const int res_bits = res_int_bits + res_frac_bits;
+    std::size_t sec_length = _nitems;
+    for (std::size_t i = 0; i < _shape.size(); i++) {
+        sec_length /= _shape[i];
+        if (i == cs_axis) {
+            break;
+        }
+    }
+    // Resulting vector
+    APyFixedArray result(shape, res_bits, res_int_bits);
+    _cast_correct_wl(result._data.begin(), res_bits, res_int_bits);
+
+    for (std::size_t i = 0; i < result._nitems; i++) {
+        if (i % (sec_length * _shape[cs_axis]) < sec_length) {
+            continue;
+        }
+        std::size_t pos = (i - sec_length) * result._itemsize;
+        std::size_t curr_pos = i * result._itemsize;
+        mpn_add_n_functor<> {}(
+            &result._data[curr_pos], // dst
+            &result._data[pos],      // src1
+            &result._data[curr_pos], // src2
+            result._itemsize         // limb vector length
+        );
+    }
+    return result;
+}
+
 APyFixedArray
 APyFixedArray::broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape) const
 {

@@ -175,6 +175,8 @@ public:
     //! summation across its own axis, treating Nan as 0.
     APyFixedArray nancumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
+    APyFixedArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
+
     //! Python `__repr__()` function
     std::string repr() const;
 
