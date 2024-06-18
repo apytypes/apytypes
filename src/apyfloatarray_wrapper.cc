@@ -632,7 +632,7 @@ void bind_float_array(nb::module_& m)
             &APyFloatArray::sum,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns a copy of the array summated across the specified axes and increases number of bits to contain the new values.
+            Returns the cumulative sum of the elements along specified axes.
 
             Parameters
             ----------

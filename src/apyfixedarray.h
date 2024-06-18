@@ -154,6 +154,11 @@ public:
 
     APyFixedArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
+    APyFixedArray
+    nansum(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
+
+    APyFixedArray nancumsum(std::optional<nb::int_> axis = std::nullopt) const;
+
     //! Python `__repr__()` function
     std::string repr() const;
 
