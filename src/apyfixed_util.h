@@ -627,7 +627,7 @@ static APY_INLINE void fixedpoint_product(
 
 //! Iterator-based multi-limb fixed-point hadamard product
 template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
-void hadamard_product(
+void fixedpoint_hadamard_product(
     RANDOM_ACCESS_ITERATOR_IN src1,
     RANDOM_ACCESS_ITERATOR_IN src2,
     RANDOM_ACCESS_ITERATOR_OUT dst,

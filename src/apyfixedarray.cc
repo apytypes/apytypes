@@ -846,14 +846,12 @@ APyFixedArray
 APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) const
 {
     if (ndim() != 1 || other.ndim() != 1) {
-        throw nanobind::value_error(
-            fmt::format(
-                "can only convolve 1D arrays (lhs.ndim = {}, rhs.ndim = {})",
-                ndim(),
-                other.ndim()
-            )
-                .c_str()
+        auto msg = fmt::format(
+            "can only convolve 1D arrays (lhs.ndim = {}, rhs.ndim = {})",
+            ndim(),
+            other.ndim()
         );
+        throw nanobind::value_error(msg.c_str());
     }
 
     // "Swap" `*this` and `other` based on length.
@@ -867,57 +865,61 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
     multi_limb_reverse(std::begin(b_cpy._data), std::end(b_cpy._data), b_cpy._itemsize);
     const APyFixedArray* b = &b_cpy;
 
+    // Extract convolution properties
+    std::size_t len, n_left, n_right;
+    if (mode == "full") {
+        len = a->_shape[0] + b->_shape[0] - 1;
+        n_left = b->_shape[0] - 1;
+        n_right = b->_shape[0] - 1;
+    } else if (mode == "same") {
+        len = a->_shape[0];
+        n_left = b->_shape[0] / 2;
+        n_right = b->_shape[0] - n_left - 1;
+    } else if (mode == "valid") {
+        len = a->_shape[0] - b->_shape[0] + 1;
+        n_left = 0;
+        n_right = 0;
+    } else {
+        auto msg = fmt::format("mode='{}' not in 'full', 'same', or 'valid'", mode);
+        throw nanobind::value_error(msg.c_str());
+    }
+
     // Result vector
-    const int extra_bits = bit_width(a->_shape[0] - 1);
+    const int extra_bits = bit_width(b->_shape[0] - 1);
     const int res_bits = a->bits() + b->bits() + extra_bits;
     const int res_int_bits = a->int_bits() + b->int_bits() + extra_bits;
-    APyFixedArray result({ a->_shape[0] + b->_shape[0] - 1 }, res_bits, res_int_bits);
+    APyFixedArray result({ len }, res_bits, res_int_bits);
 
-    // Head (`b` limits length of the inner product length)
-    for (std::size_t i = 0; i < b->_shape[0] - 1; i++) {
-        auto src1 = std::cbegin(a->_data);
-        auto src2 = std::cbegin(b->_data) + b->_itemsize * (b->_shape[0] - i - 1);
-        auto dst = std::begin(result._data) + i * result._itemsize;
-        inner_product(
-            src1, src2, dst, a->_itemsize, b->_itemsize, result._itemsize, i + 1
-        );
-    }
+    // Loop working variables
+    std::size_t n = b->_shape[0] - n_left;
+    auto dst = std::begin(result._data);
+    auto src1 = std::cbegin(a->_data);
+    auto src2 = std::cbegin(b->_data) + n_left * b->_itemsize;
 
-    // Center (full inner product length)
-    std::size_t full_length = std::min(a->_shape[0], b->_shape[0]);
-    for (std::size_t i = 0; i < a->_shape[0] - b->_shape[0] + 1; i++) {
-        auto src1 = std::cbegin(a->_data) + i * a->_itemsize;
-        auto src2 = std::cbegin(b->_data);
-        auto dst = std::begin(result._data) + result._itemsize * (b->_shape[0] + i - 1);
-        inner_product(
-            src1, src2, dst, a->_itemsize, b->_itemsize, result._itemsize, full_length
-        );
-    }
-
-    // Tail (`a` limits length of the inner product length)
-    for (std::size_t i = 1; i < b->_shape[0]; i++) {
-        auto n = full_length - i;
-        auto src1
-            = std::cbegin(a->_data) + a->_itemsize * (a->_shape[0] - b->_shape[0] + i);
-        auto src2 = std::cbegin(b->_data);
-        auto dst = std::begin(result._data) + result._itemsize * (a->_shape[0] + i - 1);
+    // `b` limits length of the inner product length
+    for (std::size_t i = 0; i < n_left; i++) {
         inner_product(src1, src2, dst, a->_itemsize, b->_itemsize, result._itemsize, n);
+        src2 -= b->_itemsize;
+        dst += result._itemsize;
+        n++;
     }
 
-    if (mode == "full") {
-        return result;
-    } else if (mode == "same") {
-        throw NotImplementedException();
-    } else if (mode == "valid") {
-        throw NotImplementedException();
-    } else {
-        throw nanobind::value_error(
-            fmt::format(
-                "mode='{}' non-valid. Must be one of 'full', 'same', or 'same'", mode
-            )
-                .c_str()
-        );
+    // full inner product length
+    for (std::size_t i = 0; i < a->_shape[0] - b->_shape[0] + 1; i++) {
+        inner_product(src1, src2, dst, a->_itemsize, b->_itemsize, result._itemsize, n);
+        src1 += a->_itemsize;
+        dst += result._itemsize;
     }
+
+    // `a` limits length of the inner product length
+    for (std::size_t i = 0; i < n_right; i++) {
+        n--;
+        inner_product(src1, src2, dst, a->_itemsize, b->_itemsize, result._itemsize, n);
+        src1 += a->_itemsize;
+        dst += result._itemsize;
+    }
+
+    return result;
 }
 
 std::string APyFixedArray::repr() const
