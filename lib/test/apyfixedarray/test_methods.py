@@ -100,6 +100,39 @@ def test_sum():
         _ = m.sum(1)
 
 
+def test_cumsum():
+    a = APyFixedArray([[1, 2, 3], [4, 5, 6]], frac_bits=0, int_bits=5)
+    b = a.cumsum()
+    assert b.is_identical(APyFixedArray([1, 3, 6, 10, 15, 21], frac_bits=0, int_bits=8))
+    c = a.cumsum(0)
+    assert c.is_identical(
+        APyFixedArray([[1, 2, 3], [5, 7, 9]], frac_bits=0, int_bits=6)
+    )
+    d = a.cumsum(1)
+    assert d.is_identical(
+        APyFixedArray([[1, 3, 6], [4, 9, 15]], frac_bits=0, int_bits=7)
+    )
+    e = APyFixedArray([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=8)
+    f = e.cumsum()
+    g = e.cumsum(0)
+    h = e.cumsum(1)
+    i = e.cumsum(2)
+    assert f.is_identical(
+        APyFixedArray([1, 3, 6, 10, 15, 21, 28, 36], frac_bits=0, int_bits=11)
+    )
+    assert g.is_identical(
+        APyFixedArray([[[1, 2], [3, 4]], [[6, 8], [10, 12]]], frac_bits=0, int_bits=9)
+    )
+    assert h.is_identical(
+        APyFixedArray([[[1, 2], [4, 6]], [[5, 6], [12, 14]]], frac_bits=0, int_bits=9)
+    )
+    assert i.is_identical(
+        APyFixedArray([[[1, 3], [3, 7]], [[5, 11], [7, 15]]], frac_bits=0, int_bits=9)
+    )
+    with pytest.raises(IndexError):
+        _ = e.cumsum(4)
+
+
 def test_to_numpy():
     # Skip this test if `NumPy` is not present on the machine
     np = pytest.importorskip("numpy")
