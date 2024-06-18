@@ -1070,6 +1070,17 @@ APyFixedArray APyFixedArray::cumsum(std::optional<nb::int_> axis) const
 }
 
 APyFixedArray
+APyFixedArray::nansum(std::optional<std::variant<nb::int_, nb::tuple>> axis) const
+{
+    return this->sum(axis);
+}
+
+APyFixedArray APyFixedArray::nancumsum(std::optional<nb::int_> axis) const
+{
+    return this->cumsum(axis);
+}
+
+APyFixedArray
 APyFixedArray::broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape) const
 {
     return broadcast_to(cpp_shape_from_python_shape_like(shape));

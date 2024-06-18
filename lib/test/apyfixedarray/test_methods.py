@@ -206,6 +206,80 @@ def test_cumsum():
         _ = e.cumsum(4)
 
 
+def test_nansum():
+    a = APyFixedArray([[1, 2], [3, 4], [5, 6], [7, 8]], bits=5, int_bits=5)
+    b = a.nansum()
+    assert b.is_identical(APyFixedArray([36], bits=8, int_bits=8))
+    c = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=5)
+    d = c.nansum((0, 1))
+    e = c.nansum(0)
+    f = c.nansum(1)
+    assert d.is_identical(APyFixedArray([15], bits=8, int_bits=8))
+    assert e.is_identical(APyFixedArray([3, 5, 7], bits=6, int_bits=6))
+    assert f.is_identical(APyFixedArray([3, 12], bits=7, int_bits=7))
+
+    # test for size larger than 32 and 64 when number over multiple limbs
+    g = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
+    h = g.nansum(0)
+    assert h.is_identical(APyFixedArray([3, 5, 7], frac_bits=0, int_bits=34))
+    j = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=65)
+    k = j.nansum(0)
+    assert k.is_identical(APyFixedArray([3, 5, 7], frac_bits=0, int_bits=66))
+
+    # test some float and negative summation
+    j = APyFixedArray.from_float([0.2, 1.4, 3.3], frac_bits=3, int_bits=5)
+    k = j.nansum()
+    assert k.is_identical(APyFixedArray([39], frac_bits=3, int_bits=7))
+    m = APyFixedArray.from_float([0.333333, 1.333333, 3.33333], frac_bits=3, int_bits=5)
+    n = m.nansum()
+    assert n.is_identical(APyFixedArray([41], frac_bits=3, int_bits=7))
+
+    o = APyFixedArray([[-1, -2], [-3, -4]], frac_bits=0, int_bits=5)
+    p = o.nansum(1)
+    assert p.is_identical(APyFixedArray([-3, -7], frac_bits=0, int_bits=6))
+
+    q = APyFixedArray([[-1, -2], [1, 2]], frac_bits=0, int_bits=5)
+    r = q.nansum(0)
+    assert r.is_identical(APyFixedArray([0, 0], frac_bits=0, int_bits=6))
+
+    m = APyFixedArray([1, 2, 3], bits=2, int_bits=2)
+    with pytest.raises(IndexError):
+        _ = m.nansum(1)
+
+
+def test_nancumsum():
+    a = APyFixedArray([[1, 2, 3], [4, 5, 6]], frac_bits=0, int_bits=5)
+    b = a.nancumsum()
+    assert b.is_identical(APyFixedArray([1, 3, 6, 10, 15, 21], frac_bits=0, int_bits=8))
+    c = a.nancumsum(0)
+    assert c.is_identical(
+        APyFixedArray([[1, 2, 3], [5, 7, 9]], frac_bits=0, int_bits=6)
+    )
+    d = a.nancumsum(1)
+    assert d.is_identical(
+        APyFixedArray([[1, 3, 6], [4, 9, 15]], frac_bits=0, int_bits=7)
+    )
+    e = APyFixedArray([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=8)
+    f = e.nancumsum()
+    g = e.nancumsum(0)
+    h = e.nancumsum(1)
+    i = e.nancumsum(2)
+    assert f.is_identical(
+        APyFixedArray([1, 3, 6, 10, 15, 21, 28, 36], frac_bits=0, int_bits=11)
+    )
+    assert g.is_identical(
+        APyFixedArray([[[1, 2], [3, 4]], [[6, 8], [10, 12]]], frac_bits=0, int_bits=9)
+    )
+    assert h.is_identical(
+        APyFixedArray([[[1, 2], [4, 6]], [[5, 6], [12, 14]]], frac_bits=0, int_bits=9)
+    )
+    assert i.is_identical(
+        APyFixedArray([[[1, 3], [3, 7]], [[5, 11], [7, 15]]], frac_bits=0, int_bits=9)
+    )
+    with pytest.raises(IndexError):
+        _ = e.nancumsum(4)
+
+
 def test_to_numpy():
     # Skip this test if `NumPy` is not present on the machine
     np = pytest.importorskip("numpy")
