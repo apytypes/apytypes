@@ -493,6 +493,98 @@ def test_nancumsum():
     )
 
 
+def test_nansum():
+    nan = float("nan")
+    a = APyFloatArray.from_float(
+        [[nan, 2], [3, 4], [5, 6], [7, 8]], exp_bits=10, man_bits=10
+    )
+    b = a.nansum()
+    assert b.is_identical(APyFloatArray.from_float([35], exp_bits=10, man_bits=10))
+    c = APyFloatArray.from_float([[0, 1, nan], [3, 4, 5]], exp_bits=10, man_bits=10)
+    d = c.nansum((0, 1))
+    e = c.nansum(0)
+    f = c.nansum(1)
+    assert d.is_identical(APyFloatArray.from_float([13], exp_bits=10, man_bits=10))
+    assert e.is_identical(APyFloatArray.from_float([3, 5, 5], exp_bits=10, man_bits=10))
+    assert f.is_identical(APyFloatArray.from_float([1, 12], exp_bits=10, man_bits=10))
+
+    # test for size larger than 32 and 64 when number over multiple limbs
+    g = APyFloatArray.from_float([[0, 1, 2], [nan, 4, 5]], exp_bits=10, man_bits=10)
+    h = g.nansum(0)
+    assert h.is_identical(APyFloatArray.from_float([0, 5, 7], exp_bits=10, man_bits=10))
+    j = APyFloatArray.from_float([[0, 1, 2], [nan, nan, nan]], exp_bits=10, man_bits=10)
+    k = j.nansum(0)
+    assert k.is_identical(APyFloatArray.from_float([0, 1, 2], exp_bits=10, man_bits=10))
+
+    # test some float and negative summation
+    j = APyFloatArray.from_float([0.2, 1.4, 3.3], exp_bits=10, man_bits=10)
+    k = j.nansum()
+    assert k.is_identical(APyFloatArray.from_float([4.904], exp_bits=10, man_bits=10))
+    m = APyFloatArray.from_float(
+        [0.333333, 1.333333, 3.33333], exp_bits=10, man_bits=10
+    )
+    n = m.nansum()
+    assert n.is_identical(APyFloatArray.from_float([5], exp_bits=10, man_bits=10))
+
+    o = APyFloatArray.from_float([[-1, -2], [-3, nan]], exp_bits=10, man_bits=10)
+    p = o.nansum(1)
+    assert p.is_identical(APyFloatArray.from_float([-3, -3], exp_bits=10, man_bits=10))
+
+    q = APyFloatArray.from_float([[-1, -2], [1, nan]], exp_bits=10, man_bits=10)
+    r = q.nansum(0)
+    assert r.is_identical(APyFloatArray.from_float([0, -2], exp_bits=10, man_bits=10))
+
+    m = APyFloatArray.from_float([1, 2, 3], exp_bits=10, man_bits=10)
+    with pytest.raises(IndexError):
+        _ = m.nansum(1)
+
+
+def test_nancumsum():
+    nan = float("nan")
+    a = APyFloatArray.from_float([[1, 2, 3], [4, 5, nan]], exp_bits=10, man_bits=10)
+    b = a.nancumsum()
+    assert b.is_identical(
+        APyFloatArray.from_float([1, 3, 6, 10, 15, 15], exp_bits=10, man_bits=10)
+    )
+    c = a.nancumsum(0)
+    assert c.is_identical(
+        APyFloatArray.from_float([[1, 2, 3], [5, 7, 3]], exp_bits=10, man_bits=10)
+    )
+    d = a.nancumsum(1)
+    assert d.is_identical(
+        APyFloatArray.from_float([[1, 3, 6], [4, 9, 9]], exp_bits=10, man_bits=10)
+    )
+    e = APyFloatArray.from_float(
+        [[[1, 2], [3, 4]], [[nan, nan], [7, 8]]], exp_bits=10, man_bits=10
+    )
+    f = e.nancumsum()
+    g = e.nancumsum(0)
+    h = e.nancumsum(1)
+    i = e.nancumsum(2)
+    assert f.is_identical(
+        APyFloatArray.from_float(
+            [1, 3, 6, 10, 10, 10, 17, 25], exp_bits=10, man_bits=10
+        )
+    )
+    assert g.is_identical(
+        APyFloatArray.from_float(
+            [[[1, 2], [3, 4]], [[1, 2], [10, 12]]], exp_bits=10, man_bits=10
+        )
+    )
+    assert h.is_identical(
+        APyFloatArray.from_float(
+            [[[1, 2], [4, 6]], [[0, 0], [7, 8]]], exp_bits=10, man_bits=10
+        )
+    )
+    assert i.is_identical(
+        APyFloatArray.from_float(
+            [[[1, 3], [3, 7]], [[0, 0], [7, 15]]], exp_bits=10, man_bits=10
+        )
+    )
+    with pytest.raises(IndexError):
+        _ = e.nancumsum(4)
+
+
 def test_convenience_cast():
     a = APyFloatArray.from_float([0.893820, 3e20, -float("inf"), float("nan")], 10, 50)
     assert a.cast_to_double().is_identical(
