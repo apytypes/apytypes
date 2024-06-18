@@ -1193,6 +1193,49 @@ APyFloatArray APyFloatArray::sum(std::optional<std::variant<nb::int_, nb::tuple>
     return result;
 }
 
+APyFloatArray APyFloatArray::cumsum(std::optional<nb::int_> axis) const
+{
+    int cs_axis = int(shape.size());
+    std::size_t dim = data.size();
+    std::vector<std::size_t> _shape = { data.size() };
+    if (axis.has_value()) {
+        cs_axis = int(axis.value());
+        if (cs_axis >= int(shape.size())) {
+            throw nb::index_error(
+                "specified axis with larger than number of dimensions in the "
+                "APyFixedArray"
+            );
+        }
+        _shape = shape;
+        dim = shape[cs_axis];
+    }
+
+    std::size_t sec_length = data.size();
+    for (int i = 0; i < int(shape.size()); i++) {
+        sec_length /= shape[i];
+        if (i == cs_axis) {
+            break;
+        }
+    }
+    // Resulting vector
+    APyFloatArray result(_shape, exp_bits, man_bits);
+    result.data = data;
+
+    for (std::size_t i = 0; i < result.data.size(); i++) {
+        if (i % (sec_length * dim) < sec_length) {
+            continue;
+        }
+        std::size_t pos = (i - sec_length);
+        // perform addition
+        APyFloat lhs_scalar(exp_bits, man_bits, bias);
+        APyFloat rhs_scalar(exp_bits, man_bits, bias);
+        lhs_scalar.set_data(result.data[pos]);
+        rhs_scalar.set_data(result.data[i]);
+        result.data[i] = (lhs_scalar + rhs_scalar).get_data();
+    }
+    return result;
+}
+
 std::string APyFloatArray::repr() const
 {
     std::stringstream ss {};

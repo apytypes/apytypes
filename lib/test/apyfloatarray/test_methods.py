@@ -349,6 +349,51 @@ def test_sum():
         _ = m.sum(1)
 
 
+def test_cumsum():
+    a = APyFloatArray.from_float([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
+    b = a.cumsum()
+    assert b.is_identical(
+        APyFloatArray.from_float([1, 3, 6, 10, 15, 21], exp_bits=10, man_bits=10)
+    )
+    c = a.cumsum(0)
+    assert c.is_identical(
+        APyFloatArray.from_float([[1, 2, 3], [5, 7, 9]], exp_bits=10, man_bits=10)
+    )
+    d = a.cumsum(1)
+    assert d.is_identical(
+        APyFloatArray.from_float([[1, 3, 6], [4, 9, 15]], exp_bits=10, man_bits=10)
+    )
+    e = APyFloatArray.from_float(
+        [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], exp_bits=10, man_bits=10
+    )
+    f = e.cumsum()
+    g = e.cumsum(0)
+    h = e.cumsum(1)
+    i = e.cumsum(2)
+    assert f.is_identical(
+        APyFloatArray.from_float(
+            [1, 3, 6, 10, 15, 21, 28, 36], exp_bits=10, man_bits=10
+        )
+    )
+    assert g.is_identical(
+        APyFloatArray.from_float(
+            [[[1, 2], [3, 4]], [[6, 8], [10, 12]]], exp_bits=10, man_bits=10
+        )
+    )
+    assert h.is_identical(
+        APyFloatArray.from_float(
+            [[[1, 2], [4, 6]], [[5, 6], [12, 14]]], exp_bits=10, man_bits=10
+        )
+    )
+    assert i.is_identical(
+        APyFloatArray.from_float(
+            [[[1, 3], [3, 7]], [[5, 11], [7, 15]]], exp_bits=10, man_bits=10
+        )
+    )
+    with pytest.raises(IndexError):
+        _ = e.cumsum(4)
+
+
 def test_convenience_cast():
     a = APyFloatArray.from_float([0.893820, 3e20, -float("inf"), float("nan")], 10, 50)
     assert a.cast_to_double().is_identical(
