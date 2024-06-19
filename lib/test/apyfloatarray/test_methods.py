@@ -397,6 +397,7 @@ def test_cumsum():
         APyFloatArray.from_float([0.25, 0.5, 0.75, 1], exp_bits=10, man_bits=10)
     )
 
+<<<<<<< HEAD
 
 def test_nansum():
     nan = float("nan")
@@ -492,6 +493,8 @@ def test_nancumsum():
         APyFloatArray.from_float([0.25, 0.5, 0.75, 0.75], exp_bits=10, man_bits=10)
     )
 
+=======
+>>>>>>> b7f5c527 (added more tests for the sum functions)
 
 def test_nansum():
     nan = float("nan")
@@ -583,6 +586,12 @@ def test_nancumsum():
     )
     with pytest.raises(IndexError):
         _ = e.nancumsum(4)
+
+    k = APyFloatArray.from_float([[0.25, 0.25], [0.25, nan]], exp_bits=10, man_bits=10)
+    m = k.nancumsum()
+    assert m.is_identical(
+        APyFloatArray.from_float([0.25, 0.5, 0.75, 0.75], exp_bits=10, man_bits=10)
+    )
 
 
 def test_convenience_cast():

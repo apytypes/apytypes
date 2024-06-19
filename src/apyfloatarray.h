@@ -134,11 +134,16 @@ public:
     //! summation across its own axis, treating Nan as 0.
     APyFloatArray nancumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
+    //! Returns a copy where the specified axes contains the increasing cumulated
+    //! summation across its own axis.
     APyFloatArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
+    //! Returns a copy where the specified axes is summated, treating Nan as 0.
     APyFloatArray
     nansum(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
 
+    //! Returns a copy where the specified axes contains the increasing cumulated
+    //! summation across its own axis, treating Nan as 0.
     APyFloatArray nancumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Python-exposed `broadcast_to`
@@ -314,9 +319,15 @@ private:
         const APYFLOAT_TYPE& y  // Floating point src2
     );
 
+<<<<<<< HEAD
     std::variant<APyFloatArray, APyFloat> prod_sum_function(
         void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFloatArray&, APyFloatArray&, APyFloat&, APyFloat&),
         std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt
+=======
+    APyFloatArray prod_sum_function(
+        void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFloatArray&, APyFloatArray&, APyFloat&, APyFloat&),
+        std::optional<std::variant<nb::int_, nb::tuple>> axes = std::nullopt
+>>>>>>> b7f5c527 (added more tests for the sum functions)
     ) const;
 
     APyFloatArray cumulative_prod_sum_function(
