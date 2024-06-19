@@ -1106,6 +1106,33 @@ static APY_INLINE std::vector<std::size_t> cpp_shape_from_python_shape_like(
     return cpp_shape;
 }
 
+//! Get the convolutional properties `len`, `n_left`, and `n_right` (in that order) from
+//! a string of either "full", "same", or "valid". Throws a `nanobind::value_error` if
+//! the string is anything else.
+template <typename APY_ARRAY>
+[[maybe_unused]] static APY_INLINE std::tuple<std::size_t, std::size_t, std::size_t>
+get_conv_lengths(const std::string& mode, const APY_ARRAY& a, const APY_ARRAY& b)
+{
+    std::size_t len, n_left, n_right;
+    if (mode == "full") {
+        len = a->get_shape()[0] + b->get_shape()[0] - 1;
+        n_left = b->get_shape()[0] - 1;
+        n_right = b->get_shape()[0] - 1;
+    } else if (mode == "same") {
+        len = a->get_shape()[0];
+        n_left = b->get_shape()[0] / 2;
+        n_right = b->get_shape()[0] - n_left - 1;
+    } else if (mode == "valid") {
+        len = a->get_shape()[0] - b->get_shape()[0] + 1;
+        n_left = 0;
+        n_right = 0;
+    } else {
+        auto msg = fmt::format("mode='{}' not in 'full', 'same', or 'valid'", mode);
+        throw nanobind::value_error(msg.c_str());
+    }
+    return { len, n_left, n_right };
+}
+
 //! Macro for creating a void-specialization state-less functor `FUNCTOR_NAME` from a
 //! function `FUNC_NAME`. The void-specialization functor allows template argument
 //! deduction to be performed once its function is called. Neat!

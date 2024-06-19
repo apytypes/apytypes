@@ -73,6 +73,10 @@ protected:
     std::size_t _ndim;                 // Number of dimensions
     std::vector<std::size_t> _strides; // Byte-strides (uninitialized until the member
                                        // function `get_py_buffer()` is called)
+
+public:
+    // Getters for important field
+    const std::vector<std::size_t>& get_shape() const noexcept { return _shape; }
 };
 
 #endif // _APYBUFFER_H

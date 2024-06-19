@@ -54,8 +54,8 @@ def convolve(a, v, mode="full"):
     """
     try:
         return a.convolve(v, mode=mode)
-    except AttributeError:
-        raise TypeError("Can only perform convoltuion of same-type apytypes arrays")
+    except (TypeError, AttributeError):
+        raise TypeError(f"Cannot convolve {type(a)} with {type(v)}")
 
 
 def reshape(a, new_shape):

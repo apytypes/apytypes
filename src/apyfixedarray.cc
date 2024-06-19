@@ -1,5 +1,4 @@
 // Python object access through Nanobind
-#include "array_utils.h"
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
@@ -30,6 +29,7 @@ namespace nb = nanobind;
 #include "apytypes_common.h"
 #include "apytypes_simd.h"
 #include "apytypes_util.h"
+#include "array_utils.h"
 #include "broadcast.h"
 #include "python_util.h"
 
@@ -854,40 +854,33 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
         throw nanobind::value_error(msg.c_str());
     }
 
-    // "Swap" `*this` and `other` based on length.
+    // Find the shorter array of `*this` and `other` based on length.
     bool swap = _shape[0] < other._shape[0];
 
-    // Let `a` be a pointer to the longer array
-    const APyFixedArray* a = swap ? &other : this;
-
-    // Let `b` be a pointer to an intermediate reverse copy of the shorter array
+    // Make a reverse copy of the shorter array
     APyFixedArray b_cpy = swap ? *this : other;
     multi_limb_reverse(std::begin(b_cpy._data), std::end(b_cpy._data), b_cpy._itemsize);
+
+    // Let `a` be a pointer to the longer array, and let `b` be a pointer to the reverse
+    // copy of the shorter array.
+    const APyFixedArray* a = swap ? &other : this;
     const APyFixedArray* b = &b_cpy;
 
     // Extract convolution properties
-    std::size_t len, n_left, n_right;
-    if (mode == "full") {
-        len = a->_shape[0] + b->_shape[0] - 1;
-        n_left = b->_shape[0] - 1;
-        n_right = b->_shape[0] - 1;
-    } else if (mode == "same") {
-        len = a->_shape[0];
-        n_left = b->_shape[0] / 2;
-        n_right = b->_shape[0] - n_left - 1;
-    } else if (mode == "valid") {
-        len = a->_shape[0] - b->_shape[0] + 1;
-        n_left = 0;
-        n_right = 0;
-    } else {
-        auto msg = fmt::format("mode='{}' not in 'full', 'same', or 'valid'", mode);
-        throw nanobind::value_error(msg.c_str());
-    }
+    auto [len, n_left, n_right] = get_conv_lengths(mode, a, b);
+
+    // Handle accumulator context
+    const int prod_bits = a->bits() + b->bits();
+    const int prod_int_bits = a->int_bits() + b->int_bits();
+    std::optional<APyFixedAccumulatorOption> acc_mode = get_accumulator_mode_fixed();
+    auto dot = inner_product_func_from_acc_mode<std::vector<mp_limb_t>>(
+        prod_bits, prod_int_bits, acc_mode
+    );
 
     // Result vector
-    const int extra_bits = bit_width(b->_shape[0] - 1);
-    const int res_bits = a->bits() + b->bits() + extra_bits;
-    const int res_int_bits = a->int_bits() + b->int_bits() + extra_bits;
+    const int sum_bits = bit_width(b->_shape[0] - 1);
+    const int res_bits = acc_mode ? acc_mode->bits : prod_bits + sum_bits;
+    const int res_int_bits = acc_mode ? acc_mode->int_bits : prod_int_bits + sum_bits;
     APyFixedArray result({ len }, res_bits, res_int_bits);
 
     // Loop working variables
@@ -898,7 +891,7 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
 
     // `b` limits length of the inner product length
     for (std::size_t i = 0; i < n_left; i++) {
-        inner_product(src1, src2, dst, a->_itemsize, b->_itemsize, result._itemsize, n);
+        dot(src1, src2, dst, a->_itemsize, b->_itemsize, result._itemsize, n);
         src2 -= b->_itemsize;
         dst += result._itemsize;
         n++;
@@ -906,7 +899,7 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
 
     // full inner product length
     for (std::size_t i = 0; i < a->_shape[0] - b->_shape[0] + 1; i++) {
-        inner_product(src1, src2, dst, a->_itemsize, b->_itemsize, result._itemsize, n);
+        dot(src1, src2, dst, a->_itemsize, b->_itemsize, result._itemsize, n);
         src1 += a->_itemsize;
         dst += result._itemsize;
     }
@@ -914,7 +907,7 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
     // `a` limits length of the inner product length
     for (std::size_t i = 0; i < n_right; i++) {
         n--;
-        inner_product(src1, src2, dst, a->_itemsize, b->_itemsize, result._itemsize, n);
+        dot(src1, src2, dst, a->_itemsize, b->_itemsize, result._itemsize, n);
         src1 += a->_itemsize;
         dst += result._itemsize;
     }
