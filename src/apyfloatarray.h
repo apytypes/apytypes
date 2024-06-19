@@ -111,6 +111,7 @@ public:
     //! Broadcast to a new shape
     APyFloatArray broadcast_to(const std::vector<std::size_t> shape) const;
 
+    //! Returns a copy where all axes of size 1 is removed.
     APyFloatArray
     squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
 
@@ -121,11 +122,16 @@ public:
     APyFloatArray
     sum(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
 
+    //! Returns a copy where the specified axes contains the increasing cumulated
+    //! summation across its own axis.
     APyFloatArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
+    //! Returns a copy where the specified axes is summated, treating Nan as 0.
     APyFloatArray
     nansum(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
 
+    //! Returns a copy where the specified axes contains the increasing cumulated
+    //! summation across its own axis, treating Nan as 0.
     APyFloatArray nancumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Python-exposed `broadcast_to`
@@ -300,6 +306,16 @@ private:
         const APYFLOAT_TYPE& x, // Floating point src1
         const APYFLOAT_TYPE& y  // Floating point src2
     );
+
+    APyFloatArray prod_sum_function(
+        void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFloatArray&, APyFloatArray&, APyFloat&, APyFloat&),
+        std::optional<std::variant<nb::int_, nb::tuple>> axes = std::nullopt
+    ) const;
+
+    APyFloatArray cumulative_prod_sum_function(
+        void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFloatArray&, APyFloatArray&, APyFloat&, APyFloat&),
+        std::optional<nb::int_> axis = std::nullopt
+    ) const;
 };
 
 #endif

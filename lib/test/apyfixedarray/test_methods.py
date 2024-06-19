@@ -132,6 +132,26 @@ def test_cumsum():
     with pytest.raises(IndexError):
         _ = e.cumsum(4)
 
+    k = APyFixedArray.from_float(
+        [[0.25, 0.25], [0.25, 0.25]], frac_bits=10, int_bits=10
+    )
+    m = k.cumsum()
+    assert m.is_identical(
+        APyFixedArray.from_float([0.25, 0.5, 0.75, 1], frac_bits=10, int_bits=12)
+    )
+
+    # test for size larger than 32 and 64 when number over multiple limbs
+    g = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
+    h = g.cumsum(0)
+    assert h.is_identical(
+        APyFixedArray([[0, 1, 2], [3, 5, 7]], frac_bits=0, int_bits=34)
+    )
+    j = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=65)
+    k = j.cumsum(0)
+    assert k.is_identical(
+        APyFixedArray([[0, 1, 2], [3, 5, 7]], frac_bits=0, int_bits=66)
+    )
+
 
 def test_nansum():
     a = APyFixedArray([[1, 2], [3, 4], [5, 6], [7, 8]], bits=5, int_bits=5)
@@ -173,6 +193,14 @@ def test_nansum():
     with pytest.raises(IndexError):
         _ = m.nansum(1)
 
+    # test for size larger than 32 and 64 when number over multiple limbs
+    g = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
+    h = g.nansum(0)
+    assert h.is_identical(APyFixedArray([3, 5, 7], frac_bits=0, int_bits=34))
+    j = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=65)
+    k = j.nansum(0)
+    assert k.is_identical(APyFixedArray([3, 5, 7], frac_bits=0, int_bits=66))
+
 
 def test_nancumsum():
     a = APyFixedArray([[1, 2, 3], [4, 5, 6]], frac_bits=0, int_bits=5)
@@ -205,6 +233,26 @@ def test_nancumsum():
     )
     with pytest.raises(IndexError):
         _ = e.nancumsum(4)
+
+    k = APyFixedArray.from_float(
+        [[0.25, 0.25], [0.25, 0.25]], frac_bits=10, int_bits=10
+    )
+    m = k.nancumsum()
+    assert m.is_identical(
+        APyFixedArray.from_float([0.25, 0.5, 0.75, 1], frac_bits=10, int_bits=12)
+    )
+
+    # test for size larger than 32 and 64 when number over multiple limbs
+    g = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
+    h = g.nancumsum(0)
+    assert h.is_identical(
+        APyFixedArray([[0, 1, 2], [3, 5, 7]], frac_bits=0, int_bits=34)
+    )
+    j = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=65)
+    k = j.nancumsum(0)
+    assert k.is_identical(
+        APyFixedArray([[0, 1, 2], [3, 5, 7]], frac_bits=0, int_bits=66)
+    )
 
 
 def test_to_numpy():

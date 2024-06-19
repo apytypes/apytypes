@@ -606,12 +606,12 @@ void bind_float_array(nb::module_& m)
             &APyFloatArray::squeeze,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Removes dimensions of size 1 at the specified axes, if no axís is given removoves all dimensions with size 1.
+            Removes dimensions of size 1 at the specified axis/axes, if no axís is given removes all dimensions with size 1.
 
             Parameters
             ----------
             axis : tuple, int, optional
-                The axes to squeeze, a given axis with a size other than 1 will result in an error. no given axes  will be remove all dimensions of size 1.
+                The axis/axes to squeeze, a given axis with a size other than 1 will result in an error. No given axes  will be remove all dimensions of size 1.
 
             Returns
             -------
@@ -622,7 +622,7 @@ void bind_float_array(nb::module_& m)
             ValueError
                 If given an axis of a size other than 1 a ValueError will be thrown.
             IndexError
-                If a specified axis is outside of the existing number of dimensions for the array
+                If a specified axis is outside of the existing number of dimensions for the array.
 
             )pbdoc"
         )
@@ -632,12 +632,12 @@ void bind_float_array(nb::module_& m)
             &APyFloatArray::sum,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the cumulative sum of the elements along specified axes.
+            Returns the cumulative sum of the elements along specified axis/axes.
 
             Parameters
             ----------
             axis : tuple, int, optional
-                The axes to summate across. Will summate the whole array if no int or tuple is specified
+                The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
 
             Returns
             -------
@@ -645,29 +645,29 @@ void bind_float_array(nb::module_& m)
 
             Raises
             -------
-            TypeError
-                If .....
+            IndexError
+                If a specified axis is outside of the existing number of dimensions for the array.
 
             Examples
             -------
 
             >>> from apytypes import APyFloatArray
 
-            Array `a`, array to summate across
+            Array `a`, array to summate across.
 
             >>> a = APyFloatArray(
             ...     [1,2,3,4,5,6],
-            ...     int_bits=5,
-            ...     frac_bits=0
+            ...     exp_bits=5,
+            ...     man_bits=0
             ... )
 
-            Array `b`, returned array where the specified axes are summated
+            Array `b`, returned array where the specified axes are summated.
             >>> b = a.sum()
-            In this case `b` will be equal to `c`
+            In this case `b` will be equal to `c`.
             >>> c = APyFloatArray(
             ...     [21],
-            ...     int_bits=8,
-            ...     frac_bits=0
+            ...     exp_bits=8,
+            ...     man_bits=0
             ... )
 
             )pbdoc"
@@ -680,59 +680,53 @@ void bind_float_array(nb::module_& m)
             R"pbdoc(
             Returns the cumulative sum of the elements along a given axis.
 
-
             Parameters
             ----------
             axis : int, optional
-                The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array
-
+                The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.
 
             Returns
             -------
             :class:`APyFloatArray`
 
-
-
             Raises
             -------
             IndexError
-                If a specified axis is outside of the existing number of dimensions for the array
-
-
+                If a specified axis is outside of the existing number of dimensions for the array.
 
             Examples
             -------
 
             >>> from apytypes import APyFloatArray
 
-            Array `a`, array to summate across
+            Array `a`, array to summate across.
 
             >>> a = APyFloatArray(
             ...     [[1,2,3],[4,5,6]],
-            ...     int_bits=5,
-            ...     frac_bits=0
+            ...     exp_bits=5,
+            ...     man_bits=0
             ... )
-            Array `b`, returned array where the specified axes are summated
+            Array `b`, returned array where the specified axes are summated.
             >>> b = a.cumsum()
-            In this case `b` will be equal to `c`
+            In this case `b` will be equal to `c`.
             >>> c = APyFloatArray(
             ...     [1,3,6,10,15,21],
-            ...     int_bits=8,
-            ...     frac_bits=0
+            ...     exp_bits=8,
+            ...     man_bits=0
             ... )
             >>> d = a.cumsum(0)
-            In this case `d` will be equal to `e`
+            In this case `d` will be equal to `e`.
             >>> e = APyFloatArray(
             ...     [[1,2,3],[5,7,9]],
-            ...     int_bits=8,
-            ...     frac_bits=0
+            ...     exp_bits=8,
+            ...     man_bits=0
             ... )
             >>> f = a.cumsum(1)
-            In this case `f` will be equal to `g`
+            In this case `f` will be equal to `g`.
             >>> g = APyFloatArray(
             ...     [[1,3,6],[4,9,15]],
-            ...     int_bits=8,
-            ...     frac_bits=0
+            ...     exp_bits=8,
+            ...     man_bits=0
             ... )
             )pbdoc"
         )
@@ -742,12 +736,12 @@ void bind_float_array(nb::module_& m)
             &APyFloatArray::nansum,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the cumulative sum of the elements along specified axes treating Not a Number as 0.
+            Returns the cumulative sum of the elements along specified axis/axes treating Not a Number as 0.
 
             Parameters
             ----------
             axis : tuple, int, optional
-                The axes to summate across. Will summate the whole array if no int or tuple is specified
+                The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
 
             Returns
             -------
@@ -756,28 +750,28 @@ void bind_float_array(nb::module_& m)
             Raises
             -------
             IndexError
-                If a specified axis is outside of the existing number of dimensions for the array
+                If a specified axis is outside of the existing number of dimensions for the array.
 
             Examples
             -------
 
             >>> from apytypes import APyFloatArray
 
-            Array `a`, array to summate across
+            Array `a`, array to summate across.
 
             >>> a = APyFloatArray(
             ...     [1,2,3,4,5,6],
-            ...     int_bits=5,
-            ...     frac_bits=0
+            ...     exp_bits=5,
+            ...     man_bits=0
             ... )
 
-            Array `b`, returned array where the specified axes are summated
+            Array `b`, returned array where the specified axes are summated.
             >>> b = a.sum()
-            In this case `b` will be equal to `c`
+            In this case `b` will be equal to `c`.
             >>> c = APyFloatArray(
             ...     [21],
-            ...     int_bits=8,
-            ...     frac_bits=0
+            ...     exp_bits=8,
+            ...     man_bits=0
             ... )
 
             )pbdoc"
@@ -790,59 +784,53 @@ void bind_float_array(nb::module_& m)
             R"pbdoc(
             Returns the cumulative sum of the elements along a given axis treating Not a Number as 0.
 
-
             Parameters
             ----------
             axis : int, optional
-                The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array
-
+                The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.
 
             Returns
             -------
             :class:`APyFloatArray`
 
-
-
             Raises
             -------
             IndexError
-                If a specified axis is outside of the existing number of dimensions for the array
-
-
+                If a specified axis is outside of the existing number of dimensions for the array.
 
             Examples
             -------
 
             >>> from apytypes import APyFloatArray
 
-            Array `a`, array to summate across
+            Array `a`, array to summate across.
 
             >>> a = APyFloatArray(
             ...     [[1,2,3],[4,5,6]],
-            ...     int_bits=5,
-            ...     frac_bits=0
+            ...     exp_bits=5,
+            ...     man_bits=0
             ... )
-            Array `b`, returned array where the specified axes are summated
+            Array `b`, returned array where the specified axes are summated.
             >>> b = a.cumsum()
-            In this case `b` will be equal to `c`
+            In this case `b` will be equal to `c`.
             >>> c = APyFloatArray(
             ...     [1,3,6,10,15,21],
-            ...     int_bits=8,
-            ...     frac_bits=0
+            ...     exp_bits=8,
+            ...     man_bits=0
             ... )
             >>> d = a.cumsum(0)
-            In this case `d` will be equal to `e`
+            In this case `d` will be equal to `e`.
             >>> e = APyFloatArray(
             ...     [[1,2,3],[5,7,9]],
-            ...     int_bits=8,
-            ...     frac_bits=0
+            ...     exp_bits=8,
+            ...     man_bits=0
             ... )
             >>> f = a.cumsum(1)
-            In this case `f` will be equal to `g`
+            In this case `f` will be equal to `g`.
             >>> g = APyFloatArray(
             ...     [[1,3,6],[4,9,15]],
-            ...     int_bits=8,
-            ...     frac_bits=0
+            ...     exp_bits=8,
+            ...     man_bits=0
             ... )
             )pbdoc"
         )
