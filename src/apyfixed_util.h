@@ -6,6 +6,8 @@
 #include "apytypes_simd.h"
 #include "apytypes_util.h"
 
+#include <functional> // std::bind, std::function, std::placeholders
+
 // GMP should be included after all other includes
 #include "../extern/mini-gmp/mini-gmp.h"
 
@@ -43,7 +45,7 @@ static APY_INLINE void _quantize_trn(
 }
 
 template <class RANDOM_ACCESS_ITERATOR_INOUT>
-void _quantize_trn_inf(
+static APY_INLINE void _quantize_trn_inf(
     RANDOM_ACCESS_ITERATOR_INOUT it_begin,
     RANDOM_ACCESS_ITERATOR_INOUT it_end,
     int bits,
@@ -84,7 +86,7 @@ void _quantize_trn_inf(
 }
 
 template <class RANDOM_ACCESS_ITERATOR_INOUT>
-void _quantize_trn_zero(
+static APY_INLINE void _quantize_trn_zero(
     RANDOM_ACCESS_ITERATOR_INOUT it_begin,
     RANDOM_ACCESS_ITERATOR_INOUT it_end,
     int bits,
@@ -116,7 +118,7 @@ void _quantize_trn_zero(
 }
 
 template <class RANDOM_ACCESS_ITERATOR_INOUT>
-void _quantize_trn_mag(
+static APY_INLINE void _quantize_trn_mag(
     RANDOM_ACCESS_ITERATOR_INOUT it_begin,
     RANDOM_ACCESS_ITERATOR_INOUT it_end,
     int bits,
@@ -146,7 +148,7 @@ void _quantize_trn_mag(
 }
 
 template <class RANDOM_ACCESS_ITERATOR_INOUT>
-void _quantize_trn_away(
+static APY_INLINE void _quantize_trn_away(
     RANDOM_ACCESS_ITERATOR_INOUT it_begin,
     RANDOM_ACCESS_ITERATOR_INOUT it_end,
     int bits,
@@ -180,7 +182,7 @@ void _quantize_trn_away(
 }
 
 template <class RANDOM_ACCESS_ITERATOR_INOUT>
-void _quantize_rnd(
+static APY_INLINE void _quantize_rnd(
     RANDOM_ACCESS_ITERATOR_INOUT it_begin,
     RANDOM_ACCESS_ITERATOR_INOUT it_end,
     int bits,
@@ -206,7 +208,7 @@ void _quantize_rnd(
 }
 
 template <class RANDOM_ACCESS_ITERATOR_INOUT>
-void _quantize_rnd_zero(
+static APY_INLINE void _quantize_rnd_zero(
     RANDOM_ACCESS_ITERATOR_INOUT it_begin,
     RANDOM_ACCESS_ITERATOR_INOUT it_end,
     int bits,
@@ -235,7 +237,7 @@ void _quantize_rnd_zero(
 }
 
 template <class RANDOM_ACCESS_ITERATOR_INOUT>
-void _quantize_rnd_inf(
+static APY_INLINE void _quantize_rnd_inf(
     RANDOM_ACCESS_ITERATOR_INOUT it_begin,
     RANDOM_ACCESS_ITERATOR_INOUT it_end,
     int bits,
@@ -264,7 +266,7 @@ void _quantize_rnd_inf(
 }
 
 template <class RANDOM_ACCESS_ITERATOR_INOUT>
-void _quantize_rnd_min_inf(
+static APY_INLINE void _quantize_rnd_min_inf(
     RANDOM_ACCESS_ITERATOR_INOUT it_begin,
     RANDOM_ACCESS_ITERATOR_INOUT it_end,
     int bits,
@@ -292,7 +294,7 @@ void _quantize_rnd_min_inf(
 }
 
 template <class RANDOM_ACCESS_ITERATOR_INOUT>
-void _quantize_rnd_conv(
+static APY_INLINE void _quantize_rnd_conv(
     RANDOM_ACCESS_ITERATOR_INOUT it_begin,
     RANDOM_ACCESS_ITERATOR_INOUT it_end,
     int bits,
@@ -321,7 +323,7 @@ void _quantize_rnd_conv(
 }
 
 template <class RANDOM_ACCESS_ITERATOR_INOUT>
-void _quantize_rnd_conv_odd(
+static APY_INLINE void _quantize_rnd_conv_odd(
     RANDOM_ACCESS_ITERATOR_INOUT it_begin,
     RANDOM_ACCESS_ITERATOR_INOUT it_end,
     int bits,
@@ -354,7 +356,7 @@ void _quantize_rnd_conv_odd(
 }
 
 template <class RANDOM_ACCESS_ITERATOR_INOUT>
-void _quantize_jam(
+static APY_INLINE void _quantize_jam(
     RANDOM_ACCESS_ITERATOR_INOUT it_begin,
     RANDOM_ACCESS_ITERATOR_INOUT it_end,
     int bits,
@@ -375,7 +377,7 @@ void _quantize_jam(
 }
 
 template <class RANDOM_ACCESS_ITERATOR_INOUT>
-void _quantize_jam_unbiased(
+static APY_INLINE void _quantize_jam_unbiased(
     RANDOM_ACCESS_ITERATOR_INOUT it_begin,
     RANDOM_ACCESS_ITERATOR_INOUT it_end,
     int bits,
@@ -409,7 +411,7 @@ void _quantize_jam_unbiased(
 }
 
 template <typename RANDOM_ACCESS_ITERATOR_INOUT>
-static APY_INLINE void quantize(
+static void quantize(
     RANDOM_ACCESS_ITERATOR_INOUT it_begin,
     RANDOM_ACCESS_ITERATOR_INOUT it_end,
     int bits,
@@ -486,7 +488,7 @@ static APY_INLINE void quantize(
  * ********************************************************************************** */
 
 template <class RANDOM_ACCESS_ITERATOR>
-void _overflow_twos_complement(
+static APY_INLINE void _overflow_twos_complement(
     RANDOM_ACCESS_ITERATOR it_begin,
     RANDOM_ACCESS_ITERATOR it_end,
     int bits,
@@ -503,7 +505,7 @@ void _overflow_twos_complement(
 }
 
 template <class RANDOM_ACCESS_ITERATOR>
-void _overflow_saturate(
+static APY_INLINE void _overflow_saturate(
     RANDOM_ACCESS_ITERATOR it_begin,
     RANDOM_ACCESS_ITERATOR it_end,
     int bits,
@@ -529,7 +531,7 @@ void _overflow_saturate(
 }
 
 template <class RANDOM_ACCESS_ITERATOR>
-void _overflow_numeric_std(
+static APY_INLINE void _overflow_numeric_std(
     RANDOM_ACCESS_ITERATOR it_begin,
     RANDOM_ACCESS_ITERATOR it_end,
     int bits,
@@ -551,7 +553,7 @@ void _overflow_numeric_std(
 }
 
 template <class RANDOM_ACCESS_ITERATOR>
-void overflow(
+static void overflow(
     RANDOM_ACCESS_ITERATOR it_begin,
     RANDOM_ACCESS_ITERATOR it_end,
     int new_bits,
@@ -627,7 +629,7 @@ static APY_INLINE void fixedpoint_product(
 
 //! Iterator-based multi-limb fixed-point hadamard product
 template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
-void fixedpoint_hadamard_product(
+static void fixedpoint_hadamard_product(
     RANDOM_ACCESS_ITERATOR_IN src1,
     RANDOM_ACCESS_ITERATOR_IN src2,
     RANDOM_ACCESS_ITERATOR_OUT dst,
@@ -657,7 +659,7 @@ void fixedpoint_hadamard_product(
 
 //! Iterator-based multiply-accumulate
 template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
-void inner_product(
+static void inner_product(
     RANDOM_ACCESS_ITERATOR_IN src1,
     RANDOM_ACCESS_ITERATOR_IN src2,
     RANDOM_ACCESS_ITERATOR_OUT dst,
@@ -695,7 +697,7 @@ void inner_product(
 
 //! Iterator-based multiply-accumulate using in accumulator context
 template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
-void inner_product(
+static void inner_product_acc(
     RANDOM_ACCESS_ITERATOR_IN src1,
     RANDOM_ACCESS_ITERATOR_IN src2,
     RANDOM_ACCESS_ITERATOR_OUT dst,
@@ -703,8 +705,8 @@ void inner_product(
     std::size_t src2_limbs, // Number of limbs in one fixed-point of `src2`
     std::size_t dst_limbs,  // Number of limbs in the result
     std::size_t n_items,    // Number of elements to use in inner product
-    int bits,
-    int int_bits,
+    int product_bits,
+    int product_int_bits,
     const APyFixedAccumulatorOption& acc
 )
 {
@@ -729,8 +731,8 @@ void inner_product(
         quantize(
             std::begin(product),
             std::begin(product) + dst_limbs,
-            bits,
-            int_bits,
+            product_bits,
+            product_int_bits,
             acc.bits,
             acc.int_bits,
             acc.quantization
@@ -745,6 +747,53 @@ void inner_product(
 
         // Accumulate
         mpn_add(&dst[0], &dst[0], dst_limbs, &product[0], dst_limbs);
+    }
+}
+
+/*!
+ * Retrieve an appropriate fixed-point inner product function from `accumulator_mode`.
+ * The returned inner product function object will have the accumulator mode bound, if
+ * available. Otherwise, the return function object will be a plain inner product
+ * function.
+ */
+template <typename VECTOR_TYPE>
+[[maybe_unused]] static std::function<
+    void(
+        typename VECTOR_TYPE::const_iterator,
+        typename VECTOR_TYPE::const_iterator,
+        typename VECTOR_TYPE::iterator,
+        std::size_t,
+        std::size_t,
+        std::size_t,
+        std::size_t
+    )>
+inner_product_func_from_acc_mode(
+    int product_bits,
+    int product_int_bits,
+    const std::optional<APyFixedAccumulatorOption>& accumulator_mode
+)
+{
+    using namespace std::placeholders;
+    if (accumulator_mode.has_value()) {
+        return std::bind(
+            inner_product_acc<
+                typename VECTOR_TYPE::const_iterator,
+                typename VECTOR_TYPE::iterator>,
+            _1,
+            _2,
+            _3,
+            _4,
+            _5,
+            _6,
+            _7,
+            product_bits,
+            product_int_bits,
+            *accumulator_mode
+        );
+    } else { /* !accumulator_mode.has_value() */
+        return inner_product<
+            typename VECTOR_TYPE::const_iterator,
+            typename VECTOR_TYPE::iterator>;
     }
 }
 
