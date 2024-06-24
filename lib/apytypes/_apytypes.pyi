@@ -611,7 +611,6 @@ class APyFixedArray:
         new_shape : `tuple`
             The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.
 
-
         Returns
         -------
         :class:`APyFixedArray`
@@ -2238,21 +2237,21 @@ class APyFloatArray:
         ValueError
             If given an axis of a size other than 1 a ValueError will be thrown.
         IndexError
-            If a specified axis is outside of the existing number of dimensions for the array
+            If a specified axis is outside of the existing number of dimensions for the array.
         """
 
-    def sum(self, axis: int | tuple | None = None) -> APyFloatArray:
+    def sum(self, axis: int | tuple | None = None) -> APyFloatArray | APyFloat:
         """
-        Returns the cumulative sum of the elements along specified axes.
+        Returns the cumulative sum of the elements along specified axis/axes.
 
         Parameters
         ----------
         axis : tuple, int, optional
-            The axes to summate across. Will summate the whole array if no int or tuple is specified
+            The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
 
         Returns
         -------
-        :class:`APyFloatArray`
+        :class:`APyFloatArray` or `APyFloat`
 
         Raises
         -------
@@ -2275,7 +2274,8 @@ class APyFloatArray:
 =======
         Array `a`, array to summate across
 
-        >>> a = APyFloatArray([1, 2, 3, 4, 5, 6], exp_bits=5, man_bits=0)
+        >>> a.sum()
+        APyFloat(sign=0, exp=515, man=320, exp_bits=10, man_bits=10)
 
         Array `b`, returned array where the specified axes are summated
         >>> b = a.sum()
@@ -2366,18 +2366,18 @@ class APyFloatArray:
         >>> g = APyFloatArray([[1, 3, 6], [4, 9, 15]], exp_bits=8, man_bits=0)
         """
 
-    def nansum(self, axis: int | tuple | None = None) -> APyFloatArray:
+    def nansum(self, axis: int | tuple | None = None) -> APyFloatArray | APyFloat:
         """
-        Returns the cumulative sum of the elements along specified axes treating Not a Number as 0.
+        Returns the cumulative sum of the elements along specified axis/axes treating Not a Number as 0.
 
         Parameters
         ----------
         axis : tuple, int, optional
-            The axes to summate across. Will summate the whole array if no int or tuple is specified
+            The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
 
         Returns
         -------
-        :class:`APyFloatArray`
+        :class:`APyFloatArray` or `APyFloat`
 
         Raises
         -------
@@ -2404,7 +2404,7 @@ class APyFloatArray:
 =======
         Array `a`, array to summate across
 
-        >>> a = APyFloatArray([1, 2, 3, 4, 5, 6], exp_bits=5, man_bits=0)
+        >>> a = APyFloatArray.from_float([1, 2, 3, 4, 5, nan], exp_bits=10, man_bits=10)
 
         Array `b`, returned array where the specified axes are summated
         >>> b = a.sum()
@@ -2443,6 +2443,9 @@ class APyFloatArray:
         Examples
         -------
 
+
+<<<<<<< HEAD
+
 <<<<<<< HEAD
 
         >>> from apytypes import APyFloatArray
@@ -2467,7 +2470,27 @@ class APyFloatArray:
 =======
         >>> from apytypes import APyFloatArray
 
-        Array `a`, array to summate across
+        >>> nan = float("nan")
+
+        >>> a = APyFloatArray.from_float(
+        ...     [[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10
+        ... )
+
+        >>> a.nancumsum()
+        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 514, 514, 515], [0, 512, 512, 256, 896, 320], shape=(6,), exp_bits=10, man_bits=10, bias=511)
+
+        >>> a.nancumsum(0)
+        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 512, 513, 513, 514], [0, 0, 512, 256, 768, 128], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+
+        >>> a.nancumsum(1)
+        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 513, 514, 514], [0, 512, 512, 0, 128, 896], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+
+
+        -------
+=======
+        >>> from apytypes import APyFloatArray
+
+        >>> nan = float("nan")
 
         >>> a = APyFloatArray([[1, 2, 3], [4, 5, 6]], exp_bits=5, man_bits=0)
         Array `b`, returned array where the specified axes are summated

@@ -229,12 +229,12 @@ def test_cumsum():
 def test_nansum():
     a = APyFixedArray([[1, 2], [3, 4], [5, 6], [7, 8]], bits=5, int_bits=5)
     b = a.nansum()
-    assert b.is_identical(APyFixedArray([36], bits=8, int_bits=8))
+    assert b.is_identical(APyFixed(36, bits=8, int_bits=8))
     c = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=5)
     d = c.nansum((0, 1))
     e = c.nansum(0)
     f = c.nansum(1)
-    assert d.is_identical(APyFixedArray([15], bits=8, int_bits=8))
+    assert d.is_identical(APyFixed(15, bits=8, int_bits=8))
     assert e.is_identical(APyFixedArray([3, 5, 7], bits=6, int_bits=6))
     assert f.is_identical(APyFixedArray([3, 12], bits=7, int_bits=7))
 
@@ -249,10 +249,10 @@ def test_nansum():
     # test some float and negative summation
     j = APyFixedArray.from_float([0.2, 1.4, 3.3], frac_bits=3, int_bits=5)
     k = j.nansum()
-    assert k.is_identical(APyFixedArray([39], frac_bits=3, int_bits=7))
+    assert k.is_identical(APyFixed(39, bits=10, int_bits=7))
     m = APyFixedArray.from_float([0.333333, 1.333333, 3.33333], frac_bits=3, int_bits=5)
     n = m.nansum()
-    assert n.is_identical(APyFixedArray([41], frac_bits=3, int_bits=7))
+    assert n.is_identical(APyFixed(41, bits=10, int_bits=7))
 
     o = APyFixedArray([[-1, -2], [-3, -4]], frac_bits=0, int_bits=5)
     p = o.nansum(1)

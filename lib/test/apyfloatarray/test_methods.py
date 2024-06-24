@@ -397,7 +397,6 @@ def test_cumsum():
         APyFloatArray.from_float([0.25, 0.5, 0.75, 1], exp_bits=10, man_bits=10)
     )
 
-<<<<<<< HEAD
 
 def test_nansum():
     nan = float("nan")
@@ -493,8 +492,6 @@ def test_nancumsum():
         APyFloatArray.from_float([0.25, 0.5, 0.75, 0.75], exp_bits=10, man_bits=10)
     )
 
-=======
->>>>>>> b7f5c527 (added more tests for the sum functions)
 
 def test_nansum():
     nan = float("nan")
@@ -502,12 +499,12 @@ def test_nansum():
         [[nan, 2], [3, 4], [5, 6], [7, 8]], exp_bits=10, man_bits=10
     )
     b = a.nansum()
-    assert b.is_identical(APyFloatArray.from_float([35], exp_bits=10, man_bits=10))
+    assert b.is_identical(APyFloat.from_float(35, exp_bits=10, man_bits=10))
     c = APyFloatArray.from_float([[0, 1, nan], [3, 4, 5]], exp_bits=10, man_bits=10)
     d = c.nansum((0, 1))
     e = c.nansum(0)
     f = c.nansum(1)
-    assert d.is_identical(APyFloatArray.from_float([13], exp_bits=10, man_bits=10))
+    assert d.is_identical(APyFloat.from_float(13, exp_bits=10, man_bits=10))
     assert e.is_identical(APyFloatArray.from_float([3, 5, 5], exp_bits=10, man_bits=10))
     assert f.is_identical(APyFloatArray.from_float([1, 12], exp_bits=10, man_bits=10))
 
@@ -522,12 +519,12 @@ def test_nansum():
     # test some float and negative summation
     j = APyFloatArray.from_float([0.2, 1.4, 3.3], exp_bits=10, man_bits=10)
     k = j.nansum()
-    assert k.is_identical(APyFloatArray.from_float([4.904], exp_bits=10, man_bits=10))
+    assert k.is_identical(APyFloat.from_float(4.904, exp_bits=10, man_bits=10))
     m = APyFloatArray.from_float(
         [0.333333, 1.333333, 3.33333], exp_bits=10, man_bits=10
     )
     n = m.nansum()
-    assert n.is_identical(APyFloatArray.from_float([5], exp_bits=10, man_bits=10))
+    assert n.is_identical(APyFloat.from_float(5, exp_bits=10, man_bits=10))
 
     o = APyFloatArray.from_float([[-1, -2], [-3, nan]], exp_bits=10, man_bits=10)
     p = o.nansum(1)

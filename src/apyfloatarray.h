@@ -139,7 +139,7 @@ public:
     APyFloatArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Returns a copy where the specified axes is summated, treating Nan as 0.
-    APyFloatArray
+    std::variant<APyFloatArray, APyFloat>
     nansum(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
 
     //! Returns a copy where the specified axes contains the increasing cumulated

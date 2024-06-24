@@ -663,7 +663,7 @@ void bind_fixed_array(nb::module_& m)
 
             Returns
             -------
-            :class:`APyFixedArray`
+            :class:`APyFixedArray` or `APyFixed`
 
             Raises
             -------
@@ -675,23 +675,16 @@ void bind_fixed_array(nb::module_& m)
 
             >>> from apytypes import APyFixedArray
 
-            Array `a`, array to summate across.
-
             >>> a = APyFixedArray(
             ...     [1,2,3,4,5,6],
-            ...     int_bits=5,
+            ...     int_bits=10,
             ...     frac_bits=0
             ... )
 
-            Array `b`, returned array where the specified axes are summated.
-            >>> b = a.sum()
-            In this case `b` will be equal to `c`.
-            >>> c = APyFixedArray(
-            ...     [21],
-            ...     int_bits=8,
-            ...     frac_bits=0
-            ... )
+            >>> a.sum()
+            APyFixed(21, bits=13, int_bits=13)
 
+            -------
             )pbdoc"
         )
 
@@ -725,31 +718,20 @@ void bind_fixed_array(nb::module_& m)
 
             >>> a = APyFixedArray(
             ...     [[1,2,3],[4,5,6]],
-            ...     int_bits=5,
+            ...     int_bits=10,
             ...     frac_bits=0
             ... )
-            Array `b`, returned array where the specified axes are summated.
-            >>> b = a.cumsum()
-            In this case `b` will be equal to `c`.
-            >>> c = APyFixedArray(
-            ...     [1,3,6,10,15,21],
-            ...     int_bits=8,
-            ...     frac_bits=0
-            ... )
-            >>> d = a.cumsum(0)
-            In this case `d` will be equal to `e`.
-            >>> e = APyFixedArray(
-            ...     [[1,2,3],[5,7,9]],
-            ...     int_bits=8,
-            ...     frac_bits=0
-            ... )
-            >>> f = a.cumsum(1)
-            In this case `f` will be equal to `g`.
-            >>> g = APyFixedArray(
-            ...     [[1,3,6],[4,9,15]],
-            ...     int_bits=8,
-            ...     frac_bits=0
-            ... )
+
+            >>> a.cumsum()
+            APyFixedArray([1, 3, 6, 10, 15, 21], shape=(6,), bits=13, int_bits=13)
+
+            >>> a.cumsum(0)
+            APyFixedArray([1, 2, 3, 5, 7, 9], shape=(2, 3), bits=11, int_bits=11)
+
+            >>> a.cumsum(1)
+            APyFixedArray([1, 3, 6, 4, 9, 15], shape=(2, 3), bits=12, int_bits=12)
+
+            -------
             )pbdoc"
         )
 
@@ -767,34 +749,12 @@ void bind_fixed_array(nb::module_& m)
 
             Returns
             -------
-            :class:`APyFixedArray`
+            :class:`APyFixedArray` or `APyFixed`
 
             Raises
             -------
             IndexError
                 If a specified axis is outside of the existing number of dimensions for the array.
-
-            Examples
-            -------
-
-            >>> from apytypes import APyFixedArray
-
-            Array `a`, array to summate across.
-
-            >>> a = APyFixedArray(
-            ...     [1,2,3,4,5,6],
-            ...     int_bits=5,
-            ...     frac_bits=0
-            ... )
-
-            Array `b`, returned array where the specified axes are summated.
-            >>> b = a.sum()
-            In this case `b` will be equal to `c`.
-            >>> c = APyFixedArray(
-            ...     [21],
-            ...     int_bits=8,
-            ...     frac_bits=0
-            ... )
 
             )pbdoc"
         )
@@ -820,40 +780,6 @@ void bind_fixed_array(nb::module_& m)
             IndexError
                 If a specified axis is outside of the existing number of dimensions for the array.
 
-            Examples
-            -------
-
-            >>> from apytypes import APyFixedArray
-
-            Array `a`, array to summate across.
-
-            >>> a = APyFixedArray(
-            ...     [[1,2,3],[4,5,6]],
-            ...     int_bits=5,
-            ...     frac_bits=0
-            ... )
-            Array `b`, returned array where the specified axes are summated.
-            >>> b = a.cumsum()
-            In this case `b` will be equal to `c`.
-            >>> c = APyFixedArray(
-            ...     [1,3,6,10,15,21],
-            ...     int_bits=8,
-            ...     frac_bits=0
-            ... )
-            >>> d = a.cumsum(0)
-            In this case `d` will be equal to `e`.
-            >>> e = APyFixedArray(
-            ...     [[1,2,3],[5,7,9]],
-            ...     int_bits=8,
-            ...     frac_bits=0
-            ... )
-            >>> f = a.cumsum(1)
-            In this case `f` will be equal to `g`.
-            >>> g = APyFixedArray(
-            ...     [[1,3,6],[4,9,15]],
-            ...     int_bits=8,
-            ...     frac_bits=0
-            ... )
             )pbdoc"
         )
 

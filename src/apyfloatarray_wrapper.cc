@@ -829,35 +829,22 @@ void bind_float_array(nb::module_& m)
 
             >>> from apytypes import APyFloatArray
 
-            Array `a`, array to summate across.
-
-            >>> a = APyFloatArray(
+            >>> a = APyFloatArray.from_float(
             ...     [[1,2,3],[4,5,6]],
-            ...     exp_bits=5,
-            ...     man_bits=0
+            ...     exp_bits=10,
+            ...     man_bits=10
             ... )
-            Array `b`, returned array where the specified axes are summated.
-            >>> b = a.cumsum()
-            In this case `b` will be equal to `c`.
-            >>> c = APyFloatArray(
-            ...     [1,3,6,10,15,21],
-            ...     exp_bits=8,
-            ...     man_bits=0
-            ... )
-            >>> d = a.cumsum(0)
-            In this case `d` will be equal to `e`.
-            >>> e = APyFloatArray(
-            ...     [[1,2,3],[5,7,9]],
-            ...     exp_bits=8,
-            ...     man_bits=0
-            ... )
-            >>> f = a.cumsum(1)
-            In this case `f` will be equal to `g`.
-            >>> g = APyFloatArray(
-            ...     [[1,3,6],[4,9,15]],
-            ...     exp_bits=8,
-            ...     man_bits=0
-            ... )
+
+            >>> a.cumsum()
+            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 514, 514, 515], [0, 512, 512, 256, 896, 320], shape=(6,), exp_bits=10, man_bits=10, bias=511)
+
+            >>> a.cumsum(0)
+            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 512, 513, 513, 514], [0, 0, 512, 256, 768, 128], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+
+            >>> a.cumsum(1)
+            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 513, 514, 514], [0, 512, 512, 0, 128, 896], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+
+            -------
             )pbdoc"
         )
 
@@ -875,7 +862,7 @@ void bind_float_array(nb::module_& m)
 
             Returns
             -------
-            :class:`APyFloatArray`
+            :class:`APyFloatArray` or `APyFloat`
 
             Raises
             -------
@@ -887,23 +874,20 @@ void bind_float_array(nb::module_& m)
 
             >>> from apytypes import APyFloatArray
 
-            Array `a`, array to summate across.
+            >>> nan = float("nan")
 
-            >>> a = APyFloatArray(
-            ...     [1,2,3,4,5,6],
-            ...     exp_bits=5,
-            ...     man_bits=0
+            >>> a = APyFloatArray.from_float(
+            ...     [1,2,3,4,5,nan],
+            ...     exp_bits=10,
+            ...     man_bits=10
             ... )
 
-            Array `b`, returned array where the specified axes are summated.
-            >>> b = a.sum()
-            In this case `b` will be equal to `c`.
-            >>> c = APyFloatArray(
-            ...     [21],
-            ...     exp_bits=8,
-            ...     man_bits=0
-            ... )
+            >>> a.nansum()
+            APyFloat(sign=0, exp=514, man=896, exp_bits=10, man_bits=10)
 
+
+
+            -------
             )pbdoc"
         )
 
@@ -931,37 +915,28 @@ void bind_float_array(nb::module_& m)
             Examples
             -------
 
+
             >>> from apytypes import APyFloatArray
 
-            Array `a`, array to summate across.
+            >>> nan = float("nan")
 
-            >>> a = APyFloatArray(
+            >>> a = APyFloatArray.from_float(
             ...     [[1,2,3],[4,5,6]],
-            ...     exp_bits=5,
-            ...     man_bits=0
+            ...     exp_bits=10,
+            ...     man_bits=10
             ... )
-            Array `b`, returned array where the specified axes are summated.
-            >>> b = a.cumsum()
-            In this case `b` will be equal to `c`.
-            >>> c = APyFloatArray(
-            ...     [1,3,6,10,15,21],
-            ...     exp_bits=8,
-            ...     man_bits=0
-            ... )
-            >>> d = a.cumsum(0)
-            In this case `d` will be equal to `e`.
-            >>> e = APyFloatArray(
-            ...     [[1,2,3],[5,7,9]],
-            ...     exp_bits=8,
-            ...     man_bits=0
-            ... )
-            >>> f = a.cumsum(1)
-            In this case `f` will be equal to `g`.
-            >>> g = APyFloatArray(
-            ...     [[1,3,6],[4,9,15]],
-            ...     exp_bits=8,
-            ...     man_bits=0
-            ... )
+
+            >>> a.nancumsum()
+            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 514, 514, 515], [0, 512, 512, 256, 896, 320], shape=(6,), exp_bits=10, man_bits=10, bias=511)
+
+            >>> a.nancumsum(0)
+            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 512, 513, 513, 514], [0, 0, 512, 256, 768, 128], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+
+            >>> a.nancumsum(1)
+            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 513, 514, 514], [0, 512, 512, 0, 128, 896], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+
+
+            -------
             )pbdoc"
         )
 
