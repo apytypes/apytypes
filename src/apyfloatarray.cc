@@ -1093,6 +1093,12 @@ APyFloatArray APyFloatArray::flatten() const
     return this->reshape(nb::make_tuple(-1));
 }
 
+APyFloatArray APyFloatArray::ravel() const
+{
+    // currently same as flatten
+    return this->flatten();
+}
+
 // The shape of the array
 nanobind::tuple APyFloatArray::get_shape() const
 {

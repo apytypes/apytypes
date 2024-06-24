@@ -890,6 +890,12 @@ APyFixedArray APyFixedArray::flatten() const
     return this->reshape(nb::make_tuple(-1));
 }
 
+APyFixedArray APyFixedArray::ravel() const
+{
+    // same as flatten as for now
+    return this->flatten();
+}
+
 // The shape of the array
 nb::tuple APyFixedArray::shape() const
 {

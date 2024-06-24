@@ -143,6 +143,9 @@ public:
     //! Reshape flatten into 1d shape
     APyFloatArray flatten() const;
 
+    //! same as flatten as for now
+    APyFloatArray ravel() const;
+
     //! Broadcast to a new shape
     APyFloatArray broadcast_to(const std::vector<std::size_t> shape) const;
 
