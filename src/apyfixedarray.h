@@ -152,6 +152,9 @@ public:
     //! Reshape flatten into 1d shape
     APyFixedArray flatten() const;
 
+    //! same as flatten as for now
+    APyFixedArray ravel() const;
+
     //! Shape of the array
     nb::tuple shape() const;
 

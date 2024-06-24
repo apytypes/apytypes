@@ -57,18 +57,3 @@ shape_from_tuple(nb::tuple new_shape, size_t elem_count)
 }
 
 #endif // _ARRAY_UTILS_H
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//

@@ -615,6 +615,7 @@ class APyFixedArray:
         Returns
         -------
         :class:`APyFixedArray`
+
         Raises
         ------
         ValueError
@@ -643,11 +644,12 @@ class APyFixedArray:
 
     def flatten(self) -> APyFixedArray:
         """
-        Reshape the APyFixedArray to the specified shape without changing its data.
+        Return a copy of the array collapsed into one dimension.
 
         Returns
         -------
         :class:`APyFixedArray`
+
         Raises
         ------
 
@@ -660,6 +662,31 @@ class APyFixedArray:
                [-2. , -1.5]])
 
         >>> arr.flatten().to_numpy()
+        array([ 1. ,  1.5, -2. , -1.5])
+
+        --------
+        """
+
+    def ravel(self) -> APyFixedArray:
+        """
+        Return a copy of the array collapsed into one dimension. Same as flatten with current memory-copy model.
+
+        Returns
+        -------
+        :class:`APyFixedArray`
+
+        Raises
+        ------
+
+        Examples
+        --------
+        >>> from apytypes import APyFixedArray
+        >>> arr = APyFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
+        >>> arr.to_numpy()
+        array([[ 1. ,  1.5],
+               [-2. , -1.5]])
+
+        >>> arr.ravel().to_numpy()
         array([ 1. ,  1.5, -2. , -1.5])
 
         --------
@@ -1799,6 +1826,33 @@ class APyFloatArray:
                [-3., -4.]])
 
         >>> arr.flatten().to_numpy()
+        array([ 1.,  2., -3., -4.])
+
+        --------
+        """
+
+    def ravel(self) -> APyFloatArray:
+        """
+        Return a copy of the array collapsed into one dimension. Same as flatten with current memory-copy model.
+
+        Returns
+        -------
+        :class:`APyFloatArray`
+
+        Examples
+        --------
+        >>> from apytypes import APyFloatArray
+        >>> signs = [[0, 0], [1, 1]]
+        >>> exps = [[127, 128], [128, 129]]
+        >>> mans = [[0, 0], [4194304, 0]]
+        >>> arr = APyFloatArray(
+        ...     signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23
+        ... )
+        >>> arr.to_numpy()
+        array([[ 1.,  2.],
+               [-3., -4.]])
+
+        >>> arr.ravel().to_numpy()
         array([ 1.,  2., -3., -4.])
 
         --------

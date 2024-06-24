@@ -285,3 +285,28 @@ def test_flatten(shape):
     if not APyFixedArray.is_identical(reshaped.flatten(), arr):
         pytest.fail(f"Flatten didn't return to original 1d list after reshape {shape}")
     pass
+
+
+@pytest.mark.parametrize(
+    "shape",
+    [
+        (1, 1, 12),
+        (1, 2, 6),
+        (1, 3, 4),
+        (1, 4, 3),
+        (1, 6, 2),
+        (1, 12, 1),
+        (2, 1, 6),
+        (2, 2, 3),
+        (2, 3, 2),
+    ],
+)
+def test_ravel(shape):
+    # Creating 1D array to be reshaped
+    nums = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
+    # Creating 1D array to be reshaped
+    arr = APyFixedArray(nums, bits=20, int_bits=10)
+    reshaped = arr.reshape(shape)
+    if not APyFixedArray.is_identical(reshaped.ravel(), arr):
+        pytest.fail(f"ravel didn't return to original 1d list after reshape {shape}")
+    pass
