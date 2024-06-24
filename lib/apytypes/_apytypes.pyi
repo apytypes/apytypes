@@ -611,7 +611,6 @@ class APyFixedArray:
         new_shape : `tuple`
             The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.
 
-
         Returns
         -------
         :class:`APyFixedArray`
@@ -809,7 +808,7 @@ class APyFixedArray:
 
     def squeeze(self, axis: int | tuple | None = None) -> APyFixedArray:
         """
-        Removes dimensions of size 1 at the specified axes, if no axís is given removes all dimensions with size 1.
+        Removes dimensions of size 1 at the specified axis/axes, if no axís is given removes all dimensions with size 1.
 
         Parameters
         ----------
@@ -825,161 +824,115 @@ class APyFixedArray:
         ValueError
             If given an axis of a size other than 1 a ValueError will be thrown.
         IndexError
-            If a specified axis is outside of the existing number of dimensions for the array
+            If a specified axis is outside of the existing number of dimensions for the array.
         """
 
-    def sum(self, axis: int | tuple | None = None) -> APyFixedArray:
+    def sum(self, axis: int | tuple | None = None) -> APyFixedArray | APyFixed:
         """
-        Returns the cumulative sum of the elements along specified axes treating Not a Number as 0.
+        Returns the cumulative sum of the elements along specified axis/axes treating Not a Number as 0.
 
         Parameters
         ----------
         axis : tuple, int, optional
-            The axes to summate across. Will summate the whole array if no int or tuple is specified
+            The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
 
         Returns
         -------
-        :class:`APyFixedArray`
+        :class:`APyFixedArray` or `APyFixed`
 
         Raises
         -------
         IndexError
-            If a specified axis is outside of the existing number of dimensions for the array
+            If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
         -------
 
         >>> from apytypes import APyFixedArray
 
-        Array `a`, array to summate across
+        >>> a = APyFixedArray([1, 2, 3, 4, 5, 6], int_bits=10, frac_bits=0)
 
-        >>> a = APyFixedArray([1, 2, 3, 4, 5, 6], int_bits=5, frac_bits=0)
+        >>> a.sum()
+        APyFixed(21, bits=13, int_bits=13)
 
-        Array `b`, returned array where the specified axes are summated
-        >>> b = a.sum()
-        In this case `b` will be equal to `c`
-        >>> c = APyFixedArray([21], int_bits=8, frac_bits=0)
+        -------
         """
 
     def cumsum(self, axis: int | None = None) -> APyFixedArray:
         """
-        Returns the cumulative sum of the elements along a given axis.
-
+        Returns the cumulative sum of the elements along a given axes.
 
         Parameters
         ----------
         axis : int, optional
-            The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array
-
+            The axes to summate across. If not given an axis it will return the cumulative sum of the flattened array.
 
         Returns
         -------
         :class:`APyFixedArray`
 
-
-
         Raises
         -------
         IndexError
-            If a specified axis is outside of the existing number of dimensions for the array
-
-
+            If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
         -------
 
         >>> from apytypes import APyFixedArray
 
-        Array `a`, array to summate across
+        Array `a`, array to summate across.
 
-        >>> a = APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=5, frac_bits=0)
-        Array `b`, returned array where the specified axes are summated
-        >>> b = a.cumsum()
-        In this case `b` will be equal to `c`
-        >>> c = APyFixedArray([1, 3, 6, 10, 15, 21], int_bits=8, frac_bits=0)
-        >>> d = a.cumsum(0)
-        In this case `d` will be equal to `e`
-        >>> e = APyFixedArray([[1, 2, 3], [5, 7, 9]], int_bits=8, frac_bits=0)
-        >>> f = a.cumsum(1)
-        In this case `f` will be equal to `g`
-        >>> g = APyFixedArray([[1, 3, 6], [4, 9, 15]], int_bits=8, frac_bits=0)
+        >>> a = APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+
+        >>> a.cumsum()
+        APyFixedArray([1, 3, 6, 10, 15, 21], shape=(6,), bits=13, int_bits=13)
+
+        >>> a.cumsum(0)
+        APyFixedArray([1, 2, 3, 5, 7, 9], shape=(2, 3), bits=11, int_bits=11)
+
+        >>> a.cumsum(1)
+        APyFixedArray([1, 3, 6, 4, 9, 15], shape=(2, 3), bits=12, int_bits=12)
+
+        -------
         """
 
-    def nansum(self, axis: int | tuple | None = None) -> APyFixedArray:
+    def nansum(self, axis: int | tuple | None = None) -> APyFixedArray | APyFixed:
         """
-        Returns the cumulative sum of the elements along specified axes treating Not a Number as 0.
+        Returns the cumulative sum of the elements along specified axis/axes treating Not a Number as 0.
 
         Parameters
         ----------
         axis : tuple, int, optional
-            The axes to summate across. Will summate the whole array if no int or tuple is specified
+            The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
 
         Returns
         -------
-        :class:`APyFixedArray`
+        :class:`APyFixedArray` or `APyFixed`
 
         Raises
         -------
         IndexError
-            If a specified axis is outside of the existing number of dimensions for the array
-
-        Examples
-        -------
-
-        >>> from apytypes import APyFixedArray
-
-        Array `a`, array to summate across
-
-        >>> a = APyFixedArray([1, 2, 3, 4, 5, 6], int_bits=5, frac_bits=0)
-
-        Array `b`, returned array where the specified axes are summated
-        >>> b = a.sum()
-        In this case `b` will be equal to `c`
-        >>> c = APyFixedArray([21], int_bits=8, frac_bits=0)
+            If a specified axis is outside of the existing number of dimensions for the array.
         """
 
     def nancumsum(self, axis: int | None = None) -> APyFixedArray:
         """
         Returns the cumulative sum of the elements along a given axis treating Not a Number as 0.
 
-
         Parameters
         ----------
         axis : int, optional
-            The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array
-
+            The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.
 
         Returns
         -------
         :class:`APyFixedArray`
 
-
-
         Raises
         -------
         IndexError
-            If a specified axis is outside of the existing number of dimensions for the array
-
-
-
-        Examples
-        -------
-
-        >>> from apytypes import APyFixedArray
-
-        Array `a`, array to summate across
-
-        >>> a = APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=5, frac_bits=0)
-        Array `b`, returned array where the specified axes are summated
-        >>> b = a.cumsum()
-        In this case `b` will be equal to `c`
-        >>> c = APyFixedArray([1, 3, 6, 10, 15, 21], int_bits=8, frac_bits=0)
-        >>> d = a.cumsum(0)
-        In this case `d` will be equal to `e`
-        >>> e = APyFixedArray([[1, 2, 3], [5, 7, 9]], int_bits=8, frac_bits=0)
-        >>> f = a.cumsum(1)
-        In this case `f` will be equal to `g`
-        >>> g = APyFixedArray([[1, 3, 6], [4, 9, 15]], int_bits=8, frac_bits=0)
+            If a specified axis is outside of the existing number of dimensions for the array.
         """
 
     @staticmethod
@@ -2234,12 +2187,12 @@ class APyFloatArray:
 
     def squeeze(self, axis: int | tuple | None = None) -> APyFloatArray:
         """
-        Removes dimensions of size 1 at the specified axes, if no axís is given removes all dimensions with size 1.
+        Removes dimensions of size 1 at the specified axis/axes, if no axís is given removes all dimensions with size 1.
 
         Parameters
         ----------
         axis : tuple, int, optional
-            The axes to squeeze, a given axis with a size other than 1 will result in an error. No given axes  will be remove all dimensions of size 1.
+            The axis/axes to squeeze, a given axis with a size other than 1 will result in an error. No given axes  will be remove all dimensions of size 1.
 
         Returns
         -------
@@ -2250,40 +2203,38 @@ class APyFloatArray:
         ValueError
             If given an axis of a size other than 1 a ValueError will be thrown.
         IndexError
-            If a specified axis is outside of the existing number of dimensions for the array
+            If a specified axis is outside of the existing number of dimensions for the array.
         """
 
-    def sum(self, axis: int | tuple | None = None) -> APyFloatArray:
+    def sum(self, axis: int | tuple | None = None) -> APyFloatArray | APyFloat:
         """
-        Returns the cumulative sum of the elements along specified axes.
+        Returns the cumulative sum of the elements along specified axis/axes.
 
         Parameters
         ----------
         axis : tuple, int, optional
-            The axes to summate across. Will summate the whole array if no int or tuple is specified
+            The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
 
         Returns
         -------
-        :class:`APyFloatArray`
+        :class:`APyFloatArray` or `APyFloat`
 
         Raises
         -------
         IndexError
-            If a specified axis is outside of the existing number of dimensions for the array
+            If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
         -------
 
         >>> from apytypes import APyFloatArray
 
-        Array `a`, array to summate across
+        >>> a = APyFloatArray.from_float([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
 
-        >>> a = APyFloatArray([1, 2, 3, 4, 5, 6], exp_bits=5, man_bits=0)
+        >>> a.sum()
+        APyFloat(sign=0, exp=515, man=320, exp_bits=10, man_bits=10)
 
-        Array `b`, returned array where the specified axes are summated
-        >>> b = a.sum()
-        In this case `b` will be equal to `c`
-        >>> c = APyFloatArray([21], exp_bits=8, man_bits=0)
+        -------
         """
 
     def cumsum(self, axis: int | None = None) -> APyFloatArray:
@@ -2293,7 +2244,7 @@ class APyFloatArray:
         Parameters
         ----------
         axis : int, optional
-            The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array
+            The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.
 
         Returns
         -------
@@ -2302,59 +2253,62 @@ class APyFloatArray:
         Raises
         -------
         IndexError
-            If a specified axis is outside of the existing number of dimensions for the array
+            If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
         -------
 
         >>> from apytypes import APyFloatArray
 
-        Array `a`, array to summate across
+        >>> a = APyFloatArray.from_float(
+        ...     [[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10
+        ... )
 
-        >>> a = APyFloatArray([[1, 2, 3], [4, 5, 6]], exp_bits=5, man_bits=0)
-        Array `b`, returned array where the specified axes are summated
-        >>> b = a.cumsum()
-        In this case `b` will be equal to `c`
-        >>> c = APyFloatArray([1, 3, 6, 10, 15, 21], exp_bits=8, man_bits=0)
-        >>> d = a.cumsum(0)
-        In this case `d` will be equal to `e`
-        >>> e = APyFloatArray([[1, 2, 3], [5, 7, 9]], exp_bits=8, man_bits=0)
-        >>> f = a.cumsum(1)
-        In this case `f` will be equal to `g`
-        >>> g = APyFloatArray([[1, 3, 6], [4, 9, 15]], exp_bits=8, man_bits=0)
+        >>> a.cumsum()
+        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 514, 514, 515], [0, 512, 512, 256, 896, 320], shape=(6,), exp_bits=10, man_bits=10, bias=511)
+
+        >>> a.cumsum(0)
+        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 512, 513, 513, 514], [0, 0, 512, 256, 768, 128], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+
+        >>> a.cumsum(1)
+        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 513, 514, 514], [0, 512, 512, 0, 128, 896], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+
+        -------
         """
 
-    def nansum(self, axis: int | tuple | None = None) -> APyFloatArray:
+    def nansum(self, axis: int | tuple | None = None) -> APyFloatArray | APyFloat:
         """
-        Returns the cumulative sum of the elements along specified axes treating Not a Number as 0.
+        Returns the cumulative sum of the elements along specified axis/axes treating Not a Number as 0.
 
         Parameters
         ----------
         axis : tuple, int, optional
-            The axes to summate across. Will summate the whole array if no int or tuple is specified
+            The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
 
         Returns
         -------
-        :class:`APyFloatArray`
+        :class:`APyFloatArray` or `APyFloat`
 
         Raises
         -------
         IndexError
-            If a specified axis is outside of the existing number of dimensions for the array
+            If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
         -------
 
         >>> from apytypes import APyFloatArray
 
-        Array `a`, array to summate across
+        >>> nan = float("nan")
 
-        >>> a = APyFloatArray([1, 2, 3, 4, 5, 6], exp_bits=5, man_bits=0)
+        >>> a = APyFloatArray.from_float([1, 2, 3, 4, 5, nan], exp_bits=10, man_bits=10)
 
-        Array `b`, returned array where the specified axes are summated
-        >>> b = a.sum()
-        In this case `b` will be equal to `c`
-        >>> c = APyFloatArray([21], exp_bits=8, man_bits=0)
+        >>> a.nansum()
+        APyFloat(sign=0, exp=514, man=896, exp_bits=10, man_bits=10)
+
+
+
+        -------
         """
 
     def nancumsum(self, axis: int | None = None) -> APyFloatArray:
@@ -2364,7 +2318,7 @@ class APyFloatArray:
         Parameters
         ----------
         axis : int, optional
-            The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array
+            The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.
 
         Returns
         -------
@@ -2373,26 +2327,31 @@ class APyFloatArray:
         Raises
         -------
         IndexError
-            If a specified axis is outside of the existing number of dimensions for the array
+            If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
         -------
 
+
         >>> from apytypes import APyFloatArray
 
-        Array `a`, array to summate across
+        >>> nan = float("nan")
 
-        >>> a = APyFloatArray([[1, 2, 3], [4, 5, 6]], exp_bits=5, man_bits=0)
-        Array `b`, returned array where the specified axes are summated
-        >>> b = a.cumsum()
-        In this case `b` will be equal to `c`
-        >>> c = APyFloatArray([1, 3, 6, 10, 15, 21], exp_bits=8, man_bits=0)
-        >>> d = a.cumsum(0)
-        In this case `d` will be equal to `e`
-        >>> e = APyFloatArray([[1, 2, 3], [5, 7, 9]], exp_bits=8, man_bits=0)
-        >>> f = a.cumsum(1)
-        In this case `f` will be equal to `g`
-        >>> g = APyFloatArray([[1, 3, 6], [4, 9, 15]], exp_bits=8, man_bits=0)
+        >>> a = APyFloatArray.from_float(
+        ...     [[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10
+        ... )
+
+        >>> a.nancumsum()
+        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 514, 514, 515], [0, 512, 512, 256, 896, 320], shape=(6,), exp_bits=10, man_bits=10, bias=511)
+
+        >>> a.nancumsum(0)
+        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 512, 513, 513, 514], [0, 0, 512, 256, 768, 128], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+
+        >>> a.nancumsum(1)
+        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 513, 514, 514], [0, 512, 512, 0, 128, 896], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+
+
+        -------
         """
 
     def __getitem__(self, idx: int) -> APyFloatArray | APyFloat: ...

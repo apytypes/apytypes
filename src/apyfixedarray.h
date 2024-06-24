@@ -103,7 +103,7 @@ private:
     template <class ripple_carry_op, class simd_op_const, class simd_shift_op_const>
     inline APyFixedArray _apyfixed_base_add_sub(const APyFixed& rhs) const;
 
-    APyFixedArray prod_sum_function(
+    std::variant<APyFixedArray, APyFixed> prod_sum_function(
         void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFixedArray&, APyFixedArray&),
         std::optional<std::variant<nb::int_, nb::tuple>> axes = std::nullopt
     ) const;
@@ -162,7 +162,8 @@ public:
     //! Sum over one or more axes.
     APyFixedArray cumsum_test(std::optional<nb::int_> axis = std::nullopt) const;
 
-    APyFixedArray
+    //! Returns a copy where the specified axes is summated.
+    std::variant<APyFixedArray, APyFixed>
     sum(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
 
     //! Returns a copy where the specified axes contains the increasing cumulated
@@ -170,7 +171,7 @@ public:
     APyFixedArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Returns a copy where the specified axes is summated, treating Nan as 0.
-    APyFixedArray
+    std::variant<APyFixedArray, APyFixed>
     nansum(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
 
     //! Returns a copy where the specified axes contains the increasing cumulated

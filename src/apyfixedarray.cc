@@ -911,7 +911,7 @@ APyFixedArray APyFixedArray::cumulative_prod_sum_function(
     );
     return result2;
 }
-APyFixedArray APyFixedArray::prod_sum_function(
+std::variant<APyFixedArray, APyFixed> APyFixedArray::prod_sum_function(
     void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFixedArray&, APyFixedArray&),
     std::optional<std::variant<nb::int_, nb::tuple>> axes
 ) const
@@ -975,7 +975,7 @@ APyFixedArray APyFixedArray::prod_sum_function(
             elements = source._shape.at(x);
             sec_length /= source._shape.at(x);
         } else {
-            shape = { 1 };
+            shape = {};
         }
         for (std::size_t i = 0; i < res_elements; i++) {
             pos_func(i, sec_length, elements, source, result);
@@ -986,17 +986,20 @@ APyFixedArray APyFixedArray::prod_sum_function(
         result._data.assign(result._data.size(), 0);
     }
     if (shape.size() == 0) {
-        shape = { 1 };
+        APyFixed res(res_bits, res_int_bits);
+        std::copy_n(source._data.begin(), source._itemsize, res._data.begin());
+        return res;
+    } else {
+        APyFixedArray res(shape, res_bits, res_int_bits);
+        std::copy_n(
+            source._data.begin(), res_elements * source._itemsize, res._data.begin()
+        );
+        return res;
     }
-    APyFixedArray res(shape, res_bits, res_int_bits);
-    std::copy_n(
-        source._data.begin(), res_elements * source._itemsize, res._data.begin()
-    );
-    return res;
 }
 
-APyFixedArray APyFixedArray::sum(std::optional<std::variant<nb::int_, nb::tuple>> axis
-) const
+std::variant<APyFixedArray, APyFixed>
+APyFixedArray::sum(std::optional<std::variant<nb::int_, nb::tuple>> axis) const
 {
     auto pos_func = [](std::size_t i,
                        std::size_t sec_length,
@@ -1019,7 +1022,7 @@ APyFixedArray APyFixedArray::sum(std::optional<std::variant<nb::int_, nb::tuple>
     return prod_sum_function(pos_func, axis);
 }
 
-APyFixedArray
+std::variant<APyFixedArray, APyFixed>
 APyFixedArray::nansum(std::optional<std::variant<nb::int_, nb::tuple>> axis) const
 {
     return this->sum(axis);
