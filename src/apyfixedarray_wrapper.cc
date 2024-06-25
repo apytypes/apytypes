@@ -654,12 +654,12 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::sum,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the cumulative sum of the elements along specified axis/axes treating Not a Number as 0.
+            Returns the sum of the elements along specified axis/axes.
 
             Parameters
             ----------
             axis : tuple, int, optional
-                The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
+                The axis/axes to summate across. If not given an axis it will return the sum of the flattened array.
 
             Returns
             -------
@@ -714,8 +714,6 @@ void bind_fixed_array(nb::module_& m)
 
             >>> from apytypes import APyFixedArray
 
-            Array `a`, array to summate across.
-
             >>> a = APyFixedArray(
             ...     [[1,2,3],[4,5,6]],
             ...     int_bits=10,
@@ -740,12 +738,12 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::nansum,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the cumulative sum of the elements along specified axis/axes treating Not a Number as 0.
+            Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
 
             Parameters
             ----------
             axis : tuple, int, optional
-                The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
+                The axis/axes to summate across. If not given an axis it will return the sum of the flattened array.
 
             Returns
             -------
@@ -787,6 +785,37 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::prod,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
+            Returns the product of the elements along specified axis/axes.
+
+            Parameters
+            ----------
+            axis : tuple, int, optional
+                The axis/axes to calculate the product across. If not given an axis it will return the product of the flattened array.
+
+            Returns
+            -------
+            :class:`APyFixedArray` or `APyFixed`
+
+            Raises
+            -------
+            IndexError
+                If a specified axis is outside of the existing number of dimensions for the array.
+
+            Examples
+            -------
+
+            >>> from apytypes import APyFixedArray
+
+            >>> a = APyFixedArray(
+            ...     [1,2,3,4,5,6],
+            ...     int_bits=10,
+            ...     frac_bits=0
+            ... )
+
+            >>> a.prod()
+            APyFixed(720, bits=60, int_bits=60)
+
+            -------
             )pbdoc"
         )
 
@@ -795,6 +824,44 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::cumprod,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
+            Returns the cumulative product of the elements along a given axes.
+
+            Parameters
+            ----------
+            axis : int, optional
+                The axes to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.
+
+            Returns
+            -------
+            :class:`APyFixedArray`
+
+            Raises
+            -------
+            IndexError
+                If a specified axis is outside of the existing number of dimensions for the array.
+
+            Examples
+            -------
+
+            >>> from apytypes import APyFixedArray
+
+
+            >>> a = APyFixedArray(
+            ...     [[1,2,3],[4,5,6]],
+            ...     int_bits=10,
+            ...     frac_bits=0
+            ... )
+
+            >>> a.cumprod()
+            APyFixedArray([1, 2, 6, 24, 120, 720], shape=(6,), bits=60, int_bits=60)
+
+            >>> a.cumprod(0)
+            APyFixedArray([1, 2, 3, 4, 10, 18], shape=(2, 3), bits=20, int_bits=20)
+
+            >>> a.cumprod(1)
+            APyFixedArray([1, 2, 6, 4, 20, 120], shape=(2, 3), bits=30, int_bits=30)
+
+            -------
             )pbdoc"
         )
 
@@ -803,6 +870,21 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::nanprod,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
+                Returns the product of the elements along a given axis treating Not a Number as 0.
+
+                Parameters
+                ----------
+                axis : int, optional
+                    The axis to calculate the product across. If not given an axis it will return the product of the flattened array.
+
+                Returns
+                -------
+                :class:`APyFixedArray`
+
+                Raises
+                -------
+                IndexError
+                    If a specified axis is outside of the existing number of dimensions for the array.
             )pbdoc"
         )
 
@@ -811,6 +893,22 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::nancumprod,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
+                Returns the cumulative product of the elements along a given axis treating Not a Number as 0.
+
+                Parameters
+                ----------
+                axis : int, optional
+                    The axis to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.
+
+                Returns
+                -------
+                :class:`APyFixedArray`
+
+                Raises
+                -------
+                IndexError
+                    If a specified axis is outside of the existing number of dimensions for the array.
+
             )pbdoc"
         )
 

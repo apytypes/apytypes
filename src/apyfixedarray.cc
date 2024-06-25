@@ -1137,6 +1137,10 @@ std::variant<APyFixedArray, APyFixed> APyFixedArray::prod_sum_function(
 
     std::size_t elems
         = _nitems / std::accumulate(shape.begin(), shape.end(), 1, std::multiplies {});
+    if (axes_set.find(_shape.size()) != axes_set.end()
+        || axes_set.size() == _shape.size()) {
+        elems = _nitems;
+    }
     int bit_diff = bit_increase(elems, bits());
     const int res_int_bits = int_bits() + bit_diff;
     const int res_frac_bits = frac_bits();

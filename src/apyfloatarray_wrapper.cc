@@ -853,7 +853,7 @@ void bind_float_array(nb::module_& m)
             &APyFloatArray::nansum,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the cumulative sum of the elements along specified axis/axes treating Not a Number as 0.
+            Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
 
             Parameters
             ----------
