@@ -782,6 +782,37 @@ void bind_fixed_array(nb::module_& m)
 
             )pbdoc"
         )
+        .def(
+            "prod",
+            &APyFixedArray::prod,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            )pbdoc"
+        )
+
+        .def(
+            "cumprod",
+            &APyFixedArray::cumprod,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            )pbdoc"
+        )
+
+        .def(
+            "nanprod",
+            &APyFixedArray::nanprod,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            )pbdoc"
+        )
+
+        .def(
+            "nancumprod",
+            &APyFixedArray::nancumprod,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            )pbdoc"
+        )
 
         /*
          * Static methods
