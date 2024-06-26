@@ -358,62 +358,9 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
  * `bit_pattern_sequence` does not match `<T>` or another Python sequence a
  * `std::domain_error` exception to be raised.
  */
-// template <typename... PyTypes>
-//[[maybe_unused]] static std::vector<nanobind::object>
-// python_sequence_walk(const nanobind::sequence& py_seq)
-//{
-//     namespace nb = nanobind;
-//
-//     // Result output iterator
-//     std::vector<nb::object> result {};
-//
-//     // Walk the Python sequences and extract the data
-//     struct seq_it_pair {
-//         decltype(std::begin(py_seq)) iterator;
-//         decltype(std::end(py_seq)) sentinel;
-//     };
-//     std::stack<seq_it_pair, std::vector<seq_it_pair>> it_stack;
-//     it_stack.push({ py_seq.begin(), py_seq.end() });
-//
-//     while (!it_stack.empty()) {
-//         if (it_stack.top().iterator == it_stack.top().sentinel) {
-//             // End of current iterator/sentinel pair. Pop it.
-//             it_stack.pop();
-//         } else {
-//             if (nb::isinstance<nb::sequence>(*it_stack.top().iterator)) {
-//                 // New sequence found. We need to go deeper
-//                 auto new_sequence =
-//                 nb::cast<nb::sequence>(*it_stack.top().iterator++); it_stack.push({
-//                 new_sequence.begin(), new_sequence.end() });
-//             } else if ((nb::isinstance<PyTypes>(*it_stack.top().iterator) || ...)) {
-//                 // Element matching one of the PyTypes found, store it in container
-//                 result.push_back(nb::cast<nb::object>(*it_stack.top().iterator++));
-//             } else {
-//                 nb::object obj = nb::cast<nb::object>(*it_stack.top().iterator);
-//                 nb::type_object type = nb::cast<nb::type_object>(obj.type());
-//                 nb::str type_string = nb::str(type);
-//                 nb::str repr = nb::repr(obj);
-//                 std::string repr_string = repr.c_str();
-//                 throw std::domain_error(
-//                     std::string("Non <type>/sequence found when walking: '")
-//                     + repr_string + "' of type: '" + type_string.c_str()
-//                 );
-//             }
-//         }
-//     }
-//
-//     // Return the result
-//     return result;
-// }
-//
-//  MSVC2019 hot-fix:
-//
 template <typename... PyTypes>
 [[maybe_unused]] static std::vector<nanobind::object>
-python_sequence_walk(const nanobind::sequence& py_seq);
-template <>
-[[maybe_unused]] std::vector<nanobind::object>
-python_sequence_walk<nanobind::int_>(const nanobind::sequence& py_seq)
+python_sequence_walk(const nanobind::sequence& py_seq)
 {
     namespace nb = nanobind;
 
@@ -437,101 +384,7 @@ python_sequence_walk<nanobind::int_>(const nanobind::sequence& py_seq)
                 // New sequence found. We need to go deeper
                 auto new_sequence = nb::cast<nb::sequence>(*it_stack.top().iterator++);
                 it_stack.push({ new_sequence.begin(), new_sequence.end() });
-            } else if ((nb::isinstance<nb::int_>(*it_stack.top().iterator))) {
-                // Element matching one of the PyTypes found, store it in container
-                result.push_back(nb::cast<nb::object>(*it_stack.top().iterator++));
-            } else {
-                nb::object obj = nb::cast<nb::object>(*it_stack.top().iterator);
-                nb::type_object type = nb::cast<nb::type_object>(obj.type());
-                nb::str type_string = nb::str(type);
-                nb::str repr = nb::repr(obj);
-                std::string repr_string = repr.c_str();
-                throw std::domain_error(
-                    std::string("Non <type>/sequence found when walking: '")
-                    + repr_string + "' of type: '" + type_string.c_str()
-                );
-            }
-        }
-    }
-
-    // Return the result
-    return result;
-}
-template <>
-[[maybe_unused]] std::vector<nanobind::object>
-python_sequence_walk<nanobind::float_, nanobind::int_>(const nanobind::sequence& py_seq)
-{
-    namespace nb = nanobind;
-
-    // Result output iterator
-    std::vector<nb::object> result {};
-
-    // Walk the Python sequences and extract the data
-    struct seq_it_pair {
-        decltype(std::begin(py_seq)) iterator;
-        decltype(std::end(py_seq)) sentinel;
-    };
-    std::stack<seq_it_pair, std::vector<seq_it_pair>> it_stack;
-    it_stack.push({ py_seq.begin(), py_seq.end() });
-
-    while (!it_stack.empty()) {
-        if (it_stack.top().iterator == it_stack.top().sentinel) {
-            // End of current iterator/sentinel pair. Pop it.
-            it_stack.pop();
-        } else {
-            if (nb::isinstance<nb::sequence>(*it_stack.top().iterator)) {
-                // New sequence found. We need to go deeper
-                auto new_sequence = nb::cast<nb::sequence>(*it_stack.top().iterator++);
-                it_stack.push({ new_sequence.begin(), new_sequence.end() });
-            } else if ((nb::isinstance<nb::int_>(*it_stack.top().iterator)
-                        || nb::isinstance<nb::float_>(*it_stack.top().iterator))) {
-                // Element matching one of the PyTypes found, store it in container
-                result.push_back(nb::cast<nb::object>(*it_stack.top().iterator++));
-            } else {
-                nb::object obj = nb::cast<nb::object>(*it_stack.top().iterator);
-                nb::type_object type = nb::cast<nb::type_object>(obj.type());
-                nb::str type_string = nb::str(type);
-                nb::str repr = nb::repr(obj);
-                std::string repr_string = repr.c_str();
-                throw std::domain_error(
-                    std::string("Non <type>/sequence found when walking: '")
-                    + repr_string + "' of type: '" + type_string.c_str()
-                );
-            }
-        }
-    }
-
-    // Return the result
-    return result;
-}
-template <>
-[[maybe_unused]] std::vector<nanobind::object>
-python_sequence_walk<nanobind::int_, nanobind::bool_>(const nanobind::sequence& py_seq)
-{
-    namespace nb = nanobind;
-
-    // Result output iterator
-    std::vector<nb::object> result {};
-
-    // Walk the Python sequences and extract the data
-    struct seq_it_pair {
-        decltype(std::begin(py_seq)) iterator;
-        decltype(std::end(py_seq)) sentinel;
-    };
-    std::stack<seq_it_pair, std::vector<seq_it_pair>> it_stack;
-    it_stack.push({ py_seq.begin(), py_seq.end() });
-
-    while (!it_stack.empty()) {
-        if (it_stack.top().iterator == it_stack.top().sentinel) {
-            // End of current iterator/sentinel pair. Pop it.
-            it_stack.pop();
-        } else {
-            if (nb::isinstance<nb::sequence>(*it_stack.top().iterator)) {
-                // New sequence found. We need to go deeper
-                auto new_sequence = nb::cast<nb::sequence>(*it_stack.top().iterator++);
-                it_stack.push({ new_sequence.begin(), new_sequence.end() });
-            } else if ((nb::isinstance<nb::int_>(*it_stack.top().iterator)
-                        || nb::isinstance<nb::bool_>(*it_stack.top().iterator))) {
+            } else if ((nb::isinstance<PyTypes>(*it_stack.top().iterator) || ...)) {
                 // Element matching one of the PyTypes found, store it in container
                 result.push_back(nb::cast<nb::object>(*it_stack.top().iterator++));
             } else {
