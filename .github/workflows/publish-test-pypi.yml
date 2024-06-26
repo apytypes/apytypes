@@ -20,7 +20,7 @@ on:
 jobs:
 
   # Wheel-building job-step using cibuildwheel
-  build:
+  build-wheel:
     name: Build wheel ${{ matrix.os }} 📦
     if: >-
       (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
@@ -50,8 +50,25 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: apytypes-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          name: apytypes-dist-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
+          if-no-files-found: error
+
+  # Source-distribution building job-step
+  build-sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v3
+      - name: Install Python Build
+        run: python -m pip install build
+      - name: Run Python Build
+        run: python -m build --sdist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apytypes-dist-sdist-${{ strategy.job-index }}
+          path: dist/*.tar.gz
           if-no-files-found: error
 
   # Official publication to PyPi (on new tags)
@@ -59,19 +76,19 @@ jobs:
     name: Publish to PyPI 📦
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')  # only publish to PyPI on tag pushes
     needs:
-    - build
+    - build-wheel
+    - build-sdist
     runs-on: ubuntu-latest
     environment:
       name: pypi
       url: https://pypi.org/p/apytypes/
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
-
     steps:
-    - name: Download all the wheels
+    - name: Download all the distributions
       uses: actions/download-artifact@v4
       with:
-        pattern: apytypes-wheels-*
+        pattern: apytypes-dist-*
         path: dist
         merge-multiple: true
     - name: Publish distribution 📦 to PyPI
