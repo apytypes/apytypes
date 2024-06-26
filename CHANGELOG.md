@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   denominators.
 - Fix bug where single-dimensional tuple representations missed out on a comma.
 - Fix bug in comparison between floating-point infinity and fixed-point numbers.
+- Start uploading source distributions of APyTypes to PyPI on releases.
 
 ### Removed
 
