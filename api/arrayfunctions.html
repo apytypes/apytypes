@@ -326,15 +326,53 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="apytypes.convolve">
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">convolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.convolve" title="Link to this definition">¶</a></dt>
+<dd><p>Return the discrete linear convolution of two one-dimensional arrays.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>a</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>First one-dimensional array of length <code class="code docutils literal notranslate"><span class="pre">M</span></code></p>
+</dd>
+<dt><strong>v</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>Second one-dimensional array of length <code class="code docutils literal notranslate"><span class="pre">N</span></code>.</p>
+</dd>
+<dt><strong>mode</strong><span class="classifier">{‘full’, ‘same’, ‘valid’}, default: ‘full’</span></dt><dd><dl class="simple">
+<dt>‘full’:</dt><dd><p>Returns the full convolution for each point of overlap. The resulting
+single-dimensional shape will have length <code class="code docutils literal notranslate"><span class="pre">N</span> <span class="pre">+</span> <span class="pre">M</span> <span class="pre">-</span> <span class="pre">1</span></code>. Boundary
+effects occurs for points where the <cite>a</cite> and <cite>v</cite> do not overlap completely.</p>
+</dd>
+<dt>‘same’:</dt><dd><p>Returns a convolution of length <code class="code docutils literal notranslate"><span class="pre">max(M,</span> <span class="pre">N)</span></code>. Boundary effects still
+occur around the edges of the result.</p>
+</dd>
+<dt>‘valid’:</dt><dd><p>Returns the convoltuion for each point of full overlap. The resulting
+single-dimensional shape will have length <code class="code docutils literal notranslate"><span class="pre">max(M,</span> <span class="pre">N)</span> <span class="pre">-</span> <span class="pre">min(M,</span> <span class="pre">N)</span> <span class="pre">+</span> <span class="pre">1</span></code></p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>convolved</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>The convolved array.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="apytypes.reshape">
 <span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">reshape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.reshape" title="Link to this definition">¶</a></dt>
-<dd><p>Reshape an APyFixedArray or APyFloatArray to the specified shape without changing its data.</p>
+<dd><p>Reshape an <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> to the specified shape
+without changing its data.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>a</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>The array to reshape.</p>
 </dd>
-<dt><strong>new_shape</strong><span class="classifier">tuple of ints</span></dt><dd><p>The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.</p>
+<dt><strong>new_shape</strong><span class="classifier">tuple of ints</span></dt><dd><p>The new shape should be compatible with the original shape. If a dimension is
+-1, its value will be inferred from the length of the array and remaining
+dimensions. Only one dimension can be -1.</p>
 </dd>
 </dl>
 </dd>
@@ -346,7 +384,9 @@
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt>ValueError</dt><dd><p>If negative dimensions less than -1 are provided, if the total size of the new array is not unchanged and divisible by the known dimensions, or if the total number of elements does not match the original array.</p>
+<dt>ValueError</dt><dd><p>If negative dimensions less than -1 are provided, if the total size of the new
+array is not unchanged and divisible by the known dimensions, or if the total
+number of elements does not match the original array.</p>
 </dd>
 </dl>
 </dd>
@@ -424,6 +464,7 @@
             <ul>
 <li><a class="reference internal" href="#">Array functions</a><ul>
 <li><a class="reference internal" href="#apytypes.squeeze"><code class="docutils literal notranslate"><span class="pre">squeeze()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.convolve"><code class="docutils literal notranslate"><span class="pre">convolve()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.reshape"><code class="docutils literal notranslate"><span class="pre">reshape()</span></code></a></li>
 </ul>
 </li>
