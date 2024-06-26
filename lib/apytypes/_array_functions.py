@@ -51,6 +51,12 @@ def convolve(a, v, mode="full"):
         'valid':
             Returns the convoltuion for each point of full overlap. The resulting
             single-dimensional shape will have length :code:`max(M, N) - min(M, N) + 1`
+
+    Returns
+    -------
+    convolved : :class:`APyFloatArray` or :class:`APyFixedArray`
+        The convolved array.
+
     """
     try:
         return a.convolve(v, mode=mode)
@@ -60,8 +66,8 @@ def convolve(a, v, mode="full"):
 
 def reshape(a, new_shape):
     """
-    Reshape an APyFixedArray or APyFloatArray to the specified shape without changing
-    its data.
+    Reshape an :class:`APyFixedArray` or :class:`APyFloatArray` to the specified shape
+    without changing its data.
 
     Parameters
     ----------

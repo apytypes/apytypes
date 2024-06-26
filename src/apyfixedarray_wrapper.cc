@@ -228,7 +228,7 @@ void bind_fixed_array(nb::module_& m)
             :class:`int`
             )pbdoc")
 
-        .def_prop_ro("shape", &APyFixedArray::shape, R"pbdoc(
+        .def_prop_ro("shape", &APyFixedArray::python_get_shape, R"pbdoc(
             The shape of the array.
 
             Returns
@@ -328,7 +328,8 @@ void bind_fixed_array(nb::module_& m)
              )pbdoc")
 
         .def("ravel", &APyFixedArray::ravel, R"pbdoc(
-        Return a copy of the array collapsed into one dimension. Same as flatten with current memory-copy model.
+        Return a copy of the array collapsed into one dimension. Same as flatten with
+        current memory-copy model.
 
         Returns
         -------
@@ -427,7 +428,8 @@ void bind_fixed_array(nb::module_& m)
             Parameters
             ----------
             shape : tuple or int
-                The shape to broadcast to. A single integer ``i`` is interpreted as ``(i,)``.
+                The shape to broadcast to. A single integer ``i`` is interpreted as
+                ``(i,)``.
 
             Returns
             -------
@@ -439,7 +441,37 @@ void bind_fixed_array(nb::module_& m)
             "convolve",
             &APyFixedArray::convolve,
             nb::arg("other"),
-            nb::arg("mode") = "full"
+            nb::arg("mode") = "full",
+            R"pbdoc(
+            Return the discrete linear convolution with another one-dimensional array.
+
+            Requires that ``ndim = 1`` for both `self` and `other`.
+
+            Parameters
+            ----------
+            other : :class:`APyFixedArray`
+                The one-dimensional array of length :code:`N` to convolve with.
+
+            mode : {'full', 'same', 'valid'}, default: 'full'
+                'full':
+                    Returns the full convolution for each point of overlap. The
+                    resulting single-dimensional shape will have length :code:`N + M -
+                    1`. Boundary effects occurs for points where the `a` and `v` do not
+                    overlap completely.
+                'same':
+                    Returns a convolution of length :code:`max(M, N)`. Boundary effects
+                    still occur around the edges of the result.
+                'valid':
+                    Returns the convoltuion for each point of full overlap. The
+                    resulting single-dimensional shape will have length :code:`max(M, N)
+                    - min(M, N) + 1`
+
+            Returns
+            -------
+            convolved : :class:`APyFixedArray`
+                The convolved array.
+
+            )pbdoc"
         )
 
         .def(

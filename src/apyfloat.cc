@@ -1116,161 +1116,16 @@ APyFloat APyFloat::operator*(const APyFloat& y) const
     const auto res_bias = calc_bias(res_exp_bits, exp_bits, bias, y.exp_bits, y.bias);
     APyFloat res(res_exp_bits, res_man_bits, res_bias);
 
-    // Calculate sign
-    res.sign = sign ^ y.sign;
+    // Perform the product
+    APyFloatData lhs { get_data() }, rhs { y.get_data() }, res_data {};
+    float_product(&lhs, &rhs, &res_data, *this, y);
 
-    // Handle special operands
-    if (is_max_exponent() || y.is_max_exponent() || is_zero() || y.is_zero()) {
-        if (is_nan() || y.is_nan() || (is_inf() && y.is_zero())
-            || (is_zero() && y.is_inf())) {
-            res.set_to_nan();
-            return res;
-        }
+    // Return the result
+    res.exp = res_data.exp;
+    res.man = res_data.man;
+    res.sign = res_data.sign;
 
-        if (is_inf() || y.is_inf()) {
-            res.set_to_inf();
-            return res;
-        }
-
-        if (is_zero() || y.is_zero()) {
-            res.set_to_zero();
-            return res;
-        }
-    }
-    const auto quantization = get_float_quantization_mode();
-    const unsigned int sum_man_bits = man_bits + y.man_bits;
-
-    if (sum_man_bits + 3 <= _MAN_T_SIZE_BITS) {
-        const auto new_man_bits = sum_man_bits + 2;
-        const auto man_bits_delta = new_man_bits - res.man_bits;
-
-        // Tentative exponent
-        std::int64_t tmp_exp = true_exp() + y.true_exp() + res.bias;
-        const man_t mx = true_man();
-        const man_t my = y.true_man();
-        const man_t two = 1ULL << (new_man_bits);
-        const man_t two_before = 1ULL << (new_man_bits - 1);
-        const man_t one_before = 1ULL << (new_man_bits - 2);
-        const man_t two_res = res.leading_one();
-
-        man_t new_man = mx * my;
-
-        // Check result from multiplication larger than/equal two
-        if (new_man & two_before) {
-            tmp_exp++;
-            new_man <<= 1;
-        } else if (new_man & one_before) {
-            // Align with longer result
-            new_man <<= 2;
-        } else {
-            // One or two of the operands were subnormal.
-            // If the exponent is positive, the result is normalized by
-            // left-shifting until the exponent is zero or the mantissa is 1.xx
-            const int leading_zeros = 1 + sum_man_bits - bit_width(new_man);
-            const int shift = std::max(
-                std::min(tmp_exp, (std::int64_t)leading_zeros), (std::int64_t)0
-            );
-            tmp_exp -= shift;
-            // + 2 to align with longer result
-            new_man <<= shift + 2;
-        }
-
-        if (tmp_exp <= 0) {
-            if (tmp_exp < -static_cast<std::int64_t>(res.man_bits)) {
-                // Exponent too small after rounding
-                res.man = quantize_close_to_zero(res.sign, new_man, quantization);
-                res.exp = 0;
-                return res;
-            }
-            new_man = (new_man >> (-tmp_exp + 1))
-                | ((new_man & ((1 << (-tmp_exp + 1)) - 1)) != 0);
-            tmp_exp = 0;
-        }
-
-        exp_t res_exp = static_cast<exp_t>(tmp_exp);
-        new_man &= (two - 1);
-        quantize_mantissa(
-            new_man,
-            res_exp,
-            res.max_exponent(),
-            man_bits_delta,
-            res.sign,
-            two_res,
-            quantization
-        );
-
-        res.man = new_man;
-        res.exp = res_exp;
-        return res;
-    } else {
-        // Normalize both inputs
-        APyFloat norm_x = normalized();
-        APyFloat norm_y = y.normalized();
-
-        // Add leading one's
-        const man_t mx = norm_x.true_man();
-        const man_t my = norm_y.true_man();
-
-        // Tentative exponent
-        std::int64_t new_exp = ((std::int64_t)norm_x.exp - (std::int64_t)norm_x.bias)
-            + ((std::int64_t)norm_y.exp - (std::int64_t)norm_y.bias) + res.bias;
-
-        // Two integer bits, sign bit and leading one
-        const APyFixed apy_mx(
-            2 + norm_x.man_bits, 2, limb_vector_from_uint64_t({ mx })
-        );
-        const APyFixed apy_my(
-            2 + norm_y.man_bits, 2, limb_vector_from_uint64_t({ my })
-        );
-
-        auto apy_res = (apy_mx * apy_my);
-
-        // Check result from multiplication larger than/equal two
-        if (apy_res.positive_greater_than_equal_pow2(1)) {
-            apy_res >>= 1;
-            new_exp++;
-        }
-
-        // Handle subnormal case
-        if (new_exp <= 0) {
-            apy_res >>= std::abs(new_exp) + 1;
-            new_exp = 0;
-        }
-
-        // Quantize mantissa
-        quantize_apymantissa(apy_res, res.sign, res.man_bits, quantization);
-
-        // Carry from quantization
-        if (apy_res.positive_greater_than_equal_pow2(1)) {
-            new_exp++;
-            apy_res >>= 1;
-        }
-
-        if (new_exp >= res.max_exponent()) {
-            if (do_infinity(quantization, res.sign)) {
-                res.exp = res.max_exponent();
-                res.man = 0;
-            } else {
-                res.exp = res.max_exponent() - 1;
-                res.man = res.man_mask();
-            }
-            return res;
-        }
-
-        if (apy_res.positive_greater_than_equal_pow2(0)) { // Remove leading one
-            apy_res = apy_res - fx_one;
-
-            // If a leading one is present while the exponent is zero,
-            // then it 'acts like a carry' and creates a normal number
-            if (new_exp == 0) {
-                new_exp = 1;
-            }
-        }
-        apy_res <<= res.man_bits;
-        res.man = (man_t)(apy_res).to_double();
-        res.exp = new_exp;
-        return res;
-    }
+    return res;
 }
 
 APyFloat APyFloat::operator/(const APyFloat& y) const

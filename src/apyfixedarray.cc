@@ -973,7 +973,7 @@ APyFixedArray APyFixedArray::ravel() const
 }
 
 // The shape of the array
-nb::tuple APyFixedArray::shape() const
+nb::tuple APyFixedArray::python_get_shape() const
 {
     nb::list result_list;
     for (std::size_t i = 0; i < _shape.size(); i++) {

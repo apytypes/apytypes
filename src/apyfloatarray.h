@@ -60,44 +60,6 @@ public:
     //! Python `__repr__()` function
     std::string repr() const;
 
-    //! Shape of the array
-    nanobind::tuple get_shape() const;
-
-    //! Number of dimensions
-    size_t get_ndim() const;
-
-    //! Retrieve a single item
-    std::variant<APyFloatArray, APyFloat> get_item(std::size_t idx) const;
-
-    //! Length of the array
-    size_t get_size() const;
-
-    /*!
-     * Test if two `APyFloatArray` objects are identical. Two `APyFloatArray` objects
-     * are considered identical if, and only if:
-     *   * They represent exactly the same tensor shape
-     *   * They store the exact same floating-point values in all tensor elements
-     *   * They have the exact same sized fields
-     */
-    bool is_identical(const APyFloatArray& other) const;
-
-    //! Test if two `APyFloatArray` objects have the same format
-    APY_INLINE bool same_type_as(const APyFloatArray& other) const
-    {
-        return man_bits == other.man_bits && exp_bits == other.exp_bits
-            && bias == other.bias;
-    }
-
-    //! Test if the `APyFloatArray` object has the same format as a `APyFloat` object
-    APY_INLINE bool same_type_as(const APyFloat& other) const
-    {
-        return man_bits == other.get_man_bits() && exp_bits == other.get_exp_bits()
-            && bias == other.get_bias();
-    }
-
-    //! Convert to a NumPy array
-    nanobind::ndarray<nanobind::numpy, double> to_numpy() const;
-
     /* ****************************************************************************** *
      *                       Static conversion from other types                       *
      * ****************************************************************************** */
@@ -152,6 +114,9 @@ public:
     APyFloatArray
     squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
 
+    //! Perform a linear convolution with `other` using `mode`
+    APyFloatArray convolve(const APyFloatArray& other, const std::string& mode) const;
+
     //! Python-exposed `broadcast_to`
     APyFloatArray broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
     ) const;
@@ -199,6 +164,46 @@ public:
     APY_INLINE std::uint8_t get_exp_bits() const { return exp_bits; }
     //! Retrieve the bit width of the entire floating-point format
     APY_INLINE std::uint8_t get_bits() const { return exp_bits + man_bits + 1; }
+
+    //! Shape of the array
+    nanobind::tuple python_get_shape() const;
+
+    //! Number of dimensions
+    size_t get_ndim() const;
+
+    //! Retrieve a single item
+    std::variant<APyFloatArray, APyFloat> get_item(std::size_t idx) const;
+
+    //! Length of the array
+    size_t get_size() const;
+
+    const std::vector<std::size_t>& get_shape() const noexcept { return shape; }
+
+    /*!
+     * Test if two `APyFloatArray` objects are identical. Two `APyFloatArray` objects
+     * are considered identical if, and only if:
+     *   * They represent exactly the same tensor shape
+     *   * They store the exact same floating-point values in all tensor elements
+     *   * They have the exact same sized fields
+     */
+    bool is_identical(const APyFloatArray& other) const;
+
+    //! Test if two `APyFloatArray` objects have the same format
+    APY_INLINE bool same_type_as(const APyFloatArray& other) const
+    {
+        return man_bits == other.man_bits && exp_bits == other.exp_bits
+            && bias == other.bias;
+    }
+
+    //! Test if the `APyFloatArray` object has the same format as a `APyFloat` object
+    APY_INLINE bool same_type_as(const APyFloat& other) const
+    {
+        return man_bits == other.get_man_bits() && exp_bits == other.get_exp_bits()
+            && bias == other.get_bias();
+    }
+
+    //! Convert to a NumPy array
+    nanobind::ndarray<nanobind::numpy, double> to_numpy() const;
 
     /* ******************************************************************************
      * * Convenience methods                                                        *
@@ -269,6 +274,21 @@ private:
         APyFloatArray& res,
         const QuantizationMode quantization
     ) const;
+
+    /*
+     * Friend functions
+     */
+    template <
+        typename RANDOM_ACCESS_ITERATOR_IN,
+        typename RANDOM_ACCESS_ITERATOR_INOUT,
+        typename APYFLOAT_TYPE>
+    friend void float_product(
+        RANDOM_ACCESS_ITERATOR_IN src1,
+        RANDOM_ACCESS_ITERATOR_IN src2,
+        RANDOM_ACCESS_ITERATOR_INOUT dst,
+        const APYFLOAT_TYPE& x, // Floating point src1
+        const APYFLOAT_TYPE& y  // Floating point src2
+    );
 };
 
 #endif

@@ -160,7 +160,7 @@ public:
     APyFixedArray ravel() const;
 
     //! Shape of the array
-    nb::tuple shape() const;
+    nb::tuple python_get_shape() const;
 
     //! Number of dimensions
     size_t ndim() const noexcept;

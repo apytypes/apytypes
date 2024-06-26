@@ -2,6 +2,8 @@
 #define _APYFLOAT_UTIL_H
 
 #include "apyfixed.h"
+#include "apyfixed_util.h"
+#include "apyfloat.h"
 #include "apytypes_common.h"
 
 /*!
@@ -228,4 +230,333 @@ void check_exponent_format(int exp_bits);
 
 //! Check that the number of mantissa bits is allowed, throw otherwise
 void check_mantissa_format(int man_bits);
+
+/* ********************************************************************************** *
+ * *                     Floating-point helper utilities                            * *
+ * ********************************************************************************** */
+
+[[maybe_unused]] static APY_INLINE bool is_zero(const APyFloatData& src)
+{
+    return src.exp == 0 && src.man == 0;
+}
+
+[[maybe_unused]] static APY_INLINE bool is_subnormal(const APyFloatData& src)
+{
+    return src.exp == 0;
+}
+
+template <typename APYFLOAT_TYPE>
+[[maybe_unused]] static APY_INLINE bool
+is_max_exponent(const APyFloatData& src, const APYFLOAT_TYPE& ref)
+{
+    return src.exp == ((1ULL << ref.get_exp_bits()) - 1);
+}
+
+[[maybe_unused]] static APY_INLINE bool
+is_max_exponent(const APyFloatData& src, uint8_t exp_bits)
+{
+    return src.exp == ((1ULL << exp_bits) - 1);
+}
+
+template <typename APYFLOAT_TYPE>
+[[maybe_unused]] static APY_INLINE bool
+is_normal(const APyFloatData& src, const APYFLOAT_TYPE& ref)
+{
+    return !is_subnormal(src) && !is_max_exponent(src, ref);
+}
+
+[[maybe_unused]] static APY_INLINE bool
+is_normal(const APyFloatData& src, uint8_t exp_bits)
+{
+    return !is_subnormal(src) && !is_max_exponent(src, exp_bits);
+}
+
+template <typename APYFLOAT_TYPE>
+[[maybe_unused]] static APY_INLINE bool
+is_nan(const APyFloatData& src, const APYFLOAT_TYPE& ref)
+{
+    return is_max_exponent(src, ref.get_exp_bits()) && src.man != 0;
+}
+
+template <typename APYFLOAT_TYPE>
+[[maybe_unused]] static APY_INLINE bool
+is_inf(const APyFloatData& src, const APYFLOAT_TYPE& ref)
+{
+    return is_max_exponent(src, ref.get_exp_bits()) && src.man == 0;
+}
+
+template <typename APYFLOAT_TYPE>
+[[maybe_unused]] static APY_INLINE std::int64_t
+true_exp(const APyFloatData& src, const APYFLOAT_TYPE& ref)
+{
+    return std::int64_t(src.exp) - std::int64_t(ref.get_bias()) + is_subnormal(src);
+}
+
+template <typename APYFLOAT_TYPE>
+[[maybe_unused]] static APY_INLINE man_t
+true_man(const APyFloatData& src, const APYFLOAT_TYPE& ref)
+{
+    return ((static_cast<man_t>(is_normal(src, ref)) << ref.get_man_bits()) | src.man);
+}
+
+[[maybe_unused]] static APY_INLINE man_t
+true_man(const APyFloatData& src, uint8_t exp_bits, uint8_t man_bits)
+{
+    return ((static_cast<man_t>(is_normal(src, exp_bits)) << man_bits) | src.man);
+}
+
+//! Retrieve a normalized (non subnormal) floating-point copy of `src`
+template <typename APYFLOAT_TYPE>
+[[maybe_unused]] static APY_INLINE std::tuple<APyFloatData, uint8_t, exp_t>
+normalize(const APyFloatData& src, const APYFLOAT_TYPE& ref)
+{
+    if (!is_subnormal(src) || is_zero(src)) {
+        return { src, ref.get_exp_bits(), ref.get_bias() };
+    }
+
+    man_t new_man = src.man;
+    std::int64_t tmp_exp = true_exp(src, ref);
+    while (!(new_man & (1ULL << ref.get_man_bits()))) {
+        new_man <<= 1;
+        tmp_exp--;
+    }
+
+    // Possibly use more exponent bits
+    int new_exp_bits = ref.get_exp_bits();
+    exp_t extended_bias = ref.get_bias();
+    auto new_exp = tmp_exp + extended_bias;
+    while (new_exp <= 0) {
+        new_exp_bits++;
+        extended_bias = exp_t((1ULL << (new_exp_bits - 1)) - 1);
+        new_exp = tmp_exp + extended_bias;
+    }
+
+    return { APyFloatData { src.sign, exp_t(new_exp), new_man },
+             new_exp_bits,
+             extended_bias };
+}
+
+/* ********************************************************************************** *
+ * *             Floating-point iterator-based arithmetic functions                 * *
+ * ********************************************************************************** */
+
+//! Iterator-based floating-point product
+template <
+    typename RANDOM_ACCESS_ITERATOR_IN,
+    typename RANDOM_ACCESS_ITERATOR_INOUT,
+    typename APYFLOAT_TYPE>
+void float_product(
+    RANDOM_ACCESS_ITERATOR_IN src1,
+    RANDOM_ACCESS_ITERATOR_IN src2,
+    RANDOM_ACCESS_ITERATOR_INOUT dst,
+    const APYFLOAT_TYPE& x, // Floating point src1
+    const APYFLOAT_TYPE& y  // Floating point src2
+)
+{
+    // Compute result bit specification
+    auto res_exp_bits = std::max(x.get_exp_bits(), y.get_exp_bits());
+    auto res_man_bits = std::max(x.get_man_bits(), y.get_man_bits());
+    auto res_bias = calc_bias(
+        res_exp_bits, x.get_exp_bits(), x.get_bias(), y.get_exp_bits(), y.get_bias()
+    );
+
+    // Compute result sign
+    bool res_sign = src1->sign ^ src2->sign;
+    dst->sign = res_sign;
+
+    // Handle special operands
+    if (is_max_exponent(*src1, x) || is_max_exponent(*src2, y) || is_zero(*src1)
+        || is_zero(*src2)) {
+
+        if (is_nan(*src1, x) || is_nan(*src2, y) || (is_inf(*src1, x) && is_zero(*src2))
+            || (is_zero(*src1) && is_inf(*src2, y))) {
+            // Set to NaN
+            dst->exp = ((1ULL << res_exp_bits) - 1);
+            dst->man = 1;
+            return; // early exit
+        }
+
+        if (is_inf(*src1, x) || is_inf(*src2, y)) {
+            // Set to inf
+            dst->exp = ((1ULL << res_exp_bits) - 1);
+            dst->man = 0;
+            return; // early exit
+        }
+
+        if (is_zero(*src1) || is_zero(*src2)) {
+            // Set to zero
+            dst->exp = 0;
+            dst->man = 0;
+            return; // early exit
+        }
+    }
+
+    const auto quantization = get_float_quantization_mode();
+    const unsigned int sum_man_bits = x.get_man_bits() + y.get_man_bits();
+
+    if (sum_man_bits + 3 <= _MAN_T_SIZE_BITS) {
+        const auto new_man_bits = sum_man_bits + 2;
+        const auto man_bits_delta = new_man_bits - res_man_bits;
+
+        // Tentative exponent
+        std::int64_t tmp_exp = true_exp(*src1, x) + true_exp(*src2, y) + res_bias;
+        const man_t two = 1ULL << (new_man_bits);
+        const man_t two_before = 1ULL << (new_man_bits - 1);
+        const man_t one_before = 1ULL << (new_man_bits - 2);
+        const man_t two_res = (1ULL << res_man_bits);
+
+        man_t new_man = true_man(*src1, x) * true_man(*src2, y);
+
+        // Check result from multiplication larger than/equal two
+        if (new_man & two_before) {
+            tmp_exp++;
+            new_man <<= 1;
+        } else if (new_man & one_before) {
+            // Align with longer result
+            new_man <<= 2;
+        } else {
+            // One or two of the operands were subnormal.
+            // If the exponent is positive, the result is normalized by
+            // left-shifting until the exponent is zero or the mantissa is 1.xx
+            const int leading_zeros = 1 + sum_man_bits - bit_width(new_man);
+            const int shift = std::max(
+                std::min(tmp_exp, (std::int64_t)leading_zeros), (std::int64_t)0
+            );
+            tmp_exp -= shift;
+            // + 2 to align with longer result
+            new_man <<= shift + 2;
+        }
+
+        if (tmp_exp <= 0) {
+            if (tmp_exp < -static_cast<std::int64_t>(res_man_bits)) {
+                // Exponent too small after rounding
+                dst->man = quantize_close_to_zero(res_sign, new_man, quantization);
+                dst->exp = 0;
+                return; // early exit
+            }
+            new_man = (new_man >> (-tmp_exp + 1))
+                | ((new_man & ((1 << (-tmp_exp + 1)) - 1)) != 0);
+            tmp_exp = 0;
+        }
+
+        exp_t res_exp = static_cast<exp_t>(tmp_exp);
+        new_man &= (two - 1);
+        quantize_mantissa(
+            new_man,
+            res_exp,
+            ((1ULL << res_exp_bits) - 1), // max_exponent
+            man_bits_delta,
+            res_sign,
+            two_res,
+            quantization
+        );
+
+        dst->man = new_man;
+        dst->exp = res_exp;
+        return;
+    } else {
+        // Normalize both inputs
+        auto [norm_x, norm_x_exp_bits, norm_x_bias] = normalize(*src1, x);
+        auto [norm_y, norm_y_exp_bits, norm_y_bias] = normalize(*src2, y);
+
+        // Add leading one's
+        const man_t mx = true_man(norm_x, norm_x_exp_bits, x.get_man_bits());
+        const man_t my = true_man(norm_y, norm_y_exp_bits, y.get_man_bits());
+
+        // Tentative exponent
+        std::int64_t new_exp = ((std::int64_t)norm_x.exp - (std::int64_t)norm_x_bias)
+            + ((std::int64_t)norm_y.exp - (std::int64_t)norm_y_bias) + res_bias;
+
+        // Two integer bits, sign bit and leading one
+        const APyFixed apy_mx(
+            2 + x.get_man_bits(), 2, limb_vector_from_uint64_t({ mx })
+        );
+        const APyFixed apy_my(
+            2 + y.get_man_bits(), 2, limb_vector_from_uint64_t({ my })
+        );
+
+        auto apy_res = (apy_mx * apy_my);
+
+        // Check result from multiplication larger than/equal two
+        if (apy_res.positive_greater_than_equal_pow2(1)) {
+            apy_res >>= 1;
+            new_exp++;
+        }
+
+        // Handle subnormal case
+        if (new_exp <= 0) {
+            apy_res >>= std::abs(new_exp) + 1;
+            new_exp = 0;
+        }
+
+        // Quantize mantissa
+        quantize_apymantissa(apy_res, res_sign, res_man_bits, quantization);
+
+        // Carry from quantization
+        if (apy_res.positive_greater_than_equal_pow2(1)) {
+            new_exp++;
+            apy_res >>= 1;
+        }
+
+        if (new_exp >= exp_t((1ULL << res_exp_bits) - 1)) {
+            if (do_infinity(quantization, res_sign)) {
+                dst->exp = ((1ULL << res_exp_bits) - 1);
+                dst->man = 0;
+            } else {
+                dst->exp = ((1ULL << res_exp_bits) - 1) - 1;
+                dst->man = (1ULL << res_man_bits) - 1;
+            }
+            return;
+        }
+
+        if (apy_res.positive_greater_than_equal_pow2(0)) { // Remove leading one
+            apy_res = apy_res - fx_one;
+
+            // If a leading one is present while the exponent is zero,
+            // then it 'acts like a carry' and creates a normal number
+            if (new_exp == 0) {
+                new_exp = 1;
+            }
+        }
+        apy_res <<= res_man_bits;
+        dst->man = (man_t)(apy_res).to_double();
+        dst->exp = new_exp;
+        return;
+    }
+}
+
+//! Iterator-based multiply-accumulate
+template <
+    typename RANDOM_ACCESS_ITERATOR_IN,
+    typename RANDOM_ACCESS_ITERATOR_INOUT,
+    typename APYFLOAT_TYPE>
+void float_inner_product(
+    RANDOM_ACCESS_ITERATOR_IN src1,
+    RANDOM_ACCESS_ITERATOR_IN src2,
+    RANDOM_ACCESS_ITERATOR_INOUT dst,
+    const APYFLOAT_TYPE& x, // Floating point src1
+    const APYFLOAT_TYPE& y, // Floating point src2
+    std::size_t n_items     // Number of elements to use in inner product
+)
+{
+    // Compute result bit specification
+    auto res_exp_bits = std::max(x.get_exp_bits(), y.get_exp_bits());
+    auto res_man_bits = std::max(x.get_man_bits(), y.get_man_bits());
+    auto res_bias = calc_bias(
+        res_exp_bits, x.get_exp_bits(), x.get_bias(), y.get_exp_bits(), y.get_bias()
+    );
+
+    APyFloatData product { 0, 0, 0 };
+    APyFloat accumulator(0, 0, 0, res_exp_bits, res_man_bits, res_bias);
+    for (std::size_t i = 0; i < n_items; i++) {
+        // Multiply
+        float_product(src1 + i, src2 + i, &product, x, y);
+
+        // Accumulate
+        accumulator += APyFloat(product, res_exp_bits, res_man_bits, res_bias);
+    }
+
+    *dst = accumulator.get_data();
+}
+
 #endif // _APYFLOAT_UTIL_H
