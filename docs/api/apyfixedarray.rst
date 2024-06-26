@@ -30,6 +30,11 @@
 
    .. automethod:: to_numpy
 
+   Convolution
+   -----------
+
+   .. automethod:: convolve
+
    Transposition
    -------------
 
@@ -38,9 +43,13 @@
    Array shape manipulation
    ------------------------
 
-   .. automethod:: squeeze
+   .. automethod:: flatten
+
+   .. automethod:: ravel
 
    .. automethod:: reshape
+
+   .. automethod:: squeeze
 
    Broadcasting
    ------------

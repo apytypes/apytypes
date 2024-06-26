@@ -1044,6 +1044,85 @@ APyFloatArray::squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis) co
     return result;
 }
 
+//! Perform a linear convolution with `other` using `mode`
+APyFloatArray
+APyFloatArray::convolve(const APyFloatArray& other, const std::string& mode) const
+{
+    if (get_ndim() != 1 || other.get_ndim() != 1) {
+        auto msg = fmt::format(
+            "can only convolve 1D arrays (lhs.ndim = {}, rhs.ndim = {})",
+            get_ndim(),
+            other.get_ndim()
+        );
+        throw nanobind::value_error(msg.c_str());
+    }
+
+    // TODO: Add convolution support for accumulator contexts
+    if (get_accumulator_mode_float().has_value()) {
+        throw NotImplementedException(
+            "APyFloatArray convolve with accumulator context not implemented"
+        );
+    }
+
+    // Find the shorter array of `*this` and `other` based on length.
+    bool swap = shape[0] < other.shape[0];
+
+    // Make a reverse copy of the shorter array
+    APyFloatArray b_cpy = swap ? *this : other;
+    std::reverse(std::begin(b_cpy.data), std::end(b_cpy.data));
+
+    // Let `a` be a pointer to the longer array, and let `b` be a pointer to the reverse
+    // copy of the shorter array.
+    const APyFloatArray* a = swap ? &other : this;
+    const APyFloatArray* b = &b_cpy;
+
+    // Extract convolution properties
+    auto [len, n_left, n_right] = get_conv_lengths(mode, a, b);
+
+    auto acc_mode = get_accumulator_mode_float();
+
+    // Result vector
+    const int res_exp_bits
+        = acc_mode ? acc_mode->exp_bits : std::max(a->exp_bits, b->exp_bits);
+    const int res_man_bits
+        = acc_mode ? acc_mode->man_bits : std::max(a->man_bits, b->man_bits);
+    const int res_bias = acc_mode.has_value() && acc_mode->bias.has_value()
+        ? *acc_mode->bias
+        : calc_bias(res_exp_bits, a->exp_bits, a->bias, b->exp_bits, b->bias);
+    APyFloatArray result({ len }, res_exp_bits, res_man_bits, res_bias);
+
+    // Loop working variables
+    std::size_t n = b->shape[0] - n_left;
+    auto dst = std::begin(result.data);
+    auto src1 = std::cbegin(a->data);
+    auto src2 = std::cbegin(b->data) + n_left;
+
+    // `b` limits length of the inner product length
+    for (std::size_t i = 0; i < n_left; i++) {
+        float_inner_product(src1, src2, dst, *a, *b, n);
+        src2--;
+        dst++;
+        n++;
+    }
+
+    // full inner product length
+    for (std::size_t i = 0; i < a->shape[0] - b->shape[0] + 1; i++) {
+        float_inner_product(src1, src2, dst, *a, *b, n);
+        src1++;
+        dst++;
+    }
+
+    // `a` limits length of the inner product length
+    for (std::size_t i = 0; i < n_right; i++) {
+        n--;
+        float_inner_product(src1, src2, dst, *a, *b, n);
+        src1++;
+        dst++;
+    }
+
+    return result;
+}
+
 std::string APyFloatArray::repr() const
 {
     std::stringstream ss {};
@@ -1100,7 +1179,7 @@ APyFloatArray APyFloatArray::ravel() const
 }
 
 // The shape of the array
-nanobind::tuple APyFloatArray::get_shape() const
+nanobind::tuple APyFloatArray::python_get_shape() const
 {
     nb::list result_list;
     for (std::size_t i = 0; i < shape.size(); i++) {

@@ -18,12 +18,7 @@ from apytypes._apytypes import (
     _get_simd_version_str,
 )
 
-from apytypes._array_functions import (
-    squeeze,
-    convolve,
-    reshape,
-    shape
-)
+from apytypes._array_functions import squeeze, convolve, reshape, shape
 
 from apytypes._version import version as __version__
 

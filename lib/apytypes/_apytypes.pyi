@@ -669,7 +669,8 @@ class APyFixedArray:
 
     def ravel(self) -> APyFixedArray:
         """
-        Return a copy of the array collapsed into one dimension. Same as flatten with current memory-copy model.
+        Return a copy of the array collapsed into one dimension. Same as flatten with
+        current memory-copy model.
 
         Returns
         -------
@@ -767,11 +768,43 @@ class APyFixedArray:
         Parameters
         ----------
         shape : tuple or int
-            The shape to broadcast to. A single integer ``i`` is interpreted as ``(i,)``.
+            The shape to broadcast to. A single integer ``i`` is interpreted as
+            ``(i,)``.
 
         Returns
         -------
         :class:`APyFixedArray`
+        """
+
+    def convolve(self, other: APyFixedArray, mode: str = "full") -> APyFixedArray:
+        """
+        Return the discrete linear convolution with another one-dimensional array.
+
+        Requires that ``ndim = 1`` for both `self` and `other`.
+
+        Parameters
+        ----------
+        other : :class:`APyFixedArray`
+            The one-dimensional array of length :code:`N` to convolve with.
+
+        mode : {'full', 'same', 'valid'}, default: 'full'
+            'full':
+                Returns the full convolution for each point of overlap. The
+                resulting single-dimensional shape will have length :code:`N + M -
+                1`. Boundary effects occurs for points where the `a` and `v` do not
+                overlap completely.
+            'same':
+                Returns a convolution of length :code:`max(M, N)`. Boundary effects
+                still occur around the edges of the result.
+            'valid':
+                Returns the convoltuion for each point of full overlap. The
+                resulting single-dimensional shape will have length :code:`max(M, N)
+                - min(M, N) + 1`
+
+        Returns
+        -------
+        convolved : :class:`APyFixedArray`
+            The convolved array.
         """
 
     def squeeze(self, axis: int | tuple | None = None) -> APyFixedArray:
@@ -1994,6 +2027,37 @@ class APyFloatArray:
         Returns
         -------
         :class:`APyFloatArray`
+        """
+
+    def convolve(self, other: APyFloatArray, mode: str = "full") -> APyFloatArray:
+        """
+        Return the discrete linear convolution with another one-dimensional array.
+
+        Requires that ``ndim = 1`` for both `self` and `other`.
+
+        Parameters
+        ----------
+        other : :class:`APyFloatArray`
+            The one-dimensional array of length :code:`N` to convolve with.
+
+        mode : {'full', 'same', 'valid'}, default: 'full'
+            'full':
+                Returns the full convolution for each point of overlap. The
+                resulting single-dimensional shape will have length :code:`N + M -
+                1`. Boundary effects occurs for points where the `a` and `v` do not
+                overlap completely.
+            'same':
+                Returns a convolution of length :code:`max(M, N)`. Boundary effects
+                still occur around the edges of the result.
+            'valid':
+                Returns the convoltuion for each point of full overlap. The
+                resulting single-dimensional shape will have length :code:`max(M, N)
+                - min(M, N) + 1`
+
+        Returns
+        -------
+        convolved : :class:`APyFloatArray`
+            The convolved array.
         """
 
     def squeeze(self, axis: int | tuple | None = None) -> APyFloatArray:

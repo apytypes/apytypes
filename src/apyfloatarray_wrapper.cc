@@ -293,7 +293,7 @@ void bind_float_array(nb::module_& m)
             :class:`int`
             )pbdoc")
 
-        .def_prop_ro("shape", &APyFloatArray::get_shape, R"pbdoc(
+        .def_prop_ro("shape", &APyFloatArray::python_get_shape, R"pbdoc(
             The shape of the array.
 
             Returns
@@ -366,7 +366,7 @@ void bind_float_array(nb::module_& m)
                [-3., -4.]])
 
         --------
-            )pbdoc")
+        )pbdoc")
 
         .def("flatten", &APyFloatArray::flatten, R"pbdoc(
         Return a copy of the array collapsed into one dimension.
@@ -561,6 +561,42 @@ void bind_float_array(nb::module_& m)
             Returns
             -------
             :class:`APyFloatArray`
+
+            )pbdoc"
+        )
+        .def(
+            "convolve",
+            &APyFloatArray::convolve,
+            nb::arg("other"),
+            nb::arg("mode") = "full",
+            R"pbdoc(
+            Return the discrete linear convolution with another one-dimensional array.
+
+            Requires that ``ndim = 1`` for both `self` and `other`.
+
+            Parameters
+            ----------
+            other : :class:`APyFloatArray`
+                The one-dimensional array of length :code:`N` to convolve with.
+
+            mode : {'full', 'same', 'valid'}, default: 'full'
+                'full':
+                    Returns the full convolution for each point of overlap. The
+                    resulting single-dimensional shape will have length :code:`N + M -
+                    1`. Boundary effects occurs for points where the `a` and `v` do not
+                    overlap completely.
+                'same':
+                    Returns a convolution of length :code:`max(M, N)`. Boundary effects
+                    still occur around the edges of the result.
+                'valid':
+                    Returns the convoltuion for each point of full overlap. The
+                    resulting single-dimensional shape will have length :code:`max(M, N)
+                    - min(M, N) + 1`
+
+            Returns
+            -------
+            convolved : :class:`APyFloatArray`
+                The convolved array.
 
             )pbdoc"
         )
