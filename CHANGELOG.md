@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `reshape()`
   - `flatten() / ravel()`
   - `convolve()`
+  - `sum()`
+  - `cumsum()`
+  - `nansum()`
+  - `nancumsum()`
 - Added `array_utils.h` to contain shared functions between float and fixed arrays.
 
 ### Changed
