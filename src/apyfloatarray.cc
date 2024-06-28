@@ -1119,6 +1119,8 @@ APyFloatArray::convolve(const APyFloatArray& other, const std::string& mode) con
         src1++;
         dst++;
     }
+
+    return result;
 }
 
 std::variant<APyFloatArray, APyFloat> APyFloatArray::prod_sum_function(
