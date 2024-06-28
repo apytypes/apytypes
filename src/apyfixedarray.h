@@ -103,6 +103,7 @@ private:
     template <class ripple_carry_op, class simd_op_const, class simd_shift_op_const>
     inline APyFixedArray _apyfixed_base_add_sub(const APyFixed& rhs) const;
 
+    // internal function for the prod,sum,nanprod and nansum functions
     std::variant<APyFixedArray, APyFixed> prod_sum_function(
         void (*pos_func)(
             std::size_t,
@@ -117,6 +118,7 @@ private:
         std::optional<std::variant<nb::int_, nb::tuple>> axes = std::nullopt
     ) const;
 
+    // internal function for the cumprod,cumsum,nancumprod and nancumsum functions
     APyFixedArray cumulative_prod_sum_function(
         void (*pos_func)(
             std::size_t,
@@ -177,7 +179,8 @@ public:
     //! Perform a linear convolution with `other` using `mode`
     APyFixedArray convolve(const APyFixedArray& other, const std::string& mode) const;
 
-    //! Returns a copy where the specified axes is summated.
+
+    //! Sum over one or more axes.
     std::variant<APyFixedArray, APyFixed>
     sum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
 
@@ -194,32 +197,28 @@ public:
     APyFixedArray nancumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
 
-    //! Returns a copy where the specified axes contains the increasing cumulated
-    //! summation across its own axis.
+    //! Cumulative sum over one or more axes.
     APyFixedArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
-    //! Returns a copy where the specified axes is summated, treating Nan as 0.
+    //! Sum over one or more axes, treating Nan as 0.
     std::variant<APyFixedArray, APyFixed>
     nansum(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
 
-    //! Returns a copy where the specified axes contains the increasing cumulated
-    //! summation across its own axis, treating Nan as 0.
+    //! Cumulative sum over one or more axes, treatíng Nan as 0.
     APyFixedArray nancumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
-    //! Returns a copy where the specified axes is summated.
+    //! Multiplication over one or more axes.
     std::variant<APyFixedArray, APyFixed>
     prod(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
 
-    //! Returns a copy where the specified axes contains the increasing cumulated
-    //! summation across its own axis.
+    //! Cumulative multiplication over one or more axes.
     APyFixedArray cumprod(std::optional<nb::int_> axis = std::nullopt) const;
 
-    //! Returns a copy where the specified axes is summated, treating Nan as 0.
+    //! Multiplication over one or more axes, treating Nan as 0
     std::variant<APyFixedArray, APyFixed>
     nanprod(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
 
-    //! Returns a copy where the specified axes contains the increasing cumulated
-    //! summation across its own axis, treating Nan as 0.
+    //! Cumulative multiplication over one or more axes, treating Nan as 0
     APyFixedArray nancumprod(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Python `__repr__()` function
