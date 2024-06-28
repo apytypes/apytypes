@@ -940,6 +940,38 @@ void bind_float_array(nb::module_& m)
             )pbdoc"
         )
 
+        .def(
+            "prod",
+            &APyFloatArray::prod,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            )pbdoc"
+        )
+
+        .def(
+            "cumprod",
+            &APyFloatArray::cumprod,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            )pbdoc"
+        )
+
+        .def(
+            "nanprod",
+            &APyFloatArray::nanprod,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            )pbdoc"
+        )
+
+        .def(
+            "nancumprod",
+            &APyFloatArray::nancumprod,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            )pbdoc"
+        )
+
         // Iteration and friends
         .def("__getitem__", &APyFloatArray::get_item, nb::arg("idx"))
         .def(

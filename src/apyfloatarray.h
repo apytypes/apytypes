@@ -146,6 +146,16 @@ public:
     //! summation across its own axis, treating Nan as 0.
     APyFloatArray nancumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
+    std::variant<APyFloatArray, APyFloat>
+    prod(std::optional<std::variant<nb::int_, nb::tuple>> axis) const;
+
+    APyFloatArray cumprod(std::optional<nb::int_> axis) const;
+
+    std::variant<APyFloatArray, APyFloat>
+    nanprod(std::optional<std::variant<nb::int_, nb::tuple>> axis) const;
+
+    APyFloatArray nancumprod(std::optional<nb::int_> axis) const;
+
     //! Python-exposed `broadcast_to`
     APyFloatArray broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
     ) const;

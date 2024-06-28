@@ -104,14 +104,30 @@ private:
     inline APyFixedArray _apyfixed_base_add_sub(const APyFixed& rhs) const;
 
     std::variant<APyFixedArray, APyFixed> prod_sum_function(
-        void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFixedArray&, APyFixedArray&),
-        int (*bit_increase)(std::size_t, std::size_t),
+        void (*pos_func)(
+            std::size_t,
+            std::size_t,
+            std::size_t,
+            APyFixedArray&,
+            APyFixedArray&,
+            std::size_t
+        ),
+        int (*int_bit_increase)(std::size_t, std::size_t),
+        int (*frac_bit_increase)(std::size_t, std::size_t),
         std::optional<std::variant<nb::int_, nb::tuple>> axes = std::nullopt
     ) const;
 
     APyFixedArray cumulative_prod_sum_function(
-        void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFixedArray&, APyFixedArray&),
-        int (*bit_increase)(std::size_t, std::size_t),
+        void (*pos_func)(
+            std::size_t,
+            std::size_t,
+            std::size_t,
+            APyFixedArray&,
+            APyFixedArray&,
+            std::size_t
+        ),
+        int (*int_bit_increase)(std::size_t, std::size_t),
+        int (*frac_bit_increase)(std::size_t, std::size_t),
         std::optional<nb::int_> axis = std::nullopt
     ) const;
 
