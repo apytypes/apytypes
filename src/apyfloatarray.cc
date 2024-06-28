@@ -1007,7 +1007,7 @@ APyFloatArray::squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis) co
             int axis_n = int(nanobind::cast<nb::int_>(*ptr));
             if (axis_n >= int(_shape.size())) {
                 throw nb::index_error(
-                    "specified axis with larger than number of dimensions in the "
+                    "Specified axis with larger than number of dimensions in the "
                     "APyFloatArray"
                 );
             }
@@ -1018,7 +1018,7 @@ APyFloatArray::squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis) co
         auto predicate = [&](std::size_t dim) {
             if (axis_set.find(cnt) != axis_set.end() && dim != 1) {
                 throw nb::value_error(
-                    "cannot select an axis to squeeze that has size other than one"
+                    "Cannot select an axis to squeeze that has size other than one"
                 );
             }
             return axis_set.find(cnt++) != axis_set.end() && dim == 1;
@@ -1121,6 +1121,231 @@ APyFloatArray::convolve(const APyFloatArray& other, const std::string& mode) con
     }
 
     return result;
+}
+
+std::variant<APyFloatArray, APyFloat> APyFloatArray::prod_sum_function(
+    void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFloatArray&, APyFloatArray&, APyFloat&, APyFloat&),
+    std::optional<std::variant<nb::tuple, nb::int_>> axis
+) const
+{
+    std::set<std::size_t> axes_set;
+    if (axis.has_value()) {
+        std::vector<std::size_t> axes_vector
+            = cpp_shape_from_python_shape_like(axis.value());
+        for (auto i : axes_vector) {
+            if (i >= shape.size()) {
+                throw nb::index_error(
+                    "specified axis outside number of dimensions in the APyFixedArray"
+                );
+            }
+            axes_set.insert(i);
+        }
+    } else {
+        axes_set.insert(shape.size());
+    }
+
+    // Resulting vector
+    APyFloatArray result(shape, exp_bits, man_bits);
+    APyFloatArray source(shape, exp_bits, man_bits);
+    std::copy_n(data.begin(), data.size(), source.data.begin());
+
+    APyFloat lhs_scalar(exp_bits, man_bits, bias);
+    APyFloat rhs_scalar(exp_bits, man_bits, bias);
+
+    std::vector<std::size_t> shape_;
+    std::size_t res_elements = source.data.size();
+    std::size_t sec_length = source.data.size();
+    for (std::size_t x = 0; x <= shape.size(); x++) {
+        std::size_t elements = res_elements;
+        if (axes_set.find(x) == axes_set.end()) {
+            if (x < shape.size()) {
+                sec_length /= source.shape.at(x);
+                shape_.push_back(shape.at(x));
+            }
+            continue;
+        }
+
+        if (x < shape.size()) {
+            elements = source.shape.at(x);
+            sec_length /= source.shape.at(x);
+        } else {
+            shape_ = {};
+        }
+        for (std::size_t i = 0; i < res_elements; i++) {
+            pos_func(i, sec_length, elements, source, result, lhs_scalar, rhs_scalar);
+        }
+
+        res_elements /= elements;
+        source = result;
+        result.data.assign(result.data.size(), { 0, 0, 0 });
+    }
+    if (shape_.size() == 0) {
+        APyFloat res(exp_bits, man_bits);
+        res.set_data(source.data.at(0));
+        return res;
+    } else {
+        APyFloatArray res(shape_, exp_bits, man_bits);
+        std::copy_n(source.data.begin(), res_elements, res.data.begin());
+        return res;
+    }
+}
+
+APyFloatArray APyFloatArray::cumulative_prod_sum_function(
+    void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFloatArray&, APyFloatArray&, APyFloat&, APyFloat&),
+    std::optional<nb::int_> axis
+) const
+{
+    std::size_t _axis = shape.size();
+    if (axis.has_value()) {
+        _axis = std::size_t(axis.value());
+        if (_axis >= shape.size()) {
+            throw nb::index_error(
+                "specified axis outside number of dimensions in the APyFloatArray"
+            );
+        }
+    }
+
+    std::size_t elements = data.size();
+    std::size_t res_nitems = data.size();
+    std::vector<std::size_t> shape_ = { data.size() };
+    if (_axis < shape.size()) {
+        elements = shape.at(_axis);
+        shape_ = shape;
+    }
+
+    std::size_t sec_length = data.size();
+    for (std::size_t i = 0; i < shape.size(); i++) {
+        sec_length /= shape.at(i);
+        if (i == _axis) {
+            break;
+        }
+    }
+    // Resulting vector
+    APyFloatArray result(shape, exp_bits, man_bits);
+    APyFloatArray source(shape, exp_bits, man_bits);
+    std::copy_n(data.begin(), data.size(), source.data.begin());
+
+    APyFloat lhs_scalar(exp_bits, man_bits, bias);
+    APyFloat rhs_scalar(exp_bits, man_bits, bias);
+
+    for (std::size_t i = 0; i < result.data.size(); i++) {
+        pos_func(i, sec_length, elements, source, result, lhs_scalar, rhs_scalar);
+    }
+
+    APyFloatArray result2(shape_, exp_bits, man_bits);
+    std::copy_n(result.data.begin(), res_nitems, result2.data.begin());
+    return result2;
+}
+
+std::variant<APyFloatArray, APyFloat>
+APyFloatArray::sum(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    auto pos_func = [](std::size_t i,
+                       std::size_t sec_length,
+                       std::size_t elements,
+                       APyFloatArray& src,
+                       APyFloatArray& dst,
+                       APyFloat& lhs_scalar,
+                       APyFloat& rhs_scalar) {
+        // calculate new position
+        std::size_t pos_in_sec = i % (sec_length);
+        std::size_t sec_pos
+            = (i - i % (elements * sec_length)) / (elements * sec_length);
+        auto pos = (pos_in_sec + sec_pos);
+
+        // perform addition
+        lhs_scalar.set_data(dst.data.at(pos));
+        rhs_scalar.set_data(src.data.at(i));
+        dst.data[pos] = (lhs_scalar + rhs_scalar).get_data();
+    };
+
+    return prod_sum_function(pos_func, axis);
+}
+
+APyFloatArray APyFloatArray::cumsum(std::optional<nb::int_> axis) const
+{
+    auto pos_func = [](std::size_t i,
+                       std::size_t sec_length,
+                       std::size_t elements,
+                       APyFloatArray& src,
+                       APyFloatArray& dst,
+                       APyFloat& lhs_scalar,
+                       APyFloat& rhs_scalar) {
+        // calculate new position
+        std::size_t pos = i - sec_length;
+        if (i % (sec_length * elements) < sec_length) {
+            pos = i;
+        }
+
+        // perform addition
+        lhs_scalar.set_data(dst.data.at(pos));
+        rhs_scalar.set_data(src.data.at(i));
+        dst.data[i] = (lhs_scalar + rhs_scalar).get_data();
+    };
+
+    return cumulative_prod_sum_function(pos_func, axis);
+}
+
+std::variant<APyFloatArray, APyFloat>
+APyFloatArray::nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    auto pos_func = [](std::size_t i,
+                       std::size_t sec_length,
+                       std::size_t elements,
+                       APyFloatArray& src,
+                       APyFloatArray& dst,
+                       APyFloat& lhs_scalar,
+                       APyFloat& rhs_scalar) {
+        // calculate new position
+        std::size_t pos_in_sec = i % (sec_length);
+        std::size_t sec_pos
+            = (i - i % (elements * sec_length)) / (elements * sec_length);
+        auto pos = (pos_in_sec + sec_pos);
+
+        // perform addition
+        lhs_scalar.set_data(dst.data.at(pos));
+        rhs_scalar.set_data(src.data.at(i));
+
+        if (lhs_scalar.is_nan()) {
+            lhs_scalar.set_data({ 0, 0, 0 });
+        }
+        if (rhs_scalar.is_nan()) {
+            rhs_scalar.set_data({ 0, 0, 0 });
+        }
+        dst.data[pos] = (lhs_scalar + rhs_scalar).get_data();
+    };
+
+    return prod_sum_function(pos_func, axis);
+}
+
+APyFloatArray APyFloatArray::nancumsum(std::optional<nb::int_> axis) const
+{
+    auto pos_func = [](std::size_t i,
+                       std::size_t sec_length,
+                       std::size_t elements,
+                       APyFloatArray& src,
+                       APyFloatArray& dst,
+                       APyFloat& lhs_scalar,
+                       APyFloat& rhs_scalar) {
+        // calculate new position
+        std::size_t pos = i - sec_length;
+        if (i % (sec_length * elements) < sec_length) {
+            pos = i;
+        }
+
+        // perform addition
+        lhs_scalar.set_data(dst.data.at(pos));
+        rhs_scalar.set_data(src.data.at(i));
+        if (lhs_scalar.is_nan()) {
+            lhs_scalar.set_data({ 0, 0, 0 });
+        }
+        if (rhs_scalar.is_nan()) {
+            rhs_scalar.set_data({ 0, 0, 0 });
+        }
+        dst.data[i] = (lhs_scalar + rhs_scalar).get_data();
+    };
+
+    return cumulative_prod_sum_function(pos_func, axis);
 }
 
 std::string APyFloatArray::repr() const

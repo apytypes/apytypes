@@ -479,7 +479,158 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::squeeze,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Squeeze the matrix, removing dimensions of size 1.
+            Removes axes of size one at the specified axis/axes, if no axis is given removes all dimensions with size one.
+
+            Parameters
+            ----------
+            axis : tuple or int, optional
+                The axes to squeeze, a given axis with a size other than one will result in an error. No given axes  will be remove all dimensions of size one.
+
+            Returns
+            -------
+            :class:`APyFixedArray`
+
+            Raises
+            -------
+            :class:ValueError
+                If given an axis of a size other than one a ValueError will be thrown.
+            :class:IndexError
+                If a specified axis is outside of the existing number of dimensions for the array.
+
+            )pbdoc"
+        )
+
+        .def(
+            "sum",
+            &APyFixedArray::sum,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
+
+            Parameters
+            ----------
+            axis : tuple or int, optional
+                The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
+
+            Returns
+            -------
+            :class:`APyFixedArray` or :class:`APyFixed`
+
+            Raises
+            -------
+            :class:IndexError
+                If a specified axis is outside of the existing number of dimensions for the array.
+
+            Examples
+            -------
+
+            >>> from apytypes import APyFixedArray
+
+            >>> a = APyFixedArray(
+            ...     [1,2,3,4,5,6],
+            ...     int_bits=10,
+            ...     frac_bits=0
+            ... )
+
+            >>> a.sum()
+            APyFixed(21, bits=13, int_bits=13)
+
+            -------
+            )pbdoc"
+        )
+
+        .def(
+            "cumsum",
+            &APyFixedArray::cumsum,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Returns the cumulative sum of the elements along a given axes.
+
+            Parameters
+            ----------
+            axis : int, optional
+                The axes to summate across. If not given an axis it will return the cumulative sum of the flattened array.
+
+            Returns
+            -------
+            :class:`APyFixedArray`
+
+            Raises
+            -------
+            :class:IndexError
+                If a specified axis is outside of the existing number of dimensions for the array.
+
+            Examples
+            -------
+
+            >>> from apytypes import APyFixedArray
+
+            Array `a`, array to summate across.
+
+            >>> a = APyFixedArray(
+            ...     [[1,2,3],[4,5,6]],
+            ...     int_bits=10,
+            ...     frac_bits=0
+            ... )
+
+            >>> a.cumsum()
+            APyFixedArray([1, 3, 6, 10, 15, 21], shape=(6,), bits=13, int_bits=13)
+
+            >>> a.cumsum(0)
+            APyFixedArray([1, 2, 3, 5, 7, 9], shape=(2, 3), bits=11, int_bits=11)
+
+            >>> a.cumsum(1)
+            APyFixedArray([1, 3, 6, 4, 9, 15], shape=(2, 3), bits=12, int_bits=12)
+
+            -------
+            )pbdoc"
+        )
+
+        .def(
+            "nansum",
+            &APyFixedArray::nansum,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
+
+            Parameters
+            ----------
+            axis : tuple or int, optional
+                The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
+
+            Returns
+            -------
+            :class:`APyFixedArray` or :class:`APyFixed`
+
+            Raises
+            -------
+            :class:IndexError
+                If a specified axis is outside of the existing number of dimensions for the array.
+
+            )pbdoc"
+        )
+
+        .def(
+            "nancumsum",
+            &APyFixedArray::nancumsum,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Returns the cumulative sum of the elements along a given axis treating Not a Number as 0.
+
+            Parameters
+            ----------
+            axis : int, optional
+                The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.
+
+            Returns
+            -------
+            :class:`APyFixedArray`
+
+            Raises
+            -------
+            :class:IndexError
+                If a specified axis is outside of the existing number of dimensions for the array.
+
             )pbdoc"
         )
 

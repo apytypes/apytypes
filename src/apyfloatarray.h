@@ -111,11 +111,28 @@ public:
     //! Broadcast to a new shape
     APyFloatArray broadcast_to(const std::vector<std::size_t> shape) const;
 
+    //! Returns a copy where all axes of size 1 is removed.
     APyFloatArray
     squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
 
     //! Perform a linear convolution with `other` using `mode`
     APyFloatArray convolve(const APyFloatArray& other, const std::string& mode) const;
+
+    //! Returns a copy where the specified axes is summated.
+    std::variant<APyFloatArray, APyFloat>
+    sum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+
+    //! Returns a copy where the specified axes contains the increasing cumulated
+    //! summation across its own axis.
+    APyFloatArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
+
+    //! Returns a copy where the specified axes is summated, treating Nan as 0.
+    std::variant<APyFloatArray, APyFloat>
+    nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+
+    //! Returns a copy where the specified axes contains the increasing cumulated
+    //! summation across its own axis, treating Nan as 0.
+    APyFloatArray nancumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Python-exposed `broadcast_to`
     APyFloatArray broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
@@ -289,6 +306,16 @@ private:
         const APYFLOAT_TYPE& x, // Floating point src1
         const APYFLOAT_TYPE& y  // Floating point src2
     );
+
+    std::variant<APyFloatArray, APyFloat> prod_sum_function(
+        void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFloatArray&, APyFloatArray&, APyFloat&, APyFloat&),
+        std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt
+    ) const;
+
+    APyFloatArray cumulative_prod_sum_function(
+        void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFloatArray&, APyFloatArray&, APyFloat&, APyFloat&),
+        std::optional<nb::int_> axis = std::nullopt
+    ) const;
 };
 
 #endif

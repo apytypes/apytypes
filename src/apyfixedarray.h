@@ -18,6 +18,7 @@ namespace nb = nanobind;
 #include <cstddef>  // std::size_t
 #include <limits>   // std::numeric_limits<>::is_iec559
 #include <optional> // std::optional, std::nullopt
+#include <set>      // std::set
 #include <string>   // std::string
 #include <vector>   // std::vector
 
@@ -102,6 +103,16 @@ private:
     template <class ripple_carry_op, class simd_op_const, class simd_shift_op_const>
     inline APyFixedArray _apyfixed_base_add_sub(const APyFixed& rhs) const;
 
+    std::variant<APyFixedArray, APyFixed> prod_sum_function(
+        void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFixedArray&, APyFixedArray&),
+        std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt
+    ) const;
+
+    APyFixedArray cumulative_prod_sum_function(
+        void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFixedArray&, APyFixedArray&),
+        std::optional<nb::int_> axis = std::nullopt
+    ) const;
+
 public:
     APyFixedArray operator+(const APyFixedArray& rhs) const;
     APyFixedArray operator+(const APyFixed& rhs) const;
@@ -147,6 +158,22 @@ public:
 
     //! Perform a linear convolution with `other` using `mode`
     APyFixedArray convolve(const APyFixedArray& other, const std::string& mode) const;
+
+    //! Returns a copy where the specified axes is summated.
+    std::variant<APyFixedArray, APyFixed>
+    sum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+
+    //! Returns a copy where the specified axes contains the increasing cumulated
+    //! summation across its own axis.
+    APyFixedArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
+
+    //! Returns a copy where the specified axes is summated, treating Nan as 0.
+    std::variant<APyFixedArray, APyFixed>
+    nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+
+    //! Returns a copy where the specified axes contains the increasing cumulated
+    //! summation across its own axis, treating Nan as 0.
+    APyFixedArray nancumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Python `__repr__()` function
     std::string repr() const;
