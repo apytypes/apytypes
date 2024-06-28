@@ -1125,27 +1125,20 @@ APyFloatArray::convolve(const APyFloatArray& other, const std::string& mode) con
 
 std::variant<APyFloatArray, APyFloat> APyFloatArray::prod_sum_function(
     void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFloatArray&, APyFloatArray&, APyFloat&, APyFloat&),
-    std::optional<std::variant<nb::int_, nb::tuple>> axes
+    std::optional<std::variant<nb::tuple, nb::int_>> axis
 ) const
 {
     std::set<std::size_t> axes_set;
-    if (axes.has_value()) {
-        nb::tuple axes_tuple;
-        auto axes_val = axes.value();
-        if (std::holds_alternative<nb::tuple>(axes_val)) {
-            axes_tuple = std::get<nb::tuple>(axes_val);
-        } else if (std::holds_alternative<nb::int_>(axes_val)) {
-            axes_tuple = nb::make_tuple(std::get<nb::int_>(axes_val));
-        }
-        for (auto ptr = axes_tuple.begin(); ptr != axes_tuple.end(); ptr++) {
-            std::size_t axis_n = std::size_t(nanobind::cast<nb::int_>(*ptr));
-            if (axis_n >= shape.size()) {
+    if (axis.has_value()) {
+        std::vector<std::size_t> axes_vector
+            = cpp_shape_from_python_shape_like(axis.value());
+        for (auto i : axes_vector) {
+            if (i >= shape.size()) {
                 throw nb::index_error(
-                    "Specified axis with larger than number of dimensions in the "
-                    "APyFloatArray"
+                    "specified axis outside number of dimensions in the APyFixedArray"
                 );
             }
-            axes_set.insert(axis_n);
+            axes_set.insert(i);
         }
     } else {
         axes_set.insert(shape.size());
@@ -1245,7 +1238,7 @@ APyFloatArray APyFloatArray::cumulative_prod_sum_function(
 }
 
 std::variant<APyFloatArray, APyFloat>
-APyFloatArray::sum(std::optional<std::variant<nb::int_, nb::tuple>> axis) const
+APyFloatArray::sum(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
 {
     auto pos_func = [](std::size_t i,
                        std::size_t sec_length,
@@ -1294,7 +1287,7 @@ APyFloatArray APyFloatArray::cumsum(std::optional<nb::int_> axis) const
 }
 
 std::variant<APyFloatArray, APyFloat>
-APyFloatArray::nansum(std::optional<std::variant<nb::int_, nb::tuple>> axis) const
+APyFloatArray::nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
 {
     auto pos_func = [](std::size_t i,
                        std::size_t sec_length,

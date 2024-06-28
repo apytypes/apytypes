@@ -40,11 +40,17 @@ def test_squeeze():
     assert k.is_identical(i)
     assert z.is_identical(i)
     m = APyFixedArray([[1], [2], [3]], bits=2, int_bits=2)
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError,
+        match="Cannot select an axis to squeeze that has size other than one",
+    ):
         _ = m.squeeze(axis=0)
     m1 = m.squeeze(axis=1)
     assert m1.is_identical(APyFixedArray([1, 2, 3], bits=2, int_bits=2))
-    with pytest.raises(IndexError):
+    with pytest.raises(
+        IndexError,
+        match="Specified axis with larger than number of dimensions in the APyFixedArray",
+    ):
         _ = m.squeeze(axis=2)
 
     n = APyFixedArray([[[[[[[[2]]]]]]]], bits=2, int_bits=2)
@@ -53,70 +59,81 @@ def test_squeeze():
     p = n.squeeze((0, 1, 3))
     assert p.is_identical(APyFixedArray([[[[[2]]]]], bits=2, int_bits=2))
     q = APyFixedArray([[[1]], [[2]], [[3]], [[4]]], bits=2, int_bits=2)
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError,
+        match="Cannot select an axis to squeeze that has size other than one",
+    ):
         _ = q.squeeze((0, 1, 2))
-    with pytest.raises(IndexError):
+    with pytest.raises(
+        IndexError,
+        match="Specified axis with larger than number of dimensions in the APyFixedArray",
+    ):
         _ = m.squeeze((1, 4))
 
 
-def test_sum():
+@pytest.mark.parametrize("sum_func", ["sum", "nansum"])
+def test_sum(sum_func):
     a = APyFixedArray([[1, 2], [3, 4], [5, 6], [7, 8]], bits=5, int_bits=5)
-    b = a.sum()
+    b = a.__getattribute__(sum_func)()
     assert b.is_identical(APyFixed(36, bits=8, int_bits=8))
     c = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=5)
-    d = c.sum((0, 1))
-    e = c.sum(0)
-    f = c.sum(1)
+    d = c.__getattribute__(sum_func)((0, 1))
+    e = c.__getattribute__(sum_func)(0)
+    f = c.__getattribute__(sum_func)(1)
     assert d.is_identical(APyFixed(15, bits=8, int_bits=8))
     assert e.is_identical(APyFixedArray([3, 5, 7], bits=6, int_bits=6))
     assert f.is_identical(APyFixedArray([3, 12], bits=7, int_bits=7))
 
     # test for size larger than 32 and 64 when number over multiple limbs
     g = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
-    h = g.sum(0)
+    h = g.__getattribute__(sum_func)(0)
     assert h.is_identical(APyFixedArray([3, 5, 7], frac_bits=0, int_bits=34))
     j = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=65)
-    k = j.sum(0)
+    k = j.__getattribute__(sum_func)(0)
     assert k.is_identical(APyFixedArray([3, 5, 7], frac_bits=0, int_bits=66))
 
     # test some float and negative summation
-    j = APyFixedArray.from_float([0.2, 1.4, 3.3], frac_bits=3, int_bits=5)
-    k = j.sum()
-    assert k.is_identical(APyFixed(39, bits=10, int_bits=7))
-    m = APyFixedArray.from_float([0.333333, 1.333333, 3.33333], frac_bits=3, int_bits=5)
-    n = m.sum()
-    assert n.is_identical(APyFixed(41, bits=10, int_bits=7))
+    j = APyFixedArray.from_float([0.25, 1.375, 3.25], frac_bits=3, int_bits=5)
+    k = j.__getattribute__(sum_func)()
+    assert k.is_identical(APyFixed.from_float(4.875, bits=10, int_bits=7))
+    m = APyFixedArray.from_float([0.25, 1.25, 3.25], frac_bits=3, int_bits=5)
+    n = m.__getattribute__(sum_func)()
+    assert n.is_identical(APyFixed.from_float(4.75, frac_bits=3, int_bits=7))
 
     o = APyFixedArray([[-1, -2], [-3, -4]], frac_bits=0, int_bits=5)
-    p = o.sum(1)
+    p = o.__getattribute__(sum_func)(1)
     assert p.is_identical(APyFixedArray([-3, -7], frac_bits=0, int_bits=6))
 
     q = APyFixedArray([[-1, -2], [1, 2]], frac_bits=0, int_bits=5)
-    r = q.sum(0)
+    r = q.__getattribute__(sum_func)(0)
     assert r.is_identical(APyFixedArray([0, 0], frac_bits=0, int_bits=6))
 
     m = APyFixedArray([1, 2, 3], bits=2, int_bits=2)
-    with pytest.raises(IndexError):
-        _ = m.sum(1)
+    with pytest.raises(
+        IndexError,
+        match="specified axis outside number of dimensions in the APyFixedArray",
+    ):
+        _ = m.__getattribute__(sum_func)(1)
 
 
-def test_cumsum():
+@pytest.mark.parametrize("sum_func", ["cumsum", "nancumsum"])
+def test_cumsum(sum_func):
     a = APyFixedArray([[1, 2, 3], [4, 5, 6]], frac_bits=0, int_bits=5)
-    b = a.cumsum()
+    b = a.__getattribute__(sum_func)()
     assert b.is_identical(APyFixedArray([1, 3, 6, 10, 15, 21], frac_bits=0, int_bits=8))
-    c = a.cumsum(0)
+    c = a.__getattribute__(sum_func)(0)
     assert c.is_identical(
         APyFixedArray([[1, 2, 3], [5, 7, 9]], frac_bits=0, int_bits=6)
     )
-    d = a.cumsum(1)
+    d = a.__getattribute__(sum_func)(1)
     assert d.is_identical(
         APyFixedArray([[1, 3, 6], [4, 9, 15]], frac_bits=0, int_bits=7)
     )
     e = APyFixedArray([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=8)
-    f = e.cumsum()
-    g = e.cumsum(0)
-    h = e.cumsum(1)
-    i = e.cumsum(2)
+    f = e.__getattribute__(sum_func)()
+    g = e.__getattribute__(sum_func)(0)
+    h = e.__getattribute__(sum_func)(1)
+    i = e.__getattribute__(sum_func)(2)
     assert f.is_identical(
         APyFixedArray([1, 3, 6, 10, 15, 21, 28, 36], frac_bits=0, int_bits=11)
     )
@@ -129,127 +146,28 @@ def test_cumsum():
     assert i.is_identical(
         APyFixedArray([[[1, 3], [3, 7]], [[5, 11], [7, 15]]], frac_bits=0, int_bits=9)
     )
-    with pytest.raises(IndexError):
-        _ = e.cumsum(4)
+    with pytest.raises(
+        IndexError,
+        match="specified axis outside number of dimensions in the APyFixedArray",
+    ):
+        _ = e.__getattribute__(sum_func)(4)
 
     k = APyFixedArray.from_float(
         [[0.25, 0.25], [0.25, 0.25]], frac_bits=10, int_bits=10
     )
-    m = k.cumsum()
+    m = k.__getattribute__(sum_func)()
     assert m.is_identical(
         APyFixedArray.from_float([0.25, 0.5, 0.75, 1], frac_bits=10, int_bits=12)
     )
 
     # test for size larger than 32 and 64 when number over multiple limbs
     g = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
-    h = g.cumsum(0)
+    h = g.__getattribute__(sum_func)(0)
     assert h.is_identical(
         APyFixedArray([[0, 1, 2], [3, 5, 7]], frac_bits=0, int_bits=34)
     )
     j = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=65)
-    k = j.cumsum(0)
-    assert k.is_identical(
-        APyFixedArray([[0, 1, 2], [3, 5, 7]], frac_bits=0, int_bits=66)
-    )
-
-
-def test_nansum():
-    a = APyFixedArray([[1, 2], [3, 4], [5, 6], [7, 8]], bits=5, int_bits=5)
-    b = a.nansum()
-    assert b.is_identical(APyFixed(36, bits=8, int_bits=8))
-    c = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=5)
-    d = c.nansum((0, 1))
-    e = c.nansum(0)
-    f = c.nansum(1)
-    assert d.is_identical(APyFixed(15, bits=8, int_bits=8))
-    assert e.is_identical(APyFixedArray([3, 5, 7], bits=6, int_bits=6))
-    assert f.is_identical(APyFixedArray([3, 12], bits=7, int_bits=7))
-
-    # test for size larger than 32 and 64 when number over multiple limbs
-    g = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
-    h = g.nansum(0)
-    assert h.is_identical(APyFixedArray([3, 5, 7], frac_bits=0, int_bits=34))
-    j = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=65)
-    k = j.nansum(0)
-    assert k.is_identical(APyFixedArray([3, 5, 7], frac_bits=0, int_bits=66))
-
-    # test some float and negative summation
-    j = APyFixedArray.from_float([0.2, 1.4, 3.3], frac_bits=3, int_bits=5)
-    k = j.nansum()
-    assert k.is_identical(APyFixed(39, bits=10, int_bits=7))
-    m = APyFixedArray.from_float([0.333333, 1.333333, 3.33333], frac_bits=3, int_bits=5)
-    n = m.nansum()
-    assert n.is_identical(APyFixed(41, bits=10, int_bits=7))
-
-    o = APyFixedArray([[-1, -2], [-3, -4]], frac_bits=0, int_bits=5)
-    p = o.nansum(1)
-    assert p.is_identical(APyFixedArray([-3, -7], frac_bits=0, int_bits=6))
-
-    q = APyFixedArray([[-1, -2], [1, 2]], frac_bits=0, int_bits=5)
-    r = q.nansum(0)
-    assert r.is_identical(APyFixedArray([0, 0], frac_bits=0, int_bits=6))
-
-    m = APyFixedArray([1, 2, 3], bits=2, int_bits=2)
-    with pytest.raises(IndexError):
-        _ = m.nansum(1)
-
-    # test for size larger than 32 and 64 when number over multiple limbs
-    g = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
-    h = g.nansum(0)
-    assert h.is_identical(APyFixedArray([3, 5, 7], frac_bits=0, int_bits=34))
-    j = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=65)
-    k = j.nansum(0)
-    assert k.is_identical(APyFixedArray([3, 5, 7], frac_bits=0, int_bits=66))
-
-
-def test_nancumsum():
-    a = APyFixedArray([[1, 2, 3], [4, 5, 6]], frac_bits=0, int_bits=5)
-    b = a.nancumsum()
-    assert b.is_identical(APyFixedArray([1, 3, 6, 10, 15, 21], frac_bits=0, int_bits=8))
-    c = a.nancumsum(0)
-    assert c.is_identical(
-        APyFixedArray([[1, 2, 3], [5, 7, 9]], frac_bits=0, int_bits=6)
-    )
-    d = a.nancumsum(1)
-    assert d.is_identical(
-        APyFixedArray([[1, 3, 6], [4, 9, 15]], frac_bits=0, int_bits=7)
-    )
-    e = APyFixedArray([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=8)
-    f = e.nancumsum()
-    g = e.nancumsum(0)
-    h = e.nancumsum(1)
-    i = e.nancumsum(2)
-    assert f.is_identical(
-        APyFixedArray([1, 3, 6, 10, 15, 21, 28, 36], frac_bits=0, int_bits=11)
-    )
-    assert g.is_identical(
-        APyFixedArray([[[1, 2], [3, 4]], [[6, 8], [10, 12]]], frac_bits=0, int_bits=9)
-    )
-    assert h.is_identical(
-        APyFixedArray([[[1, 2], [4, 6]], [[5, 6], [12, 14]]], frac_bits=0, int_bits=9)
-    )
-    assert i.is_identical(
-        APyFixedArray([[[1, 3], [3, 7]], [[5, 11], [7, 15]]], frac_bits=0, int_bits=9)
-    )
-    with pytest.raises(IndexError):
-        _ = e.nancumsum(4)
-
-    k = APyFixedArray.from_float(
-        [[0.25, 0.25], [0.25, 0.25]], frac_bits=10, int_bits=10
-    )
-    m = k.nancumsum()
-    assert m.is_identical(
-        APyFixedArray.from_float([0.25, 0.5, 0.75, 1], frac_bits=10, int_bits=12)
-    )
-
-    # test for size larger than 32 and 64 when number over multiple limbs
-    g = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
-    h = g.nancumsum(0)
-    assert h.is_identical(
-        APyFixedArray([[0, 1, 2], [3, 5, 7]], frac_bits=0, int_bits=34)
-    )
-    j = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=65)
-    k = j.nancumsum(0)
+    k = j.__getattribute__(sum_func)(0)
     assert k.is_identical(
         APyFixedArray([[0, 1, 2], [3, 5, 7]], frac_bits=0, int_bits=66)
     )
@@ -505,4 +423,3 @@ def test_ravel(shape):
     reshaped = arr.reshape(shape)
     if not APyFixedArray.is_identical(reshaped.ravel(), arr):
         pytest.fail(f"ravel didn't return to original 1d list after reshape {shape}")
-    pass

@@ -327,14 +327,12 @@ def test_sum():
     assert k.is_identical(APyFloatArray.from_float([3, 5, 7], exp_bits=10, man_bits=10))
 
     # test some float and negative summation
-    j = APyFloatArray.from_float([0.2, 1.4, 3.3], exp_bits=10, man_bits=10)
+    j = APyFloatArray.from_float([0.25, 1.375, 3.25], exp_bits=10, man_bits=10)
     k = j.sum()
-    assert k.is_identical(APyFloat.from_float(4.904, exp_bits=10, man_bits=10))
-    m = APyFloatArray.from_float(
-        [0.333333, 1.333333, 3.33333], exp_bits=10, man_bits=10
-    )
+    assert k.is_identical(APyFloat.from_float(4.875, exp_bits=10, man_bits=10))
+    m = APyFloatArray.from_float([0.25, 1.25, 3.25], exp_bits=10, man_bits=10)
     n = m.sum()
-    assert n.is_identical(APyFloat.from_float(5, exp_bits=10, man_bits=10))
+    assert n.is_identical(APyFloat.from_float(4.75, exp_bits=10, man_bits=10))
 
     o = APyFloatArray.from_float([[-1, -2], [-3, -4]], exp_bits=10, man_bits=10)
     p = o.sum(1)
@@ -415,7 +413,6 @@ def test_nansum():
     assert e.is_identical(APyFloatArray.from_float([3, 5, 5], exp_bits=10, man_bits=10))
     assert f.is_identical(APyFloatArray.from_float([1, 12], exp_bits=10, man_bits=10))
 
-    # test for size larger than 32 and 64 when number over multiple limbs
     g = APyFloatArray.from_float([[0, 1, 2], [nan, 4, 5]], exp_bits=10, man_bits=10)
     h = g.nansum(0)
     assert h.is_identical(APyFloatArray.from_float([0, 5, 7], exp_bits=10, man_bits=10))
@@ -424,14 +421,12 @@ def test_nansum():
     assert k.is_identical(APyFloatArray.from_float([0, 1, 2], exp_bits=10, man_bits=10))
 
     # test some float and negative summation
-    j = APyFloatArray.from_float([0.2, 1.4, 3.3], exp_bits=10, man_bits=10)
-    k = j.nansum()
-    assert k.is_identical(APyFloat.from_float(4.904, exp_bits=10, man_bits=10))
-    m = APyFloatArray.from_float(
-        [0.333333, 1.333333, 3.33333], exp_bits=10, man_bits=10
-    )
-    n = m.nansum()
-    assert n.is_identical(APyFloat.from_float(5, exp_bits=10, man_bits=10))
+    j = APyFloatArray.from_float([0.25, 1.375, 3.25], exp_bits=10, man_bits=10)
+    k = j.sum()
+    assert k.is_identical(APyFloat.from_float(4.875, exp_bits=10, man_bits=10))
+    m = APyFloatArray.from_float([0.25, 1.25, 3.25], exp_bits=10, man_bits=10)
+    n = m.sum()
+    assert n.is_identical(APyFloat.from_float(4.75, exp_bits=10, man_bits=10))
 
     o = APyFloatArray.from_float([[-1, -2], [-3, nan]], exp_bits=10, man_bits=10)
     p = o.nansum(1)

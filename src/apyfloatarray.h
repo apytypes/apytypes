@@ -120,7 +120,7 @@ public:
 
     //! Returns a copy where the specified axes is summated.
     std::variant<APyFloatArray, APyFloat>
-    sum(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
+    sum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
 
     //! Returns a copy where the specified axes contains the increasing cumulated
     //! summation across its own axis.
@@ -128,7 +128,7 @@ public:
 
     //! Returns a copy where the specified axes is summated, treating Nan as 0.
     std::variant<APyFloatArray, APyFloat>
-    nansum(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
+    nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
 
     //! Returns a copy where the specified axes contains the increasing cumulated
     //! summation across its own axis, treating Nan as 0.
@@ -309,7 +309,7 @@ private:
 
     std::variant<APyFloatArray, APyFloat> prod_sum_function(
         void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFloatArray&, APyFloatArray&, APyFloat&, APyFloat&),
-        std::optional<std::variant<nb::int_, nb::tuple>> axes = std::nullopt
+        std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt
     ) const;
 
     APyFloatArray cumulative_prod_sum_function(

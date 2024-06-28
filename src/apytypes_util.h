@@ -110,8 +110,7 @@ template <typename INT_TYPE>
     return leading_zeros(~n);
 }
 
-//! Compute bit-width (`1 + ceil(log2(n))` for unsigned `n`) of an integer `n`. If `n`
-//! is zero, return zero.
+//! Compute bit-width (`ceil(log2(1 + n))` for unsigned `n`) of an integer `n`.
 template <typename INT_TYPE>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t bit_width(INT_TYPE n)
 {

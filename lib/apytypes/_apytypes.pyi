@@ -611,6 +611,7 @@ class APyFixedArray:
         new_shape : `tuple`
             The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.
 
+
         Returns
         -------
         :class:`APyFixedArray`
@@ -808,12 +809,12 @@ class APyFixedArray:
 
     def squeeze(self, axis: int | tuple | None = None) -> APyFixedArray:
         """
-        Removes dimensions of size 1 at the specified axis/axes, if no axís is given removes all dimensions with size 1.
+        Removes axes of size one at the specified axis/axes, if no axis is given removes all dimensions with size one.
 
         Parameters
         ----------
-        axis : tuple, int, optional
-            The axes to squeeze, a given axis with a size other than 1 will result in an error. No given axes  will be remove all dimensions of size 1.
+        axis : tuple or int, optional
+            The axes to squeeze, a given axis with a size other than one will result in an error. No given axes  will be remove all dimensions of size one.
 
         Returns
         -------
@@ -821,28 +822,28 @@ class APyFixedArray:
 
         Raises
         -------
-        ValueError
-            If given an axis of a size other than 1 a ValueError will be thrown.
-        IndexError
+        :class:ValueError
+            If given an axis of a size other than one a ValueError will be thrown.
+        :class:IndexError
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 
-    def sum(self, axis: int | tuple | None = None) -> APyFixedArray | APyFixed:
+    def sum(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Returns the cumulative sum of the elements along specified axis/axes treating Not a Number as 0.
+        Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
 
         Parameters
         ----------
-        axis : tuple, int, optional
+        axis : tuple or int, optional
             The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
 
         Returns
         -------
-        :class:`APyFixedArray` or `APyFixed`
+        :class:`APyFixedArray` or :class:`APyFixed`
 
         Raises
         -------
-        IndexError
+        :class:IndexError
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
@@ -873,7 +874,7 @@ class APyFixedArray:
 
         Raises
         -------
-        IndexError
+        :class:IndexError
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
@@ -897,22 +898,22 @@ class APyFixedArray:
         -------
         """
 
-    def nansum(self, axis: int | tuple | None = None) -> APyFixedArray | APyFixed:
+    def nansum(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Returns the cumulative sum of the elements along specified axis/axes treating Not a Number as 0.
+        Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
 
         Parameters
         ----------
-        axis : tuple, int, optional
+        axis : tuple or int, optional
             The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
 
         Returns
         -------
-        :class:`APyFixedArray` or `APyFixed`
+        :class:`APyFixedArray` or :class:`APyFixed`
 
         Raises
         -------
-        IndexError
+        :class:IndexError
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 
@@ -931,7 +932,7 @@ class APyFixedArray:
 
         Raises
         -------
-        IndexError
+        :class:IndexError
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 
@@ -2187,12 +2188,12 @@ class APyFloatArray:
 
     def squeeze(self, axis: int | tuple | None = None) -> APyFloatArray:
         """
-        Removes dimensions of size 1 at the specified axis/axes, if no axís is given removes all dimensions with size 1.
+        Remove axes of size one at the specified axis/axes, if no axís is given removes all dimensions with size one.
 
         Parameters
         ----------
-        axis : tuple, int, optional
-            The axis/axes to squeeze, a given axis with a size other than 1 will result in an error. No given axes  will be remove all dimensions of size 1.
+        axis : tuple or int, optional
+            The axis/axes to squeeze, a given axis with a size other than one will result in an error. No given axes  will be remove all dimensions of size 1.
 
         Returns
         -------
@@ -2200,28 +2201,28 @@ class APyFloatArray:
 
         Raises
         -------
-        ValueError
-            If given an axis of a size other than 1 a ValueError will be thrown.
-        IndexError
+        :class:ValueError
+            If given an axis of a size other than one, a ValueError will be thrown.
+        :class:IndexError
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 
-    def sum(self, axis: int | tuple | None = None) -> APyFloatArray | APyFloat:
+    def sum(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
         """
-        Returns the cumulative sum of the elements along specified axis/axes.
+        Returns the sum of the elements along specified axis/axes.
 
         Parameters
         ----------
-        axis : tuple, int, optional
+        axis : tuple or int, optional
             The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
 
         Returns
         -------
-        :class:`APyFloatArray` or `APyFloat`
+        :class:`APyFloatArray` or :class:`APyFloat`
 
         Raises
         -------
-        IndexError
+        :class:IndexError
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
@@ -2252,7 +2253,7 @@ class APyFloatArray:
 
         Raises
         -------
-        IndexError
+        :class:IndexError
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
@@ -2276,22 +2277,22 @@ class APyFloatArray:
         -------
         """
 
-    def nansum(self, axis: int | tuple | None = None) -> APyFloatArray | APyFloat:
+    def nansum(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
         """
-        Returns the cumulative sum of the elements along specified axis/axes treating Not a Number as 0.
+        Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
 
         Parameters
         ----------
-        axis : tuple, int, optional
+        axis : tuple or int, optional
             The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
 
         Returns
         -------
-        :class:`APyFloatArray` or `APyFloat`
+        :class:`APyFloatArray` or :class:`APyFloat`
 
         Raises
         -------
-        IndexError
+        :class:IndexError
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
@@ -2326,7 +2327,7 @@ class APyFloatArray:
 
         Raises
         -------
-        IndexError
+        :class:IndexError
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples

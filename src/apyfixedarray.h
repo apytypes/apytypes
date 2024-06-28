@@ -105,7 +105,7 @@ private:
 
     std::variant<APyFixedArray, APyFixed> prod_sum_function(
         void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFixedArray&, APyFixedArray&),
-        std::optional<std::variant<nb::int_, nb::tuple>> axes = std::nullopt
+        std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt
     ) const;
 
     APyFixedArray cumulative_prod_sum_function(
@@ -159,12 +159,9 @@ public:
     //! Perform a linear convolution with `other` using `mode`
     APyFixedArray convolve(const APyFixedArray& other, const std::string& mode) const;
 
-    //! Sum over one or more axes.
-    APyFixedArray cumsum_test(std::optional<nb::int_> axis = std::nullopt) const;
-
     //! Returns a copy where the specified axes is summated.
     std::variant<APyFixedArray, APyFixed>
-    sum(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
+    sum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
 
     //! Returns a copy where the specified axes contains the increasing cumulated
     //! summation across its own axis.
@@ -172,7 +169,7 @@ public:
 
     //! Returns a copy where the specified axes is summated, treating Nan as 0.
     std::variant<APyFixedArray, APyFixed>
-    nansum(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
+    nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
 
     //! Returns a copy where the specified axes contains the increasing cumulated
     //! summation across its own axis, treating Nan as 0.

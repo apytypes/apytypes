@@ -479,12 +479,12 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::squeeze,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Removes dimensions of size 1 at the specified axis/axes, if no axís is given removes all dimensions with size 1.
+            Removes axes of size one at the specified axis/axes, if no axis is given removes all dimensions with size one.
 
             Parameters
             ----------
-            axis : tuple, int, optional
-                The axes to squeeze, a given axis with a size other than 1 will result in an error. No given axes  will be remove all dimensions of size 1.
+            axis : tuple or int, optional
+                The axes to squeeze, a given axis with a size other than one will result in an error. No given axes  will be remove all dimensions of size one.
 
             Returns
             -------
@@ -492,9 +492,9 @@ void bind_fixed_array(nb::module_& m)
 
             Raises
             -------
-            ValueError
-                If given an axis of a size other than 1 a ValueError will be thrown.
-            IndexError
+            :class:ValueError
+                If given an axis of a size other than one a ValueError will be thrown.
+            :class:IndexError
                 If a specified axis is outside of the existing number of dimensions for the array.
 
             )pbdoc"
@@ -505,20 +505,20 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::sum,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the cumulative sum of the elements along specified axis/axes treating Not a Number as 0.
+            Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
 
             Parameters
             ----------
-            axis : tuple, int, optional
+            axis : tuple or int, optional
                 The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
 
             Returns
             -------
-            :class:`APyFixedArray` or `APyFixed`
+            :class:`APyFixedArray` or :class:`APyFixed`
 
             Raises
             -------
-            IndexError
+            :class:IndexError
                 If a specified axis is outside of the existing number of dimensions for the array.
 
             Examples
@@ -557,7 +557,7 @@ void bind_fixed_array(nb::module_& m)
 
             Raises
             -------
-            IndexError
+            :class:IndexError
                 If a specified axis is outside of the existing number of dimensions for the array.
 
             Examples
@@ -591,20 +591,20 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::nansum,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the cumulative sum of the elements along specified axis/axes treating Not a Number as 0.
+            Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
 
             Parameters
             ----------
-            axis : tuple, int, optional
+            axis : tuple or int, optional
                 The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
 
             Returns
             -------
-            :class:`APyFixedArray` or `APyFixed`
+            :class:`APyFixedArray` or :class:`APyFixed`
 
             Raises
             -------
-            IndexError
+            :class:IndexError
                 If a specified axis is outside of the existing number of dimensions for the array.
 
             )pbdoc"
@@ -628,7 +628,7 @@ void bind_fixed_array(nb::module_& m)
 
             Raises
             -------
-            IndexError
+            :class:IndexError
                 If a specified axis is outside of the existing number of dimensions for the array.
 
             )pbdoc"
