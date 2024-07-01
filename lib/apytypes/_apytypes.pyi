@@ -809,36 +809,25 @@ class APyFixedArray:
 
     def squeeze(self, axis: int | tuple | None = None) -> APyFixedArray:
         """
-        <<<<<<< HEAD
-                    Removes axes of size one at the specified axis/axes, if no axis is given removes all dimensions with size one.
+        Removes axes of size one at the specified axis/axes, if no axis is given removes all dimensions with size one.
 
-                    Parameters
-                    ----------
-                    axis : tuple or int, optional
-                        The axes to squeeze, a given axis with a size other than one will result in an error. No given axes  will be remove all dimensions of size one.
-        =======
-                    Removes dimensions of size 1 at the specified axis/axes, if no axís is given removes all dimensions with size 1.
+        Parameters
+        ----------
+        axis : tuple or int, optional
+            The axes to squeeze, a given axis with a size other than one will result in an error. No given axes  will be remove all dimensions of size one.
 
-                    Parameters
-                    ----------
-                    axis : tuple, int, optional
-                        The axes to squeeze, a given axis with a size other than 1 will result in an error. No given axes  will be remove all dimensions of size 1.
-        >>>>>>> b7f5c527 (added more tests for the sum functions)
+        Returns
+        -------
+        :class:`APyFixedArray`
 
-                    Returns
-                    -------
-                    :class:`APyFixedArray`
-
-                    Raises
-                    -------
-        <<<<<<< HEAD
-                    :class:ValueError
-                        If given an axis of a size other than one a ValueError will be thrown.
-                    :class:IndexError
-                        If a specified axis is outside of the existing number of dimensions for the array.
+        Raises
+        -------
+        :class:ValueError
+            If given an axis of a size other than one a ValueError will be thrown.
+        :class:IndexError
+            If a specified axis is outside of the existing number of dimensions for the array.
         """
 
-    @overload
     def sum(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
         Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
@@ -870,39 +859,6 @@ class APyFixedArray:
         -------
         """
 
-    @overload
-    def sum(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
-        """
-        Returns the sum of the elements along specified axis/axes.
-
-        Parameters
-        ----------
-        axis : tuple, int, optional
-            The axis/axes to summate across. If not given an axis it will return the sum of the flattened array.
-
-        Returns
-        -------
-        :class:`APyFixedArray` or `APyFixed`
-
-        Raises
-        -------
-        IndexError
-            If a specified axis is outside of the existing number of dimensions for the array.
-
-        Examples
-        -------
-
-        >>> from apytypes import APyFixedArray
-
-        >>> a = APyFixedArray([1, 2, 3, 4, 5, 6], int_bits=10, frac_bits=0)
-
-        >>> a.sum()
-        APyFixed(21, bits=13, int_bits=13)
-
-        -------
-        """
-
-    @overload
     def cumsum(self, axis: int | None = None) -> APyFixedArray:
         """
         Returns the cumulative sum of the elements along a given axes.
@@ -942,45 +898,6 @@ class APyFixedArray:
         -------
         """
 
-    @overload
-    def cumsum(self, axis: int | None = None) -> APyFixedArray:
-        """
-        Returns the cumulative sum of the elements along a given axes.
-
-        Parameters
-        ----------
-        axis : int, optional
-            The axes to summate across. If not given an axis it will return the cumulative sum of the flattened array.
-
-        Returns
-        -------
-        :class:`APyFixedArray`
-
-        Raises
-        -------
-        IndexError
-            If a specified axis is outside of the existing number of dimensions for the array.
-
-        Examples
-        -------
-
-        >>> from apytypes import APyFixedArray
-
-        >>> a = APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
-
-        >>> a.cumsum()
-        APyFixedArray([1, 3, 6, 10, 15, 21], shape=(6,), bits=13, int_bits=13)
-
-        >>> a.cumsum(0)
-        APyFixedArray([1, 2, 3, 5, 7, 9], shape=(2, 3), bits=11, int_bits=11)
-
-        >>> a.cumsum(1)
-        APyFixedArray([1, 3, 6, 4, 9, 15], shape=(2, 3), bits=12, int_bits=12)
-
-        -------
-        """
-
-    @overload
     def nansum(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
         Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
@@ -1000,52 +917,6 @@ class APyFixedArray:
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 
-    @overload
-    def nansum(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
-        """
-        Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
-
-        Parameters
-        ----------
-        axis : tuple, int, optional
-            The axis/axes to summate across. If not given an axis it will return the sum of the flattened array.
-
-        Returns
-        -------
-        :class:`APyFixedArray` or `APyFixed`
-
-        Raises
-        -------
-        IndexError
-            If a specified axis is outside of the existing number of dimensions for the array.
-        """
-
-    @overload
-    def nancumsum(self, axis: int | None = None) -> APyFixedArray:
-        """
-        Returns the cumulative sum of the elements along a given axis treating Not a Number as 0.
-
-                    Parameters
-                    ----------
-                    axis : int, optional
-                        The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.
-
-                    Returns
-                    -------
-                    :class:`APyFixedArray`
-
-                    Raises
-                    -------
-                    :class:IndexError
-        =======
-                    ValueError
-                        If given an axis of a size other than 1 a ValueError will be thrown.
-                    IndexError
-        >>>>>>> b7f5c527 (added more tests for the sum functions)
-                        If a specified axis is outside of the existing number of dimensions for the array.
-        """
-
-    @overload
     def nancumsum(self, axis: int | None = None) -> APyFixedArray:
         """
         Returns the cumulative sum of the elements along a given axis treating Not a Number as 0.
@@ -1061,7 +932,7 @@ class APyFixedArray:
 
         Raises
         -------
-        IndexError
+        :class:IndexError
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 
@@ -1076,11 +947,11 @@ class APyFixedArray:
 
         Returns
         -------
-        :class:`APyFixedArray` or `APyFixed`
+        :class:`APyFixedArray` or :class:`APyFixed`
 
         Raises
         -------
-        IndexError
+        :class:IndexError
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
@@ -1111,7 +982,7 @@ class APyFixedArray:
 
         Raises
         -------
-        IndexError
+        :class:IndexError
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
@@ -1145,11 +1016,11 @@ class APyFixedArray:
 
         Returns
         -------
-        :class:`APyFixedArray`
+        :class:`APyFixedArray` or :class:`APyFixed`
 
         Raises
         -------
-        IndexError
+        :class:IndexError
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 
@@ -1168,7 +1039,7 @@ class APyFixedArray:
 
         Raises
         -------
-        IndexError
+        :class:IndexError
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 
@@ -2474,7 +2345,6 @@ class APyFloatArray:
         -------
         """
 
-    @overload
     def cumsum(self, axis: int | None = None) -> APyFloatArray:
         """
         Returns the cumulative sum of the elements along a given axis.
@@ -2514,47 +2384,6 @@ class APyFloatArray:
         -------
         """
 
-    @overload
-    def cumsum(self, axis: int | None = None) -> APyFloatArray:
-        """
-        Returns the cumulative sum of the elements along a given axis.
-
-        Parameters
-        ----------
-        axis : int, optional
-            The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.
-
-        Returns
-        -------
-        :class:`APyFloatArray`
-
-        Raises
-        -------
-        IndexError
-            If a specified axis is outside of the existing number of dimensions for the array.
-
-        Examples
-        -------
-
-        >>> from apytypes import APyFloatArray
-
-        >>> a = APyFloatArray.from_float(
-        ...     [[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10
-        ... )
-
-        >>> a.cumsum()
-        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 514, 514, 515], [0, 512, 512, 256, 896, 320], shape=(6,), exp_bits=10, man_bits=10, bias=511)
-
-        >>> a.cumsum(0)
-        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 512, 513, 513, 514], [0, 0, 512, 256, 768, 128], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
-
-        >>> a.cumsum(1)
-        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 513, 514, 514], [0, 512, 512, 0, 128, 896], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
-
-        -------
-        """
-
-    @overload
     def nansum(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
         """
         Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
@@ -2590,43 +2419,6 @@ class APyFloatArray:
         -------
         """
 
-    @overload
-    def nansum(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
-        """
-        Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
-
-        Parameters
-        ----------
-        axis : tuple, int, optional
-            The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
-
-        Returns
-        -------
-        :class:`APyFloatArray` or `APyFloat`
-
-        Raises
-        -------
-        IndexError
-            If a specified axis is outside of the existing number of dimensions for the array.
-
-        Examples
-        -------
-
-        >>> from apytypes import APyFloatArray
-
-        >>> nan = float("nan")
-
-        >>> a = APyFloatArray.from_float([1, 2, 3, 4, 5, nan], exp_bits=10, man_bits=10)
-
-        >>> a.nansum()
-        APyFloat(sign=0, exp=514, man=896, exp_bits=10, man_bits=10)
-
-
-
-        -------
-        """
-
-    @overload
     def nancumsum(self, axis: int | None = None) -> APyFloatArray:
         """
         Returns the cumulative sum of the elements along a given axis treating Not a Number as 0.
@@ -2670,15 +2462,45 @@ class APyFloatArray:
         -------
         """
 
-    @overload
-    def nancumsum(self, axis: int | None = None) -> APyFloatArray:
+    def prod(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
         """
-        Returns the cumulative sum of the elements along a given axis treating Not a Number as 0.
+        Returns the product of the elements along specified axis/axes.
+
+        Parameters
+        ----------
+        axis : tuple, int, optional
+            The axis/axes to calculate the product across. If not given an axis it will return the product of the flattened array.
+
+        Returns
+        -------
+        :class:`APyFloatArray` or :class:`APyFloat`
+
+        Raises
+        -------
+        :class:IndexError
+            If a specified axis is outside of the existing number of dimensions for the array.
+
+        Examples
+        -------
+
+        >>> from apytypes import APyFloatArray
+
+        >>> a = APyFloatArray([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
+
+        >>> a.prod()
+        APyFloat(sign=0, exp=520, man=416, exp_bits=10, man_bits=10)
+
+        -------
+        """
+
+    def cumprod(self, axis: int | None = None) -> APyFloatArray:
+        """
+        Returns the cumulative product of the elements along a given axes.
 
         Parameters
         ----------
         axis : int, optional
-            The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.
+            The axes to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.
 
         Returns
         -------
@@ -2686,45 +2508,68 @@ class APyFloatArray:
 
         Raises
         -------
-        IndexError
+        :class:IndexError
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
         -------
 
-
         >>> from apytypes import APyFloatArray
 
-        >>> nan = float("nan")
 
         >>> a = APyFloatArray.from_float(
         ...     [[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10
         ... )
 
-        >>> a.nancumsum()
-        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 514, 514, 515], [0, 512, 512, 256, 896, 320], shape=(6,), exp_bits=10, man_bits=10, bias=511)
+        >>> a.cumprod()
+        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 515, 517, 520], [0, 0, 512, 512, 896, 416], shape=(6,), exp_bits=10, man_bits=10)
 
-        >>> a.nancumsum(0)
-        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 512, 513, 513, 514], [0, 0, 512, 256, 768, 128], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+        >>> a.cumprod(0)
+        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 512, 513, 514, 515], [0, 0, 512, 0, 256, 128], shape=(2, 3), exp_bits=10, man_bits=10)
 
-        >>> a.nancumsum(1)
-        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 513, 514, 514], [0, 512, 512, 0, 128, 896], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
-
+        >>> a.cumprod(1)
+        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 513, 515, 517], [0, 0, 512, 0, 256, 896], shape=(2, 3), exp_bits=10, man_bits=10)
 
         -------
         """
 
-    def prod(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
-        """"""
-
-    def cumprod(self, axis: int | None = None) -> APyFloatArray:
-        """"""
-
     def nanprod(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
-        """"""
+        """
+        Returns the product of the elements along a given axis treating Not a Number as 0.
+
+        Parameters
+        ----------
+        axis : int, optional
+            The axis to calculate the product across. If not given an axis it will return the product of the flattened array.
+
+        Returns
+        -------
+        :class:`APyFloatArray` or :class:`APyFloat`
+
+        Raises
+        -------
+        :class:IndexError
+            If a specified axis is outside of the existing number of dimensions for the array.
+        """
 
     def nancumprod(self, axis: int | None = None) -> APyFloatArray:
-        """"""
+        """
+        Returns the cumulative product of the elements along a given axis treating Not a Number as 0.
+
+        Parameters
+        ----------
+        axis : int, optional
+            The axis to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.
+
+        Returns
+        -------
+        :class:`APyFloatArray`
+
+        Raises
+        -------
+        :class:IndexError
+            If a specified axis is outside of the existing number of dimensions for the array.
+        """
 
     def __getitem__(self, idx: int) -> APyFloatArray | APyFloat: ...
     def __iter__(self) -> APyFloatArrayIterator: ...

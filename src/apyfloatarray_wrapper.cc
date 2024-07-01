@@ -804,147 +804,41 @@ void bind_float_array(nb::module_& m)
         )
 
         .def(
-            "cumsum",
-            &APyFloatArray::cumsum,
-            nb::arg("axis") = nb::none(),
-            R"pbdoc(
-            Returns the cumulative sum of the elements along a given axis.
-
-            Parameters
-            ----------
-            axis : int, optional
-                The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.
-
-            Returns
-            -------
-            :class:`APyFloatArray`
-
-            Raises
-            -------
-            IndexError
-                If a specified axis is outside of the existing number of dimensions for the array.
-
-            Examples
-            -------
-
-            >>> from apytypes import APyFloatArray
-
-            >>> a = APyFloatArray.from_float(
-            ...     [[1,2,3],[4,5,6]],
-            ...     exp_bits=10,
-            ...     man_bits=10
-            ... )
-
-            >>> a.cumsum()
-            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 514, 514, 515], [0, 512, 512, 256, 896, 320], shape=(6,), exp_bits=10, man_bits=10, bias=511)
-
-            >>> a.cumsum(0)
-            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 512, 513, 513, 514], [0, 0, 512, 256, 768, 128], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
-
-            >>> a.cumsum(1)
-            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 513, 514, 514], [0, 512, 512, 0, 128, 896], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
-
-            -------
-            )pbdoc"
-        )
-
-        .def(
-            "nansum",
-            &APyFloatArray::nansum,
-            nb::arg("axis") = nb::none(),
-            R"pbdoc(
-            Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
-
-            Parameters
-            ----------
-            axis : tuple, int, optional
-                The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
-
-            Returns
-            -------
-            :class:`APyFloatArray` or `APyFloat`
-
-            Raises
-            -------
-            IndexError
-                If a specified axis is outside of the existing number of dimensions for the array.
-
-            Examples
-            -------
-
-            >>> from apytypes import APyFloatArray
-
-            >>> nan = float("nan")
-
-            >>> a = APyFloatArray.from_float(
-            ...     [1,2,3,4,5,nan],
-            ...     exp_bits=10,
-            ...     man_bits=10
-            ... )
-
-            >>> a.nansum()
-            APyFloat(sign=0, exp=514, man=896, exp_bits=10, man_bits=10)
-
-
-
-            -------
-            )pbdoc"
-        )
-
-        .def(
-            "nancumsum",
-            &APyFloatArray::nancumsum,
-            nb::arg("axis") = nb::none(),
-            R"pbdoc(
-            Returns the cumulative sum of the elements along a given axis treating Not a Number as 0.
-
-            Parameters
-            ----------
-            axis : int, optional
-                The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.
-
-            Returns
-            -------
-            :class:`APyFloatArray`
-
-            Raises
-            -------
-            IndexError
-                If a specified axis is outside of the existing number of dimensions for the array.
-
-            Examples
-            -------
-
-
-            >>> from apytypes import APyFloatArray
-
-            >>> nan = float("nan")
-
-            >>> a = APyFloatArray.from_float(
-            ...     [[1,2,3],[4,5,6]],
-            ...     exp_bits=10,
-            ...     man_bits=10
-            ... )
-
-            >>> a.nancumsum()
-            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 514, 514, 515], [0, 512, 512, 256, 896, 320], shape=(6,), exp_bits=10, man_bits=10, bias=511)
-
-            >>> a.nancumsum(0)
-            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 512, 513, 513, 514], [0, 0, 512, 256, 768, 128], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
-
-            >>> a.nancumsum(1)
-            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 513, 514, 514], [0, 512, 512, 0, 128, 896], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
-
-
-            -------
-            )pbdoc"
-        )
-
-        .def(
             "prod",
             &APyFloatArray::prod,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
+            Returns the product of the elements along specified axis/axes.
+
+            Parameters
+            ----------
+            axis : tuple, int, optional
+                The axis/axes to calculate the product across. If not given an axis it will return the product of the flattened array.
+
+            Returns
+            -------
+            :class:`APyFloatArray` or :class:`APyFloat`
+
+            Raises
+            -------
+            :class:IndexError
+                If a specified axis is outside of the existing number of dimensions for the array.
+
+            Examples
+            -------
+
+            >>> from apytypes import APyFloatArray
+
+            >>> a = APyFloatArray(
+            ...     [1,2,3,4,5,6],
+            ...     exp_bits=10,
+            ...     man_bits=10
+            ... )
+
+            >>> a.prod()
+            APyFloat(sign=0, exp=520, man=416, exp_bits=10, man_bits=10)
+
+            -------
             )pbdoc"
         )
 
@@ -953,6 +847,44 @@ void bind_float_array(nb::module_& m)
             &APyFloatArray::cumprod,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
+            Returns the cumulative product of the elements along a given axes.
+
+            Parameters
+            ----------
+            axis : int, optional
+                The axes to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.
+
+            Returns
+            -------
+            :class:`APyFloatArray`
+
+            Raises
+            -------
+            :class:IndexError
+                If a specified axis is outside of the existing number of dimensions for the array.
+
+            Examples
+            -------
+
+            >>> from apytypes import APyFloatArray
+
+
+            >>> a = APyFloatArray.from_float(
+            ...     [[1,2,3],[4,5,6]],
+            ...     exp_bits=10,
+            ...     man_bits=10
+            ... )
+
+            >>> a.cumprod()
+            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 515, 517, 520], [0, 0, 512, 512, 896, 416], shape=(6,), exp_bits=10, man_bits=10)
+
+            >>> a.cumprod(0)
+            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 512, 513, 514, 515], [0, 0, 512, 0, 256, 128], shape=(2, 3), exp_bits=10, man_bits=10)
+
+            >>> a.cumprod(1)
+            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 513, 515, 517], [0, 0, 512, 0, 256, 896], shape=(2, 3), exp_bits=10, man_bits=10)
+
+            -------
             )pbdoc"
         )
 
@@ -961,6 +893,21 @@ void bind_float_array(nb::module_& m)
             &APyFloatArray::nanprod,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
+                Returns the product of the elements along a given axis treating Not a Number as 0.
+
+                Parameters
+                ----------
+                axis : int, optional
+                    The axis to calculate the product across. If not given an axis it will return the product of the flattened array.
+
+                Returns
+                -------
+                :class:`APyFloatArray` or :class:`APyFloat`
+
+                Raises
+                -------
+                :class:IndexError
+                    If a specified axis is outside of the existing number of dimensions for the array.
             )pbdoc"
         )
 
@@ -969,6 +916,22 @@ void bind_float_array(nb::module_& m)
             &APyFloatArray::nancumprod,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
+                Returns the cumulative product of the elements along a given axis treating Not a Number as 0.
+
+                Parameters
+                ----------
+                axis : int, optional
+                    The axis to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.
+
+                Returns
+                -------
+                :class:`APyFloatArray`
+
+                Raises
+                -------
+                :class:IndexError
+                    If a specified axis is outside of the existing number of dimensions for the array.
+
             )pbdoc"
         )
 
