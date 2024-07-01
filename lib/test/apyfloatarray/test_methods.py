@@ -1159,17 +1159,3 @@ def test_ravel(shape):
     reshaped = arr.reshape(shape)
     if not APyFloatArray.is_identical(reshaped.ravel(), arr):
         pytest.fail(f"Flatten didn't return to original 1d list after reshape {shape}")
-
-
-if __name__ == "__main__":
-    nan = float("nan")
-    n = APyFloatArray.from_float(
-        [[[1, 2], [3, 4]], [[5, nan], [7, 8]]], exp_bits=10, man_bits=10
-    )
-    print(n)
-    o = n.nanprod(2)
-    print(o)
-    p = o.nanprod(0)
-    print(p)
-    k = APyFloatArray.from_float([10, 672], exp_bits=10, man_bits=10)
-    print(k)
