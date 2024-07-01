@@ -1,3 +1,4 @@
+from itertools import permutations
 import pytest
 from apytypes import (
     APyFloat,
@@ -702,10 +703,6 @@ def test_array_rdiv_scalar():
 
 @pytest.mark.float_array
 def test_transpose():
-    # High-dimensional transor transposition not implemented
-    with pytest.raises(ValueError, match="Not implemented: high-dimensional"):
-        APyFloatArray([[[1]]], [[[1]]], [[[1]]], 3, 3).T
-
     # 1-D transposition simply returns the input (just like NumPy-arrays)
     assert APyFloatArray([], [], [], 4, 3).T.is_identical(
         APyFloatArray([], [], [], 4, 3)
@@ -735,6 +732,55 @@ def test_transpose():
             man_bits=2,
         )
     )
+
+
+def _generate_dimensions(n):
+    result = set()  # Use a set to store unique combinations
+
+    def factor_combinations(target, factors):
+        if target == 1:
+            result.add(tuple(sorted(factors)))  # Add sorted tuple to set
+            return
+        for i in range(2, target + 1):
+            if target % i == 0:
+                factor_combinations(target // i, factors + [i])
+
+    factor_combinations(n, [])
+    return list(result)  # Convert set back to list
+
+
+@pytest.mark.float_array
+def test_transpose_3d():
+    np = pytest.importorskip("numpy")
+
+    num_elems = 48
+    elements = np.arange(num_elems)
+    # Generate all possible axis permutations for a 3D array
+    possible_shapes = _generate_dimensions(num_elems)
+
+    # Test each permutation
+    for shape in possible_shapes:
+        if len(shape) < 3:
+            axes_permutations = [None]
+        else:
+            axes_permutations = list(permutations([_ for _ in range(len(shape))]))
+
+        for perm in axes_permutations:
+            apy_array = APyFloatArray.from_array(np.reshape(elements, shape), 5, 5)
+            numpy_transposed = np.transpose(np.reshape(elements, shape), perm)
+
+            apy_transposed = apy_array.transpose(perm)
+            numpy_array = APyFloatArray.from_array(numpy_transposed, 5, 5)
+
+            assert apy_transposed.is_identical(numpy_array), (
+                f"Failed for shape {shape} and permutation {perm}. "
+                f"Original array = \n{np.reshape(elements, shape)}\n "
+                f"ApyFloat array = \n{apy_transposed.to_numpy()}\n "
+                f"Numpy created array = \n{numpy_array.to_numpy()}"
+            )
+
+
+test_transpose_3d()
 
 
 @pytest.mark.float_array

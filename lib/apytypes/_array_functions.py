@@ -134,3 +134,68 @@ def shape(arr):
     except AttributeError:
         raise TypeError(f"{type(arr)} has no shape")
     return shape
+
+
+def transpose(a, axes=None):
+    """
+    Returns an copy of the array with axes transposed.
+
+    For a 1-D array, this returns the same array
+    For a 2-D array, this is the standard matrix transpose.
+    For an n-D array, if axes are given, their order indicates how the
+    axes are permuted (see Examples). If axes are not provided, then
+    ``transpose(a).shape == a.shape[::-1]``.
+
+    Parameters
+    ----------
+    arr : :class:`APyFloatArray` or :class:`APyFixedArray`
+        Input data.
+    axes : tuple of of ints, optional
+        If specified, it must be a tuple which contains a permutation
+        of [0,1,...,N-1] where N is the number of axes of `a`. The `i`'th axis
+        of the returned array will correspond to the axis numbered ``axes[i]``
+        of the input. If not specified, defaults to ``range(a.ndim)[::-1]``,
+        which reverses the order of the axes.
+
+    Returns
+    -------
+    :class" `ApyFloatArray`
+        `a` with its axes permuted.
+
+
+    Examples
+    --------
+    from ApyTypes import ApyFloatArray
+    >>> a = APyFloatArray.from_float(
+    ...     [[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]],
+    ...     exp_bits=5,
+    ...     man_bits=2,
+    ... )
+    >>> a.to_numpy()
+    array([[ 1.,  2.,  3.],
+           [-4., -5., -6.]])
+    >>> a = ApyTypes.transpose(a)
+    >>> a.to_numpy()
+    array([[ 1., -4.],
+           [ 2., -5.],
+           [ 3., -6.]])
+
+    >>> a = APyFloatArray.from_float(
+    ...     [1.0] * 6,
+    ...     exp_bits=5,
+    ...     man_bits=2,
+    ... ).reshape((1, 2, 3))
+    >>> APytypes.transpose(a, (1, 0, 2)).shape
+    (2, 1, 3)
+
+    >>> APytypes.transpose(a, (-2, -3, -1)).shape
+    (2, 1, 3)
+
+    --------
+    """
+
+    try:
+        transpose = a.transpose
+    except AttributeError:
+        raise TypeError(f"Cannot transpose {type(a)}")
+    return transpose(a, axes=axes)
