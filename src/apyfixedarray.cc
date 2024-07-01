@@ -837,220 +837,6 @@ APyFixedArray::squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis) co
     return result;
 }
 
-<<<<<<< HEAD
-APyFixedArray APyFixedArray::cumsum(std::optional<nb::int_> axis) const
-{
-    auto pos_func = [](std::size_t i,
-                       std::size_t sec_length,
-                       std::size_t elements,
-                       APyFixedArray& src,
-                       APyFixedArray& dst) {
-        std::size_t pos = i - sec_length;
-        if (i % (sec_length * elements) < sec_length) {
-            pos = i;
-        }
-        mpn_add_n_functor<> {}(
-            &dst._data.at(i * src._itemsize),   // dst
-            &dst._data.at(pos * src._itemsize), // src1
-            &src._data.at(i * src._itemsize),   // src2
-            src._itemsize                       // limb vector length
-        );
-    };
-    return cumulative_prod_sum_function(pos_func, axis);
-}
-
-APyFixedArray APyFixedArray::nancumsum(std::optional<nb::int_> axis) const
-{
-    return this->cumsum(axis);
-}
-
-APyFixedArray APyFixedArray::cumulative_prod_sum_function(
-    void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFixedArray&, APyFixedArray&),
-    std::optional<nb::int_> axis
-) const
-{
-    std::size_t _axis = _shape.size();
-    if (axis.has_value()) {
-        _axis = std::size_t(axis.value());
-        if (_axis >= _shape.size()) {
-            throw nb::index_error(
-                "specified axis outside number of dimensions in the APyFixedArray"
-            );
-        }
-    }
-
-    std::size_t elements = _nitems;
-    std::size_t res_nitems = _nitems;
-    std::vector<std::size_t> shape = { _nitems };
-    if (_axis < _shape.size()) {
-        elements = _shape.at(_axis);
-        shape = _shape;
-    }
-
-    int bit_increase = bit_width(elements - 1);
-    const int res_int_bits = int_bits() + bit_increase;
-    const int res_frac_bits = frac_bits();
-    const int res_bits = res_int_bits + res_frac_bits;
-    std::size_t sec_length = _nitems;
-    for (std::size_t i = 0; i < _shape.size(); i++) {
-        sec_length /= _shape.at(i);
-        if (i == _axis) {
-            break;
-        }
-    }
-    // Resulting vector
-    APyFixedArray result(_shape, res_bits, res_int_bits);
-    APyFixedArray source(_shape, bits(), int_bits());
-    std::copy_n(_data.begin(), _data.size(), source._data.begin());
-
-    for (std::size_t i = 0; i < result._nitems; i++) {
-        pos_func(i, sec_length, elements, source, result);
-    }
-
-    APyFixedArray result2(shape, res_bits, res_int_bits);
-    std::copy_n(
-        result._data.begin(), res_nitems * result._itemsize, result2._data.begin()
-    );
-    return result2;
-}
-std::variant<APyFixedArray, APyFixed> APyFixedArray::prod_sum_function(
-    void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFixedArray&, APyFixedArray&),
-    std::optional<std::variant<nb::tuple, nb::int_>> axis
-) const
-{
-    std::set<std::size_t> axes_set;
-    if (axis.has_value()) {
-        std::vector<std::size_t> axes_vector
-            = cpp_shape_from_python_shape_like(axis.value());
-        for (auto i : axes_vector) {
-            if (i >= _shape.size()) {
-                throw nb::index_error(
-                    "specified axis outside number of dimensions in the APyFixedArray"
-                );
-            }
-            axes_set.insert(i);
-        }
-    } else {
-        axes_set.insert(_shape.size());
-    }
-    std::size_t elements = 1;
-    for (std::size_t i = 0; i <= _shape.size(); i++) {
-        if (axes_set.find(i) != axes_set.end()) {
-            if (i == _shape.size()) {
-                elements *= _nitems;
-            } else {
-                elements *= _shape.at(i);
-            }
-        }
-    }
-    int bit_increase = bit_width(elements - 1);
-    const int res_int_bits = int_bits() + bit_increase;
-    const int res_frac_bits = frac_bits();
-    const int res_bits = res_int_bits + res_frac_bits;
-
-    // Resulting vector
-    APyFixedArray result(_shape, res_bits, res_int_bits);
-    APyFixedArray source(_shape, bits(), int_bits());
-    std::copy_n(_data.begin(), _data.size(), source._data.begin());
-
-    std::vector<std::size_t> shape;
-    std::size_t res_elements = source._nitems;
-    std::size_t sec_length = source._nitems;
-    for (std::size_t x = 0; x <= _shape.size(); x++) {
-        std::size_t elements = res_elements;
-        if (axes_set.find(x) == axes_set.end()) {
-            if (x < _shape.size()) {
-                sec_length /= source._shape.at(x);
-                shape.push_back(_shape.at(x));
-            }
-            continue;
-        }
-
-        if (x < _shape.size()) {
-            elements = source._shape.at(x);
-            sec_length /= source._shape.at(x);
-        } else {
-            shape = {};
-        }
-        for (std::size_t i = 0; i < res_elements; i++) {
-            pos_func(i, sec_length, elements, source, result);
-        }
-
-        res_elements /= elements;
-        source = result;
-        result._data.assign(result._data.size(), 0);
-    }
-    if (shape.size() == 0) {
-        APyFixed res(res_bits, res_int_bits);
-        std::copy_n(source._data.begin(), source._itemsize, res._data.begin());
-        return res;
-    } else {
-        APyFixedArray res(shape, res_bits, res_int_bits);
-        std::copy_n(
-            source._data.begin(), res_elements * source._itemsize, res._data.begin()
-        );
-        return res;
-    }
-}
-
-std::variant<APyFixedArray, APyFixed>
-APyFixedArray::sum(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
-{
-    auto pos_func = [](std::size_t i,
-                       std::size_t sec_length,
-                       std::size_t elements,
-                       APyFixedArray& src,
-                       APyFixedArray& dst) {
-        std::size_t pos_in_sec = i % (sec_length);
-        std::size_t sec_pos
-            = (i - i % (elements * sec_length)) / (elements * sec_length);
-        // Perform ripple-carry operation on the limbs
-        auto pos = (pos_in_sec + sec_pos) * src._itemsize;
-        mpn_add_n_functor<> {}(
-            &dst._data.at(pos),               // dst
-            &dst._data.at(pos),               // src1
-            &src._data.at(i * src._itemsize), // src2
-            src._itemsize                     // limb vector length
-        );
-    };
-
-    return prod_sum_function(pos_func, axis);
-}
-
-std::variant<APyFixedArray, APyFixed>
-APyFixedArray::nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
-{
-    return this->sum(axis);
-}
-
-=======
->>>>>>> b7f5c527 (added more tests for the sum functions)
-APyFixedArray APyFixedArray::cumsum(std::optional<nb::int_> axis) const
-{
-    auto pos_func = [](std::size_t i,
-                       std::size_t sec_length,
-                       std::size_t elements,
-                       APyFixedArray& src,
-                       APyFixedArray& dst) {
-        std::size_t pos = i - sec_length;
-        if (i % (sec_length * elements) < sec_length) {
-            pos = i;
-        }
-        mpn_add_n_functor<> {}(
-            &dst._data.at(i * src._itemsize),   // dst
-            &dst._data.at(pos * src._itemsize), // src1
-            &src._data.at(i * src._itemsize),   // src2
-            src._itemsize                       // limb vector length
-        );
-    };
-    return cumulative_prod_sum_function(pos_func, axis);
-}
-
-APyFixedArray APyFixedArray::nancumsum(std::optional<nb::int_> axis) const
-{
-    return this->cumsum(axis);
-}
-
 APyFixedArray APyFixedArray::cumulative_prod_sum_function(
     void (*pos_func)(
         std::size_t,
@@ -1124,29 +910,22 @@ std::variant<APyFixedArray, APyFixed> APyFixedArray::prod_sum_function(
     ),
     int (*int_bit_increase)(std::size_t, std::size_t),
     int (*frac_bit_increase)(std::size_t, std::size_t),
-    std::optional<std::variant<nb::int_, nb::tuple>> axes
+    std::optional<std::variant<nb::tuple, nb::int_>> axis
 ) const
 {
     // determine input value
     // if no value were given it will default to {_shape.size()}
     std::set<std::size_t> axes_set;
-    if (axes.has_value()) {
-        nb::tuple axes_tuple;
-        auto axes_val = axes.value();
-        if (std::holds_alternative<nb::tuple>(axes_val)) {
-            axes_tuple = std::get<nb::tuple>(axes_val);
-        } else if (std::holds_alternative<nb::int_>(axes_val)) {
-            axes_tuple = nb::make_tuple(std::get<nb::int_>(axes_val));
-        }
-        for (auto ptr = axes_tuple.begin(); ptr != axes_tuple.end(); ptr++) {
-            std::size_t axis_n = std::size_t(nanobind::cast<nb::int_>(*ptr));
-            if (axis_n >= _shape.size()) {
+    if (axis.has_value()) {
+        std::vector<std::size_t> axes_vector
+            = cpp_shape_from_python_shape_like(axis.value());
+        for (auto i : axes_vector) {
+            if (i >= _shape.size()) {
                 throw nb::index_error(
-                    "Specified axis with larger than number of dimensions in the "
-                    "APyFixedArray"
+                    "specified axis outside number of dimensions in the APyFixedArray"
                 );
             }
-            axes_set.insert(axis_n);
+            axes_set.insert(i);
         }
     } else {
         axes_set.insert(_shape.size());
@@ -1215,7 +994,7 @@ std::variant<APyFixedArray, APyFixed> APyFixedArray::prod_sum_function(
 }
 
 std::variant<APyFixedArray, APyFixed>
-APyFixedArray::sum(std::optional<std::variant<nb::int_, nb::tuple>> axis) const
+APyFixedArray::sum(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
 {
     auto int_bit_increase = [](std::size_t elements, std::size_t bits) {
         return int(std::ceil(std::log2(elements)));
@@ -1245,7 +1024,7 @@ APyFixedArray::sum(std::optional<std::variant<nb::int_, nb::tuple>> axis) const
 }
 
 std::variant<APyFixedArray, APyFixed>
-APyFixedArray::nansum(std::optional<std::variant<nb::int_, nb::tuple>> axis) const
+APyFixedArray::nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
 {
     // since no Nan can exist in an APyFixedArray it is the same as sum
     return this->sum(axis);
@@ -1288,7 +1067,7 @@ APyFixedArray APyFixedArray::nancumsum(std::optional<nb::int_> axis) const
 }
 
 std::variant<APyFixedArray, APyFixed>
-APyFixedArray::prod(std::optional<std::variant<nb::int_, nb::tuple>> axis) const
+APyFixedArray::prod(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
 {
     auto int_bit_increase = [](std::size_t elements, std::size_t int_bits) {
         return int((elements - 1) * int_bits);
@@ -1428,7 +1207,7 @@ APyFixedArray APyFixedArray::cumprod(std::optional<nb::int_> axis) const
 }
 
 std::variant<APyFixedArray, APyFixed>
-APyFixedArray::nanprod(std::optional<std::variant<nb::int_, nb::tuple>> axis) const
+APyFixedArray::nanprod(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
 {
     // since no Nan can exist in an APyFixedArray it is the same as prod
     return this->prod(axis);

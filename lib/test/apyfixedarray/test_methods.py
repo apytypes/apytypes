@@ -177,229 +177,72 @@ def test_cumsum(sum_func):
     assert o.is_identical(APyFixedArray([14, 22], frac_bits=0, int_bits=7))
 
 
-def test_cumsum():
-    a = APyFixedArray([[1, 2, 3], [4, 5, 6]], frac_bits=0, int_bits=5)
-    b = a.cumsum()
-    assert b.is_identical(APyFixedArray([1, 3, 6, 10, 15, 21], frac_bits=0, int_bits=8))
-    c = a.cumsum(0)
-    assert c.is_identical(
-        APyFixedArray([[1, 2, 3], [5, 7, 9]], frac_bits=0, int_bits=6)
-    )
-    d = a.cumsum(1)
-    assert d.is_identical(
-        APyFixedArray([[1, 3, 6], [4, 9, 15]], frac_bits=0, int_bits=7)
-    )
-    e = APyFixedArray([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=8)
-    f = e.cumsum()
-    g = e.cumsum(0)
-    h = e.cumsum(1)
-    i = e.cumsum(2)
-    assert f.is_identical(
-        APyFixedArray([1, 3, 6, 10, 15, 21, 28, 36], frac_bits=0, int_bits=11)
-    )
-    assert g.is_identical(
-        APyFixedArray([[[1, 2], [3, 4]], [[6, 8], [10, 12]]], frac_bits=0, int_bits=9)
-    )
-    assert h.is_identical(
-        APyFixedArray([[[1, 2], [4, 6]], [[5, 6], [12, 14]]], frac_bits=0, int_bits=9)
-    )
-    assert i.is_identical(
-        APyFixedArray([[[1, 3], [3, 7]], [[5, 11], [7, 15]]], frac_bits=0, int_bits=9)
-    )
-    with pytest.raises(IndexError):
-        _ = e.cumsum(4)
-
-    k = APyFixedArray.from_float(
-        [[0.25, 0.25], [0.25, 0.25]], frac_bits=10, int_bits=10
-    )
-    m = k.cumsum()
-    assert m.is_identical(
-        APyFixedArray.from_float([0.25, 0.5, 0.75, 1], frac_bits=10, int_bits=12)
-    )
-
-    # test for size larger than 32 and 64 when number over multiple limbs
-    g = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
-    h = g.cumsum(0)
-    assert h.is_identical(
-        APyFixedArray([[0, 1, 2], [3, 5, 7]], frac_bits=0, int_bits=34)
-    )
-    j = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=65)
-    k = j.cumsum(0)
-    assert k.is_identical(
-        APyFixedArray([[0, 1, 2], [3, 5, 7]], frac_bits=0, int_bits=66)
-    )
-
-
-def test_nansum():
+@pytest.mark.parametrize("prod_func", ["prod", "nanprod"])
+def test_prod(prod_func):
     a = APyFixedArray([[1, 2], [3, 4], [5, 6], [7, 8]], bits=5, int_bits=5)
-    b = a.nansum()
-    assert b.is_identical(APyFixed(36, bits=8, int_bits=8))
-    c = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=5)
-    d = c.nansum((0, 1))
-    e = c.nansum(0)
-    f = c.nansum(1)
-    assert d.is_identical(APyFixed(15, bits=8, int_bits=8))
-    assert e.is_identical(APyFixedArray([3, 5, 7], bits=6, int_bits=6))
-    assert f.is_identical(APyFixedArray([3, 12], bits=7, int_bits=7))
-
-    # test for size larger than 32 and 64 when number over multiple limbs
-    g = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
-    h = g.nansum(0)
-    assert h.is_identical(APyFixedArray([3, 5, 7], frac_bits=0, int_bits=34))
-    j = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=65)
-    k = j.nansum(0)
-    assert k.is_identical(APyFixedArray([3, 5, 7], frac_bits=0, int_bits=66))
-
-    # test some float and negative summation
-    j = APyFixedArray.from_float([0.2, 1.4, 3.3], frac_bits=3, int_bits=5)
-    k = j.nansum()
-    assert k.is_identical(APyFixed(39, bits=10, int_bits=7))
-    m = APyFixedArray.from_float([0.333333, 1.333333, 3.33333], frac_bits=3, int_bits=5)
-    n = m.nansum()
-    assert n.is_identical(APyFixed(41, bits=10, int_bits=7))
-
-    o = APyFixedArray([[-1, -2], [-3, -4]], frac_bits=0, int_bits=5)
-    p = o.nansum(1)
-    assert p.is_identical(APyFixedArray([-3, -7], frac_bits=0, int_bits=6))
-
-    q = APyFixedArray([[-1, -2], [1, 2]], frac_bits=0, int_bits=5)
-    r = q.nansum(0)
-    assert r.is_identical(APyFixedArray([0, 0], frac_bits=0, int_bits=6))
-
-    m = APyFixedArray([1, 2, 3], bits=2, int_bits=2)
-    with pytest.raises(IndexError):
-        _ = m.nansum(1)
-
-    # test for size larger than 32 and 64 when number over multiple limbs
-    g = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
-    h = g.nansum(0)
-    assert h.is_identical(APyFixedArray([3, 5, 7], frac_bits=0, int_bits=34))
-    j = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=65)
-    k = j.nansum(0)
-    assert k.is_identical(APyFixedArray([3, 5, 7], frac_bits=0, int_bits=66))
-
-    n = APyFixedArray([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=5)
-    o = n.nansum((0, 2))
-    assert o.is_identical(APyFixedArray([14, 22], frac_bits=0, int_bits=7))
-
-
-def test_nancumsum():
-    a = APyFixedArray([[1, 2, 3], [4, 5, 6]], frac_bits=0, int_bits=5)
-    b = a.nancumsum()
-    assert b.is_identical(APyFixedArray([1, 3, 6, 10, 15, 21], frac_bits=0, int_bits=8))
-    c = a.nancumsum(0)
-    assert c.is_identical(
-        APyFixedArray([[1, 2, 3], [5, 7, 9]], frac_bits=0, int_bits=6)
-    )
-    d = a.nancumsum(1)
-    assert d.is_identical(
-        APyFixedArray([[1, 3, 6], [4, 9, 15]], frac_bits=0, int_bits=7)
-    )
-    e = APyFixedArray([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=8)
-    f = e.nancumsum()
-    g = e.nancumsum(0)
-    h = e.nancumsum(1)
-    i = e.nancumsum(2)
-    assert f.is_identical(
-        APyFixedArray([1, 3, 6, 10, 15, 21, 28, 36], frac_bits=0, int_bits=11)
-    )
-    assert g.is_identical(
-        APyFixedArray([[[1, 2], [3, 4]], [[6, 8], [10, 12]]], frac_bits=0, int_bits=9)
-    )
-    assert h.is_identical(
-        APyFixedArray([[[1, 2], [4, 6]], [[5, 6], [12, 14]]], frac_bits=0, int_bits=9)
-    )
-    assert i.is_identical(
-        APyFixedArray([[[1, 3], [3, 7]], [[5, 11], [7, 15]]], frac_bits=0, int_bits=9)
-    )
-    with pytest.raises(IndexError):
-        _ = e.nancumsum(4)
-
-    k = APyFixedArray.from_float(
-        [[0.25, 0.25], [0.25, 0.25]], frac_bits=10, int_bits=10
-    )
-    m = k.nancumsum()
-    assert m.is_identical(
-        APyFixedArray.from_float([0.25, 0.5, 0.75, 1], frac_bits=10, int_bits=12)
-    )
-
-    # test for size larger than 32 and 64 when number over multiple limbs
-    g = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
-    h = g.nancumsum(0)
-    assert h.is_identical(
-        APyFixedArray([[0, 1, 2], [3, 5, 7]], frac_bits=0, int_bits=34)
-    )
-    j = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=65)
-    k = j.nancumsum(0)
-    assert k.is_identical(
-        APyFixedArray([[0, 1, 2], [3, 5, 7]], frac_bits=0, int_bits=66)
-    )
-
-
-def test_prod():
-    a = APyFixedArray([[1, 2], [3, 4], [5, 6], [7, 8]], bits=5, int_bits=5)
-    b = a.prod()
+    b = a.__getattribute__(prod_func)()
     assert b.is_identical(APyFixed(40320, bits=40, int_bits=40))
     c = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=5)
-    d = c.prod((0, 1))
-    e = c.prod(0)
-    f = c.prod(1)
+    d = c.__getattribute__(prod_func)((0, 1))
+    e = c.__getattribute__(prod_func)(0)
+    f = c.__getattribute__(prod_func)(1)
     assert d.is_identical(APyFixed(0, bits=30, int_bits=30))
     assert e.is_identical(APyFixedArray([0, 4, 10], bits=10, int_bits=10))
     assert f.is_identical(APyFixedArray([0, 60], bits=15, int_bits=15))
     # test for size larger than 32 and 64 when number over multiple limbs
     g = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
-    h = g.prod(0)
+    h = g.__getattribute__(prod_func)(0)
     assert h.is_identical(APyFixedArray([0, 4, 10], frac_bits=0, int_bits=66))
     j = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=65)
-    k = j.prod(0)
+    k = j.__getattribute__(prod_func)(0)
     assert k.is_identical(APyFixedArray([0, 4, 10], frac_bits=0, int_bits=130))
 
     # test some float and negative multiplication
     j = APyFixedArray.from_float([0.25, 8], frac_bits=3, int_bits=5)
-    k = j.prod()
+    k = j.__getattribute__(prod_func)()
     assert k.is_identical(APyFixed.from_float(2, frac_bits=6, int_bits=10))
 
     o = APyFixedArray([[-1, -2], [-3, -4]], frac_bits=0, int_bits=5)
-    p = o.prod(1)
+    p = o.__getattribute__(prod_func)(1)
     assert p.is_identical(APyFixedArray([2, 12], frac_bits=0, int_bits=10))
 
     q = APyFixedArray([[-1, -2], [1, 2]], frac_bits=0, int_bits=5)
-    r = q.prod(0)
+    r = q.__getattribute__(prod_func)(0)
     assert r.is_identical(APyFixedArray([-1, -4], frac_bits=0, int_bits=10))
 
     m = APyFixedArray([1, 2, 3], bits=2, int_bits=2)
     with pytest.raises(IndexError):
-        _ = m.prod(1)
+        _ = m.__getattribute__(prod_func)(1)
 
     n = APyFixedArray.from_float([[0.25, 0.5]], frac_bits=10, int_bits=10)
-    o = n.prod(1)
+    o = n.__getattribute__(prod_func)(1)
     assert o.is_identical(APyFixedArray.from_float([0.125], frac_bits=20, int_bits=20))
 
     n = APyFixedArray([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=5)
-    o = n.prod((0, 2))
+    o = n.__getattribute__(prod_func)((0, 2))
     assert o.is_identical(APyFixedArray([60, 672], frac_bits=0, int_bits=20))
 
 
-def test_cumprod():
+@pytest.mark.parametrize("prod_func", ["cumprod", "nancumprod"])
+def test_cumprod(prod_func):
     a = APyFixedArray([[1, 2, 3], [4, 5, 6]], frac_bits=0, int_bits=5)
-    b = a.cumprod()
+    b = a.__getattribute__(prod_func)()
     assert b.is_identical(
         APyFixedArray([1, 2, 6, 24, 120, 720], frac_bits=0, int_bits=30)
     )
-    c = a.cumprod(0)
+    c = a.__getattribute__(prod_func)(0)
     assert c.is_identical(
         APyFixedArray([[1, 2, 3], [4, 10, 18]], frac_bits=0, int_bits=10)
     )
-    d = a.cumprod(1)
+    d = a.__getattribute__(prod_func)(1)
     assert d.is_identical(
         APyFixedArray([[1, 2, 6], [4, 20, 120]], frac_bits=0, int_bits=15)
     )
     e = APyFixedArray([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=8)
-    f = e.cumprod()
-    g = e.cumprod(0)
-    h = e.cumprod(1)
-    i = e.cumprod(2)
+    f = e.__getattribute__(prod_func)()
+    g = e.__getattribute__(prod_func)(0)
+    h = e.__getattribute__(prod_func)(1)
+    i = e.__getattribute__(prod_func)(2)
     assert f.is_identical(
         APyFixedArray([1, 2, 6, 24, 120, 720, 5040, 40320], frac_bits=0, int_bits=64)
     )
@@ -413,120 +256,22 @@ def test_cumprod():
         APyFixedArray([[[1, 2], [3, 12]], [[5, 30], [7, 56]]], frac_bits=0, int_bits=16)
     )
     with pytest.raises(IndexError):
-        _ = e.cumprod(4)
+        _ = e.__getattribute__(prod_func)(4)
 
     k = APyFixedArray.from_float([[0.25, 0.5], [1, 2]], frac_bits=10, int_bits=10)
-    m = k.cumprod()
+    m = k.__getattribute__(prod_func)()
     assert m.is_identical(
         APyFixedArray.from_float([0.25, 0.125, 0.125, 0.25], frac_bits=40, int_bits=40)
     )
 
     # test for size larger than 32 and 64 when number over multiple limbs
     g = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
-    h = g.cumprod(0)
+    h = g.__getattribute__(prod_func)(0)
     assert h.is_identical(
         APyFixedArray([[0, 1, 2], [0, 4, 10]], frac_bits=0, int_bits=66)
     )
     j = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=65)
-    k = j.cumprod(0)
-    assert k.is_identical(
-        APyFixedArray([[0, 1, 2], [0, 4, 10]], frac_bits=0, int_bits=130)
-    )
-
-
-def test_nanprod():
-    a = APyFixedArray([[1, 2], [3, 4], [5, 6], [7, 8]], bits=5, int_bits=5)
-    b = a.nanprod()
-    assert b.is_identical(APyFixed(40320, bits=40, int_bits=40))
-    c = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=5)
-    d = c.nanprod((0, 1))
-    e = c.nanprod(0)
-    f = c.nanprod(1)
-    assert d.is_identical(APyFixed(0, bits=30, int_bits=30))
-    assert e.is_identical(APyFixedArray([0, 4, 10], bits=10, int_bits=10))
-    assert f.is_identical(APyFixedArray([0, 60], bits=15, int_bits=15))
-    # test for size larger than 32 and 64 when number over multiple limbs
-    g = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
-    h = g.nanprod(0)
-    assert h.is_identical(APyFixedArray([0, 4, 10], frac_bits=0, int_bits=66))
-    j = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=65)
-    k = j.nanprod(0)
-    assert k.is_identical(APyFixedArray([0, 4, 10], frac_bits=0, int_bits=130))
-
-    # test some float and negative multiplication
-    j = APyFixedArray.from_float([0.25, 8], frac_bits=3, int_bits=5)
-    k = j.nanprod()
-    assert k.is_identical(APyFixed.from_float(2, frac_bits=6, int_bits=10))
-
-    o = APyFixedArray([[-1, -2], [-3, -4]], frac_bits=0, int_bits=5)
-    p = o.nanprod(1)
-    assert p.is_identical(APyFixedArray([2, 12], frac_bits=0, int_bits=10))
-
-    q = APyFixedArray([[-1, -2], [1, 2]], frac_bits=0, int_bits=5)
-    r = q.nanprod(0)
-    assert r.is_identical(APyFixedArray([-1, -4], frac_bits=0, int_bits=10))
-
-    m = APyFixedArray([1, 2, 3], bits=2, int_bits=2)
-    with pytest.raises(IndexError):
-        _ = m.nanprod(1)
-
-    n = APyFixedArray.from_float([[0.25, 0.5]], frac_bits=10, int_bits=10)
-    o = n.nanprod(1)
-    assert o.is_identical(APyFixedArray.from_float([0.125], frac_bits=20, int_bits=20))
-
-    n = APyFixedArray([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=5)
-    o = n.prod((0, 2))
-    assert o.is_identical(APyFixedArray([60, 672], frac_bits=0, int_bits=20))
-
-
-def test_nancumprod():
-    a = APyFixedArray([[1, 2, 3], [4, 5, 6]], frac_bits=0, int_bits=5)
-    b = a.nancumprod()
-    assert b.is_identical(
-        APyFixedArray([1, 2, 6, 24, 120, 720], frac_bits=0, int_bits=30)
-    )
-    c = a.nancumprod(0)
-    assert c.is_identical(
-        APyFixedArray([[1, 2, 3], [4, 10, 18]], frac_bits=0, int_bits=10)
-    )
-    d = a.nancumprod(1)
-    assert d.is_identical(
-        APyFixedArray([[1, 2, 6], [4, 20, 120]], frac_bits=0, int_bits=15)
-    )
-    e = APyFixedArray([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=8)
-    f = e.nancumprod()
-    g = e.nancumprod(0)
-    h = e.nancumprod(1)
-    i = e.nancumprod(2)
-    assert f.is_identical(
-        APyFixedArray([1, 2, 6, 24, 120, 720, 5040, 40320], frac_bits=0, int_bits=64)
-    )
-    assert g.is_identical(
-        APyFixedArray([[[1, 2], [3, 4]], [[5, 12], [21, 32]]], frac_bits=0, int_bits=16)
-    )
-    assert h.is_identical(
-        APyFixedArray([[[1, 2], [3, 8]], [[5, 6], [35, 48]]], frac_bits=0, int_bits=16)
-    )
-    assert i.is_identical(
-        APyFixedArray([[[1, 2], [3, 12]], [[5, 30], [7, 56]]], frac_bits=0, int_bits=16)
-    )
-    with pytest.raises(IndexError):
-        _ = e.nancumprod(4)
-
-    k = APyFixedArray.from_float([[0.25, 0.5], [1, 2]], frac_bits=10, int_bits=10)
-    m = k.nancumprod()
-    assert m.is_identical(
-        APyFixedArray.from_float([0.25, 0.125, 0.125, 0.25], frac_bits=40, int_bits=40)
-    )
-
-    # test for size larger than 32 and 64 when number over multiple limbs
-    g = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
-    h = g.nancumprod(0)
-    assert h.is_identical(
-        APyFixedArray([[0, 1, 2], [0, 4, 10]], frac_bits=0, int_bits=66)
-    )
-    j = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=65)
-    k = j.nancumprod(0)
+    k = j.__getattribute__(prod_func)(0)
     assert k.is_identical(
         APyFixedArray([[0, 1, 2], [0, 4, 10]], frac_bits=0, int_bits=130)
     )

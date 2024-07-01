@@ -115,7 +115,7 @@ private:
         ),
         int (*int_bit_increase)(std::size_t, std::size_t),
         int (*frac_bit_increase)(std::size_t, std::size_t),
-        std::optional<std::variant<nb::int_, nb::tuple>> axes = std::nullopt
+        std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt
     ) const;
 
     // internal function for the cumprod,cumsum,nancumprod and nancumsum functions
@@ -179,44 +179,30 @@ public:
     //! Perform a linear convolution with `other` using `mode`
     APyFixedArray convolve(const APyFixedArray& other, const std::string& mode) const;
 
-
     //! Sum over one or more axes.
     std::variant<APyFixedArray, APyFixed>
     sum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
-
-    //! Returns a copy where the specified axes contains the increasing cumulated
-    //! summation across its own axis.
-    APyFixedArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
-
-    //! Returns a copy where the specified axes is summated, treating Nan as 0.
-    std::variant<APyFixedArray, APyFixed>
-    nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
-
-    //! Returns a copy where the specified axes contains the increasing cumulated
-    //! summation across its own axis, treating Nan as 0.
-    APyFixedArray nancumsum(std::optional<nb::int_> axis = std::nullopt) const;
-
 
     //! Cumulative sum over one or more axes.
     APyFixedArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Sum over one or more axes, treating Nan as 0.
     std::variant<APyFixedArray, APyFixed>
-    nansum(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
+    nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
 
     //! Cumulative sum over one or more axes, treatíng Nan as 0.
     APyFixedArray nancumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Multiplication over one or more axes.
     std::variant<APyFixedArray, APyFixed>
-    prod(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
+    prod(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
 
     //! Cumulative multiplication over one or more axes.
     APyFixedArray cumprod(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Multiplication over one or more axes, treating Nan as 0
     std::variant<APyFixedArray, APyFixed>
-    nanprod(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
+    nanprod(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
 
     //! Cumulative multiplication over one or more axes, treating Nan as 0
     APyFixedArray nancumprod(std::optional<nb::int_> axis = std::nullopt) const;

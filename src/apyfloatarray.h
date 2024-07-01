@@ -120,40 +120,28 @@ public:
 
     //! Sum over one or more axes.
     std::variant<APyFloatArray, APyFloat>
-    sum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const; 
+    sum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
 
-    //! Returns a copy where the specified axes contains the increasing cumulated 
-    //! summation across its own axis.
-    APyFloatArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
-
-    //! Returns a copy where the specified axes is summated, treating Nan as 0. 
-    std::variant<APyFloatArray, APyFloat>
-    nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
-
-    //! Returns a copy where the specified axes contains the increasing cumulated
-    //! summation across its own axis, treating Nan as 0. 
-    APyFloatArray nancumsum(std::optional<nb::int_> axis = std::nullopt) const;
-
-    //! Cumulative sum over one or more axes. 
+    //! Cumulative sum over one or more axes.
     APyFloatArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Sum over one or more axes, treating Nan as 0.
     std::variant<APyFloatArray, APyFloat>
-    nansum(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
+    nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
 
     //! Cumulative sum over one or more axes, treatíng Nan as 0.
     APyFloatArray nancumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Multiplication over one or more axes.
     std::variant<APyFloatArray, APyFloat>
-    prod(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
+    prod(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
 
     //! Cumulative multiplication over one or more axes.
     APyFloatArray cumprod(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Multiplication over one or more axes, treating Nan as 0
     std::variant<APyFloatArray, APyFloat>
-    nanprod(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
+    nanprod(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
 
     //! Cumulative multiplication over one or more axes, treating Nan as 0
     APyFloatArray nancumprod(std::optional<nb::int_> axis = std::nullopt) const;
@@ -335,11 +323,6 @@ private:
     std::variant<APyFloatArray, APyFloat> prod_sum_function(
         void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFloatArray&, APyFloatArray&, APyFloat&, APyFloat&),
         std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt
-=======
-    APyFloatArray prod_sum_function(
-        void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFloatArray&, APyFloatArray&, APyFloat&, APyFloat&),
-        std::optional<std::variant<nb::int_, nb::tuple>> axes = std::nullopt
->>>>>>> b7f5c527 (added more tests for the sum functions)
     ) const;
 
     // internal function for the cumprod,cumsum,nancumprod and nancumsum functions
