@@ -635,6 +635,7 @@ void bind_fixed_array(nb::module_& m)
         )
 
         .def(
+<<<<<<< HEAD
             "prod",
             &APyFixedArray::prod,
             nb::arg("axis") = nb::none(),
@@ -649,12 +650,29 @@ void bind_fixed_array(nb::module_& m)
             Returns
             -------
             :class:`APyFixedArray` or :class:`APyFixed`
+=======
+            "max",
+            &APyFixedArray::max,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Returns the maximum value from an array or the maximum along an axis
+
+            Parameters
+            ----------
+            axis : tuple or int, optional
+                The axis to get the maximum along.
+
+            Returns
+            -------
+            :class:`APyFixedArray` or :class:`ApyFixed`
+>>>>>>> 44cd7826 (added max to the header file)
 
             Raises
             -------
             :class:IndexError
                 If a specified axis is outside of the existing number of dimensions for the array.
 
+<<<<<<< HEAD
             Examples
             -------
 
@@ -763,6 +781,8 @@ void bind_fixed_array(nb::module_& m)
                 :class:IndexError
                     If a specified axis is outside of the existing number of dimensions for the array.
 
+=======
+>>>>>>> 44cd7826 (added max to the header file)
             )pbdoc"
         )
 
