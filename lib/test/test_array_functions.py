@@ -1,4 +1,4 @@
-from apytypes import squeeze, reshape, shape, APyFixedArray
+from apytypes import squeeze, reshape, shape, APyFixedArray, APyFloatArray
 
 
 def test_squeeze():
@@ -25,3 +25,8 @@ def test_shape():
     assert shape(b) == (2, 1)
     c = reshape(b, (-1,))
     assert shape(c) == (2,)
+
+
+def test_transpose():
+    a = APyFloatArray.from_float([[1, 2], [3, 4]], 5, 5)
+    a.transpose().is_identical(APyFloatArray.from_float([[1, 4], [3, 2]], 5, 5))

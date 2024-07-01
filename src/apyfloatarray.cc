@@ -1,7 +1,12 @@
 // Python object access through Pybind
+#include "apyfloatarray_iterator.h"
+#include "apytypes_util.h"
+#include <cstddef>
+#include <iostream>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
+#include <variant>
 namespace nb = nanobind;
 #include "apyfloat.h"
 #include "apyfloat_util.h"
@@ -1576,6 +1581,43 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::get_item(std::size_t idx) c
         return result;
     }
 }
+std::variant<APyFloatArray, APyFloat>
+APyFloatArray::get_item_from_axis(std::size_t idx, std::size_t axis) const
+{
+    if (axis >= shape.size()) {
+        throw std::out_of_range("Axis out of range");
+    }
+    if (idx >= shape[axis]) {
+        throw std::out_of_range("Index out of bounds for specified axis");
+    }
+
+    // Compute the new shape excluding the specified axis
+    std::vector<std::size_t> new_shape(shape.size() - 1);
+    for (std::size_t i = 0, j = 0; i < shape.size(); ++i) {
+        if (i != axis) {
+            new_shape[j++] = shape[i];
+        }
+    }
+
+    // Calculate the stride for the specified axis
+    std::size_t element_stride = 1;
+    for (std::size_t i = axis + 1; i < shape.size(); ++i) {
+        element_stride *= shape[i];
+    }
+
+    // Calculate the starting offset
+    std::size_t offset = idx * element_stride;
+
+    if (new_shape.size() == 0) {
+        // Single element case
+        return APyFloat(data[offset], exp_bits, man_bits, bias);
+    } else {
+        // Sub-array case
+        APyFloatArray result(new_shape, exp_bits, man_bits, bias);
+        std::copy_n(data.begin() + offset, result.data.size(), result.data.begin());
+        return result;
+    }
+}
 
 nb::ndarray<nb::numpy, double> APyFloatArray::to_numpy() const
 {
@@ -1741,30 +1783,54 @@ APyFloatArray::broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
     return broadcast_to(cpp_shape_from_python_shape_like(shape));
 }
 
-APyFloatArray APyFloatArray::transpose() const
+APyFloatArray APyFloatArray::transpose(std::optional<nb::tuple> axes) const
 {
-    if (get_ndim() > 2) {
-        throw NotImplementedException(fmt::format(
-            "Not implemented: high-dimensional (ndim={} > 2) tensor transposition",
-            get_ndim()
-        ));
-    } else if (get_ndim() <= 1) {
+    std::size_t ndim = get_ndim();
+    switch (ndim) {
+    case 0:
+    case 1:
         // Behave like `NumPy`, simply return `*this` if single-dimensional
         return *this;
-    }
+    case 2: {
 
-    // Resulting array with shape dimensions
-    APyFloatArray result(shape, exp_bits, man_bits, bias);
-    std::reverse(result.shape.begin(), result.shape.end());
+        // Optimized code for dim == 2
+        // Resulting array with shape dimensions
+        std::vector<size_t> new_shape = { shape[1], shape[0] };
+        APyFloatArray result(new_shape, exp_bits, man_bits, bias);
 
-    // Copy data
-    for (std::size_t y = 0; y < shape[0]; y++) {
-        for (std::size_t x = 0; x < shape[1]; x++) {
-            result.data[x * shape[0] + y] = data[y * shape[1] + x];
+        // Transpose the data
+        for (std::size_t y = 0; y < shape[0]; ++y) {
+            for (std::size_t x = 0; x < shape[1]; ++x) {
+                result.data[x * shape[0] + y] = data[y * shape[1] + x];
+            }
         }
+        return result;
     }
 
-    return result;
+    default: {
+        std::vector<size_t> new_axis(ndim);
+
+        if (axes.has_value()) {
+            std::variant<nb::tuple, nb::int_> axis_variant = axes.value();
+            new_axis = get_normalized_axes(axis_variant, ndim);
+        } else {
+            // reverse the order of axes by default
+            std::iota(new_axis.begin(), new_axis.end(), 0);
+            std::reverse(new_axis.begin(), new_axis.end());
+        }
+
+        std::vector<size_t> new_shape(ndim);
+        for (size_t i = 0; i < ndim; ++i) {
+            new_shape[i] = shape[new_axis[i]];
+        }
+
+        APyFloatArray result(new_shape, exp_bits, man_bits, bias);
+        transpose_axes_and_copy_data(
+            data.begin(), result.data.begin(), shape, new_axis
+        );
+        return result;
+    }
+    }
 }
 
 APyFloatArray APyFloatArray::cast(
@@ -1873,9 +1939,9 @@ APyFloat APyFloatArray::checked_inner_product(
         );
         ;
         // If an accumulator is used, the operands must be resized before the
-        // multiplication. This is because the products would otherwise get quantized
-        // too early.
-        // NOTE: This assumes that the format of the accumulator is larger
+        // multiplication. This is because the products would otherwise get
+        // quantized too early. NOTE: This assumes that the format of the
+        // accumulator is larger
 
         APyFloatArray hadamard(shape, tmp_exp_bits, tmp_man_bits, tmp_bias);
         // Hadamard product of `*this` and `rhs`
@@ -2036,7 +2102,8 @@ APyFloat APyFloatArray::vector_sum(const QuantizationMode quantization) const
                 sum_man <<= 1;
             } else {
                 // Cancellation or addition with subnormals
-                // Mantissa should be shifted until 1.xx is obtained or new_exp equals 0
+                // Mantissa should be shifted until 1.xx is obtained or new_exp
+                // equals 0
                 const unsigned int man_leading_zeros = leading_zeros(sum_man);
                 const unsigned int normalizing_shift
                     = man_leading_zeros - shift_normalization_const;
@@ -2121,9 +2188,9 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
             = _cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization);
         for (std::size_t x = 0; x < res_cols; x++) {
 
-            // Copy column from `rhs` and use as the current working column. As reading
-            // columns from `rhs` is cache-inefficient, we like to do this only once for
-            // each element in the resulting matrix.
+            // Copy column from `rhs` and use as the current working column. As
+            // reading columns from `rhs` is cache-inefficient, we like to do this
+            // only once for each element in the resulting matrix.
             for (std::size_t col = 0; col < rhs.shape[0]; col++) {
                 current_column.data[col] = rhs.data[x + col * res_cols];
             }
@@ -2132,9 +2199,9 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
                 tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization
             );
             for (std::size_t y = 0; y < res_shape[0]; y++) {
-                // If an accumulator is used, the operands must be resized before the
-                // multiplication. This is because the products would otherwise get
-                // quantized too early.
+                // If an accumulator is used, the operands must be resized before
+                // the multiplication. This is because the products would otherwise
+                // get quantized too early.
 
                 // Hadamard product of `*this` and `rhs`
                 casted_current_column.hadamard_multiplication(

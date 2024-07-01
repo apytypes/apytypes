@@ -60,6 +60,47 @@ public:
     //! Python `__repr__()` function
     std::string repr() const;
 
+    //! Shape of the array
+    nanobind::tuple get_shape() const;
+
+    //! Number of dimensions
+    size_t get_ndim() const;
+
+    //! Retrieve a single item
+    std::variant<APyFloatArray, APyFloat> get_item(std::size_t idx) const;
+
+    //! Retrieve item on an axis
+    std::variant<APyFloatArray, APyFloat>
+    get_item_from_axis(std::size_t idx, std::size_t axis) const;
+    //! Length of the array
+    size_t get_size() const;
+
+    /*!
+     * Test if two `APyFloatArray` objects are identical. Two `APyFloatArray` objects
+     * are considered identical if, and only if:
+     *   * They represent exactly the same tensor shape
+     *   * They store the exact same floating-point values in all tensor elements
+     *   * They have the exact same sized fields
+     */
+    bool is_identical(const APyFloatArray& other) const;
+
+    //! Test if two `APyFloatArray` objects have the same format
+    APY_INLINE bool same_type_as(const APyFloatArray& other) const
+    {
+        return man_bits == other.man_bits && exp_bits == other.exp_bits
+            && bias == other.bias;
+    }
+
+    //! Test if the `APyFloatArray` object has the same format as a `APyFloat` object
+    APY_INLINE bool same_type_as(const APyFloat& other) const
+    {
+        return man_bits == other.get_man_bits() && exp_bits == other.get_exp_bits()
+            && bias == other.get_bias();
+    }
+
+    //! Convert to a NumPy array
+    nanobind::ndarray<nanobind::numpy, double> to_numpy() const;
+
     /* ****************************************************************************** *
      *                       Static conversion from other types                       *
      * ****************************************************************************** */
@@ -152,7 +193,7 @@ public:
 
     //! Transposition function. For a 1-D array, returns an exact copy of `*this`. For
     //! a 2-D array, returns the matrix transposition of `*this`.
-    APyFloatArray transpose() const;
+    APyFloatArray transpose(std::optional<nb::tuple> axes = std::nullopt) const;
 
     //! Returns a copy of the tensor with the elements resized.
     APyFloatArray cast(
