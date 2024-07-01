@@ -829,7 +829,7 @@ void bind_float_array(nb::module_& m)
 
             >>> from apytypes import APyFloatArray
 
-            >>> a = APyFloatArray(
+            >>> a = APyFloatArray.from_float(
             ...     [1,2,3,4,5,6],
             ...     exp_bits=10,
             ...     man_bits=10
@@ -876,13 +876,13 @@ void bind_float_array(nb::module_& m)
             ... )
 
             >>> a.cumprod()
-            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 515, 517, 520], [0, 0, 512, 512, 896, 416], shape=(6,), exp_bits=10, man_bits=10)
+            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 515, 517, 520], [0, 0, 512, 512, 896, 416], shape=(6,), exp_bits=10, man_bits=10, bias=511)
 
             >>> a.cumprod(0)
-            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 512, 513, 514, 515], [0, 0, 512, 0, 256, 128], shape=(2, 3), exp_bits=10, man_bits=10)
+            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 512, 513, 514, 515], [0, 0, 512, 0, 256, 128], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
 
             >>> a.cumprod(1)
-            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 513, 515, 517], [0, 0, 512, 0, 256, 896], shape=(2, 3), exp_bits=10, man_bits=10)
+            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 513, 515, 517], [0, 0, 512, 0, 256, 896], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
 
             -------
             )pbdoc"
