@@ -353,26 +353,38 @@ equivalent <a class="reference internal" href="apyfloat.html#apytypes.APyFloat" 
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.convolve" title="apytypes.APyFloatArray.convolve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convolve</span></code></a></p></td>
 <td><p>Return the discrete linear convolution with another one-dimensional array.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">cumsum</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">cumprod</span></code></p></td>
+<td><p>Returns the cumulative product of the elements along a given axes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">cumsum</span></code></p></td>
 <td><p>Returns the cumulative sum of the elements along a given axis.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.flatten" title="apytypes.APyFloatArray.flatten"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flatten</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.flatten" title="apytypes.APyFloatArray.flatten"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flatten</span></code></a></p></td>
 <td><p>Return a copy of the array collapsed into one dimension.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.from_array" title="apytypes.APyFloatArray.from_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_array</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.from_array" title="apytypes.APyFloatArray.from_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_array</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.from_float" title="apytypes.APyFloatArray.from_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_float</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.from_float" title="apytypes.APyFloatArray.from_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_float</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.is_identical" title="apytypes.APyFloatArray.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.is_identical" title="apytypes.APyFloatArray.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
 <td><p>Test if two <a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> objects are identical.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nancumprod</span></code></p></td>
+<td><p>Returns the cumulative product of the elements along a given axis treating Not a Number as 0.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nancumsum</span></code></p></td>
 <td><p>Returns the cumulative sum of the elements along a given axis treating Not a Number as 0.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nansum</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanprod</span></code></p></td>
+<td><p>Returns the product of the elements along a given axis treating Not a Number as 0.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nansum</span></code></p></td>
 <td><p>Returns the sum of the elements along specified axis/axes treating Not a Number as 0.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">prod</span></code></p></td>
+<td><p>Returns the product of the elements along specified axis/axes.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.ravel" title="apytypes.APyFloatArray.ravel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ravel</span></code></a></p></td>
 <td><p>Return a copy of the array collapsed into one dimension.</p></td>
