@@ -172,6 +172,10 @@ def test_cumsum(sum_func):
         APyFixedArray([[0, 1, 2], [3, 5, 7]], frac_bits=0, int_bits=66)
     )
 
+    n = APyFixedArray([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=5)
+    o = n.sum((0, 2))
+    assert o.is_identical(APyFixedArray([14, 22], frac_bits=0, int_bits=7))
+
 
 def test_cumsum():
     a = APyFixedArray([[1, 2, 3], [4, 5, 6]], frac_bits=0, int_bits=5)
@@ -274,6 +278,10 @@ def test_nansum():
     k = j.nansum(0)
     assert k.is_identical(APyFixedArray([3, 5, 7], frac_bits=0, int_bits=66))
 
+    n = APyFixedArray([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=5)
+    o = n.nansum((0, 2))
+    assert o.is_identical(APyFixedArray([14, 22], frac_bits=0, int_bits=7))
+
 
 def test_nancumsum():
     a = APyFixedArray([[1, 2, 3], [4, 5, 6]], frac_bits=0, int_bits=5)
@@ -368,6 +376,10 @@ def test_prod():
     o = n.prod(1)
     assert o.is_identical(APyFixedArray.from_float([0.125], frac_bits=20, int_bits=20))
 
+    n = APyFixedArray([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=5)
+    o = n.prod((0, 2))
+    assert o.is_identical(APyFixedArray([60, 672], frac_bits=0, int_bits=20))
+
 
 def test_cumprod():
     a = APyFixedArray([[1, 2, 3], [4, 5, 6]], frac_bits=0, int_bits=5)
@@ -461,6 +473,10 @@ def test_nanprod():
     n = APyFixedArray.from_float([[0.25, 0.5]], frac_bits=10, int_bits=10)
     o = n.nanprod(1)
     assert o.is_identical(APyFixedArray.from_float([0.125], frac_bits=20, int_bits=20))
+
+    n = APyFixedArray([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=5)
+    o = n.prod((0, 2))
+    assert o.is_identical(APyFixedArray([60, 672], frac_bits=0, int_bits=20))
 
 
 def test_nancumprod():

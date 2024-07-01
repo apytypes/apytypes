@@ -345,6 +345,12 @@ def test_sum():
     with pytest.raises(IndexError):
         _ = m.sum(1)
 
+    n = APyFloatArray.from_float(
+        [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], exp_bits=10, man_bits=10
+    )
+    o = n.sum((0, 2))
+    assert o.is_identical(APyFloatArray.from_float([14, 22], exp_bits=10, man_bits=10))
+
 
 def test_cumsum():
     a = APyFloatArray.from_float([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
@@ -634,6 +640,12 @@ def test_nansum():
     with pytest.raises(IndexError):
         _ = m.nansum(1)
 
+    n = APyFloatArray.from_float(
+        [[[1, 2], [3, nan]], [[5, 6], [7, 8]]], exp_bits=10, man_bits=10
+    )
+    o = n.nansum((0, 2))
+    assert o.is_identical(APyFloatArray.from_float([14, 18], exp_bits=10, man_bits=10))
+
 
 def test_nancumsum():
     nan = float("nan")
@@ -733,6 +745,12 @@ def test_prod():
     n = APyFloatArray.from_float([[0.25, 0.5]], exp_bits=10, man_bits=10)
     o = n.prod(1)
     assert o.is_identical(APyFloatArray.from_float([0.125], exp_bits=10, man_bits=10))
+
+    n = APyFloatArray.from_float(
+        [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], exp_bits=10, man_bits=10
+    )
+    o = n.prod((0, 2))
+    assert o.is_identical(APyFloatArray.from_float([60, 672], exp_bits=10, man_bits=10))
 
 
 def test_cumprod():
@@ -835,6 +853,12 @@ def test_nanprod():
     m = APyFloatArray.from_float([1, 2, nan], exp_bits=10, man_bits=10)
     with pytest.raises(IndexError):
         _ = m.nanprod(1)
+
+    n = APyFloatArray.from_float(
+        [[[1, 2], [3, 4]], [[5, nan], [7, 8]]], exp_bits=10, man_bits=10
+    )
+    o = n.nanprod((0, 2))
+    assert o.is_identical(APyFloatArray.from_float([10, 672], exp_bits=10, man_bits=10))
 
 
 def test_nancumprod():
@@ -1135,3 +1159,17 @@ def test_ravel(shape):
     reshaped = arr.reshape(shape)
     if not APyFloatArray.is_identical(reshaped.ravel(), arr):
         pytest.fail(f"Flatten didn't return to original 1d list after reshape {shape}")
+
+
+if __name__ == "__main__":
+    nan = float("nan")
+    n = APyFloatArray.from_float(
+        [[[1, 2], [3, 4]], [[5, nan], [7, 8]]], exp_bits=10, man_bits=10
+    )
+    print(n)
+    o = n.nanprod(2)
+    print(o)
+    p = o.nanprod(0)
+    print(p)
+    k = APyFloatArray.from_float([10, 672], exp_bits=10, man_bits=10)
+    print(k)

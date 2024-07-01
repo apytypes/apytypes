@@ -1706,10 +1706,6 @@ APyFloatArray::nanprod(std::optional<std::variant<nb::int_, nb::tuple>> axis) co
             = (i - i % (elements * sec_length)) / (elements * sec_length);
         auto pos = (pos_in_sec + sec_pos);
         // special case when first element in a multiplication chain
-        rhs_scalar.set_data(src.data.at(i));
-        if (rhs_scalar.is_nan()) {
-            rhs_scalar.set_data({ 0, rhs_scalar.get_bias(), 0 });
-        }
         if ((elements == src.data.size() && i == 0)
             || i % (sec_length * elements) < sec_length) {
             dst.data.at(pos) = src.data.at(i);
@@ -1717,12 +1713,15 @@ APyFloatArray::nanprod(std::optional<std::variant<nb::int_, nb::tuple>> axis) co
         }
 
         lhs_scalar.set_data(dst.data.at(pos));
+        rhs_scalar.set_data(src.data.at(i));
         if (lhs_scalar.is_nan()) {
             lhs_scalar.set_data({ 0, lhs_scalar.get_bias(), 0 });
         }
-
+        if (rhs_scalar.is_nan()) {
+            rhs_scalar.set_data({ 0, rhs_scalar.get_bias(), 0 });
+        }
         // perform multiplication
-        dst.data[i] = (lhs_scalar * rhs_scalar).get_data();
+        dst.data[pos] = (lhs_scalar * rhs_scalar).get_data();
     };
 
     return prod_sum_function(pos_func, axis);
