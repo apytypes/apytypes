@@ -803,6 +803,138 @@ void bind_float_array(nb::module_& m)
             )pbdoc"
         )
 
+        .def(
+            "prod",
+            &APyFloatArray::prod,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Returns the product of the elements along specified axis/axes.
+
+            Parameters
+            ----------
+            axis : tuple, int, optional
+                The axis/axes to calculate the product across. If not given an axis it will return the product of the flattened array.
+
+            Returns
+            -------
+            :class:`APyFloatArray` or :class:`APyFloat`
+
+            Raises
+            -------
+            :class:IndexError
+                If a specified axis is outside of the existing number of dimensions for the array.
+
+            Examples
+            -------
+
+            >>> from apytypes import APyFloatArray
+
+            >>> a = APyFloatArray.from_float(
+            ...     [1,2,3,4,5,6],
+            ...     exp_bits=10,
+            ...     man_bits=10
+            ... )
+
+            >>> a.prod()
+            APyFloat(sign=0, exp=520, man=416, exp_bits=10, man_bits=10)
+
+            -------
+            )pbdoc"
+        )
+
+        .def(
+            "cumprod",
+            &APyFloatArray::cumprod,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Returns the cumulative product of the elements along a given axes.
+
+            Parameters
+            ----------
+            axis : int, optional
+                The axes to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.
+
+            Returns
+            -------
+            :class:`APyFloatArray`
+
+            Raises
+            -------
+            :class:IndexError
+                If a specified axis is outside of the existing number of dimensions for the array.
+
+            Examples
+            -------
+
+            >>> from apytypes import APyFloatArray
+
+
+            >>> a = APyFloatArray.from_float(
+            ...     [[1,2,3],[4,5,6]],
+            ...     exp_bits=10,
+            ...     man_bits=10
+            ... )
+
+            >>> a.cumprod()
+            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 515, 517, 520], [0, 0, 512, 512, 896, 416], shape=(6,), exp_bits=10, man_bits=10, bias=511)
+
+            >>> a.cumprod(0)
+            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 512, 513, 514, 515], [0, 0, 512, 0, 256, 128], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+
+            >>> a.cumprod(1)
+            APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 513, 515, 517], [0, 0, 512, 0, 256, 896], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+
+            -------
+            )pbdoc"
+        )
+
+        .def(
+            "nanprod",
+            &APyFloatArray::nanprod,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+                Returns the product of the elements along a given axis treating Not a Number as 0.
+
+                Parameters
+                ----------
+                axis : int, optional
+                    The axis to calculate the product across. If not given an axis it will return the product of the flattened array.
+
+                Returns
+                -------
+                :class:`APyFloatArray` or :class:`APyFloat`
+
+                Raises
+                -------
+                :class:IndexError
+                    If a specified axis is outside of the existing number of dimensions for the array.
+            )pbdoc"
+        )
+
+        .def(
+            "nancumprod",
+            &APyFloatArray::nancumprod,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+                Returns the cumulative product of the elements along a given axis treating Not a Number as 0.
+
+                Parameters
+                ----------
+                axis : int, optional
+                    The axis to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.
+
+                Returns
+                -------
+                :class:`APyFloatArray`
+
+                Raises
+                -------
+                :class:IndexError
+                    If a specified axis is outside of the existing number of dimensions for the array.
+
+            )pbdoc"
+        )
+
         // Iteration and friends
         .def("__getitem__", &APyFloatArray::get_item, nb::arg("idx"))
         .def(

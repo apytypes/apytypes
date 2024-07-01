@@ -12,6 +12,7 @@ namespace nb = nanobind;
 #include "python_util.h"
 #include <algorithm>
 #include <fmt/format.h>
+#include <iostream>
 #include <set>
 #include <stdexcept>
 #include <stdlib.h>
@@ -1195,6 +1196,8 @@ APyFloatArray APyFloatArray::cumulative_prod_sum_function(
     std::optional<nb::int_> axis
 ) const
 {
+    // determine input value
+    // if no input is received _shape.size() will be used
     std::size_t _axis = shape.size();
     if (axis.has_value()) {
         _axis = std::size_t(axis.value());
@@ -1205,6 +1208,8 @@ APyFloatArray APyFloatArray::cumulative_prod_sum_function(
         }
     }
 
+    // initialize variables used for the summation or multiplication
+    // and determine the new shape
     std::size_t elements = data.size();
     std::size_t res_nitems = data.size();
     std::vector<std::size_t> shape_ = { data.size() };
@@ -1213,27 +1218,29 @@ APyFloatArray APyFloatArray::cumulative_prod_sum_function(
         shape_ = shape;
     }
 
-    std::size_t sec_length = data.size();
-    for (std::size_t i = 0; i < shape.size(); i++) {
-        sec_length /= shape.at(i);
-        if (i == _axis) {
-            break;
-        }
-    }
-    // Resulting vector
-    APyFloatArray result(shape, exp_bits, man_bits);
+    // temporary vector and source vector.
+    // the source vector will also contain the result after the summation or
+    // multiplication are performed
+    APyFloatArray temp(shape, exp_bits, man_bits);
     APyFloatArray source(shape, exp_bits, man_bits);
     std::copy_n(data.begin(), data.size(), source.data.begin());
 
+    // temporary APyFloat used for the arithmetic later on
     APyFloat lhs_scalar(exp_bits, man_bits, bias);
     APyFloat rhs_scalar(exp_bits, man_bits, bias);
 
-    for (std::size_t i = 0; i < result.data.size(); i++) {
-        pos_func(i, sec_length, elements, source, result, lhs_scalar, rhs_scalar);
+    // get the stride
+    std::size_t stride = strides_from_shape(shape)[_axis];
+    if (_axis == shape.size()) {
+        stride = 1;
     }
-
+    // perform the summation or multiplication and place result in 'result'
+    for (std::size_t i = 0; i < temp.data.size(); i++) {
+        pos_func(i, stride, elements, source, temp, lhs_scalar, rhs_scalar);
+    }
+    // copy the elements into a new array to get the correct shape
     APyFloatArray result2(shape_, exp_bits, man_bits);
-    std::copy_n(result.data.begin(), res_nitems, result2.data.begin());
+    std::copy_n(temp.data.begin(), res_nitems, result2.data.begin());
     return result2;
 }
 
@@ -1306,9 +1313,6 @@ APyFloatArray::nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis) con
         lhs_scalar.set_data(dst.data.at(pos));
         rhs_scalar.set_data(src.data.at(i));
 
-        if (lhs_scalar.is_nan()) {
-            lhs_scalar.set_data({ 0, 0, 0 });
-        }
         if (rhs_scalar.is_nan()) {
             rhs_scalar.set_data({ 0, 0, 0 });
         }
@@ -1336,13 +1340,137 @@ APyFloatArray APyFloatArray::nancumsum(std::optional<nb::int_> axis) const
         // perform addition
         lhs_scalar.set_data(dst.data.at(pos));
         rhs_scalar.set_data(src.data.at(i));
-        if (lhs_scalar.is_nan()) {
-            lhs_scalar.set_data({ 0, 0, 0 });
-        }
         if (rhs_scalar.is_nan()) {
             rhs_scalar.set_data({ 0, 0, 0 });
         }
         dst.data[i] = (lhs_scalar + rhs_scalar).get_data();
+    };
+
+    return cumulative_prod_sum_function(pos_func, axis);
+}
+
+std::variant<APyFloatArray, APyFloat>
+APyFloatArray::prod(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    auto pos_func = [](std::size_t i,
+                       std::size_t sec_length,
+                       std::size_t elements,
+                       APyFloatArray& src,
+                       APyFloatArray& dst,
+                       APyFloat& lhs_scalar,
+                       APyFloat& rhs_scalar) {
+        // calculate new position
+        std::size_t pos_in_sec = i % (sec_length);
+        std::size_t sec_pos
+            = (i - i % (elements * sec_length)) / (elements * sec_length);
+        auto pos = (pos_in_sec + sec_pos);
+        // special case when first element in a multiplication chain
+        if ((elements == src.data.size() && i == 0)
+            || i % (sec_length * elements) < sec_length) {
+            dst.data.at(pos) = src.data.at(i);
+            return;
+        }
+
+        // perform multiplication
+        lhs_scalar.set_data(dst.data.at(pos));
+        rhs_scalar.set_data(src.data.at(i));
+        auto res = lhs_scalar * rhs_scalar;
+        dst.data[pos] = res.get_data();
+    };
+
+    return prod_sum_function(pos_func, axis);
+}
+
+APyFloatArray APyFloatArray::cumprod(std::optional<nb::int_> axis) const
+{
+    auto pos_func = [](std::size_t i,
+                       std::size_t sec_length,
+                       std::size_t elements,
+                       APyFloatArray& src,
+                       APyFloatArray& dst,
+                       APyFloat& lhs_scalar,
+                       APyFloat& rhs_scalar) {
+        // calculate new position
+        if (i % (sec_length * elements) < sec_length) {
+            dst.data.at(i) = src.data.at(i);
+            return;
+        }
+        std::size_t pos = i - sec_length;
+        lhs_scalar.set_data(dst.data.at(pos));
+        rhs_scalar.set_data(src.data.at(i));
+
+        // perform multiplication
+        dst.data[i] = (lhs_scalar * rhs_scalar).get_data();
+    };
+
+    return cumulative_prod_sum_function(pos_func, axis);
+}
+
+std::variant<APyFloatArray, APyFloat>
+APyFloatArray::nanprod(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    auto pos_func = [](std::size_t i,
+                       std::size_t sec_length,
+                       std::size_t elements,
+                       APyFloatArray& src,
+                       APyFloatArray& dst,
+                       APyFloat& lhs_scalar,
+                       APyFloat& rhs_scalar) {
+        // get source data for the multiplication
+
+        // calculate new position
+        std::size_t pos_in_sec = i % (sec_length);
+        std::size_t sec_pos
+            = (i - i % (elements * sec_length)) / (elements * sec_length);
+        auto pos = (pos_in_sec + sec_pos);
+        // special case when first element in a multiplication chain
+        if ((elements == src.data.size() && i == 0)
+            || i % (sec_length * elements) < sec_length) {
+            dst.data.at(pos) = src.data.at(i);
+            return;
+        }
+
+        lhs_scalar.set_data(dst.data.at(pos));
+        rhs_scalar.set_data(src.data.at(i));
+        if (lhs_scalar.is_nan()) {
+            lhs_scalar.set_data({ 0, lhs_scalar.get_bias(), 0 });
+        }
+        if (rhs_scalar.is_nan()) {
+            rhs_scalar.set_data({ 0, rhs_scalar.get_bias(), 0 });
+        }
+        // perform multiplication
+        dst.data[pos] = (lhs_scalar * rhs_scalar).get_data();
+    };
+
+    return prod_sum_function(pos_func, axis);
+}
+
+APyFloatArray APyFloatArray::nancumprod(std::optional<nb::int_> axis) const
+{
+    auto pos_func = [](std::size_t i,
+                       std::size_t sec_length,
+                       std::size_t elements,
+                       APyFloatArray& src,
+                       APyFloatArray& dst,
+                       APyFloat& lhs_scalar,
+                       APyFloat& rhs_scalar) {
+        // get source data for the multiplication
+        rhs_scalar.set_data(src.data.at(i));
+        if (rhs_scalar.is_nan()) {
+            rhs_scalar.set_data({ 0, rhs_scalar.get_bias(), 0 });
+        }
+        // if its the first in a multiplicatiojn chain we can assign it directly
+        if (i % (sec_length * elements) < sec_length) {
+            dst.data.at(i) = rhs_scalar.get_data();
+            return;
+        }
+        // get temporary data for the multiplication
+        // calculate new position
+        std::size_t pos = i - sec_length;
+        lhs_scalar.set_data(dst.data.at(pos));
+
+        // perform multiplication
+        dst.data[i] = (lhs_scalar * rhs_scalar).get_data();
     };
 
     return cumulative_prod_sum_function(pos_func, axis);

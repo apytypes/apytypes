@@ -634,6 +634,138 @@ void bind_fixed_array(nb::module_& m)
             )pbdoc"
         )
 
+        .def(
+            "prod",
+            &APyFixedArray::prod,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Returns the product of the elements along specified axis/axes.
+
+            Parameters
+            ----------
+            axis : tuple, int, optional
+                The axis/axes to calculate the product across. If not given an axis it will return the product of the flattened array.
+
+            Returns
+            -------
+            :class:`APyFixedArray` or :class:`APyFixed`
+
+            Raises
+            -------
+            :class:IndexError
+                If a specified axis is outside of the existing number of dimensions for the array.
+
+            Examples
+            -------
+
+            >>> from apytypes import APyFixedArray
+
+            >>> a = APyFixedArray(
+            ...     [1,2,3,4,5,6],
+            ...     int_bits=10,
+            ...     frac_bits=0
+            ... )
+
+            >>> a.prod()
+            APyFixed(720, bits=60, int_bits=60)
+
+            -------
+            )pbdoc"
+        )
+
+        .def(
+            "cumprod",
+            &APyFixedArray::cumprod,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Returns the cumulative product of the elements along a given axes.
+
+            Parameters
+            ----------
+            axis : int, optional
+                The axes to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.
+
+            Returns
+            -------
+            :class:`APyFixedArray`
+
+            Raises
+            -------
+            :class:IndexError
+                If a specified axis is outside of the existing number of dimensions for the array.
+
+            Examples
+            -------
+
+            >>> from apytypes import APyFixedArray
+
+
+            >>> a = APyFixedArray(
+            ...     [[1,2,3],[4,5,6]],
+            ...     int_bits=10,
+            ...     frac_bits=0
+            ... )
+
+            >>> a.cumprod()
+            APyFixedArray([1, 2, 6, 24, 120, 720], shape=(6,), bits=60, int_bits=60)
+
+            >>> a.cumprod(0)
+            APyFixedArray([1, 2, 3, 4, 10, 18], shape=(2, 3), bits=20, int_bits=20)
+
+            >>> a.cumprod(1)
+            APyFixedArray([1, 2, 6, 4, 20, 120], shape=(2, 3), bits=30, int_bits=30)
+
+            -------
+            )pbdoc"
+        )
+
+        .def(
+            "nanprod",
+            &APyFixedArray::nanprod,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+                Returns the product of the elements along a given axis treating Not a Number as 0.
+
+                Parameters
+                ----------
+                axis : int, optional
+                    The axis to calculate the product across. If not given an axis it will return the product of the flattened array.
+
+                Returns
+                -------
+                :class:`APyFixedArray` or :class:`APyFixed`
+
+                Raises
+                -------
+                :class:IndexError
+                    If a specified axis is outside of the existing number of dimensions for the array.
+            )pbdoc"
+        )
+
+        .def(
+            "nancumprod",
+            &APyFixedArray::nancumprod,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+                Returns the cumulative product of the elements along a given axis treating Not a Number as 0.
+
+                Parameters
+                ----------
+                axis : int, optional
+                    The axis to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.
+
+                Returns
+                -------
+                :class:`APyFixedArray`
+
+                Raises
+                -------
+                :class:IndexError
+                    If a specified axis is outside of the existing number of dimensions for the array.
+
+            )pbdoc"
+        )
+
         /*
          * Static methods
          */

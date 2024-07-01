@@ -32,6 +32,7 @@ namespace nb = nanobind;
 #include "array_utils.h"
 #include "broadcast.h"
 #include "python_util.h"
+#include <iostream>
 
 #include <fmt/format.h>
 
@@ -836,37 +837,22 @@ APyFixedArray::squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis) co
     return result;
 }
 
-APyFixedArray APyFixedArray::cumsum(std::optional<nb::int_> axis) const
-{
-    auto pos_func = [](std::size_t i,
-                       std::size_t sec_length,
-                       std::size_t elements,
-                       APyFixedArray& src,
-                       APyFixedArray& dst) {
-        std::size_t pos = i - sec_length;
-        if (i % (sec_length * elements) < sec_length) {
-            pos = i;
-        }
-        mpn_add_n_functor<> {}(
-            &dst._data.at(i * src._itemsize),   // dst
-            &dst._data.at(pos * src._itemsize), // src1
-            &src._data.at(i * src._itemsize),   // src2
-            src._itemsize                       // limb vector length
-        );
-    };
-    return cumulative_prod_sum_function(pos_func, axis);
-}
-
-APyFixedArray APyFixedArray::nancumsum(std::optional<nb::int_> axis) const
-{
-    return this->cumsum(axis);
-}
-
 APyFixedArray APyFixedArray::cumulative_prod_sum_function(
-    void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFixedArray&, APyFixedArray&),
+    void (*pos_func)(
+        std::size_t,
+        std::size_t,
+        std::size_t,
+        APyFixedArray&,
+        APyFixedArray&,
+        std::size_t
+    ),
+    int (*int_bit_increase)(std::size_t, std::size_t),
+    int (*frac_bit_increase)(std::size_t, std::size_t),
     std::optional<nb::int_> axis
 ) const
 {
+    // determine input value
+    // if no input is received _shape.size() will be used
     std::size_t _axis = _shape.size();
     if (axis.has_value()) {
         _axis = std::size_t(axis.value());
@@ -877,6 +863,8 @@ APyFixedArray APyFixedArray::cumulative_prod_sum_function(
         }
     }
 
+    // initialize variables used for the summation or multiplication
+    // and determine the new shape
     std::size_t elements = _nitems;
     std::size_t res_nitems = _nitems;
     std::vector<std::size_t> shape = { _nitems };
@@ -885,37 +873,48 @@ APyFixedArray APyFixedArray::cumulative_prod_sum_function(
         shape = _shape;
     }
 
-    int bit_increase = bit_width(elements - 1);
-    const int res_int_bits = int_bits() + bit_increase;
-    const int res_frac_bits = frac_bits();
+    // calculate new bits
+    const int res_int_bits = int_bits() + int_bit_increase(elements, int_bits());
+    const int res_frac_bits = frac_bits() + frac_bit_increase(elements, frac_bits());
     const int res_bits = res_int_bits + res_frac_bits;
-    std::size_t sec_length = _nitems;
-    for (std::size_t i = 0; i < _shape.size(); i++) {
-        sec_length /= _shape.at(i);
-        if (i == _axis) {
-            break;
-        }
-    }
-    // Resulting vector
-    APyFixedArray result(_shape, res_bits, res_int_bits);
+
+    // temporary vector and source vector.
+    // the source vector will also contain the result after the summation or
+    // multiplication are performed
+    APyFixedArray temp(_shape, res_bits, res_int_bits);
     APyFixedArray source(_shape, bits(), int_bits());
     std::copy_n(_data.begin(), _data.size(), source._data.begin());
 
-    for (std::size_t i = 0; i < result._nitems; i++) {
-        pos_func(i, sec_length, elements, source, result);
+    // get the stride
+    std::size_t stride = 1;
+    if (_axis < _shape.size()) {
+        stride = strides_from_shape(_shape)[_axis];
     }
-
+    // perform the summation or multiplication and place result in 'result'
+    for (std::size_t i = 0; i < temp._nitems; i++) {
+        pos_func(i, stride, elements, source, temp, frac_bits());
+    }
+    // copy the elements into a new array to get the correct shape
     APyFixedArray result2(shape, res_bits, res_int_bits);
-    std::copy_n(
-        result._data.begin(), res_nitems * result._itemsize, result2._data.begin()
-    );
+    std::copy_n(temp._data.begin(), res_nitems * temp._itemsize, result2._data.begin());
     return result2;
 }
 std::variant<APyFixedArray, APyFixed> APyFixedArray::prod_sum_function(
-    void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFixedArray&, APyFixedArray&),
+    void (*pos_func)(
+        std::size_t,
+        std::size_t,
+        std::size_t,
+        APyFixedArray&,
+        APyFixedArray&,
+        std::size_t
+    ),
+    int (*int_bit_increase)(std::size_t, std::size_t),
+    int (*frac_bit_increase)(std::size_t, std::size_t),
     std::optional<std::variant<nb::tuple, nb::int_>> axis
 ) const
 {
+    // determine input value
+    // if no value were given it will default to {_shape.size()}
     std::set<std::size_t> axes_set;
     if (axis.has_value()) {
         std::vector<std::size_t> axes_vector
@@ -931,94 +930,293 @@ std::variant<APyFixedArray, APyFixed> APyFixedArray::prod_sum_function(
     } else {
         axes_set.insert(_shape.size());
     }
-    std::size_t elements = 1;
-    for (std::size_t i = 0; i <= _shape.size(); i++) {
-        if (axes_set.find(i) != axes_set.end()) {
-            if (i == _shape.size()) {
-                elements *= _nitems;
-            } else {
-                elements *= _shape.at(i);
-            }
-        }
+
+    // determine new shape
+    std::vector<std::size_t> shape = _shape;
+    std::size_t cnt = 0;
+    auto predicate
+        = [&](std::size_t x) { return axes_set.find(cnt++) != axes_set.end(); };
+    shape.erase(std::remove_if(shape.begin(), shape.end(), predicate), shape.end());
+
+    // caclutlate how many elements are beign
+    std::size_t elems
+        = _nitems / std::accumulate(shape.begin(), shape.end(), 1, std::multiplies {});
+    if (axes_set.find(_shape.size()) != axes_set.end()
+        || axes_set.size() == _shape.size()) {
+        elems = _nitems;
     }
-    int bit_increase = bit_width(elements - 1);
-    const int res_int_bits = int_bits() + bit_increase;
-    const int res_frac_bits = frac_bits();
+    // calculate new bits
+    const int res_int_bits = int_bits() + int_bit_increase(elems, int_bits());
+    const int res_frac_bits = frac_bits() + frac_bit_increase(elems, frac_bits());
     const int res_bits = res_int_bits + res_frac_bits;
 
-    // Resulting vector
-    APyFixedArray result(_shape, res_bits, res_int_bits);
+    // temporary vector and source vector.
+    // the source vector will also contain the result after the summation or
+    // multiplication are performed
+    APyFixedArray temp(_shape, res_bits, res_int_bits);
     APyFixedArray source(_shape, bits(), int_bits());
     std::copy_n(_data.begin(), _data.size(), source._data.begin());
 
-    std::vector<std::size_t> shape;
-    std::size_t res_elements = source._nitems;
-    std::size_t sec_length = source._nitems;
-    for (std::size_t x = 0; x <= _shape.size(); x++) {
-        std::size_t elements = res_elements;
+    // if no axis was given axis or if all the axes where specified this special case
+    // can be used instead
+    if (axes_set.find(_shape.size()) != axes_set.end()
+        || axes_set.size() == _shape.size()) {
+
+        for (std::size_t i = 0; i < _nitems; i++) {
+            pos_func(i, 1, _nitems, source, temp, frac_bits());
+        }
+        APyFixed res(res_bits, res_int_bits);
+        std::copy_n(temp._data.begin(), temp._itemsize, res._data.begin());
+        return res;
+    }
+    // get strides for the summation or multiplication loop
+    std::vector<std::size_t> strides = strides_from_shape(_shape);
+    std::size_t elements = _nitems;
+    // perform operations for the given axes
+    for (std::size_t x = 0; x < _shape.size(); x++) {
         if (axes_set.find(x) == axes_set.end()) {
-            if (x < _shape.size()) {
-                sec_length /= source._shape.at(x);
-                shape.push_back(_shape.at(x));
-            }
             continue;
         }
-
-        if (x < _shape.size()) {
-            elements = source._shape.at(x);
-            sec_length /= source._shape.at(x);
-        } else {
-            shape = {};
+        // perform the operations for the current axis
+        for (std::size_t i = 0; i < elements; i++) {
+            pos_func(i, strides[x], _shape.at(x), source, temp, frac_bits());
         }
-        for (std::size_t i = 0; i < res_elements; i++) {
-            pos_func(i, sec_length, elements, source, result);
-        }
-
-        res_elements /= elements;
-        source = result;
-        result._data.assign(result._data.size(), 0);
+        // update new amount of elements in the list
+        elements /= _shape.at(x);
+        // copy the data to source and reset temp
+        source = temp;
+        temp._data.assign(temp._data.size(), 0);
     }
-    if (shape.size() == 0) {
-        APyFixed res(res_bits, res_int_bits);
-        std::copy_n(source._data.begin(), source._itemsize, res._data.begin());
-        return res;
-    } else {
-        APyFixedArray res(shape, res_bits, res_int_bits);
-        std::copy_n(
-            source._data.begin(), res_elements * source._itemsize, res._data.begin()
-        );
-        return res;
-    }
+    // copy the data into an array with the correct shape
+    APyFixedArray res(shape, res_bits, res_int_bits);
+    std::copy_n(source._data.begin(), elements * source._itemsize, res._data.begin());
+    return res;
 }
 
 std::variant<APyFixedArray, APyFixed>
 APyFixedArray::sum(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
 {
+    auto int_bit_increase = [](std::size_t elements, std::size_t bits) {
+        return int(std::ceil(std::log2(elements)));
+    };
+    auto frac_bit_increase = [](std::size_t elements, std::size_t bits) { return 0; };
     auto pos_func = [](std::size_t i,
                        std::size_t sec_length,
                        std::size_t elements,
                        APyFixedArray& src,
-                       APyFixedArray& dst) {
+                       APyFixedArray& dst,
+                       std::size_t frac_bits) {
+        // calculate new position
         std::size_t pos_in_sec = i % (sec_length);
         std::size_t sec_pos
             = (i - i % (elements * sec_length)) / (elements * sec_length);
         // Perform ripple-carry operation on the limbs
-        auto pos = (pos_in_sec + sec_pos) * src._itemsize;
+        auto pos = pos_in_sec + sec_pos;
         mpn_add_n_functor<> {}(
-            &dst._data.at(pos),               // dst
-            &dst._data.at(pos),               // src1
-            &src._data.at(i * src._itemsize), // src2
-            src._itemsize                     // limb vector length
+            &dst._data.at(pos * src._itemsize), // dst
+            &dst._data.at(pos * src._itemsize), // src1
+            &src._data.at(i * src._itemsize),   // src2
+            src._itemsize                       // limb vector length
         );
     };
 
-    return prod_sum_function(pos_func, axis);
+    return prod_sum_function(pos_func, int_bit_increase, frac_bit_increase, axis);
 }
 
 std::variant<APyFixedArray, APyFixed>
 APyFixedArray::nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
 {
+    // since no Nan can exist in an APyFixedArray it is the same as sum
     return this->sum(axis);
+}
+
+APyFixedArray APyFixedArray::cumsum(std::optional<nb::int_> axis) const
+{
+    auto int_bit_increase = [](std::size_t elements, std::size_t bits) {
+        return int(std::ceil(std::log2(elements)));
+    };
+    auto frac_bit_increase = [](std::size_t elements, std::size_t bits) { return 0; };
+    auto pos_func = [](std::size_t i,
+                       std::size_t sec_length,
+                       std::size_t elements,
+                       APyFixedArray& src,
+                       APyFixedArray& dst,
+                       std::size_t frac_bits) {
+        // calculate new position
+        std::size_t pos = i - sec_length;
+        if (i % (sec_length * elements) < sec_length) {
+            pos = i;
+        }
+        // Perform ripple-carry operation on the limbs
+        mpn_add_n_functor<> {}(
+            &dst._data.at(i * src._itemsize),   // dst
+            &dst._data.at(pos * src._itemsize), // src1
+            &src._data.at(i * src._itemsize),   // src2
+            src._itemsize                       // limb vector length
+        );
+    };
+    return cumulative_prod_sum_function(
+        pos_func, int_bit_increase, frac_bit_increase, axis
+    );
+}
+
+APyFixedArray APyFixedArray::nancumsum(std::optional<nb::int_> axis) const
+{
+    // since no Nan can exist in an APyFixedArray it is the same as cumsum
+    return this->cumsum(axis);
+}
+
+std::variant<APyFixedArray, APyFixed>
+APyFixedArray::prod(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    auto int_bit_increase = [](std::size_t elements, std::size_t int_bits) {
+        return int((elements - 1) * int_bits);
+    };
+    auto frac_bit_increase = [](std::size_t elements, std::size_t frac_bits) {
+        return int((elements - 1) * frac_bits);
+    };
+    auto pos_func = [](std::size_t i,
+                       std::size_t stride,
+                       std::size_t elems,
+                       APyFixedArray& src,
+                       APyFixedArray& dst,
+                       std::size_t frac_bits) {
+        // calculate new position
+        auto pos = i % stride + (i - i % (elems * stride)) / (elems * stride);
+        // itemsizes of the different numbers
+        std::size_t i_sz_1 = src._itemsize;
+        std::size_t i_sz_2 = dst._itemsize;
+        // if no axes where given and its the first elements we need to multiply with a
+        // 1 instead of 0, since we know the resulting vector will at this point only
+        // have 0s we can write over it.
+        // The same if we are at the start of a multiplication chain when multiplying
+        // over an axis.
+        if ((elems == src._nitems && i == 0) || i % (stride * elems) < stride) {
+            dst._data.at(pos * i_sz_2) = 1;
+        }
+        // setup for the multiplication
+        auto op1_begin = src._data.begin() + i * i_sz_1;
+        auto op2_begin = dst._data.begin() + pos * i_sz_2;
+        auto op1_end = op1_begin + i_sz_1;
+        auto op2_end = op2_begin + i_sz_2;
+
+        // Evaluate resulting sign
+        bool sign1 = mp_limb_signed_t(*(op1_end - 1)) < 0;
+        bool sign2 = mp_limb_signed_t(*(op2_end - 1)) < 0;
+        bool result_sign = sign1 ^ sign2;
+        // Retrieve the absolute value of both operands, as required by GMP
+        std::vector<mp_limb_t> op1_abs(i_sz_1);
+        std::vector<mp_limb_t> op2_abs(i_sz_2);
+        limb_vector_abs(op1_begin, op1_end, op1_abs.begin());
+        limb_vector_abs(op2_begin, op2_end, op2_abs.begin());
+
+        std::vector<mp_limb_t> tmp(i_sz_1 + i_sz_2, 0);
+
+        // Perform the multiplication
+        mpn_mul(
+            &tmp.at(0),     // dst
+            &op1_abs.at(0), // src1
+            op1_abs.size(), // src1 limb vector length
+            &op2_abs.at(0), // src2
+            op2_abs.size()  // src2 limb vector length
+        );
+
+        if (result_sign) {
+            limb_vector_negate(tmp.begin(), tmp.begin() + i_sz_2, op2_begin);
+        } else {
+            // Copy into resulting vector
+            std::copy_n(tmp.begin(), i_sz_2, op2_begin);
+        }
+    };
+    return prod_sum_function(pos_func, int_bit_increase, frac_bit_increase, axis);
+}
+
+APyFixedArray APyFixedArray::cumprod(std::optional<nb::int_> axis) const
+{
+    auto int_bit_increase = [](std::size_t elements, std::size_t int_bits) {
+        return int((elements - 1) * int_bits);
+    };
+    auto frac_bit_increase = [](std::size_t elements, std::size_t frac_bits) {
+        return int((elements - 1) * frac_bits);
+    };
+    auto pos_func = [](std::size_t i,
+                       std::size_t stride,
+                       std::size_t elems,
+                       APyFixedArray& src,
+                       APyFixedArray& dst,
+                       std::size_t frac_bits) {
+        std::size_t i_sz_1 = src._itemsize;
+        std::size_t i_sz_2 = dst._itemsize;
+        std::size_t pos = i - stride;
+        // handle the case where the current number is the first in a multiplication
+        // chain. when this is the case we need to shift it to the left to offset the
+        // increase in fraction bits later on
+        if (i % (stride * elems) < stride) {
+            pos = i;
+            dst._data.at(i * i_sz_2) = 1;
+            limb_vector_lsl(
+                dst._data.begin() + i * i_sz_2,
+                dst._data.begin() + (i + 1) * i_sz_2,
+                frac_bits * (elems - 1)
+            );
+        }
+        auto op1_begin = src._data.begin() + i * i_sz_1;
+        auto op2_begin = dst._data.begin() + pos * i_sz_2;
+        auto op1_end = op1_begin + i_sz_1;
+        auto op2_end = op2_begin + i_sz_2;
+
+        // Evaluate resulting sign
+        bool sign1 = mp_limb_signed_t(*(op1_end - 1)) < 0;
+        bool sign2 = mp_limb_signed_t(*(op2_end - 1)) < 0;
+        bool result_sign = sign1 ^ sign2;
+        // Retrieve the absolute value of both operands, as required by GMP
+        std::vector<mp_limb_t> op1_abs(i_sz_1);
+        std::vector<mp_limb_t> op2_abs(i_sz_2);
+        limb_vector_abs(op1_begin, op1_end, op1_abs.begin());
+        limb_vector_abs(op2_begin, op2_end, op2_abs.begin());
+
+        std::vector<mp_limb_t> tmp(i_sz_1 + i_sz_2, 0);
+
+        // Perform the multiplication
+        mpn_mul(
+            &tmp.at(0),     // dst
+            &op1_abs.at(0), // src1
+            op1_abs.size(), // src1 limb vector length
+            &op2_abs.at(0), // src2
+            op2_abs.size()  // src2 limb vector length
+        );
+
+        // if we are inside a multiplication chain we have overcompensated on the first
+        // number, so now we need to counteract that. This part can be optimized.
+        if (i % (stride * elems) >= stride) {
+            limb_vector_lsr(tmp.begin(), tmp.begin() + i_sz_2, frac_bits);
+        }
+
+        if (result_sign) {
+            limb_vector_negate(
+                tmp.begin(), tmp.begin() + i_sz_2, dst._data.begin() + i * i_sz_2
+            );
+        } else {
+            // Copy into resulting vector
+            std::copy_n(tmp.begin(), i_sz_2, dst._data.begin() + i * i_sz_2);
+        }
+    };
+    return cumulative_prod_sum_function(
+        pos_func, int_bit_increase, frac_bit_increase, axis
+    );
+}
+
+std::variant<APyFixedArray, APyFixed>
+APyFixedArray::nanprod(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    // since no Nan can exist in an APyFixedArray it is the same as prod
+    return this->prod(axis);
+}
+
+APyFixedArray APyFixedArray::nancumprod(std::optional<nb::int_> axis) const
+{
+    // since no Nan can exist in an APyFixedArray it is the same as cumprod
+    return this->cumprod(axis);
 }
 
 APyFixedArray
