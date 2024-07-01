@@ -1313,9 +1313,6 @@ APyFloatArray::nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis) con
         lhs_scalar.set_data(dst.data.at(pos));
         rhs_scalar.set_data(src.data.at(i));
 
-        if (lhs_scalar.is_nan()) {
-            lhs_scalar.set_data({ 0, 0, 0 });
-        }
         if (rhs_scalar.is_nan()) {
             rhs_scalar.set_data({ 0, 0, 0 });
         }
@@ -1343,9 +1340,6 @@ APyFloatArray APyFloatArray::nancumsum(std::optional<nb::int_> axis) const
         // perform addition
         lhs_scalar.set_data(dst.data.at(pos));
         rhs_scalar.set_data(src.data.at(i));
-        if (lhs_scalar.is_nan()) {
-            lhs_scalar.set_data({ 0, 0, 0 });
-        }
         if (rhs_scalar.is_nan()) {
             rhs_scalar.set_data({ 0, 0, 0 });
         }
@@ -1474,9 +1468,6 @@ APyFloatArray APyFloatArray::nancumprod(std::optional<nb::int_> axis) const
         // calculate new position
         std::size_t pos = i - sec_length;
         lhs_scalar.set_data(dst.data.at(pos));
-        if (lhs_scalar.is_nan()) {
-            lhs_scalar.set_data({ 0, lhs_scalar.get_bias(), 0 });
-        }
 
         // perform multiplication
         dst.data[i] = (lhs_scalar * rhs_scalar).get_data();

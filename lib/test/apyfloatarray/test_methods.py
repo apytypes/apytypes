@@ -402,6 +402,12 @@ def test_cumsum():
         APyFloatArray.from_float([0.25, 0.5, 0.75, 1], exp_bits=10, man_bits=10)
     )
 
+    o = APyFloatArray.from_float([[-1, 2], [-3, 4]], exp_bits=10, man_bits=10)
+    p = o.cumsum()
+    assert p.is_identical(
+        APyFloatArray.from_float([-1, 1, -2, 2], exp_bits=10, man_bits=10)
+    )
+
 
 def test_nansum():
     nan = float("nan")
@@ -503,6 +509,12 @@ def test_nancumsum():
     m = k.nancumsum()
     assert m.is_identical(
         APyFloatArray.from_float([0.25, 0.5, 0.75, 0.75], exp_bits=10, man_bits=10)
+    )
+
+    o = APyFloatArray.from_float([[-1, 2], [nan, 4]], exp_bits=10, man_bits=10)
+    p = o.nancumsum()
+    assert p.is_identical(
+        APyFloatArray.from_float([-1, 1, 1, 5], exp_bits=10, man_bits=10)
     )
 
 
@@ -615,10 +627,16 @@ def test_cumprod():
     assert h.is_identical(
         APyFloatArray.from_float([[0, 1, 2], [0, 4, 10]], exp_bits=10, man_bits=10)
     )
-    j = APyFloatArray.from_float([[0, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
-    k = j.cumprod(0)
+    j = APyFloatArray.from_float([[1, -1, 2], [-3, 4, -5]], exp_bits=10, man_bits=10)
+    k = j.cumprod()
     assert k.is_identical(
-        APyFloatArray.from_float([[0, 1, 2], [0, 4, 10]], exp_bits=10, man_bits=10)
+        APyFloatArray.from_float([1, -1, -2, 6, 24, -120], exp_bits=10, man_bits=10)
+    )
+
+    o = APyFloatArray.from_float([[-1, 2], [-3, 4]], exp_bits=10, man_bits=10)
+    p = o.cumprod()
+    assert p.is_identical(
+        APyFloatArray.from_float([-1, -2, 6, 24], exp_bits=10, man_bits=10)
     )
 
 
@@ -728,6 +746,18 @@ def test_nancumprod():
     k = j.nancumprod(0)
     assert k.is_identical(
         APyFloatArray.from_float([[0, 1, 2], [0, 1, 10]], exp_bits=10, man_bits=10)
+    )
+
+    x = APyFloatArray.from_float([[1, -1, nan], [-3, 4, -5]], exp_bits=10, man_bits=10)
+    y = x.nancumprod()
+    assert y.is_identical(
+        APyFloatArray.from_float([1, -1, -1, 3, 12, -60], exp_bits=10, man_bits=10)
+    )
+
+    o = APyFloatArray.from_float([[-1, 2], [nan, 4]], exp_bits=10, man_bits=10)
+    p = o.nancumprod()
+    assert p.is_identical(
+        APyFloatArray.from_float([-1, -2, -2, -8], exp_bits=10, man_bits=10)
     )
 
 
