@@ -1581,43 +1581,6 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::get_item(std::size_t idx) c
         return result;
     }
 }
-std::variant<APyFloatArray, APyFloat>
-APyFloatArray::get_item_from_axis(std::size_t idx, std::size_t axis) const
-{
-    if (axis >= shape.size()) {
-        throw std::out_of_range("Axis out of range");
-    }
-    if (idx >= shape[axis]) {
-        throw std::out_of_range("Index out of bounds for specified axis");
-    }
-
-    // Compute the new shape excluding the specified axis
-    std::vector<std::size_t> new_shape(shape.size() - 1);
-    for (std::size_t i = 0, j = 0; i < shape.size(); ++i) {
-        if (i != axis) {
-            new_shape[j++] = shape[i];
-        }
-    }
-
-    // Calculate the stride for the specified axis
-    std::size_t element_stride = 1;
-    for (std::size_t i = axis + 1; i < shape.size(); ++i) {
-        element_stride *= shape[i];
-    }
-
-    // Calculate the starting offset
-    std::size_t offset = idx * element_stride;
-
-    if (new_shape.size() == 0) {
-        // Single element case
-        return APyFloat(data[offset], exp_bits, man_bits, bias);
-    } else {
-        // Sub-array case
-        APyFloatArray result(new_shape, exp_bits, man_bits, bias);
-        std::copy_n(data.begin() + offset, result.data.size(), result.data.begin());
-        return result;
-    }
-}
 
 nb::ndarray<nb::numpy, double> APyFloatArray::to_numpy() const
 {
