@@ -1011,6 +1011,91 @@ void bind_float_array(nb::module_& m)
             )pbdoc"
         )
 
+        .def(
+            "max",
+            &APyFloatArray::max,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Returns the maximum value from an array or the maximum along an axis
+
+            Parameters
+            ----------
+            axis : tuple or int, optional
+                The axis to get the maximum along.
+
+            Returns
+            -------
+            :class:`APyFloatArray` or :class:`APyFloat`
+
+            Examples
+            -------
+
+            >>> from apytypes import APyFixedArray
+
+            Array `a`, array to get the maximum along.
+
+            >>> a = APyFixedArray.from_float(
+            ...     [[1,2,3],[4,5,6]],
+            ...     int_bits=10,
+            ...     frac_bits=0
+            ... )
+
+            >>> a.max()
+            APyFloat(sign=0, exp=513, man=512, exp_bits=10, man_bits=10)
+
+            >>> a.max(0)
+            APyFloatArray([0, 0, 0], [513, 513, 513], [0, 256, 512], shape=(3,), exp_bits=10, man_bits=10, bias=511)
+
+            >>> a.max(1)
+            APyFloatArray([0, 0], [512, 513], [512, 512], shape=(2,), exp_bits=10, man_bits=10, bias=511)
+
+            -------
+
+            )pbdoc"
+        )
+
+        .def(
+            "min",
+            &APyFloatArray::min,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Returns the minimum value from an array or the minimum along an axis
+
+            Parameters
+            ----------
+            axis : tuple or int, optional
+                The axis to get the minimum along.
+
+            Returns
+            -------
+            :class:`APyFloatArray` or :class:`APyFloat`
+
+            Examples
+            -------
+
+            >>> from apytypes import APyFixedArray
+
+            Array `a`, array to get the maximum along.
+
+            >>> a = APyFixedArray.from_float(
+            ...     [[1,2,3],[4,5,6]],
+            ...     exp_bits=10,
+            ...     man_bits=10
+            ... )
+
+            >>> a.min()
+            APyFloat(sign=0, exp=511, man=0, exp_bits=10, man_bits=10)
+
+            >>> a.min(0)
+            APyFloatArray([0, 0, 0], [511, 512, 512], [0, 0, 512], shape=(3,), exp_bits=10, man_bits=10, bias=511)
+
+            >>> a.min(1)
+            APyFloatArray([0, 0], [511, 513], [0, 0], shape=(2,), exp_bits=10, man_bits=10, bias=511)
+
+            -------
+            )pbdoc"
+        )
+
         // Iteration and friends
         .def("__getitem__", &APyFloatArray::get_item, nb::arg("idx"))
         .def(

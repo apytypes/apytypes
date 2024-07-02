@@ -116,6 +116,29 @@ def test_sum(sum_func):
     ):
         _ = m.__getattribute__(sum_func)(1)
 
+    x = APyFixedArray(
+        [
+            [[[0, 1], [2, 3]], [[4, 5], [6, 7]]],
+            [[[8, 9], [10, 11]], [[12, 13], [14, 15]]],
+        ],
+        int_bits=10,
+        frac_bits=0,
+    )
+    y = x.__getattribute__(sum_func)(1)
+    z = x.__getattribute__(sum_func)(2)
+    w = x.__getattribute__(sum_func)((1, 3))
+    assert y.is_identical(
+        APyFixedArray(
+            [[[4, 6], [8, 10]], [[20, 22], [24, 26]]], int_bits=11, frac_bits=0
+        )
+    )
+    assert z.is_identical(
+        APyFixedArray(
+            [[[2, 4], [10, 12]], [[18, 20], [26, 28]]], int_bits=11, frac_bits=0
+        )
+    )
+    assert w.is_identical(APyFixedArray([[10, 18], [42, 50]], int_bits=12, frac_bits=0))
+
 
 @pytest.mark.parametrize("sum_func", ["cumsum", "nancumsum"])
 def test_cumsum(sum_func):
@@ -177,6 +200,37 @@ def test_cumsum(sum_func):
     o = n.sum((0, 2))
     assert o.is_identical(APyFixedArray([14, 22], frac_bits=0, int_bits=7))
 
+    x = APyFixedArray(
+        [
+            [[[0, 1], [2, 3]], [[4, 5], [6, 7]]],
+            [[[8, 9], [10, 11]], [[12, 13], [14, 15]]],
+        ],
+        int_bits=10,
+        frac_bits=0,
+    )
+    y = x.__getattribute__(sum_func)(1)
+    z = x.__getattribute__(sum_func)(2)
+    assert y.is_identical(
+        APyFixedArray(
+            [
+                [[[0, 1], [2, 3]], [[4, 6], [8, 10]]],
+                [[[8, 9], [10, 11]], [[20, 22], [24, 26]]],
+            ],
+            int_bits=11,
+            frac_bits=0,
+        )
+    )
+    assert z.is_identical(
+        APyFixedArray(
+            [
+                [[[0, 1], [2, 4]], [[4, 5], [10, 12]]],
+                [[[8, 9], [18, 20]], [[12, 13], [26, 28]]],
+            ],
+            int_bits=11,
+            frac_bits=0,
+        )
+    )
+
 
 @pytest.mark.parametrize("prod_func", ["prod", "nanprod"])
 def test_prod(prod_func):
@@ -212,7 +266,10 @@ def test_prod(prod_func):
     assert r.is_identical(APyFixedArray([-1, -4], frac_bits=0, int_bits=10))
 
     m = APyFixedArray([1, 2, 3], bits=2, int_bits=2)
-    with pytest.raises(IndexError):
+    with pytest.raises(
+        IndexError,
+        match="specified axis outside number of dimensions in the APyFixedArray",
+    ):
         _ = m.__getattribute__(prod_func)(1)
 
     n = APyFixedArray.from_float([[0.25, 0.5]], frac_bits=10, int_bits=10)
@@ -222,6 +279,31 @@ def test_prod(prod_func):
     n = APyFixedArray([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=5)
     o = n.__getattribute__(prod_func)((0, 2))
     assert o.is_identical(APyFixedArray([60, 672], frac_bits=0, int_bits=20))
+
+    x = APyFixedArray(
+        [
+            [[[0, 1], [2, 3]], [[4, 5], [6, 7]]],
+            [[[8, 9], [10, 11]], [[12, 13], [14, 15]]],
+        ],
+        int_bits=10,
+        frac_bits=0,
+    )
+    y = x.__getattribute__(prod_func)(1)
+    z = x.__getattribute__(prod_func)(2)
+    w = x.__getattribute__(prod_func)((1, 3))
+    assert y.is_identical(
+        APyFixedArray(
+            [[[0, 5], [12, 21]], [[96, 117], [140, 165]]], int_bits=20, frac_bits=0
+        )
+    )
+    assert z.is_identical(
+        APyFixedArray(
+            [[[0, 3], [24, 35]], [[80, 99], [168, 195]]], int_bits=20, frac_bits=0
+        )
+    )
+    assert w.is_identical(
+        APyFixedArray([[0, 252], [11232, 23100]], int_bits=40, frac_bits=0)
+    )
 
 
 @pytest.mark.parametrize("prod_func", ["cumprod", "nancumprod"])
@@ -256,7 +338,10 @@ def test_cumprod(prod_func):
     assert i.is_identical(
         APyFixedArray([[[1, 2], [3, 12]], [[5, 30], [7, 56]]], frac_bits=0, int_bits=16)
     )
-    with pytest.raises(IndexError):
+    with pytest.raises(
+        IndexError,
+        match="specified axis outside number of dimensions in the APyFixedArray",
+    ):
         _ = e.__getattribute__(prod_func)(4)
 
     k = APyFixedArray.from_float([[0.25, 0.5], [1, 2]], frac_bits=10, int_bits=10)
@@ -276,6 +361,153 @@ def test_cumprod(prod_func):
     assert k.is_identical(
         APyFixedArray([[0, 1, 2], [0, 4, 10]], frac_bits=0, int_bits=130)
     )
+
+    x = APyFixedArray(
+        [
+            [[[0, 1], [2, 3]], [[4, 5], [6, 7]]],
+            [[[8, 9], [10, 11]], [[12, 13], [14, 15]]],
+        ],
+        int_bits=10,
+        frac_bits=0,
+    )
+    y = x.__getattribute__(prod_func)(1)
+    z = x.__getattribute__(prod_func)(2)
+    assert y.is_identical(
+        APyFixedArray(
+            [
+                [[[0, 1], [2, 3]], [[0, 5], [12, 21]]],
+                [[[8, 9], [10, 11]], [[96, 117], [140, 165]]],
+            ],
+            int_bits=20,
+            frac_bits=0,
+        )
+    )
+    assert z.is_identical(
+        APyFixedArray(
+            [
+                [[[0, 1], [0, 3]], [[4, 5], [24, 35]]],
+                [[[8, 9], [80, 99]], [[12, 13], [168, 195]]],
+            ],
+            int_bits=20,
+            frac_bits=0,
+        )
+    )
+
+
+def test_max():
+    a = APyFixedArray([[0, 1], [2, 3]], int_bits=5, frac_bits=0)
+    b = a.max()
+    c = a.max(0)
+    d = a.max(1)
+    assert b.is_identical(APyFixed(3, int_bits=5, frac_bits=0))
+    assert c.is_identical(APyFixedArray([2, 3], int_bits=5, frac_bits=0))
+    assert d.is_identical(APyFixedArray([1, 3], int_bits=5, frac_bits=0))
+    e = APyFixedArray(
+        [
+            [[[0, 1], [2, 3]], [[4, 5], [6, 7]]],
+            [[[8, 9], [10, 11]], [[12, 13], [14, 15]]],
+        ],
+        int_bits=10,
+        frac_bits=0,
+    )
+    f = e.max(1)
+    g = e.max((0, 1))
+    h = e.max((1, 3))
+    i = e.max()
+    k = e.max((0, 1, 2, 3))
+    assert f.is_identical(
+        APyFixedArray(
+            [[[4, 5], [6, 7]], [[12, 13], [14, 15]]], int_bits=10, frac_bits=0
+        )
+    )
+    assert g.is_identical(APyFixedArray([[12, 13], [14, 15]], int_bits=10, frac_bits=0))
+    assert h.is_identical(APyFixedArray([[5, 7], [13, 15]], int_bits=10, frac_bits=0))
+    assert i.is_identical(APyFixed(15, int_bits=10, frac_bits=0))
+    assert k.is_identical(i)
+
+    """ test negative numbers  """
+    z = APyFixedArray([[0, -1], [-2, -3]], int_bits=5, frac_bits=0)
+    m = z.max()
+    n = z.max(0)
+    o = z.max(1)
+    assert m.is_identical(APyFixed(0, int_bits=5, frac_bits=0))
+    assert n.is_identical(APyFixedArray([0, -1], int_bits=5, frac_bits=0))
+    assert o.is_identical(APyFixedArray([0, -2], int_bits=5, frac_bits=0))
+    """ teste mix of negativa and positive numbers and larger than 64 bit size """
+    p = APyFixedArray([[4, -1], [-2, -3]], int_bits=85, frac_bits=0)
+    q = p.max()
+    assert q.is_identical(APyFixed(4, int_bits=85, frac_bits=0))
+    """ test float numbers """
+    r = APyFixedArray.from_float([1.0, 1.25, 2.875], int_bits=10, frac_bits=10)
+    s = r.max()
+    assert s.is_identical(APyFixed.from_float(2.875, int_bits=10, frac_bits=10))
+    with pytest.raises(
+        IndexError,
+        match="specified axis outside number of dimensions in the APyFixedArray",
+    ):
+        _ = r.max(4)
+    with pytest.raises(
+        IndexError,
+        match="specified axis outside number of dimensions in the APyFixedArray",
+    ):
+        _ = e.max(4)
+
+
+def test_min():
+    a = APyFixedArray([[0, 1], [2, 3]], int_bits=5, frac_bits=0)
+    b = a.min()
+    c = a.min(0)
+    d = a.min(1)
+    assert b.is_identical(APyFixed(0, int_bits=5, frac_bits=0))
+    assert c.is_identical(APyFixedArray([0, 1], int_bits=5, frac_bits=0))
+    assert d.is_identical(APyFixedArray([0, 2], int_bits=5, frac_bits=0))
+    e = APyFixedArray(
+        [
+            [[[0, 1], [2, 3]], [[4, 5], [6, 7]]],
+            [[[8, 9], [10, 11]], [[12, 13], [14, 15]]],
+        ],
+        int_bits=10,
+        frac_bits=0,
+    )
+    f = e.min(1)
+    g = e.min((0, 1))
+    h = e.min((1, 3))
+    i = e.min()
+    k = e.min((0, 1, 2, 3))
+    assert f.is_identical(
+        APyFixedArray([[[0, 1], [2, 3]], [[8, 9], [10, 11]]], int_bits=10, frac_bits=0)
+    )
+    assert g.is_identical(APyFixedArray([[0, 1], [2, 3]], int_bits=10, frac_bits=0))
+    assert h.is_identical(APyFixedArray([[0, 2], [8, 10]], int_bits=10, frac_bits=0))
+    assert i.is_identical(APyFixed(0, int_bits=10, frac_bits=0))
+    assert k.is_identical(i)
+
+    """ test negative numbers  """
+    z = APyFixedArray([[0, -1], [-2, -3]], int_bits=5, frac_bits=0)
+    m = z.min()
+    n = z.min(0)
+    o = z.min(1)
+    assert m.is_identical(APyFixed(-3, int_bits=5, frac_bits=0))
+    assert n.is_identical(APyFixedArray([-2, -3], int_bits=5, frac_bits=0))
+    assert o.is_identical(APyFixedArray([-1, -3], int_bits=5, frac_bits=0))
+    """ teste mix of negativa and positive numbers and larger than 64 bit size """
+    p = APyFixedArray([[4, -1], [-2, -3]], int_bits=85, frac_bits=0)
+    q = p.min()
+    assert q.is_identical(APyFixed(-3, int_bits=85, frac_bits=0))
+    """ test float numbers """
+    r = APyFixedArray.from_float([1.0, 1.25, 2.875], int_bits=10, frac_bits=10)
+    s = r.min()
+    assert s.is_identical(APyFixed.from_float(1.0, int_bits=10, frac_bits=10))
+    with pytest.raises(
+        IndexError,
+        match="specified axis outside number of dimensions in the APyFixedArray",
+    ):
+        _ = r.min(4)
+    with pytest.raises(
+        IndexError,
+        match="specified axis outside number of dimensions in the APyFixedArray",
+    ):
+        _ = e.min(4)
 
 
 def test_to_numpy():

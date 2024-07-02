@@ -133,6 +133,11 @@ private:
         std::optional<nb::int_> axis = std::nullopt
     ) const;
 
+    std::variant<APyFixedArray, APyFixed> max_min_helper_function(
+        bool (*comp_func)(APyFixed&, APyFixed&),
+        std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt
+    ) const;
+
 public:
     APyFixedArray operator+(const APyFixedArray& rhs) const;
     APyFixedArray operator+(const APyFixed& rhs) const;
@@ -213,6 +218,10 @@ public:
     // Return the maximum of an array or the maximum along an axis.
     std::variant<APyFixedArray, APyFixed>
     max(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+
+    // Return the minimum of an array or the minimum along an axis.
+    std::variant<APyFixedArray, APyFixed>
+    min(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
 
     //! Python `__repr__()` function
     std::string repr() const;

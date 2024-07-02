@@ -1341,9 +1341,25 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
     return result;
 }
 
-// Return the maximum of an array or the maximum along an axis.
 std::variant<APyFixedArray, APyFixed>
 APyFixedArray::max(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    auto comp_func = [](APyFixed& lhs, APyFixed& rhs) { return lhs > rhs; };
+    return max_min_helper_function(comp_func, axis);
+}
+
+std::variant<APyFixedArray, APyFixed>
+APyFixedArray::min(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    auto comp_func = [](APyFixed& lhs, APyFixed& rhs) { return lhs < rhs; };
+    return max_min_helper_function(comp_func, axis);
+}
+
+// Return the maximum of an array or the maximum along an axis.
+std::variant<APyFixedArray, APyFixed> APyFixedArray::max_min_helper_function(
+    bool (*comp_func)(APyFixed&, APyFixed&),
+    std::optional<std::variant<nb::tuple, nb::int_>> axis
+) const
 {
     // determine the input axes
     std::set<std::size_t> axes_set;
@@ -1362,6 +1378,7 @@ APyFixedArray::max(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
         axes_set.insert(_shape.size());
     }
 
+    // special case where the maximum or minimum from the whole array is wanted
     if (axes_set.size() == _shape.size()
         || axes_set.find(_shape.size()) != axes_set.end()) {
         APyFixed res(_bits, _int_bits);
@@ -1369,7 +1386,7 @@ APyFixedArray::max(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
         for (std::size_t i = _itemsize; i < _data.size(); i += _itemsize) {
             APyFixed temp(_bits, _int_bits);
             std::copy_n(_data.begin() + i, _itemsize, temp._data.begin());
-            if (temp > res) {
+            if (comp_func(temp, res)) {
                 res = temp;
             }
         }
@@ -1384,11 +1401,13 @@ APyFixedArray::max(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
     APyFixed lhs_scalar(_bits, _int_bits);
     APyFixed rhs_scalar(_bits, _int_bits);
 
+    // loop over the axes one at a time
     for (std::size_t x = 0; x < _shape.size(); x++) {
         if (axes_set.find(x) == axes_set.end()) {
             res_shape.push_back(_shape[x]);
             continue;
         }
+        // loop over an axis and get the maximum or minimum along it
         for (std::size_t i = 0; i < elements; i++) {
             std::size_t new_pos
                 = i % strides[x] + (i - i % (strides[x] * _shape[x])) / _shape[x];
@@ -1409,12 +1428,7 @@ APyFixedArray::max(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
                 _itemsize,
                 rhs_scalar._data.begin()
             );
-            std::cout << "pos " << new_pos << std::endl;
-            std::cout << "i " << i << std::endl;
-            std::cout << "ls " << lhs_scalar.repr() << std::endl;
-            std::cout << "rs " << rhs_scalar.repr() << std::endl;
-            std::cout << "     " << std::endl;
-            if (lhs_scalar > rhs_scalar) {
+            if (comp_func(lhs_scalar, rhs_scalar)) {
                 std::copy_n(
                     lhs_scalar._data.begin(),
                     _itemsize,

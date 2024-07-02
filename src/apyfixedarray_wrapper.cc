@@ -717,7 +717,74 @@ void bind_fixed_array(nb::module_& m)
 
             Returns
             -------
-            :class:`APyFixedArray` or :class:`ApyFixed`
+            :class:`APyFixedArray` or :class:`APyFixed`
+
+            Examples
+            -------
+
+            >>> from apytypes import APyFixedArray
+
+            Array `a`, array to get the maximum along.
+
+            >>> a = APyFixedArray(
+            ...     [[1,2,3],[4,5,6]],
+            ...     int_bits=10,
+            ...     frac_bits=0
+            ... )
+
+            >>> a.max()
+            APyFixed(6, bits=10, int_bits=10)
+
+            >>> a.max(0)
+            APyFixedArray([4,5,6], shape=(3), bits=10, int_bits=10)
+
+            >>> a.max(1)
+            APyFixedArray([3,6], shape=(2), bits=10, int_bits=10)
+
+            -------
+
+            )pbdoc"
+        )
+
+        .def(
+            "min",
+            &APyFixedArray::min,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Returns the minimum value from an array or the minimum along an axis
+
+            Parameters
+            ----------
+            axis : tuple or int, optional
+                The axis to get the minimum along.
+
+            Returns
+            -------
+            :class:`APyFixedArray` or :class:`APyFixed`
+
+            Examples
+            -------
+
+            >>> from apytypes import APyFixedArray
+
+            Array `a`, array to get the maximum along.
+
+            >>> a = APyFixedArray(
+            ...     [[1,2,3],[4,5,6]],
+            ...     int_bits=10,
+            ...     frac_bits=0
+            ... )
+
+            >>> a.min()
+            APyFixed(1, bits=10, int_bits=10)
+
+            >>> a.min(0)
+            APyFixedArray([1,2,3], shape=(3), bits=10, int_bits=10)
+
+            >>> a.min(1)
+            APyFixedArray([1,4], shape=(2), bits=10, int_bits=10)
+
+            -------
             )pbdoc"
         )
 
