@@ -1030,14 +1030,14 @@ void bind_float_array(nb::module_& m)
             Examples
             -------
 
-            >>> from apytypes import APyFixedArray
+            >>> from apytypes import APyFloatArray
 
             Array `a`, array to get the maximum along.
 
-            >>> a = APyFixedArray.from_float(
+            >>> a = APyFloatArray.from_float(
             ...     [[1,2,3],[4,5,6]],
-            ...     int_bits=10,
-            ...     frac_bits=0
+            ...     exp_bits=10,
+            ...     man_bits=10
             ... )
 
             >>> a.max()
@@ -1073,11 +1073,11 @@ void bind_float_array(nb::module_& m)
             Examples
             -------
 
-            >>> from apytypes import APyFixedArray
+            >>> from apytypes import APyFloatArray
 
             Array `a`, array to get the maximum along.
 
-            >>> a = APyFixedArray.from_float(
+            >>> a = APyFloatArray.from_float(
             ...     [[1,2,3],[4,5,6]],
             ...     exp_bits=10,
             ...     man_bits=10

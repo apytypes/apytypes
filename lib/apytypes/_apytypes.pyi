@@ -1027,10 +1027,10 @@ class APyFixedArray:
         APyFixed(6, bits=10, int_bits=10)
 
         >>> a.max(0)
-        APyFixedArray([4,5,6], shape=(3), bits=10, int_bits=10)
+        APyFixedArray([4, 5, 6], shape=(3,), bits=10, int_bits=10)
 
         >>> a.max(1)
-        APyFixedArray([3,6], shape=(2), bits=10, int_bits=10)
+        APyFixedArray([3, 6], shape=(2,), bits=10, int_bits=10)
 
         -------
         """
@@ -1061,10 +1061,10 @@ class APyFixedArray:
         APyFixed(1, bits=10, int_bits=10)
 
         >>> a.min(0)
-        APyFixedArray([1,2,3], shape=(3), bits=10, int_bits=10)
+        APyFixedArray([1, 2, 3], shape=(3,), bits=10, int_bits=10)
 
         >>> a.min(1)
-        APyFixedArray([1,4], shape=(2), bits=10, int_bits=10)
+        APyFixedArray([1, 4], shape=(2,), bits=10, int_bits=10)
 
         -------
         """
@@ -2790,12 +2790,12 @@ class APyFloatArray:
         Examples
         -------
 
-        >>> from apytypes import APyFixedArray
+        >>> from apytypes import APyFloatArray
 
         Array `a`, array to get the maximum along.
 
-        >>> a = APyFixedArray.from_float(
-        ...     [[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0
+        >>> a = APyFloatArray.from_float(
+        ...     [[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10
         ... )
 
         >>> a.max()
@@ -2826,11 +2826,11 @@ class APyFloatArray:
         Examples
         -------
 
-        >>> from apytypes import APyFixedArray
+        >>> from apytypes import APyFloatArray
 
         Array `a`, array to get the maximum along.
 
-        >>> a = APyFixedArray.from_float(
+        >>> a = APyFloatArray.from_float(
         ...     [[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10
         ... )
 

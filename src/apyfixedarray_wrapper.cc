@@ -736,10 +736,10 @@ void bind_fixed_array(nb::module_& m)
             APyFixed(6, bits=10, int_bits=10)
 
             >>> a.max(0)
-            APyFixedArray([4,5,6], shape=(3), bits=10, int_bits=10)
+            APyFixedArray([4, 5, 6], shape=(3,), bits=10, int_bits=10)
 
             >>> a.max(1)
-            APyFixedArray([3,6], shape=(2), bits=10, int_bits=10)
+            APyFixedArray([3, 6], shape=(2,), bits=10, int_bits=10)
 
             -------
 
@@ -779,10 +779,10 @@ void bind_fixed_array(nb::module_& m)
             APyFixed(1, bits=10, int_bits=10)
 
             >>> a.min(0)
-            APyFixedArray([1,2,3], shape=(3), bits=10, int_bits=10)
+            APyFixedArray([1, 2, 3], shape=(3,), bits=10, int_bits=10)
 
             >>> a.min(1)
-            APyFixedArray([1,4], shape=(2), bits=10, int_bits=10)
+            APyFixedArray([1, 4], shape=(2,), bits=10, int_bits=10)
 
             -------
             )pbdoc"
