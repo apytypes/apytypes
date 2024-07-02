@@ -531,4 +531,4 @@ def test_ravel(shape):
 
 if __name__ == "__main__":
     a = APyFixedArray([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], int_bits=5, frac_bits=0)
-    print(a.max(2))
+    print(a.max(0))

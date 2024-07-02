@@ -635,22 +635,6 @@ void bind_fixed_array(nb::module_& m)
         )
 
         .def(
-<<<<<<< HEAD
-            "prod",
-            &APyFixedArray::prod,
-            nb::arg("axis") = nb::none(),
-            R"pbdoc(
-            Returns the product of the elements along specified axis/axes.
-
-            Parameters
-            ----------
-            axis : tuple, int, optional
-                The axis/axes to calculate the product across. If not given an axis it will return the product of the flattened array.
-
-            Returns
-            -------
-            :class:`APyFixedArray` or :class:`APyFixed`
-=======
             "max",
             &APyFixedArray::max,
             nb::arg("axis") = nb::none(),
@@ -665,14 +649,30 @@ void bind_fixed_array(nb::module_& m)
             Returns
             -------
             :class:`APyFixedArray` or :class:`ApyFixed`
->>>>>>> 44cd7826 (added max to the header file)
+
+        )
+
+        .def(
+            "prod",
+            &APyFixedArray::prod,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Returns the product of the elements along specified axis/axes.
+
+            Parameters
+            ----------
+            axis : tuple, int, optional
+                The axis/axes to calculate the product across. If not given an axis it will return the product of the flattened array.
+
+            Returns
+            -------
+            :class:`APyFixedArray` or :class:`APyFixed`
 
             Raises
             -------
             :class:IndexError
                 If a specified axis is outside of the existing number of dimensions for the array.
 
-<<<<<<< HEAD
             Examples
             -------
 
@@ -781,8 +781,6 @@ void bind_fixed_array(nb::module_& m)
                 :class:IndexError
                     If a specified axis is outside of the existing number of dimensions for the array.
 
-=======
->>>>>>> 44cd7826 (added max to the header file)
             )pbdoc"
         )
 

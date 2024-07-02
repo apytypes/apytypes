@@ -33,11 +33,8 @@ namespace nb = nanobind;
 #include "array_utils.h"
 #include "broadcast.h"
 #include "python_util.h"
-<<<<<<< HEAD
 #include <iostream>
 
-=======
->>>>>>> c2fdd435 (max implemented but needs to be tested)
 #include <fmt/format.h>
 
 // GMP should be included after all other includes
