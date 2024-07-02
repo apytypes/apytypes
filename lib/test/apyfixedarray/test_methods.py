@@ -527,3 +527,8 @@ def test_ravel(shape):
     reshaped = arr.reshape(shape)
     if not APyFixedArray.is_identical(reshaped.ravel(), arr):
         pytest.fail(f"ravel didn't return to original 1d list after reshape {shape}")
+
+
+if __name__ == "__main__":
+    a = APyFixedArray([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], int_bits=5, frac_bits=0)
+    print(a.max(2))
