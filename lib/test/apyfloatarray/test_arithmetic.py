@@ -750,7 +750,7 @@ def _generate_dimensions(n):
 
 
 @pytest.mark.float_array
-def test_transpose_3d():
+def test_transpose_highdim():
     np = pytest.importorskip("numpy")
 
     num_elems = 48
@@ -780,7 +780,7 @@ def test_transpose_3d():
             )
 
 
-test_transpose_3d()
+test_transpose_highdim()
 
 
 @pytest.mark.float_array

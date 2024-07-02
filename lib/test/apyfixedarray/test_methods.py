@@ -1,3 +1,4 @@
+from itertools import permutations
 from apytypes import APyFixedArray
 from apytypes import APyFixed
 
@@ -527,3 +528,55 @@ def test_ravel(shape):
     reshaped = arr.reshape(shape)
     if not APyFixedArray.is_identical(reshaped.ravel(), arr):
         pytest.fail(f"ravel didn't return to original 1d list after reshape {shape}")
+    pass
+
+
+def _generate_dimensions(n):
+    result = set()  # Use a set to store unique combinations
+
+    def factor_combinations(target, factors):
+        if target == 1:
+            result.add(tuple(sorted(factors)))  # Add sorted tuple to set
+            return
+        for i in range(2, target + 1):
+            if target % i == 0:
+                factor_combinations(target // i, factors + [i])
+
+    factor_combinations(n, [])
+    return list(result)  # Convert set back to list
+
+
+@pytest.mark.float_array
+def test_transpose_highdim():
+    np = pytest.importorskip("numpy")
+    num_elems = 48
+    elements = np.arange(num_elems)
+
+    # Generate all possible axis permutations for a 3D array
+    possible_shapes = _generate_dimensions(num_elems)
+
+    # Test each permutation
+    for shape in possible_shapes:
+        if len(shape) < 3:
+            axes_permutations = [None]
+        else:
+            axes_permutations = list(permutations([_ for _ in range(len(shape))]))
+
+        for perm in axes_permutations:
+            apy_array = APyFixedArray.from_array(np.reshape(elements, shape), 7474, 5)
+            numpy_transposed = np.transpose(np.reshape(elements, shape), perm)
+
+            apy_transposed = apy_array.transpose(perm)
+            numpy_array = APyFixedArray.from_array(numpy_transposed, 7474, 5)
+
+            assert apy_transposed.is_identical(numpy_array), (
+                f"Failed for shape {shape} and permutation {perm}. "
+                f"Original array = \n{np.reshape(elements, shape)}\n "
+                f"ApyFloat array = \n{apy_transposed.to_numpy()}\n "
+                f"Numpy created array = \n{numpy_array.to_numpy()}"
+            )
+
+    big = 2**325
+    a = APyFixedArray.from_float([[big + 1, big + 2], [big + 3, big + 4]], 345, 95)
+    b = APyFixedArray.from_float([[big + 1, big + 4], [big + 3, big + 2]], 345, 95)
+    a.transpose().is_identical(b)
