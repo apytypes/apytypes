@@ -14,6 +14,7 @@ namespace nb = nanobind;
 #include <cstddef>   // std::size_t
 #include <cstdint>   // std::int16, std::int32, std::int64, etc...
 #include <ios>       // std::dec, std::hex
+#include <iostream>
 #include <optional>  // std::optional
 #include <set>       // std::set
 #include <sstream>   // std::stringstream
@@ -33,6 +34,8 @@ namespace nb = nanobind;
 #include "broadcast.h"
 #include "python_util.h"
 
+=======
+>>>>>>> c2fdd435 (max implemented but needs to be tested)
 #include <fmt/format.h>
 
 // GMP should be included after all other includes
@@ -1051,8 +1054,7 @@ APyFixedArray::sum(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
                        std::size_t frac_bits) {
         // calculate new position
         std::size_t pos_in_sec = i % (sec_length);
-        std::size_t sec_pos
-            = (i - i % (elements * sec_length)) / (elements * sec_length);
+        std::size_t sec_pos = (i - i % (elements * sec_length)) / (elements);
         // Perform ripple-carry operation on the limbs
         auto pos = pos_in_sec + sec_pos;
         mpn_add_n_functor<> {}(
@@ -1338,6 +1340,97 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
         dst += result._itemsize;
     }
 
+    return result;
+}
+
+// Return the maximum of an array or the maximum along an axis.
+std::variant<APyFixedArray, APyFixed>
+APyFixedArray::max(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    // determine the input axes
+    std::set<std::size_t> axes_set;
+    if (axis.has_value()) {
+        std::vector<std::size_t> axes_vector
+            = cpp_shape_from_python_shape_like(axis.value());
+        for (auto i : axes_vector) {
+            if (i >= _shape.size()) {
+                throw nb::index_error(
+                    "specified axis outside number of dimensions in the APyFixedArray"
+                );
+            }
+            axes_set.insert(i);
+        }
+    } else {
+        axes_set.insert(_shape.size());
+    }
+
+    if (axes_set.size() == _shape.size()
+        || axes_set.find(_shape.size()) != axes_set.end()) {
+        APyFixed res(_bits, _int_bits);
+        std::copy_n(_data.begin(), _itemsize, res._data.begin());
+        for (std::size_t i = _itemsize; i < _data.size(); i += _itemsize) {
+            APyFixed temp(_bits, _int_bits);
+            std::copy_n(_data.begin() + i, _itemsize, temp._data.begin());
+            if (temp > res) {
+                res = temp;
+            }
+        }
+        return res;
+    }
+
+    std::size_t elements = _nitems;
+    std::vector<std::size_t> res_shape;
+    std::vector<mp_limb_t> source_data = _data;
+    std::vector<mp_limb_t> temp_data(_data.size(), 0);
+    std::vector<std::size_t> strides = strides_from_shape(_shape);
+    APyFixed lhs_scalar(_bits, _int_bits);
+    APyFixed rhs_scalar(_bits, _int_bits);
+
+    for (std::size_t x = 0; x < _shape.size(); x++) {
+        if (axes_set.find(x) == axes_set.end()) {
+            res_shape.push_back(_shape[x]);
+            continue;
+        }
+        for (std::size_t i = 0; i < elements; i++) {
+            std::size_t new_pos
+                = i % strides[x] + (i - i % (strides[x] * _shape[x])) / _shape[x];
+            if (i % (strides[x] * _shape[x]) < strides[x]) {
+                std::copy_n(
+                    source_data.begin() + i * _itemsize,
+                    _itemsize,
+                    temp_data.begin() + new_pos * _itemsize
+                );
+                continue;
+            }
+
+            std::copy_n(
+                source_data.begin() + i * _itemsize, _itemsize, lhs_scalar._data.begin()
+            );
+            std::copy_n(
+                temp_data.begin() + new_pos * _itemsize,
+                _itemsize,
+                rhs_scalar._data.begin()
+            );
+            std::cout << "pos " << new_pos << std::endl;
+            std::cout << "i " << i << std::endl;
+            std::cout << "ls " << lhs_scalar.repr() << std::endl;
+            std::cout << "rs " << rhs_scalar.repr() << std::endl;
+            std::cout << "     " << std::endl;
+            if (lhs_scalar > rhs_scalar) {
+                std::copy_n(
+                    lhs_scalar._data.begin(),
+                    _itemsize,
+                    temp_data.begin() + new_pos * _itemsize
+                );
+            }
+        }
+
+        elements /= _shape[x];
+        source_data = temp_data;
+        temp_data.assign(elements, 0);
+    }
+    APyFixedArray result(res_shape, _bits, _int_bits);
+    std::copy_n(source_data.begin(), elements, result._data.begin());
     return result;
 }
 
