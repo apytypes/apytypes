@@ -780,9 +780,6 @@ def test_transpose_highdim():
             )
 
 
-test_transpose_highdim()
-
-
 @pytest.mark.float_array
 def test_unary_negation():
     a = APyFloatArray.from_float([-4.25, 12, -5.5], 9, 10)

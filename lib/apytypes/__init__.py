@@ -18,7 +18,14 @@ from apytypes._apytypes import (
     _get_simd_version_str,
 )
 
-from apytypes._array_functions import squeeze, convolve, reshape, shape
+from apytypes._array_functions import (
+    squeeze,
+    reshape,
+    convolve,
+    shape,
+    ravel,
+    transpose,
+)
 
 from apytypes._version import version as __version__
 
@@ -43,6 +50,8 @@ __all__ = [
     "convolve",
     "reshape",
     "shape",
+    "ravel",
+    "transpose",
 ]
 
 APyFloat.__doc__ = r"""

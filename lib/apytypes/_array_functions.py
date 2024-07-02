@@ -159,8 +159,8 @@ def transpose(a, axes=None):
 
     Returns
     -------
-    :class" `ApyFloatArray`
-        `a` with its axes permuted.
+    transposed : :class:`APyFloatArray` or :class:`APyFixedArray`
+        copy of `a` with its axes permuted.
 
 
     Examples
@@ -198,4 +198,34 @@ def transpose(a, axes=None):
         transpose = a.transpose
     except AttributeError:
         raise TypeError(f"Cannot transpose {type(a)}")
-    return transpose(a, axes=axes)
+    return transpose(axes=axes)
+
+
+def ravel(a):
+    """
+    Return a copy of the array collapsed into one dimension. Same as flatten with current memory-copy model.
+
+    Returns
+    -------
+    collapsed : :class:`APyFloatArray` or :class:`APyFixedArray`
+        copy of `a` but collapsed
+
+    Examples
+    --------
+    >>> from apytypes import APyFloatArray
+    >>> signs = [[0, 0], [1, 1]]
+    >>> exps = [[127, 128], [128, 129]]
+    >>> mans = [[0, 0], [4194304, 0]]
+    >>> arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23)
+    >>> arr.to_numpy()
+    array([[ 1.,  2.],
+           [-3., -4.]])
+
+    >>> arr.ravel().to_numpy()
+    array([ 1.,  2., -3., -4.])
+    """
+    try:
+        ravel = a.ravel
+    except AttributeError:
+        raise TypeError(f"Cannot ravel {type(a)}")
+    return ravel()

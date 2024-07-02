@@ -24,9 +24,11 @@ from ._apytypes import (
 )
 from ._array_functions import (
     convolve as convolve,
+    ravel as ravel,
     reshape as reshape,
     shape as shape,
     squeeze as squeeze,
+    transpose as transpose,
 )
 
 __all__: list = [
@@ -50,6 +52,8 @@ __all__: list = [
     "convolve",
     "reshape",
     "shape",
+    "ravel",
+    "transpose",
 ]
 
 annotations: __future__._Feature = ...
