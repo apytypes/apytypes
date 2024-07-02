@@ -1041,7 +1041,7 @@ std::variant<APyFixedArray, APyFixed>
 APyFixedArray::sum(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
 {
     auto int_bit_increase = [](std::size_t elements, std::size_t bits) {
-        return int(std::ceil(std::log2(elements)));
+        return int(bit_width(elements - 1));
     };
     auto frac_bit_increase = [](std::size_t elements, std::size_t bits) { return 0; };
     auto pos_func = [](std::size_t i,
@@ -1076,7 +1076,7 @@ APyFixedArray::nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis) con
 APyFixedArray APyFixedArray::cumsum(std::optional<nb::int_> axis) const
 {
     auto int_bit_increase = [](std::size_t elements, std::size_t bits) {
-        return int(std::ceil(std::log2(elements)));
+        return int(bit_width(elements - 1));
     };
     auto frac_bit_increase = [](std::size_t elements, std::size_t bits) { return 0; };
     auto pos_func = [](std::size_t i,
@@ -1125,7 +1125,7 @@ APyFixedArray::prod(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
                        APyFixedArray& dst,
                        std::size_t frac_bits) {
         // calculate new position
-        auto pos = i % stride + (i - i % (elems * stride)) / (elems * stride);
+        auto pos = i % stride + (i - i % (elems * stride)) / elems;
         // itemsizes of the different numbers
         std::size_t i_sz_1 = src._itemsize;
         std::size_t i_sz_2 = dst._itemsize;

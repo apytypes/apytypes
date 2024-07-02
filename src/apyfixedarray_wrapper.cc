@@ -718,8 +718,7 @@ void bind_fixed_array(nb::module_& m)
             Returns
             -------
             :class:`APyFixedArray` or :class:`ApyFixed`
-        )pbdoc"
-
+            )pbdoc"
         )
 
         .def(

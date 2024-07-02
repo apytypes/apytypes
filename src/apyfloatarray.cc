@@ -1261,8 +1261,7 @@ APyFloatArray::sum(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
                        APyFloat& rhs_scalar) {
         // calculate new position
         std::size_t pos_in_sec = i % (sec_length);
-        std::size_t sec_pos
-            = (i - i % (elements * sec_length)) / (elements * sec_length);
+        std::size_t sec_pos = (i - i % (elements * sec_length)) / (elements);
         auto pos = (pos_in_sec + sec_pos);
 
         // perform addition
@@ -1310,8 +1309,7 @@ APyFloatArray::nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis) con
                        APyFloat& rhs_scalar) {
         // calculate new position
         std::size_t pos_in_sec = i % (sec_length);
-        std::size_t sec_pos
-            = (i - i % (elements * sec_length)) / (elements * sec_length);
+        std::size_t sec_pos = (i - i % (elements * sec_length)) / (elements);
         auto pos = (pos_in_sec + sec_pos);
 
         // perform addition
@@ -1366,8 +1364,7 @@ APyFloatArray::prod(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
                        APyFloat& rhs_scalar) {
         // calculate new position
         std::size_t pos_in_sec = i % (sec_length);
-        std::size_t sec_pos
-            = (i - i % (elements * sec_length)) / (elements * sec_length);
+        std::size_t sec_pos = (i - i % (elements * sec_length)) / (elements);
         auto pos = (pos_in_sec + sec_pos);
         // special case when first element in a multiplication chain
         if ((elements == src.data.size() && i == 0)
@@ -1425,8 +1422,7 @@ APyFloatArray::nanprod(std::optional<std::variant<nb::tuple, nb::int_>> axis) co
 
         // calculate new position
         std::size_t pos_in_sec = i % (sec_length);
-        std::size_t sec_pos
-            = (i - i % (elements * sec_length)) / (elements * sec_length);
+        std::size_t sec_pos = (i - i % (elements * sec_length)) / (elements);
         auto pos = (pos_in_sec + sec_pos);
         // special case when first element in a multiplication chain
         if ((elements == src.data.size() && i == 0)
