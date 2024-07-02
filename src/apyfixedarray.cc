@@ -34,8 +34,6 @@ namespace nb = nanobind;
 #include "broadcast.h"
 #include "python_util.h"
 
-=======
->>>>>>> c2fdd435 (max implemented but needs to be tested)
 #include <fmt/format.h>
 
 // GMP should be included after all other includes
