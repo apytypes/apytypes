@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `cumprod()`
   - `nanprod()`
   - `nancumprod()`
+  - `max()`
+  - `min()`
 - Added `array_utils.h` to contain shared functions between float and fixed arrays.
 
 ### Changed
