@@ -1,4 +1,5 @@
 // Python object access through Pybind
+#include "apytypes_common.h"
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
@@ -1256,8 +1257,7 @@ APyFloatArray::sum(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
                        APyFloat& rhs_scalar) {
         // calculate new position
         std::size_t pos_in_sec = i % (sec_length);
-        std::size_t sec_pos
-            = (i - i % (elements * sec_length)) / (elements * sec_length);
+        std::size_t sec_pos = (i - i % (elements * sec_length)) / (elements);
         auto pos = (pos_in_sec + sec_pos);
 
         // perform addition
@@ -1305,8 +1305,7 @@ APyFloatArray::nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis) con
                        APyFloat& rhs_scalar) {
         // calculate new position
         std::size_t pos_in_sec = i % (sec_length);
-        std::size_t sec_pos
-            = (i - i % (elements * sec_length)) / (elements * sec_length);
+        std::size_t sec_pos = (i - i % (elements * sec_length)) / (elements);
         auto pos = (pos_in_sec + sec_pos);
 
         // perform addition
@@ -1361,8 +1360,7 @@ APyFloatArray::prod(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
                        APyFloat& rhs_scalar) {
         // calculate new position
         std::size_t pos_in_sec = i % (sec_length);
-        std::size_t sec_pos
-            = (i - i % (elements * sec_length)) / (elements * sec_length);
+        std::size_t sec_pos = (i - i % (elements * sec_length)) / (elements);
         auto pos = (pos_in_sec + sec_pos);
         // special case when first element in a multiplication chain
         if ((elements == src.data.size() && i == 0)
@@ -1420,8 +1418,7 @@ APyFloatArray::nanprod(std::optional<std::variant<nb::tuple, nb::int_>> axis) co
 
         // calculate new position
         std::size_t pos_in_sec = i % (sec_length);
-        std::size_t sec_pos
-            = (i - i % (elements * sec_length)) / (elements * sec_length);
+        std::size_t sec_pos = (i - i % (elements * sec_length)) / (elements);
         auto pos = (pos_in_sec + sec_pos);
         // special case when first element in a multiplication chain
         if ((elements == src.data.size() && i == 0)
@@ -1474,6 +1471,96 @@ APyFloatArray APyFloatArray::nancumprod(std::optional<nb::int_> axis) const
     };
 
     return cumulative_prod_sum_function(pos_func, axis);
+}
+
+std::variant<APyFloatArray, APyFloat>
+APyFloatArray::max(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    auto comp_func = [](APyFloat& lhs, APyFloat& rhs) { return lhs > rhs; };
+    return max_min_helper_function(comp_func, axis);
+}
+
+std::variant<APyFloatArray, APyFloat>
+APyFloatArray::min(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    auto comp_func = [](APyFloat& lhs, APyFloat& rhs) { return lhs < rhs; };
+    return max_min_helper_function(comp_func, axis);
+}
+
+// Return the maximum of an array or the maximum along an axis.
+std::variant<APyFloatArray, APyFloat> APyFloatArray::max_min_helper_function(
+    bool (*comp_func)(APyFloat&, APyFloat&),
+    std::optional<std::variant<nb::tuple, nb::int_>> axis
+) const
+{
+    // determine the input axes
+    std::set<std::size_t> axes_set;
+    if (axis.has_value()) {
+        std::vector<std::size_t> axes_vector
+            = cpp_shape_from_python_shape_like(axis.value());
+        for (auto i : axes_vector) {
+            if (i >= shape.size()) {
+                throw nb::index_error(
+                    "specified axis outside number of dimensions in the APyFloatArray"
+                );
+            }
+            axes_set.insert(i);
+        }
+    } else {
+        axes_set.insert(shape.size());
+    }
+
+    // special case where the maximum or minimum from the whole array is wanted
+    if (axes_set.size() == shape.size()
+        || axes_set.find(shape.size()) != axes_set.end()) {
+        APyFloat res(exp_bits, man_bits);
+        res.set_data(data.at(0));
+        for (std::size_t i = 1; i < data.size(); i++) {
+            APyFloat temp(exp_bits, man_bits);
+            temp.set_data(data.at(i));
+            if (comp_func(temp, res)) {
+                res = temp;
+            }
+        }
+        return res;
+    }
+
+    std::size_t elements = data.size();
+    std::vector<std::size_t> res_shape;
+    std::vector<APyFloatData> source_data = data;
+    std::vector<APyFloatData> temp_data(data.size(), { 0, 0, 0 });
+    std::vector<std::size_t> strides = strides_from_shape(shape);
+    APyFloat lhs_scalar(exp_bits, man_bits);
+    APyFloat rhs_scalar(exp_bits, man_bits);
+
+    // loop over the axes one at a time
+    for (std::size_t x = 0; x < shape.size(); x++) {
+        if (axes_set.find(x) == axes_set.end()) {
+            res_shape.push_back(shape[x]);
+            continue;
+        }
+        // loop over an axis and get the maximum or minimum along it
+        for (std::size_t i = 0; i < elements; i++) {
+            std::size_t new_pos
+                = i % strides[x] + (i - i % (strides[x] * shape[x])) / shape[x];
+            if (i % (strides[x] * shape[x]) < strides[x]) {
+                temp_data.at(new_pos) = source_data.at(i);
+                continue;
+            }
+            lhs_scalar.set_data(source_data.at(i));
+            rhs_scalar.set_data(temp_data.at(new_pos));
+            if (comp_func(lhs_scalar, rhs_scalar)) {
+                temp_data.at(new_pos) = lhs_scalar.get_data();
+            }
+        }
+
+        elements /= shape[x];
+        source_data = temp_data;
+        temp_data.assign(elements, { 0, 0, 0 });
+    }
+    APyFloatArray result(res_shape, exp_bits, man_bits);
+    std::copy_n(source_data.begin(), elements, result.data.begin());
+    return result;
 }
 
 std::string APyFloatArray::repr() const
