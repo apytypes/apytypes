@@ -159,7 +159,7 @@ public:
 
     //! Transposition function. For a 1-D array, returns an exact copy of `*this`. For
     //! a 2-D array, returns the matrix transposition of `*this`.
-    APyFixedArray transpose() const;
+    APyFixedArray transpose(std::optional<nb::tuple> axes = std::nullopt) const;
 
     /* ****************************************************************************** *
      * *                          Public member functions                           * *

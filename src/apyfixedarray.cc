@@ -732,34 +732,55 @@ APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
     ));
 }
 
-APyFixedArray APyFixedArray::transpose() const
+APyFixedArray APyFixedArray::transpose(std::optional<nb::tuple> axes) const
 {
-    if (ndim() > 2) {
-        throw NotImplementedException(fmt::format(
-            "Not implemented: high-dimensional (ndim={} > 2) tensor transposition",
-            ndim()
-        ));
-    } else if (ndim() <= 1) {
+    switch (_ndim) {
+    case 0:
+    case 1:
         // Behave like `NumPy`, simply return `*this` if single-dimensional
         return *this;
-    }
-
-    // Resulting array with shape dimensions
-    APyFixedArray result(_shape, bits(), int_bits());
-    std::reverse(result._shape.begin(), result._shape.end());
-
-    // Copy data
-    for (std::size_t y = 0; y < _shape[0]; y++) {
-        for (std::size_t x = 0; x < _shape[1]; x++) {
-            std::copy_n(
-                _data.begin() + (y * _shape[1] + x) * _itemsize,       // src
-                _itemsize,                                             // limbs
-                result._data.begin() + (x * _shape[0] + y) * _itemsize // dst
-            );
+    case 2: {
+        // Optimized code for dim == 2
+        // Resulting array with shape dimensions
+        APyFixedArray result(_shape, bits(), int_bits());
+        std::reverse(result._shape.begin(), result._shape.end());
+        // Copy data
+        for (std::size_t y = 0; y < _shape[0]; y++) {
+            for (std::size_t x = 0; x < _shape[1]; x++) {
+                std::copy_n(
+                    _data.begin() + (y * _shape[1] + x) * _itemsize,       // src
+                    _itemsize,                                             // limbs
+                    result._data.begin() + (x * _shape[0] + y) * _itemsize // dst
+                );
+            }
         }
+        return result;
     }
 
-    return result;
+    default: {
+        std::vector<size_t> new_axis(_ndim);
+
+        if (axes.has_value()) {
+            std::variant<nb::tuple, nb::int_> axis_variant = axes.value();
+            new_axis = get_normalized_axes(axis_variant, _ndim);
+        } else {
+            // reverse the order of axes by default
+            std::iota(new_axis.begin(), new_axis.end(), 0);
+            std::reverse(new_axis.begin(), new_axis.end());
+        }
+
+        std::vector<size_t> new_shape(_ndim);
+        for (size_t i = 0; i < _ndim; ++i) {
+            new_shape[i] = _shape[new_axis[i]];
+        }
+
+        APyFixedArray result(new_shape, bits(), int_bits());
+        ::transpose_axes_and_copy_data(
+            _data.begin(), result._data.begin(), _shape, new_axis, _itemsize
+        );
+        return result;
+    }
+    }
 }
 
 /* ********************************************************************************** *

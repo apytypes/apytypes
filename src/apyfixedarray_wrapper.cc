@@ -243,7 +243,8 @@ void bind_fixed_array(nb::module_& m)
             -------
             :class:`int`
             )pbdoc")
-        .def_prop_ro("T", &APyFixedArray::transpose, R"pbdoc(
+        .def_prop_ro(
+            "T", [](const APyFixedArray& self) { return self.transpose(); }, R"pbdoc(
             The transposition of the array.
 
             Equivalent to calling :func:`APyFixedArray.transpose`.
@@ -251,7 +252,8 @@ void bind_fixed_array(nb::module_& m)
             Returns
             -------
             :class:`APyFixedArray`
-            )pbdoc")
+            )pbdoc"
+        )
 
         .def("to_numpy", &APyFixedArray::to_numpy, R"pbdoc(
             Return array as a :class:`numpy.ndarray` of :class:`numpy.float64`.
@@ -367,20 +369,56 @@ void bind_fixed_array(nb::module_& m)
 
             )pbdoc")
 
-        .def("transpose", &APyFixedArray::transpose, R"pbdoc(
-            Return the transposition of the array.
+        .def(
+            "transpose",
+            &APyFixedArray::transpose,
+            nb::arg("axes") = nb::none(),
+            R"pbdoc(
+            Returns copy of array with axes transposed.
 
-            If the dimension of `self` is one, this method returns the a copy of `self`.
-            If the dimension of `self` is two, this method returns the matrix
-            transposition of `self`.
+            For a 1-D array, this returns it returns back the same array.
+            For a 2-D array, this is the standard matrix transpose.
+            For an n-D array, if axes are given, their order indicates how the
+            axes are permuted (see Examples). If axes are not provided, then
+            ``a.transpose(a).shape == a.shape[::-1]``.
 
-            Higher order transposition has not been implemented and will raise a
-            `NotImplementedException`.
+            Parameters
+            ----------
+            axes : tuple of ints, optional
+                If specified, it must be a tuple or list which contains a permutation
+                of [0,1,...,N-1] where N is the number of axes of `a`. The `i`'th axis
+                of the returned array will correspond to the axis numbered ``axes[i]``
+                of the input. If not specified, defaults to ``range(a.ndim)[::-1]``,
+                which reverses the order of the axes.
 
             Returns
             -------
-            :class:`APyFixedArray`
-            )pbdoc")
+            :class" `APyFixedArray`
+                `a` with its axes permuted.
+
+            Examples
+            --------
+            from ApyTypes import APyFixedArray
+            >>> a = APyFixedArray.from_float([[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]], bits=5, frac_bits=0,)
+            >>> a.to_numpy()
+            array([[ 1.,  2.,  3.],
+                   [-4., -5., -6.]])
+            >>> a = a.transpose()
+            >>> a.to_numpy()
+            array([[ 1., -4.],
+                   [ 2., -5.],
+                   [ 3., -6.]])
+
+            >>> a = APyFixedArray.from_float([1.0] * 6, bits=5, frac_bits=0,).reshape((1,2,3))
+            >>> a.transpose((1,0,2)).shape
+            (2, 1, 3)
+
+            >>> a.transpose((-2, -3, -1)).shape
+            (2, 1, 3)
+
+            -------
+            )pbdoc"
+        )
         .def(
             "cast",
             &APyFixedArray::cast,
