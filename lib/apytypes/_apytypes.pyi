@@ -729,7 +729,7 @@ class APyFixedArray:
 
         Returns
         -------
-        :class" `APyFixedArray`
+        :class: `APyFixedArray`
             `a` with its axes permuted.
 
         Examples
@@ -2273,7 +2273,7 @@ class APyFloatArray:
         """
         Returns copy of array with axes transposed.
 
-        For a 1-D array, this returns it returns back the same array.
+        For a 1-D array, this returns back the same array.
         For a 2-D array, this is the standard matrix transpose.
         For an n-D array, if axes are given, their order indicates how the
         axes are permuted (see Examples). If axes are not provided, then
@@ -2290,7 +2290,7 @@ class APyFloatArray:
 
         Returns
         -------
-        :class" `ApyFloatArray`
+        APyFloatArray
             `a` with its axes permuted.
 
         Examples

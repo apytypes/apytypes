@@ -19,3 +19,4 @@ APyTypes C++ API
    broadcast
    ieee754
    python_util
+   array_utils

@@ -750,9 +750,10 @@ def _generate_dimensions(n):
 
 
 @pytest.mark.float_array
-def test_transpose_highdim():
+def test_transpose_highdim_np():
     np = pytest.importorskip("numpy")
 
+    # can be any, does not matter
     num_elems = 48
     elements = np.arange(num_elems)
     # Generate all possible axis permutations for a 3D array
@@ -778,6 +779,45 @@ def test_transpose_highdim():
                 f"ApyFloat array = \n{apy_transposed.to_numpy()}\n "
                 f"Numpy created array = \n{numpy_array.to_numpy()}"
             )
+
+
+@pytest.mark.parametrize("start_val", [2**i for i in range(0, 130, 13)])
+def test_transpose_highdim(start_val):
+    a = APyFloatArray.from_float(
+        [[start_val + 1, start_val + 2], [start_val + 3, start_val + 4]], 30, 5
+    )
+    b = APyFloatArray.from_float(
+        [[start_val + 1, start_val + 4], [start_val + 3, start_val + 2]], 30, 5
+    )
+    a.transpose().is_identical(b)
+    # 1  2  3
+    # 4  5  6
+    # 7  8  9
+
+    a = APyFloatArray.from_float(
+        [
+            [start_val + 1, start_val + 2, start_val + 3],
+            [start_val + 4, start_val + 5, start_val + 6],
+            [start_val + 7, start_val + 8, start_val + 9],
+        ],
+        30,
+        5,
+    )
+
+    # 1  4  7
+    # 2  5  8
+    # 3  6  9
+    b = APyFloatArray.from_float(
+        [
+            [start_val + 1, start_val + 4, start_val + 7],
+            [start_val + 2, start_val + 5, start_val + 8],
+            [start_val + 3, start_val + 6, start_val + 9],
+        ],
+        30,
+        5,
+    )
+
+    a.transpose().is_identical(b)
 
 
 @pytest.mark.float_array
