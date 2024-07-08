@@ -547,7 +547,9 @@ def _generate_dimensions(n):
 
 
 @pytest.mark.float_array
-def test_transpose_highdim():
+def test_transpose_highdim_np():
+    # This test assumes from_array works correctly.
+    # does checks to see if you get same result as numpy
     np = pytest.importorskip("numpy")
     num_elems = 48
     elements = np.arange(num_elems)
@@ -576,7 +578,46 @@ def test_transpose_highdim():
                 f"Numpy created array = \n{numpy_array.to_numpy()}"
             )
 
-    big = 2**325
-    a = APyFixedArray.from_float([[big + 1, big + 2], [big + 3, big + 4]], 345, 95)
-    b = APyFixedArray.from_float([[big + 1, big + 4], [big + 3, big + 2]], 345, 95)
-    a.transpose().is_identical(b)
+
+@pytest.mark.parametrize("start_val", [2 ** (i * 10) for i in range(0, 15)])
+def test_transpose_highdim(start_val):
+    a = APyFixedArray.from_float(
+        [[start_val + 1, start_val + 2], [start_val + 3, start_val + 4]],
+        int_bits=345,
+        bits=9563,
+    )
+    b = APyFixedArray.from_float(
+        [[start_val + 1, start_val + 3], [start_val + 2, start_val + 4]],
+        int_bits=345,
+        bits=9563,
+    )
+
+    assert a.transpose().is_identical(b)
+
+    # 1  2  3
+    # 4  5  6
+    # 7  8  9
+    a = APyFixedArray.from_float(
+        [
+            [start_val + 1, start_val + 2, start_val + 3],
+            [start_val + 4, start_val + 5, start_val + 6],
+            [start_val + 7, start_val + 8, start_val + 9],
+        ],
+        345,
+        95,
+    )
+
+    # 1  4  7
+    # 2  5  8
+    # 3  6  9
+    b = APyFixedArray.from_float(
+        [
+            [start_val + 1, start_val + 4, start_val + 7],
+            [start_val + 2, start_val + 5, start_val + 8],
+            [start_val + 3, start_val + 6, start_val + 9],
+        ],
+        345,
+        95,
+    )
+
+    assert a.transpose().is_identical(b)

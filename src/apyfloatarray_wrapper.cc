@@ -539,7 +539,7 @@ void bind_float_array(nb::module_& m)
             R"pbdoc(
             Returns copy of array with axes transposed.
 
-            For a 1-D array, this returns it returns back the same array.
+            For a 1-D array, this returns back the same array.
             For a 2-D array, this is the standard matrix transpose.
             For an n-D array, if axes are given, their order indicates how the
             axes are permuted (see Examples). If axes are not provided, then
@@ -556,7 +556,7 @@ void bind_float_array(nb::module_& m)
 
             Returns
             -------
-            :class" `ApyFloatArray`
+            APyFloatArray
                 `a` with its axes permuted.
 
             Examples

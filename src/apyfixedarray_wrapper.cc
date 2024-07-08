@@ -393,7 +393,7 @@ void bind_fixed_array(nb::module_& m)
 
             Returns
             -------
-            :class" `APyFixedArray`
+            :class: `APyFixedArray`
                 `a` with its axes permuted.
 
             Examples

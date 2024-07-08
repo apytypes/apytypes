@@ -4,6 +4,7 @@
 #include "apytypes_util.h"
 #include "broadcast.h"
 #include "nanobind/ndarray.h"
+#include <cstddef>
 #include <iostream>
 #include <nanobind/nanobind.h>
 #include <ostream>
@@ -143,13 +144,12 @@ static APY_INLINE void transpose_axes_and_copy_data(
         // For each dimension in the destination, assign the corresponding index from
         // the source based on the new axis. For example, if new_axis = {1, 2, 0}, and
         // current_indices = {i, j, k}, the resulting dst_indices will be {j, k, i}
-        for (std::size_t j = 0; j < new_axis.size(); ++j) {
-            dst_indices[j] = indices[new_axis[j]];
-        }
-        // Calculate the flat index for destination
         std::size_t dst_index = 0;
         for (std::size_t i = 0; i < indices.size(); ++i) {
-            dst_index += dst_indices[i] * dst_stride[i];
+            std::size_t dst_indice = indices[new_axis[i]];
+
+            // Calculate the flat index for destination
+            dst_index += dst_indice * dst_stride[i];
         }
 
         // Copy the data
