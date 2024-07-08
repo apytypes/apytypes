@@ -241,6 +241,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cpp_api/broadcast.html"><code class="docutils literal notranslate"><span class="pre">broadcast.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp_api/ieee754.html"><code class="docutils literal notranslate"><span class="pre">ieee754.h</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp_api/python_util.html"><code class="docutils literal notranslate"><span class="pre">python_util.h</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp_api/array_utils.html"><code class="docutils literal notranslate"><span class="pre">array_utils.h</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="examples/index.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -622,7 +623,7 @@
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray8to_numpyEv">APyFixedArray::to_numpy (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray9transposeEv">APyFixedArray::transpose (C++ function)</a>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray9transposeENSt8optionalIN2nb5tupleEEE">APyFixedArray::transpose (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_common.html#_CPPv419APyFixedCastContext">APyFixedCastContext (C++ class)</a>
 
@@ -934,7 +935,7 @@
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray8to_numpyEv">APyFloatArray::to_numpy (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray9transposeEv">APyFloatArray::transpose (C++ function)</a>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray9transposeENSt8optionalIN2nb5tupleEEE">APyFloatArray::transpose (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_common.html#_CPPv412APyFloatData">APyFloatData (C++ struct)</a>
 </li>
@@ -1227,6 +1228,8 @@
         <li><a href="cpp_api/apytypes_common.html#_CPPv427get_float_quantization_seedv">get_float_quantization_seed (C++ function)</a>
 </li>
         <li><a href="api/quantizationoverflow.html#apytypes.get_float_quantization_seed">get_float_quantization_seed() (in module apytypes)</a>
+</li>
+        <li><a href="cpp_api/array_utils.html#_CPPv419get_normalized_axesRKNSt7variantIN2nb5tupleEN2nb4int_EEEKNSt6size_tE">get_normalized_axes (C++ function)</a>
 </li>
         <li><a href="cpp_api/python_util.html#c.GET_OB_DIGIT">GET_OB_DIGIT (C macro)</a>
 </li>
@@ -1858,10 +1861,10 @@
         </ul></li>
         <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TO_POS">TO_POS (apytypes.QuantizationMode attribute)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TO_ZERO">TO_ZERO (apytypes.QuantizationMode attribute)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv427translate_quantization_mode16QuantizationModeb">translate_quantization_mode (C++ function)</a>
 </li>
         <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.transpose">transpose() (apytypes.APyFixedArray method)</a>
@@ -1870,6 +1873,8 @@
           <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.transpose">(apytypes.APyFloatArray method)</a>
 </li>
         </ul></li>
+        <li><a href="cpp_api/array_utils.html#_CPPv4I00E28transpose_axes_and_copy_datav28RANDOM_ACCESS_CONST_ITERATOR22RANDOM_ACCESS_ITERATORRKNSt6vectorINSt6size_tEEERKNSt6vectorINSt6size_tEEENSt6size_tE">transpose_axes_and_copy_data (C++ function)</a>
+</li>
         <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TRN">TRN (apytypes.QuantizationMode attribute)</a>
 </li>
         <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TRN_AWAY">TRN_AWAY (apytypes.QuantizationMode attribute)</a>
