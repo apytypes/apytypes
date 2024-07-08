@@ -710,9 +710,9 @@ class APyFixedArray:
 
     def transpose(self, axes: tuple | None = None) -> APyFixedArray:
         """
-        Returns copy of array with axes transposed.
+        Return copy of array with axes transposed.
 
-        For a 1-D array, this returns it returns back the same array.
+        For a 1-D array, this return the same array.
         For a 2-D array, this is the standard matrix transpose.
         For an n-D array, if axes are given, their order indicates how the
         axes are permuted (see Examples). If axes are not provided, then
@@ -729,16 +729,14 @@ class APyFixedArray:
 
         Returns
         -------
-        :class: `APyFixedArray`
+        :class:`APyFixedArray`
             `a` with its axes permuted.
 
         Examples
         --------
-        from ApyTypes import APyFixedArray
+        >>> from apytypes import APyFixedArray
         >>> a = APyFixedArray.from_float(
-        ...     [[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]],
-        ...     bits=5,
-        ...     frac_bits=0,
+        ...     [[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]], bits=5, frac_bits=0
         ... )
         >>> a.to_numpy()
         array([[ 1.,  2.,  3.],
@@ -749,11 +747,9 @@ class APyFixedArray:
                [ 2., -5.],
                [ 3., -6.]])
 
-        >>> a = APyFixedArray.from_float(
-        ...     [1.0] * 6,
-        ...     bits=5,
-        ...     frac_bits=0,
-        ... ).reshape((1, 2, 3))
+        >>> a = APyFixedArray.from_float([1.0] * 6, bits=5, frac_bits=0).reshape(
+        ...     (1, 2, 3)
+        ... )
         >>> a.transpose((1, 0, 2)).shape
         (2, 1, 3)
 
@@ -828,15 +824,15 @@ class APyFixedArray:
 
         mode : {'full', 'same', 'valid'}, default: 'full'
             'full':
-                Returns the full convolution for each point of overlap. The
+                Return the full convolution for each point of overlap. The
                 resulting single-dimensional shape will have length :code:`N + M -
                 1`. Boundary effects occurs for points where the `a` and `v` do not
                 overlap completely.
             'same':
-                Returns a convolution of length :code:`max(M, N)`. Boundary effects
+                Return a convolution of length :code:`max(M, N)`. Boundary effects
                 still occur around the edges of the result.
             'valid':
-                Returns the convoltuion for each point of full overlap. The
+                Return the convolution for each point of full overlap. The
                 resulting single-dimensional shape will have length :code:`max(M, N)
                 - min(M, N) + 1`
 
@@ -860,16 +856,16 @@ class APyFixedArray:
         :class:`APyFixedArray`
 
         Raises
-        -------
-        :class:ValueError
+        ------
+        :class:`ValueError`
             If given an axis of a size other than one a ValueError will be thrown.
-        :class:IndexError
+        :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 
     def sum(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
+        Return the sum of the elements along specified axis/axes treating Not a Number as 0.
 
         Parameters
         ----------
@@ -881,12 +877,12 @@ class APyFixedArray:
         :class:`APyFixedArray` or :class:`APyFixed`
 
         Raises
-        -------
-        :class:IndexError
+        ------
+        :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
-        -------
+        --------
 
         >>> from apytypes import APyFixedArray
 
@@ -900,7 +896,7 @@ class APyFixedArray:
 
     def cumsum(self, axis: int | None = None) -> APyFixedArray:
         """
-        Returns the cumulative sum of the elements along a given axes.
+        Return the cumulative sum of the elements along a given axes.
 
         Parameters
         ----------
@@ -912,12 +908,12 @@ class APyFixedArray:
         :class:`APyFixedArray`
 
         Raises
-        -------
-        :class:IndexError
+        ------
+        :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
-        -------
+        --------
 
         >>> from apytypes import APyFixedArray
 
@@ -939,7 +935,7 @@ class APyFixedArray:
 
     def nansum(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
+        Return the sum of the elements along specified axis/axes treating Not a Number as 0.
 
         Parameters
         ----------
@@ -951,14 +947,14 @@ class APyFixedArray:
         :class:`APyFixedArray` or :class:`APyFixed`
 
         Raises
-        -------
-        :class:IndexError
+        ------
+        :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 
     def nancumsum(self, axis: int | None = None) -> APyFixedArray:
         """
-        Returns the cumulative sum of the elements along a given axis treating Not a Number as 0.
+        Return the cumulative sum of the elements along a given axis treating Not a Number as 0.
 
         Parameters
         ----------
@@ -970,14 +966,14 @@ class APyFixedArray:
         :class:`APyFixedArray`
 
         Raises
-        -------
-        :class:IndexError
+        ------
+        :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 
     def prod(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Returns the product of the elements along specified axis/axes.
+        Return the product of the elements along specified axis/axes.
 
         Parameters
         ----------
@@ -989,12 +985,12 @@ class APyFixedArray:
         :class:`APyFixedArray` or :class:`APyFixed`
 
         Raises
-        -------
-        :class:IndexError
+        ------
+        :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
-        -------
+        --------
 
         >>> from apytypes import APyFixedArray
 
@@ -1008,7 +1004,7 @@ class APyFixedArray:
 
     def cumprod(self, axis: int | None = None) -> APyFixedArray:
         """
-        Returns the cumulative product of the elements along a given axes.
+        Return the cumulative product of the elements along a given axes.
 
         Parameters
         ----------
@@ -1020,12 +1016,12 @@ class APyFixedArray:
         :class:`APyFixedArray`
 
         Raises
-        -------
-        :class:IndexError
+        ------
+        :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
-        -------
+        --------
 
         >>> from apytypes import APyFixedArray
 
@@ -1046,7 +1042,7 @@ class APyFixedArray:
 
     def nanprod(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Returns the product of the elements along a given axis treating Not a Number as 0.
+        Return the product of the elements along a given axis treating Not a Number as 0.
 
         Parameters
         ----------
@@ -1058,14 +1054,14 @@ class APyFixedArray:
         :class:`APyFixedArray` or :class:`APyFixed`
 
         Raises
-        -------
-        :class:IndexError
+        ------
+        :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 
     def nancumprod(self, axis: int | None = None) -> APyFixedArray:
         """
-        Returns the cumulative product of the elements along a given axis treating Not a Number as 0.
+        Return the cumulative product of the elements along a given axis treating Not a Number as 0.
 
         Parameters
         ----------
@@ -1077,8 +1073,8 @@ class APyFixedArray:
         :class:`APyFixedArray`
 
         Raises
-        -------
-        :class:IndexError
+        ------
+        :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 
@@ -2080,7 +2076,7 @@ class APyFloatArray:
 
         Raises
         ------
-        ValueError
+        :class:`ValueError`
             If negative dimensions less than -1 are provided, if the total size of the new array is not unchanged and divisible by the known dimensions, or if the total number of elements does not match the original array.
 
         Examples
@@ -2271,9 +2267,9 @@ class APyFloatArray:
 
     def transpose(self, axes: tuple | None = None) -> APyFloatArray:
         """
-        Returns copy of array with axes transposed.
+        Return copy of array with axes transposed.
 
-        For a 1-D array, this returns back the same array.
+        For a 1-D array, this return the same array.
         For a 2-D array, this is the standard matrix transpose.
         For an n-D array, if axes are given, their order indicates how the
         axes are permuted (see Examples). If axes are not provided, then
@@ -2290,16 +2286,14 @@ class APyFloatArray:
 
         Returns
         -------
-        APyFloatArray
+        :class:`APyFloatArray`
             `a` with its axes permuted.
 
         Examples
         --------
-        from ApyTypes import ApyFloatArray
+        >>> from apytypes import APyFloatArray
         >>> a = APyFloatArray.from_float(
-        ...     [[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]],
-        ...     exp_bits=5,
-        ...     man_bits=2,
+        ...     [[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]], exp_bits=5, man_bits=2
         ... )
         >>> a.to_numpy()
         array([[ 1.,  2.,  3.],
@@ -2310,11 +2304,9 @@ class APyFloatArray:
                [ 2., -5.],
                [ 3., -6.]])
 
-        >>> a = APyFloatArray.from_float(
-        ...     [1.0] * 6,
-        ...     exp_bits=5,
-        ...     man_bits=2,
-        ... ).reshape((1, 2, 3))
+        >>> a = APyFloatArray.from_float([1.0] * 6, exp_bits=5, man_bits=2).reshape(
+        ...     (1, 2, 3)
+        ... )
         >>> a.transpose((1, 0, 2)).shape
         (2, 1, 3)
 
@@ -2353,15 +2345,15 @@ class APyFloatArray:
 
         mode : {'full', 'same', 'valid'}, default: 'full'
             'full':
-                Returns the full convolution for each point of overlap. The
+                Return the full convolution for each point of overlap. The
                 resulting single-dimensional shape will have length :code:`N + M -
                 1`. Boundary effects occurs for points where the `a` and `v` do not
                 overlap completely.
             'same':
-                Returns a convolution of length :code:`max(M, N)`. Boundary effects
+                Return a convolution of length :code:`max(M, N)`. Boundary effects
                 still occur around the edges of the result.
             'valid':
-                Returns the convoltuion for each point of full overlap. The
+                Return the convolution for each point of full overlap. The
                 resulting single-dimensional shape will have length :code:`max(M, N)
                 - min(M, N) + 1`
 
@@ -2385,16 +2377,16 @@ class APyFloatArray:
         :class:`APyFloatArray`
 
         Raises
-        -------
-        :class:ValueError
+        ------
+        :class:`ValueError`
             If given an axis of a size other than one, a ValueError will be thrown.
-        :class:IndexError
+        :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 
     def sum(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
         """
-        Returns the sum of the elements along specified axis/axes.
+        Return the sum of the elements along specified axis/axes.
 
         Parameters
         ----------
@@ -2407,11 +2399,11 @@ class APyFloatArray:
 
         Raises
         -------
-        :class:IndexError
+        :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
-        -------
+        --------
 
         >>> from apytypes import APyFloatArray
 
@@ -2425,7 +2417,7 @@ class APyFloatArray:
 
     def cumsum(self, axis: int | None = None) -> APyFloatArray:
         """
-        Returns the cumulative sum of the elements along a given axis.
+        Return the cumulative sum of the elements along a given axis.
 
         Parameters
         ----------
@@ -2437,12 +2429,12 @@ class APyFloatArray:
         :class:`APyFloatArray`
 
         Raises
-        -------
-        :class:IndexError
+        ------
+        :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
-        -------
+        --------
 
         >>> from apytypes import APyFloatArray
 
@@ -2464,7 +2456,7 @@ class APyFloatArray:
 
     def nansum(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
         """
-        Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
+        Return the sum of the elements along specified axis/axes treating Not a Number as 0.
 
         Parameters
         ----------
@@ -2476,12 +2468,12 @@ class APyFloatArray:
         :class:`APyFloatArray` or :class:`APyFloat`
 
         Raises
-        -------
-        :class:IndexError
+        ------
+        :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
-        -------
+        --------
 
         >>> from apytypes import APyFloatArray
 
@@ -2499,7 +2491,7 @@ class APyFloatArray:
 
     def nancumsum(self, axis: int | None = None) -> APyFloatArray:
         """
-        Returns the cumulative sum of the elements along a given axis treating Not a Number as 0.
+        Return the cumulative sum of the elements along a given axis treating Not a Number as 0.
 
         Parameters
         ----------
@@ -2511,12 +2503,12 @@ class APyFloatArray:
         :class:`APyFloatArray`
 
         Raises
-        -------
-        :class:IndexError
+        ------
+        :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
-        -------
+        --------
 
 
         >>> from apytypes import APyFloatArray
@@ -2542,7 +2534,7 @@ class APyFloatArray:
 
     def prod(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
         """
-        Returns the product of the elements along specified axis/axes.
+        Return the product of the elements along specified axis/axes.
 
         Parameters
         ----------
@@ -2554,12 +2546,12 @@ class APyFloatArray:
         :class:`APyFloatArray` or :class:`APyFloat`
 
         Raises
-        -------
-        :class:IndexError
+        ------
+        :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
-        -------
+        --------
 
         >>> from apytypes import APyFloatArray
 
@@ -2573,7 +2565,7 @@ class APyFloatArray:
 
     def cumprod(self, axis: int | None = None) -> APyFloatArray:
         """
-        Returns the cumulative product of the elements along a given axes.
+        Return the cumulative product of the elements along a given axes.
 
         Parameters
         ----------
@@ -2585,12 +2577,12 @@ class APyFloatArray:
         :class:`APyFloatArray`
 
         Raises
-        -------
-        :class:IndexError
+        ------
+        :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
-        -------
+        --------
 
         >>> from apytypes import APyFloatArray
 
@@ -2613,7 +2605,7 @@ class APyFloatArray:
 
     def nanprod(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
         """
-        Returns the product of the elements along a given axis treating Not a Number as 0.
+        Return the product of the elements along a given axis treating Not a Number as 0.
 
         Parameters
         ----------
@@ -2625,14 +2617,14 @@ class APyFloatArray:
         :class:`APyFloatArray` or :class:`APyFloat`
 
         Raises
-        -------
-        :class:IndexError
+        ------
+        :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 
     def nancumprod(self, axis: int | None = None) -> APyFloatArray:
         """
-        Returns the cumulative product of the elements along a given axis treating Not a Number as 0.
+        Return the cumulative product of the elements along a given axis treating Not a Number as 0.
 
         Parameters
         ----------
@@ -2644,8 +2636,8 @@ class APyFloatArray:
         :class:`APyFloatArray`
 
         Raises
-        -------
-        :class:IndexError
+        ------
+        :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 

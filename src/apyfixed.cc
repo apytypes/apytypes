@@ -478,7 +478,7 @@ bool APyFixed::is_zero() const noexcept
     return limb_vector_is_zero(std::begin(_data), std::end(_data));
 }
 
-// Increment the LSB without making the fixed-point number wider. Returns carry out
+// Increment the LSB without making the fixed-point number wider. Return carry out
 mp_limb_t APyFixed::increment_lsb() noexcept
 {
     return mpn_add_1(

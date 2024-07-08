@@ -151,7 +151,7 @@ significant_limbs(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
     return std::distance(begin, back_non_zero_it.base());
 }
 
-//! Retrieve the number of leading zeros of a limb vector
+//! Return the number of leading zeros of a limb vector
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t
 limb_vector_leading_zeros(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
@@ -170,7 +170,7 @@ limb_vector_leading_zeros(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR e
     }
 }
 
-//! Retrieve the number of leading signs of a limb vector, minus one.
+//! Return the number of leading signs of a limb vector, minus one.
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t
 limb_vector_leading_ones(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
@@ -708,7 +708,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     return false;
 }
 
-//! Add a power-of-two (2 ^ `n`) onto a limb vector. Returns carry out.
+//! Add a power-of-two (2 ^ `n`) onto a limb vector. Return carry out.
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE mp_limb_t limb_vector_add_pow2(
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned n
@@ -728,7 +728,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     return 0;
 }
 
-//! Subtract a power-of-two (2 ^ `n`) from a limb vector. Returns borrow.
+//! Subtract a power-of-two (2 ^ `n`) from a limb vector. Return borrow.
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE mp_limb_t limb_vector_sub_pow2(
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned n
@@ -748,7 +748,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     return 0;
 }
 
-//! Retrieve the `bits` specifier from user provided optional bit specifiers.
+//! Return the `bits` specifier from user provided optional bit specifiers.
 //! Throws `nb::value_error` if the resulting number of bits is less than or equal to
 //! zero, or if not exactly two of three bit specifiers are set.
 [[maybe_unused, nodiscard]] static APY_INLINE int bits_from_optional(
@@ -773,7 +773,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     return result;
 }
 
-//! Retrieve a two-tuple of ints (`bits`, `int_bits`) for a set of optional
+//! Return a two-tuple of ints (`bits`, `int_bits`) for a set of optional
 //! bit-specifiers used in the casting context. Throws `nanobind::value_error` if
 //! parameters do not add up, or if resulting `bits` is smaller than or equal to zero.
 [[maybe_unused, nodiscard]] static APY_INLINE std::tuple<int, int>
@@ -830,8 +830,8 @@ limb_vector_is_zero(RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cen
     return std::all_of(cbegin_it, cend_it, [](auto n) { return n == 0; });
 }
 
-//! Reduce the first `n` bits in a limb vector over bitwise `or`. Returns bool.
-//! Unconditionally returns `false` when `n == 0`. Undefined behaviour if `n` is
+//! Reduce the first `n` bits in a limb vector over bitwise `or`. Return bool.
+//! Unconditionally Return `false` when `n == 0`. Undefined behaviour if `n` is
 //! greater than the number of bits in the limb vector.
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE bool limb_vector_or_reduce(
@@ -905,7 +905,7 @@ template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
 }
 
 //! Take the two's complement absolute value of a limb vector and place onto `res_out`.
-//! Returns `true` if the argument is negative
+//! Return `true` if the argument is negative
 template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
 [[maybe_unused]] static APY_INLINE bool limb_vector_abs(
     RANDOM_ACCESS_ITERATOR_IN cbegin_it,

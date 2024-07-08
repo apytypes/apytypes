@@ -42,14 +42,14 @@ def convolve(a, v, mode="full"):
 
     mode : {'full', 'same', 'valid'}, default: 'full'
         'full':
-            Returns the full convolution for each point of overlap. The resulting
+            Return the full convolution for each point of overlap. The resulting
             single-dimensional shape will have length :code:`N + M - 1`. Boundary
             effects occurs for points where the `a` and `v` do not overlap completely.
         'same':
-            Returns a convolution of length :code:`max(M, N)`. Boundary effects still
+            Return a convolution of length :code:`max(M, N)`. Boundary effects still
             occur around the edges of the result.
         'valid':
-            Returns the convoltuion for each point of full overlap. The resulting
+            Return the convolution for each point of full overlap. The resulting
             single-dimensional shape will have length :code:`max(M, N) - min(M, N) + 1`
 
     Returns
@@ -138,9 +138,9 @@ def shape(arr):
 
 def transpose(a, axes=None):
     """
-    Returns an copy of the array with axes transposed.
+    Return an copy of the array with axes transposed.
 
-    For a 1-D array, this returns the same array
+    For a 1-D array, this return the same array
     For a 2-D array, this is the standard matrix transpose.
     For an n-D array, if axes are given, their order indicates how the
     axes are permuted (see Examples). If axes are not provided, then

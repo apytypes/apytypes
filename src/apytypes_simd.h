@@ -18,7 +18,7 @@
 
 namespace simd {
 
-//! Retrieve a string with active runtime SIMD information. Example:
+//! Return a string with active runtime SIMD information. Example:
 //! "APyTypes SIMD: { 'SIMD Runtime Target': 'AVX2', 'Runtime Parallel-Limb Support': "
 //! "4 x 64-bit' }"
 std::string get_simd_version_str();
@@ -198,7 +198,7 @@ void vector_rdiv_const_signed(
 
 /*!
  * Multiply (signed) and accumulate all elements from `src1_begin` with `src2_begin`
- * for `size` number of elements. Returns accumulated value.
+ * for `size` number of elements. Return accumulated value.
  */
 mp_limb_t vector_multiply_accumulate(
     std::vector<mp_limb_t>::const_iterator src1_begin,

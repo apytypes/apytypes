@@ -305,7 +305,7 @@ true_man(const APyFloatData& src, uint8_t exp_bits, uint8_t man_bits)
     return ((static_cast<man_t>(is_normal(src, exp_bits)) << man_bits) | src.man);
 }
 
-//! Retrieve a normalized (non subnormal) floating-point copy of `src`
+//! Return a normalized (non subnormal) floating-point copy of `src`
 template <typename APYFLOAT_TYPE>
 [[maybe_unused]] static APY_INLINE std::tuple<APyFloatData, uint8_t, exp_t>
 normalize(const APyFloatData& src, const APYFLOAT_TYPE& ref)

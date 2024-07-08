@@ -299,7 +299,7 @@ public:
 
     void pop_back() { resize(_size - 1); }
 
-    // Convert a `ScratchVector` into a `std::vector`
+    //! Convert a `ScratchVector` into a `std::vector`
     explicit operator std::vector<T>() const { return std::vector<T>(begin(), end()); }
 
 private:
