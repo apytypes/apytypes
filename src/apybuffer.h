@@ -33,7 +33,7 @@ protected:
     {
     }
 
-    //! Retrieve a Python Buffer structure compatible with the Buffer Protocol
+    //! Return a Python Buffer structure compatible with the Buffer Protocol
     Py_buffer get_py_buffer()
     {
         _strides = strides_from_shape(_shape, _itemsize * sizeof(T));

@@ -86,7 +86,7 @@ private:
 //! Set the global quantization mode for APyFloat
 void set_float_quantization_mode(QuantizationMode mode);
 
-//! Retrieve the global quantization mode for APyFloat
+//! Return the global quantization mode for APyFloat
 QuantizationMode get_float_quantization_mode();
 
 //! Set the global seed for stochastic quantization for APyFloat
@@ -95,7 +95,7 @@ void set_float_quantization_seed(std::uint64_t);
 //! Get the global seed for stochastic quantization for APyFloat
 std::uint64_t get_float_quantization_seed();
 
-//! Retrieve a random 64-bit number from the random number engine used for APyFloat
+//! Return a random 64-bit number from the random number engine used for APyFloat
 std::uint64_t random_number_float();
 
 using exp_t = std::uint32_t;
@@ -134,7 +134,7 @@ private:
     APyFixedCastOption current_mode, previous_mode;
 };
 
-//! Retrieve the global cast mode for APyFixed
+//! Return the global cast mode for APyFixed
 APyFixedCastOption get_fixed_cast_mode();
 
 /* ********************************************************************************** *
@@ -167,7 +167,7 @@ private:
     std::optional<APyFixedAccumulatorOption> current_mode, previous_mode;
 };
 
-//! Retrieve the global accumulator mode for APyFixed
+//! Return the global accumulator mode for APyFixed
 std::optional<APyFixedAccumulatorOption> get_accumulator_mode_fixed();
 
 /* ********************************************************************************** *
@@ -198,7 +198,7 @@ private:
     std::optional<APyFloatAccumulatorOption> current_mode, previous_mode;
 };
 
-//! Retrieve the global accumulator mode for APyFloat
+//! Return the global accumulator mode for APyFloat
 std::optional<APyFloatAccumulatorOption> get_accumulator_mode_float();
 
 #endif // _APYTYPES_COMMON_H

@@ -72,7 +72,7 @@
     }
 }
 
-//! Returns the biased exponent of a `double` in a `int64_t`.
+//! Return the biased exponent of a `double` in a `int64_t`.
 //! Return value range: [0, 2048)
 [[maybe_unused]] static APY_INLINE int exp_of_double(double d)
 {
@@ -84,7 +84,7 @@
     }
 }
 
-//! Returns significand/mantissa of a `double` (without the hidden one) in a `uint64_t`.
+//! Return significand/mantissa of a `double` (without the hidden one) in a `uint64_t`.
 //! Range of returned value: [0, 4503599627370496)
 [[maybe_unused]] static APY_INLINE uint64_t man_of_double(double d)
 {

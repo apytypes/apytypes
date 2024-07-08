@@ -103,7 +103,7 @@ private:
     template <class ripple_carry_op, class simd_op_const, class simd_shift_op_const>
     inline APyFixedArray _apyfixed_base_add_sub(const APyFixed& rhs) const;
 
-    // internal function for the prod,sum,nanprod and nansum functions
+    //! Internal function for the prod,sum,nanprod and nansum functions
     std::variant<APyFixedArray, APyFixed> prod_sum_function(
         void (*pos_func)(
             std::size_t,
@@ -118,7 +118,7 @@ private:
         std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt
     ) const;
 
-    // internal function for the cumprod,cumsum,nancumprod and nancumsum functions
+    //! Internal function for the cumprod,cumsum,nancumprod and nancumsum functions
     APyFixedArray cumulative_prod_sum_function(
         void (*pos_func)(
             std::size_t,
@@ -157,8 +157,8 @@ public:
      */
     APyFixedArray matmul(const APyFixedArray& rhs) const;
 
-    //! Transposition function. For a 1-D array, returns an exact copy of `*this`. For
-    //! a 2-D array, returns the matrix transposition of `*this`.
+    //! Transposition function. For a 1-D array, Return an exact copy of `*this`. For
+    //! a 2-D array, Return the matrix transposition of `*this`.
     APyFixedArray transpose(std::optional<nb::tuple> axes = std::nullopt) const;
 
     /* ****************************************************************************** *
@@ -172,7 +172,7 @@ public:
     APyFixedArray broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
     ) const;
 
-    //! Squeeze this array. Returns new `APyFixedArray`.
+    //! Squeeze this array. Return new `APyFixedArray`.
     APyFixedArray
     squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
 
@@ -215,7 +215,7 @@ public:
     //! Reshape flatten into 1d shape
     APyFixedArray flatten() const;
 
-    //! same as flatten as for now
+    //! Same as flatten as for now
     APyFixedArray ravel() const;
 
     //! Shape of the array
@@ -224,7 +224,7 @@ public:
     //! Number of dimensions
     size_t ndim() const noexcept;
 
-    //! Retrieve a single item
+    //! Return a single item
     std::variant<APyFixedArray, APyFixed> get_item(std::size_t idx) const;
 
     //! Number of bits

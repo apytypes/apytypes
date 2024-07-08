@@ -99,19 +99,19 @@ public:
      * *                          Public member functions                           * *
      * ****************************************************************************** */
 
-    //! Reshape into a new shape
+    //! Reshape into a new shape.
     APyFloatArray reshape(nb::tuple new_shape) const;
 
-    //! Reshape flatten into 1d shape
+    //! Reshape flatten into 1d shape.
     APyFloatArray flatten() const;
 
-    //! same as flatten as for now
+    //! Same as flatten as for now.
     APyFloatArray ravel() const;
 
-    //! Broadcast to a new shape
+    //! Broadcast to a new shape.
     APyFloatArray broadcast_to(const std::vector<std::size_t> shape) const;
 
-    //! Returns a copy where all axes of size 1 is removed.
+    //! Return a copy where all axes of size 1 is removed.
     APyFloatArray
     squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
 
@@ -150,11 +150,11 @@ public:
     APyFloatArray broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
     ) const;
 
-    //! Transposition function. For a 1-D array, returns an exact copy of `*this`. For
-    //! a 2-D array, returns the matrix transposition of `*this`.
+    //! Transposition function. For a 1-D array, Return an exact copy of `*this`. For
+    //! a 2-D array, Return the matrix transposition of `*this`.
     APyFloatArray transpose(std::optional<nb::tuple> axes = std::nullopt) const;
 
-    //! Returns a copy of the tensor with the elements resized.
+    //! Return a copy of the tensor with the elements resized.
     APyFloatArray cast(
         std::optional<int> exp_bits,
         std::optional<int> man_bits,
@@ -162,7 +162,7 @@ public:
         std::optional<QuantizationMode> quantization = std::nullopt
     ) const;
 
-    //! Internal cast method when format is given fully
+    //! Internal cast method when format is given fully.
     APyFloatArray _cast(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
@@ -170,7 +170,7 @@ public:
         std::optional<QuantizationMode> quantization = std::nullopt
     ) const;
 
-    //! Internal cast method when format and quantization mode is given
+    //! Internal cast method when format and quantization mode is given.
     APyFloatArray _cast(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
@@ -185,13 +185,13 @@ public:
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     ) const;
-    //! Retrieve the bias
+    //! Return the bias.
     APY_INLINE exp_t get_bias() const { return bias; }
-    //! Retrieve the bit width of the mantissa field
+    //! Return the bit width of the mantissa field.
     APY_INLINE std::uint8_t get_man_bits() const { return man_bits; }
-    //! Retrieve the bit width of the exponent field
+    //! Return the bit width of the exponent field.
     APY_INLINE std::uint8_t get_exp_bits() const { return exp_bits; }
-    //! Retrieve the bit width of the entire floating-point format
+    //! Return the bit width of the entire floating-point format.
     APY_INLINE std::uint8_t get_bits() const { return exp_bits + man_bits + 1; }
 
     //! Shape of the array
@@ -200,7 +200,7 @@ public:
     //! Number of dimensions
     size_t get_ndim() const;
 
-    //! Retrieve a single item
+    //! Return a single item
     std::variant<APyFloatArray, APyFloat> get_item(std::size_t idx) const;
 
     //! Length of the array

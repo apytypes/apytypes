@@ -1990,7 +1990,7 @@ void mpz_submul(mpz_t r, const mpz_t u, const mpz_t v)
 /* MPZ division */
 enum mpz_div_round_mode { GMP_DIV_FLOOR, GMP_DIV_CEIL, GMP_DIV_TRUNC };
 
-/* Allows q or r to be zero. Returns 1 iff remainder is non-zero. */
+/* Allows q or r to be zero. Return 1 iff remainder is non-zero. */
 static int
 mpz_div_qr(mpz_t q, mpz_t r, const mpz_t n, const mpz_t d, enum mpz_div_round_mode mode)
 {
@@ -3092,7 +3092,7 @@ static void gmp_lucas_step_k_2k(mpz_t V, mpz_t Qk, const mpz_t n)
 /* Computes V_k, Q^k (mod n) for the Lucas' sequence */
 /* with P=1, Q=Q; k = (n>>b0)|1. */
 /* Requires an odd n > 4; b0 > 0; -2*Q must not overflow a long */
-/* Returns (U_k == 0) and sets V=V_k and Qk=Q^k. */
+/* Return (U_k == 0) and sets V=V_k and Qk=Q^k. */
 static int gmp_lucas_mod(mpz_t V, mpz_t Qk, long Q, mp_bitcnt_t b0, const mpz_t n)
 {
     mp_bitcnt_t bs;

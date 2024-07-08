@@ -50,7 +50,7 @@ static APY_INLINE bool is_broadcastable(
     return true;
 }
 
-//! Get the smallest broadcastable shape from `shape1` and `shape2`. Returns an empty
+//! Get the smallest broadcastable shape from `shape1` and `shape2`. Return an empty
 //! vector `_.size() == 0` if the shapes can not be broadcast together.
 static APY_INLINE std::vector<std::size_t> smallest_broadcastable_shape(
     const std::vector<std::size_t>& shape1, const std::vector<std::size_t>& shape2

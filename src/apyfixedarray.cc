@@ -737,7 +737,7 @@ APyFixedArray APyFixedArray::transpose(std::optional<nb::tuple> axes) const
     switch (_ndim) {
     case 0:
     case 1:
-        // Behave like `NumPy`, simply return `*this` if single-dimensional
+        // Behave like `NumPy`, simply returns `*this` if single-dimensional
         return *this;
     case 2: {
         // Optimized code for dim == 2

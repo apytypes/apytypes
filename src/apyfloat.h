@@ -272,28 +272,28 @@ public:
     //! True if and only if value is infinite or NaN.
     APY_INLINE bool is_max_exponent() const { return exp == max_exponent(); }
 
-    //! Retrieve the stored sign
+    //! Return the stored sign
     APY_INLINE bool get_sign() const { return sign; }
-    //! Retrieve the stored mantissa, i.e. without leading one
+    //! Return the stored mantissa, i.e. without leading one
     APY_INLINE man_t get_man() const { return man; }
-    //! Retrieve the stored exponent, i.e. with bias added
+    //! Return the stored exponent, i.e. with bias added
     APY_INLINE exp_t get_exp() const { return exp; }
-    //! Retrieve the bias
+    //! Return the bias
     APY_INLINE exp_t get_bias() const { return bias; }
-    //! Retrieve the bit width of the mantissa field
+    //! Return the bit width of the mantissa field
     APY_INLINE std::uint8_t get_man_bits() const { return man_bits; }
-    //! Retrieve the bit width of the exponent field
+    //! Return the bit width of the exponent field
     APY_INLINE std::uint8_t get_exp_bits() const { return exp_bits; }
-    //! Retrieve the bit width of the entire floating-point format
+    //! Return the bit width of the entire floating-point format
     APY_INLINE std::uint8_t get_bits() const { return man_bits + exp_bits + 1; }
-    //! Retrieve all data fields packed in a struct
+    //! Return all data fields packed in a struct
     APY_INLINE APyFloatData get_data() const { return { sign, exp, man }; }
-    //! Retrieve the mantissa with potential leading one
+    //! Return the mantissa with potential leading one
     APY_INLINE man_t true_man() const
     {
         return ((static_cast<man_t>(is_normal()) << man_bits) | man);
     }
-    //! Retrieve the mantissa with potential leading one
+    //! Return the mantissa with potential leading one
     APY_INLINE std::int64_t true_exp() const
     {
         return (std::int64_t)exp - (std::int64_t)bias + is_subnormal();

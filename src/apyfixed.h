@@ -174,16 +174,16 @@ public:
      * ****************************************************************************** */
 
 public:
-    //! Retrieve the `bits` specifier
+    //! Return the `bits` specifier
     APY_INLINE int bits() const noexcept { return _bits; }
 
-    //! Retrieve the `int_bits` specifier
+    //! Return the `int_bits` specifier
     APY_INLINE int int_bits() const noexcept { return _int_bits; }
 
-    //! Retrieve the `frac_bits` specifier
+    //! Return the `frac_bits` specifier
     APY_INLINE int frac_bits() const noexcept { return _bits - _int_bits; }
 
-    //! Retrieve the number of elements in the underlying limb data vector
+    //! Return the number of elements in the underlying limb data vector
     APY_INLINE std::size_t vector_size() const noexcept { return _data.size(); }
 
     //! Unary negation
@@ -201,7 +201,7 @@ public:
     //! Test if fixed-point number is zero
     bool is_zero() const noexcept;
 
-    //! Increment the LSB without making the fixed-point number wider. Returns carry out
+    //! Increment the LSB without making the fixed-point number wider. Return carry out
     mp_limb_t increment_lsb() noexcept;
 
     //! Convert the underlying bit pattern to a Python long integer
@@ -220,23 +220,23 @@ public:
     //! same number of integer bits, and the same number of fractional bits
     bool is_identical(const APyFixed& other) const;
 
-    //! Retrieve leading zeros
+    //! Return leading zeros
     std::size_t leading_zeros() const;
 
-    //! Retrieve leading ones
+    //! Return leading ones
     std::size_t leading_ones() const;
 
-    //! Retrieve leading fractional zeros
+    //! Return leading fractional zeros
     std::size_t leading_fractional_zeros() const;
 
-    //! Retrieve leading signs
+    //! Return leading signs
     std::size_t leading_signs() const;
 
     //! Test if positive value is greater than equal to a integer power-of-two (>= 2 ^
     //! `n`)
     bool positive_greater_than_equal_pow2(int n) const;
 
-    //! Retrieve the least significant 64-bits from the underlying limb-vector
+    //! Return the least significant 64-bits from the underlying limb-vector
     //! (convenience function used in `APyFloat`)
     uint64_t get_lsbs() const { return uint64_t_from_limb_vector(_data, 0); }
 

@@ -374,9 +374,9 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::transpose,
             nb::arg("axes") = nb::none(),
             R"pbdoc(
-            Returns copy of array with axes transposed.
+            Return copy of array with axes transposed.
 
-            For a 1-D array, this returns it returns back the same array.
+            For a 1-D array, this return the same array.
             For a 2-D array, this is the standard matrix transpose.
             For an n-D array, if axes are given, their order indicates how the
             axes are permuted (see Examples). If axes are not provided, then
@@ -393,13 +393,13 @@ void bind_fixed_array(nb::module_& m)
 
             Returns
             -------
-            :class: `APyFixedArray`
+            :class:`APyFixedArray`
                 `a` with its axes permuted.
 
             Examples
             --------
-            from ApyTypes import APyFixedArray
-            >>> a = APyFixedArray.from_float([[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]], bits=5, frac_bits=0,)
+            >>> from apytypes import APyFixedArray
+            >>> a = APyFixedArray.from_float([[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]], bits=5, frac_bits=0)
             >>> a.to_numpy()
             array([[ 1.,  2.,  3.],
                    [-4., -5., -6.]])
@@ -409,8 +409,8 @@ void bind_fixed_array(nb::module_& m)
                    [ 2., -5.],
                    [ 3., -6.]])
 
-            >>> a = APyFixedArray.from_float([1.0] * 6, bits=5, frac_bits=0,).reshape((1,2,3))
-            >>> a.transpose((1,0,2)).shape
+            >>> a = APyFixedArray.from_float([1.0] * 6, bits=5, frac_bits=0).reshape((1, 2, 3))
+            >>> a.transpose((1, 0, 2)).shape
             (2, 1, 3)
 
             >>> a.transpose((-2, -3, -1)).shape
@@ -492,15 +492,15 @@ void bind_fixed_array(nb::module_& m)
 
             mode : {'full', 'same', 'valid'}, default: 'full'
                 'full':
-                    Returns the full convolution for each point of overlap. The
+                    Return the full convolution for each point of overlap. The
                     resulting single-dimensional shape will have length :code:`N + M -
                     1`. Boundary effects occurs for points where the `a` and `v` do not
                     overlap completely.
                 'same':
-                    Returns a convolution of length :code:`max(M, N)`. Boundary effects
+                    Return a convolution of length :code:`max(M, N)`. Boundary effects
                     still occur around the edges of the result.
                 'valid':
-                    Returns the convoltuion for each point of full overlap. The
+                    Return the convolution for each point of full overlap. The
                     resulting single-dimensional shape will have length :code:`max(M, N)
                     - min(M, N) + 1`
 
@@ -529,10 +529,10 @@ void bind_fixed_array(nb::module_& m)
             :class:`APyFixedArray`
 
             Raises
-            -------
-            :class:ValueError
+            ------
+            :class:`ValueError`
                 If given an axis of a size other than one a ValueError will be thrown.
-            :class:IndexError
+            :class:`IndexError`
                 If a specified axis is outside of the existing number of dimensions for the array.
 
             )pbdoc"
@@ -543,7 +543,7 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::sum,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
+            Return the sum of the elements along specified axis/axes treating Not a Number as 0.
 
             Parameters
             ----------
@@ -555,12 +555,12 @@ void bind_fixed_array(nb::module_& m)
             :class:`APyFixedArray` or :class:`APyFixed`
 
             Raises
-            -------
-            :class:IndexError
+            ------
+            :class:`IndexError`
                 If a specified axis is outside of the existing number of dimensions for the array.
 
             Examples
-            -------
+            --------
 
             >>> from apytypes import APyFixedArray
 
@@ -582,7 +582,7 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::cumsum,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the cumulative sum of the elements along a given axes.
+            Return the cumulative sum of the elements along a given axes.
 
             Parameters
             ----------
@@ -594,12 +594,12 @@ void bind_fixed_array(nb::module_& m)
             :class:`APyFixedArray`
 
             Raises
-            -------
-            :class:IndexError
+            ------
+            :class:`IndexError`
                 If a specified axis is outside of the existing number of dimensions for the array.
 
             Examples
-            -------
+            --------
 
             >>> from apytypes import APyFixedArray
 
@@ -629,7 +629,7 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::nansum,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the sum of the elements along specified axis/axes treating Not a Number as 0.
+            Return the sum of the elements along specified axis/axes treating Not a Number as 0.
 
             Parameters
             ----------
@@ -641,8 +641,8 @@ void bind_fixed_array(nb::module_& m)
             :class:`APyFixedArray` or :class:`APyFixed`
 
             Raises
-            -------
-            :class:IndexError
+            ------
+            :class:`IndexError`
                 If a specified axis is outside of the existing number of dimensions for the array.
 
             )pbdoc"
@@ -653,7 +653,7 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::nancumsum,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the cumulative sum of the elements along a given axis treating Not a Number as 0.
+            Return the cumulative sum of the elements along a given axis treating Not a Number as 0.
 
             Parameters
             ----------
@@ -665,8 +665,8 @@ void bind_fixed_array(nb::module_& m)
             :class:`APyFixedArray`
 
             Raises
-            -------
-            :class:IndexError
+            ------
+            :class:`IndexError`
                 If a specified axis is outside of the existing number of dimensions for the array.
 
             )pbdoc"
@@ -677,7 +677,7 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::prod,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the product of the elements along specified axis/axes.
+            Return the product of the elements along specified axis/axes.
 
             Parameters
             ----------
@@ -689,12 +689,12 @@ void bind_fixed_array(nb::module_& m)
             :class:`APyFixedArray` or :class:`APyFixed`
 
             Raises
-            -------
-            :class:IndexError
+            ------
+            :class:`IndexError`
                 If a specified axis is outside of the existing number of dimensions for the array.
 
             Examples
-            -------
+            --------
 
             >>> from apytypes import APyFixedArray
 
@@ -716,7 +716,7 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::cumprod,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the cumulative product of the elements along a given axes.
+            Return the cumulative product of the elements along a given axes.
 
             Parameters
             ----------
@@ -728,12 +728,12 @@ void bind_fixed_array(nb::module_& m)
             :class:`APyFixedArray`
 
             Raises
-            -------
-            :class:IndexError
+            ------
+            :class:`IndexError`
                 If a specified axis is outside of the existing number of dimensions for the array.
 
             Examples
-            -------
+            --------
 
             >>> from apytypes import APyFixedArray
 
@@ -762,7 +762,7 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::nanprod,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-                Returns the product of the elements along a given axis treating Not a Number as 0.
+                Return the product of the elements along a given axis treating Not a Number as 0.
 
                 Parameters
                 ----------
@@ -774,8 +774,8 @@ void bind_fixed_array(nb::module_& m)
                 :class:`APyFixedArray` or :class:`APyFixed`
 
                 Raises
-                -------
-                :class:IndexError
+                ------
+                :class:`IndexError`
                     If a specified axis is outside of the existing number of dimensions for the array.
             )pbdoc"
         )
@@ -785,7 +785,7 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::nancumprod,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-                Returns the cumulative product of the elements along a given axis treating Not a Number as 0.
+                Return the cumulative product of the elements along a given axis treating Not a Number as 0.
 
                 Parameters
                 ----------
@@ -797,8 +797,8 @@ void bind_fixed_array(nb::module_& m)
                 :class:`APyFixedArray`
 
                 Raises
-                -------
-                :class:IndexError
+                ------
+                :class:`IndexError`
                     If a specified axis is outside of the existing number of dimensions for the array.
 
             )pbdoc"
