@@ -338,14 +338,14 @@
 <dt><strong>v</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>Second one-dimensional array of length <code class="code docutils literal notranslate"><span class="pre">N</span></code>.</p>
 </dd>
 <dt><strong>mode</strong><span class="classifier">{‘full’, ‘same’, ‘valid’}, default: ‘full’</span></dt><dd><dl class="simple">
-<dt>‘full’:</dt><dd><p>Returns the full convolution for each point of overlap. The resulting
+<dt>‘full’:</dt><dd><p>Return the full convolution for each point of overlap. The resulting
 single-dimensional shape will have length <code class="code docutils literal notranslate"><span class="pre">N</span> <span class="pre">+</span> <span class="pre">M</span> <span class="pre">-</span> <span class="pre">1</span></code>. Boundary
 effects occurs for points where the <cite>a</cite> and <cite>v</cite> do not overlap completely.</p>
 </dd>
-<dt>‘same’:</dt><dd><p>Returns a convolution of length <code class="code docutils literal notranslate"><span class="pre">max(M,</span> <span class="pre">N)</span></code>. Boundary effects still
+<dt>‘same’:</dt><dd><p>Return a convolution of length <code class="code docutils literal notranslate"><span class="pre">max(M,</span> <span class="pre">N)</span></code>. Boundary effects still
 occur around the edges of the result.</p>
 </dd>
-<dt>‘valid’:</dt><dd><p>Returns the convoltuion for each point of full overlap. The resulting
+<dt>‘valid’:</dt><dd><p>Return the convolution for each point of full overlap. The resulting
 single-dimensional shape will have length <code class="code docutils literal notranslate"><span class="pre">max(M,</span> <span class="pre">N)</span> <span class="pre">-</span> <span class="pre">min(M,</span> <span class="pre">N)</span> <span class="pre">+</span> <span class="pre">1</span></code></p>
 </dd>
 </dl>

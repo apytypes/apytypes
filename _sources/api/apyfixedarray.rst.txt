@@ -51,6 +51,25 @@
 
    .. automethod:: squeeze
 
+   Mathematical functions
+   ----------------------
+
+   .. automethod:: sum
+
+   .. automethod:: prod
+
+   .. automethod:: nansum
+
+   .. automethod:: nanprod
+
+   .. automethod:: cumsum
+
+   .. automethod:: cumprod
+
+   .. automethod:: nancumsum
+
+   .. automethod:: nancumprod
+
    Broadcasting
    ------------
 
