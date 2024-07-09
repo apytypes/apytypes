@@ -157,6 +157,9 @@ public:
      */
     APyFixedArray matmul(const APyFixedArray& rhs) const;
 
+    //! Swaps the positions of two axes in the array.
+    APyFixedArray swapaxes(nb::int_ axis1, nb::int_ axis2) const;
+
     //! Transposition function. For a 1-D array, Return an exact copy of `*this`. For
     //! a 2-D array, Return the matrix transposition of `*this`.
     APyFixedArray transpose(std::optional<nb::tuple> axes = std::nullopt) const;

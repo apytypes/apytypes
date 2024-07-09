@@ -533,6 +533,51 @@ void bind_float_array(nb::module_& m)
             )pbdoc")
 
         .def(
+            "swapaxes",
+            &APyFloatArray::swapaxes,
+            nb::arg("axis1"),
+            nb::arg("axis2"),
+            R"pbdoc(
+          Interchange two axes of an array.
+          Parameters
+          ----------
+          axis1 : int
+              First axis.
+          axis2 : int
+              Second axis.
+
+          Examples
+          --------
+
+          >>> a = APyFloatArray.from_float([[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]], exp_bits=5, man_bits=2,)
+          >>> from apytypes import APyFloatArray
+          >>> x = APyTypes.from_float([[1,2,3]], exp_bits=5,man_bits=2)
+          >>> x.swapaxes(0,1).to_numpy()
+          array([[1.],
+                 [2.],
+                 [3.]])
+
+          >>> x = np.from_float([[[0,1],[2,3]],[[4,5],[6,7]]], exp_bits=5, man_bits=0)
+          >>> x.to_numpy()
+          array([[[0., 1.],
+                  [2., 3.]],
+                 [[4., 5.],
+                  [6., 7.]]])
+
+          >>> x.swapaxes(0,2).to_numpy()
+          array([[[0., 4.],
+                  [2., 6.]],
+                 [[1., 5.],
+                  [3., 7.]]])
+
+          Returns
+          -------
+          a_swapped : :class:`APyFloatArray`
+              Copy of `a` with axes swapped
+                    )pbdoc"
+        )
+
+        .def(
             "transpose",
             &APyFloatArray::transpose,
             nb::arg("axes") = nb::none(),

@@ -10,6 +10,7 @@
 #include <ostream>
 #include <set>
 #include <unordered_set>
+#include <variant>
 namespace nb = nanobind;
 
 #include <vector>
@@ -73,8 +74,9 @@ static APY_INLINE std::vector<std::size_t> get_normalized_axes(
     const std::variant<nb::tuple, nb::int_>& axes, const std::size_t n_dim
 )
 {
+    bool is_tuple = std::holds_alternative<nanobind::tuple>(axes);
     std::vector<int> cpp_axes {};
-    if (std::holds_alternative<nanobind::tuple>(axes)) {
+    if (is_tuple) {
         for (const auto& element : std::get<nanobind::tuple>(axes)) {
             cpp_axes.push_back(nanobind::cast<int>(element));
         }
@@ -86,11 +88,7 @@ static APY_INLINE std::vector<std::size_t> get_normalized_axes(
     std::unordered_set<std::size_t> unique_axes;
 
     std::vector<std::size_t> result {};
-    if (cpp_axes.size() != n_dim) {
-        throw nb::value_error("Axis don't match array");
-    }
     for (std::size_t i = 0; i < cpp_axes.size(); i++) {
-
         int axis = cpp_axes[i];
         if (axis < 0) {
             axis = n_dim + axis;
