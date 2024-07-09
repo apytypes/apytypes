@@ -143,10 +143,10 @@ static APY_INLINE void transpose_axes_and_copy_data(
         // current_indices = {i, j, k}, the resulting dst_indices will be {j, k, i}
         std::size_t dst_index = 0;
         for (std::size_t i = 0; i < indices.size(); ++i) {
-            std::size_t dst_indice = indices[new_axis[i]];
+            std::size_t tmp_index = indices[new_axis[i]];
 
             // Calculate the flat index for destination
-            dst_index += dst_indice * dst_stride[i];
+            dst_index += tmp_index * dst_stride[i];
         }
 
         // Copy the data

@@ -274,11 +274,6 @@ void bind_fixed_array(nb::module_& m)
         new_shape : `tuple`
             The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.
 
-
-        Returns
-        -------
-        :class:`APyFixedArray`
-
         Raises
         ------
         ValueError
@@ -302,18 +297,14 @@ void bind_fixed_array(nb::module_& m)
         array([[ 1. ,  1.5],
                [-2. , -1.5]])
 
-        --------
+        Returns
+        -------
+        :class:`APyFixedArray`
              )pbdoc")
 
         .def("flatten", &APyFixedArray::flatten, R"pbdoc(
         Return a copy of the array collapsed into one dimension.
 
-        Returns
-        -------
-        :class:`APyFixedArray`
-
-        Raises
-        ------
 
         Examples
         --------
@@ -326,19 +317,15 @@ void bind_fixed_array(nb::module_& m)
         >>> arr.flatten().to_numpy()
         array([ 1. ,  1.5, -2. , -1.5])
 
-        --------
+        Returns
+        -------
+        :class:`APyFixedArray`
              )pbdoc")
 
         .def("ravel", &APyFixedArray::ravel, R"pbdoc(
         Return a copy of the array collapsed into one dimension. Same as flatten with
         current memory-copy model.
 
-        Returns
-        -------
-        :class:`APyFixedArray`
-
-        Raises
-        ------
 
         Examples
         --------
@@ -351,7 +338,9 @@ void bind_fixed_array(nb::module_& m)
         >>> arr.ravel().to_numpy()
         array([ 1. ,  1.5, -2. , -1.5])
 
-        --------
+        Returns
+        -------
+        :class:`APyFixedArray`
              )pbdoc")
 
         .def("is_identical", &APyFixedArray::is_identical, nb::arg("other"), R"pbdoc(
@@ -385,24 +374,26 @@ void bind_fixed_array(nb::module_& m)
           Examples
           --------
           >>> from apytypes import APyFixedArray
-          >>> x = APyTypes.from_float([[1,2,3]], bits=5,frac_bits=0)
+          >>> x = APyFixedArray.from_float([[1,2,3]], bits=5,frac_bits=0)
           >>> x.swapaxes(0,1).to_numpy()
-          array([[1.0],
-                 [2.0],
-                 [3.0]])
+          array([[1.],
+                 [2.],
+                 [3.]])
 
-          >>> x = np.from_float([[[0,1],[2,3]],[[4,5],[6,7]]], bits=5, frac_bits=0)
+          >>> x = APyFixedArray.from_float([[[0,1],[2,3]],[[4,5],[6,7]]], bits=5, frac_bits=0)
           >>> x.to_numpy()
-          array([[[0.0, 1.0],
-                  [2.0, 3.0]],
-                 [[4.0, 5.0],
-                  [6.0, 7.0]]])
+          array([[[0., 1.],
+                  [2., 3.]],
+          <BLANKLINE>
+                 [[4., 5.],
+                  [6., 7.]]])
 
           >>> x.swapaxes(0,2).to_numpy()
-          array([[[0.0, 4.0],
-                  [2.0, 6.0]],
-                 [[1.0, 5.0],
-                  [3.0, 7.0]]])
+          array([[[0., 4.],
+                  [2., 6.]],
+          <BLANKLINE>
+                 [[1., 5.],
+                  [3., 7.]]])
 
           Returns
           -------
@@ -432,11 +423,6 @@ void bind_fixed_array(nb::module_& m)
                 of the input. If not specified, defaults to ``range(a.ndim)[::-1]``,
                 which reverses the order of the axes.
 
-            Returns
-            -------
-            :class:`APyFixedArray`
-                `a` with its axes permuted.
-
             Examples
             --------
             >>> from apytypes import APyFixedArray
@@ -457,7 +443,10 @@ void bind_fixed_array(nb::module_& m)
             >>> a.transpose((-2, -3, -1)).shape
             (2, 1, 3)
 
+            Returns
             -------
+            :class:`APyFixedArray`
+                `a` with its axes permuted.
             )pbdoc"
         )
         .def(
