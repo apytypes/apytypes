@@ -17,6 +17,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.autosectionlabel",
     "sphinx_gallery.gen_gallery",
     "numpydoc",  # Needs to be loaded *after* autodoc.
     "sphinx_copybutton",
