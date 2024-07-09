@@ -14,7 +14,7 @@ Pre-requisites
 
 Most required packages will be installed during the installation process, but a few things are required:
 
-* A C/C++ compiler supporting at least C++ 17.
+* A C/C++ compiler supporting at least C++17.
 * CMake
 
 Clone the repository
