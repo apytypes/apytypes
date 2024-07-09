@@ -150,6 +150,9 @@ public:
     APyFloatArray broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
     ) const;
 
+    //! Swaps the positions of two axes in the array.
+    APyFloatArray swapaxes(nb::int_ axis1, nb::int_ axis2) const;
+
     //! Transposition function. For a 1-D array, Return an exact copy of `*this`. For
     //! a 2-D array, Return the matrix transposition of `*this`.
     APyFloatArray transpose(std::optional<nb::tuple> axes = std::nullopt) const;

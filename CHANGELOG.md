@@ -35,7 +35,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `cumprod()`
   - `nanprod()`
   - `nancumprod()`
+  - `moveaxis()`
+  - `swapaxis()`
+  - `expand_dims()`
 - Added `array_utils.h` to contain shared functions between float and fixed arrays.
+- Added support for higher dimensions (ndim > 2) in `transpose()`.
 
 ### Changed
 

@@ -25,6 +25,9 @@ from apytypes._array_functions import (
     shape,
     ravel,
     transpose,
+    moveaxis,
+    swapaxes,
+    expand_dims,
 )
 
 from apytypes._version import version as __version__
@@ -52,6 +55,9 @@ __all__ = [
     "shape",
     "ravel",
     "transpose",
+    "moveaxis",
+    "swapaxes",
+    "expand_dims",
 ]
 
 APyFloat.__doc__ = r"""

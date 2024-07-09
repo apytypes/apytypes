@@ -24,10 +24,13 @@ from ._apytypes import (
 )
 from ._array_functions import (
     convolve as convolve,
+    expand_dims as expand_dims,
+    moveaxis as moveaxis,
     ravel as ravel,
     reshape as reshape,
     shape as shape,
     squeeze as squeeze,
+    swapaxes as swapaxes,
     transpose as transpose,
 )
 
@@ -54,6 +57,9 @@ __all__: list = [
     "shape",
     "ravel",
     "transpose",
+    "moveaxis",
+    "swapaxes",
+    "expand_dims",
 ]
 
 annotations: __future__._Feature = ...

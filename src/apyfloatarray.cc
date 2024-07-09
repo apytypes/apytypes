@@ -1746,6 +1746,28 @@ APyFloatArray::broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
     return broadcast_to(cpp_shape_from_python_shape_like(shape));
 }
 
+APyFloatArray APyFloatArray::swapaxes(nb::int_ axis1, nb::int_ axis2) const
+{
+    std::size_t ndim = get_ndim();
+    size_t _axis1 = ::get_normalized_axes(axis1, ndim).front();
+    size_t _axis2 = ::get_normalized_axes(axis2, ndim).front();
+
+    std::vector<size_t> new_axis(ndim);
+    std::iota(new_axis.begin(), new_axis.end(), 0);
+
+    // Swap the specified axes
+    std::swap(new_axis[_axis1], new_axis[_axis2]);
+
+    std::vector<size_t> new_shape(ndim);
+    for (size_t i = 0; i < ndim; ++i) {
+        new_shape[i] = shape[new_axis[i]];
+    }
+
+    APyFloatArray result(new_shape, exp_bits, man_bits, bias);
+    transpose_axes_and_copy_data(data.begin(), result.data.begin(), shape, new_axis);
+    return result;
+}
+
 APyFloatArray APyFloatArray::transpose(std::optional<nb::tuple> axes) const
 {
     std::size_t ndim = get_ndim();

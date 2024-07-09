@@ -621,3 +621,29 @@ def test_transpose_highdim(start_val):
     )
 
     assert a.transpose().is_identical(b)
+
+
+def test_swapaxes():
+    a = APyFixedArray.from_float(
+        [i for i in range(12)], int_bits=5, frac_bits=2
+    ).reshape((6, 2))
+
+    if not a.swapaxes(0, 1).is_identical(a.T):
+        pytest.fail("swapaxes didn't correctly swap axis")
+
+    if not a.swapaxes(1, 0).is_identical(a.T):
+        pytest.fail("swapaxes didn't correctly swap axis")
+
+    a = APyFixedArray.from_float([0] * 24, int_bits=5, frac_bits=2).reshape((4, 3, 2))
+
+    if not a.swapaxes(0, 1).shape == (3, 4, 2):
+        pytest.fail("swapaxes didn't correctly swap axis")
+
+    if not a.swapaxes(1, 0).shape == (3, 4, 2):
+        pytest.fail("swapaxes didn't correctly swap axis")
+
+    if not a.swapaxes(2, 0).shape == (2, 3, 4):
+        pytest.fail("swapaxes didn't correctly swap axis")
+
+    if not a.swapaxes(0, 2).shape == (2, 3, 4):
+        pytest.fail("swapaxes didn't correctly swap axis")

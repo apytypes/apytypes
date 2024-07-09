@@ -1,3 +1,6 @@
+from typing import Tuple
+
+
 def squeeze(a, axis=None):
     """
     Remove axes of length one from `a`.
@@ -229,3 +232,204 @@ def ravel(a):
     except AttributeError:
         raise TypeError(f"Cannot ravel {type(a)}")
     return ravel()
+
+
+def moveaxis(a, source, destination):
+    """
+    Move axes of an array to new positions.
+
+    Other axes remain in their original order.
+
+    Parameters
+    ----------
+    a : :class:`APyFloatArray` or :class:`APyFixedArray`
+        The array whose axes should be reordered.
+    source : int or sequence of int
+        Original positions of the axes to move. These must be unique.
+    destination : int or sequence of int
+        Destination positions for each of the original axes. These must also be
+        unique.
+
+    Examples
+    --------
+    import apytypes as apy
+
+
+    >>> x = apy.ApyFixedArray.from_floats([0]*100, int_bits=2**16, frac_bits=0).reshape((3, 4, 5)))
+    >>> apy.moveaxis(x, 0, -1).shape
+    (4, 5, 3)
+    >>> apy.moveaxis(x, -1, 0).shape
+    (5, 3, 4)
+
+    These all achieve the same result:
+
+    >>> apy.transpose(x).shape
+    (5, 4, 3)
+    >>> apy.swapaxes(x, 0, -1).shape
+    (5, 4, 3)
+    >>> apy.moveaxis(x, [0, 1], [-1, -2]).shape
+    (5, 4, 3)
+    >>> apy.moveaxis(x, [0, 1, 2], [-1, -2, -3]).shape
+    (5, 4, 3)
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        Copy of array with moved axes.
+    """
+    source = normalize_axis_sequence(source, a.ndim)
+    destination = normalize_axis_sequence(destination, a.ndim)
+
+    if len(source) != len(destination):
+        raise ValueError(
+            "`source` and `destination` arguments must have the same number of elements"
+        )
+    order = [n for n in range(a.ndim) if n not in source]
+
+    for dest, src in sorted(zip(destination, source)):
+        order.insert(dest, src)
+    order = tuple(order)
+    print(order)
+
+    result = transpose(a, order)
+    return result
+
+
+def swapaxes(a, axis1, axis2):
+    """
+    Interchange two axes of an array.
+    Parameters
+    ----------
+    a : :class:`APyFloatArray` or :class:`APyFixedArray`
+        The array whose axes should be reordered.
+    axis1 : int
+      First axis.
+    axis2 : int
+      Second axis.
+
+    Examples
+    --------
+
+    >>> a = APyFloatArray.from_float(
+    ...     [[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]],
+    ...     exp_bits=5,
+    ...     man_bits=2,
+    ... )
+    >>> from apytypes import APyFloatArray
+    >>> x = APyTypes.from_float([[1, 2, 3]], exp_bits=5, man_bits=2)
+    >>> x.swapaxes(0, 1).to_numpy()
+    array([[1.],
+         [2.],
+         [3.]])
+
+    >>> x = np.from_float([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], exp_bits=5, man_bits=0)
+    >>> x.to_numpy()
+    array([[[0., 1.],
+          [2., 3.]],
+         [[4., 5.],
+          [6., 7.]]])
+
+    >>> x.swapaxes(0, 2).to_numpy()
+    array([[[0., 4.],
+          [2., 6.]],
+         [[1., 5.],
+          [3., 7.]]])
+
+    Returns
+    -------
+    a_swapped :class:`APyFloatArray` or :class:`APyFixedArray`
+        Copy of `a` with axes swapped
+    """
+
+    try:
+        swapaxes = a.swapaxes
+    except AttributeError:
+        raise TypeError(f"Cannot transpose/swapaxis of type: {type(a)}")
+    print("axes to swapaxes: ", axis1, axis2)
+    return swapaxes(axis1, axis2)
+
+
+def expand_dims(a, axis):
+    """
+    Expand the shape of an array.
+
+    Insert a new axis that will appear at the `axis` position in the expanded
+    array shape.
+
+    Parameters
+    ----------
+    a : :class:`APyFloatArray` or :class:`APyFixedArray`
+        The array whose axes should be reordered.
+    axis : int or tuple of ints
+        Position in the expanded axes where the new axis (or axes) is placed.
+
+    Examples
+    --------
+    >>> import apytypes as apy
+    >>> x = apy.ApyFixedArray.from_float([1, 2], int_bits=5, frac_bits=0)
+    >>> x.shape
+    (2,)
+
+    >>> y = apy.expand_dims(x, axis=0)
+    >>> y.to_numpy()
+    array([[1., 2.]])
+    >>> y.shape
+    (1, 2)
+
+    >>> y = apy.expand_dims(x, axis=1)
+    >>> y.to_numpy()
+    array([[1.],
+           [2.]])
+    >>> y.shape
+    (2, 1)
+
+    ``axis`` may also be a tuple:
+
+    >>> y = apy.expand_dims(x, axis=(0, 1))
+    >>> y.to_numpy()
+    array([[[1, 2]]])
+
+    >>> y = apy.expand_dims(x, axis=(2, 0))
+    >>> y.to_numpy
+    array([[[1.],
+            [2.]]])
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        copy of `a` with the number of dimensions increased.
+    """
+
+    if type(axis) not in (tuple, list):
+        axis = (axis,)
+
+    out_ndim = len(axis) + a.ndim
+    axis = normalize_axis_sequence(axis, out_ndim)
+
+    shape_it = iter(a.shape)
+    shape = tuple([1 if ax in axis else next(shape_it) for ax in range(out_ndim)])
+
+    return a.reshape(shape)
+
+
+# =============================================================================
+# Helpers
+# =============================================================================
+
+
+def normalize_axis(axis: int, ndim: int) -> int:
+    """Normalize a single axis."""
+    if axis < 0:
+        axis += ndim
+    if axis < 0 or axis >= ndim:
+        raise ValueError(f"Axis {axis} is out of bounds for array of dimension {ndim}")
+    return axis
+
+
+def normalize_axis_sequence(
+    axis_sequence: int | Tuple[int, ...], ndim: int
+) -> Tuple[int, ...]:
+    """Normalize a sequence of axes."""
+    if isinstance(axis_sequence, int):
+        axis_sequence = (axis_sequence,)
+    return tuple(normalize_axis(ax, ndim) for ax in axis_sequence)

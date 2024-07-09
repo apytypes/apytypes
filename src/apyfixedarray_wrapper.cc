@@ -368,7 +368,48 @@ void bind_fixed_array(nb::module_& m)
             :class:`bool`
 
             )pbdoc")
+        .def(
+            "swapaxes",
+            &APyFixedArray::swapaxes,
+            nb::arg("axis1"),
+            nb::arg("axis2"),
+            R"pbdoc(
+          Interchange two axes of an array.
+          Parameters
+          ----------
+          axis1 : int
+              First axis.
+          axis2 : int
+              Second axis.
 
+          Examples
+          --------
+          >>> from apytypes import APyFixedArray
+          >>> x = APyTypes.from_float([[1,2,3]], bits=5,frac_bits=0)
+          >>> x.swapaxes(0,1).to_numpy()
+          array([[1.0],
+                 [2.0],
+                 [3.0]])
+
+          >>> x = np.from_float([[[0,1],[2,3]],[[4,5],[6,7]]], bits=5, frac_bits=0)
+          >>> x.to_numpy()
+          array([[[0.0, 1.0],
+                  [2.0, 3.0]],
+                 [[4.0, 5.0],
+                  [6.0, 7.0]]])
+
+          >>> x.swapaxes(0,2).to_numpy()
+          array([[[0.0, 4.0],
+                  [2.0, 6.0]],
+                 [[1.0, 5.0],
+                  [3.0, 7.0]]])
+
+          Returns
+          -------
+          a_swapped : :class:`APyFixedArray`
+              Copy of `a` with axes swapped
+                    )pbdoc"
+        )
         .def(
             "transpose",
             &APyFixedArray::transpose,
