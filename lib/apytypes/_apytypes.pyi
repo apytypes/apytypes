@@ -611,11 +611,6 @@ class APyFixedArray:
         new_shape : `tuple`
             The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.
 
-
-        Returns
-        -------
-        :class:`APyFixedArray`
-
         Raises
         ------
         ValueError
@@ -639,19 +634,15 @@ class APyFixedArray:
         array([[ 1. ,  1.5],
                [-2. , -1.5]])
 
-        --------
+        Returns
+        -------
+        :class:`APyFixedArray`
         """
 
     def flatten(self) -> APyFixedArray:
         """
         Return a copy of the array collapsed into one dimension.
 
-        Returns
-        -------
-        :class:`APyFixedArray`
-
-        Raises
-        ------
 
         Examples
         --------
@@ -664,7 +655,9 @@ class APyFixedArray:
         >>> arr.flatten().to_numpy()
         array([ 1. ,  1.5, -2. , -1.5])
 
-        --------
+        Returns
+        -------
+        :class:`APyFixedArray`
         """
 
     def ravel(self) -> APyFixedArray:
@@ -672,12 +665,6 @@ class APyFixedArray:
         Return a copy of the array collapsed into one dimension. Same as flatten with
         current memory-copy model.
 
-        Returns
-        -------
-        :class:`APyFixedArray`
-
-        Raises
-        ------
 
         Examples
         --------
@@ -690,7 +677,9 @@ class APyFixedArray:
         >>> arr.ravel().to_numpy()
         array([ 1. ,  1.5, -2. , -1.5])
 
-        --------
+        Returns
+        -------
+        :class:`APyFixedArray`
         """
 
     def is_identical(self, other: APyFixedArray) -> bool:
@@ -721,24 +710,28 @@ class APyFixedArray:
         Examples
         --------
         >>> from apytypes import APyFixedArray
-        >>> x = APyTypes.from_float([[1, 2, 3]], bits=5, frac_bits=0)
+        >>> x = APyFixedArray.from_float([[1, 2, 3]], bits=5, frac_bits=0)
         >>> x.swapaxes(0, 1).to_numpy()
-        array([[1.0],
-               [2.0],
-               [3.0]])
+        array([[1.],
+               [2.],
+               [3.]])
 
-        >>> x = np.from_float([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], bits=5, frac_bits=0)
+        >>> x = APyFixedArray.from_float(
+        ...     [[[0, 1], [2, 3]], [[4, 5], [6, 7]]], bits=5, frac_bits=0
+        ... )
         >>> x.to_numpy()
-        array([[[0.0, 1.0],
-                [2.0, 3.0]],
-               [[4.0, 5.0],
-                [6.0, 7.0]]])
+        array([[[0., 1.],
+                [2., 3.]],
+        <BLANKLINE>
+               [[4., 5.],
+                [6., 7.]]])
 
         >>> x.swapaxes(0, 2).to_numpy()
-        array([[[0.0, 4.0],
-                [2.0, 6.0]],
-               [[1.0, 5.0],
-                [3.0, 7.0]]])
+        array([[[0., 4.],
+                [2., 6.]],
+        <BLANKLINE>
+               [[1., 5.],
+                [3., 7.]]])
 
         Returns
         -------
@@ -765,11 +758,6 @@ class APyFixedArray:
             of the input. If not specified, defaults to ``range(a.ndim)[::-1]``,
             which reverses the order of the axes.
 
-        Returns
-        -------
-        :class:`APyFixedArray`
-            `a` with its axes permuted.
-
         Examples
         --------
         >>> from apytypes import APyFixedArray
@@ -794,7 +782,10 @@ class APyFixedArray:
         >>> a.transpose((-2, -3, -1)).shape
         (2, 1, 3)
 
+        Returns
         -------
+        :class:`APyFixedArray`
+            `a` with its axes permuted.
         """
 
     def cast(
@@ -2108,10 +2099,6 @@ class APyFloatArray:
         new_shape : `tuple`
             The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.
 
-        Returns
-        -------
-        :class:`APyFloatArray`
-
         Raises
         ------
         :class:`ValueError`
@@ -2140,16 +2127,14 @@ class APyFloatArray:
         array([[ 1.,  2.],
                [-3., -4.]])
 
-        --------
+        Returns
+        -------
+        :class:`APyFloatArray`
         """
 
     def flatten(self) -> APyFloatArray:
         """
         Return a copy of the array collapsed into one dimension.
-
-        Returns
-        -------
-        :class:`APyFloatArray`
 
         Examples
         --------
@@ -2167,16 +2152,14 @@ class APyFloatArray:
         >>> arr.flatten().to_numpy()
         array([ 1.,  2., -3., -4.])
 
-        --------
+        Returns
+        -------
+        :class:`APyFloatArray`
         """
 
     def ravel(self) -> APyFloatArray:
         """
         Return a copy of the array collapsed into one dimension. Same as flatten with current memory-copy model.
-
-        Returns
-        -------
-        :class:`APyFloatArray`
 
         Examples
         --------
@@ -2194,7 +2177,9 @@ class APyFloatArray:
         >>> arr.ravel().to_numpy()
         array([ 1.,  2., -3., -4.])
 
-        --------
+        Returns
+        -------
+        :class:`APyFloatArray`
         """
 
     @staticmethod
@@ -2306,6 +2291,7 @@ class APyFloatArray:
     def swapaxes(self, axis1: int, axis2: int) -> APyFloatArray:
         """
         Interchange two axes of an array.
+
         Parameters
         ----------
         axis1 : int
@@ -2315,31 +2301,27 @@ class APyFloatArray:
 
         Examples
         --------
-
-        >>> a = APyFloatArray.from_float(
-        ...     [[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]],
-        ...     exp_bits=5,
-        ...     man_bits=2,
-        ... )
         >>> from apytypes import APyFloatArray
-        >>> x = APyTypes.from_float([[1, 2, 3]], exp_bits=5, man_bits=2)
+        >>> x = APyFloatArray.from_float([[1, 2, 3]], exp_bits=5, man_bits=2)
         >>> x.swapaxes(0, 1).to_numpy()
         array([[1.],
                [2.],
                [3.]])
 
-        >>> x = np.from_float(
-        ...     [[[0, 1], [2, 3]], [[4, 5], [6, 7]]], exp_bits=5, man_bits=0
+        >>> x = APyFloatArray.from_float(
+        ...     [[[0, 1], [2, 3]], [[4, 5], [6, 7]]], exp_bits=5, man_bits=5
         ... )
         >>> x.to_numpy()
         array([[[0., 1.],
                 [2., 3.]],
+        <BLANKLINE>
                [[4., 5.],
                 [6., 7.]]])
 
         >>> x.swapaxes(0, 2).to_numpy()
         array([[[0., 4.],
                 [2., 6.]],
+        <BLANKLINE>
                [[1., 5.],
                 [3., 7.]]])
 
@@ -2368,11 +2350,6 @@ class APyFloatArray:
             of the input. If not specified, defaults to ``range(a.ndim)[::-1]``,
             which reverses the order of the axes.
 
-        Returns
-        -------
-        :class:`APyFloatArray`
-            `a` with its axes permuted.
-
         Examples
         --------
         >>> from apytypes import APyFloatArray
@@ -2397,7 +2374,10 @@ class APyFloatArray:
         >>> a.transpose((-2, -3, -1)).shape
         (2, 1, 3)
 
+        Returns
         -------
+        :class:`APyFloatArray`
+            `a` with its axes permuted.
         """
 
     def broadcast_to(self, shape: tuple | int) -> APyFloatArray:

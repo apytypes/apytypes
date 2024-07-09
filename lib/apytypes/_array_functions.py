@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Union
 
 
 def squeeze(a, axis=None):
@@ -427,7 +427,7 @@ def normalize_axis(axis: int, ndim: int) -> int:
 
 
 def normalize_axis_sequence(
-    axis_sequence: int | Tuple[int, ...], ndim: int
+    axis_sequence: Union[int, Tuple[int, ...]], ndim: int
 ) -> Tuple[int, ...]:
     """Normalize a sequence of axes."""
     if isinstance(axis_sequence, int):

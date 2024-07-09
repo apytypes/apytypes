@@ -337,10 +337,6 @@ void bind_float_array(nb::module_& m)
         new_shape : `tuple`
             The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.
 
-        Returns
-        -------
-        :class:`APyFloatArray`
-
         Raises
         ------
         :class:`ValueError`
@@ -367,15 +363,13 @@ void bind_float_array(nb::module_& m)
         array([[ 1.,  2.],
                [-3., -4.]])
 
-        --------
+        Returns
+        -------
+        :class:`APyFloatArray`
         )pbdoc")
 
         .def("flatten", &APyFloatArray::flatten, R"pbdoc(
         Return a copy of the array collapsed into one dimension.
-
-        Returns
-        -------
-        :class:`APyFloatArray`
 
         Examples
         --------
@@ -391,15 +385,13 @@ void bind_float_array(nb::module_& m)
         >>> arr.flatten().to_numpy()
         array([ 1.,  2., -3., -4.])
 
-        --------
+        Returns
+        -------
+        :class:`APyFloatArray`
             )pbdoc")
 
         .def("ravel", &APyFloatArray::ravel, R"pbdoc(
         Return a copy of the array collapsed into one dimension. Same as flatten with current memory-copy model.
-
-        Returns
-        -------
-        :class:`APyFloatArray`
 
         Examples
         --------
@@ -415,7 +407,9 @@ void bind_float_array(nb::module_& m)
         >>> arr.ravel().to_numpy()
         array([ 1.,  2., -3., -4.])
 
-        --------
+        Returns
+        -------
+        :class:`APyFloatArray`
             )pbdoc")
 
         /*
@@ -539,6 +533,7 @@ void bind_float_array(nb::module_& m)
             nb::arg("axis2"),
             R"pbdoc(
           Interchange two axes of an array.
+
           Parameters
           ----------
           axis1 : int
@@ -548,25 +543,25 @@ void bind_float_array(nb::module_& m)
 
           Examples
           --------
-
-          >>> a = APyFloatArray.from_float([[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]], exp_bits=5, man_bits=2,)
           >>> from apytypes import APyFloatArray
-          >>> x = APyTypes.from_float([[1,2,3]], exp_bits=5,man_bits=2)
+          >>> x = APyFloatArray.from_float([[1,2,3]], exp_bits=5,man_bits=2)
           >>> x.swapaxes(0,1).to_numpy()
           array([[1.],
                  [2.],
                  [3.]])
 
-          >>> x = np.from_float([[[0,1],[2,3]],[[4,5],[6,7]]], exp_bits=5, man_bits=0)
+          >>> x = APyFloatArray.from_float([[[0,1],[2,3]],[[4,5],[6,7]]], exp_bits=5, man_bits=5)
           >>> x.to_numpy()
           array([[[0., 1.],
                   [2., 3.]],
+          <BLANKLINE>
                  [[4., 5.],
                   [6., 7.]]])
 
           >>> x.swapaxes(0,2).to_numpy()
           array([[[0., 4.],
                   [2., 6.]],
+          <BLANKLINE>
                  [[1., 5.],
                   [3., 7.]]])
 
@@ -599,11 +594,6 @@ void bind_float_array(nb::module_& m)
                 of the input. If not specified, defaults to ``range(a.ndim)[::-1]``,
                 which reverses the order of the axes.
 
-            Returns
-            -------
-            :class:`APyFloatArray`
-                `a` with its axes permuted.
-
             Examples
             --------
             >>> from apytypes import APyFloatArray
@@ -624,8 +614,10 @@ void bind_float_array(nb::module_& m)
             >>> a.transpose((-2, -3, -1)).shape
             (2, 1, 3)
 
+            Returns
             -------
-
+            :class:`APyFloatArray`
+                `a` with its axes permuted.
             )pbdoc"
         )
         .def(
