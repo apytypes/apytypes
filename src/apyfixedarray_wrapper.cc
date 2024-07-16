@@ -364,6 +364,7 @@ void bind_fixed_array(nb::module_& m)
             nb::arg("axis2"),
             R"pbdoc(
           Interchange two axes of an array.
+
           Parameters
           ----------
           axis1 : int
@@ -374,13 +375,13 @@ void bind_fixed_array(nb::module_& m)
           Examples
           --------
           >>> from apytypes import APyFixedArray
-          >>> x = APyFixedArray.from_float([[1,2,3]], bits=5,frac_bits=0)
+          >>> x = APyFixedArray.from_float([[1, 2, 3]], bits=5, frac_bits=0)
           >>> x.swapaxes(0,1).to_numpy()
           array([[1.],
                  [2.],
                  [3.]])
 
-          >>> x = APyFixedArray.from_float([[[0,1],[2,3]],[[4,5],[6,7]]], bits=5, frac_bits=0)
+          >>> x = APyFixedArray.from_float([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], bits=5, frac_bits=0)
           >>> x.to_numpy()
           array([[[0., 1.],
                   [2., 3.]],
@@ -595,7 +596,7 @@ void bind_fixed_array(nb::module_& m)
             >>> from apytypes import APyFixedArray
 
             >>> a = APyFixedArray(
-            ...     [1,2,3,4,5,6],
+            ...     [1, 2, 3, 4, 5, 6],
             ...     int_bits=10,
             ...     frac_bits=0
             ... )

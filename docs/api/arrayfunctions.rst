@@ -5,4 +5,12 @@ Array functions
 
 .. autofunction:: apytypes.convolve
 
-.. autofunction:: apytypes.reshape
+.. autofunction:: apytypes.shape
+
+.. autofunction:: apytypes.ravel
+
+.. autofunction:: apytypes.moveaxis
+
+.. autofunction:: apytypes.swapaxes
+
+.. autofunction:: apytypes.expand_dims
