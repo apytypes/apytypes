@@ -27,14 +27,20 @@ mp_limb_t get_data_from_double(double value, int bits, int frac_bits, int shift_
     // correct position
     auto left_shift_amnt = exp + frac_bits - 52 - 1023;
     if (left_shift_amnt >= 0) {
-        man <<= left_shift_amnt;
+        if (left_shift_amnt < 64) {
+            man <<= left_shift_amnt;
+        } else {
+            man = 0;
+        }
     } else {
         auto right_shift_amount = -left_shift_amnt;
-        if (right_shift_amount - 1 < 64) {
-            // Round the value
+        if (right_shift_amount < 55) {
+            // Round the value and shift
             man += mp_limb_t(1) << (right_shift_amount - 1);
+            man >>= right_shift_amount;
+        } else {
+            man = 0;
         }
-        man >>= right_shift_amount;
     }
     // Adjust result from sign
     if (sign_of_double(value)) {

@@ -194,3 +194,42 @@ def test_c_striding():
     assert APyFixedArray(a.T, int_bits=10, frac_bits=0).is_identical(
         APyFixedArray([[1, 4], [2, 5], [3, 6]], int_bits=10, frac_bits=0)
     )
+
+
+def test_issue_487():
+    """
+    Test for GitHub issue #487
+    https://github.com/apytypes/apytypes/issues/487
+    """
+    np = pytest.importorskip("numpy")
+
+    fl = 1.2124003311558797e-16
+    fl2fxa = APyFixedArray.from_float([fl], int_bits=1, frac_bits=11)
+    npa2fxa = APyFixedArray.from_array(np.array([fl]), int_bits=1, frac_bits=11)
+    assert fl2fxa.is_identical(APyFixedArray([0], int_bits=1, frac_bits=11))
+    assert npa2fxa.is_identical(APyFixedArray([0], int_bits=1, frac_bits=11))
+
+    fl = 1.25e16
+    fl2fxa = APyFixedArray.from_float([fl], int_bits=60, frac_bits=0)
+    npa2fxa = APyFixedArray.from_array(np.array([fl]), int_bits=60, frac_bits=0)
+    assert fl2fxa.to_numpy() == np.array([fl])
+    assert npa2fxa.to_numpy() == np.array([fl])
+
+    fl = 1.25e160
+    fl2fxa = APyFixedArray.from_float([fl], int_bits=60, frac_bits=0)
+    npa2fxa = APyFixedArray.from_array(np.array([fl]), int_bits=60, frac_bits=0)
+    assert fl2fxa.to_numpy() == np.array([0])
+    assert npa2fxa.to_numpy() == np.array([0])
+
+
+def test_fizz_fuzz():
+    """
+    Tests discovered through some fuzzing
+    """
+    np = pytest.importorskip("numpy")
+
+    # 1
+    fl = [4.06997806e-09]
+    a = APyFixedArray.from_float(fl, int_bits=16, frac_bits=16)
+    b = APyFixedArray.from_array(np.array(fl), int_bits=16, frac_bits=16)
+    assert a.is_identical(b)

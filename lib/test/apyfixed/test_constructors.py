@@ -142,3 +142,17 @@ def test_incorrect_double_construction():
 
     with pytest.raises(ValueError, match="Cannot convert inf to fixed-point"):
         APyFixed.from_float(float("inf"), 4, 4)
+
+
+def test_issue_487():
+    """
+    Test for GitHub issue #487
+    https://github.com/apytypes/apytypes/issues/487
+    """
+    np = pytest.importorskip("numpy")
+    fl = 1.2124003311558797e-16
+    npa = np.array([fl])
+    fx = APyFixed.from_float(fl, 1, 11)
+    npa2fx = APyFixed.from_float(npa[0], 1, 11)
+    assert fx.is_identical(APyFixed(0, 1, 11))
+    assert npa2fx.is_identical(APyFixed(0, 1, 11))

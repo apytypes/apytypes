@@ -15,7 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `APyFixedArray.broadcast_to()`
   - `APyFloatArray.broadcast_to()`
   - Automatic broadcasting on array arithmetic
-- Support arithmetic between APyTypes classes and Python's built-in floats and ints.
+- Support arithmetic between APyTypes classes and Python's built-in floats and
+  ints.
 - Support for automatic stub generation added.
 - Docstrings are made compatible with
   [doctest](https://docs.python.org/3/library/doctest.html), which is
@@ -46,11 +47,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Smaller fixes in quantization for floating-point scalar multiplication.
 - Fix in floating-point `cast`-method when result became subnormal.
-- Fix bug in `APyFixedArray.__truediv__()` where program crashes on long-limb zero
-  denominators.
+- Fix bug in `APyFixedArray.__truediv__()` where program crashes on long-limb
+  zero denominators.
 - Fix bug where single-dimensional tuple representations missed out on a comma.
 - Fix bug in comparison between floating-point infinity and fixed-point numbers.
 - Start uploading source distributions of APyTypes to PyPI on releases.
+- Fixed bug where `APyFixedArray.from_array()` initialized the wrong stored
+  value from floating-point values that are too small for its representation.
+  (#487)
 
 ### Removed
 

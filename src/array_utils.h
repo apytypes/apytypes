@@ -5,7 +5,6 @@
 #include "broadcast.h"
 #include "nanobind/ndarray.h"
 #include <cstddef>
-#include <iostream>
 #include <nanobind/nanobind.h>
 #include <ostream>
 #include <set>

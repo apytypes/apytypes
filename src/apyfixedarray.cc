@@ -32,7 +32,6 @@ namespace nb = nanobind;
 #include "array_utils.h"
 #include "broadcast.h"
 #include "python_util.h"
-#include <iostream>
 
 #include <fmt/format.h>
 
