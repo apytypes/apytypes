@@ -544,13 +544,13 @@ void bind_float_array(nb::module_& m)
           Examples
           --------
           >>> from apytypes import APyFloatArray
-          >>> x = APyFloatArray.from_float([[1,2,3]], exp_bits=5,man_bits=2)
+          >>> x = APyFloatArray.from_float([[1 ,2, 3]], exp_bits=5, man_bits=2)
           >>> x.swapaxes(0,1).to_numpy()
           array([[1.],
                  [2.],
                  [3.]])
 
-          >>> x = APyFloatArray.from_float([[[0,1],[2,3]],[[4,5],[6,7]]], exp_bits=5, man_bits=5)
+          >>> x = APyFloatArray.from_float([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], exp_bits=5, man_bits=5)
           >>> x.to_numpy()
           array([[[0., 1.],
                   [2., 3.]],

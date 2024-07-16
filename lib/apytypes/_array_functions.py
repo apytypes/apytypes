@@ -277,8 +277,8 @@ def moveaxis(a, source, destination):
     result : :class:`APyFloatArray` or :class:`APyFixedArray`
         Copy of array with moved axes.
     """
-    source = normalize_axis_sequence(source, a.ndim)
-    destination = normalize_axis_sequence(destination, a.ndim)
+    source = _normalize_axis_sequence(source, a.ndim)
+    destination = _normalize_axis_sequence(destination, a.ndim)
 
     if len(source) != len(destination):
         raise ValueError(
@@ -289,7 +289,6 @@ def moveaxis(a, source, destination):
     for dest, src in sorted(zip(destination, source)):
         order.insert(dest, src)
     order = tuple(order)
-    print(order)
 
     result = transpose(a, order)
     return result
@@ -298,6 +297,7 @@ def moveaxis(a, source, destination):
 def swapaxes(a, axis1, axis2):
     """
     Interchange two axes of an array.
+
     Parameters
     ----------
     a : :class:`APyFloatArray` or :class:`APyFixedArray`
@@ -345,7 +345,6 @@ def swapaxes(a, axis1, axis2):
         swapaxes = a.swapaxes
     except AttributeError:
         raise TypeError(f"Cannot transpose/swapaxis of type: {type(a)}")
-    print("axes to swapaxes: ", axis1, axis2)
     return swapaxes(axis1, axis2)
 
 
@@ -404,7 +403,7 @@ def expand_dims(a, axis):
         axis = (axis,)
 
     out_ndim = len(axis) + a.ndim
-    axis = normalize_axis_sequence(axis, out_ndim)
+    axis = _normalize_axis_sequence(axis, out_ndim)
 
     shape_it = iter(a.shape)
     shape = tuple([1 if ax in axis else next(shape_it) for ax in range(out_ndim)])
@@ -417,7 +416,7 @@ def expand_dims(a, axis):
 # =============================================================================
 
 
-def normalize_axis(axis: int, ndim: int) -> int:
+def _normalize_axis(axis: int, ndim: int) -> int:
     """Normalize a single axis."""
     if axis < 0:
         axis += ndim
@@ -426,10 +425,10 @@ def normalize_axis(axis: int, ndim: int) -> int:
     return axis
 
 
-def normalize_axis_sequence(
+def _normalize_axis_sequence(
     axis_sequence: Union[int, Tuple[int, ...]], ndim: int
 ) -> Tuple[int, ...]:
     """Normalize a sequence of axes."""
     if isinstance(axis_sequence, int):
         axis_sequence = (axis_sequence,)
-    return tuple(normalize_axis(ax, ndim) for ax in axis_sequence)
+    return tuple(_normalize_axis(ax, ndim) for ax in axis_sequence)

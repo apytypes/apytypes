@@ -700,6 +700,7 @@ class APyFixedArray:
     def swapaxes(self, axis1: int, axis2: int) -> APyFixedArray:
         """
         Interchange two axes of an array.
+
         Parameters
         ----------
         axis1 : int
