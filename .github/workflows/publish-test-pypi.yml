@@ -57,6 +57,16 @@ jobs:
   # Source-distribution building job-step
   build-sdist:
     name: Build source distribution
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      github.event_name == 'pull_request' && (
+        (
+          github.event.action == 'labeled' &&
+          github.event.label.name == 'CI: Run cibuildwheel'
+        ) ||
+        contains(github.event.pull_request.labels.*.name,
+                 'CI: Run cibuildwheel')
+      )
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
