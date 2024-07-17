@@ -621,6 +621,8 @@
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray3sumENSt8optionalINSt7variantIN2nb5tupleEN2nb4int_EEEEE">APyFixedArray::sum (C++ function)</a>
 </li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray8swapaxesEN2nb4int_EN2nb4int_E">APyFixedArray::swapaxes (C++ function)</a>
+</li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray8to_numpyEv">APyFixedArray::to_numpy (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray9transposeENSt8optionalIN2nb5tupleEEE">APyFixedArray::transpose (C++ function)</a>
@@ -933,6 +935,8 @@
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray3sumENSt8optionalINSt7variantIN2nb5tupleEN2nb4int_EEEEE">APyFloatArray::sum (C++ function)</a>
 </li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray8swapaxesEN2nb4int_EN2nb4int_E">APyFloatArray::swapaxes (C++ function)</a>
+</li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray8to_numpyEv">APyFloatArray::to_numpy (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray9transposeENSt8optionalIN2nb5tupleEEE">APyFloatArray::transpose (C++ function)</a>
@@ -1158,6 +1162,8 @@
         <li><a href="cpp_api/ieee754.html#_CPPv413exp_of_doubled">exp_of_double (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_common.html#_CPPv45exp_t">exp_t (C++ type)</a>
+</li>
+        <li><a href="api/arrayfunctions.html#apytypes.expand_dims">expand_dims() (in module apytypes)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -1415,11 +1421,13 @@
           <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.man_bits">(apytypes.APyFloatArray property)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/ieee754.html#_CPPv413man_of_doubled">man_of_double (C++ function)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apytypes_common.html#_CPPv45man_t">man_t (C++ type)</a>
+</li>
+        <li><a href="api/arrayfunctions.html#apytypes.moveaxis">moveaxis() (in module apytypes)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E18multi_limb_reversev28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUTNSt6size_tE">multi_limb_reverse (C++ function)</a>
 </li>
@@ -1612,13 +1620,13 @@
         <ul>
           <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.ravel">(apytypes.APyFloatArray method)</a>
 </li>
+          <li><a href="api/arrayfunctions.html#apytypes.ravel">(in module apytypes)</a>
+</li>
         </ul></li>
         <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.reshape">reshape() (apytypes.APyFixedArray method)</a>
 
         <ul>
           <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.reshape">(apytypes.APyFloatArray method)</a>
-</li>
-          <li><a href="api/arrayfunctions.html#apytypes.reshape">(in module apytypes)</a>
 </li>
         </ul></li>
     </ul></td>
@@ -1741,6 +1749,8 @@
           <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.shape">(apytypes.APyFloatArray property)</a>
 </li>
         </ul></li>
+        <li><a href="api/arrayfunctions.html#apytypes.shape">shape() (in module apytypes)</a>
+</li>
         <li><a href="cpp_api/array_utils.html#_CPPv416shape_from_tupleN2nb5tupleE6size_t">shape_from_tuple (C++ function)</a>
 </li>
         <li><a href="api/apyfloat.html#apytypes.APyFloat.sign">sign (apytypes.APyFloat property)</a>
@@ -1751,10 +1761,10 @@
 </li>
         <li><a href="cpp_api/apytypes_simd.html#_CPPv44simd">simd (C++ type)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE11add_functor10vector_add">simd::CREATE_FUNCTOR_FROM_FUNC (C++ function)</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE11sub_functor10vector_sub">[1]</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE17add_const_functor16vector_add_const">[2]</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE17shift_add_functor16vector_shift_add">[3]</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE17shift_sub_functor16vector_shift_sub">[4]</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE17sub_const_functor16vector_sub_const">[5]</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE23shift_add_const_functor22vector_shift_add_const">[6]</a>, <a href="cpp_api/apytypes_simd.html#_CPPv4N4simd24CREATE_FUNCTOR_FROM_FUNCE23shift_sub_const_functor22vector_shift_sub_const">[7]</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd20get_simd_version_strEv">simd::get_simd_version_str (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_simd.html#_CPPv4N4simd10vector_addENSt6vectorI9mp_limb_tE14const_iteratorENSt6vectorI9mp_limb_tE14const_iteratorENSt6vectorI9mp_limb_tE8iteratorENSt6size_tE">simd::vector_add (C++ function)</a>
@@ -1861,6 +1871,14 @@
 </li>
         <li><a href="cpp_api/apytypes_scratch_vector.html#_CPPv4N14SVIteratorBase10value_typeE">SVIteratorBase::value_type (C++ type)</a>
 </li>
+        <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.swapaxes">swapaxes() (apytypes.APyFixedArray method)</a>
+
+        <ul>
+          <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.swapaxes">(apytypes.APyFloatArray method)</a>
+</li>
+          <li><a href="api/arrayfunctions.html#apytypes.swapaxes">(in module apytypes)</a>
+</li>
+        </ul></li>
     </ul></td>
   </tr></table>
 </section>

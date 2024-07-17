@@ -51,6 +51,8 @@
 
    .. automethod:: squeeze
 
+   .. automethod:: swapaxes
+
    Mathematical functions
    ----------------------
 
