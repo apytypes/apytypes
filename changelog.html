@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="Publications" href="publications.html" />
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
+    <!-- Generated with Sphinx 7.4.5 and Furo 2024.05.06 -->
         <title>Changelog - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=387cc868" />
@@ -315,7 +315,8 @@ and this project adheres to <a class="reference external" href="https://semver.o
 <li><p>Automatic broadcasting on array arithmetic</p></li>
 </ul>
 </li>
-<li><p>Support arithmetic between APyTypes classes and Python’s built-in floats and ints.</p></li>
+<li><p>Support arithmetic between APyTypes classes and Python’s built-in floats and
+ints.</p></li>
 <li><p>Support for automatic stub generation added.</p></li>
 <li><p>Docstrings are made compatible with
 <a class="reference external" href="https://docs.python.org/3/library/doctest.html">doctest</a>, which is
@@ -353,11 +354,14 @@ v2.0.0.</p></li>
 <ul class="simple">
 <li><p>Smaller fixes in quantization for floating-point scalar multiplication.</p></li>
 <li><p>Fix in floating-point <code class="docutils literal notranslate"><span class="pre">cast</span></code>-method when result became subnormal.</p></li>
-<li><p>Fix bug in <code class="docutils literal notranslate"><span class="pre">APyFixedArray.__truediv__()</span></code> where program crashes on long-limb zero
-denominators.</p></li>
+<li><p>Fix bug in <code class="docutils literal notranslate"><span class="pre">APyFixedArray.__truediv__()</span></code> where program crashes on long-limb
+zero denominators.</p></li>
 <li><p>Fix bug where single-dimensional tuple representations missed out on a comma.</p></li>
 <li><p>Fix bug in comparison between floating-point infinity and fixed-point numbers.</p></li>
 <li><p>Start uploading source distributions of APyTypes to PyPI on releases.</p></li>
+<li><p>Fixed bug where <code class="docutils literal notranslate"><span class="pre">APyFixedArray.from_array()</span></code> initialized the wrong stored
+value from floating-point values that are too small for its representation.
+(#487)</p></li>
 </ul>
 </section>
 <section id="removed">
