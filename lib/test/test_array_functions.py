@@ -7,6 +7,10 @@ from apytypes import (
     moveaxis,
     expand_dims,
     swapaxes,
+    eye,
+    identity,
+    zeros,
+    ones,
     APyFixedArray,
     APyFloatArray,
 )
@@ -132,3 +136,95 @@ def test_expanddims():
     b = _floatArrange(10).reshape((1, 2, 5))
     c = expand_dims(a, 0)
     assert c.is_identical(b), "expanddims failed for float array"
+
+
+@pytest.mark.parametrize(
+    "n, m, nums",
+    [
+        (1, 1, [1]),
+        (1, 2, [1, 0]),
+        (2, None, [1, 0, 0, 1]),
+        (2, 3, [1, 0, 0, 0, 1, 0]),
+        (4, None, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]),
+    ],
+)
+def test_eye_fixed(n, m, nums):
+    int_bits, frac_bits = 5, 5
+    a = eye(APyFixedArray, n=n, m=m, int_bits=int_bits, frac_bits=frac_bits)
+    m = n if m is None else m
+    b = APyFixedArray.from_float(nums, int_bits=int_bits, frac_bits=frac_bits).reshape(
+        (n, m)
+    )
+    if not a.is_identical(b):
+        pytest.fail(
+            f"eye on FixedArray didn't work when n={n}, m={m}. Expected result was {nums} but got \n {a}"
+        )
+
+    int_bits, frac_bits = 12314, 1832
+    a = eye(APyFixedArray, n=n, m=m, int_bits=int_bits, frac_bits=frac_bits)
+    b = APyFixedArray.from_float(nums, int_bits=int_bits, frac_bits=frac_bits).reshape(
+        (n, m)
+    )
+    if not a.is_identical(b):
+        pytest.fail(
+            f"eye on FixedArray didn't work when n={n}, m={m}. Expected result was {nums} but got \n {a}"
+        )
+
+
+@pytest.mark.parametrize(
+    "n, nums",
+    [
+        (1, [1]),
+        (2, [1, 0, 0, 1]),
+        (3, [1, 0, 0, 0, 1, 0, 0, 0, 1]),
+        (4, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]),
+        (
+            5,
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+        ),
+    ],
+)
+def test_identity_fixed(n, nums):
+    int_bits, frac_bits = 5, 5
+    a = identity(APyFixedArray, n=n, int_bits=int_bits, frac_bits=frac_bits)
+    b = APyFixedArray.from_float(nums, int_bits=int_bits, frac_bits=frac_bits).reshape(
+        (n, n)
+    )
+    if not a.is_identical(b):
+        pytest.fail(
+            f"identity on FixedArray didn't work when n={n}. Expected result was {nums} but got \n {a}"
+        )
+
+    int_bits, frac_bits = 38231, 1237
+    a = identity(APyFixedArray, n=n, int_bits=int_bits, frac_bits=frac_bits)
+    b = APyFixedArray.from_float(nums, int_bits=int_bits, frac_bits=frac_bits).reshape(
+        (n, n)
+    )
+    if not a.is_identical(b):
+        pytest.fail(
+            f"identity on FixedArray didn't work when n={n}. Expected result was {nums} but got \n {a}"
+        )
+
+
+@pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
+def test_zeros_fixed(shape):
+    int_bits, frac_bits = 5, 5
+    a = zeros(APyFixedArray, shape, int_bits=int_bits, frac_bits=frac_bits)
+    b = APyFixedArray.from_float(
+        [0] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
+    ).reshape(shape)
+    if not a.is_identical(b):
+        pytest.fail(f"zeros on FixedArray didn't work when shape={shape}.")
+
+
+@pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
+def test_ones_fixed(shape):
+    int_bits, frac_bits = 5, 5
+    a = ones(APyFixedArray, shape, int_bits=int_bits, frac_bits=frac_bits)
+    b = APyFixedArray.from_float(
+        [1] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
+    ).reshape(shape)
+    print(a)
+    print(b)
+    if not a.is_identical(b):
+        pytest.fail(f"ones on FixedArray didn't work when shape={shape}.")

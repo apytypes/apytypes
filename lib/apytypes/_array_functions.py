@@ -412,6 +412,132 @@ def expand_dims(a, axis):
 
 
 # =============================================================================
+# array creation
+# =============================================================================
+
+
+def zeros(
+    a_type, shape, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
+):
+    try:
+        zeros = a_type.zeros
+    except AttributeError:
+        raise TypeError(f"Cannot make zeros array of type {type(a_type)}")
+    if hasattr(a_type, "int_bits") and hasattr(a_type, "frac_bits"):
+        return zeros(shape=shape, int_bits=int_bits, frac_bits=frac_bits)
+
+    if hasattr(a_type, "exp_bits") and hasattr(a_type, "mantissa_bits"):
+        return None
+
+    else:
+        raise ValueError("Only 'fixed' and 'float' array_types are defined")
+
+
+def zeros_like(
+    a, a_type=None, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
+):
+    a_type = a if a_type is None else a_type
+    try:
+        zeros = a_type.zeros
+    except AttributeError:
+        raise TypeError(f"Cannot make zeros array of type {type(a_type)}")
+    if hasattr(a_type, "int_bits") and hasattr(a_type, "frac_bits"):
+        return zeros(shape=a.shape, int_bits=int_bits, frac_bits=frac_bits)
+
+    if hasattr(a_type, "exp_bits") and hasattr(a_type, "mantissa_bits"):
+        return None
+
+    else:
+        raise ValueError("Only 'fixed' and 'float' array_types are defined")
+
+
+def ones(
+    a_type, shape, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
+):
+    try:
+        ones = a_type.ones
+    except AttributeError:
+        raise TypeError(f"Cannot make ones array of type {type(a_type)}")
+    if hasattr(a_type, "int_bits") and hasattr(a_type, "frac_bits"):
+        return ones(shape=shape, int_bits=int_bits, frac_bits=frac_bits)
+
+    if hasattr(a_type, "exp_bits") and hasattr(a_type, "mantissa_bits"):
+        return None
+
+    else:
+        raise ValueError("Only 'fixed' and 'float' array_types are defined")
+
+
+def ones_like(
+    a, a_type=None, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
+):
+    a_type = a if a_type is None else a_type
+    try:
+        ones = a_type.ones
+    except AttributeError:
+        raise TypeError(f"Cannot make zeros array of type {type(a_type)}")
+    if hasattr(a_type, "int_bits") and hasattr(a_type, "frac_bits"):
+        return ones(shape=a.shape, int_bits=int_bits, frac_bits=frac_bits)
+
+    if hasattr(a_type, "exp_bits") and hasattr(a_type, "mantissa_bits"):
+        return None
+
+    else:
+        raise ValueError("Only 'fixed' and 'float' array_types are defined")
+
+
+def eye(
+    a_type, n, m=None, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
+):
+    try:
+        eye = a_type.eye
+    except AttributeError:
+        raise TypeError(f"Cannot make eye array of type {type(a_type)}")
+    if hasattr(a_type, "int_bits") and hasattr(a_type, "frac_bits"):
+        return eye(n=n, m=m, int_bits=int_bits, frac_bits=frac_bits)
+
+    if hasattr(a_type, "exp_bits") and hasattr(a_type, "mantissa_bits"):
+        return None
+
+    else:
+        raise ValueError("Only 'fixed' and 'float' array_types are defined")
+
+
+def identity(
+    a_type, n, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
+):
+    try:
+        identity = a_type.identity
+    except AttributeError:
+        raise TypeError(f"Cannot make identity array of type {type(a_type)}")
+
+    if hasattr(a_type, "int_bits") and hasattr(a_type, "frac_bits"):
+        return identity(n=n, int_bits=int_bits, frac_bits=frac_bits)
+
+    if hasattr(a_type, "exp_bits") and hasattr(a_type, "mantissa_bits"):
+        return None
+
+    else:
+        raise ValueError("Only 'fixed' and 'float' array_types are defined")
+
+
+def full(a_type, shape, fill_value):
+    try:
+        full = a_type.full
+    except AttributeError:
+        raise TypeError(f"Cannot make full array of type {type(a_type)}")
+
+    if hasattr(a_type, "int_bits") and hasattr(a_type, "frac_bits"):
+        return full(shape, fill_value)
+
+    if hasattr(a_type, "exp_bits") and hasattr(a_type, "mantissa_bits"):
+        return None
+
+    else:
+        raise ValueError("Only 'fixed' and 'float' array_types are defined")
+
+
+# =============================================================================
 # Helpers
 # =============================================================================
 

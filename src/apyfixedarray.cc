@@ -1,5 +1,4 @@
-// Python object access through Nanobind
-#include <nanobind/nanobind.h>
+#include "nanobind/nanobind.h"
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
 #include <variant>
@@ -1762,6 +1761,81 @@ APyFixedArray APyFixedArray::from_array(
     return result;
 }
 
+/* ****************************************************************************** *
+ *                       Static conversion from other types                       *
+ * ****************************************************************************** */
+APyFixedArray APyFixedArray::zeros(
+    const nb::tuple& shape,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits,
+    std::optional<int> bits
+)
+{
+    std::vector<std::size_t> new_shape = ::shape_from_tuple(shape);
+    APyFixedArray result(new_shape, int_bits, frac_bits, bits);
+    return result;
+}
+
+APyFixedArray APyFixedArray::ones(
+    const nb::tuple& shape,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits,
+    std::optional<int> bits
+)
+{
+    const int final_int_bits
+        = int_bits ? int_bits.value() : bits.value() - frac_bits.value();
+    const int final_bits = bits ? bits.value() : int_bits.value() + frac_bits.value();
+
+    APyFixed fixed_one = ::decimal_one(final_bits, final_int_bits);
+    return full(shape, fixed_one);
+}
+
+APyFixedArray APyFixedArray::eye(
+    const nb::int_& N,
+    std::optional<nb::int_> M,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits,
+    std::optional<int> bits
+)
+{
+    const int final_int_bits
+        = int_bits ? int_bits.value() : bits.value() - frac_bits.value();
+    const int final_bits = bits ? bits.value() : int_bits.value() + frac_bits.value();
+    APyFixed fixed_one = ::decimal_one(final_bits, final_int_bits);
+
+    // Use N for both dimensions if M is not provided
+    nb::tuple shape = M ? nb::make_tuple(N, M.value()) : nb::make_tuple(N, N);
+
+    return diagonal(shape, fixed_one);
+}
+
+APyFixedArray APyFixedArray::identity(
+    const nb::int_& N,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits,
+    std::optional<int> bits
+)
+{
+    return eye(N, std::nullopt, int_bits, frac_bits, bits);
+}
+
+APyFixedArray APyFixedArray::full(const nb::tuple& shape, const APyFixed& fill_value)
+{
+    std::vector<std::size_t> new_shape = ::shape_from_tuple(shape);
+    APyFixedArray result(new_shape, fill_value.bits(), fill_value.int_bits());
+
+    std::size_t num_elem = fold_shape(new_shape);
+    std::size_t itemsize = result._itemsize;
+
+    for (std::size_t index = 0; index < num_elem; ++index) {
+        std::copy_n(
+            fill_value._data.begin(), itemsize, result._data.begin() + index * itemsize
+        );
+    }
+    return result;
+}
+
 /* ********************************************************************************** *
  * *                            Private member functions                            * *
  * ********************************************************************************** */
@@ -2325,4 +2399,28 @@ void APyFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& nd
         "APyFixedArray::_set_values_from_ndarray(): "
         "unsupported `dtype` expecting integer/float"
     );
+}
+
+APyFixedArray
+APyFixedArray::diagonal(const nb::tuple& shape, const APyFixed& fill_value)
+{
+    std::vector<std::size_t> new_shape = ::shape_from_tuple(shape);
+    if (new_shape.size() > 2) {
+        throw nb::value_error(
+            "Creating higher dimensional diagonal arrays are not yet defined"
+        );
+    }
+    APyFixedArray result(new_shape, fill_value.bits(), fill_value.int_bits());
+    std::size_t itemsize = result._itemsize;
+
+    std::size_t min_dim = *std::min_element(new_shape.begin(), new_shape.end());
+    std::vector<std::size_t> strides = ::strides_from_shape(new_shape);
+
+    for (std::size_t i = 0; i < min_dim; ++i) {
+        std::size_t index = i * std::accumulate(strides.begin(), strides.end(), 0);
+        std::copy_n(
+            fill_value._data.begin(), itemsize, result._data.begin() + index * itemsize
+        );
+    }
+    return result;
 }

@@ -639,27 +639,7 @@ class APyFixedArray:
         :class:`APyFixedArray`
         """
 
-    def flatten(self) -> APyFixedArray:
-        """
-        Return a copy of the array collapsed into one dimension.
-
-
-        Examples
-        --------
-        >>> from apytypes import APyFixedArray
-        >>> arr = APyFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
-        >>> arr.to_numpy()
-        array([[ 1. ,  1.5],
-               [-2. , -1.5]])
-
-        >>> arr.flatten().to_numpy()
-        array([ 1. ,  1.5, -2. , -1.5])
-
-        Returns
-        -------
-        :class:`APyFixedArray`
-        """
-
+    @overload
     def ravel(self) -> APyFixedArray:
         """
         Return a copy of the array collapsed into one dimension. Same as flatten with
@@ -675,6 +655,50 @@ class APyFixedArray:
                [-2. , -1.5]])
 
         >>> arr.ravel().to_numpy()
+        array([ 1. ,  1.5, -2. , -1.5])
+
+        Returns
+        -------
+        :class:`APyFixedArray`
+        """
+
+    @overload
+    def ravel(self) -> APyFixedArray:
+        """
+        Return a copy of the array collapsed into one dimension. Same as flatten with
+        current memory-copy model.
+
+
+        Examples
+        --------
+        >>> from apytypes import APyFixedArray
+        >>> arr = APyFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
+        >>> arr.to_numpy()
+        array([[ 1. ,  1.5],
+               [-2. , -1.5]])
+
+        >>> arr.ravel().to_numpy()
+        array([ 1. ,  1.5, -2. , -1.5])
+
+        Returns
+        -------
+        :class:`APyFixedArray`
+        """
+
+    def flatten(self) -> APyFixedArray:
+        """
+        Return a copy of the array collapsed into one dimension.
+
+
+        Examples
+        --------
+        >>> from apytypes import APyFixedArray
+        >>> arr = APyFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
+        >>> arr.to_numpy()
+        array([[ 1. ,  1.5],
+               [-2. , -1.5]])
+
+        >>> arr.flatten().to_numpy()
         array([ 1. ,  1.5, -2. , -1.5])
 
         Returns
@@ -1328,6 +1352,101 @@ class APyFixedArray:
         Returns
         -------
         :class:`APyFixedArray`
+        """
+
+    @staticmethod
+    def zeros(
+        shape: tuple,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> APyFixedArray:
+        """
+        Initializes an array with zeros.
+
+        Parameters:
+            shape (tuple): Shape of the array.
+            int_bits (optional): Number of integer bits.
+            frac_bits (optional): Number of fractional bits.
+            bits (optional): Total number of bits.
+
+        Returns:
+            APyFixedArray: An array initialized with zeros.
+        """
+
+    @staticmethod
+    def ones(
+        shape: tuple,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> APyFixedArray:
+        """
+        Initializes an array with ones.
+
+        Parameters:
+            shape (tuple): Shape of the array.
+            int_bits (optional): Number of integer bits.
+            frac_bits (optional): Number of fractional bits.
+            bits (optional): Total number of bits.
+
+        Returns:
+            APyFixedArray: An array initialized with ones.
+        """
+
+    @staticmethod
+    def eye(
+        n: int,
+        m: int | None = None,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> APyFixedArray:
+        """
+        Initializes an array with the specified value on the diagonal.
+
+        Parameters:
+            n : number of rows.
+            m (optional) : number of columns.
+            int_bits (optional): Number of integer bits.
+            frac_bits (optional): Number of fractional bits.
+            bits (optional): Total number of bits.
+
+        Returns:
+            APyFixedArray: An array with the specified value on the diagonal.
+        """
+
+    @staticmethod
+    def identity(
+        n: int,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> APyFixedArray:
+        """
+        Initializes an identity matrix with decimal one on the diagonal.
+
+        Parameters:
+            n : Number of rows (and columns) in n x n output.
+            int_bits (optional): Number of integer bits.
+            frac_bits (optional): Number of fractional bits.
+            bits (optional): Total number of bits.
+
+        Returns:
+            APyFixedArray: An identity matrix with decimal one on the diagonal.
+        """
+
+    @staticmethod
+    def full(shape: tuple, fill_value: APyFixed) -> APyFixedArray:
+        """
+        Initializes an array with the specified value.
+
+        Parameters:
+            shape (tuple): Shape of the array.
+            fill_value (APyFixed): Value to fill the array.
+
+        Returns:
+            APyFixedArray: An array filled with the specified value.
         """
 
     def __lshift__(self, shift_amnt: int) -> APyFixedArray: ...

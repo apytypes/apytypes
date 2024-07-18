@@ -25,13 +25,20 @@ from ._apytypes import (
 from ._array_functions import (
     convolve as convolve,
     expand_dims as expand_dims,
+    eye as eye,
+    full as full,
+    identity as identity,
     moveaxis as moveaxis,
+    ones as ones,
+    ones_like as ones_like,
     ravel as ravel,
     reshape as reshape,
     shape as shape,
     squeeze as squeeze,
     swapaxes as swapaxes,
     transpose as transpose,
+    zeros as zeros,
+    zeros_like as zeros_like,
 )
 
 __all__: list = [
@@ -60,6 +67,13 @@ __all__: list = [
     "moveaxis",
     "swapaxes",
     "expand_dims",
+    "zeros",
+    "zeros_like",
+    "ones",
+    "ones_like",
+    "eye",
+    "identity",
+    "full",
 ]
 
 annotations: __future__._Feature = ...

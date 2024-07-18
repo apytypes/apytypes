@@ -61,3 +61,55 @@ def expand_dims(a: APyFloatArray, axis: int | Sequence[int]) -> APyFloatArray: .
 @overload
 def expand_dims(a: APyFixedArray, axis: int | Sequence[int]) -> APyFixedArray: ...
 def expand_dims(a: APyArray, axis: int | Sequence[int]) -> APyArray: ...
+@overload
+def eye(
+    a_type: APyArray,
+    shape: tuple[int, ...],
+    int_bits: int = None,
+    frac_bits: int = None,
+    exp_bits: int = None,
+    mantissa_bits: int = None,
+) -> APyArray: ...
+@overload
+def eye(
+    a_type: APyFloatArray,
+    shape: tuple[int, ...],
+    int_bits: int = None,
+    frac_bits: int = None,
+    exp_bits: int = None,
+    mantissa_bits: int = None,
+) -> APyFloatArray: ...
+def eye(
+    a_type: APyFixedArray,
+    shape: tuple[int, ...],
+    int_bits: int = None,
+    frac_bits: int = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyFixedArray: ...
+@overload
+def zeros(
+    a_type: APyArray,
+    shape: tuple[int, ...],
+    int_bits: int = None,
+    frac_bits: int = None,
+    exp_bits: int = None,
+    mantissa_bits: int = None,
+) -> APyArray: ...
+@overload
+def zeros(
+    a_type: APyFloatArray,
+    shape: tuple[int, ...],
+    int_bits: int = None,
+    frac_bits: int = None,
+    exp_bits: int = None,
+    mantissa_bits: int = None,
+) -> APyFloatArray: ...
+def zeros(
+    a_type: APyFixedArray,
+    shape: tuple[int, ...],
+    int_bits: int = None,
+    frac_bits: int = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyFixedArray: ...
