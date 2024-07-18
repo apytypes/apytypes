@@ -1071,7 +1071,7 @@ class APyFixedArray:
 
     def prod(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Return the product of the elements along specified axis/axes.
+        Returns the product of the elements along specified axis/axes.
 
         Parameters
         ----------
