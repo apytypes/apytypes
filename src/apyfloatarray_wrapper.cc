@@ -1027,6 +1027,11 @@ void bind_float_array(nb::module_& m)
             -------
             :class:`APyFloatArray` or :class:`APyFloat`
 
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for the array.
+
             Examples
             -------
 
@@ -1070,6 +1075,11 @@ void bind_float_array(nb::module_& m)
             -------
             :class:`APyFloatArray` or :class:`APyFloat`
 
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for the array.
+
             Examples
             -------
 
@@ -1093,6 +1103,57 @@ void bind_float_array(nb::module_& m)
             APyFloatArray([0, 0], [511, 513], [0, 0], shape=(2,), exp_bits=10, man_bits=10, bias=511)
 
             -------
+            )pbdoc"
+        )
+
+        .def(
+            "nanmax",
+            &APyFloatArray::nanmax,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Returns the maximum value from an array or the maximum along an axis. Ignoring nan.
+            Issues a warning when encountering an all-nan slice or axis.
+
+            Parameters
+            ----------
+            axis : tuple or int, optional
+                The axis to get the maximum along.
+
+            Returns
+            -------
+            :class:`APyFloatArray` or :class:`APyFloat`
+
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for the array.
+
+            )pbdoc"
+        )
+
+        .def(
+            "nanmin",
+            &APyFloatArray::nanmin,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Returns the minimum value from an array or the minimum along an axis. Ignoring nan.
+            Issues a warning when encountering an all-nan slice or axis.
+
+            Parameters
+            ----------
+            axis : tuple or int, optional
+                The axis to get the minimum along.
+
+            Returns
+            -------
+            :class:`APyFloatArray` or :class:`APyFloat`
+
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for the array.
+
+
             )pbdoc"
         )
 

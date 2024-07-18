@@ -1506,6 +1506,70 @@ APyFloatArray::min(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
     return max_min_helper_function(comp_func, axis);
 }
 
+std::variant<APyFloatArray, APyFloat>
+APyFloatArray::nanmax(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    auto comp_func = [](APyFloat& lhs, APyFloat& rhs) {
+        if (lhs.is_nan()) {
+            return false;
+        } else if (rhs.is_nan()) {
+            return true;
+        }
+        return lhs > rhs;
+    };
+
+    auto res = max_min_helper_function(comp_func, axis);
+
+    if (std::holds_alternative<APyFloatArray>(res)) {
+        APyFloatArray temp_arr = std::get<APyFloatArray>(res);
+        APyFloat temp(exp_bits, man_bits, bias);
+        for (auto elem : temp_arr.data) {
+            temp.set_data(elem);
+            if (temp.is_nan()) {
+                std::cerr << "RuntimeWarning: All-NaN encountered" << std::endl;
+            }
+        }
+    } else {
+        APyFloat temp = std::get<APyFloat>(res);
+        if (temp.is_nan()) {
+            std::cerr << "RuntimeWarning: All-NaN encountered" << std::endl;
+        }
+    }
+    return res;
+}
+
+std::variant<APyFloatArray, APyFloat>
+APyFloatArray::nanmin(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    auto comp_func = [](APyFloat& lhs, APyFloat& rhs) {
+        if (lhs.is_nan()) {
+            return false;
+        } else if (rhs.is_nan()) {
+            return true;
+        }
+        return lhs < rhs;
+    };
+
+    auto res = max_min_helper_function(comp_func, axis);
+
+    if (std::holds_alternative<APyFloatArray>(res)) {
+        APyFloatArray temp_arr = std::get<APyFloatArray>(res);
+        APyFloat temp(exp_bits, man_bits, bias);
+        for (auto elem : temp_arr.data) {
+            temp.set_data(elem);
+            if (temp.is_nan()) {
+                std::cerr << "RuntimeWarning: All-NaN encountered" << std::endl;
+            }
+        }
+    } else {
+        APyFloat temp = std::get<APyFloat>(res);
+        if (temp.is_nan()) {
+            std::cerr << "RuntimeWarning: All-NaN encountered" << std::endl;
+        }
+    }
+    return res;
+}
+
 // Return the maximum of an array or the maximum along an axis.
 std::variant<APyFloatArray, APyFloat> APyFloatArray::max_min_helper_function(
     bool (*comp_func)(APyFloat&, APyFloat&),

@@ -719,6 +719,11 @@ void bind_fixed_array(nb::module_& m)
             -------
             :class:`APyFixedArray` or :class:`APyFixed`
 
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for the array.
+
             Examples
             -------
 
@@ -762,6 +767,11 @@ void bind_fixed_array(nb::module_& m)
             -------
             :class:`APyFixedArray` or :class:`APyFixed`
 
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for the array.
+
             Examples
             -------
 
@@ -785,6 +795,54 @@ void bind_fixed_array(nb::module_& m)
             APyFixedArray([1, 4], shape=(2,), bits=10, int_bits=10)
 
             -------
+            )pbdoc"
+        )
+
+        .def(
+            "nanmax",
+            &APyFixedArray::nanmax,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Returns the maximum value from an array or the maximum along an axis. Ignoring nan.
+            Issues a warning when encountering an all-nan slice or axis.
+
+            Parameters
+            ----------
+            axis : tuple or int, optional
+                The axis to get the maximum along.
+
+            Returns
+            -------
+            :class:`APyFixedArray` or :class:`APyFixed`
+
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for the array.
+            )pbdoc"
+        )
+
+        .def(
+            "nanmin",
+            &APyFixedArray::nanmin,
+            nb::arg("axis") = nb::none(),
+            R"pbdoc(
+            Returns the minimum value from an array or the minimum along an axis. Ignoring nan.
+            Issues a warning when encountering an all-nan slice or axis.
+
+            Parameters
+            ----------
+            axis : tuple or int, optional
+                The axis to get the minimum along.
+
+            Returns
+            -------
+            :class:`APyFixedArray` or :class:`APyFixed`
+
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for the array.
             )pbdoc"
         )
 

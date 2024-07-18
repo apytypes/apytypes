@@ -154,6 +154,14 @@ public:
     std::variant<APyFloatArray, APyFloat>
     min(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
 
+    //! Return the maximum of an array or the maximum along an axis. Ignoring nan
+    std::variant<APyFloatArray, APyFloat>
+    nanmax(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+
+    //! Return the minimum of an array or the minimum along an axis. Ignoring nan
+    std::variant<APyFloatArray, APyFloat>
+    nanmin(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+
     //! Python-exposed `broadcast_to`
     APyFloatArray broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
     ) const;

@@ -985,11 +985,12 @@ def test_nancumprod():
     )
 
 
-def test_max():
+@pytest.mark.parametrize("max_func", ["max", "nanmax"])
+def test_max(max_func):
     a = APyFloatArray.from_float([[0, 1], [2, 3]], exp_bits=10, man_bits=10)
-    b = a.max()
-    c = a.max(0)
-    d = a.max(1)
+    b = getattr(a, max_func)()
+    c = getattr(a, max_func)(0)
+    d = getattr(a, max_func)(1)
     assert b.is_identical(APyFloat.from_float(3, exp_bits=10, man_bits=10))
     assert c.is_identical(APyFloatArray.from_float([2, 3], exp_bits=10, man_bits=10))
     assert d.is_identical(APyFloatArray.from_float([1, 3], exp_bits=10, man_bits=10))
@@ -1001,11 +1002,11 @@ def test_max():
         exp_bits=10,
         man_bits=10,
     )
-    f = e.max(1)
-    g = e.max((0, 1))
-    h = e.max((1, 3))
-    i = e.max()
-    k = e.max((0, 1, 2, 3))
+    f = getattr(e, max_func)(1)
+    g = getattr(e, max_func)((0, 1))
+    h = getattr(e, max_func)((1, 3))
+    i = getattr(e, max_func)()
+    k = getattr(e, max_func)((0, 1, 2, 3))
     assert f.is_identical(
         APyFloatArray.from_float(
             [[[4, 5], [6, 7]], [[12, 13], [14, 15]]], exp_bits=10, man_bits=10
@@ -1019,33 +1020,44 @@ def test_max():
     )
     assert i.is_identical(APyFloat.from_float(15, exp_bits=10, man_bits=10))
     assert k.is_identical(i)
+    with pytest.raises(
+        IndexError,
+        match="specified axis outside number of dimensions in the APyFloatArray",
+    ):
+        _ = getattr(e, max_func)(4)
 
+
+@pytest.mark.parametrize("max_func", ["max", "nanmax"])
+def test_max_negative(max_func):
     # test negative numbers
     z = APyFloatArray.from_float([[0, -1], [-2, -3]], exp_bits=10, man_bits=10)
-    m = z.max()
-    n = z.max(0)
-    o = z.max(1)
+    m = getattr(z, max_func)()
+    n = getattr(z, max_func)(0)
+    o = getattr(z, max_func)(1)
     assert m.is_identical(APyFloat.from_float(0, exp_bits=10, man_bits=10))
     assert n.is_identical(APyFloatArray.from_float([0, -1], exp_bits=10, man_bits=10))
     assert o.is_identical(APyFloatArray.from_float([0, -2], exp_bits=10, man_bits=10))
+
+
+@pytest.mark.parametrize("max_func", ["max", "nanmax"])
+def test_max_mixed(max_func):
     # test a mix of negative and positive numbers
     p = APyFloatArray.from_float([[4, -1], [-2, -3]], exp_bits=10, man_bits=10)
-    q = p.max()
+    q = getattr(p, max_func)()
     assert q.is_identical(APyFloat.from_float(4, exp_bits=10, man_bits=10))
+
+
+@pytest.mark.parametrize("max_func", ["max", "nanmax"])
+def test_max_float(max_func):
     # test float numbers
     r = APyFloatArray.from_float([1.0, 1.25, 2.875], exp_bits=10, man_bits=10)
-    s = r.max()
+    s = getattr(r, max_func)()
     assert s.is_identical(APyFloat.from_float(2.875, exp_bits=10, man_bits=10))
     with pytest.raises(
         IndexError,
         match="specified axis outside number of dimensions in the APyFloatArray",
     ):
-        _ = r.max(4)
-    with pytest.raises(
-        IndexError,
-        match="specified axis outside number of dimensions in the APyFloatArray",
-    ):
-        _ = e.max(4)
+        _ = getattr(r, max_func)(4)
 
 
 def test_max_nan():
@@ -1062,11 +1074,29 @@ def test_max_nan():
     )
 
 
-def test_min():
+def test_nanmax_nan():
+    nan = float("nan")
+    a = APyFloatArray.from_float([0, 1, 2, 3, nan], exp_bits=10, man_bits=10)
+    b = a.nanmax()
+    assert b.is_identical(APyFloat.from_float(3, exp_bits=10, man_bits=10))
+    a = APyFloatArray.from_float(
+        [[0, 1, 2, 3, nan], [nan, nan, nan, nan, 0]], exp_bits=10, man_bits=10
+    )
+    b = a.nanmax(0)
+    assert b.is_identical(
+        APyFloatArray.from_float([0, 1, 2, 3, 0], exp_bits=10, man_bits=10)
+    )
+    a = APyFloatArray.from_float([nan, nan], exp_bits=10, man_bits=10)
+    b = a.nanmax(0)
+    assert b.is_identical(APyFloat.from_float(nan, exp_bits=10, man_bits=10))
+
+
+@pytest.mark.parametrize("min_func", ["min", "nanmin"])
+def test_min(min_func):
     a = APyFloatArray.from_float([[0, 1], [2, 3]], exp_bits=10, man_bits=10)
-    b = a.min()
-    c = a.min(0)
-    d = a.min(1)
+    b = getattr(a, min_func)()
+    c = getattr(a, min_func)(0)
+    d = getattr(a, min_func)(1)
     assert b.is_identical(APyFloat.from_float(0, exp_bits=10, man_bits=10))
     assert c.is_identical(APyFloatArray.from_float([0, 1], exp_bits=10, man_bits=10))
     assert d.is_identical(APyFloatArray.from_float([0, 2], exp_bits=10, man_bits=10))
@@ -1078,11 +1108,11 @@ def test_min():
         exp_bits=10,
         man_bits=10,
     )
-    f = e.min(1)
-    g = e.min((0, 1))
-    h = e.min((1, 3))
-    i = e.min()
-    k = e.min((0, 1, 2, 3))
+    f = getattr(e, min_func)(1)
+    g = getattr(e, min_func)((0, 1))
+    h = getattr(e, min_func)((1, 3))
+    i = getattr(e, min_func)()
+    k = getattr(e, min_func)((0, 1, 2, 3))
     assert f.is_identical(
         APyFloatArray.from_float(
             [[[0, 1], [2, 3]], [[8, 9], [10, 11]]], exp_bits=10, man_bits=10
@@ -1096,33 +1126,44 @@ def test_min():
     )
     assert i.is_identical(APyFloat.from_float(0, exp_bits=10, man_bits=10))
     assert k.is_identical(i)
+    with pytest.raises(
+        IndexError,
+        match="specified axis outside number of dimensions in the APyFloatArray",
+    ):
+        _ = getattr(e, min_func)(4)
 
+
+@pytest.mark.parametrize("min_func", ["min", "nanmin"])
+def test_min_negative(min_func):
     # test negative numbers
     z = APyFloatArray.from_float([[0, -1], [-2, -3]], exp_bits=10, man_bits=10)
-    m = z.min()
-    n = z.min(0)
-    o = z.min(1)
+    m = getattr(z, min_func)()
+    n = getattr(z, min_func)(0)
+    o = getattr(z, min_func)(1)
     assert m.is_identical(APyFloat.from_float(-3, exp_bits=10, man_bits=10))
     assert n.is_identical(APyFloatArray.from_float([-2, -3], exp_bits=10, man_bits=10))
     assert o.is_identical(APyFloatArray.from_float([-1, -3], exp_bits=10, man_bits=10))
+
+
+@pytest.mark.parametrize("min_func", ["min", "nanmin"])
+def test_min_mixed_signs(min_func):
     # test a mix of negative and positive numbers
     p = APyFloatArray.from_float([[4, -1], [-2, -3]], exp_bits=10, man_bits=10)
-    q = p.min()
+    q = getattr(p, min_func)()
     assert q.is_identical(APyFloat.from_float(-3, exp_bits=10, man_bits=10))
+
+
+@pytest.mark.parametrize("min_func", ["min", "nanmin"])
+def test_min_float(min_func):
     # test float numbers
     r = APyFloatArray.from_float([1.0, 1.25, 2.875], exp_bits=10, man_bits=10)
-    s = r.min()
+    s = getattr(r, min_func)()
     assert s.is_identical(APyFloat.from_float(1.0, exp_bits=10, man_bits=10))
     with pytest.raises(
         IndexError,
         match="specified axis outside number of dimensions in the APyFloatArray",
     ):
-        _ = r.min(4)
-    with pytest.raises(
-        IndexError,
-        match="specified axis outside number of dimensions in the APyFloatArray",
-    ):
-        _ = e.min(4)
+        _ = getattr(r, min_func)(4)
 
 
 def test_min_nan():
@@ -1137,6 +1178,23 @@ def test_min_nan():
     assert b.is_identical(
         APyFloatArray.from_float([nan, nan, nan, nan, nan], exp_bits=10, man_bits=10)
     )
+
+
+def test_nanmin_nan():
+    nan = float("nan")
+    a = APyFloatArray.from_float([0, 1, 2, 3, nan], exp_bits=10, man_bits=10)
+    b = a.nanmin()
+    assert b.is_identical(APyFloat.from_float(0, exp_bits=10, man_bits=10))
+    a = APyFloatArray.from_float(
+        [[0, 1, 2, 3, nan], [nan, nan, nan, nan, 0]], exp_bits=10, man_bits=10
+    )
+    b = a.nanmin(0)
+    assert b.is_identical(
+        APyFloatArray.from_float([0, 1, 2, 3, 0], exp_bits=10, man_bits=10)
+    )
+    a = APyFloatArray.from_float([nan, nan], exp_bits=10, man_bits=10)
+    b = a.nanmin(0)
+    assert b.is_identical(APyFloat.from_float(nan, exp_bits=10, man_bits=10))
 
 
 def test_convenience_cast():
@@ -1404,3 +1462,9 @@ def test_swapaxes():
 
     if not a.swapaxes(0, 2).shape == (2, 3, 4):
         pytest.fail("swapaxes didn't correctly swap axis")
+
+
+if __name__ == "__main__":
+    nan = float("nan")
+    a = APyFloatArray.from_float([nan], exp_bits=10, man_bits=10)
+    print(a.nanmax())

@@ -223,6 +223,14 @@ public:
     std::variant<APyFixedArray, APyFixed>
     min(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
 
+    //! Return the maximum of an array or the maximum along an axis. Ignoring nan.
+    std::variant<APyFixedArray, APyFixed>
+    nanmax(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+
+    //! Return the minimum of an array or the minimum along an axis. Ignoring nan.
+    std::variant<APyFixedArray, APyFixed>
+    nanmin(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+
     //! Python `__repr__()` function
     std::string repr() const;
 

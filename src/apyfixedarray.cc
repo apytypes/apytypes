@@ -1355,6 +1355,18 @@ APyFixedArray::min(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
     return max_min_helper_function(comp_func, axis);
 }
 
+std::variant<APyFixedArray, APyFixed>
+APyFixedArray::nanmax(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    return max(axis);
+}
+
+std::variant<APyFixedArray, APyFixed>
+APyFixedArray::nanmin(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    return min(axis);
+}
+
 // Return the maximum of an array or the maximum along an axis.
 std::variant<APyFixedArray, APyFixed> APyFixedArray::max_min_helper_function(
     bool (*comp_func)(APyFixed&, APyFixed&),
