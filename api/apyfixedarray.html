@@ -5,16 +5,16 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="APyFloat" href="apyfloat.html" /><link rel="prev" title="APyFixed" href="apyfixed.html" />
 
-    <!-- Generated with Sphinx 7.4.5 and Furo 2024.05.06 -->
+    <!-- Generated with Sphinx 7.4.5 and Furo 2024.07.18 -->
         <title>APyFixedArray - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=387cc868" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
     
     
 
@@ -93,19 +93,6 @@
       <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
     </svg>
   </symbol>
-  <symbol id="svg-sun-half" viewBox="0 0 24 24">
-    <title>Auto light/dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M13 12h5" />
-      <path d="M13 15h4" />
-      <path d="M13 18h1" />
-      <path d="M13 9h4" />
-      <path d="M13 6h1" />
-    </svg>
-  </symbol>
   <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
     <title>Auto light/dark, in light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -146,7 +133,7 @@
       <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
       <path d="M13.5 6.5l4 4" />
       <path d="M20 21l2 -2l-2 -2" />
-      <path d="M17 17l-2 2l2 2" /
+      <path d="M17 17l-2 2l2 2" />
     </svg>
   </symbol>
   <symbol id="svg-eye" viewBox="0 0 24 24">
@@ -350,11 +337,23 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.is_identical" title="apytypes.APyFixedArray.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
 <td><p>Test if two <a class="reference internal" href="#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> objects are identical.</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">max</span></code></p></td>
+<td><p>Returns the maximum value from an array or the maximum along an axis</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">min</span></code></p></td>
+<td><p>Returns the minimum value from an array or the minimum along an axis</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.nancumprod" title="apytypes.APyFixedArray.nancumprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nancumprod</span></code></a></p></td>
 <td><p>Return the cumulative product of the elements along a given axis treating Not a Number as 0.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.nancumsum" title="apytypes.APyFixedArray.nancumsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nancumsum</span></code></a></p></td>
 <td><p>Return the cumulative sum of the elements along a given axis treating Not a Number as 0.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanmax</span></code></p></td>
+<td><p>Returns the maximum value from an array or the maximum along an axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanmin</span></code></p></td>
+<td><p>Returns the minimum value from an array or the minimum along an axis.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.nanprod" title="apytypes.APyFixedArray.nanprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanprod</span></code></a></p></td>
 <td><p>Return the product of the elements along a given axis treating Not a Number as 0.</p></td>
@@ -363,7 +362,7 @@
 <td><p>Return the sum of the elements along specified axis/axes treating Not a Number as 0.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.prod" title="apytypes.APyFixedArray.prod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prod</span></code></a></p></td>
-<td><p>Return the product of the elements along specified axis/axes.</p></td>
+<td><p>Returns the product of the elements along specified axis/axes.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.ravel" title="apytypes.APyFixedArray.ravel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ravel</span></code></a></p></td>
 <td><p>Return a copy of the array collapsed into one dimension.</p></td>
@@ -885,7 +884,7 @@ current memory-copy model.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.prod">
 <span class="sig-name descname"><span class="pre">prod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="APyFixed"><span class="pre">APyFixed</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.prod" title="Link to this definition">¶</a></dt>
-<dd><p>Return the product of the elements along specified axis/axes.</p>
+<dd><p>Returns the product of the elements along specified axis/axes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -1345,7 +1344,7 @@ current memory-copy model.</p>
 </div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../_static/scripts/furo.js?v=4e2eecee"></script>
+    <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     </body>
