@@ -1053,7 +1053,7 @@ class APyFixedArray:
 
         >>> from apytypes import APyFixedArray
 
-        Array `a`, array to get the maximum along.
+        Array `a`, array to get the minimum along.
 
         >>> a = APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
 
@@ -2828,7 +2828,7 @@ class APyFloatArray:
 
         >>> from apytypes import APyFloatArray
 
-        Array `a`, array to get the maximum along.
+        Array `a`, array to get the minimum along.
 
         >>> a = APyFloatArray.from_float(
         ...     [[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10

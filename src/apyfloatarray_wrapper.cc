@@ -1035,7 +1035,7 @@ void bind_float_array(nb::module_& m)
             Array `a`, array to get the maximum along.
 
             >>> a = APyFloatArray.from_float(
-            ...     [[1,2,3],[4,5,6]],
+            ...     [[1, 2, 3], [4, 5, 6]],
             ...     exp_bits=10,
             ...     man_bits=10
             ... )
@@ -1075,10 +1075,10 @@ void bind_float_array(nb::module_& m)
 
             >>> from apytypes import APyFloatArray
 
-            Array `a`, array to get the maximum along.
+            Array `a`, array to get the minimum along.
 
             >>> a = APyFloatArray.from_float(
-            ...     [[1,2,3],[4,5,6]],
+            ...     [[1, 2, 3], [4, 5, 6]],
             ...     exp_bits=10,
             ...     man_bits=10
             ... )

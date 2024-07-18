@@ -1481,14 +1481,28 @@ APyFloatArray APyFloatArray::nancumprod(std::optional<nb::int_> axis) const
 std::variant<APyFloatArray, APyFloat>
 APyFloatArray::max(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
 {
-    auto comp_func = [](APyFloat& lhs, APyFloat& rhs) { return lhs > rhs; };
+    auto comp_func = [](APyFloat& lhs, APyFloat& rhs) {
+        if (lhs.is_nan()) {
+            return true;
+        } else if (rhs.is_nan()) {
+            return false;
+        }
+        return lhs > rhs;
+    };
     return max_min_helper_function(comp_func, axis);
 }
 
 std::variant<APyFloatArray, APyFloat>
 APyFloatArray::min(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
 {
-    auto comp_func = [](APyFloat& lhs, APyFloat& rhs) { return lhs < rhs; };
+    auto comp_func = [](APyFloat& lhs, APyFloat& rhs) {
+        if (lhs.is_nan()) {
+            return true;
+        } else if (rhs.is_nan()) {
+            return false;
+        }
+        return lhs < rhs;
+    };
     return max_min_helper_function(comp_func, axis);
 }
 
@@ -1520,8 +1534,8 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::max_min_helper_function(
         || axes_set.find(shape.size()) != axes_set.end()) {
         APyFloat res(exp_bits, man_bits);
         res.set_data(data.at(0));
+        APyFloat temp(exp_bits, man_bits);
         for (std::size_t i = 1; i < data.size(); i++) {
-            APyFloat temp(exp_bits, man_bits);
             temp.set_data(data.at(i));
             if (comp_func(temp, res)) {
                 res = temp;

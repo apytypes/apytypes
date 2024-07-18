@@ -767,7 +767,7 @@ void bind_fixed_array(nb::module_& m)
 
             >>> from apytypes import APyFixedArray
 
-            Array `a`, array to get the maximum along.
+            Array `a`, array to get the minimum along.
 
             >>> a = APyFixedArray(
             ...     [[1,2,3],[4,5,6]],

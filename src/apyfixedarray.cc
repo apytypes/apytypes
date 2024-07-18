@@ -1052,7 +1052,7 @@ APyFixedArray::sum(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
                        std::size_t frac_bits) {
         // calculate new position
         std::size_t pos_in_sec = i % (sec_length);
-        std::size_t sec_pos = (i - i % (elements * sec_length)) / (elements);
+        std::size_t sec_pos = (i - i % (elements * sec_length)) / elements;
         // Perform ripple-carry operation on the limbs
         auto pos = pos_in_sec + sec_pos;
         mpn_add_n_functor<> {}(
@@ -1383,8 +1383,8 @@ std::variant<APyFixedArray, APyFixed> APyFixedArray::max_min_helper_function(
         || axes_set.find(_shape.size()) != axes_set.end()) {
         APyFixed res(_bits, _int_bits);
         std::copy_n(_data.begin(), _itemsize, res._data.begin());
+        APyFixed temp(_bits, _int_bits);
         for (std::size_t i = _itemsize; i < _data.size(); i += _itemsize) {
-            APyFixed temp(_bits, _int_bits);
             std::copy_n(_data.begin() + i, _itemsize, temp._data.begin());
             if (comp_func(temp, res)) {
                 res = temp;
@@ -1401,7 +1401,7 @@ std::variant<APyFixedArray, APyFixed> APyFixedArray::max_min_helper_function(
     APyFixed lhs_scalar(_bits, _int_bits);
     APyFixed rhs_scalar(_bits, _int_bits);
 
-    // loop over the axes one at a time
+    // loop over one axis at a time
     for (std::size_t x = 0; x < _shape.size(); x++) {
         if (axes_set.find(x) == axes_set.end()) {
             res_shape.push_back(_shape[x]);

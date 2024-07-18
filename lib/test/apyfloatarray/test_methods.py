@@ -1020,7 +1020,7 @@ def test_max():
     assert i.is_identical(APyFloat.from_float(15, exp_bits=10, man_bits=10))
     assert k.is_identical(i)
 
-    """ test negative numbers  """
+    # test negative numbers
     z = APyFloatArray.from_float([[0, -1], [-2, -3]], exp_bits=10, man_bits=10)
     m = z.max()
     n = z.max(0)
@@ -1028,11 +1028,11 @@ def test_max():
     assert m.is_identical(APyFloat.from_float(0, exp_bits=10, man_bits=10))
     assert n.is_identical(APyFloatArray.from_float([0, -1], exp_bits=10, man_bits=10))
     assert o.is_identical(APyFloatArray.from_float([0, -2], exp_bits=10, man_bits=10))
-    """ teste mix of negativa and positive numbers and larger than 64 bit size """
+    # test a mix of negative and positive numbers
     p = APyFloatArray.from_float([[4, -1], [-2, -3]], exp_bits=10, man_bits=10)
     q = p.max()
     assert q.is_identical(APyFloat.from_float(4, exp_bits=10, man_bits=10))
-    """ test float numbers """
+    # test float numbers
     r = APyFloatArray.from_float([1.0, 1.25, 2.875], exp_bits=10, man_bits=10)
     s = r.max()
     assert s.is_identical(APyFloat.from_float(2.875, exp_bits=10, man_bits=10))
@@ -1046,6 +1046,20 @@ def test_max():
         match="specified axis outside number of dimensions in the APyFloatArray",
     ):
         _ = e.max(4)
+
+
+def test_max_nan():
+    nan = float("nan")
+    a = APyFloatArray.from_float([0, 1, 2, 3, nan], exp_bits=10, man_bits=10)
+    b = a.max()
+    assert b.is_identical(APyFloat.from_float(nan, exp_bits=10, man_bits=10))
+    a = APyFloatArray.from_float(
+        [[0, 1, 2, 3, nan], [nan, nan, nan, nan, 0]], exp_bits=10, man_bits=10
+    )
+    b = a.max(0)
+    assert b.is_identical(
+        APyFloatArray.from_float([nan, nan, nan, nan, nan], exp_bits=10, man_bits=10)
+    )
 
 
 def test_min():
@@ -1083,7 +1097,7 @@ def test_min():
     assert i.is_identical(APyFloat.from_float(0, exp_bits=10, man_bits=10))
     assert k.is_identical(i)
 
-    """ test negative numbers  """
+    # test negative numbers
     z = APyFloatArray.from_float([[0, -1], [-2, -3]], exp_bits=10, man_bits=10)
     m = z.min()
     n = z.min(0)
@@ -1091,11 +1105,11 @@ def test_min():
     assert m.is_identical(APyFloat.from_float(-3, exp_bits=10, man_bits=10))
     assert n.is_identical(APyFloatArray.from_float([-2, -3], exp_bits=10, man_bits=10))
     assert o.is_identical(APyFloatArray.from_float([-1, -3], exp_bits=10, man_bits=10))
-    """ teste mix of negativa and positive numbers and larger than 64 bit size """
+    # test a mix of negative and positive numbers
     p = APyFloatArray.from_float([[4, -1], [-2, -3]], exp_bits=10, man_bits=10)
     q = p.min()
     assert q.is_identical(APyFloat.from_float(-3, exp_bits=10, man_bits=10))
-    """ test float numbers """
+    # test float numbers
     r = APyFloatArray.from_float([1.0, 1.25, 2.875], exp_bits=10, man_bits=10)
     s = r.min()
     assert s.is_identical(APyFloat.from_float(1.0, exp_bits=10, man_bits=10))
@@ -1109,6 +1123,20 @@ def test_min():
         match="specified axis outside number of dimensions in the APyFloatArray",
     ):
         _ = e.min(4)
+
+
+def test_min_nan():
+    nan = float("nan")
+    a = APyFloatArray.from_float([0, 1, 2, 3, nan], exp_bits=10, man_bits=10)
+    b = a.min()
+    assert b.is_identical(APyFloat.from_float(nan, exp_bits=10, man_bits=10))
+    a = APyFloatArray.from_float(
+        [[0, 1, 2, 3, nan], [nan, nan, nan, nan, 0]], exp_bits=10, man_bits=10
+    )
+    b = a.min(0)
+    assert b.is_identical(
+        APyFloatArray.from_float([nan, nan, nan, nan, nan], exp_bits=10, man_bits=10)
+    )
 
 
 def test_convenience_cast():

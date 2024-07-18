@@ -146,11 +146,11 @@ public:
     //! Cumulative multiplication over one or more axes, treating Nan as 0
     APyFloatArray nancumprod(std::optional<nb::int_> axis = std::nullopt) const;
 
-    // Return the maximum of an array or the maximum along an axis.
+    //! Return the maximum of an array or the maximum along an axis.
     std::variant<APyFloatArray, APyFloat>
     max(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
 
-    // Return the minimum of an array or the minimum along an axis.
+    //! Return the minimum of an array or the minimum along an axis.
     std::variant<APyFloatArray, APyFloat>
     min(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
 
