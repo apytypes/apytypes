@@ -1,9 +1,9 @@
 // Python object access through Pybind
 #include "apyfloatarray_iterator.h"
+#include "apytypes_common.h"
 #include "apytypes_util.h"
 #include <cstddef>
 #include <iostream>
-#include "apytypes_common.h"
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
