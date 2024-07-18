@@ -146,6 +146,22 @@ public:
     //! Cumulative multiplication over one or more axes, treating Nan as 0
     APyFloatArray nancumprod(std::optional<nb::int_> axis = std::nullopt) const;
 
+    //! Return the maximum of an array or the maximum along an axis.
+    std::variant<APyFloatArray, APyFloat>
+    max(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+
+    //! Return the minimum of an array or the minimum along an axis.
+    std::variant<APyFloatArray, APyFloat>
+    min(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+
+    //! Return the maximum of an array or the maximum along an axis. Ignoring nan
+    std::variant<APyFloatArray, APyFloat>
+    nanmax(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+
+    //! Return the minimum of an array or the minimum along an axis. Ignoring nan
+    std::variant<APyFloatArray, APyFloat>
+    nanmin(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+
     //! Python-exposed `broadcast_to`
     APyFloatArray broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
     ) const;
@@ -332,6 +348,11 @@ private:
     APyFloatArray cumulative_prod_sum_function(
         void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFloatArray&, APyFloatArray&, APyFloat&, APyFloat&),
         std::optional<nb::int_> axis = std::nullopt
+    ) const;
+
+    std::variant<APyFloatArray, APyFloat> max_min_helper_function(
+        bool (*comp_func)(APyFloat&, APyFloat&),
+        std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt
     ) const;
 };
 

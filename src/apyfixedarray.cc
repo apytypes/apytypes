@@ -14,6 +14,7 @@ namespace nb = nanobind;
 #include <cstddef>   // std::size_t
 #include <cstdint>   // std::int16, std::int32, std::int64, etc...
 #include <ios>       // std::dec, std::hex
+#include <iostream>
 #include <optional>  // std::optional
 #include <set>       // std::set
 #include <sstream>   // std::stringstream
@@ -1040,7 +1041,7 @@ std::variant<APyFixedArray, APyFixed>
 APyFixedArray::sum(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
 {
     auto int_bit_increase = [](std::size_t elements, std::size_t bits) {
-        return int(std::ceil(std::log2(elements)));
+        return int(bit_width(elements - 1));
     };
     auto frac_bit_increase = [](std::size_t elements, std::size_t bits) { return 0; };
     auto pos_func = [](std::size_t i,
@@ -1051,8 +1052,7 @@ APyFixedArray::sum(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
                        std::size_t frac_bits) {
         // calculate new position
         std::size_t pos_in_sec = i % (sec_length);
-        std::size_t sec_pos
-            = (i - i % (elements * sec_length)) / (elements * sec_length);
+        std::size_t sec_pos = (i - i % (elements * sec_length)) / elements;
         // Perform ripple-carry operation on the limbs
         auto pos = pos_in_sec + sec_pos;
         mpn_add_n_functor<> {}(
@@ -1076,7 +1076,7 @@ APyFixedArray::nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis) con
 APyFixedArray APyFixedArray::cumsum(std::optional<nb::int_> axis) const
 {
     auto int_bit_increase = [](std::size_t elements, std::size_t bits) {
-        return int(std::ceil(std::log2(elements)));
+        return int(bit_width(elements - 1));
     };
     auto frac_bit_increase = [](std::size_t elements, std::size_t bits) { return 0; };
     auto pos_func = [](std::size_t i,
@@ -1125,7 +1125,7 @@ APyFixedArray::prod(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
                        APyFixedArray& dst,
                        std::size_t frac_bits) {
         // calculate new position
-        auto pos = i % stride + (i - i % (elems * stride)) / (elems * stride);
+        auto pos = i % stride + (i - i % (elems * stride)) / elems;
         // itemsizes of the different numbers
         std::size_t i_sz_1 = src._itemsize;
         std::size_t i_sz_2 = dst._itemsize;
@@ -1338,6 +1338,123 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
         dst += result._itemsize;
     }
 
+    return result;
+}
+
+std::variant<APyFixedArray, APyFixed>
+APyFixedArray::max(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    auto comp_func = [](APyFixed& lhs, APyFixed& rhs) { return lhs > rhs; };
+    return max_min_helper_function(comp_func, axis);
+}
+
+std::variant<APyFixedArray, APyFixed>
+APyFixedArray::min(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    auto comp_func = [](APyFixed& lhs, APyFixed& rhs) { return lhs < rhs; };
+    return max_min_helper_function(comp_func, axis);
+}
+
+std::variant<APyFixedArray, APyFixed>
+APyFixedArray::nanmax(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    return max(axis);
+}
+
+std::variant<APyFixedArray, APyFixed>
+APyFixedArray::nanmin(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
+{
+    return min(axis);
+}
+
+// Return the maximum of an array or the maximum along an axis.
+std::variant<APyFixedArray, APyFixed> APyFixedArray::max_min_helper_function(
+    bool (*comp_func)(APyFixed&, APyFixed&),
+    std::optional<std::variant<nb::tuple, nb::int_>> axis
+) const
+{
+    // determine the input axes
+    std::set<std::size_t> axes_set;
+    if (axis.has_value()) {
+        std::vector<std::size_t> axes_vector
+            = cpp_shape_from_python_shape_like(axis.value());
+        for (auto i : axes_vector) {
+            if (i >= _shape.size()) {
+                throw nb::index_error(
+                    "specified axis outside number of dimensions in the APyFixedArray"
+                );
+            }
+            axes_set.insert(i);
+        }
+    } else {
+        axes_set.insert(_shape.size());
+    }
+
+    // special case where the maximum or minimum from the whole array is wanted
+    if (axes_set.size() == _shape.size()
+        || axes_set.find(_shape.size()) != axes_set.end()) {
+        APyFixed res(_bits, _int_bits);
+        std::copy_n(_data.begin(), _itemsize, res._data.begin());
+        APyFixed temp(_bits, _int_bits);
+        for (std::size_t i = _itemsize; i < _data.size(); i += _itemsize) {
+            std::copy_n(_data.begin() + i, _itemsize, temp._data.begin());
+            if (comp_func(temp, res)) {
+                res = temp;
+            }
+        }
+        return res;
+    }
+
+    std::size_t elements = _nitems;
+    std::vector<std::size_t> res_shape;
+    std::vector<mp_limb_t> source_data = _data;
+    std::vector<mp_limb_t> temp_data(_data.size(), 0);
+    std::vector<std::size_t> strides = strides_from_shape(_shape);
+    APyFixed lhs_scalar(_bits, _int_bits);
+    APyFixed rhs_scalar(_bits, _int_bits);
+
+    // loop over one axis at a time
+    for (std::size_t x = 0; x < _shape.size(); x++) {
+        if (axes_set.find(x) == axes_set.end()) {
+            res_shape.push_back(_shape[x]);
+            continue;
+        }
+        // loop over an axis and get the maximum or minimum along it
+        for (std::size_t i = 0; i < elements; i++) {
+            std::size_t new_pos
+                = i % strides[x] + (i - i % (strides[x] * _shape[x])) / _shape[x];
+            if (i % (strides[x] * _shape[x]) < strides[x]) {
+                std::copy_n(
+                    source_data.begin() + i * _itemsize,
+                    _itemsize,
+                    temp_data.begin() + new_pos * _itemsize
+                );
+                continue;
+            }
+
+            std::copy_n(
+                source_data.begin() + i * _itemsize, _itemsize, lhs_scalar._data.begin()
+            );
+            std::copy_n(
+                temp_data.begin() + new_pos * _itemsize,
+                _itemsize,
+                rhs_scalar._data.begin()
+            );
+            if (comp_func(lhs_scalar, rhs_scalar)) {
+                std::copy_n(
+                    lhs_scalar._data.begin(),
+                    _itemsize,
+                    temp_data.begin() + new_pos * _itemsize
+                );
+            }
+        }
+
+        elements /= _shape[x];
+        source_data = temp_data;
+        temp_data.assign(elements, 0);
+    }
+    APyFixedArray result(res_shape, _bits, _int_bits);
+    std::copy_n(source_data.begin(), elements, result._data.begin());
     return result;
 }
 

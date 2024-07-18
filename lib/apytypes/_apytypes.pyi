@@ -1001,9 +1001,127 @@ class APyFixedArray:
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 
+    def max(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
+        """
+        Returns the maximum value from an array or the maximum along an axis
+
+        Parameters
+        ----------
+        axis : tuple or int, optional
+            The axis to get the maximum along.
+
+        Returns
+        -------
+        :class:`APyFixedArray` or :class:`APyFixed`
+
+        Raises
+        ------
+        :class:`IndexError`
+            If a specified axis is outside of the existing number of dimensions for the array.
+
+        Examples
+        -------
+
+        >>> from apytypes import APyFixedArray
+
+        Array `a`, array to get the maximum along.
+
+        >>> a = APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+
+        >>> a.max()
+        APyFixed(6, bits=10, int_bits=10)
+
+        >>> a.max(0)
+        APyFixedArray([4, 5, 6], shape=(3,), bits=10, int_bits=10)
+
+        >>> a.max(1)
+        APyFixedArray([3, 6], shape=(2,), bits=10, int_bits=10)
+
+        -------
+        """
+
+    def min(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
+        """
+        Returns the minimum value from an array or the minimum along an axis
+
+        Parameters
+        ----------
+        axis : tuple or int, optional
+            The axis to get the minimum along.
+
+        Returns
+        -------
+        :class:`APyFixedArray` or :class:`APyFixed`
+
+        Raises
+        ------
+        :class:`IndexError`
+            If a specified axis is outside of the existing number of dimensions for the array.
+
+        Examples
+        -------
+
+        >>> from apytypes import APyFixedArray
+
+        Array `a`, array to get the minimum along.
+
+        >>> a = APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+
+        >>> a.min()
+        APyFixed(1, bits=10, int_bits=10)
+
+        >>> a.min(0)
+        APyFixedArray([1, 2, 3], shape=(3,), bits=10, int_bits=10)
+
+        >>> a.min(1)
+        APyFixedArray([1, 4], shape=(2,), bits=10, int_bits=10)
+
+        -------
+        """
+
+    def nanmax(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
+        """
+        Returns the maximum value from an array or the maximum along an axis. Ignoring nan.
+        Issues a warning when encountering an all-nan slice or axis.
+
+        Parameters
+        ----------
+        axis : tuple or int, optional
+            The axis to get the maximum along.
+
+        Returns
+        -------
+        :class:`APyFixedArray` or :class:`APyFixed`
+
+        Raises
+        ------
+        :class:`IndexError`
+            If a specified axis is outside of the existing number of dimensions for the array.
+        """
+
+    def nanmin(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
+        """
+        Returns the minimum value from an array or the minimum along an axis. Ignoring nan.
+        Issues a warning when encountering an all-nan slice or axis.
+
+        Parameters
+        ----------
+        axis : tuple or int, optional
+            The axis to get the minimum along.
+
+        Returns
+        -------
+        :class:`APyFixedArray` or :class:`APyFixed`
+
+        Raises
+        ------
+        :class:`IndexError`
+            If a specified axis is outside of the existing number of dimensions for the array.
+        """
+
     def prod(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Return the product of the elements along specified axis/axes.
+        Returns the product of the elements along specified axis/axes.
 
         Parameters
         ----------
@@ -2699,6 +2817,128 @@ class APyFloatArray:
         Returns
         -------
         :class:`APyFloatArray`
+
+        Raises
+        ------
+        :class:`IndexError`
+            If a specified axis is outside of the existing number of dimensions for the array.
+        """
+
+    def max(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
+        """
+        Returns the maximum value from an array or the maximum along an axis
+
+        Parameters
+        ----------
+        axis : tuple or int, optional
+            The axis to get the maximum along.
+
+        Returns
+        -------
+        :class:`APyFloatArray` or :class:`APyFloat`
+
+        Raises
+        ------
+        :class:`IndexError`
+            If a specified axis is outside of the existing number of dimensions for the array.
+
+        Examples
+        -------
+
+        >>> from apytypes import APyFloatArray
+
+        Array `a`, array to get the maximum along.
+
+        >>> a = APyFloatArray.from_float(
+        ...     [[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10
+        ... )
+
+        >>> a.max()
+        APyFloat(sign=0, exp=513, man=512, exp_bits=10, man_bits=10)
+
+        >>> a.max(0)
+        APyFloatArray([0, 0, 0], [513, 513, 513], [0, 256, 512], shape=(3,), exp_bits=10, man_bits=10, bias=511)
+
+        >>> a.max(1)
+        APyFloatArray([0, 0], [512, 513], [512, 512], shape=(2,), exp_bits=10, man_bits=10, bias=511)
+
+        -------
+        """
+
+    def min(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
+        """
+        Returns the minimum value from an array or the minimum along an axis
+
+        Parameters
+        ----------
+        axis : tuple or int, optional
+            The axis to get the minimum along.
+
+        Returns
+        -------
+        :class:`APyFloatArray` or :class:`APyFloat`
+
+        Raises
+        ------
+        :class:`IndexError`
+            If a specified axis is outside of the existing number of dimensions for the array.
+
+        Examples
+        -------
+
+        >>> from apytypes import APyFloatArray
+
+        Array `a`, array to get the minimum along.
+
+        >>> a = APyFloatArray.from_float(
+        ...     [[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10
+        ... )
+
+        >>> a.min()
+        APyFloat(sign=0, exp=511, man=0, exp_bits=10, man_bits=10)
+
+        >>> a.min(0)
+        APyFloatArray([0, 0, 0], [511, 512, 512], [0, 0, 512], shape=(3,), exp_bits=10, man_bits=10, bias=511)
+
+        >>> a.min(1)
+        APyFloatArray([0, 0], [511, 513], [0, 0], shape=(2,), exp_bits=10, man_bits=10, bias=511)
+
+        -------
+        """
+
+    def nanmax(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
+        """
+        Returns the maximum value from an array or the maximum along an axis. Ignoring nan.
+        Issues a warning when encountering an all-nan slice or axis.
+
+        Parameters
+        ----------
+        axis : tuple or int, optional
+            The axis to get the maximum along.
+
+        Returns
+        -------
+        :class:`APyFloatArray` or :class:`APyFloat`
+
+        Raises
+        ------
+        :class:`IndexError`
+            If a specified axis is outside of the existing number of dimensions for the array.
+        """
+
+    def nanmin(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
+        """
+        Returns the minimum value from an array or the minimum along an axis. Ignoring nan.
+        Issues a warning when encountering an all-nan slice or axis.
+
+        Parameters
+        ----------
+        axis : tuple or int, optional
+            The axis to get the minimum along.
+
+        Returns
+        -------
+        :class:`APyFloatArray` or :class:`APyFloat`
 
         Raises
         ------
