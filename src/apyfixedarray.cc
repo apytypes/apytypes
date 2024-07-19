@@ -1762,8 +1762,9 @@ APyFixedArray APyFixedArray::from_array(
 }
 
 /* ****************************************************************************** *
- *                       Static conversion from other types                       *
+ *                    Static methods for creating arrays                          *
  * ****************************************************************************** */
+
 APyFixedArray APyFixedArray::zeros(
     const nb::tuple& shape,
     std::optional<int> int_bits,

@@ -416,9 +416,31 @@ def expand_dims(a, axis):
 # =============================================================================
 
 
-def zeros(
-    a_type, shape, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
-):
+def zeros(a_type, shape, int_bits=8, frac_bits=8, exp_bits=None, mantissa_bits=None):
+    """
+    Initializes an array with zeros.
+
+    Parameters
+    ----------
+    a_type : :class:`APyFloatArray` or :class:`APyFixedArray`
+        The type of array to initialize.
+    shape : tuple
+        Shape of the array.
+    int_bits : int, optional
+        Number of integer bits.
+    frac_bits : int, optional
+        Number of fractional bits.
+    exp_bits : int, optional
+        Number of exponential bits.
+    mantissa_bits : int, optional
+        Number of mantissa bits.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        The initialized array with zeros.
+    """
+
     try:
         zeros = a_type.zeros
     except AttributeError:
@@ -429,31 +451,76 @@ def zeros(
     if hasattr(a_type, "exp_bits") and hasattr(a_type, "mantissa_bits"):
         return None
 
-    else:
-        raise ValueError("Only 'fixed' and 'float' array_types are defined")
+    raise ValueError("Only 'fixed' and 'float' array_types are defined")
 
 
 def zeros_like(
     a, a_type=None, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
 ):
-    a_type = a if a_type is None else a_type
+    """
+    Return an array of zeros with the same shape and type as a given array.
+
+    Parameters
+    ----------
+    a : :class:`APyFloatArray` or :class:`APyFixedArray`
+        The shape and data-type of a define these same attributes of the returned array.
+    a_type : :class:`APyFloatArray` or :class:`APyFixedArray`, optional
+        The type of array to initialize.
+    int_bits : int, optional
+        Number of integer bits.
+    frac_bits : int, optional
+        Number of fractional bits.
+    exp_bits : int, optional
+        Number of exponential bits.
+    mantissa_bits : int, optional
+        Number of mantissa bits.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        The initialized array with zeros.
+    """
+    a_type = a_type or a
     try:
         zeros = a_type.zeros
     except AttributeError:
         raise TypeError(f"Cannot make zeros array of type {type(a_type)}")
+
     if hasattr(a_type, "int_bits") and hasattr(a_type, "frac_bits"):
+        int_bits = int_bits or a.int_bits
+        frac_bits = frac_bits or a.frac_bits
         return zeros(shape=a.shape, int_bits=int_bits, frac_bits=frac_bits)
 
     if hasattr(a_type, "exp_bits") and hasattr(a_type, "mantissa_bits"):
         return None
 
-    else:
-        raise ValueError("Only 'fixed' and 'float' array_types are defined")
+    raise ValueError("Only 'fixed' and 'float' array_types are defined")
 
 
-def ones(
-    a_type, shape, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
-):
+def ones(a_type, shape, int_bits=8, frac_bits=8, exp_bits=None, mantissa_bits=None):
+    """
+    Return an array of ones with the same shape and type as a given array.
+
+    Parameters
+    ----------
+    a_type : :class:`APyFloatArray` or :class:`APyFixedArray`, optional
+        The type of array to initialize.
+    shape : tuple
+        Shape of the array.
+    int_bits : int, optional
+        Number of integer bits.
+    frac_bits : int, optional
+        Number of fractional bits.
+    exp_bits : int, optional
+        Number of exponential bits.
+    mantissa_bits : int, optional
+        Number of mantissa bits.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        The array initialized filled with ones.
+    """
     try:
         ones = a_type.ones
     except AttributeError:
@@ -464,31 +531,77 @@ def ones(
     if hasattr(a_type, "exp_bits") and hasattr(a_type, "mantissa_bits"):
         return None
 
-    else:
-        raise ValueError("Only 'fixed' and 'float' array_types are defined")
+    raise ValueError("Only 'fixed' and 'float' array_types are defined")
 
 
 def ones_like(
     a, a_type=None, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
 ):
-    a_type = a if a_type is None else a_type
+    """
+    Return an array of zeros with the same shape and type as a given array.
+
+    Parameters
+    ----------
+    a_type : :class:`APyFloatArray` or :class:`APyFixedArray`, optional
+        The type of array to initialize.
+    shape : tuple
+        Shape of the array.
+    int_bits : int, optional
+        Number of integer bits.
+    frac_bits : int, optional
+        Number of fractional bits.
+    exp_bits : int, optional
+        Number of exponential bits.
+    mantissa_bits : int, optional
+        Number of mantissa bits.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        The array initialized filled with ones.
+    """
+    a_type = a_type or a
     try:
         ones = a_type.ones
     except AttributeError:
-        raise TypeError(f"Cannot make zeros array of type {type(a_type)}")
+        raise TypeError(f"Cannot make ones array of type {type(a_type)}")
     if hasattr(a_type, "int_bits") and hasattr(a_type, "frac_bits"):
+        int_bits = int_bits or a.int_bits
+        frac_bits = frac_bits or a.frac_bits
         return ones(shape=a.shape, int_bits=int_bits, frac_bits=frac_bits)
 
     if hasattr(a_type, "exp_bits") and hasattr(a_type, "mantissa_bits"):
         return None
 
-    else:
-        raise ValueError("Only 'fixed' and 'float' array_types are defined")
+    raise ValueError("Only 'fixed' and 'float' array_types are defined")
 
 
-def eye(
-    a_type, n, m=None, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
-):
+def eye(a_type, n, m=None, int_bits=8, frac_bits=8, exp_bits=None, mantissa_bits=None):
+    """
+    Return a 2-D array with ones on the diagonal and zeros elsewhere.
+
+    Parameters
+    ----------
+    a_type : :class:`APyFloatArray` or :class:`APyFixedArray`, optional
+        The type of array to initialize.
+    n : int
+        Number of rows in the output.
+    m : int, optional
+        Number of columns in the output. If None, defaults to N.
+    int_bits : int, optional
+        Number of integer bits.
+    frac_bits : int, optional
+        Number of fractional bits.
+    exp_bits : int, optional
+        Number of exponential bits.
+    mantissa_bits : int, optional
+        Number of mantissa bits.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        An array where all elements are equal to zero, except for the k-th diagonal, whose values are equal to one.
+    """
     try:
         eye = a_type.eye
     except AttributeError:
@@ -499,13 +612,35 @@ def eye(
     if hasattr(a_type, "exp_bits") and hasattr(a_type, "mantissa_bits"):
         return None
 
-    else:
-        raise ValueError("Only 'fixed' and 'float' array_types are defined")
+    raise ValueError("Only 'fixed' and 'float' array_types are defined")
 
 
-def identity(
-    a_type, n, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
-):
+def identity(a_type, n, int_bits=8, frac_bits=8, exp_bits=None, mantissa_bits=None):
+    """
+    Return the identity array.
+
+    The identity array is a square array with ones on the main diagonal.
+
+    Parameters
+    ----------
+    a_type : :class:`APyFloatArray` or :class:`APyFixedArray`, optional
+        The type of array to initialize.
+    n : int
+        Number of rows (and columns) in n x n output.
+    int_bits : int, optional
+        Number of integer bits.
+    frac_bits : int, optional
+        Number of fractional bits.
+    exp_bits : int, optional
+        Number of exponential bits.
+    mantissa_bits : int, optional
+        Number of mantissa bits.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        n x n array with its main diagonal set to one, and all other elements 0.
+    """
     try:
         identity = a_type.identity
     except AttributeError:
@@ -517,24 +652,118 @@ def identity(
     if hasattr(a_type, "exp_bits") and hasattr(a_type, "mantissa_bits"):
         return None
 
-    else:
-        raise ValueError("Only 'fixed' and 'float' array_types are defined")
+    raise ValueError("Only 'fixed' and 'float' array_types are defined")
 
 
-def full(a_type, shape, fill_value):
+def full(
+    a_type,
+    shape,
+    fill_value,
+    int_bits=None,
+    frac_bits=None,
+    exp_bits=None,
+    mantissa_bits=None,
+):
+    """
+    Return a new array of given shape and type, filled with fill_value.
+
+    Parameters
+    ----------
+    a_type : :class:`APyFloatArray` or :class:`APyFixedArray`, optional
+        The type of array to initialize.
+    shape : tuple
+        Shape of the array.
+    fill_value : :class:`APyFloat` or :class:`APyFixedArray` or int or float
+        Fill value.
+    int_bits : int, optional
+        Number of integer bits.
+    frac_bits : int, optional
+        Number of fractional bits.
+    exp_bits : int, optional
+        Number of exponential bits.
+    mantissa_bits : int, optional
+        Number of mantissa bits.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        Array of fill_value with the given shape and a_type.
+    """
     try:
         full = a_type.full
     except AttributeError:
         raise TypeError(f"Cannot make full array of type {type(a_type)}")
 
     if hasattr(a_type, "int_bits") and hasattr(a_type, "frac_bits"):
+        if isinstance(fill_value, (int, float)):
+            from apytypes import APyFixed
+
+            fill_value = APyFixed.from_float(
+                fill_value, int_bits=int_bits, frac_bits=frac_bits
+            )
+
         return full(shape, fill_value)
 
     if hasattr(a_type, "exp_bits") and hasattr(a_type, "mantissa_bits"):
         return None
 
-    else:
-        raise ValueError("Only 'fixed' and 'float' array_types are defined")
+    raise ValueError("Only 'fixed' and 'float' array_types are defined")
+
+
+def full_like(
+    a,
+    fill_value,
+    a_type=None,
+    int_bits=None,
+    frac_bits=None,
+    exp_bits=None,
+    mantissa_bits=None,
+):
+    """
+    Return a full array with the same shape and type as a given array.
+
+    Parameters
+    ----------
+    a : :class:`APyFloatArray` or :class:`APyFixedArray`, optional
+        The shape and array type of the returned array.
+    fill_value : :class:`APyFloat` or :class:`APyFixedArray` or int or float
+        Fill value.
+    int_bits : int, optional
+        Number of integer bits.
+    frac_bits : int, optional
+        Number of fractional bits.
+    exp_bits : int, optional
+        Number of exponential bits.
+    mantissa_bits : int, optional
+        Number of mantissa bits.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        Array of fill_value with the same shape and type as a.
+    """
+    a_type = a if a_type is None else a_type
+    try:
+        full = a_type.full
+    except AttributeError:
+        raise TypeError(f"Cannot make full array of type {type(a_type)}")
+
+    if hasattr(a_type, "int_bits") and hasattr(a_type, "frac_bits"):
+        int_bits = int_bits or a.int_bits
+        frac_bits = frac_bits or a.frac_bits
+        if isinstance(fill_value, (int, float)):
+            from apytypes import APyFixed
+
+            fill_value = APyFixed.from_float(
+                fill_value, int_bits=int_bits, frac_bits=frac_bits
+            )
+
+        return full(a.shape, fill_value)
+
+    if hasattr(a_type, "exp_bits") and hasattr(a_type, "mantissa_bits"):
+        return None
+
+    raise ValueError("Only 'fixed' and 'float' array_types are defined")
 
 
 # =============================================================================

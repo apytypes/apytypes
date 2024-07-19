@@ -35,6 +35,7 @@ from apytypes._array_functions import (
     eye,
     identity,
     full,
+    full_like,
 )
 
 from apytypes._version import version as __version__
@@ -72,6 +73,7 @@ __all__ = [
     "eye",
     "identity",
     "full",
+    "full_like",
 ]
 
 APyFloat.__doc__ = r"""

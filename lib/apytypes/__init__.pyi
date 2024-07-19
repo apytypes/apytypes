@@ -27,6 +27,7 @@ from ._array_functions import (
     expand_dims as expand_dims,
     eye as eye,
     full as full,
+    full_like as full_like,
     identity as identity,
     moveaxis as moveaxis,
     ones as ones,
@@ -74,6 +75,7 @@ __all__: list = [
     "eye",
     "identity",
     "full",
+    "full_like",
 ]
 
 annotations: __future__._Feature = ...

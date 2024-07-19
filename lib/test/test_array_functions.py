@@ -1,4 +1,5 @@
 from apytypes import (
+    APyFixed,
     squeeze,
     reshape,
     shape,
@@ -10,7 +11,11 @@ from apytypes import (
     eye,
     identity,
     zeros,
+    zeros_like,
     ones,
+    ones_like,
+    full,
+    full_like,
     APyFixedArray,
     APyFloatArray,
 )
@@ -218,13 +223,69 @@ def test_zeros_fixed(shape):
 
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
+def test_zeros_like_fixed(shape):
+    int_bits, frac_bits = 5, 5
+    b = APyFixedArray.from_float(
+        [0] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
+    ).reshape(shape)
+
+    a = zeros_like(b, int_bits=int_bits, frac_bits=frac_bits)
+    if not a.is_identical(b):
+        pytest.fail(f"zeros on FixedArray didn't work when shape={shape}.")
+
+
+@pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
 def test_ones_fixed(shape):
     int_bits, frac_bits = 5, 5
     a = ones(APyFixedArray, shape, int_bits=int_bits, frac_bits=frac_bits)
     b = APyFixedArray.from_float(
         [1] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
     ).reshape(shape)
-    print(a)
-    print(b)
+    if not a.is_identical(b):
+        pytest.fail(f"ones on FixedArray didn't work when shape={shape}.")
+
+
+@pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
+def test_ones_like_fixed(shape):
+    int_bits, frac_bits = 5, 5
+    b = APyFixedArray.from_float(
+        [1] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
+    ).reshape(shape)
+    a = ones_like(b, int_bits=int_bits, frac_bits=frac_bits)
+    if not a.is_identical(b):
+        pytest.fail(f"ones on FixedArray didn't work when shape={shape}.")
+
+
+@pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
+def test_full_fixed(shape):
+    int_bits, frac_bits = 5, 5
+    b = APyFixedArray.from_float(
+        [shape[0] + shape[1]] * (shape[0] * shape[1]),
+        int_bits=int_bits,
+        frac_bits=frac_bits,
+    ).reshape(shape)
+    num = APyFixed.from_float(
+        shape[0] + shape[1], int_bits=int_bits, frac_bits=frac_bits
+    )
+    a = full(APyFixedArray, shape, num, int_bits=int_bits, frac_bits=frac_bits)
+    if not a.is_identical(b):
+        pytest.fail(f"ones on FixedArray didn't work when shape={shape}.")
+
+
+@pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
+def test_full_like_fixed(shape):
+    int_bits, frac_bits = 5, 5
+    b = APyFixedArray.from_float(
+        [shape[0] + shape[1]] * (shape[0] * shape[1]),
+        int_bits=int_bits,
+        frac_bits=frac_bits,
+    ).reshape(shape)
+    num = APyFixed.from_float(
+        shape[0] + shape[1], int_bits=int_bits, frac_bits=frac_bits
+    )
+    a = full_like(b, num, int_bits=int_bits, frac_bits=frac_bits)
+    if not a.is_identical(b):
+        pytest.fail(f"ones on FixedArray didn't work when shape={shape}.")
+    a = full_like(b, shape[0] + shape[1], int_bits=int_bits, frac_bits=frac_bits)
     if not a.is_identical(b):
         pytest.fail(f"ones on FixedArray didn't work when shape={shape}.")

@@ -302,27 +302,6 @@ void bind_fixed_array(nb::module_& m)
         :class:`APyFixedArray`
              )pbdoc")
 
-        .def("ravel", &APyFixedArray::ravel, R"pbdoc(
-        Return a copy of the array collapsed into one dimension. Same as flatten with
-        current memory-copy model.
-
-
-        Examples
-        --------
-        >>> from apytypes import APyFixedArray
-        >>> arr = APyFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
-        >>> arr.to_numpy()
-        array([[ 1. ,  1.5],
-               [-2. , -1.5]])
-
-        >>> arr.ravel().to_numpy()
-        array([ 1. ,  1.5, -2. , -1.5])
-
-        Returns
-        -------
-        :class:`APyFixedArray`
-             )pbdoc")
-
         .def("flatten", &APyFixedArray::flatten, R"pbdoc(
         Return a copy of the array collapsed into one dimension.
 
