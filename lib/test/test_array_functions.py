@@ -1,5 +1,4 @@
 from apytypes import (
-    APyFixed,
     squeeze,
     reshape,
     shape,
@@ -16,6 +15,8 @@ from apytypes import (
     ones_like,
     full,
     full_like,
+    APyFloat,
+    APyFixed,
     APyFixedArray,
     APyFloatArray,
 )
@@ -153,27 +154,35 @@ def test_expanddims():
         (4, None, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]),
     ],
 )
-def test_eye_fixed(n, m, nums):
-    int_bits, frac_bits = 5, 5
-    a = eye(APyFixedArray, n=n, m=m, int_bits=int_bits, frac_bits=frac_bits)
-    m = n if m is None else m
-    b = APyFixedArray.from_float(nums, int_bits=int_bits, frac_bits=frac_bits).reshape(
-        (n, m)
-    )
-    if not a.is_identical(b):
-        pytest.fail(
-            f"eye on FixedArray didn't work when n={n}, m={m}. Expected result was {nums} but got \n {a}"
+def test_eye(n, m, nums):
+    def check_eye(int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None):
+        a = eye(
+            n=n,
+            m=m,
+            int_bits=int_bits,
+            frac_bits=frac_bits,
+            exp_bits=exp_bits,
+            mantissa_bits=mantissa_bits,
         )
+        if isinstance(a, APyFixedArray):
+            b = APyFixedArray.from_float(
+                nums, int_bits=int_bits, frac_bits=frac_bits
+            ).reshape((n, m if m is not None else n))
+        elif isinstance(a, APyFloatArray):
+            b = APyFloatArray.from_float(
+                nums, exp_bits=exp_bits, man_bits=mantissa_bits
+            ).reshape((n, m if m is not None else n))
+        assert a.is_identical(
+            b
+        ), f"eye on {type(a).__name__} didn't work when n={n}, m={m}. Expected result was {nums} but got \n {a}"
 
-    int_bits, frac_bits = 12314, 1832
-    a = eye(APyFixedArray, n=n, m=m, int_bits=int_bits, frac_bits=frac_bits)
-    b = APyFixedArray.from_float(nums, int_bits=int_bits, frac_bits=frac_bits).reshape(
-        (n, m)
-    )
-    if not a.is_identical(b):
-        pytest.fail(
-            f"eye on FixedArray didn't work when n={n}, m={m}. Expected result was {nums} but got \n {a}"
-        )
+    # Test cases for APyFixedArray
+    check_eye(int_bits=5, frac_bits=5)
+    check_eye(int_bits=12314, frac_bits=1832)
+
+    # Test cases for APyFloatArray
+    check_eye(exp_bits=13, mantissa_bits=28)
+    check_eye(exp_bits=16, mantissa_bits=5)
 
 
 @pytest.mark.parametrize(
@@ -189,103 +198,262 @@ def test_eye_fixed(n, m, nums):
         ),
     ],
 )
-def test_identity_fixed(n, nums):
-    int_bits, frac_bits = 5, 5
-    a = identity(APyFixedArray, n=n, int_bits=int_bits, frac_bits=frac_bits)
-    b = APyFixedArray.from_float(nums, int_bits=int_bits, frac_bits=frac_bits).reshape(
-        (n, n)
-    )
-    if not a.is_identical(b):
-        pytest.fail(
-            f"identity on FixedArray didn't work when n={n}. Expected result was {nums} but got \n {a}"
+def test_identity(n, nums):
+    def check_identity(
+        int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
+    ):
+        a = identity(
+            n=n,
+            int_bits=int_bits,
+            frac_bits=frac_bits,
+            exp_bits=exp_bits,
+            mantissa_bits=mantissa_bits,
         )
+        if isinstance(a, APyFixedArray):
+            b = APyFixedArray.from_float(
+                nums, int_bits=int_bits, frac_bits=frac_bits
+            ).reshape((n, n))
+        elif isinstance(a, APyFloatArray):
+            b = APyFloatArray.from_float(
+                nums, exp_bits=exp_bits, man_bits=mantissa_bits
+            ).reshape((n, n))
+        assert a.is_identical(
+            b
+        ), f"identity on {type(a).__name__} didn't work when n={n}. Expected result was {nums} but got \n {a}"
 
-    int_bits, frac_bits = 38231, 1237
-    a = identity(APyFixedArray, n=n, int_bits=int_bits, frac_bits=frac_bits)
-    b = APyFixedArray.from_float(nums, int_bits=int_bits, frac_bits=frac_bits).reshape(
-        (n, n)
-    )
-    if not a.is_identical(b):
-        pytest.fail(
-            f"identity on FixedArray didn't work when n={n}. Expected result was {nums} but got \n {a}"
+    # Test cases for APyFixedArray
+    check_identity(int_bits=5, frac_bits=5)
+    check_identity(int_bits=38231, frac_bits=1237)
+
+    # Test cases for APyFloatArray
+    check_identity(exp_bits=13, mantissa_bits=28)
+    check_identity(exp_bits=16, mantissa_bits=5)
+
+
+@pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
+def test_zeros(shape):
+    def check_zeros(int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None):
+        a = zeros(
+            shape,
+            int_bits=int_bits,
+            frac_bits=frac_bits,
+            exp_bits=exp_bits,
+            mantissa_bits=mantissa_bits,
         )
+        if isinstance(a, APyFixedArray):
+            b = APyFixedArray.from_float(
+                [0] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
+            ).reshape(shape)
+        if isinstance(a, APyFloatArray):
+            b = APyFloatArray.from_float(
+                [0] * (shape[0] * shape[1]), exp_bits=exp_bits, man_bits=mantissa_bits
+            ).reshape(shape)
+        assert a.is_identical(
+            b
+        ), f"zeros on {a.__name__} didn't work when shape={shape}."
+
+    # Test cases for APyFixedArray
+    check_zeros(int_bits=5, frac_bits=5)
+    check_zeros(int_bits=12314, frac_bits=1832)
+
+    # Test cases for APyFloatArray
+    check_zeros(exp_bits=13, mantissa_bits=28)
+    check_zeros(exp_bits=16, mantissa_bits=5)
 
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
-def test_zeros_fixed(shape):
-    int_bits, frac_bits = 5, 5
-    a = zeros(APyFixedArray, shape, int_bits=int_bits, frac_bits=frac_bits)
-    b = APyFixedArray.from_float(
-        [0] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
-    ).reshape(shape)
-    if not a.is_identical(b):
-        pytest.fail(f"zeros on FixedArray didn't work when shape={shape}.")
+def test_zeros_like(shape):
+    def check_zeros_like(
+        ArrayType, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
+    ):
+        if ArrayType is APyFixedArray:
+            b = ArrayType.from_float(
+                [0] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
+            ).reshape(shape)
+            a = zeros_like(b, int_bits=int_bits, frac_bits=frac_bits)
+        elif ArrayType is APyFloatArray:
+            b = ArrayType.from_float(
+                [0] * (shape[0] * shape[1]), exp_bits=exp_bits, man_bits=mantissa_bits
+            ).reshape(shape)
+            a = zeros_like(b, exp_bits=exp_bits, mantissa_bits=mantissa_bits)
+        assert a.is_identical(
+            b
+        ), f"zeros_like on {ArrayType.__name__} didn't work when shape={shape}."
+
+    # Test cases for APyFixedArray
+    check_zeros_like(APyFixedArray, int_bits=5, frac_bits=5)
+    check_zeros_like(APyFixedArray, int_bits=12314, frac_bits=1832)
+
+    # Test cases for APyFloatArray
+    check_zeros_like(APyFloatArray, exp_bits=13, mantissa_bits=28)
+    check_zeros_like(APyFloatArray, exp_bits=16, mantissa_bits=5)
 
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
-def test_zeros_like_fixed(shape):
-    int_bits, frac_bits = 5, 5
-    b = APyFixedArray.from_float(
-        [0] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
-    ).reshape(shape)
+def test_ones(shape):
+    def check_ones(int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None):
+        a = ones(
+            shape,
+            int_bits=int_bits,
+            frac_bits=frac_bits,
+            exp_bits=exp_bits,
+            mantissa_bits=mantissa_bits,
+        )
+        if isinstance(a, APyFixedArray):
+            b = APyFixedArray.from_float(
+                [1] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
+            ).reshape(shape)
+        elif isinstance(a, APyFloatArray):
+            b = APyFloatArray.from_float(
+                [1] * (shape[0] * shape[1]), exp_bits=exp_bits, man_bits=mantissa_bits
+            ).reshape(shape)
+        assert a.is_identical(
+            b
+        ), f"ones on {type(a).__name__} didn't work when shape={shape}."
 
-    a = zeros_like(b, int_bits=int_bits, frac_bits=frac_bits)
-    if not a.is_identical(b):
-        pytest.fail(f"zeros on FixedArray didn't work when shape={shape}.")
+    # Test cases for APyFixedArray
+    check_ones(int_bits=5, frac_bits=5)
+    check_ones(int_bits=12314, frac_bits=1832)
 
-
-@pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
-def test_ones_fixed(shape):
-    int_bits, frac_bits = 5, 5
-    a = ones(APyFixedArray, shape, int_bits=int_bits, frac_bits=frac_bits)
-    b = APyFixedArray.from_float(
-        [1] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
-    ).reshape(shape)
-    if not a.is_identical(b):
-        pytest.fail(f"ones on FixedArray didn't work when shape={shape}.")
-
-
-@pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
-def test_ones_like_fixed(shape):
-    int_bits, frac_bits = 5, 5
-    b = APyFixedArray.from_float(
-        [1] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
-    ).reshape(shape)
-    a = ones_like(b, int_bits=int_bits, frac_bits=frac_bits)
-    if not a.is_identical(b):
-        pytest.fail(f"ones on FixedArray didn't work when shape={shape}.")
+    # Test cases for APyFloatArray
+    check_ones(exp_bits=13, mantissa_bits=28)
+    check_ones(exp_bits=16, mantissa_bits=5)
 
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
-def test_full_fixed(shape):
-    int_bits, frac_bits = 5, 5
-    b = APyFixedArray.from_float(
-        [shape[0] + shape[1]] * (shape[0] * shape[1]),
-        int_bits=int_bits,
-        frac_bits=frac_bits,
-    ).reshape(shape)
-    num = APyFixed.from_float(
-        shape[0] + shape[1], int_bits=int_bits, frac_bits=frac_bits
+def test_ones_like(shape):
+    def check_ones_like(
+        ArrayType, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
+    ):
+        if ArrayType is APyFixedArray:
+            b = ArrayType.from_float(
+                [1] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
+            ).reshape(shape)
+            a = ones_like(b, int_bits=int_bits, frac_bits=frac_bits)
+        elif ArrayType is APyFloatArray:
+            b = ArrayType.from_float(
+                [1] * (shape[0] * shape[1]), exp_bits=exp_bits, man_bits=mantissa_bits
+            ).reshape(shape)
+            a = ones_like(b, exp_bits=exp_bits, mantissa_bits=mantissa_bits)
+        assert a.is_identical(
+            b
+        ), f"ones_like on {ArrayType.__name__} didn't work when shape={shape}."
+
+    # Test cases for APyFixedArray
+    check_ones_like(APyFixedArray, int_bits=5, frac_bits=5)
+    check_ones_like(APyFixedArray, int_bits=12314, frac_bits=1832)
+
+    # Test cases for APyFloatArray
+    check_ones_like(APyFloatArray, exp_bits=13, mantissa_bits=28)
+    check_ones_like(APyFloatArray, exp_bits=16, mantissa_bits=5)
+
+
+@pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
+def test_full(shape):
+    def check_full(
+        ArrayType,
+        fill_value,
+        int_bits=None,
+        frac_bits=None,
+        exp_bits=None,
+        mantissa_bits=None,
+    ):
+        if ArrayType is APyFixedArray:
+            b = ArrayType.from_float(
+                [fill_value] * (shape[0] * shape[1]),
+                int_bits=int_bits,
+                frac_bits=frac_bits,
+            ).reshape(shape)
+            num = APyFixed.from_float(
+                fill_value, int_bits=int_bits, frac_bits=frac_bits
+            )
+            a = full(shape, num, int_bits=int_bits, frac_bits=frac_bits)
+        elif ArrayType is APyFloatArray:
+            b = ArrayType.from_float(
+                [fill_value] * (shape[0] * shape[1]),
+                exp_bits=exp_bits,
+                man_bits=mantissa_bits,
+            ).reshape(shape)
+            num = APyFloat.from_float(
+                fill_value, exp_bits=exp_bits, man_bits=mantissa_bits
+            )
+            a = full(shape, num, exp_bits=exp_bits, mantissa_bits=mantissa_bits)
+        assert a.is_identical(
+            b
+        ), f"full on {ArrayType.__name__} didn't work when shape={shape}."
+
+    # Test cases for APyFixedArray
+    check_full(APyFixedArray, fill_value=shape[0] + shape[1], int_bits=5, frac_bits=5)
+    check_full(
+        APyFixedArray, fill_value=shape[0] + shape[1], int_bits=12314, frac_bits=1832
     )
-    a = full(APyFixedArray, shape, num, int_bits=int_bits, frac_bits=frac_bits)
-    if not a.is_identical(b):
-        pytest.fail(f"ones on FixedArray didn't work when shape={shape}.")
+
+    # Test cases for APyFloatArray
+    check_full(
+        APyFloatArray, fill_value=shape[0] + shape[1], exp_bits=13, mantissa_bits=28
+    )
+    check_full(
+        APyFloatArray, fill_value=shape[0] + shape[1], exp_bits=16, mantissa_bits=5
+    )
 
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
-def test_full_like_fixed(shape):
-    int_bits, frac_bits = 5, 5
-    b = APyFixedArray.from_float(
-        [shape[0] + shape[1]] * (shape[0] * shape[1]),
-        int_bits=int_bits,
-        frac_bits=frac_bits,
-    ).reshape(shape)
-    num = APyFixed.from_float(
-        shape[0] + shape[1], int_bits=int_bits, frac_bits=frac_bits
+def test_full_like(shape):
+    def check_full_like(
+        ArrayType,
+        fill_value,
+        int_bits=None,
+        frac_bits=None,
+        exp_bits=None,
+        mantissa_bits=None,
+    ):
+        if ArrayType is APyFixedArray:
+            b = ArrayType.from_float(
+                [fill_value] * (shape[0] * shape[1]),
+                int_bits=int_bits,
+                frac_bits=frac_bits,
+            ).reshape(shape)
+            num = APyFixed.from_float(
+                fill_value, int_bits=int_bits, frac_bits=frac_bits
+            )
+            a = full_like(b, num, int_bits=int_bits, frac_bits=frac_bits)
+            assert a.is_identical(
+                b
+            ), f"full_like on {ArrayType.__name__} didn't work when shape={shape}."
+            a = full_like(b, fill_value, int_bits=int_bits, frac_bits=frac_bits)
+            assert a.is_identical(
+                b
+            ), f"full_like on {ArrayType.__name__} didn't work when shape={shape}."
+        elif ArrayType is APyFloatArray:
+            b = ArrayType.from_float(
+                [fill_value] * (shape[0] * shape[1]),
+                exp_bits=exp_bits,
+                man_bits=mantissa_bits,
+            ).reshape(shape)
+            num = APyFloat.from_float(
+                fill_value, exp_bits=exp_bits, man_bits=mantissa_bits
+            )
+            a = full_like(b, num, exp_bits=exp_bits, mantissa_bits=mantissa_bits)
+            assert a.is_identical(
+                b
+            ), f"full_like on {ArrayType.__name__} didn't work when shape={shape}."
+            a = full_like(b, fill_value, exp_bits=exp_bits, mantissa_bits=mantissa_bits)
+            assert a.is_identical(
+                b
+            ), f"full_like on {ArrayType.__name__} didn't work when shape={shape}."
+
+    # Test cases for APyFixedArray
+    check_full_like(
+        APyFixedArray, fill_value=shape[0] + shape[1], int_bits=5, frac_bits=5
     )
-    a = full_like(b, num, int_bits=int_bits, frac_bits=frac_bits)
-    if not a.is_identical(b):
-        pytest.fail(f"ones on FixedArray didn't work when shape={shape}.")
-    a = full_like(b, shape[0] + shape[1], int_bits=int_bits, frac_bits=frac_bits)
-    if not a.is_identical(b):
-        pytest.fail(f"ones on FixedArray didn't work when shape={shape}.")
+    check_full_like(
+        APyFixedArray, fill_value=shape[0] + shape[1], int_bits=12314, frac_bits=1832
+    )
+
+    # Test cases for APyFloatArray
+    check_full_like(
+        APyFloatArray, fill_value=shape[0] + shape[1], exp_bits=13, mantissa_bits=28
+    )
+    check_full_like(
+        APyFloatArray, fill_value=shape[0] + shape[1], exp_bits=16, mantissa_bits=5
+    )

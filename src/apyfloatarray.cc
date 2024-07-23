@@ -995,6 +995,102 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::matmul(const APyFloatArray&
     ));
 }
 
+/* ****************************************************************************** *
+ *                     Static methods for array initialization                    *
+ * ****************************************************************************** */
+
+APyFloatArray APyFloatArray::zeros(
+    const nb::tuple& shape,
+    std::uint8_t exp_bits,
+    std::uint8_t man_bits,
+    std::optional<exp_t> bias
+)
+{
+    std::vector<std::size_t> new_shape = ::shape_from_tuple(shape);
+    APyFloatArray result(new_shape, exp_bits, man_bits, bias);
+    return result;
+}
+
+APyFloatArray APyFloatArray::ones(
+    const nb::tuple& shape,
+    std::uint8_t exp_bits,
+    std::uint8_t man_bits,
+    std::optional<exp_t> bias
+)
+{
+    APyFloat float_one = one(exp_bits, man_bits, bias);
+    return full(shape, float_one);
+}
+
+APyFloatArray APyFloatArray::eye(
+    const nb::int_& N,
+    std::uint8_t exp_bits,
+    std::uint8_t man_bits,
+    std::optional<nb::int_> M,
+    std::optional<exp_t> bias
+)
+{
+    APyFloat float_one = one(exp_bits, man_bits, bias);
+    // Use N for both dimensions if M is not provided
+    nb::tuple shape = M ? nb::make_tuple(N, M.value()) : nb::make_tuple(N, N);
+    return diagonal(shape, float_one);
+}
+
+APyFloatArray APyFloatArray::identity(
+    const nb::int_& N,
+    std::uint8_t exp_bits,
+    std::uint8_t man_bits,
+    std::optional<exp_t> bias
+)
+{
+    return eye(N, exp_bits, man_bits, std::nullopt, bias);
+}
+
+APyFloatArray APyFloatArray::full(const nb::tuple& shape, const APyFloat& fill_value)
+{
+    std::vector<std::size_t> new_shape = ::shape_from_tuple(shape);
+    APyFloatArray result(
+        new_shape,
+        fill_value.get_exp_bits(),
+        fill_value.get_man_bits(),
+        fill_value.get_bias()
+    );
+
+    std::size_t num_elem = ::fold_shape(new_shape);
+    result.data = std::vector<APyFloatData>(num_elem, fill_value.get_data());
+    return result;
+}
+
+APyFloatArray
+APyFloatArray::diagonal(const nb::tuple& shape, const APyFloat& fill_value)
+{
+    std::vector<std::size_t> new_shape = ::shape_from_tuple(shape);
+    if (new_shape.size() > 2) {
+        throw nb::value_error(
+            "Creating higher dimensional diagonal arrays are not yet defined"
+        );
+    }
+    APyFloatArray result(
+        new_shape,
+        fill_value.get_exp_bits(),
+        fill_value.get_man_bits(),
+        fill_value.get_bias()
+    );
+
+    std::size_t min_dim = *std::min_element(new_shape.begin(), new_shape.end());
+    std::vector<std::size_t> strides = ::strides_from_shape(new_shape);
+    std::size_t multiplier = std::accumulate(strides.begin(), strides.end(), 0);
+    for (std::size_t i = 0; i < min_dim; ++i) {
+        std::size_t index = i * multiplier;
+        result.data[index] = fill_value.get_data();
+    }
+    return result;
+}
+
+/* ****************************************************************************** *
+ *                            Methods for array modification                      *
+ * ****************************************************************************** */
+
 APyFloatArray
 APyFloatArray::squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis) const
 {

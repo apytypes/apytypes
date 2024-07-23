@@ -5,6 +5,8 @@
 #include "apyfixed_util.h"
 #include "apyfloat.h"
 #include "apytypes_common.h"
+#include <optional>
+#include <vector>
 
 /*!
  * Sizes of APyFloat datatypes
@@ -52,6 +54,18 @@ calc_bias(int new_exp_bits, int exp_bits1, exp_t bias1, int exp_bits2, exp_t bia
 exp_t calc_bias_general(
     int new_exp_bits, int exp_bits1, exp_t bias1, int exp_bits2, exp_t bias2
 );
+
+//! Get bit pattern for the value one
+static APY_INLINE APyFloat
+one(std::uint8_t exp_bits,
+    std::uint8_t man_bits,
+    std::optional<exp_t> bias = std::nullopt)
+{
+    APyFloat result(exp_bits, man_bits, bias.value_or(APyFloat::ieee_bias(exp_bits)));
+    APyFloatData data = { 0, result.get_bias(), 0 };
+    result.set_data(data);
+    return result;
+}
 
 //! Quantize mantissa
 APY_INLINE void quantize_mantissa(

@@ -20,7 +20,8 @@ mp_limb_t get_data_from_double(double value, int bits, int frac_bits, int shift_
 //! Fast integer power by squaring.
 APyFixed ipow(APyFixed base, unsigned int n);
 
-static APY_INLINE APyFixed decimal_one(int bits, int int_bits)
+//! Get bit pattern for the value one
+static APY_INLINE APyFixed one(int bits, int int_bits)
 {
     std::size_t bit_index = bits - int_bits;
     std::size_t limb_bits = sizeof(mp_limb_t) * 8;

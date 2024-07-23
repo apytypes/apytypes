@@ -42,6 +42,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `min()`
   - `nanmax()`
   - `nanmin()`
+- Array creation functions added:
+  - `eye()`
+  - `identity()`
+  - `ones()`
+  - `ones_like()`
+  - `zeros()`
+  - `zeros_like()`
+  - `full()`
+  - `full_like()`
 - Added `array_utils.h` to contain shared functions between float and fixed arrays.
 - Added support for higher dimensions (ndim > 2) in `transpose()`.
 

@@ -2485,6 +2485,83 @@ class APyFloatArray:
         :class:`APyFloatArray`
         """
 
+    @staticmethod
+    def zeros(
+        shape: tuple, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyFloatArray:
+        """
+        Initializes an array with the specified value.
+
+        Parameters:
+            shape (tuple): Shape of the array.
+            fill_value (APyFloat): Value to fill the array.
+
+        Returns:
+            APyFixedArray: An array filled with the specified value.
+        """
+
+    @staticmethod
+    def ones(
+        shape: tuple, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyFloatArray:
+        """
+        Initializes an array with the specified value.
+
+        Parameters:
+            shape (tuple): Shape of the array.
+            fill_value (APyFloat): Value to fill the array.
+
+        Returns:
+            APyFixedArray: An array filled with the specified value.
+        """
+
+    @staticmethod
+    def eye(
+        n: int,
+        exp_bits: int,
+        man_bits: int,
+        m: int | None = None,
+        bias: int | None = None,
+    ) -> APyFloatArray:
+        """
+        Initializes an array with the specified value.
+
+        Parameters:
+            shape (tuple): Shape of the array.
+            fill_value (APyFloat): Value to fill the array.
+
+        Returns:
+            APyFixedArray: An array filled with the specified value.
+        """
+
+    @staticmethod
+    def identity(
+        n: int, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyFloatArray:
+        """
+        Initializes an array with the specified value.
+
+        Parameters:
+            shape (tuple): Shape of the array.
+            fill_value (APyFloat): Value to fill the array.
+
+        Returns:
+            APyFixedArray: An array filled with the specified value.
+        """
+
+    @staticmethod
+    def full(shape: tuple, fill_value: APyFloat) -> APyFloatArray:
+        """
+        Initializes an array with the specified value.
+
+        Parameters:
+            shape (tuple): Shape of the array.
+            fill_value (APyFloat): Value to fill the array.
+
+        Returns:
+            APyFixedArray: An array filled with the specified value.
+        """
+
     def __matmul__(self, rhs: APyFloatArray) -> APyFloatArray | APyFloat: ...
     def __repr__(self) -> str: ...
     def __len__(self) -> int: ...

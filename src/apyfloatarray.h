@@ -96,6 +96,43 @@ public:
     void _set_values_from_ndarray(const nanobind::ndarray<nanobind::c_contig>& ndarray);
 
     /* ****************************************************************************** *
+     *                     Static methods for array initialization                    *
+     * ****************************************************************************** */
+
+    static APyFloatArray zeros(
+        const nb::tuple& shape,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
+
+    static APyFloatArray ones(
+        const nb::tuple& shape,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
+
+    static APyFloatArray
+    eye(const nb::int_& N,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<nb::int_> M,
+        std::optional<exp_t> bias = std::nullopt);
+
+    static APyFloatArray identity(
+        const nb::int_& N,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
+
+    //! Create an `APyFloatArray` initialized with a specified fill value
+    static APyFloatArray full(const nb::tuple& shape, const APyFloat& fill_value);
+
+    static APyFloatArray diagonal(const nb::tuple& shape, const APyFloat& fill_value);
+
+    /* ****************************************************************************** *
      * *                          Public member functions                           * *
      * ****************************************************************************** */
 

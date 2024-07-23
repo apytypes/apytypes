@@ -1788,7 +1788,7 @@ APyFixedArray APyFixedArray::ones(
         = int_bits ? int_bits.value() : bits.value() - frac_bits.value();
     const int final_bits = bits ? bits.value() : int_bits.value() + frac_bits.value();
 
-    APyFixed fixed_one = ::decimal_one(final_bits, final_int_bits);
+    APyFixed fixed_one = one(final_bits, final_int_bits);
     return full(shape, fixed_one);
 }
 
@@ -1803,7 +1803,7 @@ APyFixedArray APyFixedArray::eye(
     const int final_int_bits
         = int_bits ? int_bits.value() : bits.value() - frac_bits.value();
     const int final_bits = bits ? bits.value() : int_bits.value() + frac_bits.value();
-    APyFixed fixed_one = ::decimal_one(final_bits, final_int_bits);
+    APyFixed fixed_one = one(final_bits, final_int_bits);
 
     // Use N for both dimensions if M is not provided
     nb::tuple shape = M ? nb::make_tuple(N, M.value()) : nb::make_tuple(N, N);

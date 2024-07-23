@@ -1,6 +1,6 @@
-from typing import overload, Sequence
-from apytypes import APyFloatArray, APyFixedArray
-from apytypes.typing import APyArray
+from typing import overload, Sequence, Union
+from apytypes import APyFloatArray, APyFixedArray, APyFixed, APyFloat
+from apytypes.typing import APyArray, APyScalar
 
 @overload
 def squeeze(
@@ -62,54 +62,200 @@ def expand_dims(a: APyFloatArray, axis: int | Sequence[int]) -> APyFloatArray: .
 def expand_dims(a: APyFixedArray, axis: int | Sequence[int]) -> APyFixedArray: ...
 def expand_dims(a: APyArray, axis: int | Sequence[int]) -> APyArray: ...
 @overload
-def eye(
-    a_type: APyArray,
-    shape: tuple[int, ...],
+def identity(
+    n: int,
     int_bits: int = None,
     frac_bits: int = None,
-    exp_bits: int = None,
-    mantissa_bits: int = None,
-) -> APyArray: ...
-@overload
-def eye(
-    a_type: APyFloatArray,
-    shape: tuple[int, ...],
-    int_bits: int = None,
-    frac_bits: int = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyFixedArray: ...
+def identity(
+    n: int,
+    int_bits: None = None,
+    frac_bits: None = None,
     exp_bits: int = None,
     mantissa_bits: int = None,
 ) -> APyFloatArray: ...
+@overload
 def eye(
-    a_type: APyFixedArray,
+    n: int,
+    m: int = None,
+    int_bits: int = None,
+    frac_bits: int = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyFixedArray: ...
+def eye(
+    n: int,
+    m: int = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    exp_bits: int = None,
+    mantissa_bits: int = None,
+) -> APyFloatArray: ...
+@overload
+def zeros(
     shape: tuple[int, ...],
     int_bits: int = None,
     frac_bits: int = None,
     exp_bits: None = None,
     mantissa_bits: None = None,
 ) -> APyFixedArray: ...
-@overload
 def zeros(
-    a_type: APyArray,
     shape: tuple[int, ...],
-    int_bits: int = None,
-    frac_bits: int = None,
-    exp_bits: int = None,
-    mantissa_bits: int = None,
-) -> APyArray: ...
-@overload
-def zeros(
-    a_type: APyFloatArray,
-    shape: tuple[int, ...],
-    int_bits: int = None,
-    frac_bits: int = None,
+    int_bits: None = None,
+    frac_bits: None = None,
     exp_bits: int = None,
     mantissa_bits: int = None,
 ) -> APyFloatArray: ...
-def zeros(
-    a_type: APyFixedArray,
+@overload
+def ones(
     shape: tuple[int, ...],
     int_bits: int = None,
     frac_bits: int = None,
     exp_bits: None = None,
     mantissa_bits: None = None,
 ) -> APyFixedArray: ...
+def ones(
+    shape: tuple[int, ...],
+    int_bits: None = None,
+    frac_bits: None = None,
+    exp_bits: int = None,
+    mantissa_bits: int = None,
+) -> APyFloatArray: ...
+@overload
+def full(
+    shape: tuple[int, ...],
+    fill_value: APyScalar = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyArray: ...
+@overload
+def full(
+    shape: tuple[int, ...],
+    fill_value: APyFixed = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyFixedArray: ...
+@overload
+def full(
+    shape: tuple[int, ...],
+    fill_value: APyFloat = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyFloatArray: ...
+@overload
+def full(
+    shape: tuple[int, ...],
+    fill_value: Union[int, float] = None,
+    int_bits: int = None,
+    frac_bits: int = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyFixedArray: ...
+@overload
+def full(
+    shape: tuple[int, ...],
+    fill_value: Union[int, float] = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    exp_bits: int = None,
+    mantissa_bits: int = None,
+) -> APyFloatArray: ...
+@overload
+def zeros_like(
+    a: APyArray,
+    int_bits: None = None,
+    frac_bits: None = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyArray: ...
+@overload
+def zeros_like(
+    a: APyFixedArray,
+    int_bits: None = None,
+    frac_bits: None = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyFixedArray: ...
+def zeros_like(
+    a: APyFloatArray,
+    int_bits: None = None,
+    frac_bits: None = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyFloatArray: ...
+@overload
+def ones_like(
+    a: APyArray,
+    int_bits: None = None,
+    frac_bits: None = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyArray: ...
+@overload
+def ones_like(
+    a: APyFixedArray,
+    int_bits: None = None,
+    frac_bits: None = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyFixedArray: ...
+def ones_like(
+    a: APyFloatArray,
+    int_bits: None = None,
+    frac_bits: None = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyFloatArray: ...
+@overload
+def full_like(
+    a: APyArray,
+    fill_value: APyScalar = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyArray: ...
+@overload
+def full_like(
+    a: APyArray,
+    fill_value: APyFixed = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyFixedArray: ...
+@overload
+def full_like(
+    a: APyArray,
+    fill_value: APyFloat = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyFloatArray: ...
+@overload
+def full_like(
+    a: APyArray,
+    fill_value: Union[int, float] = None,
+    int_bits: int = None,
+    frac_bits: int = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyFixedArray: ...
+@overload
+def full_like(
+    a: APyArray,
+    fill_value: Union[int, float] = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    exp_bits: int = None,
+    mantissa_bits: int = None,
+) -> APyFloatArray: ...
