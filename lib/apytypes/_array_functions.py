@@ -1,5 +1,4 @@
 from typing import Tuple, Union
-from apytypes import APyFixedArray, APyFixed, APyFloat, APyFloatArray
 
 
 def squeeze(a, axis=None):
@@ -442,6 +441,8 @@ def zeros(shape, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=Non
         The initialized array with zeros.
     """
 
+    from apytypes import APyFixedArray, APyFloatArray
+
     a_type = _get_return_type(int_bits, frac_bits, exp_bits, mantissa_bits)
     try:
         zeros = a_type.zeros
@@ -480,6 +481,9 @@ def ones(shape, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
     result : :class:`APyFloatArray` or :class:`APyFixedArray`
         The array initialized filled with ones.
     """
+
+    from apytypes import APyFixedArray, APyFloatArray
+
     a_type = _get_return_type(int_bits, frac_bits, exp_bits, mantissa_bits)
     try:
         ones = a_type.ones
@@ -524,6 +528,9 @@ def eye(
     result : :class:`APyFloatArray` or :class:`APyFixedArray`
         An array where all elements are equal to zero, except for the k-th diagonal, whose values are equal to one.
     """
+
+    from apytypes import APyFixedArray, APyFloatArray
+
     a_type = _get_return_type(int_bits, frac_bits, exp_bits, mantissa_bits)
     try:
         eye = a_type.eye
@@ -564,6 +571,9 @@ def identity(n, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
     result : :class:`APyFloatArray` or :class:`APyFixedArray`
         n x n array with its main diagonal set to one, and all other elements 0.
     """
+
+    from apytypes import APyFixedArray, APyFloatArray
+
     a_type = _get_return_type(int_bits, frac_bits, exp_bits, mantissa_bits)
     try:
         identity = a_type.identity
@@ -614,6 +624,9 @@ def full(
     result : :class:`APyFloatArray` or :class:`APyFixedArray`
         Array of fill_value with the given shape.
     """
+
+    from apytypes import APyFixedArray, APyFixed, APyFloat, APyFloatArray
+
     fill_value = _normalize_fill_value(
         fill_value, int_bits, frac_bits, exp_bits, mantissa_bits
     )
@@ -657,6 +670,8 @@ def zeros_like(a, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=No
     except AttributeError:
         raise TypeError(f"Cannot make zeros array of type {type(a)}")
 
+    from apytypes import APyFixedArray, APyFloatArray
+
     if isinstance(a, APyFixedArray):
         int_bits = int_bits or a.int_bits
         frac_bits = frac_bits or a.frac_bits
@@ -697,6 +712,8 @@ def ones_like(a, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=Non
         ones = a.ones
     except AttributeError:
         raise TypeError(f"Cannot make ones array of type {type(a)}")
+
+    from apytypes import APyFixedArray, APyFloatArray
 
     if isinstance(a, APyFixedArray):
         int_bits = int_bits or a.int_bits
@@ -761,6 +778,8 @@ def full_like(
 # Helpers
 # =============================================================================
 def _get_return_type(int_bits, frac_bits, exp_bits, mantissa_bits):
+    from apytypes import APyFixedArray, APyFloatArray
+
     if int_bits and frac_bits:
         return APyFixedArray
     elif exp_bits and mantissa_bits:
@@ -769,12 +788,14 @@ def _get_return_type(int_bits, frac_bits, exp_bits, mantissa_bits):
 
 
 def _normalize_fill_value(
-    fill_value: Union[APyFixed, APyFloat, int, float],
+    fill_value,
     int_bits=None,
     frac_bits=None,
     exp_bits=None,
     mantissa_bits=None,
 ):
+    from apytypes import APyFixed, APyFloat
+
     if isinstance(fill_value, (int, float)):
         if int_bits is not None and frac_bits is not None:
             return APyFixed.from_float(
