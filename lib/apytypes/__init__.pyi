@@ -23,15 +23,24 @@ from ._apytypes import (
     set_float_quantization_seed as set_float_quantization_seed,
 )
 from ._array_functions import (
+    arange as arange,
     convolve as convolve,
     expand_dims as expand_dims,
+    eye as eye,
+    full as full,
+    full_like as full_like,
+    identity as identity,
     moveaxis as moveaxis,
+    ones as ones,
+    ones_like as ones_like,
     ravel as ravel,
     reshape as reshape,
     shape as shape,
     squeeze as squeeze,
     swapaxes as swapaxes,
     transpose as transpose,
+    zeros as zeros,
+    zeros_like as zeros_like,
 )
 
 __all__: list = [
@@ -60,6 +69,15 @@ __all__: list = [
     "moveaxis",
     "swapaxes",
     "expand_dims",
+    "zeros",
+    "zeros_like",
+    "ones",
+    "ones_like",
+    "eye",
+    "identity",
+    "full",
+    "full_like",
+    "arange",
 ]
 
 annotations: __future__._Feature = ...

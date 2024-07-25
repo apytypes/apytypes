@@ -1083,6 +1083,138 @@ void bind_fixed_array(nb::module_& m)
             :class:`APyFixedArray`
             )pbdoc"
         )
+        .def_static(
+            "zeros",
+            &APyFixedArray::zeros,
+            nb::arg("shape"),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("frac_bits") = nb::none(),
+            nb::arg("bits") = nb::none(),
+            R"pbdoc(
+        Initializes an array with zeros.
+
+        Parameters
+        ----------
+        shape : tuple
+            Shape of the array.
+        int_bits : int, optional
+            Number of integer bits. Default is None.
+        frac_bits : int, optional
+            Number of fractional bits. Default is None.
+        bits : int, optional
+            Total number of bits. Default is None.
+
+        Returns
+        -------
+        APyFixedArray
+            An array initialized with zeros.
+    )pbdoc"
+        )
+        .def_static(
+            "ones",
+            &APyFixedArray::ones,
+            nb::arg("shape"),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("frac_bits") = nb::none(),
+            nb::arg("bits") = nb::none(),
+            R"pbdoc(
+        Initializes an array with ones.
+
+        Parameters
+        ----------
+        shape : tuple
+            Shape of the array.
+        int_bits : int, optional
+            Number of integer bits. Default is None.
+        frac_bits : int, optional
+            Number of fractional bits. Default is None.
+        bits : int, optional
+            Total number of bits. Default is None.
+
+        Returns
+        -------
+        APyFixedArray
+            An array initialized with ones.
+    )pbdoc"
+        )
+        .def_static(
+            "eye",
+            &APyFixedArray::eye,
+            nb::arg("n"),
+            nb::arg("m") = nb::none(),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("frac_bits") = nb::none(),
+            nb::arg("bits") = nb::none(),
+            R"pbdoc(
+        Initializes an array with ones on the diagonal.
+
+        Parameters
+        ----------
+        n : int
+            Number of rows.
+        m : int, optional
+            Number of columns. Default is None.
+        int_bits : int, optional
+            Number of integer bits. Default is None.
+        frac_bits : int, optional
+            Number of fractional bits. Default is None.
+        bits : int, optional
+            Total number of bits. Default is None.
+
+        Returns
+        -------
+        APyFixedArray
+            An array with the specified value on the diagonal.
+    )pbdoc"
+        )
+        .def_static(
+            "identity",
+            &APyFixedArray::identity,
+            nb::arg("n"),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("frac_bits") = nb::none(),
+            nb::arg("bits") = nb::none(),
+            R"pbdoc(
+        Initializes an identity matrix with ones on the diagonal.
+
+        Parameters
+        ----------
+        n : int
+            Number of rows (and columns) in n x n output.
+        int_bits : int, optional
+            Number of integer bits. Default is None.
+        frac_bits : int, optional
+            Number of fractional bits. Default is None.
+        bits : int, optional
+            Total number of bits. Default is None.
+
+        Returns
+        -------
+        APyFixedArray
+            An identity matrix with ones on the diagonal.
+    )pbdoc"
+        )
+        .def_static(
+            "full",
+            &APyFixedArray::full,
+            nb::arg("shape"),
+            nb::arg("fill_value"),
+            R"pbdoc(
+        Initializes an array with the specified value.
+
+        Parameters
+        ----------
+        shape : tuple
+            Shape of the array.
+        fill_value : APyFixed
+            Value to fill the array.
+
+        Returns
+        -------
+        APyFixedArray
+            An array filled with the specified value.
+    )pbdoc"
+        )
 
         /*
          * Dunder methods

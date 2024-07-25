@@ -63,6 +63,20 @@ shape_from_tuple(nb::tuple new_shape, size_t elem_count)
     return new_shape_vec;
 }
 
+static APY_INLINE std::vector<std::size_t> shape_from_tuple(nb::tuple new_shape)
+{
+    std::vector<std::size_t> new_shape_vec;
+    for (auto it = new_shape.begin(); it != new_shape.end(); ++it) {
+        int current_value = nb::cast<int>(*it);
+        if (current_value < 0) {
+            throw nb::value_error("Negative dimensions or are not allowed.");
+        } else {
+            new_shape_vec.push_back(static_cast<std::size_t>(current_value));
+        }
+    }
+    return new_shape_vec;
+}
+
 /**
  * @brief Converts the provided axes into a vector of positive indices.
  *

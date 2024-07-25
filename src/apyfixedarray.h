@@ -318,6 +318,47 @@ public:
         std::optional<int> bits = std::nullopt
     );
 
+    /* ****************************************************************************** *
+     *                     Static methods for array initialization                    *
+     * ****************************************************************************** */
+
+    //! Create an `APyFixedArray` initialized with zeros
+    static APyFixedArray zeros(
+        const nb::tuple& shape,
+        std::optional<int> int_bits = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt,
+        std::optional<int> bits = std::nullopt
+    );
+    //! Create an `APyFixedArray` initialized with ones
+    static APyFixedArray ones(
+        const nb::tuple& shape,
+        std::optional<int> int_bits = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt,
+        std::optional<int> bits = std::nullopt
+    );
+
+    //! Create an `APyFixedArray` with ones on the diagonal and zeros elsewhere
+    static APyFixedArray
+    eye(const nb::int_& N,
+        std::optional<nb::int_> M = std::nullopt,
+        std::optional<int> int_bits = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt,
+        std::optional<int> bits = std::nullopt);
+
+    //! Create a square `APyFixedArray` with ones on the diagonal and zeros elsewhere
+    static APyFixedArray identity(
+        const nb::int_& N,
+        std::optional<int> int_bits = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt,
+        std::optional<int> bits = std::nullopt
+    );
+
+    //! Create an `APyFixedArray` initialized with a specified fill value
+    static APyFixedArray full(const nb::tuple& shape, const APyFixed& fill_value);
+
+    //! Create an `APyFixedArray` with a specified diagonal value
+    static APyFixedArray diagonal(const nb::tuple& shape, const APyFixed& fill_value);
+
 private:
     /* ****************************************************************************** *
      * *                          Private member functions                          * *

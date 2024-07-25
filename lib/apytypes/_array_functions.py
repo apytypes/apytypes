@@ -412,8 +412,477 @@ def expand_dims(a, axis):
 
 
 # =============================================================================
+# array creation
+# =============================================================================
+
+
+def zeros(shape, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None):
+    """
+    Initializes an array with zeros.
+
+    Word lengths need to be specified and decide the return type of the array.
+
+    Parameters
+    ----------
+    shape : tuple
+        Shape of the array.
+    int_bits : int, optional
+        Number of integer bits.
+    frac_bits : int, optional
+        Number of fractional bits.
+    exp_bits : int, optional
+        Number of exponential bits.
+    mantissa_bits : int, optional
+        Number of mantissa bits.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        The initialized array with zeros.
+    """
+
+    from apytypes import APyFixedArray, APyFloatArray
+
+    a_type = _determine_array_type(int_bits, frac_bits, exp_bits, mantissa_bits)
+    try:
+        zeros = a_type.zeros
+    except AttributeError:
+        raise TypeError(f"Cannot make zeros array of type {type(a_type)}")
+    if a_type is APyFixedArray:
+        return zeros(shape=shape, int_bits=int_bits, frac_bits=frac_bits)
+
+    if a_type is APyFloatArray:
+        return zeros(shape=shape, exp_bits=exp_bits, man_bits=mantissa_bits)
+
+    raise ValueError("Only 'fixed' and 'float' array_types are defined")
+
+
+def ones(shape, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None):
+    """
+    Initializes an array with ones.
+
+    Word lengths need to be specified and decide the return type of the array.
+
+    Parameters
+    ----------
+    shape : tuple
+        Shape of the array.
+    int_bits : int, optional
+        Number of integer bits.
+    frac_bits : int, optional
+        Number of fractional bits.
+    exp_bits : int, optional
+        Number of exponential bits.
+    mantissa_bits : int, optional
+        Number of mantissa bits.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        The array initialized filled with ones.
+    """
+
+    from apytypes import APyFixedArray, APyFloatArray
+
+    a_type = _determine_array_type(int_bits, frac_bits, exp_bits, mantissa_bits)
+    try:
+        ones = a_type.ones
+    except AttributeError:
+        raise TypeError(f"Cannot make ones array of type {type(a_type)}")
+    if a_type is APyFixedArray or isinstance(a_type, APyFixedArray):
+        return ones(shape=shape, int_bits=int_bits, frac_bits=frac_bits)
+
+    if a_type is APyFloatArray or isinstance(a_type, APyFloatArray):
+        return ones(shape=shape, exp_bits=exp_bits, man_bits=mantissa_bits)
+
+    raise ValueError("Only 'fixed' and 'float' array_types are defined")
+
+
+def eye(
+    n: int, m=None, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
+):
+    """
+    Return a 2-D array with ones on the diagonal and zeros elsewhere.
+
+    Word lengths need to be specified and decide the return type of the array.
+
+    Parameters
+    ----------
+    a_type : :class:`APyFloatArray` or :class:`APyFixedArray`, optional
+        The type of array to initialize.
+    n : int
+        Number of rows in the output.
+    m : int, optional
+        Number of columns in the output. If None, defaults to N.
+    int_bits : int, optional
+        Number of integer bits.
+    frac_bits : int, optional
+        Number of fractional bits.
+    exp_bits : int, optional
+        Number of exponential bits.
+    mantissa_bits : int, optional
+        Number of mantissa bits.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        An array where all elements are equal to zero, except for the k-th diagonal, whose values are equal to one.
+    """
+
+    from apytypes import APyFixedArray, APyFloatArray
+
+    a_type = _determine_array_type(int_bits, frac_bits, exp_bits, mantissa_bits)
+    try:
+        eye = a_type.eye
+    except AttributeError:
+        raise TypeError(f"Cannot make eye array of type {type(a_type)}")
+    if a_type is APyFixedArray or isinstance(a_type, APyFixedArray):
+        return eye(n=n, m=m, int_bits=int_bits, frac_bits=frac_bits)
+
+    if a_type is APyFloatArray or isinstance(a_type, APyFloatArray):
+        return eye(n=n, m=m, exp_bits=exp_bits, man_bits=mantissa_bits)
+
+    raise ValueError("Only 'fixed' and 'float' array_types are defined")
+
+
+def identity(n, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None):
+    """
+    Return the identity array.
+
+    Word lengths need to be specified and decides return type of Array.
+
+    Parameters
+    ----------
+    a_type : :class:`APyFloatArray` or :class:`APyFixedArray`, optional
+        The type of array to initialize.
+    n : int
+        Number of rows (and columns) in n x n output.
+    int_bits : int, optional
+        Number of integer bits.
+    frac_bits : int, optional
+        Number of fractional bits.
+    exp_bits : int, optional
+        Number of exponential bits.
+    mantissa_bits : int, optional
+        Number of mantissa bits.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        n x n array with its main diagonal set to one, and all other elements 0.
+    """
+
+    from apytypes import APyFixedArray, APyFloatArray
+
+    a_type = _determine_array_type(int_bits, frac_bits, exp_bits, mantissa_bits)
+    try:
+        identity = a_type.identity
+    except AttributeError:
+        raise TypeError(f"Cannot make identity array of type {type(a_type)}")
+
+    if a_type is APyFixedArray or isinstance(a_type, APyFixedArray):
+        return identity(n=n, int_bits=int_bits, frac_bits=frac_bits)
+
+    if a_type is APyFloatArray or isinstance(a_type, APyFloatArray):
+        return identity(n=n, exp_bits=exp_bits, man_bits=mantissa_bits)
+
+    raise ValueError("Only 'fixed' and 'float' array_types are defined")
+
+
+def full(
+    shape,
+    fill_value,
+    int_bits=None,
+    frac_bits=None,
+    exp_bits=None,
+    mantissa_bits=None,
+):
+    """
+    Return a new array of given shape and type, filled with fill_value.
+
+    If fill_value is an int or float, you must specify the word lengths (int_bits, frac_bits or exp_bits, mantissa_bits).
+    If fill_value is an APyFloat or APyFixed, the array will use the provided word lengths if specified.
+    If no word lengths are specified, the resulting array will inherit the word lengths from fill_value.
+
+    Parameters
+    ----------
+    shape : tuple
+        Shape of the array.
+    fill_value : :class:`APyFloat` or :class:`APyFixedArray` or int or float
+        Fill value.
+    int_bits : int, optional
+        Number of integer bits.
+    frac_bits : int, optional
+        Number of fractional bits.
+    exp_bits : int, optional
+        Number of exponential bits.
+    mantissa_bits : int, optional
+        Number of mantissa bits.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        Array of fill_value with the given shape.
+    """
+
+    from apytypes import APyFixedArray, APyFixed, APyFloat, APyFloatArray
+
+    fill_value = _normalize_fill_value(
+        fill_value, int_bits, frac_bits, exp_bits, mantissa_bits
+    )
+    try:
+        if isinstance(fill_value, APyFixed):
+            full = APyFixedArray.full
+        elif isinstance(fill_value, APyFloat):
+            full = APyFloatArray.full
+        else:
+            raise (AttributeError)
+    except AttributeError:
+        raise TypeError(f"Cannot make full array of type {type(fill_value)}")
+    return full(shape, fill_value)
+
+
+def zeros_like(a, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None):
+    """
+    Return an array of zeros with the same shape and type as a given array.
+    Defaults to `a` wordlength
+
+    Parameters
+    ----------
+    a : :class:`APyFloatArray` or :class:`APyFixedArray`
+        The shape and data-type define these same attributes of the returned array.
+    int_bits : int, optional
+        Number of integer bits.
+    frac_bits : int, optional
+        Number of fractional bits.
+    exp_bits : int, optional
+        Number of exponential bits.
+    mantissa_bits : int, optional
+        Number of mantissa bits.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        The initialized array with zeros.
+    """
+    try:
+        zeros = a.zeros
+    except AttributeError:
+        raise TypeError(f"Cannot make zeros array of type {type(a)}")
+
+    from apytypes import APyFixedArray, APyFloatArray
+
+    if isinstance(a, APyFixedArray):
+        int_bits = int_bits if int_bits is not None else a.int_bits
+        frac_bits = frac_bits if int_bits is not None else a.frac_bits
+        return zeros(shape=a.shape, int_bits=int_bits, frac_bits=frac_bits)
+
+    if isinstance(a, APyFloatArray):
+        exp_bits = exp_bits if exp_bits is not None else a.exp_bits
+        mantissa_bits = mantissa_bits if mantissa_bits is not None else a.man_bits
+        return zeros(shape=a.shape, exp_bits=exp_bits, man_bits=mantissa_bits)
+
+    raise ValueError("Only 'fixed' and 'float' array_types are defined")
+
+
+def ones_like(a, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None):
+    """
+    Return an array of ones with the same shape and type as a given array.
+    Defaults to `a` wordlength
+
+    Parameters
+    ----------
+    a : :class:`APyFloatArray` or :class:`APyFixedArray`
+        The shape and data-type of a define these same attributes of the returned array.
+    int_bits : int, optional
+        Number of integer bits.
+    frac_bits : int, optional
+        Number of fractional bits.
+    exp_bits : int, optional
+        Number of exponential bits.
+    mantissa_bits : int, optional
+        Number of mantissa bits.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        The array initialized filled with ones.
+    """
+    try:
+        ones = a.ones
+    except AttributeError:
+        raise TypeError(f"Cannot make ones array of type {type(a)}")
+
+    from apytypes import APyFixedArray, APyFloatArray
+
+    if isinstance(a, APyFixedArray):
+        int_bits = int_bits if int_bits is not None else a.int_bits
+        frac_bits = frac_bits if frac_bits is not None else a.frac_bits
+        return ones(shape=a.shape, int_bits=int_bits, frac_bits=frac_bits)
+
+    if isinstance(a, APyFloatArray):
+        exp_bits = exp_bits if exp_bits is not None else a.exp_bits
+        mantissa_bits = mantissa_bits if mantissa_bits is not None else a.man_bits
+        return ones(shape=a.shape, exp_bits=exp_bits, man_bits=mantissa_bits)
+
+    raise ValueError("Only 'fixed' and 'float' array_types are defined")
+
+
+def full_like(
+    a,
+    fill_value,
+    int_bits=None,
+    frac_bits=None,
+    exp_bits=None,
+    mantissa_bits=None,
+):
+    """
+    Return a full array with the same shape and type as a given array.
+
+    If fill_value is an int or float, you must specify the word lengths (int_bits, frac_bits or exp_bits, mantissa_bits).
+    If fill_value is an APyFloat or APyFixed, the array will use the provided word lengths if specified.
+    If no word lengths are specified, the resulting array will inherit the word lengths from fill_value.
+
+    Parameters
+    ----------
+    a : :class:`APyFloatArray` or :class:`APyFixedArray`
+        The shape and array type of the returned array.
+    fill_value : :class:`APyFloat` or :class:`APyFixed` or int or float
+        The value to fill the array with.
+    int_bits : int, optional
+        Number of integer bits for APyFixed.
+    frac_bits : int, optional
+        Number of fractional bits for APyFixed.
+    exp_bits : int, optional
+        Number of exponent bits for APyFloat.
+    mantissa_bits : int, optional
+        Number of mantissa bits for APyFloat.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        Array filled with fill_value, having the same shape and type as `a`.
+    """
+    try:
+        full = a.full
+    except AttributeError:
+        raise TypeError(f"Cannot make full array of type {type(a)}")
+
+    fill_value = _normalize_fill_value(
+        fill_value, int_bits, frac_bits, exp_bits, mantissa_bits
+    )
+    return full(a.shape, fill_value)
+
+
+def arange(
+    start,
+    stop=None,
+    step=1,
+    int_bits=None,
+    frac_bits=None,
+    exp_bits=None,
+    mantissa_bits=None,
+):
+    """
+    Simple and naive version of arange.
+
+    Parameters
+    ----------
+    start : int, float
+        start number
+    stop : int, optional
+        stop number
+    step : int, float, optional
+        step size in range
+    int_bits : int, optional
+        Number of integer bits for APyFixed.
+    frac_bits : int, optional
+        Number of fractional bits for APyFixed.
+    exp_bits : int, optional
+        Number of exponent bits for APyFloat.
+    mantissa_bits : int, optional
+        Number of mantissa bits for APyFloat.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        Array filled with fill_value, having the same shape and type as `a`.
+    """
+    if stop is None:
+        start, stop = 0, start
+    if step == 0:
+        raise ValueError("Step must not be zero")
+
+    floats = []
+    value = start
+    while (step > 0 and value < stop) or (step < 0 and value > stop):
+        floats.append(value)
+        value += step
+
+    a_type = _determine_array_type(int_bits, frac_bits, exp_bits, mantissa_bits)
+    from apytypes import APyFixedArray, APyFloatArray
+
+    if a_type is APyFixedArray:
+        return APyFixedArray.from_float(floats, int_bits=int_bits, frac_bits=frac_bits)
+    elif a_type is APyFloatArray:
+        return APyFloatArray.from_float(
+            floats, exp_bits=exp_bits, man_bits=mantissa_bits
+        )
+    raise ValueError("Undefined inputs")
+
+
+# =============================================================================
 # Helpers
 # =============================================================================
+def _determine_array_type(int_bits, frac_bits, exp_bits, mantissa_bits):
+    from apytypes import APyFixedArray, APyFloatArray
+
+    if int_bits is not None and frac_bits is not None:
+        return APyFixedArray
+    elif exp_bits is not None and mantissa_bits is not None:
+        return APyFloatArray
+    raise ValueError("You need to specify wordlengths in this function")
+
+
+def _normalize_fill_value(
+    fill_value,
+    int_bits=None,
+    frac_bits=None,
+    exp_bits=None,
+    mantissa_bits=None,
+):
+    from apytypes import APyFixed, APyFloat
+
+    if isinstance(fill_value, (int, float)):
+        if int_bits is not None and frac_bits is not None:
+            return APyFixed.from_float(
+                fill_value, int_bits=int_bits, frac_bits=frac_bits
+            )
+        elif exp_bits is not None and mantissa_bits is not None:
+            return APyFloat.from_float(
+                fill_value, exp_bits=exp_bits, man_bits=mantissa_bits
+            )
+        else:
+            raise ValueError(
+                "You need to specify wordlengths if input is a Python float or integer"
+            )
+
+    elif isinstance(fill_value, APyFixed):
+        int_bits = int_bits if int_bits is not None else fill_value.int_bits
+        frac_bits = frac_bits if frac_bits is not None else fill_value.frac_bits
+        return fill_value.cast(int_bits, frac_bits)
+
+    elif isinstance(fill_value, APyFloat):
+        exp_bits = exp_bits if exp_bits is not None else fill_value.exp_bits
+        mantissa_bits = (
+            mantissa_bits if mantissa_bits is not None else fill_value.man_bits
+        )
+        return fill_value.cast(exp_bits, mantissa_bits, fill_value.bias)
+
+    else:
+        raise ValueError(
+            "Only int, float, APyFloat and APyFixed are supported for fill_value"
+        )
 
 
 def _normalize_axis(axis: int, ndim: int) -> int:
