@@ -513,14 +513,24 @@ void bind_float_array(nb::module_& m)
             nb::arg("man_bits"),
             nb::arg("bias") = std::nullopt,
             R"pbdoc(
-        Initializes an array with the specified value.
 
-        Parameters:
-            shape (tuple): Shape of the array.
-            fill_value (APyFloat): Value to fill the array.
+            Initializes an array with zeros.
 
-        Returns:
-            APyFixedArray: An array filled with the specified value.
+            Parameters
+            ----------
+            shape : tuple
+                Shape of the array.
+            exp_bits : int
+                Number of exponent bits.
+            man_bits : int
+                Number of mantissa bits.
+            bias : optional
+                Set bias. Default is None.
+
+            Returns
+            -------
+            APyFloatArray
+                An array filled with zeros.
     )pbdoc"
         )
         .def_static(
@@ -531,14 +541,23 @@ void bind_float_array(nb::module_& m)
             nb::arg("man_bits"),
             nb::arg("bias") = std::nullopt,
             R"pbdoc(
-        Initializes an array with the specified value.
+        Initializes an array with ones.
 
-        Parameters:
-            shape (tuple): Shape of the array.
-            fill_value (APyFloat): Value to fill the array.
+        Parameters
+        ----------
+        shape : tuple
+            Shape of the array.
+        exp_bits : int
+            Number of exponent bits.
+        man_bits : int
+            Number of mantissa bits.
+        bias : optional
+            Set bias. Default is None.
 
-        Returns:
-            APyFixedArray: An array filled with the specified value.
+        Returns
+        -------
+        APyFloatArray
+            An array filled with ones.
     )pbdoc"
         )
         .def_static(
@@ -550,14 +569,25 @@ void bind_float_array(nb::module_& m)
             nb::arg("m") = nb::none(),
             nb::arg("bias") = std::nullopt,
             R"pbdoc(
-        Initializes an array with the specified value.
+        Initializes an array with ones on the diagonal.
 
-        Parameters:
-            shape (tuple): Shape of the array.
-            fill_value (APyFloat): Value to fill the array.
+        Parameters
+        ----------
+        n : int
+            Number of rows (and columns) in the n x n output.
+        exp_bits : int
+            Number of exponent bits.
+        man_bits : int
+            Number of mantissa bits.
+        m : int, optional
+            Number of columns. Default is None, which results in an n x n output.
+        bias : optional
+            Set bias. Default is None.
 
-        Returns:
-            APyFixedArray: An array filled with the specified value.
+        Returns
+        -------
+        APyFloatArray
+            An array with the specified value on the diagonal.
     )pbdoc"
         )
         .def_static(
@@ -568,14 +598,23 @@ void bind_float_array(nb::module_& m)
             nb::arg("man_bits"),
             nb::arg("bias") = std::nullopt,
             R"pbdoc(
-        Initializes an array with the specified value.
+        Initializes an identity matrix with ones on the diagonal.
 
-        Parameters:
-            shape (tuple): Shape of the array.
-            fill_value (APyFloat): Value to fill the array.
+        Parameters
+        ----------
+        n : int
+            Number of rows (and columns) in the n x n output.
+        exp_bits : int
+            Number of exponent bits.
+        man_bits : int
+            Number of mantissa bits.
+        bias : optional
+            Set bias. Default is None.
 
-        Returns:
-            APyFixedArray: An array filled with the specified value.
+        Returns
+        -------
+        APyFloatArray
+            An identity matrix with ones on the diagonal.
     )pbdoc"
         )
         .def_static(
@@ -584,17 +623,21 @@ void bind_float_array(nb::module_& m)
             nb::arg("shape"),
             nb::arg("fill_value"),
             R"pbdoc(
-        Initializes an array with the specified value.
+        Initializes an array filled with the specified value.
 
-        Parameters:
-            shape (tuple): Shape of the array.
-            fill_value (APyFloat): Value to fill the array.
+        Parameters
+        ----------
+        shape : tuple
+            Shape of the array.
+        fill_value : APyFloat
+            Value to fill the array.
 
-        Returns:
-            APyFixedArray: An array filled with the specified value.
+        Returns
+        -------
+        APyFloatArray
+            An array filled with the specified value.
     )pbdoc"
         )
-
         /*
          * Dunder methods
          */

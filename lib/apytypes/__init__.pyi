@@ -23,6 +23,7 @@ from ._apytypes import (
     set_float_quantization_seed as set_float_quantization_seed,
 )
 from ._array_functions import (
+    arange as arange,
     convolve as convolve,
     expand_dims as expand_dims,
     eye as eye,
@@ -76,6 +77,7 @@ __all__: list = [
     "identity",
     "full",
     "full_like",
+    "arange",
 ]
 
 annotations: __future__._Feature = ...

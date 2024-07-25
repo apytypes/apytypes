@@ -443,7 +443,7 @@ def zeros(shape, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=Non
 
     from apytypes import APyFixedArray, APyFloatArray
 
-    a_type = _get_return_type(int_bits, frac_bits, exp_bits, mantissa_bits)
+    a_type = _determine_array_type(int_bits, frac_bits, exp_bits, mantissa_bits)
     try:
         zeros = a_type.zeros
     except AttributeError:
@@ -484,7 +484,7 @@ def ones(shape, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
 
     from apytypes import APyFixedArray, APyFloatArray
 
-    a_type = _get_return_type(int_bits, frac_bits, exp_bits, mantissa_bits)
+    a_type = _determine_array_type(int_bits, frac_bits, exp_bits, mantissa_bits)
     try:
         ones = a_type.ones
     except AttributeError:
@@ -531,7 +531,7 @@ def eye(
 
     from apytypes import APyFixedArray, APyFloatArray
 
-    a_type = _get_return_type(int_bits, frac_bits, exp_bits, mantissa_bits)
+    a_type = _determine_array_type(int_bits, frac_bits, exp_bits, mantissa_bits)
     try:
         eye = a_type.eye
     except AttributeError:
@@ -574,7 +574,7 @@ def identity(n, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
 
     from apytypes import APyFixedArray, APyFloatArray
 
-    a_type = _get_return_type(int_bits, frac_bits, exp_bits, mantissa_bits)
+    a_type = _determine_array_type(int_bits, frac_bits, exp_bits, mantissa_bits)
     try:
         identity = a_type.identity
     except AttributeError:
@@ -673,13 +673,13 @@ def zeros_like(a, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=No
     from apytypes import APyFixedArray, APyFloatArray
 
     if isinstance(a, APyFixedArray):
-        int_bits = int_bits or a.int_bits
-        frac_bits = frac_bits or a.frac_bits
+        int_bits = int_bits if int_bits is not None else a.int_bits
+        frac_bits = frac_bits if int_bits is not None else a.frac_bits
         return zeros(shape=a.shape, int_bits=int_bits, frac_bits=frac_bits)
 
     if isinstance(a, APyFloatArray):
-        exp_bits = exp_bits or a.exp_bits
-        mantissa_bits = mantissa_bits or a.man_bits
+        exp_bits = exp_bits if exp_bits is not None else a.exp_bits
+        mantissa_bits = mantissa_bits if mantissa_bits is not None else a.man_bits
         return zeros(shape=a.shape, exp_bits=exp_bits, man_bits=mantissa_bits)
 
     raise ValueError("Only 'fixed' and 'float' array_types are defined")
@@ -716,13 +716,13 @@ def ones_like(a, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=Non
     from apytypes import APyFixedArray, APyFloatArray
 
     if isinstance(a, APyFixedArray):
-        int_bits = int_bits or a.int_bits
-        frac_bits = frac_bits or a.frac_bits
+        int_bits = int_bits if int_bits is not None else a.int_bits
+        frac_bits = frac_bits if frac_bits is not None else a.frac_bits
         return ones(shape=a.shape, int_bits=int_bits, frac_bits=frac_bits)
 
     if isinstance(a, APyFloatArray):
-        exp_bits = exp_bits or a.exp_bits
-        mantissa_bits = mantissa_bits or a.man_bits
+        exp_bits = exp_bits if exp_bits is not None else a.exp_bits
+        mantissa_bits = mantissa_bits if mantissa_bits is not None else a.man_bits
         return ones(shape=a.shape, exp_bits=exp_bits, man_bits=mantissa_bits)
 
     raise ValueError("Only 'fixed' and 'float' array_types are defined")
@@ -774,15 +774,72 @@ def full_like(
     return full(a.shape, fill_value)
 
 
+def arange(
+    start,
+    stop=None,
+    step=1,
+    int_bits=None,
+    frac_bits=None,
+    exp_bits=None,
+    mantissa_bits=None,
+):
+    """
+    Simple and naive version of arange.
+
+    Parameters
+    ----------
+    start : int, float
+        start number
+    stop : int, optional
+        stop number
+    step : int, float, optional
+        step size in range
+    int_bits : int, optional
+        Number of integer bits for APyFixed.
+    frac_bits : int, optional
+        Number of fractional bits for APyFixed.
+    exp_bits : int, optional
+        Number of exponent bits for APyFloat.
+    mantissa_bits : int, optional
+        Number of mantissa bits for APyFloat.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        Array filled with fill_value, having the same shape and type as `a`.
+    """
+    if stop is None:
+        start, stop = 0, start
+    if step == 0:
+        raise ValueError("Step must not be zero")
+
+    floats = []
+    value = start
+    while (step > 0 and value < stop) or (step < 0 and value > stop):
+        floats.append(value)
+        value += step
+
+    a_type = _determine_array_type(int_bits, frac_bits, exp_bits, mantissa_bits)
+    from apytypes import APyFixedArray, APyFloatArray
+
+    if a_type is APyFixedArray:
+        return APyFixedArray.from_float(floats, int_bits=int_bits, frac_bits=frac_bits)
+    elif a_type is APyFloatArray:
+        return APyFloatArray.from_float(
+            floats, exp_bits=exp_bits, man_bits=mantissa_bits
+        )
+    raise ValueError("Undefined inputs")
+
+
 # =============================================================================
 # Helpers
 # =============================================================================
-def _get_return_type(int_bits, frac_bits, exp_bits, mantissa_bits):
+def _determine_array_type(int_bits, frac_bits, exp_bits, mantissa_bits):
     from apytypes import APyFixedArray, APyFloatArray
 
-    if int_bits and frac_bits:
+    if int_bits is not None and frac_bits is not None:
         return APyFixedArray
-    elif exp_bits and mantissa_bits:
+    elif exp_bits is not None and mantissa_bits is not None:
         return APyFloatArray
     raise ValueError("You need to specify wordlengths in this function")
 
@@ -811,13 +868,15 @@ def _normalize_fill_value(
             )
 
     elif isinstance(fill_value, APyFixed):
-        int_bits = int_bits or fill_value.int_bits
-        frac_bits = frac_bits or fill_value.frac_bits
+        int_bits = int_bits if int_bits is not None else fill_value.int_bits
+        frac_bits = frac_bits if frac_bits is not None else fill_value.frac_bits
         return fill_value.cast(int_bits, frac_bits)
 
     elif isinstance(fill_value, APyFloat):
-        exp_bits = exp_bits or fill_value.exp_bits
-        mantissa_bits = mantissa_bits or fill_value.man_bits
+        exp_bits = exp_bits if exp_bits is not None else fill_value.exp_bits
+        mantissa_bits = (
+            mantissa_bits if mantissa_bits is not None else fill_value.man_bits
+        )
         return fill_value.cast(exp_bits, mantissa_bits, fill_value.bias)
 
     else:

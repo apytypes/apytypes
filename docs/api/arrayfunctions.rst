@@ -15,18 +15,18 @@ Array functions
 
 .. autofunction:: apytypes.expand_dims
 
-.. automethod:: apytypes.zeros
+.. autofunction:: apytypes.zeros
 
-.. automethod:: apytypes.ones
+.. autofunction:: apytypes.ones
 
-.. automethod:: apytypes.eye
+.. autofunction:: apytypes.eye
 
-.. automethod:: apytypes.identity
+.. autofunction:: apytypes.identity
 
-.. automethod:: apytypes.full
+.. autofunction:: apytypes.full
 
-.. automethod:: apytypes.zeros_like
+.. autofunction:: apytypes.zeros_like
 
-.. automethod:: apytypes.ones_like
+.. autofunction:: apytypes.ones_like
 
-.. automethod:: apytypes.full_like
+.. autofunction:: apytypes.full_like

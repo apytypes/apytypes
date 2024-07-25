@@ -250,10 +250,29 @@ def full_like(
     exp_bits: None = None,
     mantissa_bits: None = None,
 ) -> APyFixedArray: ...
-@overload
 def full_like(
     a: APyArray,
     fill_value: Union[int, float] = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    exp_bits: int = None,
+    mantissa_bits: int = None,
+) -> APyFloatArray: ...
+@overload
+def arange(
+    start: Union[int, float],
+    stop: Union[int, float] = None,
+    step: Union[int, float, None] = None,
+    int_bits: int = None,
+    frac_bits: int = None,
+    exp_bits: None = None,
+    mantissa_bits: None = None,
+) -> APyFixedArray: ...
+@overload
+def arange(
+    start: Union[int, float],
+    stop: Union[int, float] = None,
+    step: Union[int, float, None] = None,
     int_bits: None = None,
     frac_bits: None = None,
     exp_bits: int = None,
