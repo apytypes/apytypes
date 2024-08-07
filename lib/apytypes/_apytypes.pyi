@@ -1694,8 +1694,6 @@ class APyFloat:
         """
         True if and only if value is subnormal.
 
-        Zero is considered subnormal.
-
         Returns
         -------
         :class:`bool`
