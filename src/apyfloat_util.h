@@ -240,7 +240,7 @@ void check_mantissa_format(int man_bits);
     return src.exp == 0 && src.man == 0;
 }
 
-[[maybe_unused]] static APY_INLINE bool is_subnormal(const APyFloatData& src)
+[[maybe_unused]] static APY_INLINE bool is_zero_exponent(const APyFloatData& src)
 {
     return src.exp == 0;
 }
@@ -262,13 +262,13 @@ template <typename APYFLOAT_TYPE>
 [[maybe_unused]] static APY_INLINE bool
 is_normal(const APyFloatData& src, const APYFLOAT_TYPE& ref)
 {
-    return !is_subnormal(src) && !is_max_exponent(src, ref);
+    return !is_zero_exponent(src) && !is_max_exponent(src, ref);
 }
 
 [[maybe_unused]] static APY_INLINE bool
 is_normal(const APyFloatData& src, uint8_t exp_bits)
 {
-    return !is_subnormal(src) && !is_max_exponent(src, exp_bits);
+    return !is_zero_exponent(src) && !is_max_exponent(src, exp_bits);
 }
 
 template <typename APYFLOAT_TYPE>
@@ -289,7 +289,7 @@ template <typename APYFLOAT_TYPE>
 [[maybe_unused]] static APY_INLINE std::int64_t
 true_exp(const APyFloatData& src, const APYFLOAT_TYPE& ref)
 {
-    return std::int64_t(src.exp) - std::int64_t(ref.get_bias()) + is_subnormal(src);
+    return std::int64_t(src.exp) - std::int64_t(ref.get_bias()) + is_zero_exponent(src);
 }
 
 template <typename APYFLOAT_TYPE>
@@ -310,7 +310,7 @@ template <typename APYFLOAT_TYPE>
 [[maybe_unused]] static APY_INLINE std::tuple<APyFloatData, uint8_t, exp_t>
 normalize(const APyFloatData& src, const APYFLOAT_TYPE& ref)
 {
-    if (!is_subnormal(src) || is_zero(src)) {
+    if (!(is_zero_exponent(src) && src.man != 0)) { // if not subnormal
         return { src, ref.get_exp_bits(), ref.get_bias() };
     }
 

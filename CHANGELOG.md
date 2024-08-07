@@ -63,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed bug where `APyFixedArray.from_array()` initialized the wrong stored
   value from floating-point values that are too small for its representation.
   (#487)
+- No longer consider zero a subnormal number.
 
 ### Removed
 

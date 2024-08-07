@@ -251,17 +251,19 @@ public:
      */
 
     //! True if and only if value is normal (not zero, subnormal, infinite, or NaN).
-    APY_INLINE bool is_normal() const { return !is_subnormal() && !is_max_exponent(); }
+    APY_INLINE bool is_normal() const
+    {
+        return !is_zero_exponent() && !is_max_exponent();
+    }
 
     //! True if and only if value is zero, subnormal, or normal.
     APY_INLINE bool is_finite() const { return is_subnormal() || !is_max_exponent(); }
 
-    //! True if and only if value is subnormal. Zero is also considered a subnormal
-    //! number.
-    APY_INLINE bool is_subnormal() const { return exp == 0; }
+    //! True if and only if value is subnormal.
+    APY_INLINE bool is_subnormal() const { return is_zero_exponent() && man != 0; }
 
     //! True if and only if value is zero.
-    APY_INLINE bool is_zero() const { return is_subnormal() && man == 0; }
+    APY_INLINE bool is_zero() const { return is_zero_exponent() && man == 0; }
 
     //! True if and only if value is NaN.
     APY_INLINE bool is_nan() const { return man != 0 && is_max_exponent(); }
@@ -271,6 +273,9 @@ public:
 
     //! True if and only if value is infinite or NaN.
     APY_INLINE bool is_max_exponent() const { return exp == max_exponent(); }
+
+    //! True if and only if value is zero or subnormal.
+    APY_INLINE bool is_zero_exponent() const { return exp == 0; }
 
     //! Return the stored sign
     APY_INLINE bool get_sign() const { return sign; }

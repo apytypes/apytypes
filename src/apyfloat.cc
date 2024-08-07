@@ -278,7 +278,7 @@ APyFloat APyFloat::_checked_cast(
 
     // Normalize the exponent and mantissa if converting from a subnormal
     man_t prev_man = man;
-    if (is_subnormal()) {
+    if (is_zero_exponent()) {
         const exp_t subn_adjustment = count_trailing_bits(man);
         new_exp = new_exp - man_bits + subn_adjustment;
         const man_t remainder = man % (1ULL << subn_adjustment);
@@ -391,7 +391,7 @@ APyFloat APyFloat::_cast_to_double() const
 
     // Normalize the exponent and mantissa if convertering from a subnormal
     man_t prev_man = man;
-    if (is_subnormal()) {
+    if (is_zero_exponent()) {
         const exp_t subn_adjustment = count_trailing_bits(man);
         new_exp = new_exp - man_bits + subn_adjustment;
         const man_t remainder = man % (1ULL << subn_adjustment);
@@ -478,7 +478,7 @@ APyFloat APyFloat::cast_from_double(
 
     // Normalize the exponent and mantissa if convertering from a subnormal
     man_t prev_man;
-    if (is_subnormal()) {
+    if (is_zero_exponent()) {
         const exp_t subn_adjustment = count_trailing_bits(man);
         new_exp = (std::int64_t)exp - 1074 + (std::int64_t)res.bias + subn_adjustment;
         const man_t remainder = man % (1ULL << subn_adjustment);
@@ -576,7 +576,7 @@ APyFloat APyFloat::cast_no_quant(
 
     // Normalize the exponent and mantissa if convertering from a subnormal
     man_t prev_man = man;
-    if (is_subnormal()) {
+    if (is_zero_exponent()) {
         const exp_t subn_adjustment = count_trailing_bits(man);
         new_exp = new_exp - man_bits + subn_adjustment;
         const man_t remainder = man % (1ULL << subn_adjustment);
@@ -1034,14 +1034,14 @@ APyFloat& APyFloat::operator+=(const APyFloat& rhs)
     }
 
     // Compute smaller exponent so that one can overwrite exp later
-    const exp_t smaller_exp = y->exp + y->is_subnormal();
+    const exp_t smaller_exp = y->exp + y->is_zero_exponent();
 
     // Conditionally add leading one's
     const man_t mx = x->true_man();
     const man_t my = y->true_man();
 
     // Tentative exponent, write directly
-    exp = x->exp + x->is_subnormal();
+    exp = x->exp + x->is_zero_exponent();
 
     // Align mantissas based on exponent difference
     const unsigned exp_delta = exp - smaller_exp;
@@ -1684,7 +1684,7 @@ APyFloat::construct_nan(std::optional<bool> new_sign, man_t payload /*= 1*/) con
 //! Add mantissa bits so that a number is no longer subnormal
 APyFloat APyFloat::normalized() const
 {
-    if (!is_subnormal() || is_zero()) {
+    if (!is_subnormal()) {
         return *this;
     }
 

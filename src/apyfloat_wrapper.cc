@@ -454,8 +454,6 @@ void bind_float(nb::module_& m)
         .def_prop_ro("is_subnormal", &APyFloat::is_subnormal, R"pbdoc(
             True if and only if value is subnormal.
 
-            Zero is considered subnormal.
-
             Returns
             -------
             :class:`bool`

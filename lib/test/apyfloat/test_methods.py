@@ -368,7 +368,7 @@ def test_properties():
     a = APyFloat(0, 0, 0, 5, 2)
     assert a.is_finite
     assert not a.is_normal
-    assert a.is_subnormal
+    assert not a.is_subnormal
     assert not a.is_nan
     assert not a.is_inf
     assert a.is_zero
