@@ -315,6 +315,10 @@ To change the word length of a APyFloat, the method :func:`~APyFloat.cast` can b
 
       :download:`Download Python source code: apyfloat.py <apyfloat.py>`
 
+    .. container:: sphx-glr-download sphx-glr-download-zip
+
+      :download:`Download zipped: apyfloat.zip <apyfloat.zip>`
+
 
 .. only:: html
 

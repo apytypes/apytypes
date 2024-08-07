@@ -5,12 +5,12 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="APyFloatArray" href="apyfloatarray.html" /><link rel="prev" title="apyfixed_util.h" href="apyfixed_util.html" />
 
-    <!-- Generated with Sphinx 7.4.5 and Furo 2024.07.18 -->
+    <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
         <title>APyFloat - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -582,7 +582,7 @@
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NK8APyFloat12is_subnormalEv">
 <span id="_CPPv3NK8APyFloat12is_subnormalEv"></span><span id="_CPPv2NK8APyFloat12is_subnormalEv"></span><span id="APyFloat::is_subnormalC"></span><span class="target" id="classAPyFloat_1adac1d6813b4d422e0fab0966e66de28d"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">is_subnormal</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8APyFloat12is_subnormalEv" title="Link to this definition">¶</a><br /></dt>
-<dd><p>True if and only if value is subnormal. Zero is also considered a subnormal number. </p>
+<dd><p>True if and only if value is subnormal. </p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -607,6 +607,12 @@
 <dt class="sig sig-object cpp" id="_CPPv4NK8APyFloat15is_max_exponentEv">
 <span id="_CPPv3NK8APyFloat15is_max_exponentEv"></span><span id="_CPPv2NK8APyFloat15is_max_exponentEv"></span><span id="APyFloat::is_max_exponentC"></span><span class="target" id="classAPyFloat_1ac609fce9f228a11187fef5ed89b1c413"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">is_max_exponent</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8APyFloat15is_max_exponentEv" title="Link to this definition">¶</a><br /></dt>
 <dd><p>True if and only if value is infinite or NaN. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK8APyFloat16is_zero_exponentEv">
+<span id="_CPPv3NK8APyFloat16is_zero_exponentEv"></span><span id="_CPPv2NK8APyFloat16is_zero_exponentEv"></span><span id="APyFloat::is_zero_exponentC"></span><span class="target" id="classAPyFloat_1ab6d437facdad3ed221de12ec6166f366"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">is_zero_exponent</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8APyFloat16is_zero_exponentEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>True if and only if value is zero or subnormal. </p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -942,6 +948,7 @@
 <li><a class="reference internal" href="#_CPPv4NK8APyFloat6is_nanEv"><code class="docutils literal notranslate"><span class="pre">APyFloat::is_nan()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK8APyFloat6is_infEv"><code class="docutils literal notranslate"><span class="pre">APyFloat::is_inf()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK8APyFloat15is_max_exponentEv"><code class="docutils literal notranslate"><span class="pre">APyFloat::is_max_exponent()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK8APyFloat16is_zero_exponentEv"><code class="docutils literal notranslate"><span class="pre">APyFloat::is_zero_exponent()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK8APyFloat8get_signEv"><code class="docutils literal notranslate"><span class="pre">APyFloat::get_sign()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK8APyFloat7get_manEv"><code class="docutils literal notranslate"><span class="pre">APyFloat::get_man()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK8APyFloat7get_expEv"><code class="docutils literal notranslate"><span class="pre">APyFloat::get_exp()</span></code></a></li>
