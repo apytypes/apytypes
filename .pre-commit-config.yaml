@@ -10,7 +10,7 @@ repos:
     - id: check-toml
     - id: end-of-file-fixer
   - repo: https://github.com/crate-ci/typos
-    rev: v1.22.9
+    rev: typos-dict-v0.11.27
     hooks:
     - id: typos
   - repo: https://github.com/pre-commit/mirrors-clang-format
@@ -32,7 +32,7 @@ repos:
     - id: text-unicode-replacement-char
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.5.0
+    rev: v0.6.3
     hooks:
       # Run the linter.
       - id: ruff
