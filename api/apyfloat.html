@@ -311,36 +311,6 @@ using the formula</p>
 the same as the input operands’ by quantizing to nearest number with ties to even (<a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode.TIES_EVEN" title="apytypes.QuantizationMode.TIES_EVEN"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode.TIES_EVEN</span></code></a>).
 If the operands do not share the same format, the resulting
 bit widths of the exponent and mantissa field will be the maximum of its inputs:</p>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloat</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFloat</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.25</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">APyFloat</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.75</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Operands with same format, result will have exp_bits=5, man_bits=2</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
-<span class="go">APyFloat(sign=0, exp=16, man=2, exp_bits=5, man_bits=2)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">APyFloat</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.75</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Operands with different formats, result will have exp_bits=5, man_bits=4</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">+</span> <span class="n">d</span>
-<span class="go">APyFloat(sign=0, exp=16, man=8, exp_bits=5, man_bits=4)</span>
-</pre></div>
-</div>
-<p>If the operands of an arithmetic operation have IEEE-like biases, then the result will
-also have an IEEE-like bias – based on the resulting number of exponent bits.
-To support operations with biases deviating from the standard, the bias of the resulting format
-is calculated as the “average” of the inputs’ biases:</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[\texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp_bits}_2} \right ) \times 2^{\texttt{exp_bits}_3}}{2} - 1,\]</div>
-</div>
-<p>where <span class="math notranslate nohighlight">\(\texttt{exp_bits}_1\)</span> and <span class="math notranslate nohighlight">\(\texttt{exp_bits}_2\)</span> are the bit widths of the operands, <span class="math notranslate nohighlight">\(\texttt{bias}_1\)</span> and <span class="math notranslate nohighlight">\(\texttt{bias}_2\)</span> are the
-input biases, and <span class="math notranslate nohighlight">\(\texttt{exp_bits}_3\)</span> is the target bit width.
-Note that this formula still results in an IEEE-like bias when the inputs use IEEE-like biases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -419,6 +389,36 @@ Note that this formula still results in an IEEE-like bias when the inputs use IE
 </tbody>
 </table>
 </div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloat</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFloat</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.25</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">APyFloat</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.75</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Operands with same format, result will have exp_bits=5, man_bits=2</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+<span class="go">APyFloat(sign=0, exp=16, man=2, exp_bits=5, man_bits=2)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">APyFloat</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="mf">1.75</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Operands with different formats, result will have exp_bits=5, man_bits=4</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">+</span> <span class="n">d</span>
+<span class="go">APyFloat(sign=0, exp=16, man=8, exp_bits=5, man_bits=4)</span>
+</pre></div>
+</div>
+<p>If the operands of an arithmetic operation have IEEE-like biases, then the result will
+also have an IEEE-like bias – based on the resulting number of exponent bits.
+To support operations with biases deviating from the standard, the bias of the resulting format
+is calculated as the “average” of the inputs’ biases:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp_bits}_2} \right ) \times 2^{\texttt{exp_bits}_3}}{2} - 1,\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(\texttt{exp_bits}_1\)</span> and <span class="math notranslate nohighlight">\(\texttt{exp_bits}_2\)</span> are the bit widths of the operands, <span class="math notranslate nohighlight">\(\texttt{bias}_1\)</span> and <span class="math notranslate nohighlight">\(\texttt{bias}_2\)</span> are the
+input biases, and <span class="math notranslate nohighlight">\(\texttt{exp_bits}_3\)</span> is the target bit width.
+Note that this formula still results in an IEEE-like bias when the inputs use IEEE-like biases.</p>
 <section id="constructor">
 <h2>Constructor<a class="headerlink" href="#constructor" title="Link to this heading">¶</a></h2>
 <dl class="py method">
