@@ -14,3 +14,19 @@ Array functions
 .. autofunction:: apytypes.swapaxes
 
 .. autofunction:: apytypes.expand_dims
+
+.. autofunction:: apytypes.zeros
+
+.. autofunction:: apytypes.ones
+
+.. autofunction:: apytypes.eye
+
+.. autofunction:: apytypes.identity
+
+.. autofunction:: apytypes.full
+
+.. autofunction:: apytypes.zeros_like
+
+.. autofunction:: apytypes.ones_like
+
+.. autofunction:: apytypes.full_like

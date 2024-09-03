@@ -28,6 +28,15 @@ from apytypes._array_functions import (
     moveaxis,
     swapaxes,
     expand_dims,
+    zeros,
+    zeros_like,
+    ones,
+    ones_like,
+    eye,
+    identity,
+    full,
+    full_like,
+    arange,
 )
 
 from apytypes._version import version as __version__
@@ -58,6 +67,15 @@ __all__ = [
     "moveaxis",
     "swapaxes",
     "expand_dims",
+    "zeros",
+    "zeros_like",
+    "ones",
+    "ones_like",
+    "eye",
+    "identity",
+    "full",
+    "full_like",
+    "arange",
 ]
 
 APyFloat.__doc__ = r"""

@@ -1330,6 +1330,135 @@ class APyFixedArray:
         :class:`APyFixedArray`
         """
 
+    @staticmethod
+    def zeros(
+        shape: tuple,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> APyFixedArray:
+        """
+        Initializes an array with zeros.
+
+        Parameters
+        ----------
+        shape : tuple
+            Shape of the array.
+        int_bits : int, optional
+            Number of integer bits. Default is None.
+        frac_bits : int, optional
+            Number of fractional bits. Default is None.
+        bits : int, optional
+            Total number of bits. Default is None.
+
+        Returns
+        -------
+        APyFixedArray
+            An array initialized with zeros.
+        """
+
+    @staticmethod
+    def ones(
+        shape: tuple,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> APyFixedArray:
+        """
+        Initializes an array with ones.
+
+        Parameters
+        ----------
+        shape : tuple
+            Shape of the array.
+        int_bits : int, optional
+            Number of integer bits. Default is None.
+        frac_bits : int, optional
+            Number of fractional bits. Default is None.
+        bits : int, optional
+            Total number of bits. Default is None.
+
+        Returns
+        -------
+        APyFixedArray
+            An array initialized with ones.
+        """
+
+    @staticmethod
+    def eye(
+        n: int,
+        m: int | None = None,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> APyFixedArray:
+        """
+        Initializes an array with ones on the diagonal.
+
+        Parameters
+        ----------
+        n : int
+            Number of rows.
+        m : int, optional
+            Number of columns. Default is None.
+        int_bits : int, optional
+            Number of integer bits. Default is None.
+        frac_bits : int, optional
+            Number of fractional bits. Default is None.
+        bits : int, optional
+            Total number of bits. Default is None.
+
+        Returns
+        -------
+        APyFixedArray
+            An array with the specified value on the diagonal.
+        """
+
+    @staticmethod
+    def identity(
+        n: int,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> APyFixedArray:
+        """
+        Initializes an identity matrix with ones on the diagonal.
+
+        Parameters
+        ----------
+        n : int
+            Number of rows (and columns) in n x n output.
+        int_bits : int, optional
+            Number of integer bits. Default is None.
+        frac_bits : int, optional
+            Number of fractional bits. Default is None.
+        bits : int, optional
+            Total number of bits. Default is None.
+
+        Returns
+        -------
+        APyFixedArray
+            An identity matrix with ones on the diagonal.
+        """
+
+    @staticmethod
+    def full(shape: tuple, fill_value: APyFixed) -> APyFixedArray:
+        """
+        Initializes an array with the specified value.
+
+        Parameters
+        ----------
+        shape : tuple
+            Shape of the array.
+        fill_value : APyFixed
+            Value to fill the array.
+
+        Returns
+        -------
+        APyFixedArray
+            An array filled with the specified value.
+        """
+
     def __lshift__(self, shift_amnt: int) -> APyFixedArray: ...
     def __matmul__(self, rhs: APyFixedArray) -> APyFixedArray: ...
     def __repr__(self) -> str: ...
@@ -2386,6 +2515,126 @@ class APyFloatArray:
         Returns
         -------
         :class:`APyFloatArray`
+        """
+
+    @staticmethod
+    def zeros(
+        shape: tuple, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyFloatArray:
+        """
+        Initializes an array with zeros.
+
+        Parameters
+        ----------
+        shape : tuple
+            Shape of the array.
+        exp_bits : int
+            Number of exponent bits.
+        man_bits : int
+            Number of mantissa bits.
+        bias : optional
+            Set bias. Default is None.
+
+        Returns
+        -------
+        APyFloatArray
+            An array filled with zeros.
+        """
+
+    @staticmethod
+    def ones(
+        shape: tuple, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyFloatArray:
+        """
+        Initializes an array with ones.
+
+        Parameters
+        ----------
+        shape : tuple
+            Shape of the array.
+        exp_bits : int
+            Number of exponent bits.
+        man_bits : int
+            Number of mantissa bits.
+        bias : optional
+            Set bias. Default is None.
+
+        Returns
+        -------
+        APyFloatArray
+            An array filled with ones.
+        """
+
+    @staticmethod
+    def eye(
+        n: int,
+        exp_bits: int,
+        man_bits: int,
+        m: int | None = None,
+        bias: int | None = None,
+    ) -> APyFloatArray:
+        """
+        Initializes an array with ones on the diagonal.
+
+        Parameters
+        ----------
+        n : int
+            Number of rows (and columns) in the n x n output.
+        exp_bits : int
+            Number of exponent bits.
+        man_bits : int
+            Number of mantissa bits.
+        m : int, optional
+            Number of columns. Default is None, which results in an n x n output.
+        bias : optional
+            Set bias. Default is None.
+
+        Returns
+        -------
+        APyFloatArray
+            An array with the specified value on the diagonal.
+        """
+
+    @staticmethod
+    def identity(
+        n: int, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyFloatArray:
+        """
+        Initializes an identity matrix with ones on the diagonal.
+
+        Parameters
+        ----------
+        n : int
+            Number of rows (and columns) in the n x n output.
+        exp_bits : int
+            Number of exponent bits.
+        man_bits : int
+            Number of mantissa bits.
+        bias : optional
+            Set bias. Default is None.
+
+        Returns
+        -------
+        APyFloatArray
+            An identity matrix with ones on the diagonal.
+        """
+
+    @staticmethod
+    def full(shape: tuple, fill_value: APyFloat) -> APyFloatArray:
+        """
+        Initializes an array filled with the specified value.
+
+        Parameters
+        ----------
+        shape : tuple
+            Shape of the array.
+        fill_value : APyFloat
+            Value to fill the array.
+
+        Returns
+        -------
+        APyFloatArray
+            An array filled with the specified value.
         """
 
     def __matmul__(self, rhs: APyFloatArray) -> APyFloatArray | APyFloat: ...
