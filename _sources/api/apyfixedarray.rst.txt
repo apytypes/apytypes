@@ -15,6 +15,19 @@
 
    .. automethod:: from_float
 
+   Other creation functions
+   ------------------------
+
+   .. automethod:: zeros
+
+   .. automethod:: ones
+
+   .. automethod:: eye
+
+   .. automethod:: identity
+
+   .. automethod:: full
+
    Change word length
    ------------------
 
