@@ -85,8 +85,8 @@ markers = [
 
 [tool.typos]
 files.extend-exclude = ["extern", "docs/Doxyfile"]
-default.extend-words = { NDArray = "NDArray" }
-default.extend-identifiers = { NDArray = "NDArray" }
+default.extend-words = { NDArray = "NDArray", arange = "arange" }
+default.extend-identifiers = { NDArray = "NDArray", arange = "arange" }
 
 [tool.cibuildwheel]
 skip = [

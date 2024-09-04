@@ -85,6 +85,14 @@
 
    .. automethod:: nancumprod
 
+   .. automethod:: max
+
+   .. automethod:: min
+
+   .. automethod:: nanmax
+
+   .. automethod:: nanmin
+
    Broadcasting
    ------------
 
