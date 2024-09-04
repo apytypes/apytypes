@@ -525,7 +525,7 @@ void bind_float_array(nb::module_& m)
             man_bits : int
                 Number of mantissa bits.
             bias : optional
-                Set bias. Default is None.
+                Set bias.
 
             Returns
             -------
@@ -552,7 +552,7 @@ void bind_float_array(nb::module_& m)
         man_bits : int
             Number of mantissa bits.
         bias : optional
-            Set bias. Default is None.
+            Set bias.
 
         Returns
         -------
@@ -582,7 +582,7 @@ void bind_float_array(nb::module_& m)
         m : int, optional
             Number of columns. Default is None, which results in an n x n output.
         bias : optional
-            Set bias. Default is None.
+            Set bias.
 
         Returns
         -------
@@ -609,7 +609,7 @@ void bind_float_array(nb::module_& m)
         man_bits : int
             Number of mantissa bits.
         bias : optional
-            Set bias. Default is None.
+            Set bias.
 
         Returns
         -------
