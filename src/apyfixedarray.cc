@@ -1607,14 +1607,75 @@ std::variant<APyFixedArray, APyFixed> APyFixedArray::get_item(std::size_t idx) c
     }
 }
 
+std::variant<nb::list, nb::ndarray<nb::numpy, uint64_t>>
+APyFixedArray::to_bits(bool numpy) const
+{
+    if (numpy) {
+        return to_bits_ndarray();
+    } else {
+        auto it = std::cbegin(_data);
+        return to_bits_python_recursive_descent(0, it);
+    }
+}
+
+nb::list APyFixedArray::to_bits_python_recursive_descent(
+    std::size_t dim, APyBuffer<mp_limb_t>::vector_type::const_iterator& it
+) const
+{
+    nb::list result;
+    if (dim == _ndim - 1) {
+        // Most inner dimension: append data
+        for (std::size_t i = 0; i < _shape[dim]; i++) {
+            result.append(python_limb_vec_to_long(
+                it,                      // start
+                it + _itemsize,          // stop
+                false,                   // vec_is_signed
+                bits() % _LIMB_SIZE_BITS // bits_last_limb
+            ));
+            it += _itemsize;
+        }
+    } else {
+        // We need to go deeper...
+        for (std::size_t i = 0; i < _shape[dim]; i++) {
+            result.append(to_bits_python_recursive_descent(dim + 1, it));
+        }
+    }
+    return result;
+}
+
+nb::ndarray<nb::numpy, uint64_t> APyFixedArray::to_bits_ndarray() const
+{
+    if (bits() > int(_LIMB_SIZE_BITS)) {
+        throw nb::value_error(
+            fmt::format(
+                "APyFixedArray::to_bits_ndarray(): only supports <= {}-bit elements",
+                _LIMB_SIZE_BITS
+            )
+                .c_str()
+        );
+    }
+
+    uint64_t* result_data = new uint64_t[_nitems];
+    for (std::size_t i = 0; i < _nitems; i++) {
+        result_data[i] = uint64_t(_data[i]);
+        if (bits() % _LIMB_SIZE_BITS) {
+            result_data[i] &= (uint64_t(1) << (bits() % _LIMB_SIZE_BITS)) - 1;
+        }
+    }
+
+    // Delete `result_data` when the `owner` capsule expires
+    nb::capsule owner(result_data, [](void* p) noexcept { delete[] (uint64_t*)p; });
+
+    return nb::ndarray<nb::numpy, uint64_t>(result_data, _ndim, &_shape[0], owner);
+}
+
 nb::ndarray<nb::numpy, double> APyFixedArray::to_numpy() const
 {
-    auto size = _nitems;
     // Dynamically allocate data to be passed to python
-    double* result_data = new double[size];
+    double* result_data = new double[_nitems];
 
     APyFixed type_caster(bits(), int_bits());
-    for (std::size_t i = 0; i < size; i++) {
+    for (std::size_t i = 0; i < _nitems; i++) {
         std::copy_n(
             std::begin(_data) + i * _itemsize, _itemsize, std::begin(type_caster._data)
         );

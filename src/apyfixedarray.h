@@ -260,6 +260,15 @@ public:
     //! Number of fractional bits
     APY_INLINE int frac_bits() const noexcept { return _bits - _int_bits; }
 
+    //! Extract bit-pattern
+    std::variant<nb::list, nb::ndarray<nb::numpy, uint64_t>>
+    to_bits(bool numpy = false) const;
+
+    nb::ndarray<nb::numpy, uint64_t> to_bits_ndarray() const;
+    nb::list to_bits_python_recursive_descent(
+        std::size_t dim, APyBuffer<mp_limb_t>::vector_type::const_iterator& it
+    ) const;
+
     //! Convert to a NumPy array
     nb::ndarray<nb::numpy, double> to_numpy() const;
 

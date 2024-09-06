@@ -602,6 +602,20 @@ class APyFixedArray:
         :class:`numpy.ndarray`
         """
 
+    def to_bits(
+        self, numpy: bool = False
+    ) -> list | Annotated[ArrayLike, dict(dtype="uint64")]:
+        """
+        Return the underlying bit representations.
+
+        When `numpy` is true, the bit representations are returned in a
+        :class:`numpy.ndarray`. Otherwise, they are returned in a :class:`list`.
+
+        Returns
+        -------
+        :class:`list` or :class:`numpy.ndarray`
+        """
+
     def reshape(self, number_sequence: tuple) -> APyFixedArray:
         """
         Reshape the APyFixedArray to the specified shape without changing its data.
