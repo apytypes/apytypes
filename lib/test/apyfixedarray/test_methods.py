@@ -966,3 +966,106 @@ def test_swapaxes():
 
     if not a.swapaxes(0, 2).shape == (2, 3, 4):
         pytest.fail("swapaxes didn't correctly swap axis")
+
+
+def test_to_bits():
+    #
+    # 1-D:
+    #
+    assert APyFixedArray.from_float(range(4), 4, 0).to_bits() == [0, 1, 2, 3]
+    assert APyFixedArray.from_float(range(4), 4, 1).to_bits() == [0, 2, 4, 6]
+    assert APyFixedArray.from_float(range(4), int_bits=4, frac_bits=1234).to_bits() == [
+        0 * 2**1234,
+        1 * 2**1234,
+        2 * 2**1234,
+        3 * 2**1234,
+    ]
+    assert APyFixedArray.from_float(
+        range(-3, 3), int_bits=4, frac_bits=0
+    ).to_bits() == [0b1101, 0b1110, 0b1111, 0b0000, 0b0001, 0b0010]
+    assert APyFixedArray.from_float(
+        range(-3, 3), int_bits=4, frac_bits=1
+    ).to_bits() == [0b11010, 0b11100, 0b11110, 0b00000, 0b00010, 0b00100]
+
+    #
+    # 2-D:
+    #
+    assert APyFixedArray.from_float(
+        [[1, 2], [4, 3]], int_bits=4, frac_bits=0
+    ).to_bits() == [[1, 2], [4, 3]]
+    assert APyFixedArray.from_float(
+        [[1, 2], [4, 3]], int_bits=4, frac_bits=1
+    ).to_bits() == [[2, 4], [8, 6]]
+
+    #
+    # 3-D:
+    #
+    assert APyFixedArray.from_float(
+        [[[1, 2], [3, 4], [5, 6]], [[7, 8], [9, 8], [7, 6]]], int_bits=4, frac_bits=0
+    ).to_bits() == [[[1, 2], [3, 4], [5, 6]], [[7, 8], [9, 8], [7, 6]]]
+    assert APyFixedArray.from_float(
+        [[[1, 2], [3, 4], [5, 6]], [[7, 8], [9, 8], [7, 6]]], int_bits=4, frac_bits=1
+    ).to_bits() == [[[2, 4], [6, 8], [10, 12]], [[14, 16], [18, 16], [14, 12]]]
+
+
+def test_to_bits_numpy():
+    #
+    # Numpy currently does not support long fixed-point conversions
+    #
+    with pytest.raises(ValueError, match=r"APyFixedArray::to_bits_ndarray"):
+        APyFixedArray([0], int_bits=100, frac_bits=1000).to_bits(True)
+
+    #
+    # 1-D:
+    #
+    np = pytest.importorskip("numpy")
+    assert np.all(
+        APyFixedArray.from_float(range(4), 4, 0).to_bits(True) == np.array([0, 1, 2, 3])
+    )
+    assert np.all(
+        APyFixedArray.from_float(range(4), 4, 1).to_bits(True) == np.array([0, 2, 4, 6])
+    )
+    assert np.all(
+        APyFixedArray.from_float(range(-3, 3), int_bits=4, frac_bits=0).to_bits(True)
+        == np.array([0b1101, 0b1110, 0b1111, 0b0000, 0b0001, 0b0010])
+    )
+    assert np.all(
+        APyFixedArray.from_float(range(-3, 3), int_bits=4, frac_bits=1).to_bits(True)
+        == np.array([0b11010, 0b11100, 0b11110, 0b00000, 0b00010, 0b00100])
+    )
+
+    #
+    # 2-D:
+    #
+    assert np.all(
+        APyFixedArray.from_float([[1, 2], [4, 3]], int_bits=4, frac_bits=0).to_bits(
+            True
+        )
+        == np.array([[1, 2], [4, 3]])
+    )
+    assert np.all(
+        APyFixedArray.from_float([[1, 2], [4, 3]], int_bits=4, frac_bits=1).to_bits(
+            True
+        )
+        == np.array([[2, 4], [8, 6]])
+    )
+
+    #
+    # 3-D:
+    #
+    assert np.all(
+        APyFixedArray.from_float(
+            [[[1, 2], [3, 4], [5, 6]], [[7, 8], [9, 8], [7, 6]]],
+            int_bits=4,
+            frac_bits=0,
+        ).to_bits(True)
+        == np.array([[[1, 2], [3, 4], [5, 6]], [[7, 8], [9, 8], [7, 6]]])
+    )
+    assert np.all(
+        APyFixedArray.from_float(
+            [[[1, 2], [3, 4], [5, 6]], [[7, 8], [9, 8], [7, 6]]],
+            int_bits=4,
+            frac_bits=1,
+        ).to_bits(True)
+        == np.array([[[2, 4], [6, 8], [10, 12]], [[14, 16], [18, 16], [14, 12]]])
+    )

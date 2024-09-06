@@ -265,7 +265,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     }
     PyLong_SetSignAndDigitCount(result, sign, python_digits);
 
-    // Do a nanobind steal of the object and return
+    // Do a nanobind steal of the raw Python object and return
     return nanobind::steal<nanobind::int_>((PyObject*)result);
 }
 

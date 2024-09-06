@@ -266,6 +266,22 @@ void bind_fixed_array(nb::module_& m)
             :class:`numpy.ndarray`
             )pbdoc")
 
+        .def(
+            "to_bits",
+            &APyFixedArray::to_bits,
+            nb::arg("numpy") = false,
+            R"pbdoc(
+            Return the underlying bit representations.
+
+            When `numpy` is true, the bit representations are returned in a
+            :class:`numpy.ndarray`. Otherwise, they are returned in a :class:`list`.
+
+            Returns
+            -------
+            :class:`list` or :class:`numpy.ndarray`
+            )pbdoc"
+        )
+
         .def("reshape", &APyFixedArray::reshape, nb::arg("number_sequence"), R"pbdoc(
         Reshape the APyFixedArray to the specified shape without changing its data.
 
