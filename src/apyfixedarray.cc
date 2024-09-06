@@ -1298,7 +1298,7 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
     const int prod_bits = a->bits() + b->bits();
     const int prod_int_bits = a->int_bits() + b->int_bits();
     std::optional<APyFixedAccumulatorOption> acc_mode = get_accumulator_mode_fixed();
-    auto dot = inner_product_func_from_acc_mode<std::vector<mp_limb_t>>(
+    auto dot = inner_product_func_from_acc_mode<APyBuffer<mp_limb_t>::vector_type>(
         prod_bits, prod_int_bits, acc_mode
     );
 
@@ -1406,8 +1406,8 @@ std::variant<APyFixedArray, APyFixed> APyFixedArray::max_min_helper_function(
 
     std::size_t elements = _nitems;
     std::vector<std::size_t> res_shape;
-    std::vector<mp_limb_t> source_data = _data;
-    std::vector<mp_limb_t> temp_data(_data.size(), 0);
+    APyBuffer<mp_limb_t>::vector_type source_data = _data;
+    APyBuffer<mp_limb_t>::vector_type temp_data(_data.size(), 0);
     std::vector<std::size_t> strides = strides_from_shape(_shape);
     APyFixed lhs_scalar(_bits, _int_bits);
     APyFixed rhs_scalar(_bits, _int_bits);

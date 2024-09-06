@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "../extern/mini-gmp/mini-gmp.h"
+#include "apybuffer.h"
 #include "apytypes_util.h"
 
 namespace simd {
@@ -415,9 +416,9 @@ std::string get_simd_version_str()
 }
 
 void vector_shift_add(
-    std::vector<mp_limb_t>::const_iterator src1_begin,
-    std::vector<mp_limb_t>::const_iterator src2_begin,
-    std::vector<mp_limb_t>::iterator dst_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
     unsigned src2_shift_amount,
     std::size_t size
@@ -434,9 +435,9 @@ void vector_shift_add(
 }
 
 void vector_shift_add_const(
-    std::vector<mp_limb_t>::const_iterator src1_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
     mp_limb_t constant,
-    std::vector<mp_limb_t>::iterator dst_begin,
+    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
     std::size_t size
 )
@@ -447,9 +448,9 @@ void vector_shift_add_const(
 }
 
 void vector_shift_sub(
-    std::vector<mp_limb_t>::const_iterator src1_begin,
-    std::vector<mp_limb_t>::const_iterator src2_begin,
-    std::vector<mp_limb_t>::iterator dst_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
     unsigned src2_shift_amount,
     std::size_t size
@@ -466,9 +467,9 @@ void vector_shift_sub(
 }
 
 void vector_shift_sub_const(
-    std::vector<mp_limb_t>::const_iterator src1_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
     mp_limb_t constant,
-    std::vector<mp_limb_t>::iterator dst_begin,
+    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
     std::size_t size
 )
@@ -479,9 +480,9 @@ void vector_shift_sub_const(
 }
 
 void vector_shift_div_signed(
-    std::vector<mp_limb_t>::const_iterator src1_begin,
-    std::vector<mp_limb_t>::const_iterator src2_begin,
-    std::vector<mp_limb_t>::iterator dst_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
     std::size_t size
 )
@@ -496,9 +497,9 @@ void vector_shift_div_signed(
 }
 
 void vector_shift_div_const_signed(
-    std::vector<mp_limb_t>::const_iterator src1_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
     mp_limb_t constant,
-    std::vector<mp_limb_t>::iterator dst_begin,
+    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
     std::size_t size
 )
@@ -513,9 +514,9 @@ void vector_shift_div_const_signed(
 }
 
 void vector_mul(
-    std::vector<mp_limb_t>::const_iterator src1_begin,
-    std::vector<mp_limb_t>::const_iterator src2_begin,
-    std::vector<mp_limb_t>::iterator dst_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 )
 {
@@ -525,9 +526,9 @@ void vector_mul(
 }
 
 void vector_mul_const(
-    std::vector<mp_limb_t>::const_iterator src1_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
     mp_limb_t constant,
-    std::vector<mp_limb_t>::iterator dst_begin,
+    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 )
 {
@@ -537,9 +538,9 @@ void vector_mul_const(
 }
 
 void vector_add(
-    std::vector<mp_limb_t>::const_iterator src1_begin,
-    std::vector<mp_limb_t>::const_iterator src2_begin,
-    std::vector<mp_limb_t>::iterator dst_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 )
 {
@@ -549,9 +550,9 @@ void vector_add(
 }
 
 void vector_sub(
-    std::vector<mp_limb_t>::const_iterator src1_begin,
-    std::vector<mp_limb_t>::const_iterator src2_begin,
-    std::vector<mp_limb_t>::iterator dst_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 )
 {
@@ -561,9 +562,9 @@ void vector_sub(
 }
 
 void vector_add_const(
-    std::vector<mp_limb_t>::const_iterator src1_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
     mp_limb_t constant,
-    std::vector<mp_limb_t>::iterator dst_begin,
+    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 )
 {
@@ -573,9 +574,9 @@ void vector_add_const(
 }
 
 void vector_sub_const(
-    std::vector<mp_limb_t>::const_iterator src1_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
     mp_limb_t constant,
-    std::vector<mp_limb_t>::iterator dst_begin,
+    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 )
 {
@@ -585,9 +586,9 @@ void vector_sub_const(
 }
 
 void vector_rsub_const(
-    std::vector<mp_limb_t>::const_iterator src1_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
     mp_limb_t constant,
-    std::vector<mp_limb_t>::iterator dst_begin,
+    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 )
 {
@@ -597,9 +598,9 @@ void vector_rsub_const(
 }
 
 void vector_rdiv_const_signed(
-    std::vector<mp_limb_t>::const_iterator src1_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
     mp_limb_t constant,
-    std::vector<mp_limb_t>::iterator dst_begin,
+    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 )
 {
@@ -612,8 +613,8 @@ void vector_rdiv_const_signed(
 }
 
 mp_limb_t vector_multiply_accumulate(
-    std::vector<mp_limb_t>::const_iterator src1_begin,
-    std::vector<mp_limb_t>::const_iterator src2_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
     std::size_t size
 )
 {
