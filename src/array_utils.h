@@ -15,7 +15,7 @@ namespace nb = nanobind;
 #include <vector>
 
 static APY_INLINE std::vector<std::size_t>
-shape_from_tuple(nb::tuple new_shape, size_t elem_count)
+reshape_from_tuple(nb::tuple new_shape, size_t total_elements)
 {
     std::vector<std::size_t> new_shape_vec;
     std::size_t reshape_size = 1;
@@ -42,38 +42,24 @@ shape_from_tuple(nb::tuple new_shape, size_t elem_count)
     }
 
     if (neg_one_count == 1) {
-        if (elem_count % reshape_size != 0) {
+        if (total_elements % reshape_size != 0) {
             throw nb::value_error(
                 "The total size of new array must be unchanged and divisible by the "
                 "known dimensions."
             );
         }
-        new_shape_vec[neg_one_pos] = elem_count / reshape_size;
+        new_shape_vec[neg_one_pos] = total_elements / reshape_size;
     }
 
     std::size_t reshape_elem_count = ::fold_shape(new_shape_vec);
 
     // Validate if total elements match the original array
-    if (elem_count != reshape_elem_count) {
+    if (total_elements != reshape_elem_count) {
         throw nb::value_error(
             "Total number of elements does not match the original array."
         );
     }
 
-    return new_shape_vec;
-}
-
-static APY_INLINE std::vector<std::size_t> shape_from_tuple(nb::tuple new_shape)
-{
-    std::vector<std::size_t> new_shape_vec;
-    for (auto it = new_shape.begin(); it != new_shape.end(); ++it) {
-        int current_value = nb::cast<int>(*it);
-        if (current_value < 0) {
-            throw nb::value_error("Negative dimensions or are not allowed.");
-        } else {
-            new_shape_vec.push_back(static_cast<std::size_t>(current_value));
-        }
-    }
     return new_shape_vec;
 }
 
@@ -87,20 +73,10 @@ static APY_INLINE std::vector<std::size_t> get_normalized_axes(
     const std::variant<nb::tuple, nb::int_>& axes, const std::size_t n_dim
 )
 {
-    bool is_tuple = std::holds_alternative<nanobind::tuple>(axes);
-    std::vector<int> cpp_axes {};
-    if (is_tuple) {
-        for (const auto& element : std::get<nanobind::tuple>(axes)) {
-            cpp_axes.push_back(nanobind::cast<int>(element));
-        }
-
-    } else {
-        cpp_axes.push_back(static_cast<int>(std::get<nanobind::int_>(axes)));
-    }
-
+    std::vector<std::size_t> result {};
+    std::vector<int> cpp_axes = cpp_shape_from_python_shape_like<int, true>(axes);
     std::unordered_set<std::size_t> unique_axes;
 
-    std::vector<std::size_t> result {};
     for (std::size_t i = 0; i < cpp_axes.size(); i++) {
         int axis = cpp_axes[i];
         if (axis < 0) {

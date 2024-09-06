@@ -1,4 +1,5 @@
 import pytest
+from itertools import permutations
 from apytypes import APyFloatArray, APyFloat, QuantizationMode
 
 
@@ -1464,7 +1465,125 @@ def test_swapaxes():
         pytest.fail("swapaxes didn't correctly swap axis")
 
 
-if __name__ == "__main__":
-    nan = float("nan")
-    a = APyFloatArray.from_float([nan], exp_bits=10, man_bits=10)
-    print(a.nanmax())
+@pytest.mark.float_array
+def test_transpose():
+    # 1-D transposition simply returns the input (just like NumPy-arrays)
+    assert APyFloatArray([], [], [], 4, 3).T.is_identical(
+        APyFloatArray([], [], [], 4, 3)
+    )
+    assert APyFloatArray([1, 0, 1], [15, 4, 20], [7, 2, 3], 5, 5).T.is_identical(
+        APyFloatArray([1, 0, 1], [15, 4, 20], [7, 2, 3], 5, 5)
+    )
+
+    # # 2-D transposition returns the matrix transposition
+    a = APyFloatArray.from_float(
+        [
+            [1.0, 2.0, 3.0],
+            [-4.0, -5.0, -6.0],
+        ],
+        exp_bits=5,
+        man_bits=2,
+    )
+    assert a.T.T.is_identical(a)
+    assert a.T.is_identical(
+        APyFloatArray.from_float(
+            [
+                [1.0, -4.0],
+                [2.0, -5.0],
+                [3.0, -6.0],
+            ],
+            exp_bits=5,
+            man_bits=2,
+        )
+    )
+
+
+@pytest.mark.float_array
+def test_transpose_highdim_np():
+    def _generate_dimensions(n):
+        result = set()  # Use a set to store unique combinations
+
+        def factor_combinations(target, factors):
+            if target == 1:
+                result.add(tuple(sorted(factors)))  # Add sorted tuple to set
+                return
+            for i in range(2, target + 1):
+                if target % i == 0:
+                    factor_combinations(target // i, factors + [i])
+
+        factor_combinations(n, [])
+        return list(result)  # Convert set back to list
+
+    np = pytest.importorskip("numpy")
+
+    # can be any, does not matter
+    num_elems = 48
+    elements = np.arange(num_elems)
+    # Generate all possible axis permutations for a 3D array
+    possible_shapes = _generate_dimensions(num_elems)
+
+    # Test each permutation
+    for shape in possible_shapes:
+        if len(shape) < 3:
+            axes_permutations = [None]
+        else:
+            axes_permutations = list(permutations([_ for _ in range(len(shape))]))
+
+        for perm in axes_permutations:
+            apy_array = APyFloatArray.from_array(np.reshape(elements, shape), 5, 5)
+            numpy_transposed = np.transpose(np.reshape(elements, shape), perm)
+
+            apy_transposed = apy_array.transpose(perm)
+            numpy_array = APyFloatArray.from_array(numpy_transposed, 5, 5)
+
+            assert apy_transposed.is_identical(numpy_array), (
+                f"Failed for shape {shape} and permutation {perm}. "
+                f"Original array = \n{np.reshape(elements, shape)}\n "
+                f"ApyFloat array = \n{apy_transposed.to_numpy()}\n "
+                f"Numpy created array = \n{numpy_array.to_numpy()}"
+            )
+
+
+@pytest.mark.parametrize("start_val", [2**i for i in range(0, 130, 13)])
+def test_transpose_highdim(start_val):
+    a = APyFloatArray.from_float(
+        [[start_val + 1, start_val + 2], [start_val + 3, start_val + 4]], 30, 5
+    )
+    b = APyFloatArray.from_float(
+        [[start_val + 1, start_val + 4], [start_val + 3, start_val + 2]], 30, 5
+    )
+    a.transpose().is_identical(b)
+    # 1  2  3
+    # 4  5  6
+    # 7  8  9
+
+    a = APyFloatArray.from_float(
+        [
+            [start_val + 1, start_val + 2, start_val + 3],
+            [start_val + 4, start_val + 5, start_val + 6],
+            [start_val + 7, start_val + 8, start_val + 9],
+        ],
+        30,
+        5,
+    )
+
+    # 1  4  7
+    # 2  5  8
+    # 3  6  9
+    b = APyFloatArray.from_float(
+        [
+            [start_val + 1, start_val + 4, start_val + 7],
+            [start_val + 2, start_val + 5, start_val + 8],
+            [start_val + 3, start_val + 6, start_val + 9],
+        ],
+        30,
+        5,
+    )
+
+    a.transpose().is_identical(b)
+
+
+def test_transpose_negative_dim():
+    a = APyFloatArray.from_float([1.0] * 6, man_bits=5, exp_bits=6).reshape((1, 2, 3))
+    assert a.transpose((1, 0, 2)).shape == (2, 1, 3)
+    assert a.transpose((-2, -3, -1)).shape == (2, 1, 3)

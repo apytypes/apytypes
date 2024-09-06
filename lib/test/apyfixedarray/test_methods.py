@@ -936,6 +936,12 @@ def test_transpose_highdim(start_val):
     assert a.transpose().is_identical(b)
 
 
+def test_transpose_negative_dim():
+    a = APyFixedArray.from_float([1.0] * 6, bits=5, frac_bits=0).reshape((1, 2, 3))
+    assert a.transpose((1, 0, 2)).shape == (2, 1, 3)
+    assert a.transpose((-2, -3, -1)).shape == (2, 1, 3)
+
+
 def test_swapaxes():
     a = APyFixedArray.from_float(
         [i for i in range(12)], int_bits=5, frac_bits=2

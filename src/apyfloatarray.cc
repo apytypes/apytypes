@@ -1006,7 +1006,7 @@ APyFloatArray APyFloatArray::zeros(
     std::optional<exp_t> bias
 )
 {
-    std::vector<std::size_t> new_shape = ::shape_from_tuple(shape);
+    std::vector<std::size_t> new_shape = cpp_shape_from_python_shape_like(shape);
     APyFloatArray result(new_shape, exp_bits, man_bits, bias);
     return result;
 }
@@ -1018,8 +1018,7 @@ APyFloatArray APyFloatArray::ones(
     std::optional<exp_t> bias
 )
 {
-    APyFloat float_one = one(exp_bits, man_bits, bias);
-    return full(shape, float_one);
+    return full(shape, one(exp_bits, man_bits, bias));
 }
 
 APyFloatArray APyFloatArray::eye(
@@ -1030,10 +1029,10 @@ APyFloatArray APyFloatArray::eye(
     std::optional<exp_t> bias
 )
 {
-    APyFloat float_one = one(exp_bits, man_bits, bias);
     // Use N for both dimensions if M is not provided
-    nb::tuple shape = M ? nb::make_tuple(N, M.value()) : nb::make_tuple(N, N);
-    return diagonal(shape, float_one);
+    nb::tuple shape
+        = M.has_value() ? nb::make_tuple(N, M.value()) : nb::make_tuple(N, N);
+    return diagonal(shape, one(exp_bits, man_bits, bias));
 }
 
 APyFloatArray APyFloatArray::identity(
@@ -1048,15 +1047,15 @@ APyFloatArray APyFloatArray::identity(
 
 APyFloatArray APyFloatArray::full(const nb::tuple& shape, const APyFloat& fill_value)
 {
-    std::vector<std::size_t> new_shape = ::shape_from_tuple(shape);
+    std::vector<std::size_t> cpp_shape = cpp_shape_from_python_shape_like(shape);
     APyFloatArray result(
-        new_shape,
+        cpp_shape,
         fill_value.get_exp_bits(),
         fill_value.get_man_bits(),
         fill_value.get_bias()
     );
 
-    std::size_t num_elem = ::fold_shape(new_shape);
+    std::size_t num_elem = ::fold_shape(cpp_shape);
     result.data = std::vector<APyFloatData>(num_elem, fill_value.get_data());
     return result;
 }
@@ -1064,7 +1063,7 @@ APyFloatArray APyFloatArray::full(const nb::tuple& shape, const APyFloat& fill_v
 APyFloatArray
 APyFloatArray::diagonal(const nb::tuple& shape, const APyFloat& fill_value)
 {
-    std::vector<std::size_t> new_shape = ::shape_from_tuple(shape);
+    std::vector<std::size_t> new_shape = cpp_shape_from_python_shape_like(shape);
     if (new_shape.size() > 2) {
         throw nb::value_error(
             "Creating higher dimensional diagonal arrays are not yet defined"
@@ -1776,7 +1775,8 @@ APyFloatArray APyFloatArray::reshape(nb::tuple new_shape) const
 {
     // Argument checking and error handling
     std::size_t elem_count = ::fold_shape(this->shape);
-    std::vector<std::size_t> new_shape_vec = ::shape_from_tuple(new_shape, elem_count);
+    std::vector<std::size_t> new_shape_vec
+        = ::reshape_from_tuple(new_shape, elem_count);
 
     std::size_t itemsize = 1;
     APyFloatArray result = APyFloatArray(new_shape_vec, exp_bits, man_bits, bias);

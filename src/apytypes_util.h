@@ -5,6 +5,7 @@
 #ifndef _APYTYPES_UTIL_H
 #define _APYTYPES_UTIL_H
 
+#include <iostream>
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 
@@ -24,8 +25,9 @@
 #include <sstream>          // std::stringstream
 #include <string>           // std::string
 #include <tuple>            // std::tuple
-#include <variant>          // std::variant
-#include <vector>           // std::vector
+#include <typeinfo>
+#include <variant> // std::variant
+#include <vector>  // std::vector
 
 /*
  * Include Microsoft intrinsics if using Microsoft Visual C/C++ compiler
@@ -1088,19 +1090,56 @@ template <typename RANDOM_ACCESS_ITERATOR_INOUT>
     }
 }
 
-//! Create a C++ shape vector (`std::vector<std::size_t>`) from a Python shape object
+//! Create a C++ shape vector (`std::vector<INT_TYPE>`) from a Python shape object
 //! (`std::variant<nanobind::tuple, nanobind::int_>`).
-static APY_INLINE std::vector<std::size_t> cpp_shape_from_python_shape_like(
+template <typename INT_TYPE = std::size_t, bool allow_negative_dimensions = false>
+static APY_INLINE std::vector<INT_TYPE> cpp_shape_from_python_shape_like(
     const std::variant<nanobind::tuple, nanobind::int_>& shape
 )
 {
-    std::vector<std::size_t> cpp_shape {};
+    constexpr auto func_name = __func__;
+    auto sanitize_integer_element = [&](const auto element) -> INT_TYPE {
+        nanobind::int_ nb_int;
+        long long cpp_int;
+
+        // Sanitize: element must be of integer type
+        try {
+            nb_int = nanobind::cast<nanobind::int_>(element);
+        } catch (const std::bad_cast& e) {
+            throw nanobind::value_error(
+                fmt::format("{}(): only integer dimensions allowed", func_name).c_str()
+            );
+        }
+
+        // Sanitize: integer fits in biggest native C++ type
+        try {
+            cpp_int = static_cast<long long>(nb_int);
+        } catch (const std::out_of_range& e) {
+            throw nanobind::value_error(
+                fmt::format("{}(): integer to large for C++ long long", func_name)
+                    .c_str()
+            );
+        }
+
+        // Sanitize: integer is negative? Conditionally enablable
+        if constexpr (!allow_negative_dimensions) {
+            if (cpp_int < 0) {
+                throw nanobind::value_error(
+                    fmt::format("{}(): negative integers disallowed", func_name).c_str()
+                );
+            }
+        }
+
+        return static_cast<INT_TYPE>(cpp_int);
+    };
+
+    std::vector<INT_TYPE> cpp_shape {};
     if (std::holds_alternative<nanobind::tuple>(shape)) {
         for (const auto& element : std::get<nanobind::tuple>(shape)) {
-            cpp_shape.push_back(nanobind::cast<std::size_t>(element));
+            cpp_shape.push_back(sanitize_integer_element(element));
         }
     } else {
-        cpp_shape.push_back(static_cast<std::size_t>(std::get<nanobind::int_>(shape)));
+        cpp_shape.push_back(sanitize_integer_element(std::get<nanobind::int_>(shape)));
     }
     return cpp_shape;
 }

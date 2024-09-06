@@ -253,17 +253,34 @@ def test_zeros(shape):
             b
         ), f"zeros on {a.__name__} didn't work when shape={shape}."
 
-    # Test cases for APyFixedArray
+    # APyFixedArray
     check_zeros(int_bits=5, frac_bits=5)
-
     check_zeros(int_bits=12314, frac_bits=1832)
-
     check_zeros(int_bits=0, frac_bits=5)
-    # Test cases for APyFloatArray
-    check_zeros(exp_bits=13, mantissa_bits=28)
 
+    # APyFloatArray
+    check_zeros(exp_bits=13, mantissa_bits=28)
     check_zeros(exp_bits=13, mantissa_bits=0)
     check_zeros(exp_bits=16, mantissa_bits=5)
+
+
+def test_tuple_construction_raises():
+    with pytest.raises(
+        ValueError,
+        match=r"cpp_shape_from_python_shape_like\(\): negative integers disallowed",
+    ):
+        zeros((4, -2), int_bits=2, frac_bits=2)
+
+    with pytest.raises(
+        ValueError, match=r"cpp_shape_from_python_shape_like\(\): integer to large"
+    ):
+        zeros((111111111111111111111111111111111111, -2), int_bits=2, frac_bits=2)
+
+    with pytest.raises(
+        ValueError,
+        match=r"cpp_shape_from_python_shape_like\(\): only integer dimensions allowed",
+    ):
+        zeros((2.5, -2), int_bits=2, frac_bits=2)
 
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
