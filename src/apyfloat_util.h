@@ -61,10 +61,8 @@ one(std::uint8_t exp_bits,
     std::uint8_t man_bits,
     std::optional<exp_t> bias = std::nullopt)
 {
-    APyFloat result(exp_bits, man_bits, bias.value_or(APyFloat::ieee_bias(exp_bits)));
-    APyFloatData data = { 0, result.get_bias(), 0 };
-    result.set_data(data);
-    return result;
+    exp_t res_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
+    return APyFloat(0, res_bias, 0, exp_bits, man_bits, res_bias);
 }
 
 //! Quantize mantissa

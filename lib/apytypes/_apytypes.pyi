@@ -1345,15 +1345,15 @@ class APyFixedArray:
         shape : tuple
             Shape of the array.
         int_bits : int, optional
-            Number of integer bits. Default is None.
+            Number of integer bits.
         frac_bits : int, optional
-            Number of fractional bits. Default is None.
+            Number of fractional bits.
         bits : int, optional
-            Total number of bits. Default is None.
+            Total number of bits.
 
         Returns
         -------
-        APyFixedArray
+        :class:`APyFixedArray`
             An array initialized with zeros.
         """
 
@@ -1372,15 +1372,15 @@ class APyFixedArray:
         shape : tuple
             Shape of the array.
         int_bits : int, optional
-            Number of integer bits. Default is None.
+            Number of integer bits.
         frac_bits : int, optional
-            Number of fractional bits. Default is None.
+            Number of fractional bits.
         bits : int, optional
-            Total number of bits. Default is None.
+            Total number of bits.
 
         Returns
         -------
-        APyFixedArray
+        :class:`APyFixedArray`
             An array initialized with ones.
         """
 
@@ -1400,18 +1400,18 @@ class APyFixedArray:
         n : int
             Number of rows.
         m : int, optional
-            Number of columns. Default is None.
+            Number of columns.
         int_bits : int, optional
-            Number of integer bits. Default is None.
+            Number of integer bits.
         frac_bits : int, optional
-            Number of fractional bits. Default is None.
+            Number of fractional bits.
         bits : int, optional
-            Total number of bits. Default is None.
+            Total number of bits.
 
         Returns
         -------
-        APyFixedArray
-            An array with the specified value on the diagonal.
+        :class:`APyFixedArray`
+            An array with ones on the diagonal.
         """
 
     @staticmethod
@@ -1427,17 +1427,17 @@ class APyFixedArray:
         Parameters
         ----------
         n : int
-            Number of rows (and columns) in n x n output.
+            Number of rows (and columns) in *n* x *n* output.
         int_bits : int, optional
-            Number of integer bits. Default is None.
+            Number of integer bits.
         frac_bits : int, optional
-            Number of fractional bits. Default is None.
+            Number of fractional bits.
         bits : int, optional
-            Total number of bits. Default is None.
+            Total number of bits.
 
         Returns
         -------
-        APyFixedArray
+        :class:`APyFixedArray`
             An identity matrix with ones on the diagonal.
         """
 
@@ -1450,12 +1450,12 @@ class APyFixedArray:
         ----------
         shape : tuple
             Shape of the array.
-        fill_value : APyFixed
+        fill_value : :class:`APyFixed`
             Value to fill the array.
 
         Returns
         -------
-        APyFixedArray
+        :class:`APyFixedArray`
             An array filled with the specified value.
         """
 
@@ -2533,7 +2533,7 @@ class APyFloatArray:
         man_bits : int
             Number of mantissa bits.
         bias : optional
-            Set bias. Default is None.
+            Set bias.
 
         Returns
         -------
@@ -2557,7 +2557,7 @@ class APyFloatArray:
         man_bits : int
             Number of mantissa bits.
         bias : optional
-            Set bias. Default is None.
+            Set bias.
 
         Returns
         -------
@@ -2587,7 +2587,7 @@ class APyFloatArray:
         m : int, optional
             Number of columns. Default is None, which results in an n x n output.
         bias : optional
-            Set bias. Default is None.
+            Set bias.
 
         Returns
         -------
@@ -2611,7 +2611,7 @@ class APyFloatArray:
         man_bits : int
             Number of mantissa bits.
         bias : optional
-            Set bias. Default is None.
+            Set bias.
 
         Returns
         -------

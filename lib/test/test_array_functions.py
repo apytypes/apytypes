@@ -233,17 +233,23 @@ def test_identity(n, nums):
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
 def test_zeros(shape):
-    def check_zeros(int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None):
+    def check_zeros(
+        int_bits=None, frac_bits=None, bits=None, exp_bits=None, mantissa_bits=None
+    ):
         a = zeros(
             shape,
             int_bits=int_bits,
             frac_bits=frac_bits,
+            bits=bits,
             exp_bits=exp_bits,
             mantissa_bits=mantissa_bits,
         )
         if isinstance(a, APyFixedArray):
             b = APyFixedArray.from_float(
-                [0] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
+                [0] * (shape[0] * shape[1]),
+                int_bits=int_bits,
+                frac_bits=frac_bits,
+                bits=bits,
             ).reshape(shape)
         if isinstance(a, APyFloatArray):
             b = APyFloatArray.from_float(
@@ -255,8 +261,8 @@ def test_zeros(shape):
 
     # APyFixedArray
     check_zeros(int_bits=5, frac_bits=5)
-    check_zeros(int_bits=12314, frac_bits=1832)
-    check_zeros(int_bits=0, frac_bits=5)
+    check_zeros(int_bits=12314, bits=14146)
+    check_zeros(bits=5, frac_bits=5)
 
     # APyFloatArray
     check_zeros(exp_bits=13, mantissa_bits=28)
@@ -286,13 +292,21 @@ def test_tuple_construction_raises():
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
 def test_zeros_like(shape):
     def check_zeros_like(
-        ArrayType, int_bits=None, frac_bits=None, exp_bits=None, mantissa_bits=None
+        ArrayType,
+        int_bits=None,
+        frac_bits=None,
+        bits=None,
+        exp_bits=None,
+        mantissa_bits=None,
     ):
         if ArrayType is APyFixedArray:
             b = ArrayType.from_float(
-                [0] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
+                [0] * (shape[0] * shape[1]),
+                int_bits=int_bits,
+                frac_bits=frac_bits,
+                bits=bits,
             ).reshape(shape)
-            a = zeros_like(b, int_bits=int_bits, frac_bits=frac_bits)
+            a = zeros_like(b, int_bits=int_bits, frac_bits=frac_bits, bits=bits)
         elif ArrayType is APyFloatArray:
             b = ArrayType.from_float(
                 [0] * (shape[0] * shape[1]), exp_bits=exp_bits, man_bits=mantissa_bits
@@ -303,12 +317,24 @@ def test_zeros_like(shape):
         ), f"zeros_like on {ArrayType.__name__} didn't work when shape={shape}."
 
     # Test cases for APyFixedArray
-    check_zeros_like(APyFixedArray, int_bits=5, frac_bits=5)
+    check_zeros_like(APyFixedArray, bits=10, frac_bits=5)
+    check_zeros_like(APyFixedArray, bits=10, int_bits=5)
     check_zeros_like(APyFixedArray, int_bits=12314, frac_bits=1832)
 
     # Test cases for APyFloatArray
     check_zeros_like(APyFloatArray, exp_bits=13, mantissa_bits=28)
     check_zeros_like(APyFloatArray, exp_bits=16, mantissa_bits=5)
+
+
+def test_zeros_like_raises():
+    a = zeros((5, 5), int_bits=10, frac_bits=10)
+    with pytest.raises(ValueError, match=r"Could not extract fixed-point"):
+        _ = zeros_like(a, int_bits=2)
+    with pytest.raises(ValueError, match=r"Could not extract fixed-point"):
+        _ = zeros_like(a, bits=1000, int_bits=2, frac_bits=2)
+
+    # Does *NOT* raise
+    _ = zeros_like(a, bits=4, int_bits=2, frac_bits=2)
 
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
