@@ -1091,24 +1091,24 @@ void bind_fixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-        Initializes an array with zeros.
+            Initializes an array with zeros.
 
-        Parameters
-        ----------
-        shape : tuple
-            Shape of the array.
-        int_bits : int, optional
-            Number of integer bits.
-        frac_bits : int, optional
-            Number of fractional bits.
-        bits : int, optional
-            Total number of bits.
+            Parameters
+            ----------
+            shape : tuple
+                Shape of the array.
+            int_bits : int, optional
+                Number of integer bits.
+            frac_bits : int, optional
+                Number of fractional bits.
+            bits : int, optional
+                Total number of bits.
 
-        Returns
-        -------
-        :class:`APyFixedArray`
-            An array initialized with zeros.
-    )pbdoc"
+            Returns
+            -------
+            :class:`APyFixedArray`
+                An array initialized with zeros.
+            )pbdoc"
         )
         .def_static(
             "ones",
@@ -1118,24 +1118,24 @@ void bind_fixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-        Initializes an array with ones.
+            Initializes an array with ones.
 
-        Parameters
-        ----------
-        shape : tuple
-            Shape of the array.
-        int_bits : int, optional
-            Number of integer bits.
-        frac_bits : int, optional
-            Number of fractional bits.
-        bits : int, optional
-            Total number of bits.
+            Parameters
+            ----------
+            shape : tuple
+                Shape of the array.
+            int_bits : int, optional
+                Number of integer bits.
+            frac_bits : int, optional
+                Number of fractional bits.
+            bits : int, optional
+                Total number of bits.
 
-        Returns
-        -------
-        :class:`APyFixedArray`
-            An array initialized with ones.
-    )pbdoc"
+            Returns
+            -------
+            :class:`APyFixedArray`
+                An array initialized with ones.
+            )pbdoc"
         )
         .def_static(
             "eye",
@@ -1146,26 +1146,26 @@ void bind_fixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-        Initializes an array with ones on the diagonal.
+            Initializes an array with ones on the diagonal.
 
-        Parameters
-        ----------
-        n : int
-            Number of rows.
-        m : int, optional
-            Number of columns.
-        int_bits : int, optional
-            Number of integer bits.
-        frac_bits : int, optional
-            Number of fractional bits.
-        bits : int, optional
-            Total number of bits.
+            Parameters
+            ----------
+            n : int
+                Number of rows.
+            m : int, optional
+                Number of columns.
+            int_bits : int, optional
+                Number of integer bits.
+            frac_bits : int, optional
+                Number of fractional bits.
+            bits : int, optional
+                Total number of bits.
 
-        Returns
-        -------
-        :class:`APyFixedArray`
-            An array with ones on the diagonal.
-    )pbdoc"
+            Returns
+            -------
+            :class:`APyFixedArray`
+                An array with ones on the diagonal.
+            )pbdoc"
         )
         .def_static(
             "identity",
@@ -1175,24 +1175,24 @@ void bind_fixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-        Initializes an identity matrix with ones on the diagonal.
+            Initializes an identity matrix with ones on the diagonal.
 
-        Parameters
-        ----------
-        n : int
-            Number of rows (and columns) in *n* x *n* output.
-        int_bits : int, optional
-            Number of integer bits.
-        frac_bits : int, optional
-            Number of fractional bits.
-        bits : int, optional
-            Total number of bits.
+            Parameters
+            ----------
+            n : int
+                Number of rows (and columns) in *n* x *n* output.
+            int_bits : int, optional
+                Number of integer bits.
+            frac_bits : int, optional
+                Number of fractional bits.
+            bits : int, optional
+                Total number of bits.
 
-        Returns
-        -------
-        :class:`APyFixedArray`
-            An identity matrix with ones on the diagonal.
-    )pbdoc"
+            Returns
+            -------
+            :class:`APyFixedArray`
+                An identity matrix with ones on the diagonal.
+            )pbdoc"
         )
         .def_static(
             "full",
@@ -1200,20 +1200,20 @@ void bind_fixed_array(nb::module_& m)
             nb::arg("shape"),
             nb::arg("fill_value"),
             R"pbdoc(
-        Initializes an array with the specified value.
+            Initializes an array with the specified value.
 
-        Parameters
-        ----------
-        shape : tuple
-            Shape of the array.
-        fill_value : :class:`APyFixed`
-            Value to fill the array.
+            Parameters
+            ----------
+            shape : tuple
+                Shape of the array.
+            fill_value : :class:`APyFixed`
+                Value to fill the array.
 
-        Returns
-        -------
-        :class:`APyFixedArray`
-            An array filled with the specified value.
-    )pbdoc"
+            Returns
+            -------
+            :class:`APyFixedArray`
+                An array filled with the specified value.
+            )pbdoc"
         )
 
         /*
