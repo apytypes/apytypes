@@ -289,21 +289,26 @@
 <h2>Array creation functions<a class="headerlink" href="#array-creation-functions" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="apytypes.zeros">
-<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">zeros</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.zeros" title="Link to this definition">¶</a></dt>
-<dd><p>Initializes an array with zeros.</p>
-<p>Word lengths need to be specified and decide the return type of the array.</p>
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">zeros</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.zeros" title="Link to this definition">¶</a></dt>
+<dd><p>Create an array of <cite>shape</cite> with all zeros.</p>
+<p>Word lengths need to be specified and the return type is deduced from the bit
+specifiers. Either specify exactly two of three from <cite>int_bits</cite>, <cite>frac_bits</cite>, and
+<cite>bits</cite>, for <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a>, or specify both <cite>exp_bits</cite> and <cite>mantissa_bits</cite>
+for <a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>shape</strong><span class="classifier">tuple</span></dt><dd><p>Shape of the array.</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits.</p>
+<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point integer bits.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits.</p>
+<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point fractional bits.</p>
 </dd>
-<dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of exponential bits.</p>
+<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point bits.</p>
 </dd>
-<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of mantissa bits.</p>
+<dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point exponential bits.</p>
+</dd>
+<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point mantissa bits.</p>
 </dd>
 </dl>
 </dd>
@@ -318,21 +323,26 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="apytypes.ones">
-<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">ones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.ones" title="Link to this definition">¶</a></dt>
-<dd><p>Initializes an array with ones.</p>
-<p>Word lengths need to be specified and decide the return type of the array.</p>
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">ones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.ones" title="Link to this definition">¶</a></dt>
+<dd><p>Create an array of <cite>shape</cite> with all ones (stored value).</p>
+<p>Word lengths need to be specified and the return type is deduced from the bit
+specifiers. Either specify exactly two of three from <cite>int_bits</cite>, <cite>frac_bits</cite>, and
+<cite>bits</cite>, for <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a>, or specify both <cite>exp_bits</cite> and <cite>mantissa_bits</cite>
+for <a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>shape</strong><span class="classifier">tuple</span></dt><dd><p>Shape of the array.</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits.</p>
+<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point integer bits.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits.</p>
+<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point fractional bits.</p>
 </dd>
-<dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of exponential bits.</p>
+<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point bits.</p>
 </dd>
-<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of mantissa bits.</p>
+<dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point exponential bits.</p>
+</dd>
+<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point mantissa bits.</p>
 </dd>
 </dl>
 </dd>
@@ -347,31 +357,36 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="apytypes.eye">
-<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">eye</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.eye" title="Link to this definition">¶</a></dt>
-<dd><p>Return a 2-D array with ones on the diagonal and zeros elsewhere.</p>
-<p>Word lengths need to be specified and decide the return type of the array.</p>
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">eye</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.eye" title="Link to this definition">¶</a></dt>
+<dd><p>Return a 2-D array with ones (stored value) on the main diagonal and zeros
+elsewhere.</p>
+<p>Word lengths need to be specified and the return type is deduced from the bit
+specifiers. Either specify exactly two of three from <cite>int_bits</cite>, <cite>frac_bits</cite>, and
+<cite>bits</cite>, for <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a>, or specify both <cite>exp_bits</cite> and <cite>mantissa_bits</cite>
+for <a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>a_type</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a>, optional</span></dt><dd><p>The type of array to initialize.</p>
-</dd>
+<dd class="field-odd"><dl class="simple">
 <dt><strong>n</strong><span class="classifier">int</span></dt><dd><p>Number of rows in the output.</p>
 </dd>
-<dt><strong>m</strong><span class="classifier">int, optional</span></dt><dd><p>Number of columns in the output. If None, defaults to N.</p>
+<dt><strong>m</strong><span class="classifier">int, optional</span></dt><dd><p>Number of columns in the output. If <cite>None</cite>, defaults to <cite>n</cite>.</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits.</p>
+<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point integer bits.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits.</p>
+<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point fractional bits.</p>
 </dd>
-<dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of exponential bits.</p>
+<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point bits.</p>
 </dd>
-<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of mantissa bits.</p>
+<dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point exponential bits.</p>
+</dd>
+<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point mantissa bits.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
-<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>An array where all elements are equal to zero, except for the k-th diagonal, whose values are equal to one.</p>
+<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>An array where all elements are equal to zero, except for the k-th diagonal,
+whose values are equal to one.</p>
 </dd>
 </dl>
 </dd>
@@ -380,29 +395,33 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="apytypes.identity">
-<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">identity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.identity" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">identity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.identity" title="Link to this definition">¶</a></dt>
 <dd><p>Return the identity array.</p>
-<p>Word lengths need to be specified and decides return type of Array.</p>
+<p>Word lengths need to be specified and the return type is deduced from the bit
+specifiers. Either specify exactly two of three from <cite>int_bits</cite>, <cite>frac_bits</cite>, and
+<cite>bits</cite>, for <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a>, or specify both <cite>exp_bits</cite> and <cite>mantissa_bits</cite>
+for <a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>a_type</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a>, optional</span></dt><dd><p>The type of array to initialize.</p>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>n</strong><span class="classifier">int</span></dt><dd><p>Number of rows and columns in output.</p>
 </dd>
-<dt><strong>n</strong><span class="classifier">int</span></dt><dd><p>Number of rows (and columns) in n x n output.</p>
+<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point integer bits.</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits.</p>
+<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point fractional bits.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits.</p>
+<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point bits.</p>
 </dd>
-<dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of exponential bits.</p>
+<dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point exponential bits.</p>
 </dd>
-<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of mantissa bits.</p>
+<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point mantissa bits.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
-<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>n x n array with its main diagonal set to one, and all other elements 0.</p>
+<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p><cite>n</cite> x <cite>n</cite> array with ones (stored value) on the main diagonal and zeros
+elsewhere.</p>
 </dd>
 </dl>
 </dd>
@@ -411,31 +430,36 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="apytypes.full">
-<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">full</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.full" title="Link to this definition">¶</a></dt>
-<dd><p>Return a new array of given shape and type, filled with fill_value.</p>
-<p>If fill_value is an int or float, you must specify the word lengths (int_bits, frac_bits or exp_bits, mantissa_bits).
-If fill_value is an APyFloat or APyFixed, the array will use the provided word lengths if specified.
-If no word lengths are specified, the resulting array will inherit the word lengths from fill_value.</p>
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">full</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.full" title="Link to this definition">¶</a></dt>
+<dd><p>Return a new array of given shape and type, filled with <cite>fill_value</cite>.</p>
+<p>If <cite>fill_value</cite> is of type <cite>int</cite> or <cite>float</cite>, you must specify the word lengths.
+Either specify exactly two of three from <cite>int_bits</cite>, <cite>frac_bits</cite>, and <cite>bits</cite>, for
+<a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a>, or specify both <cite>exp_bits</cite> and <cite>mantissa_bits</cite> for
+<a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a>. If <cite>fill_value</cite> is of type <cite>APyFloat</cite> or <cite>APyFixed</cite>, the
+array will use the provided word lengths only if specified, otherwise the word
+lengths are inherited from <cite>fill_value</cite>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>shape</strong><span class="classifier">tuple</span></dt><dd><p>Shape of the array.</p>
 </dd>
-<dt><strong>fill_value</strong><span class="classifier"><a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or int or float</span></dt><dd><p>Fill value.</p>
+<dt><strong>fill_value</strong><span class="classifier"><a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> or <a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or :class`float`</span></dt><dd><p>Fill value.</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits.</p>
+<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point integer bits.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits.</p>
+<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point fractional bits.</p>
 </dd>
-<dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of exponential bits.</p>
+<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point bits.</p>
 </dd>
-<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of mantissa bits.</p>
+<dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point exponential bits.</p>
+</dd>
+<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point mantissa bits.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
-<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>Array of fill_value with the given shape.</p>
+<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>Array of all <cite>fill_value</cite> with the given shape.</p>
 </dd>
 </dl>
 </dd>
@@ -444,27 +468,32 @@ If no word lengths are specified, the resulting array will inherit the word leng
 
 <dl class="py function">
 <dt class="sig sig-object py" id="apytypes.zeros_like">
-<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">zeros_like</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.zeros_like" title="Link to this definition">¶</a></dt>
-<dd><p>Return an array of zeros with the same shape and type as a given array.
-Defaults to <cite>a</cite> wordlength</p>
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">zeros_like</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.zeros_like" title="Link to this definition">¶</a></dt>
+<dd><p>Return an array of all zeros with the same shape and type as <cite>a</cite>.</p>
+<p>The type and bit-specifiers of the returned array can be overwritten through the
+bit-specifier arguments. To overwrite the type, either specify exactly two of three
+from <cite>int_bits</cite>, <cite>frac_bits</cite>, and <cite>bits</cite>, for <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a>, or specify
+both <cite>exp_bits</cite> and <cite>mantissa_bits</cite> for <a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>a</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>The shape and data-type define these same attributes of the returned array.</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits.</p>
+<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point integer bits.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits.</p>
+<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point fractional bits.</p>
 </dd>
-<dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of exponential bits.</p>
+<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point bits.</p>
 </dd>
-<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of mantissa bits.</p>
+<dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point exponential bits.</p>
+</dd>
+<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point mantissa bits.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
-<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>The initialized array with zeros.</p>
+<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>The initialized array with all zeros.</p>
 </dd>
 </dl>
 </dd>
@@ -473,27 +502,32 @@ Defaults to <cite>a</cite> wordlength</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="apytypes.ones_like">
-<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">ones_like</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.ones_like" title="Link to this definition">¶</a></dt>
-<dd><p>Return an array of ones with the same shape and type as a given array.
-Defaults to <cite>a</cite> wordlength</p>
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">ones_like</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.ones_like" title="Link to this definition">¶</a></dt>
+<dd><p>Return an array of all ones (stored value) with the same shape and type as <cite>a</cite>.</p>
+<p>The type and bit-specifiers of the returned array can be overwritten through the
+bit-specifier arguments. To overwrite the type, either specify exactly two of three
+from <cite>int_bits</cite>, <cite>frac_bits</cite>, and <cite>bits</cite>, for <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a>, or specify
+both <cite>exp_bits</cite> and <cite>mantissa_bits</cite> for <a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>a</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>The shape and data-type of a define these same attributes of the returned array.</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits.</p>
+<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point integer bits.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits.</p>
+<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point fractional bits.</p>
 </dd>
-<dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of exponential bits.</p>
+<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point bits.</p>
 </dd>
-<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of mantissa bits.</p>
+<dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point exponential bits.</p>
+</dd>
+<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point mantissa bits.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
-<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>The array initialized filled with ones.</p>
+<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>The array initialized filled with all ones.</p>
 </dd>
 </dl>
 </dd>
@@ -502,11 +536,13 @@ Defaults to <cite>a</cite> wordlength</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="apytypes.full_like">
-<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">full_like</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.full_like" title="Link to this definition">¶</a></dt>
-<dd><p>Return a full array with the same shape and type as a given array.</p>
-<p>If fill_value is an int or float, you must specify the word lengths (int_bits, frac_bits or exp_bits, mantissa_bits).
-If fill_value is an APyFloat or APyFixed, the array will use the provided word lengths if specified.
-If no word lengths are specified, the resulting array will inherit the word lengths from fill_value.</p>
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">full_like</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.full_like" title="Link to this definition">¶</a></dt>
+<dd><p>Return an array with all values initialized to <cite>fill_value</cite>, with the same shape and
+type as <cite>a</cite>.</p>
+<p>The type and bit-specifiers of the returned array can be overwritten through the
+bit-specifier arguments. To overwrite the type, either specify exactly two of three
+from <cite>int_bits</cite>, <cite>frac_bits</cite>, and <cite>bits</cite>, for <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a>, or specify
+both <cite>exp_bits</cite> and <cite>mantissa_bits</cite> for <a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
@@ -514,13 +550,15 @@ If no word lengths are specified, the resulting array will inherit the word leng
 </dd>
 <dt><strong>fill_value</strong><span class="classifier"><a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> or <a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a> or int or float</span></dt><dd><p>The value to fill the array with.</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits for APyFixed.</p>
+<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point integer bits.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits for APyFixed.</p>
+<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point fractional bits.</p>
 </dd>
-<dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of exponent bits for APyFloat.</p>
+<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point bits.</p>
 </dd>
-<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of mantissa bits for APyFloat.</p>
+<dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point exponential bits.</p>
+</dd>
+<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point mantissa bits.</p>
 </dd>
 </dl>
 </dd>
@@ -535,7 +573,7 @@ If no word lengths are specified, the resulting array will inherit the word leng
 
 <dl class="py function">
 <dt class="sig sig-object py" id="apytypes.arange">
-<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">arange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.arange" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">arange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.arange" title="Link to this definition">¶</a></dt>
 <dd><p>Simple and naive version of arange.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -546,13 +584,15 @@ If no word lengths are specified, the resulting array will inherit the word leng
 </dd>
 <dt><strong>step</strong><span class="classifier">int, float, optional</span></dt><dd><p>step size in range</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits for APyFixed.</p>
+<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point integer bits.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits for APyFixed.</p>
+<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point fractional bits.</p>
 </dd>
-<dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of exponent bits for APyFloat.</p>
+<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point bits.</p>
 </dd>
-<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of mantissa bits for APyFloat.</p>
+<dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point exponential bits.</p>
+</dd>
+<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point mantissa bits.</p>
 </dd>
 </dl>
 </dd>
@@ -592,7 +632,7 @@ array shape.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">apytypes</span> <span class="k">as</span> <span class="nn">apy</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">ApyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">shape</span>
 <span class="go">(2,)</span>
 </pre></div>
@@ -615,11 +655,11 @@ array shape.</p>
 <p><code class="docutils literal notranslate"><span class="pre">axis</span></code> may also be a tuple:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[[1, 2]]])</span>
+<span class="go">array([[[1., 2.]]])</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span><span class="o">.</span><span class="n">to_numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[[1.],</span>
 <span class="go">        [2.]]])</span>
 </pre></div>
@@ -629,7 +669,8 @@ array shape.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="apytypes.ravel">
 <span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">ravel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.ravel" title="Link to this definition">¶</a></dt>
-<dd><p>Return a copy of the array collapsed into one dimension. Same as flatten with current memory-copy model.</p>
+<dd><p>Return a copy of the array collapsed into one dimension.</p>
+<p>Same as <code class="xref py py-func docutils literal notranslate"><span class="pre">flatten()</span></code> with current memory-copy model.</p>
 <dl class="field-list">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
@@ -653,6 +694,7 @@ array shape.</p>
 <span class="go">array([ 1.,  2., -3., -4.])</span>
 </pre></div>
 </div>
+<hr class="docutils" />
 </dd></dl>
 
 <dl class="py function">
@@ -667,8 +709,7 @@ array shape.</p>
 </dd>
 <dt><strong>source</strong><span class="classifier">int or sequence of int</span></dt><dd><p>Original positions of the axes to move. These must be unique.</p>
 </dd>
-<dt><strong>destination</strong><span class="classifier">int or sequence of int</span></dt><dd><p>Destination positions for each of the original axes. These must also be
-unique.</p>
+<dt><strong>destination</strong><span class="classifier">int or sequence of int</span></dt><dd><p>Destination positions for each of the original axes. These must also be unique.</p>
 </dd>
 </dl>
 </dd>
@@ -681,7 +722,9 @@ unique.</p>
 </dl>
 <p class="rubric">Examples</p>
 <p>import apytypes as apy</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">ApyFixedArray</span><span class="o">.</span><span class="n">from_floats</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">)))</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">apy</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span>
 <span class="go">(4, 5, 3)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">apy</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span>
@@ -752,32 +795,31 @@ unique.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="p">[[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">4.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.0</span><span class="p">]],</span>
-<span class="gp">... </span>    <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-<span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloatArray</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">APyTypes</span><span class="o">.</span><span class="n">from_float</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFloatArray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[1.],</span>
-<span class="go">     [2.],</span>
-<span class="go">     [3.]])</span>
+<span class="go">       [2.],</span>
+<span class="go">       [3.]])</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">from_float</span><span class="p">([[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]]],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]]],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">3</span>
+<span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[[0., 1.],</span>
-<span class="go">      [2., 3.]],</span>
-<span class="go">     [[4., 5.],</span>
-<span class="go">      [6., 7.]]])</span>
+<span class="go">        [2., 3.]],</span>
+
+<span class="go">       [[4., 5.],</span>
+<span class="go">        [6., 7.]]])</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[[0., 4.],</span>
-<span class="go">      [2., 6.]],</span>
-<span class="go">     [[1., 5.],</span>
-<span class="go">      [3., 7.]]])</span>
+<span class="go">        [2., 6.]],</span>
+
+<span class="go">       [[1., 5.],</span>
+<span class="go">        [3., 7.]]])</span>
 </pre></div>
 </div>
 </dd></dl>
