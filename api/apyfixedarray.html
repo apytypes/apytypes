@@ -391,13 +391,16 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.swapaxes" title="apytypes.APyFixedArray.swapaxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">swapaxes</span></code></a></p></td>
 <td><p>Interchange two axes of an array.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.to_numpy" title="apytypes.APyFixedArray.to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.to_bits" title="apytypes.APyFixedArray.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a></p></td>
+<td><p>Return the underlying bit representations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.to_numpy" title="apytypes.APyFixedArray.to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code></a></p></td>
 <td><p>Return array as a <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.float64</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.transpose" title="apytypes.APyFixedArray.transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.transpose" title="apytypes.APyFixedArray.transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code></a></p></td>
 <td><p>Return copy of array with axes transposed.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.zeros" title="apytypes.APyFixedArray.zeros"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zeros</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.zeros" title="apytypes.APyFixedArray.zeros"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zeros</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -409,6 +412,39 @@
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bit_pattern_sequence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.12)"><span class="pre">Sequence</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.__init__" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+</section>
+<section id="conversion-to-other-types">
+<h2>Conversion to other types<a class="headerlink" href="#conversion-to-other-types" title="Link to this heading">¶</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFixedArray.to_numpy">
+<span class="sig-name descname"><span class="pre">to_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray[dtype=float64]</span></span></span><a class="headerlink" href="#apytypes.APyFixedArray.to_numpy" title="Link to this definition">¶</a></dt>
+<dd><p>Return array as a <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.float64</span></code>.</p>
+<p>The returned array has the same <cite>shape</cite> and values as <cite>self</cite>. This
+method rounds away from infinity on ties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFixedArray.to_bits">
+<span class="sig-name descname"><span class="pre">to_bits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numpy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span> <span class="pre">|</span> <span class="pre">numpy.ndarray[dtype=uint64]</span></span></span><a class="headerlink" href="#apytypes.APyFixedArray.to_bits" title="Link to this definition">¶</a></dt>
+<dd><p>Return the underlying bit representations.</p>
+<p>When <cite>numpy</cite> is true, the bit representations are returned in a
+<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>. Otherwise, they are returned in a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> or <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="creation-from-other-types">
@@ -692,24 +728,6 @@ be set.</p>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></dt><dd></dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
-<section id="convert-to-numpy">
-<h2>Convert to NumPy<a class="headerlink" href="#convert-to-numpy" title="Link to this heading">¶</a></h2>
-<dl class="py method">
-<dt class="sig sig-object py" id="apytypes.APyFixedArray.to_numpy">
-<span class="sig-name descname"><span class="pre">to_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray[dtype=float64]</span></span></span><a class="headerlink" href="#apytypes.APyFixedArray.to_numpy" title="Link to this definition">¶</a></dt>
-<dd><p>Return array as a <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.float64</span></code>.</p>
-<p>The returned array has the same <cite>shape</cite> and values as <cite>self</cite>. This
-method rounds away from infinity on ties.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a></dt><dd></dd>
 </dl>
 </dd>
 </dl>
@@ -1635,6 +1653,8 @@ Issues a warning when encountering an all-nan slice or axis.</p>
 <li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a><ul>
 <li><a class="reference internal" href="#apytypes.APyFixedArray"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a><ul>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.__init__"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixedArray.to_numpy"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.to_numpy()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFixedArray.to_bits"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.to_bits()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.from_array"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.from_array()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.from_float"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.from_float()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.zeros"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.zeros()</span></code></a></li>
@@ -1644,7 +1664,6 @@ Issues a warning when encountering an all-nan slice or axis.</p>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.full"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.full()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.cast"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.cast()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.is_identical"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.is_identical()</span></code></a></li>
-<li><a class="reference internal" href="#apytypes.APyFixedArray.to_numpy"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.to_numpy()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.convolve"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.convolve()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.transpose"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.transpose()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.flatten"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.flatten()</span></code></a></li>
