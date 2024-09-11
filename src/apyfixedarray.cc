@@ -1607,11 +1607,24 @@ std::variant<APyFixedArray, APyFixed> APyFixedArray::get_item(std::size_t idx) c
     }
 }
 
-std::variant<nb::list, nb::ndarray<nb::numpy, uint64_t>>
+std::variant<
+    nb::list,
+    nb::ndarray<nb::numpy, uint64_t>,
+    nb::ndarray<nb::numpy, uint32_t>,
+    nb::ndarray<nb::numpy, uint16_t>,
+    nb::ndarray<nb::numpy, uint8_t>>
 APyFixedArray::to_bits(bool numpy) const
 {
     if (numpy) {
-        return to_bits_ndarray();
+        if (bits() <= 8) {
+            return to_bits_ndarray<nb::numpy, uint8_t>();
+        } else if (bits() <= 16) {
+            return to_bits_ndarray<nb::numpy, uint16_t>();
+        } else if (bits() <= 32) {
+            return to_bits_ndarray<nb::numpy, uint32_t>();
+        } else {
+            return to_bits_ndarray<nb::numpy, uint64_t>();
+        }
     } else {
         auto it = std::cbegin(_data);
         return to_bits_python_recursive_descent(0, it);
@@ -1643,30 +1656,32 @@ nb::list APyFixedArray::to_bits_python_recursive_descent(
     return result;
 }
 
-nb::ndarray<nb::numpy, uint64_t> APyFixedArray::to_bits_ndarray() const
+template <typename NB_ARRAY_TYPE, typename INT_TYPE>
+nb::ndarray<NB_ARRAY_TYPE, INT_TYPE> APyFixedArray::to_bits_ndarray() const
 {
-    if (bits() > int(_LIMB_SIZE_BITS)) {
+    constexpr std::size_t INT_TYPE_SIZE_BITS = 8 * sizeof(INT_TYPE);
+    if (bits() > int(INT_TYPE_SIZE_BITS)) {
         throw nb::value_error(
             fmt::format(
                 "APyFixedArray::to_bits_ndarray(): only supports <= {}-bit elements",
-                _LIMB_SIZE_BITS
+                INT_TYPE_SIZE_BITS
             )
                 .c_str()
         );
     }
 
-    uint64_t* result_data = new uint64_t[_nitems];
+    INT_TYPE* result_data = new INT_TYPE[_nitems];
     for (std::size_t i = 0; i < _nitems; i++) {
-        result_data[i] = uint64_t(_data[i]);
-        if (bits() % _LIMB_SIZE_BITS) {
-            result_data[i] &= (uint64_t(1) << (bits() % _LIMB_SIZE_BITS)) - 1;
+        result_data[i] = INT_TYPE(_data[i]);
+        if (bits() % (INT_TYPE_SIZE_BITS)) {
+            result_data[i] &= (INT_TYPE(1) << (bits() % INT_TYPE_SIZE_BITS)) - 1;
         }
     }
 
     // Delete `result_data` when the `owner` capsule expires
-    nb::capsule owner(result_data, [](void* p) noexcept { delete[] (uint64_t*)p; });
+    nb::capsule owner(result_data, [](void* p) noexcept { delete[] (INT_TYPE*)p; });
 
-    return nb::ndarray<nb::numpy, uint64_t>(result_data, _ndim, &_shape[0], owner);
+    return nb::ndarray<NB_ARRAY_TYPE, INT_TYPE>(result_data, _ndim, &_shape[0], owner);
 }
 
 nb::ndarray<nb::numpy, double> APyFixedArray::to_numpy() const

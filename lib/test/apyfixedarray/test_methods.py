@@ -1009,6 +1009,8 @@ def test_to_bits():
 
 
 def test_to_bits_numpy():
+    np = pytest.importorskip("numpy")
+
     #
     # Numpy currently does not support long fixed-point conversions
     #
@@ -1016,9 +1018,30 @@ def test_to_bits_numpy():
         APyFixedArray([0], int_bits=100, frac_bits=1000).to_bits(True)
 
     #
+    # Correct Numpy dtypes
+    #
+    assert APyFixedArray([0], int_bits=8, frac_bits=0).to_bits(True).dtype == np.dtype(
+        "uint8"
+    )
+    assert APyFixedArray([0], int_bits=9, frac_bits=0).to_bits(True).dtype == np.dtype(
+        "uint16"
+    )
+    assert APyFixedArray([0], int_bits=16, frac_bits=0).to_bits(True).dtype == np.dtype(
+        "uint16"
+    )
+    assert APyFixedArray([0], int_bits=17, frac_bits=0).to_bits(True).dtype == np.dtype(
+        "uint32"
+    )
+    assert APyFixedArray([0], int_bits=32, frac_bits=0).to_bits(True).dtype == np.dtype(
+        "uint32"
+    )
+    assert APyFixedArray([0], int_bits=33, frac_bits=0).to_bits(True).dtype == np.dtype(
+        "uint64"
+    )
+
+    #
     # 1-D:
     #
-    np = pytest.importorskip("numpy")
     assert np.all(
         APyFixedArray.from_float(range(4), 4, 0).to_bits(True) == np.array([0, 1, 2, 3])
     )

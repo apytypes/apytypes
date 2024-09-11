@@ -261,10 +261,17 @@ public:
     APY_INLINE int frac_bits() const noexcept { return _bits - _int_bits; }
 
     //! Extract bit-pattern
-    std::variant<nb::list, nb::ndarray<nb::numpy, uint64_t>>
+    std::variant<
+        nb::list,
+        nb::ndarray<nb::numpy, uint64_t>,
+        nb::ndarray<nb::numpy, uint32_t>,
+        nb::ndarray<nb::numpy, uint16_t>,
+        nb::ndarray<nb::numpy, uint8_t>>
     to_bits(bool numpy = false) const;
 
-    nb::ndarray<nb::numpy, uint64_t> to_bits_ndarray() const;
+    template <typename NB_ARRAY_TYPE, typename INT_TYPE>
+    nb::ndarray<NB_ARRAY_TYPE, INT_TYPE> to_bits_ndarray() const;
+
     nb::list to_bits_python_recursive_descent(
         std::size_t dim, APyBuffer<mp_limb_t>::vector_type::const_iterator& it
     ) const;
