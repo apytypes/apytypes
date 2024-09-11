@@ -52,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `zeros_like()`
   - `full()`
   - `full_like()`
-- Extract the bit-patterns of `APyFixedArray`
+- Added `to_bits()` to array types.
 - Added `array_utils.h` to contain shared functions between float and fixed arrays.
 - Added support for higher dimensions (ndim > 2) in `transpose()`.
 

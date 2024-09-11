@@ -1587,3 +1587,142 @@ def test_transpose_negative_dim():
     a = APyFloatArray.from_float([1.0] * 6, man_bits=5, exp_bits=6).reshape((1, 2, 3))
     assert a.transpose((1, 0, 2)).shape == (2, 1, 3)
     assert a.transpose((-2, -3, -1)).shape == (2, 1, 3)
+
+
+def test_to_bits():
+    #
+    # 1-D:
+    #
+    assert APyFloatArray.from_float(range(4), 5, 2).to_bits() == [
+        0,
+        0b00111100,
+        0b01000000,
+        0b01000010,
+    ]
+    assert APyFloatArray.from_float(range(4), 4, 3).to_bits() == [
+        0,
+        0b00111000,
+        0b01000000,
+        0b01000100,
+    ]
+    b = 2**19 - 1
+    assert APyFloatArray.from_float(range(4), 20, 40, b).to_bits() == [
+        0,
+        b << 40,
+        (b + 1) << 40,
+        ((b + 1) << 40) | (1 << 39),
+    ]
+    assert APyFloatArray.from_float(range(-3, 3), 5, 2).to_bits() == [
+        0b11000010,
+        0b11000000,
+        0b10111100,
+        0,
+        0b00111100,
+        0b01000000,
+    ]
+    assert APyFloatArray.from_float(range(-3, 3), 4, 3).to_bits() == [
+        0b11000100,
+        0b11000000,
+        0b10111000,
+        0,
+        0b00111000,
+        0b01000000,
+    ]
+
+    #
+    # 2-D:
+    #
+    assert APyFloatArray.from_float([[1, 2], [4, 3]], 5, 2).to_bits() == [
+        [0b00111100, 0b01000000],
+        [0b01000100, 0b01000010],
+    ]
+    assert APyFloatArray.from_float([[1, 2], [4, 3]], 4, 3).to_bits() == [
+        [0b00111000, 0b01000000],
+        [0b01001000, 0b01000100],
+    ]
+
+    #
+    # 3-D:
+    #
+    assert APyFloatArray.from_float(
+        [[[1, 2], [3, 4], [5, 6]], [[7, 8], [9, 8], [7, 6]]], 5, 2
+    ).to_bits() == [[[60, 64], [66, 68], [69, 70]], [[71, 72], [72, 72], [71, 70]]]
+    assert APyFloatArray.from_float(
+        [[[1, 2], [3, 4], [5, 6]], [[7, 8], [9, 8], [7, 6]]], 4, 3
+    ).to_bits() == [[[56, 64], [68, 72], [74, 76]], [[78, 80], [81, 80], [78, 76]]]
+
+
+def test_to_bits_numpy():
+    np = pytest.importorskip("numpy")
+
+    #
+    # Numpy currently does not support long conversions
+    #
+    with pytest.raises(ValueError, match=r"APyFloatArray::to_bits_ndarray"):
+        APyFloatArray([0], [0], [0], 25, 40).to_bits(True)
+
+    #
+    # Correct Numpy dtypes
+    #
+    assert APyFloatArray([0], [0], [0], 2, 2).to_bits(True).dtype == np.dtype("uint8")
+    assert APyFloatArray([0], [0], [0], 4, 3).to_bits(True).dtype == np.dtype("uint8")
+    assert APyFloatArray([0], [0], [0], 5, 5).to_bits(True).dtype == np.dtype("uint16")
+    assert APyFloatArray([0], [0], [0], 8, 7).to_bits(True).dtype == np.dtype("uint16")
+    assert APyFloatArray([0], [0], [0], 20, 5).to_bits(True).dtype == np.dtype("uint32")
+    assert APyFloatArray([0], [0], [0], 16, 15).to_bits(True).dtype == np.dtype(
+        "uint32"
+    )
+    assert APyFloatArray([0], [0], [0], 20, 30).to_bits(True).dtype == np.dtype(
+        "uint64"
+    )
+    assert APyFloatArray([0], [0], [0], 30, 33).to_bits(True).dtype == np.dtype(
+        "uint64"
+    )
+
+    #
+    # 1-D:
+    #
+    assert np.all(
+        APyFloatArray.from_float(range(4), 5, 2).to_bits(True)
+        == np.array([0, 0b00111100, 0b01000000, 0b01000010])
+    )
+    assert np.all(
+        APyFloatArray.from_float(range(4), 4, 3).to_bits(True)
+        == np.array([0, 0b00111000, 0b01000000, 0b01000100])
+    )
+    assert np.all(
+        APyFloatArray.from_float(range(-3, 3), 5, 2).to_bits(True)
+        == np.array([0b11000010, 0b11000000, 0b10111100, 0, 0b00111100, 0b01000000])
+    )
+    assert np.all(
+        APyFloatArray.from_float(range(-3, 3), 4, 3).to_bits(True)
+        == np.array([0b11000100, 0b11000000, 0b10111000, 0, 0b00111000, 0b01000000])
+    )
+
+    #
+    # 2-D:
+    #
+    assert np.all(
+        APyFloatArray.from_float([[1, 2], [4, 3]], 5, 2).to_bits(True)
+        == np.array([[0b00111100, 0b01000000], [0b01000100, 0b01000010]])
+    )
+    assert np.all(
+        APyFloatArray.from_float([[1, 2], [4, 3]], 4, 3).to_bits(True)
+        == np.array([[0b00111000, 0b01000000], [0b01001000, 0b01000100]])
+    )
+
+    #
+    # 3-D:
+    #
+    assert np.all(
+        APyFloatArray.from_float(
+            [[[1, 2], [3, 4], [5, 6]], [[7, 8], [9, 8], [7, 6]]], 5, 2
+        ).to_bits(True)
+        == np.array([[[60, 64], [66, 68], [69, 70]], [[71, 72], [72, 72], [71, 70]]])
+    )
+    assert np.all(
+        APyFloatArray.from_float(
+            [[[1, 2], [3, 4], [5, 6]], [[7, 8], [9, 8], [7, 6]]], 4, 3
+        ).to_bits(True)
+        == np.array([[[56, 64], [68, 72], [74, 76]], [[78, 80], [81, 80], [78, 76]]])
+    )

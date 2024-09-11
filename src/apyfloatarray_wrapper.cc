@@ -329,6 +329,21 @@ void bind_float_array(nb::module_& m)
             -------
             :class:`numpy.ndarray`
             )pbdoc")
+        .def(
+            "to_bits",
+            &APyFloatArray::to_bits,
+            nb::arg("numpy") = false,
+            R"pbdoc(
+            Return the underlying bit representations.
+
+            When `numpy` is true, the bit representations are returned in a
+            :class:`numpy.ndarray`. Otherwise, they are returned in a :class:`list`.
+
+            Returns
+            -------
+            :class:`list` or :class:`numpy.ndarray`
+            )pbdoc"
+        )
         .def("reshape", &APyFloatArray::reshape, nb::arg("number_sequence"), R"pbdoc(
         Reshape the APyFloatArray to the specified shape without changing its data.
 

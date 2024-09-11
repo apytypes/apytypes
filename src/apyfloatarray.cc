@@ -1843,6 +1843,78 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::get_item(std::size_t idx) c
     }
 }
 
+std::variant<
+    nb::list,
+    nb::ndarray<nb::numpy, uint64_t>,
+    nb::ndarray<nb::numpy, uint32_t>,
+    nb::ndarray<nb::numpy, uint16_t>,
+    nb::ndarray<nb::numpy, uint8_t>>
+APyFloatArray::to_bits(bool numpy) const
+{
+    if (numpy) {
+        if (get_bits() <= 8) {
+            return to_bits_ndarray<nb::numpy, uint8_t>();
+        } else if (get_bits() <= 16) {
+            return to_bits_ndarray<nb::numpy, uint16_t>();
+        } else if (get_bits() <= 32) {
+            return to_bits_ndarray<nb::numpy, uint32_t>();
+        } else {
+            return to_bits_ndarray<nb::numpy, uint64_t>();
+        }
+    } else {
+        auto it = std::cbegin(data);
+        return to_bits_python_recursive_descent(0, it);
+    }
+}
+
+template <typename NB_ARRAY_TYPE, typename INT_TYPE>
+nb::ndarray<NB_ARRAY_TYPE, INT_TYPE> APyFloatArray::to_bits_ndarray() const
+{
+    constexpr std::size_t INT_TYPE_SIZE_BITS = 8 * sizeof(INT_TYPE);
+    if (get_bits() > int(INT_TYPE_SIZE_BITS)) {
+        throw nb::value_error(
+            fmt::format(
+                "APyFloatArray::to_bits_ndarray(): only supports <= {}-bit elements",
+                INT_TYPE_SIZE_BITS
+            )
+                .c_str()
+        );
+    }
+
+    INT_TYPE* result_data = new INT_TYPE[data.size()];
+    for (std::size_t i = 0; i < data.size(); i++) {
+        result_data[i] = to_bits_uint64(data[i], exp_bits, man_bits);
+    }
+
+    // Delete `result_data` when the `owner` capsule expires
+    nb::capsule owner(result_data, [](void* p) noexcept { delete[] (INT_TYPE*)p; });
+
+    return nb::ndarray<NB_ARRAY_TYPE, INT_TYPE>(
+        result_data, get_ndim(), &shape[0], owner
+    );
+}
+
+nb::list APyFloatArray::to_bits_python_recursive_descent(
+    std::size_t dim, std::vector<APyFloatData>::const_iterator& it
+) const
+{
+    nb::list result;
+    const auto dims = get_ndim();
+    if (dim == dims - 1) {
+        // Most inner dimension: append data
+        for (std::size_t i = 0; i < shape[dim]; i++) {
+            result.append(apyfloat_to_bits(*it, exp_bits, man_bits));
+            it++;
+        }
+    } else {
+        // We need to go deeper...
+        for (std::size_t i = 0; i < shape[dim]; i++) {
+            result.append(to_bits_python_recursive_descent(dim + 1, it));
+        }
+    }
+    return result;
+}
+
 nb::ndarray<nb::numpy, double> APyFloatArray::to_numpy() const
 {
     // Dynamically allocate data to be passed to python
@@ -1856,8 +1928,7 @@ nb::ndarray<nb::numpy, double> APyFloatArray::to_numpy() const
     // Delete 'data' when the 'owner' capsule expires
     nb::capsule owner(result_data, [](void* p) noexcept { delete[] (double*)p; });
 
-    std::size_t ndim = shape.size();
-    return nb::ndarray<nb::numpy, double>(result_data, ndim, &shape[0], owner);
+    return nb::ndarray<nb::numpy, double>(result_data, get_ndim(), &shape[0], owner);
 }
 
 bool APyFloatArray::is_identical(const APyFloatArray& other) const

@@ -654,19 +654,7 @@ APyFloat& APyFloat::update_from_bits(nb::int_ python_long_int_bit_pattern)
 
 nb::int_ APyFloat::to_bits() const
 {
-    std::uint64_t lower = man;
-    const int exp_man_bits = exp_bits + man_bits;
-    lower |= (std::uint64_t)exp << man_bits;
-    lower |= (std::uint64_t)sign << exp_man_bits;
-
-    std::uint64_t higher = (std::uint64_t)exp >> (64 - man_bits);
-    const int high_sign_delta = 64 - exp_man_bits;
-    if (high_sign_delta < 0) {
-        higher |= sign << -high_sign_delta;
-    }
-
-    auto limb_vec = limb_vector_from_uint64_t({ lower, higher });
-    return python_limb_vec_to_long(limb_vec.begin(), limb_vec.end(), false);
+    return apyfloat_to_bits({ sign, exp, man }, exp_bits, man_bits);
 }
 
 std::string APyFloat::str() const { return fmt::format("{:g}", to_double()); }
