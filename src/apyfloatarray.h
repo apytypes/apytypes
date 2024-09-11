@@ -287,6 +287,24 @@ public:
             && bias == other.get_bias();
     }
 
+    //! Extract bit-pattern
+    std::variant<
+        nb::list,
+        nb::ndarray<nb::numpy, uint64_t>,
+        nb::ndarray<nb::numpy, uint32_t>,
+        nb::ndarray<nb::numpy, uint16_t>,
+        nb::ndarray<nb::numpy, uint8_t>>
+    to_bits(bool numpy = false) const;
+
+    //! Create an N-dimensional array containing bit-patterns.
+    template <typename NB_ARRAY_TYPE, typename INT_TYPE>
+    nb::ndarray<NB_ARRAY_TYPE, INT_TYPE> to_bits_ndarray() const;
+
+    //! Create a nested Python list containing bit-patterns as Python integers.
+    nb::list to_bits_python_recursive_descent(
+        std::size_t dim, std::vector<APyFloatData>::const_iterator& it
+    ) const;
+
     //! Convert to a NumPy array
     nanobind::ndarray<nanobind::numpy, double> to_numpy() const;
 

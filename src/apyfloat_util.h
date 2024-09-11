@@ -5,6 +5,7 @@
 #include "apyfixed_util.h"
 #include "apyfloat.h"
 #include "apytypes_common.h"
+#include "python_util.h"
 #include <optional>
 #include <vector>
 
@@ -39,6 +40,33 @@ APY_INLINE bool do_infinity(QuantizationMode mode, bool sign)
     }
 }
 
+//! Return the bit pattern of a floating-point data field. No checks on bit width is
+//! done.
+APY_INLINE std::uint64_t
+to_bits_uint64(const APyFloatData& d, std::uint8_t exp_bits, std::uint8_t man_bits)
+{
+    return (std::uint64_t(d.sign) << (exp_bits + man_bits))
+        | (std::uint64_t(d.exp) << man_bits) | std::uint64_t(d.man);
+}
+
+APY_INLINE nb::int_
+apyfloat_to_bits(const APyFloatData& d, std::uint8_t exp_bits, std::uint8_t man_bits)
+{
+    std::uint64_t lower = d.man;
+    const int exp_man_bits = exp_bits + man_bits;
+    lower |= (std::uint64_t)d.exp << man_bits;
+    lower |= (std::uint64_t)d.sign << exp_man_bits;
+
+    std::uint64_t higher = (std::uint64_t)d.exp >> (64 - man_bits);
+    const int high_sign_delta = 64 - exp_man_bits;
+    if (high_sign_delta < 0) {
+        higher |= d.sign << -high_sign_delta;
+    }
+
+    auto limb_vec = limb_vector_from_uint64_t({ lower, higher });
+    return python_limb_vec_to_long(limb_vec.begin(), limb_vec.end(), false);
+}
+
 //! Calculate new bias. Assumes new_exp_bits is larger than exp_bits1 and exp_bits2.
 APY_INLINE exp_t
 calc_bias(int new_exp_bits, int exp_bits1, exp_t bias1, int exp_bits2, exp_t bias2)
@@ -55,13 +83,13 @@ exp_t calc_bias_general(
     int new_exp_bits, int exp_bits1, exp_t bias1, int exp_bits2, exp_t bias2
 );
 
-//! Get bit pattern for the value one
+//! Create a floating-point object with the value one.
 static APY_INLINE APyFloat
 one(std::uint8_t exp_bits,
     std::uint8_t man_bits,
     std::optional<exp_t> bias = std::nullopt)
 {
-    exp_t res_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
+    const exp_t res_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
     return APyFloat(0, res_bias, 0, exp_bits, man_bits, res_bias);
 }
 
