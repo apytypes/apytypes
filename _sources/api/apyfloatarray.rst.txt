@@ -8,6 +8,13 @@
 
    .. automethod:: __init__
 
+   Conversion to other types
+   -------------------------
+
+   .. automethod:: to_numpy
+
+   .. automethod:: to_bits
+
    Creation from other types
    -------------------------
 
@@ -37,11 +44,6 @@
    ----------
 
    .. automethod:: is_identical
-
-   Convert to NumPy
-   ----------------
-
-   .. automethod:: to_numpy
 
    Convolution
    -----------
