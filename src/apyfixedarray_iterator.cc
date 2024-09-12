@@ -18,5 +18,5 @@ std::variant<APyFixedArray, APyFixed> APyFixedArrayIterator::next()
 {
     if (index == array.size())
         throw nb::stop_iteration();
-    return array.get_item(index++);
+    return array.get_item_integer(index++);
 }

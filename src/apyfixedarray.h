@@ -248,9 +248,6 @@ public:
     //! Number of dimensions
     size_t ndim() const noexcept;
 
-    //! Return a single item
-    std::variant<APyFixedArray, APyFixed> get_item(std::size_t idx) const;
-
     //! Number of bits
     APY_INLINE int bits() const noexcept { return _bits; }
 
@@ -316,6 +313,31 @@ public:
     bool is_identical(const APyFixedArray& other) const;
 
     /* ****************************************************************************** *
+     * *            `__getitem__` and `__setitem__` family of methods               * *
+     * ****************************************************************************** */
+
+    //! Top-level `__getitem__` function
+    std::variant<APyFixedArray, APyFixed>
+    get_item(std::variant<nb::int_, nb::slice, nb::ellipsis, nb::tuple> key) const;
+
+    std::variant<APyFixedArray, APyFixed> get_item_integer(std::ptrdiff_t idx) const;
+
+    std::variant<APyFixedArray, APyFixed>
+    get_item_tuple(std::vector<std::variant<nb::int_, nb::slice>> tuple) const;
+
+    APyFixedArray get_item_slice(nb::slice slice) const;
+
+    std::vector<APyFixedArray> get_item_slice_nested(nb::slice slice) const;
+
+    std::vector<std::size_t> get_item_tuple_shape(
+        const std::vector<std::variant<nb::int_, nb::slice>>& tuple,
+        const std::vector<std::variant<nb::int_, nb::slice>>& remaining
+    ) const;
+
+    std::vector<std::variant<nb::int_, nb::slice>>
+    get_item_to_cpp_tuple(const nb::tuple& key) const;
+
+    /* ****************************************************************************** *
      *                       Static conversion from other types                       *
      * ****************************************************************************** */
 
@@ -347,6 +369,7 @@ public:
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
     );
+
     //! Create an `APyFixedArray` initialized with ones
     static APyFixedArray ones(
         const nb::tuple& shape,

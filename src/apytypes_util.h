@@ -1042,10 +1042,19 @@ twos_complement_overflow(mp_limb_t value, int bits)
 }
 
 //! Fold a shape under multiplication
+[[maybe_unused]] static APY_INLINE std::size_t fold_shape(
+    std::vector<std::size_t>::const_iterator cbegin,
+    std::vector<std::size_t>::const_iterator cend
+)
+{
+    return std::accumulate(cbegin, cend, 1, std::multiplies {});
+}
+
+//! Fold a shape under multiplication
 [[maybe_unused]] static APY_INLINE std::size_t
 fold_shape(const std::vector<std::size_t>& shape)
 {
-    return std::accumulate(shape.cbegin(), shape.cend(), 1, std::multiplies {});
+    return fold_shape(std::cbegin(shape), std::cend(shape));
 }
 
 //! Compute the strides from a shape
