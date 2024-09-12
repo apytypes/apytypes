@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 import enum
+import types
 from typing import Annotated, overload
 
 from numpy.typing import ArrayLike
@@ -604,7 +605,13 @@ class APyFixedArray:
 
     def to_bits(
         self, numpy: bool = False
-    ) -> list | Annotated[ArrayLike, dict(dtype="uint64")]:
+    ) -> (
+        list
+        | Annotated[ArrayLike, dict(dtype="uint64")]
+        | Annotated[ArrayLike, dict(dtype="uint32")]
+        | Annotated[ArrayLike, dict(dtype="uint16")]
+        | Annotated[ArrayLike, dict(dtype="uint8")]
+    ):
         """
         Return the underlying bit representations.
 
@@ -1478,7 +1485,9 @@ class APyFixedArray:
     def __repr__(self) -> str: ...
     def __rshift__(self, shift_amnt: int) -> APyFixedArray: ...
     def __abs__(self) -> APyFixedArray: ...
-    def __getitem__(self, idx: int) -> APyFixedArray | APyFixed: ...
+    def __getitem__(
+        self, idx: int | slice | types.EllipsisType | tuple
+    ) -> APyFixedArray | APyFixed: ...
     def __len__(self) -> int: ...
     def __iter__(self) -> APyFixedArrayIterator: ...
     def __array__(self) -> Annotated[ArrayLike, dict(dtype="float64")]: ...
@@ -2348,6 +2357,26 @@ class APyFloatArray:
         Returns
         -------
         :class:`numpy.ndarray`
+        """
+
+    def to_bits(
+        self, numpy: bool = False
+    ) -> (
+        list
+        | Annotated[ArrayLike, dict(dtype="uint64")]
+        | Annotated[ArrayLike, dict(dtype="uint32")]
+        | Annotated[ArrayLike, dict(dtype="uint16")]
+        | Annotated[ArrayLike, dict(dtype="uint8")]
+    ):
+        """
+        Return the underlying bit representations.
+
+        When `numpy` is true, the bit representations are returned in a
+        :class:`numpy.ndarray`. Otherwise, they are returned in a :class:`list`.
+
+        Returns
+        -------
+        :class:`list` or :class:`numpy.ndarray`
         """
 
     def reshape(self, number_sequence: tuple) -> APyFloatArray:

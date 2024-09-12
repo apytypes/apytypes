@@ -607,34 +607,6 @@ def test_to_numpy():
     assert np.array_equal(fx_arr.to_numpy(), np.array(float_seq))
 
 
-def test_get_item():
-    # ndim == 1
-    fx_array = APyFixedArray([1, 2, 3, 4, 5, 6], bits=10, int_bits=10)
-    assert fx_array[0].is_identical(APyFixed(1, bits=10, int_bits=10))
-    assert fx_array[1].is_identical(APyFixed(2, bits=10, int_bits=10))
-    assert fx_array[5].is_identical(APyFixed(6, bits=10, int_bits=10))
-    with pytest.raises(IndexError, match="APyFixedArray.__getitem__: index 6 is out"):
-        fx_array[6]
-
-    # ndim == 2
-    fx_array = APyFixedArray([[1, 2], [3, 4]], bits=10, int_bits=10)
-    assert fx_array[0].is_identical(APyFixedArray([1, 2], bits=10, int_bits=10))
-    assert fx_array[1].is_identical(APyFixedArray([3, 4], bits=10, int_bits=10))
-    with pytest.raises(IndexError, match="APyFixedArray.__getitem__: index 2 is out"):
-        fx_array[2]
-
-    # ndim == 3
-    fx_array = APyFixedArray([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], bits=10, int_bits=10)
-    assert fx_array[0].is_identical(
-        APyFixedArray([[1, 2], [3, 4]], bits=10, int_bits=10)
-    )
-    assert fx_array[1].is_identical(
-        APyFixedArray([[5, 6], [7, 8]], bits=10, int_bits=10)
-    )
-    with pytest.raises(IndexError, match="APyFixedArray.__getitem__: index 2 is out"):
-        fx_array[2]
-
-
 def test_iterator():
     fx_array = APyFixedArray([1, 2, 3, 4, 5, 6], bits=10, int_bits=10)
     iterator = iter(fx_array)

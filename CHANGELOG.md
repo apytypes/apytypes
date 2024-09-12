@@ -53,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `full()`
   - `full_like()`
 - Added `to_bits()` to array types.
+- Significantly improved indexing of arrays
 - Added `array_utils.h` to contain shared functions between float and fixed arrays.
 - Added support for higher dimensions (ndim > 2) in `transpose()`.
 
