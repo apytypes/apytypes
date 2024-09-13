@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2024-09-13
+
 ### Added
 
 - Added methods `next_up()` and `next_down()` for floating-point scalars.
@@ -53,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `full()`
   - `full_like()`
 - Added `to_bits()` to array types.
-- Significantly improved indexing of arrays
+- Significantly improved indexing of arrays.
 - Added `array_utils.h` to contain shared functions between float and fixed arrays.
 - Added support for higher dimensions (ndim > 2) in `transpose()`.
 
@@ -81,5 +83,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.0] - 2024-05-15
 
-[unreleased]: https://github.com/apytypes/apytypes/compare/v0.1.0...HEAD
+[unreleased]: https://github.com/apytypes/apytypes/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/apytypes/apytypes/releases/tag/v0.2.0
 [0.1.0]: https://github.com/apytypes/apytypes/releases/tag/v0.1.0

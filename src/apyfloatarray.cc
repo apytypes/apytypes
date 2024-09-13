@@ -1920,17 +1920,16 @@ std::vector<APyFloatArray> APyFloatArray::get_item_slice_nested(nb::slice slice)
     std::vector<APyFloatArray> result;
 
     auto size = fold_shape(new_shape);
+    APyFloatArray tmp(new_shape, exp_bits, man_bits, bias);
     if (step < 0) {
         // Copy data into result and return (negative src step size)
         for (std::ptrdiff_t src_i = start; src_i > stop; src_i += step) {
-            APyFloatArray tmp(new_shape, exp_bits, man_bits, bias);
             std::copy_n(std::begin(data) + src_i * size, size, std::begin(tmp.data));
             result.push_back(tmp);
         }
     } else {
         // Copy data into result and return (positive src step size)
         for (std::ptrdiff_t src_i = start; src_i < stop; src_i += step) {
-            APyFloatArray tmp(new_shape, exp_bits, man_bits, bias);
             std::copy_n(std::begin(data) + src_i * size, size, std::begin(tmp.data));
             result.push_back(tmp);
         }

@@ -1687,17 +1687,16 @@ std::vector<APyFixedArray> APyFixedArray::get_item_slice_nested(nb::slice slice)
     std::vector<APyFixedArray> result;
 
     auto size = fold_shape(new_shape) * _itemsize;
+    APyFixedArray tmp(new_shape, _bits, _int_bits);
     if (step < 0) {
         // Copy data into result and return (negative src step size)
         for (std::ptrdiff_t src_i = start; src_i > stop; src_i += step) {
-            APyFixedArray tmp(new_shape, _bits, _int_bits);
             std::copy_n(std::begin(_data) + src_i * size, size, std::begin(tmp._data));
             result.push_back(tmp);
         }
     } else {
         // Copy data into result and return (positive src step size)
         for (std::ptrdiff_t src_i = start; src_i < stop; src_i += step) {
-            APyFixedArray tmp(new_shape, _bits, _int_bits);
             std::copy_n(std::begin(_data) + src_i * size, size, std::begin(tmp._data));
             result.push_back(tmp);
         }
