@@ -17,5 +17,5 @@ std::variant<APyFloatArray, APyFloat> APyFloatArrayIterator::next()
 {
     if (index == array.get_size())
         throw nb::stop_iteration();
-    return array.get_item(index++);
+    return array.get_item_integer(index++);
 }

@@ -256,9 +256,6 @@ public:
     //! Number of dimensions
     size_t get_ndim() const;
 
-    //! Return a single item
-    std::variant<APyFloatArray, APyFloat> get_item(std::size_t idx) const;
-
     //! Length of the array
     size_t get_size() const;
 
@@ -286,6 +283,31 @@ public:
         return man_bits == other.get_man_bits() && exp_bits == other.get_exp_bits()
             && bias == other.get_bias();
     }
+
+    /* ****************************************************************************** *
+     * *            `__getitem__` and `__setitem__` family of methods               * *
+     * ****************************************************************************** */
+
+    //! Top-level `__getitem__` function
+    std::variant<APyFloatArray, APyFloat>
+    get_item(std::variant<nb::int_, nb::slice, nb::ellipsis, nb::tuple> key) const;
+
+    std::variant<APyFloatArray, APyFloat> get_item_integer(std::ptrdiff_t idx) const;
+
+    std::variant<APyFloatArray, APyFloat>
+    get_item_tuple(std::vector<std::variant<nb::int_, nb::slice>> tuple) const;
+
+    APyFloatArray get_item_slice(nb::slice slice) const;
+
+    std::vector<APyFloatArray> get_item_slice_nested(nb::slice slice) const;
+
+    std::vector<std::size_t> get_item_tuple_shape(
+        const std::vector<std::variant<nb::int_, nb::slice>>& tuple,
+        const std::vector<std::variant<nb::int_, nb::slice>>& remaining
+    ) const;
+
+    std::vector<std::variant<nb::int_, nb::slice>>
+    get_item_to_cpp_tuple(const nb::tuple& key) const;
 
     //! Extract bit-pattern
     std::variant<
@@ -340,9 +362,6 @@ private:
         std::optional<exp_t> bias = std::nullopt
     );
     std::vector<std::size_t> shape;
-
-    //! Fold the `_shape` field over multiplication
-    std::size_t fold_shape() const;
 
     /*!
      * Evaluate the inner between two vectors. This method assumes that the the shape
