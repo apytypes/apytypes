@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:00.008** total execution time for 2 files **from all galleries**:
+**00:00.010** total execution time for 2 files **from all galleries**:
 
 .. container::
 
@@ -33,7 +33,7 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_examples_apyfloat.py` (``../examples/apyfloat.py``)
-     - 00:00.006
+     - 00:00.007
      - 0.0
    * - :ref:`sphx_glr_examples_apyfixed.py` (``../examples/apyfixed.py``)
      - 00:00.002
