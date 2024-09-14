@@ -293,7 +293,10 @@ and this project adheres to <a class="reference external" href="https://semver.o
 <section id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>Fixed memory-access bug in <code class="docutils literal notranslate"><span class="pre">APyFloatArray.cumsum</span></code></p></li>
+<li><p>Fixed memory-access bug in <code class="docutils literal notranslate"><span class="pre">APyFloatArray.cumsum</span></code>.</p></li>
+<li><p>Fixed bug where <code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code> multiplicative methods could give wrong result
+for multi-limb products if the right-hand side have longer word-length than
+the left-hand side.</p></li>
 </ul>
 </section>
 </section>
