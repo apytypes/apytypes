@@ -5,7 +5,6 @@
 #ifndef _APYTYPES_UTIL_H
 #define _APYTYPES_UTIL_H
 
-#include <iostream>
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 
@@ -25,9 +24,8 @@
 #include <sstream>          // std::stringstream
 #include <string>           // std::string
 #include <tuple>            // std::tuple
-#include <typeinfo>
-#include <variant> // std::variant
-#include <vector>  // std::vector
+#include <variant>          // std::variant
+#include <vector>           // std::vector
 
 /*
  * Include Microsoft intrinsics if using Microsoft Visual C/C++ compiler

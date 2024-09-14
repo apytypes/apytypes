@@ -428,56 +428,6 @@ private:
     ) const;
 
     /*!
-     * Evaluate the inner product between `*this` and `rhs` using scratch memories. This
-     * method assumes that no accumulator context is being used. Store the
-     * single-element (possibly multiple-limb) result in `result`. This method assumes
-     * that the the shape of both `*this` and `rhs` are equally long. Anything else is
-     * undefined behaviour.
-     */
-    void _checked_inner_product_full(
-        const APyFixedArray& rhs,             // rhs
-        APyFixedArray& result,                // result
-        APyFixedArray& hadamard_scratch,      // scratch: hadamard product
-        std::vector<mp_limb_t>& prod_scratch, // scratch: product result
-        std::vector<mp_limb_t>& op1_scratch,  // scratch: absolute value operand 1
-        std::vector<mp_limb_t>& op2_scratch   // scratch: absolute value operand 2
-    ) const;
-
-    /*!
-     * Evaluate the inner product between `*this` and `rhs` using scratch memories, with
-     * an accumulator option specified. Store the single-element (possibly
-     * multiple-limb) result in `result`. This method assumes that the the shape of both
-     * `*this` and `rhs` are equally long. Anything else is undefined behaviour.
-     */
-    void _checked_inner_product_acc(
-        const APyFixedArray& rhs,             // rhs
-        APyFixedArray& result,                // result
-        APyFixedArray& hadamard_scratch,      // scratch: hadamard product
-        std::vector<mp_limb_t>& prod_scratch, // scratch: product result
-        std::vector<mp_limb_t>& op1_scratch,  // scratch: absolute value operand 1
-        std::vector<mp_limb_t>& op2_scratch,  // scratch: absolute value operand 2
-        const APyFixedAccumulatorOption& mode // accumulation mode
-    ) const;
-
-    /*!
-     * Perform hadamard multiplication of `*this` and `rhs` using scratch memories.
-     * Store the result in the vector pointed to by `res_out`. This method assumes that
-     * the shape of `*this` and `rhs` are equally long. Anyghing else is undefined
-     * behaviour.
-     *
-     * NOTE: Use `simd::vector_mul` if you know that the resulting number of bits fit in
-     * a single limb.
-     */
-    template <typename RANDOM_ACCESS_ITERATOR>
-    void _checked_hadamard_product(
-        const APyFixedArray& rhs,             // rhs
-        RANDOM_ACCESS_ITERATOR res_out,       // output iterator
-        std::vector<mp_limb_t>& prod_scratch, // scratch: product result
-        std::vector<mp_limb_t>& op1_scratch,  // scratch: absolute value operand 1
-        std::vector<mp_limb_t>& op2_scratch   // scratch: absolute value operand 2
-    ) const;
-
-    /*!
      * Cast values to a longer (at least not shorter) word length. This code has moved
      * all conditions out of the for-loop to speed up the execution and instead there
      * are multiple for-loops doing similar operations.

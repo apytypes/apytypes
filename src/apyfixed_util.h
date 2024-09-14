@@ -611,13 +611,13 @@ template <
     typename RANDOM_ACCESS_ITERATOR_OUT,
     typename OP_ABS_VECTOR_T,
     typename PROD_ABS_VECTOR_T>
-static APY_INLINE void fixedpoint_product(
+static APY_INLINE void fixed_point_product(
     RANDOM_ACCESS_ITERATOR_IN src1,
     RANDOM_ACCESS_ITERATOR_IN src2,
     RANDOM_ACCESS_ITERATOR_OUT dst,
     std::size_t src1_limbs, // Number of limbs `src1`
     std::size_t src2_limbs, // Number of limbs `src2`
-    std::size_t dst_limbs,  // Number of limbs in the result
+    std::size_t dst_limbs,  // `dst_limbs` <= `src1_limbs` + `src2_limbs`
     OP_ABS_VECTOR_T op1_abs,
     OP_ABS_VECTOR_T op2_abs,
     PROD_ABS_VECTOR_T prod_abs
@@ -633,7 +633,11 @@ static APY_INLINE void fixedpoint_product(
     limb_vector_abs(src2, src2 + src2_limbs, std::begin(op2_abs));
 
     // Perform the multiplication and possibly negate
-    mpn_mul(&prod_abs[0], &op1_abs[0], src1_limbs, &op2_abs[0], src2_limbs);
+    if (src1_limbs < src2_limbs) {
+        mpn_mul(&prod_abs[0], &op2_abs[0], src2_limbs, &op1_abs[0], src1_limbs);
+    } else {
+        mpn_mul(&prod_abs[0], &op1_abs[0], src1_limbs, &op2_abs[0], src2_limbs);
+    }
 
     // Negate of copy the result back
     if (result_sign) {
@@ -645,13 +649,13 @@ static APY_INLINE void fixedpoint_product(
 
 //! Iterator-based multi-limb fixed-point hadamard product
 template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
-static void fixedpoint_hadamard_product(
+static void fixed_point_hadamard_product(
     RANDOM_ACCESS_ITERATOR_IN src1,
     RANDOM_ACCESS_ITERATOR_IN src2,
     RANDOM_ACCESS_ITERATOR_OUT dst,
     std::size_t src1_limbs, // Number of limbs in one fixed-point of `src1`
     std::size_t src2_limbs, // Number of limbs in one fixed-point of `src2`
-    std::size_t dst_limbs,  // Number of limbs in the result
+    std::size_t dst_limbs,  // `dst_limbs` <= `src1_limbs` + `src2_limbs`
     std::size_t n_items     // Number of elements to use in inner product
 )
 {
@@ -659,7 +663,7 @@ static void fixedpoint_hadamard_product(
     ScratchVector<mp_limb_t, 8> op2_abs(src2_limbs);
     ScratchVector<mp_limb_t, 16> prod_abs(src1_limbs + src2_limbs);
     for (std::size_t i = 0; i < n_items; i++) {
-        fixedpoint_product(
+        fixed_point_product(
             src1 + i * src1_limbs,
             src2 + i * src2_limbs,
             dst + i * dst_limbs,
@@ -675,7 +679,7 @@ static void fixedpoint_hadamard_product(
 
 //! Iterator-based multiply-accumulate
 template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
-static void inner_product(
+static void fixed_point_inner_product(
     RANDOM_ACCESS_ITERATOR_IN src1,
     RANDOM_ACCESS_ITERATOR_IN src2,
     RANDOM_ACCESS_ITERATOR_OUT dst,
@@ -685,35 +689,79 @@ static void inner_product(
     std::size_t n_items     // Number of elements to use in inner product
 )
 {
+    //
     // Specialization #1: the resulting number of limbs is exactly one
+    //
     if (dst_limbs == 1) {
         dst[0] = simd::vector_multiply_accumulate(src1, src2, n_items);
         return; // early exit
     }
 
+    //
     // General case. This always works, but is the slowest variant.
+    //
     ScratchVector<mp_limb_t, 8> op1_abs(src1_limbs);
     ScratchVector<mp_limb_t, 8> op2_abs(src2_limbs);
-    ScratchVector<mp_limb_t, 16> product(src1_limbs + src2_limbs);
-    for (std::size_t i = 0; i < n_items; i++) {
-        fixedpoint_product(
-            src1 + i * src1_limbs,
-            src2 + i * src2_limbs,
-            std::begin(product),
-            src1_limbs,
-            src2_limbs,
-            dst_limbs,
-            op1_abs,
-            op2_abs,
-            product
-        );
-        mpn_add(&dst[0], &dst[0], dst_limbs, &product[0], dst_limbs);
+
+    // Absolute product must be long enough to contain a possibly sign extended result
+    std::size_t product_limbs = src1_limbs + src2_limbs;
+    ScratchVector<mp_limb_t, 16> product(std::max(product_limbs, dst_limbs));
+
+    if (dst_limbs <= product_limbs) {
+        /*
+         * (1): Multiply-accumulate, no need to sign extend
+         */
+        for (std::size_t i = 0; i < n_items; i++) {
+            fixed_point_product(
+                src1 + i * src1_limbs, // src1
+                src2 + i * src2_limbs, // src2
+                std::begin(product),   // dst
+                src1_limbs,            // src1_limbs
+                src2_limbs,            // src2_limbs
+                product_limbs,         // dst_limbs
+                op1_abs,               // op1_abs scratch vector
+                op2_abs,               // op2_abs scratch vector
+                product                // product_abs scratch_vector
+            );
+            mpn_add(&dst[0], &dst[0], dst_limbs, &product[0], dst_limbs);
+        }
+    } else { /* dst_limbs > product_limbs */
+        /*
+         * (2): Multiply-accumulate, but sign extend each product
+         */
+        for (std::size_t i = 0; i < n_items; i++) {
+            fixed_point_product(
+                src1 + i * src1_limbs, // src1
+                src2 + i * src2_limbs, // src2
+                std::begin(product),   // dst
+                src1_limbs,            // src1_limbs
+                src2_limbs,            // src2_limbs
+                product_limbs,         // dst_limbs
+                op1_abs,               // op1_abs scratch vector
+                op2_abs,               // op2_abs scratch vector
+                product                // product_abs scratch_vector
+            );
+            if (mp_limb_signed_t(product[product_limbs - 1]) < 0) {
+                // Sign-extend
+                std::fill(
+                    std::begin(product) + product_limbs,
+                    std::end(product),
+                    mp_limb_t(-1)
+                );
+            } else {
+                // Zero-extend
+                std::fill(
+                    std::begin(product) + product_limbs, std::end(product), mp_limb_t(0)
+                );
+            }
+            mpn_add(&dst[0], &dst[0], dst_limbs, &product[0], dst_limbs);
+        }
     }
 }
 
 //! Iterator-based multiply-accumulate using in accumulator context
 template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
-static void inner_product_acc(
+static void fixed_point_inner_product_accumulator(
     RANDOM_ACCESS_ITERATOR_IN src1,
     RANDOM_ACCESS_ITERATOR_IN src2,
     RANDOM_ACCESS_ITERATOR_OUT dst,
@@ -721,48 +769,110 @@ static void inner_product_acc(
     std::size_t src2_limbs, // Number of limbs in one fixed-point of `src2`
     std::size_t dst_limbs,  // Number of limbs in the result
     std::size_t n_items,    // Number of elements to use in inner product
-    int product_bits,
-    int product_int_bits,
+    int product_bits,       // Number of bits in the raw product
+    int product_int_bits,   // Number of int_bits in the raw product
     const APyFixedAccumulatorOption& acc
 )
 {
     ScratchVector<mp_limb_t, 8> op1_abs(src1_limbs);
     ScratchVector<mp_limb_t, 8> op2_abs(src2_limbs);
-    ScratchVector<mp_limb_t, 16> product(src1_limbs + src2_limbs);
-    for (std::size_t i = 0; i < n_items; i++) {
-        // Multiply
-        fixedpoint_product(
-            src1 + i * src1_limbs,
-            src2 + i * src2_limbs,
-            std::begin(product),
-            src1_limbs,
-            src2_limbs,
-            dst_limbs,
-            op1_abs,
-            op2_abs,
-            product
-        );
 
-        // Quantize and overflow
-        quantize(
-            std::begin(product),
-            std::begin(product) + dst_limbs,
-            product_bits,
-            product_int_bits,
-            acc.bits,
-            acc.int_bits,
-            acc.quantization
-        );
-        overflow(
-            std::begin(product),
-            std::begin(product) + dst_limbs,
-            acc.bits,
-            acc.int_bits,
-            acc.overflow
-        );
+    // Absolute product must be long enough to contain a possibly sign extended result
+    std::size_t product_limbs = src1_limbs + src2_limbs;
+    ScratchVector<mp_limb_t, 16> product(std::max(product_limbs, dst_limbs));
 
-        // Accumulate
-        mpn_add(&dst[0], &dst[0], dst_limbs, &product[0], dst_limbs);
+    if (dst_limbs <= product_limbs) {
+        /*
+         * (1): Multiply-accumulate, no need to sign extend
+         */
+        for (std::size_t i = 0; i < n_items; i++) {
+            // Multiply
+            fixed_point_product(
+                src1 + i * src1_limbs,
+                src2 + i * src2_limbs,
+                std::begin(product),
+                src1_limbs,
+                src2_limbs,
+                product_limbs,
+                op1_abs,
+                op2_abs,
+                product
+            );
+
+            // Quantize and overflow
+            quantize(
+                std::begin(product),
+                std::end(product),
+                product_bits,
+                product_int_bits,
+                acc.bits,
+                acc.int_bits,
+                acc.quantization
+            );
+            overflow(
+                std::begin(product),
+                std::end(product),
+                acc.bits,
+                acc.int_bits,
+                acc.overflow
+            );
+
+            // Accumulate
+            mpn_add(&dst[0], &dst[0], dst_limbs, &product[0], dst_limbs);
+        }
+    } else { /* dst_limbs > product_limbs */
+        /*
+         * (2): Multiply-accumulate, but sign extend each product
+         */
+        for (std::size_t i = 0; i < n_items; i++) {
+            // Multiply
+            fixed_point_product(
+                src1 + i * src1_limbs,
+                src2 + i * src2_limbs,
+                std::begin(product),
+                src1_limbs,
+                src2_limbs,
+                product_limbs,
+                op1_abs,
+                op2_abs,
+                product
+            );
+
+            if (mp_limb_signed_t(product[product_limbs - 1]) < 0) {
+                // Sign-extend
+                std::fill(
+                    std::begin(product) + product_limbs,
+                    std::end(product),
+                    mp_limb_t(-1)
+                );
+            } else {
+                // Zero-extend
+                std::fill(
+                    std::begin(product) + product_limbs, std::end(product), mp_limb_t(0)
+                );
+            }
+
+            // Quantize and overflow
+            quantize(
+                std::begin(product),
+                std::end(product),
+                product_bits,
+                product_int_bits,
+                acc.bits,
+                acc.int_bits,
+                acc.quantization
+            );
+            overflow(
+                std::begin(product),
+                std::end(product),
+                acc.bits,
+                acc.int_bits,
+                acc.overflow
+            );
+
+            // Accumulate
+            mpn_add(&dst[0], &dst[0], dst_limbs, &product[0], dst_limbs);
+        }
     }
 }
 
@@ -792,7 +902,7 @@ inner_product_func_from_acc_mode(
     using namespace std::placeholders;
     if (accumulator_mode.has_value()) {
         return std::bind(
-            inner_product_acc<
+            fixed_point_inner_product_accumulator<
                 typename VECTOR_TYPE::const_iterator,
                 typename VECTOR_TYPE::iterator>,
             _1,
@@ -807,7 +917,7 @@ inner_product_func_from_acc_mode(
             *accumulator_mode
         );
     } else { /* !accumulator_mode.has_value() */
-        return inner_product<
+        return fixed_point_inner_product<
             typename VECTOR_TYPE::const_iterator,
             typename VECTOR_TYPE::iterator>;
     }
