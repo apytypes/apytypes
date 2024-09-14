@@ -84,8 +84,8 @@ template <typename _IT>
 APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end)
     : APyFixed(bits, int_bits)
 {
-    assert(std::distance(begin, end) > 0);
-    assert(std::distance(begin, end) == ptrdiff_t(bits_to_limbs(bits)));
+    assert(std::distance(begin, end) >= 0);
+    assert(std::distance(begin, end) <= ptrdiff_t(bits_to_limbs(bits)));
 
     // Copy data into resulting vector
     std::copy(begin, end, _data.begin());
