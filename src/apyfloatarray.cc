@@ -1330,9 +1330,9 @@ APyFloatArray APyFloatArray::cumulative_prod_sum_function(
     APyFloat rhs_scalar(exp_bits, man_bits, bias);
 
     // get the stride
-    std::size_t stride = strides_from_shape(shape)[_axis];
-    if (_axis == shape.size()) {
-        stride = 1;
+    std::size_t stride = 1;
+    if (_axis < shape.size()) {
+        stride = strides_from_shape(shape)[_axis];
     }
     // perform the summation or multiplication and place result in 'result'
     for (std::size_t i = 0; i < temp.data.size(); i++) {
