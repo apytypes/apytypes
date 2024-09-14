@@ -194,6 +194,37 @@ def test_wide_matmul():
         )
     )
 
+    A = APyFixedArray.from_float(
+        [
+            [0.25, 0.50],
+            [-0.75, 1.00],
+        ],
+        int_bits=512,
+        frac_bits=256,
+    )
+    B = APyFixedArray.from_float(
+        [
+            [0.75, 1.00],
+            [0.25, 0.50],
+        ],
+        int_bits=256,
+        frac_bits=512,
+    )
+    assert (A @ B).is_identical(
+        APyFixedArray.from_float(
+            [[0.3125, 0.5], [-0.3125, -0.25]],
+            bits=1537,
+            int_bits=768 + 1,
+        )
+    )
+    assert (B @ A).is_identical(
+        APyFixedArray.from_float(
+            [[-0.5625, 1.375], [-0.3125, 0.625]],
+            bits=1537,
+            int_bits=768 + 1,
+        )
+    )
+
 
 def test_matrix_multiplication_accumulator_context():
     A = APyFixedArray.from_float(
@@ -303,4 +334,23 @@ def test_matrix_multiplication_narrow_accumulator():
             APyFixedArray.from_float(
                 [[0.3125, 0.5], [0.8125, 1.25]], bits=10, int_bits=5
             )
+        )
+
+
+def test_inner_product_accumulator_edge():
+    A = APyFixedArray.from_float(range(1024), int_bits=64, frac_bits=64)
+    B = (-A).cast(int_bits=64, frac_bits=64)
+
+    with APyFixedAccumulatorContext(int_bits=128 + 5, frac_bits=128):
+        assert (A @ A).is_identical(
+            APyFixedArray.from_float([357389824], int_bits=128 + 5, frac_bits=128)
+        )
+        assert (A @ B).is_identical(
+            APyFixedArray.from_float([-357389824], int_bits=128 + 5, frac_bits=128)
+        )
+        assert (B @ A).is_identical(
+            APyFixedArray.from_float([-357389824], int_bits=128 + 5, frac_bits=128)
+        )
+        assert (B @ B).is_identical(
+            APyFixedArray.from_float([357389824], int_bits=128 + 5, frac_bits=128)
         )

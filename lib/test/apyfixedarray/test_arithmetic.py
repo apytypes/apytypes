@@ -318,6 +318,12 @@ def test_array_mul_scalar():
         )
     )
 
+    a = APyFixedArray.from_float([-5, 6, -7], bits=27, int_bits=20)
+    b = APyFixed.from_float(3, bits=200, int_bits=50)
+    assert (a * b).is_identical(
+        APyFixedArray.from_float([-15, 18, -21], bits=227, int_bits=70)
+    )
+
 
 def test_array_div():
     a = APyFixedArray.from_float([-5, -6, 7, 8, 9, 5], bits=10, int_bits=5)
