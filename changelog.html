@@ -293,10 +293,17 @@ and this project adheres to <a class="reference external" href="https://semver.o
 <section id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>Fixed memory-access bug in <code class="docutils literal notranslate"><span class="pre">APyFloatArray.cumsum</span></code>.</p></li>
-<li><p>Fixed bug where <code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code> multiplicative methods could give wrong result
-for multi-limb products if the right-hand side have longer word-length than
-the left-hand side.</p></li>
+<li><p>Memory-access bug in <code class="docutils literal notranslate"><span class="pre">APyFloatArray.cumsum</span></code>.</p></li>
+<li><p>Bug where <code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code> multiplicative methods could give wrong result for
+multi-limb products if the right-hand side have longer word-length than the
+left-hand side.</p></li>
+<li><p>Memory leak in nanobind wrapper library.</p></li>
+</ul>
+</section>
+<section id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Updated <a class="reference external" href="https://github.com/wjakob/nanobind">nanobind</a> from v2.0.0 to v2.1.0.</p></li>
 </ul>
 </section>
 </section>
@@ -363,16 +370,16 @@ run in the CI.</p></li>
 <li><p>Added support for higher dimensions (ndim &gt; 2) in <code class="docutils literal notranslate"><span class="pre">transpose()</span></code>.</p></li>
 </ul>
 </section>
-<section id="changed">
-<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">¶</a></h3>
+<section id="id4">
+<h3>Changed<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Updated <a class="reference external" href="https://github.com/wjakob/nanobind">nanobind</a> dependency from v1.9.2 to
 v2.0.0.</p></li>
 <li><p><a class="reference external" href="https://docs.astral.sh/ruff/">ruff</a> is used instead of black to format the code.</p></li>
 </ul>
 </section>
-<section id="id5">
-<h3>Fixed<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<section id="id7">
+<h3>Fixed<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Smaller fixes in quantization for floating-point scalar multiplication.</p></li>
 <li><p>Fix in floating-point <code class="docutils literal notranslate"><span class="pre">cast</span></code>-method when result became subnormal.</p></li>
@@ -391,8 +398,8 @@ value from floating-point values that are too small for its representation.
 <h3>Removed<a class="headerlink" href="#removed" title="Link to this heading">¶</a></h3>
 </section>
 </section>
-<section id="id7">
-<h2><a class="reference external" href="https://github.com/apytypes/apytypes/releases/tag/v0.1.0">0.1.0</a> - 2024-05-15<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
+<section id="id9">
+<h2><a class="reference external" href="https://github.com/apytypes/apytypes/releases/tag/v0.1.0">0.1.0</a> - 2024-05-15<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
 </section>
 </section>
 
@@ -446,16 +453,17 @@ value from floating-point values that are too small for its representation.
 <li><a class="reference internal" href="#">Changelog</a><ul>
 <li><a class="reference internal" href="#id1">Unreleased</a><ul>
 <li><a class="reference internal" href="#fixed">Fixed</a></li>
+<li><a class="reference internal" href="#changed">Changed</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#id3">0.2.0 - 2024-09-13</a><ul>
 <li><a class="reference internal" href="#added">Added</a></li>
-<li><a class="reference internal" href="#changed">Changed</a></li>
-<li><a class="reference internal" href="#id5">Fixed</a></li>
+<li><a class="reference internal" href="#id4">Changed</a></li>
+<li><a class="reference internal" href="#id7">Fixed</a></li>
 <li><a class="reference internal" href="#removed">Removed</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id7">0.1.0 - 2024-05-15</a></li>
+<li><a class="reference internal" href="#id9">0.1.0 - 2024-05-15</a></li>
 </ul>
 </li>
 </ul>
