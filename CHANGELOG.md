@@ -9,10 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed memory-access bug in `APyFloatArray.cumsum`.
-- Fixed bug where `APyFixedArray` multiplicative methods could give wrong result
-  for multi-limb products if the right-hand side have longer word-length than
-  the left-hand side.
+- Memory-access bug in `APyFloatArray.cumsum`.
+- Bug where `APyFixedArray` multiplicative methods could give wrong result for
+  multi-limb products if the right-hand side have longer word-length than the
+  left-hand side.
+- Memory leak in nanobind wrapper library.
+
+### Changed
+
+- Updated [nanobind](https://github.com/wjakob/nanobind) from v2.0.0 to v2.1.0.
 
 ## [0.2.0] - 2024-09-13
 
