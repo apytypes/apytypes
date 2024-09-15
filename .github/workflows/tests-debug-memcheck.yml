@@ -1,0 +1,51 @@
+#
+# This workflow will build APyTypes in debug mode and run Valgrind memcheck on the
+# test suite.
+#
+# For more information see:
+# https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+#
+
+
+name: Unit tests (debug memcheck)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+    runs-on: "ubuntu-24.04"
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+    - name: Install dependencies
+      run: |
+        sudo apt-get -y install ninja-build valgrind
+        python -m pip install --upgrade pip
+        python -m pip install pytest numpy meson-python setuptools_scm
+    - name: Install APyTypes (debug mode)
+      run: |
+        git fetch --tags
+        python -m pip install -e . -v --no-build-isolation  \
+          -Csetup-args=-Dbuildtype=debug                    \
+          -Cbuild-dir=build-dbg
+    - name: Run the test suite in Valgrind memcheck
+      run: |
+        valgrind                      \
+          --gen-suppressions=all      \
+          --error-exitcode=1          \
+          pytest --color=yes lib/test

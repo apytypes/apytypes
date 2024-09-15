@@ -25,12 +25,16 @@ cmake_opts = cmake.subproject_options()
 if get_option('buildtype') == 'release'
     cmake_opts.add_cmake_defines({
         'CMAKE_BUILD_TYPE'    : 'Release',
-        'HWY_ENABLE_TESTS'    : 'OFF',
-        'HWY_ENABLE_CONTRIB'  : 'OFF',
-        'HWY_ENABLE_INSTALL'  : 'OFF',
-        'HWY_ENABLE_EXAMPLES' : 'OFF'
     })
 endif
+
+# No need to build extras for Google Highway
+cmake_opts.add_cmake_defines({
+    'HWY_ENABLE_TESTS'    : 'OFF',
+    'HWY_ENABLE_CONTRIB'  : 'OFF',
+    'HWY_ENABLE_INSTALL'  : 'OFF',
+    'HWY_ENABLE_EXAMPLES' : 'OFF',
+})
 
 hwy = cmake.subproject('highway', options: cmake_opts)
 hwy_dep = hwy.dependency('hwy', include_type: 'system')

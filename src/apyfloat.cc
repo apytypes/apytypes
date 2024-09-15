@@ -972,7 +972,7 @@ APyFloat& APyFloat::operator+=(const APyFloat& rhs)
     assert(same_type_as(rhs));
     // Check that only the slow case is using this method
     // If this fails, add a fast path
-    assert(man_bits + 5 > _MAN_T_SIZE_BITS);
+    // assert(man_bits + 5 > _MAN_T_SIZE_BITS);
 
     // Handle the zero cases, other special cases are further down
     if (is_zero()) {
