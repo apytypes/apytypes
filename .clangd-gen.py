@@ -10,9 +10,10 @@
 # Author: Mikael Henriksson (2024)
 #
 
-import subprocess
-
 import os
+import subprocess
+import sys
+
 
 APYTYPES_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -22,6 +23,13 @@ python3_includes = subprocess.run(
     capture_output=True,
     encoding="utf-8",
 )
+if python3_includes.returncode != 0:
+    print(
+        f"[ WARNING ]: Running `python3-config --includes` failed with return code "
+        f"{python3_includes.returncode}",
+        file=sys.stderr,
+    )
+
 
 # Include files for Nanobind
 nanobind_includes = subprocess.run(
@@ -29,6 +37,12 @@ nanobind_includes = subprocess.run(
     capture_output=True,
     encoding="utf-8",
 )
+if nanobind_includes.returncode != 0:
+    print(
+        f"[ WARNING ]: Running `python3 -m nanobind --include_dir` failed with return "
+        f"code {nanobind_includes.returncode}",
+        file=sys.stderr,
+    )
 
 
 compile_flags = [
