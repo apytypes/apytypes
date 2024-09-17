@@ -35,6 +35,86 @@ def test_to_float():
     assert float(APyFixed(0x48, int_bits=4, frac_bits=4)) == 4.5
     assert float(APyFixed(0x558 << 128, bits=128 + 12, int_bits=8)) == 85.5
 
+    ##
+    # Positive subnormals
+    #
+
+    # Smallest positive normal number
+    assert float(APyFixed(1, int_bits=0, frac_bits=1022)) == 2.2250738585072014e-308
+
+    # Greatest positive subnormal number
+    assert float(APyFixed(1, int_bits=0, frac_bits=1023)) == 1.1125369292536007e-308
+
+    # Smallest positive subnormal number
+    assert float(APyFixed(1, int_bits=0, frac_bits=1074)) == 5e-324
+
+    # 1/2 of the smallest positive subnormal number (ties to the smallest positive
+    # subnormal number)
+    assert float(APyFixed(1, int_bits=0, frac_bits=1075)) == 5e-324
+
+    # 1/4 of the smallest subnormal number, rounds towards zero
+    assert float(APyFixed(1, int_bits=0, frac_bits=1076)) == 0.0
+
+    ##
+    # Negative subnormals
+    #
+
+    # Greatest negative normal number
+    assert float(APyFixed(-1, int_bits=0, frac_bits=1022)) == -2.2250738585072014e-308
+
+    # Smallest negative subnormal number
+    assert float(APyFixed(-1, int_bits=0, frac_bits=1023)) == -1.1125369292536007e-308
+
+    # Greatest negative subnormal number
+    assert float(APyFixed(-1, int_bits=0, frac_bits=1074)) == -5e-324
+
+    # 1/2 of the greatest negative subnormal number (ties to the greatest negative
+    # subnormal number)
+    assert float(APyFixed(-1, int_bits=0, frac_bits=1075)) == -5e-324
+
+    # 1/4 of the greatest negative subnormal number, rounds towards zero
+    assert float(APyFixed(-1, int_bits=0, frac_bits=1076)) == 0.0
+
+
+def test_from_float():
+    ##
+    # Positive subnormals
+    #
+
+    # Smallest positive normal number
+    assert APyFixed.from_float(2**-1022, int_bits=0, frac_bits=1024).is_identical(
+        APyFixed(4, int_bits=0, frac_bits=1024)
+    )
+
+    # Greatest positive subnormal number
+    assert APyFixed.from_float(2**-1023, int_bits=0, frac_bits=1024).is_identical(
+        APyFixed(2, int_bits=0, frac_bits=1024)
+    )
+
+    # Smallest positive subnormal number
+    assert APyFixed.from_float(2**-1074, int_bits=0, frac_bits=1074).is_identical(
+        APyFixed(1, int_bits=0, frac_bits=1074)
+    )
+
+    ##
+    # Negative subnormals
+    #
+
+    # Greatest negative normal number
+    assert APyFixed.from_float(-(2**-1022), int_bits=0, frac_bits=1024).is_identical(
+        APyFixed(-4, int_bits=0, frac_bits=1024)
+    )
+
+    # Smallest negative subnormal number
+    assert APyFixed.from_float(-(2**-1023), int_bits=0, frac_bits=1024).is_identical(
+        APyFixed(-2, int_bits=0, frac_bits=1024)
+    )
+
+    # Greatest negative subnormal number
+    assert APyFixed.from_float(-(2**-1074), int_bits=0, frac_bits=1074).is_identical(
+        APyFixed(-1, int_bits=0, frac_bits=1074)
+    )
+
 
 def test_is_zero():
     for bit_pattern in range(0, 1 << 4):

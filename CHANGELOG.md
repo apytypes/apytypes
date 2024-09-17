@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   multi-limb products if the right-hand side have longer word-length than the
   left-hand side.
 - Memory leak in nanobind wrapper library.
+- Correct subnormal conversions between `APyFixed(Array)` and `float`.
 
 ### Changed
 
