@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:00.008** total execution time for 2 files **from examples**:
+**00:00.009** total execution time for 2 files **from examples**:
 
 .. container::
 
@@ -36,5 +36,5 @@ Computation times
      - 00:00.006
      - 0.0
    * - :ref:`sphx_glr_examples_apyfixed.py` (``apyfixed.py``)
-     - 00:00.002
+     - 00:00.003
      - 0.0
