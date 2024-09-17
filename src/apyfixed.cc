@@ -678,19 +678,21 @@ void APyFixed::set_from_double(double value)
         throw std::domain_error(fmt::format("Cannot convert {} to fixed-point", value));
     }
 
+    // Zero limb vector data
+    std::fill(_data.begin(), _data.end(), 0);
+
     int exp = exp_of_double(value);
     uint64_t man = man_of_double(value);
 
-    // Append mantissa hidden one
-    if (exp) {
-        man |= uint64_t(1) << 52;
-    }
-
     // Left-shift amount needed to align floating binary point with fixed binary point
-    int left_shift_amnt = exp + frac_bits() - 52 - 1023;
-
-    // Zero limb vector data
-    std::fill(_data.begin(), _data.end(), 0);
+    int left_shift_amnt;
+    if (exp) {
+        // Append mantissa hidden one
+        man |= uint64_t(1) << 52;
+        left_shift_amnt = exp + frac_bits() - 52 - 1023;
+    } else {
+        left_shift_amnt = exp + frac_bits() - 52 - 1023 + 1;
+    }
 
     if constexpr (_LIMB_SIZE_BITS == 64) {
 
@@ -775,15 +777,25 @@ double APyFixed::to_double() const
         unsigned man_leading_zeros
             = limb_vector_leading_zeros(man_vec.begin(), man_vec.end());
 
+        // Compute the shift amount and exponent value
+        int left_shift_n = 53 - _LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
+        exp = 1023 + 52 - left_shift_n - frac_bits();
+        if (exp < 1) {
+            // Handle IEEE subnormals
+            left_shift_n += exp - 1;
+            exp = 0;
+        }
+
         // Shift the mantissa into position and set the mantissa and exponent part
-        int left_shift_amnt = 53 - _LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
-        if (left_shift_amnt >= 0) {
-            limb_vector_lsl(man_vec.begin(), man_vec.end(), +left_shift_amnt);
+        if (left_shift_n >= 0) {
+            limb_vector_lsl(std::begin(man_vec), std::end(man_vec), left_shift_n);
         } else {
-            limb_vector_lsr(man_vec.begin(), man_vec.end(), -left_shift_amnt);
+            int right_shift_n = -left_shift_n;
+            int rnd_pow2 = right_shift_n - 1;
+            limb_vector_add_pow2(std::begin(man_vec), std::end(man_vec), rnd_pow2);
+            limb_vector_lsr(std::begin(man_vec), std::end(man_vec), right_shift_n);
         }
         man = man_vec[0];
-        exp = 1023 + 52 - left_shift_amnt - frac_bits();
 
     } else { /* _LIMB_SIZE_BITS == 32 */
 
@@ -798,16 +810,27 @@ double APyFixed::to_double() const
         unsigned man_leading_zeros
             = limb_vector_leading_zeros(man_vec.begin(), man_vec.end());
 
-        // Shift the mantissa into position and set the mantissa and exponent part
-        int left_shift_amnt = 53 - _LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
-        if (left_shift_amnt >= 0) {
-            limb_vector_lsl(man_vec.begin(), man_vec.end(), +left_shift_amnt);
-        } else {
-            limb_vector_lsr(man_vec.begin(), man_vec.end(), -left_shift_amnt);
+        // Compute the shift amount and exponent value
+        int left_shift_n = 53 - _LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
+        exp = 1023 + 52 - left_shift_n - frac_bits();
+        if (exp < 1) {
+            // Handle IEEE subnormals
+            left_shift_n += exp - 1;
+            exp = 0;
         }
+
+        // Shift the mantissa into position and set the mantissa and exponent part
+        if (left_shift_n >= 0) {
+            limb_vector_lsl(std::begin(man_vec), std::end(man_vec), left_shift_n);
+        } else {
+            int right_shift_n = -left_shift_n;
+            int rnd_pow2 = right_shift_n - 1;
+            limb_vector_add_pow2(std::begin(man_vec), std::end(man_vec), rnd_pow2);
+            limb_vector_lsr(std::begin(man_vec), std::end(man_vec), right_shift_n);
+        }
+
         man = uint64_t(man_vec[0]);
         man |= uint64_t(man_vec[1]) << 32;
-        exp = 1023 + 52 - left_shift_amnt - frac_bits();
     }
 
     // Return the result
