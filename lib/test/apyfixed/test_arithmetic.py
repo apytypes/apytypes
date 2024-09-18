@@ -255,6 +255,32 @@ def test_unary_minus():
     assert not (-a)._is_negative
 
 
+def test_positive_negative_zero():
+    assert not APyFixed(0, int_bits=4, frac_bits=4)._is_positive
+    assert APyFixed(0, int_bits=4, frac_bits=4).is_zero
+    assert not APyFixed(0, int_bits=4, frac_bits=4)._is_negative
+
+    assert APyFixed(1, int_bits=4, frac_bits=4)._is_positive
+    assert not APyFixed(1, int_bits=4, frac_bits=4).is_zero
+    assert not APyFixed(1, int_bits=4, frac_bits=4)._is_negative
+
+    assert not APyFixed(-1, int_bits=4, frac_bits=4)._is_positive
+    assert not APyFixed(-1, int_bits=4, frac_bits=4).is_zero
+    assert APyFixed(-1, int_bits=4, frac_bits=4)._is_negative
+
+    assert not APyFixed(0, int_bits=4, frac_bits=10000)._is_positive
+    assert APyFixed(0, int_bits=4, frac_bits=10000).is_zero
+    assert not APyFixed(0, int_bits=4, frac_bits=10000)._is_negative
+
+    assert APyFixed(1, int_bits=4, frac_bits=10000)._is_positive
+    assert not APyFixed(1, int_bits=4, frac_bits=10000).is_zero
+    assert not APyFixed(1, int_bits=4, frac_bits=10000)._is_negative
+
+    assert not APyFixed(-1, int_bits=4, frac_bits=10000)._is_positive
+    assert not APyFixed(-1, int_bits=4, frac_bits=10000).is_zero
+    assert APyFixed(-1, int_bits=4, frac_bits=10000)._is_negative
+
+
 def test_abs():
     a = APyFixed(-3, 2, 1)
     assert abs(a).is_identical(APyFixed(3, 3, 1))
