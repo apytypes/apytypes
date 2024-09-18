@@ -151,6 +151,7 @@ APyFloat APyFloat::from_integer(
 )
 {
     APyFixed apyfixed = APyFixed::from_unspecified_integer(value);
+    // Custom version of 'from_fixed' since we know certain properties
 
     const exp_t actual_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
 
@@ -175,6 +176,64 @@ APyFloat APyFloat::from_integer(
 
     // Calculate mantissa
     apyfixed >>= target_exp;
+    apyfixed = apyfixed.cast(3, man_bits, QuantizationMode::RND_CONV);
+
+    // Check for overflow
+    if (apyfixed.positive_greater_than_equal_pow2(1)) {
+        ++tmp_exp;
+        apyfixed >>= 1;
+    }
+
+    // Check for overflow
+    if (tmp_exp >= res.max_exponent()) {
+        res.exp = res.max_exponent();
+        res.man = 0;
+    } else {
+        res.exp = tmp_exp;
+        // Remove leading one
+        apyfixed = apyfixed - fx_one;
+        res.man = apyfixed.get_lsbs();
+    }
+
+    return res;
+}
+
+APyFloat APyFloat::from_fixed(
+    APyFixed apyfixed, int exp_bits, int man_bits, std::optional<exp_t> bias
+)
+{
+    const exp_t actual_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
+
+    if (apyfixed.is_zero()) {
+        return APyFloat(0, 0, 0, exp_bits, man_bits, actual_bias);
+    }
+
+    APyFloat res(exp_bits, man_bits, actual_bias);
+
+    // Get sign
+    if (apyfixed.is_negative()) {
+        res.sign = true;
+        apyfixed = apyfixed.abs();
+    } else {
+        res.sign = false;
+    }
+
+    // Calculate exponent
+    const std::int64_t target_exp = apyfixed.int_bits() - apyfixed.leading_zeros() - 1;
+    std::int64_t tmp_exp = target_exp + res.bias;
+
+    // Calculate mantissa
+    if (target_exp >= 0) {
+        apyfixed >>= target_exp;
+    } else {
+        apyfixed <<= -target_exp;
+    }
+
+    if (tmp_exp <= 0) {
+        apyfixed >>= -tmp_exp + 1;
+        tmp_exp = 0;
+    }
+
     apyfixed = apyfixed.cast(3, man_bits, QuantizationMode::RND_CONV);
 
     // Check for overflow

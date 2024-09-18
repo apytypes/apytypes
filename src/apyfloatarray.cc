@@ -1085,6 +1085,29 @@ APyFloatArray::diagonal(const nb::tuple& shape, const APyFloat& fill_value)
     return result;
 }
 
+APyFloatArray APyFloatArray::arange(
+    const nb::object& start,
+    const nb::object& stop,
+    const nb::object& step,
+    std::uint8_t exp_bits,
+    std::uint8_t man_bits,
+    std::optional<exp_t> bias
+)
+{
+    check_exponent_format(exp_bits);
+    check_mantissa_format(man_bits);
+
+    const std::vector<APyFixed> apy_vals = ::arange(start, stop, step);
+    APyFloatArray result({ apy_vals.size() }, exp_bits, man_bits, bias);
+
+    for (size_t i = 0; i < apy_vals.size(); i++) {
+        result.data[i]
+            = APyFloat::from_fixed(apy_vals[i], exp_bits, man_bits, bias).get_data();
+    }
+
+    return result;
+}
+
 /* ****************************************************************************** *
  *                            Methods for array modification                      *
  * ****************************************************************************** */

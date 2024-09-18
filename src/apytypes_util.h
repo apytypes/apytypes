@@ -77,10 +77,47 @@ public:
 #endif
 }
 
+//! Compute the number of trailing zeros in an integer
+template <typename INT_TYPE>
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t trailing_zeros(INT_TYPE n)
+{
+    static_assert(
+        sizeof(INT_TYPE) == 8 || sizeof(INT_TYPE) == 4,
+        "leading_zeros(INT_TYPE n): int type must be 32-bit or 64-bit"
+    );
+#if defined(__GNUC__)
+    // GNU C-compatible compiler (including Clang and MacOS Xcode)
+    if constexpr (sizeof(INT_TYPE) == 8) {
+        return n == 0 ? 0 : __builtin_ctzll(n);
+    } else {
+        return n == 0 ? 0 : __builtin_ctz(n);
+    }
+#elif defined(_MSC_VER)
+    // Microsoft Visual C/C++ compiler
+    unsigned long trailing_zero = 0;
+    if constexpr (sizeof(INT_TYPE) == 8) {
+        _BitScanForward64(&trailing_zero, n);
+        return trailing_zero;
+    } else {
+        _BitScanForward(&trailing_zero, n);
+        return trailing_zero;
+    }
+#else
+    // No trailing zeros intrinsic found. We could implement this function using a
+    // bit-counting while-loop, but fail for now so we can clearly see which systems are
+    // missing out on these intrinsics.
+    static_assert(false, "trailing_zeros(INT_TYPE n): No intrinsic available.");
+#endif
+}
+
 //! Compute the number of leading zeros in an integer
 template <typename INT_TYPE>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t leading_zeros(INT_TYPE n)
 {
+    static_assert(
+        sizeof(INT_TYPE) == 8 || sizeof(INT_TYPE) == 4,
+        "leading_zeros(INT_TYPE n): int type must be 32-bit or 64-bit"
+    );
 #if defined(__GNUC__)
     // GNU C-compatible compiler (including Clang and MacOS Xcode)
     if constexpr (sizeof(INT_TYPE) == 8) {

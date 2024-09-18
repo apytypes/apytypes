@@ -992,6 +992,46 @@ APyFixed APyFixed::from_double(
     return result;
 }
 
+APyFixed APyFixed::from_unspecified_double(double value)
+{
+    if (std::isnan(value) || std::isinf(value)) {
+        throw std::domain_error(fmt::format("Cannot convert {} to fixed-point", value));
+    }
+
+    int exp = exp_of_double(value);
+    uint64_t man = man_of_double(value);
+
+    // Append mantissa hidden one
+    if (exp) {
+        man |= uint64_t(1) << 52;
+    } else {
+        exp = 1;
+    }
+
+    const int zeros_to_trim = trailing_zeros(man);
+    man >>= zeros_to_trim;
+    exp = exp + zeros_to_trim - 52 - 1023;
+
+    // Create limb vector
+    std::vector<mp_limb_t> limbs {};
+    if constexpr (_LIMB_SIZE_BITS == 32) {
+        limbs = { mp_limb_t(man & 0xFFFFFFFF), mp_limb_t(man >> 32) };
+    } else { /* _LIMB_SIZE_BITS == 64 */
+        limbs = { mp_limb_t(man) };
+    }
+
+    // Calculate required number of bits
+    const int bits = 1 + bit_width(man); // +1 For the sign
+    const int int_bits = exp + bits;
+
+    // Adjust result from sign
+    if (sign_of_double(value)) {
+        limb_vector_negate(limbs.begin(), limbs.end(), limbs.begin());
+    }
+
+    return APyFixed(bits, int_bits, limbs);
+}
+
 APyFixed APyFixed::from_integer(
     const nb::int_& value,
     std::optional<int> int_bits,

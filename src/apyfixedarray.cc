@@ -2184,6 +2184,35 @@ APyFixedArray::diagonal(const nb::tuple& shape, const APyFixed& fill_value)
     return result;
 }
 
+APyFixedArray APyFixedArray::arange(
+    const nb::object& start,
+    const nb::object& stop,
+    const nb::object& step,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits,
+    std::optional<int> bits
+)
+{
+    const int _bits = bits_from_optional(bits, int_bits, frac_bits);
+    const int _int_bits = int_bits.has_value() ? *int_bits : _bits - *frac_bits;
+
+    const std::vector<APyFixed> apy_vals = ::arange(start, stop, step);
+    APyFixedArray result({ apy_vals.size() }, _bits, _int_bits);
+
+    for (size_t i = 0; i < apy_vals.size(); i++) {
+        apy_vals[i]._cast(
+            std::begin(result._data) + i * result._itemsize,       // output start
+            std::begin(result._data) + (i + 1) * result._itemsize, // output sentinel
+            _bits,
+            _int_bits,
+            QuantizationMode::RND_INF,
+            OverflowMode::WRAP
+        );
+    }
+
+    return result;
+}
+
 /* ********************************************************************************** *
  * *                            Private member functions                            * *
  * ********************************************************************************** */

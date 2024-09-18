@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   left-hand side.
 - Memory leak in nanobind wrapper library.
 - Correct subnormal conversions between `APyFixed(Array)` and `float`.
+- Improved `arange`. It now handles quantization accurately and does not
+  allow infinity and NaN as inputs.
 
 ### Changed
 

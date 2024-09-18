@@ -400,6 +400,16 @@ public:
     //! Create an `APyFixedArray` with a specified diagonal value
     static APyFixedArray diagonal(const nb::tuple& shape, const APyFixed& fill_value);
 
+    //! Create an `APyFixedArray` with evenly spaced values within a given interval
+    static APyFixedArray arange(
+        const nb::object& start,
+        const nb::object& stop,
+        const nb::object& step,
+        std::optional<int> int_bits = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt,
+        std::optional<int> bits = std::nullopt
+    );
+
 private:
     /* ****************************************************************************** *
      * *                          Private member functions                          * *

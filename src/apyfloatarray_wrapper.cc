@@ -540,7 +540,7 @@ void bind_float_array(nb::module_& m)
             man_bits : int
                 Number of mantissa bits.
             bias : optional
-                Set bias.
+                Bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
             Returns
             -------
@@ -567,7 +567,7 @@ void bind_float_array(nb::module_& m)
         man_bits : int
             Number of mantissa bits.
         bias : optional
-            Set bias.
+            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
         -------
@@ -597,7 +597,7 @@ void bind_float_array(nb::module_& m)
         m : int, optional
             Number of columns. Default is None, which results in an n x n output.
         bias : optional
-            Set bias.
+            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
         -------
@@ -624,7 +624,7 @@ void bind_float_array(nb::module_& m)
         man_bits : int
             Number of mantissa bits.
         bias : optional
-            Set bias.
+            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
         -------
@@ -652,6 +652,44 @@ void bind_float_array(nb::module_& m)
         APyFloatArray
             An array filled with the specified value.
     )pbdoc"
+        )
+        .def_static(
+            "_arange",
+            &APyFloatArray::arange,
+            nb::arg("start"),
+            nb::arg("stop"),
+            nb::arg("step"),
+            nb::arg("exp_bits"),
+            nb::arg("man_bits"),
+            nb::arg("bias") = std::nullopt,
+            R"pbdoc(
+            Create an array with evenly spaced values within a given interval.
+
+            The function can be called with varying number of positional arguments:
+
+            * ``arange(stop)``: Values are generated within the half-open interval ``[0, stop)`` (in other words, the interval including ``start`` but excluding ``stop``).
+            * ``arange(start, stop)``: Values are generated within the half-open interval ``[start, stop)``.
+            * ``arange(start, stop, step)``: Values are generated within the half-open interval ``[start, stop)``, with spacing between values given by ``step``.
+
+            Parameters
+            ----------
+            start : int, float, :class:`APyFloat`, :class:`APyFixed`
+                Start number.
+            stop : int, float, :class:`APyFloat`, :class:`APyFixed`
+                Stop number.
+            step : int, float, :class:`APyFloat`, :class:`APyFixed`
+                Step size in range.
+            exp_bits : int
+                    Number of exponent bits.
+            man_bits : int
+                Number of mantissa bits.
+            bias : int, optional
+                Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+            Returns
+            -------
+            :class:`APyFloatArray`
+        )pbdoc"
         )
         /*
          * Dunder methods

@@ -529,32 +529,97 @@ def test_full_like(shape):
     )
 
 
-def test_arrange():
+def test_arange():
+    # Test raises
+    with pytest.raises(
+        ValueError,
+        match="Step size cannot be zero",
+    ):
+        arange(0, 10, 0, int_bits=4, frac_bits=0)
+
+    with pytest.raises(
+        ValueError,
+        match="Undefined input",
+    ):
+        arange(10, 2, 1, int_bits=4, frac_bits=0)
+
+    with pytest.raises(
+        ValueError,
+        match="Undefined input",
+    ):
+        arange(2, 10, -1, int_bits=4, frac_bits=0)
+
+    with pytest.raises(
+        ValueError,
+        match="Cannot convert",
+    ):
+        arange(0, float("inf"), 2**5, exp_bits=5, man_bits=10)
+
+    with pytest.raises(
+        ValueError,
+        match="Cannot convert",
+    ):
+        arange(float("nan"), 10, 2**5, exp_bits=5, man_bits=10)
+
+    with pytest.raises(
+        ValueError,
+        match="Cannot convert",
+    ):
+        arange(0, 10, float("inf"), exp_bits=5, man_bits=10)
+
+    with pytest.raises(
+        ValueError,
+        match="Non supported type",
+    ):
+        arange("0", 10, 1, exp_bits=5, man_bits=10)
+
+    # Test basic functionality
     a = arange(10, int_bits=10, frac_bits=5)
-    b = APyFixedArray.from_float([i for i in range(10)], int_bits=10, frac_bits=5)
+    b = APyFixedArray.from_float(range(10), int_bits=10, frac_bits=5)
     assert a.is_identical(b), "Arrange for APyFixedArray failed"
 
-    a = arange(10, exp_bits=10, mantissa_bits=5)
-    b = APyFloatArray.from_float([i for i in range(10)], exp_bits=10, man_bits=5)
+    a = arange(10, exp_bits=10, man_bits=5)
+    b = APyFloatArray.from_float(range(10), exp_bits=10, man_bits=5)
     assert a.is_identical(b), "Arrange for APyFloatArray failed"
 
     a = arange(5, 8, int_bits=10, frac_bits=5)
     assert a.is_identical(APyFixedArray.from_float([5, 6, 7], int_bits=10, frac_bits=5))
 
+    a = arange(5, 8, exp_bits=5, man_bits=12, bias=10)
+    assert a.is_identical(
+        APyFloatArray.from_float([5, 6, 7], exp_bits=5, man_bits=12, bias=10)
+    )
+
     a = arange(8, 5, -1, int_bits=10, frac_bits=5)
     assert a.is_identical(APyFixedArray.from_float([8, 7, 6], int_bits=10, frac_bits=5))
+
+    a = arange(8, 5, -1, exp_bits=5, man_bits=12, bias=10)
+    assert a.is_identical(
+        APyFloatArray.from_float([8, 7, 6], exp_bits=5, man_bits=12, bias=10)
+    )
 
     a = arange(8, 5, -2, int_bits=10, frac_bits=5)
     assert a.is_identical(APyFixedArray.from_float([8, 6], int_bits=10, frac_bits=5))
 
+    a = arange(8, 5, -2, exp_bits=5, man_bits=12, bias=10)
+    assert a.is_identical(
+        APyFloatArray.from_float([8, 6], exp_bits=5, man_bits=12, bias=10)
+    )
+
     a = arange(8, 5, -3, int_bits=10, frac_bits=5)
     assert a.is_identical(APyFixedArray.from_float([8], int_bits=10, frac_bits=5))
 
-    a = arange(0, 2, 2 ** (-2), int_bits=10, frac_bits=2)
+    a = arange(8, 5, -3, exp_bits=5, man_bits=12, bias=10)
     assert a.is_identical(
-        APyFixedArray.from_float(
-            [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75], int_bits=10, frac_bits=2
-        )
+        APyFloatArray.from_float([8], exp_bits=5, man_bits=12, bias=10)
+    )
+
+    a = arange(8, 5, -8, int_bits=10, frac_bits=5)
+    assert a.is_identical(APyFixedArray.from_float([8], int_bits=10, frac_bits=5))
+
+    a = arange(8, 5, -8, exp_bits=5, man_bits=12, bias=10)
+    assert a.is_identical(
+        APyFloatArray.from_float([8], exp_bits=5, man_bits=12, bias=10)
     )
 
     a = arange(0, 2, 2 ** (-2), int_bits=10, frac_bits=2)
@@ -564,54 +629,160 @@ def test_arrange():
         )
     )
 
-    a = arange(0, 1, 2 ** (-4), int_bits=10, frac_bits=4)
+    a = arange(0, 2, 2 ** (-2), exp_bits=5, man_bits=5)
+    assert a.is_identical(
+        APyFloatArray.from_float(
+            [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75], exp_bits=5, man_bits=5
+        )
+    )
+
+    a = arange(2, 0, -(2 ** (-2)), int_bits=10, frac_bits=2)
+    assert a.is_identical(
+        APyFixedArray.from_float(
+            [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0][::-1], int_bits=10, frac_bits=2
+        )
+    )
+
+    a = arange(2, 0, -(2 ** (-2)), exp_bits=5, man_bits=5)
+    assert a.is_identical(
+        APyFloatArray.from_float(
+            [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0][::-1], exp_bits=5, man_bits=5
+        )
+    )
+
+    # Test with APy-scalars
+    a = arange(
+        APyFixed(2, 5, 0),
+        APyFloat(0, 9, 0, 4, 3),
+        APyFixed(1, 5, 2),
+        exp_bits=5,
+        man_bits=5,
+    )
+    assert a.is_identical(
+        APyFloatArray.from_float(
+            [2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75], exp_bits=5, man_bits=5
+        )
+    )
+
+    # Test quantization effects
+    a = arange(0, 100, int_bits=10, frac_bits=2)
+    assert a.is_identical(
+        APyFixedArray.from_float(range(100), int_bits=10, frac_bits=2)
+    )
+
+    a = arange(0, 100, exp_bits=5, man_bits=2)
+    assert a.is_identical(APyFloatArray.from_float(range(100), exp_bits=5, man_bits=2))
+
+    a = arange(0, 2, 0.125, int_bits=8, frac_bits=1)
     assert a.is_identical(
         APyFixedArray.from_float(
             [
-                0,
-                0.0625,
+                0.0,
                 0.125,
-                0.1875,
                 0.25,
-                0.3125,
                 0.375,
-                0.4375,
                 0.5,
-                0.5625,
                 0.625,
-                0.6875,
                 0.75,
-                0.8125,
                 0.875,
-                0.9375,
+                1.0,
+                1.125,
+                1.25,
+                1.375,
+                1.5,
+                1.625,
+                1.75,
+                1.875,
             ],
-            int_bits=10,
-            frac_bits=4,
+            int_bits=8,
+            frac_bits=1,
         )
     )
 
-    a = arange(1, 0, -(2 ** (-4)), int_bits=10, frac_bits=4)
+    a = arange(0, 2, 0.125, exp_bits=5, man_bits=2)
     assert a.is_identical(
-        APyFixedArray.from_float(
+        APyFloatArray.from_float(
             [
-                0.0625,
+                0.0,
                 0.125,
-                0.1875,
                 0.25,
-                0.3125,
                 0.375,
-                0.4375,
                 0.5,
-                0.5625,
                 0.625,
-                0.6875,
                 0.75,
-                0.8125,
                 0.875,
-                0.9375,
-                1,
-            ][::-1],
-            int_bits=10,
-            frac_bits=4,
+                1.0,
+                1.125,
+                1.25,
+                1.375,
+                1.5,
+                1.625,
+                1.75,
+                1.875,
+            ],
+            exp_bits=5,
+            man_bits=2,
         )
+    )
+
+    # Test subnormals
+    a = arange(APyFixed(1, int_bits=1, frac_bits=1074), 1, 2, exp_bits=11, man_bits=52)
+    assert a.is_identical(APyFloatArray([0], [0], [1], 11, 52))
+
+    a = arange(0, 4 * 2**-1074, 2**-1074, exp_bits=11, man_bits=52)
+    assert a.is_identical(
+        APyFloatArray([0, 0, 0, 0], [0, 0, 0, 0], [0, 1, 2, 3], 11, 52)
+    )
+
+    a = arange(
+        APyFixed(0, int_bits=1, frac_bits=1074),
+        APyFixed(1, int_bits=1, frac_bits=1072),
+        APyFixed(1, int_bits=1, frac_bits=1074),
+        exp_bits=11,
+        man_bits=52,
+    )
+    assert a.is_identical(
+        APyFloatArray([0, 0, 0, 0], [0, 0, 0, 0], [0, 1, 2, 3], 11, 52)
+    )
+
+    # Negative result for APyFloatArray
+    a = arange(-10, 1, exp_bits=5, man_bits=4, bias=6)
+    assert a.is_identical(
+        APyFloatArray(
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+            [9, 9, 9, 8, 8, 8, 8, 7, 7, 6, 0],
+            [4, 2, 0, 12, 8, 4, 0, 8, 0, 0, 0],
+            exp_bits=5,
+            man_bits=4,
+            bias=6,
+        )
+    )
+
+    # Becomes infinity
+    a = arange(200, 280, 20, exp_bits=4, man_bits=3)
+    assert a.is_identical(
+        APyFloatArray(
+            [0, 0, 0, 0], [14, 14, 14, 15], [4, 6, 7, 0], exp_bits=4, man_bits=3
+        )
+    )
+
+    # Test precision beyond Python floats
+    a = arange(
+        APyFixed(1, int_bits=1, frac_bits=1080),
+        APyFixed(4, int_bits=1, frac_bits=1080),
+        APyFixed(1, int_bits=1, frac_bits=1080),
+        int_bits=1,
+        frac_bits=1080,
+    )
+    assert a.is_identical(APyFixedArray([1, 2, 3], int_bits=1, frac_bits=1080))
+
+    a = arange(
+        APyFloat(0, 1, 0, exp_bits=20, man_bits=10),
+        APyFloat(0, 3, 0, exp_bits=20, man_bits=10),
+        APyFloat(0, 1, 0, exp_bits=20, man_bits=10),
+        exp_bits=20,
+        man_bits=10,
+    )
+    assert a.is_identical(
+        APyFloatArray([0, 0, 0], [1, 2, 2], [0, 0, 1 << 9], exp_bits=20, man_bits=10)
     )
