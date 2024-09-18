@@ -286,6 +286,10 @@ public:
         std::optional<int> bits = std::nullopt
     );
 
+    //! Create APyFixed from double without specifying the format.
+    //! The format will be big enough to accommodate the double.
+    static APyFixed from_unspecified_double(double value);
+
     //! Create APyFixed from Python integer.
     static APyFixed from_integer(
         const nb::int_& value,

@@ -2576,7 +2576,7 @@ class APyFloatArray:
         man_bits : int
             Number of mantissa bits.
         bias : optional
-            Set bias.
+            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
         -------
@@ -2600,7 +2600,7 @@ class APyFloatArray:
         man_bits : int
             Number of mantissa bits.
         bias : optional
-            Set bias.
+            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
         -------
@@ -2630,7 +2630,7 @@ class APyFloatArray:
         m : int, optional
             Number of columns. Default is None, which results in an n x n output.
         bias : optional
-            Set bias.
+            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
         -------
@@ -2654,7 +2654,7 @@ class APyFloatArray:
         man_bits : int
             Number of mantissa bits.
         bias : optional
-            Set bias.
+            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
         -------

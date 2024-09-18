@@ -6,19 +6,26 @@ def arange(
     frac_bits=None,
     bits=None,
     exp_bits=None,
-    mantissa_bits=None,
+    man_bits=None,
+    bias=None,
 ):
     """
-    Simple and naive version of arange.
+    Create an array with evenly spaced values within a given interval.
+
+    The function can be called with varying number of positional arguments:
+
+    * ``arange(stop)``: Values are generated within the half-open interval ``[0, stop)`` (in other words, the interval including ``start`` but excluding ``stop``).
+    * ``arange(start, stop)``: Values are generated within the half-open interval ``[start, stop)``.
+    * ``arange(start, stop, step)``: Values are generated within the half-open interval ``[start, stop)``, with spacing between values given by ``step``.
 
     Parameters
     ----------
     start : int, float
-        start number
+        Start number.
     stop : int, optional
-        stop number
+        Stop number.
     step : int, float, optional
-        step size in range
+        Step size in range.
     int_bits : int, optional
         Number of fixed-point integer bits.
     frac_bits : int, optional
@@ -27,13 +34,15 @@ def arange(
         Number of fixed-point bits.
     exp_bits : int, optional
         Number of floating-point exponential bits.
-    mantissa_bits : int, optional
+    man_bits : int, optional
         Number of floating-point mantissa bits.
+    bias : int, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
     -------
     result : :class:`APyFloatArray` or :class:`APyFixedArray`
-        Array filled with fill_value, having the same shape and type as `a`.
+        Array with evenly spaced values within a given interval.
     """
 
 def convolve(a, v, mode="full"):

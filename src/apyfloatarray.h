@@ -130,7 +130,18 @@ public:
     //! Create an `APyFloatArray` initialized with a specified fill value
     static APyFloatArray full(const nb::tuple& shape, const APyFloat& fill_value);
 
+    //! Create an `APyFloatArray` with a specified diagonal value
     static APyFloatArray diagonal(const nb::tuple& shape, const APyFloat& fill_value);
+
+    //! Create an `APyFloatArray` with evenly spaced values within a given interval
+    static APyFloatArray arange(
+        const nb::object& start,
+        const nb::object& stop,
+        const nb::object& step,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
 
     /* ****************************************************************************** *
      * *                          Public member functions                           * *

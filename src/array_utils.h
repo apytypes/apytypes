@@ -1,6 +1,8 @@
 #ifndef _ARRAY_UTILS_H
 #define _ARRAY_UTILS_H
 
+#include "apyfixed.h"
+#include "apyfloat.h"
 #include "apytypes_util.h"
 #include "broadcast.h"
 #include "nanobind/ndarray.h"
@@ -149,6 +151,67 @@ static APY_INLINE void transpose_axes_and_copy_data(
             indices[j] = 0;
         }
     }
+}
+
+//! Convert a value to APyFixed. The format of the result will be big enough to
+//! accommodate the result.
+static APY_INLINE APyFixed to_apyfixed(const nb::object& val)
+{
+    if (nb::isinstance<APyFloat>(val)) {
+        const auto v = static_cast<APyFloat>(nb::cast<APyFloat>(val));
+        return v.to_fixed();
+    } else if (nb::isinstance<APyFixed>(val)) {
+        return static_cast<APyFixed>(nb::cast<APyFixed>(val));
+    } else if (nb::isinstance<nb::int_>(val)) {
+        return APyFixed::from_unspecified_integer(nb::cast<nb::int_>(val));
+    } else if (nb::isinstance<nb::float_>(val)) {
+        const auto v = static_cast<double>(nb::cast<nb::float_>(val));
+        return APyFixed::from_unspecified_double(v);
+    } else {
+        const nb::type_object type = nb::cast<nb::type_object>(val.type());
+        const nb::str type_string = nb::str(type);
+        throw std::domain_error(
+            std::string("Non supported type: ") + type_string.c_str()
+        );
+    }
+}
+
+//! Generate a vector of APyFixed object with evenly spaced values within a given range.
+static APY_INLINE std::vector<APyFixed>
+arange(const nb::object& start, const nb::object& stop, const nb::object& step)
+{
+    const APyFixed apy_step = to_apyfixed(step);
+
+    if (apy_step.is_zero()) {
+        throw nb::value_error("Step size cannot be zero");
+    }
+
+    const APyFixed apy_start = to_apyfixed(start);
+    const APyFixed apy_stop = to_apyfixed(stop);
+
+    if (!(apy_start < apy_stop && !apy_step.is_negative()
+        ) // until 'is_positive()' works again
+        && !(apy_start > apy_stop && apy_step.is_negative())) {
+        throw nb::value_error("Undefined inputs");
+    }
+
+    std::vector<APyFixed> result;
+
+    auto curr_val = apy_start;
+
+    if (apy_step.is_negative()) {
+        while (curr_val > apy_stop) {
+            result.push_back(curr_val);
+            curr_val = curr_val + apy_step;
+        }
+    } else {
+        while (curr_val < apy_stop) {
+            result.push_back(curr_val);
+            curr_val = curr_val + apy_step;
+        }
+    }
+
+    return result;
 }
 
 #endif // _ARRAY_UTILS_H

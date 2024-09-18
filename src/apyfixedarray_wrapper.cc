@@ -1231,7 +1231,44 @@ void bind_fixed_array(nb::module_& m)
                 An array filled with the specified value.
             )pbdoc"
         )
+        .def_static(
+            "_arange",
+            &APyFixedArray::arange,
+            nb::arg("start"),
+            nb::arg("stop"),
+            nb::arg("step"),
+            nb::arg("int_bits") = nb::none(),
+            nb::arg("frac_bits") = nb::none(),
+            nb::arg("bits") = nb::none(),
+            R"pbdoc(
+            Create an array with evenly spaced values within a given interval.
 
+            The function can be called with varying number of positional arguments:
+
+            * ``arange(stop)``: Values are generated within the half-open interval ``[0, stop)`` (in other words, the interval including ``start`` but excluding ``stop``).
+            * ``arange(start, stop)``: Values are generated within the half-open interval ``[start, stop)``.
+            * ``arange(start, stop, step)``: Values are generated within the half-open interval ``[start, stop)``, with spacing between values given by ``step``.
+
+            Parameters
+            ----------
+            start : int, float, :class:`APyFloat`, :class:`APyFixed`
+                Start number.
+            stop : int, float, :class:`APyFloat`, :class:`APyFixed`
+                Stop number.
+            step : int, float, :class:`APyFloat`, :class:`APyFixed`
+                Step size in range.
+            int_bits : int, optional
+                Number of integer bits.
+            frac_bits : int, optional
+                Number of fractional bits.
+            bits : int, optional
+                Total number of bits.
+
+            Returns
+            -------
+            :class:`APyFixedArray`
+            )pbdoc"
+        )
         /*
          * Dunder methods
          */

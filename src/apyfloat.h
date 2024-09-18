@@ -95,6 +95,13 @@ public:
         int man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
+    //! Create APyFloat from APyFixed
+    static APyFloat from_fixed(
+        APyFixed value,
+        int exp_bits,
+        int man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
     //! Cast to double
     double to_double() const;
     operator double() const;
