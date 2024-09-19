@@ -874,12 +874,10 @@ void bind_cfixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyCFixedArray` object from a sequence of :class:`float`,
-            :class:`int`, or :class:`complex`.
+            Create an :class:`APyCFixedArray` object from a sequence of :class:`int`, :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
 
-            The initialized fixed-point values are the one closest to the
-            input values, rounded away from zero on ties. Exactly two of the three
-            bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
+            The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
+            Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
             Using NumPy arrays as input is in general faster than e.g. lists.
 
@@ -922,24 +920,18 @@ void bind_cfixed_array(nb::module_& m)
 
         .def_static(
             "from_float",
-            &APyCFixedArray::from_double,
-            nb::arg("float_sequence"),
+            &APyCFixedArray::from_numbers,
+            nb::arg("number_seq"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyCFixedArray` object from a sequence of :class:`float`,
-            :class:`int`, or :class:`complex`.
-
-            The initialized fixed-point values are the one closest to the
-            input values, rounded away from zero on ties. Exactly two of the three
-            bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
-
-            Using NumPy arrays as input is in general faster than e.g. lists.
+            Create an :class:`APyCFixedArray` object from a sequence of :class:`int`, :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
+            This is an alias for :func:`~apytypes.APyCFixedArray.from_complex`, look there for more documentation.
 
             Parameters
             ----------
-            float_sequence : sequence of float, int, or complex
+            number_seq : sequence of numbers
                 Values to initialize from. The tensor shape will be taken from the
                 sequence shape.
             int_bits : int, optional
@@ -948,25 +940,6 @@ void bind_cfixed_array(nb::module_& m)
                 Number of fractional bits in the created fixed-point tensor.
             bits : int, optional
                 Total number of bits in the created fixed-point tensor.
-
-            Examples
-            --------
-
-            >>> from apytypes import APyCFixedArray
-            >>>
-            >>> a = APyCFixedArray.from_float(
-            ...         [1.0, 1.25, 1.49],
-            ...         int_bits=2,
-            ...         frac_bits=2
-            ...     )
-            >>> b = APyCFixedArray.from_float(
-            ...         [
-            ...             [1.0, 2.0, 3.0],
-            ...             [4.0, 5.0, 6.0],
-            ...         ],
-            ...         bits=5,
-            ...         frac_bits=0
-            ...     )
 
             Returns
             -------

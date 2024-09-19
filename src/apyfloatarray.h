@@ -149,9 +149,9 @@ public:
     );
 
     //! Create an `APyFloatArray` tensor object initialized with values from a sequence
-    //! of `doubles`
-    static APyFloatArray from_double(
-        const nanobind::sequence& double_seq,
+    //! of numbers
+    static APyFloatArray from_numbers(
+        const nanobind::sequence& number_seq,
         int exp_bits,
         int man_bits,
         std::optional<exp_t> bias = std::nullopt

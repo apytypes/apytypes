@@ -1181,8 +1181,14 @@ APyCFixedArray APyCFixedArray::from_complex(
     );
 
     // Extract all Python doubles and integers
-    auto py_obj
-        = python_sequence_walk<nb::float_, nb::int_, std::complex<double>>(python_seq);
+    auto py_obj = python_sequence_walk<
+        nb::float_,
+        nb::int_,
+        APyFixed,
+        APyFloat,
+        APyCFixed,
+        std::complex<double> // Put last so that APyC-scalars are not casted
+        >(python_seq);
 
     // Set data from doubles (reuse `APyCFixed::from_double` conversion)
     for (std::size_t i = 0; i < result._data.size() / result._itemsize; i++) {
@@ -1195,6 +1201,76 @@ APyCFixedArray APyCFixedArray::from_complex(
                 result.real_begin() + i * result._itemsize + result._itemsize / 2,
                 result._bits,
                 result._int_bits
+            );
+        } else if (nb::isinstance<nb::int_>(py_obj[i])) {
+            // Python integer object
+            auto max_bits = result.frac_bits() < 0
+                ? result.bits() - result.frac_bits() // Negative fractional bits
+                : result.bits();                     // Non-negative fractional bits
+            auto limb_vec = python_long_to_limb_vec(
+                nb::cast<nb::int_>(py_obj[i]), bits_to_limbs(max_bits)
+            );
+            fixed_point_from_double(
+                double(APyFixed(max_bits, max_bits, limb_vec)),
+                result.real_begin() + i * result._itemsize,
+                result.real_begin() + i * result._itemsize + result._itemsize / 2,
+                result._bits,
+                result._int_bits
+            );
+        } else if (nb::isinstance<APyFixed>(py_obj[i])) {
+            const auto d = static_cast<APyFixed>(nb::cast<APyFixed>(py_obj[i]));
+            _cast(
+                std::begin(d._data),
+                std::end(d._data),
+                std::begin(result._data) + i * result._itemsize,
+                std::begin(result._data) + i * result._itemsize + result._itemsize / 2,
+                d._bits,
+                d._int_bits,
+                result._bits,
+                result._int_bits,
+                QuantizationMode::RND_INF,
+                OverflowMode::WRAP
+            );
+        } else if (nb::isinstance<APyFloat>(py_obj[i])) {
+            const auto d
+                = static_cast<APyFloat>(nb::cast<APyFloat>(py_obj[i])).to_fixed();
+            _cast(
+                std::begin(d._data),
+                std::end(d._data),
+                std::begin(result._data) + i * result._itemsize,
+                std::begin(result._data) + i * result._itemsize + result._itemsize / 2,
+                d._bits,
+                d._int_bits,
+                result._bits,
+                result._int_bits,
+                QuantizationMode::RND_INF,
+                OverflowMode::WRAP
+            );
+        } else if (nb::isinstance<APyCFixed>(py_obj[i])) {
+            const auto d = static_cast<APyCFixed>(nb::cast<APyCFixed>(py_obj[i]));
+            _cast(
+                d.real_begin(),
+                d.real_end(),
+                result.real_begin() + i * result._itemsize,
+                result.real_begin() + i * result._itemsize + result._itemsize / 2,
+                d._bits,
+                d._int_bits,
+                result._bits,
+                result._int_bits,
+                QuantizationMode::RND_INF,
+                OverflowMode::WRAP
+            );
+            _cast(
+                d.imag_begin(),
+                d.imag_end(),
+                result.imag_begin() + i * result._itemsize,
+                result.imag_begin() + i * result._itemsize + result._itemsize / 2,
+                d._bits,
+                d._int_bits,
+                result._bits,
+                result._int_bits,
+                QuantizationMode::RND_INF,
+                OverflowMode::WRAP
             );
         } else if (nb::isinstance<std::complex<double>>(py_obj[i])) {
             // Complex double object
@@ -1213,36 +1289,20 @@ APyCFixedArray APyCFixedArray::from_complex(
                 result._bits,
                 result._int_bits
             );
-
-        } else if (nb::isinstance<nb::int_>(py_obj[i])) {
-            // Python integer object
-            auto max_bits = result.frac_bits() < 0
-                ? result.bits() - result.frac_bits() // Negative fractional bits
-                : result.bits();                     // Non-negative fractional bits
-            auto limb_vec = python_long_to_limb_vec(
-                nb::cast<nb::int_>(py_obj[i]), bits_to_limbs(max_bits)
-            );
-            fixed_point_from_double(
-                double(APyFixed(max_bits, max_bits, limb_vec)),
-                result.real_begin() + i * result._itemsize,
-                result.real_begin() + i * result._itemsize + result._itemsize / 2,
-                result._bits,
-                result._int_bits
-            );
         }
     }
 
     return result;
 }
 
-APyCFixedArray APyCFixedArray::from_double(
-    const nb::sequence& python_seq,
+APyCFixedArray APyCFixedArray::from_numbers(
+    const nb::sequence& number_seq,
     std::optional<int> int_bits,
     std::optional<int> frac_bits,
     std::optional<int> bits
 )
 {
-    return from_complex(python_seq, int_bits, frac_bits, bits);
+    return from_complex(number_seq, int_bits, frac_bits, bits);
 }
 
 APyCFixedArray APyCFixedArray::from_array(

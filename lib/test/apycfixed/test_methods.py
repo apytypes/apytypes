@@ -1,4 +1,4 @@
-from apytypes import APyCFixed, APyFixed
+from apytypes import APyCFixed, APyFixed, APyFloat
 
 
 def test_real_imag_properties():
@@ -70,3 +70,18 @@ def test_to_and_from_complex():
     for c in c_list:
         assert complex(APyCFixed.from_complex(c, int_bits=10, frac_bits=10)) == c
         assert complex(APyCFixed.from_complex(c, int_bits=1000, frac_bits=1000)) == c
+
+    # From APyFloat
+    assert APyCFixed.from_complex(
+        APyFloat(1, 15, 2, 5, 2), bits=4, int_bits=3
+    ).is_identical(APyCFixed((13, 0), bits=4, int_bits=3))  # (-1.5, 0)
+
+    # From APyFixed
+    assert APyCFixed.from_complex(
+        APyFixed(13, int_bits=2, frac_bits=3), int_bits=2, frac_bits=2
+    ).is_identical(APyCFixed((7, 0), int_bits=2, frac_bits=2))  # Rounds to (1.75, 0)
+
+    # From APyCFixed, although bad practice
+    assert APyCFixed.from_complex(
+        APyCFixed((13, 11), int_bits=2, frac_bits=3), int_bits=2, frac_bits=2
+    ).is_identical(APyCFixed((7, 6), int_bits=2, frac_bits=2))  # Rounds to (1.75, 1.5)

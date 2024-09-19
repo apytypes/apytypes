@@ -344,12 +344,13 @@ void bind_cfixed(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyCFixed` object from an :class:`int`, :class:`float`, or
-            :class:`complex`.
+            Create an :class:`APyCFixed` object from an :class:`int`, :class:`float`,
+            :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
 
-            The initialized fixed-point value is the one closest to the input value,
-            rounded away from zero on ties. Exactly two of the three bit-specifiers
-            (`bits`, `int_bits`, `frac_bits`) must be set.
+            .. note:: It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to create an :class:`APyCFixed` from an :class:`APyCFixed`.
+
+            The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
+            Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
             Parameters
             ----------
@@ -388,12 +389,11 @@ void bind_cfixed(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyCFixed` object from an :class:`int`, :class:`float`, or
-            :class:`complex`.
+            Create an :class:`APyCFixed` object from an :class:`int`, :class:`float`,
+            :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
+            This is an alias for :func:`~apytypes.APyCFixed.from_complex`, look there for more documentation.
 
-            The initialized fixed-point value is the one closest to the input value,
-            rounded away from zero on ties. Exactly two of the three bit-specifiers
-            (`bits`, `int_bits`, `frac_bits`) must be set.
+            .. note:: It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to create an :class:`APyCFixed` from an :class:`APyCFixed`.
 
             Parameters
             ----------
@@ -405,19 +405,6 @@ void bind_cfixed(nb::module_& m)
                 Number of fractional bits in the created fixed-point object
             bits : int, optional
                 Total number of bits in the created fixed-point object
-
-            Examples
-            --------
-            Complex-valued fixed-point `fx_a`, initialized from the floating-point value
-            1.234, rounded to 1.25 as it is the closest representable number
-
-            >>> from apytypes import APyCFixed
-            >>>
-            >>> fx_a = APyCFixed.from_float(1.234, int_bits=2, frac_bits=2)
-            >>> fx_a
-            APyCFixed((5, 0), bits=4, int_bits=2)
-            >>> str(fx_a)
-            '1.25+0j'
 
             Returns
             -------

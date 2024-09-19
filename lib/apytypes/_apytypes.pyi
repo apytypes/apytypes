@@ -338,12 +338,13 @@ class APyCFixed:
         bits: int | None = None,
     ) -> APyCFixed:
         """
-        Create an :class:`APyCFixed` object from an :class:`int`, :class:`float`, or
-        :class:`complex`.
+        Create an :class:`APyCFixed` object from an :class:`int`, :class:`float`,
+        :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
 
-        The initialized fixed-point value is the one closest to the input value,
-        rounded away from zero on ties. Exactly two of the three bit-specifiers
-        (`bits`, `int_bits`, `frac_bits`) must be set.
+        .. note:: It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to create an :class:`APyCFixed` from an :class:`APyCFixed`.
+
+        The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
+        Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
         Parameters
         ----------
@@ -382,12 +383,11 @@ class APyCFixed:
         bits: int | None = None,
     ) -> APyCFixed:
         """
-        Create an :class:`APyCFixed` object from an :class:`int`, :class:`float`, or
-        :class:`complex`.
+        Create an :class:`APyCFixed` object from an :class:`int`, :class:`float`,
+        :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
+        This is an alias for :func:`~apytypes.APyCFixed.from_complex`, look there for more documentation.
 
-        The initialized fixed-point value is the one closest to the input value,
-        rounded away from zero on ties. Exactly two of the three bit-specifiers
-        (`bits`, `int_bits`, `frac_bits`) must be set.
+        .. note:: It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to create an :class:`APyCFixed` from an :class:`APyCFixed`.
 
         Parameters
         ----------
@@ -399,19 +399,6 @@ class APyCFixed:
             Number of fractional bits in the created fixed-point object
         bits : int, optional
             Total number of bits in the created fixed-point object
-
-        Examples
-        --------
-        Complex-valued fixed-point `fx_a`, initialized from the floating-point value
-        1.234, rounded to 1.25 as it is the closest representable number
-
-        >>> from apytypes import APyCFixed
-        >>>
-        >>> fx_a = APyCFixed.from_float(1.234, int_bits=2, frac_bits=2)
-        >>> fx_a
-        APyCFixed((5, 0), bits=4, int_bits=2)
-        >>> str(fx_a)
-        '1.25+0j'
 
         Returns
         -------
@@ -1120,12 +1107,10 @@ class APyCFixedArray:
         bits: int | None = None,
     ) -> APyCFixedArray:
         """
-        Create an :class:`APyCFixedArray` object from a sequence of :class:`float`,
-        :class:`int`, or :class:`complex`.
+        Create an :class:`APyCFixedArray` object from a sequence of :class:`int`, :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
 
-        The initialized fixed-point values are the one closest to the
-        input values, rounded away from zero on ties. Exactly two of the three
-        bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
+        The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
+        Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
         Using NumPy arrays as input is in general faster than e.g. lists.
 
@@ -1165,24 +1150,18 @@ class APyCFixedArray:
 
     @staticmethod
     def from_float(
-        float_sequence: Sequence,
+        number_seq: Sequence,
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
     ) -> APyCFixedArray:
         """
-        Create an :class:`APyCFixedArray` object from a sequence of :class:`float`,
-        :class:`int`, or :class:`complex`.
-
-        The initialized fixed-point values are the one closest to the
-        input values, rounded away from zero on ties. Exactly two of the three
-        bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
-
-        Using NumPy arrays as input is in general faster than e.g. lists.
+        Create an :class:`APyCFixedArray` object from a sequence of :class:`int`, :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
+        This is an alias for :func:`~apytypes.APyCFixedArray.from_complex`, look there for more documentation.
 
         Parameters
         ----------
-        float_sequence : sequence of float, int, or complex
+        number_seq : sequence of numbers
             Values to initialize from. The tensor shape will be taken from the
             sequence shape.
         int_bits : int, optional
@@ -1191,21 +1170,6 @@ class APyCFixedArray:
             Number of fractional bits in the created fixed-point tensor.
         bits : int, optional
             Total number of bits in the created fixed-point tensor.
-
-        Examples
-        --------
-
-        >>> from apytypes import APyCFixedArray
-        >>>
-        >>> a = APyCFixedArray.from_float([1.0, 1.25, 1.49], int_bits=2, frac_bits=2)
-        >>> b = APyCFixedArray.from_float(
-        ...     [
-        ...         [1.0, 2.0, 3.0],
-        ...         [4.0, 5.0, 6.0],
-        ...     ],
-        ...     bits=5,
-        ...     frac_bits=0,
-        ... )
 
         Returns
         -------
@@ -1802,11 +1766,12 @@ class APyFixed:
         bits: int | None = None,
     ) -> APyFixed:
         """
-        Create an :class:`APyFixed` object from an :class:`int` or :class:`float`.
+        Create an :class:`APyFixed` object from an :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
 
-        The initialized fixed-point value is the one closest to the input
-        floating-point value, rounded away from zero on ties. Exactly two of the
-        three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
+        .. note:: It is in all cases better to use :func:`~apytypes.APyFixed.cast` to create an :class:`APyFixed` from an :class:`APyFixed`.
+
+        The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
+        Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
         Parameters
         ----------
@@ -2710,24 +2675,23 @@ class APyFixedArray:
 
     @staticmethod
     def from_float(
-        float_sequence: Sequence,
+        number_seq: Sequence,
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
     ) -> APyFixedArray:
         """
-        Create an :class:`APyFixedArray` object from a sequence of :class:`float`.
+        Create an :class:`APyFixedArray` object from a sequence of :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
 
-        The initialized fixed-point values are the one closest to the
-        input floating-point values, rounded away from zero on ties. Exactly two of
-        the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
+        The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
+        Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
         Using NumPy arrays as input is in general faster than e.g. lists.
 
         Parameters
         ----------
-        float_sequence : sequence of float
-            Floating point values to initialize from. The tensor shape will be taken
+        number_seq : sequence of numbers
+            Values to initialize from. The tensor shape will be taken
             from the sequence shape.
         int_bits : int, optional
             Number of integer bits in the created fixed-point tensor.
@@ -2765,9 +2729,8 @@ class APyFixedArray:
         """
         Create an :class:`APyFixedArray` object from an ndarray.
 
-        The initialized fixed-point values are the one closest to the input
-        floating-point value, rounded away from zero on ties. Exactly two of the
-        three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
+        The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
+        Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
         Using NumPy arrays as input is in general faster than e.g. lists.
 
@@ -3148,7 +3111,9 @@ class APyFloat:
         value: object, exp_bits: int, man_bits: int, bias: int | None = None
     ) -> APyFloat:
         """
-        Create an :class:`APyFloat` object from an :class:`int` or :class:`float`.
+        Create an :class:`APyFloat` object from an :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
+
+        .. note:: It is in all cases better to use :func:`~apytypes.APyFloat.cast` to create an :class:`APyFloat` from an :class:`APyFloat`.
 
         The quantization mode used is :class:`QuantizationMode.TIES_EVEN`.
 
@@ -3948,7 +3913,7 @@ class APyFloatArray:
         number_sequence: Sequence, exp_bits: int, man_bits: int, bias: int | None = None
     ) -> APyFloatArray:
         """
-        Create an :class:`APyFloatArray` object from a sequence of :class:`int` or :class:`float`.
+        Create an :class:`APyFloatArray` object from a sequence of :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
 
         Parameters
         ----------

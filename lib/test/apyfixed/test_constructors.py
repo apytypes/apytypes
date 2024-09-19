@@ -1,4 +1,4 @@
-from apytypes import APyFixed
+from apytypes import APyFixed, APyFloat
 from math import pow
 
 import pytest
@@ -142,6 +142,12 @@ def test_incorrect_double_construction():
 
     with pytest.raises(ValueError, match="Cannot convert inf to fixed-point"):
         APyFixed.from_float(float("inf"), 4, 4)
+
+    with pytest.raises(ValueError, match="Cannot convert nan to fixed-point"):
+        APyFixed.from_float(APyFloat(0, 15, 3, 4, 3), 4, 4)
+
+    with pytest.raises(ValueError, match="Cannot convert inf to fixed-point"):
+        APyFixed.from_float(APyFloat(0, 15, 0, 4, 3), 4, 4)
 
 
 def test_issue_487():

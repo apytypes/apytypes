@@ -986,7 +986,7 @@ nb::ndarray<nb::numpy, double> APyFloatArray::to_numpy() const
     return nb::ndarray<nb::numpy, double>(result_data, ndim(), &_shape[0], owner);
 }
 
-APyFloatArray APyFloatArray::from_double(
+APyFloatArray APyFloatArray::from_numbers(
     const nb::sequence& number_seq,
     int exp_bits,
     int man_bits,
@@ -1006,12 +1006,13 @@ APyFloatArray APyFloatArray::from_double(
         python_sequence_extract_shape(number_seq), exp_bits, man_bits, bias
     );
 
-    const auto py_obj = python_sequence_walk<nb::float_, nb::int_>(number_seq);
+    const auto py_obj
+        = python_sequence_walk<nb::float_, nb::int_, APyFixed, APyFloat>(number_seq);
 
     for (std::size_t i = 0; i < result._data.size(); i++) {
         if (nb::isinstance<nb::float_>(py_obj[i])) {
             result._data[i] = APyFloat::from_double(
-                                  (double)nb::cast<nb::float_>(py_obj[i]),
+                                  static_cast<double>(nb::cast<nb::float_>(py_obj[i])),
                                   exp_bits,
                                   man_bits,
                                   result.bias
@@ -1023,8 +1024,15 @@ APyFloatArray APyFloatArray::from_double(
                       nb::cast<nb::int_>(py_obj[i]), exp_bits, man_bits, result.bias
                 )
                       .get_data();
-        } else {
-            throw std::domain_error("Invalid Python objects in sequence");
+        } else if (nb::isinstance<APyFixed>(py_obj[i])) {
+            const auto d = static_cast<APyFixed>(nb::cast<APyFixed>(py_obj[i]));
+            result._data[i]
+                = APyFloat::from_fixed(d, exp_bits, man_bits, bias).get_data();
+        } else if (nb::isinstance<APyFloat>(py_obj[i])) {
+            const auto d = static_cast<APyFloat>(nb::cast<APyFloat>(py_obj[i]));
+            result._data[i]
+                = d.cast(exp_bits, man_bits, bias, QuantizationMode::RND_CONV)
+                      .get_data();
         }
     }
     return result;

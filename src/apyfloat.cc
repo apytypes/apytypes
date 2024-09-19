@@ -122,6 +122,15 @@ APyFloat APyFloat::from_number(
     } else if (nb::isinstance<nb::float_>(py_obj)) {
         const auto d = static_cast<double>(nb::cast<nb::float_>(py_obj));
         return APyFloat::from_double(d, exp_bits, man_bits, bias);
+    } else if (nb::isinstance<APyFixed>(py_obj)) {
+        const auto d = static_cast<APyFixed>(nb::cast<APyFixed>(py_obj));
+        return APyFloat::from_fixed(d, exp_bits, man_bits, bias);
+    } else if (nb::isinstance<APyFloat>(py_obj
+               )) { // One should really use `cast` instead
+        const auto d = static_cast<APyFloat>(nb::cast<APyFloat>(py_obj));
+        return d.cast(
+            exp_bits, man_bits, bias, QuantizationMode::RND_CONV
+        ); // TIES_EVEN
     } else {
         const nb::type_object type = nb::cast<nb::type_object>(py_obj.type());
         const nb::str type_string = nb::str(type);
@@ -745,9 +754,9 @@ std::string APyFloat::latex() const
 APyFixed APyFloat::to_fixed() const
 {
     if (is_nan()) {
-        throw nb::value_error("Cannot convert NaN to APyFixed.");
+        throw nb::value_error("Cannot convert nan to fixed-point");
     } else if (is_inf()) {
-        throw nb::value_error("Cannot convert inf to APyFixed.");
+        throw nb::value_error("Cannot convert inf to fixed-point");
     } else if (is_zero()) {
         return APyFixed(1, 1, std::vector<mp_limb_t>({ 0 }));
     }

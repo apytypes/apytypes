@@ -1,4 +1,4 @@
-from apytypes import APyFixed, APyCFixed
+from apytypes import APyFixed, APyCFixed, APyFloat
 
 import pytest
 
@@ -115,6 +115,60 @@ def test_from_float():
     assert APyFixed.from_float(-(2**-1074), int_bits=0, frac_bits=1074).is_identical(
         APyFixed(-1, int_bits=0, frac_bits=1074)
     )
+
+    ##
+    # From APyFloat
+    #
+
+    assert APyFixed.from_float(
+        APyFloat(0, 0, 0, 5, 7), bits=4, int_bits=3
+    ).is_identical(APyFixed(0, bits=4, int_bits=3))  # 0
+
+    assert APyFixed.from_float(
+        APyFloat(1, 0, 0, 5, 7), bits=4, int_bits=3
+    ).is_identical(APyFixed(0, bits=4, int_bits=3))  # 0
+
+    assert APyFixed.from_float(
+        APyFloat(0, 15, 2, 5, 2), bits=3, int_bits=2
+    ).is_identical(APyFixed(3, bits=3, int_bits=2))  # 1.5
+
+    assert APyFixed.from_float(
+        APyFloat(1, 15, 2, 5, 2), bits=4, int_bits=3
+    ).is_identical(APyFixed(13, bits=4, int_bits=3))  # -1.5
+
+    assert APyFixed.from_float(
+        APyFloat(0, 60, 4, 7, 3), bits=3, int_bits=-1
+    ).is_identical(APyFixed(3, bits=3, int_bits=-1))  # 0.1875
+
+    assert APyFixed.from_float(
+        APyFloat(0, 1, 1, 8, 10), bits=12, int_bits=2
+    ).is_identical(APyFixed(0, bits=12, int_bits=2))  # Quantize to zero
+
+    assert APyFixed.from_float(
+        APyFloat(0, 0, 1, 11, 54),
+        int_bits=1,
+        frac_bits=1076,  # Smallest subnormal
+    ).is_identical(APyFixed(1, int_bits=1, frac_bits=1076))
+
+    ##
+    # From APyFixed. One should really use `cast` instead.
+    #
+
+    assert APyFixed.from_float(
+        APyFixed(0, bits=10, int_bits=8), bits=4, int_bits=3
+    ).is_identical(APyFixed(0, bits=4, int_bits=3))  # 0
+
+    assert APyFixed.from_float(
+        APyFixed(8, bits=4, int_bits=4), bits=2, int_bits=2
+    ).is_identical(APyFixed(0, bits=2, int_bits=2))  # 0
+
+    assert APyFixed.from_float(
+        APyFixed(9, bits=4, int_bits=4), bits=2, int_bits=2
+    ).is_identical(APyFixed(1, bits=2, int_bits=2))  # Too big, becomes 1
+
+    assert APyFixed.from_float(
+        APyFixed(13, int_bits=2, frac_bits=3), int_bits=2, frac_bits=2
+    ).is_identical(APyFixed(7, int_bits=2, frac_bits=2))  # Rounds to 1.75
 
 
 def test_is_zero():

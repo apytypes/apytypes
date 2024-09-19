@@ -171,7 +171,9 @@ void bind_float(nb::module_& m)
             nb::arg("man_bits"),
             nb::arg("bias") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyFloat` object from an :class:`int` or :class:`float`.
+            Create an :class:`APyFloat` object from an :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
+
+            .. note:: It is in all cases better to use :func:`~apytypes.APyFloat.cast` to create an :class:`APyFloat` from an :class:`APyFloat`.
 
             The quantization mode used is :class:`QuantizationMode.TIES_EVEN`.
 

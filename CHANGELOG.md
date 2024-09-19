@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VHDL code generation for ROMs.
 - It is possible to perform arithmetic with Numpy arrays, automatically converting
   the Numpy array to an APyArray.
+- `from_float` now accepts APyTypes scalars.
 
 ### Fixed
 

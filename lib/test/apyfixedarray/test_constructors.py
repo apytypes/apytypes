@@ -1,5 +1,5 @@
 from apytypes import APyFixedArray, APyCFixedArray
-
+from apytypes import APyFloat, APyFixed
 import pytest
 
 
@@ -58,6 +58,60 @@ def test_array_floating_point_construction(fixed_array):
     a = fixed_array.from_float([100.0, -200.0, -300.0, -400.0], bits=4, frac_bits=0)
     b = fixed_array.from_float([100, -200, -300, -400], bits=4, frac_bits=0)
     assert a.is_identical(b)
+
+    ##
+    # From APyFloat
+    #
+
+    assert fixed_array.from_float(
+        [APyFloat(0, 0, 0, 5, 7)], bits=4, int_bits=3
+    ).is_identical(fixed_array([0], bits=4, int_bits=3))  # 0
+
+    assert fixed_array.from_float(
+        [APyFloat(1, 0, 0, 5, 7)], bits=4, int_bits=3
+    ).is_identical(fixed_array([0], bits=4, int_bits=3))  # 0
+
+    assert fixed_array.from_float(
+        [APyFloat(0, 15, 2, 5, 2)], bits=3, int_bits=2
+    ).is_identical(fixed_array([3], bits=3, int_bits=2))  # 1.5
+
+    assert fixed_array.from_float(
+        [APyFloat(1, 15, 2, 5, 2)], bits=4, int_bits=3
+    ).is_identical(fixed_array([13], bits=4, int_bits=3))  # -1.5
+
+    assert fixed_array.from_float(
+        [APyFloat(0, 60, 4, 7, 3)], bits=3, int_bits=-1
+    ).is_identical(fixed_array([3], bits=3, int_bits=-1))  # 0.1875
+
+    assert fixed_array.from_float(
+        [APyFloat(0, 1, 1, 8, 10)], bits=12, int_bits=2
+    ).is_identical(fixed_array([0], bits=12, int_bits=2))  # Quantize to zero
+
+    assert fixed_array.from_float(
+        [APyFloat(0, 0, 1, 11, 54)],
+        int_bits=1,
+        frac_bits=1076,  # Smallest subnormal
+    ).is_identical(fixed_array([1], int_bits=1, frac_bits=1076))
+
+    ##
+    # From APyFixed
+    #
+
+    assert fixed_array.from_float(
+        [APyFixed(0, bits=10, int_bits=8)], bits=4, int_bits=3
+    ).is_identical(fixed_array([0], bits=4, int_bits=3))  # 0
+
+    assert fixed_array.from_float(
+        [APyFixed(8, bits=4, int_bits=4)], bits=2, int_bits=2
+    ).is_identical(fixed_array([0], bits=2, int_bits=2))  # 0
+
+    assert fixed_array.from_float(
+        [APyFixed(9, bits=4, int_bits=4)], bits=2, int_bits=2
+    ).is_identical(fixed_array([1], bits=2, int_bits=2))  # Too big, becomes 1
+
+    assert fixed_array.from_float(
+        [APyFixed(13, int_bits=2, frac_bits=3)], int_bits=2, frac_bits=2
+    ).is_identical(fixed_array([7], int_bits=2, frac_bits=2))  # Rounds to 1.75
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])

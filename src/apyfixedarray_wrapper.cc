@@ -969,24 +969,23 @@ void bind_fixed_array(nb::module_& m)
          */
         .def_static(
             "from_float",
-            &APyFixedArray::from_double,
-            nb::arg("float_sequence"),
+            &APyFixedArray::from_numbers,
+            nb::arg("number_seq"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyFixedArray` object from a sequence of :class:`float`.
+            Create an :class:`APyFixedArray` object from a sequence of :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
 
-            The initialized fixed-point values are the one closest to the
-            input floating-point values, rounded away from zero on ties. Exactly two of
-            the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
+            The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
+            Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
             Using NumPy arrays as input is in general faster than e.g. lists.
 
             Parameters
             ----------
-            float_sequence : sequence of float
-                Floating point values to initialize from. The tensor shape will be taken
+            number_seq : sequence of numbers
+                Values to initialize from. The tensor shape will be taken
                 from the sequence shape.
             int_bits : int, optional
                 Number of integer bits in the created fixed-point tensor.
@@ -1024,9 +1023,8 @@ void bind_fixed_array(nb::module_& m)
             R"pbdoc(
             Create an :class:`APyFixedArray` object from an ndarray.
 
-            The initialized fixed-point values are the one closest to the input
-            floating-point value, rounded away from zero on ties. Exactly two of the
-            three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
+            The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
+            Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
             Using NumPy arrays as input is in general faster than e.g. lists.
 
