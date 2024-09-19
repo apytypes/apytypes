@@ -573,16 +573,22 @@ both <cite>exp_bits</cite> and <cite>mantissa_bits</cite> for <a class="referenc
 
 <dl class="py function">
 <dt class="sig sig-object py" id="apytypes.arange">
-<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">arange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mantissa_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.arange" title="Link to this definition">¶</a></dt>
-<dd><p>Simple and naive version of arange.</p>
+<span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">arange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">man_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#apytypes.arange" title="Link to this definition">¶</a></dt>
+<dd><p>Create an array with evenly spaced values within a given interval.</p>
+<p>The function can be called with varying number of positional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">arange(stop)</span></code>: Values are generated within the half-open interval <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">stop)</span></code> (in other words, the interval including <code class="docutils literal notranslate"><span class="pre">start</span></code> but excluding <code class="docutils literal notranslate"><span class="pre">stop</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">arange(start,</span> <span class="pre">stop)</span></code>: Values are generated within the half-open interval <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">stop)</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">arange(start,</span> <span class="pre">stop,</span> <span class="pre">step)</span></code>: Values are generated within the half-open interval <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">stop)</span></code>, with spacing between values given by <code class="docutils literal notranslate"><span class="pre">step</span></code>.</p></li>
+</ul>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>start</strong><span class="classifier">int, float</span></dt><dd><p>start number</p>
+<dt><strong>start</strong><span class="classifier">int, float</span></dt><dd><p>Start number.</p>
 </dd>
-<dt><strong>stop</strong><span class="classifier">int, optional</span></dt><dd><p>stop number</p>
+<dt><strong>stop</strong><span class="classifier">int, optional</span></dt><dd><p>Stop number.</p>
 </dd>
-<dt><strong>step</strong><span class="classifier">int, float, optional</span></dt><dd><p>step size in range</p>
+<dt><strong>step</strong><span class="classifier">int, float, optional</span></dt><dd><p>Step size in range.</p>
 </dd>
 <dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point integer bits.</p>
 </dd>
@@ -592,13 +598,15 @@ both <cite>exp_bits</cite> and <cite>mantissa_bits</cite> for <a class="referenc
 </dd>
 <dt><strong>exp_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point exponential bits.</p>
 </dd>
-<dt><strong>mantissa_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point mantissa bits.</p>
+<dt><strong>man_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of floating-point mantissa bits.</p>
+</dd>
+<dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
-<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>Array filled with fill_value, having the same shape and type as <cite>a</cite>.</p>
+<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>Array with evenly spaced values within a given interval.</p>
 </dd>
 </dl>
 </dd>
