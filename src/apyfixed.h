@@ -298,7 +298,7 @@ public:
      * ****************************************************************************** */
 
 public:
-    //! Create APyFixed from Python float or int.
+    //! Create APyFixed from Python object.
     static APyFixed from_number(
         const nb::object& py_obj,
         std::optional<int> int_bits = std::nullopt,
@@ -389,6 +389,7 @@ public:
 public:
     friend class APyCFixed;
     friend class APyFixedArray;
+    friend class APyCFixedArray;
     template <typename T, typename ARRAY_TYPE> friend class APyArray;
 
 }; // end: class APyFixed

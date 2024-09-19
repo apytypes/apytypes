@@ -332,11 +332,12 @@ void bind_fixed(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyFixed` object from an :class:`int` or :class:`float`.
+            Create an :class:`APyFixed` object from an :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
 
-            The initialized fixed-point value is the one closest to the input
-            floating-point value, rounded away from zero on ties. Exactly two of the
-            three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
+            .. note:: It is in all cases better to use :func:`~apytypes.APyFixed.cast` to create an :class:`APyFixed` from an :class:`APyFixed`.
+
+            The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
+            Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
             Parameters
             ----------

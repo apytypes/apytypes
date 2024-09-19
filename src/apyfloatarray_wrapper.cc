@@ -335,13 +335,13 @@ void bind_float_array(nb::module_& m)
          */
         .def_static(
             "from_float",
-            &APyFloatArray::from_double,
+            &APyFloatArray::from_numbers,
             nb::arg("number_sequence"),
             nb::arg("exp_bits"),
             nb::arg("man_bits"),
             nb::arg("bias") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyFloatArray` object from a sequence of :class:`int` or :class:`float`.
+            Create an :class:`APyFloatArray` object from a sequence of :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
 
             Parameters
             ----------

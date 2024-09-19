@@ -258,9 +258,9 @@ public:
      * ****************************************************************************** */
 
     //! Create an `APyFixedArray` tensor object initialized with values from a sequence
-    //! of `doubles`
-    static APyFixedArray from_double(
-        const nb::sequence& double_seq,
+    //! of Python objects
+    static APyFixedArray from_numbers(
+        const nb::sequence& number_seq,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt

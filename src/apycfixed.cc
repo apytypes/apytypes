@@ -610,6 +610,43 @@ APyCFixed APyCFixed::from_number(
     } else if (nb::isinstance<nb::float_>(py_obj)) {
         const auto d = static_cast<double>(nb::cast<nb::float_>(py_obj));
         return APyCFixed::from_double(d, int_bits, frac_bits, bits);
+    } else if (nb::isinstance<APyFixed>(py_obj)) {
+        APyCFixed result(int_bits, frac_bits, bits);
+        const auto d = static_cast<APyFixed>(nb::cast<APyFixed>(py_obj));
+        _cast(
+            std::begin(d._data),
+            std::end(d._data),
+            result.real_begin(),
+            result.real_end(),
+            d._bits,
+            d._int_bits,
+            result._bits,
+            result._int_bits,
+            QuantizationMode::RND_INF,
+            OverflowMode::WRAP
+        );
+        return result;
+    } else if (nb::isinstance<APyFloat>(py_obj)) {
+        APyCFixed result(int_bits, frac_bits, bits);
+        const auto d = static_cast<APyFloat>(nb::cast<APyFloat>(py_obj)).to_fixed();
+        _cast(
+            std::begin(d._data),
+            std::end(d._data),
+            result.real_begin(),
+            result.real_end(),
+            d._bits,
+            d._int_bits,
+            result._bits,
+            result._int_bits,
+            QuantizationMode::RND_INF,
+            OverflowMode::WRAP
+        );
+        return result;
+    } else if (nb::isinstance<APyCFixed>(py_obj)) { // One should really use cast
+        const auto d = static_cast<APyCFixed>(nb::cast<APyCFixed>(py_obj));
+        return d.cast(
+            int_bits, frac_bits, QuantizationMode::RND_INF, OverflowMode::WRAP, bits
+        );
     } else if (nb::isinstance<std::complex<double>>(py_obj)) {
         const auto c = nb::cast<std::complex<double>>(py_obj);
         return APyCFixed::from_complex(c, int_bits, frac_bits, bits);

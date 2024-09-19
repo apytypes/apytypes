@@ -1,6 +1,6 @@
 from itertools import permutations as perm
 import pytest
-from apytypes import APyFloat
+from apytypes import APyFloat, APyFixed
 
 
 def test_scalar_constructor_raises():
@@ -253,6 +253,65 @@ def test_from_float_with_non_floats():
     a = APyFloat.from_float(2**2047, exp_bits=28, man_bits=2)
     assert a.is_identical(
         APyFloat(sign=0, exp=(2047 + (2**27) - 1), man=0, exp_bits=28, man_bits=2)
+    )
+
+    # From APyFixed
+    assert APyFloat.from_float(APyFixed(0, bits=3, int_bits=2), 5, 2, 8).is_identical(
+        APyFloat(0, 0, 0, 5, 2, 8)
+    )  # 0
+
+    assert APyFloat.from_float(APyFixed(3, bits=3, int_bits=2), 5, 2).is_identical(
+        APyFloat(0, 15, 2, 5, 2)
+    )  # 1.5
+
+    assert APyFloat.from_float(APyFixed(13, bits=4, int_bits=3), 5, 2).is_identical(
+        APyFloat(1, 15, 2, 5, 2)
+    )  # -1.5
+
+    assert APyFloat.from_float(APyFixed(3, bits=3, int_bits=-1), 7, 3).is_identical(
+        APyFloat(0, 60, 4, 7, 3)
+    )  # 0.1875
+
+    assert APyFloat.from_float(APyFixed(1, bits=5, int_bits=40), 5, 2).is_identical(
+        APyFloat(0, 31, 0, 5, 2)
+    )  # Saturate to infinity
+
+    assert APyFloat.from_float(APyFixed(1, bits=12, int_bits=2), 4, 3).is_identical(
+        APyFloat(0, 0, 0, 4, 3)
+    )  # Quantize to zero
+
+    assert APyFloat.from_float(APyFixed(1, bits=10, int_bits=2), 4, 3).is_identical(
+        APyFloat(0, 0, 2, 4, 3)
+    )  # Subnormal
+
+    assert APyFloat.from_float(
+        APyFixed(1, int_bits=1, frac_bits=1076), 11, 54
+    ).is_identical(APyFloat(0, 0, 1, 11, 54))  # Smallest subnormal
+
+    assert APyFloat.from_float(
+        APyFixed(1, bits=2, int_bits=-1072), 11, 52
+    ).is_identical(APyFloat(0, 0, 1, 11, 52))  # Smallest subnormal
+
+    # From APyFloat, which is equivalent to a cast with TIES_EVEN
+
+    # -0 to -0
+    assert APyFloat.from_float(APyFloat(1, 0, 0, 5, 7), 10, 24, 8).is_identical(
+        APyFloat(1, 0, 0, 10, 24, 8)
+    )
+
+    # Cast -inf to -inf
+    assert APyFloat.from_float(APyFloat(1, 31, 0, 5, 7), 11, 34).is_identical(
+        APyFloat(1, 2047, 0, 11, 34)
+    )
+
+    # Cast from big number becomes infinity
+    assert APyFloat.from_float(APyFloat(1, 30, 4, 5, 3), 4, 3).is_identical(
+        APyFloat(1, 15, 0, 4, 3)
+    )
+
+    # Cast where result becomes subnormal
+    assert APyFloat.from_float(APyFloat(0, 8, 0, 5, 2), 4, 3).is_identical(
+        APyFloat(0, 0, 4, 4, 3)
     )
 
 

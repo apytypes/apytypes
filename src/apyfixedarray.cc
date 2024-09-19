@@ -1248,25 +1248,26 @@ APyFixedArray APyFixedArray::cast(
  * *                      Static conversion from other types                          *
  * ********************************************************************************** */
 
-APyFixedArray APyFixedArray::from_double(
-    const nb::sequence& python_seq,
+APyFixedArray APyFixedArray::from_numbers(
+    const nb::sequence& number_seq,
     std::optional<int> int_bits,
     std::optional<int> frac_bits,
     std::optional<int> bits
 )
 {
-    if (nb::isinstance<nb::ndarray<>>(python_seq)) {
+    if (nb::isinstance<nb::ndarray<>>(number_seq)) {
         // Sequence is NDArray. Initialize using `from_array`
-        auto ndarray = nb::cast<nb::ndarray<nb::c_contig>>(python_seq);
+        auto ndarray = nb::cast<nb::ndarray<nb::c_contig>>(number_seq);
         return from_array(ndarray, int_bits, frac_bits, bits);
     }
 
     APyFixedArray result(
-        python_sequence_extract_shape(python_seq), int_bits, frac_bits, bits
+        python_sequence_extract_shape(number_seq), int_bits, frac_bits, bits
     );
 
     // Extract all Python doubles and integers
-    auto py_obj = python_sequence_walk<nb::float_, nb::int_>(python_seq);
+    auto py_obj
+        = python_sequence_walk<nb::float_, nb::int_, APyFixed, APyFloat>(number_seq);
 
     // Set data from doubles (reuse `APyFixed::from_double` conversion)
     for (std::size_t i = 0; i < result._data.size() / result._itemsize; i++) {
@@ -1288,12 +1289,42 @@ APyFixedArray APyFixedArray::from_double(
             auto limb_vec = python_long_to_limb_vec(
                 nb::cast<nb::int_>(py_obj[i]), bits_to_limbs(max_bits)
             );
+            // TODO: Do not cast Python integer to float
             fixed_point_from_double(
                 double(APyFixed(max_bits, max_bits, limb_vec)),
                 std::begin(result._data) + (i + 0) * result._itemsize,
                 std::begin(result._data) + (i + 1) * result._itemsize,
                 result._bits,
                 result._int_bits
+            );
+        } else if (nb::isinstance<APyFixed>(py_obj[i])) {
+            const auto d = static_cast<APyFixed>(nb::cast<APyFixed>(py_obj[i]));
+            _cast(
+                std::begin(d._data),
+                std::end(d._data),
+                std::begin(result._data) + (i + 0) * result._itemsize,
+                std::begin(result._data) + (i + 1) * result._itemsize,
+                d._bits,
+                d._int_bits,
+                result._bits,
+                result._int_bits,
+                QuantizationMode::RND_INF,
+                OverflowMode::WRAP
+            );
+        } else if (nb::isinstance<APyFloat>(py_obj[i])) {
+            const auto d
+                = static_cast<APyFloat>(nb::cast<APyFloat>(py_obj[i])).to_fixed();
+            _cast(
+                std::begin(d._data),
+                std::end(d._data),
+                std::begin(result._data) + (i + 0) * result._itemsize,
+                std::begin(result._data) + (i + 1) * result._itemsize,
+                d._bits,
+                d._int_bits,
+                result._bits,
+                result._int_bits,
+                QuantizationMode::RND_INF,
+                OverflowMode::WRAP
             );
         }
     }

@@ -1,4 +1,5 @@
 from apytypes import APyCFixedArray, APyFixedArray
+from apytypes import APyFloat, APyFixed, APyCFixed
 
 
 def test_transpose():
@@ -22,7 +23,7 @@ def test_transpose():
     )
 
 
-def test_from_complex_with_float():
+def test_from_complex():
     a = APyCFixedArray.from_complex(
         [
             [1, 2],
@@ -41,6 +42,24 @@ def test_from_complex_with_float():
             frac_bits=0,
         )
     )
+
+    # From APyCFixed
+    assert APyCFixedArray.from_complex(
+        [APyCFixed((13, 11), int_bits=2, frac_bits=3)], int_bits=2, frac_bits=2
+    ).is_identical(
+        APyCFixedArray.from_complex([1.75 + 1.5j], int_bits=2, frac_bits=2)
+    )  # Rounds to (1.75, 1.5)
+    # Testing using "from_complex([1.75+1.5j]" is currently required
+
+    # From APyFixed
+    assert APyCFixedArray.from_complex(
+        [APyFixed(13, int_bits=2, frac_bits=3)], int_bits=2, frac_bits=2
+    ).is_identical(APyCFixedArray([7], int_bits=2, frac_bits=2))  # Rounds to (1.75, 0)
+
+    # From APyFloat
+    assert APyCFixedArray.from_complex(
+        [APyFloat(1, 15, 2, 5, 2)], bits=4, int_bits=3
+    ).is_identical(APyCFixedArray([13], bits=4, int_bits=3))  # (-1.5, 0)
 
 
 def test_real_imag():

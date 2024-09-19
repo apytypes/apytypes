@@ -227,9 +227,9 @@ public:
     );
 
     //! Create an `APyCFixedArray` tensor object initialized with values from a sequence
-    //! of `doubles`
-    static APyCFixedArray from_double(
-        const nb::sequence& double_seq,
+    //! of numbers
+    static APyCFixedArray from_numbers(
+        const nb::sequence& number_seq,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
