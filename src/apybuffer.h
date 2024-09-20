@@ -10,12 +10,19 @@
 // https://docs.python.org/3/c-api/intro.html#include-files
 #include <Python.h>
 
+#include "apytypes_util.h"
+
+// Python object access through Nanobind
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/variant.h> // std::variant (with nanobind support)
+namespace nb = nanobind;
+
+#include <cstddef>     // std::ptrdiff_t
 #include <cstdlib>     // std::malloc
 #include <memory>      // std::allocator
 #include <type_traits> // std::true_type
+#include <variant>     // std::variant
 #include <vector>      // std::vector
-
-#include "apytypes_util.h"
 
 template <typename T> struct NoDefaultConstructAllocator {
     using value_type = T;
@@ -127,8 +134,32 @@ protected:
                                        // function `get_py_buffer()` is called)
 
 public:
-    // Getters for important field
-    const std::vector<std::size_t>& get_shape() const noexcept { return _shape; }
+    //! Getters for important field
+    std::size_t ndim() const noexcept { return _shape.size(); }
+
+    std::size_t size() const noexcept { return _shape[0]; }
+
+    const std::vector<std::size_t>& shape() const noexcept { return _shape; }
+
+    //! Shape of the array
+    nb::tuple python_get_shape() const
+    {
+        nb::list result_list;
+        for (std::size_t i = 0; i < _shape.size(); i++) {
+            result_list.append(_shape[i]);
+        }
+        return nb::tuple(result_list);
+    }
+
+    /* ****************************************************************************** *
+     * *                    `__getitem__` family of methods                         * *
+     * ****************************************************************************** */
+
+    template <typename APY_ARRAY, typename APY_SCALAR>
+    std::variant<APY_ARRAY, APY_SCALAR> get_item_integer(std::ptrdiff_t) const
+    {
+        throw NotImplementedException();
+    }
 };
 
 #endif // _APYBUFFER_H

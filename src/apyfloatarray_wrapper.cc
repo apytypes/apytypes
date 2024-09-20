@@ -301,7 +301,7 @@ void bind_float_array(nb::module_& m)
             :class:`tuple` of :class:`int`
             )pbdoc")
 
-        .def_prop_ro("ndim", &APyFloatArray::get_ndim, R"pbdoc(
+        .def_prop_ro("ndim", &APyFloatArray::ndim, R"pbdoc(
             Number of dimensions in the array.
 
             Returns
@@ -696,7 +696,7 @@ void bind_float_array(nb::module_& m)
          */
         .def("__matmul__", &APyFloatArray::matmul, nb::arg("rhs"))
         .def("__repr__", &APyFloatArray::repr)
-        .def("__len__", &APyFloatArray::get_size)
+        .def("__len__", &APyFloatArray::size)
 
         .def("is_identical", &APyFloatArray::is_identical, nb::arg("other"), R"pbdoc(
             Test if two :class:`APyFloatArray` objects are identical.

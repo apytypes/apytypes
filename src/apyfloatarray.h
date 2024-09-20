@@ -1,6 +1,7 @@
 #ifndef _APYFLOAT_ARRAY_H
 #define _APYFLOAT_ARRAY_H
 
+#include "apybuffer.h"
 #include "apyfloat.h"
 #include "apytypes_common.h"
 #include <cstdint>
@@ -10,7 +11,7 @@
 #include <optional>
 #include <vector>
 
-class APyFloatArray {
+class APyFloatArray : public APyBuffer<APyFloatData> {
 public:
     //! Constructor taking a sequence of signs, biased exponents, and mantissas.
     //! If no bias is given, an IEEE-like bias will be used.
@@ -22,8 +23,7 @@ public:
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
-    //! Vector with values
-    std::vector<APyFloatData> data;
+
     //! Number of exponent bits
     std::uint8_t exp_bits;
     //! Number of mantissa bits
@@ -261,17 +261,6 @@ public:
     //! Return the bit width of the entire floating-point format.
     APY_INLINE std::uint8_t get_bits() const { return exp_bits + man_bits + 1; }
 
-    //! Shape of the array
-    nanobind::tuple python_get_shape() const;
-
-    //! Number of dimensions
-    size_t get_ndim() const;
-
-    //! Length of the array
-    size_t get_size() const;
-
-    const std::vector<std::size_t>& get_shape() const noexcept { return shape; }
-
     /*!
      * Test if two `APyFloatArray` objects are identical. Two `APyFloatArray` objects
      * are considered identical if, and only if:
@@ -363,8 +352,9 @@ public:
     cast_to_bfloat16(std::optional<QuantizationMode> quantization = std::nullopt) const;
 
 private:
-    //! Default constructor
-    APyFloatArray() = default;
+    //! Default constructor (not available)
+    APyFloatArray() = delete;
+
     //! Constructor specifying only the shape and format of the array
     APyFloatArray(
         const std::vector<std::size_t>& shape,
@@ -372,7 +362,6 @@ private:
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
-    std::vector<std::size_t> shape;
 
     /*!
      * Evaluate the inner between two vectors. This method assumes that the the shape
