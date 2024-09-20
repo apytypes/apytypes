@@ -1,12 +1,23 @@
-#include "nanobind/nanobind.h"
-#include <nanobind/ndarray.h>
-#include <nanobind/stl/variant.h> // std::variant (with nanobind support)
-#include <variant>
-namespace nb = nanobind;
-
 // Python details. These should be included before standard header files:
 // https://docs.python.org/3/c-api/intro.html#include-files
 #include <Python.h> // PYLONG_BITS_IN_DIGIT, PyLongObject
+
+#include "apybuffer.h"
+#include "apyfixed.h"
+#include "apyfixed_util.h"
+#include "apyfixedarray.h"
+#include "apytypes_common.h"
+#include "apytypes_simd.h"
+#include "apytypes_util.h"
+#include "array_utils.h"
+#include "broadcast.h"
+#include "python_util.h"
+
+// Python object access through Nanobind
+#include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/variant.h> // std::variant (with nanobind support)
+namespace nb = nanobind;
 
 // Standard header includes
 #include <algorithm> // std::copy, std::max, std::transform, etc...
@@ -18,19 +29,8 @@ namespace nb = nanobind;
 #include <sstream>   // std::stringstream
 #include <stdexcept> // std::length_error
 #include <string>    // std::string
+#include <variant>   // std::variant
 #include <vector>    // std::vector, std::swap
-
-#include "apybuffer.h"
-#include "apyfixed.h"
-#include "apyfixed_util.h"
-#include "apyfixedarray.h"
-#include "apyfixedarray_iterator.h"
-#include "apytypes_common.h"
-#include "apytypes_simd.h"
-#include "apytypes_util.h"
-#include "array_utils.h"
-#include "broadcast.h"
-#include "python_util.h"
 
 #include <fmt/format.h>
 
@@ -75,9 +75,6 @@ APyFixedArray::APyFixedArray(
         _overflow_twos_complement(
             caster._data.begin(), caster._data.end(), _bits, _int_bits
         );
-        // caster._overflow_twos_complement(
-        //     caster._data.begin(), caster._data.end(), _bits, _int_bits
-        //);
         std::copy_n(
             caster._data.begin(),         // src
             _itemsize,                    // limbs to copy
@@ -1536,21 +1533,6 @@ APyFixedArray APyFixedArray::ravel() const
     // same as flatten as for now
     return this->flatten();
 }
-
-// The shape of the array
-nb::tuple APyFixedArray::python_get_shape() const
-{
-    nb::list result_list;
-    for (std::size_t i = 0; i < _shape.size(); i++) {
-        result_list.append(_shape[i]);
-    }
-    return nb::tuple(result_list);
-}
-
-// The dimension in the array
-size_t APyFixedArray::ndim() const noexcept { return _shape.size(); }
-
-size_t APyFixedArray::size() const noexcept { return _shape[0]; }
 
 APyFixedArray APyFixedArray::abs() const
 {

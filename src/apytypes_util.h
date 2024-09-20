@@ -1197,15 +1197,15 @@ get_conv_lengths(const std::string& mode, const APY_ARRAY& a, const APY_ARRAY& b
 {
     std::size_t len, n_left, n_right;
     if (mode == "full") {
-        len = a->get_shape()[0] + b->get_shape()[0] - 1;
-        n_left = b->get_shape()[0] - 1;
-        n_right = b->get_shape()[0] - 1;
+        len = a->shape()[0] + b->shape()[0] - 1;
+        n_left = b->shape()[0] - 1;
+        n_right = b->shape()[0] - 1;
     } else if (mode == "same") {
-        len = a->get_shape()[0];
-        n_left = b->get_shape()[0] / 2;
-        n_right = b->get_shape()[0] - n_left - 1;
+        len = a->shape()[0];
+        n_left = b->shape()[0] / 2;
+        n_right = b->shape()[0] - n_left - 1;
     } else if (mode == "valid") {
-        len = a->get_shape()[0] - b->get_shape()[0] + 1;
+        len = a->shape()[0] - b->shape()[0] + 1;
         n_left = 0;
         n_right = 0;
     } else {

@@ -5,15 +5,15 @@
 #ifndef _APYFIXED_ARRAY_H
 #define _APYFIXED_ARRAY_H
 
-#include <nanobind/nanobind.h>    // nanobind::object
-#include <nanobind/ndarray.h>     // nanobind::array_t
-#include <nanobind/stl/variant.h> // std::variant (with nanobind support)
-namespace nb = nanobind;
-
 #include "apybuffer.h"
 #include "apyfixed.h"
 #include "apytypes_common.h"
 #include "apytypes_util.h"
+
+#include <nanobind/nanobind.h>    // nanobind::object
+#include <nanobind/ndarray.h>     // nanobind::array_t
+#include <nanobind/stl/variant.h> // std::variant (with nanobind support)
+namespace nb = nanobind;
 
 #include <cstddef>  // std::size_t
 #include <limits>   // std::numeric_limits<>::is_iec559
@@ -242,12 +242,6 @@ public:
     //! Same as flatten as for now
     APyFixedArray ravel() const;
 
-    //! Shape of the array
-    nb::tuple python_get_shape() const;
-
-    //! Number of dimensions
-    size_t ndim() const noexcept;
-
     //! Number of bits
     APY_INLINE int bits() const noexcept { return _bits; }
 
@@ -277,9 +271,6 @@ public:
 
     //! Convert to a NumPy array
     nb::ndarray<nb::numpy, double> to_numpy() const;
-
-    //! Length of the array
-    size_t size() const noexcept;
 
     //! Elementwise absolute value
     APyFixedArray abs() const;

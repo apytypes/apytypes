@@ -1,27 +1,29 @@
-// Python object access through Pybind
-#include "apyfloatarray_iterator.h"
-#include "apytypes_common.h"
-#include "apytypes_util.h"
-#include <cstddef>
-#include <nanobind/nanobind.h>
-#include <nanobind/ndarray.h>
-#include <nanobind/stl/variant.h> // std::variant (with nanobind support)
-#include <variant>
-namespace nb = nanobind;
+#include "apyfloatarray.h"
 #include "apyfloat.h"
 #include "apyfloat_util.h"
-#include "apyfloatarray.h"
+#include "apytypes_common.h"
+#include "apytypes_util.h"
 #include "array_utils.h"
 #include "broadcast.h"
 #include "ieee754.h"
 #include "python_util.h"
+
+// Python object access through Nanobind
+#include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/variant.h> // std::variant (with nanobind support)
+namespace nb = nanobind;
+
+// Standard header includes
 #include <algorithm>
+#include <cstddef>
 #include <fmt/format.h>
 #include <iostream>
 #include <set>
 #include <stdexcept>
 #include <stdlib.h>
 #include <string>
+#include <variant>
 
 void APyFloatArray::create_in_place(
     APyFloatArray* apyfloatarray,
@@ -48,20 +50,19 @@ APyFloatArray::APyFloatArray(
     std::uint8_t man_bits,
     std::optional<exp_t> bias
 )
-    : exp_bits(exp_bits)
+    : APyBuffer(python_sequence_extract_shape(sign_seq))
+    , exp_bits(exp_bits)
     , man_bits(man_bits)
 {
     this->bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
 
-    const auto signs_shape = python_sequence_extract_shape(sign_seq);
+    const auto& signs_shape = _shape;
     const auto exps_shape = python_sequence_extract_shape(exp_seq);
     const auto mans_shape = python_sequence_extract_shape(man_seq);
 
     if (!((signs_shape == exps_shape) && (signs_shape == mans_shape))) {
         throw std::domain_error("Shape mismatch during construction");
     }
-
-    shape = signs_shape;
 
     auto signs = python_sequence_walk<nb::int_, nb::bool_>(sign_seq);
     auto exps = python_sequence_walk<nb::int_>(exp_seq);
@@ -80,7 +81,7 @@ APyFloatArray::APyFloatArray(
         exp_t exp = static_cast<exp_t>(nb::cast<nb::int_>(exps[i]));
         man_t man = static_cast<man_t>(nb::cast<nb::int_>(mans[i]));
 
-        data.push_back({ sign, exp, man });
+        _data[i] = { sign, exp, man };
     }
 }
 
@@ -90,12 +91,12 @@ APyFloatArray::APyFloatArray(
     std::uint8_t man_bits,
     std::optional<exp_t> bias
 )
-    : exp_bits(exp_bits)
+    : APyBuffer(shape)
+    , exp_bits(exp_bits)
     , man_bits(man_bits)
     , bias(bias.value_or(APyFloat::ieee_bias(exp_bits)))
-    , shape(shape)
 {
-    data = std::vector<APyFloatData>(fold_shape(shape), { 0, 0, 0 });
+    _data = std::vector<APyFloatData>(fold_shape(shape), { 0, 0, 0 });
 }
 
 /* ********************************************************************************** *
@@ -104,13 +105,13 @@ APyFloatArray::APyFloatArray(
 
 APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
 {
-    if (shape != rhs.shape) {
-        const auto broadcast_shape = smallest_broadcastable_shape(shape, rhs.shape);
+    if (_shape != rhs._shape) {
+        const auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
         if (broadcast_shape.size() == 0) {
             throw std::length_error(fmt::format(
                 "APyFloatArray.__add__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                tuple_string_from_vec(shape),
-                tuple_string_from_vec(rhs.shape)
+                tuple_string_from_vec(_shape),
+                tuple_string_from_vec(rhs._shape)
             ));
         }
         return broadcast_to(broadcast_shape) + rhs.broadcast_to(broadcast_shape);
@@ -123,7 +124,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
     if (same_type_as(rhs) && (max_man_bits <= _MAN_T_SIZE_BITS)
         && (quantization != QuantizationMode::STOCH_WEIGHTED)) {
         // Result array
-        APyFloatArray res(shape, exp_bits, man_bits, bias);
+        APyFloatArray res(_shape, exp_bits, man_bits, bias);
 
         APyFloatData x, y;
         const exp_t res_max_exponent = ((1ULL << exp_bits) - 1);
@@ -135,9 +136,9 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
         const auto shift_normalization_const = _MAN_T_SIZE_BITS - tmp_man_bits;
         const auto man_mask = carry_res_leading_one - 1;
         // Perform operation
-        for (std::size_t i = 0; i < data.size(); i++) {
-            x = data[i];
-            y = rhs.data[i];
+        for (std::size_t i = 0; i < _data.size(); i++) {
+            x = _data[i];
+            y = rhs._data[i];
             bool x_is_zero_exponent = (x.exp == 0);
             bool y_is_zero_exponent = (y.exp == 0);
             // Handle zero cases
@@ -145,11 +146,11 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
                 if (y_is_zero_exponent && y.man == 0) {
                     y.sign = (x.sign == y.sign) ? x.sign : is_to_neg;
                 }
-                res.data[i] = y;
+                res._data[i] = y;
                 continue;
             }
             if (y_is_zero_exponent && y.man == 0) {
-                res.data[i] = x;
+                res._data[i] = x;
                 continue;
             }
             bool x_is_max_exponent = x.exp == res_max_exponent;
@@ -161,26 +162,26 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
                     || (y_is_max_exponent && y.man != 0)
                     || (x_is_max_exponent && y_is_max_exponent && x.sign != y.sign)) {
                     // Set to NaN
-                    res.data[i] = { x.sign,
-                                    static_cast<exp_t>(res_max_exponent),
-                                    static_cast<man_t>(1) };
+                    res._data[i] = { x.sign,
+                                     static_cast<exp_t>(res_max_exponent),
+                                     static_cast<man_t>(1) };
                     continue;
                 }
 
                 // Handle inf cases
                 if (x_is_max_exponent && x.man == 0) {
                     // Set to inf
-                    res.data[i] = { x.sign,
-                                    static_cast<exp_t>(res_max_exponent),
-                                    static_cast<man_t>(0) };
+                    res._data[i] = { x.sign,
+                                     static_cast<exp_t>(res_max_exponent),
+                                     static_cast<man_t>(0) };
                     continue;
                 }
 
                 if (y_is_max_exponent && y.man == 0) {
                     // Set to inf
-                    res.data[i] = { y.sign,
-                                    static_cast<exp_t>(res_max_exponent),
-                                    static_cast<man_t>(0) };
+                    res._data[i] = { y.sign,
+                                     static_cast<exp_t>(res_max_exponent),
+                                     static_cast<man_t>(0) };
                     continue;
                 }
             }
@@ -190,7 +191,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
                 std::swap(x_is_zero_exponent, y_is_zero_exponent);
             } else if (x.sign != y.sign && x.exp == y.exp && x.man == y.man) {
                 // Set to zero
-                res.data[i]
+                res._data[i]
                     = { is_to_neg, static_cast<exp_t>(0), static_cast<man_t>(0) };
                 continue;
             }
@@ -258,7 +259,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
                 quantization
             );
 
-            res.data[i]
+            res._data[i]
                 = { x.sign, static_cast<exp_t>(new_exp), static_cast<man_t>(new_man) };
         }
         return res;
@@ -268,16 +269,16 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
     const auto res_man_bits = std::max(man_bits, rhs.man_bits);
     const auto res_bias
         = calc_bias(res_exp_bits, exp_bits, bias, rhs.exp_bits, rhs.bias);
-    APyFloatArray res(shape, res_exp_bits, res_man_bits, res_bias);
+    APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
 
     APyFloat lhs_scalar(exp_bits, man_bits, bias);
     APyFloat rhs_scalar(rhs.exp_bits, rhs.man_bits, rhs.bias);
     // Perform operation
-    for (std::size_t i = 0; i < data.size(); i++) {
-        lhs_scalar.set_data(data[i]);
-        rhs_scalar.set_data(rhs.data[i]);
+    for (std::size_t i = 0; i < _data.size(); i++) {
+        lhs_scalar.set_data(_data[i]);
+        rhs_scalar.set_data(rhs._data[i]);
 
-        res.data[i] = (lhs_scalar + rhs_scalar).get_data();
+        res._data[i] = (lhs_scalar + rhs_scalar).get_data();
     }
 
     return res;
@@ -296,25 +297,25 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
         const exp_t res_max_exponent = ((1ULL << exp_bits) - 1);
         APyFloatData x;
         // Result array
-        APyFloatArray res(shape, exp_bits, man_bits, bias);
+        APyFloatArray res(_shape, exp_bits, man_bits, bias);
         APyFloatData y = rhs.get_data();
         bool y_is_max_exponent = y.exp == res_max_exponent;
 
         if (y_is_max_exponent) {
-            for (std::size_t i = 0; i < data.size(); i++) {
-                x = data[i];
+            for (std::size_t i = 0; i < _data.size(); i++) {
+                x = _data[i];
                 bool x_is_max_exponent = x.exp == res_max_exponent;
                 if (y.man != 0 || (x_is_max_exponent && x.man != 0)
                     || (x.sign != y.sign && x_is_max_exponent)) {
                     // Set to NaN
-                    res.data[i] = { x.sign,
-                                    static_cast<exp_t>(res_max_exponent),
-                                    static_cast<man_t>(1) };
+                    res._data[i] = { x.sign,
+                                     static_cast<exp_t>(res_max_exponent),
+                                     static_cast<man_t>(1) };
                 } else {
                     // Set to inf
-                    res.data[i] = { y.sign,
-                                    static_cast<exp_t>(res_max_exponent),
-                                    static_cast<man_t>(0) };
+                    res._data[i] = { y.sign,
+                                     static_cast<exp_t>(res_max_exponent),
+                                     static_cast<man_t>(0) };
                 }
             }
             return res;
@@ -332,14 +333,14 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
         const man_t my = (y_is_zero_exponent ? 0 : res_leading_one) | (y.man << 3);
         bool res_sign;
         // Perform operation
-        for (std::size_t i = 0; i < data.size(); i++) {
-            x = data[i];
+        for (std::size_t i = 0; i < _data.size(); i++) {
+            x = _data[i];
             // Handle zero case
             if (x.exp == 0 && x.man == 0) {
                 if (y_is_zero_exponent && y.man == 0) {
-                    res.data[i].sign = (x.sign == y.sign) ? x.sign : is_to_neg;
+                    res._data[i].sign = (x.sign == y.sign) ? x.sign : is_to_neg;
                 } else {
-                    res.data[i] = y;
+                    res._data[i] = y;
                 }
                 continue;
             }
@@ -349,21 +350,21 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
             if (x_is_max_exponent) {
                 if (x.man != 0) {
                     // Set to NaN
-                    res.data[i] = { x.sign,
-                                    static_cast<exp_t>(res_max_exponent),
-                                    static_cast<man_t>(1) };
+                    res._data[i] = { x.sign,
+                                     static_cast<exp_t>(res_max_exponent),
+                                     static_cast<man_t>(1) };
                 } else {
                     // Set to inf
-                    res.data[i] = { x.sign,
-                                    static_cast<exp_t>(res_max_exponent),
-                                    static_cast<man_t>(0) };
+                    res._data[i] = { x.sign,
+                                     static_cast<exp_t>(res_max_exponent),
+                                     static_cast<man_t>(0) };
                 }
                 continue;
             }
             // Check if sum is zero
             if (x.sign != y.sign && x.exp == y.exp && x.man == y.man) {
                 // Set to zero
-                res.data[i]
+                res._data[i]
                     = { is_to_neg, static_cast<exp_t>(0), static_cast<man_t>(0) };
                 continue;
             }
@@ -452,9 +453,9 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
                 quantization
             );
 
-            res.data[i] = { res_sign,
-                            static_cast<exp_t>(new_exp),
-                            static_cast<man_t>(new_man) };
+            res._data[i] = { res_sign,
+                             static_cast<exp_t>(new_exp),
+                             static_cast<man_t>(new_man) };
         }
         return res;
     }
@@ -464,13 +465,13 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
         = calc_bias(new_exp_bits, exp_bits, bias, rhs.get_exp_bits(), rhs.get_bias());
 
     // Calculate new format
-    APyFloatArray res(shape, new_exp_bits, new_man_bits, res_bias);
+    APyFloatArray res(_shape, new_exp_bits, new_man_bits, res_bias);
 
     APyFloat lhs_scalar(exp_bits, man_bits, bias);
     // Perform operations
-    for (std::size_t i = 0; i < data.size(); i++) {
-        lhs_scalar.set_data(data[i]);
-        res.data[i] = (lhs_scalar + rhs).get_data();
+    for (std::size_t i = 0; i < _data.size(); i++) {
+        lhs_scalar.set_data(_data[i]);
+        res._data[i] = (lhs_scalar + rhs).get_data();
     }
 
     return res;
@@ -478,13 +479,13 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
 
 APyFloatArray APyFloatArray::operator-(const APyFloatArray& rhs) const
 {
-    if (shape != rhs.shape) {
-        auto broadcast_shape = smallest_broadcastable_shape(shape, rhs.shape);
+    if (_shape != rhs._shape) {
+        auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
         if (broadcast_shape.size() == 0) {
             throw std::length_error(fmt::format(
                 "APyFloatArray.__sub__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                tuple_string_from_vec(shape),
-                tuple_string_from_vec(rhs.shape)
+                tuple_string_from_vec(_shape),
+                tuple_string_from_vec(rhs._shape)
             ));
         }
         return broadcast_to(broadcast_shape) - rhs.broadcast_to(broadcast_shape);
@@ -501,8 +502,8 @@ APyFloatArray APyFloatArray::operator-(const APyFloat& rhs) const
 APyFloatArray APyFloatArray::operator-() const
 {
     auto res = *this;
-    for (std::size_t i = 0; i < res.data.size(); i++) {
-        res.data[i].sign = !res.data[i].sign;
+    for (std::size_t i = 0; i < res._data.size(); i++) {
+        res._data[i].sign = !res._data[i].sign;
     }
     return res;
 }
@@ -510,21 +511,21 @@ APyFloatArray APyFloatArray::operator-() const
 APyFloatArray APyFloatArray::abs() const
 {
     auto res = *this;
-    for (std::size_t i = 0; i < res.data.size(); i++) {
-        res.data[i].sign = false;
+    for (std::size_t i = 0; i < res._data.size(); i++) {
+        res._data[i].sign = false;
     }
     return res;
 }
 
 APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
 {
-    if (shape != rhs.shape) {
-        auto broadcast_shape = smallest_broadcastable_shape(shape, rhs.shape);
+    if (_shape != rhs._shape) {
+        auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
         if (broadcast_shape.size() == 0) {
             throw std::length_error(fmt::format(
                 "APyFloatArray.__mul__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                tuple_string_from_vec(shape),
-                tuple_string_from_vec(rhs.shape)
+                tuple_string_from_vec(_shape),
+                tuple_string_from_vec(rhs._shape)
             ));
         }
         return broadcast_to(broadcast_shape) * rhs.broadcast_to(broadcast_shape);
@@ -535,10 +536,10 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
     const uint8_t res_man_bits = std::max(man_bits, rhs.man_bits);
     const auto res_bias
         = calc_bias(res_exp_bits, exp_bits, bias, rhs.exp_bits, rhs.bias);
-    APyFloatArray res(shape, res_exp_bits, res_man_bits, res_bias);
+    APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
     const auto quantization = get_float_quantization_mode();
     hadamard_multiplication(
-        &rhs.data[0], rhs.exp_bits, rhs.man_bits, rhs.bias, res, quantization
+        &rhs._data[0], rhs.exp_bits, rhs.man_bits, rhs.bias, res, quantization
     );
     return res;
 }
@@ -571,8 +572,8 @@ void APyFloatArray::hadamard_multiplication(
         const std::int64_t bias_sum = bias + rhs_bias - res.bias;
 
         // Perform operation
-        for (std::size_t i = 0; i < data.size(); i++) {
-            const auto x = data[i];
+        for (std::size_t i = 0; i < _data.size(); i++) {
+            const auto x = _data[i];
             const auto y = rhs[i];
 
             // Calculate sign
@@ -594,24 +595,24 @@ void APyFloatArray::hadamard_multiplication(
                 if (x_is_nan || y_is_nan || (x_is_inf && y_is_zero)
                     || (y_is_inf && x_is_zero)) {
                     // Set to nan
-                    res.data[i] = { res_sign,
-                                    static_cast<exp_t>(res_max_exponent),
-                                    static_cast<man_t>(1) };
+                    res._data[i] = { res_sign,
+                                     static_cast<exp_t>(res_max_exponent),
+                                     static_cast<man_t>(1) };
                     continue;
                 }
 
                 if (x_is_inf || y_is_inf) {
                     // Set to inf
-                    res.data[i] = { res_sign,
-                                    static_cast<exp_t>(res_max_exponent),
-                                    static_cast<man_t>(0) };
+                    res._data[i] = { res_sign,
+                                     static_cast<exp_t>(res_max_exponent),
+                                     static_cast<man_t>(0) };
                     continue;
                 }
 
                 // x is zero or y is zero (and the other is not inf)
                 if (x_is_zero || y_is_zero) {
                     // Set to zero
-                    res.data[i]
+                    res._data[i]
                         = { res_sign, static_cast<exp_t>(0), static_cast<man_t>(0) };
                     continue;
                 }
@@ -651,7 +652,7 @@ void APyFloatArray::hadamard_multiplication(
                     // Exponent too small after rounding
                     man_t res_man
                         = quantize_close_to_zero(res_sign, new_man, quantization);
-                    res.data[i] = { res_sign, 0, res_man };
+                    res._data[i] = { res_sign, 0, res_man };
                     continue;
                 }
                 // Shift and add sticky bit
@@ -674,19 +675,19 @@ void APyFloatArray::hadamard_multiplication(
                 quantization
             );
 
-            res.data[i] = { res_sign,
-                            static_cast<exp_t>(new_exp),
-                            static_cast<man_t>(new_man) };
+            res._data[i] = { res_sign,
+                             static_cast<exp_t>(new_exp),
+                             static_cast<man_t>(new_man) };
         }
     } else {
         APyFloat lhs_scalar(exp_bits, man_bits, bias);
         APyFloat rhs_scalar(rhs_exp_bits, rhs_man_bits, rhs_bias);
         // Perform operation
-        for (std::size_t i = 0; i < data.size(); i++) {
-            lhs_scalar.set_data(data[i]);
+        for (std::size_t i = 0; i < _data.size(); i++) {
+            lhs_scalar.set_data(_data[i]);
             rhs_scalar.set_data(rhs[i]);
 
-            res.data[i] = (lhs_scalar * rhs_scalar).get_data();
+            res._data[i] = (lhs_scalar * rhs_scalar).get_data();
         }
     }
 }
@@ -698,7 +699,7 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
     const auto res_man_bits = std::max(man_bits, rhs.get_man_bits());
     const auto res_bias
         = calc_bias(res_exp_bits, exp_bits, bias, rhs.get_exp_bits(), rhs.get_bias());
-    APyFloatArray res(shape, res_exp_bits, res_man_bits, res_bias);
+    APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
 
     const int sum_man_bits = man_bits + rhs.get_man_bits();
     const auto quantization = get_float_quantization_mode();
@@ -714,33 +715,33 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
         if (y_is_maxexp) {
             // y is nan
             if (y.man != 0) {
-                for (std::size_t i = 0; i < data.size(); i++) {
+                for (std::size_t i = 0; i < _data.size(); i++) {
                     // Calculate sign
-                    const bool res_sign = data[i].sign ^ y.sign;
+                    const bool res_sign = _data[i].sign ^ y.sign;
                     // Set to nan
-                    res.data[i] = { res_sign,
-                                    static_cast<exp_t>(res_max_exponent),
-                                    static_cast<man_t>(1) };
+                    res._data[i] = { res_sign,
+                                     static_cast<exp_t>(res_max_exponent),
+                                     static_cast<man_t>(1) };
                 }
                 return res;
             }
             // Y is inf
-            for (std::size_t i = 0; i < data.size(); i++) {
-                const auto x = data[i];
+            for (std::size_t i = 0; i < _data.size(); i++) {
+                const auto x = _data[i];
                 // Calculate sign
                 const bool res_sign = x.sign ^ y.sign;
                 // X is zero or nan
                 if ((x.exp == 0 && x.man == 0)
                     || (x.exp == x_max_exponent && x.man != 0)) {
                     // Set to nan
-                    res.data[i] = { res_sign,
-                                    static_cast<exp_t>(res_max_exponent),
-                                    static_cast<man_t>(1) };
+                    res._data[i] = { res_sign,
+                                     static_cast<exp_t>(res_max_exponent),
+                                     static_cast<man_t>(1) };
                 } else {
                     // Set to inf
-                    res.data[i] = { res_sign,
-                                    static_cast<exp_t>(res_max_exponent),
-                                    static_cast<man_t>(0) };
+                    res._data[i] = { res_sign,
+                                     static_cast<exp_t>(res_max_exponent),
+                                     static_cast<man_t>(0) };
                 }
             }
             return res;
@@ -748,19 +749,19 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
         const bool y_is_subnormal = (y.exp == 0);
         // y is zero
         if (y_is_subnormal && y.man == 0) {
-            for (std::size_t i = 0; i < data.size(); i++) {
-                const auto x = data[i];
+            for (std::size_t i = 0; i < _data.size(); i++) {
+                const auto x = _data[i];
                 // Calculate sign
                 const bool res_sign = x.sign ^ y.sign;
                 // X is inf or nan
                 if (x.exp == x_max_exponent) {
                     // Set to nan
-                    res.data[i] = { res_sign,
-                                    static_cast<exp_t>(res_max_exponent),
-                                    static_cast<man_t>(1) };
+                    res._data[i] = { res_sign,
+                                     static_cast<exp_t>(res_max_exponent),
+                                     static_cast<man_t>(1) };
                 } else {
                     // Set to zero
-                    res.data[i]
+                    res._data[i]
                         = { res_sign, static_cast<exp_t>(0), static_cast<man_t>(0) };
                 }
             }
@@ -784,8 +785,8 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
         const man_t sticky_constant = (1ULL << man_bits_delta_dec) - 1;
         exp_t new_exp;
         // Perform operation
-        for (std::size_t i = 0; i < data.size(); i++) {
-            const auto x = data[i];
+        for (std::size_t i = 0; i < _data.size(); i++) {
+            const auto x = _data[i];
 
             // Calculate sign
             const bool res_sign = x.sign ^ y.sign;
@@ -798,23 +799,23 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
             if (x_is_maxexp || x_is_subnormal) {
                 // x is nan
                 if (x_is_maxexp && x.man != 0) {
-                    res.data[i] = { res_sign,
-                                    static_cast<exp_t>(res_max_exponent),
-                                    static_cast<man_t>(1) };
+                    res._data[i] = { res_sign,
+                                     static_cast<exp_t>(res_max_exponent),
+                                     static_cast<man_t>(1) };
                     continue;
                 }
 
                 // x is inf
                 if (x_is_maxexp && x.man == 0) {
-                    res.data[i] = { res_sign,
-                                    static_cast<exp_t>(res_max_exponent),
-                                    static_cast<man_t>(0) };
+                    res._data[i] = { res_sign,
+                                     static_cast<exp_t>(res_max_exponent),
+                                     static_cast<man_t>(0) };
                     continue;
                 }
 
                 // x is zero (x is subnormal here)
                 if (x.man == 0) {
-                    res.data[i]
+                    res._data[i]
                         = { res_sign, static_cast<exp_t>(0), static_cast<man_t>(0) };
                     continue;
                 }
@@ -851,7 +852,7 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
                     // Exponent too small after rounding
                     man_t res_man
                         = quantize_close_to_zero(res_sign, new_man, quantization);
-                    res.data[i] = { res_sign, 0, res_man };
+                    res._data[i] = { res_sign, 0, res_man };
                     continue;
                 }
                 // Shift and add sticky bit
@@ -874,18 +875,18 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
                 quantization
             );
 
-            res.data[i] = { res_sign,
-                            static_cast<exp_t>(new_exp),
-                            static_cast<man_t>(new_man) };
+            res._data[i] = { res_sign,
+                             static_cast<exp_t>(new_exp),
+                             static_cast<man_t>(new_man) };
         }
         return res;
     }
 
     APyFloat lhs_scalar(exp_bits, man_bits, bias);
     // Perform operations
-    for (std::size_t i = 0; i < data.size(); i++) {
-        lhs_scalar.set_data(data[i]);
-        res.data[i] = (lhs_scalar * rhs).get_data();
+    for (std::size_t i = 0; i < _data.size(); i++) {
+        lhs_scalar.set_data(_data[i]);
+        res._data[i] = (lhs_scalar * rhs).get_data();
     }
 
     return res;
@@ -893,13 +894,13 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
 
 APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
 {
-    if (shape != rhs.shape) {
-        auto broadcast_shape = smallest_broadcastable_shape(shape, rhs.shape);
+    if (_shape != rhs._shape) {
+        auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
         if (broadcast_shape.size() == 0) {
             throw std::length_error(fmt::format(
                 "APyFloatArray.__truediv__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                tuple_string_from_vec(shape),
-                tuple_string_from_vec(rhs.shape)
+                tuple_string_from_vec(_shape),
+                tuple_string_from_vec(rhs._shape)
             ));
         }
         return broadcast_to(broadcast_shape) / rhs.broadcast_to(broadcast_shape);
@@ -910,16 +911,16 @@ APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
     const auto res_man_bits = std::max(man_bits, rhs.man_bits);
     const auto res_bias
         = calc_bias(res_exp_bits, exp_bits, bias, rhs.exp_bits, rhs.bias);
-    APyFloatArray res(shape, res_exp_bits, res_man_bits, res_bias);
+    APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
 
     APyFloat lhs_scalar(exp_bits, man_bits, bias);
     APyFloat rhs_scalar(rhs.exp_bits, rhs.man_bits, rhs.bias);
     // Perform operation
-    for (std::size_t i = 0; i < data.size(); i++) {
-        lhs_scalar.set_data(data[i]);
-        rhs_scalar.set_data(rhs.data[i]);
+    for (std::size_t i = 0; i < _data.size(); i++) {
+        lhs_scalar.set_data(_data[i]);
+        rhs_scalar.set_data(rhs._data[i]);
 
-        res.data[i] = (lhs_scalar / rhs_scalar).get_data();
+        res._data[i] = (lhs_scalar / rhs_scalar).get_data();
     }
 
     return res;
@@ -932,13 +933,13 @@ APyFloatArray APyFloatArray::operator/(const APyFloat& rhs) const
     const auto res_man_bits = std::max(man_bits, rhs.get_man_bits());
     const auto res_bias
         = calc_bias(res_exp_bits, exp_bits, bias, rhs.get_exp_bits(), rhs.get_bias());
-    APyFloatArray res(shape, res_exp_bits, res_man_bits, res_bias);
+    APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
 
     APyFloat lhs_scalar(exp_bits, man_bits, bias);
     // Perform operations
-    for (std::size_t i = 0; i < data.size(); i++) {
-        lhs_scalar.set_data(data[i]);
-        res.data[i] = (lhs_scalar / rhs).get_data();
+    for (std::size_t i = 0; i < _data.size(); i++) {
+        lhs_scalar.set_data(_data[i]);
+        res._data[i] = (lhs_scalar / rhs).get_data();
     }
 
     return res;
@@ -948,16 +949,16 @@ APyFloatArray APyFloatArray::rtruediv(const APyFloat& lhs) const
 {
     // Calculate new format
     APyFloatArray res(
-        shape,
+        _shape,
         std::max(exp_bits, lhs.get_exp_bits()),
         std::max(man_bits, lhs.get_man_bits())
     );
 
     APyFloat rhs_scalar(exp_bits, man_bits, bias);
     // Perform operations
-    for (std::size_t i = 0; i < data.size(); i++) {
-        rhs_scalar.set_data(data[i]);
-        res.data[i] = (lhs / rhs_scalar).get_data();
+    for (std::size_t i = 0; i < _data.size(); i++) {
+        rhs_scalar.set_data(_data[i]);
+        res._data[i] = (lhs / rhs_scalar).get_data();
     }
 
     return res;
@@ -966,8 +967,8 @@ APyFloatArray APyFloatArray::rtruediv(const APyFloat& lhs) const
 std::variant<APyFloatArray, APyFloat> APyFloatArray::matmul(const APyFloatArray& rhs
 ) const
 {
-    if (get_ndim() == 1 && rhs.get_ndim() == 1) {
-        if (shape[0] == rhs.shape[0]) {
+    if (ndim() == 1 && rhs.ndim() == 1) {
+        if (_shape[0] == rhs._shape[0]) {
             // Dimensionality for a standard scalar inner product checks out.
             // Perform the checked inner product.
             return checked_inner_product(
@@ -978,8 +979,8 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::matmul(const APyFloatArray&
             );
         }
     }
-    if (get_ndim() == 2 && (rhs.get_ndim() == 2 || rhs.get_ndim() == 1)) {
-        if (shape[1] == rhs.shape[0]) {
+    if (ndim() == 2 && (rhs.ndim() == 2 || rhs.ndim() == 1)) {
+        if (_shape[1] == rhs._shape[0]) {
             // Dimensionality for a standard 2D matrix multiplication checks out.
             // Perform the checked 2D matrix
             return checked_2d_matmul(rhs);
@@ -989,8 +990,8 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::matmul(const APyFloatArray&
     // Unsupported `__matmul__` dimensionality, raise exception
     throw std::length_error(fmt::format(
         "APyFloatArray.__matmul__: input shape mismatch, lhs: {}, rhs: {}",
-        tuple_string_from_vec(shape),
-        tuple_string_from_vec(rhs.shape)
+        tuple_string_from_vec(_shape),
+        tuple_string_from_vec(rhs._shape)
     ));
 }
 
@@ -1055,7 +1056,7 @@ APyFloatArray APyFloatArray::full(const nb::tuple& shape, const APyFloat& fill_v
     );
 
     std::size_t num_elem = ::fold_shape(cpp_shape);
-    result.data = std::vector<APyFloatData>(num_elem, fill_value.get_data());
+    result._data = std::vector<APyFloatData>(num_elem, fill_value.get_data());
     return result;
 }
 
@@ -1080,7 +1081,7 @@ APyFloatArray::diagonal(const nb::tuple& shape, const APyFloat& fill_value)
     std::size_t multiplier = std::accumulate(strides.begin(), strides.end(), 0);
     for (std::size_t i = 0; i < min_dim; ++i) {
         std::size_t index = i * multiplier;
-        result.data[index] = fill_value.get_data();
+        result._data[index] = fill_value.get_data();
     }
     return result;
 }
@@ -1101,7 +1102,7 @@ APyFloatArray APyFloatArray::arange(
     APyFloatArray result({ apy_vals.size() }, exp_bits, man_bits, bias);
 
     for (size_t i = 0; i < apy_vals.size(); i++) {
-        result.data[i]
+        result._data[i]
             = APyFloat::from_fixed(apy_vals[i], exp_bits, man_bits, bias).get_data();
     }
 
@@ -1115,7 +1116,7 @@ APyFloatArray APyFloatArray::arange(
 APyFloatArray
 APyFloatArray::squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis) const
 {
-    std::vector<std::size_t> _shape = shape;
+    std::vector<std::size_t> shape = _shape;
     std::set<int> axis_set;
     if (axis.has_value()) {
         auto ax = axis.value();
@@ -1129,7 +1130,7 @@ APyFloatArray::squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis) co
         }
         for (auto ptr = axis_tuple.begin(); ptr != axis_tuple.end(); ptr++) {
             int axis_n = int(nanobind::cast<nb::int_>(*ptr));
-            if (axis_n >= int(_shape.size())) {
+            if (axis_n >= int(shape.size())) {
                 throw nb::index_error(
                     "Specified axis with larger than number of dimensions in the "
                     "APyFloatArray"
@@ -1147,24 +1148,20 @@ APyFloatArray::squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis) co
             }
             return axis_set.find(cnt++) != axis_set.end() && dim == 1;
         };
-        _shape.erase(
-            std::remove_if(_shape.begin(), _shape.end(), predicate), _shape.end()
-        );
+        shape.erase(std::remove_if(shape.begin(), shape.end(), predicate), shape.end());
     } else {
         // precidate to squeeze without specified axes
         auto predicate = [](std::size_t dim) { return dim == 1; };
-        _shape.erase(
-            std::remove_if(_shape.begin(), _shape.end(), predicate), _shape.end()
-        );
+        shape.erase(std::remove_if(shape.begin(), shape.end(), predicate), shape.end());
     }
 
-    if (_shape.size() == 0) {
-        _shape = { 1 };
+    if (shape.size() == 0) {
+        shape = { 1 };
     }
 
     // create the resulting Array and copy the data
-    APyFloatArray result(_shape, exp_bits, man_bits, bias);
-    std::copy_n(data.begin(), data.size(), result.data.begin());
+    APyFloatArray result(shape, exp_bits, man_bits, bias);
+    std::copy_n(_data.begin(), _data.size(), result._data.begin());
     return result;
 }
 
@@ -1172,11 +1169,11 @@ APyFloatArray::squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis) co
 APyFloatArray
 APyFloatArray::convolve(const APyFloatArray& other, const std::string& mode) const
 {
-    if (get_ndim() != 1 || other.get_ndim() != 1) {
+    if (ndim() != 1 || other.ndim() != 1) {
         auto msg = fmt::format(
             "can only convolve 1D arrays (lhs.ndim = {}, rhs.ndim = {})",
-            get_ndim(),
-            other.get_ndim()
+            ndim(),
+            other.ndim()
         );
         throw nanobind::value_error(msg.c_str());
     }
@@ -1189,11 +1186,11 @@ APyFloatArray::convolve(const APyFloatArray& other, const std::string& mode) con
     }
 
     // Find the shorter array of `*this` and `other` based on length.
-    bool swap = shape[0] < other.shape[0];
+    bool swap = _shape[0] < other._shape[0];
 
     // Make a reverse copy of the shorter array
     APyFloatArray b_cpy = swap ? *this : other;
-    std::reverse(std::begin(b_cpy.data), std::end(b_cpy.data));
+    std::reverse(std::begin(b_cpy._data), std::end(b_cpy._data));
 
     // Let `a` be a pointer to the longer array, and let `b` be a pointer to the reverse
     // copy of the shorter array.
@@ -1216,10 +1213,10 @@ APyFloatArray::convolve(const APyFloatArray& other, const std::string& mode) con
     APyFloatArray result({ len }, res_exp_bits, res_man_bits, res_bias);
 
     // Loop working variables
-    std::size_t n = b->shape[0] - n_left;
-    auto dst = std::begin(result.data);
-    auto src1 = std::cbegin(a->data);
-    auto src2 = std::cbegin(b->data) + n_left;
+    std::size_t n = b->_shape[0] - n_left;
+    auto dst = std::begin(result._data);
+    auto src1 = std::cbegin(a->_data);
+    auto src2 = std::cbegin(b->_data) + n_left;
 
     // `b` limits length of the inner product length
     for (std::size_t i = 0; i < n_left; i++) {
@@ -1230,7 +1227,7 @@ APyFloatArray::convolve(const APyFloatArray& other, const std::string& mode) con
     }
 
     // full inner product length
-    for (std::size_t i = 0; i < a->shape[0] - b->shape[0] + 1; i++) {
+    for (std::size_t i = 0; i < a->_shape[0] - b->_shape[0] + 1; i++) {
         float_inner_product(src1, src2, dst, *a, *b, n);
         src1++;
         dst++;
@@ -1257,7 +1254,7 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::prod_sum_function(
         std::vector<std::size_t> axes_vector
             = cpp_shape_from_python_shape_like(axis.value());
         for (auto i : axes_vector) {
-            if (i >= shape.size()) {
+            if (i >= _shape.size()) {
                 throw nb::index_error(
                     "specified axis outside number of dimensions in the APyFixedArray"
                 );
@@ -1265,33 +1262,33 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::prod_sum_function(
             axes_set.insert(i);
         }
     } else {
-        axes_set.insert(shape.size());
+        axes_set.insert(_shape.size());
     }
 
     // Resulting vector
-    APyFloatArray result(shape, exp_bits, man_bits);
-    APyFloatArray source(shape, exp_bits, man_bits);
-    std::copy_n(data.begin(), data.size(), source.data.begin());
+    APyFloatArray result(_shape, exp_bits, man_bits);
+    APyFloatArray source(_shape, exp_bits, man_bits);
+    std::copy_n(_data.begin(), _data.size(), source._data.begin());
 
     APyFloat lhs_scalar(exp_bits, man_bits, bias);
     APyFloat rhs_scalar(exp_bits, man_bits, bias);
 
     std::vector<std::size_t> shape_;
-    std::size_t res_elements = source.data.size();
-    std::size_t sec_length = source.data.size();
-    for (std::size_t x = 0; x <= shape.size(); x++) {
+    std::size_t res_elements = source._data.size();
+    std::size_t sec_length = source._data.size();
+    for (std::size_t x = 0; x <= _shape.size(); x++) {
         std::size_t elements = res_elements;
         if (axes_set.find(x) == axes_set.end()) {
-            if (x < shape.size()) {
-                sec_length /= source.shape.at(x);
-                shape_.push_back(shape.at(x));
+            if (x < _shape.size()) {
+                sec_length /= source._shape.at(x);
+                shape_.push_back(_shape.at(x));
             }
             continue;
         }
 
-        if (x < shape.size()) {
-            elements = source.shape.at(x);
-            sec_length /= source.shape.at(x);
+        if (x < _shape.size()) {
+            elements = source._shape.at(x);
+            sec_length /= source._shape.at(x);
         } else {
             shape_ = {};
         }
@@ -1301,15 +1298,15 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::prod_sum_function(
 
         res_elements /= elements;
         source = result;
-        result.data.assign(result.data.size(), { 0, 0, 0 });
+        result._data.assign(result._data.size(), { 0, 0, 0 });
     }
     if (shape_.size() == 0) {
         APyFloat res(exp_bits, man_bits);
-        res.set_data(source.data.at(0));
+        res.set_data(source._data.at(0));
         return res;
     } else {
         APyFloatArray res(shape_, exp_bits, man_bits);
-        std::copy_n(source.data.begin(), res_elements, res.data.begin());
+        std::copy_n(source._data.begin(), res_elements, res._data.begin());
         return res;
     }
 }
@@ -1321,10 +1318,10 @@ APyFloatArray APyFloatArray::cumulative_prod_sum_function(
 {
     // determine input value
     // if no input is received shape.size() will be used
-    std::size_t _axis = shape.size();
+    std::size_t _axis = _shape.size();
     if (axis.has_value()) {
         _axis = std::size_t(axis.value());
-        if (_axis >= shape.size()) {
+        if (_axis >= _shape.size()) {
             throw nb::index_error(
                 "specified axis outside number of dimensions in the APyFloatArray"
             );
@@ -1333,20 +1330,20 @@ APyFloatArray APyFloatArray::cumulative_prod_sum_function(
 
     // initialize variables used for the summation or multiplication
     // and determine the new shape
-    std::size_t elements = data.size();
-    std::size_t res_nitems = data.size();
-    std::vector<std::size_t> shape_ = { data.size() };
-    if (_axis < shape.size()) {
-        elements = shape.at(_axis);
-        shape_ = shape;
+    std::size_t elements = _data.size();
+    std::size_t res_nitems = _data.size();
+    std::vector<std::size_t> shape_ = { _data.size() };
+    if (_axis < _shape.size()) {
+        elements = _shape.at(_axis);
+        shape_ = _shape;
     }
 
     // temporary vector and source vector.
     // the source vector will also contain the result after the summation or
     // multiplication are performed
-    APyFloatArray temp(shape, exp_bits, man_bits);
-    APyFloatArray source(shape, exp_bits, man_bits);
-    std::copy_n(data.begin(), data.size(), source.data.begin());
+    APyFloatArray temp(_shape, exp_bits, man_bits);
+    APyFloatArray source(_shape, exp_bits, man_bits);
+    std::copy_n(_data.begin(), _data.size(), source._data.begin());
 
     // temporary APyFloat used for the arithmetic later on
     APyFloat lhs_scalar(exp_bits, man_bits, bias);
@@ -1354,16 +1351,16 @@ APyFloatArray APyFloatArray::cumulative_prod_sum_function(
 
     // get the stride
     std::size_t stride = 1;
-    if (_axis < shape.size()) {
-        stride = strides_from_shape(shape)[_axis];
+    if (_axis < _shape.size()) {
+        stride = strides_from_shape(_shape)[_axis];
     }
     // perform the summation or multiplication and place result in 'result'
-    for (std::size_t i = 0; i < temp.data.size(); i++) {
+    for (std::size_t i = 0; i < temp._data.size(); i++) {
         pos_func(i, stride, elements, source, temp, lhs_scalar, rhs_scalar);
     }
     // copy the elements into a new array to get the correct shape
     APyFloatArray result2(shape_, exp_bits, man_bits);
-    std::copy_n(temp.data.begin(), res_nitems, result2.data.begin());
+    std::copy_n(temp._data.begin(), res_nitems, result2._data.begin());
     return result2;
 }
 
@@ -1383,9 +1380,9 @@ APyFloatArray::sum(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
         auto pos = (pos_in_sec + sec_pos);
 
         // perform addition
-        lhs_scalar.set_data(dst.data.at(pos));
-        rhs_scalar.set_data(src.data.at(i));
-        dst.data[pos] = (lhs_scalar + rhs_scalar).get_data();
+        lhs_scalar.set_data(dst._data.at(pos));
+        rhs_scalar.set_data(src._data.at(i));
+        dst._data[pos] = (lhs_scalar + rhs_scalar).get_data();
     };
 
     return prod_sum_function(pos_func, axis);
@@ -1407,9 +1404,9 @@ APyFloatArray APyFloatArray::cumsum(std::optional<nb::int_> axis) const
         }
 
         // perform addition
-        lhs_scalar.set_data(dst.data.at(pos));
-        rhs_scalar.set_data(src.data.at(i));
-        dst.data[i] = (lhs_scalar + rhs_scalar).get_data();
+        lhs_scalar.set_data(dst._data.at(pos));
+        rhs_scalar.set_data(src._data.at(i));
+        dst._data[i] = (lhs_scalar + rhs_scalar).get_data();
     };
 
     return cumulative_prod_sum_function(pos_func, axis);
@@ -1431,13 +1428,13 @@ APyFloatArray::nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis) con
         auto pos = (pos_in_sec + sec_pos);
 
         // perform addition
-        lhs_scalar.set_data(dst.data.at(pos));
-        rhs_scalar.set_data(src.data.at(i));
+        lhs_scalar.set_data(dst._data.at(pos));
+        rhs_scalar.set_data(src._data.at(i));
 
         if (rhs_scalar.is_nan()) {
             rhs_scalar.set_data({ 0, 0, 0 });
         }
-        dst.data[pos] = (lhs_scalar + rhs_scalar).get_data();
+        dst._data[pos] = (lhs_scalar + rhs_scalar).get_data();
     };
 
     return prod_sum_function(pos_func, axis);
@@ -1459,12 +1456,12 @@ APyFloatArray APyFloatArray::nancumsum(std::optional<nb::int_> axis) const
         }
 
         // perform addition
-        lhs_scalar.set_data(dst.data.at(pos));
-        rhs_scalar.set_data(src.data.at(i));
+        lhs_scalar.set_data(dst._data.at(pos));
+        rhs_scalar.set_data(src._data.at(i));
         if (rhs_scalar.is_nan()) {
             rhs_scalar.set_data({ 0, 0, 0 });
         }
-        dst.data[i] = (lhs_scalar + rhs_scalar).get_data();
+        dst._data[i] = (lhs_scalar + rhs_scalar).get_data();
     };
 
     return cumulative_prod_sum_function(pos_func, axis);
@@ -1485,17 +1482,17 @@ APyFloatArray::prod(std::optional<std::variant<nb::tuple, nb::int_>> axis) const
         std::size_t sec_pos = (i - i % (elements * sec_length)) / (elements);
         auto pos = (pos_in_sec + sec_pos);
         // special case when first element in a multiplication chain
-        if ((elements == src.data.size() && i == 0)
+        if ((elements == src._data.size() && i == 0)
             || i % (sec_length * elements) < sec_length) {
-            dst.data.at(pos) = src.data.at(i);
+            dst._data.at(pos) = src._data.at(i);
             return;
         }
 
         // perform multiplication
-        lhs_scalar.set_data(dst.data.at(pos));
-        rhs_scalar.set_data(src.data.at(i));
+        lhs_scalar.set_data(dst._data.at(pos));
+        rhs_scalar.set_data(src._data.at(i));
         auto res = lhs_scalar * rhs_scalar;
-        dst.data[pos] = res.get_data();
+        dst._data[pos] = res.get_data();
     };
 
     return prod_sum_function(pos_func, axis);
@@ -1512,15 +1509,15 @@ APyFloatArray APyFloatArray::cumprod(std::optional<nb::int_> axis) const
                        APyFloat& rhs_scalar) {
         // calculate new position
         if (i % (sec_length * elements) < sec_length) {
-            dst.data.at(i) = src.data.at(i);
+            dst._data.at(i) = src._data.at(i);
             return;
         }
         std::size_t pos = i - sec_length;
-        lhs_scalar.set_data(dst.data.at(pos));
-        rhs_scalar.set_data(src.data.at(i));
+        lhs_scalar.set_data(dst._data.at(pos));
+        rhs_scalar.set_data(src._data.at(i));
 
         // perform multiplication
-        dst.data[i] = (lhs_scalar * rhs_scalar).get_data();
+        dst._data[i] = (lhs_scalar * rhs_scalar).get_data();
     };
 
     return cumulative_prod_sum_function(pos_func, axis);
@@ -1543,14 +1540,14 @@ APyFloatArray::nanprod(std::optional<std::variant<nb::tuple, nb::int_>> axis) co
         std::size_t sec_pos = (i - i % (elements * sec_length)) / (elements);
         auto pos = (pos_in_sec + sec_pos);
         // special case when first element in a multiplication chain
-        if ((elements == src.data.size() && i == 0)
+        if ((elements == src._data.size() && i == 0)
             || i % (sec_length * elements) < sec_length) {
-            dst.data.at(pos) = src.data.at(i);
+            dst._data.at(pos) = src._data.at(i);
             return;
         }
 
-        lhs_scalar.set_data(dst.data.at(pos));
-        rhs_scalar.set_data(src.data.at(i));
+        lhs_scalar.set_data(dst._data.at(pos));
+        rhs_scalar.set_data(src._data.at(i));
         if (lhs_scalar.is_nan()) {
             lhs_scalar.set_data({ 0, lhs_scalar.get_bias(), 0 });
         }
@@ -1558,7 +1555,7 @@ APyFloatArray::nanprod(std::optional<std::variant<nb::tuple, nb::int_>> axis) co
             rhs_scalar.set_data({ 0, rhs_scalar.get_bias(), 0 });
         }
         // perform multiplication
-        dst.data[pos] = (lhs_scalar * rhs_scalar).get_data();
+        dst._data[pos] = (lhs_scalar * rhs_scalar).get_data();
     };
 
     return prod_sum_function(pos_func, axis);
@@ -1574,22 +1571,22 @@ APyFloatArray APyFloatArray::nancumprod(std::optional<nb::int_> axis) const
                        APyFloat& lhs_scalar,
                        APyFloat& rhs_scalar) {
         // get source data for the multiplication
-        rhs_scalar.set_data(src.data.at(i));
+        rhs_scalar.set_data(src._data.at(i));
         if (rhs_scalar.is_nan()) {
             rhs_scalar.set_data({ 0, rhs_scalar.get_bias(), 0 });
         }
         // if its the first in a multiplicatiojn chain we can assign it directly
         if (i % (sec_length * elements) < sec_length) {
-            dst.data.at(i) = rhs_scalar.get_data();
+            dst._data.at(i) = rhs_scalar.get_data();
             return;
         }
         // get temporary data for the multiplication
         // calculate new position
         std::size_t pos = i - sec_length;
-        lhs_scalar.set_data(dst.data.at(pos));
+        lhs_scalar.set_data(dst._data.at(pos));
 
         // perform multiplication
-        dst.data[i] = (lhs_scalar * rhs_scalar).get_data();
+        dst._data[i] = (lhs_scalar * rhs_scalar).get_data();
     };
 
     return cumulative_prod_sum_function(pos_func, axis);
@@ -1640,7 +1637,7 @@ APyFloatArray::nanmax(std::optional<std::variant<nb::tuple, nb::int_>> axis) con
     if (std::holds_alternative<APyFloatArray>(res)) {
         APyFloatArray temp_arr = std::get<APyFloatArray>(res);
         APyFloat temp(exp_bits, man_bits, bias);
-        for (auto elem : temp_arr.data) {
+        for (auto elem : temp_arr._data) {
             temp.set_data(elem);
             if (temp.is_nan()) {
                 std::cerr << "RuntimeWarning: All-NaN encountered" << std::endl;
@@ -1672,7 +1669,7 @@ APyFloatArray::nanmin(std::optional<std::variant<nb::tuple, nb::int_>> axis) con
     if (std::holds_alternative<APyFloatArray>(res)) {
         APyFloatArray temp_arr = std::get<APyFloatArray>(res);
         APyFloat temp(exp_bits, man_bits, bias);
-        for (auto elem : temp_arr.data) {
+        for (auto elem : temp_arr._data) {
             temp.set_data(elem);
             if (temp.is_nan()) {
                 std::cerr << "RuntimeWarning: All-NaN encountered" << std::endl;
@@ -1699,7 +1696,7 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::max_min_helper_function(
         std::vector<std::size_t> axes_vector
             = cpp_shape_from_python_shape_like(axis.value());
         for (auto i : axes_vector) {
-            if (i >= shape.size()) {
+            if (i >= _shape.size()) {
                 throw nb::index_error(
                     "specified axis outside number of dimensions in the APyFloatArray"
                 );
@@ -1707,17 +1704,17 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::max_min_helper_function(
             axes_set.insert(i);
         }
     } else {
-        axes_set.insert(shape.size());
+        axes_set.insert(_shape.size());
     }
 
     // special case where the maximum or minimum from the whole array is wanted
-    if (axes_set.size() == shape.size()
-        || axes_set.find(shape.size()) != axes_set.end()) {
+    if (axes_set.size() == _shape.size()
+        || axes_set.find(_shape.size()) != axes_set.end()) {
         APyFloat res(exp_bits, man_bits);
-        res.set_data(data.at(0));
+        res.set_data(_data.at(0));
         APyFloat temp(exp_bits, man_bits);
-        for (std::size_t i = 1; i < data.size(); i++) {
-            temp.set_data(data.at(i));
+        for (std::size_t i = 1; i < _data.size(); i++) {
+            temp.set_data(_data.at(i));
             if (comp_func(temp, res)) {
                 res = temp;
             }
@@ -1725,25 +1722,25 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::max_min_helper_function(
         return res;
     }
 
-    std::size_t elements = data.size();
+    std::size_t elements = _data.size();
     std::vector<std::size_t> res_shape;
-    std::vector<APyFloatData> source_data = data;
-    std::vector<APyFloatData> temp_data(data.size(), { 0, 0, 0 });
-    std::vector<std::size_t> strides = strides_from_shape(shape);
+    std::vector<APyFloatData> source_data = _data;
+    std::vector<APyFloatData> temp_data(_data.size(), { 0, 0, 0 });
+    std::vector<std::size_t> strides = strides_from_shape(_shape);
     APyFloat lhs_scalar(exp_bits, man_bits);
     APyFloat rhs_scalar(exp_bits, man_bits);
 
     // loop over the axes one at a time
-    for (std::size_t x = 0; x < shape.size(); x++) {
+    for (std::size_t x = 0; x < _shape.size(); x++) {
         if (axes_set.find(x) == axes_set.end()) {
-            res_shape.push_back(shape[x]);
+            res_shape.push_back(_shape[x]);
             continue;
         }
         // loop over an axis and get the maximum or minimum along it
         for (std::size_t i = 0; i < elements; i++) {
             std::size_t new_pos
-                = i % strides[x] + (i - i % (strides[x] * shape[x])) / shape[x];
-            if (i % (strides[x] * shape[x]) < strides[x]) {
+                = i % strides[x] + (i - i % (strides[x] * _shape[x])) / _shape[x];
+            if (i % (strides[x] * _shape[x]) < strides[x]) {
                 temp_data.at(new_pos) = source_data.at(i);
                 continue;
             }
@@ -1754,12 +1751,12 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::max_min_helper_function(
             }
         }
 
-        elements /= shape[x];
+        elements /= _shape[x];
         source_data = temp_data;
         temp_data.assign(elements, { 0, 0, 0 });
     }
     APyFloatArray result(res_shape, exp_bits, man_bits);
-    std::copy_n(source_data.begin(), elements, result.data.begin());
+    std::copy_n(source_data.begin(), elements, result._data.begin());
     return result;
 }
 
@@ -1767,14 +1764,14 @@ std::string APyFloatArray::repr() const
 {
     std::stringstream ss {};
     ss << "APyFloatArray(";
-    if (shape[0]) {
+    if (_shape[0]) {
         std::stringstream sign_str {}, exp_str {}, man_str {};
         sign_str << "[";
         exp_str << "[";
         man_str << "[";
-        for (std::size_t i = 0; i < data.size(); ++i) {
-            const APyFloatData d = data[i];
-            const bool is_last = i == (data.size() - 1);
+        for (std::size_t i = 0; i < _data.size(); ++i) {
+            const APyFloatData d = _data[i];
+            const bool is_last = i == (_data.size() - 1);
             sign_str << (d.sign ? "1" : "0") << (is_last ? "" : ", ");
             exp_str << d.exp << (is_last ? "" : ", ");
             man_str << d.man << (is_last ? "" : ", ");
@@ -1785,7 +1782,7 @@ std::string APyFloatArray::repr() const
         ss << "[], [], [], ";
     }
     ss << "shape=";
-    ss << tuple_string_from_vec(shape);
+    ss << tuple_string_from_vec(_shape);
     ss << ", "
        << "exp_bits=" << static_cast<unsigned>(exp_bits) << ", "
        << "man_bits=" << static_cast<unsigned>(man_bits) << ", "
@@ -1796,13 +1793,13 @@ std::string APyFloatArray::repr() const
 APyFloatArray APyFloatArray::reshape(nb::tuple new_shape) const
 {
     // Argument checking and error handling
-    std::size_t elem_count = ::fold_shape(this->shape);
+    std::size_t elem_count = ::fold_shape(this->_shape);
     std::vector<std::size_t> new_shape_vec
         = ::reshape_from_tuple(new_shape, elem_count);
 
     std::size_t itemsize = 1;
     APyFloatArray result = APyFloatArray(new_shape_vec, exp_bits, man_bits, bias);
-    std::copy_n(this->data.begin(), elem_count * itemsize, result.data.begin());
+    std::copy_n(this->_data.begin(), elem_count * itemsize, result._data.begin());
 
     return result;
 }
@@ -1818,20 +1815,6 @@ APyFloatArray APyFloatArray::ravel() const
     // currently same as flatten
     return this->flatten();
 }
-
-// The shape of the array
-nanobind::tuple APyFloatArray::python_get_shape() const
-{
-    nb::list result_list;
-    for (std::size_t i = 0; i < shape.size(); i++) {
-        result_list.append(shape[i]);
-    }
-    return nb::tuple(result_list);
-}
-
-size_t APyFloatArray::get_ndim() const { return shape.size(); }
-
-size_t APyFloatArray::get_size() const { return shape[0]; }
 
 std::variant<APyFloatArray, APyFloat>
 APyFloatArray::get_item(std::variant<nb::int_, nb::slice, nb::ellipsis, nb::tuple> key
@@ -1862,31 +1845,31 @@ APyFloatArray::get_item(std::variant<nb::int_, nb::slice, nb::ellipsis, nb::tupl
 std::variant<APyFloatArray, APyFloat> APyFloatArray::get_item_integer(std::ptrdiff_t idx
 ) const
 {
-    if (idx >= std::ptrdiff_t(shape[0]) || idx < -std::ptrdiff_t(shape[0])) {
+    if (idx >= std::ptrdiff_t(_shape[0]) || idx < -std::ptrdiff_t(_shape[0])) {
         throw std::out_of_range(fmt::format(
             "APyFloatArray.__getitem__: index {} is out of bounds for axis 0 with size "
             "{}",
             idx,
-            shape[0]
+            _shape[0]
         ));
     }
 
     // Adjust for negative index
-    idx = idx < 0 ? idx + shape[0] : idx;
+    idx = idx < 0 ? idx + _shape[0] : idx;
 
-    if (get_ndim() == 1) {
+    if (ndim() == 1) {
         // One dimension, return APyFloat
-        return APyFloat(data[idx], exp_bits, man_bits, bias);
+        return APyFloat(_data[idx], exp_bits, man_bits, bias);
     } else {
         // New shape contains all dimensions except the very first one
-        auto new_shape = std::vector<std::size_t>(shape.begin() + 1, shape.end());
+        auto new_shape = std::vector<std::size_t>(_shape.begin() + 1, _shape.end());
 
         // Element stride is the new shape folded over multiplication
         std::size_t element_stride = fold_shape(new_shape);
 
         APyFloatArray result(new_shape, exp_bits, man_bits, bias);
         std::copy_n(
-            data.begin() + idx * element_stride, element_stride, result.data.begin()
+            _data.begin() + idx * element_stride, element_stride, result._data.begin()
         );
         return result;
     }
@@ -1894,34 +1877,34 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::get_item_integer(std::ptrdi
 
 APyFloatArray APyFloatArray::get_item_slice(nb::slice slice) const
 {
-    auto [start, stop, step, len] = slice.compute(shape[0]);
+    auto [start, stop, step, len] = slice.compute(_shape[0]);
 
     // New resulting shape
-    std::vector<std::size_t> new_shape = shape;
+    std::vector<std::size_t> new_shape = _shape;
     new_shape[0] = len;
 
     // Result floating-point array
     APyFloatArray result(new_shape, exp_bits, man_bits, bias);
 
-    auto size = fold_shape(std::begin(shape) + 1, std::end(shape));
+    auto size = fold_shape(std::begin(_shape) + 1, std::end(_shape));
     std::ptrdiff_t src_i = start;
     std::ptrdiff_t dst_i = 0;
     if (step < 0) {
         // Copy data into result and return (negative src step size)
         for (; src_i > stop; src_i += step, dst_i++) {
             std::copy_n(
-                std::begin(data) + src_i * size,       // src
-                size,                                  // elements to copy
-                std::begin(result.data) + dst_i * size // dst
+                std::begin(_data) + src_i * size,       // src
+                size,                                   // elements to copy
+                std::begin(result._data) + dst_i * size // dst
             );
         }
     } else { /* step >= 0 */
         // Copy data into result and return (positive src step size)
         for (; src_i < stop; src_i += step, dst_i++) {
             std::copy_n(
-                std::begin(data) + src_i * size,       // src
-                size,                                  // elements to copy
-                std::begin(result.data) + dst_i * size // dst
+                std::begin(_data) + src_i * size,       // src
+                size,                                   // elements to copy
+                std::begin(result._data) + dst_i * size // dst
             );
         }
     }
@@ -1931,10 +1914,10 @@ APyFloatArray APyFloatArray::get_item_slice(nb::slice slice) const
 
 std::vector<APyFloatArray> APyFloatArray::get_item_slice_nested(nb::slice slice) const
 {
-    auto [start, stop, step, len] = slice.compute(shape[0]);
+    auto [start, stop, step, len] = slice.compute(_shape[0]);
 
     // The shape of the sliced vectors
-    std::vector<std::size_t> new_shape(std::begin(shape) + 1, std::end(shape));
+    std::vector<std::size_t> new_shape(std::begin(_shape) + 1, std::end(_shape));
     if (!new_shape.size()) {
         new_shape = { 1 };
     }
@@ -1947,13 +1930,13 @@ std::vector<APyFloatArray> APyFloatArray::get_item_slice_nested(nb::slice slice)
     if (step < 0) {
         // Copy data into result and return (negative src step size)
         for (std::ptrdiff_t src_i = start; src_i > stop; src_i += step) {
-            std::copy_n(std::begin(data) + src_i * size, size, std::begin(tmp.data));
+            std::copy_n(std::begin(_data) + src_i * size, size, std::begin(tmp._data));
             result.push_back(tmp);
         }
     } else {
         // Copy data into result and return (positive src step size)
         for (std::ptrdiff_t src_i = start; src_i < stop; src_i += step) {
-            std::copy_n(std::begin(data) + src_i * size, size, std::begin(tmp.data));
+            std::copy_n(std::begin(_data) + src_i * size, size, std::begin(tmp._data));
             result.push_back(tmp);
         }
     }
@@ -2001,13 +1984,13 @@ APyFloatArray::get_item_tuple(std::vector<std::variant<nb::int_, nb::slice>> tup
         for (std::size_t i = 0; i < arrays.size(); i++) {
             auto v = arrays[i].get_item_tuple(remaining);
             if (std::holds_alternative<APyFloat>(v)) {
-                result.data[i] = std::get<APyFloat>(v).get_data();
+                result._data[i] = std::get<APyFloat>(v).get_data();
             } else {
                 auto fparray = std::get<APyFloatArray>(v);
                 std::copy_n(
-                    std::begin(fparray.data),
-                    fparray.data.size(),
-                    std::begin(result.data) + i * fparray.data.size()
+                    std::begin(fparray._data),
+                    fparray._data.size(),
+                    std::begin(result._data) + i * fparray._data.size()
                 );
             }
         }
@@ -2028,12 +2011,12 @@ std::vector<std::size_t> APyFloatArray::get_item_tuple_shape(
         if (std::holds_alternative<nb::int_>(element)) {
             continue;
         } else { /* std::holds_alternative<nb::slice>(v) */
-            auto [_, __, ___, len] = std::get<nb::slice>(element).compute(shape[i]);
+            auto [_, __, ___, len] = std::get<nb::slice>(element).compute(_shape[i]);
             result_shape.push_back(len);
         }
     }
-    for (std::size_t i = remaining.size() + 1; i < shape.size(); i++) {
-        result_shape.push_back(shape[i]);
+    for (std::size_t i = remaining.size() + 1; i < _shape.size(); i++) {
+        result_shape.push_back(_shape[i]);
     }
     return result_shape;
 }
@@ -2041,13 +2024,13 @@ std::vector<std::size_t> APyFloatArray::get_item_tuple_shape(
 std::vector<std::variant<nb::int_, nb::slice>>
 APyFloatArray::get_item_to_cpp_tuple(const nb::tuple& key) const
 {
-    if (key.size() > get_ndim()) {
+    if (key.size() > ndim()) {
         // The key tuple must have fewer elements than this array has number of
         // dimensions
         std::string msg = fmt::format(
             "APyFloatArray.__getitem__: key tuple size (={}) > ndim (={})",
             key.size(),
-            get_ndim()
+            ndim()
         );
         throw nb::value_error(msg.c_str());
     }
@@ -2074,9 +2057,9 @@ APyFloatArray::get_item_to_cpp_tuple(const nb::tuple& key) const
             } else {
                 // Found first ellipsis, fill missing dimesnsions with full slices
                 ellipsis_found = true;
-                std::size_t n_fill = get_ndim() - key.size() + 1;
+                std::size_t n_fill = ndim() - key.size() + 1;
                 for (std::size_t j = 0; j < n_fill; j++) {
-                    cpp_tuple.push_back(nb::slice(shape[i + j]));
+                    cpp_tuple.push_back(nb::slice(_shape[i + j]));
                 }
             }
         } else {
@@ -2108,7 +2091,7 @@ APyFloatArray::to_bits(bool numpy) const
             return to_bits_ndarray<nb::numpy, uint64_t>();
         }
     } else {
-        auto it = std::cbegin(data);
+        auto it = std::cbegin(_data);
         return to_bits_python_recursive_descent(0, it);
     }
 }
@@ -2127,17 +2110,15 @@ nb::ndarray<NB_ARRAY_TYPE, INT_TYPE> APyFloatArray::to_bits_ndarray() const
         );
     }
 
-    INT_TYPE* result_data = new INT_TYPE[data.size()];
-    for (std::size_t i = 0; i < data.size(); i++) {
-        result_data[i] = to_bits_uint64(data[i], exp_bits, man_bits);
+    INT_TYPE* result_data = new INT_TYPE[_data.size()];
+    for (std::size_t i = 0; i < _data.size(); i++) {
+        result_data[i] = to_bits_uint64(_data[i], exp_bits, man_bits);
     }
 
     // Delete `result_data` when the `owner` capsule expires
     nb::capsule owner(result_data, [](void* p) noexcept { delete[] (INT_TYPE*)p; });
 
-    return nb::ndarray<NB_ARRAY_TYPE, INT_TYPE>(
-        result_data, get_ndim(), &shape[0], owner
-    );
+    return nb::ndarray<NB_ARRAY_TYPE, INT_TYPE>(result_data, ndim(), &_shape[0], owner);
 }
 
 nb::list APyFloatArray::to_bits_python_recursive_descent(
@@ -2145,16 +2126,15 @@ nb::list APyFloatArray::to_bits_python_recursive_descent(
 ) const
 {
     nb::list result;
-    const auto dims = get_ndim();
-    if (dim == dims - 1) {
+    if (dim == ndim() - 1) {
         // Most inner dimension: append data
-        for (std::size_t i = 0; i < shape[dim]; i++) {
+        for (std::size_t i = 0; i < _shape[dim]; i++) {
             result.append(apyfloat_to_bits(*it, exp_bits, man_bits));
             it++;
         }
     } else {
         // We need to go deeper...
-        for (std::size_t i = 0; i < shape[dim]; i++) {
+        for (std::size_t i = 0; i < _shape[dim]; i++) {
             result.append(to_bits_python_recursive_descent(dim + 1, it));
         }
     }
@@ -2164,27 +2144,29 @@ nb::list APyFloatArray::to_bits_python_recursive_descent(
 nb::ndarray<nb::numpy, double> APyFloatArray::to_numpy() const
 {
     // Dynamically allocate data to be passed to python
-    double* result_data = new double[data.size()];
+    double* result_data = new double[_data.size()];
     auto apy_f = APyFloat(exp_bits, man_bits, bias);
-    for (std::size_t i = 0; i < data.size(); i++) {
-        apy_f.set_data(data[i]);
+    for (std::size_t i = 0; i < _data.size(); i++) {
+        apy_f.set_data(_data[i]);
         result_data[i] = apy_f.to_double();
     }
 
     // Delete 'data' when the 'owner' capsule expires
     nb::capsule owner(result_data, [](void* p) noexcept { delete[] (double*)p; });
 
-    return nb::ndarray<nb::numpy, double>(result_data, get_ndim(), &shape[0], owner);
+    return nb::ndarray<nb::numpy, double>(result_data, ndim(), &_shape[0], owner);
 }
 
 bool APyFloatArray::is_identical(const APyFloatArray& other) const
 {
-    const bool same_spec = (shape == other.shape) && (exp_bits == other.exp_bits)
+    const bool same_spec = (_shape == other._shape) && (exp_bits == other.exp_bits)
         && (man_bits == other.man_bits) && (bias == other.bias)
-        && (data.size() == other.data.size());
+        && (_data.size() == other._data.size());
 
     return same_spec
-        && std::equal(data.begin(), data.end(), other.data.begin(), other.data.end());
+        && std::equal(
+               _data.begin(), _data.end(), other._data.begin(), other._data.end()
+        );
 }
 
 APyFloatArray APyFloatArray::from_double(
@@ -2210,17 +2192,17 @@ APyFloatArray APyFloatArray::from_double(
     const auto py_obj = python_sequence_walk<nb::float_, nb::int_>(number_seq);
     const auto actual_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
 
-    for (std::size_t i = 0; i < result.data.size(); i++) {
+    for (std::size_t i = 0; i < result._data.size(); i++) {
         if (nb::isinstance<nb::float_>(py_obj[i])) {
-            result.data[i] = APyFloat::from_double(
-                                 (double)nb::cast<nb::float_>(py_obj[i]),
-                                 exp_bits,
-                                 man_bits,
-                                 actual_bias
+            result._data[i] = APyFloat::from_double(
+                                  (double)nb::cast<nb::float_>(py_obj[i]),
+                                  exp_bits,
+                                  man_bits,
+                                  actual_bias
             )
-                                 .get_data();
+                                  .get_data();
         } else if (nb::isinstance<nb::int_>(py_obj[i])) {
-            result.data[i]
+            result._data[i]
                 = APyFloat::from_integer(
                       nb::cast<nb::int_>(py_obj[i]), exp_bits, man_bits, actual_bias
                 )
@@ -2242,10 +2224,9 @@ APyFloatArray APyFloatArray::from_array(
     check_exponent_format(exp_bits);
     check_mantissa_format(man_bits);
 
-    const std::size_t ndim = ndarray.ndim();
-    assert(ndim > 0);
-    std::vector<std::size_t> shape(ndim, 0);
-    for (std::size_t i = 0; i < ndim; i++) {
+    assert(ndarray.ndim() > 0);
+    std::vector<std::size_t> shape(ndarray.ndim(), 0);
+    for (std::size_t i = 0; i < ndarray.ndim(); i++) {
         shape[i] = ndarray.shape(i);
     }
 
@@ -2270,7 +2251,7 @@ void APyFloatArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& nd
                                          man_of_double(value) });                      \
                 APyFloat fp                                                            \
                     = double_caster.cast_from_double(exp_bits, man_bits, bias);        \
-                data[i] = { fp.get_sign(), fp.get_exp(), fp.get_man() };               \
+                _data[i] = { fp.get_sign(), fp.get_exp(), fp.get_man() };              \
             }                                                                          \
             return; /* Conversion completed, exit function */                          \
         }                                                                              \
@@ -2303,18 +2284,18 @@ void APyFloatArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& nd
 
 APyFloatArray APyFloatArray::broadcast_to(const std::vector<std::size_t> shape) const
 {
-    if (!is_broadcastable(this->shape, shape)) {
+    if (!is_broadcastable(this->_shape, shape)) {
         throw nb::value_error(
             fmt::format(
                 "Operands could not be broadcast together with shapes: {}, {}",
-                tuple_string_from_vec(this->shape),
+                tuple_string_from_vec(this->_shape),
                 tuple_string_from_vec(shape)
             )
                 .c_str()
         );
     }
     APyFloatArray result(shape, exp_bits, man_bits, bias);
-    broadcast_data_copy(data.begin(), result.data.begin(), this->shape, shape);
+    broadcast_data_copy(_data.begin(), result._data.begin(), this->_shape, shape);
     return result;
 }
 
@@ -2326,30 +2307,28 @@ APyFloatArray::broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
 
 APyFloatArray APyFloatArray::swapaxes(nb::int_ axis1, nb::int_ axis2) const
 {
-    std::size_t ndim = get_ndim();
-    size_t _axis1 = ::get_normalized_axes(axis1, ndim).front();
-    size_t _axis2 = ::get_normalized_axes(axis2, ndim).front();
+    size_t _axis1 = ::get_normalized_axes(axis1, ndim()).front();
+    size_t _axis2 = ::get_normalized_axes(axis2, ndim()).front();
 
-    std::vector<size_t> new_axis(ndim);
+    std::vector<size_t> new_axis(ndim());
     std::iota(new_axis.begin(), new_axis.end(), 0);
 
     // Swap the specified axes
     std::swap(new_axis[_axis1], new_axis[_axis2]);
 
-    std::vector<size_t> new_shape(ndim);
-    for (size_t i = 0; i < ndim; ++i) {
-        new_shape[i] = shape[new_axis[i]];
+    std::vector<size_t> new_shape(ndim());
+    for (size_t i = 0; i < ndim(); ++i) {
+        new_shape[i] = _shape[new_axis[i]];
     }
 
     APyFloatArray result(new_shape, exp_bits, man_bits, bias);
-    transpose_axes_and_copy_data(data.begin(), result.data.begin(), shape, new_axis);
+    transpose_axes_and_copy_data(_data.begin(), result._data.begin(), _shape, new_axis);
     return result;
 }
 
 APyFloatArray APyFloatArray::transpose(std::optional<nb::tuple> axes) const
 {
-    std::size_t ndim = get_ndim();
-    switch (ndim) {
+    switch (ndim()) {
     case 0:
     case 1:
         // Behave like `NumPy`, simply returns `*this` if single-dimensional
@@ -2358,38 +2337,38 @@ APyFloatArray APyFloatArray::transpose(std::optional<nb::tuple> axes) const
 
         // Optimized code for dim == 2
         // Resulting array with shape dimensions
-        std::vector<size_t> new_shape = { shape[1], shape[0] };
+        std::vector<size_t> new_shape = { _shape[1], _shape[0] };
         APyFloatArray result(new_shape, exp_bits, man_bits, bias);
 
         // Transpose the data
-        for (std::size_t y = 0; y < shape[0]; ++y) {
-            for (std::size_t x = 0; x < shape[1]; ++x) {
-                result.data[x * shape[0] + y] = data[y * shape[1] + x];
+        for (std::size_t y = 0; y < _shape[0]; ++y) {
+            for (std::size_t x = 0; x < _shape[1]; ++x) {
+                result._data[x * _shape[0] + y] = _data[y * _shape[1] + x];
             }
         }
         return result;
     }
 
     default: {
-        std::vector<size_t> new_axis(ndim);
+        std::vector<size_t> new_axis(ndim());
 
         if (axes.has_value()) {
             std::variant<nb::tuple, nb::int_> axis_variant = axes.value();
-            new_axis = get_normalized_axes(axis_variant, ndim);
+            new_axis = get_normalized_axes(axis_variant, ndim());
         } else {
             // reverse the order of axes by default
             std::iota(new_axis.begin(), new_axis.end(), 0);
             std::reverse(new_axis.begin(), new_axis.end());
         }
 
-        std::vector<size_t> new_shape(ndim);
-        for (size_t i = 0; i < ndim; ++i) {
-            new_shape[i] = shape[new_axis[i]];
+        std::vector<size_t> new_shape(ndim());
+        for (size_t i = 0; i < ndim(); ++i) {
+            new_shape[i] = _shape[new_axis[i]];
         }
 
         APyFloatArray result(new_shape, exp_bits, man_bits, bias);
         transpose_axes_and_copy_data(
-            data.begin(), result.data.begin(), shape, new_axis
+            _data.begin(), result._data.begin(), _shape, new_axis
         );
         return result;
     }
@@ -2448,12 +2427,12 @@ APyFloatArray APyFloatArray::_cast(
         return cast_no_quant(new_exp_bits, new_man_bits, new_bias);
     }
 
-    APyFloatArray result(shape, new_exp_bits, new_man_bits, new_bias);
+    APyFloatArray result(_shape, new_exp_bits, new_man_bits, new_bias);
 
     APyFloat caster(exp_bits, man_bits, bias);
-    for (std::size_t i = 0; i < data.size(); i++) {
-        caster.set_data(data[i]);
-        result.data[i]
+    for (std::size_t i = 0; i < _data.size(); i++) {
+        caster.set_data(_data[i]);
+        result._data[i]
             = caster._checked_cast(new_exp_bits, new_man_bits, new_bias, quantization)
                   .get_data();
     }
@@ -2465,12 +2444,12 @@ APyFloatArray APyFloatArray::cast_no_quant(
     std::uint8_t new_exp_bits, std::uint8_t new_man_bits, std::optional<exp_t> new_bias
 ) const
 {
-    APyFloatArray result(shape, new_exp_bits, new_man_bits, new_bias);
+    APyFloatArray result(_shape, new_exp_bits, new_man_bits, new_bias);
 
     APyFloat caster(exp_bits, man_bits, bias);
-    for (std::size_t i = 0; i < data.size(); i++) {
-        caster.set_data(data[i]);
-        result.data[i]
+    for (std::size_t i = 0; i < _data.size(); i++) {
+        caster.set_data(_data[i]);
+        result._data[i]
             = caster.cast_no_quant(new_exp_bits, new_man_bits, new_bias).get_data();
     }
 
@@ -2500,14 +2479,14 @@ APyFloat APyFloatArray::checked_inner_product(
         // quantized too early. NOTE: This assumes that the format of the
         // accumulator is larger
 
-        APyFloatArray hadamard(shape, tmp_exp_bits, tmp_man_bits, tmp_bias);
+        APyFloatArray hadamard(_shape, tmp_exp_bits, tmp_man_bits, tmp_bias);
         // Hadamard product of `*this` and `rhs`
         (this->_cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization))
             .hadamard_multiplication(
                 &rhs._cast(
                         tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization
                 )
-                     .data[0],
+                     ._data[0],
                 tmp_exp_bits,
                 tmp_man_bits,
                 tmp_bias,
@@ -2554,8 +2533,8 @@ APyFloat APyFloatArray::vector_sum(const QuantizationMode quantization) const
         const auto man_mask = carry_res_leading_one - 1;
         bool sum_is_max_exponent = false;
         // Perform operation
-        for (std::size_t i = 0; i < data.size(); i++) {
-            x = data[i];
+        for (std::size_t i = 0; i < _data.size(); i++) {
+            x = _data[i];
             const bool x_is_zero_exponent = (x.exp == 0);
             // Handle zero cases
             if (x_is_zero_exponent && x.man == 0) {
@@ -2699,8 +2678,8 @@ APyFloat APyFloatArray::vector_sum(const QuantizationMode quantization) const
     }
     APyFloat tmp(0, 0, 0, exp_bits, man_bits, bias);
 
-    for (std::size_t i = 0; i < data.size(); i++) {
-        tmp.set_data(data[i]);
+    for (std::size_t i = 0; i < _data.size(); i++) {
+        tmp.set_data(_data[i]);
         ret += tmp;
     }
     return ret;
@@ -2711,14 +2690,14 @@ APyFloat APyFloatArray::vector_sum(const QuantizationMode quantization) const
 APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
 {
     // Resulting parameters
-    std::vector<std::size_t> res_shape = rhs.shape.size() > 1
-        ? std::vector<std::size_t> { shape[0], rhs.shape[1] } // rhs is 2-D
-        : std::vector<std::size_t> { shape[0] };              // rhs is 1-D
+    std::vector<std::size_t> res_shape = rhs._shape.size() > 1
+        ? std::vector<std::size_t> { _shape[0], rhs._shape[1] } // rhs is 2-D
+        : std::vector<std::size_t> { _shape[0] };               // rhs is 1-D
     const std::uint8_t max_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const std::uint8_t max_man_bits = std::max(man_bits, rhs.man_bits);
     const auto res_bias
         = calc_bias(max_exp_bits, exp_bits, bias, rhs.exp_bits, rhs.bias);
-    const auto res_cols = rhs.shape.size() > 1 ? rhs.shape[1] : 1;
+    const auto res_cols = rhs._shape.size() > 1 ? rhs._shape[1] : 1;
 
     const auto accumulator_mode = get_accumulator_mode_float();
 
@@ -2727,7 +2706,7 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
 
     // Current column from rhs
     APyFloatArray current_column(
-        { rhs.shape[0] }, rhs.exp_bits, rhs.man_bits, rhs.bias
+        { rhs._shape[0] }, rhs.exp_bits, rhs.man_bits, rhs.bias
     );
 
     // Accumulator mode set
@@ -2740,7 +2719,7 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
             calc_bias(tmp_exp_bits, exp_bits, bias, rhs.exp_bits, rhs.bias)
         );
 
-        APyFloatArray hadamard({ shape[1] }, tmp_exp_bits, tmp_man_bits, tmp_bias);
+        APyFloatArray hadamard({ _shape[1] }, tmp_exp_bits, tmp_man_bits, tmp_bias);
         APyFloatArray casted_this
             = _cast(tmp_exp_bits, tmp_man_bits, tmp_bias, acc_option.quantization);
         for (std::size_t x = 0; x < res_cols; x++) {
@@ -2748,8 +2727,8 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
             // Copy column from `rhs` and use as the current working column. As
             // reading columns from `rhs` is cache-inefficient, we like to do this
             // only once for each element in the resulting matrix.
-            for (std::size_t col = 0; col < rhs.shape[0]; col++) {
-                current_column.data[col] = rhs.data[x + col * res_cols];
+            for (std::size_t col = 0; col < rhs._shape[0]; col++) {
+                current_column._data[col] = rhs._data[x + col * res_cols];
             }
 
             APyFloatArray casted_current_column = current_column._cast(
@@ -2762,7 +2741,7 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
 
                 // Hadamard product of `*this` and `rhs`
                 casted_current_column.hadamard_multiplication(
-                    &casted_this.data[y * shape[1]],
+                    &casted_this._data[y * _shape[1]],
                     tmp_exp_bits,
                     tmp_man_bits,
                     tmp_bias,
@@ -2779,7 +2758,7 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
                 assert(sum.get_man_bits() == result.get_man_bits());
 
                 // Copy into the resulting vector
-                result.data[x + y * res_cols] = sum.get_data();
+                result._data[x + y * res_cols] = sum.get_data();
             }
         }
         return result;
@@ -2788,29 +2767,29 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
     // No accumulator mode
 
     const auto quantization = get_float_quantization_mode();
-    APyFloatArray hadamard({ shape[1] }, max_exp_bits, max_man_bits, res_bias);
+    APyFloatArray hadamard({ _shape[1] }, max_exp_bits, max_man_bits, res_bias);
 
     for (std::size_t x = 0; x < res_cols; x++) {
 
         // Copy column from `rhs` and use as the current working column. As reading
         // columns from `rhs` is cache-inefficient, we like to do this only once for
         // each element in the resulting matrix.
-        for (std::size_t col = 0; col < rhs.shape[0]; col++) {
-            current_column.data[col] = rhs.data[x + col * res_cols];
+        for (std::size_t col = 0; col < rhs._shape[0]; col++) {
+            current_column._data[col] = rhs._data[x + col * res_cols];
         }
 
         for (std::size_t y = 0; y < res_shape[0]; y++) {
             // Perform the inner product
             // Hadamard product of `current_column` and `current_row`
             current_column.hadamard_multiplication(
-                &data[y * shape[1]], exp_bits, man_bits, bias, hadamard, quantization
+                &_data[y * _shape[1]], exp_bits, man_bits, bias, hadamard, quantization
             );
             APyFloat sum = hadamard.vector_sum(quantization);
             assert(sum.get_exp_bits() == result.get_exp_bits());
             assert(sum.get_man_bits() == result.get_man_bits());
 
             // Copy into the resulting vector
-            result.data[x + y * res_cols] = sum.get_data();
+            result._data[x + y * res_cols] = sum.get_data();
         }
     }
 
