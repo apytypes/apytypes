@@ -573,6 +573,50 @@ def test_arange():
     ):
         arange("0", 10, 1, exp_bits=5, man_bits=10)
 
+    with pytest.raises(
+        ValueError,
+        match="Could not determine array type",
+    ):
+        arange(0, 10, 1)
+
+    with pytest.raises(
+        ValueError,
+        match="Could not determine array type",
+    ):
+        arange(0, 10, 1, exp_bits=5, man_bits=10, bits=10, int_bits=10)
+
+    with pytest.raises(
+        ValueError,
+        match="Could not determine array type",
+    ):
+        arange(APyFixed(1, 4, 0), 10, APyFixed(1, 4, 1))
+
+    with pytest.raises(
+        ValueError,
+        match="Could not determine array type",
+    ):
+        arange(APyFloat(0, 0, 0, 4, 4), APyFloat(0, 7, 0, 4, 3))
+
+    with pytest.raises(
+        ValueError,
+        match="Could not determine array type",
+    ):
+        arange(
+            APyFloat(0, 0, 0, 4, 4), APyFloat(0, 7, 0, 4, 4), APyFloat(0, 7, 0, 4, 4, 5)
+        )
+
+    with pytest.raises(
+        ValueError,
+        match="Could not determine array type",
+    ):
+        arange(10, exp_bits=5, man_bits=10, bits=20)
+
+    with pytest.raises(
+        ValueError,
+        match="Could not determine array type",
+    ):
+        arange(10, int_bits=5, frac_bits=10, bias=15)
+
     # Test basic functionality
     a = arange(10, int_bits=10, frac_bits=5)
     b = APyFixedArray.from_float(range(10), int_bits=10, frac_bits=5)
@@ -662,6 +706,87 @@ def test_arange():
         APyFloatArray.from_float(
             [2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75], exp_bits=5, man_bits=5
         )
+    )
+
+    # Test deducing the array type when one input is given
+    a = arange(APyFixed.from_float(4, int_bits=5, frac_bits=0))
+    assert a.is_identical(APyFixedArray.from_float(range(4), int_bits=5, frac_bits=0))
+
+    a = arange(APyFloat.from_float(4, exp_bits=5, man_bits=4, bias=8))
+    assert a.is_identical(
+        APyFloatArray.from_float(range(4), exp_bits=5, man_bits=4, bias=8)
+    )
+
+    # Test deducing the array type when two inputs are given
+    a = arange(0, APyFixed.from_float(4, int_bits=5, frac_bits=0))
+    assert a.is_identical(APyFixedArray.from_float(range(4), int_bits=5, frac_bits=0))
+
+    a = arange(0, APyFloat.from_float(4, exp_bits=5, man_bits=4, bias=8))
+    assert a.is_identical(
+        APyFloatArray.from_float(range(4), exp_bits=5, man_bits=4, bias=8)
+    )
+
+    a = arange(
+        APyFixed(0, int_bits=5, frac_bits=0),
+        APyFixed.from_float(4, int_bits=5, frac_bits=0),
+    )
+    assert a.is_identical(APyFixedArray.from_float(range(4), int_bits=5, frac_bits=0))
+
+    a = arange(
+        APyFloat(0, 0, 0, exp_bits=5, man_bits=4, bias=8),
+        APyFloat.from_float(4, exp_bits=5, man_bits=4, bias=8),
+    )
+    assert a.is_identical(
+        APyFloatArray.from_float(range(4), exp_bits=5, man_bits=4, bias=8)
+    )
+
+    a = arange(APyFixed.from_float(0, int_bits=5, frac_bits=0), 4)
+    assert a.is_identical(APyFixedArray.from_float(range(4), int_bits=5, frac_bits=0))
+
+    a = arange(APyFloat.from_float(0, exp_bits=5, man_bits=4, bias=8), 4)
+    assert a.is_identical(
+        APyFloatArray.from_float(range(4), exp_bits=5, man_bits=4, bias=8)
+    )
+
+    # Test deducing the array type when three inputs are given
+    a = arange(0, 4, APyFixed.from_float(1, int_bits=5, frac_bits=0))
+    assert a.is_identical(APyFixedArray.from_float(range(4), int_bits=5, frac_bits=0))
+
+    a = arange(0, 4, APyFloat.from_float(1, exp_bits=5, man_bits=4, bias=8))
+    assert a.is_identical(
+        APyFloatArray.from_float(range(4), exp_bits=5, man_bits=4, bias=8)
+    )
+
+    a = arange(0, APyFixed.from_float(4, int_bits=5, frac_bits=0), 1)
+    assert a.is_identical(APyFixedArray.from_float(range(4), int_bits=5, frac_bits=0))
+
+    a = arange(0, APyFloat.from_float(4, exp_bits=5, man_bits=4, bias=8), 1)
+    assert a.is_identical(
+        APyFloatArray.from_float(range(4), exp_bits=5, man_bits=4, bias=8)
+    )
+
+    a = arange(APyFixed.from_float(0, int_bits=5, frac_bits=0), 4, 1)
+    assert a.is_identical(APyFixedArray.from_float(range(4), int_bits=5, frac_bits=0))
+
+    a = arange(APyFloat.from_float(0, exp_bits=5, man_bits=4, bias=8), 4, 1)
+    assert a.is_identical(
+        APyFloatArray.from_float(range(4), exp_bits=5, man_bits=4, bias=8)
+    )
+
+    a = arange(
+        APyFixed(0, int_bits=5, frac_bits=0),
+        APyFixed(4, int_bits=5, frac_bits=0),
+        APyFixed(1, int_bits=5, frac_bits=0),
+    )
+    assert a.is_identical(APyFixedArray.from_float(range(4), int_bits=5, frac_bits=0))
+
+    a = arange(
+        APyFloat(0, 0, 0, exp_bits=5, man_bits=4, bias=8),
+        APyFloat.from_float(4, exp_bits=5, man_bits=4, bias=8),
+        APyFloat(0, 8, 0, exp_bits=5, man_bits=4, bias=8),
+    )
+    assert a.is_identical(
+        APyFloatArray.from_float(range(4), exp_bits=5, man_bits=4, bias=8)
     )
 
     # Test quantization effects
