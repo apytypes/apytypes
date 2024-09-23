@@ -36,5 +36,5 @@ Computation times
      - 00:00.006
      - 0.0
    * - :ref:`sphx_glr_examples_apyfixed.py` (``apyfixed.py``)
-     - 00:00.003
+     - 00:00.002
      - 0.0
