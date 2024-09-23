@@ -185,6 +185,13 @@ def test_eye(n, m, nums):
     check_eye(exp_bits=13, mantissa_bits=28)
     check_eye(exp_bits=16, mantissa_bits=5)
 
+    # Test raise
+    with pytest.raises(
+        ValueError,
+        match="Could not determine array type",
+    ):
+        eye((2, 2), int_bits=4, frac_bits=0, exp_bits=15)
+
 
 @pytest.mark.parametrize(
     "n, nums",
@@ -230,6 +237,13 @@ def test_identity(n, nums):
     check_identity(exp_bits=13, mantissa_bits=28)
     check_identity(exp_bits=16, mantissa_bits=5)
 
+    # Test raise
+    with pytest.raises(
+        ValueError,
+        match="Could not determine array type",
+    ):
+        identity(2, int_bits=4, frac_bits=0, exp_bits=15)
+
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
 def test_zeros(shape):
@@ -268,6 +282,13 @@ def test_zeros(shape):
     check_zeros(exp_bits=13, mantissa_bits=28)
     check_zeros(exp_bits=13, mantissa_bits=0)
     check_zeros(exp_bits=16, mantissa_bits=5)
+
+    # Test raise
+    with pytest.raises(
+        ValueError,
+        match="Could not determine array type",
+    ):
+        zeros((2, 2), int_bits=4, frac_bits=0, exp_bits=15)
 
 
 def test_tuple_construction_raises():
@@ -366,6 +387,13 @@ def test_ones(shape):
     # Test cases for APyFloatArray
     check_ones(exp_bits=13, mantissa_bits=28)
     check_ones(exp_bits=16, mantissa_bits=5)
+
+    # Test raise
+    with pytest.raises(
+        ValueError,
+        match="Could not determine array type",
+    ):
+        ones((2, 2), int_bits=4, frac_bits=0, exp_bits=15)
 
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
@@ -604,6 +632,18 @@ def test_arange():
         arange(
             APyFloat(0, 0, 0, 4, 4), APyFloat(0, 7, 0, 4, 4), APyFloat(0, 7, 0, 4, 4, 5)
         )
+
+    with pytest.raises(
+        ValueError,
+        match="Could not determine array type",
+    ):
+        arange(APyFloat(0, 0, 0, 4, 4), APyFloat(0, 7, 0, 4, 4), APyFixed(1, 4, 0))
+
+    with pytest.raises(
+        ValueError,
+        match="Could not determine array type",
+    ):
+        arange(APyFixed(1, 4, 0), 10, APyFloat(0, 7, 0, 4, 3))
 
     with pytest.raises(
         ValueError,
