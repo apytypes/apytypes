@@ -421,14 +421,20 @@ def expand_dims(a, axis):
 
 
 def zeros(
-    shape, int_bits=None, frac_bits=None, bits=None, exp_bits=None, mantissa_bits=None
+    shape,
+    int_bits=None,
+    frac_bits=None,
+    bits=None,
+    exp_bits=None,
+    man_bits=None,
+    bias=None,
 ):
     """
     Create an array of `shape` with all zeros.
 
     Word lengths need to be specified and the return type is deduced from the bit
     specifiers. Either specify exactly two of three from `int_bits`, `frac_bits`, and
-    `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `mantissa_bits`
+    `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `man_bits`
     for :class:`APyFloatArray`.
 
     Parameters
@@ -443,8 +449,10 @@ def zeros(
         Number of fixed-point bits.
     exp_bits : int, optional
         Number of floating-point exponential bits.
-    mantissa_bits : int, optional
+    man_bits : int, optional
         Number of floating-point mantissa bits.
+    bias : int, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
     -------
@@ -454,7 +462,7 @@ def zeros(
 
     from apytypes import APyFixedArray, APyFloatArray
 
-    a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, mantissa_bits)
+    a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
 
     if not a_type:
         raise ValueError("Could not determine array type from bit-specifiers")
@@ -467,20 +475,26 @@ def zeros(
     if a_type is APyFixedArray:
         return zeros(shape=shape, int_bits=int_bits, frac_bits=frac_bits, bits=bits)
     elif a_type is APyFloatArray:
-        return zeros(shape=shape, exp_bits=exp_bits, man_bits=mantissa_bits)
+        return zeros(shape=shape, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
     else:
         raise ValueError("Only fixed-point and floating-point array types supported")
 
 
 def ones(
-    shape, int_bits=None, frac_bits=None, bits=None, exp_bits=None, mantissa_bits=None
+    shape,
+    int_bits=None,
+    frac_bits=None,
+    bits=None,
+    exp_bits=None,
+    man_bits=None,
+    bias=None,
 ):
     """
     Create an array of `shape` with all ones (stored value).
 
     Word lengths need to be specified and the return type is deduced from the bit
     specifiers. Either specify exactly two of three from `int_bits`, `frac_bits`, and
-    `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `mantissa_bits`
+    `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `man_bits`
     for :class:`APyFloatArray`.
 
     Parameters
@@ -495,8 +509,10 @@ def ones(
         Number of fixed-point bits.
     exp_bits : int, optional
         Number of floating-point exponential bits.
-    mantissa_bits : int, optional
+    man_bits : int, optional
         Number of floating-point mantissa bits.
+    bias : int, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
     -------
@@ -506,7 +522,7 @@ def ones(
 
     from apytypes import APyFixedArray, APyFloatArray
 
-    a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, mantissa_bits)
+    a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
 
     if not a_type:
         raise ValueError("Could not determine array type from bit-specifiers")
@@ -519,7 +535,7 @@ def ones(
     if a_type is APyFixedArray or isinstance(a_type, APyFixedArray):
         return ones(shape=shape, int_bits=int_bits, frac_bits=frac_bits, bits=bits)
     elif a_type is APyFloatArray or isinstance(a_type, APyFloatArray):
-        return ones(shape=shape, exp_bits=exp_bits, man_bits=mantissa_bits)
+        return ones(shape=shape, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
     else:
         raise ValueError("Only fixed-point and floating-point array types supported")
 
@@ -531,7 +547,8 @@ def eye(
     frac_bits=None,
     bits=None,
     exp_bits=None,
-    mantissa_bits=None,
+    man_bits=None,
+    bias=None,
 ):
     """
     Return a 2-D array with ones (stored value) on the main diagonal and zeros
@@ -539,7 +556,7 @@ def eye(
 
     Word lengths need to be specified and the return type is deduced from the bit
     specifiers. Either specify exactly two of three from `int_bits`, `frac_bits`, and
-    `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `mantissa_bits`
+    `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `man_bits`
     for :class:`APyFloatArray`.
 
     Parameters
@@ -556,8 +573,10 @@ def eye(
         Number of fixed-point bits.
     exp_bits : int, optional
         Number of floating-point exponential bits.
-    mantissa_bits : int, optional
+    man_bits : int, optional
         Number of floating-point mantissa bits.
+    bias : int, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
     -------
@@ -568,7 +587,7 @@ def eye(
 
     from apytypes import APyFixedArray, APyFloatArray
 
-    a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, mantissa_bits)
+    a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
 
     if not a_type:
         raise ValueError("Could not determine array type from bit-specifiers")
@@ -581,20 +600,20 @@ def eye(
     if a_type is APyFixedArray or isinstance(a_type, APyFixedArray):
         return eye(n=n, m=m, int_bits=int_bits, frac_bits=frac_bits, bits=bits)
     elif a_type is APyFloatArray or isinstance(a_type, APyFloatArray):
-        return eye(n=n, m=m, exp_bits=exp_bits, man_bits=mantissa_bits)
+        return eye(n=n, m=m, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
     else:
         raise ValueError("Only fixed-point and floating-point array types supported")
 
 
 def identity(
-    n, int_bits=None, frac_bits=None, bits=None, exp_bits=None, mantissa_bits=None
+    n, int_bits=None, frac_bits=None, bits=None, exp_bits=None, man_bits=None, bias=None
 ):
     """
     Return the identity array.
 
     Word lengths need to be specified and the return type is deduced from the bit
     specifiers. Either specify exactly two of three from `int_bits`, `frac_bits`, and
-    `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `mantissa_bits`
+    `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `man_bits`
     for :class:`APyFloatArray`.
 
     Parameters
@@ -609,8 +628,10 @@ def identity(
         Number of fixed-point bits.
     exp_bits : int, optional
         Number of floating-point exponential bits.
-    mantissa_bits : int, optional
+    man_bits : int, optional
         Number of floating-point mantissa bits.
+    bias : int, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
     -------
@@ -621,7 +642,7 @@ def identity(
 
     from apytypes import APyFixedArray, APyFloatArray
 
-    a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, mantissa_bits)
+    a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
 
     if not a_type:
         raise ValueError("Could not determine array type from bit-specifiers")
@@ -634,7 +655,7 @@ def identity(
     if a_type is APyFixedArray or isinstance(a_type, APyFixedArray):
         return identity(n=n, int_bits=int_bits, frac_bits=frac_bits, bits=bits)
     elif a_type is APyFloatArray or isinstance(a_type, APyFloatArray):
-        return identity(n=n, exp_bits=exp_bits, man_bits=mantissa_bits)
+        return identity(n=n, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
     else:
         raise ValueError("Only fixed-point and floating-point array types supported")
 
@@ -646,14 +667,15 @@ def full(
     frac_bits=None,
     bits=None,
     exp_bits=None,
-    mantissa_bits=None,
+    man_bits=None,
+    bias=None,
 ):
     """
     Return a new array of given shape and type, filled with `fill_value`.
 
     If `fill_value` is of type `int` or `float`, you must specify the word lengths.
     Either specify exactly two of three from `int_bits`, `frac_bits`, and `bits`, for
-    :class:`APyFixedArray`, or specify both `exp_bits` and `mantissa_bits` for
+    :class:`APyFixedArray`, or specify both `exp_bits` and `man_bits` for
     :class:`APyFloatArray`. If `fill_value` is of type `APyFloat` or `APyFixed`, the
     array will use the provided word lengths only if specified, otherwise the word
     lengths are inherited from `fill_value`.
@@ -672,8 +694,10 @@ def full(
         Number of fixed-point bits.
     exp_bits : int, optional
         Number of floating-point exponential bits.
-    mantissa_bits : int, optional
+    man_bits : int, optional
         Number of floating-point mantissa bits.
+    bias : int, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
     -------
@@ -684,7 +708,7 @@ def full(
     from apytypes import APyFixedArray, APyFixed, APyFloat, APyFloatArray
 
     fill_value = _determine_fill_value(
-        fill_value, int_bits, frac_bits, bits, exp_bits, mantissa_bits
+        fill_value, int_bits, frac_bits, bits, exp_bits, man_bits, bias
     )
     if isinstance(fill_value, APyFixed):
         return APyFixedArray.full(shape, fill_value)
@@ -700,7 +724,8 @@ def zeros_like(
     frac_bits=None,
     bits=None,
     exp_bits=None,
-    mantissa_bits=None,
+    man_bits=None,
+    bias=None,
 ):
     """
     Return an array of all zeros with the same shape and type as `a`.
@@ -708,7 +733,7 @@ def zeros_like(
     The type and bit-specifiers of the returned array can be overwritten through the
     bit-specifier arguments. To overwrite the type, either specify exactly two of three
     from `int_bits`, `frac_bits`, and `bits`, for :class:`APyFixedArray`, or specify
-    both `exp_bits` and `mantissa_bits` for :class:`APyFloatArray`.
+    both `exp_bits` and `man_bits` for :class:`APyFloatArray`.
 
     Parameters
     ----------
@@ -722,8 +747,10 @@ def zeros_like(
         Number of fixed-point bits.
     exp_bits : int, optional
         Number of floating-point exponential bits.
-    mantissa_bits : int, optional
+    man_bits : int, optional
         Number of floating-point mantissa bits.
+    bias : int, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
     -------
@@ -745,19 +772,15 @@ def zeros_like(
             return zeros(shape=a.shape, int_bits=i_bits, frac_bits=f_bits)
     elif isinstance(a, APyFloatArray):
         exp_bits = exp_bits if exp_bits is not None else a.exp_bits
-        mantissa_bits = mantissa_bits if mantissa_bits is not None else a.man_bits
-        return zeros(shape=a.shape, exp_bits=exp_bits, man_bits=mantissa_bits)
+        man_bits = man_bits if man_bits is not None else a.man_bits
+        bias = bias if bias is not None else a.bias
+        return zeros(shape=a.shape, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
     else:
         raise ValueError("Only fixed-point and floating-point array types supported")
 
 
 def ones_like(
-    a,
-    int_bits=None,
-    frac_bits=None,
-    bits=None,
-    exp_bits=None,
-    mantissa_bits=None,
+    a, int_bits=None, frac_bits=None, bits=None, exp_bits=None, man_bits=None, bias=None
 ):
     """
     Return an array of all ones (stored value) with the same shape and type as `a`.
@@ -765,7 +788,7 @@ def ones_like(
     The type and bit-specifiers of the returned array can be overwritten through the
     bit-specifier arguments. To overwrite the type, either specify exactly two of three
     from `int_bits`, `frac_bits`, and `bits`, for :class:`APyFixedArray`, or specify
-    both `exp_bits` and `mantissa_bits` for :class:`APyFloatArray`.
+    both `exp_bits` and `man_bits` for :class:`APyFloatArray`.
 
     Parameters
     ----------
@@ -779,8 +802,10 @@ def ones_like(
         Number of fixed-point bits.
     exp_bits : int, optional
         Number of floating-point exponential bits.
-    mantissa_bits : int, optional
+    man_bits : int, optional
         Number of floating-point mantissa bits.
+    bias : int, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
     -------
@@ -802,8 +827,9 @@ def ones_like(
             return ones(shape=a.shape, int_bits=i_bits, frac_bits=f_bits)
     elif isinstance(a, APyFloatArray):
         exp_bits = exp_bits if exp_bits is not None else a.exp_bits
-        mantissa_bits = mantissa_bits if mantissa_bits is not None else a.man_bits
-        return ones(shape=a.shape, exp_bits=exp_bits, man_bits=mantissa_bits)
+        man_bits = man_bits if man_bits is not None else a.man_bits
+        bias = bias if bias is not None else a.bias
+        return ones(shape=a.shape, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
     else:
         raise ValueError("Only fixed-point and floating-point array types supported")
 
@@ -815,7 +841,8 @@ def full_like(
     frac_bits=None,
     bits=None,
     exp_bits=None,
-    mantissa_bits=None,
+    man_bits=None,
+    bias=None,
 ):
     """
     Return an array with all values initialized to `fill_value`, with the same shape and
@@ -824,7 +851,7 @@ def full_like(
     The type and bit-specifiers of the returned array can be overwritten through the
     bit-specifier arguments. To overwrite the type, either specify exactly two of three
     from `int_bits`, `frac_bits`, and `bits`, for :class:`APyFixedArray`, or specify
-    both `exp_bits` and `mantissa_bits` for :class:`APyFloatArray`.
+    both `exp_bits` and `man_bits` for :class:`APyFloatArray`.
 
     Parameters
     ----------
@@ -840,8 +867,10 @@ def full_like(
         Number of fixed-point bits.
     exp_bits : int, optional
         Number of floating-point exponential bits.
-    mantissa_bits : int, optional
+    man_bits : int, optional
         Number of floating-point mantissa bits.
+    bias : int, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
     -------
@@ -854,7 +883,7 @@ def full_like(
         raise TypeError(f"Cannot make full array of type {type(a)}")
 
     fill_value = _determine_fill_value(
-        fill_value, int_bits, frac_bits, bits, exp_bits, mantissa_bits
+        fill_value, int_bits, frac_bits, bits, exp_bits, man_bits, bias
     )
     return full(a.shape, fill_value)
 
@@ -957,7 +986,7 @@ def arange(
 # =============================================================================
 # Helpers
 # =============================================================================
-def _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias=None):
+def _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias):
     from apytypes import APyFixedArray, APyFloatArray
 
     float_arr = exp_bits is not None and man_bits is not None
@@ -982,6 +1011,7 @@ def _determine_fill_value(
     bits=None,
     exp_bits=None,
     man_bits=None,
+    bias=None,
 ):
     from apytypes import APyFixed, APyFloat
 
@@ -990,7 +1020,9 @@ def _determine_fill_value(
             i_bits, f_bits = _extract_fixed_bit_specifiers(int_bits, frac_bits, bits)
             return APyFixed.from_float(fill_value, int_bits=i_bits, frac_bits=f_bits)
         else:
-            return APyFloat.from_float(fill_value, exp_bits=exp_bits, man_bits=man_bits)
+            return APyFloat.from_float(
+                fill_value, exp_bits=exp_bits, man_bits=man_bits, bias=bias
+            )
     elif isinstance(fill_value, APyFixed):
         if int_bits is None and frac_bits is None and bits is None:
             return fill_value
@@ -998,10 +1030,10 @@ def _determine_fill_value(
             i_bits, f_bits = _extract_fixed_bit_specifiers(int_bits, frac_bits, bits)
             return fill_value.cast(int_bits, frac_bits)
     elif isinstance(fill_value, APyFloat):
-        if exp_bits is None and man_bits is None:
+        if exp_bits is None and man_bits is None and bias is None:
             return fill_value
         else:
-            return fill_value.cast(exp_bits, man_bits, fill_value.bias)
+            return fill_value.cast(exp_bits, man_bits, bias)
     else:
         raise ValueError(
             "Only `int`, `float`, `APyFloat` and `APyFixed` are supported fill values"

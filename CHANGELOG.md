@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - In `arange`, the array type can be deduced from its arguments if no bit-
   specifiers are given.
+- Added optional parameter for `bias` in array creation functions that were
+  missing it.
 
 ### Fixed
 

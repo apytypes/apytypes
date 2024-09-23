@@ -136,7 +136,8 @@ def eye(
     frac_bits=None,
     bits=None,
     exp_bits=None,
-    mantissa_bits=None,
+    man_bits=None,
+    bias=None,
 ):
     """
     Return a 2-D array with ones (stored value) on the main diagonal and zeros
@@ -144,7 +145,7 @@ def eye(
 
     Word lengths need to be specified and the return type is deduced from the bit
     specifiers. Either specify exactly two of three from `int_bits`, `frac_bits`, and
-    `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `mantissa_bits`
+    `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `man_bits`
     for :class:`APyFloatArray`.
 
     Parameters
@@ -161,8 +162,10 @@ def eye(
         Number of fixed-point bits.
     exp_bits : int, optional
         Number of floating-point exponential bits.
-    mantissa_bits : int, optional
+    man_bits : int, optional
         Number of floating-point mantissa bits.
+    bias : int, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
     -------
@@ -178,14 +181,15 @@ def full(
     frac_bits=None,
     bits=None,
     exp_bits=None,
-    mantissa_bits=None,
+    man_bits=None,
+    bias=None,
 ):
     """
     Return a new array of given shape and type, filled with `fill_value`.
 
     If `fill_value` is of type `int` or `float`, you must specify the word lengths.
     Either specify exactly two of three from `int_bits`, `frac_bits`, and `bits`, for
-    :class:`APyFixedArray`, or specify both `exp_bits` and `mantissa_bits` for
+    :class:`APyFixedArray`, or specify both `exp_bits` and `man_bits` for
     :class:`APyFloatArray`. If `fill_value` is of type `APyFloat` or `APyFixed`, the
     array will use the provided word lengths only if specified, otherwise the word
     lengths are inherited from `fill_value`.
@@ -204,8 +208,10 @@ def full(
         Number of fixed-point bits.
     exp_bits : int, optional
         Number of floating-point exponential bits.
-    mantissa_bits : int, optional
+    man_bits : int, optional
         Number of floating-point mantissa bits.
+    bias : int, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
     -------
@@ -220,7 +226,8 @@ def full_like(
     frac_bits=None,
     bits=None,
     exp_bits=None,
-    mantissa_bits=None,
+    man_bits=None,
+    bias=None,
 ):
     """
     Return an array with all values initialized to `fill_value`, with the same shape and
@@ -229,7 +236,7 @@ def full_like(
     The type and bit-specifiers of the returned array can be overwritten through the
     bit-specifier arguments. To overwrite the type, either specify exactly two of three
     from `int_bits`, `frac_bits`, and `bits`, for :class:`APyFixedArray`, or specify
-    both `exp_bits` and `mantissa_bits` for :class:`APyFloatArray`.
+    both `exp_bits` and `man_bits` for :class:`APyFloatArray`.
 
     Parameters
     ----------
@@ -245,8 +252,10 @@ def full_like(
         Number of fixed-point bits.
     exp_bits : int, optional
         Number of floating-point exponential bits.
-    mantissa_bits : int, optional
+    man_bits : int, optional
         Number of floating-point mantissa bits.
+    bias : int, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
     -------
@@ -255,14 +264,14 @@ def full_like(
     """
 
 def identity(
-    n, int_bits=None, frac_bits=None, bits=None, exp_bits=None, mantissa_bits=None
+    n, int_bits=None, frac_bits=None, bits=None, exp_bits=None, man_bits=None, bias=None
 ):
     """
     Return the identity array.
 
     Word lengths need to be specified and the return type is deduced from the bit
     specifiers. Either specify exactly two of three from `int_bits`, `frac_bits`, and
-    `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `mantissa_bits`
+    `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `man_bits`
     for :class:`APyFloatArray`.
 
     Parameters
@@ -277,8 +286,10 @@ def identity(
         Number of fixed-point bits.
     exp_bits : int, optional
         Number of floating-point exponential bits.
-    mantissa_bits : int, optional
+    man_bits : int, optional
         Number of floating-point mantissa bits.
+    bias : int, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
     -------
@@ -332,14 +343,20 @@ def moveaxis(a, source, destination):
     """
 
 def ones(
-    shape, int_bits=None, frac_bits=None, bits=None, exp_bits=None, mantissa_bits=None
+    shape,
+    int_bits=None,
+    frac_bits=None,
+    bits=None,
+    exp_bits=None,
+    man_bits=None,
+    bias=None,
 ):
     """
     Create an array of `shape` with all ones (stored value).
 
     Word lengths need to be specified and the return type is deduced from the bit
     specifiers. Either specify exactly two of three from `int_bits`, `frac_bits`, and
-    `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `mantissa_bits`
+    `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `man_bits`
     for :class:`APyFloatArray`.
 
     Parameters
@@ -354,8 +371,10 @@ def ones(
         Number of fixed-point bits.
     exp_bits : int, optional
         Number of floating-point exponential bits.
-    mantissa_bits : int, optional
+    man_bits : int, optional
         Number of floating-point mantissa bits.
+    bias : int, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
     -------
@@ -364,7 +383,7 @@ def ones(
     """
 
 def ones_like(
-    a, int_bits=None, frac_bits=None, bits=None, exp_bits=None, mantissa_bits=None
+    a, int_bits=None, frac_bits=None, bits=None, exp_bits=None, man_bits=None, bias=None
 ):
     """
     Return an array of all ones (stored value) with the same shape and type as `a`.
@@ -372,7 +391,7 @@ def ones_like(
     The type and bit-specifiers of the returned array can be overwritten through the
     bit-specifier arguments. To overwrite the type, either specify exactly two of three
     from `int_bits`, `frac_bits`, and `bits`, for :class:`APyFixedArray`, or specify
-    both `exp_bits` and `mantissa_bits` for :class:`APyFloatArray`.
+    both `exp_bits` and `man_bits` for :class:`APyFloatArray`.
 
     Parameters
     ----------
@@ -386,8 +405,10 @@ def ones_like(
         Number of fixed-point bits.
     exp_bits : int, optional
         Number of floating-point exponential bits.
-    mantissa_bits : int, optional
+    man_bits : int, optional
         Number of floating-point mantissa bits.
+    bias : int, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
     -------
@@ -611,14 +632,20 @@ def transpose(a, axes=None):
     """
 
 def zeros(
-    shape, int_bits=None, frac_bits=None, bits=None, exp_bits=None, mantissa_bits=None
+    shape,
+    int_bits=None,
+    frac_bits=None,
+    bits=None,
+    exp_bits=None,
+    man_bits=None,
+    bias=None,
 ):
     """
     Create an array of `shape` with all zeros.
 
     Word lengths need to be specified and the return type is deduced from the bit
     specifiers. Either specify exactly two of three from `int_bits`, `frac_bits`, and
-    `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `mantissa_bits`
+    `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `man_bits`
     for :class:`APyFloatArray`.
 
     Parameters
@@ -633,8 +660,10 @@ def zeros(
         Number of fixed-point bits.
     exp_bits : int, optional
         Number of floating-point exponential bits.
-    mantissa_bits : int, optional
+    man_bits : int, optional
         Number of floating-point mantissa bits.
+    bias : int, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
     -------
@@ -643,7 +672,7 @@ def zeros(
     """
 
 def zeros_like(
-    a, int_bits=None, frac_bits=None, bits=None, exp_bits=None, mantissa_bits=None
+    a, int_bits=None, frac_bits=None, bits=None, exp_bits=None, man_bits=None, bias=None
 ):
     """
     Return an array of all zeros with the same shape and type as `a`.
@@ -651,7 +680,7 @@ def zeros_like(
     The type and bit-specifiers of the returned array can be overwritten through the
     bit-specifier arguments. To overwrite the type, either specify exactly two of three
     from `int_bits`, `frac_bits`, and `bits`, for :class:`APyFixedArray`, or specify
-    both `exp_bits` and `mantissa_bits` for :class:`APyFloatArray`.
+    both `exp_bits` and `man_bits` for :class:`APyFloatArray`.
 
     Parameters
     ----------
@@ -665,8 +694,10 @@ def zeros_like(
         Number of fixed-point bits.
     exp_bits : int, optional
         Number of floating-point exponential bits.
-    mantissa_bits : int, optional
+    man_bits : int, optional
         Number of floating-point mantissa bits.
+    bias : int, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
     -------
