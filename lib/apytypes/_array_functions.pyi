@@ -18,13 +18,16 @@ def arange(
     * ``arange(start, stop)``: Values are generated within the half-open interval ``[start, stop)``.
     * ``arange(start, stop, step)``: Values are generated within the half-open interval ``[start, stop)``, with spacing between values given by ``step``.
 
+    If no bit-specifiers are given, the array type is deduced based on ``start``, ``stop``, and ``step``.
+    In this case, all APyTypes scalars must be of the same format.
+
     Parameters
     ----------
-    start : int, float
+    start : int, float, :class:`APyFloat`, :class:`APyFixed`
         Start number.
-    stop : int, optional
+    stop : int, float, :class:`APyFloat`, :class:`APyFixed`, optional
         Stop number.
-    step : int, float, optional
+    step : int, float, :class:`APyFloat`, :class:`APyFixed`, optional
         Step size in range.
     int_bits : int, optional
         Number of fixed-point integer bits.

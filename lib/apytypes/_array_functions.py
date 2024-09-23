@@ -455,6 +455,10 @@ def zeros(
     from apytypes import APyFixedArray, APyFloatArray
 
     a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, mantissa_bits)
+
+    if not a_type:
+        raise ValueError("Could not determine array type from bit-specifiers")
+
     try:
         zeros = a_type.zeros
     except AttributeError:
@@ -503,6 +507,10 @@ def ones(
     from apytypes import APyFixedArray, APyFloatArray
 
     a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, mantissa_bits)
+
+    if not a_type:
+        raise ValueError("Could not determine array type from bit-specifiers")
+
     try:
         ones = a_type.ones
     except AttributeError:
@@ -561,6 +569,10 @@ def eye(
     from apytypes import APyFixedArray, APyFloatArray
 
     a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, mantissa_bits)
+
+    if not a_type:
+        raise ValueError("Could not determine array type from bit-specifiers")
+
     try:
         eye = a_type.eye
     except AttributeError:
@@ -610,6 +622,10 @@ def identity(
     from apytypes import APyFixedArray, APyFloatArray
 
     a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, mantissa_bits)
+
+    if not a_type:
+        raise ValueError("Could not determine array type from bit-specifiers")
+
     try:
         identity = a_type.identity
     except AttributeError:
@@ -863,13 +879,16 @@ def arange(
     * ``arange(start, stop)``: Values are generated within the half-open interval ``[start, stop)``.
     * ``arange(start, stop, step)``: Values are generated within the half-open interval ``[start, stop)``, with spacing between values given by ``step``.
 
+    If no bit-specifiers are given, the array type is deduced based on ``start``, ``stop``, and ``step``.
+    In this case, all APyTypes scalars must be of the same format.
+
     Parameters
     ----------
-    start : int, float
+    start : int, float, :class:`APyFloat`, :class:`APyFixed`
         Start number.
-    stop : int, optional
+    stop : int, float, :class:`APyFloat`, :class:`APyFixed`, optional
         Stop number.
-    step : int, float, optional
+    step : int, float, :class:`APyFloat`, :class:`APyFixed`, optional
         Step size in range.
     int_bits : int, optional
         Number of fixed-point integer bits.
@@ -889,8 +908,40 @@ def arange(
     result : :class:`APyFloatArray` or :class:`APyFixedArray`
         Array with evenly spaced values within a given interval.
     """
-    a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits)
-    from apytypes import APyFixedArray, APyFloatArray
+    a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
+    from apytypes import APyFixedArray, APyFloatArray, APyFixed, APyFloat
+
+    # If bit-specifiers were not given explicitly, the resulting type must be deduced.
+    if not a_type:
+        # Make sure the APyTypes scalars have the same format
+        int_bits, bits, exp_bits, man_bits, bias = [None] * 5
+        for var in (start, stop, step):
+            if isinstance(var, APyFixed):
+                if a_type == APyFloatArray:
+                    raise ValueError("Could not determine array type")
+                a_type = APyFixedArray
+                if bits is None:
+                    bits = var.bits
+                    int_bits = var.int_bits
+                elif bits != var.bits or int_bits != var.int_bits:
+                    raise ValueError("Could not determine array type")
+            elif isinstance(var, APyFloat):
+                if a_type == APyFixedArray:
+                    raise ValueError("Could not determine array type")
+                a_type = APyFloatArray
+                if exp_bits is None:
+                    exp_bits = var.exp_bits
+                    man_bits = var.man_bits
+                    bias = var.bias
+                elif (
+                    exp_bits != var.exp_bits
+                    or man_bits != var.man_bits
+                    or bias != var.bias
+                ):
+                    raise ValueError("Could not determine array type")
+
+        if not a_type:
+            raise ValueError("Could not determine array type")
 
     if stop is None:
         start, stop = (0, start)
@@ -906,21 +957,22 @@ def arange(
 # =============================================================================
 # Helpers
 # =============================================================================
-def _determine_array_type(int_bits, frac_bits, bits, exp_bits, mantissa_bits):
+def _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias=None):
     from apytypes import APyFixedArray, APyFloatArray
 
-    if exp_bits is None and mantissa_bits is None:
-        if int_bits is not None and frac_bits is not None:
-            return APyFixedArray
-        elif bits is not None and int_bits is not None:
-            return APyFixedArray
-        elif bits is not None and frac_bits is not None:
-            return APyFixedArray
-    elif bits is None and int_bits is None and frac_bits is None:
-        if exp_bits is not None and mantissa_bits is not None:
-            return APyFloatArray
+    float_arr = exp_bits is not None and man_bits is not None
+    fixed_arr = (
+        (bits is not None and int_bits is not None)
+        or (bits is not None and frac_bits is not None)
+        or (int_bits is not None and frac_bits is not None)
+    )
+
+    if float_arr and not any([int_bits, frac_bits, bits]):
+        return APyFloatArray
+    elif fixed_arr and not any([exp_bits, man_bits, bias]):
+        return APyFixedArray
     else:
-        raise ValueError("Could not determine array type from bit-specifiers")
+        return None
 
 
 def _determine_fill_value(
