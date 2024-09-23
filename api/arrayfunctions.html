@@ -581,14 +581,16 @@ both <cite>exp_bits</cite> and <cite>mantissa_bits</cite> for <a class="referenc
 <li><p><code class="docutils literal notranslate"><span class="pre">arange(start,</span> <span class="pre">stop)</span></code>: Values are generated within the half-open interval <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">stop)</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">arange(start,</span> <span class="pre">stop,</span> <span class="pre">step)</span></code>: Values are generated within the half-open interval <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">stop)</span></code>, with spacing between values given by <code class="docutils literal notranslate"><span class="pre">step</span></code>.</p></li>
 </ul>
+<p>If no bit-specifiers are given, the array type is deduced based on <code class="docutils literal notranslate"><span class="pre">start</span></code>, <code class="docutils literal notranslate"><span class="pre">stop</span></code>, and <code class="docutils literal notranslate"><span class="pre">step</span></code>.
+In this case, all APyTypes scalars must be of the same format.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>start</strong><span class="classifier">int, float</span></dt><dd><p>Start number.</p>
+<dd class="field-odd"><dl>
+<dt><strong>start</strong><span class="classifier">int, float, <a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>, <a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a></span></dt><dd><p>Start number.</p>
 </dd>
-<dt><strong>stop</strong><span class="classifier">int, optional</span></dt><dd><p>Stop number.</p>
+<dt><strong>stop</strong><span class="classifier">int, float, <a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>, <a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a>, optional</span></dt><dd><p>Stop number.</p>
 </dd>
-<dt><strong>step</strong><span class="classifier">int, float, optional</span></dt><dd><p>Step size in range.</p>
+<dt><strong>step</strong><span class="classifier">int, float, <a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>, <a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a>, optional</span></dt><dd><p>Step size in range.</p>
 </dd>
 <dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fixed-point integer bits.</p>
 </dd>
