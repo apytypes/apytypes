@@ -1,3 +1,12 @@
+#include "apyfloat.h"
+#include "apyfixed.h"
+#include "apyfixed_util.h"
+#include "apyfloat_util.h"
+#include "apytypes_util.h"
+#include "ieee754.h"
+#include "python_util.h"
+
+// Python object access through Nanobind
 #include <nanobind/nanobind.h>
 namespace nb = nanobind;
 
@@ -5,17 +14,7 @@ namespace nb = nanobind;
 #include <cassert>
 #include <climits>
 #include <cmath>
-
 #include <fmt/format.h>
-
-#include "apyfixed.h"
-#include "apyfixed_util.h"
-#include "apyfloat.h"
-#include "apyfloat_util.h"
-#include "apytypes_util.h"
-#include "python_util.h"
-
-#include "ieee754.h"
 
 /* **********************************************************************************
  * * Constructors                                                                   *

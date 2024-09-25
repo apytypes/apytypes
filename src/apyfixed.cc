@@ -2,13 +2,22 @@
  * APyFixed: Dynamic arbitrary fixed-point data type.
  */
 
-// Python object access through Pybind
-#include <nanobind/nanobind.h>
-namespace nb = nanobind;
-
 // Python details. These should be included before standard header files:
 // https://docs.python.org/3/c-api/intro.html#include-files
 #include <Python.h> // PYLONG_BITS_IN_DIGIT, PyLongObject
+
+#include "apybuffer.h"
+#include "apyfixed.h"
+#include "apyfixed_util.h"
+#include "apyfloat.h"
+#include "apytypes_common.h"
+#include "apytypes_util.h"
+#include "ieee754.h"
+#include "python_util.h"
+
+// Python object access through Pybind
+#include <nanobind/nanobind.h>
+namespace nb = nanobind;
 
 // Standard header includes
 #include <algorithm>  // std::copy, std::max, std::transform, etc...
@@ -24,15 +33,6 @@ namespace nb = nanobind;
 #include <vector>     // std::vector, std::swap
 
 #include <fmt/format.h>
-
-#include "apybuffer.h"
-#include "apyfixed.h"
-#include "apyfixed_util.h"
-#include "apyfloat.h"
-#include "apytypes_common.h"
-#include "apytypes_util.h"
-#include "ieee754.h"
-#include "python_util.h"
 
 // GMP should be included after all other includes
 #include "../extern/mini-gmp/mini-gmp.h"

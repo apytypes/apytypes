@@ -73,7 +73,11 @@ template <typename T> struct NoDefaultConstructAllocator {
 /*
  * (2) APyBuffer the does default allocate its data
  */
-template <typename T, typename Allocator = std::allocator<T>> class APyBuffer {
+template <
+    typename T,                            // item in this buffer
+    typename Allocator = std::allocator<T> // allocator
+    >
+class APyBuffer {
 
 public:
     // The underlying vector type
@@ -134,14 +138,16 @@ protected:
                                        // function `get_py_buffer()` is called)
 
 public:
-    //! Getters for important field
+    //! Retrieve number of array dimensions
     std::size_t ndim() const noexcept { return _shape.size(); }
 
+    //! Retrieve array size
     std::size_t size() const noexcept { return _shape[0]; }
 
+    //! Retrieve array shape
     const std::vector<std::size_t>& shape() const noexcept { return _shape; }
 
-    //! Shape of the array
+    //! Retrieve array shape (exported to Python)
     nb::tuple python_get_shape() const
     {
         nb::list result_list;
@@ -149,16 +155,6 @@ public:
             result_list.append(_shape[i]);
         }
         return nb::tuple(result_list);
-    }
-
-    /* ****************************************************************************** *
-     * *                    `__getitem__` family of methods                         * *
-     * ****************************************************************************** */
-
-    template <typename APY_ARRAY, typename APY_SCALAR>
-    std::variant<APY_ARRAY, APY_SCALAR> get_item_integer(std::ptrdiff_t) const
-    {
-        throw NotImplementedException();
     }
 };
 

@@ -1,16 +1,16 @@
 #ifndef _APYFLOAT_H
 #define _APYFLOAT_H
 
-#include <nanobind/nanobind.h>
-
-#include <cstdint>
-#include <optional>
-#include <string>
-
 #include "apyfixed.h"
 #include "apytypes_common.h"
 
-#include "../extern/mini-gmp/mini-gmp.h"
+// Python object access through Nanobind
+#include <nanobind/nanobind.h>
+
+#include <cassert>
+#include <cstdint>
+#include <optional>
+#include <string>
 
 class APyFloat {
 public:
@@ -400,17 +400,44 @@ public:
     APyFloat next_down() const;
 
 private:
+    // Bit specifiers and exponent bias
     std::uint8_t exp_bits, man_bits;
     exp_t bias;
+
+    // Data of the `APyFloat`
     bool sign;
-    exp_t exp; // Biased exponent
-    man_t man; // Hidden one
+    exp_t exp;
+    man_t man;
+
+    /* ****************************************************************************** *
+     * *                              CRTP methods                                  * *
+     * ****************************************************************************** */
+
+public:
+    template <typename RANDOM_ACCESS_ITERATOR>
+    void copy_n_from(RANDOM_ACCESS_ITERATOR it, std::size_t n) noexcept
+    {
+        assert(n == 1);
+        sign = it->sign;
+        man = it->man;
+        exp = it->exp;
+    }
+
+    template <typename RANDOM_ACCESS_ITERATOR>
+    void copy_n_to(RANDOM_ACCESS_ITERATOR it, std::size_t n) const noexcept
+    {
+        assert(n == 1);
+        it->sign = sign;
+        it->man = man;
+        it->exp = exp;
+    }
 
     /* ******************************************************************************
      * * Non-Python accessible constructors                                         *
      * ******************************************************************************
      */
 
+private:
     APyFloat() = default;
 
     /* ******************************************************************************
@@ -445,6 +472,8 @@ private:
         return man_bits == other.man_bits && exp_bits == other.exp_bits
             && bias == other.bias;
     }
+
+    template <typename T, typename ARRAY_TYPE> friend class APyArray;
 };
 
 #endif // _APYFLOAT_H

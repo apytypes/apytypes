@@ -5,6 +5,7 @@
 #ifndef _APYFIXED_ARRAY_H
 #define _APYFIXED_ARRAY_H
 
+#include "apyarray.h"
 #include "apybuffer.h"
 #include "apyfixed.h"
 #include "apytypes_common.h"
@@ -15,17 +16,18 @@
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
 namespace nb = nanobind;
 
-#include <cstddef>  // std::size_t
-#include <limits>   // std::numeric_limits<>::is_iec559
-#include <optional> // std::optional, std::nullopt
-#include <set>      // std::set
-#include <string>   // std::string
-#include <vector>   // std::vector
+#include <cstddef>     // std::size_t
+#include <limits>      // std::numeric_limits<>::is_iec559
+#include <optional>    // std::optional, std::nullopt
+#include <set>         // std::set
+#include <string>      // std::string
+#include <string_view> // std::string_view
+#include <vector>      // std::vector
 
 // GMP should be included after all other includes
 #include "../extern/mini-gmp/mini-gmp.h"
 
-class APyFixedArray : public APyBuffer<mp_limb_t> {
+class APyFixedArray : public APyArray<mp_limb_t, APyFixedArray> {
 
     /* ****************************************************************************** *
      *                        APyFixedArray C++ assumptions                           *
@@ -54,8 +56,27 @@ class APyFixedArray : public APyBuffer<mp_limb_t> {
      *                         APyFixedArray data fields                              *
      * ****************************************************************************** */
 
+private:
     int _bits;
     int _int_bits;
+
+    /* ****************************************************************************** *
+     * *                              CRTP methods                                  * *
+     * ****************************************************************************** */
+
+public:
+    //! The scalar variant of `APyFixedArray` is `APyFixed`
+    using SCALAR_VARIANT = APyFixed;
+
+    //! Name of this array type (used when throwing errors)
+    static constexpr auto ARRAY_NAME = std::string_view("APyFixedArray");
+
+    APyFixed create_scalar() const { return APyFixed(_bits, _int_bits); }
+
+    APyFixedArray create_array(const std::vector<std::size_t>& shape) const
+    {
+        return APyFixedArray(shape, _bits, _int_bits);
+    }
 
     /* ****************************************************************************** *
      * *                          Python constructors                               * *
@@ -302,31 +323,6 @@ public:
      *   * They have the exact same bit format (`bits`, `int_bits`, and `frac_bits`)
      */
     bool is_identical(const APyFixedArray& other) const;
-
-    /* ****************************************************************************** *
-     * *            `__getitem__` and `__setitem__` family of methods               * *
-     * ****************************************************************************** */
-
-    //! Top-level `__getitem__` function
-    std::variant<APyFixedArray, APyFixed>
-    get_item(std::variant<nb::int_, nb::slice, nb::ellipsis, nb::tuple> key) const;
-
-    std::variant<APyFixedArray, APyFixed> get_item_integer(std::ptrdiff_t idx) const;
-
-    std::variant<APyFixedArray, APyFixed>
-    get_item_tuple(std::vector<std::variant<nb::int_, nb::slice>> tuple) const;
-
-    APyFixedArray get_item_slice(nb::slice slice) const;
-
-    std::vector<APyFixedArray> get_item_slice_nested(nb::slice slice) const;
-
-    std::vector<std::size_t> get_item_tuple_shape(
-        const std::vector<std::variant<nb::int_, nb::slice>>& tuple,
-        const std::vector<std::variant<nb::int_, nb::slice>>& remaining
-    ) const;
-
-    std::vector<std::variant<nb::int_, nb::slice>>
-    get_item_to_cpp_tuple(const nb::tuple& key) const;
 
     /* ****************************************************************************** *
      *                       Static conversion from other types                       *
