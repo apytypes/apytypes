@@ -291,6 +291,16 @@
 <dd><div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN8APyFixed11copy_n_fromEv22RANDOM_ACCESS_ITERATORNSt6size_tE">
+<span id="_CPPv3I0EN8APyFixed11copy_n_fromE22RANDOM_ACCESS_ITERATORNSt6size_tE"></span><span id="_CPPv2I0EN8APyFixed11copy_n_fromE22RANDOM_ACCESS_ITERATORNSt6size_tE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RANDOM_ACCESS_ITERATOR</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classAPyFixed_1aa22f2aa755cb3e4f8775db82ae262234"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">copy_n_from</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0EN8APyFixed11copy_n_fromEv22RANDOM_ACCESS_ITERATORNSt6size_tE" title="APyFixed::copy_n_from::RANDOM_ACCESS_ITERATOR"><span class="n"><span class="pre">RANDOM_ACCESS_ITERATOR</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">it</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I0EN8APyFixed11copy_n_fromEv22RANDOM_ACCESS_ITERATORNSt6size_tE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0ENK8APyFixed9copy_n_toEv22RANDOM_ACCESS_ITERATORNSt6size_tE">
+<span id="_CPPv3I0ENK8APyFixed9copy_n_toE22RANDOM_ACCESS_ITERATORNSt6size_tE"></span><span id="_CPPv2I0ENK8APyFixed9copy_n_toE22RANDOM_ACCESS_ITERATORNSt6size_tE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RANDOM_ACCESS_ITERATOR</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classAPyFixed_1a9530a7950bc568a33f20e99e2123f782"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">copy_n_to</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0ENK8APyFixed9copy_n_toEv22RANDOM_ACCESS_ITERATORNSt6size_tE" title="APyFixed::copy_n_to::RANDOM_ACCESS_ITERATOR"><span class="n"><span class="pre">RANDOM_ACCESS_ITERATOR</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">it</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I0ENK8APyFixed9copy_n_toEv22RANDOM_ACCESS_ITERATORNSt6size_tE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N8APyFixed8APyFixedEv">
 <span id="_CPPv3N8APyFixed8APyFixedEv"></span><span id="_CPPv2N8APyFixed8APyFixedEv"></span><span id="APyFixed::APyFixed"></span><span class="target" id="classAPyFixed_1acbafbfb11a2a55120757bf6fa46750fc"></span><span class="sig-name descname"><span class="n"><span class="pre">APyFixed</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">delete</span></span><a class="headerlink" href="#_CPPv4N8APyFixed8APyFixedEv" title="Link to this definition">¶</a><br /></dt>
 <dd><p>No default (empty) constructed <code class="docutils literal notranslate"><a class="reference internal" href="#classAPyFixed"><span class="std std-ref"><span class="pre">APyFixed</span></span></a></code> objects. At lesast the bit-specifiers has to be set during construction. </p>
@@ -735,6 +745,11 @@
 <em class="property"><span class="pre">friend</span> <span class="pre">class</span></em> <span class="pre">APyFixedArray</span></dt>
 </dl>
 
+<dl>
+<dt class="sig sig-object cpp">
+<em class="property"><span class="pre">friend</span> <span class="pre">class</span></em> <span class="pre">APyArray</span></dt>
+</dl>
+
 </div>
 </dd></dl>
 
@@ -797,6 +812,8 @@
             <ul>
 <li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a><ul>
 <li><a class="reference internal" href="#_CPPv48APyFixed"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4I0EN8APyFixed11copy_n_fromEv22RANDOM_ACCESS_ITERATORNSt6size_tE"><code class="docutils literal notranslate"><span class="pre">APyFixed::copy_n_from()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I0ENK8APyFixed9copy_n_toEv22RANDOM_ACCESS_ITERATORNSt6size_tE"><code class="docutils literal notranslate"><span class="pre">APyFixed::copy_n_to()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N8APyFixed8APyFixedEv"><code class="docutils literal notranslate"><span class="pre">APyFixed::APyFixed()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N8APyFixed8APyFixedERK8APyFixed"><code class="docutils literal notranslate"><span class="pre">APyFixed::APyFixed()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N8APyFixed8APyFixedERKN2nb4int_ENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE"><code class="docutils literal notranslate"><span class="pre">APyFixed::APyFixed()</span></code></a></li>

@@ -372,7 +372,8 @@
 <dl class="cpp class">
 <dt class="sig sig-object cpp" id="_CPPv4I00E9APyBuffer">
 <span id="_CPPv3I00E9APyBuffer"></span><span id="_CPPv2I00E9APyBuffer"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Allocator</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">allocator</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00E9APyBuffer" title="APyBuffer::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classAPyBuffer"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APyBuffer</span></span></span><a class="headerlink" href="#_CPPv4I00E9APyBuffer" title="Link to this definition">¶</a><br /></dt>
-<dd><div class="breathe-sectiondef docutils container">
+<dd><p>Subclassed by APyArray&lt; APyFloatData, APyFloatArray &gt;, APyArray&lt; mp_limb_t, APyFixedArray &gt;, APyArray&lt; T, ARRAY_TYPE &gt;</p>
+<div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-types">Public Types</p>
 <dl class="cpp type">
 <dt class="sig sig-object cpp" id="_CPPv4N9APyBuffer11vector_typeE">
@@ -385,29 +386,26 @@
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NK9APyBuffer4ndimEv">
 <span id="_CPPv3NK9APyBuffer4ndimEv"></span><span id="_CPPv2NK9APyBuffer4ndimEv"></span><span id="APyBuffer::ndimC"></span><span class="target" id="classAPyBuffer_1a06371109f03531211334a83c919d9e8c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ndim</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK9APyBuffer4ndimEv" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Getters for important field. </p>
+<dd><p>Retrieve number of array dimensions. </p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NK9APyBuffer4sizeEv">
 <span id="_CPPv3NK9APyBuffer4sizeEv"></span><span id="_CPPv2NK9APyBuffer4sizeEv"></span><span id="APyBuffer::sizeC"></span><span class="target" id="classAPyBuffer_1a7b255e1b3803d582b536814c779af45d"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK9APyBuffer4sizeEv" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
+<dd><p>Retrieve array size. </p>
+</dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NK9APyBuffer5shapeEv">
 <span id="_CPPv3NK9APyBuffer5shapeEv"></span><span id="_CPPv2NK9APyBuffer5shapeEv"></span><span id="APyBuffer::shapeC"></span><span class="target" id="classAPyBuffer_1a46523abb890f44b80bb4afc318d843af"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">shape</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK9APyBuffer5shapeEv" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
+<dd><p>Retrieve array shape. </p>
+</dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NK9APyBuffer16python_get_shapeEv">
 <span id="_CPPv3NK9APyBuffer16python_get_shapeEv"></span><span id="_CPPv2NK9APyBuffer16python_get_shapeEv"></span><span id="APyBuffer::python_get_shapeC"></span><span class="target" id="classAPyBuffer_1ae5b1298e21f37d6b4ac8c85136d943b7"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">nb</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">tuple</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">python_get_shape</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK9APyBuffer16python_get_shapeEv" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Shape of the array. </p>
+<dd><p>Retrieve array shape (exported to Python) </p>
 </dd></dl>
-
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4I00ENK9APyBuffer16get_item_integerENSt7variantI9APY_ARRAY10APY_SCALAREENSt9ptrdiff_tE">
-<span id="_CPPv3I00ENK9APyBuffer16get_item_integerENSt9ptrdiff_tE"></span><span id="_CPPv2I00ENK9APyBuffer16get_item_integerENSt9ptrdiff_tE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APY_ARRAY</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APY_SCALAR</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classAPyBuffer_1a5170117a3d1913a5249c47437c5fcaec"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00ENK9APyBuffer16get_item_integerENSt7variantI9APY_ARRAY10APY_SCALAREENSt9ptrdiff_tE" title="APyBuffer::get_item_integer::APY_ARRAY"><span class="n"><span class="pre">APY_ARRAY</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00ENK9APyBuffer16get_item_integerENSt7variantI9APY_ARRAY10APY_SCALAREENSt9ptrdiff_tE" title="APyBuffer::get_item_integer::APY_SCALAR"><span class="n"><span class="pre">APY_SCALAR</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_item_integer</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ptrdiff_t</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4I00ENK9APyBuffer16get_item_integerENSt7variantI9APY_ARRAY10APY_SCALAREENSt9ptrdiff_tE" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
 
 </div>
 <div class="breathe-sectiondef docutils container">
@@ -550,7 +548,6 @@
 <li><a class="reference internal" href="#_CPPv4NK9APyBuffer4sizeEv"><code class="docutils literal notranslate"><span class="pre">APyBuffer::size()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK9APyBuffer5shapeEv"><code class="docutils literal notranslate"><span class="pre">APyBuffer::shape()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK9APyBuffer16python_get_shapeEv"><code class="docutils literal notranslate"><span class="pre">APyBuffer::python_get_shape()</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4I00ENK9APyBuffer16get_item_integerENSt7variantI9APY_ARRAY10APY_SCALAREENSt9ptrdiff_tE"><code class="docutils literal notranslate"><span class="pre">APyBuffer::get_item_integer()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N9APyBuffer9APyBufferERKNSt6vectorINSt6size_tEEENSt6size_tE"><code class="docutils literal notranslate"><span class="pre">APyBuffer::APyBuffer()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N9APyBuffer13get_py_bufferEv"><code class="docutils literal notranslate"><span class="pre">APyBuffer::get_py_buffer()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N9APyBuffer13buffer_resizeEKNSt6vectorINSt6size_tEEENSt6size_tE"><code class="docutils literal notranslate"><span class="pre">APyBuffer::buffer_resize()</span></code></a></li>
