@@ -1,17 +1,20 @@
 #ifndef _APYFLOAT_ARRAY_H
 #define _APYFLOAT_ARRAY_H
 
-#include "apybuffer.h"
+#include "apyarray.h"
 #include "apyfloat.h"
 #include "apytypes_common.h"
-#include <cstdint>
+
+// Python object access through Nanobind
 #include <nanobind/nanobind.h>    // nanobind::object
 #include <nanobind/ndarray.h>     // nanobind::ndarray
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
+
+#include <cstdint>
 #include <optional>
 #include <vector>
 
-class APyFloatArray : public APyBuffer<APyFloatData> {
+class APyFloatArray : public APyArray<APyFloatData, APyFloatArray> {
 public:
     //! Constructor taking a sequence of signs, biased exponents, and mantissas.
     //! If no bias is given, an IEEE-like bias will be used.
@@ -32,9 +35,28 @@ public:
     exp_t bias;
 
     /* ****************************************************************************** *
+     * *                              CRTP methods                                  * *
+     * ****************************************************************************** */
+
+public:
+    //! The scalar variant of `APyFloatArray` is `APyFloat`
+    using SCALAR_VARIANT = APyFloat;
+
+    //! Name of this array type (used when throwing errors)
+    static constexpr auto ARRAY_NAME = std::string_view("APyFloatArray");
+
+    APyFloat create_scalar() const { return APyFloat(exp_bits, man_bits, bias); }
+
+    APyFloatArray create_array(const std::vector<std::size_t>& shape) const
+    {
+        return APyFloatArray(shape, exp_bits, man_bits, bias);
+    }
+
+    /* ****************************************************************************** *
      * *                       Binary arithmetic operators                          * *
      * ****************************************************************************** */
 
+public:
     APyFloatArray operator+(const APyFloatArray& rhs) const;
     APyFloatArray operator+(const APyFloat& rhs) const;
     APyFloatArray operator-(const APyFloatArray& rhs) const;
@@ -288,26 +310,9 @@ public:
      * *            `__getitem__` and `__setitem__` family of methods               * *
      * ****************************************************************************** */
 
-    //! Top-level `__getitem__` function
-    std::variant<APyFloatArray, APyFloat>
-    get_item(std::variant<nb::int_, nb::slice, nb::ellipsis, nb::tuple> key) const;
-
-    std::variant<APyFloatArray, APyFloat> get_item_integer(std::ptrdiff_t idx) const;
-
-    std::variant<APyFloatArray, APyFloat>
-    get_item_tuple(std::vector<std::variant<nb::int_, nb::slice>> tuple) const;
-
-    APyFloatArray get_item_slice(nb::slice slice) const;
-
-    std::vector<APyFloatArray> get_item_slice_nested(nb::slice slice) const;
-
-    std::vector<std::size_t> get_item_tuple_shape(
-        const std::vector<std::variant<nb::int_, nb::slice>>& tuple,
-        const std::vector<std::variant<nb::int_, nb::slice>>& remaining
-    ) const;
-
-    std::vector<std::variant<nb::int_, nb::slice>>
-    get_item_to_cpp_tuple(const nb::tuple& key) const;
+    // //! Top-level `__getitem__` function
+    // std::variant<APyFloatArray, APyFloat>
+    // get_item(std::variant<nb::int_, nb::slice, nb::ellipsis, nb::tuple> key) const;
 
     //! Extract bit-pattern
     std::variant<

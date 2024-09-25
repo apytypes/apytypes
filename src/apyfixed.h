@@ -5,19 +5,21 @@
 #ifndef _APYFIXED_H
 #define _APYFIXED_H
 
-#include <nanobind/nanobind.h> // nanobind::object
-namespace nb = nanobind;
-
 #include "apytypes_common.h"
 #include "apytypes_scratch_vector.h"
 #include "apytypes_util.h"
 
-#include <cstddef>  // std::size_t
-#include <limits>   // std::numeric_limits<>::is_iec559
-#include <optional> // std::optional, std::nullopt
-#include <ostream>  // std::ostream
-#include <string>   // std::string
-#include <vector>   // std::vector
+// Python object access through Nanobind
+#include <nanobind/nanobind.h> // nanobind::object
+namespace nb = nanobind;
+
+#include <algorithm> // std::copy_n
+#include <cstddef>   // std::size_t
+#include <limits>    // std::numeric_limits<>::is_iec559
+#include <optional>  // std::optional, std::nullopt
+#include <ostream>   // std::ostream
+#include <string>    // std::string
+#include <vector>    // std::vector
 
 // GMP should be included after all other includes
 #include "../extern/mini-gmp/mini-gmp.h"
@@ -58,6 +60,23 @@ private:
     // `mp_limb_t` is the underlying data type used for arithmetic in APyFixed (from the
     // GMP library). It is either a 32-bit or a 64-bit unsigned int, depending on the
     // target architecture.
+
+    /* ****************************************************************************** *
+     * *                              CRTP methods                                  * *
+     * ****************************************************************************** */
+
+public:
+    template <typename RANDOM_ACCESS_ITERATOR>
+    void copy_n_from(RANDOM_ACCESS_ITERATOR it, std::size_t n) noexcept
+    {
+        std::copy_n(it, n, std::begin(_data));
+    }
+
+    template <typename RANDOM_ACCESS_ITERATOR>
+    void copy_n_to(RANDOM_ACCESS_ITERATOR it, std::size_t n) const noexcept
+    {
+        std::copy_n(std::begin(_data), n, it);
+    }
 
     /* ****************************************************************************** *
      *                            Python constructors                                 *
@@ -383,6 +402,8 @@ private:
     //! `APyFixed` object
 public:
     friend class APyFixedArray;
+
+    template <typename T, typename ARRAY_TYPE> friend class APyArray;
 
 }; // end: class APyFixed
 

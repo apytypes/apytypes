@@ -1,4 +1,5 @@
 #include "apyfloatarray.h"
+#include "apyarray.h"
 #include "apyfloat.h"
 #include "apyfloat_util.h"
 #include "apytypes_common.h"
@@ -50,7 +51,7 @@ APyFloatArray::APyFloatArray(
     std::uint8_t man_bits,
     std::optional<exp_t> bias
 )
-    : APyBuffer(python_sequence_extract_shape(sign_seq))
+    : APyArray(python_sequence_extract_shape(sign_seq))
     , exp_bits(exp_bits)
     , man_bits(man_bits)
 {
@@ -91,12 +92,11 @@ APyFloatArray::APyFloatArray(
     std::uint8_t man_bits,
     std::optional<exp_t> bias
 )
-    : APyBuffer(shape)
+    : APyArray(shape)
     , exp_bits(exp_bits)
     , man_bits(man_bits)
     , bias(bias.value_or(APyFloat::ieee_bias(exp_bits)))
 {
-    _data = std::vector<APyFloatData>(fold_shape(shape), { 0, 0, 0 });
 }
 
 /* ********************************************************************************** *
@@ -1814,262 +1814,6 @@ APyFloatArray APyFloatArray::ravel() const
 {
     // currently same as flatten
     return this->flatten();
-}
-
-std::variant<APyFloatArray, APyFloat>
-APyFloatArray::get_item(std::variant<nb::int_, nb::slice, nb::ellipsis, nb::tuple> key
-) const
-{
-    if (std::holds_alternative<nb::int_>(key)) {
-
-        // Key is of integer type
-        return get_item_integer(static_cast<std::ptrdiff_t>(std::get<nb::int_>(key)));
-
-    } else if (std::holds_alternative<nb::slice>(key)) {
-
-        // Key is of slice type
-        return get_item_slice(std::get<nb::slice>(key));
-
-    } else if (std::holds_alternative<nb::ellipsis>(key)) {
-
-        // Key is a single ellipsis, return a copy of `*this`
-        return *this;
-
-    } else { /* std::holds_alternative<nb::tuple>(key) */
-
-        // Key is a tuple of slicing instructions
-        return get_item_tuple(get_item_to_cpp_tuple(std::get<nb::tuple>(key)));
-    }
-}
-
-std::variant<APyFloatArray, APyFloat> APyFloatArray::get_item_integer(std::ptrdiff_t idx
-) const
-{
-    if (idx >= std::ptrdiff_t(_shape[0]) || idx < -std::ptrdiff_t(_shape[0])) {
-        throw std::out_of_range(fmt::format(
-            "APyFloatArray.__getitem__: index {} is out of bounds for axis 0 with size "
-            "{}",
-            idx,
-            _shape[0]
-        ));
-    }
-
-    // Adjust for negative index
-    idx = idx < 0 ? idx + _shape[0] : idx;
-
-    if (ndim() == 1) {
-        // One dimension, return APyFloat
-        return APyFloat(_data[idx], exp_bits, man_bits, bias);
-    } else {
-        // New shape contains all dimensions except the very first one
-        auto new_shape = std::vector<std::size_t>(_shape.begin() + 1, _shape.end());
-
-        // Element stride is the new shape folded over multiplication
-        std::size_t element_stride = fold_shape(new_shape);
-
-        APyFloatArray result(new_shape, exp_bits, man_bits, bias);
-        std::copy_n(
-            _data.begin() + idx * element_stride, element_stride, result._data.begin()
-        );
-        return result;
-    }
-}
-
-APyFloatArray APyFloatArray::get_item_slice(nb::slice slice) const
-{
-    auto [start, stop, step, len] = slice.compute(_shape[0]);
-
-    // New resulting shape
-    std::vector<std::size_t> new_shape = _shape;
-    new_shape[0] = len;
-
-    // Result floating-point array
-    APyFloatArray result(new_shape, exp_bits, man_bits, bias);
-
-    auto size = fold_shape(std::begin(_shape) + 1, std::end(_shape));
-    std::ptrdiff_t src_i = start;
-    std::ptrdiff_t dst_i = 0;
-    if (step < 0) {
-        // Copy data into result and return (negative src step size)
-        for (; src_i > stop; src_i += step, dst_i++) {
-            std::copy_n(
-                std::begin(_data) + src_i * size,       // src
-                size,                                   // elements to copy
-                std::begin(result._data) + dst_i * size // dst
-            );
-        }
-    } else { /* step >= 0 */
-        // Copy data into result and return (positive src step size)
-        for (; src_i < stop; src_i += step, dst_i++) {
-            std::copy_n(
-                std::begin(_data) + src_i * size,       // src
-                size,                                   // elements to copy
-                std::begin(result._data) + dst_i * size // dst
-            );
-        }
-    }
-
-    return result;
-}
-
-std::vector<APyFloatArray> APyFloatArray::get_item_slice_nested(nb::slice slice) const
-{
-    auto [start, stop, step, len] = slice.compute(_shape[0]);
-
-    // The shape of the sliced vectors
-    std::vector<std::size_t> new_shape(std::begin(_shape) + 1, std::end(_shape));
-    if (!new_shape.size()) {
-        new_shape = { 1 };
-    }
-
-    // Result floating-point array
-    std::vector<APyFloatArray> result;
-
-    auto size = fold_shape(new_shape);
-    APyFloatArray tmp(new_shape, exp_bits, man_bits, bias);
-    if (step < 0) {
-        // Copy data into result and return (negative src step size)
-        for (std::ptrdiff_t src_i = start; src_i > stop; src_i += step) {
-            std::copy_n(std::begin(_data) + src_i * size, size, std::begin(tmp._data));
-            result.push_back(tmp);
-        }
-    } else {
-        // Copy data into result and return (positive src step size)
-        for (std::ptrdiff_t src_i = start; src_i < stop; src_i += step) {
-            std::copy_n(std::begin(_data) + src_i * size, size, std::begin(tmp._data));
-            result.push_back(tmp);
-        }
-    }
-    return result;
-}
-
-std::variant<APyFloatArray, APyFloat>
-APyFloatArray::get_item_tuple(std::vector<std::variant<nb::int_, nb::slice>> tuple
-) const
-{
-    // Return everything on an empty tuple
-    if (tuple.size() == 0) {
-        return *this;
-    }
-
-    std::variant<nb::int_, nb::slice> current = tuple[0];
-    std::vector<std::variant<nb::int_, nb::slice>> remaining(
-        std::begin(tuple) + 1, std::end(tuple)
-    );
-
-    if (std::holds_alternative<nb::int_>(current)) {
-
-        /*
-         * Current tuple element is an integer
-         */
-        std::ptrdiff_t key = static_cast<std::ptrdiff_t>(std::get<nb::int_>(current));
-        std::variant<APyFloatArray, APyFloat> result = get_item_integer(key);
-        if (!remaining.size()) {
-            return result; // is always APyFloat
-        } else {
-            return std::get<APyFloatArray>(result).get_item_tuple(remaining);
-        }
-
-    } else { /* std::holds_alternative<nb::slice>(current) */
-
-        /*
-         * Current tuple element is a slice
-         */
-        APyFloatArray result(
-            get_item_tuple_shape(tuple, remaining), exp_bits, man_bits, bias
-        );
-        nb::slice slice = std::get<nb::slice>(current);
-        auto arrays = get_item_slice_nested(slice);
-
-        for (std::size_t i = 0; i < arrays.size(); i++) {
-            auto v = arrays[i].get_item_tuple(remaining);
-            if (std::holds_alternative<APyFloat>(v)) {
-                result._data[i] = std::get<APyFloat>(v).get_data();
-            } else {
-                auto fparray = std::get<APyFloatArray>(v);
-                std::copy_n(
-                    std::begin(fparray._data),
-                    fparray._data.size(),
-                    std::begin(result._data) + i * fparray._data.size()
-                );
-            }
-        }
-
-        return result;
-    }
-}
-
-std::vector<std::size_t> APyFloatArray::get_item_tuple_shape(
-    const std::vector<std::variant<nb::int_, nb::slice>>& tuple,
-    const std::vector<std::variant<nb::int_, nb::slice>>& remaining
-) const
-{
-    // Compute the resulting array shape
-    std::vector<std::size_t> result_shape;
-    for (std::size_t i = 0; i < tuple.size(); i++) {
-        auto&& element = tuple[i];
-        if (std::holds_alternative<nb::int_>(element)) {
-            continue;
-        } else { /* std::holds_alternative<nb::slice>(v) */
-            auto [_, __, ___, len] = std::get<nb::slice>(element).compute(_shape[i]);
-            result_shape.push_back(len);
-        }
-    }
-    for (std::size_t i = remaining.size() + 1; i < _shape.size(); i++) {
-        result_shape.push_back(_shape[i]);
-    }
-    return result_shape;
-}
-
-std::vector<std::variant<nb::int_, nb::slice>>
-APyFloatArray::get_item_to_cpp_tuple(const nb::tuple& key) const
-{
-    if (key.size() > ndim()) {
-        // The key tuple must have fewer elements than this array has number of
-        // dimensions
-        std::string msg = fmt::format(
-            "APyFloatArray.__getitem__: key tuple size (={}) > ndim (={})",
-            key.size(),
-            ndim()
-        );
-        throw nb::value_error(msg.c_str());
-    }
-
-    nb::int_ integer;
-    nb::slice slice;
-    nb::ellipsis ellipsis;
-    bool ellipsis_found = false;
-    std::vector<std::variant<nb::int_, nb::slice>> cpp_tuple;
-
-    for (std::size_t i = 0; i < key.size(); i++) {
-        const auto& tuple_element = key[i];
-        if (nb::try_cast<nb::slice>(tuple_element, slice)) {
-            cpp_tuple.push_back(slice);
-        } else if (nb::try_cast<nb::int_>(tuple_element, integer)) {
-            cpp_tuple.push_back(integer);
-        } else if (nb::try_cast<nb::ellipsis>(tuple_element, ellipsis)) {
-            if (ellipsis_found) {
-                // An ellipsis object has already been procecced. Only a single ellipsis
-                // per tuple key is allowed
-                throw nb::value_error(
-                    "APyFloatArray.__getitem__: only one single ellipsis object allowed"
-                );
-            } else {
-                // Found first ellipsis, fill missing dimesnsions with full slices
-                ellipsis_found = true;
-                std::size_t n_fill = ndim() - key.size() + 1;
-                for (std::size_t j = 0; j < n_fill; j++) {
-                    cpp_tuple.push_back(nb::slice(_shape[i + j]));
-                }
-            }
-        } else {
-            throw nb::value_error(
-                "APyFloatArray.__getitem__: supported keys are `int`, `slice`, "
-                "`ellipsis`, or a single tuple thereof"
-            );
-        }
-    }
-    return cpp_tuple;
 }
 
 std::variant<
