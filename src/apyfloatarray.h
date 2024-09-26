@@ -188,9 +188,6 @@ public:
     //! Same as flatten as for now.
     APyFloatArray ravel() const;
 
-    //! Broadcast to a new shape.
-    APyFloatArray broadcast_to(const std::vector<std::size_t> shape) const;
-
     //! Return a copy where all axes of size 1 is removed.
     APyFloatArray
     squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
@@ -241,10 +238,6 @@ public:
     //! Return the minimum of an array or the minimum along an axis. Ignoring nan
     std::variant<APyFloatArray, APyFloat>
     nanmin(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
-
-    //! Python-exposed `broadcast_to`
-    APyFloatArray broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
-    ) const;
 
     //! Swaps the positions of two axes in the array.
     APyFloatArray swapaxes(nb::int_ axis1, nb::int_ axis2) const;

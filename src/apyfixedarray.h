@@ -195,11 +195,7 @@ public:
      * ****************************************************************************** */
 
     //! Broadcast to a new shape
-    APyFixedArray broadcast_to(const std::vector<std::size_t> shape) const;
-
-    //! Python-exposed `broadcast_to`
-    APyFixedArray broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape
-    ) const;
+    // APyFixedArray broadcast_to(const std::vector<std::size_t> shape) const;
 
     //! Squeeze this array. Return new `APyFixedArray`.
     APyFixedArray
