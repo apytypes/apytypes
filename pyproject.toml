@@ -44,6 +44,7 @@ docs = [
     "docutils<=0.20",  # Pin to get around limitation in m2r2
     "numpy>=1.25",
     "scipy",
+    "cocotb",
 ]
 test = ["numpy>=1.25", "pytest>=8.2"]
 dev = ["nanobind>=2.1.0"]
