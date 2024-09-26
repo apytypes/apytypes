@@ -114,6 +114,16 @@ public:
         std::optional<exp_t> bias = std::nullopt
     );
 
+    //! Create an `APyFloatArray` tensor object initialized from bit-representation
+    static APyFloatArray from_bits(
+        const nb::sequence& python_bit_patterns,
+        int exp_bits,
+        int man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
+
+    void _set_bits_from_ndarray(const nanobind::ndarray<nanobind::c_contig>& ndarray);
+
     //! Set data fields based on an and-array of doubles
     void _set_values_from_ndarray(const nanobind::ndarray<nanobind::c_contig>& ndarray);
 
@@ -365,6 +375,14 @@ private:
         const std::vector<std::size_t>& shape,
         exp_t exp_bits,
         std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
+
+    //! Create an `APyFloatArray` tensor object initialized from bit-representation
+    static APyFloatArray _from_bits_ndarray(
+        const nb::ndarray<nb::c_contig>& ndarray,
+        int exp_bits,
+        int man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
 

@@ -367,6 +367,12 @@ public:
     APyFloat
     construct_nan(std::optional<bool> new_sign = std::nullopt, man_t payload = 1) const;
 
+    //! Update data fields based on a bit pattern
+    APyFloat& update_from_bits(nb::int_ python_long_int_bit_pattern);
+
+    //! Update data fields based on a bit pattern
+    APyFloat& update_from_bits(std::uint64_t bits);
+
     //! Test if two floating-point numbers are identical, i.e., has the same value, and
     //! the same format
     bool is_identical(const APyFloat& other) const;
@@ -444,9 +450,6 @@ private:
      * * Helper functions                                                           *
      * ******************************************************************************
      */
-
-    //! Update data fields based on a bit pattern
-    APyFloat& update_from_bits(nanobind::int_ python_long_int_bit_pattern);
 
     //! Create a bit mask for the exponent field
     APY_INLINE exp_t exp_mask() const { return ((1ULL << exp_bits) - 1); }
