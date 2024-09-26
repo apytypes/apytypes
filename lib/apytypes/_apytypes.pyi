@@ -2561,6 +2561,36 @@ class APyFloatArray:
         """
 
     @staticmethod
+    def from_bits(
+        bits: Sequence, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyFloatArray:
+        """
+        Create an :class:`APyFloatArray` object from bit-representations.
+
+        Parameters
+        ----------
+        bits : int
+            The bit-representations.
+        exp_bits : int
+            Number of exponent bits in the created floating-point tensor
+        man_bits : int
+            Number of mantissa bits in the created floating-point tensor
+        bias : int, optional
+            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+        Examples
+        --------
+
+        >>> from apytypes import APyFloatArray
+
+        >>> a = APyFloatArray.from_bits([[60, 61], [80, 82]], exp_bits=5, man_bits=2)
+
+        Returns
+        -------
+        :class:`APyFloatArray`
+        """
+
+    @staticmethod
     def zeros(
         shape: tuple, exp_bits: int, man_bits: int, bias: int | None = None
     ) -> APyFloatArray:

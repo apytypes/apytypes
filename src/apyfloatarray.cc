@@ -1934,7 +1934,6 @@ APyFloatArray APyFloatArray::from_double(
     );
 
     const auto py_obj = python_sequence_walk<nb::float_, nb::int_>(number_seq);
-    const auto actual_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
 
     for (std::size_t i = 0; i < result._data.size(); i++) {
         if (nb::isinstance<nb::float_>(py_obj[i])) {
@@ -1942,13 +1941,13 @@ APyFloatArray APyFloatArray::from_double(
                                   (double)nb::cast<nb::float_>(py_obj[i]),
                                   exp_bits,
                                   man_bits,
-                                  actual_bias
+                                  result.bias
             )
                                   .get_data();
         } else if (nb::isinstance<nb::int_>(py_obj[i])) {
             result._data[i]
                 = APyFloat::from_integer(
-                      nb::cast<nb::int_>(py_obj[i]), exp_bits, man_bits, actual_bias
+                      nb::cast<nb::int_>(py_obj[i]), exp_bits, man_bits, result.bias
                 )
                       .get_data();
         } else {
@@ -1995,7 +1994,7 @@ void APyFloatArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& nd
                                          man_of_double(value) });                      \
                 APyFloat fp                                                            \
                     = double_caster.cast_from_double(exp_bits, man_bits, bias);        \
-                _data[i] = { fp.get_sign(), fp.get_exp(), fp.get_man() };              \
+                _data[i] = fp.get_data();                                              \
             }                                                                          \
             return; /* Conversion completed, exit function */                          \
         }                                                                              \
@@ -2023,6 +2022,90 @@ void APyFloatArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& nd
     throw nb::type_error(
         "APyFloatArray::_set_values_from_ndarray(): "
         "unsupported `dtype` expecting integer/float"
+    );
+}
+
+APyFloatArray APyFloatArray::from_bits(
+    const nb::sequence& python_bit_patterns,
+    int exp_bits,
+    int man_bits,
+    std::optional<exp_t> bias
+)
+{
+    check_exponent_format(exp_bits);
+    check_mantissa_format(man_bits);
+
+    if (nb::isinstance<nb::ndarray<>>(python_bit_patterns)) { // ndarray
+        const auto ndarray = nb::cast<nb::ndarray<nb::c_contig>>(python_bit_patterns);
+
+        assert(ndarray.ndim() > 0);
+        std::vector<std::size_t> shape(ndarray.ndim(), 0);
+        for (std::size_t i = 0; i < ndarray.ndim(); i++) {
+            shape[i] = ndarray.shape(i);
+        }
+
+        APyFloatArray result(shape, exp_bits, man_bits, bias);
+        result._set_bits_from_ndarray(ndarray);
+        return result;
+    }
+
+    APyFloatArray result(
+        python_sequence_extract_shape(python_bit_patterns), exp_bits, man_bits, bias
+    );
+
+    const auto py_obj = python_sequence_walk<nb::float_, nb::int_>(python_bit_patterns);
+
+    APyFloat f(exp_bits, man_bits, result.bias);
+    for (std::size_t i = 0; i < result._data.size(); i++) {
+        if (nb::isinstance<nb::int_>(py_obj[i])) {
+            result._data[i]
+                = f.update_from_bits(nb::cast<nb::int_>(py_obj[i])).get_data();
+        } else {
+            throw std::domain_error("Invalid Python objects in sequence");
+        }
+    }
+
+    return result;
+}
+
+void APyFloatArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& ndarray)
+{
+    // Double value used for converting.
+    APyFloat f(exp_bits, man_bits, bias);
+
+#define CHECK_AND_SET_VALUES_FROM_NPTYPE(__TYPE__)                                     \
+    do {                                                                               \
+        if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
+            const auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();           \
+            for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
+                const auto bits = static_cast<std::uint64_t>(ndarray_view.data()[i]);  \
+                f.update_from_bits(bits);                                              \
+                _data[i] = f.get_data();                                               \
+            }                                                                          \
+            return; /* Conversion completed, exit function */                          \
+        }                                                                              \
+    } while (0)
+
+    // Each `CHECK_AND_SET_VALUES_FROM_NPTYPE` checks the dtype of `ndarray` and
+    // converts all the data if it matches. If successful,
+    // `CHECK_AND_SET_VALUES_FROM_NPTYPES` returns. Otherwise, the next attempted
+    // conversion will take place
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int64_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int32_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int16_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int8_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint64_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint32_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint16_t);
+    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint8_t);
+
+    // None of the `CHECK_AND_VALUES_FROM_NPTYPE` succeeded. Unsupported type, throw
+    // an error. If possible, it would be nice to show a string representation of
+    // the `dtype`. Seems hard to achieve with nanobind, but please fix this if you
+    // find out how this can be achieved.
+    throw nb::type_error(
+        "APyFloatArray::_set_bits_from_ndarray(): "
+        "unsupported `dtype` expecting integer"
     );
 }
 

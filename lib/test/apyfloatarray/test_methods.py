@@ -146,6 +146,68 @@ def test_array_from_array_raises():
 
 
 @pytest.mark.float_array
+def test_from_bits():
+    # Test raises
+    with pytest.raises(
+        ValueError,
+        match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+    ):
+        APyFloatArray.from_bits([0], 300, 5)
+
+    with pytest.raises(
+        ValueError,
+        match="python_sequence_extract_shape",
+    ):
+        APyFloatArray.from_bits(["0"], 5, 10)
+
+    with pytest.raises(
+        ValueError,
+        match="Invalid",
+    ):
+        APyFloatArray.from_bits([1, 10, 1.0, 5], 5, 10)
+
+    # 1-D
+    assert APyFloatArray.from_bits(range(2**8), 5, 2).to_bits() == list(range(2**8))
+
+    # 2-D
+    assert APyFloatArray.from_bits([[65, 66], [191, 190]], 5, 2, 9).is_identical(
+        APyFloatArray([[0, 0], [1, 1]], [[16, 16], [15, 15]], [[1, 2], [3, 2]], 5, 2, 9)
+    )
+
+    # Test long Python integer
+    val = 0xF000000FFFFFFFFFF
+    APyFloatArray.from_bits([val], 27, 40).is_identical(
+        APyFloatArray([1], [117440512], [1099511627775], 27, 40)
+    )
+
+
+@pytest.mark.float_array
+def test_from_bits_numpy():
+    # Skip this test if `NumPy` is not present on the machine
+    np = pytest.importorskip("numpy")
+
+    # Test raise
+    with pytest.raises(
+        TypeError,
+        match="APyFloatArray::_set_bits_from_ndarray()",
+    ):
+        APyFloatArray.from_bits(np.asarray([1.0]), 8, 15)
+
+    # 16-bit, (2, 2)
+    vals = np.asarray([[65, 66], [191, 190]], dtype=np.int16)
+    assert APyFloatArray.from_bits(vals, 5, 2, 9).is_identical(
+        APyFloatArray([[0, 0], [1, 1]], [[16, 16], [15, 15]], [[1, 2], [3, 2]], 5, 2, 9)
+    )
+
+    # 64-bit, (4, 4, 4)
+    a = APyFloatArray.from_float(
+        [1.0, -8564651213, 2**-1070, float("inf")] * 16, 11, 52
+    ).reshape((4, 4, 4))
+    nparr = a.to_bits(numpy=True)
+    assert APyFloatArray.from_bits(nparr, 11, 52).is_identical(a)
+
+
+@pytest.mark.float_array
 def test_to_numpy():
     # Skip this test if `NumPy` is not present on the machine
     np = pytest.importorskip("numpy")

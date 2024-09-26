@@ -710,6 +710,21 @@ APyFloat& APyFloat::update_from_bits(nb::int_ python_long_int_bit_pattern)
     return *this;
 }
 
+APyFloat& APyFloat::update_from_bits(std::uint64_t bits)
+{
+    assert((1 + exp_bits + man_bits) <= 64);
+
+    man = bits & man_mask();
+    bits >>= man_bits;
+
+    exp = bits & exp_mask();
+    bits >>= exp_bits;
+
+    sign = bits & 1;
+
+    return *this;
+}
+
 nb::int_ APyFloat::to_bits() const
 {
     return apyfloat_to_bits({ sign, exp, man }, exp_bits, man_bits);
