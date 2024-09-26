@@ -6,6 +6,8 @@
 #define _APYARRAY_H
 
 #include "apybuffer.h"
+#include "apytypes_util.h"
+#include "broadcast.h"
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
@@ -328,6 +330,36 @@ public:
                 get_item_tuple(get_item_to_cpp_tuple(std::get<nb::tuple>(key)))
             );
         }
+    }
+
+    /* ****************************************************************************** *
+     * *                     `broadcast` family of methods                          * *
+     * ****************************************************************************** */
+
+    //! Broadcast `*this` array to `shape`. Throws `nb::value_error` if `*this` shape is
+    //! incompatible with `shape`.
+    ARRAY_TYPE broadcast_to(const std::vector<std::size_t> shape) const
+    {
+        if (!is_broadcastable(_shape, shape)) {
+            std::string error_msg = fmt::format(
+                "Operands could not be broadcast together with shapes: {}, {}",
+                tuple_string_from_vec(_shape),
+                tuple_string_from_vec(shape)
+            );
+            throw nb::value_error(error_msg.c_str());
+        }
+
+        ARRAY_TYPE result = static_cast<const ARRAY_TYPE*>(this)->create_array(shape);
+        broadcast_data_copy(
+            _data.begin(), result._data.begin(), _shape, shape, _itemsize
+        );
+        return result;
+    }
+
+    //! Python exported `broadcast_to` method
+    ARRAY_TYPE broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape) const
+    {
+        return broadcast_to(cpp_shape_from_python_shape_like(shape));
     }
 
 }; // class APyArray

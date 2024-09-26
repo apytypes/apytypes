@@ -812,24 +812,6 @@ APyFixedArray APyFixedArray::transpose(std::optional<nb::tuple> axes) const
  * *                               Other methods                                    * *
  * ********************************************************************************** */
 
-APyFixedArray APyFixedArray::broadcast_to(const std::vector<std::size_t> shape) const
-{
-    if (!is_broadcastable(_shape, shape)) {
-        throw nb::value_error(
-            fmt::format(
-                "Operands could not be broadcast together with shapes: {}, {}",
-                tuple_string_from_vec(_shape),
-                tuple_string_from_vec(shape)
-            )
-                .c_str()
-        );
-    }
-
-    APyFixedArray result(shape, bits(), int_bits());
-    broadcast_data_copy(_data.begin(), result._data.begin(), _shape, shape, _itemsize);
-    return result;
-}
-
 APyFixedArray
 APyFixedArray::squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis) const
 {
@@ -1282,12 +1264,6 @@ APyFixedArray APyFixedArray::nancumprod(std::optional<nb::int_> axis) const
 {
     // since no Nan can exist in an APyFixedArray it is the same as cumprod
     return this->cumprod(axis);
-}
-
-APyFixedArray
-APyFixedArray::broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape) const
-{
-    return broadcast_to(cpp_shape_from_python_shape_like(shape));
 }
 
 APyFixedArray

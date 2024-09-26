@@ -2073,7 +2073,7 @@ void APyFloatArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& ndar
     // Double value used for converting.
     APyFloat f(exp_bits, man_bits, bias);
 
-#define CHECK_AND_SET_VALUES_FROM_NPTYPE(__TYPE__)                                     \
+#define CHECK_AND_SET_BITS_FROM_NPTYPE(__TYPE__)                                       \
     do {                                                                               \
         if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
             const auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();           \
@@ -2086,18 +2086,18 @@ void APyFloatArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& ndar
         }                                                                              \
     } while (0)
 
-    // Each `CHECK_AND_SET_VALUES_FROM_NPTYPE` checks the dtype of `ndarray` and
+    // Each `CHECK_AND_SET_BITS_FROM_NPTYPE` checks the dtype of `ndarray` and
     // converts all the data if it matches. If successful,
-    // `CHECK_AND_SET_VALUES_FROM_NPTYPES` returns. Otherwise, the next attempted
+    // `CHECK_AND_SET_BITS_FROM_NPTYPES` returns. Otherwise, the next attempted
     // conversion will take place
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int64_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int32_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int16_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int8_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint64_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint32_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint16_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint8_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::int64_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::int32_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::int16_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::int8_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint64_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint32_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint16_t);
+    CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint8_t);
 
     // None of the `CHECK_AND_VALUES_FROM_NPTYPE` succeeded. Unsupported type, throw
     // an error. If possible, it would be nice to show a string representation of
@@ -2107,29 +2107,6 @@ void APyFloatArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& ndar
         "APyFloatArray::_set_bits_from_ndarray(): "
         "unsupported `dtype` expecting integer"
     );
-}
-
-APyFloatArray APyFloatArray::broadcast_to(const std::vector<std::size_t> shape) const
-{
-    if (!is_broadcastable(this->_shape, shape)) {
-        throw nb::value_error(
-            fmt::format(
-                "Operands could not be broadcast together with shapes: {}, {}",
-                tuple_string_from_vec(this->_shape),
-                tuple_string_from_vec(shape)
-            )
-                .c_str()
-        );
-    }
-    APyFloatArray result(shape, exp_bits, man_bits, bias);
-    broadcast_data_copy(_data.begin(), result._data.begin(), this->_shape, shape);
-    return result;
-}
-
-APyFloatArray
-APyFloatArray::broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape) const
-{
-    return broadcast_to(cpp_shape_from_python_shape_like(shape));
 }
 
 APyFloatArray APyFloatArray::swapaxes(nb::int_ axis1, nb::int_ axis2) const
