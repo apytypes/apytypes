@@ -1109,62 +1109,6 @@ APyFloatArray APyFloatArray::arange(
     return result;
 }
 
-/* ****************************************************************************** *
- *                            Methods for array modification                      *
- * ****************************************************************************** */
-
-APyFloatArray
-APyFloatArray::squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis) const
-{
-    std::vector<std::size_t> shape = _shape;
-    std::set<int> axis_set;
-    if (axis.has_value()) {
-        auto ax = axis.value();
-        nb::tuple axis_tuple;
-
-        if (std::holds_alternative<nb::tuple>(ax)) {
-            axis_tuple = std::get<nb::tuple>(ax);
-        } else if (std::holds_alternative<nb::int_>(ax)) {
-            int axis = int(std::get<nb::int_>(ax));
-            axis_tuple = nb::make_tuple(axis);
-        }
-        for (auto ptr = axis_tuple.begin(); ptr != axis_tuple.end(); ptr++) {
-            int axis_n = int(nanobind::cast<nb::int_>(*ptr));
-            if (axis_n >= int(shape.size())) {
-                throw nb::index_error(
-                    "Specified axis with larger than number of dimensions in the "
-                    "APyFloatArray"
-                );
-            }
-            axis_set.insert(axis_n);
-        }
-        // precidate to squeeze without specified axes
-        int cnt = 0;
-        auto predicate = [&](std::size_t dim) {
-            if (axis_set.find(cnt) != axis_set.end() && dim != 1) {
-                throw nb::value_error(
-                    "Cannot select an axis to squeeze that has size other than one"
-                );
-            }
-            return axis_set.find(cnt++) != axis_set.end() && dim == 1;
-        };
-        shape.erase(std::remove_if(shape.begin(), shape.end(), predicate), shape.end());
-    } else {
-        // precidate to squeeze without specified axes
-        auto predicate = [](std::size_t dim) { return dim == 1; };
-        shape.erase(std::remove_if(shape.begin(), shape.end(), predicate), shape.end());
-    }
-
-    if (shape.size() == 0) {
-        shape = { 1 };
-    }
-
-    // create the resulting Array and copy the data
-    APyFloatArray result(shape, exp_bits, man_bits, bias);
-    std::copy_n(_data.begin(), _data.size(), result._data.begin());
-    return result;
-}
-
 //! Perform a linear convolution with `other` using `mode`
 APyFloatArray
 APyFloatArray::convolve(const APyFloatArray& other, const std::string& mode) const
@@ -1790,18 +1734,6 @@ std::string APyFloatArray::repr() const
     return ss.str();
 }
 
-APyFloatArray APyFloatArray::flatten() const
-{
-    // Reuse the reshape function to flatten the array
-    return this->reshape(nb::make_tuple(-1));
-}
-
-APyFloatArray APyFloatArray::ravel() const
-{
-    // currently same as flatten
-    return this->flatten();
-}
-
 std::variant<
     nb::list,
     nb::ndarray<nb::numpy, uint64_t>,
@@ -2114,55 +2046,6 @@ APyFloatArray APyFloatArray::swapaxes(nb::int_ axis1, nb::int_ axis2) const
     APyFloatArray result(new_shape, exp_bits, man_bits, bias);
     transpose_axes_and_copy_data(_data.begin(), result._data.begin(), _shape, new_axis);
     return result;
-}
-
-APyFloatArray APyFloatArray::transpose(std::optional<nb::tuple> axes) const
-{
-    switch (ndim()) {
-    case 0:
-    case 1:
-        // Behave like `NumPy`, simply returns `*this` if single-dimensional
-        return *this;
-    case 2: {
-
-        // Optimized code for dim == 2
-        // Resulting array with shape dimensions
-        std::vector<size_t> new_shape = { _shape[1], _shape[0] };
-        APyFloatArray result(new_shape, exp_bits, man_bits, bias);
-
-        // Transpose the data
-        for (std::size_t y = 0; y < _shape[0]; ++y) {
-            for (std::size_t x = 0; x < _shape[1]; ++x) {
-                result._data[x * _shape[0] + y] = _data[y * _shape[1] + x];
-            }
-        }
-        return result;
-    }
-
-    default: {
-        std::vector<size_t> new_axis(ndim());
-
-        if (axes.has_value()) {
-            std::variant<nb::tuple, nb::int_> axis_variant = axes.value();
-            new_axis = get_normalized_axes(axis_variant, ndim());
-        } else {
-            // reverse the order of axes by default
-            std::iota(new_axis.begin(), new_axis.end(), 0);
-            std::reverse(new_axis.begin(), new_axis.end());
-        }
-
-        std::vector<size_t> new_shape(ndim());
-        for (size_t i = 0; i < ndim(); ++i) {
-            new_shape[i] = _shape[new_axis[i]];
-        }
-
-        APyFloatArray result(new_shape, exp_bits, man_bits, bias);
-        transpose_axes_and_copy_data(
-            _data.begin(), result._data.begin(), _shape, new_axis
-        );
-        return result;
-    }
-    }
 }
 
 APyFloatArray APyFloatArray::cast(

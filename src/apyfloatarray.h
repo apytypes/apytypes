@@ -179,16 +179,6 @@ public:
      * *                          Public member functions                           * *
      * ****************************************************************************** */
 
-    //! Reshape flatten into 1d shape.
-    APyFloatArray flatten() const;
-
-    //! Same as flatten as for now.
-    APyFloatArray ravel() const;
-
-    //! Return a copy where all axes of size 1 is removed.
-    APyFloatArray
-    squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
-
     //! Perform a linear convolution with `other` using `mode`
     APyFloatArray convolve(const APyFloatArray& other, const std::string& mode) const;
 
@@ -238,10 +228,6 @@ public:
 
     //! Swaps the positions of two axes in the array.
     APyFloatArray swapaxes(nb::int_ axis1, nb::int_ axis2) const;
-
-    //! Transposition function. For a 1-D array, Return an exact copy of `*this`. For
-    //! a 2-D array, Return the matrix transposition of `*this`.
-    APyFloatArray transpose(std::optional<nb::tuple> axes = std::nullopt) const;
 
     //! Return a copy of the tensor with the elements resized.
     APyFloatArray cast(

@@ -6,12 +6,14 @@
 #include "apytypes_util.h"
 #include "broadcast.h"
 #include "nanobind/ndarray.h"
-#include <cstddef>
+
 #include <nanobind/nanobind.h>
-#include <unordered_set>
-#include <variant>
+#include <nanobind/stl/variant.h>
 namespace nb = nanobind;
 
+#include <cstddef>
+#include <unordered_set>
+#include <variant>
 #include <vector>
 
 /**
