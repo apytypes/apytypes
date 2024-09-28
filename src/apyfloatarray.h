@@ -179,9 +179,6 @@ public:
      * *                          Public member functions                           * *
      * ****************************************************************************** */
 
-    //! Reshape into a new shape.
-    APyFloatArray reshape(nb::tuple new_shape) const;
-
     //! Reshape flatten into 1d shape.
     APyFloatArray flatten() const;
 

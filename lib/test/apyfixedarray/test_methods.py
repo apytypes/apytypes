@@ -660,13 +660,15 @@ def test_reshape(shape, is_valid, is_invalid, test_neg_one):
     if is_invalid:
         with pytest.raises(
             ValueError,
-            match="Total number of elements does not match the original array.",
+            match=r"APyFixedArray\.reshape: target array number of elements does not",
         ):
             arr.reshape(shape)
     elif test_neg_one:
         with pytest.raises(
             ValueError,
-            match=r"Negative dimensions less than -1 are not allowed.|Only one dimension can be -1.|The total size of new array must be unchanged and divisible by the known dimensions.",
+            match=r"APyFixedArray\.reshape: array dimensions must be greater than|"
+            r"APyFixedArray\.reshape: only one dimension can be -1|"
+            r"APyFixedArray\.reshape: the size of target array must be unchanged and",
         ):
             arr.reshape(shape)
     elif is_valid:
