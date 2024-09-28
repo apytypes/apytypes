@@ -42,15 +42,14 @@ def test_squeeze():
     assert z.is_identical(i)
     m = APyFixedArray([[1], [2], [3]], bits=2, int_bits=2)
     with pytest.raises(
-        ValueError,
-        match="Cannot select an axis to squeeze that has size other than one",
+        ValueError, match=r"APyFixedArray\.squeeze: cannot squeeze non-one dimensions"
     ):
         _ = m.squeeze(axis=0)
     m1 = m.squeeze(axis=1)
     assert m1.is_identical(APyFixedArray([1, 2, 3], bits=2, int_bits=2))
     with pytest.raises(
         IndexError,
-        match="Specified axis with larger than number of dimensions in the APyFixedArray",
+        match=r"APyFixedArray\.squeeze: specified axis larger than number of array dim",
     ):
         _ = m.squeeze(axis=2)
 
@@ -61,13 +60,12 @@ def test_squeeze():
     assert p.is_identical(APyFixedArray([[[[[2]]]]], bits=2, int_bits=2))
     q = APyFixedArray([[[1]], [[2]], [[3]], [[4]]], bits=2, int_bits=2)
     with pytest.raises(
-        ValueError,
-        match="Cannot select an axis to squeeze that has size other than one",
+        ValueError, match=r"APyFixedArray\.squeeze: cannot squeeze non-one dimensions"
     ):
         _ = q.squeeze((0, 1, 2))
     with pytest.raises(
         IndexError,
-        match="Specified axis with larger than number of dimensions in the APyFixedArray",
+        match=r"APyFixedArray.squeeze: specified axis larger than number of array dim",
     ):
         _ = m.squeeze((1, 4))
 

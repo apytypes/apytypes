@@ -1,5 +1,6 @@
 /*
- * APyTypes array base class, for sharing functionality between array types.
+ * APyTypes array base class, for sharing functionality between array types. All the
+ * member functions of the APyTypes array types I don't want to write twice...
  */
 
 #ifndef _APYARRAY_H
@@ -7,6 +8,7 @@
 
 #include "apybuffer.h"
 #include "apytypes_util.h"
+#include "array_utils.h"
 #include "broadcast.h"
 
 // Python object access through Nanobind
@@ -15,6 +17,7 @@
 namespace nb = nanobind;
 
 #include <iterator> // std::begin
+#include <set>      // std::set
 #include <variant>  // std::variant
 
 template <typename T, typename ARRAY_TYPE> class APyArray : public APyBuffer<T> {
@@ -301,7 +304,7 @@ public:
         }
     }
 
-    //! Top-level Python-exported `__getitem__` function
+    //! Top-level Python exported `__getitem__` function
     auto get_item(std::variant<nb::int_, nb::slice, nb::ellipsis, nb::tuple> key) const
     {
         using SCALAR_TYPE = typename ARRAY_TYPE::SCALAR_VARIANT;
@@ -440,6 +443,130 @@ public:
         return result;
     }
 
-}; // class APyArray
+    //! Python exported `flatten` method
+    ARRAY_TYPE flatten() const
+    {
+        // Reuse the reshape function to flatten the array
+        return reshape(nb::make_tuple(-1));
+    }
+
+    //! Python exported `ravel` method
+    ARRAY_TYPE ravel() const { return flatten(); }
+
+    //! Python exported `transpose` method.
+    ARRAY_TYPE transpose(std::optional<nb::tuple> axes = std::nullopt) const
+    {
+        switch (_ndim) {
+        case 0:
+        case 1:
+            // Behave like NumPy, simply return `*this` if single dimensional
+            return *static_cast<const ARRAY_TYPE*>(this);
+        case 2: {
+            // Optimized code for `_ndim` == 2
+            ARRAY_TYPE result
+                = static_cast<const ARRAY_TYPE*>(this)->create_array(_shape);
+            std::reverse(result._shape.begin(), result._shape.end());
+            for (std::size_t y = 0; y < _shape[0]; y++) {
+                for (std::size_t x = 0; x < _shape[1]; x++) {
+                    std::copy_n(
+                        _data.begin() + (y * _shape[1] + x) * _itemsize,       // src
+                        _itemsize,                                             // limbs
+                        result._data.begin() + (x * _shape[0] + y) * _itemsize // dst
+                    );
+                }
+            }
+            return result;
+        }
+
+        default: {
+            std::vector<size_t> new_axis(_ndim);
+
+            if (axes.has_value()) {
+                std::variant<nb::tuple, nb::int_> axis_variant = axes.value();
+                new_axis = get_normalized_axes(axis_variant, _ndim);
+            } else {
+                // reverse the order of axes by default
+                std::iota(new_axis.begin(), new_axis.end(), 0);
+                std::reverse(new_axis.begin(), new_axis.end());
+            }
+
+            std::vector<size_t> new_shape(_ndim);
+            for (size_t i = 0; i < _ndim; ++i) {
+                new_shape[i] = _shape[new_axis[i]];
+            }
+
+            ARRAY_TYPE result
+                = static_cast<const ARRAY_TYPE*>(this)->create_array(new_shape);
+            transpose_axes_and_copy_data(
+                _data.begin(), result._data.begin(), _shape, new_axis, _itemsize
+            );
+            return result;
+        }
+        }
+    }
+
+    //! Python exported `squeeze` method
+    ARRAY_TYPE squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis) const
+    {
+        std::vector<std::size_t> shape = _shape;
+        std::set<std::ptrdiff_t> axis_set;
+        if (axis.has_value()) {
+            // Given an int or tuple of ints, remove the specified dimensions if their
+            // size is one. Else throw an error.
+            auto ax = *axis;
+            nb::tuple axis_tuple;
+
+            if (std::holds_alternative<nb::tuple>(ax)) {
+                axis_tuple = std::get<nb::tuple>(ax);
+            } else if (std::holds_alternative<nb::int_>(ax)) {
+                std::ptrdiff_t axis = std::ptrdiff_t(std::get<nb::int_>(ax));
+                axis_tuple = nb::make_tuple(axis);
+            }
+            for (auto ptr = axis_tuple.begin(); ptr != axis_tuple.end(); ptr++) {
+                std::ptrdiff_t axis_n = std::ptrdiff_t(nanobind::cast<nb::int_>(*ptr));
+                if (axis_n >= std::ptrdiff_t(shape.size())) {
+                    std::string error_msg = fmt::format(
+                        "{}.squeeze: specified axis larger than number of array "
+                        "dimensions",
+                        ARRAY_TYPE::ARRAY_NAME
+                    );
+                    throw nb::index_error(error_msg.c_str());
+                }
+                axis_set.insert(axis_n);
+            }
+            std::ptrdiff_t cnt = 0;
+            auto predicate = [&](std::size_t dim) {
+                if (axis_set.find(cnt) != axis_set.end() && dim != 1) {
+                    std::string error_msg = fmt::format(
+                        "{}.squeeze: cannot squeeze non-one dimensions",
+                        ARRAY_TYPE::ARRAY_NAME
+                    );
+                    throw nb::value_error(error_msg.c_str());
+                }
+                return axis_set.find(cnt++) != axis_set.end() && dim == 1;
+            };
+            shape.erase(
+                std::remove_if(shape.begin(), shape.end(), predicate), shape.end()
+            );
+        } else {
+            // Given no specified axis, remove all dimensions of size one.
+            auto predicate = [](std::size_t dim) { return dim == 1; };
+            shape.erase(
+                std::remove_if(shape.begin(), shape.end(), predicate), shape.end()
+            );
+        }
+
+        // Don't squeeze all dimensions...
+        if (shape.size() == 0) {
+            shape = { 1 };
+        }
+
+        // Create resulting array and copy the data
+        ARRAY_TYPE result = static_cast<const ARRAY_TYPE*>(this)->create_array(shape);
+        std::copy_n(_data.begin(), _data.size(), result._data.begin());
+        return result;
+    }
+
+}; // end class: `APyArray`
 
 #endif

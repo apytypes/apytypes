@@ -186,20 +186,9 @@ public:
     //! Swaps the positions of two axes in the array.
     APyFixedArray swapaxes(nb::int_ axis1, nb::int_ axis2) const;
 
-    //! Transposition function. For a 1-D array, Return an exact copy of `*this`. For
-    //! a 2-D array, Return the matrix transposition of `*this`.
-    APyFixedArray transpose(std::optional<nb::tuple> axes = std::nullopt) const;
-
     /* ****************************************************************************** *
      * *                          Public member functions                           * *
      * ****************************************************************************** */
-
-    //! Broadcast to a new shape
-    // APyFixedArray broadcast_to(const std::vector<std::size_t> shape) const;
-
-    //! Squeeze this array. Return new `APyFixedArray`.
-    APyFixedArray
-    squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis = std::nullopt) const;
 
     //! Perform a linear convolution with `other` using `mode`
     APyFixedArray convolve(const APyFixedArray& other, const std::string& mode) const;
@@ -250,12 +239,6 @@ public:
 
     //! Python `__repr__()` function
     std::string repr() const;
-
-    //! Reshape flatten into 1d shape
-    APyFixedArray flatten() const;
-
-    //! Same as flatten as for now
-    APyFixedArray ravel() const;
 
     //! Number of bits
     APY_INLINE int bits() const noexcept { return _bits; }
