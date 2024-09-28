@@ -251,8 +251,6 @@ public:
     //! Python `__repr__()` function
     std::string repr() const;
 
-    APyFixedArray reshape(nb::tuple new_shape) const;
-
     //! Reshape flatten into 1d shape
     APyFixedArray flatten() const;
 

@@ -1790,20 +1790,6 @@ std::string APyFloatArray::repr() const
     return ss.str();
 }
 
-APyFloatArray APyFloatArray::reshape(nb::tuple new_shape) const
-{
-    // Argument checking and error handling
-    std::size_t elem_count = ::fold_shape(this->_shape);
-    std::vector<std::size_t> new_shape_vec
-        = ::reshape_from_tuple(new_shape, elem_count);
-
-    std::size_t itemsize = 1;
-    APyFloatArray result = APyFloatArray(new_shape_vec, exp_bits, man_bits, bias);
-    std::copy_n(this->_data.begin(), elem_count * itemsize, result._data.begin());
-
-    return result;
-}
-
 APyFloatArray APyFloatArray::flatten() const
 {
     // Reuse the reshape function to flatten the array

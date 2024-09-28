@@ -1489,15 +1489,6 @@ std::string APyFixedArray::repr() const
     return ss.str();
 }
 
-APyFixedArray APyFixedArray::reshape(nb::tuple new_shape) const
-{
-    std::vector<std::size_t> new_shape_cpp = reshape_from_tuple(new_shape, _nitems);
-    APyFixedArray result = APyFixedArray(new_shape_cpp, _bits, _int_bits);
-    std::copy_n(this->_data.begin(), _data.size(), result._data.begin());
-
-    return result;
-}
-
 APyFixedArray APyFixedArray::flatten() const
 {
     // Reuse the reshape function to flatten the array
