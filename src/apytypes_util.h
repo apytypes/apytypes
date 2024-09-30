@@ -60,7 +60,7 @@ static constexpr std::size_t _LIMB_SIZE_BITS = 8 * _LIMB_SIZE_BYTES;
 class NotImplementedException : public std::domain_error {
 public:
     NotImplementedException(std::optional<std::string> msg = std::nullopt)
-        : std::domain_error(msg.value_or("Not implemented yet")) {};
+        : std::domain_error(msg.value_or("Not implemented yet")) { };
 };
 
 //! Mark code path unreachable. Allows the compiler to make further control-flow
