@@ -52,6 +52,7 @@ compile_flags = [
     "-Wpedantic",
     "-Wno-deprecated",
     "-DCOMPILER_LIMB_SIZE=NATIVE",
+    "-DNANOBIND_LEAK_WARNINGS=0",
     *str(python3_includes.stdout.strip()).split(" "),
     *["-I" + s for s in nanobind_includes.stdout.strip().split(" ")],
     f"-I{APYTYPES_DIR}/subprojects/fmt-10.2.0/include",
