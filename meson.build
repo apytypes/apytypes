@@ -5,11 +5,18 @@ project(
     version : run_command(find_program('python3'), '-m', 'setuptools_scm', check: true).stdout().strip(),
 )
 
-# Specify the compile-time limb size. Exactly one of `32`, `64` or `NATIVE`
+# Specify the compile-time limb size. Exactly one of `32`, `64`, or `NATIVE`
 add_project_arguments(
     '-DCOMPILER_LIMB_SIZE=NATIVE',
     language: ['cpp', 'c'],
 )
+
+# Disable nanobind leak warnings on release builds
+if get_option('buildtype') == 'release'
+  add_project_arguments('-DNANOBIND_LEAK_WARNINGS=0', language: ['cpp'])
+else
+  add_project_arguments('-DNANOBIND_LEAK_WARNINGS=1', language: ['cpp'])
+endif
 
 # Python module includes
 py3 = import('python').find_installation('python3', pure: false)

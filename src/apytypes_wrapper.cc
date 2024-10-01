@@ -25,6 +25,20 @@ NB_MODULE(_apytypes, m)
     bind_quantization_context(m);
     bind_accumulator_context(m);
     bind_cast_context(m);
+
+    /*
+     * Nanobind leak warnings are enabled by `NANOBIND_LEAK_WARNINGS` pre-processor
+     * macro. Specified in meson.build.
+     */
+#if !defined(NANOBIND_LEAK_WARNINGS)
+#error "CPP macro `NANOBIND_LEAK_WARNINGS` not specified"
+#else
+#if NANOBIND_LEAK_WARNINGS == 1
+    nb::set_leak_warnings(true);
+#else
+    nb::set_leak_warnings(false);
+#endif
+#endif
 }
 
 void bind_common(nb::module_& m)
