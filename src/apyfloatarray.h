@@ -226,9 +226,6 @@ public:
     std::variant<APyFloatArray, APyFloat>
     nanmin(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
 
-    //! Swaps the positions of two axes in the array.
-    APyFloatArray swapaxes(nb::int_ axis1, nb::int_ axis2) const;
-
     //! Return a copy of the tensor with the elements resized.
     APyFloatArray cast(
         std::optional<int> exp_bits,
