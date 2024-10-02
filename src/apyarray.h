@@ -567,6 +567,30 @@ public:
         return result;
     }
 
+    //! Python exported `swapaxes` method
+    ARRAY_TYPE swapaxes(nb::int_ axis1, nb::int_ axis2) const
+    {
+        std::size_t _axis1 = get_normalized_axes(axis1, _ndim).front();
+        std::size_t _axis2 = get_normalized_axes(axis2, _ndim).front();
+
+        std::vector<size_t> new_axis(_ndim);
+        std::iota(new_axis.begin(), new_axis.end(), 0);
+
+        // Swap the specified axes
+        std::swap(new_axis[_axis1], new_axis[_axis2]);
+
+        std::vector<size_t> shape(_ndim);
+        for (size_t i = 0; i < _ndim; ++i) {
+            shape[i] = _shape[new_axis[i]];
+        }
+
+        ARRAY_TYPE result = static_cast<const ARRAY_TYPE*>(this)->create_array(shape);
+        transpose_axes_and_copy_data(
+            std::begin(_data), std::begin(result._data), _shape, new_axis, _itemsize
+        );
+        return result;
+    }
+
 }; // end class: `APyArray`
 
 #endif

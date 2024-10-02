@@ -183,9 +183,6 @@ public:
      */
     APyFixedArray matmul(const APyFixedArray& rhs) const;
 
-    //! Swaps the positions of two axes in the array.
-    APyFixedArray swapaxes(nb::int_ axis1, nb::int_ axis2) const;
-
     /* ****************************************************************************** *
      * *                          Public member functions                           * *
      * ****************************************************************************** */

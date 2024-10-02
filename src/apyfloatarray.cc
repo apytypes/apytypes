@@ -2027,27 +2027,6 @@ void APyFloatArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& ndar
     );
 }
 
-APyFloatArray APyFloatArray::swapaxes(nb::int_ axis1, nb::int_ axis2) const
-{
-    size_t _axis1 = ::get_normalized_axes(axis1, ndim()).front();
-    size_t _axis2 = ::get_normalized_axes(axis2, ndim()).front();
-
-    std::vector<size_t> new_axis(ndim());
-    std::iota(new_axis.begin(), new_axis.end(), 0);
-
-    // Swap the specified axes
-    std::swap(new_axis[_axis1], new_axis[_axis2]);
-
-    std::vector<size_t> new_shape(ndim());
-    for (size_t i = 0; i < ndim(); ++i) {
-        new_shape[i] = _shape[new_axis[i]];
-    }
-
-    APyFloatArray result(new_shape, exp_bits, man_bits, bias);
-    transpose_axes_and_copy_data(_data.begin(), result._data.begin(), _shape, new_axis);
-    return result;
-}
-
 APyFloatArray APyFloatArray::cast(
     std::optional<int> new_exp_bits,
     std::optional<int> new_man_bits,
