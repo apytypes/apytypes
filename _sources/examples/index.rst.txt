@@ -50,6 +50,23 @@ These are examples of how APyTypes can be used.
     </div>
 
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="It is possible to easily go between numpy and apytypes and therefore also use plotting tools like Matplotlib in an integrated manner.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_numpy_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_numpy.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">NumPy integration</div>
+    </div>
+
+
 .. thumbnail-parent-div-close
 
 .. raw:: html
@@ -62,6 +79,7 @@ These are examples of how APyTypes can be used.
 
    /examples/apyfloat
    /examples/apyfixed
+   /examples/numpy
 
 
 .. only:: html

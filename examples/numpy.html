@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="APyFixed" href="apyfixed.html" /><link rel="prev" title="Examples" href="index.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Computational performance" href="../performance.html" /><link rel="prev" title="APyFixed" href="apyfixed.html" />
 
     <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
-        <title>APyFloat - APyTypes documentation</title>
+        <title>NumPy integration - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -234,9 +234,9 @@
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">APyFloat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfloat.html">APyFloat</a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfixed.html">APyFixed</a></li>
-<li class="toctree-l2"><a class="reference internal" href="numpy.html">NumPy integration</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">NumPy integration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../performance.html">Computational performance</a></li>
@@ -264,7 +264,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/examples/apyfloat.rst.txt" title="View this page">
+  <a class="muted-link" href="../_sources/examples/numpy.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -286,113 +286,56 @@
         <article role="main" id="furo-main-content">
           <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
-<p><a class="reference internal" href="#sphx-glr-download-examples-apyfloat-py"><span class="std std-ref">Go to the end</span></a>
+<p><a class="reference internal" href="#sphx-glr-download-examples-numpy-py"><span class="std std-ref">Go to the end</span></a>
 to download the full example code.</p>
 </div>
-<section class="sphx-glr-example-title" id="apyfloat">
-<span id="sphx-glr-examples-apyfloat-py"></span><h1>APyFloat<a class="headerlink" href="#apyfloat" title="Link to this heading">¶</a></h1>
-<p>APyTypes provide a class for configurable floating-point numbers: <code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code>.</p>
-<p>The numbers are created from the sign-bit, the exponent and the mantissa
-(without hidden one) and the corresponding wordlengths. However, there are
-also convenience methods to do this either from a float or from a bit-pattern.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class"><span class="n">APyFloat</span></a>
+<section class="sphx-glr-example-title" id="numpy-integration">
+<span id="sphx-glr-examples-numpy-py"></span><h1>NumPy integration<a class="headerlink" href="#numpy-integration" title="Link to this heading">¶</a></h1>
+<p>It is possible to easily go between numpy and apytypes and therefore also use plotting tools like Matplotlib in an integrated manner.</p>
+<p>Consider the example from <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.convolve.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.convolve.html</a> implemented using fixed-point arithmetic</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span>
+<span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span><span class="p">,</span> <a href="../api/arrayfunctions.html#apytypes.convolve" title="apytypes.convolve" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-function"><span class="n">convolve</span></a>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
-<a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">a</span></a> <span class="o">=</span> <a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class"><span class="n">APyFloat</span></a><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-<a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">a</span></a>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sig</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.repeat.html#numpy.repeat" title="numpy.repeat" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">repeat</span></a><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="mi">100</span><span class="p">)</span>
+<a href="../api/apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sig_fx</span></a> <span class="o">=</span> <a href="../api/apyfixedarray.html#apytypes.APyFixedArray.from_float" title="apytypes.APyFixedArray.from_float" class="sphx-glr-backref-module-apytypes-APyFixedArray sphx-glr-backref-type-py-method"><span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sig</span></a><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">win</span></a> <span class="o">=</span> <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.windows.hann.html#scipy.signal.windows.hann" title="scipy.signal.windows.hann" class="sphx-glr-backref-module-scipy-signal-windows sphx-glr-backref-type-py-function"><span class="n">signal</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">hann</span></a><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+<a href="../api/apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">win_fx</span></a> <span class="o">=</span> <a href="../api/apyfixedarray.html#apytypes.APyFixedArray.from_float" title="apytypes.APyFixedArray.from_float" class="sphx-glr-backref-module-apytypes-APyFixedArray sphx-glr-backref-type-py-method"><span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">win</span></a><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">filtered</span></a> <span class="o">=</span> <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.convolve.html#scipy.signal.convolve" title="scipy.signal.convolve" class="sphx-glr-backref-module-scipy-signal sphx-glr-backref-type-py-function"><span class="n">signal</span><span class="o">.</span><span class="n">convolve</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sig</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">win</span></a><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">win</span></a><span class="p">)</span>
+<a href="../api/apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">filtered_fx</span></a> <span class="o">=</span> <a href="../api/arrayfunctions.html#apytypes.convolve" title="apytypes.convolve" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-function"><span class="n">convolve</span></a><span class="p">(</span><a href="../api/apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sig_fx</span></a><span class="p">,</span> <a href="../api/apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">win_fx</span></a><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><a href="../api/apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">win_fx</span></a><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFloat(sign=1, exp=3, man=5, exp_bits=4, man_bits=5)
+<p>The results can then be plotted in Matplotlib</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <span class="p">(</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax_orig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax_win</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax_filt</span></a><span class="p">)</span> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="matplotlib.axes.Axes.plot" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax_orig</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sig</span></a><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="matplotlib.axes.Axes.plot" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax_orig</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="../api/apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sig_fx</span></a><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax_orig</span><span class="o">.</span><span class="n">set_title</span></a><span class="p">(</span><span class="s2">&quot;Original pulse&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.margins.html#matplotlib.axes.Axes.margins" title="matplotlib.axes.Axes.margins" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax_orig</span><span class="o">.</span><span class="n">margins</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="matplotlib.axes.Axes.plot" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax_win</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">win</span></a><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="matplotlib.axes.Axes.plot" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax_win</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="../api/apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">win_fx</span></a><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax_win</span><span class="o">.</span><span class="n">set_title</span></a><span class="p">(</span><span class="s2">&quot;Filter impulse response&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.margins.html#matplotlib.axes.Axes.margins" title="matplotlib.axes.Axes.margins" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax_win</span><span class="o">.</span><span class="n">margins</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="matplotlib.axes.Axes.plot" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax_filt</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">filtered</span></a><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="matplotlib.axes.Axes.plot" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax_filt</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="../api/apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">filtered_fx</span></a><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax_filt</span><span class="o">.</span><span class="n">set_title</span></a><span class="p">(</span><span class="s2">&quot;Filtered signal&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.margins.html#matplotlib.axes.Axes.margins" title="matplotlib.axes.Axes.margins" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax_filt</span><span class="o">.</span><span class="n">margins</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.tight_layout.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.show.html#matplotlib.figure.Figure.show" title="matplotlib.figure.Figure.show" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">b</span></a> <span class="o">=</span> <a href="../api/apyfloat.html#apytypes.APyFloat.from_float" title="apytypes.APyFloat.from_float" class="sphx-glr-backref-module-apytypes-APyFloat sphx-glr-backref-type-py-method"><span class="n">APyFloat</span><span class="o">.</span><span class="n">from_float</span></a><span class="p">(</span><span class="mf">2.25</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">b</span></a>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFloat(sign=0, exp=4, man=0, exp_bits=3, man_bits=2)
-</pre></div>
-</div>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">c</span></a> <span class="o">=</span> <a href="../api/apyfloat.html#apytypes.APyFloat.from_bits" title="apytypes.APyFloat.from_bits" class="sphx-glr-backref-module-apytypes-APyFloat sphx-glr-backref-type-py-method"><span class="n">APyFloat</span><span class="o">.</span><span class="n">from_bits</span></a><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="s2">&quot;10110101&quot;</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-<a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">c</span></a>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFloat(sign=1, exp=1, man=5, exp_bits=3, man_bits=4)
-</pre></div>
-</div>
-<p>Standard arithmetic operations are supported. The resulting number of exponent
-and mantissa bits are the maximum of the involved terms.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">a</span></a> <span class="o">+</span> <a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">b</span></a>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFloat(sign=0, exp=7, man=30, exp_bits=4, man_bits=5)
-</pre></div>
-</div>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">a</span></a> <span class="o">*</span> <a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">c</span></a>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFloat(sign=0, exp=1, man=17, exp_bits=4, man_bits=5)
-</pre></div>
-</div>
-<p>Standard string formatting is supported</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">str</span><span class="p">(</span><a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">a</span></a><span class="p">)</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;-0.0722656&#39;
-</pre></div>
-</div>
-<p>Comparisons with integers and floats are supported</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">b</span></a> <span class="o">&gt;=</span> <span class="mi">7</span><span class="p">,</span> <a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">a</span></a> <span class="o">&lt;</span> <span class="o">-</span><span class="mf">1.2</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(False, False)
-</pre></div>
-</div>
-<p>Arithmetic with Python integers and floats is supported, although <em>not recommended</em>, by
-automatically casting the number to the same format of the APyType-object</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">b</span></a> <span class="o">+</span> <span class="mf">1.125</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFloat(sign=0, exp=4, man=2, exp_bits=3, man_bits=2)
-</pre></div>
-</div>
-<p>Which is equivalent to</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">b</span></a> <span class="o">+</span> <a href="../api/apyfloat.html#apytypes.APyFloat.from_float" title="apytypes.APyFloat.from_float" class="sphx-glr-backref-module-apytypes-APyFloat sphx-glr-backref-type-py-method"><span class="n">APyFloat</span><span class="o">.</span><span class="n">from_float</span></a><span class="p">(</span><span class="mf">1.125</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><a href="../api/apyfloat.html#apytypes.APyFloat.exp_bits" title="apytypes.APyFloat.exp_bits" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-property"><span class="n">b</span><span class="o">.</span><span class="n">exp_bits</span></a><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><a href="../api/apyfloat.html#apytypes.APyFloat.man_bits" title="apytypes.APyFloat.man_bits" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-property"><span class="n">b</span><span class="o">.</span><span class="n">man_bits</span></a><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><a href="../api/apyfloat.html#apytypes.APyFloat.bias" title="apytypes.APyFloat.bias" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-property"><span class="n">b</span><span class="o">.</span><span class="n">bias</span></a><span class="p">)</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFloat(sign=0, exp=4, man=2, exp_bits=3, man_bits=2)
-</pre></div>
-</div>
-<p>However, while it is convenient to let APyTypes convert numbers automatically,
-it is not recommended as it can yield unexpected results. Consider the expression</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">+</span> <a href="../api/apyfloat.html#apytypes.APyFloat.from_float" title="apytypes.APyFloat.from_float" class="sphx-glr-backref-module-apytypes-APyFloat sphx-glr-backref-type-py-method"><span class="n">APyFloat</span><span class="o">.</span><span class="n">from_float</span></a><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFloat(sign=0, exp=10, man=1, exp_bits=4, man_bits=1)
-</pre></div>
-</div>
-<p>which would yield a different result from</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/apyfloat.html#apytypes.APyFloat.from_float" title="apytypes.APyFloat.from_float" class="sphx-glr-backref-module-apytypes-APyFloat sphx-glr-backref-type-py-method"><span class="n">APyFloat</span><span class="o">.</span><span class="n">from_float</span></a><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFloat(sign=0, exp=10, man=0, exp_bits=4, man_bits=1)
-</pre></div>
-</div>
-<p>To change the word length of a APyFloat, the method <code class="xref py py-func docutils literal notranslate"><span class="pre">cast()</span></code> can be used</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">a</span></a> <span class="o">+</span> <a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">b</span></a><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFloat(sign=0, exp=8, man=0, exp_bits=4, man_bits=3)
-</pre></div>
-</div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.006 seconds)</p>
-<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-apyfloat-py">
+<img src="../_images/sphx_glr_numpy_001.png" srcset="../_images/sphx_glr_numpy_001.png" alt="Original pulse, Filter impulse response, Filtered signal" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.546 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-numpy-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/d17aab42b6fd9a26adc96c3bdc6bba7e/apyfloat.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">apyfloat.ipynb</span></code></a></p>
+<p><a class="reference download internal" download="" href="../_downloads/b39b61d5b5c6115fa2e71346cf84e8d4/numpy.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">numpy.ipynb</span></code></a></p>
 </div>
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/862112b4ca895c80b1551a66e6466d7f/apyfloat.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">apyfloat.py</span></code></a></p>
+<p><a class="reference download internal" download="" href="../_downloads/656ff8fdc9c11b8126642095c275e217/numpy.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">numpy.py</span></code></a></p>
 </div>
 <div class="sphx-glr-download sphx-glr-download-zip docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/f34f3d3c3cd6cf72a1f5a29cf74ecb69/apyfloat.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">apyfloat.zip</span></code></a></p>
+<p><a class="reference download internal" download="" href="../_downloads/c3ecc7458f0e9195f9d1960131d526d5/numpy.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">numpy.zip</span></code></a></p>
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
@@ -403,23 +346,23 @@ it is not recommended as it can yield unexpected results. Consider the expressio
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="apyfixed.html">
+          <a class="next-page" href="../performance.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">APyFixed</div>
+                <div class="title">Computational performance</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="index.html">
+          <a class="prev-page" href="apyfixed.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Examples</div>
+                <div class="title">APyFixed</div>
                 
               </div>
             </a>
