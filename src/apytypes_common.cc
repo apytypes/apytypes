@@ -1,19 +1,20 @@
+#include "apytypes_common.h"
+#include "apyfloat_util.h"
+#include "apytypes_util.h"
+
 // Python object access through Pybind
 #include <nanobind/nanobind.h>
 namespace nb = nanobind;
 
-#include "apyfloat.h"
-#include "apyfloat_util.h"
-#include "apytypes_common.h"
-#include "apytypes_util.h"
 #include <random>
 
 /* ********************************************************************************** *
- * *                          Quantization context for APyFloat * *
+ * *                          Quantization context for APyFloat                     * *
  * ********************************************************************************** */
 
 // Global quantization mode
-static QuantizationMode global_quantization_mode_float = QuantizationMode::RND_CONV;
+thread_local static QuantizationMode global_quantization_mode_float
+    = QuantizationMode::RND_CONV;
 
 // Get the global quantization mode
 QuantizationMode get_float_quantization_mode()
@@ -59,11 +60,11 @@ void APyFloatQuantizationContext::exit_context()
  * ********************************************************************************** */
 
 // This creates a random seed on every program start.
-std::uint64_t quantization_seed = std::random_device {}();
+thread_local static std::uint64_t quantization_seed = std::random_device {}();
 
 // A random number engine is used instead of purely std::random_device so that runs can
 // be reproducible.
-std::mt19937_64 gen64(quantization_seed);
+thread_local static std::mt19937_64 gen64(quantization_seed);
 
 void set_float_quantization_seed(std::uint64_t seed)
 {
@@ -79,8 +80,8 @@ std::uint64_t random_number_float() { return gen64(); }
  * *                      Cast context for APyFixed                                 * *
  * ********************************************************************************** */
 
-// Global accumulator option (default value: std::nullopt)
-static APyFixedCastOption global_cast_option_fixed
+// Global fixed-point cast option, default value: { TRN, WRAP }
+thread_local static APyFixedCastOption global_cast_option_fixed
     = { QuantizationMode::TRN, OverflowMode::WRAP };
 
 APyFixedCastContext::APyFixedCastContext(
@@ -116,7 +117,8 @@ APyFixedCastOption get_fixed_cast_mode() { return global_cast_option_fixed; }
  * ********************************************************************************** */
 
 // Global accumulator option (default value: std::nullopt)
-static std::optional<APyFixedAccumulatorOption> global_accumulator_option_fixed;
+thread_local static std::optional<APyFixedAccumulatorOption>
+    global_accumulator_option_fixed = std::nullopt;
 
 // Retrieve the global accumulator mode
 std::optional<APyFixedAccumulatorOption> get_accumulator_mode_fixed()
@@ -162,7 +164,8 @@ void APyFixedAccumulatorContext::exit_context()
  * ********************************************************************************** */
 
 // Global accumulator option (default value: std::nullopt)
-static std::optional<APyFloatAccumulatorOption> global_accumulator_option_float;
+thread_local static std::optional<APyFloatAccumulatorOption>
+    global_accumulator_option_float = std::nullopt;
 
 // Retrieve the global accumulator mode
 std::optional<APyFloatAccumulatorOption> get_accumulator_mode_float()

@@ -1,9 +1,8 @@
+#include "apyfixed_util.h"
+#include "ieee754.h"
+
 #include <cmath>
 #include <fmt/format.h>
-
-#include "apyfixed_util.h"
-#include "apytypes_util.h"
-#include "ieee754.h"
 
 // GMP should be included after all other includes
 #include "../extern/mini-gmp/mini-gmp.h"
