@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:00.627** total execution time for 3 files **from examples**:
+**00:00.610** total execution time for 3 files **from examples**:
 
 .. container::
 
@@ -33,7 +33,7 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_examples_numpy.py` (``numpy.py``)
-     - 00:00.618
+     - 00:00.602
      - 0.0
    * - :ref:`sphx_glr_examples_apyfloat.py` (``apyfloat.py``)
      - 00:00.006
