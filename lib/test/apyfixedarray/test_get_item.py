@@ -131,8 +131,9 @@ def test_get_item_tuple():
     assert np_array.shape == fx_array.shape
 
     slice_tuples = [
+        (),
         (2, 1, 4),
-        (2, 3),
+        (2, -3),
         (1,),
         (1, slice(0, 5)),
         (0, slice(1, 3)),
@@ -141,8 +142,8 @@ def test_get_item_tuple():
         (slice(0, 1), slice(0, 100), 4),
         (slice(1, 3), 0, slice(1, 3)),
         (slice(0, 3), 1, slice(2, 5)),
-        (slice(0, 3), 2, slice(2, 5), 5, 6),
-        (slice(1, 3), 2, slice(2, 5), slice(1, 6, 3), 6),
+        (slice(0, 3), -2, slice(2, 5), 5, 6),
+        (slice(1, 3), -2, slice(2, 5), slice(1, 6, 3), 6),
         (slice(0, 3, 2), 3, slice(2, 5), slice(2, 5, 2), slice(2, 9, 3)),
     ]
     for slice_tuple in slice_tuples:
@@ -151,6 +152,8 @@ def test_get_item_tuple():
         fx_slice = fx_array[slice_tuple]
         assert fx_slice.shape == np_slice.shape
         assert np.all(fx_slice.to_numpy() == np_slice)
+
+    assert np_array[-1, -2, 3, -2, -5] == float(fx_array[-1, -2, 3, -2, -5])
 
     with pytest.raises(ValueError, match=r"APyFixedArray\.__getitem__: key tuple size"):
         fx_array[1, 2, 3, 4, 5, 6]
