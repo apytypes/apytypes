@@ -1380,7 +1380,8 @@ void bind_float_array(nb::module_& m)
         )
 
         // Iteration and friends
-        .def("__getitem__", &APyFloatArray::get_item, nb::arg("idx"))
+        .def("__getitem__", &APyFloatArray::get_item, nb::arg("key"))
+        .def("__setitem__", &APyFloatArray::set_item, nb::arg("key"), nb::arg("val"))
         .def(
             "__iter__",
             [](nb::iterable array) {

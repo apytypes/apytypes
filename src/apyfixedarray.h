@@ -65,9 +65,6 @@ private:
      * ****************************************************************************** */
 
 public:
-    //! The scalar variant of `APyFixedArray` is `APyFixed`
-    using SCALAR_VARIANT = APyFixed;
-
     //! Name of this array type (used when throwing errors)
     static constexpr auto ARRAY_NAME = std::string_view("APyFixedArray");
 
@@ -76,6 +73,18 @@ public:
     APyFixedArray create_array(const std::vector<std::size_t>& shape) const
     {
         return APyFixedArray(shape, _bits, _int_bits);
+    }
+
+    //! Test if two fixed-point vectors have the same bit specifiers
+    APY_INLINE bool same_type_as(const APyFixedArray& other) const
+    {
+        return _bits == other._bits && _int_bits == other._int_bits;
+    }
+
+    //! Test if `*this` has the same bit specifiers as another `APyFixed`
+    APY_INLINE bool same_type_as(const APyFixed& other) const
+    {
+        return _bits == other._bits && _int_bits == other._int_bits;
     }
 
     /* ****************************************************************************** *

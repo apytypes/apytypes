@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added optional parameter for `bias` in array creation functions that were
   missing it.
 - Added `APyFloatArray.from_bits`.
+- Added `APyFixedArray.__setitem__` and `APyFloatArray.__setitem__`.
 
 ### Fixed
 
