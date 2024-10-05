@@ -420,6 +420,7 @@ private:
      * ****************************************************************************** */
 
 public:
+    //! Copy `n` items from `it` into `*this`
     template <typename RANDOM_ACCESS_ITERATOR>
     void copy_n_from(RANDOM_ACCESS_ITERATOR it, std::size_t n) noexcept
     {
@@ -429,6 +430,7 @@ public:
         exp = it->exp;
     }
 
+    //! Copy `n` items from `*this` into `it`
     template <typename RANDOM_ACCESS_ITERATOR>
     void copy_n_to(RANDOM_ACCESS_ITERATOR it, std::size_t n) const noexcept
     {
@@ -436,6 +438,13 @@ public:
         it->sign = sign;
         it->man = man;
         it->exp = exp;
+    }
+
+    //! Test if two floating-point numbers have the same bit specifiers
+    APY_INLINE bool same_type_as(const APyFloat& other) const
+    {
+        return man_bits == other.man_bits && exp_bits == other.exp_bits
+            && bias == other.bias;
     }
 
     /* ******************************************************************************
@@ -467,14 +476,6 @@ private:
 
     //! Create a floating-point object that is normalized
     APyFloat normalized() const;
-
-    //! Test if two floating-point numbers are identical, i.e., has the same value, and
-    //! the same format
-    APY_INLINE bool same_type_as(const APyFloat& other) const
-    {
-        return man_bits == other.man_bits && exp_bits == other.exp_bits
-            && bias == other.bias;
-    }
 
     template <typename T, typename ARRAY_TYPE> friend class APyArray;
 };

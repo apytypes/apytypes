@@ -39,9 +39,6 @@ public:
      * ****************************************************************************** */
 
 public:
-    //! The scalar variant of `APyFloatArray` is `APyFloat`
-    using SCALAR_VARIANT = APyFloat;
-
     //! Name of this array type (used when throwing errors)
     static constexpr auto ARRAY_NAME = std::string_view("APyFloatArray");
 
@@ -50,6 +47,20 @@ public:
     APyFloatArray create_array(const std::vector<std::size_t>& shape) const
     {
         return APyFloatArray(shape, exp_bits, man_bits, bias);
+    }
+
+    //! Test if two floating-point vectors have the same bit specifiers
+    APY_INLINE bool same_type_as(const APyFloatArray& other) const
+    {
+        return man_bits == other.man_bits && exp_bits == other.exp_bits
+            && bias == other.bias;
+    }
+
+    //! Test if `*this` has the same bit specifiers as another `APyFloat`
+    APY_INLINE bool same_type_as(const APyFloat& other) const
+    {
+        return man_bits == other.get_man_bits() && exp_bits == other.get_exp_bits()
+            && bias == other.get_bias();
     }
 
     /* ****************************************************************************** *
@@ -274,20 +285,6 @@ public:
      *   * They have the exact same sized fields
      */
     bool is_identical(const APyFloatArray& other) const;
-
-    //! Test if two `APyFloatArray` objects have the same format
-    APY_INLINE bool same_type_as(const APyFloatArray& other) const
-    {
-        return man_bits == other.man_bits && exp_bits == other.exp_bits
-            && bias == other.bias;
-    }
-
-    //! Test if the `APyFloatArray` object has the same format as a `APyFloat` object
-    APY_INLINE bool same_type_as(const APyFloat& other) const
-    {
-        return man_bits == other.get_man_bits() && exp_bits == other.get_exp_bits()
-            && bias == other.get_bias();
-    }
 
     /* ****************************************************************************** *
      * *            `__getitem__` and `__setitem__` family of methods               * *

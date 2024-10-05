@@ -19,12 +19,12 @@ static APY_INLINE bool is_broadcastable(
     const std::vector<std::size_t>& src_shape, const std::vector<std::size_t>& dst_shape
 )
 {
-    // Can not broadcast if either shape is zero-dimensional
+    // Cannot broadcast if either shape is zero-dimensional
     if (src_shape.size() == 0 || dst_shape.size() == 0) {
         return false;
     }
 
-    // Can not broadcast if either shape has a zero dimension
+    // Cannot broadcast if either shape has a zero dimension
     auto is_zero = [](auto n) { return n == 0; };
     for (const auto& shape : { src_shape, dst_shape }) {
         if (std::any_of(std::begin(shape), std::end(shape), is_zero)) {
@@ -32,7 +32,7 @@ static APY_INLINE bool is_broadcastable(
         }
     }
 
-    // Can not broadcast if destination shape has fewer dimensions than source shape
+    // Cannot broadcast if destination shape has fewer dimensions than source shape
     if (src_shape.size() > dst_shape.size()) {
         return false;
     }

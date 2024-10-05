@@ -1279,7 +1279,8 @@ void bind_fixed_array(nb::module_& m)
         .def("__abs__", &APyFixedArray::abs)
 
         // Iteration and friends
-        .def("__getitem__", &APyFixedArray::get_item, nb::arg("idx"))
+        .def("__getitem__", &APyFixedArray::get_item, nb::arg("key"))
+        .def("__setitem__", &APyFixedArray::set_item, nb::arg("key"), nb::arg("val"))
         .def("__len__", &APyFixedArray::size)
         .def(
             "__iter__",

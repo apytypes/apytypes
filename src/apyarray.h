@@ -7,19 +7,23 @@
 #define _APYARRAY_H
 
 #include "apybuffer.h"
+#include "apytypes_fwd.h"
 #include "apytypes_util.h"
 #include "array_utils.h"
 #include "broadcast.h"
+#include "fmt/format.h"
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
 namespace nb = nanobind;
 
-#include <cassert>  // assert
-#include <iterator> // std::begin
-#include <set>      // std::set
-#include <variant>  // std::variant
+#include <cassert>     // assert
+#include <exception>   // std::exception
+#include <iterator>    // std::begin
+#include <set>         // std::set
+#include <string_view> // std::string_view
+#include <variant>     // std::variant
 
 template <typename T, typename ARRAY_TYPE> class APyArray : public APyBuffer<T> {
 
@@ -43,13 +47,16 @@ public:
     //! Convert a possibly negative integer index `idx` to a positive one if used to
     //! index dimension `dim` of `*this`. Throws `std::out_of_range` if the index could
     //! not be converted or is out of range.
-    std::size_t adjust_integer_index(std::ptrdiff_t idx, std::size_t dim) const
+    std::size_t adjust_integer_index(
+        std::ptrdiff_t idx, std::size_t dim, std::string_view func_name
+    ) const
     {
         // Bounds checking
         if (idx >= std::ptrdiff_t(_shape[dim]) || idx < -std::ptrdiff_t(_shape[dim])) {
             std::string msg = fmt::format(
-                "{}.__getitem__: index {} is out of bounds for axis {} with size {}",
+                "{}.{}: index {} is out of bounds for axis {} with size {}",
                 ARRAY_TYPE::ARRAY_NAME,
+                func_name,
                 idx,
                 dim,
                 _shape[dim]
@@ -60,28 +67,27 @@ public:
         return idx < 0 ? idx + _shape[dim] : idx;
     }
 
-    //! Compute the resulting shape when slicing `*this` with non-empty C++ `tuple`.
-    //! Calling this function requires that `tuple.size() <= _shape.size()`
+    //! Compute the resulting shape when slicing `*this` with non-empty C++ tuple `key`.
+    //! Calling this function requires that `key.size() <= _shape.size()`
     std::vector<std::size_t>
-    compute_slice_shape(const std::vector<std::variant<nb::int_, nb::slice>>& tuple
-    ) const
+    compute_slice_shape(const std::vector<std::variant<nb::int_, nb::slice>>& key) const
     {
-        assert(tuple.size() <= _shape.size());
+        assert(key.size() <= _shape.size());
         std::vector<std::size_t> shape;
 
-        // Elements in the tuple
-        for (std::size_t i = 0; i < tuple.size(); i++) {
-            if (std::holds_alternative<nb::int_>(tuple[i])) {
+        // Elements in the key tuple
+        for (std::size_t i = 0; i < key.size(); i++) {
+            if (std::holds_alternative<nb::int_>(key[i])) {
                 continue;
-            } else { /* std::hold_alternative<nb::slice>(tuple[i]) */
-                auto&& slice = std::get<nb::slice>(tuple[i]);
+            } else { /* std::hold_alternative<nb::slice>(key[i]) */
+                auto&& slice = std::get<nb::slice>(key[i]);
                 auto [_, __, ___, len] = slice.compute(_shape[i]);
                 shape.push_back(len);
             }
         }
 
-        // Any dimension in `*this` not referred to in `tuple` simply "come along"
-        for (std::size_t i = tuple.size(); i < _shape.size(); i++) {
+        // Any dimension in `*this` not referred to in `key` simply "come along"
+        for (std::size_t i = key.size(); i < _shape.size(); i++) {
             shape.push_back(_shape[i]);
         }
 
@@ -91,14 +97,16 @@ public:
     //! Convert a `nb::tuple` of `nb::int_`, `nb::slice`, and `nb::ellipsis` to
     //! a `std::vector<std::variant<nb::int_, nb::slice>>`, resolving any ellipsis
     //! slicing.
-    auto resolve_python_tuple_slice(const nb::tuple& key) const
+    std::vector<std::variant<nb::int_, nb::slice>>
+    resolve_python_tuple_slice(const nb::tuple& key, std::string_view func_name) const
     {
         if (key.size() > _ndim) {
             // The key tuple must have fewer elements than this array has number of
             // dimensions
             std::string msg = fmt::format(
-                "{}.__getitem__: key tuple size (={}) > ndim (={})",
+                "{}.{}: key tuple size (={}) > ndim (={})",
                 ARRAY_TYPE::ARRAY_NAME,
+                func_name,
                 key.size(),
                 _ndim
             );
@@ -122,8 +130,9 @@ public:
                     // An ellipsis object has already been procecced. Only a single
                     // ellipsis per tuple key is allowed
                     std::string msg = fmt::format(
-                        "{}.__getitem__: only one single ellipsis object allowed",
-                        ARRAY_TYPE::ARRAY_NAME
+                        "{}.{}: only one single ellipsis object allowed",
+                        ARRAY_TYPE::ARRAY_NAME,
+                        func_name
                     );
                     throw nb::value_error(msg.c_str());
                 } else {
@@ -136,9 +145,10 @@ public:
                 }
             } else {
                 std::string msg = fmt::format(
-                    "{}.__getitem__: supported keys are `int`, `slice`, `ellipsis`, or "
-                    "a single tuple thereof",
-                    ARRAY_TYPE::ARRAY_NAME
+                    "{}.{}: supported keys are `int`, `slice`, `ellipsis`, or a single "
+                    "tuple thereof",
+                    ARRAY_TYPE::ARRAY_NAME,
+                    func_name
                 );
                 throw nb::value_error(msg.c_str());
             }
@@ -147,13 +157,14 @@ public:
     }
 
     //! Retrieve item from integer index
-    auto get_item_integer(std::ptrdiff_t idx) const
+    std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>
+    get_item_integer(std::ptrdiff_t idx) const
     {
-        using SCALAR_TYPE = typename ARRAY_TYPE::SCALAR_VARIANT;
+        using SCALAR_TYPE = scalar_variant_t<ARRAY_TYPE>;
         using RESULT_TYPE = std::variant<ARRAY_TYPE, SCALAR_TYPE>;
 
         // Adjust a possibly negative index
-        idx = adjust_integer_index(idx, 0);
+        idx = adjust_integer_index(idx, 0, "__getitem__");
 
         if (_ndim == 1) {
             SCALAR_TYPE result = static_cast<const ARRAY_TYPE*>(this)->create_scalar();
@@ -197,7 +208,7 @@ public:
              */
             if (std::holds_alternative<nb::int_>(element)) {
                 auto idx = static_cast<std::ptrdiff_t>(std::get<nb::int_>(element));
-                idx = adjust_integer_index(idx, dim);
+                idx = adjust_integer_index(idx, dim, "__getitem__");
                 std::copy_n(
                     input_it + _itemsize * idx * strides[dim],
                     _itemsize * strides[dim],
@@ -236,7 +247,7 @@ public:
              */
             if (std::holds_alternative<nb::int_>(element)) {
                 auto idx = static_cast<std::ptrdiff_t>(std::get<nb::int_>(element));
-                idx = adjust_integer_index(idx, dim);
+                idx = adjust_integer_index(idx, dim, "__getitem__");
                 return get_item_tuple_recursive_descent(
                     tuple,
                     strides,
@@ -277,11 +288,11 @@ public:
 
     //! Retrieve item(s) from a `std::vector` of `nb::int_` and `nb::slice`. Assumes
     //! that `tuple.size() <= _shape.size()`.
-    auto get_item_tuple(const std::vector<std::variant<nb::int_, nb::slice>>& tuple
-    ) const
+    std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>
+    get_item_tuple(const std::vector<std::variant<nb::int_, nb::slice>>& tuple) const
     {
         assert(tuple.size() <= _shape.size());
-        using SCALAR_TYPE = typename ARRAY_TYPE::SCALAR_VARIANT;
+        using SCALAR_TYPE = scalar_variant_t<ARRAY_TYPE>;
         using RESULT_TYPE = std::variant<ARRAY_TYPE, SCALAR_TYPE>;
 
         // Return everything on an empty tuple
@@ -305,7 +316,7 @@ public:
             for (std::size_t i = 0; i < tuple.size(); i++) {
                 assert(std::holds_alternative<nb::int_>(tuple[i]));
                 auto axis = static_cast<std::ptrdiff_t>(std::get<nb::int_>(tuple[i]));
-                axis = adjust_integer_index(axis, i);
+                axis = adjust_integer_index(axis, i, "__getitem__");
                 item_idx += strides[i] * axis;
             }
             result.copy_n_from(std::begin(_data) + item_idx * _itemsize, _itemsize);
@@ -327,9 +338,11 @@ public:
     }
 
     //! Top-level Python exported `__getitem__` function
-    auto get_item(std::variant<nb::int_, nb::slice, nb::ellipsis, nb::tuple> key) const
+    std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>
+    get_item(const std::variant<nb::int_, nb::slice, nb::ellipsis, nb::tuple>& key
+    ) const
     {
-        using SCALAR_TYPE = typename ARRAY_TYPE::SCALAR_VARIANT;
+        using SCALAR_TYPE = scalar_variant_t<ARRAY_TYPE>;
         using RESULT_TYPE = std::variant<ARRAY_TYPE, SCALAR_TYPE>;
 
         if (std::holds_alternative<nb::int_>(key)) {
@@ -343,7 +356,9 @@ public:
 
             // Key is of slice type
             nb::tuple tuple = nb::make_tuple(std::get<nb::slice>(key));
-            return RESULT_TYPE(get_item_tuple(resolve_python_tuple_slice(tuple)));
+            return RESULT_TYPE(
+                get_item_tuple(resolve_python_tuple_slice(tuple, "__getitem__"))
+            );
 
         } else if (std::holds_alternative<nb::ellipsis>(key)) {
 
@@ -353,15 +368,228 @@ public:
         } else { /* std::holds_alternative<nb::tuple>(key) */
 
             // Key is a tuple of slicing instructions
-            return RESULT_TYPE(
-                get_item_tuple(resolve_python_tuple_slice(std::get<nb::tuple>(key)))
-            );
+            return RESULT_TYPE(get_item_tuple(
+                resolve_python_tuple_slice(std::get<nb::tuple>(key), "__getitem__")
+            ));
         }
     }
 
     /* ****************************************************************************** *
      * *                    `__setitem__` family of methods                         * *
      * ****************************************************************************** */
+
+    //! Working part of `set_item`, using recursive descent to copy items from
+    //! `input_it` to `output_it`. Returns the number of elements copied. Assumes that
+    //! `dim < key.size()`.
+    std::size_t set_item_recursive_descent(
+        const std::vector<std::variant<nb::int_, nb::slice>>& key,
+        const std::vector<std::size_t>& strides,
+        typename APyBuffer<T>::vector_type::const_iterator input_it,
+        typename APyBuffer<T>::vector_type::iterator output_it,
+        std::size_t dim = 0
+    )
+    {
+        auto&& element = key[dim];
+        if (dim == key.size() - 1) {
+            /*
+             * Final dimension in the tuple key of the recursive descent. Do the
+             * actual copying of data.
+             */
+            if (std::holds_alternative<nb::int_>(element)) {
+                auto idx = static_cast<std::ptrdiff_t>(std::get<nb::int_>(element));
+                idx = adjust_integer_index(idx, dim, "__setitem__");
+                std::copy_n(
+                    input_it,
+                    _itemsize * strides[dim],
+                    output_it + _itemsize * strides[dim] * idx
+                );
+                return strides[dim];
+            } else { /* std::holds_alternative<nb::slice>(element) */
+                auto&& slice = std::get<nb::slice>(element);
+                auto [start, stop, step, len] = slice.compute(_shape[dim]);
+                std::size_t elements_copied = 0;
+                if (step < 0) {
+                    for (std::ptrdiff_t src_i = start; src_i > stop; src_i += step) {
+                        std::copy_n(
+                            input_it + _itemsize * elements_copied,
+                            _itemsize * strides[dim],
+                            output_it + _itemsize * src_i * strides[dim]
+                        );
+                        elements_copied += strides[dim];
+                    }
+                } else { /* step >= 0 */
+                    for (std::ptrdiff_t src_i = start; src_i < stop; src_i += step) {
+                        std::copy_n(
+                            input_it + _itemsize * elements_copied,
+                            _itemsize * strides[dim],
+                            output_it + _itemsize * src_i * strides[dim]
+                        );
+                        elements_copied += strides[dim];
+                    }
+                }
+                return elements_copied;
+            }
+        } else {
+            /*
+             * This is not yet the final dimesnsion of the tuple slice in this recursive
+             * descent. We need to go deeper...
+             */
+            if (std::holds_alternative<nb::int_>(element)) {
+                auto idx = static_cast<std::ptrdiff_t>(std::get<nb::int_>(element));
+                idx = adjust_integer_index(idx, dim, "__setitem__");
+                return set_item_recursive_descent(
+                    key,
+                    strides,
+                    input_it,
+                    output_it + _itemsize * idx * strides[dim],
+                    dim + 1
+                );
+            } else { /* std::holds_alternative<nb::slice>(tuple_element) */
+                auto&& slice = std::get<nb::slice>(element);
+                auto [start, stop, step, len] = slice.compute(_shape[dim]);
+                std::size_t elements_copied = 0;
+                if (step < 0) {
+                    for (std::ptrdiff_t src_i = start; src_i > stop; src_i += step) {
+                        elements_copied += set_item_recursive_descent(
+                            key,
+                            strides,
+                            input_it + _itemsize * elements_copied,
+                            output_it + _itemsize * src_i * strides[dim],
+                            dim + 1
+                        );
+                    }
+                } else { /* step >= 0 */
+                    for (std::ptrdiff_t src_i = start; src_i < stop; src_i += step) {
+                        elements_copied += set_item_recursive_descent(
+                            key,
+                            strides,
+                            input_it + _itemsize * elements_copied,
+                            output_it + _itemsize * src_i * strides[dim],
+                            dim + 1
+                        );
+                    }
+                }
+
+                return elements_copied;
+            }
+        }
+    }
+
+    void set_item_from_array(
+        const std::vector<std::variant<nb::int_, nb::slice>>& key, const ARRAY_TYPE& val
+    )
+    {
+        assert(key.size() <= _shape.size());
+
+        // Make sure that all bit specifiers in `*this` and `val` are equal.
+        if (!static_cast<const ARRAY_TYPE*>(this)->same_type_as(val)) {
+            std::string error_msg = fmt::format(
+                "{}.__setitem__: `val` has different bit specifiers than `self`",
+                ARRAY_TYPE::ARRAY_NAME
+            );
+            throw nb::value_error(error_msg.c_str());
+        }
+
+        // Compute the slice shape
+        std::vector<std::size_t> slice_shape = compute_slice_shape(key);
+        if (!slice_shape.size()) {
+            // `slice_shape` is empty *iff* integers are used to slice all dimensions
+            slice_shape.push_back(1);
+        }
+
+        // Compute the stride of `*this`
+        std::vector<std::size_t> strides = strides_from_shape(_shape);
+
+        if (val._shape == slice_shape) {
+            /*
+             * Shape of value array and `*this` slice matches up exactly, simply copy
+             * the data using recursive descent.
+             */
+            set_item_recursive_descent(
+                key, strides, std::begin(val._data), std::begin(_data)
+            );
+        } else if (is_broadcastable(val._shape, slice_shape)) {
+            /*
+             * The value shape can be broadcast to the slice shape. Broadcast first, and
+             * then copy the data using recursive descent.
+             */
+            ARRAY_TYPE val_broadcasted
+                = static_cast<const ARRAY_TYPE*>(this)->create_array(slice_shape);
+            broadcast_data_copy(
+                std::begin(val._data),             // src
+                std::begin(val_broadcasted._data), // dst
+                val._shape,                        // src_shape
+                slice_shape,                       // dst_shape
+                _itemsize                          // itemsize
+            );
+            set_item_recursive_descent(
+                key, strides, std::begin(val_broadcasted._data), std::begin(_data)
+            );
+        } else {
+            std::string error_msg = fmt::format(
+                "{}.__setitem__: `val` shape not broadcastable to `key` slice",
+                ARRAY_TYPE::ARRAY_NAME
+            );
+            throw nb::value_error(error_msg.c_str());
+        }
+    }
+
+    void set_item_from_scalar(
+        const std::vector<std::variant<nb::int_, nb::slice>>& key,
+        const scalar_variant_t<ARRAY_TYPE>& val
+    )
+    {
+        // Make sure that all bit specifiers in `*this` and `val` are equal.
+        if (!static_cast<const ARRAY_TYPE*>(this)->same_type_as(val)) {
+            std::string error_msg = fmt::format(
+                "{}.__setitem__: `val` has different bit specifiers than `self`",
+                ARRAY_TYPE::ARRAY_NAME
+            );
+            throw nb::value_error(error_msg.c_str());
+        }
+
+        // Make an array out of the scalar and set item from there
+        ARRAY_TYPE array_val
+            = static_cast<const ARRAY_TYPE*>(this)->create_array({ 1 });
+        val.copy_n_to(std::begin(array_val._data), _itemsize);
+        set_item_from_array(key, array_val);
+    }
+
+    //! Python exported `__setitem__` method for APyArrays
+    void set_item(
+        const std::variant<nb::int_, nb::slice, nb::ellipsis, nb::tuple>& key,
+        const std::variant<std::monostate, ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>&
+            val
+    )
+    {
+        // Convert the variant of Python objects into a tuple of keys
+        nb::tuple python_tuple_key;
+        if (std::holds_alternative<nb::int_>(key)) {
+            python_tuple_key = nb::make_tuple(std::get<nb::int_>(key));
+        } else if (std::holds_alternative<nb::slice>(key)) {
+            python_tuple_key = nb::make_tuple(std::get<nb::slice>(key));
+        } else if (std::holds_alternative<nb::ellipsis>(key)) {
+            python_tuple_key = nb::make_tuple(std::get<nb::ellipsis>(key));
+        } else { /* std::holds_alternative<nb::ellipsis>(key) */
+            python_tuple_key = std::get<nb::tuple>(key);
+        }
+
+        // Resolve the tuple of ellipsis objects and flatten to `std::vector` key
+        std::vector<std::variant<nb::int_, nb::slice>> cpp_key
+            = resolve_python_tuple_slice(python_tuple_key, "__setitem__");
+
+        if (std::holds_alternative<scalar_variant_t<ARRAY_TYPE>>(val)) {
+            set_item_from_scalar(cpp_key, std::get<scalar_variant_t<ARRAY_TYPE>>(val));
+        } else if (std::holds_alternative<ARRAY_TYPE>(val)) {
+            set_item_from_array(cpp_key, std::get<ARRAY_TYPE>(val));
+        } else {
+            std::string msg = fmt::format(
+                "{}.__setitem__: unsupported value type (internal error: `monostate`?)",
+                ARRAY_TYPE::ARRAY_NAME
+            );
+            throw nb::value_error(msg.c_str());
+        }
+    }
 
     /* ****************************************************************************** *
      * *                     `broadcast` family of methods                          * *
@@ -465,7 +693,7 @@ public:
         std::vector<std::size_t> cpp_shape = try_reshape(shape);
         ARRAY_TYPE result
             = static_cast<const ARRAY_TYPE*>(this)->create_array(cpp_shape);
-        std::copy_n(this->_data.begin(), _data.size(), result._data.begin());
+        std::copy_n(_data.begin(), _data.size(), result._data.begin());
 
         return result;
     }
