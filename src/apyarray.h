@@ -19,7 +19,6 @@
 namespace nb = nanobind;
 
 #include <cassert>     // assert
-#include <exception>   // std::exception
 #include <iterator>    // std::begin
 #include <set>         // std::set
 #include <string_view> // std::string_view
@@ -409,20 +408,20 @@ public:
                 auto [start, stop, step, len] = slice.compute(_shape[dim]);
                 std::size_t elements_copied = 0;
                 if (step < 0) {
-                    for (std::ptrdiff_t src_i = start; src_i > stop; src_i += step) {
+                    for (std::ptrdiff_t dst_i = start; dst_i > stop; dst_i += step) {
                         std::copy_n(
                             input_it + _itemsize * elements_copied,
                             _itemsize * strides[dim],
-                            output_it + _itemsize * src_i * strides[dim]
+                            output_it + _itemsize * dst_i * strides[dim]
                         );
                         elements_copied += strides[dim];
                     }
                 } else { /* step >= 0 */
-                    for (std::ptrdiff_t src_i = start; src_i < stop; src_i += step) {
+                    for (std::ptrdiff_t dst_i = start; dst_i < stop; dst_i += step) {
                         std::copy_n(
                             input_it + _itemsize * elements_copied,
                             _itemsize * strides[dim],
-                            output_it + _itemsize * src_i * strides[dim]
+                            output_it + _itemsize * dst_i * strides[dim]
                         );
                         elements_copied += strides[dim];
                     }
@@ -449,22 +448,22 @@ public:
                 auto [start, stop, step, len] = slice.compute(_shape[dim]);
                 std::size_t elements_copied = 0;
                 if (step < 0) {
-                    for (std::ptrdiff_t src_i = start; src_i > stop; src_i += step) {
+                    for (std::ptrdiff_t dst_i = start; dst_i > stop; dst_i += step) {
                         elements_copied += set_item_recursive_descent(
                             key,
                             strides,
                             input_it + _itemsize * elements_copied,
-                            output_it + _itemsize * src_i * strides[dim],
+                            output_it + _itemsize * dst_i * strides[dim],
                             dim + 1
                         );
                     }
                 } else { /* step >= 0 */
-                    for (std::ptrdiff_t src_i = start; src_i < stop; src_i += step) {
+                    for (std::ptrdiff_t dst_i = start; dst_i < stop; dst_i += step) {
                         elements_copied += set_item_recursive_descent(
                             key,
                             strides,
                             input_it + _itemsize * elements_copied,
-                            output_it + _itemsize * src_i * strides[dim],
+                            output_it + _itemsize * dst_i * strides[dim],
                             dim + 1
                         );
                     }
