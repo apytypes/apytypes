@@ -74,7 +74,8 @@ def test_fp8_mul():
     """
     sim = os.getenv("SIM", "nvc")
 
-    sources = ["fp8_multiplier.vhdl"]
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    sources = [f"{dir_path}/fp8_multiplier.vhdl"]
 
     runner = get_runner(sim)
     runner.build(
