@@ -1,13 +1,12 @@
 #
-# This workflow will install the minimum required Python dependencies and run the
-# APyTypes test suite.
+# This workflow will run the APyTypes test suite including the cocotb examples.
 #
 # For more information see:
 # https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 #
 
 
-name: Unit tests (minimum dependencies)
+name: Unit tests (cocotb examples)
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
   cancel-in-progress: true
@@ -28,6 +27,12 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
+    - uses: nickg/setup-nvc-ci@v1
+      with:
+        version: latest
+    - name: Check simulator installation
+      run: |
+        nvc --version # Make sure nvc was installed successfully
     - name: Set up Python 3.10
       uses: actions/setup-python@v5
       with:
@@ -35,11 +40,11 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install pytest cocotb>=1.9.1
+        python -m pip install pytest numpy meson-python setuptools_scm cocotb
     - name: Install APyTypes
       run: |
         git fetch --tags
         python -m pip install --no-deps -v .
     - name: Test with pytest
       run: |
-        pytest --color=yes lib/test
+        pytest --color=yes -rs lib/test
