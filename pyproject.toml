@@ -44,9 +44,9 @@ docs = [
     "docutils<=0.20",  # Pin to get around limitation in m2r2
     "numpy>=1.25",
     "scipy",
-    "cocotb",
+    "cocotb>=1.9.1",
 ]
-test = ["numpy>=1.25", "pytest>=8.2"]
+test = ["numpy>=1.25", "pytest>=8.2", "cocotb>=1.9.1"]
 dev = ["nanobind>=2.1.0"]
 benchmark = ["numpy>=1.25", "pytest>=8.2", "pytest-benchmark"]
 comparison = [
@@ -85,6 +85,7 @@ markers = [
     "float_array : custom marker for grouping tests for floating-point arrays",
     "slow : custom marker for grouping long running tests",
 ]
+
 
 [tool.typos]
 files.extend-exclude = ["extern", "docs/Doxyfile"]
