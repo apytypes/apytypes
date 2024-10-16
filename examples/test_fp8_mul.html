@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="NumPy integration" href="numpy.html" /><link rel="prev" title="APyFloat" href="apyfloat.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Computational performance" href="../performance.html" /><link rel="prev" title="NumPy integration" href="numpy.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>APyFixed - APyTypes documentation</title>
+        <title>cocotb integration - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -235,9 +235,9 @@
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="apyfloat.html">APyFloat</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">APyFixed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apyfixed.html">APyFixed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="numpy.html">NumPy integration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="test_fp8_mul.html">cocotb integration</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">cocotb integration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../performance.html">Computational performance</a></li>
@@ -265,7 +265,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/examples/apyfixed.rst.txt" title="View this page">
+  <a class="muted-link" href="../_sources/examples/test_fp8_mul.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -287,117 +287,104 @@
         <article role="main" id="furo-main-content">
           <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
-<p><a class="reference internal" href="#sphx-glr-download-examples-apyfixed-py"><span class="std std-ref">Go to the end</span></a>
+<p><a class="reference internal" href="#sphx-glr-download-examples-test-fp8-mul-py"><span class="std std-ref">Go to the end</span></a>
 to download the full example code.</p>
 </div>
-<section class="sphx-glr-example-title" id="apyfixed">
-<span id="sphx-glr-examples-apyfixed-py"></span><h1>APyFixed<a class="headerlink" href="#apyfixed" title="Link to this heading">¶</a></h1>
-<p>APyTypes provide a class for configurable floating-point numbers: <code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code>.</p>
-<p>The numbers are represented as the underlying integer, the total number of bits and integer bits.
-However, there are also convenience methods to do this either from a float, a string, or a bit-pattern.
-One can also supply the number of fractional bits; two out of the three (total, integer, and fractional
-bits) must be supplied.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class"><span class="n">APyFixed</span></a>
+<section class="sphx-glr-example-title" id="cocotb-integration">
+<span id="sphx-glr-examples-test-fp8-mul-py"></span><h1>cocotb integration<a class="headerlink" href="#cocotb-integration" title="Link to this heading">¶</a></h1>
+<p>Reference models and code for verification can be written swiftly using APyTypes, and incorporated using cocotb.</p>
+<p>Below is an exhaustive test of an eight-bit floating-point multiplier with round to nearest, ties to odd.</p>
+<p>Both source files, <code class="docutils literal notranslate"><span class="pre">test_fp8_mul.py</span></code> and <code class="docutils literal notranslate"><span class="pre">fp8_multiplier.vhdl</span></code>, are available under <a class="reference external" href="https://github.com/apytypes/apytypes/tree/main/examples">examples</a>.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">cocotb</span>
+<span class="kn">from</span> <span class="nn">cocotb.clock</span> <span class="kn">import</span> <span class="n">Clock</span>
+<span class="kn">from</span> <span class="nn">cocotb.runner</span> <span class="kn">import</span> <span class="n">get_runner</span>
+<span class="kn">from</span> <span class="nn">cocotb.triggers</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Awaitable" title="collections.abc.Awaitable" class="sphx-glr-backref-module-collections-abc sphx-glr-backref-type-py-class"><span class="n">FallingEdge</span></a>
 
-<a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">a</span></a> <span class="o">=</span> <a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class"><span class="n">APyFixed</span></a><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">a</span></a>
+<span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">APyFloatArray</span><span class="p">,</span>
+    <span class="n">APyFloat</span><span class="p">,</span>
+    <a href="../api/context.html#apytypes.APyFloatQuantizationContext" title="apytypes.APyFloatQuantizationContext" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class"><span class="n">APyFloatQuantizationContext</span></a><span class="p">,</span>
+    <span class="n">QuantizationMode</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="nd">@cocotb</span><span class="o">.</span><span class="n">test</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">fp8_mul_test_all</span><span class="p">(</span><span class="n">dut</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exhaustive test of all inputs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">EXP_BITS</span><span class="p">,</span> <span class="n">MAN_BITS</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span>
+    <span class="n">fp8_values</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_bits</span><span class="p">(</span>
+        <span class="nb">range</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">EXP_BITS</span> <span class="o">+</span> <span class="n">MAN_BITS</span><span class="p">)),</span> <span class="n">exp_bits</span><span class="o">=</span><span class="n">EXP_BITS</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="n">MAN_BITS</span>
+    <span class="p">)</span>
+
+    <span class="n">clock</span> <span class="o">=</span> <span class="n">Clock</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">clk</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;ns&quot;</span><span class="p">)</span>
+    <span class="n">cocotb</span><span class="o">.</span><span class="n">start_soon</span><span class="p">(</span><span class="n">clock</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">start_high</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+    <span class="k">await</span> <a href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Awaitable" title="collections.abc.Awaitable" class="sphx-glr-backref-module-collections-abc sphx-glr-backref-type-py-class"><span class="n">FallingEdge</span></a><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">clk</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fp8_values</span><span class="p">:</span>
+        <span class="n">dut</span><span class="o">.</span><span class="n">x_in</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">to_bits</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">fp8_values</span><span class="p">:</span>
+            <span class="n">dut</span><span class="o">.</span><span class="n">y_in</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">to_bits</span><span class="p">()</span>
+
+            <span class="k">await</span> <a href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Awaitable" title="collections.abc.Awaitable" class="sphx-glr-backref-module-collections-abc sphx-glr-backref-type-py-class"><span class="n">FallingEdge</span></a><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">clk</span><span class="p">)</span>
+
+            <span class="k">with</span> <a href="../api/context.html#apytypes.APyFloatQuantizationContext" title="apytypes.APyFloatQuantizationContext" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class"><span class="n">APyFloatQuantizationContext</span></a><span class="p">(</span><a href="../api/quantizationoverflow.html#apytypes.QuantizationMode" title="apytypes.QuantizationMode" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">QuantizationMode</span><span class="o">.</span><span class="n">TIES_ODD</span></a><span class="p">):</span>
+                <span class="n">z_ref</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span>
+
+            <span class="n">z_dut</span> <span class="o">=</span> <a href="../api/apyfloat.html#apytypes.APyFloat.from_bits" title="apytypes.APyFloat.from_bits" class="sphx-glr-backref-module-apytypes-APyFloat sphx-glr-backref-type-py-method"><span class="n">APyFloat</span><span class="o">.</span><span class="n">from_bits</span></a><span class="p">(</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">z</span><span class="o">.</span><span class="n">value</span><span class="p">),</span> <span class="n">exp_bits</span><span class="o">=</span><span class="n">EXP_BITS</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="n">MAN_BITS</span>
+            <span class="p">)</span>
+
+            <span class="c1"># If the expected result is NaN, do not test for bit-exact representations</span>
+            <span class="k">if</span> <span class="n">z_ref</span><span class="o">.</span><span class="n">is_nan</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">z_dut</span><span class="o">.</span><span class="n">is_nan</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="p">(</span>
+                    <span class="nb">int</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">z</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="n">z_ref</span><span class="o">.</span><span class="n">to_bits</span><span class="p">()</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">z_dut</span><span class="si">!r}</span><span class="s2">(</span><span class="si">{</span><span class="n">z_dut</span><span class="si">}</span><span class="s2">) == </span><span class="si">{</span><span class="n">z_ref</span><span class="si">!r}</span><span class="s2">(</span><span class="si">{</span><span class="n">z_ref</span><span class="si">}</span><span class="s2">)</span><span class="se">\n</span><span class="si">{</span><span class="n">x</span><span class="si">=}</span><span class="s2">(</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">), </span><span class="si">{</span><span class="n">y</span><span class="si">=}</span><span class="s2">(</span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="s2">)&quot;</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFixed(7, bits=6, int_bits=4)
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/apytypes/apytypes/examples/test_fp8_mul.py:17: UserWarning: Python runners and associated APIs are an experimental feature and subject to change.
+  from cocotb.runner import get_runner
 </pre></div>
 </div>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">b</span></a> <span class="o">=</span> <a href="../api/apyfixed.html#apytypes.APyFixed.from_float" title="apytypes.APyFixed.from_float" class="sphx-glr-backref-module-apytypes-APyFixed sphx-glr-backref-type-py-method"><span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span></a><span class="p">(</span><span class="o">-</span><span class="mf">2.25</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">b</span></a>
+<p>To run the test, set up the Python Test Runner</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_fp8_mul</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simulate the floating-point multiplier using the Python runner.</span>
+
+<span class="sd">    This file can be run directly or via pytest discovery.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sim</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.html#os.getenv" title="os.getenv" class="sphx-glr-backref-module-os sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">getenv</span></a><span class="p">(</span><span class="s2">&quot;SIM&quot;</span><span class="p">,</span> <span class="s2">&quot;nvc&quot;</span><span class="p">)</span>
+
+    <span class="n">dir_path</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.dirname" title="os.path.dirname" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/os.path.html#os.path.realpath" title="os.path.realpath" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span></a><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+    <span class="n">sources</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dir_path</span><span class="si">}</span><span class="s2">/fp8_multiplier.vhdl&quot;</span><span class="p">]</span>
+
+    <span class="n">runner</span> <span class="o">=</span> <span class="n">get_runner</span><span class="p">(</span><span class="n">sim</span><span class="p">)</span>
+    <span class="n">runner</span><span class="o">.</span><span class="n">build</span><span class="p">(</span>
+        <span class="n">sources</span><span class="o">=</span><span class="n">sources</span><span class="p">,</span>
+        <span class="n">hdl_toplevel</span><span class="o">=</span><span class="s2">&quot;fp8_multiplier&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">runner</span><span class="o">.</span><span class="n">test</span><span class="p">(</span><span class="n">hdl_toplevel</span><span class="o">=</span><span class="s2">&quot;fp8_multiplier&quot;</span><span class="p">,</span> <span class="n">test_module</span><span class="o">=</span><span class="s2">&quot;test_fp8_mul&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># if __name__ == &quot;__main__&quot;:</span>
+<span class="c1">#     test_fp8_mul()</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFixed(23, bits=5, int_bits=3)
-</pre></div>
-</div>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">c</span></a> <span class="o">=</span> <a href="../api/apyfixed.html#apytypes.APyFixed.from_str" title="apytypes.APyFixed.from_str" class="sphx-glr-backref-module-apytypes-APyFixed sphx-glr-backref-type-py-method"><span class="n">APyFixed</span><span class="o">.</span><span class="n">from_str</span></a><span class="p">(</span><span class="s2">&quot;3.75&quot;</span><span class="p">,</span> <span class="n">bits</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">c</span></a>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFixed(30, bits=6, int_bits=3)
-</pre></div>
-</div>
-<p>Standard arithmetic operations are supported. The resulting number of bits depends on the operation.
-For addition and subtraction, the maximum number of integer bits and fractional bits are used.
-A single integer bit is added to make sure that the computation does not overflow.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">a</span></a> <span class="o">+</span> <a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">b</span></a>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFixed(126, bits=7, int_bits=5)
-</pre></div>
-</div>
-<p>For multiplication, the number of integer bits and fractional bits is the sum of the number of
-integer bits and fractional bits of the included operands, respectively.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">a</span></a> <span class="o">*</span> <a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">c</span></a>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFixed(210, bits=12, int_bits=7)
-</pre></div>
-</div>
-<p>Standard string formatting is supported</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">str</span><span class="p">(</span><a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">a</span></a><span class="p">)</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;1.75&#39;
-</pre></div>
-</div>
-<p>Comparisons with integers and floats are supported</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">b</span></a> <span class="o">&gt;=</span> <span class="o">-</span><span class="mf">2.25</span><span class="p">,</span> <a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">a</span></a> <span class="o">==</span> <span class="mf">1.75</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(True, True)
-</pre></div>
-</div>
-<p>Arithmetic with Python integers and floats is supported, although <em>not recommended</em>, by
-automatically casting the number to the same format of the APyType-object</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">b</span></a> <span class="o">+</span> <span class="mf">3.5</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFixed(5, bits=6, int_bits=4)
-</pre></div>
-</div>
-<p>Which is equivalent to</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">b</span></a> <span class="o">+</span> <a href="../api/apyfixed.html#apytypes.APyFixed.from_float" title="apytypes.APyFixed.from_float" class="sphx-glr-backref-module-apytypes-APyFixed sphx-glr-backref-type-py-method"><span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span></a><span class="p">(</span><span class="mf">3.5</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><a href="../api/apyfixed.html#apytypes.APyFixed.int_bits" title="apytypes.APyFixed.int_bits" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-property"><span class="n">b</span><span class="o">.</span><span class="n">int_bits</span></a><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><a href="../api/apyfixed.html#apytypes.APyFixed.frac_bits" title="apytypes.APyFixed.frac_bits" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-property"><span class="n">b</span><span class="o">.</span><span class="n">frac_bits</span></a><span class="p">)</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFixed(5, bits=6, int_bits=4)
-</pre></div>
-</div>
-<p>However, while it is convenient to let APyTypes convert numbers automatically,
-it is not recommended as it can yield unexpected results. Consider the expression</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="mf">1.25</span> <span class="o">+</span> <span class="mf">1.25</span> <span class="o">+</span> <a href="../api/apyfixed.html#apytypes.APyFixed.from_float" title="apytypes.APyFixed.from_float" class="sphx-glr-backref-module-apytypes-APyFixed sphx-glr-backref-type-py-method"><span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span></a><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFixed(9, bits=6, int_bits=5)
-</pre></div>
-</div>
-<p>which would yield a different result from</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/apyfixed.html#apytypes.APyFixed.from_float" title="apytypes.APyFixed.from_float" class="sphx-glr-backref-module-apytypes-APyFixed sphx-glr-backref-type-py-method"><span class="n">APyFixed</span><span class="o">.</span><span class="n">from_float</span></a><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.25</span> <span class="o">+</span> <span class="mf">1.25</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFixed(10, bits=7, int_bits=6)
-</pre></div>
-</div>
-<p>To change the word length of a APyFixed, the method <code class="xref py py-func docutils literal notranslate"><span class="pre">cast()</span></code> can be used</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">a</span></a> <span class="o">+</span> <a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">b</span></a><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFixed(124, bits=7, int_bits=4)
-</pre></div>
-</div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.002 seconds)</p>
-<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-apyfixed-py">
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.077 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-test-fp8-mul-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/2cae3500da720d045fddba63b9a7af26/apyfixed.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">apyfixed.ipynb</span></code></a></p>
+<p><a class="reference download internal" download="" href="../_downloads/95cd391970f13461ba86e0fd415cb9b3/test_fp8_mul.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">test_fp8_mul.ipynb</span></code></a></p>
 </div>
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/f1a4ba3da811368f61679e80670cc307/apyfixed.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">apyfixed.py</span></code></a></p>
+<p><a class="reference download internal" download="" href="../_downloads/6a6b52f9442e6dcb6a9fdb827b5de3fc/test_fp8_mul.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">test_fp8_mul.py</span></code></a></p>
 </div>
 <div class="sphx-glr-download sphx-glr-download-zip docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/f4321addf0bb861b3aa5dde6c197e39e/apyfixed.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">apyfixed.zip</span></code></a></p>
+<p><a class="reference download internal" download="" href="../_downloads/ce0c14948b1d4a16b354cf27fd7682b6/test_fp8_mul.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">test_fp8_mul.zip</span></code></a></p>
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
@@ -408,23 +395,23 @@ it is not recommended as it can yield unexpected results. Consider the expressio
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="numpy.html">
+          <a class="next-page" href="../performance.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">NumPy integration</div>
+                <div class="title">Computational performance</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="apyfloat.html">
+          <a class="prev-page" href="numpy.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">APyFloat</div>
+                <div class="title">NumPy integration</div>
                 
               </div>
             </a>

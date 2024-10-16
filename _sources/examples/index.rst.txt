@@ -67,6 +67,23 @@ These are examples of how APyTypes can be used.
     </div>
 
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Reference models and code for verification can be written swiftly using APyTypes, and incorporated using cocotb.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_test_fp8_mul_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_test_fp8_mul.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">cocotb integration</div>
+    </div>
+
+
 .. thumbnail-parent-div-close
 
 .. raw:: html
@@ -80,6 +97,7 @@ These are examples of how APyTypes can be used.
    /examples/apyfloat
    /examples/apyfixed
    /examples/numpy
+   /examples/test_fp8_mul
 
 
 .. only:: html
