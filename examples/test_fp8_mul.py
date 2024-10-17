@@ -12,6 +12,7 @@ Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are availabl
 """
 
 import os
+from pathlib import Path
 import cocotb
 from cocotb.clock import Clock
 from cocotb.runner import get_runner
@@ -63,7 +64,7 @@ async def fp8_mul_test_all(dut):
 
 
 # %%
-# To run the test, set up the Python Test Runner
+# The rest of the testbench is set up as one would normally do using cocotb.
 
 
 def test_fp8_mul():
@@ -74,7 +75,11 @@ def test_fp8_mul():
     """
     sim = os.getenv("SIM", "nvc")
 
-    dir_path = os.path.dirname(os.path.realpath(__file__))
+    dir_path = (
+        os.path.dirname(os.path.realpath(__file__))
+        if "__file__" in globals()
+        else Path.cwd()
+    )
     sources = [f"{dir_path}/fp8_multiplier.vhdl"]
 
     runner = get_runner(sim)
@@ -86,5 +91,5 @@ def test_fp8_mul():
     runner.test(hdl_toplevel="fp8_multiplier", test_module="test_fp8_mul")
 
 
-# if __name__ == "__main__":
-#     test_fp8_mul()
+if __name__ == "__main__":
+    test_fp8_mul()

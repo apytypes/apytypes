@@ -46,7 +46,8 @@ docs = [
     "scipy",
     "cocotb>=1.9.1",
 ]
-test = ["numpy>=1.25", "pytest>=8.2", "cocotb>=1.9.1"]
+test = ["numpy>=1.25", "pytest>=8.2"]
+test_hdl = ["numpy>=1.25", "pytest>=8.2", "cocotb>=1.9.1"]
 dev = ["nanobind>=2.1.0"]
 benchmark = ["numpy>=1.25", "pytest>=8.2", "pytest-benchmark"]
 comparison = [
