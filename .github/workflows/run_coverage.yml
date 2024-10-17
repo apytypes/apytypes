@@ -30,7 +30,7 @@ jobs:
       run: |
         sudo apt-get install -yy lcov
         python -m pip install --upgrade pip
-        python -m pip install pytest-cov gcovr ninja meson-python numpy setuptools_scm cocotb
+        python -m pip install pytest-cov gcovr ninja meson-python numpy setuptools_scm
     - name: Install APyTypes
       run: |
         git fetch --tags
