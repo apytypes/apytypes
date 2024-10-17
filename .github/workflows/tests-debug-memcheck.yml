@@ -36,7 +36,7 @@ jobs:
       run: |
         sudo apt-get -y install ninja-build valgrind
         python -m pip install --upgrade pip
-        python -m pip install pytest numpy meson-python setuptools_scm cocotb
+        python -m pip install pytest numpy meson-python setuptools_scm
     - name: Install APyTypes (debug mode)
       run: |
         git fetch --tags
