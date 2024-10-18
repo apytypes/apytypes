@@ -3,8 +3,7 @@ cocotb integration
 ==================
 
 Reference models and code for verification can be written swiftly using APyTypes, and incorporated using cocotb.
-
-Below is an exhaustive test of an eight-bit floating-point multiplier with round to nearest, ties to odd.
+Below is an exhaustive test of an eight-bit floating-point multiplier with round to nearest, ties to even.
 
 Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are available under examples_.
 
@@ -17,13 +16,7 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.runner import get_runner
 from cocotb.triggers import FallingEdge
-
-from apytypes import (
-    APyFloatArray,
-    APyFloat,
-    APyFloatQuantizationContext,
-    QuantizationMode,
-)
+from apytypes import APyFloat, APyFloatArray
 
 
 @cocotb.test()
@@ -39,27 +32,26 @@ async def fp8_mul_test_all(dut):
     clock = Clock(dut.clk, 10, units="ns")
     cocotb.start_soon(clock.start(start_high=False))
 
-    await FallingEdge(dut.clk)
     for x in fp8_values:
         dut.x_in.value = x.to_bits()
         for y in fp8_values:
             dut.y_in.value = y.to_bits()
 
-            await FallingEdge(dut.clk)
-
-            with APyFloatQuantizationContext(QuantizationMode.TIES_ODD):
-                z_ref = x * y
+            await FallingEdge(dut.clk)  # Input is set on falling clock edge
+            await FallingEdge(dut.clk)  # Wait another clock cycle for the result
 
             z_dut = APyFloat.from_bits(
-                int(dut.z.value), exp_bits=EXP_BITS, man_bits=MAN_BITS
+                int(dut.z_out.value), exp_bits=EXP_BITS, man_bits=MAN_BITS
             )
+
+            z_ref = x * y
 
             # If the expected result is NaN, do not test for bit-exact representations
             if z_ref.is_nan:
                 assert z_dut.is_nan
             else:
                 assert (
-                    int(dut.z.value) == z_ref.to_bits()
+                    int(dut.z_out.value) == z_ref.to_bits()
                 ), f"{z_dut!r}({z_dut}) == {z_ref!r}({z_ref})\n{x=}({x}), {y=}({y})"
 
 
@@ -93,3 +85,9 @@ def test_fp8_mul():
 
 if __name__ == "__main__":
     test_fp8_mul()
+
+# %%
+# The contents of ``fp8_multiplier.vhdl`` is shown below.
+#
+# .. literalinclude:: ../../examples/fp8_multiplier.vhdl
+#   :language: vhdl
