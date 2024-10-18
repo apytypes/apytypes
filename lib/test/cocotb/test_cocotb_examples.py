@@ -9,6 +9,9 @@ def cocotb_test(func):
     """
 
     def wrapper(*args, **kwargs):
+        pytest.importorskip(
+            "cocotb", "1.9.1", "cocotb>=1.9.1 is needed to run the example"
+        )
         try:
             func(*args, **kwargs)
         except BaseException as e:
