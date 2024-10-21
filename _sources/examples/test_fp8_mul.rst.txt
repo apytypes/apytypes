@@ -22,30 +22,24 @@ cocotb integration
 ==================
 
 Reference models and code for verification can be written swiftly using APyTypes, and incorporated using cocotb.
-
-Below is an exhaustive test of an eight-bit floating-point multiplier with round to nearest, ties to odd.
+Below is an exhaustive test of an eight-bit floating-point multiplier with round to nearest, ties to even.
 
 Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are available under examples_.
 
 .. _examples: https://github.com/apytypes/apytypes/tree/main/examples
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-65
+.. GENERATED FROM PYTHON SOURCE LINES 12-58
 
 .. code-block:: Python
 
 
     import os
+    from pathlib import Path
     import cocotb
     from cocotb.clock import Clock
     from cocotb.runner import get_runner
     from cocotb.triggers import FallingEdge
-
-    from apytypes import (
-        APyFloatArray,
-        APyFloat,
-        APyFloatQuantizationContext,
-        QuantizationMode,
-    )
+    from apytypes import APyFloat, APyFloatArray
 
 
     @cocotb.test()
@@ -61,27 +55,26 @@ Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are availabl
         clock = Clock(dut.clk, 10, units="ns")
         cocotb.start_soon(clock.start(start_high=False))
 
-        await FallingEdge(dut.clk)
         for x in fp8_values:
             dut.x_in.value = x.to_bits()
             for y in fp8_values:
                 dut.y_in.value = y.to_bits()
 
-                await FallingEdge(dut.clk)
-
-                with APyFloatQuantizationContext(QuantizationMode.TIES_ODD):
-                    z_ref = x * y
+                await FallingEdge(dut.clk)  # Input is set on falling clock edge
+                await FallingEdge(dut.clk)  # Wait another clock cycle for the result
 
                 z_dut = APyFloat.from_bits(
-                    int(dut.z.value), exp_bits=EXP_BITS, man_bits=MAN_BITS
+                    int(dut.z_out.value), exp_bits=EXP_BITS, man_bits=MAN_BITS
                 )
+
+                z_ref = x * y
 
                 # If the expected result is NaN, do not test for bit-exact representations
                 if z_ref.is_nan:
                     assert z_dut.is_nan
                 else:
                     assert (
-                        int(dut.z.value) == z_ref.to_bits()
+                        int(dut.z_out.value) == z_ref.to_bits()
                     ), f"{z_dut!r}({z_dut}) == {z_ref!r}({z_ref})\n{x=}({x}), {y=}({y})"
 
 
@@ -99,11 +92,11 @@ Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are availabl
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 66-67
+.. GENERATED FROM PYTHON SOURCE LINES 59-60
 
-To run the test, set up the Python Test Runner
+The rest of the testbench is set up as one would normally do using cocotb.
 
-.. GENERATED FROM PYTHON SOURCE LINES 67-91
+.. GENERATED FROM PYTHON SOURCE LINES 60-89
 
 .. code-block:: Python
 
@@ -117,7 +110,11 @@ To run the test, set up the Python Test Runner
         """
         sim = os.getenv("SIM", "nvc")
 
-        dir_path = os.path.dirname(os.path.realpath(__file__))
+        dir_path = (
+            os.path.dirname(os.path.realpath(__file__))
+            if "__file__" in globals()
+            else Path.cwd()
+        )
         sources = [f"{dir_path}/fp8_multiplier.vhdl"]
 
         runner = get_runner(sim)
@@ -129,19 +126,35 @@ To run the test, set up the Python Test Runner
         runner.test(hdl_toplevel="fp8_multiplier", test_module="test_fp8_mul")
 
 
-    # if __name__ == "__main__":
-    #     test_fp8_mul()
+    if __name__ == "__main__":
+        test_fp8_mul()
 
 
 
 
 
+.. rst-class:: sphx-glr-script-out
 
+ .. code-block:: none
+
+    INFO: Running command nvc --work=top -a /home/runner/work/apytypes/apytypes/examples/fp8_multiplier.vhdl in directory /home/runner/work/apytypes/apytypes/examples/sim_build
+    INFO: Running command nvc --work=top -e fp8_multiplier --no-save --jit -r --load=/opt/hostedtoolcache/Python/3.10.15/x64/lib/python3.10/site-packages/cocotb/libs/libcocotbvhpi_nvc.so in directory /home/runner/work/apytypes/apytypes/examples/sim_build
+    INFO: Results file: /home/runner/work/apytypes/apytypes/examples/sim_build/results.xml
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 90-94
+
+The contents of ``fp8_multiplier.vhdl`` is shown below.
+
+.. literalinclude:: ../../examples/fp8_multiplier.vhdl
+  :language: vhdl
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.077 seconds)
+   **Total running time of the script:** (0 minutes 15.093 seconds)
 
 
 .. _sphx_glr_download_examples_test_fp8_mul.py:

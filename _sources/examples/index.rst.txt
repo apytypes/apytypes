@@ -69,7 +69,7 @@ These are examples of how APyTypes can be used.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Reference models and code for verification can be written swiftly using APyTypes, and incorporated using cocotb.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Reference models and code for verification can be written swiftly using APyTypes, and incorporated using cocotb. Below is an exhaustive test of an eight-bit floating-point multiplier with round to nearest, ties to even.">
 
 .. only:: html
 
