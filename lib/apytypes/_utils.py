@@ -1,6 +1,9 @@
-from apytypes._apytypes import APyFixed, APyFixedArray, APyFloat, APyFloatArray
+from functools import partial
+import math
+from typing import Callable, List, Optional, Sequence, Tuple, Union
+import warnings
 
-from typing import Optional, Sequence, Union
+from apytypes._apytypes import APyFixed, APyFixedArray, APyFloat, APyFloatArray
 
 
 def fx(
@@ -17,7 +20,7 @@ def fx(
 
     Parameters
     ----------
-    val : int, float | Sequence[int] | Sequence[float]
+    val : int, float, list(int), list(float)
         Floating point value(s) to initialize from.
     int_bits : int, optional
         Number of integer bits in the created fixed-point object.
@@ -57,7 +60,7 @@ def fp(
 
     Parameters
     ----------
-    val : int | float | Sequence[int] | Sequence[float]
+    val : int, float, list(int), list(float)
         Floating point value(s) to initialize from.
     exp_bits : int
         Number of exponent bits.
@@ -79,3 +82,110 @@ def fp(
     return APyFloatArray.from_float(
         val, exp_bits=exp_bits, man_bits=man_bits, bias=bias
     )
+
+
+def _process_args(args) -> Tuple[List[float], partial]:
+    fargs = []
+    exp_bits = -math.inf
+    man_bits = -math.inf
+    frac_bits = -math.inf
+    int_bits = -math.inf
+    fn = None
+    bias = None
+    for arg in args:
+        if isinstance(arg, APyFixed):
+            if fn == fp:
+                warnings.warn(
+                    "Mix of APyFloat(Array) and APyFixed arguments, will return APyFloat(Array).",
+                    UserWarning,
+                )
+            else:
+                fn = fx
+            int_bits = max(arg.int_bits, int_bits)
+            frac_bits = max(arg.frac_bits, frac_bits)
+            fargs.append(float(arg))
+        elif isinstance(arg, APyFixedArray):
+            if fn == fp:
+                warnings.warn(
+                    "Mix of APyFloat(Array) and APyFixedArray arguments, will return APyFloat(Array).",
+                    UserWarning,
+                )
+            else:
+                fn = fx
+            int_bits = max(arg.int_bits, int_bits)
+            frac_bits = max(arg.frac_bits, frac_bits)
+            fargs.append(arg.to_numpy())
+        elif isinstance(arg, APyFloat):
+            if fn == fx:
+                warnings.warn(
+                    "Mix of APyFixed(Array) and APyFloat arguments, will return APyFixed(Array).",
+                    UserWarning,
+                )
+            else:
+                fn = fp
+            man_bits = max(arg.man_bits, man_bits)
+            exp_bits = max(arg.exp_bits, exp_bits)
+            bias = arg.bias
+            fargs.append(float(arg))
+        elif isinstance(arg, APyFloatArray):
+            if fn == fx:
+                warnings.warn(
+                    "Mix of APyFixed(Array) and APyFloatArray arguments, will return APyFixed(Array).",
+                    UserWarning,
+                )
+            else:
+                fn = fp
+            man_bits = max(arg.man_bits, man_bits)
+            exp_bits = max(arg.exp_bits, exp_bits)
+            bias = arg.bias
+            fargs.append(arg.to_numpy())
+
+    if fn == fx:
+        return fargs, partial(fx, int_bits=int(int_bits), frac_bits=int(frac_bits))
+    elif fn == fp:
+        return fargs, partial(
+            fp, exp_bits=int(exp_bits), man_bits=int(man_bits), bias=bias
+        )
+    else:
+        raise TypeError("Expected APyTypes arguments")
+
+
+def fn(
+    fn: Callable, *args: Union[APyFloat, APyFixed, APyFixedArray, APyFloatArray]
+) -> Union[APyFloat, APyFixed, APyFixedArray, APyFloatArray]:
+    """
+    Utility function to evaluate functions on arguments and convert back.
+
+    This does exactly:
+
+    1. Convert argument(s) to float
+    2. Evaluate function with float argument(s)
+    3. Convert result back to the same type as the argument
+
+    Hence, there may be numerical issues, but it provides a simple way to
+    perform, e.g., ``sin``, assuming that it is based on a look-up table.
+
+    Parameters
+    ----------
+    fn : callable
+       The function to evaluate.
+    args: APyFixed, APyFloat, APyFixedArray, APyFloatArray
+       The argument(s) to evaluate the function for.
+
+    Returns
+    -------
+    APyFloat, APyFixed, APyFixedArray, APyFloatArray
+
+    Examples
+    --------
+    >>> from apytypes import APyFixed, fn
+    >>> import math
+    >>> a = APyFixed(19, 1, 5)
+    >>> fn(math.sin, a)
+    APyFixed(18, bits=6, int_bits=1)
+
+    .. versionadded:: 0.3
+    """
+    pargs, conv = _process_args(args)
+    fval = fn(*pargs)
+    return conv(fval)

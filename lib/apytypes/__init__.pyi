@@ -43,7 +43,7 @@ from ._array_functions import (
     zeros as zeros,
     zeros_like as zeros_like,
 )
-from ._utils import fp as fp, fx as fx
+from ._utils import fn as fn, fp as fp, fx as fx
 
 __all__: list = [
     "APyFixed",
@@ -82,6 +82,7 @@ __all__: list = [
     "arange",
     "fx",
     "fp",
+    "fn",
 ]
 
 annotations: __future__._Feature = ...
