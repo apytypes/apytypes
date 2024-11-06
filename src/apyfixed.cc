@@ -111,20 +111,30 @@ inline APyFixed APyFixed::_apyfixed_base_add_sub(const APyFixed& rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
 
     APyFixed result(res_bits, res_int_bits);
-    auto left_shift_amount = unsigned(res_frac_bits - frac_bits());
+    auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
 
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
         // Result bits fits in a single limb. Use native operation
         result._data[0] = base_op {}(
-            _data[0] << left_shift_amount, rhs._data[0] << rhs_shift_amount
+            _data[0] << lhs_shift_amount, rhs._data[0] << rhs_shift_amount
         );
     } else {
-        _cast_correct_wl(result._data.begin(), result._data.end(), left_shift_amount);
         // Resulting number of bits is more than one limb. Use ripple-carry operation
         APyFixed operand(res_bits, res_int_bits);
-        rhs._cast_correct_wl(
-            operand._data.begin(), operand._data.end(), rhs_shift_amount
+        _cast_no_quantize_no_overflow(
+            std::begin(_data),
+            std::end(_data),
+            std::begin(result._data),
+            std::end(result._data),
+            lhs_shift_amount
+        );
+        _cast_no_quantize_no_overflow(
+            std::begin(rhs._data),
+            std::end(rhs._data),
+            std::begin(operand._data),
+            std::end(operand._data),
+            rhs_shift_amount
         );
         ripple_carry_op {}(
             &result._data[0],    // dst
@@ -164,39 +174,28 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
 
     ScratchVector<mp_limb_t> abs_op1(_data.size());
     ScratchVector<mp_limb_t> abs_op2(rhs._data.size());
-    limb_vector_abs(_data.begin(), _data.end(), abs_op1.begin());
-    limb_vector_abs(rhs._data.begin(), rhs._data.end(), abs_op2.begin());
 
-    // `mpn_mul` requires:
-    // "The destination has to have space for `s1n` + `s2n` limbs, even if the
-    // product’s most significant limb is zero."
+    // `fixed_point_product` requires:
+    // `prod_abs` has to have space for `s1n` + `s2n` limbs, even if the product’s most
+    // significant limb is zero.
     result._data.resize(abs_op1.size() + abs_op2.size());
 
-    // `mpn_mul` requires the limb vector length of the first operand to be
-    // greater than, or equally long as, the limb vector length of the second
-    // operand. Simply swap the operands (essentially a free operation in C++)
-    // if this is not the case.
-    if (abs_op1.size() < abs_op2.size()) {
-        std::swap(abs_op1, abs_op2);
-    }
-
-    mpn_mul(
-        &result._data[0], // dst
-        &abs_op1[0],      // src1
-        abs_op1.size(),   // src1 limb vector length
-        &abs_op2[0],      // src2
-        abs_op2.size()    // src2 limb vector length
+    // Perform the product
+    fixed_point_product(
+        std::begin(_data),        // src1
+        std::begin(rhs._data),    // src2
+        std::begin(result._data), // dst
+        vector_size(),            // src1_limbs
+        rhs.vector_size(),        // src2_limbs
+        bits_to_limbs(res_bits),  // dst_limbs
+        abs_op1,                  // op1_abs
+        abs_op2,                  // op2_abs
+        result._data              // prod_abs
     );
 
-    // Shape the rsult vector back to the number of significant limbs
+    // Shape the result vector back to the number of significant limbs
     result._data.resize(bits_to_limbs(res_bits));
 
-    // Handle sign
-    if (is_negative() ^ rhs.is_negative()) {
-        limb_vector_negate(
-            result._data.begin(), result._data.end(), result._data.begin()
-        );
-    }
     return result;
 }
 
@@ -1111,8 +1110,12 @@ APyFixed APyFixed::cast(
     // Result that temporarily can hold all the necessary bits
     APyFixed result(std::max(new_bits, _bits), new_int_bits);
     _cast(
-        result._data.begin(), // output start
-        result._data.end(),   // output sentinel
+        std::begin(_data),
+        std::end(_data),
+        std::begin(result._data),
+        std::end(result._data),
+        _bits,
+        _int_bits,
         new_bits,
         new_int_bits,
         quantization_mode,
@@ -1127,105 +1130,23 @@ APyFixed APyFixed::cast(
 APyFixed
 APyFixed::cast_no_overflow(int bits, int int_bits, QuantizationMode quantization) const
 {
-    // Sanitize the input
-    int new_bits = bits;
-    int new_int_bits = int_bits;
-
     // Result that temporarily can hold all the necessary bits
-    APyFixed result(std::max(new_bits, _bits), std::max(new_int_bits, _int_bits));
-    _cast_no_overflow(
-        result._data.begin(), // output start
-        result._data.end(),   // output sentinel
-        new_bits,
-        new_int_bits,
-        quantization
-    );
+    APyFixed result(std::max(bits, _bits), std::max(int_bits, _int_bits));
 
-    result._bits = new_bits;
-    result._int_bits = new_int_bits;
-    result._data.resize(bits_to_limbs(new_bits));
-    return result;
-}
+    auto src_begin = std::begin(_data);
+    auto src_end = std::end(_data);
+    auto dst_begin = std::begin(result._data);
+    auto dst_end = std::end(result._data);
 
-template <class RANDOM_ACCESS_ITERATOR>
-void APyFixed::_cast(
-    RANDOM_ACCESS_ITERATOR it_begin,
-    RANDOM_ACCESS_ITERATOR it_end,
-    int new_bits,
-    int new_int_bits,
-    QuantizationMode q_mode,
-    OverflowMode v_mode
-) const
-{
     // Copy data into the result and sign extend
-    _copy_and_sign_extend(it_begin, it_end);
-
-    // First perform quantization
-    quantize(it_begin, it_end, bits(), int_bits(), new_bits, new_int_bits, q_mode);
-
-    // Then perform overflowing
-    overflow(it_begin, it_end, new_bits, new_int_bits, v_mode);
-}
-
-template <class RANDOM_ACCESS_ITERATOR>
-void APyFixed::_cast_no_overflow(
-    RANDOM_ACCESS_ITERATOR it_begin,
-    RANDOM_ACCESS_ITERATOR it_end,
-    int new_bits,
-    int new_int_bits,
-    QuantizationMode quantization
-) const
-{
-    // Copy data into the result and sign extend
-    _copy_and_sign_extend(it_begin, it_end);
+    limb_vector_copy_sign_extend(src_begin, src_end, dst_begin, dst_end);
 
     // Perform quantization
-    quantize(
-        it_begin, it_end, bits(), int_bits(), new_bits, new_int_bits, quantization
-    );
+    quantize(dst_begin, dst_end, _bits, _int_bits, bits, int_bits, quantization);
+
+    // Set the result bit-specifiers correctly
+    result._bits = bits;
+    result._int_bits = int_bits;
+    result._data.resize(bits_to_limbs(bits));
+    return result;
 }
-
-template <class RANDOM_ACCESS_ITERATOR>
-void APyFixed::_cast_correct_wl(
-    RANDOM_ACCESS_ITERATOR it_begin,
-    RANDOM_ACCESS_ITERATOR it_end,
-    unsigned int shift_amount
-) const
-{
-    // Copy data into the result and sign extend
-    std::size_t result_vector_size = std::distance(it_begin, it_end);
-    std::copy_n(_data.begin(), std::min(result_vector_size, vector_size()), it_begin);
-    if (vector_size() < result_vector_size) {
-        std::fill(it_begin + vector_size(), it_end, is_negative() ? mp_limb_t(-1) : 0);
-    }
-    limb_vector_lsl(it_begin, it_end, shift_amount);
-}
-
-/* ********************************************************************************** *
- * *                          Private member functions                              * *
- * ********************************************************************************** */
-
-template <typename RANDOM_ACCESS_ITERATOR>
-void APyFixed::_copy_and_sign_extend(
-    RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end
-) const
-{
-    std::size_t result_vector_size = std::distance(it_begin, it_end);
-    std::copy_n(_data.begin(), std::min(vector_size(), result_vector_size), it_begin);
-    if (vector_size() < result_vector_size) {
-        std::fill(it_begin + vector_size(), it_end, is_negative() ? mp_limb_t(-1) : 0);
-    }
-}
-
-/* ********************************************************************************** *
- * *                       Explicit template instantiations                         * *
- * ********************************************************************************** */
-
-template void APyFixed::_cast(
-    APyBuffer<mp_limb_t>::vector_type::iterator,
-    APyBuffer<mp_limb_t>::vector_type::iterator,
-    int,
-    int,
-    QuantizationMode,
-    OverflowMode
-) const;

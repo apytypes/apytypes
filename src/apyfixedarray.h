@@ -148,7 +148,7 @@ private:
         std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt
     ) const;
 
-    //! Internal function for the cumprod,cumsum,nancumprod and nancumsum functions
+    //! Internal function for the cumprod, cumsum,nancumprod and nancumsum functions
     APyFixedArray cumulative_prod_sum_function(
         void (*pos_func)(
             std::size_t,
@@ -415,24 +415,6 @@ private:
     template <typename RANDOM_ACCESS_ITERATOR>
     void _cast_correct_wl(
         RANDOM_ACCESS_ITERATOR output_it, int new_bits, int new_int_bits
-    ) const;
-
-    /*!
-     * The internal cast method used to place cast data onto a pair of iterators.
-     * See `APyFixedArray::cast` for example usage.
-     * Importantly:
-     *   * The `caster` must be an `APyFixed` object with same bit specifier as `*this`
-     *   * If `new_bits` > `_bits`, the output must contain pad limbs
-     */
-    template <typename RANDOM_ACCESS_ITERATOR>
-    void _cast(
-        RANDOM_ACCESS_ITERATOR it_begin,
-        RANDOM_ACCESS_ITERATOR it_end,
-        APyFixed& caster,
-        int new_bits,
-        int new_int_bits,
-        QuantizationMode quantization,
-        OverflowMode overflow
     ) const;
 
     /*!

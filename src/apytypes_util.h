@@ -676,7 +676,7 @@ static APY_INLINE void limb_vector_lsl_inner(
         for (auto it = it_end - 1; it != it_begin + limb_skip - 1; --it) {
             *it = *(it - limb_skip);
         }
-        for (auto it = it_begin; it != it_begin + limb_skip; it++) {
+        for (auto it = it_begin; it != it_begin + limb_skip; ++it) {
             *it = 0;
         }
     }
@@ -1022,6 +1022,27 @@ limb_vector_from_uint64_t(std::initializer_list<uint64_t> list)
         }
     }
     return result;
+}
+
+//! Copy limbs from `src` to `dst` and possibly sign extend the data in `dst`
+template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
+[[maybe_unused]] static APY_INLINE void limb_vector_copy_sign_extend(
+    RANDOM_ACCESS_ITERATOR_IN src_begin,
+    RANDOM_ACCESS_ITERATOR_IN src_end,
+    RANDOM_ACCESS_ITERATOR_OUT dst_begin,
+    RANDOM_ACCESS_ITERATOR_OUT dst_end
+)
+{
+    std::size_t src_vector_size = std::distance(src_begin, src_end);
+    std::size_t dst_vector_size = std::distance(dst_begin, dst_end);
+    std::copy_n(src_begin, std::min(src_vector_size, dst_vector_size), dst_begin);
+    if (src_vector_size < dst_vector_size) {
+        std::fill(
+            dst_begin + src_vector_size,
+            dst_end,
+            limb_vector_is_negative(src_begin, src_end) ? -1 : 0
+        );
+    }
 }
 
 //! Read an unsigned 64-bit value from a limb vector. If `_LIMB_SIZE_BITS == 64`, this

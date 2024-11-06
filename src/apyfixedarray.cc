@@ -232,7 +232,13 @@ inline APyFixedArray APyFixedArray::_apyfixed_base_add_sub(const APyFixed& rhs) 
     APyFixed imm(res_bits, res_int_bits);
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
     _cast_correct_wl(result._data.begin(), res_bits, res_int_bits);
-    rhs._cast_correct_wl(imm._data.begin(), imm._data.end(), rhs_shift_amount);
+    _cast_no_quantize_no_overflow(
+        std::begin(rhs._data),
+        std::end(rhs._data),
+        std::begin(imm._data),
+        std::end(imm._data),
+        rhs_shift_amount
+    );
     for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
         // Perform ripple-carry operation
         ripple_carry_op {}(
@@ -321,7 +327,13 @@ APyFixedArray APyFixedArray::rsub(const APyFixed& lhs) const
         );
     } else {
         APyFixed imm(res_bits, res_int_bits);
-        lhs._cast_correct_wl(imm._data.begin(), imm._data.end(), lhs_shift_amount);
+        _cast_no_quantize_no_overflow(
+            std::begin(lhs._data), // src_begin
+            std::end(lhs._data),   // src_end
+            std::begin(imm._data), // dst_begin
+            std::end(imm._data),   // dst_end
+            lhs_shift_amount
+        );
 
         // Perform subtraction
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
@@ -1538,19 +1550,21 @@ APyFixedArray APyFixedArray::cast(
         new_int_bits + _LIMB_SIZE_BITS * pad_limbs
     );
 
-    // `APyFixed` with the same word length as `*this` for reusing quantization methods
-    APyFixed caster(_bits, _int_bits);
-
     // Do the casting
-    _cast(
-        result._data.begin(),
-        result._data.end(),
-        caster,
-        new_bits,
-        new_int_bits,
-        quantization_mode,
-        overflow_mode
-    );
+    for (std::size_t i = 0; i < _nitems; i++) {
+        _cast(
+            std::begin(_data) + (i + 0) * _itemsize,
+            std::begin(_data) + (i + 1) * _itemsize,
+            std::begin(result._data) + (i + 0) * result_limbs,
+            std::begin(result._data) + (i + 1) * result_limbs + pad_limbs,
+            _bits,
+            _int_bits,
+            new_bits,
+            new_int_bits,
+            quantization_mode,
+            overflow_mode
+        );
+    }
 
     result._bits = new_bits;
     result._int_bits = new_int_bits;
@@ -1740,18 +1754,22 @@ APyFixedArray APyFixedArray::arange(
     std::optional<int> bits
 )
 {
-    const int _bits = bits_from_optional(bits, int_bits, frac_bits);
-    const int _int_bits = int_bits.has_value() ? *int_bits : _bits - *frac_bits;
+    const int res_bits = bits_from_optional(bits, int_bits, frac_bits);
+    const int res_int_bits = int_bits.has_value() ? *int_bits : res_bits - *frac_bits;
 
     const std::vector<APyFixed> apy_vals = ::arange(start, stop, step);
-    APyFixedArray result({ apy_vals.size() }, _bits, _int_bits);
+    APyFixedArray result({ apy_vals.size() }, res_bits, res_int_bits);
 
     for (size_t i = 0; i < apy_vals.size(); i++) {
-        apy_vals[i]._cast(
+        _cast(
+            std::begin(apy_vals[i]._data),
+            std::end(apy_vals[i]._data),
             std::begin(result._data) + i * result._itemsize,       // output start
             std::begin(result._data) + (i + 1) * result._itemsize, // output sentinel
-            _bits,
-            _int_bits,
+            apy_vals[i]._bits,
+            apy_vals[i]._int_bits,
+            res_bits,
+            res_int_bits,
             QuantizationMode::RND_INF,
             OverflowMode::WRAP
         );
@@ -2036,48 +2054,6 @@ void APyFixedArray::_cast_correct_wl(
             it_begin = it_end;
             data_begin = data_end;
         }
-    }
-}
-
-template <typename RANDOM_ACCESS_ITERATOR>
-void APyFixedArray::_cast(
-    RANDOM_ACCESS_ITERATOR it_begin,
-    RANDOM_ACCESS_ITERATOR it_end,
-    APyFixed& caster,
-    int new_bits,
-    int new_int_bits,
-    QuantizationMode quantization,
-    OverflowMode overflow
-) const
-{
-    (void)it_end;
-
-    // For each scalar in the tensor...
-    std::size_t result_limbs = bits_to_limbs(new_bits);
-    std::size_t pad_limbs = bits_to_limbs(std::max(new_bits, _bits)) - result_limbs;
-    auto data_begin = _data.begin();
-    auto it_start = it_begin;
-    for (std::size_t i = 0; i < _nitems; i++) {
-        // Copy data into caster `APyFixed`. No sign-extension.
-        std::copy_n(
-            data_begin,          // src
-            _itemsize,           // limbs to copy
-            caster._data.begin() // dst
-        );
-
-        auto it_end_ = it_start + result_limbs;
-
-        // Perform the resizing
-        caster._cast(
-            it_start,            // output start
-            it_end_ + pad_limbs, // output sentinel
-            new_bits,
-            new_int_bits,
-            quantization,
-            overflow
-        );
-        data_begin += _itemsize;
-        it_start = it_end_;
     }
 }
 

@@ -6,7 +6,42 @@
 #include <nanobind/operators.h>
 #include <nanobind/stl/optional.h>
 
+#include <functional>
+#include <type_traits>
+
 namespace nb = nanobind;
+
+/*
+ * Binding function of a custom R-operator (e.g., `__rmul__`) with non APyFixedArray
+ * type
+ */
+template <auto FUNC, typename L_TYPE>
+static auto R_OP(const APyFixedArray& rhs, const L_TYPE& lhs)
+{
+    if constexpr (std::is_floating_point_v<L_TYPE>) {
+        return (rhs.*FUNC)(APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits()));
+    } else if constexpr (std::is_same_v<std::remove_cv_t<L_TYPE>, APyFixed>) {
+        return (rhs.*FUNC)(lhs);
+    } else {
+        return (rhs.*FUNC)(APyFixed::from_integer(lhs, rhs.int_bits(), rhs.frac_bits())
+        );
+    }
+}
+
+/*
+ * Binding function of a custom L-operator (e.g., `__sub__`) with non APyFixedArray type
+ */
+template <typename OP, typename R_TYPE>
+static auto L_OP(const APyFixedArray& lhs, const R_TYPE& rhs)
+{
+    if constexpr (std::is_floating_point_v<R_TYPE>) {
+        return OP()(lhs, APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits()));
+    } else if constexpr (std::is_same_v<std::remove_cv_t<R_TYPE>, APyFixed>) {
+        return OP()(lhs, rhs);
+    } else {
+        return OP()(lhs, APyFixed::from_integer(rhs, lhs.int_bits(), lhs.frac_bits()));
+    }
+}
 
 void bind_fixed_array(nb::module_& m)
 {
@@ -31,175 +66,48 @@ void bind_fixed_array(nb::module_& m)
          * Arithmetic operations
          */
         .def(nb::self + nb::self)
-        .def(
-            "__add__",
-            [](const APyFixedArray& a, const nb::int_& b) {
-                return a + APyFixed::from_integer(b, a.int_bits(), a.frac_bits());
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__radd__",
-            [](const APyFixedArray& a, const nb::int_& b) {
-                return a + APyFixed::from_integer(b, a.int_bits(), a.frac_bits());
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__add__",
-            [](const APyFixedArray& lhs, double rhs) {
-                return lhs
-                    + APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits());
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__radd__",
-            [](const APyFixedArray& rhs, double lhs) {
-                return rhs
-                    + APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits());
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__add__",
-            [](const APyFixedArray& a, const APyFixed& b) { return a + b; },
-            nb::is_operator()
-        )
-        .def(
-            "__radd__",
-            [](const APyFixedArray& a, const APyFixed& b) { return a + b; },
-            nb::is_operator()
-        )
         .def(nb::self - nb::self)
-        .def(
-            "__sub__",
-            [](const APyFixedArray& a, const nb::int_& b) {
-                return a - APyFixed::from_integer(b, a.int_bits(), a.frac_bits());
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__rsub__",
-            [](const APyFixedArray& a, const nb::int_& b) {
-                return a.rsub(APyFixed::from_integer(b, a.int_bits(), a.frac_bits()));
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__sub__",
-            [](const APyFixedArray& lhs, double rhs) {
-                return lhs
-                    - APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits());
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__rsub__",
-            [](const APyFixedArray& rhs, double lhs) {
-                return rhs.rsub(
-                    APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits())
-                );
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__sub__",
-            [](const APyFixedArray& a, const APyFixed& b) { return a - b; },
-            nb::is_operator()
-        )
-        .def(
-            "__rsub__",
-            [](const APyFixedArray& a, const APyFixed& b) { return a.rsub(b); },
-            nb::is_operator()
-        )
         .def(nb::self * nb::self)
-        .def(
-            "__mul__",
-            [](const APyFixedArray& a, const APyFixed& b) { return a * b; },
-            nb::is_operator()
-        )
-        .def(
-            "__rmul__",
-            [](const APyFixedArray& a, const APyFixed& b) { return a * b; },
-            nb::is_operator()
-        )
-        .def(
-            "__mul__",
-            [](const APyFixedArray& a, const nb::int_& b) {
-                return a * APyFixed::from_integer(b, a.int_bits(), a.frac_bits());
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__rmul__",
-            [](const APyFixedArray& a, const nb::int_& b) {
-                return a * APyFixed::from_integer(b, a.int_bits(), a.frac_bits());
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__mul__",
-            [](const APyFixedArray& lhs, double rhs) {
-                return lhs
-                    * APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits());
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__rmul__",
-            [](const APyFixedArray& rhs, double lhs) {
-                return rhs
-                    * APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits());
-            },
-            nb::is_operator()
-        )
         .def(nb::self / nb::self)
-        .def(
-            "__truediv__",
-            [](const APyFixedArray& a, const APyFixed& b) { return a / b; },
-            nb::is_operator()
-        )
-        .def(
-            "__rtruediv__",
-            [](const APyFixedArray& a, const APyFixed& b) { return a.rdiv(b); },
-            nb::is_operator()
-
-        )
-        .def(
-            "__truediv__",
-            [](const APyFixedArray& a, const nb::int_& b) {
-                return a / APyFixed::from_integer(b, a.int_bits(), a.frac_bits());
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__rtruediv__",
-            [](const APyFixedArray& a, const nb::int_& b) {
-                return a.rdiv(APyFixed::from_integer(b, a.int_bits(), a.frac_bits()));
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__truediv__",
-            [](const APyFixedArray& lhs, double rhs) {
-                return lhs
-                    / APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits());
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__rtruediv__",
-            [](const APyFixedArray& rhs, double lhs) {
-                return rhs.rdiv(
-                    APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits())
-                );
-            },
-            nb::is_operator()
-        )
         .def(-nb::self)
         .def(nb::self <<= int(), nb::rv_policy::none)
         .def(nb::self >>= int(), nb::rv_policy::none)
+
+        /*
+         * Arithmetic operations with integers
+         */
+        .def("__add__", L_OP<std::plus<>, nb::int_>, nb::is_operator())
+        .def("__radd__", L_OP<std::plus<>, nb::int_>, nb::is_operator())
+        .def("__sub__", L_OP<std::minus<>, nb::int_>, nb::is_operator())
+        .def("__rsub__", R_OP<&APyFixedArray::rsub, nb::int_>, nb::is_operator())
+        .def("__mul__", L_OP<std::multiplies<>, nb::int_>, nb::is_operator())
+        .def("__rmul__", L_OP<std::multiplies<>, nb::int_>, nb::is_operator())
+        .def("__truediv__", L_OP<std::divides<>, nb::int_>, nb::is_operator())
+        .def("__rtruediv__", R_OP<&APyFixedArray::rdiv, nb::int_>, nb::is_operator())
+
+        /*
+         * Arithmetic operation with floats
+         */
+        .def("__add__", L_OP<std::plus<>, double>, nb::is_operator())
+        .def("__radd__", L_OP<std::plus<>, double>, nb::is_operator())
+        .def("__sub__", L_OP<std::minus<>, double>, nb::is_operator())
+        .def("__rsub__", R_OP<&APyFixedArray::rsub, double>, nb::is_operator())
+        .def("__mul__", L_OP<std::multiplies<>, double>, nb::is_operator())
+        .def("__rmul__", L_OP<std::multiplies<>, double>, nb::is_operator())
+        .def("__truediv__", L_OP<std::divides<>, double>, nb::is_operator())
+        .def("__rtruediv__", R_OP<&APyFixedArray::rdiv, double>, nb::is_operator())
+
+        /*
+         * Arithmetic operations with APyFixed
+         */
+        .def("__add__", L_OP<std::plus<>, APyFixed>, nb::is_operator())
+        .def("__radd__", L_OP<std::plus<>, APyFixed>, nb::is_operator())
+        .def("__sub__", L_OP<std::minus<>, APyFixed>, nb::is_operator())
+        .def("__rsub__", R_OP<&APyFixedArray::rsub, APyFixed>, nb::is_operator())
+        .def("__rmul__", L_OP<std::multiplies<>, APyFixed>, nb::is_operator())
+        .def("__mul__", L_OP<std::multiplies<>, APyFixed>, nb::is_operator())
+        .def("__truediv__", L_OP<std::divides<>, APyFixed>, nb::is_operator())
+        .def("__rtruediv__", R_OP<&APyFixedArray::rdiv, APyFixed>, nb::is_operator())
 
         /*
          * Properties and methods

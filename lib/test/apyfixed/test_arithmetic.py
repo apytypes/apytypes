@@ -550,3 +550,15 @@ def test_operation_with_floats():
     assert (_ := (-2.125) * a).is_identical(_ := b * a)
     assert (_ := a / (-2.125)).is_identical(_ := a / b)
     assert (_ := (-2.125) / a).is_identical(_ := b / a)
+
+
+def test_rdiv_int():
+    """
+    R-division with an integer. As long as the integer fits into a float, Python chooses
+    to promote the integer to float first, and only performs `__rtruediv__` with the
+    integer if it does not fit into a float.
+    """
+    a = APyFixed.from_float(2**1000, int_bits=4000, frac_bits=0)
+    assert (2**2000 / a).is_identical(
+        APyFixed.from_float(2**1000, int_bits=4001, frac_bits=4000)
+    )

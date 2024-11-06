@@ -1180,3 +1180,15 @@ def test_mantissa_full_range():
     assert (a - b) == APyFloat(
         sign=0, exp=1022, man=(1 << 61) - 2, exp_bits=11, man_bits=61
     )
+
+
+def test_rdiv_int():
+    """
+    R-division with an integer. As long as the integer fits into a float, Python chooses
+    to promote the integer to float first, and only performs `__rtruediv__` with the
+    integer if it does not fit into a float.
+    """
+    a = APyFloat.from_float(2**1000, exp_bits=30, man_bits=50)
+    assert (2**2000 / a).is_identical(
+        APyFloat.from_float(2**1000, exp_bits=30, man_bits=50)
+    )
