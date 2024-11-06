@@ -1,3 +1,7 @@
+/*
+ * APyFixed utility functions
+ */
+
 #ifndef _APYFIXED_UTIL_H
 #define _APYFIXED_UTIL_H
 
@@ -12,7 +16,7 @@
 #include "../extern/mini-gmp/mini-gmp.h"
 
 //! Constant fixed-point one for convenience
-const APyFixed fx_one(2, 2, std::vector<mp_limb_t>({ 1 }));
+static const APyFixed fx_one(2, 2, std::vector<mp_limb_t>({ 1 }));
 
 //! Specialized method when only one limb is used
 mp_limb_t get_data_from_double(double value, int bits, int frac_bits, int shift_amnt);
@@ -24,9 +28,8 @@ APyFixed ipow(APyFixed base, unsigned int n);
 static APY_INLINE APyFixed one(int bits, int int_bits)
 {
     std::size_t bit_index = bits - int_bits;
-    std::size_t limb_bits = sizeof(mp_limb_t) * 8;
-    std::size_t limb_index = bit_index / limb_bits;
-    std::size_t bit_offset = bit_index % limb_bits;
+    std::size_t limb_index = bit_index / _LIMB_SIZE_BITS;
+    std::size_t bit_offset = bit_index % _LIMB_SIZE_BITS;
 
     std::size_t num_limbs = limb_index + 1;
     std::vector<mp_limb_t> data(num_limbs, static_cast<mp_limb_t>(0));
@@ -36,6 +39,7 @@ static APY_INLINE APyFixed one(int bits, int int_bits)
 
     return APyFixed(bits, int_bits, data);
 }
+
 /* ********************************************************************************** *
  * *    Fixed-point iterator based in-place quantization with multi-limb support    * *
  * ********************************************************************************** */
@@ -602,10 +606,72 @@ static void overflow(
 }
 
 /* ********************************************************************************** *
+ * *    Fixed-point iterator based casting with quantization and overflowing        * *
+ * ********************************************************************************** */
+
+/*!
+ * General casting method for fixed-point numbers. It is named `_cast` to differentiate
+ * it from the Python exposed `cast` methods (that usually just call this method).
+ * General casting can perform both quantization and overflowing. The size of the
+ * output region (`std::distance(dst_begin, dst_end)`) must be greater than or equal to
+ * the size of the input region (`std::distance(src_begin, src_end)`), even when the
+ * output bit-specifiers are smaller then the input bit-specifiers.
+ */
+template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
+static APY_INLINE void _cast(
+    RANDOM_ACCESS_ITERATOR_IN src_begin,
+    RANDOM_ACCESS_ITERATOR_IN src_end,
+    RANDOM_ACCESS_ITERATOR_OUT dst_begin,
+    RANDOM_ACCESS_ITERATOR_OUT dst_end,
+    int src_bits,
+    int src_int_bits,
+    int dst_bits,
+    int dst_int_bits,
+    QuantizationMode q_mode,
+    OverflowMode v_mode
+)
+{
+    // Copy data into the result region and sign extend
+    limb_vector_copy_sign_extend(src_begin, src_end, dst_begin, dst_end);
+
+    // First perform quantization
+    quantize(
+        dst_begin, dst_end, src_bits, src_int_bits, dst_bits, dst_int_bits, q_mode
+    );
+
+    // Then perform overflowing
+    overflow(dst_begin, dst_end, dst_bits, dst_int_bits, v_mode);
+}
+
+/*!
+ * Casting when there is known before hand that no quantization or overflowing will
+ * occur. Takes `left_shift_amount` which is the destination fractional bits minus the
+ * source fractional bits.
+ */
+template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
+static APY_INLINE void _cast_no_quantize_no_overflow(
+    RANDOM_ACCESS_ITERATOR_IN src_begin,
+    RANDOM_ACCESS_ITERATOR_IN src_end,
+    RANDOM_ACCESS_ITERATOR_OUT dst_begin,
+    RANDOM_ACCESS_ITERATOR_OUT dst_end,
+    unsigned int left_shift_amount
+)
+{
+    // Copy data into the result region and sign extend
+    limb_vector_copy_sign_extend(src_begin, src_end, dst_begin, dst_end);
+
+    // Shift data into position
+    limb_vector_lsl(dst_begin, dst_end, left_shift_amount);
+}
+
+/* ********************************************************************************** *
  * *     Fixed-point iterator based arithmetic functions with multi-limb support    * *
  * ********************************************************************************** */
 
-//! Iterator-based multi-limb fixed-point product used for multiple calls
+//! Iterator-based multi-limb fixed-point product used for multiple calls. The product
+//! vector `prod_abs` must have space for `src1_limbs + src2_limbs` limbs, even if the
+//! product's most significant limbs are zero. No overlap between `prod_abs` and
+//! `op[12]_abs` allowed. Overlap between `prod_abs` and `dst` is allowed.
 template <
     typename RANDOM_ACCESS_ITERATOR_IN,
     typename RANDOM_ACCESS_ITERATOR_OUT,
@@ -618,9 +684,9 @@ static APY_INLINE void fixed_point_product(
     std::size_t src1_limbs, // Number of limbs `src1`
     std::size_t src2_limbs, // Number of limbs `src2`
     std::size_t dst_limbs,  // `dst_limbs` <= `src1_limbs` + `src2_limbs`
-    OP_ABS_VECTOR_T op1_abs,
-    OP_ABS_VECTOR_T op2_abs,
-    PROD_ABS_VECTOR_T prod_abs
+    OP_ABS_VECTOR_T& op1_abs,
+    OP_ABS_VECTOR_T& op2_abs,
+    PROD_ABS_VECTOR_T& prod_abs
 )
 {
     // Resulting sign
@@ -743,16 +809,10 @@ static void fixed_point_inner_product(
             );
             if (mp_limb_signed_t(product[product_limbs - 1]) < 0) {
                 // Sign-extend
-                std::fill(
-                    std::begin(product) + product_limbs,
-                    std::end(product),
-                    mp_limb_t(-1)
-                );
+                std::fill(std::begin(product) + product_limbs, std::end(product), -1);
             } else {
                 // Zero-extend
-                std::fill(
-                    std::begin(product) + product_limbs, std::end(product), mp_limb_t(0)
-                );
+                std::fill(std::begin(product) + product_limbs, std::end(product), 0);
             }
             mpn_add(&dst[0], &dst[0], dst_limbs, &product[0], dst_limbs);
         }
@@ -840,16 +900,10 @@ static void fixed_point_inner_product_accumulator(
 
             if (mp_limb_signed_t(product[product_limbs - 1]) < 0) {
                 // Sign-extend
-                std::fill(
-                    std::begin(product) + product_limbs,
-                    std::end(product),
-                    mp_limb_t(-1)
-                );
+                std::fill(std::begin(product) + product_limbs, std::end(product), -1);
             } else {
                 // Zero-extend
-                std::fill(
-                    std::begin(product) + product_limbs, std::end(product), mp_limb_t(0)
-                );
+                std::fill(std::begin(product) + product_limbs, std::end(product), 0);
             }
 
             // Quantize and overflow

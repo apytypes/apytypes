@@ -77,10 +77,14 @@ public:
     APyFloatArray operator*(const APyFloat& rhs) const;
     APyFloatArray operator/(const APyFloatArray& rhs) const;
     APyFloatArray operator/(const APyFloat& rhs) const;
+
     //! Absolute value
     APyFloatArray abs() const;
-    //! Elementwise division with floating-point scalar
-    APyFloatArray rtruediv(const APyFloat& rhs) const;
+    //! Elementwise R-division with floating-point scalar
+    APyFloatArray rdiv(const APyFloat& lhs) const;
+
+    //! Elementwise R-subtraction with floating-point scalar
+    APyFloatArray rsub(const APyFloat& lhs) const;
 
     /*!
      * Matrix multiplication. If both arguments are 2-D tensors, this method performs

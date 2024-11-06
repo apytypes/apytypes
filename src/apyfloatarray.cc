@@ -945,7 +945,7 @@ APyFloatArray APyFloatArray::operator/(const APyFloat& rhs) const
     return res;
 }
 
-APyFloatArray APyFloatArray::rtruediv(const APyFloat& lhs) const
+APyFloatArray APyFloatArray::rdiv(const APyFloat& lhs) const
 {
     // Calculate new format
     APyFloatArray res(
@@ -963,6 +963,8 @@ APyFloatArray APyFloatArray::rtruediv(const APyFloat& lhs) const
 
     return res;
 }
+
+APyFloatArray APyFloatArray::rsub(const APyFloat& lhs) const { return (-*this) + lhs; }
 
 std::variant<APyFloatArray, APyFloat> APyFloatArray::matmul(const APyFloatArray& rhs
 ) const

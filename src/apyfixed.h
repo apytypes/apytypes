@@ -358,54 +358,6 @@ public:
         int bits, int int_bits, QuantizationMode quantization = QuantizationMode::TRN
     ) const;
 
-private:
-    //! The internal cast method. Uses output iterators to place the result into the
-    //! iterator region pointed to by `it_begin` and `it_end`. Requires that:
-    //! `std::distance(it_begin, it_end) == bits_to_limbs(std::max(_bits, new_bits))`.
-    template <class RANDOM_ACCESS_ITERATOR>
-    void _cast(
-        RANDOM_ACCESS_ITERATOR it_begin,
-        RANDOM_ACCESS_ITERATOR it_end,
-        int new_bits,
-        int new_int_bits,
-        QuantizationMode quantization = QuantizationMode::TRN,
-        OverflowMode overflow = OverflowMode::WRAP
-    ) const;
-
-    //! The internal cast method. Uses output iterators to place result onto its limb
-    //! vector. Requires that `std::distance(it_begin, it_end) == bits_to_limbs(bits)`.
-    template <class RANDOM_ACCESS_ITERATOR>
-    void _cast_no_overflow(
-        RANDOM_ACCESS_ITERATOR it_begin,
-        RANDOM_ACCESS_ITERATOR it_end,
-        int new_bits,
-        int new_int_bits,
-        QuantizationMode quantization = QuantizationMode::TRN
-    ) const;
-
-    //! The internal cast method when the word length is known to be correct.
-    //! Uses output iterators to place result onto its limb vector.
-    //! Requires that `std::distance(it_begin, it_end) == bits_to_limbs(bits)`.
-    template <class RANDOM_ACCESS_ITERATOR>
-    void _cast_correct_wl(
-        RANDOM_ACCESS_ITERATOR it_begin,
-        RANDOM_ACCESS_ITERATOR it_end,
-        unsigned int shift_amount
-    ) const;
-
-    /* ****************************************************************************** *
-     *                           Private helper methods                               *
-     * ****************************************************************************** */
-
-private:
-    //! Copy the raw bits from `*this` onto the iterator region pointed to `it_begin`
-    //! and `it_end`. If `std::distance(it_begin, it_end) > self->vector_size()`, then
-    //! the data is (limb) sign-extended.
-    template <typename RANDOM_ACCESS_ITERATOR>
-    void _copy_and_sign_extend(
-        RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end
-    ) const;
-
     //! `APyFixedArray` is a friend class of APyFixed, and can access all data of an
     //! `APyFixed` object
 public:

@@ -1,10 +1,58 @@
 #include "apyfixed.h"
 #include "apyfloat.h"
+#include "apytypes_common.h"
+
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
 #include <nanobind/stl/optional.h>
 
+#include <functional>
+#include <type_traits>
+
 namespace nb = nanobind;
+
+/*
+ * Binding function of a custom R-operator (e.g., `__rmul__`) with non APyFloat type
+ */
+template <typename OP, typename L_TYPE>
+static auto R_OP(const APyFloat& rhs, const L_TYPE& lhs)
+{
+    int exp_bits = rhs.get_exp_bits();
+    int man_bits = rhs.get_man_bits();
+    exp_t bias = rhs.get_bias();
+    if constexpr (std::is_floating_point_v<L_TYPE>) {
+        return OP()(APyFloat::from_double(lhs, exp_bits, man_bits, bias), rhs);
+    } else {
+        return OP()(APyFloat::from_integer(lhs, exp_bits, man_bits, bias), rhs);
+    }
+}
+
+/*
+ * Binding function of a custom L-operator (e.g., `__sub__`) with non APyFloat type
+ */
+template <typename OP, typename R_TYPE>
+static auto L_OP(const APyFloat& lhs, const R_TYPE& rhs)
+{
+    int exp_bits = lhs.get_exp_bits();
+    int man_bits = lhs.get_man_bits();
+    exp_t bias = lhs.get_bias();
+    if constexpr (std::is_floating_point_v<R_TYPE>) {
+        return OP()(lhs, APyFloat::from_double(rhs, exp_bits, man_bits, bias));
+    } else {
+        return OP()(lhs, APyFloat::from_integer(rhs, exp_bits, man_bits, bias));
+    }
+}
+
+template <typename OP, typename TYPE> static auto UN_OP(const TYPE& in)
+{
+    return OP()(in);
+}
+
+template <typename OP, typename L_TYPE, typename R_TYPE>
+static auto BIN_OP(const L_TYPE& lhs, const R_TYPE& rhs)
+{
+    return OP()(lhs, rhs);
+}
 
 void bind_float(nb::module_& m)
 {
@@ -44,6 +92,72 @@ void bind_float(nb::module_& m)
             :class:`APyFloat`
             )pbdoc"
         )
+
+        /*
+         * Arithmetic operations
+         */
+        .def(nb::self == nb::self)
+        .def(nb::self != nb::self)
+        .def(nb::self < nb::self)
+        .def(nb::self > nb::self)
+        .def(nb::self <= nb::self)
+        .def(nb::self >= nb::self)
+
+        .def(nb::self + nb::self)
+        .def(nb::self - nb::self)
+        .def(nb::self * nb::self)
+        .def(nb::self / nb::self)
+        .def(-nb::self)
+
+        .def("__abs__", &APyFloat::abs)
+        .def("__pow__", &APyFloat::pow)
+        .def("__pow__", &APyFloat::pown)
+
+        .def("__and__", BIN_OP<std::bit_and<>, APyFloat, APyFloat>)
+        .def("__or__", BIN_OP<std::bit_or<>, APyFloat, APyFloat>)
+        .def("__xor__", BIN_OP<std::bit_xor<>, APyFloat, APyFloat>)
+        .def("__invert__", UN_OP<std::bit_not<>, APyFloat>)
+
+        /*
+         * Arithmetic operations with integers
+         */
+        .def("__add__", L_OP<std::plus<>, nb::int_>, nb::is_operator())
+        .def("__radd__", R_OP<std::plus<>, nb::int_>, nb::is_operator())
+        .def("__sub__", L_OP<std::minus<>, nb::int_>, nb::is_operator())
+        .def("__rsub__", R_OP<std::minus<>, nb::int_>, nb::is_operator())
+        .def("__mul__", L_OP<std::multiplies<>, nb::int_>, nb::is_operator())
+        .def("__rmul__", R_OP<std::multiplies<>, nb::int_>, nb::is_operator())
+        .def("__truediv__", L_OP<std::divides<>, nb::int_>, nb::is_operator())
+        .def("__rtruediv__", R_OP<std::divides<>, nb::int_>, nb::is_operator())
+
+        /*
+         * Arithmetic with floats
+         */
+        .def(nb::self == double())
+        .def(nb::self != double())
+        .def(nb::self < double())
+        .def(nb::self > double())
+        .def(nb::self <= double())
+        .def(nb::self >= double())
+
+        .def("__add__", L_OP<std::plus<>, double>, nb::is_operator())
+        .def("__radd__", R_OP<std::plus<>, double>, nb::is_operator())
+        .def("__sub__", L_OP<std::minus<>, double>, nb::is_operator())
+        .def("__rsub__", R_OP<std::minus<>, double>, nb::is_operator())
+        .def("__mul__", L_OP<std::multiplies<>, double>, nb::is_operator())
+        .def("__rmul__", R_OP<std::multiplies<>, double>, nb::is_operator())
+        .def("__truediv__", L_OP<std::divides<>, double>, nb::is_operator())
+        .def("__rtruediv__", R_OP<std::divides<>, double>, nb::is_operator())
+
+        /*
+         * Arithmetic operations with APyFixed
+         */
+        .def("__eq__", BIN_OP<std::equal_to<>, APyFloat, APyFixed>)
+        .def("__ne__", BIN_OP<std::not_equal_to<>, APyFloat, APyFixed>)
+        .def("__le__", BIN_OP<std::less_equal<>, APyFloat, APyFixed>)
+        .def("__lt__", BIN_OP<std::less<>, APyFloat, APyFixed>)
+        .def("__ge__", BIN_OP<std::greater_equal<>, APyFloat, APyFixed>)
+        .def("__gt__", BIN_OP<std::greater<>, APyFloat, APyFixed>)
 
         /*
          * Conversion methods
@@ -187,251 +301,6 @@ void bind_float(nb::module_& m)
             :class:`APyFloat`
 
             )pbdoc"
-        )
-        /*
-         * Arithmetic operators
-         */
-        .def(nb::self + nb::self)
-        .def(-nb::self)
-        .def(nb::self - nb::self)
-        .def(nb::self * nb::self)
-        .def(nb::self / nb::self)
-        .def(
-            "__add__",
-            [](const APyFloat& lhs, const nb::int_& rhs) {
-                return lhs
-                    + APyFloat::from_integer(
-                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
-                    );
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__radd__",
-            [](const APyFloat& rhs, const nb::int_& lhs) {
-                return rhs
-                    + APyFloat::from_integer(
-                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
-                    );
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__add__",
-            [](const APyFloat& lhs, double rhs) {
-                return lhs
-                    + APyFloat::from_double(
-                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
-                    );
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__radd__",
-            [](const APyFloat& rhs, double lhs) {
-                return APyFloat::from_double(
-                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
-                       )
-                    + rhs;
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__sub__",
-            [](const APyFloat& lhs, const nb::int_& rhs) {
-                return lhs
-                    - APyFloat::from_integer(
-                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
-                    );
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__rsub__",
-            [](const APyFloat& rhs, const nb::int_& lhs) {
-                return APyFloat::from_integer(
-                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
-                       )
-                    - rhs;
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__sub__",
-            [](const APyFloat& lhs, double rhs) {
-                return lhs
-                    - APyFloat::from_double(
-                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
-                    );
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__rsub__",
-            [](const APyFloat& rhs, double lhs) {
-                return APyFloat::from_double(
-                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
-                       )
-                    - rhs;
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__mul__",
-            [](const APyFloat& lhs, const nb::int_& rhs) {
-                return lhs
-                    * APyFloat::from_integer(
-                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
-                    );
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__rmul__",
-            [](const APyFloat& rhs, const nb::int_& lhs) {
-                return rhs
-                    * APyFloat::from_integer(
-                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
-                    );
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__mul__",
-            [](const APyFloat& lhs, double rhs) {
-                return lhs
-                    * APyFloat::from_double(
-                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
-                    );
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__rmul__",
-            [](const APyFloat& rhs, double lhs) {
-                return APyFloat::from_double(
-                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
-                       )
-                    * rhs;
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__truediv__",
-            [](const APyFloat& lhs, const nb::int_& rhs) {
-                return lhs
-                    / APyFloat::from_integer(
-                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
-                    );
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__rtruediv__",
-            [](const APyFloat& rhs, const nb::int_& lhs) {
-                return APyFloat::from_integer(
-                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
-                       )
-                    / rhs;
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__truediv__",
-            [](const APyFloat& lhs, double rhs) {
-                return lhs
-                    / APyFloat::from_double(
-                           rhs, lhs.get_exp_bits(), lhs.get_man_bits(), lhs.get_bias()
-                    );
-            },
-            nb::is_operator()
-        )
-        .def(
-            "__rtruediv__",
-            [](const APyFloat& rhs, double lhs) {
-                return APyFloat::from_double(
-                           lhs, rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias()
-                       )
-                    / rhs;
-            },
-            nb::is_operator()
-        )
-
-        .def("__abs__", &APyFloat::abs)
-        .def("__pow__", &APyFloat::pow)
-        .def("__pow__", &APyFloat::pown)
-
-        /*
-         * Binary comparison operators
-         */
-        // APyFloat
-        .def(nb::self == nb::self)
-        .def(nb::self != nb::self)
-        .def(nb::self < nb::self)
-        .def(nb::self > nb::self)
-        .def(nb::self <= nb::self)
-        .def(nb::self >= nb::self)
-
-        // float, double
-        .def(nb::self == double())
-        .def(nb::self != double())
-        .def(nb::self < double())
-        .def(nb::self > double())
-        .def(nb::self <= double())
-        .def(nb::self >= double())
-
-        // APyFixed
-        .def(
-            "__eq__",
-            [](const APyFloat& rhs, const APyFixed& lhs) { return rhs == lhs; },
-            nb::is_operator()
-        )
-        .def(
-            "__ne__",
-            [](const APyFloat& rhs, const APyFixed& lhs) { return rhs != lhs; },
-            nb::is_operator()
-        )
-        .def(
-            "__le__",
-            [](const APyFloat& rhs, const APyFixed& lhs) { return rhs <= lhs; },
-            nb::is_operator()
-        )
-        .def(
-            "__lt__",
-            [](const APyFloat& rhs, const APyFixed& lhs) { return rhs < lhs; },
-            nb::is_operator()
-        )
-        .def(
-            "__ge__",
-            [](const APyFloat& rhs, const APyFixed& lhs) { return rhs >= lhs; },
-            nb::is_operator()
-        )
-        .def(
-            "__gt__",
-            [](const APyFloat& rhs, const APyFixed& lhs) { return rhs > lhs; },
-            nb::is_operator()
-        )
-
-        /*
-         * Logic operators
-         */
-        .def(
-            "__and__",
-            [](const APyFloat& rhs, const APyFloat& lhs) { return rhs & lhs; },
-            nb::is_operator()
-        )
-        .def(
-            "__or__",
-            [](const APyFloat& rhs, const APyFloat& lhs) { return rhs | lhs; },
-            nb::is_operator()
-        )
-        .def(
-            "__xor__",
-            [](const APyFloat& rhs, const APyFloat& lhs) { return rhs ^ lhs; },
-            nb::is_operator()
-        )
-        .def(
-            "__invert__", [](const APyFloat& rhs) { return ~rhs; }, nb::is_operator()
         )
 
         /*
