@@ -39,6 +39,8 @@ from apytypes._array_functions import (
     arange,
 )
 
+from apytypes._utils import fx, fp
+
 from apytypes._version import version as __version__
 
 __all__ = [
@@ -76,6 +78,8 @@ __all__ = [
     "full",
     "full_like",
     "arange",
+    "fx",
+    "fp",
 ]
 
 APyFloat.__doc__ = r"""

@@ -13,8 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   specifiers are given.
 - Added optional parameter for `bias` in array creation functions that were
   missing it.
-- Added `APyFloatArray.from_bits`.
-- Added `APyFixedArray.__setitem__` and `APyFloatArray.__setitem__`.
+- Added `APyFloatArray.from_bits` to create floating-point arrays from bit patterns.
+- It is now possible to assign parts of arrays as `APyFixedArray.__setitem__` and
+  `APyFloatArray.__setitem__` has been added.
+- `fx` and `fp` functions to create fixed-point and floating-point objects of
+  correct type (scalar or array) depending on argument.
 
 ### Fixed
 
@@ -98,7 +101,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `full_like()`
 - Added `to_bits()` to array types.
 - Significantly improved indexing of arrays.
-- Added `array_utils.h` to contain shared functions between float and fixed arrays.
 - Added support for higher dimensions (ndim > 2) in `transpose()`.
 
 ### Changed
