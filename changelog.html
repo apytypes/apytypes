@@ -213,6 +213,7 @@
 <li class="toctree-l2"><a class="reference internal" href="api/quantizationoverflow.html">Quantization and overflow handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/context.html">Context handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/arrayfunctions.html">Array functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/utils.html">Utility functions</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="cpp_api/index.html">APyTypes C++ API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of APyTypes C++ API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -299,8 +300,11 @@ and this project adheres to <a class="reference external" href="https://semver.o
 specifiers are given.</p></li>
 <li><p>Added optional parameter for <code class="docutils literal notranslate"><span class="pre">bias</span></code> in array creation functions that were
 missing it.</p></li>
-<li><p>Added <code class="docutils literal notranslate"><span class="pre">APyFloatArray.from_bits</span></code>.</p></li>
-<li><p>Added <code class="docutils literal notranslate"><span class="pre">APyFixedArray.__setitem__</span></code> and <code class="docutils literal notranslate"><span class="pre">APyFloatArray.__setitem__</span></code>.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">APyFloatArray.from_bits</span></code> to create floating-point arrays from bit patterns.</p></li>
+<li><p>It is now possible to assign parts of arrays as <code class="docutils literal notranslate"><span class="pre">APyFixedArray.__setitem__</span></code> and
+<code class="docutils literal notranslate"><span class="pre">APyFloatArray.__setitem__</span></code> has been added.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fx</span></code> and <code class="docutils literal notranslate"><span class="pre">fp</span></code> functions to create fixed-point and floating-point objects of
+correct type (scalar or array) depending on argument.</p></li>
 </ul>
 </section>
 <section id="fixed">
@@ -409,7 +413,6 @@ run in the CI.</p></li>
 </li>
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">to_bits()</span></code> to array types.</p></li>
 <li><p>Significantly improved indexing of arrays.</p></li>
-<li><p>Added <code class="docutils literal notranslate"><span class="pre">array_utils.h</span></code> to contain shared functions between float and fixed arrays.</p></li>
 <li><p>Added support for higher dimensions (ndim &gt; 2) in <code class="docutils literal notranslate"><span class="pre">transpose()</span></code>.</p></li>
 </ul>
 </section>
