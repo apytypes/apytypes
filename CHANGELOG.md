@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `APyFloatArray.__setitem__` has been added.
 - `fx` and `fp` functions to create fixed-point and floating-point objects of
   correct type (scalar or array) depending on argument.
+- `fn` utility function to easily evaluate functions with APy-classes and get a
+  result with the same format.
 
 ### Fixed
 
