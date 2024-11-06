@@ -3,6 +3,7 @@ import __future__
 from . import (
     _apytypes as _apytypes,
     _array_functions as _array_functions,
+    _utils as _utils,
     _version as _version,
 )
 from ._apytypes import (
@@ -42,6 +43,7 @@ from ._array_functions import (
     zeros as zeros,
     zeros_like as zeros_like,
 )
+from ._utils import fp as fp, fx as fx
 
 __all__: list = [
     "APyFixed",
@@ -78,6 +80,8 @@ __all__: list = [
     "full",
     "full_like",
     "arange",
+    "fx",
+    "fp",
 ]
 
 annotations: __future__._Feature = ...
