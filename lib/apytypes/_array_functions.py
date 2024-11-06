@@ -1,3 +1,4 @@
+from apytypes._apytypes import APyFixedArray, APyFixed, APyFloat, APyFloatArray
 from typing import Optional, Tuple, Union
 
 
@@ -460,8 +461,6 @@ def zeros(
         The initialized array with zeros.
     """
 
-    from apytypes import APyFixedArray, APyFloatArray
-
     a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
 
     if not a_type:
@@ -519,8 +518,6 @@ def ones(
     result : :class:`APyFloatArray` or :class:`APyFixedArray`
         The array initialized filled with ones.
     """
-
-    from apytypes import APyFixedArray, APyFloatArray
 
     a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
 
@@ -585,8 +582,6 @@ def eye(
         whose values are equal to one.
     """
 
-    from apytypes import APyFixedArray, APyFloatArray
-
     a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
 
     if not a_type:
@@ -639,8 +634,6 @@ def identity(
         `n` x `n` array with ones (stored value) on the main diagonal and zeros
         elsewhere.
     """
-
-    from apytypes import APyFixedArray, APyFloatArray
 
     a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
 
@@ -705,8 +698,6 @@ def full(
         Array of all `fill_value` with the given shape.
     """
 
-    from apytypes import APyFixedArray, APyFixed, APyFloat, APyFloatArray
-
     fill_value = _determine_fill_value(
         fill_value, int_bits, frac_bits, bits, exp_bits, man_bits, bias
     )
@@ -762,8 +753,6 @@ def zeros_like(
     except AttributeError:
         raise TypeError(f"Cannot make zeros array of type {type(a)}")
 
-    from apytypes import APyFixedArray, APyFloatArray
-
     if isinstance(a, APyFixedArray):
         if int_bits is None and frac_bits is None and bits is None:
             return zeros(shape=a.shape, int_bits=a.int_bits, frac_bits=a.frac_bits)
@@ -816,8 +805,6 @@ def ones_like(
         ones = a.ones
     except AttributeError:
         raise TypeError(f"Cannot make ones array of type {type(a)}")
-
-    from apytypes import APyFixedArray, APyFloatArray
 
     if isinstance(a, APyFixedArray):
         if int_bits is None and frac_bits is None and bits is None:
@@ -938,7 +925,6 @@ def arange(
         Array with evenly spaced values within a given interval.
     """
     a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
-    from apytypes import APyFixedArray, APyFloatArray, APyFixed, APyFloat
 
     # If bit-specifiers were not given explicitly, the resulting type must be deduced.
     if not a_type:
@@ -987,8 +973,6 @@ def arange(
 # Helpers
 # =============================================================================
 def _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias):
-    from apytypes import APyFixedArray, APyFloatArray
-
     float_arr = exp_bits is not None and man_bits is not None
     fixed_arr = (
         (bits is not None and int_bits is not None)
@@ -1013,8 +997,6 @@ def _determine_fill_value(
     man_bits=None,
     bias=None,
 ):
-    from apytypes import APyFixed, APyFloat
-
     if isinstance(fill_value, (int, float)):
         if man_bits is None and exp_bits is None:
             i_bits, f_bits = _extract_fixed_bit_specifiers(int_bits, frac_bits, bits)
