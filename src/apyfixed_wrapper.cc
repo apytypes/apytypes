@@ -1,5 +1,4 @@
 #include "apyfixed.h"
-#include "apytypes_common.h"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>

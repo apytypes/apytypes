@@ -1,41 +1,67 @@
-from apytypes import APyFixed
+from apytypes import APyFixed, APyCFixed
 
 import math
 import pytest
 
 
-def test_arithmetic_operations():
-    a = APyFixed.from_float(-1.25, int_bits=2, frac_bits=4)
-    b = APyFixed.from_float(0.75, int_bits=2, frac_bits=3)
-    assert (a * b).is_identical(APyFixed.from_float(-0.9375, int_bits=4, frac_bits=7))
-    assert not (
-        (a * b).is_identical(APyFixed.from_float(-0.9375, int_bits=4, frac_bits=5))
+@pytest.mark.parametrize("fixed_type", [APyFixed, APyCFixed])
+def test_arithmetic_operations(fixed_type):
+    a = fixed_type.from_float(-1.25, int_bits=2, frac_bits=4)
+    b = fixed_type.from_float(0.75, int_bits=2, frac_bits=3)
+
+    cb = fixed_type == APyCFixed  # Complex multiplication result in one extra `int_bit`
+    assert (a * b).is_identical(
+        fixed_type.from_float(-0.9375, int_bits=4 + cb, frac_bits=7)
     )
-    assert (a + b).is_identical(APyFixed.from_float(-0.5, int_bits=3, frac_bits=4))
-    assert (b + a).is_identical(APyFixed.from_float(-0.5, int_bits=3, frac_bits=4))
-    assert (a - b).is_identical(APyFixed.from_float(-2, int_bits=3, frac_bits=4))
-    assert (b - a).is_identical(APyFixed.from_float(2, int_bits=3, frac_bits=4))
-    assert (a / b).is_identical(APyFixed.from_float(-1.65625, int_bits=6, frac_bits=6))
-    assert (b / a).is_identical(APyFixed.from_float(-0.59375, int_bits=7, frac_bits=5))
+    assert not (
+        (a * b).is_identical(
+            fixed_type.from_float(-0.9375, int_bits=4 + cb, frac_bits=5)
+        )
+    )
+    assert (a + b).is_identical(fixed_type.from_float(-0.5, int_bits=3, frac_bits=4))
+    assert (b + a).is_identical(fixed_type.from_float(-0.5, int_bits=3, frac_bits=4))
+    assert (a - b).is_identical(fixed_type.from_float(-2, int_bits=3, frac_bits=4))
+    assert (b - a).is_identical(fixed_type.from_float(2, int_bits=3, frac_bits=4))
+    assert (a / b).is_identical(
+        fixed_type.from_float(-1.65625, int_bits=6, frac_bits=6)
+    )
+    assert (b / a).is_identical(
+        fixed_type.from_float(-0.59375, int_bits=7, frac_bits=5)
+    )
 
     # Division-by-zero throws a ZeroDivisionError
     with pytest.raises(ZeroDivisionError, match="fixed-point division by zero"):
-        _ = APyFixed.from_float(1.0, 10, 10) / APyFixed.from_float(0.0, 10, 10)
+        _ = fixed_type.from_float(1.0, 10, 10) / fixed_type.from_float(0.0, 10, 10)
 
 
-def test_overflow_twos_complement():
-    assert float(APyFixed(1 << 127, 1, 127)) == -1.0
-    assert float(APyFixed(1 << 126, 1, 127)) == 0.5
-    assert float(APyFixed(0xFFFFFFFF0 << 92, 1, 95)) == 0.0
-    assert float(APyFixed(0xFFFFFFFF8 << 92, 1, 95)) == -1.0
-    assert float(APyFixed(0xFFFFFFFF4 << 92, 1, 95)) == 0.5
+@pytest.mark.parametrize("fixed_type", [APyFixed, APyCFixed])
+def test_overflow_twos_complement(fixed_type):
+    assert fixed_type(1 << 127, 1, 127) == -1.0
+    assert fixed_type(1 << 126, 1, 127) == 0.5
+    assert fixed_type(0xFFFFFFFF0 << 92, 1, 95) == 0.0
+    assert fixed_type(0xFFFFFFFF8 << 92, 1, 95) == -1.0
+    assert fixed_type(0xFFFFFFFF4 << 92, 1, 95) == 0.5
 
 
-def test_binary_comparison():
+@pytest.mark.parametrize("fixed_type", [APyFixed, APyCFixed])
+def test_binary_comparison_orderless(fixed_type):
     assert not (
-        APyFixed.from_float(0.0, 256, 128) == APyFixed.from_float(1.0, 256, 128)
+        fixed_type.from_float(0.0, 256, 128) == fixed_type.from_float(1.0, 256, 128)
     )
-    assert APyFixed.from_float(0.0, 256, 128) != APyFixed.from_float(1.0, 256, 128)
+    assert fixed_type.from_float(0.0, 256, 128) != fixed_type.from_float(1.0, 256, 128)
+    assert fixed_type.from_float(1.0, 256, 128) == fixed_type.from_float(1.0, 256, 128)
+    assert not (
+        fixed_type.from_float(1.0, 256, 128) != fixed_type.from_float(1.0, 140, 128)
+    )
+    assert not (
+        fixed_type.from_float(-1.0, 256, 128) == fixed_type.from_float(-3.0, 140, 128)
+    )
+    assert fixed_type.from_float(-1.0, 256, 128) != fixed_type.from_float(
+        -3.0, 256, 128
+    )
+
+
+def test_binary_comparison_total_order():
     assert APyFixed.from_float(0.0, 256, 128) < APyFixed.from_float(1.0, 256, 128)
     assert APyFixed.from_float(0.0, 256, 128) <= APyFixed.from_float(1.0, 256, 128)
     assert not (APyFixed.from_float(0.0, 256, 128) > APyFixed.from_float(1.0, 256, 128))
@@ -43,19 +69,11 @@ def test_binary_comparison():
         APyFixed.from_float(0.0, 256, 128) >= APyFixed.from_float(1.0, 256, 128)
     )
 
-    assert APyFixed.from_float(1.0, 256, 128) == APyFixed.from_float(1.0, 256, 128)
-    assert not (
-        APyFixed.from_float(1.0, 256, 128) != APyFixed.from_float(1.0, 140, 128)
-    )
     assert not (APyFixed.from_float(1.0, 256, 128) < APyFixed.from_float(1.0, 140, 128))
     assert APyFixed.from_float(1.0, 256, 128) <= APyFixed.from_float(1.0, 256, 128)
     assert not (APyFixed.from_float(1.0, 256, 128) > APyFixed.from_float(1.0, 256, 128))
     assert APyFixed.from_float(1.0, 256, 128) >= APyFixed.from_float(1.0, 256, 128)
 
-    assert not (
-        APyFixed.from_float(-1.0, 256, 128) == APyFixed.from_float(-3.0, 140, 128)
-    )
-    assert APyFixed.from_float(-1.0, 256, 128) != APyFixed.from_float(-3.0, 256, 128)
     assert not (
         APyFixed.from_float(-1.0, 256, 128) < APyFixed.from_float(-3.0, 140, 128)
     )
@@ -66,38 +84,50 @@ def test_binary_comparison():
     assert APyFixed.from_float(-1.0, 256, 128) >= APyFixed.from_float(-3.0, 256, 128)
 
 
-@pytest.mark.parametrize("type", [int, float])
-def test_float_and_int_comparison(type):
-    assert not APyFixed.from_float(0.0, 256, 128) == type(1.0)
-    assert APyFixed.from_float(0.0, 256, 128) != type(1.0)
-    assert APyFixed.from_float(0.0, 256, 128) < type(1.0)
-    assert APyFixed.from_float(0.0, 256, 128) <= type(1.0)
-    assert not APyFixed.from_float(0.0, 256, 128) > type(1.0)
-    assert not APyFixed.from_float(0.0, 256, 128) >= type(1.0)
+@pytest.mark.parametrize("scalar_type", [int, float])
+@pytest.mark.parametrize("fixed_type", [APyFixed, APyCFixed])
+def test_float_and_int_comparison_orderless(scalar_type, fixed_type):
+    assert not fixed_type.from_float(0.0, 256, 128) == scalar_type(1.0)
+    assert fixed_type.from_float(0.0, 256, 128) != scalar_type(1.0)
 
-    assert APyFixed.from_float(1.0, 256, 128) == type(1.0)
-    assert not APyFixed.from_float(1.0, 256, 128) != type(1.0)
-    assert not APyFixed.from_float(1.0, 256, 128) < type(1.0)
-    assert APyFixed.from_float(1.0, 256, 128) <= type(1.0)
-    assert not APyFixed.from_float(1.0, 256, 128) > type(1.0)
-    assert APyFixed.from_float(1.0, 256, 128) >= type(1.0)
+    assert fixed_type.from_float(1.0, 256, 128) == scalar_type(1.0)
+    assert not fixed_type.from_float(1.0, 256, 128) != scalar_type(1.0)
 
-    assert not APyFixed.from_float(-1.0, 256, 128) == type(-3.0)
-    assert APyFixed.from_float(-1.0, 256, 128) != type(-3.0)
-    assert not APyFixed.from_float(-1.0, 256, 128) < type(-3.0)
-    assert not APyFixed.from_float(-1.0, 256, 128) <= type(-3.0)
-    assert APyFixed.from_float(-1.0, 256, 128) > type(-3.0)
-    assert APyFixed.from_float(-1.0, 256, 128) >= type(-3.0)
+    assert not fixed_type.from_float(-1.0, 256, 128) == scalar_type(-3.0)
+    assert fixed_type.from_float(-1.0, 256, 128) != scalar_type(-3.0)
 
 
-def test_narrow_add_sub():
+@pytest.mark.parametrize("scalar_type", [int, float])
+def test_float_and_int_comparison_total_order(scalar_type):
+    assert not APyFixed.from_float(1.0, 256, 128) < scalar_type(1.0)
+    assert APyFixed.from_float(1.0, 256, 128) <= scalar_type(1.0)
+    assert not APyFixed.from_float(1.0, 256, 128) > scalar_type(1.0)
+    assert APyFixed.from_float(1.0, 256, 128) >= scalar_type(1.0)
+
+    assert not APyFixed.from_float(-1.0, 256, 128) < scalar_type(-3.0)
+    assert not APyFixed.from_float(-1.0, 256, 128) <= scalar_type(-3.0)
+    assert APyFixed.from_float(-1.0, 256, 128) > scalar_type(-3.0)
+    assert APyFixed.from_float(-1.0, 256, 128) >= scalar_type(-3.0)
+
+    assert APyFixed.from_float(0.0, 256, 128) < scalar_type(1.0)
+    assert APyFixed.from_float(0.0, 256, 128) <= scalar_type(1.0)
+    assert not APyFixed.from_float(0.0, 256, 128) > scalar_type(1.0)
+    assert not APyFixed.from_float(0.0, 256, 128) >= scalar_type(1.0)
+
+
+@pytest.mark.parametrize("fixed_type", [APyFixed, APyCFixed])
+def test_narrow_add_sub(fixed_type):
     for a_bits in range(10, 30):
         for b_bits in range(10, 30):
-            a = APyFixed.from_float(a_bits + b_bits, bits=a_bits + 20, int_bits=b_bits)
-            b = APyFixed.from_float(a_bits + b_bits, bits=b_bits + 20, int_bits=a_bits)
-            assert float(a + b) == float(2 * (a_bits + b_bits))
-            assert float(a - b) == 0.0
-            assert float(a * b) == float(a_bits + b_bits) ** 2
+            a = fixed_type.from_float(
+                a_bits + b_bits, bits=a_bits + 20, int_bits=b_bits
+            )
+            b = fixed_type.from_float(
+                a_bits + b_bits, bits=b_bits + 20, int_bits=a_bits
+            )
+            assert a + b == float(2 * (a_bits + b_bits))
+            assert a - b == 0.0
+            assert a * b == float(a_bits + b_bits) ** 2
 
 
 def test_wide_operations():
@@ -190,46 +220,52 @@ def test_wide_operations():
     assert fx_a * fx_b == fx_b * fx_a
 
 
-def test_mixed_width_operations():
+@pytest.mark.parametrize("fixed_type", [APyFixed, APyCFixed])
+def test_mixed_width_operations(fixed_type):
     """
     Tests for mixed-width operations additions and subtractions
     """
-    fx_a = APyFixed(1779, int_bits=8, frac_bits=8)
-    fx_b = APyFixed(17777779, int_bits=80, frac_bits=20)
-    assert (fx_a + fx_b).is_identical(APyFixed(25064563, bits=101, int_bits=81))
+    fx_a = fixed_type(1779, int_bits=8, frac_bits=8)
+    fx_b = fixed_type(17777779, int_bits=80, frac_bits=20)
+    assert (fx_a + fx_b).is_identical(fixed_type(25064563, bits=101, int_bits=81))
     assert (fx_b + fx_a).is_identical(fx_a + fx_b)
 
-    assert (fx_a * fx_b).is_identical(APyFixed(31626668841, bits=116, int_bits=88))
+    cb = fixed_type == APyCFixed  # Complex multiplication result in one extra `int_bit`
+    assert (fx_a * fx_b).is_identical(
+        fixed_type(31626668841, bits=116 + cb, int_bits=88 + cb)
+    )
     assert (fx_b * fx_a).is_identical(fx_a * fx_b)
 
     assert (fx_a / fx_b).is_identical(
-        APyFixed(126852202280499724136667184, bits=117, int_bits=29)
+        fixed_type(126852202280499724136667184, bits=117, int_bits=29)
     )
-    assert (fx_b / fx_a).is_identical(APyFixed(654909794, bits=117, int_bits=89))
-    assert (fx_a / fx_a).is_identical(APyFixed(65536, bits=33, int_bits=17))
+    assert (fx_b / fx_a).is_identical(fixed_type(654909794, bits=117, int_bits=89))
+    assert (fx_a / fx_a).is_identical(fixed_type(65536, bits=33, int_bits=17))
     assert (fx_b / fx_b).is_identical(
-        APyFixed(1267650600228229401496703205376, bits=201, int_bits=101)
+        fixed_type(1267650600228229401496703205376, bits=201, int_bits=101)
     )
 
 
-def test_negative_fractional_bits_operations():
+@pytest.mark.parametrize("fixed_type", [APyFixed, APyCFixed])
+def test_negative_fractional_bits_operations(fixed_type):
     """
     Tests for mixed-width operations additions and subtractions
     """
-    fx_a = APyFixed(1779, int_bits=20, frac_bits=-4)
-    fx_b = APyFixed(1779, int_bits=30, frac_bits=-14)
-    s = APyFixed(1823475, bits=27, int_bits=31)
+    fx_a = fixed_type(1779, int_bits=20, frac_bits=-4)
+    fx_b = fixed_type(1779, int_bits=30, frac_bits=-14)
+    s = fixed_type(1823475, bits=27, int_bits=31)
     assert (fx_a + fx_b).is_identical(s)
     assert (fx_b + fx_a).is_identical(s)
 
-    p = APyFixed(3164841, bits=32, int_bits=50)
+    cb = fixed_type == APyCFixed  # Complex multiplication result in one extra `int_bit`
+    p = fixed_type(3164841, bits=32 + cb, int_bits=50 + cb)
     assert (fx_a * fx_b).is_identical(p)
     assert (fx_b * fx_a).is_identical(p)
 
-    assert (fx_a / fx_b).is_identical(APyFixed(65536, bits=33, int_bits=7))
-    assert (fx_b / fx_a).is_identical(APyFixed(65536, bits=33, int_bits=27))
-    assert (fx_a / fx_a).is_identical(APyFixed(65536, bits=33, int_bits=17))
-    assert (fx_b / fx_b).is_identical(APyFixed(65536, bits=33, int_bits=17))
+    assert (fx_a / fx_b).is_identical(fixed_type(65536, bits=33, int_bits=7))
+    assert (fx_b / fx_a).is_identical(fixed_type(65536, bits=33, int_bits=27))
+    assert (fx_a / fx_a).is_identical(fixed_type(65536, bits=33, int_bits=17))
+    assert (fx_b / fx_b).is_identical(fixed_type(65536, bits=33, int_bits=17))
 
 
 def test_unary_minus():
@@ -347,20 +383,21 @@ def test_prod():
     assert math.prod(s).is_identical(APyFixed(28800, bits=25, int_bits=8))
 
 
-def test_issue_198():
+@pytest.mark.parametrize("fixed_type", [APyFixed, APyCFixed])
+def test_issue_198(fixed_type):
     # Smoke test for hang:
     # https://github.com/apytypes/apytypes/issues/198
-    a = APyFixed.from_float(0.37, bits=320, int_bits=160)
-    b = APyFixed.from_float(-1.54, bits=320, int_bits=160)
+    a = fixed_type.from_float(0.37, bits=320, int_bits=160)
+    b = fixed_type.from_float(-1.54, bits=320, int_bits=160)
     assert (a / b).is_identical(
-        APyFixed(
+        fixed_type(
             9124881235244390437282343211400582649786457014497119861158385035798550334417354773011825622634742286365594170616862341739107325461683793130579692109045501048385049337084316871381549559677925492,
             bits=641,
             int_bits=321,
         )
     )
     assert (b / a).is_identical(
-        APyFixed(
+        fixed_type(
             9124881235244390437282343211400582649786457014497119861158385035798550334417354773011825622634733909232864840223831369193001809343494660536116672315905590613784976847626072664256077133740188487,
             bits=641,
             int_bits=321,
@@ -500,10 +537,11 @@ def test_issue_224():
     assert x.leading_fractional_zeros == 6
 
 
-def test_operation_with_integers():
-    a = APyFixed(5, 6, 2)
-    one = APyFixed(4, 6, 2)
-    zero = APyFixed(0, 6, 2)
+@pytest.mark.parametrize("fixed_type", [APyFixed, APyCFixed])
+def test_operation_with_integers(fixed_type):
+    a = fixed_type(5, 6, 2)
+    one = fixed_type(4, 6, 2)
+    zero = fixed_type(0, 6, 2)
 
     # Integer identities
     assert (_ := a + 0).is_identical(_ := a + zero)
@@ -515,7 +553,7 @@ def test_operation_with_integers():
     assert (_ := a / 1).is_identical(_ := a / one)
 
     # Other integer operations
-    neg_two = APyFixed(248, bits=8, int_bits=6)
+    neg_two = fixed_type(248, bits=8, int_bits=6)
     assert (_ := a + (-2)).is_identical(_ := a + neg_two)
     assert (_ := (-2) + a).is_identical(_ := neg_two + a)
     assert (_ := a - (-2)).is_identical(_ := a - neg_two)

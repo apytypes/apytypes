@@ -4,19 +4,19 @@ from apytypes import APyFixed
 def test_repr():
     assert (
         repr(APyFixed.from_float(-1.25, int_bits=2, frac_bits=4))
-        == "APyFixed(44, bits=6, int_bits=2)"
+        == r"APyFixed(44, bits=6, int_bits=2)"
     )
     assert (
         APyFixed(-1, int_bits=12, frac_bits=4).__repr__()
-        == "APyFixed(65535, bits=16, int_bits=12)"
+        == r"APyFixed(65535, bits=16, int_bits=12)"
     )
     assert (
         APyFixed(1234, int_bits=12, frac_bits=0).__repr__()
-        == "APyFixed(1234, bits=12, int_bits=12)"
+        == r"APyFixed(1234, bits=12, int_bits=12)"
     )
     assert (
         APyFixed.from_float(-2.666, int_bits=3, frac_bits=52).__repr__()
-        == "APyFixed(24022200412394226, bits=55, int_bits=3)"
+        == r"APyFixed(24022200412394226, bits=55, int_bits=3)"
     )
 
     #

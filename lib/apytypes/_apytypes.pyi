@@ -5,6 +5,419 @@ from typing import Annotated, overload
 
 from numpy.typing import ArrayLike
 
+class APyCFixed:
+    """
+    Class for configurable complex-valued scalar fixed-point formats.
+
+    :class:`APyCFixed` is an arbitrary precision complex-valued two's complement fixed-point
+    scalar type. In many ways it behaves like the built-in Python type :class:`complex` in
+    that it can be used within ordinary arithmetic expressions that allows complex numbers.
+    Every fixed-point instance has an associated word length, determined by its
+    :attr:`bits`, :attr:`int_bits`, and :attr:`frac_bits` bit specifiers. These specifiers
+    determine the location of the binary fix-point and the total word length. Both the real
+    and imaginary part share bit specifiers, and the overall number of bits in an
+    :class:`APyCFixed` is :code:`2 * bits`. Only two of three bit specifers need to be set
+    to uniquely determine the complete fixed-point format.
+
+    For real-valued fixed-point formats, see :class:`APyFixed`.
+
+    .. list-table:: Word-length of fixed-point arithmetic operations using
+                    :class:`APyCFixed`
+       :widths: 12 44 44
+       :header-rows: 1
+
+       * - Operation
+         - Result :attr:`int_bits`
+         - Result :attr:`frac_bits`
+       * - :code:`a + b`
+         - :code:`max(a.int_bits, b.int_bits) + 1`
+         - :code:`max(a.frac_bits, b.frac_bits)`
+       * - :code:`a - b`
+         - :code:`max(a.int_bits, b.int_bits) + 1`
+         - :code:`max(a.frac_bits, b.frac_bits)`
+       * - :code:`a * b`
+         - :code:`a.int_bits + b.int_bits + 1`
+         - :code:`a.frac_bits + b.frac_bits`
+       * - :code:`a / b`
+         - :code:`a.int_bits + b.frac_bits + 1`
+         - :code:`a.frac_bits + b.int_bits`
+       * - :code:`-a`
+         - :code:`a.int_bits + 1`
+         - :code:`a.frac_bits`
+    """
+
+    @overload
+    def __init__(
+        self,
+        bit_pattern: int,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> None: ...
+    @overload
+    def __init__(
+        self,
+        bit_pattern: tuple,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> None: ...
+    @overload
+    def __eq__(self, arg: APyCFixed, /) -> bool: ...
+    @overload
+    def __eq__(self, arg: int, /) -> bool: ...
+    @overload
+    def __eq__(self, arg: float, /) -> bool: ...
+    @overload
+    def __eq__(self, arg: complex, /) -> bool: ...
+    @overload
+    def __eq__(self, arg: APyFixed, /) -> bool: ...
+    @overload
+    def __ne__(self, arg: APyCFixed, /) -> bool: ...
+    @overload
+    def __ne__(self, arg: int, /) -> bool: ...
+    @overload
+    def __ne__(self, arg: float, /) -> bool: ...
+    @overload
+    def __ne__(self, arg: complex, /) -> bool: ...
+    @overload
+    def __ne__(self, arg: APyFixed, /) -> bool: ...
+    @overload
+    def __add__(self, arg: APyCFixed, /) -> APyCFixed: ...
+    @overload
+    def __add__(self, arg: int, /) -> APyCFixed: ...
+    @overload
+    def __add__(self, arg: float, /) -> APyCFixed: ...
+    @overload
+    def __add__(self, arg: complex, /) -> APyCFixed: ...
+    @overload
+    def __add__(self, arg: APyFixed, /) -> APyCFixed: ...
+    @overload
+    def __sub__(self, arg: APyCFixed, /) -> APyCFixed: ...
+    @overload
+    def __sub__(self, arg: int, /) -> APyCFixed: ...
+    @overload
+    def __sub__(self, arg: float, /) -> APyCFixed: ...
+    @overload
+    def __sub__(self, arg: complex, /) -> APyCFixed: ...
+    @overload
+    def __sub__(self, arg: APyFixed, /) -> APyCFixed: ...
+    @overload
+    def __mul__(self, arg: APyCFixed, /) -> APyCFixed: ...
+    @overload
+    def __mul__(self, arg: int, /) -> APyCFixed: ...
+    @overload
+    def __mul__(self, arg: float, /) -> APyCFixed: ...
+    @overload
+    def __mul__(self, arg: complex, /) -> APyCFixed: ...
+    @overload
+    def __mul__(self, arg: APyFixed, /) -> APyCFixed: ...
+    @overload
+    def __truediv__(self, arg: APyCFixed, /) -> APyCFixed: ...
+    @overload
+    def __truediv__(self, arg: int, /) -> APyCFixed: ...
+    @overload
+    def __truediv__(self, arg: float, /) -> APyCFixed: ...
+    @overload
+    def __truediv__(self, arg: complex, /) -> APyCFixed: ...
+    @overload
+    def __truediv__(self, arg: APyFixed, /) -> APyCFixed: ...
+    def __neg__(self) -> APyCFixed: ...
+    def __ilshift__(self, arg: int, /) -> APyCFixed: ...
+    def __irshift__(self, arg: int, /) -> APyCFixed: ...
+    @overload
+    def __radd__(self, arg: int, /) -> APyCFixed: ...
+    @overload
+    def __radd__(self, arg: float, /) -> APyCFixed: ...
+    @overload
+    def __radd__(self, arg: complex, /) -> APyCFixed: ...
+    @overload
+    def __radd__(self, arg: APyFixed, /) -> APyCFixed: ...
+    @overload
+    def __rsub__(self, arg: int, /) -> APyCFixed: ...
+    @overload
+    def __rsub__(self, arg: float, /) -> APyCFixed: ...
+    @overload
+    def __rsub__(self, arg: complex, /) -> APyCFixed: ...
+    @overload
+    def __rsub__(self, arg: APyFixed, /) -> APyCFixed: ...
+    @overload
+    def __rmul__(self, arg: int, /) -> APyCFixed: ...
+    @overload
+    def __rmul__(self, arg: float, /) -> APyCFixed: ...
+    @overload
+    def __rmul__(self, arg: complex, /) -> APyCFixed: ...
+    @overload
+    def __rmul__(self, arg: APyFixed, /) -> APyCFixed: ...
+    @overload
+    def __rtruediv__(self, arg: int, /) -> APyCFixed: ...
+    @overload
+    def __rtruediv__(self, arg: float, /) -> APyCFixed: ...
+    @overload
+    def __rtruediv__(self, arg: complex, /) -> APyCFixed: ...
+    @overload
+    def __rtruediv__(self, arg: APyFixed, /) -> APyCFixed: ...
+    @property
+    def real(self) -> APyFixed:
+        """
+        Real part.
+
+        Returns
+        -------
+        :class:`APyFixed`
+        """
+
+    @property
+    def imag(self) -> APyFixed:
+        """
+        Imaginary part.
+
+        Returns
+        -------
+        :class:`APyFixed`
+        """
+
+    def to_bits(self) -> tuple:
+        """
+        Retrieve underlying bit-pattern in a :class:`tuple` of :class:`int`.
+
+        Examples
+        --------
+        >>> from apytypes import APyCFixed
+
+        Create fixed-point number `fx_a` of value -5.75
+
+        >>> fx_a = APyCFixed.from_complex(-5.75 + 2j, int_bits=4, frac_bits=4)
+        >>> fx_a.to_bits()
+        (164, 32)
+
+        Returns
+        -------
+        :tuple:`tuple` of :class:`int`
+        """
+
+    @property
+    def bits(self) -> int:
+        """
+        Total number of bits.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def frac_bits(self) -> int:
+        """
+        Number of fractional bits.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def int_bits(self) -> int:
+        """
+        Number of integer bits.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    def is_identical(self, other: APyCFixed) -> bool:
+        """
+        Test if two fixed-point objects are exactly identical.
+
+        Two `APyCFixed` objects are considered exactly identical if, and only if,
+        they represent the same fixed-point value, and have the exact same
+        bit-specification (`bits`, `int_bits`, and `frac_bits`). This is a more
+        restrictive test than ``==``,  that only tests equality of the numerical
+        fixed-point value.
+
+        Parameters
+        ----------
+        other : :class:`APyCFixed`
+            The fixed-point number to test identicality against
+
+        Examples
+        --------
+        >>> from apytypes import APyCFixed
+        >>> fx_a = APyCFixed.from_complex(2.0 + 3.0j, int_bits=3, frac_bits=3)
+        >>> fx_b = APyCFixed.from_complex(2.0 + 3.0j, int_bits=4, frac_bits=3)
+
+        `fx_a` and `fx_b` store the same fixed-point value
+
+        >>> fx_a == fx_b
+        True
+
+        `fx_a` and `fx_b` differ in the `int_bits` specifier
+
+        >>> fx_a.is_identical(fx_b)
+        False
+
+        Returns
+        -------
+        :class:`bool`
+        """
+
+    @property
+    def is_zero(self) -> bool:
+        """True if the value equals zero, false otherwise."""
+
+    def cast(
+        self,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        quantization: QuantizationMode | None = None,
+        overflow: OverflowMode | None = None,
+        bits: int | None = None,
+    ) -> APyCFixed:
+        """
+        Change format of the complex-valued fixed-point number.
+
+        This is the primary method for performing quantization and
+        overflowing/saturation when dealing with APyTypes fixed-point numbers.
+        The specified quatization and overflow are applied piecewise to the real and
+        imaginary part.
+
+        Exactly two of three bit-specifiers (`bits`, `int_bits`, `frac_bits`)
+        needs to be set.
+
+        Parameters
+        ----------
+        int_bits : int, optional
+            Number of integer bits in the result.
+        frac_bits : int, optional
+            Number of fractional bits in the result.
+        quantization : :class:`QuantizationMode`, optional
+            Quantization mode to use in this cast.
+        overflow : :class:`OverflowMode`, optional
+            Overflowing mode to use in this cast.
+        bits : int, optional
+            Total number of bits in the result.
+
+        Examples
+        --------
+        >>> from apytypes import APyCFixed
+        >>> from apytypes import QuantizationMode
+        >>> from apytypes import OverflowMode
+        >>> fx = APyCFixed.from_complex(2.125 + 1.625j, int_bits=3, frac_bits=3)
+
+        Truncation (2.0 + 1.5j)
+
+        >>> fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.TRN)
+        APyCFixed((8, 6), bits=5, int_bits=3)
+
+        Rounding (2.25 + 1.75j)
+
+        >>> fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.RND)
+        APyCFixed((9, 7), bits=5, int_bits=3)
+
+        Two's complement overflowing (-1.875 + 1.625j)
+
+        >>> fx.cast(int_bits=2, frac_bits=3, overflow=OverflowMode.WRAP)
+        APyCFixed((17, 13), bits=5, int_bits=2)
+
+        Returns
+        -------
+        :class:`APyCFixed`
+        """
+
+    def __repr__(self) -> str: ...
+    def __str__(self, base: int = 10) -> str: ...
+    def __complex__(self) -> complex: ...
+    def __lshift__(self, shift_amnt: int) -> APyCFixed: ...
+    def __rshift__(self, shift_amnt: int) -> APyCFixed: ...
+    @staticmethod
+    def from_complex(
+        value: object,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> APyCFixed:
+        """
+        Create an :class:`APyCFixed` object from an :class:`int`, :class:`float`, or
+        :class:`complex`.
+
+        The initialized fixed-point value is the one closest to the input value,
+        rounded away from zero on ties. Exactly two of the three bit-specifiers
+        (`bits`, `int_bits`, `frac_bits`) must be set.
+
+        Parameters
+        ----------
+        value : int, float, complex
+            Value to initialize from
+        int_bits : int, optional
+            Number of integer bits in the created fixed-point object
+        frac_bits : int, optional
+            Number of fractional bits in the created fixed-point object
+        bits : int, optional
+            Total number of bits in the created fixed-point object
+
+        Examples
+        --------
+        >>> from apytypes import APyCFixed
+        >>> fx_a = APyCFixed.from_complex(1.234 + 0.4j, int_bits=2, frac_bits=2)
+
+        Fixed-point `fx_a`, initialized from the complex number 1.234 + 0.4j,
+        rounded to 1.25 + 0.5j as it is the closest representable number
+
+        >>> fx_a
+        APyCFixed((5, 2), bits=4, int_bits=2)
+        >>> str(fx_a)
+        '1.25+0.5j'
+
+        Returns
+        -------
+        :class:`APyCFixed`
+        """
+
+    @staticmethod
+    def from_float(
+        value: object,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+    ) -> APyCFixed:
+        """
+        Create an :class:`APyCFixed` object from an :class:`int`, :class:`float`, or
+        :class:`complex`.
+
+        The initialized fixed-point value is the one closest to the input value,
+        rounded away from zero on ties. Exactly two of the three bit-specifiers
+        (`bits`, `int_bits`, `frac_bits`) must be set.
+
+        Parameters
+        ----------
+        value : int, float, complex
+            Value to initialize from
+        int_bits : int, optional
+            Number of integer bits in the created fixed-point object
+        frac_bits : int, optional
+            Number of fractional bits in the created fixed-point object
+        bits : int, optional
+            Total number of bits in the created fixed-point object
+
+        Examples
+        --------
+        >>> from apytypes import APyCFixed
+        >>> fx_a = APyCFixed.from_float(1.234, int_bits=2, frac_bits=2)
+
+        Fixed-point `fx_a`, initialized from the floating-point value 1.234,
+        rounded to 1.25 as it is the closest representable number
+
+        >>> fx_a
+        APyCFixed((5, 0), bits=4, int_bits=2)
+        >>> str(fx_a)
+        '1.25+0j'
+
+        Returns
+        -------
+        :class:`APyCFixed`
+        """
+
 class APyFixed:
     r"""
     Class for configurable scalar fixed-point formats.
@@ -43,7 +456,10 @@ class APyFixed:
     unless explicitly instructed to by a user through the :func:`cast` method. The following
     table shows word lengths of elementary arithmetic operations.
 
-    .. list-table:: Word-length of fixed-point arithmetic operations
+    For complex-valued fixed-point formats, see :class:`APyCFixed`.
+
+    .. list-table:: Word-length of fixed-point arithmetic operations using
+                    :class:`APyFixed`
        :widths: 12 44 44
        :header-rows: 1
 
@@ -60,7 +476,7 @@ class APyFixed:
          - :code:`a.int_bits + b.int_bits`
          - :code:`a.frac_bits + b.frac_bits`
        * - :code:`a / b`
-         - :code:`a.int_bits + b.frac_bits`
+         - :code:`a.int_bits + b.frac_bits + 1`
          - :code:`a.frac_bits + b.int_bits`
        * - :code:`-a`
          - :code:`a.int_bits + 1`
@@ -139,8 +555,6 @@ class APyFixed:
     def __irshift__(self, arg: int, /) -> APyFixed: ...
     @overload
     def __radd__(self, arg: int, /) -> APyFixed: ...
-    @overload
-    def __radd__(self, arg: float, /) -> APyFixed: ...
     @overload
     def __radd__(self, arg: float, /) -> APyFixed: ...
     @overload
@@ -479,12 +893,6 @@ class APyFixedArray:
     @overload
     def __add__(self, arg: APyFixed, /) -> APyFixedArray: ...
     @overload
-    def __radd__(self, arg: int, /) -> APyFixedArray: ...
-    @overload
-    def __radd__(self, arg: float, /) -> APyFixedArray: ...
-    @overload
-    def __radd__(self, arg: APyFixed, /) -> APyFixedArray: ...
-    @overload
     def __sub__(self, arg: APyFixedArray, /) -> APyFixedArray: ...
     @overload
     def __sub__(self, arg: int, /) -> APyFixedArray: ...
@@ -493,42 +901,48 @@ class APyFixedArray:
     @overload
     def __sub__(self, arg: APyFixed, /) -> APyFixedArray: ...
     @overload
+    def __mul__(self, arg: APyFixedArray, /) -> APyFixedArray: ...
+    @overload
+    def __mul__(self, arg: int, /) -> APyFixedArray: ...
+    @overload
+    def __mul__(self, arg: float, /) -> APyFixedArray: ...
+    @overload
+    def __mul__(self, arg: APyFixed, /) -> APyFixedArray: ...
+    @overload
+    def __truediv__(self, arg: APyFixedArray, /) -> APyFixedArray: ...
+    @overload
+    def __truediv__(self, arg: int, /) -> APyFixedArray: ...
+    @overload
+    def __truediv__(self, arg: float, /) -> APyFixedArray: ...
+    @overload
+    def __truediv__(self, arg: APyFixed, /) -> APyFixedArray: ...
+    def __neg__(self) -> APyFixedArray: ...
+    def __ilshift__(self, arg: int, /) -> APyFixedArray: ...
+    def __irshift__(self, arg: int, /) -> APyFixedArray: ...
+    @overload
+    def __radd__(self, arg: int, /) -> APyFixedArray: ...
+    @overload
+    def __radd__(self, arg: float, /) -> APyFixedArray: ...
+    @overload
+    def __radd__(self, arg: APyFixed, /) -> APyFixedArray: ...
+    @overload
     def __rsub__(self, arg: int, /) -> APyFixedArray: ...
     @overload
     def __rsub__(self, arg: float, /) -> APyFixedArray: ...
     @overload
     def __rsub__(self, arg: APyFixed, /) -> APyFixedArray: ...
     @overload
-    def __mul__(self, arg: APyFixedArray, /) -> APyFixedArray: ...
-    @overload
-    def __mul__(self, arg: APyFixed, /) -> APyFixedArray: ...
-    @overload
-    def __mul__(self, arg: int, /) -> APyFixedArray: ...
-    @overload
-    def __mul__(self, arg: float, /) -> APyFixedArray: ...
-    @overload
-    def __rmul__(self, arg: APyFixed, /) -> APyFixedArray: ...
-    @overload
     def __rmul__(self, arg: int, /) -> APyFixedArray: ...
     @overload
     def __rmul__(self, arg: float, /) -> APyFixedArray: ...
     @overload
-    def __truediv__(self, arg: APyFixedArray, /) -> APyFixedArray: ...
-    @overload
-    def __truediv__(self, arg: APyFixed, /) -> APyFixedArray: ...
-    @overload
-    def __truediv__(self, arg: int, /) -> APyFixedArray: ...
-    @overload
-    def __truediv__(self, arg: float, /) -> APyFixedArray: ...
-    @overload
-    def __rtruediv__(self, arg: APyFixed, /) -> APyFixedArray: ...
+    def __rmul__(self, arg: APyFixed, /) -> APyFixedArray: ...
     @overload
     def __rtruediv__(self, arg: int, /) -> APyFixedArray: ...
     @overload
     def __rtruediv__(self, arg: float, /) -> APyFixedArray: ...
-    def __neg__(self) -> APyFixedArray: ...
-    def __ilshift__(self, arg: int, /) -> APyFixedArray: ...
-    def __irshift__(self, arg: int, /) -> APyFixedArray: ...
+    @overload
+    def __rtruediv__(self, arg: APyFixed, /) -> APyFixedArray: ...
     @property
     def bits(self) -> int:
         """
@@ -1599,13 +2013,99 @@ class APyFloat:
         man_bits : int
             Number of mantissa bits.
         bias : int, optional
-            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
         -------
         :class:`APyFloat`
         """
 
+    @overload
+    def __eq__(self, arg: APyFloat, /) -> bool: ...
+    @overload
+    def __eq__(self, arg: float, /) -> bool: ...
+    @overload
+    def __eq__(self, arg: APyFixed, /) -> bool: ...
+    @overload
+    def __ne__(self, arg: APyFloat, /) -> bool: ...
+    @overload
+    def __ne__(self, arg: float, /) -> bool: ...
+    @overload
+    def __ne__(self, arg: APyFixed, /) -> bool: ...
+    @overload
+    def __lt__(self, arg: APyFloat, /) -> bool: ...
+    @overload
+    def __lt__(self, arg: float, /) -> bool: ...
+    @overload
+    def __lt__(self, arg: APyFixed, /) -> bool: ...
+    @overload
+    def __gt__(self, arg: APyFloat, /) -> bool: ...
+    @overload
+    def __gt__(self, arg: float, /) -> bool: ...
+    @overload
+    def __gt__(self, arg: APyFixed, /) -> bool: ...
+    @overload
+    def __le__(self, arg: APyFloat, /) -> bool: ...
+    @overload
+    def __le__(self, arg: float, /) -> bool: ...
+    @overload
+    def __le__(self, arg: APyFixed, /) -> bool: ...
+    @overload
+    def __ge__(self, arg: APyFloat, /) -> bool: ...
+    @overload
+    def __ge__(self, arg: float, /) -> bool: ...
+    @overload
+    def __ge__(self, arg: APyFixed, /) -> bool: ...
+    @overload
+    def __add__(self, arg: APyFloat, /) -> APyFloat: ...
+    @overload
+    def __add__(self, arg: int, /) -> APyFloat: ...
+    @overload
+    def __add__(self, arg: float, /) -> APyFloat: ...
+    @overload
+    def __sub__(self, arg: APyFloat, /) -> APyFloat: ...
+    @overload
+    def __sub__(self, arg: int, /) -> APyFloat: ...
+    @overload
+    def __sub__(self, arg: float, /) -> APyFloat: ...
+    @overload
+    def __mul__(self, arg: APyFloat, /) -> APyFloat: ...
+    @overload
+    def __mul__(self, arg: int, /) -> APyFloat: ...
+    @overload
+    def __mul__(self, arg: float, /) -> APyFloat: ...
+    @overload
+    def __truediv__(self, arg: APyFloat, /) -> APyFloat: ...
+    @overload
+    def __truediv__(self, arg: int, /) -> APyFloat: ...
+    @overload
+    def __truediv__(self, arg: float, /) -> APyFloat: ...
+    def __neg__(self) -> APyFloat: ...
+    def __abs__(self) -> APyFloat: ...
+    @overload
+    def __pow__(self, arg: APyFloat, /) -> APyFloat: ...
+    @overload
+    def __pow__(self, arg: int, /) -> APyFloat: ...
+    def __and__(self, arg: APyFloat, /) -> APyFloat: ...
+    def __or__(self, arg: APyFloat, /) -> APyFloat: ...
+    def __xor__(self, arg: APyFloat, /) -> APyFloat: ...
+    def __invert__(self) -> APyFloat: ...
+    @overload
+    def __radd__(self, arg: int, /) -> APyFloat: ...
+    @overload
+    def __radd__(self, arg: float, /) -> APyFloat: ...
+    @overload
+    def __rsub__(self, arg: int, /) -> APyFloat: ...
+    @overload
+    def __rsub__(self, arg: float, /) -> APyFloat: ...
+    @overload
+    def __rmul__(self, arg: int, /) -> APyFloat: ...
+    @overload
+    def __rmul__(self, arg: float, /) -> APyFloat: ...
+    @overload
+    def __rtruediv__(self, arg: int, /) -> APyFloat: ...
+    @overload
+    def __rtruediv__(self, arg: float, /) -> APyFloat: ...
     @staticmethod
     def from_float(
         value: object, exp_bits: int, man_bits: int, bias: int | None = None
@@ -1624,7 +2124,7 @@ class APyFloat:
         man_bits : int
             Number of mantissa bits.
         bias : int, optional
-            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Examples
         --------
@@ -1661,7 +2161,7 @@ class APyFloat:
         man_bits : int
             Number of mantissa bits.
         bias : int, optional
-            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Examples
         --------
@@ -1730,7 +2230,7 @@ class APyFloat:
         man_bits : int, optional
             Number of mantissa bits in the result.
         bias : int, optional
-            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
         quantization : :class:`QuantizationMode`, optional.
             Quantization mode to use in this cast. If None, use the global
             quantization mode.
@@ -1740,92 +2240,6 @@ class APyFloat:
         :class:`APyFloat`
         """
 
-    @overload
-    def __add__(self, arg: APyFloat, /) -> APyFloat: ...
-    @overload
-    def __add__(self, arg: int, /) -> APyFloat: ...
-    @overload
-    def __add__(self, arg: float, /) -> APyFloat: ...
-    def __neg__(self) -> APyFloat: ...
-    @overload
-    def __sub__(self, arg: APyFloat, /) -> APyFloat: ...
-    @overload
-    def __sub__(self, arg: int, /) -> APyFloat: ...
-    @overload
-    def __sub__(self, arg: float, /) -> APyFloat: ...
-    @overload
-    def __mul__(self, arg: APyFloat, /) -> APyFloat: ...
-    @overload
-    def __mul__(self, arg: int, /) -> APyFloat: ...
-    @overload
-    def __mul__(self, arg: float, /) -> APyFloat: ...
-    @overload
-    def __truediv__(self, arg: APyFloat, /) -> APyFloat: ...
-    @overload
-    def __truediv__(self, arg: int, /) -> APyFloat: ...
-    @overload
-    def __truediv__(self, arg: float, /) -> APyFloat: ...
-    @overload
-    def __radd__(self, arg: int, /) -> APyFloat: ...
-    @overload
-    def __radd__(self, arg: float, /) -> APyFloat: ...
-    @overload
-    def __rsub__(self, arg: int, /) -> APyFloat: ...
-    @overload
-    def __rsub__(self, arg: float, /) -> APyFloat: ...
-    @overload
-    def __rmul__(self, arg: int, /) -> APyFloat: ...
-    @overload
-    def __rmul__(self, arg: float, /) -> APyFloat: ...
-    @overload
-    def __rtruediv__(self, arg: int, /) -> APyFloat: ...
-    @overload
-    def __rtruediv__(self, arg: float, /) -> APyFloat: ...
-    def __abs__(self) -> APyFloat: ...
-    @overload
-    def __pow__(self, arg: APyFloat, /) -> APyFloat: ...
-    @overload
-    def __pow__(self, arg: int, /) -> APyFloat: ...
-    @overload
-    def __eq__(self, arg: APyFloat, /) -> bool: ...
-    @overload
-    def __eq__(self, arg: float, /) -> bool: ...
-    @overload
-    def __eq__(self, arg: APyFixed, /) -> bool: ...
-    @overload
-    def __ne__(self, arg: APyFloat, /) -> bool: ...
-    @overload
-    def __ne__(self, arg: float, /) -> bool: ...
-    @overload
-    def __ne__(self, arg: APyFixed, /) -> bool: ...
-    @overload
-    def __lt__(self, arg: APyFloat, /) -> bool: ...
-    @overload
-    def __lt__(self, arg: float, /) -> bool: ...
-    @overload
-    def __lt__(self, arg: APyFixed, /) -> bool: ...
-    @overload
-    def __gt__(self, arg: APyFloat, /) -> bool: ...
-    @overload
-    def __gt__(self, arg: float, /) -> bool: ...
-    @overload
-    def __gt__(self, arg: APyFixed, /) -> bool: ...
-    @overload
-    def __le__(self, arg: APyFloat, /) -> bool: ...
-    @overload
-    def __le__(self, arg: float, /) -> bool: ...
-    @overload
-    def __le__(self, arg: APyFixed, /) -> bool: ...
-    @overload
-    def __ge__(self, arg: APyFloat, /) -> bool: ...
-    @overload
-    def __ge__(self, arg: float, /) -> bool: ...
-    @overload
-    def __ge__(self, arg: APyFixed, /) -> bool: ...
-    def __and__(self, arg: APyFloat, /) -> APyFloat: ...
-    def __or__(self, arg: APyFloat, /) -> APyFloat: ...
-    def __xor__(self, arg: APyFloat, /) -> APyFloat: ...
-    def __invert__(self) -> APyFloat: ...
     @property
     def is_zero(self) -> bool:
         """
@@ -2215,7 +2629,7 @@ class APyFloatArray:
         man_bits : int
             Number of mantissa bits.
         bias : int, optional
-            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
         -------
@@ -2231,12 +2645,6 @@ class APyFloatArray:
     @overload
     def __add__(self, arg: APyFloat, /) -> APyFloatArray: ...
     @overload
-    def __radd__(self, arg: int, /) -> APyFloatArray: ...
-    @overload
-    def __radd__(self, arg: float, /) -> APyFloatArray: ...
-    @overload
-    def __radd__(self, arg: APyFloat, /) -> APyFloatArray: ...
-    @overload
     def __sub__(self, arg: APyFloatArray, /) -> APyFloatArray: ...
     @overload
     def __sub__(self, arg: int, /) -> APyFloatArray: ...
@@ -2244,13 +2652,6 @@ class APyFloatArray:
     def __sub__(self, arg: float, /) -> APyFloatArray: ...
     @overload
     def __sub__(self, arg: APyFloat, /) -> APyFloatArray: ...
-    def __neg__(self) -> APyFloatArray: ...
-    @overload
-    def __rsub__(self, arg: int, /) -> APyFloatArray: ...
-    @overload
-    def __rsub__(self, arg: float, /) -> APyFloatArray: ...
-    @overload
-    def __rsub__(self, arg: APyFloat, /) -> APyFloatArray: ...
     @overload
     def __mul__(self, arg: APyFloatArray, /) -> APyFloatArray: ...
     @overload
@@ -2260,12 +2661,6 @@ class APyFloatArray:
     @overload
     def __mul__(self, arg: APyFloat, /) -> APyFloatArray: ...
     @overload
-    def __rmul__(self, arg: int, /) -> APyFloatArray: ...
-    @overload
-    def __rmul__(self, arg: float, /) -> APyFloatArray: ...
-    @overload
-    def __rmul__(self, arg: APyFloat, /) -> APyFloatArray: ...
-    @overload
     def __truediv__(self, arg: APyFloatArray, /) -> APyFloatArray: ...
     @overload
     def __truediv__(self, arg: int, /) -> APyFloatArray: ...
@@ -2273,6 +2668,25 @@ class APyFloatArray:
     def __truediv__(self, arg: float, /) -> APyFloatArray: ...
     @overload
     def __truediv__(self, arg: APyFloat, /) -> APyFloatArray: ...
+    def __neg__(self) -> APyFloatArray: ...
+    @overload
+    def __radd__(self, arg: int, /) -> APyFloatArray: ...
+    @overload
+    def __radd__(self, arg: float, /) -> APyFloatArray: ...
+    @overload
+    def __radd__(self, arg: APyFloat, /) -> APyFloatArray: ...
+    @overload
+    def __rsub__(self, arg: int, /) -> APyFloatArray: ...
+    @overload
+    def __rsub__(self, arg: float, /) -> APyFloatArray: ...
+    @overload
+    def __rsub__(self, arg: APyFloat, /) -> APyFloatArray: ...
+    @overload
+    def __rmul__(self, arg: int, /) -> APyFloatArray: ...
+    @overload
+    def __rmul__(self, arg: float, /) -> APyFloatArray: ...
+    @overload
+    def __rmul__(self, arg: APyFloat, /) -> APyFloatArray: ...
     @overload
     def __rtruediv__(self, arg: int, /) -> APyFloatArray: ...
     @overload
@@ -2313,7 +2727,7 @@ class APyFloatArray:
     @property
     def bias(self) -> int:
         """
-        Bias.
+        Exponent bias.
 
         Returns
         -------
@@ -2581,7 +2995,7 @@ class APyFloatArray:
         man_bits : int
             Number of mantissa bits in the created floating-point tensor
         bias : int, optional
-            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Examples
         --------
@@ -2611,7 +3025,7 @@ class APyFloatArray:
         man_bits : int
             Number of mantissa bits.
         bias : optional
-            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
         -------
@@ -2635,7 +3049,7 @@ class APyFloatArray:
         man_bits : int
             Number of mantissa bits.
         bias : optional
-            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
         -------
@@ -2665,7 +3079,7 @@ class APyFloatArray:
         m : int, optional
             Number of columns. Default is None, which results in an n x n output.
         bias : optional
-            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
         -------
@@ -2689,7 +3103,7 @@ class APyFloatArray:
         man_bits : int
             Number of mantissa bits.
         bias : optional
-            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
         -------

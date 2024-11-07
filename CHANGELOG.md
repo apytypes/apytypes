@@ -20,10 +20,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   correct type (scalar or array) depending on argument.
 - `fn` utility function to easily evaluate functions with APy-classes and get a
   result with the same format.
+- New complex-valued data types:
+  - [`APyCFixed`](https://apytypes.github.io/apytypes/api/apycfixed.html), a
+    scalar fixed-point complex type.
 
 ### Fixed
 
 - APyTypes contexts now supports multi-threading.
+- Incorrect fixed-point quantization in `RND_INF` and `RND_MIN_INF` when source
+  has multiple of 64 bits.
 
 ### Changed
 

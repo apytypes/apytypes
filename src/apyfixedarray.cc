@@ -1597,16 +1597,17 @@ APyFixedArray APyFixedArray::from_double(
     auto py_obj = python_sequence_walk<nb::float_, nb::int_>(python_seq);
 
     // Set data from doubles (reuse `APyFixed::from_double` conversion)
-    APyFixed fix(result.bits(), result.int_bits());
+    // APyFixed fix(result.bits(), result.int_bits());
     for (std::size_t i = 0; i < result._data.size() / result._itemsize; i++) {
         if (nb::isinstance<nb::float_>(py_obj[i])) {
             // Python double object
             double d = static_cast<double>(nb::cast<nb::float_>(py_obj[i]));
-            fix.set_from_double(d);
-            std::copy_n(
-                fix._data.begin(),                          // src
-                result._itemsize,                           // limbs to copy
-                result._data.begin() + i * result._itemsize // dst
+            fixed_point_from_double(
+                d,
+                std::begin(result._data) + (i + 0) * result._itemsize,
+                std::begin(result._data) + (i + 1) * result._itemsize,
+                result._bits,
+                result._int_bits
             );
         } else if (nb::isinstance<nb::int_>(py_obj[i])) {
             // Python integer object
@@ -1616,11 +1617,12 @@ APyFixedArray APyFixedArray::from_double(
             auto limb_vec = python_long_to_limb_vec(
                 nb::cast<nb::int_>(py_obj[i]), bits_to_limbs(max_bits)
             );
-            fix.set_from_double(double(APyFixed(max_bits, max_bits, limb_vec)));
-            std::copy_n(
-                fix._data.begin(),                          // src
-                result._itemsize,                           // limbs to copy
-                result._data.begin() + i * result._itemsize // dst
+            fixed_point_from_double(
+                double(APyFixed(max_bits, max_bits, limb_vec)),
+                std::begin(result._data) + (i + 0) * result._itemsize,
+                std::begin(result._data) + (i + 1) * result._itemsize,
+                result._bits,
+                result._int_bits
             );
         }
     }
@@ -2121,12 +2123,13 @@ void APyFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& nd
                     _data[i] = get_data_from_double(data, bits(), fr_bits, shft_amnt); \
                 }                                                                      \
             } else {                                                                   \
-                APyFixed caster(bits(), int_bits());                                   \
                 for (std::size_t i = 0; i < ndarray.size(); i++) {                     \
-                    double data = static_cast<double>(ndarray_view.data()[i]);         \
-                    caster.set_from_double(data);                                      \
-                    std::copy_n(                                                       \
-                        caster._data.begin(), _itemsize, _data.begin() + i * _itemsize \
+                    fixed_point_from_double(                                           \
+                        static_cast<double>(ndarray_view.data()[i]),                   \
+                        std::begin(_data) + (i + 0) * _itemsize,                       \
+                        std::begin(_data) + (i + 1) * _itemsize,                       \
+                        _bits,                                                         \
+                        _int_bits                                                      \
                     );                                                                 \
                 }                                                                      \
             }                                                                          \

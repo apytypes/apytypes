@@ -1,4 +1,4 @@
-from apytypes import APyFixed
+from apytypes import APyFixed, APyCFixed
 
 import pytest
 
@@ -13,16 +13,17 @@ def test_to_bits():
     )
 
 
-def test_bit_specifier_getters():
+@pytest.mark.parametrize("APyFix", [APyFixed, APyCFixed])
+def test_bit_specifier_getters(APyFix):
     """
     Bit specifier getter functions:
       * `bits()`
       * `int_bits()`
       * `frac_bits()`
     """
-    assert APyFixed(0, bits=12345, int_bits=12).bits == 12345
-    assert APyFixed(0, bits=12345, int_bits=12).int_bits == 12
-    assert APyFixed(0, bits=12345, int_bits=12).frac_bits == 12345 - 12
+    assert APyFix(0, bits=12345, int_bits=12).bits == 12345
+    assert APyFix(0, bits=12345, int_bits=12).int_bits == 12
+    assert APyFix(0, bits=12345, int_bits=12).frac_bits == 12345 - 12
 
 
 def test_to_float():

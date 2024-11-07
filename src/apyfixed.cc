@@ -41,13 +41,6 @@ namespace nb = nanobind;
  * *                            Python constructors                                 * *
  * ********************************************************************************** */
 
-APyFixed::APyFixed(const APyFixed& other)
-    : _bits { other._bits }
-    , _int_bits { other._int_bits }
-    , _data(other._data.begin(), other._data.end())
-{
-}
-
 APyFixed::APyFixed(
     const nb::int_& python_long_int_bit_pattern,
     std::optional<int> int_bits,
@@ -121,7 +114,7 @@ inline APyFixed APyFixed::_apyfixed_base_add_sub(const APyFixed& rhs) const
         );
     } else {
         // Resulting number of bits is more than one limb. Use ripple-carry operation
-        APyFixed operand(res_bits, res_int_bits);
+        ScratchVector<mp_limb_t, 8> operand(bits_to_limbs(res_bits));
         _cast_no_quantize_no_overflow(
             std::begin(_data),
             std::end(_data),
@@ -132,14 +125,14 @@ inline APyFixed APyFixed::_apyfixed_base_add_sub(const APyFixed& rhs) const
         _cast_no_quantize_no_overflow(
             std::begin(rhs._data),
             std::end(rhs._data),
-            std::begin(operand._data),
-            std::end(operand._data),
+            std::begin(operand),
+            std::end(operand),
             rhs_shift_amount
         );
         ripple_carry_op {}(
             &result._data[0],    // dst
             &result._data[0],    // src1
-            &operand._data[0],   // src2
+            &operand[0],         // src2
             result.vector_size() // limb vector length
         );
     }
@@ -172,29 +165,25 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
         return result; // early exit
     }
 
-    ScratchVector<mp_limb_t> abs_op1(_data.size());
-    ScratchVector<mp_limb_t> abs_op2(rhs._data.size());
-
-    // `fixed_point_product` requires:
-    // `prod_abs` has to have space for `s1n` + `s2n` limbs, even if the product’s most
-    // significant limb is zero.
-    result._data.resize(abs_op1.size() + abs_op2.size());
+    // Scratch data:
+    // * abs_op1:   _data.size()
+    // * abs_op2:   rhs._data.size()
+    // * prod_abs:  _data.size() + rhs._data.size()
+    std::size_t scratch_size = 2 * (_data.size() + rhs._data.size());
+    ScratchVector<mp_limb_t, 16> scratch(scratch_size);
 
     // Perform the product
     fixed_point_product(
-        std::begin(_data),        // src1
-        std::begin(rhs._data),    // src2
-        std::begin(result._data), // dst
-        vector_size(),            // src1_limbs
-        rhs.vector_size(),        // src2_limbs
-        bits_to_limbs(res_bits),  // dst_limbs
-        abs_op1,                  // op1_abs
-        abs_op2,                  // op2_abs
-        result._data              // prod_abs
+        std::begin(_data),                                    // src1
+        std::begin(rhs._data),                                // src2
+        std::begin(result._data),                             // dst
+        vector_size(),                                        // src1_limbs
+        rhs.vector_size(),                                    // src2_limbs
+        bits_to_limbs(res_bits),                              // dst_limbs
+        std::begin(scratch),                                  // op1_abs
+        std::begin(scratch) + _data.size(),                   // op2_abs
+        std::begin(scratch) + _data.size() + rhs._data.size() // prod_abs
     );
-
-    // Shape the result vector back to the number of significant limbs
-    result._data.resize(bits_to_limbs(res_bits));
 
     return result;
 }
@@ -218,24 +207,31 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
         return result; // early exit
     }
 
-    // Absolute value denominator
-    ScratchVector<mp_limb_t> abs_den(rhs._data.size());
-    limb_vector_abs(rhs._data.cbegin(), rhs._data.cend(), abs_den.begin());
+    // Scratch data (size):
+    // * abs_num:   bits_to_limbs(res_bits)
+    // * abs_den:   rhs._data.size()
+    std::size_t scratch_size = bits_to_limbs(res_bits) + rhs._data.size();
+    ScratchVector<mp_limb_t, 16> scratch(scratch_size);
 
     // Absolute value left-shifted numerator
-    ScratchVector<mp_limb_t> abs_num(bits_to_limbs(res_bits));
-    limb_vector_abs(_data.begin(), _data.end(), abs_num.begin());
-    limb_vector_lsl(abs_num.begin(), abs_num.end(), rhs.bits());
+    auto abs_num_begin = std::begin(scratch);
+    auto abs_num_end = abs_num_begin + bits_to_limbs(res_bits);
+    limb_vector_abs(_data.begin(), _data.end(), abs_num_begin);
+    limb_vector_lsl(abs_num_begin, abs_num_end, rhs.bits());
+
+    // Absolute value denominator
+    auto abs_den_begin = abs_num_end;
+    auto abs_den_end = abs_den_begin + rhs._data.size();
+    limb_vector_abs(rhs._data.cbegin(), rhs._data.cend(), abs_den_begin);
 
     // `mpn_tdiv_qr` requires the number of *significant* limbs in denominator
-    std::size_t den_significant_limbs
-        = significant_limbs(abs_den.begin(), abs_den.end());
+    std::size_t den_significant_limbs = significant_limbs(abs_den_begin, abs_den_end);
     mpn_div_qr(
-        &result._data[0],     // Quotient
-        &abs_num[0],          // Numerator
-        abs_num.size(),       // Numerator limbs
-        &abs_den[0],          // Denominator
-        den_significant_limbs // Denominator significant limbs
+        &result._data[0],                          // Quotient
+        &*abs_num_begin,                           // Numerator
+        std::distance(abs_num_begin, abs_num_end), // Numerator limbs
+        &*abs_den_begin,                           // Denominator
+        den_significant_limbs                      // Denominator significant limbs
     );
 
     // Negate result if negative
@@ -488,41 +484,9 @@ mp_limb_t APyFixed::increment_lsb() noexcept
 
 std::string APyFixed::to_string_dec() const
 {
-    // Construct a string from the absolute value of number, and conditionally append a
-    // minus sign to the string if negative
-    APyFixed abs_val = abs();
-
-    // Convert this number to BCD with the double-dabble algorithm
-    std::vector<mp_limb_t> bcd_limb_list
-        = double_dabble(static_cast<std::vector<mp_limb_t>>(abs_val._data));
-    std::size_t bcd_limb_list_start_size = bcd_limb_list.size();
-
-    // Divide BCD limb list by two, one time per fractional bit (if any)
-    long decimal_point = 0;
-    for (int i = 0; i < frac_bits(); i++) {
-        bcd_limb_vec_div2(bcd_limb_list);
-        decimal_point += bcd_limb_list.size() > bcd_limb_list_start_size ? 1 : 0;
-    }
-    long rjust = ((_LIMB_SIZE_BITS / 4) - decimal_point) % (_LIMB_SIZE_BITS / 4);
-
-    // Multiply BCD list by two, one time per for each missing fractional bit (if any)
-    for (int i = 0; i < -frac_bits(); i++) {
-        bcd_limb_vec_mul2(bcd_limb_list);
-    }
-
-    // Convert BCD limb list to regular BCD list (`std::vector<uint8_t>`)
-    auto bcd_list = to_nibble_list(bcd_limb_list, decimal_point + rjust + 1);
-
-    // Convert BCDs to ASCII
-    std::string result = is_negative() ? "-" : "";
-    for (long i = bcd_list.size() - 1; i >= rjust; i--) {
-        result.push_back(bcd_list[i] + 0x30);
-        if (decimal_point && i == rjust + long(decimal_point)) {
-            result.push_back('.');
-        }
-    }
-
-    return result;
+    return fixed_point_to_string_dec(
+        std::begin(_data), std::end(_data), _bits, _int_bits
+    );
 }
 
 std::string APyFixed::to_string_hex() const
@@ -668,93 +632,6 @@ void APyFixed::set_from_string(const std::string& str, int base)
     }
 }
 
-void APyFixed::set_from_double(double value)
-{
-    if (std::isnan(value) || std::isinf(value)) {
-        throw std::domain_error(fmt::format("Cannot convert {} to fixed-point", value));
-    }
-
-    // Zero limb vector data
-    std::fill(_data.begin(), _data.end(), 0);
-
-    int exp = exp_of_double(value);
-    uint64_t man = man_of_double(value);
-
-    // Left-shift amount needed to align floating binary point with fixed binary point
-    int left_shift_amnt;
-    if (exp) {
-        // Append mantissa hidden one
-        man |= uint64_t(1) << 52;
-        left_shift_amnt = exp + frac_bits() - 52 - 1023;
-    } else {
-        left_shift_amnt = exp + frac_bits() - 52 - 1023 + 1;
-    }
-
-    if constexpr (_LIMB_SIZE_BITS == 64) {
-
-        _data[0] = man;
-        if (left_shift_amnt >= 0) {
-            limb_vector_lsl(_data.begin(), _data.end(), left_shift_amnt);
-        } else {
-            auto right_shift_amount = -left_shift_amnt;
-            if (right_shift_amount - 1 < 64) {
-                // Round the value
-                _data[0] += mp_limb_t(1) << (right_shift_amount - 1);
-            }
-            limb_vector_lsr(_data.begin(), _data.end(), right_shift_amount);
-        }
-
-        // Adjust result from sign
-        if (sign_of_double(value)) {
-            limb_vector_negate(_data.begin(), _data.end(), _data.begin());
-        }
-        _overflow_twos_complement(_data.begin(), _data.end(), bits(), int_bits());
-
-    } else { /* _LIMB_SIZE_BITS == 32 */
-
-        bool pop_back = false;
-        _data[0] = man & 0xFFFFFFFF;
-        if (_data.size() == 1) {
-            _data.push_back(mp_limb_t(man >> 32));
-            pop_back = true;
-        } else {
-            _data[1] = mp_limb_t(man >> 32);
-        }
-
-        if (left_shift_amnt >= 0) {
-            limb_vector_lsl(_data.begin(), _data.end(), left_shift_amnt);
-        } else {
-            auto right_shift_amount = -left_shift_amnt;
-            if (right_shift_amount - 1 < 64) {
-                // Round the value
-                if (right_shift_amount - 1 >= 32) {
-                    _data[1] += mp_limb_t(1) << (right_shift_amount - 1 - 32);
-                } else {
-                    // The mantissa is at most 53 bits (two limbs)
-                    mpn_add_1(
-                        &_data[0],                               // dst
-                        &_data[0],                               // src
-                        2,                                       // limb vector len
-                        mp_limb_t(1) << (right_shift_amount - 1) // single limb
-                    );
-                }
-            }
-            limb_vector_lsr(_data.begin(), _data.end(), right_shift_amount);
-        }
-
-        // Adjust result from sign
-        if (sign_of_double(value)) {
-            limb_vector_negate(_data.begin(), _data.end(), _data.begin());
-        }
-        _overflow_twos_complement(_data.begin(), _data.end(), bits(), int_bits());
-
-        // Pop of temporary limb
-        if (pop_back) {
-            _data.pop_back();
-        }
-    }
-}
-
 double APyFixed::to_double() const
 {
     // Early exit if zero
@@ -762,79 +639,7 @@ double APyFixed::to_double() const
         return 0.0;
     }
 
-    uint64_t man {};
-    int exp {};
-    bool sign = is_negative();
-
-    if constexpr (_LIMB_SIZE_BITS == 64) {
-
-        ScratchVector<mp_limb_t> man_vec(_data.size());
-        limb_vector_abs(_data.cbegin(), _data.cend(), man_vec.begin());
-        unsigned man_leading_zeros
-            = limb_vector_leading_zeros(man_vec.begin(), man_vec.end());
-
-        // Compute the shift amount and exponent value
-        int left_shift_n = 53 - _LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
-        exp = 1023 + 52 - left_shift_n - frac_bits();
-        if (exp < 1) {
-            // Handle IEEE subnormals
-            left_shift_n += exp - 1;
-            exp = 0;
-        }
-
-        // Shift the mantissa into position and set the mantissa and exponent part
-        if (left_shift_n >= 0) {
-            limb_vector_lsl(std::begin(man_vec), std::end(man_vec), left_shift_n);
-        } else {
-            int right_shift_n = -left_shift_n;
-            int rnd_pow2 = right_shift_n - 1;
-            limb_vector_add_pow2(std::begin(man_vec), std::end(man_vec), rnd_pow2);
-            limb_vector_lsr(std::begin(man_vec), std::end(man_vec), right_shift_n);
-        }
-        man = man_vec[0];
-
-    } else { /* _LIMB_SIZE_BITS == 32 */
-
-        ScratchVector<mp_limb_t> man_vec(std::max(_data.size(), std::size_t(2)));
-        if (_data.size() == 1) {
-            man_vec[0] = _data[0];
-            man_vec[1] = mp_limb_signed_t(_data[0]) < 0 ? -1 : 0;
-        } else {
-            std::copy(_data.begin(), _data.end(), man_vec.begin());
-        }
-        limb_vector_abs(man_vec.cbegin(), man_vec.cend(), man_vec.begin());
-        unsigned man_leading_zeros
-            = limb_vector_leading_zeros(man_vec.begin(), man_vec.end());
-
-        // Compute the shift amount and exponent value
-        int left_shift_n = 53 - _LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
-        exp = 1023 + 52 - left_shift_n - frac_bits();
-        if (exp < 1) {
-            // Handle IEEE subnormals
-            left_shift_n += exp - 1;
-            exp = 0;
-        }
-
-        // Shift the mantissa into position and set the mantissa and exponent part
-        if (left_shift_n >= 0) {
-            limb_vector_lsl(std::begin(man_vec), std::end(man_vec), left_shift_n);
-        } else {
-            int right_shift_n = -left_shift_n;
-            int rnd_pow2 = right_shift_n - 1;
-            limb_vector_add_pow2(std::begin(man_vec), std::end(man_vec), rnd_pow2);
-            limb_vector_lsr(std::begin(man_vec), std::end(man_vec), right_shift_n);
-        }
-
-        man = uint64_t(man_vec[0]);
-        man |= uint64_t(man_vec[1]) << 32;
-    }
-
-    // Return the result
-    double result {};
-    set_sign_of_double(result, sign);
-    set_exp_of_double(result, exp);
-    set_man_of_double(result, man);
-    return result;
+    return fixed_point_to_double(std::begin(_data), std::end(_data), _bits, _int_bits);
 }
 
 nb::int_ APyFixed::to_bits() const
@@ -872,13 +677,16 @@ std::string APyFixed::repr() const
 
 std::string APyFixed::latex() const
 {
+    std::string value_str = fixed_point_to_string_dec(
+        std::begin(_data), std::end(_data), _bits, _int_bits
+    );
     std::string str;
     if (this->is_negative()) {
         str = "$-\\frac{" + bit_pattern_to_string_dec() + "}{2^{"
-            + std::to_string(frac_bits()) + "}} = " + to_string_dec() + "$";
+            + std::to_string(frac_bits()) + "}} = " + value_str + "$";
     } else {
         str = "$\\frac{" + bit_pattern_to_string_dec() + "}{2^{"
-            + std::to_string(frac_bits()) + "}} = " + to_string_dec() + "$";
+            + std::to_string(frac_bits()) + "}} = " + value_str + "$";
     }
 
     return str;
@@ -987,7 +795,13 @@ APyFixed APyFixed::from_double(
 )
 {
     APyFixed result(int_bits, frac_bits, bits);
-    result.set_from_double(value);
+    fixed_point_from_double(
+        value,
+        std::begin(result._data),
+        std::end(result._data),
+        result._bits,
+        result._int_bits
+    );
     return result;
 }
 
