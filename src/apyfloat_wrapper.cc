@@ -37,7 +37,7 @@ void bind_float(nb::module_& m)
             man_bits : int
                 Number of mantissa bits.
             bias : int, optional
-                Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
             Returns
             -------
@@ -69,7 +69,7 @@ void bind_float(nb::module_& m)
             man_bits : int
                 Number of mantissa bits.
             bias : int, optional
-                Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
             Examples
             --------
@@ -109,7 +109,7 @@ void bind_float(nb::module_& m)
             man_bits : int
                 Number of mantissa bits.
             bias : int, optional
-                Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
             Examples
             --------
@@ -177,7 +177,7 @@ void bind_float(nb::module_& m)
             man_bits : int, optional
                 Number of mantissa bits in the result.
             bias : int, optional
-                Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
             quantization : :class:`QuantizationMode`, optional.
                 Quantization mode to use in this cast. If None, use the global
                 quantization mode.
