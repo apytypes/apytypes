@@ -18,6 +18,8 @@ def fx(
     Convenience method that applies :func:`APyFixed.from_float` or
     :func:`APyFixedArray.from_float` depending on if the input, *value*, is a scalar or not.
 
+    .. versionadded:: 0.3
+
     Parameters
     ----------
     val : int, float, list(int), list(float)
@@ -31,9 +33,8 @@ def fx(
 
     Returns
     -------
-     :class:`APyFixed`,  :class:`APyFixedArray`
+    :class:`APyFixed`, :class:`APyFixedArray`
 
-    .. versionadded:: 0.3
     """
     try:
         iter(value)
@@ -58,6 +59,8 @@ def fp(
     Convenience method that applies :func:`APyFloat.from_float` or
     :func:`APyFloatArray.from_float` depending on if the input, *value*, is a scalar or not.
 
+    .. versionadded:: 0.3
+
     Parameters
     ----------
     val : int, float, list(int), list(float)
@@ -71,9 +74,8 @@ def fp(
 
     Returns
     -------
-     :class:`APyFloat`,  :class:`APyFloatArray`
+    :class:`APyFloat`, :class:`APyFloatArray`
 
-    .. versionadded:: 0.3
     """
     try:
         iter(val)
@@ -165,16 +167,14 @@ def fn(
     Hence, there may be numerical issues, but it provides a simple way to
     perform, e.g., ``sin``, assuming that it is based on a look-up table.
 
+    .. versionadded:: 0.3
+
     Parameters
     ----------
     fn : callable
        The function to evaluate.
     args: APyFixed, APyFloat, APyFixedArray, APyFloatArray
        The argument(s) to evaluate the function for.
-
-    Returns
-    -------
-    APyFloat, APyFixed, APyFixedArray, APyFloatArray
 
     Examples
     --------
@@ -184,7 +184,10 @@ def fn(
     >>> fn(math.sin, a)
     APyFixed(18, bits=6, int_bits=1)
 
-    .. versionadded:: 0.3
+    Returns
+    -------
+    :class:`APyFloat`, :class:`APyFloatArray`, :class:`APyFixed`, :class:`APyFixedArray`
+
     """
     pargs, conv = _process_args(args)
     fval = fn(*pargs)
