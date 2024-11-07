@@ -77,7 +77,7 @@ void bind_float_array(nb::module_& m)
             man_bits : int
                 Number of mantissa bits.
             bias : int, optional
-                Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
             Returns
             -------
@@ -159,7 +159,7 @@ void bind_float_array(nb::module_& m)
             )pbdoc")
 
         .def_prop_ro("bias", &APyFloatArray::get_bias, R"pbdoc(
-            Bias.
+            Exponent bias.
 
             Returns
             -------
@@ -412,7 +412,7 @@ void bind_float_array(nb::module_& m)
             man_bits : int
                 Number of mantissa bits in the created floating-point tensor
             bias : int, optional
-                Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
             Examples
             --------
@@ -450,7 +450,7 @@ void bind_float_array(nb::module_& m)
             man_bits : int
                 Number of mantissa bits.
             bias : optional
-                Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
             Returns
             -------
@@ -477,7 +477,7 @@ void bind_float_array(nb::module_& m)
         man_bits : int
             Number of mantissa bits.
         bias : optional
-            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
         -------
@@ -507,7 +507,7 @@ void bind_float_array(nb::module_& m)
         m : int, optional
             Number of columns. Default is None, which results in an n x n output.
         bias : optional
-            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
         -------
@@ -534,7 +534,7 @@ void bind_float_array(nb::module_& m)
         man_bits : int
             Number of mantissa bits.
         bias : optional
-            Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
         -------
@@ -594,7 +594,7 @@ void bind_float_array(nb::module_& m)
             man_bits : int
                 Number of mantissa bits.
             bias : int, optional
-                Bias. If not provided, *bias* is ``2**exp_bits - 1``.
+                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
             Returns
             -------
