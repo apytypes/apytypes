@@ -61,6 +61,9 @@ private:
     // GMP library). It is either a 32-bit or a 64-bit unsigned int, depending on the
     // target architecture.
 
+    // (static) size of a single element
+    static constexpr std::size_t _itemsize = 1;
+
     /* ****************************************************************************** *
      * *                              CRTP methods                                  * *
      * ****************************************************************************** */
@@ -96,7 +99,7 @@ public:
     APyFixed() = delete;
 
     //! Construct a copy from `other`.
-    APyFixed(const APyFixed& other);
+    APyFixed(const APyFixed& other) = default;
 
     //! Main Python-exposed `APyFixed` constructor
     explicit APyFixed(
@@ -144,30 +147,21 @@ private:
     inline APyFixed _apyfixed_base_add_sub(const APyFixed& rhs) const;
 
 public:
-    //! Addition of another APyFixed
+    /*
+     * Arithmetic operators
+     */
     APyFixed operator+(const APyFixed& rhs) const;
-    //! Subtraction of another APyFixed
     APyFixed operator-(const APyFixed& rhs) const;
-    //! Multiplication of another APyFixed
     APyFixed operator*(const APyFixed& rhs) const;
-    //! Division of another APyFixed
     APyFixed operator/(const APyFixed& rhs) const;
-    //! Left-shift (moving the binary point)
     APyFixed operator<<(const int shift_val) const;
-    //! Right-shift (moving the binary point)
     APyFixed operator>>(const int shift_val) const;
-    //! In-place left-shift (moving the binary point)
     APyFixed& operator<<=(const int shift_val);
-    //! In-place right-shift (moving the binary point)
     APyFixed& operator>>=(const int shift_val);
 
-    //! Addition of int
     APyFixed operator+(const nb::int_& rhs) const;
-    //! Subtraction of int
     APyFixed operator-(const nb::int_& rhs) const;
-    //! Multiplication of int
     APyFixed operator*(const nb::int_& rhs) const;
-    //! Division of int
     APyFixed operator/(const nb::int_& rhs) const;
 
     /* ****************************************************************************** *
@@ -286,7 +280,6 @@ public:
      * ****************************************************************************** */
 
 public:
-    void set_from_double(double value);
     void set_from_string(const std::string& str, int base = 10);
     void set_from_string_hex(const std::string& str);
     void set_from_string_oct(const std::string& str);
@@ -339,7 +332,7 @@ public:
     );
 
     /* ****************************************************************************** *
-     *                       Resize and quantization methods                        * *
+     *                     Resize and quantization method (cast)                    * *
      * ****************************************************************************** */
 
 public:
@@ -358,11 +351,10 @@ public:
         int bits, int int_bits, QuantizationMode quantization = QuantizationMode::TRN
     ) const;
 
-    //! `APyFixedArray` is a friend class of APyFixed, and can access all data of an
-    //! `APyFixed` object
+    //! Friends of `APyFixed` :)
 public:
+    friend class APyCFixed;
     friend class APyFixedArray;
-
     template <typename T, typename ARRAY_TYPE> friend class APyArray;
 
 }; // end: class APyFixed

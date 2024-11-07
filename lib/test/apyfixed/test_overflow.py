@@ -1,203 +1,233 @@
-from apytypes import APyFixed
+from apytypes import APyFixed, APyCFixed
 from apytypes import OverflowMode
 
 
-def test_overflow_twos_complement():
-    print(float(APyFixed(0xFF, 8, 8)))
-    assert float(APyFixed(0xC3, 8, 0).cast(8, 0, overflow=OverflowMode.WRAP)) == -61.0
-    assert float(APyFixed(0xC3, 8, 0).cast(7, 0, overflow=OverflowMode.WRAP)) == -61.0
-    assert float(APyFixed(0xC3, 8, 0).cast(6, 0, overflow=OverflowMode.WRAP)) == 3.0
+import pytest
 
 
-def test_overflow_saturation():
-    # Negative single non-full limb
-    assert float(APyFixed(0xC3, 8, 0).cast(8, 0, overflow=OverflowMode.SAT)) == -61.0
-    assert float(APyFixed(0xC3, 8, 0).cast(7, 0, overflow=OverflowMode.SAT)) == -61.0
-    assert float(APyFixed(0xC3, 8, 0).cast(6, 0, overflow=OverflowMode.SAT)) == -32.0
-    assert float(APyFixed(0xC3, 8, 0).cast(5, 0, overflow=OverflowMode.SAT)) == -16.0
-    assert float(APyFixed(0xC3, 8, 0).cast(1, 0, overflow=OverflowMode.SAT)) == -1.0
-
-    # Positive single non-full limb
-    assert float(APyFixed(0x13, 8, 0).cast(8, 0, overflow=OverflowMode.SAT)) == 19.0
-    assert float(APyFixed(0x13, 8, 0).cast(7, 0, overflow=OverflowMode.SAT)) == 19.0
-    assert float(APyFixed(0x13, 8, 0).cast(6, 0, overflow=OverflowMode.SAT)) == 19.0
-    assert float(APyFixed(0x13, 8, 0).cast(5, 0, overflow=OverflowMode.SAT)) == 15.0
-    assert float(APyFixed(0x13, 8, 0).cast(1, 0, overflow=OverflowMode.SAT)) == 0.0
-
-    # Negative multi-limb
+@pytest.mark.parametrize(
+    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+)
+def test_overflow_twos_complement(fixed_type, im):
     assert (
-        APyFixed(0xC0000000000000003, 68, 0)
-        .cast(68, 0, overflow=OverflowMode.SAT)
-        .is_identical(APyFixed(0xC0000000000000003, 68, 0))
+        fixed_type.from_float(0xC3 * im, 8, 0).cast(8, 0, overflow=OverflowMode.WRAP)
+        == -61.0 * im
     )
     assert (
-        APyFixed(0xC0000000000000003, 68, 0)
-        .cast(67, 0, overflow=OverflowMode.SAT)
-        .is_identical(APyFixed(0x40000000000000003, 67, 0))
+        fixed_type.from_float(0xC3 * im, 8, 0).cast(7, 0, overflow=OverflowMode.WRAP)
+        == -61.0 * im
     )
     assert (
-        APyFixed(0xC0000000000000003, 68, 0)
-        .cast(66, 0, overflow=OverflowMode.SAT)
-        .is_identical(APyFixed(0x20000000000000000, 66, 0))
-    )
-    assert (
-        APyFixed(0xC0000000000000003, 68, 0)
-        .cast(65, 0, overflow=OverflowMode.SAT)
-        .is_identical(APyFixed(0x10000000000000000, 65, 0))
-    )
-    assert (
-        APyFixed(0xC0000000000000003, 68, 0)
-        .cast(64, 0, overflow=OverflowMode.SAT)
-        .is_identical(APyFixed(0x8000000000000000, 64, 0))
-    )
-    assert (
-        APyFixed(0xC0000000000000003, 68, 0)
-        .cast(63, 0, overflow=OverflowMode.SAT)
-        .is_identical(APyFixed(0x4000000000000000, 63, 0))
-    )
-
-    # Positive multi-limb
-    assert (
-        APyFixed(0x10000000000000003, 68, 0)
-        .cast(68, 0, overflow=OverflowMode.SAT)
-        .is_identical(APyFixed(0x10000000000000003, 68, 0))
-    )
-    assert (
-        APyFixed(0x10000000000000003, 68, 0)
-        .cast(67, 0, overflow=OverflowMode.SAT)
-        .is_identical(APyFixed(0x10000000000000003, 67, 0))
-    )
-    assert (
-        APyFixed(0x10000000000000003, 68, 0)
-        .cast(66, 0, overflow=OverflowMode.SAT)
-        .is_identical(APyFixed(0x10000000000000003, 66, 0))
-    )
-    assert (
-        APyFixed(0x10000000000000003, 68, 0)
-        .cast(65, 0, overflow=OverflowMode.SAT)
-        .is_identical(APyFixed(0xFFFFFFFFFFFFFFFF, 65, 0))
-    )
-    assert (
-        APyFixed(0x10000000000000003, 68, 0)
-        .cast(64, 0, overflow=OverflowMode.SAT)
-        .is_identical(APyFixed(0x7FFFFFFFFFFFFFFF, 64, 0))
-    )
-    assert (
-        APyFixed(0x10000000000000003, 68, 0)
-        .cast(63, 0, overflow=OverflowMode.SAT)
-        .is_identical(APyFixed(0x3FFFFFFFFFFFFFFF, 63, 0))
+        fixed_type.from_float(0xC3 * im, 8, 0).cast(6, 0, overflow=OverflowMode.WRAP)
+        == 3.0 * im
     )
 
 
-def test_overflow_numeric_std():
+@pytest.mark.parametrize(
+    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+)
+def test_overflow_saturation(fixed_type, im):
     # Negative single non-full limb
     assert (
-        float(APyFixed(0xC3, 8, 0).cast(8, 0, overflow=OverflowMode.NUMERIC_STD))
-        == -61.0
+        fixed_type.from_float(0xC3 * im, 8, 0).cast(8, 0, overflow=OverflowMode.SAT)
+        == -61.0 * im
     )
     assert (
-        float(APyFixed(0xC3, 8, 0).cast(7, 0, overflow=OverflowMode.NUMERIC_STD))
-        == -61.0
+        fixed_type.from_float(0xC3 * im, 8, 0).cast(7, 0, overflow=OverflowMode.SAT)
+        == -61.0 * im
     )
     assert (
-        float(APyFixed(0xC3, 8, 0).cast(6, 0, overflow=OverflowMode.NUMERIC_STD))
-        == -29.0
+        fixed_type.from_float(0xC3 * im, 8, 0).cast(6, 0, overflow=OverflowMode.SAT)
+        == -32.0 * im
     )
     assert (
-        float(APyFixed(0xC3, 8, 0).cast(5, 0, overflow=OverflowMode.NUMERIC_STD))
-        == -13.0
+        fixed_type.from_float(0xC3 * im, 8, 0).cast(5, 0, overflow=OverflowMode.SAT)
+        == -16.0 * im
     )
     assert (
-        float(APyFixed(0xC3, 8, 0).cast(1, 0, overflow=OverflowMode.NUMERIC_STD))
-        == -1.0
+        fixed_type.from_float(0xC3 * im, 8, 0).cast(1, 0, overflow=OverflowMode.SAT)
+        == -1.0 * im
     )
 
-    # Positive single non-full limb
+    # Positive non-full limb
     assert (
-        float(APyFixed(0x13, 8, 0).cast(8, 0, overflow=OverflowMode.NUMERIC_STD))
-        == 19.0
+        fixed_type.from_float(0x13 * im, 8, 0).cast(8, 0, overflow=OverflowMode.SAT)
+        == 19.0 * im
     )
     assert (
-        float(APyFixed(0x13, 8, 0).cast(7, 0, overflow=OverflowMode.NUMERIC_STD))
-        == 19.0
+        fixed_type.from_float(0x13 * im, 8, 0).cast(7, 0, overflow=OverflowMode.SAT)
+        == 19.0 * im
     )
     assert (
-        float(APyFixed(0x13, 8, 0).cast(6, 0, overflow=OverflowMode.NUMERIC_STD))
-        == 19.0
+        fixed_type.from_float(0x13 * im, 8, 0).cast(6, 0, overflow=OverflowMode.SAT)
+        == 19.0 * im
     )
     assert (
-        float(APyFixed(0x13, 8, 0).cast(5, 0, overflow=OverflowMode.NUMERIC_STD)) == 3.0
+        fixed_type.from_float(0x13 * im, 8, 0).cast(5, 0, overflow=OverflowMode.SAT)
+        == 15.0 * im
     )
     assert (
-        float(APyFixed(0x13, 8, 0).cast(4, 0, overflow=OverflowMode.NUMERIC_STD)) == 3.0
-    )
-    assert (
-        float(APyFixed(0x13, 8, 0).cast(2, 0, overflow=OverflowMode.NUMERIC_STD)) == 1.0
-    )
-    assert (
-        float(APyFixed(0x13, 8, 0).cast(1, 0, overflow=OverflowMode.NUMERIC_STD)) == 0.0
+        fixed_type.from_float(0x13 * im, 8, 0).cast(1, 0, overflow=OverflowMode.SAT)
+        == 0.0 * im
     )
 
     # Negative multi-limb
-    assert (
-        APyFixed(0xC0000000000000003, 68, 0)
-        .cast(68, 0, overflow=OverflowMode.NUMERIC_STD)
-        .is_identical(APyFixed(0xC0000000000000003, 68, 0))
-    )
-    assert (
-        APyFixed(0xC0000000000000003, 68, 0)
-        .cast(67, 0, overflow=OverflowMode.NUMERIC_STD)
-        .is_identical(APyFixed(0x40000000000000003, 67, 0))
-    )
-    assert (
-        APyFixed(0xC0000000000000003, 68, 0)
-        .cast(66, 0, overflow=OverflowMode.NUMERIC_STD)
-        .is_identical(APyFixed(0x20000000000000003, 66, 0))
-    )
-    assert (
-        APyFixed(0xC0000000000000003, 68, 0)
-        .cast(65, 0, overflow=OverflowMode.NUMERIC_STD)
-        .is_identical(APyFixed(0x10000000000000003, 65, 0))
-    )
-    assert (
-        APyFixed(0xC0000000000000003, 68, 0)
-        .cast(64, 0, overflow=OverflowMode.NUMERIC_STD)
-        .is_identical(APyFixed(0x8000000000000003, 64, 0))
-    )
-    assert (
-        APyFixed(0xC0000000000000003, 68, 0)
-        .cast(63, 0, overflow=OverflowMode.NUMERIC_STD)
-        .is_identical(APyFixed(0x4000000000000003, 63, 0))
-    )
+    assert (fixed_type.from_float(0xC0000000000000000 * im, 68, 0) + 3 * im).cast(
+        68, 0, overflow=OverflowMode.SAT
+    ) == fixed_type.from_float(0xC0000000000000000 * im, 68, 0) + 3 * im
+    assert (fixed_type.from_float(0xC0000000000000000 * im, 68, 0) + 3 * im).cast(
+        67, 0, overflow=OverflowMode.SAT
+    ) == fixed_type.from_float(0xC0000000000000000 * im, 68, 0) + 3 * im
+    assert (fixed_type.from_float(0xC0000000000000000 * im, 68, 0) + 3 * im).cast(
+        66, 0, overflow=OverflowMode.SAT
+    ) == fixed_type.from_float(0x20000000000000000 * im, 66, 0)
+    assert (fixed_type.from_float(0xC0000000000000000 * im, 68, 0) + 3 * im).cast(
+        65, 0, overflow=OverflowMode.SAT
+    ) == fixed_type.from_float(0x10000000000000000 * im, 65, 0)
+    assert (fixed_type.from_float(0xC0000000000000000 * im, 68, 0) + 3 * im).cast(
+        64, 0, overflow=OverflowMode.SAT
+    ) == fixed_type.from_float(0x8000000000000000 * im, 64, 0)
+    assert (fixed_type.from_float(0xC0000000000000000 * im, 68, 0) + 3 * im).cast(
+        63, 0, overflow=OverflowMode.SAT
+    ) == fixed_type.from_float(0x4000000000000000 * im, 63, 0)
 
     # Positive multi-limb
+    assert (fixed_type.from_float(0x10000000000000000 * im, 68, 0) + 3 * im).cast(
+        68, 0, overflow=OverflowMode.SAT
+    ) == fixed_type.from_float(0x10000000000000000 * im, 68, 0) + 3 * im
+    assert (fixed_type.from_float(0x10000000000000000 * im, 68, 0) + 3 * im).cast(
+        67, 0, overflow=OverflowMode.SAT
+    ) == fixed_type.from_float(0x10000000000000000 * im, 67, 0) + 3 * im
+    assert (fixed_type.from_float(0x10000000000000000 * im, 68, 0) + 3 * im).cast(
+        66, 0, overflow=OverflowMode.SAT
+    ) == fixed_type.from_float(0x10000000000000000 * im, 66, 0) + 3 * im
+    assert (fixed_type.from_float(0x10000000000000000 * im, 68, 0) + 3 * im).cast(
+        65, 0, overflow=OverflowMode.SAT
+    ) == fixed_type.from_float(0x10000000000000000 * im, 66, 0) - 1 * im
+    assert (fixed_type.from_float(0x10000000000000000 * im, 68, 0) + 3 * im).cast(
+        64, 0, overflow=OverflowMode.SAT
+    ) == fixed_type.from_float(0x8000000000000000 * im, 66, 0) - 1 * im
+    assert (fixed_type.from_float(0x10000000000000000 * im, 68, 0) + 3 * im).cast(
+        63, 0, overflow=OverflowMode.SAT
+    ) == fixed_type.from_float(0x4000000000000000 * im, 68, 0) - 1 * im
+
+
+@pytest.mark.parametrize(
+    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+)
+def test_overflow_numeric_std(fixed_type, im):
+    # Negative single non-full limb
     assert (
-        APyFixed(0x10000000000000003, 68, 0)
-        .cast(68, 0, overflow=OverflowMode.NUMERIC_STD)
-        .is_identical(APyFixed(0x10000000000000003, 68, 0))
+        fixed_type.from_float(0xC3 * im, 8, 0).cast(
+            8, 0, overflow=OverflowMode.NUMERIC_STD
+        )
+        == -61.0 * im
     )
     assert (
-        APyFixed(0x10000000000000003, 68, 0)
-        .cast(67, 0, overflow=OverflowMode.NUMERIC_STD)
-        .is_identical(APyFixed(0x10000000000000003, 67, 0))
+        fixed_type.from_float(0xC3 * im, 8, 0).cast(
+            7, 0, overflow=OverflowMode.NUMERIC_STD
+        )
+        == -61.0 * im
     )
     assert (
-        APyFixed(0x10000000000000003, 68, 0)
-        .cast(66, 0, overflow=OverflowMode.NUMERIC_STD)
-        .is_identical(APyFixed(0x10000000000000003, 66, 0))
+        fixed_type.from_float(0xC3 * im, 8, 0).cast(
+            6, 0, overflow=OverflowMode.NUMERIC_STD
+        )
+        == -29.0 * im
     )
     assert (
-        APyFixed(0x10000000000000003, 68, 0)
-        .cast(65, 0, overflow=OverflowMode.NUMERIC_STD)
-        .is_identical(APyFixed(0x03, 65, 0))
+        fixed_type.from_float(0xC3 * im, 8, 0).cast(
+            5, 0, overflow=OverflowMode.NUMERIC_STD
+        )
+        == -13.0 * im
     )
     assert (
-        APyFixed(0x10000000000000003, 68, 0)
-        .cast(64, 0, overflow=OverflowMode.NUMERIC_STD)
-        .is_identical(APyFixed(0x03, 64, 0))
+        fixed_type.from_float(0xC3 * im, 8, 0).cast(
+            1, 0, overflow=OverflowMode.NUMERIC_STD
+        )
+        == -1.0 * im
+    )
+
+    # Positive single non-full limb
+    assert (
+        fixed_type.from_float(0x13 * im, 8, 0).cast(
+            8, 0, overflow=OverflowMode.NUMERIC_STD
+        )
+        == 19.0 * im
     )
     assert (
-        APyFixed(0x10000000000000003, 68, 0)
-        .cast(63, 0, overflow=OverflowMode.NUMERIC_STD)
-        .is_identical(APyFixed(0x03, 63, 0))
+        fixed_type.from_float(0x13 * im, 8, 0).cast(
+            7, 0, overflow=OverflowMode.NUMERIC_STD
+        )
+        == 19.0 * im
     )
+    assert (
+        fixed_type.from_float(0x13 * im, 8, 0).cast(
+            6, 0, overflow=OverflowMode.NUMERIC_STD
+        )
+        == 19.0 * im
+    )
+    assert (
+        fixed_type.from_float(0x13 * im, 8, 0).cast(
+            5, 0, overflow=OverflowMode.NUMERIC_STD
+        )
+        == 3.0 * im
+    )
+    assert (
+        fixed_type.from_float(0x13 * im, 8, 0).cast(
+            4, 0, overflow=OverflowMode.NUMERIC_STD
+        )
+        == 3.0 * im
+    )
+    assert (
+        fixed_type.from_float(0x13 * im, 8, 0).cast(
+            2, 0, overflow=OverflowMode.NUMERIC_STD
+        )
+        == 1.0 * im
+    )
+    assert (
+        fixed_type.from_float(0x13 * im, 8, 0).cast(
+            1, 0, overflow=OverflowMode.NUMERIC_STD
+        )
+        == 0.0 * im
+    )
+
+    # Negative multi-limb
+    assert (fixed_type.from_float(0xC0000000000000000 * im, 68, 0) + 3 * im).cast(
+        68, 0, overflow=OverflowMode.NUMERIC_STD
+    ) == fixed_type.from_float(0xC0000000000000000 * im, 68, 0) + 3 * im
+    assert (fixed_type.from_float(0xC0000000000000000 * im, 68, 0) + 3 * im).cast(
+        67, 0, overflow=OverflowMode.NUMERIC_STD
+    ) == fixed_type.from_float(0x40000000000000000 * im, 67, 0) + 3 * im
+    assert (fixed_type.from_float(0xC0000000000000000 * im, 68, 0) + 3 * im).cast(
+        66, 0, overflow=OverflowMode.NUMERIC_STD
+    ) == fixed_type.from_float(0x20000000000000000 * im, 66, 0) + 3 * im
+    assert (fixed_type.from_float(0xC0000000000000000 * im, 68, 0) + 3 * im).cast(
+        65, 0, overflow=OverflowMode.NUMERIC_STD
+    ) == fixed_type.from_float(0x10000000000000000 * im, 65, 0) + 3 * im
+    assert (fixed_type.from_float(0xC0000000000000000 * im, 68, 0) + 3 * im).cast(
+        64, 0, overflow=OverflowMode.NUMERIC_STD
+    ) == fixed_type.from_float(0x8000000000000000 * im, 64, 0) + 3 * im
+    assert (fixed_type.from_float(0xC0000000000000000 * im, 68, 0) + 3 * im).cast(
+        63, 0, overflow=OverflowMode.NUMERIC_STD
+    ) == fixed_type.from_float(0x4000000000000000 * im, 63, 0) + 3 * im
+
+    # Positive multi-limb
+    assert (fixed_type.from_float(0x10000000000000000 * im, 68, 0) + 3 * im).cast(
+        68, 0, overflow=OverflowMode.NUMERIC_STD
+    ) == fixed_type.from_float(0x10000000000000000 * im, 68, 0) + 3 * im
+    assert (fixed_type.from_float(0x10000000000000000 * im, 68, 0) + 3 * im).cast(
+        67, 0, overflow=OverflowMode.NUMERIC_STD
+    ) == fixed_type.from_float(0x10000000000000000 * im, 67, 0) + 3 * im
+    assert (fixed_type.from_float(0x10000000000000000 * im, 68, 0) + 3 * im).cast(
+        66, 0, overflow=OverflowMode.NUMERIC_STD
+    ) == fixed_type.from_float(0x10000000000000000 * im, 66, 0) + 3 * im
+    assert (fixed_type.from_float(0x10000000000000000 * im, 68, 0) + 3 * im).cast(
+        65, 0, overflow=OverflowMode.NUMERIC_STD
+    ) == fixed_type.from_float(0x03 * im, 65, 0)
+    assert (fixed_type.from_float(0x10000000000000000 * im, 68, 0) + 3 * im).cast(
+        64, 0, overflow=OverflowMode.NUMERIC_STD
+    ) == fixed_type.from_float(0x03 * im, 64, 0)
+    assert (fixed_type.from_float(0x10000000000000000 * im, 68, 0) + 3 * im).cast(
+        63, 0, overflow=OverflowMode.NUMERIC_STD
+    ) == fixed_type.from_float(0x03 * im, 63, 0)

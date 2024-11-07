@@ -1,21 +1,22 @@
 from __future__ import annotations
 
 from apytypes._apytypes import (
+    APyCFixed,
     APyFixed,
-    APyFixedArray,
     APyFixedAccumulatorContext,
+    APyFixedArray,
     APyFixedCastContext,
     APyFloat,
-    APyFloatArray,
     APyFloatAccumulatorContext,
-    OverflowMode,
+    APyFloatArray,
     APyFloatQuantizationContext,
+    OverflowMode,
     QuantizationMode,
-    get_float_quantization_mode,
-    set_float_quantization_mode,
-    get_float_quantization_seed,
-    set_float_quantization_seed,
     _get_simd_version_str,
+    get_float_quantization_mode,
+    get_float_quantization_seed,
+    set_float_quantization_mode,
+    set_float_quantization_seed,
 )
 
 from apytypes._array_functions import (
@@ -44,6 +45,7 @@ from apytypes._utils import fx, fp, fn
 from apytypes._version import version as __version__
 
 __all__ = [
+    "APyCFixed",
     "APyFixed",
     "APyFixedArray",
     "APyFixedAccumulatorContext",
@@ -267,7 +269,10 @@ arithmetic operations. This ensures that overflow or quantization **never** occu
 unless explicitly instructed to by a user through the :func:`cast` method. The following
 table shows word lengths of elementary arithmetic operations.
 
-.. list-table:: Word-length of fixed-point arithmetic operations
+For complex-valued fixed-point formats, see :class:`APyCFixed`.
+
+.. list-table:: Word-length of fixed-point arithmetic operations using
+                :class:`APyFixed`
    :widths: 12 44 44
    :header-rows: 1
 
@@ -284,9 +289,50 @@ table shows word lengths of elementary arithmetic operations.
      - :code:`a.int_bits + b.int_bits`
      - :code:`a.frac_bits + b.frac_bits`
    * - :code:`a / b`
-     - :code:`a.int_bits + b.frac_bits`
+     - :code:`a.int_bits + b.frac_bits + 1`
      - :code:`a.frac_bits + b.int_bits`
    * - :code:`-a`
      - :code:`a.int_bits + 1`
      - :code:`a.frac_bits`
+"""
+
+APyCFixed.__doc__ = r"""
+Class for configurable complex-valued scalar fixed-point formats.
+
+:class:`APyCFixed` is an arbitrary precision complex-valued two's complement fixed-point
+scalar type. In many ways it behaves like the built-in Python type :class:`complex` in
+that it can be used within ordinary arithmetic expressions that allows complex numbers.
+Every fixed-point instance has an associated word length, determined by its
+:attr:`bits`, :attr:`int_bits`, and :attr:`frac_bits` bit specifiers. These specifiers
+determine the location of the binary fix-point and the total word length. Both the real
+and imaginary part share bit specifiers, and the overall number of bits in an
+:class:`APyCFixed` is :code:`2 * bits`. Only two of three bit specifers need to be set
+to uniquely determine the complete fixed-point format.
+
+For real-valued fixed-point formats, see :class:`APyFixed`.
+
+.. list-table:: Word-length of fixed-point arithmetic operations using
+                :class:`APyCFixed`
+   :widths: 12 44 44
+   :header-rows: 1
+
+   * - Operation
+     - Result :attr:`int_bits`
+     - Result :attr:`frac_bits`
+   * - :code:`a + b`
+     - :code:`max(a.int_bits, b.int_bits) + 1`
+     - :code:`max(a.frac_bits, b.frac_bits)`
+   * - :code:`a - b`
+     - :code:`max(a.int_bits, b.int_bits) + 1`
+     - :code:`max(a.frac_bits, b.frac_bits)`
+   * - :code:`a * b`
+     - :code:`a.int_bits + b.int_bits + 1`
+     - :code:`a.frac_bits + b.frac_bits`
+   * - :code:`a / b`
+     - :code:`a.int_bits + b.frac_bits + 1`
+     - :code:`a.frac_bits + b.int_bits`
+   * - :code:`-a`
+     - :code:`a.int_bits + 1`
+     - :code:`a.frac_bits`
+
 """

@@ -5,6 +5,7 @@
 // Scalar types
 class APyFixed;
 class APyFloat;
+class APyCFixed;
 
 // Array types
 class APyFixedArray;

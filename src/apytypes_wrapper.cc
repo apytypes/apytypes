@@ -6,6 +6,7 @@ namespace nb = nanobind;
 
 void bind_accumulator_context(nb::module_& m);
 void bind_cast_context(nb::module_& m);
+void bind_cfixed(nb::module_& m);
 void bind_common(nb::module_& m);
 void bind_context_manager(nb::module_& m);
 void bind_fixed(nb::module_& m);
@@ -17,6 +18,7 @@ void bind_quantization_context(nb::module_& m);
 NB_MODULE(_apytypes, m)
 {
     bind_common(m);
+    bind_cfixed(m);
     bind_fixed(m);
     bind_fixed_array(m);
     bind_float(m);

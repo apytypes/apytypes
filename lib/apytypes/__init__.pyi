@@ -1,5 +1,3 @@
-import __future__
-
 from . import (
     _apytypes as _apytypes,
     _array_functions as _array_functions,
@@ -7,6 +5,7 @@ from . import (
     _version as _version,
 )
 from ._apytypes import (
+    APyCFixed as APyCFixed,
     APyFixed as APyFixed,
     APyFixedAccumulatorContext as APyFixedAccumulatorContext,
     APyFixedArray as APyFixedArray,
@@ -46,6 +45,7 @@ from ._array_functions import (
 from ._utils import fn as fn, fp as fp, fx as fx
 
 __all__: list = [
+    "APyCFixed",
     "APyFixed",
     "APyFixedArray",
     "APyFixedAccumulatorContext",
@@ -84,5 +84,3 @@ __all__: list = [
     "fp",
     "fn",
 ]
-
-annotations: __future__._Feature = ...
