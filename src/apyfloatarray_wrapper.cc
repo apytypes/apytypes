@@ -13,11 +13,11 @@ namespace nb = nanobind;
  * type
  */
 template <auto FUNC, typename L_TYPE>
-static auto R_OP(const APyFloatArray& rhs, const L_TYPE& lhs)
+static APyFloatArray R_OP(const APyFloatArray& rhs, const L_TYPE& lhs)
 {
-    int exp_bits = rhs.get_exp_bits();
-    int man_bits = rhs.get_man_bits();
-    exp_t bias = rhs.get_bias();
+    [[maybe_unused]] int exp_bits = rhs.get_exp_bits();
+    [[maybe_unused]] int man_bits = rhs.get_man_bits();
+    [[maybe_unused]] exp_t bias = rhs.get_bias();
     if constexpr (std::is_floating_point_v<L_TYPE>) {
         return (rhs.*FUNC)(APyFloat::from_double(lhs, exp_bits, man_bits, bias));
     } else if constexpr (std::is_same_v<std::remove_cv_t<L_TYPE>, APyFloat>) {
@@ -31,11 +31,11 @@ static auto R_OP(const APyFloatArray& rhs, const L_TYPE& lhs)
  * Binding function of a custom L-operator (e.g., `__sub__`) with non APyFloatArray type
  */
 template <typename OP, typename R_TYPE>
-static auto L_OP(const APyFloatArray& lhs, const R_TYPE& rhs)
+static APyFloatArray L_OP(const APyFloatArray& lhs, const R_TYPE& rhs)
 {
-    int exp_bits = lhs.get_exp_bits();
-    int man_bits = lhs.get_man_bits();
-    exp_t bias = lhs.get_bias();
+    [[maybe_unused]] int exp_bits = lhs.get_exp_bits();
+    [[maybe_unused]] int man_bits = lhs.get_man_bits();
+    [[maybe_unused]] exp_t bias = lhs.get_bias();
     if constexpr (std::is_floating_point_v<R_TYPE>) {
         return OP()(lhs, APyFloat::from_double(rhs, exp_bits, man_bits, bias));
     } else if constexpr (std::is_same_v<std::remove_cv_t<R_TYPE>, APyFloat>) {

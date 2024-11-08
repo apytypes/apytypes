@@ -16,7 +16,7 @@ namespace nb = nanobind;
  * type
  */
 template <auto FUNC, typename L_TYPE>
-static auto R_OP(const APyFixedArray& rhs, const L_TYPE& lhs)
+static APyFixedArray R_OP(const APyFixedArray& rhs, const L_TYPE& lhs)
 {
     if constexpr (std::is_floating_point_v<L_TYPE>) {
         return (rhs.*FUNC)(APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits()));
@@ -32,7 +32,7 @@ static auto R_OP(const APyFixedArray& rhs, const L_TYPE& lhs)
  * Binding function of a custom L-operator (e.g., `__sub__`) with non APyFixedArray type
  */
 template <typename OP, typename R_TYPE>
-static auto L_OP(const APyFixedArray& lhs, const R_TYPE& rhs)
+static APyFixedArray L_OP(const APyFixedArray& lhs, const R_TYPE& rhs)
 {
     if constexpr (std::is_floating_point_v<R_TYPE>) {
         return OP()(lhs, APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits()));

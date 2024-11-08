@@ -14,7 +14,7 @@ namespace nb = nanobind;
  * Binding function of a custom R-operator (e.g., `__rmul__`) with non APyFixed type
  */
 template <typename OP, typename L_TYPE>
-static auto R_OP(const APyFixed& rhs, const L_TYPE& lhs)
+static auto R_OP(const APyFixed& rhs, const L_TYPE& lhs) -> decltype(OP()(rhs, rhs))
 {
     if constexpr (std::is_floating_point_v<L_TYPE>) {
         return OP()(APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits()), rhs);
@@ -27,7 +27,7 @@ static auto R_OP(const APyFixed& rhs, const L_TYPE& lhs)
  * Binding function of a custom L-operator (e.g., `__sub__`) with non APyFixed type
  */
 template <typename OP, typename R_TYPE>
-static auto L_OP(const APyFixed& lhs, const R_TYPE& rhs)
+static auto L_OP(const APyFixed& lhs, const R_TYPE& rhs) -> decltype(OP()(lhs, lhs))
 {
     if constexpr (std::is_floating_point_v<R_TYPE>) {
         return OP()(lhs, APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits()));

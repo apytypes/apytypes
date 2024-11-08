@@ -15,11 +15,11 @@ namespace nb = nanobind;
  * Binding function of a custom R-operator (e.g., `__rmul__`) with non APyFloat type
  */
 template <typename OP, typename L_TYPE>
-static auto R_OP(const APyFloat& rhs, const L_TYPE& lhs)
+static auto R_OP(const APyFloat& rhs, const L_TYPE& lhs) -> decltype(OP()(rhs, rhs))
 {
-    int exp_bits = rhs.get_exp_bits();
-    int man_bits = rhs.get_man_bits();
-    exp_t bias = rhs.get_bias();
+    [[maybe_unused]] int exp_bits = rhs.get_exp_bits();
+    [[maybe_unused]] int man_bits = rhs.get_man_bits();
+    [[maybe_unused]] exp_t bias = rhs.get_bias();
     if constexpr (std::is_floating_point_v<L_TYPE>) {
         return OP()(APyFloat::from_double(lhs, exp_bits, man_bits, bias), rhs);
     } else {
@@ -31,11 +31,11 @@ static auto R_OP(const APyFloat& rhs, const L_TYPE& lhs)
  * Binding function of a custom L-operator (e.g., `__sub__`) with non APyFloat type
  */
 template <typename OP, typename R_TYPE>
-static auto L_OP(const APyFloat& lhs, const R_TYPE& rhs)
+static auto L_OP(const APyFloat& lhs, const R_TYPE& rhs) -> decltype(OP()(lhs, lhs))
 {
-    int exp_bits = lhs.get_exp_bits();
-    int man_bits = lhs.get_man_bits();
-    exp_t bias = lhs.get_bias();
+    [[maybe_unused]] int exp_bits = lhs.get_exp_bits();
+    [[maybe_unused]] int man_bits = lhs.get_man_bits();
+    [[maybe_unused]] exp_t bias = lhs.get_bias();
     if constexpr (std::is_floating_point_v<R_TYPE>) {
         return OP()(lhs, APyFloat::from_double(rhs, exp_bits, man_bits, bias));
     } else {
@@ -43,13 +43,14 @@ static auto L_OP(const APyFloat& lhs, const R_TYPE& rhs)
     }
 }
 
-template <typename OP, typename TYPE> static auto UN_OP(const TYPE& in)
+template <typename OP, typename TYPE>
+static auto UN_OP(const TYPE& in) -> decltype(OP()(in))
 {
     return OP()(in);
 }
 
 template <typename OP, typename L_TYPE, typename R_TYPE>
-static auto BIN_OP(const L_TYPE& lhs, const R_TYPE& rhs)
+static auto BIN_OP(const L_TYPE& lhs, const R_TYPE& rhs) -> decltype(OP()(lhs, rhs))
 {
     return OP()(lhs, rhs);
 }
