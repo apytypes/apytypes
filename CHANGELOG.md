@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `APyCFixed`, a scalar fixed-point complex type.
   - `APyCFixedArray`, an array fixed-point complex type.
 - `APyFloatArray.convolve` now supports accumulator contexts.
+- VHDL code generation for ROMs.
 
 ### Fixed
 

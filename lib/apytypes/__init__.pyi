@@ -7,6 +7,8 @@ from . import (
 from ._apytypes import (
     APyCFixed as APyCFixed,
     APyCFixedArray as APyCFixedArray,
+    APyCFloat as APyCFloat,
+    APyCFloatArray as APyCFloatArray,
     APyFixed as APyFixed,
     APyFixedAccumulatorContext as APyFixedAccumulatorContext,
     APyFixedArray as APyFixedArray,
@@ -48,6 +50,8 @@ from ._utils import fn as fn, fp as fp, fx as fx
 __all__: list = [
     "APyCFixed",
     "APyCFixedArray",
+    "APyCFloat",
+    "APyCFloatArray",
     "APyFixed",
     "APyFixedArray",
     "APyFixedAccumulatorContext",

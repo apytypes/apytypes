@@ -1404,6 +1404,48 @@ class APyCFixedArray:
     def __len__(self) -> int: ...
     def __array__(self) -> Annotated[ArrayLike, dict(dtype="complex128")]: ...
 
+class APyCFloat:
+    @staticmethod
+    def from_float(
+        value: object, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyCFloat:
+        """
+        Create an :class:`APyCFloat` object from an :class:`int` or :class:`float`.
+
+        The quantization mode used is :class:`QuantizationMode.TIES_EVEN`.
+
+        Parameters
+        ----------
+        value : int, float
+            Floating-point value to initialize from.
+        exp_bits : int
+            Number of exponent bits.
+        man_bits : int
+            Number of mantissa bits.
+        bias : int, optional
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+        Examples
+        --------
+
+        >>> from apytypes import APyCFloat
+
+        `a`, initialized from floating-point values.
+
+        >>> a = APyCFloat.from_float(1.35, exp_bits=10, man_bits=15)
+
+        Returns
+        -------
+        :class:`APyCFloat`
+
+        See also
+        --------
+        from_bits
+        """
+
+class APyCFloatArray:
+    pass
+
 class APyFixed:
     r"""
     Class for configurable scalar fixed-point formats.
