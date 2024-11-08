@@ -56,6 +56,8 @@ py3.install_sources(
         'lib/apytypes/_typing.py',
         'lib/apytypes/_utils.py',
         'lib/apytypes/_utils.pyi',
+        'lib/apytypes/vhdl.py',
+        'lib/apytypes/vhdl.pyi',
         'lib/apytypes/py.typed',
     ],
     subdir: 'apytypes'
