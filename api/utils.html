@@ -237,7 +237,8 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../examples/apyfloat.html">APyFloat</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/apyfixed.html">APyFixed</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/numpy.html">NumPy integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/numpy_integration.html">NumPy integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/vectorrotation.html">Fixed-point vector rotation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/test_fp8_mul.html">cocotb integration</a></li>
 </ul>
 </li>
@@ -296,7 +297,10 @@
 <dd><p>Create an <a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> object.</p>
 <p>Convenience method that applies <a class="reference internal" href="apyfixed.html#apytypes.APyFixed.from_float" title="apytypes.APyFixed.from_float"><code class="xref py py-func docutils literal notranslate"><span class="pre">APyFixed.from_float()</span></code></a> or
 <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray.from_float" title="apytypes.APyFixedArray.from_float"><code class="xref py py-func docutils literal notranslate"><span class="pre">APyFixedArray.from_float()</span></code></a> depending on if the input, <em>value</em>, is a scalar or not.</p>
-<dl class="field-list">
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.3.</span></p>
+</div>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>val</strong><span class="classifier">int, float, list(int), list(float)</span></dt><dd><p>Floating point value(s) to initialize from.</p>
@@ -311,11 +315,8 @@
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a>,  <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></dt><dd></dd>
+<dt><a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a>, <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></dt><dd></dd>
 </dl>
-<div class="versionadded">
-<p><span class="versionmodified added">Added in version 0.3: </span>..</p>
-</div>
 </dd>
 </dl>
 </dd></dl>
@@ -326,7 +327,10 @@
 <dd><p>Create an <a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> or <a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> object.</p>
 <p>Convenience method that applies <a class="reference internal" href="apyfloat.html#apytypes.APyFloat.from_float" title="apytypes.APyFloat.from_float"><code class="xref py py-func docutils literal notranslate"><span class="pre">APyFloat.from_float()</span></code></a> or
 <a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray.from_float" title="apytypes.APyFloatArray.from_float"><code class="xref py py-func docutils literal notranslate"><span class="pre">APyFloatArray.from_float()</span></code></a> depending on if the input, <em>value</em>, is a scalar or not.</p>
-<dl class="field-list">
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.3.</span></p>
+</div>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>val</strong><span class="classifier">int, float, list(int), list(float)</span></dt><dd><p>Floating point value(s) to initialize from.</p>
@@ -341,11 +345,8 @@
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>,  <a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></dt><dd></dd>
+<dt><a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>, <a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></dt><dd></dd>
 </dl>
-<div class="versionadded">
-<p><span class="versionmodified added">Added in version 0.3: </span>..</p>
-</div>
 </dd>
 </dl>
 </dd></dl>
@@ -365,6 +366,9 @@
 </ol>
 <p>Hence, there may be numerical issues, but it provides a simple way to
 perform, e.g., <code class="docutils literal notranslate"><span class="pre">sin</span></code>, assuming that it is based on a look-up table.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.3.</span></p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -376,7 +380,7 @@ perform, e.g., <code class="docutils literal notranslate"><span class="pre">sin<
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>APyFloat, APyFixed, APyFixedArray, APyFloatArray</dt><dd></dd>
+<dt><a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>, <a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a>, <a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a>, <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></dt><dd></dd>
 </dl>
 </dd>
 </dl>
@@ -387,9 +391,6 @@ perform, e.g., <code class="docutils literal notranslate"><span class="pre">sin<
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fn</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
 <span class="go">APyFixed(18, bits=6, int_bits=1)</span>
 </pre></div>
-</div>
-<div class="versionadded">
-<p><span class="versionmodified added">Added in version 0.3.</span></p>
 </div>
 </dd></dl>
 

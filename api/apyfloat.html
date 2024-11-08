@@ -237,7 +237,8 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../examples/apyfloat.html">APyFloat</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/apyfixed.html">APyFixed</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/numpy.html">NumPy integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/numpy_integration.html">NumPy integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/vectorrotation.html">Fixed-point vector rotation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/test_fp8_mul.html">cocotb integration</a></li>
 </ul>
 </li>
@@ -441,7 +442,7 @@ Note that this formula still results in an IEEE-like bias when the inputs use IE
 </dd>
 <dt><strong>man_bits</strong><span class="classifier">int</span></dt><dd><p>Number of mantissa bits.</p>
 </dd>
-<dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
+<dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
 </dl>
 </dd>
@@ -470,7 +471,7 @@ Note that this formula still results in an IEEE-like bias when the inputs use IE
 </dd>
 <dt><strong>man_bits</strong><span class="classifier">int</span></dt><dd><p>Number of mantissa bits.</p>
 </dd>
-<dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
+<dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
 </dl>
 </dd>
@@ -509,7 +510,7 @@ Note that this formula still results in an IEEE-like bias when the inputs use IE
 </dd>
 <dt><strong>man_bits</strong><span class="classifier">int</span></dt><dd><p>Number of mantissa bits.</p>
 </dd>
-<dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
+<dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
 </dl>
 </dd>
@@ -552,7 +553,7 @@ APyTypes floating-point numbers.</p>
 </dd>
 <dt><strong>man_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of mantissa bits in the result.</p>
 </dd>
-<dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
+<dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
 <dt><strong>quantization</strong><span class="classifier"><a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode" title="apytypes.QuantizationMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode</span></code></a>, optional.</span></dt><dd><p>Quantization mode to use in this cast. If None, use the global
 quantization mode.</p>

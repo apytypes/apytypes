@@ -56,14 +56,31 @@ These are examples of how APyTypes can be used.
 
 .. only:: html
 
-  .. image:: /examples/images/thumb/sphx_glr_numpy_thumb.png
+  .. image:: /examples/images/thumb/sphx_glr_numpy_integration_thumb.png
     :alt:
 
-  :ref:`sphx_glr_examples_numpy.py`
+  :ref:`sphx_glr_examples_numpy_integration.py`
 
 .. raw:: html
 
       <div class="sphx-glr-thumbnail-title">NumPy integration</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This illustrates the effect of performing a vector rotation using different number of fractional bits and different quantization schemes.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_vectorrotation_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_vectorrotation.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Fixed-point vector rotation</div>
     </div>
 
 
@@ -96,7 +113,8 @@ These are examples of how APyTypes can be used.
 
    /examples/apyfloat
    /examples/apyfixed
-   /examples/numpy
+   /examples/numpy_integration
+   /examples/vectorrotation
    /examples/test_fp8_mul
 
 
