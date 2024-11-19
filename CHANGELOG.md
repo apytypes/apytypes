@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   correct type (scalar or array) depending on argument.
 - `fn` utility function to easily evaluate functions with APy-classes and get a
   result with the same format.
+- VHDL code generation for ROMs.
 
 ### Fixed
 
