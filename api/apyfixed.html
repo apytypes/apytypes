@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="APyFixedArray" href="apyfixedarray.html" /><link rel="prev" title="apytypes Python package" href="index.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="APyFixedArray" href="apyfixedarray.html" /><link rel="prev" title="APyCFixed" href="apycfixed.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>APyFixed - APyTypes documentation</title>
@@ -206,13 +206,14 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of apytypes Python package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="apycfixed.html"><code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="quantizationoverflow.html">Quantization and overflow handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="context.html">Context handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="arrayfunctions.html">Array functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="context.html">Context handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quantizationoverflow.html">Quantization and overflow handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html">Utility functions</a></li>
 </ul>
 </li>
@@ -326,9 +327,11 @@ uniquely determine the complete fixed-point format.</p>
 arithmetic operations. This ensures that overflow or quantization <strong>never</strong> occurs
 unless explicitly instructed to by a user through the <a class="reference internal" href="#apytypes.APyFixed.cast" title="apytypes.APyFixed.cast"><code class="xref py py-func docutils literal notranslate"><span class="pre">cast()</span></code></a> method. The following
 table shows word lengths of elementary arithmetic operations.</p>
+<p>For complex-valued fixed-point formats, see <a class="reference internal" href="apycfixed.html#apytypes.APyCFixed" title="apytypes.APyCFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixed</span></code></a>.</p>
 <div class="table-wrapper colwidths-given docutils container" id="id1">
 <table class="docutils align-default" id="id1">
-<caption><span class="caption-text">Word-length of fixed-point arithmetic operations</span><a class="headerlink" href="#id1" title="Link to this table">¶</a></caption>
+<caption><span class="caption-text">Word-length of fixed-point arithmetic operations using
+             <a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a></span><a class="headerlink" href="#id1" title="Link to this table">¶</a></caption>
 <colgroup>
 <col style="width: 12.0%" />
 <col style="width: 44.0%" />
@@ -354,7 +357,7 @@ table shows word lengths of elementary arithmetic operations.</p>
 <td><p><code class="code docutils literal notranslate"><span class="pre">a.frac_bits</span> <span class="pre">+</span> <span class="pre">b.frac_bits</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">a</span> <span class="pre">/</span> <span class="pre">b</span></code></p></td>
-<td><p><code class="code docutils literal notranslate"><span class="pre">a.int_bits</span> <span class="pre">+</span> <span class="pre">b.frac_bits</span></code></p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">a.int_bits</span> <span class="pre">+</span> <span class="pre">b.frac_bits</span> <span class="pre">+</span> <span class="pre">1</span></code></p></td>
 <td><p><code class="code docutils literal notranslate"><span class="pre">a.frac_bits</span> <span class="pre">+</span> <span class="pre">b.int_bits</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">-a</span></code></p></td>
@@ -759,14 +762,14 @@ fixed-point value.</p>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="index.html">
+          <a class="prev-page" href="apycfixed.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</div>
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code></div>
                 
               </div>
             </a>

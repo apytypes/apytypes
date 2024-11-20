@@ -206,13 +206,14 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of apytypes Python package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/apycfixed.html"><code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/quantizationoverflow.html">Quantization and overflow handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/context.html">Context handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/arrayfunctions.html">Array functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/context.html">Context handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/quantizationoverflow.html">Quantization and overflow handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/utils.html">Utility functions</a></li>
 </ul>
 </li>
@@ -309,12 +310,20 @@ missing it.</p></li>
 correct type (scalar or array) depending on argument.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">fn</span></code> utility function to easily evaluate functions with APy-classes and get a
 result with the same format.</p></li>
+<li><p>New complex-valued data types:</p>
+<ul>
+<li><p><cite>``APyCFixed`</cite> &lt;<a class="reference external" href="https://apytypes.github.io/apytypes/api/apycfixed.html">https://apytypes.github.io/apytypes/api/apycfixed.html</a>&gt;`_, a
+scalar fixed-point complex type.</p></li>
+</ul>
+</li>
 </ul>
 </section>
 <section id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>APyTypes contexts now supports multi-threading.</p></li>
+<li><p>Incorrect fixed-point quantization in <code class="docutils literal notranslate"><span class="pre">RND_INF</span></code> and <code class="docutils literal notranslate"><span class="pre">RND_MIN_INF</span></code> when source
+has multiple of 64 bits.</p></li>
 </ul>
 </section>
 <section id="changed">

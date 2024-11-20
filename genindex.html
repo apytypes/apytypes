@@ -204,13 +204,14 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of apytypes Python package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/apycfixed.html"><code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/quantizationoverflow.html">Quantization and overflow handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/context.html">Context handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/arrayfunctions.html">Array functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/context.html">Context handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/quantizationoverflow.html">Quantization and overflow handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/utils.html">Utility functions</a></li>
 </ul>
 </li>
@@ -289,9 +290,11 @@
   <h2>_</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api/apyfixed.html#apytypes.APyFixed.__init__">__init__() (apytypes.APyFixed method)</a>
+        <li><a href="api/apycfixed.html#apytypes.APyCFixed.__init__">__init__() (apytypes.APyCFixed method)</a>
 
         <ul>
+          <li><a href="api/apyfixed.html#apytypes.APyFixed.__init__">(apytypes.APyFixed method)</a>
+</li>
           <li><a href="api/context.html#apytypes.APyFixedAccumulatorContext.__init__">(apytypes.APyFixedAccumulatorContext method)</a>
 </li>
           <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.__init__">(apytypes.APyFixedArray method)</a>
@@ -323,10 +326,10 @@
 </li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv415_MAN_LIMIT_BITS">_MAN_LIMIT_BITS (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv416_MAN_T_SIZE_BITS">_MAN_T_SIZE_BITS (C++ member)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv416_MAN_T_SIZE_BITS">_MAN_T_SIZE_BITS (C++ member)</a>
+</li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv417_MAN_T_SIZE_BYTES">_MAN_T_SIZE_BYTES (C++ member)</a>
 </li>
         <li><a href="cpp_api/apyfixed_util.html#_CPPv4I0E21_overflow_numeric_stdv22RANDOM_ACCESS_ITERATOR22RANDOM_ACCESS_ITERATORii">_overflow_numeric_std (C++ function)</a>
@@ -400,6 +403,8 @@
         <li><a href="cpp_api/apybuffer.html#_CPPv4NK9APyBuffer4sizeEv">APyBuffer::size (C++ function)</a>
 </li>
         <li><a href="cpp_api/apybuffer.html#_CPPv4N9APyBuffer11vector_typeE">APyBuffer::vector_type (C++ type)</a>
+</li>
+        <li><a href="api/apycfixed.html#apytypes.APyCFixed">APyCFixed (class in apytypes)</a>
 </li>
         <li><a href="cpp_api/apyfixed.html#_CPPv48APyFixed">APyFixed (C++ class)</a>
 
@@ -496,8 +501,6 @@
         <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed4reprEv">APyFixed::repr (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixed.html#_CPPv4NK8APyFixed12same_type_asERK8APyFixed">APyFixed::same_type_as (C++ function)</a>
-</li>
-        <li><a href="cpp_api/apyfixed.html#_CPPv4N8APyFixed15set_from_doubleEd">APyFixed::set_from_double (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixed.html#_CPPv4N8APyFixed15set_from_stringERKNSt6stringEi">APyFixed::set_from_string (C++ function)</a>
 </li>
@@ -1051,9 +1054,11 @@
         </ul></li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E9bit_widthNSt6size_tE8INT_TYPE">bit_width (C++ function)</a>
 </li>
-        <li><a href="api/apyfixed.html#apytypes.APyFixed.bits">bits (apytypes.APyFixed property)</a>
+        <li><a href="api/apycfixed.html#apytypes.APyCFixed.bits">bits (apytypes.APyCFixed property)</a>
 
         <ul>
+          <li><a href="api/apyfixed.html#apytypes.APyFixed.bits">(apytypes.APyFixed property)</a>
+</li>
           <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.bits">(apytypes.APyFixedArray property)</a>
 </li>
           <li><a href="api/apyfloat.html#apytypes.APyFloat.bits">(apytypes.APyFloat property)</a>
@@ -1089,9 +1094,11 @@
 </li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv417calc_bias_generalii5exp_ti5exp_t">calc_bias_general (C++ function)</a>
 </li>
-        <li><a href="api/apyfixed.html#apytypes.APyFixed.cast">cast() (apytypes.APyFixed method)</a>
+        <li><a href="api/apycfixed.html#apytypes.APyCFixed.cast">cast() (apytypes.APyCFixed method)</a>
 
         <ul>
+          <li><a href="api/apyfixed.html#apytypes.APyFixed.cast">(apytypes.APyFixed method)</a>
+</li>
           <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.cast">(apytypes.APyFixedArray method)</a>
 </li>
           <li><a href="api/apyfloat.html#apytypes.APyFloat.cast">(apytypes.APyFloat method)</a>
@@ -1125,9 +1132,13 @@
         </ul></li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv421check_exponent_formati">check_exponent_format (C++ function)</a>
 </li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv421check_mantissa_formati">check_mantissa_format (C++ function)</a>
+</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv421check_mantissa_formati">check_mantissa_format (C++ function)</a>
+        <li><a href="cpp_api/apyfixed_util.html#_CPPv4I000E28complex_fixed_point_divisionv25RANDOM_ACCESS_ITERATOR_IN25RANDOM_ACCESS_ITERATOR_IN26RANDOM_ACCESS_ITERATOR_OUTNSt6size_tENSt6size_tENSt6size_tENSt6size_tENSt6size_tE28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUT">complex_fixed_point_division (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed_util.html#_CPPv4I000E27complex_fixed_point_productv25RANDOM_ACCESS_ITERATOR_IN25RANDOM_ACCESS_ITERATOR_IN26RANDOM_ACCESS_ITERATOR_OUTNSt6size_tENSt6size_tENSt6size_tE28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUT">complex_fixed_point_product (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_common.html#_CPPv414ContextManager">ContextManager (C++ class)</a>
 </li>
@@ -1235,13 +1246,21 @@
   <h2>F</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/apyfixed_util.html#_CPPv4I0E23fixed_point_from_doublevd16RANDOM_ACCESS_IT16RANDOM_ACCESS_ITii">fixed_point_from_double (C++ function)</a>
+</li>
         <li><a href="cpp_api/apyfixed_util.html#_CPPv4I00E28fixed_point_hadamard_productv25RANDOM_ACCESS_ITERATOR_IN25RANDOM_ACCESS_ITERATOR_IN26RANDOM_ACCESS_ITERATOR_OUTNSt6size_tENSt6size_tENSt6size_tENSt6size_tE">fixed_point_hadamard_product (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixed_util.html#_CPPv4I00E25fixed_point_inner_productv25RANDOM_ACCESS_ITERATOR_IN25RANDOM_ACCESS_ITERATOR_IN26RANDOM_ACCESS_ITERATOR_OUTNSt6size_tENSt6size_tENSt6size_tENSt6size_tE">fixed_point_inner_product (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixed_util.html#_CPPv4I00E37fixed_point_inner_product_accumulatorv25RANDOM_ACCESS_ITERATOR_IN25RANDOM_ACCESS_ITERATOR_IN26RANDOM_ACCESS_ITERATOR_OUTNSt6size_tENSt6size_tENSt6size_tENSt6size_tEiiRK25APyFixedAccumulatorOption">fixed_point_inner_product_accumulator (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfixed_util.html#_CPPv4I0000E19fixed_point_productv25RANDOM_ACCESS_ITERATOR_IN25RANDOM_ACCESS_ITERATOR_IN26RANDOM_ACCESS_ITERATOR_OUTNSt6size_tENSt6size_tENSt6size_tER15OP_ABS_VECTOR_TR15OP_ABS_VECTOR_TR17PROD_ABS_VECTOR_T">fixed_point_product (C++ function)</a>
+        <li><a href="cpp_api/apyfixed_util.html#_CPPv4I000E19fixed_point_productv25RANDOM_ACCESS_ITERATOR_IN25RANDOM_ACCESS_ITERATOR_IN26RANDOM_ACCESS_ITERATOR_OUTNSt6size_tENSt6size_tENSt6size_tE28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUT">fixed_point_product (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed_util.html#_CPPv4I000E18fixed_point_squarev25RANDOM_ACCESS_ITERATOR_IN26RANDOM_ACCESS_ITERATOR_OUTNSt6size_tENSt6size_tE28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUT">fixed_point_square (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed_util.html#_CPPv4I0E21fixed_point_to_doubled16RANDOM_ACCESS_IT16RANDOM_ACCESS_ITii">fixed_point_to_double (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixed_util.html#_CPPv4I0E25fixed_point_to_string_decNSt6stringE16RANDOM_ACCESS_IT16RANDOM_ACCESS_ITii">fixed_point_to_string_dec (C++ function)</a>
 </li>
         <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.flatten">flatten() (apytypes.APyFixedArray method)</a>
 
@@ -1259,9 +1278,11 @@
 </li>
         <li><a href="api/utils.html#apytypes.fp">fp() (in module apytypes)</a>
 </li>
-        <li><a href="api/apyfixed.html#apytypes.APyFixed.frac_bits">frac_bits (apytypes.APyFixed property)</a>
+        <li><a href="api/apycfixed.html#apytypes.APyCFixed.frac_bits">frac_bits (apytypes.APyCFixed property)</a>
 
         <ul>
+          <li><a href="api/apyfixed.html#apytypes.APyFixed.frac_bits">(apytypes.APyFixed property)</a>
+</li>
           <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.frac_bits">(apytypes.APyFixedArray property)</a>
 </li>
         </ul></li>
@@ -1275,9 +1296,13 @@
         </ul></li>
         <li><a href="api/apyfloat.html#apytypes.APyFloat.from_bits">from_bits() (apytypes.APyFloat method)</a>
 </li>
-        <li><a href="api/apyfixed.html#apytypes.APyFixed.from_float">from_float() (apytypes.APyFixed method)</a>
+        <li><a href="api/apycfixed.html#apytypes.APyCFixed.from_complex">from_complex() (apytypes.APyCFixed method)</a>
+</li>
+        <li><a href="api/apycfixed.html#apytypes.APyCFixed.from_float">from_float() (apytypes.APyCFixed method)</a>
 
         <ul>
+          <li><a href="api/apyfixed.html#apytypes.APyFixed.from_float">(apytypes.APyFixed method)</a>
+</li>
           <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.from_float">(apytypes.APyFixedArray method)</a>
 </li>
           <li><a href="api/apyfloat.html#apytypes.APyFloat.from_float">(apytypes.APyFloat method)</a>
@@ -1349,11 +1374,15 @@
           <li><a href="api/arrayfunctions.html#apytypes.identity">(in module apytypes)</a>
 </li>
         </ul></li>
+        <li><a href="api/apycfixed.html#apytypes.APyCFixed.imag">imag (apytypes.APyCFixed property)</a>
+</li>
         <li><a href="cpp_api/apyfixed_util.html#_CPPv4I0E32inner_product_func_from_acc_modeNSt8functionIFvN11VECTOR_TYPE14const_iteratorEN11VECTOR_TYPE14const_iteratorEN11VECTOR_TYPE8iteratorENSt6size_tENSt6size_tENSt6size_tENSt6size_tEEEEiiRKNSt8optionalI25APyFixedAccumulatorOptionEE">inner_product_func_from_acc_mode (C++ function)</a>
 </li>
-        <li><a href="api/apyfixed.html#apytypes.APyFixed.int_bits">int_bits (apytypes.APyFixed property)</a>
+        <li><a href="api/apycfixed.html#apytypes.APyCFixed.int_bits">int_bits (apytypes.APyCFixed property)</a>
 
         <ul>
+          <li><a href="api/apyfixed.html#apytypes.APyFixed.int_bits">(apytypes.APyFixed property)</a>
+</li>
           <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.int_bits">(apytypes.APyFixedArray property)</a>
 </li>
         </ul></li>
@@ -1363,9 +1392,11 @@
 </li>
         <li><a href="api/apyfloat.html#apytypes.APyFloat.is_finite">is_finite (apytypes.APyFloat property)</a>
 </li>
-        <li><a href="api/apyfixed.html#apytypes.APyFixed.is_identical">is_identical() (apytypes.APyFixed method)</a>
+        <li><a href="api/apycfixed.html#apytypes.APyCFixed.is_identical">is_identical() (apytypes.APyCFixed method)</a>
 
         <ul>
+          <li><a href="api/apyfixed.html#apytypes.APyFixed.is_identical">(apytypes.APyFixed method)</a>
+</li>
           <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.is_identical">(apytypes.APyFixedArray method)</a>
 </li>
           <li><a href="api/apyfloat.html#apytypes.APyFloat.is_identical">(apytypes.APyFloat method)</a>
@@ -1399,9 +1430,11 @@
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv431is_valid_decimal_numeric_stringRKNSt6stringE">is_valid_decimal_numeric_string (C++ function)</a>
 </li>
-        <li><a href="api/apyfixed.html#apytypes.APyFixed.is_zero">is_zero (apytypes.APyFixed property)</a>
+        <li><a href="api/apycfixed.html#apytypes.APyCFixed.is_zero">is_zero (apytypes.APyCFixed property)</a>
 
         <ul>
+          <li><a href="api/apyfixed.html#apytypes.APyFixed.is_zero">(apytypes.APyFixed property)</a>
+</li>
           <li><a href="api/apyfloat.html#apytypes.APyFloat.is_zero">(apytypes.APyFloat property)</a>
 </li>
           <li><a href="cpp_api/apyfloat_util.html#_CPPv47is_zeroRK12APyFloatData">(C++ function)</a>
@@ -1767,6 +1800,8 @@
           <li><a href="api/arrayfunctions.html#apytypes.ravel">(in module apytypes)</a>
 </li>
         </ul></li>
+        <li><a href="api/apycfixed.html#apytypes.APyCFixed.real">real (apytypes.APyCFixed property)</a>
+</li>
         <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.reshape">reshape() (apytypes.APyFixedArray method)</a>
 
         <ul>
@@ -2053,9 +2088,11 @@
 </li>
         <li><a href="api/quantizationoverflow.html#apytypes.QuantizationMode.TO_AWAY">TO_AWAY (apytypes.QuantizationMode attribute)</a>
 </li>
-        <li><a href="api/apyfixed.html#apytypes.APyFixed.to_bits">to_bits() (apytypes.APyFixed method)</a>
+        <li><a href="api/apycfixed.html#apytypes.APyCFixed.to_bits">to_bits() (apytypes.APyCFixed method)</a>
 
         <ul>
+          <li><a href="api/apyfixed.html#apytypes.APyFixed.to_bits">(apytypes.APyFixed method)</a>
+</li>
           <li><a href="api/apyfixedarray.html#apytypes.APyFixedArray.to_bits">(apytypes.APyFixedArray method)</a>
 </li>
           <li><a href="api/apyfloat.html#apytypes.APyFloat.to_bits">(apytypes.APyFloat method)</a>
