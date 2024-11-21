@@ -78,17 +78,17 @@ APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end)
     : APyFixed(bits, int_bits)
 {
     assert(std::distance(begin, end) >= 0);
-    assert(std::distance(begin, end) <= ptrdiff_t(bits_to_limbs(bits)));
 
     // Copy data into resulting vector
-    std::copy(begin, end, _data.begin());
+    std::size_t it_elements = std::distance(begin, end);
+    std::copy_n(begin, std::min(vector_size(), it_elements), std::begin(_data));
 
     // Two's-complements overflow bits outside of the range
-    _overflow_twos_complement(_data.begin(), _data.end(), _bits, _int_bits);
+    _overflow_twos_complement(std::begin(_data), std::end(_data), _bits, _int_bits);
 }
 
 APyFixed::APyFixed(int bits, int int_bits, const std::vector<mp_limb_t>& vec)
-    : APyFixed(bits, int_bits, vec.begin(), vec.end())
+    : APyFixed(bits, int_bits, std::begin(vec), std::end(vec))
 {
 }
 

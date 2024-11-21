@@ -1047,47 +1047,6 @@ APyFloatArray APyFloatArray::identity(
     return eye(N, exp_bits, man_bits, std::nullopt, bias);
 }
 
-APyFloatArray APyFloatArray::full(const nb::tuple& shape, const APyFloat& fill_value)
-{
-    std::vector<std::size_t> cpp_shape = cpp_shape_from_python_shape_like(shape);
-    APyFloatArray result(
-        cpp_shape,
-        fill_value.get_exp_bits(),
-        fill_value.get_man_bits(),
-        fill_value.get_bias()
-    );
-
-    std::size_t num_elem = ::fold_shape(cpp_shape);
-    result._data = std::vector<APyFloatData>(num_elem, fill_value.get_data());
-    return result;
-}
-
-APyFloatArray
-APyFloatArray::diagonal(const nb::tuple& shape, const APyFloat& fill_value)
-{
-    std::vector<std::size_t> new_shape = cpp_shape_from_python_shape_like(shape);
-    if (new_shape.size() > 2) {
-        throw nb::value_error(
-            "Creating higher dimensional diagonal arrays are not yet defined"
-        );
-    }
-    APyFloatArray result(
-        new_shape,
-        fill_value.get_exp_bits(),
-        fill_value.get_man_bits(),
-        fill_value.get_bias()
-    );
-
-    std::size_t min_dim = *std::min_element(new_shape.begin(), new_shape.end());
-    std::vector<std::size_t> strides = ::strides_from_shape(new_shape);
-    std::size_t multiplier = std::accumulate(strides.begin(), strides.end(), 0);
-    for (std::size_t i = 0; i < min_dim; ++i) {
-        std::size_t index = i * multiplier;
-        result._data[index] = fill_value.get_data();
-    }
-    return result;
-}
-
 APyFloatArray APyFloatArray::arange(
     const nb::object& start,
     const nb::object& stop,

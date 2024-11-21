@@ -70,16 +70,16 @@ private:
 public:
     //! Copy `n` items from `it` into `*this`
     template <typename RANDOM_ACCESS_ITERATOR>
-    void copy_n_from(RANDOM_ACCESS_ITERATOR it, std::size_t n) noexcept
+    void copy_n_from(RANDOM_ACCESS_ITERATOR src_it, std::size_t n) noexcept
     {
-        std::copy_n(it, n, std::begin(_data));
+        std::copy_n(src_it, n, std::begin(_data));
     }
 
     //! Copy `n` items from `*this` into `it`
     template <typename RANDOM_ACCESS_ITERATOR>
-    void copy_n_to(RANDOM_ACCESS_ITERATOR it, std::size_t n) const noexcept
+    void copy_n_to(RANDOM_ACCESS_ITERATOR dst_it, std::size_t n) const noexcept
     {
-        std::copy_n(std::begin(_data), n, it);
+        std::copy_n(std::begin(_data), n, dst_it);
     }
 
     //! Test if two fixed-point numbers have the same bit specifiers

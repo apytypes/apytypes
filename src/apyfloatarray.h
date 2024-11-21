@@ -49,6 +49,14 @@ public:
         return APyFloatArray(shape, exp_bits, man_bits, bias);
     }
 
+    static APyFloatArray
+    create_array_static(const std::vector<std::size_t>& shape, const APyFloat& flt)
+    {
+        return APyFloatArray(
+            shape, flt.get_exp_bits(), flt.get_man_bits(), flt.get_bias()
+        );
+    }
+
     //! Test if two floating-point vectors have the same bit specifiers
     APY_INLINE bool same_type_as(const APyFloatArray& other) const
     {
@@ -173,12 +181,6 @@ public:
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
-
-    //! Create an `APyFloatArray` initialized with a specified fill value
-    static APyFloatArray full(const nb::tuple& shape, const APyFloat& fill_value);
-
-    //! Create an `APyFloatArray` with a specified diagonal value
-    static APyFloatArray diagonal(const nb::tuple& shape, const APyFloat& fill_value);
 
     //! Create an `APyFloatArray` with evenly spaced values within a given interval
     static APyFloatArray arange(

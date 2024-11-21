@@ -1315,81 +1315,81 @@ void fixed_point_from_double(
     uint64_t man = man_of_double(value);
 
     // Left-shift amount needed to align floating binary point with fixed binary point
-    int left_shift_amnt;
+    int left_shift_amnt = exp + frac_bits - 52 - 1023 + 1;
     if (exp) {
         // Append mantissa hidden one
         man |= uint64_t(1) << 52;
-        left_shift_amnt = exp + frac_bits - 52 - 1023;
-    } else {
-        left_shift_amnt = exp + frac_bits - 52 - 1023 + 1;
+        left_shift_amnt--;
     }
 
     if constexpr (_LIMB_SIZE_BITS == 64) {
 
-        *begin_it = man;
+        /*
+         * Limb vector size is wide enough to accommodate the full mantissa of a
+         * double-prection floating point number
+         */
+
         if (left_shift_amnt >= 0) {
+            *begin_it = man;
             limb_vector_lsl(begin_it, end_it, left_shift_amnt);
         } else {
             auto right_shift_amount = -left_shift_amnt;
-            if (right_shift_amount - 1 < 64) {
-                // Round the value
-                *begin_it += mp_limb_t(1) << (right_shift_amount - 1);
+            if (right_shift_amount < 64) {
+                // Round the mantissa value
+                man += uint64_t(1) << (right_shift_amount - 1);
             }
+            *begin_it = man;
             limb_vector_lsr(begin_it, end_it, right_shift_amount);
         }
 
-        // Adjust result from sign
-        if (sign_of_double(value)) {
-            limb_vector_negate(begin_it, end_it, begin_it);
-        }
-        _overflow_twos_complement(begin_it, end_it, bits, int_bits);
-
     } else { /* _LIMB_SIZE_BITS == 32 */
 
-        // Vector that can store the full mantissa (2 * 32-bit). To be used if the
-        // fixed-point number is only a single limb.
-        ScratchVector<mp_limb_t> tmp_vec;
-        if (std::distance(begin_it, end_it) == 1) {
-            tmp_vec = ScratchVector { man & 0xFFFFFFFF, man >> 32 };
-        } else {
-            *(begin_it + 0) = man & 0xFFFFFFFF;
-            *(begin_it + 1) = mp_limb_t(man >> 32);
-        }
+        /*
+         * Limb vector size is *NOT* wide enough to accommodate the full mantissa of a
+         * double-prection floating point number
+         */
 
-        auto begin_it_w = tmp_vec.size() ? std::begin(tmp_vec) : begin_it;
-        auto end_it_w = tmp_vec.size() ? std::end(tmp_vec) : end_it;
-        if (left_shift_amnt >= 0) {
-            limb_vector_lsl(begin_it_w, end_it_w, left_shift_amnt);
-        } else {
-            auto right_shift_amount = -left_shift_amnt;
-            if (right_shift_amount - 1 < 64) {
-                // Round the value
-                if (right_shift_amount - 1 >= 32) {
-                    *(begin_it_w + 1) += mp_limb_t(1) << (right_shift_amount - 1 - 32);
-                } else {
-                    // The mantissa is at most 53 bits (two limbs)
-                    mpn_add_1(
-                        &*begin_it_w,                            // dst
-                        &*begin_it_w,                            // src
-                        2,                                       // limb vector len
-                        mp_limb_t(1) << (right_shift_amount - 1) // single limb
-                    );
+        if (std::distance(begin_it, end_it) == 1) {
+
+            if (left_shift_amnt >= 0) {
+                if (left_shift_amnt < 32) {
+                    man <<= left_shift_amnt;
+                    *(begin_it + 0) = (man & 0xFFFFFFFF);
+                }
+            } else {
+                auto right_shift_amount = -left_shift_amnt;
+                if (right_shift_amount < 64) {
+                    // Round the mantissa value
+                    man += uint64_t(1) << (right_shift_amount - 1);
+                    man >>= right_shift_amount;
+                    *(begin_it + 0) = (man & 0xFFFFFFFF);
                 }
             }
-            limb_vector_lsr(begin_it_w, end_it_w, right_shift_amount);
-        }
 
-        // Adjust result from sign
-        if (sign_of_double(value)) {
-            limb_vector_negate(begin_it_w, end_it_w, begin_it_w);
-        }
-        _overflow_twos_complement(begin_it_w, end_it_w, bits, int_bits);
+        } else { /* std::distance(begin_it, end_it > 1 */
 
-        // Possibly copy from the temporary vector
-        if (tmp_vec.size()) {
-            std::copy_n(begin_it_w, 1, begin_it);
+            if (left_shift_amnt >= 0) {
+                *(begin_it + 0) = (man & 0xFFFFFFFF);
+                *(begin_it + 1) = (man >> 32);
+                limb_vector_lsl(begin_it, end_it, left_shift_amnt);
+            } else {
+                auto right_shift_amount = -left_shift_amnt;
+                if (right_shift_amount < 64) {
+                    // Round the mantissa value
+                    man += uint64_t(1) << (right_shift_amount - 1);
+                }
+                *(begin_it + 0) = (man & 0xFFFFFFFF);
+                *(begin_it + 1) = (man >> 32);
+                limb_vector_lsr(begin_it, end_it, right_shift_amount);
+            }
         }
     }
+
+    // Adjust result from sign
+    if (sign_of_double(value)) {
+        limb_vector_negate(begin_it, end_it, begin_it);
+    }
+    _overflow_twos_complement(begin_it, end_it, bits, int_bits);
 }
 
 template <typename RANDOM_ACCESS_IT>

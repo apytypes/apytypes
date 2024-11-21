@@ -75,6 +75,12 @@ public:
         return APyFixedArray(shape, _bits, _int_bits);
     }
 
+    static APyFixedArray
+    create_array_static(const std::vector<std::size_t>& shape, const APyFixed& fix)
+    {
+        return APyFixedArray(shape, fix._bits, fix._int_bits);
+    }
+
     //! Test if two fixed-point vectors have the same bit specifiers
     APY_INLINE bool same_type_as(const APyFixedArray& other) const
     {
@@ -363,12 +369,6 @@ public:
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
     );
-
-    //! Create an `APyFixedArray` initialized with a specified fill value
-    static APyFixedArray full(const nb::tuple& shape, const APyFixed& fill_value);
-
-    //! Create an `APyFixedArray` with a specified diagonal value
-    static APyFixedArray diagonal(const nb::tuple& shape, const APyFixed& fill_value);
 
     //! Create an `APyFixedArray` with evenly spaced values within a given interval
     static APyFixedArray arange(

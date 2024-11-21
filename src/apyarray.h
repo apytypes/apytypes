@@ -18,6 +18,7 @@
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
 namespace nb = nanobind;
 
+#include <algorithm>   // std::min_element
 #include <cassert>     // assert
 #include <iterator>    // std::begin
 #include <set>         // std::set
@@ -842,6 +843,44 @@ public:
         transpose_axes_and_copy_data(
             std::begin(_data), std::begin(result._data), _shape, new_axis, _itemsize
         );
+        return result;
+    }
+
+    /* ****************************************************************************** *
+     * *                 Static creation methods for common tensors                 * *
+     * ****************************************************************************** */
+
+    //! Create a tensor of `shape` and fill all elements using `fill_value`
+    static ARRAY_TYPE
+    full(const nb::tuple& shape, const scalar_variant_t<ARRAY_TYPE>& fill_value)
+    {
+        auto cpp_shape = cpp_shape_from_python_shape_like(shape);
+        ARRAY_TYPE result = ARRAY_TYPE::create_array_static(cpp_shape, fill_value);
+        for (std::size_t i = 0; i < result._nitems; ++i) {
+            auto dst_it = std::begin(result._data) + i * result._itemsize;
+            fill_value.copy_n_to(dst_it, result._itemsize);
+        }
+        return result;
+    }
+
+    //! Create a tensor of `shape` with diagonal elements set to `diag_value`
+    static ARRAY_TYPE
+    diagonal(const nb::tuple& shape, const scalar_variant_t<ARRAY_TYPE>& diag_value)
+    {
+        auto cpp_shape = cpp_shape_from_python_shape_like(shape);
+        if (cpp_shape.size() > 2) {
+            throw nb::value_error("Diagonal tensors with `ndim > 2` not defined");
+        }
+        ARRAY_TYPE result = ARRAY_TYPE::create_array_static(cpp_shape, diag_value);
+
+        auto min_dim = *std::min_element(cpp_shape.begin(), cpp_shape.end());
+        auto strides = strides_from_shape(cpp_shape);
+        auto stride_sum = std::accumulate(std::begin(strides), std::end(strides), 0);
+
+        for (std::size_t i = 0; i < min_dim; ++i) {
+            auto dst_it = std::begin(result._data) + i * stride_sum * result._itemsize;
+            diag_value.copy_n_to(dst_it, result._itemsize);
+        }
         return result;
     }
 
