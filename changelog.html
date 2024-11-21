@@ -312,8 +312,7 @@ correct type (scalar or array) depending on argument.</p></li>
 result with the same format.</p></li>
 <li><p>New complex-valued data types:</p>
 <ul>
-<li><p><cite>``APyCFixed`</cite> &lt;<a class="reference external" href="https://apytypes.github.io/apytypes/api/apycfixed.html">https://apytypes.github.io/apytypes/api/apycfixed.html</a>&gt;`_, a
-scalar fixed-point complex type.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code>, a scalar fixed-point complex type.</p></li>
 </ul>
 </li>
 </ul>
@@ -324,6 +323,7 @@ scalar fixed-point complex type.</p></li>
 <li><p>APyTypes contexts now supports multi-threading.</p></li>
 <li><p>Incorrect fixed-point quantization in <code class="docutils literal notranslate"><span class="pre">RND_INF</span></code> and <code class="docutils literal notranslate"><span class="pre">RND_MIN_INF</span></code> when source
 has multiple of 64 bits.</p></li>
+<li><p>Incorrect fixed-point rounding in <code class="docutils literal notranslate"><span class="pre">APyFixedArray.from_array</span></code> on Windows.</p></li>
 </ul>
 </section>
 <section id="changed">
