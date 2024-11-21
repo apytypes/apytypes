@@ -422,22 +422,22 @@ private:
 public:
     //! Copy `n` items from `it` into `*this`
     template <typename RANDOM_ACCESS_ITERATOR>
-    void copy_n_from(RANDOM_ACCESS_ITERATOR it, std::size_t n) noexcept
+    void copy_n_from(RANDOM_ACCESS_ITERATOR src_it, std::size_t n) noexcept
     {
         assert(n == 1);
-        sign = it->sign;
-        man = it->man;
-        exp = it->exp;
+        sign = src_it->sign;
+        man = src_it->man;
+        exp = src_it->exp;
     }
 
     //! Copy `n` items from `*this` into `it`
     template <typename RANDOM_ACCESS_ITERATOR>
-    void copy_n_to(RANDOM_ACCESS_ITERATOR it, std::size_t n) const noexcept
+    void copy_n_to(RANDOM_ACCESS_ITERATOR dst_it, std::size_t n) const noexcept
     {
         assert(n == 1);
-        it->sign = sign;
-        it->man = man;
-        it->exp = exp;
+        dst_it->sign = sign;
+        dst_it->man = man;
+        dst_it->exp = exp;
     }
 
     //! Test if two floating-point numbers have the same bit specifiers

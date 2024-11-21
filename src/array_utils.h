@@ -132,16 +132,14 @@ static APY_INLINE std::vector<APyFixed>
 arange(const nb::object& start, const nb::object& stop, const nb::object& step)
 {
     const APyFixed apy_step = to_apyfixed(step);
+    const APyFixed apy_start = to_apyfixed(start);
+    const APyFixed apy_stop = to_apyfixed(stop);
 
     if (apy_step.is_zero()) {
         throw nb::value_error("Step size cannot be zero");
     }
 
-    const APyFixed apy_start = to_apyfixed(start);
-    const APyFixed apy_stop = to_apyfixed(stop);
-
-    if (!(apy_start < apy_stop && !apy_step.is_negative()
-        ) // until 'is_positive()' works again
+    if (!(apy_start < apy_stop && apy_step.is_positive())
         && !(apy_start > apy_stop && apy_step.is_negative())) {
         throw nb::value_error("Undefined inputs");
     }

@@ -1708,45 +1708,6 @@ APyFixedArray APyFixedArray::identity(
     return eye(N, std::nullopt, int_bits, frac_bits, bits);
 }
 
-APyFixedArray APyFixedArray::full(const nb::tuple& shape, const APyFixed& fill_value)
-{
-    std::vector<std::size_t> cpp_shape = cpp_shape_from_python_shape_like(shape);
-    APyFixedArray result(cpp_shape, fill_value.bits(), fill_value.int_bits());
-
-    for (std::size_t i = 0; i < result._nitems; ++i) {
-        std::copy_n(
-            std::begin(fill_value._data),
-            result._itemsize,
-            std::begin(result._data) + i * result._itemsize
-        );
-    }
-    return result;
-}
-
-APyFixedArray
-APyFixedArray::diagonal(const nb::tuple& shape, const APyFixed& fill_value)
-{
-    std::vector<std::size_t> new_shape = cpp_shape_from_python_shape_like(shape);
-    if (new_shape.size() > 2) {
-        throw nb::value_error(
-            "Creating higher dimensional diagonal arrays are not yet defined"
-        );
-    }
-    APyFixedArray result(new_shape, fill_value.bits(), fill_value.int_bits());
-    std::size_t itemsize = result._itemsize;
-
-    std::size_t min_dim = *std::min_element(new_shape.begin(), new_shape.end());
-    std::vector<std::size_t> strides = ::strides_from_shape(new_shape);
-
-    for (std::size_t i = 0; i < min_dim; ++i) {
-        std::size_t index = i * std::accumulate(strides.begin(), strides.end(), 0);
-        std::copy_n(
-            fill_value._data.begin(), itemsize, result._data.begin() + index * itemsize
-        );
-    }
-    return result;
-}
-
 APyFixedArray APyFixedArray::arange(
     const nb::object& start,
     const nb::object& stop,
@@ -2114,24 +2075,14 @@ void APyFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& nd
     do {                                                                               \
         if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
             auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
-            if (unsigned(_bits) <= _LIMB_SIZE_BITS) {                                  \
-                int fr_bits = frac_bits();                                             \
-                unsigned limb_shift_val = bits() & (_LIMB_SIZE_BITS - 1);              \
-                auto shft_amnt = _LIMB_SIZE_BITS - limb_shift_val;                     \
-                for (std::size_t i = 0; i < ndarray.size(); i++) {                     \
-                    double data = static_cast<double>(ndarray_view.data()[i]);         \
-                    _data[i] = get_data_from_double(data, bits(), fr_bits, shft_amnt); \
-                }                                                                      \
-            } else {                                                                   \
-                for (std::size_t i = 0; i < ndarray.size(); i++) {                     \
-                    fixed_point_from_double(                                           \
-                        static_cast<double>(ndarray_view.data()[i]),                   \
-                        std::begin(_data) + (i + 0) * _itemsize,                       \
-                        std::begin(_data) + (i + 1) * _itemsize,                       \
-                        _bits,                                                         \
-                        _int_bits                                                      \
-                    );                                                                 \
-                }                                                                      \
+            for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
+                fixed_point_from_double(                                               \
+                    static_cast<double>(ndarray_view.data()[i]),                       \
+                    std::begin(_data) + (i + 0) * _itemsize,                           \
+                    std::begin(_data) + (i + 1) * _itemsize,                           \
+                    _bits,                                                             \
+                    _int_bits                                                          \
+                );                                                                     \
             }                                                                          \
             return; /* Conversion completed, exit `_set_values_from_ndarray()` */      \
         }                                                                              \
