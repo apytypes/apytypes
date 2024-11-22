@@ -3,7 +3,13 @@ import math
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 import warnings
 
-from apytypes._apytypes import APyFixed, APyFixedArray, APyFloat, APyFloatArray
+from apytypes._apytypes import (
+    APyCFixed,
+    APyFixed,
+    APyFixedArray,
+    APyFloat,
+    APyFloatArray,
+)
 
 
 def fx(
@@ -11,12 +17,15 @@ def fx(
     int_bits: Optional[int] = None,
     frac_bits: Optional[int] = None,
     bits: Optional[int] = None,
-) -> Union[APyFixed, APyFixedArray]:
+    force_complex: bool = False,
+) -> Union[APyCFixed, APyFixed, APyFixedArray]:
     """
-    Create an :class:`APyFixed` or :class:`APyFixedArray` object.
+    Create an :class:`APyFixed`, :class:`APyCFixed` or :class:`APyFixedArray` object.
 
-    Convenience method that applies :func:`APyFixed.from_float` or
+    Convenience method that applies :func:`APyFixed.from_float`, :func:`APyCFixed.from_complex` or
     :func:`APyFixedArray.from_float` depending on if the input, *value*, is a scalar or not.
+    For scalar values, return :class:`APyCFixed` if *value* is complex or if
+    *force_complex* is True.
 
     .. versionadded:: 0.3
 
@@ -30,6 +39,8 @@ def fx(
         Number of fractional bits in the created fixed-point object.
     bits : int, optional
         Total number of bits in the created fixed-point object.
+    force_complex : bool, default: False
+        If True, force the return value to be :class:`APyCFixed` even if *value* is real.
 
     Returns
     -------
@@ -39,6 +50,10 @@ def fx(
     try:
         iter(value)
     except TypeError:
+        if force_complex or isinstance(value, complex):
+            return APyCFixed.from_complex(
+                value, int_bits=int_bits, frac_bits=frac_bits, bits=bits
+            )
         return APyFixed.from_float(
             value, int_bits=int_bits, frac_bits=frac_bits, bits=bits
         )
@@ -48,7 +63,7 @@ def fx(
 
 
 def fp(
-    val: Union[int, float, Sequence[int], Sequence[float]],
+    value: Union[int, float, Sequence[int], Sequence[float]],
     exp_bits: int,
     man_bits: int,
     bias: Optional[int] = None,
@@ -63,7 +78,7 @@ def fp(
 
     Parameters
     ----------
-    val : int, float, list(int), list(float)
+    value : int, float, list(int), list(float)
         Floating point value(s) to initialize from.
     exp_bits : int
         Number of exponent bits.
@@ -78,11 +93,13 @@ def fp(
 
     """
     try:
-        iter(val)
+        iter(value)
     except TypeError:
-        return APyFloat.from_float(val, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
+        return APyFloat.from_float(
+            value, exp_bits=exp_bits, man_bits=man_bits, bias=bias
+        )
     return APyFloatArray.from_float(
-        val, exp_bits=exp_bits, man_bits=man_bits, bias=bias
+        value, exp_bits=exp_bits, man_bits=man_bits, bias=bias
     )
 
 

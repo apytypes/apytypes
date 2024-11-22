@@ -1,4 +1,13 @@
-from apytypes import fx, fp, APyFixed, APyFixedArray, APyFloat, APyFloatArray, fn
+from apytypes import (
+    fx,
+    fp,
+    APyCFixed,
+    APyFixed,
+    APyFixedArray,
+    APyFloat,
+    APyFloatArray,
+    fn,
+)
 
 import pytest
 import math
@@ -10,6 +19,12 @@ def test_fx():
     assert fx([0.3, -0.4], 4, 6).is_identical(
         APyFixedArray.from_float([0.3, -0.4], 4, 6)
     )
+
+    assert fx(0.3, 4, 6, force_complex=True).is_identical(
+        APyCFixed.from_complex(0.3, 4, 6)
+    )
+
+    assert fx(0.3j, 4, 6).is_identical(APyCFixed.from_complex(0.3j, 4, 6))
 
 
 def test_fp():
