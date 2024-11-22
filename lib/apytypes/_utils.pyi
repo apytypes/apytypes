@@ -3,6 +3,7 @@ from typing import Union
 
 import apytypes._apytypes
 from apytypes._apytypes import (
+    APyCFixed as APyCFixed,
     APyFixed as APyFixed,
     APyFixedArray as APyFixedArray,
     APyFloat as APyFloat,
@@ -58,7 +59,7 @@ def fn(
     """
 
 def fp(
-    val: Union[int, float, _Sequence[int], _Sequence[float]],
+    value: Union[int, float, _Sequence[int], _Sequence[float]],
     exp_bits: int,
     man_bits: int,
     bias: Union[int, None] = None,
@@ -73,7 +74,7 @@ def fp(
 
     Parameters
     ----------
-    val : int, float, list(int), list(float)
+    value : int, float, list(int), list(float)
         Floating point value(s) to initialize from.
     exp_bits : int
         Number of exponent bits.
@@ -92,12 +93,19 @@ def fx(
     int_bits: Union[int, None] = None,
     frac_bits: Union[int, None] = None,
     bits: Union[int, None] = None,
-) -> Union[apytypes._apytypes.APyFixed, apytypes._apytypes.APyFixedArray]:
+    force_complex: bool = False,
+) -> Union[
+    apytypes._apytypes.APyCFixed,
+    apytypes._apytypes.APyFixed,
+    apytypes._apytypes.APyFixedArray,
+]:
     """
-    Create an :class:`APyFixed` or :class:`APyFixedArray` object.
+    Create an :class:`APyFixed`, :class:`APyCFixed` or :class:`APyFixedArray` object.
 
-    Convenience method that applies :func:`APyFixed.from_float` or
+    Convenience method that applies :func:`APyFixed.from_float`, :func:`APyCFixed.from_complex` or
     :func:`APyFixedArray.from_float` depending on if the input, *value*, is a scalar or not.
+    For scalar values, return :class:`APyCFixed` if *value* is complex or if
+    *force_complex* is True.
 
     .. versionadded:: 0.3
 
@@ -111,6 +119,8 @@ def fx(
         Number of fractional bits in the created fixed-point object.
     bits : int, optional
         Total number of bits in the created fixed-point object.
+    force_complex : bool, default: False
+        If True, force the return value to be :class:`APyCFixed` even if *value* is real.
 
     Returns
     -------

@@ -1438,7 +1438,7 @@ class APyFixedArray:
 
     def max(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Returns the maximum value from an array or the maximum along an axis
+        Return the maximum value from an array or the maximum along an axis
 
         Parameters
         ----------
@@ -1477,7 +1477,7 @@ class APyFixedArray:
 
     def min(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Returns the minimum value from an array or the minimum along an axis
+        Return the minimum value from an array or the minimum along an axis
 
         Parameters
         ----------
@@ -1516,7 +1516,7 @@ class APyFixedArray:
 
     def nanmax(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Returns the maximum value from an array or the maximum along an axis. Ignoring nan.
+        Return the maximum value from an array or the maximum along an axis. Ignoring nan.
         Issues a warning when encountering an all-nan slice or axis.
 
         Parameters
@@ -1536,7 +1536,7 @@ class APyFixedArray:
 
     def nanmin(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Returns the minimum value from an array or the minimum along an axis. Ignoring nan.
+        Return the minimum value from an array or the minimum along an axis. Ignoring nan.
         Issues a warning when encountering an all-nan slice or axis.
 
         Parameters
@@ -1556,7 +1556,7 @@ class APyFixedArray:
 
     def prod(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Returns the product of the elements along specified axis/axes.
+        Return the product of the elements along specified axis/axes.
 
         Parameters
         ----------
@@ -3565,7 +3565,7 @@ class APyFloatArray:
 
     def max(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
         """
-        Returns the maximum value from an array or the maximum along an axis
+        Return the maximum value from an array or the maximum along an axis
 
         Parameters
         ----------
@@ -3606,7 +3606,7 @@ class APyFloatArray:
 
     def min(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
         """
-        Returns the minimum value from an array or the minimum along an axis
+        Return the minimum value from an array or the minimum along an axis
 
         Parameters
         ----------
@@ -3647,7 +3647,7 @@ class APyFloatArray:
 
     def nanmax(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
         """
-        Returns the maximum value from an array or the maximum along an axis. Ignoring nan.
+        Return the maximum value from an array or the maximum along an axis. Ignoring nan.
         Issues a warning when encountering an all-nan slice or axis.
 
         Parameters
@@ -3667,7 +3667,7 @@ class APyFloatArray:
 
     def nanmin(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
         """
-        Returns the minimum value from an array or the minimum along an axis. Ignoring nan.
+        Return the minimum value from an array or the minimum along an axis. Ignoring nan.
         Issues a warning when encountering an all-nan slice or axis.
 
         Parameters

@@ -632,7 +632,7 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::max,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the maximum value from an array or the maximum along an axis
+            Return the maximum value from an array or the maximum along an axis
 
             Parameters
             ----------
@@ -680,7 +680,7 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::min,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the minimum value from an array or the minimum along an axis
+            Return the minimum value from an array or the minimum along an axis
 
             Parameters
             ----------
@@ -727,7 +727,7 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::nanmax,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the maximum value from an array or the maximum along an axis. Ignoring nan.
+            Return the maximum value from an array or the maximum along an axis. Ignoring nan.
             Issues a warning when encountering an all-nan slice or axis.
 
             Parameters
@@ -751,7 +751,7 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::nanmin,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the minimum value from an array or the minimum along an axis. Ignoring nan.
+            Return the minimum value from an array or the minimum along an axis. Ignoring nan.
             Issues a warning when encountering an all-nan slice or axis.
 
             Parameters
@@ -775,7 +775,7 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::prod,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the product of the elements along specified axis/axes.
+            Return the product of the elements along specified axis/axes.
 
             Parameters
             ----------

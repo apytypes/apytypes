@@ -190,7 +190,7 @@ public:
     }
 
     //! Working part of `get_item_tuple`, using recursive descent to copy items from
-    //! `input_it` to `output_it`. Returns the number of elements copied. Assumes that
+    //! `input_it` to `output_it`. Return the number of elements copied. Assumes that
     //! `dim < tuple.size()`.
     std::size_t get_item_tuple_recursive_descent(
         const std::vector<std::variant<nb::int_, nb::slice>>& tuple,
@@ -379,7 +379,7 @@ public:
      * ****************************************************************************** */
 
     //! Working part of `set_item`, using recursive descent to copy items from
-    //! `input_it` to `output_it`. Returns the number of elements copied. Assumes that
+    //! `input_it` to `output_it`. Return the number of elements copied. Assumes that
     //! `dim < key.size()`.
     std::size_t set_item_recursive_descent(
         const std::vector<std::variant<nb::int_, nb::slice>>& key,
