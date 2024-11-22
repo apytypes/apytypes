@@ -1,38 +1,41 @@
-from apytypes import APyFixedArray, APyFloatArray
-from apytypes import APyFixed, APyFloat
+from apytypes import APyFixedArray, APyFloatArray, APyCFixedArray
+from apytypes import APyFixed, APyFloat, APyCFixed
 
 import pytest
 
 
 @pytest.mark.parametrize(
-    "APyArray, APyScalar", [(APyFixedArray, APyFixed), (APyFloatArray, APyFloat)]
+    "APyArray, APyScalar",
+    [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
 def test_raise_invalid_item(APyArray, APyScalar):
     array = APyArray.from_float([[1, 2, 3], [4, 5, 6]], 10, 10)
     with pytest.raises(
-        ValueError, match=r"APy(Fixed|Float)Array\.__setitem__: supported keys"
+        ValueError, match=r"APyC?(Fixed|Float)Array\.__setitem__: supported keys"
     ):
         array[1, 2.5] = APyScalar.from_float(3.0, 10, 10)
 
 
 @pytest.mark.parametrize(
-    "APyArray, APyScalar", [(APyFixedArray, APyFixed), (APyFloatArray, APyFloat)]
+    "APyArray, APyScalar",
+    [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
 def test_raises_same_type(APyArray, APyScalar):
     array = APyArray.from_float([[1, 2, 3], [4, 5, 6]], 10, 10)
     with pytest.raises(
-        ValueError, match=r"APy(Fixed|Float)Array\.__setitem__: `val` has different"
+        ValueError, match=r"APyC?(Fixed|Float)Array\.__setitem__: `val` has different"
     ):
         array[0] = APyScalar.from_float(0, 11, 10)
 
     with pytest.raises(
-        ValueError, match=r"APy(Fixed|Float)Array\.__setitem__: `val` has different"
+        ValueError, match=r"APyC?(Fixed|Float)Array\.__setitem__: `val` has different"
     ):
         array[0] = APyArray.from_float([0], 11, 10)
 
 
 @pytest.mark.parametrize(
-    "APyArray, APyScalar", [(APyFixedArray, APyFixed), (APyFloatArray, APyFloat)]
+    "APyArray, APyScalar",
+    [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
 def test_set_item_integer(APyArray, APyScalar):
     # ndim == 1
@@ -45,7 +48,7 @@ def test_set_item_integer(APyArray, APyScalar):
     array[3] = APyScalar.from_float(20, 10, 10)
     assert array.is_identical(APyArray.from_float([10, 2, 3, 20, 5, 15], 10, 10))
 
-    with pytest.raises(IndexError, match=r"APy(Fixed|Float)Array\.__setitem__"):
+    with pytest.raises(IndexError, match=r"APyC?(Fixed|Float)Array\.__setitem__"):
         array[6] = APyScalar.from_float(15, 10, 10)
 
     # ndim == 2
@@ -60,7 +63,8 @@ def test_set_item_integer(APyArray, APyScalar):
 
 
 @pytest.mark.parametrize(
-    "APyArray, APyScalar", [(APyFixedArray, APyFixed), (APyFloatArray, APyFloat)]
+    "APyArray, APyScalar",
+    [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
 def test_set_item_slice(APyArray, APyScalar):
     # ndim == 1
@@ -88,7 +92,8 @@ def test_set_item_slice(APyArray, APyScalar):
 
 
 @pytest.mark.parametrize(
-    "APyArray, APyScalar", [(APyFixedArray, APyFixed), (APyFloatArray, APyFloat)]
+    "APyArray, APyScalar",
+    [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
 def test_set_item_single_ellipsis(APyArray, APyScalar):
     # ndim == 1
@@ -103,7 +108,8 @@ def test_set_item_single_ellipsis(APyArray, APyScalar):
 
 
 @pytest.mark.parametrize(
-    "APyArray, APyScalar", [(APyFixedArray, APyFixed), (APyFloatArray, APyFloat)]
+    "APyArray, APyScalar",
+    [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
 def test_set_item_tuple(APyArray, APyScalar):
     np = pytest.importorskip("numpy")
@@ -137,23 +143,30 @@ def test_set_item_tuple(APyArray, APyScalar):
     assert np.all(ap_array.to_numpy() == np_array)
 
 
-def test_set_item_tuple_multi_limb():
+@pytest.mark.parametrize(
+    "APyArray, APyScalar",
+    [
+        (APyFixedArray, APyFixed),
+        (APyCFixedArray, APyCFixed),
+    ],
+)
+def test_set_item_tuple_multi_limb(APyArray, APyScalar):
     np = pytest.importorskip("numpy")
     np_array = np.array(range(3 * 4 * 5 * 6 * 7)).reshape((3, 4, 5, 6, 7))
-    ap_array = APyFixedArray.from_float(np_array, 500, 25)
+    ap_array = APyArray.from_float(np_array, 500, 25)
     assert ap_array.shape == np_array.shape
     assert ap_array[...].is_identical(ap_array)
 
-    ap_array[2, ..., 4] = APyFixed.from_float(10, 500, 25)
+    ap_array[2, ..., 4] = APyScalar.from_float(10, 500, 25)
     np_array[2, ..., 4] = 10
     assert np.all(ap_array.to_numpy() == np_array)
 
     np_array[..., 1, 4, 3] = np.array(range(4))
-    ap_array[..., 1, 4, 3] = APyFixedArray.from_float(range(4), 500, 25)
+    ap_array[..., 1, 4, 3] = APyArray.from_float(range(4), 500, 25)
     assert np.all(ap_array.to_numpy() == np_array)
 
     np_array[::-1, ..., 2, 1] = np.array(range(3 * 4 * 5)).reshape((3, 4, 5))
-    ap_array[::-1, ..., 2, 1] = APyFixedArray.from_float(
+    ap_array[::-1, ..., 2, 1] = APyArray.from_float(
         np.array(range(3 * 4 * 5)).reshape((3, 4, 5)),
         500,
         25,
@@ -161,7 +174,7 @@ def test_set_item_tuple_multi_limb():
     assert np.all(ap_array.to_numpy() == np_array)
 
     np_array[2, 1, 6:1:-2, 1:6:2] = np.array(range(2 * 3 * 7)).reshape((2, 3, 7))
-    ap_array[2, 1, 6:1:-2, 1:6:2] = APyFixedArray.from_float(
+    ap_array[2, 1, 6:1:-2, 1:6:2] = APyArray.from_float(
         np.array(range(2 * 3 * 7)).reshape((2, 3, 7)),
         500,
         25,
@@ -170,7 +183,8 @@ def test_set_item_tuple_multi_limb():
 
 
 @pytest.mark.parametrize(
-    "APyArray, APyScalar", [(APyFixedArray, APyFixed), (APyFloatArray, APyFloat)]
+    "APyArray, APyScalar",
+    [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
 def test_set_item_not_broadcastable(APyArray, APyScalar):
     np = pytest.importorskip("numpy")
@@ -179,6 +193,6 @@ def test_set_item_not_broadcastable(APyArray, APyScalar):
 
     with pytest.raises(
         ValueError,
-        match=r"APy(Fixed|Float)Array.__setitem__: `val` shape not broadcastable",
+        match=r"APyC?(Fixed|Float)Array.__setitem__: `val` shape not broadcastable",
     ):
         ap_array[1, 2, 3, 4] = APyArray.from_float([1, 2], 25, 25)

@@ -1,13 +1,14 @@
 /*
- * Array/tensor type for arbitrary precision fixed-point formats.
+ * Array/tensor type for arbitrary precision complex-valued fixed-point formats.
  */
 
-#ifndef _APYFIXEDARRAY_H
-#define _APYFIXEDARRAY_H
+#ifndef _APYCFIXEDARRAY_H
+#define _APYCFIXEDARRAY_H
 
 #include "apyarray.h"
 #include "apybuffer.h"
-#include "apyfixed.h"
+#include "apycfixed.h"
+#include "apyfixedarray.h"
 #include "apytypes_common.h"
 #include "apytypes_util.h"
 
@@ -16,21 +17,13 @@
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
 namespace nb = nanobind;
 
-#include <cstddef>     // std::size_t
-#include <limits>      // std::numeric_limits<>::is_iec559
-#include <optional>    // std::optional, std::nullopt
-#include <set>         // std::set
-#include <string>      // std::string
-#include <string_view> // std::string_view
-#include <vector>      // std::vector
-
 // GMP should be included after all other includes
 #include "../extern/mini-gmp/mini-gmp.h"
 
-class APyFixedArray : public APyArray<mp_limb_t, APyFixedArray> {
+class APyCFixedArray : public APyArray<mp_limb_t, APyCFixedArray> {
 
     /* ****************************************************************************** *
-     * *                      APyFixedArray C++ assumptions                         * *
+     * *                      APyCFixedArray C++ assumptions                        * *
      * ****************************************************************************** */
 
     static_assert(
@@ -45,7 +38,7 @@ class APyFixedArray : public APyArray<mp_limb_t, APyFixedArray> {
         "Right shift applied to signed integral types performs *arithmetic* right "
         "shift. Arithmetic right shift of signed types is *the only* valid behaviour "
         "since C++20, but before C++20 the right shift of signed integral types is "
-        "implementation defined. APyFixed relies heavily on arithmetic right shift."
+        "implementation defined. APyCFixed relies heavily on arithmetic right shift."
     );
     static_assert(
         (std::numeric_limits<double>::is_iec559),
@@ -53,7 +46,7 @@ class APyFixedArray : public APyArray<mp_limb_t, APyFixedArray> {
     );
 
     /* ****************************************************************************** *
-     * *                       APyFixedArray data fields                            * *
+     * *                       APyCFixedArray data fields                           * *
      * ****************************************************************************** */
 
 private:
@@ -66,29 +59,29 @@ private:
 
 public:
     //! Name of this array type (used when throwing errors)
-    static constexpr auto ARRAY_NAME = std::string_view("APyFixedArray");
+    static constexpr auto ARRAY_NAME = std::string_view("APyCFixedArray");
 
-    APyFixed create_scalar() const { return APyFixed(_bits, _int_bits); }
+    APyCFixed create_scalar() const { return APyCFixed(_bits, _int_bits); }
 
-    APyFixedArray create_array(const std::vector<std::size_t>& shape) const
+    APyCFixedArray create_array(const std::vector<std::size_t>& shape) const
     {
-        return APyFixedArray(shape, _bits, _int_bits);
+        return APyCFixedArray(shape, _bits, _int_bits);
     }
 
-    static APyFixedArray
-    create_array_static(const std::vector<std::size_t>& shape, const APyFixed& fix)
+    static APyCFixedArray
+    create_array_static(const std::vector<std::size_t>& shape, const APyCFixed& fix)
     {
-        return APyFixedArray(shape, fix._bits, fix._int_bits);
+        return APyCFixedArray(shape, fix._bits, fix._int_bits);
     }
 
     //! Test if two fixed-point vectors have the same bit specifiers
-    APY_INLINE bool same_type_as(const APyFixedArray& other) const noexcept
+    APY_INLINE bool same_type_as(const APyCFixedArray& other) const noexcept
     {
         return _bits == other._bits && _int_bits == other._int_bits;
     }
 
-    //! Test if `*this` has the same bit specifiers as another `APyFixed`
-    APY_INLINE bool same_type_as(const APyFixed& other) const noexcept
+    //! Test if `*this` has the same bit specifiers as another `APyCFixed`
+    APY_INLINE bool same_type_as(const APyCFixed& other) const noexcept
     {
         return _bits == other._bits && _int_bits == other._int_bits;
     }
@@ -98,11 +91,11 @@ public:
      * ****************************************************************************** */
 
 public:
-    //! No default (empty) constructed `APyFixedArray` objects. At lesast the
+    //! No default (empty) constructed `APyCFixedArray` objects. At lesast the
     //! bit-specifiers and shape has to be set during construction.
-    APyFixedArray() = delete;
+    APyCFixedArray() = delete;
 
-    explicit APyFixedArray(
+    explicit APyCFixedArray(
         const nb::sequence& bit_pattern_sequence,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
@@ -113,18 +106,19 @@ public:
      * *                     Non-Python accessible constructors                     * *
      * ****************************************************************************** */
 
+public:
     //! Constructor: specify only shape and word-length. Zero data on construction.
-    explicit APyFixedArray(
+    explicit APyCFixedArray(
         const std::vector<std::size_t>& shape, int bits, int int_bits
     );
 
     //! Constructor: specify shape and word-length and steal the data from vector
-    explicit APyFixedArray(
+    explicit APyCFixedArray(
         const std::vector<std::size_t>& shape, int bits, int int_bits, vector_type&& v
     );
 
     //! Constructor: specify only shape and word-length. Zero data on construction.
-    explicit APyFixedArray(
+    explicit APyCFixedArray(
         const std::vector<std::size_t>& shape,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
@@ -132,77 +126,41 @@ public:
     );
 
     /* ****************************************************************************** *
-     * *                       Binary arithmetic operators                          * *
+     * *                     Arithmetic member functions                            * *
      * ****************************************************************************** */
-
 private:
-    //! Base addition/subtraction routine for `APyFixedArray`
+    //! Base addition/subtraction routine for `APyCFixedArray`
     template <class ripple_carry_op, class simd_op, class simd_shift_op>
-    inline APyFixedArray _apyfixedarray_base_add_sub(const APyFixedArray& rhs) const;
+    inline APyCFixedArray _apycfixedarray_base_add_sub(const APyCFixedArray& rhs) const;
 
-    //! Base addition/subtraction routine for `APyFixedArray` with `APyFixed`
-    template <class ripple_carry_op, class simd_op_const, class simd_shift_op_const>
-    inline APyFixedArray _apyfixed_base_add_sub(const APyFixed& rhs) const;
+    //! Base addition/subtraction routine for `APyCFixedArray` with `APyCFixed`
+    template <class op, class ripple_carry_op>
+    inline APyCFixedArray _apycfixed_base_add_sub(const APyCFixed& rhs) const;
 
 public:
-    APyFixedArray operator+(const APyFixedArray& rhs) const;
-    APyFixedArray operator+(const APyFixed& rhs) const;
-    APyFixedArray operator-(const APyFixedArray& rhs) const;
-    APyFixedArray operator-(const APyFixed& rhs) const;
-    APyFixedArray operator*(const APyFixedArray& rhs) const;
-    APyFixedArray operator*(const APyFixed& rhs) const;
-    APyFixedArray operator/(const APyFixedArray& rhs) const;
-    APyFixedArray operator/(const APyFixed& rhs) const;
-    APyFixedArray operator<<(const int shift_val) const;
-    APyFixedArray operator>>(const int shift_val) const;
-    APyFixedArray& operator<<=(const int shift_val);
-    APyFixedArray& operator>>=(const int shift_val);
-    APyFixedArray rsub(const APyFixed& rhs) const;
-    APyFixedArray rdiv(const APyFixed& rhs) const;
+    APyCFixedArray operator+(const APyCFixedArray& rhs) const;
+    APyCFixedArray operator+(const APyCFixed& rhs) const;
+    APyCFixedArray operator-(const APyCFixedArray& rhs) const;
+    APyCFixedArray operator-(const APyCFixed& rhs) const;
+    APyCFixedArray operator*(const APyCFixedArray& rhs) const;
+    APyCFixedArray operator*(const APyCFixed& rhs) const;
+    APyCFixedArray operator/(const APyCFixedArray& rhs) const;
+    APyCFixedArray operator/(const APyCFixed& rhs) const;
+    APyCFixedArray operator<<(const int shift_val) const;
+    APyCFixedArray operator>>(const int shift_val) const;
+    APyCFixedArray& operator<<=(const int shift_val);
+    APyCFixedArray& operator>>=(const int shift_val);
+    APyCFixedArray rsub(const APyCFixed& rhs) const;
+    APyCFixedArray rdiv(const APyCFixed& rhs) const;
 
     //! Elementwise unary negation
-    APyFixedArray operator-() const;
-
-    /*!
-     * Matrix multiplication. If both arguments ar 2-D tensors, this method performs the
-     * ordinary matrix multiplication. If input dimensions are greater than 2, this
-     * method performs stacked matrix multiplications, where the dimensions of last two
-     * dimensions are treated as matrices.
-     */
-    APyFixedArray matmul(const APyFixedArray& rhs) const;
+    APyCFixedArray operator-() const;
 
     /* ****************************************************************************** *
      * *                          Public member functions                           * *
      * ****************************************************************************** */
 
-    //! Perform a linear convolution with `other` using `mode`
-    APyFixedArray convolve(const APyFixedArray& other, const std::string& mode) const;
-
-    //! Sum over one or more axes.
-    std::variant<APyFixedArray, APyFixed>
-    sum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
-
-    //! Cumulative sum over one or more axes.
-    APyFixedArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
-
-    //! Multiplication over one or more axes.
-    std::variant<APyFixedArray, APyFixed>
-    prod(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
-
-    //! Cumulative multiplication over one or more axes.
-    APyFixedArray cumprod(std::optional<nb::int_> axis = std::nullopt) const;
-
-    //! Return the maximum of an array or the maximum along an axis.
-    std::variant<APyFixedArray, APyFixed>
-    max(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
-
-    //! Return the minimum of an array or the minimum along an axis.
-    std::variant<APyFixedArray, APyFixed>
-    min(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
-
-    //! Python `__repr__()` function
-    std::string repr() const;
-
+public:
     //! Number of bits
     APY_INLINE int bits() const noexcept { return _bits; }
 
@@ -212,39 +170,41 @@ public:
     //! Number of fractional bits
     APY_INLINE int frac_bits() const noexcept { return _bits - _int_bits; }
 
-    //! Extract bit-pattern
-    std::variant<
-        nb::list,
-        nb::ndarray<nb::numpy, uint64_t>,
-        nb::ndarray<nb::numpy, uint32_t>,
-        nb::ndarray<nb::numpy, uint16_t>,
-        nb::ndarray<nb::numpy, uint8_t>>
-    to_bits(bool numpy = false) const;
-
-    //! Create an N-dimensional array containing bit-patterns.
-    template <typename NB_ARRAY_TYPE, typename INT_TYPE>
-    nb::ndarray<NB_ARRAY_TYPE, INT_TYPE> to_bits_ndarray() const;
-
-    //! Create a nested Python list containing bit-patterns as Python integers.
-    nb::list to_bits_python_recursive_descent(
-        std::size_t dim, APyBuffer<mp_limb_t>::vector_type::const_iterator& it
-    ) const;
+    //! Retrieve the string representation
+    std::string repr() const;
 
     //! Convert to a NumPy array
-    nb::ndarray<nb::numpy, double> to_numpy() const;
+    nb::ndarray<nb::numpy, std::complex<double>> to_numpy() const;
 
-    //! Elementwise absolute value
-    APyFixedArray abs() const;
+    //! Sum over one or more axes.
+    std::variant<APyCFixedArray, APyCFixed>
+    sum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+
+    //! Cumulative sum over one or more axes.
+    APyCFixedArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
+
+    //! Multiplication over one or more axes.
+    std::variant<APyCFixedArray, APyCFixed>
+    prod(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+
+    //! Cumulative multiplication over one or more axes.
+    APyCFixedArray cumprod(std::optional<nb::int_> axis = std::nullopt) const;
+
+    //! Retrieve real part
+    APyFixedArray get_real() const;
+
+    //! Retrieve imaginary part
+    APyFixedArray get_imag() const;
 
     /*!
-     * Construct a new `APyFixedArray` tensor object with the same `shape` and
+     * Construct a new `APyCFixedArray` tensor object with the same `shape` and
      * fixed-point values as `*this`, but with a new word-length. The underlying
      * bit-pattern of each tensor element are copied into place, meaning that lowering
      * the number of fractional bits may result in quantization, and lowering the number
      * of integer bits may result in overflowing. Supports quantization and overflow
      * options on narrowing casts.
      */
-    APyFixedArray cast(
+    APyCFixedArray cast(
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<QuantizationMode> quantization = std::nullopt,
@@ -256,17 +216,27 @@ public:
      * *                     Static conversion from other types                     * *
      * ****************************************************************************** */
 
-    //! Create an `APyFixedArray` tensor object initialized with values from a sequence
-    //! of `doubles`
-    static APyFixedArray from_double(
+public:
+    //! Create an `APyCFixedArray` tensor object initialized with values from a sequence
+    //! of `complex`
+    static APyCFixedArray from_complex(
         const nb::sequence& double_seq,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
     );
 
-    //! Create an `APyFixedArray` tensor object initialized with values from an ndarray
-    static APyFixedArray from_array(
+    //! Create an `APyCFixedArray` tensor object initialized with values from a sequence
+    //! of `doubles`
+    static APyCFixedArray from_double(
+        const nb::sequence& double_seq,
+        std::optional<int> int_bits = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt,
+        std::optional<int> bits = std::nullopt
+    );
+
+    //! Create an `APyCFixedArray` tensor object initialized with values from an ndarray
+    static APyCFixedArray from_array(
         const nb::ndarray<nb::c_contig>& double_seq,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
@@ -277,40 +247,40 @@ public:
      * *                    Static methods for array initialization                 * *
      * ****************************************************************************** */
 
-    //! Create an `APyFixedArray` initialized with zeros
-    static APyFixedArray zeros(
+    //! Create an `APyCFixedArray` initialized with zeros
+    static APyCFixedArray zeros(
         const nb::tuple& shape,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
     );
 
-    //! Create an `APyFixedArray` initialized with ones
-    static APyFixedArray ones(
+    //! Create an `APyCFixedArray` initialized with ones
+    static APyCFixedArray ones(
         const nb::tuple& shape,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
     );
 
-    //! Create an `APyFixedArray` with ones on the diagonal and zeros elsewhere
-    static APyFixedArray
+    //! Create an `APyCFixedArray` with ones on the diagonal and zeros elsewhere
+    static APyCFixedArray
     eye(const nb::int_& N,
         std::optional<nb::int_> M = std::nullopt,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt);
 
-    //! Create a square `APyFixedArray` with ones on the diagonal and zeros elsewhere
-    static APyFixedArray identity(
+    //! Create a square `APyCFixedArray` with ones on the diagonal and zeros elsewhere
+    static APyCFixedArray identity(
         const nb::int_& N,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
     );
 
-    //! Create an `APyFixedArray` with evenly spaced values within a given interval
-    static APyFixedArray arange(
+    //! Create an `APyCFixedArray` with evenly spaced values within a given interval
+    static APyCFixedArray arange(
         const nb::object& start,
         const nb::object& stop,
         const nb::object& step,
@@ -324,27 +294,13 @@ public:
      * ****************************************************************************** */
 
 private:
-    /*!
-     * Evaluate the 2D matrix product between `*this` and `rhs`, possibly using an
-     * accumulator mode `mode`. This method assumes that the shape of `*this` and `rhs`
-     * have been checked to match a 2D matrix-matrix or matrix-vector multiplication.
-     * Anything else is undefined behaviour. Return result in a new `APyFixedArray`.
-     */
-    APyFixedArray _checked_2d_matmul(
-        const APyFixedArray& rhs,                     // rhs
-        std::optional<APyFixedAccumulatorOption> mode // optional accumulation mode
-    ) const;
+    auto real_begin() noexcept { return std::begin(_data); }
+    auto real_begin() const noexcept { return std::cbegin(_data); }
+    auto real_cbegin() const noexcept { return std::cbegin(_data); }
 
-    /*!
-     * Evaluate the inner product between `*this` and `rhs`, possibly using an
-     * accumulator mode `mode`. This method assumes that the the shape of both `*this`
-     * and `rhs` are equally long. Anything else is undefined behaviour. Return result
-     * in a new `APyFixedArray`.
-     */
-    APyFixedArray _checked_inner_product(
-        const APyFixedArray& rhs,                     // rhs
-        std::optional<APyFixedAccumulatorOption> mode // optional accumulation mode
-    ) const;
+    auto imag_begin() noexcept { return std::begin(_data) + _itemsize / 2; }
+    auto imag_begin() const noexcept { return std::cbegin(_data) + _itemsize / 2; }
+    auto imag_cbegin() const noexcept { return std::cbegin(_data) + _itemsize / 2; }
 
     /*!
      * Set the underlying bit values of `*this` from a NDArray object of integers. This
@@ -355,10 +311,10 @@ private:
     /*!
      * Set the values of `*this` from a NDArray object of floats/integers. This member
      * function assumes that the shape of `*this` and `ndarray` are equal. The elements
-     * in `ndarray` are explicitly converted to `double` before being copied into
-     * `*this`.
+     * in `ndarray` are explicitly converted to `double` (or `std::complex<double>`)
+     * before being copied into `*this`.
      */
     void _set_values_from_ndarray(const nb::ndarray<nb::c_contig>& ndarray);
 };
 
-#endif // _APYFIXEDARRAY_H
+#endif

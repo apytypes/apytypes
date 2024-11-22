@@ -20,6 +20,7 @@ namespace nb = nanobind;
 
 #include <algorithm>   // std::min_element
 #include <cassert>     // assert
+#include <functional>  // std::function
 #include <iterator>    // std::begin
 #include <set>         // std::set
 #include <string_view> // std::string_view
@@ -28,17 +29,29 @@ namespace nb = nanobind;
 template <typename T, typename ARRAY_TYPE> class APyArray : public APyBuffer<T> {
 
 public:
+    using vector_type = typename APyBuffer<T>::vector_type;
+    using vector_iterator = typename vector_type::iterator;
+    using vector_const_iterator = typename vector_type::const_iterator;
+    using APyBuffer<T>::_shape;
+    using APyBuffer<T>::_ndim;
+    using APyBuffer<T>::_data;
+    using APyBuffer<T>::_itemsize;
+    using APyBuffer<T>::_nitems;
+
+public:
     //! Base constructor for creating a new `APyArray`
     APyArray(const std::vector<std::size_t>& shape, std::size_t itemsize = 1)
         : APyBuffer<T>(shape, itemsize)
     {
     }
 
-    using APyBuffer<T>::_shape;
-    using APyBuffer<T>::_ndim;
-    using APyBuffer<T>::_data;
-    using APyBuffer<T>::_itemsize;
-    using APyBuffer<T>::_nitems;
+    //! Constructor for stealing data
+    APyArray(
+        const std::vector<std::size_t>& shape, std::size_t itemsize, vector_type&& v
+    )
+        : APyBuffer<T>(shape, itemsize, std::move(v))
+    {
+    }
 
     /* ****************************************************************************** *
      * *                    `__getitem__` family of methods                         * *
@@ -195,8 +208,8 @@ public:
     std::size_t get_item_tuple_recursive_descent(
         const std::vector<std::variant<nb::int_, nb::slice>>& tuple,
         const std::vector<std::size_t>& strides,
-        typename APyBuffer<T>::vector_type::const_iterator input_it,
-        typename APyBuffer<T>::vector_type::iterator output_it,
+        typename vector_type::const_iterator input_it,
+        typename vector_type::iterator output_it,
         std::size_t dim = 0
     ) const
     {
@@ -384,8 +397,8 @@ public:
     std::size_t set_item_recursive_descent(
         const std::vector<std::variant<nb::int_, nb::slice>>& key,
         const std::vector<std::size_t>& strides,
-        typename APyBuffer<T>::vector_type::const_iterator input_it,
-        typename APyBuffer<T>::vector_type::iterator output_it,
+        typename vector_type::const_iterator input_it,
+        typename vector_type::iterator output_it,
         std::size_t dim = 0
     )
     {
@@ -882,6 +895,257 @@ public:
             diag_value.copy_n_to(dst_it, result._itemsize);
         }
         return result;
+    }
+
+    /* ****************************************************************************** *
+     * *                        Array folding methods                               * *
+     * ****************************************************************************** */
+
+private:
+    //! Work horse of `array_fold` using recursive descent.
+    template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_INOUT>
+    std::size_t array_fold_recursive_descent(
+        RANDOM_ACCESS_ITERATOR_IN src_it,
+        RANDOM_ACCESS_ITERATOR_INOUT dst_it,
+        const std::vector<std::size_t>& axes,
+        const std::vector<std::size_t>& strides,
+        std::size_t dst_itemsize,
+        std::function<
+            void(typename vector_type::iterator, typename vector_type::const_iterator)>
+            bin_op,
+        std::size_t dim = 0
+    ) const
+    {
+        auto dim_it = std::find(std::begin(axes), std::end(axes), dim);
+        if (dim == _ndim - 1) {
+            /*
+             * Final dimension, apply the binary operator.
+             */
+            if (dim_it != std::end(axes)) {
+                // Fold (collapse) the final dimension
+                for (std::size_t i = 0; i < _shape[dim]; i++) {
+                    bin_op(dst_it, src_it + i * _itemsize);
+                }
+                return 1;
+            } else {
+                // Leave the final dimension be
+                for (std::size_t i = 0; i < _shape[dim]; i++) {
+                    bin_op(dst_it + i * dst_itemsize, src_it + i * _itemsize);
+                }
+                return _shape[dim];
+            }
+
+        } else {
+            /*
+             * More dimensions do discover. We need to go deeper...
+             */
+            if (dim_it != std::end(axes)) {
+                // Fold (collapse) this dimension
+                std::size_t items = 0;
+                for (std::size_t i = 0; i < _shape[dim]; i++) {
+                    auto src = src_it + i * strides[dim] * _itemsize;
+                    items = array_fold_recursive_descent(
+                        src, dst_it, axes, strides, dst_itemsize, bin_op, dim + 1
+                    );
+                }
+                return items;
+            } else {
+                // Leave this dimension be
+                std::size_t items = 0;
+                for (std::size_t i = 0; i < _shape[dim]; i++) {
+                    auto src = src_it + i * strides[dim] * _itemsize;
+                    auto dst = dst_it + items * dst_itemsize;
+                    items += array_fold_recursive_descent(
+                        src, dst, axes, strides, dst_itemsize, bin_op, dim + 1
+                    );
+                }
+                return items;
+            }
+        }
+    }
+
+    //! Work horse of `array_fold_cumulative` using recursive descent.
+    template <
+        typename RANDOM_ACCESS_ITERATOR_IN,
+        typename RANDOM_ACCESS_ITERATOR_INOUT,
+        typename FOLD_OP,
+        typename POST_PROC_OP>
+    void array_fold_cumulative_recursive_descent(
+        RANDOM_ACCESS_ITERATOR_IN src_it,
+        RANDOM_ACCESS_ITERATOR_INOUT dst_it,
+        std::size_t axis,
+        const std::vector<std::size_t>& strides,
+        std::size_t dst_itemsize,
+        FOLD_OP fold,
+        POST_PROC_OP post_proc,
+        std::size_t dim = 0
+    ) const
+    {
+        if (dim == _ndim - 1) {
+            /*
+             * Final dimension, apply the binary operator.
+             */
+            if (dim == axis) {
+                // Cumulative fold the final dimension
+                fold(dst_it, src_it);
+                for (std::size_t i = 1; i < _shape[dim]; i++) {
+                    // Apply the fold
+                    auto prev_dst = dst_it + (i - 1) * dst_itemsize;
+                    std::copy_n(prev_dst, dst_itemsize, dst_it + i * dst_itemsize);
+                    fold(dst_it + i * dst_itemsize, src_it + i * _itemsize);
+                }
+                for (std::size_t i = 0; i < _shape[dim]; i++) {
+                    // Apply post-processing
+                    post_proc(dst_it + i * dst_itemsize, i);
+                }
+            } else {
+                // Leave the final dimension be
+                for (std::size_t i = 0; i < _shape[dim]; i++) {
+                    fold(dst_it + i * dst_itemsize, src_it + i * _itemsize);
+                }
+            }
+        } else {
+            /*
+             * More dimensions do discover. We need to go deeper...
+             */
+            std::size_t src_size = strides[dim] * _itemsize;
+            std::size_t dst_size = strides[dim] * dst_itemsize;
+            auto recursive_descent = [&](auto src, auto dst) {
+                array_fold_cumulative_recursive_descent(
+                    src, dst, axis, strides, dst_itemsize, fold, post_proc, dim + 1
+                );
+            };
+            if (dim == axis) {
+                // Cumulative fold this dimension
+                recursive_descent(src_it, dst_it);
+                for (std::size_t i = 1; i < _shape[dim]; i++) {
+                    auto prev_dst = dst_it + (i - 1) * dst_size;
+                    std::copy_n(prev_dst, dst_size, dst_it + i * dst_size);
+                    recursive_descent(src_it + i * src_size, dst_it + i * dst_size);
+                }
+                for (std::size_t i = 0; i < _shape[dim]; i++) {
+                    // Apply post-processing
+                    for (std::size_t j = 0; j < strides[dim]; j++) {
+                        post_proc(dst_it + i * dst_size + j * dst_itemsize, i);
+                    }
+                }
+            } else {
+                // Leave this dimension be
+                for (std::size_t i = 0; i < _shape[dim]; i++) {
+                    recursive_descent(src_it + i * src_size, dst_it + i * dst_size);
+                }
+            }
+        }
+    }
+
+public:
+    //! Fold an array over `axes` using some binary folding operation `fold`. The fold
+    //! operation is applied from first element towards last, along each axis. An
+    //! initial element `init` can conditionally be used as the first element in the
+    //! fold. Any `args` will simply be passed along when constructing the
+    //! result.
+    template <typename FOLD_OP, typename... ARGS>
+    std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>> array_fold(
+        const std::vector<std::size_t>& axes,
+        FOLD_OP fold,
+        std::optional<const scalar_variant_t<ARRAY_TYPE>> init,
+        ARGS... args
+    ) const
+    {
+        // Compute the resulting shape
+        std::vector<std::size_t> result_shape = _shape;
+        for (auto rev_it = std::crbegin(axes); rev_it != std::crend(axes); ++rev_it) {
+            result_shape.erase(std::begin(result_shape) + *rev_it);
+        }
+
+        ARRAY_TYPE result(result_shape, args...);
+
+        // Copy initialization element, if present
+        if (init.has_value()) {
+            for (std::size_t i = 0; i < result._nitems; i++) {
+                auto dst = std::begin(result._data) + i * result._itemsize;
+                init->copy_n_to(dst, _itemsize);
+            }
+        }
+
+        // Perform the folding
+        std::vector<std::size_t> strides = strides_from_shape(_shape);
+        auto src = std::cbegin(_data);
+        auto dst = std::begin(result._data);
+        array_fold_recursive_descent(src, dst, axes, strides, result._itemsize, fold);
+
+        if (result_shape.size()) {
+            return result;
+        } else {
+            // Result is scalar
+            scalar_variant_t<ARRAY_TYPE> scalar(args...);
+            scalar.copy_n_from(std::begin(result._data), result._itemsize);
+            return scalar;
+        }
+    }
+
+    //! Fold an array cumulatively along a single `axis`. If `axis` is `std::nullopt`,
+    //! the result is flattened before performing the cumulative fold. The initial
+    //! element in the fold can be set with `init`, or left unset if none. Each element
+    //! in the fold is post-processed using the unary operator `post_proc`.
+    template <typename FOLD_OP, typename POST_PROC_OP, typename... ARGS>
+    ARRAY_TYPE array_fold_cumulative(
+        std::optional<std::size_t> axis,
+        FOLD_OP fold,
+        POST_PROC_OP post_proc,
+        std::optional<const scalar_variant_t<ARRAY_TYPE>> init,
+        ARGS... args
+    ) const
+    {
+        // Flatten if no axis is provided
+        if (!axis.has_value()) {
+            return flatten().array_fold_cumulative(0, fold, post_proc, init, args...);
+        }
+
+        ARRAY_TYPE result(_shape, args...);
+
+        // Copy initialization element, if present
+        if (init.has_value()) {
+            for (std::size_t i = 0; i < result._nitems; i++) {
+                auto dst = std::begin(result._data) + i * result._itemsize;
+                init->copy_n_to(dst, _itemsize);
+            }
+        }
+
+        // Recursively perform the fold
+        std::vector<std::size_t> strides = strides_from_shape(_shape);
+        auto src = std::cbegin(_data);
+        auto dst = std::begin(result._data);
+        array_fold_cumulative_recursive_descent(
+            src, dst, *axis, strides, result._itemsize, fold, post_proc
+        );
+
+        return result;
+    }
+
+    // Retrieve the number of elements folded when folding `*this` using `axes`
+    std::size_t array_fold_get_elements(const std::vector<std::size_t>& axes) const
+    {
+        auto acc = [&](std::size_t p, std::size_t i) { return p * _shape[i]; };
+        return std::accumulate(std::begin(axes), std::end(axes), 1, acc);
+    }
+
+    /* ****************************************************************************** *
+     * *                        Other APyArray methods                              * *
+     * ****************************************************************************** */
+
+    /*!
+     * Test if `*this` is identical to another `APyArray` of the same type. Two array
+     * objects are considered identical if, and only if:
+     *   * They represent exactly the same tensor shape
+     *   * They store the exact same values in their `_data` vector
+     *   * They have the exact same specifiers (as decided by `same_type_as`
+     */
+    bool is_identical(const ARRAY_TYPE& other) const
+    {
+        return _shape == other._shape
+            && static_cast<const ARRAY_TYPE*>(this)->same_type_as(other)
+            && _data == other._data;
     }
 
 }; // end class: `APyArray`

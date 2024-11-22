@@ -6,6 +6,7 @@
    :caption: Contents:
 
    apycfixed
+   apycfixedarray
    apyfixed
    apyfixedarray
    apyfloat

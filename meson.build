@@ -88,6 +88,8 @@ py3.extension_module(
         'extern/mini-gmp/mini-gmp.c',
         'src/apycfixed.cc',
         'src/apycfixed_wrapper.cc',
+        'src/apycfixedarray.cc',
+        'src/apycfixedarray_wrapper.cc',
         'src/apyfixed.cc',
         'src/apyfixed_util.cc',
         'src/apyfixed_wrapper.cc',

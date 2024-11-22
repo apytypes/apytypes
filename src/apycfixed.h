@@ -13,13 +13,14 @@
 #include <nanobind/nanobind.h> // nanobind::object
 namespace nb = nanobind;
 
-#include <algorithm> // std::copy_n
-#include <complex>   // std::complex
-#include <cstddef>   // std::size_t
-#include <limits>    // std::numeric_limits<>::is_iec559
-#include <optional>  // std::optional, std::nullopt
-#include <string>    // std::string
-#include <vector>    // std::vector
+#include <algorithm>        // std::copy_n
+#include <complex>          // std::complex
+#include <cstddef>          // std::size_t
+#include <initializer_list> // std::initializer_list
+#include <limits>           // std::numeric_limits<>::is_iec559
+#include <optional>         // std::optional, std::nullopt
+#include <string>           // std::string
+#include <vector>           // std::vector
 
 // GMP should be included after all other includes
 #include "../extern/mini-gmp/mini-gmp.h"
@@ -139,6 +140,10 @@ public:
     //! bit-pattern from iterator pair [ `begin`, `end` ).
     template <typename _IT>
     explicit APyCFixed(int bits, int int_bits, _IT begin, _IT end);
+
+    //! Construct a number with `bits` and `int_bits`, and initialize underlying
+    //! bit-pattern from iterator pair [ `begin`, `end` ).
+    explicit APyCFixed(int bits, int int_bits, std::initializer_list<mp_limb_t> list);
 
     /* ****************************************************************************** *
      *                         Binary arithmetic operators                            *
@@ -286,29 +291,32 @@ public:
         std::optional<int> bits = std::nullopt
     );
 
+    //! Get bit pattern for the complex-valued fixed-point one
+    static APyCFixed c_one(int bits, int int_bits);
+
     /* ****************************************************************************** *
      *                        Private helper methods                                * *
      * ****************************************************************************** */
 private:
-    vector_t::iterator real_begin() { return std::begin(_data); }
-    vector_t::const_iterator real_begin() const { return std::cbegin(_data); }
-    vector_t::const_iterator real_cbegin() const { return real_begin(); }
-    vector_t::iterator real_end() { return std::begin(_data) + _data.size() / 2; }
-    vector_t::const_iterator real_end() const
-    {
-        return std::cbegin(_data) + _data.size() / 2;
-    }
-    vector_t::const_iterator real_cend() const { return real_end(); }
+    auto real_begin() noexcept { return std::begin(_data); }
+    auto real_begin() const noexcept { return std::cbegin(_data); }
+    auto real_cbegin() const noexcept { return real_begin(); }
+    auto real_end() noexcept { return std::begin(_data) + _data.size() / 2; }
+    auto real_end() const noexcept { return std::cbegin(_data) + _data.size() / 2; }
+    auto real_cend() const noexcept { return real_end(); }
 
-    vector_t::iterator imag_begin() { return std::begin(_data) + _data.size() / 2; }
-    vector_t::const_iterator imag_begin() const
-    {
-        return std::cbegin(_data) + _data.size() / 2;
-    }
-    vector_t::const_iterator imag_cbegin() const { return imag_begin(); }
-    vector_t::iterator imag_end() { return std::end(_data); }
-    vector_t::const_iterator imag_end() const { return std::end(_data); }
-    vector_t::const_iterator imag_cend() const { return std::end(_data); }
+    auto imag_begin() noexcept { return std::begin(_data) + _data.size() / 2; }
+    auto imag_begin() const noexcept { return std::cbegin(_data) + _data.size() / 2; }
+    auto imag_cbegin() const noexcept { return imag_begin(); }
+    auto imag_end() noexcept { return std::end(_data); }
+    auto imag_end() const noexcept { return std::end(_data); }
+    auto imag_cend() const noexcept { return std::end(_data); }
+
+    /* ****************************************************************************** *
+     * *                          Friends of APyCFixed :)                            * *
+     * ****************************************************************************** */
+public:
+    friend class APyCFixedArray;
 };
 
 #endif

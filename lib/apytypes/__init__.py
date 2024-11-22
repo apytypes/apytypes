@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from apytypes._apytypes import (
     APyCFixed,
+    APyCFixedArray,
     APyFixed,
     APyFixedAccumulatorContext,
     APyFixedArray,
@@ -46,6 +47,7 @@ from apytypes._version import version as __version__
 
 __all__ = [
     "APyCFixed",
+    "APyCFixedArray",
     "APyFixed",
     "APyFixedArray",
     "APyFixedAccumulatorContext",
@@ -299,6 +301,8 @@ For complex-valued fixed-point formats, see :class:`APyCFixed`.
 APyCFixed.__doc__ = r"""
 Class for configurable complex-valued scalar fixed-point formats.
 
+.. versionadded:: 0.3
+
 :class:`APyCFixed` is an arbitrary precision complex-valued two's complement fixed-point
 scalar type. In many ways it behaves like the built-in Python type :class:`complex` in
 that it can be used within ordinary arithmetic expressions that allows complex numbers.
@@ -334,5 +338,11 @@ For real-valued fixed-point formats, see :class:`APyFixed`.
    * - :code:`-a`
      - :code:`a.int_bits + 1`
      - :code:`a.frac_bits`
+"""
 
+
+APyCFixedArray.__doc__ = r"""
+Class for configurable complex-valued array fixed-point formats.
+
+.. versionadded:: 0.3
 """

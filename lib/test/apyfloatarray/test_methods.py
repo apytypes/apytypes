@@ -1050,7 +1050,7 @@ def test_max(max_func):
     assert k.is_identical(i)
     with pytest.raises(
         IndexError,
-        match="specified axis outside number of dimensions in the APyFloatArray",
+        match=r"axes_from_tuple\: dimension 4 out of range \(ndim = 4\)",
     ):
         _ = getattr(e, max_func)(4)
 
@@ -1083,7 +1083,7 @@ def test_max_float(max_func):
     assert s.is_identical(APyFloat.from_float(2.875, exp_bits=10, man_bits=10))
     with pytest.raises(
         IndexError,
-        match="specified axis outside number of dimensions in the APyFloatArray",
+        match=r"axes_from_tuple\: dimension 4 out of range \(ndim = 1\)",
     ):
         _ = getattr(r, max_func)(4)
 
@@ -1156,7 +1156,7 @@ def test_min(min_func):
     assert k.is_identical(i)
     with pytest.raises(
         IndexError,
-        match="specified axis outside number of dimensions in the APyFloatArray",
+        match=r"axes_from_tuple\: dimension 4 out of range \(ndim = 4\)",
     ):
         _ = getattr(e, min_func)(4)
 
@@ -1189,7 +1189,7 @@ def test_min_float(min_func):
     assert s.is_identical(APyFloat.from_float(1.0, exp_bits=10, man_bits=10))
     with pytest.raises(
         IndexError,
-        match="specified axis outside number of dimensions in the APyFloatArray",
+        match=r"axes_from_tuple\: dimension 4 out of range \(ndim = 1\)",
     ):
         _ = getattr(r, min_func)(4)
 
