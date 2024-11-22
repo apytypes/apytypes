@@ -1,4 +1,5 @@
 from apytypes._apytypes import (
+    APyCFixedArray as APyCFixedArray,
     APyFixed as APyFixed,
     APyFixedArray as APyFixedArray,
     APyFloat as APyFloat,
@@ -145,6 +146,7 @@ def eye(
     exp_bits=None,
     man_bits=None,
     bias=None,
+    force_complex=None,
 ):
     """
     Return a 2-D array with ones (stored value) on the main diagonal and zeros
@@ -153,7 +155,8 @@ def eye(
     Word lengths need to be specified and the return type is deduced from the bit
     specifiers. Either specify exactly two of three from `int_bits`, `frac_bits`, and
     `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `man_bits`
-    for :class:`APyFloatArray`.
+    for :class:`APyFloatArray`. Specify `force_complex` to retrieve a complex-valued
+    array type.
 
     Parameters
     ----------
@@ -173,10 +176,14 @@ def eye(
         Number of floating-point mantissa bits.
     bias : int, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+    force_complex : bool, optional
+        Retrieve the complex-valued array type, :class:`APyCFixedArray` for fixed-point
+        and :class:`APyCFloatArray` for floating-point.
+
 
     Returns
     -------
-    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+    result : :class:`APyFloatArray` or :class:`APyFixedArray` or :class:`APyCFixedArray`
         An array where all elements are equal to zero, except for the k-th diagonal,
         whose values are equal to one.
     """
@@ -271,7 +278,14 @@ def full_like(
     """
 
 def identity(
-    n, int_bits=None, frac_bits=None, bits=None, exp_bits=None, man_bits=None, bias=None
+    n,
+    int_bits=None,
+    frac_bits=None,
+    bits=None,
+    exp_bits=None,
+    man_bits=None,
+    bias=None,
+    force_complex=None,
 ):
     """
     Return the identity array.
@@ -279,7 +293,8 @@ def identity(
     Word lengths need to be specified and the return type is deduced from the bit
     specifiers. Either specify exactly two of three from `int_bits`, `frac_bits`, and
     `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `man_bits`
-    for :class:`APyFloatArray`.
+    for :class:`APyFloatArray`. Specify `force_complex` to retrieve a complex-valued
+    array type.
 
     Parameters
     ----------
@@ -297,10 +312,13 @@ def identity(
         Number of floating-point mantissa bits.
     bias : int, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+    force_complex : bool, optional
+        Retrieve the complex-valued array type, :class:`APyCFixedArray` for fixed-point
+        and :class:`APyCFloatArray` for floating-point.
 
     Returns
     -------
-    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+    result : :class:`APyFloatArray` or :class:`APyFixedArray` or :class:`APyCFixedArray`
         `n` x `n` array with ones (stored value) on the main diagonal and zeros
         elsewhere.
     """
@@ -357,6 +375,7 @@ def ones(
     exp_bits=None,
     man_bits=None,
     bias=None,
+    force_complex=None,
 ):
     """
     Create an array of `shape` with all ones (stored value).
@@ -364,7 +383,8 @@ def ones(
     Word lengths need to be specified and the return type is deduced from the bit
     specifiers. Either specify exactly two of three from `int_bits`, `frac_bits`, and
     `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `man_bits`
-    for :class:`APyFloatArray`.
+    for :class:`APyFloatArray`. Specify `force_complex` to retrieve a complex-valued
+    array type.
 
     Parameters
     ----------
@@ -382,10 +402,13 @@ def ones(
         Number of floating-point mantissa bits.
     bias : int, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+    force_complex : bool, optional
+        Retrieve the complex-valued array type, :class:`APyCFixedArray` for fixed-point
+        and :class:`APyCFloatArray` for floating-point.
 
     Returns
     -------
-    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+    result : :class:`APyFloatArray` or :class:`APyFixedArray` or :class:`APyCFixedArray`
         The array initialized filled with ones.
     """
 
@@ -646,6 +669,7 @@ def zeros(
     exp_bits=None,
     man_bits=None,
     bias=None,
+    force_complex=None,
 ):
     """
     Create an array of `shape` with all zeros.
@@ -653,7 +677,8 @@ def zeros(
     Word lengths need to be specified and the return type is deduced from the bit
     specifiers. Either specify exactly two of three from `int_bits`, `frac_bits`, and
     `bits`, for :class:`APyFixedArray`, or specify both `exp_bits` and `man_bits`
-    for :class:`APyFloatArray`.
+    for :class:`APyFloatArray`. Specify `force_complex` to retrieve a complex-valued
+    array type.
 
     Parameters
     ----------
@@ -671,10 +696,13 @@ def zeros(
         Number of floating-point mantissa bits.
     bias : int, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+    force_complex : bool, optional
+        Retrieve the complex-valued array type, :class:`APyCFixedArray` for fixed-point
+        and :class:`APyCFloatArray` for floating-point.
 
     Returns
     -------
-    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+    result : :class:`APyFloatArray` or :class:`APyFixedArray` or :class:`APyCFixedArray`
         The initialized array with zeros.
     """
 

@@ -26,6 +26,7 @@
 /* ********************************************************************************** *
  * *                         Scratch vector iterator base                           * *
  * ********************************************************************************** */
+
 template <typename T, typename PTR_T> class SVIteratorBase {
 public:
     using value_type = T;

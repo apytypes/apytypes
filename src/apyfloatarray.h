@@ -58,14 +58,14 @@ public:
     }
 
     //! Test if two floating-point vectors have the same bit specifiers
-    APY_INLINE bool same_type_as(const APyFloatArray& other) const
+    APY_INLINE bool same_type_as(const APyFloatArray& other) const noexcept
     {
         return man_bits == other.man_bits && exp_bits == other.exp_bits
             && bias == other.bias;
     }
 
     //! Test if `*this` has the same bit specifiers as another `APyFloat`
-    APY_INLINE bool same_type_as(const APyFloat& other) const
+    APY_INLINE bool same_type_as(const APyFloat& other) const noexcept
     {
         return man_bits == other.get_man_bits() && exp_bits == other.get_exp_bits()
             && bias == other.get_bias();
@@ -283,23 +283,6 @@ public:
     //! Return the bit width of the entire floating-point format.
     APY_INLINE std::uint8_t get_bits() const { return exp_bits + man_bits + 1; }
 
-    /*!
-     * Test if two `APyFloatArray` objects are identical. Two `APyFloatArray` objects
-     * are considered identical if, and only if:
-     *   * They represent exactly the same tensor shape
-     *   * They store the exact same floating-point values in all tensor elements
-     *   * They have the exact same sized fields
-     */
-    bool is_identical(const APyFloatArray& other) const;
-
-    /* ****************************************************************************** *
-     * *            `__getitem__` and `__setitem__` family of methods               * *
-     * ****************************************************************************** */
-
-    // //! Top-level `__getitem__` function
-    // std::variant<APyFloatArray, APyFloat>
-    // get_item(std::variant<nb::int_, nb::slice, nb::ellipsis, nb::tuple> key) const;
-
     //! Extract bit-pattern
     std::variant<
         nb::list,
@@ -411,22 +394,7 @@ private:
         const APYFLOAT_TYPE& y  // Floating point src2
     );
 
-    // internal function for the prod,sum,nanprod and nansum functions
-    std::variant<APyFloatArray, APyFloat> prod_sum_function(
-        void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFloatArray&, APyFloatArray&, APyFloat&, APyFloat&),
-        std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt
-    ) const;
-
-    // internal function for the cumprod,cumsum,nancumprod and nancumsum functions
-    APyFloatArray cumulative_prod_sum_function(
-        void (*pos_func)(std::size_t, std::size_t, std::size_t, APyFloatArray&, APyFloatArray&, APyFloat&, APyFloat&),
-        std::optional<nb::int_> axis = std::nullopt
-    ) const;
-
-    std::variant<APyFloatArray, APyFloat> max_min_helper_function(
-        bool (*comp_func)(APyFloat&, APyFloat&),
-        std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt
-    ) const;
+    template <typename T, typename ARRAY_TYPE> friend class APyArray;
 };
 
 #endif

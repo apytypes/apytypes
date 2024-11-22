@@ -96,6 +96,19 @@ protected:
     {
     }
 
+    //! Base constructor for creating new `APyBuffer` stealing data from another vector
+    APyBuffer(
+        const std::vector<std::size_t>& shape, std::size_t itemsize, vector_type&& v
+    )
+        : _itemsize { itemsize }
+        , _shape { shape }
+        , _nitems { fold_shape(shape) }
+        , _data(std::move(v))
+        , _ndim { shape.size() }
+        , _strides {} // uninitialized on construction (is initialized on demand)
+    {
+    }
+
     //! Return a Python Buffer structure compatible with the Buffer Protocol
     Py_buffer get_py_buffer()
     {

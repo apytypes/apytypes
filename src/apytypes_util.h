@@ -10,7 +10,7 @@
 
 #include "fmt/format.h"
 
-#include <algorithm>        // std::find
+#include <algorithm>        // std::find, std::unique, etc...
 #include <cstddef>          // std::size_t
 #include <cstdint>          // int64_t
 #include <functional>       // std::bit_not
@@ -608,8 +608,8 @@ template <class RANDOM_ACCESS_ITERATOR>
         }
     }
 
-    unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
     // Perform the in-limb shifting
+    unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
     if (limb_shift) {
         mpn_rshift(
             &*it_begin, // dst
@@ -742,6 +742,20 @@ template <class RANDOM_ACCESS_ITERATOR>
         }
     }
 
+    return false;
+}
+
+//! Test if the (two's complement) value of `src1` is smaller than that of `src2`
+template <class RANDOM_ACCESS_ITERATOR1, class RANDOM_ACCESS_ITERATOR2>
+[[maybe_unused, nodiscard]] static APY_INLINE bool limb_vector_signed_less_than(
+    RANDOM_ACCESS_ITERATOR1 src1, RANDOM_ACCESS_ITERATOR2 src2, std::size_t limbs
+)
+{
+    for (std::size_t i = limbs; i--;) {
+        if (mp_limb_signed_t(src1[i]) < mp_limb_signed_t(src2[i])) {
+            return true;
+        }
+    }
     return false;
 }
 
@@ -1207,6 +1221,36 @@ static APY_INLINE std::vector<INT_TYPE> cpp_shape_from_python_shape_like(
         cpp_shape.push_back(sanitize_integer_element(std::get<nanobind::int_>(shape)));
     }
     return cpp_shape;
+}
+
+//! Convert a Python tuple to a unique sorted list of dimensions (smaller than `ndim`)
+static APY_INLINE std::vector<std::size_t> cpp_axes_from_python(
+    const std::optional<std::variant<nanobind::tuple, nanobind::int_>>& python_axes,
+    std::size_t ndim
+)
+{
+    std::vector<std::size_t> result {};
+    if (python_axes.has_value()) {
+        for (std::size_t i : cpp_shape_from_python_shape_like(*python_axes)) {
+            if (i >= ndim) {
+                std::string msg = fmt::format(
+                    "axes_from_tuple: dimension {} out of range (ndim = {})", i, ndim
+                );
+                throw nanobind::index_error(msg.c_str());
+            }
+            result.push_back(i);
+        }
+
+        // Sort and remove duplicates
+        std::sort(std::begin(result), std::end(result));
+        result.erase(
+            std::unique(std::begin(result), std::end(result)), std::end(result)
+        );
+    } else {
+        result = std::vector<std::size_t>(ndim);
+        std::iota(std::begin(result), std::end(result), 0);
+    }
+    return result;
 }
 
 //! Get the convolutional properties `len`, `n_left`, and `n_right` (in that order) from

@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result with the same format.
 - New complex-valued data types:
   - `APyCFixed`, a scalar fixed-point complex type.
+  - `APyCFixedArray`, an array fixed-point complex type.
 
 ### Fixed
 

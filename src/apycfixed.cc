@@ -139,6 +139,11 @@ APyCFixed::APyCFixed(int bits, int int_bits, _IT begin, _IT end)
     _overflow_twos_complement(imag_begin(), imag_end(), _bits, _int_bits);
 }
 
+APyCFixed::APyCFixed(int bits, int int_bits, std::initializer_list<mp_limb_t> list)
+    : APyCFixed(bits, int_bits, std::begin(list), std::end(list))
+{
+}
+
 /* ********************************************************************************** *
  * *                            Arithmetic member functions                         * *
  * ********************************************************************************** */
@@ -217,8 +222,11 @@ APyCFixed APyCFixed::operator*(const APyCFixed& rhs) const
 
     // Single-limb result specialization
     if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        result._data[0] = _data[0] * rhs._data[0] - _data[1] * rhs._data[1]; // real
-        result._data[1] = _data[1] * rhs._data[0] + _data[0] * rhs._data[1]; // imag
+        result._data[0] = mp_limb_signed_t(_data[0]) * mp_limb_signed_t(rhs._data[0])
+            - mp_limb_signed_t(_data[1]) * mp_limb_signed_t(rhs._data[1]); // real
+        result._data[1] = mp_limb_signed_t(_data[1]) * mp_limb_signed_t(rhs._data[0])
+            + mp_limb_signed_t(_data[0]) * mp_limb_signed_t(rhs._data[1]); // imag
+
         return result; // early exit
     }
 
@@ -687,6 +695,21 @@ APyCFixed APyCFixed::from_apyfixed(
     APyCFixed result(int_bits, frac_bits, bits);
     std::copy(std::begin(value._data), std::end(value._data), result.real_begin());
     return result;
+}
+
+APyCFixed APyCFixed::c_one(int bits, int int_bits)
+{
+    std::size_t frac_bits = bits - int_bits;
+    std::size_t limb_index = frac_bits / _LIMB_SIZE_BITS;
+    std::size_t bit_offset = frac_bits % _LIMB_SIZE_BITS;
+
+    std::size_t num_limbs = 2 * (limb_index + 1);
+    ScratchVector<mp_limb_t> data(num_limbs, mp_limb_t(0));
+
+    // Set the specified bit to 1
+    data[limb_index] |= mp_limb_t(1) << bit_offset;
+
+    return APyCFixed(bits, int_bits, std::begin(data), std::end(data));
 }
 
 //! Unary negation

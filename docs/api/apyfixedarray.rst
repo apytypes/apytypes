@@ -75,25 +75,13 @@
 
    .. automethod:: prod
 
-   .. automethod:: nansum
-
-   .. automethod:: nanprod
-
    .. automethod:: cumsum
 
    .. automethod:: cumprod
 
-   .. automethod:: nancumsum
-
-   .. automethod:: nancumprod
-
    .. automethod:: max
 
    .. automethod:: min
-
-   .. automethod:: nanmax
-
-   .. automethod:: nanmin
 
    Broadcasting
    ------------

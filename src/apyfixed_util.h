@@ -19,24 +19,21 @@
 //! Constant fixed-point one for convenience
 static const APyFixed fx_one(2, 2, std::vector<mp_limb_t>({ 1 }));
 
-//! Specialized method when only one limb is used
-mp_limb_t get_data_from_double(double value, int bits, int frac_bits, int shift_amnt);
-
 //! Fast integer power by squaring.
 APyFixed ipow(APyFixed base, unsigned int n);
 
 //! Get bit pattern for the value one
 static APY_INLINE APyFixed one(int bits, int int_bits)
 {
-    std::size_t bit_index = bits - int_bits;
-    std::size_t limb_index = bit_index / _LIMB_SIZE_BITS;
-    std::size_t bit_offset = bit_index % _LIMB_SIZE_BITS;
+    std::size_t frac_bits = bits - int_bits;
+    std::size_t limb_index = frac_bits / _LIMB_SIZE_BITS;
+    std::size_t bit_offset = frac_bits % _LIMB_SIZE_BITS;
 
     std::size_t num_limbs = limb_index + 1;
-    std::vector<mp_limb_t> data(num_limbs, static_cast<mp_limb_t>(0));
+    std::vector<mp_limb_t> data(num_limbs, mp_limb_t(0));
 
     // Set the specified bit to 1
-    data[limb_index] |= static_cast<mp_limb_t>(1) << bit_offset;
+    data[limb_index] |= mp_limb_t(1) << bit_offset;
 
     return APyFixed(bits, int_bits, data);
 }
@@ -677,6 +674,78 @@ static APY_INLINE void _cast_no_quantize_no_overflow(
     limb_vector_lsl(dst_begin, dst_end, left_shift_amount);
 }
 
+/*!
+ * Casting when there is known before hand that no quantization or overflowing will
+ * occur. Takes `left_shift_amount` which is the destination fractional bits minus the
+ * source fractional bits.
+ */
+template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
+static APY_INLINE void _cast_no_quantize_no_overflow(
+    RANDOM_ACCESS_ITERATOR_IN src,
+    RANDOM_ACCESS_ITERATOR_OUT dst,
+    std::size_t src_limbs,
+    std::size_t dst_limbs,
+    std::size_t n_items,
+    unsigned int left_shift_amount
+)
+{
+
+    /*
+     * Specialization #1: `src` and `dst` have equally many limbs
+     */
+    if (src_limbs == dst_limbs) {
+
+        // Copy data into the result
+        std::copy_n(src, src_limbs * n_items, dst);
+
+        if (left_shift_amount > 0) {
+            if (src_limbs == 1) { /* src_limbs == dst_limbs == 1 */
+                for (std::size_t i = 0; i < n_items; i++) {
+                    dst[i] = src[i] << left_shift_amount;
+                }
+            } else { /* src_limbs == dst_limbs > 1 */
+                unsigned limb_skip = left_shift_amount / _LIMB_SIZE_BITS;
+                unsigned limb_shift = left_shift_amount % _LIMB_SIZE_BITS;
+                for (std::size_t i = 0; i < n_items; i++) {
+                    limb_vector_lsl_inner(
+                        dst + (i + 0) * dst_limbs,
+                        dst + (i + 1) * dst_limbs,
+                        limb_skip,
+                        limb_shift,
+                        dst_limbs
+                    );
+                }
+            }
+        }
+
+        return; // early return specialization #1
+    }
+
+    /*
+     * General case: `dst_limbs > src_limbs`
+     */
+    if (left_shift_amount > 0) {
+        for (std::size_t i = 0; i < n_items; i++) {
+            _cast_no_quantize_no_overflow(
+                src + (i + 0) * src_limbs, // src_begin
+                src + (i + 1) * src_limbs, // src_end
+                dst + (i + 0) * dst_limbs, // dst_begin,
+                dst + (i + 1) * dst_limbs, // dst_end
+                left_shift_amount          // left_shift_amount
+            );
+        }
+    } else {
+        for (std::size_t i = 0; i < n_items; i++) {
+            limb_vector_copy_sign_extend(
+                src + (i + 0) * src_limbs, // src_begin
+                src + (i + 1) * src_limbs, // src_end
+                dst + (i + 0) * dst_limbs, // dst_begin,
+                dst + (i + 1) * dst_limbs  // dst_end
+            );
+        }
+    }
+}
+
 /* ********************************************************************************** *
  * *     Fixed-point iterator based arithmetic functions with multi-limb support    * *
  * ********************************************************************************** */
@@ -688,12 +757,13 @@ static APY_INLINE void _cast_no_quantize_no_overflow(
 //! allowed. Overlap between `prod_abs` and `dst` is allowed
 //! if `dst_limbs >= src1_limbs + src2_limbs`.
 template <
-    typename RANDOM_ACCESS_ITERATOR_IN,
+    typename RANDOM_ACCESS_ITERATOR_IN1,
+    typename RANDOM_ACCESS_ITERATOR_IN2,
     typename RANDOM_ACCESS_ITERATOR_OUT,
     typename RANDOM_ACCESS_ITERATOR_INOUT>
 static APY_INLINE void fixed_point_product(
-    RANDOM_ACCESS_ITERATOR_IN src1,
-    RANDOM_ACCESS_ITERATOR_IN src2,
+    RANDOM_ACCESS_ITERATOR_IN1 src1,
+    RANDOM_ACCESS_ITERATOR_IN2 src2,
     RANDOM_ACCESS_ITERATOR_OUT dst,
     std::size_t src1_limbs,
     std::size_t src2_limbs,
@@ -774,12 +844,13 @@ static APY_INLINE void fixed_point_square(
 //! limbs, respectively. No overlap between `prod_imm` and `op[12]_abs` allowed. No
 //! overlap between `prod_imm` and `dst` allowed.
 template <
-    typename RANDOM_ACCESS_ITERATOR_IN,
+    typename RANDOM_ACCESS_ITERATOR_IN1,
+    typename RANDOM_ACCESS_ITERATOR_IN2,
     typename RANDOM_ACCESS_ITERATOR_OUT,
     typename RANDOM_ACCESS_ITERATOR_INOUT>
 static APY_INLINE void complex_fixed_point_product(
-    RANDOM_ACCESS_ITERATOR_IN src1,
-    RANDOM_ACCESS_ITERATOR_IN src2,
+    RANDOM_ACCESS_ITERATOR_IN1 src1,
+    RANDOM_ACCESS_ITERATOR_IN2 src2,
     RANDOM_ACCESS_ITERATOR_OUT dst,
     std::size_t src1_limbs,
     std::size_t src2_limbs,
@@ -820,12 +891,29 @@ static APY_INLINE void complex_fixed_point_product(
         prod_imm + src1_limbs + src2_limbs + 1  // prod_abs
     );
 
+    // Copy `src1 (imag)` to `op1_abs`, so we can use `src1` as both a source and
+    // destination.
+    std::copy_n(src1 + src1_limbs, src1_limbs, op1_abs);
+
     // bc + ad
     mpn_add_n(
         &*(dst + dst_limbs),                             // dst (imag part)
         &*(prod_imm),                                    // src1 (b*c)
         &*(prod_imm + src1_limbs + src2_limbs + 1),      // src2 (a*d)
         std::min(src1_limbs + src2_limbs + 1, dst_limbs) // limbs
+    );
+
+    // b*d
+    fixed_point_product(
+        op1_abs,                                // src1 (b)
+        src2 + src2_limbs,                      // src2 (d)
+        prod_imm + src1_limbs + src2_limbs + 1, // dst
+        src1_limbs,                             // src1_limbs
+        src2_limbs,                             // src2_limbs
+        src1_limbs + src2_limbs + 1,            // dst_limbs
+        op1_abs,                                // op1_abs
+        op2_abs,                                // op2_abs
+        prod_imm + src1_limbs + src2_limbs + 1  // prod_abs
     );
 
     // a*c
@@ -839,19 +927,6 @@ static APY_INLINE void complex_fixed_point_product(
         op1_abs,                     // op1_abs
         op2_abs,                     // op2_abs
         prod_imm                     // prod_abs
-    );
-
-    // b*d
-    fixed_point_product(
-        src1 + src1_limbs,                      // src1 (b)
-        src2 + src2_limbs,                      // src2 (d)
-        prod_imm + src1_limbs + src2_limbs + 1, // dst
-        src1_limbs,                             // src1_limbs
-        src2_limbs,                             // src2_limbs
-        src1_limbs + src2_limbs + 1,            // dst_limbs
-        op1_abs,                                // op1_abs
-        op2_abs,                                // op2_abs
-        prod_imm + src1_limbs + src2_limbs + 1  // prod_abs
     );
 
     // ac - bd
@@ -870,12 +945,13 @@ static APY_INLINE void complex_fixed_point_product(
 //! limbs, respectively. No overlap between `prod_imm` and `op[12]_abs` allowed. No
 //! overlap between `prod_imm` and `dst` allowed.
 template <
-    typename RANDOM_ACCESS_ITERATOR_IN,
+    typename RANDOM_ACCESS_ITERATOR_IN1,
+    typename RANDOM_ACCESS_ITERATOR_IN2,
     typename RANDOM_ACCESS_ITERATOR_OUT,
     typename RANDOM_ACCESS_ITERATOR_INOUT>
 static APY_INLINE void complex_fixed_point_division(
-    RANDOM_ACCESS_ITERATOR_IN src1,
-    RANDOM_ACCESS_ITERATOR_IN src2,
+    RANDOM_ACCESS_ITERATOR_IN1 src1,
+    RANDOM_ACCESS_ITERATOR_IN2 src2,
     RANDOM_ACCESS_ITERATOR_OUT dst,
     std::size_t src1_limbs,
     std::size_t src2_limbs,
@@ -1403,6 +1479,10 @@ double fixed_point_to_double(
                   std::remove_const_t<typename RANDOM_ACCESS_IT::value_type>>);
     static_assert(_LIMB_SIZE_BITS == 64 || _LIMB_SIZE_BITS == 32);
 
+    if (limb_vector_is_zero(begin_it, end_it)) {
+        return 0.0;
+    }
+
     uint64_t man {};
     int exp {};
     bool sign = limb_vector_is_negative(begin_it, end_it);
@@ -1521,6 +1601,115 @@ std::string fixed_point_to_string_dec(
     }
 
     return result;
+}
+
+/* ********************************************************************************** *
+ * *                        Fixed-point folding functions                           * *
+ * ********************************************************************************** */
+
+//! Retrieve an accumulative fixed-point fold function
+template <typename VECTOR_TYPE>
+static APY_INLINE std::function<
+    void(typename VECTOR_TYPE::iterator, typename VECTOR_TYPE::const_iterator)>
+fold_accumulate(std::size_t src_limbs, std::size_t acc_limbs)
+{
+    if (acc_limbs <= 1) {
+        /* single limb specialization */
+        return [](auto acc_it, auto src_it) { *acc_it += *src_it; };
+    } else {
+        return [src_limbs, acc_limbs](auto acc_it, auto src_it) {
+            mpn_add(&acc_it[0], &acc_it[0], acc_limbs, &src_it[0], src_limbs);
+        };
+    }
+}
+
+//! Retrieve a multiplicative fold function
+template <typename VECTOR_TYPE, typename SCRATCH_VEC>
+static APY_INLINE std::function<
+    void(typename VECTOR_TYPE::iterator, typename VECTOR_TYPE::const_iterator)>
+fold_multiply(std::size_t src_limbs, std::size_t acc_limbs, SCRATCH_VEC& scratch)
+{
+    if (acc_limbs <= 1) {
+        /* single limb specialization */
+        return [](auto acc_it, auto src_it) { *acc_it *= *src_it; };
+    } else {
+        return [src_limbs, acc_limbs, &scratch](auto acc_it, auto src_it) {
+            auto op1_abs = std::begin(scratch);
+            auto op2_abs = op1_abs + acc_limbs;
+            auto prod_abs = op2_abs + src_limbs;
+            fixed_point_product(
+                acc_it,    // src1
+                src_it,    // src2
+                acc_it,    // dst
+                acc_limbs, // src1_limbs
+                src_limbs, // src2_limbs
+                acc_limbs, // dst_limbs
+                op1_abs,   // op1_abs
+                op2_abs,   // op2_abs
+                prod_abs   // prod_abs
+            );
+        };
+    }
+}
+
+//! Retrieve a complex-valued accumulative fixed-point fold function
+template <typename VECTOR_TYPE>
+static APY_INLINE std::function<
+    void(typename VECTOR_TYPE::iterator, typename VECTOR_TYPE::const_iterator)>
+fold_complex_accumulate(std::size_t src_limbs, std::size_t acc_limbs)
+{
+    if (acc_limbs <= 1) {
+        /* single limb (one real, one imag) specialization */
+        return [](auto acc_it, auto src_it) {
+            *(acc_it + 0) += *(src_it + 0); // real part
+            *(acc_it + 1) += *(src_it + 1); // imag part
+        };
+    } else {
+        return [src_limbs, acc_limbs](auto acc_it, auto src_it) {
+            std::size_t src_j = src_limbs;
+            std::size_t acc_j = acc_limbs;
+            mpn_add(&acc_it[0], &acc_it[0], acc_limbs, &src_it[0], src_limbs);
+            mpn_add(&acc_it[acc_j], &acc_it[acc_j], acc_j, &src_it[src_j], src_j);
+        };
+    }
+}
+
+//! Retrieve a complex-valued multiplicative fold function
+template <typename VECTOR_TYPE, typename SCRATCH_VEC>
+static APY_INLINE std::function<
+    void(typename VECTOR_TYPE::iterator, typename VECTOR_TYPE::const_iterator)>
+fold_complex_multiply(
+    std::size_t src_limbs, std::size_t acc_limbs, SCRATCH_VEC& scratch
+)
+{
+    if (acc_limbs <= 1) {
+        /* single limb specialization */
+        return [](auto acc_it, auto src_it) {
+            mp_limb_signed_t acc_real = acc_it[0];
+            mp_limb_signed_t acc_imag = acc_it[1];
+            mp_limb_signed_t src_real = src_it[0];
+            mp_limb_signed_t src_imag = src_it[1];
+            acc_it[0] = acc_real * src_real - acc_imag * src_imag;
+            acc_it[1] = acc_imag * src_real + acc_real * src_imag;
+        };
+    } else {
+        return [src_limbs, acc_limbs, &scratch](auto acc_it, auto src_it) {
+            auto op1_abs = std::begin(scratch);
+            auto op2_abs = op1_abs + acc_limbs;
+            auto prod_imm = op2_abs + src_limbs;
+            complex_fixed_point_product(
+                acc_it,    // src1
+                src_it,    // src2
+                acc_it,    // dst
+                acc_limbs, // src1_limbs
+                src_limbs, // src2_limbs
+                acc_limbs, // dst_limbs
+                op1_abs,   // op1_abs
+                op2_abs,   // op2_abs
+                prod_imm   // prod_imm
+            );
+        };
+    }
 }
 
 #endif // _APYFIXED_UTIL_H

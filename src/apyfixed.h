@@ -328,8 +328,28 @@ public:
         std::optional<int> bits = std::nullopt
     );
 
+    //! Retrieve an `APyFixed` of `bits` and `int_bits` with the maximum value
+    static APyFixed get_max(int bits, int int_bits)
+    {
+        APyFixed init_max(bits, int_bits);
+        std::size_t limbs = init_max._data.size();
+        init_max._data[limbs - 1] |= (mp_limb_t(1) << ((bits - 1) % _LIMB_SIZE_BITS));
+        mpn_sub_1(&init_max._data[0], &init_max._data[0], limbs, 1);
+        return init_max;
+    }
+
+    //! Retrieve an `APyFixed` of `bits` and `int_bits` with the minimum value
+    static APyFixed get_min(int bits, int int_bits)
+    {
+        APyFixed init_min = get_max(bits, int_bits);
+        auto begin_it = std::begin(init_min._data);
+        auto end_it = std::end(init_min._data);
+        std::transform(begin_it, end_it, begin_it, std::bit_not {});
+        return init_min;
+    }
+
     /* ****************************************************************************** *
-     *                     Resize and quantization method (cast)                    * *
+     * *                   Resize and quantization method (cast)                    * *
      * ****************************************************************************** */
 
 public:
@@ -348,7 +368,10 @@ public:
         int bits, int int_bits, QuantizationMode quantization = QuantizationMode::TRN
     ) const;
 
-    //! Friends of `APyFixed` :)
+    /* ****************************************************************************** *
+     * *                          Friends of APyFixed :)                            * *
+     * ****************************************************************************** */
+
 public:
     friend class APyCFixed;
     friend class APyFixedArray;

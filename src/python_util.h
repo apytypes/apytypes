@@ -7,6 +7,7 @@
 
 // Python object access through Pybind
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/complex.h>
 #include <nanobind/stl/string.h>
 
 // Python details. These should be included before standard header files:

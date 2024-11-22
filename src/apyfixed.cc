@@ -634,11 +634,6 @@ void APyFixed::set_from_string(const std::string& str, int base)
 
 double APyFixed::to_double() const
 {
-    // Early exit if zero
-    if (is_zero()) {
-        return 0.0;
-    }
-
     return fixed_point_to_double(std::begin(_data), std::end(_data), _bits, _int_bits);
 }
 
