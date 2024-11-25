@@ -887,7 +887,7 @@ void bind_float_array(nb::module_& m)
             &APyFloatArray::nansum,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Return the sum of the elements along specified axis/axes treating Not a Number as 0.
+            Return the sum of the elements along specified axis/axes treating NaN as 0.
 
             Parameters
             ----------
@@ -930,7 +930,7 @@ void bind_float_array(nb::module_& m)
             &APyFloatArray::nancumsum,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Return the cumulative sum of the elements along a given axis treating Not a Number as 0.
+            Return the cumulative sum of the elements along a given axis treating NaN as 0.
 
             Parameters
             ----------
@@ -1064,7 +1064,7 @@ void bind_float_array(nb::module_& m)
             &APyFloatArray::nanprod,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-                Return the product of the elements along a given axis treating Not a Number as 0.
+                Return the product of the elements along a given axis treating NaN as 0.
 
                 Parameters
                 ----------
@@ -1087,7 +1087,7 @@ void bind_float_array(nb::module_& m)
             &APyFloatArray::nancumprod,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-                Return the cumulative product of the elements along a given axis treating Not a Number as 0.
+                Return the cumulative product of the elements along a given axis treating NaN as 0.
 
                 Parameters
                 ----------
@@ -1111,7 +1111,7 @@ void bind_float_array(nb::module_& m)
             &APyFloatArray::max,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Return the maximum value from an array or the maximum along an axis
+            Return the maximum value from an array or the maximum values along an axis.
 
             Parameters
             ----------
@@ -1159,7 +1159,7 @@ void bind_float_array(nb::module_& m)
             &APyFloatArray::min,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Return the minimum value from an array or the minimum along an axis
+            Return the minimum value from an array or the minimum values along an axis.
 
             Parameters
             ----------
@@ -1206,7 +1206,8 @@ void bind_float_array(nb::module_& m)
             &APyFloatArray::nanmax,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Return the maximum value from an array or the maximum along an axis. Ignoring nan.
+            Return the maximum value from an array or the maximum values along an axis, ignoring NaN.
+
             Issues a warning when encountering an all-nan slice or axis.
 
             Parameters
@@ -1231,7 +1232,8 @@ void bind_float_array(nb::module_& m)
             &APyFloatArray::nanmin,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Return the minimum value from an array or the minimum along an axis. Ignoring nan.
+            Return the minimum value from an array or the minimum values along an axis, ignoring NaN.
+
             Issues a warning when encountering an all-nan slice or axis.
 
             Parameters

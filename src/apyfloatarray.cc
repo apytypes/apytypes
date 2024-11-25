@@ -1589,7 +1589,7 @@ APyFloatArray::nanmin(std::optional<std::variant<nb::tuple, nb::int_>> axis) con
     return res;
 }
 
-// Return the maximum of an array or the maximum along an axis.
+//! Return the maximum/minimum of an array or the maximum/minimum values along an axis.
 std::variant<APyFloatArray, APyFloat> APyFloatArray::max_min_helper_function(
     bool (*comp_func)(APyFloat&, APyFloat&),
     std::optional<std::variant<nb::tuple, nb::int_>> axis
