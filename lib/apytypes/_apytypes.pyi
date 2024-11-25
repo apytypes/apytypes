@@ -1330,7 +1330,7 @@ class APyFixedArray:
 
     def sum(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Return the sum of the elements along specified axis/axes treating Not a Number as 0.
+        Return the sum of the elements along specified axis/axes treating NaN as 0.
 
         Parameters
         ----------
@@ -1400,7 +1400,7 @@ class APyFixedArray:
 
     def nansum(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Return the sum of the elements along specified axis/axes treating Not a Number as 0.
+        Return the sum of the elements along specified axis/axes treating NaN as 0.
 
         Parameters
         ----------
@@ -1419,7 +1419,7 @@ class APyFixedArray:
 
     def nancumsum(self, axis: int | None = None) -> APyFixedArray:
         """
-        Return the cumulative sum of the elements along a given axis treating Not a Number as 0.
+        Return the cumulative sum of the elements along a given axis treating NaN as 0.
 
         Parameters
         ----------
@@ -1438,7 +1438,7 @@ class APyFixedArray:
 
     def max(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Return the maximum value from an array or the maximum along an axis
+        Return the maximum value from an array or the maximum values along an axis.
 
         Parameters
         ----------
@@ -1477,7 +1477,7 @@ class APyFixedArray:
 
     def min(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Return the minimum value from an array or the minimum along an axis
+        Return the minimum value from an array or the minimum values along an axis.
 
         Parameters
         ----------
@@ -1516,7 +1516,8 @@ class APyFixedArray:
 
     def nanmax(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Return the maximum value from an array or the maximum along an axis. Ignoring nan.
+        Return the maximum value from an array or the maximum values along an axis, ignoring NaN.
+
         Issues a warning when encountering an all-nan slice or axis.
 
         Parameters
@@ -1536,7 +1537,8 @@ class APyFixedArray:
 
     def nanmin(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Return the minimum value from an array or the minimum along an axis. Ignoring nan.
+        Return the minimum value from an array or the minimum values along an axis, ignoring NaN.
+
         Issues a warning when encountering an all-nan slice or axis.
 
         Parameters
@@ -1625,7 +1627,7 @@ class APyFixedArray:
 
     def nanprod(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
         """
-        Return the product of the elements along a given axis treating Not a Number as 0.
+        Return the product of the elements along a given axis treating NaN as 0.
 
         Parameters
         ----------
@@ -1644,7 +1646,7 @@ class APyFixedArray:
 
     def nancumprod(self, axis: int | None = None) -> APyFixedArray:
         """
-        Return the cumulative product of the elements along a given axis treating Not a Number as 0.
+        Return the cumulative product of the elements along a given axis treating NaN as 0.
 
         Parameters
         ----------
@@ -3378,7 +3380,7 @@ class APyFloatArray:
 
     def nansum(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
         """
-        Return the sum of the elements along specified axis/axes treating Not a Number as 0.
+        Return the sum of the elements along specified axis/axes treating NaN as 0.
 
         Parameters
         ----------
@@ -3413,7 +3415,7 @@ class APyFloatArray:
 
     def nancumsum(self, axis: int | None = None) -> APyFloatArray:
         """
-        Return the cumulative sum of the elements along a given axis treating Not a Number as 0.
+        Return the cumulative sum of the elements along a given axis treating NaN as 0.
 
         Parameters
         ----------
@@ -3527,7 +3529,7 @@ class APyFloatArray:
 
     def nanprod(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
         """
-        Return the product of the elements along a given axis treating Not a Number as 0.
+        Return the product of the elements along a given axis treating NaN as 0.
 
         Parameters
         ----------
@@ -3546,7 +3548,7 @@ class APyFloatArray:
 
     def nancumprod(self, axis: int | None = None) -> APyFloatArray:
         """
-        Return the cumulative product of the elements along a given axis treating Not a Number as 0.
+        Return the cumulative product of the elements along a given axis treating NaN as 0.
 
         Parameters
         ----------
@@ -3565,7 +3567,7 @@ class APyFloatArray:
 
     def max(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
         """
-        Return the maximum value from an array or the maximum along an axis
+        Return the maximum value from an array or the maximum values along an axis.
 
         Parameters
         ----------
@@ -3606,7 +3608,7 @@ class APyFloatArray:
 
     def min(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
         """
-        Return the minimum value from an array or the minimum along an axis
+        Return the minimum value from an array or the minimum values along an axis.
 
         Parameters
         ----------
@@ -3647,7 +3649,8 @@ class APyFloatArray:
 
     def nanmax(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
         """
-        Return the maximum value from an array or the maximum along an axis. Ignoring nan.
+        Return the maximum value from an array or the maximum values along an axis, ignoring NaN.
+
         Issues a warning when encountering an all-nan slice or axis.
 
         Parameters
@@ -3667,7 +3670,8 @@ class APyFloatArray:
 
     def nanmin(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
         """
-        Return the minimum value from an array or the minimum along an axis. Ignoring nan.
+        Return the minimum value from an array or the minimum values along an axis, ignoring NaN.
+
         Issues a warning when encountering an all-nan slice or axis.
 
         Parameters
