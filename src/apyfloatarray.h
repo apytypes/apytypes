@@ -15,6 +15,11 @@
 #include <vector>
 
 class APyFloatArray : public APyArray<APyFloatData, APyFloatArray> {
+
+    /* ****************************************************************************** *
+     * *                          Python constructors                               * *
+     * ****************************************************************************** */
+
 public:
     //! Constructor taking a sequence of signs, biased exponents, and mantissas.
     //! If no bias is given, an IEEE-like bias will be used.
@@ -33,6 +38,23 @@ public:
     std::uint8_t man_bits;
     //! Exponent bias
     exp_t bias;
+
+    /* ****************************************************************************** *
+     * *                     Non-Python accessible constructors                     * *
+     * ****************************************************************************** */
+
+public:
+    //! Constructor specifying only the shape and format of the array
+    APyFloatArray(
+        const std::vector<std::size_t>& shape,
+        exp_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
+
+private:
+    //! Default constructor (not available)
+    APyFloatArray() = delete;
 
     /* ****************************************************************************** *
      * *                              CRTP methods                                  * *
@@ -304,10 +326,11 @@ public:
     //! Convert to a NumPy array
     nanobind::ndarray<nanobind::numpy, double> to_numpy() const;
 
-    /* ******************************************************************************
-     * * Convenience methods                                                        *
-     * ******************************************************************************
-     */
+    /* ****************************************************************************** *
+     * *                          Convenience methods                               * *
+     * ****************************************************************************** */
+
+public:
     //! Convenience method when target format is known to correspond to a
     //! double-precision floating-point
     APyFloatArray
@@ -324,18 +347,6 @@ public:
     //! float
     APyFloatArray
     cast_to_bfloat16(std::optional<QuantizationMode> quantization = std::nullopt) const;
-
-private:
-    //! Default constructor (not available)
-    APyFloatArray() = delete;
-
-    //! Constructor specifying only the shape and format of the array
-    APyFloatArray(
-        const std::vector<std::size_t>& shape,
-        exp_t exp_bits,
-        std::uint8_t man_bits,
-        std::optional<exp_t> bias = std::nullopt
-    );
 
     //! Create an `APyFloatArray` tensor object initialized from bit-representation
     static APyFloatArray _from_bits_ndarray(
@@ -363,8 +374,10 @@ private:
      * multiplication.
      */
     APyFloatArray checked_2d_matmul(const APyFloatArray& rhs) const;
+
     //! Compute the sum of all elements
     APyFloat vector_sum(const QuantizationMode quantization) const;
+
     /*!
      * Perform hadamard multiplication of `*this` and `rhs`, and store result in `res`.
      * This method assumes that the shape of `*this` and `rhs` are equal,
@@ -393,8 +406,6 @@ private:
         const APYFLOAT_TYPE& x, // Floating point src1
         const APYFLOAT_TYPE& y  // Floating point src2
     );
-
-    template <typename T, typename ARRAY_TYPE> friend class APyArray;
 };
 
 #endif

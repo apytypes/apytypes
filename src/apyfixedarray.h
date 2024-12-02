@@ -113,6 +113,7 @@ public:
      * *                     Non-Python accessible constructors                     * *
      * ****************************************************************************** */
 
+public:
     //! Constructor: specify only shape and word-length. Zero data on construction.
     explicit APyFixedArray(
         const std::vector<std::size_t>& shape, int bits, int int_bits
