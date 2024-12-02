@@ -358,22 +358,22 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.min" title="apytypes.APyFixedArray.min"><code class="xref py py-obj docutils literal notranslate"><span class="pre">min</span></code></a></p></td>
 <td><p>Return the minimum value from an array or the minimum values along an axis.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.nancumprod" title="apytypes.APyFixedArray.nancumprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nancumprod</span></code></a></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nancumprod</span></code></p></td>
 <td><p>Return the cumulative product of the elements along a given axis treating NaN as 0.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.nancumsum" title="apytypes.APyFixedArray.nancumsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nancumsum</span></code></a></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nancumsum</span></code></p></td>
 <td><p>Return the cumulative sum of the elements along a given axis treating NaN as 0.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.nanmax" title="apytypes.APyFixedArray.nanmax"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanmax</span></code></a></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanmax</span></code></p></td>
 <td><p>Return the maximum value from an array or the maximum values along an axis, ignoring NaN.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.nanmin" title="apytypes.APyFixedArray.nanmin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanmin</span></code></a></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanmin</span></code></p></td>
 <td><p>Return the minimum value from an array or the minimum values along an axis, ignoring NaN.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.nanprod" title="apytypes.APyFixedArray.nanprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanprod</span></code></a></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanprod</span></code></p></td>
 <td><p>Return the product of the elements along a given axis treating NaN as 0.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.nansum" title="apytypes.APyFixedArray.nansum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nansum</span></code></a></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nansum</span></code></p></td>
 <td><p>Return the sum of the elements along specified axis/axes treating NaN as 0.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.ones" title="apytypes.APyFixedArray.ones"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ones</span></code></a></p></td>
@@ -392,7 +392,7 @@
 <td><p>Removes axes of size one at the specified axis/axes, if no axis is given removes all dimensions with size one.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.sum" title="apytypes.APyFixedArray.sum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum</span></code></a></p></td>
-<td><p>Return the sum of the elements along specified axis/axes treating NaN as 0.</p></td>
+<td><p>Return the sum of the elements along specified axis/axes.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFixedArray.swapaxes" title="apytypes.APyFixedArray.swapaxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">swapaxes</span></code></a></p></td>
 <td><p>Interchange two axes of an array.</p></td>
@@ -459,14 +459,15 @@ method rounds away from infinity on ties.</p>
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.from_array">
 <span class="sig-name descname"><span class="pre">from_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ndarray:</span> <span class="pre">ndarray[order='C'],</span> <span class="pre">int_bits:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">frac_bits:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">bits:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.from_array" title="Link to this definition">¶</a></dt>
 <dd><p>Create an <a class="reference internal" href="#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> object from an ndarray.</p>
-<p>The initialized fixed-point values are the one closest to the
-input floating-point value, rounded away from zero on ties. Exactly two of
-the three bit-specifiers (<cite>bits</cite>, <cite>int_bits</cite>, <cite>frac_bits</cite>) must be set.</p>
+<p>The initialized fixed-point values are the one closest to the input
+floating-point value, rounded away from zero on ties. Exactly two of the
+three bit-specifiers (<cite>bits</cite>, <cite>int_bits</cite>, <cite>frac_bits</cite>) must be set.</p>
 <p>Using NumPy arrays as input is in general faster than e.g. lists.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>ndarray</strong><span class="classifier">ndarray</span></dt><dd><p>Values to initialize from. The tensor shape will be taken from the ndarray shape.</p>
+<dt><strong>ndarray</strong><span class="classifier">ndarray</span></dt><dd><p>Values to initialize from. The tensor shape will be taken from the
+ndarray shape.</p>
 </dd>
 <dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits in the created fixed-point tensor.</p>
 </dd>
@@ -485,10 +486,8 @@ the three bit-specifiers (<cite>bits</cite>, <cite>int_bits</cite>, <cite>frac_b
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-</pre></div>
-</div>
-<p>Array <cite>a</cite>, initialized from NumPy ndarray</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
 <span class="gp">... </span>        <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
 <span class="gp">... </span>        <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
@@ -530,14 +529,9 @@ from the sequence shape.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span>
-</pre></div>
-</div>
-<p>Array <cite>a</cite>, initialized from floating-point values.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.49</span><span class="p">],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Array <cite>b</cite> (2 x 3 matrix), initialized from floating-point values.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.49</span><span class="p">],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="p">[</span>
 <span class="gp">... </span>        <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
 <span class="gp">... </span>        <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
@@ -687,8 +681,8 @@ from the sequence shape.</p>
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.cast">
 <span class="sig-name descname"><span class="pre">cast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode" title="QuantizationMode"><span class="pre">QuantizationMode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overflow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quantizationoverflow.html#apytypes.OverflowMode" title="OverflowMode"><span class="pre">OverflowMode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.cast" title="Link to this definition">¶</a></dt>
 <dd><p>Change format of the fixed-point array.</p>
-<p>This is the primary method for performing quantization and overflowing/saturation
-when dealing with APyTypes fixed-point arrays.</p>
+<p>This is the primary method for performing quantization and
+overflowing/saturation when dealing with APyTypes fixed-point arrays.</p>
 <p>Exactly two of three bit-specifiers (<cite>bits</cite>, <cite>int_bits</cite>, <cite>frac_bits</cite>) must
 be set.</p>
 <dl class="field-list">
@@ -810,18 +804,24 @@ which reverses the order of the axes.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">4.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.0</span><span class="p">]],</span> <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[ 1.,  2.,  3.],</span>
-<span class="go">       [-4., -5., -6.]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="p">[[</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="mf">2.0</span><span class="p">,</span>  <span class="mf">3.0</span><span class="p">],</span>
+<span class="gp">... </span>         <span class="p">[</span><span class="o">-</span><span class="mf">4.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.0</span><span class="p">]],</span>
+<span class="gp">... </span>        <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[ 1., -4.],</span>
 <span class="go">       [ 2., -5.],</span>
 <span class="go">       [ 3., -6.]])</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([</span><span class="mf">1.0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">,</span> <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
+<span class="gp">... </span>    <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">shape</span>
 <span class="go">(2, 1, 3)</span>
 </pre></div>
@@ -848,6 +848,7 @@ which reverses the order of the axes.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[ 1. ,  1.5],</span>
@@ -863,8 +864,8 @@ which reverses the order of the axes.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.ravel">
 <span class="sig-name descname"><span class="pre">ravel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.ravel" title="Link to this definition">¶</a></dt>
-<dd><p>Return a copy of the array collapsed into one dimension. Same as flatten with
-current memory-copy model.</p>
+<dd><p>Return a copy of the array collapsed into one dimension. Same as flatten
+with current memory-copy model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -874,6 +875,7 @@ current memory-copy model.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[ 1. ,  1.5],</span>
@@ -893,7 +895,9 @@ current memory-copy model.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>new_shape</strong><span class="classifier"><cite>tuple</cite></span></dt><dd><p>The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.</p>
+<dt><strong>new_shape</strong><span class="classifier"><cite>tuple</cite></span></dt><dd><p>The new shape should be compatible with the original shape. If a
+dimension is -1, its value will be inferred from the length of the array
+and remaining dimensions. Only one dimension can be -1.</p>
 </dd>
 </dl>
 </dd>
@@ -904,28 +908,25 @@ current memory-copy model.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt>ValueError</dt><dd><p>If negative dimensions less than -1 are provided, if the total size of the new array is not unchanged and divisible by the known dimensions, or if the total number of elements does not match the original array.</p>
+<dt>ValueError</dt><dd><p>If negative dimensions less than -1 are provided, if the total size of
+the new array is not unchanged and divisible by the known dimensions, or
+if the total number of elements does not match the original array.</p>
 </dd>
 </dl>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([ 1. ,  1.5, -2. , -1.5])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[ 1. ,  1.5],</span>
 <span class="go">       [-2. , -1.5]])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">4</span><span class="p">,))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">4</span><span class="p">,))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([ 1. ,  1.5, -2. , -1.5])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[ 1. ,  1.5],</span>
 <span class="go">       [-2. , -1.5]])</span>
 </pre></div>
@@ -935,11 +936,13 @@ current memory-copy model.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.squeeze">
 <span class="sig-name descname"><span class="pre">squeeze</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.squeeze" title="Link to this definition">¶</a></dt>
-<dd><p>Removes axes of size one at the specified axis/axes, if no axis is given removes all dimensions with size one.</p>
+<dd><p>Removes axes of size one at the specified axis/axes, if no axis is given
+removes all dimensions with size one.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>axis</strong><span class="classifier">tuple or int, optional</span></dt><dd><p>The axes to squeeze, a given axis with a size other than one will result in an error. No given axes  will be remove all dimensions of size one.</p>
+<dt><strong>axis</strong><span class="classifier">tuple or int, optional</span></dt><dd><p>The axes to squeeze, a given axis with a size other than one will result
+in an error. No given axes  will be remove all dimensions of size one.</p>
 </dd>
 </dl>
 </dd>
@@ -952,7 +955,8 @@ current memory-copy model.</p>
 <dd class="field-odd"><dl class="simple">
 <dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a></dt><dd><p>If given an axis of a size other than one a ValueError will be thrown.</p>
 </dd>
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for
+the array.</p>
 </dd>
 </dl>
 </dd>
@@ -981,23 +985,24 @@ current memory-copy model.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[1.],</span>
 <span class="go">       [2.],</span>
 <span class="go">       [3.]])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]]],</span> <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]]],</span>
+<span class="gp">... </span>    <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
+<span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[[0., 1.],</span>
 <span class="go">        [2., 3.]],</span>
 
 <span class="go">       [[4., 5.],</span>
 <span class="go">        [6., 7.]]])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[[0., 4.],</span>
 <span class="go">        [2., 6.]],</span>
 
@@ -1013,11 +1018,12 @@ current memory-copy model.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.sum">
 <span class="sig-name descname"><span class="pre">sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="APyFixed"><span class="pre">APyFixed</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.sum" title="Link to this definition">¶</a></dt>
-<dd><p>Return the sum of the elements along specified axis/axes treating NaN as 0.</p>
+<dd><p>Return the sum of the elements along specified axis/axes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>axis</strong><span class="classifier">tuple or int, optional</span></dt><dd><p>The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.</p>
+<dt><strong>axis</strong><span class="classifier">tuple or int, optional</span></dt><dd><p>The axis/axes to summate across. Will summate the whole array if no int
+or tuple is specified.</p>
 </dd>
 </dl>
 </dd>
@@ -1028,23 +1034,21 @@ current memory-copy model.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for
+the array.</p>
 </dd>
 </dl>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="n">int_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
 <span class="gp">... </span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 <span class="go">APyFixed(21, bits=13, int_bits=13)</span>
 </pre></div>
 </div>
@@ -1058,7 +1062,8 @@ current memory-copy model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>axis</strong><span class="classifier">tuple, int, optional</span></dt><dd><p>The axis/axes to calculate the product across. If not given an axis it will return the product of the flattened array.</p>
+<dt><strong>axis</strong><span class="classifier">tuple, int, optional</span></dt><dd><p>The axis/axes to calculate the product across. If not given an axis it
+will return the product of the flattened array.</p>
 </dd>
 </dl>
 </dd>
@@ -1069,77 +1074,25 @@ current memory-copy model.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for
+the array.</p>
 </dd>
 </dl>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="n">int_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
 <span class="gp">... </span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">prod</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">prod</span><span class="p">()</span>
 <span class="go">APyFixed(720, bits=60, int_bits=60)</span>
 </pre></div>
 </div>
 <hr class="docutils" />
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="apytypes.APyFixedArray.nansum">
-<span class="sig-name descname"><span class="pre">nansum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="APyFixed"><span class="pre">APyFixed</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.nansum" title="Link to this definition">¶</a></dt>
-<dd><p>Return the sum of the elements along specified axis/axes treating NaN as 0.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>axis</strong><span class="classifier">tuple or int, optional</span></dt><dd><p>The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><a class="reference internal" href="#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a></dt><dd></dd>
-</dl>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="apytypes.APyFixedArray.nanprod">
-<span class="sig-name descname"><span class="pre">nanprod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="APyFixed"><span class="pre">APyFixed</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.nanprod" title="Link to this definition">¶</a></dt>
-<dd><p>Return the product of the elements along a given axis treating NaN as 0.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>axis</strong><span class="classifier">int, optional</span></dt><dd><p>The axis to calculate the product across. If not given an axis it will return the product of the flattened array.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><a class="reference internal" href="#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a></dt><dd></dd>
-</dl>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
-</dd>
-</dl>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1149,7 +1102,8 @@ current memory-copy model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>axis</strong><span class="classifier">int, optional</span></dt><dd><p>The axes to summate across. If not given an axis it will return the cumulative sum of the flattened array.</p>
+<dt><strong>axis</strong><span class="classifier">int, optional</span></dt><dd><p>The axes to summate across. If not given an axis it will return the
+cumulative sum of the flattened array.</p>
 </dd>
 </dl>
 </dd>
@@ -1160,32 +1114,25 @@ current memory-copy model.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for
+the array.</p>
 </dd>
 </dl>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span>
-</pre></div>
-</div>
-<p>Array <cite>a</cite>, array to summate across.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]],</span>
 <span class="gp">... </span>    <span class="n">int_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
 <span class="gp">... </span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
 <span class="go">APyFixedArray([1, 3, 6, 10, 15, 21], shape=(6,), bits=13, int_bits=13)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="go">APyFixedArray([1, 2, 3, 5, 7, 9], shape=(2, 3), bits=11, int_bits=11)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="go">APyFixedArray([1, 3, 6, 4, 9, 15], shape=(2, 3), bits=12, int_bits=12)</span>
 </pre></div>
 </div>
@@ -1199,7 +1146,8 @@ current memory-copy model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>axis</strong><span class="classifier">int, optional</span></dt><dd><p>The axes to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.</p>
+<dt><strong>axis</strong><span class="classifier">int, optional</span></dt><dd><p>The axes to calculate the product across. If not given an axis it will
+return the cumulative product of the flattened array.</p>
 </dd>
 </dl>
 </dd>
@@ -1210,31 +1158,25 @@ current memory-copy model.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for
+the array.</p>
 </dd>
 </dl>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]],</span>
 <span class="gp">... </span>    <span class="n">int_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
 <span class="gp">... </span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">cumprod</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">cumprod</span><span class="p">()</span>
 <span class="go">APyFixedArray([1, 2, 6, 24, 120, 720], shape=(6,), bits=60, int_bits=60)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">cumprod</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">cumprod</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="go">APyFixedArray([1, 2, 3, 4, 10, 18], shape=(2, 3), bits=20, int_bits=20)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">cumprod</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">cumprod</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="go">APyFixedArray([1, 2, 6, 4, 20, 120], shape=(2, 3), bits=30, int_bits=30)</span>
 </pre></div>
 </div>
@@ -1242,60 +1184,10 @@ current memory-copy model.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="apytypes.APyFixedArray.nancumsum">
-<span class="sig-name descname"><span class="pre">nancumsum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.nancumsum" title="Link to this definition">¶</a></dt>
-<dd><p>Return the cumulative sum of the elements along a given axis treating NaN as 0.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>axis</strong><span class="classifier">int, optional</span></dt><dd><p>The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><a class="reference internal" href="#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></dt><dd></dd>
-</dl>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="apytypes.APyFixedArray.nancumprod">
-<span class="sig-name descname"><span class="pre">nancumprod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.nancumprod" title="Link to this definition">¶</a></dt>
-<dd><p>Return the cumulative product of the elements along a given axis treating NaN as 0.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>axis</strong><span class="classifier">int, optional</span></dt><dd><p>The axis to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><a class="reference internal" href="#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></dt><dd></dd>
-</dl>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.max">
 <span class="sig-name descname"><span class="pre">max</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="APyFixed"><span class="pre">APyFixed</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.max" title="Link to this definition">¶</a></dt>
 <dd><p>Return the maximum value from an array or the maximum values along an axis.</p>
-<dl class="field-list">
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>axis</strong><span class="classifier">tuple or int, optional</span></dt><dd><p>The axis to get the maximum along.</p>
@@ -1309,61 +1201,36 @@ current memory-copy model.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for
+the array.</p>
 </dd>
-<dt>Examples</dt><dd></dd>
 </dl>
-<blockquote>
-<div></div></blockquote>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span>
-<span class="go">    ..</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]],</span>
+<span class="gp">... </span>    <span class="n">int_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+<span class="go">APyFixed(6, bits=10, int_bits=10)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">APyFixedArray([4, 5, 6], shape=(3,), bits=10, int_bits=10)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">APyFixedArray([3, 6], shape=(2,), bits=10, int_bits=10)</span>
 </pre></div>
 </div>
-<dl class="simple">
-<dt>Array <cite>a</cite>, array to get the maximum along.</dt><dd></dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="p">(</span>
-<span class="go">    ..</span>
-</pre></div>
-</div>
-<dl class="simple">
-<dt>…     [[1,2,3],[4,5,6]],</dt><dd></dd>
-<dt>…     int_bits=10,</dt><dd></dd>
-<dt>…     frac_bits=0</dt><dd></dd>
-<dt>… )</dt><dd></dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-<span class="go">    ..</span>
-</pre></div>
-</div>
-<dl class="simple">
-<dt>APyFixed(6, bits=10, int_bits=10)</dt><dd></dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="go">    ..</span>
-</pre></div>
-</div>
-<dl class="simple">
-<dt>APyFixedArray([4, 5, 6], shape=(3,), bits=10, int_bits=10)</dt><dd></dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="go">    ..</span>
-</pre></div>
-</div>
-<dl class="simple">
-<dt>APyFixedArray([3, 6], shape=(2,), bits=10, int_bits=10)</dt><dd></dd>
-</dl>
-<blockquote>
-<div></div></blockquote>
-</dd>
-</dl>
+<hr class="docutils" />
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.min">
 <span class="sig-name descname"><span class="pre">min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="APyFixed"><span class="pre">APyFixed</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.min" title="Link to this definition">¶</a></dt>
 <dd><p>Return the minimum value from an array or the minimum values along an axis.</p>
-<dl class="field-list">
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>axis</strong><span class="classifier">tuple or int, optional</span></dt><dd><p>The axis to get the minimum along.</p>
@@ -1377,106 +1244,30 @@ current memory-copy model.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for
+the array.</p>
 </dd>
-<dt>Examples</dt><dd></dd>
 </dl>
-<blockquote>
-<div></div></blockquote>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span>
-<span class="go">    ..</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span>
+<span class="gp">... </span>     <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]],</span>
+<span class="gp">... </span>    <span class="n">int_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+<span class="go">APyFixed(1, bits=10, int_bits=10)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">APyFixedArray([1, 2, 3], shape=(3,), bits=10, int_bits=10)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">APyFixedArray([1, 4], shape=(2,), bits=10, int_bits=10)</span>
 </pre></div>
 </div>
-<dl class="simple">
-<dt>Array <cite>a</cite>, array to get the minimum along.</dt><dd></dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixedArray</span><span class="p">(</span>
-<span class="go">    ..</span>
-</pre></div>
-</div>
-<dl class="simple">
-<dt>…     [[1,2,3],[4,5,6]],</dt><dd></dd>
-<dt>…     int_bits=10,</dt><dd></dd>
-<dt>…     frac_bits=0</dt><dd></dd>
-<dt>… )</dt><dd></dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-<span class="go">    ..</span>
-</pre></div>
-</div>
-<dl class="simple">
-<dt>APyFixed(1, bits=10, int_bits=10)</dt><dd></dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="go">    ..</span>
-</pre></div>
-</div>
-<dl class="simple">
-<dt>APyFixedArray([1, 2, 3], shape=(3,), bits=10, int_bits=10)</dt><dd></dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="go">    ..</span>
-</pre></div>
-</div>
-<dl class="simple">
-<dt>APyFixedArray([1, 4], shape=(2,), bits=10, int_bits=10)</dt><dd></dd>
-</dl>
-<blockquote>
-<div></div></blockquote>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="apytypes.APyFixedArray.nanmax">
-<span class="sig-name descname"><span class="pre">nanmax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="APyFixed"><span class="pre">APyFixed</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.nanmax" title="Link to this definition">¶</a></dt>
-<dd><p>Return the maximum value from an array or the maximum values along an axis, ignoring NaN.</p>
-<p>Issues a warning when encountering an all-nan slice or axis.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>axis</strong><span class="classifier">tuple or int, optional</span></dt><dd><p>The axis to get the maximum along.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><a class="reference internal" href="#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a></dt><dd></dd>
-</dl>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="apytypes.APyFixedArray.nanmin">
-<span class="sig-name descname"><span class="pre">nanmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="APyFixed"><span class="pre">APyFixed</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.nanmin" title="Link to this definition">¶</a></dt>
-<dd><p>Return the minimum value from an array or the minimum values along an axis, ignoring NaN.</p>
-<p>Issues a warning when encountering an all-nan slice or axis.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>axis</strong><span class="classifier">tuple or int, optional</span></dt><dd><p>The axis to get the minimum along.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><a class="reference internal" href="#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a></dt><dd></dd>
-</dl>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<hr class="docutils" />
 </dd></dl>
 
 </section>
@@ -1679,16 +1470,10 @@ current memory-copy model.</p>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.swapaxes"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.swapaxes()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.sum"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.sum()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.prod"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.prod()</span></code></a></li>
-<li><a class="reference internal" href="#apytypes.APyFixedArray.nansum"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.nansum()</span></code></a></li>
-<li><a class="reference internal" href="#apytypes.APyFixedArray.nanprod"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.nanprod()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.cumsum"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.cumsum()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.cumprod"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.cumprod()</span></code></a></li>
-<li><a class="reference internal" href="#apytypes.APyFixedArray.nancumsum"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.nancumsum()</span></code></a></li>
-<li><a class="reference internal" href="#apytypes.APyFixedArray.nancumprod"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.nancumprod()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.max"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.max()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.min"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.min()</span></code></a></li>
-<li><a class="reference internal" href="#apytypes.APyFixedArray.nanmax"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.nanmax()</span></code></a></li>
-<li><a class="reference internal" href="#apytypes.APyFixedArray.nanmin"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.nanmin()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.broadcast_to"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.broadcast_to()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.bits"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.bits</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFixedArray.int_bits"><code class="docutils literal notranslate"><span class="pre">APyFixedArray.int_bits</span></code></a></li>
