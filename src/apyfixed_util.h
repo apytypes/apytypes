@@ -5,7 +5,7 @@
 #ifndef _APYFIXED_UTIL_H
 #define _APYFIXED_UTIL_H
 
-#include "apyfixed.h"
+#include "apytypes_common.h"
 #include "apytypes_scratch_vector.h"
 #include "apytypes_simd.h"
 #include "apytypes_util.h"
@@ -15,28 +15,6 @@
 
 // GMP should be included after all other includes
 #include "../extern/mini-gmp/mini-gmp.h"
-
-//! Constant fixed-point one for convenience
-static const APyFixed fx_one(2, 2, std::vector<mp_limb_t>({ 1 }));
-
-//! Fast integer power by squaring.
-APyFixed ipow(APyFixed base, unsigned int n);
-
-//! Get bit pattern for the value one
-static APY_INLINE APyFixed one(int bits, int int_bits)
-{
-    std::size_t frac_bits = bits - int_bits;
-    std::size_t limb_index = frac_bits / _LIMB_SIZE_BITS;
-    std::size_t bit_offset = frac_bits % _LIMB_SIZE_BITS;
-
-    std::size_t num_limbs = limb_index + 1;
-    std::vector<mp_limb_t> data(num_limbs, mp_limb_t(0));
-
-    // Set the specified bit to 1
-    data[limb_index] |= mp_limb_t(1) << bit_offset;
-
-    return APyFixed(bits, int_bits, data);
-}
 
 /* ********************************************************************************** *
  * *    Fixed-point iterator based in-place quantization with multi-limb support    * *

@@ -49,6 +49,15 @@
 #endif
 
 /*
+ * Macro for splitting a single `std::uint64_t` into enough limbs in list style
+ */
+#if COMPILER_LIMB_SIZE == 64
+#define UINT64_TO_LIMB(x) mp_limb_t(x)
+#else
+#define UINT64_TO_LIMB(x) mp_limb_t(std::uint64_t(x)), mp_limb_t(std::uint64_t(x) >> 32)
+#endif
+
+/*
  * Sizes of GMP limbs (underlying words)
  */
 static constexpr std::size_t _LIMB_SIZE_BYTES = sizeof(mp_limb_t);
@@ -67,9 +76,9 @@ public:
 //! optimizations. Calling this function under any circumstance is undefined behaviour.
 [[maybe_unused, noreturn]] static inline void apytypes_unreachable()
 {
-    // Uses compiler specific extensions if possible.
-    // Even if no extension is used, undefined behavior is still raised by
-    // an empty function body and the noreturn attribute.
+    // Uses compiler specific extensions if possible. Even if no extension is used,
+    // undefined behavior is still raised by an empty function body and the noreturn
+    // attribute.
 #if defined(_MSC_VER) && !defined(__clang__) // MSVC
     __assume(false);
 #else // GCC, Clang
@@ -1015,27 +1024,6 @@ template <class RANDOM_ACCESS_ITERATOR>
         }
         return true; // All ones
     }
-}
-
-//! Create a limb vector `std::vector<mp_limb_t>` from one or more `uint64_t`. On 32-bit
-//! systems, the limb vector will contain exactly two limbs for each `uint64_t`. One
-//! 64-bit systems, the limb vector will contain exactly one limb per `uint64_t`.
-[[maybe_unused, nodiscard]] static APY_INLINE std::vector<mp_limb_t>
-limb_vector_from_uint64_t(std::initializer_list<uint64_t> list)
-{
-    static_assert(_LIMB_SIZE_BITS == 32 || _LIMB_SIZE_BITS == 64);
-    std::vector<mp_limb_t> result {};
-    if constexpr (_LIMB_SIZE_BITS == 32) {
-        for (uint64_t n : list) {
-            result.push_back(mp_limb_t(n));
-            result.push_back(mp_limb_t(n >> 32));
-        }
-    } else { /* _LIMB_SIZE_BITS == 64 */
-        for (uint64_t n : list) {
-            result.push_back(mp_limb_t(n));
-        }
-    }
-    return result;
 }
 
 //! Copy limbs from `src` to `dst` and possibly sign extend the data in `dst`

@@ -8,11 +8,11 @@ def test_issue_245():
     # https://github.com/apytypes/apytypes/issues/245
     with APyFloatQuantizationContext(QuantizationMode.JAM):
         res = APyFloat(0, 15, 0, 5, 2) + APyFloat(0, 0, 0, 5, 2)
-        assert res.is_identical(APyFloat(0, 15, 0, 5, 2))
+        assert res.is_identical(APyFloat(0, 15, 1, 5, 2))
 
     with APyFloatQuantizationContext(QuantizationMode.JAM):
         res = APyFloat(0, 15, 0, 5, 2) - APyFloat(0, 0, 0, 5, 2)
-        assert res.is_identical(APyFloat(0, 15, 0, 5, 2))
+        assert res.is_identical(APyFloat(0, 15, 1, 5, 2))
 
     with APyFloatQuantizationContext(QuantizationMode.JAM):
         res = APyFloat(0, 15, 0, 5, 2) * APyFloat(0, 0, 0, 5, 2)

@@ -2,6 +2,7 @@
 #define _APYFLOAT_H
 
 #include "apyfixed.h"
+#include "apyfloat_util.h"
 #include "apytypes_common.h"
 
 // Python object access through Nanobind
@@ -13,14 +14,68 @@
 #include <string>
 
 class APyFloat {
+
+    /* ****************************************************************************** *
+     * *                              APyFloat data fields                          * *
+     * ****************************************************************************** */
+
+private:
+    // Bit specifiers and exponent bias
+    std::uint8_t exp_bits, man_bits;
+    exp_t bias;
+
+    // Data of the `APyFloat`
+    bool sign;
+    exp_t exp;
+    man_t man;
+
+    /* ****************************************************************************** *
+     * *                              CRTP methods                                  * *
+     * ****************************************************************************** */
+
 public:
-    /* ******************************************************************************
-     * * Constructors                                                               *
-     * ******************************************************************************
-     */
+    //! Copy `n` items from `it` into `*this`
+    template <typename RANDOM_ACCESS_ITERATOR>
+    void copy_n_from(RANDOM_ACCESS_ITERATOR src_it, std::size_t n) noexcept
+    {
+        using iterator_value_type = typename RANDOM_ACCESS_ITERATOR::value_type;
+        static_assert(std::is_same_v<iterator_value_type, APyFloatData>);
+        assert(n == 1);
+        sign = src_it->sign;
+        man = src_it->man;
+        exp = src_it->exp;
+    }
 
-    // These constructors are not exposed to Python
+    //! Copy `n` items from `*this` into `it`
+    template <typename RANDOM_ACCESS_ITERATOR>
+    void copy_n_to(RANDOM_ACCESS_ITERATOR dst_it, std::size_t n) const noexcept
+    {
+        using iterator_value_type = typename RANDOM_ACCESS_ITERATOR::value_type;
+        static_assert(std::is_same_v<iterator_value_type, APyFloatData>);
+        assert(n == 1);
+        dst_it->sign = sign;
+        dst_it->man = man;
+        dst_it->exp = exp;
+    }
 
+    //! Test if two floating-point numbers have the same bit specifiers
+    APY_INLINE bool same_type_as(const APyFloat& other) const
+    {
+        return man_bits == other.man_bits && exp_bits == other.exp_bits
+            && bias == other.bias;
+    }
+
+    //! Retrieve the bit specification
+    APY_INLINE APyFloatSpec spec() const noexcept
+    {
+        return { exp_bits, man_bits, bias };
+    }
+
+    /* ****************************************************************************** *
+     * *                              Constructors                                  * *
+     * ****************************************************************************** */
+
+public:
     //! Constructor with optional bias, all fields are set.
     //! If no bias is given, an IEEE-like bias will be used.
     explicit APyFloat(
@@ -59,10 +114,14 @@ public:
     //! Constructor only specifying the format, data fields are initialized to zero
     APyFloat(std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias);
 
-    /* ******************************************************************************
-     * * Methods for conversions                                                    *
-     * ******************************************************************************
-     */
+private:
+    APyFloat() = default;
+
+    /* ****************************************************************************** *
+     * *                          Methods for conversion                            * *
+     * ****************************************************************************** */
+
+public:
     //! Factory function for Python interface
     static void create_in_place(
         APyFloat* apyfloat,
@@ -74,7 +133,7 @@ public:
         std::optional<exp_t> bias = std::nullopt
     );
 
-    //! Create APyFloat from double
+    //! Create APyFloat from Python object
     static APyFloat from_number(
         const nb::object& py_obj,
         int exp_bits,
@@ -113,6 +172,12 @@ public:
         int man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
+
+    //! Create an APyFloat with the stored value one
+    static APyFloat
+    one(std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt);
 
     //! Convert the underlying bit pattern to a Python long integer
     nanobind::int_ to_bits() const;
@@ -194,11 +259,11 @@ public:
     //! LaTeX representation
     std::string latex() const;
 
-    /* ******************************************************************************
-     * * Arithmetic operators                                                       *
-     * ******************************************************************************
-     */
+    /* ****************************************************************************** *
+     * *                             Arithmetic operators                           * *
+     * ****************************************************************************** */
 
+public:
     APyFloat operator+(const APyFloat& rhs) const;
     APyFloat operator-(const APyFloat& rhs) const;
     APyFloat operator-() const;
@@ -206,33 +271,28 @@ public:
     APyFloat operator/(const APyFloat& rhs) const;
     APyFloat& operator+=(const APyFloat& rhs);
 
-    /* ******************************************************************************
-     * * Mathematical functions                                                     *
-     * ******************************************************************************
-     */
+    APyFloat operator&(const APyFloat& rhs) const;
+    APyFloat operator|(const APyFloat& rhs) const;
+    APyFloat operator^(const APyFloat& rhs) const;
+    APyFloat operator~() const;
 
-    // Absolute value
+    /* ****************************************************************************** *
+     * *                         Mathematical functions                             * *
+     * ****************************************************************************** */
+
+public:
+    //! Absolute value
     APyFloat abs() const;
     //! Power function with another APyFloat as the exponent
     static APyFloat pow(const APyFloat& x, const APyFloat& y);
     //! Power function with integer exponent
     static APyFloat pown(const APyFloat& x, int n);
 
-    /* ******************************************************************************
-     * * Binary logic operators                                                     *
-     * ******************************************************************************
-     */
+    /* ****************************************************************************** *
+     * *                         Binary comparison operators                        * *
+     * ****************************************************************************** */
 
-    APyFloat operator&(const APyFloat& rhs) const;
-    APyFloat operator|(const APyFloat& rhs) const;
-    APyFloat operator^(const APyFloat& rhs) const;
-    APyFloat operator~() const;
-
-    /* ******************************************************************************
-     * * Binary comparison operators                                                *
-     * ******************************************************************************
-     */
-
+public:
     bool operator==(const APyFloat& rhs) const;
     bool operator!=(const APyFloat& rhs) const;
     bool operator<=(const APyFloat& rhs) const;
@@ -252,11 +312,11 @@ public:
     bool operator>=(const APyFixed& rhs) const;
     bool operator>(const APyFixed& rhs) const;
 
-    /* ******************************************************************************
-     * * Non-computational functions                                                *
-     * ******************************************************************************
-     */
+    /* ****************************************************************************** *
+     * *                       Non-computational functions                          * *
+     * ****************************************************************************** */
 
+public:
     //! True if and only if value is normal (not zero, subnormal, infinite, or NaN).
     APY_INLINE bool is_normal() const
     {
@@ -299,7 +359,7 @@ public:
     //! Return the bit width of the entire floating-point format
     APY_INLINE std::uint8_t get_bits() const { return man_bits + exp_bits + 1; }
     //! Return all data fields packed in a struct
-    APY_INLINE APyFloatData get_data() const { return { sign, exp, man }; }
+    APY_INLINE APyFloatData get_data() const noexcept { return { sign, exp, man }; }
     //! Return the mantissa with potential leading one
     APY_INLINE man_t true_man() const
     {
@@ -380,10 +440,11 @@ public:
     //! Convert to a fixed-point object
     APyFixed to_fixed() const;
 
-    /* ******************************************************************************
-     * * Convenience methods                                                        *
-     * ******************************************************************************
-     */
+    /* ****************************************************************************** *
+     * *                           Convenience methods                              * *
+     * ****************************************************************************** */
+
+public:
     //! Convenience method when target format is known to correspond to a
     //! double-precision floating-point
     APyFloat
@@ -405,61 +466,11 @@ public:
     //! Get the largest floating-point number in the same format that compares less.
     APyFloat next_down() const;
 
-private:
-    // Bit specifiers and exponent bias
-    std::uint8_t exp_bits, man_bits;
-    exp_t bias;
-
-    // Data of the `APyFloat`
-    bool sign;
-    exp_t exp;
-    man_t man;
-
     /* ****************************************************************************** *
-     * *                              CRTP methods                                  * *
+     * *                              Helper functions                              * *
      * ****************************************************************************** */
 
 public:
-    //! Copy `n` items from `it` into `*this`
-    template <typename RANDOM_ACCESS_ITERATOR>
-    void copy_n_from(RANDOM_ACCESS_ITERATOR src_it, std::size_t n) noexcept
-    {
-        assert(n == 1);
-        sign = src_it->sign;
-        man = src_it->man;
-        exp = src_it->exp;
-    }
-
-    //! Copy `n` items from `*this` into `it`
-    template <typename RANDOM_ACCESS_ITERATOR>
-    void copy_n_to(RANDOM_ACCESS_ITERATOR dst_it, std::size_t n) const noexcept
-    {
-        assert(n == 1);
-        dst_it->sign = sign;
-        dst_it->man = man;
-        dst_it->exp = exp;
-    }
-
-    //! Test if two floating-point numbers have the same bit specifiers
-    APY_INLINE bool same_type_as(const APyFloat& other) const
-    {
-        return man_bits == other.man_bits && exp_bits == other.exp_bits
-            && bias == other.bias;
-    }
-
-    /* ******************************************************************************
-     * * Non-Python accessible constructors                                         *
-     * ******************************************************************************
-     */
-
-private:
-    APyFloat() = default;
-
-    /* ******************************************************************************
-     * * Helper functions                                                           *
-     * ******************************************************************************
-     */
-
     //! Create a bit mask for the exponent field
     APY_INLINE exp_t exp_mask() const { return ((1ULL << exp_bits) - 1); }
     //! Calculate the maximum value for the exponent field
@@ -476,6 +487,10 @@ private:
 
     //! Create a floating-point object that is normalized
     APyFloat normalized() const;
+
+    /* ****************************************************************************** *
+     * *                           Friends of `APyFloat`                            * *
+     * ****************************************************************************** */
 
     template <typename T, typename ARRAY_TYPE> friend class APyArray;
 };
