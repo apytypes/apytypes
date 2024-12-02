@@ -6,6 +6,7 @@
 #include <string>   // std::string
 #include <tuple>    // std::tuple
 
+#include "apytypes_fwd.h"
 #include "apytypes_util.h"
 
 //! Quantization modes in APyTypes
@@ -97,20 +98,6 @@ std::uint64_t get_float_quantization_seed();
 
 //! Return a random 64-bit number from the random number engine used for APyFloat
 std::uint64_t random_number_float();
-
-using exp_t = std::uint32_t;
-using man_t = std::uint64_t;
-
-struct APyFloatData {
-    bool sign; //! Sign bit
-    exp_t exp; //! Biased exponent
-    man_t man; //! Mantissa with hidden one
-    bool operator==(const APyFloatData& other) const
-    {
-        return std::make_tuple(sign, exp, man)
-            == std::make_tuple(other.sign, other.exp, other.man);
-    }
-};
 
 /* ********************************************************************************** *
  * *                          Cast context for APyFixed                             * *

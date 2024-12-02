@@ -63,7 +63,6 @@ breathe_projects_source = {
             "apyfixedarray.h",
             "apyfixedarray_iterator.cc",
             "apyfixedarray_iterator.h",
-            "apyfixed_util.cc",
             "apyfixed_util.h",
             "apyfixed_wrapper.cc",
             "apyfloat.cc",
