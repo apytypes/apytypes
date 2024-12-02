@@ -536,12 +536,21 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
     const uint8_t res_man_bits = std::max(man_bits, rhs.man_bits);
     const auto res_bias
         = calc_bias(res_exp_bits, exp_bits, bias, rhs.exp_bits, rhs.bias);
-    APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
+    APyFloatArray result(_shape, res_exp_bits, res_man_bits, res_bias);
     const auto quantization = get_float_quantization_mode();
-    hadamard_multiplication(
-        &rhs._data[0], rhs.exp_bits, rhs.man_bits, rhs.bias, res, quantization
+    floating_point_products(
+        std::cbegin(_data),
+        std::cbegin(rhs._data),
+        std::begin(result._data),
+        { exp_bits, man_bits, bias },
+        { rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias() },
+        _data.size(),
+        quantization
     );
-    return res;
+    // hadamard_multiplication(
+    //     &rhs._data[0], rhs.exp_bits, rhs.man_bits, rhs.bias, res, quantization
+    // );
+    return result;
 }
 
 void APyFloatArray::hadamard_multiplication(
@@ -553,143 +562,15 @@ void APyFloatArray::hadamard_multiplication(
     const QuantizationMode quantization
 ) const
 {
-    const int sum_man_bits = man_bits + rhs_man_bits;
-
-    if (unsigned(sum_man_bits) + 3 <= _MAN_T_SIZE_BITS) {
-        // Compute constants for reuse
-        const exp_t x_max_exponent = ((1ULL << exp_bits) - 1);
-        const exp_t y_max_exponent = ((1ULL << rhs_exp_bits) - 1);
-        const exp_t res_max_exponent = ((1ULL << res.exp_bits) - 1);
-        const uint8_t new_man_bits = sum_man_bits + 2;
-        const man_t two = 1ULL << new_man_bits;
-        const man_t two_before = two >> 1;
-        const man_t one_before = 1ULL << sum_man_bits;
-        const man_t two_res = 1 << res.man_bits;
-        const man_t mask_two = two - 1;
-        const uint8_t man_bits_delta = new_man_bits - res.man_bits;
-        const uint8_t man_bits_delta_dec = man_bits_delta - 1;
-        const man_t sticky_constant = (1ULL << man_bits_delta_dec) - 1;
-        const std::int64_t bias_sum = bias + rhs_bias - res.bias;
-
-        // Perform operation
-        for (std::size_t i = 0; i < _data.size(); i++) {
-            const auto x = _data[i];
-            const auto y = rhs[i];
-
-            // Calculate sign
-            const bool res_sign = x.sign ^ y.sign;
-
-            const bool x_is_subnormal = (x.exp == 0);
-            const bool x_is_maxexp = (x.exp == x_max_exponent);
-            const bool y_is_subnormal = (y.exp == 0);
-            const bool y_is_maxexp = (y.exp == y_max_exponent);
-
-            // Handle special operands
-            if (x_is_maxexp || y_is_maxexp || x_is_subnormal || y_is_subnormal) {
-                const bool x_is_nan = (x_is_maxexp && x.man != 0);
-                const bool x_is_inf = (x_is_maxexp && x.man == 0);
-                const bool y_is_nan = (y_is_maxexp && y.man != 0);
-                const bool y_is_inf = (y_is_maxexp && y.man == 0);
-                const bool x_is_zero = (x_is_subnormal && x.man == 0);
-                const bool y_is_zero = (y_is_subnormal && y.man == 0);
-                if (x_is_nan || y_is_nan || (x_is_inf && y_is_zero)
-                    || (y_is_inf && x_is_zero)) {
-                    // Set to nan
-                    res._data[i] = { res_sign,
-                                     static_cast<exp_t>(res_max_exponent),
-                                     static_cast<man_t>(1) };
-                    continue;
-                }
-
-                if (x_is_inf || y_is_inf) {
-                    // Set to inf
-                    res._data[i] = { res_sign,
-                                     static_cast<exp_t>(res_max_exponent),
-                                     static_cast<man_t>(0) };
-                    continue;
-                }
-
-                // x is zero or y is zero (and the other is not inf)
-                if (x_is_zero || y_is_zero) {
-                    // Set to zero
-                    res._data[i]
-                        = { res_sign, static_cast<exp_t>(0), static_cast<man_t>(0) };
-                    continue;
-                }
-            }
-
-            // Tentative exponent
-            std::int64_t tmp_exp = (std::int64_t)x.exp + x_is_subnormal
-                + (std::int64_t)y.exp + y_is_subnormal - bias_sum;
-            const man_t mx = (static_cast<man_t>(!x_is_subnormal) << man_bits) | x.man;
-            const man_t my
-                = (static_cast<man_t>(!y_is_subnormal) << rhs_man_bits) | y.man;
-
-            man_t new_man = mx * my;
-
-            // Check result from multiplication larger than/equal two
-            if (new_man & two_before) {
-                tmp_exp++;
-                new_man <<= 1;
-            } else if (new_man & one_before) {
-                // Align with longer result
-                new_man <<= 2;
-            } else {
-                // One or two of the operands were subnormal.
-                // If the exponent is positive, the result is normalized by
-                // left-shifting until the exponent is zero or the mantissa is 1.xx
-                const int leading_zeros = 1 + sum_man_bits - bit_width(new_man);
-                const int shift = std::max(
-                    std::min(tmp_exp, (std::int64_t)leading_zeros), (std::int64_t)0
-                );
-                tmp_exp -= shift;
-                // + 2 to align with longer result
-                new_man <<= shift + 2;
-            }
-
-            if (tmp_exp <= 0) {
-                if (tmp_exp < -static_cast<std::int64_t>(res.man_bits)) {
-                    // Exponent too small after rounding
-                    man_t res_man
-                        = quantize_close_to_zero(res_sign, new_man, quantization);
-                    res._data[i] = { res_sign, 0, res_man };
-                    continue;
-                }
-                // Shift and add sticky bit
-                new_man = (new_man >> (-tmp_exp + 1))
-                    | ((new_man & ((1 << (-tmp_exp + 1)) - 1)) != 0);
-                tmp_exp = 0;
-            }
-
-            new_man &= mask_two;
-            exp_t new_exp = static_cast<exp_t>(tmp_exp);
-            quantize_mantissa(
-                new_man,
-                new_exp,
-                res_max_exponent,
-                man_bits_delta,
-                res_sign,
-                two_res,
-                man_bits_delta_dec,
-                sticky_constant,
-                quantization
-            );
-
-            res._data[i] = { res_sign,
-                             static_cast<exp_t>(new_exp),
-                             static_cast<man_t>(new_man) };
-        }
-    } else {
-        APyFloat lhs_scalar(exp_bits, man_bits, bias);
-        APyFloat rhs_scalar(rhs_exp_bits, rhs_man_bits, rhs_bias);
-        // Perform operation
-        for (std::size_t i = 0; i < _data.size(); i++) {
-            lhs_scalar.set_data(_data[i]);
-            rhs_scalar.set_data(rhs[i]);
-
-            res._data[i] = (lhs_scalar * rhs_scalar).get_data();
-        }
-    }
+    floating_point_products(
+        std::begin(_data),
+        rhs,
+        std::begin(res._data),
+        { exp_bits, man_bits, bias },
+        { rhs_exp_bits, rhs_man_bits, rhs_bias },
+        _data.size(),
+        quantization
+    );
 }
 
 APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
@@ -699,197 +580,22 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
     const auto res_man_bits = std::max(man_bits, rhs.get_man_bits());
     const auto res_bias
         = calc_bias(res_exp_bits, exp_bits, bias, rhs.get_exp_bits(), rhs.get_bias());
-    APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
-
-    const int sum_man_bits = man_bits + rhs.get_man_bits();
     const auto quantization = get_float_quantization_mode();
+    const APyFloatData rhs_data = rhs.get_data();
 
-    if (unsigned(sum_man_bits) + 3 <= _MAN_T_SIZE_BITS) {
-        // Compute constants for reuse
-        const auto x_max_exponent = ((1ULL << exp_bits) - 1);
-        const auto y_max_exponent = ((1ULL << rhs.get_exp_bits()) - 1);
-        const exp_t res_max_exponent = ((1ULL << res.exp_bits) - 1);
-        const auto y = rhs.get_data();
-        const bool y_is_maxexp = (y.exp == y_max_exponent);
+    // Result
+    APyFloatArray result(_shape, res_exp_bits, res_man_bits, res_bias);
+    floating_point_products<1 /* SRC1_INC */, 0 /* SRC2_INC */, 1 /* DST_INC */>(
+        std::begin(_data),
+        &rhs_data,
+        std::begin(result._data),
+        { exp_bits, man_bits, bias },
+        { rhs.get_exp_bits(), rhs.get_man_bits(), rhs.get_bias() },
+        _data.size(),
+        quantization
+    );
 
-        if (y_is_maxexp) {
-            // y is nan
-            if (y.man != 0) {
-                for (std::size_t i = 0; i < _data.size(); i++) {
-                    // Calculate sign
-                    const bool res_sign = _data[i].sign ^ y.sign;
-                    // Set to nan
-                    res._data[i] = { res_sign,
-                                     static_cast<exp_t>(res_max_exponent),
-                                     static_cast<man_t>(1) };
-                }
-                return res;
-            }
-            // Y is inf
-            for (std::size_t i = 0; i < _data.size(); i++) {
-                const auto x = _data[i];
-                // Calculate sign
-                const bool res_sign = x.sign ^ y.sign;
-                // X is zero or nan
-                if ((x.exp == 0 && x.man == 0)
-                    || (x.exp == x_max_exponent && x.man != 0)) {
-                    // Set to nan
-                    res._data[i] = { res_sign,
-                                     static_cast<exp_t>(res_max_exponent),
-                                     static_cast<man_t>(1) };
-                } else {
-                    // Set to inf
-                    res._data[i] = { res_sign,
-                                     static_cast<exp_t>(res_max_exponent),
-                                     static_cast<man_t>(0) };
-                }
-            }
-            return res;
-        }
-        const bool y_is_subnormal = (y.exp == 0);
-        // y is zero
-        if (y_is_subnormal && y.man == 0) {
-            for (std::size_t i = 0; i < _data.size(); i++) {
-                const auto x = _data[i];
-                // Calculate sign
-                const bool res_sign = x.sign ^ y.sign;
-                // X is inf or nan
-                if (x.exp == x_max_exponent) {
-                    // Set to nan
-                    res._data[i] = { res_sign,
-                                     static_cast<exp_t>(res_max_exponent),
-                                     static_cast<man_t>(1) };
-                } else {
-                    // Set to zero
-                    res._data[i]
-                        = { res_sign, static_cast<exp_t>(0), static_cast<man_t>(0) };
-                }
-            }
-            return res;
-        }
-
-        // Compute more constants to be reused
-        const std::int64_t bias_sum = bias + rhs.get_bias();
-        const std::int64_t exp_offset
-            = (std::int64_t)y.exp + y_is_subnormal - bias_sum + res.bias;
-        const man_t my
-            = (static_cast<man_t>(!y_is_subnormal) << rhs.get_man_bits()) | y.man;
-        const auto new_man_bits = sum_man_bits + 2;
-        const man_t two = 1ULL << (new_man_bits);
-        const man_t two_before = two >> 1;
-        const man_t one_before = 1ULL << sum_man_bits;
-        const man_t two_res = 1 << res_man_bits;
-        const auto mask_two = two - 1;
-        const auto man_bits_delta = new_man_bits - res_man_bits;
-        const auto man_bits_delta_dec = man_bits_delta - 1;
-        const man_t sticky_constant = (1ULL << man_bits_delta_dec) - 1;
-        exp_t new_exp;
-        // Perform operation
-        for (std::size_t i = 0; i < _data.size(); i++) {
-            const auto x = _data[i];
-
-            // Calculate sign
-            const bool res_sign = x.sign ^ y.sign;
-
-            const bool x_is_subnormal = (x.exp == 0);
-            const bool x_is_maxexp = (x.exp == x_max_exponent);
-
-            // Handle special operands
-            // All cases where y is special is handled outside of this loop
-            if (x_is_maxexp || x_is_subnormal) {
-                // x is nan
-                if (x_is_maxexp && x.man != 0) {
-                    res._data[i] = { res_sign,
-                                     static_cast<exp_t>(res_max_exponent),
-                                     static_cast<man_t>(1) };
-                    continue;
-                }
-
-                // x is inf
-                if (x_is_maxexp && x.man == 0) {
-                    res._data[i] = { res_sign,
-                                     static_cast<exp_t>(res_max_exponent),
-                                     static_cast<man_t>(0) };
-                    continue;
-                }
-
-                // x is zero (x is subnormal here)
-                if (x.man == 0) {
-                    res._data[i]
-                        = { res_sign, static_cast<exp_t>(0), static_cast<man_t>(0) };
-                    continue;
-                }
-            }
-
-            // Tentative exponent
-            std::int64_t tmp_exp = (std::int64_t)x.exp + x_is_subnormal + exp_offset;
-            const man_t mx = (static_cast<man_t>(!x_is_subnormal) << man_bits) | x.man;
-
-            man_t new_man = mx * my;
-
-            // Check result from multiplication larger than/equal two
-            if (new_man & two_before) {
-                tmp_exp++;
-                new_man <<= 1;
-            } else if (new_man & one_before) {
-                // Align with longer result
-                new_man <<= 2;
-            } else {
-                // One or two of the operands were subnormal.
-                // If the exponent is positive, the result is normalized by
-                // left-shifting until the exponent is zero or the mantissa is 1.xx
-                const int leading_zeros = 1 + sum_man_bits - bit_width(new_man);
-                const int shift = std::max(
-                    std::min(tmp_exp, (std::int64_t)leading_zeros), (std::int64_t)0
-                );
-                tmp_exp -= shift;
-                // + 2 to align with longer result
-                new_man <<= shift + 2;
-            }
-
-            if (tmp_exp <= 0) {
-                if (tmp_exp < -static_cast<std::int64_t>(res.man_bits)) {
-                    // Exponent too small after rounding
-                    man_t res_man
-                        = quantize_close_to_zero(res_sign, new_man, quantization);
-                    res._data[i] = { res_sign, 0, res_man };
-                    continue;
-                }
-                // Shift and add sticky bit
-                new_man = (new_man >> (-tmp_exp + 1))
-                    | ((new_man & ((1 << (-tmp_exp + 1)) - 1)) != 0);
-                tmp_exp = 0;
-            }
-
-            new_man &= mask_two;
-            new_exp = static_cast<exp_t>(tmp_exp);
-            quantize_mantissa(
-                new_man,
-                new_exp,
-                res_max_exponent,
-                man_bits_delta,
-                res_sign,
-                two_res,
-                man_bits_delta_dec,
-                sticky_constant,
-                quantization
-            );
-
-            res._data[i] = { res_sign,
-                             static_cast<exp_t>(new_exp),
-                             static_cast<man_t>(new_man) };
-        }
-        return res;
-    }
-
-    APyFloat lhs_scalar(exp_bits, man_bits, bias);
-    // Perform operations
-    for (std::size_t i = 0; i < _data.size(); i++) {
-        lhs_scalar.set_data(_data[i]);
-        res._data[i] = (lhs_scalar * rhs).get_data();
-    }
-
-    return res;
+    return result;
 }
 
 APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
@@ -1020,7 +726,7 @@ APyFloatArray APyFloatArray::ones(
     std::optional<exp_t> bias
 )
 {
-    return full(shape, one(exp_bits, man_bits, bias));
+    return full(shape, APyFloat::one(exp_bits, man_bits, bias));
 }
 
 APyFloatArray APyFloatArray::eye(
@@ -1033,7 +739,7 @@ APyFloatArray APyFloatArray::eye(
 {
     // Use N for both dimensions if M is not provided
     nb::tuple shape = nb::make_tuple(N, M.value_or(N));
-    return diagonal(shape, one(exp_bits, man_bits, bias));
+    return diagonal(shape, APyFloat::one(exp_bits, man_bits, bias));
 }
 
 APyFloatArray APyFloatArray::identity(
@@ -1265,7 +971,7 @@ APyFloatArray::prod(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) co
         *acc_it = (acc * src).get_data();
     };
 
-    APyFloat init_one = one(get_exp_bits(), get_man_bits());
+    APyFloat init_one = APyFloat::one(get_exp_bits(), get_man_bits());
     return array_fold(
         axes, accumulate, init_one, get_exp_bits(), get_man_bits(), get_bias()
     );
@@ -1293,7 +999,7 @@ APyFloatArray APyFloatArray::cumprod(std::optional<nb::int_> py_axis) const
         *acc_it = (acc * src).get_data();
     };
 
-    APyFloat init_one = one(get_exp_bits(), get_man_bits());
+    APyFloat init_one = APyFloat::one(get_exp_bits(), get_man_bits());
     auto post_proc = [](auto, auto) { /* no post processing */ };
     return array_fold_cumulative(
         axis, accumulate, post_proc, init_one, exp_bits, man_bits, bias
@@ -1306,7 +1012,7 @@ APyFloatArray::nanprod(std::optional<std::variant<nb::tuple, nb::int_>> py_axis)
     // Extract axes to multiply over
     std::vector<std::size_t> axes = cpp_axes_from_python(py_axis, _ndim);
 
-    APyFloat init_one = one(get_exp_bits(), get_man_bits());
+    APyFloat init_one = APyFloat::one(get_exp_bits(), get_man_bits());
 
     // Multiplicative fold function
     APyFloat acc(get_exp_bits(), get_man_bits(), get_bias());
@@ -1337,7 +1043,7 @@ APyFloatArray APyFloatArray::nancumprod(std::optional<nb::int_> py_axis) const
     }
 
     // Accumulation function
-    APyFloat init_one = one(get_exp_bits(), get_man_bits());
+    APyFloat init_one = APyFloat::one(get_exp_bits(), get_man_bits());
     APyFloat acc(get_exp_bits(), get_man_bits(), get_bias());
     APyFloat src(get_exp_bits(), get_man_bits(), get_bias());
     auto accumulate = [&](auto acc_it, auto src_it) {

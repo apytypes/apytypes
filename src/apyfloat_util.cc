@@ -43,15 +43,15 @@ void quantize_apymantissa(
 )
 {
     if (quantization == QuantizationMode::STOCH_WEIGHTED) {
-        std::vector<mp_limb_t> rnd_data = limb_vector_from_uint64_t(
-            { random_number_float(), random_number_float(), 0 }
-        );
+        auto rnd_data = { UINT64_TO_LIMB(random_number_float()),
+                          UINT64_TO_LIMB(random_number_float()),
+                          UINT64_TO_LIMB(0) };
         APyFixed rnd_num(64 * 3, 64 - bits, rnd_data);
         apyman = apyman + rnd_num;
         apyman = apyman.cast_no_overflow(2 + bits, 2, QuantizationMode::TRN);
     } else if (quantization == QuantizationMode::STOCH_EQUAL) {
         const mp_limb_t rnd = -(random_number_float() % 2);
-        std::vector<mp_limb_t> rnd_data = limb_vector_from_uint64_t({ rnd, rnd, 0 });
+        auto rnd_data = { UINT64_TO_LIMB(rnd), UINT64_TO_LIMB(rnd), UINT64_TO_LIMB(0) };
         APyFixed rnd_num(64 * 3, 64 - bits, rnd_data);
         apyman = apyman + rnd_num;
     } else {
@@ -79,25 +79,26 @@ QuantizationMode translate_quantization_mode(QuantizationMode quantization, bool
 void check_exponent_format(int exp_bits)
 {
     if ((unsigned(exp_bits) > _EXP_LIMIT_BITS) || (exp_bits < 0)) {
-        throw nb::value_error(fmt::format(
-                                  "Exponent bits must be a non-negative integer less "
-                                  "or equal to {} but {} was given",
-                                  _EXP_LIMIT_BITS,
-                                  exp_bits
-        )
-                                  .c_str());
+        std::string msg = fmt::format(
+            "Exponent bits must be a non-negative integer less or equal to {} but {} "
+            "was given",
+            _EXP_LIMIT_BITS,
+            exp_bits
+        );
+        throw nb::value_error(msg.c_str());
     }
 }
 
 void check_mantissa_format(int man_bits)
 {
     if ((unsigned(man_bits) > _MAN_LIMIT_BITS) || (man_bits < 0)) {
-        throw nb::value_error(fmt::format(
-                                  "Mantissa bits must be a non-negative integer less "
-                                  "or equal to {} but {} was given",
-                                  _MAN_LIMIT_BITS,
-                                  man_bits
-        )
-                                  .c_str());
+        std::string msg = fmt::format(
+            "Mantissa bits must be a non-negative integer less or equal to {} but {} "
+            "was given",
+            _MAN_LIMIT_BITS,
+            man_bits
+
+        );
+        throw nb::value_error(msg.c_str());
     }
 }

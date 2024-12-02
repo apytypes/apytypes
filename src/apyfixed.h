@@ -13,13 +13,14 @@
 #include <nanobind/nanobind.h> // nanobind::object
 namespace nb = nanobind;
 
-#include <algorithm> // std::copy_n
-#include <cstddef>   // std::size_t
-#include <limits>    // std::numeric_limits<>::is_iec559
-#include <optional>  // std::optional, std::nullopt
-#include <ostream>   // std::ostream
-#include <string>    // std::string
-#include <vector>    // std::vector
+#include <algorithm>        // std::copy_n
+#include <cstddef>          // std::size_t
+#include <initializer_list> // initializer_list
+#include <limits>           // std::numeric_limits<>::is_iec559
+#include <optional>         // std::optional, std::nullopt
+#include <ostream>          // std::ostream
+#include <string>           // std::string
+#include <vector>           // std::vector
 
 // GMP should be included after all other includes
 #include "../extern/mini-gmp/mini-gmp.h"
@@ -133,6 +134,14 @@ public:
     //! Construct a number with `bits` and `int_bits`, and initialize underlying
     //! bit-pattern from limb-vector `vec`.
     explicit APyFixed(int bits, int int_bits, const std::vector<mp_limb_t>& vec);
+
+    //! Construct a number with `bits` and `int_bits`, and initialize underlying
+    //! bit-pattern from initializer list.
+    explicit APyFixed(int bits, int int_bits, std::initializer_list<mp_limb_t> list);
+
+    //! Construct a number with `bits` and `int_bits`, and initialize underlying
+    //! bit-pattern bit stealing it from a `ScratchVector`.
+    explicit APyFixed(int bits, int int_bits, const ScratchVector<mp_limb_t>& data);
 
     /* ****************************************************************************** *
      *                         Binary arithmetic operators                            *
@@ -258,6 +267,8 @@ public:
     //! (convenience function used in `APyFloat`)
     uint64_t get_lsbs() const { return uint64_t_from_limb_vector(_data, 0); }
 
+    APyFixed ipow(unsigned int n) const;
+
     /* ****************************************************************************** *
      *                           Conversion to other types                            *
      * ****************************************************************************** */
@@ -347,6 +358,9 @@ public:
         std::transform(begin_it, end_it, begin_it, std::bit_not {});
         return init_min;
     }
+
+    //! Get bit pattern for the value one
+    static APyFixed one(int bits, int int_bits);
 
     /* ****************************************************************************** *
      * *                   Resize and quantization method (cast)                    * *
