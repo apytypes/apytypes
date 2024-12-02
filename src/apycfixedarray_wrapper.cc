@@ -7,10 +7,10 @@
 #include <nanobind/stl/complex.h>
 #include <nanobind/stl/optional.h>
 
+namespace nb = nanobind;
+
 #include <functional>
 #include <type_traits>
-
-namespace nb = nanobind;
 
 /*
  * Binding function of a custom R-operator (e.g., `__rmul__`) with non APyCFixedArray

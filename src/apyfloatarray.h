@@ -93,6 +93,12 @@ public:
             && bias == other.get_bias();
     }
 
+    //! Retrieve the bit specification
+    APY_INLINE APyFloatSpec spec() const noexcept
+    {
+        return { exp_bits, man_bits, bias };
+    }
+
     /* ****************************************************************************** *
      * *                       Binary arithmetic operators                          * *
      * ****************************************************************************** */

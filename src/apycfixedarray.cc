@@ -15,7 +15,6 @@
 #include "python_util.h"
 
 // Python object access through Nanobind
-#include <iostream>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/complex.h>

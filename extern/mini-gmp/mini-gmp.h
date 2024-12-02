@@ -73,12 +73,16 @@ typedef int32_t mp_limb_signed_t;
 typedef uint64_t mp_limb_t;
 typedef int64_t mp_limb_signed_t;
 #elif COMPILER_LIMB_SIZE == NATIVE
-#if SIZE_MAX == 4294967295ull             /* 32-bit system detected */
+#if SIZE_MAX == 4294967295ull /* 32-bit system detected */
 typedef uint32_t mp_limb_t;
 typedef int32_t mp_limb_signed_t;
+#undef COMPILER_LIMB_SIZE
+#define COMPILER_LIMB_SIZE 32
 #elif SIZE_MAX == 18446744073709551615ull /* 64-bit system detected */
 typedef uint64_t mp_limb_t;
 typedef int64_t mp_limb_signed_t;
+#undef COMPILER_LIMB_SIZE
+#define COMPILER_LIMB_SIZE 64
 #else
 #error "Could not detect native target architecture word size."
 #endif

@@ -6,7 +6,6 @@
 // https://docs.python.org/3/c-api/intro.html#include-files
 #include <Python.h> // PYLONG_BITS_IN_DIGIT, PyLongObject
 
-#include "apybuffer.h"
 #include "apyfixed.h"
 #include "apyfixed_util.h"
 #include "apyfloat.h"
@@ -20,17 +19,18 @@
 namespace nb = nanobind;
 
 // Standard header includes
-#include <algorithm>  // std::copy, std::max, std::transform, etc...
-#include <cassert>    // assert()
-#include <cmath>      // std::isinf, std::isnan
-#include <cstddef>    // std::size_t
-#include <cstring>    // std::memcpy
-#include <functional> // std::bit_not
-#include <iterator>   // std::back_inserter
-#include <optional>   // std::optional
-#include <sstream>    // std::stringstream
-#include <string>     // std::string
-#include <vector>     // std::vector, std::swap
+#include <algorithm>        // std::copy, std::max, std::transform, etc...
+#include <cassert>          // assert()
+#include <cmath>            // std::isinf, std::isnan
+#include <cstddef>          // std::size_t
+#include <cstring>          // std::memcpy
+#include <functional>       // std::bit_not
+#include <initializer_list> // initializer_list
+#include <iterator>         // std::back_inserter
+#include <optional>         // std::optional
+#include <sstream>          // std::stringstream
+#include <string>           // std::string
+#include <vector>           // std::vector, std::swap
 
 #include <fmt/format.h>
 
@@ -89,6 +89,16 @@ APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end)
 
 APyFixed::APyFixed(int bits, int int_bits, const std::vector<mp_limb_t>& vec)
     : APyFixed(bits, int_bits, std::begin(vec), std::end(vec))
+{
+}
+
+APyFixed::APyFixed(int bits, int int_bits, std::initializer_list<mp_limb_t> list)
+    : APyFixed(bits, int_bits, std::begin(list), std::end(list))
+{
+}
+
+APyFixed::APyFixed(int bits, int int_bits, const ScratchVector<mp_limb_t>& data)
+    : APyFixed(bits, int_bits, std::begin(data), std::end(data))
 {
 }
 
@@ -755,6 +765,29 @@ bool APyFixed::positive_greater_than_equal_pow2(int n) const
     return limb_vector_gte_pow2(_data.begin(), _data.end(), test_binary_point);
 }
 
+APyFixed APyFixed::ipow(unsigned int n) const
+{
+    // Early exit for one of the most common cases
+    if (n == 2) {
+        return *this * *this;
+    }
+    // Because how APyFloat::pown is written, we know n will be >= 2,
+    // this fact can probably be used to optimize this code further.
+    APyFixed base = *this;
+    APyFixed result = APyFixed(2, 2, { 1 });
+    for (;;) {
+        if (n & 1) {
+            result = result * base; // Until *= is implemented
+        }
+        n >>= 1;
+        if (!n) {
+            break;
+        }
+        base = base * base; // Until *= is implemented
+    }
+    return result;
+}
+
 /* ********************************************************************************** *
  * *                           Static member functions                              * *
  * ********************************************************************************** */
@@ -894,6 +927,16 @@ APyFixed APyFixed::from_string(
     APyFixed result(int_bits, frac_bits, bits);
     result.set_from_string(string_value, base);
     return result;
+}
+
+//! Get bit pattern for the value one
+APyFixed APyFixed::one(int bits, int int_bits)
+{
+    std::size_t limb_bit = (bits - int_bits) % _LIMB_SIZE_BITS;
+    std::size_t limb_index = (bits - int_bits) / _LIMB_SIZE_BITS;
+    ScratchVector<mp_limb_t> data(limb_index + 1, mp_limb_t(0));
+    data[limb_index] |= mp_limb_t(1) << limb_bit;
+    return APyFixed(bits, int_bits, data);
 }
 
 /* ********************************************************************************** *
