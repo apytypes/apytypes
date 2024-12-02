@@ -207,6 +207,7 @@
 <ul class="current">
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of apytypes Python package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="apycfixed.html"><code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apycfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
@@ -319,14 +320,14 @@ array type.</p>
 </dd>
 <dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
-<dt><strong>force_complex</strong><span class="classifier">bool, optional</span></dt><dd><p>Retrieve the complex-valued array type, <code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code> for fixed-point
+<dt><strong>force_complex</strong><span class="classifier">bool, optional</span></dt><dd><p>Retrieve the complex-valued array type, <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a> for fixed-point
 and <code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloatArray</span></code> for floating-point.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
-<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></span></dt><dd><p>The initialized array with zeros.</p>
+<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></span></dt><dd><p>The initialized array with zeros.</p>
 </dd>
 </dl>
 </dd>
@@ -359,14 +360,14 @@ array type.</p>
 </dd>
 <dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
-<dt><strong>force_complex</strong><span class="classifier">bool, optional</span></dt><dd><p>Retrieve the complex-valued array type, <code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code> for fixed-point
+<dt><strong>force_complex</strong><span class="classifier">bool, optional</span></dt><dd><p>Retrieve the complex-valued array type, <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a> for fixed-point
 and <code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloatArray</span></code> for floating-point.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
-<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></span></dt><dd><p>The array initialized filled with ones.</p>
+<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></span></dt><dd><p>The array initialized filled with ones.</p>
 </dd>
 </dl>
 </dd>
@@ -402,14 +403,14 @@ array type.</p>
 </dd>
 <dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
-<dt><strong>force_complex</strong><span class="classifier">bool, optional</span></dt><dd><p>Retrieve the complex-valued array type, <code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code> for fixed-point
+<dt><strong>force_complex</strong><span class="classifier">bool, optional</span></dt><dd><p>Retrieve the complex-valued array type, <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a> for fixed-point
 and <code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloatArray</span></code> for floating-point.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
-<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></span></dt><dd><p>An array where all elements are equal to zero, except for the k-th diagonal,
+<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></span></dt><dd><p>An array where all elements are equal to zero, except for the k-th diagonal,
 whose values are equal to one.</p>
 </dd>
 </dl>
@@ -443,14 +444,14 @@ array type.</p>
 </dd>
 <dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
-<dt><strong>force_complex</strong><span class="classifier">bool, optional</span></dt><dd><p>Retrieve the complex-valued array type, <code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code> for fixed-point
+<dt><strong>force_complex</strong><span class="classifier">bool, optional</span></dt><dd><p>Retrieve the complex-valued array type, <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a> for fixed-point
 and <code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloatArray</span></code> for floating-point.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
-<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></span></dt><dd><p><cite>n</cite> x <cite>n</cite> array with ones (stored value) on the main diagonal and zeros
+<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></span></dt><dd><p><cite>n</cite> x <cite>n</cite> array with ones (stored value) on the main diagonal and zeros
 elsewhere.</p>
 </dd>
 </dl>
