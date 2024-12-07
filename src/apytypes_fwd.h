@@ -24,7 +24,7 @@
 
 #if !defined(COMPILER_LIMB_SIZE)
 #error "C Macro `COMPILER_LIMB_SIZE` not specified. Must be set during compilation."
-#else /* defined(COMPILER_LIMB_SIZE) */
+#else
 #if COMPILER_LIMB_SIZE == 32
 using apy_limb_t = std::uint32_t;
 using apy_limb_signed_t = std::int32_t;
@@ -45,10 +45,9 @@ using apy_limb_signed_t = std::int64_t;
 #else
 #error "Cannot detect native target architecture word size."
 #endif
-#else
+#else // COMPILER_LIMB_SIZE is not in { 32, 64, NATIVE }
 #error "C Macro `COMPILER_LIMB_SIZE` must be one of `32`, `64` or `NATIVE`"
 #endif
-
 #endif
 
 //! Number of bits in a byte, as defined by POSIX
