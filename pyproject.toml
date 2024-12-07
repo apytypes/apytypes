@@ -100,6 +100,12 @@ enable = ["cpython-freethreading", "cpython-prerelease"]
 # MacOS 10.14 is the first MacOS release with full support for C++17
 MACOSX_DEPLOYMENT_TARGET = "10.14"
 
+[tool.cibuildwheel.pyodide.environment]
+# Exceptions are needed for nanobind:
+CFLAGS = "-fexceptions"
+CXXFLAGS = "-fexceptions"
+LDFLAGS = "-fexceptions"
+
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
 exclude = [".git", ".vscode", "_build", "build"]
