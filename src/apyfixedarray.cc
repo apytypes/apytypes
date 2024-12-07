@@ -1349,7 +1349,7 @@ APyFixedArray APyFixedArray::ones(
 {
     const int res_bits = bits_from_optional(bits, int_bits, frac_bits);
     const int res_int_bits = int_bits.has_value() ? *int_bits : *bits - *frac_bits;
-    return full(shape, one(res_bits, res_int_bits));
+    return full(shape, APyFixed::one(res_bits, res_int_bits));
 }
 
 APyFixedArray APyFixedArray::eye(
@@ -1365,7 +1365,7 @@ APyFixedArray APyFixedArray::eye(
 
     const int res_bits = bits_from_optional(bits, int_bits, frac_bits);
     const int res_int_bits = int_bits.has_value() ? *int_bits : *bits - *frac_bits;
-    return diagonal(shape, one(res_bits, res_int_bits));
+    return diagonal(shape, APyFixed::one(res_bits, res_int_bits));
 }
 
 APyFixedArray APyFixedArray::identity(
