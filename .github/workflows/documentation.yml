@@ -12,13 +12,14 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+          persist-credentials: false
+      - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
         with:
           python-version: "3.10"
-      - uses: nickg/setup-nvc-ci@v1
+      - uses: nickg/setup-nvc-ci@40dcbd31cf07b60479a31f94a5df70c0bfbb9ce5  # v1v1
         with:
           version: latest
       - name: Check simulator installation
@@ -57,7 +58,7 @@ jobs:
           make html
           cd ..
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e  # v4.0.0
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
           publish_branch: gh-pages
@@ -70,7 +71,7 @@ jobs:
           git checkout -- src/apybuffer.h src/apyfloat.h src/apyfixed.h src/apytypes_common.h src/apytypes_util.h src/ieee754.h src/python_util.h src/apyfloatarray.h src/apyfixedarray.h src/apyfloat_util.h src/broadcast.h src/array_utils.h src/apyfixed_util.h src/apycfixed.h src/apycfixedarray.h
       # Download previous benchmark result from cache (if exists)
       - name: Download previous benchmark data
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57  # v4.2.0
         with:
           path: ./cache
           key: ${{ runner.os }}-benchmark
@@ -78,7 +79,7 @@ jobs:
         run: cd benchmark && pytest ci_fixed_array_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_fixed_array.json
         # Run `github-action-benchmark` action
       - name: Store fixed array benchmark result
-        uses: benchmark-action/github-action-benchmark@v1
+        uses: benchmark-action/github-action-benchmark@d48d326b4ca9ba73ca0cd0d59f108f9e02a381c7  # v1.20.4
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
           name: APyTypes Fixed-Point Array Benchmarks
@@ -96,7 +97,7 @@ jobs:
         run: cd benchmark && pytest ci_float_array_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_float_array.json
         # Run `github-action-benchmark` action
       - name: Store float array benchmark result
-        uses: benchmark-action/github-action-benchmark@v1
+        uses: benchmark-action/github-action-benchmark@d48d326b4ca9ba73ca0cd0d59f108f9e02a381c7  # v1.20.4
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
           name: APyTypes Floating-Point Array Benchmarks
@@ -114,7 +115,7 @@ jobs:
         run: cd benchmark && pytest ci_fixed_scalar_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_fixed_scalar.json
         # Run `github-action-benchmark` action
       - name: Store fixed scalar benchmark result
-        uses: benchmark-action/github-action-benchmark@v1
+        uses: benchmark-action/github-action-benchmark@d48d326b4ca9ba73ca0cd0d59f108f9e02a381c7  # v1.20.4
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
           name: APyTypes Fixed-Point Scalar Benchmarks
@@ -132,7 +133,7 @@ jobs:
         run: cd benchmark && pytest ci_float_scalar_benchmarks.py --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-json output_float_scalar.json
         # Run `github-action-benchmark` action
       - name: Store float scalar benchmark result
-        uses: benchmark-action/github-action-benchmark@v1
+        uses: benchmark-action/github-action-benchmark@d48d326b4ca9ba73ca0cd0d59f108f9e02a381c7  # v1.20.4
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
           name: APyTypes Floating-Point Scalar Benchmarks
