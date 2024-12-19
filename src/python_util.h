@@ -19,7 +19,6 @@
 #include <cassert>   // assert
 #include <cstddef>   // offsetof
 #include <cstring>   // std::memcpy
-#include <numeric>   // std::accumulate
 #include <optional>  // std::optional, std::nullopt
 #include <stack>     // std::stack
 #include <stdexcept> // std::runtime_error
