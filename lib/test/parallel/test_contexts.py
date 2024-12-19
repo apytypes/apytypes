@@ -149,7 +149,9 @@ def _test_apyfloatarray_accumulator_context(success: Optional[List[bool]] = None
 
     assert (a @ b).is_identical(APyFloat.from_float(0.375, exp_bits=2, man_bits=3))
     with APyFloatAccumulatorContext(exp_bits=10, man_bits=10):
-        assert (a @ b).is_identical(APyFloat.from_float(0.3125, exp_bits=2, man_bits=3))
+        assert (a @ b).is_identical(
+            APyFloat.from_float(0.3125, exp_bits=10, man_bits=10)
+        )
 
     if success is not None:
         success[0] = True

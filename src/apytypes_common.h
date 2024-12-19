@@ -3,11 +3,8 @@
 
 #include <cstdint>  // std::uint32_t, uint64_t
 #include <optional> // std::optional
-#include <string>   // std::string
-#include <tuple>    // std::tuple
 
 #include "apytypes_fwd.h"
-#include "apytypes_util.h"
 
 //! Quantization modes in APyTypes
 enum class QuantizationMode {
@@ -167,6 +164,11 @@ struct APyFloatAccumulatorOption {
     std::uint8_t man_bits;
     std::optional<exp_t> bias;
     QuantizationMode quantization;
+
+    APyFloatSpec get_spec(exp_t backup_bias) const noexcept
+    {
+        return APyFloatSpec { exp_bits, man_bits, bias.value_or(backup_bias) };
+    }
 };
 
 // Accumulator context

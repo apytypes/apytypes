@@ -367,12 +367,7 @@ public:
      * of both `*this` and `rhs` are equally long. Anything else is undefined
      * behaviour.
      */
-    APyFloat checked_inner_product(
-        const APyFloatArray& rhs,
-        std::optional<APyFloatAccumulatorOption> accumulator_mode,
-        const std::uint8_t max_exp_bits,
-        const std::uint8_t max_man_bits
-    ) const;
+    APyFloat checked_inner_product(const APyFloatArray& rhs) const;
 
     /*!
      * Evaluate the matrix product between two 2D matrices. This method assumes that
@@ -380,23 +375,6 @@ public:
      * multiplication.
      */
     APyFloatArray checked_2d_matmul(const APyFloatArray& rhs) const;
-
-    //! Compute the sum of all elements
-    APyFloat vector_sum(const QuantizationMode quantization) const;
-
-    /*!
-     * Perform hadamard multiplication of `*this` and `rhs`, and store result in `res`.
-     * This method assumes that the shape of `*this` and `rhs` are equal,
-     * anything else is undefined behaviour.
-     */
-    void hadamard_multiplication(
-        const APyFloatData* rhs,
-        const uint8_t rhs_exp_bits,
-        const uint8_t rhs_man_bits,
-        const exp_t rhs_bias,
-        APyFloatArray& res,
-        const QuantizationMode quantization
-    ) const;
 
     /*
      * Friend functions

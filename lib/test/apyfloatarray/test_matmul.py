@@ -127,9 +127,6 @@ def test_matrix_multiplication_accumulator_context():
     with APyFloatQuantizationContext(QuantizationMode.TO_POS):
         ans = A @ B
 
-    with APyFloatQuantizationContext(QuantizationMode.TO_NEG):
-        print(A @ B)
-
     with APyFloatAccumulatorContext(
         exp_bits=4, man_bits=3, quantization=QuantizationMode.TO_POS
     ):
@@ -138,12 +135,15 @@ def test_matrix_multiplication_accumulator_context():
         assert ans.is_identical(A @ B)
 
     # Using more mantissa bits, the result will be the same
-    with APyFloatAccumulatorContext(
-        exp_bits=4, man_bits=10, quantization=QuantizationMode.TIES_EVEN
-    ):
-        assert (A @ B).is_identical(
-            APyFloatArray.from_float([[4.4375, 5.3125], [4.5625, 4.6875]], 4, 3)
-        )
+    for man_bits in range(6, 20):
+        with APyFloatAccumulatorContext(
+            exp_bits=4, man_bits=man_bits, quantization=QuantizationMode.TIES_EVEN
+        ):
+            assert (A @ B).is_identical(
+                APyFloatArray.from_float(
+                    [[4.4375, 5.3125], [4.5625, 4.6875]], 4, man_bits
+                )
+            )
 
     # Using more exponent bits, the intermediate result won't overflow.
     # The intermediate calculation here otherwise becomes inf-inf=nan
@@ -159,7 +159,7 @@ def test_matrix_multiplication_accumulator_context():
     )
 
     with APyFloatAccumulatorContext(exp_bits=10, man_bits=3):
-        assert (a @ b).is_identical(APyFloat.from_float(192, 4, 3))
+        assert (a @ b).is_identical(APyFloat.from_float(192, 10, 3))
 
 
 @pytest.mark.float_array
@@ -441,10 +441,12 @@ def test_array_matmul_mixed_bias_overflow():
     )
 
 
-@pytest.mark.xfail()
 @pytest.mark.float_array
 def test_matrix_mul_acc_context_mixed_bias():
-    """Test that the accumulator doesn't cast prematurely. All test cases here use an accumulator that shouldn't have any effect."""
+    """
+    Test that the accumulator doesn't cast prematurely. All test cases here use an
+    accumulator that shouldn't have any effect.
+    """
     x = APyFloatArray(
         [[0, 0], [0, 0]],
         [[30, 0], [0, 0]],
@@ -504,10 +506,12 @@ def test_matrix_mul_acc_context_mixed_bias():
         )
 
 
-@pytest.mark.xfail()
 @pytest.mark.float_array
 def test_matrix_mul_acc_context_mixed_bias_overflow():
-    """Test that the accumulator doesn't cast prematurely. All test cases here use an accumulator that shouldn't have any effect."""
+    """
+    Test that the accumulator doesn't cast prematurely. All test cases here use an
+    accumulator that shouldn't have any effect.
+    """
     x = APyFloatArray([0], [21], [0], exp_bits=5, man_bits=2, bias=5)
     y = APyFloatArray([0], [25], [0], exp_bits=5, man_bits=2, bias=25)
 
@@ -605,3 +609,35 @@ def test_matrix_mul_acc_context_mixed_bias_overflow():
                 man_bits=2,
             )
         )
+
+
+@pytest.mark.float_array
+@pytest.mark.parametrize(
+    "q",
+    [
+        QuantizationMode.TRN,
+        QuantizationMode.TRN_ZERO,
+        QuantizationMode.TRN_INF,
+        QuantizationMode.TRN_AWAY,
+        QuantizationMode.TRN_MAG,
+        QuantizationMode.RND,
+        QuantizationMode.RND_ZERO,
+        QuantizationMode.RND_INF,
+        QuantizationMode.RND_MIN_INF,
+        QuantizationMode.RND_CONV,
+        QuantizationMode.RND_CONV_ODD,
+        QuantizationMode.JAM,
+        QuantizationMode.JAM_UNBIASED,
+        QuantizationMode.STOCH_WEIGHTED,
+        QuantizationMode.STOCH_EQUAL,
+    ],
+)
+def test_to_wide_accumulator(q):
+    a = APyFloatArray.from_float([1, 2, 3, 4, 5, 6, 7, 8], exp_bits=6, man_bits=8)
+    b = APyFloatArray.from_float([9, 8, 7, 6, 5, 4, 3, 2], exp_bits=6, man_bits=8)
+
+    for man_bits in range(16, 30):
+        with APyFloatAccumulatorContext(exp_bits=6, man_bits=man_bits, quantization=q):
+            (a @ b).is_identical(
+                APyFloat(sign=0, exp=38, man=56, exp_bits=6, man_bits=man_bits)
+            )
