@@ -329,7 +329,7 @@ translate_quantization_mode(QuantizationMode quantization, bool sign)
 }
 
 //! Check that the number of exponent bits is allowed, throw otherwise
-[[maybe_unused]] static APY_INLINE void check_exponent_format(int exp_bits)
+[[maybe_unused]] static APY_INLINE std::uint8_t check_exponent_format(int exp_bits)
 {
     if ((unsigned(exp_bits) > _EXP_LIMIT_BITS) || (exp_bits < 0)) {
         std::string msg = fmt::format(
@@ -340,10 +340,12 @@ translate_quantization_mode(QuantizationMode quantization, bool sign)
         );
         throw nb::value_error(msg.c_str());
     }
+
+    return std::uint8_t(exp_bits);
 }
 
 //! Check that the number of mantissa bits is allowed, throw otherwise
-[[maybe_unused]] static APY_INLINE void check_mantissa_format(int man_bits)
+[[maybe_unused]] static APY_INLINE std::uint8_t check_mantissa_format(int man_bits)
 {
     if ((unsigned(man_bits) > _MAN_LIMIT_BITS) || (man_bits < 0)) {
         std::string msg = fmt::format(
@@ -355,6 +357,8 @@ translate_quantization_mode(QuantizationMode quantization, bool sign)
         );
         throw nb::value_error(msg.c_str());
     }
+
+    return std::uint8_t(man_bits);
 }
 
 /* ********************************************************************************** *
@@ -636,7 +640,6 @@ template <
         if (x_is_nan || y_is_nan || (both_inf && x_sign != y_sign)) {
             z = { x_sign, exp_t(MAX_EXP), man_t(1) }; // Set to NaN
         } else {
-            // Set to inf
             bool sign = x.man == 0 ? x_sign : y_sign;
             z = { sign, exp_t(MAX_EXP), man_t(0) }; // Set to inf
         }

@@ -2,7 +2,10 @@
 #define _APYCFLOAT_H
 
 #include "apyfloat.h"
-#include "apyfloat_util.h"
+#include "nanobind/nanobind.h"
+
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/variant.h>
 
 class APyCFloat {
 
@@ -56,10 +59,73 @@ public:
             && bias == other.bias;
     }
 
+    //! Retrieve the bit specification
+    APY_INLINE APyFloatSpec spec() const noexcept
+    {
+        return { exp_bits, man_bits, bias };
+    }
+
+    /* ****************************************************************************** *
+     * *                              Constructors                                  * *
+     * ****************************************************************************** */
+
+public:
+    //! Constructor only specifying the format, data fields are initialized to zero
+    APyCFloat(std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias);
+
+    //! Constructor setting data fields using a struct
+    APyCFloat(
+        const APyFloatData& real_data,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        exp_t bias
+    );
+
+    //! Constructor setting data fields using a struct
+    APyCFloat(
+        const APyFloatData& real_data,
+        const APyFloatData& imag_data,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        exp_t bias
+    );
+
+    /* ****************************************************************************** *
+     * *                       Python exposed constructors                          * *
+     * ****************************************************************************** */
+
+    //! Zero-initialization from Python type bit-specification
+    APyCFloat(
+        const nb::int_& exp_bits,
+        const nb::int_& man_bits,
+        const std::optional<nb::int_>& bias
+    );
+
+    //! Python constructor setting the real field
+    APyCFloat(
+        const std::variant<nb::bool_, nb::int_>& sign,
+        const nb::int_& exp,
+        const nb::int_& man,
+        const nb::int_& exp_bits,
+        const nb::int_& man_bits,
+        const std::optional<nb::int_>& bias
+    );
+
+    //! Python constructor setting both real and imaginary field
+    APyCFloat(
+        const nb::tuple& sign,
+        const nb::tuple& exp,
+        const nb::tuple& man,
+        const nb::int_& exp_bits,
+        const nb::int_& man_bits,
+        const std::optional<nb::int_>& bias
+    );
+
     /* ****************************************************************************** *
      * *                      Static conversion from other types                    * *
      * ****************************************************************************** */
 
+public:
     //! Create APyCFloat from Python object
     static APyCFloat from_number(
         const nb::object& py_obj,
@@ -78,11 +144,74 @@ public:
 
     //! Create APyCFloat from Python integer
     static APyCFloat from_integer(
-        const nb::int_ value,
+        const nb::int_& value,
         int exp_bits,
         int man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
+
+    //! Create APyCFloat from Python complex
+    static APyCFloat from_complex(
+        std::complex<double> value,
+        int exp_bits,
+        int man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
+
+    /* ****************************************************************************** *
+     * *                         Binary comparison operators                        * *
+     * ****************************************************************************** */
+
+public:
+    bool operator==(const APyCFloat& rhs) const;
+    bool operator!=(const APyCFloat& rhs) const;
+
+    /* ****************************************************************************** *
+     * *                         Binary arithmetic operators                        * *
+     * ****************************************************************************** */
+
+    // Unary negation
+    APyCFloat operator+(const APyCFloat& rhs) const;
+    APyCFloat operator-(const APyCFloat& rhs) const;
+    APyCFloat operator*(const APyCFloat& rhs) const;
+    APyCFloat operator/(const APyCFloat& rhs) const;
+
+    // Unary negation
+    APyCFloat operator-() const;
+
+    /* ****************************************************************************** *
+     * *                       Non-computational functions                          * *
+     * ****************************************************************************** */
+
+    //! Return the bit width of the mantissa field
+    APY_INLINE std::uint8_t get_man_bits() const { return man_bits; }
+
+    //! Return the bit width of the exponent field
+    APY_INLINE std::uint8_t get_exp_bits() const { return exp_bits; }
+
+    //! Return the bit width of the entire floating-point format
+    APY_INLINE std::uint8_t get_bits() const { return man_bits + exp_bits + 1; }
+
+    /* ****************************************************************************** *
+     * *                       Other public member functions                        * *
+     * ****************************************************************************** */
+
+public:
+    //! Retrieve the Python string representation
+    std::string repr() const;
+
+    //! Conversion to string
+    std::string to_string(int base = 10) const;
+    std::string to_string_hex() const;
+    std::string to_string_oct() const;
+    std::string to_string_dec() const;
+
+    //! Retrieve a `std::complex<double>`
+    std::complex<double> to_complex() const;
+
+    //! Test if two floating-point numbers are identical, i.e., has the same values, the
+    //! same number of exponent bits, and the same number of mantissa bits
+    bool is_identical(const APyCFloat& other) const;
 
     /* ****************************************************************************** *
      * *                           Friends of `APyCFloat`                           * *
