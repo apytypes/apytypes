@@ -2,7 +2,6 @@
 #define _APYCFLOAT_H
 
 #include "apyfloat.h"
-#include "apyfloat_util.h"
 
 class APyCFloat {
 
@@ -57,9 +56,35 @@ public:
     }
 
     /* ****************************************************************************** *
+     * *                              Constructors                                  * *
+     * ****************************************************************************** */
+
+public:
+    //! Constructor only specifying the format, data fields are initialized to zero
+    APyCFloat(std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias);
+
+    //! Constructor setting data fields using a struct
+    APyCFloat(
+        const APyFloatData& real_data,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        exp_t bias
+    );
+
+    //! Constructor setting data fields using a struct
+    APyCFloat(
+        const APyFloatData& real_data,
+        const APyFloatData& imag_data,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        exp_t bias
+    );
+
+    /* ****************************************************************************** *
      * *                      Static conversion from other types                    * *
      * ****************************************************************************** */
 
+public:
     //! Create APyCFloat from Python object
     static APyCFloat from_number(
         const nb::object& py_obj,
@@ -83,6 +108,22 @@ public:
         int man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
+
+    //! Create APyCFloat from Python complex
+    static APyCFloat from_complex(
+        std::complex<double> value,
+        int exp_bits,
+        int man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
+
+    /* ****************************************************************************** *
+     * *                       Other public member functions                        * *
+     * ****************************************************************************** */
+
+public:
+    //! Retrieve the string representation
+    std::string repr() const;
 
     /* ****************************************************************************** *
      * *                           Friends of `APyCFloat`                           * *
