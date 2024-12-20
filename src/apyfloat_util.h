@@ -1,3 +1,7 @@
+/*
+ * Arithmetic and utility functions for APyTypes floating-point types
+ */
+
 #ifndef _APYFLOAT_UTIL_H
 #define _APYFLOAT_UTIL_H
 
@@ -6,10 +10,13 @@
 #include "apytypes_fwd.h"
 #include "apytypes_util.h"
 #include "python_util.h"
+#include "src/apytypes_mp.h"
 
 // Standard header includes
-#include <functional> // std::invoke
-#include <optional>
+#include <algorithm>
+#include <cassert>    // assert
+#include <functional> // std::invoke, std::cref, std::ref
+#include <optional>   // std::optional
 
 /*!
  * Sizes of APyFloat datatypes
@@ -25,7 +32,167 @@ static constexpr std::size_t _EXP_T_SIZE_BITS = 8 * _EXP_T_SIZE_BYTES;
 static constexpr std::size_t _MAN_LIMIT_BITS = _MAN_T_SIZE_BITS - 3;
 static constexpr std::size_t _EXP_LIMIT_BITS = _EXP_T_SIZE_BITS - 2;
 
-//! Check if one should saturate to infinity or maximum normal number
+/* ********************************************************************************** *
+ * *                        Floating-point helper utilities                         * *
+ * ********************************************************************************** */
+
+[[maybe_unused]] static APY_INLINE bool is_zero(const APyFloatData& src)
+{
+    return src.exp == 0 && src.man == 0;
+}
+
+[[maybe_unused]] static APY_INLINE bool
+is_max_exponent(const APyFloatData& src, uint8_t exp_bits)
+{
+    return src.exp == ((1ULL << exp_bits) - 1);
+}
+
+[[maybe_unused]] static APY_INLINE bool
+is_max_exponent(const APyFloatData& src, const APyFloatSpec& spec)
+{
+    return is_max_exponent(src, spec.exp_bits);
+}
+
+[[maybe_unused]] static APY_INLINE bool
+is_normal(const APyFloatData& src, uint8_t exp_bits)
+{
+    return src.exp != 0 && !is_max_exponent(src, exp_bits);
+}
+
+[[maybe_unused]] static APY_INLINE bool
+is_nan(const APyFloatData& src, uint8_t exp_bits)
+{
+    return is_max_exponent(src, exp_bits) && src.man != 0;
+}
+
+[[maybe_unused]] static APY_INLINE bool
+is_nan(const APyFloatData& src, const APyFloatSpec& spec)
+{
+    return is_nan(src, spec.exp_bits);
+}
+
+[[maybe_unused]] static APY_INLINE bool
+is_inf(const APyFloatData& src, uint8_t exp_bits)
+{
+    return is_max_exponent(src, exp_bits) && src.man == 0;
+}
+
+[[maybe_unused]] static APY_INLINE bool
+is_inf(const APyFloatData& src, const APyFloatSpec& spec)
+{
+    return is_inf(src, spec.exp_bits);
+}
+
+[[maybe_unused]] static APY_INLINE bool
+is_finite(const APyFloatData& src, const APyFloatSpec& spec)
+{
+    return !is_inf(src, spec) && !is_nan(src, spec);
+}
+
+[[maybe_unused]] static APY_INLINE int64_t true_exp(const APyFloatData& src, exp_t bias)
+{
+    return std::int64_t(src.exp) - std::int64_t(bias) + (src.exp == 0);
+}
+
+[[maybe_unused]] static APY_INLINE int64_t
+true_exp(const APyFloatData& src, const APyFloatSpec& spec)
+{
+    return true_exp(src, spec.bias);
+}
+
+[[maybe_unused]] static APY_INLINE man_t
+true_man(const APyFloatData& src, uint8_t exp_bits, uint8_t man_bits)
+{
+    return ((static_cast<man_t>(is_normal(src, exp_bits)) << man_bits) | src.man);
+}
+
+[[maybe_unused]] static APY_INLINE man_t
+true_man(const APyFloatData& src, const APyFloatSpec& spec)
+{
+    return true_man(src, spec.exp_bits, spec.man_bits);
+}
+
+//! The pure exponent (`pure_exp`) is the bit index of the first non-zero bit in a
+//! floating-point number, if it exists. It can be thought of as the exponent, in base
+//! 2, for the number written using scientific notation. The pure exponent is equal to
+//! the true biased exponent for all normal numbers.
+[[maybe_unused]] static APY_INLINE std::tuple<int64_t, std::size_t>
+pure_exp(const APyFloatData& src, const APyFloatSpec& spec)
+{
+    if (src.exp == 0) {
+        std::size_t bw = bit_width(src.man);
+        return { std::int64_t(bw) - std::int64_t(spec.bias) - spec.man_bits, bw };
+    } else {
+        return { std::int64_t(src.exp) - std::int64_t(spec.bias), spec.man_bits + 1 };
+    }
+}
+
+//! Return a normalized (non subnormal) floating-point copy of `src`. Returns a
+//! three-tuple, [ `APyFloatData`, `exp_bits`, `bias` ]
+[[maybe_unused]] static APY_INLINE std::tuple<APyFloatData, uint8_t, exp_t>
+normalize(const APyFloatData& src, uint8_t exp_bits, uint8_t man_bits, exp_t bias)
+{
+    if (!(src.exp == 0 && src.man != 0)) { // if not subnormal
+        return { src, exp_bits, bias };
+    }
+
+    man_t new_man = src.man;
+    std::int64_t tmp_exp = true_exp(src, bias);
+    while (!(new_man & (1ULL << man_bits))) {
+        new_man <<= 1;
+        tmp_exp--;
+    }
+
+    // Possibly use more exponent bits
+    int new_exp_bits = exp_bits;
+    exp_t extended_bias = bias;
+    auto new_exp = tmp_exp + extended_bias;
+    while (new_exp <= 0) {
+        new_exp_bits++;
+        extended_bias = exp_t((1ULL << (new_exp_bits - 1)) - 1);
+        new_exp = tmp_exp + extended_bias;
+    }
+
+    return { APyFloatData { src.sign, exp_t(new_exp), new_man },
+             new_exp_bits,
+             extended_bias };
+}
+
+[[maybe_unused]] static APY_INLINE std::tuple<APyFloatData, uint8_t, exp_t>
+normalize(const APyFloatData& src, const APyFloatSpec& spec)
+{
+    return normalize(src, spec.exp_bits, spec.man_bits, spec.bias);
+}
+
+//! Retrieve a generalized IEEE-754 bias for `exp_bits`
+[[maybe_unused]] static APY_INLINE exp_t ieee_bias(std::uint8_t exp_bits)
+{
+    return (1ULL << (exp_bits - 1)) - 1;
+}
+
+//! Calculate new bias. Assumes new_exp_bits is larger than exp_bits1 and exp_bits2.
+[[maybe_unused]] static APY_INLINE exp_t
+calc_bias(int new_exp_bits, int exp_bits1, exp_t bias1, int exp_bits2, exp_t bias2)
+{
+    const auto s1 = (bias1 + 1) << (new_exp_bits - exp_bits1);
+    const auto s2 = (bias2 + 1) << (new_exp_bits - exp_bits2);
+    return ((s1 + s2) >> 1) - 1;
+}
+
+//! Calculate new bias. Assumes new_exp_bits is larger than exp_bits1 and exp_bits2.
+[[maybe_unused]] static APY_INLINE exp_t
+calc_bias(int new_exp_bits, const APyFloatSpec& spec1, const APyFloatSpec& spec2)
+{
+    return calc_bias(
+        new_exp_bits, spec1.exp_bits, spec1.bias, spec2.exp_bits, spec2.bias
+    );
+}
+
+/* ********************************************************************************** *
+ * *                     Floating-point quantization functions                      * *
+ * ********************************************************************************** */
+
+//! Test if a quantization `mode` shall saturate to infinity or greatest normal number
 [[maybe_unused]] static APY_INLINE bool do_infinity(QuantizationMode mode, bool sign)
 {
     switch (mode) {
@@ -40,62 +207,6 @@ static constexpr std::size_t _EXP_LIMIT_BITS = _EXP_T_SIZE_BITS - 2;
     default:
         return true;
     }
-}
-
-//! Return the bit pattern of a floating-point data field. No checks on bit width is
-//! done.
-[[maybe_unused]] static APY_INLINE std::uint64_t
-to_bits_uint64(const APyFloatData& d, std::uint8_t exp_bits, std::uint8_t man_bits)
-{
-    return (std::uint64_t(d.sign) << (exp_bits + man_bits))
-        | (std::uint64_t(d.exp) << man_bits) | std::uint64_t(d.man);
-}
-
-[[maybe_unused]] static APY_INLINE nb::int_
-apyfloat_to_bits(const APyFloatData& d, std::uint8_t exp_bits, std::uint8_t man_bits)
-{
-    std::uint64_t lower = d.man;
-    const int exp_man_bits = exp_bits + man_bits;
-    lower |= (std::uint64_t)d.exp << man_bits;
-    lower |= (std::uint64_t)d.sign << exp_man_bits;
-
-    std::uint64_t higher = (std::uint64_t)d.exp >> (64 - man_bits);
-    const int high_sign_delta = 64 - exp_man_bits;
-    if (high_sign_delta < 0) {
-        higher |= d.sign << -high_sign_delta;
-    }
-
-    auto limb_list = { UINT64_TO_LIMB(lower), UINT64_TO_LIMB(higher) };
-    return python_limb_vec_to_long(limb_list.begin(), limb_list.end(), false);
-}
-
-//! Calculate new bias. Assumes new_exp_bits is larger than exp_bits1 and exp_bits2.
-[[maybe_unused]] static APY_INLINE exp_t
-calc_bias(int new_exp_bits, int exp_bits1, exp_t bias1, int exp_bits2, exp_t bias2)
-{
-    const auto s1 = (bias1 + 1) << (new_exp_bits - exp_bits1);
-    const auto s2 = (bias2 + 1) << (new_exp_bits - exp_bits2);
-    return ((s1 + s2) >> 1) - 1;
-}
-
-[[maybe_unused]] static APY_INLINE exp_t
-calc_bias(int new_exp_bits, const APyFloatSpec& spec1, const APyFloatSpec& spec2)
-{
-    return calc_bias(
-        new_exp_bits, spec1.exp_bits, spec1.bias, spec2.exp_bits, spec2.bias
-    );
-}
-
-//! General calculation of new bias. Should only be used if new_exp_bits can be strictly
-//! less than exp_bits1 or exp_bits2.
-[[maybe_unused]] static APY_INLINE exp_t calc_bias_general(
-    int new_exp_bits, int exp_bits1, exp_t bias1, int exp_bits2, exp_t bias2
-)
-{
-    double s1 = double(bias1 + 1) / double(1 << exp_bits1);
-    double s2 = double(bias2 + 1) / double(1 << exp_bits2);
-    double p = (1 << (new_exp_bits - 1));
-    return (s1 + s2) * p - 1;
 }
 
 //! Specialized floating-point mantissa quantization functions.
@@ -113,7 +224,7 @@ template <QuantizationMode QNTZ, bool SUPPORT_NEGATIVE_BITS_TO_QUANTIZE = false>
     if constexpr (SUPPORT_NEGATIVE_BITS_TO_QUANTIZE) {
         if (bits_to_quantize < 0) {
             man <<= -bits_to_quantize;
-            return;
+            return; // early exit
         }
     }
 
@@ -183,7 +294,7 @@ template <QuantizationMode QNTZ, bool SUPPORT_NEGATIVE_BITS_TO_QUANTIZE = false>
     }
 }
 
-// Retrieve a specialized quantization function
+//! Retrieve a specialized quantization function
 [[maybe_unused]] static APY_INLINE auto
 get_qntz_func(QuantizationMode qntz, bool support_negative_bits_to_quantize = false)
 {
@@ -231,8 +342,8 @@ get_qntz_func(QuantizationMode qntz, bool support_negative_bits_to_quantize = fa
 
     // No quantization function found...
     throw NotImplementedException(
-        "get_qntz_func(): unknown quantization (did you pass `int` as "
-        "`QuantizationMode`?)"
+        "get_qntz_func(): unknown quantization, did you pass `int` as "
+        "`QuantizationMode`?"
     );
 
 #undef GET_QNTZ_FUNC_ALTERNATIVE
@@ -258,6 +369,156 @@ quantize_close_to_zero(bool sign, QuantizationMode quantization)
     default:
         return 0;
     }
+}
+
+/* ********************************************************************************** *
+ * *                        Floating-point cast functions                           * *
+ * ********************************************************************************** */
+
+//! Cast a floating-point value from one format to another
+template <typename QNTZ_FUNC_SIGNATURE>
+[[maybe_unused]] static APY_INLINE APyFloatData floating_point_cast(
+    const APyFloatData& src,
+    const APyFloatSpec& src_spec,
+    const APyFloatSpec& dst_spec,
+    QuantizationMode qntz,
+    QNTZ_FUNC_SIGNATURE qntz_func
+)
+{
+    // Handle special values first
+    if (is_max_exponent(src, src_spec)) {
+        if (is_nan(src, src_spec)) {
+            return { src.sign, exp_t((1ULL << dst_spec.exp_bits) - 1), 1 }; // NaN
+        } else if (is_inf(src, src_spec)) {
+            return { src.sign, exp_t((1ULL << dst_spec.exp_bits) - 1), 0 }; // inf
+        }
+    } else if (is_zero(src)) {
+        return { src.sign, 0, 0 };
+    }
+
+    // Initial values for cast data
+    man_t man = src.man;
+    std::int64_t exp = true_exp(src, src_spec) + std::int64_t(dst_spec.bias);
+
+    // Normalize the exponent and mantissa if converting from subnormal
+    if (src.exp == 0) {
+        exp_t subn_adjustment = count_trailing_bits(src.man);
+        man_t remainder = src.man % (1ULL << subn_adjustment);
+        exp = exp - src_spec.man_bits + subn_adjustment;
+        man = remainder << (src_spec.man_bits - subn_adjustment);
+    }
+
+    // Check if the result will be subnormal after cast
+    if (exp <= 0) {
+        if (exp < -std::int64_t(dst_spec.man_bits)) {
+            // Exponent to small after rounding
+            return { src.sign, 0, quantize_close_to_zero(src.sign, qntz) };
+        }
+
+        const int MAN_BITS_DELTA = 1 - exp + (src_spec.man_bits - dst_spec.man_bits);
+        const man_t LEADING_ONE = (1ULL << src_spec.man_bits);
+        man |= (1ULL << src_spec.man_bits); // Add the hidden one
+        if (MAN_BITS_DELTA <= 0) {
+            return { src.sign, 0, (man << -MAN_BITS_DELTA) };
+        } else { /* man_bits_delta > 0 */
+            const exp_t MAX_EXP = (1ULL << dst_spec.exp_bits) - 1;
+            const man_t STICKY = (1ULL << (MAN_BITS_DELTA - 1)) - 1;
+            APyFloatData res = { src.sign, 0, man };
+            qntz_func(
+                res.man, res.exp, MAX_EXP, MAN_BITS_DELTA, res.sign, LEADING_ONE, STICKY
+            );
+            return res;
+        }
+    }
+
+    // Quantize the mantissa and return
+    const int MAN_BITS_DELTA = src_spec.man_bits - dst_spec.man_bits;
+    const exp_t MAX_EXP = (1ULL << dst_spec.exp_bits) - 1;
+    const man_t LEADING_ONE = (1ULL << dst_spec.man_bits);
+    if (MAN_BITS_DELTA <= 0) {
+        if (exp >= MAX_EXP) {
+            if (do_infinity(qntz, src.sign)) {
+                return { src.sign, MAX_EXP, 0 }; // inf
+            } else {
+                return { src.sign, MAX_EXP - 1, LEADING_ONE - 1 }; // largest normal
+            }
+        } else { /* exp < MAX_EXP */
+            return { src.sign, exp_t(exp), (man << -MAN_BITS_DELTA) };
+        }
+    }
+
+    APyFloatData res { src.sign, exp_t(exp), man };
+    const man_t STICKY = (1ULL << (MAN_BITS_DELTA - 1)) - 1;
+    qntz_func(res.man, res.exp, MAX_EXP, MAN_BITS_DELTA, res.sign, LEADING_ONE, STICKY);
+    return res;
+}
+
+//! Cast a floating-point number when it is known that no quantization happens
+[[maybe_unused]] static APY_INLINE APyFloatData floating_point_cast_no_quant(
+    const APyFloatData& src, const APyFloatSpec& src_spec, const APyFloatSpec& dst_spec
+)
+{
+    // Handle special values first
+    if (is_max_exponent(src, src_spec.exp_bits)) {
+        if (src.man) {
+            return { src.sign, exp_t((1ULL << dst_spec.exp_bits) - 1), 1 }; // NaN
+        } else {
+            return { src.sign, exp_t((1ULL << dst_spec.exp_bits) - 1), 0 }; // +-inf
+        }
+    } else if (is_zero(src)) {
+        return { src.sign, 0, 0 };
+    }
+
+    // Initial value for exponent
+    std::int64_t new_exp = true_exp(src, src_spec) + std::int64_t(dst_spec.bias);
+
+    // Adjust the exponent and mantissa if convertering from a subnormal
+    man_t new_man;
+    if (src.exp == 0) {
+        const exp_t subn_adjustment = count_trailing_bits(src.man);
+        if (new_exp + subn_adjustment < src_spec.man_bits) {
+            // The result remains subnormal
+            new_man = src.man << new_exp;
+            new_exp = 0;
+        } else {
+            // The result becomes normal
+            new_man = src.man << (src_spec.man_bits - subn_adjustment);
+            new_man &= (1ULL << src_spec.man_bits) - 1;
+            new_exp = new_exp + subn_adjustment - src_spec.man_bits;
+        }
+    } else {
+        new_man = src.man;
+    }
+
+    new_man <<= dst_spec.man_bits - src_spec.man_bits;
+    return { src.sign, exp_t(new_exp), man_t(new_man) };
+}
+
+//! Return the bit pattern of a floating-point data field. No checks on bit width is
+//! done.
+[[maybe_unused]] static APY_INLINE std::uint64_t
+to_bits_uint64(const APyFloatData& d, std::uint8_t exp_bits, std::uint8_t man_bits)
+{
+    return (std::uint64_t(d.sign) << (exp_bits + man_bits))
+        | (std::uint64_t(d.exp) << man_bits) | std::uint64_t(d.man);
+}
+
+[[maybe_unused]] static APY_INLINE nb::int_
+apyfloat_to_bits(const APyFloatData& d, std::uint8_t exp_bits, std::uint8_t man_bits)
+{
+    std::uint64_t lower = d.man;
+    const int exp_man_bits = exp_bits + man_bits;
+    lower |= (std::uint64_t)d.exp << man_bits;
+    lower |= (std::uint64_t)d.sign << exp_man_bits;
+
+    std::uint64_t higher = (std::uint64_t)d.exp >> (64 - man_bits);
+    const int high_sign_delta = 64 - exp_man_bits;
+    if (high_sign_delta < 0) {
+        higher |= d.sign << -high_sign_delta;
+    }
+
+    auto limb_list = { UINT64_TO_LIMB(lower), UINT64_TO_LIMB(higher) };
+    return python_limb_vec_to_long(limb_list.begin(), limb_list.end(), false);
 }
 
 //! Fast integer power by squaring.
@@ -329,7 +590,7 @@ translate_quantization_mode(QuantizationMode quantization, bool sign)
 }
 
 //! Check that the number of exponent bits is allowed, throw otherwise
-[[maybe_unused]] static APY_INLINE void check_exponent_format(int exp_bits)
+[[maybe_unused]] static APY_INLINE std::uint8_t check_exponent_format(int exp_bits)
 {
     if ((unsigned(exp_bits) > _EXP_LIMIT_BITS) || (exp_bits < 0)) {
         std::string msg = fmt::format(
@@ -340,10 +601,12 @@ translate_quantization_mode(QuantizationMode quantization, bool sign)
         );
         throw nb::value_error(msg.c_str());
     }
+
+    return std::uint8_t(exp_bits);
 }
 
 //! Check that the number of mantissa bits is allowed, throw otherwise
-[[maybe_unused]] static APY_INLINE void check_mantissa_format(int man_bits)
+[[maybe_unused]] static APY_INLINE std::uint8_t check_mantissa_format(int man_bits)
 {
     if ((unsigned(man_bits) > _MAN_LIMIT_BITS) || (man_bits < 0)) {
         std::string msg = fmt::format(
@@ -355,178 +618,96 @@ translate_quantization_mode(QuantizationMode quantization, bool sign)
         );
         throw nb::value_error(msg.c_str());
     }
-}
 
-/* ********************************************************************************** *
- * *                        Floating-point helper utilities                         * *
- * ********************************************************************************** */
-
-//! Retrieve a generalized IEEE-754 bias for `exp_bits`
-[[maybe_unused]] static APY_INLINE exp_t ieee_bias(std::uint8_t exp_bits)
-{
-    return (1ULL << (exp_bits - 1)) - 1;
-}
-
-[[maybe_unused]] static APY_INLINE bool is_zero(const APyFloatData& src)
-{
-    return src.exp == 0 && src.man == 0;
-}
-
-[[maybe_unused]] static APY_INLINE bool
-is_max_exponent(const APyFloatData& src, uint8_t exp_bits)
-{
-    return src.exp == ((1ULL << exp_bits) - 1);
-}
-
-[[maybe_unused]] static APY_INLINE bool
-is_max_exponent(const APyFloatData& src, const APyFloatSpec& spec)
-{
-    return is_max_exponent(src, spec.exp_bits);
-}
-
-[[maybe_unused]] static APY_INLINE bool
-is_normal(const APyFloatData& src, uint8_t exp_bits)
-{
-    return src.exp != 0 && !is_max_exponent(src, exp_bits);
-}
-
-[[maybe_unused]] static APY_INLINE bool
-is_nan(const APyFloatData& src, uint8_t exp_bits)
-{
-    return is_max_exponent(src, exp_bits) && src.man != 0;
-}
-
-[[maybe_unused]] static APY_INLINE bool
-is_nan(const APyFloatData& src, const APyFloatSpec& spec)
-{
-    return is_nan(src, spec.exp_bits);
-}
-
-[[maybe_unused]] static APY_INLINE bool
-is_inf(const APyFloatData& src, uint8_t exp_bits)
-{
-    return is_max_exponent(src, exp_bits) && src.man == 0;
-}
-
-[[maybe_unused]] static APY_INLINE bool
-is_inf(const APyFloatData& src, const APyFloatSpec& spec)
-{
-    return is_inf(src, spec.exp_bits);
-}
-
-[[maybe_unused]] static APY_INLINE int64_t true_exp(const APyFloatData& src, exp_t bias)
-{
-    return std::int64_t(src.exp) - std::int64_t(bias) + (src.exp == 0);
-}
-
-[[maybe_unused]] static APY_INLINE int64_t
-true_exp(const APyFloatData& src, const APyFloatSpec& spec)
-{
-    return true_exp(src, spec.bias);
-}
-
-[[maybe_unused]] static APY_INLINE std::tuple<int64_t, std::size_t>
-pure_exp(const APyFloatData& src, const APyFloatSpec& spec)
-{
-    if (src.exp == 0) {
-        std::size_t bw = bit_width(src.man);
-        return { std::int64_t(bw) - std::int64_t(spec.bias) - spec.man_bits, bw };
-    } else {
-        return { std::int64_t(src.exp) - std::int64_t(spec.bias), spec.man_bits + 1 };
-    }
-}
-
-[[maybe_unused]] static APY_INLINE man_t
-true_man(const APyFloatData& src, uint8_t exp_bits, uint8_t man_bits)
-{
-    return ((static_cast<man_t>(is_normal(src, exp_bits)) << man_bits) | src.man);
-}
-
-[[maybe_unused]] static APY_INLINE man_t
-true_man(const APyFloatData& src, const APyFloatSpec& spec)
-{
-    return true_man(src, spec.exp_bits, spec.man_bits);
-}
-
-//! Return a normalized (non subnormal) floating-point copy of `src`
-[[maybe_unused]] static APY_INLINE std::tuple<APyFloatData, uint8_t, exp_t>
-normalize(const APyFloatData& src, uint8_t exp_bits, uint8_t man_bits, exp_t bias)
-{
-    if (!(src.exp == 0 && src.man != 0)) { // if not subnormal
-        return { src, exp_bits, bias };
-    }
-
-    man_t new_man = src.man;
-    std::int64_t tmp_exp = true_exp(src, bias);
-    while (!(new_man & (1ULL << man_bits))) {
-        new_man <<= 1;
-        tmp_exp--;
-    }
-
-    // Possibly use more exponent bits
-    int new_exp_bits = exp_bits;
-    exp_t extended_bias = bias;
-    auto new_exp = tmp_exp + extended_bias;
-    while (new_exp <= 0) {
-        new_exp_bits++;
-        extended_bias = exp_t((1ULL << (new_exp_bits - 1)) - 1);
-        new_exp = tmp_exp + extended_bias;
-    }
-
-    return { APyFloatData { src.sign, exp_t(new_exp), new_man },
-             new_exp_bits,
-             extended_bias };
-}
-
-[[maybe_unused]] static APY_INLINE std::tuple<APyFloatData, uint8_t, exp_t>
-normalize(const APyFloatData& src, const APyFloatSpec& spec)
-{
-    return normalize(src, spec.exp_bits, spec.man_bits, spec.bias);
-}
-
-[[maybe_unused]] static APY_INLINE APyFloatData cast_no_quant(
-    const APyFloatData& src, const APyFloatSpec& src_spec, const APyFloatSpec& dst_spec
-)
-{
-    // Handle special values first
-    if (is_max_exponent(src, src_spec.exp_bits)) {
-        if (src.man) {
-            return { src.sign, exp_t((1ULL << dst_spec.exp_bits) - 1), 1 }; // NaN
-        } else {
-            return { src.sign, exp_t((1ULL << dst_spec.exp_bits) - 1), 0 }; // +-inf
-        }
-    } else if (is_zero(src)) {
-        return { src.sign, 0, 0 };
-    }
-
-    // Initial value for exponent
-    std::int64_t new_exp = true_exp(src, src_spec) + std::int64_t(dst_spec.bias);
-
-    // Adjust the exponent and mantissa if convertering from a subnormal
-    man_t new_man;
-    if (src.exp == 0) {
-        const exp_t subn_adjustment = count_trailing_bits(src.man);
-        if (new_exp + subn_adjustment < src_spec.man_bits) {
-            // The result remains subnormal
-            new_man = src.man << new_exp;
-            new_exp = 0;
-        } else {
-            // The result becomes normal
-            new_man = src.man << (src_spec.man_bits - subn_adjustment);
-            new_man &= (1ULL << src_spec.man_bits) - 1;
-            new_exp = new_exp + subn_adjustment - src_spec.man_bits;
-        }
-    } else {
-        new_man = src.man;
-    }
-
-    new_man <<= dst_spec.man_bits - src_spec.man_bits;
-    return { src.sign, exp_t(new_exp), man_t(new_man) };
+    return std::uint8_t(man_bits);
 }
 
 /* ********************************************************************************** *
  * *              Floating-point iterator-based arithmetic functions                * *
  * ********************************************************************************** */
+
+//! Multiply a floating-point value (`data` of `spec`) with 2^(`exp`) efficiently.
+//! Correct rounding, as specified by `qntz` and `qntz_func` are guaranteed on
+//! floating-point underflow. See cppreference for `scalbn`:
+//! https://en.cppreference.com/w/c/numeric/math/scalbn
+template <typename QNTZ_FUNC_SIGNATURE>
+[[maybe_unused]] static APY_INLINE APyFloatData floating_point_scalbn(
+    const APyFloatData& src,
+    const APyFloatSpec& src_spec,
+    int exp,
+    QuantizationMode qntz,
+    QNTZ_FUNC_SIGNATURE qntz_func
+
+)
+{
+    if (is_zero(src) || is_max_exponent(src, src_spec)) {
+        // If `src` is +-0, `src` is returned unmodified.
+        // If `src` is +-inf, `src` is returned unmodified.
+        // If `src` is NaN, NaN is returned.
+        return src; // early exit
+    }
+
+    APyFloatData res;
+    if (exp < 0) {
+        /*
+         * `exp` < 0:
+         *   1) The mantissa may be right shifted if product is subnormal ==>
+         *      quantization may happen.
+         *   2) Product becomes smaller the floating-point source ==> product can never
+         *      overflow to infinity.
+         */
+        int new_exp = int(src.exp) + exp;
+        if (new_exp <= 0 /* result is subnormal */) {
+            res = { src.sign, /* exp = */ 0, src.man };
+            int shift = std::min(-new_exp + (src.exp > 0), int(_MAN_LIMIT_BITS));
+
+            // Quantize the result
+            if (shift > 0) {
+                const exp_t MAX_EXP = (1ULL << src_spec.exp_bits) - 1;
+                const man_t STICKY = (1ULL << (shift - 1)) - 1;
+                const man_t MSB_CNST = (1ULL << (src_spec.man_bits));
+                if (src.exp > 0) {
+                    res.man |= MSB_CNST;
+                }
+                qntz_func(res.man, res.exp, MAX_EXP, shift, res.sign, MSB_CNST, STICKY);
+            }
+        } else {
+            // No quantization, floating-point source is normal and so is the product.
+            res = { src.sign, src.exp + exp, src.man };
+        }
+    } else { /* exp >= 0 */
+        /*
+         * `exp` >= 0:
+         *   1) The mantissa may be left shifted if the source is subnormal ==>
+         *      quantization will *never* happen.
+         *   2) Product becomes larger than floating-point source ==> floating-point
+         *      product may overflow to infinity.
+         */
+        if (src.exp == 0) {
+            int bw = src.exp == 0 ? bit_width(src.man) : src_spec.man_bits + 1;
+            int man_shift = std::min(exp, src_spec.man_bits + 1 - bw);
+            bool res_is_normal = bw + exp > src_spec.man_bits;
+            man_t res_man = (src.man << man_shift) & ((1ULL << src_spec.man_bits) - 1);
+            exp_t res_exp = src.exp + exp - int(man_shift) + res_is_normal;
+            res = { src.sign, res_exp, res_man };
+        } else { /* src.exp > 0 */
+            // Floating-point source is normal, and so is the product.
+            res = { src.sign, src.exp + exp, src.man };
+        }
+
+        // Handle potential overflowing
+        const exp_t MAX_EXP = (1ULL << src_spec.exp_bits) - 1;
+        if (res.exp >= MAX_EXP) {
+            if (do_infinity(qntz, src.sign)) {
+                res = { src.sign, MAX_EXP, 0 }; // inf
+            } else {
+                res = { src.sign, MAX_EXP - 1, (1ULL << src_spec.man_bits) - 1 };
+            }
+        }
+    }
+
+    return res;
+}
 
 //! Iterator-based less-than function, comparing `src1 < src2`
 [[maybe_unused]] static APY_INLINE bool floating_point_less_than(
@@ -593,6 +774,82 @@ floating_point_less_than_abs_same_wl(const APyFloatData& src1, const APyFloatDat
     return ((src1.exp == src2.exp) && (src1.man < src2.man)) || (src1.exp < src2.exp);
 }
 
+//! Square a floating-point number
+template <typename QNTZ_FUNC_SIGNATURE>
+[[maybe_unused]] static APY_INLINE void _floating_point_sqr(
+    const APyFloatData& src,
+    APyFloatData& dst,
+    const APyFloatSpec& spec,
+    const QuantizationMode qntz,
+    QNTZ_FUNC_SIGNATURE qntz_func
+)
+{
+    const exp_t MAX_EXP = ((1ULL << spec.exp_bits) - 1);
+
+    if (is_zero(src)) {
+        dst = { 0, 0, 0 };
+        return; // early exit
+    } else if (is_nan(src, spec)) {
+        dst = { 0, MAX_EXP, 1 }; // Set to NaN
+        return;                  // early exit
+    } else if (is_inf(src, spec)) {
+        dst = { 0, MAX_EXP, 0 }; // Set to inf
+        return;                  // early exit
+    }
+
+    const std::uint8_t SUM_MAN_BITS = 2 * spec.man_bits;
+    const int MAN_DELTA = spec.man_bits + 2;
+    const man_t TWO = 1ULL << (SUM_MAN_BITS + 2);
+    const man_t TWO_BEFORE = 1ULL << (SUM_MAN_BITS + 1);
+    const man_t ONE_BEFORE = 1ULL << (SUM_MAN_BITS + 0);
+    const man_t TWO_RES = (1ULL << spec.man_bits);
+    const man_t STICKY = (1ULL << (MAN_DELTA - 1)) - 1;
+
+    if (SUM_MAN_BITS <= _MAN_LIMIT_BITS) {
+        /*
+         * Short multiplication that fits a single limb
+         */
+        std::int64_t dst_exp = 2 * true_exp(src, spec) + spec.bias;
+        man_t new_man = true_man(src, spec) * true_man(src, spec);
+        if (new_man & TWO_BEFORE) {
+            dst_exp++;
+            new_man <<= 1;
+        } else if (new_man & ONE_BEFORE) {
+            new_man <<= 2;
+        } else {
+            // One or two of the operands were subnormal. If the exponent is
+            // positive, the result is normalized by left-shifting until the
+            // exponent is zero or the mantissa is 1.xx
+            std::int64_t leading_zeros = 1 + SUM_MAN_BITS - bit_width(new_man);
+            int shift = std::max(std::min(dst_exp, leading_zeros), std::int64_t(0));
+            dst_exp -= shift;
+            new_man <<= shift + 2; // + 2 to align with longer result
+        }
+
+        if (dst_exp <= 0) {
+            if (dst_exp < -std::int64_t(spec.man_bits)) {
+                dst = { 0, 0, quantize_close_to_zero(0, qntz) };
+                return; // early exit
+            }
+            new_man = (new_man >> (-dst_exp + 1))
+                | ((new_man & ((1 << (-dst_exp + 1)) - 1)) != 0);
+            dst_exp = 0;
+        }
+
+        exp_t res_exp = exp_t(dst_exp);
+        new_man &= TWO - 1;
+
+        qntz_func(new_man, res_exp, MAX_EXP, MAN_DELTA, 0, TWO_RES, STICKY);
+        dst = { 0, res_exp, new_man };
+        return;
+    } else {
+        /*
+         * Long multiplication requiring two limbs
+         */
+        throw NotImplementedException();
+    }
+}
+
 //! Floating-point addition of `src1` and `src2` when they share the exact word length
 //! (`exp_bits`, `man_bits`, and `bias`). To use this function, all of the following
 //! must be satisfied:
@@ -636,7 +893,6 @@ template <
         if (x_is_nan || y_is_nan || (both_inf && x_sign != y_sign)) {
             z = { x_sign, exp_t(MAX_EXP), man_t(1) }; // Set to NaN
         } else {
-            // Set to inf
             bool sign = x.man == 0 ? x_sign : y_sign;
             z = { sign, exp_t(MAX_EXP), man_t(0) }; // Set to inf
         }
@@ -766,12 +1022,12 @@ template <
 
     APyFloatData x_wide = x_spec == dst_spec
         ? x
-        : cast_no_quant(
+        : floating_point_cast_no_quant(
               x, x_spec, { dst_spec.exp_bits, dst_spec.man_bits, x_spec.bias }
           );
     APyFloatData y_wide = y_spec == dst_spec
         ? y
-        : cast_no_quant(
+        : floating_point_cast_no_quant(
               y, y_spec, { dst_spec.exp_bits, dst_spec.man_bits, y_spec.bias }
           );
 
@@ -835,7 +1091,7 @@ template <
     return;
 }
 
-//! Floating-point addition of `src1` and `src2` for when`_floating_point_sum_same_wl`
+//! Floating-point addition of `src1` and `src2` for when`_floating_point_add_same_wl`
 //! or `_floating_point_sum_diff_wl` can't be used. Works in all cases, but is the
 //! slowest.
 template <
@@ -889,12 +1145,12 @@ template <
 
     APyFloatData x_wide = x_spec == dst_spec
         ? x
-        : cast_no_quant(
+        : floating_point_cast_no_quant(
               x, x_spec, { dst_spec.exp_bits, dst_spec.man_bits, x_spec.bias }
           );
     APyFloatData y_wide = y_spec == dst_spec
         ? y
-        : cast_no_quant(
+        : floating_point_cast_no_quant(
               y, y_spec, { dst_spec.exp_bits, dst_spec.man_bits, y_spec.bias }
           );
 
@@ -978,7 +1234,7 @@ template <
 }
 
 //! Floating-point multiplication of `src1` and `src2` for when the mantissa product fit
-//! into a single `std::uint64_t`.
+//! a single limb , i.e., `src1_spec.man_bits + src2_spec.man_bits <= _MAN_LIMIT_BITS`.
 template <
     typename RANDOM_ACCESS_ITERATOR_IN1,
     typename RANDOM_ACCESS_ITERATOR_IN2,
@@ -1481,6 +1737,23 @@ template <
     }
 }
 
+//! Perform a single float quotient
+template <const bool SUB = false>
+[[maybe_unused]] static APY_INLINE void floating_point_quotient(
+    const APyFloatData& src1,
+    const APyFloatData& src2,
+    APyFloatData& dst,
+    const APyFloatSpec& src1_spec,
+    const APyFloatSpec& src2_spec,
+    const APyFloatSpec& dst_spec,
+    const QuantizationMode& qntz
+)
+{
+    floating_point_quotients(
+        &src1, &src2, &dst, src1_spec, src2_spec, dst_spec, 1 /* n */, qntz
+    );
+}
+
 //! Perform a single float product
 [[maybe_unused]] static APY_INLINE void floating_point_product(
     const APyFloatData& src1,
@@ -1514,22 +1787,367 @@ template <const bool SUB = false>
     );
 }
 
-//! Perform a single float quotient
-template <const bool SUB = false>
-[[maybe_unused]] static APY_INLINE void floating_point_quotient(
-    const APyFloatData& src1,
-    const APyFloatData& src2,
-    APyFloatData& dst,
-    const APyFloatSpec& src1_spec,
-    const APyFloatSpec& src2_spec,
-    const APyFloatSpec& dst_spec,
-    const QuantizationMode& qntz
-)
-{
-    floating_point_quotients(
-        &src1, &src2, &dst, src1_spec, src2_spec, dst_spec, 1 /* n */, qntz
-    );
-}
+/* ********************************************************************************** *
+ * *              Floating-point iterator-based arithmetic functors                 * *
+ * ********************************************************************************** */
+
+template <
+    bool IS_SUBTRACT,
+    std::size_t SRC1_INC,
+    std::size_t SRC2_INC,
+    std::size_t DST_INC>
+struct _FloatingPointAddSub {
+    explicit _FloatingPointAddSub(
+        const APyFloatSpec& src1_spec,
+        const APyFloatSpec& src2_spec,
+        const APyFloatSpec& dst_spec,
+        const QuantizationMode& qntz
+    )
+        : src1_spec { src1_spec }
+        , src2_spec { src2_spec }
+        , dst_spec { dst_spec }
+        , qntz { qntz }
+    {
+    }
+
+    // Perform a single floating-point addition/subtractions
+    void operator()(
+        const APyFloatData& src1, const APyFloatData& src2, APyFloatData& dst
+    ) const
+    {
+        std::invoke(f, this, &src1, &src2, &dst, 1);
+    }
+
+    // Perform `nitems` floating-point additions/subtractions
+    void operator()(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t nitems = 1
+    ) const
+    {
+        std::invoke(f, this, src1, src2, dst, nitems);
+    }
+
+private:
+    // Set during functor initialization
+    const APyFloatSpec src1_spec, src2_spec, dst_spec;
+    const QuantizationMode qntz;
+    const decltype(get_qntz_func(qntz)) qntz_func { get_qntz_func(qntz) };
+
+    // Reusable constants used in the addition
+    const unsigned SUM_MAN_BITS { unsigned(src1_spec.man_bits + src2_spec.man_bits) };
+    const exp_t RES_MAX_EXP { exp_t((1ULL << dst_spec.exp_bits) - 1) };
+    const man_t FINAL_RES_LO { 1ULL << dst_spec.man_bits };
+    const man_t RES_LO { FINAL_RES_LO << 3 };
+    const man_t CARRY_RES_LO { RES_LO << 1 };
+    const man_t MAN_MASK { CARRY_RES_LO - 1 };
+    const unsigned NORM_CONST { unsigned(_MAN_T_SIZE_BITS - dst_spec.man_bits - 4) };
+
+    // Pointer to the correct adder function based on the floating-point specs
+    void (_FloatingPointAddSub::* const f)(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t nitems
+    ) const
+        = get_f();
+
+    void add_general(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t nitems
+    ) const
+    {
+        for (std::size_t i = 0; i < nitems; i++) {
+            _floating_point_add_general<IS_SUBTRACT>(
+                src1 + SRC1_INC * i,
+                src2 + SRC2_INC * i,
+                dst + DST_INC * i,
+                src1_spec,
+                src2_spec,
+                dst_spec,
+                qntz,
+                RES_MAX_EXP
+            );
+        }
+    }
+
+    void add_same_wl(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t nitems
+    ) const
+    {
+        for (std::size_t i = 0; i < nitems; i++) {
+            _floating_point_add_same_wl<IS_SUBTRACT>(
+                src1 + SRC1_INC * i,
+                src2 + SRC2_INC * i,
+                dst + DST_INC * i,
+                dst_spec,
+                qntz,
+                qntz_func,
+                RES_MAX_EXP,
+                FINAL_RES_LO,
+                RES_LO,
+                CARRY_RES_LO,
+                MAN_MASK,
+                NORM_CONST
+            );
+        }
+    }
+
+    void add_diff_wl(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t nitems
+    ) const
+    {
+        for (std::size_t i = 0; i < nitems; i++) {
+            _floating_point_add_diff_wl<IS_SUBTRACT>(
+                src1 + SRC1_INC * i,
+                src2 + SRC2_INC * i,
+                dst + DST_INC * i,
+                src1_spec,
+                src2_spec,
+                dst_spec,
+                qntz,
+                qntz_func,
+                RES_MAX_EXP,
+                FINAL_RES_LO,
+                RES_LO,
+                CARRY_RES_LO,
+                MAN_MASK,
+                NORM_CONST
+            );
+        }
+    }
+
+    auto get_f() const noexcept
+    {
+        using F = _FloatingPointAddSub<IS_SUBTRACT, SRC1_INC, SRC2_INC, DST_INC>;
+        if (qntz == QuantizationMode::STOCH_WEIGHTED) {
+            return &F::add_general;
+        } else { /* qntz != QuantizationMode::STOCK_WEIGHTED */
+            const unsigned MAX_MAN_BITS = dst_spec.man_bits + 5;
+            if (MAX_MAN_BITS <= _MAN_T_SIZE_BITS) {
+                if (src1_spec == src2_spec) {
+                    return &F::add_same_wl;
+                } else {
+                    return &F::add_diff_wl;
+                }
+            } else {
+                return &F::add_general;
+            }
+        }
+    }
+};
+
+template <std::size_t SRC1_INC = 1, std::size_t SRC2_INC = 1, std::size_t DST_INC = 1>
+struct FloatingPointMultiplier {
+    explicit FloatingPointMultiplier(
+        const APyFloatSpec& src1_spec,
+        const APyFloatSpec& src2_spec,
+        const APyFloatSpec& dst_spec,
+        const QuantizationMode& qntz
+    )
+        : src1_spec { src1_spec }
+        , src2_spec { src2_spec }
+        , dst_spec { dst_spec }
+        , qntz { qntz }
+    {
+    }
+
+    // Perform a single floating-point multiplication
+    void operator()(
+        const APyFloatData& src1, const APyFloatData& src2, APyFloatData& dst
+    ) const
+    {
+        std::invoke(f, this, &src1, &src2, &dst, 1);
+    }
+
+    // Perform `nitems` floating-point multiplications
+    void operator()(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t nitems = 1
+    ) const
+    {
+        std::invoke(f, this, src1, src2, dst, nitems);
+    }
+
+private:
+    // Set first during functor initialization
+    const APyFloatSpec src1_spec, src2_spec, dst_spec;
+    const QuantizationMode qntz;
+
+    // The used quantization function
+    const decltype(get_qntz_func(qntz)) qntz_func { get_qntz_func(qntz) };
+
+    // Reusable constants used in the amultiplication
+    const unsigned SUM_MAN_BITS { unsigned(src1_spec.man_bits + src2_spec.man_bits) };
+    const unsigned NEW_MAN_BITS { SUM_MAN_BITS + 2 };
+    const int MAN_DELTA { int(NEW_MAN_BITS) - dst_spec.man_bits };
+    const exp_t SRC1_MAX_EXP { exp_t((1ULL << src1_spec.exp_bits) - 1) };
+    const exp_t SRC2_MAX_EXP { exp_t((1ULL << src2_spec.exp_bits) - 1) };
+    const exp_t RES_MAX_EXP { exp_t((1ULL << dst_spec.exp_bits) - 1) };
+    const man_t TWO { 1ULL << NEW_MAN_BITS };
+    const man_t TWO_BEFORE { 1ULL << (NEW_MAN_BITS - 1) };
+    const man_t ONE_BEFORE { 1ULL << (NEW_MAN_BITS - 2) };
+    const man_t TWO_RES { 1ULL << dst_spec.man_bits };
+    const man_t STICKY { (1ULL << (MAN_DELTA - 1)) - 1 };
+
+    // Pointer `f` to the correct adder function based on the floating-point specs
+    void (FloatingPointMultiplier::* const f)(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t nitems
+    ) const { get_f() };
+
+    void mul_short(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t nitems
+    ) const
+    {
+        for (std::size_t i = 0; i < nitems; i++) {
+            _floating_point_mul_short(
+                src1 + SRC1_INC * i,
+                src2 + SRC2_INC * i,
+                dst + DST_INC * i,
+                src1_spec,
+                src2_spec,
+                dst_spec,
+                qntz,
+                qntz_func,
+                SUM_MAN_BITS,
+                SRC1_MAX_EXP,
+                SRC2_MAX_EXP,
+                RES_MAX_EXP,
+                TWO,
+                TWO_BEFORE,
+                ONE_BEFORE,
+                TWO_RES,
+                MAN_DELTA,
+                STICKY
+            );
+        }
+    }
+
+    void mul_general(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t nitems
+    ) const
+    {
+        for (std::size_t i = 0; i < nitems; i++) {
+            _floating_point_mul_general(
+                src1 + SRC1_INC * i,
+                src2 + SRC2_INC * i,
+                dst + DST_INC * i,
+                src1_spec,
+                src2_spec,
+                dst_spec,
+                qntz,
+                SRC1_MAX_EXP,
+                SRC2_MAX_EXP,
+                RES_MAX_EXP
+            );
+        }
+    }
+
+    auto get_f() const noexcept
+    {
+        using F = FloatingPointMultiplier<SRC1_INC, SRC2_INC, DST_INC>;
+        if (SUM_MAN_BITS <= _MAN_LIMIT_BITS) {
+            return &F::mul_short;
+        } else { /* SUM_MAN_BITS > _MAN_LIMIT_BITS */
+            return &F::mul_general;
+        }
+    }
+};
+
+template <std::size_t SRC1_INC = 1, std::size_t SRC2_INC = 1, std::size_t DST_INC = 1>
+struct FloatingPointDivider {
+    explicit FloatingPointDivider(
+        const APyFloatSpec& src1_spec,
+        const APyFloatSpec& src2_spec,
+        const APyFloatSpec& dst_spec,
+        const QuantizationMode& qntz
+    )
+        : src1_spec { src1_spec }
+        , src2_spec { src2_spec }
+        , dst_spec { dst_spec }
+        , qntz { qntz }
+    {
+    }
+
+    // Perform a single floating-point division
+    void operator()(
+        const APyFloatData& src1, const APyFloatData& src2, APyFloatData& dst
+    ) const
+    {
+        std::invoke(f, this, &src1, &src2, &dst, 1);
+    }
+
+    // Perform `nitems` floating-point divisions
+    void operator()(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t nitems = 1
+    ) const
+    {
+        std::invoke(f, this, src1, src2, dst, nitems);
+    }
+
+private:
+    // Set first during functor initialization
+    const APyFloatSpec src1_spec, src2_spec, dst_spec;
+    const QuantizationMode qntz;
+
+    // The used quantization function
+    const decltype(get_qntz_func(qntz)) qntz_func { get_qntz_func(qntz) };
+
+    // Pointer `f` to the correct adder function based on the floating-point specs
+    void (FloatingPointDivider::* const f)(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t nitems
+    ) const { get_f() };
+
+    void div_general(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t nitems
+    ) const
+    {
+        floating_point_quotients<SRC1_INC, SRC2_INC, DST_INC>(
+            src1, src2, dst, src1_spec, src2_spec, dst_spec, nitems, qntz
+        );
+    }
+
+    auto get_f() const noexcept
+    {
+        using F = FloatingPointDivider<SRC1_INC, SRC2_INC, DST_INC>;
+        return &F::div_general;
+    }
+};
+
+template <std::size_t SRC1_INC = 1, std::size_t SRC2_INC = 1, std::size_t DST_INC = 1>
+using FloatingPointAdder = _FloatingPointAddSub<false, SRC1_INC, SRC2_INC, DST_INC>;
+
+template <std::size_t SRC1_INC = 1, std::size_t SRC2_INC = 1, std::size_t DST_INC = 1>
+using FloatingPointSubtractor = _FloatingPointAddSub<true, SRC1_INC, SRC2_INC, DST_INC>;
 
 template <
     typename RANDOM_ACCESS_ITERATOR_IN1,

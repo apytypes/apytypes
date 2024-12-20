@@ -1381,19 +1381,164 @@ class APyCFixedArray:
     def __array__(self) -> Annotated[ArrayLike, dict(dtype="complex128")]: ...
 
 class APyCFloat:
-    @staticmethod
-    def from_float(
-        value: object, exp_bits: int, man_bits: int, bias: int | None = None
-    ) -> APyCFloat:
+    @overload
+    def __init__(
+        self,
+        sign: bool | int,
+        exp: int,
+        man: int,
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
+    ) -> None:
         """
-        Create an :class:`APyCFloat` object from an :class:`int` or :class:`float`.
+        Create an :class:`APyCFloat` object and initialize its real part.
 
-        The quantization mode used is :class:`QuantizationMode.TIES_EVEN`.
+        The imaginary part is zero initialized.
 
         Parameters
         ----------
-        value : :class:`int`, :class:`float`
-            Floating-point value to initialize from.
+        sign : :class:`bool` or :class:`int`
+            Sign of real part. `True`/non-zero equals negative.
+        exp : :class:`int`
+            Exponent of real part as stored, i.e., actual value + bias.
+        man : :class:`int`
+            Mantissa of the float as stored, i.e., without a hidden one.
+        exp_bits : :class:`int`
+            Number of exponent bits.
+        man_bits : :class:`int`
+            Number of mantissa bits.
+        bias : :class:`int`, optional
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+        Returns
+        -------
+        :class:`APyCFloat`
+        """
+
+    @overload
+    def __init__(
+        self,
+        sign: tuple,
+        exp: tuple,
+        man: tuple,
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
+    ) -> None:
+        """
+        Create an :class:`APyCFloat` object and initialize both real and imaginary
+        part.
+
+        Parameters
+        ----------
+        sign : :class:`tuple` of :class:`int` or :class:`bool`
+            Sign of real/imaginary parts. `True`/non-zero equals negative.
+        exp : :class:`tuple` of :class:`int`
+            Exponent of real/imaginary parts as stored, i.e., actual value + bias.
+        man : :class:`tuple` of :class:`int`
+            Mantissa of the real/imaginary parts as stored, i.e., without a hidden
+            one.
+        exp_bits : :class:`int`
+            Number of exponent bits.
+        man_bits : :class:`int`
+            Number of mantissa bits.
+        bias : :class:`int`, optional
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+        Returns
+        -------
+        :class:`APyCFloat`
+        """
+
+    @overload
+    def __eq__(self, arg: APyCFloat, /) -> bool: ...
+    @overload
+    def __eq__(self, arg: float, /) -> bool: ...
+    @overload
+    def __eq__(self, arg: APyFloat, /) -> bool: ...
+    @overload
+    def __ne__(self, arg: APyCFloat, /) -> bool: ...
+    @overload
+    def __ne__(self, arg: float, /) -> bool: ...
+    @overload
+    def __ne__(self, arg: APyFloat, /) -> bool: ...
+    @overload
+    def __add__(self, arg: APyCFloat, /) -> APyCFloat: ...
+    @overload
+    def __add__(self, arg: int, /) -> APyCFloat: ...
+    @overload
+    def __add__(self, arg: float, /) -> APyCFloat: ...
+    @overload
+    def __sub__(self, arg: APyCFloat, /) -> APyCFloat: ...
+    @overload
+    def __sub__(self, arg: int, /) -> APyCFloat: ...
+    @overload
+    def __sub__(self, arg: float, /) -> APyCFloat: ...
+    @overload
+    def __mul__(self, arg: APyCFloat, /) -> APyCFloat: ...
+    @overload
+    def __mul__(self, arg: int, /) -> APyCFloat: ...
+    @overload
+    def __mul__(self, arg: float, /) -> APyCFloat: ...
+    @overload
+    def __truediv__(self, arg: APyCFloat, /) -> APyCFloat: ...
+    @overload
+    def __truediv__(self, arg: int, /) -> APyCFloat: ...
+    @overload
+    def __truediv__(self, arg: float, /) -> APyCFloat: ...
+    def __neg__(self) -> APyCFloat: ...
+    @overload
+    def __radd__(self, arg: int, /) -> APyCFloat: ...
+    @overload
+    def __radd__(self, arg: float, /) -> APyCFloat: ...
+    @overload
+    def __rsub__(self, arg: int, /) -> APyCFloat: ...
+    @overload
+    def __rsub__(self, arg: float, /) -> APyCFloat: ...
+    @overload
+    def __rmul__(self, arg: int, /) -> APyCFloat: ...
+    @overload
+    def __rmul__(self, arg: float, /) -> APyCFloat: ...
+    @overload
+    def __rtruediv__(self, arg: int, /) -> APyCFloat: ...
+    @overload
+    def __rtruediv__(self, arg: float, /) -> APyCFloat: ...
+    @property
+    def real(self) -> APyFloat:
+        """
+        Real part.
+
+        Returns
+        -------
+        :class:`APyFixed`
+        """
+
+    @property
+    def imag(self) -> APyFloat:
+        """
+        Imaginary part.
+
+        Returns
+        -------
+        :class:`APyFixed`
+        """
+
+    @staticmethod
+    def from_complex(
+        value: object, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyCFloat:
+        """
+        Create an :class:`APyCFloat` object from an :class:`int`, :class:`float`, or
+        :class:`complex`.
+
+        The initialize floating-point value is the one closest to `value`. Ties are
+        rounded using :class:`QuantizationMode.TIES_EVEN`.
+
+        Parameters
+        ----------
+        value : :class:`complex`, :class:`float`, :class:`int`
+            Value to initialize from.
         exp_bits : :class:`int`
             Number of exponent bits.
         man_bits : :class:`int`
@@ -1405,10 +1550,12 @@ class APyCFloat:
         --------
 
         >>> from apytypes import APyCFloat
-
-        `a`, initialized from floating-point values.
-
-        >>> a = APyCFloat.from_float(1.35, exp_bits=10, man_bits=15)
+        >>>
+        >>> a = APyCFloat.from_complex(1.375, exp_bits=10, man_bits=15)
+        >>> a
+        APyCFloat(sign=(0, 0), exp=(511, 0), man=(12288, 0), exp_bits=10, man_bits=15)
+        >>> str(a)
+        '(1.375+0j)'
 
         Returns
         -------
@@ -1416,7 +1563,144 @@ class APyCFloat:
 
         See also
         --------
-        from_bits
+        from_complex
+        """
+
+    @staticmethod
+    def from_float(
+        value: object, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyCFloat:
+        """
+        Create an :class:`APyCFloat` object from an :class:`int`, :class:`float`, or
+        :class:`complex`.
+
+        The initialize floating-point value is the one closest to `value`. Ties are
+        rounded using :class:`QuantizationMode.TIES_EVEN`.
+
+        Parameters
+        ----------
+        value : int, float, complex
+            Value to initialize from.
+        exp_bits : int
+            Number of exponent bits.
+        man_bits : int
+            Number of mantissa bits.
+        bias : int, optional
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+        Examples
+        --------
+
+        >>> from apytypes import APyCFloat
+        >>>
+        >>> a = APyCFloat.from_float(1.25, exp_bits=10, man_bits=15)
+        >>> a
+        APyCFloat(sign=(0, 0), exp=(511, 0), man=(8192, 0), exp_bits=10, man_bits=15)
+        >>> str(a)
+        '(1.25+0j)'
+
+        Returns
+        -------
+        :class:`APyCFloat`
+
+        See also
+        --------
+        from_complex
+        """
+
+    def __complex__(self) -> complex: ...
+    def __str__(self, base: int = 10) -> str: ...
+    def __repr__(self) -> str: ...
+    def cast(
+        self,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        quantization: QuantizationMode | None = None,
+    ) -> APyCFloat:
+        """
+        Change format of the complex-valued floating-point number.
+
+        This is the primary method for performing quantization when dealing with
+        APyTypes floating-point numbers.
+
+        Parameters
+        ----------
+        exp_bits : :class:`int`, optional
+            Number of exponent bits in the result.
+        man_bits : :class:`int`, optional
+            Number of mantissa bits in the result.
+        bias : :class:`int`, optional
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+        quantization : :class:`QuantizationMode`, optional.
+            Quantization mode to use in this cast. If None, use the global
+            quantization mode.
+
+        Returns
+        -------
+        :class:`APyCFloat`
+        """
+
+    @property
+    def is_zero(self) -> bool:
+        """
+        True if, and only if, both the real and imaginary parts are zero.
+
+        Returns
+        -------
+        :class:`bool`
+        """
+
+    def is_identical(self, other: APyCFloat) -> bool:
+        """
+        Test if two :py:class:`APyCFloat` objects are identical.
+
+        Two :py:class:`APyCFloat` objects are considered identical if, and only
+        if,  they have the same sign, exponent, mantissa, and format.
+
+        Returns
+        -------
+        :class:`bool`
+        """
+
+    @property
+    def man_bits(self) -> int:
+        """
+        Number of mantissa bits.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def exp_bits(self) -> int:
+        """
+        Number of exponent bits.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def bits(self) -> int:
+        """
+        Total number of bits.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def bias(self) -> int:
+        """
+        Exponent bias.
+
+        Returns
+        -------
+        :class:`int`
         """
 
 class APyCFloatArray:

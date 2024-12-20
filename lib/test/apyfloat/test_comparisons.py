@@ -1,18 +1,19 @@
 from itertools import permutations as perm
 import pytest
-from apytypes import APyFloat, APyFixed
+from apytypes import APyFloat, APyFixed, APyCFloat
 
 
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
 @pytest.mark.float_comp
-def test_identical():
-    a = APyFloat(0, 5, 3, 15, 3, 8)
+def test_identical(apyfloat: type[APyCFloat]):
+    a = apyfloat(0, 5, 3, 15, 3, 8)
     assert a.is_identical(a)
     assert not a.is_identical(-a)
-    assert not a.is_identical(APyFloat(0, 6, 3, 15, 3, 8))
-    assert not a.is_identical(APyFloat(0, 5, 2, 15, 3, 8))
-    assert not a.is_identical(APyFloat(0, 5, 3, 16, 3, 8))
-    assert not a.is_identical(APyFloat(0, 5, 3, 15, 5, 8))
-    assert not a.is_identical(APyFloat(0, 5, 3, 15, 3, 9))
+    assert not a.is_identical(apyfloat(0, 6, 3, 15, 3, 8))
+    assert not a.is_identical(apyfloat(0, 5, 2, 15, 3, 8))
+    assert not a.is_identical(apyfloat(0, 5, 3, 16, 3, 8))
+    assert not a.is_identical(apyfloat(0, 5, 3, 15, 5, 8))
+    assert not a.is_identical(apyfloat(0, 5, 3, 15, 3, 9))
 
 
 @pytest.mark.float_comp
@@ -82,21 +83,22 @@ def test_comparisons_with_apyfixed():
 
 
 @pytest.mark.float_comp
+@pytest.mark.parametrize("apyfloat", ["APyFloat", "APyCFloat"])
 @pytest.mark.parametrize(
     "lhs,rhs,test_exp",
     [
-        ("APyFloat.from_float(2.75, 5, 5)", "APyFloat.from_float(2.75, 5, 5)", True),
-        ("APyFloat.from_float(2.75, 5, 6)", "APyFloat.from_float(2.75, 5, 5)", True),
-        ("APyFloat.from_float(2.75, 6, 5)", "APyFloat.from_float(2.75, 5, 5)", True),
-        ("APyFloat.from_float(2.75, 5, 5)", "APyFloat.from_float(-2.75, 5, 5)", False),
-        ("APyFloat.from_float(3.5, 5, 5)", "APyFloat.from_float(6.5, 5, 5)", False),
-        ("APyFloat.from_float(3.5, 5, 5)", "APyFloat.from_float(3.75, 5, 5)", False),
-        ("APyFloat.from_float(2**-9, 4, 3)", "APyFloat.from_float(2**-9, 5, 2)", True),
+        ("from_float(2.75, 5, 5)", "from_float(2.75, 5, 5)", True),
+        ("from_float(2.75, 5, 6)", "from_float(2.75, 5, 5)", True),
+        ("from_float(2.75, 6, 5)", "from_float(2.75, 5, 5)", True),
+        ("from_float(2.75, 5, 5)", "from_float(-2.75, 5, 5)", False),
+        ("from_float(3.5, 5, 5)", "from_float(6.5, 5, 5)", False),
+        ("from_float(3.5, 5, 5)", "from_float(3.75, 5, 5)", False),
+        ("from_float(2**-9, 4, 3)", "from_float(2**-9, 5, 2)", True),
     ],
 )
-def test_equality(lhs, rhs, test_exp):
-    assert (eval(lhs) == eval(rhs)) == test_exp
-    assert (eval(lhs) != eval(rhs)) == (not test_exp)
+def test_equality(apyfloat: str, lhs: str, rhs: str, test_exp: str):
+    assert (eval(f"{apyfloat}.{lhs}") == eval(f"{apyfloat}.{rhs}")) == test_exp
+    assert (eval(f"{apyfloat}.{lhs}") != eval(f"{apyfloat}.{rhs}")) == (not test_exp)
 
 
 @pytest.mark.float_comp
@@ -112,7 +114,7 @@ def test_equality(lhs, rhs, test_exp):
         ("3.5", "-6.75", False),
     ],
 )
-def test_less_greater_than(exp, man, lhs, rhs, test_exp):
+def test_less_greater_than(exp, man, lhs: str, rhs: str, test_exp: str):
     assert (
         eval(
             f"APyFloat.from_float({lhs}, {exp[0]}, {man[0]}) < APyFloat.from_float({rhs}, {exp[1]}, {man[1]})"

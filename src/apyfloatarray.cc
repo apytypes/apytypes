@@ -125,16 +125,8 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
     const QuantizationMode& qntz = get_float_quantization_mode();
 
     // Perform the addition
-    floating_point_sums(
-        std::begin(_data),     // src1
-        std::begin(rhs._data), // src2
-        std::begin(res._data), // dst
-        spec(),                // src1_spec
-        rhs.spec(),            // src2_spec
-        res.spec(),            // dst_spec
-        res._nitems,           // n_items
-        qntz                   // qntz
-    );
+    auto f = FloatingPointAdder<>(spec(), rhs.spec(), res.spec(), qntz);
+    f(&_data[0], &rhs._data[0], &res._data[0], res._nitems);
 
     return res;
 }
@@ -149,16 +141,8 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
     // Perform the addition
     const APyFloatData& rhs_data = rhs.get_data();
     APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
-    floating_point_sums<false, 1, 0, 1>(
-        std::begin(_data),     // src1
-        &rhs_data,             // src2
-        std::begin(res._data), // dst
-        spec(),                // src1_spec
-        rhs.spec(),            // src2_spec
-        res.spec(),            // dst_spec
-        res._nitems,           // n_items
-        qntz                   // qntz
-    );
+    auto f = FloatingPointAdder<1, 0, 1>(spec(), rhs.spec(), res.spec(), qntz);
+    f(&_data[0], &rhs_data, &res._data[0], res._nitems);
 
     return res;
 }
@@ -185,17 +169,9 @@ APyFloatArray APyFloatArray::operator-(const APyFloatArray& rhs) const
     APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
     const QuantizationMode& qntz = get_float_quantization_mode();
 
-    // Perform the addition
-    floating_point_sums<true>(
-        std::begin(_data),     // src1
-        std::begin(rhs._data), // src2
-        std::begin(res._data), // dst
-        spec(),                // src1_spec
-        rhs.spec(),            // src2_spec
-        res.spec(),            // dst_spec
-        res._nitems,           // n_items
-        qntz                   // qntz
-    );
+    // Perform the subtraction
+    auto f = FloatingPointSubtractor<>(spec(), rhs.spec(), res.spec(), qntz);
+    f(&_data[0], &rhs._data[0], &res._data[0], res._nitems);
 
     return res;
 }
@@ -207,19 +183,11 @@ APyFloatArray APyFloatArray::operator-(const APyFloat& rhs) const
     const exp_t res_bias = calc_bias(res_exp_bits, spec(), rhs.spec());
     const QuantizationMode& qntz = get_float_quantization_mode();
 
-    // Perform the addition
+    // Perform the subtraction
     const APyFloatData& rhs_data = rhs.get_data();
     APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
-    floating_point_sums<true, 1, 0, 1>(
-        std::begin(_data),     // src1
-        &rhs_data,             // src2
-        std::begin(res._data), // dst
-        spec(),                // src1_spec
-        rhs.spec(),            // src2_spec
-        res.spec(),            // dst_spec
-        res._nitems,           // n_items
-        qntz                   // qntz
-    );
+    auto f = FloatingPointSubtractor<1, 0, 1>(spec(), rhs.spec(), res.spec(), qntz);
+    f(&_data[0], &rhs_data, &res._data[0], res._nitems);
 
     return res;
 }
@@ -265,16 +233,9 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
     const QuantizationMode& qntz = get_float_quantization_mode();
 
     APyFloatArray result(_shape, res_exp_bits, res_man_bits, res_bias);
-    floating_point_products(
-        std::cbegin(_data),
-        std::cbegin(rhs._data),
-        std::begin(result._data),
-        spec(),
-        rhs.spec(),
-        result.spec(),
-        _nitems,
-        qntz
-    );
+    auto f = FloatingPointMultiplier<>(spec(), rhs.spec(), result.spec(), qntz);
+    f(&_data[0], &rhs._data[0], &result._data[0], _nitems);
+
     return result;
 }
 
@@ -288,16 +249,8 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
     const APyFloatData& rhs_data = rhs.get_data();
 
     APyFloatArray result(_shape, res_exp_bits, res_man_bits, res_bias);
-    floating_point_products<1, 0, 1>(
-        std::begin(_data),
-        &rhs_data,
-        std::begin(result._data),
-        spec(),
-        rhs.spec(),
-        result.spec(),
-        _nitems,
-        qntz
-    );
+    auto f = FloatingPointMultiplier<1, 0, 1>(spec(), rhs.spec(), result.spec(), qntz);
+    f(&_data[0], &rhs_data, &result._data[0], _nitems);
 
     return result;
 }
@@ -1273,7 +1226,7 @@ APyFloatArray APyFloatArray::_cast(
     for (std::size_t i = 0; i < _data.size(); i++) {
         caster.set_data(_data[i]);
         result._data[i]
-            = caster._checked_cast(new_exp_bits, new_man_bits, new_bias, quantization)
+            = caster.checked_cast(new_exp_bits, new_man_bits, new_bias, quantization)
                   .get_data();
     }
 
@@ -1285,14 +1238,9 @@ APyFloatArray APyFloatArray::cast_no_quant(
 ) const
 {
     APyFloatArray result(_shape, new_exp_bits, new_man_bits, new_bias);
-
-    APyFloat caster(exp_bits, man_bits, bias);
     for (std::size_t i = 0; i < _data.size(); i++) {
-        caster.set_data(_data[i]);
-        result._data[i]
-            = caster.cast_no_quant(new_exp_bits, new_man_bits, new_bias).get_data();
+        result._data[i] = floating_point_cast_no_quant(_data[i], spec(), result.spec());
     }
-
     return result;
 }
 
