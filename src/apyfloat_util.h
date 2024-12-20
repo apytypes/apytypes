@@ -636,7 +636,6 @@ template <
         if (x_is_nan || y_is_nan || (both_inf && x_sign != y_sign)) {
             z = { x_sign, exp_t(MAX_EXP), man_t(1) }; // Set to NaN
         } else {
-            // Set to inf
             bool sign = x.man == 0 ? x_sign : y_sign;
             z = { sign, exp_t(MAX_EXP), man_t(0) }; // Set to inf
         }
