@@ -385,21 +385,6 @@ public:
      * multiplication.
      */
     APyFloatArray checked_2d_matmul(const APyFloatArray& rhs) const;
-
-    /*
-     * Friend functions
-     */
-    template <
-        typename RANDOM_ACCESS_ITERATOR_IN,
-        typename RANDOM_ACCESS_ITERATOR_INOUT,
-        typename APYFLOAT_TYPE>
-    friend void float_product(
-        RANDOM_ACCESS_ITERATOR_IN src1,
-        RANDOM_ACCESS_ITERATOR_IN src2,
-        RANDOM_ACCESS_ITERATOR_INOUT dst,
-        const APYFLOAT_TYPE& x, // Floating point src1
-        const APYFLOAT_TYPE& y  // Floating point src2
-    );
 };
 
 #endif
