@@ -21,7 +21,10 @@ class APyCFixed:
     :class:`APyCFixed` is :code:`2 * bits`. Only two of three bit specifers need to be set
     to uniquely determine the complete fixed-point format.
 
-    For real-valued fixed-point formats, see :class:`APyFixed`.
+
+    .. note::
+        For complex-valued fixed-point arrays, see :class:`APyCFixedArray`. For real-valued
+        fixed-point formats, see :class:`APyFixed` and :class:`APyFixedArray`.
 
     .. list-table:: Word-length of fixed-point arithmetic operations using
                     :class:`APyCFixed`
@@ -96,79 +99,79 @@ class APyCFixed:
     @overload
     def __add__(self, arg: APyCFixed, /) -> APyCFixed: ...
     @overload
-    def __add__(self, arg: int, /) -> APyCFixed: ...
+    def __add__(self, arg: int) -> APyCFixed: ...
     @overload
-    def __add__(self, arg: float, /) -> APyCFixed: ...
+    def __add__(self, arg: float) -> APyCFixed: ...
     @overload
-    def __add__(self, arg: complex, /) -> APyCFixed: ...
+    def __add__(self, arg: complex) -> APyCFixed: ...
     @overload
-    def __add__(self, arg: APyFixed, /) -> APyCFixed: ...
+    def __add__(self, arg: APyFixed) -> APyCFixed: ...
     @overload
     def __sub__(self, arg: APyCFixed, /) -> APyCFixed: ...
     @overload
-    def __sub__(self, arg: int, /) -> APyCFixed: ...
+    def __sub__(self, arg: int) -> APyCFixed: ...
     @overload
-    def __sub__(self, arg: float, /) -> APyCFixed: ...
+    def __sub__(self, arg: float) -> APyCFixed: ...
     @overload
-    def __sub__(self, arg: complex, /) -> APyCFixed: ...
+    def __sub__(self, arg: complex) -> APyCFixed: ...
     @overload
-    def __sub__(self, arg: APyFixed, /) -> APyCFixed: ...
+    def __sub__(self, arg: APyFixed) -> APyCFixed: ...
     @overload
     def __mul__(self, arg: APyCFixed, /) -> APyCFixed: ...
     @overload
-    def __mul__(self, arg: int, /) -> APyCFixed: ...
+    def __mul__(self, arg: int) -> APyCFixed: ...
     @overload
-    def __mul__(self, arg: float, /) -> APyCFixed: ...
+    def __mul__(self, arg: float) -> APyCFixed: ...
     @overload
-    def __mul__(self, arg: complex, /) -> APyCFixed: ...
+    def __mul__(self, arg: complex) -> APyCFixed: ...
     @overload
-    def __mul__(self, arg: APyFixed, /) -> APyCFixed: ...
+    def __mul__(self, arg: APyFixed) -> APyCFixed: ...
     @overload
     def __truediv__(self, arg: APyCFixed, /) -> APyCFixed: ...
     @overload
-    def __truediv__(self, arg: int, /) -> APyCFixed: ...
+    def __truediv__(self, arg: int) -> APyCFixed: ...
     @overload
-    def __truediv__(self, arg: float, /) -> APyCFixed: ...
+    def __truediv__(self, arg: float) -> APyCFixed: ...
     @overload
-    def __truediv__(self, arg: complex, /) -> APyCFixed: ...
+    def __truediv__(self, arg: complex) -> APyCFixed: ...
     @overload
-    def __truediv__(self, arg: APyFixed, /) -> APyCFixed: ...
+    def __truediv__(self, arg: APyFixed) -> APyCFixed: ...
     def __neg__(self) -> APyCFixed: ...
     def __pos__(self) -> APyCFixed: ...
     def __ilshift__(self, arg: int, /) -> APyCFixed: ...
     def __irshift__(self, arg: int, /) -> APyCFixed: ...
     @overload
-    def __radd__(self, arg: int, /) -> APyCFixed: ...
+    def __radd__(self, arg: int) -> APyCFixed: ...
     @overload
-    def __radd__(self, arg: float, /) -> APyCFixed: ...
+    def __radd__(self, arg: float) -> APyCFixed: ...
     @overload
-    def __radd__(self, arg: complex, /) -> APyCFixed: ...
+    def __radd__(self, arg: complex) -> APyCFixed: ...
     @overload
-    def __radd__(self, arg: APyFixed, /) -> APyCFixed: ...
+    def __radd__(self, arg: APyFixed) -> APyCFixed: ...
     @overload
-    def __rsub__(self, arg: int, /) -> APyCFixed: ...
+    def __rsub__(self, arg: int) -> APyCFixed: ...
     @overload
-    def __rsub__(self, arg: float, /) -> APyCFixed: ...
+    def __rsub__(self, arg: float) -> APyCFixed: ...
     @overload
-    def __rsub__(self, arg: complex, /) -> APyCFixed: ...
+    def __rsub__(self, arg: complex) -> APyCFixed: ...
     @overload
-    def __rsub__(self, arg: APyFixed, /) -> APyCFixed: ...
+    def __rsub__(self, arg: APyFixed) -> APyCFixed: ...
     @overload
-    def __rmul__(self, arg: int, /) -> APyCFixed: ...
+    def __rmul__(self, arg: int) -> APyCFixed: ...
     @overload
-    def __rmul__(self, arg: float, /) -> APyCFixed: ...
+    def __rmul__(self, arg: float) -> APyCFixed: ...
     @overload
-    def __rmul__(self, arg: complex, /) -> APyCFixed: ...
+    def __rmul__(self, arg: complex) -> APyCFixed: ...
     @overload
-    def __rmul__(self, arg: APyFixed, /) -> APyCFixed: ...
+    def __rmul__(self, arg: APyFixed) -> APyCFixed: ...
     @overload
-    def __rtruediv__(self, arg: int, /) -> APyCFixed: ...
+    def __rtruediv__(self, arg: int) -> APyCFixed: ...
     @overload
-    def __rtruediv__(self, arg: float, /) -> APyCFixed: ...
+    def __rtruediv__(self, arg: float) -> APyCFixed: ...
     @overload
-    def __rtruediv__(self, arg: complex, /) -> APyCFixed: ...
+    def __rtruediv__(self, arg: complex) -> APyCFixed: ...
     @overload
-    def __rtruediv__(self, arg: APyFixed, /) -> APyCFixed: ...
+    def __rtruediv__(self, arg: APyFixed) -> APyCFixed: ...
     def __invert__(self) -> APyCFixed: ...
     @property
     def real(self) -> APyFixed:
@@ -348,10 +351,13 @@ class APyCFixed:
         Create an :class:`APyCFixed` object from an :class:`int`, :class:`float`,
         :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
 
-        .. note:: It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to create an :class:`APyCFixed` from an :class:`APyCFixed`.
+        .. attention::
+            It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to
+            create an :class:`APyCFixed` from an :class:`APyCFixed`.
 
-        The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
-        Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
+        The input is quantized using :class:`QuantizationMode.RND_INF` and overflow
+        is handled using the :class:`OverflowMode.WRAP` mode. Exactly two of the
+        three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
         Parameters
         ----------
@@ -390,10 +396,13 @@ class APyCFixed:
     ) -> APyCFixed:
         """
         Create an :class:`APyCFixed` object from an :class:`int`, :class:`float`,
-        :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
-        This is an alias for :func:`~apytypes.APyCFixed.from_complex`, look there for more documentation.
+        :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
+        :class:`APyCFixed`. This is an alias for
+        :func:`~apytypes.APyCFixed.from_complex`, look there for more documentation.
 
-        .. attention:: It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to create an :class:`APyCFixed` from anpther :class:`APyCFixed`.
+        .. attention::
+            It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to
+            create an :class:`APyCFixed` from anpther :class:`APyCFixed`.
 
         Parameters
         ----------
@@ -1119,10 +1128,13 @@ class APyCFixedArray:
         bits: int | None = None,
     ) -> APyCFixedArray:
         """
-        Create an :class:`APyCFixedArray` object from a sequence of :class:`int`, :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
+        Create an :class:`APyCFixedArray` object from a sequence of :class:`int`,
+        :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
+        :class:`APyCFixed`.
 
-        The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
-        Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
+        The input is quantized using :class:`QuantizationMode.RND_INF` and overflow
+        is handled using the :class:`OverflowMode.WRAP` mode. Exactly two of the
+        three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
         Using NumPy arrays as input is in general faster than e.g. lists.
 
@@ -1168,8 +1180,11 @@ class APyCFixedArray:
         bits: int | None = None,
     ) -> APyCFixedArray:
         """
-        Create an :class:`APyCFixedArray` object from a sequence of :class:`int`, :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
-        This is an alias for :func:`~apytypes.APyCFixedArray.from_complex`, look there for more documentation.
+        Create an :class:`APyCFixedArray` object from a sequence of :class:`int`,
+        :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
+        :class:`APyCFixed`. This is an alias for
+        :func:`~apytypes.APyCFixedArray.from_complex`, look there for more
+        documentation.
 
         Parameters
         ----------
@@ -1381,19 +1396,239 @@ class APyCFixedArray:
     def __array__(self) -> Annotated[ArrayLike, dict(dtype="complex128")]: ...
 
 class APyCFloat:
-    @staticmethod
-    def from_float(
-        value: object, exp_bits: int, man_bits: int, bias: int | None = None
-    ) -> APyCFloat:
-        """
-        Create an :class:`APyCFloat` object from an :class:`int` or :class:`float`.
+    """
+    Class for configurable complex-valued scalar floating-point formats.
 
-        The quantization mode used is :class:`QuantizationMode.TIES_EVEN`.
+    .. versionadded:: 0.4
+
+    .. note::
+        For real-valued floating-point formats, see :class:`APyFloat` and
+        :class:`APyFloatArray`.
+    """
+
+    @overload
+    def __init__(
+        self,
+        sign: bool | int,
+        exp: int,
+        man: int,
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
+    ) -> None:
+        """
+        Create an :class:`APyCFloat` object and initialize its real part.
+
+        The imaginary part is zero initialized.
 
         Parameters
         ----------
-        value : :class:`int`, :class:`float`
-            Floating-point value to initialize from.
+        sign : :class:`bool` or :class:`int`
+            Sign of real part. `True`/non-zero equals negative.
+        exp : :class:`int`
+            Exponent of real part as stored, i.e., actual value + bias.
+        man : :class:`int`
+            Mantissa of the float as stored, i.e., without a hidden one.
+        exp_bits : :class:`int`
+            Number of exponent bits.
+        man_bits : :class:`int`
+            Number of mantissa bits.
+        bias : :class:`int`, optional
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+        Returns
+        -------
+        :class:`APyCFloat`
+        """
+
+    @overload
+    def __init__(
+        self,
+        sign: tuple,
+        exp: tuple,
+        man: tuple,
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
+    ) -> None:
+        """
+        Create an :class:`APyCFloat` object and initialize both real and imaginary
+        part.
+
+        Parameters
+        ----------
+        sign : :class:`tuple` of :class:`int` or :class:`bool`
+            Sign of real/imaginary parts. `True`/non-zero equals negative.
+        exp : :class:`tuple` of :class:`int`
+            Exponent of real/imaginary parts as stored, i.e., actual value + bias.
+        man : :class:`tuple` of :class:`int`
+            Mantissa of the real/imaginary parts as stored, i.e., without a hidden
+            one.
+        exp_bits : :class:`int`
+            Number of exponent bits.
+        man_bits : :class:`int`
+            Number of mantissa bits.
+        bias : :class:`int`, optional
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+        Returns
+        -------
+        :class:`APyCFloat`
+        """
+
+    @overload
+    def __eq__(self, arg: APyCFloat, /) -> bool: ...
+    @overload
+    def __eq__(self, arg: APyFloat, /) -> bool: ...
+    @overload
+    def __eq__(self, arg: APyFixed, /) -> bool: ...
+    @overload
+    def __eq__(self, arg: APyCFixed, /) -> bool: ...
+    @overload
+    def __eq__(self, arg: float, /) -> bool: ...
+    @overload
+    def __ne__(self, arg: APyCFloat, /) -> bool: ...
+    @overload
+    def __ne__(self, arg: APyFloat, /) -> bool: ...
+    @overload
+    def __ne__(self, arg: APyFixed, /) -> bool: ...
+    @overload
+    def __ne__(self, arg: APyCFixed, /) -> bool: ...
+    @overload
+    def __ne__(self, arg: float, /) -> bool: ...
+    @overload
+    def __add__(self, arg: APyCFloat, /) -> APyCFloat: ...
+    @overload
+    def __add__(self, arg: int) -> APyCFloat: ...
+    @overload
+    def __add__(self, arg: APyFloat) -> APyCFloat: ...
+    @overload
+    def __add__(self, arg: APyFixed) -> APyCFloat: ...
+    @overload
+    def __add__(self, arg: APyCFixed) -> APyCFloat: ...
+    @overload
+    def __add__(self, arg: float) -> APyCFloat: ...
+    @overload
+    def __add__(self, arg: complex) -> APyCFloat: ...
+    @overload
+    def __sub__(self, arg: APyCFloat, /) -> APyCFloat: ...
+    @overload
+    def __sub__(self, arg: int) -> APyCFloat: ...
+    @overload
+    def __sub__(self, arg: APyFloat) -> APyCFloat: ...
+    @overload
+    def __sub__(self, arg: APyFixed) -> APyCFloat: ...
+    @overload
+    def __sub__(self, arg: APyCFixed) -> APyCFloat: ...
+    @overload
+    def __sub__(self, arg: float) -> APyCFloat: ...
+    @overload
+    def __sub__(self, arg: complex) -> APyCFloat: ...
+    @overload
+    def __mul__(self, arg: APyCFloat, /) -> APyCFloat: ...
+    @overload
+    def __mul__(self, arg: int) -> APyCFloat: ...
+    @overload
+    def __mul__(self, arg: APyFloat) -> APyCFloat: ...
+    @overload
+    def __mul__(self, arg: APyFixed) -> APyCFloat: ...
+    @overload
+    def __mul__(self, arg: APyCFixed) -> APyCFloat: ...
+    @overload
+    def __mul__(self, arg: float) -> APyCFloat: ...
+    @overload
+    def __mul__(self, arg: complex) -> APyCFloat: ...
+    @overload
+    def __truediv__(self, arg: APyCFloat, /) -> APyCFloat: ...
+    @overload
+    def __truediv__(self, arg: int) -> APyCFloat: ...
+    @overload
+    def __truediv__(self, arg: APyFloat) -> APyCFloat: ...
+    @overload
+    def __truediv__(self, arg: APyFixed) -> APyCFloat: ...
+    @overload
+    def __truediv__(self, arg: APyCFixed) -> APyCFloat: ...
+    @overload
+    def __truediv__(self, arg: float) -> APyCFloat: ...
+    @overload
+    def __truediv__(self, arg: complex) -> APyCFloat: ...
+    def __neg__(self) -> APyCFloat: ...
+    def __pos__(self) -> APyCFloat: ...
+    @overload
+    def __radd__(self, arg: int) -> APyCFloat: ...
+    @overload
+    def __radd__(self, arg: APyFloat) -> APyCFloat: ...
+    @overload
+    def __radd__(self, arg: APyFixed) -> APyCFloat: ...
+    @overload
+    def __radd__(self, arg: float) -> APyCFloat: ...
+    @overload
+    def __radd__(self, arg: complex) -> APyCFloat: ...
+    @overload
+    def __rsub__(self, arg: int) -> APyCFloat: ...
+    @overload
+    def __rsub__(self, arg: APyFloat) -> APyCFloat: ...
+    @overload
+    def __rsub__(self, arg: APyFixed) -> APyCFloat: ...
+    @overload
+    def __rsub__(self, arg: float) -> APyCFloat: ...
+    @overload
+    def __rsub__(self, arg: complex) -> APyCFloat: ...
+    @overload
+    def __rmul__(self, arg: int) -> APyCFloat: ...
+    @overload
+    def __rmul__(self, arg: APyFloat) -> APyCFloat: ...
+    @overload
+    def __rmul__(self, arg: APyFixed) -> APyCFloat: ...
+    @overload
+    def __rmul__(self, arg: float) -> APyCFloat: ...
+    @overload
+    def __rmul__(self, arg: complex) -> APyCFloat: ...
+    @overload
+    def __rtruediv__(self, arg: int) -> APyCFloat: ...
+    @overload
+    def __rtruediv__(self, arg: APyFloat) -> APyCFloat: ...
+    @overload
+    def __rtruediv__(self, arg: APyFixed) -> APyCFloat: ...
+    @overload
+    def __rtruediv__(self, arg: float) -> APyCFloat: ...
+    @overload
+    def __rtruediv__(self, arg: complex) -> APyCFloat: ...
+    @property
+    def real(self) -> APyFloat:
+        """
+        Real part.
+
+        Returns
+        -------
+        :class:`APyFixed`
+        """
+
+    @property
+    def imag(self) -> APyFloat:
+        """
+        Imaginary part.
+
+        Returns
+        -------
+        :class:`APyFixed`
+        """
+
+    @staticmethod
+    def from_complex(
+        value: object, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyCFloat:
+        """
+        Create an :class:`APyCFloat` object from an :class:`int`, :class:`float`, or
+        :class:`complex`.
+
+        The initialize floating-point value is the one closest to `value`. Ties are
+        rounded using :class:`QuantizationMode.TIES_EVEN`.
+
+        Parameters
+        ----------
+        value : :class:`complex`, :class:`float`, :class:`int`
+            Value to initialize from.
         exp_bits : :class:`int`
             Number of exponent bits.
         man_bits : :class:`int`
@@ -1404,11 +1639,12 @@ class APyCFloat:
         Examples
         --------
 
-        >>> from apytypes import APyCFloat
-
-        `a`, initialized from floating-point values.
-
-        >>> a = APyCFloat.from_float(1.35, exp_bits=10, man_bits=15)
+        >>> import apytypes as apy
+        >>> a = apy.APyCFloat.from_complex(1.375, exp_bits=10, man_bits=15)
+        >>> a
+        APyCFloat(sign=(0, 0), exp=(511, 0), man=(12288, 0), exp_bits=10, man_bits=15)
+        >>> str(a)
+        '(1.375+0j)'
 
         Returns
         -------
@@ -1416,7 +1652,152 @@ class APyCFloat:
 
         See also
         --------
-        from_bits
+        from_complex
+        """
+
+    @staticmethod
+    def from_float(
+        value: object, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyCFloat:
+        """
+        Create an :class:`APyCFloat` object from an :class:`int`, :class:`float`, or
+        :class:`complex`.
+
+        The initialize floating-point value is the one closest to `value`. Ties are
+        rounded using :class:`QuantizationMode.TIES_EVEN`.
+
+        Parameters
+        ----------
+        value : int, float, complex
+            Value to initialize from.
+        exp_bits : int
+            Number of exponent bits.
+        man_bits : int
+            Number of mantissa bits.
+        bias : int, optional
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+        Examples
+        --------
+
+        >>> import apytypes as apy
+        >>> a = apy.APyCFloat.from_float(1.25, exp_bits=10, man_bits=15)
+        >>> a
+        APyCFloat(sign=(0, 0), exp=(511, 0), man=(8192, 0), exp_bits=10, man_bits=15)
+        >>> str(a)
+        '(1.25+0j)'
+
+        Returns
+        -------
+        :class:`APyCFloat`
+
+        See also
+        --------
+        from_complex
+        """
+
+    def __complex__(self) -> complex: ...
+    def __str__(self, base: int = 10) -> str: ...
+    def __repr__(self) -> str: ...
+    def cast(
+        self,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        quantization: QuantizationMode | None = None,
+    ) -> APyCFloat:
+        """
+        Change format of the complex-valued floating-point number.
+
+        This is the primary method for performing quantization when dealing with
+        APyTypes floating-point numbers.
+
+        Parameters
+        ----------
+        exp_bits : :class:`int`, optional
+            Number of exponent bits in the result.
+        man_bits : :class:`int`, optional
+            Number of mantissa bits in the result.
+        bias : :class:`int`, optional
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+        quantization : :class:`QuantizationMode`, optional.
+            Quantization mode to use in this cast. If None, use the global
+            quantization mode.
+
+        Returns
+        -------
+        :class:`APyCFloat`
+        """
+
+    @property
+    def is_zero(self) -> bool:
+        """
+        True if, and only if, both the real and imaginary parts are zero.
+
+        Returns
+        -------
+        :class:`bool`
+        """
+
+    def is_identical(self, other: APyCFloat, ignore_zero_sign: bool = False) -> bool:
+        """
+        Test if two :py:class:`APyCFloat` objects are identical.
+
+        Two :py:class:`APyCFloat` objects are considered identical if, and only if,
+        they have the same sign, exponent, mantissa, and format.
+
+        Parameters
+        ----------
+        other : :class:`APyCFloat`
+            The floating-point object to test identicality against.
+
+        ignore_zero_sign : :class:`bool`, default: :code:`False`
+            If :code:`True`, plus and minus zero are considered identical. If
+            :code:`False`, plus and minus zero are considered different.
+
+        Returns
+        -------
+        :class:`bool`
+        """
+
+    @property
+    def man_bits(self) -> int:
+        """
+        Number of mantissa bits.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def exp_bits(self) -> int:
+        """
+        Number of exponent bits.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def bits(self) -> int:
+        """
+        Total number of bits.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def bias(self) -> int:
+        """
+        Exponent bias.
+
+        Returns
+        -------
+        :class:`int`
         """
 
 class APyCFloatArray:
@@ -1460,7 +1841,11 @@ class APyFixed:
     unless explicitly instructed to by a user through the :func:`cast` method. The following
     table shows word lengths of elementary arithmetic operations.
 
-    For complex-valued fixed-point formats, see :class:`APyCFixed`.
+
+    .. note::
+        For real-valued fixed-point array formats, see :class:`APyFixedArray`. For \
+        complex-valued fixed-point formats, see :class:`APyCFixed` and
+        :class:`APyCFixedArray`.
 
     .. list-table:: Word-length of fixed-point arithmetic operations using
                     :class:`APyFixed`
@@ -1542,48 +1927,48 @@ class APyFixed:
     @overload
     def __add__(self, arg: APyFixed, /) -> APyFixed: ...
     @overload
-    def __add__(self, arg: int, /) -> APyFixed: ...
+    def __add__(self, arg: int) -> APyFixed: ...
     @overload
-    def __add__(self, arg: float, /) -> APyFixed: ...
+    def __add__(self, arg: float) -> APyFixed: ...
     @overload
     def __sub__(self, arg: APyFixed, /) -> APyFixed: ...
     @overload
-    def __sub__(self, arg: int, /) -> APyFixed: ...
+    def __sub__(self, arg: int) -> APyFixed: ...
     @overload
-    def __sub__(self, arg: float, /) -> APyFixed: ...
+    def __sub__(self, arg: float) -> APyFixed: ...
     @overload
     def __mul__(self, arg: APyFixed, /) -> APyFixed: ...
     @overload
-    def __mul__(self, arg: int, /) -> APyFixed: ...
+    def __mul__(self, arg: int) -> APyFixed: ...
     @overload
-    def __mul__(self, arg: float, /) -> APyFixed: ...
+    def __mul__(self, arg: float) -> APyFixed: ...
     @overload
     def __truediv__(self, arg: APyFixed, /) -> APyFixed: ...
     @overload
-    def __truediv__(self, arg: int, /) -> APyFixed: ...
+    def __truediv__(self, arg: int) -> APyFixed: ...
     @overload
-    def __truediv__(self, arg: float, /) -> APyFixed: ...
+    def __truediv__(self, arg: float) -> APyFixed: ...
     def __neg__(self) -> APyFixed: ...
     def __pos__(self) -> APyFixed: ...
     def __ilshift__(self, arg: int, /) -> APyFixed: ...
     def __irshift__(self, arg: int, /) -> APyFixed: ...
     def __invert__(self) -> APyFixed: ...
     @overload
-    def __radd__(self, arg: int, /) -> APyFixed: ...
+    def __radd__(self, arg: int) -> APyFixed: ...
     @overload
-    def __radd__(self, arg: float, /) -> APyFixed: ...
+    def __radd__(self, arg: float) -> APyFixed: ...
     @overload
-    def __rsub__(self, arg: int, /) -> APyFixed: ...
+    def __rsub__(self, arg: int) -> APyFixed: ...
     @overload
-    def __rsub__(self, arg: float, /) -> APyFixed: ...
+    def __rsub__(self, arg: float) -> APyFixed: ...
     @overload
-    def __rmul__(self, arg: int, /) -> APyFixed: ...
+    def __rmul__(self, arg: int) -> APyFixed: ...
     @overload
-    def __rmul__(self, arg: float, /) -> APyFixed: ...
+    def __rmul__(self, arg: float) -> APyFixed: ...
     @overload
-    def __rtruediv__(self, arg: int, /) -> APyFixed: ...
+    def __rtruediv__(self, arg: int) -> APyFixed: ...
     @overload
-    def __rtruediv__(self, arg: float, /) -> APyFixed: ...
+    def __rtruediv__(self, arg: float) -> APyFixed: ...
     def __pow__(self, arg: int, /) -> APyFixed: ...
     def to_bits(self) -> int:
         """
@@ -1786,12 +2171,16 @@ class APyFixed:
         bits: int | None = None,
     ) -> APyFixed:
         """
-        Create an :class:`APyFixed` object from an :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
+        Create an :class:`APyFixed` object from an :class:`int`, :class:`float`,
+        :class:`APyFixed`, or :class:`APyFloat`.
 
-        .. attention:: It is in all cases better to use :func:`~apytypes.APyFixed.cast` to create an :class:`APyFixed` from another :class:`APyFixed`.
+        .. attention::
+            It is in all cases better to use :func:`~apytypes.APyFixed.cast` to
+            create an :class:`APyFixed` from another :class:`APyFixed`.
 
-        The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
-        Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
+        The input is quantized using :class:`QuantizationMode.RND_INF` and overflow
+        is handled using the :class:`OverflowMode.WRAP` mode. Exactly two of the
+        three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
         Parameters
         ----------
@@ -2964,28 +3353,29 @@ class APyFloat:
     r"""
     Floating-point scalar with configurable format.
 
-    The implementation is a generalization of the IEEE 754 standard, meaning that features like
-    subnormals, infinities, and NaN, are still supported. The format is defined
-    by the number of exponent and mantissa bits, and a non-negative bias. These fields are
-    named :attr:`exp_bits`, :attr:`man_bits`, and :attr:`bias` respectively. Similar to the hardware
-    representation of a floating-point number, the value is stored using three fields;
-    a sign bit :attr:`sign`, a biased exponent :attr:`exp`, and an integral mantissa with a hidden one :attr:`man`.
-    The value of a *normal* number would thus be
+    The implementation is a generalization of the IEEE 754 standard, meaning that features
+    like subnormals, infinities, and NaN, are still supported. The format is defined by the
+    number of exponent and mantissa bits, and a non-negative bias. These fields are named
+    :attr:`exp_bits`, :attr:`man_bits`, and :attr:`bias` respectively. Similar to the
+    hardware representation of a floating-point number, the value is stored using three
+    fields; a sign bit :attr:`sign`, a biased exponent :attr:`exp`, and an integral mantissa
+    with a hidden one :attr:`man`. The value of a *normal* number would thus be
 
     .. math::
         (-1)^{\texttt{sign}} \times 2^{\texttt{exp} - \texttt{bias}} \times (1 + \texttt{man} \times 2^{\texttt{-man_bits}}).
 
-    In general, if the bias is not explicitly given for a format :class:`APyFloat` will default to an IEEE-like bias
-    using the formula
+    In general, if the bias is not explicitly given for a format :class:`APyFloat` will
+    default to an IEEE-like bias using the formula
 
     .. math::
         \texttt{bias} = 2^{\texttt{exp_bits - 1}} - 1.
 
     Arithmetic can be performed similarly to the operations of the built-in type
-    :class:`float` in Python. The resulting word length from operations will be
-    the same as the input operands' by quantizing to nearest number with ties to even (:class:`QuantizationMode.TIES_EVEN`).
-    If the operands do not share the same format, the resulting
-    bit widths of the exponent and mantissa field will be the maximum of its inputs:
+    :class:`float` in Python. The resulting word length from operations will be the same as
+    the input operands' by quantizing to nearest number with ties to even
+    (:class:`QuantizationMode.TIES_EVEN`). If the operands do not share the same format, the
+    resulting bit widths of the exponent and mantissa field will be the maximum of its
+    inputs:
 
     Examples
     --------
@@ -3007,9 +3397,9 @@ class APyFloat:
     APyFloat(sign=0, exp=16, man=8, exp_bits=5, man_bits=4)
 
     If the operands of an arithmetic operation have IEEE-like biases, then the result will
-    also have an IEEE-like bias -- based on the resulting number of exponent bits.
-    To support operations with biases deviating from the standard, the bias of the resulting format
-    is calculated as the "average" of the inputs' biases:
+    also have an IEEE-like bias -- based on the resulting number of exponent bits. To
+    support operations with biases deviating from the standard, the bias of the resulting
+    format is calculated as the "average" of the inputs' biases:
 
     .. math::
         \texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp_bits}_2} \right ) \times 2^{\texttt{exp_bits}_3}}{2} - 1,
@@ -3034,7 +3424,8 @@ class APyFloat:
         Parameters
         ----------
         sign : :class:`bool` or int
-            The sign of the float. False/0 means positive. True/non-zero means negative.
+            The sign of the float. False/0 means positive. True/non-zero means
+            negative.
         exp : :class:`int`
             Exponent of the float as stored, i.e., actual value + bias.
         man : :class:`int`
@@ -3099,27 +3490,27 @@ class APyFloat:
     @overload
     def __add__(self, arg: APyFloat, /) -> APyFloat: ...
     @overload
-    def __add__(self, arg: int, /) -> APyFloat: ...
+    def __add__(self, arg: int) -> APyFloat: ...
     @overload
-    def __add__(self, arg: float, /) -> APyFloat: ...
+    def __add__(self, arg: float) -> APyFloat: ...
     @overload
     def __sub__(self, arg: APyFloat, /) -> APyFloat: ...
     @overload
-    def __sub__(self, arg: int, /) -> APyFloat: ...
+    def __sub__(self, arg: int) -> APyFloat: ...
     @overload
-    def __sub__(self, arg: float, /) -> APyFloat: ...
+    def __sub__(self, arg: float) -> APyFloat: ...
     @overload
     def __mul__(self, arg: APyFloat, /) -> APyFloat: ...
     @overload
-    def __mul__(self, arg: int, /) -> APyFloat: ...
+    def __mul__(self, arg: int) -> APyFloat: ...
     @overload
-    def __mul__(self, arg: float, /) -> APyFloat: ...
+    def __mul__(self, arg: float) -> APyFloat: ...
     @overload
     def __truediv__(self, arg: APyFloat, /) -> APyFloat: ...
     @overload
-    def __truediv__(self, arg: int, /) -> APyFloat: ...
+    def __truediv__(self, arg: int) -> APyFloat: ...
     @overload
-    def __truediv__(self, arg: float, /) -> APyFloat: ...
+    def __truediv__(self, arg: float) -> APyFloat: ...
     def __neg__(self) -> APyFloat: ...
     def __pos__(self) -> APyFloat: ...
     def __abs__(self) -> APyFloat: ...
@@ -3132,29 +3523,32 @@ class APyFloat:
     def __xor__(self, arg: APyFloat, /) -> APyFloat: ...
     def __invert__(self) -> APyFloat: ...
     @overload
-    def __radd__(self, arg: int, /) -> APyFloat: ...
+    def __radd__(self, arg: int) -> APyFloat: ...
     @overload
-    def __radd__(self, arg: float, /) -> APyFloat: ...
+    def __radd__(self, arg: float) -> APyFloat: ...
     @overload
-    def __rsub__(self, arg: int, /) -> APyFloat: ...
+    def __rsub__(self, arg: int) -> APyFloat: ...
     @overload
-    def __rsub__(self, arg: float, /) -> APyFloat: ...
+    def __rsub__(self, arg: float) -> APyFloat: ...
     @overload
-    def __rmul__(self, arg: int, /) -> APyFloat: ...
+    def __rmul__(self, arg: int) -> APyFloat: ...
     @overload
-    def __rmul__(self, arg: float, /) -> APyFloat: ...
+    def __rmul__(self, arg: float) -> APyFloat: ...
     @overload
-    def __rtruediv__(self, arg: int, /) -> APyFloat: ...
+    def __rtruediv__(self, arg: int) -> APyFloat: ...
     @overload
-    def __rtruediv__(self, arg: float, /) -> APyFloat: ...
+    def __rtruediv__(self, arg: float) -> APyFloat: ...
     @staticmethod
     def from_float(
         value: object, exp_bits: int, man_bits: int, bias: int | None = None
     ) -> APyFloat:
         """
-        Create an :class:`APyFloat` object from an :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
+        Create an :class:`APyFloat` object from an :class:`int`, :class:`float`,
+        :class:`APyFixed`, or :class:`APyFloat`.
 
-        .. attention:: It is in all cases better to use :func:`~apytypes.APyFloat.cast` to create an :class:`APyFloat` from another :class:`APyFloat`.
+        .. attention::
+            It is in all cases better to use :func:`~apytypes.APyFloat.cast` to
+            create an :class:`APyFloat` from another :class:`APyFloat`.
 
         The quantization mode used is :class:`QuantizationMode.TIES_EVEN`.
 
@@ -3343,12 +3737,21 @@ class APyFloat:
         :class:`bool`
         """
 
-    def is_identical(self, other: APyFloat) -> bool:
+    def is_identical(self, other: APyFloat, ignore_zero_sign: bool = False) -> bool:
         """
         Test if two :py:class:`APyFloat` objects are identical.
 
-        Two :py:class:`APyFloat` objects are considered identical if, and only if,  they have
-        the same sign, exponent, mantissa, and format.
+        Two :py:class:`APyFloat` objects are considered identical if, and only if,
+        they have the same sign, exponent, mantissa, and format.
+
+        Parameters
+        ----------
+        other : :class:`APyFloat`
+            The floating-point object to test identicality against.
+
+        ignore_zero_sign : :class:`bool`, default: :code:`False`
+            If :code:`True`, plus and minus zero are considered identical. If
+            :code:`False`, plus and minus zero are considered different.
 
         Returns
         -------
@@ -3558,7 +3961,8 @@ class APyFloat:
 
     def next_up(self) -> APyFloat:
         """
-        Get the smallest floating-point number in the same format that compares greater.
+        Get the smallest floating-point number in the same format that compares
+        greater.
 
         See also
         --------
@@ -4060,7 +4464,7 @@ class APyFloatArray:
 
         Array `lhs` (2 x 3 matrix), initialized from floating-point values.
 
-        >>> lhs = APyFloatArray.from_float(
+        >>> lhs = apy.APyFloatArray.from_float(
         ...     [
         ...         [1.0, 2.0, 3.0],
         ...         [4.0, 5.0, 6.0],

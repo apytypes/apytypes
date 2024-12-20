@@ -231,25 +231,25 @@ class TestAccumulatorContext:
 
         with pytest.raises(
             ValueError,
-            match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+            match="APyFloatAccumulatorContext: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
         ):
-            APyFloatAccumulatorContext(exp_bits=300, man_bits=5)
+            _ = APyFloatAccumulatorContext(exp_bits=300, man_bits=5)
         with pytest.raises(
             ValueError,
-            match="Exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+            match="APyFloatAccumulatorContext: exponent bits must be a non-negative integer less or equal to .. but -300 was given",
         ):
-            APyFloatAccumulatorContext(exp_bits=-300, man_bits=5)
+            _ = APyFloatAccumulatorContext(exp_bits=-300, man_bits=5)
         # Too many mantissa bits
         with pytest.raises(
             ValueError,
-            match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
+            match="APyFloatAccumulatorContext: mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
         ):
-            APyFloatAccumulatorContext(exp_bits=5, man_bits=300)
+            _ = APyFloatAccumulatorContext(exp_bits=5, man_bits=300)
         with pytest.raises(
             ValueError,
-            match="Mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+            match="APyFloatAccumulatorContext: mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
         ):
-            APyFloatAccumulatorContext(exp_bits=5, man_bits=-300)
+            _ = APyFloatAccumulatorContext(exp_bits=5, man_bits=-300)
 
     def test_with_quantization_context(self):
         """Test that the APyFloatAccumulatorContext interacts correctly with the APyFloatQuanizationContext."""

@@ -1044,7 +1044,7 @@ template <class RANDOM_ACCESS_ITERATOR_IN>
 }
 
 //! Take the two's complement absolute value of a limb vector and place onto `res_out`.
-//! Return `true` if the argument is negative
+//! Return `true` if the argument is negative, and `false` otherwise.
 template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
 [[maybe_unused]] static APY_INLINE bool limb_vector_abs(
     RANDOM_ACCESS_ITERATOR_IN cbegin_it,

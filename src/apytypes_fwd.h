@@ -123,6 +123,10 @@ struct APyFloatSpec {
         return std::make_tuple(exp_bits, man_bits, bias)
             == std::make_tuple(other.exp_bits, other.man_bits, other.bias);
     }
+    bool operator!=(const APyFloatSpec& other) const noexcept
+    {
+        return !(*this == other);
+    }
 };
 
 #endif

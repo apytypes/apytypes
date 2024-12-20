@@ -94,28 +94,29 @@ __all__ = [
 APyFloat.__doc__ = r"""
 Floating-point scalar with configurable format.
 
-The implementation is a generalization of the IEEE 754 standard, meaning that features like
-subnormals, infinities, and NaN, are still supported. The format is defined
-by the number of exponent and mantissa bits, and a non-negative bias. These fields are
-named :attr:`exp_bits`, :attr:`man_bits`, and :attr:`bias` respectively. Similar to the hardware
-representation of a floating-point number, the value is stored using three fields;
-a sign bit :attr:`sign`, a biased exponent :attr:`exp`, and an integral mantissa with a hidden one :attr:`man`.
-The value of a *normal* number would thus be
+The implementation is a generalization of the IEEE 754 standard, meaning that features
+like subnormals, infinities, and NaN, are still supported. The format is defined by the
+number of exponent and mantissa bits, and a non-negative bias. These fields are named
+:attr:`exp_bits`, :attr:`man_bits`, and :attr:`bias` respectively. Similar to the
+hardware representation of a floating-point number, the value is stored using three
+fields; a sign bit :attr:`sign`, a biased exponent :attr:`exp`, and an integral mantissa
+with a hidden one :attr:`man`. The value of a *normal* number would thus be
 
 .. math::
     (-1)^{\texttt{sign}} \times 2^{\texttt{exp} - \texttt{bias}} \times (1 + \texttt{man} \times 2^{\texttt{-man_bits}}).
 
-In general, if the bias is not explicitly given for a format :class:`APyFloat` will default to an IEEE-like bias
-using the formula
+In general, if the bias is not explicitly given for a format :class:`APyFloat` will
+default to an IEEE-like bias using the formula
 
 .. math::
     \texttt{bias} = 2^{\texttt{exp_bits - 1}} - 1.
 
 Arithmetic can be performed similarly to the operations of the built-in type
-:class:`float` in Python. The resulting word length from operations will be
-the same as the input operands' by quantizing to nearest number with ties to even (:class:`QuantizationMode.TIES_EVEN`).
-If the operands do not share the same format, the resulting
-bit widths of the exponent and mantissa field will be the maximum of its inputs:
+:class:`float` in Python. The resulting word length from operations will be the same as
+the input operands' by quantizing to nearest number with ties to even
+(:class:`QuantizationMode.TIES_EVEN`). If the operands do not share the same format, the
+resulting bit widths of the exponent and mantissa field will be the maximum of its
+inputs:
 
 Examples
 --------
@@ -137,9 +138,9 @@ Operands with different formats, result will have exp_bits=5, man_bits=4
 APyFloat(sign=0, exp=16, man=8, exp_bits=5, man_bits=4)
 
 If the operands of an arithmetic operation have IEEE-like biases, then the result will
-also have an IEEE-like bias -- based on the resulting number of exponent bits.
-To support operations with biases deviating from the standard, the bias of the resulting format
-is calculated as the "average" of the inputs' biases:
+also have an IEEE-like bias -- based on the resulting number of exponent bits. To
+support operations with biases deviating from the standard, the bias of the resulting
+format is calculated as the "average" of the inputs' biases:
 
 .. math::
     \texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp_bits}_2} \right ) \times 2^{\texttt{exp_bits}_3}}{2} - 1,
@@ -275,7 +276,11 @@ arithmetic operations. This ensures that overflow or quantization **never** occu
 unless explicitly instructed to by a user through the :func:`cast` method. The following
 table shows word lengths of elementary arithmetic operations.
 
-For complex-valued fixed-point formats, see :class:`APyCFixed`.
+
+.. note::
+    For real-valued fixed-point array formats, see :class:`APyFixedArray`. For \
+    complex-valued fixed-point formats, see :class:`APyCFixed` and
+    :class:`APyCFixedArray`.
 
 .. list-table:: Word-length of fixed-point arithmetic operations using
                 :class:`APyFixed`
@@ -317,7 +322,10 @@ and imaginary part share bit specifiers, and the overall number of bits in an
 :class:`APyCFixed` is :code:`2 * bits`. Only two of three bit specifers need to be set
 to uniquely determine the complete fixed-point format.
 
-For real-valued fixed-point formats, see :class:`APyFixed`.
+
+.. note::
+    For complex-valued fixed-point arrays, see :class:`APyCFixedArray`. For real-valued
+    fixed-point formats, see :class:`APyFixed` and :class:`APyFixedArray`.
 
 .. list-table:: Word-length of fixed-point arithmetic operations using
                 :class:`APyCFixed`
@@ -349,4 +357,15 @@ APyCFixedArray.__doc__ = r"""
 Class for configurable complex-valued array fixed-point formats.
 
 .. versionadded:: 0.3
+"""
+
+APyCFloat.__doc__ = r"""
+Class for configurable complex-valued scalar floating-point formats.
+
+.. versionadded:: 0.4
+
+.. note::
+    For real-valued floating-point formats, see :class:`APyFloat` and
+    :class:`APyFloatArray`.
+
 """

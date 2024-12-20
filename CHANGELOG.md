@@ -9,7 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Complex-valued floating-point types:
+  - `APyCFloat`, a complex scalar floating-point type.
+
 ### Fixed
+
+- Rounding error with `QuantizationMode.JAM` using APyTypes floating-points if an
+  arithmetic result equals zero.
+- Bug in `APyFloat.__lt__` for comparison of floating-points of different
+  formats.
 
 ### Changed
 

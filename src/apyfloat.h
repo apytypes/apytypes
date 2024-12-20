@@ -2,7 +2,6 @@
 #define _APYFLOAT_H
 
 #include "apyfixed.h"
-#include "apyfloat_util.h"
 #include "apytypes_common.h"
 
 // Python object access through Nanobind
@@ -37,7 +36,8 @@ private:
 public:
     //! Copy `n` items from `it` into `*this`
     template <typename RANDOM_ACCESS_ITERATOR>
-    void copy_n_from(RANDOM_ACCESS_ITERATOR src_it, std::size_t n) noexcept
+    void
+    copy_n_from(RANDOM_ACCESS_ITERATOR src_it, [[maybe_unused]] std::size_t n) noexcept
     {
         using iterator_value_type = typename RANDOM_ACCESS_ITERATOR::value_type;
         static_assert(std::is_same_v<iterator_value_type, APyFloatData>);
@@ -49,7 +49,9 @@ public:
 
     //! Copy `n` items from `*this` into `it`
     template <typename RANDOM_ACCESS_ITERATOR>
-    void copy_n_to(RANDOM_ACCESS_ITERATOR dst_it, std::size_t n) const noexcept
+    void copy_n_to(
+        RANDOM_ACCESS_ITERATOR dst_it, [[maybe_unused]] std::size_t n
+    ) const noexcept
     {
         using iterator_value_type = typename RANDOM_ACCESS_ITERATOR::value_type;
         static_assert(std::is_same_v<iterator_value_type, APyFloatData>);
@@ -156,7 +158,7 @@ public:
     );
     //! Create `APyFloat` from `APyFixed`
     static APyFloat from_fixed(
-        APyFixed value,
+        const APyFixed& value,
         int exp_bits,
         int man_bits,
         std::optional<exp_t> bias = std::nullopt
@@ -191,51 +193,18 @@ public:
         std::optional<QuantizationMode> quantization = std::nullopt
     ) const;
 
-    //! Internal cast method when format is given fully
-    APyFloat _cast(
-        std::uint8_t exp_bits,
-        std::uint8_t man_bits,
-        exp_t bias,
-        std::optional<QuantizationMode> quantization = std::nullopt
-    ) const;
-
-    //! Internal cast method when format and quantization mode is given
-    APyFloat _cast(
-        std::uint8_t exp_bits,
-        std::uint8_t man_bits,
-        exp_t bias,
-        QuantizationMode quantization
-    ) const;
-
     //! Core cast method when it is known that the bit widths are not the same
-    APyFloat _checked_cast(
+    APyFloat checked_cast(
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         exp_t bias,
         QuantizationMode quantization
     ) const;
-
-    //! Change the number of mantissa bits. The number is assumed not be NaN or Inf.
-    //! The exponent is updated in case of carry.
-    void cast_mantissa(std::uint8_t man_bits, QuantizationMode quantization);
 
     //! Decrease (not increase) the number of mantissa bits.
     //! The number is assumed not be NaN or Inf.
     //! The exponent is updated in case of carry.
     void cast_mantissa_shorter(std::uint8_t man_bits, QuantizationMode quantization);
-
-    //! Change the number of mantissa bits. The number is assumed not be NaN or Inf.
-    //! The exponent is assumed to be 0 and is updated in case of carry.
-    void
-    cast_mantissa_subnormal(std::uint8_t man_bits_delta, QuantizationMode quantization);
-
-    //! Change the number of mantissa and exponent bits for cases where it is known that
-    //! quantization does not happen, i.e., the resulting number of bits is not shorter.
-    APyFloat cast_no_quant(
-        std::uint8_t exp_bits,
-        std::uint8_t man_bits,
-        std::optional<exp_t> bias = std::nullopt
-    ) const;
 
     //! Change the number of mantissa and exponent bits for cases where it is known that
     //! quantization does not happen, i.e., the resulting number of bits is not shorter.
@@ -247,10 +216,6 @@ public:
     //! quantization mode.
     APyFloat
     cast_from_double(std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias) const;
-
-    //! Simplified casting when the input is known that the result will correspond to a
-    //! double.
-    APyFloat _cast_to_double() const;
 
     //! String representation
     std::string str() const;
@@ -267,7 +232,7 @@ public:
     //! Copy scalar
     APyFloat python_copy() const { return *this; }
     //! Deepcopy scalar (same as copy here)
-    APyFloat python_deepcopy(nb::dict& memo) const { return *this; }
+    APyFloat python_deepcopy(nb::dict& _) const { return *this; }
 
     /* ****************************************************************************** *
      * *                             Arithmetic operators                           * *
@@ -478,7 +443,7 @@ public:
 
     //! Test if two floating-point numbers are identical, i.e., has the same value, and
     //! the same format
-    bool is_identical(const APyFloat& other) const;
+    bool is_identical(const APyFloat& other, bool ignore_zero_sign = false) const;
 
     //! Convert to a fixed-point object
     APyFixed to_fixed() const;

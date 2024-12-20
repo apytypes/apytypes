@@ -1,6 +1,5 @@
 #include "apyfixed.h"
 #include "apyfloat.h"
-#include "apytypes_common.h"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
@@ -55,6 +54,19 @@ static auto BIN_OP(const L_TYPE& lhs, const R_TYPE& rhs) -> decltype(OP()(lhs, r
     return OP()(lhs, rhs);
 }
 
+// Mark a non-implicit conversion argument
+#define NARG(name) nb::arg(name).noconvert()
+
+// Mark a special double-underscore marker (e.g., `__add__`). Returns `NotImplemented`
+// rather than raising `TypeError`
+#define IS_OP(args) nb::is_operator(args)
+
+// Short-hand C++ arithmetic functors
+#define ADD std::plus
+#define SUB std::minus
+#define MUL std::multiplies
+#define DIV std::divides
+
 void bind_float(nb::module_& m)
 {
     nb::class_<APyFloat>(m, "APyFloat")
@@ -76,7 +88,8 @@ void bind_float(nb::module_& m)
             Parameters
             ----------
             sign : :class:`bool` or int
-                The sign of the float. False/0 means positive. True/non-zero means negative.
+                The sign of the float. False/0 means positive. True/non-zero means
+                negative.
             exp : :class:`int`
                 Exponent of the float as stored, i.e., actual value + bias.
             man : :class:`int`
@@ -138,14 +151,14 @@ void bind_float(nb::module_& m)
         /*
          * Arithmetic operations with integers
          */
-        .def("__add__", L_OP<std::plus<>, nb::int_>, nb::is_operator())
-        .def("__radd__", R_OP<std::plus<>, nb::int_>, nb::is_operator())
-        .def("__sub__", L_OP<std::minus<>, nb::int_>, nb::is_operator())
-        .def("__rsub__", R_OP<std::minus<>, nb::int_>, nb::is_operator())
-        .def("__mul__", L_OP<std::multiplies<>, nb::int_>, nb::is_operator())
-        .def("__rmul__", R_OP<std::multiplies<>, nb::int_>, nb::is_operator())
-        .def("__truediv__", L_OP<std::divides<>, nb::int_>, nb::is_operator())
-        .def("__rtruediv__", R_OP<std::divides<>, nb::int_>, nb::is_operator())
+        .def("__add__", L_OP<ADD<>, nb::int_>, IS_OP(), NARG())
+        .def("__radd__", R_OP<ADD<>, nb::int_>, IS_OP(), NARG())
+        .def("__sub__", L_OP<SUB<>, nb::int_>, IS_OP(), NARG())
+        .def("__rsub__", R_OP<SUB<>, nb::int_>, IS_OP(), NARG())
+        .def("__mul__", L_OP<MUL<>, nb::int_>, IS_OP(), NARG())
+        .def("__rmul__", R_OP<MUL<>, nb::int_>, IS_OP(), NARG())
+        .def("__truediv__", L_OP<DIV<>, nb::int_>, IS_OP(), NARG())
+        .def("__rtruediv__", R_OP<DIV<>, nb::int_>, IS_OP(), NARG())
 
         /*
          * Arithmetic with floats
@@ -157,14 +170,14 @@ void bind_float(nb::module_& m)
         .def(nb::self <= double())
         .def(nb::self >= double())
 
-        .def("__add__", L_OP<std::plus<>, double>, nb::is_operator())
-        .def("__radd__", R_OP<std::plus<>, double>, nb::is_operator())
-        .def("__sub__", L_OP<std::minus<>, double>, nb::is_operator())
-        .def("__rsub__", R_OP<std::minus<>, double>, nb::is_operator())
-        .def("__mul__", L_OP<std::multiplies<>, double>, nb::is_operator())
-        .def("__rmul__", R_OP<std::multiplies<>, double>, nb::is_operator())
-        .def("__truediv__", L_OP<std::divides<>, double>, nb::is_operator())
-        .def("__rtruediv__", R_OP<std::divides<>, double>, nb::is_operator())
+        .def("__add__", L_OP<ADD<>, double>, IS_OP(), NARG())
+        .def("__radd__", R_OP<ADD<>, double>, IS_OP(), NARG())
+        .def("__sub__", L_OP<SUB<>, double>, IS_OP(), NARG())
+        .def("__rsub__", R_OP<SUB<>, double>, IS_OP(), NARG())
+        .def("__mul__", L_OP<MUL<>, double>, IS_OP(), NARG())
+        .def("__rmul__", R_OP<MUL<>, double>, IS_OP(), NARG())
+        .def("__truediv__", L_OP<DIV<>, double>, IS_OP(), NARG())
+        .def("__rtruediv__", R_OP<DIV<>, double>, IS_OP(), NARG())
 
         /*
          * Arithmetic operations with APyFixed
@@ -187,9 +200,12 @@ void bind_float(nb::module_& m)
             nb::arg("man_bits"),
             nb::arg("bias") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyFloat` object from an :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
+            Create an :class:`APyFloat` object from an :class:`int`, :class:`float`,
+            :class:`APyFixed`, or :class:`APyFloat`.
 
-            .. attention:: It is in all cases better to use :func:`~apytypes.APyFloat.cast` to create an :class:`APyFloat` from another :class:`APyFloat`.
+            .. attention::
+                It is in all cases better to use :func:`~apytypes.APyFloat.cast` to
+                create an :class:`APyFloat` from another :class:`APyFloat`.
 
             The quantization mode used is :class:`QuantizationMode.TIES_EVEN`.
 
@@ -367,16 +383,31 @@ void bind_float(nb::module_& m)
             -------
             :class:`bool`
             )pbdoc")
-        .def("is_identical", &APyFloat::is_identical, nb::arg("other"), R"pbdoc(
+        .def(
+            "is_identical",
+            &APyFloat::is_identical,
+            nb::arg("other"),
+            nb::arg("ignore_zero_sign") = false,
+            R"pbdoc(
             Test if two :py:class:`APyFloat` objects are identical.
 
-            Two :py:class:`APyFloat` objects are considered identical if, and only if,  they have
-            the same sign, exponent, mantissa, and format.
+            Two :py:class:`APyFloat` objects are considered identical if, and only if,
+            they have the same sign, exponent, mantissa, and format.
+
+            Parameters
+            ----------
+            other : :class:`APyFloat`
+                The floating-point object to test identicality against.
+
+            ignore_zero_sign : :class:`bool`, default: :code:`False`
+                If :code:`True`, plus and minus zero are considered identical. If
+                :code:`False`, plus and minus zero are considered different.
 
             Returns
             -------
             :class:`bool`
-            )pbdoc")
+            )pbdoc"
+        )
 
         /*
          * Properties
@@ -571,7 +602,8 @@ void bind_float(nb::module_& m)
             )pbdoc"
         )
         .def("next_up", &APyFloat::next_up, R"pbdoc(
-            Get the smallest floating-point number in the same format that compares greater.
+            Get the smallest floating-point number in the same format that compares
+            greater.
 
             See also
             --------

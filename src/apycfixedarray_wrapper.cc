@@ -890,10 +890,13 @@ void bind_cfixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyCFixedArray` object from a sequence of :class:`int`, :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
+            Create an :class:`APyCFixedArray` object from a sequence of :class:`int`,
+            :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
+            :class:`APyCFixed`.
 
-            The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
-            Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
+            The input is quantized using :class:`QuantizationMode.RND_INF` and overflow
+            is handled using the :class:`OverflowMode.WRAP` mode. Exactly two of the
+            three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
             Using NumPy arrays as input is in general faster than e.g. lists.
 
@@ -942,8 +945,11 @@ void bind_cfixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyCFixedArray` object from a sequence of :class:`int`, :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
-            This is an alias for :func:`~apytypes.APyCFixedArray.from_complex`, look there for more documentation.
+            Create an :class:`APyCFixedArray` object from a sequence of :class:`int`,
+            :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
+            :class:`APyCFixed`. This is an alias for
+            :func:`~apytypes.APyCFixedArray.from_complex`, look there for more
+            documentation.
 
             Parameters
             ----------

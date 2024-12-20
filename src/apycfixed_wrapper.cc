@@ -50,7 +50,18 @@ static auto L_OP(const APyCFixed& lhs, const R_TYPE& rhs) -> decltype(OP()(lhs, 
     }
 }
 
-using std::complex;
+// Mark a non-implicit conversion argument
+#define NARG(name) nb::arg(name).noconvert()
+
+// Mark a special double-underscore marker (e.g., `__add__`). Returns `NotImplemented`
+// rather than raising `TypeError`
+#define IS_OP(args) nb::is_operator(args)
+
+// Short-hand C++ arithmetic functors
+#define ADD std::plus
+#define SUB std::minus
+#define MUL std::multiplies
+#define DIV std::divides
 
 void bind_cfixed(nb::module_& m)
 {
@@ -119,14 +130,14 @@ void bind_cfixed(nb::module_& m)
         .def(nb::self == nb::int_())
         .def(nb::self != nb::int_())
 
-        .def("__add__", L_OP<std::plus<>, nb::int_>, nb::is_operator())
-        .def("__sub__", L_OP<std::minus<>, nb::int_>, nb::is_operator())
-        .def("__mul__", L_OP<std::multiplies<>, nb::int_>, nb::is_operator())
-        .def("__truediv__", L_OP<std::divides<>, nb::int_>, nb::is_operator())
-        .def("__radd__", R_OP<std::plus<>, nb::int_>, nb::is_operator())
-        .def("__rsub__", R_OP<std::minus<>, nb::int_>, nb::is_operator())
-        .def("__rmul__", R_OP<std::multiplies<>, nb::int_>, nb::is_operator())
-        .def("__rtruediv__", R_OP<std::divides<>, nb::int_>, nb::is_operator())
+        .def("__add__", L_OP<ADD<>, nb::int_>, IS_OP(), NARG())
+        .def("__sub__", L_OP<SUB<>, nb::int_>, IS_OP(), NARG())
+        .def("__mul__", L_OP<MUL<>, nb::int_>, IS_OP(), NARG())
+        .def("__truediv__", L_OP<DIV<>, nb::int_>, IS_OP(), NARG())
+        .def("__radd__", R_OP<ADD<>, nb::int_>, IS_OP(), NARG())
+        .def("__rsub__", R_OP<SUB<>, nb::int_>, IS_OP(), NARG())
+        .def("__rmul__", R_OP<MUL<>, nb::int_>, IS_OP(), NARG())
+        .def("__rtruediv__", R_OP<DIV<>, nb::int_>, IS_OP(), NARG())
 
         /*
          * Arithmetic operations with floats
@@ -134,44 +145,44 @@ void bind_cfixed(nb::module_& m)
         .def(nb::self == double())
         .def(nb::self != double())
 
-        .def("__add__", L_OP<std::plus<>, double>, nb::is_operator())
-        .def("__radd__", R_OP<std::plus<>, double>, nb::is_operator())
-        .def("__sub__", L_OP<std::minus<>, double>, nb::is_operator())
-        .def("__rsub__", R_OP<std::minus<>, double>, nb::is_operator())
-        .def("__mul__", L_OP<std::multiplies<>, double>, nb::is_operator())
-        .def("__rmul__", R_OP<std::multiplies<>, double>, nb::is_operator())
-        .def("__truediv__", L_OP<std::divides<>, double>, nb::is_operator())
-        .def("__rtruediv__", R_OP<std::divides<>, double>, nb::is_operator())
+        .def("__add__", L_OP<ADD<>, double>, IS_OP(), NARG())
+        .def("__radd__", R_OP<ADD<>, double>, IS_OP(), NARG())
+        .def("__sub__", L_OP<SUB<>, double>, IS_OP(), NARG())
+        .def("__rsub__", R_OP<SUB<>, double>, IS_OP(), NARG())
+        .def("__mul__", L_OP<MUL<>, double>, IS_OP(), NARG())
+        .def("__rmul__", R_OP<MUL<>, double>, IS_OP(), NARG())
+        .def("__truediv__", L_OP<DIV<>, double>, IS_OP(), NARG())
+        .def("__rtruediv__", R_OP<DIV<>, double>, IS_OP(), NARG())
 
         /*
-         * Arithmetic operations with complex
+         * Arithmetic operations with Python complex
          */
-        .def(nb::self == complex<double>())
-        .def(nb::self != complex<double>())
+        .def(nb::self == std::complex<double>())
+        .def(nb::self != std::complex<double>())
 
-        .def("__add__", L_OP<std::plus<>, complex<double>>, nb::is_operator())
-        .def("__radd__", R_OP<std::plus<>, complex<double>>, nb::is_operator())
-        .def("__sub__", L_OP<std::minus<>, complex<double>>, nb::is_operator())
-        .def("__rsub__", R_OP<std::minus<>, complex<double>>, nb::is_operator())
-        .def("__mul__", L_OP<std::multiplies<>, complex<double>>, nb::is_operator())
-        .def("__rmul__", R_OP<std::multiplies<>, complex<double>>, nb::is_operator())
-        .def("__truediv__", L_OP<std::divides<>, complex<double>>, nb::is_operator())
-        .def("__rtruediv__", R_OP<std::divides<>, complex<double>>, nb::is_operator())
+        .def("__add__", L_OP<ADD<>, std::complex<double>>, IS_OP(), NARG())
+        .def("__radd__", R_OP<ADD<>, std::complex<double>>, IS_OP(), NARG())
+        .def("__sub__", L_OP<SUB<>, std::complex<double>>, IS_OP(), NARG())
+        .def("__rsub__", R_OP<SUB<>, std::complex<double>>, IS_OP(), NARG())
+        .def("__mul__", L_OP<MUL<>, std::complex<double>>, IS_OP(), NARG())
+        .def("__rmul__", R_OP<MUL<>, std::complex<double>>, IS_OP(), NARG())
+        .def("__truediv__", L_OP<DIV<>, std::complex<double>>, IS_OP(), NARG())
+        .def("__rtruediv__", R_OP<DIV<>, std::complex<double>>, IS_OP(), NARG())
 
         /*
-         * Arithmetic operations with APyFixed
+         * Arithmetic operations with `APyFixed`
          */
-        .def("__eq__", L_OP<std::equal_to<>, APyFixed>, nb::is_operator())
-        .def("__ne__", L_OP<std::not_equal_to<>, APyFixed>, nb::is_operator())
+        .def("__eq__", L_OP<std::equal_to<>, APyFixed>, IS_OP())
+        .def("__ne__", L_OP<std::not_equal_to<>, APyFixed>, IS_OP())
 
-        .def("__add__", L_OP<std::plus<>, APyFixed>, nb::is_operator())
-        .def("__radd__", R_OP<std::plus<>, APyFixed>, nb::is_operator())
-        .def("__sub__", L_OP<std::minus<>, APyFixed>, nb::is_operator())
-        .def("__rsub__", R_OP<std::minus<>, APyFixed>, nb::is_operator())
-        .def("__mul__", L_OP<std::multiplies<>, APyFixed>, nb::is_operator())
-        .def("__rmul__", R_OP<std::multiplies<>, APyFixed>, nb::is_operator())
-        .def("__truediv__", L_OP<std::divides<>, APyFixed>, nb::is_operator())
-        .def("__rtruediv__", R_OP<std::divides<>, APyFixed>, nb::is_operator())
+        .def("__add__", L_OP<ADD<>, APyFixed>, IS_OP(), NARG())
+        .def("__radd__", R_OP<ADD<>, APyFixed>, IS_OP(), NARG())
+        .def("__sub__", L_OP<SUB<>, APyFixed>, IS_OP(), NARG())
+        .def("__rsub__", R_OP<SUB<>, APyFixed>, IS_OP(), NARG())
+        .def("__mul__", L_OP<MUL<>, APyFixed>, IS_OP(), NARG())
+        .def("__rmul__", R_OP<MUL<>, APyFixed>, IS_OP(), NARG())
+        .def("__truediv__", L_OP<DIV<>, APyFixed>, IS_OP(), NARG())
+        .def("__rtruediv__", R_OP<DIV<>, APyFixed>, IS_OP(), NARG())
 
         /*
          * Logic operations
@@ -364,10 +375,13 @@ void bind_cfixed(nb::module_& m)
             Create an :class:`APyCFixed` object from an :class:`int`, :class:`float`,
             :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
 
-            .. note:: It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to create an :class:`APyCFixed` from an :class:`APyCFixed`.
+            .. attention::
+                It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to
+                create an :class:`APyCFixed` from an :class:`APyCFixed`.
 
-            The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
-            Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
+            The input is quantized using :class:`QuantizationMode.RND_INF` and overflow
+            is handled using the :class:`OverflowMode.WRAP` mode. Exactly two of the
+            three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
             Parameters
             ----------
@@ -406,10 +420,13 @@ void bind_cfixed(nb::module_& m)
             nb::arg("bits") = nb::none(),
             R"pbdoc(
             Create an :class:`APyCFixed` object from an :class:`int`, :class:`float`,
-            :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
-            This is an alias for :func:`~apytypes.APyCFixed.from_complex`, look there for more documentation.
+            :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
+            :class:`APyCFixed`. This is an alias for
+            :func:`~apytypes.APyCFixed.from_complex`, look there for more documentation.
 
-            .. attention:: It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to create an :class:`APyCFixed` from anpther :class:`APyCFixed`.
+            .. attention::
+                It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to
+                create an :class:`APyCFixed` from anpther :class:`APyCFixed`.
 
             Parameters
             ----------

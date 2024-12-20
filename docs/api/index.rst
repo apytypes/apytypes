@@ -7,6 +7,7 @@
 
    apycfixed
    apycfixedarray
+   apycfloat
    apyfixed
    apyfixedarray
    apyfloat

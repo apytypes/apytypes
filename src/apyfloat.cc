@@ -29,8 +29,8 @@ void APyFloat::create_in_place(
     std::optional<exp_t> bias
 )
 {
-    check_exponent_format(exp_bits);
-    check_mantissa_format(man_bits);
+    check_exponent_format(exp_bits, "APyFloat.__init__");
+    check_mantissa_format(man_bits, "APyFloat.__init__");
 
     new (apyfloat) APyFloat(sign, exp, man, exp_bits, man_bits, bias);
 }
@@ -112,9 +112,6 @@ APyFloat APyFloat::from_number(
     const nb::object& py_obj, int exp_bits, int man_bits, std::optional<exp_t> bias
 )
 {
-    check_exponent_format(exp_bits);
-    check_mantissa_format(man_bits);
-
     if (nb::isinstance<nb::int_>(py_obj)) {
         return APyFloat::from_integer(
             nb::cast<nb::int_>(py_obj), exp_bits, man_bits, bias
@@ -125,8 +122,7 @@ APyFloat APyFloat::from_number(
     } else if (nb::isinstance<APyFixed>(py_obj)) {
         const auto d = static_cast<APyFixed>(nb::cast<APyFixed>(py_obj));
         return APyFloat::from_fixed(d, exp_bits, man_bits, bias);
-    } else if (nb::isinstance<APyFloat>(py_obj
-               )) { // One should really use `cast` instead
+    } else if (nb::isinstance<APyFloat>(py_obj)) {
         const auto d = static_cast<APyFloat>(nb::cast<APyFloat>(py_obj));
         return d.cast(
             exp_bits, man_bits, bias, QuantizationMode::RND_CONV
@@ -144,6 +140,9 @@ APyFloat APyFloat::from_double(
     double value, int exp_bits, int man_bits, std::optional<exp_t> bias
 )
 {
+    check_exponent_format(exp_bits, "APyFloat.from_float");
+    check_mantissa_format(man_bits, "APyFloat.from_float");
+
     APyFloat apytypes_double(
         sign_of_double(value), exp_of_double(value), man_of_double(value), 11, 52, 1023
     );
@@ -153,257 +152,79 @@ APyFloat APyFloat::from_double(
 }
 
 APyFloat APyFloat::from_integer(
-    const nb::int_ value, int exp_bits, int man_bits, std::optional<exp_t> bias
+    const nb::int_ value, int exp_bits, int man_bits, std::optional<exp_t> opt_bias
 )
 {
+    check_exponent_format(exp_bits, "APyFloat.from_integer");
+    check_mantissa_format(man_bits, "APyFloat.from_integer");
+
     APyFixed apyfixed = APyFixed::from_unspecified_integer(value);
-    // Custom version of 'from_fixed' since we know certain properties
+    const exp_t bias = opt_bias.value_or(ieee_bias(exp_bits));
+    APyFloatData data = floating_point_from_fixed_point(
+        std::begin(apyfixed._data), // src_cbegin
+        std::end(apyfixed._data),   // src_cend_it
+        apyfixed.bits(),            // bits
+        apyfixed.int_bits(),        // int_bits
+        exp_bits,                   // exp_bits
+        man_bits,                   // man_bits
+        bias                        // bias
+    );
 
-    const exp_t actual_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
-
-    if (apyfixed.is_zero()) {
-        return APyFloat(0, 0, 0, exp_bits, man_bits, actual_bias);
-    }
-
-    APyFloat res(exp_bits, man_bits, actual_bias);
-
-    // Get sign
-    if (apyfixed.is_negative()) {
-        res.sign = true;
-        apyfixed = apyfixed.abs();
-    } else {
-        res.sign = false;
-    }
-
-    // Calculate exponent
-    const exp_t target_exp
-        = apyfixed.bits() - apyfixed.leading_zeros() - 1; // The bit width minus 1
-    std::uint64_t tmp_exp = target_exp + res.bias;
-
-    // Calculate mantissa
-    apyfixed >>= target_exp;
-    apyfixed = apyfixed.cast(3, man_bits, QuantizationMode::RND_CONV);
-
-    // Check for carry
-    if (apyfixed.positive_greater_than_equal_pow2(1)) {
-        ++tmp_exp;
-        apyfixed >>= 1;
-    }
-
-    // Check for overflow
-    if (tmp_exp >= res.max_exponent()) {
-        res.exp = res.max_exponent();
-        res.man = 0;
-    } else {
-        res.exp = tmp_exp;
-        // Remove leading one
-        apyfixed.set_bit_pow2(0, 0);
-        res.man = apyfixed.get_lsbs();
-    }
-
-    return res;
+    return APyFloat { data, std::uint8_t(exp_bits), std::uint8_t(man_bits), bias };
 }
 
 APyFloat APyFloat::from_fixed(
-    APyFixed apyfixed, int exp_bits, int man_bits, std::optional<exp_t> bias
+    const APyFixed& apyfixed, int exp_bits, int man_bits, std::optional<exp_t> opt_bias
 )
 {
-    const exp_t actual_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
+    check_exponent_format(exp_bits, "APyFloat.from_fixed");
+    check_mantissa_format(man_bits, "APyFloat.from_fixed");
 
-    if (apyfixed.is_zero()) {
-        return APyFloat(0, 0, 0, exp_bits, man_bits, actual_bias);
-    }
+    const exp_t bias = opt_bias.value_or(APyFloat::ieee_bias(exp_bits));
+    APyFloatData data = floating_point_from_fixed_point(
+        std::begin(apyfixed._data), // src_cbegin
+        std::end(apyfixed._data),   // src_cend_it
+        apyfixed.bits(),            // bits
+        apyfixed.int_bits(),        // int_bits
+        exp_bits,                   // exp_bits
+        man_bits,                   // man_bits
+        bias                        // bias
+    );
 
-    APyFloat res(exp_bits, man_bits, actual_bias);
-
-    // Get sign
-    if (apyfixed.is_negative()) {
-        res.sign = true;
-        apyfixed = apyfixed.abs();
-    } else {
-        res.sign = false;
-    }
-
-    // Calculate exponent
-    const std::int64_t target_exp = apyfixed.int_bits() - apyfixed.leading_zeros() - 1;
-    std::int64_t tmp_exp = target_exp + res.bias;
-
-    // Make the number become [1, 2)
-    if (target_exp >= 0) {
-        apyfixed >>= target_exp;
-    } else {
-        apyfixed <<= -target_exp;
-    }
-
-    if (tmp_exp <= 0) {
-        apyfixed >>= -tmp_exp + 1;
-        tmp_exp = 0;
-        // Forcing a one (1.xx) here makes the rest of the code the same
-        apyfixed.set_bit_pow2(0, 1);
-    }
-
-    apyfixed = apyfixed.cast(3, man_bits, QuantizationMode::RND_CONV);
-
-    // Check for carry
-    if (apyfixed.positive_greater_than_equal_pow2(1)) {
-        ++tmp_exp;
-        apyfixed >>= 1;
-    }
-
-    // Check for overflow
-    if (tmp_exp >= res.max_exponent()) {
-        res.exp = res.max_exponent();
-        res.man = 0;
-    } else {
-        res.exp = tmp_exp;
-        // We know the mantissa is in [1, 2), so remove the leading one
-        apyfixed.set_bit_pow2(0, 0);
-        res.man = apyfixed.get_lsbs();
-    }
-
-    return res;
+    return APyFloat { data, std::uint8_t(exp_bits), std::uint8_t(man_bits), bias };
 }
 
 APyFloat APyFloat::cast(
     std::optional<int> new_exp_bits,
     std::optional<int> new_man_bits,
     std::optional<exp_t> new_bias,
-    std::optional<QuantizationMode> quantization
+    std::optional<QuantizationMode> arg_qntz
 ) const
 {
     const auto actual_exp_bits = new_exp_bits.value_or(exp_bits);
     const auto actual_man_bits = new_man_bits.value_or(man_bits);
+    const auto actual_bias = new_bias.value_or(ieee_bias(actual_exp_bits));
+    const auto qntz = arg_qntz.value_or(get_float_quantization_mode());
 
-    check_exponent_format(actual_exp_bits);
-    check_mantissa_format(actual_man_bits);
+    check_exponent_format(actual_exp_bits, "APyFloat.cast");
+    check_mantissa_format(actual_man_bits, "APyFloat.cast");
 
-    return _cast(
-        actual_exp_bits,
-        actual_man_bits,
-        new_bias.value_or(APyFloat::ieee_bias(actual_exp_bits)),
-        quantization.value_or(get_float_quantization_mode())
-    );
+    return checked_cast(actual_exp_bits, actual_man_bits, actual_bias, qntz);
 }
 
-APyFloat APyFloat::_cast(
+APyFloat APyFloat::checked_cast(
     std::uint8_t new_exp_bits,
     std::uint8_t new_man_bits,
     exp_t new_bias,
-    std::optional<QuantizationMode> quantization
-) const
-{
-    return _cast(
-        new_exp_bits,
-        new_man_bits,
-        new_bias,
-        quantization.value_or(get_float_quantization_mode())
-    );
-}
-
-APyFloat APyFloat::_cast(
-    std::uint8_t new_exp_bits,
-    std::uint8_t new_man_bits,
-    exp_t new_bias,
-    QuantizationMode quantization
-) const
-{
-    if (new_exp_bits == exp_bits && new_man_bits == man_bits && new_bias == bias) {
-        return *this;
-    }
-    return _checked_cast(new_exp_bits, new_man_bits, new_bias, quantization);
-}
-
-APyFloat APyFloat::_checked_cast(
-    std::uint8_t new_exp_bits,
-    std::uint8_t new_man_bits,
-    exp_t new_bias,
-    QuantizationMode quantization
+    QuantizationMode qntz
 ) const
 {
     APyFloat res(new_exp_bits, new_man_bits, new_bias);
-
-    res.sign = sign;
-
-    // Handle special values first
-    if (is_max_exponent()) {
-        if (man) {
-            res.set_to_nan();
-            return res;
-        }
-        res.set_to_inf();
-        return res;
-    }
-    if (is_zero()) {
-        res.set_to_zero();
-        return res;
-    }
-
-    // Initial value for exponent
-    std::int64_t new_exp = true_exp() + (std::int64_t)res.bias;
-
-    // Normalize the exponent and mantissa if converting from a subnormal
-    man_t prev_man = man;
-    if (is_zero_exponent()) {
-        const exp_t subn_adjustment = count_trailing_bits(man);
-        new_exp = new_exp - man_bits + subn_adjustment;
-        const man_t remainder = man % (1ULL << subn_adjustment);
-        prev_man = remainder << (man_bits - subn_adjustment);
-    }
-
-    // Check if the number will be converted to a subnormal
-    if (new_exp <= 0) {
-        if (new_exp < -static_cast<std::int64_t>(res.man_bits)) {
-            // Exponent too small after rounding
-            res.man = quantize_close_to_zero(sign, quantization);
-            res.exp = 0;
-            return res;
-        }
-        prev_man |= leading_one();
-        res.exp = 0;
-        // Cast mantissa
-        res.man = prev_man;
-        const int man_bits_delta = 1 - new_exp + (man_bits - new_man_bits);
-        if (man_bits_delta > 0) {
-            res.cast_mantissa_subnormal(man_bits_delta, quantization);
-        } else {
-            res.man <<= -man_bits_delta;
-        }
-        return res;
-    }
-
-    // Cast mantissa
-    res.exp = new_exp;
-    res.man = prev_man;
-    res.man_bits = man_bits;
-    res.cast_mantissa(new_man_bits, quantization);
+    APyFloatData data = floating_point_cast(
+        get_data(), spec(), res.spec(), qntz, get_qntz_func(qntz)
+    );
+    res.set_data(data);
     return res;
-}
-
-void APyFloat::cast_mantissa(std::uint8_t new_man_bits, QuantizationMode quantization)
-{
-    auto man_bits_delta = man_bits - new_man_bits;
-    man_bits = new_man_bits;
-    const auto max_exp = max_exponent();
-
-    // Check if only zeros should be added
-    if (man_bits_delta <= 0) {
-        if (exp >= max_exp) {
-            if (do_infinity(quantization, sign)) {
-                exp = max_exp;
-                man = 0;
-            } else {
-                exp = max_exp - 1;
-                man = leading_one() - 1;
-            }
-        } else {
-            man <<= -man_bits_delta;
-        }
-        return;
-    }
-
-    auto qntz_func = get_qntz_func(quantization);
-    auto sticky = (1ULL << (man_bits_delta - 1)) - 1;
-    qntz_func(man, exp, max_exp, man_bits_delta, sign, leading_one(), sticky);
 }
 
 // Simplified version of cast_mantissa when it is known that new_man_bits is shorter
@@ -414,104 +235,9 @@ void APyFloat::cast_mantissa_shorter(
 {
     auto man_bits_delta = man_bits - new_man_bits;
     man_bits = new_man_bits;
-    const auto max_exp = max_exponent();
-    auto qntz_func = get_qntz_func(quantization);
-    auto sticky = (1ULL << (man_bits_delta - 1)) - 1;
-    qntz_func(man, exp, max_exp, man_bits_delta, sign, leading_one(), sticky);
-}
-
-// Simplified version of cast_mantissa with exp = 0
-void APyFloat::cast_mantissa_subnormal(
-    std::uint8_t man_bits_delta, QuantizationMode quantization
-)
-{
-    // The overflow check with max_exponent() is not needed here, but send it anyway
     auto qntz_func = get_qntz_func(quantization);
     auto sticky = (1ULL << (man_bits_delta - 1)) - 1;
     qntz_func(man, exp, max_exponent(), man_bits_delta, sign, leading_one(), sticky);
-}
-
-APyFloat APyFloat::_cast_to_double() const
-{
-    APyFloat res(11, 52, 1023);
-
-    res.sign = sign;
-    // Handle special values first
-    if (is_max_exponent()) {
-        if (man) {
-            res.set_to_nan();
-            return res;
-        }
-        res.set_to_inf();
-        return res;
-    }
-
-    if (is_zero()) {
-        res.set_to_zero();
-        return res;
-    }
-
-    // Initial value for exponent
-    std::int64_t new_exp = true_exp() + 1023;
-
-    // Normalize the exponent and mantissa if convertering from a subnormal
-    man_t prev_man = man;
-    if (is_zero_exponent()) {
-        const exp_t subn_adjustment = count_trailing_bits(man);
-        new_exp = new_exp - man_bits + subn_adjustment;
-        const man_t remainder = man % (1ULL << subn_adjustment);
-        prev_man = remainder << (man_bits - subn_adjustment);
-    }
-
-    auto man_bits_delta = 52 - man_bits;
-
-    // Check if the number will be converted to a subnormal
-    if (new_exp <= 0) {
-        if (new_exp <= -52) { // Exponent too small
-            res.set_to_zero();
-            return res;
-        }
-        prev_man |= leading_one();
-        // Prepare for right shift to adjust the mantissa
-        man_bits_delta += new_exp - 1;
-        new_exp = 0;
-    }
-
-    // Initial value for mantissa
-    man_t new_man;
-
-    if (man_bits_delta < 0) { // Quantization of mantissa needed
-        const man_t bits_to_discard = -man_bits_delta;
-        new_man = (prev_man >> bits_to_discard);
-        // Calculate quantization bit
-        man_t G, // Guard (bit after LSB)
-            T,   // Sticky bit, logical OR of all the bits after the guard bit
-            B;   // Quantization bit to add to LSB
-
-        G = (prev_man >> (bits_to_discard - 1)) & 1;
-        T = (prev_man & ((1ULL << (bits_to_discard - 1)) - 1)) != 0;
-
-        // Using 'new_man' directly here is fine since G can only be '0' or '1',
-        // thus calculating the LSB of 'new_man' is not needed.
-        B = G & (new_man | T);
-
-        new_man += B;
-        if (static_cast<std::uint64_t>(new_man) > (1ULL << 52) - 1) {
-            ++new_exp;
-            new_man = 0;
-        }
-    } else {
-        new_man = (prev_man << man_bits_delta);
-    }
-
-    if (new_exp >= 2047) {
-        res.set_to_inf();
-        return res;
-    }
-
-    res.man = new_man;
-    res.exp = new_exp;
-    return res;
 }
 
 APyFloat APyFloat::cast_from_double(
@@ -605,34 +331,25 @@ APyFloat APyFloat::cast_from_double(
     return res;
 }
 
-//! Cast to a larger format
-APyFloat APyFloat::cast_no_quant(
-    std::uint8_t new_exp_bits, std::uint8_t new_man_bits, std::optional<exp_t> new_bias
-) const
-{
-    return cast_no_quant(
-        new_exp_bits, new_man_bits, new_bias.value_or(APyFloat::ieee_bias(new_exp_bits))
-    );
-}
-
 APyFloat APyFloat::cast_no_quant(
     std::uint8_t new_exp_bits, std::uint8_t new_man_bits, exp_t new_bias
 ) const
 {
     APyFloatSpec src_spec = { exp_bits, man_bits, bias };
     APyFloatSpec dst_spec = { new_exp_bits, new_man_bits, new_bias };
-    APyFloatData res_data = ::cast_no_quant(get_data(), src_spec, dst_spec);
+    APyFloatData res_data
+        = floating_point_cast_no_quant(get_data(), src_spec, dst_spec);
     return APyFloat(res_data, new_exp_bits, new_man_bits, new_bias);
 }
 
 double APyFloat::to_double() const
 {
-    const auto apytypes_d = _cast_to_double();
-    double d {};
-    set_sign_of_double(d, apytypes_d.sign);
-    set_exp_of_double(d, apytypes_d.exp);
-    set_man_of_double(d, apytypes_d.man);
-    return d;
+    double res {};
+    const APyFloat apytypes_d = checked_cast(11, 52, 1023, QuantizationMode::RND_CONV);
+    set_sign_of_double(res, apytypes_d.sign);
+    set_exp_of_double(res, apytypes_d.exp);
+    set_man_of_double(res, apytypes_d.man);
+    return res;
 }
 
 APyFloat::operator double() const { return to_double(); }
@@ -644,8 +361,8 @@ APyFloat APyFloat::from_bits(
     std::optional<exp_t> bias
 )
 {
-    check_exponent_format(exp_bits);
-    check_mantissa_format(man_bits);
+    check_exponent_format(exp_bits, "APyFloat.from_bits");
+    check_mantissa_format(man_bits, "APyFloat.from_bits");
 
     APyFloat f(exp_bits, man_bits, bias);
     return f.update_from_bits(python_long_int_bit_pattern);
@@ -703,7 +420,17 @@ nb::int_ APyFloat::to_bits() const
     return apyfloat_to_bits({ sign, exp, man }, exp_bits, man_bits);
 }
 
-std::string APyFloat::str() const { return fmt::format("{:g}", to_double()); }
+std::string APyFloat::str() const
+{
+    // NOTE:
+    // Python, unlike C++, unconditionally encodes the string of a floating-point NaN
+    // without a minus sign.
+    if (is_nan()) {
+        return "nan";
+    } else {
+        return fmt::format("{:g}", to_double());
+    }
+}
 
 std::string APyFloat::repr() const
 {
@@ -788,9 +515,8 @@ APyFloat APyFloat::operator+(const APyFloat& rhs) const
     QuantizationMode qntz = get_float_quantization_mode();
 
     APyFloatData res_data;
-    floating_point_sum(
-        get_data(), rhs.get_data(), res_data, spec(), rhs.spec(), res.spec(), qntz
-    );
+    auto add = FloatingPointAdder<>(spec(), rhs.spec(), res.spec(), qntz);
+    add(get_data(), rhs.get_data(), res_data);
     res.set_data(res_data);
 
     return res;
@@ -805,9 +531,8 @@ APyFloat APyFloat::operator-(const APyFloat& rhs) const
     QuantizationMode qntz = get_float_quantization_mode();
 
     APyFloatData res_data;
-    floating_point_sum<true>(
-        get_data(), rhs.get_data(), res_data, spec(), rhs.spec(), res.spec(), qntz
-    );
+    auto sub = FloatingPointSubtractor<>(spec(), rhs.spec(), res.spec(), qntz);
+    sub(get_data(), rhs.get_data(), res_data);
     res.set_data(res_data);
 
     return res;
@@ -824,9 +549,8 @@ APyFloat& APyFloat::operator+=(const APyFloat& rhs)
 {
     QuantizationMode qntz = get_float_quantization_mode();
     APyFloatData res_data;
-    floating_point_sum(
-        get_data(), rhs.get_data(), res_data, spec(), rhs.spec(), spec(), qntz
-    );
+    auto add = FloatingPointAdder<>(spec(), rhs.spec(), spec(), qntz);
+    add(get_data(), rhs.get_data(), res_data);
     set_data(res_data);
     return *this;
 }
@@ -841,9 +565,8 @@ APyFloat APyFloat::operator*(const APyFloat& rhs) const
 
     // Perform the product
     APyFloatData res_data;
-    floating_point_product(
-        get_data(), rhs.get_data(), res_data, spec(), rhs.spec(), res.spec(), qntz
-    );
+    auto mul = FloatingPointMultiplier<>(spec(), rhs.spec(), res.spec(), qntz);
+    mul(get_data(), rhs.get_data(), res_data);
     res.set_data(res_data);
 
     return res;
@@ -859,9 +582,8 @@ APyFloat APyFloat::operator/(const APyFloat& rhs) const
 
     // Perform the division
     APyFloatData res_data;
-    floating_point_quotient(
-        get_data(), rhs.get_data(), res_data, spec(), rhs.spec(), res.spec(), qntz
-    );
+    auto div = FloatingPointDivider<>(spec(), rhs.spec(), res.spec(), qntz);
+    div(get_data(), rhs.get_data(), res_data);
     res.set_data(res_data);
 
     return res;
@@ -1118,8 +840,16 @@ bool APyFloat::operator==(const APyFloat& rhs) const
     }
 }
 
-bool APyFloat::is_identical(const APyFloat& other) const
+bool APyFloat::is_identical(const APyFloat& other, bool ignore_zero_sign) const
 {
+    if (ignore_zero_sign) {
+        // If `ignore_zero_sign` is set, ignore the sign bit if results equals zero
+        if (is_zero() && other.is_zero()) {
+            return (bias == other.bias) && (exp_bits == other.exp_bits)
+                && (man_bits == other.man_bits);
+        }
+    }
+
     return (sign == other.sign) && (exp == other.exp) && (bias == other.bias)
         && (man == other.man) && (exp_bits == other.exp_bits)
         && (man_bits == other.man_bits);
@@ -1324,24 +1054,24 @@ APyFloat APyFloat::normalized() const
 /*
  * Convenience methods
  */
-APyFloat APyFloat::cast_to_double(std::optional<QuantizationMode> quantization) const
+APyFloat APyFloat::cast_to_double(std::optional<QuantizationMode> qntz) const
 {
-    return _cast(11, 52, 1023, quantization);
+    return checked_cast(11, 52, 1023, qntz.value_or(get_float_quantization_mode()));
 }
 
-APyFloat APyFloat::cast_to_single(std::optional<QuantizationMode> quantization) const
+APyFloat APyFloat::cast_to_single(std::optional<QuantizationMode> qntz) const
 {
-    return _cast(8, 23, 127, quantization);
+    return checked_cast(8, 23, 127, qntz.value_or(get_float_quantization_mode()));
 }
 
-APyFloat APyFloat::cast_to_half(std::optional<QuantizationMode> quantization) const
+APyFloat APyFloat::cast_to_half(std::optional<QuantizationMode> qntz) const
 {
-    return _cast(5, 10, 15, quantization);
+    return checked_cast(5, 10, 15, qntz.value_or(get_float_quantization_mode()));
 }
 
-APyFloat APyFloat::cast_to_bfloat16(std::optional<QuantizationMode> quantization) const
+APyFloat APyFloat::cast_to_bfloat16(std::optional<QuantizationMode> qntz) const
 {
-    return _cast(8, 7, 127, quantization);
+    return checked_cast(8, 7, 127, qntz.value_or(get_float_quantization_mode()));
 }
 
 APyFloat APyFloat::next_up() const
@@ -1406,16 +1136,16 @@ APyFloat APyFloat::next_down() const
 
 APyFloat APyFloat::inf(int exp_bits, int man_bits, std::optional<exp_t> bias)
 {
-    check_exponent_format(exp_bits);
-    check_mantissa_format(man_bits);
+    check_exponent_format(exp_bits, "APyFloat.inf");
+    check_mantissa_format(man_bits, "APyFloat.inf");
     const exp_t exp = (1 << exp_bits) - 1;
     return APyFloat(0, exp, 0, exp_bits, man_bits, bias);
 }
 
 APyFloat APyFloat::nan(int exp_bits, int man_bits, std::optional<exp_t> bias)
 {
-    check_exponent_format(exp_bits);
-    check_mantissa_format(man_bits);
+    check_exponent_format(exp_bits, "APyFloat.nan");
+    check_mantissa_format(man_bits, "APyFloat.nan");
     const exp_t exp = (1 << exp_bits) - 1;
     return APyFloat(0, exp, 1, exp_bits, man_bits, bias);
 }

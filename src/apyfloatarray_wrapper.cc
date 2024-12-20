@@ -387,7 +387,7 @@ void bind_float_array(nb::module_& m)
 
             Array `lhs` (2 x 3 matrix), initialized from floating-point values.
 
-            >>> lhs = APyFloatArray.from_float(
+            >>> lhs = apy.APyFloatArray.from_float(
             ...     [
             ...         [1.0, 2.0, 3.0],
             ...         [4.0, 5.0, 6.0],

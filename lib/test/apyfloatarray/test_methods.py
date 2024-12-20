@@ -61,25 +61,29 @@ def test_array_from_float_raises():
     # Too many exponent bits
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyFloatArray.from_integer: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
         APyFloatArray.from_float([0], 300, 5)
+
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyFloatArray.from_integer: exponent bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
         APyFloatArray.from_float([0], -300, 5)
+
     # Too many mantissa bits
     with pytest.raises(
         ValueError,
-        match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
+        match="APyFloatArray.from_integer: mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
         APyFloatArray.from_float([0], 5, 300)
+
     with pytest.raises(
         ValueError,
-        match="Mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+        match="APyFloatArray.from_integer: mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
         APyFloatArray.from_float([0], 5, -300)
+
     with pytest.raises(
         ValueError,
         match="python_sequence_extract_shape",
@@ -195,23 +199,23 @@ def test_array_cast_raises():
     # Too many exponent bits
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyFloatArray\.cast: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
         APyFloatArray([0], [0], [0], 5, 5).cast(300, 5)
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyFloatArray\.cast: exponent bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
         APyFloatArray([0], [0], [0], 5, 5).cast(-300, 5)
     # Too many mantissa bits
     with pytest.raises(
         ValueError,
-        match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyFloatArray\.cast: mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
         APyFloatArray([0], [0], [0], 5, 5).cast(5, 300)
     with pytest.raises(
         ValueError,
-        match="Mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyFloatArray\.cast: mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
         APyFloatArray([0], [0], [0], 5, 5).cast(5, -300)
 
@@ -223,25 +227,25 @@ def test_array_from_array_raises():
     # Too many exponent bits
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyFloatArray\.cast: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloatArray.from_array(np.array([[1, 2, 3, 4]]), 5, 5).cast(300, 5)
+        _ = APyFloatArray.from_array(np.array([[1, 2, 3, 4]]), 5, 5).cast(300, 5)
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyFloatArray\.cast: exponent bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
-        APyFloatArray.from_array(np.array([[1, 2, 3, 4]]), 5, 5).cast(-300, 5)
+        _ = APyFloatArray.from_array(np.array([[1, 2, 3, 4]]), 5, 5).cast(-300, 5)
     # Too many mantissa bits
     with pytest.raises(
         ValueError,
-        match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyFloatArray\.cast: mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloatArray.from_array(np.array([[1, 2, 3, 4]]), 5, 5).cast(5, 300)
+        _ = APyFloatArray.from_array(np.array([[1, 2, 3, 4]]), 5, 5).cast(5, 300)
     with pytest.raises(
         ValueError,
-        match="Mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyFloatArray\.cast: mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
-        APyFloatArray.from_array(np.array([[1, 2, 3, 4]]), 5, 5).cast(5, -300)
+        _ = APyFloatArray.from_array(np.array([[1, 2, 3, 4]]), 5, 5).cast(5, -300)
 
 
 @pytest.mark.float_array
@@ -249,7 +253,7 @@ def test_from_bits():
     # Test raises
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyFloatArray\.from_bits: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
         APyFloatArray.from_bits([0], 300, 5)
 

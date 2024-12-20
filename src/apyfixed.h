@@ -409,6 +409,9 @@ public:
     friend class APyCFixed;
     friend class APyFixedArray;
     friend class APyCFixedArray;
+    friend class APyFloat;
+    friend class APyCFloat;
+
     template <typename T, typename ARRAY_TYPE> friend class APyArray;
 
 }; // end: class APyFixed

@@ -328,6 +328,7 @@ private:
      * ****************************************************************************** */
 public:
     friend class APyCFixedArray;
+    friend class APyCFloat;
 };
 
 #endif

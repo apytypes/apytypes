@@ -1,133 +1,164 @@
 from itertools import permutations as perm
 import pytest
-from apytypes import APyFloat, APyFixed
+from apytypes import APyFloat, APyFixed, APyCFloat
 
 
-def test_scalar_constructor_raises():
+def real_is_nan(fp: APyFloat | APyCFloat) -> bool:
+    """
+    Test if an `APyFloat` is NaN, or if the real part of an `APyCFloat` is NaN.
+
+    Parameters
+    ----------
+    fp : :class:`APyFloat` or :class:`APyCFloat`
+        The APyTypes floating-point number.
+    """
+    return fp.real.is_nan if isinstance(fp, APyCFloat) else fp.is_nan
+
+
+def real_is_inf(fp: APyFloat | APyCFloat) -> bool:
+    """
+    Test if an `APyFloat` is inf, or if the real part of an `APyCFloat` is inf.
+
+    Parameters
+    ----------
+    fp : :class:`APyFloat` or :class:`APyCFloat`
+        The APyTypes floating-point number.
+    """
+    return fp.real.is_inf if isinstance(fp, APyCFloat) else fp.is_inf
+
+
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+def test_scalar_constructor_raises(apyfloat: type[APyCFloat]):
     # Too many exponent bits
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyC?Float\.__init__: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloat(0, 0, 0, 300, 5)
+        _ = apyfloat(0, 0, 0, 300, 5)
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyC?Float\.__init__: exponent bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
-        APyFloat(0, 0, 0, -300, 5)
+        _ = apyfloat(0, 0, 0, -300, 5)
     # Too many mantissa bits
     with pytest.raises(
         ValueError,
-        match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyC?Float\.__init__: mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloat(0, 0, 0, 5, 300)
+        _ = apyfloat(0, 0, 0, 5, 300)
     with pytest.raises(
         ValueError,
-        match="Mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyC?Float\.__init__: mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
-        APyFloat(0, 0, 0, 5, -300)
+        _ = apyfloat(0, 0, 0, 5, -300)
 
 
-def test_scalar_from_float_raises():
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+def test_scalar_from_float_constructor_raises(apyfloat: type[APyCFloat]):
     # Too many exponent bits
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyC?Float\.from_float: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloat.from_float(0, 300, 5)
+        _ = apyfloat.from_float(0.0, exp_bits=300, man_bits=5)
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyC?Float\.from_float: exponent bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
-        APyFloat.from_float(0, -300, 5)
+        _ = apyfloat.from_float(0.0, exp_bits=-300, man_bits=5)
     # Too many mantissa bits
     with pytest.raises(
         ValueError,
-        match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyC?Float\.from_float: mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloat.from_float(0, 5, 300)
+        _ = apyfloat.from_float(0.0, exp_bits=5, man_bits=300)
     with pytest.raises(
         ValueError,
-        match="Mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyC?Float\.from_float: mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
-        APyFloat.from_float(0, 5, -300)
-    with pytest.raises(
-        ValueError,
-        match="Non supported type",
-    ):
-        APyFloat.from_float("0", 5, 10)
+        _ = apyfloat.from_float(0.0, exp_bits=5, man_bits=-300)
 
 
 def test_scalar_from_bits_raises():
     # Too many exponent bits
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyC?Float\.from_bits: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloat.from_bits(0, 300, 5)
+        _ = APyFloat.from_bits(0, 300, 5)
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyC?Float\.from_bits: exponent bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
-        APyFloat.from_bits(0, -300, 5)
+        _ = APyFloat.from_bits(0, -300, 5)
     # Too many mantissa bits
     with pytest.raises(
         ValueError,
-        match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyC?Float\.from_bits: mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloat.from_bits(0, 5, 300)
+        _ = APyFloat.from_bits(0, 5, 300)
     with pytest.raises(
         ValueError,
-        match="Mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyC?Float\.from_bits: mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
-        APyFloat.from_bits(0, 5, -300)
+        _ = APyFloat.from_bits(0, 5, -300)
 
 
-def test_scalar_cast_raises():
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+def test_scalar_cast_raises(apyfloat: type[APyCFloat]):
     # Too many exponent bits
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyC?Float\.cast: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloat(0, 0, 0, 5, 5).cast(300, 5)
+        _ = apyfloat(0, 0, 0, 5, 5).cast(300, 5)
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyC?Float\.cast: exponent bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
-        APyFloat(0, 0, 0, 5, 5).cast(-300, 5)
+        _ = apyfloat(0, 0, 0, 5, 5).cast(-300, 5)
     # Too many mantissa bits
     with pytest.raises(
         ValueError,
-        match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyC?Float\.cast: mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloat(0, 0, 0, 5, 5).cast(5, 300)
+        _ = apyfloat(0, 0, 0, 5, 5).cast(5, 300)
     with pytest.raises(
         ValueError,
-        match="Mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyC?Float\.cast: mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
-        APyFloat(0, 0, 0, 5, 5).cast(5, -300)
+        _ = apyfloat(0, 0, 0, 5, 5).cast(5, -300)
 
 
 @pytest.mark.float_special
-@pytest.mark.parametrize("float_s", ["nan", "inf", "-inf", "0.0", "-0.0"])
-def test_special_conversions(float_s):
-    assert (
-        str(float(APyFloat.from_float(float(float_s), 5, 5)))
-        == str(float(float_s))
-        == float_s
+@pytest.mark.parametrize("apyfloat, py_type", [(APyFloat, float), (APyCFloat, complex)])
+@pytest.mark.parametrize(
+    "float_val", [float("nan"), float("inf"), float("-inf"), 0.0, -0.0]
+)
+def test_special_conversions(
+    apyfloat: type[APyCFloat], py_type: type[complex], float_val: float
+):
+    assert str(py_type(apyfloat.from_float(py_type(float_val), 5, 5))) == str(
+        py_type(float_val)
     )
 
 
+@pytest.mark.parametrize("apyfloat, py_type", [(APyFloat, float), (APyCFloat, complex)])
 @pytest.mark.parametrize("exp", list(perm([5, 6, 7, 8], 2)))
 @pytest.mark.parametrize("man", list(perm([5, 6, 7, 8], 2)))
 @pytest.mark.parametrize("val", [2.625, 12])
 @pytest.mark.parametrize("neg", [-1.0, 1.0])
-def test_normal_conversions(exp, man, val, neg):
+def test_normal_conversions(
+    apyfloat: type[APyCFloat],
+    py_type: type[complex],
+    exp: tuple[int, int],
+    man: tuple[int, int],
+    val: float,
+    neg: float,
+):
     val *= neg
-    assert (
-        float(APyFloat.from_float(val, exp[0], man[0]))
-        == float(APyFloat.from_float(val, exp[1], man[1]))
-        == val
+    assert py_type(apyfloat.from_float(val, exp[0], man[0])) == py_type(
+        apyfloat.from_float(val, exp[1], man[1])
     )
 
 
@@ -183,141 +214,144 @@ def test_long_python_integer():
     assert a.to_bits() == val
 
 
-def test_convert_to_double():
-    a = APyFloat(0, 1, 1, 13, 60)
-    assert float(a) == 0.0
+@pytest.mark.parametrize("apyfloat, py_type", [(APyFloat, float), (APyCFloat, complex)])
+def test_convert_to_double(apyfloat: type[APyCFloat], py_type: type[complex]):
+    a = apyfloat(0, 1, 1, 13, 60)
+    assert py_type(a) == 0.0
 
-    a = APyFloat(0, 8100, 1, 13, 60)
-    assert a.is_finite
-    assert float(a) == float("inf")
-    assert float(-a) == float("-inf")
+    a = apyfloat(0, 8100, 1, 13, 60)
+    assert not real_is_inf(a)
+    assert py_type(a) == float("inf")
+    assert py_type(-a) == float("-inf")
 
-    a = APyFloat(0, 0, 7, 11, 54)
-    assert float(a) == 1e-323
+    a = apyfloat(0, 0, 7, 11, 54)
+    assert py_type(a) == 1e-323
 
-    a = APyFloat(0, 0, 1, 11, 52)
-    assert float(a) == 5e-324
+    a = apyfloat(0, 0, 1, 11, 52)
+    assert py_type(a) == 5e-324
 
 
-def test_from_float():
-    a = APyFloat(0, 0, 1, 11, 52)
-    b = APyFloat.from_float(5e-324, 11, 52)
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+def test_from_float(apyfloat: type[APyCFloat]):
+    a = apyfloat(0, 0, 1, 11, 52)
+    b = apyfloat.from_float(5e-324, 11, 52)
     assert b.is_identical(a)
 
     # Big float should become infinity
-    a = APyFloat.from_float(-(2**10), 4, 15)
-    assert a.is_identical(APyFloat(1, 15, 0, 4, 15))
+    a = apyfloat.from_float(-(2**10), 4, 15)
+    assert a.is_identical(apyfloat(1, 15, 0, 4, 15))
 
 
-def test_from_float_with_non_floats():
-    a = APyFloat.from_float(16, exp_bits=4, man_bits=2)
-    assert a.is_identical(APyFloat(sign=0, exp=11, man=0, exp_bits=4, man_bits=2))
+@pytest.mark.parametrize("apyfloat", [APyFloat])
+def test_from_float_with_non_floats(apyfloat: type[APyCFloat]):
+    a = apyfloat.from_float(16, exp_bits=4, man_bits=2)
+    assert a.is_identical(apyfloat(sign=0, exp=11, man=0, exp_bits=4, man_bits=2))
 
     # Should quantize to 16.0
-    a = APyFloat.from_float(17, exp_bits=4, man_bits=2)
-    assert a.is_identical(APyFloat(sign=0, exp=11, man=0, exp_bits=4, man_bits=2))
+    a = apyfloat.from_float(17, exp_bits=4, man_bits=2)
+    assert a.is_identical(apyfloat(sign=0, exp=11, man=0, exp_bits=4, man_bits=2))
 
     # Should quantize to -20.0
-    a = APyFloat.from_float(-19, exp_bits=4, man_bits=2)
-    assert a.is_identical(APyFloat(sign=1, exp=11, man=1, exp_bits=4, man_bits=2))
+    a = apyfloat.from_float(-19, exp_bits=4, man_bits=2)
+    assert a.is_identical(apyfloat(sign=1, exp=11, man=1, exp_bits=4, man_bits=2))
 
     # Tie break, should quantize to 16.0
-    a = APyFloat.from_float(18, exp_bits=4, man_bits=2)
-    assert a.is_identical(APyFloat(sign=0, exp=11, man=0, exp_bits=4, man_bits=2))
+    a = apyfloat.from_float(18, exp_bits=4, man_bits=2)
+    assert a.is_identical(apyfloat(sign=0, exp=11, man=0, exp_bits=4, man_bits=2))
 
     # Tie break, should quantize to 24.0
-    a = APyFloat.from_float(22, exp_bits=4, man_bits=2)
-    assert a.is_identical(APyFloat(sign=0, exp=11, man=2, exp_bits=4, man_bits=2))
+    a = apyfloat.from_float(22, exp_bits=4, man_bits=2)
+    assert a.is_identical(apyfloat(sign=0, exp=11, man=2, exp_bits=4, man_bits=2))
 
     # Should quantize to 28.0
-    a = APyFloat.from_float(29, exp_bits=4, man_bits=2)
-    assert a.is_identical(APyFloat(sign=0, exp=11, man=3, exp_bits=4, man_bits=2))
+    a = apyfloat.from_float(29, exp_bits=4, man_bits=2)
+    assert a.is_identical(apyfloat(sign=0, exp=11, man=3, exp_bits=4, man_bits=2))
 
     # Should quantize to 32.0
-    a = APyFloat.from_float(31, exp_bits=4, man_bits=2)
-    assert a.is_identical(APyFloat(sign=0, exp=12, man=0, exp_bits=4, man_bits=2))
+    a = apyfloat.from_float(31, exp_bits=4, man_bits=2)
+    assert a.is_identical(apyfloat(sign=0, exp=12, man=0, exp_bits=4, man_bits=2))
 
     # 152-bit number, should become negative infinity
-    a = APyFloat.from_float(
+    a = apyfloat.from_float(
         -0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF, exp_bits=4, man_bits=2
     )
-    assert a.is_identical(APyFloat(sign=1, exp=15, man=0, exp_bits=4, man_bits=2))
+    assert a.is_identical(apyfloat(sign=1, exp=15, man=0, exp_bits=4, man_bits=2))
 
     # Test with bool and non IEEE-like bias
-    a = APyFloat.from_float(True, exp_bits=4, man_bits=2, bias=4)
+    a = apyfloat.from_float(True, exp_bits=4, man_bits=2, bias=4)
     assert a.is_identical(
-        APyFloat(sign=0, exp=4, man=0, exp_bits=4, man_bits=2, bias=4)
+        apyfloat(sign=0, exp=4, man=0, exp_bits=4, man_bits=2, bias=4)
     )
 
     # Test with big integer
-    a = APyFloat.from_float(2**2047, exp_bits=28, man_bits=2)
+    a = apyfloat.from_float(2**2047, exp_bits=28, man_bits=2)
     assert a.is_identical(
-        APyFloat(sign=0, exp=(2047 + (2**27) - 1), man=0, exp_bits=28, man_bits=2)
+        apyfloat(sign=0, exp=(2047 + (2**27) - 1), man=0, exp_bits=28, man_bits=2)
     )
 
     # From APyFixed
-    assert APyFloat.from_float(APyFixed(0, bits=3, int_bits=2), 5, 2, 8).is_identical(
-        APyFloat(0, 0, 0, 5, 2, 8)
+    assert apyfloat.from_float(APyFixed(0, bits=3, int_bits=2), 5, 2, 8).is_identical(
+        apyfloat(0, 0, 0, 5, 2, 8)
     )  # 0
 
-    assert APyFloat.from_float(APyFixed(3, bits=3, int_bits=2), 5, 2).is_identical(
-        APyFloat(0, 15, 2, 5, 2)
+    assert apyfloat.from_float(APyFixed(3, bits=3, int_bits=2), 5, 2).is_identical(
+        apyfloat(0, 15, 2, 5, 2)
     )  # 1.5
 
-    assert APyFloat.from_float(APyFixed(13, bits=4, int_bits=3), 5, 2).is_identical(
-        APyFloat(1, 15, 2, 5, 2)
+    assert apyfloat.from_float(APyFixed(13, bits=4, int_bits=3), 5, 2).is_identical(
+        apyfloat(1, 15, 2, 5, 2)
     )  # -1.5
 
-    assert APyFloat.from_float(APyFixed(3, bits=3, int_bits=-1), 7, 3).is_identical(
-        APyFloat(0, 60, 4, 7, 3)
+    assert apyfloat.from_float(APyFixed(3, bits=3, int_bits=-1), 7, 3).is_identical(
+        apyfloat(0, 60, 4, 7, 3)
     )  # 0.1875
 
-    assert APyFloat.from_float(APyFixed(1, bits=5, int_bits=40), 5, 2).is_identical(
-        APyFloat(0, 31, 0, 5, 2)
+    assert apyfloat.from_float(APyFixed(1, bits=5, int_bits=40), 5, 2).is_identical(
+        apyfloat(0, 31, 0, 5, 2)
     )  # Saturate to infinity
 
-    assert APyFloat.from_float(APyFixed(1, bits=12, int_bits=2), 4, 3).is_identical(
-        APyFloat(0, 0, 0, 4, 3)
+    assert apyfloat.from_float(APyFixed(1, bits=12, int_bits=2), 4, 3).is_identical(
+        apyfloat(0, 0, 0, 4, 3)
     )  # Quantize to zero
 
-    assert APyFloat.from_float(APyFixed(1, bits=10, int_bits=2), 4, 3).is_identical(
-        APyFloat(0, 0, 2, 4, 3)
+    assert apyfloat.from_float(APyFixed(1, bits=10, int_bits=2), 4, 3).is_identical(
+        apyfloat(0, 0, 2, 4, 3)
     )  # Subnormal
 
-    assert APyFloat.from_float(
+    assert apyfloat.from_float(
         APyFixed(1, int_bits=1, frac_bits=1076), 11, 54
-    ).is_identical(APyFloat(0, 0, 1, 11, 54))  # Smallest subnormal
+    ).is_identical(apyfloat(0, 0, 1, 11, 54))  # Smallest subnormal
 
-    assert APyFloat.from_float(
+    assert apyfloat.from_float(
         APyFixed(1, bits=2, int_bits=-1072), 11, 52
-    ).is_identical(APyFloat(0, 0, 1, 11, 52))  # Smallest subnormal
+    ).is_identical(apyfloat(0, 0, 1, 11, 52))  # Smallest subnormal
 
-    assert APyFloat.from_float(
+    assert apyfloat.from_float(
         APyFixed(2**11 - 1, int_bits=1025, frac_bits=25),
         5,
         10,  # Should round to smallest normal
-    ).is_identical(APyFloat(0, 1, 0, 5, 10))
+    ).is_identical(apyfloat(0, 1, 0, 5, 10))
 
-    # From APyFloat, which is equivalent to a cast with TIES_EVEN
+    # From apyfloat, which is equivalent to a cast with TIES_EVEN
 
     # -0 to -0
-    assert APyFloat.from_float(APyFloat(1, 0, 0, 5, 7), 10, 24, 8).is_identical(
-        APyFloat(1, 0, 0, 10, 24, 8)
+    assert apyfloat.from_float(apyfloat(1, 0, 0, 5, 7), 10, 24, 8).is_identical(
+        apyfloat(1, 0, 0, 10, 24, 8)
     )
 
     # Cast -inf to -inf
-    assert APyFloat.from_float(APyFloat(1, 31, 0, 5, 7), 11, 34).is_identical(
-        APyFloat(1, 2047, 0, 11, 34)
+    assert apyfloat.from_float(apyfloat(1, 31, 0, 5, 7), 11, 34).is_identical(
+        apyfloat(1, 2047, 0, 11, 34)
     )
 
     # Cast from big number becomes infinity
-    assert APyFloat.from_float(APyFloat(1, 30, 4, 5, 3), 4, 3).is_identical(
-        APyFloat(1, 15, 0, 4, 3)
+    assert apyfloat.from_float(apyfloat(1, 30, 4, 5, 3), 4, 3).is_identical(
+        apyfloat(1, 15, 0, 4, 3)
     )
 
     # Cast where result becomes subnormal
-    assert APyFloat.from_float(APyFloat(0, 8, 0, 5, 2), 4, 3).is_identical(
-        APyFloat(0, 0, 4, 4, 3)
+    assert apyfloat.from_float(apyfloat(0, 8, 0, 5, 2), 4, 3).is_identical(
+        apyfloat(0, 0, 4, 4, 3)
     )
 
 
@@ -515,30 +549,30 @@ def test_python_deepcopy():
 
 
 @pytest.mark.parametrize("func", ["inf", "nan"])
-def test_inf_nan_creation(func):
-    #
-    # Test raises
-
+def test_inf_nan_creation(func: str):
     # Too many exponent bits
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=f"APyC?Float.{func}: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
         eval(f"APyFloat.{func}(300, 5)")
+
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=f"APyC?Float.{func}: exponent bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
         eval(f"APyFloat.{func}(-300, 5)")
+
     # Too many mantissa bits
     with pytest.raises(
         ValueError,
-        match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=f"APyC?Float.{func}: mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
         eval(f"APyFloat.{func}(5, 300)")
+
     with pytest.raises(
         ValueError,
-        match="Mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=f"APyC?Float.{func}: mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
         eval(f"APyFloat.{func}(5, -300)")
 

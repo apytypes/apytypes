@@ -193,8 +193,8 @@ APyFloatAccumulatorContext::APyFloatAccumulatorContext(
         );
     }
 
-    check_exponent_format(exp_bits.value());
-    check_mantissa_format(man_bits.value());
+    check_exponent_format(exp_bits.value(), "APyFloatAccumulatorContext");
+    check_mantissa_format(man_bits.value(), "APyFloatAccumulatorContext");
 
     new_mode.exp_bits = exp_bits.value();
     new_mode.man_bits = man_bits.value();

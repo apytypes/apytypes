@@ -857,8 +857,7 @@ APyFixed APyFixed::from_number(
     } else if (nb::isinstance<nb::float_>(py_obj)) {
         const auto d = static_cast<double>(nb::cast<nb::float_>(py_obj));
         return APyFixed::from_double(d, int_bits, frac_bits, bits);
-    } else if (nb::isinstance<APyFixed>(py_obj
-               )) { // One should really use `cast` instead
+    } else if (nb::isinstance<APyFixed>(py_obj)) {
         const auto d = static_cast<APyFixed>(nb::cast<APyFixed>(py_obj));
         return d.cast(
             int_bits, frac_bits, QuantizationMode::RND_INF, OverflowMode::WRAP, bits

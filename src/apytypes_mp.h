@@ -50,7 +50,7 @@ typedef std::int64_t apy_limb_signed_t;
 /*
  * Sizes of APy limbs (underlying words)
  */
-//! Number of bits in a char, as defined by Posix
+//! Number of bits in a char, as defined by POSIX
 #define POSIX_CHAR_BITS 8
 //! Number of bytes in a limb
 constexpr std::size_t APY_LIMB_SIZE_BYTES = sizeof(apy_limb_t);

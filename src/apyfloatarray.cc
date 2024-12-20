@@ -35,8 +35,8 @@ void APyFloatArray::create_in_place(
     std::optional<exp_t> bias
 )
 {
-    check_exponent_format(exp_bits);
-    check_mantissa_format(man_bits);
+    check_exponent_format(exp_bits, "APyFloatArray.__init__");
+    check_mantissa_format(man_bits, "APyFloatArray.__init__");
 
     new (apyfloatarray)
         APyFloatArray(sign_seq, exp_seq, man_seq, exp_bits, man_bits, bias);
@@ -121,20 +121,12 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
     const std::uint8_t res_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const std::uint8_t res_man_bits = std::max(man_bits, rhs.man_bits);
     const exp_t res_bias = calc_bias(res_exp_bits, spec(), rhs.spec());
-    APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
     const QuantizationMode& qntz = get_float_quantization_mode();
+    APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
 
-    // Perform the addition
-    floating_point_sums(
-        std::begin(_data),     // src1
-        std::begin(rhs._data), // src2
-        std::begin(res._data), // dst
-        spec(),                // src1_spec
-        rhs.spec(),            // src2_spec
-        res.spec(),            // dst_spec
-        res._nitems,           // n_items
-        qntz                   // qntz
-    );
+    // Perform addition
+    auto add = FloatingPointAdder<>(spec(), rhs.spec(), res.spec(), qntz);
+    add(&_data[0], &rhs._data[0], &res._data[0], res._nitems);
 
     return res;
 }
@@ -145,20 +137,12 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
     const std::uint8_t res_man_bits = std::max(man_bits, rhs.get_man_bits());
     const exp_t res_bias = calc_bias(res_exp_bits, spec(), rhs.spec());
     const QuantizationMode& qntz = get_float_quantization_mode();
-
-    // Perform the addition
-    const APyFloatData& rhs_data = rhs.get_data();
     APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
-    floating_point_sums<false, 1, 0, 1>(
-        std::begin(_data),     // src1
-        &rhs_data,             // src2
-        std::begin(res._data), // dst
-        spec(),                // src1_spec
-        rhs.spec(),            // src2_spec
-        res.spec(),            // dst_spec
-        res._nitems,           // n_items
-        qntz                   // qntz
-    );
+
+    // Perform addition
+    const APyFloatData& rhs_data = rhs.get_data();
+    auto add = FloatingPointAdder<1, 0, 1>(spec(), rhs.spec(), res.spec(), qntz);
+    add(&_data[0], &rhs_data, &res._data[0], res._nitems);
 
     return res;
 }
@@ -182,20 +166,12 @@ APyFloatArray APyFloatArray::operator-(const APyFloatArray& rhs) const
     const std::uint8_t res_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const std::uint8_t res_man_bits = std::max(man_bits, rhs.man_bits);
     const exp_t res_bias = calc_bias(res_exp_bits, spec(), rhs.spec());
-    APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
     const QuantizationMode& qntz = get_float_quantization_mode();
+    APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
 
-    // Perform the addition
-    floating_point_sums<true>(
-        std::begin(_data),     // src1
-        std::begin(rhs._data), // src2
-        std::begin(res._data), // dst
-        spec(),                // src1_spec
-        rhs.spec(),            // src2_spec
-        res.spec(),            // dst_spec
-        res._nitems,           // n_items
-        qntz                   // qntz
-    );
+    // Perform subtraction
+    auto sub = FloatingPointSubtractor<>(spec(), rhs.spec(), res.spec(), qntz);
+    sub(&_data[0], &rhs._data[0], &res._data[0], res._nitems);
 
     return res;
 }
@@ -206,20 +182,12 @@ APyFloatArray APyFloatArray::operator-(const APyFloat& rhs) const
     const std::uint8_t res_man_bits = std::max(man_bits, rhs.get_man_bits());
     const exp_t res_bias = calc_bias(res_exp_bits, spec(), rhs.spec());
     const QuantizationMode& qntz = get_float_quantization_mode();
-
-    // Perform the addition
-    const APyFloatData& rhs_data = rhs.get_data();
     APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
-    floating_point_sums<true, 1, 0, 1>(
-        std::begin(_data),     // src1
-        &rhs_data,             // src2
-        std::begin(res._data), // dst
-        spec(),                // src1_spec
-        rhs.spec(),            // src2_spec
-        res.spec(),            // dst_spec
-        res._nitems,           // n_items
-        qntz                   // qntz
-    );
+
+    // Perform the subtraction
+    const APyFloatData& rhs_data = rhs.get_data();
+    auto sub = FloatingPointSubtractor<1, 0, 1>(spec(), rhs.spec(), res.spec(), qntz);
+    sub(&_data[0], &rhs_data, &res._data[0], res._nitems);
 
     return res;
 }
@@ -258,24 +226,17 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
         return broadcast_to(broadcast_shape) * rhs.broadcast_to(broadcast_shape);
     }
 
-    // Calculate new format
     const std::uint8_t res_exp_bits = std::max(exp_bits, rhs.exp_bits);
     const std::uint8_t res_man_bits = std::max(man_bits, rhs.man_bits);
     const exp_t res_bias = calc_bias(res_exp_bits, spec(), rhs.spec());
     const QuantizationMode& qntz = get_float_quantization_mode();
+    APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
 
-    APyFloatArray result(_shape, res_exp_bits, res_man_bits, res_bias);
-    floating_point_products(
-        std::cbegin(_data),
-        std::cbegin(rhs._data),
-        std::begin(result._data),
-        spec(),
-        rhs.spec(),
-        result.spec(),
-        _nitems,
-        qntz
-    );
-    return result;
+    // Perform multiplication
+    auto mul = FloatingPointMultiplier<>(spec(), rhs.spec(), res.spec(), qntz);
+    mul(&_data[0], &rhs._data[0], &res._data[0], _nitems);
+
+    return res;
 }
 
 APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
@@ -285,21 +246,14 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
     const std::uint8_t res_man_bits = std::max(man_bits, rhs.get_man_bits());
     const exp_t res_bias = calc_bias(res_exp_bits, spec(), rhs.spec());
     const QuantizationMode& qntz = get_float_quantization_mode();
+    APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
+
+    // Perform multiplication
     const APyFloatData& rhs_data = rhs.get_data();
+    auto mul = FloatingPointMultiplier<1, 0, 1>(spec(), rhs.spec(), res.spec(), qntz);
+    mul(&_data[0], &rhs_data, &res._data[0], _nitems);
 
-    APyFloatArray result(_shape, res_exp_bits, res_man_bits, res_bias);
-    floating_point_products<1, 0, 1>(
-        std::begin(_data),
-        &rhs_data,
-        std::begin(result._data),
-        spec(),
-        rhs.spec(),
-        result.spec(),
-        _nitems,
-        qntz
-    );
-
-    return result;
+    return res;
 }
 
 APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
@@ -325,16 +279,9 @@ APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
     const QuantizationMode& qntz = get_float_quantization_mode();
     APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
 
-    floating_point_quotients(
-        std::cbegin(_data),
-        std::cbegin(rhs._data),
-        std::begin(res._data),
-        spec(),
-        rhs.spec(),
-        res.spec(),
-        _nitems,
-        qntz
-    );
+    // Perform division
+    FloatingPointDivider div(spec(), rhs.spec(), res.spec(), qntz);
+    div(&_data[0], &rhs._data[0], &res._data[0], _nitems);
 
     return res;
 }
@@ -342,18 +289,16 @@ APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
 APyFloatArray APyFloatArray::operator/(const APyFloat& rhs) const
 {
     // Calculate new format
-    const auto res_exp_bits = std::max(exp_bits, rhs.get_exp_bits());
-    const auto res_man_bits = std::max(man_bits, rhs.get_man_bits());
-    const auto res_bias
-        = calc_bias(res_exp_bits, exp_bits, bias, rhs.get_exp_bits(), rhs.get_bias());
+    const std::uint8_t res_exp_bits = std::max(exp_bits, rhs.get_exp_bits());
+    const std::uint8_t res_man_bits = std::max(man_bits, rhs.get_man_bits());
+    const exp_t res_bias = calc_bias(res_exp_bits, spec(), rhs.spec());
+    const QuantizationMode& qntz = get_float_quantization_mode();
     APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
 
-    APyFloat lhs_scalar(exp_bits, man_bits, bias);
-    // Perform operations
-    for (std::size_t i = 0; i < _data.size(); i++) {
-        lhs_scalar.set_data(_data[i]);
-        res._data[i] = (lhs_scalar / rhs).get_data();
-    }
+    // Perform division
+    const APyFloatData& rhs_data = rhs.get_data();
+    FloatingPointDivider<1, 0, 1> div(spec(), rhs.spec(), res.spec(), qntz);
+    div(&_data[0], &rhs_data, &res._data[0], _nitems);
 
     return res;
 }
@@ -366,22 +311,29 @@ APyFloatArray APyFloatArray::rdiv(const APyFloat& lhs) const
     const QuantizationMode& qntz = get_float_quantization_mode();
     APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
 
+    // Perform division
     const APyFloatData& lhs_data = lhs.get_data();
-    floating_point_quotients<0, 1, 1>(
-        &lhs_data,
-        std::cbegin(_data),
-        std::begin(res._data),
-        lhs.spec(),
-        spec(),
-        res.spec(),
-        _nitems,
-        qntz
-    );
+    FloatingPointDivider<0, 1, 1> div(lhs.spec(), spec(), res.spec(), qntz);
+    div(&lhs_data, &_data[0], &res._data[0], _nitems);
 
     return res;
 }
 
-APyFloatArray APyFloatArray::rsub(const APyFloat& lhs) const { return (-*this) + lhs; }
+APyFloatArray APyFloatArray::rsub(const APyFloat& lhs) const
+{
+    const std::uint8_t res_exp_bits = std::max(exp_bits, lhs.get_exp_bits());
+    const std::uint8_t res_man_bits = std::max(man_bits, lhs.get_man_bits());
+    const exp_t res_bias = calc_bias(res_exp_bits, spec(), lhs.spec());
+    const QuantizationMode& qntz = get_float_quantization_mode();
+    APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
+
+    // Perform division
+    const APyFloatData& lhs_data = lhs.get_data();
+    FloatingPointSubtractor<0, 1, 1> sub(lhs.spec(), spec(), res.spec(), qntz);
+    sub(&lhs_data, &_data[0], &res._data[0], _nitems);
+
+    return res;
+}
 
 std::variant<APyFloatArray, APyFloat>
 APyFloatArray::matmul(const APyFloatArray& rhs) const
@@ -482,8 +434,8 @@ APyFloatArray APyFloatArray::arange(
     std::optional<exp_t> bias
 )
 {
-    check_exponent_format(exp_bits);
-    check_mantissa_format(man_bits);
+    check_exponent_format(exp_bits, "APyFloatArray.arange");
+    check_mantissa_format(man_bits, "APyFloatArray.arange");
 
     const std::vector<APyFixed> apy_vals = ::arange(start, stop, step);
     APyFloatArray result({ apy_vals.size() }, exp_bits, man_bits, bias);
@@ -548,15 +500,14 @@ APyFloatArray::convolve(const APyFloatArray& rhs, const std::string& conv_mode) 
     auto src1 = std::cbegin(a->_data);
     auto src2 = std::cbegin(b->_data) + n_left;
 
-    using SRC_T = vector_type::const_iterator;
-    using DST_T = vector_type::iterator;
-    auto linear_inner_product_f = FloatInnerProdFunctor<SRC_T, SRC_T, DST_T>(
-        swap ? rhs.spec() : spec(), swap ? spec() : rhs.spec(), result.spec(), qntz
-    );
+    const APyFloatSpec& lhs_spec = swap ? rhs.spec() : spec();
+    const APyFloatSpec& rhs_spec = swap ? spec() : rhs.spec();
+    const APyFloatSpec& res_spec = result.spec();
+    auto inner_product = FloatingPointInnerProduct(lhs_spec, rhs_spec, res_spec, qntz);
 
     // `b` limits length of the inner product length
     for (std::size_t i = 0; i < n_left; i++) {
-        linear_inner_product_f(src1, src2, dst, n);
+        inner_product(&*src1, &*src2, &*dst, n);
         src2--;
         dst++;
         n++;
@@ -564,7 +515,7 @@ APyFloatArray::convolve(const APyFloatArray& rhs, const std::string& conv_mode) 
 
     // full inner product length
     for (std::size_t i = 0; i < a->_shape[0] - b->_shape[0] + 1; i++) {
-        linear_inner_product_f(src1, src2, dst, n);
+        inner_product(&*src1, &*src2, &*dst, n);
         src1++;
         dst++;
     }
@@ -572,7 +523,7 @@ APyFloatArray::convolve(const APyFloatArray& rhs, const std::string& conv_mode) 
     // `a` limits length of the inner product length
     for (std::size_t i = 0; i < n_right; i++) {
         n--;
-        linear_inner_product_f(src1, src2, dst, n);
+        inner_product(&*src1, &*src2, &*dst, n);
         src1++;
         dst++;
     }
@@ -1016,9 +967,6 @@ APyFloatArray APyFloatArray::from_numbers(
     std::optional<exp_t> bias
 )
 {
-    check_exponent_format(exp_bits);
-    check_mantissa_format(man_bits);
-
     if (nb::isinstance<nb::ndarray<>>(number_seq)) {
         // Sequence is NDArray. Initialize using `from_array`.
         auto ndarray = nb::cast<nb::ndarray<nb::c_contig>>(number_seq);
@@ -1034,6 +982,10 @@ APyFloatArray APyFloatArray::from_numbers(
 
     for (std::size_t i = 0; i < result._data.size(); i++) {
         if (nb::isinstance<nb::float_>(py_obj[i])) {
+            // Check formats for proper printing
+            check_exponent_format(exp_bits, "APyFloatArray.from_float");
+            check_mantissa_format(man_bits, "APyFloatArray.from_float");
+
             result._data[i] = APyFloat::from_double(
                                   static_cast<double>(nb::cast<nb::float_>(py_obj[i])),
                                   exp_bits,
@@ -1042,12 +994,20 @@ APyFloatArray APyFloatArray::from_numbers(
             )
                                   .get_data();
         } else if (nb::isinstance<nb::int_>(py_obj[i])) {
+            // Check formats for proper error printing
+            check_exponent_format(exp_bits, "APyFloatArray.from_integer");
+            check_mantissa_format(man_bits, "APyFloatArray.from_integer");
+
             result._data[i]
                 = APyFloat::from_integer(
                       nb::cast<nb::int_>(py_obj[i]), exp_bits, man_bits, result.bias
                 )
                       .get_data();
         } else if (nb::isinstance<APyFixed>(py_obj[i])) {
+            // Check formats for proper error printing
+            check_exponent_format(exp_bits, "APyFloatArray.from_fixed");
+            check_mantissa_format(man_bits, "APyFloatArray.from_fixed");
+
             const auto d = static_cast<APyFixed>(nb::cast<APyFixed>(py_obj[i]));
             result._data[i]
                 = APyFloat::from_fixed(d, exp_bits, man_bits, bias).get_data();
@@ -1068,8 +1028,8 @@ APyFloatArray APyFloatArray::from_array(
     std::optional<exp_t> bias
 )
 {
-    check_exponent_format(exp_bits);
-    check_mantissa_format(man_bits);
+    check_exponent_format(exp_bits, "APyFloatArray.from_array");
+    check_mantissa_format(man_bits, "APyFloatArray.from_array");
 
     assert(ndarray.ndim() > 0);
     std::vector<std::size_t> shape(ndarray.ndim(), 0);
@@ -1138,8 +1098,8 @@ APyFloatArray APyFloatArray::from_bits(
     std::optional<exp_t> bias
 )
 {
-    check_exponent_format(exp_bits);
-    check_mantissa_format(man_bits);
+    check_exponent_format(exp_bits, "APyFloatArray.from_bits");
+    check_mantissa_format(man_bits, "APyFloatArray.from_bits");
 
     if (nb::isinstance<nb::ndarray<>>(python_bit_patterns)) { // ndarray
         const auto ndarray = nb::cast<nb::ndarray<nb::c_contig>>(python_bit_patterns);
@@ -1225,8 +1185,8 @@ APyFloatArray APyFloatArray::cast(
     const auto actual_exp_bits = new_exp_bits.value_or(exp_bits);
     const auto actual_man_bits = new_man_bits.value_or(man_bits);
 
-    check_exponent_format(actual_exp_bits);
-    check_mantissa_format(actual_man_bits);
+    check_exponent_format(actual_exp_bits, "APyFloatArray.cast");
+    check_mantissa_format(actual_man_bits, "APyFloatArray.cast");
 
     return _cast(
         actual_exp_bits,
@@ -1273,7 +1233,7 @@ APyFloatArray APyFloatArray::_cast(
     for (std::size_t i = 0; i < _data.size(); i++) {
         caster.set_data(_data[i]);
         result._data[i]
-            = caster._checked_cast(new_exp_bits, new_man_bits, new_bias, quantization)
+            = caster.checked_cast(new_exp_bits, new_man_bits, new_bias, quantization)
                   .get_data();
     }
 
@@ -1285,14 +1245,9 @@ APyFloatArray APyFloatArray::cast_no_quant(
 ) const
 {
     APyFloatArray result(_shape, new_exp_bits, new_man_bits, new_bias);
-
-    APyFloat caster(exp_bits, man_bits, bias);
     for (std::size_t i = 0; i < _data.size(); i++) {
-        caster.set_data(_data[i]);
-        result._data[i]
-            = caster.cast_no_quant(new_exp_bits, new_man_bits, new_bias).get_data();
+        result._data[i] = floating_point_cast_no_quant(_data[i], spec(), result.spec());
     }
-
     return result;
 }
 
@@ -1318,19 +1273,16 @@ APyFloat APyFloatArray::checked_inner_product(const APyFloatArray& rhs) const
 
     APyFloat result(res_exp_bits, res_man_bits, res_bias);
 
-    using SRC_T = vector_type::const_iterator;
-    using DST_T = APyFloatData*;
-    auto linear_inner_product_f = FloatInnerProdFunctor<SRC_T, SRC_T, DST_T>(
-        spec(), rhs.spec(), result.spec(), qntz
-    );
+    auto inner_product
+        = FloatingPointInnerProduct(spec(), rhs.spec(), result.spec(), qntz);
 
     // dst = A x b
     APyFloatData sum {};
-    linear_inner_product_f(
-        std::cbegin(_data),     // src1, a: [1 x N]
-        std::cbegin(rhs._data), // src2, b: [N x 1]
-        &sum,                   // dst
-        _shape[0]               // N
+    inner_product(
+        &_data[0],     // src1, a: [1 x N]
+        &rhs._data[0], // src2, b: [N x 1]
+        &sum,          // dst
+        _shape[0]      // N
     );
     result.set_data(sum);
     return result;
@@ -1369,11 +1321,8 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
         { rhs._shape[0] }, rhs.exp_bits, rhs.man_bits, rhs.bias
     );
 
-    using SRC_T = vector_type::const_iterator;
-    using DST_T = vector_type::iterator;
-    auto multi_linear_inner_product_f = FloatInnerProdFunctor<SRC_T, SRC_T, DST_T>(
-        spec(), rhs.spec(), result.spec(), qntz
-    );
+    auto inner_product
+        = FloatingPointInnerProduct(spec(), rhs.spec(), result.spec(), qntz);
 
     for (std::size_t x = 0; x < res_cols; x++) {
         // Copy column from `rhs` and use as the current working column. As reading
@@ -1384,13 +1333,13 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
         }
 
         // dst = A x b
-        multi_linear_inner_product_f(
-            std::cbegin(_data),                // src1, A: [M x N]
-            std::cbegin(current_column._data), // src2, b: [N x 1]
-            std::begin(result._data) + x,      // dst
-            _shape[1],                         // N
-            res_shape[0],                      // M
-            res_cols                           // DST_STEP
+        inner_product(
+            &_data[0],                // src1, A: [M x N]
+            &current_column._data[0], // src2, b: [N x 1]
+            &result._data[x],         // dst
+            _shape[1],                // N
+            res_shape[0],             // M
+            res_cols                  // DST_STEP
         );
     }
 

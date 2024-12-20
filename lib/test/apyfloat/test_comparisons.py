@@ -1,18 +1,19 @@
-from itertools import permutations as perm
+from itertools import product
 import pytest
-from apytypes import APyFloat, APyFixed
+from apytypes import APyFloat, APyFixed, APyCFloat
 
 
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
 @pytest.mark.float_comp
-def test_identical():
-    a = APyFloat(0, 5, 3, 15, 3, 8)
+def test_identical(apyfloat: type[APyCFloat]):
+    a = apyfloat(0, 5, 3, 15, 3, 8)
     assert a.is_identical(a)
     assert not a.is_identical(-a)
-    assert not a.is_identical(APyFloat(0, 6, 3, 15, 3, 8))
-    assert not a.is_identical(APyFloat(0, 5, 2, 15, 3, 8))
-    assert not a.is_identical(APyFloat(0, 5, 3, 16, 3, 8))
-    assert not a.is_identical(APyFloat(0, 5, 3, 15, 5, 8))
-    assert not a.is_identical(APyFloat(0, 5, 3, 15, 3, 9))
+    assert not a.is_identical(apyfloat(0, 6, 3, 15, 3, 8))
+    assert not a.is_identical(apyfloat(0, 5, 2, 15, 3, 8))
+    assert not a.is_identical(apyfloat(0, 5, 3, 16, 3, 8))
+    assert not a.is_identical(apyfloat(0, 5, 3, 15, 5, 8))
+    assert not a.is_identical(apyfloat(0, 5, 3, 15, 3, 9))
 
 
 @pytest.mark.float_comp
@@ -82,121 +83,105 @@ def test_comparisons_with_apyfixed():
 
 
 @pytest.mark.float_comp
-@pytest.mark.parametrize(
-    "lhs,rhs,test_exp",
-    [
-        ("APyFloat.from_float(2.75, 5, 5)", "APyFloat.from_float(2.75, 5, 5)", True),
-        ("APyFloat.from_float(2.75, 5, 6)", "APyFloat.from_float(2.75, 5, 5)", True),
-        ("APyFloat.from_float(2.75, 6, 5)", "APyFloat.from_float(2.75, 5, 5)", True),
-        ("APyFloat.from_float(2.75, 5, 5)", "APyFloat.from_float(-2.75, 5, 5)", False),
-        ("APyFloat.from_float(3.5, 5, 5)", "APyFloat.from_float(6.5, 5, 5)", False),
-        ("APyFloat.from_float(3.5, 5, 5)", "APyFloat.from_float(3.75, 5, 5)", False),
-        ("APyFloat.from_float(2**-9, 4, 3)", "APyFloat.from_float(2**-9, 5, 2)", True),
-    ],
-)
-def test_equality(lhs, rhs, test_exp):
-    assert (eval(lhs) == eval(rhs)) == test_exp
-    assert (eval(lhs) != eval(rhs)) == (not test_exp)
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+@pytest.mark.parametrize("val", product([0.0, -2.5, -2.75, -(2**-9), 2**5], repeat=2))
+@pytest.mark.parametrize("exp_bits", product([4, 6], repeat=2))
+@pytest.mark.parametrize("man_bits", product([7, 8], repeat=2))
+def test_equality(
+    apyfloat: type[APyCFloat],
+    val: tuple[float, float],
+    exp_bits: tuple[int, int],
+    man_bits: tuple[int, int],
+):
+    is_eq = val[0] == val[1]
+    lhs = apyfloat.from_float(val[0], exp_bits=exp_bits[0], man_bits=man_bits[0])
+    rhs = apyfloat.from_float(val[1], exp_bits=exp_bits[1], man_bits=man_bits[1])
+    assert (lhs == rhs) == is_eq
+    assert (lhs != rhs) == (not is_eq)
 
 
 @pytest.mark.float_comp
-@pytest.mark.parametrize("exp", list(perm(["5", "6", "7", "8"], 2)))
-@pytest.mark.parametrize("man", list(perm(["5", "6", "7", "8"], 2)))
-@pytest.mark.parametrize(
-    "lhs,rhs,test_exp",
-    [
-        ("3.5", "6.75", True),
-        ("3.5", "6.25", True),
-        ("3.5", "2.75", False),
-        ("3.5", "3.5", False),
-        ("3.5", "-6.75", False),
-    ],
-)
-def test_less_greater_than(exp, man, lhs, rhs, test_exp):
-    assert (
-        eval(
-            f"APyFloat.from_float({lhs}, {exp[0]}, {man[0]}) < APyFloat.from_float({rhs}, {exp[1]}, {man[1]})"
-        )
-    ) == test_exp
-    assert (
-        eval(
-            f"APyFloat.from_float({rhs}, {exp[0]}, {man[0]}) > APyFloat.from_float({lhs}, {exp[1]}, {man[1]})"
-        )
-    ) == test_exp
+@pytest.mark.parametrize("val", product([0.0, -2.5, -2.75, -(2**-9), 2**5], repeat=2))
+@pytest.mark.parametrize("exp_bits", product([5, 7], repeat=2))
+@pytest.mark.parametrize("man_bits", product([6, 8], repeat=2))
+def test_lt_gt(
+    val: tuple[float, float],
+    exp_bits: tuple[int, int],
+    man_bits: tuple[int, int],
+):
+    is_gt = val[0] > val[1]
+    is_lt = val[0] < val[1]
+    lhs = APyFloat.from_float(val[0], exp_bits=exp_bits[0], man_bits=man_bits[0])
+    rhs = APyFloat.from_float(val[1], exp_bits=exp_bits[1], man_bits=man_bits[1])
+    assert (lhs > rhs) == is_gt
+    assert (lhs < rhs) == is_lt
 
 
 @pytest.mark.float_comp
-@pytest.mark.parametrize(
-    "lhs,rhs,test_exp",
-    [
-        ("APyFloat.from_float(3.5, 5, 5)", "APyFloat.from_float(6.75, 5, 5)", True),
-        ("APyFloat.from_float(3.5, 5, 5)", "APyFloat.from_float(6.25, 5, 5)", True),
-        ("APyFloat.from_float(3.5, 5, 5)", "APyFloat.from_float(2.75, 5, 5)", False),
-        ("APyFloat.from_float(3.5, 5, 5)", "APyFloat.from_float(3.5, 5, 5)", True),
-        ("APyFloat.from_float(3.5, 5, 5)", "APyFloat.from_float(-6.75, 5, 5)", False),
-    ],
-)
-def test_leq_geq(lhs, rhs, test_exp):
-    assert (eval(lhs) <= eval(rhs)) == test_exp
-    assert (eval(rhs) >= eval(lhs)) == test_exp
+@pytest.mark.parametrize("val", product([0.0, -2.5, -2.75, -(2**-9), 2**5], repeat=2))
+@pytest.mark.parametrize("exp_bits", product([5, 7], repeat=2))
+@pytest.mark.parametrize("man_bits", product([6, 8], repeat=2))
+def test_leq_geq(
+    val: tuple[float, float],
+    exp_bits: tuple[int, int],
+    man_bits: tuple[int, int],
+):
+    is_geq = val[0] >= val[1]
+    is_leq = val[0] <= val[1]
+    lhs = APyFloat.from_float(val[0], exp_bits=exp_bits[0], man_bits=man_bits[0])
+    rhs = APyFloat.from_float(val[1], exp_bits=exp_bits[1], man_bits=man_bits[1])
+    assert (lhs >= rhs) == is_geq
+    assert (lhs <= rhs) == is_leq
 
 
 @pytest.mark.float_comp
-@pytest.mark.float_special
-@pytest.mark.parametrize(
-    "lhs,rhs",
-    list(
-        perm(
-            [
-                "APyFloat.from_float(2.75, 5, 5)",
-                "APyFloat.from_float(float('nan'), 5, 5)",
-            ]
-        )
-    )
-    + list(
-        perm(
-            [
-                "APyFloat.from_float(float('nan'), 5, 5)",
-                "APyFloat.from_float(float('nan'), 5, 5)",
-            ]
-        )
-    )
-    + list(
-        perm(
-            ["APyFloat.from_float(float('nan'), 5, 5)", "APyFloat.from_float(0, 5, 5)"]
-        )
-    )
-    + [
-        (
-            "APyFloat.from_float(float('nan'), 5, 5)",
-            "APyFloat.from_float(float('nan'), 5, 5)",
-        )
-    ],
-)
-def test_nan_comparison(lhs, rhs):
-    assert not (eval(lhs) == eval(rhs))
-    assert not (eval(lhs) != eval(rhs))
-    assert not (eval(lhs) < eval(rhs))
-    assert not (eval(lhs) > eval(rhs))
-    assert not (eval(lhs) <= eval(rhs))
-    assert not (eval(lhs) >= eval(rhs))
+@pytest.mark.parametrize("val", [0.0, -2.5, -2.75, -(2**-9), 2**5])
+@pytest.mark.parametrize("exp_bits", product([5, 7], repeat=2))
+@pytest.mark.parametrize("man_bits", product([6, 8], repeat=2))
+def test_nan_comparison(
+    val: float,
+    exp_bits: tuple[int, int],
+    man_bits: tuple[int, int],
+):
+    lhs = APyFloat.from_float(val, exp_bits=exp_bits[0], man_bits=man_bits[0])
+    rhs = APyFloat.from_float(float("nan"), exp_bits=exp_bits[1], man_bits=man_bits[1])
+    assert not lhs == rhs
+    assert not lhs != rhs
+    assert not lhs < rhs
+    assert not lhs > rhs
+    assert not lhs <= rhs
+    assert not lhs >= rhs
+
+    lhs = APyFloat.from_float(float("nan"), exp_bits=exp_bits[0], man_bits=man_bits[0])
+    rhs = APyFloat.from_float(val, exp_bits=exp_bits[1], man_bits=man_bits[1])
+    assert not lhs == rhs
+    assert not lhs != rhs
+    assert not lhs < rhs
+    assert not lhs > rhs
+    assert not lhs <= rhs
+    assert not lhs >= rhs
 
 
 @pytest.mark.float_comp
 @pytest.mark.float_special
-def test_inf_comparison():
-    assert APyFloat.from_float(12, 4, 1) < APyFloat.from_float(float("inf"), 5, 5)
-    assert APyFloat.from_float(-12, 4, 1) > APyFloat.from_float(float("-inf"), 5, 5)
-    assert APyFloat.from_float(0, 5, 5) > APyFloat.from_float(float("-inf"), 5, 5)
-    assert APyFloat.from_float(float("inf"), 5, 5) == APyFloat.from_float(
-        float("inf"), 5, 5
-    )
-    assert APyFloat.from_float(float("inf"), 5, 5) == APyFloat.from_float(
-        float("inf"), 3, 2
-    )
-    assert APyFloat.from_float(float("inf"), 5, 5) != APyFloat.from_float(
-        float("-inf"), 5, 5
-    )
+@pytest.mark.parametrize("val0", [float("inf"), float("-inf"), 0.0, -1.0])
+@pytest.mark.parametrize("val1", [float("inf"), float("-inf"), 0.0, -1.0])
+@pytest.mark.parametrize("exp_bits", product([5, 7], repeat=2))
+@pytest.mark.parametrize("man_bits", product([6, 8], repeat=2))
+def test_inf_comparison(
+    val0: float,
+    val1: float,
+    exp_bits: tuple[int, int],
+    man_bits: tuple[int, int],
+):
+    lhs = APyFloat.from_float(val0, exp_bits=exp_bits[0], man_bits=man_bits[0])
+    rhs = APyFloat.from_float(val1, exp_bits=exp_bits[1], man_bits=man_bits[1])
+    assert (lhs == rhs) == (val0 == val1)
+    assert (lhs != rhs) == (val0 != val1)
+    assert (lhs < rhs) == (val0 < val1)
+    assert (lhs > rhs) == (val0 > val1)
+    assert (lhs <= rhs) == (val0 <= val1)
+    assert (lhs >= rhs) == (val0 >= val1)
 
 
 @pytest.mark.float_comp

@@ -1,9 +1,11 @@
 """
-This is a script for running tests from Berkeley TestFloat.
-Note, in order to use the script one must have the binary testfloat_gen in PATH.
-The arguments are much like the arguments to testfloat_gen which one can read more about here: http://www.jhauser.us/arithmetic/TestFloat-3/doc/testfloat_gen.html
+This is a script for running tests from Berkeley TestFloat. Note, in order to use the
+script one must have the binary testfloat_gen in PATH. The arguments are much like the
+arguments to testfloat_gen which one can read more about here:
+http://www.jhauser.us/arithmetic/TestFloat-3/doc/testfloat_gen.html
 
-Information about how to use the script can be found by running "python run_berkeley_cases.py -h".
+Information about how to use the script can be found by running "python
+run_berkeley_cases.py -h".
 """
 
 import argparse
@@ -27,8 +29,9 @@ TEST_DIR = "./berkeley_tests/"
 
 def read_test_cases(testfile: str):
     """
-    Get a generator of test cases [operand, operand, reference]. The items only contains bit patterns,
-    so the floating-point format and operation must be known by the caller.
+    Get a generator of test cases [operand, operand, reference]. The items only contains
+    bit patterns, so the floating-point format and operation must be known by the
+    caller.
     """
     with open(testfile) as file:
         # Interpret each line as a set of hexadecimal integers. Last column with exception flags is ignored.
@@ -45,11 +48,13 @@ def generate_berkeley_test(
     filename: str = None,
 ) -> None:
     """
-    operation: Can be an arithmetic operation such 'f16_add' or f64_mul, or a conversation like 'ui32_to_f16' or 'f64_to_f16'.
-    quantization: Can be any of the quantization modes listed in the IEEE-754 standard, and jamming.
-    level: Can be either 1 or 2. With level 2 more test cases are generated, with better coverage.
+    operation: Can be an arithmetic operation such 'f16_add' or f64_mul, or a
+    conversation like 'ui32_to_f16' or 'f64_to_f16'. quantization: Can be any of the
+    quantization modes listed in the IEEE-754 standard, and jamming. level: Can be
+    either 1 or 2. With level 2 more test cases are generated, with better coverage.
     seed:
-    For more information visit: http://www.jhauser.us/arithmetic/TestFloat-3/doc/testfloat_gen.html
+    For more information see:
+    http://www.jhauser.us/arithmetic/TestFloat-3/doc/testfloat_gen.html
     """
     quant_arg = translate_quant_mode_berkeley_arg(quantization)
 
@@ -71,7 +76,10 @@ def generate_berkeley_test(
 
 
 def parse_format(format: str) -> tuple:
-    """Take a format as a string and return a tuple of the corresponding exponent and mantissa bits."""
+    """
+    Take a format as a string and return a tuple of the corresponding exponent and
+    mantissa bits.
+    """
     match format:
         case "f16":
             return (5, 10)
@@ -332,7 +340,8 @@ def print_summary(summary, output_file: str, seed: int, level: int) -> None:
     )
 
 
-# Solution from: https://stackoverflow.com/questions/3173320/text-progress-bar-in-terminal-with-block-characters
+# Solution from:
+# https://stackoverflow.com/questions/3173320/text-progress-bar-in-terminal-with-block-characters
 def printProgressBar(
     iteration,
     total,

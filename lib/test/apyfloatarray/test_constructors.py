@@ -5,49 +5,49 @@ from apytypes import APyFloatArray
 @pytest.mark.float_array
 def test_constructor_raises():
     with pytest.raises(ValueError, match="Shape mismatch"):
-        APyFloatArray([1], [5, 2], [4], 10, 10)
+        _ = APyFloatArray([1], [5, 2], [4], 10, 10)
     with pytest.raises(ValueError, match="Inhomogeneous sequence"):
-        APyFloatArray([1, 2], [5, 2], [4, "str"], 10, 10)
+        _ = APyFloatArray([1, 2], [5, 2], [4, "str"], 10, 10)
     with pytest.raises(ValueError, match="python_sequence_extract_shape"):
-        APyFloatArray(["foo"], [5], [4], 10, 10)
+        _ = APyFloatArray(["foo"], [5], [4], 10, 10)
     with pytest.raises(ValueError, match="python_sequence_extract_shape"):
-        APyFloatArray([1], ["foo"], [4], 10, 10)
+        _ = APyFloatArray([1], ["foo"], [4], 10, 10)
     with pytest.raises(ValueError, match="python_sequence_extract_shape"):
-        APyFloatArray([1], [5], ["foo"], 10, 10)
+        _ = APyFloatArray([1], [5], ["foo"], 10, 10)
     with pytest.raises(
         ValueError, match="Non <type>/sequence found when walking: '1.0'"
     ):
-        APyFloatArray([1.0], [4], [4], 10, 10)
+        _ = APyFloatArray([1.0], [4], [4], 10, 10)
     with pytest.raises(
         ValueError, match="Non <type>/sequence found when walking: '<class 'range'>'"
     ):
-        APyFloatArray([True], [range], [4], 10, 10)
+        _ = APyFloatArray([True], [range], [4], 10, 10)
     with pytest.raises(
         ValueError,
         match="Non <type>/sequence found when walking: '<class 'apytypes._apytypes.APyFloatArray'>'",
     ):
-        APyFloatArray([True], [4], [APyFloatArray], 10, 10)
+        _ = APyFloatArray([True], [4], [APyFloatArray], 10, 10)
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyFloatArray\.__init__: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloatArray([0], [0], [0], 300, 5)
+        _ = APyFloatArray([0], [0], [0], 300, 5)
     with pytest.raises(
         ValueError,
-        match="Exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyFloatArray\.__init__: exponent bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
-        APyFloatArray([0], [0], [0], -300, 5)
+        _ = APyFloatArray([0], [0], [0], -300, 5)
     # Too many mantissa bits
     with pytest.raises(
         ValueError,
-        match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyFloatArray.__init__: mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloatArray([0], [0], [0], 5, 300)
+        _ = APyFloatArray([0], [0], [0], 5, 300)
     with pytest.raises(
         ValueError,
-        match="Mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyFloatArray.__init__: mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
-        APyFloatArray([0], [0], [0], 5, -300)
+        _ = APyFloatArray([0], [0], [0], 5, -300)
 
 
 @pytest.mark.float_array
