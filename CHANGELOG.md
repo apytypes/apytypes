@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Incorrect fixed-point quantization in `RND_INF` and `RND_MIN_INF` when source
   has multiple of 64 bits.
 - Incorrect fixed-point rounding in `APyFixedArray.from_array` on Windows.
+- Incorrect LaTeX-representation of negative fixed-point scalars.
 
 ### Changed
 
