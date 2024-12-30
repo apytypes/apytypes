@@ -687,7 +687,8 @@ std::string APyFixed::latex() const
     );
     std::string str;
     if (this->is_negative()) {
-        str = "$-\\frac{" + bit_pattern_to_string_dec() + "}{2^{"
+        APyFixed absval = abs();
+        str = "$-\\frac{" + absval.bit_pattern_to_string_dec() + "}{2^{"
             + std::to_string(frac_bits()) + "}} = " + value_str + "$";
     } else {
         str = "$\\frac{" + bit_pattern_to_string_dec() + "}{2^{"
