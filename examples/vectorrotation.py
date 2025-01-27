@@ -20,7 +20,7 @@ def print_rotation_properties(angle, frac_bits):
     rotation_matrix = apy.fx([[cosa, -sina], [sina, cosa]], 2, frac_bits)
     rm = rotation_matrix.to_numpy()
     print(
-        f"{frac_bits} fractional bits. Gain: {np.hypot(*rm[0,:])}. Angle: {np.arctan2(*rm[1,:])}."
+        f"{frac_bits} fractional bits. Gain: {np.hypot(*rm[0, :])}. Angle: {np.arctan2(*rm[1, :])}."
     )
 
 
