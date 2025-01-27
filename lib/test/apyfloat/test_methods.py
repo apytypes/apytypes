@@ -150,10 +150,10 @@ def test_normal_conversions(exp, man, val, neg):
 )
 def test_bit_conversions_e4m3(absx, sign, ans):
     assert float(APyFloat.from_bits(int(f"{sign}_{absx}", 2), 4, 3)) == eval(
-        f'{"-" if sign == "1" else ""}{ans}'
+        f"{'-' if sign == '1' else ''}{ans}"
     )
     assert APyFloat.from_float(
-        eval(f'{"-" if sign == "1" else ""}{ans}'), 4, 3
+        eval(f"{'-' if sign == '1' else ''}{ans}"), 4, 3
     ).to_bits() == int(f"{sign}_{absx}", 2)
 
 
@@ -168,10 +168,10 @@ def test_bit_conversions_e4m3(absx, sign, ans):
 )
 def test_bit_conversion_nan_e5m2(absx, sign, ans):
     assert str(float(APyFloat.from_bits(int(f"{sign}_{absx}", 2), 5, 2))) == str(
-        eval(f'{"-" if sign == "1" else ""}{ans}')
+        eval(f"{'-' if sign == '1' else ''}{ans}")
     )
     bits = APyFloat.from_float(
-        eval(f'{"-" if sign == "1" else ""}{ans}'), 5, 2
+        eval(f"{'-' if sign == '1' else ''}{ans}"), 5, 2
     ).to_bits()
     assert (bits & 0x3) != 0
 
