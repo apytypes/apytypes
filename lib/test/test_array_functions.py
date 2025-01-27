@@ -264,9 +264,9 @@ def test_identity(n, nums):
             b = APyFloatArray.from_float(
                 nums, exp_bits=exp_bits, man_bits=man_bits, bias=bias
             ).reshape((n, n))
-        assert a.is_identical(
-            b
-        ), f"identity on {type(a).__name__} didn't work when n={n}. Expected result was {nums} but got \n {a}"
+        assert a.is_identical(b), (
+            f"identity on {type(a).__name__} didn't work when n={n}. Expected result was {nums} but got \n {a}"
+        )
 
     # Test cases for APyFixedArray
     check_identity(int_bits=5, frac_bits=5)
@@ -330,9 +330,9 @@ def test_zeros(shape):
                 man_bits=man_bits,
                 bias=bias,
             ).reshape(shape)
-        assert a.is_identical(
-            b
-        ), f"zeros on {a.__name__} didn't work when shape={shape}."
+        assert a.is_identical(b), (
+            f"zeros on {a.__name__} didn't work when shape={shape}."
+        )
 
     # APyFixedArray
     check_zeros(int_bits=5, frac_bits=5)
@@ -403,9 +403,9 @@ def test_zeros_like(shape):
                 bias=bias,
             ).reshape(shape)
             a = zeros_like(b, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
-        assert a.is_identical(
-            b
-        ), f"zeros_like on {ArrayType.__name__} didn't work when shape={shape}."
+        assert a.is_identical(b), (
+            f"zeros_like on {ArrayType.__name__} didn't work when shape={shape}."
+        )
 
     # Test cases for APyFixedArray
     check_zeros_like(APyFixedArray, bits=10, frac_bits=5)
@@ -462,9 +462,9 @@ def test_ones(shape):
                 man_bits=man_bits,
                 bias=bias,
             ).reshape(shape)
-        assert a.is_identical(
-            b
-        ), f"ones on {type(a).__name__} didn't work when shape={shape}."
+        assert a.is_identical(b), (
+            f"ones on {type(a).__name__} didn't work when shape={shape}."
+        )
 
     # Test cases for APyFixedArray
     check_ones(int_bits=5, frac_bits=5)
@@ -509,9 +509,9 @@ def test_ones_like(shape):
                 bias=bias,
             ).reshape(shape)
             a = ones_like(b, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
-        assert a.is_identical(
-            b
-        ), f"ones_like on {ArrayType.__name__} didn't work when shape={shape}."
+        assert a.is_identical(b), (
+            f"ones_like on {ArrayType.__name__} didn't work when shape={shape}."
+        )
 
     # Test cases for APyFixedArray
     check_ones_like(APyFixedArray, int_bits=5, frac_bits=5)
@@ -554,9 +554,9 @@ def test_full(shape):
                 fill_value, exp_bits=exp_bits, man_bits=man_bits, bias=bias
             )
             a = full(shape, num, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
-        assert a.is_identical(
-            b
-        ), f"full on {ArrayType.__name__} didn't work when shape={shape}."
+        assert a.is_identical(b), (
+            f"full on {ArrayType.__name__} didn't work when shape={shape}."
+        )
 
     # Test cases for APyFixedArray
     check_full(APyFixedArray, fill_value=shape[0] + shape[1], int_bits=5, frac_bits=5)
@@ -597,13 +597,13 @@ def test_full_like(shape):
                 fill_value, int_bits=int_bits, frac_bits=frac_bits
             )
             a = full_like(b, num, int_bits=int_bits, frac_bits=frac_bits)
-            assert a.is_identical(
-                b
-            ), f"full_like on {ArrayType.__name__} didn't work when shape={shape}."
+            assert a.is_identical(b), (
+                f"full_like on {ArrayType.__name__} didn't work when shape={shape}."
+            )
             a = full_like(b, fill_value, int_bits=int_bits, frac_bits=frac_bits)
-            assert a.is_identical(
-                b
-            ), f"full_like on {ArrayType.__name__} didn't work when shape={shape}."
+            assert a.is_identical(b), (
+                f"full_like on {ArrayType.__name__} didn't work when shape={shape}."
+            )
         elif ArrayType is APyFloatArray:
             b = ArrayType.from_float(
                 [fill_value] * (shape[0] * shape[1]),
@@ -615,15 +615,15 @@ def test_full_like(shape):
                 fill_value, exp_bits=exp_bits, man_bits=man_bits, bias=bias
             )
             a = full_like(b, num, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
-            assert a.is_identical(
-                b
-            ), f"full_like on {ArrayType.__name__} didn't work when shape={shape}."
+            assert a.is_identical(b), (
+                f"full_like on {ArrayType.__name__} didn't work when shape={shape}."
+            )
             a = full_like(
                 b, fill_value, exp_bits=exp_bits, man_bits=man_bits, bias=bias
             )
-            assert a.is_identical(
-                b
-            ), f"full_like on {ArrayType.__name__} didn't work when shape={shape}."
+            assert a.is_identical(b), (
+                f"full_like on {ArrayType.__name__} didn't work when shape={shape}."
+            )
 
     # Test cases for APyFixedArray
     check_full_like(

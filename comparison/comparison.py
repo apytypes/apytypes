@@ -67,7 +67,7 @@ for lib_name, file in libraries.items():
         try:
             num, timing = timeit.Timer(stmt=func, setup=setup_tmp).autorange()
             results[lib_name].append(timing / num)
-            print(f"{lib_name} {name} (average of {num}): {timing/num}")
+            print(f"{lib_name} {name} (average of {num}): {timing / num}")
         except Exception:
             results[lib_name].append(float("NaN"))
             print(f"{lib_name} {name}: Error")

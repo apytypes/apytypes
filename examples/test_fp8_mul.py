@@ -50,9 +50,9 @@ async def fp8_mul_test_all(dut):
             if z_ref.is_nan:
                 assert z_dut.is_nan
             else:
-                assert (
-                    int(dut.z_out.value) == z_ref.to_bits()
-                ), f"{z_dut!r}({z_dut}) == {z_ref!r}({z_ref})\n{x=}({x}), {y=}({y})"
+                assert int(dut.z_out.value) == z_ref.to_bits(), (
+                    f"{z_dut!r}({z_dut}) == {z_ref!r}({z_ref})\n{x=}({x}), {y=}({y})"
+                )
 
 
 # %%
