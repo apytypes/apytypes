@@ -7,7 +7,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>NumPy integration - APyTypes documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
@@ -216,6 +216,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/context.html">Context handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/quantizationoverflow.html">Quantization and overflow handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/utils.html">Utility functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/codegeneration.html">Code generation</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../cpp_api/index.html">APyTypes C++ API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of APyTypes C++ API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -299,10 +300,10 @@ to download the full example code.</p>
 <span id="sphx-glr-examples-numpy-integration-py"></span><h1>NumPy integration<a class="headerlink" href="#numpy-integration" title="Link to this heading">¶</a></h1>
 <p>It is possible to easily go between numpy and apytypes and therefore also use plotting tools like Matplotlib in an integrated manner.</p>
 <p>Consider the example from <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.convolve.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.convolve.html</a> implemented using fixed-point arithmetic</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span>
-<span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <span class="n">APyFixedArray</span><span class="p">,</span> <a href="../api/arrayfunctions.html#apytypes.convolve" title="apytypes.convolve" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-function"><span class="n">convolve</span></a>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">signal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyFixedArray</span><span class="p">,</span> <a href="../api/arrayfunctions.html#apytypes.convolve" title="apytypes.convolve" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-function"><span class="n">convolve</span></a>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
 <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sig</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.repeat.html#numpy.repeat" title="numpy.repeat" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">repeat</span></a><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="mi">100</span><span class="p">)</span>
 <a href="../api/apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sig_fx</span></a> <span class="o">=</span> <a href="../api/apyfixedarray.html#apytypes.APyFixedArray.from_float" title="apytypes.APyFixedArray.from_float" class="sphx-glr-backref-module-apytypes-APyFixedArray sphx-glr-backref-type-py-method"><span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sig</span></a><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
@@ -332,7 +333,7 @@ to download the full example code.</p>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.show.html#matplotlib.figure.Figure.show" title="matplotlib.figure.Figure.show" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_numpy_integration_001.png" srcset="../_images/sphx_glr_numpy_integration_001.png" alt="Original pulse, Filter impulse response, Filtered signal" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.555 seconds)</p>
+<img src="../_images/sphx_glr_numpy_integration_001.png" srcset="../_images/sphx_glr_numpy_integration_001.png" alt="Original pulse, Filter impulse response, Filtered signal" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.618 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-numpy-integration-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/6c8a751a95e4cbae2803e2f5a14ede13/numpy_integration.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">numpy_integration.ipynb</span></code></a></p>

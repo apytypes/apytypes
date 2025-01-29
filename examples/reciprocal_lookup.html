@@ -7,7 +7,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>Reciprocal lookup table - APyTypes documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
@@ -216,6 +216,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/context.html">Context handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/quantizationoverflow.html">Quantization and overflow handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/utils.html">Utility functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/codegeneration.html">Code generation</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../cpp_api/index.html">APyTypes C++ API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of APyTypes C++ API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -300,9 +301,9 @@ to download the full example code.</p>
 <p>In this example a lookup table for floating-point reciprocals is designed,
 assuming that each bit is implemented using an N-ínput LUT, suitable for FPGA, and
 single-precision floating-point representation.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">apytypes</span> <span class="k">as</span> <span class="nn">apy</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
 <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">N</span></a> <span class="o">=</span> <span class="mi">6</span>
 <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">WL</span></a> <span class="o">=</span> <span class="mi">9</span>
@@ -410,7 +411,7 @@ single-precision floating-point representation.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">points</span></a> <span class="o">=</span> <span class="mi">10000</span>
 
 
-<span class="k">def</span> <span class="nf">eval_seed</span><span class="p">(</span><a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">x</span></a><span class="p">,</span> <a href="../api/apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">eval_seed</span><span class="p">(</span><a href="../api/apyfloat.html#apytypes.APyFloat" title="apytypes.APyFloat" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">x</span></a><span class="p">,</span> <a href="../api/apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a><span class="p">):</span>
     <span class="n">table_row</span> <span class="o">=</span> <a href="../api/apyfloat.html#apytypes.APyFloat.man" title="apytypes.APyFloat.man" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-property"><span class="n">x</span><span class="o">.</span><span class="n">man</span></a> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="mi">23</span> <span class="o">-</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">N</span></a><span class="p">)</span>  <span class="c1"># N most significant bits of x</span>
     <span class="n">new_exp</span> <span class="o">=</span> <span class="mi">253</span> <span class="o">-</span> <a href="../api/apyfloat.html#apytypes.APyFloat.exp" title="apytypes.APyFloat.exp" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-property"><span class="n">x</span><span class="o">.</span><span class="n">exp</span></a>
     <span class="n">new_man</span> <span class="o">=</span> <span class="p">(</span><a href="../api/apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a><span class="p">[</span><span class="n">table_row</span><span class="p">]</span><span class="o">.</span><span class="n">to_bits</span><span class="p">()</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">WL</span></a> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="mi">23</span> <span class="o">-</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">WL</span></a> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
@@ -441,7 +442,7 @@ single-precision floating-point representation.</p>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_reciprocal_lookup_002.png" srcset="../_images/sphx_glr_reciprocal_lookup_002.png" alt="Approximation errors" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.306 seconds)</p>
+<img src="../_images/sphx_glr_reciprocal_lookup_002.png" srcset="../_images/sphx_glr_reciprocal_lookup_002.png" alt="Approximation errors" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.318 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-reciprocal-lookup-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/4cfac77f9d94b4d258ee368487d4b60c/reciprocal_lookup.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">reciprocal_lookup.ipynb</span></code></a></p>

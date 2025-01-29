@@ -7,7 +7,7 @@
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>APyFixed - APyTypes documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
@@ -216,6 +216,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/context.html">Context handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/quantizationoverflow.html">Quantization and overflow handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/utils.html">Utility functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/codegeneration.html">Code generation</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../cpp_api/index.html">APyTypes C++ API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of APyTypes C++ API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -302,7 +303,7 @@ to download the full example code.</p>
 However, there are also convenience methods to do this either from a float, a string, or a bit-pattern.
 One can also supply the number of fractional bits; two out of the three (total, integer, and fractional
 bits) must be supplied.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">apytypes</span> <span class="kn">import</span> <a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class"><span class="n">APyFixed</span></a>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class"><span class="n">APyFixed</span></a>
 
 <a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">a</span></a> <span class="o">=</span> <a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class"><span class="n">APyFixed</span></a><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 <a href="../api/apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed" class="sphx-glr-backref-module-apytypes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">a</span></a>
@@ -393,7 +394,7 @@ it is not recommended as it can yield unexpected results. Consider the expressio
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>APyFixed(124, bits=7, int_bits=4)
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.002 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.003 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-apyfixed-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/2cae3500da720d045fddba63b9a7af26/apyfixed.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">apyfixed.ipynb</span></code></a></p>
