@@ -1,5 +1,5 @@
 #
-# This workflow will run the APyTypes test suite including the cocotb examples.
+# This workflow will run the APyTypes test suite including the cocotb and VHDL generation examples.
 #
 # For more information see:
 # https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
@@ -41,11 +41,16 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install pytest numpy meson-python setuptools_scm cocotb
+        python -m pip install pytest numpy meson-python setuptools_scm cocotb pytest-cov ninja
     - name: Install APyTypes
       run: |
         git fetch --tags
-        python -m pip install --no-deps -v .
+        python -m pip install --no-deps --no-build-isolation -v --editable .
     - name: Test with pytest
       run: |
-        pytest --color=yes -rs lib/test
+        pytest --color=yes --cov=lib --log-level=DEBUG lib/test
+    - name: Upload coverage reports to Codecov
+      if: ${{ !cancelled()}}
+      uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3  # v5.3.1
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
