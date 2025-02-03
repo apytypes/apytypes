@@ -66,7 +66,7 @@ using different number of fractional bits and different quantization schemes.
         rotation_matrix = apy.fx([[cosa, -sina], [sina, cosa]], 2, frac_bits)
         rm = rotation_matrix.to_numpy()
         print(
-            f"{frac_bits} fractional bits. Gain: {np.hypot(*rm[0,:])}. Angle: {np.arctan2(*rm[1,:])}."
+            f"{frac_bits} fractional bits. Gain: {np.hypot(*rm[0, :])}. Angle: {np.arctan2(*rm[1, :])}."
         )
 
 
@@ -111,7 +111,7 @@ using different number of fractional bits and different quantization schemes.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.118 seconds)
+   **Total running time of the script:** (0 minutes 0.115 seconds)
 
 
 .. _sphx_glr_download_examples_vectorrotation.py:

@@ -73,9 +73,9 @@ Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are availabl
                 if z_ref.is_nan:
                     assert z_dut.is_nan
                 else:
-                    assert (
-                        int(dut.z_out.value) == z_ref.to_bits()
-                    ), f"{z_dut!r}({z_dut}) == {z_ref!r}({z_ref})\n{x=}({x}), {y=}({y})"
+                    assert int(dut.z_out.value) == z_ref.to_bits(), (
+                        f"{z_dut!r}({z_dut}) == {z_ref!r}({z_ref})\n{x=}({x}), {y=}({y})"
+                    )
 
 
 
@@ -154,7 +154,7 @@ The contents of ``fp8_multiplier.vhdl`` is shown below.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 16.242 seconds)
+   **Total running time of the script:** (0 minutes 15.576 seconds)
 
 
 .. _sphx_glr_download_examples_test_fp8_mul.py:
