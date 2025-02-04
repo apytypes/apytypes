@@ -33,15 +33,11 @@ jobs:
         git fetch --tags
         python -m pip install --no-deps -v .
     - name: Create and check stubs
-      # uses: nickcharlton/diff-check@main
-      # with:
-      #   command: |
-      #     ./stubgen.sh
-      #     ruff format lib/apytypes/*.pyi
-      run: |
-        ./stubgen.sh
-        ruff format lib/apytypes/*.pyi
-        git diff
+      uses: nickcharlton/diff-check@9fa7ac2bd275b9ec60f13dbcef1b90cfaadc1872  # v1.0.0
+      with:
+        command: |
+          ./stubgen.sh
+          ruff format lib/apytypes/*.pyi
     - name: Test with doctest
       run: |
         python -m doctest lib/apytypes/*.pyi
