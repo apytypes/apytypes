@@ -32,12 +32,10 @@
  */
 #if defined(_MSC_VEC)
 #include <intrin.h>
+#pragma intrinsic(_umul128)
 #endif
 
-/*
- * GMP should be included after all other includes
- */
-#include "../extern/mini-gmp/mini-gmp.h"
+#include "apytypes_mp.h"
 
 /*
  * Conditional inlining of utility functions if profiling `_APY_PROFILING`
@@ -52,16 +50,11 @@
  * Macro for splitting a single `std::uint64_t` into enough limbs in list style
  */
 #if COMPILER_LIMB_SIZE == 64
-#define UINT64_TO_LIMB(x) mp_limb_t(x)
+#define UINT64_TO_LIMB(x) apy_limb_t(x)
 #else
-#define UINT64_TO_LIMB(x) mp_limb_t(std::uint64_t(x)), mp_limb_t(std::uint64_t(x) >> 32)
+#define UINT64_TO_LIMB(x)                                                              \
+    apy_limb_t(std::uint64_t(x)), apy_limb_t(std::uint64_t(x) >> 32)
 #endif
-
-/*
- * Sizes of GMP limbs (underlying words)
- */
-static constexpr std::size_t _LIMB_SIZE_BYTES = sizeof(mp_limb_t);
-static constexpr std::size_t _LIMB_SIZE_BITS = 8 * _LIMB_SIZE_BYTES;
 
 /*
  * Not implemented exception
@@ -84,6 +77,39 @@ public:
 #else // GCC, Clang
     __builtin_unreachable();
 #endif
+}
+
+//! Compute multiplication between two apy_limb_t and obtain double length result
+template <typename INT_TYPE>
+[[maybe_unused, nodiscard]] static APY_INLINE INT_TYPE
+long_mult(INT_TYPE* high_limb, INT_TYPE src0, INT_TYPE src1)
+{
+    if constexpr (sizeof(INT_TYPE) == 4) {
+        std::uint64_t res = (std::uint64_t)src0 * (std::uint64_t)src1;
+        *high_limb = INT_TYPE(res >> 32);
+        return INT_TYPE(res);
+    } else {
+#if defined(__GNUC__)
+        // GNU C-compatible compiler (including Clang and MacOS Xcode)
+        unsigned __int128 res = (unsigned __int128)src0 * (unsigned __int128)src1;
+        *high_limb = INT_TYPE(res >> 64);
+        return INT_TYPE(res);
+#elif defined(_MSC_VER)
+        // Microsoft Visual C/C++ compiler
+        return INT_TYPE(_umul128(src0, src1, high_limb));
+#else
+        // No 128-bit multiplication intrinsic found. We could implement this function,
+        // but fail for now so we can clearly see which systems are missing out on these
+        // intrinsics.
+        static_assert(
+            false,
+            "long_mult(INT_TYPE n): No intrinsic available on your compiler. Please "
+            "open an issue at https://github.com/apytypes/apytypes/issues with "
+            "information about the compiler and platform and we will be happy to add "
+            "support for it."
+        );
+#endif
+    }
 }
 
 //! Compute the number of trailing zeros in an integer
@@ -115,7 +141,12 @@ template <typename INT_TYPE>
     // No trailing zeros intrinsic found. We could implement this function using a
     // bit-counting while-loop, but fail for now so we can clearly see which systems are
     // missing out on these intrinsics.
-    static_assert(false, "trailing_zeros(INT_TYPE n): No intrinsic available.");
+    static_assert(
+        false,
+        "trailing_zeros(INT_TYPE n): No intrinsic available for your compiler. Please "
+        "open an issue at https://github.com/apytypes/apytypes/issues with information "
+        "about the compiler and platform and we will be happy to add support for it."
+    );
 #endif
 }
 
@@ -145,7 +176,12 @@ template <typename INT_TYPE>
     // No leading zeros intrinsic found. We could implement this function using a
     // bit-counting while-loop, but fail for now so we can clearly see which systems are
     // missing out on these intrinsics.
-    static_assert(false, "leading_zeros(INT_TYPE n): No intrinsic available.");
+    static_assert(
+        false,
+        "leading_zeros(INT_TYPE n): No intrinsic available for your compiler. Please "
+        "open an issue at https://github.com/apytypes/apytypes/issues with information "
+        "about the platform and we will be happy to add support for it."
+    );
 #endif
 }
 
@@ -177,10 +213,10 @@ template <typename INT_TYPE>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t bits_to_limbs(std::size_t bits
 )
 {
-    static_assert(_LIMB_SIZE_BITS == 64 || _LIMB_SIZE_BITS == 32);
-    if constexpr (_LIMB_SIZE_BITS == 64) {
+    static_assert(APY_LIMB_SIZE_BITS == 64 || APY_LIMB_SIZE_BITS == 32);
+    if constexpr (APY_LIMB_SIZE_BITS == 64) {
         return ((bits - 1) >> 6) + 1;
-    } else { /* _LIMB_SIZE_BITS == 32 */
+    } else { /* APY_LIMB_SIZE_BITS == 32 */
         return ((bits - 1) >> 5) + 1;
     }
 }
@@ -209,10 +245,10 @@ limb_vector_leading_zeros(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR e
     std::size_t zero_limbs = std::distance(rev_non_zero_it.base(), end);
     if (rev_non_zero_it.base() == begin) {
         // All limbs are zero limbs
-        return _LIMB_SIZE_BITS * zero_limbs;
+        return APY_LIMB_SIZE_BITS * zero_limbs;
     } else {
         // Some of the limbs are non-zero
-        return _LIMB_SIZE_BITS * zero_limbs + leading_zeros(*rev_non_zero_it);
+        return APY_LIMB_SIZE_BITS * zero_limbs + leading_zeros(*rev_non_zero_it);
     }
 }
 
@@ -221,21 +257,21 @@ template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t
 limb_vector_leading_ones(RANDOM_ACCESS_ITERATOR begin, RANDOM_ACCESS_ITERATOR end)
 {
-    auto is_not_all_ones = [](auto n) { return n != mp_limb_t(-1); };
+    auto is_not_all_ones = [](auto n) { return n != apy_limb_t(-1); };
     auto rev_not_all_ones_it = std::find_if(
         std::reverse_iterator(end), std::reverse_iterator(begin), is_not_all_ones
     );
     std::size_t all_ones_limbs = std::distance(rev_not_all_ones_it.base(), end);
     if (rev_not_all_ones_it.base() == begin) {
         // All limbs are ones limbs
-        return _LIMB_SIZE_BITS * all_ones_limbs;
+        return APY_LIMB_SIZE_BITS * all_ones_limbs;
     } else {
         // Some of the limbs are not all ones
-        return _LIMB_SIZE_BITS * all_ones_limbs + leading_ones(*rev_not_all_ones_it);
+        return APY_LIMB_SIZE_BITS * all_ones_limbs + leading_ones(*rev_not_all_ones_it);
     }
 }
 
-//! Quickly count the number of nibbles in an unsigned `mp_limb_t`
+//! Quickly count the number of nibbles in an unsigned `apy_limb_t`
 template <typename INT_TYPE>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t nibble_width(INT_TYPE x)
 {
@@ -247,17 +283,17 @@ template <typename INT_TYPE>
     }
 }
 
-//! Convert a positive arbitrary size integer array (`std::vector<mp_limb_t>`) to a
+//! Convert a positive arbitrary size integer array (`std::vector<apy_limb_t>`) to a
 //! nibble list. The nibble list contains least significant nibble first. Argument `len`
 //! indicates the intended bcd length of the output. When set, no more than
 //! `result.rend() - len` zeros will be removed.
 [[maybe_unused, nodiscard]] static APY_INLINE std::vector<std::uint8_t>
-to_nibble_list(const std::vector<mp_limb_t>& data_array, std::size_t len = 0)
+to_nibble_list(const std::vector<apy_limb_t>& data_array, std::size_t len = 0)
 {
-    constexpr std::size_t NIBBLES_PER_LIMB = 2 * _LIMB_SIZE_BYTES;
+    constexpr std::size_t NIBBLES_PER_LIMB = 2 * APY_LIMB_SIZE_BYTES;
     constexpr std::size_t BITS_PER_NIBBLE = 4;
     std::vector<std::uint8_t> result {};
-    for (mp_limb_t data : data_array) {
+    for (apy_limb_t data : data_array) {
         for (unsigned i = 0; i < NIBBLES_PER_LIMB; i++) {
             result.push_back(std::uint8_t((data >> (BITS_PER_NIBBLE * i)) & 0x0F));
         }
@@ -273,12 +309,12 @@ to_nibble_list(const std::vector<mp_limb_t>& data_array, std::size_t len = 0)
 }
 
 //! Convert a nibble list into a positive integer array
-//! (`std::vector<mp_limb_t>`). The nibble list is assumed to have least
+//! (`std::vector<apy_limb_t>`). The nibble list is assumed to have least
 //! significant nibble first.
-[[maybe_unused, nodiscard]] static APY_INLINE std::vector<mp_limb_t>
+[[maybe_unused, nodiscard]] static APY_INLINE std::vector<apy_limb_t>
 from_nibble_list(const std::vector<std::uint8_t>& nibble_list)
 {
-    constexpr std::size_t NIBBLES_PER_LIMB = 2 * _LIMB_SIZE_BYTES;
+    constexpr std::size_t NIBBLES_PER_LIMB = 2 * APY_LIMB_SIZE_BYTES;
     constexpr std::size_t BITS_PER_NIBBLE = 4;
 
     // Compute the total number of limbs in the result vector
@@ -286,15 +322,15 @@ from_nibble_list(const std::vector<std::uint8_t>& nibble_list)
     limbs += nibble_list.size() % NIBBLES_PER_LIMB != 0 ? 1 : 0;
 
     // Insert one nibble to the limb vector at a time
-    std::vector<mp_limb_t> result(limbs, 0);
+    std::vector<apy_limb_t> result(limbs, 0);
     for (std::size_t limb_i = 0; limb_i < result.size(); limb_i++) {
-        mp_limb_t limb = 0;
+        apy_limb_t limb = 0;
         for (std::size_t nbl_i = 0; nbl_i < NIBBLES_PER_LIMB; nbl_i++) {
             auto i = limb_i * NIBBLES_PER_LIMB + nbl_i;
             if (i >= nibble_list.size()) {
                 break;
             }
-            limb |= (mp_limb_t(nibble_list[i]) & 0xF) << (nbl_i * BITS_PER_NIBBLE);
+            limb |= (apy_limb_t(nibble_list[i]) & 0xF) << (nbl_i * BITS_PER_NIBBLE);
         }
         result[limb_i] = limb;
     }
@@ -306,17 +342,17 @@ from_nibble_list(const std::vector<std::uint8_t>& nibble_list)
 struct DoubleDabbleList {
 
     //! Mask with a bit in every position where a nibble starts
-    static constexpr mp_limb_t _NIBBLE_MASK = _LIMB_SIZE_BITS == 64
+    static constexpr apy_limb_t _NIBBLE_MASK = APY_LIMB_SIZE_BITS == 64
         ? 0x1111111111111111 // 64-bit architecture
         : 0x11111111;        // 32-bit architecture
 
-    std::vector<mp_limb_t> data { 0 };
+    std::vector<apy_limb_t> data { 0 };
 
     //! Do one iteration of double (double-dabble)
-    void do_double(mp_limb_t new_bit)
+    void do_double(apy_limb_t new_bit)
     {
         // Perform a single bit left shift (double)
-        if (mpn_lshift(&data[0], &data[0], data.size(), 1)) {
+        if (apy_inplace_left_shift(&data[0], data.size(), 1)) {
             data.push_back(1);
         }
         if (new_bit) {
@@ -329,16 +365,16 @@ struct DoubleDabbleList {
     {
         for (auto& l : data) {
             // Add 3 to each nibble GEQ 5
-            mp_limb_t dabble_mask
+            apy_limb_t dabble_mask
                 = (((l | l >> 1) & (l >> 2)) | (l >> 3)) & _NIBBLE_MASK;
             l += (dabble_mask << 1) | dabble_mask;
         }
     }
 
     //! Do one iteration of reverse double (reverse double-dabble)
-    void do_reverse_double(mp_limb_t& limb_out)
+    void do_reverse_double(apy_limb_t& limb_out)
     {
-        limb_out |= mpn_rshift(&data[0], &data[0], data.size(), 1);
+        limb_out |= apy_inplace_right_shift(&data[0], data.size(), 1);
     }
 
     //! Do one iteration of reverse dabble (reverse double-dabble)
@@ -346,15 +382,15 @@ struct DoubleDabbleList {
     {
         for (auto& l : data) {
             // Subtract 3 from each nibble GEQ 8
-            mp_limb_t dabble_mask = (l >> 3) & _NIBBLE_MASK;
+            apy_limb_t dabble_mask = (l >> 3) & _NIBBLE_MASK;
             l -= (dabble_mask << 1) | dabble_mask;
         }
     }
 };
 
 //! Double-dabble algorithm for binary->BCD conversion
-[[maybe_unused, nodiscard]] static APY_INLINE std::vector<mp_limb_t>
-double_dabble(std::vector<mp_limb_t> nibble_data)
+[[maybe_unused, nodiscard]] static APY_INLINE std::vector<apy_limb_t>
+double_dabble(std::vector<apy_limb_t> nibble_data)
 {
     if (!nibble_data.size()) {
         return {};
@@ -372,14 +408,14 @@ double_dabble(std::vector<mp_limb_t> nibble_data)
     DoubleDabbleList bcd_list {};
     const auto nibbles_last_limb = nibble_width(nibble_data.back());
     const auto nibbles
-        = nibbles_last_limb + _LIMB_SIZE_BITS / 4 * (nibble_data.size() - 1);
-    const mp_limb_t new_bit_mask = nibbles_last_limb == 0
-        ? mp_limb_t(1) << (_LIMB_SIZE_BITS - 1)
-        : mp_limb_t(1) << (4 * nibbles_last_limb - 1);
+        = nibbles_last_limb + APY_LIMB_SIZE_BITS / 4 * (nibble_data.size() - 1);
+    const apy_limb_t new_bit_mask = nibbles_last_limb == 0
+        ? apy_limb_t(1) << (APY_LIMB_SIZE_BITS - 1)
+        : apy_limb_t(1) << (4 * nibbles_last_limb - 1);
     for (std::size_t i = 0; i < 4 * nibbles; i++) {
         // Shift input data left once
-        mp_limb_t new_bit = nibble_data.back() & new_bit_mask;
-        mpn_lshift(&nibble_data[0], &nibble_data[0], nibble_data.size(), 1);
+        apy_limb_t new_bit = nibble_data.back() & new_bit_mask;
+        apy_inplace_left_shift(&nibble_data[0], nibble_data.size(), 1);
 
         // Do the double-dabble (dabble-double)
         bcd_list.do_dabble();
@@ -390,7 +426,7 @@ double_dabble(std::vector<mp_limb_t> nibble_data)
 
 //! Convert a BCD limb vector into a `std::string`.
 [[maybe_unused, nodiscard]] static APY_INLINE std::string
-bcds_to_string(const std::vector<mp_limb_t> bcds)
+bcds_to_string(const std::vector<apy_limb_t> bcds)
 {
     if (bcds.size() == 0) {
         return "";
@@ -405,14 +441,14 @@ bcds_to_string(const std::vector<mp_limb_t> bcds)
 
     // Any remaining limbs *should* must be zero padded
     for (auto limb_it = bcds.crbegin() + 1; limb_it != bcds.crend(); ++limb_it) {
-        ss << std::setw(2 * _LIMB_SIZE_BYTES) << std::setfill('0') << *limb_it;
+        ss << std::setw(2 * APY_LIMB_SIZE_BYTES) << std::setfill('0') << *limb_it;
     }
 
     return ss.str();
 }
 
 //! Reverse double-dabble algorithm for BCD->binary conversion
-[[maybe_unused, nodiscard]] static APY_INLINE std::vector<mp_limb_t>
+[[maybe_unused, nodiscard]] static APY_INLINE std::vector<apy_limb_t>
 reverse_double_dabble(const std::vector<std::uint8_t>& bcd_list)
 {
     if (bcd_list.size() == 0) {
@@ -420,9 +456,9 @@ reverse_double_dabble(const std::vector<std::uint8_t>& bcd_list)
     }
 
     std::size_t iteration = 0;
-    std::vector<mp_limb_t> nibble_data {};
+    std::vector<apy_limb_t> nibble_data {};
     DoubleDabbleList bcd { from_nibble_list(bcd_list) };
-    mp_limb_t new_limb = 0;
+    apy_limb_t new_limb = 0;
     while (
         // As long as there are elements remaining in the BCD list, and we haven't
         // completed a multiple-of-four iterations
@@ -431,12 +467,11 @@ reverse_double_dabble(const std::vector<std::uint8_t>& bcd_list)
     ) {
         // Right shift the nibble binary data
         if (iteration) {
-            new_limb
-                = mpn_rshift(&nibble_data[0], &nibble_data[0], nibble_data.size(), 1);
+            new_limb = apy_inplace_right_shift(&nibble_data[0], nibble_data.size(), 1);
         }
 
         // Insert a new limb to the nibble data vector
-        if (iteration % _LIMB_SIZE_BITS == 0) {
+        if (iteration % APY_LIMB_SIZE_BITS == 0) {
             nibble_data.insert(nibble_data.begin(), new_limb);
         }
 
@@ -449,38 +484,39 @@ reverse_double_dabble(const std::vector<std::uint8_t>& bcd_list)
     }
 
     // Right-adjust the data and return
-    auto shft_val = (_LIMB_SIZE_BITS - (iteration % _LIMB_SIZE_BITS)) % _LIMB_SIZE_BITS;
+    auto shft_val
+        = (APY_LIMB_SIZE_BITS - (iteration % APY_LIMB_SIZE_BITS)) % APY_LIMB_SIZE_BITS;
     if (iteration && shft_val) {
-        mpn_rshift(&nibble_data[0], &nibble_data[0], nibble_data.size(), shft_val);
+        apy_inplace_right_shift(&nibble_data[0], nibble_data.size(), shft_val);
     }
 
-    return nibble_data.size() ? nibble_data : std::vector<mp_limb_t> { 0 };
+    return nibble_data.size() ? nibble_data : std::vector<apy_limb_t> { 0 };
 }
 
 //! Divide the number in a BCD limb vector by two.
 [[maybe_unused]] static APY_INLINE void
-bcd_limb_vec_div2(std::vector<mp_limb_t>& bcd_list)
+bcd_limb_vec_div2(std::vector<apy_limb_t>& bcd_list)
 {
     if (bcd_list.size() == 0) {
         return;
     }
 
     // Do a single vector right-shift and possibly prepend the new data
-    auto shift_out = mpn_rshift(&bcd_list[0], &bcd_list[0], bcd_list.size(), 1);
+    auto shift_out = apy_inplace_right_shift(&bcd_list[0], bcd_list.size(), 1);
     if (shift_out) {
         bcd_list.insert(bcd_list.begin(), shift_out);
     }
 
     // Subtract 3 from each nibble greater than or equal to 8
     for (auto& l : bcd_list) {
-        mp_limb_t dabble_mask = (l >> 3) & DoubleDabbleList::_NIBBLE_MASK;
+        apy_limb_t dabble_mask = (l >> 3) & DoubleDabbleList::_NIBBLE_MASK;
         l -= (dabble_mask << 1) | dabble_mask;
     }
 }
 
 //! Multiply the number in a BCD limb vector by two.
 [[maybe_unused]] static APY_INLINE void
-bcd_limb_vec_mul2(std::vector<mp_limb_t>& bcd_list)
+bcd_limb_vec_mul2(std::vector<apy_limb_t>& bcd_list)
 {
     if (bcd_list.size() == 0) {
         return;
@@ -488,13 +524,13 @@ bcd_limb_vec_mul2(std::vector<mp_limb_t>& bcd_list)
 
     // Add 3 to each nibble greater than or equal to 5
     for (auto& l : bcd_list) {
-        mp_limb_t dabble_mask
+        apy_limb_t dabble_mask
             = (((l | l >> 1) & (l >> 2)) | (l >> 3)) & DoubleDabbleList::_NIBBLE_MASK;
         l += (dabble_mask << 1) | dabble_mask;
     }
 
     // Multiply by two
-    auto shift_out = mpn_lshift(&bcd_list[0], &bcd_list[0], bcd_list.size(), 1);
+    auto shift_out = apy_inplace_left_shift(&bcd_list[0], bcd_list.size(), 1);
     if (shift_out) {
         bcd_list.push_back(shift_out);
     }
@@ -591,7 +627,7 @@ string_trim_zeros(const std::string& str)
     return result.size() ? result : "0";
 }
 
-//! Perform arithmetic right shift on a limb vector. Accelerated using GMP.
+//! Perform arithmetic right shift on a limb vector.
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE void limb_vector_asr(
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned shift_amnt
@@ -602,9 +638,9 @@ template <class RANDOM_ACCESS_ITERATOR>
         return;
     }
 
-    mp_limb_t sign_limb = mp_limb_signed_t(*(it_end - 1)) >> (_LIMB_SIZE_BITS - 1);
+    apy_limb_t sign_limb = apy_limb_signed_t(*(it_end - 1)) >> (APY_LIMB_SIZE_BITS - 1);
     std::size_t vec_size = std::distance(it_begin, it_end);
-    unsigned limb_skip = shift_amnt / _LIMB_SIZE_BITS;
+    unsigned limb_skip = shift_amnt / APY_LIMB_SIZE_BITS;
     if (limb_skip >= vec_size) {
         std::fill(it_begin, it_end, sign_limb);
         return; // early return
@@ -618,23 +654,23 @@ template <class RANDOM_ACCESS_ITERATOR>
     }
 
     // Perform the in-limb shifting
-    unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
+    unsigned limb_shift = shift_amnt % APY_LIMB_SIZE_BITS;
     if (limb_shift) {
-        mpn_rshift(
-            &*it_begin, // dst
-            &*it_begin, // src
+        apy_inplace_right_shift(
+            &*it_begin, // dst/src
             vec_size,   // limb vector size
             limb_shift  // shift amount
         );
 
         // Sign extend the most significant bits
         if (sign_limb) {
-            *(it_end - 1) |= ~((mp_limb_t(1) << (_LIMB_SIZE_BITS - limb_shift)) - 1);
+            *(it_end - 1)
+                |= ~((apy_limb_t(1) << (APY_LIMB_SIZE_BITS - limb_shift)) - 1);
         }
     }
 }
 
-//! Perform logical right shift on a limb vector. Accelerated using GMP.
+//! Perform logical right shift on a limb vector.
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE void limb_vector_lsr(
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned shift_amnt
@@ -646,7 +682,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     }
 
     std::size_t vec_size = std::distance(it_begin, it_end);
-    unsigned limb_skip = shift_amnt / _LIMB_SIZE_BITS;
+    unsigned limb_skip = shift_amnt / APY_LIMB_SIZE_BITS;
     if (limb_skip >= vec_size) {
         std::fill(it_begin, it_end, 0);
         return; // early return
@@ -659,19 +695,18 @@ template <class RANDOM_ACCESS_ITERATOR>
         }
     }
 
-    unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
+    unsigned limb_shift = shift_amnt % APY_LIMB_SIZE_BITS;
     // Perform the in-limb shifting
     if (limb_shift) {
-        mpn_rshift(
-            &*it_begin, // dst
-            &*it_begin, // src
+        apy_inplace_right_shift(
+            &*it_begin, // dst/src
             vec_size,   // limb vector size
             limb_shift  // shift amount
         );
     }
 }
 
-//! Perform logical left shift on a limb vector. Accelerated using GMP.
+//! Perform logical left shift on a limb vector.
 template <class RANDOM_ACCESS_ITERATOR>
 static APY_INLINE void limb_vector_lsl_inner(
     RANDOM_ACCESS_ITERATOR it_begin,
@@ -692,16 +727,15 @@ static APY_INLINE void limb_vector_lsl_inner(
 
     // Perform the in-limb shifting
     if (limb_shift) {
-        mpn_lshift(
-            &*it_begin, // dst
-            &*it_begin, // src
+        apy_inplace_left_shift(
+            &*it_begin, // src/dst
             vec_size,   // limb vector size
             limb_shift  // shift amount
         );
     }
 }
 
-//! Perform logical left shift on a limb vector. Accelerated using GMP.
+//! Perform logical left shift on a limb vector.
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE void limb_vector_lsl(
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned shift_amnt
@@ -713,12 +747,12 @@ template <class RANDOM_ACCESS_ITERATOR>
     }
 
     std::size_t vec_size = std::distance(it_begin, it_end);
-    unsigned limb_skip = shift_amnt / _LIMB_SIZE_BITS;
+    unsigned limb_skip = shift_amnt / APY_LIMB_SIZE_BITS;
     if (limb_skip >= vec_size) {
         std::fill(it_begin, it_end, 0);
         return; // early return
     }
-    unsigned limb_shift = shift_amnt % _LIMB_SIZE_BITS;
+    unsigned limb_shift = shift_amnt % APY_LIMB_SIZE_BITS;
     limb_vector_lsl_inner(it_begin, it_end, limb_skip, limb_shift, vec_size);
 }
 
@@ -729,8 +763,8 @@ template <class RANDOM_ACCESS_ITERATOR>
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned n
 )
 {
-    unsigned bit_idx = n % _LIMB_SIZE_BITS;
-    unsigned limb_idx = n / _LIMB_SIZE_BITS;
+    unsigned bit_idx = n % APY_LIMB_SIZE_BITS;
+    unsigned limb_idx = n / APY_LIMB_SIZE_BITS;
     std::size_t n_limbs = std::distance(it_begin, it_end);
 
     if (limb_idx >= n_limbs) {
@@ -738,8 +772,8 @@ template <class RANDOM_ACCESS_ITERATOR>
         return false;
     }
 
-    // In the first limb, test for `bit_idx` up-to `_LIMB_SIZE_BITS - 1`
-    mp_limb_t mask = ~((mp_limb_t(1) << bit_idx) - 1);
+    // In the first limb, test for `bit_idx` up-to `APY_LIMB_SIZE_BITS - 1`
+    apy_limb_t mask = ~((apy_limb_t(1) << bit_idx) - 1);
     if (mask & it_begin[limb_idx]) {
         return true;
     }
@@ -761,7 +795,7 @@ template <class RANDOM_ACCESS_ITERATOR1, class RANDOM_ACCESS_ITERATOR2>
 )
 {
     for (std::size_t i = limbs; i--;) {
-        if (mp_limb_signed_t(src1[i]) < mp_limb_signed_t(src2[i])) {
+        if (apy_limb_signed_t(src1[i]) < apy_limb_signed_t(src2[i])) {
             return true;
         }
     }
@@ -770,17 +804,16 @@ template <class RANDOM_ACCESS_ITERATOR1, class RANDOM_ACCESS_ITERATOR2>
 
 //! Add a power-of-two (2 ^ `n`) onto a limb vector. Return carry out.
 template <class RANDOM_ACCESS_ITERATOR>
-[[maybe_unused]] static APY_INLINE mp_limb_t limb_vector_add_pow2(
+[[maybe_unused]] static APY_INLINE apy_limb_t limb_vector_add_pow2(
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned n
 )
 {
-    unsigned limb_idx = n / _LIMB_SIZE_BITS;
+    unsigned limb_idx = n / APY_LIMB_SIZE_BITS;
     auto limbs = std::distance(it_begin, it_end);
     if (limb_idx < limbs) {
-        mp_limb_t term_limb = mp_limb_t(1) << (n % _LIMB_SIZE_BITS);
-        return mpn_add_1(
+        apy_limb_t term_limb = apy_limb_t(1) << (n % APY_LIMB_SIZE_BITS);
+        return apy_inplace_addition_single_limb(
             &*(it_begin + limb_idx), // dst
-            &*(it_begin + limb_idx), // src1
             limbs - limb_idx,        // src1 limb length
             term_limb                // src2
         );
@@ -790,18 +823,17 @@ template <class RANDOM_ACCESS_ITERATOR>
 
 //! Subtract a power-of-two (2 ^ `n`) from a limb vector. Return borrow.
 template <class RANDOM_ACCESS_ITERATOR>
-[[maybe_unused]] static APY_INLINE mp_limb_t limb_vector_sub_pow2(
+[[maybe_unused]] static APY_INLINE apy_limb_t limb_vector_sub_pow2(
     RANDOM_ACCESS_ITERATOR it_begin, RANDOM_ACCESS_ITERATOR it_end, unsigned n
 )
 {
-    unsigned limb_idx = n / _LIMB_SIZE_BITS;
+    unsigned limb_idx = n / APY_LIMB_SIZE_BITS;
     auto limbs = std::distance(it_begin, it_end);
     if (limb_idx < limbs) {
-        mp_limb_t term_limb = mp_limb_t(1) << (n % _LIMB_SIZE_BITS);
-        return mpn_sub_1(
+        apy_limb_t term_limb = apy_limb_t(1) << (n % APY_LIMB_SIZE_BITS);
+        return apy_inplace_subtraction_single_limb(
             &*(it_begin + limb_idx), // dst
-            &*(it_begin + limb_idx), // src1
-            limbs - limb_idx,        // src1 limb length
+            limbs - limb_idx,        // dst/src1 limb length
             term_limb                // src2
         );
     }
@@ -879,7 +911,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     (void)cbegin_it;
-    return mp_limb_signed_t(*std::prev(cend_it)) < 0;
+    return apy_limb_signed_t(*std::prev(cend_it)) < 0;
 }
 
 //! Test if the stored value of a limb vector is zero (all limbs are zero)
@@ -899,7 +931,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     (void)cend_it;
-    const unsigned full_limbs = n / _LIMB_SIZE_BITS;
+    const unsigned full_limbs = n / APY_LIMB_SIZE_BITS;
 
     // The full limbs can be reduced as full integers
     for (auto limb_it = cbegin_it; limb_it != cbegin_it + full_limbs; ++limb_it) {
@@ -908,11 +940,11 @@ template <class RANDOM_ACCESS_ITERATOR>
         }
     }
 
-    const unsigned last_limb_bits = n % _LIMB_SIZE_BITS;
+    const unsigned last_limb_bits = n % APY_LIMB_SIZE_BITS;
     // The last limb must be masked
     if (last_limb_bits) {
-        mp_limb_t last_limb = *(cbegin_it + full_limbs);
-        mp_limb_t limb_mask = (mp_limb_t(1) << last_limb_bits) - 1;
+        apy_limb_t last_limb = *(cbegin_it + full_limbs);
+        apy_limb_t limb_mask = (apy_limb_t(1) << last_limb_bits) - 1;
         if (last_limb & limb_mask) {
             return true;
         }
@@ -929,10 +961,10 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     (void)cend_it;
-    unsigned bit_idx = n % _LIMB_SIZE_BITS;
-    unsigned limb_idx = n / _LIMB_SIZE_BITS;
-    mp_limb_t mask = mp_limb_t(1) << bit_idx;
-    mp_limb_t limb = cbegin_it[limb_idx];
+    unsigned bit_idx = n % APY_LIMB_SIZE_BITS;
+    unsigned limb_idx = n / APY_LIMB_SIZE_BITS;
+    apy_limb_t mask = apy_limb_t(1) << bit_idx;
+    apy_limb_t limb = cbegin_it[limb_idx];
     return mask & limb;
 }
 
@@ -944,24 +976,24 @@ template <class RANDOM_ACCESS_ITERATOR>
 )
 {
     (void)end_it;
-    unsigned bit_idx = n % _LIMB_SIZE_BITS;
-    unsigned limb_idx = n / _LIMB_SIZE_BITS;
-    mp_limb_t bit_mask = mp_limb_t(1) << bit_idx;
-    mp_limb_t bit_unmask = ~bit_mask;
+    unsigned bit_idx = n % APY_LIMB_SIZE_BITS;
+    unsigned limb_idx = n / APY_LIMB_SIZE_BITS;
+    apy_limb_t bit_mask = apy_limb_t(1) << bit_idx;
+    apy_limb_t bit_unmask = ~bit_mask;
     begin_it[limb_idx]
-        = (begin_it[limb_idx] & bit_unmask) | (mp_limb_t(bit) << bit_idx);
+        = (begin_it[limb_idx] & bit_unmask) | (apy_limb_t(bit) << bit_idx);
 }
 
 //! Take the two's complement negative value of a limb vector and place onto `res_out`
 template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
-[[maybe_unused]] static APY_INLINE mp_limb_t limb_vector_negate(
+[[maybe_unused]] static APY_INLINE apy_limb_t limb_vector_negate(
     RANDOM_ACCESS_ITERATOR_IN cbegin_it,
     RANDOM_ACCESS_ITERATOR_IN cend_it,
     RANDOM_ACCESS_ITERATOR_OUT res_it
 )
 {
     std::transform(cbegin_it, cend_it, res_it, std::bit_not {});
-    return mpn_add_1(&*res_it, &*res_it, std::distance(cbegin_it, cend_it), 1);
+    return apy_inplace_add_one_lsb(&*res_it, std::distance(cbegin_it, cend_it));
 }
 
 //! Take the two's complement absolute value of a limb vector and place onto `res_out`.
@@ -973,7 +1005,7 @@ template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
     RANDOM_ACCESS_ITERATOR_OUT res_it
 )
 {
-    bool is_negative = mp_limb_signed_t(*std::prev(cend_it)) < 0;
+    bool is_negative = apy_limb_signed_t(*std::prev(cend_it)) < 0;
     if (is_negative) {
         limb_vector_negate(cbegin_it, cend_it, res_it);
     } else {
@@ -989,7 +1021,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it, unsigned n = 0
 )
 {
-    mp_limb_t mask = ~((mp_limb_t(1) << n) - 1);
+    apy_limb_t mask = ~((apy_limb_t(1) << n) - 1);
     if (*cbegin_it & mask) {
         // One or more bits in the masked first limb are non-zero
         return false;
@@ -1011,14 +1043,14 @@ template <class RANDOM_ACCESS_ITERATOR>
     RANDOM_ACCESS_ITERATOR cbegin_it, RANDOM_ACCESS_ITERATOR cend_it, unsigned n = 0
 )
 {
-    mp_limb_t mask = ~((mp_limb_t(1) << n) - 1);
+    apy_limb_t mask = ~((apy_limb_t(1) << n) - 1);
     if (~*cbegin_it & mask) {
         // One ore more bits in the masked first limb are non-ones
         return false;
     } else {
         // Test if remaining limbs are all full zero limbs
         for (auto it = cbegin_it + 1; it != cend_it; ++it) {
-            if (*it != mp_limb_t(-1)) {
+            if (*it != apy_limb_t(-1)) {
                 return false;
             }
         }
@@ -1047,19 +1079,19 @@ template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OU
     }
 }
 
-//! Read an unsigned 64-bit value from a limb vector. If `_LIMB_SIZE_BITS == 64`, this
-//! results in a normal vector read without bounds checking. If `_LIMB_SIZE_BITS == 32`,
-//! the second 32-bits limb is bound-checked and the result upper 32-bits are zeroed if
-//! out-of-bounds.
+//! Read an unsigned 64-bit value from a limb vector. If `APY_LIMB_SIZE_BITS == 64`,
+//! this results in a normal vector read without bounds checking. If `APY_LIMB_SIZE_BITS
+//! == 32`, the second 32-bits limb is bound-checked and the result upper 32-bits are
+//! zeroed if out-of-bounds.
 template <typename VECTOR_TYPE>
 [[maybe_unused, nodiscard]] static APY_INLINE uint64_t
 uint64_t_from_limb_vector(const VECTOR_TYPE& limb_vec, std::size_t n)
 {
-    static_assert(_LIMB_SIZE_BITS == 32 || _LIMB_SIZE_BITS == 64);
-    if constexpr (_LIMB_SIZE_BITS == 64) {
+    static_assert(APY_LIMB_SIZE_BITS == 32 || APY_LIMB_SIZE_BITS == 64);
+    if constexpr (APY_LIMB_SIZE_BITS == 64) {
         // No bound-checking for 64-bit limbs
         return limb_vec[n];
-    } else { /* _LIMB_SIZE_BITS == 32 */
+    } else { /* APY_LIMB_SIZE_BITS == 32 */
         if (n + 1 < limb_vec.size()) {
             return uint64_t(limb_vec[n]) | (uint64_t(limb_vec[n + 1]) << 32);
         } else {
@@ -1086,15 +1118,15 @@ template <typename T> std::string tuple_string_from_vec(const std::vector<T>& ve
     }
 }
 
-[[maybe_unused, nodiscard]] static APY_INLINE mp_limb_t
-twos_complement_overflow(mp_limb_t value, int bits)
+[[maybe_unused, nodiscard]] static APY_INLINE apy_limb_t
+twos_complement_overflow(apy_limb_t value, int bits)
 {
-    unsigned limb_shift_val = bits & (_LIMB_SIZE_BITS - 1);
+    unsigned limb_shift_val = bits & (APY_LIMB_SIZE_BITS - 1);
 
     if (limb_shift_val) {
-        auto shift_amnt = _LIMB_SIZE_BITS - limb_shift_val;
-        auto signed_limb = mp_limb_signed_t(value << shift_amnt) >> shift_amnt;
-        return mp_limb_t(signed_limb);
+        auto shift_amnt = APY_LIMB_SIZE_BITS - limb_shift_val;
+        auto signed_limb = apy_limb_signed_t(value << shift_amnt) >> shift_amnt;
+        return apy_limb_t(signed_limb);
     }
     return value;
 }
@@ -1280,7 +1312,7 @@ get_conv_lengths(const std::string& mode, const APY_ARRAY& a, const APY_ARRAY& b
         }                                                                              \
     }
 
-CREATE_FUNCTOR_FROM_FUNC(mpn_add_n_functor, mpn_add_n);
-CREATE_FUNCTOR_FROM_FUNC(mpn_sub_n_functor, mpn_sub_n);
+CREATE_FUNCTOR_FROM_FUNC(apy_add_n_functor, apy_addition_same_length);
+CREATE_FUNCTOR_FROM_FUNC(apy_sub_n_functor, apy_subtraction_same_length);
 
 #endif // _APYTYPES_UTIL_H

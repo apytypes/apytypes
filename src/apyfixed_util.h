@@ -11,10 +11,8 @@
 #include "apytypes_util.h"
 #include "ieee754.h"
 
+#include "apytypes_mp.h"
 #include <functional> // std::bind, std::function, std::placeholders
-
-// GMP should be included after all other includes
-#include "../extern/mini-gmp/mini-gmp.h"
 
 /* ********************************************************************************** *
  * *    Fixed-point iterator based in-place quantization with multi-limb support    * *
@@ -73,7 +71,7 @@ static APY_INLINE void _quantize_trn_inf(
                 }
                 limb_vector_asr(it_begin, it_end, right_shift_amnt);
             } else {
-                mp_limb_t add_one = limb_vector_or_reduce(it_begin, it_end, bits);
+                apy_limb_t add_one = limb_vector_or_reduce(it_begin, it_end, bits);
                 std::fill(it_begin, it_end, 0);
                 *it_begin = add_one;
             }
@@ -169,7 +167,7 @@ static APY_INLINE void _quantize_trn_away(
                 }
                 limb_vector_asr(it_begin, it_end, right_shift_amnt);
             } else {
-                mp_limb_t add_one = limb_vector_or_reduce(it_begin, it_end, bits);
+                apy_limb_t add_one = limb_vector_or_reduce(it_begin, it_end, bits);
                 std::fill(it_begin, it_end, 0);
                 *it_begin = add_one;
             }
@@ -505,10 +503,10 @@ static APY_INLINE void _overflow_twos_complement(
 {
     (void)int_bits;
     (void)it_end;
-    if (bits % _LIMB_SIZE_BITS) {
+    if (bits % APY_LIMB_SIZE_BITS) {
         RANDOM_ACCESS_ITERATOR ms_limb_it = it_begin + bits_to_limbs(bits) - 1;
-        unsigned shift_amount = _LIMB_SIZE_BITS - (bits % _LIMB_SIZE_BITS);
-        *ms_limb_it = mp_limb_signed_t(*ms_limb_it << shift_amount) >> shift_amount;
+        unsigned shift_amount = APY_LIMB_SIZE_BITS - (bits % APY_LIMB_SIZE_BITS);
+        *ms_limb_it = apy_limb_signed_t(*ms_limb_it << shift_amount) >> shift_amount;
     }
 }
 
@@ -522,18 +520,18 @@ static APY_INLINE void _overflow_saturate(
 {
     (void)int_bits;
     RANDOM_ACCESS_ITERATOR ms_limb_it = it_begin + bits_to_limbs(bits) - 1;
-    std::size_t utilized_bits_last_limb = (bits - 1) % _LIMB_SIZE_BITS + 1;
+    std::size_t utilized_bits_last_limb = (bits - 1) % APY_LIMB_SIZE_BITS + 1;
 
-    bool sign = mp_limb_signed_t(*std::prev(it_end)) < 0;
+    bool sign = apy_limb_signed_t(*std::prev(it_end)) < 0;
     if (sign) {
         if (!limb_vector_all_ones(ms_limb_it, it_end, utilized_bits_last_limb - 1)) {
             std::fill(it_begin, ms_limb_it, 0);
-            *ms_limb_it = ~((mp_limb_t(1) << (utilized_bits_last_limb - 1)) - 1);
+            *ms_limb_it = ~((apy_limb_t(1) << (utilized_bits_last_limb - 1)) - 1);
         }
     } else { /* !sign */
         if (!limb_vector_all_zeros(ms_limb_it, it_end, utilized_bits_last_limb - 1)) {
-            std::fill(it_begin, ms_limb_it, mp_limb_t(-1));
-            *ms_limb_it = (mp_limb_t(1) << (utilized_bits_last_limb - 1)) - 1;
+            std::fill(it_begin, ms_limb_it, apy_limb_t(-1));
+            *ms_limb_it = (apy_limb_t(1) << (utilized_bits_last_limb - 1)) - 1;
         }
     }
 }
@@ -548,15 +546,15 @@ static APY_INLINE void _overflow_numeric_std(
 {
     (void)int_bits;
     RANDOM_ACCESS_ITERATOR ms_limb_it = it_begin + bits_to_limbs(bits) - 1;
-    std::size_t utilized_bits_last_limb = (bits - 1) % _LIMB_SIZE_BITS + 1;
+    std::size_t utilized_bits_last_limb = (bits - 1) % APY_LIMB_SIZE_BITS + 1;
 
-    bool sign = mp_limb_signed_t(*std::prev(it_end)) < 0;
+    bool sign = apy_limb_signed_t(*std::prev(it_end)) < 0;
     if (sign) {
         // Force a `1` into the sign position (and above)
-        *ms_limb_it |= ~((mp_limb_t(1) << (utilized_bits_last_limb - 1)) - 1);
+        *ms_limb_it |= ~((apy_limb_t(1) << (utilized_bits_last_limb - 1)) - 1);
     } else { /* !sign */
         // Force a `0` into the sign position (and above)
-        *ms_limb_it &= ((mp_limb_t(1) << (utilized_bits_last_limb - 1)) - 1);
+        *ms_limb_it &= ((apy_limb_t(1) << (utilized_bits_last_limb - 1)) - 1);
     }
 }
 
@@ -682,8 +680,8 @@ static APY_INLINE void _cast_no_quantize_no_overflow(
                     dst[i] = src[i] << left_shift_amount;
                 }
             } else { /* src_limbs == dst_limbs > 1 */
-                unsigned limb_skip = left_shift_amount / _LIMB_SIZE_BITS;
-                unsigned limb_shift = left_shift_amount % _LIMB_SIZE_BITS;
+                unsigned limb_skip = left_shift_amount / APY_LIMB_SIZE_BITS;
+                unsigned limb_shift = left_shift_amount % APY_LIMB_SIZE_BITS;
                 for (std::size_t i = 0; i < n_items; i++) {
                     limb_vector_lsl_inner(
                         dst + (i + 0) * dst_limbs,
@@ -751,30 +749,32 @@ static APY_INLINE void fixed_point_product(
     RANDOM_ACCESS_ITERATOR_INOUT prod_abs
 )
 {
+    // Retrieve the absolute value of both operands
+    bool sign1 = limb_vector_abs(src1, src1 + src1_limbs, op1_abs);
+    bool sign2 = limb_vector_abs(src2, src2 + src2_limbs, op2_abs);
+
     // Resulting sign
-    bool sign1 = mp_limb_signed_t(*(src1 + src1_limbs - 1)) < 0;
-    bool sign2 = mp_limb_signed_t(*(src2 + src2_limbs - 1)) < 0;
     bool result_sign = sign1 ^ sign2;
 
-    // Retrieve the absolute value of both operands
-    limb_vector_abs(src1, src1 + src1_limbs, op1_abs);
-    limb_vector_abs(src2, src2 + src2_limbs, op2_abs);
-
-    // Perform the multiplication and possibly negate
+    // Perform the multiplication of absolute values
     if (src1_limbs < src2_limbs) {
-        mpn_mul(&prod_abs[0], &op2_abs[0], src2_limbs, &op1_abs[0], src1_limbs);
+        apy_unsigned_multiplication(
+            &prod_abs[0], &op2_abs[0], src2_limbs, &op1_abs[0], src1_limbs
+        );
     } else {
-        mpn_mul(&prod_abs[0], &op1_abs[0], src1_limbs, &op2_abs[0], src2_limbs);
+        apy_unsigned_multiplication(
+            &prod_abs[0], &op1_abs[0], src1_limbs, &op2_abs[0], src2_limbs
+        );
     }
 
-    // Negate and copy the result back
+    // Possibly negate and copy the result back
     std::size_t prod_limbs = src1_limbs + src2_limbs;
     if (result_sign) {
         if (dst_limbs <= prod_limbs) {
             limb_vector_negate(prod_abs, prod_abs + dst_limbs, dst);
         } else {
             bool is_zero = limb_vector_negate(prod_abs, prod_abs + prod_limbs, dst);
-            mp_limb_t fill_val = is_zero ? mp_limb_t(0) : mp_limb_t(-1);
+            apy_limb_t fill_val = is_zero ? apy_limb_t(0) : apy_limb_t(-1);
             std::fill_n(prod_abs + prod_limbs, dst_limbs - prod_limbs, fill_val);
         }
     } else {
@@ -782,7 +782,7 @@ static APY_INLINE void fixed_point_product(
             std::copy(prod_abs, prod_abs + dst_limbs, dst);
         } else {
             std::copy(prod_abs, prod_abs + prod_limbs, dst);
-            std::fill_n(prod_abs + prod_limbs, dst_limbs - prod_limbs, mp_limb_t(0));
+            std::fill_n(prod_abs + prod_limbs, dst_limbs - prod_limbs, apy_limb_t(0));
         }
     }
 }
@@ -806,12 +806,12 @@ static APY_INLINE void fixed_point_square(
 )
 {
     limb_vector_abs(src, src + src_limbs, op_abs);
-    mpn_sqr(&*prod_abs, &*op_abs, src_limbs);
+    apy_unsigned_multiplication(&*prod_abs, &*op_abs, src_limbs, &*op_abs, src_limbs);
     if (dst_limbs <= 2 * src_limbs) {
         std::copy_n(prod_abs, dst_limbs, dst);
     } else {
         std::copy_n(prod_abs, 2 * src_limbs, dst);
-        std::fill_n(prod_abs + 2 * src_limbs, dst_limbs - 2 * src_limbs, mp_limb_t(0));
+        std::fill_n(prod_abs + 2 * src_limbs, dst_limbs - 2 * src_limbs, apy_limb_t(0));
     }
 }
 
@@ -874,7 +874,7 @@ static APY_INLINE void complex_fixed_point_product(
     std::copy_n(src1 + src1_limbs, src1_limbs, op1_abs);
 
     // bc + ad
-    mpn_add_n(
+    apy_addition_same_length(
         &*(dst + dst_limbs),                             // dst (imag part)
         &*(prod_imm),                                    // src1 (b*c)
         &*(prod_imm + src1_limbs + src2_limbs + 1),      // src2 (a*d)
@@ -908,7 +908,7 @@ static APY_INLINE void complex_fixed_point_product(
     );
 
     // ac - bd
-    mpn_sub_n(
+    apy_subtraction_same_length(
         &*(dst),                                         // dst (real part)
         &*(prod_imm),                                    // src1 (a*c)
         &*(prod_imm + src1_limbs + src2_limbs + 1),      // src2 (b*d)
@@ -969,7 +969,7 @@ static APY_INLINE void complex_fixed_point_division(
         op2_abs,           // op_abs
         prod_imm           // prod_abs
     );
-    mpn_add_n(&den_imm[0], &den_imm[0], &prod_imm[0], 2 * src2_limbs);
+    apy_inplace_addition_same_length(&den_imm[0], &prod_imm[0], 2 * src2_limbs);
     auto den_significant_limbs = significant_limbs(den_imm, den_imm + 2 * src2_limbs);
 
     /*                                          ac + bd
@@ -1000,7 +1000,7 @@ static APY_INLINE void complex_fixed_point_division(
         prod_imm + prod_len  // prod_abs
     );
 
-    mpn_add_n(&prod_imm[0], &prod_imm[0], &prod_imm[0] + prod_len, prod_len);
+    apy_inplace_addition_same_length(&prod_imm[0], &prod_imm[0] + prod_len, prod_len);
     bool real_negative = limb_vector_is_negative(prod_imm, prod_imm + prod_len);
     if (real_negative) {
         limb_vector_negate(prod_imm, prod_imm + div_limbs, num_imm);
@@ -1009,7 +1009,7 @@ static APY_INLINE void complex_fixed_point_division(
     }
     limb_vector_lsl(num_imm, num_imm + div_limbs, src2_bits);
 
-    mpn_div_qr(
+    apy_unsigned_division(
         &qte_imm[0],          // Quotient
         &num_imm[0],          // Numerator
         div_limbs,            // Numerator limbs
@@ -1050,7 +1050,9 @@ static APY_INLINE void complex_fixed_point_division(
         prod_imm + prod_len  // prod_abs
     );
 
-    mpn_sub_n(&prod_imm[0], &prod_imm[0], &prod_imm[0] + prod_len, prod_len);
+    apy_inplace_subtraction_same_length(
+        &prod_imm[0], &prod_imm[0] + prod_len, prod_len
+    );
     bool imag_negative = limb_vector_is_negative(prod_imm, prod_imm + prod_len);
     if (imag_negative) {
         limb_vector_negate(prod_imm, prod_imm + div_limbs, num_imm);
@@ -1059,7 +1061,7 @@ static APY_INLINE void complex_fixed_point_division(
     }
     limb_vector_lsl(num_imm, num_imm + div_limbs, src2_bits);
 
-    mpn_div_qr(
+    apy_unsigned_division(
         &qte_imm[0],          // Quotient
         &num_imm[0],          // Numerator
         div_limbs,            // Numerator limbs
@@ -1086,9 +1088,9 @@ static void fixed_point_hadamard_product(
     std::size_t n_items     // Number of elements to use in inner product
 )
 {
-    ScratchVector<mp_limb_t, 8> op1_abs(src1_limbs);
-    ScratchVector<mp_limb_t, 8> op2_abs(src2_limbs);
-    ScratchVector<mp_limb_t, 16> prod_abs(src1_limbs + src2_limbs);
+    ScratchVector<apy_limb_t, 8> op1_abs(src1_limbs);
+    ScratchVector<apy_limb_t, 8> op2_abs(src2_limbs);
+    ScratchVector<apy_limb_t, 16> prod_abs(src1_limbs + src2_limbs);
     for (std::size_t i = 0; i < n_items; i++) {
         fixed_point_product(
             src1 + i * src1_limbs,
@@ -1127,12 +1129,12 @@ static void fixed_point_inner_product(
     //
     // General case. This always works, but is the slowest variant.
     //
-    ScratchVector<mp_limb_t, 8> op1_abs(src1_limbs);
-    ScratchVector<mp_limb_t, 8> op2_abs(src2_limbs);
+    ScratchVector<apy_limb_t, 8> op1_abs(src1_limbs);
+    ScratchVector<apy_limb_t, 8> op2_abs(src2_limbs);
 
     // Absolute product must be long enough to contain a possibly sign extended result
     std::size_t product_limbs = src1_limbs + src2_limbs;
-    ScratchVector<mp_limb_t, 16> product(std::max(product_limbs, dst_limbs));
+    ScratchVector<apy_limb_t, 16> product(std::max(product_limbs, dst_limbs));
 
     if (dst_limbs <= product_limbs) {
         /*
@@ -1150,7 +1152,7 @@ static void fixed_point_inner_product(
                 std::begin(op2_abs),   // op2_abs scratch vector
                 std::begin(product)    // product_abs scratch_vector
             );
-            mpn_add_n(&dst[0], &dst[0], &product[0], dst_limbs);
+            apy_inplace_addition_same_length(&dst[0], &product[0], dst_limbs);
         }
     } else { /* dst_limbs > product_limbs */
         /*
@@ -1168,14 +1170,14 @@ static void fixed_point_inner_product(
                 std::begin(op2_abs),   // op2_abs scratch vector
                 std::begin(product)    // product_abs scratch_vector
             );
-            if (mp_limb_signed_t(product[product_limbs - 1]) < 0) {
+            if (apy_limb_signed_t(product[product_limbs - 1]) < 0) {
                 // Sign-extend
                 std::fill(std::begin(product) + product_limbs, std::end(product), -1);
             } else {
                 // Zero-extend
                 std::fill(std::begin(product) + product_limbs, std::end(product), 0);
             }
-            mpn_add_n(&dst[0], &dst[0], &product[0], dst_limbs);
+            apy_inplace_addition_same_length(&dst[0], &product[0], dst_limbs);
         }
     }
 }
@@ -1195,12 +1197,12 @@ static void fixed_point_inner_product_accumulator(
     const APyFixedAccumulatorOption& acc
 )
 {
-    ScratchVector<mp_limb_t, 8> op1_abs(src1_limbs);
-    ScratchVector<mp_limb_t, 8> op2_abs(src2_limbs);
+    ScratchVector<apy_limb_t, 8> op1_abs(src1_limbs);
+    ScratchVector<apy_limb_t, 8> op2_abs(src2_limbs);
 
     // Absolute product must be long enough to contain a possibly sign extended result
     std::size_t product_limbs = src1_limbs + src2_limbs;
-    ScratchVector<mp_limb_t, 16> product(std::max(product_limbs, dst_limbs));
+    ScratchVector<apy_limb_t, 16> product(std::max(product_limbs, dst_limbs));
 
     if (dst_limbs <= product_limbs) {
         /*
@@ -1239,7 +1241,7 @@ static void fixed_point_inner_product_accumulator(
             );
 
             // Accumulate
-            mpn_add_n(&dst[0], &dst[0], &product[0], dst_limbs);
+            apy_inplace_addition_same_length(&dst[0], &product[0], dst_limbs);
         }
     } else { /* dst_limbs > product_limbs */
         /*
@@ -1259,7 +1261,7 @@ static void fixed_point_inner_product_accumulator(
                 std::begin(product)
             );
 
-            if (mp_limb_signed_t(product[product_limbs - 1]) < 0) {
+            if (apy_limb_signed_t(product[product_limbs - 1]) < 0) {
                 // Sign-extend
                 std::fill(std::begin(product) + product_limbs, std::end(product), -1);
             } else {
@@ -1286,7 +1288,7 @@ static void fixed_point_inner_product_accumulator(
             );
 
             // Accumulate
-            mpn_add_n(&dst[0], &dst[0], &product[0], dst_limbs);
+            apy_inplace_addition_same_length(&dst[0], &product[0], dst_limbs);
         }
     }
 }
@@ -1351,11 +1353,11 @@ void fixed_point_from_double(
     int int_bits
 )
 {
-    // RANDOM_ACCESS_ITERATOR is `mp_limb_t` iterator (32-bit or 64-bit)
+    // RANDOM_ACCESS_ITERATOR is `apy_limb_t` iterator (32-bit or 64-bit)
     static_assert(std::is_same_v<
-                  mp_limb_t,
+                  apy_limb_t,
                   std::remove_const_t<typename RANDOM_ACCESS_IT::value_type>>);
-    static_assert(_LIMB_SIZE_BITS == 64 || _LIMB_SIZE_BITS == 32);
+    static_assert(APY_LIMB_SIZE_BITS == 64 || APY_LIMB_SIZE_BITS == 32);
 
     if (std::isnan(value) || std::isinf(value)) {
         throw std::domain_error(fmt::format("Cannot convert {} to fixed-point", value));
@@ -1376,7 +1378,7 @@ void fixed_point_from_double(
         left_shift_amnt--;
     }
 
-    if constexpr (_LIMB_SIZE_BITS == 64) {
+    if constexpr (APY_LIMB_SIZE_BITS == 64) {
 
         /*
          * Limb vector size is wide enough to accommodate the full mantissa of a
@@ -1396,7 +1398,7 @@ void fixed_point_from_double(
             limb_vector_lsr(begin_it, end_it, right_shift_amount);
         }
 
-    } else { /* _LIMB_SIZE_BITS == 32 */
+    } else { /* APY_LIMB_SIZE_BITS == 32 */
 
         /*
          * Limb vector size is *NOT* wide enough to accommodate the full mantissa of a
@@ -1451,11 +1453,11 @@ double fixed_point_to_double(
     RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int bits, int int_bits
 )
 {
-    // RANDOM_ACCESS_ITERATOR is `mp_limb_t` iterator (32-bit or 64-bit)
+    // RANDOM_ACCESS_ITERATOR is `apy_limb_t` iterator (32-bit or 64-bit)
     static_assert(std::is_same_v<
-                  mp_limb_t,
+                  apy_limb_t,
                   std::remove_const_t<typename RANDOM_ACCESS_IT::value_type>>);
-    static_assert(_LIMB_SIZE_BITS == 64 || _LIMB_SIZE_BITS == 32);
+    static_assert(APY_LIMB_SIZE_BITS == 64 || APY_LIMB_SIZE_BITS == 32);
 
     if (limb_vector_is_zero(begin_it, end_it)) {
         return 0.0;
@@ -1466,15 +1468,15 @@ double fixed_point_to_double(
     bool sign = limb_vector_is_negative(begin_it, end_it);
     int frac_bits = bits - int_bits;
 
-    if constexpr (_LIMB_SIZE_BITS == 64) {
+    if constexpr (APY_LIMB_SIZE_BITS == 64) {
 
-        ScratchVector<mp_limb_t, 8> man_vec(std::distance(begin_it, end_it));
+        ScratchVector<apy_limb_t, 8> man_vec(std::distance(begin_it, end_it));
         limb_vector_abs(begin_it, end_it, std::begin(man_vec));
         unsigned man_leading_zeros
             = limb_vector_leading_zeros(man_vec.begin(), man_vec.end());
 
         // Compute the shift amount and exponent value
-        int left_shift_n = 53 - _LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
+        int left_shift_n = 53 - APY_LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
         exp = 1023 + 52 - left_shift_n - frac_bits;
         if (exp < 1) {
             // Handle IEEE subnormals
@@ -1493,13 +1495,13 @@ double fixed_point_to_double(
         }
         man = man_vec[0];
 
-    } else { /* _LIMB_SIZE_BITS == 32 */
+    } else { /* APY_LIMB_SIZE_BITS == 32 */
 
         std::size_t n_limbs = std::distance(begin_it, end_it);
-        ScratchVector<mp_limb_t, 8> man_vec(std::max(n_limbs, std::size_t(2)));
+        ScratchVector<apy_limb_t, 8> man_vec(std::max(n_limbs, std::size_t(2)));
         if (n_limbs == 1) {
             man_vec[0] = *begin_it;
-            man_vec[1] = mp_limb_signed_t(*begin_it) < 0 ? -1 : 0;
+            man_vec[1] = apy_limb_signed_t(*begin_it) < 0 ? -1 : 0;
         } else {
             std::copy(begin_it, end_it, man_vec.begin());
         }
@@ -1508,7 +1510,7 @@ double fixed_point_to_double(
             = limb_vector_leading_zeros(man_vec.begin(), man_vec.end());
 
         // Compute the shift amount and exponent value
-        int left_shift_n = 53 - _LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
+        int left_shift_n = 53 - APY_LIMB_SIZE_BITS * man_vec.size() + man_leading_zeros;
         exp = 1023 + 52 - left_shift_n - frac_bits;
         if (exp < 1) {
             // Handle IEEE subnormals
@@ -1545,11 +1547,11 @@ std::string fixed_point_to_string_dec(
 {
     // Construct a string from the absolute value of number, and conditionally append a
     // minus sign to the string if negative
-    std::vector<mp_limb_t> abs_val(std::distance(begin_it, end_it));
+    std::vector<apy_limb_t> abs_val(std::distance(begin_it, end_it));
     bool is_negative = limb_vector_abs(begin_it, end_it, std::begin(abs_val));
 
     // Convert this number to BCD with the double-dabble algorithm
-    std::vector<mp_limb_t> bcd_limb_list = double_dabble(abs_val);
+    std::vector<apy_limb_t> bcd_limb_list = double_dabble(abs_val);
     std::size_t bcd_limb_list_start_size = bcd_limb_list.size();
 
     // Divide BCD limb list by two, one time per fractional bit (if any)
@@ -1559,7 +1561,7 @@ std::string fixed_point_to_string_dec(
         bcd_limb_vec_div2(bcd_limb_list);
         decimal_point += bcd_limb_list.size() > bcd_limb_list_start_size ? 1 : 0;
     }
-    long rjust = ((_LIMB_SIZE_BITS / 4) - decimal_point) % (_LIMB_SIZE_BITS / 4);
+    long rjust = ((APY_LIMB_SIZE_BITS / 4) - decimal_point) % (APY_LIMB_SIZE_BITS / 4);
 
     // Multiply BCD list by two, one time per for each missing fractional bit (if any)
     for (int i = 0; i < -frac_bits; i++) {
@@ -1596,7 +1598,7 @@ fold_accumulate(std::size_t src_limbs, std::size_t acc_limbs)
         return [](auto acc_it, auto src_it) { *acc_it += *src_it; };
     } else {
         return [src_limbs, acc_limbs](auto acc_it, auto src_it) {
-            mpn_add(&acc_it[0], &acc_it[0], acc_limbs, &src_it[0], src_limbs);
+            apy_inplace_addition(&acc_it[0], acc_limbs, &src_it[0], src_limbs);
         };
     }
 }
@@ -1646,8 +1648,8 @@ fold_complex_accumulate(std::size_t src_limbs, std::size_t acc_limbs)
         return [src_limbs, acc_limbs](auto acc_it, auto src_it) {
             std::size_t src_j = src_limbs;
             std::size_t acc_j = acc_limbs;
-            mpn_add(&acc_it[0], &acc_it[0], acc_limbs, &src_it[0], src_limbs);
-            mpn_add(&acc_it[acc_j], &acc_it[acc_j], acc_j, &src_it[src_j], src_j);
+            apy_inplace_addition(&acc_it[0], acc_limbs, &src_it[0], src_limbs);
+            apy_inplace_addition(&acc_it[acc_j], acc_j, &src_it[src_j], src_j);
         };
     }
 }
@@ -1663,10 +1665,10 @@ fold_complex_multiply(
     if (acc_limbs <= 1) {
         /* single limb specialization */
         return [](auto acc_it, auto src_it) {
-            mp_limb_signed_t acc_real = acc_it[0];
-            mp_limb_signed_t acc_imag = acc_it[1];
-            mp_limb_signed_t src_real = src_it[0];
-            mp_limb_signed_t src_imag = src_it[1];
+            apy_limb_signed_t acc_real = acc_it[0];
+            apy_limb_signed_t acc_imag = acc_it[1];
+            apy_limb_signed_t src_real = src_it[0];
+            apy_limb_signed_t src_imag = src_it[1];
             acc_it[0] = acc_real * src_real - acc_imag * src_imag;
             acc_it[1] = acc_imag * src_real + acc_real * src_imag;
         };

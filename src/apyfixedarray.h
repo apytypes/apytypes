@@ -24,20 +24,16 @@ namespace nb = nanobind;
 #include <string_view> // std::string_view
 #include <vector>      // std::vector
 
-// GMP should be included after all other includes
-#include "../extern/mini-gmp/mini-gmp.h"
-
-class APyFixedArray : public APyArray<mp_limb_t, APyFixedArray> {
+class APyFixedArray : public APyArray<apy_limb_t, APyFixedArray> {
 
     /* ****************************************************************************** *
      * *                      APyFixedArray C++ assumptions                         * *
      * ****************************************************************************** */
 
     static_assert(
-        (sizeof(mp_limb_t) == 8 || sizeof(mp_limb_t) == 4),
-        "The GMP `mp_limb_t` data type is either 64-bit or 32-bit. Any other limb size "
-        "is unsupported. This assumption should hold true always, according to the GMP "
-        "documentation. The size of limbs is specified during compilation with the C "
+        (APY_LIMB_SIZE_BYTES == 8 || APY_LIMB_SIZE_BYTES == 4),
+        "The `apy_limb_t` data type is either 64-bit or 32-bit. Any other limb size "
+        "is unsupported. The size of limbs is specified during compilation with the C "
         "Macro `COMPILER_LIMB_SIZE`."
     );
     static_assert(
@@ -228,7 +224,7 @@ public:
 
     //! Create a nested Python list containing bit-patterns as Python integers.
     nb::list to_bits_python_recursive_descent(
-        std::size_t dim, APyBuffer<mp_limb_t>::vector_type::const_iterator& it
+        std::size_t dim, APyBuffer<apy_limb_t>::vector_type::const_iterator& it
     ) const;
 
     //! Convert to a NumPy array

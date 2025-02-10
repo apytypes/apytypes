@@ -464,7 +464,7 @@ APyFloatArray APyFloatArray::arange(
     const std::vector<APyFixed> apy_vals = ::arange(start, stop, step);
     APyFloatArray result({ apy_vals.size() }, exp_bits, man_bits, bias);
 
-    for (size_t i = 0; i < apy_vals.size(); i++) {
+    for (std::size_t i = 0; i < apy_vals.size(); i++) {
         result._data[i]
             = APyFloat::from_fixed(apy_vals[i], exp_bits, man_bits, bias).get_data();
     }
@@ -894,10 +894,9 @@ std::string APyFloatArray::repr() const
     }
     ss << "shape=";
     ss << tuple_string_from_vec(_shape);
-    ss << ", "
-       << "exp_bits=" << static_cast<unsigned>(exp_bits) << ", "
-       << "man_bits=" << static_cast<unsigned>(man_bits) << ", "
-       << "bias=" << bias << ")";
+    ss << ", " << "exp_bits=" << static_cast<unsigned>(exp_bits) << ", "
+       << "man_bits=" << static_cast<unsigned>(man_bits) << ", " << "bias=" << bias
+       << ")";
     return ss.str();
 }
 
@@ -972,7 +971,7 @@ nb::list APyFloatArray::to_bits_python_recursive_descent(
 
 nb::ndarray<nb::numpy, double> APyFloatArray::to_numpy() const
 {
-    // Dynamically allocate data to be passed to python
+    // Dynamically allocate data to be passed to Python
     double* result_data = new double[_data.size()];
     auto apy_f = APyFloat(exp_bits, man_bits, bias);
     for (std::size_t i = 0; i < _data.size(); i++) {

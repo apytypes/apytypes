@@ -747,7 +747,7 @@ public:
         }
 
         default: {
-            std::vector<size_t> new_axis(_ndim);
+            std::vector<std::size_t> new_axis(_ndim);
 
             if (axes.has_value()) {
                 std::variant<nb::tuple, nb::int_> axis_variant = axes.value();
@@ -758,8 +758,8 @@ public:
                 std::reverse(new_axis.begin(), new_axis.end());
             }
 
-            std::vector<size_t> new_shape(_ndim);
-            for (size_t i = 0; i < _ndim; ++i) {
+            std::vector<std::size_t> new_shape(_ndim);
+            for (std::size_t i = 0; i < _ndim; ++i) {
                 new_shape[i] = _shape[new_axis[i]];
             }
 
@@ -841,14 +841,14 @@ public:
         std::size_t _axis1 = get_normalized_axes(axis1, _ndim).front();
         std::size_t _axis2 = get_normalized_axes(axis2, _ndim).front();
 
-        std::vector<size_t> new_axis(_ndim);
+        std::vector<std::size_t> new_axis(_ndim);
         std::iota(new_axis.begin(), new_axis.end(), 0);
 
         // Swap the specified axes
         std::swap(new_axis[_axis1], new_axis[_axis2]);
 
-        std::vector<size_t> shape(_ndim);
-        for (size_t i = 0; i < _ndim; ++i) {
+        std::vector<std::size_t> shape(_ndim);
+        for (std::size_t i = 0; i < _ndim; ++i) {
             shape[i] = _shape[new_axis[i]];
         }
 

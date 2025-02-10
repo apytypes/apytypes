@@ -10,6 +10,7 @@
 #include "apyfixed.h"
 #include "apyfixed_util.h"
 #include "apyfloat.h"
+#include "apytypes_mp.h"
 #include "apytypes_util.h"
 #include "python_util.h"
 
@@ -29,9 +30,6 @@ namespace nb = nanobind;
 #include <vector>    // std::vector, std::swap
 
 #include <fmt/format.h>
-
-// GMP should be included after all other includes
-#include "../extern/mini-gmp/mini-gmp.h"
 
 /* ********************************************************************************** *
  * *                            Python constructors                                 * *
@@ -139,7 +137,7 @@ APyCFixed::APyCFixed(int bits, int int_bits, _IT begin, _IT end)
     _overflow_twos_complement(imag_begin(), imag_end(), _bits, _int_bits);
 }
 
-APyCFixed::APyCFixed(int bits, int int_bits, std::initializer_list<mp_limb_t> list)
+APyCFixed::APyCFixed(int bits, int int_bits, std::initializer_list<apy_limb_t> list)
     : APyCFixed(bits, int_bits, std::begin(list), std::end(list))
 {
 }
@@ -159,7 +157,7 @@ inline APyCFixed APyCFixed::_apycfixed_base_add_sub(const APyCFixed& rhs) const
     auto lhs_shift = unsigned(res_frac_bits - frac_bits());
     auto rhs_shift = unsigned(res_frac_bits - rhs.frac_bits());
 
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         // Result bits fits in a single limb. Use native operation
         result._data[0] = base_op {}( // real
             _data[0] << lhs_shift,
@@ -203,12 +201,12 @@ inline APyCFixed APyCFixed::_apycfixed_base_add_sub(const APyCFixed& rhs) const
 
 APyCFixed APyCFixed::operator+(const APyCFixed& rhs) const
 {
-    return _apycfixed_base_add_sub<std::plus<>, mpn_add_n_functor<>>(rhs);
+    return _apycfixed_base_add_sub<std::plus<>, apy_add_n_functor<>>(rhs);
 }
 
 APyCFixed APyCFixed::operator-(const APyCFixed& rhs) const
 {
-    return _apycfixed_base_add_sub<std::minus<>, mpn_sub_n_functor<>>(rhs);
+    return _apycfixed_base_add_sub<std::minus<>, apy_sub_n_functor<>>(rhs);
 }
 
 APyCFixed APyCFixed::operator*(const APyCFixed& rhs) const
@@ -221,11 +219,11 @@ APyCFixed APyCFixed::operator*(const APyCFixed& rhs) const
     APyCFixed result(res_bits, res_int_bits);
 
     // Single-limb result specialization
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        result._data[0] = mp_limb_signed_t(_data[0]) * mp_limb_signed_t(rhs._data[0])
-            - mp_limb_signed_t(_data[1]) * mp_limb_signed_t(rhs._data[1]); // real
-        result._data[1] = mp_limb_signed_t(_data[1]) * mp_limb_signed_t(rhs._data[0])
-            + mp_limb_signed_t(_data[0]) * mp_limb_signed_t(rhs._data[1]); // imag
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+        result._data[0] = apy_limb_signed_t(_data[0]) * apy_limb_signed_t(rhs._data[0])
+            - apy_limb_signed_t(_data[1]) * apy_limb_signed_t(rhs._data[1]); // real
+        result._data[1] = apy_limb_signed_t(_data[1]) * apy_limb_signed_t(rhs._data[0])
+            + apy_limb_signed_t(_data[0]) * apy_limb_signed_t(rhs._data[1]); // imag
 
         return result; // early exit
     }
@@ -235,7 +233,7 @@ APyCFixed APyCFixed::operator*(const APyCFixed& rhs) const
     // * op2_abs:       rhs._data.size() / 2
     // * prod_imm:      2 + _data.size() + rhs._data.size()
     std::size_t scratch_size = 2 + (3 * _data.size() + 3 * rhs._data.size()) / 2;
-    ScratchVector<mp_limb_t, 64> scratch(scratch_size);
+    ScratchVector<apy_limb_t, 64> scratch(scratch_size);
     auto op1_abs_begin = std::begin(scratch);
     auto op2_abs_begin = op1_abs_begin + _data.size() / 2;
     auto prod_imm_begin = op2_abs_begin + rhs._data.size() / 2;
@@ -276,19 +274,19 @@ APyCFixed APyCFixed::operator/(const APyCFixed& rhs) const
     APyCFixed result(res_bits, res_int_bits);
 
     // Single-limb divider specialization
-    if (unsigned(div_bits) <= _LIMB_SIZE_BITS) {
-        mp_limb_signed_t den
-            = mp_limb_signed_t(rhs._data[0]) * mp_limb_signed_t(rhs._data[0])
-            + mp_limb_signed_t(rhs._data[1]) * mp_limb_signed_t(rhs._data[1]);
-        mp_limb_signed_t real
-            = mp_limb_signed_t(_data[0]) * mp_limb_signed_t(rhs._data[0])
-            + mp_limb_signed_t(_data[1]) * mp_limb_signed_t(rhs._data[1]);
-        mp_limb_signed_t imag
-            = mp_limb_signed_t(_data[1]) * mp_limb_signed_t(rhs._data[0])
-            - mp_limb_signed_t(_data[0]) * mp_limb_signed_t(rhs._data[1]);
+    if (unsigned(div_bits) <= APY_LIMB_SIZE_BITS) {
+        apy_limb_signed_t den
+            = apy_limb_signed_t(rhs._data[0]) * apy_limb_signed_t(rhs._data[0])
+            + apy_limb_signed_t(rhs._data[1]) * apy_limb_signed_t(rhs._data[1]);
+        apy_limb_signed_t real
+            = apy_limb_signed_t(_data[0]) * apy_limb_signed_t(rhs._data[0])
+            + apy_limb_signed_t(_data[1]) * apy_limb_signed_t(rhs._data[1]);
+        apy_limb_signed_t imag
+            = apy_limb_signed_t(_data[1]) * apy_limb_signed_t(rhs._data[0])
+            - apy_limb_signed_t(_data[0]) * apy_limb_signed_t(rhs._data[1]);
 
-        result._data[0] = (mp_limb_signed_t(real << (rhs.bits())) / den);
-        result._data[1] = (mp_limb_signed_t(imag << (rhs.bits())) / den);
+        result._data[0] = (apy_limb_signed_t(real << (rhs.bits())) / den);
+        result._data[1] = (apy_limb_signed_t(imag << (rhs.bits())) / den);
         return result; // early exit
     }
 
@@ -305,7 +303,7 @@ APyCFixed APyCFixed::operator/(const APyCFixed& rhs) const
     // * den_imm:   2 * src2_limbs
     // * qte_imm:   div_limbs
     std::size_t scratch_limbs = 2 + 3 * src1_limbs + 5 * src2_limbs + 2 * div_limbs;
-    ScratchVector<mp_limb_t, 64> scratch(scratch_limbs);
+    ScratchVector<apy_limb_t, 64> scratch(scratch_limbs);
 
     auto op1_abs = std::begin(scratch);
     auto op2_abs = op1_abs + src1_limbs;
@@ -397,9 +395,11 @@ bool APyCFixed::operator!=(const std::complex<double>& rhs) const
 
 bool APyCFixed::operator==(const nb::int_& rhs) const
 {
-    const std::vector<mp_limb_t> limb_vec = python_long_to_limb_vec(rhs);
+    const std::vector<apy_limb_t> limb_vec = python_long_to_limb_vec(rhs);
     APyFixed rhs_fixed(
-        _LIMB_SIZE_BITS * limb_vec.size(), _LIMB_SIZE_BITS * limb_vec.size(), limb_vec
+        APY_LIMB_SIZE_BITS * limb_vec.size(),
+        APY_LIMB_SIZE_BITS * limb_vec.size(),
+        limb_vec
     );
     return *this == rhs_fixed;
 }
@@ -454,10 +454,10 @@ std::string APyCFixed::bit_pattern_to_string_dec() const
 {
     std::stringstream ss {};
 
-    std::vector<mp_limb_t> real(real_begin(), real_end());
-    std::vector<mp_limb_t> imag(imag_begin(), imag_end());
-    if (bits() % _LIMB_SIZE_BITS) {
-        mp_limb_t and_mask = (mp_limb_t(1) << (bits() % _LIMB_SIZE_BITS)) - 1;
+    std::vector<apy_limb_t> real(real_begin(), real_end());
+    std::vector<apy_limb_t> imag(imag_begin(), imag_end());
+    if (bits() % APY_LIMB_SIZE_BITS) {
+        apy_limb_t and_mask = (apy_limb_t(1) << (bits() % APY_LIMB_SIZE_BITS)) - 1;
         real.back() &= and_mask;
         imag.back() &= and_mask;
     }
@@ -524,10 +524,10 @@ nb::tuple APyCFixed::to_bits() const
 {
     return nb::make_tuple(
         python_limb_vec_to_long(
-            real_begin(), real_end(), false, bits() % _LIMB_SIZE_BITS
+            real_begin(), real_end(), false, bits() % APY_LIMB_SIZE_BITS
         ),
         python_limb_vec_to_long(
-            imag_begin(), imag_end(), false, bits() % _LIMB_SIZE_BITS
+            imag_begin(), imag_end(), false, bits() % APY_LIMB_SIZE_BITS
         )
     );
 }
@@ -737,14 +737,14 @@ APyCFixed APyCFixed::from_apyfixed(
 APyCFixed APyCFixed::c_one(int bits, int int_bits)
 {
     std::size_t frac_bits = bits - int_bits;
-    std::size_t limb_index = frac_bits / _LIMB_SIZE_BITS;
-    std::size_t bit_offset = frac_bits % _LIMB_SIZE_BITS;
+    std::size_t limb_index = frac_bits / APY_LIMB_SIZE_BITS;
+    std::size_t bit_offset = frac_bits % APY_LIMB_SIZE_BITS;
 
     std::size_t num_limbs = 2 * (limb_index + 1);
-    ScratchVector<mp_limb_t> data(num_limbs, mp_limb_t(0));
+    ScratchVector<apy_limb_t> data(num_limbs, apy_limb_t(0));
 
     // Set the specified bit to 1
-    data[limb_index] |= mp_limb_t(1) << bit_offset;
+    data[limb_index] |= apy_limb_t(1) << bit_offset;
 
     return APyCFixed(bits, int_bits, std::begin(data), std::end(data));
 }

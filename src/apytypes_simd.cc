@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 
-#include "../extern/mini-gmp/mini-gmp.h"
 #include "apybuffer.h"
 #include "apytypes_util.h"
 
@@ -19,15 +18,15 @@ namespace HWY_NAMESPACE { // required: unique per target
     namespace hn = hwy::HWY_NAMESPACE;
 
     HWY_ATTR void _hwy_vector_shift_add(
-        mp_limb_t* HWY_RESTRICT dst,
-        const mp_limb_t* HWY_RESTRICT src1,
-        const mp_limb_t* HWY_RESTRICT src2,
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        const apy_limb_t* HWY_RESTRICT src2,
         unsigned src1_shift_amount,
         unsigned src2_shift_amount,
         const std::size_t size
     )
     {
-        constexpr const hn::ScalableTag<mp_limb_t> d;
+        constexpr const hn::ScalableTag<apy_limb_t> d;
         const std::size_t size_simd = size - size % hn::Lanes(d);
 
         std::size_t i = 0;
@@ -45,14 +44,14 @@ namespace HWY_NAMESPACE { // required: unique per target
     }
 
     HWY_ATTR void _hwy_vector_shift_add_const(
-        mp_limb_t* HWY_RESTRICT dst,
-        const mp_limb_t* HWY_RESTRICT src1,
-        mp_limb_t constant,
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        apy_limb_t constant,
         unsigned src1_shift_amount,
         const std::size_t size
     )
     {
-        constexpr const hn::ScalableTag<mp_limb_t> d;
+        constexpr const hn::ScalableTag<apy_limb_t> d;
         const std::size_t size_simd = size - size % hn::Lanes(d);
 
         std::size_t i = 0;
@@ -69,15 +68,15 @@ namespace HWY_NAMESPACE { // required: unique per target
     }
 
     HWY_ATTR void _hwy_vector_shift_sub(
-        mp_limb_t* HWY_RESTRICT dst,
-        const mp_limb_t* HWY_RESTRICT src1,
-        const mp_limb_t* HWY_RESTRICT src2,
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        const apy_limb_t* HWY_RESTRICT src2,
         unsigned src1_shift_amount,
         unsigned src2_shift_amount,
         const std::size_t size
     )
     {
-        constexpr const hn::ScalableTag<mp_limb_t> d;
+        constexpr const hn::ScalableTag<apy_limb_t> d;
         const std::size_t size_simd = size - size % hn::Lanes(d);
 
         std::size_t i = 0;
@@ -95,14 +94,14 @@ namespace HWY_NAMESPACE { // required: unique per target
     }
 
     HWY_ATTR void _hwy_vector_shift_sub_const(
-        mp_limb_t* HWY_RESTRICT dst,
-        const mp_limb_t* HWY_RESTRICT src1,
-        mp_limb_t constant,
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        apy_limb_t constant,
         unsigned src1_shift_amount,
         const std::size_t size
     )
     {
-        constexpr const hn::ScalableTag<mp_limb_t> d;
+        constexpr const hn::ScalableTag<apy_limb_t> d;
         const std::size_t size_simd = size - size % hn::Lanes(d);
 
         std::size_t i = 0;
@@ -119,14 +118,14 @@ namespace HWY_NAMESPACE { // required: unique per target
     }
 
     HWY_ATTR void _hwy_vector_shift_div_signed(
-        mp_limb_signed_t* HWY_RESTRICT dst,
-        const mp_limb_signed_t* HWY_RESTRICT src1,
-        const mp_limb_signed_t* HWY_RESTRICT src2,
+        apy_limb_signed_t* HWY_RESTRICT dst,
+        const apy_limb_signed_t* HWY_RESTRICT src1,
+        const apy_limb_signed_t* HWY_RESTRICT src2,
         unsigned src1_shift_amount,
         const std::size_t size
     )
     {
-        constexpr const hn::ScalableTag<mp_limb_signed_t> d;
+        constexpr const hn::ScalableTag<apy_limb_signed_t> d;
         const std::size_t size_simd = size - size % hn::Lanes(d);
 
         std::size_t i = 0;
@@ -138,20 +137,20 @@ namespace HWY_NAMESPACE { // required: unique per target
             hn::StoreU(res, d, dst + i);
         }
         for (; i < size; i++) {
-            dst[i] = mp_limb_signed_t(src1[i] << src1_shift_amount)
-                / mp_limb_signed_t(src2[i]);
+            dst[i] = apy_limb_signed_t(src1[i] << src1_shift_amount)
+                / apy_limb_signed_t(src2[i]);
         }
     }
 
     HWY_ATTR void _hwy_vector_shift_div_const_signed(
-        mp_limb_signed_t* HWY_RESTRICT dst,
-        const mp_limb_signed_t* HWY_RESTRICT src1,
-        mp_limb_t constant,
+        apy_limb_signed_t* HWY_RESTRICT dst,
+        const apy_limb_signed_t* HWY_RESTRICT src1,
+        apy_limb_t constant,
         unsigned src1_shift_amount,
         const std::size_t size
     )
     {
-        constexpr const hn::ScalableTag<mp_limb_signed_t> d;
+        constexpr const hn::ScalableTag<apy_limb_signed_t> d;
         const std::size_t size_simd = size - size % hn::Lanes(d);
 
         std::size_t i = 0;
@@ -163,19 +162,19 @@ namespace HWY_NAMESPACE { // required: unique per target
             hn::StoreU(res, d, dst + i);
         }
         for (; i < size; i++) {
-            dst[i] = mp_limb_signed_t(src1[i] << src1_shift_amount)
-                / mp_limb_signed_t(constant);
+            dst[i] = apy_limb_signed_t(src1[i] << src1_shift_amount)
+                / apy_limb_signed_t(constant);
         }
     }
 
     HWY_ATTR void _hwy_vector_mul(
-        mp_limb_t* HWY_RESTRICT dst,
-        const mp_limb_t* HWY_RESTRICT src1,
-        const mp_limb_t* HWY_RESTRICT src2,
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        const apy_limb_t* HWY_RESTRICT src2,
         const std::size_t size
     )
     {
-        constexpr const hn::ScalableTag<mp_limb_t> d;
+        constexpr const hn::ScalableTag<apy_limb_t> d;
         const std::size_t size_simd = size - size % hn::Lanes(d);
 
         std::size_t i = 0;
@@ -191,13 +190,13 @@ namespace HWY_NAMESPACE { // required: unique per target
     }
 
     HWY_ATTR void _hwy_vector_mul_const(
-        mp_limb_t* HWY_RESTRICT dst,
-        const mp_limb_t* HWY_RESTRICT src1,
-        const mp_limb_t constant,
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        const apy_limb_t constant,
         const std::size_t size
     )
     {
-        constexpr const hn::ScalableTag<mp_limb_t> d;
+        constexpr const hn::ScalableTag<apy_limb_t> d;
         const std::size_t size_simd = size - size % hn::Lanes(d);
 
         const auto c1 = hn::Set(d, constant);
@@ -213,13 +212,13 @@ namespace HWY_NAMESPACE { // required: unique per target
     }
 
     HWY_ATTR void _hwy_vector_add(
-        mp_limb_t* HWY_RESTRICT dst,
-        const mp_limb_t* HWY_RESTRICT src1,
-        const mp_limb_t* HWY_RESTRICT src2,
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        const apy_limb_t* HWY_RESTRICT src2,
         const std::size_t size
     )
     {
-        constexpr const hn::ScalableTag<mp_limb_t> d;
+        constexpr const hn::ScalableTag<apy_limb_t> d;
         const std::size_t size_simd = size - size % hn::Lanes(d);
 
         std::size_t i = 0;
@@ -235,13 +234,13 @@ namespace HWY_NAMESPACE { // required: unique per target
     }
 
     HWY_ATTR void _hwy_vector_sub(
-        mp_limb_t* HWY_RESTRICT dst,
-        const mp_limb_t* HWY_RESTRICT src1,
-        const mp_limb_t* HWY_RESTRICT src2,
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        const apy_limb_t* HWY_RESTRICT src2,
         const std::size_t size
     )
     {
-        constexpr const hn::ScalableTag<mp_limb_t> d;
+        constexpr const hn::ScalableTag<apy_limb_t> d;
         const std::size_t size_simd = size - size % hn::Lanes(d);
 
         std::size_t i = 0;
@@ -257,13 +256,13 @@ namespace HWY_NAMESPACE { // required: unique per target
     }
 
     HWY_ATTR void _hwy_vector_add_const(
-        mp_limb_t* HWY_RESTRICT dst,
-        const mp_limb_t* HWY_RESTRICT src1,
-        mp_limb_t constant,
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        apy_limb_t constant,
         const std::size_t size
     )
     {
-        constexpr const hn::ScalableTag<mp_limb_t> d;
+        constexpr const hn::ScalableTag<apy_limb_t> d;
         const std::size_t size_simd = size - size % hn::Lanes(d);
 
         const auto c1 = hn::Set(d, constant);
@@ -279,13 +278,13 @@ namespace HWY_NAMESPACE { // required: unique per target
     }
 
     HWY_ATTR void _hwy_vector_sub_const(
-        mp_limb_t* HWY_RESTRICT dst,
-        const mp_limb_t* HWY_RESTRICT src1,
-        mp_limb_t constant,
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        apy_limb_t constant,
         const std::size_t size
     )
     {
-        constexpr const hn::ScalableTag<mp_limb_t> d;
+        constexpr const hn::ScalableTag<apy_limb_t> d;
         const std::size_t size_simd = size - size % hn::Lanes(d);
 
         const auto c1 = hn::Set(d, constant);
@@ -301,13 +300,13 @@ namespace HWY_NAMESPACE { // required: unique per target
     }
 
     HWY_ATTR void _hwy_vector_rsub_const(
-        mp_limb_t* HWY_RESTRICT dst,
-        const mp_limb_t* HWY_RESTRICT src1,
-        mp_limb_t constant,
+        apy_limb_t* HWY_RESTRICT dst,
+        const apy_limb_t* HWY_RESTRICT src1,
+        apy_limb_t constant,
         const std::size_t size
     )
     {
-        constexpr const hn::ScalableTag<mp_limb_t> d;
+        constexpr const hn::ScalableTag<apy_limb_t> d;
         const std::size_t size_simd = size - size % hn::Lanes(d);
 
         const auto c1 = hn::Set(d, constant);
@@ -323,13 +322,13 @@ namespace HWY_NAMESPACE { // required: unique per target
     }
 
     HWY_ATTR void _hwy_vector_rdiv_const_signed(
-        mp_limb_signed_t* HWY_RESTRICT dst,
-        const mp_limb_signed_t* HWY_RESTRICT src1,
-        mp_limb_signed_t constant,
+        apy_limb_signed_t* HWY_RESTRICT dst,
+        const apy_limb_signed_t* HWY_RESTRICT src1,
+        apy_limb_signed_t constant,
         const std::size_t size
     )
     {
-        constexpr const hn::ScalableTag<mp_limb_signed_t> d;
+        constexpr const hn::ScalableTag<apy_limb_signed_t> d;
         const std::size_t size_simd = size - size % hn::Lanes(d);
 
         const auto c1 = hn::Set(d, constant);
@@ -344,13 +343,13 @@ namespace HWY_NAMESPACE { // required: unique per target
         }
     }
 
-    HWY_ATTR mp_limb_t _hwy_vector_multiply_accumulate(
-        const mp_limb_t* HWY_RESTRICT src1,
-        const mp_limb_t* HWY_RESTRICT src2,
+    HWY_ATTR apy_limb_t _hwy_vector_multiply_accumulate(
+        const apy_limb_t* HWY_RESTRICT src1,
+        const apy_limb_t* HWY_RESTRICT src2,
         const std::size_t size
     )
     {
-        constexpr const hn::ScalableTag<mp_limb_t> d;
+        constexpr const hn::ScalableTag<apy_limb_t> d;
         const std::size_t size_simd = size - size % hn::Lanes(d);
 
         auto simd_sum = hn::Zero(d);
@@ -361,16 +360,16 @@ namespace HWY_NAMESPACE { // required: unique per target
             simd_sum = hn::MulAdd(v1, v2, simd_sum);
         }
 
-        mp_limb_t sum = hn::ReduceSum(d, simd_sum);
+        apy_limb_t sum = hn::ReduceSum(d, simd_sum);
         for (; i < size; i++) {
-            sum += mp_limb_signed_t(src1[i]) * mp_limb_signed_t(src2[i]);
+            sum += apy_limb_signed_t(src1[i]) * apy_limb_signed_t(src2[i]);
         }
         return sum;
     }
 
     HWY_ATTR std::string _hwy_simd_version_str()
     {
-        constexpr const hn::ScalableTag<mp_limb_t> d;
+        constexpr const hn::ScalableTag<apy_limb_t> d;
         return fmt::format(
             "APyTypes SIMD: {{ "
             "'SIMD Runtime Target': '{}', "
@@ -378,7 +377,7 @@ namespace HWY_NAMESPACE { // required: unique per target
             " }}",
             hwy::TargetName(HWY_TARGET),
             hn::Lanes(d),
-            _LIMB_SIZE_BITS
+            APY_LIMB_SIZE_BITS
         );
     }
 
@@ -416,9 +415,9 @@ std::string get_simd_version_str()
 }
 
 void vector_shift_add(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
     unsigned src2_shift_amount,
     std::size_t size
@@ -435,9 +434,9 @@ void vector_shift_add(
 }
 
 void vector_shift_add_const(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    mp_limb_t constant,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
     std::size_t size
 )
@@ -448,9 +447,9 @@ void vector_shift_add_const(
 }
 
 void vector_shift_sub(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
     unsigned src2_shift_amount,
     std::size_t size
@@ -467,9 +466,9 @@ void vector_shift_sub(
 }
 
 void vector_shift_sub_const(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    mp_limb_t constant,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
     std::size_t size
 )
@@ -480,33 +479,33 @@ void vector_shift_sub_const(
 }
 
 void vector_shift_div_signed(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
     std::size_t size
 )
 {
     return HWY_DYNAMIC_DISPATCH(_hwy_vector_shift_div_signed)(
-        reinterpret_cast<mp_limb_signed_t*>(&*dst_begin),
-        reinterpret_cast<const mp_limb_signed_t*>(&*src1_begin),
-        reinterpret_cast<const mp_limb_signed_t*>(&*src2_begin),
+        reinterpret_cast<apy_limb_signed_t*>(&*dst_begin),
+        reinterpret_cast<const apy_limb_signed_t*>(&*src1_begin),
+        reinterpret_cast<const apy_limb_signed_t*>(&*src2_begin),
         src1_shift_amount,
         size
     );
 }
 
 void vector_shift_div_const_signed(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    mp_limb_t constant,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
     std::size_t size
 )
 {
     return HWY_DYNAMIC_DISPATCH(_hwy_vector_shift_div_const_signed)(
-        reinterpret_cast<mp_limb_signed_t*>(&*dst_begin),
-        reinterpret_cast<const mp_limb_signed_t*>(&*src1_begin),
+        reinterpret_cast<apy_limb_signed_t*>(&*dst_begin),
+        reinterpret_cast<const apy_limb_signed_t*>(&*src1_begin),
         constant,
         src1_shift_amount,
         size
@@ -514,9 +513,9 @@ void vector_shift_div_const_signed(
 }
 
 void vector_mul(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 )
 {
@@ -526,9 +525,9 @@ void vector_mul(
 }
 
 void vector_mul_const(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    mp_limb_t constant,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 )
 {
@@ -538,9 +537,9 @@ void vector_mul_const(
 }
 
 void vector_add(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 )
 {
@@ -550,9 +549,9 @@ void vector_add(
 }
 
 void vector_sub(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 )
 {
@@ -562,9 +561,9 @@ void vector_sub(
 }
 
 void vector_add_const(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    mp_limb_t constant,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 )
 {
@@ -574,9 +573,9 @@ void vector_add_const(
 }
 
 void vector_sub_const(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    mp_limb_t constant,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 )
 {
@@ -586,9 +585,9 @@ void vector_sub_const(
 }
 
 void vector_rsub_const(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    mp_limb_t constant,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 )
 {
@@ -598,23 +597,23 @@ void vector_rsub_const(
 }
 
 void vector_rdiv_const_signed(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    mp_limb_t constant,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 )
 {
     return HWY_DYNAMIC_DISPATCH(_hwy_vector_rdiv_const_signed)(
-        reinterpret_cast<mp_limb_signed_t*>(&*dst_begin),
-        reinterpret_cast<const mp_limb_signed_t*>(&*src1_begin),
+        reinterpret_cast<apy_limb_signed_t*>(&*dst_begin),
+        reinterpret_cast<const apy_limb_signed_t*>(&*src1_begin),
         constant,
         size
     );
 }
 
-mp_limb_t vector_multiply_accumulate(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
+apy_limb_t vector_multiply_accumulate(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
     std::size_t size
 )
 {

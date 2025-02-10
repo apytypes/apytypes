@@ -17,20 +17,16 @@
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
 namespace nb = nanobind;
 
-// GMP should be included after all other includes
-#include "../extern/mini-gmp/mini-gmp.h"
-
-class APyCFixedArray : public APyArray<mp_limb_t, APyCFixedArray> {
+class APyCFixedArray : public APyArray<apy_limb_t, APyCFixedArray> {
 
     /* ****************************************************************************** *
      * *                      APyCFixedArray C++ assumptions                        * *
      * ****************************************************************************** */
 
     static_assert(
-        (sizeof(mp_limb_t) == 8 || sizeof(mp_limb_t) == 4),
-        "The GMP `mp_limb_t` data type is either 64-bit or 32-bit. Any other limb size "
-        "is unsupported. This assumption should hold true always, according to the GMP "
-        "documentation. The size of limbs is specified during compilation with the C "
+        (APY_LIMB_SIZE_BYTES == 8 || APY_LIMB_SIZE_BYTES == 4),
+        "The `apy_limb_t` data type is either 64-bit or 32-bit. Any other limb size "
+        "is unsupported. The size of limbs is specified during compilation with the C "
         "Macro `COMPILER_LIMB_SIZE`."
     );
     static_assert(
