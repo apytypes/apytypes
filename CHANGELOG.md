@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `APyCFixedArray`, an array fixed-point complex type.
 - `APyFloatArray.convolve` now supports accumulator contexts.
 - VHDL code generation for ROMs.
+- It is possible to perform arithmetic with Numpy arrays, automatically converting
+  the Numpy array to an APyArray.
 
 ### Fixed
 
@@ -37,8 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Updated [nanobind](https://github.com/wjakob/nanobind) from v2.1.0 to v2.4.0.
-- Updated [fmt](https://github.com/fmtlib/fmt) from v10.2.0 to v11.0.2
-- Updated [highway](https://github.com/fmtlib/fmt) from v1.1.0 to v1.2.0.
+- Updated [fmt](https://github.com/fmtlib/fmt) from v10.2.0 to v11.1.1
+- Updated [highway](https://github.com/google/highway) from v1.1.0 to v1.2.0.
 
 ### Removed
 

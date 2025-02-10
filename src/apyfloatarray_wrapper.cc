@@ -40,6 +40,10 @@ static APyFloatArray L_OP(const APyFloatArray& lhs, const R_TYPE& rhs)
         return OP()(lhs, APyFloat::from_double(rhs, exp_bits, man_bits, bias));
     } else if constexpr (std::is_same_v<std::remove_cv_t<R_TYPE>, APyFloat>) {
         return OP()(lhs, rhs);
+    } else if constexpr (std::is_same_v<
+                             std::remove_cv_t<R_TYPE>,
+                             nb::ndarray<nb::c_contig>>) {
+        return OP()(lhs, APyFloatArray::from_array(rhs, exp_bits, man_bits, bias));
     } else {
         return OP()(lhs, APyFloat::from_integer(rhs, exp_bits, man_bits, bias));
     }
@@ -129,6 +133,32 @@ void bind_float_array(nb::module_& m)
         .def("__rmul__", L_OP<std::multiplies<>, APyFloat>, nb::is_operator())
         .def("__truediv__", L_OP<std::divides<>, APyFloat>, nb::is_operator())
         .def("__rtruediv__", R_OP<&APyFloatArray::rdiv, APyFloat>, nb::is_operator())
+
+        /*
+         * Arithmetic operations with NumPy arrays
+         * The right-hand versions are not used since Numpy will convert the
+         * APyFixedArray to a Numpy array before they are invoked.
+         */
+        .def("__add__", L_OP<std::plus<>, nb::ndarray<nb::c_contig>>, nb::is_operator())
+        // .def("__radd__", L_OP<std::plus<>, nb::ndarray<nb::c_contig>>,
+        // nb::is_operator())
+        .def(
+            "__sub__", L_OP<std::minus<>, nb::ndarray<nb::c_contig>>, nb::is_operator()
+        )
+        // .def("__rsub__", R_OP<std::minus<>>, nb::is_operator())
+        .def(
+            "__mul__",
+            L_OP<std::multiplies<>, nb::ndarray<nb::c_contig>>,
+            nb::is_operator()
+        )
+        // .def("__rmul__", L_OP<std::multiplies<>, nb::ndarray<nb::c_contig>>,
+        // nb::is_operator())
+        .def(
+            "__truediv__",
+            L_OP<std::divides<>, nb::ndarray<nb::c_contig>>,
+            nb::is_operator()
+        )
+        //.def("__rtruediv__", R_OP<std::divides<>>, nb::is_operator())
 
         /*
          * Methods

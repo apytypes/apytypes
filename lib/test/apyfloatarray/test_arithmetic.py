@@ -1177,3 +1177,15 @@ def test_array_operation_with_numbers():
     assert (_ := q_one * a).is_identical(a)
     assert (_ := a / q_one).is_identical(a)
     assert (_ := q_one / a).is_identical(APyFloatArray([0], [14], [1], 5, 2))
+
+
+def test_operation_with_numpy():
+    np = pytest.importorskip("numpy")
+    a = APyFloatArray.from_float([1, 3, -7], 3, 8)
+    n = np.array([0.3, 0.5, 0.7])
+    nfp = APyFloatArray.from_array(n, 3, 8)
+
+    assert (a + n).is_identical(a + nfp)
+    assert (a - n).is_identical(a - nfp)
+    assert (a * n).is_identical(a * nfp)
+    assert (a / n).is_identical(a / nfp)
