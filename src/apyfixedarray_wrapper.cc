@@ -38,10 +38,29 @@ static APyFixedArray L_OP(const APyFixedArray& lhs, const R_TYPE& rhs)
         return OP()(lhs, APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits()));
     } else if constexpr (std::is_same_v<std::remove_cv_t<R_TYPE>, APyFixed>) {
         return OP()(lhs, rhs);
+    } else if constexpr (std::is_same_v<
+                             std::remove_cv_t<R_TYPE>,
+                             nb::ndarray<nb::c_contig>>) {
+        return OP()(
+            lhs, APyFixedArray::from_array(rhs, lhs.int_bits(), lhs.frac_bits())
+        );
     } else {
         return OP()(lhs, APyFixed::from_integer(rhs, lhs.int_bits(), lhs.frac_bits()));
     }
 }
+
+/*
+ * Binding function of a custom R-operator with Numpy arrays
+ * Not used as we expose __array__, which converts the APyFixedArray to Numpy
+ * before this has a chance to be called.
+ *
+template <typename OP>
+static APyFixedArray R_OP(const APyFixedArray& rhs, const nb::ndarray<nb::c_contig>&
+lhs)
+{
+    return OP()(APyFixedArray::from_array(lhs, rhs.int_bits(), rhs.frac_bits()), rhs);
+}
+*/
 
 void bind_fixed_array(nb::module_& m)
 {
@@ -106,10 +125,36 @@ void bind_fixed_array(nb::module_& m)
         .def("__radd__", L_OP<std::plus<>, APyFixed>, nb::is_operator())
         .def("__sub__", L_OP<std::minus<>, APyFixed>, nb::is_operator())
         .def("__rsub__", R_OP<&APyFixedArray::rsub, APyFixed>, nb::is_operator())
-        .def("__rmul__", L_OP<std::multiplies<>, APyFixed>, nb::is_operator())
         .def("__mul__", L_OP<std::multiplies<>, APyFixed>, nb::is_operator())
+        .def("__rmul__", L_OP<std::multiplies<>, APyFixed>, nb::is_operator())
         .def("__truediv__", L_OP<std::divides<>, APyFixed>, nb::is_operator())
         .def("__rtruediv__", R_OP<&APyFixedArray::rdiv, APyFixed>, nb::is_operator())
+
+        /*
+         * Arithmetic operations with NumPy arrays
+         * The right-hand versions are not used since Numpy will convert the
+         * APyFixedArray to a Numpy array before they are invoked.
+         */
+        .def("__add__", L_OP<std::plus<>, nb::ndarray<nb::c_contig>>, nb::is_operator())
+        // .def("__radd__", L_OP<std::plus<>, nb::ndarray<nb::c_contig>>,
+        // nb::is_operator())
+        .def(
+            "__sub__", L_OP<std::minus<>, nb::ndarray<nb::c_contig>>, nb::is_operator()
+        )
+        // .def("__rsub__", R_OP<std::minus<>>, nb::is_operator())
+        .def(
+            "__mul__",
+            L_OP<std::multiplies<>, nb::ndarray<nb::c_contig>>,
+            nb::is_operator()
+        )
+        // .def("__rmul__", L_OP<std::multiplies<>, nb::ndarray<nb::c_contig>>,
+        // nb::is_operator())
+        .def(
+            "__truediv__",
+            L_OP<std::divides<>, nb::ndarray<nb::c_contig>>,
+            nb::is_operator()
+        )
+        //.def("__rtruediv__", R_OP<std::divides<>>, nb::is_operator())
 
         /*
          * Properties and methods

@@ -813,3 +813,15 @@ def test_operation_with_floats(fixed_array):
     assert (_ := (-2.125) * a).is_identical(_ := b * a)
     assert (_ := a / (-2.125)).is_identical(_ := a / b)
     assert (_ := (-2.125) / a).is_identical(_ := b / a)
+
+
+def test_operation_with_numpy():
+    np = pytest.importorskip("numpy")
+    a = APyFixedArray([1, 3, -7], 0, 4)
+    n = np.array([0.3, 0.5, 0.7])
+    nfx = APyFixedArray.from_array(n, 0, 4)
+
+    assert (a + n).is_identical(a + nfx)
+    assert (a - n).is_identical(a - nfx)
+    assert (a * n).is_identical(a * nfx)
+    assert (a / n).is_identical(a / nfx)
