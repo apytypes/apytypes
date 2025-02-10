@@ -1150,7 +1150,7 @@ static void fixed_point_inner_product(
                 std::begin(op2_abs),   // op2_abs scratch vector
                 std::begin(product)    // product_abs scratch_vector
             );
-            mpn_add(&dst[0], &dst[0], dst_limbs, &product[0], dst_limbs);
+            mpn_add_n(&dst[0], &dst[0], &product[0], dst_limbs);
         }
     } else { /* dst_limbs > product_limbs */
         /*
@@ -1175,7 +1175,7 @@ static void fixed_point_inner_product(
                 // Zero-extend
                 std::fill(std::begin(product) + product_limbs, std::end(product), 0);
             }
-            mpn_add(&dst[0], &dst[0], dst_limbs, &product[0], dst_limbs);
+            mpn_add_n(&dst[0], &dst[0], &product[0], dst_limbs);
         }
     }
 }
@@ -1239,7 +1239,7 @@ static void fixed_point_inner_product_accumulator(
             );
 
             // Accumulate
-            mpn_add(&dst[0], &dst[0], dst_limbs, &product[0], dst_limbs);
+            mpn_add_n(&dst[0], &dst[0], &product[0], dst_limbs);
         }
     } else { /* dst_limbs > product_limbs */
         /*
@@ -1286,7 +1286,7 @@ static void fixed_point_inner_product_accumulator(
             );
 
             // Accumulate
-            mpn_add(&dst[0], &dst[0], dst_limbs, &product[0], dst_limbs);
+            mpn_add_n(&dst[0], &dst[0], &product[0], dst_limbs);
         }
     }
 }
