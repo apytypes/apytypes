@@ -4,7 +4,7 @@ Publications
 How to cite APyTypes
 --------------------
 
-Please use any of the publications below, and/or the `Zenodo DOI <https://doi.org/10.5281/zenodo.11197885>`_
+Please use any of the publications below, and/or the `Zenodo DOI <https://doi.org/10.5281/zenodo.11197884>`_
 available for every release.
 
 Publications on APyTypes
@@ -17,7 +17,7 @@ Publications on APyTypes
 
 * M. Henriksson, T. Lindberg, and O. Gustafsson, "APyTypes: Algorithmic Data
   Types in Python for Efficient Simulation of Finite Word-Length Effects," in
-  *IEEE Symp. Computer Arithmetic*, 2024.
+  *IEEE Symp. Computer Arithmetic*, 2024. `DOI <https://doi.org/10.1109/ARITH61463.2024.00021>`_.
 
 Publications using/citing APyTypes
 ----------------------------------
