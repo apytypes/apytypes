@@ -7,6 +7,9 @@ APyTypes is a Python library providing algorithmic data types, both fixed- and f
 The main purpose is to simplify finite word length design and simulation.
 Written in C++, the focus is on performance and flexibility.
 
+The repository can be found at `https://github.com/apytypes/apytypes <https://github.com/apytypes/apytypes>`_.
+Please report any issues or suggestions there. Contributions are also welcome!
+
 To install APyTypes do:
 
 .. code-block:: bash
@@ -44,7 +47,7 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-APyTypes is developed by the Division of Computer Engineering at Linköping University, Sweden.
+APyTypes is developed by the Division of Electronics and Computer Engineering at Linköping University, Sweden.
 
 .. image:: _static/liu-white.svg
    :class: only-dark
