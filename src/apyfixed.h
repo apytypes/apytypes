@@ -22,9 +22,6 @@ namespace nb = nanobind;
 #include <string>           // std::string
 #include <vector>           // std::vector
 
-// GMP should be included after all other includes
-#include "../extern/mini-gmp/mini-gmp.h"
-
 class APyFixed {
 
     /* ****************************************************************************** *
@@ -32,10 +29,9 @@ class APyFixed {
      * ****************************************************************************** */
 
     static_assert(
-        (sizeof(mp_limb_t) == 8 || sizeof(mp_limb_t) == 4),
-        "The GMP `mp_limb_t` data type is either 64-bit or 32-bit. Any other limb size "
-        "is unsupported. This assumption should hold true always, according to the GMP "
-        "documentation. The size of limbs is specified during compilation with the C "
+        (APY_LIMB_SIZE_BYTES == 8 || APY_LIMB_SIZE_BYTES == 4),
+        "The `apy_limb_t` data type is either 64-bit or 32-bit. Any other limb size "
+        "is unsupported. The size of limbs is specified during compilation with the C "
         "Macro `COMPILER_LIMB_SIZE`."
     );
     static_assert(
@@ -57,10 +53,10 @@ class APyFixed {
 private:
     int _bits;
     int _int_bits;
-    ScratchVector<mp_limb_t> _data;
-    // `mp_limb_t` is the underlying data type used for arithmetic in APyFixed (from the
-    // GMP library). It is either a 32-bit or a 64-bit unsigned int, depending on the
-    // target architecture.
+    ScratchVector<apy_limb_t> _data;
+    // `apy_limb_t` is the underlying data type used for arithmetic in APyFixed.
+    // It is either a 32-bit or a 64-bit unsigned int, depending on the target
+    // architecture.
 
     /* ****************************************************************************** *
      * *                              CRTP methods                                  * *
@@ -133,15 +129,15 @@ public:
 
     //! Construct a number with `bits` and `int_bits`, and initialize underlying
     //! bit-pattern from limb-vector `vec`.
-    explicit APyFixed(int bits, int int_bits, const std::vector<mp_limb_t>& vec);
+    explicit APyFixed(int bits, int int_bits, const std::vector<apy_limb_t>& vec);
 
     //! Construct a number with `bits` and `int_bits`, and initialize underlying
     //! bit-pattern from initializer list.
-    explicit APyFixed(int bits, int int_bits, std::initializer_list<mp_limb_t> list);
+    explicit APyFixed(int bits, int int_bits, std::initializer_list<apy_limb_t> list);
 
     //! Construct a number with `bits` and `int_bits`, and initialize underlying
     //! bit-pattern bit stealing it from a `ScratchVector`.
-    explicit APyFixed(int bits, int int_bits, const ScratchVector<mp_limb_t>& data);
+    explicit APyFixed(int bits, int int_bits, const ScratchVector<apy_limb_t>& data);
 
     /* ****************************************************************************** *
      *                         Binary arithmetic operators                            *
@@ -229,7 +225,7 @@ public:
     bool is_zero() const noexcept;
 
     //! Increment the LSB without making the fixed-point number wider. Return carry out
-    mp_limb_t increment_lsb() noexcept;
+    apy_limb_t increment_lsb() noexcept;
 
     //! Convert the underlying bit pattern to a Python long integer
     nb::int_ to_bits() const;
@@ -344,8 +340,9 @@ public:
     {
         APyFixed init_max(bits, int_bits);
         std::size_t limbs = init_max._data.size();
-        init_max._data[limbs - 1] |= (mp_limb_t(1) << ((bits - 1) % _LIMB_SIZE_BITS));
-        mpn_sub_1(&init_max._data[0], &init_max._data[0], limbs, 1);
+        init_max._data[limbs - 1]
+            |= (apy_limb_t(1) << ((bits - 1) % APY_LIMB_SIZE_BITS));
+        apy_inplace_subtraction_single_limb(&init_max._data[0], limbs, 1);
         return init_max;
     }
 

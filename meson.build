@@ -87,7 +87,6 @@ fmt_dep = fmt.get_variable('fmt_header_only_dep')
 py3.extension_module(
     '_apytypes',
     sources : files([
-        'extern/mini-gmp/mini-gmp.c',
         'src/apycfloatarray.cc',
         'src/apycfloatarray_wrapper.cc',
         'src/apycfixed.cc',
@@ -108,6 +107,7 @@ py3.extension_module(
         'src/apyfloatarray_wrapper.cc',
         'src/apytypes_common.cc',
         'src/apytypes_context_wrapper.cc',
+        'src/apytypes_mp.cc',
         'src/apytypes_simd.cc',
         'src/apytypes_wrapper.cc',
     ]),

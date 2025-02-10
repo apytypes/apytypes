@@ -36,9 +36,6 @@ namespace nb = nanobind;
 
 #include <fmt/format.h>
 
-// GMP should be included after all other includes
-#include "../extern/mini-gmp/mini-gmp.h"
-
 /* ********************************************************************************** *
  * *                            Python constructors                                 * *
  * ********************************************************************************** */
@@ -125,7 +122,7 @@ APyCFixedArray::_apycfixedarray_base_add_sub(const APyCFixedArray& rhs) const
     APyCFixedArray result(_shape, res_bits, res_int_bits);
 
     // Special case #1: Operands and result fit in single limb
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         if (frac_bits() == rhs.frac_bits()) {
             // Operands have equally many fractional bits.
             simd_op {}(
@@ -151,8 +148,8 @@ APyCFixedArray::_apycfixedarray_base_add_sub(const APyCFixedArray& rhs) const
 
     // Special case #2: Operands and result have equally many limbs
     if (result._itemsize == _itemsize && result._itemsize == rhs._itemsize) {
-        const mp_limb_t* src1_ptr;
-        const mp_limb_t* src2_ptr;
+        const apy_limb_t* src1_ptr;
+        const apy_limb_t* src2_ptr;
         if (frac_bits() == rhs.frac_bits()) {
             // Right-hand side and left-hand side have equally many fractional bits
             src1_ptr = &_data[0];
@@ -237,7 +234,7 @@ inline APyCFixedArray APyCFixedArray::_apycfixed_base_add_sub(const APyCFixed& r
     APyCFixedArray result(_shape, res_bits, res_int_bits);
 
     // Special case #1: Operands and result fit in single limb
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         if (frac_bits() == rhs.frac_bits()) {
             // Operands have equally many fractional bits.
             for (std::size_t i = 0; i < _nitems * 2; i += 2) {
@@ -314,14 +311,14 @@ APyCFixedArray APyCFixedArray::operator+(const APyCFixedArray& rhs) const
     }
 
     return _apycfixedarray_base_add_sub<
-        mpn_add_n_functor<>,
+        apy_add_n_functor<>,
         simd::add_functor<>,
         simd::shift_add_functor<>>(rhs);
 }
 
 APyCFixedArray APyCFixedArray::operator+(const APyCFixed& rhs) const
 {
-    return _apycfixed_base_add_sub<std::plus<>, mpn_add_n_functor<>>(rhs);
+    return _apycfixed_base_add_sub<std::plus<>, apy_add_n_functor<>>(rhs);
 }
 
 APyCFixedArray APyCFixedArray::operator-(const APyCFixedArray& rhs) const
@@ -339,14 +336,14 @@ APyCFixedArray APyCFixedArray::operator-(const APyCFixedArray& rhs) const
     }
 
     return _apycfixedarray_base_add_sub<
-        mpn_sub_n_functor<>,
+        apy_sub_n_functor<>,
         simd::sub_functor<>,
         simd::shift_sub_functor<>>(rhs);
 }
 
 APyCFixedArray APyCFixedArray::operator-(const APyCFixed& rhs) const
 {
-    return _apycfixed_base_add_sub<std::minus<>, mpn_sub_n_functor<>>(rhs);
+    return _apycfixed_base_add_sub<std::minus<>, apy_sub_n_functor<>>(rhs);
 }
 
 APyCFixedArray APyCFixedArray::rsub(const APyCFixed& lhs) const
@@ -360,7 +357,7 @@ APyCFixedArray APyCFixedArray::rsub(const APyCFixed& lhs) const
     APyCFixedArray result(_shape, res_bits, res_int_bits);
 
     // Special case #1: Operands and result fit in single limb
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         if (frac_bits() == lhs.frac_bits()) {
             // Operands have equally many fractional bits.
             for (std::size_t i = 0; i < _nitems * 2; i += 2) {
@@ -401,17 +398,15 @@ APyCFixedArray APyCFixedArray::rsub(const APyCFixed& lhs) const
     );
     for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
         // Perform ripple-carry operation
-        mpn_sub_n(               // real part
-            &result._data[i],    // dst
-            &imm._data[0],       // src1
-            &result._data[i],    // src2
-            result._itemsize / 2 // limb vector length
+        apy_inplace_reversed_subtraction_same_length( // real part
+            &result._data[i],                         // dst/src2
+            &imm._data[0],                            // src1
+            result._itemsize / 2                      // limb vector length
         );
-        mpn_sub_n(                                   // imaginary part
-            &result._data[i + result._itemsize / 2], // dst
-            &imm._data[0 + result._itemsize / 2],    // src1
-            &result._data[i + result._itemsize / 2], // src2
-            result._itemsize / 2                     // limb vector length
+        apy_inplace_reversed_subtraction_same_length( // imaginary part
+            &result._data[i + result._itemsize / 2],  // dst(src2)
+            &imm._data[0 + result._itemsize / 2],     // src1
+            result._itemsize / 2                      // limb vector length
         );
     }
 
@@ -440,14 +435,14 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixedArray& rhs) const
     APyCFixedArray result(_shape, res_bits, res_int_bits);
 
     // Single limb specialization
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
             result._data[i + 0]
-                = mp_limb_signed_t(_data[i + 0]) * mp_limb_signed_t(rhs._data[i + 0])
-                - mp_limb_signed_t(_data[i + 1]) * mp_limb_signed_t(rhs._data[i + 1]);
+                = apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[i + 0])
+                - apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[i + 1]);
             result._data[i + 1]
-                = mp_limb_signed_t(_data[i + 1]) * mp_limb_signed_t(rhs._data[i + 0])
-                + mp_limb_signed_t(_data[i + 0]) * mp_limb_signed_t(rhs._data[i + 1]);
+                = apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[i + 0])
+                + apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[i + 1]);
         }
         return result; // early exit
     }
@@ -457,7 +452,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixedArray& rhs) const
     // * op2_abs:       rhs._itemsize / 2
     // * prod_imm:      2 + _itemsize + rhs._itemsize
     std::size_t scratch_size = 2 + (3 * _itemsize + 3 * rhs._itemsize) / 2;
-    ScratchVector<mp_limb_t, 64> scratch(scratch_size);
+    ScratchVector<apy_limb_t, 64> scratch(scratch_size);
     auto op1_abs_begin = std::begin(scratch);
     auto op2_abs_begin = op1_abs_begin + _itemsize / 2;
     auto prod_imm_begin = op2_abs_begin + rhs._itemsize / 2;
@@ -489,14 +484,14 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixed& rhs) const
     APyCFixedArray result(_shape, res_bits, res_int_bits);
 
     // Single limb specialization
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
             result._data[i + 0]
-                = mp_limb_signed_t(_data[i + 0]) * mp_limb_signed_t(rhs._data[0])
-                - mp_limb_signed_t(_data[i + 1]) * mp_limb_signed_t(rhs._data[1]);
+                = apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[0])
+                - apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[1]);
             result._data[i + 1]
-                = mp_limb_signed_t(_data[i + 1]) * mp_limb_signed_t(rhs._data[0])
-                + mp_limb_signed_t(_data[i + 0]) * mp_limb_signed_t(rhs._data[1]);
+                = apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[0])
+                + apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[1]);
         }
         return result; // early exit
     }
@@ -506,7 +501,7 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixed& rhs) const
     // * op2_abs:       rhs._data.size() / 2
     // * prod_imm:      2 + _itemsize + rhs.rhs._data.size()
     std::size_t scratch_size = 2 + (3 * _itemsize + 3 * rhs._data.size()) / 2;
-    ScratchVector<mp_limb_t, 64> scratch(scratch_size);
+    ScratchVector<apy_limb_t, 64> scratch(scratch_size);
     auto op1_abs_begin = std::begin(scratch);
     auto op2_abs_begin = op1_abs_begin + _itemsize / 2;
     auto prod_imm_begin = op2_abs_begin + rhs._data.size() / 2;
@@ -554,21 +549,21 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
     APyCFixedArray result(_shape, res_bits, res_int_bits);
 
     // Single limb specialization
-    if (unsigned(div_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(div_bits) <= APY_LIMB_SIZE_BITS) {
         for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
-            mp_limb_signed_t den = mp_limb_signed_t(rhs._data[i + 0])
-                    * mp_limb_signed_t(rhs._data[i + 0])
-                + mp_limb_signed_t(rhs._data[i + 1])
-                    * mp_limb_signed_t(rhs._data[i + 1]);
-            mp_limb_signed_t real
-                = mp_limb_signed_t(_data[i + 0]) * mp_limb_signed_t(rhs._data[i + 0])
-                + mp_limb_signed_t(_data[i + 1]) * mp_limb_signed_t(rhs._data[i + 1]);
-            mp_limb_signed_t imag
-                = mp_limb_signed_t(_data[i + 1]) * mp_limb_signed_t(rhs._data[i + 0])
-                - mp_limb_signed_t(_data[i + 0]) * mp_limb_signed_t(rhs._data[i + 1]);
+            apy_limb_signed_t den = apy_limb_signed_t(rhs._data[i + 0])
+                    * apy_limb_signed_t(rhs._data[i + 0])
+                + apy_limb_signed_t(rhs._data[i + 1])
+                    * apy_limb_signed_t(rhs._data[i + 1]);
+            apy_limb_signed_t real
+                = apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[i + 0])
+                + apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[i + 1]);
+            apy_limb_signed_t imag
+                = apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[i + 0])
+                - apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[i + 1]);
 
-            result._data[i + 0] = (mp_limb_signed_t(real << (rhs.bits())) / den);
-            result._data[i + 1] = (mp_limb_signed_t(imag << (rhs.bits())) / den);
+            result._data[i + 0] = (apy_limb_signed_t(real << (rhs.bits())) / den);
+            result._data[i + 1] = (apy_limb_signed_t(imag << (rhs.bits())) / den);
         }
         return result; // early exit
     }
@@ -587,7 +582,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
     // * den_imm:   2 * src2_limbs
     // * qte_imm:   div_limbs
     std::size_t scratch_limbs = 2 + 3 * src1_limbs + 5 * src2_limbs + 2 * div_limbs;
-    ScratchVector<mp_limb_t, 64> scratch(scratch_limbs);
+    ScratchVector<apy_limb_t, 64> scratch(scratch_limbs);
 
     auto op1_abs = std::begin(scratch);
     auto op2_abs = op1_abs + src1_limbs;
@@ -639,20 +634,20 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
     APyCFixedArray result(_shape, res_bits, res_int_bits);
 
     // Single limb specialization
-    if (unsigned(div_bits) <= _LIMB_SIZE_BITS) {
-        mp_limb_signed_t den
-            = mp_limb_signed_t(rhs._data[0]) * mp_limb_signed_t(rhs._data[0])
-            + mp_limb_signed_t(rhs._data[1]) * mp_limb_signed_t(rhs._data[1]);
+    if (unsigned(div_bits) <= APY_LIMB_SIZE_BITS) {
+        apy_limb_signed_t den
+            = apy_limb_signed_t(rhs._data[0]) * apy_limb_signed_t(rhs._data[0])
+            + apy_limb_signed_t(rhs._data[1]) * apy_limb_signed_t(rhs._data[1]);
         for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
-            mp_limb_signed_t real
-                = mp_limb_signed_t(_data[i + 0]) * mp_limb_signed_t(rhs._data[0])
-                + mp_limb_signed_t(_data[i + 1]) * mp_limb_signed_t(rhs._data[1]);
-            mp_limb_signed_t imag
-                = mp_limb_signed_t(_data[i + 1]) * mp_limb_signed_t(rhs._data[0])
-                - mp_limb_signed_t(_data[i + 0]) * mp_limb_signed_t(rhs._data[1]);
+            apy_limb_signed_t real
+                = apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[0])
+                + apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[1]);
+            apy_limb_signed_t imag
+                = apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(rhs._data[0])
+                - apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(rhs._data[1]);
 
-            result._data[i + 0] = (mp_limb_signed_t(real << (rhs.bits())) / den);
-            result._data[i + 1] = (mp_limb_signed_t(imag << (rhs.bits())) / den);
+            result._data[i + 0] = (apy_limb_signed_t(real << (rhs.bits())) / den);
+            result._data[i + 1] = (apy_limb_signed_t(imag << (rhs.bits())) / den);
         }
         return result; // early exit
     }
@@ -671,7 +666,7 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixed& rhs) const
     // * den_imm:   2 * src2_limbs
     // * qte_imm:   div_limbs
     std::size_t scratch_limbs = 2 + 3 * src1_limbs + 5 * src2_limbs + 2 * div_limbs;
-    ScratchVector<mp_limb_t, 64> scratch(scratch_limbs);
+    ScratchVector<apy_limb_t, 64> scratch(scratch_limbs);
 
     auto op1_abs = std::begin(scratch);
     auto op2_abs = op1_abs + src1_limbs;
@@ -753,20 +748,20 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
     APyCFixedArray result(_shape, res_bits, res_int_bits);
 
     // Single limb specialization
-    if (unsigned(div_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(div_bits) <= APY_LIMB_SIZE_BITS) {
         for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
-            mp_limb_signed_t den
-                = mp_limb_signed_t(_data[i + 0]) * mp_limb_signed_t(_data[i + 0])
-                + mp_limb_signed_t(_data[i + 1]) * mp_limb_signed_t(_data[i + 1]);
-            mp_limb_signed_t real
-                = mp_limb_signed_t(lhs._data[0]) * mp_limb_signed_t(_data[i + 0])
-                + mp_limb_signed_t(lhs._data[1]) * mp_limb_signed_t(_data[i + 1]);
-            mp_limb_signed_t imag
-                = mp_limb_signed_t(lhs._data[1]) * mp_limb_signed_t(_data[i + 0])
-                - mp_limb_signed_t(lhs._data[0]) * mp_limb_signed_t(_data[i + 1]);
+            apy_limb_signed_t den
+                = apy_limb_signed_t(_data[i + 0]) * apy_limb_signed_t(_data[i + 0])
+                + apy_limb_signed_t(_data[i + 1]) * apy_limb_signed_t(_data[i + 1]);
+            apy_limb_signed_t real
+                = apy_limb_signed_t(lhs._data[0]) * apy_limb_signed_t(_data[i + 0])
+                + apy_limb_signed_t(lhs._data[1]) * apy_limb_signed_t(_data[i + 1]);
+            apy_limb_signed_t imag
+                = apy_limb_signed_t(lhs._data[1]) * apy_limb_signed_t(_data[i + 0])
+                - apy_limb_signed_t(lhs._data[0]) * apy_limb_signed_t(_data[i + 1]);
 
-            result._data[i + 0] = (mp_limb_signed_t(real << (bits())) / den);
-            result._data[i + 1] = (mp_limb_signed_t(imag << (bits())) / den);
+            result._data[i + 0] = (apy_limb_signed_t(real << (bits())) / den);
+            result._data[i + 1] = (apy_limb_signed_t(imag << (bits())) / den);
         }
         return result; // early exit
     }
@@ -785,7 +780,7 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
     // * den_imm:   2 * src2_limbs
     // * qte_imm:   div_limbs
     std::size_t scratch_limbs = 2 + 3 * src1_limbs + 5 * src2_limbs + 2 * div_limbs;
-    ScratchVector<mp_limb_t, 64> scratch(scratch_limbs);
+    ScratchVector<apy_limb_t, 64> scratch(scratch_limbs);
 
     auto op1_abs = std::begin(scratch);
     auto op2_abs = op1_abs + src1_limbs;
@@ -834,7 +829,7 @@ APyCFixedArray APyCFixedArray::operator-() const
 
     // Single limb specialization
     APyCFixedArray result(_shape, res_bits, res_int_bits);
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         for (std::size_t i = 0; i < _data.size(); i++) {
             result._data[i] = -_data[i];
         }
@@ -871,15 +866,16 @@ std::string APyCFixedArray::repr() const
         // Setup hex printing which will properly display the BCD characters
         ss << std::hex;
 
-        std::vector<mp_limb_t> data(_itemsize / 2, 0);
+        std::vector<apy_limb_t> data(_itemsize / 2, 0);
         for (std::size_t offset = 0; offset < _data.size(); offset += _itemsize) {
 
             ss << "(";
 
             // Real part
             std::copy_n(real_begin() + offset, _itemsize / 2, std::begin(data));
-            if (bits() % _LIMB_SIZE_BITS) {
-                mp_limb_t and_mask = (mp_limb_t(1) << (bits() % _LIMB_SIZE_BITS)) - 1;
+            if (bits() % APY_LIMB_SIZE_BITS) {
+                apy_limb_t and_mask
+                    = (apy_limb_t(1) << (bits() % APY_LIMB_SIZE_BITS)) - 1;
                 data.back() &= and_mask;
             }
             ss << bcds_to_string(double_dabble(data));
@@ -887,8 +883,9 @@ std::string APyCFixedArray::repr() const
 
             // Imaginary part
             std::copy_n(imag_begin() + offset, _itemsize / 2, std::begin(data));
-            if (bits() % _LIMB_SIZE_BITS) {
-                mp_limb_t and_mask = (mp_limb_t(1) << (bits() % _LIMB_SIZE_BITS)) - 1;
+            if (bits() % APY_LIMB_SIZE_BITS) {
+                apy_limb_t and_mask
+                    = (apy_limb_t(1) << (bits() % APY_LIMB_SIZE_BITS)) - 1;
                 data.back() &= and_mask;
             }
             ss << bcds_to_string(double_dabble(data));
@@ -899,9 +896,8 @@ std::string APyCFixedArray::repr() const
     }
     ss << "], shape=";
     ss << tuple_string_from_vec(_shape);
-    ss << ", "
-       << "bits=" << std::dec << bits() << ", "
-       << "int_bits=" << std::dec << int_bits() << ")";
+    ss << ", " << "bits=" << std::dec << bits() << ", " << "int_bits=" << std::dec
+       << int_bits() << ")";
     return ss.str();
 }
 
@@ -1033,11 +1029,11 @@ APyCFixedArray::prod(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) c
 
     // Multiplicative fold function
     std::size_t scratch_size = 2 + (3 * res_itemsize + 3 * _itemsize) / 2;
-    ScratchVector<mp_limb_t, 64> scratch(scratch_size);
+    ScratchVector<apy_limb_t, 64> scratch(scratch_size);
     auto fold
         = fold_complex_multiply<vector_type>(_itemsize / 2, res_itemsize / 2, scratch);
 
-    APyCFixed init_one(_bits, _int_bits, { mp_limb_t(1) });
+    APyCFixed init_one(_bits, _int_bits, { apy_limb_t(1) });
     return array_fold(axes, fold, init_one, bits, int_bits);
 }
 
@@ -1065,7 +1061,7 @@ APyCFixedArray APyCFixedArray::cumprod(std::optional<nb::int_> py_axis) const
 
     // Multiplicative fold function
     std::size_t scratch_size = 2 + (3 * res_itemsize + 3 * _itemsize) / 2;
-    ScratchVector<mp_limb_t, 64> scratch(scratch_size);
+    ScratchVector<apy_limb_t, 64> scratch(scratch_size);
     auto fold
         = fold_complex_multiply<vector_type>(_itemsize / 2, res_itemsize / 2, scratch);
 
@@ -1077,7 +1073,7 @@ APyCFixedArray APyCFixedArray::cumprod(std::optional<nb::int_> py_axis) const
         limb_vector_lsl(dst_it + res_limbs, dst_it + 2 * res_limbs, shift_amnt);
     };
 
-    APyCFixed init_one(_bits, _int_bits, { mp_limb_t(1) });
+    APyCFixed init_one(_bits, _int_bits, { apy_limb_t(1) });
     return array_fold_cumulative(axis, fold, post_proc, init_one, bits, int_bits);
 }
 
@@ -1339,18 +1335,18 @@ void APyCFixedArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& nda
         if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
             auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
             for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
-                mp_limb_t data;                                                        \
+                apy_limb_t data;                                                       \
                 if constexpr (std::is_signed<__TYPE__>::value) {                       \
-                    data = static_cast<mp_limb_signed_t>(ndarray_view.data()[i]);      \
+                    data = static_cast<apy_limb_signed_t>(ndarray_view.data()[i]);     \
                 } else {                                                               \
-                    data = static_cast<mp_limb_t>(ndarray_view.data()[i]);             \
+                    data = static_cast<apy_limb_t>(ndarray_view.data()[i]);            \
                 }                                                                      \
                 _data[i * _itemsize] = data;                                           \
                 if (_itemsize / 2 >= 2) {                                              \
                     std::fill_n(/* sign extend real part */                            \
                                 real_begin() + i * _itemsize + 1,                      \
                                 _itemsize / 2 - 1,                                     \
-                                mp_limb_signed_t(data) < 0 ? -1 : 0                    \
+                                apy_limb_signed_t(data) < 0 ? -1 : 0                   \
                     );                                                                 \
                 }                                                                      \
                 std::fill_n(/* zero imag part */                                       \

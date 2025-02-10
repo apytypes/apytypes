@@ -758,7 +758,7 @@ APyFixed APyFloat::to_fixed() const
     } else if (is_inf()) {
         throw nb::value_error("Cannot convert inf to fixed-point");
     } else if (is_zero()) {
-        return APyFixed(1, 1, std::vector<mp_limb_t>({ 0 }));
+        return APyFixed(1, 1, std::vector<apy_limb_t>({ 0 }));
     }
 
     APyFixed res(man_bits + 2, 2, { UINT64_TO_LIMB(true_man()) });

@@ -16,6 +16,6 @@ public:
 
 private:
     nanobind::object ref; // keep a reference
-    size_t index;
+    std::size_t index;
 };
 #endif

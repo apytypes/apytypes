@@ -7,6 +7,7 @@
 #include "apyfixed_util.h"
 #include "apyfixedarray.h"
 #include "apytypes_common.h"
+#include "apytypes_mp.h"
 #include "apytypes_simd.h"
 #include "apytypes_util.h"
 #include "array_utils.h"
@@ -34,9 +35,6 @@ namespace nb = nanobind;
 #include <vector>    // std::vector, std::swap
 
 #include <fmt/format.h>
-
-// GMP should be included after all other includes
-#include "../extern/mini-gmp/mini-gmp.h"
 
 /* ********************************************************************************** *
  * *                            Python constructors                                 * *
@@ -123,7 +121,7 @@ inline APyFixedArray APyFixedArray::_apyfixedarray_base_add_sub(const APyFixedAr
     APyFixedArray result(_shape, res_bits, res_int_bits);
 
     // Special case #1: Operands and result fit in single limb
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         if (frac_bits() == rhs.frac_bits()) {
             // Operands have equally many fractional bits.
             simd_op {}(
@@ -149,8 +147,8 @@ inline APyFixedArray APyFixedArray::_apyfixedarray_base_add_sub(const APyFixedAr
 
     // Special case #2: Operands and result have equally many limbs
     if (result._itemsize == _itemsize && result._itemsize == rhs._itemsize) {
-        const mp_limb_t* src1_ptr;
-        const mp_limb_t* src2_ptr;
+        const apy_limb_t* src1_ptr;
+        const apy_limb_t* src2_ptr;
         if (frac_bits() == rhs.frac_bits()) {
             // Right-hand side and left-hand side have equally many fractional bits
             src1_ptr = &_data[0];
@@ -234,7 +232,7 @@ inline APyFixedArray APyFixedArray::_apyfixed_base_add_sub(const APyFixed& rhs) 
     APyFixedArray result(_shape, res_bits, res_int_bits);
 
     // Special case #1: Operands and result fit in single limb
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         if (frac_bits() == rhs.frac_bits()) {
             // Operands have equally many fractional bits.
             simd_op_const {}(
@@ -301,7 +299,7 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
     }
 
     return _apyfixedarray_base_add_sub<
-        mpn_add_n_functor<>,
+        apy_add_n_functor<>,
         simd::add_functor<>,
         simd::shift_add_functor<>>(rhs);
 }
@@ -309,7 +307,7 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
 APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
 {
     return _apyfixed_base_add_sub<
-        mpn_add_n_functor<>,
+        apy_add_n_functor<>,
         simd::add_const_functor<>,
         simd::shift_add_const_functor<>>(rhs);
 }
@@ -329,7 +327,7 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
     }
 
     return _apyfixedarray_base_add_sub<
-        mpn_sub_n_functor<>,
+        apy_sub_n_functor<>,
         simd::sub_functor<>,
         simd::shift_sub_functor<>>(rhs);
 }
@@ -337,7 +335,7 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
 APyFixedArray APyFixedArray::operator-(const APyFixed& rhs) const
 {
     return _apyfixed_base_add_sub<
-        mpn_sub_n_functor<>,
+        apy_sub_n_functor<>,
         simd::sub_const_functor<>,
         simd::shift_sub_const_functor<>>(rhs);
 }
@@ -361,8 +359,8 @@ APyFixedArray APyFixedArray::rsub(const APyFixed& lhs) const
         result.frac_bits() - frac_bits() // left_shift_amount
     );
     auto lhs_shift_amount = unsigned(res_frac_bits - lhs.frac_bits());
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        mp_limb_t operand = lhs._data[0] << lhs_shift_amount;
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+        apy_limb_t operand = lhs._data[0] << lhs_shift_amount;
         simd::vector_rsub_const(
             result._data.begin(), operand, result._data.begin(), result._data.size()
         );
@@ -378,10 +376,9 @@ APyFixedArray APyFixedArray::rsub(const APyFixed& lhs) const
 
         // Perform subtraction
         for (std::size_t i = 0; i < result._data.size(); i += result._itemsize) {
-            mpn_sub_n(
-                &result._data[i], // dst
+            apy_inplace_reversed_subtraction_same_length(
+                &result._data[i], // dst/src2
                 &imm._data[0],    // src1
-                &result._data[i], // src2
                 result._itemsize  // limb vector length
             );
         }
@@ -412,7 +409,7 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
     // Resulting `APyFixedArray` fixed-point tensor
     APyFixedArray result(_shape, res_bits, res_int_bits);
 
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         simd::vector_mul(
             std::begin(_data),        // src1
             std::begin(rhs._data),    // src2
@@ -444,7 +441,7 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
     APyFixedArray result(_shape, res_bits, res_int_bits);
 
     // Special case #1: The resulting number of bits fit in a single limb
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         simd::vector_mul_const(
             std::begin(_data),        // src1
             rhs._data[0],             // src2
@@ -457,30 +454,30 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
     // General case: This always works but is slower than the special cases.
     auto op2_begin = rhs._data.begin();
     auto op2_end = rhs._data.begin() + rhs.vector_size();
-    bool sign2 = mp_limb_signed_t(*(op2_end - 1)) < 0;
-    std::vector<mp_limb_t> op2_abs(rhs.vector_size());
-    limb_vector_abs(op2_begin, op2_end, op2_abs.begin());
+    std::vector<apy_limb_t> op2_abs(rhs.vector_size());
+    // Compute the absolute value of operand, as required by multiplication algorithm
+    bool sign2 = limb_vector_abs(op2_begin, op2_end, op2_abs.begin());
 
-    // Perform multiplication for each element in the tensor. `mpn_mul` requires:
-    // "The destination has to have space for `s1n` + `s2n` limbs, even if the product’s
-    // most significant limbs are zero."
-    std::vector<mp_limb_t> res_tmp_vec(_itemsize + rhs.vector_size(), 0);
-    std::vector<mp_limb_t> op1_abs(_itemsize);
+    // Perform multiplication for each element in the tensor.
+    // `apy_unsigned_multiplication` requires: "The destination has to have space for
+    // `s1n` + `s2n` limbs, even if the product’s most significant limbs are zero."
+    std::vector<apy_limb_t> res_tmp_vec(_itemsize + rhs.vector_size(), 0);
+    std::vector<apy_limb_t> op1_abs(_itemsize);
     auto op1_begin = _data.begin();
     for (std::size_t i = 0; i < _nitems; i++) {
         // Current working operands
         auto op1_end = op1_begin + _itemsize;
 
-        // Evaluate resulting sign
-        bool sign1 = mp_limb_signed_t(*(op1_end - 1)) < 0;
-        bool result_sign = sign1 ^ sign2;
+        // Compute the absolute value of operand, as required by multiplication
+        // algorithm
+        bool sign1 = limb_vector_abs(op1_begin, op1_end, op1_abs.begin());
 
-        // Retrieve the absolute value of both operands, as required by GMP
-        limb_vector_abs(op1_begin, op1_end, op1_abs.begin());
+        // Evaluate resulting sign
+        bool result_sign = sign1 ^ sign2;
 
         // Perform the multiplication
         if (op1_abs.size() < op2_abs.size()) {
-            mpn_mul(
+            apy_unsigned_multiplication(
                 &res_tmp_vec[0], // dst
                 &op2_abs[0],     // src1
                 op2_abs.size(),  // src1 limb vector length
@@ -488,7 +485,7 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
                 op1_abs.size()   // src2 limb vector length
             );
         } else {
-            mpn_mul(
+            apy_unsigned_multiplication(
                 &res_tmp_vec[0], // dst
                 &op1_abs[0],     // src1
                 op1_abs.size(),  // src1 limb vector length
@@ -538,7 +535,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
     APyFixedArray result(_shape, res_bits, res_int_bits);
 
     // Special case #1: The resulting number of bits fit in a single limb
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         simd::vector_shift_div_signed(
             std::begin(_data),        // src1 (numerator)
             std::begin(rhs._data),    // src2 (denominator)
@@ -552,10 +549,10 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
     // General case: This always works but is slower than the special cases.
 
     // Absolute value denominator
-    ScratchVector<mp_limb_t> abs_den(rhs._itemsize);
+    ScratchVector<apy_limb_t> abs_den(rhs._itemsize);
 
     // Absolute value left-shifted numerator
-    ScratchVector<mp_limb_t> abs_num(result._itemsize);
+    ScratchVector<apy_limb_t> abs_num(result._itemsize);
 
     for (std::size_t i = 0; i < _nitems; i++) {
         std::fill(std::begin(abs_num), std::end(abs_num), 0);
@@ -577,10 +574,11 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
         );
         limb_vector_lsl(abs_num.begin(), abs_num.end(), rhs.bits());
 
-        // `mpn_tdiv_qr` requires the number of *significant* limbs in denominator
+        // `apy_unsigned_division` requires the number of *significant* limbs in
+        // denominator
         std::size_t den_significant_limbs
             = significant_limbs(std::begin(abs_den), std::end(abs_den));
-        mpn_div_qr(
+        apy_unsigned_division(
             &result._data[i * result._itemsize], // Quotient
             &abs_num[0],                         // Numerator
             abs_num.size(),                      // Numerator limbs
@@ -608,7 +606,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
     APyFixedArray result(_shape, res_bits, res_int_bits);
 
     // Special case #1: The resulting number of bits fit in a single limb
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         simd::vector_shift_div_const_signed(
             std::begin(_data),        // src1 (numerator)
             rhs._data[0],             // src2 (constant denominator)
@@ -621,9 +619,9 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
 
     // General case: This always works but is slower than the special cases.
 
-    // Absolute value denominator. `mpn_tdiv_qr` requires the number of *significant*
-    // limbs in denominator
-    ScratchVector<mp_limb_t> abs_den(rhs.vector_size());
+    // Absolute value denominator. `apy_unsigned_division` requires the number of
+    // *significant* limbs in denominator
+    ScratchVector<apy_limb_t> abs_den(rhs.vector_size());
     bool den_sign = limb_vector_abs(
         std::begin(rhs._data), std::end(rhs._data), std::begin(abs_den)
     );
@@ -631,7 +629,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
         = significant_limbs(std::begin(abs_den), std::end(abs_den));
 
     // Absolute value left-shifted numerator
-    ScratchVector<mp_limb_t> abs_num(result._itemsize);
+    ScratchVector<apy_limb_t> abs_num(result._itemsize);
 
     for (std::size_t i = 0; i < _nitems; i++) {
         std::fill(std::begin(abs_num), std::end(abs_num), 0);
@@ -642,7 +640,7 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
         );
         limb_vector_lsl(abs_num.begin(), abs_num.end(), rhs.bits());
 
-        mpn_div_qr(
+        apy_unsigned_division(
             &result._data[i * result._itemsize], // Quotient
             &abs_num[0],                         // Numerator
             abs_num.size(),                      // Numerator limbs
@@ -670,7 +668,7 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
     APyFixedArray result(_shape, res_bits, res_int_bits);
 
     // Special case #1: The resulting number of bits fit in a single limb
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         simd::vector_rdiv_const_signed(
             std::begin(_data),        // src2 (denominator)
             lhs._data[0] << bits(),   // src1 (constant numerator)
@@ -683,13 +681,14 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
     // General case: This always works but is slower than the special cases.
 
     // Absolute value denominator
-    ScratchVector<mp_limb_t> abs_den(_itemsize);
+    ScratchVector<apy_limb_t> abs_den(_itemsize);
 
-    // Absolute value left-shifted numerator. As `mpn_div_qr` alters the numerator on
-    // call, we allocate twice it's size. The first half [ `0`, `result._itemsize` ) is
-    // passed to `mpn_div_qr` and [ `result._item_size`, `2*result._itemsize` ) is used
-    // to cache the left-shifted absolute numerator.
-    ScratchVector<mp_limb_t> abs_num(2 * result._itemsize);
+    // Absolute value left-shifted numerator. As `apy_unsigned_division` alters the
+    // numerator on call, we allocate twice it's size. The first half [ `0`,
+    // `result._itemsize` ) is passed to `apy_unsigned_division` and [
+    // `result._item_size`, `2*result._itemsize` ) is used to cache the left-shifted
+    // absolute numerator.
+    ScratchVector<apy_limb_t> abs_num(2 * result._itemsize);
     bool num_sign = limb_vector_abs(
         std::begin(lhs._data),
         std::end(lhs._data),
@@ -709,10 +708,11 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
             std::begin(abs_num)
         );
 
-        // `mpn_tdiv_qr` requires the number of *significant* limbs in denominator
+        // `apy_unsigned_division` requires the number of *significant* limbs in
+        // denominator
         std::size_t den_significant_limbs
             = significant_limbs(std::begin(abs_den), std::end(abs_den));
-        mpn_div_qr(
+        apy_unsigned_division(
             &result._data[i * result._itemsize], // Quotient
             &abs_num[0],                         // Numerator
             result._itemsize,                    // Numerator limbs
@@ -855,10 +855,10 @@ APyFixedArray::prod(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) co
     std::size_t res_limbs = bits_to_limbs(bits);
 
     // Multiplicative fold function function
-    ScratchVector<mp_limb_t, 32> scratch(2 * res_limbs + 2 * _itemsize);
+    ScratchVector<apy_limb_t, 32> scratch(2 * res_limbs + 2 * _itemsize);
     auto fold_func = fold_multiply<vector_type>(_itemsize, res_limbs, scratch);
 
-    APyFixed init_one(_bits, _int_bits, { mp_limb_t(1) });
+    APyFixed init_one(_bits, _int_bits, { apy_limb_t(1) });
     return array_fold(axes, fold_func, init_one, bits, int_bits);
 }
 
@@ -885,7 +885,7 @@ APyFixedArray APyFixedArray::cumprod(std::optional<nb::int_> py_axis) const
     std::size_t res_limbs = bits_to_limbs(bits);
 
     // Multiplicative fold function
-    ScratchVector<mp_limb_t, 32> scratch(2 * res_limbs + 2 * _itemsize);
+    ScratchVector<apy_limb_t, 32> scratch(2 * res_limbs + 2 * _itemsize);
     auto fold_func = fold_multiply<vector_type>(_itemsize, res_limbs, scratch);
 
     // Post processing: adjust the binary point of each partial product
@@ -895,7 +895,7 @@ APyFixedArray APyFixedArray::cumprod(std::optional<nb::int_> py_axis) const
         limb_vector_lsl(dst_it, dst_it + res_limbs, shift_amnt);
     };
 
-    APyFixed init_one(_bits, _int_bits, { mp_limb_t(1) });
+    APyFixed init_one(_bits, _int_bits, { apy_limb_t(1) });
     return array_fold_cumulative(axis, fold_func, post_proc, init_one, bits, int_bits);
 }
 
@@ -930,7 +930,7 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
     const int prod_bits = a->bits() + b->bits();
     const int prod_int_bits = a->int_bits() + b->int_bits();
     std::optional<APyFixedAccumulatorOption> acc_mode = get_accumulator_mode_fixed();
-    auto dot = inner_product_func_from_acc_mode<APyBuffer<mp_limb_t>::vector_type>(
+    auto dot = inner_product_func_from_acc_mode<APyBuffer<apy_limb_t>::vector_type>(
         prod_bits, prod_int_bits, acc_mode
     );
 
@@ -980,10 +980,10 @@ APyFixedArray::max(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) con
 
     // Min function
     std::function<void(vector_type::iterator, vector_type::const_iterator)> max_fold;
-    if (unsigned(_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(_bits) <= APY_LIMB_SIZE_BITS) {
         max_fold = [](auto dst_it, auto src_it) {
-            *dst_it = mp_limb_signed_t(*src_it) < mp_limb_signed_t(*dst_it) ? *dst_it
-                                                                            : *src_it;
+            *dst_it = apy_limb_signed_t(*src_it) < apy_limb_signed_t(*dst_it) ? *dst_it
+                                                                              : *src_it;
         };
     } else {
         max_fold = [&](auto dst_it, auto src_it) {
@@ -1005,10 +1005,10 @@ APyFixedArray::min(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) con
 
     // Min function
     std::function<void(vector_type::iterator, vector_type::const_iterator)> min_fold;
-    if (unsigned(_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(_bits) <= APY_LIMB_SIZE_BITS) {
         min_fold = [](auto dst_it, auto src_it) {
-            *dst_it = mp_limb_signed_t(*src_it) < mp_limb_signed_t(*dst_it) ? *src_it
-                                                                            : *dst_it;
+            *dst_it = apy_limb_signed_t(*src_it) < apy_limb_signed_t(*dst_it) ? *src_it
+                                                                              : *dst_it;
         };
     } else {
         min_fold = [&](auto dst_it, auto src_it) {
@@ -1030,13 +1030,14 @@ std::string APyFixedArray::repr() const
         // Setup hex printing which will properly display the BCD characters
         ss << std::hex;
 
-        std::vector<mp_limb_t> data(_itemsize, 0);
+        std::vector<apy_limb_t> data(_itemsize, 0);
         for (std::size_t offset = 0; offset < _data.size(); offset += _itemsize) {
             std::copy_n(_data.begin() + offset, _itemsize, data.begin());
 
             // Zero sign bits outside of bit-range
-            if (bits() % _LIMB_SIZE_BITS) {
-                mp_limb_t and_mask = (mp_limb_t(1) << (bits() % _LIMB_SIZE_BITS)) - 1;
+            if (bits() % APY_LIMB_SIZE_BITS) {
+                apy_limb_t and_mask
+                    = (apy_limb_t(1) << (bits() % APY_LIMB_SIZE_BITS)) - 1;
                 data.back() &= and_mask;
             }
 
@@ -1049,9 +1050,8 @@ std::string APyFixedArray::repr() const
     }
     ss << "], shape=";
     ss << tuple_string_from_vec(_shape);
-    ss << ", "
-       << "bits=" << std::dec << bits() << ", "
-       << "int_bits=" << std::dec << int_bits() << ")";
+    ss << ", " << "bits=" << std::dec << bits() << ", " << "int_bits=" << std::dec
+       << int_bits() << ")";
     return ss.str();
 }
 
@@ -1063,9 +1063,9 @@ APyFixedArray APyFixedArray::abs() const
 
     // Resulting `APyFixedArray` fixed-point tensor
     APyFixedArray result(_shape, res_bits, res_int_bits);
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         for (std::size_t i = 0; i < _data.size(); i++) {
-            result._data[i] = std::abs(mp_limb_signed_t(_data[i]));
+            result._data[i] = std::abs(apy_limb_signed_t(_data[i]));
         }
         return result;
     }
@@ -1086,7 +1086,7 @@ APyFixedArray APyFixedArray::operator-() const
 
     // Resulting `APyFixedArray` fixed-point tensor
     APyFixedArray result(_shape, res_bits, res_int_bits);
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         for (std::size_t i = 0; i < _data.size(); i++) {
             result._data[i] = -_data[i];
         }
@@ -1135,7 +1135,7 @@ APyFixedArray::to_bits(bool numpy) const
 }
 
 nb::list APyFixedArray::to_bits_python_recursive_descent(
-    std::size_t dim, APyBuffer<mp_limb_t>::vector_type::const_iterator& it
+    std::size_t dim, APyBuffer<apy_limb_t>::vector_type::const_iterator& it
 ) const
 {
     nb::list result;
@@ -1143,10 +1143,10 @@ nb::list APyFixedArray::to_bits_python_recursive_descent(
         // Most inner dimension: append data
         for (std::size_t i = 0; i < _shape[dim]; i++) {
             result.append(python_limb_vec_to_long(
-                it,                      // start
-                it + _itemsize,          // stop
-                false,                   // vec_is_signed
-                bits() % _LIMB_SIZE_BITS // bits_last_limb
+                it,                         // start
+                it + _itemsize,             // stop
+                false,                      // vec_is_signed
+                bits() % APY_LIMB_SIZE_BITS // bits_last_limb
             ));
             it += _itemsize;
         }
@@ -1424,7 +1424,7 @@ APyFixedArray APyFixedArray::arange(
     const std::vector<APyFixed> apy_vals = ::arange(start, stop, step);
     APyFixedArray result({ apy_vals.size() }, res_bits, res_int_bits);
 
-    for (size_t i = 0; i < apy_vals.size(); i++) {
+    for (std::size_t i = 0; i < apy_vals.size(); i++) {
         _cast(
             std::begin(apy_vals[i]._data),
             std::end(apy_vals[i]._data),
@@ -1456,14 +1456,14 @@ APyFixedArray APyFixedArray::_checked_inner_product(
     APyFixedArray result({ 1 }, res_bits, res_int_bits);
 
     if (!mode.has_value()) {
-        if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+        if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
             // Fastest path, no accumulation mode specified and result fit in a single
             // limb.
             result._data[0] = simd::vector_multiply_accumulate(
                 _data.begin(), rhs._data.begin(), _data.size()
             );
             return result;
-        } else { /* unsigned(res_bits) > _LIMB_SIZE_BITS */
+        } else { /* unsigned(res_bits) > APY_LIMB_SIZE_BITS */
             fixed_point_inner_product(
                 std::begin(_data),        // src1
                 std::begin(rhs._data),    // src2
@@ -1519,7 +1519,7 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
      * into a single limb. This is the fastest `_checked_2d_matmul` path.
      */
     if (!mode.has_value()) {
-        if (res_bits <= _LIMB_SIZE_BITS) {
+        if (res_bits <= APY_LIMB_SIZE_BITS) {
             for (std::size_t x = 0; x < res_cols; x++) {
                 // Copy column from `rhs` and use as the current working column. As
                 // reading columns from `rhs` is cache-inefficient, we like to do this
@@ -1633,18 +1633,18 @@ void APyFixedArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& ndar
         if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
             auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
             for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
-                mp_limb_t data;                                                        \
+                apy_limb_t data;                                                       \
                 if constexpr (std::is_signed<__TYPE__>::value) {                       \
-                    data = static_cast<mp_limb_signed_t>(ndarray_view.data()[i]);      \
+                    data = static_cast<apy_limb_signed_t>(ndarray_view.data()[i]);     \
                 } else {                                                               \
-                    data = static_cast<mp_limb_t>(ndarray_view.data()[i]);             \
+                    data = static_cast<apy_limb_t>(ndarray_view.data()[i]);            \
                 }                                                                      \
                 _data[i * _itemsize] = data;                                           \
                 if (_itemsize >= 2) {                                                  \
                     std::fill_n(                                                       \
                         _data.begin() + i * _itemsize + 1,                             \
                         _itemsize - 1,                                                 \
-                        mp_limb_signed_t(data) < 0 ? -1 : 0                            \
+                        apy_limb_signed_t(data) < 0 ? -1 : 0                           \
                     );                                                                 \
                 }                                                                      \
             }                                                                          \

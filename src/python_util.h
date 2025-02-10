@@ -25,10 +25,8 @@
 #include <vector>    // std::vector
 
 // Custom includes
+#include "apytypes_mp.h"
 #include "apytypes_util.h"
-
-// GMP should be included after all other includes
-#include "../extern/mini-gmp/mini-gmp.h"
 
 /*
  * Access of information of PyLongObjects (Python arbitrary length integer objects).
@@ -37,12 +35,12 @@
  *   `https://github.com/aleaxit/gmpy/blob/master/src/gmpy2_convert.h`
  */
 
-#if PY_VERSION_HEX >= 0x030C0000
+#if PY_VERSION_HEX >= 0x030C0000 // Python version >= 3.12.0
 #define TAG_FROM_SIGN_AND_SIZE(is_neg, size)                                           \
-    ((is_neg ? 2 : (size == 0)) | (((size_t)size) << 3))
+    ((is_neg ? 2 : (size == 0)) | (((std::size_t)size) << 3))
 #define PyLong_SetSignAndDigitCount(obj, is_neg, size)                                 \
     (obj->long_value.lv_tag = TAG_FROM_SIGN_AND_SIZE(is_neg, size))
-#elif PY_VERSION_HEX >= 0x030900A4
+#elif PY_VERSION_HEX >= 0x030900A4 // Python version >= 3.9.x
 #define PyLong_SetSignAndDigitCount(obj, is_neg, size)                                 \
     (Py_SET_SIZE(obj, (is_neg ? -1 : 1) * size))
 #else
@@ -100,25 +98,119 @@ python_long_is_negative(const nanobind::int_& py_long_int)
     return PyLong_IsNegative(py_long);
 }
 
+static std::size_t convert_py_long_to_apy_limbs(
+    apy_limb_t** zp_orig, const std::size_t count, const PyLongObject* py_long
+)
+{
+    auto data = GET_OB_DIGIT(py_long);
+    std::size_t size = sizeof(data[0]);
+    std::size_t nail = size * 8 - PYLONG_BITS_IN_DIGIT;
+
+    assert(nail <= 8 * size);
+    assert(nail > 0);
+
+    std::size_t zsize = bits_to_limbs(count * (8 * size - nail));
+    *zp_orig = new apy_limb_t[zsize];
+    apy_limb_t* zp_tmp = *zp_orig;
+    int endian = HOST_ENDIAN;
+    apy_limb_t byte;
+    unsigned char* dp;
+
+    std::size_t numb = size * 8 - nail;
+
+    /* whole bytes to process */
+    std::size_t wbytes = numb / 8;
+
+    /* partial byte to process */
+    unsigned int wbits = numb % 8;
+    apy_limb_t wbitsmask = (((apy_limb_t)1) << wbits) - 1;
+
+    /* offset to get to the next word after processing wbytes and wbits */
+    apy_size_t woffset = (numb + 7) / 8;
+    woffset = (endian >= 0 ? woffset : -woffset) + size;
+
+    /* least significant byte */
+    dp = (unsigned char*)data + (endian >= 0 ? size - 1 : 0);
+
+    apy_limb_t limb = 0;
+    int lbits = 0;
+    for (std::size_t i = 0; i < count; i++) {
+        for (std::size_t j = 0; j < wbytes; j++) {
+            byte = *dp;
+            dp -= endian;
+            assert(lbits < (int)APY_LIMB_SIZE_BITS);
+            assert(limb <= (((apy_limb_t)1) << lbits) - 1);
+
+            limb |= (apy_limb_t)byte << lbits;
+            lbits += 8;
+            if (lbits >= (int)APY_LIMB_SIZE_BITS) {
+                *zp_tmp++ = limb & APY_NUMBER_MASK;
+                lbits -= APY_LIMB_SIZE_BITS;
+                assert(lbits < 8);
+                limb = byte >> (8 - lbits);
+            }
+        }
+        if (wbits != 0) {
+            byte = *dp & wbitsmask;
+            dp -= endian;
+            assert(lbits < (int)APY_LIMB_SIZE_BITS);
+            assert(limb <= (((apy_limb_t)1) << lbits) - 1);
+
+            limb |= (apy_limb_t)byte << lbits;
+            lbits += wbits;
+            if (lbits >= (int)APY_LIMB_SIZE_BITS) {
+                *zp_tmp++ = limb & APY_NUMBER_MASK;
+                lbits -= APY_LIMB_SIZE_BITS;
+                assert(lbits < wbits);
+                limb = byte >> (wbits - lbits);
+            }
+        }
+        dp += woffset;
+    }
+
+    if (lbits != 0) {
+        assert(lbits <= (int)APY_LIMB_SIZE_BITS);
+        *zp_tmp++ = limb;
+    }
+
+    assert(zp_tmp == *zp_orig + zsize);
+
+    /* low byte of word after most significant */
+    assert(
+        dp
+        == (unsigned char*)data + count * size
+            + (endian >= 0 ? (apy_size_t)size - 1 : 0)
+    );
+
+    zp_tmp = *zp_orig;
+    // Normalize (required for the Python use case?)
+    while (zsize > 0) {
+        if (zp_tmp[zsize - 1] != 0)
+            break;
+        zsize--;
+    }
+    return zsize;
+}
+
 /*!
- * Python arbitrary long integer object to GMP limb vector. If `n_min_limbs` is set, at
- * least that many limbs will be available in the result.
+ * Python arbitrary long integer object to apy_limb_t vector. If `n_min_limbs` is set,
+ * at least that many limbs will be available in the result.
  */
-[[maybe_unused]] static APY_INLINE std::vector<mp_limb_t> python_long_to_limb_vec(
+[[maybe_unused]] static APY_INLINE std::vector<apy_limb_t> python_long_to_limb_vec(
     const nanobind::int_& py_long_int,
     std::optional<std::size_t> n_min_limbs = std::nullopt
 )
 {
     static_assert(
-        PYLONG_BITS_IN_DIGIT <= _LIMB_SIZE_BITS,
-        "`_LIMB_SIZE_BITS` need to at least as long as a single CPython digit"
+        PYLONG_BITS_IN_DIGIT <= APY_LIMB_SIZE_BITS,
+        "`APY_LIMB_SIZE_BITS` need to at least as long as a single CPython digit"
     );
 
     const PyLongObject* py_long = (const PyLongObject*)py_long_int.ptr();
     long py_long_digits = PyLong_DigitCount(py_long);
     bool py_long_is_negative = PyLong_IsNegative(py_long);
 
-    std::vector<mp_limb_t> result;
+    std::vector<apy_limb_t> result;
     if (py_long_digits == 0) {
         // Python integer is zero
         result = { 0 };
@@ -128,37 +220,29 @@ python_long_is_negative(const nanobind::int_& py_long_int)
     } else {
         // Python integer is stored using multiple Python digits. Import data from
         // multi-digit Python long integer.
-        mpz_t mpz_from_py_long;
-        mpz_init(mpz_from_py_long);
-        mpz_import(
-            mpz_from_py_long,                    // Destination operand
-            py_long_digits,                      // Words to read
-            -1,                                  // LSWord first
-            sizeof(GET_OB_DIGIT(py_long)[0]),    // Word size in bytes
-            0,                                   // Machine endianness
-            sizeof(GET_OB_DIGIT(py_long)[0]) * 8 // Nail bits
-                - PYLONG_BITS_IN_DIGIT,          //
-            GET_OB_DIGIT(py_long)                // Source operand
+        apy_limb_t* zp_orig;
+
+        std::size_t py_long_size = convert_py_long_to_apy_limbs(
+            &zp_orig,       // Destination operand
+            py_long_digits, // Words to read
+            py_long         // Source operand
         );
 
         // Compute how many limbs to copy
-        std::size_t limb_copy_count {};
-        if (n_min_limbs.has_value()) {
-            limb_copy_count = std::min(*n_min_limbs, mpz_size(mpz_from_py_long));
-        } else {
-            limb_copy_count = mpz_size(mpz_from_py_long);
-        }
+        std::size_t limb_copy_count
+            = (n_min_limbs.has_value() ? std::min(*n_min_limbs, py_long_size)
+                                       : py_long_size);
 
         // Copy limbs into a result-vector
-        result = std::vector<mp_limb_t>(limb_copy_count, 0);
+        result = std::vector<apy_limb_t>(limb_copy_count, 0);
         std::memcpy(
-            &result[0],                       // dst
-            mpz_limbs_read(mpz_from_py_long), // src
-            limb_copy_count * _LIMB_SIZE_BYTES
+            &result[0], // dst
+            zp_orig,    // src
+            limb_copy_count * APY_LIMB_SIZE_BYTES
         );
 
         // Clear MPZ resources
-        mpz_clear(mpz_from_py_long);
+        delete[] zp_orig;
     }
 
     // Possibly extend the vector
@@ -175,7 +259,7 @@ python_long_is_negative(const nanobind::int_& py_long_int)
 }
 
 /*!
- * Convert a limb vector (`std::vector<mp_limb_t>`) to a Python long integer object
+ * Convert a limb vector (`std::vector<apy_limb_t>`) to a Python long integer object
  * wrapped in a `nanobind::int_`.
  */
 template <class RANDOM_ACCESS_ITERATOR>
@@ -193,10 +277,10 @@ template <class RANDOM_ACCESS_ITERATOR>
     }
 
     // Extract sign of limb vector
-    bool sign = vec_is_signed ? mp_limb_signed_t(*std::prev(end)) < 0 : false;
+    bool sign = vec_is_signed ? apy_limb_signed_t(*std::prev(end)) < 0 : false;
 
     // Take absolute value of limb vector
-    std::vector<mp_limb_t> limb_vec_abs(begin, end);
+    std::vector<apy_limb_t> limb_vec_abs(begin, end);
     if (sign) {
         std::transform(
             limb_vec_abs.cbegin(),
@@ -204,62 +288,136 @@ template <class RANDOM_ACCESS_ITERATOR>
             limb_vec_abs.begin(),
             [](auto limb) { return ~limb; }
         );
-        mpn_add_1(&limb_vec_abs[0], &limb_vec_abs[0], limb_vec_abs.size(), 1);
+        apy_inplace_add_one_lsb(&limb_vec_abs[0], limb_vec_abs.size());
     }
 
     // Zero bits outside of range if printing as positive and `bits_last_limb` is
     // specified
     if (!vec_is_signed && bits_last_limb.has_value()) {
-        if (*bits_last_limb % _LIMB_SIZE_BITS) {
+        if (*bits_last_limb % APY_LIMB_SIZE_BITS) {
             limb_vec_abs.back()
-                &= (mp_limb_t(1) << (*bits_last_limb % _LIMB_SIZE_BITS)) - 1;
+                &= (apy_limb_t(1) << (*bits_last_limb % APY_LIMB_SIZE_BITS)) - 1;
         }
     }
 
     // Number of significant bits in the absolute value limb vector
-    std::size_t significant_bits = _LIMB_SIZE_BITS * limb_vec_abs.size()
+    std::size_t significant_bits = APY_LIMB_SIZE_BITS * limb_vec_abs.size()
         - limb_vector_leading_zeros(limb_vec_abs.begin(), limb_vec_abs.end());
+
+    // Relevant parts from mpz_import
+    std::size_t zsize = limb_vec_abs.size();
+    apy_limb_t* zp_orig = new apy_limb_t[zsize];
+    if (!zp_orig) {
+        throw std::runtime_error(
+            "Could not allocate memory for temporary Python long integer"
+        );
+    };
+    std::memcpy(zp_orig, &limb_vec_abs[0], zsize * APY_LIMB_SIZE_BYTES);
+    // Normalize
+    while (zsize > 0) {
+        if (zp_orig[zsize - 1] != 0)
+            break;
+        zsize--;
+    }
+    // End of relevant parts from mpz_import
 
     // Number of resulting Python digits in the Python long
     std::size_t python_digits
         = (significant_bits + PYLONG_BITS_IN_DIGIT - 1) / PYLONG_BITS_IN_DIGIT;
-
-    // Intermediate GMP `mpz` variable for import and export
-    mpz_t mpz_to_py_long;
-    mpz_init(mpz_to_py_long);
-    mpz_import(
-        mpz_to_py_long,      // Destination operand
-        limb_vec_abs.size(), // Words to read
-        -1,                  // LSWord first
-        sizeof(mp_limb_t),   // Word size in bytes
-        0,                   // Machine endianness
-        0,                   // Number of nail bits
-        &limb_vec_abs[0]     // Source operand
-    );
 
     PyLongObject* result = PyLong_New(python_digits);
     if (!result) {
         throw std::runtime_error("Could not allocate memory for Python long integer");
     }
 
-    // Export the intermediate data to the python integer
-    std::size_t words_written = 0;
-    mpz_export(
-        &GET_OB_DIGIT(result)[0],           // Destination operand
-        &words_written,                     // Number of words written
-        -1,                                 // LSWord first
-        sizeof(GET_OB_DIGIT(result)[0]),    // Word size in bytes
-        0,                                  // Machine endianness
-        sizeof(GET_OB_DIGIT(result)[0]) * 8 // Nail bits
-            - PYLONG_BITS_IN_DIGIT,         //
-        mpz_to_py_long                      // Source operand
-    );
-    if (!words_written) {
-        GET_OB_DIGIT(result)[0] = 0;
-    }
+    // Export the intermediate data to the Python integer
+    // Relevant parts from mpz_export
+    std::size_t ssize = sizeof(GET_OB_DIGIT(result)[0]);
+    std::size_t nail = ssize * 8 - PYLONG_BITS_IN_DIGIT;
+    assert(nail <= 8 * ssize);
+    assert(nail < 8 * ssize || zsize == 0); /* nail < 8*ssize+(zsize==0) */
+    assert(nail > 0);
 
-    // Clear the GMP `mpz` intermediate and finalize the Python long integer
-    mpz_clear(mpz_to_py_long);
+    if (zsize == 0) {
+        GET_OB_DIGIT(result)[0] = 0;
+    } else {
+
+        assert(zsize > 0);
+
+        assert(zp_orig[zsize - 1] != 0);
+
+        apy_bitcount_t total_bits = (apy_bitcount_t)(zsize)*APY_LIMB_SIZE_BITS
+            - leading_zeros(zp_orig[zsize - 1]);
+        std::size_t numb = ssize * 8 - nail;
+        std::size_t count = (total_bits + numb - 1) / numb;
+
+        int endian = HOST_ENDIAN;
+        /* whole bytes per word */
+        std::size_t wbytes = numb / 8;
+
+        /* possible partial byte */
+        int wbits = numb % 8;
+        apy_limb_t wbitsmask = (((apy_limb_t)1) << wbits) - 1;
+
+        /* offset to get to the next word */
+        std::size_t woffset = (endian >= 0 ? 2 * ssize : 0);
+
+        /* least significant byte */
+        unsigned char* dp
+            = (unsigned char*)&GET_OB_DIGIT(result)[0] + (endian >= 0 ? ssize - 1 : 0);
+        const apy_limb_t* zp_tmp = zp_orig;
+        const apy_limb_t* zend = zp_tmp + zsize;
+        int lbits = 0;
+        apy_limb_t limb = 0;
+        std::size_t j;
+        for (std::size_t i = 0; i < count; i++) {
+            for (j = 0; j < wbytes; j++) {
+                if (lbits >= 8) {
+                    *dp = limb;
+                    limb >>= 8;
+                    lbits -= 8;
+                } else {
+                    apy_limb_t newlimb = (zp_tmp == zend ? 0 : *zp_tmp++);
+                    *dp = (limb | (newlimb << lbits));
+                    limb = newlimb >> (8 - lbits);
+                    lbits += APY_LIMB_SIZE_BITS - 8;
+                }
+                dp -= endian;
+            }
+            if (wbits != 0) {
+                if (lbits >= wbits) {
+                    *dp = limb & wbitsmask;
+                    limb >>= wbits;
+                    lbits -= wbits;
+                } else {
+                    apy_limb_t newlimb = (zp_tmp == zend ? 0 : *zp_tmp++);
+                    *dp = (limb | (newlimb << lbits)) & wbitsmask;
+                    limb = newlimb >> (wbits - lbits);
+                    lbits += APY_LIMB_SIZE_BITS - wbits;
+                }
+
+                dp -= endian;
+                j++;
+            }
+            for (; j < ssize; j++) {
+                *dp = '\0';
+                dp -= endian;
+            }
+            dp += woffset;
+        }
+
+        assert(zp_tmp == zp_orig + zsize);
+
+        /* low byte of word after most significant */
+        assert(
+            dp
+            == (unsigned char*)&GET_OB_DIGIT(result)[0] + count * ssize
+                + (endian >= 0 ? (apy_size_t)ssize - 1 : 0)
+        );
+    }
+    // End of relevant parts from mpz_export
+
+    delete[] zp_orig;
     while (python_digits > 0 && (GET_OB_DIGIT(result)[python_digits - 1] == 0)) {
         python_digits--;
     }

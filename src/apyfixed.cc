@@ -34,9 +34,6 @@ namespace nb = nanobind;
 
 #include <fmt/format.h>
 
-// GMP should be included after all other includes
-#include "../extern/mini-gmp/mini-gmp.h"
-
 /* ********************************************************************************** *
  * *                            Python constructors                                 * *
  * ********************************************************************************** */
@@ -87,17 +84,17 @@ APyFixed::APyFixed(int bits, int int_bits, _IT begin, _IT end)
     _overflow_twos_complement(std::begin(_data), std::end(_data), _bits, _int_bits);
 }
 
-APyFixed::APyFixed(int bits, int int_bits, const std::vector<mp_limb_t>& vec)
+APyFixed::APyFixed(int bits, int int_bits, const std::vector<apy_limb_t>& vec)
     : APyFixed(bits, int_bits, std::begin(vec), std::end(vec))
 {
 }
 
-APyFixed::APyFixed(int bits, int int_bits, std::initializer_list<mp_limb_t> list)
+APyFixed::APyFixed(int bits, int int_bits, std::initializer_list<apy_limb_t> list)
     : APyFixed(bits, int_bits, std::begin(list), std::end(list))
 {
 }
 
-APyFixed::APyFixed(int bits, int int_bits, const ScratchVector<mp_limb_t>& data)
+APyFixed::APyFixed(int bits, int int_bits, const ScratchVector<apy_limb_t>& data)
     : APyFixed(bits, int_bits, std::begin(data), std::end(data))
 {
 }
@@ -117,14 +114,14 @@ inline APyFixed APyFixed::_apyfixed_base_add_sub(const APyFixed& rhs) const
     auto lhs_shift_amount = unsigned(res_frac_bits - frac_bits());
     auto rhs_shift_amount = unsigned(res_frac_bits - rhs.frac_bits());
 
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         // Result bits fits in a single limb. Use native operation
         result._data[0] = base_op {}(
             _data[0] << lhs_shift_amount, rhs._data[0] << rhs_shift_amount
         );
     } else {
         // Resulting number of bits is more than one limb. Use ripple-carry operation
-        ScratchVector<mp_limb_t, 8> operand(bits_to_limbs(res_bits));
+        ScratchVector<apy_limb_t, 8> operand(bits_to_limbs(res_bits));
         _cast_no_quantize_no_overflow(
             std::begin(_data),
             std::end(_data),
@@ -152,12 +149,12 @@ inline APyFixed APyFixed::_apyfixed_base_add_sub(const APyFixed& rhs) const
 
 APyFixed APyFixed::operator+(const APyFixed& rhs) const
 {
-    return _apyfixed_base_add_sub<std::plus<>, mpn_add_n_functor<>>(rhs);
+    return _apyfixed_base_add_sub<std::plus<>, apy_add_n_functor<>>(rhs);
 }
 
 APyFixed APyFixed::operator-(const APyFixed& rhs) const
 {
-    return _apyfixed_base_add_sub<std::minus<>, mpn_sub_n_functor<>>(rhs);
+    return _apyfixed_base_add_sub<std::minus<>, apy_sub_n_functor<>>(rhs);
 }
 
 APyFixed APyFixed::operator*(const APyFixed& rhs) const
@@ -170,7 +167,7 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
     APyFixed result(res_bits, res_int_bits);
 
     // Single-limb result specialization
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         result._data[0] = _data[0] * rhs._data[0];
         return result; // early exit
     }
@@ -180,7 +177,7 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
     // * abs_op2:   rhs._data.size()
     // * prod_abs:  _data.size() + rhs._data.size()
     std::size_t scratch_size = 2 * (_data.size() + rhs._data.size());
-    ScratchVector<mp_limb_t, 16> scratch(scratch_size);
+    ScratchVector<apy_limb_t, 16> scratch(scratch_size);
 
     // Perform the product
     fixed_point_product(
@@ -210,9 +207,9 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
     const int res_bits = res_int_bits + res_frac_bits;
     APyFixed result(res_bits, res_int_bits);
 
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        mp_limb_signed_t numerator = _data[0] << rhs.bits();
-        mp_limb_signed_t denominator = rhs._data[0];
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+        apy_limb_signed_t numerator = _data[0] << rhs.bits();
+        apy_limb_signed_t denominator = rhs._data[0];
         result._data[0] = numerator / denominator;
         return result; // early exit
     }
@@ -221,22 +218,23 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
     // * abs_num:   bits_to_limbs(res_bits)
     // * abs_den:   rhs._data.size()
     std::size_t scratch_size = bits_to_limbs(res_bits) + rhs._data.size();
-    ScratchVector<mp_limb_t, 16> scratch(scratch_size);
+    ScratchVector<apy_limb_t, 16> scratch(scratch_size);
 
     // Absolute value left-shifted numerator
     auto abs_num_begin = std::begin(scratch);
     auto abs_num_end = abs_num_begin + bits_to_limbs(res_bits);
-    limb_vector_abs(_data.begin(), _data.end(), abs_num_begin);
+    bool sign_num = limb_vector_abs(_data.begin(), _data.end(), abs_num_begin);
     limb_vector_lsl(abs_num_begin, abs_num_end, rhs.bits());
 
     // Absolute value denominator
     auto abs_den_begin = abs_num_end;
     auto abs_den_end = abs_den_begin + rhs._data.size();
-    limb_vector_abs(rhs._data.cbegin(), rhs._data.cend(), abs_den_begin);
+    bool sign_den
+        = limb_vector_abs(rhs._data.cbegin(), rhs._data.cend(), abs_den_begin);
 
-    // `mpn_tdiv_qr` requires the number of *significant* limbs in denominator
+    // `apy_unsigned_division` requires the number of *significant* limbs in denominator
     std::size_t den_significant_limbs = significant_limbs(abs_den_begin, abs_den_end);
-    mpn_div_qr(
+    apy_unsigned_division(
         &result._data[0],                          // Quotient
         &*abs_num_begin,                           // Numerator
         std::distance(abs_num_begin, abs_num_end), // Numerator limbs
@@ -245,7 +243,7 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
     );
 
     // Negate result if negative
-    if (is_negative() ^ rhs.is_negative()) {
+    if (sign_num ^ sign_den) {
         limb_vector_negate(
             result._data.begin(), result._data.end(), result._data.begin()
         );
@@ -331,54 +329,66 @@ bool APyFixed::operator>=(const APyFixed& rhs) const
 
 bool APyFixed::operator==(const nb::int_& rhs) const
 {
-    const std::vector<mp_limb_t> limb_vec = python_long_to_limb_vec(rhs);
+    const std::vector<apy_limb_t> limb_vec = python_long_to_limb_vec(rhs);
     APyFixed rhs_fixed(
-        _LIMB_SIZE_BITS * limb_vec.size(), _LIMB_SIZE_BITS * limb_vec.size(), limb_vec
+        APY_LIMB_SIZE_BITS * limb_vec.size(),
+        APY_LIMB_SIZE_BITS * limb_vec.size(),
+        limb_vec
     );
     return *this == rhs_fixed;
 }
 
 bool APyFixed::operator!=(const nb::int_& rhs) const
 {
-    const std::vector<mp_limb_t> limb_vec = python_long_to_limb_vec(rhs);
+    const std::vector<apy_limb_t> limb_vec = python_long_to_limb_vec(rhs);
     APyFixed rhs_fixed(
-        _LIMB_SIZE_BITS * limb_vec.size(), _LIMB_SIZE_BITS * limb_vec.size(), limb_vec
+        APY_LIMB_SIZE_BITS * limb_vec.size(),
+        APY_LIMB_SIZE_BITS * limb_vec.size(),
+        limb_vec
     );
     return *this != rhs_fixed;
 }
 
 bool APyFixed::operator<(const nb::int_& rhs) const
 {
-    const std::vector<mp_limb_t> limb_vec = python_long_to_limb_vec(rhs);
+    const std::vector<apy_limb_t> limb_vec = python_long_to_limb_vec(rhs);
     APyFixed rhs_fixed(
-        _LIMB_SIZE_BITS * limb_vec.size(), _LIMB_SIZE_BITS * limb_vec.size(), limb_vec
+        APY_LIMB_SIZE_BITS * limb_vec.size(),
+        APY_LIMB_SIZE_BITS * limb_vec.size(),
+        limb_vec
     );
     return *this < rhs_fixed;
 }
 
 bool APyFixed::operator<=(const nb::int_& rhs) const
 {
-    const std::vector<mp_limb_t> limb_vec = python_long_to_limb_vec(rhs);
+    const std::vector<apy_limb_t> limb_vec = python_long_to_limb_vec(rhs);
     APyFixed rhs_fixed(
-        _LIMB_SIZE_BITS * limb_vec.size(), _LIMB_SIZE_BITS * limb_vec.size(), limb_vec
+        APY_LIMB_SIZE_BITS * limb_vec.size(),
+        APY_LIMB_SIZE_BITS * limb_vec.size(),
+        limb_vec
     );
     return *this <= rhs_fixed;
 }
 
 bool APyFixed::operator>(const nb::int_& rhs) const
 {
-    const std::vector<mp_limb_t> limb_vec = python_long_to_limb_vec(rhs);
+    const std::vector<apy_limb_t> limb_vec = python_long_to_limb_vec(rhs);
     APyFixed rhs_fixed(
-        _LIMB_SIZE_BITS * limb_vec.size(), _LIMB_SIZE_BITS * limb_vec.size(), limb_vec
+        APY_LIMB_SIZE_BITS * limb_vec.size(),
+        APY_LIMB_SIZE_BITS * limb_vec.size(),
+        limb_vec
     );
     return *this > rhs_fixed;
 }
 
 bool APyFixed::operator>=(const nb::int_& rhs) const
 {
-    const std::vector<mp_limb_t> limb_vec = python_long_to_limb_vec(rhs);
+    const std::vector<apy_limb_t> limb_vec = python_long_to_limb_vec(rhs);
     APyFixed rhs_fixed(
-        _LIMB_SIZE_BITS * limb_vec.size(), _LIMB_SIZE_BITS * limb_vec.size(), limb_vec
+        APY_LIMB_SIZE_BITS * limb_vec.size(),
+        APY_LIMB_SIZE_BITS * limb_vec.size(),
+        limb_vec
     );
     return *this >= rhs_fixed;
 }
@@ -435,7 +445,7 @@ APyFixed APyFixed::operator-() const
 {
     const int res_bits = _bits + 1;
     APyFixed result(res_bits, _int_bits + 1);
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         // Result bits fits in a single limb. Use native negation
         result._data[0] = -_data[0];
     } else {
@@ -445,8 +455,9 @@ APyFixed APyFixed::operator-() const
             _data.cbegin(), _data.cend(), result._data.begin(), std::bit_not {}
         );
         if (result.vector_size() > vector_size()) {
-            mp_limb_t sign = _data.back() & (mp_limb_t(1) << (_LIMB_SIZE_BITS - 1));
-            result._data.back() = sign ? 0 : mp_limb_signed_t(-1);
+            apy_limb_t sign
+                = _data.back() & (apy_limb_t(1) << (APY_LIMB_SIZE_BITS - 1));
+            result._data.back() = sign ? 0 : apy_limb_signed_t(-1);
         }
         result.increment_lsb();
     }
@@ -457,8 +468,8 @@ APyFixed APyFixed::abs() const
 {
     const int res_bits = _bits + 1;
     APyFixed result(res_bits, _int_bits + 1);
-    if (unsigned(res_bits) <= _LIMB_SIZE_BITS) {
-        result._data[0] = std::abs(mp_limb_signed_t(_data[0]));
+    if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+        result._data[0] = std::abs(apy_limb_signed_t(_data[0]));
     } else {
         limb_vector_abs(_data.begin(), _data.end(), result._data.begin());
     }
@@ -482,13 +493,11 @@ bool APyFixed::is_zero() const noexcept
 }
 
 // Increment the LSB without making the fixed-point number wider. Return carry out
-mp_limb_t APyFixed::increment_lsb() noexcept
+apy_limb_t APyFixed::increment_lsb() noexcept
 {
-    return mpn_add_1(
-        &_data[0],     // dst
-        &_data[0],     // src1
-        vector_size(), // limb vector length
-        1              // src2
+    return apy_inplace_add_one_lsb(
+        &_data[0],    // dst
+        vector_size() // limb vector length
     );
 }
 
@@ -580,18 +589,15 @@ void APyFixed::set_from_string_dec(const std::string& str)
     }
 
     // Reverse double-dabble algorithm (BCD -> binary)
-    std::vector<mp_limb_t> data = reverse_double_dabble(bcd_list);
+    std::vector<apy_limb_t> data = reverse_double_dabble(bcd_list);
 
     // Round the data
-    mpn_add_1(
-        &data[0],    // dst
-        &data[0],    // src1
-        data.size(), // limb vector length
-        1            // src2
+    apy_inplace_add_one_lsb(
+        &data[0],   // dst
+        data.size() // limb vector length
     );
-    mpn_rshift(
-        &data[0],    // dst
-        &data[0],    // src
+    apy_inplace_right_shift(
+        &data[0],    // dst/src
         data.size(), // limb vector length
         1            // shift amount
     );
@@ -650,7 +656,7 @@ double APyFixed::to_double() const
 nb::int_ APyFixed::to_bits() const
 {
     return python_limb_vec_to_long(
-        _data.begin(), _data.end(), false, bits() % _LIMB_SIZE_BITS
+        _data.begin(), _data.end(), false, bits() % APY_LIMB_SIZE_BITS
     );
 }
 
@@ -658,14 +664,14 @@ std::string APyFixed::bit_pattern_to_string_dec() const
 {
     std::stringstream ss {};
 
-    ScratchVector<mp_limb_t> data = _data;
-    if (bits() % _LIMB_SIZE_BITS) {
-        mp_limb_t and_mask = (mp_limb_t(1) << (bits() % _LIMB_SIZE_BITS)) - 1;
+    ScratchVector<apy_limb_t> data = _data;
+    if (bits() % APY_LIMB_SIZE_BITS) {
+        apy_limb_t and_mask = (apy_limb_t(1) << (bits() % APY_LIMB_SIZE_BITS)) - 1;
         data.back() &= and_mask;
     }
 
     // Double-dabble for binary-to-BCD conversion
-    ss << bcds_to_string(double_dabble(static_cast<std::vector<mp_limb_t>>(data)));
+    ss << bcds_to_string(double_dabble(static_cast<std::vector<apy_limb_t>>(data)));
 
     return ss.str();
 }
@@ -709,8 +715,8 @@ std::size_t APyFixed::leading_zeros() const
     if (leading_zeros == 0) {
         return 0;
     } else {
-        std::size_t utilized_bits_last_limb = ((bits() - 1) % _LIMB_SIZE_BITS) + 1;
-        return leading_zeros - (_LIMB_SIZE_BITS - utilized_bits_last_limb);
+        std::size_t utilized_bits_last_limb = ((bits() - 1) % APY_LIMB_SIZE_BITS) + 1;
+        return leading_zeros - (APY_LIMB_SIZE_BITS - utilized_bits_last_limb);
     }
 }
 
@@ -720,8 +726,8 @@ std::size_t APyFixed::leading_ones() const
     if (leading_ones == 0) {
         return 0;
     } else {
-        std::size_t utilized_bits_last_limb = (bits() - 1) % _LIMB_SIZE_BITS + 1;
-        return leading_ones - (_LIMB_SIZE_BITS - utilized_bits_last_limb);
+        std::size_t utilized_bits_last_limb = (bits() - 1) % APY_LIMB_SIZE_BITS + 1;
+        return leading_ones - (APY_LIMB_SIZE_BITS - utilized_bits_last_limb);
     }
 }
 
@@ -732,8 +738,8 @@ std::size_t APyFixed::leading_fractional_zeros() const
         return 0; // early return
     }
 
-    std::size_t utilized_full_frac_limbs = frac_bits / _LIMB_SIZE_BITS;
-    std::size_t utilized_frac_bits_last_limb = frac_bits % _LIMB_SIZE_BITS;
+    std::size_t utilized_full_frac_limbs = frac_bits / APY_LIMB_SIZE_BITS;
+    std::size_t utilized_frac_bits_last_limb = frac_bits % APY_LIMB_SIZE_BITS;
 
     std::size_t leading_frac_bits_full_limbs = limb_vector_leading_zeros(
         _data.begin(), _data.begin() + utilized_full_frac_limbs
@@ -741,11 +747,11 @@ std::size_t APyFixed::leading_fractional_zeros() const
 
     std::size_t leading_frac_bits_last_limb = 0;
     if (utilized_frac_bits_last_limb) {
-        mp_limb_t mask = (mp_limb_t(1) << utilized_frac_bits_last_limb) - 1;
-        mp_limb_t limb = _data[utilized_full_frac_limbs];
+        apy_limb_t mask = (apy_limb_t(1) << utilized_frac_bits_last_limb) - 1;
+        apy_limb_t limb = _data[utilized_full_frac_limbs];
         limb &= mask;
-        leading_frac_bits_last_limb
-            = ::leading_zeros(limb) - (_LIMB_SIZE_BITS - utilized_frac_bits_last_limb);
+        leading_frac_bits_last_limb = ::leading_zeros(limb)
+            - (APY_LIMB_SIZE_BITS - utilized_frac_bits_last_limb);
     }
 
     if (leading_frac_bits_last_limb != utilized_frac_bits_last_limb) {
@@ -866,11 +872,11 @@ APyFixed APyFixed::from_unspecified_double(double value)
     exp = exp + zeros_to_trim - 52 - 1023;
 
     // Create limb vector
-    std::vector<mp_limb_t> limbs {};
-    if constexpr (_LIMB_SIZE_BITS == 32) {
-        limbs = { mp_limb_t(man & 0xFFFFFFFF), mp_limb_t(man >> 32) };
-    } else { /* _LIMB_SIZE_BITS == 64 */
-        limbs = { mp_limb_t(man) };
+    std::vector<apy_limb_t> limbs {};
+    if constexpr (APY_LIMB_SIZE_BITS == 32) {
+        limbs = { apy_limb_t(man & 0xFFFFFFFF), apy_limb_t(man >> 32) };
+    } else { /* APY_LIMB_SIZE_BITS == 64 */
+        limbs = { apy_limb_t(man) };
     }
 
     // Calculate required number of bits
@@ -916,7 +922,7 @@ APyFixed APyFixed::from_integer(
 
 APyFixed APyFixed::from_unspecified_integer(const nb::int_& value)
 {
-    std::vector<mp_limb_t> limbs = python_long_to_limb_vec(value);
+    std::vector<apy_limb_t> limbs = python_long_to_limb_vec(value);
 
     // If the value is positive but the MSB is set, adding a zero limb
     // will prevent it from representing a negative value.
@@ -924,7 +930,7 @@ APyFixed APyFixed::from_unspecified_integer(const nb::int_& value)
         && limb_vector_is_negative(std::begin(limbs), std::end(limbs))) {
         limbs.push_back(0);
     }
-    const std::size_t res_bits = limbs.size() * _LIMB_SIZE_BITS;
+    const std::size_t res_bits = limbs.size() * APY_LIMB_SIZE_BITS;
     return APyFixed(res_bits, res_bits, limbs.begin(), limbs.end());
 }
 
@@ -944,10 +950,10 @@ APyFixed APyFixed::from_string(
 //! Get bit pattern for the value one
 APyFixed APyFixed::one(int bits, int int_bits)
 {
-    std::size_t limb_bit = (bits - int_bits) % _LIMB_SIZE_BITS;
-    std::size_t limb_index = (bits - int_bits) / _LIMB_SIZE_BITS;
-    ScratchVector<mp_limb_t> data(limb_index + 1, mp_limb_t(0));
-    data[limb_index] |= mp_limb_t(1) << limb_bit;
+    std::size_t limb_bit = (bits - int_bits) % APY_LIMB_SIZE_BITS;
+    std::size_t limb_index = (bits - int_bits) / APY_LIMB_SIZE_BITS;
+    ScratchVector<apy_limb_t> data(limb_index + 1, apy_limb_t(0));
+    data[limb_index] |= apy_limb_t(1) << limb_bit;
     return APyFixed(bits, int_bits, data);
 }
 

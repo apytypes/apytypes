@@ -22,9 +22,6 @@ namespace nb = nanobind;
 #include <string>           // std::string
 #include <vector>           // std::vector
 
-// GMP should be included after all other includes
-#include "../extern/mini-gmp/mini-gmp.h"
-
 class APyCFixed {
 
     /* ****************************************************************************** *
@@ -32,10 +29,9 @@ class APyCFixed {
      * ****************************************************************************** */
 
     static_assert(
-        (sizeof(mp_limb_t) == 8 || sizeof(mp_limb_t) == 4),
-        "The GMP `mp_limb_t` data type is either 64-bit or 32-bit. Any other limb size "
-        "is unsupported. This assumption should hold true always, according to the GMP "
-        "documentation. The size of limbs is specified during compilation with the C "
+        (APY_LIMB_SIZE_BYTES == 8 || APY_LIMB_SIZE_BYTES == 4),
+        "The `apy_limb_t` data type is either 64-bit or 32-bit. Any other limb size "
+        "is unsupported. The size of limbs is specified during compilation with the C "
         "Macro `COMPILER_LIMB_SIZE`."
     );
     static_assert(
@@ -58,11 +54,11 @@ private:
     int _bits;
     int _int_bits;
 
-    using vector_t = ScratchVector<mp_limb_t>;
+    using vector_t = ScratchVector<apy_limb_t>;
     vector_t _data;
-    // `mp_limb_t` is the underlying data type used for arithmetic in APyCFixed (from
-    // the GMP library). It is either a 32-bit or a 64-bit unsigned int, depending on
-    // the target architecture.
+    // `apy_limb_t` is the underlying data type used for arithmetic in APyCFixed.
+    // It is either a 32-bit or a 64-bit unsigned int, depending on the target
+    // architecture.
 
     /* ****************************************************************************** *
      * *                              CRTP methods                                  * *
@@ -143,7 +139,7 @@ public:
 
     //! Construct a number with `bits` and `int_bits`, and initialize underlying
     //! bit-pattern from iterator pair [ `begin`, `end` ).
-    explicit APyCFixed(int bits, int int_bits, std::initializer_list<mp_limb_t> list);
+    explicit APyCFixed(int bits, int int_bits, std::initializer_list<apy_limb_t> list);
 
     /* ****************************************************************************** *
      *                         Binary arithmetic operators                            *

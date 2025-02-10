@@ -12,11 +12,6 @@
 #include <string>
 #include <vector>
 
-/*
- * GMP should be included after all other includes
- */
-#include "../extern/mini-gmp/mini-gmp.h"
-
 namespace simd {
 
 //! Return a string with active runtime SIMD information. Example:
@@ -31,9 +26,9 @@ std::string get_simd_version_str();
  * * Add shifted values and store in `dst_begin`
  */
 void vector_shift_add(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
     unsigned src2_shift_amount,
     std::size_t size
@@ -45,9 +40,9 @@ void vector_shift_add(
  * * Add shifted element to `constant` and store the result in `dst_begin`
  */
 void vector_shift_add_const(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    mp_limb_t constant,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
     std::size_t size
 );
@@ -59,9 +54,9 @@ void vector_shift_add_const(
  * * Subtract shifted values and store in `dst_begin`
  */
 void vector_shift_sub(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
     unsigned src2_shift_amount,
     std::size_t size
@@ -73,9 +68,9 @@ void vector_shift_sub(
  * * Subtract `constant` from shifted element and store the result in `dst_begin`
  */
 void vector_shift_sub_const(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    mp_limb_t constant,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
     std::size_t size
 );
@@ -87,9 +82,9 @@ void vector_shift_sub_const(
  *   result in `dst_begin`
  */
 void vector_shift_div_signed(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
     std::size_t size
 );
@@ -101,9 +96,9 @@ void vector_shift_div_signed(
  *   result in `dst_begin`
  */
 void vector_shift_div_const_signed(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    mp_limb_t constant,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     unsigned src1_shift_amount,
     std::size_t size
 );
@@ -113,9 +108,9 @@ void vector_shift_div_const_signed(
  * and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_mul(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 );
 
@@ -124,9 +119,9 @@ void vector_mul(
  * and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_add(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 );
 
@@ -135,9 +130,9 @@ void vector_add(
  * and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_sub(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 );
 
@@ -146,9 +141,9 @@ void vector_sub(
  * and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_add_const(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    mp_limb_t constant,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 );
 
@@ -157,9 +152,9 @@ void vector_add_const(
  * and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_sub_const(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    mp_limb_t constant,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 );
 
@@ -168,9 +163,9 @@ void vector_sub_const(
  * `constant` and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_mul_const(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    mp_limb_t constant,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 );
 
@@ -179,9 +174,9 @@ void vector_mul_const(
  * `src1_begin` and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_rsub_const(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    mp_limb_t constant,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 );
 
@@ -191,9 +186,9 @@ void vector_rsub_const(
  * * Store the result in `dst_begin`
  */
 void vector_rdiv_const_signed(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    mp_limb_t constant,
-    APyBuffer<mp_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    apy_limb_t constant,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
     std::size_t size
 );
 
@@ -201,9 +196,9 @@ void vector_rdiv_const_signed(
  * Multiply (signed) and accumulate all elements from `src1_begin` with `src2_begin`
  * for `size` number of elements. Return accumulated value.
  */
-mp_limb_t vector_multiply_accumulate(
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src1_begin,
-    APyBuffer<mp_limb_t>::vector_type::const_iterator src2_begin,
+apy_limb_t vector_multiply_accumulate(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
     std::size_t size
 );
 
