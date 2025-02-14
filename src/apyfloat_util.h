@@ -73,8 +73,8 @@ apyfloat_to_bits(const APyFloatData& d, std::uint8_t exp_bits, std::uint8_t man_
 [[maybe_unused]] static APY_INLINE exp_t
 calc_bias(int new_exp_bits, int exp_bits1, exp_t bias1, int exp_bits2, exp_t bias2)
 {
-    auto s1 = (bias1 + 1) << (new_exp_bits - exp_bits1);
-    auto s2 = (bias2 + 1) << (new_exp_bits - exp_bits2);
+    const auto s1 = (bias1 + 1) << (new_exp_bits - exp_bits1);
+    const auto s2 = (bias2 + 1) << (new_exp_bits - exp_bits2);
     return ((s1 + s2) >> 1) - 1;
 }
 

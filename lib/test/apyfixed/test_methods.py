@@ -275,7 +275,7 @@ def test_from_float_with_non_floats():
     )
 
     # Test long integer (256 bits)
-    int_val = 0xFF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF
+    int_val = 2**257 - 1
     assert APyFixed.from_float(int_val, 257, 0).is_identical(
         APyFixed(int_val, int_bits=257, frac_bits=0)
     )

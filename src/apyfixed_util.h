@@ -10,6 +10,7 @@
 #include "apytypes_simd.h"
 #include "apytypes_util.h"
 #include "ieee754.h"
+#include "python_util.h"
 
 #include "apytypes_mp.h"
 #include <functional> // std::bind, std::function, std::placeholders
@@ -1538,6 +1539,63 @@ double fixed_point_to_double(
     set_exp_of_double(result, exp);
     set_man_of_double(result, man);
     return result;
+}
+
+template <typename RANDOM_ACCESS_IT>
+void fixed_point_from_py_integer(
+    const nb::int_& value,
+    RANDOM_ACCESS_IT begin_it,
+    RANDOM_ACCESS_IT end_it,
+    int bits,
+    int int_bits
+)
+{
+    // Zero limb vector data
+    std::fill(begin_it, end_it, 0);
+
+    const auto int_limb_vec
+        = python_long_to_limb_vec(value, std::distance(begin_it, end_it));
+    std::copy(int_limb_vec.begin(), int_limb_vec.end(), begin_it);
+
+    // Adjust the number
+    const int frac_bits = bits - int_bits;
+    if (frac_bits > 0) { // frac_bits > 0
+        limb_vector_lsl(begin_it, end_it, frac_bits);
+    } else {
+        limb_vector_asr(begin_it, end_it, -frac_bits);
+    }
+
+    _overflow_twos_complement(begin_it, end_it, bits, int_bits);
+}
+
+template <typename RANDOM_ACCESS_IT>
+void fixed_point_from_integer(
+    const std::uint64_t value,
+    RANDOM_ACCESS_IT begin_it,
+    RANDOM_ACCESS_IT end_it,
+    int bits,
+    int int_bits
+)
+{
+    // Zero limb vector data
+    std::fill(begin_it, end_it, 0);
+
+    std::vector<apy_limb_t> int_limb_vec = { UINT64_TO_LIMB(value) };
+    const auto n = std::min(
+        std::distance(std::begin(int_limb_vec), std::end(int_limb_vec)),
+        std::distance(begin_it, end_it)
+    );
+    std::copy_n(std::begin(int_limb_vec), n, begin_it);
+
+    // Adjust the number
+    const int frac_bits = bits - int_bits;
+    if (frac_bits > 0) {
+        limb_vector_lsl(begin_it, end_it, frac_bits);
+    } else {
+        limb_vector_asr(begin_it, end_it, -frac_bits);
+    }
+
+    _overflow_twos_complement(begin_it, end_it, bits, int_bits);
 }
 
 template <typename RANDOM_ACCESS_IT>

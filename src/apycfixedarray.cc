@@ -1190,7 +1190,7 @@ APyCFixedArray APyCFixedArray::from_complex(
     for (std::size_t i = 0; i < result._data.size() / result._itemsize; i++) {
         if (nb::isinstance<nb::float_>(py_obj[i])) {
             // Python double object
-            double d = static_cast<double>(nb::cast<nb::float_>(py_obj[i]));
+            const auto d = static_cast<double>(nb::cast<nb::float_>(py_obj[i]));
             fixed_point_from_double(
                 d,
                 result.real_begin() + i * result._itemsize,
@@ -1200,16 +1200,10 @@ APyCFixedArray APyCFixedArray::from_complex(
             );
         } else if (nb::isinstance<nb::int_>(py_obj[i])) {
             // Python integer object
-            auto max_bits = result.frac_bits() < 0
-                ? result.bits() - result.frac_bits() // Negative fractional bits
-                : result.bits();                     // Non-negative fractional bits
-            auto limb_vec = python_long_to_limb_vec(
-                nb::cast<nb::int_>(py_obj[i]), bits_to_limbs(max_bits)
-            );
-            fixed_point_from_double(
-                double(APyFixed(max_bits, max_bits, limb_vec)),
-                result.real_begin() + i * result._itemsize,
-                result.real_begin() + i * result._itemsize + result._itemsize / 2,
+            fixed_point_from_py_integer(
+                nb::cast<nb::int_>(py_obj[i]),
+                std::begin(result._data) + i * result._itemsize,
+                std::begin(result._data) + i * result._itemsize + result._itemsize / 2,
                 result._bits,
                 result._int_bits
             );
@@ -1410,13 +1404,24 @@ void APyCFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& n
         if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
             auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
             for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
-                fixed_point_from_double(                                               \
-                    static_cast<double>(ndarray_view.data()[i]),                       \
-                    real_begin() + i * _itemsize,                                      \
-                    real_begin() + i * _itemsize + _itemsize / 2,                      \
-                    _bits,                                                             \
-                    _int_bits                                                          \
-                );                                                                     \
+                if constexpr (std::is_same_v<__TYPE__, float>                          \
+                              || std::is_same_v<__TYPE__, double>) {                   \
+                    fixed_point_from_double(                                           \
+                        static_cast<double>(ndarray_view.data()[i]),                   \
+                        real_begin() + i * _itemsize,                                  \
+                        real_begin() + i * _itemsize + _itemsize / 2,                  \
+                        _bits,                                                         \
+                        _int_bits                                                      \
+                    );                                                                 \
+                } else {                                                               \
+                    fixed_point_from_integer(                                          \
+                        static_cast<std::uint64_t>(ndarray_view.data()[i]),            \
+                        real_begin() + i * _itemsize,                                  \
+                        real_begin() + i * _itemsize + _itemsize / 2,                  \
+                        _bits,                                                         \
+                        _int_bits                                                      \
+                    );                                                                 \
+                }                                                                      \
                 std::fill_n(/* zero imag part */                                       \
                             imag_begin() + i * _itemsize,                              \
                             _itemsize / 2,                                             \

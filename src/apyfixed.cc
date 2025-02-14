@@ -896,25 +896,14 @@ APyFixed APyFixed::from_integer(
     std::optional<int> bits
 )
 {
-    // Extract things bit widths
-    const int res_bits = bits_from_optional(bits, int_bits, frac_bits);
-    const int res_int_bits = int_bits.has_value() ? *int_bits : *bits - *frac_bits;
-
-    APyFixed result(res_bits, res_int_bits);
-    result._data = python_long_to_limb_vec(value, result._data.size());
-
-    // Adjust the number
-    if (result.frac_bits() > 0) {
-        limb_vector_lsl(result._data.begin(), result._data.end(), result.frac_bits());
-    } else { /* result.frac_bits() <= 0 */
-        limb_vector_asr(result._data.begin(), result._data.end(), -result.frac_bits());
-    }
-
-    // Two's-complements overflow bits outside of the range
-    _overflow_twos_complement(
-        result._data.begin(), result._data.end(), res_bits, res_int_bits
+    APyFixed result(int_bits, frac_bits, bits);
+    fixed_point_from_py_integer(
+        value,
+        std::begin(result._data),
+        std::end(result._data),
+        result._bits,
+        result._int_bits
     );
-
     return result;
 }
 

@@ -1280,15 +1280,8 @@ APyFixedArray APyFixedArray::from_numbers(
             );
         } else if (nb::isinstance<nb::int_>(py_obj[i])) {
             // Python integer object
-            auto max_bits = result.frac_bits() < 0
-                ? result.bits() - result.frac_bits() // Negative fractional bits
-                : result.bits();                     // Non-negative fractional bits
-            auto limb_vec = python_long_to_limb_vec(
-                nb::cast<nb::int_>(py_obj[i]), bits_to_limbs(max_bits)
-            );
-            // TODO: Do not cast Python integer to float
-            fixed_point_from_double(
-                double(APyFixed(max_bits, max_bits, limb_vec)),
+            fixed_point_from_py_integer(
+                nb::cast<nb::int_>(py_obj[i]),
                 std::begin(result._data) + (i + 0) * result._itemsize,
                 std::begin(result._data) + (i + 1) * result._itemsize,
                 result._bits,
@@ -1679,13 +1672,24 @@ void APyFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& nd
         if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
             auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
             for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
-                fixed_point_from_double(                                               \
-                    static_cast<double>(ndarray_view.data()[i]),                       \
-                    std::begin(_data) + (i + 0) * _itemsize,                           \
-                    std::begin(_data) + (i + 1) * _itemsize,                           \
-                    _bits,                                                             \
-                    _int_bits                                                          \
-                );                                                                     \
+                if constexpr (std::is_same_v<__TYPE__, float>                          \
+                              || std::is_same_v<__TYPE__, double>) {                   \
+                    fixed_point_from_double(                                           \
+                        static_cast<double>(ndarray_view.data()[i]),                   \
+                        std::begin(_data) + (i + 0) * _itemsize,                       \
+                        std::begin(_data) + (i + 1) * _itemsize,                       \
+                        _bits,                                                         \
+                        _int_bits                                                      \
+                    );                                                                 \
+                } else {                                                               \
+                    fixed_point_from_integer(                                          \
+                        static_cast<std::uint64_t>(ndarray_view.data()[i]),            \
+                        std::begin(_data) + (i + 0) * _itemsize,                       \
+                        std::begin(_data) + (i + 1) * _itemsize,                       \
+                        _bits,                                                         \
+                        _int_bits                                                      \
+                    );                                                                 \
+                }                                                                      \
             }                                                                          \
             return; /* Conversion completed, exit `_set_values_from_ndarray()` */      \
         }                                                                              \
