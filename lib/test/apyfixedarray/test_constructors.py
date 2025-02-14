@@ -59,6 +59,17 @@ def test_array_floating_point_construction(fixed_array):
     b = fixed_array.from_float([100, -200, -300, -400], bits=4, frac_bits=0)
     assert a.is_identical(b)
 
+    # Python long integer (256 bits)
+    int_val = 2**257 - 1
+    assert fixed_array.from_float([int_val], bits=257, int_bits=257).is_identical(
+        fixed_array([int_val], bits=257, int_bits=257)
+    )
+
+    int_val = 2**64 - 1
+    assert fixed_array.from_float([int_val], bits=65, int_bits=65).is_identical(
+        fixed_array([int_val], bits=65, int_bits=65)
+    )
+
     ##
     # From APyFloat
     #
@@ -138,6 +149,12 @@ def test_numpy_creation(fixed_array, dt):
         anp = np.array([[1, 2, 3, 4]], dtype=dt)
     a = fixed_array.from_float(anp, 5, 4)
     assert np.all(a.to_numpy() == anp.astype(np.double))
+
+    if dt == "uint64":
+        anp = np.asarray([2**64 - 1], dtype=dt)
+        assert fixed_array.from_array(anp, bits=65, int_bits=65).is_identical(
+            fixed_array([2**64 - 1], bits=65, int_bits=65)
+        )
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])

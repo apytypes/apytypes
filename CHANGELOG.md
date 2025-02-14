@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   has multiple of 64 bits.
 - Incorrect fixed-point rounding in `APyFixedArray.from_array` on Windows.
 - Incorrect LaTeX-representation of negative fixed-point scalars.
+- Incorrect casting of large integers in `APyFixedArray.from_*`.
 
 ### Changed
 
