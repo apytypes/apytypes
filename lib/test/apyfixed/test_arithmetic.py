@@ -220,6 +220,27 @@ def test_wide_operations():
     assert fx_a * fx_b == fx_b * fx_a
 
 
+def test_wide_operations_special_cases():
+    """
+    Tests for wider operations to try to trigger specific branches of the code.
+    """
+    fx_b = APyFixed(5444517870735015415395546974834581831681, bits=136, frac_bits=75)
+    # Two most significant lambs are the same as fx_b
+    fx_c = APyFixed(5444517870735015415395546974834581831680, bits=136, frac_bits=75)
+    assert (fx_c / fx_b).is_identical(
+        APyFixed(87112285931760246646623899502532662132719, bits=273, int_bits=137)
+    )
+    assert (fx_b / fx_c).is_identical(
+        APyFixed(87112285931760246646623899502532662132752, bits=273, int_bits=137)
+    )
+
+    # The same as the 3/2 inverse of fx_c
+    fx_a = APyFixed(340282366920938463462221685927161364480, bits=136, frac_bits=75)
+    assert (fx_a / fx_c).is_identical(
+        APyFixed(5444517870735015415413993718908291383296, bits=273, int_bits=137)
+    )
+
+
 @pytest.mark.parametrize("fixed_type", [APyFixed, APyCFixed])
 def test_mixed_width_operations(fixed_type):
     """

@@ -226,6 +226,14 @@ def test_cumsum(fixed_array, sum_func):
     )
 
 
+def test_special_case():  # Trigger the addition with different number of limbs
+    p = APyFixedArray(
+        [170141183460469231713240559642174554112] * 16, bits=128, frac_bits=79
+    )
+    psum = APyFixed(2722258935367507707411848954274792865792, bits=132, int_bits=53)
+    assert psum.is_identical(p.sum())
+
+
 @pytest.mark.parametrize(
     "fixed_array, fixed_scalar",
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed)],
