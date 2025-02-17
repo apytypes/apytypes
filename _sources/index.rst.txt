@@ -39,6 +39,7 @@ Jupyter Notebooks or Spyder, will provide a nicer output of the numbers.
    development
    publications
    changelog
+   licenses
 
 Indices and tables
 ==================

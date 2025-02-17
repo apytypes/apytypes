@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Comparison" href="comparison.html" /><link rel="prev" title="cocotb integration" href="examples/test_fp8_mul.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="Changelog" href="changelog.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Computational performance - APyTypes documentation</title>
+        <title>Licenses - APyTypes documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -246,12 +246,12 @@
 <li class="toctree-l2"><a class="reference internal" href="examples/test_fp8_mul.html">cocotb integration</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Computational performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="performance.html">Computational performance</a></li>
 <li class="toctree-l1"><a class="reference internal" href="comparison.html">Comparison</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
 <li class="toctree-l1"><a class="reference internal" href="publications.html">Publications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="licenses.html">Licenses</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Licenses</a></li>
 </ul>
 
 </div>
@@ -272,7 +272,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="_sources/performance.rst.txt" title="View this page">
+  <a class="muted-link" href="_sources/licenses.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -292,41 +292,23 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="computational-performance">
-<h1>Computational performance<a class="headerlink" href="#computational-performance" title="Link to this heading">¶</a></h1>
-<p>One of the key design criteria of APyTypes is computational performance. Now, using custom word lengths will always
-be much slower compared to using word lengths directly supported in hardware. By far. Hence, do not expect
-APyTypes to compete with, e.g., NumPy in pure computational speed. Also, pure C++-libraries like ac-types
-and ap-types are template-based. Hence, they know the word length at compile time and can therefore optimize
-the code. APyTypes must do this dynamically.</p>
-<p>Still, there are some ways to improve the performance when running APyTypes. This section will list best
-practices and expand over time.</p>
-<p>To track the computational speed of some selected operations over time, as the code evolves and hopefully improves,
-see <a class="reference external" href="https://apytypes.github.io/apytypes/dev/bench/">here</a>.
-These graphs are updated after every commit. However, as they are executed as part of the CI, one can expect
-a bit of variation. It should still be possible to note significant changes though.</p>
-<section id="use-arrays-if-possible">
-<h2>Use arrays if possible<a class="headerlink" href="#use-arrays-if-possible" title="Link to this heading">¶</a></h2>
-<p>As the overhead of going between Python and C++ is significant for a single number (about 90%),
-it very much makes sense to use arrays when possible.</p>
-<p>See the figure below for the effect of using arrays and the current operation speeds available.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This figure is generated as part of the documentation build and is continuously updated.
-The actual performance may differ depending on compiler, processor, etc.</p>
-</div>
-<img alt="Illustration of the obtained performance as a function of array size" src="_images/performancescale.png" />
-</section>
-<section id="inplace-shifting-for-fixed-point">
-<h2>Inplace shifting for fixed-point<a class="headerlink" href="#inplace-shifting-for-fixed-point" title="Link to this heading">¶</a></h2>
-<p>Shifting is used to move the binary point of fixed-point numbers. Hence, this will only involve updating the
-number of integer/fractional bits. However, it may also involve creating a new object, so it is preferred to
-use inplace shifting if possible.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFixed</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">bits</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">a</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>   <span class="c1"># slower</span>
-<span class="n">a</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span>   <span class="c1"># faster</span>
-</pre></div>
-</div>
+          <section id="licenses">
+<h1>Licenses<a class="headerlink" href="#licenses" title="Link to this heading">¶</a></h1>
+<p>APyTypes is released under the MIT license:</p>
+<p>Copyright 2023-2025 Oscar Gustafsson, Mikael Henriksson, Theodor Lindberg</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+<section id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading">¶</a></h2>
+<p>In addition, the pre-built version of APyTypes relies on code from the following packages:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://nanobind.readthedocs.io/en/latest/">Nanobind</a>: <a class="reference external" href="https://github.com/wjakob/nanobind/blob/master/LICENSE">3-clause BSD license</a></p></li>
+<li><p><a class="reference external" href="https://fmt.dev/">fmt</a>: <a class="reference external" href="https://github.com/fmtlib/fmt/blob/master/LICENSE">MIT license</a></p></li>
+<li><p><a class="reference external" href="https://google.github.io/highway/en/master/">Highway</a>: <a class="reference external" href="https://github.com/google/highway/blob/master/LICENSE">Apache license 2.0</a> / <a class="reference external" href="https://github.com/google/highway/blob/master/LICENSE-BSD3">3-clause BSD license</a> (dual-licensed)</p></li>
+</ul>
+</div></blockquote>
 </section>
 </section>
 
@@ -335,23 +317,15 @@ use inplace shifting if possible.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="comparison.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">Comparison</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="examples/test_fp8_mul.html">
+          
+          <a class="prev-page" href="changelog.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">cocotb integration</div>
+                <div class="title">Changelog</div>
                 
               </div>
             </a>
@@ -385,9 +359,8 @@ use inplace shifting if possible.</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Computational performance</a><ul>
-<li><a class="reference internal" href="#use-arrays-if-possible">Use arrays if possible</a></li>
-<li><a class="reference internal" href="#inplace-shifting-for-fixed-point">Inplace shifting for fixed-point</a></li>
+<li><a class="reference internal" href="#">Licenses</a><ul>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
 </ul>
 </li>
 </ul>
