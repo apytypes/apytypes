@@ -588,10 +588,9 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
 
         // Negate result if negative
         if (num_sign ^ den_sign) {
-            limb_vector_negate(
+            limb_vector_negate_inplace(
                 std::begin(result._data) + (i + 0) * result._itemsize,
-                std::begin(result._data) + (i + 1) * result._itemsize,
-                std::begin(result._data) + (i + 0) * result._itemsize
+                std::begin(result._data) + (i + 1) * result._itemsize
             );
         }
     }
@@ -650,10 +649,9 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
 
         // Negate result if negative
         if (num_sign ^ den_sign) {
-            limb_vector_negate(
+            limb_vector_negate_inplace(
                 std::begin(result._data) + (i + 0) * result._itemsize,
-                std::begin(result._data) + (i + 1) * result._itemsize,
-                std::begin(result._data) + (i + 0) * result._itemsize
+                std::begin(result._data) + (i + 1) * result._itemsize
             );
         }
     }
@@ -722,10 +720,9 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
 
         // Negate result if negative
         if (num_sign ^ den_sign) {
-            limb_vector_negate(
+            limb_vector_negate_inplace(
                 std::begin(result._data) + (i + 0) * result._itemsize,
-                std::begin(result._data) + (i + 1) * result._itemsize,
-                std::begin(result._data) + (i + 0) * result._itemsize
+                std::begin(result._data) + (i + 1) * result._itemsize
             );
         }
     }
@@ -1104,7 +1101,7 @@ APyFixedArray APyFixedArray::operator-() const
     auto it_begin = result._data.begin();
     for (std::size_t i = 0; i < _nitems; i++) {
         auto it_end = it_begin + result._itemsize;
-        limb_vector_negate(it_begin, it_end, it_begin);
+        limb_vector_negate_inplace(it_begin, it_end);
         it_begin = it_end;
     }
     return result;

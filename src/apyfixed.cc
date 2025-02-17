@@ -244,9 +244,7 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
 
     // Negate result if negative
     if (sign_num ^ sign_den) {
-        limb_vector_negate(
-            result._data.begin(), result._data.end(), result._data.begin()
-        );
+        limb_vector_negate_inplace(result._data.begin(), result._data.end());
     }
     return result;
 }
@@ -611,7 +609,7 @@ void APyFixed::set_from_string_dec(const std::string& str)
     _data = data;
     _data.resize(bits_to_limbs(bits()));
     if (is_negative) {
-        limb_vector_negate(_data.begin(), _data.end(), _data.begin());
+        limb_vector_negate_inplace(_data.begin(), _data.end());
     }
 
     // Two's complement overflow and we're done
@@ -885,7 +883,7 @@ APyFixed APyFixed::from_unspecified_double(double value)
 
     // Adjust result from sign
     if (sign_of_double(value)) {
-        limb_vector_negate(limbs.begin(), limbs.end(), limbs.begin());
+        limb_vector_negate_inplace(limbs.begin(), limbs.end());
     }
 
     return APyFixed(bits, int_bits, limbs);

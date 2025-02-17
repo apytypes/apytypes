@@ -75,6 +75,7 @@ apy_limb_t apy_inplace_addition(
 );
 apy_limb_t
 apy_inplace_addition_single_limb(apy_limb_t*, const std::size_t, const apy_limb_t);
+apy_limb_t apy_inplace_negate(apy_limb_t*, const std::size_t);
 apy_limb_t apy_inplace_add_one_lsb(apy_limb_t*, const std::size_t);
 apy_limb_t
 apy_inplace_addition_same_length(apy_limb_t*, const apy_limb_t*, const std::size_t);

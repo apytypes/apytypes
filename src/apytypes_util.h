@@ -996,6 +996,15 @@ template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
     return apy_inplace_add_one_lsb(&*res_it, std::distance(cbegin_it, cend_it));
 }
 
+//! Take the two's complement negative value of a limb vector inplace
+template <class RANDOM_ACCESS_ITERATOR_IN>
+[[maybe_unused]] static APY_INLINE apy_limb_t limb_vector_negate_inplace(
+    RANDOM_ACCESS_ITERATOR_IN cbegin_it, RANDOM_ACCESS_ITERATOR_IN cend_it
+)
+{
+    return apy_inplace_negate(&*cbegin_it, std::distance(cbegin_it, cend_it));
+}
+
 //! Take the two's complement absolute value of a limb vector and place onto `res_out`.
 //! Return `true` if the argument is negative
 template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>

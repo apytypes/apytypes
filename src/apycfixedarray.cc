@@ -848,7 +848,7 @@ APyCFixedArray APyCFixedArray::operator-() const
     auto it_begin = result._data.begin();
     for (std::size_t i = 0; i < 2 * _nitems; i++) {
         auto it_end = it_begin + result._itemsize / 2;
-        limb_vector_negate(it_begin, it_end, it_begin);
+        limb_vector_negate_inplace(it_begin, it_end);
         it_begin = it_end;
     }
     return result;

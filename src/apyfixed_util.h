@@ -1443,7 +1443,7 @@ void fixed_point_from_double(
 
     // Adjust result from sign
     if (sign_of_double(value)) {
-        limb_vector_negate(begin_it, end_it, begin_it);
+        limb_vector_negate_inplace(begin_it, end_it);
     }
     _overflow_twos_complement(begin_it, end_it, bits, int_bits);
 }

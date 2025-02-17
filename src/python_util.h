@@ -242,7 +242,7 @@ static std::size_t convert_py_long_to_apy_limbs(
 
     // Negate limb vector if negative
     if (PyLong_IsNegative(py_long)) {
-        limb_vector_negate(std::begin(result), std::end(result), std::begin(result));
+        limb_vector_negate_inplace(std::begin(result), std::end(result));
     }
 
     return result;
@@ -272,9 +272,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     // Take absolute value of limb vector
     std::vector<apy_limb_t> limb_vec_abs(begin, end);
     if (sign) {
-        limb_vector_negate(
-            limb_vec_abs.begin(), limb_vec_abs.end(), limb_vec_abs.begin()
-        );
+        limb_vector_negate_inplace(limb_vec_abs.begin(), limb_vec_abs.end());
     }
 
     // Zero bits outside of range if printing as positive and `bits_last_limb` is

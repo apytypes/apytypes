@@ -57,6 +57,19 @@ apy_limb_t apy_inplace_add_one_lsb(apy_limb_t* dest, const std::size_t limbs)
     return carry;
 }
 
+apy_limb_t apy_inplace_negate(apy_limb_t* dest, const std::size_t limbs)
+{
+    assert(limbs > 0);
+
+    apy_limb_t carry = 1;
+    for (std::size_t i = 0; i < limbs; i++) {
+        dest[i] = ~dest[i] + carry;
+        carry = (dest[i] < carry);
+    }
+
+    return carry;
+}
+
 apy_limb_t apy_inplace_addition_same_length(
     apy_limb_t* dest, const apy_limb_t* src, const std::size_t limbs
 )
