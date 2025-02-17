@@ -272,13 +272,9 @@ template <class RANDOM_ACCESS_ITERATOR>
     // Take absolute value of limb vector
     std::vector<apy_limb_t> limb_vec_abs(begin, end);
     if (sign) {
-        std::transform(
-            limb_vec_abs.cbegin(),
-            limb_vec_abs.cend(),
-            limb_vec_abs.begin(),
-            [](auto limb) { return ~limb; }
+        limb_vector_negate(
+            limb_vec_abs.begin(), limb_vec_abs.end(), limb_vec_abs.begin()
         );
-        apy_inplace_add_one_lsb(&limb_vec_abs[0], limb_vec_abs.size());
     }
 
     // Zero bits outside of range if printing as positive and `bits_last_limb` is
