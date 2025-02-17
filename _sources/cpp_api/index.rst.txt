@@ -13,6 +13,7 @@ APyTypes C++ API
    apyfloatarray
    apyfloat_util
    apytypes_common
+   apytypes_mp
    apytypes_scratch_vector
    apytypes_simd
    apytypes_util
