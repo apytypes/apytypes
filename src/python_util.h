@@ -101,9 +101,12 @@ python_long_is_negative(const nanobind::int_& py_long_int)
     return PyLong_IsNegative(py_long);
 }
 
-static std::size_t convert_py_long_to_apy_limbs(
-    apy_limb_t** zp_orig, const std::size_t count, const PyLongObject* py_long
-)
+/*!
+ * Convert Python limbs (of length PYLONG_BITS_IN_DIGIT) to apy_type_t limbs
+ * (of length APY_LIMB_SIZE_BITS).
+ */
+static std::tuple<std::size_t, apy_limb_t*>
+convert_py_long_to_apy_limbs(const std::size_t count, const PyLongObject* py_long)
 {
     auto data = GET_OB_DIGIT(py_long);
     constexpr std::size_t size = sizeof(data[0]);
@@ -111,8 +114,8 @@ static std::size_t convert_py_long_to_apy_limbs(
     assert(size * 8 - PYLONG_BITS_IN_DIGIT > 0);
 
     std::size_t zsize = bits_to_limbs(count * PYLONG_BITS_IN_DIGIT);
-    *zp_orig = new apy_limb_t[zsize];
-    apy_limb_t* zp_tmp = *zp_orig;
+    apy_limb_t* zp_orig = new apy_limb_t[zsize];
+    apy_limb_t* zp_tmp = zp_orig;
     const int endian = HOST_ENDIAN;
 
     /* offset to get to the next word after processing WHOLE_BYTES and REMAINING_BITS */
@@ -164,7 +167,7 @@ static std::size_t convert_py_long_to_apy_limbs(
         *zp_tmp++ = limb;
     }
 
-    assert(zp_tmp == *zp_orig + zsize);
+    assert(zp_tmp == zp_orig + zsize);
 
     /* low byte of word after most significant */
     assert(
@@ -173,14 +176,14 @@ static std::size_t convert_py_long_to_apy_limbs(
             + (endian >= 0 ? (apy_size_t)size - 1 : 0)
     );
 
-    zp_tmp = *zp_orig;
+    zp_tmp = zp_orig;
     // Normalize (required for the Python use case?)
     while (zsize > 0) {
         if (zp_tmp[zsize - 1] != 0)
             break;
         zsize--;
     }
-    return zsize;
+    return { zsize, zp_orig };
 }
 
 /*!
@@ -210,10 +213,7 @@ static std::size_t convert_py_long_to_apy_limbs(
     } else {
         // Python integer is stored using multiple Python digits. Import data from
         // multi-digit Python long integer.
-        apy_limb_t* zp_orig;
-
-        std::size_t py_long_size = convert_py_long_to_apy_limbs(
-            &zp_orig,       // Destination operand
+        auto [py_long_size, zp_orig] = convert_py_long_to_apy_limbs(
             py_long_digits, // Words to read
             py_long         // Source operand
         );
@@ -231,7 +231,7 @@ static std::size_t convert_py_long_to_apy_limbs(
             limb_copy_count * APY_LIMB_SIZE_BYTES
         );
 
-        // Clear MPZ resources
+        // Delete array
         delete[] zp_orig;
     }
 

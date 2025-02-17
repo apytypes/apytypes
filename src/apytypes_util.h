@@ -81,22 +81,24 @@ public:
 
 //! Compute multiplication between two apy_limb_t and obtain double length result
 template <typename INT_TYPE>
-[[maybe_unused, nodiscard]] static APY_INLINE INT_TYPE
-long_mult(INT_TYPE* high_limb, INT_TYPE src0, INT_TYPE src1)
+[[maybe_unused, nodiscard]] static APY_INLINE std::tuple<INT_TYPE, INT_TYPE>
+long_mult(INT_TYPE src0, INT_TYPE src1)
 {
     if constexpr (sizeof(INT_TYPE) == 4) {
         std::uint64_t res = (std::uint64_t)src0 * (std::uint64_t)src1;
-        *high_limb = INT_TYPE(res >> 32);
-        return INT_TYPE(res);
+        INT_TYPE high_limb = INT_TYPE(res >> 32);
+        return { high_limb, INT_TYPE(res) };
     } else {
 #if defined(__GNUC__)
         // GNU C-compatible compiler (including Clang and MacOS Xcode)
         unsigned __int128 res = (unsigned __int128)src0 * (unsigned __int128)src1;
-        *high_limb = INT_TYPE(res >> 64);
-        return INT_TYPE(res);
+        INT_TYPE high_limb = INT_TYPE(res >> 64);
+        return { high_limb, INT_TYPE(res) };
 #elif defined(_MSC_VER)
         // Microsoft Visual C/C++ compiler
-        return INT_TYPE(_umul128(src0, src1, high_limb));
+        INT_TYPE high_limb;
+        INT_TYPE low_limb = INT_TYPE(_umul128(src0, src1, &high_limb));
+        return { high_limb, low_limb };
 #else
         // No 128-bit multiplication intrinsic found. We could implement this function,
         // but fail for now so we can clearly see which systems are missing out on these

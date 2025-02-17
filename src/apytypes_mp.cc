@@ -305,10 +305,9 @@ apy_limb_t apy_multiplication_with_single_limb(
 {
     assert(limbs > 0);
 
-    apy_limb_t prod_high, prod_low;
     apy_limb_t carry = 0;
     for (std::size_t i = 0; i < limbs; i++) {
-        prod_low = long_mult(&prod_high, src0[i], src1);
+        auto [prod_high, prod_low] = long_mult(src0[i], src1);
 
         prod_low += carry;
         carry = (prod_low < carry) + prod_high;
@@ -328,10 +327,9 @@ apy_limb_t apy_addmul_single_limb(
 {
     assert(limbs > 0);
 
-    apy_limb_t prod_high, prod_low;
     apy_limb_t carry = 0;
     for (std::size_t i = 0; i < limbs; i++) {
-        prod_low = long_mult(&prod_high, src0[i], src1);
+        auto [prod_high, prod_low] = long_mult(src0[i], src1);
 
         prod_low += carry;
         carry = (prod_low < carry) + prod_high;
@@ -350,10 +348,9 @@ apy_limb_t apy_submul_single_limb(
 {
     assert(limbs > 0);
 
-    apy_limb_t prod_high, prod_low;
     apy_limb_t carry = 0;
     for (std::size_t i = 0; i < limbs; i++) {
-        prod_low = long_mult(&prod_high, src0[i], src1);
+        auto [prod_high, prod_low] = long_mult(src0[i], src1);
 
         prod_low += carry;
         carry = (prod_low < carry) + prod_high;
@@ -537,12 +534,11 @@ apy_limb_t APyDivInverse::compute_3by2_inverse(apy_limb_t u1, apy_limb_t u0)
             }
             remainder -= u1;
         }
-        apy_limb_t th;
-        apy_limb_t tl = long_mult(&th, u0, m);
-        remainder += th;
-        if (remainder < th) {
+        auto [prod_high, prod_low] = long_mult(u0, m);
+        remainder += prod_high;
+        if (remainder < prod_high) {
             m--;
-            m -= ((remainder > u1) | ((remainder == u1) & (tl > u0)));
+            m -= ((remainder > u1) | ((remainder == u1) & (prod_low > u0)));
         }
     }
 
@@ -607,8 +603,7 @@ apy_limb_t apy_division_single_limb_preinverted(
     }
 
     for (apy_size_t limbs = numerator_limbs - 1; limbs >= 0; limbs--) {
-        apy_limb_t quotient_high;
-        apy_limb_t quotient_low = long_mult(&quotient_high, remainder, inv->inverse);
+        auto [quotient_high, quotient_low] = long_mult(remainder, inv->inverse);
         apy_inplace_two_limb_addition(
             &quotient_high, &quotient_low, remainder + 1, numerator[limbs]
         );
@@ -637,7 +632,8 @@ void apy_division_3by2(
     const APyDivInverse* inv
 )
 {
-    apy_limb_t quotient_low = long_mult(quotient_tmp, *numerator_1, inv->inverse);
+    auto [quotient_high, quotient_low] = long_mult(*numerator_1, inv->inverse);
+    *quotient_tmp = quotient_high;
     apy_inplace_two_limb_addition(
         quotient_tmp, &quotient_low, *numerator_1, *numerator_0
     );
@@ -652,8 +648,7 @@ void apy_division_3by2(
         inv->norm_denominator_1,
         inv->norm_denominator_0
     );
-    apy_limb_t t_high;
-    apy_limb_t t_low = long_mult(&t_high, inv->norm_denominator_0, *quotient_tmp);
+    auto [t_high, t_low] = long_mult(inv->norm_denominator_0, *quotient_tmp);
     apy_inplace_two_limb_subtraction(numerator_1, numerator_0, t_high, t_low);
     (*quotient_tmp)++;
 
