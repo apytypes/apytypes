@@ -132,7 +132,7 @@ apy_limb_t apy_inplace_subtraction_same_length(
     return carry;
 }
 
-// dest = a - dest
+// dest = src - dest
 apy_limb_t apy_inplace_reversed_subtraction_same_length(
     apy_limb_t* dest, const apy_limb_t* src, const std::size_t limbs
 )

@@ -106,20 +106,18 @@ static std::size_t convert_py_long_to_apy_limbs(
 )
 {
     auto data = GET_OB_DIGIT(py_long);
-    std::size_t size = sizeof(data[0]);
-    std::size_t nail = size * 8 - PYLONG_BITS_IN_DIGIT;
+    constexpr std::size_t size = sizeof(data[0]);
 
-    assert(nail <= 8 * size);
-    assert(nail > 0);
+    assert(size * 8 - PYLONG_BITS_IN_DIGIT > 0);
 
-    std::size_t zsize = bits_to_limbs(count * (8 * size - nail));
+    std::size_t zsize = bits_to_limbs(count * PYLONG_BITS_IN_DIGIT);
     *zp_orig = new apy_limb_t[zsize];
     apy_limb_t* zp_tmp = *zp_orig;
-    int endian = HOST_ENDIAN;
+    const int endian = HOST_ENDIAN;
 
     /* offset to get to the next word after processing WHOLE_BYTES and REMAINING_BITS */
-    apy_size_t woffset = (PYLONG_BITS_IN_DIGIT + 7) / 8;
-    woffset = (endian >= 0 ? woffset : -woffset) + size;
+    constexpr std::size_t woffset_const = (PYLONG_BITS_IN_DIGIT + 7) / 8;
+    apy_size_t woffset = (endian >= 0 ? size + woffset_const : size - woffset_const);
 
     /* least significant byte */
     unsigned char* dp = (unsigned char*)data + (endian >= 0 ? size - 1 : 0);
@@ -200,8 +198,7 @@ static std::size_t convert_py_long_to_apy_limbs(
     );
 
     const PyLongObject* py_long = (const PyLongObject*)py_long_int.ptr();
-    long py_long_digits = PyLong_DigitCount(py_long);
-    bool py_long_is_negative = PyLong_IsNegative(py_long);
+    const long py_long_digits = PyLong_DigitCount(py_long);
 
     std::vector<apy_limb_t> result;
     if (py_long_digits == 0) {
@@ -244,7 +241,7 @@ static std::size_t convert_py_long_to_apy_limbs(
     }
 
     // Negate limb vector if negative
-    if (py_long_is_negative) {
+    if (PyLong_IsNegative(py_long)) {
         limb_vector_negate(std::begin(result), std::end(result), std::begin(result));
     }
 
