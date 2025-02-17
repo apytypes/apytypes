@@ -58,6 +58,9 @@
 #define PyLong_DigitCount(obj) (PyLong_IsNegative(obj) ? -Py_SIZE(obj) : Py_SIZE(obj))
 #endif
 
+#define WHOLE_BYTES (PYLONG_BITS_IN_DIGIT / 8)
+#define REMAINING_BITS (PYLONG_BITS_IN_DIGIT % 8)
+#define REMAINING_BITS_MASK ((((apy_limb_t)1) << REMAINING_BITS) - 1)
 /*!
  * Creation of a new PyLongObject that can be returned to Python
  */
@@ -113,29 +116,19 @@ static std::size_t convert_py_long_to_apy_limbs(
     *zp_orig = new apy_limb_t[zsize];
     apy_limb_t* zp_tmp = *zp_orig;
     int endian = HOST_ENDIAN;
-    apy_limb_t byte;
-    unsigned char* dp;
 
-    std::size_t numb = size * 8 - nail;
-
-    /* whole bytes to process */
-    std::size_t wbytes = numb / 8;
-
-    /* partial byte to process */
-    unsigned int wbits = numb % 8;
-    apy_limb_t wbitsmask = (((apy_limb_t)1) << wbits) - 1;
-
-    /* offset to get to the next word after processing wbytes and wbits */
-    apy_size_t woffset = (numb + 7) / 8;
+    /* offset to get to the next word after processing WHOLE_BYTES and REMAINING_BITS */
+    apy_size_t woffset = (PYLONG_BITS_IN_DIGIT + 7) / 8;
     woffset = (endian >= 0 ? woffset : -woffset) + size;
 
     /* least significant byte */
-    dp = (unsigned char*)data + (endian >= 0 ? size - 1 : 0);
+    unsigned char* dp = (unsigned char*)data + (endian >= 0 ? size - 1 : 0);
 
     apy_limb_t limb = 0;
     int lbits = 0;
+    apy_limb_t byte;
     for (std::size_t i = 0; i < count; i++) {
-        for (std::size_t j = 0; j < wbytes; j++) {
+        for (std::size_t j = 0; j < WHOLE_BYTES; j++) {
             byte = *dp;
             dp -= endian;
             assert(lbits < (int)APY_LIMB_SIZE_BITS);
@@ -150,20 +143,20 @@ static std::size_t convert_py_long_to_apy_limbs(
                 limb = byte >> (8 - lbits);
             }
         }
-        if (wbits != 0) {
-            byte = *dp & wbitsmask;
-            dp -= endian;
-            assert(lbits < (int)APY_LIMB_SIZE_BITS);
-            assert(limb <= (((apy_limb_t)1) << lbits) - 1);
+        // Process remaining bits
+        assert(REMAINING_BITS != 0);
+        byte = *dp & REMAINING_BITS_MASK;
+        dp -= endian;
+        assert(lbits < (int)APY_LIMB_SIZE_BITS);
+        assert(limb <= (((apy_limb_t)1) << lbits) - 1);
 
-            limb |= (apy_limb_t)byte << lbits;
-            lbits += wbits;
-            if (lbits >= (int)APY_LIMB_SIZE_BITS) {
-                *zp_tmp++ = limb & APY_NUMBER_MASK;
-                lbits -= APY_LIMB_SIZE_BITS;
-                assert(lbits < wbits);
-                limb = byte >> (wbits - lbits);
-            }
+        limb |= (apy_limb_t)byte << lbits;
+        lbits += REMAINING_BITS;
+        if (lbits >= (int)APY_LIMB_SIZE_BITS) {
+            *zp_tmp++ = limb & APY_NUMBER_MASK;
+            lbits -= APY_LIMB_SIZE_BITS;
+            assert(lbits < REMAINING_BITS);
+            limb = byte >> (REMAINING_BITS - lbits);
         }
         dp += woffset;
     }
@@ -333,10 +326,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     // Export the intermediate data to the Python integer
     // Relevant parts from mpz_export
     std::size_t ssize = sizeof(GET_OB_DIGIT(result)[0]);
-    std::size_t nail = ssize * 8 - PYLONG_BITS_IN_DIGIT;
-    assert(nail <= 8 * ssize);
-    assert(nail < 8 * ssize || zsize == 0); /* nail < 8*ssize+(zsize==0) */
-    assert(nail > 0);
+    assert(ssize * 8 - PYLONG_BITS_IN_DIGIT > 0);
 
     if (zsize == 0) {
         GET_OB_DIGIT(result)[0] = 0;
@@ -348,16 +338,10 @@ template <class RANDOM_ACCESS_ITERATOR>
 
         apy_bitcount_t total_bits = (apy_bitcount_t)(zsize)*APY_LIMB_SIZE_BITS
             - leading_zeros(zp_orig[zsize - 1]);
-        std::size_t numb = ssize * 8 - nail;
-        std::size_t count = (total_bits + numb - 1) / numb;
+        std::size_t count
+            = (total_bits + PYLONG_BITS_IN_DIGIT - 1) / PYLONG_BITS_IN_DIGIT;
 
         int endian = HOST_ENDIAN;
-        /* whole bytes per word */
-        std::size_t wbytes = numb / 8;
-
-        /* possible partial byte */
-        int wbits = numb % 8;
-        apy_limb_t wbitsmask = (((apy_limb_t)1) << wbits) - 1;
 
         /* offset to get to the next word */
         std::size_t woffset = (endian >= 0 ? 2 * ssize : 0);
@@ -371,7 +355,7 @@ template <class RANDOM_ACCESS_ITERATOR>
         apy_limb_t limb = 0;
         std::size_t j;
         for (std::size_t i = 0; i < count; i++) {
-            for (j = 0; j < wbytes; j++) {
+            for (j = 0; j < WHOLE_BYTES; j++) {
                 if (lbits >= 8) {
                     *dp = limb;
                     limb >>= 8;
@@ -384,21 +368,22 @@ template <class RANDOM_ACCESS_ITERATOR>
                 }
                 dp -= endian;
             }
-            if (wbits != 0) {
-                if (lbits >= wbits) {
-                    *dp = limb & wbitsmask;
-                    limb >>= wbits;
-                    lbits -= wbits;
-                } else {
-                    apy_limb_t newlimb = (zp_tmp == zend ? 0 : *zp_tmp++);
-                    *dp = (limb | (newlimb << lbits)) & wbitsmask;
-                    limb = newlimb >> (wbits - lbits);
-                    lbits += APY_LIMB_SIZE_BITS - wbits;
-                }
-
-                dp -= endian;
-                j++;
+            // Process remaining bits
+            assert(REMAINING_BITS != 0);
+            if (lbits >= REMAINING_BITS) {
+                *dp = limb & REMAINING_BITS_MASK;
+                limb >>= REMAINING_BITS;
+                lbits -= REMAINING_BITS;
+            } else {
+                apy_limb_t newlimb = (zp_tmp == zend ? 0 : *zp_tmp++);
+                *dp = (limb | (newlimb << lbits)) & REMAINING_BITS_MASK;
+                limb = newlimb >> (REMAINING_BITS - lbits);
+                lbits += APY_LIMB_SIZE_BITS - REMAINING_BITS;
             }
+
+            dp -= endian;
+            j++;
+            // Unused?
             for (; j < ssize; j++) {
                 *dp = '\0';
                 dp -= endian;
@@ -418,6 +403,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     // End of relevant parts from mpz_export
 
     delete[] zp_orig;
+    // Will this ever happen now?
     while (python_digits > 0 && (GET_OB_DIGIT(result)[python_digits - 1] == 0)) {
         python_digits--;
     }
