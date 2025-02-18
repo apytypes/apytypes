@@ -117,7 +117,8 @@ limb_vec_from_py_long_vec(const std::size_t count, const PyLongObject* py_long)
     const int endian = HOST_ENDIAN;
 
     /* offset to get to the next word after processing WHOLE_BYTES and REMAINING_BITS */
-    constexpr std::size_t woffset_const = (PYLONG_BITS_IN_DIGIT + POSIX_CHAR_BITS - 1) / POSIX_CHAR_BITS;
+    constexpr std::size_t woffset_const
+        = (PYLONG_BITS_IN_DIGIT + POSIX_CHAR_BITS - 1) / POSIX_CHAR_BITS;
     apy_size_t woffset
         = (endian >= 0 ? data_size + woffset_const : data_size - woffset_const);
 
