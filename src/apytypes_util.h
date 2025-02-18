@@ -394,8 +394,8 @@ double_dabble(std::vector<apy_limb_t> nibble_data)
     // Double-dabble algorithm begin
     DoubleDabbleList bcd_list {};
     const auto nibbles_last_limb = nibble_width(nibble_data.back());
-    const auto nibbles
-        = nibbles_last_limb + APY_LIMB_SIZE_BITS / BITS_PER_NIBBLE * (nibble_data.size() - 1);
+    const auto nibbles = nibbles_last_limb
+        + APY_LIMB_SIZE_BITS / BITS_PER_NIBBLE * (nibble_data.size() - 1);
     const apy_limb_t new_bit_mask = nibbles_last_limb == 0
         ? apy_limb_t(1) << (APY_LIMB_SIZE_BITS - 1)
         : apy_limb_t(1) << (BITS_PER_NIBBLE * nibbles_last_limb - 1);
