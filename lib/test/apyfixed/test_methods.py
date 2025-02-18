@@ -76,6 +76,28 @@ def test_to_float():
     # 1/4 of the greatest negative subnormal number, rounds towards zero
     assert float(APyFixed(-1, int_bits=0, frac_bits=1076)) == 0.0
 
+    ##
+    # Infinities
+    #
+    assert float(APyFixed(2**1030, int_bits=1100, frac_bits=5)) == float("inf")
+    assert float(APyFixed(2**1035, int_bits=1031, frac_bits=5)) == float("-inf")
+
+    from sys import float_info
+
+    fxp_float_max = APyFixed.from_float(+float_info.max, int_bits=2000, frac_bits=0)
+    fxp_float_min = APyFixed.from_float(-float_info.max, int_bits=2000, frac_bits=0)
+    assert float(fxp_float_max) == +float_info.max
+    assert float(fxp_float_min) == -float_info.max
+
+    # Rounds away from zero
+    assert float(fxp_float_max + 2 ** (1023 - 53) + 1) == float("inf")
+    assert float(fxp_float_max + 2 ** (1023 - 53) + 0) == float("inf")
+    assert float(fxp_float_max + 2 ** (1023 - 53) - 1) == float_info.max
+
+    assert float(fxp_float_min - 2 ** (1023 - 53) + 1) == -float_info.max
+    assert float(fxp_float_min - 2 ** (1023 - 53) + 0) == float("-inf")
+    assert float(fxp_float_min - 2 ** (1023 - 53) - 1) == float("-inf")
+
 
 def test_from_float():
     ##

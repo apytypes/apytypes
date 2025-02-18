@@ -49,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Incorrect accumulation in `APyFixedArray.cumsum()` and
   `APyCFixedArray.cumsum()` when result has more limbs than source.
 - Crash in `sum`, `cumsum`, `prod`, and `cumprod` for empty arrays.
+- Fixed-point to floating-point conversion properly rounds to `+-inf`.
 
 ### Changed
 

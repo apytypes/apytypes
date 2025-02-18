@@ -1490,7 +1490,14 @@ fixed_point_to_double(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int fr
             int right_shift_n = -left_shift_n;
             int rnd_pow2 = right_shift_n - 1;
             limb_vector_add_pow2(std::begin(man_vec), std::end(man_vec), rnd_pow2);
-            limb_vector_lsr(std::begin(man_vec), std::end(man_vec), right_shift_n);
+
+            int pow2 = right_shift_n + 53;
+            if (limb_vector_gte_pow2(std::begin(man_vec), std::end(man_vec), pow2)) {
+                exp++;
+                limb_vector_lsr(std::begin(man_vec), std::end(man_vec), rnd_pow2);
+            } else {
+                limb_vector_lsr(std::begin(man_vec), std::end(man_vec), right_shift_n);
+            }
         }
         man = man_vec[0];
 
@@ -1524,11 +1531,24 @@ fixed_point_to_double(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int fr
             int right_shift_n = -left_shift_n;
             int rnd_pow2 = right_shift_n - 1;
             limb_vector_add_pow2(std::begin(man_vec), std::end(man_vec), rnd_pow2);
-            limb_vector_lsr(std::begin(man_vec), std::end(man_vec), right_shift_n);
+
+            int pow2 = right_shift_n + 53;
+            if (limb_vector_gte_pow2(std::begin(man_vec), std::end(man_vec), pow2)) {
+                exp++;
+                limb_vector_lsr(std::begin(man_vec), std::end(man_vec), rnd_pow2);
+            } else {
+                limb_vector_lsr(std::begin(man_vec), std::end(man_vec), right_shift_n);
+            }
         }
 
         man = uint64_t(man_vec[0]);
         man |= uint64_t(man_vec[1]) << 32;
+    }
+
+    // Check for overflow to infinity
+    if (exp >= 2047) {
+        exp = 2047;
+        man = 0;
     }
 
     // Return the result
