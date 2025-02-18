@@ -56,8 +56,8 @@
 #define PyLong_DigitCount(obj) (PyLong_IsNegative(obj) ? -Py_SIZE(obj) : Py_SIZE(obj))
 #endif
 
-#define WHOLE_BYTES (PYLONG_BITS_IN_DIGIT / 8)
-#define REMAINING_BITS (PYLONG_BITS_IN_DIGIT % 8)
+#define WHOLE_BYTES (PYLONG_BITS_IN_DIGIT / POSIX_CHAR_BITS)
+#define REMAINING_BITS (PYLONG_BITS_IN_DIGIT % POSIX_CHAR_BITS)
 #define REMAINING_BITS_MASK ((((apy_limb_t)1) << REMAINING_BITS) - 1)
 /*!
  * Creation of a new PyLongObject that can be returned to Python
@@ -109,7 +109,7 @@ limb_vec_from_py_long_vec(const std::size_t count, const PyLongObject* py_long)
     auto data = GET_OB_DIGIT(py_long);
     constexpr std::size_t data_size = sizeof(data[0]);
 
-    assert(data_size * 8 - PYLONG_BITS_IN_DIGIT > 0);
+    assert(data_size * POSIX_CHAR_BITS - PYLONG_BITS_IN_DIGIT > 0);
 
     std::size_t apy_vec_size = bits_to_limbs(count * PYLONG_BITS_IN_DIGIT);
     std::vector<apy_limb_t> limb_vec = std::vector<apy_limb_t>(apy_vec_size);
@@ -117,7 +117,7 @@ limb_vec_from_py_long_vec(const std::size_t count, const PyLongObject* py_long)
     const int endian = HOST_ENDIAN;
 
     /* offset to get to the next word after processing WHOLE_BYTES and REMAINING_BITS */
-    constexpr std::size_t woffset_const = (PYLONG_BITS_IN_DIGIT + 7) / 8;
+    constexpr std::size_t woffset_const = (PYLONG_BITS_IN_DIGIT + POSIX_CHAR_BITS - 1) / POSIX_CHAR_BITS;
     apy_size_t woffset
         = (endian >= 0 ? data_size + woffset_const : data_size - woffset_const);
 
@@ -135,12 +135,12 @@ limb_vec_from_py_long_vec(const std::size_t count, const PyLongObject* py_long)
             assert(limb <= (((apy_limb_t)1) << lbits) - 1);
 
             limb |= (apy_limb_t)byte << lbits;
-            lbits += 8;
+            lbits += POSIX_CHAR_BITS;
             if (lbits >= (int)APY_LIMB_SIZE_BITS) {
                 *limb_vec_tmp_ptr++ = limb & APY_NUMBER_MASK;
                 lbits -= APY_LIMB_SIZE_BITS;
-                assert(lbits < 8);
-                limb = byte >> (8 - lbits);
+                assert(lbits < POSIX_CHAR_BITS);
+                limb = byte >> (POSIX_CHAR_BITS - lbits);
             }
         }
         // Process remaining bits
@@ -297,7 +297,7 @@ template <class RANDOM_ACCESS_ITERATOR>
     // Export the intermediate data to the Python integer
     // Relevant parts from mpz_export
     std::size_t ssize = sizeof(GET_OB_DIGIT(result)[0]);
-    assert(ssize * 8 - PYLONG_BITS_IN_DIGIT > 0);
+    assert(ssize * POSIX_CHAR_BITS - PYLONG_BITS_IN_DIGIT > 0);
 
     if (apy_vec_size == 0) {
         GET_OB_DIGIT(result)[0] = 0;
@@ -326,16 +326,16 @@ template <class RANDOM_ACCESS_ITERATOR>
         std::size_t j;
         for (std::size_t i = 0; i < count; i++) {
             for (j = 0; j < WHOLE_BYTES; j++) {
-                if (lbits >= 8) {
+                if (lbits >= POSIX_CHAR_BITS) {
                     *dp = limb;
-                    limb >>= 8;
-                    lbits -= 8;
+                    limb >>= POSIX_CHAR_BITS;
+                    lbits -= POSIX_CHAR_BITS;
                 } else {
                     apy_limb_t newlimb
                         = (limb_vec_tmp_ptr == zend ? 0 : *limb_vec_tmp_ptr++);
                     *dp = (limb | (newlimb << lbits));
-                    limb = newlimb >> (8 - lbits);
-                    lbits += APY_LIMB_SIZE_BITS - 8;
+                    limb = newlimb >> (POSIX_CHAR_BITS - lbits);
+                    lbits += APY_LIMB_SIZE_BITS - POSIX_CHAR_BITS;
                 }
                 dp -= endian;
             }

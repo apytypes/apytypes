@@ -38,15 +38,6 @@
 #include "apytypes_mp.h"
 
 /*
- * Conditional inlining of utility functions if profiling `_APY_PROFILING`
- */
-#ifdef _APY_PROFILING
-#define APY_INLINE
-#else
-#define APY_INLINE inline
-#endif
-
-/*
  * Macro for splitting a single `std::uint64_t` into enough limbs in list style
  */
 #if COMPILER_LIMB_SIZE == 64
@@ -198,8 +189,7 @@ template <typename INT_TYPE>
 template <typename INT_TYPE>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t bit_width(INT_TYPE n)
 {
-    constexpr std::size_t BITS_PER_BYTE = 8;
-    return BITS_PER_BYTE * sizeof(INT_TYPE) - leading_zeros(n);
+    return POSIX_CHAR_BITS * sizeof(INT_TYPE) - leading_zeros(n);
 }
 
 //! Compute number of trailing bits after most significant `1` in an integer
@@ -278,10 +268,10 @@ template <typename INT_TYPE>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t nibble_width(INT_TYPE x)
 {
     std::size_t bits = bit_width(x);
-    if (bits % 4 == 0) {
-        return bits / 4;
+    if (bits % BITS_PER_NIBBLE == 0) {
+        return bits / BITS_PER_NIBBLE;
     } else {
-        return bits / 4 + 1;
+        return bits / BITS_PER_NIBBLE + 1;
     }
 }
 
@@ -292,8 +282,6 @@ template <typename INT_TYPE>
 [[maybe_unused, nodiscard]] static APY_INLINE std::vector<std::uint8_t>
 to_nibble_list(const std::vector<apy_limb_t>& data_array, std::size_t len = 0)
 {
-    constexpr std::size_t NIBBLES_PER_LIMB = 2 * APY_LIMB_SIZE_BYTES;
-    constexpr std::size_t BITS_PER_NIBBLE = 4;
     std::vector<std::uint8_t> result {};
     for (apy_limb_t data : data_array) {
         for (unsigned i = 0; i < NIBBLES_PER_LIMB; i++) {
@@ -316,9 +304,6 @@ to_nibble_list(const std::vector<apy_limb_t>& data_array, std::size_t len = 0)
 [[maybe_unused, nodiscard]] static APY_INLINE std::vector<apy_limb_t>
 from_nibble_list(const std::vector<std::uint8_t>& nibble_list)
 {
-    constexpr std::size_t NIBBLES_PER_LIMB = 2 * APY_LIMB_SIZE_BYTES;
-    constexpr std::size_t BITS_PER_NIBBLE = 4;
-
     // Compute the total number of limbs in the result vector
     std::size_t limbs = nibble_list.size() / NIBBLES_PER_LIMB;
     limbs += nibble_list.size() % NIBBLES_PER_LIMB != 0 ? 1 : 0;
@@ -410,11 +395,11 @@ double_dabble(std::vector<apy_limb_t> nibble_data)
     DoubleDabbleList bcd_list {};
     const auto nibbles_last_limb = nibble_width(nibble_data.back());
     const auto nibbles
-        = nibbles_last_limb + APY_LIMB_SIZE_BITS / 4 * (nibble_data.size() - 1);
+        = nibbles_last_limb + APY_LIMB_SIZE_BITS / BITS_PER_NIBBLE * (nibble_data.size() - 1);
     const apy_limb_t new_bit_mask = nibbles_last_limb == 0
         ? apy_limb_t(1) << (APY_LIMB_SIZE_BITS - 1)
-        : apy_limb_t(1) << (4 * nibbles_last_limb - 1);
-    for (std::size_t i = 0; i < 4 * nibbles; i++) {
+        : apy_limb_t(1) << (BITS_PER_NIBBLE * nibbles_last_limb - 1);
+    for (std::size_t i = 0; i < BITS_PER_NIBBLE * nibbles; i++) {
         // Shift input data left once
         apy_limb_t new_bit = nibble_data.back() & new_bit_mask;
         apy_inplace_left_shift(&nibble_data[0], nibble_data.size(), 1);
@@ -465,7 +450,7 @@ reverse_double_dabble(const std::vector<std::uint8_t>& bcd_list)
         // As long as there are elements remaining in the BCD list, and we haven't
         // completed a multiple-of-four iterations
         std::any_of(bcd.data.begin(), bcd.data.end(), [](auto n) { return n != 0; })
-        || iteration % 4 != 0
+        || iteration % BITS_PER_NIBBLE != 0
     ) {
         // Right shift the nibble binary data
         if (iteration) {

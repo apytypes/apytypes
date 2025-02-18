@@ -37,23 +37,33 @@ typedef int64_t apy_limb_signed_t;
 
 #endif
 
-#define POSIX_CHAR_BIT 8
+/*
+ * Conditional inlining of utility functions if profiling `_APY_PROFILING`
+ */
+#ifdef _APY_PROFILING
+#define APY_INLINE
+#else
+#define APY_INLINE inline
+#endif
 
 /*
  * Sizes of APy limbs (underlying words)
  */
+#define POSIX_CHAR_BITS 8
 constexpr std::size_t APY_LIMB_SIZE_BYTES = sizeof(apy_limb_t);
 constexpr apy_limb_t APY_NUMBER_MASK = ~((apy_limb_t)0);
-static constexpr std::size_t APY_LIMB_SIZE_BITS = POSIX_CHAR_BIT * APY_LIMB_SIZE_BYTES;
-static constexpr std::size_t APY_HALF_LIMB_SIZE_BITS = APY_LIMB_SIZE_BITS / 2;
-static constexpr apy_limb_t APY_LOWER_LIMB_MASK
+constexpr std::size_t APY_LIMB_SIZE_BITS = POSIX_CHAR_BITS * APY_LIMB_SIZE_BYTES;
+constexpr std::size_t APY_HALF_LIMB_SIZE_BITS = APY_LIMB_SIZE_BITS / 2;
+constexpr apy_limb_t APY_LOWER_LIMB_MASK
     = ((apy_limb_t)1 << APY_HALF_LIMB_SIZE_BITS) - 1;
-static constexpr apy_limb_t endian_test
+constexpr apy_limb_t endian_test
     = (((apy_limb_t)1) << (APY_LIMB_SIZE_BITS - 7)) - 1;
 #define HOST_ENDIAN (*(signed char*)&endian_test)
+constexpr std::size_t NIBBLES_PER_LIMB = 2 * APY_LIMB_SIZE_BYTES;
+constexpr std::size_t BITS_PER_NIBBLE = 4;
 
 // Only used for asserts
-static constexpr apy_limb_t APY_LIMB_MSBWEIGHT
+constexpr apy_limb_t APY_LIMB_MSBWEIGHT
     = ((apy_limb_t)1 << (APY_LIMB_SIZE_BITS - 1));
 
 /* ********************************************************************************** *
