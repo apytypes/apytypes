@@ -715,19 +715,19 @@ def test_arange():
 
     with pytest.raises(
         ValueError,
-        match="Could not determine array type",
+        match="Could not determine bit specifiers",
     ):
         arange(APyFixed(1, 4, 0), 10, APyFixed(1, 4, 1))
 
     with pytest.raises(
         ValueError,
-        match="Could not determine array type",
+        match="Could not determine bit specifiers",
     ):
         arange(APyFloat(0, 0, 0, 4, 4), APyFloat(0, 7, 0, 4, 3))
 
     with pytest.raises(
         ValueError,
-        match="Could not determine array type",
+        match="Could not determine bit specifiers",
     ):
         arange(
             APyFloat(0, 0, 0, 4, 4), APyFloat(0, 7, 0, 4, 4), APyFloat(0, 7, 0, 4, 4, 5)
@@ -756,6 +756,26 @@ def test_arange():
         match="Could not determine array type",
     ):
         arange(10, int_bits=5, frac_bits=10, bias=15)
+
+    with pytest.raises(
+        ValueError,
+        match="Fixed-point bit specification needs exactly two of three bit specifiers",
+    ):
+        arange(
+            APyFixed(0, int_bits=4, frac_bits=0),
+            APyFixed(10, int_bits=4, frac_bits=0),
+            bits=20,
+        )
+
+    with pytest.raises(
+        ValueError,
+        match="Fixed-point bit specification needs exactly two of three bit specifiers",
+    ):
+        arange(
+            APyFixed(0, int_bits=4, frac_bits=0),
+            APyFixed(10, int_bits=4, frac_bits=0),
+            bits=20,
+        )
 
     # Test basic functionality
     a = arange(10, int_bits=10, frac_bits=5)
@@ -857,6 +877,9 @@ def test_arange():
         APyFloatArray.from_float(range(4), exp_bits=5, man_bits=4, bias=8)
     )
 
+    a = arange(0, APyFloat(0, 9, 0, 4, 3), bits=5, int_bits=4)
+    assert a.is_identical(APyFixedArray([0, 2, 4, 6], bits=5, int_bits=4))
+
     # Test deducing the array type when two inputs are given
     a = arange(0, APyFixed.from_float(4, int_bits=5, frac_bits=0))
     assert a.is_identical(APyFixedArray.from_float(range(4), int_bits=5, frac_bits=0))
@@ -927,6 +950,29 @@ def test_arange():
     )
     assert a.is_identical(
         APyFloatArray.from_float(range(4), exp_bits=5, man_bits=4, bias=8)
+    )
+
+    # Test deducing bit-specifiers when only some are given
+    a = arange(0, 4, APyFixed(4, int_bits=2, frac_bits=2), int_bits=3)
+    assert a.is_identical(APyFixedArray([0, 4, 8, 12], int_bits=3, frac_bits=2))
+
+    a = arange(
+        APyFixed(0, int_bits=2, frac_bits=2),
+        4,
+        APyFloat(0, 15, 0, exp_bits=5, man_bits=2),
+        man_bits=3,
+    )
+    assert a.is_identical(APyFloatArray.from_float(range(4), exp_bits=5, man_bits=3))
+
+    a = arange(
+        APyFixed(0, int_bits=2, frac_bits=2),
+        4,
+        APyFloat(0, 15, 0, exp_bits=5, man_bits=2),
+        man_bits=3,
+        bias=5,
+    )
+    assert a.is_identical(
+        APyFloatArray.from_float(range(4), exp_bits=5, man_bits=3, bias=5)
     )
 
     # Test quantization effects
