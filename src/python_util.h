@@ -15,10 +15,8 @@
 #include <Python.h>
 
 // Standard includes
-#include <algorithm> // std::copy
 #include <cassert>   // assert
 #include <cstddef>   // offsetof
-#include <cstring>   // std::memcpy
 #include <optional>  // std::optional, std::nullopt
 #include <stack>     // std::stack
 #include <stdexcept> // std::runtime_error
@@ -105,25 +103,26 @@ python_long_is_negative(const nanobind::int_& py_long_int)
  * Convert Python limbs (of length PYLONG_BITS_IN_DIGIT) to apy_type_t limbs
  * (of length APY_LIMB_SIZE_BITS).
  */
-static std::tuple<std::size_t, apy_limb_t*>
-convert_py_long_to_apy_limbs(const std::size_t count, const PyLongObject* py_long)
+static std::vector<apy_limb_t>
+limb_vec_from_py_long_vec(const std::size_t count, const PyLongObject* py_long)
 {
     auto data = GET_OB_DIGIT(py_long);
-    constexpr std::size_t size = sizeof(data[0]);
+    constexpr std::size_t data_size = sizeof(data[0]);
 
-    assert(size * 8 - PYLONG_BITS_IN_DIGIT > 0);
+    assert(data_size * 8 - PYLONG_BITS_IN_DIGIT > 0);
 
-    std::size_t zsize = bits_to_limbs(count * PYLONG_BITS_IN_DIGIT);
-    apy_limb_t* zp_orig = new apy_limb_t[zsize];
-    apy_limb_t* zp_tmp = zp_orig;
+    std::size_t apy_vec_size = bits_to_limbs(count * PYLONG_BITS_IN_DIGIT);
+    std::vector<apy_limb_t> limb_vec = std::vector<apy_limb_t>(apy_vec_size);
+    apy_limb_t* limb_vec_tmp_ptr = &limb_vec[0];
     const int endian = HOST_ENDIAN;
 
     /* offset to get to the next word after processing WHOLE_BYTES and REMAINING_BITS */
     constexpr std::size_t woffset_const = (PYLONG_BITS_IN_DIGIT + 7) / 8;
-    apy_size_t woffset = (endian >= 0 ? size + woffset_const : size - woffset_const);
+    apy_size_t woffset
+        = (endian >= 0 ? data_size + woffset_const : data_size - woffset_const);
 
     /* least significant byte */
-    unsigned char* dp = (unsigned char*)data + (endian >= 0 ? size - 1 : 0);
+    unsigned char* dp = (unsigned char*)data + (endian >= 0 ? data_size - 1 : 0);
 
     apy_limb_t limb = 0;
     int lbits = 0;
@@ -138,7 +137,7 @@ convert_py_long_to_apy_limbs(const std::size_t count, const PyLongObject* py_lon
             limb |= (apy_limb_t)byte << lbits;
             lbits += 8;
             if (lbits >= (int)APY_LIMB_SIZE_BITS) {
-                *zp_tmp++ = limb & APY_NUMBER_MASK;
+                *limb_vec_tmp_ptr++ = limb & APY_NUMBER_MASK;
                 lbits -= APY_LIMB_SIZE_BITS;
                 assert(lbits < 8);
                 limb = byte >> (8 - lbits);
@@ -154,7 +153,7 @@ convert_py_long_to_apy_limbs(const std::size_t count, const PyLongObject* py_lon
         limb |= (apy_limb_t)byte << lbits;
         lbits += REMAINING_BITS;
         if (lbits >= (int)APY_LIMB_SIZE_BITS) {
-            *zp_tmp++ = limb & APY_NUMBER_MASK;
+            *limb_vec_tmp_ptr++ = limb & APY_NUMBER_MASK;
             lbits -= APY_LIMB_SIZE_BITS;
             assert(lbits < REMAINING_BITS);
             limb = byte >> (REMAINING_BITS - lbits);
@@ -164,26 +163,23 @@ convert_py_long_to_apy_limbs(const std::size_t count, const PyLongObject* py_lon
 
     if (lbits != 0) {
         assert(lbits <= (int)APY_LIMB_SIZE_BITS);
-        *zp_tmp++ = limb;
+        *limb_vec_tmp_ptr++ = limb;
     }
 
-    assert(zp_tmp == zp_orig + zsize);
+    assert(limb_vec_tmp_ptr == &limb_vec[0] + apy_vec_size);
 
     /* low byte of word after most significant */
     assert(
         dp
-        == (unsigned char*)data + count * size
-            + (endian >= 0 ? (apy_size_t)size - 1 : 0)
+        == (unsigned char*)data + count * data_size
+            + (endian >= 0 ? (apy_size_t)data_size - 1 : 0)
     );
 
-    zp_tmp = zp_orig;
     // Normalize (required for the Python use case?)
-    while (zsize > 0) {
-        if (zp_tmp[zsize - 1] != 0)
-            break;
-        zsize--;
+    while (!limb_vec.empty() > 0 && (limb_vec[limb_vec.size() - 1] == 0)) {
+        limb_vec.pop_back();
     }
-    return { zsize, zp_orig };
+    return limb_vec;
 }
 
 /*!
@@ -213,26 +209,18 @@ convert_py_long_to_apy_limbs(const std::size_t count, const PyLongObject* py_lon
     } else {
         // Python integer is stored using multiple Python digits. Import data from
         // multi-digit Python long integer.
-        auto [py_long_size, zp_orig] = convert_py_long_to_apy_limbs(
+        std::vector<apy_limb_t> limb_vec = limb_vec_from_py_long_vec(
             py_long_digits, // Words to read
             py_long         // Source operand
         );
 
         // Compute how many limbs to copy
         std::size_t limb_copy_count
-            = (n_min_limbs.has_value() ? std::min(*n_min_limbs, py_long_size)
-                                       : py_long_size);
+            = (n_min_limbs.has_value() ? std::min(*n_min_limbs, limb_vec.size())
+                                       : limb_vec.size());
 
         // Copy limbs into a result-vector
-        result = std::vector<apy_limb_t>(limb_copy_count, 0);
-        std::memcpy(
-            &result[0], // dst
-            zp_orig,    // src
-            limb_copy_count * APY_LIMB_SIZE_BYTES
-        );
-
-        // Delete array
-        delete[] zp_orig;
+        result = { limb_vec.begin(), limb_vec.begin() + limb_copy_count };
     }
 
     // Possibly extend the vector
@@ -289,20 +277,12 @@ template <class RANDOM_ACCESS_ITERATOR>
         - limb_vector_leading_zeros(limb_vec_abs.begin(), limb_vec_abs.end());
 
     // Relevant parts from mpz_import
-    std::size_t zsize = limb_vec_abs.size();
-    apy_limb_t* zp_orig = new apy_limb_t[zsize];
-    if (!zp_orig) {
-        throw std::runtime_error(
-            "Could not allocate memory for temporary Python long integer"
-        );
-    };
-    std::memcpy(zp_orig, &limb_vec_abs[0], zsize * APY_LIMB_SIZE_BYTES);
+    apy_limb_t* limb_vec_tmp_ptr = &limb_vec_abs[0];
     // Normalize
-    while (zsize > 0) {
-        if (zp_orig[zsize - 1] != 0)
-            break;
-        zsize--;
+    while (!limb_vec_abs.empty() > 0 && (limb_vec_abs[limb_vec_abs.size() - 1] == 0)) {
+        limb_vec_abs.pop_back();
     }
+    std::size_t apy_vec_size = limb_vec_abs.size();
     // End of relevant parts from mpz_import
 
     // Number of resulting Python digits in the Python long
@@ -319,16 +299,16 @@ template <class RANDOM_ACCESS_ITERATOR>
     std::size_t ssize = sizeof(GET_OB_DIGIT(result)[0]);
     assert(ssize * 8 - PYLONG_BITS_IN_DIGIT > 0);
 
-    if (zsize == 0) {
+    if (apy_vec_size == 0) {
         GET_OB_DIGIT(result)[0] = 0;
     } else {
 
-        assert(zsize > 0);
+        assert(apy_vec_size > 0);
 
-        assert(zp_orig[zsize - 1] != 0);
+        assert(limb_vec_tmp_ptr[apy_vec_size - 1] != 0);
 
-        apy_bitcount_t total_bits = (apy_bitcount_t)(zsize)*APY_LIMB_SIZE_BITS
-            - leading_zeros(zp_orig[zsize - 1]);
+        apy_bitcount_t total_bits = (apy_bitcount_t)(apy_vec_size)*APY_LIMB_SIZE_BITS
+            - leading_zeros(limb_vec_tmp_ptr[apy_vec_size - 1]);
         std::size_t count
             = (total_bits + PYLONG_BITS_IN_DIGIT - 1) / PYLONG_BITS_IN_DIGIT;
 
@@ -340,8 +320,7 @@ template <class RANDOM_ACCESS_ITERATOR>
         /* least significant byte */
         unsigned char* dp
             = (unsigned char*)&GET_OB_DIGIT(result)[0] + (endian >= 0 ? ssize - 1 : 0);
-        const apy_limb_t* zp_tmp = zp_orig;
-        const apy_limb_t* zend = zp_tmp + zsize;
+        const apy_limb_t* zend = limb_vec_tmp_ptr + apy_vec_size;
         int lbits = 0;
         apy_limb_t limb = 0;
         std::size_t j;
@@ -352,7 +331,8 @@ template <class RANDOM_ACCESS_ITERATOR>
                     limb >>= 8;
                     lbits -= 8;
                 } else {
-                    apy_limb_t newlimb = (zp_tmp == zend ? 0 : *zp_tmp++);
+                    apy_limb_t newlimb
+                        = (limb_vec_tmp_ptr == zend ? 0 : *limb_vec_tmp_ptr++);
                     *dp = (limb | (newlimb << lbits));
                     limb = newlimb >> (8 - lbits);
                     lbits += APY_LIMB_SIZE_BITS - 8;
@@ -366,7 +346,8 @@ template <class RANDOM_ACCESS_ITERATOR>
                 limb >>= REMAINING_BITS;
                 lbits -= REMAINING_BITS;
             } else {
-                apy_limb_t newlimb = (zp_tmp == zend ? 0 : *zp_tmp++);
+                apy_limb_t newlimb
+                    = (limb_vec_tmp_ptr == zend ? 0 : *limb_vec_tmp_ptr++);
                 *dp = (limb | (newlimb << lbits)) & REMAINING_BITS_MASK;
                 limb = newlimb >> (REMAINING_BITS - lbits);
                 lbits += APY_LIMB_SIZE_BITS - REMAINING_BITS;
@@ -382,7 +363,7 @@ template <class RANDOM_ACCESS_ITERATOR>
             dp += woffset;
         }
 
-        assert(zp_tmp == zp_orig + zsize);
+        assert(limb_vec_tmp_ptr == &limb_vec_abs[0] + apy_vec_size);
 
         /* low byte of word after most significant */
         assert(
@@ -393,7 +374,6 @@ template <class RANDOM_ACCESS_ITERATOR>
     }
     // End of relevant parts from mpz_export
 
-    delete[] zp_orig;
     // Will this ever happen now?
     while (python_digits > 0 && (GET_OB_DIGIT(result)[python_digits - 1] == 0)) {
         python_digits--;
