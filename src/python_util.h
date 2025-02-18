@@ -111,8 +111,8 @@ limb_vec_from_py_long_vec(const std::size_t count, const PyLongObject* py_long)
 
     assert(data_size * POSIX_CHAR_BITS - PYLONG_BITS_IN_DIGIT > 0);
 
-    std::size_t apy_vec_size = bits_to_limbs(count * PYLONG_BITS_IN_DIGIT);
-    std::vector<apy_limb_t> limb_vec = std::vector<apy_limb_t>(apy_vec_size);
+    std::size_t limb_vec_size = bits_to_limbs(count * PYLONG_BITS_IN_DIGIT);
+    std::vector<apy_limb_t> limb_vec = std::vector<apy_limb_t>(limb_vec_size);
     apy_limb_t* limb_vec_tmp_ptr = &limb_vec[0];
     const int endian = HOST_ENDIAN;
 
@@ -167,7 +167,7 @@ limb_vec_from_py_long_vec(const std::size_t count, const PyLongObject* py_long)
         *limb_vec_tmp_ptr++ = limb;
     }
 
-    assert(limb_vec_tmp_ptr == &limb_vec[0] + apy_vec_size);
+    assert(limb_vec_tmp_ptr == &limb_vec[0] + limb_vec_size);
 
     /* low byte of word after most significant */
     assert(
@@ -273,18 +273,16 @@ template <class RANDOM_ACCESS_ITERATOR>
         }
     }
 
-    // Number of significant bits in the absolute value limb vector
-    std::size_t significant_bits = APY_LIMB_SIZE_BITS * limb_vec_abs.size()
-        - limb_vector_leading_zeros(limb_vec_abs.begin(), limb_vec_abs.end());
-
-    // Relevant parts from mpz_import
-    apy_limb_t* limb_vec_tmp_ptr = &limb_vec_abs[0];
     // Normalize
     while (!limb_vec_abs.empty() > 0 && (limb_vec_abs[limb_vec_abs.size() - 1] == 0)) {
         limb_vec_abs.pop_back();
     }
-    std::size_t apy_vec_size = limb_vec_abs.size();
-    // End of relevant parts from mpz_import
+
+    // Number of significant bits in the absolute value limb vector
+    std::size_t significant_bits = APY_LIMB_SIZE_BITS * limb_vec_abs.size()
+        - limb_vector_leading_zeros(limb_vec_abs.begin(), limb_vec_abs.end());
+
+    std::size_t limb_vec_size = limb_vec_abs.size();
 
     // Number of resulting Python digits in the Python long
     std::size_t python_digits
@@ -300,18 +298,14 @@ template <class RANDOM_ACCESS_ITERATOR>
     std::size_t ssize = sizeof(GET_OB_DIGIT(result)[0]);
     assert(ssize * POSIX_CHAR_BITS - PYLONG_BITS_IN_DIGIT > 0);
 
-    if (apy_vec_size == 0) {
+    if (limb_vec_size == 0) {
         GET_OB_DIGIT(result)[0] = 0;
     } else {
 
-        assert(apy_vec_size > 0);
+        assert(limb_vec_size > 0);
+        apy_limb_t* limb_vec_tmp_ptr = &limb_vec_abs[0];
 
-        assert(limb_vec_tmp_ptr[apy_vec_size - 1] != 0);
-
-        apy_bitcount_t total_bits = (apy_bitcount_t)(apy_vec_size)*APY_LIMB_SIZE_BITS
-            - leading_zeros(limb_vec_tmp_ptr[apy_vec_size - 1]);
-        std::size_t count
-            = (total_bits + PYLONG_BITS_IN_DIGIT - 1) / PYLONG_BITS_IN_DIGIT;
+        assert(limb_vec_tmp_ptr[limb_vec_size - 1] != 0);
 
         int endian = HOST_ENDIAN;
 
@@ -321,11 +315,11 @@ template <class RANDOM_ACCESS_ITERATOR>
         /* least significant byte */
         unsigned char* dp
             = (unsigned char*)&GET_OB_DIGIT(result)[0] + (endian >= 0 ? ssize - 1 : 0);
-        const apy_limb_t* zend = limb_vec_tmp_ptr + apy_vec_size;
+        const apy_limb_t* zend = limb_vec_tmp_ptr + limb_vec_size;
         int lbits = 0;
         apy_limb_t limb = 0;
         std::size_t j;
-        for (std::size_t i = 0; i < count; i++) {
+        for (std::size_t i = 0; i < python_digits; i++) {
             for (j = 0; j < WHOLE_BYTES; j++) {
                 if (lbits >= POSIX_CHAR_BITS) {
                     *dp = limb;
@@ -364,12 +358,12 @@ template <class RANDOM_ACCESS_ITERATOR>
             dp += woffset;
         }
 
-        assert(limb_vec_tmp_ptr == &limb_vec_abs[0] + apy_vec_size);
+        assert(limb_vec_tmp_ptr == &limb_vec_abs[0] + limb_vec_size);
 
         /* low byte of word after most significant */
         assert(
             dp
-            == (unsigned char*)&GET_OB_DIGIT(result)[0] + count * ssize
+            == (unsigned char*)&GET_OB_DIGIT(result)[0] + python_digits * ssize
                 + (endian >= 0 ? (apy_size_t)ssize - 1 : 0)
         );
     }
