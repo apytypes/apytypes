@@ -176,8 +176,8 @@ limb_vec_from_py_long_vec(const std::size_t count, const PyLongObject* py_long)
             + (endian >= 0 ? (apy_size_t)data_size - 1 : 0)
     );
 
-    // Normalize (required for the Python use case?)
-    while (!limb_vec.empty() > 0 && (limb_vec[limb_vec.size() - 1] == 0)) {
+    // Normalize
+    while (!limb_vec.empty() > 0 && (limb_vec.back() == 0)) {
         limb_vec.pop_back();
     }
     return limb_vec;
@@ -241,6 +241,7 @@ limb_vec_from_py_long_vec(const std::size_t count, const PyLongObject* py_long)
  * Convert a limb vector (`std::vector<apy_limb_t>`) to a Python long integer object
  * wrapped in a `nanobind::int_`.
  */
+// TODO: drop vec_is_signed as always false?
 template <class RANDOM_ACCESS_ITERATOR>
 [[maybe_unused]] static APY_INLINE nanobind::int_ python_limb_vec_to_long(
     RANDOM_ACCESS_ITERATOR begin,
@@ -274,15 +275,19 @@ template <class RANDOM_ACCESS_ITERATOR>
     }
 
     // Normalize
-    while (!limb_vec_abs.empty() > 0 && (limb_vec_abs[limb_vec_abs.size() - 1] == 0)) {
+    while (!limb_vec_abs.empty() > 0 && (limb_vec_abs.back() == 0)) {
         limb_vec_abs.pop_back();
     }
-
-    // Number of significant bits in the absolute value limb vector
-    std::size_t significant_bits = APY_LIMB_SIZE_BITS * limb_vec_abs.size()
-        - limb_vector_leading_zeros(limb_vec_abs.begin(), limb_vec_abs.end());
+    if (limb_vec_abs.size() == 0) {
+        // Value is 0
+        return nanobind::steal<nanobind::int_>((PyObject*)PyLong_New(0));
+    }
 
     std::size_t limb_vec_size = limb_vec_abs.size();
+    assert(limb_vec_size > 0);
+    // Number of significant bits in the absolute value limb vector
+    std::size_t significant_bits
+        = APY_LIMB_SIZE_BITS * limb_vec_size - leading_zeros(limb_vec_abs.back());
 
     // Number of resulting Python digits in the Python long
     std::size_t python_digits
@@ -295,84 +300,77 @@ template <class RANDOM_ACCESS_ITERATOR>
 
     // Export the intermediate data to the Python integer
     // Relevant parts from mpz_export
-    std::size_t ssize = sizeof(GET_OB_DIGIT(result)[0]);
-    assert(ssize * POSIX_CHAR_BITS - PYLONG_BITS_IN_DIGIT > 0);
+    const std::size_t py_limb_size = sizeof(GET_OB_DIGIT(result)[0]);
+    assert(py_limb_size * POSIX_CHAR_BITS - PYLONG_BITS_IN_DIGIT > 0);
 
-    if (limb_vec_size == 0) {
-        GET_OB_DIGIT(result)[0] = 0;
-    } else {
+    apy_limb_t* limb_vec_tmp_ptr = &limb_vec_abs[0];
 
-        assert(limb_vec_size > 0);
-        apy_limb_t* limb_vec_tmp_ptr = &limb_vec_abs[0];
+    assert(limb_vec_tmp_ptr[limb_vec_size - 1] != 0);
 
-        assert(limb_vec_tmp_ptr[limb_vec_size - 1] != 0);
+    int endian = HOST_ENDIAN;
 
-        int endian = HOST_ENDIAN;
+    /* offset to get to the next word */
+    std::size_t woffset = (endian >= 0 ? 2 * py_limb_size : 0);
 
-        /* offset to get to the next word */
-        std::size_t woffset = (endian >= 0 ? 2 * ssize : 0);
-
-        /* least significant byte */
-        unsigned char* dp
-            = (unsigned char*)&GET_OB_DIGIT(result)[0] + (endian >= 0 ? ssize - 1 : 0);
-        const apy_limb_t* zend = limb_vec_tmp_ptr + limb_vec_size;
-        int lbits = 0;
-        apy_limb_t limb = 0;
-        std::size_t j;
-        for (std::size_t i = 0; i < python_digits; i++) {
-            for (j = 0; j < WHOLE_BYTES; j++) {
-                if (lbits >= POSIX_CHAR_BITS) {
-                    *dp = limb;
-                    limb >>= POSIX_CHAR_BITS;
-                    lbits -= POSIX_CHAR_BITS;
-                } else {
-                    apy_limb_t newlimb
-                        = (limb_vec_tmp_ptr == zend ? 0 : *limb_vec_tmp_ptr++);
-                    *dp = (limb | (newlimb << lbits));
-                    limb = newlimb >> (POSIX_CHAR_BITS - lbits);
-                    lbits += APY_LIMB_SIZE_BITS - POSIX_CHAR_BITS;
-                }
-                dp -= endian;
-            }
-            // Process remaining bits
-            assert(REMAINING_BITS != 0);
-            if (lbits >= REMAINING_BITS) {
-                *dp = limb & REMAINING_BITS_MASK;
-                limb >>= REMAINING_BITS;
-                lbits -= REMAINING_BITS;
+    /* least significant byte */
+    unsigned char* dp = (unsigned char*)&GET_OB_DIGIT(result)[0]
+        + (endian >= 0 ? py_limb_size - 1 : 0);
+    const apy_limb_t* zend = limb_vec_tmp_ptr + limb_vec_size;
+    int lbits = 0;
+    apy_limb_t limb = 0;
+    std::size_t j;
+    for (std::size_t i = 0; i < python_digits; i++) {
+        for (j = 0; j < WHOLE_BYTES; j++) {
+            if (lbits >= POSIX_CHAR_BITS) {
+                *dp = limb;
+                limb >>= POSIX_CHAR_BITS;
+                lbits -= POSIX_CHAR_BITS;
             } else {
                 apy_limb_t newlimb
                     = (limb_vec_tmp_ptr == zend ? 0 : *limb_vec_tmp_ptr++);
-                *dp = (limb | (newlimb << lbits)) & REMAINING_BITS_MASK;
-                limb = newlimb >> (REMAINING_BITS - lbits);
-                lbits += APY_LIMB_SIZE_BITS - REMAINING_BITS;
+                *dp = (limb | (newlimb << lbits));
+                limb = newlimb >> (POSIX_CHAR_BITS - lbits);
+                lbits += APY_LIMB_SIZE_BITS - POSIX_CHAR_BITS;
             }
-
             dp -= endian;
-            j++;
-            // Unused?
-            for (; j < ssize; j++) {
-                *dp = '\0';
-                dp -= endian;
-            }
-            dp += woffset;
+        }
+        // Process remaining bits
+        assert(REMAINING_BITS != 0);
+        if (lbits >= REMAINING_BITS) {
+            *dp = limb & REMAINING_BITS_MASK;
+            limb >>= REMAINING_BITS;
+            lbits -= REMAINING_BITS;
+        } else {
+            apy_limb_t newlimb = (limb_vec_tmp_ptr == zend ? 0 : *limb_vec_tmp_ptr++);
+            *dp = (limb | (newlimb << lbits)) & REMAINING_BITS_MASK;
+            limb = newlimb >> (REMAINING_BITS - lbits);
+            lbits += APY_LIMB_SIZE_BITS - REMAINING_BITS;
         }
 
-        assert(limb_vec_tmp_ptr == &limb_vec_abs[0] + limb_vec_size);
-
-        /* low byte of word after most significant */
-        assert(
-            dp
-            == (unsigned char*)&GET_OB_DIGIT(result)[0] + python_digits * ssize
-                + (endian >= 0 ? (apy_size_t)ssize - 1 : 0)
-        );
+        dp -= endian;
+        j++;
+        // TODO: Unused?
+        for (; j < py_limb_size; j++) {
+            *dp = '\0';
+            dp -= endian;
+        }
+        dp += woffset;
     }
+
+    assert(limb_vec_tmp_ptr == &limb_vec_abs[0] + limb_vec_size);
+
+    /* low byte of word after most significant */
+    assert(
+        dp
+        == (unsigned char*)&GET_OB_DIGIT(result)[0] + python_digits * py_limb_size
+            + (endian >= 0 ? (apy_size_t)py_limb_size - 1 : 0)
+    );
+
     // End of relevant parts from mpz_export
 
-    // Will this ever happen now?
-    while (python_digits > 0 && (GET_OB_DIGIT(result)[python_digits - 1] == 0)) {
-        python_digits--;
-    }
+    // If this ever triggers, normalize result by removing trailing zero digits
+    assert(GET_OB_DIGIT(result)[python_digits - 1] != 0);
+
     PyLong_SetSignAndDigitCount(result, sign, python_digits);
 
     // Do a nanobind steal of the raw Python object and return
