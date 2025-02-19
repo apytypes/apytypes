@@ -162,3 +162,13 @@ def test_issue_487():
     npa2fx = APyFixed.from_float(npa[0], 1, 11)
     assert fx.is_identical(APyFixed(0, 1, 11))
     assert npa2fx.is_identical(APyFixed(0, 1, 11))
+
+
+def test_conversion_to_and_from_python_int():
+    for k in range(30000):
+        a = (1 << (100 + k)) + k
+        afx = APyFixed(a, bits=k + 101, int_bits=k // 2)
+        assert afx.to_bits() == a
+        a -= 1 + 2 * k
+        afx = APyFixed(a, bits=k + 101, int_bits=k // 2)
+        assert afx.to_bits() == a
