@@ -5,7 +5,6 @@ from apytypes._apytypes import (
     APyFloat,
     APyFloatArray,
 )
-from typing import Optional, Tuple, Union
 
 
 def squeeze(a, axis=None):
@@ -1122,8 +1121,8 @@ def _normalize_axis(axis: int, ndim: int) -> int:
 
 
 def _normalize_axis_sequence(
-    axis_sequence: Union[int, Tuple[int, ...]], ndim: int
-) -> Tuple[int, ...]:
+    axis_sequence: int | tuple[int, ...], ndim: int
+) -> tuple[int, ...]:
     """Normalize a sequence of axes."""
     if isinstance(axis_sequence, int):
         axis_sequence = (axis_sequence,)
@@ -1131,8 +1130,8 @@ def _normalize_axis_sequence(
 
 
 def _extract_fixed_bit_specifiers(
-    int_bits: Optional[int], frac_bits: Optional[int], bits: Optional[int]
-) -> Tuple[int, int]:
+    int_bits: int | None, frac_bits: int | None, bits: int | None
+) -> tuple[int, int]:
     """Retrieve `int_bits` and `frac_bits` reliably from a triplet of bit-specifiers"""
     if int_bits is not None and frac_bits is not None and bits is not None:
         if bits != int_bits + frac_bits:
