@@ -49,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Mini-GMP is no longer used. Instead, a local multi-precision integer library
   written in C++ is used.
+- Support for Python 3.9.
 
 ## [0.2.2] - 2024-10-03
 
