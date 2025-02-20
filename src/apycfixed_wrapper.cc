@@ -187,7 +187,7 @@ void bind_cfixed(nb::module_& m)
             Examples
             --------
             Create complex-valued fixed-point number `fx_a` of value -5.75 + 2j and
-            show it's bit pattern (real, imag)
+            show its bit pattern (real, imag)
 
             >>> from apytypes import APyCFixed
             >>>
@@ -197,7 +197,7 @@ void bind_cfixed(nb::module_& m)
 
             Returns
             -------
-            :tuple:`tuple` of :class:`int`
+            :class:`tuple` of :class:`int`
             )pbdoc"
         )
         .def_prop_ro("bits", &APyCFixed::bits, R"pbdoc(

@@ -6,22 +6,26 @@ from apytypes._apytypes import (
     APyFloatArray,
 )
 
+from apytypes._typing import APyArray, APyScalar
 
-def squeeze(a, axis=None):
+from typing import Literal
+
+
+def squeeze(a: APyArray, axis=None) -> APyArray | APyScalar:
     """
     Remove axes of length one from `a`.
 
     Parameters
     ----------
-    a : :class:`APyFloatArray` or :class:`APyFixedArray`
+    a : :class:`APyFloatArray`, :class:`APyFixedArray`, or :class:`APyCFixedArray`
         Input data.
 
-    axis : int or tuple of ints, optional
+    axis : :class:`int` or tuple of ints, optional
         Selects a subset of the entries of length one in the shape.
 
     Returns
     -------
-    squeezed : :class:`APyFloatArray` or :class:`APyFixedArray`
+    squeezed : :class:`APyFloatArray`, :class:`APyFixedArray`, or :class:`APyCFixedArray`
         The input array, but with all or a subset of the dimensions of length 1 removed.
 
     Raises
@@ -37,7 +41,9 @@ def squeeze(a, axis=None):
     return squeeze(axis=axis)
 
 
-def convolve(a, v, mode="full"):
+def convolve(
+    a: APyArray, v: APyArray, mode: Literal["full", "same", "valid"] = "full"
+) -> APyArray:
     """
     Return the discrete linear convolution of two one-dimensional arrays.
 
@@ -73,7 +79,7 @@ def convolve(a, v, mode="full"):
         raise TypeError(f"Cannot convolve {type(a)} with {type(v)}")
 
 
-def reshape(a, new_shape):
+def reshape(a: APyArray, new_shape: tuple[int, ...]) -> APyArray:
     """
     Reshape an :class:`APyFixedArray` or :class:`APyFloatArray` to the specified shape
     without changing its data.
@@ -119,7 +125,7 @@ def reshape(a, new_shape):
     return reshape(new_shape)
 
 
-def shape(arr):
+def shape(arr: APyArray) -> tuple[int, ...]:
     """
     Return the shape of an array.
 
@@ -146,7 +152,7 @@ def shape(arr):
     return shape
 
 
-def transpose(a, axes=None):
+def transpose(a: APyArray, axes=None) -> APyArray:
     """
     Return an copy of the array with axes transposed.
 
@@ -160,7 +166,7 @@ def transpose(a, axes=None):
     ----------
     arr : :class:`APyFloatArray` or :class:`APyFixedArray`
         Input data.
-    axes : tuple of of ints, optional
+    axes : tuple of ints, optional
         If specified, it must be a tuple which contains a permutation
         of [0,1,...,N-1] where N is the number of axes of `a`. The `i`'th axis
         of the returned array will correspond to the axis numbered ``axes[i]``
@@ -212,7 +218,7 @@ def transpose(a, axes=None):
     return transpose(axes=axes)
 
 
-def ravel(a):
+def ravel(a: APyArray) -> APyArray:
     """
     Return a copy of the array collapsed into one dimension.
 
@@ -246,7 +252,7 @@ def ravel(a):
     return ravel()
 
 
-def moveaxis(a, source, destination):
+def moveaxis(a: APyArray, source, destination) -> APyArray:
     """
     Move axes of an array to new positions.
 
@@ -256,9 +262,9 @@ def moveaxis(a, source, destination):
     ----------
     a : :class:`APyFloatArray` or :class:`APyFixedArray`
         The array whose axes should be reordered.
-    source : int or sequence of int
+    source : :class:`int` or sequence of int
         Original positions of the axes to move. These must be unique.
-    destination : int or sequence of int
+    destination : :class:`int` or sequence of int
         Destination positions for each of the original axes. These must also be unique.
 
     Examples
@@ -300,13 +306,13 @@ def moveaxis(a, source, destination):
 
     for dest, src in sorted(zip(destination, source)):
         order.insert(dest, src)
-    order = tuple(order)
+    order_tuple = tuple(order)
 
-    result = transpose(a, order)
+    result = transpose(a, order_tuple)
     return result
 
 
-def swapaxes(a, axis1, axis2):
+def swapaxes(a: APyArray, axis1: int, axis2: int) -> APyArray:
     """
     Interchange two axes of an array.
 
@@ -314,9 +320,9 @@ def swapaxes(a, axis1, axis2):
     ----------
     a : :class:`APyFloatArray` or :class:`APyFixedArray`
         The array whose axes should be reordered.
-    axis1 : int
+    axis1 : :class:`int`
       First axis.
-    axis2 : int
+    axis2 : :class:`int`
       Second axis.
 
     Examples
@@ -358,7 +364,7 @@ def swapaxes(a, axis1, axis2):
     return swapaxes(axis1, axis2)
 
 
-def expand_dims(a, axis):
+def expand_dims(a: APyArray, axis: int | tuple[int, ...]) -> APyArray:
     """
     Expand the shape of an array.
 
@@ -367,9 +373,9 @@ def expand_dims(a, axis):
 
     Parameters
     ----------
-    a : :class:`APyFloatArray` or :class:`APyFixedArray`
+    a : :class:`APyFloatArray`, :class:`APyFixedArray`, or :class:`APyCFixedArray`
         The array whose axes should be reordered.
-    axis : int or tuple of ints
+    axis : :class:`int` or tuple of ints
         Position in the expanded axes where the new axis (or axes) is placed.
 
     Examples
@@ -427,15 +433,15 @@ def expand_dims(a, axis):
 
 
 def zeros(
-    shape,
-    int_bits=None,
-    frac_bits=None,
-    bits=None,
-    exp_bits=None,
-    man_bits=None,
-    bias=None,
-    force_complex=None,
-):
+    shape: tuple[int, ...],
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    force_complex: bool | None = None,
+) -> APyArray:
     """
     Create an array of `shape` with all zeros.
 
@@ -447,19 +453,19 @@ def zeros(
 
     Parameters
     ----------
-    shape : tuple
+    shape : tuple of int
         Shape of the array.
-    int_bits : int, optional
+    int_bits : :class:`int`, optional
         Number of fixed-point integer bits.
-    frac_bits : int, optional
+    frac_bits : :class:`int`, optional
         Number of fixed-point fractional bits.
-    bits : int, optional
+    bits : :class:`int`, optional
         Number of fixed-point bits.
-    exp_bits : int, optional
+    exp_bits : :class:`int`, optional
         Number of floating-point exponential bits.
-    man_bits : int, optional
+    man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
-    bias : int, optional
+    bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
     force_complex : bool, optional
         Retrieve the complex-valued array type, :class:`APyCFixedArray` for fixed-point
@@ -498,15 +504,15 @@ def zeros(
 
 
 def ones(
-    shape,
-    int_bits=None,
-    frac_bits=None,
-    bits=None,
-    exp_bits=None,
-    man_bits=None,
-    bias=None,
-    force_complex=None,
-):
+    shape: tuple[int, ...],
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    force_complex: bool | None = None,
+) -> APyArray:
     """
     Create an array of `shape` with all ones (stored value).
 
@@ -518,19 +524,19 @@ def ones(
 
     Parameters
     ----------
-    shape : tuple
+    shape : tuple of int
         Shape of the array.
-    int_bits : int, optional
+    int_bits : :class:`int`, optional
         Number of fixed-point integer bits.
-    frac_bits : int, optional
+    frac_bits : :class:`int`, optional
         Number of fixed-point fractional bits.
-    bits : int, optional
+    bits : :class:`int`, optional
         Number of fixed-point bits.
-    exp_bits : int, optional
+    exp_bits : :class:`int`, optional
         Number of floating-point exponential bits.
-    man_bits : int, optional
+    man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
-    bias : int, optional
+    bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
     force_complex : bool, optional
         Retrieve the complex-valued array type, :class:`APyCFixedArray` for fixed-point
@@ -570,15 +576,15 @@ def ones(
 
 def eye(
     n: int,
-    m=None,
-    int_bits=None,
-    frac_bits=None,
-    bits=None,
-    exp_bits=None,
-    man_bits=None,
-    bias=None,
-    force_complex=None,
-):
+    m: int | None = None,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    force_complex: bool | None = None,
+) -> APyArray:
     """
     Return a 2-D array with ones (stored value) on the main diagonal and zeros
     elsewhere.
@@ -591,21 +597,21 @@ def eye(
 
     Parameters
     ----------
-    n : int
+    n : :class:`int`
         Number of rows in the output.
-    m : int, optional
+    m : :class:`int`, optional
         Number of columns in the output. If `None`, defaults to `n`.
-    int_bits : int, optional
+    int_bits : :class:`int`, optional
         Number of fixed-point integer bits.
-    frac_bits : int, optional
+    frac_bits : :class:`int`, optional
         Number of fixed-point fractional bits.
-    bits : int, optional
+    bits : :class:`int`, optional
         Number of fixed-point bits.
-    exp_bits : int, optional
+    exp_bits : :class:`int`, optional
         Number of floating-point exponential bits.
-    man_bits : int, optional
+    man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
-    bias : int, optional
+    bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
     force_complex : bool, optional
         Retrieve the complex-valued array type, :class:`APyCFixedArray` for fixed-point
@@ -646,15 +652,15 @@ def eye(
 
 
 def identity(
-    n,
-    int_bits=None,
-    frac_bits=None,
-    bits=None,
-    exp_bits=None,
-    man_bits=None,
-    bias=None,
-    force_complex=None,
-):
+    n: int,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    force_complex: bool | None = None,
+) -> APyArray:
     """
     Return the identity array.
 
@@ -666,21 +672,21 @@ def identity(
 
     Parameters
     ----------
-    n : int
+    n : :class:`int`
         Number of rows and columns in output.
-    int_bits : int, optional
+    int_bits : :class:`int`, optional
         Number of fixed-point integer bits.
-    frac_bits : int, optional
+    frac_bits : :class:`int`, optional
         Number of fixed-point fractional bits.
-    bits : int, optional
+    bits : :class:`int`, optional
         Number of fixed-point bits.
-    exp_bits : int, optional
+    exp_bits : :class:`int`, optional
         Number of floating-point exponential bits.
-    man_bits : int, optional
+    man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
-    bias : int, optional
+    bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
-    force_complex : bool, optional
+    force_complex : :class:`bool`, optional
         Retrieve the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
 
@@ -718,15 +724,15 @@ def identity(
 
 
 def full(
-    shape,
-    fill_value,
-    int_bits=None,
-    frac_bits=None,
-    bits=None,
-    exp_bits=None,
-    man_bits=None,
-    bias=None,
-):
+    shape: tuple[int, ...],
+    fill_value: APyScalar | int | float,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+) -> APyArray:
     """
     Return a new array of given shape and type, filled with `fill_value`.
 
@@ -743,17 +749,17 @@ def full(
         Shape of the array.
     fill_value : :class:`APyFloat` or :class:`APyFixed` or :class:`int` or :class`float`
         Fill value.
-    int_bits : int, optional
+    int_bits : :class:`int`, optional
         Number of fixed-point integer bits.
-    frac_bits : int, optional
+    frac_bits : :class:`int`, optional
         Number of fixed-point fractional bits.
-    bits : int, optional
+    bits : :class:`int`, optional
         Number of fixed-point bits.
-    exp_bits : int, optional
+    exp_bits : :class:`int`, optional
         Number of floating-point exponential bits.
-    man_bits : int, optional
+    man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
-    bias : int, optional
+    bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
@@ -774,14 +780,14 @@ def full(
 
 
 def zeros_like(
-    a,
-    int_bits=None,
-    frac_bits=None,
-    bits=None,
-    exp_bits=None,
-    man_bits=None,
-    bias=None,
-):
+    a: APyArray,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+) -> APyArray:
     """
     Return an array of all zeros with the same shape and type as `a`.
 
@@ -794,17 +800,17 @@ def zeros_like(
     ----------
     a : :class:`APyFloatArray` or :class:`APyFixedArray`
         The shape and data-type define these same attributes of the returned array.
-    int_bits : int, optional
+    int_bits : :class:`int`, optional
         Number of fixed-point integer bits.
-    frac_bits : int, optional
+    frac_bits : :class:`int`, optional
         Number of fixed-point fractional bits.
-    bits : int, optional
+    bits : :class:`int`, optional
         Number of fixed-point bits.
-    exp_bits : int, optional
+    exp_bits : :class:`int`, optional
         Number of floating-point exponential bits.
-    man_bits : int, optional
+    man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
-    bias : int, optional
+    bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
@@ -833,8 +839,14 @@ def zeros_like(
 
 
 def ones_like(
-    a, int_bits=None, frac_bits=None, bits=None, exp_bits=None, man_bits=None, bias=None
-):
+    a: APyArray,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+) -> APyArray:
     """
     Return an array of all ones (stored value) with the same shape and type as `a`.
 
@@ -847,17 +859,17 @@ def ones_like(
     ----------
     a : :class:`APyFloatArray` or :class:`APyFixedArray`
         The shape and data-type of a define these same attributes of the returned array.
-    int_bits : int, optional
+    int_bits : :class:`int`, optional
         Number of fixed-point integer bits.
-    frac_bits : int, optional
+    frac_bits : :class:`int`, optional
         Number of fixed-point fractional bits.
-    bits : int, optional
+    bits : :class:`int`, optional
         Number of fixed-point bits.
-    exp_bits : int, optional
+    exp_bits : :class:`int`, optional
         Number of floating-point exponential bits.
-    man_bits : int, optional
+    man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
-    bias : int, optional
+    bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
@@ -886,15 +898,15 @@ def ones_like(
 
 
 def full_like(
-    a,
-    fill_value,
-    int_bits=None,
-    frac_bits=None,
-    bits=None,
-    exp_bits=None,
-    man_bits=None,
-    bias=None,
-):
+    a: APyArray,
+    fill_value: APyScalar | int | float,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+) -> APyArray:
     """
     Return an array with all values initialized to `fill_value`, with the same shape and
     type as `a`.
@@ -910,17 +922,17 @@ def full_like(
         The shape and array type of the returned array.
     fill_value : :class:`APyFloat` or :class:`APyFixed` or int or float
         The value to fill the array with.
-    int_bits : int, optional
+    int_bits : :class:`int`, optional
         Number of fixed-point integer bits.
-    frac_bits : int, optional
+    frac_bits : :class:`int`, optional
         Number of fixed-point fractional bits.
-    bits : int, optional
+    bits : :class:`int`, optional
         Number of fixed-point bits.
-    exp_bits : int, optional
+    exp_bits : :class:`int`, optional
         Number of floating-point exponential bits.
-    man_bits : int, optional
+    man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
-    bias : int, optional
+    bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns
@@ -940,16 +952,16 @@ def full_like(
 
 
 def arange(
-    start,
-    stop=None,
-    step=1,
-    int_bits=None,
-    frac_bits=None,
-    bits=None,
-    exp_bits=None,
-    man_bits=None,
-    bias=None,
-):
+    start: APyScalar | int | float,
+    stop: APyScalar | int | float | None = None,
+    step: APyScalar | int | float = 1,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+) -> APyArray:
     """
     Create an array with evenly spaced values within a given interval.
 
@@ -964,23 +976,23 @@ def arange(
 
     Parameters
     ----------
-    start : int, float, :class:`APyFloat`, :class:`APyFixed`
+    start : :class:`int`, float, :class:`APyFloat`, :class:`APyFixed`
         Start number.
-    stop : int, float, :class:`APyFloat`, :class:`APyFixed`, optional
+    stop : :class:`int`, float, :class:`APyFloat`, :class:`APyFixed`, optional
         Stop number.
-    step : int, float, :class:`APyFloat`, :class:`APyFixed`, optional
+    step : :class:`int`, float, :class:`APyFloat`, :class:`APyFixed`, optional
         Step size in range.
-    int_bits : int, optional
+    int_bits : :class:`int`, optional
         Number of fixed-point integer bits.
-    frac_bits : int, optional
+    frac_bits : :class:`int`, optional
         Number of fixed-point fractional bits.
-    bits : int, optional
+    bits : :class:`int`, optional
         Number of fixed-point bits.
-    exp_bits : int, optional
+    exp_bits : :class:`int`, optional
         Number of floating-point exponential bits.
-    man_bits : int, optional
+    man_bits : :class:`int`, optional
         Number of floating-point mantissa bits.
-    bias : int, optional
+    bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns

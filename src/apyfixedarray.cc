@@ -682,7 +682,7 @@ APyFixedArray APyFixedArray::rdiv(const APyFixed& lhs) const
     ScratchVector<apy_limb_t> abs_den(_itemsize);
 
     // Absolute value left-shifted numerator. As `apy_unsigned_division` alters the
-    // numerator on call, we allocate twice it's size. The first half [ `0`,
+    // numerator on call, we allocate twice its size. The first half [ `0`,
     // `result._itemsize` ) is passed to `apy_unsigned_division` and [
     // `result._item_size`, `2*result._itemsize` ) is used to cache the left-shifted
     // absolute numerator.

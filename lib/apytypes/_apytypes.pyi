@@ -186,7 +186,7 @@ class APyCFixed:
         Examples
         --------
         Create complex-valued fixed-point number `fx_a` of value -5.75 + 2j and
-        show it's bit pattern (real, imag)
+        show its bit pattern (real, imag)
 
         >>> from apytypes import APyCFixed
         >>>
@@ -196,7 +196,7 @@ class APyCFixed:
 
         Returns
         -------
-        :tuple:`tuple` of :class:`int`
+        :class:`tuple` of :class:`int`
         """
 
     @property

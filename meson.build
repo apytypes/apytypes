@@ -49,15 +49,11 @@ hwy_dep = hwy.dependency('hwy', include_type: 'system')
 py3.install_sources(
     [
         'lib/apytypes/__init__.py',
-        'lib/apytypes/__init__.pyi',
         'lib/apytypes/_apytypes.pyi',
         'lib/apytypes/_array_functions.py',
-        'lib/apytypes/_array_functions.pyi',
         'lib/apytypes/_typing.py',
         'lib/apytypes/_utils.py',
-        'lib/apytypes/_utils.pyi',
         'lib/apytypes/vhdl.py',
-        'lib/apytypes/vhdl.pyi',
         'lib/apytypes/py.typed',
     ],
     subdir: 'apytypes'
