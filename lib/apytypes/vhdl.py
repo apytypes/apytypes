@@ -1,18 +1,18 @@
 from apytypes._apytypes import APyFloatArray, APyFixedArray
 
-from typing import Union, Optional, TextIO
+from typing import TextIO
 import math
 
 
 def generate_rom(
-    table: Union[APyFixedArray, APyFloatArray],
-    entity: Optional[str] = None,
-    address: Optional[Union[APyFixedArray, APyFloatArray]] = None,
-    frac_bits: Optional[int] = None,
+    table: APyFixedArray | APyFloatArray,
+    entity: str | None = None,
+    address: APyFixedArray | APyFloatArray | None = None,
+    frac_bits: int | None = None,
     ieee2008: bool = False,
     input_register: bool = False,
     output_register: bool = False,
-    file: Optional[TextIO] = None,
+    file: TextIO | None = None,
 ):
     """
     Generate VHDL for a ROM.
@@ -78,10 +78,10 @@ def generate_rom(
 
 def _write_rom(
     f,
-    table: Union[APyFixedArray, APyFloatArray],
+    table: APyFixedArray | APyFloatArray,
     number_of_table_values,
     address_bits,
-    address: Optional[Union[APyFixedArray, APyFloatArray]],
+    address: APyFixedArray | APyFloatArray | None,
     entity,
     ieee2008,
     frac_bits,

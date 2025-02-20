@@ -1,6 +1,6 @@
 from functools import partial
 import math
-from typing import Callable, List, Optional, Sequence, Tuple, Union
+from collections.abc import Callable, Sequence
 import warnings
 
 from apytypes._apytypes import (
@@ -13,12 +13,12 @@ from apytypes._apytypes import (
 
 
 def fx(
-    value: Union[int, float, Sequence[int], Sequence[float]],
-    int_bits: Optional[int] = None,
-    frac_bits: Optional[int] = None,
-    bits: Optional[int] = None,
+    value: int | float | Sequence[int] | Sequence[float],
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
     force_complex: bool = False,
-) -> Union[APyCFixed, APyFixed, APyFixedArray]:
+) -> APyCFixed | APyFixed | APyFixedArray:
     """
     Create an :class:`APyFixed`, :class:`APyCFixed` or :class:`APyFixedArray` object.
 
@@ -63,11 +63,11 @@ def fx(
 
 
 def fp(
-    value: Union[int, float, Sequence[int], Sequence[float]],
+    value: int | float | Sequence[int] | Sequence[float],
     exp_bits: int,
     man_bits: int,
-    bias: Optional[int] = None,
-) -> Union[APyFloat, APyFloatArray]:
+    bias: int | None = None,
+) -> APyFloat | APyFloatArray:
     """
     Create an :class:`APyFloat` or :class:`APyFloatArray` object.
 
@@ -103,7 +103,7 @@ def fp(
     )
 
 
-def _process_args(args) -> Tuple[List[float], partial]:
+def _process_args(args) -> tuple[list[float], partial]:
     fargs = []
     exp_bits = -math.inf
     man_bits = -math.inf
@@ -170,8 +170,8 @@ def _process_args(args) -> Tuple[List[float], partial]:
 
 
 def fn(
-    fn: Callable, *args: Union[APyFloat, APyFixed, APyFixedArray, APyFloatArray]
-) -> Union[APyFloat, APyFixed, APyFixedArray, APyFloatArray]:
+    fn: Callable, *args: APyFloat | APyFixed | APyFixedArray | APyFloatArray
+) -> APyFloat | APyFixed | APyFixedArray | APyFloatArray:
     """
     Utility function to evaluate functions on arguments and convert back.
 
