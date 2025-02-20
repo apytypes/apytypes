@@ -8,7 +8,7 @@ from apytypes._apytypes import (
 
 from apytypes._typing import APyArray, APyScalar
 
-from typing import Literal
+from typing import overload, Literal
 
 
 def squeeze(a: APyArray, axis=None) -> APyArray | APyScalar:
@@ -838,15 +838,21 @@ def zeros_like(
         raise ValueError("Only fixed-point and floating-point array types supported")
 
 
+@overload
+def ones_like(a: APyFixedArray) -> APyFixedArray: ...
+@overload
+def ones_like(a: APyCFixedArray) -> APyCFixedArray: ...
+@overload
+def ones_like(a: APyFloatArray) -> APyFloatArray: ...
 def ones_like(
-    a: APyArray,
+    a,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
     exp_bits: int | None = None,
     man_bits: int | None = None,
     bias: int | None = None,
-) -> APyArray:
+):
     """
     Return an array of all ones (stored value) with the same shape and type as `a`.
 
