@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - It is possible to perform arithmetic with Numpy arrays, automatically converting
   the Numpy array to an APyArray.
 - `from_float` now accepts APyTypes scalars.
+- Wheels for Python 3.13.
 
 ### Fixed
 
