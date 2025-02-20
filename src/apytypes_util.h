@@ -585,7 +585,7 @@ is_valid_decimal_numeric_string(const std::string& str)
 //! Trim a string from unnecessary leading and trailing zeros, that don't affect
 //! numeric value of the string. This function also attaches a zero to the string
 //! if it starts with a decimal dot, and it removes the decimal dot if no digit
-//! after it affects it's value (e.g., 0.00 == 0).
+//! after it affects its value (e.g., 0.00 == 0).
 [[maybe_unused, nodiscard]] static APY_INLINE std::string
 string_trim_zeros(const std::string& str)
 {
