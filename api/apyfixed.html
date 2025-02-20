@@ -435,16 +435,16 @@ table shows word lengths of elementary arithmetic operations.</p>
 </div>
 <p>The input is quantized using <a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode.RND_INF" title="apytypes.QuantizationMode.RND_INF"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode.RND_INF</span></code></a> and overflow is handled using the <a class="reference internal" href="quantizationoverflow.html#apytypes.OverflowMode.WRAP" title="apytypes.OverflowMode.WRAP"><code class="xref py py-class docutils literal notranslate"><span class="pre">OverflowMode.WRAP</span></code></a> mode.
 Exactly two of the three bit-specifiers (<cite>bits</cite>, <cite>int_bits</cite>, <cite>frac_bits</cite>) must be set.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>value</strong><span class="classifier">int, float</span></dt><dd><p>Floating point value to initialize from</p>
+<dd class="field-odd"><dl>
+<dt><strong>value</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span></dt><dd><p>Floating point value to initialize from</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits in the created fixed-point object</p>
+<dt><strong>int_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of integer bits in the created fixed-point object</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits in the created fixed-point object</p>
+<dt><strong>frac_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of fractional bits in the created fixed-point object</p>
 </dd>
-<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Total number of bits in the created fixed-point object</p>
+<dt><strong>bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Total number of bits in the created fixed-point object</p>
 </dd>
 </dl>
 </dd>
@@ -475,18 +475,18 @@ rounded to 1.25 as it is the closest representable number</p>
 <dd><p>Create an <a class="reference internal" href="#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a> object from <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p>
 <p>Exactly two of three bit-specifiers (<cite>bits</cite>, <cite>int_bits</cite>, <cite>frac_bits</cite>) must
 be set.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
+<dd class="field-odd"><dl>
 <dt><strong>string_value</strong><span class="classifier">str</span></dt><dd><p>String to initialize the value from</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits in the created fixed-point object</p>
+<dt><strong>int_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of integer bits in the created fixed-point object</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits in the created fixed-point object</p>
+<dt><strong>frac_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of fractional bits in the created fixed-point object</p>
 </dd>
-<dt><strong>base</strong><span class="classifier">int, default: 10</span></dt><dd><p>Numeric base used in <cite>string_value</cite></p>
+<dt><strong>base</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, default: 10</span></dt><dd><p>Numeric base used in <cite>string_value</cite></p>
 </dd>
-<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Total number of bits in the created fixed-point object</p>
+<dt><strong>bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Total number of bits in the created fixed-point object</p>
 </dd>
 </dl>
 </dd>
@@ -530,15 +530,15 @@ to be set.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits in the result.</p>
+<dt><strong>int_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of integer bits in the result.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits in the result.</p>
+<dt><strong>frac_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of fractional bits in the result.</p>
 </dd>
 <dt><strong>quantization</strong><span class="classifier"><a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode" title="apytypes.QuantizationMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode</span></code></a>, optional</span></dt><dd><p>Quantization mode to use in this cast.</p>
 </dd>
 <dt><strong>overflow</strong><span class="classifier"><a class="reference internal" href="quantizationoverflow.html#apytypes.OverflowMode" title="apytypes.OverflowMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">OverflowMode</span></code></a>, optional</span></dt><dd><p>Overflowing mode to use in this cast.</p>
 </dd>
-<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Total number of bits in the result.</p>
+<dt><strong>bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Total number of bits in the result.</p>
 </dd>
 </dl>
 </dd>

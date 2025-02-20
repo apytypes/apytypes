@@ -304,22 +304,22 @@
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 0.3.</span></p>
 </div>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
+<dd class="field-odd"><dl>
 <dt><strong>table</strong><span class="classifier">APyFixedArray, APyFloatArray</span></dt><dd><p>The data in the ROM.</p>
 </dd>
 <dt><strong>entity</strong><span class="classifier">str, optional</span></dt><dd><p>VHDL entity name.</p>
 </dd>
 <dt><strong>address</strong><span class="classifier">APyFixedArray, APyFloatArray, optional</span></dt><dd><p>Addresses for the ROM. If not provided, sequential addressing from 0 is assumed.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>If <em>ieee2008</em> is True and <em>address</em> is not provided, use this many fractional bits for address.</p>
+<dt><strong>frac_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>If <em>ieee2008</em> is True and <em>address</em> is not provided, use this many fractional bits for address.</p>
 </dd>
-<dt><strong>ieee2008</strong><span class="classifier">bool, default: False</span></dt><dd><p>Use <code class="docutils literal notranslate"><span class="pre">ieee.fixed_pkg</span></code> and/or <code class="docutils literal notranslate"><span class="pre">ieee.float_pkg</span></code> for the resulting ROM.</p>
+<dt><strong>ieee2008</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, default: False</span></dt><dd><p>Use <code class="docutils literal notranslate"><span class="pre">ieee.fixed_pkg</span></code> and/or <code class="docutils literal notranslate"><span class="pre">ieee.float_pkg</span></code> for the resulting ROM.</p>
 </dd>
-<dt><strong>input_register</strong><span class="classifier">bool, default: False</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, a register is added at the input of the ROM.</p>
+<dt><strong>input_register</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, default: False</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, a register is added at the input of the ROM.</p>
 </dd>
-<dt><strong>output_register</strong><span class="classifier">bool, default: False</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, a register is added at the output of the ROM.</p>
+<dt><strong>output_register</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, default: False</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, a register is added at the output of the ROM.</p>
 </dd>
 <dt><strong>file</strong><span class="classifier">file handle, optional</span></dt><dd><p>File handle to write the file to. If not provided, a file <code class="docutils literal notranslate"><span class="pre">entity.vhdl</span></code> is used.</p>
 </dd>

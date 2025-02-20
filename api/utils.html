@@ -308,18 +308,18 @@ For scalar values, return <a class="reference internal" href="apycfixed.html#apy
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 0.3.</span></p>
 </div>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>val</strong><span class="classifier">int, float, list(int), list(float)</span></dt><dd><p>Floating point value(s) to initialize from.</p>
+<dd class="field-odd"><dl>
+<dt><strong>val</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, list(int), list(float)</span></dt><dd><p>Floating point value(s) to initialize from.</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits in the created fixed-point object.</p>
+<dt><strong>int_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of integer bits in the created fixed-point object.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits in the created fixed-point object.</p>
+<dt><strong>frac_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of fractional bits in the created fixed-point object.</p>
 </dd>
-<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Total number of bits in the created fixed-point object.</p>
+<dt><strong>bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Total number of bits in the created fixed-point object.</p>
 </dd>
-<dt><strong>force_complex</strong><span class="classifier">bool, default: False</span></dt><dd><p>If True, force the return value to be <a class="reference internal" href="apycfixed.html#apytypes.APyCFixed" title="apytypes.APyCFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixed</span></code></a> even if <em>value</em> is real.</p>
+<dt><strong>force_complex</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, default: False</span></dt><dd><p>If True, force the return value to be <a class="reference internal" href="apycfixed.html#apytypes.APyCFixed" title="apytypes.APyCFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixed</span></code></a> even if <em>value</em> is real.</p>
 </dd>
 </dl>
 </dd>
@@ -340,16 +340,16 @@ For scalar values, return <a class="reference internal" href="apycfixed.html#apy
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 0.3.</span></p>
 </div>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>value</strong><span class="classifier">int, float, list(int), list(float)</span></dt><dd><p>Floating point value(s) to initialize from.</p>
+<dd class="field-odd"><dl>
+<dt><strong>value</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, list(int), list(float)</span></dt><dd><p>Floating point value(s) to initialize from.</p>
 </dd>
-<dt><strong>exp_bits</strong><span class="classifier">int</span></dt><dd><p>Number of exponent bits.</p>
+<dt><strong>exp_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of exponent bits.</p>
 </dd>
-<dt><strong>man_bits</strong><span class="classifier">int</span></dt><dd><p>Number of mantissa bits.</p>
+<dt><strong>man_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of mantissa bits.</p>
 </dd>
-<dt><strong>bias</strong><span class="classifier">int, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
+<dt><strong>bias</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
 </dl>
 </dd>

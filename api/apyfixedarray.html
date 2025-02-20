@@ -466,17 +466,17 @@ method rounds away from infinity on ties.</p>
 <p>The input is quantized using <a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode.RND_INF" title="apytypes.QuantizationMode.RND_INF"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode.RND_INF</span></code></a> and overflow is handled using the <a class="reference internal" href="quantizationoverflow.html#apytypes.OverflowMode.WRAP" title="apytypes.OverflowMode.WRAP"><code class="xref py py-class docutils literal notranslate"><span class="pre">OverflowMode.WRAP</span></code></a> mode.
 Exactly two of the three bit-specifiers (<cite>bits</cite>, <cite>int_bits</cite>, <cite>frac_bits</cite>) must be set.</p>
 <p>Using NumPy arrays as input is in general faster than e.g. lists.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
+<dd class="field-odd"><dl>
 <dt><strong>ndarray</strong><span class="classifier">ndarray</span></dt><dd><p>Values to initialize from. The tensor shape will be taken from the
 ndarray shape.</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits in the created fixed-point tensor.</p>
+<dt><strong>int_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of integer bits in the created fixed-point tensor.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits in the created fixed-point tensor.</p>
+<dt><strong>frac_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of fractional bits in the created fixed-point tensor.</p>
 </dd>
-<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Total number of bits in the created fixed-point tensor.</p>
+<dt><strong>bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Total number of bits in the created fixed-point tensor.</p>
 </dd>
 </dl>
 </dd>
@@ -509,17 +509,17 @@ ndarray shape.</p>
 <p>The input is quantized using <a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode.RND_INF" title="apytypes.QuantizationMode.RND_INF"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode.RND_INF</span></code></a> and overflow is handled using the <a class="reference internal" href="quantizationoverflow.html#apytypes.OverflowMode.WRAP" title="apytypes.OverflowMode.WRAP"><code class="xref py py-class docutils literal notranslate"><span class="pre">OverflowMode.WRAP</span></code></a> mode.
 Exactly two of the three bit-specifiers (<cite>bits</cite>, <cite>int_bits</cite>, <cite>frac_bits</cite>) must be set.</p>
 <p>Using NumPy arrays as input is in general faster than e.g. lists.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
+<dd class="field-odd"><dl>
 <dt><strong>number_seq</strong><span class="classifier">sequence of numbers</span></dt><dd><p>Values to initialize from. The tensor shape will be taken
 from the sequence shape.</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits in the created fixed-point tensor.</p>
+<dt><strong>int_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of integer bits in the created fixed-point tensor.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits in the created fixed-point tensor.</p>
+<dt><strong>frac_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of fractional bits in the created fixed-point tensor.</p>
 </dd>
-<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Total number of bits in the created fixed-point tensor.</p>
+<dt><strong>bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Total number of bits in the created fixed-point tensor.</p>
 </dd>
 </dl>
 </dd>
@@ -552,16 +552,16 @@ from the sequence shape.</p>
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.zeros">
 <span class="sig-name descname"><span class="pre">zeros</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.zeros" title="Link to this definition">¶</a></dt>
 <dd><p>Initializes an array with zeros.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>shape</strong><span class="classifier">tuple</span></dt><dd><p>Shape of the array.</p>
+<dd class="field-odd"><dl>
+<dt><strong>shape</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></dt><dd><p>Shape of the array.</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits.</p>
+<dt><strong>int_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of integer bits.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits.</p>
+<dt><strong>frac_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of fractional bits.</p>
 </dd>
-<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Total number of bits.</p>
+<dt><strong>bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Total number of bits.</p>
 </dd>
 </dl>
 </dd>
@@ -578,16 +578,16 @@ from the sequence shape.</p>
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.ones">
 <span class="sig-name descname"><span class="pre">ones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.ones" title="Link to this definition">¶</a></dt>
 <dd><p>Initializes an array with ones.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>shape</strong><span class="classifier">tuple</span></dt><dd><p>Shape of the array.</p>
+<dd class="field-odd"><dl>
+<dt><strong>shape</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></dt><dd><p>Shape of the array.</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits.</p>
+<dt><strong>int_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of integer bits.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits.</p>
+<dt><strong>frac_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of fractional bits.</p>
 </dd>
-<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Total number of bits.</p>
+<dt><strong>bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Total number of bits.</p>
 </dd>
 </dl>
 </dd>
@@ -604,18 +604,18 @@ from the sequence shape.</p>
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.eye">
 <span class="sig-name descname"><span class="pre">eye</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.eye" title="Link to this definition">¶</a></dt>
 <dd><p>Initializes an array with ones on the diagonal.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>n</strong><span class="classifier">int</span></dt><dd><p>Number of rows.</p>
+<dd class="field-odd"><dl>
+<dt><strong>n</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of rows.</p>
 </dd>
-<dt><strong>m</strong><span class="classifier">int, optional</span></dt><dd><p>Number of columns.</p>
+<dt><strong>m</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of columns.</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits.</p>
+<dt><strong>int_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of integer bits.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits.</p>
+<dt><strong>frac_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of fractional bits.</p>
 </dd>
-<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Total number of bits.</p>
+<dt><strong>bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Total number of bits.</p>
 </dd>
 </dl>
 </dd>
@@ -632,16 +632,16 @@ from the sequence shape.</p>
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.identity">
 <span class="sig-name descname"><span class="pre">identity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.identity" title="Link to this definition">¶</a></dt>
 <dd><p>Initializes an identity matrix with ones on the diagonal.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>n</strong><span class="classifier">int</span></dt><dd><p>Number of rows (and columns) in <em>n</em> x <em>n</em> output.</p>
+<dd class="field-odd"><dl>
+<dt><strong>n</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of rows (and columns) in <em>n</em> x <em>n</em> output.</p>
 </dd>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits.</p>
+<dt><strong>int_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of integer bits.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits.</p>
+<dt><strong>frac_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of fractional bits.</p>
 </dd>
-<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Total number of bits.</p>
+<dt><strong>bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Total number of bits.</p>
 </dd>
 </dl>
 </dd>
@@ -661,7 +661,7 @@ from the sequence shape.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>shape</strong><span class="classifier">tuple</span></dt><dd><p>Shape of the array.</p>
+<dt><strong>shape</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></dt><dd><p>Shape of the array.</p>
 </dd>
 <dt><strong>fill_value</strong><span class="classifier"><a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a></span></dt><dd><p>Value to fill the array.</p>
 </dd>
@@ -690,15 +690,15 @@ be set.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>int_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of integer bits in the result.</p>
+<dt><strong>int_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of integer bits in the result.</p>
 </dd>
-<dt><strong>frac_bits</strong><span class="classifier">int, optional</span></dt><dd><p>Number of fractional bits in the result.</p>
+<dt><strong>frac_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of fractional bits in the result.</p>
 </dd>
 <dt><strong>quantization</strong><span class="classifier"><a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode" title="apytypes.QuantizationMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode</span></code></a>, optional</span></dt><dd><p>Quantization mode to use in this cast.</p>
 </dd>
 <dt><strong>overflow</strong><span class="classifier"><a class="reference internal" href="quantizationoverflow.html#apytypes.OverflowMode" title="apytypes.OverflowMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">OverflowMode</span></code></a>, optional</span></dt><dd><p>Overflowing mode to use in this cast.</p>
 </dd>
-<dt><strong>bits</strong><span class="classifier">int, optional</span></dt><dd><p>Total number of bits in the result.</p>
+<dt><strong>bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Total number of bits in the result.</p>
 </dd>
 </dl>
 </dd>
@@ -786,10 +786,10 @@ For a 2-D array, this is the standard matrix transpose.
 For an n-D array, if axes are given, their order indicates how the
 axes are permuted (see Examples). If axes are not provided, then
 <code class="docutils literal notranslate"><span class="pre">a.transpose(a).shape</span> <span class="pre">==</span> <span class="pre">a.shape[::-1]</span></code>.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>axes</strong><span class="classifier">tuple of ints, optional</span></dt><dd><p>If specified, it must be a tuple or list which contains a permutation
+<dd class="field-odd"><dl>
+<dt><strong>axes</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>If specified, it must be a tuple or list which contains a permutation
 of [0,1,…,N-1] where N is the number of axes of <cite>a</cite>. The <cite>i</cite>’th axis
 of the returned array will correspond to the axis numbered <code class="docutils literal notranslate"><span class="pre">axes[i]</span></code>
 of the input. If not specified, defaults to <code class="docutils literal notranslate"><span class="pre">range(a.ndim)[::-1]</span></code>,
@@ -940,10 +940,10 @@ if the total number of elements does not match the original array.</p>
 <span class="sig-name descname"><span class="pre">squeeze</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.squeeze" title="Link to this definition">¶</a></dt>
 <dd><p>Removes axes of size one at the specified axis/axes, if no axis is given
 removes all dimensions with size one.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>axis</strong><span class="classifier">tuple or int, optional</span></dt><dd><p>The axes to squeeze, a given axis with a size other than one will result
+<dd class="field-odd"><dl>
+<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>The axes to squeeze, a given axis with a size other than one will result
 in an error. No given axes  will be remove all dimensions of size one.</p>
 </dd>
 </dl>
@@ -971,10 +971,10 @@ the array.</p>
 <dd><p>Interchange two axes of an array.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>axis1</strong><span class="classifier">int</span></dt><dd><p>First axis.</p>
+<dd class="field-odd"><dl>
+<dt><strong>axis1</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>First axis.</p>
 </dd>
-<dt><strong>axis2</strong><span class="classifier">int</span></dt><dd><p>Second axis.</p>
+<dt><strong>axis2</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Second axis.</p>
 </dd>
 </dl>
 </dd>
@@ -1021,10 +1021,10 @@ the array.</p>
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.sum">
 <span class="sig-name descname"><span class="pre">sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="APyFixed"><span class="pre">APyFixed</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.sum" title="Link to this definition">¶</a></dt>
 <dd><p>Return the sum of the elements along specified axis/axes.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>axis</strong><span class="classifier">tuple or int, optional</span></dt><dd><p>The axis/axes to summate across. Will summate the whole array if no int
+<dd class="field-odd"><dl>
+<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>The axis/axes to summate across. Will summate the whole array if no int
 or tuple is specified.</p>
 </dd>
 </dl>
@@ -1061,10 +1061,10 @@ the array.</p>
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.prod">
 <span class="sig-name descname"><span class="pre">prod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="APyFixed"><span class="pre">APyFixed</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.prod" title="Link to this definition">¶</a></dt>
 <dd><p>Return the product of the elements along specified axis/axes.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>axis</strong><span class="classifier">tuple, int, optional</span></dt><dd><p>The axis/axes to calculate the product across. If not given an axis it
+<dd class="field-odd"><dl>
+<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>, int, optional</span></dt><dd><p>The axis/axes to calculate the product across. If not given an axis it
 will return the product of the flattened array.</p>
 </dd>
 </dl>
@@ -1101,10 +1101,10 @@ the array.</p>
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.cumsum">
 <span class="sig-name descname"><span class="pre">cumsum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.cumsum" title="Link to this definition">¶</a></dt>
 <dd><p>Return the cumulative sum of the elements along a given axes.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>axis</strong><span class="classifier">int, optional</span></dt><dd><p>The axes to summate across. If not given an axis it will return the
+<dd class="field-odd"><dl>
+<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>The axes to summate across. If not given an axis it will return the
 cumulative sum of the flattened array.</p>
 </dd>
 </dl>
@@ -1145,10 +1145,10 @@ the array.</p>
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.cumprod">
 <span class="sig-name descname"><span class="pre">cumprod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.cumprod" title="Link to this definition">¶</a></dt>
 <dd><p>Return the cumulative product of the elements along a given axes.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>axis</strong><span class="classifier">int, optional</span></dt><dd><p>The axes to calculate the product across. If not given an axis it will
+<dd class="field-odd"><dl>
+<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>The axes to calculate the product across. If not given an axis it will
 return the cumulative product of the flattened array.</p>
 </dd>
 </dl>
@@ -1189,10 +1189,10 @@ the array.</p>
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.max">
 <span class="sig-name descname"><span class="pre">max</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="APyFixed"><span class="pre">APyFixed</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.max" title="Link to this definition">¶</a></dt>
 <dd><p>Return the maximum value from an array or the maximum values along an axis.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>axis</strong><span class="classifier">tuple or int, optional</span></dt><dd><p>The axis to get the maximum along.</p>
+<dd class="field-odd"><dl>
+<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>The axis to get the maximum along.</p>
 </dd>
 </dl>
 </dd>
@@ -1232,10 +1232,10 @@ the array.</p>
 <dt class="sig sig-object py" id="apytypes.APyFixedArray.min">
 <span class="sig-name descname"><span class="pre">min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFixedArray" title="APyFixedArray"><span class="pre">APyFixedArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="APyFixed"><span class="pre">APyFixed</span></a></span></span><a class="headerlink" href="#apytypes.APyFixedArray.min" title="Link to this definition">¶</a></dt>
 <dd><p>Return the minimum value from an array or the minimum values along an axis.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>axis</strong><span class="classifier">tuple or int, optional</span></dt><dd><p>The axis to get the minimum along.</p>
+<dd class="field-odd"><dl>
+<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>The axis to get the minimum along.</p>
 </dd>
 </dl>
 </dd>
@@ -1282,10 +1282,10 @@ the array.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 0.2.</span></p>
 </div>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>shape</strong><span class="classifier">tuple or int</span></dt><dd><p>The shape to broadcast to. A single integer <code class="docutils literal notranslate"><span class="pre">i</span></code> is interpreted as
+<dd class="field-odd"><dl>
+<dt><strong>shape</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>The shape to broadcast to. A single integer <code class="docutils literal notranslate"><span class="pre">i</span></code> is interpreted as
 <code class="docutils literal notranslate"><span class="pre">(i,)</span></code>.</p>
 </dd>
 </dl>
