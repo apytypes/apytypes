@@ -289,15 +289,15 @@ class APyCFixed:
 
         Parameters
         ----------
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits in the result.
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits in the result.
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use in this cast.
         overflow : :class:`OverflowMode`, optional
             Overflowing mode to use in this cast.
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits in the result.
 
         Examples
@@ -348,13 +348,13 @@ class APyCFixed:
 
         Parameters
         ----------
-        value : int, float, complex
+        value : :class:`int`, :class:`float`, :class:`complex`
             Value to initialize from
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits in the created fixed-point object
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits in the created fixed-point object
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits in the created fixed-point object
 
         Examples
@@ -391,13 +391,13 @@ class APyCFixed:
 
         Parameters
         ----------
-        value : int, float, complex
+        value : :class:`int`, :class:`float`, :class:`complex`
             Value to initialize from
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits in the created fixed-point object
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits in the created fixed-point object
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits in the created fixed-point object
 
         Returns
@@ -698,9 +698,9 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        axis1 : int
+        axis1 : :class:`int`
             First axis.
-        axis2 : int
+        axis2 : :class:`int`
             Second axis.
 
         Examples
@@ -748,7 +748,7 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        axes : tuple of ints, optional
+        axes : :class:`tuple` of :class:`int`, optional
             If specified, it must be a tuple or list which contains a
             permutation of [0,1,...,N-1] where N is the number of axes of
             `a`. The `i`'th axis of the returned array will correspond to the
@@ -802,15 +802,15 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits in the result.
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits in the result.
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use in this cast.
         overflow : :class:`OverflowMode`, optional
             Overflowing mode to use in this cast.
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits in the result.
 
         Returns
@@ -824,7 +824,7 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        shape : tuple or int
+        shape : :class:`tuple` of :class:`int` or :class:`int`
             The shape to broadcast to. A single integer ``i`` is interpreted as
             ``(i,)``.
 
@@ -840,7 +840,7 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        axis : tuple or int, optional
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
             The axes to squeeze, a given axis with a size other than one will
             result in an error. No given axes  will be remove all dimensions
             of size one.
@@ -865,7 +865,7 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        axis : tuple or int, optional
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
             The axis/axes to summate across. Will summate the whole array if
             no int or tuple is specified.
 
@@ -897,7 +897,7 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        axis : int, optional
+        axis : :class:`int`, optional
             The axes to summate across. If not given an axis it will return the
             cumulative sum of the flattened array.
 
@@ -940,7 +940,7 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        axis : tuple or int, optional
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
             The axis/axes to summate across. Will summate the whole array if
             no int or tuple is specified.
 
@@ -962,7 +962,7 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        axis : int, optional
+        axis : :class:`int`, optional
             The axis to summate across. If not given an axis it will return the
             cumulative sum of the flattened array.
 
@@ -983,7 +983,7 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        axis : tuple, int, optional
+        axis : :class:`tuple`, int, optional
             The axis/axes to calculate the product across. If not given an axis it
             will return the product of the flattened array.
 
@@ -1017,7 +1017,7 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        axis : int, optional
+        axis : :class:`int`, optional
             The axes to calculate the product across. If not given an axis it will
             return the cumulative product of the flattened array.
 
@@ -1062,7 +1062,7 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        axis : int, optional
+        axis : :class:`int`, optional
             The axis to calculate the product across. If not given an axis it
             will return the product of the flattened array.
 
@@ -1084,7 +1084,7 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        axis : int, optional
+        axis : :class:`int`, optional
             The axis to calculate the product across. If not given an axis it
             will return the cumulative product of the flattened array.
 
@@ -1119,11 +1119,11 @@ class APyCFixedArray:
         complex_sequence : sequence of float, int, or complex
             Values to initialize from. The tensor shape will be taken from the
             sequence shape.
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits in the created fixed-point tensor.
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits in the created fixed-point tensor.
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits in the created fixed-point tensor.
 
         Examples
@@ -1164,11 +1164,11 @@ class APyCFixedArray:
         number_seq : sequence of numbers
             Values to initialize from. The tensor shape will be taken from the
             sequence shape.
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits in the created fixed-point tensor.
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits in the created fixed-point tensor.
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits in the created fixed-point tensor.
 
         Returns
@@ -1198,11 +1198,11 @@ class APyCFixedArray:
         ndarray : ndarray
             Values to initialize from. The tensor shape will be taken from
             the ndarray shape.
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits in the created fixed-point tensor.
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits in the created fixed-point tensor.
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits in the created fixed-point tensor.
 
         Examples
@@ -1239,13 +1239,13 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        shape : tuple
+        shape : :class:`tuple`
             Shape of the array.
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits.
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits.
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits.
 
         Returns
@@ -1266,13 +1266,13 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        shape : tuple
+        shape : :class:`tuple`
             Shape of the array.
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits.
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits.
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits.
 
         Returns
@@ -1294,15 +1294,15 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        n : int
+        n : :class:`int`
             Number of rows.
-        m : int, optional
+        m : :class:`int`, optional
             Number of columns.
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits.
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits.
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits.
 
         Returns
@@ -1323,13 +1323,13 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        n : int
+        n : :class:`int`
             Number of rows (and columns) in *n* x *n* output.
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits.
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits.
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits.
 
         Returns
@@ -1345,7 +1345,7 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        shape : tuple
+        shape : :class:`tuple`
             Shape of the array.
         fill_value : :class:`APyCFixed`
             Value to fill the array.
@@ -1380,13 +1380,13 @@ class APyCFloat:
 
         Parameters
         ----------
-        value : int, float
+        value : :class:`int`, :class:`float`
             Floating-point value to initialize from.
-        exp_bits : int
+        exp_bits : :class:`int`
             Number of exponent bits.
-        man_bits : int
+        man_bits : :class:`int`
             Number of mantissa bits.
-        bias : int, optional
+        bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Examples
@@ -1672,15 +1672,15 @@ class APyFixed:
 
         Parameters
         ----------
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits in the result.
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits in the result.
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use in this cast.
         overflow : :class:`OverflowMode`, optional
             Overflowing mode to use in this cast.
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits in the result.
 
         Examples
@@ -1775,13 +1775,13 @@ class APyFixed:
 
         Parameters
         ----------
-        value : int, float
+        value : :class:`int`, :class:`float`
             Floating point value to initialize from
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits in the created fixed-point object
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits in the created fixed-point object
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits in the created fixed-point object
 
         Examples
@@ -1820,13 +1820,13 @@ class APyFixed:
         ----------
         string_value : str
             String to initialize the value from
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits in the created fixed-point object
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits in the created fixed-point object
-        base : int, default: 10
+        base : :class:`int`, default: 10
             Numeric base used in `string_value`
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits in the created fixed-point object
 
         Examples
@@ -2152,9 +2152,9 @@ class APyFixedArray:
 
         Parameters
         ----------
-        axis1 : int
+        axis1 : :class:`int`
             First axis.
-        axis2 : int
+        axis2 : :class:`int`
             Second axis.
 
         Examples
@@ -2200,7 +2200,7 @@ class APyFixedArray:
 
         Parameters
         ----------
-        axes : tuple of ints, optional
+        axes : :class:`tuple` of :class:`int`, optional
             If specified, it must be a tuple or list which contains a permutation
             of [0,1,...,N-1] where N is the number of axes of `a`. The `i`'th axis
             of the returned array will correspond to the axis numbered ``axes[i]``
@@ -2253,15 +2253,15 @@ class APyFixedArray:
 
         Parameters
         ----------
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits in the result.
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits in the result.
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use in this cast.
         overflow : :class:`OverflowMode`, optional
             Overflowing mode to use in this cast.
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits in the result.
 
         Returns
@@ -2277,7 +2277,7 @@ class APyFixedArray:
 
         Parameters
         ----------
-        shape : tuple or int
+        shape : :class:`tuple` of :class:`int` or :class:`int`
             The shape to broadcast to. A single integer ``i`` is interpreted as
             ``(i,)``.
 
@@ -2324,7 +2324,7 @@ class APyFixedArray:
 
         Parameters
         ----------
-        axis : tuple or int, optional
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
             The axes to squeeze, a given axis with a size other than one will result
             in an error. No given axes  will be remove all dimensions of size one.
 
@@ -2347,7 +2347,7 @@ class APyFixedArray:
 
         Parameters
         ----------
-        axis : tuple or int, optional
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
             The axis/axes to summate across. Will summate the whole array if no int
             or tuple is specified.
 
@@ -2378,7 +2378,7 @@ class APyFixedArray:
 
         Parameters
         ----------
-        axis : int, optional
+        axis : :class:`int`, optional
             The axes to summate across. If not given an axis it will return the
             cumulative sum of the flattened array.
 
@@ -2413,7 +2413,7 @@ class APyFixedArray:
 
         Parameters
         ----------
-        axis : tuple or int, optional
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
             The axis/axes to summate across. Will summate the whole array if no int
             or tuple is specified.
 
@@ -2435,7 +2435,7 @@ class APyFixedArray:
 
         Parameters
         ----------
-        axis : int, optional
+        axis : :class:`int`, optional
             The axis to summate across. If not given an axis it will return the
             cumulative sum of the flattened array.
 
@@ -2456,7 +2456,7 @@ class APyFixedArray:
 
         Parameters
         ----------
-        axis : tuple or int, optional
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
             The axis to get the maximum along.
 
         Returns
@@ -2490,7 +2490,7 @@ class APyFixedArray:
 
         Parameters
         ----------
-        axis : tuple or int, optional
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
             The axis to get the minimum along.
 
         Returns
@@ -2527,7 +2527,7 @@ class APyFixedArray:
 
         Parameters
         ----------
-        axis : tuple or int, optional
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
             The axis to get the maximum along.
 
         Returns
@@ -2550,7 +2550,7 @@ class APyFixedArray:
 
         Parameters
         ----------
-        axis : tuple or int, optional
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
             The axis to get the minimum along.
 
         Returns
@@ -2570,7 +2570,7 @@ class APyFixedArray:
 
         Parameters
         ----------
-        axis : tuple, int, optional
+        axis : :class:`tuple`, int, optional
             The axis/axes to calculate the product across. If not given an axis it
             will return the product of the flattened array.
 
@@ -2601,7 +2601,7 @@ class APyFixedArray:
 
         Parameters
         ----------
-        axis : int, optional
+        axis : :class:`int`, optional
             The axes to calculate the product across. If not given an axis it will
             return the cumulative product of the flattened array.
 
@@ -2636,7 +2636,7 @@ class APyFixedArray:
 
         Parameters
         ----------
-        axis : int, optional
+        axis : :class:`int`, optional
             The axis to calculate the product across. If not given an axis it
             will return the product of the flattened array.
 
@@ -2658,7 +2658,7 @@ class APyFixedArray:
 
         Parameters
         ----------
-        axis : int, optional
+        axis : :class:`int`, optional
             The axis to calculate the product across. If not given an axis it
             will return the cumulative product of the flattened array.
 
@@ -2693,11 +2693,11 @@ class APyFixedArray:
         number_seq : sequence of numbers
             Values to initialize from. The tensor shape will be taken
             from the sequence shape.
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits in the created fixed-point tensor.
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits in the created fixed-point tensor.
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits in the created fixed-point tensor.
 
         Examples
@@ -2739,11 +2739,11 @@ class APyFixedArray:
         ndarray : ndarray
             Values to initialize from. The tensor shape will be taken from the
             ndarray shape.
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits in the created fixed-point tensor.
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits in the created fixed-point tensor.
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits in the created fixed-point tensor.
 
         Examples
@@ -2779,13 +2779,13 @@ class APyFixedArray:
 
         Parameters
         ----------
-        shape : tuple
+        shape : :class:`tuple`
             Shape of the array.
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits.
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits.
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits.
 
         Returns
@@ -2806,13 +2806,13 @@ class APyFixedArray:
 
         Parameters
         ----------
-        shape : tuple
+        shape : :class:`tuple`
             Shape of the array.
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits.
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits.
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits.
 
         Returns
@@ -2834,15 +2834,15 @@ class APyFixedArray:
 
         Parameters
         ----------
-        n : int
+        n : :class:`int`
             Number of rows.
-        m : int, optional
+        m : :class:`int`, optional
             Number of columns.
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits.
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits.
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits.
 
         Returns
@@ -2863,13 +2863,13 @@ class APyFixedArray:
 
         Parameters
         ----------
-        n : int
+        n : :class:`int`
             Number of rows (and columns) in *n* x *n* output.
-        int_bits : int, optional
+        int_bits : :class:`int`, optional
             Number of integer bits.
-        frac_bits : int, optional
+        frac_bits : :class:`int`, optional
             Number of fractional bits.
-        bits : int, optional
+        bits : :class:`int`, optional
             Total number of bits.
 
         Returns
@@ -2885,7 +2885,7 @@ class APyFixedArray:
 
         Parameters
         ----------
-        shape : tuple
+        shape : :class:`tuple`
             Shape of the array.
         fill_value : :class:`APyFixed`
             Value to fill the array.
@@ -3002,17 +3002,17 @@ class APyFloat:
 
         Parameters
         ----------
-        sign : bool or int
+        sign : :class:`bool` or int
             The sign of the float. False/0 means positive. True/non-zero means negative.
-        exp : int
+        exp : :class:`int`
             Exponent of the float as stored, i.e., actual value + bias.
-        man : int
+        man : :class:`int`
             Mantissa of the float as stored, i.e., without a hidden one.
-        exp_bits : int
+        exp_bits : :class:`int`
             Number of exponent bits.
-        man_bits : int
+        man_bits : :class:`int`
             Number of mantissa bits.
-        bias : int, optional
+        bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
@@ -3119,13 +3119,13 @@ class APyFloat:
 
         Parameters
         ----------
-        value : int, float
+        value : :class:`int`, :class:`float`
             Floating-point value to initialize from.
-        exp_bits : int
+        exp_bits : :class:`int`
             Number of exponent bits.
-        man_bits : int
+        man_bits : :class:`int`
             Number of mantissa bits.
-        bias : int, optional
+        bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Examples
@@ -3156,13 +3156,13 @@ class APyFloat:
 
         Parameters
         ----------
-        bits : int
+        bits : :class:`int`
             The bit-representation for the float.
-        exp_bits : int
+        exp_bits : :class:`int`
             Number of exponent bits.
-        man_bits : int
+        man_bits : :class:`int`
             Number of mantissa bits.
-        bias : int, optional
+        bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Examples
@@ -3227,11 +3227,11 @@ class APyFloat:
 
         Parameters
         ----------
-        exp_bits : int, optional
+        exp_bits : :class:`int`, optional
             Number of exponent bits in the result.
-        man_bits : int, optional
+        man_bits : :class:`int`, optional
             Number of mantissa bits in the result.
-        bias : int, optional
+        bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
         quantization : :class:`QuantizationMode`, optional.
             Quantization mode to use in this cast. If None, use the global
@@ -3626,11 +3626,11 @@ class APyFloatArray:
             Exponents of the floats as stored, i.e., actual value + bias.
         mans : sequence of ints
             Mantissas of the floats as stored, i.e., without a hidden one.
-        exp_bits : int
+        exp_bits : :class:`int`
             Number of exponent bits.
-        man_bits : int
+        man_bits : :class:`int`
             Number of mantissa bits.
-        bias : int, optional
+        bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
@@ -3920,11 +3920,11 @@ class APyFloatArray:
         number_sequence : sequence of numbers
             Floating point values to initialize from. The tensor shape will be taken
             from the sequence shape.
-        exp_bits : int
+        exp_bits : :class:`int`
             Number of exponent bits in the created floating-point tensor
-        man_bits : int
+        man_bits : :class:`int`
             Number of mantissa bits in the created floating-point tensor
-        bias : int, optional
+        bias : :class:`int`, optional
             Bias in the created floating-point tensor
 
         Examples
@@ -3966,11 +3966,11 @@ class APyFloatArray:
         ----------
         ndarray : ndarray
             Values to initialize from. The tensor shape will be taken from the ndarray shape.
-        exp_bits : int
+        exp_bits : :class:`int`
             Number of exponent bits in the created floating-point tensor
-        man_bits : int
+        man_bits : :class:`int`
             Number of mantissa bits in the created floating-point tensor
-        bias : int, optional
+        bias : :class:`int`, optional
             Bias in the created floating-point tensor
 
         Examples
@@ -4006,13 +4006,13 @@ class APyFloatArray:
 
         Parameters
         ----------
-        bits : int
+        bits : :class:`int`
             The bit-representations.
-        exp_bits : int
+        exp_bits : :class:`int`
             Number of exponent bits in the created floating-point tensor
-        man_bits : int
+        man_bits : :class:`int`
             Number of mantissa bits in the created floating-point tensor
-        bias : int, optional
+        bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Examples
@@ -4036,11 +4036,11 @@ class APyFloatArray:
 
         Parameters
         ----------
-        shape : tuple
+        shape : :class:`tuple`
             Shape of the array.
-        exp_bits : int
+        exp_bits : :class:`int`
             Number of exponent bits.
-        man_bits : int
+        man_bits : :class:`int`
             Number of mantissa bits.
         bias : optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
@@ -4060,11 +4060,11 @@ class APyFloatArray:
 
         Parameters
         ----------
-        shape : tuple
+        shape : :class:`tuple`
             Shape of the array.
-        exp_bits : int
+        exp_bits : :class:`int`
             Number of exponent bits.
-        man_bits : int
+        man_bits : :class:`int`
             Number of mantissa bits.
         bias : optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
@@ -4088,13 +4088,13 @@ class APyFloatArray:
 
         Parameters
         ----------
-        n : int
+        n : :class:`int`
             Number of rows (and columns) in the n x n output.
-        exp_bits : int
+        exp_bits : :class:`int`
             Number of exponent bits.
-        man_bits : int
+        man_bits : :class:`int`
             Number of mantissa bits.
-        m : int, optional
+        m : :class:`int`, optional
             Number of columns. Default is None, which results in an n x n output.
         bias : optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
@@ -4114,11 +4114,11 @@ class APyFloatArray:
 
         Parameters
         ----------
-        n : int
+        n : :class:`int`
             Number of rows (and columns) in the n x n output.
-        exp_bits : int
+        exp_bits : :class:`int`
             Number of exponent bits.
-        man_bits : int
+        man_bits : :class:`int`
             Number of mantissa bits.
         bias : optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
@@ -4136,7 +4136,7 @@ class APyFloatArray:
 
         Parameters
         ----------
-        shape : tuple
+        shape : :class:`tuple`
             Shape of the array.
         fill_value : APyFloat
             Value to fill the array.
@@ -4170,9 +4170,9 @@ class APyFloatArray:
 
         Parameters
         ----------
-        axis1 : int
+        axis1 : :class:`int`
             First axis.
-        axis2 : int
+        axis2 : :class:`int`
             Second axis.
 
         Examples
@@ -4219,7 +4219,7 @@ class APyFloatArray:
 
         Parameters
         ----------
-        axes : tuple of ints, optional
+        axes : :class:`tuple` of :class:`int`, optional
             If specified, it must be a tuple or list which contains a permutation
             of [0,1,...,N-1] where N is the number of axes of `a`. The `i`'th axis
             of the returned array will correspond to the axis numbered ``axes[i]``
@@ -4264,7 +4264,7 @@ class APyFloatArray:
 
         Parameters
         ----------
-        shape : tuple or int
+        shape : :class:`tuple` of :class:`int` or :class:`int`
             The shape to broadcast to. A single integer ``i`` is interpreted as ``(i,)``.
 
         Returns
@@ -4309,7 +4309,7 @@ class APyFloatArray:
 
         Parameters
         ----------
-        axis : tuple or int, optional
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
             The axis/axes to squeeze, a given axis with a size other than one will result in an error. No given axes  will be remove all dimensions of size 1.
 
         Returns
@@ -4330,7 +4330,7 @@ class APyFloatArray:
 
         Parameters
         ----------
-        axis : tuple or int, optional
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
             The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
 
         Returns
@@ -4361,7 +4361,7 @@ class APyFloatArray:
 
         Parameters
         ----------
-        axis : int, optional
+        axis : :class:`int`, optional
             The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.
 
         Returns
@@ -4400,7 +4400,7 @@ class APyFloatArray:
 
         Parameters
         ----------
-        axis : tuple or int, optional
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
             The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
 
         Returns
@@ -4435,7 +4435,7 @@ class APyFloatArray:
 
         Parameters
         ----------
-        axis : int, optional
+        axis : :class:`int`, optional
             The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.
 
         Returns
@@ -4478,7 +4478,7 @@ class APyFloatArray:
 
         Parameters
         ----------
-        axis : tuple, int, optional
+        axis : :class:`tuple`, int, optional
             The axis/axes to calculate the product across. If not given an axis it will return the product of the flattened array.
 
         Returns
@@ -4509,7 +4509,7 @@ class APyFloatArray:
 
         Parameters
         ----------
-        axis : int, optional
+        axis : :class:`int`, optional
             The axes to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.
 
         Returns
@@ -4549,7 +4549,7 @@ class APyFloatArray:
 
         Parameters
         ----------
-        axis : int, optional
+        axis : :class:`int`, optional
             The axis to calculate the product across. If not given an axis it will return the product of the flattened array.
 
         Returns
@@ -4568,7 +4568,7 @@ class APyFloatArray:
 
         Parameters
         ----------
-        axis : int, optional
+        axis : :class:`int`, optional
             The axis to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.
 
         Returns
@@ -4587,7 +4587,7 @@ class APyFloatArray:
 
         Parameters
         ----------
-        axis : tuple or int, optional
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
             The axis to get the maximum along.
 
         Returns
@@ -4628,7 +4628,7 @@ class APyFloatArray:
 
         Parameters
         ----------
-        axis : tuple or int, optional
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
             The axis to get the minimum along.
 
         Returns
@@ -4671,7 +4671,7 @@ class APyFloatArray:
 
         Parameters
         ----------
-        axis : tuple or int, optional
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
             The axis to get the maximum along.
 
         Returns
@@ -4692,7 +4692,7 @@ class APyFloatArray:
 
         Parameters
         ----------
-        axis : tuple or int, optional
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
             The axis to get the minimum along.
 
         Returns
@@ -4730,11 +4730,11 @@ class APyFloatArray:
 
         Parameters
         ----------
-        exp_bits : int, optional
+        exp_bits : :class:`int`, optional
             Number of exponent bits in the result.
-        man_bits : int, optional
+        man_bits : :class:`int`, optional
             Number of mantissa bits in the result.
-        bias : int, optional
+        bias : :class:`int`, optional
             Bias used in the result.
         quantization : :class:`QuantizationMode`, optional.
             Quantization mode to use in this cast. If None, use the global
@@ -5029,7 +5029,7 @@ def set_float_quantization_seed(seed: int) -> None:
 
     Parameters
     ----------
-    seed : int
+    seed : :class:`int`
         The quantization seed to use.
 
     See also

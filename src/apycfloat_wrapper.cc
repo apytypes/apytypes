@@ -71,18 +71,18 @@ void bind_cfloat(nb::module_& m)
 
         //     Parameters
         //     ----------
-        //     sign : bool or int
+        //     sign : :class:`bool` or int
         //         The sign of the float. False/0 means positive. True/non-zero means
         //         negative.
-        //     exp : int
+        //     exp : :class:`int`
         //         Exponent of the float as stored, i.e., actual value + bias.
-        //     man : int
+        //     man : :class:`int`
         //         Mantissa of the float as stored, i.e., without a hidden one.
-        //     exp_bits : int
+        //     exp_bits : :class:`int`
         //         Number of exponent bits.
-        //     man_bits : int
+        //     man_bits : :class:`int`
         //         Number of mantissa bits.
-        //     bias : int, optional
+        //     bias : :class:`int`, optional
         //         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         //     Returns
@@ -174,13 +174,13 @@ void bind_cfloat(nb::module_& m)
 
             Parameters
             ----------
-            value : int, float
+            value : :class:`int`, :class:`float`
                 Floating-point value to initialize from.
-            exp_bits : int
+            exp_bits : :class:`int`
                 Number of exponent bits.
-            man_bits : int
+            man_bits : :class:`int`
                 Number of mantissa bits.
-            bias : int, optional
+            bias : :class:`int`, optional
                 Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
             Examples
@@ -214,13 +214,13 @@ void bind_cfloat(nb::module_& m)
 
         //     Parameters
         //     ----------
-        //     bits : int
+        //     bits : :class:`int`
         //         The bit-representation for the float.
-        //     exp_bits : int
+        //     exp_bits : :class:`int`
         //         Number of exponent bits.
-        //     man_bits : int
+        //     man_bits : :class:`int`
         //         Number of mantissa bits.
-        //     bias : int, optional
+        //     bias : :class:`int`, optional
         //         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         //     Examples
@@ -284,11 +284,11 @@ void bind_cfloat(nb::module_& m)
 
         //     Parameters
         //     ----------
-        //     exp_bits : int, optional
+        //     exp_bits : :class:`int`, optional
         //         Number of exponent bits in the result.
-        //     man_bits : int, optional
+        //     man_bits : :class:`int`, optional
         //         Number of mantissa bits in the result.
-        //     bias : int, optional
+        //     bias : :class:`int`, optional
         //         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
         //     quantization : :class:`QuantizationMode`, optional.
         //         Quantization mode to use in this cast. If None, use the global

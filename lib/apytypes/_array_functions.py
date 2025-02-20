@@ -88,7 +88,7 @@ def reshape(a: APyArray, new_shape: tuple[int, ...]) -> APyArray:
     ----------
     a : :class:`APyFloatArray` or :class:`APyFixedArray`
         The array to reshape.
-    new_shape : tuple of ints
+    new_shape : :class:`tuple` of :class:`int`
         The new shape should be compatible with the original shape. If a dimension is
         -1, its value will be inferred from the length of the array and remaining
         dimensions. Only one dimension can be -1.
@@ -166,7 +166,7 @@ def transpose(a: APyArray, axes=None) -> APyArray:
     ----------
     arr : :class:`APyFloatArray` or :class:`APyFixedArray`
         Input data.
-    axes : tuple of ints, optional
+    axes : :class:`tuple` of :class:`int`, optional
         If specified, it must be a tuple which contains a permutation
         of [0,1,...,N-1] where N is the number of axes of `a`. The `i`'th axis
         of the returned array will correspond to the axis numbered ``axes[i]``
@@ -453,7 +453,7 @@ def zeros(
 
     Parameters
     ----------
-    shape : tuple of int
+    shape : :class:`tuple` of :class:`int`
         Shape of the array.
     int_bits : :class:`int`, optional
         Number of fixed-point integer bits.
@@ -467,7 +467,7 @@ def zeros(
         Number of floating-point mantissa bits.
     bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
-    force_complex : bool, optional
+    force_complex : :class:`bool`, optional
         Retrieve the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
 
@@ -524,7 +524,7 @@ def ones(
 
     Parameters
     ----------
-    shape : tuple of int
+    shape : :class:`tuple` of :class:`int`
         Shape of the array.
     int_bits : :class:`int`, optional
         Number of fixed-point integer bits.
@@ -538,7 +538,7 @@ def ones(
         Number of floating-point mantissa bits.
     bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
-    force_complex : bool, optional
+    force_complex : :class:`bool`, optional
         Retrieve the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
 
@@ -613,7 +613,7 @@ def eye(
         Number of floating-point mantissa bits.
     bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
-    force_complex : bool, optional
+    force_complex : :class:`bool`, optional
         Retrieve the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
 
@@ -745,7 +745,7 @@ def full(
 
     Parameters
     ----------
-    shape : tuple
+    shape : :class:`tuple`
         Shape of the array.
     fill_value : :class:`APyFloat` or :class:`APyFixed` or :class:`int` or :class`float`
         Fill value.
@@ -982,11 +982,11 @@ def arange(
 
     Parameters
     ----------
-    start : :class:`int`, float, :class:`APyFloat`, :class:`APyFixed`
+    start : :class:`int`, :class:`float`, :class:`APyFloat`, :class:`APyFixed`
         Start number.
-    stop : :class:`int`, float, :class:`APyFloat`, :class:`APyFixed`, optional
+    stop : :class:`int`, :class:`float`, :class:`APyFloat`, :class:`APyFixed`, optional
         Stop number.
-    step : :class:`int`, float, :class:`APyFloat`, :class:`APyFixed`, optional
+    step : :class:`int`, :class:`float`, :class:`APyFloat`, :class:`APyFixed`, optional
         Step size in range.
     int_bits : :class:`int`, optional
         Number of fixed-point integer bits.

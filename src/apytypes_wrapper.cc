@@ -241,7 +241,7 @@ void bind_common(nb::module_& m)
 
         Parameters
         ----------
-        seed : int
+        seed : :class:`int`
             The quantization seed to use.
 
         See also
