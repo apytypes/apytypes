@@ -161,21 +161,23 @@ void bind_cfloat(nb::module_& m)
          * Conversion methods
          */
         .def_static(
-            "from_float",
+            "from_complex",
             &APyCFloat::from_number,
             nb::arg("value"),
             nb::arg("exp_bits"),
             nb::arg("man_bits"),
             nb::arg("bias") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyCFloat` object from an :class:`int` or :class:`float`.
+            Create an :class:`APyCFloat` object from an :class:`int`, :class:`float`, or
+            :class:`complex`.
 
-            The quantization mode used is :class:`QuantizationMode.TIES_EVEN`.
+            The initialize floating-point value is the one closest to `value`. Ties are
+            rounded using :class:`QuantizationMode.TIES_EVEN`.
 
             Parameters
             ----------
-            value : int, float
-                Floating-point value to initialize from.
+            value : int, float, complex
+                Value to initialize from.
             exp_bits : int
                 Number of exponent bits.
             man_bits : int
@@ -187,10 +189,12 @@ void bind_cfloat(nb::module_& m)
             --------
 
             >>> from apytypes import APyCFloat
-
-            `a`, initialized from floating-point values.
-
+            >>>
             >>> a = APyCFloat.from_float(1.35, exp_bits=10, man_bits=15)
+            >>> a
+            APyCFloat(sign=(0, 0), exp=(511, 0), man=(11469, 0), exp_bits=10, man_bits=15)
+            >>> str(a)
+            '1.35+0j'
 
             Returns
             -------
@@ -198,10 +202,56 @@ void bind_cfloat(nb::module_& m)
 
             See also
             --------
-            from_bits
+            from_complex
+            )pbdoc"
+        )
+        .def_static(
+            "from_float",
+            &APyCFloat::from_number,
+            nb::arg("value"),
+            nb::arg("exp_bits"),
+            nb::arg("man_bits"),
+            nb::arg("bias") = nb::none(),
+            R"pbdoc(
+            Create an :class:`APyCFloat` object from an :class:`int`, :class:`float`, or
+            :class:`complex`.
+
+            The initialize floating-point value is the one closest to `value`. Ties are
+            rounded using :class:`QuantizationMode.TIES_EVEN`.
+
+            Parameters
+            ----------
+            value : int, float, complex
+                Value to initialize from.
+            exp_bits : int
+                Number of exponent bits.
+            man_bits : int
+                Number of mantissa bits.
+            bias : int, optional
+                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+            Examples
+            --------
+
+            >>> from apytypes import APyCFloat
+            >>>
+            >>> a = APyCFloat.from_float(1.35, exp_bits=10, man_bits=15)
+            >>> a
+            APyCFloat(sign=(0, 0), exp=(511, 0), man=(11469, 0), exp_bits=10, man_bits=15)
+            >>> str(a)
+            '1.35+0j'
+
+            Returns
+            -------
+            :class:`APyCFloat`
+
+            See also
+            --------
+            from_complex
             )pbdoc"
         )
         // .def("__float__", &APyCFloat::operator double)
+        // .def("__complex__", &APyCFloat::to_complex)
         // .def_static(
         //     "from_bits",
         //     &APyCFloat::from_bits,
@@ -267,7 +317,7 @@ void bind_cfloat(nb::module_& m)
         //     from_bits
         //     )pbdoc")
         // .def("__str__", &APyCFloat::str)
-        // .def("__repr__", &APyCFloat::repr)
+        .def("__repr__", &APyCFloat::repr)
         // .def("_repr_latex_", &APyCFloat::latex)
         // .def(
         //     "cast",
