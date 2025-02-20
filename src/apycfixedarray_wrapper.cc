@@ -356,9 +356,9 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            axis1 : int
+            axis1 : :class:`int`
                 First axis.
-            axis2 : int
+            axis2 : :class:`int`
                 Second axis.
 
             Examples
@@ -412,7 +412,7 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            axes : tuple of ints, optional
+            axes : :class:`tuple` of :class:`int`, optional
                 If specified, it must be a tuple or list which contains a
                 permutation of [0,1,...,N-1] where N is the number of axes of
                 `a`. The `i`'th axis of the returned array will correspond to the
@@ -472,15 +472,15 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            int_bits : int, optional
+            int_bits : :class:`int`, optional
                 Number of integer bits in the result.
-            frac_bits : int, optional
+            frac_bits : :class:`int`, optional
                 Number of fractional bits in the result.
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use in this cast.
             overflow : :class:`OverflowMode`, optional
                 Overflowing mode to use in this cast.
-            bits : int, optional
+            bits : :class:`int`, optional
                 Total number of bits in the result.
 
             Returns
@@ -498,7 +498,7 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            shape : tuple or int
+            shape : :class:`tuple` of :class:`int` or :class:`int`
                 The shape to broadcast to. A single integer ``i`` is interpreted as
                 ``(i,)``.
 
@@ -557,7 +557,7 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            axis : tuple or int, optional
+            axis : :class:`tuple` of :class:`int` or :class:`int`, optional
                 The axes to squeeze, a given axis with a size other than one will
                 result in an error. No given axes  will be remove all dimensions
                 of size one.
@@ -587,7 +587,7 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            axis : tuple or int, optional
+            axis : :class:`tuple` of :class:`int` or :class:`int`, optional
                 The axis/axes to summate across. Will summate the whole array if
                 no int or tuple is specified.
 
@@ -627,7 +627,7 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            axis : int, optional
+            axis : :class:`int`, optional
                 The axes to summate across. If not given an axis it will return the
                 cumulative sum of the flattened array.
 
@@ -677,7 +677,7 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            axis : tuple or int, optional
+            axis : :class:`tuple` of :class:`int` or :class:`int`, optional
                 The axis/axes to summate across. Will summate the whole array if
                 no int or tuple is specified.
 
@@ -704,7 +704,7 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            axis : int, optional
+            axis : :class:`int`, optional
                 The axis to summate across. If not given an axis it will return the
                 cumulative sum of the flattened array.
 
@@ -730,7 +730,7 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            axis : tuple, int, optional
+            axis : :class:`tuple`, int, optional
                 The axis/axes to calculate the product across. If not given an axis it
                 will return the product of the flattened array.
 
@@ -770,7 +770,7 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            axis : int, optional
+            axis : :class:`int`, optional
                 The axes to calculate the product across. If not given an axis it will
                 return the cumulative product of the flattened array.
 
@@ -820,7 +820,7 @@ void bind_cfixed_array(nb::module_& m)
 
                 Parameters
                 ----------
-                axis : int, optional
+                axis : :class:`int`, optional
                     The axis to calculate the product across. If not given an axis it
                     will return the product of the flattened array.
 
@@ -846,7 +846,7 @@ void bind_cfixed_array(nb::module_& m)
 
                 Parameters
                 ----------
-                axis : int, optional
+                axis : :class:`int`, optional
                     The axis to calculate the product across. If not given an axis it
                     will return the cumulative product of the flattened array.
 
@@ -886,11 +886,11 @@ void bind_cfixed_array(nb::module_& m)
             complex_sequence : sequence of float, int, or complex
                 Values to initialize from. The tensor shape will be taken from the
                 sequence shape.
-            int_bits : int, optional
+            int_bits : :class:`int`, optional
                 Number of integer bits in the created fixed-point tensor.
-            frac_bits : int, optional
+            frac_bits : :class:`int`, optional
                 Number of fractional bits in the created fixed-point tensor.
-            bits : int, optional
+            bits : :class:`int`, optional
                 Total number of bits in the created fixed-point tensor.
 
             Examples
@@ -934,11 +934,11 @@ void bind_cfixed_array(nb::module_& m)
             number_seq : sequence of numbers
                 Values to initialize from. The tensor shape will be taken from the
                 sequence shape.
-            int_bits : int, optional
+            int_bits : :class:`int`, optional
                 Number of integer bits in the created fixed-point tensor.
-            frac_bits : int, optional
+            frac_bits : :class:`int`, optional
                 Number of fractional bits in the created fixed-point tensor.
-            bits : int, optional
+            bits : :class:`int`, optional
                 Total number of bits in the created fixed-point tensor.
 
             Returns
@@ -969,11 +969,11 @@ void bind_cfixed_array(nb::module_& m)
             ndarray : ndarray
                 Values to initialize from. The tensor shape will be taken from
                 the ndarray shape.
-            int_bits : int, optional
+            int_bits : :class:`int`, optional
                 Number of integer bits in the created fixed-point tensor.
-            frac_bits : int, optional
+            frac_bits : :class:`int`, optional
                 Number of fractional bits in the created fixed-point tensor.
-            bits : int, optional
+            bits : :class:`int`, optional
                 Total number of bits in the created fixed-point tensor.
 
             Examples
@@ -1008,13 +1008,13 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            shape : tuple
+            shape : :class:`tuple`
                 Shape of the array.
-            int_bits : int, optional
+            int_bits : :class:`int`, optional
                 Number of integer bits.
-            frac_bits : int, optional
+            frac_bits : :class:`int`, optional
                 Number of fractional bits.
-            bits : int, optional
+            bits : :class:`int`, optional
                 Total number of bits.
 
             Returns
@@ -1035,13 +1035,13 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            shape : tuple
+            shape : :class:`tuple`
                 Shape of the array.
-            int_bits : int, optional
+            int_bits : :class:`int`, optional
                 Number of integer bits.
-            frac_bits : int, optional
+            frac_bits : :class:`int`, optional
                 Number of fractional bits.
-            bits : int, optional
+            bits : :class:`int`, optional
                 Total number of bits.
 
             Returns
@@ -1063,15 +1063,15 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            n : int
+            n : :class:`int`
                 Number of rows.
-            m : int, optional
+            m : :class:`int`, optional
                 Number of columns.
-            int_bits : int, optional
+            int_bits : :class:`int`, optional
                 Number of integer bits.
-            frac_bits : int, optional
+            frac_bits : :class:`int`, optional
                 Number of fractional bits.
-            bits : int, optional
+            bits : :class:`int`, optional
                 Total number of bits.
 
             Returns
@@ -1092,13 +1092,13 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            n : int
+            n : :class:`int`
                 Number of rows (and columns) in *n* x *n* output.
-            int_bits : int, optional
+            int_bits : :class:`int`, optional
                 Number of integer bits.
-            frac_bits : int, optional
+            frac_bits : :class:`int`, optional
                 Number of fractional bits.
-            bits : int, optional
+            bits : :class:`int`, optional
                 Total number of bits.
 
             Returns
@@ -1117,7 +1117,7 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            shape : tuple
+            shape : :class:`tuple`
                 Shape of the array.
             fill_value : :class:`APyCFixed`
                 Value to fill the array.

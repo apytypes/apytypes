@@ -76,11 +76,11 @@ void bind_float_array(nb::module_& m)
                 Exponents of the floats as stored, i.e., actual value + bias.
             mans : sequence of ints
                 Mantissas of the floats as stored, i.e., without a hidden one.
-            exp_bits : int
+            exp_bits : :class:`int`
                 Number of exponent bits.
-            man_bits : int
+            man_bits : :class:`int`
                 Number of mantissa bits.
-            bias : int, optional
+            bias : :class:`int`, optional
                 Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
             Returns
@@ -348,11 +348,11 @@ void bind_float_array(nb::module_& m)
             number_sequence : sequence of numbers
                 Floating point values to initialize from. The tensor shape will be taken
                 from the sequence shape.
-            exp_bits : int
+            exp_bits : :class:`int`
                 Number of exponent bits in the created floating-point tensor
-            man_bits : int
+            man_bits : :class:`int`
                 Number of mantissa bits in the created floating-point tensor
-            bias : int, optional
+            bias : :class:`int`, optional
                 Bias in the created floating-point tensor
 
             Examples
@@ -394,11 +394,11 @@ void bind_float_array(nb::module_& m)
             ----------
             ndarray : ndarray
                 Values to initialize from. The tensor shape will be taken from the ndarray shape.
-            exp_bits : int
+            exp_bits : :class:`int`
                 Number of exponent bits in the created floating-point tensor
-            man_bits : int
+            man_bits : :class:`int`
                 Number of mantissa bits in the created floating-point tensor
-            bias : int, optional
+            bias : :class:`int`, optional
                 Bias in the created floating-point tensor
 
             Examples
@@ -435,13 +435,13 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            bits : int
+            bits : :class:`int`
                 The bit-representations.
-            exp_bits : int
+            exp_bits : :class:`int`
                 Number of exponent bits in the created floating-point tensor
-            man_bits : int
+            man_bits : :class:`int`
                 Number of mantissa bits in the created floating-point tensor
-            bias : int, optional
+            bias : :class:`int`, optional
                 Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
             Examples
@@ -473,11 +473,11 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            shape : tuple
+            shape : :class:`tuple`
                 Shape of the array.
-            exp_bits : int
+            exp_bits : :class:`int`
                 Number of exponent bits.
-            man_bits : int
+            man_bits : :class:`int`
                 Number of mantissa bits.
             bias : optional
                 Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
@@ -500,11 +500,11 @@ void bind_float_array(nb::module_& m)
 
         Parameters
         ----------
-        shape : tuple
+        shape : :class:`tuple`
             Shape of the array.
-        exp_bits : int
+        exp_bits : :class:`int`
             Number of exponent bits.
-        man_bits : int
+        man_bits : :class:`int`
             Number of mantissa bits.
         bias : optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
@@ -528,13 +528,13 @@ void bind_float_array(nb::module_& m)
 
         Parameters
         ----------
-        n : int
+        n : :class:`int`
             Number of rows (and columns) in the n x n output.
-        exp_bits : int
+        exp_bits : :class:`int`
             Number of exponent bits.
-        man_bits : int
+        man_bits : :class:`int`
             Number of mantissa bits.
-        m : int, optional
+        m : :class:`int`, optional
             Number of columns. Default is None, which results in an n x n output.
         bias : optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
@@ -557,11 +557,11 @@ void bind_float_array(nb::module_& m)
 
         Parameters
         ----------
-        n : int
+        n : :class:`int`
             Number of rows (and columns) in the n x n output.
-        exp_bits : int
+        exp_bits : :class:`int`
             Number of exponent bits.
-        man_bits : int
+        man_bits : :class:`int`
             Number of mantissa bits.
         bias : optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
@@ -582,7 +582,7 @@ void bind_float_array(nb::module_& m)
 
         Parameters
         ----------
-        shape : tuple
+        shape : :class:`tuple`
             Shape of the array.
         fill_value : APyFloat
             Value to fill the array.
@@ -613,17 +613,17 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            start : int, float, :class:`APyFloat`, :class:`APyFixed`
+            start : :class:`int`, :class:`float`, :class:`APyFloat`, :class:`APyFixed`
                 Start number.
-            stop : int, float, :class:`APyFloat`, :class:`APyFixed`
+            stop : :class:`int`, :class:`float`, :class:`APyFloat`, :class:`APyFixed`
                 Stop number.
-            step : int, float, :class:`APyFloat`, :class:`APyFixed`
+            step : :class:`int`, :class:`float`, :class:`APyFloat`, :class:`APyFixed`
                 Step size in range.
-            exp_bits : int
+            exp_bits : :class:`int`
                     Number of exponent bits.
-            man_bits : int
+            man_bits : :class:`int`
                 Number of mantissa bits.
-            bias : int, optional
+            bias : :class:`int`, optional
                 Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
             Returns
@@ -661,9 +661,9 @@ void bind_float_array(nb::module_& m)
 
           Parameters
           ----------
-          axis1 : int
+          axis1 : :class:`int`
               First axis.
-          axis2 : int
+          axis2 : :class:`int`
               Second axis.
 
           Examples
@@ -712,7 +712,7 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            axes : tuple of ints, optional
+            axes : :class:`tuple` of :class:`int`, optional
                 If specified, it must be a tuple or list which contains a permutation
                 of [0,1,...,N-1] where N is the number of axes of `a`. The `i`'th axis
                 of the returned array will correspond to the axis numbered ``axes[i]``
@@ -756,7 +756,7 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            shape : tuple or int
+            shape : :class:`tuple` of :class:`int` or :class:`int`
                 The shape to broadcast to. A single integer ``i`` is interpreted as ``(i,)``.
 
             Returns
@@ -811,7 +811,7 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            axis : tuple or int, optional
+            axis : :class:`tuple` of :class:`int` or :class:`int`, optional
                 The axis/axes to squeeze, a given axis with a size other than one will result in an error. No given axes  will be remove all dimensions of size 1.
 
             Returns
@@ -837,7 +837,7 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            axis : tuple or int, optional
+            axis : :class:`tuple` of :class:`int` or :class:`int`, optional
                 The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
 
             Returns
@@ -876,7 +876,7 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            axis : int, optional
+            axis : :class:`int`, optional
                 The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.
 
             Returns
@@ -921,7 +921,7 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            axis : tuple or int, optional
+            axis : :class:`tuple` of :class:`int` or :class:`int`, optional
                 The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
 
             Returns
@@ -964,7 +964,7 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            axis : int, optional
+            axis : :class:`int`, optional
                 The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.
 
             Returns
@@ -1013,7 +1013,7 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            axis : tuple, int, optional
+            axis : :class:`tuple`, int, optional
                 The axis/axes to calculate the product across. If not given an axis it will return the product of the flattened array.
 
             Returns
@@ -1052,7 +1052,7 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            axis : int, optional
+            axis : :class:`int`, optional
                 The axes to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.
 
             Returns
@@ -1098,7 +1098,7 @@ void bind_float_array(nb::module_& m)
 
                 Parameters
                 ----------
-                axis : int, optional
+                axis : :class:`int`, optional
                     The axis to calculate the product across. If not given an axis it will return the product of the flattened array.
 
                 Returns
@@ -1121,7 +1121,7 @@ void bind_float_array(nb::module_& m)
 
                 Parameters
                 ----------
-                axis : int, optional
+                axis : :class:`int`, optional
                     The axis to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.
 
                 Returns
@@ -1145,7 +1145,7 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            axis : tuple or int, optional
+            axis : :class:`tuple` of :class:`int` or :class:`int`, optional
                 The axis to get the maximum along.
 
             Returns
@@ -1193,7 +1193,7 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            axis : tuple or int, optional
+            axis : :class:`tuple` of :class:`int` or :class:`int`, optional
                 The axis to get the minimum along.
 
             Returns
@@ -1242,7 +1242,7 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            axis : tuple or int, optional
+            axis : :class:`tuple` of :class:`int` or :class:`int`, optional
                 The axis to get the maximum along.
 
             Returns
@@ -1268,7 +1268,7 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            axis : tuple or int, optional
+            axis : :class:`tuple` of :class:`int` or :class:`int`, optional
                 The axis to get the minimum along.
 
             Returns
@@ -1312,11 +1312,11 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            exp_bits : int, optional
+            exp_bits : :class:`int`, optional
                 Number of exponent bits in the result.
-            man_bits : int, optional
+            man_bits : :class:`int`, optional
                 Number of mantissa bits in the result.
-            bias : int, optional
+            bias : :class:`int`, optional
                 Bias used in the result.
             quantization : :class:`QuantizationMode`, optional.
                 Quantization mode to use in this cast. If None, use the global

@@ -31,15 +31,15 @@ def fx(
 
     Parameters
     ----------
-    val : int, float, list(int), list(float)
+    val : :class:`int`, :class:`float`, list(int), list(float)
         Floating point value(s) to initialize from.
-    int_bits : int, optional
+    int_bits : :class:`int`, optional
         Number of integer bits in the created fixed-point object.
-    frac_bits : int, optional
+    frac_bits : :class:`int`, optional
         Number of fractional bits in the created fixed-point object.
-    bits : int, optional
+    bits : :class:`int`, optional
         Total number of bits in the created fixed-point object.
-    force_complex : bool, default: False
+    force_complex : :class:`bool`, default: False
         If True, force the return value to be :class:`APyCFixed` even if *value* is real.
 
     Returns
@@ -78,13 +78,13 @@ def fp(
 
     Parameters
     ----------
-    value : int, float, list(int), list(float)
+    value : :class:`int`, :class:`float`, list(int), list(float)
         Floating point value(s) to initialize from.
-    exp_bits : int
+    exp_bits : :class:`int`
         Number of exponent bits.
-    man_bits : int
+    man_bits : :class:`int`
         Number of mantissa bits.
-    bias : int, optional
+    bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
     Returns

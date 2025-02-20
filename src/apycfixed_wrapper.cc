@@ -278,15 +278,15 @@ void bind_cfixed(nb::module_& m)
 
             Parameters
             ----------
-            int_bits : int, optional
+            int_bits : :class:`int`, optional
                 Number of integer bits in the result.
-            frac_bits : int, optional
+            frac_bits : :class:`int`, optional
                 Number of fractional bits in the result.
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use in this cast.
             overflow : :class:`OverflowMode`, optional
                 Overflowing mode to use in this cast.
-            bits : int, optional
+            bits : :class:`int`, optional
                 Total number of bits in the result.
 
             Examples
@@ -354,13 +354,13 @@ void bind_cfixed(nb::module_& m)
 
             Parameters
             ----------
-            value : int, float, complex
+            value : :class:`int`, :class:`float`, :class:`complex`
                 Value to initialize from
-            int_bits : int, optional
+            int_bits : :class:`int`, optional
                 Number of integer bits in the created fixed-point object
-            frac_bits : int, optional
+            frac_bits : :class:`int`, optional
                 Number of fractional bits in the created fixed-point object
-            bits : int, optional
+            bits : :class:`int`, optional
                 Total number of bits in the created fixed-point object
 
             Examples
@@ -397,13 +397,13 @@ void bind_cfixed(nb::module_& m)
 
             Parameters
             ----------
-            value : int, float, complex
+            value : :class:`int`, :class:`float`, :class:`complex`
                 Value to initialize from
-            int_bits : int, optional
+            int_bits : :class:`int`, optional
                 Number of integer bits in the created fixed-point object
-            frac_bits : int, optional
+            frac_bits : :class:`int`, optional
                 Number of fractional bits in the created fixed-point object
-            bits : int, optional
+            bits : :class:`int`, optional
                 Total number of bits in the created fixed-point object
 
             Returns

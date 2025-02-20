@@ -216,15 +216,15 @@ void bind_fixed(nb::module_& m)
 
             Parameters
             ----------
-            int_bits : int, optional
+            int_bits : :class:`int`, optional
                 Number of integer bits in the result.
-            frac_bits : int, optional
+            frac_bits : :class:`int`, optional
                 Number of fractional bits in the result.
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use in this cast.
             overflow : :class:`OverflowMode`, optional
                 Overflowing mode to use in this cast.
-            bits : int, optional
+            bits : :class:`int`, optional
                 Total number of bits in the result.
 
             Examples
@@ -341,13 +341,13 @@ void bind_fixed(nb::module_& m)
 
             Parameters
             ----------
-            value : int, float
+            value : :class:`int`, :class:`float`
                 Floating point value to initialize from
-            int_bits : int, optional
+            int_bits : :class:`int`, optional
                 Number of integer bits in the created fixed-point object
-            frac_bits : int, optional
+            frac_bits : :class:`int`, optional
                 Number of fractional bits in the created fixed-point object
-            bits : int, optional
+            bits : :class:`int`, optional
                 Total number of bits in the created fixed-point object
 
             Examples
@@ -386,13 +386,13 @@ void bind_fixed(nb::module_& m)
             ----------
             string_value : str
                 String to initialize the value from
-            int_bits : int, optional
+            int_bits : :class:`int`, optional
                 Number of integer bits in the created fixed-point object
-            frac_bits : int, optional
+            frac_bits : :class:`int`, optional
                 Number of fractional bits in the created fixed-point object
-            base : int, default: 10
+            base : :class:`int`, default: 10
                 Numeric base used in `string_value`
-            bits : int, optional
+            bits : :class:`int`, optional
                 Total number of bits in the created fixed-point object
 
             Examples

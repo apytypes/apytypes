@@ -27,13 +27,13 @@ def generate_rom(
         VHDL entity name.
     address : APyFixedArray, APyFloatArray, optional
         Addresses for the ROM. If not provided, sequential addressing from 0 is assumed.
-    frac_bits : int, optional
+    frac_bits : :class:`int`, optional
         If *ieee2008* is True and *address* is not provided, use this many fractional bits for address.
-    ieee2008 : bool, default: False
+    ieee2008 : :class:`bool`, default: False
         Use ``ieee.fixed_pkg`` and/or ``ieee.float_pkg`` for the resulting ROM.
-    input_register : bool, default: False
+    input_register : :class:`bool`, default: False
         If ``True``, a register is added at the input of the ROM.
-    output_register : bool, default: False
+    output_register : :class:`bool`, default: False
         If ``True``, a register is added at the output of the ROM.
     file : file handle, optional
         File handle to write the file to. If not provided, a file ``entity.vhdl`` is used.
