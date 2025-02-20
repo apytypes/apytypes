@@ -312,10 +312,10 @@ and imaginary part share bit specifiers, and the overall number of bits in an
 <a class="reference internal" href="#apytypes.APyCFixed" title="apytypes.APyCFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixed</span></code></a> is <code class="code docutils literal notranslate"><span class="pre">2</span> <span class="pre">*</span> <span class="pre">bits</span></code>. Only two of three bit specifers need to be set
 to uniquely determine the complete fixed-point format.</p>
 <p>For real-valued fixed-point formats, see <a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a>.</p>
-<div class="table-wrapper colwidths-given docutils container" id="id3">
-<table class="docutils align-default" id="id3">
+<div class="table-wrapper colwidths-given docutils container" id="id1">
+<table class="docutils align-default" id="id1">
 <caption><span class="caption-text">Word-length of fixed-point arithmetic operations using
-             <a class="reference internal" href="#apytypes.APyCFixed" title="apytypes.APyCFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></span><a class="headerlink" href="#id3" title="Link to this table">¶</a></caption>
+             <a class="reference internal" href="#apytypes.APyCFixed" title="apytypes.APyCFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></span><a class="headerlink" href="#id1" title="Link to this table">¶</a></caption>
 <colgroup>
 <col style="width: 12.0%" />
 <col style="width: 44.0%" />
@@ -544,13 +544,13 @@ needs to be set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><a href="#id1"><span class="problematic" id="id2">:tuple:`tuple`</span></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
+<dt><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></dt><dd></dd>
 </dl>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
 <p>Create complex-valued fixed-point number <cite>fx_a</cite> of value -5.75 + 2j and
-show it’s bit pattern (real, imag)</p>
+show its bit pattern (real, imag)</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyCFixed</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span> <span class="o">=</span> <span class="n">APyCFixed</span><span class="o">.</span><span class="n">from_complex</span><span class="p">(</span><span class="o">-</span><span class="mf">5.75</span> <span class="o">+</span> <span class="mi">2</span><span class="n">j</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
