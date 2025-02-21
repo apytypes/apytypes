@@ -1697,10 +1697,8 @@ class APyFixed:
 
         Rounding (2.25)
 
-        >>> fx.cast(
-        ...     int_bits=3, frac_bits=2, quantization=QuantizationMode.RND
-        ... )  # doctest: +SKIP
-        APyFixed(8, bits=5, int_bits=3)
+        >>> fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.RND)
+        APyFixed(9, bits=5, int_bits=3)
 
         Two's complement overflowing (-1.875)
 
