@@ -100,6 +100,7 @@ apy_limb_t apy_left_shift(
     apy_limb_t high_limb = (low_limb << shift_amount);
     std::size_t n = limbs;
 
+    // TODO: Rewrite as for-loop?
     while (--n != 0) {
         low_limb = *--src;
         *--dest = high_limb | (low_limb >> overlap);
@@ -140,51 +141,6 @@ apy_limb_t apy_rshift(
 */
 
 // Multiplication
-apy_limb_t apy_multiplication_with_single_limb(
-    apy_limb_t* dest,
-    const apy_limb_t* src0,
-    const std::size_t limbs,
-    const apy_limb_t src1
-)
-{
-    assert(limbs > 0);
-
-    apy_limb_t carry = 0;
-    for (std::size_t i = 0; i < limbs; i++) {
-        auto [prod_high, prod_low] = long_mult(src0[i], src1);
-
-        prod_low += carry;
-        carry = (prod_low < carry) + prod_high;
-
-        dest[i] = prod_low;
-    }
-
-    return carry;
-}
-
-apy_limb_t apy_addmul_single_limb(
-    apy_limb_t* dest,
-    const apy_limb_t* src0,
-    const std::size_t limbs,
-    const apy_limb_t src1
-)
-{
-    assert(limbs > 0);
-
-    apy_limb_t carry = 0;
-    for (std::size_t i = 0; i < limbs; i++) {
-        auto [prod_high, prod_low] = long_mult(src0[i], src1);
-
-        prod_low += carry;
-        carry = (prod_low < carry) + prod_high;
-
-        prod_low += dest[i];
-        carry += prod_low < dest[i];
-        dest[i] = prod_low;
-    }
-
-    return carry;
-}
 
 apy_limb_t apy_submul_single_limb(
     apy_limb_t* dest, const apy_limb_t* src0, std::size_t limbs, apy_limb_t src1
@@ -199,9 +155,8 @@ apy_limb_t apy_submul_single_limb(
         prod_low += carry;
         carry = (prod_low < carry) + prod_high;
 
-        apy_limb_t tmp_dest = dest[i];
-        prod_low = tmp_dest - prod_low;
-        carry += prod_low > tmp_dest;
+        prod_low = dest[i] - prod_low;
+        carry += prod_low > dest[i];
         dest[i] = prod_low;
     }
 
@@ -220,14 +175,34 @@ apy_limb_t apy_unsigned_multiplication(
     assert(src1_limbs > 0);
 
     // Multiply src0 with the least significant limb of src1
-    dest[src0_limbs]
-        = apy_multiplication_with_single_limb(dest, src0, src0_limbs, src1[0]);
+    apy_limb_t carry = 0;
+    for (std::size_t i = 0; i < src0_limbs; i++) {
+        auto [prod_high, prod_low] = long_mult(src0[i], src1[0]);
+
+        prod_low += carry;
+        carry = (prod_low < carry) + prod_high;
+
+        dest[i] = prod_low;
+    }
+
+    dest[src0_limbs] = carry;
 
     // Multiply src0 with the remaining limbs of src1, adding the previous partial
     // results
     for (std::size_t i = 1; i < src1_limbs; i++) {
-        dest[src0_limbs + i]
-            = apy_addmul_single_limb(&dest[i], src0, src0_limbs, src1[i]);
+        carry = 0;
+        for (std::size_t j = 0; j < src0_limbs; j++) {
+            auto [prod_high, prod_low] = long_mult(src0[j], src1[i]);
+
+            prod_low += carry;
+            carry = (prod_low < carry) + prod_high;
+
+            prod_low += dest[i + j];
+            carry += prod_low < dest[i + j];
+            dest[i + j] = prod_low;
+        }
+
+        dest[src0_limbs + i] = carry;
     }
     return dest[src0_limbs + src1_limbs - 1];
 }
@@ -245,40 +220,6 @@ inline apy_limb_t apy_limb_multiplication(apy_limb_t src0, apy_limb_t src1)
         "platform and we will be happy to add support for it."
     );
     return src0 * src1;
-}
-
-inline void apy_inplace_two_limb_addition(
-    apy_limb_t* dest_high, apy_limb_t* dest_low, apy_limb_t src_high, apy_limb_t src_low
-)
-{
-    apy_limb_t tmp_low = *dest_low + src_low;
-    *dest_high += src_high + (tmp_low < *dest_low);
-    *dest_low = tmp_low;
-}
-
-inline void apy_inplace_two_limb_subtraction(
-    apy_limb_t* dest_high, apy_limb_t* dest_low, apy_limb_t src_high, apy_limb_t src_low
-)
-{
-    apy_limb_t tmp_low = *dest_low - src_low;
-    *dest_high -= (src_high + (*dest_low < src_low));
-    *dest_low = tmp_low;
-}
-
-inline void apy_partial_inplace_two_limb_subtraction(
-    apy_limb_t* dest_high,
-    apy_limb_t* dest_low,
-    apy_limb_t partial_low,
-    apy_limb_t src_high,
-    apy_limb_t src_low
-)
-{
-    // Although *dest_low can be assigned here directly without using a temporary
-    // variable, compilers seems to prefer this version. For gcc x86-64, one less
-    // instruction is used.
-    apy_limb_t tmp_low = partial_low - src_low;
-    *dest_high -= (src_high + (partial_low < src_low));
-    *dest_low = tmp_low;
 }
 
 /* The 3/2 inverse is defined as
@@ -352,7 +293,7 @@ apy_limb_t APyDivInverse::compute_3by2_inverse(apy_limb_t u1, apy_limb_t u0)
 
     /* By the 3/2 trick, we don't need the high half limb. */
     remainder = (remainder << APY_HALF_LIMB_SIZE_BITS) + APY_LOWER_LIMB_MASK
-        - quotient_low * u1;
+        - apy_limb_multiplication(quotient_low, u1);
 
     if (remainder >= (APY_NUMBER_MASK & (p << APY_HALF_LIMB_SIZE_BITS))) {
         quotient_low--;
@@ -448,15 +389,17 @@ apy_limb_t apy_division_single_limb_preinverted(
 
     for (apy_size_t limbs = numerator_limbs - 1; limbs >= 0; limbs--) {
         auto [quotient_high, quotient_low] = long_mult(remainder, inv->inverse);
-        apy_inplace_two_limb_addition(
-            &quotient_high, &quotient_low, remainder + 1, numerator[limbs]
-        );
+        /* Computes [quotient_high, quotient_low] += [remainder + 1, numerator[limbs] */
+        apy_limb_t tmp_low = quotient_low + numerator[limbs];
+        quotient_high += remainder + 1 + (tmp_low < quotient_low);
+        quotient_low = tmp_low;
+
         remainder = numerator[limbs]
             - apy_limb_multiplication(quotient_high, inv->norm_denominator_1);
-        apy_limb_t _mask
+        apy_limb_t mask
             = -(apy_limb_t)(remainder > quotient_low); /* both > and >= are OK */
-        quotient_high += _mask;
-        remainder += _mask & inv->norm_denominator_1;
+        quotient_high += mask;
+        remainder += mask & inv->norm_denominator_1;
         if (remainder >= inv->norm_denominator_1) {
             remainder -= inv->norm_denominator_1;
             quotient_high++;
@@ -468,55 +411,60 @@ apy_limb_t apy_division_single_limb_preinverted(
     return remainder >> inv->norm_shift;
 }
 
-void apy_division_3by2(
-    apy_limb_t* quotient_tmp,
-    apy_limb_t* numerator_1,
-    apy_limb_t* numerator_0,
+inline apy_limb_t apy_division_3by2(
+    apy_limb_t* remainder_1,
+    apy_limb_t* remainder_0,
     apy_limb_t numerator_tmp,
     const APyDivInverse* inv
 )
 {
-    auto [quotient_high, quotient_low] = long_mult(*numerator_1, inv->inverse);
-    *quotient_tmp = quotient_high;
-    apy_inplace_two_limb_addition(
-        quotient_tmp, &quotient_low, *numerator_1, *numerator_0
-    );
+    auto [quotient_high, quotient_low] = long_mult(*remainder_1, inv->inverse);
+    /* Computes [quotient_high, quotient_low] += [remainder_1, remainder_0] */
+    apy_limb_t tmp_low = quotient_low + *remainder_0;
+    quotient_high += *remainder_1 + (tmp_low < quotient_low);
+    quotient_low = tmp_low;
 
-    /* Compute the two most significant limbs of limbs - quotient_tmp'd */
-    *numerator_1 = *numerator_0
-        - apy_limb_multiplication((inv->norm_denominator_1), *quotient_tmp);
-    apy_partial_inplace_two_limb_subtraction(
-        numerator_1,
-        numerator_0,
-        numerator_tmp,
-        inv->norm_denominator_1,
-        inv->norm_denominator_0
-    );
-    auto [t_high, t_low] = long_mult(inv->norm_denominator_0, *quotient_tmp);
-    apy_inplace_two_limb_subtraction(numerator_1, numerator_0, t_high, t_low);
-    (*quotient_tmp)++;
+    /* Compute the two most significant limbs of limbs - quotient_high'd */
+    *remainder_1 = *remainder_0
+        - apy_limb_multiplication((inv->norm_denominator_1), quotient_high);
+
+    /* Compute [remainder_1, remainder_0] = [remainder_1, numerator_tmp] -
+     * [inv->norm_denominator_1, inv->norm_denominator_0] */
+    *remainder_0 = numerator_tmp - inv->norm_denominator_0;
+    *remainder_1 -= inv->norm_denominator_1 + (numerator_tmp < inv->norm_denominator_0);
+
+    auto [t_high, t_low] = long_mult(inv->norm_denominator_0, quotient_high);
+
+    /* Compute [remainder_1, remainder_0] -= [t_high, t_low] */
+    apy_limb_t carry = (apy_limb_t)(*remainder_0 < t_low);
+    *remainder_0 -= t_low;
+    *remainder_1 -= t_high + carry;
+
+    (quotient_high)++;
 
     /* Conditionally adjust quotient_tmp and the remainders */
-    apy_limb_t _mask = -(apy_limb_t)(*numerator_1 >= quotient_low);
-    *quotient_tmp += _mask;
-    apy_inplace_two_limb_addition(
-        numerator_1,
-        numerator_0,
-        _mask & (inv->norm_denominator_1),
-        _mask & (inv->norm_denominator_0)
-    );
-    if (*numerator_1 >= inv->norm_denominator_1) {
-        if (*numerator_1 > inv->norm_denominator_1
-            || *numerator_0 >= inv->norm_denominator_0) {
-            (*quotient_tmp)++;
-            apy_inplace_two_limb_subtraction(
-                numerator_1,
-                numerator_0,
-                (inv->norm_denominator_1),
-                (inv->norm_denominator_0)
-            );
+    apy_limb_t mask = -(apy_limb_t)(*remainder_1 >= quotient_low);
+    quotient_high += mask;
+
+    /* Compute [remainder_1, remainder_0] -= [inv->norm_denominator_1,
+     * inv->norm_denominator_0], if mask */
+    tmp_low = *remainder_0 + (mask & inv->norm_denominator_0);
+    *remainder_1 += (mask & inv->norm_denominator_1) + (tmp_low < *remainder_0);
+    *remainder_0 = tmp_low;
+
+    if (*remainder_1 >= inv->norm_denominator_1) {
+        if (*remainder_1 > inv->norm_denominator_1
+            || *remainder_0 >= inv->norm_denominator_0) {
+            /* Compute [remainder_1, remainder_0] -= [inv->norm_denominator_1,
+             * inv->norm_denominator_0] */
+            apy_limb_t carry = (apy_limb_t)(*remainder_0 < inv->norm_denominator_0);
+            *remainder_0 -= inv->norm_denominator_0;
+            *remainder_1 -= inv->norm_denominator_1 + carry;
+
+            (quotient_high)++;
         }
     }
+    return quotient_high;
 }
 
 void apy_division_double_limbs_preinverted(
@@ -537,10 +485,7 @@ void apy_division_double_limbs_preinverted(
     apy_limb_t numerator_0 = numerator[numerator_limbs - 1];
 
     for (apy_size_t i = numerator_limbs - 2; i >= 0; i--) {
-        apy_limb_t quotient_tmp;
-        apy_division_3by2(&quotient_tmp, &numerator_1, &numerator_0, numerator[i], inv);
-
-        quotient[i] = quotient_tmp;
+        quotient[i] = apy_division_3by2(&numerator_1, &numerator_0, numerator[i], inv);
     };
 
     if (inv->norm_shift > 0) {
@@ -599,12 +544,8 @@ void apy_division_multiple_limbs_preinverted(
                 = numerator[denominator_limbs - 1 + i]; /* update numerator_1, last
                                                   loop's value will now be invalid */
         } else {
-            apy_division_3by2(
-                &quotient_tmp,
-                &numerator_1,
-                &numerator_0,
-                numerator[denominator_limbs - 2 + i],
-                inv
+            quotient_tmp = apy_division_3by2(
+                &numerator_1, &numerator_0, numerator[denominator_limbs - 2 + i], inv
             );
 
             apy_limb_t carry = apy_submul_single_limb(
