@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `APyFloatArray.convolve` now supports accumulator contexts.
 - VHDL code generation for ROMs.
 - It is possible to perform arithmetic with Numpy arrays, automatically converting
-  the Numpy array to an APyArray.
+  the Numpy array to an APyArray of the same size and type as the APyArray argument.
 - `from_float` now accepts APyTypes scalars.
 - Wheels for Python 3.13.
 
