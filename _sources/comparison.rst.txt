@@ -116,7 +116,7 @@ Comparison matrix
 .. rubric:: Footnotes
 
 .. [#binaryfootnote] This means that it is possible to get a binary representation for comparison with, e.g., a hardware implementation.
-.. [#apytypesfootnote] This is a design choice since ``apytypes``  is aimed at simulating shorter custom formats. However, there are unlimited word length support for fixed-point values which can be used for floating-point as well.
+.. [#apytypesfootnote] This is a design choice since ``apytypes``  is aimed at simulating shorter custom formats. However, there is unlimited word length support for fixed-point values which can, if deemed suitable at a later time, be used for floating-point as well.
 
 
 Performance Comparison
