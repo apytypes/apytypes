@@ -149,6 +149,7 @@ apy_limb_t apy_submul_single_limb(
     assert(limbs > 0);
 
     apy_limb_t carry = 0;
+    // TODO: Rewrite to use __int128 on supported architectures
     for (std::size_t i = 0; i < limbs; i++) {
         auto [prod_high, prod_low] = long_mult(src0[i], src1);
 
@@ -176,6 +177,7 @@ apy_limb_t apy_unsigned_multiplication(
 
     // Multiply src0 with the least significant limb of src1
     apy_limb_t carry = 0;
+    // TODO: Rewrite to use __int128 on supported architectures
     for (std::size_t i = 0; i < src0_limbs; i++) {
         auto [prod_high, prod_low] = long_mult(src0[i], src1[0]);
 
@@ -191,6 +193,7 @@ apy_limb_t apy_unsigned_multiplication(
     // results
     for (std::size_t i = 1; i < src1_limbs; i++) {
         carry = 0;
+        // TODO: Rewrite to use __int128 on supported architectures
         for (std::size_t j = 0; j < src0_limbs; j++) {
             auto [prod_high, prod_low] = long_mult(src0[j], src1[i]);
 
@@ -336,10 +339,9 @@ APyDivInverse::APyDivInverse(
 {
     assert(denominator_limbs > 0);
     if (denominator_limbs == 1) {
-        norm_denominator_1 = denominator[0];
-        assert(norm_denominator_1 > 0);
-        norm_shift = leading_zeros(norm_denominator_1);
-        norm_denominator_1 <<= norm_shift;
+        assert(denominator[0] > 0);
+        norm_shift = leading_zeros(denominator[0]);
+        norm_denominator_1 = denominator[0] << norm_shift;
         norm_denominator_0 = 0;
     } else if (denominator_limbs == 2) {
         norm_denominator_1 = denominator[1];
@@ -378,6 +380,7 @@ apy_limb_t apy_division_single_limb_preinverted(
 
     apy_limb_t remainder;
 
+    // Normalize numerator
     if (inv->norm_shift > 0) {
         /* Shift, reusing quotient area. */
         remainder
@@ -389,7 +392,7 @@ apy_limb_t apy_division_single_limb_preinverted(
 
     for (apy_size_t limbs = numerator_limbs - 1; limbs >= 0; limbs--) {
         auto [quotient_high, quotient_low] = long_mult(remainder, inv->inverse);
-        /* Computes [quotient_high, quotient_low] += [remainder + 1, numerator[limbs] */
+        /* Compute [quotient_high, quotient_low] += [remainder + 1, numerator[limbs] */
         apy_limb_t tmp_low = quotient_low + numerator[limbs];
         quotient_high += remainder + 1 + (tmp_low < quotient_low);
         quotient_low = tmp_low;
@@ -408,18 +411,19 @@ apy_limb_t apy_division_single_limb_preinverted(
         quotient[limbs] = quotient_high;
     }
 
+    // Denormalize numerator back and return
     return remainder >> inv->norm_shift;
 }
 
-inline apy_limb_t apy_division_3by2(
+apy_limb_t apy_division_3by2(
     apy_limb_t* remainder_1,
     apy_limb_t* remainder_0,
-    apy_limb_t numerator_tmp,
+    const apy_limb_t numerator_tmp,
     const APyDivInverse* inv
 )
 {
     auto [quotient_high, quotient_low] = long_mult(*remainder_1, inv->inverse);
-    /* Computes [quotient_high, quotient_low] += [remainder_1, remainder_0] */
+    /* Compute [quotient_high, quotient_low] += [remainder_1, remainder_0] */
     apy_limb_t tmp_low = quotient_low + *remainder_0;
     quotient_high += *remainder_1 + (tmp_low < quotient_low);
     quotient_low = tmp_low;
@@ -455,6 +459,8 @@ inline apy_limb_t apy_division_3by2(
     if (*remainder_1 >= inv->norm_denominator_1) {
         if (*remainder_1 > inv->norm_denominator_1
             || *remainder_0 >= inv->norm_denominator_0) {
+            // TODO: This can be rewritten to avoid carry if we know *remainder_0 >=
+            // inv->norm_denominator_0 But better to get code coverage first...
             /* Compute [remainder_1, remainder_0] -= [inv->norm_denominator_1,
              * inv->norm_denominator_0] */
             apy_limb_t carry = (apy_limb_t)(*remainder_0 < inv->norm_denominator_0);
@@ -477,17 +483,18 @@ void apy_division_double_limbs_preinverted(
     assert(numerator_limbs >= 2);
     assert(quotient != NULL);
 
+    // Normalize numerator
     apy_limb_t numerator_1
         = (inv->norm_shift > 0
                ? apy_inplace_left_shift(numerator, numerator_limbs, inv->norm_shift)
                : 0);
-
     apy_limb_t numerator_0 = numerator[numerator_limbs - 1];
 
     for (apy_size_t i = numerator_limbs - 2; i >= 0; i--) {
         quotient[i] = apy_division_3by2(&numerator_1, &numerator_0, numerator[i], inv);
     };
 
+    // Denormalize numerator back
     if (inv->norm_shift > 0) {
         assert(
             (numerator_0 & (APY_NUMBER_MASK >> (APY_LIMB_SIZE_BITS - inv->norm_shift)))
@@ -538,7 +545,7 @@ void apy_division_multiple_limbs_preinverted(
             && numerator_0 == inv->norm_denominator_0) {
             quotient_tmp = APY_NUMBER_MASK;
             apy_submul_single_limb(
-                numerator + i, denominator, denominator_limbs, quotient_tmp
+                &numerator[i], denominator, denominator_limbs, quotient_tmp
             );
             numerator_1
                 = numerator[denominator_limbs - 1 + i]; /* update numerator_1, last
@@ -549,7 +556,7 @@ void apy_division_multiple_limbs_preinverted(
             );
 
             apy_limb_t carry = apy_submul_single_limb(
-                numerator + i, denominator, denominator_limbs - 2, quotient_tmp
+                &numerator[i], denominator, denominator_limbs - 2, quotient_tmp
             );
 
             apy_limb_t carry1 = numerator_0 < carry;
@@ -561,7 +568,7 @@ void apy_division_multiple_limbs_preinverted(
             if (carry != 0) {
                 numerator_1 += inv->norm_denominator_1
                     + apy_inplace_addition_same_length(
-                                   numerator + i,
+                                   &numerator[i],
                                    denominator,
                                    (std::size_t)(denominator_limbs - 1)
                     );
