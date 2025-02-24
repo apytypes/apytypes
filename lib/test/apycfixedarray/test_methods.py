@@ -74,3 +74,14 @@ def test_real_imag():
     assert array.imag.is_identical(
         APyFixedArray.from_float(imag_values, int_bits=128, frac_bits=128)
     )
+
+
+def test_copy():
+    a = APyCFixedArray([(3, 1), (0, 3)], 4, 5)
+    b = a
+    assert a.is_identical(b)
+    c = a.copy()
+    assert a.is_identical(c)
+    a[0] = APyCFixed((2, 1), 4, 5)
+    assert a.is_identical(b)
+    assert not a.is_identical(c)

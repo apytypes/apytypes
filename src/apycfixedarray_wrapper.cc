@@ -82,6 +82,21 @@ void bind_cfixed_array(nb::module_& m)
         )
 
         /*
+         * Copy
+         */
+        .def(
+            "copy",
+            &APyCFixedArray::python_copy,
+            R"pbdoc(
+            Create a copy of the object.
+
+            .. versionadded:: 0.3
+            )pbdoc"
+        )
+        .def("__copy__", &APyCFixedArray::python_copy)
+        .def("__deepcopy__", &APyCFixedArray::python_copy)
+
+        /*
          * Arithmetic operations
          */
         .def(nb::self + nb::self)

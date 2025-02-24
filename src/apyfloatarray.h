@@ -224,6 +224,9 @@ public:
      * *                          Public member functions                           * *
      * ****************************************************************************** */
 
+    //! Copy array
+    APyFloatArray python_copy() const { return *this; }
+
     //! Perform a linear convolution with `other` using `mode`
     APyFloatArray convolve(const APyFloatArray& other, const std::string& mode) const;
 
