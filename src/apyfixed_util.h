@@ -1651,12 +1651,27 @@ static APY_INLINE std::function<
     void(typename VECTOR_TYPE::iterator, typename VECTOR_TYPE::const_iterator)>
 fold_accumulate(std::size_t src_limbs, std::size_t acc_limbs)
 {
-    if (acc_limbs <= 1) {
+    assert(src_limbs >= 1 && acc_limbs >= 1 && acc_limbs >= src_limbs);
+    if (acc_limbs == 1) {
         /* single limb specialization */
         return [](auto acc_it, auto src_it) { *acc_it += *src_it; };
-    } else {
+    } else if (src_limbs == acc_limbs) {
+        return [src_limbs, acc_limbs](auto acc_it, auto src_it) {
+            apy_inplace_addition_same_length(&acc_it[0], &src_it[0], src_limbs);
+        };
+    } else { /* acc_limbs > src_limbs */
         return [src_limbs, acc_limbs](auto acc_it, auto src_it) {
             apy_inplace_addition(&acc_it[0], acc_limbs, &src_it[0], src_limbs);
+            if (limb_vector_is_negative(src_it, src_it + src_limbs)) {
+                apy_limb_t carry = 0;
+                for (std::size_t i = 0; i < acc_limbs - src_limbs; i++) {
+                    apy_limb_t tmp_res = *(acc_it + src_limbs + i) + carry;
+                    carry = (tmp_res < carry);
+                    tmp_res += apy_limb_t(-1);
+                    carry += (tmp_res < apy_limb_t(-1));
+                    *(acc_it + src_limbs + i) = tmp_res;
+                }
+            }
         };
     }
 }
@@ -1696,18 +1711,49 @@ static APY_INLINE std::function<
     void(typename VECTOR_TYPE::iterator, typename VECTOR_TYPE::const_iterator)>
 fold_complex_accumulate(std::size_t src_limbs, std::size_t acc_limbs)
 {
-    if (acc_limbs <= 1) {
+    assert(src_limbs >= 1 && acc_limbs >= 1 && acc_limbs >= src_limbs);
+    if (acc_limbs == 1) {
         /* single limb (one real, one imag) specialization */
         return [](auto acc_it, auto src_it) {
             *(acc_it + 0) += *(src_it + 0); // real part
             *(acc_it + 1) += *(src_it + 1); // imag part
         };
-    } else {
+    } else if (src_limbs == acc_limbs) {
+        return [src_limbs, acc_limbs](auto acc_it, auto src_it) {
+            std::size_t limbs = acc_limbs;
+            apy_inplace_addition_same_length(&acc_it[0], &src_it[0], limbs);
+            apy_inplace_addition_same_length(&acc_it[limbs], &src_it[limbs], limbs);
+        };
+    } else { /* acc_limbs > src_limbs */
         return [src_limbs, acc_limbs](auto acc_it, auto src_it) {
             std::size_t src_j = src_limbs;
             std::size_t acc_j = acc_limbs;
             apy_inplace_addition(&acc_it[0], acc_limbs, &src_it[0], src_limbs);
             apy_inplace_addition(&acc_it[acc_j], acc_j, &src_it[src_j], src_j);
+
+            // Real part
+            if (limb_vector_is_negative(src_it, src_it + src_limbs)) {
+                apy_limb_t carry = 0;
+                for (std::size_t i = 0; i < acc_limbs - src_limbs; i++) {
+                    apy_limb_t tmp_res = *(acc_it + src_limbs + i) + carry;
+                    carry = (tmp_res < carry);
+                    tmp_res += apy_limb_t(-1);
+                    carry += (tmp_res < apy_limb_t(-1));
+                    *(acc_it + src_limbs + i) = tmp_res;
+                }
+            }
+
+            // Imag part
+            if (limb_vector_is_negative(src_it + src_limbs, src_it + 2 * src_limbs)) {
+                apy_limb_t carry = 0;
+                for (std::size_t i = 0; i < acc_limbs - src_limbs; i++) {
+                    apy_limb_t tmp_res = *(acc_it + acc_limbs + src_limbs + i) + carry;
+                    carry = (tmp_res < carry);
+                    tmp_res += apy_limb_t(-1);
+                    carry += (tmp_res < apy_limb_t(-1));
+                    *(acc_it + acc_limbs + src_limbs + i) = tmp_res;
+                }
+            }
         };
     }
 }
