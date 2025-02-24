@@ -1149,3 +1149,30 @@ def test_issue_615(fixed_array, bits):
             [1, 2, -6, -24], bits=4 * bits + extra_bits_complex, frac_bits=2 * bits
         )
     )
+
+
+@pytest.mark.parametrize("bits", [16, 32, 64, 128])
+def test_issue_615_complex(bits):
+    """
+    Specialized test for complex-valued array: no overflowing/carry between
+    real/imaginary parts.
+    """
+    A_fx = APyCFixedArray.from_complex(
+        [1 + 1j, 2 - 2j, -3 + 3j, 4 - 4j], bits=bits, frac_bits=bits // 2
+    )
+    assert A_fx.cumsum().is_identical(
+        APyCFixedArray.from_complex(
+            [1 + 1j, 3 - 1j, 0 + 2j, 4 - 2j], bits=bits + 2, frac_bits=bits // 2
+        )
+    )
+
+    A_fx = APyCFixedArray.from_complex(
+        [1 + 2j, 2 - 3j, -5 + 3j, 4 - 5j], bits=bits, frac_bits=bits // 2
+    )
+    assert A_fx.cumprod().is_identical(
+        APyCFixedArray.from_complex(
+            [1 + 2j, 8 + 1j, -43 + 19j, -77 + 291j],
+            bits=4 * bits + 3,
+            frac_bits=2 * bits,
+        )
+    )

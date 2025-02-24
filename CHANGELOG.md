@@ -39,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Incorrect fixed-point rounding in `APyFixedArray.from_array` on Windows.
 - Incorrect LaTeX-representation of negative fixed-point scalars.
 - Incorrect casting of large integers in `APyFixedArray.from_*`.
+- Incorrect accumulation in `APyFixedArray.cumsum()` and
+  `APyCFixedArray.cumsum()` when result has more limbs than source.
 
 ### Changed
 
