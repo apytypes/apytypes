@@ -1117,3 +1117,14 @@ def test_to_bits_numpy():
         ).to_bits(True)
         == np.array([[[2, 4], [6, 8], [10, 12]], [[14, 16], [18, 16], [14, 12]]])
     )
+
+
+def test_copy():
+    a = APyFixedArray([3, 1], 4, 5)
+    b = a
+    assert a.is_identical(b)
+    c = a.copy()
+    assert a.is_identical(c)
+    a[0] = APyFixed(2, 4, 5)
+    assert a.is_identical(b)
+    assert not a.is_identical(c)

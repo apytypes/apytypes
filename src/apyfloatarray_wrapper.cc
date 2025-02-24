@@ -66,7 +66,7 @@ void bind_float_array(nb::module_& m)
             nb::arg("man_bits"),
             nb::arg("bias") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyFloat` object.
+            Create an :class:`APyFloatArray` object.
 
             Parameters
             ----------
@@ -88,6 +88,21 @@ void bind_float_array(nb::module_& m)
             :class:`APyFloatArray`
             )pbdoc"
         )
+
+        /*
+         * Copy
+         */
+        .def(
+            "copy",
+            &APyFloatArray::python_copy,
+            R"pbdoc(
+            Create a copy of the object.
+
+            .. versionadded:: 0.3
+            )pbdoc"
+        )
+        .def("__copy__", &APyFloatArray::python_copy)
+        .def("__deepcopy__", &APyFloatArray::python_copy)
 
         /*
          * Arithmetic operations

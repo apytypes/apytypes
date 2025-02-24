@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the Numpy array to an APyArray of the same size and type as the APyArray argument.
 - `from_float` now accepts APyTypes scalars.
 - Wheels for Python 3.13.
+- `copy` added for the array classes.
 
 ### Fixed
 

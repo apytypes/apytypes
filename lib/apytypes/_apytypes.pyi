@@ -419,6 +419,15 @@ class APyCFixedArray:
         frac_bits: int | None = None,
         bits: int | None = None,
     ) -> None: ...
+    def copy(self) -> APyCFixedArray:
+        """
+        Create a copy of the object.
+
+        .. versionadded:: 0.3
+        """
+
+    def __copy__(self) -> APyCFixedArray: ...
+    def __deepcopy__(self) -> APyCFixedArray: ...
     @overload
     def __add__(self, arg: APyCFixedArray, /) -> APyCFixedArray: ...
     @overload
@@ -1875,6 +1884,15 @@ class APyFixedArray:
         frac_bits: int | None = None,
         bits: int | None = None,
     ) -> None: ...
+    def copy(self) -> APyFixedArray:
+        """
+        Create a copy of the object.
+
+        .. versionadded:: 0.3
+        """
+
+    def __copy__(self) -> APyFixedArray: ...
+    def __deepcopy__(self) -> APyFixedArray: ...
     @overload
     def __add__(self, arg: APyFixedArray, /) -> APyFixedArray: ...
     @overload
@@ -3614,7 +3632,7 @@ class APyFloatArray:
         bias: int | None = None,
     ) -> None:
         """
-        Create an :class:`APyFloat` object.
+        Create an :class:`APyFloatArray` object.
 
         Parameters
         ----------
@@ -3636,6 +3654,15 @@ class APyFloatArray:
         :class:`APyFloatArray`
         """
 
+    def copy(self) -> APyFloatArray:
+        """
+        Create a copy of the object.
+
+        .. versionadded:: 0.3
+        """
+
+    def __copy__(self) -> APyFloatArray: ...
+    def __deepcopy__(self) -> APyFloatArray: ...
     @overload
     def __add__(self, arg: APyFloatArray, /) -> APyFloatArray: ...
     @overload
