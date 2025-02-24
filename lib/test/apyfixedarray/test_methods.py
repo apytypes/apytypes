@@ -1128,3 +1128,24 @@ def test_copy():
     a[0] = APyFixed(2, 4, 5)
     assert a.is_identical(b)
     assert not a.is_identical(c)
+
+
+@pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
+@pytest.mark.parametrize("bits", [16, 32, 64, 128])
+def test_issue_615(fixed_array, bits):
+    """
+    Test for GitHub issue #615: `APyFixedArray.cumsum()` bug when source operand fit in
+    single limb, but the result requires more than one limb
+    """
+    A_fx = fixed_array.from_float([1, 2, -3, 4], bits=bits, frac_bits=bits // 2)
+    assert A_fx.cumsum().is_identical(
+        fixed_array.from_float([1, 3, 0, 4], bits=bits + 2, frac_bits=bits // 2)
+    )
+
+    A_fx = fixed_array.from_float([1, 2, -3, 4], bits=bits, frac_bits=bits // 2)
+    extra_bits_complex = 3 if fixed_array == APyCFixedArray else 0
+    assert A_fx.cumprod().is_identical(
+        fixed_array.from_float(
+            [1, 2, -6, -24], bits=4 * bits + extra_bits_complex, frac_bits=2 * bits
+        )
+    )
