@@ -770,13 +770,39 @@ bool APyFixed::positive_greater_than_equal_pow2(int n) const
     return limb_vector_gte_pow2(_data.begin(), _data.end(), test_binary_point);
 }
 
-APyFixed APyFixed::ipow(unsigned int n) const
+APyFixed APyFixed::pown(int n) const
 {
+    if (n < 0) {
+        throw NotImplementedException("Not implemented: power with negative integers.");
+    }
+
+    if (n == 1) {
+        return *this;
+    }
+
+    if (n == 0) {
+        if (frac_bits() < 0) {
+            return APyFixed(int_bits(), int_bits(), { 1 });
+        } else {
+            return APyFixed(
+                bits(), int_bits(), { apy_limb_t(1) << (unsigned int)frac_bits() }
+            );
+        }
+    }
+
     // Early exit for one of the most common cases
     if (n == 2) {
         return *this * *this;
     }
-    // Because how APyFloat::pown is written, we know n will be >= 2,
+
+    auto result = ipow(n);
+    // Remove two integer bit as the starting value has two bits
+    return result.cast_no_overflow(result.bits() - 2, result.int_bits() - 2);
+}
+
+APyFixed APyFixed::ipow(unsigned int n) const
+{
+    // Because how pown is written, we know n will be >= 3,
     // this fact can probably be used to optimize this code further.
     APyFixed base = *this;
     APyFixed result = APyFixed(2, 2, { 1 });

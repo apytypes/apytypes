@@ -124,6 +124,7 @@ void bind_fixed(nb::module_& m)
         .def("__rmul__", R_OP<std::multiplies<>, double>, nb::is_operator())
         .def("__truediv__", L_OP<std::divides<>, double>, nb::is_operator())
         .def("__rtruediv__", R_OP<std::divides<>, double>, nb::is_operator())
+        .def("__pow__", &APyFixed::pown, nb::is_operator())
 
         /*
          * Methods

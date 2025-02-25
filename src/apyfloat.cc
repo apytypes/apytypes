@@ -901,6 +901,11 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
         return APyFloat(0, x.bias, 0, x.exp_bits, x.man_bits, x.bias); // Return '1'
     }
 
+    // Early exit for one of the most common cases
+    if (n == 2) {
+        return x * x;
+    }
+
     bool new_sign = x.sign & (n % 2);
 
     if (x.is_zero()) {

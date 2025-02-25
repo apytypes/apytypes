@@ -224,6 +224,9 @@ public:
     //! Absolute value
     APyFixed abs() const;
 
+    //! Integer power
+    APyFixed pown(int n) const;
+
     //! Test if fixed-point number is negative
     bool is_negative() const noexcept;
 
