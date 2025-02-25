@@ -169,6 +169,21 @@ apy_inplace_negate(apy_limb_t* dest, const std::size_t limbs)
     return carry;
 }
 
+//! Negate a limb vector: dest = -src
+[[maybe_unused]] static APY_INLINE apy_limb_t
+apy_negate(apy_limb_t* dest, const apy_limb_t* src, const std::size_t limbs)
+{
+    assert(limbs > 0);
+
+    apy_limb_t carry = 1;
+    for (std::size_t i = 0; i < limbs; i++) {
+        dest[i] = ~src[i] + carry;
+        carry = (dest[i] < carry);
+    }
+
+    return carry;
+}
+
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_subtraction_single_limb(
     apy_limb_t* dest, const std::size_t limbs, const apy_limb_t src
 )
