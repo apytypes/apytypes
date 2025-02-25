@@ -94,7 +94,7 @@ void bind_fixed_array(nb::module_& m)
             )pbdoc"
         )
         .def("__copy__", &APyFixedArray::python_copy)
-        .def("__deepcopy__", &APyFixedArray::python_copy)
+        .def("__deepcopy__", &APyFixedArray::python_deepcopy, nb::arg("memo"))
 
         /*
          * Arithmetic operations

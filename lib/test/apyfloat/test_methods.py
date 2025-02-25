@@ -478,3 +478,31 @@ def test_next_down(bit_pattern):
     res = apyfloat.next_down()
     ref = -(neg_apyfloat.next_up())
     assert res.is_identical(ref)
+
+
+def test_copy():
+    a = APyFloat(0, 2, 4, 4, 5)
+    b = a
+    assert a is b
+    c = a.copy()
+    assert a is not c
+
+
+def test_python_copy():
+    import copy
+
+    a = APyFloat(0, 2, 4, 4, 5)
+    b = a
+    assert a is b
+    c = copy.copy(a)
+    assert a is not c
+
+
+def test_python_deepcopy():
+    import copy
+
+    a = APyFloat(0, 2, 4, 4, 5)
+    b = a
+    assert a is b
+    c = copy.deepcopy(a)
+    assert a is not c

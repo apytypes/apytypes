@@ -29,6 +29,34 @@ def test_copy():
 
 
 @pytest.mark.float_array
+def test_python_copy():
+    import copy
+
+    a = APyFloatArray([1, 0], [2, 3], [3, 1], 4, 5)
+    b = a
+    assert a.is_identical(b)
+    c = copy.copy(a)
+    assert a.is_identical(c)
+    a[0] = APyFloat(0, 1, 2, 4, 5)
+    assert a.is_identical(b)
+    assert not a.is_identical(c)
+
+
+@pytest.mark.float_array
+def test_python_deepcopy():
+    import copy
+
+    a = APyFloatArray([1, 0], [2, 3], [3, 1], 4, 5)
+    b = a
+    assert a.is_identical(b)
+    c = copy.deepcopy(a)
+    assert a.is_identical(c)
+    a[0] = APyFloat(0, 1, 2, 4, 5)
+    assert a.is_identical(b)
+    assert not a.is_identical(c)
+
+
+@pytest.mark.float_array
 def test_array_from_float_raises():
     # Too many exponent bits
     with pytest.raises(

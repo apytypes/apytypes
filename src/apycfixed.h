@@ -141,6 +141,15 @@ public:
     //! bit-pattern from iterator pair [ `begin`, `end` ).
     explicit APyCFixed(int bits, int int_bits, std::initializer_list<apy_limb_t> list);
 
+    /* ************************************************************************* *
+     * *                                        Copy                           * *
+     * ************************************************************************* */
+
+    //! Copy scalar
+    APyCFixed python_copy() const { return *this; }
+    //! Deepcopy scalar (same as copy here)
+    APyCFixed python_deepcopy(nb::dict& memo) const { return *this; }
+
     /* ****************************************************************************** *
      *                         Binary arithmetic operators                            *
      * ****************************************************************************** */

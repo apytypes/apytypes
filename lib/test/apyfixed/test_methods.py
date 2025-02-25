@@ -291,3 +291,40 @@ def test_from_float_with_non_floats():
     # Raise for string
     with pytest.raises(ValueError, match="Non supported type"):
         APyFixed.from_float("14", 5, 0)
+
+
+def test_copy():
+    a = APyFixed(3, 4, 5)
+    b = a
+    assert a.is_identical(b)
+    c = a.copy()
+    assert a.is_identical(c)
+    a <<= 2
+    assert a.is_identical(b)
+    assert not a.is_identical(c)
+
+
+def test_python_copy():
+    import copy
+
+    a = APyFixed(3, 4, 5)
+    b = a
+    assert a.is_identical(b)
+    c = copy.copy(a)
+    assert a.is_identical(c)
+    a <<= 2
+    assert a.is_identical(b)
+    assert not a.is_identical(c)
+
+
+def test_python_deepcopy():
+    import copy
+
+    a = APyFixed(3, 4, 5)
+    b = a
+    assert a.is_identical(b)
+    c = copy.deepcopy(a)
+    assert a.is_identical(c)
+    a <<= 2
+    assert a.is_identical(b)
+    assert not a.is_identical(c)

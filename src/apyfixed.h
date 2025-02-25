@@ -139,6 +139,15 @@ public:
     //! bit-pattern bit stealing it from a `ScratchVector`.
     explicit APyFixed(int bits, int int_bits, const ScratchVector<apy_limb_t>& data);
 
+    /* ************************************************************************* *
+     * *                                        Copy                           * *
+     * ************************************************************************* */
+
+    //! Copy scalar
+    APyFixed python_copy() const { return *this; }
+    //! Deepcopy scalar
+    APyFixed python_deepcopy(nb::dict& memo) const { return *this; }
+
     /* ****************************************************************************** *
      *                         Binary arithmetic operators                            *
      * ****************************************************************************** */

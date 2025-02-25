@@ -85,3 +85,40 @@ def test_to_and_from_complex():
     assert APyCFixed.from_complex(
         APyCFixed((13, 11), int_bits=2, frac_bits=3), int_bits=2, frac_bits=2
     ).is_identical(APyCFixed((7, 6), int_bits=2, frac_bits=2))  # Rounds to (1.75, 1.5)
+
+
+def test_copy():
+    a = APyCFixed((3, 2), 4, 5)
+    b = a
+    assert a.is_identical(b)
+    c = a.copy()
+    assert a.is_identical(c)
+    a <<= 2
+    assert a.is_identical(b)
+    assert not a.is_identical(c)
+
+
+def test_python_copy():
+    import copy
+
+    a = APyCFixed((3, 2), 4, 5)
+    b = a
+    assert a.is_identical(b)
+    c = copy.copy(a)
+    assert a.is_identical(c)
+    a <<= 2
+    assert a.is_identical(b)
+    assert not a.is_identical(c)
+
+
+def test_python_deepcopy():
+    import copy
+
+    a = APyCFixed((3, 2), 4, 5)
+    b = a
+    assert a.is_identical(b)
+    c = copy.deepcopy(a)
+    assert a.is_identical(c)
+    a <<= 2
+    assert a.is_identical(b)
+    assert not a.is_identical(c)

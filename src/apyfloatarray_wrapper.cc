@@ -102,7 +102,7 @@ void bind_float_array(nb::module_& m)
             )pbdoc"
         )
         .def("__copy__", &APyFloatArray::python_copy)
-        .def("__deepcopy__", &APyFloatArray::python_copy)
+        .def("__deepcopy__", &APyFloatArray::python_deepcopy, nb::arg("memo"))
 
         /*
          * Arithmetic operations
