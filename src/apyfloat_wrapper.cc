@@ -95,6 +95,21 @@ void bind_float(nb::module_& m)
         )
 
         /*
+         * Copy
+         */
+        .def(
+            "copy",
+            &APyFloat::python_copy,
+            R"pbdoc(
+            Create a copy of the object.
+
+            .. versionadded:: 0.3
+            )pbdoc"
+        )
+        .def("__copy__", &APyFloat::python_copy)
+        .def("__deepcopy__", &APyFloat::python_deepcopy, nb::arg("memo"))
+
+        /*
          * Arithmetic operations
          */
         .def(nb::self == nb::self)

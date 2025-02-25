@@ -84,6 +84,21 @@ void bind_cfixed(nb::module_& m)
         )
 
         /*
+         * Copy
+         */
+        .def(
+            "copy",
+            &APyCFixed::python_copy,
+            R"pbdoc(
+            Create a copy of the object.
+
+            .. versionadded:: 0.3
+            )pbdoc"
+        )
+        .def("__copy__", &APyCFixed::python_copy)
+        .def("__deepcopy__", &APyCFixed::python_deepcopy, nb::arg("memo"))
+
+        /*
          * Arithmetic operations
          */
         .def(nb::self == nb::self)

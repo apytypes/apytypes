@@ -259,6 +259,15 @@ public:
     //! LaTeX representation
     std::string latex() const;
 
+    /* ************************************************************************* *
+     * *                                        Copy                           * *
+     * ************************************************************************* */
+
+    //! Copy scalar
+    APyFloat python_copy() const { return *this; }
+    //! Deepcopy scalar (same as copy here)
+    APyFloat python_deepcopy(nb::dict& memo) const { return *this; }
+
     /* ****************************************************************************** *
      * *                             Arithmetic operators                           * *
      * ****************************************************************************** */

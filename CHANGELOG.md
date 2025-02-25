@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- In `arange`, the array type can be deduced from its arguments if no bit-
-  specifiers are given.
+- In `arange`, the array type can be deduced from its arguments if no
+  bit-specifiers are given.
 - Added optional parameter for `bias` in array creation functions that were
   missing it.
 - Added `APyFloatArray.from_bits` to create floating-point arrays from bit patterns.
@@ -29,7 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the Numpy array to an APyArray of the same size and type as the APyArray argument.
 - `from_float` now accepts APyTypes scalars.
 - Wheels for Python 3.13.
-- `copy` added for the array classes.
+- `copy`-method added for the array and scalar classes. This also includes support
+  for the Python `copy.copy` and `copy.deepcopy` functions.
 
 ### Fixed
 
