@@ -830,9 +830,7 @@ APyCFixedArray APyCFixedArray::operator-() const
     // Single limb specialization
     APyCFixedArray result(_shape, res_bits, res_int_bits);
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
-        for (std::size_t i = 0; i < _data.size(); i++) {
-            result._data[i] = -_data[i];
-        }
+        simd::vector_neg(result._data.begin(), _data.begin(), _data.size());
         return result;
     }
 

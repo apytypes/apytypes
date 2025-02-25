@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Wheels for Python 3.13.
 - `copy`-method added for the array and scalar classes. This also includes support
   for the Python `copy.copy` and `copy.deepcopy` functions.
+- Single limb abs and negation now use SIMD instructions.
 
 ### Fixed
 
