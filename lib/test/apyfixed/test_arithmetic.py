@@ -621,3 +621,25 @@ def test_rdiv_int():
     assert (2**2000 / a).is_identical(
         APyFixed.from_float(2**1000, int_bits=4001, frac_bits=4000)
     )
+
+
+def test_pow():
+    a = APyFixed.from_float(0.2, 2, 8)
+    a2 = APyFixed(2601, 4, 16)
+    assert (a**2).is_identical(a2)
+    assert (a**1).is_identical(a)
+    assert (a**0).is_identical(APyFixed.from_float(1, 2, 8))
+
+    a = APyFixed.from_float(-0.2, 2, 8)
+    assert (a**2).is_identical(a2)
+    a3 = APyFixed(1073609173, 6, 24)
+    assert (a**3).is_identical(a3)
+
+    assert (a**1).is_identical(a)
+    assert (a**0).is_identical(APyFixed.from_float(1, 2, 8))
+
+    b = APyFixed(124, bits=7, int_bits=10)
+    b5 = APyFixed(34359737344, bits=35, int_bits=50)
+    assert (b**5).is_identical(b5)
+    assert (b**1).is_identical(b)
+    assert (b**0).is_identical(APyFixed(1, 10, 0))
