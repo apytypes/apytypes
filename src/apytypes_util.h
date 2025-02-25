@@ -981,8 +981,7 @@ template <class RANDOM_ACCESS_ITERATOR_IN, class RANDOM_ACCESS_ITERATOR_OUT>
     RANDOM_ACCESS_ITERATOR_OUT res_it
 )
 {
-    std::transform(cbegin_it, cend_it, res_it, std::bit_not {});
-    return apy_inplace_add_one_lsb(&*res_it, std::distance(cbegin_it, cend_it));
+    return apy_negate(&*res_it, &*cbegin_it, std::distance(cbegin_it, cend_it));
 }
 
 //! Take the two's complement negative value of a limb vector inplace
