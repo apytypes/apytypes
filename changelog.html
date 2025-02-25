@@ -303,8 +303,8 @@ and this project adheres to <a class="reference external" href="https://semver.o
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>In <code class="docutils literal notranslate"><span class="pre">arange</span></code>, the array type can be deduced from its arguments if no bit-
-specifiers are given.</p></li>
+<li><p>In <code class="docutils literal notranslate"><span class="pre">arange</span></code>, the array type can be deduced from its arguments if no
+bit-specifiers are given.</p></li>
 <li><p>Added optional parameter for <code class="docutils literal notranslate"><span class="pre">bias</span></code> in array creation functions that were
 missing it.</p></li>
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">APyFloatArray.from_bits</span></code> to create floating-point arrays from bit patterns.</p></li>
@@ -326,7 +326,8 @@ result with the same format.</p></li>
 the Numpy array to an APyArray of the same size and type as the APyArray argument.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">from_float</span></code> now accepts APyTypes scalars.</p></li>
 <li><p>Wheels for Python 3.13.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">copy</span></code> added for the array classes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">copy</span></code>-method added for the array and scalar classes. This also includes support
+for the Python <code class="docutils literal notranslate"><span class="pre">copy.copy</span></code> and <code class="docutils literal notranslate"><span class="pre">copy.deepcopy</span></code> functions.</p></li>
 </ul>
 </section>
 <section id="fixed">
