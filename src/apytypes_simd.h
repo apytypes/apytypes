@@ -104,7 +104,7 @@ void vector_shift_div_const_signed(
 );
 
 /*!
- * Perform signed multiplication of the the elements in `src1_begin` with `src2_begin`
+ * Perform signed multiplication of the elements in `src1_begin` with `src2_begin`
  * and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_mul(
@@ -115,7 +115,7 @@ void vector_mul(
 );
 
 /*!
- * Perform addition of the the elements in `src1_begin` with `src2_begin`
+ * Perform addition of the elements in `src1_begin` with `src2_begin`
  * and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_add(
@@ -126,7 +126,7 @@ void vector_add(
 );
 
 /*!
- * Perform subtraction of the the elements in `src1_begin` with `src2_begin`
+ * Perform subtraction of the elements in `src1_begin` with `src2_begin`
  * and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_sub(
@@ -137,7 +137,7 @@ void vector_sub(
 );
 
 /*!
- * Perform addition of the the elements in `src1_begin` with a constant `constant`
+ * Perform addition of the elements in `src1_begin` with a constant `constant`
  * and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_add_const(
@@ -148,7 +148,7 @@ void vector_add_const(
 );
 
 /*!
- * Perform subtraction of the the elements in `src1_begin` with a constant `constant`
+ * Perform subtraction of the elements in `src1_begin` with a constant `constant`
  * and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_sub_const(
@@ -159,7 +159,26 @@ void vector_sub_const(
 );
 
 /*!
- * Perform signed multiplication of the the elements in `src1_begin` with a constant
+ * Perform negation of the elements in `src_begin`, for `size` number of elements.
+ */
+void vector_neg(
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src_begin,
+    std::size_t size
+);
+
+/*!
+ * Perform absolute computation of the elements in `src_begin`, for `size` number of
+ * elements.
+ */
+void vector_abs(
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src_begin,
+    std::size_t size
+);
+
+/*!
+ * Perform signed multiplication of the elements in `src1_begin` with a constant
  * `constant` and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_mul_const(
@@ -170,7 +189,7 @@ void vector_mul_const(
 );
 
 /*!
- * Perform subtraction of the the constant in `constant` with the elements in
+ * Perform subtraction of the constant in `constant` with the elements in
  * `src1_begin` and store the result in `dst_begin`, for `size` number of elements.
  */
 void vector_rsub_const(
