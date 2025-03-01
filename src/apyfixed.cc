@@ -160,8 +160,7 @@ APyFixed APyFixed::operator-(const APyFixed& rhs) const
 APyFixed APyFixed::operator*(const APyFixed& rhs) const
 {
     const int res_int_bits = int_bits() + rhs.int_bits();
-    const int res_frac_bits = frac_bits() + rhs.frac_bits();
-    const int res_bits = res_int_bits + res_frac_bits;
+    const int res_bits = bits() + rhs.bits();
 
     // Result fixed-point number
     APyFixed result(res_bits, res_int_bits);
@@ -170,6 +169,14 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         result._data[0] = _data[0] * rhs._data[0];
         return result; // early exit
+    }
+
+    // Both arguments are single limb, result two limbs
+    if (unsigned(bits()) <= APY_LIMB_SIZE_BITS
+        && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+        auto [high, low] = long_mult(_data[0], rhs._data[0]);
+        result._data[1] = high;
+        result._data[0] = low;
     }
 
     // Scratch data:
@@ -202,7 +209,7 @@ APyFixed APyFixed::operator/(const APyFixed& rhs) const
         throw nb::python_error();
     }
 
-    const int res_int_bits = int_bits() + rhs.frac_bits() + 1;
+    const int res_int_bits = 1 + int_bits() + rhs.frac_bits();
     const int res_frac_bits = frac_bits() + rhs.int_bits();
     const int res_bits = res_int_bits + res_frac_bits;
     APyFixed result(res_bits, res_int_bits);

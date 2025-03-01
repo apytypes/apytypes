@@ -204,6 +204,47 @@ apy_limb_t apy_unsigned_multiplication(
     return dest[src0_limbs + src1_limbs - 1];
 }
 
+apy_limb_t apy_unsigned_square(
+    apy_limb_t* dest, const apy_limb_t* src, const std::size_t src_limbs
+)
+{
+    assert(src_limbs > 0);
+
+    // Multiply src with the least significant limb of src
+    apy_limb_t carry = 0;
+    // TODO: Rewrite to use __int128 on supported architectures
+    for (std::size_t i = 0; i < src_limbs; i++) {
+        auto [prod_high, prod_low] = long_mult(src[i], src[0]);
+
+        prod_low += carry;
+        carry = (prod_low < carry) + prod_high;
+
+        dest[i] = prod_low;
+    }
+
+    dest[src_limbs] = carry;
+
+    // Multiply src with the remaining limbs of src, adding the previous partial
+    // results
+    for (std::size_t i = 1; i < src_limbs; i++) {
+        carry = 0;
+        // TODO: Rewrite to use __int128 on supported architectures
+        for (std::size_t j = 0; j < src_limbs; j++) {
+            auto [prod_high, prod_low] = long_mult(src[j], src[i]);
+
+            prod_low += carry;
+            carry = (prod_low < carry) + prod_high;
+
+            prod_low += dest[i + j];
+            carry += prod_low < dest[i + j];
+            dest[i + j] = prod_low;
+        }
+
+        dest[src_limbs + i] = carry;
+    }
+    return dest[2 * src_limbs - 1];
+}
+
 //! Utility function to avoid automatic promotion to signed int in case apy_limb_t
 //! is smaller than int.
 //! Should rarely happen, but better safe than sorry...

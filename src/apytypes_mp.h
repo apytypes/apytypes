@@ -277,6 +277,8 @@ apy_limb_t apy_unsigned_multiplication(
     const std::size_t
 );
 
+apy_limb_t apy_unsigned_square(apy_limb_t*, const apy_limb_t*, const std::size_t);
+
 // Division
 
 class APyDivInverse {
