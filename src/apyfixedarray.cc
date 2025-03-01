@@ -403,20 +403,29 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
     }
 
     const int res_int_bits = int_bits() + rhs.int_bits();
-    const int res_frac_bits = frac_bits() + rhs.frac_bits();
-    const int res_bits = res_int_bits + res_frac_bits;
+    const int res_bits = bits() + rhs.bits();
 
     // Resulting `APyFixedArray` fixed-point tensor
     APyFixedArray result(_shape, res_bits, res_int_bits);
 
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
+        // Special case #1: The resulting number of bits fit in a single limb
         simd::vector_mul(
             std::begin(_data),        // src1
             std::begin(rhs._data),    // src2
             std::begin(result._data), // dst
             result._data.size()       // elements
         );
+    } else if (unsigned(bits()) <= APY_LIMB_SIZE_BITS
+               && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+        // Special case #2: Both arguments are single limb, result two limbs
+        for (std::size_t i = 0; i < _nitems; i++) {
+            auto [high, low] = long_signed_mult(_data[i], rhs._data[i]);
+            result._data[i * 2 + 1] = high;
+            result._data[i * 2 + 0] = low;
+        }
     } else {
+        // General case: This always works but is slower than the special cases.
         fixed_point_hadamard_product(
             std::begin(_data),        // src1
             std::begin(rhs._data),    // src2
@@ -434,8 +443,7 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
 APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
 {
     const int res_int_bits = int_bits() + rhs.int_bits();
-    const int res_frac_bits = frac_bits() + rhs.frac_bits();
-    const int res_bits = res_int_bits + res_frac_bits;
+    const int res_bits = bits() + rhs.bits();
 
     // Resulting `APyFixedArray` fixed-point tensor
     APyFixedArray result(_shape, res_bits, res_int_bits);
@@ -449,6 +457,17 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
             result._data.size()       // elements
         );
         return result; // early exit
+    }
+
+    // Special case #2: Both arguments are single limb, result two limbs
+    if (unsigned(bits()) <= APY_LIMB_SIZE_BITS
+        && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
+        for (std::size_t i = 0; i < _nitems; i++) {
+            auto [high, low] = long_signed_mult(_data[i], rhs._data[0]);
+            result._data[i * 2 + 1] = high;
+            result._data[i * 2 + 0] = low;
+        }
+        return result;
     }
 
     // General case: This always works but is slower than the special cases.

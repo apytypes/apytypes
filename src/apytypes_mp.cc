@@ -144,12 +144,12 @@ apy_limb_t apy_submul_single_limb(
 
     // TODO: Rewrite to use __int128 on supported architectures
     // First iteration outside of loop to save a few computations
-    auto [prod_high, prod_low] = long_mult(src0[0], src1);
+    auto [prod_high, prod_low] = long_unsigned_mult(src0[0], src1);
     prod_low = dest[0] - prod_low;
     apy_limb_t carry = prod_high + (prod_low > dest[0]);
     dest[0] = prod_low;
     for (std::size_t i = 1; i < limbs; i++) {
-        auto [prod_high, prod_low] = long_mult(src0[i], src1);
+        auto [prod_high, prod_low] = long_unsigned_mult(src0[i], src1);
 
         prod_low += carry;
         carry = (prod_low < carry) + prod_high;
@@ -176,13 +176,13 @@ apy_limb_t apy_unsigned_multiplication(
     // Multiply src0 with the least significant limb of src1
     // TODO: Rewrite to use __int128 on supported architectures
     // First iteration outside of loop to save a few computations
-    auto [prod_high, prod_low] = long_mult(src0[0], src1[0]);
+    auto [prod_high, prod_low] = long_unsigned_mult(src0[0], src1[0]);
 
     apy_limb_t carry = prod_high;
 
     dest[0] = prod_low;
     for (std::size_t i = 1; i < src0_limbs; i++) {
-        auto [prod_high, prod_low] = long_mult(src0[i], src1[0]);
+        auto [prod_high, prod_low] = long_unsigned_mult(src0[i], src1[0]);
 
         prod_low += carry;
         carry = (prod_low < carry) + prod_high;
@@ -198,13 +198,13 @@ apy_limb_t apy_unsigned_multiplication(
     for (std::size_t i = 1; i < src1_limbs; i++) {
         // First iteration outside of loop to save a few computations
         // TODO: Rewrite to use __int128 on supported architectures
-        auto [prod_high, prod_low] = long_mult(src0[0], src1[i]);
+        auto [prod_high, prod_low] = long_unsigned_mult(src0[0], src1[i]);
 
         prod_low += dest[i];
         carry = prod_high + (prod_low < dest[i]);
         dest[i] = prod_low;
         for (std::size_t j = 1; j < src0_limbs; j++) {
-            auto [prod_high, prod_low] = long_mult(src0[j], src1[i]);
+            auto [prod_high, prod_low] = long_unsigned_mult(src0[j], src1[i]);
 
             prod_low += carry;
             carry = (prod_low < carry) + prod_high;
@@ -228,13 +228,13 @@ apy_limb_t apy_unsigned_square(
     // Multiply src with the least significant limb of src
     // TODO: Rewrite to use __int128 on supported architectures
     // First iteration outside of loop to save a few computations
-    auto [prod_high, prod_low] = long_mult(src[0], src[0]);
+    auto [prod_high, prod_low] = long_unsigned_mult(src[0], src[0]);
 
     apy_limb_t carry = prod_high;
 
     dest[0] = prod_low;
     for (std::size_t i = 1; i < src_limbs; i++) {
-        auto [prod_high, prod_low] = long_mult(src[i], src[0]);
+        auto [prod_high, prod_low] = long_unsigned_mult(src[i], src[0]);
 
         prod_low += carry;
         carry = (prod_low < carry) + prod_high;
@@ -250,13 +250,13 @@ apy_limb_t apy_unsigned_square(
     carry = 0;
     for (std::size_t i = 1; i < src_limbs; i++) {
         // First iteration outside of loop to save a few computations
-        auto [prod_high, prod_low] = long_mult(src[0], src[i]);
+        auto [prod_high, prod_low] = long_unsigned_mult(src[0], src[i]);
 
         prod_low += dest[i];
         carry = prod_high + (prod_low < dest[i]);
         dest[i] = prod_low;
         for (std::size_t j = 1; j < src_limbs; j++) {
-            auto [prod_high, prod_low] = long_mult(src[j], src[i]);
+            auto [prod_high, prod_low] = long_unsigned_mult(src[j], src[i]);
 
             prod_low += carry;
             carry = (prod_low < carry) + prod_high;
@@ -383,7 +383,7 @@ apy_limb_t APyDivInverse::compute_3by2_inverse(apy_limb_t u1, apy_limb_t u0)
             }
             remainder -= u1;
         }
-        auto [prod_high, prod_low] = long_mult(u0, m);
+        auto [prod_high, prod_low] = long_unsigned_mult(u0, m);
         remainder += prod_high;
         if (remainder < prod_high) {
             m--;
@@ -452,7 +452,8 @@ apy_limb_t apy_division_single_limb_preinverted(
     }
 
     for (apy_size_t limbs = numerator_limbs - 1; limbs >= 0; limbs--) {
-        auto [quotient_high, quotient_low] = long_mult(remainder, inv->inverse);
+        auto [quotient_high, quotient_low]
+            = long_unsigned_mult(remainder, inv->inverse);
         /* Compute [quotient_high, quotient_low] += [remainder + 1, numerator[limbs] */
         apy_limb_t tmp_low = quotient_low + numerator[limbs];
         quotient_high += remainder + 1 + (tmp_low < quotient_low);
@@ -483,7 +484,7 @@ apy_limb_t apy_division_3by2(
     const APyDivInverse* inv
 )
 {
-    auto [quotient_high, quotient_low] = long_mult(*remainder_1, inv->inverse);
+    auto [quotient_high, quotient_low] = long_unsigned_mult(*remainder_1, inv->inverse);
     /* Compute [quotient_high, quotient_low] += [remainder_1, remainder_0] */
     apy_limb_t tmp_low = quotient_low + *remainder_0;
     quotient_high += *remainder_1 + (tmp_low < quotient_low);
@@ -498,7 +499,7 @@ apy_limb_t apy_division_3by2(
     *remainder_0 = numerator_tmp - inv->norm_denominator_0;
     *remainder_1 -= inv->norm_denominator_1 + (numerator_tmp < inv->norm_denominator_0);
 
-    auto [t_high, t_low] = long_mult(inv->norm_denominator_0, quotient_high);
+    auto [t_high, t_low] = long_unsigned_mult(inv->norm_denominator_0, quotient_high);
 
     /* Compute [remainder_1, remainder_0] -= [t_high, t_low] */
     apy_limb_t carry = (apy_limb_t)(*remainder_0 < t_low);
