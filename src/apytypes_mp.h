@@ -260,8 +260,9 @@ apy_inplace_reversed_subtraction_same_length(
 // Shift
 
 apy_limb_t apy_inplace_left_shift(apy_limb_t*, const std::size_t, unsigned int);
-apy_limb_t
-apy_left_shift(apy_limb_t*, const apy_limb_t*, const std::size_t, const unsigned int);
+// apy_limb_t
+// apy_left_shift(apy_limb_t*, const apy_limb_t*, const std::size_t, const unsigned
+// int);
 apy_limb_t apy_inplace_right_shift(apy_limb_t*, const std::size_t, unsigned int);
 /* apy_limb_t
 apy_rshift(apy_limb_t*, const apy_limb_t*, const std::size_t, const unsigned int); */
