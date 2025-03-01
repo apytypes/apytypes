@@ -142,9 +142,13 @@ apy_limb_t apy_submul_single_limb(
 {
     assert(limbs > 0);
 
-    apy_limb_t carry = 0;
     // TODO: Rewrite to use __int128 on supported architectures
-    for (std::size_t i = 0; i < limbs; i++) {
+    // First iteration outside of loop to save a few computations
+    auto [prod_high, prod_low] = long_mult(src0[0], src1);
+    prod_low = dest[0] - prod_low;
+    apy_limb_t carry = prod_high + (prod_low > dest[0]);
+    dest[0] = prod_low;
+    for (std::size_t i = 1; i < limbs; i++) {
         auto [prod_high, prod_low] = long_mult(src0[i], src1);
 
         prod_low += carry;
@@ -170,9 +174,14 @@ apy_limb_t apy_unsigned_multiplication(
     assert(src1_limbs > 0);
 
     // Multiply src0 with the least significant limb of src1
-    apy_limb_t carry = 0;
     // TODO: Rewrite to use __int128 on supported architectures
-    for (std::size_t i = 0; i < src0_limbs; i++) {
+    // First iteration outside of loop to save a few computations
+    auto [prod_high, prod_low] = long_mult(src0[0], src1[0]);
+
+    apy_limb_t carry = prod_high;
+
+    dest[0] = prod_low;
+    for (std::size_t i = 1; i < src0_limbs; i++) {
         auto [prod_high, prod_low] = long_mult(src0[i], src1[0]);
 
         prod_low += carry;
@@ -185,10 +194,16 @@ apy_limb_t apy_unsigned_multiplication(
 
     // Multiply src0 with the remaining limbs of src1, adding the previous partial
     // results
+    carry = 0;
     for (std::size_t i = 1; i < src1_limbs; i++) {
-        carry = 0;
+        // First iteration outside of loop to save a few computations
         // TODO: Rewrite to use __int128 on supported architectures
-        for (std::size_t j = 0; j < src0_limbs; j++) {
+        auto [prod_high, prod_low] = long_mult(src0[0], src1[i]);
+
+        prod_low += dest[i];
+        carry = prod_high + (prod_low < dest[i]);
+        dest[i] = prod_low;
+        for (std::size_t j = 1; j < src0_limbs; j++) {
             auto [prod_high, prod_low] = long_mult(src0[j], src1[i]);
 
             prod_low += carry;
@@ -211,9 +226,14 @@ apy_limb_t apy_unsigned_square(
     assert(src_limbs > 0);
 
     // Multiply src with the least significant limb of src
-    apy_limb_t carry = 0;
     // TODO: Rewrite to use __int128 on supported architectures
-    for (std::size_t i = 0; i < src_limbs; i++) {
+    // First iteration outside of loop to save a few computations
+    auto [prod_high, prod_low] = long_mult(src[0], src[0]);
+
+    apy_limb_t carry = prod_high;
+
+    dest[0] = prod_low;
+    for (std::size_t i = 1; i < src_limbs; i++) {
         auto [prod_high, prod_low] = long_mult(src[i], src[0]);
 
         prod_low += carry;
@@ -226,10 +246,16 @@ apy_limb_t apy_unsigned_square(
 
     // Multiply src with the remaining limbs of src, adding the previous partial
     // results
+    // TODO: Rewrite to use __int128 on supported architectures
+    carry = 0;
     for (std::size_t i = 1; i < src_limbs; i++) {
-        carry = 0;
-        // TODO: Rewrite to use __int128 on supported architectures
-        for (std::size_t j = 0; j < src_limbs; j++) {
+        // First iteration outside of loop to save a few computations
+        auto [prod_high, prod_low] = long_mult(src[0], src[i]);
+
+        prod_low += dest[i];
+        carry = prod_high + (prod_low < dest[i]);
+        dest[i] = prod_low;
+        for (std::size_t j = 1; j < src_limbs; j++) {
             auto [prod_high, prod_low] = long_mult(src[j], src[i]);
 
             prod_low += carry;

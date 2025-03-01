@@ -90,9 +90,11 @@ apy_limb_t apy_inplace_addition(
 {
     assert(limbs > 0);
 
-    apy_limb_t carry = 0;
+    // Specialized first iteration
+    dest[0] = src0[0] + src1[0];
+    apy_limb_t carry = (dest[0] < src1[0]);
 
-    for (std::size_t i = 0; i < limbs; i++) {
+    for (std::size_t i = 1; i < limbs; i++) {
         apy_limb_t tmp_res = src0[i] + carry;
         carry = (tmp_res < carry);
         tmp_res += src1[i];
@@ -141,9 +143,11 @@ apy_inplace_add_one_lsb(apy_limb_t* dest, const std::size_t limbs)
 {
     assert(limbs > 0);
 
-    apy_limb_t carry = 0;
+    // Specialized first iteration
+    dest[0] += src[0];
+    apy_limb_t carry = (dest[0] < src[0]);
 
-    for (std::size_t i = 0; i < limbs; i++) {
+    for (std::size_t i = 1; i < limbs; i++) {
         dest[i] += carry;
         carry = (dest[i] < carry);
         dest[i] += src[i];
@@ -210,9 +214,11 @@ apy_negate(apy_limb_t* dest, const apy_limb_t* src, const std::size_t limbs)
 {
     assert(limbs > 0);
 
-    apy_limb_t carry = 0;
+    // Specialized first iteration
+    apy_limb_t carry = (dest[0] < src[0]);
+    dest[0] -= src[0];
 
-    for (std::size_t i = 0; i < limbs; i++) {
+    for (std::size_t i = 1; i < limbs; i++) {
         apy_limb_t tmp_src = src[i] + carry;
         carry = (tmp_src < carry) + (dest[i] < tmp_src);
         dest[i] -= tmp_src;
@@ -228,9 +234,11 @@ apy_inplace_reversed_subtraction_same_length(
 {
     assert(limbs > 0);
 
-    apy_limb_t carry = 0;
+    // Specialized first iteration
+    apy_limb_t carry = (src[0] < dest[0]);
+    dest[0] = src[0] - dest[0];
 
-    for (std::size_t i = 0; i < limbs; i++) {
+    for (std::size_t i = 1; i < limbs; i++) {
         dest[i] += carry;
         carry = (dest[i] < carry) + (src[i] < dest[i]);
         dest[i] = src[i] - dest[i];
@@ -247,9 +255,11 @@ apy_inplace_reversed_subtraction_same_length(
 {
     assert(limbs > 0);
 
-    apy_limb_t carry = 0;
+    // Specialized first iteration
+    apy_limb_t carry = (src0[0] < src1[0]);
+    dest[0] = src0[0] - src1[0];
 
-    for (std::size_t i = 0; i < limbs; i++) {
+    for (std::size_t i = 1; i < limbs; i++) {
         apy_limb_t tmp_src1 = src1[i] + carry;
         carry = (tmp_src1 < carry) + (src0[i] < tmp_src1);
         dest[i] = src0[i] - tmp_src1;
