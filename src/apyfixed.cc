@@ -174,7 +174,7 @@ APyFixed APyFixed::operator*(const APyFixed& rhs) const
     // Both arguments are single limb, result two limbs
     if (unsigned(bits()) <= APY_LIMB_SIZE_BITS
         && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
-        auto [high, low] = long_mult(_data[0], rhs._data[0]);
+        auto [high, low] = long_signed_mult(_data[0], rhs._data[0]);
         result._data[1] = high;
         result._data[0] = low;
     }

@@ -72,7 +72,7 @@ public:
 
 //! Compute multiplication between two apy_limb_t and obtain double length result
 [[maybe_unused, nodiscard]] static APY_INLINE std::tuple<apy_limb_t, apy_limb_t>
-long_mult(apy_limb_t src0, apy_limb_t src1)
+long_unsigned_mult(apy_limb_t src0, apy_limb_t src1)
 {
 #if (COMPILER_LIMB_SIZE == 32)
     std::uint64_t res = (std::uint64_t)src0 * (std::uint64_t)src1;
@@ -95,7 +95,47 @@ long_mult(apy_limb_t src0, apy_limb_t src1)
     // intrinsics.
     static_assert(
         false,
-        "long_mult(): No intrinsic available on your compiler. Please "
+        "long_unsigned_mult(): No intrinsic available on your compiler. Please "
+        "open an issue at https://github.com/apytypes/apytypes/issues with "
+        "information about the compiler and platform and we will be happy to add "
+        "support for it."
+    );
+#endif
+#else
+    static_assert(false, "COMPILER_LIMB_SIZE must be 32 or 64");
+    return 0;
+#endif
+}
+
+//! Compute multiplication between two apy_limb_t and obtain double length result
+[[maybe_unused, nodiscard]] static APY_INLINE std::tuple<apy_limb_t, apy_limb_t>
+long_signed_mult(apy_limb_t src0, apy_limb_t src1)
+{
+#if (COMPILER_LIMB_SIZE == 32)
+    std::int64_t res = (std::int64_t)src0 * (std::int64_t)src1;
+    apy_limb_t high_limb = apy_limb_t(res >> 32);
+    return { high_limb, apy_limb_t(res) };
+#elif (COMPILER_LIMB_SIZE == 64)
+#if defined(__GNUC__)
+    // GNU C-compatible compiler (including Clang and MacOS Xcode)
+    __int128 res
+        = (__int128)apy_limb_signed_t(src0) * (__int128)apy_limb_signed_t(src1);
+    apy_limb_signed_t high_limb = apy_limb_signed_t(res >> 64);
+    return { apy_limb_t(high_limb), apy_limb_t(res) };
+#elif defined(_MSC_VER)
+    // Microsoft Visual C/C++ compiler
+    apy_limb_signed_t high_limb;
+    apy_limb_signed_t low_limb = apy_limb_signed_t(
+        _mul128(apy_limb_signed_t(src0), apy_limb_signed_t(src1), &high_limb)
+    );
+    return { apy_limb_t(high_limb), apy_limb_t(low_limb) };
+#else
+    // No 128-bit multiplication intrinsic found. We could implement this function,
+    // but fail for now so we can clearly see which systems are missing out on these
+    // intrinsics.
+    static_assert(
+        false,
+        "long_signed_mult(): No intrinsic available on your compiler. Please "
         "open an issue at https://github.com/apytypes/apytypes/issues with "
         "information about the compiler and platform and we will be happy to add "
         "support for it."

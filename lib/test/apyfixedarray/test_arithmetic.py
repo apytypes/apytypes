@@ -1,5 +1,5 @@
 from apytypes import APyFixedArray, APyCFixedArray, APyFixed, APyCFixed
-from apytypes import QuantizationMode
+from apytypes import QuantizationMode, fx
 
 import math
 import pytest
@@ -825,3 +825,35 @@ def test_operation_with_numpy():
     assert (a - n).is_identical(a - nfx)
     assert (a * n).is_identical(a * nfx)
     assert (a / n).is_identical(a / nfx)
+
+
+@pytest.mark.parametrize("frac_bits", range(10, 68))
+def test_array_multiplication_with_different_frac_bits(frac_bits):
+    a = fx(1 / 3, int_bits=3, frac_bits=frac_bits)
+    b = fx(math.pi, int_bits=3, frac_bits=frac_bits)
+    c = fx(-math.pi, int_bits=3, frac_bits=frac_bits)
+    d = fx(-23 / 11, int_bits=3, frac_bits=frac_bits)
+
+    av = fx([1 / 3, math.pi, -math.pi, -23 / 11], int_bits=3, frac_bits=frac_bits)
+    bv = fx([math.pi, -23 / 11, 1 / 3, -math.pi], int_bits=3, frac_bits=frac_bits)
+    res = av * bv
+    assert res[0].is_identical(a * b)
+    assert res[1].is_identical(b * d)
+    assert res[2].is_identical(c * a)
+    assert res[3].is_identical(d * c)
+
+
+@pytest.mark.parametrize("frac_bits", range(10, 68))
+def test_scalar_array_multiplication_with_different_frac_bits(frac_bits):
+    a = fx(1 / 3, int_bits=3, frac_bits=frac_bits)
+    b = fx(math.pi, int_bits=3, frac_bits=frac_bits)
+    c = fx(-math.pi, int_bits=3, frac_bits=frac_bits)
+    d = fx(-23 / 11, int_bits=3, frac_bits=frac_bits)
+
+    av = fx([1 / 3, math.pi, -math.pi, -23 / 11], int_bits=3, frac_bits=frac_bits)
+    res = b * av
+
+    assert res[0].is_identical(b * a)
+    assert res[1].is_identical(b * b)
+    assert res[2].is_identical(b * c)
+    assert res[3].is_identical(b * d)
