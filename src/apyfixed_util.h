@@ -807,7 +807,7 @@ static APY_INLINE void fixed_point_square(
 )
 {
     limb_vector_abs(src, src + src_limbs, op_abs);
-    apy_unsigned_multiplication(&*prod_abs, &*op_abs, src_limbs, &*op_abs, src_limbs);
+    apy_unsigned_square(&*prod_abs, &*op_abs, src_limbs);
     if (dst_limbs <= 2 * src_limbs) {
         std::copy_n(prod_abs, dst_limbs, dst);
     } else {

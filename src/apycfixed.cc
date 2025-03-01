@@ -212,8 +212,7 @@ APyCFixed APyCFixed::operator-(const APyCFixed& rhs) const
 APyCFixed APyCFixed::operator*(const APyCFixed& rhs) const
 {
     const int res_int_bits = 1 + int_bits() + rhs.int_bits();
-    const int res_frac_bits = frac_bits() + rhs.frac_bits();
-    const int res_bits = res_int_bits + res_frac_bits;
+    const int res_bits = 1 + bits() + rhs.bits();
 
     // Result fixed-point number
     APyCFixed result(res_bits, res_int_bits);
