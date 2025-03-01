@@ -36,21 +36,17 @@ apy_limb_t apy_inplace_left_shift(
     assert(shift_amount > 0);
     assert(shift_amount < APY_LIMB_SIZE_BITS);
 
-    dest += limbs;
-
-    const apy_limb_t* src = dest;
     const unsigned int overlap = APY_LIMB_SIZE_BITS - shift_amount;
-    apy_limb_t low_limb = *--src;
-    const apy_limb_t retval = low_limb >> overlap;
-    apy_limb_t high_limb = (low_limb << shift_amount);
-    std::size_t n = limbs;
-    // TODO: Rewrite as for-loop and/or possibly avoid using two pointers
-    while (--n != 0) {
-        low_limb = *--src;
-        *--dest = high_limb | (low_limb >> overlap);
-        high_limb = (low_limb << shift_amount);
+    std::size_t n = limbs - 1;
+    apy_limb_t high_limb = dest[n];
+    const apy_limb_t retval = high_limb >> overlap;
+    apy_limb_t low_limb = (high_limb << shift_amount);
+    for (; n > 0; n--) {
+        high_limb = dest[n - 1];
+        dest[n] = low_limb | (high_limb >> overlap);
+        low_limb = (high_limb << shift_amount);
     }
-    *--dest = high_limb;
+    dest[0] = low_limb;
 
     return retval;
 }
@@ -63,19 +59,16 @@ apy_limb_t apy_inplace_right_shift(
     assert(shift_amount > 0);
     assert(shift_amount < APY_LIMB_SIZE_BITS);
 
-    const apy_limb_t* src = dest;
     const unsigned int overlap = APY_LIMB_SIZE_BITS - shift_amount;
-    apy_limb_t high_limb = *src++;
-    const apy_limb_t retval = (high_limb << overlap);
-    apy_limb_t low_limb = high_limb >> shift_amount;
-    std::size_t n = limbs;
-    // TODO: Rewrite as for-loop and/or possibly avoid using two pointers
-    while (--n != 0) {
-        high_limb = *src++;
-        *dest++ = low_limb | (high_limb << overlap);
-        low_limb = high_limb >> shift_amount;
+    apy_limb_t low_limb = dest[0];
+    const apy_limb_t retval = (low_limb << overlap);
+    apy_limb_t high_limb = low_limb >> shift_amount;
+    for (std::size_t n = 1; n < limbs; n++) {
+        low_limb = dest[n];
+        dest[n - 1] = high_limb | (low_limb << overlap);
+        high_limb = low_limb >> shift_amount;
     }
-    *dest = low_limb;
+    dest[limbs - 1] = high_limb;
 
     return retval;
 }
@@ -95,18 +88,18 @@ apy_limb_t apy_left_shift(
     dest += limbs;
 
     const unsigned int overlap = APY_LIMB_SIZE_BITS - shift_amount;
-    apy_limb_t low_limb = *--src;
-    const apy_limb_t retval = low_limb >> overlap;
-    apy_limb_t high_limb = (low_limb << shift_amount);
+    apy_limb_t high_limb = *--src;
+    const apy_limb_t retval = high_limb >> overlap;
+    apy_limb_t low_limb = (high_limb << shift_amount);
     std::size_t n = limbs;
 
     // TODO: Rewrite as for-loop?
     while (--n != 0) {
-        low_limb = *--src;
-        *--dest = high_limb | (low_limb >> overlap);
-        high_limb = (low_limb << shift_amount);
+        high_limb = *--src;
+        *--dest = low_limb | (high_limb >> overlap);
+        low_limb = (high_limb << shift_amount);
     }
-    *--dest = high_limb;
+    *--dest = low_limb;
 
     return retval;
 }
@@ -124,17 +117,18 @@ apy_limb_t apy_rshift(
     assert(shift_amount < APY_LIMB_SIZE_BITS);
 
     const unsigned int overlap = APY_LIMB_SIZE_BITS - shift_amount;
-    apy_limb_t high_limb = *src++;
-    const apy_limb_t retval = (high_limb << overlap);
-    apy_limb_t low_limb = high_limb >> shift_amount;
+    apy_limb_t low_limb = *src++;
+    const apy_limb_t retval = (low_limb << overlap);
+    apy_limb_t high_limb = low_limb >> shift_amount;
     std::size_t n = limbs;
 
+    // TODO: Rewrite as for-loop?
     while (--n != 0) {
-        high_limb = *src++;
-        *dest++ = low_limb | (high_limb << overlap);
-        low_limb = high_limb >> shift_amount;
+        low_limb = *src++;
+        *dest++ = high_limb | (low_limb << overlap);
+        high_limb = low_limb >> shift_amount;
     }
-    *dest = low_limb;
+    *dest = high_limb;
 
     return retval;
 }
