@@ -387,7 +387,7 @@ def test_matrix_multiplication_varying_wordlength(bits):
     )
 
 
-def test_matrix_multiplication_two_limb_result():
+def test_matrix_multiplication_two_64bit_limb_result():
     A = APyFixedArray.from_float(
         [[0.1, 0.2, 0.3], [-0.2, -0.3, -0.4]], int_bits=0, frac_bits=37
     )
@@ -396,4 +396,14 @@ def test_matrix_multiplication_two_limb_result():
         APyFixedArray(
             [145968347985444383584420, 7650233702228896597934], bits=77, int_bits=5
         )
+    )
+
+
+def test_matrix_multiplication_two_32bit_limb_result():
+    A = APyFixedArray.from_float(
+        [[0.1, 0.2, 0.3], [-0.2, -0.3, -0.4]], int_bits=0, frac_bits=17
+    )
+    b = APyFixedArray.from_float([-3.2, 1.4, 4.5], int_bits=3, frac_bits=20)
+    assert (A @ b.T).is_identical(
+        APyFixedArray([4248236659835, 222649919734], bits=42, int_bits=5)
     )
