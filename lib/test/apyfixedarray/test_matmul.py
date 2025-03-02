@@ -356,13 +356,14 @@ def test_inner_product_accumulator_edge():
         )
 
 
-def test_matrix_multiplication_two_limb_result():
+@pytest.mark.parametrize("bits", range(20, 80))
+def test_matrix_multiplication_varying_wordlength(bits):
     a = APyFixedArray(
         [
             [1, 2, 3],
             [4, 5, 6],
         ],
-        bits=40,
+        bits=bits,
         int_bits=10,
     )
     b = APyFixedArray(
@@ -371,7 +372,7 @@ def test_matrix_multiplication_two_limb_result():
             [2, 2, 2, 2, 2],
             [3, 3, 3, 3, 3],
         ],
-        bits=40,
+        bits=bits,
         int_bits=7,
     )
     assert (a @ b).is_identical(
@@ -380,11 +381,13 @@ def test_matrix_multiplication_two_limb_result():
                 [14, 14, 14, 14, 14],
                 [32, 32, 32, 32, 32],
             ],
-            bits=82,
+            bits=2 * bits + 2,
             int_bits=19,
         )
     )
 
+
+def test_matrix_multiplication_two_limb_result():
     A = APyFixedArray.from_float(
         [[0.1, 0.2, 0.3], [-0.2, -0.3, -0.4]], int_bits=0, frac_bits=37
     )
