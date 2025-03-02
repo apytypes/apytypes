@@ -9,6 +9,13 @@ def test_fixed_matrix_multiplication_20(benchmark):
     benchmark(lambda x, y: x @ y, a, b)
 
 
+def test_fixed_matrix_multiplication_medium_20(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(20, 20) - 0.5, bits=39, int_bits=1)
+    b = APyFixedArray.from_float(np.random.rand(20, 20) - 0.5, bits=39, int_bits=1)
+
+    benchmark(lambda x, y: x @ y, a, b)
+
+
 # def test_fixed_matrix_multiplication_200(benchmark):
 #     a = APyFixedArray.from_float(np.random.rand(200, 200), bits=19, int_bits=1)
 #     b = APyFixedArray.from_float(np.random.rand(200, 200), bits=19, int_bits=1)

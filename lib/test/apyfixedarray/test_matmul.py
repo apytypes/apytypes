@@ -354,3 +354,43 @@ def test_inner_product_accumulator_edge():
         assert (B @ B).is_identical(
             APyFixedArray.from_float([357389824], int_bits=128 + 5, frac_bits=128)
         )
+
+
+def test_matrix_multiplication_two_limb_result():
+    a = APyFixedArray(
+        [
+            [1, 2, 3],
+            [4, 5, 6],
+        ],
+        bits=40,
+        int_bits=10,
+    )
+    b = APyFixedArray(
+        [
+            [1, 1, 1, 1, 1],
+            [2, 2, 2, 2, 2],
+            [3, 3, 3, 3, 3],
+        ],
+        bits=40,
+        int_bits=7,
+    )
+    assert (a @ b).is_identical(
+        APyFixedArray(
+            [
+                [14, 14, 14, 14, 14],
+                [32, 32, 32, 32, 32],
+            ],
+            bits=82,
+            int_bits=19,
+        )
+    )
+
+    A = APyFixedArray.from_float(
+        [[0.1, 0.2, 0.3], [-0.2, -0.3, -0.4]], int_bits=0, frac_bits=37
+    )
+    b = APyFixedArray.from_float([-3.2, 1.4, 4.5], int_bits=3, frac_bits=35)
+    assert (A @ b.T).is_identical(
+        APyFixedArray(
+            [145968347985444383584420, 7650233702228896597934], bits=77, int_bits=5
+        )
+    )
