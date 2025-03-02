@@ -33,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   for the Python `copy.copy` and `copy.deepcopy` functions.
 - Single limb abs and negation now use SIMD instructions.
 - Integer powers of `APyFixed`.
+- Fixed-point multiplication, including matrix multiplication, is faster for
+  single limb arguments resulting in a two-limb result.
 
 ### Fixed
 

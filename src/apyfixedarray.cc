@@ -1542,6 +1542,38 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
             }
             return result; // early exit
         }
+        /*
+         * Special case #2: No accumulator mode specified, resulting matrix elements fit
+         * into two limbs, and each argument element fits into a single limb.
+         * So far only supported for 64-bit limbs and compilation with gcc or clang.
+         */
+#if (COMPILER_LIMB_SIZE == 64)
+#if defined(__GNUC__)
+        // GNU C-compatible compiler (including Clang and MacOS Xcode)
+        if ((res_bits <= 2 * APY_LIMB_SIZE_BITS)
+            && (std::size_t(bits()) <= APY_LIMB_SIZE_BITS)
+            && (std::size_t(rhs.bits()) <= APY_LIMB_SIZE_BITS)) {
+            for (std::size_t x = 0; x < res_cols; x++) {
+                // Copy column from `rhs` and use as the current working column. As
+                // reading columns from `rhs` is cache-inefficient, we like to do this
+                // only once for each element in the resulting matrix.
+                for (std::size_t row = 0; row < rhs._shape[0]; row++) {
+                    current_col._data[row] = rhs._data[x + row * res_cols];
+                }
+                for (std::size_t y = 0; y < res_shape[0]; y++) {
+                    __int128 tmp = 0;
+                    for (std::size_t i = 0; i < _shape[1]; i++) {
+                        tmp += (__int128)apy_limb_signed_t(_data[y * _shape[1] + i])
+                            * (__int128)apy_limb_signed_t(current_col._data[i]);
+                    }
+                    result._data[2 * (y * res_cols + x) + 0] = apy_limb_t(tmp);
+                    result._data[2 * (y * res_cols + x) + 1] = apy_limb_t(tmp >> 64);
+                }
+            }
+            return result; // early exit
+        }
+#endif
+#endif
     }
 
     /*
