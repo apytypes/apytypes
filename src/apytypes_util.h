@@ -112,7 +112,8 @@ long_unsigned_mult(apy_limb_t src0, apy_limb_t src1)
 long_signed_mult(apy_limb_t src0, apy_limb_t src1)
 {
 #if (COMPILER_LIMB_SIZE == 32)
-    std::int64_t res = (std::int64_t)src0 * (std::int64_t)src1;
+    std::int64_t res
+        = (std::int64_t)apy_limb_signed_t(src0) * (std::int64_t)apy_limb_signed_t(src1);
     apy_limb_t high_limb = apy_limb_t(res >> 32);
     return { high_limb, apy_limb_t(res) };
 #elif (COMPILER_LIMB_SIZE == 64)
