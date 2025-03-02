@@ -1572,6 +1572,33 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
             }
             return result; // early exit
         }
+#elif defined(_MSC_VER)
+        // Microsoft Visual C/C++ compiler#endif
+        if ((res_bits <= 2 * APY_LIMB_SIZE_BITS)
+            && (std::size_t(bits()) <= APY_LIMB_SIZE_BITS)
+            && (std::size_t(rhs.bits()) <= APY_LIMB_SIZE_BITS)) {
+            for (std::size_t x = 0; x < res_cols; x++) {
+                // Copy column from `rhs` and use as the current working column. As
+                // reading columns from `rhs` is cache-inefficient, we like to do this
+                // only once for each element in the resulting matrix.
+                for (std::size_t row = 0; row < rhs._shape[0]; row++) {
+                    current_col._data[row] = rhs._data[x + row * res_cols];
+                }
+                for (std::size_t y = 0; y < res_shape[0]; y++) {
+                    apy_limb_t high_limb = 0, low_limb = 0;
+                    for (std::size_t i = 0; i < _shape[1]; i++) {
+                        auto [high_prod, low_prod] = long_signed_mult(
+                            _data[y * _shape[1] + i], current_col._data[i]
+                        );
+                        low_limb += low_prod;
+                        high_limb += high_prod + (low_limb < low_prod);
+                    }
+                    result._data[2 * (y * res_cols + x) + 0] = low_limb;
+                    result._data[2 * (y * res_cols + x) + 1] = high_limb;
+                }
+            }
+            return result; // early exit
+        }
 #endif
 #endif
     }
