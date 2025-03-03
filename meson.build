@@ -3,13 +3,28 @@ project(
     'cpp', 'c',
     default_options : ['cpp_std=c++17', 'c_std=c17', 'b_lto=true'],
     version : run_command(find_program('python3'), '-m', 'setuptools_scm', check: true).stdout().strip(),
+    meson_version : '>=1.1',
 )
 
 # Specify the compile-time limb size. Exactly one of `32`, `64`, or `NATIVE`
-add_project_arguments(
-    '-DCOMPILER_LIMB_SIZE=NATIVE',
-    language: ['cpp', 'c'],
-)
+if get_option('limb_size') == 'native'
+    add_project_arguments(
+        '-DCOMPILER_LIMB_SIZE=NATIVE',
+        language: ['cpp', 'c'],
+    )
+endif
+if get_option('limb_size') == '32'
+    add_project_arguments(
+        '-DCOMPILER_LIMB_SIZE=32',
+        language: ['cpp', 'c'],
+    )
+endif
+if get_option('limb_size') == '64'
+    add_project_arguments(
+        '-DCOMPILER_LIMB_SIZE=64',
+        language: ['cpp', 'c'],
+    )
+endif
 
 # Disable nanobind leak warnings on release builds
 if get_option('buildtype') == 'release'
