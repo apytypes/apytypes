@@ -409,10 +409,9 @@ namespace HWY_NAMESPACE { // required: unique per target
     {
         constexpr const hn::ScalableTag<apy_limb_t> d;
         return fmt::format(
-            "APyTypes SIMD: {{ "
-            "'SIMD Runtime Target': '{}', "
-            "'Runtime Parallel-Limb Support': '{} x {}-bit'"
-            " }}",
+            "APyTypes SIMD:\n"
+            "    * SIMD runtime target: {}\n"
+            "    * Runtime parallel-limb support: {} x {}-bit",
             hwy::TargetName(HWY_TARGET),
             hn::Lanes(d),
             APY_LIMB_SIZE_BITS
