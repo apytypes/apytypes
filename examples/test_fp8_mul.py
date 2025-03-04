@@ -12,6 +12,7 @@ Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are availabl
 
 import os
 from pathlib import Path
+import shutil
 import cocotb
 from cocotb.clock import Clock
 from cocotb.runner import get_runner
@@ -84,7 +85,10 @@ def test_fp8_mul():
 
 
 if __name__ == "__main__":
-    test_fp8_mul()
+    if shutil.which("nvc"):
+        test_fp8_mul()
+    else:
+        print("NVC not found")
 
 # %%
 # The contents of ``fp8_multiplier.vhdl`` is shown below.
