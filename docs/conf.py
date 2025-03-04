@@ -46,6 +46,8 @@ intersphinx_mapping = {
     "cocotb": ("https://docs.cocotb.org/en/stable/", None),
 }
 
+suppress_warnings = ["autosectionlabel.*"]
+
 # Breathe Configuration
 breathe_default_project = "APyTypes"
 

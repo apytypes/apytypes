@@ -1173,7 +1173,7 @@ void bind_float_array(nb::module_& m)
                 If a specified axis is outside of the existing number of dimensions for the array.
 
             Examples
-            -------
+            --------
 
             >>> from apytypes import APyFloatArray
 
