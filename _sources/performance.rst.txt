@@ -30,15 +30,39 @@ See the figure below for the effect of using arrays and the current operation sp
 .. image:: _static/performancescale.png
    :alt: Illustration of the obtained performance as a function of array size
 
-Inplace shifting for fixed-point
---------------------------------
+In-place shifting for fixed-point
+---------------------------------
 
 Shifting is used to move the binary point of fixed-point numbers. Hence, this will only involve updating the
 number of integer/fractional bits. However, it may also involve creating a new object, so it is preferred to
-use inplace shifting if possible.
+use in-place shifting if possible.
 
 .. code-block:: Python
 
     a = APyFixed(5, bits=6, int_bits=4)
     a = a >> 1   # slower
     a >>= 1   # faster
+
+Limb-size selection
+-------------------
+
+Fixed-point numbers are represented using one or more *limbs*. The size of the limb is determined by the
+system APyTypes is compiled against, but will be 64 bits for most "modern" CPUs. This means that all arrays will
+scale in multiples of 64 bits, so even if you have an array 10-bit fixed-point numbers, each number will be stored
+as a 64-bit number. This, naturally, has implications on memory use. In addition, all SIMD instructions will operate
+on 64-bit numbers.
+
+Hence, if you know that you will primarily work with short fixed-point number it *may* be more efficient to
+change the limb size to 32 bits. This will save memory for storing arrays and will double the number of operations
+done in parallel in the SIMD unit.
+
+Note that since APyTypes requires explicit quantization, one should consider the
+word length of the result. If you work with 20-bit numbers, a multiplication will result in a 40-bit result, and
+there will be no SIMD-benefit. However, if almost all intermediate results are 32 bits or less, this *may* give
+better performance.
+
+To compile APyTypes with 32-bit limbs (on a 64-bit platform), do:
+
+.. code-block::
+
+    python -m pip install . -v --config-settings=setup-args="-Dlimb_size=32"

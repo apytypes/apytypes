@@ -28,13 +28,14 @@ Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are availabl
 
 .. _examples: https://github.com/apytypes/apytypes/tree/main/examples
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-58
+.. GENERATED FROM PYTHON SOURCE LINES 12-59
 
 .. code-block:: Python
 
 
     import os
     from pathlib import Path
+    import shutil
     import cocotb
     from cocotb.clock import Clock
     from cocotb.runner import get_runner
@@ -86,17 +87,17 @@ Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are availabl
 
  .. code-block:: none
 
-    /home/runner/work/apytypes/apytypes/examples/test_fp8_mul.py:17: UserWarning: Python runners and associated APIs are an experimental feature and subject to change.
+    /home/runner/work/apytypes/apytypes/examples/test_fp8_mul.py:18: UserWarning: Python runners and associated APIs are an experimental feature and subject to change.
       from cocotb.runner import get_runner
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 59-60
+.. GENERATED FROM PYTHON SOURCE LINES 60-61
 
 The rest of the testbench is set up as one would normally do using cocotb.
 
-.. GENERATED FROM PYTHON SOURCE LINES 60-89
+.. GENERATED FROM PYTHON SOURCE LINES 61-93
 
 .. code-block:: Python
 
@@ -127,7 +128,10 @@ The rest of the testbench is set up as one would normally do using cocotb.
 
 
     if __name__ == "__main__":
-        test_fp8_mul()
+        if shutil.which("nvc"):
+            test_fp8_mul()
+        else:
+            print("NVC not found")
 
 
 
@@ -144,7 +148,7 @@ The rest of the testbench is set up as one would normally do using cocotb.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 90-94
+.. GENERATED FROM PYTHON SOURCE LINES 94-98
 
 The contents of ``fp8_multiplier.vhdl`` is shown below.
 
@@ -154,7 +158,7 @@ The contents of ``fp8_multiplier.vhdl`` is shown below.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 15.454 seconds)
+   **Total running time of the script:** (0 minutes 15.678 seconds)
 
 
 .. _sphx_glr_download_examples_test_fp8_mul.py:

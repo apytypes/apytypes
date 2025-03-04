@@ -13,8 +13,6 @@
 
    .. automethod:: to_numpy
 
-   .. automethod:: to_bits
-
    Creation from other types
    -------------------------
 
@@ -46,11 +44,6 @@
    ----------
 
    .. automethod:: is_identical
-
-   Convolution
-   -----------
-
-   .. automethod:: convolve
 
    Transposition
    -------------
