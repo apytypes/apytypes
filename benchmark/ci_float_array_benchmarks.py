@@ -130,3 +130,24 @@ def test_float_matrix_cast_200(benchmark):
     a = APyFloatArray.from_float(np.random.rand(200, 200) - 0.5, 8, 20)
 
     benchmark(lambda x: x.cast(4, 7), a)
+
+
+def test_fixed_convolve_20(benchmark):
+    a = APyFloatArray.from_float(np.random.rand(20) - 0.5, 8, 20)
+    b = APyFloatArray.from_float(np.random.rand(20) - 0.5, 8, 20)
+
+    benchmark(lambda x, y: x.convolve(y), a, b)
+
+
+def test_fixed_convolve_200(benchmark):
+    a = APyFloatArray.from_float(np.random.rand(20) - 0.5, 8, 20)
+    b = APyFloatArray.from_float(np.random.rand(20) - 0.5, 8, 20)
+
+    benchmark(lambda x, y: x.convolve(y), a, b)
+
+
+def test_fixed_convolve_long_20(benchmark):
+    a = APyFloatArray.from_float(np.random.rand(20) - 0.5, 10, 50)
+    b = APyFloatArray.from_float(np.random.rand(20) - 0.5, 10, 50)
+
+    benchmark(lambda x, y: x.convolve(y), a, b)
