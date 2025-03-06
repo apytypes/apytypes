@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:16.431** total execution time for 6 files **from examples**:
+**00:17.162** total execution time for 6 files **from examples**:
 
 .. container::
 
@@ -33,20 +33,20 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_examples_test_fp8_mul.py` (``test_fp8_mul.py``)
-     - 00:15.424
+     - 00:16.160
      - 0.0
    * - :ref:`sphx_glr_examples_numpy_integration.py` (``numpy_integration.py``)
-     - 00:00.573
+     - 00:00.567
      - 0.0
    * - :ref:`sphx_glr_examples_reciprocal_lookup.py` (``reciprocal_lookup.py``)
-     - 00:00.310
+     - 00:00.313
      - 0.0
    * - :ref:`sphx_glr_examples_vectorrotation.py` (``vectorrotation.py``)
-     - 00:00.115
+     - 00:00.113
      - 0.0
    * - :ref:`sphx_glr_examples_apyfloat.py` (``apyfloat.py``)
      - 00:00.007
      - 0.0
    * - :ref:`sphx_glr_examples_apyfixed.py` (``apyfixed.py``)
-     - 00:00.002
+     - 00:00.003
      - 0.0
