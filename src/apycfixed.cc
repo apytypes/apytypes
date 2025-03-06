@@ -243,9 +243,30 @@ APyCFixed APyCFixed::operator*(const APyCFixed& rhs) const
         result._data[1] = apy_limb_t(re_res >> COMPILER_LIMB_SIZE);
         result._data[2] = apy_limb_t(im_res);
         result._data[3] = apy_limb_t(im_res >> COMPILER_LIMB_SIZE);
+        return result;
     }
 #endif
 #endif
+
+#if (COMPILER_LIMB_SIZE == 32)
+    // Double limb result specialization
+    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS
+        && unsigned(bits()) <= COMPILER_LIMB_SIZE
+        && unsigned(rhs.bits()) <= COMPILER_LIMB_SIZE) {
+        std::int64_t re0 = (std::int64_t)apy_limb_signed_t(_data[0]);
+        std::int64_t im0 = (std::int64_t)apy_limb_signed_t(_data[1]);
+        std::int64_t re1 = (std::int64_t)apy_limb_signed_t(rhs._data[0]);
+        std::int64_t im1 = (std::int64_t)apy_limb_signed_t(rhs._data[1]);
+        auto re_res = re0 * re1 - im0 * im1;
+        auto im_res = re0 * im1 + im0 * re1;
+        result._data[0] = apy_limb_t(re_res);
+        result._data[1] = apy_limb_t(re_res >> COMPILER_LIMB_SIZE);
+        result._data[2] = apy_limb_t(im_res);
+        result._data[3] = apy_limb_t(im_res >> COMPILER_LIMB_SIZE);
+        return result;
+    }
+#endif
+
     // Scratch data:
     // * op1_abs:       _data.size() / 2
     // * op2_abs:       rhs._data.size() / 2
