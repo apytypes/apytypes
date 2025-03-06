@@ -194,7 +194,6 @@ apy_limb_t apy_unsigned_multiplication(
 
     // Multiply src0 with the remaining limbs of src1, adding the previous partial
     // results
-    carry = 0;
     for (std::size_t i = 1; i < src1_limbs; i++) {
         // First iteration outside of loop to save a few computations
         // TODO: Rewrite to use __int128 on supported architectures
@@ -288,9 +287,9 @@ inline apy_limb_t apy_limb_multiplication(apy_limb_t src0, apy_limb_t src1)
 
 /* The 3/2 inverse is defined as
 
-    m = floor( (B^3-1) / (B u1 + u0)) - B
+    inverse = floor( (B^3-1) / (B norm_denominator_1 + norm_denominator_0)) - B
 */
-apy_limb_t APyDivInverse::compute_3by2_inverse(apy_limb_t u1, apy_limb_t u0)
+void APyDivInverse::compute_3by2_inverse()
 {
     static_assert(
         sizeof(unsigned) * 2 >= APY_LIMB_SIZE_BYTES,
@@ -300,14 +299,16 @@ apy_limb_t APyDivInverse::compute_3by2_inverse(apy_limb_t u1, apy_limb_t u0)
         "platform and we will be happy to add support for it."
     );
     /* For notation, let b denote the half-limb base, so that B = b^2.
-        Split u1 = b u1_high + u1_low. */
-    unsigned u1_low = u1 & APY_LOWER_LIMB_MASK;
-    unsigned u1_high = u1 >> APY_HALF_LIMB_SIZE_BITS;
+        Split norm_denominator_1 = b norm_denominator_1_high + norm_denominator_1_low.
+     */
+    unsigned norm_denominator_1_low = norm_denominator_1 & APY_LOWER_LIMB_MASK;
+    unsigned norm_denominator_1_high = norm_denominator_1 >> APY_HALF_LIMB_SIZE_BITS;
 
     /* Approximation of the high half of quotient. Differs from the 2/1
-        inverse of the half limb u1_high, since we have already subtracted
-        u0. */
-    unsigned quotient_high_approx = (u1 ^ APY_NUMBER_MASK) / u1_high;
+        inverse of the half limb norm_denominator_1_high, since we have already
+       subtracted norm_denominator_0. */
+    unsigned quotient_high_approx
+        = (norm_denominator_1 ^ APY_NUMBER_MASK) / norm_denominator_1_high;
 
     /* Adjust to get a half-limb 3/2 inverse, i.e., we want
 
@@ -317,35 +318,38 @@ apy_limb_t APyDivInverse::compute_3by2_inverse(apy_limb_t u1, apy_limb_t u0)
 
         and the remainder
 
-        remainder = b (~u) + b-1 - quotient_high_approx (b u1_high + u1_low)
-                  = b (~u - quotient_high_approx u1_high) +
-                    b-1 - quotient_high_approx u1_low
+        remainder = b (~u) + b-1 - quotient_high_approx (b norm_denominator_1_high +
+       norm_denominator_1_low) = b (~u - quotient_high_approx norm_denominator_1_high) +
+                    b-1 - quotient_high_approx norm_denominator_1_low
 
-        Subtraction of quotient_high_approx u1_low may underflow, which implies
-       adjustments. But by normalization, 2 u >= B > quotient_high_approx u1_low, so we
-       need to adjust by at most 2.
+        Subtraction of quotient_high_approx norm_denominator_1_low may underflow, which
+       implies adjustments. But by normalization, 2 u >= B > quotient_high_approx
+       norm_denominator_1_low, so we need to adjust by at most 2.
     */
 
-    apy_limb_t remainder = ((~u1 - (apy_limb_t)quotient_high_approx * u1_high)
-                            << APY_HALF_LIMB_SIZE_BITS)
+    apy_limb_t remainder
+        = ((~norm_denominator_1
+            - (apy_limb_t)quotient_high_approx * norm_denominator_1_high)
+           << APY_HALF_LIMB_SIZE_BITS)
         | APY_LOWER_LIMB_MASK;
 
-    apy_limb_t p = (apy_limb_t)quotient_high_approx * u1_low;
+    apy_limb_t p = (apy_limb_t)quotient_high_approx * norm_denominator_1_low;
     /* Adjustment steps taken from udiv_qrnnd_c */
     if (remainder < p) {
         quotient_high_approx--;
-        remainder += u1;
-        if (remainder >= u1) /* i.e. we didn't get carry when adding to remainder */
+        remainder += norm_denominator_1;
+        if (remainder >= norm_denominator_1) /* i.e. we didn't get carry when adding to
+                                                remainder */
             if (remainder < p) {
                 quotient_high_approx--;
-                remainder += u1;
+                remainder += norm_denominator_1;
             }
     }
     remainder -= p;
 
     /* Low half of the quotient is
 
-        quotient_low = floor ( (b remainder + b-1) / u1).
+        quotient_low = floor ( (b remainder + b-1) / norm_denominator_1).
 
         This is a 3/2 division (on half-limbs), for which quotient_high_approx is a
         suitable inverse. */
@@ -357,41 +361,45 @@ apy_limb_t APyDivInverse::compute_3by2_inverse(apy_limb_t u1, apy_limb_t u0)
 
     /* By the 3/2 trick, we don't need the high half limb. */
     remainder = (remainder << APY_HALF_LIMB_SIZE_BITS) + APY_LOWER_LIMB_MASK
-        - apy_limb_multiplication(quotient_low, u1);
+        - apy_limb_multiplication(quotient_low, norm_denominator_1);
 
     if (remainder >= (APY_NUMBER_MASK & (p << APY_HALF_LIMB_SIZE_BITS))) {
         quotient_low--;
-        remainder += u1;
+        remainder += norm_denominator_1;
     }
-    apy_limb_t m
+    apy_limb_t tmp_inverse
         = ((apy_limb_t)quotient_high_approx << APY_HALF_LIMB_SIZE_BITS) + quotient_low;
-    if (remainder >= u1) {
-        m++;
-        remainder -= u1;
+    if (remainder >= norm_denominator_1) {
+        tmp_inverse++;
+        remainder -= norm_denominator_1;
     }
 
-    /* Now m is the 2/1 inverse of u1. If u0 > 0, adjust it to become a
-       3/2 inverse. */
-    if (u0 > 0) {
+    /* Now m is the 2/1 inverse of norm_denominator_1. If norm_denominator_0 > 0, adjust
+       it to become a 3/2 inverse. */
+    if (norm_denominator_0 > 0) {
         remainder = ~remainder;
-        remainder += u0;
-        if (remainder < u0) {
-            m--;
-            if (remainder >= u1) {
-                m--;
-                remainder -= u1;
+        remainder += norm_denominator_0;
+        if (remainder < norm_denominator_0) {
+            tmp_inverse--;
+            if (remainder >= norm_denominator_1) {
+                tmp_inverse--;
+                remainder -= norm_denominator_1;
             }
-            remainder -= u1;
+            remainder -= norm_denominator_1;
         }
-        auto [prod_high, prod_low] = long_unsigned_mult(u0, m);
+        auto [prod_high, prod_low]
+            = long_unsigned_mult(norm_denominator_0, tmp_inverse);
         remainder += prod_high;
         if (remainder < prod_high) {
-            m--;
-            m -= ((remainder > u1) | ((remainder == u1) & (prod_low > u0)));
+            tmp_inverse--;
+            tmp_inverse
+                -= ((remainder > norm_denominator_1)
+                    | ((remainder == norm_denominator_1)
+                       & (prod_low > norm_denominator_0)));
         }
     }
 
-    return m;
+    inverse = tmp_inverse;
 }
 
 APyDivInverse::APyDivInverse(
@@ -427,7 +435,7 @@ APyDivInverse::APyDivInverse(
                    >> (APY_LIMB_SIZE_BITS - norm_shift));
         }
     }
-    inverse = compute_3by2_inverse(norm_denominator_1, norm_denominator_0);
+    compute_3by2_inverse();
 }
 
 apy_limb_t apy_division_single_limb_preinverted(

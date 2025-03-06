@@ -658,6 +658,8 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
         );
         limb_vector_lsl(abs_num.begin(), abs_num.end(), rhs.bits());
 
+        // TODO: Add function so that APyDivInverse object can be reused for
+        // denominator.
         apy_unsigned_division(
             &result._data[i * result._itemsize], // Quotient
             &abs_num[0],                         // Numerator

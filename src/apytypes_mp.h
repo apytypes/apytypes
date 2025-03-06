@@ -304,7 +304,7 @@ public:
 
 private:
     //! Compute the 3/2 (or 2/1) inverse.
-    apy_limb_t compute_3by2_inverse(apy_limb_t, apy_limb_t);
+    void compute_3by2_inverse();
 };
 
 void apy_unsigned_division(
