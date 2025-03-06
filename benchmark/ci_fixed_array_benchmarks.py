@@ -147,7 +147,7 @@ def test_fixed_matrix_abs_20(benchmark):
 
 
 def test_fixed_matrix_abs_200(benchmark):
-    a = APyFixedArray.from_float(np.random.rand(200, 200), bits=19, int_bits=1)
+    a = APyFixedArray.from_float(np.random.rand(200, 200) - 0.5, bits=19, int_bits=1)
 
     benchmark(abs, a)
 
