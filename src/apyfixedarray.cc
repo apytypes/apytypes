@@ -1105,13 +1105,12 @@ APyFixedArray APyFixedArray::operator-() const
         return result;
     }
     // Sign-extend in case an additional limb is required
-    _cast_no_quantize_no_overflow(
-        std::begin(_data),               // src
-        std::begin(result._data),        // dst
-        _itemsize,                       // src_limbs
-        result._itemsize,                // dst_limbs
-        _nitems,                         // n_items
-        result.frac_bits() - frac_bits() // left_shift_amount
+    _cast_no_quantize_no_overflow_no_shift(
+        std::begin(_data),        // src
+        std::begin(result._data), // dst
+        _itemsize,                // src_limbs
+        result._itemsize,         // dst_limbs
+        _nitems
     );
     auto it_begin = result._data.begin();
     for (std::size_t i = 0; i < _nitems; i++) {
