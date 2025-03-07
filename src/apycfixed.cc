@@ -7,6 +7,7 @@
 #include <Python.h> // PYLONG_BITS_IN_DIGIT, PyLongObject
 
 #include "apycfixed.h"
+#include "apycfixed_util.h"
 #include "apyfixed.h"
 #include "apyfixed_util.h"
 #include "apyfloat.h"
@@ -233,16 +234,7 @@ APyCFixed APyCFixed::operator*(const APyCFixed& rhs) const
     if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         if (unsigned(bits()) <= COMPILER_LIMB_SIZE
             && unsigned(rhs.bits()) <= COMPILER_LIMB_SIZE) {
-            __int128 re0 = (__int128)apy_limb_signed_t(_data[0]);
-            __int128 im0 = (__int128)apy_limb_signed_t(_data[1]);
-            __int128 re1 = (__int128)apy_limb_signed_t(rhs._data[0]);
-            __int128 im1 = (__int128)apy_limb_signed_t(rhs._data[1]);
-            auto re_res = re0 * re1 - im0 * im1;
-            auto im_res = re0 * im1 + im0 * re1;
-            result._data[0] = apy_limb_t(re_res);
-            result._data[1] = apy_limb_t(re_res >> COMPILER_LIMB_SIZE);
-            result._data[2] = apy_limb_t(im_res);
-            result._data[3] = apy_limb_t(im_res >> COMPILER_LIMB_SIZE);
+            complex_multiplication_1_1_2_64(&result._data[0], &_data[0], &rhs._data[0]);
             return result;
         } else {
             __int128 re0, im0, re1, im1;
@@ -278,16 +270,7 @@ APyCFixed APyCFixed::operator*(const APyCFixed& rhs) const
     if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS) {
         if (unsigned(bits()) <= COMPILER_LIMB_SIZE
             && unsigned(rhs.bits()) <= COMPILER_LIMB_SIZE) {
-            std::int64_t re0 = (std::int64_t)apy_limb_signed_t(_data[0]);
-            std::int64_t im0 = (std::int64_t)apy_limb_signed_t(_data[1]);
-            std::int64_t re1 = (std::int64_t)apy_limb_signed_t(rhs._data[0]);
-            std::int64_t im1 = (std::int64_t)apy_limb_signed_t(rhs._data[1]);
-            auto re_res = re0 * re1 - im0 * im1;
-            auto im_res = re0 * im1 + im0 * re1;
-            result._data[0] = apy_limb_t(re_res);
-            result._data[1] = apy_limb_t(re_res >> COMPILER_LIMB_SIZE);
-            result._data[2] = apy_limb_t(im_res);
-            result._data[3] = apy_limb_t(im_res >> COMPILER_LIMB_SIZE);
+            complex_multiplication_1_1_2_32(&result._data[0], &_data[0], &rhs._data[0]);
             return result;
         } else {
             std::int64_t re0, im0, re1, im1;
