@@ -400,6 +400,19 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::matmul(const APyFloatArray&
     ));
 }
 
+APyFloatArray APyFloatArray::operator~() const
+{
+    auto res = *this;
+    auto exp_mask = ((1ULL << exp_bits) - 1);
+    auto man_mask = ((1ULL << man_bits) - 1);
+    for (std::size_t i = 0; i < res._data.size(); i++) {
+        res._data[i].sign = !res._data[i].sign;
+        res._data[i].exp = (~res._data[i].exp) & exp_mask;
+        res._data[i].man = (~res._data[i].man) & man_mask;
+    }
+    return res;
+}
+
 /* ****************************************************************************** *
  *                     Static methods for array initialization                    *
  * ****************************************************************************** */

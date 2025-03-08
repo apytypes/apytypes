@@ -231,6 +231,9 @@ public:
     //! Unary positive
     APY_INLINE APyCFixed operator+() const { return *this; };
 
+    //! Logic not
+    APyCFixed operator~() const;
+
     //! Retrieve real part
     APyFixed get_real() const;
 

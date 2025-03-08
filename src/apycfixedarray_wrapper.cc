@@ -159,6 +159,11 @@ void bind_cfixed_array(nb::module_& m)
         .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, nb::int_>, is_op())
 
         /*
+         * Logic operations
+         */
+        .def(~nb::self)
+
+        /*
          * Get real and imaginary part
          */
         .def_prop_ro("real", &APyCFixedArray::get_real, R"pbdoc(

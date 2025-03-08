@@ -469,6 +469,13 @@ APyFixed APyFixed::operator-() const
     return result;
 }
 
+APyFixed APyFixed::operator~() const
+{
+    APyFixed result(_bits, _int_bits);
+    std::transform(_data.cbegin(), _data.cend(), result._data.begin(), std::bit_not {});
+    return result;
+}
+
 APyFixed APyFixed::abs() const
 {
     const int res_bits = _bits + 1;

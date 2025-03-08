@@ -35,7 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integer powers of `APyFixed`.
 - Fixed-point multiplication, including matrix multiplication, is faster for
   single limb arguments resulting in a two-limb result.
-- Support for unary +, `__pos__`.
+- Support for unary plus: `+X`, `__pos__`.
+- Support for logic not: `~X`, `__invert__`.
 
 ### Fixed
 

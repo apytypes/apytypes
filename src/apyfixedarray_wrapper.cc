@@ -173,6 +173,11 @@ void bind_fixed_array(nb::module_& m)
         //.def("__rtruediv__", R_OP<std::divides<>>, nb::is_operator())
 
         /*
+         * Logic operations
+         */
+        .def(~nb::self)
+
+        /*
          * Properties and methods
          */
         .def_prop_ro("bits", &APyFixedArray::bits, R"pbdoc(
