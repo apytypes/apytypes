@@ -448,35 +448,18 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixedArray& rhs) const
         return result; // early exit
     }
 
-#if (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__)
     // Double limb result specialization
     if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS
-        && unsigned(bits()) <= COMPILER_LIMB_SIZE
-        && unsigned(rhs.bits()) <= COMPILER_LIMB_SIZE) {
+        && unsigned(bits()) <= APY_LIMB_SIZE_BITS
+        && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
         for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
-            complex_multiplication_1_1_2_64(
+            complex_multiplication_1_1_2(
                 &result._data[2 * i], &_data[i], &rhs._data[i]
             );
         }
         return result; // early exit
     }
-#endif
-#endif
 
-#if (COMPILER_LIMB_SIZE == 32)
-    // Double limb result specialization
-    if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS
-        && unsigned(bits()) <= COMPILER_LIMB_SIZE
-        && unsigned(rhs.bits()) <= COMPILER_LIMB_SIZE) {
-        for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
-            complex_multiplication_1_1_2_32(
-                &result._data[2 * i], &_data[i], &rhs._data[i]
-            );
-        }
-        return result; // early exit
-    }
-#endif
     // Scratch data:
     // * op1_abs:       _itemsize / 2
     // * op2_abs:       rhs._itemsize / 2
@@ -530,8 +513,8 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixed& rhs) const
 #if defined(__GNUC__)
     // Double limb result specialization
     if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS
-        && unsigned(bits()) <= COMPILER_LIMB_SIZE
-        && unsigned(rhs.bits()) <= COMPILER_LIMB_SIZE) {
+        && unsigned(bits()) <= APY_LIMB_SIZE_BITS
+        && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
         __int128 re1 = (__int128)apy_limb_signed_t(rhs._data[0]);
         __int128 im1 = (__int128)apy_limb_signed_t(rhs._data[1]);
         for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
@@ -540,20 +523,19 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixed& rhs) const
             auto re_res = re0 * re1 - im0 * im1;
             auto im_res = re0 * im1 + im0 * re1;
             result._data[2 * i + 0] = apy_limb_t(re_res);
-            result._data[2 * i + 1] = apy_limb_t(re_res >> COMPILER_LIMB_SIZE);
+            result._data[2 * i + 1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
             result._data[2 * i + 2] = apy_limb_t(im_res);
-            result._data[2 * i + 3] = apy_limb_t(im_res >> COMPILER_LIMB_SIZE);
+            result._data[2 * i + 3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
         }
         return result; // early exit
     }
 #endif
-#endif
-
-#if (COMPILER_LIMB_SIZE == 32)
+#else
+    // COMPILER_LIMB_SIZE == 32
     // Double limb result specialization
     if (unsigned(res_bits) <= 2 * APY_LIMB_SIZE_BITS
-        && unsigned(bits()) <= COMPILER_LIMB_SIZE
-        && unsigned(rhs.bits()) <= COMPILER_LIMB_SIZE) {
+        && unsigned(bits()) <= APY_LIMB_SIZE_BITS
+        && unsigned(rhs.bits()) <= APY_LIMB_SIZE_BITS) {
         std::int64_t re1 = (std::int64_t)apy_limb_signed_t(rhs._data[0]);
         std::int64_t im1 = (std::int64_t)apy_limb_signed_t(rhs._data[1]);
         for (std::size_t i = 0; i < result._nitems * 2; i += 2) {
@@ -562,9 +544,9 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixed& rhs) const
             auto re_res = re0 * re1 - im0 * im1;
             auto im_res = re0 * im1 + im0 * re1;
             result._data[2 * i + 0] = apy_limb_t(re_res);
-            result._data[2 * i + 1] = apy_limb_t(re_res >> COMPILER_LIMB_SIZE);
+            result._data[2 * i + 1] = apy_limb_t(re_res >> APY_LIMB_SIZE_BITS);
             result._data[2 * i + 2] = apy_limb_t(im_res);
-            result._data[2 * i + 3] = apy_limb_t(im_res >> COMPILER_LIMB_SIZE);
+            result._data[2 * i + 3] = apy_limb_t(im_res >> APY_LIMB_SIZE_BITS);
         }
         return result; // early exit
     }
