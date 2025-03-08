@@ -136,6 +136,25 @@ namespace HWY_NAMESPACE { // required: unique per target
         }
     }
 
+    HWY_ATTR void _hwy_vector_not(
+        apy_limb_signed_t* HWY_RESTRICT dst,
+        const apy_limb_signed_t* HWY_RESTRICT src,
+        const std::size_t size
+    )
+    {
+        constexpr const hn::ScalableTag<apy_limb_signed_t> d;
+        const std::size_t size_simd = size - size % hn::Lanes(d);
+
+        std::size_t i = 0;
+        for (; i < size_simd; i += hn::Lanes(d)) {
+            const auto res = hn::Not(hn::LoadU(d, src + i));
+            hn::StoreU(res, d, dst + i);
+        }
+        for (; i < size; i++) {
+            dst[i] = ~apy_limb_signed_t(src[i]);
+        }
+    }
+
     HWY_ATTR void _hwy_vector_abs(
         apy_limb_signed_t* HWY_RESTRICT dst,
         const apy_limb_signed_t* HWY_RESTRICT src,
@@ -442,6 +461,7 @@ HWY_EXPORT(_hwy_vector_add);
 HWY_EXPORT(_hwy_vector_sub);
 HWY_EXPORT(_hwy_vector_neg);
 HWY_EXPORT(_hwy_vector_abs);
+HWY_EXPORT(_hwy_vector_not);
 HWY_EXPORT(_hwy_vector_add_const);
 HWY_EXPORT(_hwy_vector_sub_const);
 HWY_EXPORT(_hwy_vector_rsub_const);
@@ -524,6 +544,19 @@ void vector_neg(
 )
 {
     return HWY_DYNAMIC_DISPATCH(_hwy_vector_neg)(
+        reinterpret_cast<apy_limb_signed_t*>(&*dst_begin),
+        reinterpret_cast<const apy_limb_signed_t*>(&*src_begin),
+        size
+    );
+}
+
+void vector_not(
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src_begin,
+    std::size_t size
+)
+{
+    return HWY_DYNAMIC_DISPATCH(_hwy_vector_not)(
         reinterpret_cast<apy_limb_signed_t*>(&*dst_begin),
         reinterpret_cast<const apy_limb_signed_t*>(&*src_begin),
         size

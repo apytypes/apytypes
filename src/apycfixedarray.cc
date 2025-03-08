@@ -893,9 +893,7 @@ APyCFixedArray APyCFixedArray::operator-() const
     // Specialization 2: Same number of limb
     if (_itemsize == result._itemsize) {
         // Copy inverted data into the result
-        std::transform(
-            _data.cbegin(), _data.cend(), result._data.begin(), std::bit_not {}
-        );
+        simd::vector_not(result._data.begin(), _data.begin(), _itemsize * _nitems);
         auto it_begin = result._data.begin();
         for (std::size_t i = 0; i < 2 * _nitems; i++) {
             auto it_end = it_begin + result._itemsize / 2;
@@ -933,7 +931,7 @@ APyCFixedArray APyCFixedArray::operator~() const
 {
     // Resulting `APyCFixedArray` fixed-point tensor
     APyCFixedArray result(_shape, _bits, _int_bits);
-    std::transform(_data.cbegin(), _data.cend(), result._data.begin(), std::bit_not {});
+    simd::vector_not(result._data.begin(), _data.begin(), _itemsize * _nitems);
     return result;
 }
 
