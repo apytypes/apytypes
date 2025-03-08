@@ -194,6 +194,7 @@ void bind_fixed_array(nb::module_& m)
          * Logic operations
          */
         .def(~nb::self)
+        .def(nb::self & nb::self)
 
         /*
          * Properties and methods
