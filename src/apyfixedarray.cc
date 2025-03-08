@@ -1115,9 +1115,7 @@ APyFixedArray APyFixedArray::operator-() const
     if (_itemsize == result._itemsize) {
 
         // Copy inverted data into the result
-        std::transform(
-            _data.cbegin(), _data.cend(), result._data.begin(), std::bit_not {}
-        );
+        simd::vector_not(result._data.begin(), _data.begin(), _itemsize * _nitems);
         auto it_begin = result._data.begin();
         for (std::size_t i = 0; i < _nitems; i++) {
             auto it_end = it_begin + result._itemsize;
@@ -1157,7 +1155,7 @@ APyFixedArray APyFixedArray::operator~() const
 {
     // Resulting `APyFixedArray` fixed-point tensor
     APyFixedArray result(_shape, _bits, _int_bits);
-    std::transform(_data.cbegin(), _data.cend(), result._data.begin(), std::bit_not {});
+    simd::vector_not(result._data.begin(), _data.begin(), _itemsize * _nitems);
     return result;
 }
 

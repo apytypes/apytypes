@@ -168,6 +168,15 @@ void vector_neg(
 );
 
 /*!
+ * Perform logic not of the elements in `src_begin`, for `size` number of elements.
+ */
+void vector_not(
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src_begin,
+    std::size_t size
+);
+
+/*!
  * Perform absolute computation of the elements in `src_begin`, for `size` number of
  * elements.
  */
