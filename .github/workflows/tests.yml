@@ -47,6 +47,7 @@ jobs:
             python-version: "3.13t"
           # No precompiled Numpy 1 for Python 3.13 on Windows
           - os: "windows-latest"
+            python-version: "3.13"
             numpy-version: ">=1.26.4,<2"
           # Only test 3.14-dev on Ubuntu
           - os: "windows-latest"
