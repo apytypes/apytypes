@@ -643,3 +643,31 @@ def test_pow():
     assert (b**5).is_identical(b5)
     assert (b**1).is_identical(b)
     assert (b**0).is_identical(APyFixed(1, 10, 0))
+
+
+@pytest.mark.parametrize("bits", range(13, 90))
+def test_addition_different_wordlengths(bits):
+    a = APyFixed(3, bits=bits, int_bits=7)
+    b = APyFixed(18, bits=bits, int_bits=7)
+    assert (a + b).is_identical(APyFixed(21, bits=bits + 1, int_bits=8))
+
+
+@pytest.mark.parametrize("bits", range(13, 90))
+def test_addition_different_wordlengths_different_fracbits(bits):
+    a = APyFixed(3, bits=bits, int_bits=8)
+    b = APyFixed(18, bits=bits, int_bits=6)
+    assert (a + b).is_identical(APyFixed(30, bits=bits + 3, int_bits=9))
+
+
+@pytest.mark.parametrize("bits", range(13, 90))
+def test_multiplication_different_wordlengths(bits):
+    a = APyFixed(3, bits=bits, int_bits=7)
+    b = APyFixed(18, bits=bits, int_bits=7)
+    assert (a * b).is_identical(APyFixed(54, bits=2 * bits, int_bits=14))
+
+
+@pytest.mark.parametrize("bits", range(13, 90))
+def test_multiplicatio_different_wordlengths_different_fracbits(bits):
+    a = APyFixed(3, bits=bits, int_bits=8)
+    b = APyFixed(18, bits=bits, int_bits=6)
+    assert (a * b).is_identical(APyFixed(54, bits=2 * bits, int_bits=14))
