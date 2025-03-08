@@ -883,28 +883,49 @@ APyCFixedArray APyCFixedArray::operator-() const
     const int res_int_bits = _int_bits + 1;
     const int res_bits = _bits + 1;
 
-    // Single limb specialization
+    // Specialization 1: Single limb
     APyCFixedArray result(_shape, res_bits, res_int_bits);
     if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
         simd::vector_neg(result._data.begin(), _data.begin(), _data.size());
         return result;
     }
 
-    // General case
-    _cast_no_quantize_no_overflow(
-        std::begin(_data),               // src
-        std::begin(result._data),        // dst
-        _itemsize / 2,                   // src_limbs
-        result._itemsize / 2,            // dst_limbs
-        2 * _nitems,                     // n_items
-        result.frac_bits() - frac_bits() // left_shift_amount
-    );
-    auto it_begin = result._data.begin();
-    for (std::size_t i = 0; i < 2 * _nitems; i++) {
-        auto it_end = it_begin + result._itemsize / 2;
-        limb_vector_negate_inplace(it_begin, it_end);
-        it_begin = it_end;
+    // Specialization 2: Same number of limb
+    if (_itemsize == result._itemsize) {
+        // Copy inverted data into the result
+        std::transform(
+            _data.cbegin(), _data.cend(), result._data.begin(), std::bit_not {}
+        );
+        auto it_begin = result._data.begin();
+        for (std::size_t i = 0; i < 2 * _nitems; i++) {
+            auto it_end = it_begin + result._itemsize / 2;
+            // Add one LSB to get negated results
+            limb_vector_add_one_lsb_inplace(it_begin, it_end);
+            it_begin = it_end;
+        }
+        return result; // early return specialization #2
     }
+
+    // General case: one more limb in result
+    auto src_begin = _data.begin();
+    auto dst_begin = result._data.begin();
+    for (std::size_t i = 0; i < 2 * _nitems; i++) {
+        auto src_end = src_begin + _itemsize / 2;
+        auto dst_end = dst_begin + result._itemsize / 2;
+        // Copy inverted data into the result
+        std::transform(src_begin, src_end, dst_begin, std::bit_not {});
+        std::fill(
+            dst_begin + _itemsize / 2,
+            dst_end,
+            // Add inverted sign-extension
+            limb_vector_is_negative(src_begin, src_end) ? 0 : -1
+        );
+        // Add one LSB to get negated results
+        limb_vector_add_one_lsb_inplace(dst_begin, dst_end);
+        src_begin = src_end;
+        dst_begin = dst_end;
+    }
+
     return result;
 }
 

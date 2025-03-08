@@ -6,6 +6,9 @@ APyTypes C++ API
    :caption: Contents:
 
    apybuffer
+   apycfixed
+   apycfixedarray
+   apycfixed_util
    apyfixed
    apyfixedarray
    apyfixed_util
