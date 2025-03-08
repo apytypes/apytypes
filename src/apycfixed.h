@@ -303,7 +303,7 @@ public:
     );
 
     //! Get bit pattern for the complex-valued fixed-point one
-    static APyCFixed c_one(int bits, int int_bits);
+    static APyCFixed one(int bits, int int_bits);
 
     /* ****************************************************************************** *
      *                        Private helper methods                                * *

@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Incorrect casting of large integers in `APyFixedArray.from_*`.
 - Incorrect accumulation in `APyFixedArray.cumsum()` and
   `APyCFixedArray.cumsum()` when result has more limbs than source.
+- Crash in `sum`, `cumsum`, `prod`, and `cumprod` for empty arrays.
 
 ### Changed
 

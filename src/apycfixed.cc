@@ -798,7 +798,7 @@ APyCFixed APyCFixed::from_apyfixed(
     return result;
 }
 
-APyCFixed APyCFixed::c_one(int bits, int int_bits)
+APyCFixed APyCFixed::one(int bits, int int_bits)
 {
     std::size_t frac_bits = bits - int_bits;
     std::size_t limb_index = frac_bits / APY_LIMB_SIZE_BITS;

@@ -819,8 +819,9 @@ APyFixedArray::sum(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) con
     std::size_t n_elems = array_fold_get_elements(axes);
 
     // Compute the result word length
-    int bits = _bits + bit_width(n_elems - 1);
-    int int_bits = _int_bits + bit_width(n_elems - 1);
+    int pad_bits = n_elems ? bit_width(n_elems - 1) : 0;
+    int bits = _bits + pad_bits;
+    int int_bits = _int_bits + pad_bits;
     std::size_t res_limbs = bits_to_limbs(bits);
 
     // Accumulation function
@@ -846,8 +847,9 @@ APyFixedArray APyFixedArray::cumsum(std::optional<nb::int_> py_axis) const
     std::size_t n_elems = axis.has_value() ? _shape[*axis] : _nitems;
 
     // Compute the result word length
-    int bits = _bits + bit_width(n_elems - 1);
-    int int_bits = _int_bits + bit_width(n_elems - 1);
+    int pad_bits = n_elems ? bit_width(n_elems - 1) : 0;
+    int bits = _bits + pad_bits;
+    int int_bits = _int_bits + pad_bits;
     std::size_t res_limbs = bits_to_limbs(bits);
 
     // Accumulation function
@@ -867,17 +869,23 @@ APyFixedArray::prod(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) co
     std::size_t n_elems = array_fold_get_elements(axes);
 
     // Compute the result word length
-    int int_bits = _int_bits * n_elems;
-    int frac_bits = (_bits - _int_bits) * n_elems;
-    int bits = int_bits + frac_bits;
-    std::size_t res_limbs = bits_to_limbs(bits);
+    if (n_elems == 0) {
+        // Empty array, return scalar one (NumPy semantics)
+        return APyFixed::one(_bits, _int_bits);
+    } else {
+        // Non-empty array
+        int int_bits = n_elems * _int_bits;
+        int frac_bits = n_elems * (_bits - _int_bits);
+        int bits = int_bits + frac_bits;
+        std::size_t res_limbs = bits_to_limbs(bits);
 
-    // Multiplicative fold function function
-    ScratchVector<apy_limb_t, 32> scratch(2 * res_limbs + 2 * _itemsize);
-    auto fold_func = fold_multiply<vector_type>(_itemsize, res_limbs, scratch);
+        // Multiplicative fold function function
+        ScratchVector<apy_limb_t, 32> scratch(2 * res_limbs + 2 * _itemsize);
+        auto fold_func = fold_multiply<vector_type>(_itemsize, res_limbs, scratch);
 
-    APyFixed init_one(_bits, _int_bits, { apy_limb_t(1) });
-    return array_fold(axes, fold_func, init_one, bits, int_bits);
+        APyFixed init_one(_bits, _int_bits, { apy_limb_t(1) });
+        return array_fold(axes, fold_func, init_one, bits, int_bits);
+    }
 }
 
 APyFixedArray APyFixedArray::cumprod(std::optional<nb::int_> py_axis) const
@@ -953,7 +961,7 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
     );
 
     // Result vector
-    const int sum_bits = bit_width(b->_shape[0] - 1);
+    const int sum_bits = b->_shape[0] ? bit_width(b->_shape[0] - 1) : 0;
     const int res_bits = acc_mode ? acc_mode->bits : prod_bits + sum_bits;
     const int res_int_bits = acc_mode ? acc_mode->int_bits : prod_int_bits + sum_bits;
     APyFixedArray result({ len }, res_bits, res_int_bits);
@@ -1494,8 +1502,9 @@ APyFixedArray APyFixedArray::_checked_inner_product(
     std::optional<APyFixedAccumulatorOption> mode // optional accumulation mode
 ) const
 {
-    int res_bits = bits() + rhs.bits() + bit_width(_shape[0] - 1);
-    int res_int_bits = int_bits() + rhs.int_bits() + bit_width(_shape[0] - 1);
+    int pad_bits = _shape[0] ? bit_width(_shape[0] - 1) : 0;
+    int res_bits = bits() + rhs.bits() + pad_bits;
+    int res_int_bits = int_bits() + rhs.int_bits() + pad_bits;
     APyFixedArray result({ 1 }, res_bits, res_int_bits);
 
     if (!mode.has_value()) {
@@ -1550,8 +1559,9 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
         : std::vector<std::size_t> { _shape[0] };               // rhs is 1-D
 
     // Resulting number of bits
-    std::size_t res_bits = bits() + rhs.bits() + bit_width(_shape[1] - 1);
-    std::size_t res_int_bits = int_bits() + rhs.int_bits() + bit_width(_shape[1] - 1);
+    std::size_t pad_bits = _shape[1] ? bit_width(_shape[1] - 1) : 0;
+    std::size_t res_bits = bits() + rhs.bits() + pad_bits;
+    std::size_t res_int_bits = int_bits() + rhs.int_bits() + pad_bits;
 
     // Resulting tensor and a working column from `rhs`
     APyFixedArray result(res_shape, res_bits, res_int_bits);

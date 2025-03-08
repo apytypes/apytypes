@@ -1056,8 +1056,9 @@ APyCFixedArray::sum(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) co
     std::size_t n_elems = array_fold_get_elements(axes);
 
     // Compute the result word length
-    int bits = _bits + bit_width(n_elems - 1);
-    int int_bits = _int_bits + bit_width(n_elems - 1);
+    int pad_bits = n_elems ? bit_width(n_elems - 1) : 0;
+    int bits = _bits + pad_bits;
+    int int_bits = _int_bits + pad_bits;
     std::size_t res_itemsize = 2 * bits_to_limbs(bits);
 
     auto fold = fold_complex_accumulate<vector_type>(_itemsize / 2, res_itemsize / 2);
@@ -1082,8 +1083,9 @@ APyCFixedArray APyCFixedArray::cumsum(std::optional<nb::int_> py_axis) const
     std::size_t n_elems = axis.has_value() ? _shape[*axis] : _nitems;
 
     // Compute the result word length
-    int bits = _bits + bit_width(n_elems - 1);
-    int int_bits = _int_bits + bit_width(n_elems - 1);
+    int pad_bits = n_elems ? bit_width(n_elems - 1) : 0;
+    int bits = _bits + pad_bits;
+    int int_bits = _int_bits + pad_bits;
     std::size_t res_itemsize = 2 * bits_to_limbs(bits);
 
     // Accumulation function
@@ -1102,20 +1104,26 @@ APyCFixedArray::prod(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) c
     // Retrieve how many elements will be summed together
     std::size_t n_elems = array_fold_get_elements(axes);
 
-    // Compute the result word length
-    int int_bits = _int_bits * n_elems + n_elems - 1;
-    int frac_bits = (_bits - _int_bits) * n_elems;
-    int bits = int_bits + frac_bits;
-    std::size_t res_itemsize = 2 * bits_to_limbs(bits);
+    if (n_elems == 0) {
+        // Empty array, return scalar one (NumPy semantics)
+        return APyCFixed::one(_bits, _int_bits);
+    } else {
+        // Non-empty array
+        int int_bits = _int_bits * n_elems + n_elems - 1;
+        int frac_bits = (_bits - _int_bits) * n_elems;
+        int bits = int_bits + frac_bits;
+        std::size_t res_itemsize = 2 * bits_to_limbs(bits);
 
-    // Multiplicative fold function
-    std::size_t scratch_size = 2 + (3 * res_itemsize + 3 * _itemsize) / 2;
-    ScratchVector<apy_limb_t, 64> scratch(scratch_size);
-    auto fold
-        = fold_complex_multiply<vector_type>(_itemsize / 2, res_itemsize / 2, scratch);
+        // Multiplicative fold function
+        std::size_t scratch_size = 2 + (3 * res_itemsize + 3 * _itemsize) / 2;
+        ScratchVector<apy_limb_t, 64> scratch(scratch_size);
+        auto fold = fold_complex_multiply<vector_type>(
+            _itemsize / 2, res_itemsize / 2, scratch
+        );
 
-    APyCFixed init_one(_bits, _int_bits, { apy_limb_t(1) });
-    return array_fold(axes, fold, init_one, bits, int_bits);
+        APyCFixed init_one(_bits, _int_bits, { apy_limb_t(1) });
+        return array_fold(axes, fold, init_one, bits, int_bits);
+    }
 }
 
 APyCFixedArray APyCFixedArray::cumprod(std::optional<nb::int_> py_axis) const
@@ -1211,7 +1219,7 @@ APyCFixedArray APyCFixedArray::ones(
 {
     const int res_bits = bits_from_optional(bits, int_bits, frac_bits);
     const int res_int_bits = int_bits.has_value() ? *int_bits : *bits - *frac_bits;
-    return full(shape, APyCFixed::c_one(res_bits, res_int_bits));
+    return full(shape, APyCFixed::one(res_bits, res_int_bits));
 }
 
 APyCFixedArray APyCFixedArray::eye(
@@ -1227,7 +1235,7 @@ APyCFixedArray APyCFixedArray::eye(
 
     const int res_bits = bits_from_optional(bits, int_bits, frac_bits);
     const int res_int_bits = int_bits.has_value() ? *int_bits : *bits - *frac_bits;
-    return diagonal(shape, APyCFixed::c_one(res_bits, res_int_bits));
+    return diagonal(shape, APyCFixed::one(res_bits, res_int_bits));
 }
 
 APyCFixedArray APyCFixedArray::identity(
