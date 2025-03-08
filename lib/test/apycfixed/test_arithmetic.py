@@ -1,5 +1,7 @@
 from apytypes import APyFixed, APyCFixed
 
+import pytest
+
 
 def test_mul():
     a = APyCFixed.from_complex(-1 - 1j, int_bits=1, frac_bits=0)
@@ -81,3 +83,17 @@ def test_shift():
     assert a.is_identical(APyCFixed.from_complex(4 + 4j, 7, -2))
     a >>= 4
     assert a.is_identical(APyCFixed.from_complex(0.25 + 0.25j, 3, 2))
+
+
+@pytest.mark.parametrize("bits", range(13, 90))
+def test_multiplication_different_wordlengths(bits):
+    a = APyCFixed((3, 7), bits=bits, int_bits=7)
+    b = APyCFixed((18, 1), bits=bits, int_bits=7)
+    assert (a * b).is_identical(APyCFixed((47, 129), bits=2 * bits + 1, int_bits=15))
+
+
+@pytest.mark.parametrize("bits", range(13, 90))
+def test_multiplicatio_different_wordlengths_different_fracbits(bits):
+    a = APyCFixed((3, 7), bits=bits, int_bits=8)
+    b = APyCFixed((18, 1), bits=bits, int_bits=6)
+    assert (a * b).is_identical(APyCFixed((47, 129), bits=2 * bits + 1, int_bits=15))
