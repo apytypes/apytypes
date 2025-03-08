@@ -1175,3 +1175,32 @@ def test_issue_615(fixed_array, bits):
             [1, 2, -6, -24], bits=4 * bits + extra_bits_complex, frac_bits=2 * bits
         )
     )
+
+
+@pytest.mark.parametrize(
+    "fixed_array, fixed_scalar",
+    [
+        (APyFixedArray, APyFixed),
+        (APyCFixedArray, APyCFixed),
+    ],
+)
+@pytest.mark.parametrize("bits", [16, 32, 64, 128])
+def test_issue_623(fixed_array, fixed_scalar, bits):
+    """
+    Test for GitHub issue #623: `cumsum` (and `cumprod`) of empty array crashing. Should
+    use same semantics as Numpy.
+    """
+    frac_bits = bits // 2
+    empty = fixed_array.from_float([], bits=bits, frac_bits=frac_bits)
+    assert empty.sum().is_identical(fixed_scalar(0, bits=bits, frac_bits=frac_bits))
+    assert empty.sum(0).is_identical(fixed_scalar(0, bits=bits, frac_bits=frac_bits))
+    assert empty.prod().is_identical(
+        fixed_scalar.from_float(1.0, bits=bits, frac_bits=frac_bits)
+    )
+    assert empty.prod(0).is_identical(
+        fixed_scalar.from_float(1.0, bits=bits, frac_bits=frac_bits)
+    )
+    assert empty.cumsum().is_identical(empty)
+    assert empty.cumsum(0).is_identical(empty)
+    assert empty.cumprod().is_identical(empty)
+    assert empty.cumprod(0).is_identical(empty)
