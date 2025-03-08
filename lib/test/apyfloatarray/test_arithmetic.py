@@ -709,6 +709,12 @@ def test_unary_negation():
 
 
 @pytest.mark.float_array
+def test_unary_positive():
+    a = APyFloatArray.from_float([-4.25, 12, -5.5], 9, 10)
+    assert (+a).is_identical(a)
+
+
+@pytest.mark.float_array
 def test_abs():
     a = APyFloatArray.from_float([-4.25, 12, -5.5], 9, 10)
     b = APyFloatArray.from_float([4.25, 12, 5.5], 9, 10)

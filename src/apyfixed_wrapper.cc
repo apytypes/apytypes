@@ -84,6 +84,7 @@ void bind_fixed(nb::module_& m)
         .def(nb::self * nb::self)
         .def(nb::self / nb::self)
         .def(-nb::self)
+        .def(+nb::self)
         .def(nb::self <<= int(), nb::rv_policy::none)
         .def(nb::self >>= int(), nb::rv_policy::none)
 

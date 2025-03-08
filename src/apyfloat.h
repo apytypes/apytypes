@@ -276,6 +276,7 @@ public:
     APyFloat operator+(const APyFloat& rhs) const;
     APyFloat operator-(const APyFloat& rhs) const;
     APyFloat operator-() const;
+    APY_INLINE APyFloat operator+() const { return *this; };
     APyFloat operator*(const APyFloat& rhs) const;
     APyFloat operator/(const APyFloat& rhs) const;
     APyFloat& operator+=(const APyFloat& rhs);

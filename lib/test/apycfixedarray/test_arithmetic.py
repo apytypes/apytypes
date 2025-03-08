@@ -126,3 +126,14 @@ def test_scalar_array_multiplication_with_different_frac_bits_and_int_bit_offset
     assert res[1].is_identical(bl * b)
     assert res[2].is_identical(bl * c)
     assert res[3].is_identical(bl * d)
+
+
+def test_unary_arith():
+    a = APyCFixedArray.from_complex(
+        [1, 2 + 1j, 3 + 3j, -4 + 1j, 5 - 2j, 6 - 3j], int_bits=6, frac_bits=0
+    )
+    nega = APyCFixedArray.from_complex(
+        [-1, -2 - 1j, -3 - 3j, 4 - 1j, -5 + 2j, -6 + 3j], int_bits=7, frac_bits=0
+    )
+    assert (-a).is_identical(nega)
+    assert (+a).is_identical(a)

@@ -106,6 +106,7 @@ public:
 public:
     APyFloatArray operator+(const APyFloatArray& rhs) const;
     APyFloatArray operator+(const APyFloat& rhs) const;
+    APY_INLINE APyFloatArray operator+() const { return *this; };
     APyFloatArray operator-(const APyFloatArray& rhs) const;
     APyFloatArray operator-(const APyFloat& rhs) const;
     APyFloatArray operator-() const;

@@ -857,3 +857,11 @@ def test_scalar_array_multiplication_with_different_frac_bits(frac_bits):
     assert res[1].is_identical(b * b)
     assert res[2].is_identical(b * c)
     assert res[3].is_identical(b * d)
+
+
+def test_unary_arith():
+    a = fx([2, -4], int_bits=5, frac_bits=0)
+    nega = fx([-2, 4], int_bits=6, frac_bits=0)
+
+    assert (-a).is_identical(nega)
+    assert (+a).is_identical(a)
