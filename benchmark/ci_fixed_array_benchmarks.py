@@ -140,6 +140,18 @@ def test_fixed_matrix_negation_200(benchmark):
     benchmark(lambda x: -x, a)
 
 
+def test_fixed_matrix_negation_20_long(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(20, 20) - 0.5, bits=200, int_bits=1)
+
+    benchmark(lambda x: -x, a)
+
+
+def test_fixed_matrix_negation_200_long(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(200, 200) - 0.5, bits=200, int_bits=1)
+
+    benchmark(lambda x: -x, a)
+
+
 def test_fixed_matrix_abs_20(benchmark):
     a = APyFixedArray.from_float(np.random.rand(20, 20) - 0.5, bits=19, int_bits=1)
 

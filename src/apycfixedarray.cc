@@ -908,6 +908,14 @@ APyCFixedArray APyCFixedArray::operator-() const
     return result;
 }
 
+APyCFixedArray APyCFixedArray::operator~() const
+{
+    // Resulting `APyCFixedArray` fixed-point tensor
+    APyCFixedArray result(_shape, _bits, _int_bits);
+    std::transform(_data.cbegin(), _data.cend(), result._data.begin(), std::bit_not {});
+    return result;
+}
+
 /* ********************************************************************************** *
  * *                            Public member functions                             * *
  * ********************************************************************************** */

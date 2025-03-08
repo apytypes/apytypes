@@ -177,6 +177,11 @@ void bind_float_array(nb::module_& m)
         //.def("__rtruediv__", R_OP<std::divides<>>, nb::is_operator())
 
         /*
+         * Logic operations
+         */
+        .def(~nb::self)
+
+        /*
          * Methods
          */
         .def("__abs__", &APyFloatArray::abs)

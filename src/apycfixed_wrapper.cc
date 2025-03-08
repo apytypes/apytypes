@@ -174,6 +174,11 @@ void bind_cfixed(nb::module_& m)
         .def("__rtruediv__", R_OP<std::divides<>, APyFixed>, nb::is_operator())
 
         /*
+         * Logic operations
+         */
+        .def(~nb::self)
+
+        /*
          * Get real and imaginary part
          */
         .def_prop_ro("real", &APyCFixed::get_real, R"pbdoc(

@@ -123,6 +123,9 @@ public:
     //! Elementwise R-subtraction with floating-point scalar
     APyFloatArray rsub(const APyFloat& lhs) const;
 
+    //! Elementwise logic not
+    APyFloatArray operator~() const;
+
     /*!
      * Matrix multiplication. If both arguments are 2-D tensors, this method performs
      * the ordinary matrix multiplication. If input dimensions are greater than 2, this

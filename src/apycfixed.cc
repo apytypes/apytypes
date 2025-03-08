@@ -822,6 +822,14 @@ APyCFixed APyCFixed::operator-() const
     return result;
 }
 
+//! Unary negation
+APyCFixed APyCFixed::operator~() const
+{
+    APyCFixed result(_bits, _int_bits);
+    std::transform(_data.cbegin(), _data.cend(), result._data.begin(), std::bit_not {});
+    return result;
+}
+
 APyFixed APyCFixed::get_real() const
 {
     APyFixed result(_bits, _int_bits);

@@ -1123,6 +1123,14 @@ APyFixedArray APyFixedArray::operator-() const
     return result;
 }
 
+APyFixedArray APyFixedArray::operator~() const
+{
+    // Resulting `APyFixedArray` fixed-point tensor
+    APyFixedArray result(_shape, _bits, _int_bits);
+    std::transform(_data.cbegin(), _data.cend(), result._data.begin(), std::bit_not {});
+    return result;
+}
+
 std::variant<
     nb::list,
     nb::ndarray<nb::numpy, uint64_t>,

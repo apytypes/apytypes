@@ -87,6 +87,10 @@ void bind_fixed(nb::module_& m)
         .def(+nb::self)
         .def(nb::self <<= int(), nb::rv_policy::none)
         .def(nb::self >>= int(), nb::rv_policy::none)
+        /*
+         * Logic operations
+         */
+        .def(~nb::self)
 
         /*
          * Arithmetic operations with integers
