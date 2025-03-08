@@ -177,6 +177,84 @@ void vector_not(
 );
 
 /*!
+ * Perform logic and of the elements in `src1_begin` with `src2_begin`
+ * and store the result in `dst_begin`, for `size` number of elements.
+ */
+void vector_and(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+);
+
+/*!
+ * Perform logic or of the elements in `src1_begin` with `src2_begin`
+ * and store the result in `dst_begin`, for `size` number of elements.
+ */
+void vector_or(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+);
+
+/*!
+ * Perform logic xor of the elements in `src1_begin` with `src2_begin`
+ * and store the result in `dst_begin`, for `size` number of elements.
+ */
+void vector_xor(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    std::size_t size
+);
+
+/*!
+ * For each element in the iterator regions [ `*_begin`, `*_begin + size` ):
+ * * Shift element in `src1_begin` left by `src1_shift_amount`
+ * * Shift element in `src2_begin` left by `src2_shift_amount`
+ * * And shifted values and store in `dst_begin`
+ */
+void vector_shift_and(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    unsigned src1_shift_amount,
+    unsigned src2_shift_amount,
+    std::size_t size
+);
+
+/*!
+ * For each element in the iterator regions [ `*_begin`, `*_begin + size` ):
+ * * Shift element in `src1_begin` left by `src1_shift_amount`
+ * * Shift element in `src2_begin` left by `src2_shift_amount`
+ * * Or shifted values and store in `dst_begin`
+ */
+void vector_shift_or(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    unsigned src1_shift_amount,
+    unsigned src2_shift_amount,
+    std::size_t size
+);
+
+/*!
+ * For each element in the iterator regions [ `*_begin`, `*_begin + size` ):
+ * * Shift element in `src1_begin` left by `src1_shift_amount`
+ * * Shift element in `src2_begin` left by `src2_shift_amount`
+ * * Xor shifted values and store in `dst_begin`
+ */
+void vector_shift_xor(
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src1_begin,
+    APyBuffer<apy_limb_t>::vector_type::const_iterator src2_begin,
+    APyBuffer<apy_limb_t>::vector_type::iterator dst_begin,
+    unsigned src1_shift_amount,
+    unsigned src2_shift_amount,
+    std::size_t size
+);
+
+/*!
  * Perform absolute computation of the elements in `src_begin`, for `size` number of
  * elements.
  */
