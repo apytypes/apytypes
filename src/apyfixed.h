@@ -221,6 +221,9 @@ public:
     //! Unary negation
     APyFixed operator-() const;
 
+    //! Unary positive
+    APY_INLINE APyFixed operator+() const { return *this; };
+
     //! Absolute value
     APyFixed abs() const;
 

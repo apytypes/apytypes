@@ -1192,3 +1192,9 @@ def test_rdiv_int():
     assert (2**2000 / a).is_identical(
         APyFloat.from_float(2**1000, exp_bits=30, man_bits=50)
     )
+
+
+def test_unary_arith():
+    a = APyFloat(0, 7, 13, 4, 4)  # One
+    assert (-a).is_identical(APyFloat(1, 7, 13, 4, 4))
+    assert (+a).is_identical(a)

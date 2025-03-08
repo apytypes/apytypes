@@ -161,6 +161,9 @@ public:
     //! Elementwise unary negation
     APyCFixedArray operator-() const;
 
+    //! Elementwise unary positive
+    APY_INLINE APyCFixedArray operator+() const { return *this; };
+
     /* ****************************************************************************** *
      * *                          Public member functions                           * *
      * ****************************************************************************** */

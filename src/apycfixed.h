@@ -228,6 +228,9 @@ public:
     //! Unary negation
     APyCFixed operator-() const;
 
+    //! Unary positive
+    APY_INLINE APyCFixed operator+() const { return *this; };
+
     //! Retrieve real part
     APyFixed get_real() const;
 

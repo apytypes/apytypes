@@ -124,6 +124,7 @@ void bind_float(nb::module_& m)
         .def(nb::self * nb::self)
         .def(nb::self / nb::self)
         .def(-nb::self)
+        .def(+nb::self)
 
         .def("__abs__", &APyFloat::abs)
         .def("__pow__", &APyFloat::pow)

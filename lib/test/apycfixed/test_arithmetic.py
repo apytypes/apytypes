@@ -19,6 +19,12 @@ def test_div():
     assert b / a == 0.0 - 1.0j
 
 
+def test_unary_arith():
+    a = APyCFixed.from_complex(1 + 1j, int_bits=5, frac_bits=0)
+    assert -a == -1 - 1j
+    assert +a == 1 + 1j
+
+
 def test_arith_apyfixed():
     a = APyCFixed.from_complex(1 + 1j, int_bits=5, frac_bits=0)
     b = APyFixed.from_float(2, int_bits=5, frac_bits=0)

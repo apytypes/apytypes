@@ -312,6 +312,12 @@ def test_unary_minus():
     assert not (-a)._is_negative
 
 
+def test_unary_plus():
+    a = APyFixed(-3, int_bits=2, frac_bits=1)
+    assert (+a).is_identical(a)
+    assert (+a)._is_negative
+
+
 def test_positive_negative_zero():
     assert not APyFixed(0, int_bits=4, frac_bits=4)._is_positive
     assert APyFixed(0, int_bits=4, frac_bits=4).is_zero

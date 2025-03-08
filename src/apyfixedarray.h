@@ -169,6 +169,9 @@ public:
     //! Elementwise unary negation
     APyFixedArray operator-() const;
 
+    //! Elementwise unary positive
+    APY_INLINE APyFixedArray operator+() const { return *this; };
+
     /*!
      * Matrix multiplication. If both arguments ar 2-D tensors, this method performs the
      * ordinary matrix multiplication. If input dimensions are greater than 2, this

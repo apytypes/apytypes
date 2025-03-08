@@ -112,6 +112,7 @@ void bind_float_array(nb::module_& m)
         .def(nb::self * nb::self)
         .def(nb::self / nb::self)
         .def(-nb::self)
+        .def(+nb::self)
 
         /*
          * Arithmetic operators with integers
