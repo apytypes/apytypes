@@ -723,43 +723,6 @@ static APY_INLINE void _cast_no_quantize_no_overflow(
     }
 }
 
-/*!
- * Casting when there is known before hand that no quantization or overflowing will
- * occur and that there will be no shift.
- */
-template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
-static APY_INLINE void _cast_no_quantize_no_overflow_no_shift(
-    RANDOM_ACCESS_ITERATOR_IN src,
-    RANDOM_ACCESS_ITERATOR_OUT dst,
-    std::size_t src_limbs,
-    std::size_t dst_limbs,
-    std::size_t n_items
-)
-{
-
-    /*
-     * Specialization #1: `src` and `dst` have equally many limbs
-     */
-    if (src_limbs == dst_limbs) {
-
-        // Copy data into the result
-        std::copy_n(src, src_limbs * n_items, dst);
-        return; // early return specialization #1
-    }
-
-    /*
-     * General case: `dst_limbs > src_limbs`
-     */
-    for (std::size_t i = 0; i < n_items; i++) {
-        limb_vector_copy_sign_extend(
-            src + (i + 0) * src_limbs, // src_begin
-            src + (i + 1) * src_limbs, // src_end
-            dst + (i + 0) * dst_limbs, // dst_begin,
-            dst + (i + 1) * dst_limbs  // dst_end
-        );
-    }
-}
-
 /* ********************************************************************************** *
  * *     Fixed-point iterator based arithmetic functions with multi-limb support    * *
  * ********************************************************************************** */
