@@ -914,47 +914,47 @@ def test_array_add_sub_zero_sign(man, with_scalar):
     for mode in modes:
         with APyFloatQuantizationContext(mode):
             rhs = pos_zero_scal if with_scalar else pos_zero
-            assert (_ := pos_zero + rhs)[0].sign == False
+            assert not (_ := pos_zero + rhs)[0].sign
             rhs = neg_zero_scal if with_scalar else neg_zero
-            assert (_ := pos_zero + rhs)[0].sign == False
+            assert not (_ := pos_zero + rhs)[0].sign
             rhs = pos_zero_scal if with_scalar else pos_zero
-            assert (_ := neg_zero + rhs)[0].sign == False
+            assert not (_ := neg_zero + rhs)[0].sign
             rhs = neg_zero_scal if with_scalar else neg_zero
-            assert (_ := neg_zero + rhs)[0].sign == True
+            assert (_ := neg_zero + rhs)[0].sign
 
             rhs = pos_zero_scal if with_scalar else pos_zero
-            assert (_ := pos_zero - rhs)[0].sign == False
+            assert not (_ := pos_zero - rhs)[0].sign
             rhs = neg_zero_scal if with_scalar else neg_zero
-            assert (_ := pos_zero - rhs)[0].sign == False
+            assert not (_ := pos_zero - rhs)[0].sign
             rhs = pos_zero_scal if with_scalar else pos_zero
-            assert (_ := neg_zero - rhs)[0].sign == True
+            assert (_ := neg_zero - rhs)[0].sign
             rhs = neg_zero_scal if with_scalar else neg_zero
-            assert (_ := neg_zero - rhs)[0].sign == False
+            assert not (_ := neg_zero - rhs)[0].sign
 
             rhs = non_zero_scal if with_scalar else non_zero
-            assert (_ := non_zero + (-rhs))[0].sign == False
+            assert not (_ := non_zero + (-rhs))[0].sign
 
     with APyFloatQuantizationContext(QuantizationMode.TO_NEG):
         rhs = pos_zero_scal if with_scalar else pos_zero
-        assert (_ := pos_zero + rhs)[0].sign == False
+        assert not (_ := pos_zero + rhs)[0].sign
         rhs = neg_zero_scal if with_scalar else neg_zero
-        assert (_ := pos_zero + rhs)[0].sign == True
+        assert (_ := pos_zero + rhs)[0].sign
         rhs = pos_zero_scal if with_scalar else pos_zero
-        assert (_ := neg_zero + rhs)[0].sign == True
+        assert (_ := neg_zero + rhs)[0].sign
         rhs = neg_zero_scal if with_scalar else neg_zero
-        assert (_ := neg_zero + rhs)[0].sign == True
+        assert (_ := neg_zero + rhs)[0].sign
 
         rhs = pos_zero_scal if with_scalar else pos_zero
-        assert (_ := pos_zero - pos_zero)[0].sign == True
+        assert (_ := pos_zero - pos_zero)[0].sign
         rhs = neg_zero_scal if with_scalar else neg_zero
-        assert (_ := pos_zero - rhs)[0].sign == False
+        assert not (_ := pos_zero - rhs)[0].sign
         rhs = pos_zero_scal if with_scalar else pos_zero
-        assert (_ := neg_zero - rhs)[0].sign == True
+        assert (_ := neg_zero - rhs)[0].sign
         rhs = neg_zero_scal if with_scalar else neg_zero
-        assert (_ := neg_zero - rhs)[0].sign == True
+        assert (_ := neg_zero - rhs)[0].sign
 
         rhs = non_zero_scal if with_scalar else non_zero
-        assert (_ := non_zero - rhs)[0].sign == True
+        assert (_ := non_zero - rhs)[0].sign
 
 
 @pytest.mark.float_array
