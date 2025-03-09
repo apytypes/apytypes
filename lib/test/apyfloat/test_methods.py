@@ -373,7 +373,7 @@ def test_properties():
     assert a.exp == 3
     assert a.bias == 7
     assert a.true_exp == -4
-    assert a.sign == False
+    assert not a.sign
     assert a.true_sign == 1
     assert a.bits == 11
 
@@ -383,7 +383,7 @@ def test_properties():
     assert a.exp == 0
     assert a.bias == 7
     assert a.true_exp == -6
-    assert a.sign == True
+    assert a.sign
     assert a.true_sign == -1
     assert a.bits == 11
 

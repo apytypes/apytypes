@@ -38,30 +38,29 @@ def test_add_sub_zero_sign(man):
 
     for mode in modes:
         with APyFloatQuantizationContext(mode):
-            assert (_ := pos_zero + pos_zero).sign == False
-            assert (_ := pos_zero + neg_zero).sign == False
-            assert (_ := neg_zero + pos_zero).sign == False
-            assert (_ := neg_zero + neg_zero).sign == True
+            assert not (_ := pos_zero + pos_zero).sign
+            assert not (_ := pos_zero + neg_zero).sign
+            assert not (_ := neg_zero + pos_zero).sign
+            assert (_ := neg_zero + neg_zero).sign
+            assert not (_ := pos_zero - pos_zero).sign
+            assert not (_ := pos_zero - neg_zero).sign
+            assert (_ := neg_zero - pos_zero).sign
+            assert not (_ := neg_zero - neg_zero).sign
 
-            assert (_ := pos_zero - pos_zero).sign == False
-            assert (_ := pos_zero - neg_zero).sign == False
-            assert (_ := neg_zero - pos_zero).sign == True
-            assert (_ := neg_zero - neg_zero).sign == False
-
-            assert (_ := non_zero + (-non_zero)).sign == False
+            assert not (_ := non_zero + (-non_zero)).sign
 
     with APyFloatQuantizationContext(QuantizationMode.TO_NEG):
-        assert (_ := pos_zero + pos_zero).sign == False
-        assert (_ := pos_zero + neg_zero).sign == True
-        assert (_ := neg_zero + pos_zero).sign == True
-        assert (_ := neg_zero + neg_zero).sign == True
+        assert not (_ := pos_zero + pos_zero).sign
+        assert (_ := pos_zero + neg_zero).sign
+        assert (_ := neg_zero + pos_zero).sign
+        assert (_ := neg_zero + neg_zero).sign
 
-        assert (_ := pos_zero - pos_zero).sign == True
-        assert (_ := pos_zero - neg_zero).sign == False
-        assert (_ := neg_zero - pos_zero).sign == True
-        assert (_ := neg_zero - neg_zero).sign == True
+        assert (_ := pos_zero - pos_zero).sign
+        assert not (_ := pos_zero - neg_zero).sign
+        assert (_ := neg_zero - pos_zero).sign
+        assert (_ := neg_zero - neg_zero).sign
 
-        assert (_ := non_zero - non_zero).sign == True
+        assert (_ := non_zero - non_zero).sign
 
 
 @pytest.mark.float_add
