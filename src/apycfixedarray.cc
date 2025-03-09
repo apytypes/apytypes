@@ -1056,8 +1056,9 @@ APyCFixedArray::sum(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) co
     std::size_t n_elems = array_fold_get_elements(axes);
 
     // Compute the result word length
-    int bits = _bits + bit_width(n_elems - 1);
-    int int_bits = _int_bits + bit_width(n_elems - 1);
+    int pad_bits = n_elems ? bit_width(n_elems - 1) : 0;
+    int bits = _bits + pad_bits;
+    int int_bits = _int_bits + pad_bits;
     std::size_t res_itemsize = 2 * bits_to_limbs(bits);
 
     auto fold = fold_complex_accumulate<vector_type>(_itemsize / 2, res_itemsize / 2);
@@ -1082,8 +1083,9 @@ APyCFixedArray APyCFixedArray::cumsum(std::optional<nb::int_> py_axis) const
     std::size_t n_elems = axis.has_value() ? _shape[*axis] : _nitems;
 
     // Compute the result word length
-    int bits = _bits + bit_width(n_elems - 1);
-    int int_bits = _int_bits + bit_width(n_elems - 1);
+    int pad_bits = n_elems ? bit_width(n_elems - 1) : 0;
+    int bits = _bits + pad_bits;
+    int int_bits = _int_bits + pad_bits;
     std::size_t res_itemsize = 2 * bits_to_limbs(bits);
 
     // Accumulation function

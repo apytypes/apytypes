@@ -987,7 +987,9 @@ private:
              */
             if (dim == axis) {
                 // Cumulative fold the final dimension
-                fold(dst_it, src_it);
+                if (_shape[dim]) {
+                    fold(dst_it, src_it);
+                }
                 for (std::size_t i = 1; i < _shape[dim]; i++) {
                     // Apply the fold
                     auto prev_dst = dst_it + (i - 1) * dst_itemsize;
