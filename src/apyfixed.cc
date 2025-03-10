@@ -662,7 +662,7 @@ void APyFixed::set_from_string(const std::string& str, int base)
 
 double APyFixed::to_double() const
 {
-    return fixed_point_to_double(std::begin(_data), std::end(_data), _bits, _int_bits);
+    return fixed_point_to_double(std::begin(_data), std::end(_data), frac_bits());
 }
 
 nb::int_ APyFixed::to_bits() const

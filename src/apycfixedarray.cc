@@ -986,12 +986,12 @@ nb::ndarray<nb::numpy, std::complex<double>> APyCFixedArray::to_numpy() const
 {
     // Dynamically allocate data to be passed to python
     std::complex<double>* result = new std::complex<double>[_nitems];
-
+    auto _frac_bits = frac_bits();
     for (std::size_t i = 0; i < _nitems; i++) {
         auto rit = real_begin() + i * _itemsize;
         auto it = imag_begin() + i * _itemsize;
-        double real = fixed_point_to_double(rit, rit + _itemsize / 2, _bits, _int_bits);
-        double imag = fixed_point_to_double(it, it + _itemsize / 2, _bits, _int_bits);
+        double real = fixed_point_to_double(rit, rit + _itemsize / 2, _frac_bits);
+        double imag = fixed_point_to_double(it, it + _itemsize / 2, _frac_bits);
         result[i] = std::complex<double>(real, imag);
     }
 

@@ -651,8 +651,8 @@ APyCFixed APyCFixed::cast(
 std::complex<double> APyCFixed::to_complex() const
 {
     return std::complex<double>(
-        fixed_point_to_double(real_begin(), real_end(), _bits, _int_bits),
-        fixed_point_to_double(imag_begin(), imag_end(), _bits, _int_bits)
+        fixed_point_to_double(real_begin(), real_end(), frac_bits()),
+        fixed_point_to_double(imag_begin(), imag_end(), frac_bits())
     );
 }
 

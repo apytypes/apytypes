@@ -1241,9 +1241,10 @@ nb::ndarray<nb::numpy, double> APyFixedArray::to_numpy() const
     // Dynamically allocate data to be passed to python
     double* result_data = new double[_nitems];
 
+    auto _frac_bits = frac_bits();
     for (std::size_t i = 0; i < _nitems; i++) {
         auto it = std::begin(_data) + i * _itemsize;
-        result_data[i] = fixed_point_to_double(it, it + _itemsize, _bits, _int_bits);
+        result_data[i] = fixed_point_to_double(it, it + _itemsize, _frac_bits);
     }
 
     // Delete 'data' when the 'owner' capsule expires
