@@ -1450,9 +1450,8 @@ void fixed_point_from_double(
 }
 
 template <typename RANDOM_ACCESS_IT>
-double fixed_point_to_double(
-    RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int bits, int int_bits
-)
+double
+fixed_point_to_double(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int frac_bits)
 {
     // RANDOM_ACCESS_ITERATOR is `apy_limb_t` iterator (32-bit or 64-bit)
     static_assert(std::is_same_v<
@@ -1467,7 +1466,6 @@ double fixed_point_to_double(
     uint64_t man {};
     int exp {};
     bool sign = limb_vector_is_negative(begin_it, end_it);
-    int frac_bits = bits - int_bits;
 
     if constexpr (APY_LIMB_SIZE_BITS == 64) {
 
