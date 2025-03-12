@@ -1854,3 +1854,16 @@ def test_to_bits_numpy():
         ).to_bits(True)
         == np.array([[[56, 64], [68, 72], [74, 76]], [[78, 80], [81, 80], [78, 76]]])
     )
+
+
+@pytest.mark.parametrize("float_array", [APyFloatArray])
+def test_issue_615(float_array):
+    """
+    Test for GitHub issue #623: `cumsum` (and `cumprod`) of empty array crashing. Should
+    use same semantics as Numpy.
+    """
+    empty = float_array.from_float([], exp_bits=10, man_bits=10)
+    empty.cumsum().is_identical(empty)
+    empty.cumsum(0).is_identical(empty)
+    empty.cumprod().is_identical(empty)
+    empty.cumprod(0).is_identical(empty)
