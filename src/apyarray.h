@@ -351,8 +351,8 @@ public:
     }
 
     //! Top-level Python exported `__getitem__` function
-    std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>
-    get_item(const std::variant<nb::int_, nb::slice, nb::ellipsis, nb::tuple>& key
+    std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>> get_item(
+        const std::variant<nb::int_, nb::slice, nb::ellipsis, nb::tuple>& key
     ) const
     {
         using SCALAR_TYPE = scalar_variant_t<ARRAY_TYPE>;

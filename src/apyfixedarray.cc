@@ -109,8 +109,8 @@ APyFixedArray::APyFixedArray(
  * ********************************************************************************** */
 
 template <class ripple_carry_op, class simd_op, class simd_shift_op>
-inline APyFixedArray APyFixedArray::_apyfixedarray_base_add_sub(const APyFixedArray& rhs
-) const
+inline APyFixedArray
+APyFixedArray::_apyfixedarray_base_add_sub(const APyFixedArray& rhs) const
 {
     // Increase word length of result by one
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
@@ -289,11 +289,13 @@ APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
     if (_shape != rhs._shape) {
         auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
         if (broadcast_shape.size() == 0) {
-            throw std::length_error(fmt::format(
-                "APyFixedArray.__add__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                tuple_string_from_vec(_shape),
-                tuple_string_from_vec(rhs._shape)
-            ));
+            throw std::length_error(
+                fmt::format(
+                    "APyFixedArray.__add__: shape mismatch, lhs.shape={}, rhs.shape={}",
+                    tuple_string_from_vec(_shape),
+                    tuple_string_from_vec(rhs._shape)
+                )
+            );
         }
         return broadcast_to(broadcast_shape) + rhs.broadcast_to(broadcast_shape);
     }
@@ -317,11 +319,13 @@ APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
     if (_shape != rhs._shape) {
         auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
         if (broadcast_shape.size() == 0) {
-            throw std::length_error(fmt::format(
-                "APyFixedArray.__sub__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                tuple_string_from_vec(_shape),
-                tuple_string_from_vec(rhs._shape)
-            ));
+            throw std::length_error(
+                fmt::format(
+                    "APyFixedArray.__sub__: shape mismatch, lhs.shape={}, rhs.shape={}",
+                    tuple_string_from_vec(_shape),
+                    tuple_string_from_vec(rhs._shape)
+                )
+            );
         }
         return broadcast_to(broadcast_shape) - rhs.broadcast_to(broadcast_shape);
     }
@@ -393,11 +397,13 @@ APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
     if (_shape != rhs._shape) {
         auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
         if (broadcast_shape.size() == 0) {
-            throw std::length_error(fmt::format(
-                "APyFixedArray.__mul__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                tuple_string_from_vec(_shape),
-                tuple_string_from_vec(rhs._shape)
-            ));
+            throw std::length_error(
+                fmt::format(
+                    "APyFixedArray.__mul__: shape mismatch, lhs.shape={}, rhs.shape={}",
+                    tuple_string_from_vec(_shape),
+                    tuple_string_from_vec(rhs._shape)
+                )
+            );
         }
         return broadcast_to(broadcast_shape) * rhs.broadcast_to(broadcast_shape);
     }
@@ -539,11 +545,13 @@ APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
     if (_shape != rhs._shape) {
         auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
         if (broadcast_shape.size() == 0) {
-            throw std::length_error(fmt::format(
-                "APyFixedArray.__div__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                tuple_string_from_vec(_shape),
-                tuple_string_from_vec(rhs._shape)
-            ));
+            throw std::length_error(
+                fmt::format(
+                    "APyFixedArray.__div__: shape mismatch, lhs.shape={}, rhs.shape={}",
+                    tuple_string_from_vec(_shape),
+                    tuple_string_from_vec(rhs._shape)
+                )
+            );
         }
         return broadcast_to(broadcast_shape) / rhs.broadcast_to(broadcast_shape);
     }
@@ -798,11 +806,13 @@ APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
     }
 
     // Unsupported `__matmul__` dimensionality, raise exception
-    throw std::length_error(fmt::format(
-        "APyFixedArray.__matmul__: input shape mismatch, lhs: {}, rhs: {}",
-        tuple_string_from_vec(_shape),
-        tuple_string_from_vec(rhs._shape)
-    ));
+    throw std::length_error(
+        fmt::format(
+            "APyFixedArray.__matmul__: input shape mismatch, lhs: {}, rhs: {}",
+            tuple_string_from_vec(_shape),
+            tuple_string_from_vec(rhs._shape)
+        )
+    );
 }
 
 /* ********************************************************************************** *

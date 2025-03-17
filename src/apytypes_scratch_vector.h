@@ -244,12 +244,14 @@ public:
         if (pos < _size) {
             return this[pos];
         } else {
-            throw std::out_of_range(fmt::format(
-                "ScratchVector::at(size_type pos): out of range, "
-                "_size=={}, pos=={}",
-                _size,
-                pos
-            ));
+            throw std::out_of_range(
+                fmt::format(
+                    "ScratchVector::at(size_type pos): out of range, "
+                    "_size=={}, pos=={}",
+                    _size,
+                    pos
+                )
+            );
         }
     }
 
@@ -258,12 +260,14 @@ public:
         if (pos < _size) {
             return this[pos];
         } else {
-            throw std::out_of_range(fmt::format(
-                "ScratchVector::at(size_type pos): out of range, "
-                "_size=={}, pos=={}",
-                _size,
-                pos
-            ));
+            throw std::out_of_range(
+                fmt::format(
+                    "ScratchVector::at(size_type pos): out of range, "
+                    "_size=={}, pos=={}",
+                    _size,
+                    pos
+                )
+            );
         }
     }
 
