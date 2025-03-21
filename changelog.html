@@ -351,6 +351,7 @@ has multiple of 64 bits.</p></li>
 <li><p>Incorrect accumulation in <code class="docutils literal notranslate"><span class="pre">APyFixedArray.cumsum()</span></code> and
 <code class="docutils literal notranslate"><span class="pre">APyCFixedArray.cumsum()</span></code> when result has more limbs than source.</p></li>
 <li><p>Crash in <code class="docutils literal notranslate"><span class="pre">sum</span></code>, <code class="docutils literal notranslate"><span class="pre">cumsum</span></code>, <code class="docutils literal notranslate"><span class="pre">prod</span></code>, and <code class="docutils literal notranslate"><span class="pre">cumprod</span></code> for empty arrays.</p></li>
+<li><p>Fixed-point to floating-point conversion properly rounds to <code class="docutils literal notranslate"><span class="pre">+-inf</span></code>.</p></li>
 </ul>
 </section>
 <section id="changed">
