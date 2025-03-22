@@ -1,6 +1,6 @@
 from itertools import permutations as perm
 import pytest
-from apytypes import APyFloat, APyFixed
+from apytypes import APyFloat, APyFixed, APyCFloat
 
 
 def test_scalar_constructor_raises():
@@ -28,34 +28,30 @@ def test_scalar_constructor_raises():
         APyFloat(0, 0, 0, 5, -300)
 
 
-def test_scalar_from_float_raises():
+@pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
+def test_scalar_from_float_constructor_raises(apyfloat):
     # Too many exponent bits
     with pytest.raises(
         ValueError,
         match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloat.from_float(0, 300, 5)
+        apyfloat.from_float(0.0, exp_bits=300, man_bits=5)
     with pytest.raises(
         ValueError,
         match="Exponent bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
-        APyFloat.from_float(0, -300, 5)
+        apyfloat.from_float(0.0, exp_bits=-300, man_bits=5)
     # Too many mantissa bits
     with pytest.raises(
         ValueError,
         match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
-        APyFloat.from_float(0, 5, 300)
+        apyfloat.from_float(0.0, exp_bits=5, man_bits=300)
     with pytest.raises(
         ValueError,
         match="Mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
-        APyFloat.from_float(0, 5, -300)
-    with pytest.raises(
-        ValueError,
-        match="Non supported type",
-    ):
-        APyFloat.from_float("0", 5, 10)
+        apyfloat.from_float(0.0, exp_bits=5, man_bits=-300)
 
 
 def test_scalar_from_bits_raises():
