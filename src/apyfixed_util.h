@@ -480,13 +480,15 @@ static void quantize(
         );
         break;
     default:
-        throw NotImplementedException(fmt::format(
-            "Not implemented: fixed-point quantize() with mode {}",
-            quantization == QuantizationMode::STOCH_WEIGHTED ? "`STOCH_WEIGHTED`"
-                : quantization == QuantizationMode::STOCH_EQUAL
-                ? "`STOCH_EQUAL`"
-                : "unknown (did you pass `int` as `QuantizationMode`?)"
-        ));
+        throw NotImplementedException(
+            fmt::format(
+                "Not implemented: fixed-point quantize() with mode {}",
+                quantization == QuantizationMode::STOCH_WEIGHTED ? "`STOCH_WEIGHTED`"
+                    : quantization == QuantizationMode::STOCH_EQUAL
+                    ? "`STOCH_EQUAL`"
+                    : "unknown (did you pass `int` as `QuantizationMode`?)"
+            )
+        );
     }
 }
 
@@ -585,10 +587,12 @@ static void overflow(
         _overflow_numeric_std(it_begin, it_end, new_bits, new_int_bits);
         break;
     default:
-        throw NotImplementedException(fmt::format(
-            "Not implemented: APyFixed::_overflow(): with mode: {}",
-            "unknown (did you pass `int` as `OverflowMode`?)"
-        ));
+        throw NotImplementedException(
+            fmt::format(
+                "Not implemented: APyFixed::_overflow(): with mode: {}",
+                "unknown (did you pass `int` as `OverflowMode`?)"
+            )
+        );
     }
 }
 

@@ -58,7 +58,8 @@ APyCFixed::APyCFixed(
     : APyCFixed(int_bits, frac_bits, bits)
 {
     if (python_long_int_bit_pattern.size() == 0) {
-        throw nb::value_error("APyCFixed.__init__: tuple initializer with zero elements"
+        throw nb::value_error(
+            "APyCFixed.__init__: tuple initializer with zero elements"
         );
     }
     if (python_long_int_bit_pattern.size() == 1) {
