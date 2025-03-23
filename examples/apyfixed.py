@@ -10,17 +10,23 @@ One can also supply the number of fractional bits; two out of the three (total, 
 bits) must be supplied.
 """
 
-from apytypes import APyFixed
+import apytypes as apy
 
-a = APyFixed(7, 4, 2)
+a = apy.APyFixed(7, 4, 2)
 a
 
 # %%
-b = APyFixed.from_float(-2.25, int_bits=3, frac_bits=2)
+# Create a APyFixed from a floating-point number
+b = apy.APyFixed.from_float(-2.25, int_bits=3, frac_bits=2)
 b
 
 # %%
-c = APyFixed.from_str("3.75", bits=6, frac_bits=3)
+# There is also a convenience method that does this
+b = apy.fx(-2.25, int_bits=3, frac_bits=2)
+b
+
+# %%
+c = apy.APyFixed.from_str("3.75", bits=6, frac_bits=3)
 c
 
 # %%
@@ -49,16 +55,16 @@ b + 3.5
 
 # %%
 # Which is equivalent to
-b + APyFixed.from_float(3.5, int_bits=b.int_bits, frac_bits=b.frac_bits)
+b + apy.fx(3.5, int_bits=b.int_bits, frac_bits=b.frac_bits)
 
 # %%
 # However, while it is convenient to let APyTypes convert numbers automatically,
 # it is not recommended as it can yield unexpected results. Consider the expression
-1.25 + 1.25 + APyFixed.from_float(2, int_bits=4, frac_bits=1)
+1.25 + 1.25 + apy.fx(2, int_bits=4, frac_bits=1)
 
 # %%
 # which would yield a different result from
-APyFixed.from_float(2, int_bits=4, frac_bits=1) + 1.25 + 1.25
+apy.fx(2, int_bits=4, frac_bits=1) + 1.25 + 1.25
 
 # %%
 # To change the word length of a APyFixed, the method :func:`~APyFixed.cast` can be used
