@@ -276,7 +276,7 @@ void bind_cfixed_array(nb::module_& m)
 
             Raises
             ------
-            ValueError
+            :class:`ValueError`
                 If negative dimensions less than -1 are provided, if the total size
                 of the new array is not unchanged and divisible by the known
                 dimensions, or if the total number of elements does not match the
@@ -620,9 +620,9 @@ void bind_cfixed_array(nb::module_& m)
             Examples
             --------
 
-            >>> from apytypes import APyCFixedArray
-            >>>
-            >>> a = APyCFixedArray(
+            >>> import apytypes as apy
+
+            >>> a = apy.APyCFixedArray(
             ...     [1, 2, 3, 4, 5, 6],
             ...     int_bits=10,
             ...     frac_bits=0
@@ -660,8 +660,8 @@ void bind_cfixed_array(nb::module_& m)
             Examples
             --------
 
-            >>> from apytypes import APyCFixedArray
-            >>> a = APyCFixedArray.from_complex(
+            >>> import apytypes as apy
+            >>> a = apy.APyCFixedArray.from_complex(
             ...     [
             ...         [1+1j, 2+3j, 3-2j],
             ...         [4-1j, 5+2j, 6+0j]
@@ -763,9 +763,9 @@ void bind_cfixed_array(nb::module_& m)
             Examples
             --------
 
-            >>> from apytypes import APyCFixedArray
+            >>> import apytypes as apy
             >>>
-            >>> a = APyCFixedArray.from_complex(
+            >>> a = apy.APyCFixedArray.from_complex(
             ...     [1, 2 + 1j, 3 + 3j, -4 + 1j, 5 - 2j, 6 - 3j],
             ...     int_bits=10,
             ...     frac_bits=0
@@ -803,9 +803,9 @@ void bind_cfixed_array(nb::module_& m)
             Examples
             --------
 
-            >>> from apytypes import APyCFixedArray
+            >>> import apytypes as apy
             >>>
-            >>> a = APyCFixedArray.from_complex(
+            >>> a = apy.APyCFixedArray.from_complex(
             ...     [[1+1j, 2+1j, 3+2j],
             ...      [4-2j, 5+2j, 6+1j]],
             ...     int_bits=10,
@@ -912,14 +912,14 @@ void bind_cfixed_array(nb::module_& m)
             Examples
             --------
 
-            >>> from apytypes import APyCFixedArray
-            >>>
-            >>> a = APyCFixedArray.from_complex(
+            >>> import apytypes as apy
+
+            >>> a = apy.APyCFixedArray.from_complex(
             ...         [1.0, 1.25j, 1.49 - 0.5j],
             ...         int_bits=2,
             ...         frac_bits=2
             ...     )
-            >>> b = APyCFixedArray.from_complex(
+            >>> b = apy.APyCFixedArray.from_complex(
             ...         [
             ...             [1.0 + 1.0j, 2.0 - 3.0j, 3.0 - 1.0j],
             ...             [4.0 - 2.0j, 5.0 + 2.0j, 6.0 + 1j],
@@ -995,10 +995,10 @@ void bind_cfixed_array(nb::module_& m)
             Examples
             --------
 
-            >>> from apytypes import APyCFixedArray
+            >>> import apytypes as apy
             >>> import numpy as np
             >>>
-            >>> a = APyCFixedArray.from_array(
+            >>> a = apy.APyCFixedArray.from_array(
             ...     np.array([
             ...         [1.0, 2.0, 3.0],
             ...         [4.0, 5.0, 6.0],

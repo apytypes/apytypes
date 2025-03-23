@@ -409,7 +409,7 @@ void bind_cfixed(nb::module_& m)
             :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
             This is an alias for :func:`~apytypes.APyCFixed.from_complex`, look there for more documentation.
 
-            .. note:: It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to create an :class:`APyCFixed` from an :class:`APyCFixed`.
+            .. attention:: It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to create an :class:`APyCFixed` from anpther :class:`APyCFixed`.
 
             Parameters
             ----------

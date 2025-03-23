@@ -40,4 +40,4 @@ jobs:
           ruff format lib/apytypes/*.pyi
     - name: Test with doctest
       run: |
-        python -m doctest lib/apytypes/*.pyi
+        python -m doctest lib/apytypes/_apytypes.pyi lib/apytypes/_array_functions.py lib/apytypes/_utils.py  lib/apytypes/vhdl.py

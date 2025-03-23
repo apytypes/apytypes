@@ -197,7 +197,7 @@ def fn(
     --------
     >>> import apytypes as apy
     >>> import math
-    >>> a = aoy.APyFixed(19, 1, 5)
+    >>> a = apy.APyFixed(19, 1, 5)
     >>> apy.fn(math.sin, a)
     APyFixed(18, bits=6, int_bits=1)
 

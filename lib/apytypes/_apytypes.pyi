@@ -393,7 +393,7 @@ class APyCFixed:
         :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or :class:`APyCFixed`.
         This is an alias for :func:`~apytypes.APyCFixed.from_complex`, look there for more documentation.
 
-        .. note:: It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to create an :class:`APyCFixed` from an :class:`APyCFixed`.
+        .. attention:: It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to create an :class:`APyCFixed` from anpther :class:`APyCFixed`.
 
         Parameters
         ----------
@@ -620,7 +620,7 @@ class APyCFixedArray:
 
         Raises
         ------
-        ValueError
+        :class:`ValueError`
             If negative dimensions less than -1 are provided, if the total size
             of the new array is not unchanged and divisible by the known
             dimensions, or if the total number of elements does not match the
@@ -894,9 +894,9 @@ class APyCFixedArray:
         Examples
         --------
 
-        >>> from apytypes import APyCFixedArray
-        >>>
-        >>> a = APyCFixedArray([1, 2, 3, 4, 5, 6], int_bits=10, frac_bits=0)
+        >>> import apytypes as apy
+
+        >>> a = apy.APyCFixedArray([1, 2, 3, 4, 5, 6], int_bits=10, frac_bits=0)
         >>> a.sum()
         APyCFixed((21, 0), bits=13, int_bits=13)
 
@@ -926,8 +926,8 @@ class APyCFixedArray:
         Examples
         --------
 
-        >>> from apytypes import APyCFixedArray
-        >>> a = APyCFixedArray.from_complex(
+        >>> import apytypes as apy
+        >>> a = apy.APyCFixedArray.from_complex(
         ...     [[1 + 1j, 2 + 3j, 3 - 2j], [4 - 1j, 5 + 2j, 6 + 0j]],
         ...     int_bits=10,
         ...     frac_bits=0,
@@ -1012,9 +1012,9 @@ class APyCFixedArray:
         Examples
         --------
 
-        >>> from apytypes import APyCFixedArray
+        >>> import apytypes as apy
         >>>
-        >>> a = APyCFixedArray.from_complex(
+        >>> a = apy.APyCFixedArray.from_complex(
         ...     [1, 2 + 1j, 3 + 3j, -4 + 1j, 5 - 2j, 6 - 3j], int_bits=10, frac_bits=0
         ... )
         >>> complex(a.prod())
@@ -1046,9 +1046,9 @@ class APyCFixedArray:
         Examples
         --------
 
-        >>> from apytypes import APyCFixedArray
+        >>> import apytypes as apy
         >>>
-        >>> a = APyCFixedArray.from_complex(
+        >>> a = apy.APyCFixedArray.from_complex(
         ...     [[1 + 1j, 2 + 1j, 3 + 2j], [4 - 2j, 5 + 2j, 6 + 1j]],
         ...     int_bits=10,
         ...     frac_bits=0,
@@ -1141,12 +1141,12 @@ class APyCFixedArray:
         Examples
         --------
 
-        >>> from apytypes import APyCFixedArray
-        >>>
-        >>> a = APyCFixedArray.from_complex(
+        >>> import apytypes as apy
+
+        >>> a = apy.APyCFixedArray.from_complex(
         ...     [1.0, 1.25j, 1.49 - 0.5j], int_bits=2, frac_bits=2
         ... )
-        >>> b = APyCFixedArray.from_complex(
+        >>> b = apy.APyCFixedArray.from_complex(
         ...     [
         ...         [1.0 + 1.0j, 2.0 - 3.0j, 3.0 - 1.0j],
         ...         [4.0 - 2.0j, 5.0 + 2.0j, 6.0 + 1j],
@@ -1220,10 +1220,10 @@ class APyCFixedArray:
         Examples
         --------
 
-        >>> from apytypes import APyCFixedArray
+        >>> import apytypes as apy
         >>> import numpy as np
         >>>
-        >>> a = APyCFixedArray.from_array(
+        >>> a = apy.APyCFixedArray.from_array(
         ...     np.array(
         ...         [
         ...             [1.0, 2.0, 3.0],
@@ -1591,11 +1591,11 @@ class APyFixed:
 
         Examples
         --------
-        >>> from apytypes import APyFixed
+        >>> import apytypes as apy
 
         Create fixed-point number `fx_a` of value -5.75
 
-        >>> fx_a = APyFixed.from_float(-5.75, int_bits=4, frac_bits=4)
+        >>> fx_a = apy.fx(-5.75, int_bits=4, frac_bits=4)
 
         Returns: 164 == 0xA4 == 0b10100100
 
@@ -1654,9 +1654,9 @@ class APyFixed:
 
         Examples
         --------
-        >>> from apytypes import APyFixed
-        >>> fx_a = APyFixed.from_float(2.0, int_bits=3, frac_bits=3)
-        >>> fx_b = APyFixed.from_float(2.0, int_bits=4, frac_bits=3)
+        >>> import apytypes as apy
+        >>> fx_a = apy.fx(2.0, int_bits=3, frac_bits=3)
+        >>> fx_b = apy.fx(2.0, int_bits=4, frac_bits=3)
 
         `fx_a` and `fx_b` store the same fixed-point value
 
@@ -1709,24 +1709,22 @@ class APyFixed:
 
         Examples
         --------
-        >>> from apytypes import APyFixed
-        >>> from apytypes import QuantizationMode
-        >>> from apytypes import OverflowMode
-        >>> fx = APyFixed.from_float(2.125, int_bits=3, frac_bits=3)
+        >>> import apytypes as apy
+        >>> fx = apy.fx(2.125, int_bits=3, frac_bits=3)
 
         Truncation (2.0)
 
-        >>> fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.TRN)
+        >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.TRN)
         APyFixed(8, bits=5, int_bits=3)
 
         Rounding (2.25)
 
-        >>> fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.RND)
+        >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.RND)
         APyFixed(9, bits=5, int_bits=3)
 
         Two's complement overflowing (-1.875)
 
-        >>> fx.cast(int_bits=2, frac_bits=3, overflow=OverflowMode.WRAP)
+        >>> fx.cast(int_bits=2, frac_bits=3, overflow=apy.OverflowMode.WRAP)
         APyFixed(17, bits=5, int_bits=2)
 
         Returns
@@ -1790,7 +1788,7 @@ class APyFixed:
         """
         Create an :class:`APyFixed` object from an :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
 
-        .. note:: It is in all cases better to use :func:`~apytypes.APyFixed.cast` to create an :class:`APyFixed` from an :class:`APyFixed`.
+        .. attention:: It is in all cases better to use :func:`~apytypes.APyFixed.cast` to create an :class:`APyFixed` from another :class:`APyFixed`.
 
         The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
         Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
@@ -1808,8 +1806,8 @@ class APyFixed:
 
         Examples
         --------
-        >>> from apytypes import APyFixed
-        >>> fx_a = APyFixed.from_float(1.234, int_bits=2, frac_bits=2)
+        >>> import apytypes as apy
+        >>> fx_a = apy.APyFixed.from_float(1.234, int_bits=2, frac_bits=2)
 
         Fixed-point `fx_a`, initialized from the floating-point value 1.234,
         rounded to 1.25 as it is the closest representable number
@@ -1853,11 +1851,11 @@ class APyFixed:
 
         Examples
         --------
-        >>> from apytypes import APyFixed
+        >>> import apytypes as apy
 
         Larger fixed-point value initialization from a string (base-10)
 
-        >>> fx_a = APyFixed.from_str(
+        >>> fx_a = apy.APyFixed.from_str(
         ...     "-1376018206341311063223476816643087998331620501540496640."
         ...     "021222579872958058370179355618716816066859017361262100333952697594702"
         ...     "314679773970519809467311447652539955943903993200932791396783892142688"
@@ -2101,9 +2099,9 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> from apytypes import APyFixedArray
+        >>> import apytypes as apy
         >>>
-        >>> a = APyFixedArray([2, 3, 4, 5], int_bits=2, frac_bits=1)
+        >>> a = apy.APyFixedArray([2, 3, 4, 5], int_bits=2, frac_bits=1)
         >>> a.to_numpy()
         array([ 1. ,  1.5, -2. , -1.5])
         >>> a.reshape((2, 2)).to_numpy()
@@ -2127,9 +2125,9 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> from apytypes import APyFixedArray
-        >>>
-        >>> arr = APyFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
+        >>> import apytypes as apy
+
+        >>> arr = apy.APyFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
         >>> arr.to_numpy()
         array([[ 1. ,  1.5],
                [-2. , -1.5]])
@@ -2149,9 +2147,9 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> from apytypes import APyFixedArray
-        >>>
-        >>> arr = APyFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
+        >>> import apytypes as apy
+
+        >>> arr = apy.APyFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
         >>> arr.to_numpy()
         array([[ 1. ,  1.5],
                [-2. , -1.5]])
@@ -2192,16 +2190,13 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> from apytypes import APyFixedArray
-        >>>
-        >>> x = APyFixedArray.from_float([[1, 2, 3]], bits=5, frac_bits=0)
+        >>> import apytypes as apy
+        >>> x = apy.fx([[1, 2, 3]], bits=5, frac_bits=0)
         >>> x.swapaxes(0, 1).to_numpy()
         array([[1.],
                [2.],
                [3.]])
-        >>> x = APyFixedArray.from_float(
-        ...     [[[0, 1], [2, 3]], [[4, 5], [6, 7]]], bits=5, frac_bits=0
-        ... )
+        >>> x = apy.fx([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], bits=5, frac_bits=0)
         >>> x.to_numpy()
         array([[[0., 1.],
                 [2., 3.]],
@@ -2242,19 +2237,14 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> from apytypes import APyFixedArray
-        >>>
-        >>> a = APyFixedArray.from_float(
-        ...     [[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]], bits=5, frac_bits=0
-        ... )
+        >>> import apytypes as apy
+        >>> a = apy.fx([[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]], bits=5, frac_bits=0)
         >>> a.transpose().to_numpy()
         array([[ 1., -4.],
                [ 2., -5.],
                [ 3., -6.]])
 
-        >>> a = APyFixedArray.from_float([1.0] * 6, bits=5, frac_bits=0).reshape(
-        ...     (1, 2, 3)
-        ... )
+        >>> a = apy.ones((1, 2, 3), bits=5, frac_bits=0)
         >>> a.transpose((1, 0, 2)).shape
         (2, 1, 3)
 
@@ -2396,9 +2386,9 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> from apytypes import APyFixedArray
-        >>>
-        >>> a = APyFixedArray([1, 2, 3, 4, 5, 6], int_bits=10, frac_bits=0)
+        >>> import apytypes as apy
+
+        >>> a = apy.APyFixedArray([1, 2, 3, 4, 5, 6], int_bits=10, frac_bits=0)
         >>> a.sum()
         APyFixed(21, bits=13, int_bits=13)
 
@@ -2427,9 +2417,9 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> from apytypes import APyFixedArray
-        >>>
-        >>> a = APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+        >>> import apytypes as apy
+
+        >>> a = apy.APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
         >>> a.cumsum()
         APyFixedArray([1, 3, 6, 10, 15, 21], shape=(6,), bits=13, int_bits=13)
         >>> a.cumsum(0)
@@ -2504,9 +2494,9 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> from apytypes import APyFixedArray
+        >>> import apytypes as apy
         >>>
-        >>> a = APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+        >>> a = apy.APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
         >>> a.max()
         APyFixed(6, bits=10, int_bits=10)
         >>> a.max(0)
@@ -2538,9 +2528,9 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> from apytypes import APyFixedArray
-        >>>
-        >>> a = APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+        >>> import apytypes as apy
+
+        >>> a = apy.APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
         >>> a.min()
         APyFixed(1, bits=10, int_bits=10)
         >>> a.min(0)
@@ -2619,9 +2609,9 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> from apytypes import APyFixedArray
-        >>>
-        >>> a = APyFixedArray([1, 2, 3, 4, 5, 6], int_bits=10, frac_bits=0)
+        >>> import apytypes as apy
+
+        >>> a = apy.APyFixedArray([1, 2, 3, 4, 5, 6], int_bits=10, frac_bits=0)
         >>> a.prod()
         APyFixed(720, bits=60, int_bits=60)
 
@@ -2650,9 +2640,9 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> from apytypes import APyFixedArray
-        >>>
-        >>> a = APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+        >>> import apytypes as apy
+
+        >>> a = apy.APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
         >>> a.cumprod()
         APyFixedArray([1, 2, 6, 24, 120, 720], shape=(6,), bits=60, int_bits=60)
         >>> a.cumprod(0)
@@ -2735,10 +2725,10 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> from apytypes import APyFixedArray
-        >>>
-        >>> a = APyFixedArray.from_float([1.0, 1.25, 1.49], int_bits=2, frac_bits=2)
-        >>> b = APyFixedArray.from_float(
+        >>> import apytypes as apy
+
+        >>> a = apy.APyFixedArray.from_float([1.0, 1.25, 1.49], int_bits=2, frac_bits=2)
+        >>> b = apy.APyFixedArray.from_float(
         ...     [
         ...         [1.0, 2.0, 3.0],
         ...         [4.0, 5.0, 6.0],
@@ -2750,6 +2740,10 @@ class APyFixedArray:
         Returns
         -------
         :class:`APyFixedArray`
+
+        See Also
+        --------
+        fx
         """
 
     @staticmethod
@@ -2765,7 +2759,7 @@ class APyFixedArray:
         The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
         Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
-        Using NumPy arrays as input is in general faster than e.g. lists.
+        .. hint:: Using NumPy arrays as input is in general faster than e.g. lists.
 
         Parameters
         ----------
@@ -2781,10 +2775,10 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> from apytypes import APyFixedArray
+        >>> import apytypes as apy
         >>> import numpy as np
-        >>>
-        >>> a = APyFixedArray.from_array(
+
+        >>> a = apy.APyFixedArray.from_array(
         ...     np.array(
         ...         [
         ...             [1.0, 2.0, 3.0],
@@ -2798,6 +2792,10 @@ class APyFixedArray:
         Returns
         -------
         :class:`APyFixedArray`
+
+        See Also
+        --------
+        fx
         """
 
     @staticmethod
@@ -3156,7 +3154,7 @@ class APyFloat:
         """
         Create an :class:`APyFloat` object from an :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
 
-        .. note:: It is in all cases better to use :func:`~apytypes.APyFloat.cast` to create an :class:`APyFloat` from an :class:`APyFloat`.
+        .. attention:: It is in all cases better to use :func:`~apytypes.APyFloat.cast` to create an :class:`APyFloat` from another :class:`APyFloat`.
 
         The quantization mode used is :class:`QuantizationMode.TIES_EVEN`.
 
@@ -3174,11 +3172,11 @@ class APyFloat:
         Examples
         --------
 
-        >>> from apytypes import APyFloat
+        >>> import apytypes as apy
 
         `a`, initialized from floating-point values.
 
-        >>> a = APyFloat.from_float(1.35, exp_bits=10, man_bits=15)
+        >>> a = apy.APyFloat.from_float(1.35, exp_bits=10, man_bits=15)
 
         Returns
         -------
@@ -3211,11 +3209,11 @@ class APyFloat:
         Examples
         --------
 
-        >>> from apytypes import APyFloat
+        >>> import apytypes as apy
 
         `a`, initialized to -1.5 from a bit pattern.
 
-        >>> a = APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
+        >>> a = apy.APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
 
         Returns
         -------
@@ -3234,11 +3232,11 @@ class APyFloat:
         Examples
         --------
 
-        >>> from apytypes import APyFloat
+        >>> import apytypes as apy
 
         `a`, initialized to -1.5 from a bit pattern.
 
-        >>> a = APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
+        >>> a = apy.APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
         >>> a
         APyFloat(sign=1, exp=15, man=2, exp_bits=5, man_bits=2)
         >>> a.to_bits() == 0b1_01111_10
@@ -3886,11 +3884,11 @@ class APyFloatArray:
 
         Examples
         --------
-        >>> from apytypes import APyFloatArray
+        >>> import apytypes as apy
         >>> signs = [0, 0, 1, 1]
         >>> exps = [127, 128, 128, 129]
         >>> mans = [0, 0, 4194304, 0]
-        >>> arr = APyFloatArray(
+        >>> arr = apy.APyFloatArray(
         ...     signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23
         ... )
         >>> arr.to_numpy()
@@ -3918,11 +3916,11 @@ class APyFloatArray:
 
         Examples
         --------
-        >>> from apytypes import APyFloatArray
+        >>> import apytypes as apy
         >>> signs = [[0, 0], [1, 1]]
         >>> exps = [[127, 128], [128, 129]]
         >>> mans = [[0, 0], [4194304, 0]]
-        >>> arr = APyFloatArray(
+        >>> arr = apy.APyFloatArray(
         ...     signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23
         ... )
         >>> arr.to_numpy()
@@ -3943,11 +3941,11 @@ class APyFloatArray:
 
         Examples
         --------
-        >>> from apytypes import APyFloatArray
+        >>> import apytypes as apy
         >>> signs = [[0, 0], [1, 1]]
         >>> exps = [[127, 128], [128, 129]]
         >>> mans = [[0, 0], [4194304, 0]]
-        >>> arr = APyFloatArray(
+        >>> arr = apy.APyFloatArray(
         ...     signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23
         ... )
         >>> arr.to_numpy()
@@ -3984,11 +3982,13 @@ class APyFloatArray:
         Examples
         --------
 
-        >>> from apytypes import APyFloatArray
+        >>> import apytypes as apy
 
         Array `a`, initialized from floating-point values.
 
-        >>> a = APyFloatArray.from_float([1.0, 1.25, 1.49], exp_bits=10, man_bits=15)
+        >>> a = apy.APyFloatArray.from_float(
+        ...     [1.0, 1.25, 1.49], exp_bits=10, man_bits=15
+        ... )
 
         Array `lhs` (2 x 3 matrix), initialized from floating-point values.
 
@@ -4004,6 +4004,11 @@ class APyFloatArray:
         Returns
         -------
         :class:`APyFloatArray`
+
+        See Also
+        --------
+        fp
+        from_array
         """
 
     @staticmethod
@@ -4030,12 +4035,12 @@ class APyFloatArray:
         Examples
         --------
 
-        >>> from apytypes import APyFloatArray
+        >>> import apytypes as apy
         >>> import numpy as np
 
         Array `a`, initialized from NumPy ndarray
 
-        >>> a = APyFloatArray.from_array(
+        >>> a = apy.APyFloatArray.from_array(
         ...     np.array(
         ...         [
         ...             [1.0, 2.0, 3.0],
@@ -4049,6 +4054,11 @@ class APyFloatArray:
         Returns
         -------
         :class:`APyFloatArray`
+
+        See Also
+        --------
+        fp
+        from_float
         """
 
     @staticmethod
@@ -4072,9 +4082,11 @@ class APyFloatArray:
         Examples
         --------
 
-        >>> from apytypes import APyFloatArray
+        >>> import apytypes as apy
 
-        >>> a = APyFloatArray.from_bits([[60, 61], [80, 82]], exp_bits=5, man_bits=2)
+        >>> a = apy.APyFloatArray.from_bits(
+        ...     [[60, 61], [80, 82]], exp_bits=5, man_bits=2
+        ... )
 
         Returns
         -------

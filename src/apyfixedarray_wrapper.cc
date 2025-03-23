@@ -277,9 +277,9 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyFixedArray
+            >>> import apytypes as apy
             >>>
-            >>> a = APyFixedArray([2, 3, 4, 5], int_bits=2, frac_bits=1)
+            >>> a = apy.APyFixedArray([2, 3, 4, 5], int_bits=2, frac_bits=1)
             >>> a.to_numpy()
             array([ 1. ,  1.5, -2. , -1.5])
             >>> a.reshape((2, 2)).to_numpy()
@@ -302,9 +302,9 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyFixedArray
-            >>>
-            >>> arr = APyFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
+            >>> import apytypes as apy
+
+            >>> arr = apy.APyFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
             >>> arr.to_numpy()
             array([[ 1. ,  1.5],
                    [-2. , -1.5]])
@@ -323,9 +323,9 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyFixedArray
-            >>>
-            >>> arr = APyFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
+            >>> import apytypes as apy
+
+            >>> arr = apy.APyFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
             >>> arr.to_numpy()
             array([[ 1. ,  1.5],
                    [-2. , -1.5]])
@@ -369,14 +369,13 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyFixedArray
-            >>>
-            >>> x = APyFixedArray.from_float([[1, 2, 3]], bits=5, frac_bits=0)
+            >>> import apytypes as apy
+            >>> x = apy.fx([[1, 2, 3]], bits=5, frac_bits=0)
             >>> x.swapaxes(0,1).to_numpy()
             array([[1.],
                    [2.],
                    [3.]])
-            >>> x = APyFixedArray.from_float(
+            >>> x = apy.fx(
             ...     [[[0, 1], [2, 3]], [[4, 5], [6, 7]]],
             ...     bits=5,
             ...     frac_bits=0
@@ -424,9 +423,8 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyFixedArray
-            >>>
-            >>> a = APyFixedArray.from_float(
+            >>> import apytypes as apy
+            >>> a = apy.fx(
             ...         [[ 1.0,  2.0,  3.0],
             ...          [-4.0, -5.0, -6.0]],
             ...         bits=5,
@@ -437,11 +435,7 @@ void bind_fixed_array(nb::module_& m)
                    [ 2., -5.],
                    [ 3., -6.]])
 
-            >>> a = APyFixedArray.from_float(
-            ...         [1.0] * 6,
-            ...         bits=5,
-            ...         frac_bits=0
-            ...     ).reshape((1, 2, 3))
+            >>> a = apy.ones((1, 2, 3), bits=5, frac_bits=0)
             >>> a.transpose((1, 0, 2)).shape
             (2, 1, 3)
 
@@ -601,9 +595,9 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyFixedArray
-            >>>
-            >>> a = APyFixedArray(
+            >>> import apytypes as apy
+
+            >>> a = apy.APyFixedArray(
             ...     [1, 2, 3, 4, 5, 6],
             ...     int_bits=10,
             ...     frac_bits=0
@@ -640,10 +634,10 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyFixedArray
-            >>>
-            >>> a = APyFixedArray(
-            ...     [[1,2,3],[4,5,6]],
+            >>> import apytypes as apy
+
+            >>> a = apy.APyFixedArray(
+            ...     [[1, 2, 3], [4, 5, 6]],
             ...     int_bits=10,
             ...     frac_bits=0
             ... )
@@ -735,10 +729,10 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyFixedArray
+            >>> import apytypes as apy
             >>>
-            >>> a = APyFixedArray(
-            ...     [[1,2,3],[4,5,6]],
+            >>> a = apy.APyFixedArray(
+            ...     [[1, 2, 3], [4, 5, 6]],
             ...     int_bits=10,
             ...     frac_bits=0
             ... )
@@ -778,11 +772,11 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyFixedArray
-            >>>
-            >>> a = APyFixedArray(
-            ...     [[1,2,3],
-            ...      [4,5,6]],
+            >>> import apytypes as apy
+
+            >>> a = apy.APyFixedArray(
+            ...     [[1, 2, 3],
+            ...      [4, 5, 6]],
             ...     int_bits=10,
             ...     frac_bits=0
             ... )
@@ -876,10 +870,10 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyFixedArray
-            >>>
-            >>> a = APyFixedArray(
-            ...     [1,2,3,4,5,6],
+            >>> import apytypes as apy
+
+            >>> a = apy.APyFixedArray(
+            ...     [1, 2, 3, 4, 5, 6],
             ...     int_bits=10,
             ...     frac_bits=0
             ... )
@@ -915,10 +909,10 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyFixedArray
-            >>>
-            >>> a = APyFixedArray(
-            ...     [[1,2,3],[4,5,6]],
+            >>> import apytypes as apy
+
+            >>> a = apy.APyFixedArray(
+            ...     [[1, 2, 3], [4, 5, 6]],
             ...     int_bits=10,
             ...     frac_bits=0
             ... )
@@ -1017,10 +1011,10 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyFixedArray
-            >>>
-            >>> a = APyFixedArray.from_float([1.0, 1.25, 1.49], int_bits=2, frac_bits=2)
-            >>> b = APyFixedArray.from_float(
+            >>> import apytypes as apy
+
+            >>> a = apy.APyFixedArray.from_float([1.0, 1.25, 1.49], int_bits=2, frac_bits=2)
+            >>> b = apy.APyFixedArray.from_float(
             ...     [
             ...         [1.0, 2.0, 3.0],
             ...         [4.0, 5.0, 6.0],
@@ -1032,6 +1026,10 @@ void bind_fixed_array(nb::module_& m)
             Returns
             -------
             :class:`APyFixedArray`
+
+            See Also
+            --------
+            fx
             )pbdoc"
         )
         .def_static(
@@ -1047,7 +1045,7 @@ void bind_fixed_array(nb::module_& m)
             The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
             Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
-            Using NumPy arrays as input is in general faster than e.g. lists.
+            .. hint:: Using NumPy arrays as input is in general faster than e.g. lists.
 
             Parameters
             ----------
@@ -1063,10 +1061,10 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyFixedArray
+            >>> import apytypes as apy
             >>> import numpy as np
-            >>>
-            >>> a = APyFixedArray.from_array(
+
+            >>> a = apy.APyFixedArray.from_array(
             ...     np.array([
             ...         [1.0, 2.0, 3.0],
             ...         [4.0, 5.0, 6.0],
@@ -1078,6 +1076,11 @@ void bind_fixed_array(nb::module_& m)
             Returns
             -------
             :class:`APyFixedArray`
+
+            See Also
+            --------
+            fx
+
             )pbdoc"
         )
         .def_static(

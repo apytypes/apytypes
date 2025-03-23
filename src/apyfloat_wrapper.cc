@@ -189,7 +189,7 @@ void bind_float(nb::module_& m)
             R"pbdoc(
             Create an :class:`APyFloat` object from an :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
 
-            .. note:: It is in all cases better to use :func:`~apytypes.APyFloat.cast` to create an :class:`APyFloat` from an :class:`APyFloat`.
+            .. attention:: It is in all cases better to use :func:`~apytypes.APyFloat.cast` to create an :class:`APyFloat` from another :class:`APyFloat`.
 
             The quantization mode used is :class:`QuantizationMode.TIES_EVEN`.
 
@@ -207,11 +207,11 @@ void bind_float(nb::module_& m)
             Examples
             --------
 
-            >>> from apytypes import APyFloat
+            >>> import apytypes as apy
 
             `a`, initialized from floating-point values.
 
-            >>> a = APyFloat.from_float(1.35, exp_bits=10, man_bits=15)
+            >>> a = apy.APyFloat.from_float(1.35, exp_bits=10, man_bits=15)
 
             Returns
             -------
@@ -247,11 +247,11 @@ void bind_float(nb::module_& m)
             Examples
             --------
 
-            >>> from apytypes import APyFloat
+            >>> import apytypes as apy
 
             `a`, initialized to -1.5 from a bit pattern.
 
-            >>> a = APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
+            >>> a = apy.APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
 
             Returns
             -------
@@ -269,11 +269,11 @@ void bind_float(nb::module_& m)
             Examples
             --------
 
-            >>> from apytypes import APyFloat
+            >>> import apytypes as apy
 
             `a`, initialized to -1.5 from a bit pattern.
 
-            >>> a = APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
+            >>> a = apy.APyFloat.from_bits(0b1_01111_10, exp_bits=5, man_bits=2)
             >>> a
             APyFloat(sign=1, exp=15, man=2, exp_bits=5, man_bits=2)
             >>> a.to_bits() == 0b1_01111_10
