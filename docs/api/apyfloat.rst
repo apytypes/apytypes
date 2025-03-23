@@ -31,7 +31,7 @@
    .. automethod:: is_identical
 
    Convenience methods
-   ---------------------------
+   -------------------
 
    Casting
    ^^^^^^^

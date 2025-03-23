@@ -210,9 +210,9 @@ void bind_cfixed(nb::module_& m)
             Create complex-valued fixed-point number `fx_a` of value -5.75 + 2j and
             show its bit pattern (real, imag)
 
-            >>> from apytypes import APyCFixed
+            >>> import apytypes as apy
             >>>
-            >>> fx_a = APyCFixed.from_complex(-5.75 + 2j, int_bits=4, frac_bits=4)
+            >>> fx_a = apy.fx(-5.75 + 2j, int_bits=4, frac_bits=4)
             >>> fx_a.to_bits()
             (164, 32)
 
@@ -262,10 +262,9 @@ void bind_cfixed(nb::module_& m)
             the same value, but they are *not* identical as the differ in the `int_bits`
             specifier.
 
-            >>> from apytypes import APyCFixed
-            >>>
-            >>> fx_a = APyCFixed.from_complex(2.0 + 3.0j, int_bits=3, frac_bits=3)
-            >>> fx_b = APyCFixed.from_complex(2.0 + 3.0j, int_bits=4, frac_bits=3)
+            >>> import apytypes as apy
+            >>> fx_a = apy.fx(2.0 + 3.0j, int_bits=3, frac_bits=3)
+            >>> fx_b = apy.fx(2.0 + 3.0j, int_bits=4, frac_bits=3)
             >>> fx_a == fx_b
             True
             >>> fx_a.is_identical(fx_b)
@@ -312,22 +311,19 @@ void bind_cfixed(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyCFixed
-            >>> from apytypes import QuantizationMode
-            >>> from apytypes import OverflowMode
-            >>>
-            >>> fx = APyCFixed.from_complex(2.125 + 1.625j, int_bits=3, frac_bits=3)
-            >>>
-            >>> # Truncation: 2.0 + 1.5j
-            >>> fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.TRN)
+            >>> import apytypes as apy
+            >>> fx = apy.fx(2.125 + 1.625j, int_bits=3, frac_bits=3)
+
+            # Truncation: 2.0 + 1.5j
+            >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.TRN)
             APyCFixed((8, 6), bits=5, int_bits=3)
-            >>>
-            >>> # Fixed-point rounding: 2.25 + 1.75j
-            >>> fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.RND)
+
+            # Fixed-point rounding: 2.25 + 1.75j
+            >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.RND)
             APyCFixed((9, 7), bits=5, int_bits=3)
-            >>>
-            >>> # Two's complement overflowing: -1.875 + 1.625j
-            >>> fx.cast(int_bits=2, frac_bits=3, overflow=OverflowMode.WRAP)
+
+            # Two's complement overflowing: -1.875 + 1.625j
+            >>> fx.cast(int_bits=2, frac_bits=3, overflow=apy.OverflowMode.WRAP)
             APyCFixed((17, 13), bits=5, int_bits=2)
 
             Returns
@@ -389,9 +385,8 @@ void bind_cfixed(nb::module_& m)
             Complex-valued fixed-point `fx_a`, initialized from the complex number 1.234
             + 0.4j, rounded to 1.25 + 0.5j as it is the closest representable number.
 
-            >>> from apytypes import APyCFixed
-            >>>
-            >>> fx_a = APyCFixed.from_complex(1.234 + 0.4j, int_bits=2, frac_bits=2)
+            >>> import apytypes as apy
+            >>> fx_a = apy.APyCFixed.from_complex(1.234 + 0.4j, int_bits=2, frac_bits=2)
             >>> fx_a
             APyCFixed((5, 2), bits=4, int_bits=2)
             >>> str(fx_a)

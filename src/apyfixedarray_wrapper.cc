@@ -270,7 +270,7 @@ void bind_fixed_array(nb::module_& m)
 
             Raises
             ------
-            ValueError
+            :class:`ValueError`
                 If negative dimensions less than -1 are provided, if the total size of
                 the new array is not unchanged and divisible by the known dimensions, or
                 if the total number of elements does not match the original array.
