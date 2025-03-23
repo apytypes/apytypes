@@ -25,6 +25,7 @@
   --color-code-foreground: black;
   --color-brand-primary: #01889F;
   --color-brand-content: #01889F;
+  --color-brand-visited: #7ebd01;
   
   }
   @media not print {
@@ -33,6 +34,7 @@
   --color-code-foreground: #d0d0d0;
   --color-brand-primary: #01889F;
   --color-brand-content: #01889F;
+  --color-brand-visited: #7ebd01;
   
     }
     @media (prefers-color-scheme: dark) {
@@ -41,6 +43,7 @@
   --color-code-foreground: #d0d0d0;
   --color-brand-primary: #01889F;
   --color-brand-content: #01889F;
+  --color-brand-visited: #7ebd01;
   
       }
     }
@@ -451,9 +454,8 @@ Exactly two of the three bit-specifiers (<cite>bits</cite>, <cite>int_bits</cite
 <p class="rubric">Examples</p>
 <p>Complex-valued fixed-point <cite>fx_a</cite>, initialized from the complex number 1.234
 + 0.4j, rounded to 1.25 + 0.5j as it is the closest representable number.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyCFixed</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span> <span class="o">=</span> <span class="n">APyCFixed</span><span class="o">.</span><span class="n">from_complex</span><span class="p">(</span><span class="mf">1.234</span> <span class="o">+</span> <span class="mf">0.4</span><span class="n">j</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixed</span><span class="o">.</span><span class="n">from_complex</span><span class="p">(</span><span class="mf">1.234</span> <span class="o">+</span> <span class="mf">0.4</span><span class="n">j</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span>
 <span class="go">APyCFixed((5, 2), bits=4, int_bits=2)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">fx_a</span><span class="p">)</span>
@@ -528,25 +530,19 @@ needs to be set.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyCFixed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantizationMode</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">OverflowMode</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fx</span> <span class="o">=</span> <span class="n">APyCFixed</span><span class="o">.</span><span class="n">from_complex</span><span class="p">(</span><span class="mf">2.125</span> <span class="o">+</span> <span class="mf">1.625</span><span class="n">j</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Truncation: 2.0 + 1.5j</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fx</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="n">QuantizationMode</span><span class="o">.</span><span class="n">TRN</span><span class="p">)</span>
-<span class="go">APyCFixed((8, 6), bits=5, int_bits=3)</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Fixed-point rounding: 2.25 + 1.75j</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fx</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="n">QuantizationMode</span><span class="o">.</span><span class="n">RND</span><span class="p">)</span>
-<span class="go">APyCFixed((9, 7), bits=5, int_bits=3)</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Two&#39;s complement overflowing: -1.875 + 1.625j</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fx</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">overflow</span><span class="o">=</span><span class="n">OverflowMode</span><span class="o">.</span><span class="n">WRAP</span><span class="p">)</span>
-<span class="go">APyCFixed((17, 13), bits=5, int_bits=2)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fx</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fx</span><span class="p">(</span><span class="mf">2.125</span> <span class="o">+</span> <span class="mf">1.625</span><span class="n">j</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 </div>
+<p># Truncation: 2.0 + 1.5j
+&gt;&gt;&gt; fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.TRN)
+APyCFixed((8, 6), bits=5, int_bits=3)</p>
+<p># Fixed-point rounding: 2.25 + 1.75j
+&gt;&gt;&gt; fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.RND)
+APyCFixed((9, 7), bits=5, int_bits=3)</p>
+<p># Two’s complement overflowing: -1.875 + 1.625j
+&gt;&gt;&gt; fx.cast(int_bits=2, frac_bits=3, overflow=apy.OverflowMode.WRAP)
+APyCFixed((17, 13), bits=5, int_bits=2)</p>
 </dd></dl>
 
 </section>
@@ -566,9 +562,9 @@ needs to be set.</p>
 <p class="rubric">Examples</p>
 <p>Create complex-valued fixed-point number <cite>fx_a</cite> of value -5.75 + 2j and
 show its bit pattern (real, imag)</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyCFixed</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
 <span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span> <span class="o">=</span> <span class="n">APyCFixed</span><span class="o">.</span><span class="n">from_complex</span><span class="p">(</span><span class="o">-</span><span class="mf">5.75</span> <span class="o">+</span> <span class="mi">2</span><span class="n">j</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fx</span><span class="p">(</span><span class="o">-</span><span class="mf">5.75</span> <span class="o">+</span> <span class="mi">2</span><span class="n">j</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span><span class="o">.</span><span class="n">to_bits</span><span class="p">()</span>
 <span class="go">(164, 32)</span>
 </pre></div>
@@ -604,10 +600,9 @@ fixed-point value.</p>
 <p>Complex-valued fixed-point <cite>fx_a</cite> and <cite>fx_b</cite>. They are equal, as they store
 the same value, but they are <em>not</em> identical as the differ in the <cite>int_bits</cite>
 specifier.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyCFixed</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span> <span class="o">=</span> <span class="n">APyCFixed</span><span class="o">.</span><span class="n">from_complex</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">+</span> <span class="mf">3.0</span><span class="n">j</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fx_b</span> <span class="o">=</span> <span class="n">APyCFixed</span><span class="o">.</span><span class="n">from_complex</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">+</span> <span class="mf">3.0</span><span class="n">j</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fx</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">+</span> <span class="mf">3.0</span><span class="n">j</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fx_b</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fx</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">+</span> <span class="mf">3.0</span><span class="n">j</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span> <span class="o">==</span> <span class="n">fx_b</span>
 <span class="go">True</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fx_a</span><span class="o">.</span><span class="n">is_identical</span><span class="p">(</span><span class="n">fx_b</span><span class="p">)</span>

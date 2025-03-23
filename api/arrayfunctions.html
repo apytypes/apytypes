@@ -25,6 +25,7 @@
   --color-code-foreground: black;
   --color-brand-primary: #01889F;
   --color-brand-content: #01889F;
+  --color-brand-visited: #7ebd01;
   
   }
   @media not print {
@@ -33,6 +34,7 @@
   --color-code-foreground: #d0d0d0;
   --color-brand-primary: #01889F;
   --color-brand-content: #01889F;
+  --color-brand-visited: #7ebd01;
   
     }
     @media (prefers-color-scheme: dark) {
@@ -41,6 +43,7 @@
   --color-code-foreground: #d0d0d0;
   --color-brand-primary: #01889F;
   --color-brand-content: #01889F;
+  --color-brand-visited: #7ebd01;
   
       }
     }
@@ -418,14 +421,14 @@ array type.</p>
 </dd>
 <dt><strong>bias</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
-<dt><strong>force_complex</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, optional</span></dt><dd><p>Retrieve the complex-valued array type, <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a> for fixed-point
+<dt><strong>force_complex</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, optional</span></dt><dd><p>Return the complex-valued array type, <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a> for fixed-point
 and <code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloatArray</span></code> for floating-point.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
-<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></span></dt><dd><p>An array where all elements are equal to zero, except for the k-th diagonal,
+<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a>, <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></span></dt><dd><p>An array where all elements are equal to zero, except for the k-th diagonal,
 whose values are equal to one.</p>
 </dd>
 </dl>
@@ -459,14 +462,14 @@ array type.</p>
 </dd>
 <dt><strong>bias</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
-<dt><strong>force_complex</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, optional</span></dt><dd><p>Retrieve the complex-valued array type, <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a> for fixed-point
+<dt><strong>force_complex</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, optional</span></dt><dd><p>Return the complex-valued array type, <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a> for fixed-point
 and <code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFloatArray</span></code> for floating-point.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
-<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></span></dt><dd><p><cite>n</cite> x <cite>n</cite> array with ones (stored value) on the main diagonal and zeros
+<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a>, <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a> or <a class="reference internal" href="apycfixedarray.html#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></span></dt><dd><p><cite>n</cite> x <cite>n</cite> array with ones (stored value) on the main diagonal and zeros
 elsewhere.</p>
 </dd>
 </dl>
@@ -693,14 +696,14 @@ array shape.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
-<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>copy of <cite>a</cite> with the number of dimensions increased.</p>
+<dt><strong>result</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>Copy of <cite>a</cite> with the number of dimensions increased.</p>
 </dd>
 </dl>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fp</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">shape</span>
 <span class="go">(2,)</span>
 </pre></div>
@@ -748,17 +751,19 @@ array shape.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyFloatArray</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">signs</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">exps</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">127</span><span class="p">,</span> <span class="mi">128</span><span class="p">],</span> <span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">129</span><span class="p">]]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mans</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">4194304</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="p">(</span><span class="n">signs</span><span class="o">=</span><span class="n">signs</span><span class="p">,</span> <span class="n">exps</span><span class="o">=</span><span class="n">exps</span><span class="p">,</span> <span class="n">mans</span><span class="o">=</span><span class="n">mans</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">23</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyFloatArray</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">signs</span><span class="o">=</span><span class="n">signs</span><span class="p">,</span> <span class="n">exps</span><span class="o">=</span><span class="n">exps</span><span class="p">,</span> <span class="n">mans</span><span class="o">=</span><span class="n">mans</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">23</span>
+<span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[ 1.,  2.],</span>
 <span class="go">       [-3., -4.]])</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">apy</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([ 1.,  2., -3., -4.])</span>
 </pre></div>
 </div>
@@ -789,10 +794,8 @@ array shape.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p>import apytypes as apy</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-<span class="gp">... </span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">apy</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span>
 <span class="go">(4, 5, 3)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">apy</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span>
@@ -856,24 +859,22 @@ array shape.</p>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>a_swapped <a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></dt><dd><p>Copy of <cite>a</cite> with axes swapped</p>
+<dd class="field-even"><dl>
+<dt><strong>a_swapped</strong><span class="classifier"><a class="reference internal" href="apyfloatarray.html#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> or <a class="reference internal" href="apyfixedarray.html#apytypes.APyFixedArray" title="apytypes.APyFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></span></dt><dd><p>Copy of <cite>a</cite> with axes swapped</p>
 </dd>
 </dl>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyFloatArray</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fp</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[1.],</span>
 <span class="go">       [2.],</span>
 <span class="go">       [3.]])</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="p">[[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]]],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">3</span>
-<span class="gp">... </span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fp</span><span class="p">([[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]]],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[[0., 1.],</span>
 <span class="go">        [2., 3.]],</span>
@@ -882,7 +883,7 @@ array shape.</p>
 <span class="go">        [6., 7.]]])</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">apy</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[[0., 4.],</span>
 <span class="go">        [2., 6.]],</span>
 

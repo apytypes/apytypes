@@ -25,6 +25,7 @@
   --color-code-foreground: black;
   --color-brand-primary: #01889F;
   --color-brand-content: #01889F;
+  --color-brand-visited: #7ebd01;
   
   }
   @media not print {
@@ -33,6 +34,7 @@
   --color-code-foreground: #d0d0d0;
   --color-brand-primary: #01889F;
   --color-brand-content: #01889F;
+  --color-brand-visited: #7ebd01;
   
     }
     @media (prefers-color-scheme: dark) {
@@ -41,6 +43,7 @@
   --color-code-foreground: #d0d0d0;
   --color-brand-primary: #01889F;
   --color-brand-content: #01889F;
+  --color-brand-visited: #7ebd01;
   
       }
     }
@@ -346,7 +349,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.cast" title="apytypes.APyCFixedArray.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a></p></td>
 <td><p>Change format of the fixed-point array.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.copy" title="apytypes.APyCFixedArray.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
 <td><p>Create a copy of the object.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.cumprod" title="apytypes.APyCFixedArray.cumprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cumprod</span></code></a></p></td>
@@ -575,55 +578,12 @@ sequence shape.</p>
 <section id="other-creation-functions">
 <h2>Other creation functions<a class="headerlink" href="#other-creation-functions" title="Link to this heading">¶</a></h2>
 <dl class="py method">
-<dt class="sig sig-object py" id="apytypes.APyCFixedArray.zeros">
-<span class="sig-name descname"><span class="pre">zeros</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyCFixedArray" title="APyCFixedArray"><span class="pre">APyCFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyCFixedArray.zeros" title="Link to this definition">¶</a></dt>
-<dd><p>Initializes an array with zeros.</p>
-<dl class="field-list">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>shape</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></dt><dd><p>Shape of the array.</p>
-</dd>
-<dt><strong>int_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of integer bits.</p>
-</dd>
-<dt><strong>frac_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of fractional bits.</p>
-</dd>
-<dt><strong>bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Total number of bits.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><a class="reference internal" href="#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></dt><dd><p>An array initialized with zeros.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="apytypes.APyCFixedArray.ones">
-<span class="sig-name descname"><span class="pre">ones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyCFixedArray" title="APyCFixedArray"><span class="pre">APyCFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyCFixedArray.ones" title="Link to this definition">¶</a></dt>
-<dd><p>Initializes an array with ones.</p>
-<dl class="field-list">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>shape</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></dt><dd><p>Shape of the array.</p>
-</dd>
-<dt><strong>int_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of integer bits.</p>
-</dd>
-<dt><strong>frac_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of fractional bits.</p>
-</dd>
-<dt><strong>bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Total number of bits.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><a class="reference internal" href="#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></dt><dd><p>An array initialized with ones.</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="apytypes.APyCFixedArray.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyCFixedArray" title="APyCFixedArray"><span class="pre">APyCFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyCFixedArray.copy" title="Link to this definition">¶</a></dt>
+<dd><p>Create a copy of the object.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.3.</span></p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -648,6 +608,28 @@ sequence shape.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><a class="reference internal" href="#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></dt><dd><p>An array with ones on the diagonal.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyCFixedArray.full">
+<span class="sig-name descname"><span class="pre">full</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apycfixed.html#apytypes.APyCFixed" title="APyCFixed"><span class="pre">APyCFixed</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyCFixedArray" title="APyCFixedArray"><span class="pre">APyCFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyCFixedArray.full" title="Link to this definition">¶</a></dt>
+<dd><p>Initializes an array with the specified value.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>shape</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></dt><dd><p>Shape of the array.</p>
+</dd>
+<dt><strong>fill_value</strong><span class="classifier"><a class="reference internal" href="apycfixed.html#apytypes.APyCFixed" title="apytypes.APyCFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></span></dt><dd><p>Value to fill the array.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></dt><dd><p>An array filled with the specified value.</p>
 </dd>
 </dl>
 </dd>
@@ -681,21 +663,51 @@ sequence shape.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="apytypes.APyCFixedArray.full">
-<span class="sig-name descname"><span class="pre">full</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apycfixed.html#apytypes.APyCFixed" title="APyCFixed"><span class="pre">APyCFixed</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyCFixedArray" title="APyCFixedArray"><span class="pre">APyCFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyCFixedArray.full" title="Link to this definition">¶</a></dt>
-<dd><p>Initializes an array with the specified value.</p>
+<dt class="sig sig-object py" id="apytypes.APyCFixedArray.ones">
+<span class="sig-name descname"><span class="pre">ones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyCFixedArray" title="APyCFixedArray"><span class="pre">APyCFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyCFixedArray.ones" title="Link to this definition">¶</a></dt>
+<dd><p>Initializes an array with ones.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>shape</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></dt><dd><p>Shape of the array.</p>
 </dd>
-<dt><strong>fill_value</strong><span class="classifier"><a class="reference internal" href="apycfixed.html#apytypes.APyCFixed" title="apytypes.APyCFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></span></dt><dd><p>Value to fill the array.</p>
+<dt><strong>int_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of integer bits.</p>
+</dd>
+<dt><strong>frac_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of fractional bits.</p>
+</dd>
+<dt><strong>bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Total number of bits.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><a class="reference internal" href="#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></dt><dd><p>An array filled with the specified value.</p>
+<dt><a class="reference internal" href="#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></dt><dd><p>An array initialized with ones.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyCFixedArray.zeros">
+<span class="sig-name descname"><span class="pre">zeros</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyCFixedArray" title="APyCFixedArray"><span class="pre">APyCFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyCFixedArray.zeros" title="Link to this definition">¶</a></dt>
+<dd><p>Initializes an array with zeros.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>shape</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></dt><dd><p>Shape of the array.</p>
+</dd>
+<dt><strong>int_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of integer bits.</p>
+</dd>
+<dt><strong>frac_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Number of fractional bits.</p>
+</dd>
+<dt><strong>bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Total number of bits.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></dt><dd><p>An array initialized with zeros.</p>
 </dd>
 </dl>
 </dd>
@@ -794,9 +806,8 @@ the axes.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyCFixedArray</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
 <span class="gp">... </span>        <span class="p">[[</span><span class="mf">1.0</span><span class="p">,</span>   <span class="mf">2.0</span><span class="p">,</span>  <span class="mf">3.0</span><span class="p">],</span>
 <span class="gp">... </span>         <span class="p">[</span><span class="o">-</span><span class="mf">4.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.0</span><span class="p">]],</span>
 <span class="gp">... </span>        <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
@@ -808,7 +819,7 @@ the axes.</p>
 <span class="go">       [ 3.+0.j, -6.+0.j]])</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
 <span class="gp">... </span>        <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">,</span>
 <span class="gp">... </span>        <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
 <span class="gp">... </span>        <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
@@ -838,9 +849,8 @@ the axes.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyCFixedArray</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">APyCFixedArray</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[ 1. +0.j,  1.5+0.j],</span>
 <span class="go">       [-2. +0.j, -1.5+0.j]])</span>
@@ -865,9 +875,8 @@ with current memory-copy model.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyCFixedArray</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">APyCFixedArray</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[ 1. +0.j,  1.5+0.j],</span>
 <span class="go">       [-2. +0.j, -1.5+0.j]])</span>
@@ -908,9 +917,8 @@ original array.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyCFixedArray</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyCFixedArray</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([ 1. +0.j,  1.5+0.j, -2. +0.j, -1.5+0.j])</span>
 </pre></div>
@@ -984,16 +992,15 @@ dimensions for the array.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyCFixedArray</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[1.+0.j],</span>
 <span class="go">       [2.+0.j],</span>
 <span class="go">       [3.+0.j]])</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
 <span class="gp">... </span>        <span class="p">[[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]]],</span>
 <span class="gp">... </span>        <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
 <span class="gp">... </span>        <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
@@ -1420,11 +1427,12 @@ the array.</p>
 <li><a class="reference internal" href="#apytypes.APyCFixedArray.from_array"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.from_array()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFixedArray.from_complex"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.from_complex()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFixedArray.from_float"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.from_float()</span></code></a></li>
-<li><a class="reference internal" href="#apytypes.APyCFixedArray.zeros"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.zeros()</span></code></a></li>
-<li><a class="reference internal" href="#apytypes.APyCFixedArray.ones"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.ones()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyCFixedArray.copy"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.copy()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFixedArray.eye"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.eye()</span></code></a></li>
-<li><a class="reference internal" href="#apytypes.APyCFixedArray.identity"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.identity()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFixedArray.full"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.full()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyCFixedArray.identity"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.identity()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyCFixedArray.ones"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.ones()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyCFixedArray.zeros"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.zeros()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFixedArray.cast"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.cast()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFixedArray.is_identical"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.is_identical()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFixedArray.transpose"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.transpose()</span></code></a></li>

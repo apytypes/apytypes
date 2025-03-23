@@ -25,6 +25,7 @@
   --color-code-foreground: black;
   --color-brand-primary: #01889F;
   --color-brand-content: #01889F;
+  --color-brand-visited: #7ebd01;
   
   }
   @media not print {
@@ -33,6 +34,7 @@
   --color-code-foreground: #d0d0d0;
   --color-brand-primary: #01889F;
   --color-brand-content: #01889F;
+  --color-brand-visited: #7ebd01;
   
     }
     @media (prefers-color-scheme: dark) {
@@ -41,6 +43,7 @@
   --color-code-foreground: #d0d0d0;
   --color-brand-primary: #01889F;
   --color-brand-content: #01889F;
+  --color-brand-visited: #7ebd01;
   
       }
     }
@@ -363,7 +366,7 @@ equivalent <a class="reference internal" href="apyfloat.html#apytypes.APyFloat" 
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.convolve" title="apytypes.APyFloatArray.convolve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convolve</span></code></a></p></td>
 <td><p>Return the discrete linear convolution with another one-dimensional array.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.copy" title="apytypes.APyFloatArray.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
 <td><p>Create a copy of the object.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cumprod" title="apytypes.APyFloatArray.cumprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cumprod</span></code></a></p></td>
@@ -381,7 +384,7 @@ equivalent <a class="reference internal" href="apyfloat.html#apytypes.APyFloat" 
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.from_array" title="apytypes.APyFloatArray.from_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_array</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_bits</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.from_bits" title="apytypes.APyFloatArray.from_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_bits</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.from_float" title="apytypes.APyFloatArray.from_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_float</span></code></a></p></td>
@@ -609,59 +612,52 @@ from the sequence shape.</p>
 </div>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFloatArray.from_bits">
+<span class="sig-name descname"><span class="pre">from_bits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.13)"><span class="pre">Sequence</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">man_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.from_bits" title="Link to this definition">¶</a></dt>
+<dd><p>Create an <a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> object from bit-representations.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>The bit-representations.</p>
+</dd>
+<dt><strong>exp_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of exponent bits in the created floating-point tensor</p>
+</dd>
+<dt><strong>man_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of mantissa bits in the created floating-point tensor</p>
+</dd>
+<dt><strong>bias</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyFloatArray</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_bits</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">61</span><span class="p">],</span> <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">82</span><span class="p">]],</span>
+<span class="gp">... </span>    <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </section>
 <section id="other-creation-functions">
 <h2>Other creation functions<a class="headerlink" href="#other-creation-functions" title="Link to this heading">¶</a></h2>
 <dl class="py method">
-<dt class="sig sig-object py" id="apytypes.APyFloatArray.zeros">
-<span class="sig-name descname"><span class="pre">zeros</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">man_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.zeros" title="Link to this definition">¶</a></dt>
-<dd><p>Initializes an array with zeros.</p>
-<dl class="field-list">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>shape</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></dt><dd><p>Shape of the array.</p>
-</dd>
-<dt><strong>exp_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of exponent bits.</p>
-</dd>
-<dt><strong>man_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of mantissa bits.</p>
-</dd>
-<dt><strong>bias</strong><span class="classifier">optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></dt><dd><p>An array filled with zeros.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="apytypes.APyFloatArray.ones">
-<span class="sig-name descname"><span class="pre">ones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">man_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.ones" title="Link to this definition">¶</a></dt>
-<dd><p>Initializes an array with ones.</p>
-<dl class="field-list">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>shape</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></dt><dd><p>Shape of the array.</p>
-</dd>
-<dt><strong>exp_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of exponent bits.</p>
-</dd>
-<dt><strong>man_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of mantissa bits.</p>
-</dd>
-<dt><strong>bias</strong><span class="classifier">optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></dt><dd><p>An array filled with ones.</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="apytypes.APyFloatArray.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.copy" title="Link to this definition">¶</a></dt>
+<dd><p>Create a copy of the object.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.3.</span></p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -686,6 +682,28 @@ from the sequence shape.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></dt><dd><p>An array with the specified value on the diagonal.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFloatArray.full">
+<span class="sig-name descname"><span class="pre">full</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.full" title="Link to this definition">¶</a></dt>
+<dd><p>Initializes an array filled with the specified value.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>shape</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></dt><dd><p>Shape of the array.</p>
+</dd>
+<dt><strong>fill_value</strong><span class="classifier">APyFloat</span></dt><dd><p>Value to fill the array.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></dt><dd><p>An array filled with the specified value.</p>
 </dd>
 </dl>
 </dd>
@@ -719,21 +737,51 @@ from the sequence shape.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="apytypes.APyFloatArray.full">
-<span class="sig-name descname"><span class="pre">full</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.full" title="Link to this definition">¶</a></dt>
-<dd><p>Initializes an array filled with the specified value.</p>
+<dt class="sig sig-object py" id="apytypes.APyFloatArray.ones">
+<span class="sig-name descname"><span class="pre">ones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">man_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.ones" title="Link to this definition">¶</a></dt>
+<dd><p>Initializes an array with ones.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>shape</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></dt><dd><p>Shape of the array.</p>
 </dd>
-<dt><strong>fill_value</strong><span class="classifier">APyFloat</span></dt><dd><p>Value to fill the array.</p>
+<dt><strong>exp_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of exponent bits.</p>
+</dd>
+<dt><strong>man_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of mantissa bits.</p>
+</dd>
+<dt><strong>bias</strong><span class="classifier">optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></dt><dd><p>An array filled with the specified value.</p>
+<dt><a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></dt><dd><p>An array filled with ones.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyFloatArray.zeros">
+<span class="sig-name descname"><span class="pre">zeros</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">man_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.zeros" title="Link to this definition">¶</a></dt>
+<dd><p>Initializes an array with zeros.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>shape</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></dt><dd><p>Shape of the array.</p>
+</dd>
+<dt><strong>exp_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of exponent bits.</p>
+</dd>
+<dt><strong>man_bits</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Number of mantissa bits.</p>
+</dd>
+<dt><strong>bias</strong><span class="classifier">optional</span></dt><dd><p>Exponent bias. If not provided, <em>bias</em> is <code class="docutils literal notranslate"><span class="pre">2**exp_bits</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></dt><dd><p>An array filled with zeros.</p>
 </dd>
 </dl>
 </dd>
@@ -1834,11 +1882,13 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_f
 <li><a class="reference internal" href="#apytypes.APyFloatArray.to_bits"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.to_bits()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloatArray.from_array"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.from_array()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloatArray.from_float"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.from_float()</span></code></a></li>
-<li><a class="reference internal" href="#apytypes.APyFloatArray.zeros"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.zeros()</span></code></a></li>
-<li><a class="reference internal" href="#apytypes.APyFloatArray.ones"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.ones()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloatArray.from_bits"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.from_bits()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloatArray.copy"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.copy()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloatArray.eye"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.eye()</span></code></a></li>
-<li><a class="reference internal" href="#apytypes.APyFloatArray.identity"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.identity()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloatArray.full"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.full()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloatArray.identity"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.identity()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloatArray.ones"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.ones()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyFloatArray.zeros"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.zeros()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloatArray.cast"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.cast()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloatArray.is_identical"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.is_identical()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyFloatArray.convolve"><code class="docutils literal notranslate"><span class="pre">APyFloatArray.convolve()</span></code></a></li>
