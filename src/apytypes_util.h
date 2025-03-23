@@ -237,16 +237,16 @@ template <typename INT_TYPE>
 
 //! Compute number of trailing bits after most significant `1` in an integer
 template <typename INT_TYPE>
-[[maybe_unused, nodiscard]] static APY_INLINE std::size_t count_trailing_bits(INT_TYPE n
-)
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t
+count_trailing_bits(INT_TYPE n)
 {
     return bit_width(n) - 1;
 }
 
 //! Quickly evaluate how many limbs are required to to store a `bits` bit word.
 //! Undefined behaviour when `bits` is equal to zero.
-[[maybe_unused, nodiscard]] static APY_INLINE std::size_t bits_to_limbs(std::size_t bits
-)
+[[maybe_unused, nodiscard]] static APY_INLINE std::size_t
+bits_to_limbs(std::size_t bits)
 {
     static_assert(APY_LIMB_SIZE_BITS == 64 || APY_LIMB_SIZE_BITS == 32);
     if constexpr (APY_LIMB_SIZE_BITS == 64) {

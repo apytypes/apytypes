@@ -4111,7 +4111,7 @@ class APyFloatArray:
 
         Returns
         -------
-        APyFloatArray
+        :class:`APyFloatArray`
             An array filled with zeros.
         """
 
@@ -4135,7 +4135,7 @@ class APyFloatArray:
 
         Returns
         -------
-        APyFloatArray
+        :class:`APyFloatArray`
             An array filled with ones.
         """
 
@@ -4165,7 +4165,7 @@ class APyFloatArray:
 
         Returns
         -------
-        APyFloatArray
+        :class:`APyFloatArray`
             An array with the specified value on the diagonal.
         """
 
@@ -4189,7 +4189,7 @@ class APyFloatArray:
 
         Returns
         -------
-        APyFloatArray
+        :class:`APyFloatArray`
             An identity matrix with ones on the diagonal.
         """
 
@@ -4207,7 +4207,7 @@ class APyFloatArray:
 
         Returns
         -------
-        APyFloatArray
+        :class:`APyFloatArray`
             An array filled with the specified value.
         """
 
@@ -4219,9 +4219,9 @@ class APyFloatArray:
         Test if two :class:`APyFloatArray` objects are identical.
 
         Two :class:`APyFloatArray` objects are considered identical if, and only if:
-          * They represent exactly the same tensor shape
-          * They store the exact same floating-ppint values in all tensor elements
-          * They have the exact same bit format (`exp_bits`, `man_bits`, and `bias`)
+            * They represent exactly the same tensor shape
+            * They store the exact same floating-ppint values in all tensor elements
+            * They have the exact same bit format (`exp_bits`, `man_bits`, and `bias`)
 
         Returns
         -------
@@ -4241,16 +4241,14 @@ class APyFloatArray:
 
         Examples
         --------
-        >>> from apytypes import APyFloatArray
-        >>> x = APyFloatArray.from_float([[1, 2, 3]], exp_bits=5, man_bits=2)
+        >>> import apytypes as apy
+        >>> x = apy.fp([[1, 2, 3]], exp_bits=5, man_bits=2)
         >>> x.swapaxes(0, 1).to_numpy()
         array([[1.],
                [2.],
                [3.]])
 
-        >>> x = APyFloatArray.from_float(
-        ...     [[[0, 1], [2, 3]], [[4, 5], [6, 7]]], exp_bits=5, man_bits=5
-        ... )
+        >>> x = apy.fp([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], exp_bits=5, man_bits=5)
         >>> x.to_numpy()
         array([[[0., 1.],
                 [2., 3.]],
@@ -4292,10 +4290,8 @@ class APyFloatArray:
 
         Examples
         --------
-        >>> from apytypes import APyFloatArray
-        >>> a = APyFloatArray.from_float(
-        ...     [[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]], exp_bits=5, man_bits=2
-        ... )
+        >>> import apytypes as apy
+        >>> a = apy.fp([[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]], exp_bits=5, man_bits=2)
         >>> a.to_numpy()
         array([[ 1.,  2.,  3.],
                [-4., -5., -6.]])
@@ -4305,9 +4301,7 @@ class APyFloatArray:
                [ 2., -5.],
                [ 3., -6.]])
 
-        >>> a = APyFloatArray.from_float([1.0] * 6, exp_bits=5, man_bits=2).reshape(
-        ...     (1, 2, 3)
-        ... )
+        >>> a = apy.fp([1.0] * 6, exp_bits=5, man_bits=2).reshape((1, 2, 3))
         >>> a.transpose((1, 0, 2)).shape
         (2, 1, 3)
 
@@ -4402,16 +4396,16 @@ class APyFloatArray:
         :class:`APyFloatArray` or :class:`APyFloat`
 
         Raises
-        -------
+        ------
         :class:`IndexError`
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
         --------
 
-        >>> from apytypes import APyFloatArray
+        >>> import apytypes as apy
 
-        >>> a = APyFloatArray.from_float([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
+        >>> a = apy.fp([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
 
         >>> a.sum()
         APyFloat(sign=0, exp=515, man=320, exp_bits=10, man_bits=10)
@@ -4440,11 +4434,9 @@ class APyFloatArray:
         Examples
         --------
 
-        >>> from apytypes import APyFloatArray
+        >>> import apytypes as apy
 
-        >>> a = APyFloatArray.from_float(
-        ...     [[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10
-        ... )
+        >>> a = apy.fp([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
 
         >>> a.cumsum()
         APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 514, 514, 515], [0, 512, 512, 256, 896, 320], shape=(6,), exp_bits=10, man_bits=10, bias=511)
@@ -4479,11 +4471,11 @@ class APyFloatArray:
         Examples
         --------
 
-        >>> from apytypes import APyFloatArray
+        >>> import apytypes as apy
 
         >>> nan = float("nan")
 
-        >>> a = APyFloatArray.from_float([1, 2, 3, 4, 5, nan], exp_bits=10, man_bits=10)
+        >>> a = apy.fp([1, 2, 3, 4, 5, nan], exp_bits=10, man_bits=10)
 
         >>> a.nansum()
         APyFloat(sign=0, exp=514, man=896, exp_bits=10, man_bits=10)
@@ -4515,13 +4507,11 @@ class APyFloatArray:
         --------
 
 
-        >>> from apytypes import APyFloatArray
+        >>> import apytypes as apy
 
         >>> nan = float("nan")
 
-        >>> a = APyFloatArray.from_float(
-        ...     [[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10
-        ... )
+        >>> a = apy.fp([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
 
         >>> a.nancumsum()
         APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 514, 514, 515], [0, 512, 512, 256, 896, 320], shape=(6,), exp_bits=10, man_bits=10, bias=511)
@@ -4557,9 +4547,9 @@ class APyFloatArray:
         Examples
         --------
 
-        >>> from apytypes import APyFloatArray
+        >>> import apytypes as apy
 
-        >>> a = APyFloatArray.from_float([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
+        >>> a = apy.fp([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
 
         >>> a.prod()
         APyFloat(sign=0, exp=520, man=416, exp_bits=10, man_bits=10)
@@ -4588,12 +4578,10 @@ class APyFloatArray:
         Examples
         --------
 
-        >>> from apytypes import APyFloatArray
+        >>> import apytypes as apy
 
 
-        >>> a = APyFloatArray.from_float(
-        ...     [[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10
-        ... )
+        >>> a = apy.fp([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
 
         >>> a.cumprod()
         APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 515, 517, 520], [0, 0, 512, 512, 896, 416], shape=(6,), exp_bits=10, man_bits=10, bias=511)
@@ -4666,13 +4654,11 @@ class APyFloatArray:
         Examples
         --------
 
-        >>> from apytypes import APyFloatArray
+        >>> import apytypes as apy
 
         Array `a`, array to get the maximum along.
 
-        >>> a = APyFloatArray.from_float(
-        ...     [[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10
-        ... )
+        >>> a = apy.fp([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
 
         >>> a.max()
         APyFloat(sign=0, exp=513, man=512, exp_bits=10, man_bits=10)
@@ -4705,15 +4691,13 @@ class APyFloatArray:
             If a specified axis is outside of the existing number of dimensions for the array.
 
         Examples
-        -------
+        --------
 
-        >>> from apytypes import APyFloatArray
+        >>> import apytypes as apy
 
         Array `a`, array to get the minimum along.
 
-        >>> a = APyFloatArray.from_float(
-        ...     [[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10
-        ... )
+        >>> a = apy.fp([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
 
         >>> a.min()
         APyFloat(sign=0, exp=511, man=0, exp_bits=10, man_bits=10)

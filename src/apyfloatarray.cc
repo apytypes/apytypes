@@ -107,11 +107,13 @@ APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
     if (_shape != rhs._shape) {
         const auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
         if (broadcast_shape.size() == 0) {
-            throw std::length_error(fmt::format(
-                "APyFloatArray.__add__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                tuple_string_from_vec(_shape),
-                tuple_string_from_vec(rhs._shape)
-            ));
+            throw std::length_error(
+                fmt::format(
+                    "APyFloatArray.__add__: shape mismatch, lhs.shape={}, rhs.shape={}",
+                    tuple_string_from_vec(_shape),
+                    tuple_string_from_vec(rhs._shape)
+                )
+            );
         }
         return broadcast_to(broadcast_shape) + rhs.broadcast_to(broadcast_shape);
     }
@@ -166,11 +168,13 @@ APyFloatArray APyFloatArray::operator-(const APyFloatArray& rhs) const
     if (_shape != rhs._shape) {
         auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
         if (broadcast_shape.size() == 0) {
-            throw std::length_error(fmt::format(
-                "APyFloatArray.__sub__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                tuple_string_from_vec(_shape),
-                tuple_string_from_vec(rhs._shape)
-            ));
+            throw std::length_error(
+                fmt::format(
+                    "APyFloatArray.__sub__: shape mismatch, lhs.shape={}, rhs.shape={}",
+                    tuple_string_from_vec(_shape),
+                    tuple_string_from_vec(rhs._shape)
+                )
+            );
         }
         return broadcast_to(broadcast_shape) - rhs.broadcast_to(broadcast_shape);
     }
@@ -243,11 +247,13 @@ APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
     if (_shape != rhs._shape) {
         auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
         if (broadcast_shape.size() == 0) {
-            throw std::length_error(fmt::format(
-                "APyFloatArray.__mul__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                tuple_string_from_vec(_shape),
-                tuple_string_from_vec(rhs._shape)
-            ));
+            throw std::length_error(
+                fmt::format(
+                    "APyFloatArray.__mul__: shape mismatch, lhs.shape={}, rhs.shape={}",
+                    tuple_string_from_vec(_shape),
+                    tuple_string_from_vec(rhs._shape)
+                )
+            );
         }
         return broadcast_to(broadcast_shape) * rhs.broadcast_to(broadcast_shape);
     }
@@ -301,11 +307,14 @@ APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
     if (_shape != rhs._shape) {
         auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
         if (broadcast_shape.size() == 0) {
-            throw std::length_error(fmt::format(
-                "APyFloatArray.__truediv__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                tuple_string_from_vec(_shape),
-                tuple_string_from_vec(rhs._shape)
-            ));
+            throw std::length_error(
+                fmt::format(
+                    "APyFloatArray.__truediv__: shape mismatch, lhs.shape={}, "
+                    "rhs.shape={}",
+                    tuple_string_from_vec(_shape),
+                    tuple_string_from_vec(rhs._shape)
+                )
+            );
         }
         return broadcast_to(broadcast_shape) / rhs.broadcast_to(broadcast_shape);
     }
@@ -374,8 +383,8 @@ APyFloatArray APyFloatArray::rdiv(const APyFloat& lhs) const
 
 APyFloatArray APyFloatArray::rsub(const APyFloat& lhs) const { return (-*this) + lhs; }
 
-std::variant<APyFloatArray, APyFloat> APyFloatArray::matmul(const APyFloatArray& rhs
-) const
+std::variant<APyFloatArray, APyFloat>
+APyFloatArray::matmul(const APyFloatArray& rhs) const
 {
     if (ndim() == 1 && rhs.ndim() == 1) {
         if (_shape[0] == rhs._shape[0]) {
@@ -393,11 +402,13 @@ std::variant<APyFloatArray, APyFloat> APyFloatArray::matmul(const APyFloatArray&
     }
 
     // Unsupported `__matmul__` dimensionality, raise exception
-    throw std::length_error(fmt::format(
-        "APyFloatArray.__matmul__: input shape mismatch, lhs: {}, rhs: {}",
-        tuple_string_from_vec(_shape),
-        tuple_string_from_vec(rhs._shape)
-    ));
+    throw std::length_error(
+        fmt::format(
+            "APyFloatArray.__matmul__: input shape mismatch, lhs: {}, rhs: {}",
+            tuple_string_from_vec(_shape),
+            tuple_string_from_vec(rhs._shape)
+        )
+    );
 }
 
 APyFloatArray APyFloatArray::operator~() const
@@ -1082,9 +1093,11 @@ void APyFloatArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& nd
             auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
             for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
                 double value = static_cast<double>(ndarray_view.data()[i]);            \
-                double_caster.set_data({ sign_of_double(value),                        \
-                                         exp_t(exp_of_double(value)),                  \
-                                         man_of_double(value) });                      \
+                double_caster.set_data(                                                \
+                    { sign_of_double(value),                                           \
+                      exp_t(exp_of_double(value)),                                     \
+                      man_of_double(value) }                                           \
+                );                                                                     \
                 APyFloat fp                                                            \
                     = double_caster.cast_from_double(exp_bits, man_bits, bias);        \
                 _data[i] = fp.get_data();                                              \
@@ -1387,20 +1400,20 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
 /*
  * Convenience methods
  */
-APyFloatArray APyFloatArray::cast_to_double(std::optional<QuantizationMode> quantization
-) const
+APyFloatArray
+APyFloatArray::cast_to_double(std::optional<QuantizationMode> quantization) const
 {
     return _cast(11, 52, 1023, quantization);
 }
 
-APyFloatArray APyFloatArray::cast_to_single(std::optional<QuantizationMode> quantization
-) const
+APyFloatArray
+APyFloatArray::cast_to_single(std::optional<QuantizationMode> quantization) const
 {
     return _cast(8, 23, 127, quantization);
 }
 
-APyFloatArray APyFloatArray::cast_to_half(std::optional<QuantizationMode> quantization
-) const
+APyFloatArray
+APyFloatArray::cast_to_half(std::optional<QuantizationMode> quantization) const
 {
     return _cast(5, 10, 15, quantization);
 }

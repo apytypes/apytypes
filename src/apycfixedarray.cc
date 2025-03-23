@@ -223,8 +223,8 @@ APyCFixedArray::_apycfixedarray_base_add_sub(const APyCFixedArray& rhs) const
 }
 
 template <class op, class ripple_carry_op>
-inline APyCFixedArray APyCFixedArray::_apycfixed_base_add_sub(const APyCFixed& rhs
-) const
+inline APyCFixedArray
+APyCFixedArray::_apycfixed_base_add_sub(const APyCFixed& rhs) const
 {
     // Increase word length of result by one
     const int res_int_bits = std::max(rhs.int_bits(), int_bits()) + 1;
@@ -302,11 +302,14 @@ APyCFixedArray APyCFixedArray::operator+(const APyCFixedArray& rhs) const
     if (_shape != rhs._shape) {
         auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
         if (broadcast_shape.size() == 0) {
-            throw std::length_error(fmt::format(
-                "APyCFixedArray.__add__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                tuple_string_from_vec(_shape),
-                tuple_string_from_vec(rhs._shape)
-            ));
+            throw std::length_error(
+                fmt::format(
+                    "APyCFixedArray.__add__: shape mismatch, lhs.shape={}, "
+                    "rhs.shape={}",
+                    tuple_string_from_vec(_shape),
+                    tuple_string_from_vec(rhs._shape)
+                )
+            );
         }
         return broadcast_to(broadcast_shape) + rhs.broadcast_to(broadcast_shape);
     }
@@ -327,11 +330,14 @@ APyCFixedArray APyCFixedArray::operator-(const APyCFixedArray& rhs) const
     if (_shape != rhs._shape) {
         auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
         if (broadcast_shape.size() == 0) {
-            throw std::length_error(fmt::format(
-                "APyCFixedArray.__sub__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                tuple_string_from_vec(_shape),
-                tuple_string_from_vec(rhs._shape)
-            ));
+            throw std::length_error(
+                fmt::format(
+                    "APyCFixedArray.__sub__: shape mismatch, lhs.shape={}, "
+                    "rhs.shape={}",
+                    tuple_string_from_vec(_shape),
+                    tuple_string_from_vec(rhs._shape)
+                )
+            );
         }
         return broadcast_to(broadcast_shape) - rhs.broadcast_to(broadcast_shape);
     }
@@ -419,11 +425,14 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixedArray& rhs) const
     if (_shape != rhs._shape) {
         auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
         if (broadcast_shape.size() == 0) {
-            throw std::length_error(fmt::format(
-                "APyCFixedArray.__mul__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                tuple_string_from_vec(_shape),
-                tuple_string_from_vec(rhs._shape)
-            ));
+            throw std::length_error(
+                fmt::format(
+                    "APyCFixedArray.__mul__: shape mismatch, lhs.shape={}, "
+                    "rhs.shape={}",
+                    tuple_string_from_vec(_shape),
+                    tuple_string_from_vec(rhs._shape)
+                )
+            );
         }
         return broadcast_to(broadcast_shape) * rhs.broadcast_to(broadcast_shape);
     }
@@ -585,11 +594,14 @@ APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
     if (_shape != rhs._shape) {
         auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
         if (broadcast_shape.size() == 0) {
-            throw std::length_error(fmt::format(
-                "APyCFixedArray.__div__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                tuple_string_from_vec(_shape),
-                tuple_string_from_vec(rhs._shape)
-            ));
+            throw std::length_error(
+                fmt::format(
+                    "APyCFixedArray.__div__: shape mismatch, lhs.shape={}, "
+                    "rhs.shape={}",
+                    tuple_string_from_vec(_shape),
+                    tuple_string_from_vec(rhs._shape)
+                )
+            );
         }
         return broadcast_to(broadcast_shape) / rhs.broadcast_to(broadcast_shape);
     }
@@ -1413,33 +1425,33 @@ APyCFixedArray APyCFixedArray::from_array(
 
 void APyCFixedArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& ndarray)
 {
-#define CHECK_AND_SET_BITS_FROM_NPTYPE(__TYPE__)                                       \
-    do {                                                                               \
-        if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
-            auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
-            for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
-                apy_limb_t data;                                                       \
-                if constexpr (std::is_signed<__TYPE__>::value) {                       \
-                    data = static_cast<apy_limb_signed_t>(ndarray_view.data()[i]);     \
-                } else {                                                               \
-                    data = static_cast<apy_limb_t>(ndarray_view.data()[i]);            \
-                }                                                                      \
-                _data[i * _itemsize] = data;                                           \
-                if (_itemsize / 2 >= 2) {                                              \
+#define CHECK_AND_SET_BITS_FROM_NPTYPE(__TYPE__)                                         \
+    do {                                                                                 \
+        if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                  \
+            auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                   \
+            for (std::size_t i = 0; i < ndarray.size(); i++) {                           \
+                apy_limb_t data;                                                         \
+                if constexpr (std::is_signed<__TYPE__>::value) {                         \
+                    data = static_cast<apy_limb_signed_t>(ndarray_view.data()[i]);       \
+                } else {                                                                 \
+                    data = static_cast<apy_limb_t>(ndarray_view.data()[i]);              \
+                }                                                                        \
+                _data[i * _itemsize] = data;                                             \
+                if (_itemsize / 2 >= 2) {                                                \
                     std::fill_n(/* sign extend real part */                            \
                                 real_begin() + i * _itemsize + 1,                      \
                                 _itemsize / 2 - 1,                                     \
                                 apy_limb_signed_t(data) < 0 ? -1 : 0                   \
-                    );                                                                 \
-                }                                                                      \
+                    ); \
+                }                                                                        \
                 std::fill_n(/* zero imag part */                                       \
                             imag_begin() + i * _itemsize,                              \
                             _itemsize / 2,                                             \
                             0                                                          \
-                );                                                                     \
-            }                                                                          \
-            return; /* Conversion completed, exit `_set_bits_from_ndarray()` */        \
-        }                                                                              \
+                ); \
+            }                                                                            \
+            return; /* Conversion completed, exit `_set_bits_from_ndarray()` */          \
+        }                                                                                \
     } while (0)
 
     // Each `CHECK_AND_SET_BITS_FROM_NPTYPE` checks the dtype of `ndarray` and
@@ -1488,37 +1500,37 @@ void APyCFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& n
         return; /* Conversion completed, exit `_set_values_from_ndarray()` */
     }
 
-#define CHECK_AND_SET_VALUES_FROM_NPTYPE(__TYPE__)                                     \
-    do {                                                                               \
-        if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
-            auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
-            for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
-                if constexpr (std::is_same_v<__TYPE__, float>                          \
-                              || std::is_same_v<__TYPE__, double>) {                   \
-                    fixed_point_from_double(                                           \
-                        static_cast<double>(ndarray_view.data()[i]),                   \
-                        real_begin() + i * _itemsize,                                  \
-                        real_begin() + i * _itemsize + _itemsize / 2,                  \
-                        _bits,                                                         \
-                        _int_bits                                                      \
-                    );                                                                 \
-                } else {                                                               \
-                    fixed_point_from_integer(                                          \
-                        static_cast<std::uint64_t>(ndarray_view.data()[i]),            \
-                        real_begin() + i * _itemsize,                                  \
-                        real_begin() + i * _itemsize + _itemsize / 2,                  \
-                        _bits,                                                         \
-                        _int_bits                                                      \
-                    );                                                                 \
-                }                                                                      \
+#define CHECK_AND_SET_VALUES_FROM_NPTYPE(__TYPE__)                                       \
+    do {                                                                                 \
+        if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                  \
+            auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                   \
+            for (std::size_t i = 0; i < ndarray.size(); i++) {                           \
+                if constexpr (std::is_same_v<__TYPE__, float>                            \
+                              || std::is_same_v<__TYPE__, double>) {                     \
+                    fixed_point_from_double(                                             \
+                        static_cast<double>(ndarray_view.data()[i]),                     \
+                        real_begin() + i * _itemsize,                                    \
+                        real_begin() + i * _itemsize + _itemsize / 2,                    \
+                        _bits,                                                           \
+                        _int_bits                                                        \
+                    );                                                                   \
+                } else {                                                                 \
+                    fixed_point_from_integer(                                            \
+                        static_cast<std::uint64_t>(ndarray_view.data()[i]),              \
+                        real_begin() + i * _itemsize,                                    \
+                        real_begin() + i * _itemsize + _itemsize / 2,                    \
+                        _bits,                                                           \
+                        _int_bits                                                        \
+                    );                                                                   \
+                }                                                                        \
                 std::fill_n(/* zero imag part */                                       \
                             imag_begin() + i * _itemsize,                              \
                             _itemsize / 2,                                             \
                             0                                                          \
-                );                                                                     \
-            }                                                                          \
-            return; /* Conversion completed, exit `_set_values_from_ndarray()` */      \
-        }                                                                              \
+                ); \
+            }                                                                            \
+            return; /* Conversion completed, exit `_set_values_from_ndarray()` */        \
+        }                                                                                \
     } while (0)
 
     // Each `CHECK_AND_SET_VALUES_FROM_NPTYPE` checks the dtype of `ndarray` and

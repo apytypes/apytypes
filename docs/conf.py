@@ -52,6 +52,15 @@ html_theme_options = {
             "class": "",
         },
     ],
+    # Change link colors to "teal blue" from xkcd's color naming survey
+    "light_css_variables": {
+        "color-brand-primary": "#01889F",
+        "color-brand-content": "#01889F",
+    },
+    "dark_css_variables": {
+        "color-brand-primary": "#01889F",
+        "color-brand-content": "#01889F",
+    },
 }
 
 intersphinx_mapping = {
