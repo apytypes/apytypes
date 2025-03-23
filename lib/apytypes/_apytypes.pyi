@@ -199,9 +199,9 @@ class APyCFixed:
         Create complex-valued fixed-point number `fx_a` of value -5.75 + 2j and
         show its bit pattern (real, imag)
 
-        >>> from apytypes import APyCFixed
+        >>> import apytypes as apy
         >>>
-        >>> fx_a = APyCFixed.from_complex(-5.75 + 2j, int_bits=4, frac_bits=4)
+        >>> fx_a = apy.fx(-5.75 + 2j, int_bits=4, frac_bits=4)
         >>> fx_a.to_bits()
         (164, 32)
 
@@ -261,10 +261,9 @@ class APyCFixed:
         the same value, but they are *not* identical as the differ in the `int_bits`
         specifier.
 
-        >>> from apytypes import APyCFixed
-        >>>
-        >>> fx_a = APyCFixed.from_complex(2.0 + 3.0j, int_bits=3, frac_bits=3)
-        >>> fx_b = APyCFixed.from_complex(2.0 + 3.0j, int_bits=4, frac_bits=3)
+        >>> import apytypes as apy
+        >>> fx_a = apy.fx(2.0 + 3.0j, int_bits=3, frac_bits=3)
+        >>> fx_b = apy.fx(2.0 + 3.0j, int_bits=4, frac_bits=3)
         >>> fx_a == fx_b
         True
         >>> fx_a.is_identical(fx_b)
@@ -313,22 +312,19 @@ class APyCFixed:
 
         Examples
         --------
-        >>> from apytypes import APyCFixed
-        >>> from apytypes import QuantizationMode
-        >>> from apytypes import OverflowMode
-        >>>
-        >>> fx = APyCFixed.from_complex(2.125 + 1.625j, int_bits=3, frac_bits=3)
-        >>>
-        >>> # Truncation: 2.0 + 1.5j
-        >>> fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.TRN)
+        >>> import apytypes as apy
+        >>> fx = apy.fx(2.125 + 1.625j, int_bits=3, frac_bits=3)
+
+        # Truncation: 2.0 + 1.5j
+        >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.TRN)
         APyCFixed((8, 6), bits=5, int_bits=3)
-        >>>
-        >>> # Fixed-point rounding: 2.25 + 1.75j
-        >>> fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.RND)
+
+        # Fixed-point rounding: 2.25 + 1.75j
+        >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.RND)
         APyCFixed((9, 7), bits=5, int_bits=3)
-        >>>
-        >>> # Two's complement overflowing: -1.875 + 1.625j
-        >>> fx.cast(int_bits=2, frac_bits=3, overflow=OverflowMode.WRAP)
+
+        # Two's complement overflowing: -1.875 + 1.625j
+        >>> fx.cast(int_bits=2, frac_bits=3, overflow=apy.OverflowMode.WRAP)
         APyCFixed((17, 13), bits=5, int_bits=2)
 
         Returns
@@ -373,9 +369,8 @@ class APyCFixed:
         Complex-valued fixed-point `fx_a`, initialized from the complex number 1.234
         + 0.4j, rounded to 1.25 + 0.5j as it is the closest representable number.
 
-        >>> from apytypes import APyCFixed
-        >>>
-        >>> fx_a = APyCFixed.from_complex(1.234 + 0.4j, int_bits=2, frac_bits=2)
+        >>> import apytypes as apy
+        >>> fx_a = apy.APyCFixed.from_complex(1.234 + 0.4j, int_bits=2, frac_bits=2)
         >>> fx_a
         APyCFixed((5, 2), bits=4, int_bits=2)
         >>> str(fx_a)
@@ -633,9 +628,8 @@ class APyCFixedArray:
 
         Examples
         --------
-        >>> from apytypes import APyCFixedArray
-        >>>
-        >>> a = APyCFixedArray([2, 3, 4, 5], int_bits=2, frac_bits=1)
+        >>> import apytypes as apy
+        >>> a = apy.APyCFixedArray([2, 3, 4, 5], int_bits=2, frac_bits=1)
         >>> a.to_numpy()
         array([ 1. +0.j,  1.5+0.j, -2. +0.j, -1.5+0.j])
 
@@ -661,9 +655,8 @@ class APyCFixedArray:
 
         Examples
         --------
-        >>> from apytypes import APyCFixedArray
-        >>>
-        >>> arr = APyCFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
+        >>> import apytypes as apy
+        >>> arr = apy.APyCFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
         >>> arr.to_numpy()
         array([[ 1. +0.j,  1.5+0.j],
                [-2. +0.j, -1.5+0.j]])
@@ -683,9 +676,8 @@ class APyCFixedArray:
 
         Examples
         --------
-        >>> from apytypes import APyCFixedArray
-        >>>
-        >>> arr = APyCFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
+        >>> import apytypes as apy
+        >>> arr = apy.APyCFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
         >>> arr.to_numpy()
         array([[ 1. +0.j,  1.5+0.j],
                [-2. +0.j, -1.5+0.j]])
@@ -727,15 +719,14 @@ class APyCFixedArray:
 
         Examples
         --------
-        >>> from apytypes import APyCFixedArray
-        >>>
-        >>> x = APyCFixedArray.from_float([[1, 2, 3]], bits=5, frac_bits=0)
+        >>> import apytypes as apy
+        >>> x = apy.APyCFixedArray.from_float([[1, 2, 3]], bits=5, frac_bits=0)
         >>> x.swapaxes(0, 1).to_numpy()
         array([[1.+0.j],
                [2.+0.j],
                [3.+0.j]])
 
-        >>> x = APyCFixedArray.from_float(
+        >>> x = apy.APyCFixedArray.from_float(
         ...     [[[0, 1], [2, 3]], [[4, 5], [6, 7]]], bits=5, frac_bits=0
         ... )
         >>> x.to_numpy()
@@ -780,9 +771,8 @@ class APyCFixedArray:
 
         Examples
         --------
-        >>> from apytypes import APyCFixedArray
-        >>>
-        >>> a = APyCFixedArray.from_float(
+        >>> import apytypes as apy
+        >>> a = apy.APyCFixedArray.from_float(
         ...     [[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]], bits=5, frac_bits=0
         ... )
         >>> a.transpose().to_numpy()
@@ -790,7 +780,7 @@ class APyCFixedArray:
                [ 2.+0.j, -5.+0.j],
                [ 3.+0.j, -6.+0.j]])
 
-        >>> a = APyCFixedArray.from_float([1.0] * 6, bits=5, frac_bits=0).reshape(
+        >>> a = apy.APyCFixedArray.from_float([1.0] * 6, bits=5, frac_bits=0).reshape(
         ...     (1, 2, 3)
         ... )
         >>> a.transpose((1, 0, 2)).shape
@@ -2104,7 +2094,7 @@ class APyFixedArray:
 
         Raises
         ------
-        ValueError
+        :class:`ValueError`
             If negative dimensions less than -1 are provided, if the total size of
             the new array is not unchanged and divisible by the known dimensions, or
             if the total number of elements does not match the original array.

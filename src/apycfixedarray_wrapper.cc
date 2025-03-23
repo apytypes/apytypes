@@ -284,9 +284,8 @@ void bind_cfixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyCFixedArray
-            >>>
-            >>> a = APyCFixedArray([2, 3, 4, 5], int_bits=2, frac_bits=1)
+            >>> import apytypes as apy
+            >>> a = apy.APyCFixedArray([2, 3, 4, 5], int_bits=2, frac_bits=1)
             >>> a.to_numpy()
             array([ 1. +0.j,  1.5+0.j, -2. +0.j, -1.5+0.j])
 
@@ -311,9 +310,8 @@ void bind_cfixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyCFixedArray
-            >>>
-            >>> arr = APyCFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
+            >>> import apytypes as apy
+            >>> arr = apy.APyCFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
             >>> arr.to_numpy()
             array([[ 1. +0.j,  1.5+0.j],
                    [-2. +0.j, -1.5+0.j]])
@@ -332,9 +330,8 @@ void bind_cfixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyCFixedArray
-            >>>
-            >>> arr = APyCFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
+            >>> import apytypes as apy
+            >>> arr = apy.APyCFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
             >>> arr.to_numpy()
             array([[ 1. +0.j,  1.5+0.j],
                    [-2. +0.j, -1.5+0.j]])
@@ -384,15 +381,14 @@ void bind_cfixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyCFixedArray
-            >>>
-            >>> x = APyCFixedArray.from_float([[1, 2, 3]], bits=5, frac_bits=0)
+            >>> import apytypes as apy
+            >>> x = apy.APyCFixedArray.from_float([[1, 2, 3]], bits=5, frac_bits=0)
             >>> x.swapaxes(0,1).to_numpy()
             array([[1.+0.j],
                    [2.+0.j],
                    [3.+0.j]])
 
-            >>> x = APyCFixedArray.from_float(
+            >>> x = apy.APyCFixedArray.from_float(
             ...         [[[0, 1], [2, 3]], [[4, 5], [6, 7]]],
             ...         bits=5,
             ...         frac_bits=0
@@ -443,9 +439,8 @@ void bind_cfixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyCFixedArray
-            >>>
-            >>> a = APyCFixedArray.from_float(
+            >>> import apytypes as apy
+            >>> a = apy.APyCFixedArray.from_float(
             ...         [[1.0,   2.0,  3.0],
             ...          [-4.0, -5.0, -6.0]],
             ...         bits=5,
@@ -456,7 +451,7 @@ void bind_cfixed_array(nb::module_& m)
                    [ 2.+0.j, -5.+0.j],
                    [ 3.+0.j, -6.+0.j]])
 
-            >>> a = APyCFixedArray.from_float(
+            >>> a = apy.APyCFixedArray.from_float(
             ...         [1.0] * 6,
             ...         bits=5,
             ...         frac_bits=0

@@ -195,10 +195,10 @@ def fn(
 
     Examples
     --------
-    >>> from apytypes import APyFixed, fn
+    >>> import apytypes as apy
     >>> import math
-    >>> a = APyFixed(19, 1, 5)
-    >>> fn(math.sin, a)
+    >>> a = aoy.APyFixed(19, 1, 5)
+    >>> apy.fn(math.sin, a)
     APyFixed(18, bits=6, int_bits=1)
 
     Returns

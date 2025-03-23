@@ -22,18 +22,22 @@
 
    .. automethod:: from_float
 
+   .. automethod:: from_bits
+
    Other creation functions
    ------------------------
 
-   .. automethod:: zeros
-
-   .. automethod:: ones
+   .. automethod:: copy
 
    .. automethod:: eye
 
+   .. automethod:: full
+
    .. automethod:: identity
 
-   .. automethod:: full
+   .. automethod:: ones
+
+   .. automethod:: zeros
 
    Change word length
    ------------------

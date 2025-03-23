@@ -107,12 +107,12 @@ def reshape(a: APyArray, new_shape: tuple[int, ...]) -> APyArray:
 
     Examples
     --------
-    >>> from apytypes import reshape, APyFixedArray
-    >>> a = APyFixedArray([2, 3, 4, 5], int_bits=2, frac_bits=1)
+    >>> import apytypes as apy
+    >>> a = apy.APyFixedArray([2, 3, 4, 5], int_bits=2, frac_bits=1)
     >>> a.to_numpy()
     array([ 1. ,  1.5, -2. , -1.5])
 
-    >>> reshape(a, (2, 2)).to_numpy()
+    >>> apy.reshape(a, (2, 2)).to_numpy()
     array([[ 1. ,  1.5],
            [-2. , -1.5]])
 
@@ -181,8 +181,8 @@ def transpose(a: APyArray, axes=None) -> APyArray:
 
     Examples
     --------
-    >>> from apytypes import transpose, APyFloatArray
-    >>> a = APyFloatArray.from_float(
+    >>> import apytypes as apy
+    >>> a = apy.fp(
     ...     [[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]],
     ...     exp_bits=5,
     ...     man_bits=2,
@@ -191,21 +191,21 @@ def transpose(a: APyArray, axes=None) -> APyArray:
     array([[ 1.,  2.,  3.],
            [-4., -5., -6.]])
 
-    >>> a = transpose(a)
+    >>> a = apy.transpose(a)
     >>> a.to_numpy()
     array([[ 1., -4.],
            [ 2., -5.],
            [ 3., -6.]])
 
-    >>> a = APyFloatArray.from_float(
-    ...     [1.0] * 6,
+    >>> a = apy.ones(
+    ...     (1, 2, 3)
     ...     exp_bits=5,
     ...     man_bits=2,
-    ... ).reshape((1, 2, 3))
-    >>> transpose(a, (1, 0, 2)).shape
+    ... )
+    >>> apy.transpose(a, (1, 0, 2)).shape
     (2, 1, 3)
 
-    >>> transpose(a, (-2, -3, -1)).shape
+    >>> apy.transpose(a, (-2, -3, -1)).shape
     (2, 1, 3)
 
     --------
@@ -231,16 +231,18 @@ def ravel(a: APyArray) -> APyArray:
 
     Examples
     --------
-    >>> from apytypes import APyFloatArray
+    >>> import apytypes as apy
     >>> signs = [[0, 0], [1, 1]]
     >>> exps = [[127, 128], [128, 129]]
     >>> mans = [[0, 0], [4194304, 0]]
-    >>> arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23)
+    >>> arr = apy.APyFloatArray(
+    ...     signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23
+    ... )
     >>> arr.to_numpy()
     array([[ 1.,  2.],
            [-3., -4.]])
 
-    >>> arr.ravel().to_numpy()
+    >>> apy.ravel(arr).to_numpy()
     array([ 1.,  2., -3., -4.])
 
     --------
@@ -269,11 +271,8 @@ def moveaxis(a: APyArray, source, destination) -> APyArray:
 
     Examples
     --------
-    import apytypes as apy
-
-    >>> x = apy.APyFixedArray.from_float([0] * 60, int_bits=2**16, frac_bits=0).reshape(
-    ...     (3, 4, 5)
-    ... )
+    >>> import apytypes as apy
+    >>> x = apy.zeros((3, 4, 5), int_bits=16, frac_bits=0)
     >>> apy.moveaxis(x, 0, -1).shape
     (4, 5, 3)
     >>> apy.moveaxis(x, -1, 0).shape
@@ -327,16 +326,14 @@ def swapaxes(a: APyArray, axis1: int, axis2: int) -> APyArray:
 
     Examples
     --------
-    >>> from apytypes import APyFloatArray
-    >>> x = APyFloatArray.from_float([[1, 2, 3]], exp_bits=5, man_bits=2)
+    >>> import apytypes as apy
+    >>> x = apy.fp([[1, 2, 3]], exp_bits=5, man_bits=2)
     >>> x.swapaxes(0, 1).to_numpy()
     array([[1.],
            [2.],
            [3.]])
 
-    >>> x = APyFloatArray.from_float(
-    ...     [[[0, 1], [2, 3]], [[4, 5], [6, 7]]], exp_bits=5, man_bits=3
-    ... )
+    >>> x = apy.fp([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], exp_bits=5, man_bits=3)
     >>> x.to_numpy()
     array([[[0., 1.],
             [2., 3.]],
@@ -344,7 +341,7 @@ def swapaxes(a: APyArray, axis1: int, axis2: int) -> APyArray:
            [[4., 5.],
             [6., 7.]]])
 
-    >>> x.swapaxes(0, 2).to_numpy()
+    >>> apy.swapaxes(x, 0, 2).to_numpy()
     array([[[0., 4.],
             [2., 6.]],
     <BLANKLINE>
@@ -353,7 +350,7 @@ def swapaxes(a: APyArray, axis1: int, axis2: int) -> APyArray:
 
     Returns
     -------
-    a_swapped :class:`APyFloatArray` or :class:`APyFixedArray`
+    a_swapped : :class:`APyFloatArray` or :class:`APyFixedArray`
         Copy of `a` with axes swapped
     """
 
@@ -381,7 +378,7 @@ def expand_dims(a: APyArray, axis: int | tuple[int, ...]) -> APyArray:
     Examples
     --------
     >>> import apytypes as apy
-    >>> x = apy.APyFixedArray.from_float([1, 2], int_bits=5, frac_bits=0)
+    >>> x = apy.fp([1, 2], int_bits=5, frac_bits=0)
     >>> x.shape
     (2,)
 
@@ -412,7 +409,7 @@ def expand_dims(a: APyArray, axis: int | tuple[int, ...]) -> APyArray:
     Returns
     -------
     result : :class:`APyFloatArray` or :class:`APyFixedArray`
-        copy of `a` with the number of dimensions increased.
+        Copy of `a` with the number of dimensions increased.
     """
 
     if type(axis) not in (tuple, list):
@@ -614,13 +611,13 @@ def eye(
     bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
     force_complex : :class:`bool`, optional
-        Retrieve the complex-valued array type, :class:`APyCFixedArray` for fixed-point
+        Return the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
 
 
     Returns
     -------
-    result : :class:`APyFloatArray` or :class:`APyFixedArray` or :class:`APyCFixedArray`
+    result : :class:`APyFloatArray`, :class:`APyFixedArray` or :class:`APyCFixedArray`
         An array where all elements are equal to zero, except for the k-th diagonal,
         whose values are equal to one.
     """
@@ -687,12 +684,12 @@ def identity(
     bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
     force_complex : :class:`bool`, optional
-        Retrieve the complex-valued array type, :class:`APyCFixedArray` for fixed-point
+        Return the complex-valued array type, :class:`APyCFixedArray` for fixed-point
         and :class:`APyCFloatArray` for floating-point.
 
     Returns
     -------
-    result : :class:`APyFloatArray` or :class:`APyFixedArray` or :class:`APyCFixedArray`
+    result : :class:`APyFloatArray`, :class:`APyFixedArray` or :class:`APyCFixedArray`
         `n` x `n` array with ones (stored value) on the main diagonal and zeros
         elsewhere.
     """
