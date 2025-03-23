@@ -33,9 +33,9 @@ bits) must be supplied.
 .. code-block:: Python
 
 
-    from apytypes import APyFixed
+    import apytypes as apy
 
-    a = APyFixed(7, 4, 2)
+    a = apy.APyFixed(7, 4, 2)
     a
 
 
@@ -51,11 +51,15 @@ bits) must be supplied.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 19-22
+.. GENERATED FROM PYTHON SOURCE LINES 19-20
+
+Create a APyFixed from a floating-point number
+
+.. GENERATED FROM PYTHON SOURCE LINES 20-23
 
 .. code-block:: Python
 
-    b = APyFixed.from_float(-2.25, int_bits=3, frac_bits=2)
+    b = apy.APyFixed.from_float(-2.25, int_bits=3, frac_bits=2)
     b
 
 
@@ -71,11 +75,35 @@ bits) must be supplied.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 23-26
+.. GENERATED FROM PYTHON SOURCE LINES 24-25
+
+There is also a convenience method that does this
+
+.. GENERATED FROM PYTHON SOURCE LINES 25-28
 
 .. code-block:: Python
 
-    c = APyFixed.from_str("3.75", bits=6, frac_bits=3)
+    b = apy.fx(-2.25, int_bits=3, frac_bits=2)
+    b
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    APyFixed(23, bits=5, int_bits=3)
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 29-32
+
+.. code-block:: Python
+
+    c = apy.APyFixed.from_str("3.75", bits=6, frac_bits=3)
     c
 
 
@@ -91,13 +119,13 @@ bits) must be supplied.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 27-30
+.. GENERATED FROM PYTHON SOURCE LINES 33-36
 
 Standard arithmetic operations are supported. The resulting number of bits depends on the operation.
 For addition and subtraction, the maximum number of integer bits and fractional bits are used.
 A single integer bit is added to make sure that the computation does not overflow.
 
-.. GENERATED FROM PYTHON SOURCE LINES 30-32
+.. GENERATED FROM PYTHON SOURCE LINES 36-38
 
 .. code-block:: Python
 
@@ -116,12 +144,12 @@ A single integer bit is added to make sure that the computation does not overflo
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 33-35
+.. GENERATED FROM PYTHON SOURCE LINES 39-41
 
 For multiplication, the number of integer bits and fractional bits is the sum of the number of
 integer bits and fractional bits of the included operands, respectively.
 
-.. GENERATED FROM PYTHON SOURCE LINES 35-37
+.. GENERATED FROM PYTHON SOURCE LINES 41-43
 
 .. code-block:: Python
 
@@ -140,11 +168,11 @@ integer bits and fractional bits of the included operands, respectively.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-39
+.. GENERATED FROM PYTHON SOURCE LINES 44-45
 
 Standard string formatting is supported
 
-.. GENERATED FROM PYTHON SOURCE LINES 39-41
+.. GENERATED FROM PYTHON SOURCE LINES 45-47
 
 .. code-block:: Python
 
@@ -163,11 +191,11 @@ Standard string formatting is supported
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 42-43
+.. GENERATED FROM PYTHON SOURCE LINES 48-49
 
 Comparisons with integers and floats are supported
 
-.. GENERATED FROM PYTHON SOURCE LINES 43-45
+.. GENERATED FROM PYTHON SOURCE LINES 49-51
 
 .. code-block:: Python
 
@@ -186,12 +214,12 @@ Comparisons with integers and floats are supported
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 46-48
+.. GENERATED FROM PYTHON SOURCE LINES 52-54
 
 Arithmetic with Python integers and floats is supported, although *not recommended*, by
 automatically casting the number to the same format of the APyType-object
 
-.. GENERATED FROM PYTHON SOURCE LINES 48-50
+.. GENERATED FROM PYTHON SOURCE LINES 54-56
 
 .. code-block:: Python
 
@@ -210,15 +238,15 @@ automatically casting the number to the same format of the APyType-object
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 51-52
+.. GENERATED FROM PYTHON SOURCE LINES 57-58
 
 Which is equivalent to
 
-.. GENERATED FROM PYTHON SOURCE LINES 52-54
+.. GENERATED FROM PYTHON SOURCE LINES 58-60
 
 .. code-block:: Python
 
-    b + APyFixed.from_float(3.5, int_bits=b.int_bits, frac_bits=b.frac_bits)
+    b + apy.fx(3.5, int_bits=b.int_bits, frac_bits=b.frac_bits)
 
 
 
@@ -233,16 +261,16 @@ Which is equivalent to
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 55-57
+.. GENERATED FROM PYTHON SOURCE LINES 61-63
 
 However, while it is convenient to let APyTypes convert numbers automatically,
 it is not recommended as it can yield unexpected results. Consider the expression
 
-.. GENERATED FROM PYTHON SOURCE LINES 57-59
+.. GENERATED FROM PYTHON SOURCE LINES 63-65
 
 .. code-block:: Python
 
-    1.25 + 1.25 + APyFixed.from_float(2, int_bits=4, frac_bits=1)
+    1.25 + 1.25 + apy.fx(2, int_bits=4, frac_bits=1)
 
 
 
@@ -257,15 +285,15 @@ it is not recommended as it can yield unexpected results. Consider the expressio
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 60-61
+.. GENERATED FROM PYTHON SOURCE LINES 66-67
 
 which would yield a different result from
 
-.. GENERATED FROM PYTHON SOURCE LINES 61-63
+.. GENERATED FROM PYTHON SOURCE LINES 67-69
 
 .. code-block:: Python
 
-    APyFixed.from_float(2, int_bits=4, frac_bits=1) + 1.25 + 1.25
+    apy.fx(2, int_bits=4, frac_bits=1) + 1.25 + 1.25
 
 
 
@@ -280,11 +308,11 @@ which would yield a different result from
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 64-65
+.. GENERATED FROM PYTHON SOURCE LINES 70-71
 
 To change the word length of a APyFixed, the method :func:`~APyFixed.cast` can be used
 
-.. GENERATED FROM PYTHON SOURCE LINES 65-66
+.. GENERATED FROM PYTHON SOURCE LINES 71-72
 
 .. code-block:: Python
 

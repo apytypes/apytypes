@@ -17,7 +17,7 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.runner import get_runner
 from cocotb.triggers import FallingEdge
-from apytypes import APyFloat, APyFloatArray
+import apytypes as apy
 
 
 @cocotb.test()
@@ -26,7 +26,7 @@ async def fp8_mul_test_all(dut):
     Exhaustive test of all inputs.
     """
     EXP_BITS, MAN_BITS = 4, 3
-    fp8_values = APyFloatArray.from_bits(
+    fp8_values = apy.fp(
         range(2 ** (1 + EXP_BITS + MAN_BITS)), exp_bits=EXP_BITS, man_bits=MAN_BITS
     )
 
@@ -41,7 +41,7 @@ async def fp8_mul_test_all(dut):
             await FallingEdge(dut.clk)  # Input is set on falling clock edge
             await FallingEdge(dut.clk)  # Wait another clock cycle for the result
 
-            z_dut = APyFloat.from_bits(
+            z_dut = apy.APyFloat.from_bits(
                 int(dut.z_out.value), exp_bits=EXP_BITS, man_bits=MAN_BITS
             )
 

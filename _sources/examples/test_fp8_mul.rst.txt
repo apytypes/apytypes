@@ -40,7 +40,7 @@ Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are availabl
     from cocotb.clock import Clock
     from cocotb.runner import get_runner
     from cocotb.triggers import FallingEdge
-    from apytypes import APyFloat, APyFloatArray
+    import apytypes as apy
 
 
     @cocotb.test()
@@ -49,7 +49,7 @@ Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are availabl
         Exhaustive test of all inputs.
         """
         EXP_BITS, MAN_BITS = 4, 3
-        fp8_values = APyFloatArray.from_bits(
+        fp8_values = apy.fp(
             range(2 ** (1 + EXP_BITS + MAN_BITS)), exp_bits=EXP_BITS, man_bits=MAN_BITS
         )
 
@@ -64,7 +64,7 @@ Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are availabl
                 await FallingEdge(dut.clk)  # Input is set on falling clock edge
                 await FallingEdge(dut.clk)  # Wait another clock cycle for the result
 
-                z_dut = APyFloat.from_bits(
+                z_dut = apy.APyFloat.from_bits(
                     int(dut.z_out.value), exp_bits=EXP_BITS, man_bits=MAN_BITS
                 )
 
@@ -158,7 +158,7 @@ The contents of ``fp8_multiplier.vhdl`` is shown below.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 15.887 seconds)
+   **Total running time of the script:** (0 minutes 15.978 seconds)
 
 
 .. _sphx_glr_download_examples_test_fp8_mul.py:
