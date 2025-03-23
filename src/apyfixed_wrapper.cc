@@ -142,11 +142,11 @@ void bind_fixed(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyFixed
+            >>> import apytypes as apy
 
             Create fixed-point number `fx_a` of value -5.75
 
-            >>> fx_a = APyFixed.from_float(-5.75, int_bits=4, frac_bits=4)
+            >>> fx_a = apy.fx(-5.75, int_bits=4, frac_bits=4)
 
             Returns: 164 == 0xA4 == 0b10100100
 
@@ -197,9 +197,9 @@ void bind_fixed(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyFixed
-            >>> fx_a = APyFixed.from_float(2.0, int_bits=3, frac_bits=3)
-            >>> fx_b = APyFixed.from_float(2.0, int_bits=4, frac_bits=3)
+            >>> import apytypes as apy
+            >>> fx_a = apy.fx(2.0, int_bits=3, frac_bits=3)
+            >>> fx_b = apy.fx(2.0, int_bits=4, frac_bits=3)
 
             `fx_a` and `fx_b` store the same fixed-point value
 
@@ -250,24 +250,22 @@ void bind_fixed(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyFixed
-            >>> from apytypes import QuantizationMode
-            >>> from apytypes import OverflowMode
-            >>> fx = APyFixed.from_float(2.125, int_bits=3, frac_bits=3)
+            >>> import apytypes as apy
+            >>> fx = apy.fx(2.125, int_bits=3, frac_bits=3)
 
             Truncation (2.0)
 
-            >>> fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.TRN)
+            >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.TRN)
             APyFixed(8, bits=5, int_bits=3)
 
             Rounding (2.25)
 
-            >>> fx.cast(int_bits=3, frac_bits=2, quantization=QuantizationMode.RND)
+            >>> fx.cast(int_bits=3, frac_bits=2, quantization=apy.QuantizationMode.RND)
             APyFixed(9, bits=5, int_bits=3)
 
             Two's complement overflowing (-1.875)
 
-            >>> fx.cast(int_bits=2, frac_bits=3, overflow=OverflowMode.WRAP)
+            >>> fx.cast(int_bits=2, frac_bits=3, overflow=apy.OverflowMode.WRAP)
             APyFixed(17, bits=5, int_bits=2)
 
             Returns
@@ -355,7 +353,7 @@ void bind_fixed(nb::module_& m)
             R"pbdoc(
             Create an :class:`APyFixed` object from an :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
 
-            .. note:: It is in all cases better to use :func:`~apytypes.APyFixed.cast` to create an :class:`APyFixed` from an :class:`APyFixed`.
+            .. attention:: It is in all cases better to use :func:`~apytypes.APyFixed.cast` to create an :class:`APyFixed` from another :class:`APyFixed`.
 
             The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
             Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
@@ -373,8 +371,8 @@ void bind_fixed(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyFixed
-            >>> fx_a = APyFixed.from_float(1.234, int_bits=2, frac_bits=2)
+            >>> import apytypes as apy
+            >>> fx_a = apy.APyFixed.from_float(1.234, int_bits=2, frac_bits=2)
 
             Fixed-point `fx_a`, initialized from the floating-point value 1.234,
             rounded to 1.25 as it is the closest representable number
@@ -418,11 +416,11 @@ void bind_fixed(nb::module_& m)
 
             Examples
             --------
-            >>> from apytypes import APyFixed
+            >>> import apytypes as apy
 
             Larger fixed-point value initialization from a string (base-10)
 
-            >>> fx_a = APyFixed.from_str(
+            >>> fx_a = apy.APyFixed.from_str(
             ...     "-1376018206341311063223476816643087998331620501540496640."
             ...     "021222579872958058370179355618716816066859017361262100333952697594702"
             ...     "314679773970519809467311447652539955943903993200932791396783892142688"

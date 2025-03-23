@@ -283,11 +283,11 @@ void bind_float_array(nb::module_& m)
 
         Examples
         --------
-        >>> from apytypes import APyFloatArray
+        >>> import apytypes as apy
         >>> signs = [0, 0, 1, 1]
         >>> exps = [127, 128, 128, 129]
         >>> mans = [0, 0, 4194304, 0]
-        >>> arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23)
+        >>> arr = apy.APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23)
         >>> arr.to_numpy()
         array([ 1.,  2., -3., -4.])
 
@@ -312,11 +312,11 @@ void bind_float_array(nb::module_& m)
 
         Examples
         --------
-        >>> from apytypes import APyFloatArray
+        >>> import apytypes as apy
         >>> signs = [[0, 0], [1, 1]]
         >>> exps = [[127, 128], [128, 129]]
         >>> mans = [[0, 0], [4194304, 0]]
-        >>> arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23)
+        >>> arr = apy.APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23)
         >>> arr.to_numpy()
         array([[ 1.,  2.],
                [-3., -4.]])
@@ -334,11 +334,11 @@ void bind_float_array(nb::module_& m)
 
         Examples
         --------
-        >>> from apytypes import APyFloatArray
+        >>> import apytypes as apy
         >>> signs = [[0, 0], [1, 1]]
         >>> exps = [[127, 128], [128, 129]]
         >>> mans = [[0, 0], [4194304, 0]]
-        >>> arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23)
+        >>> arr = apy.APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23)
         >>> arr.to_numpy()
         array([[ 1.,  2.],
                [-3., -4.]])
@@ -379,11 +379,11 @@ void bind_float_array(nb::module_& m)
             Examples
             --------
 
-            >>> from apytypes import APyFloatArray
+            >>> import apytypes as apy
 
             Array `a`, initialized from floating-point values.
 
-            >>> a = APyFloatArray.from_float([1.0, 1.25, 1.49], exp_bits=10, man_bits=15)
+            >>> a = apy.APyFloatArray.from_float([1.0, 1.25, 1.49], exp_bits=10, man_bits=15)
 
             Array `lhs` (2 x 3 matrix), initialized from floating-point values.
 
@@ -399,6 +399,12 @@ void bind_float_array(nb::module_& m)
             Returns
             -------
             :class:`APyFloatArray`
+
+            See Also
+            --------
+            fp
+            from_array
+
             )pbdoc"
         )
         .def_static(
@@ -425,12 +431,12 @@ void bind_float_array(nb::module_& m)
             Examples
             --------
 
-            >>> from apytypes import APyFloatArray
+            >>> import apytypes as apy
             >>> import numpy as np
 
             Array `a`, initialized from NumPy ndarray
 
-            >>> a = APyFloatArray.from_array(
+            >>> a = apy.APyFloatArray.from_array(
             ...     np.array([
             ...         [1.0, 2.0, 3.0],
             ...         [4.0, 5.0, 6.0],
@@ -442,6 +448,12 @@ void bind_float_array(nb::module_& m)
             Returns
             -------
             :class:`APyFloatArray`
+
+            See Also
+            --------
+            fp
+            from_float
+
             )pbdoc"
         )
         .def_static(
@@ -468,9 +480,9 @@ void bind_float_array(nb::module_& m)
             Examples
             --------
 
-            >>> from apytypes import APyFloatArray
+            >>> import apytypes as apy
 
-            >>> a = APyFloatArray.from_bits(
+            >>> a = apy.APyFloatArray.from_bits(
             ...     [[60, 61], [80, 82]],
             ...     exp_bits=5,
             ...     man_bits=2

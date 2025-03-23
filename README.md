@@ -32,13 +32,13 @@ The package can now be used as:
 
 ```python
 $ python
->>> from apytypes import APyFixed
->>> fx_a = APyFixed.from_float(3.5, 4, 4)
+>>> import apytypes as apy
+>>> fx_a = apy.fx(3.5, int_bits=4, frac_bits=4)
 >>> print(fx_a)
 3.5
 >>> fx_a
 APyFixed(56, bits=8, int_bits=4)
->>> fx_b = APyFixed.from_float(1.25, 3, 6)
+>>> fx_b = apy.fx(1.25, int_bits=3, frac_bits=6)
 >>> fx_a + fx_b
 APyFixed(304, bits=11, int_bits=5)
 >>> print(fx_a + fx_b)

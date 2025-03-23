@@ -198,7 +198,7 @@ def transpose(a: APyArray, axes=None) -> APyArray:
            [ 3., -6.]])
 
     >>> a = apy.ones(
-    ...     (1, 2, 3)
+    ...     (1, 2, 3),
     ...     exp_bits=5,
     ...     man_bits=2,
     ... )
@@ -378,7 +378,7 @@ def expand_dims(a: APyArray, axis: int | tuple[int, ...]) -> APyArray:
     Examples
     --------
     >>> import apytypes as apy
-    >>> x = apy.fp([1, 2], int_bits=5, frac_bits=0)
+    >>> x = apy.fx([1, 2], int_bits=5, frac_bits=0)
     >>> x.shape
     (2,)
 
