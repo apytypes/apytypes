@@ -549,13 +549,20 @@ method rounds away from infinity on ties.</p>
 </dl>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="utils.html#apytypes.fp" title="apytypes.fp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fp</span></code></a></dt><dd></dd>
+<dt><a class="reference internal" href="#apytypes.APyFloatArray.from_float" title="apytypes.APyFloatArray.from_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_float</span></code></a></dt><dd></dd>
+</dl>
+</div>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyFloatArray</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 </pre></div>
 </div>
 <p>Array <cite>a</cite>, initialized from NumPy ndarray</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
 <span class="gp">... </span>        <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
 <span class="gp">... </span>        <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
@@ -591,12 +598,19 @@ from the sequence shape.</p>
 </dl>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="utils.html#apytypes.fp" title="apytypes.fp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fp</span></code></a></dt><dd></dd>
+<dt><a class="reference internal" href="#apytypes.APyFloatArray.from_array" title="apytypes.APyFloatArray.from_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_array</span></code></a></dt><dd></dd>
+</dl>
+</div>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyFloatArray</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
 </pre></div>
 </div>
 <p>Array <cite>a</cite>, initialized from floating-point values.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.49</span><span class="p">],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.49</span><span class="p">],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Array <cite>lhs</cite> (2 x 3 matrix), initialized from floating-point values.</p>
@@ -636,10 +650,10 @@ from the sequence shape.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyFloatArray</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_bits</span><span class="p">(</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyFloatArray</span><span class="o">.</span><span class="n">from_bits</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="p">[[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">61</span><span class="p">],</span> <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">82</span><span class="p">]],</span>
 <span class="gp">... </span>    <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span>
@@ -951,11 +965,11 @@ which reverses the order of the axes.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyFloatArray</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">signs</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">exps</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">127</span><span class="p">,</span> <span class="mi">128</span><span class="p">],</span> <span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">129</span><span class="p">]]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mans</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">4194304</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="p">(</span><span class="n">signs</span><span class="o">=</span><span class="n">signs</span><span class="p">,</span> <span class="n">exps</span><span class="o">=</span><span class="n">exps</span><span class="p">,</span> <span class="n">mans</span><span class="o">=</span><span class="n">mans</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">23</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyFloatArray</span><span class="p">(</span><span class="n">signs</span><span class="o">=</span><span class="n">signs</span><span class="p">,</span> <span class="n">exps</span><span class="o">=</span><span class="n">exps</span><span class="p">,</span> <span class="n">mans</span><span class="o">=</span><span class="n">mans</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">23</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[ 1.,  2.],</span>
 <span class="go">       [-3., -4.]])</span>
@@ -979,11 +993,11 @@ which reverses the order of the axes.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyFloatArray</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">signs</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">exps</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">127</span><span class="p">,</span> <span class="mi">128</span><span class="p">],</span> <span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">129</span><span class="p">]]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mans</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">4194304</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="p">(</span><span class="n">signs</span><span class="o">=</span><span class="n">signs</span><span class="p">,</span> <span class="n">exps</span><span class="o">=</span><span class="n">exps</span><span class="p">,</span> <span class="n">mans</span><span class="o">=</span><span class="n">mans</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">23</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyFloatArray</span><span class="p">(</span><span class="n">signs</span><span class="o">=</span><span class="n">signs</span><span class="p">,</span> <span class="n">exps</span><span class="o">=</span><span class="n">exps</span><span class="p">,</span> <span class="n">mans</span><span class="o">=</span><span class="n">mans</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">23</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([[ 1.,  2.],</span>
 <span class="go">       [-3., -4.]])</span>
@@ -1019,11 +1033,11 @@ which reverses the order of the axes.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">APyFloatArray</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">signs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">exps</span> <span class="o">=</span> <span class="p">[</span><span class="mi">127</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">129</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mans</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4194304</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">APyFloatArray</span><span class="p">(</span><span class="n">signs</span><span class="o">=</span><span class="n">signs</span><span class="p">,</span> <span class="n">exps</span><span class="o">=</span><span class="n">exps</span><span class="p">,</span> <span class="n">mans</span><span class="o">=</span><span class="n">mans</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">23</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyFloatArray</span><span class="p">(</span><span class="n">signs</span><span class="o">=</span><span class="n">signs</span><span class="p">,</span> <span class="n">exps</span><span class="o">=</span><span class="n">exps</span><span class="p">,</span> <span class="n">mans</span><span class="o">=</span><span class="n">mans</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">23</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 <span class="go">array([ 1.,  2., -3., -4.])</span>
 </pre></div>
