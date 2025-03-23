@@ -35,7 +35,11 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 html_theme = "furo"
 html_static_path = ["_static"]
-
+html_logo = "apytypeslogo.svg"
+html_theme_options = {
+    "logo_only": True,
+    "display_version": False,
+}
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
