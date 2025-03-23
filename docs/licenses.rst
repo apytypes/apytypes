@@ -14,4 +14,4 @@ In addition, the pre-built version of APyTypes uses the following packages:
  - `fmt <https://fmt.dev/>`_: `MIT license <https://github.com/fmtlib/fmt/blob/master/LICENSE>`_
  - `Highway <https://google.github.io/highway/en/master/>`_: `Apache license 2.0 <https://github.com/google/highway/blob/master/LICENSE>`_ / `3-clause BSD license <https://github.com/google/highway/blob/master/LICENSE-BSD3>`_ (dual-licensed)
 
-In version 0.2.2 and earlier, `mini-gmp <https://github.com/evdenis/mini-gmp/blob/master/README>`_ was used.
+In version 0.2.2 and earlier, `mini-gmp <https://gmplib.org/repo/gmp/file/tip/mini-gmp>`_ was used.
