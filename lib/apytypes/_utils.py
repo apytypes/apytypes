@@ -5,6 +5,7 @@ import warnings
 
 from apytypes._apytypes import (
     APyCFixed,
+    APyCFixedArray,
     APyFixed,
     APyFixedArray,
     APyFloat,
@@ -18,21 +19,24 @@ def fx(
     frac_bits: int | None = None,
     bits: int | None = None,
     force_complex: bool = False,
-) -> APyCFixed | APyFixed | APyFixedArray:
+) -> APyCFixed | APyFixed | APyCFixedArray | APyFixedArray:
     """
     Create an :class:`APyFixed`, :class:`APyCFixed` or :class:`APyFixedArray` object.
 
     Convenience method that applies :func:`APyFixed.from_float`, :func:`APyCFixed.from_complex` or
-    :func:`APyFixedArray.from_float` depending on if the input, *value*, is a scalar or not.
+    :func:`APyFixedArray.from_float`, or :func:`APyFixedArray.from_complex` depending on if the input,
+    *value*, is a scalar or not.
     For scalar values, return :class:`APyCFixed` if *value* is complex or if
     *force_complex* is True.
 
     .. versionadded:: 0.3
 
+    .. hint:: Currently, this function will not detect sequences of complex values. Set *force_complex* to True.
+
     Parameters
     ----------
-    val : :class:`int`, :class:`float`, list(int), list(float)
-        Floating point value(s) to initialize from.
+    val : :class:`int`, :class:`float`, list of int or float, ndarray
+        Floating-point/integer value(s) to initialize from.
     int_bits : :class:`int`, optional
         Number of integer bits in the created fixed-point object.
     frac_bits : :class:`int`, optional
@@ -57,6 +61,11 @@ def fx(
         return APyFixed.from_float(
             value, int_bits=int_bits, frac_bits=frac_bits, bits=bits
         )
+    if force_complex:
+        return APyCFixedArray.from_complex(
+            value, int_bits=int_bits, frac_bits=frac_bits, bits=bits
+        )
+
     return APyFixedArray.from_float(
         value, int_bits=int_bits, frac_bits=frac_bits, bits=bits
     )
@@ -78,8 +87,8 @@ def fp(
 
     Parameters
     ----------
-    value : :class:`int`, :class:`float`, list(int), list(float)
-        Floating point value(s) to initialize from.
+    value : :class:`int`, :class:`float`, list of int or float, ndarray
+        Floating-point/integer value(s) to initialize from.
     exp_bits : :class:`int`
         Number of exponent bits.
     man_bits : :class:`int`

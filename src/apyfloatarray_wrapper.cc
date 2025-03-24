@@ -512,7 +512,7 @@ void bind_float_array(nb::module_& m)
                 Number of exponent bits.
             man_bits : :class:`int`
                 Number of mantissa bits.
-            bias : optional
+            bias : :class:`int`, optional
                 Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
             Returns
@@ -539,7 +539,7 @@ void bind_float_array(nb::module_& m)
             Number of exponent bits.
         man_bits : :class:`int`
             Number of mantissa bits.
-        bias : optional
+        bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
@@ -569,7 +569,7 @@ void bind_float_array(nb::module_& m)
             Number of mantissa bits.
         m : :class:`int`, optional
             Number of columns. Default is None, which results in an n x n output.
-        bias : optional
+        bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
@@ -596,7 +596,7 @@ void bind_float_array(nb::module_& m)
             Number of exponent bits.
         man_bits : :class:`int`
             Number of mantissa bits.
-        bias : optional
+        bias : :class:`int`, optional
             Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
         Returns
