@@ -1405,3 +1405,19 @@ APyFloat APyFloat::next_down() const
     }
     return APyFloat(0, exp, new_man, exp_bits, man_bits, bias);
 }
+
+APyFloat APyFloat::inf(int exp_bits, int man_bits, std::optional<exp_t> bias)
+{
+    check_exponent_format(exp_bits);
+    check_mantissa_format(man_bits);
+    const exp_t exp = (1 << exp_bits) - 1;
+    return APyFloat(0, exp, 0, exp_bits, man_bits, bias);
+}
+
+APyFloat APyFloat::nan(int exp_bits, int man_bits, std::optional<exp_t> bias)
+{
+    check_exponent_format(exp_bits);
+    check_mantissa_format(man_bits);
+    const exp_t exp = (1 << exp_bits) - 1;
+    return APyFloat(0, exp, 1, exp_bits, man_bits, bias);
+}

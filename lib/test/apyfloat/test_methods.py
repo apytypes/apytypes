@@ -506,3 +506,40 @@ def test_python_deepcopy():
     assert a is b
     c = copy.deepcopy(a)
     assert a is not c
+
+
+@pytest.mark.parametrize("func", ["inf", "nan"])
+def test_inf_nan_creation(func):
+    #
+    # Test raises
+
+    # Too many exponent bits
+    with pytest.raises(
+        ValueError,
+        match="Exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+    ):
+        eval(f"APyFloat.{func}(300, 5)")
+    with pytest.raises(
+        ValueError,
+        match="Exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+    ):
+        eval(f"APyFloat.{func}(-300, 5)")
+    # Too many mantissa bits
+    with pytest.raises(
+        ValueError,
+        match="Mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
+    ):
+        eval(f"APyFloat.{func}(5, 300)")
+    with pytest.raises(
+        ValueError,
+        match="Mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+    ):
+        eval(f"APyFloat.{func}(5, -300)")
+
+    #
+    # Test actual operation
+    x = eval(f"APyFloat.{func}(5, 7, 8)")
+    assert x.is_identical(APyFloat.from_float(float(func), 5, 7, 8))
+
+    x = eval(f"APyFloat.{func}(4, 3)")
+    assert x.is_identical(APyFloat.from_float(float(func), 4, 3, 7))

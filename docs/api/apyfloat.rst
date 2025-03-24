@@ -33,6 +33,13 @@
    Convenience methods
    -------------------
 
+   Creation
+   ^^^^^^^^
+
+   .. automethod:: inf
+
+   .. automethod:: nan
+
    Casting
    ^^^^^^^
 
