@@ -10,7 +10,7 @@ repos:
     - id: check-toml
     - id: end-of-file-fixer
   - repo: https://github.com/crate-ci/typos
-    rev: v1.30.2
+    rev: v1
     hooks:
     - id: typos
   - repo: https://github.com/pre-commit/mirrors-clang-format
