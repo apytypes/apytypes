@@ -475,6 +475,12 @@ public:
     APyFloat next_up() const;
     //! Get the largest floating-point number in the same format that compares less.
     APyFloat next_down() const;
+    //! Create an APyFloat object that is initialized to positive infinity.
+    static APyFloat
+    inf(int exp_bits, int man_bits, std::optional<exp_t> bias = std::nullopt);
+    //! Create an APyFloat object that is initialized to NaN.
+    static APyFloat
+    nan(int exp_bits, int man_bits, std::optional<exp_t> bias = std::nullopt);
 
     /* ****************************************************************************** *
      * *                              Helper functions                              * *
