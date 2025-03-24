@@ -4,7 +4,7 @@ import numpy as np
 
 libraries = {
     "APyTypes": "compare_apytypes",
-    "fxpmath": "compare_fxpmath",
+    # "fxpmath": "compare_fxpmath",
     "numfi": "compare_numfi",
     "fpbinary": "compare_fpbinary",
     "fixedpoint": "compare_fixedpoint",
