@@ -2,6 +2,7 @@ from apytypes import (
     fx,
     fp,
     APyCFixed,
+    APyCFixedArray,
     APyFixed,
     APyFixedArray,
     APyFloat,
@@ -25,6 +26,10 @@ def test_fx():
     )
 
     assert fx(0.3j, 4, 6).is_identical(APyCFixed.from_complex(0.3j, 4, 6))
+
+    assert fx([0.3j, -0.4], 4, 6, force_complex=True).is_identical(
+        APyCFixedArray.from_complex([0.3j, -0.4], 4, 6)
+    )
 
 
 def test_fp():
@@ -83,3 +88,15 @@ def test_fn_numpy():
             bias=3,
         )
     )
+
+
+def test_fn_warnings():
+    np = pytest.importorskip("numpy")
+    a = APyFixedArray([3], 3, 6)
+    b = APyFloatArray([1], [2], [4], 3, 6)
+
+    with pytest.warns(UserWarning, match="Mix of APyFixed"):
+        fn(np.hypot, a, b)
+
+    with pytest.warns(UserWarning, match="Mix of APyFloat"):
+        fn(np.hypot, b, a)
