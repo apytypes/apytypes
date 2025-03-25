@@ -663,6 +663,8 @@ template <
     const unsigned exp_delta = new_exp - y.exp - (y.exp == 0);
     if (exp_delta <= 3) {
         my_aligned = my >> exp_delta;
+    } else if (exp_delta >= _MAN_T_SIZE_BITS) {
+        my_aligned = (my != 0);
     } else {
         bool round_bit = ((my << (_MAN_T_SIZE_BITS - exp_delta)) != 0);
         my_aligned = (my >> exp_delta) | round_bit;
@@ -786,6 +788,8 @@ template <
     const unsigned exp_delta = true_exp(x_wide, x_spec) - true_exp(y_wide, y_spec);
     if (exp_delta <= 3) {
         my_aligned = my >> exp_delta;
+    } else if (exp_delta >= _MAN_T_SIZE_BITS) {
+        my_aligned = (my != 0);
     } else {
         bool round_bit = ((my << (_MAN_T_SIZE_BITS - exp_delta)) != 0);
         my_aligned = (my >> exp_delta) | round_bit;

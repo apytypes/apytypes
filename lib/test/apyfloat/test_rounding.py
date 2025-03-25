@@ -64,212 +64,269 @@ def test_add_sub_zero_sign(man):
 
 
 @pytest.mark.float_add
+@pytest.mark.parametrize("t", [0, 2])
 class TestAPyFloatQuantizationAddSub:
     """
     Test class for the different quantization modes for addition in APyFloat.
     If subtraction is implemented as 'a + (-b)' then this also tests the quantization modes for subtraction.
+    't' is used to test the case where the word lengths don't match.
     """
 
-    def test_to_pos(self):
+    def test_to_pos(self, t):
         with APyFloatQuantizationContext(QuantizationMode.TO_POS):
             # 1.5 + very small number should quantize to 1.75
-            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
-            assert res.is_identical(APyFloat(0, 15, 3, 5, 2))
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 15 + t // 2, 3, 5, 2, 15 + t // 2))
 
             # -1.5 + very small number should quantize to 1.25
-            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
-            assert res.is_identical(APyFloat(1, 15, 1, 5, 2))
+            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(1, 15 + t // 2, 1, 5, 2, 15 + t // 2))
 
             # Two big positive numbers should become infinity
-            res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2)
-            assert res.is_identical(APyFloat(0, 31, 0, 5, 2))
+            res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 31, 0, 5, 2, 15 + t // 2))
 
             # Two big negative numbers should saturate
-            res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2)
-            assert res.is_identical(APyFloat(1, 30, 3, 5, 2))
+            res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(1, 30, 3, 5, 2, 15 + t // 2))
 
-    def test_to_neg(self):
+            # Far case
+            lhs = APyFloat(sign=0, exp=125, man=1392008, exp_bits=8, man_bits=23)
+            rhs = APyFloat(
+                sign=1, exp=190 + t, man=65537, exp_bits=8, man_bits=23, bias=127 + t
+            )
+            ref = APyFloat(
+                sign=1,
+                exp=190 + t // 2,
+                man=65536,
+                exp_bits=8,
+                man_bits=23,
+                bias=127 + t // 2,
+            )
+            assert (lhs + rhs).is_identical(ref)
+
+    def test_to_neg(self, t):
         with APyFloatQuantizationContext(QuantizationMode.TO_NEG):
             # 1.5 + very small number should quantize to 1.5
-            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
-            assert res.is_identical(APyFloat(0, 15, 2, 5, 2))
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 15 + t // 2, 2, 5, 2, 15 + t // 2))
 
             # -1.5 + very small number should quantize to 1.5
-            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
-            assert res.is_identical(APyFloat(1, 15, 2, 5, 2))
+            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(1, 15 + t // 2, 2, 5, 2, 15 + t // 2))
 
             # Two big positive numbers should saturate
-            res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2)
-            assert res.is_identical(APyFloat(0, 30, 3, 5, 2))
+            res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 30, 3, 5, 2, 15 + t // 2))
 
             # Two big negative numbers should become infinity
-            res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2)
-            assert res.is_identical(APyFloat(1, 31, 0, 5, 2))
+            res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(1, 31, 0, 5, 2, 15 + t // 2))
 
-    def test_to_zero(self):
+            # Far case
+            lhs = APyFloat(sign=1, exp=0, man=190, exp_bits=8, man_bits=23)
+            rhs = APyFloat(
+                sign=1, exp=151 + t, man=494, exp_bits=8, man_bits=23, bias=127 + t
+            )
+            ref = APyFloat(
+                sign=1,
+                exp=151 + t // 2,
+                man=495,
+                exp_bits=8,
+                man_bits=23,
+                bias=127 + t // 2,
+            )
+            assert (lhs + rhs).is_identical(ref)
+
+    def test_to_zero(self, t):
         with APyFloatQuantizationContext(QuantizationMode.TO_ZERO):
             # 1.5 + relatively big number (0.21875) should still quantize to 1.5
-            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(
-                sign=0, exp=12, man=3, exp_bits=5, man_bits=2
-            )
-            assert res.is_identical(APyFloat(0, 15, 2, 5, 2))
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 12, 3, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 15 + t // 2, 2, 5, 2, 15 + t // 2))
 
             # -1.5 + relatively big negative number (0.21875) should still quantize to -1.5
-            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(
-                sign=1, exp=12, man=3, exp_bits=5, man_bits=2
-            )
-            assert res.is_identical(APyFloat(1, 15, 2, 5, 2))
+            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(1, 12, 3, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(1, 15 + t // 2, 2, 5, 2, 15 + t // 2))
 
             # Two big positive numbers should saturate
-            res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2)
-            assert res.is_identical(APyFloat(0, 30, 3, 5, 2))
+            res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 30, 3, 5, 2, 15 + t // 2))
 
             # Two big negative numbers should saturate
-            res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2)
-            assert res.is_identical(APyFloat(1, 30, 3, 5, 2))
+            res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(1, 30, 3, 5, 2, 15 + t // 2))
 
-    def test_to_ties_even(self):
+            # Far case
+            lhs = APyFloat(sign=0, exp=125, man=1392008, exp_bits=8, man_bits=23)
+            rhs = APyFloat(
+                sign=1, exp=190 + t, man=65537, exp_bits=8, man_bits=23, bias=127 + t
+            )
+            ref = APyFloat(
+                sign=1,
+                exp=190 + t // 2,
+                man=65536,
+                exp_bits=8,
+                man_bits=23,
+                bias=127 + t // 2,
+            )
+            assert (lhs + rhs).is_identical(ref)
+
+    def test_to_ties_even(self, t):
         with APyFloatQuantizationContext(QuantizationMode.TIES_EVEN):
             # 1.5 + relatively big number (0.21875) should quantize to 1.75
-            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(
-                sign=0, exp=12, man=3, exp_bits=5, man_bits=2
-            )
-            assert res.is_identical(APyFloat(0, 15, 3, 5, 2))
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 12 + t, 3, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 15 + t // 2, 3, 5, 2, 15 + t // 2))
 
             # -1.5 + relatively big negative number (0.21875) should quantize to -1.75
-            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(
-                sign=1, exp=12, man=3, exp_bits=5, man_bits=2
-            )
-            assert res.is_identical(APyFloat(1, 15, 3, 5, 2))
+            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(1, 12 + t, 3, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(1, 15 + t // 2, 3, 5, 2, 15 + t // 2))
 
             # 1.5 + very small number should quantize to 1.5
-            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
-            assert res.is_identical(APyFloat(0, 15, 2, 5, 2))
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 15 + t // 2, 2, 5, 2, 15 + t // 2))
 
             # -1.5 + very small negative number should quantize to 1.5
-            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
-            assert res.is_identical(APyFloat(1, 15, 2, 5, 2))
+            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(1, 15 + t // 2, 2, 5, 2, 15 + t // 2))
 
             # 1.5 + tie should quantize to 1.5
-            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 12, 0, 5, 2)
-            assert res.is_identical(APyFloat(0, 15, 2, 5, 2))
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 12, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 15 + t // 2, 2, 5, 2, 15 + t // 2))
 
             # -1.5 + negative tie should quantize to -1.5
-            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(1, 12, 0, 5, 2)
-            assert res.is_identical(APyFloat(1, 15, 2, 5, 2))
+            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(1, 12 + t, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(1, 15 + t // 2, 2, 5, 2, 15 + t // 2))
 
             # 1.75 + tie should quantize to 2.0
-            res = APyFloat(0, 15, 3, 5, 2) + APyFloat(0, 12, 0, 5, 2)
-            assert res.is_identical(APyFloat(0, 16, 0, 5, 2))
+            res = APyFloat(0, 15, 3, 5, 2) + APyFloat(0, 12 + t, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 16 + t // 2, 0, 5, 2, 15 + t // 2))
 
             # -1.75 + negative tie should quantize to -2.0
-            res = APyFloat(1, 15, 3, 5, 2) + APyFloat(1, 12, 0, 5, 2)
-            assert res.is_identical(APyFloat(1, 16, 0, 5, 2))
+            res = APyFloat(1, 15, 3, 5, 2) + APyFloat(1, 12 + t, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(1, 16 + t // 2, 0, 5, 2, 15 + t // 2))
 
             # Two big positive numbers should become infinity
-            res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2)
-            assert res.is_identical(APyFloat(0, 31, 0, 5, 2))
+            res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 31, 0, 5, 2, 15 + t // 2))
 
             # Two big negative numbers should become infinity
-            res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2)
-            assert res.is_identical(APyFloat(1, 31, 0, 5, 2))
+            res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(1, 31, 0, 5, 2, 15 + t // 2))
 
-    def test_to_ties_away(self):
+    def test_to_ties_away(self, t):
         with APyFloatQuantizationContext(QuantizationMode.TIES_EVEN):
             # 1.5 + relatively big number (0.21875) should quantize to 1.75
-            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(
-                sign=0, exp=12, man=3, exp_bits=5, man_bits=2
-            )
-            assert res.is_identical(APyFloat(0, 15, 3, 5, 2))
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 12 + t, 3, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 15 + t // 2, 3, 5, 2, 15 + t // 2))
 
             # -1.5 + relatively big negative number (0.21875) should quantize to -1.75
-            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(
-                sign=1, exp=12, man=3, exp_bits=5, man_bits=2
-            )
-            assert res.is_identical(APyFloat(1, 15, 3, 5, 2))
+            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(1, 12 + t, 3, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(1, 15 + t // 2, 3, 5, 2, 15 + t // 2))
 
             # 1.5 + very small number should quantize to 1.5
-            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
-            assert res.is_identical(APyFloat(0, 15, 2, 5, 2))
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 15 + t // 2, 2, 5, 2, 15 + t // 2))
 
             # -1.5 + very small negative number should quantize to 1.5
-            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
-            assert res.is_identical(APyFloat(1, 15, 2, 5, 2))
+            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(1, 15 + t // 2, 2, 5, 2, 15 + t // 2))
 
             # 1.5 + tie should quantize to 1.75
-            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 12, 0, 5, 2)
-            assert res.is_identical(APyFloat(0, 15, 2, 5, 2))
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 12 + t, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 15 + t // 2, 2, 5, 2, 15 + t // 2))
 
             # -1.5 + negative tie should quantize to -1.75
-            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(1, 12, 0, 5, 2)
-            assert res.is_identical(APyFloat(1, 15, 2, 5, 2))
+            res = APyFloat(1, 15, 2, 5, 2) + APyFloat(1, 12 + t, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(1, 15 + t // 2, 2, 5, 2, 15 + t // 2))
 
             # 1.75 + tie should quantize to 2.0
-            res = APyFloat(0, 15, 3, 5, 2) + APyFloat(0, 12, 0, 5, 2)
-            assert res.is_identical(APyFloat(0, 16, 0, 5, 2))
+            res = APyFloat(0, 15, 3, 5, 2) + APyFloat(0, 12 + t, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 16 + t // 2, 0, 5, 2, 15 + t // 2))
 
             # -1.75 + negative tie should quantize to -2.0
-            res = APyFloat(1, 15, 3, 5, 2) + APyFloat(1, 12, 0, 5, 2)
-            assert res.is_identical(APyFloat(1, 16, 0, 5, 2))
+            res = APyFloat(1, 15, 3, 5, 2) + APyFloat(1, 12 + t, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(1, 16 + t // 2, 0, 5, 2, 15 + t // 2))
 
             # Two big positive numbers should become infinity
-            res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2)
-            assert res.is_identical(APyFloat(0, 31, 0, 5, 2))
+            res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 31, 0, 5, 2, 15 + t // 2))
 
             # Two big negative numbers should become infinity
-            res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2)
-            assert res.is_identical(APyFloat(1, 31, 0, 5, 2))
+            res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(1, 31, 0, 5, 2, 15 + t // 2))
 
-    def test_jam(self):
+    def test_jam(self, t):
         with APyFloatQuantizationContext(QuantizationMode.JAM):
             # 1.5 + very small number should quantize to 1.75
-            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2)
-            assert res.is_identical(APyFloat(0, 15, 3, 5, 2))
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 1, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 15 + t // 2, 3, 5, 2, 15 + t // 2))
 
             # -1.25 + very small number should quantize to -1.25
-            res = APyFloat(1, 15, 1, 5, 2) + APyFloat(0, 1, 0, 5, 2)
-            assert res.is_identical(APyFloat(1, 15, 1, 5, 2))
+            res = APyFloat(1, 15, 1, 5, 2) + APyFloat(0, 1, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(1, 15 + t // 2, 1, 5, 2, 15 + t // 2))
 
             # 1.0 + 1.0 should become 2.5
-            res = APyFloat(0, 15, 0, 5, 2) + APyFloat(0, 15, 0, 5, 2)
-            assert res.is_identical(APyFloat(0, 16, 1, 5, 2))
+            res = APyFloat(0, 15, 0, 5, 2) + APyFloat(0, 15 + t, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 16 + t // 2, 1, 5, 2, 15 + t // 2))
 
             # Two big positive numbers should saturate
-            res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2)
-            assert res.is_identical(APyFloat(0, 30, 3, 5, 2))
+            res = APyFloat(0, 30, 3, 5, 2) + APyFloat(0, 30, 3, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 30, 3, 5, 2, 15 + t // 2))
 
             # Two big negative numbers should saturate
-            res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2)
-            assert res.is_identical(APyFloat(1, 30, 3, 5, 2))
+            res = APyFloat(1, 30, 3, 5, 2) + APyFloat(1, 30, 3, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(1, 30, 3, 5, 2, 15 + t // 2))
 
-    def test_stoch_weighted(self):
+            lhs = APyFloat(sign=1, exp=0, man=190, exp_bits=8, man_bits=23)
+            rhs = APyFloat(
+                sign=1, exp=151 + t, man=494, exp_bits=8, man_bits=23, bias=127 + t
+            )
+            ref = APyFloat(
+                sign=1,
+                exp=151 + t // 2,
+                man=495,
+                exp_bits=8,
+                man_bits=23,
+                bias=127 + t // 2,
+            )
+            assert (lhs + rhs).is_identical(ref)
+
+    def test_stoch_weighted(self, t):
         with APyFloatQuantizationContext(QuantizationMode.STOCH_WEIGHTED):
             # 1.5 + 0.125 should quantize to 1.5 or 1.75
-            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 12, 0, 5, 2)
-            assert res.is_identical(APyFloat(0, 15, 2, 5, 2)) or (
-                res.is_identical(APyFloat(0, 15, 3, 5, 2))
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 12 + t, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 15 + t // 2, 2, 5, 2, 15 + t // 2)) or (
+                res.is_identical(APyFloat(0, 15 + t // 2, 3, 5, 2, 15 + t // 2))
             )
 
             res = APyFloat(0, 1023, 0, 11, 52) + APyFloat(
-                0, 1022, (1 << 52) - 1, 11, 52
+                0, 1022 + t, (1 << 52) - 1, 11, 52, 1023 + t
             )
-            assert res.is_identical(APyFloat(0, 1024, 0, 11, 52)) or (
-                res.is_identical(APyFloat(0, 1023, 4503599627370495, 11, 52))
+            assert res.is_identical(
+                APyFloat(0, 1024 + t // 2, 0, 11, 52, 1023 + t // 2)
+            ) or (
+                res.is_identical(
+                    APyFloat(0, 1023 + t // 2, 4503599627370495, 11, 52, 1023 + t // 2)
+                )
             )
 
-    def test_stoch_equal(self):
+    def test_stoch_equal(self, t):
         with APyFloatQuantizationContext(QuantizationMode.STOCH_EQUAL):
             # 1.5 + 0.125 should quantize to 1.5 or 1.75
-            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 12, 0, 5, 2)
-            assert res.is_identical(APyFloat(0, 15, 2, 5, 2)) or (
-                res.is_identical(APyFloat(0, 15, 3, 5, 2))
+            res = APyFloat(0, 15, 2, 5, 2) + APyFloat(0, 12 + t, 0, 5, 2, 15 + t)
+            assert res.is_identical(APyFloat(0, 15 + t // 2, 2, 5, 2, 15 + t // 2)) or (
+                res.is_identical(APyFloat(0, 15 + t // 2, 3, 5, 2, 15 + t // 2))
             )
 
             res = APyFloat(0, 1023, 0, 11, 52) + APyFloat(
-                0, 1022, (1 << 52) - 1, 11, 52
+                0, 1022 + t, (1 << 52) - 1, 11, 52, 1023 + t
             )
-            assert res.is_identical(APyFloat(0, 1024, 0, 11, 52)) or (
-                res.is_identical(APyFloat(0, 1023, 4503599627370495, 11, 52))
+            assert res.is_identical(
+                APyFloat(0, 1024 + t // 2, 0, 11, 52, 1023 + t // 2)
+            ) or (
+                res.is_identical(
+                    APyFloat(0, 1023 + t // 2, 4503599627370495, 11, 52, 1023 + t // 2)
+                )
             )
 
 
