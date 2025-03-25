@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Bug in `APyFloat` addition/substraction when the exponent difference was larger
+- than 64, introduced in v0.3.0.
+
 ### Changed
 
 ### Removed

@@ -324,6 +324,31 @@ def test_sub_diff_exp(lhs, rhs):
 
 
 @pytest.mark.float_sub
+@pytest.mark.parametrize("t", [0, 2])
+def test_sub_large_exponent_diff(t):
+    # 't' is used to test the case where the word lengths don't match
+
+    # Exponent difference larger than 64
+    b = 127
+    lhs = APyFloat(sign=0, exp=2, man=6193994, exp_bits=8, man_bits=23)
+    rhs = APyFloat(sign=1, exp=142 + t, man=65471, exp_bits=8, man_bits=23, bias=b + t)
+    ref = APyFloat(
+        sign=1, exp=142 + t // 2, man=65471, exp_bits=8, man_bits=23, bias=b + t // 2
+    )
+    res = lhs + rhs
+    assert res.is_identical(ref)
+
+    # Exponent difference equal to 64
+    lhs = APyFloat(sign=1, exp=191, man=983040, exp_bits=8, man_bits=23)
+    rhs = APyFloat(sign=1, exp=127 + t, man=57343, exp_bits=8, man_bits=23, bias=b + t)
+    ref = APyFloat(
+        sign=1, exp=191 + t // 2, man=983040, exp_bits=8, man_bits=23, bias=b + t // 2
+    )
+    res = lhs + rhs
+    assert res.is_identical(ref)
+
+
+@pytest.mark.float_sub
 def test_sub_diff_sign():
     # Subtract two numbers that have different sign
     # 12 - -4
