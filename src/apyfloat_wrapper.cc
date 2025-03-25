@@ -130,6 +130,62 @@ void bind_float(nb::module_& m)
         .def("__pow__", &APyFloat::pow)
         .def("__pow__", &APyFloat::pown)
 
+        .def_static(
+            "fma",
+            &APyFloat::fma,
+            nb::arg("x"),
+            nb::arg("y"),
+            nb::arg("z"),
+            R"pbdoc(
+            Fused multiply-add, i.e. calculate (x * y) + z using only one quantization step.
+
+            versionadded:: 0.4
+
+            Parameters
+            ----------
+            x : :class:`APyFloat`
+                Floating-point x.
+            y : :class:`APyFloat`
+                Floating-point y.
+            z : :class:`APyFloat`
+                Floating-point z.
+
+            Returns
+            -------
+            :class:`APyFloat`
+
+            See also
+            --------
+            fmac
+            )pbdoc"
+        )
+        .def(
+            "fmac",
+            &APyFloat::fmac,
+            nb::arg("x"),
+            nb::arg("y"),
+            R"pbdoc(
+            Fused multiply-accumulate, i.e. add x * y to the current value using only one quantization step.
+
+            versionadded:: 0.4
+
+            Parameters
+            ----------
+            x : :class:`APyFloat`
+                Floating-point x.
+            y : :class:`APyFloat`
+                Floating-point y.
+
+            Returns
+            -------
+            :class:`APyFloat`
+
+            See also
+            --------
+            fma
+            )pbdoc"
+        )
+
         .def("__and__", BIN_OP<std::bit_and<>, APyFloat, APyFloat>)
         .def("__or__", BIN_OP<std::bit_or<>, APyFloat, APyFloat>)
         .def("__xor__", BIN_OP<std::bit_xor<>, APyFloat, APyFloat>)
