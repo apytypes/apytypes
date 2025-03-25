@@ -160,9 +160,13 @@ std::optional<APyFixedAccumulatorOption> get_accumulator_mode_fixed();
 
 // Accumulator type for APyFloat
 struct APyFloatAccumulatorOption {
+    //! Number of exponent bits
     std::uint8_t exp_bits;
+    //! Number of mantissa bits
     std::uint8_t man_bits;
+    //! Exponent bias
     std::optional<exp_t> bias;
+    //! Quantization mode
     QuantizationMode quantization;
 
     APyFloatSpec get_spec(exp_t backup_bias) const noexcept
