@@ -387,7 +387,7 @@ def test_zeros_like(shape):
         man_bits=None,
         bias=None,
     ):
-        if ArrayType is APyFixedArray:
+        if ArrayType in (APyFixedArray, APyCFixedArray):
             b = ArrayType.from_float(
                 [0] * (shape[0] * shape[1]),
                 int_bits=int_bits,
@@ -407,6 +407,11 @@ def test_zeros_like(shape):
             f"zeros_like on {ArrayType.__name__} didn't work when shape={shape}."
         )
 
+        c = zeros_like(b)
+        assert c.is_identical(b), (
+            f"zeros_like on {ArrayType.__name__} didn't work when shape={shape}."
+        )
+
     # Test cases for APyFixedArray
     check_zeros_like(APyFixedArray, bits=10, frac_bits=5)
     check_zeros_like(APyFixedArray, bits=10, int_bits=5)
@@ -415,6 +420,11 @@ def test_zeros_like(shape):
     # Test cases for APyFloatArray
     check_zeros_like(APyFloatArray, exp_bits=13, man_bits=28)
     check_zeros_like(APyFloatArray, exp_bits=16, man_bits=5, bias=8)
+
+    # Test cases for APyCFixedArray
+    check_zeros_like(APyCFixedArray, bits=10, frac_bits=5)
+    check_zeros_like(APyCFixedArray, bits=10, int_bits=5)
+    check_zeros_like(APyCFixedArray, int_bits=12314, frac_bits=1832)
 
 
 def test_zeros_like_raises():
@@ -496,7 +506,7 @@ def test_ones_like(shape):
         man_bits=None,
         bias=None,
     ):
-        if ArrayType is APyFixedArray:
+        if ArrayType in (APyFixedArray, APyCFixedArray):
             b = ArrayType.from_float(
                 [1] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
             ).reshape(shape)
@@ -512,6 +522,10 @@ def test_ones_like(shape):
         assert a.is_identical(b), (
             f"ones_like on {ArrayType.__name__} didn't work when shape={shape}."
         )
+        c = ones_like(b)
+        assert c.is_identical(b), (
+            f"ones_like on {ArrayType.__name__} didn't work when shape={shape}."
+        )
 
     # Test cases for APyFixedArray
     check_ones_like(APyFixedArray, int_bits=5, frac_bits=5)
@@ -520,6 +534,10 @@ def test_ones_like(shape):
     # Test cases for APyFloatArray
     check_ones_like(APyFloatArray, exp_bits=13, man_bits=28)
     check_ones_like(APyFloatArray, exp_bits=16, man_bits=5, bias=8)
+
+    # Test cases for APyFixedArray
+    check_ones_like(APyCFixedArray, int_bits=5, frac_bits=5)
+    check_ones_like(APyCFixedArray, int_bits=12314, frac_bits=1832)
 
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
