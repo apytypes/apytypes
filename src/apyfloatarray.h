@@ -14,6 +14,7 @@
 #include <optional>
 #include <vector>
 
+//! An N-dimensional array class for `APyFloat` objects
 class APyFloatArray : public APyArray<APyFloatData, APyFloatArray> {
 
     /* ****************************************************************************** *
@@ -64,13 +65,16 @@ public:
     //! Name of this array type (used when throwing errors)
     static constexpr auto ARRAY_NAME = std::string_view("APyFloatArray");
 
+    //! Create an `APyFloat` with the same bit specifiers as `*this`
     APyFloat create_scalar() const { return APyFloat(exp_bits, man_bits, bias); }
 
+    //! Create an `APyFloatArray` with the same shape and bit specifiers as `*this`
     APyFloatArray create_array(const std::vector<std::size_t>& shape) const
     {
         return APyFloatArray(shape, exp_bits, man_bits, bias);
     }
 
+    //! Create an `APyFloatArray` with a given shape and bit specifiers
     static APyFloatArray
     create_array_static(const std::vector<std::size_t>& shape, const APyFloat& flt)
     {
@@ -104,15 +108,26 @@ public:
      * ****************************************************************************** */
 
 public:
+    //! Element-wise addition of two floating-point arrays
     APyFloatArray operator+(const APyFloatArray& rhs) const;
+    //! Element-wise addition of a floating-point array and a floating-point scalar
     APyFloatArray operator+(const APyFloat& rhs) const;
+    //! Unary plus
     APY_INLINE APyFloatArray operator+() const { return *this; };
+    //! Element-wise subtraction of two floating-point arrays
     APyFloatArray operator-(const APyFloatArray& rhs) const;
+    //! Element-wise subtraction of a floating-point array and a floating-point scalar
     APyFloatArray operator-(const APyFloat& rhs) const;
+    //! Unary minus
     APyFloatArray operator-() const;
+    //! Element-wise multiplication of two floating-point arrays
     APyFloatArray operator*(const APyFloatArray& rhs) const;
+    //! Element-wise multiplication of a floating-point array and a floating-point
+    //! scalar
     APyFloatArray operator*(const APyFloat& rhs) const;
+    //! Element-wise division of two floating-point arrays
     APyFloatArray operator/(const APyFloatArray& rhs) const;
+    //! Element-wise division of a floating-point array and a floating-point scalar
     APyFloatArray operator/(const APyFloat& rhs) const;
 
     //! Absolute value
@@ -177,15 +192,17 @@ public:
         std::optional<exp_t> bias = std::nullopt
     );
 
+    //! Set data fields based on an ndarray of bit patterns
     void _set_bits_from_ndarray(const nanobind::ndarray<nanobind::c_contig>& ndarray);
 
-    //! Set data fields based on an and-array of doubles
+    //! Set data fields based on an ndarray of doubles
     void _set_values_from_ndarray(const nanobind::ndarray<nanobind::c_contig>& ndarray);
 
     /* ****************************************************************************** *
      *                     Static methods for array initialization                    *
      * ****************************************************************************** */
 
+    //! Create an array of given shape and bit specifiers, filled with zeros.
     static APyFloatArray zeros(
         const nb::tuple& shape,
         std::uint8_t exp_bits,
@@ -193,6 +210,7 @@ public:
         std::optional<exp_t> bias = std::nullopt
     );
 
+    //! Create an array of given shape and bit specifiers, filled with ones.
     static APyFloatArray ones(
         const nb::tuple& shape,
         std::uint8_t exp_bits,
@@ -200,6 +218,7 @@ public:
         std::optional<exp_t> bias = std::nullopt
     );
 
+    //! Create a 2-D array with ones on the diagonal and zeros elsewhere.
     static APyFloatArray
     eye(const nb::int_& N,
         std::uint8_t exp_bits,
@@ -207,6 +226,7 @@ public:
         std::optional<nb::int_> M,
         std::optional<exp_t> bias = std::nullopt);
 
+    //! Create the identity matrix, i.e. a square array with ones on the main diagonal.
     static APyFloatArray identity(
         const nb::int_& N,
         std::uint8_t exp_bits,
@@ -214,7 +234,7 @@ public:
         std::optional<exp_t> bias = std::nullopt
     );
 
-    //! Create an `APyFloatArray` with evenly spaced values within a given interval
+    //! Create an `APyFloatArray` with evenly spaced values within a given interval.
     static APyFloatArray arange(
         const nb::object& start,
         const nb::object& stop,
@@ -385,21 +405,6 @@ public:
      * multiplication.
      */
     APyFloatArray checked_2d_matmul(const APyFloatArray& rhs) const;
-
-    /*
-     * Friend functions
-     */
-    template <
-        typename RANDOM_ACCESS_ITERATOR_IN,
-        typename RANDOM_ACCESS_ITERATOR_INOUT,
-        typename APYFLOAT_TYPE>
-    friend void float_product(
-        RANDOM_ACCESS_ITERATOR_IN src1,
-        RANDOM_ACCESS_ITERATOR_IN src2,
-        RANDOM_ACCESS_ITERATOR_INOUT dst,
-        const APYFLOAT_TYPE& x, // Floating point src1
-        const APYFLOAT_TYPE& y  // Floating point src2
-    );
 };
 
 #endif

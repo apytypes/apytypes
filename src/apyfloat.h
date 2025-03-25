@@ -96,8 +96,7 @@ public:
         std::uint8_t man_bits,
         exp_t bias
     );
-    //! Constructor setting data fields using a struct, mostly used by the APyFloatArray
-    //! class
+    //! Constructor setting data fields using a struct, mostly used by `APyFloatArray`
     APyFloat(
         const APyFloatData& data,
         std::uint8_t exp_bits,
@@ -155,19 +154,19 @@ public:
         int man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
-    //! Create APyFloat from APyFixed
+    //! Create `APyFloat` from `APyFixed`
     static APyFloat from_fixed(
         APyFixed value,
         int exp_bits,
         int man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
-    //! Cast to double
+    //! Cast to `double`
     double to_double() const;
-    //! Cast to double
+    //! Cast to `double`
     operator double() const;
 
-    //! Create APyFloat from bit-representation
+    //! Create `APyFloat` from bit-representation
     static APyFloat from_bits(
         nanobind::int_ python_long_int_bit_pattern,
         int exp_bits,
@@ -175,7 +174,7 @@ public:
         std::optional<exp_t> bias = std::nullopt
     );
 
-    //! Create an APyFloat with the stored value one
+    //! Create an `APyFloat` with the stored value one
     static APyFloat
     one(std::uint8_t exp_bits,
         std::uint8_t man_bits,
@@ -275,26 +274,26 @@ public:
      * ****************************************************************************** */
 
 public:
-    //! Add two APyFloat objects
+    //! Add two floating-point scalars
     APyFloat operator+(const APyFloat& rhs) const;
-    //! Subtract two APyFloat objects
+    //! Subtract two floating-point scalars
     APyFloat operator-(const APyFloat& rhs) const;
     //! Unary minus
     APyFloat operator-() const;
     //! Unary plus
     APY_INLINE APyFloat operator+() const { return *this; };
-    //! Multiple two APyFloat objects
+    //! Multiple two floating-point scalars
     APyFloat operator*(const APyFloat& rhs) const;
-    //! Divide two APyFloat objects
+    //! Divide two floating-point scalars
     APyFloat operator/(const APyFloat& rhs) const;
     //! Add and assign
     APyFloat& operator+=(const APyFloat& rhs);
 
-    //! Bitwise AND between two APyFloat objects
+    //! Bitwise AND between two floating-point scalars
     APyFloat operator&(const APyFloat& rhs) const;
-    //! Bitwise OR between two APyFloat objects
+    //! Bitwise OR between two floating-point scalars
     APyFloat operator|(const APyFloat& rhs) const;
-    //! Bitwise Exclusive-OR (XOR) between two APyFloat objects
+    //! Bitwise Exclusive-OR (XOR) between two floating-point scalars
     APyFloat operator^(const APyFloat& rhs) const;
     //! Bitwise NOT
     APyFloat operator~() const;
@@ -306,7 +305,7 @@ public:
 public:
     //! Absolute value
     APyFloat abs() const;
-    //! Power function with another APyFloat as the exponent
+    //! Power function with another floating-point scalar as the exponent
     static APyFloat pow(const APyFloat& x, const APyFloat& y);
     //! Power function with integer exponent
     static APyFloat pown(const APyFloat& x, int n);
@@ -316,43 +315,44 @@ public:
      * ****************************************************************************** */
 
 public:
-    //! Check if *this and rhs are equal
+    //! Check if `*this` and `rhs` are equal
     bool operator==(const APyFloat& rhs) const;
-    //! Check if *this and rhs are not equal
+    //! Check if `*this` and `rhs` are not equal
     bool operator!=(const APyFloat& rhs) const;
-    //! Check if *this is less than or equal to rhs
+    //! Check if `*this` is less than or equal to `rhs`
     bool operator<=(const APyFloat& rhs) const;
-    //! Check if *this is less than rhs
+    //! Check if `*this` is less than `rhs`
     bool operator<(const APyFloat& rhs) const;
-    //! Check if *this is greater than or equal to rhs
+    //! Check if `*this` is greater than or equal to `rhs`
     bool operator>=(const APyFloat& rhs) const;
-    //! Check if *this is greater than rhs
+    //! Check if `*this` is greater than `rhs`
     bool operator>(const APyFloat& rhs) const;
-    //! Check if *this and rhs are equal, casting rhs to an APyFloat object
+    //! Check if `*this` and `rhs` are equal, casting `rhs` to an `APyFloat`
     bool operator==(const double rhs) const;
-    //! Check if *this and rhs are not equal, casting rhs to an APyFloat object
+    //! Check if `*this` and `rhs` are not equal, casting `rhs` to an `APyFloat`
     bool operator!=(const double rhs) const;
-    //! Check if *this is less than or equal to rhs, casting rhs to an APyFloat object
+    //! Check if `*this` is less than or equal to `rhs`, casting `rhs` to an `APyFloat`
     bool operator<=(const double rhs) const;
-    //! Check if *this is less than rhs, casting rhs to an APyFloat object
+    //! Check if `*this` is less than `rhs`, casting `rhs` to an `APyFloat`
     bool operator<(const double rhs) const;
-    //! Check if *this is greater than or equal to rhs, casting rhs to an APyFloat
-    //! object
+    //! Check if `*this` is greater than or equal to `rhs`, casting `rhs` to an
+    //! `APyFloat`
     bool operator>=(const double rhs) const;
-    //! Check if *this is greater than rhs, casting rhs to an APyFloat object
+    //! Check if `*this` is greater than `rhs`, casting `rhs` to an `APyFloat`
     bool operator>(const double rhs) const;
-    //! Check if *this and rhs are equal, casting *this to an APyFixed object
+    //! Check if `*this` and `rhs` are equal, casting `*this` to an `APyFixed`
     bool operator==(const APyFixed& rhs) const;
-    //! Check if *this and rhs are not equal, casting *this to an APyFixed object
+    //! Check if `*this` and `rhs` are not equal, casting `*this` to an `APyFixed`
     bool operator!=(const APyFixed& rhs) const;
-    //! Check if *this is less than or equal to rhs, casting *this to an APyFixed object
+    //! Check if `*this` is less than or equal to `rhs`, casting `*this` to an
+    //! `APyFixed`
     bool operator<=(const APyFixed& rhs) const;
-    //! Check if *this is less than rhs, casting *this to an APyFixed object
+    //! Check if `*this` is less than `rhs`, casting `*this` to an APyFixed
     bool operator<(const APyFixed& rhs) const;
-    //! Check if *this is greater than or equal to rhs, casting *this to an APyFixed
-    //! object
+    //! Check if `*this` is greater than or equal to `rhs`, casting `*this` to an
+    //! `APyFixed`
     bool operator>=(const APyFixed& rhs) const;
-    //! Check if *this is greater than rhs, casting *this to an APyFixed object
+    //! Check if `*this` is greater than `rhs`, casting `*this` to an `APyFixed`
     bool operator>(const APyFixed& rhs) const;
 
     /* ****************************************************************************** *
