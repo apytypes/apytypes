@@ -8,7 +8,7 @@ from apytypes._apytypes import (
 
 from apytypes._typing import APyArray, APyScalar
 
-from typing import overload, Literal
+from typing import Literal
 
 
 def squeeze(a: APyArray, axis=None) -> APyArray | APyScalar:
@@ -789,14 +789,14 @@ def zeros_like(
     Return an array of all zeros with the same shape and type as `a`.
 
     The type and bit-specifiers of the returned array can be overwritten through the
-    bit-specifier arguments. To overwrite the type, either specify exactly two of three
-    from `int_bits`, `frac_bits`, and `bits`, for :class:`APyFixedArray`, or specify
-    both `exp_bits` and `man_bits` for :class:`APyFloatArray`.
+    bit-specifier arguments. To modify the type, either specify exactly two of three
+    from `int_bits`, `frac_bits`, and `bits`, for :class:`APyFixedArray` and
+    :class:`APyCFixedArray`, or specify both `exp_bits` and `man_bits` for :class:`APyFloatArray`.
 
     Parameters
     ----------
-    a : :class:`APyFloatArray` or :class:`APyFixedArray`
-        The shape and data-type define these same attributes of the returned array.
+    a : :class:`APyFixedArray`, :class:`APyFloatArray`, or :class:`APyCFixedArray`
+        The shape and data-type of *a* define these same attributes of the returned array.
     int_bits : :class:`int`, optional
         Number of fixed-point integer bits.
     frac_bits : :class:`int`, optional
@@ -820,7 +820,7 @@ def zeros_like(
     except AttributeError:
         raise TypeError(f"Cannot make zeros array of type {type(a)}")
 
-    if isinstance(a, APyFixedArray):
+    if isinstance(a, (APyFixedArray, APyCFixedArray)):
         if int_bits is None and frac_bits is None and bits is None:
             return zeros(shape=a.shape, int_bits=a.int_bits, frac_bits=a.frac_bits)
         else:
@@ -835,14 +835,8 @@ def zeros_like(
         raise ValueError("Only fixed-point and floating-point array types supported")
 
 
-@overload
-def ones_like(a: APyFixedArray) -> APyFixedArray: ...
-@overload
-def ones_like(a: APyCFixedArray) -> APyCFixedArray: ...
-@overload
-def ones_like(a: APyFloatArray) -> APyFloatArray: ...
 def ones_like(
-    a,
+    a: APyArray,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -854,14 +848,14 @@ def ones_like(
     Return an array of all ones (stored value) with the same shape and type as `a`.
 
     The type and bit-specifiers of the returned array can be overwritten through the
-    bit-specifier arguments. To overwrite the type, either specify exactly two of three
+    bit-specifier arguments. To modify the type, either specify exactly two of three
     from `int_bits`, `frac_bits`, and `bits`, for :class:`APyFixedArray`, or specify
     both `exp_bits` and `man_bits` for :class:`APyFloatArray`.
 
     Parameters
     ----------
-    a : :class:`APyFloatArray` or :class:`APyFixedArray`
-        The shape and data-type of a define these same attributes of the returned array.
+    a : :class:`APyFixedArray`, :class:`APyFloatArray`, or :class:`APyCFixedArray`
+        The shape and data-type of *a* define these same attributes of the returned array.
     int_bits : :class:`int`, optional
         Number of fixed-point integer bits.
     frac_bits : :class:`int`, optional
@@ -885,7 +879,7 @@ def ones_like(
     except AttributeError:
         raise TypeError(f"Cannot make ones array of type {type(a)}")
 
-    if isinstance(a, APyFixedArray):
+    if isinstance(a, (APyFixedArray, APyCFixedArray)):
         if int_bits is None and frac_bits is None and bits is None:
             return ones(shape=a.shape, int_bits=a.int_bits, frac_bits=a.frac_bits)
         else:
