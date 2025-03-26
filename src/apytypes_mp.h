@@ -51,10 +51,14 @@ typedef int64_t apy_limb_signed_t;
  */
 //! Number of bits in a char, as defined by Posix
 #define POSIX_CHAR_BITS 8
+//! Number of bytes in a limb
 constexpr std::size_t APY_LIMB_SIZE_BYTES = sizeof(apy_limb_t);
 constexpr apy_limb_t APY_NUMBER_MASK = ~((apy_limb_t)0);
+//! Number of bits in a limb
 constexpr std::size_t APY_LIMB_SIZE_BITS = POSIX_CHAR_BITS * APY_LIMB_SIZE_BYTES;
+//! Number of bits in a half limb
 constexpr std::size_t APY_HALF_LIMB_SIZE_BITS = APY_LIMB_SIZE_BITS / 2;
+//! Mask for lower half of a limb
 constexpr apy_limb_t APY_LOWER_LIMB_MASK
     = ((apy_limb_t)1 << APY_HALF_LIMB_SIZE_BITS) - 1;
 constexpr apy_limb_t endian_test = (((apy_limb_t)1) << (APY_LIMB_SIZE_BITS - 7)) - 1;
@@ -71,8 +75,6 @@ constexpr apy_limb_t APY_LIMB_MSBWEIGHT = ((apy_limb_t)1 << (APY_LIMB_SIZE_BITS 
 
 typedef long apy_size_t;
 
-// TODO: should all these return something? Not every functions return value is
-// currently used.
 // TODO: document the functions
 
 // Addition
@@ -279,9 +281,13 @@ apy_inplace_reversed_subtraction_same_length(
 
 //! Left-shift limb vector in place
 apy_limb_t apy_inplace_left_shift(apy_limb_t*, const std::size_t, unsigned int);
-// apy_limb_t
-// apy_left_shift(apy_limb_t*, const apy_limb_t*, const std::size_t, const unsigned
-// int);
+//! Left-shift limb vector: dest == src << shift_amount
+apy_limb_t apy_left_shift(
+    apy_limb_t* dest,
+    const apy_limb_t* src,
+    const std::size_t limbs,
+    const unsigned shift_amount
+);
 
 //! Right-shift limb vector in place
 apy_limb_t apy_inplace_right_shift(apy_limb_t*, const std::size_t, unsigned int);
@@ -327,6 +333,16 @@ private:
 //! Divide two unsigned limb vectors
 void apy_unsigned_division(
     apy_limb_t*, apy_limb_t*, const std::size_t, const apy_limb_t*, const std::size_t
+);
+
+//! Divide two unsigned limb vectors where the APyDivInverse is pre-computed
+void apy_unsigned_division_preinverted(
+    apy_limb_t* quotient,
+    apy_limb_t* numerator,
+    const std::size_t numerator_limbs,
+    const apy_limb_t* denominator,
+    const std::size_t denominator_limbs,
+    const APyDivInverse* inv
 );
 
 #endif
