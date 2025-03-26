@@ -49,6 +49,7 @@ typedef int64_t apy_limb_signed_t;
 /*
  * Sizes of APy limbs (underlying words)
  */
+//! Number of bits in a char, as defined by Posix
 #define POSIX_CHAR_BITS 8
 constexpr std::size_t APY_LIMB_SIZE_BYTES = sizeof(apy_limb_t);
 constexpr apy_limb_t APY_NUMBER_MASK = ~((apy_limb_t)0);
@@ -69,7 +70,6 @@ constexpr apy_limb_t APY_LIMB_MSBWEIGHT = ((apy_limb_t)1 << (APY_LIMB_SIZE_BITS 
  * ********************************************************************************** */
 
 typedef long apy_size_t;
-typedef unsigned long apy_bitcount_t;
 
 // TODO: should all these return something? Not every functions return value is
 // currently used.
@@ -77,10 +77,13 @@ typedef unsigned long apy_bitcount_t;
 
 // Addition
 
-//! Add two limb vectors in place: a += b, where the len(a) >= len(b)
+//! Add two limb vectors in place: dest += src, where len(dest) >= len(src)
 apy_limb_t apy_inplace_addition(
     apy_limb_t*, const std::size_t, const apy_limb_t*, const std::size_t
 );
+
+//! Add two limb vectors: dest = src0 + src1, where len(dest) == len(src0) ==
+//! len(src1)
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_addition_same_length(
     apy_limb_t* dest,
     const apy_limb_t* src0,
@@ -104,7 +107,7 @@ apy_limb_t apy_inplace_addition(
     return carry;
 }
 
-//! Add a single limb to a limb vector in place: a += b
+//! Add a single limb to a limb vector in place: dest += src
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_addition_single_limb(
     apy_limb_t* dest, const std::size_t limbs, const apy_limb_t src
 )
@@ -121,7 +124,7 @@ apy_limb_t apy_inplace_addition(
     return carry;
 }
 
-//! Add a single one to a limb vector in place: a++
+//! Add a single one to a limb vector in place: dest++
 [[maybe_unused]] static APY_INLINE apy_limb_t
 apy_inplace_add_one_lsb(apy_limb_t* dest, const std::size_t limbs)
 {
@@ -136,7 +139,8 @@ apy_inplace_add_one_lsb(apy_limb_t* dest, const std::size_t limbs)
     return carry;
 }
 
-//! Add two limb vectors of the same length in place: a += b, where the len(a) == len(b)
+//! Add two limb vectors of the same length in place: dest += src, where len(dest)
+//! == len(src)
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_addition_same_length(
     apy_limb_t* dest, const apy_limb_t* src, const std::size_t limbs
 )
@@ -158,7 +162,7 @@ apy_inplace_add_one_lsb(apy_limb_t* dest, const std::size_t limbs)
 
 // Subtraction
 
-//! Negate a limb vector in place: a = -a
+//! Negate a limb vector in place: dest = -dest
 [[maybe_unused]] static APY_INLINE apy_limb_t
 apy_inplace_negate(apy_limb_t* dest, const std::size_t limbs)
 {
@@ -188,6 +192,7 @@ apy_negate(apy_limb_t* dest, const apy_limb_t* src, const std::size_t limbs)
     return carry;
 }
 
+//! Subtract a single limb from a limb vectors in place: dest -= src
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_subtraction_single_limb(
     apy_limb_t* dest, const std::size_t limbs, const apy_limb_t src
 )
@@ -207,7 +212,7 @@ apy_negate(apy_limb_t* dest, const apy_limb_t* src, const std::size_t limbs)
     return carry;
 }
 
-// dest = dest - b
+//! Subtract two limb vectors in place: dest -= src, where len(dest) == len(src)
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_inplace_subtraction_same_length(
     apy_limb_t* dest, const apy_limb_t* src, const std::size_t limbs
 )
@@ -226,7 +231,8 @@ apy_negate(apy_limb_t* dest, const apy_limb_t* src, const std::size_t limbs)
     return carry;
 }
 
-// dest = src - dest
+//! Subtract two limb vectors in place: dest = src - dest, where len(dest) ==
+//! len(src)
 [[maybe_unused]] static APY_INLINE apy_limb_t
 apy_inplace_reversed_subtraction_same_length(
     apy_limb_t* dest, const apy_limb_t* src, const std::size_t limbs
@@ -246,6 +252,8 @@ apy_inplace_reversed_subtraction_same_length(
     return carry;
 }
 
+//! Subtract two limb vectors: dest = src0 - src1, where len(dest) == len(src0) ==
+//! len(src1)
 [[maybe_unused]] static APY_INLINE apy_limb_t apy_subtraction_same_length(
     apy_limb_t* dest,
     const apy_limb_t* src0,
@@ -269,16 +277,20 @@ apy_inplace_reversed_subtraction_same_length(
 
 // Shift
 
+//! Left-shift limb vector in place
 apy_limb_t apy_inplace_left_shift(apy_limb_t*, const std::size_t, unsigned int);
 // apy_limb_t
 // apy_left_shift(apy_limb_t*, const apy_limb_t*, const std::size_t, const unsigned
 // int);
+
+//! Right-shift limb vector in place
 apy_limb_t apy_inplace_right_shift(apy_limb_t*, const std::size_t, unsigned int);
 /* apy_limb_t
 apy_rshift(apy_limb_t*, const apy_limb_t*, const std::size_t, const unsigned int); */
 
 // Multiplication
 
+//! Multiply two unsigned limb vectors
 apy_limb_t apy_unsigned_multiplication(
     apy_limb_t*,
     const apy_limb_t*,
@@ -287,16 +299,21 @@ apy_limb_t apy_unsigned_multiplication(
     const std::size_t
 );
 
+//! Square an unsigned limb vector
 apy_limb_t apy_unsigned_square(apy_limb_t*, const apy_limb_t*, const std::size_t);
 
 // Division
 
+//! Class representing the inverse/reciprocal of the denominator
 class APyDivInverse {
 public:
     //! Normalization shift count.
     unsigned norm_shift;
-    //! Normalized denominator (norm_denominator_0 unused for single denominator limb).
-    apy_limb_t norm_denominator_1, norm_denominator_0;
+    //! Normalized denominator, most significant limb
+    apy_limb_t norm_denominator_1;
+    //! Normalized denominator, least singificant limb (unused for single limb
+    //! denominators)
+    apy_limb_t norm_denominator_0;
     //! Inverse, for 2/1 or 3/2.
     apy_limb_t inverse;
     //! Constructor from limb vector.
@@ -307,6 +324,7 @@ private:
     void compute_3by2_inverse();
 };
 
+//! Divide two unsigned limb vectors
 void apy_unsigned_division(
     apy_limb_t*, apy_limb_t*, const std::size_t, const apy_limb_t*, const std::size_t
 );
