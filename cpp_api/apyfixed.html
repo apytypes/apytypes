@@ -688,6 +688,12 @@
 </dd></dl>
 
 <dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N8APyFixed12set_bit_pow2Eib">
+<span id="_CPPv3N8APyFixed12set_bit_pow2Eib"></span><span id="_CPPv2N8APyFixed12set_bit_pow2Eib"></span><span id="APyFixed::set_bit_pow2__i.b"></span><span class="target" id="classAPyFixed_1a3ac1212f1b9948f6e70d1c742a4a453e"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_bit_pow2</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bit</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N8APyFixed12set_bit_pow2Eib" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Set the <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">^</span> <span class="pre">n</span></code> -th bit (zero indexed) to <code class="docutils literal notranslate"><span class="pre">bit</span></code>. Undefined behaviour if bit <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">^</span> <span class="pre">n</span></code> is located outside the limb vector. </p>
+</dd></dl>
+
+<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NK8APyFixed8get_lsbsEv">
 <span id="_CPPv3NK8APyFixed8get_lsbsEv"></span><span id="_CPPv2NK8APyFixed8get_lsbsEv"></span><span id="APyFixed::get_lsbsC"></span><span class="target" id="classAPyFixed_1a224ffd379d00f0aba8d8e0af7ac31212"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_lsbs</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8APyFixed8get_lsbsEv" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Return the least significant 64-bits from the underlying limb-vector (convenience function used in <code class="docutils literal notranslate"><a class="reference internal" href="apyfloat.html#classAPyFloat"><span class="std std-ref"><span class="pre">APyFloat</span></span></a></code>) </p>
@@ -977,6 +983,7 @@
 <li><a class="reference internal" href="#_CPPv4NK8APyFixed24leading_fractional_zerosEv"><code class="docutils literal notranslate"><span class="pre">leading_fractional_zeros()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK8APyFixed13leading_signsEv"><code class="docutils literal notranslate"><span class="pre">leading_signs()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK8APyFixed32positive_greater_than_equal_pow2Ei"><code class="docutils literal notranslate"><span class="pre">positive_greater_than_equal_pow2()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N8APyFixed12set_bit_pow2Eib"><code class="docutils literal notranslate"><span class="pre">set_bit_pow2()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK8APyFixed8get_lsbsEv"><code class="docutils literal notranslate"><span class="pre">get_lsbs()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK8APyFixed4ipowEj"><code class="docutils literal notranslate"><span class="pre">ipow()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK8APyFixed9to_doubleEv"><code class="docutils literal notranslate"><span class="pre">to_double()</span></code></a></li>
