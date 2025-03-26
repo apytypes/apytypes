@@ -277,6 +277,10 @@ public:
     //! `n`)
     bool positive_greater_than_equal_pow2(int n) const;
 
+    //! Set the `2 ^ n` -th bit (zero indexed) to `bit`. Undefined behaviour if
+    //! bit `2 ^ n` is located outside the limb vector.
+    void set_bit_pow2(int n, bool bit);
+
     //! Return the least significant 64-bits from the underlying limb-vector
     //! (convenience function used in `APyFloat`)
     uint64_t get_lsbs() const { return uint64_t_from_limb_vector(_data, 0); }

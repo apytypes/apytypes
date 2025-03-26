@@ -292,6 +292,12 @@ def test_from_float_with_non_floats():
         APyFixed(1, bits=2, int_bits=-1072), 11, 52
     ).is_identical(APyFloat(0, 0, 1, 11, 52))  # Smallest subnormal
 
+    assert APyFloat.from_float(
+        APyFixed(2**11 - 1, int_bits=1025, frac_bits=25),
+        5,
+        10,  # Should round to smallest normal
+    ).is_identical(APyFloat(0, 1, 0, 5, 10))
+
     # From APyFloat, which is equivalent to a cast with TIES_EVEN
 
     # -0 to -0
