@@ -784,6 +784,12 @@ bool APyFixed::positive_greater_than_equal_pow2(int n) const
     return limb_vector_gte_pow2(_data.begin(), _data.end(), test_binary_point);
 }
 
+void APyFixed::set_bit_pow2(int n, bool bit)
+{
+    const unsigned binary_point = std::max(0, frac_bits() + n);
+    limb_vector_set_bit(_data.begin(), _data.end(), binary_point, bit);
+}
+
 APyFixed APyFixed::pown(int n) const
 {
     if (n < 0) {

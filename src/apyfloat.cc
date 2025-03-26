@@ -184,7 +184,7 @@ APyFloat APyFloat::from_integer(
     apyfixed >>= target_exp;
     apyfixed = apyfixed.cast(3, man_bits, QuantizationMode::RND_CONV);
 
-    // Check for overflow
+    // Check for carry
     if (apyfixed.positive_greater_than_equal_pow2(1)) {
         ++tmp_exp;
         apyfixed >>= 1;
@@ -197,7 +197,7 @@ APyFloat APyFloat::from_integer(
     } else {
         res.exp = tmp_exp;
         // Remove leading one
-        apyfixed = apyfixed - APyFixed(2, 2, { 1 });
+        apyfixed.set_bit_pow2(0, 0);
         res.man = apyfixed.get_lsbs();
     }
 
@@ -228,7 +228,7 @@ APyFloat APyFloat::from_fixed(
     const std::int64_t target_exp = apyfixed.int_bits() - apyfixed.leading_zeros() - 1;
     std::int64_t tmp_exp = target_exp + res.bias;
 
-    // Calculate mantissa
+    // Make the number become [1, 2)
     if (target_exp >= 0) {
         apyfixed >>= target_exp;
     } else {
@@ -238,11 +238,13 @@ APyFloat APyFloat::from_fixed(
     if (tmp_exp <= 0) {
         apyfixed >>= -tmp_exp + 1;
         tmp_exp = 0;
+        // Forcing a one (1.xx) here makes the rest of the code the same
+        apyfixed.set_bit_pow2(0, 1);
     }
 
     apyfixed = apyfixed.cast(3, man_bits, QuantizationMode::RND_CONV);
 
-    // Check for overflow
+    // Check for carry
     if (apyfixed.positive_greater_than_equal_pow2(1)) {
         ++tmp_exp;
         apyfixed >>= 1;
@@ -254,10 +256,8 @@ APyFloat APyFloat::from_fixed(
         res.man = 0;
     } else {
         res.exp = tmp_exp;
-        // Remove leading one
-        if (apyfixed.positive_greater_than_equal_pow2(0)) {
-            apyfixed = apyfixed - APyFixed(2, 2, { 1 });
-        }
+        // We know the mantissa is in [1, 2), so remove the leading one
+        apyfixed.set_bit_pow2(0, 0);
         res.man = apyfixed.get_lsbs();
     }
 
@@ -999,11 +999,9 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
         return x.construct_inf();
     }
 
-    if (apy_res.positive_greater_than_equal_pow2(0)) { // Remove leading one
-        apy_res = apy_res - APyFixed(2, 2, { 1 });
-    }
+    apy_res.set_bit_pow2(0, 0); // Remove leading one
     apy_res <<= x.man_bits;
-    new_man = (man_t)(apy_res).to_double();
+    new_man = static_cast<man_t>(apy_res.to_double());
     return APyFloat(new_sign, new_exp, new_man, x.exp_bits, x.man_bits, x.bias);
 }
 
