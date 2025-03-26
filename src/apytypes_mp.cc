@@ -660,7 +660,7 @@ void apy_division_multiple_limbs_preinverted(
     }
 }
 
-void apy_division_preinverted(
+void apy_unsigned_division_preinverted(
     apy_limb_t* quotient,
     apy_limb_t* numerator,
     const std::size_t numerator_limbs,
@@ -707,7 +707,7 @@ void apy_unsigned_division(
         );
         assert(carry == 0);
         (void)carry; // Avoid unused-warning
-        apy_division_preinverted(
+        apy_unsigned_division_preinverted(
             quotient,
             numerator,
             numerator_limbs,
@@ -716,7 +716,7 @@ void apy_unsigned_division(
             &inv
         );
     } else {
-        apy_division_preinverted(
+        apy_unsigned_division_preinverted(
             quotient, numerator, numerator_limbs, denominator, denominator_limbs, &inv
         );
     }

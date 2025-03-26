@@ -542,6 +542,23 @@ def test_array_div_scalar(fixed_array, fixed_scalar):
         )
     )
 
+    a = fixed_array.from_float([-5, -6, 7, 8, 9, 5], bits=100, int_bits=50)
+    b = fixed_scalar.from_float(2.25, bits=14, int_bits=4)
+    assert (a / b).is_identical(
+        fixed_array(
+            [
+                41538374868278620988211973946023026,
+                41538374868278620980205574608475478,
+                56044795362832839,
+                64051194700380387,
+                72057594037927936,
+                40031996687737742,
+            ],
+            bits=115,
+            int_bits=61,
+        )
+    )
+
 
 @pytest.mark.parametrize(
     "fixed_array, fixed_scalar",

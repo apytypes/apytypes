@@ -654,9 +654,20 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
     std::size_t den_significant_limbs
         = significant_limbs(std::begin(abs_den), std::end(abs_den));
 
+    assert(den_significant_limbs > 0);
+    assert(result._itemsize >= den_significant_limbs);
+
     // Absolute value left-shifted numerator
     ScratchVector<apy_limb_t> abs_num(result._itemsize);
 
+    // Compute inverse
+    auto inv = APyDivInverse(&abs_den[0], den_significant_limbs);
+
+    // Normalize denominator
+    apy_limb_t carry
+        = apy_inplace_left_shift(&abs_den[0], den_significant_limbs, inv.norm_shift);
+    assert(carry == 0);
+    (void)carry; // Avoid unused-warning
     for (std::size_t i = 0; i < _nitems; i++) {
         std::fill(std::begin(abs_num), std::end(abs_num), 0);
         bool num_sign = limb_vector_abs(
@@ -665,15 +676,15 @@ APyFixedArray APyFixedArray::operator/(const APyFixed& rhs) const
             std::begin(abs_num)
         );
         limb_vector_lsl(abs_num.begin(), abs_num.end(), rhs.bits());
+        auto quotient = &result._data[i * result._itemsize];
 
-        // TODO: Add function so that APyDivInverse object can be reused for
-        // denominator.
-        apy_unsigned_division(
-            &result._data[i * result._itemsize], // Quotient
-            &abs_num[0],                         // Numerator
-            abs_num.size(),                      // Numerator limbs
-            &abs_den[0],                         // Denominator
-            den_significant_limbs                // Denominator significant limbs
+        apy_unsigned_division_preinverted(
+            quotient,              // Quotient
+            &abs_num[0],           // Numerator
+            result._itemsize,      // Numerator limbs
+            &abs_den[0],           // Denominator
+            den_significant_limbs, // Denominator limbs
+            &inv                   // Inverse
         );
 
         // Negate result if negative
