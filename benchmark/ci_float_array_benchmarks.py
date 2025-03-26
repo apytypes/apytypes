@@ -151,3 +151,45 @@ def test_float_convolve_long_20(benchmark):
     b = APyFloatArray.from_float(np.random.rand(20) - 0.5, 10, 50)
 
     benchmark(lambda x, y: x.convolve(y), a, b)
+
+
+def test_float_matrix_elementwise_division_20(benchmark):
+    a = APyFloatArray.from_float(np.random.rand(20, 20) - 0.5, 4, 7)
+    b = APyFloatArray.from_float(np.random.rand(20, 20) - 0.5, 4, 7)
+
+    benchmark(lambda x, y: x / y, a, b)
+
+
+def test_float_matrix_elementwise_division_200(benchmark):
+    a = APyFloatArray.from_float(np.random.rand(200, 200) - 0.5, 4, 7)
+    b = APyFloatArray.from_float(np.random.rand(200, 200) - 0.5, 4, 7)
+
+    benchmark(lambda x, y: x / y, a, b)
+
+
+def test_float_scalar_matrix_division_20(benchmark):
+    a = APyFloatArray.from_float(np.random.rand(20, 20) - 0.5, 4, 7)
+    b = APyFloat.from_float(np.random.rand(1)[0] - 0.5, 4, 7)
+
+    benchmark(lambda x, y: x / y, a, b)
+
+
+def test_float_scalar_matrix_division_200(benchmark):
+    a = APyFloatArray.from_float(np.random.rand(200, 200) - 0.5, 4, 7)
+    b = APyFloat.from_float(np.random.rand(1)[0] - 0.5, 4, 7)
+
+    benchmark(lambda x, y: x / y, a, b)
+
+
+def test_float_scalar_matrix_reversed_division_20(benchmark):
+    a = APyFloatArray.from_float(np.random.rand(20, 20) - 0.5, 4, 7)
+    b = APyFloat.from_float(np.random.rand(1)[0] - 0.5, 4, 7)
+
+    benchmark(lambda x, y: y / x, a, b)
+
+
+def test_float_scalar_matrix_reversed_division_200(benchmark):
+    a = APyFloatArray.from_float(np.random.rand(200, 200) - 0.5, 4, 7)
+    b = APyFloat.from_float(np.random.rand(1)[0] - 0.5, 4, 7)
+
+    benchmark(lambda x, y: y / x, a, b)
