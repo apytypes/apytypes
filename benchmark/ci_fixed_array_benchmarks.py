@@ -268,3 +268,73 @@ def test_fixed_convolve_long_20(benchmark):
     b = APyFixedArray.from_float(np.random.rand(20) - 0.5, bits=119, int_bits=1)
 
     benchmark(lambda x, y: x.convolve(y), a, b)
+
+
+def test_fixed_scalar_matrix_division_20(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(20, 20) - 0.5, bits=19, int_bits=1)
+    b = APyFixed.from_float(np.random.rand(1)[0] - 0.5, bits=19, int_bits=1)
+
+    benchmark(lambda x, y: x / y, a, b)
+
+
+def test_fixed_scalar_matrix_division_200(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(200, 200) - 0.5, bits=19, int_bits=1)
+    b = APyFixed.from_float(np.random.rand(1)[0] - 0.5, bits=19, int_bits=1)
+
+    benchmark(lambda x, y: x / y, a, b)
+
+
+def test_fixed_scalar_matrix_division_medium_20(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(20, 20) - 0.5, bits=40, int_bits=1)
+    b = APyFixed.from_float(np.random.rand(1)[0] - 0.5, bits=40, int_bits=1)
+
+    benchmark(lambda x, y: x / y, a, b)
+
+
+def test_fixed_scalar_matrix_division_medium_200(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(200, 200) - 0.5, bits=40, int_bits=1)
+    b = APyFixed.from_float(np.random.rand(1)[0] - 0.5, bits=40, int_bits=1)
+
+    benchmark(lambda x, y: x / y, a, b)
+
+
+def test_fixed_scalar_matrix_division_long_20(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(20, 20) - 0.5, bits=200, int_bits=1)
+    b = APyFixed.from_float(np.random.rand(1)[0] - 0.5, bits=200, int_bits=1)
+
+    benchmark(lambda x, y: x / y, a, b)
+
+
+def test_fixed_scalar_matrix_reversed_division_20(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(20, 20) - 0.5, bits=19, int_bits=1)
+    b = APyFixed.from_float(np.random.rand(1)[0] - 0.5, bits=19, int_bits=1)
+
+    benchmark(lambda x, y: y / x, a, b)
+
+
+def test_fixed_scalar_matrix_reversed_division_200(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(200, 200) - 0.5, bits=19, int_bits=1)
+    b = APyFixed.from_float(np.random.rand(1)[0] - 0.5, bits=19, int_bits=1)
+
+    benchmark(lambda x, y: y / x, a, b)
+
+
+def test_fixed_scalar_matrix_reversed_division_medium_20(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(20, 20) - 0.5, bits=40, int_bits=1)
+    b = APyFixed.from_float(np.random.rand(1)[0] - 0.5, bits=40, int_bits=1)
+
+    benchmark(lambda x, y: y / x, a, b)
+
+
+def test_fixed_scalar_matrix_reversed_division_medium_200(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(200, 200) - 0.5, bits=40, int_bits=1)
+    b = APyFixed.from_float(np.random.rand(1)[0] - 0.5, bits=40, int_bits=1)
+
+    benchmark(lambda x, y: y / x, a, b)
+
+
+def test_fixed_scalar_matrix_reversed_division_long_20(benchmark):
+    a = APyFixedArray.from_float(np.random.rand(20, 20) - 0.5, bits=200, int_bits=1)
+    b = APyFixed.from_float(np.random.rand(1)[0] - 0.5, bits=200, int_bits=1)
+
+    benchmark(lambda x, y: y / x, a, b)
