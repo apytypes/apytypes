@@ -567,6 +567,80 @@ def test_array_div_scalar(fixed_array, fixed_scalar):
         (APyCFixedArray, APyCFixed),
     ],
 )
+def test_rdiv_issue(fixed_array, fixed_scalar):
+    a = fixed_array.from_float([-5, -6, 7, 8, 9, 5], bits=100, int_bits=50)
+    b = fixed_scalar.from_float(2.25, bits=14, int_bits=4)
+    assert (a / b).is_identical(
+        fixed_array(
+            [
+                41538374868278620988211973946023026,
+                41538374868278620980205574608475478,
+                56044795362832839,
+                64051194700380387,
+                72057594037927936,
+                40031996687737742,
+            ],
+            bits=115,
+            int_bits=61,
+        )
+    )
+
+    assert (b / a).is_identical(
+        fixed_array(
+            [
+                41538374868278620509429293560679629,
+                41538374868278620595898406406193152,
+                370581912195057956,
+                324259173170675712,
+                288230376151711744,
+                518814677073081139,
+            ],
+            bits=115,
+            int_bits=55,
+        )
+    )
+
+    a = fixed_array.from_float([-5, -6, 7, 8, 9, 5], bits=200, int_bits=100)
+    b = fixed_scalar.from_float(2.25, bits=54, int_bits=4)
+
+    assert (a / b).is_identical(
+        fixed_array(
+            [
+                57896044618658097711785492504343953926634992287748260678280635506296006406600,
+                57896044618658097711785492504343953926634992278733856409991004206763894723926,
+                63100829878027419096724781778716,
+                72115234146317050396256893461390,
+                81129638414606681695789005144064,
+                45072021341448156497660558413368,
+            ],
+            bits=255,
+            int_bits=151,
+        )
+    )
+
+    assert (b / a).is_identical(
+        fixed_array(
+            [
+                57896044618658097711785492504343311665173274650873805791042539731145192583988,
+                57896044618658097711785492504343418708750227597864885162490248443280421289984,
+                458758186941201390340163347323052008123025700,
+                401413413573551216547642928907670507107647488,
+                356811923176489970264571492362373784095686656,
+                642261461717681946476228686252272811372235980,
+            ],
+            bits=255,
+            int_bits=105,
+        )
+    )
+
+
+@pytest.mark.parametrize(
+    "fixed_array, fixed_scalar",
+    [
+        (APyFixedArray, APyFixed),
+        (APyCFixedArray, APyCFixed),
+    ],
+)
 def test_array_prod(fixed_array, fixed_scalar):
     # Complex mult results in one additional bit compared to real mult
     cb = fixed_array == APyCFixedArray
