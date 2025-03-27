@@ -808,7 +808,7 @@ APyCFixedArray APyCFixedArray::rdiv(const APyCFixed& lhs) const
     // Divider bits (denominator known to be positive)
     const int num_int_bits = 1 + int_bits() + lhs.int_bits();
     const int num_frac_bits = frac_bits() + lhs.frac_bits();
-    const int div_bits = num_int_bits + num_frac_bits + lhs.bits();
+    const int div_bits = num_int_bits + num_frac_bits + bits();
 
     const int res_int_bits = lhs.int_bits() + frac_bits() + 1;
     const int res_frac_bits = lhs.frac_bits() + int_bits();
