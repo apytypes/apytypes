@@ -78,6 +78,8 @@ calc_bias(int new_exp_bits, int exp_bits1, exp_t bias1, int exp_bits2, exp_t bia
     return ((s1 + s2) >> 1) - 1;
 }
 
+//! Calculate new bias. Assumes new_exp_bits is larger than the exp_bits of spec1 and
+//! spec2.
 [[maybe_unused]] static APY_INLINE exp_t
 calc_bias(int new_exp_bits, const APyFloatSpec& spec1, const APyFloatSpec& spec2)
 {

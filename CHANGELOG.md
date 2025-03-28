@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `inf` and `nan` functions to create floating-point objects initialized
   to infinity or NaN.
+- `fma` and `fmac`, i.e. fused multiply-add and fused multiply-accumulate for `APyFloat`
 
 ### Fixed
 
