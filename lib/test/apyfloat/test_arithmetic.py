@@ -1,7 +1,7 @@
 from itertools import permutations as perm
 import math
 import pytest
-from apytypes import APyFloat
+from apytypes import APyFloat, APyCFloat
 
 
 # Negation
@@ -30,23 +30,26 @@ def test_abs(float_s, sign):
 
 # Addition
 @pytest.mark.float_add
+@pytest.mark.parametrize("apyfloat", ["APyFloat", "APyCFloat"])
 @pytest.mark.parametrize("exp", list(perm(["5", "6", "10"], 2)))
 @pytest.mark.parametrize("man", list(perm(["5", "6", "10"], 2)))
 @pytest.mark.parametrize("sign", list(set(perm(["-", "-", "", ""], 2))))
 @pytest.mark.parametrize("lhs,rhs", list(perm(["2.75", "2.5", "16.5", "0"], 2)))
-def test_add_representable(exp, man, sign, lhs, rhs):
+def test_add_representable(
+    apyfloat: str, exp: str, man: str, sign: str, lhs: str, rhs: str
+):
     """Test additions where the operands and the result is exactly representable by the formats."""
     expr = None
     f = float(eval(f"{sign[0]}{lhs} + {sign[1]}{rhs}"))
     e = max(int(exp[0]), int(exp[1]))
     m = max(int(man[0]), int(man[1]))
     print(repr(APyFloat.from_float(f, e, m)))
-    assert float(
+    assert complex(
         eval(
             expr
-            := f"APyFloat.from_float({sign[0]}{lhs}, {exp[0]}, {man[0]}) + APyFloat.from_float({sign[1]}{rhs}, {exp[1]}, {man[1]})"
+            := f"{apyfloat}.from_float({sign[0]}{lhs}, {exp[0]}, {man[0]}) + {apyfloat}.from_float({sign[1]}{rhs}, {exp[1]}, {man[1]})"
         )
-    ) == (float(eval(f"{sign[0]}{lhs} + {sign[1]}{rhs}")))
+    ) == (complex(eval(f"{sign[0]}{lhs} + {sign[1]}{rhs}")))
     res = eval(expr)
     assert res.exp_bits == max(int(exp[0]), int(exp[1]))
     assert res.man_bits == max(int(man[0]), int(man[1]))
