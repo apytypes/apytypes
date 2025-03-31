@@ -737,7 +737,7 @@ template <
     constexpr auto GET_SIGN = [](bool sign, bool swap) { return sign ^ (SUB && swap); };
 
     // Make sure `x` has a bigger absolute value than `y`
-    bool swap = floating_point_less_than_abs(*src1, src1_spec, *src2, src2_spec);
+    const bool swap = floating_point_less_than_abs(*src1, src1_spec, *src2, src2_spec);
     const APyFloatSpec& x_spec = swap ? src2_spec : src1_spec;
     const APyFloatSpec& y_spec = swap ? src1_spec : src2_spec;
     const APyFloatData& x = swap ? *src2 : *src1;
@@ -757,6 +757,11 @@ template <
             z = { sign, RES_MAX_EXP, 0 }; // Inf
             return;
         }
+    } else if (is_zero(x)) {
+        // If `x` is zero, than so is `y`
+        bool res_sign = x_sign == y_sign ? x_sign : qntz == QuantizationMode::TRN;
+        z = { res_sign, 0, 0 };
+        return;
     }
 
     APyFloatData x_wide = x_spec == dst_spec
@@ -854,7 +859,7 @@ template <
     constexpr auto GET_SIGN = [](bool sign, bool swap) { return sign ^ (SUB && swap); };
 
     // Make sure `x` has a bigger absolute value than `y`
-    bool swap = floating_point_less_than_abs(*src1, src1_spec, *src2, src2_spec);
+    const bool swap = floating_point_less_than_abs(*src1, src1_spec, *src2, src2_spec);
     const APyFloatSpec& x_spec = swap ? src2_spec : src1_spec;
     const APyFloatSpec& y_spec = swap ? src1_spec : src2_spec;
     const APyFloatData& x = swap ? *src2 : *src1;
@@ -875,6 +880,11 @@ template <
             z = { sign, res_max_exponent, 0 }; // Inf
             return;
         }
+    } else if (is_zero(x)) {
+        // If `x` is zero, than so is `y`
+        bool res_sign = x_sign == y_sign ? x_sign : qntz == QuantizationMode::TRN;
+        z = { res_sign, 0, 0 };
+        return;
     }
 
     APyFloatData x_wide = x_spec == dst_spec

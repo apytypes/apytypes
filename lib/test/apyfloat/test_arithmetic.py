@@ -1223,3 +1223,17 @@ def test_unary_arith():
     a = APyFloat(0, 7, 13, 4, 4)  # One
     assert (-a).is_identical(APyFloat(1, 7, 13, 4, 4))
     assert (+a).is_identical(a)
+
+
+def test_add_zero_with_zero():
+    # Same WL
+    assert APyFloat.from_float(0.0, 13, 10) + APyFloat.from_float(0.0, 13, 10)
+    assert APyFloat.from_float(0.0, 13, 10) + APyFloat.from_float(0.0, 13, 10)
+
+    # Different WL, short
+    assert APyFloat.from_float(0.0, 6, 5) + APyFloat.from_float(0.0, 10, 6)
+    assert APyFloat.from_float(0.0, 10, 6) + APyFloat.from_float(0.0, 6, 5)
+
+    # Different WL, long
+    assert APyFloat.from_float(0.0, 30, 61) + APyFloat.from_float(0.0, 28, 55)
+    assert APyFloat.from_float(0.0, 28, 55) + APyFloat.from_float(0.0, 30, 61)

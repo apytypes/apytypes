@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bug in `from_float` when creating an `APyFloat` from an `APyFixed`.
 - `ones_like` and `zeros_like` now support `APyCFixedArray` input.
 - Bug in `APyCFixedArray.rdiv` word-length evaluation.
+- Bug in `APyFloat` addition when operands are of different formats and both
+  are exactly equal to zero.
 
 ### Changed
 
