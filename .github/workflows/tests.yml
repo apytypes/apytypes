@@ -70,16 +70,9 @@ jobs:
     - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756  # v1.13.0  # Active MSVC environment on Windows virtual env
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
-      if: matrix.python-version != '3.13t'
       with:
         python-version: ${{ matrix.python-version }}
         allow-prereleases: true
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: deadsnakes/action@e640ac8743173a67cca4d7d77cd837e514bf98e8  # v3.2.0
-      if: matrix.python-version == '3.13t'
-      with:
-        python-version: '3.13'
-        nogil: true
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
