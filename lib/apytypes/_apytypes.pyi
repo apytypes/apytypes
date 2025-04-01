@@ -3587,7 +3587,7 @@ class APyFloat:
         """
         Create an :class:`APyFloat` object that is initialized to positive infinity.
 
-        versionadded:: 0.4
+        .. versionadded:: 0.3.1
 
         Parameters
         ----------
@@ -3621,7 +3621,7 @@ class APyFloat:
         """
         Create an :class:`APyFloat` object that is initialized to NaN.
 
-        versionadded:: 0.4
+        .. versionadded:: 0.3.1
 
         Parameters
         ----------
