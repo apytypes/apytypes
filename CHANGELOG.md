@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Fixed
+
+### Changed
+
+### Removed
+
+## [0.3.1] - 2025-04-01
+
+### Added
+
 - `inf` and `nan` functions to create floating-point objects initialized
   to infinity or NaN.
 
@@ -18,13 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   than 64, introduced in v0.3.0.
 - Bug in `from_float` when creating an `APyFloat` from an `APyFixed`.
 - `ones_like` and `zeros_like` now support `APyCFixedArray` input.
-- Bug in `APyCFixedArray.rdiv` word-length evaluation.
+- Bug in `APyCFixedArray.rdiv` (scalar divided by array) word-length evaluation.
 - Bug in `APyFloat` addition when operands are of different formats and both
   are exactly equal to zero.
-
-### Changed
-
-### Removed
 
 ## [0.3.0] - 2025-03-23
 
@@ -184,7 +190,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release.
 
-[unreleased]: https://github.com/apytypes/apytypes/compare/v0.3.0...HEAD
+[unreleased]: https://github.com/apytypes/apytypes/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/apytypes/apytypes/releases/tag/v0.3.1
 [0.3.0]: https://github.com/apytypes/apytypes/releases/tag/v0.3.0
 [0.2.2]: https://github.com/apytypes/apytypes/releases/tag/v0.2.2
 [0.2.1]: https://github.com/apytypes/apytypes/releases/tag/v0.2.1
