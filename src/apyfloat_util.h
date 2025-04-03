@@ -8,8 +8,9 @@
 #include "python_util.h"
 
 // Standard header includes
-#include <functional> // std::invoke
-#include <optional>
+#include <algorithm>
+#include <functional> // std::invoke, std::cref, std::ref
+#include <optional>   // std::optional
 
 /*!
  * Sizes of APyFloat datatypes
@@ -329,7 +330,7 @@ translate_quantization_mode(QuantizationMode quantization, bool sign)
 }
 
 //! Check that the number of exponent bits is allowed, throw otherwise
-[[maybe_unused]] static APY_INLINE void check_exponent_format(int exp_bits)
+[[maybe_unused]] static APY_INLINE std::uint8_t check_exponent_format(int exp_bits)
 {
     if ((unsigned(exp_bits) > _EXP_LIMIT_BITS) || (exp_bits < 0)) {
         std::string msg = fmt::format(
@@ -340,10 +341,12 @@ translate_quantization_mode(QuantizationMode quantization, bool sign)
         );
         throw nb::value_error(msg.c_str());
     }
+
+    return std::uint8_t(exp_bits);
 }
 
 //! Check that the number of mantissa bits is allowed, throw otherwise
-[[maybe_unused]] static APY_INLINE void check_mantissa_format(int man_bits)
+[[maybe_unused]] static APY_INLINE std::uint8_t check_mantissa_format(int man_bits)
 {
     if ((unsigned(man_bits) > _MAN_LIMIT_BITS) || (man_bits < 0)) {
         std::string msg = fmt::format(
@@ -355,6 +358,8 @@ translate_quantization_mode(QuantizationMode quantization, bool sign)
         );
         throw nb::value_error(msg.c_str());
     }
+
+    return std::uint8_t(man_bits);
 }
 
 /* ********************************************************************************** *
@@ -636,7 +641,6 @@ template <
         if (x_is_nan || y_is_nan || (both_inf && x_sign != y_sign)) {
             z = { x_sign, exp_t(MAX_EXP), man_t(1) }; // Set to NaN
         } else {
-            // Set to inf
             bool sign = x.man == 0 ? x_sign : y_sign;
             z = { sign, exp_t(MAX_EXP), man_t(0) }; // Set to inf
         }
@@ -978,7 +982,7 @@ template <
 }
 
 //! Floating-point multiplication of `src1` and `src2` for when the mantissa product fit
-//! into a single `std::uint64_t`.
+//! a single limb , i.e., `src1_spec.man_bits + src2_spec.man_bits <= _MAN_LIMIT_BITS`.
 template <
     typename RANDOM_ACCESS_ITERATOR_IN1,
     typename RANDOM_ACCESS_ITERATOR_IN2,
@@ -1381,6 +1385,227 @@ template <
     }
 }
 
+//! Iterator-based complex-valued floating-point products
+template <
+    const std::size_t SRC1_INC = 1,
+    const std::size_t SRC2_INC = 1,
+    const std::size_t DST_INC = 1,
+    typename RANDOM_ACCESS_ITERATOR_IN1,
+    typename RANDOM_ACCESS_ITERATOR_IN2,
+    typename RANDOM_ACCESS_ITERATOR_INOUT>
+[[maybe_unused]] static APY_INLINE void floating_point_complex_products(
+    RANDOM_ACCESS_ITERATOR_IN1 src1,
+    RANDOM_ACCESS_ITERATOR_IN2 src2,
+    RANDOM_ACCESS_ITERATOR_INOUT dst,
+    const APyFloatSpec& src1_spec,
+    const APyFloatSpec& src2_spec,
+    const APyFloatSpec& dst_spec,
+    const std::size_t n_elements,
+    const QuantizationMode& qntz
+)
+{
+    // Retrieve the specialized quantization method to use
+    auto qntz_func = get_qntz_func(qntz);
+
+    // Pre-compute some useful values
+    const unsigned SUM_MAN_BITS = src1_spec.man_bits + src2_spec.man_bits;
+    const exp_t SRC1_MAX_EXP = ((1ULL << src1_spec.exp_bits) - 1);
+    const exp_t SRC2_MAX_EXP = ((1ULL << src2_spec.exp_bits) - 1);
+    const exp_t RES_MAX_EXP = ((1ULL << dst_spec.exp_bits) - 1);
+
+    const unsigned NEW_MAN_BITS = SUM_MAN_BITS + 2;
+    const man_t TWO = 1ULL << (NEW_MAN_BITS);
+    const man_t TWO_BEFORE = 1ULL << (NEW_MAN_BITS - 1);
+    const man_t ONE_BEFORE = 1ULL << (NEW_MAN_BITS - 2);
+    const man_t TWO_RES = (1ULL << dst_spec.man_bits);
+    const int MAN_DELTA = NEW_MAN_BITS - dst_spec.man_bits;
+    const man_t STICKY = (1ULL << (MAN_DELTA - 1)) - 1;
+
+    // Reusable constants
+    const man_t FINAL_RES_LO = (1ULL << dst_spec.man_bits);
+    const man_t RES_LO = FINAL_RES_LO << 3;
+    const man_t CARRY_RES_LO = RES_LO << 1;
+    const man_t MAN_MASK = CARRY_RES_LO - 1;
+    const unsigned NORMALIZATION_CONST = _MAN_T_SIZE_BITS - dst_spec.man_bits - 4;
+
+    /*
+     * Lambdas for calling the actual floating-point multiplication/addition functions
+     */
+    auto MUL_SHORT = [&](auto lambda_src1, auto lambda_src2, auto lambda_dst) {
+        _floating_point_mul_short(
+            lambda_src1,
+            lambda_src2,
+            lambda_dst,
+            src1_spec,
+            src2_spec,
+            dst_spec,
+            qntz,
+            qntz_func,
+            SUM_MAN_BITS,
+            SRC1_MAX_EXP,
+            SRC2_MAX_EXP,
+            RES_MAX_EXP,
+            TWO,
+            TWO_BEFORE,
+            ONE_BEFORE,
+            TWO_RES,
+            MAN_DELTA,
+            STICKY
+        );
+    };
+    auto MUL_LONG = [&](auto lambda_src1, auto lambda_src2, auto lambda_dst) {
+        _floating_point_mul_general(
+            lambda_src1,
+            lambda_src2,
+            lambda_dst,
+            src1_spec,
+            src2_spec,
+            dst_spec,
+            qntz,
+            SRC1_MAX_EXP,
+            SRC2_MAX_EXP,
+            RES_MAX_EXP
+        );
+    };
+    auto ADD_SHORT = [&](auto lambda_src1, auto lambda_src2, auto lambda_dst) {
+        _floating_point_add_same_wl</* SUB = */ false>(
+            lambda_src1,
+            lambda_src2,
+            lambda_dst,
+            dst_spec,
+            qntz,
+            qntz_func,
+            RES_MAX_EXP,
+            FINAL_RES_LO,
+            RES_LO,
+            CARRY_RES_LO,
+            MAN_MASK,
+            NORMALIZATION_CONST
+        );
+    };
+    auto SUB_SHORT = [&](auto lambda_src1, auto lambda_src2, auto lambda_dst) {
+        _floating_point_add_same_wl</* SUB = */ true>(
+            lambda_src1,
+            lambda_src2,
+            lambda_dst,
+            dst_spec,
+            qntz,
+            qntz_func,
+            RES_MAX_EXP,
+            FINAL_RES_LO,
+            RES_LO,
+            CARRY_RES_LO,
+            MAN_MASK,
+            NORMALIZATION_CONST
+        );
+    };
+    auto ADD_LONG = [&](auto lambda_src1, auto lambda_src2, auto lambda_dst) {
+        _floating_point_add_general</* SUB = */ false>(
+            lambda_src1,
+            lambda_src2,
+            lambda_dst,
+            dst_spec,
+            dst_spec,
+            dst_spec,
+            qntz,
+            RES_MAX_EXP
+        );
+    };
+    auto SUB_LONG = [&](auto lambda_src1, auto lambda_src2, auto lambda_dst) {
+        _floating_point_add_general</* SUB = */ true>(
+            lambda_src1,
+            lambda_src2,
+            lambda_dst,
+            dst_spec,
+            dst_spec,
+            dst_spec,
+            qntz,
+            RES_MAX_EXP
+        );
+    };
+
+    const bool CAN_MUL_SHORT = SUM_MAN_BITS < _MAN_LIMIT_BITS;
+    const bool CAN_ADD_SHORT = std::size_t(dst_spec.man_bits) + 5 <= _MAN_T_SIZE_BITS
+        && qntz != QuantizationMode::STOCH_WEIGHTED;
+
+    // Partial products
+    APyFloatData ac, ad, bc, bd;
+
+    if (CAN_MUL_SHORT && CAN_ADD_SHORT) {
+        /*
+         * Specialization #1: both the short floating-point multiplication and addition
+         * can be used. This is the fastest path
+         */
+        for (std::size_t i = 0; i < n_elements; i++) {
+            // Perform partial products: a*c, a*d, b*c, b*d
+            for (APyFloatData* const spec : { &ac, &ad, &bc, &bd }) {
+                auto a = src1 + 2 * i * SRC1_INC + (spec == &bc || spec == &bd ? 1 : 0);
+                auto b = src2 + 2 * i * SRC2_INC + (spec == &ad || spec == &bd ? 1 : 0);
+                MUL_SHORT(a, b, spec);
+            }
+
+            // Perform additions: ac - bd, ad + bc
+            SUB_SHORT(ac, bd, dst + 2 * i * SRC1_INC + 0);
+            ADD_SHORT(ad, bc, dst + 2 * i * SRC1_INC + 1);
+        }
+    } else if (CAN_ADD_SHORT) {
+        /*
+         * Specialization #2: It is not possible to perform the short multiplication,
+         * but short addition is still possible.
+         */
+        for (std::size_t i = 0; i < n_elements; i++) {
+            // Perform partial products: a*c, a*d, b*c, b*d
+            for (APyFloatData* const spec : { &ac, &ad, &bc, &bd }) {
+                auto a = src1 + 2 * i * SRC1_INC + (spec == &bc || spec == &bd ? 1 : 0);
+                auto b = src2 + 2 * i * SRC2_INC + (spec == &ad || spec == &bd ? 1 : 0);
+                MUL_LONG(a, b, spec);
+            }
+
+            // Perform additions: ac - bd, ad + bc
+            SUB_SHORT(ac, bd, dst + 2 * i * SRC1_INC + 0);
+            ADD_SHORT(ad, bc, dst + 2 * i * SRC1_INC + 1);
+        }
+    } else if (CAN_MUL_SHORT) {
+        /*
+         * Specialization #3: It is not possible to perform the short addition, but
+         * short multiplication is still possible.
+         */
+        for (std::size_t i = 0; i < n_elements; i++) {
+            //
+            // Perform partial products: a*c, a*d, b*c, b*d
+            //
+            for (APyFloatData* const spec : { &ac, &ad, &bc, &bd }) {
+                auto a = src1 + 2 * i * SRC1_INC + (spec == &bc || spec == &bd ? 1 : 0);
+                auto b = src2 + 2 * i * SRC2_INC + (spec == &ad || spec == &bd ? 1 : 0);
+                MUL_LONG(a, b, spec);
+            }
+
+            // Perform additions: ac - bd, ad + bc
+            SUB_SHORT(ac, bd, dst + 2 * i * SRC1_INC + 0);
+            ADD_SHORT(ad, bc, dst + 2 * i * SRC1_INC + 1);
+        }
+    } else {
+        /*
+         * General case: always works, but is the slowest. It performs the most general
+         * floating-point multiplication and addition/subtraction.
+         */
+        for (std::size_t i = 0; i < n_elements; i++) {
+            //
+            // Perform partial products: a*c, a*d, b*c, b*d
+            //
+            for (APyFloatData* const spec : { &ac, &ad, &bc, &bd }) {
+                auto a = src1 + 2 * i * SRC1_INC + (spec == &bc || spec == &bd ? 1 : 0);
+                auto b = src2 + 2 * i * SRC2_INC + (spec == &ad || spec == &bd ? 1 : 0);
+                MUL_LONG(a, b, spec);
+            }
+
+            // Perform additions: ac - bd, ad + bc
+            SUB_LONG(ac, bd, dst + 2 * i * SRC1_INC + 0);
+            ADD_LONG(ad, bc, dst + 2 * i * SRC1_INC + 1);
+        }
+    }
+}
+
 //! Iterator-based floating-point quotients
 template <
     const std::size_t SRC1_INC = 1,
@@ -1511,6 +1736,35 @@ template <const bool SUB = false>
 {
     floating_point_sums<SUB>(
         &src1, &src2, &dst, src1_spec, src2_spec, dst_spec, 1 /* n */, qntz
+    );
+}
+
+//! Perform a single float complex product
+[[maybe_unused]] static APY_INLINE void floating_point_complex_product(
+    const APyFloatData& src1_real,
+    const APyFloatData& src1_imag,
+    const APyFloatData& src2_real,
+    const APyFloatData& src2_imag,
+    APyFloatData& dst_real,
+    APyFloatData& dst_imag,
+    const APyFloatSpec& src1_spec,
+    const APyFloatSpec& src2_spec,
+    const APyFloatSpec& dst_spec,
+    const QuantizationMode& qntz
+)
+{
+    const auto src1 = { std::cref(src1_real), std::cref(src1_imag) };
+    const auto src2 = { std::cref(src2_real), std::cref(src2_imag) };
+    const auto dst = { std::ref(dst_real), std::ref(dst_imag) };
+    floating_point_complex_products(
+        std::begin(src1),
+        std::begin(src2),
+        std::begin(dst),
+        src1_spec,
+        src2_spec,
+        dst_spec,
+        1 /* n */,
+        qntz
     );
 }
 
