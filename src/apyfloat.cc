@@ -414,10 +414,9 @@ void APyFloat::cast_mantissa_shorter(
 {
     auto man_bits_delta = man_bits - new_man_bits;
     man_bits = new_man_bits;
-    const auto max_exp = max_exponent();
     auto qntz_func = get_qntz_func(quantization);
     auto sticky = (1ULL << (man_bits_delta - 1)) - 1;
-    qntz_func(man, exp, max_exp, man_bits_delta, sign, leading_one(), sticky);
+    qntz_func(man, exp, max_exponent(), man_bits_delta, sign, leading_one(), sticky);
 }
 
 // Simplified version of cast_mantissa with exp = 0
@@ -703,7 +702,17 @@ nb::int_ APyFloat::to_bits() const
     return apyfloat_to_bits({ sign, exp, man }, exp_bits, man_bits);
 }
 
-std::string APyFloat::str() const { return fmt::format("{:g}", to_double()); }
+std::string APyFloat::str() const
+{
+    // NOTE:
+    // Python, unlike C++, unconditionally encodes the string of a floating-point NaN
+    // without a minus sign.
+    if (is_nan()) {
+        return "nan";
+    } else {
+        return fmt::format("{:g}", to_double());
+    }
+}
 
 std::string APyFloat::repr() const
 {
