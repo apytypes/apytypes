@@ -5,27 +5,28 @@
 #ifndef __APYTYPES_MP_H__
 #define __APYTYPES_MP_H__
 
-/* For uint64_t and int64_t */
-#include <cstdint>
+#include <cassert> // assert
+#include <cstddef> // std::size_t
+#include <cstdint> // std::int64_t, std::uint64_t, std::int32_t, std::uint32_t
 
 #if !defined(COMPILER_LIMB_SIZE)
 #error "C Macro `COMPILER_LIMB_SIZE` not specified. Must be set during compilation."
 #else /* defined(COMPILER_LIMB_SIZE) */
 #if COMPILER_LIMB_SIZE == 32
-typedef uint32_t apy_limb_t;
-typedef int32_t apy_limb_signed_t;
+typedef std::uint32_t apy_limb_t;
+typedef std::int32_t apy_limb_signed_t;
 #elif COMPILER_LIMB_SIZE == 64
-typedef uint64_t apy_limb_t;
-typedef int64_t apy_limb_signed_t;
+typedef std::uint64_t apy_limb_t;
+typedef std::int64_t apy_limb_signed_t;
 #elif COMPILER_LIMB_SIZE == NATIVE
 #if SIZE_MAX == 4294967295ull /* 32-bit system detected */
-typedef uint32_t apy_limb_t;
-typedef int32_t apy_limb_signed_t;
+typedef std::uint32_t apy_limb_t;
+typedef std::int32_t apy_limb_signed_t;
 #undef COMPILER_LIMB_SIZE
 #define COMPILER_LIMB_SIZE 32
 #elif SIZE_MAX == 18446744073709551615ull /* 64-bit system detected */
-typedef uint64_t apy_limb_t;
-typedef int64_t apy_limb_signed_t;
+typedef std::uint64_t apy_limb_t;
+typedef std::int64_t apy_limb_signed_t;
 #undef COMPILER_LIMB_SIZE
 #define COMPILER_LIMB_SIZE 64
 #else

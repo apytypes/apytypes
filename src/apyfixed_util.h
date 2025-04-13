@@ -1678,7 +1678,7 @@ fold_accumulate(std::size_t src_limbs, std::size_t acc_limbs)
         /* single limb specialization */
         return [](auto acc_it, auto src_it) { *acc_it += *src_it; };
     } else if (src_limbs == acc_limbs) {
-        return [src_limbs, acc_limbs](auto acc_it, auto src_it) {
+        return [src_limbs](auto acc_it, auto src_it) {
             apy_inplace_addition_same_length(&acc_it[0], &src_it[0], src_limbs);
         };
     } else { /* acc_limbs > src_limbs */
@@ -1741,7 +1741,7 @@ fold_complex_accumulate(std::size_t src_limbs, std::size_t acc_limbs)
             *(acc_it + 1) += *(src_it + 1); // imag part
         };
     } else if (src_limbs == acc_limbs) {
-        return [src_limbs, acc_limbs](auto acc_it, auto src_it) {
+        return [acc_limbs](auto acc_it, auto src_it) {
             std::size_t limbs = acc_limbs;
             apy_inplace_addition_same_length(&acc_it[0], &src_it[0], limbs);
             apy_inplace_addition_same_length(&acc_it[limbs], &src_it[limbs], limbs);
