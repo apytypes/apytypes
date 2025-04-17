@@ -490,7 +490,10 @@ APyFloatArray APyFloatArray::arange(
 
     for (std::size_t i = 0; i < apy_vals.size(); i++) {
         result._data[i]
-            = APyFloat::from_fixed(apy_vals[i], exp_bits, man_bits, bias).get_data();
+            = APyFloat::from_fixed(
+                  apy_vals[i], exp_bits, man_bits, bias, QuantizationMode::RND_CONV
+            )
+                  .get_data();
     }
 
     return result;
@@ -1050,7 +1053,10 @@ APyFloatArray APyFloatArray::from_numbers(
         } else if (nb::isinstance<APyFixed>(py_obj[i])) {
             const auto d = static_cast<APyFixed>(nb::cast<APyFixed>(py_obj[i]));
             result._data[i]
-                = APyFloat::from_fixed(d, exp_bits, man_bits, bias).get_data();
+                = APyFloat::from_fixed(
+                      d, exp_bits, man_bits, bias, QuantizationMode::RND_CONV
+                )
+                      .get_data();
         } else if (nb::isinstance<APyFloat>(py_obj[i])) {
             const auto d = static_cast<APyFloat>(nb::cast<APyFloat>(py_obj[i]));
             result._data[i]
