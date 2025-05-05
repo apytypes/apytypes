@@ -149,7 +149,7 @@ public:
                     );
                     throw nb::value_error(msg.c_str());
                 } else {
-                    // Found first ellipsis, fill missing dimesnsions with full slices
+                    // Found first ellipsis, fill missing dimensions with full slices
                     ellipsis_found = true;
                     std::size_t n_fill = _ndim - key.size() + 1;
                     for (std::size_t j = 0; j < n_fill; j++) {
