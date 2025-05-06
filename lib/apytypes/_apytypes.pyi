@@ -3127,6 +3127,53 @@ class APyFloat:
     def __pow__(self, arg: APyFloat, /) -> APyFloat: ...
     @overload
     def __pow__(self, arg: int, /) -> APyFloat: ...
+    @staticmethod
+    def fma(x: APyFloat, y: APyFloat, z: APyFloat) -> APyFloat:
+        """
+        Fused multiply-add, i.e. calculate (x * y) + z using only one quantization step.
+
+        versionadded:: 0.4
+
+        Parameters
+        ----------
+        x : :class:`APyFloat`
+            Floating-point x.
+        y : :class:`APyFloat`
+            Floating-point y.
+        z : :class:`APyFloat`
+            Floating-point z.
+
+        Returns
+        -------
+        :class:`APyFloat`
+
+        See also
+        --------
+        fmac
+        """
+
+    def fmac(self, x: APyFloat, y: APyFloat) -> APyFloat:
+        """
+        Fused multiply-accumulate, i.e. add x * y to the current value using only one quantization step.
+
+        versionadded:: 0.4
+
+        Parameters
+        ----------
+        x : :class:`APyFloat`
+            Floating-point x.
+        y : :class:`APyFloat`
+            Floating-point y.
+
+        Returns
+        -------
+        :class:`APyFloat`
+
+        See also
+        --------
+        fma
+        """
+
     def __and__(self, arg: APyFloat, /) -> APyFloat: ...
     def __or__(self, arg: APyFloat, /) -> APyFloat: ...
     def __xor__(self, arg: APyFloat, /) -> APyFloat: ...

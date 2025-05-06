@@ -159,7 +159,8 @@ public:
         APyFixed value,
         int exp_bits,
         int man_bits,
-        std::optional<exp_t> bias = std::nullopt
+        std::optional<exp_t> bias = std::nullopt,
+        std::optional<QuantizationMode> quantization = std::nullopt
     );
     //! Cast to `double`
     double to_double() const;
@@ -309,6 +310,10 @@ public:
     static APyFloat pow(const APyFloat& x, const APyFloat& y);
     //! Power function with integer exponent
     static APyFloat pown(const APyFloat& x, int n);
+    //! Fused-multiply add
+    static APyFloat fma(const APyFloat& x, const APyFloat& y, const APyFloat& z);
+    //! Fused-multiply accumulate
+    APyFloat& fmac(const APyFloat& x, const APyFloat& y);
 
     /* ****************************************************************************** *
      * *                         Binary comparison operators                        * *

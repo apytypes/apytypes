@@ -124,7 +124,9 @@ APyFloat APyFloat::from_number(
         return APyFloat::from_double(d, exp_bits, man_bits, bias);
     } else if (nb::isinstance<APyFixed>(py_obj)) {
         const auto d = static_cast<APyFixed>(nb::cast<APyFixed>(py_obj));
-        return APyFloat::from_fixed(d, exp_bits, man_bits, bias);
+        return APyFloat::from_fixed(
+            d, exp_bits, man_bits, bias, QuantizationMode::RND_CONV
+        );
     } else if (nb::isinstance<APyFloat>(py_obj
                )) { // One should really use `cast` instead
         const auto d = static_cast<APyFloat>(nb::cast<APyFloat>(py_obj));
@@ -205,7 +207,11 @@ APyFloat APyFloat::from_integer(
 }
 
 APyFloat APyFloat::from_fixed(
-    APyFixed apyfixed, int exp_bits, int man_bits, std::optional<exp_t> bias
+    APyFixed apyfixed,
+    int exp_bits,
+    int man_bits,
+    std::optional<exp_t> bias,
+    std::optional<QuantizationMode> quantization
 )
 {
     const exp_t actual_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
@@ -242,7 +248,8 @@ APyFloat APyFloat::from_fixed(
         apyfixed.set_bit_pow2(0, 1);
     }
 
-    apyfixed = apyfixed.cast(3, man_bits, QuantizationMode::RND_CONV);
+    apyfixed
+        = apyfixed.cast(3, man_bits, quantization.value_or(QuantizationMode::RND_CONV));
 
     // Check for carry
     if (apyfixed.positive_greater_than_equal_pow2(1)) {
@@ -1003,6 +1010,104 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
     apy_res <<= x.man_bits;
     new_man = static_cast<man_t>(apy_res.to_double());
     return APyFloat(new_sign, new_exp, new_man, x.exp_bits, x.man_bits, x.bias);
+}
+
+APyFloat APyFloat::fma(const APyFloat& x, const APyFloat& y, const APyFloat& z)
+{
+    if (!x.same_type_as(y) || !y.same_type_as(z)) {
+        throw NotImplementedException(
+            "APyFloat::fma currently requires the operands to have same formats."
+        );
+    }
+
+    const std::uint8_t res_exp_bits
+        = std::max(std::max(x.exp_bits, y.exp_bits), z.exp_bits);
+    const std::uint8_t res_man_bits
+        = std::max(std::max(x.man_bits, y.man_bits), z.man_bits);
+    // TODO: Calculate bias based on an average of three
+    const exp_t res_bias = x.bias;
+
+    // Handle special cases
+    const bool x_is_max_exp = x.is_max_exponent();
+    const bool y_is_max_exp = y.is_max_exponent();
+    const bool z_is_max_exp = z.is_max_exponent();
+    const bool xy_sign = x.sign ^ y.sign;
+
+    if (x_is_max_exp || y_is_max_exp || z_is_max_exp) {
+        const bool x_is_nan = x_is_max_exp && x.man != 0;
+        const bool x_is_inf = x_is_max_exp && x.man == 0;
+        const bool x_is_zero = x.is_zero();
+        const bool y_is_nan = y_is_max_exp && y.man != 0;
+        const bool y_is_inf = y_is_max_exp && y.man == 0;
+        const bool y_is_zero = y.is_zero();
+
+        if (x_is_nan || y_is_nan || (x_is_inf && y_is_zero)
+            || (y_is_inf && x_is_zero)) { // xy is NaN
+            return APyFloat(
+                0, (1ULL << res_exp_bits) - 1, 1, res_exp_bits, res_man_bits, res_bias
+            );
+        } else if (x_is_inf || y_is_inf) {
+            if ((z_is_max_exp && (xy_sign != z.sign))
+                || (z_is_max_exp && z.man != 0)) { // Result is NaN
+                return APyFloat(
+                    0,
+                    (1ULL << res_exp_bits) - 1,
+                    1,
+                    res_exp_bits,
+                    res_man_bits,
+                    res_bias
+                );
+            } else { // Result is inf
+                return APyFloat(
+                    xy_sign,
+                    (1ULL << res_exp_bits) - 1,
+                    0,
+                    res_exp_bits,
+                    res_man_bits,
+                    res_bias
+                );
+            }
+        } else { // xy is finite
+            return z;
+        }
+    }
+
+    const QuantizationMode qntz = get_float_quantization_mode();
+
+    // Handle cases for zero, except when xy == -z
+    if ((x.is_zero() || y.is_zero()) && z.is_zero()) {
+        const bool res_sign
+            = (xy_sign == z.sign) ? xy_sign : qntz == QuantizationMode::TRN;
+        return APyFloat(res_sign, 0, 0, res_exp_bits, res_man_bits, res_bias);
+    }
+
+    /*
+    if fast path
+    else slow path
+    */
+
+    // This path is *very* slow path, it will soon be re-written so that only the
+    // mantissas are fixed-point values
+    const APyFixed apy_x = x.to_fixed();
+    const APyFixed apy_y = y.to_fixed();
+    const APyFixed apy_z = z.to_fixed();
+
+    const APyFixed apy_xy = apy_x * apy_y;
+
+    // Handle the last zero case
+    if ((xy_sign != z.sign) && (apy_xy == apy_z)) {
+        const bool res_sign
+            = (xy_sign == z.sign) ? xy_sign : qntz == QuantizationMode::TRN;
+        return APyFloat(res_sign, 0, 0, res_exp_bits, res_man_bits, res_bias);
+    }
+    const auto apy_res = apy_xy + apy_z;
+
+    return APyFloat::from_fixed(apy_res, res_exp_bits, res_man_bits, res_bias, qntz);
+}
+
+APyFloat& APyFloat::fmac(const APyFloat& x, const APyFloat& y)
+{
+    throw NotImplementedException("APyFloat::fmac not implemented yet.");
 }
 
 /* ******************************************************************************

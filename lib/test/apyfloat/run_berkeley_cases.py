@@ -96,8 +96,8 @@ def function_under_test(operation: str):
             return lambda x, y: x * y
         case "div":
             return lambda x, y: x / y
-        case "fma":
-            raise ValueError(f"Operation '{operation}' not implemented")
+        case "mulAdd":
+            return lambda x, y, z: APyFloat.fma(x, y, z)
         case _:
             raise ValueError(f"Operation '{operation}' not recognized")
 
@@ -154,6 +154,35 @@ def run_berkeley_test(
                             not ref.is_nan and not res.is_identical(ref)
                         ):
                             f.write(f"lhs: {lhs!r}, ref: {ref!r}, res: {res!r}\n")
+                            tests_failed += 1
+    elif "mulAdd" in operation:
+        with APyFloatQuantizationContext(quantization):
+            with open(output_file, "a") as f:
+                for test in test_cases:
+                    tests_total += 1
+                    x = APyFloat.from_bits(test[0], exp_bits, man_bits)
+                    y = APyFloat.from_bits(test[1], exp_bits, man_bits)
+                    z = APyFloat.from_bits(test[2], exp_bits, man_bits)
+                    ref = APyFloat.from_bits(test[3], exp_bits, man_bits)
+                    if test_array:
+                        raise ValueError(
+                            f"The array class does not support {operation}"
+                        )
+
+                    try:
+                        res = func_under_test(x, y, z)
+                    except Exception as e:
+                        f.write(
+                            f"x: {x!r}, y: {y!r}, z: {z!r}, ref: {ref!r}, res: {res!r}\n"
+                        )
+                        f.write(f"Exception: {e}")
+                    else:
+                        if (ref.is_nan and not res.is_nan) or (
+                            not ref.is_nan and not res.is_identical(ref)
+                        ):
+                            f.write(
+                                f"x: {x!r}, y: {y!r}, z: {z!r}, ref: {ref!r}, res: {res!r}\n"
+                            )
                             tests_failed += 1
     else:
         with APyFloatQuantizationContext(quantization):
