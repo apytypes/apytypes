@@ -11,6 +11,7 @@
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h> // nanobind::object
+#include <variant>
 namespace nb = nanobind;
 
 #include <algorithm>        // std::copy_n
@@ -217,7 +218,10 @@ public:
 
     //! Test if two fixed-point numbers are identical, i.e., has the same values, the
     //! same number of integer bits, and the same number of fractional bits
-    bool is_identical(const APyCFixed& other) const;
+    bool is_identical(
+        const std::variant<std::monostate, const APyCFixed*, const APyCFixedArray*>&
+            other
+    ) const;
 
     //! Test if fixed-point number is zero
     bool is_zero() const noexcept;

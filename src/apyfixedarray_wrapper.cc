@@ -72,7 +72,7 @@ void bind_fixed_array(nb::module_& m)
          */
         .def(
             nb::init<
-                const nb::sequence&,
+                const nb::typed<nb::sequence, nb::any>&,
                 std::optional<int>,
                 std::optional<int>,
                 std::optional<int>>(),
@@ -259,12 +259,12 @@ void bind_fixed_array(nb::module_& m)
             )pbdoc"
         )
 
-        .def("reshape", &APyFixedArray::reshape, nb::arg("number_sequence"), R"pbdoc(
+        .def("reshape", &APyFixedArray::python_reshape, nb::arg("new_shape"), R"pbdoc(
             Reshape the APyFixedArray to the specified shape without changing its data.
 
             Parameters
             ----------
-            new_shape : `tuple`
+            new_shape : :class:`int` or :class:`tuple` of :class:`int`
                 The new shape should be compatible with the original shape. If a
                 dimension is -1, its value will be inferred from the length of the array
                 and remaining dimensions. Only one dimension can be -1.
@@ -278,40 +278,42 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> import apytypes as apy
+            >>> from apytypes import fx
             >>>
-            >>> a = apy.APyFixedArray([2, 3, 4, 5], int_bits=2, frac_bits=1)
-            >>> a.to_numpy()
-            array([ 1. ,  1.5, -2. , -1.5])
-            >>> a.reshape((2, 2)).to_numpy()
-            array([[ 1. ,  1.5],
-                   [-2. , -1.5]])
-            >>> a.reshape((4,)).to_numpy()
-            array([ 1. ,  1.5, -2. , -1.5])
-            >>> a.reshape((2, -1)).to_numpy()
-            array([[ 1. ,  1.5],
-                   [-2. , -1.5]])
+            >>> a = fx([2, 3, 4, 5], int_bits=5, frac_bits=1)
+            >>> a
+            APyFixedArray([ 4,  6,  8, 10], int_bits=5, frac_bits=1)
+
+            >>> a.reshape((2, 2))
+            APyFixedArray([[ 4,  6],
+                           [ 8, 10]], int_bits=5, frac_bits=1)
+
+            >>> a.reshape((4, 1))
+            APyFixedArray([[ 4],
+                           [ 6],
+                           [ 8],
+                           [10]], int_bits=5, frac_bits=1)
 
             Returns
             -------
             :class:`APyFixedArray`
-                 )pbdoc")
+            )pbdoc")
 
         .def("flatten", &APyFixedArray::flatten, R"pbdoc(
             Return a copy of the array collapsed into one dimension.
 
-
             Examples
             --------
-            >>> import apytypes as apy
+            >>> from apytypes import fx
+            >>>
+            >>> a = fx([[2, 3],
+            ...         [4, 5]], int_bits=5, frac_bits=1)
+            >>> a
+            APyFixedArray([[ 4,  6],
+                           [ 8, 10]], int_bits=5, frac_bits=1)
 
-            >>> arr = apy.APyFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
-            >>> arr.to_numpy()
-            array([[ 1. ,  1.5],
-                   [-2. , -1.5]])
-
-            >>> arr.flatten().to_numpy()
-            array([ 1. ,  1.5, -2. , -1.5])
+            >>> a.flatten()
+            APyFixedArray([ 4,  6,  8, 10], int_bits=5, frac_bits=1)
 
             Returns
             -------
@@ -324,15 +326,16 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> import apytypes as apy
+            >>> from apytypes import fx
+            >>>
+            >>> a = fx([[2, 3],
+            ...         [4, 5]], int_bits=5, frac_bits=1)
+            >>> a
+            APyFixedArray([[ 4,  6],
+                           [ 8, 10]], int_bits=5, frac_bits=1)
 
-            >>> arr = apy.APyFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
-            >>> arr.to_numpy()
-            array([[ 1. ,  1.5],
-                   [-2. , -1.5]])
-
-            >>> arr.ravel().to_numpy()
-            array([ 1. ,  1.5, -2. , -1.5])
+            >>> a.ravel()
+            APyFixedArray([ 4,  6,  8, 10], int_bits=5, frac_bits=1)
 
             Returns
             -------
@@ -636,19 +639,23 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> import apytypes as apy
+            >>> from apytypes import fx
+            >>>
+            >>> a = fx([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+            >>> a
+            APyFixedArray([[1, 2, 3],
+                           [4, 5, 6]], int_bits=10, frac_bits=0)
 
-            >>> a = apy.APyFixedArray(
-            ...     [[1, 2, 3], [4, 5, 6]],
-            ...     int_bits=10,
-            ...     frac_bits=0
-            ... )
             >>> a.cumsum()
-            APyFixedArray([1, 3, 6, 10, 15, 21], shape=(6,), bits=13, int_bits=13)
+            APyFixedArray([ 1,  3,  6, 10, 15, 21], int_bits=13, frac_bits=0)
+
             >>> a.cumsum(0)
-            APyFixedArray([1, 2, 3, 5, 7, 9], shape=(2, 3), bits=11, int_bits=11)
+            APyFixedArray([[1, 2, 3],
+                           [5, 7, 9]], int_bits=11, frac_bits=0)
+
             >>> a.cumsum(1)
-            APyFixedArray([1, 3, 6, 4, 9, 15], shape=(2, 3), bits=12, int_bits=12)
+            APyFixedArray([[ 1,  3,  6],
+                           [ 4,  9, 15]], int_bits=12, frac_bits=0)
 
             -------
             )pbdoc"
@@ -731,19 +738,21 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> import apytypes as apy
+            >>> from apytypes import fx
             >>>
-            >>> a = apy.APyFixedArray(
-            ...     [[1, 2, 3], [4, 5, 6]],
-            ...     int_bits=10,
-            ...     frac_bits=0
-            ... )
+            >>> a = fx([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+            >>> a
+            APyFixedArray([[1, 2, 3],
+                           [4, 5, 6]], int_bits=10, frac_bits=0)
+
             >>> a.max()
             APyFixed(6, bits=10, int_bits=10)
+
             >>> a.max(0)
-            APyFixedArray([4, 5, 6], shape=(3,), bits=10, int_bits=10)
+            APyFixedArray([4, 5, 6], int_bits=10, frac_bits=0)
+
             >>> a.max(1)
-            APyFixedArray([3, 6], shape=(2,), bits=10, int_bits=10)
+            APyFixedArray([3, 6], int_bits=10, frac_bits=0)
 
             -------
 
@@ -774,20 +783,21 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> import apytypes as apy
+            >>> from apytypes import fx
+            >>>
+            >>> a = fx([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+            >>> a
+            APyFixedArray([[1, 2, 3],
+                           [4, 5, 6]], int_bits=10, frac_bits=0)
 
-            >>> a = apy.APyFixedArray(
-            ...     [[1, 2, 3],
-            ...      [4, 5, 6]],
-            ...     int_bits=10,
-            ...     frac_bits=0
-            ... )
             >>> a.min()
             APyFixed(1, bits=10, int_bits=10)
+
             >>> a.min(0)
-            APyFixedArray([1, 2, 3], shape=(3,), bits=10, int_bits=10)
+            APyFixedArray([1, 2, 3], int_bits=10, frac_bits=0)
+
             >>> a.min(1)
-            APyFixedArray([1, 4], shape=(2,), bits=10, int_bits=10)
+            APyFixedArray([1, 4], int_bits=10, frac_bits=0)
 
             -------
             )pbdoc"
@@ -911,19 +921,23 @@ void bind_fixed_array(nb::module_& m)
 
             Examples
             --------
-            >>> import apytypes as apy
+            >>> from apytypes import fx
 
-            >>> a = apy.APyFixedArray(
-            ...     [[1, 2, 3], [4, 5, 6]],
-            ...     int_bits=10,
-            ...     frac_bits=0
-            ... )
+            >>> a = fx([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+            >>> a
+            APyFixedArray([[1, 2, 3],
+                           [4, 5, 6]], int_bits=10, frac_bits=0)
+
             >>> a.cumprod()
-            APyFixedArray([1, 2, 6, 24, 120, 720], shape=(6,), bits=60, int_bits=60)
+            APyFixedArray([  1,   2,   6,  24, 120, 720], int_bits=60, frac_bits=0)
+
             >>> a.cumprod(0)
-            APyFixedArray([1, 2, 3, 4, 10, 18], shape=(2, 3), bits=20, int_bits=20)
+            APyFixedArray([[ 1,  2,  3],
+                           [ 4, 10, 18]], int_bits=20, frac_bits=0)
+
             >>> a.cumprod(1)
-            APyFixedArray([1, 2, 6, 4, 20, 120], shape=(2, 3), bits=30, int_bits=30)
+            APyFixedArray([[  1,   2,   6],
+                           [  4,  20, 120]], int_bits=30, frac_bits=0)
 
             -------
             )pbdoc"
@@ -992,18 +1006,20 @@ void bind_fixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyFixedArray` object from a sequence of :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
+            Create an :class:`APyFixedArray` object from a sequence of :class:`int`,
+            :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
 
-            The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
-            Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
+            The input is quantized using :class:`QuantizationMode.RND_INF` and overflow
+            is handled using the :class:`OverflowMode.WRAP` mode. Exactly two of the
+            three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
             Using NumPy arrays as input is in general faster than e.g. lists.
 
             Parameters
             ----------
             number_seq : sequence of numbers
-                Values to initialize from. The tensor shape will be taken
-                from the sequence shape.
+                Values to initialize from. The tensor shape will be taken from the
+                sequence shape.
             int_bits : :class:`int`, optional
                 Number of integer bits in the created fixed-point tensor.
             frac_bits : :class:`int`, optional
@@ -1015,7 +1031,9 @@ void bind_fixed_array(nb::module_& m)
             --------
             >>> import apytypes as apy
 
-            >>> a = apy.APyFixedArray.from_float([1.0, 1.25, 1.49], int_bits=2, frac_bits=2)
+            >>> a = apy.APyFixedArray.from_float(
+            ...         [1.0, 1.25, 1.49], int_bits=2, frac_bits=2
+            ... )
             >>> b = apy.APyFixedArray.from_float(
             ...     [
             ...         [1.0, 2.0, 3.0],
@@ -1259,12 +1277,14 @@ void bind_fixed_array(nb::module_& m)
             :class:`APyFixedArray`
             )pbdoc"
         )
+
         /*
          * Dunder methods
          */
         .def("__matmul__", &APyFixedArray::matmul, nb::arg("rhs"))
         .def("__repr__", &APyFixedArray::repr)
         .def("__abs__", &APyFixedArray::abs)
+        .def("__str__", &APyFixedArray::to_string, nb::arg("base") = 10)
 
         // Iteration and friends
         .def("__getitem__", &APyFixedArray::get_item, nb::arg("key"))

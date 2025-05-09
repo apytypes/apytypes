@@ -1,7 +1,7 @@
 import enum
 import types
 from collections.abc import Sequence
-from typing import Annotated, overload
+from typing import Annotated, Any, overload
 
 from numpy.typing import ArrayLike
 
@@ -62,7 +62,7 @@ class APyCFixed:
     @overload
     def __init__(
         self,
-        bit_pattern: tuple,
+        bit_pattern: tuple[int, int],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
@@ -193,7 +193,7 @@ class APyCFixed:
         :class:`APyFixed`
         """
 
-    def to_bits(self) -> tuple:
+    def to_bits(self) -> tuple[int, int]:
         """
         Retrieve underlying bit-pattern in a :class:`tuple` of :class:`int`.
 
@@ -243,7 +243,7 @@ class APyCFixed:
         :class:`int`
         """
 
-    def is_identical(self, other: APyCFixed) -> bool:
+    def is_identical(self, other: APyCFixed | APyCFixedArray) -> bool:
         """
         Test if two fixed-point objects are exactly identical.
 
@@ -573,7 +573,7 @@ class APyCFixedArray:
         """
 
     @property
-    def shape(self) -> tuple:
+    def shape(self) -> tuple[int, ...]:
         """
         The shape of the array.
 
@@ -616,13 +616,13 @@ class APyCFixedArray:
         :class:`numpy.ndarray`
         """
 
-    def reshape(self, number_sequence: tuple) -> APyCFixedArray:
+    def reshape(self, new_shape: int | tuple[int, ...]) -> APyCFixedArray:
         """
         Reshape the APyCFixedArray to the specified shape without changing its data.
 
         Parameters
         ----------
-        new_shape : `tuple`
+        new_shape : :class:`tuple` of :class:`int`
             The new shape should be compatible with the original shape. If a
             dimension is -1, its value will be inferred from the length of the
             array and remaining dimensions. Only one dimension can be -1.
@@ -665,13 +665,16 @@ class APyCFixedArray:
         Examples
         --------
         >>> import apytypes as apy
-        >>> arr = apy.APyCFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
-        >>> arr.to_numpy()
-        array([[ 1. +0.j,  1.5+0.j],
-               [-2. +0.j, -1.5+0.j]])
+        >>>
+        >>> a = apy.APyCFixedArray.from_complex(
+        ...     [[2, 3], [4, 5]], int_bits=7, frac_bits=0
+        ... )
+        >>> a
+        APyCFixedArray([[(2, 0), (3, 0)],
+                        [(4, 0), (5, 0)]], int_bits=7, frac_bits=0)
 
-        >>> arr.flatten().to_numpy()
-        array([ 1. +0.j,  1.5+0.j, -2. +0.j, -1.5+0.j])
+        >>> a.flatten()
+        APyCFixedArray([(2, 0), (3, 0), (4, 0), (5, 0)], int_bits=7, frac_bits=0)
 
         Returns
         -------
@@ -686,20 +689,23 @@ class APyCFixedArray:
         Examples
         --------
         >>> import apytypes as apy
-        >>> arr = apy.APyCFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
-        >>> arr.to_numpy()
-        array([[ 1. +0.j,  1.5+0.j],
-               [-2. +0.j, -1.5+0.j]])
+        >>>
+        >>> a = apy.APyCFixedArray.from_complex(
+        ...     [[2, 3], [4, 5]], int_bits=7, frac_bits=0
+        ... )
+        >>> a
+        APyCFixedArray([[(2, 0), (3, 0)],
+                        [(4, 0), (5, 0)]], int_bits=7, frac_bits=0)
 
-        >>> arr.ravel().to_numpy()
-        array([ 1. +0.j,  1.5+0.j, -2. +0.j, -1.5+0.j])
+        >>> a.ravel()
+        APyCFixedArray([(2, 0), (3, 0), (4, 0), (5, 0)], int_bits=7, frac_bits=0)
 
         Returns
         -------
         :class:`APyCFixedArray`
         """
 
-    def is_identical(self, other: APyCFixedArray) -> bool:
+    def is_identical(self, other: APyCFixedArray | APyCFixed) -> bool:
         """
         Test if two :class:`APyCFixedArray` objects are identical.
 
@@ -758,7 +764,7 @@ class APyCFixedArray:
             Copy of `a` with axes swapped
         """
 
-    def transpose(self, axes: tuple | None = None) -> APyCFixedArray:
+    def transpose(self, axes: tuple[int, ...] | None = None) -> APyCFixedArray:
         """
         Return copy of array with axes transposed.
 
@@ -839,7 +845,7 @@ class APyCFixedArray:
         :class:`APyCFixedArray`
         """
 
-    def broadcast_to(self, shape: tuple | int) -> APyCFixedArray:
+    def broadcast_to(self, shape: int | tuple[int, ...]) -> APyCFixedArray:
         """
         Broadcast array to new shape.
 
@@ -854,7 +860,7 @@ class APyCFixedArray:
         :class:`APyCFixedArray`
         """
 
-    def squeeze(self, axis: int | tuple | None = None) -> APyCFixedArray:
+    def squeeze(self, axis: int | tuple[int, ...] | None = None) -> APyCFixedArray:
         """
         Remove axes of size one at the specified axis/axes.
 
@@ -881,7 +887,9 @@ class APyCFixedArray:
             dimensions for the array.
         """
 
-    def sum(self, axis: tuple | int | None = None) -> APyCFixedArray | APyCFixed:
+    def sum(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyCFixedArray | APyCFixed:
         """
         Return the sum of the elements along specified axis/axes.
 
@@ -956,7 +964,9 @@ class APyCFixedArray:
         -------
         """
 
-    def nansum(self, axis: tuple | int | None = None) -> APyCFixedArray | APyCFixed:
+    def nansum(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyCFixedArray | APyCFixed:
         """
         Return the sum of the elements along specified axis/axes treating NaN as 0.
 
@@ -998,7 +1008,9 @@ class APyCFixedArray:
             the array.
         """
 
-    def prod(self, axis: tuple | int | None = None) -> APyCFixedArray | APyCFixed:
+    def prod(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyCFixedArray | APyCFixed:
         """
         Return the product of the elements along specified axis/axes.
 
@@ -1077,7 +1089,9 @@ class APyCFixedArray:
         -------
         """
 
-    def nanprod(self, axis: tuple | int | None = None) -> APyCFixedArray | APyCFixed:
+    def nanprod(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyCFixedArray | APyCFixed:
         """
         Return the product of the elements along a given axis treating NaN as 0.
 
@@ -1122,7 +1136,7 @@ class APyCFixedArray:
 
     @staticmethod
     def from_complex(
-        complex_sequence: Sequence,
+        complex_sequence: Sequence[Any],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
@@ -1140,7 +1154,7 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        complex_sequence : sequence of float, int, or complex
+        complex_sequence : sequence of :class:`complex`, :class:`float`, :class:`int`, :class:`APyCFixed`, :class:`APyFixed`, or :class:`APyFloat`.
             Values to initialize from. The tensor shape will be taken from the
             sequence shape.
         int_bits : :class:`int`, optional
@@ -1154,10 +1168,13 @@ class APyCFixedArray:
         --------
 
         >>> import apytypes as apy
-
+        >>>
         >>> a = apy.APyCFixedArray.from_complex(
         ...     [1.0, 1.25j, 1.49 - 0.5j], int_bits=2, frac_bits=2
         ... )
+        >>> print(a)
+        [    1+0j,  0+1.25j, 1.5-0.5j]
+
         >>> b = apy.APyCFixedArray.from_complex(
         ...     [
         ...         [1.0 + 1.0j, 2.0 - 3.0j, 3.0 - 1.0j],
@@ -1166,6 +1183,9 @@ class APyCFixedArray:
         ...     bits=5,
         ...     frac_bits=0,
         ... )
+        >>> print(b)
+        [[1+1j, 2-3j, 3-1j],
+         [4-2j, 5+2j, 6+1j]]
 
         Returns
         -------
@@ -1174,7 +1194,7 @@ class APyCFixedArray:
 
     @staticmethod
     def from_float(
-        number_seq: Sequence,
+        number_seq: Sequence[Any],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
@@ -1256,7 +1276,7 @@ class APyCFixedArray:
 
     @staticmethod
     def zeros(
-        shape: tuple,
+        shape: int | tuple[int, ...],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
@@ -1283,7 +1303,7 @@ class APyCFixedArray:
 
     @staticmethod
     def ones(
-        shape: tuple,
+        shape: int | tuple[int, ...],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
@@ -1366,7 +1386,7 @@ class APyCFixedArray:
         """
 
     @staticmethod
-    def full(shape: tuple, fill_value: APyCFixed) -> APyCFixedArray:
+    def full(shape: int | tuple[int, ...], fill_value: APyCFixed) -> APyCFixedArray:
         """
         Initialize an array with the specified value.
 
@@ -1384,12 +1404,20 @@ class APyCFixedArray:
         """
 
     def __repr__(self) -> str: ...
+    def __str__(self, base: int = 10) -> str: ...
     def __getitem__(
-        self, key: int | slice | types.EllipsisType | tuple
+        self,
+        key: int
+        | slice
+        | types.EllipsisType
+        | tuple[int | slice | types.EllipsisType, ...],
     ) -> APyCFixedArray | APyCFixed: ...
     def __setitem__(
         self,
-        key: int | slice | types.EllipsisType | tuple,
+        key: int
+        | slice
+        | types.EllipsisType
+        | tuple[int | slice | types.EllipsisType, ...],
         val: APyCFixedArray | APyCFixed,
     ) -> None: ...
     def __len__(self) -> int: ...
@@ -2281,7 +2309,7 @@ class APyFixedAccumulatorContext(ContextManager):
 class APyFixedArray:
     def __init__(
         self,
-        bit_pattern_sequence: Sequence,
+        bit_pattern_sequence: Sequence[Any],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
@@ -2405,7 +2433,7 @@ class APyFixedArray:
         """
 
     @property
-    def shape(self) -> tuple:
+    def shape(self) -> tuple[int, ...]:
         """
         The shape of the array.
 
@@ -2468,13 +2496,13 @@ class APyFixedArray:
         :class:`list` or :class:`numpy.ndarray`
         """
 
-    def reshape(self, number_sequence: tuple) -> APyFixedArray:
+    def reshape(self, new_shape: int | tuple[int, ...]) -> APyFixedArray:
         """
         Reshape the APyFixedArray to the specified shape without changing its data.
 
         Parameters
         ----------
-        new_shape : `tuple`
+        new_shape : :class:`int` or :class:`tuple` of :class:`int`
             The new shape should be compatible with the original shape. If a
             dimension is -1, its value will be inferred from the length of the array
             and remaining dimensions. Only one dimension can be -1.
@@ -2488,19 +2516,21 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> import apytypes as apy
+        >>> from apytypes import fx
         >>>
-        >>> a = apy.APyFixedArray([2, 3, 4, 5], int_bits=2, frac_bits=1)
-        >>> a.to_numpy()
-        array([ 1. ,  1.5, -2. , -1.5])
-        >>> a.reshape((2, 2)).to_numpy()
-        array([[ 1. ,  1.5],
-               [-2. , -1.5]])
-        >>> a.reshape((4,)).to_numpy()
-        array([ 1. ,  1.5, -2. , -1.5])
-        >>> a.reshape((2, -1)).to_numpy()
-        array([[ 1. ,  1.5],
-               [-2. , -1.5]])
+        >>> a = fx([2, 3, 4, 5], int_bits=5, frac_bits=1)
+        >>> a
+        APyFixedArray([ 4,  6,  8, 10], int_bits=5, frac_bits=1)
+
+        >>> a.reshape((2, 2))
+        APyFixedArray([[ 4,  6],
+                       [ 8, 10]], int_bits=5, frac_bits=1)
+
+        >>> a.reshape((4, 1))
+        APyFixedArray([[ 4],
+                       [ 6],
+                       [ 8],
+                       [10]], int_bits=5, frac_bits=1)
 
         Returns
         -------
@@ -2511,18 +2541,17 @@ class APyFixedArray:
         """
         Return a copy of the array collapsed into one dimension.
 
-
         Examples
         --------
-        >>> import apytypes as apy
+        >>> from apytypes import fx
+        >>>
+        >>> a = fx([[2, 3], [4, 5]], int_bits=5, frac_bits=1)
+        >>> a
+        APyFixedArray([[ 4,  6],
+                       [ 8, 10]], int_bits=5, frac_bits=1)
 
-        >>> arr = apy.APyFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
-        >>> arr.to_numpy()
-        array([[ 1. ,  1.5],
-               [-2. , -1.5]])
-
-        >>> arr.flatten().to_numpy()
-        array([ 1. ,  1.5, -2. , -1.5])
+        >>> a.flatten()
+        APyFixedArray([ 4,  6,  8, 10], int_bits=5, frac_bits=1)
 
         Returns
         -------
@@ -2536,22 +2565,22 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> import apytypes as apy
+        >>> from apytypes import fx
+        >>>
+        >>> a = fx([[2, 3], [4, 5]], int_bits=5, frac_bits=1)
+        >>> a
+        APyFixedArray([[ 4,  6],
+                       [ 8, 10]], int_bits=5, frac_bits=1)
 
-        >>> arr = apy.APyFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
-        >>> arr.to_numpy()
-        array([[ 1. ,  1.5],
-               [-2. , -1.5]])
-
-        >>> arr.ravel().to_numpy()
-        array([ 1. ,  1.5, -2. , -1.5])
+        >>> a.ravel()
+        APyFixedArray([ 4,  6,  8, 10], int_bits=5, frac_bits=1)
 
         Returns
         -------
         :class:`APyFixedArray`
         """
 
-    def is_identical(self, other: APyFixedArray) -> bool:
+    def is_identical(self, other: APyFixedArray | APyFixed) -> bool:
         """
         Test if two :class:`APyFixedArray` objects are identical.
 
@@ -2605,7 +2634,7 @@ class APyFixedArray:
             Copy of `a` with axes swapped
         """
 
-    def transpose(self, axes: tuple | None = None) -> APyFixedArray:
+    def transpose(self, axes: tuple[int, ...] | None = None) -> APyFixedArray:
         """
         Return copy of array with axes transposed.
 
@@ -2681,7 +2710,7 @@ class APyFixedArray:
         :class:`APyFixedArray`
         """
 
-    def broadcast_to(self, shape: tuple | int) -> APyFixedArray:
+    def broadcast_to(self, shape: int | tuple[int, ...]) -> APyFixedArray:
         """
         Broadcast array to new shape.
 
@@ -2729,7 +2758,7 @@ class APyFixedArray:
             The convolved array.
         """
 
-    def squeeze(self, axis: int | tuple | None = None) -> APyFixedArray:
+    def squeeze(self, axis: int | tuple[int, ...] | None = None) -> APyFixedArray:
         """
         Remove axes of size one at the specified axis/axes.
 
@@ -2754,7 +2783,9 @@ class APyFixedArray:
             the array.
         """
 
-    def sum(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
+    def sum(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyFixedArray | APyFixed:
         """
         Return the sum of the elements along specified axis/axes.
 
@@ -2807,20 +2838,30 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> import apytypes as apy
+        >>> from apytypes import fx
+        >>>
+        >>> a = fx([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+        >>> a
+        APyFixedArray([[1, 2, 3],
+                       [4, 5, 6]], int_bits=10, frac_bits=0)
 
-        >>> a = apy.APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
         >>> a.cumsum()
-        APyFixedArray([1, 3, 6, 10, 15, 21], shape=(6,), bits=13, int_bits=13)
+        APyFixedArray([ 1,  3,  6, 10, 15, 21], int_bits=13, frac_bits=0)
+
         >>> a.cumsum(0)
-        APyFixedArray([1, 2, 3, 5, 7, 9], shape=(2, 3), bits=11, int_bits=11)
+        APyFixedArray([[1, 2, 3],
+                       [5, 7, 9]], int_bits=11, frac_bits=0)
+
         >>> a.cumsum(1)
-        APyFixedArray([1, 3, 6, 4, 9, 15], shape=(2, 3), bits=12, int_bits=12)
+        APyFixedArray([[ 1,  3,  6],
+                       [ 4,  9, 15]], int_bits=12, frac_bits=0)
 
         -------
         """
 
-    def nansum(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
+    def nansum(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyFixedArray | APyFixed:
         """
         Return the sum of the elements along specified axis/axes treating NaN as 0.
 
@@ -2863,7 +2904,9 @@ class APyFixedArray:
             the array.
         """
 
-    def max(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
+    def max(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyFixedArray | APyFixed:
         """
         Return the maximum value from an array or the maximum values along an axis.
 
@@ -2884,20 +2927,28 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> import apytypes as apy
+        >>> from apytypes import fx
         >>>
-        >>> a = apy.APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+        >>> a = fx([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+        >>> a
+        APyFixedArray([[1, 2, 3],
+                       [4, 5, 6]], int_bits=10, frac_bits=0)
+
         >>> a.max()
         APyFixed(6, bits=10, int_bits=10)
+
         >>> a.max(0)
-        APyFixedArray([4, 5, 6], shape=(3,), bits=10, int_bits=10)
+        APyFixedArray([4, 5, 6], int_bits=10, frac_bits=0)
+
         >>> a.max(1)
-        APyFixedArray([3, 6], shape=(2,), bits=10, int_bits=10)
+        APyFixedArray([3, 6], int_bits=10, frac_bits=0)
 
         -------
         """
 
-    def min(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
+    def min(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyFixedArray | APyFixed:
         """
         Return the minimum value from an array or the minimum values along an axis.
 
@@ -2918,20 +2969,28 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> import apytypes as apy
+        >>> from apytypes import fx
+        >>>
+        >>> a = fx([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+        >>> a
+        APyFixedArray([[1, 2, 3],
+                       [4, 5, 6]], int_bits=10, frac_bits=0)
 
-        >>> a = apy.APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
         >>> a.min()
         APyFixed(1, bits=10, int_bits=10)
+
         >>> a.min(0)
-        APyFixedArray([1, 2, 3], shape=(3,), bits=10, int_bits=10)
+        APyFixedArray([1, 2, 3], int_bits=10, frac_bits=0)
+
         >>> a.min(1)
-        APyFixedArray([1, 4], shape=(2,), bits=10, int_bits=10)
+        APyFixedArray([1, 4], int_bits=10, frac_bits=0)
 
         -------
         """
 
-    def nanmax(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
+    def nanmax(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyFixedArray | APyFixed:
         """
         Return the maximum value from an array or the maximum values along an axis,
         ignoring NaN.
@@ -2954,7 +3013,9 @@ class APyFixedArray:
             the array.
         """
 
-    def nanmin(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
+    def nanmin(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyFixedArray | APyFixed:
         """
         Return the minimum value from an array or the minimum values along an axis,
         ignoring NaN.
@@ -2977,7 +3038,9 @@ class APyFixedArray:
             the array.
         """
 
-    def prod(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
+    def prod(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyFixedArray | APyFixed:
         """
         Return the product of the elements along specified axis/axes.
 
@@ -3030,20 +3093,30 @@ class APyFixedArray:
 
         Examples
         --------
-        >>> import apytypes as apy
+        >>> from apytypes import fx
 
-        >>> a = apy.APyFixedArray([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+        >>> a = fx([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+        >>> a
+        APyFixedArray([[1, 2, 3],
+                       [4, 5, 6]], int_bits=10, frac_bits=0)
+
         >>> a.cumprod()
-        APyFixedArray([1, 2, 6, 24, 120, 720], shape=(6,), bits=60, int_bits=60)
+        APyFixedArray([  1,   2,   6,  24, 120, 720], int_bits=60, frac_bits=0)
+
         >>> a.cumprod(0)
-        APyFixedArray([1, 2, 3, 4, 10, 18], shape=(2, 3), bits=20, int_bits=20)
+        APyFixedArray([[ 1,  2,  3],
+                       [ 4, 10, 18]], int_bits=20, frac_bits=0)
+
         >>> a.cumprod(1)
-        APyFixedArray([1, 2, 6, 4, 20, 120], shape=(2, 3), bits=30, int_bits=30)
+        APyFixedArray([[  1,   2,   6],
+                       [  4,  20, 120]], int_bits=30, frac_bits=0)
 
         -------
         """
 
-    def nanprod(self, axis: tuple | int | None = None) -> APyFixedArray | APyFixed:
+    def nanprod(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyFixedArray | APyFixed:
         """
         Return the product of the elements along a given axis treating NaN as 0.
 
@@ -3088,24 +3161,26 @@ class APyFixedArray:
 
     @staticmethod
     def from_float(
-        number_seq: Sequence,
+        number_seq: Sequence[Any],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
     ) -> APyFixedArray:
         """
-        Create an :class:`APyFixedArray` object from a sequence of :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
+        Create an :class:`APyFixedArray` object from a sequence of :class:`int`,
+        :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
 
-        The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
-        Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
+        The input is quantized using :class:`QuantizationMode.RND_INF` and overflow
+        is handled using the :class:`OverflowMode.WRAP` mode. Exactly two of the
+        three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
         Using NumPy arrays as input is in general faster than e.g. lists.
 
         Parameters
         ----------
         number_seq : sequence of numbers
-            Values to initialize from. The tensor shape will be taken
-            from the sequence shape.
+            Values to initialize from. The tensor shape will be taken from the
+            sequence shape.
         int_bits : :class:`int`, optional
             Number of integer bits in the created fixed-point tensor.
         frac_bits : :class:`int`, optional
@@ -3190,7 +3265,7 @@ class APyFixedArray:
 
     @staticmethod
     def zeros(
-        shape: tuple,
+        shape: int | tuple[int, ...],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
@@ -3217,7 +3292,7 @@ class APyFixedArray:
 
     @staticmethod
     def ones(
-        shape: tuple,
+        shape: int | tuple[int, ...],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
@@ -3300,7 +3375,7 @@ class APyFixedArray:
         """
 
     @staticmethod
-    def full(shape: tuple, fill_value: APyFixed) -> APyFixedArray:
+    def full(shape: int | tuple[int, ...], fill_value: APyFixed) -> APyFixedArray:
         """
         Initialize an array with the specified value.
 
@@ -3320,12 +3395,20 @@ class APyFixedArray:
     def __matmul__(self, rhs: APyFixedArray) -> APyFixedArray: ...
     def __repr__(self) -> str: ...
     def __abs__(self) -> APyFixedArray: ...
+    def __str__(self, base: int = 10) -> str: ...
     def __getitem__(
-        self, key: int | slice | types.EllipsisType | tuple
+        self,
+        key: int
+        | slice
+        | types.EllipsisType
+        | tuple[int | slice | types.EllipsisType, ...],
     ) -> APyFixedArray | APyFixed: ...
     def __setitem__(
         self,
-        key: int | slice | types.EllipsisType | tuple,
+        key: int
+        | slice
+        | types.EllipsisType
+        | tuple[int | slice | types.EllipsisType, ...],
         val: APyFixedArray | APyFixed,
     ) -> None: ...
     def __len__(self) -> int: ...
@@ -4283,7 +4366,7 @@ class APyFloatArray:
         """
 
     @property
-    def shape(self) -> tuple:
+    def shape(self) -> tuple[int, ...]:
         """
         The shape of the array.
 
@@ -4346,19 +4429,23 @@ class APyFloatArray:
         :class:`list` or :class:`numpy.ndarray`
         """
 
-    def reshape(self, number_sequence: tuple) -> APyFloatArray:
+    def reshape(self, new_shape: int | tuple[int, ...]) -> APyFloatArray:
         """
         Reshape the APyFloatArray to the specified shape without changing its data.
 
         Parameters
         ----------
-        new_shape : `tuple`
-            The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.
+        new_shape : :class:`tuple` of :class:`int`
+            The new shape should be compatible with the original shape. If a
+            dimension is -1, its value will be inferred from the length of the array
+            and remaining dimensions. Only one dimension can be -1.
 
         Raises
         ------
         :class:`ValueError`
-            If negative dimensions less than -1 are provided, if the total size of the new array is not unchanged and divisible by the known dimensions, or if the total number of elements does not match the original array.
+            If negative dimensions less than -1 are provided, if the total size of
+            the new array is not unchanged and divisible by the known dimensions, or
+            if the total number of elements does not match the original array.
 
         Examples
         --------
@@ -4415,7 +4502,8 @@ class APyFloatArray:
 
     def ravel(self) -> APyFloatArray:
         """
-        Return a copy of the array collapsed into one dimension. Same as flatten with current memory-copy model.
+        Return a copy of the array collapsed into one dimension. Same as flatten
+        with current memory-copy model.
 
         Examples
         --------
@@ -4440,10 +4528,14 @@ class APyFloatArray:
 
     @staticmethod
     def from_float(
-        number_sequence: Sequence, exp_bits: int, man_bits: int, bias: int | None = None
+        number_sequence: Sequence[Any],
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
     ) -> APyFloatArray:
         """
-        Create an :class:`APyFloatArray` object from a sequence of :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
+        Create an :class:`APyFloatArray` object from a sequence of :class:`int`,
+        :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
 
         Parameters
         ----------
@@ -4461,9 +4553,7 @@ class APyFloatArray:
         --------
 
         >>> import apytypes as apy
-
-        Array `a`, initialized from floating-point values.
-
+        >>>
         >>> a = apy.APyFloatArray.from_float(
         ...     [1.0, 1.25, 1.49], exp_bits=10, man_bits=15
         ... )
@@ -4502,7 +4592,8 @@ class APyFloatArray:
         Parameters
         ----------
         ndarray : ndarray
-            Values to initialize from. The tensor shape will be taken from the ndarray shape.
+            Values to initialize from. The tensor shape will be taken from the
+            ndarray shape.
         exp_bits : :class:`int`
             Number of exponent bits in the created floating-point tensor
         man_bits : :class:`int`
@@ -4573,7 +4664,10 @@ class APyFloatArray:
 
     @staticmethod
     def zeros(
-        shape: tuple, exp_bits: int, man_bits: int, bias: int | None = None
+        shape: int | tuple[int, ...],
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
     ) -> APyFloatArray:
         """
         Initialize an array with zeros.
@@ -4597,7 +4691,10 @@ class APyFloatArray:
 
     @staticmethod
     def ones(
-        shape: tuple, exp_bits: int, man_bits: int, bias: int | None = None
+        shape: int | tuple[int, ...],
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
     ) -> APyFloatArray:
         """
         Initialize an array with ones.
@@ -4674,7 +4771,7 @@ class APyFloatArray:
         """
 
     @staticmethod
-    def full(shape: tuple, fill_value: APyFloat) -> APyFloatArray:
+    def full(shape: int | tuple[int, ...], fill_value: APyFloat) -> APyFloatArray:
         """
         Initialize an array filled with the specified value.
 
@@ -4694,7 +4791,8 @@ class APyFloatArray:
     def __matmul__(self, rhs: APyFloatArray) -> APyFloatArray | APyFloat: ...
     def __repr__(self) -> str: ...
     def __len__(self) -> int: ...
-    def is_identical(self, other: APyFloatArray) -> bool:
+    def __str__(self, base: int = 10) -> str: ...
+    def is_identical(self, other: APyFloatArray | APyFloat) -> bool:
         """
         Test if two :class:`APyFloatArray` objects are identical.
 
@@ -4749,7 +4847,7 @@ class APyFloatArray:
             Copy of `a` with axes swapped
         """
 
-    def transpose(self, axes: tuple | None = None) -> APyFloatArray:
+    def transpose(self, axes: tuple[int, ...] | None = None) -> APyFloatArray:
         """
         Return copy of array with axes transposed.
 
@@ -4794,7 +4892,7 @@ class APyFloatArray:
             `a` with its axes permuted.
         """
 
-    def broadcast_to(self, shape: tuple | int) -> APyFloatArray:
+    def broadcast_to(self, shape: int | tuple[int, ...]) -> APyFloatArray:
         """
         Broadcast array to new shape.
 
@@ -4841,7 +4939,7 @@ class APyFloatArray:
             The convolved array.
         """
 
-    def squeeze(self, axis: int | tuple | None = None) -> APyFloatArray:
+    def squeeze(self, axis: int | tuple[int, ...] | None = None) -> APyFloatArray:
         """
         Remove axes of size one at the specified axis/axes, if no axís is given removes all dimensions with size one.
 
@@ -4862,7 +4960,9 @@ class APyFloatArray:
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 
-    def sum(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
+    def sum(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyFloatArray | APyFloat:
         """
         Return the sum of the elements along specified axis/axes.
 
@@ -4900,7 +5000,8 @@ class APyFloatArray:
         Parameters
         ----------
         axis : :class:`int`, optional
-            The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.
+            The axis to summate across. If not given an axis it will return the
+            cumulative sum of the flattened array.
 
         Returns
         -------
@@ -4909,28 +5010,36 @@ class APyFloatArray:
         Raises
         ------
         :class:`IndexError`
-            If a specified axis is outside of the existing number of dimensions for the array.
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
 
         Examples
         --------
 
         >>> import apytypes as apy
-
+        >>>
         >>> a = apy.fp([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
+        >>> print(a)
+        [[1, 2, 3],
+         [4, 5, 6]]
 
-        >>> a.cumsum()
-        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 514, 514, 515], [0, 512, 512, 256, 896, 320], shape=(6,), exp_bits=10, man_bits=10, bias=511)
+        >>> print(a.cumsum())
+        [ 1,  3,  6, 10, 15, 21]
 
-        >>> a.cumsum(0)
-        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 512, 513, 513, 514], [0, 0, 512, 256, 768, 128], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+        >>> print(a.cumsum(0))
+        [[1, 2, 3],
+         [5, 7, 9]]
 
-        >>> a.cumsum(1)
-        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 513, 514, 514], [0, 512, 512, 0, 128, 896], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+        >>> print(a.cumsum(1))
+        [[ 1,  3,  6],
+         [ 4,  9, 15]]
 
         -------
         """
 
-    def nansum(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
+    def nansum(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyFloatArray | APyFloat:
         """
         Return the sum of the elements along specified axis/axes treating NaN as 0.
 
@@ -4952,15 +5061,17 @@ class APyFloatArray:
         --------
 
         >>> import apytypes as apy
-
+        >>>
         >>> nan = float("nan")
-
         >>> a = apy.fp([1, 2, 3, 4, 5, nan], exp_bits=10, man_bits=10)
+        >>> print(a)
+        [  1,   2,   3,   4,   5, nan]
 
-        >>> a.nansum()
-        APyFloat(sign=0, exp=514, man=896, exp_bits=10, man_bits=10)
+        >>> print(a.sum())
+        nan
 
-
+        >>> print(a.nansum())
+        15
 
         -------
         """
@@ -4986,27 +5097,42 @@ class APyFloatArray:
         Examples
         --------
 
-
         >>> import apytypes as apy
-
+        >>>
         >>> nan = float("nan")
+        >>> a = apy.fp([[1, 2, 3], [4, 5, nan]], exp_bits=10, man_bits=10)
+        >>> print(a)
+        [[  1,   2,   3],
+         [  4,   5, nan]]
 
-        >>> a = apy.fp([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
+        >>> print(a.cumsum())
+        [  1,   3,   6,  10,  15, nan]
 
-        >>> a.nancumsum()
-        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 514, 514, 515], [0, 512, 512, 256, 896, 320], shape=(6,), exp_bits=10, man_bits=10, bias=511)
+        >>> print(a.nancumsum())
+        [ 1,  3,  6, 10, 15, 15]
 
-        >>> a.nancumsum(0)
-        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 512, 513, 513, 514], [0, 0, 512, 256, 768, 128], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+        >>> print(a.cumsum(0))
+        [[  1,   2,   3],
+         [  5,   7, nan]]
 
-        >>> a.nancumsum(1)
-        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 513, 514, 514], [0, 512, 512, 0, 128, 896], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+        >>> print(a.nancumsum(0))
+        [[1, 2, 3],
+         [5, 7, 3]]
 
+        >>> print(a.cumsum(1))
+        [[  1,   3,   6],
+         [  4,   9, nan]]
+
+        >>> print(a.nancumsum(1))
+        [[1, 3, 6],
+         [4, 9, 9]]
 
         -------
         """
 
-    def prod(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
+    def prod(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyFloatArray | APyFloat:
         """
         Return the product of the elements along specified axis/axes.
 
@@ -5059,30 +5185,37 @@ class APyFloatArray:
         --------
 
         >>> import apytypes as apy
-
-
+        >>>
         >>> a = apy.fp([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
+        >>> print(a)
+        [[1, 2, 3],
+         [4, 5, 6]]
 
-        >>> a.cumprod()
-        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 515, 517, 520], [0, 0, 512, 512, 896, 416], shape=(6,), exp_bits=10, man_bits=10, bias=511)
+        >>> print(a.cumprod())
+        [  1,   2,   6,  24, 120, 720]
 
-        >>> a.cumprod(0)
-        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 512, 513, 514, 515], [0, 0, 512, 0, 256, 128], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+        >>> print(a.cumprod(0))
+        [[ 1,  2,  3],
+         [ 4, 10, 18]]
 
-        >>> a.cumprod(1)
-        APyFloatArray([0, 0, 0, 0, 0, 0], [511, 512, 513, 513, 515, 517], [0, 0, 512, 0, 256, 896], shape=(2, 3), exp_bits=10, man_bits=10, bias=511)
+        >>> print(a.cumprod(1))
+        [[  1,   2,   6],
+         [  4,  20, 120]]
 
         -------
         """
 
-    def nanprod(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
+    def nanprod(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyFloatArray | APyFloat:
         """
         Return the product of the elements along a given axis treating NaN as 0.
 
         Parameters
         ----------
         axis : :class:`int`, optional
-            The axis to calculate the product across. If not given an axis it will return the product of the flattened array.
+            The axis to calculate the product across. If not given an axis it will
+            return the product of the flattened array.
 
         Returns
         -------
@@ -5091,17 +5224,20 @@ class APyFloatArray:
         Raises
         ------
         :class:`IndexError`
-            If a specified axis is outside of the existing number of dimensions for the array.
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
         """
 
     def nancumprod(self, axis: int | None = None) -> APyFloatArray:
         """
-        Return the cumulative product of the elements along a given axis treating NaN as 0.
+        Return the cumulative product of the elements along a given axis treating
+        NaN as 0.
 
         Parameters
         ----------
         axis : :class:`int`, optional
-            The axis to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.
+            The axis to calculate the product across. If not given an axis it will
+            return the cumulative product of the flattened array.
 
         Returns
         -------
@@ -5110,10 +5246,13 @@ class APyFloatArray:
         Raises
         ------
         :class:`IndexError`
-            If a specified axis is outside of the existing number of dimensions for the array.
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
         """
 
-    def max(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
+    def max(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyFloatArray | APyFloat:
         """
         Return the maximum value from an array or the maximum values along an axis.
 
@@ -5135,24 +5274,27 @@ class APyFloatArray:
         --------
 
         >>> import apytypes as apy
-
-        Array `a`, array to get the maximum along.
-
+        >>>
         >>> a = apy.fp([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
+        >>> print(a)
+        [[1, 2, 3],
+         [4, 5, 6]]
 
-        >>> a.max()
-        APyFloat(sign=0, exp=513, man=512, exp_bits=10, man_bits=10)
+        >>> print(a.max())
+        6
 
-        >>> a.max(0)
-        APyFloatArray([0, 0, 0], [513, 513, 513], [0, 256, 512], shape=(3,), exp_bits=10, man_bits=10, bias=511)
+        >>> print(a.max(0))
+        [4, 5, 6]
 
-        >>> a.max(1)
-        APyFloatArray([0, 0], [512, 513], [512, 512], shape=(2,), exp_bits=10, man_bits=10, bias=511)
+        >>> print(a.max(1))
+        [3, 6]
 
         -------
         """
 
-    def min(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
+    def min(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyFloatArray | APyFloat:
         """
         Return the minimum value from an array or the minimum values along an axis.
 
@@ -5168,30 +5310,34 @@ class APyFloatArray:
         Raises
         ------
         :class:`IndexError`
-            If a specified axis is outside of the existing number of dimensions for the array.
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
 
         Examples
         --------
 
         >>> import apytypes as apy
-
-        Array `a`, array to get the minimum along.
-
+        >>>
         >>> a = apy.fp([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
+        >>> print(a)
+        [[1, 2, 3],
+         [4, 5, 6]]
 
-        >>> a.min()
-        APyFloat(sign=0, exp=511, man=0, exp_bits=10, man_bits=10)
+        >>> print(a.min())
+        1
 
-        >>> a.min(0)
-        APyFloatArray([0, 0, 0], [511, 512, 512], [0, 0, 512], shape=(3,), exp_bits=10, man_bits=10, bias=511)
+        >>> print(a.min(0))
+        [1, 2, 3]
 
-        >>> a.min(1)
-        APyFloatArray([0, 0], [511, 513], [0, 0], shape=(2,), exp_bits=10, man_bits=10, bias=511)
+        >>> print(a.min(1))
+        [1, 4]
 
         -------
         """
 
-    def nanmax(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
+    def nanmax(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyFloatArray | APyFloat:
         """
         Return the maximum value from an array or the maximum values along an axis, ignoring NaN.
 
@@ -5212,7 +5358,9 @@ class APyFloatArray:
             If a specified axis is outside of the existing number of dimensions for the array.
         """
 
-    def nanmin(self, axis: tuple | int | None = None) -> APyFloatArray | APyFloat:
+    def nanmin(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyFloatArray | APyFloat:
         """
         Return the minimum value from an array or the minimum values along an axis, ignoring NaN.
 
@@ -5234,11 +5382,18 @@ class APyFloatArray:
         """
 
     def __getitem__(
-        self, key: int | slice | types.EllipsisType | tuple
+        self,
+        key: int
+        | slice
+        | types.EllipsisType
+        | tuple[int | slice | types.EllipsisType, ...],
     ) -> APyFloatArray | APyFloat: ...
     def __setitem__(
         self,
-        key: int | slice | types.EllipsisType | tuple,
+        key: int
+        | slice
+        | types.EllipsisType
+        | tuple[int | slice | types.EllipsisType, ...],
         val: APyFloatArray | APyFloat,
     ) -> None: ...
     def __iter__(self) -> APyFloatArrayIterator: ...

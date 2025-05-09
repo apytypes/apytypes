@@ -422,9 +422,8 @@ nb::int_ APyFloat::to_bits() const
 
 std::string APyFloat::str() const
 {
-    // NOTE:
-    // Python, unlike C++, unconditionally encodes the string of a floating-point NaN
-    // without a minus sign.
+    // NOTE: Python, unlike C++, unconditionally encodes the string of a floating-point
+    // NaN without a minus sign.
     if (is_nan()) {
         return "nan";
     } else {

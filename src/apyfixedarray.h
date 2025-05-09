@@ -99,7 +99,7 @@ public:
     APyFixedArray() = delete;
 
     explicit APyFixedArray(
-        const nb::sequence& bit_pattern_sequence,
+        const nb::typed<nb::sequence, nb::any>& bit_pattern_sequence,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
@@ -128,9 +128,9 @@ public:
         std::optional<int> bits = std::nullopt
     );
 
-    /* ************************************************************************* *
-     * *                                        Copy                           * *
-     * ************************************************************************* */
+    /* ****************************************************************************** *
+     * *                                   Copy                                       *
+     * ****************************************************************************** */
 
     //! Copy array
     APyFixedArray python_copy() const { return *this; }
@@ -192,25 +192,25 @@ public:
 
     //! Sum over one or more axes.
     std::variant<APyFixedArray, APyFixed>
-    sum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+    sum(const std::optional<PyShapeParam_t>& axis = std::nullopt) const;
 
     //! Cumulative sum over one or more axes.
     APyFixedArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Multiplication over one or more axes.
     std::variant<APyFixedArray, APyFixed>
-    prod(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+    prod(const std::optional<PyShapeParam_t>& axis = std::nullopt) const;
 
     //! Cumulative multiplication over one or more axes.
     APyFixedArray cumprod(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Return the maximum of an array or the maximum along an axis.
     std::variant<APyFixedArray, APyFixed>
-    max(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+    max(const std::optional<PyShapeParam_t>& axis = std::nullopt) const;
 
     //! Return the minimum of an array or the minimum along an axis.
     std::variant<APyFixedArray, APyFixed>
-    min(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+    min(const std::optional<PyShapeParam_t>& axis = std::nullopt) const;
 
     //! Python `__repr__()` function
     std::string repr() const;
@@ -271,7 +271,7 @@ public:
     //! Create an `APyFixedArray` tensor object initialized with values from a sequence
     //! of Python objects
     static APyFixedArray from_numbers(
-        const nb::sequence& number_seq,
+        const nb::typed<nb::sequence, nb::any>& number_seq,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
@@ -291,7 +291,7 @@ public:
 
     //! Create an `APyFixedArray` initialized with zeros
     static APyFixedArray zeros(
-        const nb::tuple& shape,
+        const PyShapeParam_t& shape,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
@@ -299,7 +299,7 @@ public:
 
     //! Create an `APyFixedArray` initialized with ones
     static APyFixedArray ones(
-        const nb::tuple& shape,
+        const PyShapeParam_t& shape,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
@@ -332,9 +332,16 @@ public:
     );
 
     /* ****************************************************************************** *
+     *                           Conversion to other types                            *
+     * ****************************************************************************** */
+public:
+    //! Retrieve a string of the stored values in this array.
+    std::string to_string(int base = 10) const;
+    std::string to_string_dec() const;
+
+    /* ****************************************************************************** *
      * *                          Private member functions                          * *
      * ****************************************************************************** */
-
 private:
     /*!
      * Evaluate the 2D matrix product between `*this` and `rhs`, possibly using an

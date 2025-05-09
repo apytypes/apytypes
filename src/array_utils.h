@@ -4,8 +4,6 @@
 #include "apyfixed.h"
 #include "apyfloat.h"
 #include "apytypes_util.h"
-#include "broadcast.h"
-#include "nanobind/ndarray.h"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/variant.h>
@@ -16,15 +14,108 @@ namespace nb = nanobind;
 #include <variant>
 #include <vector>
 
+//! Typed Python tuple, used as key when slicing an APyTypes array using a `tuple`.
+//! Python signature: `tuple[int | slice | types.EllipsisType, ...]`
+using PyArrayKeyTuple_t = nb::
+    typed<nb::tuple, std::variant<nb::int_, nb::slice, nb::ellipsis>, nb::ellipsis>;
+
+//! Typed Python array key signature, used as key in the Python exposed `__getitem__`
+//! and `__setitem__` array methods.
+//! Python signature:
+//! `int | slice | types.EllipsisType | tuple[int | slice | types.EllipsisType, ...]`
+using PyArrayKey_t = std::variant<nb::int_, nb::slice, nb::ellipsis, PyArrayKeyTuple_t>;
+
+//! Typed Python tuple, used to denote the shape of array objects.
+//! Python signature: `tuple[int, ...]`
+using PyShapeTuple_t = nb::typed<nb::tuple, nb::int_, nb::ellipsis>;
+
+//! Typed Python shape parameter, used to denote `shape` in array functions.
+//! Python signature: `int | tuple[int, ...]`
+using PyShapeParam_t = std::variant<nanobind::int_, PyShapeTuple_t>;
+
+//! Create a C++ shape vector (`std::vector<INT_TYPE>`) from a Python shape object
+//! `std::variant<nb::typed<nb::tuple, nb::int_, nb::ellipsis>, nanobind::int_>`.
+template <typename INT_TYPE = std::size_t, bool allow_negative_dimensions = false>
+static APY_INLINE std::vector<INT_TYPE>
+cpp_shape_from_python_shape_like(const PyShapeParam_t& shape)
+{
+    constexpr auto func_name = __func__;
+    auto sanitize_integer_element = [&](const auto element) -> INT_TYPE {
+        // Sanitize: element must be of integer type
+        nanobind::int_ nb_int;
+        if (!nanobind::try_cast<nanobind::int_>(element, nb_int)) {
+            throw nanobind::value_error(
+                fmt::format("{}(): only integer dimensions allowed", func_name).c_str()
+            );
+        }
+
+        // Sanitize: integer fits in biggest native C++ type
+        long long cpp_int;
+        if (!nanobind::try_cast<long long>(nb_int, cpp_int)) {
+            throw nanobind::value_error(
+                fmt::format("{}(): integer to large for C++ long long", func_name)
+                    .c_str()
+            );
+        }
+
+        // Sanitize: integer is negative? Conditionally enablable
+        if constexpr (!allow_negative_dimensions) {
+            if (cpp_int < 0) {
+                throw nanobind::value_error(
+                    fmt::format("{}(): negative integers disallowed", func_name).c_str()
+                );
+            }
+        }
+        return static_cast<INT_TYPE>(cpp_int);
+    };
+
+    std::vector<INT_TYPE> cpp_shape {};
+    if (std::holds_alternative<PyShapeTuple_t>(shape)) {
+        for (const auto& element : std::get<PyShapeTuple_t>(shape)) {
+            cpp_shape.push_back(sanitize_integer_element(element));
+        }
+    } else {
+        cpp_shape.push_back(sanitize_integer_element(std::get<nanobind::int_>(shape)));
+    }
+    return cpp_shape;
+}
+
+//! Convert a Python tuple to a unique sorted list of dimensions (smaller than `ndim`)
+static APY_INLINE std::vector<std::size_t>
+cpp_axes_from_python(const std::optional<PyShapeParam_t>& python_axes, std::size_t ndim)
+{
+    std::vector<std::size_t> result {};
+    if (python_axes.has_value()) {
+        for (std::size_t i : cpp_shape_from_python_shape_like(*python_axes)) {
+            if (i >= ndim) {
+                std::string msg = fmt::format(
+                    "axes_from_tuple: dimension {} out of range (ndim = {})", i, ndim
+                );
+                throw nanobind::index_error(msg.c_str());
+            }
+            result.push_back(i);
+        }
+
+        // Sort and remove duplicates
+        std::sort(std::begin(result), std::end(result));
+        result.erase(
+            std::unique(std::begin(result), std::end(result)), std::end(result)
+        );
+    } else {
+        result = std::vector<std::size_t>(ndim);
+        std::iota(std::begin(result), std::end(result), 0);
+    }
+    return result;
+}
+
 /**
  * @brief Converts the provided axes into a vector of positive indices.
  *
  * @throws nb::value_error if an axis value is out of bounds, if there are duplicate
  * axes in the tuple or the axis don't match.
  */
-static APY_INLINE std::vector<std::size_t> get_normalized_axes(
-    const std::variant<nb::tuple, nb::int_>& axes, const std::size_t n_dim
-)
+static APY_INLINE std::vector<std::size_t>
+get_normalized_axes(const PyShapeParam_t& axes, const std::size_t n_dim)
 {
     std::vector<std::size_t> result {};
     std::vector<int> cpp_axes = cpp_shape_from_python_shape_like<int, true>(axes);

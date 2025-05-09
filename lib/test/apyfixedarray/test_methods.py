@@ -6,7 +6,7 @@ from apytypes import APyCFixed, APyCFixedArray, APyFixed, APyFixedArray
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_shape(fixed_array):
+def test_shape(fixed_array: type[APyCFixedArray]):
     assert fixed_array([], bits=1, int_bits=0).shape == (0,)
     assert fixed_array([1], bits=1, int_bits=0).shape == (1,)
     assert fixed_array([[range(3), range(3)]], bits=1, int_bits=0).shape == (1, 2, 3)
@@ -14,7 +14,7 @@ def test_shape(fixed_array):
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_ndim(fixed_array):
+def test_ndim(fixed_array: type[APyCFixedArray]):
     assert fixed_array([], bits=1, int_bits=0).ndim == 1
     assert fixed_array([1], bits=1, int_bits=0).ndim == 1
     assert fixed_array([[range(3), range(3)]], bits=1, int_bits=0).ndim == 3
@@ -22,7 +22,7 @@ def test_ndim(fixed_array):
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_squeeze(fixed_array):
+def test_squeeze(fixed_array: type[APyCFixedArray]):
     a = fixed_array([[1], [2], [3]], bits=2, int_bits=2)
     b = a.squeeze()
     assert (b).is_identical(fixed_array([1, 2, 3], bits=2, int_bits=2))
@@ -78,17 +78,18 @@ def test_squeeze(fixed_array):
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed)],
 )
 @pytest.mark.parametrize("sum_func", ["sum", "nansum"])
-def test_sum(fixed_array, fixed_scalar, sum_func):
-    a = fixed_array([[1, 2], [3, 4], [5, 6], [7, 8]], bits=5, int_bits=5)
+def test_sum(
+    fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFixed], sum_func: str
+):
+    a = fixed_array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]], bits=5, int_bits=5)
     b = getattr(a, sum_func)()
-    assert b.is_identical(fixed_scalar(36, bits=8, int_bits=8))
-    c = fixed_array([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=5)
-    d = getattr(c, sum_func)((0, 1))
-    e = getattr(c, sum_func)(0)
-    f = getattr(c, sum_func)(1)
-    assert d.is_identical(fixed_scalar(15, bits=8, int_bits=8))
-    assert e.is_identical(fixed_array([3, 5, 7], bits=6, int_bits=6))
-    assert f.is_identical(fixed_array([3, 12], bits=7, int_bits=7))
+    assert b.is_identical(fixed_scalar(78, bits=9, int_bits=9))
+    d = getattr(a, sum_func)((0, 1))
+    e = getattr(a, sum_func)(0)
+    f = getattr(a, sum_func)(1)
+    assert d.is_identical(fixed_scalar(78, bits=9, int_bits=9))
+    assert e.is_identical(fixed_array([22, 26, 30], bits=7, int_bits=7))
+    assert f.is_identical(fixed_array([6, 15, 24, 33], bits=7, int_bits=7))
 
     # test for size larger than 32 and 64 when number over multiple limbs
     g = fixed_array([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
@@ -106,13 +107,13 @@ def test_sum(fixed_array, fixed_scalar, sum_func):
     n = getattr(m, sum_func)()
     assert n.is_identical(fixed_scalar.from_float(4.75, frac_bits=3, int_bits=7))
 
-    o = fixed_array([[-1, -2], [-3, -4]], frac_bits=0, int_bits=5)
+    o = fixed_array([[-1, -2, 3], [-3, -4, 5], [3, 3, 3]], frac_bits=0, int_bits=5)
     p = getattr(o, sum_func)(1)
-    assert p.is_identical(fixed_array([-3, -7], frac_bits=0, int_bits=6))
+    assert p.is_identical(fixed_array([-0, -2, 9], frac_bits=0, int_bits=7))
 
-    q = fixed_array([[-1, -2], [1, 2]], frac_bits=0, int_bits=5)
+    q = fixed_array([[-1, -2, 3], [1, 2, 3]], frac_bits=0, int_bits=5)
     r = getattr(q, sum_func)(0)
-    assert r.is_identical(fixed_array([0, 0], frac_bits=0, int_bits=6))
+    assert r.is_identical(fixed_array([0, 0, 6], frac_bits=0, int_bits=6))
 
     m = fixed_array([1, 2, 3], bits=2, int_bits=2)
     with pytest.raises(
@@ -123,29 +124,37 @@ def test_sum(fixed_array, fixed_scalar, sum_func):
 
     x = fixed_array(
         [
-            [[[0, 1], [2, 3]], [[4, 5], [6, 7]]],
-            [[[8, 9], [10, 11]], [[12, 13], [14, 15]]],
+            [[[0, 1, 1], [2, 3, -1]], [[4, 5, 1], [6, 7, -1]]],
+            [[[8, 9, -1], [10, 11, 1]], [[12, 13, -1], [14, 15, 1]]],
         ],
         int_bits=10,
         frac_bits=0,
     )
     y = getattr(x, sum_func)(1)
     z = getattr(x, sum_func)(2)
-    w = getattr(x, sum_func)((1, 3))
+    w = getattr(x, sum_func)((1, 2))
     assert y.is_identical(
-        fixed_array([[[4, 6], [8, 10]], [[20, 22], [24, 26]]], int_bits=11, frac_bits=0)
+        fixed_array(
+            [[[4, 6, 2], [8, 10, -2]], [[20, 22, -2], [24, 26, 2]]],
+            int_bits=11,
+            frac_bits=0,
+        )
     )
     assert z.is_identical(
         fixed_array(
-            [[[2, 4], [10, 12]], [[18, 20], [26, 28]]], int_bits=11, frac_bits=0
+            [[[2, 4, 0], [10, 12, 0]], [[18, 20, 0], [26, 28, 0]]],
+            int_bits=11,
+            frac_bits=0,
         )
     )
-    assert w.is_identical(fixed_array([[10, 18], [42, 50]], int_bits=12, frac_bits=0))
+    assert w.is_identical(
+        fixed_array([[12, 16, 0], [44, 48, 0]], int_bits=12, frac_bits=0)
+    )
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
 @pytest.mark.parametrize("sum_func", ["cumsum", "nancumsum"])
-def test_cumsum(fixed_array, sum_func):
+def test_cumsum(fixed_array: type[APyCFixedArray], sum_func: str):
     a = fixed_array([[1, 2, 3], [4, 5, 6]], frac_bits=0, int_bits=5)
     b = getattr(a, sum_func)()
     assert b.is_identical(fixed_array([1, 3, 6, 10, 15, 21], frac_bits=0, int_bits=8))
@@ -153,22 +162,34 @@ def test_cumsum(fixed_array, sum_func):
     assert c.is_identical(fixed_array([[1, 2, 3], [5, 7, 9]], frac_bits=0, int_bits=6))
     d = getattr(a, sum_func)(1)
     assert d.is_identical(fixed_array([[1, 3, 6], [4, 9, 15]], frac_bits=0, int_bits=7))
-    e = fixed_array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=8)
+    e = fixed_array(
+        [[[1, 2, 3], [3, 4, 5]], [[5, 6, 7], [7, 8, 0]]], frac_bits=0, int_bits=8
+    )
     f = getattr(e, sum_func)()
     g = getattr(e, sum_func)(0)
     h = getattr(e, sum_func)(1)
     i = getattr(e, sum_func)(2)
     assert f.is_identical(
-        fixed_array([1, 3, 6, 10, 15, 21, 28, 36], frac_bits=0, int_bits=11)
+        fixed_array(
+            [1, 3, 6, 9, 13, 18, 23, 29, 36, 43, 51, 51], int_bits=12, frac_bits=0
+        )
     )
     assert g.is_identical(
-        fixed_array([[[1, 2], [3, 4]], [[6, 8], [10, 12]]], frac_bits=0, int_bits=9)
+        fixed_array(
+            [[[1, 2, 3], [3, 4, 5]], [[6, 8, 10], [10, 12, 5]]], frac_bits=0, int_bits=9
+        )
     )
     assert h.is_identical(
-        fixed_array([[[1, 2], [4, 6]], [[5, 6], [12, 14]]], frac_bits=0, int_bits=9)
+        fixed_array(
+            [[[1, 2, 3], [4, 6, 8]], [[5, 6, 7], [12, 14, 7]]], frac_bits=0, int_bits=9
+        )
     )
     assert i.is_identical(
-        fixed_array([[[1, 3], [3, 7]], [[5, 11], [7, 15]]], frac_bits=0, int_bits=9)
+        fixed_array(
+            [[[1, 3, 6], [3, 7, 12]], [[5, 11, 18], [7, 15, 15]]],
+            frac_bits=0,
+            int_bits=10,
+        )
     )
     with pytest.raises(
         IndexError,
@@ -190,9 +211,11 @@ def test_cumsum(fixed_array, sum_func):
     k = getattr(j, sum_func)(0)
     assert k.is_identical(fixed_array([[0, 1, 2], [3, 5, 7]], frac_bits=0, int_bits=66))
 
-    n = fixed_array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=5)
-    o = n.sum((0, 2))
-    assert o.is_identical(fixed_array([14, 22], frac_bits=0, int_bits=7))
+    n = fixed_array(
+        [[[1, 2, 3], [3, 4, 5]], [[5, 6, 6], [7, 8, 9]]], frac_bits=0, int_bits=5
+    )
+    o = n.sum((0, 1))
+    assert o.is_identical(fixed_array([16, 20, 23], frac_bits=0, int_bits=7))
 
     x = fixed_array(
         [
@@ -239,18 +262,20 @@ def test_special_case():  # Trigger the addition with different number of limbs
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed)],
 )
 @pytest.mark.parametrize("prod_func", ["prod", "nanprod"])
-def test_prod(fixed_array, fixed_scalar, prod_func):
+def test_prod(
+    fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFixed], prod_func: str
+):
     # Complex mult results in one additional bit compared to real mult
     cb = fixed_array == APyCFixedArray
 
-    a = fixed_array([[1, 2], [3, 4], [5, 6], [7, 8]], bits=5, int_bits=5)
+    a = fixed_array([[1, 2, 3], [3, 4, 6], [5, 6, 1], [7, 8, 8]], bits=5, int_bits=5)
     b = getattr(a, prod_func)()
-    assert b.is_identical(fixed_scalar(40320, bits=40 + 7 * cb, int_bits=40 + 7 * cb))
-    c = fixed_array([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=5)
+    assert b.is_identical(fixed_scalar(5806080, int_bits=60 + 11 * cb, frac_bits=0))
+    c = fixed_array([[0, 1, 2], [3, 4, 5], [1, 1, 2]], frac_bits=0, int_bits=5)
     e = getattr(c, prod_func)(0)
     f = getattr(c, prod_func)(1)
-    assert e.is_identical(fixed_array([0, 4, 10], bits=10 + cb, int_bits=10 + cb))
-    assert f.is_identical(fixed_array([0, 60], bits=15 + 2 * cb, int_bits=15 + 2 * cb))
+    assert e.is_identical(fixed_array([0, 4, 20], int_bits=15 + 2 * cb, frac_bits=0))
+    assert f.is_identical(fixed_array([0, 60, 2], int_bits=15 + 2 * cb, frac_bits=0))
     # test for size larger than 32 and 64 when number over multiple limbs
     g = fixed_array([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=33)
     h = getattr(g, prod_func)(0)
@@ -266,14 +291,18 @@ def test_prod(fixed_array, fixed_scalar, prod_func):
     ):
         _ = getattr(m, prod_func)(1)
 
-    n = fixed_array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], frac_bits=0, int_bits=5)
-    o = getattr(n, prod_func)((0, 2))
-    assert o.is_identical(fixed_array([60, 672], frac_bits=0, int_bits=20 + 3 * cb))
+    n = fixed_array(
+        [[[1, 2, 3], [3, 4, 5]], [[5, 6, 7], [7, 8, 9]]], frac_bits=0, int_bits=5
+    )
+    o = getattr(n, prod_func)((0, 1))
+    assert o.is_identical(
+        fixed_array([105, 384, 945], frac_bits=0, int_bits=20 + 3 * cb)
+    )
 
     x = fixed_array(
         [
-            [[[0, 1], [2, 3]], [[4, 5], [6, 7]]],
-            [[[8, 9], [10, 11]], [[12, 13], [14, 15]]],
+            [[[0, 1, 2], [2, 3, 4]], [[4, 5, 10], [6, 7, 9]]],
+            [[[8, 9, 3], [10, 11, 5]], [[12, 13, 10], [14, 15, 1]]],
         ],
         int_bits=10,
         frac_bits=0,
@@ -283,18 +312,22 @@ def test_prod(fixed_array, fixed_scalar, prod_func):
 
     assert y.is_identical(
         fixed_array(
-            [[[0, 5], [12, 21]], [[96, 117], [140, 165]]], int_bits=20 + cb, frac_bits=0
+            [[[0, 5, 20], [12, 21, 36]], [[96, 117, 30], [140, 165, 5]]],
+            int_bits=20 + cb,
+            frac_bits=0,
         )
     )
     assert z.is_identical(
         fixed_array(
-            [[[0, 3], [24, 35]], [[80, 99], [168, 195]]], int_bits=20 + cb, frac_bits=0
+            [[[0, 3, 8], [24, 35, 90]], [[80, 99, 15], [168, 195, 10]]],
+            int_bits=20 + cb,
+            frac_bits=0,
         )
     )
 
 
 @pytest.mark.parametrize("prod_func", ["prod", "nanprod"])
-def test_prod_float(prod_func):
+def test_prod_float(prod_func: str):
     # test some float and negative multiplication
     j = APyFixedArray.from_float([0.25, 8], frac_bits=3, int_bits=5)
     k = getattr(j, prod_func)()
@@ -306,7 +339,7 @@ def test_prod_float(prod_func):
 
 
 @pytest.mark.parametrize("prod_func", ["prod", "nanprod"])
-def test_prod_negative(prod_func):
+def test_prod_negative(prod_func: str):
     o = APyFixedArray([[-1, -2], [-3, -4]], frac_bits=0, int_bits=5)
     p = getattr(o, prod_func)(1)
     assert p.is_identical(APyFixedArray([2, 12], frac_bits=0, int_bits=10))
@@ -317,7 +350,7 @@ def test_prod_negative(prod_func):
 
 
 @pytest.mark.parametrize("prod_func", ["prod", "nanprod"])
-def test_prod_multiple_axes(prod_func):
+def test_prod_multiple_axes(prod_func: str):
     c = APyFixedArray([[0, 1, 2], [3, 4, 5]], frac_bits=0, int_bits=5)
     d = getattr(c, prod_func)((0, 1))
     assert d.is_identical(APyFixed(0, bits=30, int_bits=30))
@@ -338,7 +371,7 @@ def test_prod_multiple_axes(prod_func):
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
 @pytest.mark.parametrize("prod_func", ["cumprod", "nancumprod"])
-def test_cumprod(fixed_array, prod_func):
+def test_cumprod(fixed_array: type[APyCFixedArray], prod_func: str):
     # Complex mult results in one additional bit compared to real mult
     cb = fixed_array == APyCFixedArray
 
@@ -437,7 +470,7 @@ def test_cumprod(fixed_array, prod_func):
 
 
 @pytest.mark.parametrize("prod_func", ["cumprod", "nancumprod"])
-def test_cumprod_itemsize(prod_func):
+def test_cumprod_itemsize(prod_func: str):
     # test for size larger than 32 and 64 when number over multiple limbs
     g = APyFixedArray.from_float([[0, 1, 2], [3, 4, 5]], frac_bits=33, int_bits=33)
     h = getattr(g, prod_func)(0)
@@ -452,7 +485,7 @@ def test_cumprod_itemsize(prod_func):
 
 
 @pytest.mark.parametrize("max_func", ["max", "nanmax"])
-def test_max(max_func):
+def test_max(max_func: str):
     a = APyFixedArray([[0, 1], [2, 3]], int_bits=5, frac_bits=0)
     b = getattr(a, max_func)()
     c = getattr(a, max_func)(0)
@@ -485,7 +518,7 @@ def test_max(max_func):
 
 
 @pytest.mark.parametrize("max_func", ["max", "nanmax"])
-def test_max_negative(max_func):
+def test_max_negative(max_func: str):
     # test negative numbers
     z = APyFixedArray([[0, -1], [-2, -3]], int_bits=5, frac_bits=0)
     m = getattr(z, max_func)()
@@ -497,7 +530,7 @@ def test_max_negative(max_func):
 
 
 @pytest.mark.parametrize("max_func", ["max", "nanmax"])
-def test_max_itemsize(max_func):
+def test_max_itemsize(max_func: str):
     # test with larger than 64 bit size
     p = APyFixedArray([[-4, -1], [-2, -3]], int_bits=85, frac_bits=0)
     q = getattr(p, max_func)()
@@ -505,7 +538,7 @@ def test_max_itemsize(max_func):
 
 
 @pytest.mark.parametrize("max_func", ["max", "nanmax"])
-def test_max_float(max_func):
+def test_max_float(max_func: str):
     # test float numbers
     r = APyFixedArray.from_float([1.0, 1.25, 2.875], int_bits=10, frac_bits=10)
     s = getattr(r, max_func)()
@@ -531,7 +564,7 @@ def test_max_float(max_func):
 
 
 @pytest.mark.parametrize("max_func", ["max", "nanmax"])
-def test_max_mixed_signs(max_func):
+def test_max_mixed_signs(max_func: str):
     # test a mix of negative and positive numbers
     p = APyFixedArray([[4, -1], [-2, -3]], int_bits=6, frac_bits=0)
     q = getattr(p, max_func)()
@@ -539,7 +572,7 @@ def test_max_mixed_signs(max_func):
 
 
 @pytest.mark.parametrize("min_func", ["min", "nanmin"])
-def test_min(min_func):
+def test_min(min_func: str):
     a = APyFixedArray([[0, 1], [2, 3]], int_bits=5, frac_bits=0)
     b = getattr(a, min_func)()
     c = getattr(a, min_func)(0)
@@ -584,7 +617,7 @@ def test_min(min_func):
 
 
 @pytest.mark.parametrize("min_func", ["min", "nanmin"])
-def test_min_negative(min_func):
+def test_min_negative(min_func: str):
     # test negative numbers
     z = APyFixedArray([[0, -1], [-2, -3]], int_bits=5, frac_bits=0)
     m = getattr(z, min_func)()
@@ -596,7 +629,7 @@ def test_min_negative(min_func):
 
 
 @pytest.mark.parametrize("min_func", ["min", "nanmin"])
-def test_min_mixed_signs(min_func):
+def test_min_mixed_signs(min_func: str):
     # test a mix of negative and positive numbers
     p = APyFixedArray([[4, -1], [-2, -3]], int_bits=6, frac_bits=0)
     q = getattr(p, min_func)()
@@ -604,7 +637,7 @@ def test_min_mixed_signs(min_func):
 
 
 @pytest.mark.parametrize("min_func", ["min", "nanmin"])
-def test_min_itemsize(min_func):
+def test_min_itemsize(min_func: str):
     # test larger than 64 bit size
     p = APyFixedArray([[-4, -1], [-2, -3]], int_bits=85, frac_bits=0)
     q = getattr(p, min_func)()
@@ -612,7 +645,7 @@ def test_min_itemsize(min_func):
 
 
 @pytest.mark.parametrize("min_func", ["min", "nanmin"])
-def test_min_float(min_func):
+def test_min_float(min_func: str):
     # test float numbers
     r = APyFixedArray.from_float([1.0, 1.25, 2.875], int_bits=10, frac_bits=10)
     s = getattr(r, min_func)()
@@ -625,7 +658,7 @@ def test_min_float(min_func):
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_to_numpy(fixed_array):
+def test_to_numpy(fixed_array: type[APyCFixedArray]):
     # Skip this test if `NumPy` is not present on the machine
     np = pytest.importorskip("numpy")
 
@@ -649,13 +682,13 @@ def test_iterator():
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_len(fixed_array):
+def test_len(fixed_array: type[APyCFixedArray]):
     fx_array = fixed_array([1, 2, 3, 4, 5, 6], bits=10, int_bits=10)
     assert len(fx_array) == 6
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_round_trip_conversion(fixed_array):
+def test_round_trip_conversion(fixed_array: type[APyCFixedArray]):
     # Skip this test if `NumPy` is not present on the machine
     pytest.importorskip("numpy")
     for bit_pattern in range(256):
@@ -668,6 +701,7 @@ def test_round_trip_conversion(fixed_array):
     ("shape", "is_valid", "is_invalid", "test_neg_one"),
     [
         ((6,), True, False, False),  # Valid shapes
+        (6, True, False, False),
         ((3, 2), True, False, False),
         ((1, 6), True, False, False),
         ((6, 1), True, False, False),
@@ -689,7 +723,13 @@ def test_round_trip_conversion(fixed_array):
         ((-999, 12), False, False, True),
     ],
 )
-def test_reshape(fixed_array, shape, is_valid, is_invalid, test_neg_one):
+def test_reshape(
+    fixed_array: type[APyCFixedArray],
+    shape: tuple[int, ...] | int,
+    is_valid: bool,
+    is_invalid: bool,
+    test_neg_one: bool,
+):
     # 6 elems
     nums = [[5, 10, 6], [15, 20, 3]]
     arr = fixed_array(nums, bits=10, int_bits=10)
@@ -699,7 +739,7 @@ def test_reshape(fixed_array, shape, is_valid, is_invalid, test_neg_one):
             ValueError,
             match=r"APyC?FixedArray\.reshape: target array number of elements does not",
         ):
-            arr.reshape(shape)
+            _ = arr.reshape(shape)
     elif test_neg_one:
         with pytest.raises(
             ValueError,
@@ -707,7 +747,7 @@ def test_reshape(fixed_array, shape, is_valid, is_invalid, test_neg_one):
             r"APyC?FixedArray\.reshape: only one dimension can be -1|"
             r"APyC?FixedArray\.reshape: the size of target array must be unchanged and",
         ):
-            arr.reshape(shape)
+            _ = arr.reshape(shape)
     elif is_valid:
         try:
             g = arr.reshape(shape)
@@ -882,7 +922,7 @@ def _generate_dimensions(n):
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
 @pytest.mark.float_array
-def test_transpose_highdim_np(fixed_array):
+def test_transpose_highdim_np(fixed_array: type[APyCFixedArray]):
     # This test assumes from_array works correctly.
     # does checks to see if you get same result as numpy
     np = pytest.importorskip("numpy")
@@ -960,14 +1000,14 @@ def test_transpose_highdim(fixed_array, start_val):
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_transpose_negative_dim(fixed_array):
+def test_transpose_negative_dim(fixed_array: type[APyCFixedArray]):
     a = fixed_array.from_float([1.0] * 6, bits=5, frac_bits=0).reshape((1, 2, 3))
     assert a.transpose((1, 0, 2)).shape == (2, 1, 3)
     assert a.transpose((-2, -3, -1)).shape == (2, 1, 3)
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_swapaxes(fixed_array):
+def test_swapaxes(fixed_array: type[APyCFixedArray]):
     a = fixed_array.from_float(list(range(12)), int_bits=5, frac_bits=2).reshape((6, 2))
 
     if not a.swapaxes(0, 1).is_identical(a.T):
@@ -1156,7 +1196,7 @@ def test_python_deepcopy():
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
 @pytest.mark.parametrize("bits", [16, 32, 64, 128])
-def test_issue_615(fixed_array, bits):
+def test_issue_615(fixed_array: type[APyCFixedArray], bits: int):
     """
     Test for GitHub issue #615: `APyFixedArray.cumsum()` bug when source operand fit in
     single limb, but the result requires more than one limb
@@ -1183,7 +1223,9 @@ def test_issue_615(fixed_array, bits):
     ],
 )
 @pytest.mark.parametrize("bits", [16, 32, 64, 128])
-def test_issue_623(fixed_array, fixed_scalar, bits):
+def test_issue_623(
+    fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFixed], bits: int
+):
     """
     Test for GitHub issue #623: `cumsum` (and `cumprod`) of empty array crashing. Should
     use same semantics as Numpy.
@@ -1202,3 +1244,18 @@ def test_issue_623(fixed_array, fixed_scalar, bits):
     assert empty.cumsum(0).is_identical(empty)
     assert empty.cumprod().is_identical(empty)
     assert empty.cumprod(0).is_identical(empty)
+
+
+@pytest.mark.parametrize(
+    ("fixed_array", "fixed_scalar"),
+    [
+        (APyFixedArray, APyFixed),
+        (APyCFixedArray, APyCFixed),
+    ],
+)
+def test_array_is_not_identical_to_scalar(
+    fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFixed]
+):
+    assert not fixed_array.from_float([-2.5], 10, 10).is_identical(
+        fixed_scalar.from_float(-2.5, 10, 10)
+    )

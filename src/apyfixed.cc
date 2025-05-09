@@ -535,19 +535,15 @@ std::string APyFixed::to_string(int base) const
     switch (base) {
     case 8:
         return to_string_oct();
-        break;
     case 16:
         return to_string_hex();
-        break;
     case 10:
         return to_string_dec();
-        break;
     default:
         throw nb::value_error(
             fmt::format("APyFixed::to_string(base={}): base is not supported", base)
                 .c_str()
         );
-        break;
     }
 }
 

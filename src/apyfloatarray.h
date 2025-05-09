@@ -4,6 +4,7 @@
 #include "apyarray.h"
 #include "apyfloat.h"
 #include "apytypes_common.h"
+#include "src/array_utils.h"
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>    // nanobind::object
@@ -156,6 +157,7 @@ public:
      *                       Static conversion from other types                       *
      * ****************************************************************************** */
 
+public:
     //! Factory function for Python interface
     static void create_in_place(
         APyFloatArray* apyfloatarray,
@@ -170,7 +172,7 @@ public:
     //! Create an `APyFloatArray` tensor object initialized with values from a sequence
     //! of numbers
     static APyFloatArray from_numbers(
-        const nanobind::sequence& number_seq,
+        const nb::typed<nb::sequence, nb::any>& number_seq,
         int exp_bits,
         int man_bits,
         std::optional<exp_t> bias = std::nullopt
@@ -199,12 +201,20 @@ public:
     void _set_values_from_ndarray(const nanobind::ndarray<nanobind::c_contig>& ndarray);
 
     /* ****************************************************************************** *
+     *                           Conversion to other types                            *
+     * ****************************************************************************** */
+public:
+    //! Retrieve a string of the stored values in this array.
+    std::string to_string(int base = 10) const;
+    std::string to_string_dec() const;
+
+    /* ****************************************************************************** *
      *                     Static methods for array initialization                    *
      * ****************************************************************************** */
 
     //! Create an array of given shape and bit specifiers, filled with zeros.
     static APyFloatArray zeros(
-        const nb::tuple& shape,
+        const PyShapeParam_t& shape,
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
@@ -212,7 +222,7 @@ public:
 
     //! Create an array of given shape and bit specifiers, filled with ones.
     static APyFloatArray ones(
-        const nb::tuple& shape,
+        const PyShapeParam_t& shape,
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
@@ -259,47 +269,47 @@ public:
 
     //! Sum over one or more axes.
     std::variant<APyFloatArray, APyFloat>
-    sum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+    sum(const std::optional<PyShapeParam_t>& axis = std::nullopt) const;
 
     //! Cumulative sum over one or more axes.
     APyFloatArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Sum over one or more axes, treating Nan as 0.
     std::variant<APyFloatArray, APyFloat>
-    nansum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+    nansum(const std::optional<PyShapeParam_t>& axis = std::nullopt) const;
 
     //! Cumulative sum over one or more axes, treatíng Nan as 0.
     APyFloatArray nancumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Multiplication over one or more axes.
     std::variant<APyFloatArray, APyFloat>
-    prod(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+    prod(const std::optional<PyShapeParam_t>& axis = std::nullopt) const;
 
     //! Cumulative multiplication over one or more axes.
     APyFloatArray cumprod(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Multiplication over one or more axes, treating Nan as 0
     std::variant<APyFloatArray, APyFloat>
-    nanprod(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+    nanprod(const std::optional<PyShapeParam_t>& axis = std::nullopt) const;
 
     //! Cumulative multiplication over one or more axes, treating Nan as 0
     APyFloatArray nancumprod(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Return the maximum of an array or the maximum along an axis.
     std::variant<APyFloatArray, APyFloat>
-    max(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+    max(const std::optional<PyShapeParam_t>& axis = std::nullopt) const;
 
     //! Return the minimum of an array or the minimum along an axis.
     std::variant<APyFloatArray, APyFloat>
-    min(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+    min(const std::optional<PyShapeParam_t>& axis = std::nullopt) const;
 
     //! Return the maximum of an array or the maximum along an axis. Ignoring nan
     std::variant<APyFloatArray, APyFloat>
-    nanmax(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+    nanmax(const std::optional<PyShapeParam_t>& axis = std::nullopt) const;
 
     //! Return the minimum of an array or the minimum along an axis. Ignoring nan
     std::variant<APyFloatArray, APyFloat>
-    nanmin(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+    nanmin(const std::optional<PyShapeParam_t>& axis = std::nullopt) const;
 
     //! Return a copy of the tensor with the elements resized.
     APyFloatArray cast(

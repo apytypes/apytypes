@@ -1,4 +1,13 @@
+from typing import cast
+
 from apytypes import APyFloat
+
+
+def is_repr_identical(a: APyFloat):
+    """
+    Tests that an :class:`APyFloat` is identical to its representation.
+    """
+    return a.is_identical(cast(APyFloat, eval(repr(a))))
 
 
 def test_str():
@@ -11,27 +20,25 @@ def test_str():
 
 
 def test_repr():
-    assert (
-        repr(APyFloat.from_float(0, 3, 5))
-        == "APyFloat(sign=0, exp=0, man=0, exp_bits=3, man_bits=5)"
-    )
-    assert (
-        repr(APyFloat.from_float(20, 2, 3))
-        == "APyFloat(sign=0, exp=3, man=0, exp_bits=2, man_bits=3)"
-    )
-    assert (
-        repr(APyFloat.from_float(0.5, 2, 2))
-        == "APyFloat(sign=0, exp=0, man=2, exp_bits=2, man_bits=2)"
-    )
-    assert (
-        repr(APyFloat.from_float(-0.5, 2, 2))
-        == "APyFloat(sign=1, exp=0, man=2, exp_bits=2, man_bits=2)"
-    )
+    a = APyFloat.from_float(0, 3, 5)
+    assert repr(a) == "APyFloat(sign=0, exp=0, man=0, exp_bits=3, man_bits=5)"
+    assert is_repr_identical(a)
 
-    assert (
-        repr(APyFloat.from_float(float("NaN"), 2, 2))
-        == "APyFloat(sign=0, exp=3, man=1, exp_bits=2, man_bits=2)"
-    )
+    b = APyFloat.from_float(20, 2, 3)
+    assert repr(b) == "APyFloat(sign=0, exp=3, man=0, exp_bits=2, man_bits=3)"
+    assert is_repr_identical(b)
+
+    c = APyFloat.from_float(0.5, 2, 2)
+    assert repr(c) == "APyFloat(sign=0, exp=0, man=2, exp_bits=2, man_bits=2)"
+    assert is_repr_identical(c)
+
+    d = APyFloat.from_float(-0.5, 2, 2)
+    assert repr(d) == "APyFloat(sign=1, exp=0, man=2, exp_bits=2, man_bits=2)"
+    assert is_repr_identical(d)
+
+    e = APyFloat.from_float(float("NaN"), 2, 2)
+    assert repr(e) == "APyFloat(sign=0, exp=3, man=1, exp_bits=2, man_bits=2)"
+    assert is_repr_identical(e)
 
 
 def test_latex():

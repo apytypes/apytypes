@@ -11,9 +11,7 @@ from apytypes._apytypes import (
 from apytypes._typing import APyArray, APyScalar
 
 
-def squeeze(
-    a: APyArray, axis: int | tuple[int, ...] | None = None
-) -> APyArray | APyScalar:
+def squeeze(a: APyArray, axis: int | tuple[int, ...] | None = None) -> APyArray:
     """
     Remove axes of length one from `a`.
 

@@ -29,7 +29,7 @@ from apytypes import (
 
 
 @pytest.mark.parametrize("array_type", [APyFixedArray, APyCFixedArray, APyFloatArray])
-def test_squeeze(array_type):
+def test_squeeze(array_type: type[APyCFixedArray]):
     a = array_type.from_float([[1, 2]], 5, 5)
     assert a.shape == (1, 2)
 
@@ -38,7 +38,7 @@ def test_squeeze(array_type):
 
 
 @pytest.mark.parametrize("array_type", [APyFixedArray, APyCFixedArray, APyFloatArray])
-def test_reshape(array_type):
+def test_reshape(array_type: type[APyCFixedArray]):
     a = array_type.from_float([[1, 2]], 5, 5)
     assert a.shape == (1, 2)
     b = reshape(a, (2, 1))
@@ -48,7 +48,7 @@ def test_reshape(array_type):
 
 
 @pytest.mark.parametrize("array_type", [APyFixedArray, APyCFixedArray, APyFloatArray])
-def test_shape(array_type):
+def test_shape(array_type: type[APyCFixedArray]):
     a = array_type.from_float([[1, 2]], 3, 0)
     assert shape(a) == (1, 2)
     b = reshape(a, (2, 1))
@@ -58,9 +58,21 @@ def test_shape(array_type):
 
 
 @pytest.mark.parametrize("array_type", [APyFixedArray, APyCFixedArray, APyFloatArray])
-def test_transpose(array_type):
+def test_transpose(array_type: type[APyCFixedArray]):
     a = array_type.from_float([[1, 2], [3, 4]], 5, 5)
-    transpose(a).is_identical(array_type.from_float([[1, 4], [3, 2]], 5, 5))
+    assert transpose(a).is_identical(array_type.from_float([[1, 3], [2, 4]], 5, 5))
+
+    b = array_type.from_float(range(2 * 2 * 2 * 2), 10, 10).reshape((2, 2, 2, 2))
+    assert transpose(b).is_identical(
+        array_type.from_float(
+            [
+                [[[0, 8], [4, 12]], [[2, 10], [6, 14]]],
+                [[[1, 9], [5, 13]], [[3, 11], [7, 15]]],
+            ],
+            10,
+            10,
+        )
+    )
 
 
 def test_ravel():

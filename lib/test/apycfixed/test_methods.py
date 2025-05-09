@@ -1,4 +1,4 @@
-from apytypes import APyCFixed, APyFixed, APyFloat
+from apytypes import APyCFixed, APyCFixedArray, APyFixed, APyFloat
 
 
 def test_real_imag_properties():
@@ -120,3 +120,9 @@ def test_python_deepcopy():
     a <<= 2
     assert a.is_identical(b)
     assert not a.is_identical(c)
+
+
+def test_scalar_is_not_identical_to_array():
+    assert not APyCFixed.from_float(-2.5, 10, 10).is_identical(
+        APyCFixedArray.from_float([-2.5], 10, 10)
+    )
