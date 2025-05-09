@@ -4,8 +4,6 @@
 #include "apyfixed.h"
 #include "apyfloat.h"
 #include "apytypes_util.h"
-#include "broadcast.h"
-#include "nanobind/ndarray.h"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/variant.h>

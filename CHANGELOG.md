@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   arithmetic result equals zero.
 - Bug in `APyFloat.__lt__` for comparison of floating-points of different
   formats.
+- Bug in `APyCFixedArray.__init__` where all elements become real.
+- Proper APyTypes array `__repr__` methods.
 
 ### Changed
 

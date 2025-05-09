@@ -84,7 +84,7 @@ void bind_cfixed(nb::module_& m)
 
         .def(
             nb::init<
-                nb::tuple,
+                nb::typed<nb::tuple, nb::int_, nb::int_>,
                 std::optional<int>,
                 std::optional<int>,
                 std::optional<int>>(),
@@ -212,7 +212,9 @@ void bind_cfixed(nb::module_& m)
          */
         .def(
             "to_bits",
-            &APyCFixed::to_bits,
+            [](const APyCFixed& self) -> nb::typed<nb::tuple, nb::int_, nb::int_> {
+                return nb::typed<nb::tuple, nb::int_, nb::int_>(self.to_bits());
+            },
             R"pbdoc(
             Retrieve underlying bit-pattern in a :class:`tuple` of :class:`int`.
 

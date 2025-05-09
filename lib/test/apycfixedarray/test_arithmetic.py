@@ -40,7 +40,7 @@ def test_arithmetic_float():
 
 
 @pytest.mark.parametrize("frac_bits", range(10, 68))
-def test_array_multiplication_with_different_frac_bits(frac_bits):
+def test_array_multiplication_with_different_frac_bits(frac_bits: int):
     v1 = 1 / 3 + 1j * math.pi
     v2 = math.pi + 1j / 7
     v3 = -math.pi - 1j * math.sqrt(2)

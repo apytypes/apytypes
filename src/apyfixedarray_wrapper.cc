@@ -986,24 +986,33 @@ void bind_fixed_array(nb::module_& m)
          */
         .def_static(
             "from_float",
-            &APyFixedArray::from_numbers,
+            [](nb::typed<
+                   nb::sequence,
+                   std::variant<nb::float_, nb::int_, APyFixed, APyFloat>> seq,
+               std::optional<int> int_bits,
+               std::optional<int> frac_bits,
+               std::optional<int> bits) -> APyFixedArray {
+                return APyFixedArray::from_numbers(seq, int_bits, frac_bits, bits);
+            },
             nb::arg("number_seq"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyFixedArray` object from a sequence of :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
+            Create an :class:`APyFixedArray` object from a sequence of :class:`int`,
+            :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
 
-            The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
-            Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
+            The input is quantized using :class:`QuantizationMode.RND_INF` and overflow
+            is handled using the :class:`OverflowMode.WRAP` mode. Exactly two of the
+            three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
             Using NumPy arrays as input is in general faster than e.g. lists.
 
             Parameters
             ----------
             number_seq : sequence of numbers
-                Values to initialize from. The tensor shape will be taken
-                from the sequence shape.
+                Values to initialize from. The tensor shape will be taken from the
+                sequence shape.
             int_bits : :class:`int`, optional
                 Number of integer bits in the created fixed-point tensor.
             frac_bits : :class:`int`, optional

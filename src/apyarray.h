@@ -22,6 +22,7 @@ namespace nb = nanobind;
 #include <cassert>     // assert
 #include <functional>  // std::function
 #include <iterator>    // std::begin
+#include <optional>    // std::optional
 #include <set>         // std::set
 #include <string_view> // std::string_view
 #include <variant>     // std::variant
@@ -1130,6 +1131,293 @@ public:
     {
         auto acc = [&](std::size_t p, std::size_t i) { return p * _shape[i]; };
         return std::accumulate(std::begin(axes), std::end(axes), 1, acc);
+    }
+
+    /* ****************************************************************************** *
+     * *                       Array string-formatting functions                    * *
+     * ****************************************************************************** */
+private:
+    //! Retrieve the padding needed to display the widest (in terms of number of `char`
+    //! characters) in `*this` array.
+    template <typename FORMATER_SIGNATURE>
+    std::size_t _array_format_get_element_padding(FORMATER_SIGNATURE formatter) const
+    {
+        std::size_t max = 0;
+        for (std::size_t i = 0; i < _nitems; i++) {
+            auto cbegin_it = std::cbegin(_data) + (i + 0) * _itemsize;
+            auto cend_it = std::cbegin(_data) + (i + 1) * _itemsize;
+            max = std::max(max, formatter(cbegin_it, cend_it).length());
+        }
+        return max;
+    }
+
+    //! Retrieve a `std::vector<std::string>` of all elements in this vector formatted
+    //! using `formatter`. All elements are right-padded and are equally long
+    template <typename FORMATER_SIGNATURE>
+    std::vector<std::string> _format_elements(FORMATER_SIGNATURE formatter) const
+    {
+        // Find the necessary element padding
+        std::size_t padding = 0;
+        for (std::size_t i = 0; i < _nitems; i++) {
+            auto cbegin = std::cbegin(_data) + (i + 0) * _itemsize;
+            auto cend = std::cbegin(_data) + (i + 1) * _itemsize;
+            padding = std::max(padding, formatter(cbegin, cend).length());
+        }
+
+        // Apply formatter to each element
+        std::vector<std::string> result(_nitems);
+        for (std::size_t i = 0; i < _nitems; i++) {
+            auto cbegin = std::cbegin(_data) + (i + 0) * _itemsize;
+            auto cend = std::cbegin(_data) + (i + 1) * _itemsize;
+            result[i] = fmt::format("{:>{}}", formatter(cbegin, cend), padding);
+        }
+
+        return result;
+    }
+
+    //! Array formatting heavy-lifting through recursive descending through the axes
+    template <typename FORMATTER_SIGNATURE>
+    std::vector<std::string> _array_format_recursive_descent(
+        typename std::vector<std::string>::const_iterator cbegin,
+        FORMATTER_SIGNATURE fmt_f,
+        std::size_t axis,
+        const std::string& indent,
+        std::size_t n_cols,
+        bool is_summary,
+        std::size_t edge_items,
+        std::string_view summary_sep = "..."
+    ) const
+    {
+        assert(n_cols > 0);
+        assert(axis < _shape.size());
+
+        // Is this dimension going to be summarized?
+        bool is_summary_dim = is_summary && (_shape[axis] > 2 * edge_items);
+        std::size_t leading_items = is_summary_dim ? edge_items : 0;
+        std::size_t trailing_items = is_summary_dim ? edge_items : _shape[axis];
+
+        bool is_innermost_dim = (axis + 1 == _ndim);
+        if (is_innermost_dim) {
+            std::vector<std::string> result = { "[" };
+            std::size_t col_cnt = 0;
+            for (std::size_t i = 0; i < leading_items; i++, col_cnt++) {
+                bool is_insert_newline = (col_cnt > 0) && (col_cnt % n_cols == 0);
+                if (is_insert_newline) {
+                    result.emplace_back(" ");
+                }
+                result.back() += cbegin[i] + ", ";
+            }
+            if (leading_items) {
+                std::size_t ljust = cbegin[0].length();
+                result.back() += fmt::format("{:>{}}, ", summary_sep, ljust);
+                col_cnt += 1;
+            }
+            for (std::size_t i = 0; i < trailing_items; i++, col_cnt++) {
+                bool is_insert_comma = (i != trailing_items - 1);
+                bool is_insert_newline = (col_cnt > 0) && (col_cnt % n_cols == 0);
+                if (is_insert_newline) {
+                    result.emplace_back(" ");
+                }
+                result.back() += cbegin[i + _shape[axis] - trailing_items];
+                if (is_insert_comma) {
+                    result.back() += ", ";
+                }
+            }
+            result.back() += "]";
+            return result;
+        } else { /* !is_innermost_dim */
+            std::vector<std::string> result = {};
+            auto axis_nitems
+                = fold_shape(std::begin(_shape) + axis + 1, std::end(_shape));
+
+            for (std::size_t i = 0; i < leading_items; i++) {
+                auto cnext = cbegin + (i * axis_nitems);
+                std::vector<std::string> lines = _array_format_recursive_descent(
+                    cnext, fmt_f, axis + 1, indent + ' ', n_cols, is_summary, edge_items
+                );
+                for (std::size_t j = 0; j < lines.size(); j++) {
+                    const char prefix_char = (i == 0 && j == 0) ? '[' : ' ';
+                    result.emplace_back(prefix_char + std::move(lines[j]));
+                }
+                result.back() += ",";
+                for (std::size_t i = 0; i < _ndim - axis - 2; i++) {
+                    result.emplace_back("");
+                }
+                result.back() += indent;
+            }
+            if (leading_items) {
+                result.emplace_back(' ' + std::string(summary_sep) + ",");
+                for (std::size_t i = 0; i < _ndim - axis - 2; i++) {
+                    result.emplace_back("");
+                }
+                result.back() += indent;
+            }
+            for (std::size_t i = 0; i < trailing_items; i++) {
+                auto offset = (i + _shape[axis] - trailing_items) * axis_nitems;
+                auto cnext = cbegin + offset;
+                std::vector<std::string> lines = _array_format_recursive_descent(
+                    cnext, fmt_f, axis + 1, indent + ' ', n_cols, is_summary, edge_items
+                );
+                for (std::size_t j = 0; j < lines.size(); j++) {
+                    const char prefix_char = (offset == 0 && j == 0) ? '[' : ' ';
+                    result.emplace_back(prefix_char + std::move(lines[j]));
+                }
+
+                bool is_last_element = (i == trailing_items - 1);
+                if (!is_last_element) {
+                    result.back() += ",";
+                    for (std::size_t i = 0; i < _ndim - axis - 2; i++) {
+                        result.emplace_back("");
+                    }
+                    result.back() += indent;
+                }
+            }
+            result.back() += "]";
+            return result;
+        }
+    }
+
+public:
+    //! Format the array content of `*this` using `formatter` on each element. Elements
+    //! are formatted in aligned columns that spans at most `line_width` number of
+    //! characters. Parameter `allow_summary` enables summary formatting which collapses
+    //! the array format of huge arrays. Returns a `std::vector<std::string>` where each
+    //! vector element is a new line, and a `std::size_t` containing the width of the
+    //! longest line.
+    template <typename FORMATTER_SIGNATURE>
+    std::tuple<std::vector<std::string>, std::size_t> array_format(
+        FORMATTER_SIGNATURE formatter,
+        std::size_t line_width,
+        bool is_summary_allow = true,
+        std::size_t summary_threshold_nitems = 1000,
+        std::size_t summary_edge_items = 3
+    ) const
+    {
+        if (_nitems == 0) {
+            return { { std::string(_ndim, '[') + std::string(_ndim, ']') }, 2 * _ndim };
+        }
+
+        // Apply formatter to each element (`elements_formatted` has length `_nitems`)
+        std::vector<std::string> elements_formatted = _format_elements(formatter);
+        assert(elements_formatted.size() == _nitems);
+
+        // Determine number of elements to display on each line (number of columns)
+        std::size_t element_width = elements_formatted[0].length();
+        assert(element_width > 0);
+
+        // Determine if summary view should be used
+        bool is_summary = is_summary_allow && (_nitems > summary_threshold_nitems);
+
+        // Determine number of columns in the formatted array string
+        std::size_t n_cols = (line_width - (2 * _ndim) + 2) / (element_width + 2);
+        if (n_cols == 0) {
+            n_cols = 1;
+        }
+
+        // Format array using recursive decent along the axes
+        std::vector<std::string> format_lines = _array_format_recursive_descent(
+            std::cbegin(elements_formatted),
+            formatter,
+            0,
+            std::string(" "),
+            n_cols,
+            is_summary,
+            summary_edge_items
+        );
+
+        // Remove any trailing whitespace from all lines
+        const auto is_not_whitespace = [](char c) { return c != ' '; };
+        for (auto&& l : format_lines) {
+            auto rit = std::find_if(std::rbegin(l), std::rend(l), is_not_whitespace);
+            l.erase(rit.base(), std::end(l));
+        }
+
+        // Retrieve the length of the longest format line
+        std::size_t format_len = 0;
+        for (auto&& line : format_lines) {
+            format_len = std::max(format_len, line.length());
+        }
+        return { format_lines, format_len };
+    }
+
+    //! Base implementation for the Python representation function (`repr`).
+    template <typename FORMATTER_SIGNATURE>
+    std::string array_repr(
+        FORMATTER_SIGNATURE formatter,
+        std::vector<std::string> kw_args,
+        bool allow_summary = true,
+        std::optional<std::size_t> opt_line_width = std::nullopt
+    ) const
+    {
+        // The array name of `*this`
+        std::string_view array_name = ARRAY_TYPE::ARRAY_NAME;
+
+        // Maximum line width array `__repr__()`, default: 88
+        std::size_t line_width = opt_line_width.value_or(88);
+
+        // Format array data using the provided formatter
+        // std::vector<std::string> format_lines = array_format(
+        auto [format_lines, format_len] = array_format(
+            formatter,      // formatter
+            line_width - 4, // line_width, - 4 for single indentation
+            allow_summary   // allow_summary
+        );
+        assert(format_lines.size());
+
+        // Compute length of appended key-word arguments when formatted on a single line
+        std::size_t kw_len = 0;
+        for (auto&& kw_arg : kw_args) {
+            kw_len += 2 + kw_arg.length();
+        }
+
+        // Produce a propriate final string
+        if (array_name.length() + 1 + format_len + kw_len + 1 <= line_width) {
+            /*
+             * APyFixedArray([[1, 2, 3]
+             *                [4, 5, 6], int_bits=10, frac_bits=10)
+             */
+            const std::string indent(array_name.length() + 1, ' ');
+            std::string res = std::string(array_name) + "(" + format_lines[0];
+            for (std::size_t i = 1; i < format_lines.size(); i++) {
+                res += "\n" + indent + format_lines[i];
+            }
+            for (auto&& kw : kw_args) {
+                res += ", " + kw;
+            }
+            return res + ")";
+        } else if (format_lines.size() == 1 && 4 + format_len + kw_len <= line_width) {
+            /*
+             * APyFixedArray(
+             *     [ 1,  2,  3,  4,  5,  6,  7,  8,  9, 10, int_bits=10, frac_bits=10
+             * )
+             */
+            const std::string indent(4, ' ');
+            std::string res = std::string(array_name) + "(\n";
+            res += indent + format_lines[0];
+            for (auto&& kw : kw_args) {
+                res += ", " + kw;
+            }
+            return res + "\n)";
+        } else {
+            /*
+             * APyFixedArray(
+             *     [[ 1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12],
+             *      [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]],
+             *     int_bits=10,
+             *     frac_bits=10
+             * )
+             */
+            const std::string indent(4, ' ');
+            std::string res = std::string(array_name) + "(";
+            for (std::size_t i = 0; i < format_lines.size(); i++) {
+                res += "\n" + indent + format_lines[i];
+            }
+            res += ",\n";
+            for (auto&& kw : kw_args) {
+                res += indent + kw + ",\n";
+            }
+            return res.substr(0, res.length() - 2) + "\n)";
+        }
     }
 
     /* ****************************************************************************** *

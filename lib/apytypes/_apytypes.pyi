@@ -62,7 +62,7 @@ class APyCFixed:
     @overload
     def __init__(
         self,
-        bit_pattern: tuple,
+        bit_pattern: tuple[int, int],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
@@ -193,7 +193,7 @@ class APyCFixed:
         :class:`APyFixed`
         """
 
-    def to_bits(self) -> tuple:
+    def to_bits(self) -> tuple[int, int]:
         """
         Retrieve underlying bit-pattern in a :class:`tuple` of :class:`int`.
 
@@ -1122,7 +1122,9 @@ class APyCFixedArray:
 
     @staticmethod
     def from_complex(
-        complex_sequence: Sequence,
+        complex_sequence: Sequence[
+            complex | float | int | APyCFixed | APyFixed | APyFloat
+        ],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
@@ -1140,7 +1142,7 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        complex_sequence : sequence of float, int, or complex
+        complex_sequence : sequence of :class:`complex`, :class:`float`, :class:`int`, :class:`APyCFixed`, :class:`APyFixed`, or :class:`APyFloat`.
             Values to initialize from. The tensor shape will be taken from the
             sequence shape.
         int_bits : :class:`int`, optional
@@ -3088,24 +3090,26 @@ class APyFixedArray:
 
     @staticmethod
     def from_float(
-        number_seq: Sequence,
+        number_seq: Sequence[float | int | APyFixed | APyFloat],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
     ) -> APyFixedArray:
         """
-        Create an :class:`APyFixedArray` object from a sequence of :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
+        Create an :class:`APyFixedArray` object from a sequence of :class:`int`,
+        :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
 
-        The input is quantized using :class:`QuantizationMode.RND_INF` and overflow is handled using the :class:`OverflowMode.WRAP` mode.
-        Exactly two of the three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
+        The input is quantized using :class:`QuantizationMode.RND_INF` and overflow
+        is handled using the :class:`OverflowMode.WRAP` mode. Exactly two of the
+        three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
         Using NumPy arrays as input is in general faster than e.g. lists.
 
         Parameters
         ----------
         number_seq : sequence of numbers
-            Values to initialize from. The tensor shape will be taken
-            from the sequence shape.
+            Values to initialize from. The tensor shape will be taken from the
+            sequence shape.
         int_bits : :class:`int`, optional
             Number of integer bits in the created fixed-point tensor.
         frac_bits : :class:`int`, optional
