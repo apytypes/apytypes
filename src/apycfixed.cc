@@ -8,6 +8,7 @@
 
 #include "apycfixed.h"
 #include "apycfixed_util.h"
+#include "apycfixedarray.h"
 #include "apyfixed.h"
 #include "apyfixed_util.h"
 #include "apyfloat.h"
@@ -18,6 +19,7 @@
 // Python object access through Pybind
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/complex.h>
+#include <variant>
 namespace nb = nanobind;
 
 // Standard header includes
@@ -574,11 +576,6 @@ std::string APyCFixed::to_string_oct() const
     throw NotImplementedException("APyCFixed::to_string_oct()");
 }
 
-bool APyCFixed::is_identical(const APyCFixed& other) const
-{
-    return bits() == other.bits() && int_bits() == other.int_bits() && *this == other;
-}
-
 bool APyCFixed::is_zero() const noexcept
 {
     // Both real and imaginary part has to be zero
@@ -843,4 +840,17 @@ APyFixed APyCFixed::get_imag() const
     APyFixed result(_bits, _int_bits);
     std::copy(imag_begin(), imag_end(), std::begin(result._data));
     return result;
+}
+
+bool APyCFixed::is_identical(
+    const std::variant<std::monostate, const APyCFixed*, const APyCFixedArray*>& other
+) const
+{
+    if (!std::holds_alternative<const APyCFixed*>(other)) {
+        return false;
+    } else {
+        const APyCFixed& other_scalar = *std::get<const APyCFixed*>(other);
+        return bits() == other_scalar.bits() && int_bits() == other_scalar.int_bits()
+            && *this == other_scalar;
+    }
 }

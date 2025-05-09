@@ -1,6 +1,6 @@
 /*
  * APyTypes array base class, for sharing functionality between array types. All the
- * member functions of the APyTypes array types I don't want to write twice...
+ * member functions of the APyType's arrays types I don't want to write twice...
  */
 
 #ifndef _APYARRAY_H
@@ -16,16 +16,22 @@
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
+#include <utility>
 namespace nb = nanobind;
 
 #include <algorithm>   // std::min_element
 #include <cassert>     // assert
 #include <functional>  // std::function
+#include <functional>  // std::function, std::bind
 #include <iterator>    // std::begin
+#include <optional>    // std::optional
 #include <set>         // std::set
 #include <string_view> // std::string_view
 #include <variant>     // std::variant
 
+/*!
+ * APyArray, base class for APyTypes array
+ */
 template <typename T, typename ARRAY_TYPE> class APyArray : public APyBuffer<T> {
 
 public:
@@ -350,10 +356,9 @@ public:
         }
     }
 
-    //! Top-level Python exported `__getitem__` function
-    std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>> get_item(
-        const std::variant<nb::int_, nb::slice, nb::ellipsis, nb::tuple>& key
-    ) const
+    //! Python exported `__getitem__` function
+    std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>
+    get_item(const PyArrayKey_t& key) const
     {
         using SCALAR_TYPE = scalar_variant_t<ARRAY_TYPE>;
         using RESULT_TYPE = std::variant<ARRAY_TYPE, SCALAR_TYPE>;
@@ -381,8 +386,10 @@ public:
         } else { /* std::holds_alternative<nb::tuple>(key) */
 
             // Key is a tuple of slicing instructions
+            using VARIANT = std::variant<nb::int_, nb::slice, nb::ellipsis>;
+            using TUPLE_TYPE = nb::typed<nb::tuple, VARIANT, nb::ellipsis>;
             return RESULT_TYPE(get_item_tuple(
-                resolve_python_tuple_slice(std::get<nb::tuple>(key), "__getitem__")
+                resolve_python_tuple_slice(std::get<TUPLE_TYPE>(key), "__getitem__")
             ));
         }
     }
@@ -570,7 +577,7 @@ public:
 
     //! Python exported `__setitem__` method for APyArrays
     void set_item(
-        const std::variant<nb::int_, nb::slice, nb::ellipsis, nb::tuple>& key,
+        const PyArrayKey_t& key,
         const std::variant<std::monostate, ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>&
             val
     )
@@ -583,8 +590,8 @@ public:
             python_tuple_key = nb::make_tuple(std::get<nb::slice>(key));
         } else if (std::holds_alternative<nb::ellipsis>(key)) {
             python_tuple_key = nb::make_tuple(std::get<nb::ellipsis>(key));
-        } else { /* std::holds_alternative<nb::ellipsis>(key) */
-            python_tuple_key = std::get<nb::tuple>(key);
+        } else { /* std::holds_alternative<PyArrayKeyTuple_t>(key) */
+            python_tuple_key = std::get<PyArrayKeyTuple_t>(key);
         }
 
         // Resolve the tuple of ellipsis objects and flatten to `std::vector` key
@@ -629,9 +636,9 @@ public:
     }
 
     //! Python exported `broadcast_to` method
-    ARRAY_TYPE broadcast_to_python(const std::variant<nb::tuple, nb::int_> shape) const
+    ARRAY_TYPE broadcast_to_python(const PyShapeParam_t& python_shape) const
     {
-        return broadcast_to(cpp_shape_from_python_shape_like(shape));
+        return broadcast_to(cpp_shape_from_python_shape_like(python_shape));
     }
 
     /* ****************************************************************************** *
@@ -640,7 +647,7 @@ public:
 
     //! Attempt to reshape `*this` into `new_shape`, resolving any -1 dimension. Returns
     //! the resolved new shape on success.
-    std::vector<std::size_t> try_reshape(nb::tuple new_shape) const
+    std::vector<std::size_t> try_reshape(const nb::tuple& new_shape) const
     {
         std::vector<std::size_t> new_shape_vec;
         std::size_t index = 0;
@@ -700,8 +707,9 @@ public:
         return new_shape_vec;
     }
 
-    //! Python exported `reshape` method
-    ARRAY_TYPE reshape(nb::tuple shape) const
+    //! Retrieve a copy of `*this`, reshaped to `shape`. The returned array will have
+    //! exactly the same data as `*this` but with another shape.
+    ARRAY_TYPE reshape(const nb::tuple& shape) const
     {
         std::vector<std::size_t> cpp_shape = try_reshape(shape);
         ARRAY_TYPE result
@@ -709,6 +717,17 @@ public:
         std::copy_n(_data.begin(), _data.size(), result._data.begin());
 
         return result;
+    }
+
+    //! Python exported `reshape` method
+    ARRAY_TYPE
+    python_reshape(const PyShapeParam_t& shape) const
+    {
+        if (std::holds_alternative<nb::int_>(shape)) {
+            return reshape(nb::make_tuple(std::get<nb::int_>(shape)));
+        } else { /* std::holds_alternative<PyShapeTuple_t>(shape) */
+            return reshape(std::get<PyShapeTuple_t>(shape));
+        }
     }
 
     //! Python exported `flatten` method
@@ -722,7 +741,7 @@ public:
     ARRAY_TYPE ravel() const { return flatten(); }
 
     //! Python exported `transpose` method.
-    ARRAY_TYPE transpose(std::optional<nb::tuple> axes = std::nullopt) const
+    ARRAY_TYPE transpose(std::optional<PyShapeTuple_t> axes = std::nullopt) const
     {
         switch (_ndim) {
         case 0:
@@ -750,7 +769,7 @@ public:
             std::vector<std::size_t> new_axis(_ndim);
 
             if (axes.has_value()) {
-                std::variant<nb::tuple, nb::int_> axis_variant = axes.value();
+                const PyShapeTuple_t& axis_variant = axes.value();
                 new_axis = get_normalized_axes(axis_variant, _ndim);
             } else {
                 // reverse the order of axes by default
@@ -774,8 +793,13 @@ public:
     }
 
     //! Python exported `squeeze` method
-    ARRAY_TYPE squeeze(std::optional<std::variant<nb::int_, nb::tuple>> axis) const
+    ARRAY_TYPE squeeze(
+        std::optional<
+            std::variant<nb::int_, nb::typed<nb::tuple, std::size_t, nb::ellipsis>>>
+            axis
+    ) const
     {
+        using nb_typed_tuple = nb::typed<nb::tuple, std::size_t, nb::ellipsis>;
         std::vector<std::size_t> shape = _shape;
         std::set<std::ptrdiff_t> axis_set;
         if (axis.has_value()) {
@@ -784,8 +808,8 @@ public:
             auto ax = *axis;
             nb::tuple axis_tuple;
 
-            if (std::holds_alternative<nb::tuple>(ax)) {
-                axis_tuple = std::get<nb::tuple>(ax);
+            if (std::holds_alternative<nb_typed_tuple>(ax)) {
+                axis_tuple = std::get<nb_typed_tuple>(ax);
             } else if (std::holds_alternative<nb::int_>(ax)) {
                 std::ptrdiff_t axis = std::ptrdiff_t(std::get<nb::int_>(ax));
                 axis_tuple = nb::make_tuple(axis);
@@ -865,7 +889,7 @@ public:
 
     //! Create a tensor of `shape` and fill all elements using `fill_value`
     static ARRAY_TYPE
-    full(const nb::tuple& shape, const scalar_variant_t<ARRAY_TYPE>& fill_value)
+    full(const PyShapeParam_t& shape, const scalar_variant_t<ARRAY_TYPE>& fill_value)
     {
         auto cpp_shape = cpp_shape_from_python_shape_like(shape);
         ARRAY_TYPE result = ARRAY_TYPE::create_array_static(cpp_shape, fill_value);
@@ -877,8 +901,9 @@ public:
     }
 
     //! Create a tensor of `shape` with diagonal elements set to `diag_value`
-    static ARRAY_TYPE
-    diagonal(const nb::tuple& shape, const scalar_variant_t<ARRAY_TYPE>& diag_value)
+    static ARRAY_TYPE diagonal(
+        const PyShapeParam_t& shape, const scalar_variant_t<ARRAY_TYPE>& diag_value
+    )
     {
         auto cpp_shape = cpp_shape_from_python_shape_like(shape);
         if (cpp_shape.size() > 2) {
@@ -1133,6 +1158,396 @@ public:
     }
 
     /* ****************************************************************************** *
+     * *                       Array string-formatting functions                    * *
+     * ****************************************************************************** */
+public:
+    //! Formatter function signature
+    using formatter_t = std::function<std::string(
+        typename vector_type::const_iterator, typename vector_type::const_iterator
+    )>;
+
+private:
+    //! Retrieve the padding needed to display the widest (in terms of number of `char`
+    //! characters) in `*this` array.
+    std::size_t _array_format_get_padding(formatter_t formatter) const
+    {
+        std::size_t padding = 0;
+        for (std::size_t i = 0; i < _nitems; i++) {
+            auto cbegin_it = std::cbegin(_data) + (i + 0) * _itemsize;
+            auto cend_it = std::cbegin(_data) + (i + 1) * _itemsize;
+            padding = std::max(padding, formatter(cbegin_it, cend_it).length());
+        }
+        return padding;
+    }
+
+    //! Retrieve a `std::vector<std::string>` of all elements in this vector formatted
+    //! using `formatter`. All elements are right-padded and are equally long
+    std::vector<std::string>
+    _array_format_apply_formatter(formatter_t formatter, std::size_t padding) const
+    {
+        // Apply formatter to each element
+        std::vector<std::string> result(_nitems);
+        for (std::size_t i = 0; i < _nitems; i++) {
+            auto cbegin = std::cbegin(_data) + (i + 0) * _itemsize;
+            auto cend = std::cbegin(_data) + (i + 1) * _itemsize;
+            result[i] = fmt::format("{:>{}}", formatter(cbegin, cend), padding);
+        }
+
+        return result;
+    }
+
+    //! Array formatting heavy-lifting through recursive descending through the axes
+    std::vector<std::string> _array_format_recursive_descent(
+        typename std::vector<std::string>::const_iterator cbegin,
+        formatter_t fmt_f,
+        std::size_t axis,
+        const std::string& indent,
+        std::size_t n_cols,
+        bool is_summary,
+        std::size_t edge_items,
+        std::string_view summary_sep = "..."
+    ) const
+    {
+        assert(n_cols > 0);
+        assert(axis < _shape.size());
+
+        // Is this dimension going to be summarized?
+        bool is_summary_dim = is_summary && (_shape[axis] > 2 * edge_items);
+        std::size_t leading_items = is_summary_dim ? edge_items : 0;
+        std::size_t trailing_items = is_summary_dim ? edge_items : _shape[axis];
+
+        bool is_innermost_dim = (axis + 1 == _ndim);
+        if (is_innermost_dim) {
+            std::vector<std::string> result = { "[" };
+            std::size_t col_cnt = 0;
+            for (std::size_t i = 0; i < leading_items; i++, col_cnt++) {
+                bool is_insert_newline = (col_cnt > 0) && (col_cnt % n_cols == 0);
+                if (is_insert_newline) {
+                    result.emplace_back(" ");
+                }
+                result.back() += cbegin[i] + ", ";
+            }
+            if (leading_items) {
+                std::size_t ljust = cbegin[0].length();
+                result.back() += fmt::format("{:>{}}, ", summary_sep, ljust);
+                col_cnt += 1;
+            }
+            for (std::size_t i = 0; i < trailing_items; i++, col_cnt++) {
+                bool is_insert_comma = (i != trailing_items - 1);
+                bool is_insert_newline = (col_cnt > 0) && (col_cnt % n_cols == 0);
+                if (is_insert_newline) {
+                    result.emplace_back(" ");
+                }
+                result.back() += cbegin[i + _shape[axis] - trailing_items];
+                if (is_insert_comma) {
+                    result.back() += ", ";
+                }
+            }
+            result.back() += "]";
+            return result;
+        } else { /* !is_innermost_dim */
+            std::vector<std::string> result = {};
+            auto axis_nitems
+                = fold_shape(std::begin(_shape) + axis + 1, std::end(_shape));
+
+            for (std::size_t i = 0; i < leading_items; i++) {
+                auto cnext = cbegin + (i * axis_nitems);
+                std::vector<std::string> lines = _array_format_recursive_descent(
+                    cnext, fmt_f, axis + 1, indent + ' ', n_cols, is_summary, edge_items
+                );
+                for (std::size_t j = 0; j < lines.size(); j++) {
+                    const char prefix_char = (i == 0 && j == 0) ? '[' : ' ';
+                    result.emplace_back(prefix_char + std::move(lines[j]));
+                }
+                result.back() += ",";
+                for (std::size_t i = 0; i < _ndim - axis - 2; i++) {
+                    result.emplace_back("");
+                }
+                result.back() += indent;
+            }
+            if (leading_items) {
+                result.emplace_back(' ' + std::string(summary_sep) + ",");
+                for (std::size_t i = 0; i < _ndim - axis - 2; i++) {
+                    result.emplace_back("");
+                }
+                result.back() += indent;
+            }
+            for (std::size_t i = 0; i < trailing_items; i++) {
+                auto offset = (i + _shape[axis] - trailing_items) * axis_nitems;
+                auto cnext = cbegin + offset;
+                std::vector<std::string> lines = _array_format_recursive_descent(
+                    cnext, fmt_f, axis + 1, indent + ' ', n_cols, is_summary, edge_items
+                );
+                for (std::size_t j = 0; j < lines.size(); j++) {
+                    const char prefix_char = (offset == 0 && j == 0) ? '[' : ' ';
+                    result.emplace_back(prefix_char + std::move(lines[j]));
+                }
+
+                bool is_last_element = (i == trailing_items - 1);
+                if (!is_last_element) {
+                    result.back() += ",";
+                    for (std::size_t i = 0; i < _ndim - axis - 2; i++) {
+                        result.emplace_back("");
+                    }
+                    result.back() += indent;
+                }
+            }
+            result.back() += "]";
+            return result;
+        }
+    }
+
+public:
+    //! Format the array content of `*this` using `formatter` on each element. Elements
+    //! are formatted in aligned columns that spans at most `line_width` number of
+    //! characters. Parameter `allow_summary` enables summary formatting which collapses
+    //! the array format of huge arrays. Returns a `std::vector<std::string>` where each
+    //! vector element is a new line, and a `std::size_t` containing the width of the
+    //! longest line.
+    std::tuple<std::vector<std::vector<std::string>>, std::size_t> array_format_vector(
+        std::vector<formatter_t> formatters,
+        std::size_t line_width,
+        bool is_summary_allow = true,
+        std::size_t summary_threshold_nitems = 1000,
+        std::size_t summary_edge_items = 3
+    ) const
+    {
+        assert(formatters.size());
+        if (_nitems == 0) {
+            return { std::vector<std::vector<std::string>>(
+                         formatters.size(),
+                         { std::string(_ndim, '[') + std::string(_ndim, ']') }
+                     ),
+                     2 * _ndim };
+        }
+
+        // Retrieve necesasry padding of elements
+        std::size_t padding = 0;
+        for (auto&& formatter : formatters) {
+            padding = std::max(padding, _array_format_get_padding(formatter));
+        }
+
+        // Apply formatter to each element (each format has length `elements_formatted`)
+        std::vector<std::vector<std::string>> formats {};
+        for (auto&& formatter : formatters) {
+            auto format = _array_format_apply_formatter(formatter, padding);
+            assert(format.size() == _nitems);
+            formats.emplace_back(std::move(format));
+        }
+        assert(formats.size() == formatters.size());
+
+        // Determine number of elements to display on each line (number of columns)
+        std::size_t element_width = formats[0][0].length();
+        assert(element_width > 0);
+
+        // Determine if summary view should be used
+        bool is_summary = is_summary_allow && (_nitems > summary_threshold_nitems);
+
+        // Determine number of columns in the formatted array string
+        std::size_t n_cols = (line_width - (2 * _ndim) + 2) / (element_width + 2);
+        if (n_cols == 0) {
+            n_cols = 1;
+        }
+
+        // Format array using recursive decent along the axes
+        std::size_t format_len = 0;
+        std::vector<std::vector<std::string>> result;
+        for (std::size_t i = 0; i < formatters.size(); i++) {
+            auto&& formatter = formatters[i];
+            std::vector<std::string> format_lines = _array_format_recursive_descent(
+                std::cbegin(formats[i]),
+                formatter,
+                0,
+                std::string(" "),
+                n_cols,
+                is_summary,
+                summary_edge_items
+            );
+
+            // Trim any trailing whitespace in all lines
+            const auto is_not_whitespace = [](char c) { return c != ' '; };
+            for (auto&& l : format_lines) {
+                auto it = std::find_if(std::rbegin(l), std::rend(l), is_not_whitespace);
+                l.erase(it.base(), std::end(l));
+            }
+
+            // Retrieve the length of the longest format line
+            for (auto&& line : format_lines) {
+                format_len = std::max(format_len, line.length());
+            }
+
+            result.emplace_back(std::move(format_lines));
+        }
+
+        return { result, format_len };
+    }
+
+    //! Format the array content of `*this` using a single `formatter` on each element.
+    //! Elements are formatted in aligned columns that spans at most `line_width` number
+    //! of characters. Parameter `allow_summary` enables summary formatting which
+    //! collapses the array format of huge arrays. Returns a `std::vector<std::string>`
+    //! where each vector element is a new line, and a `std::size_t` containing the
+    //! width of the longest line.
+    std::tuple<std::vector<std::string>, std::size_t> array_format_vector(
+        formatter_t formatter,
+        std::size_t line_width,
+        bool is_summary_allow = true,
+        std::size_t summary_threshold_nitems = 1000,
+        std::size_t summary_edge_items = 3
+    ) const
+    {
+        auto [vectors, len] = array_format_vector(
+            std::vector<formatter_t> { formatter },
+            line_width,
+            is_summary_allow,
+            summary_threshold_nitems,
+            summary_edge_items
+        );
+        return std::make_tuple(vectors[0], len);
+    }
+
+    //! Retrieve an array format of `*this` in a `std::string`. Each element is
+    //! formatted using the `formatter`
+    std::string array_format(
+        formatter_t formatter,
+        std::size_t line_width,
+        bool is_summary_allow = true,
+        std::size_t summary_threshold_nitems = 1000,
+        std::size_t summary_edge_items = 3
+    ) const
+    {
+        auto [format_lines, max_line] = array_format_vector(
+            formatter,
+            line_width,
+            is_summary_allow,
+            summary_threshold_nitems,
+            summary_edge_items
+        );
+
+        std::string res {};
+        for (auto&& line : format_lines) {
+            res.append(line += "\n");
+        }
+
+        return res.substr(0, res.length() - 1);
+    }
+
+    //! Base implementation for the Python representation function (`repr`).
+    std::string array_repr(
+        std::vector<formatter_t> formatters,
+        std::vector<std::string> kw_args,
+        bool allow_summary = true,
+        std::optional<std::size_t> opt_line_width = std::nullopt
+    ) const
+    {
+        // The array name of `*this`
+        std::string_view array_name = ARRAY_TYPE::ARRAY_NAME;
+
+        // Maximum line width array `__repr__()`, default: 88
+        std::size_t line_width = opt_line_width.value_or(88);
+
+        // Format array data using the provided formatter
+        auto [formats, format_len] = array_format_vector(
+            formatters,     // formatters
+            line_width - 4, // line_width; -4 for single indentation level
+            allow_summary   // allow_summary
+        );
+
+        // Compute width of appended key-word arguments when formatted on a single line
+        std::size_t kw_len = 0;
+        for (auto&& kw_arg : kw_args) {
+            kw_len += 2 + kw_arg.length();
+        }
+
+        // Produce a propriate final string
+        std::string res {};
+        bool is_multi_format = formats.size() > 1;
+        bool is_format_multi_line = formats[0].size() > 1;
+        std::size_t total_format_len = formats.size() * (format_len + 2) - 2;
+        if ((!is_multi_format || !is_format_multi_line)
+            && 2 + array_name.length() + total_format_len + kw_len <= line_width) {
+            /*
+             *   array_name    format            kw_args
+             * |-----------| |--------||-------------------------|
+             * APyFixedArray([[1, 2, 3]
+             *                [4, 5, 6], int_bits=10, frac_bits=10)
+             */
+            const std::string indent(array_name.length() + 1, ' ');
+            res += std::string(array_name) + "(";
+            for (std::size_t i = 0; i < formats.size(); i++) {
+                auto&& format_lines = formats[i];
+                bool is_last_line = (i == formats.size() - 1);
+                res += format_lines[0];
+                for (std::size_t i = 1; i < format_lines.size(); i++) {
+                    if (format_lines[i].length()) {
+                        res += "\n" + indent + format_lines[i];
+                    } else {
+                        res += "\n";
+                    }
+                }
+                if (!is_last_line) {
+                    res += ", ";
+                }
+            }
+            for (auto&& kw : kw_args) {
+                res += ", " + kw;
+            }
+            res += ")";
+        } else if (!is_format_multi_line
+                   && 4 + total_format_len + kw_len <= line_width) {
+            /*
+             *   4               format                        kw_args
+             * |--||--------------------------------||------------------------|
+             * APyFloatArray(
+             *     [  0,   1], [512, 512], [127,  35], exp_bits=10, man_bits=10
+             * )
+             */
+            const std::string indent(4, ' ');
+            res += std::string(array_name) + "(\n";
+            auto&& format_lines = formats[0];
+            res += indent + format_lines[0];
+            for (auto&& kw : kw_args) {
+                res += ", " + kw;
+            }
+            res += "\n)";
+        } else {
+            /*
+             *   4                        format
+             * |--||------------------------------------------------|
+             * APyFixedArray(
+             *     [[ 1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12],
+             *      [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]],
+             *     int_bits=10,
+             *     frac_bits=10
+             * )
+             */
+            const std::string indent(4, ' ');
+            res += std::string(array_name) + "(";
+            for (std::size_t i = 0; i < formats.size(); i++) {
+                auto&& format_lines = formats[i];
+                for (std::size_t i = 0; i < format_lines.size(); i++) {
+                    if (format_lines[i].size()) {
+                        res += "\n" + indent + format_lines[i];
+                    } else {
+                        res += "\n";
+                    }
+                }
+                bool is_last_line = (i == formats.size() - 1);
+                if (!is_last_line) {
+                    res += ",\n";
+                }
+            }
+
+            for (auto&& kw : kw_args) {
+                res += ",\n" + indent + kw;
+            }
+            res += "\n)";
+        }
+
+        return res;
+    }
+
+    /* ****************************************************************************** *
      * *                        Other APyArray methods                              * *
      * ****************************************************************************** */
 
@@ -1143,11 +1558,19 @@ public:
      *   * They store the exact same values in their `_data` vector
      *   * They have the exact same specifiers (as decided by `same_type_as`
      */
-    bool is_identical(const ARRAY_TYPE& other) const
+    bool is_identical(
+        const std::variant<std::monostate, ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>&
+            other
+    ) const
     {
-        return _shape == other._shape
-            && static_cast<const ARRAY_TYPE*>(this)->same_type_as(other)
-            && _data == other._data;
+        if (!std::holds_alternative<ARRAY_TYPE>(other)) {
+            return false;
+        } else {
+            const ARRAY_TYPE& other_array = std::get<ARRAY_TYPE>(other);
+            return _shape == other_array._shape
+                && static_cast<const ARRAY_TYPE*>(this)->same_type_as(other_array)
+                && _data == other_array._data;
+        }
     }
 
 }; // end class: `APyArray`

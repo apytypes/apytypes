@@ -6,7 +6,9 @@
 #define _PYTHON_UTIL_H
 
 // Python object access through Pybind
+#include <iterator>
 #include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
 #include <nanobind/stl/complex.h>
 #include <nanobind/stl/string.h>
 
@@ -15,12 +17,13 @@
 #include <Python.h>
 
 // Standard includes
-#include <cassert>   // assert
-#include <cstddef>   // offsetof
-#include <optional>  // std::optional, std::nullopt
-#include <stack>     // std::stack
-#include <stdexcept> // std::runtime_error
-#include <vector>    // std::vector
+#include <cassert>     // assert
+#include <cstddef>     // offsetof
+#include <optional>    // std::optional, std::nullopt
+#include <stack>       // std::stack
+#include <stdexcept>   // std::runtime_error
+#include <string_view> // std::stirng_view
+#include <vector>      // std::vector
 
 // Custom includes
 #include "apytypes_mp.h"
@@ -378,85 +381,111 @@ template <class RANDOM_ACCESS_ITERATOR>
 }
 
 /*!
- * Retrieve the shape of a, possibly nested, Python sequence of iterable object.
+ * Test whether a `nb::object` is a Python sequence, and simultaneously that the object
+ * is *not* any of the `PyArgs` types.
  */
-[[maybe_unused]] static APY_INLINE std::vector<std::size_t>
-python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
+template <typename... PyTypes>
+[[maybe_unused]] static APY_INLINE bool is_seq_and_exclude(const nanobind::handle& obj)
 {
     namespace nb = nanobind;
+    return nb::isinstance<nb::sequence>(obj) && !(nb::isinstance<PyTypes>(obj) || ...);
+}
 
-    // Compute the length along the first dimension of this sequence
-    auto nanobind_sequence_distance = [](const nanobind::sequence& seq) -> std::size_t {
-        std::size_t res = 0;
-        auto first = seq.begin();
-        auto last = seq.end();
-        while (first != last) {
-            ++first;
-            ++res;
-        }
-        return res;
+/*!
+ * Retrieve the sequence of a python sequence object through recursive descent along the
+ * dimensions.
+ */
+[[maybe_unused]] static APY_INLINE std::vector<std::size_t>
+_python_sequence_extract_shape_recursive_descent(
+    const nanobind::sequence& sequence, std::string_view err_prefix
+)
+{
+    namespace nb = nanobind;
+    const auto inhomogenous_shape_err = [name = err_prefix]() -> std::domain_error {
+        return std::domain_error(fmt::format("{}: inhomogeneous sequence shape", name));
     };
-    std::size_t sequence_len = nanobind_sequence_distance(bit_pattern_sequence);
 
-    // Early exit
-    if (sequence_len == 0) {
-        // Empyt Python sequence, array shape is ( 0, )
+    if (sequence.begin() == sequence.end()) {
+        // An empty sequence constitutes one dimension with shape zero
         return { 0 };
-    }
-
-    auto first_element_it = bit_pattern_sequence.begin();
-    if (nb::isinstance<nb::str>(*first_element_it)) {
-        // First element along this dimension is a string. We currently do not support
-        // having strings sequence array structures
-        throw std::domain_error(
-            "python_sequence_extract_shape(): found string when extracting shape, "
-            "which is currently unsupported"
-        );
-    } else if (nb::isinstance<nb::sequence>(*first_element_it)) {
+    } else if (is_seq_and_exclude<nb::str>(*sequence.begin())) {
         // First element along this dimension is another sequence. Make sure all
         // elements along this dimensions are also sequences and recursively evaluate
         // their shapes.
-        std::vector<std::vector<std::size_t>> recursive_shapes;
-        for (auto element : bit_pattern_sequence) {
+        std::vector<std::vector<std::size_t>> shapes {};
+        for (auto&& element : sequence) {
             if (!nb::isinstance<nb::sequence>(element)) {
-                // Non-sequence detected along dimension of sequences
-                throw std::domain_error("Inhomogeneous sequence shape");
+                throw inhomogenous_shape_err();
             }
 
-            recursive_shapes.push_back(
-                python_sequence_extract_shape(nb::cast<nb::sequence>(element))
+            auto next = nb::cast<nb::sequence>(element);
+            shapes.emplace_back(
+                _python_sequence_extract_shape_recursive_descent(next, err_prefix)
             );
         }
 
         // Make sure all recursively found shapes are equal
-        for (const auto& shape : recursive_shapes) {
-            if (shape != recursive_shapes[0]) {
-                // Inhomogeneous detected
-                throw std::domain_error("Inhomogeneous sequence shape");
+        for (auto&& shape : shapes) {
+            if (shape != shapes[0]) {
+                throw inhomogenous_shape_err();
             }
         }
 
         // Return the recursive shape
-        assert(sequence_len > 0);
-        std::vector<std::size_t> result { std::size_t(sequence_len) };
-        result.insert(
-            result.end(), recursive_shapes[0].begin(), recursive_shapes[0].end()
-        );
+        std::vector<std::size_t> result { std::size_t(shapes.size()) };
+        result.insert(result.end(), shapes[0].begin(), shapes[0].end());
         return result;
     } else {
         // First element along this dimension is not a sequence. Make sure all elements
         // along this dimension are non-sequence.
-        for (auto element : bit_pattern_sequence) {
-            if (nb::isinstance<nb::sequence>(element)) {
-                // Sequence detected along dimension of non-sequence
-                throw std::domain_error("Inhomogeneous sequence shape");
+        std::size_t sequence_len = 0;
+        for (auto&& element : sequence) {
+            if (is_seq_and_exclude<nb::str>(element)) {
+                throw inhomogenous_shape_err();
             }
+            sequence_len++;
         }
 
         // Return the size along this dimension
-        assert(sequence_len > 0);
         return std::vector<std::size_t> { std::size_t(sequence_len) };
     }
+}
+
+/*!
+ * Retrieve the shape of a possibly nested Python sequence of iterable object. When
+ * `IS_COMPLEX_COLLAPSE` is true, the last dimension is truncated if it is exactly
+ * equal to two.
+ */
+template <bool IS_COMPLEX_COLLAPSE = false>
+[[maybe_unused]] static APY_INLINE std::vector<std::size_t>
+python_sequence_extract_shape(
+    const nanobind::sequence& seq, std::string_view err_prefix
+)
+{
+    namespace nb = nanobind;
+    std::vector<std::size_t> result;
+    if (nb::isinstance<nb::ndarray<>>(seq)) {
+        const auto& ndarray = nb::cast<nb::ndarray<>>(seq);
+        result = std::vector<std::size_t>(ndarray.ndim());
+        for (std::size_t i = 0; i < ndarray.ndim(); i++) {
+            result[i] = ndarray.shape_ptr()[i];
+        }
+        assert(result.size());
+    } else {
+        result = _python_sequence_extract_shape_recursive_descent(seq, err_prefix);
+        assert(result.size());
+    }
+
+    assert(result.size());
+    if constexpr (IS_COMPLEX_COLLAPSE) {
+        if (result.back() == 2) {
+            result.pop_back();
+            if (!result.size()) {
+                result.push_back(1);
+            }
+        }
+    }
+    return result;
 }
 
 /*!
@@ -464,11 +493,11 @@ python_sequence_extract_shape(const nanobind::sequence& bit_pattern_sequence)
  * object (of type `<T>`, via `nb::cast<T>()`) and return them in a `std::vector<T>`.
  * The sequence is walked in a depth-first search manner. If any object in the sequence
  * `bit_pattern_sequence` does not match `<T>` or another Python sequence a
- * `std::domain_error` exception to be raised.
+ * `std::domain_error` exception is raised.
  */
 template <typename... PyTypes>
 [[maybe_unused]] static std::vector<nanobind::object>
-python_sequence_walk(const nanobind::sequence& py_seq)
+python_sequence_walk(const nanobind::sequence& py_seq, std::string_view err_prefix)
 {
     namespace nb = nanobind;
 
@@ -488,22 +517,21 @@ python_sequence_walk(const nanobind::sequence& py_seq)
             // End of current iterator/sentinel pair. Pop it.
             it_stack.pop();
         } else {
-            if (nb::isinstance<nb::sequence>(*it_stack.top().iterator)) {
+            if (is_seq_and_exclude<nb::str, PyTypes...>(*it_stack.top().iterator)) {
                 // New sequence found. We need to go deeper
                 auto new_sequence = nb::cast<nb::sequence>(*it_stack.top().iterator++);
                 it_stack.push({ new_sequence.begin(), new_sequence.end() });
             } else if ((nb::isinstance<PyTypes>(*it_stack.top().iterator) || ...)) {
                 // Element matching one of the PyTypes found, store it in container
-                result.push_back(nb::cast<nb::object>(*it_stack.top().iterator++));
+                result.emplace_back(nb::cast<nb::object>(*it_stack.top().iterator++));
             } else {
-                nb::object obj = nb::cast<nb::object>(*it_stack.top().iterator);
-                nb::type_object type = nb::cast<nb::type_object>(obj.type());
-                nb::str type_string = nb::str(type);
-                nb::str repr = nb::repr(obj);
-                std::string repr_string = repr.c_str();
+                nb::object err_obj = nb::cast<nb::object>(*it_stack.top().iterator);
                 throw std::domain_error(
-                    std::string("Non <type>/sequence found when walking: '")
-                    + repr_string + "' of type: '" + type_string.c_str()
+                    fmt::format(
+                        "{}: unexpected type when traversing Sequence: {}",
+                        err_prefix,
+                        nb::repr(nb::cast<nb::type_object>(err_obj.type())).c_str()
+                    )
                 );
             }
         }

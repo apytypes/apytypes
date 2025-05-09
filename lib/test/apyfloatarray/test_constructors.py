@@ -5,27 +5,26 @@ from apytypes import APyFloatArray
 
 @pytest.mark.float_array
 def test_constructor_raises():
-    with pytest.raises(ValueError, match="Shape mismatch"):
+    with pytest.raises(ValueError, match=r"APyFloatArray\.__init__: shape mismatch"):
         _ = APyFloatArray([1], [5, 2], [4], 10, 10)
-    with pytest.raises(ValueError, match="Inhomogeneous sequence"):
+    with pytest.raises(ValueError, match=r"APyFloatArray\.__init__: unexpected type"):
         _ = APyFloatArray([1, 2], [5, 2], [4, "str"], 10, 10)
-    with pytest.raises(ValueError, match="python_sequence_extract_shape"):
+    with pytest.raises(ValueError, match=r"APyFloatArray\.__init__: unexpected type"):
         _ = APyFloatArray(["foo"], [5], [4], 10, 10)
-    with pytest.raises(ValueError, match="python_sequence_extract_shape"):
+    with pytest.raises(ValueError, match=r"APyFloatArray\.__init__: unexpected type"):
         _ = APyFloatArray([1], ["foo"], [4], 10, 10)
-    with pytest.raises(ValueError, match="python_sequence_extract_shape"):
+    with pytest.raises(ValueError, match=r"APyFloatArray\.__init__: unexpected type"):
         _ = APyFloatArray([1], [5], ["foo"], 10, 10)
     with pytest.raises(
-        ValueError, match="Non <type>/sequence found when walking: '1.0'"
+        ValueError, match=r"APyFloatArray\.__init__: unexpected type when traversing"
     ):
         _ = APyFloatArray([1.0], [4], [4], 10, 10)
     with pytest.raises(
-        ValueError, match="Non <type>/sequence found when walking: '<class 'range'>'"
+        ValueError, match=r"APyFloatArray\.__init__: unexpected type when traversing"
     ):
         _ = APyFloatArray([True], [range], [4], 10, 10)
     with pytest.raises(
-        ValueError,
-        match="Non <type>/sequence found when walking: '<class 'apytypes._apytypes.APyFloatArray'>'",
+        ValueError, match=r"APyFloatArray\.__init__: unexpected type when traversing"
     ):
         _ = APyFloatArray([True], [4], [APyFloatArray], 10, 10)
     with pytest.raises(

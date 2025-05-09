@@ -23,6 +23,7 @@ namespace nb = nanobind;
 #include <stdexcept>
 #include <stdlib.h>
 #include <string>
+#include <string_view>
 #include <variant>
 
 void APyFloatArray::create_in_place(
@@ -50,24 +51,31 @@ APyFloatArray::APyFloatArray(
     std::uint8_t man_bits,
     std::optional<exp_t> bias
 )
-    : APyArray(python_sequence_extract_shape(sign_seq))
+    : APyArray(python_sequence_extract_shape(sign_seq, "APyFloatArray.__init__"))
     , exp_bits(exp_bits)
     , man_bits(man_bits)
 {
-    this->bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
+    constexpr std::string_view caller_name = "APyFloatArray.__init__";
 
-    const auto& signs_shape = _shape;
-    const auto exps_shape = python_sequence_extract_shape(exp_seq);
-    const auto mans_shape = python_sequence_extract_shape(man_seq);
-
+    const std::vector<std::size_t>& signs_shape = _shape;
+    const auto exps_shape = python_sequence_extract_shape(exp_seq, caller_name);
+    const auto mans_shape = python_sequence_extract_shape(man_seq, caller_name);
     if (!((signs_shape == exps_shape) && (signs_shape == mans_shape))) {
-        throw std::domain_error("Shape mismatch during construction");
+        throw std::domain_error(
+            fmt::format(
+                "APyFloatArray.__init__: shape mismatch, sign: {}, exp: {}, man: {}",
+                tuple_string_from_vec(signs_shape),
+                tuple_string_from_vec(exps_shape),
+                tuple_string_from_vec(mans_shape)
+            )
+        );
     }
 
-    auto signs = python_sequence_walk<nb::int_, nb::bool_>(sign_seq);
-    auto exps = python_sequence_walk<nb::int_>(exp_seq);
-    auto mans = python_sequence_walk<nb::int_>(man_seq);
+    auto signs = python_sequence_walk<nb::int_, nb::bool_>(sign_seq, caller_name);
+    auto exps = python_sequence_walk<nb::int_>(exp_seq, caller_name);
+    auto mans = python_sequence_walk<nb::int_>(man_seq, caller_name);
 
+    this->bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
     for (std::size_t i = 0; i < signs.size(); ++i) {
         bool sign;
         if (nb::isinstance<nb::bool_>(signs[i])) {
@@ -382,7 +390,7 @@ APyFloatArray APyFloatArray::operator~() const
  * ****************************************************************************** */
 
 APyFloatArray APyFloatArray::zeros(
-    const nb::tuple& shape,
+    const PyShapeParam_t& shape,
     std::uint8_t exp_bits,
     std::uint8_t man_bits,
     std::optional<exp_t> bias
@@ -394,7 +402,7 @@ APyFloatArray APyFloatArray::zeros(
 }
 
 APyFloatArray APyFloatArray::ones(
-    const nb::tuple& shape,
+    const PyShapeParam_t& shape,
     std::uint8_t exp_bits,
     std::uint8_t man_bits,
     std::optional<exp_t> bias
@@ -412,7 +420,7 @@ APyFloatArray APyFloatArray::eye(
 )
 {
     // Use N for both dimensions if M is not provided
-    nb::tuple shape = nb::make_tuple(N, M.value_or(N));
+    PyShapeTuple_t shape = PyShapeTuple_t(nb::make_tuple(N, M.value_or(N)));
     return diagonal(shape, APyFloat::one(exp_bits, man_bits, bias));
 }
 
@@ -533,7 +541,7 @@ APyFloatArray::convolve(const APyFloatArray& rhs, const std::string& conv_mode) 
 }
 
 std::variant<APyFloatArray, APyFloat>
-APyFloatArray::sum(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) const
+APyFloatArray::sum(const std::optional<PyShapeParam_t>& py_axis) const
 {
     // Extract axes to sum over
     std::vector<std::size_t> axes = cpp_axes_from_python(py_axis, _ndim);
@@ -581,7 +589,7 @@ APyFloatArray APyFloatArray::cumsum(std::optional<nb::int_> py_axis) const
 }
 
 std::variant<APyFloatArray, APyFloat>
-APyFloatArray::nansum(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) const
+APyFloatArray::nansum(const std::optional<PyShapeParam_t>& py_axis) const
 {
     // Extract axes to sum over
     std::vector<std::size_t> axes = cpp_axes_from_python(py_axis, _ndim);
@@ -635,7 +643,7 @@ APyFloatArray APyFloatArray::nancumsum(std::optional<nb::int_> py_axis) const
 }
 
 std::variant<APyFloatArray, APyFloat>
-APyFloatArray::prod(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) const
+APyFloatArray::prod(const std::optional<PyShapeParam_t>& py_axis) const
 {
     // Extract axes to multiply over
     std::vector<std::size_t> axes = cpp_axes_from_python(py_axis, _ndim);
@@ -685,7 +693,7 @@ APyFloatArray APyFloatArray::cumprod(std::optional<nb::int_> py_axis) const
 }
 
 std::variant<APyFloatArray, APyFloat>
-APyFloatArray::nanprod(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) const
+APyFloatArray::nanprod(const std::optional<PyShapeParam_t>& py_axis) const
 {
     // Extract axes to multiply over
     std::vector<std::size_t> axes = cpp_axes_from_python(py_axis, _ndim);
@@ -740,7 +748,7 @@ APyFloatArray APyFloatArray::nancumprod(std::optional<nb::int_> py_axis) const
 }
 
 std::variant<APyFloatArray, APyFloat>
-APyFloatArray::max(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) const
+APyFloatArray::max(const std::optional<PyShapeParam_t>& py_axis) const
 {
     // Extract axes to sum over
     std::vector<std::size_t> axes = cpp_axes_from_python(py_axis, _ndim);
@@ -767,7 +775,7 @@ APyFloatArray::max(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) con
 }
 
 std::variant<APyFloatArray, APyFloat>
-APyFloatArray::min(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) const
+APyFloatArray::min(const std::optional<PyShapeParam_t>& py_axis) const
 {
     // Extract axes to sum over
     std::vector<std::size_t> axes = cpp_axes_from_python(py_axis, _ndim);
@@ -794,7 +802,7 @@ APyFloatArray::min(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) con
 }
 
 std::variant<APyFloatArray, APyFloat>
-APyFloatArray::nanmax(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) const
+APyFloatArray::nanmax(const std::optional<PyShapeParam_t>& py_axis) const
 {
     // Extract axes to sum over
     std::vector<std::size_t> axes = cpp_axes_from_python(py_axis, _ndim);
@@ -821,7 +829,7 @@ APyFloatArray::nanmax(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) 
 }
 
 std::variant<APyFloatArray, APyFloat>
-APyFloatArray::nanmin(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) const
+APyFloatArray::nanmin(const std::optional<PyShapeParam_t>& py_axis) const
 {
     // Extract axes to sum over
     std::vector<std::size_t> axes = cpp_axes_from_python(py_axis, _ndim);
@@ -849,31 +857,31 @@ APyFloatArray::nanmin(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) 
 
 std::string APyFloatArray::repr() const
 {
-    std::stringstream ss {};
-    ss << "APyFloatArray(";
-    if (_shape[0]) {
-        std::stringstream sign_str {}, exp_str {}, man_str {};
-        sign_str << "[";
-        exp_str << "[";
-        man_str << "[";
-        for (std::size_t i = 0; i < _data.size(); ++i) {
-            const APyFloatData d = _data[i];
-            const bool is_last = i == (_data.size() - 1);
-            sign_str << (d.sign ? "1" : "0") << (is_last ? "" : ", ");
-            exp_str << d.exp << (is_last ? "" : ", ");
-            man_str << d.man << (is_last ? "" : ", ");
-        }
-        ss << sign_str.str() << "], " << exp_str.str() << "], " << man_str.str()
-           << "], ";
+    const auto sign_formatter = [](auto cbegin_it, auto _) -> std::string {
+        return fmt::format("{}", int(cbegin_it->sign));
+    };
+    const auto exp_formatter = [](auto cbegin_it, auto _) -> std::string {
+        return fmt::format("{}", cbegin_it->exp);
+    };
+    const auto man_formatter = [](auto cbegin_it, auto _) -> std::string {
+        return fmt::format("{}", cbegin_it->man);
+    };
+
+    if (bias == ieee_bias(exp_bits)) {
+        return array_repr(
+            { sign_formatter, exp_formatter, man_formatter },
+            { fmt::format("exp_bits={}", exp_bits),
+              fmt::format("man_bits={}", man_bits) }
+        );
     } else {
-        ss << "[], [], [], ";
+        return array_repr(
+            { sign_formatter, exp_formatter, man_formatter },
+            { /* kw_args = */
+              fmt::format("exp_bits={}", exp_bits),
+              fmt::format("man_bits={}", man_bits),
+              fmt::format("bias={}", bias) }
+        );
     }
-    ss << "shape=";
-    ss << tuple_string_from_vec(_shape);
-    ss << ", " << "exp_bits=" << static_cast<unsigned>(exp_bits) << ", "
-       << "man_bits=" << static_cast<unsigned>(man_bits) << ", " << "bias=" << bias
-       << ")";
-    return ss.str();
 }
 
 std::variant<
@@ -962,7 +970,7 @@ nb::ndarray<nb::numpy, double> APyFloatArray::to_numpy() const
 }
 
 APyFloatArray APyFloatArray::from_numbers(
-    const nb::sequence& number_seq,
+    const nb::typed<nb::sequence, nb::any>& number_seq,
     int exp_bits,
     int man_bits,
     std::optional<exp_t> bias
@@ -975,11 +983,15 @@ APyFloatArray APyFloatArray::from_numbers(
     }
 
     APyFloatArray result(
-        python_sequence_extract_shape(number_seq), exp_bits, man_bits, bias
+        python_sequence_extract_shape(number_seq, "APyFloatArray.from_float"),
+        exp_bits,
+        man_bits,
+        bias
     );
 
-    const auto py_obj
-        = python_sequence_walk<nb::float_, nb::int_, APyFixed, APyFloat>(number_seq);
+    const auto py_obj = python_sequence_walk<nb::float_, nb::int_, APyFixed, APyFloat>(
+        number_seq, "APyFloatArray.from_float"
+    );
 
     for (std::size_t i = 0; i < result._data.size(); i++) {
         if (nb::isinstance<nb::float_>(py_obj[i])) {
@@ -1117,10 +1129,15 @@ APyFloatArray APyFloatArray::from_bits(
     }
 
     APyFloatArray result(
-        python_sequence_extract_shape(python_bit_patterns), exp_bits, man_bits, bias
+        python_sequence_extract_shape(python_bit_patterns, "APyFloatArray.from_bits"),
+        exp_bits,
+        man_bits,
+        bias
     );
 
-    const auto py_obj = python_sequence_walk<nb::float_, nb::int_>(python_bit_patterns);
+    const auto py_obj = python_sequence_walk<nb::float_, nb::int_>(
+        python_bit_patterns, "APyFloatArray.from_bits"
+    );
 
     APyFloat f(exp_bits, man_bits, result.bias);
     for (std::size_t i = 0; i < result._data.size(); i++) {
@@ -1345,6 +1362,33 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
     }
 
     return result;
+}
+
+std::string APyFloatArray::to_string_dec() const
+{
+    const auto formatter = [spec = spec()](auto cbegin_it, auto _) -> std::string {
+        // NOTE: Python, unlike C++, unconditionally encodes the string of a
+        // floating-point NaN without a minus sign.
+        if (is_nan(*cbegin_it, spec)) {
+            return "nan";
+        } else {
+            return fmt::format("{:g}", floating_point_to_double(*cbegin_it, spec));
+        }
+    };
+
+    return array_format(formatter, 88, false);
+}
+
+std::string APyFloatArray::to_string(int base) const
+{
+    switch (base) {
+    case 10:
+        return to_string_dec();
+    default:
+        throw nb::value_error(
+            fmt::format("APyFloatArray.__str__: base {} is not supported", base).c_str()
+        );
+    }
 }
 
 /*

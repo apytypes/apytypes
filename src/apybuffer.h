@@ -161,13 +161,13 @@ public:
     const std::vector<std::size_t>& shape() const noexcept { return _shape; }
 
     //! Retrieve array shape (exported to Python)
-    nb::tuple python_get_shape() const
+    nb::typed<nb::tuple, std::size_t, nb::ellipsis> python_get_shape() const
     {
         nb::list result_list;
         for (std::size_t i = 0; i < _shape.size(); i++) {
             result_list.append(_shape[i]);
         }
-        return nb::tuple(result_list);
+        return nb::typed<nb::tuple, std::size_t, nb::ellipsis>(nb::tuple(result_list));
     }
 };
 
