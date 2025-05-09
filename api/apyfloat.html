@@ -414,10 +414,10 @@ inputs:</p>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloat.next_down" title="apytypes.APyFloat.next_down"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_down</span></code></a></p></td>
-<td><p>Get the largest floating-point number in the same format that compares less.</p></td>
+<td><p>Get the next smaller number.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloat.next_up" title="apytypes.APyFloat.next_up"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_up</span></code></a></p></td>
-<td><p>Get the smallest floating-point number in the same format that compares greater.</p></td>
+<td><p>Get the next larger number.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloat.to_bits" title="apytypes.APyFloat.to_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bits</span></code></a></p></td>
 <td><p>Get the bit-representation of an <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>.</p></td>
@@ -838,8 +838,9 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_f
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloat.next_up">
 <span class="sig-name descname"><span class="pre">next_up</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></span><a class="headerlink" href="#apytypes.APyFloat.next_up" title="Link to this definition">¶</a></dt>
-<dd><p>Get the smallest floating-point number in the same format that compares
-greater.</p>
+<dd><p>Get the next larger number.</p>
+<p>That means the smallest floating-point number in the same format
+that compares greater.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -858,7 +859,9 @@ greater.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloat.next_down">
 <span class="sig-name descname"><span class="pre">next_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></span><a class="headerlink" href="#apytypes.APyFloat.next_down" title="Link to this definition">¶</a></dt>
-<dd><p>Get the largest floating-point number in the same format that compares less.</p>
+<dd><p>Get the next smaller number.</p>
+<p>That means the largest floating-point number in the same format that
+compares less.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">

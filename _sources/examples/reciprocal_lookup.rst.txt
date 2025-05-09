@@ -25,14 +25,15 @@ In this example a lookup table for floating-point reciprocals is designed,
 assuming that each bit is implemented using an N-ínput LUT, suitable for FPGA, and
 single-precision floating-point representation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 9-30
+.. GENERATED FROM PYTHON SOURCE LINES 9-31
 
 .. code-block:: Python
 
 
-    import apytypes as apy
-    import numpy as np
     import matplotlib.pyplot as plt
+    import numpy as np
+
+    import apytypes as apy
 
     N = 6
     WL = 9
@@ -57,11 +58,11 @@ single-precision floating-point representation.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 31-32
+.. GENERATED FROM PYTHON SOURCE LINES 32-33
 
 Print the resulting table
 
-.. GENERATED FROM PYTHON SOURCE LINES 32-36
+.. GENERATED FROM PYTHON SOURCE LINES 33-37
 
 .. code-block:: Python
 
@@ -145,11 +146,11 @@ Print the resulting table
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 37-38
+.. GENERATED FROM PYTHON SOURCE LINES 38-39
 
 Plot the approximation, with and without fixed-point values
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-50
+.. GENERATED FROM PYTHON SOURCE LINES 39-51
 
 .. code-block:: Python
 
@@ -177,11 +178,11 @@ Plot the approximation, with and without fixed-point values
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 51-52
+.. GENERATED FROM PYTHON SOURCE LINES 52-53
 
 Compute seed error and after one Newton-Raphson iteration
 
-.. GENERATED FROM PYTHON SOURCE LINES 52-76
+.. GENERATED FROM PYTHON SOURCE LINES 53-76
 
 .. code-block:: Python
 
@@ -193,8 +194,7 @@ Compute seed error and after one Newton-Raphson iteration
         table_row = x.man >> (23 - N)  # N most significant bits of x
         new_exp = 253 - x.exp
         new_man = (table[table_row].to_bits() & ((1 << (WL - 1)) - 1)) << (23 - WL + 1)
-        res = apy.APyFloat(x.sign, new_exp, new_man, 8, 23)
-        return res
+        return apy.APyFloat(x.sign, new_exp, new_man, 8, 23)
 
 
     fval = np.linspace(1, 2, points)
@@ -247,7 +247,7 @@ Plot resulting errors
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.306 seconds)
+   **Total running time of the script:** (0 minutes 0.303 seconds)
 
 
 .. _sphx_glr_download_examples_reciprocal_lookup.py:

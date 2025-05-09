@@ -8,10 +8,11 @@ Consider the example from https://docs.scipy.org/doc/scipy/reference/generated/s
 
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy import signal
+
 import apytypes as apy
-import matplotlib.pyplot as plt
 
 sig = np.repeat([0.0, 1.0, 0.0], 100)
 sig_fx = apy.fx(sig, bits=12, int_bits=2)

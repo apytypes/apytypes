@@ -320,12 +320,14 @@ to download the full example code.</p>
 Below is an exhaustive test of an eight-bit floating-point multiplier with round to nearest, ties to even.</p>
 <p>Both source files, <code class="docutils literal notranslate"><span class="pre">test_fp8_mul.py</span></code> and <code class="docutils literal notranslate"><span class="pre">fp8_multiplier.vhdl</span></code>, are available under <a class="reference external" href="https://github.com/apytypes/apytypes/tree/main/examples">examples</a>.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">cocotb</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cocotb.clock</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.cocotb.org/en/stable/library_reference.html#cocotb.clock.Clock" title="cocotb.clock.Clock" class="sphx-glr-backref-module-cocotb-clock sphx-glr-backref-type-py-class"><span class="n">Clock</span></a>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cocotb.runner</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.cocotb.org/en/stable/library_reference.html#cocotb.runner.get_runner" title="cocotb.runner.get_runner" class="sphx-glr-backref-module-cocotb-runner sphx-glr-backref-type-py-function"><span class="n">get_runner</span></a>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cocotb.triggers</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.cocotb.org/en/stable/triggers.html#cocotb.triggers.FallingEdge" title="cocotb.triggers.FallingEdge" class="sphx-glr-backref-module-cocotb-triggers sphx-glr-backref-type-py-class"><span class="n">FallingEdge</span></a>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
 
 
@@ -365,7 +367,7 @@ Below is an exhaustive test of an eight-bit floating-point multiplier with round
                 <span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/apytypes/apytypes/examples/test_fp8_mul.py:18: UserWarning: Python runners and associated APIs are an experimental feature and subject to change.
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/apytypes/apytypes/examples/test_fp8_mul.py:19: UserWarning: Python runners and associated APIs are an experimental feature and subject to change.
   from cocotb.runner import get_runner
 </pre></div>
 </div>
@@ -432,7 +434,7 @@ INFO: Results file: /home/runner/work/apytypes/apytypes/examples/sim_build/resul
 <span class="k">end</span><span class="w"> </span><span class="nc">arch</span><span class="p">;</span>
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 15.700 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 15.463 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-test-fp8-mul-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/95cd391970f13461ba86e0fd415cb9b3/test_fp8_mul.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">test_fp8_mul.ipynb</span></code></a></p>

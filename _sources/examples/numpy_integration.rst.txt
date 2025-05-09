@@ -25,15 +25,16 @@ It is possible to easily go between numpy and apytypes and therefore also use pl
 
 Consider the example from https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.convolve.html implemented using fixed-point arithmetic
 
-.. GENERATED FROM PYTHON SOURCE LINES 10-25
+.. GENERATED FROM PYTHON SOURCE LINES 10-26
 
 .. code-block:: Python
 
 
+    import matplotlib.pyplot as plt
     import numpy as np
     from scipy import signal
+
     import apytypes as apy
-    import matplotlib.pyplot as plt
 
     sig = np.repeat([0.0, 1.0, 0.0], 100)
     sig_fx = apy.fx(sig, bits=12, int_bits=2)
@@ -51,11 +52,11 @@ Consider the example from https://docs.scipy.org/doc/scipy/reference/generated/s
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 26-27
+.. GENERATED FROM PYTHON SOURCE LINES 27-28
 
 The results can then be plotted in Matplotlib
 
-.. GENERATED FROM PYTHON SOURCE LINES 27-43
+.. GENERATED FROM PYTHON SOURCE LINES 28-44
 
 .. code-block:: Python
 
@@ -90,7 +91,7 @@ The results can then be plotted in Matplotlib
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.674 seconds)
+   **Total running time of the script:** (0 minutes 0.563 seconds)
 
 
 .. _sphx_glr_download_examples_numpy_integration.py:
