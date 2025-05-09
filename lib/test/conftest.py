@@ -2,7 +2,7 @@ import apytypes
 
 
 def pytest_collection_finish(session):
-    print("")
+    print()
     print("APyTypes test suite:")
     print(f" * {apytypes._get_simd_version_str()}")
 

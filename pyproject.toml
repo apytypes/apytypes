@@ -36,12 +36,12 @@ docs = [
     "furo>=2024",
     "matplotlib>=3.7",
     "numpydoc>=1.7",
-    "setuptools<70",  # Pin to get around limitation in m2r2
+    "setuptools<70",          # Pin to get around limitation in m2r2
     "sphinx>=7",
     "sphinx_copybutton>=0.5",
     "sphinx_gallery>=0.16",
     "m2r2",
-    "docutils<=0.20",  # Pin to get around limitation in m2r2
+    "docutils<=0.20",         # Pin to get around limitation in m2r2
     "numpy>=1.25",
     "scipy",
     "cocotb>=1.9.1",
@@ -53,7 +53,7 @@ benchmark = ["numpy>=1.25", "pytest>=8.2", "pytest-benchmark"]
 comparison = [
     "fpbinary",
     "fixedpoint",
-#    "fxpmath",
+    #    "fxpmath",
     "spfpm",
     "numfi",
     "numpy>=1.25",
@@ -89,8 +89,8 @@ markers = [
 
 [tool.cibuildwheel]
 skip = [
-    "pp*",      # APyTypes currently can not be build for PyPy ...
-    "*-win32",  # ... nor can it be build for 32-bit Windows systems
+    "pp*",     # APyTypes currently can not be build for PyPy ...
+    "*-win32", # ... nor can it be build for 32-bit Windows systems
 ]
 
 [tool.cibuildwheel.macos.environment]
@@ -99,12 +99,7 @@ MACOSX_DEPLOYMENT_TARGET = "10.14"
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
-exclude = [
-    ".git",
-    ".vscode",
-    "_build",
-    "build",
-]
+exclude = [".git", ".vscode", "_build", "build"]
 
 # Same as Black.
 line-length = 88
@@ -114,8 +109,30 @@ indent-width = 4
 target-version = "py310"
 
 [tool.ruff.lint]
-select = ["E4", "E7", "E9", "F", "I", "UP", "SLOT", "PT", "RET504", "PERF"]
-ignore = ["D202", "D212", "D412", "D413", "D415", "F822"]  # F822 should not be ignored, but as nanobind stubgen does not include __version__...
+select = [
+    "E4",
+    "E7",
+    "E9",
+    "F",
+    "I",
+    "UP",
+    "SLOT",
+    "PT",
+    "RET504",
+    "PERF",
+    "PLE1206",
+    "PLR0402",
+    "FURB",
+    "ANN",
+]
+ignore = [
+    "D202",
+    "D212",
+    "D412",
+    "D413",
+    "D415",
+    "F822", # F822 should not be ignored, but as nanobind stubgen does not include __version__...
+]
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
 unfixable = []
@@ -124,7 +141,11 @@ unfixable = []
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [tool.ruff.lint.per-file-ignores]
-"lib/test/*" = ["D"]
+"lib/test/*" = ["D", "ANN"]
+"examples/*" = ["ANN"]
+"docs/*" = ["ANN"]
+"comparison/*" = ["ANN"]
+"benchmark/*" = ["ANN"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["apytypes"]

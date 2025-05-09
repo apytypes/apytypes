@@ -1,6 +1,6 @@
-import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import gridspec
 from matplotlib.ticker import IndexLocator
 
 from apytypes import APyFixedArray, QuantizationMode  # noqa: F401
