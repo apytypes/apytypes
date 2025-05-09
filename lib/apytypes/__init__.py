@@ -21,30 +21,27 @@ from apytypes._apytypes import (
     set_float_quantization_mode,
     set_float_quantization_seed,
 )
-
 from apytypes._array_functions import (
-    squeeze,
-    reshape,
+    arange,
     convolve,
-    shape,
-    ravel,
-    transpose,
-    moveaxis,
-    swapaxes,
     expand_dims,
-    zeros,
-    zeros_like,
-    ones,
-    ones_like,
     eye,
-    identity,
     full,
     full_like,
-    arange,
+    identity,
+    moveaxis,
+    ones,
+    ones_like,
+    ravel,
+    reshape,
+    shape,
+    squeeze,
+    swapaxes,
+    transpose,
+    zeros,
+    zeros_like,
 )
-
-from apytypes._utils import fx, fp, fn
-
+from apytypes._utils import fn, fp, fx
 from apytypes._version import version as __version__
 
 __all__ = [
@@ -247,7 +244,7 @@ many ways it behaves like the built-in Python types :class:`int` and :class:`flo
 that it can be used within ordinary arithmetic expressions. Every fixed-point instance
 has an associated word length, determined by its :attr:`bits`, :attr:`int_bits`, and
 :attr:`frac_bits` bit specifiers. These specifiers determine the location of the binary
-fix-point and the total word length. Only two of three bit specifers need to be set to
+fix-point and the total word length. Only two of three bit specifiers need to be set to
 uniquely determine the complete fixed-point format.
 
 In general, the fixed-point representation is described by:
@@ -319,7 +316,7 @@ Every fixed-point instance has an associated word length, determined by its
 :attr:`bits`, :attr:`int_bits`, and :attr:`frac_bits` bit specifiers. These specifiers
 determine the location of the binary fix-point and the total word length. Both the real
 and imaginary part share bit specifiers, and the overall number of bits in an
-:class:`APyCFixed` is :code:`2 * bits`. Only two of three bit specifers need to be set
+:class:`APyCFixed` is :code:`2 * bits`. Only two of three bit specifiers need to be set
 to uniquely determine the complete fixed-point format.
 
 

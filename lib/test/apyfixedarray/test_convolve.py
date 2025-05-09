@@ -1,11 +1,11 @@
+import pytest
+
 from apytypes import (
-    APyFixedArray,
     APyFixedAccumulatorContext,
+    APyFixedArray,
     QuantizationMode,
     convolve,
 )
-
-import pytest
 
 
 def test_raises():

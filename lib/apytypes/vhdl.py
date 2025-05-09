@@ -1,7 +1,7 @@
-from apytypes._apytypes import APyFloatArray, APyFixedArray
-
-from typing import TextIO
 import math
+from typing import TextIO
+
+from apytypes._apytypes import APyFixedArray, APyFloatArray
 
 
 def generate_rom(

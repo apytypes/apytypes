@@ -1,9 +1,8 @@
 import re
-from apytypes import APyFixedArray
-from apytypes import APyFixedAccumulatorContext
-from apytypes import QuantizationMode
 
 import pytest
+
+from apytypes import APyFixedAccumulatorContext, APyFixedArray, QuantizationMode
 
 
 def test_dimension_mismatch_raises():

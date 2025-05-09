@@ -1,6 +1,8 @@
 from itertools import permutations as perm
+
 import pytest
-from apytypes import APyFloat, APyFixed, APyCFloat
+
+from apytypes import APyCFloat, APyFixed, APyFloat
 
 
 def real_is_nan(fp: APyFloat | APyCFloat) -> bool:
@@ -131,7 +133,9 @@ def test_scalar_cast_raises(apyfloat: type[APyCFloat]):
 
 
 @pytest.mark.float_special
-@pytest.mark.parametrize("apyfloat, py_type", [(APyFloat, float), (APyCFloat, complex)])
+@pytest.mark.parametrize(
+    ("apyfloat", "py_type"), [(APyFloat, float), (APyCFloat, complex)]
+)
 @pytest.mark.parametrize(
     "float_val", [float("nan"), float("inf"), float("-inf"), 0.0, -0.0]
 )
@@ -143,7 +147,9 @@ def test_special_conversions(
     )
 
 
-@pytest.mark.parametrize("apyfloat, py_type", [(APyFloat, float), (APyCFloat, complex)])
+@pytest.mark.parametrize(
+    ("apyfloat", "py_type"), [(APyFloat, float), (APyCFloat, complex)]
+)
 @pytest.mark.parametrize("exp", list(perm([5, 6, 7, 8], 2)))
 @pytest.mark.parametrize("man", list(perm([5, 6, 7, 8], 2)))
 @pytest.mark.parametrize("val", [2.625, 12])
@@ -164,7 +170,7 @@ def test_normal_conversions(
 
 @pytest.mark.parametrize("sign", ["1", "0"])
 @pytest.mark.parametrize(
-    "absx,ans",
+    ("absx", "answer"),
     [
         ("00000_00", "0.0"),  # Zero
         ("0000_001", "1*2**-9"),  # Min subnorm
@@ -179,30 +185,30 @@ def test_normal_conversions(
         ("1111_000", 'float("inf")'),  # Infinity
     ],
 )
-def test_bit_conversions_e4m3(absx, sign, ans):
+def test_bit_conversions_e4m3(absx, sign, answer):
     assert float(APyFloat.from_bits(int(f"{sign}_{absx}", 2), 4, 3)) == eval(
-        f"{'-' if sign == '1' else ''}{ans}"
+        f"{'-' if sign == '1' else ''}{answer}"
     )
     assert APyFloat.from_float(
-        eval(f"{'-' if sign == '1' else ''}{ans}"), 4, 3
+        eval(f"{'-' if sign == '1' else ''}{answer}"), 4, 3
     ).to_bits() == int(f"{sign}_{absx}", 2)
 
 
 @pytest.mark.parametrize("sign", ["1", "0"])
 @pytest.mark.parametrize(
-    "absx,ans",
+    ("absx", "answer"),
     [
         ("11111_01", 'float("nan")'),  # NaN
         ("11111_10", 'float("nan")'),  # NaN
         ("11111_11", 'float("nan")'),  # NaN
     ],
 )
-def test_bit_conversion_nan_e5m2(absx, sign, ans):
+def test_bit_conversion_nan_e5m2(absx, sign, answer):
     assert str(float(APyFloat.from_bits(int(f"{sign}_{absx}", 2), 5, 2))) == str(
-        eval(f"{'-' if sign == '1' else ''}{ans}")
+        eval(f"{'-' if sign == '1' else ''}{answer}")
     )
     bits = APyFloat.from_float(
-        eval(f"{'-' if sign == '1' else ''}{ans}"), 5, 2
+        eval(f"{'-' if sign == '1' else ''}{answer}"), 5, 2
     ).to_bits()
     assert (bits & 0x3) != 0
 
@@ -214,7 +220,9 @@ def test_long_python_integer():
     assert a.to_bits() == val
 
 
-@pytest.mark.parametrize("apyfloat, py_type", [(APyFloat, float), (APyCFloat, complex)])
+@pytest.mark.parametrize(
+    ("apyfloat", "py_type"), [(APyFloat, float), (APyCFloat, complex)]
+)
 def test_convert_to_double(apyfloat: type[APyCFloat], py_type: type[complex]):
     a = apyfloat(0, 1, 1, 13, 60)
     assert py_type(a) == 0.0
@@ -481,7 +489,7 @@ def test_round_trip_conversion():
 
 
 @pytest.mark.parametrize(
-    "apyfloat, test_exp",
+    ("apyfloat", "test_exp"),
     [
         # First some general tests
         (APyFloat(0, 0, 1, 4, 3), APyFloat(0, 0, 2, 4, 3)),

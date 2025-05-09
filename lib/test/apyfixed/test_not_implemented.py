@@ -1,6 +1,6 @@
-from apytypes import APyFixed, APyCFixed
-
 import pytest
+
+from apytypes import APyCFixed, APyFixed
 
 
 @pytest.mark.parametrize("fixed_type", [APyFixed])

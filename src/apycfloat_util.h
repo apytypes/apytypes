@@ -76,7 +76,7 @@ struct FloatingPointComplexDivider {
      * The used complex-valued division formula (algorithm) can be found here:
      * https://dl.acm.org/doi/pdf/10.1145/368637.368661
      *
-     * Normalization is especially important to achieve equivilance between real-valued
+     * Normalization is especially important to achieve equivalence between real-valued
      * floating-point division and complex-valued floating-point division of real-valued
      * operands. Logic for restoring proper NaNs and infs is further needed to have
      * equivalent behaviour between real-valued and complex-valued divisions.

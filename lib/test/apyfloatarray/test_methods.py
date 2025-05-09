@@ -1,6 +1,8 @@
-import pytest
 from itertools import permutations
-from apytypes import APyFloatArray, APyFloat, APyFixed, QuantizationMode
+
+import pytest
+
+from apytypes import APyFixed, APyFloat, APyFloatArray, QuantizationMode
 
 
 @pytest.mark.float_array
@@ -346,26 +348,28 @@ def test_len():
 @pytest.mark.float_array
 def test_cast():
     fp_array = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=10, man_bits=15)
-    ans = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=5, man_bits=2)
-    assert fp_array.cast(5, 2).is_identical(ans)
+    answer = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=5, man_bits=2)
+    assert fp_array.cast(5, 2).is_identical(answer)
 
     fp_array = APyFloatArray.from_float(
         [[1000, -1000], [1.015625, float("nan")]], exp_bits=10, man_bits=15
     )
-    ans = APyFloatArray.from_float(
+    answer = APyFloatArray.from_float(
         [[float("inf"), float("-inf")], [1, float("nan")]], exp_bits=4, man_bits=3
     )
-    assert fp_array.cast(4, 3).is_identical(ans)
+    assert fp_array.cast(4, 3).is_identical(answer)
 
     fp_array = APyFloatArray.from_float([1.125, -1.875], exp_bits=10, man_bits=15)
-    ans = APyFloatArray.from_float([1, -1.75], exp_bits=5, man_bits=2)
-    assert fp_array.cast(5, 2, quantization=QuantizationMode.TO_ZERO).is_identical(ans)
+    answer = APyFloatArray.from_float([1, -1.75], exp_bits=5, man_bits=2)
+    assert fp_array.cast(5, 2, quantization=QuantizationMode.TO_ZERO).is_identical(
+        answer
+    )
 
     fp_array = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=10, man_bits=15)
-    ans = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=4, man_bits=15)
-    assert fp_array.cast(4).is_identical(ans)
-    ans = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=10, man_bits=5)
-    assert fp_array.cast(man_bits=5).is_identical(ans)
+    answer = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=4, man_bits=15)
+    assert fp_array.cast(4).is_identical(answer)
+    answer = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=10, man_bits=5)
+    assert fp_array.cast(man_bits=5).is_identical(answer)
 
 
 @pytest.mark.float_array
@@ -412,7 +416,7 @@ def test_squeeze():
     assert k.is_identical(i)
     assert z.is_identical(i)
     m = APyFloatArray.from_float([[1], [2], [3]], exp_bits=10, man_bits=10)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="APyFloatArray.squeeze: cannot squeeze"):
         _ = m.squeeze(axis=0)
     m1 = m.squeeze(axis=1)
     assert m1.is_identical(
@@ -429,7 +433,7 @@ def test_squeeze():
         APyFloatArray.from_float([[[[[2]]]]], exp_bits=10, man_bits=10)
     )
     q = APyFloatArray.from_float([[[1]], [[2]], [[3]], [[4]]], exp_bits=10, man_bits=10)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="APyFloatArray.squeeze: cannot squeeze"):
         _ = q.squeeze((0, 1, 2))
     with pytest.raises(IndexError):
         _ = m.squeeze((1, 4))
@@ -1374,7 +1378,7 @@ def test_convenience_cast():
 
 @pytest.mark.float_array
 @pytest.mark.parametrize(
-    "shape, is_valid, is_invalid, test_neg_one",
+    ("shape", "is_valid", "is_invalid", "test_neg_one"),
     [
         ((6,), True, False, False),  # Valid shapes
         ((3, 2), True, False, False),
@@ -1860,7 +1864,7 @@ def test_to_bits_numpy():
     )
 
 
-@pytest.mark.parametrize("float_array, float_scalar", [(APyFloatArray, APyFloat)])
+@pytest.mark.parametrize(("float_array", "float_scalar"), [(APyFloatArray, APyFloat)])
 @pytest.mark.parametrize("bits", [16, 32, 48])
 def test_issue_623(float_array, float_scalar, bits):
     """

@@ -1,6 +1,6 @@
-from apytypes import APyFixedArray
-
 import pytest
+
+from apytypes import APyFixedArray
 
 
 def test_not():

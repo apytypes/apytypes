@@ -1,7 +1,8 @@
-from apytypes import APyFixedArray, OverflowMode  # noqa: F401
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.ticker import IndexLocator
+
+from apytypes import APyFixedArray, OverflowMode  # noqa: F401
 
 modes = [
     "OverflowMode.WRAP",

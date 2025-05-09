@@ -1,5 +1,6 @@
-from apytypes import APyCFixed
 import numpy as np
+
+from apytypes import APyCFixed
 
 
 def test_cfixed_scalar_multiplication_short(benchmark):

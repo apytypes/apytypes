@@ -1,6 +1,6 @@
-from apytypes import APyCFloat, APyFloatQuantizationContext, QuantizationMode
-
 import pytest
+
+from apytypes import APyCFloat, APyFloatQuantizationContext, QuantizationMode
 
 
 @pytest.mark.parametrize("apyfloat", [APyCFloat])

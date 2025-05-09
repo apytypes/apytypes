@@ -338,7 +338,7 @@ void bind_cfloat(nb::module_& m)
             -------
             :class:`APyCFloat`
 
-            See also
+            See Also
             --------
             from_complex
             )pbdoc"
@@ -382,7 +382,7 @@ void bind_cfloat(nb::module_& m)
             -------
             :class:`APyCFloat`
 
-            See also
+            See Also
             --------
             from_complex
             )pbdoc"
@@ -421,7 +421,7 @@ void bind_cfloat(nb::module_& m)
         //     -------
         //     :class:`APyCFloat`
 
-        //     See also
+        //     See Also
         //     --------
         //     to_bits
         //     from_float
@@ -446,7 +446,7 @@ void bind_cfloat(nb::module_& m)
         //     -------
         //     :class:`int`
 
-        //     See also
+        //     See Also
         //     --------
         //     from_bits
         //     )pbdoc")

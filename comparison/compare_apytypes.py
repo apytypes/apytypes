@@ -1,4 +1,4 @@
-from apytypes import APyFixedArray, APyFixed
+from apytypes import APyFixed, APyFixedArray
 
 
 def create_scalar(val, integer_bits, fractional_bits):

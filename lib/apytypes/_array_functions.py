@@ -1,14 +1,13 @@
+from typing import Literal
+
 from apytypes._apytypes import (
+    APyCFixedArray,
     APyFixed,
     APyFixedArray,
-    APyCFixedArray,
     APyFloat,
     APyFloatArray,
 )
-
 from apytypes._typing import APyArray, APyScalar
-
-from typing import Literal
 
 
 def squeeze(a: APyArray, axis=None) -> APyArray | APyScalar:
@@ -81,8 +80,7 @@ def convolve(
 
 def reshape(a: APyArray, new_shape: tuple[int, ...]) -> APyArray:
     """
-    Reshape an :class:`APyFixedArray` or :class:`APyFloatArray` to the specified shape
-    without changing its data.
+    Reshape an array to the specified shape without changing its data.
 
     Parameters
     ----------
@@ -307,8 +305,7 @@ def moveaxis(a: APyArray, source, destination) -> APyArray:
         order.insert(dest, src)
     order_tuple = tuple(order)
 
-    result = transpose(a, order_tuple)
-    return result
+    return transpose(a, order_tuple)
 
 
 def swapaxes(a: APyArray, axis1: int, axis2: int) -> APyArray:
@@ -820,7 +817,7 @@ def zeros_like(
     except AttributeError:
         raise TypeError(f"Cannot make zeros array of type {type(a)}")
 
-    if isinstance(a, (APyFixedArray, APyCFixedArray)):
+    if isinstance(a, APyFixedArray | APyCFixedArray):
         if int_bits is None and frac_bits is None and bits is None:
             return zeros(shape=a.shape, int_bits=a.int_bits, frac_bits=a.frac_bits)
         else:
@@ -879,7 +876,7 @@ def ones_like(
     except AttributeError:
         raise TypeError(f"Cannot make ones array of type {type(a)}")
 
-    if isinstance(a, (APyFixedArray, APyCFixedArray)):
+    if isinstance(a, APyFixedArray | APyCFixedArray):
         if int_bits is None and frac_bits is None and bits is None:
             return ones(shape=a.shape, int_bits=a.int_bits, frac_bits=a.frac_bits)
         else:
@@ -1095,7 +1092,7 @@ def _determine_fill_value(
     man_bits=None,
     bias=None,
 ):
-    if isinstance(fill_value, (int, float)):
+    if isinstance(fill_value, int | float):
         if man_bits is None and exp_bits is None:
             i_bits, f_bits = _extract_fixed_bit_specifiers(int_bits, frac_bits, bits)
             return APyFixed.from_float(fill_value, int_bits=i_bits, frac_bits=f_bits)

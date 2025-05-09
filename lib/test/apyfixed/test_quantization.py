@@ -1,11 +1,10 @@
-from apytypes import APyFixed, APyCFixed
-from apytypes import QuantizationMode
-
 import pytest
+
+from apytypes import APyCFixed, APyFixed, QuantizationMode
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_trn(fixed_type, im):
     mode = QuantizationMode.TRN
@@ -35,7 +34,7 @@ def test_trn(fixed_type, im):
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_trn_inf(fixed_type, im):
     mode = QuantizationMode.TRN_INF
@@ -67,7 +66,7 @@ def test_trn_inf(fixed_type, im):
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_trn_away(fixed_type, im):
     mode = QuantizationMode.TRN_AWAY
@@ -99,7 +98,7 @@ def test_trn_away(fixed_type, im):
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_trn_zero(fixed_type, im):
     mode = QuantizationMode.TRN_ZERO
@@ -131,7 +130,7 @@ def test_trn_zero(fixed_type, im):
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_trn_mag(fixed_type, im):
     mode = QuantizationMode.TRN_MAG
@@ -161,7 +160,7 @@ def test_trn_mag(fixed_type, im):
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_rnd(fixed_type, im):
     mode = QuantizationMode.RND
@@ -193,7 +192,7 @@ def test_rnd(fixed_type, im):
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_rnd_zero(fixed_type, im):
     mode = QuantizationMode.RND_ZERO
@@ -225,7 +224,7 @@ def test_rnd_zero(fixed_type, im):
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_rnd_inf(fixed_type, im):
     mode = QuantizationMode.RND_INF
@@ -264,7 +263,7 @@ def test_rnd_inf(fixed_type, im):
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_rnd_min_inf(fixed_type, im):
     mode = QuantizationMode.RND_MIN_INF
@@ -303,7 +302,7 @@ def test_rnd_min_inf(fixed_type, im):
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_rnd_conv(fixed_type, im):
     mode = QuantizationMode.RND_CONV
@@ -339,7 +338,7 @@ def test_rnd_conv(fixed_type, im):
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_rnd_conv_odd(fixed_type, im):
     mode = QuantizationMode.RND_CONV_ODD
@@ -452,7 +451,7 @@ def test_jam():
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_jam_unbiased(fixed_type, im):
     mode = QuantizationMode.JAM_UNBIASED
@@ -495,21 +494,21 @@ def test_jam_unbiased(fixed_type, im):
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_stochastic_weighted(fixed_type, im):
     pass
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_stochastic_equal(fixed_type, im):
     pass
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 @pytest.mark.parametrize(
     "mode",
@@ -531,7 +530,7 @@ def test_huge_narrowing_cast(fixed_type, im, mode):
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 @pytest.mark.parametrize(
     "mode",
@@ -567,7 +566,7 @@ def test_not_implemented(fixed_type, mode):
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_issue_112(fixed_type, im):
     # Smoke test to make sure that it doesn't seg-fault
@@ -575,7 +574,7 @@ def test_issue_112(fixed_type, im):
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_issue_179(fixed_type, im):
     #
@@ -622,7 +621,7 @@ def test_issue_179(fixed_type, im):
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_exactly_full_limb_quantize(fixed_type, im):
     # Truncate towrads minus infinity
@@ -772,7 +771,7 @@ def test_issue_335(fixed_type, mode):
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_quantize_away_all_bits(fixed_type, im):
     # Quantize away all of the bits. These are non-realistic quantizations, but need to

@@ -318,7 +318,7 @@ public:
     unsigned norm_shift;
     //! Normalized denominator, most significant limb
     apy_limb_t norm_denominator_1;
-    //! Normalized denominator, least singificant limb (unused for single limb
+    //! Normalized denominator, least significant limb (unused for single limb
     //! denominators)
     apy_limb_t norm_denominator_0;
     //! Inverse, for 2/1 or 3/2.

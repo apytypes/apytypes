@@ -11,12 +11,14 @@ Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are availabl
 """
 
 import os
-from pathlib import Path
 import shutil
+from pathlib import Path
+
 import cocotb
 from cocotb.clock import Clock
 from cocotb.runner import get_runner
 from cocotb.triggers import FallingEdge
+
 import apytypes as apy
 
 

@@ -427,7 +427,7 @@ double_dabble(std::vector<apy_limb_t> nibble_data)
     }
 
     // Remove zero elements from the back until first non-zero element is found
-    // (keep atleast one zero at the start)
+    // (keep at least one zero at the start)
     auto is_non_zero = [](auto n) { return n != 0; };
     nibble_data.erase(
         std::find_if(nibble_data.rbegin(), nibble_data.rend() - 1, is_non_zero).base(),
@@ -1092,7 +1092,7 @@ template <class RANDOM_ACCESS_ITERATOR>
 {
     apy_limb_t mask = ~((apy_limb_t(1) << n) - 1);
     if (~*cbegin_it & mask) {
-        // One ore more bits in the masked first limb are non-ones
+        // One or more bits in the masked first limb are non-ones
         return false;
     } else {
         // Test if remaining limbs are all full zero limbs

@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Bug in `APyFloat` addition/substraction when the exponent difference was larger
+- Bug in `APyFloat` addition/subtraction when the exponent difference was larger
   than 64, introduced in v0.3.0.
 - Bug in `from_float` when creating an `APyFloat` from an `APyFixed`.
 - `ones_like` and `zeros_like` now support `APyCFixedArray` input.

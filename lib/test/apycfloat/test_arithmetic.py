@@ -1,8 +1,9 @@
-from apytypes import APyCFloat, APyCFixed, APyFloat, APyFixed
+import platform
 from itertools import product
 
 import pytest
-import platform
+
+from apytypes import APyCFixed, APyCFloat, APyFixed, APyFloat
 
 
 def is_identical_or_nan(x: APyCFloat, y: APyCFloat):
@@ -64,7 +65,7 @@ def complex_division_double_precision(z: complex, w: complex) -> complex:
 
 @pytest.mark.float_div
 @pytest.mark.parametrize(
-    "num_val, den_val",
+    ("num_val", "den_val"),
     list(
         product(
             [
@@ -104,12 +105,14 @@ def test_div_with_zero(num_real: float, num_imag: float, den_real: float):
     if num.real.is_zero or num.real.is_nan:
         assert res.real.is_nan
     else:
-        assert res.real.is_inf and res.real.sign == (num.real.sign ^ den.real.sign)
+        assert res.real.is_inf
+        assert res.real.sign == (num.real.sign ^ den.real.sign)
 
     if num.imag.is_zero or num.imag.is_nan:
         assert res.imag.is_nan
     else:
-        assert res.imag.is_inf and res.imag.sign == (num.imag.sign ^ den.real.sign)
+        assert res.imag.is_inf
+        assert res.imag.sign == (num.imag.sign ^ den.real.sign)
 
 
 @pytest.mark.float_div
@@ -193,7 +196,7 @@ def test_sub_double_precision(x: complex, y: complex):
 @pytest.mark.parametrize("exp_bits", [5, 11, 30])
 @pytest.mark.parametrize("man_bits", [10, 35, 52])
 @pytest.mark.parametrize(
-    "a_val, b_val",
+    ("a_val", "b_val"),
     product(
         [0.0 + 0.0j, -1.0 + 0.0j, -0.0 - 1.0j, 3.0625 - 1.25j, -(2 ** (-4)) + 247.25j],
         repeat=2,
@@ -341,7 +344,7 @@ def test_arithmetic_with_apyfloat(
 @pytest.mark.parametrize("exp_bits", [5, 11, 30])
 @pytest.mark.parametrize("man_bits", [10, 35, 52])
 @pytest.mark.parametrize(
-    "a_val, b_val",
+    ("a_val", "b_val"),
     product(
         [0.0 + 0.0j, -1.0 + 0.0j, -0.0 - 1.0j, 3.0625 - 1.25j, -(2 ** (-4)) + 247.25j],
         repeat=2,

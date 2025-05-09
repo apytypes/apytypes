@@ -1,6 +1,8 @@
 from itertools import product
+
 import pytest
-from apytypes import APyFloat, APyFixed, APyCFloat
+
+from apytypes import APyCFloat, APyFixed, APyFloat
 
 
 @pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])

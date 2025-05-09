@@ -1,11 +1,17 @@
-from apytypes import APyFixedArray, APyFloatArray, APyCFixedArray
-from apytypes import APyFixed, APyFloat, APyCFixed
-
 import pytest
+
+from apytypes import (
+    APyCFixed,
+    APyCFixedArray,
+    APyFixed,
+    APyFixedArray,
+    APyFloat,
+    APyFloatArray,
+)
 
 
 @pytest.mark.parametrize(
-    "APyArray, APyScalar",
+    ("APyArray", "APyScalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
 def test_raise_invalid_item(APyArray, APyScalar):
@@ -17,7 +23,7 @@ def test_raise_invalid_item(APyArray, APyScalar):
 
 
 @pytest.mark.parametrize(
-    "APyArray, APyScalar",
+    ("APyArray", "APyScalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
 def test_raises_same_type(APyArray, APyScalar):
@@ -34,7 +40,7 @@ def test_raises_same_type(APyArray, APyScalar):
 
 
 @pytest.mark.parametrize(
-    "APyArray, APyScalar",
+    ("APyArray", "APyScalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
 def test_set_item_integer(APyArray, APyScalar):
@@ -63,7 +69,7 @@ def test_set_item_integer(APyArray, APyScalar):
 
 
 @pytest.mark.parametrize(
-    "APyArray, APyScalar",
+    ("APyArray", "APyScalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
 def test_set_item_slice(APyArray, APyScalar):
@@ -92,7 +98,7 @@ def test_set_item_slice(APyArray, APyScalar):
 
 
 @pytest.mark.parametrize(
-    "APyArray, APyScalar",
+    ("APyArray", "APyScalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
 def test_set_item_single_ellipsis(APyArray, APyScalar):
@@ -108,7 +114,7 @@ def test_set_item_single_ellipsis(APyArray, APyScalar):
 
 
 @pytest.mark.parametrize(
-    "APyArray, APyScalar",
+    ("APyArray", "APyScalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
 def test_set_item_tuple(APyArray, APyScalar):
@@ -144,7 +150,7 @@ def test_set_item_tuple(APyArray, APyScalar):
 
 
 @pytest.mark.parametrize(
-    "APyArray, APyScalar",
+    ("APyArray", "APyScalar"),
     [
         (APyFixedArray, APyFixed),
         (APyCFixedArray, APyCFixed),
@@ -183,7 +189,7 @@ def test_set_item_tuple_multi_limb(APyArray, APyScalar):
 
 
 @pytest.mark.parametrize(
-    "APyArray, APyScalar",
+    ("APyArray", "APyScalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
 def test_set_item_not_broadcastable(APyArray, APyScalar):

@@ -1,13 +1,14 @@
 import re
+
+import pytest
+
 from apytypes import (
     APyFloat,
-    APyFloatArray,
     APyFloatAccumulatorContext,
+    APyFloatArray,
     APyFloatQuantizationContext,
     QuantizationMode,
 )
-
-import pytest
 
 
 @pytest.mark.float_array
@@ -123,16 +124,16 @@ def test_matrix_multiplication_accumulator_context():
     )
 
     # Changing only the rounding mode will produce the same answer as the APyFloatQuantizationContext
-    ans = None
+    answer = None
     with APyFloatQuantizationContext(QuantizationMode.TO_POS):
-        ans = A @ B
+        answer = A @ B
 
     with APyFloatAccumulatorContext(
         exp_bits=4, man_bits=3, quantization=QuantizationMode.TO_POS
     ):
-        print(ans)
+        print(answer)
         print(A @ B)
-        assert ans.is_identical(A @ B)
+        assert answer.is_identical(A @ B)
 
     # Using more mantissa bits, the result will be the same
     for man_bits in range(6, 20):

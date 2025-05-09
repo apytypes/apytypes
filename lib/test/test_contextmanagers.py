@@ -1,18 +1,19 @@
+import pytest
+
 from apytypes import (
-    APyFixedCastContext,
-    QuantizationMode,
-    OverflowMode,
     APyFixed,
-    APyFixedArray,
-    APyFloatAccumulatorContext,
     APyFixedAccumulatorContext,
+    APyFixedArray,
+    APyFixedCastContext,
+    APyFloatAccumulatorContext,
     APyFloatQuantizationContext,
+    OverflowMode,
+    QuantizationMode,
     get_float_quantization_mode,
     get_float_quantization_seed,
     set_float_quantization_mode,
     set_float_quantization_seed,
 )
-import pytest
 
 
 class TestCastContext:

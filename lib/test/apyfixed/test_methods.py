@@ -1,6 +1,6 @@
-from apytypes import APyFixed, APyCFixed, APyFloat
-
 import pytest
+
+from apytypes import APyCFixed, APyFixed, APyFloat
 
 
 def test_to_bits():

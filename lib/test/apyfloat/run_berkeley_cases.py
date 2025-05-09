@@ -9,12 +9,6 @@ run_berkeley_cases.py -h".
 """
 
 import argparse
-from apytypes import (
-    APyFloat,
-    APyFloatArray,
-    QuantizationMode,
-    APyFloatQuantizationContext,
-)
 import itertools
 import math
 import os
@@ -22,6 +16,12 @@ import random
 import subprocess
 import sys
 
+from apytypes import (
+    APyFloat,
+    APyFloatArray,
+    APyFloatQuantizationContext,
+    QuantizationMode,
+)
 
 # Directory where all test files will be created
 TEST_DIR = "./berkeley_tests/"
@@ -446,7 +446,7 @@ if __name__ == "__main__":
 
         for quant_arg in args.quant_modes:
             if args.verbose:
-                print((f"==== Operation: {op}, {quant_arg} ===="))
+                print(f"==== Operation: {op}, {quant_arg} ====")
             with open(output_file, "a") as f:
                 f.write(f"==== Operation: {op}, {quant_arg} ====\n")
 

@@ -20,10 +20,12 @@ template <auto FUNC, typename L_TYPE>
 static APyCFixedArray R_OP(const APyCFixedArray& rhs, const L_TYPE& lhs)
 {
     if constexpr (std::is_same_v<std::complex<double>, L_TYPE>) {
-        return (rhs.*FUNC)(APyCFixed::from_complex(lhs, rhs.int_bits(), rhs.frac_bits())
+        return (rhs.*FUNC)(
+            APyCFixed::from_complex(lhs, rhs.int_bits(), rhs.frac_bits())
         );
     } else if constexpr (std::is_floating_point_v<L_TYPE>) {
-        return (rhs.*FUNC)(APyCFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits())
+        return (rhs.*FUNC)(
+            APyCFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits())
         );
     } else if constexpr (std::is_same_v<std::remove_cv_t<L_TYPE>, APyCFixed>) {
         return (rhs.*FUNC)(lhs);
@@ -32,7 +34,8 @@ static APyCFixedArray R_OP(const APyCFixedArray& rhs, const L_TYPE& lhs)
             APyCFixed::from_apyfixed(lhs, lhs.int_bits(), lhs.frac_bits())
         );
     } else {
-        return (rhs.*FUNC)(APyCFixed::from_integer(lhs, rhs.int_bits(), rhs.frac_bits())
+        return (rhs.*FUNC)(
+            APyCFixed::from_integer(lhs, rhs.int_bits(), rhs.frac_bits())
         );
     }
 }
@@ -568,8 +571,9 @@ void bind_cfixed_array(nb::module_& m)
             &APyCFixedArray::squeeze,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Removes axes of size one at the specified axis/axes, if no axis is
-            given removes all dimensions with size one.
+            Remove axes of size one at the specified axis/axes.
+
+            If no axis is given, remove all dimensions with size one.
 
             Parameters
             ----------
@@ -715,8 +719,7 @@ void bind_cfixed_array(nb::module_& m)
             &APyCFixedArray::cumsum,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Return the cumulative sum of the elements along a given axis treating NaN as
-            0.
+            Return the cumulative sum of the elements along a given axis treating NaN as 0.
 
             Parameters
             ----------
@@ -742,7 +745,7 @@ void bind_cfixed_array(nb::module_& m)
             &APyCFixedArray::prod,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Returns the product of the elements along specified axis/axes.
+            Return the product of the elements along specified axis/axes.
 
             Parameters
             ----------
@@ -1026,7 +1029,7 @@ void bind_cfixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Initializes an array with zeros.
+            Initialize an array with zeros.
 
             Parameters
             ----------
@@ -1053,7 +1056,7 @@ void bind_cfixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Initializes an array with ones.
+            Initialize an array with ones.
 
             Parameters
             ----------
@@ -1081,7 +1084,7 @@ void bind_cfixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Initializes an array with ones on the diagonal.
+            Initialize an array with ones on the diagonal.
 
             Parameters
             ----------
@@ -1110,7 +1113,7 @@ void bind_cfixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Initializes an identity matrix with ones on the diagonal.
+            Initialize an identity matrix with ones on the diagonal.
 
             Parameters
             ----------
@@ -1135,7 +1138,7 @@ void bind_cfixed_array(nb::module_& m)
             nb::arg("shape"),
             nb::arg("fill_value"),
             R"pbdoc(
-            Initializes an array with the specified value.
+            Initialize an array with the specified value.
 
             Parameters
             ----------
