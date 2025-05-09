@@ -16,7 +16,7 @@ import apytypes as apy
 angle = 0.003
 
 
-def print_rotation_properties(angle, frac_bits):
+def print_rotation_properties(angle, frac_bits) -> None:
     cosa = math.cos(angle)
     sina = math.sin(angle)
     rotation_matrix = apy.fx([[cosa, -sina], [sina, cosa]], 2, frac_bits)

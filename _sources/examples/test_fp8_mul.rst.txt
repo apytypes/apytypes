@@ -46,7 +46,7 @@ Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are availabl
 
 
     @cocotb.test()
-    async def fp8_mul_test_all(dut):
+    async def fp8_mul_test_all(dut) -> None:
         """
         Exhaustive test of all inputs.
         """
@@ -105,7 +105,7 @@ The rest of the testbench is set up as one would normally do using cocotb.
 
 
 
-    def test_fp8_mul():
+    def test_fp8_mul() -> None:
         """
         Simulate the floating-point multiplier using the Python runner.
 
@@ -160,7 +160,7 @@ The contents of ``fp8_multiplier.vhdl`` is shown below.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 15.463 seconds)
+   **Total running time of the script:** (0 minutes 16.097 seconds)
 
 
 .. _sphx_glr_download_examples_test_fp8_mul.py:

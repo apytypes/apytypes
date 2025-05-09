@@ -332,7 +332,7 @@ Below is an exhaustive test of an eight-bit floating-point multiplier with round
 
 
 <span class="nd">@cocotb</span><span class="o">.</span><span class="n">test</span><span class="p">()</span>
-<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fp8_mul_test_all</span><span class="p">(</span><span class="n">dut</span><span class="p">):</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fp8_mul_test_all</span><span class="p">(</span><span class="n">dut</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exhaustive test of all inputs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -372,7 +372,7 @@ Below is an exhaustive test of an eight-bit floating-point multiplier with round
 </pre></div>
 </div>
 <p>The rest of the testbench is set up as one would normally do using cocotb.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_fp8_mul</span><span class="p">():</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_fp8_mul</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Simulate the floating-point multiplier using the Python runner.</span>
 
@@ -434,7 +434,7 @@ INFO: Results file: /home/runner/work/apytypes/apytypes/examples/sim_build/resul
 <span class="k">end</span><span class="w"> </span><span class="nc">arch</span><span class="p">;</span>
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 15.463 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 16.097 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-test-fp8-mul-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/95cd391970f13461ba86e0fd415cb9b3/test_fp8_mul.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">test_fp8_mul.ipynb</span></code></a></p>
