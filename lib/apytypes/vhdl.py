@@ -13,7 +13,7 @@ def generate_rom(
     input_register: bool = False,
     output_register: bool = False,
     file: TextIO | None = None,
-):
+) -> None:
     """
     Generate VHDL for a ROM.
 
@@ -37,7 +37,6 @@ def generate_rom(
         If ``True``, a register is added at the output of the ROM.
     file : file handle, optional
         File handle to write the file to. If not provided, a file ``entity.vhdl`` is used.
-
     """
     table = table.squeeze()
     if table.ndim != 1:
@@ -77,17 +76,17 @@ def generate_rom(
 
 
 def _write_rom(
-    f,
+    f: TextIO,
     table: APyFixedArray | APyFloatArray,
-    number_of_table_values,
-    address_bits,
+    number_of_table_values: NotImplementedError,
+    address_bits: int,
     address: APyFixedArray | APyFloatArray | None,
-    entity,
-    ieee2008,
-    frac_bits,
-    input_register,
-    output_register,
-):
+    entity: str,
+    ieee2008: bool,
+    frac_bits: int | None,
+    input_register: bool,
+    output_register: bool,
+) -> None:
     table_values = table.to_bits()
     if address is None:
         address_values = range(number_of_table_values)

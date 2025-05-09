@@ -112,7 +112,9 @@ def fp(
     )
 
 
-def _process_args(args) -> tuple[list[float], partial]:
+def _process_args(
+    args: tuple[APyFloat | APyFixed | APyFixedArray | APyFloatArray, ...],
+) -> tuple[list[float], partial]:
     fargs = []
     exp_bits = -math.inf
     man_bits = -math.inf

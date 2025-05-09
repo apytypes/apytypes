@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from typing import Literal
 
 from apytypes._apytypes import (
@@ -10,7 +11,9 @@ from apytypes._apytypes import (
 from apytypes._typing import APyArray, APyScalar
 
 
-def squeeze(a: APyArray, axis=None) -> APyArray | APyScalar:
+def squeeze(
+    a: APyArray, axis: int | tuple[int, ...] | None = None
+) -> APyArray | APyScalar:
     """
     Remove axes of length one from `a`.
 
@@ -150,7 +153,7 @@ def shape(arr: APyArray) -> tuple[int, ...]:
     return shape
 
 
-def transpose(a: APyArray, axes=None) -> APyArray:
+def transpose(a: APyArray, axes: tuple[int, ...] | None = None) -> APyArray:
     """
     Return an copy of the array with axes transposed.
 
@@ -252,7 +255,9 @@ def ravel(a: APyArray) -> APyArray:
     return ravel()
 
 
-def moveaxis(a: APyArray, source, destination) -> APyArray:
+def moveaxis(
+    a: APyArray, source: int | Sequence[int], destination: int | Sequence[int]
+) -> APyArray:
     """
     Move axes of an array to new positions.
 
@@ -840,7 +845,7 @@ def ones_like(
     exp_bits: int | None = None,
     man_bits: int | None = None,
     bias: int | None = None,
-):
+) -> APyArray:
     """
     Return an array of all ones (stored value) with the same shape and type as `a`.
 
@@ -1071,7 +1076,14 @@ def arange(
 # =============================================================================
 # Helpers
 # =============================================================================
-def _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias):
+def _determine_array_type(
+    int_bits: int | None,
+    frac_bits: int | None,
+    bits: int | None,
+    exp_bits: int | None,
+    man_bits: int | None,
+    bias: int | None,
+) -> type[APyFixedArray] | type[APyFloatArray] | None:
     float_arr = exp_bits is not None or man_bits is not None or bias is not None
     fixed_arr = bits is not None or int_bits is not None or frac_bits is not None
 
@@ -1084,14 +1096,14 @@ def _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias):
 
 
 def _determine_fill_value(
-    fill_value,
-    int_bits=None,
-    frac_bits=None,
-    bits=None,
-    exp_bits=None,
-    man_bits=None,
-    bias=None,
-):
+    fill_value: int | float | APyFixed | APyFloat,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+) -> APyFloat | APyFixed:
     if isinstance(fill_value, int | float):
         if man_bits is None and exp_bits is None:
             i_bits, f_bits = _extract_fixed_bit_specifiers(int_bits, frac_bits, bits)

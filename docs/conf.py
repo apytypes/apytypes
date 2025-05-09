@@ -156,7 +156,7 @@ def skip(app, what, name, obj, would_skip, options):
     return would_skip
 
 
-def setup(app):
+def setup(app) -> None:
     app.connect("autodoc-skip-member", skip)
 
 

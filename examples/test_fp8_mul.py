@@ -23,7 +23,7 @@ import apytypes as apy
 
 
 @cocotb.test()
-async def fp8_mul_test_all(dut):
+async def fp8_mul_test_all(dut) -> None:
     """
     Exhaustive test of all inputs.
     """
@@ -62,7 +62,7 @@ async def fp8_mul_test_all(dut):
 # The rest of the testbench is set up as one would normally do using cocotb.
 
 
-def test_fp8_mul():
+def test_fp8_mul() -> None:
     """
     Simulate the floating-point multiplier using the Python runner.
 
