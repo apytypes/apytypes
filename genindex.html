@@ -218,6 +218,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of apytypes Python package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/apycfixed.html"><code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/apycfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/apycfloat.html"><code class="docutils literal notranslate"><span class="pre">APyCFloat</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
@@ -331,24 +332,6 @@
           <li><a href="api/context.html#apytypes.APyFloatQuantizationContext.__init__">(apytypes.APyFloatQuantizationContext method)</a>
 </li>
         </ul></li>
-        <li><a href="cpp_api/apyfloat_util.html#c._ARGS_ADD_GENERAL">_ARGS_ADD_GENERAL (C macro)</a>
-</li>
-        <li><a href="cpp_api/apyfloat_util.html#c._ARGS_ADD_SAME_WL">_ARGS_ADD_SAME_WL (C macro)</a>
-</li>
-        <li><a href="cpp_api/apyfloat_util.html#c._ARGS_AS">_ARGS_AS (C macro)</a>
-</li>
-        <li><a href="cpp_api/apyfloat_util.html#c._ARGS_ME">_ARGS_ME (C macro)</a>
-</li>
-        <li><a href="cpp_api/apyfloat_util.html#c._ARGS_MS">_ARGS_MS (C macro)</a>
-</li>
-        <li><a href="cpp_api/apyfloat_util.html#c._ARGS_MUL_GENERAL">_ARGS_MUL_GENERAL (C macro)</a>
-</li>
-        <li><a href="cpp_api/apyfloat_util.html#c._ARGS_MUL_SHORT">_ARGS_MUL_SHORT (C macro)</a>
-</li>
-        <li><a href="cpp_api/apyfloat_util.html#c._ARGS_QZ">_ARGS_QZ (C macro)</a>
-</li>
-        <li><a href="cpp_api/apyfloat_util.html#c._ARGS_SD">_ARGS_SD (C macro)</a>
-</li>
         <li><a href="cpp_api/apyfixed_util.html#_CPPv4I00E5_castv25RANDOM_ACCESS_ITERATOR_IN25RANDOM_ACCESS_ITERATOR_IN26RANDOM_ACCESS_ITERATOR_OUT26RANDOM_ACCESS_ITERATOR_OUTiiii16QuantizationMode12OverflowMode">_cast (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixed_util.html#_CPPv4I00E29_cast_no_quantize_no_overflowv25RANDOM_ACCESS_ITERATOR_IN25RANDOM_ACCESS_ITERATOR_IN26RANDOM_ACCESS_ITERATOR_OUT26RANDOM_ACCESS_ITERATOR_OUTj">_cast_no_quantize_no_overflow (C++ function)</a>, <a href="cpp_api/apyfixed_util.html#_CPPv4I00E29_cast_no_quantize_no_overflowv25RANDOM_ACCESS_ITERATOR_IN26RANDOM_ACCESS_ITERATOR_OUTNSt6size_tENSt6size_tENSt6size_tEj">[1]</a>
@@ -359,8 +342,6 @@
 </li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv417_EXP_T_SIZE_BYTES">_EXP_T_SIZE_BYTES (C++ member)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv4I_Kb0000E27_floating_point_add_diff_wlv26RANDOM_ACCESS_ITERATOR_IN126RANDOM_ACCESS_ITERATOR_IN228RANDOM_ACCESS_ITERATOR_INOUTRK12APyFloatSpecRK12APyFloatSpecRK12APyFloatSpecRK16QuantizationMode19QNTZ_FUNC_SIGNATUREK5exp_tK5man_tK5man_tK5man_tK5man_tKj">_floating_point_add_diff_wl (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv4I_Kb000E27_floating_point_add_generalv26RANDOM_ACCESS_ITERATOR_IN126RANDOM_ACCESS_ITERATOR_IN228RANDOM_ACCESS_ITERATOR_INOUTRK12APyFloatSpecRK12APyFloatSpecRK12APyFloatSpecRK16QuantizationModeK5exp_t">_floating_point_add_general (C++ function)</a>
@@ -370,6 +351,44 @@
         <li><a href="cpp_api/apyfloat_util.html#_CPPv4I000E27_floating_point_mul_generalv26RANDOM_ACCESS_ITERATOR_IN126RANDOM_ACCESS_ITERATOR_IN228RANDOM_ACCESS_ITERATOR_INOUTRK12APyFloatSpecRK12APyFloatSpecRK12APyFloatSpecRK16QuantizationModeK5exp_tK5exp_tK5exp_t">_floating_point_mul_general (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv4I0000E25_floating_point_mul_shortv26RANDOM_ACCESS_ITERATOR_IN126RANDOM_ACCESS_ITERATOR_IN228RANDOM_ACCESS_ITERATOR_INOUTRK12APyFloatSpecRK12APyFloatSpecRK12APyFloatSpecRK16QuantizationMode19QNTZ_FUNC_SIGNATUREKjK5exp_tK5exp_tK5exp_tK5man_tK5man_tK5man_tK5man_tKiK5man_t">_floating_point_mul_short (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4I_b_NSt6size_tE_NSt6size_tE_NSt6size_tEE20_FloatingPointAddSub">_FloatingPointAddSub (C++ class)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N20_FloatingPointAddSub20_FloatingPointAddSubERK12APyFloatSpecRK12APyFloatSpecRK12APyFloatSpecRK16QuantizationMode">_FloatingPointAddSub::_FloatingPointAddSub (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4NK20_FloatingPointAddSub11add_diff_wlEPK12APyFloatDataPK12APyFloatDataP12APyFloatDataNSt6size_tE">_FloatingPointAddSub::add_diff_wl (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4NK20_FloatingPointAddSub11add_generalEPK12APyFloatDataPK12APyFloatDataP12APyFloatDataNSt6size_tE">_FloatingPointAddSub::add_general (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4NK20_FloatingPointAddSub11add_same_wlEPK12APyFloatDataPK12APyFloatDataP12APyFloatDataNSt6size_tE">_FloatingPointAddSub::add_same_wl (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N20_FloatingPointAddSub12CARRY_RES_LOE">_FloatingPointAddSub::CARRY_RES_LO (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N20_FloatingPointAddSub8dst_specE">_FloatingPointAddSub::dst_spec (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N20_FloatingPointAddSub1fE">_FloatingPointAddSub::f (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N20_FloatingPointAddSub12FINAL_RES_LOE">_FloatingPointAddSub::FINAL_RES_LO (C++ member)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N20_FloatingPointAddSub8MAN_MASKE">_FloatingPointAddSub::MAN_MASK (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N20_FloatingPointAddSub10NORM_CONSTE">_FloatingPointAddSub::NORM_CONST (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4NK20_FloatingPointAddSubclEPK12APyFloatDataPK12APyFloatDataP12APyFloatDataNSt6size_tE">_FloatingPointAddSub::operator() (C++ function)</a>, <a href="cpp_api/apyfloat_util.html#_CPPv4NK20_FloatingPointAddSubclERK12APyFloatDataRK12APyFloatDataR12APyFloatData">[1]</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N20_FloatingPointAddSub4qntzE">_FloatingPointAddSub::qntz (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N20_FloatingPointAddSub9qntz_funcE">_FloatingPointAddSub::qntz_func (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N20_FloatingPointAddSub6RES_LOE">_FloatingPointAddSub::RES_LO (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N20_FloatingPointAddSub11RES_MAX_EXPE">_FloatingPointAddSub::RES_MAX_EXP (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N20_FloatingPointAddSub9src1_specE">_FloatingPointAddSub::src1_spec (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N20_FloatingPointAddSub9src2_specE">_FloatingPointAddSub::src2_spec (C++ member)</a>
 </li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv415_MAN_LIMIT_BITS">_MAN_LIMIT_BITS (C++ member)</a>
 </li>
@@ -669,6 +688,8 @@
 </li>
         <li><a href="cpp_api/apycfixedarray.html#_CPPv4N14APyCFixedArray5zerosERKN2nb5tupleENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyCFixedArray::zeros (C++ function)</a>
 </li>
+        <li><a href="api/apycfloat.html#apytypes.APyCFloat">APyCFloat (class in apytypes)</a>
+</li>
         <li><a href="cpp_api/apytypes_mp.html#_CPPv413APyDivInverse">APyDivInverse (C++ class)</a>
 </li>
         <li><a href="cpp_api/apytypes_mp.html#_CPPv4N13APyDivInverse13APyDivInverseEPK10apy_limb_tNSt6size_tE">APyDivInverse::APyDivInverse (C++ function)</a>
@@ -873,12 +894,12 @@
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray7cumprodENSt8optionalIN2nb4int_EEE">APyFixedArray::cumprod (C++ function)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray6cumsumENSt8optionalIN2nb4int_EEE">APyFixedArray::cumsum (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray3eyeERKN2nb4int_ENSt8optionalIN2nb4int_EEENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixedArray::eye (C++ function)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray9frac_bitsEv">APyFixedArray::frac_bits (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray10from_arrayERKN2nb7ndarrayIN2nb8c_contigEEENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixedArray::from_array (C++ function)</a>
@@ -969,12 +990,6 @@
           <li><a href="api/apyfloat.html#apytypes.APyFloat">(class in apytypes)</a>
 </li>
         </ul></li>
-        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat5_castENSt7uint8_tENSt7uint8_tE5exp_t16QuantizationMode">APyFloat::_cast (C++ function)</a>, <a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat5_castENSt7uint8_tENSt7uint8_tE5exp_tNSt8optionalI16QuantizationModeEE">[1]</a>
-</li>
-        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat15_cast_to_doubleEv">APyFloat::_cast_to_double (C++ function)</a>
-</li>
-        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat13_checked_castENSt7uint8_tENSt7uint8_tE5exp_t16QuantizationMode">APyFloat::_checked_cast (C++ function)</a>
-</li>
         <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat3absEv">APyFloat::abs (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat8APyFloatENSt7uint8_tENSt7uint8_tE5exp_t">APyFloat::APyFloat (C++ function)</a>, <a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat8APyFloatENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE">[1]</a>, <a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat8APyFloatERK12APyFloatDataNSt7uint8_tENSt7uint8_tE5exp_t">[2]</a>, <a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat8APyFloatEb5exp_t5man_tNSt7uint8_tENSt7uint8_tE5exp_t">[3]</a>, <a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat8APyFloatEb5exp_t5man_tNSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE">[4]</a>
@@ -983,13 +998,9 @@
 </li>
         <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat16cast_from_doubleENSt7uint8_tENSt7uint8_tE5exp_t">APyFloat::cast_from_double (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat13cast_mantissaENSt7uint8_tE16QuantizationMode">APyFloat::cast_mantissa (C++ function)</a>
-</li>
         <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat21cast_mantissa_shorterENSt7uint8_tE16QuantizationMode">APyFloat::cast_mantissa_shorter (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat23cast_mantissa_subnormalENSt7uint8_tE16QuantizationMode">APyFloat::cast_mantissa_subnormal (C++ function)</a>
-</li>
-        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat13cast_no_quantENSt7uint8_tENSt7uint8_tE5exp_t">APyFloat::cast_no_quant (C++ function)</a>, <a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat13cast_no_quantENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE">[1]</a>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat13cast_no_quantENSt7uint8_tENSt7uint8_tE5exp_t">APyFloat::cast_no_quant (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat16cast_to_bfloat16ENSt8optionalI16QuantizationModeEE">APyFloat::cast_to_bfloat16 (C++ function)</a>
 </li>
@@ -998,6 +1009,8 @@
         <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat12cast_to_halfENSt8optionalI16QuantizationModeEE">APyFloat::cast_to_half (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat14cast_to_singleENSt8optionalI16QuantizationModeEE">APyFloat::cast_to_single (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat12checked_castENSt7uint8_tENSt7uint8_tE5exp_t16QuantizationMode">APyFloat::checked_cast (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat13construct_infENSt8optionalIbEE">APyFloat::construct_inf (C++ function)</a>
 </li>
@@ -1017,7 +1030,7 @@
 </li>
         <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat11from_doubleEdiiNSt8optionalI5exp_tEE">APyFloat::from_double (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat10from_fixedE8APyFixediiNSt8optionalI5exp_tEE">APyFloat::from_fixed (C++ function)</a>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat10from_fixedERK8APyFixediiNSt8optionalI5exp_tEE">APyFloat::from_fixed (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloat.html#_CPPv4N8APyFloat12from_integerEKN2nb4int_EiiNSt8optionalI5exp_tEE">APyFloat::from_integer (C++ function)</a>
 </li>
@@ -1045,7 +1058,7 @@
 </li>
         <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat9is_finiteEv">APyFloat::is_finite (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat12is_identicalERK8APyFloat">APyFloat::is_identical (C++ function)</a>
+        <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat12is_identicalERK8APyFloatb">APyFloat::is_identical (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloat.html#_CPPv4NK8APyFloat6is_infEv">APyFloat::is_inf (C++ function)</a>
 </li>
@@ -1355,9 +1368,11 @@
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv414bcds_to_stringKNSt6vectorI10apy_limb_tEE">bcds_to_string (C++ function)</a>
 </li>
-        <li><a href="api/apyfloat.html#apytypes.APyFloat.bias">bias (apytypes.APyFloat property)</a>
+        <li><a href="api/apycfloat.html#apytypes.APyCFloat.bias">bias (apytypes.APyCFloat property)</a>
 
         <ul>
+          <li><a href="api/apyfloat.html#apytypes.APyFloat.bias">(apytypes.APyFloat property)</a>
+</li>
           <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.bias">(apytypes.APyFloatArray property)</a>
 </li>
         </ul></li>
@@ -1367,6 +1382,8 @@
 
         <ul>
           <li><a href="api/apycfixedarray.html#apytypes.APyCFixedArray.bits">(apytypes.APyCFixedArray property)</a>
+</li>
+          <li><a href="api/apycfloat.html#apytypes.APyCFloat.bits">(apytypes.APyCFloat property)</a>
 </li>
           <li><a href="api/apyfixed.html#apytypes.APyFixed.bits">(apytypes.APyFixed property)</a>
 </li>
@@ -1407,12 +1424,12 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv49calc_biasiRK12APyFloatSpecRK12APyFloatSpec">calc_bias (C++ function)</a>, <a href="cpp_api/apyfloat_util.html#_CPPv49calc_biasii5exp_ti5exp_t">[1]</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv417calc_bias_generalii5exp_ti5exp_t">calc_bias_general (C++ function)</a>
-</li>
         <li><a href="api/apycfixed.html#apytypes.APyCFixed.cast">cast() (apytypes.APyCFixed method)</a>
 
         <ul>
           <li><a href="api/apycfixedarray.html#apytypes.APyCFixedArray.cast">(apytypes.APyCFixedArray method)</a>
+</li>
+          <li><a href="api/apycfloat.html#apytypes.APyCFloat.cast">(apytypes.APyCFloat method)</a>
 </li>
           <li><a href="api/apyfixed.html#apytypes.APyFixed.cast">(apytypes.APyFixed method)</a>
 </li>
@@ -1423,8 +1440,6 @@
           <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.cast">(apytypes.APyFloatArray method)</a>
 </li>
         </ul></li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv413cast_no_quantRK12APyFloatDataRK12APyFloatSpecRK12APyFloatSpec">cast_no_quant (C++ function)</a>
-</li>
         <li><a href="api/apyfloat.html#apytypes.APyFloat.cast_to_bfloat16">cast_to_bfloat16() (apytypes.APyFloat method)</a>
 
         <ul>
@@ -1449,18 +1464,18 @@
           <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.cast_to_single">(apytypes.APyFloatArray method)</a>
 </li>
         </ul></li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv421check_exponent_formati">check_exponent_format (C++ function)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv421check_exponent_formatiNSt11string_viewE">check_exponent_format (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv421check_mantissa_formati">check_mantissa_format (C++ function)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv421check_mantissa_formatiNSt11string_viewE">check_mantissa_format (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixed_util.html#_CPPv4I0000E28complex_fixed_point_divisionv26RANDOM_ACCESS_ITERATOR_IN126RANDOM_ACCESS_ITERATOR_IN226RANDOM_ACCESS_ITERATOR_OUTNSt6size_tENSt6size_tENSt6size_tENSt6size_tENSt6size_tE28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUT">complex_fixed_point_division (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixed_util.html#_CPPv4I0000E27complex_fixed_point_productv26RANDOM_ACCESS_ITERATOR_IN126RANDOM_ACCESS_ITERATOR_IN226RANDOM_ACCESS_ITERATOR_OUTNSt6size_tENSt6size_tENSt6size_tE28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUT">complex_fixed_point_product (C++ function)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apycfixed_util.html#_CPPv428complex_multiplication_1_1_2P10apy_limb_tPK10apy_limb_tPK10apy_limb_t">complex_multiplication_1_1_2 (C++ function)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apytypes_common.html#_CPPv414ContextManager">ContextManager (C++ class)</a>
 </li>
         <li><a href="cpp_api/apytypes_common.html#_CPPv4N14ContextManager13enter_contextEv">ContextManager::enter_context (C++ function)</a>
@@ -1521,20 +1536,16 @@
   <h2>D</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="cpp_api/apyfloat_util.html#c.DEFINE_NEW_ADD">DEFINE_NEW_ADD (C macro)</a>
-</li>
-        <li><a href="cpp_api/apyfloat_util.html#c.DEFINE_NEW_MUL">DEFINE_NEW_MUL (C macro)</a>
-</li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv411do_infinity16QuantizationModeb">do_infinity (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv413double_dabbleNSt6vectorI10apy_limb_tEE">double_dabble (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv416DoubleDabbleList">DoubleDabbleList (C++ struct)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4N16DoubleDabbleList12_NIBBLE_MASKE">DoubleDabbleList::_NIBBLE_MASK (C++ member)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4N16DoubleDabbleList4dataE">DoubleDabbleList::data (C++ member)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4N16DoubleDabbleList9do_dabbleEv">DoubleDabbleList::do_dabble (C++ function)</a>
@@ -1557,16 +1568,18 @@
 </li>
         <li><a href="api/apyfloat.html#apytypes.APyFloat.exp">exp (apytypes.APyFloat property)</a>
 </li>
-        <li><a href="api/apyfloat.html#apytypes.APyFloat.exp_bits">exp_bits (apytypes.APyFloat property)</a>
+        <li><a href="api/apycfloat.html#apytypes.APyCFloat.exp_bits">exp_bits (apytypes.APyCFloat property)</a>
 
         <ul>
+          <li><a href="api/apyfloat.html#apytypes.APyFloat.exp_bits">(apytypes.APyFloat property)</a>
+</li>
           <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.exp_bits">(apytypes.APyFloatArray property)</a>
 </li>
         </ul></li>
-        <li><a href="cpp_api/ieee754.html#_CPPv413exp_of_doubled">exp_of_double (C++ function)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="cpp_api/ieee754.html#_CPPv413exp_of_doubled">exp_of_double (C++ function)</a>
+</li>
         <li><a href="api/arrayfunctions.html#apytypes.expand_dims">expand_dims() (in module apytypes)</a>
 </li>
         <li><a href="api/apycfixedarray.html#apytypes.APyCFixedArray.eye">eye() (apytypes.APyCFixedArray method)</a>
@@ -1615,85 +1628,95 @@
           <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.flatten">(apytypes.APyFloatArray method)</a>
 </li>
         </ul></li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4I0E19floating_point_cast12APyFloatDataRK12APyFloatDataRK12APyFloatSpecRK12APyFloatSpec16QuantizationMode19QNTZ_FUNC_SIGNATURE">floating_point_cast (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv428floating_point_cast_no_quantRK12APyFloatDataRK12APyFloatSpecRK12APyFloatSpec">floating_point_cast_no_quant (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4I0E31floating_point_from_fixed_point12APyFloatData25RANDOM_ACCESS_ITERATOR_IN25RANDOM_ACCESS_ITERATOR_INiiii5exp_t16QuantizationMode">floating_point_from_fixed_point (C++ function)</a>
+</li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv424floating_point_less_thanRK12APyFloatDataRK12APyFloatSpecRK12APyFloatDataRK12APyFloatSpec">floating_point_less_than (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv428floating_point_less_than_absRK12APyFloatDataRK12APyFloatSpecRK12APyFloatDataRK12APyFloatSpec">floating_point_less_than_abs (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv436floating_point_less_than_abs_same_wlRK12APyFloatDataRK12APyFloatData">floating_point_less_than_abs_same_wl (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv422floating_point_productRK12APyFloatDataRK12APyFloatDataR12APyFloatDataRK12APyFloatSpecRK12APyFloatSpecRK12APyFloatSpecRK16QuantizationMode">floating_point_product (C++ function)</a>
-</li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4I_KNSt6size_tE_KNSt6size_tE_KNSt6size_tE000E23floating_point_productsv26RANDOM_ACCESS_ITERATOR_IN126RANDOM_ACCESS_ITERATOR_IN228RANDOM_ACCESS_ITERATOR_INOUTRK12APyFloatSpecRK12APyFloatSpecRK12APyFloatSpecKNSt6size_tERK16QuantizationMode">floating_point_products (C++ function)</a>
-</li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4I_KbE23floating_point_quotientvRK12APyFloatDataRK12APyFloatDataR12APyFloatDataRK12APyFloatSpecRK12APyFloatSpecRK12APyFloatSpecRK16QuantizationMode">floating_point_quotient (C++ function)</a>
-</li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv4I_KNSt6size_tE_KNSt6size_tE_KNSt6size_tE000E24floating_point_quotientsv26RANDOM_ACCESS_ITERATOR_IN126RANDOM_ACCESS_ITERATOR_IN228RANDOM_ACCESS_ITERATOR_INOUTRK12APyFloatSpecRK12APyFloatSpecRK12APyFloatSpecKNSt6size_tERK16QuantizationMode">floating_point_quotients (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4I_KbE18floating_point_sumvRK12APyFloatDataRK12APyFloatDataR12APyFloatDataRK12APyFloatSpecRK12APyFloatSpecRK12APyFloatSpecRK16QuantizationMode">floating_point_sum (C++ function)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4I0E21floating_point_scalbn12APyFloatDataRK12APyFloatDataRK12APyFloatSpeci16QuantizationMode19QNTZ_FUNC_SIGNATURE">floating_point_scalbn (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4I_Kb_KNSt6size_tE_KNSt6size_tE_KNSt6size_tE000E19floating_point_sumsv26RANDOM_ACCESS_ITERATOR_IN126RANDOM_ACCESS_ITERATOR_IN228RANDOM_ACCESS_ITERATOR_INOUTRK12APyFloatSpecRK12APyFloatSpecRK12APyFloatSpecKNSt6size_tERK16QuantizationMode">floating_point_sums (C++ function)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4I_NSt6size_tE_NSt6size_tE_NSt6size_tEE18FloatingPointAdder">FloatingPointAdder (C++ type)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4I000E21FloatInnerProdFunctor">FloatInnerProdFunctor (C++ struct)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4I_NSt6size_tE_NSt6size_tE_NSt6size_tEE20FloatingPointDivider">FloatingPointDivider (C++ class)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor17_accumulator_modeE">FloatInnerProdFunctor::_accumulator_mode (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N20FloatingPointDivider8dst_specE">FloatingPointDivider::dst_spec (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor9_dst_specE">FloatInnerProdFunctor::_dst_spec (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N20FloatingPointDivider20FloatingPointDividerERK12APyFloatSpecRK12APyFloatSpecRK12APyFloatSpecRK16QuantizationMode">FloatingPointDivider::FloatingPointDivider (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor5_qntzE">FloatInnerProdFunctor::_qntz (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4NK20FloatingPointDividerclEPK12APyFloatDataPK12APyFloatDataP12APyFloatDataNSt6size_tE">FloatingPointDivider::operator() (C++ function)</a>, <a href="cpp_api/apyfloat_util.html#_CPPv4NK20FloatingPointDividerclERK12APyFloatDataRK12APyFloatDataR12APyFloatData">[1]</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor10_qntz_funcE">FloatInnerProdFunctor::_qntz_func (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N20FloatingPointDivider4qntzE">FloatingPointDivider::qntz (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor10_src1_specE">FloatInnerProdFunctor::_src1_spec (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N20FloatingPointDivider9src1_specE">FloatingPointDivider::src1_spec (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor10_src2_specE">FloatInnerProdFunctor::_src2_spec (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N20FloatingPointDivider9src2_specE">FloatingPointDivider::src2_spec (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor12CARRY_RES_LOE">FloatInnerProdFunctor::CARRY_RES_LO (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv425FloatingPointInnerProduct">FloatingPointInnerProduct (C++ class)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor14DEFINE_NEW_ADDE11ADD_GENERAL27_floating_point_add_general">FloatInnerProdFunctor::DEFINE_NEW_ADD (C++ function)</a>, <a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor14DEFINE_NEW_ADDE11ADD_SAME_WL27_floating_point_add_same_wl">[1]</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N25FloatingPointInnerProduct3addE">FloatingPointInnerProduct::add (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor14DEFINE_NEW_MULE11MUL_GENERAL27_floating_point_mul_general">FloatInnerProdFunctor::DEFINE_NEW_MUL (C++ function)</a>, <a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor14DEFINE_NEW_MULE9MUL_SHORT25_floating_point_mul_short">[1]</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N25FloatingPointInnerProduct25FloatingPointInnerProductERK12APyFloatSpecRK12APyFloatSpecRK12APyFloatSpecRK16QuantizationMode">FloatingPointInnerProduct::FloatingPointInnerProduct (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor12FINAL_RES_LOE">FloatInnerProdFunctor::FINAL_RES_LO (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N25FloatingPointInnerProduct3mulE">FloatingPointInnerProduct::mul (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor21FloatInnerProdFunctorERK12APyFloatSpecRK12APyFloatSpecRK12APyFloatSpecRK16QuantizationMode">FloatInnerProdFunctor::FloatInnerProdFunctor (C++ function)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4NK25FloatingPointInnerProductclEPK12APyFloatDataPK12APyFloatDataP12APyFloatDataNSt6size_tENSt6size_tENSt6size_tE">FloatingPointInnerProduct::operator() (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4NK21FloatInnerProdFunctor13get_inner_ptrERK12APyFloatSpecRK12APyFloatSpecRK12APyFloatSpecRK16QuantizationMode">FloatInnerProdFunctor::get_inner_ptr (C++ function)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4I_NSt6size_tE_NSt6size_tE_NSt6size_tEE23FloatingPointMultiplier">FloatingPointMultiplier (C++ class)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor11inner_f_ptrE">FloatInnerProdFunctor::inner_f_ptr (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N23FloatingPointMultiplier8dst_specE">FloatingPointMultiplier::dst_spec (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4I_Da_DaENK21FloatInnerProdFunctor13inner_productEv26RANDOM_ACCESS_ITERATOR_IN126RANDOM_ACCESS_ITERATOR_IN228RANDOM_ACCESS_ITERATOR_INOUTNSt6size_tENSt6size_tENSt6size_tE">FloatInnerProdFunctor::inner_product (C++ function)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N23FloatingPointMultiplier1fE">FloatingPointMultiplier::f (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor9MAN_DELTAE">FloatInnerProdFunctor::MAN_DELTA (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N23FloatingPointMultiplier23FloatingPointMultiplierERK12APyFloatSpecRK12APyFloatSpecRK12APyFloatSpecRK16QuantizationMode">FloatingPointMultiplier::FloatingPointMultiplier (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor8MAN_MASKE">FloatInnerProdFunctor::MAN_MASK (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N23FloatingPointMultiplier9MAN_DELTAE">FloatingPointMultiplier::MAN_DELTA (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor12MAX_MAN_BITSE">FloatInnerProdFunctor::MAX_MAN_BITS (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4NK23FloatingPointMultiplier11mul_generalEPK12APyFloatDataPK12APyFloatDataP12APyFloatDataNSt6size_tE">FloatingPointMultiplier::mul_general (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor10NORM_CONSTE">FloatInnerProdFunctor::NORM_CONST (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4NK23FloatingPointMultiplier9mul_shortEPK12APyFloatDataPK12APyFloatDataP12APyFloatDataNSt6size_tE">FloatingPointMultiplier::mul_short (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor10ONE_BEFOREE">FloatInnerProdFunctor::ONE_BEFORE (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N23FloatingPointMultiplier12NEW_MAN_BITSE">FloatingPointMultiplier::NEW_MAN_BITS (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N23FloatingPointMultiplier10ONE_BEFOREE">FloatingPointMultiplier::ONE_BEFORE (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4NK23FloatingPointMultiplierclEPK12APyFloatDataPK12APyFloatDataP12APyFloatDataNSt6size_tE">FloatingPointMultiplier::operator() (C++ function)</a>, <a href="cpp_api/apyfloat_util.html#_CPPv4NK23FloatingPointMultiplierclERK12APyFloatDataRK12APyFloatDataR12APyFloatData">[1]</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N23FloatingPointMultiplier4qntzE">FloatingPointMultiplier::qntz (C++ member)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4NK21FloatInnerProdFunctorclE26RANDOM_ACCESS_ITERATOR_IN126RANDOM_ACCESS_ITERATOR_IN228RANDOM_ACCESS_ITERATOR_INOUTNSt6size_tENSt6size_tENSt6size_tE">FloatInnerProdFunctor::operator() (C++ function)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N23FloatingPointMultiplier9qntz_funcE">FloatingPointMultiplier::qntz_func (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor6RES_LOE">FloatInnerProdFunctor::RES_LO (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N23FloatingPointMultiplier11RES_MAX_EXPE">FloatingPointMultiplier::RES_MAX_EXP (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor11RES_MAX_EXPE">FloatInnerProdFunctor::RES_MAX_EXP (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N23FloatingPointMultiplier12SRC1_MAX_EXPE">FloatingPointMultiplier::SRC1_MAX_EXP (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor12SRC1_MAX_EXPE">FloatInnerProdFunctor::SRC1_MAX_EXP (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N23FloatingPointMultiplier9src1_specE">FloatingPointMultiplier::src1_spec (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor12SRC2_MAX_EXPE">FloatInnerProdFunctor::SRC2_MAX_EXP (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N23FloatingPointMultiplier12SRC2_MAX_EXPE">FloatingPointMultiplier::SRC2_MAX_EXP (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor6STICKYE">FloatInnerProdFunctor::STICKY (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N23FloatingPointMultiplier9src2_specE">FloatingPointMultiplier::src2_spec (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor12SUM_MAN_BITSE">FloatInnerProdFunctor::SUM_MAN_BITS (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N23FloatingPointMultiplier6STICKYE">FloatingPointMultiplier::STICKY (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor3TWOE">FloatInnerProdFunctor::TWO (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N23FloatingPointMultiplier12SUM_MAN_BITSE">FloatingPointMultiplier::SUM_MAN_BITS (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor10TWO_BEFOREE">FloatInnerProdFunctor::TWO_BEFORE (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N23FloatingPointMultiplier3TWOE">FloatingPointMultiplier::TWO (C++ member)</a>
 </li>
-        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N21FloatInnerProdFunctor7TWO_RESE">FloatInnerProdFunctor::TWO_RES (C++ member)</a>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N23FloatingPointMultiplier10TWO_BEFOREE">FloatingPointMultiplier::TWO_BEFORE (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4N23FloatingPointMultiplier7TWO_RESE">FloatingPointMultiplier::TWO_RES (C++ member)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv4I_NSt6size_tE_NSt6size_tE_NSt6size_tEE23FloatingPointSubtractor">FloatingPointSubtractor (C++ type)</a>
 </li>
         <li><a href="api/utils.html#apytypes.fn">fn() (in module apytypes)</a>
 </li>
@@ -1738,11 +1761,15 @@
         <ul>
           <li><a href="api/apycfixedarray.html#apytypes.APyCFixedArray.from_complex">(apytypes.APyCFixedArray method)</a>
 </li>
+          <li><a href="api/apycfloat.html#apytypes.APyCFloat.from_complex">(apytypes.APyCFloat method)</a>
+</li>
         </ul></li>
         <li><a href="api/apycfixed.html#apytypes.APyCFixed.from_float">from_float() (apytypes.APyCFixed method)</a>
 
         <ul>
           <li><a href="api/apycfixedarray.html#apytypes.APyCFixedArray.from_float">(apytypes.APyCFixedArray method)</a>
+</li>
+          <li><a href="api/apycfloat.html#apytypes.APyCFloat.from_float">(apytypes.APyCFloat method)</a>
 </li>
           <li><a href="api/apyfixed.html#apytypes.APyFixed.from_float">(apytypes.APyFixed method)</a>
 </li>
@@ -1842,6 +1869,8 @@
         <ul>
           <li><a href="api/apycfixedarray.html#apytypes.APyCFixedArray.imag">(apytypes.APyCFixedArray property)</a>
 </li>
+          <li><a href="api/apycfloat.html#apytypes.APyCFloat.imag">(apytypes.APyCFloat property)</a>
+</li>
         </ul></li>
         <li><a href="api/apyfloat.html#apytypes.APyFloat.inf">inf() (apytypes.APyFloat method)</a>
 </li>
@@ -1862,11 +1891,17 @@
         <li><a href="cpp_api/broadcast.html#_CPPv416is_broadcastableRKNSt6vectorINSt6size_tEEERKNSt6vectorINSt6size_tEEE">is_broadcastable (C++ function)</a>
 </li>
         <li><a href="api/apyfloat.html#apytypes.APyFloat.is_finite">is_finite (apytypes.APyFloat property)</a>
+
+        <ul>
+          <li><a href="cpp_api/apyfloat_util.html#_CPPv49is_finiteRK12APyFloatDataRK12APyFloatSpec">(C++ function)</a>
 </li>
+        </ul></li>
         <li><a href="api/apycfixed.html#apytypes.APyCFixed.is_identical">is_identical() (apytypes.APyCFixed method)</a>
 
         <ul>
           <li><a href="api/apycfixedarray.html#apytypes.APyCFixedArray.is_identical">(apytypes.APyCFixedArray method)</a>
+</li>
+          <li><a href="api/apycfloat.html#apytypes.APyCFloat.is_identical">(apytypes.APyCFloat method)</a>
 </li>
           <li><a href="api/apyfixed.html#apytypes.APyFixed.is_identical">(apytypes.APyFixed method)</a>
 </li>
@@ -1906,6 +1941,8 @@
         <li><a href="api/apycfixed.html#apytypes.APyCFixed.is_zero">is_zero (apytypes.APyCFixed property)</a>
 
         <ul>
+          <li><a href="api/apycfloat.html#apytypes.APyCFloat.is_zero">(apytypes.APyCFloat property)</a>
+</li>
           <li><a href="api/apyfixed.html#apytypes.APyFixed.is_zero">(apytypes.APyFixed property)</a>
 </li>
           <li><a href="api/apyfloat.html#apytypes.APyFloat.is_zero">(apytypes.APyFloat property)</a>
@@ -2015,9 +2052,11 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/apyfloat.html#apytypes.APyFloat.man">man (apytypes.APyFloat property)</a>
 </li>
-        <li><a href="api/apyfloat.html#apytypes.APyFloat.man_bits">man_bits (apytypes.APyFloat property)</a>
+        <li><a href="api/apycfloat.html#apytypes.APyCFloat.man_bits">man_bits (apytypes.APyCFloat property)</a>
 
         <ul>
+          <li><a href="api/apyfloat.html#apytypes.APyFloat.man_bits">(apytypes.APyFloat property)</a>
+</li>
           <li><a href="api/apyfloatarray.html#apytypes.APyFloatArray.man_bits">(apytypes.APyFloatArray property)</a>
 </li>
         </ul></li>
@@ -2271,6 +2310,8 @@
 
         <ul>
           <li><a href="api/apycfixedarray.html#apytypes.APyCFixedArray.real">(apytypes.APyCFixedArray property)</a>
+</li>
+          <li><a href="api/apycfloat.html#apytypes.APyCFloat.real">(apytypes.APyCFloat property)</a>
 </li>
         </ul></li>
         <li><a href="cpp_api/python_util.html#c.REMAINING_BITS">REMAINING_BITS (C macro)</a>

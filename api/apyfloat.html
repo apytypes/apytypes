@@ -220,6 +220,7 @@
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html"><code class="docutils literal notranslate"><span class="pre">apytypes</span></code> Python package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of apytypes Python package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="apycfixed.html"><code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apycfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apycfloat.html"><code class="docutils literal notranslate"><span class="pre">APyCFloat</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
@@ -314,28 +315,29 @@
 <dt class="sig sig-object py" id="apytypes.APyFloat">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">apytypes.</span></span><span class="sig-name descname"><span class="pre">APyFloat</span></span><a class="headerlink" href="#apytypes.APyFloat" title="Link to this definition">¶</a></dt>
 <dd><p>Floating-point scalar with configurable format.</p>
-<p>The implementation is a generalization of the IEEE 754 standard, meaning that features like
-subnormals, infinities, and NaN, are still supported. The format is defined
-by the number of exponent and mantissa bits, and a non-negative bias. These fields are
-named <a class="reference internal" href="#apytypes.APyFloat.exp_bits" title="apytypes.APyFloat.exp_bits"><code class="xref py py-attr docutils literal notranslate"><span class="pre">exp_bits</span></code></a>, <a class="reference internal" href="#apytypes.APyFloat.man_bits" title="apytypes.APyFloat.man_bits"><code class="xref py py-attr docutils literal notranslate"><span class="pre">man_bits</span></code></a>, and <a class="reference internal" href="#apytypes.APyFloat.bias" title="apytypes.APyFloat.bias"><code class="xref py py-attr docutils literal notranslate"><span class="pre">bias</span></code></a> respectively. Similar to the hardware
-representation of a floating-point number, the value is stored using three fields;
-a sign bit <a class="reference internal" href="#apytypes.APyFloat.sign" title="apytypes.APyFloat.sign"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sign</span></code></a>, a biased exponent <a class="reference internal" href="#apytypes.APyFloat.exp" title="apytypes.APyFloat.exp"><code class="xref py py-attr docutils literal notranslate"><span class="pre">exp</span></code></a>, and an integral mantissa with a hidden one <a class="reference internal" href="#apytypes.APyFloat.man" title="apytypes.APyFloat.man"><code class="xref py py-attr docutils literal notranslate"><span class="pre">man</span></code></a>.
-The value of a <em>normal</em> number would thus be</p>
+<p>The implementation is a generalization of the IEEE 754 standard, meaning that features
+like subnormals, infinities, and NaN, are still supported. The format is defined by the
+number of exponent and mantissa bits, and a non-negative bias. These fields are named
+<a class="reference internal" href="#apytypes.APyFloat.exp_bits" title="apytypes.APyFloat.exp_bits"><code class="xref py py-attr docutils literal notranslate"><span class="pre">exp_bits</span></code></a>, <a class="reference internal" href="#apytypes.APyFloat.man_bits" title="apytypes.APyFloat.man_bits"><code class="xref py py-attr docutils literal notranslate"><span class="pre">man_bits</span></code></a>, and <a class="reference internal" href="#apytypes.APyFloat.bias" title="apytypes.APyFloat.bias"><code class="xref py py-attr docutils literal notranslate"><span class="pre">bias</span></code></a> respectively. Similar to the
+hardware representation of a floating-point number, the value is stored using three
+fields; a sign bit <a class="reference internal" href="#apytypes.APyFloat.sign" title="apytypes.APyFloat.sign"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sign</span></code></a>, a biased exponent <a class="reference internal" href="#apytypes.APyFloat.exp" title="apytypes.APyFloat.exp"><code class="xref py py-attr docutils literal notranslate"><span class="pre">exp</span></code></a>, and an integral mantissa
+with a hidden one <a class="reference internal" href="#apytypes.APyFloat.man" title="apytypes.APyFloat.man"><code class="xref py py-attr docutils literal notranslate"><span class="pre">man</span></code></a>. The value of a <em>normal</em> number would thus be</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[(-1)^{\texttt{sign}} \times 2^{\texttt{exp} - \texttt{bias}} \times (1 + \texttt{man} \times 2^{\texttt{-man_bits}}).\]</div>
 </div>
-<p>In general, if the bias is not explicitly given for a format <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> will default to an IEEE-like bias
-using the formula</p>
+<p>In general, if the bias is not explicitly given for a format <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> will
+default to an IEEE-like bias using the formula</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\texttt{bias} = 2^{\texttt{exp_bits - 1}} - 1.\]</div>
 </div>
 <p>Arithmetic can be performed similarly to the operations of the built-in type
-<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> in Python. The resulting word length from operations will be
-the same as the input operands’ by quantizing to nearest number with ties to even (<a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode.TIES_EVEN" title="apytypes.QuantizationMode.TIES_EVEN"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode.TIES_EVEN</span></code></a>).
-If the operands do not share the same format, the resulting
-bit widths of the exponent and mantissa field will be the maximum of its inputs:</p>
+<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> in Python. The resulting word length from operations will be the same as
+the input operands’ by quantizing to nearest number with ties to even
+(<a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode.TIES_EVEN" title="apytypes.QuantizationMode.TIES_EVEN"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode.TIES_EVEN</span></code></a>). If the operands do not share the same format, the
+resulting bit widths of the exponent and mantissa field will be the maximum of its
+inputs:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -443,9 +445,9 @@ bit widths of the exponent and mantissa field will be the maximum of its inputs:
 </pre></div>
 </div>
 <p>If the operands of an arithmetic operation have IEEE-like biases, then the result will
-also have an IEEE-like bias – based on the resulting number of exponent bits.
-To support operations with biases deviating from the standard, the bias of the resulting format
-is calculated as the “average” of the inputs’ biases:</p>
+also have an IEEE-like bias – based on the resulting number of exponent bits. To
+support operations with biases deviating from the standard, the bias of the resulting
+format is calculated as the “average” of the inputs’ biases:</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp_bits}_2} \right ) \times 2^{\texttt{exp_bits}_3}}{2} - 1,\]</div>
@@ -462,7 +464,8 @@ Note that this formula still results in an IEEE-like bias when the inputs use IE
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>sign</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a> or int</span></dt><dd><p>The sign of the float. False/0 means positive. True/non-zero means negative.</p>
+<dt><strong>sign</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a> or int</span></dt><dd><p>The sign of the float. False/0 means positive. True/non-zero means
+negative.</p>
 </dd>
 <dt><strong>exp</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Exponent of the float as stored, i.e., actual value + bias.</p>
 </dd>
@@ -490,10 +493,12 @@ Note that this formula still results in an IEEE-like bias when the inputs use IE
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloat.from_float">
 <span class="sig-name descname"><span class="pre">from_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><span class="pre">object</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">man_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></span><a class="headerlink" href="#apytypes.APyFloat.from_float" title="Link to this definition">¶</a></dt>
-<dd><p>Create an <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> object from an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a>, or <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>.</p>
+<dd><p>Create an <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> object from an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>,
+<a class="reference internal" href="apyfixed.html#apytypes.APyFixed" title="apytypes.APyFixed"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFixed</span></code></a>, or <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>.</p>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
-<p>It is in all cases better to use <a class="reference internal" href="#apytypes.APyFloat.cast" title="apytypes.APyFloat.cast"><code class="xref py py-func docutils literal notranslate"><span class="pre">cast()</span></code></a> to create an <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> from another <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>.</p>
+<p>It is in all cases better to use <a class="reference internal" href="#apytypes.APyFloat.cast" title="apytypes.APyFloat.cast"><code class="xref py py-func docutils literal notranslate"><span class="pre">cast()</span></code></a> to
+create an <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> from another <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a>.</p>
 </div>
 <p>The quantization mode used is <a class="reference internal" href="quantizationoverflow.html#apytypes.QuantizationMode.TIES_EVEN" title="apytypes.QuantizationMode.TIES_EVEN"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantizationMode.TIES_EVEN</span></code></a>.</p>
 <dl class="field-list">
@@ -641,13 +646,22 @@ quantization mode.</p>
 <h2>Comparison<a class="headerlink" href="#comparison" title="Link to this heading">¶</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloat.is_identical">
-<span class="sig-name descname"><span class="pre">is_identical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#apytypes.APyFloat.is_identical" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">is_identical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_zero_sign</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#apytypes.APyFloat.is_identical" title="Link to this definition">¶</a></dt>
 <dd><p>Test if two <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> objects are identical.</p>
-<p>Two <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> objects are considered identical if, and only if,  they have
-the same sign, exponent, mantissa, and format.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
+<p>Two <a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a> objects are considered identical if, and only if,
+they have the same sign, exponent, mantissa, and format.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>other</strong><span class="classifier"><a class="reference internal" href="#apytypes.APyFloat" title="apytypes.APyFloat"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloat</span></code></a></span></dt><dd><p>The floating-point object to test identicality against.</p>
+</dd>
+<dt><strong>ignore_zero_sign</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, default: <code class="code docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>If <code class="code docutils literal notranslate"><span class="pre">True</span></code>, plus and minus zero are considered identical. If
+<code class="code docutils literal notranslate"><span class="pre">False</span></code>, plus and minus zero are considered different.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
 <dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></dt><dd></dd>
 </dl>
 </dd>
@@ -824,7 +838,8 @@ see <a class="reference internal" href="quantizationoverflow.html#apytypes.get_f
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloat.next_up">
 <span class="sig-name descname"><span class="pre">next_up</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></span><a class="headerlink" href="#apytypes.APyFloat.next_up" title="Link to this definition">¶</a></dt>
-<dd><p>Get the smallest floating-point number in the same format that compares greater.</p>
+<dd><p>Get the smallest floating-point number in the same format that compares
+greater.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
