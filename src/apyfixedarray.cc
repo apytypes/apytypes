@@ -15,6 +15,7 @@
 #include "python_util.h"
 
 // Python object access through Nanobind
+#include <iterator>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
@@ -1071,35 +1072,51 @@ APyFixedArray::min(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) con
 
 std::string APyFixedArray::repr() const
 {
-    std::stringstream ss {};
-    ss << "APyFixedArray([";
-    if (_shape[0]) {
-        // Setup hex printing which will properly display the BCD characters
-        ss << std::hex;
+    int bits = _bits;
+    const auto formatter
+        = [bits](
+              vector_type::const_iterator cbegin_it, vector_type::const_iterator cend_it
+          ) -> std::string {
+        std::vector<apy_limb_t> data(std::distance(cbegin_it, cend_it));
+        std::copy(cbegin_it, cend_it, std::begin(data));
 
-        std::vector<apy_limb_t> data(_itemsize, 0);
-        for (std::size_t offset = 0; offset < _data.size(); offset += _itemsize) {
-            std::copy_n(_data.begin() + offset, _itemsize, data.begin());
-
-            // Zero sign bits outside of bit-range
-            if (bits() % APY_LIMB_SIZE_BITS) {
-                apy_limb_t and_mask
-                    = (apy_limb_t(1) << (bits() % APY_LIMB_SIZE_BITS)) - 1;
-                data.back() &= and_mask;
-            }
-
-            // Double-dabble for binary-to-BCD conversion
-            ss << bcds_to_string(double_dabble(data));
-            ss << ", ";
+        // Zero sign bits outside of bit-range
+        if (bits % APY_LIMB_SIZE_BITS) {
+            apy_limb_t and_mask = (apy_limb_t(1) << (bits % APY_LIMB_SIZE_BITS)) - 1;
+            data.back() &= and_mask;
         }
+        return bcds_to_string(double_dabble(data));
+    };
+    return array_repr(formatter);
+    // std::stringstream ss {};
+    // ss << "APyFixedArray([";
+    // if (_shape[0]) {
+    //     // Setup hex printing which will properly display the BCD characters
+    //     ss << std::hex;
 
-        ss.seekp(-2, ss.cur);
-    }
-    ss << "], shape=";
-    ss << tuple_string_from_vec(_shape);
-    ss << ", " << "bits=" << std::dec << bits() << ", " << "int_bits=" << std::dec
-       << int_bits() << ")";
-    return ss.str();
+    //     std::vector<apy_limb_t> data(_itemsize, 0);
+    //     for (std::size_t offset = 0; offset < _data.size(); offset += _itemsize) {
+    //         std::copy_n(_data.begin() + offset, _itemsize, data.begin());
+
+    //         // Zero sign bits outside of bit-range
+    //         if (bits() % APY_LIMB_SIZE_BITS) {
+    //             apy_limb_t and_mask
+    //                 = (apy_limb_t(1) << (bits() % APY_LIMB_SIZE_BITS)) - 1;
+    //             data.back() &= and_mask;
+    //         }
+
+    //         // Double-dabble for binary-to-BCD conversion
+    //         ss << bcds_to_string(double_dabble(data));
+    //         ss << ", ";
+    //     }
+
+    //     ss.seekp(-2, ss.cur);
+    // }
+    // ss << "], shape=";
+    // ss << tuple_string_from_vec(_shape);
+    // ss << ", " << "bits=" << std::dec << bits() << ", " << "int_bits=" << std::dec
+    //    << int_bits() << ")";
+    // return ss.str();
 }
 
 APyFixedArray APyFixedArray::abs() const
