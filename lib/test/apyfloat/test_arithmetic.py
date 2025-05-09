@@ -1,7 +1,9 @@
-from itertools import permutations as perm
 import math
+from itertools import permutations as perm
+
 import pytest
-from apytypes import APyFloat, APyCFloat
+
+from apytypes import APyCFloat, APyFloat
 
 
 def real_is_nan(fp: APyFloat | APyCFloat) -> bool:
@@ -29,7 +31,9 @@ def real_is_inf(fp: APyFloat | APyCFloat) -> bool:
 
 
 # Negation
-@pytest.mark.parametrize("apyfloat, py_type", [(APyFloat, float), (APyCFloat, complex)])
+@pytest.mark.parametrize(
+    ("apyfloat", "py_type"), [(APyFloat, float), (APyCFloat, complex)]
+)
 @pytest.mark.parametrize("val", [0.0, -0.0, -13.0, 13.0, float("inf"), float("-inf")])
 def test_negation(apyfloat: type[APyCFloat], py_type: type[complex], val: float):
     assert py_type(-apyfloat.from_float(val, 5, 5)) == -val
@@ -43,10 +47,14 @@ def test_abs(val: float):
 
 # Addition
 @pytest.mark.float_add
-@pytest.mark.parametrize("apyfloat, py_type", [(APyFloat, float), (APyCFloat, complex)])
+@pytest.mark.parametrize(
+    ("apyfloat", "py_type"), [(APyFloat, float), (APyCFloat, complex)]
+)
 @pytest.mark.parametrize("exp_bits", list(perm([5, 6, 21], 2)))
 @pytest.mark.parametrize("man_bits", list(perm([5, 6, 61], 2)))
-@pytest.mark.parametrize("lhs, rhs", list(perm([-2.75, 2.75, -2.5, 2.5, 16.5, 0], 2)))
+@pytest.mark.parametrize(
+    ("lhs", "rhs"), list(perm([-2.75, 2.75, -2.5, 2.5, 16.5, 0], 2))
+)
 def test_add_representable(
     apyfloat: type[APyCFloat],
     py_type: type[complex],
@@ -498,10 +506,14 @@ def test_sub_inf_nan(apyfloat: type[APyCFloat]):
 
 # Multiplication
 @pytest.mark.float_mul
-@pytest.mark.parametrize("apyfloat, py_type", [(APyFloat, float), (APyCFloat, complex)])
+@pytest.mark.parametrize(
+    ("apyfloat", "py_type"), [(APyFloat, float), (APyCFloat, complex)]
+)
 @pytest.mark.parametrize("exp_bits", list(perm([6, 10, 29], 2)))
 @pytest.mark.parametrize("man_bits", list(perm([8, 23, 50], 2)))
-@pytest.mark.parametrize("lhs, rhs", list(perm([-2.75, 2.75, -2.5, 2.5, 11.5, 0], 2)))
+@pytest.mark.parametrize(
+    ("lhs", "rhs"), list(perm([-2.75, 2.75, -2.5, 2.5, 11.5, 0], 2))
+)
 def test_mul_mixed(
     apyfloat: type[APyCFloat],
     py_type: type[complex],
@@ -640,7 +652,9 @@ def test_add_mixed_bias_underflow(apyfloat: type[APyCFloat]):
 
 
 @pytest.mark.float_mul
-@pytest.mark.parametrize("apyfloat, py_type", [(APyFloat, float), (APyCFloat, complex)])
+@pytest.mark.parametrize(
+    ("apyfloat", "py_type"), [(APyFloat, float), (APyCFloat, complex)]
+)
 @pytest.mark.parametrize("exp_bits", [4, 30])
 @pytest.mark.parametrize("man_bits", [10, 60])
 @pytest.mark.parametrize("x", [0.0, 1.0, float("inf"), float("nan")])
@@ -722,7 +736,9 @@ def test_mul_short_subnormal(apyfloat: type[APyCFloat]):
 
 
 @pytest.mark.float_mul
-@pytest.mark.parametrize("apyfloat, py_type", [(APyFloat, float), (APyCFloat, complex)])
+@pytest.mark.parametrize(
+    ("apyfloat", "py_type"), [(APyFloat, float), (APyCFloat, complex)]
+)
 def test_long_mul(apyfloat: type[APyCFloat], py_type: type[complex]):
     x = apyfloat(sign=0, exp=3, man=22, exp_bits=4, man_bits=7)
     y = apyfloat(sign=1, exp=32763, man=813782734503116, exp_bits=16, man_bits=52)
@@ -794,10 +810,12 @@ def test_long_mul(apyfloat: type[APyCFloat], py_type: type[complex]):
 
 
 @pytest.mark.float_div
-@pytest.mark.parametrize("apyfloat, py_type", [(APyFloat, float), (APyCFloat, complex)])
+@pytest.mark.parametrize(
+    ("apyfloat", "py_type"), [(APyFloat, float), (APyCFloat, complex)]
+)
 @pytest.mark.parametrize("exp_bits", list(perm([5, 8, 29], 2)))
 @pytest.mark.parametrize("man_bits", list(perm([5, 8, 50], 2)))
-@pytest.mark.parametrize("lhs, rhs", list(perm([4.5, -4.5, 1.125, -1.125], 2)))
+@pytest.mark.parametrize(("lhs", "rhs"), list(perm([4.5, -4.5, 1.125, -1.125], 2)))
 def test_div_mixed_formats(
     apyfloat: type[APyCFloat],
     py_type: type[complex],
@@ -835,7 +853,7 @@ def test_div_underflow(apyfloat: type[APyCFloat]):
 
 
 @pytest.mark.float_div
-@pytest.mark.parametrize("apyfloat, py_type", [(APyFloat, float)])
+@pytest.mark.parametrize(("apyfloat", "py_type"), [(APyFloat, float)])
 @pytest.mark.parametrize("x", [0, 1, float("inf"), float("nan")])
 @pytest.mark.parametrize("y", [0, 1, float("inf"), float("nan")])
 def test_div_special_cases(
@@ -1093,7 +1111,7 @@ def test_power_subnormal_res():
     assert res.is_identical(APyFloat(0, 0, 16, 11, 52))
 
 
-@pytest.mark.xfail()
+@pytest.mark.xfail
 @pytest.mark.float_pow
 def test_negative_power():
     """Test the power function with negative exponent."""
@@ -1148,7 +1166,7 @@ def test_long_power():
     assert res.is_identical(a)
 
 
-@pytest.mark.xfail()
+@pytest.mark.xfail
 @pytest.mark.float_pow
 def test_negative_long_power():
     """Test the power function with long format and negative exponent."""
@@ -1184,7 +1202,7 @@ def test_power_underflow():
 
 @pytest.mark.float_pow
 @pytest.mark.parametrize(
-    "x,n,test_exp",
+    ("x", "n", "test_exp"),
     [
         # 1 if x is not a signaling NaN
         ("'inf'", "0", 1.0),
@@ -1305,7 +1323,7 @@ def test_operation_with_numbers(apyfloat: type[APyCFloat]):
 @pytest.mark.parametrize("apyfloat", [APyFloat, APyCFloat])
 def test_mantissa_full_range(apyfloat: type[APyCFloat]):
     """
-    Support for utilizing the full mantissa range during addition/subraction was added
+    Support for utilizing the full mantissa range during addition/subtraction was added
     in #440
     """
     a = apyfloat(sign=0, exp=1023, man=0, exp_bits=11, man_bits=61)

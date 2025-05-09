@@ -1,7 +1,8 @@
-from apytypes import APyFixed, APyCFixed
-
 import math
+
 import pytest
+
+from apytypes import APyCFixed, APyFixed
 
 
 @pytest.mark.parametrize("apyfixed", [APyFixed, APyCFixed])

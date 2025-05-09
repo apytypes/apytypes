@@ -1,8 +1,9 @@
-from apytypes import APyFixedArray, QuantizationMode  # noqa: F401
-import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.ticker import IndexLocator
+
+from apytypes import APyFixedArray, QuantizationMode  # noqa: F401
 
 modes = [
     "QuantizationMode.RND",

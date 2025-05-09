@@ -1,6 +1,6 @@
-from apytypes import APyFixed, APyCFixed
-
 import pytest
+
+from apytypes import APyCFixed, APyFixed
 
 
 def test_mul():

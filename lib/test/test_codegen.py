@@ -1,16 +1,16 @@
-from itertools import product
 import shutil
 import subprocess
+from itertools import product
 
 import pytest
 
-from apytypes.vhdl import generate_rom
 from apytypes import APyFixedArray, APyFloatArray
+from apytypes.vhdl import generate_rom
 
 
 @pytest.mark.skipif(not shutil.which("nvc"), reason="nvc not found")
 @pytest.mark.parametrize(
-    "table,address,ieee2008,input_register,output_register",
+    ("table", "address", "ieee2008", "input_register", "output_register"),
     product(
         [
             APyFixedArray([1, 2, 3, 4], 4, 0),

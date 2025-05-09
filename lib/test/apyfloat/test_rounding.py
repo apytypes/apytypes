@@ -1,6 +1,7 @@
-import apytypes
-from apytypes import APyFloat, APyCFloat, QuantizationMode, APyFloatQuantizationContext
 import pytest
+
+import apytypes
+from apytypes import APyCFloat, APyFloat, APyFloatQuantizationContext, QuantizationMode
 
 
 @pytest.mark.parametrize("apyfloat", [APyFloat])
@@ -2082,7 +2083,9 @@ def test_convenience_cast():
     )
 
 
-@pytest.mark.parametrize("apyfloat, py_type", [(APyFloat, float), (APyCFloat, complex)])
+@pytest.mark.parametrize(
+    ("apyfloat", "py_type"), [(APyFloat, float), (APyCFloat, complex)]
+)
 def test_issue_188(apyfloat: type[APyCFloat], py_type: type[complex]):
     # Actually tests the rounding upon construction from float
     x = apyfloat(sign=0, exp=0, man=1, exp_bits=4, man_bits=3)

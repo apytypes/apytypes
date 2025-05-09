@@ -1,12 +1,10 @@
-from apytypes import APyFixed, APyCFixed
-from apytypes import OverflowMode
-
-
 import pytest
+
+from apytypes import APyCFixed, APyFixed, OverflowMode
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_overflow_twos_complement(fixed_type, im):
     assert (
@@ -24,7 +22,7 @@ def test_overflow_twos_complement(fixed_type, im):
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_overflow_saturation(fixed_type, im):
     # Negative single non-full limb
@@ -113,7 +111,7 @@ def test_overflow_saturation(fixed_type, im):
 
 
 @pytest.mark.parametrize(
-    "fixed_type, im", [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
+    ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_overflow_numeric_std(fixed_type, im):
     # Negative single non-full limb

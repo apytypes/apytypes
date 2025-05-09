@@ -1,7 +1,7 @@
-from functools import partial
 import math
-from collections.abc import Callable, Sequence
 import warnings
+from collections.abc import Callable, Sequence
+from functools import partial
 
 from apytypes._apytypes import (
     APyCFixed,

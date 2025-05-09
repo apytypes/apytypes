@@ -1,7 +1,6 @@
-from apytypes import APyCFixed
-
-
 import pytest
+
+from apytypes import APyCFixed
 
 
 def test_raises():

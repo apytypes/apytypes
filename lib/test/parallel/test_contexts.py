@@ -2,7 +2,8 @@
 # Testing of concurrency support for the different APyTypes contexts
 #
 
-from typing import Optional, List
+import threading
+
 from apytypes import (
     APyFixed,
     APyFixedAccumulatorContext,
@@ -14,14 +15,13 @@ from apytypes import (
     APyFloatQuantizationContext,
     QuantizationMode,
 )
-import threading
 
 # #################################################################################### #
 # #                          Quantization context for APyFloat                       # #
 # #################################################################################### #
 
 
-def _test_apyfloat_quantization_context(success: Optional[List[bool]] = None):
+def _test_apyfloat_quantization_context(success: list[bool] | None = None):
     a = APyFloat.from_float(0.25, exp_bits=2, man_bits=2)
     b = APyFloat.from_float(2.50, exp_bits=2, man_bits=2)
     assert (a + b).is_identical(APyFloat.from_float(3.00, exp_bits=2, man_bits=2))
@@ -57,7 +57,7 @@ def test_apyfloat_quantization_context():
 # #################################################################################### #
 
 
-def _test_apyfixed_cast_context(success: Optional[List[bool]] = None):
+def _test_apyfixed_cast_context(success: list[bool] | None = None):
     a = APyFixed.from_float(1.5, int_bits=3, frac_bits=1)
 
     assert a.cast(int_bits=3, frac_bits=0).is_identical(
@@ -98,7 +98,7 @@ def test_apyfixed_cast_context():
 # #################################################################################### #
 
 
-def _test_apyfixedarray_accumulator_context(success: Optional[List[bool]] = None):
+def _test_apyfixedarray_accumulator_context(success: list[bool] | None = None):
     a = APyFixedArray.from_float([0.25, 0.50], int_bits=1, frac_bits=2)
     b = APyFixedArray.from_float([0.75, 0.25], int_bits=1, frac_bits=2)
 
@@ -143,7 +143,7 @@ def test_apyfixedarray_accumulator_context():
 # #################################################################################### #
 
 
-def _test_apyfloatarray_accumulator_context(success: Optional[List[bool]] = None):
+def _test_apyfloatarray_accumulator_context(success: list[bool] | None = None):
     a = APyFloatArray.from_float([0.25, 0.50], exp_bits=2, man_bits=3)
     b = APyFloatArray.from_float([0.75, 0.25], exp_bits=2, man_bits=3)
 

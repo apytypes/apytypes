@@ -73,7 +73,8 @@ APyFloatArray::APyFloatArray(
         if (nb::isinstance<nb::bool_>(signs[i])) {
             sign = static_cast<bool>(nb::cast<nb::bool_>(signs[i]));
         } else if (nb::isinstance<nb::int_>(signs[i])) {
-            sign = static_cast<int>(nb::cast<nb::int_>(signs[i])
+            sign = static_cast<int>(
+                nb::cast<nb::int_>(signs[i])
             ); // Must cast to int here
         } else {
             throw std::domain_error("Invalid objects in sign");

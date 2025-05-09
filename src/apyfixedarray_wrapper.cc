@@ -23,7 +23,8 @@ static APyFixedArray R_OP(const APyFixedArray& rhs, const L_TYPE& lhs)
     } else if constexpr (std::is_same_v<std::remove_cv_t<L_TYPE>, APyFixed>) {
         return (rhs.*FUNC)(lhs);
     } else {
-        return (rhs.*FUNC)(APyFixed::from_integer(lhs, rhs.int_bits(), rhs.frac_bits())
+        return (rhs.*FUNC)(
+            APyFixed::from_integer(lhs, rhs.int_bits(), rhs.frac_bits())
         );
     }
 }
@@ -546,8 +547,9 @@ void bind_fixed_array(nb::module_& m)
             &APyFixedArray::squeeze,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Removes axes of size one at the specified axis/axes, if no axis is given
-            removes all dimensions with size one.
+            Remove axes of size one at the specified axis/axes.
+
+            If no axis is given, remove all dimensions with size one.
 
             Parameters
             ----------
@@ -1091,7 +1093,7 @@ void bind_fixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Initializes an array with zeros.
+            Initialize an array with zeros.
 
             Parameters
             ----------
@@ -1118,7 +1120,7 @@ void bind_fixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Initializes an array with ones.
+            Initialize an array with ones.
 
             Parameters
             ----------
@@ -1146,7 +1148,7 @@ void bind_fixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Initializes an array with ones on the diagonal.
+            Initialize an array with ones on the diagonal.
 
             Parameters
             ----------
@@ -1175,7 +1177,7 @@ void bind_fixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Initializes an identity matrix with ones on the diagonal.
+            Initialize an identity matrix with ones on the diagonal.
 
             Parameters
             ----------
@@ -1200,7 +1202,7 @@ void bind_fixed_array(nb::module_& m)
             nb::arg("shape"),
             nb::arg("fill_value"),
             R"pbdoc(
-            Initializes an array with the specified value.
+            Initialize an array with the specified value.
 
             Parameters
             ----------

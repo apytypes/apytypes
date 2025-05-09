@@ -87,12 +87,6 @@ markers = [
     "slow : custom marker for grouping long running tests",
 ]
 
-
-[tool.typos]
-files.extend-exclude = ["extern", "docs/Doxyfile"]
-default.extend-words = { NDArray = "NDArray", arange = "arange" }
-default.extend-identifiers = { NDArray = "NDArray", arange = "arange" }
-
 [tool.cibuildwheel]
 skip = [
     "pp*",      # APyTypes currently can not be build for PyPy ...
@@ -120,17 +114,20 @@ indent-width = 4
 target-version = "py310"
 
 [tool.ruff.lint]
-# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
-# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
-# McCabe complexity (`C901`) by default.
-select = ["E4", "E7", "E9", "F"]
-ignore = ["F822"]  # Should not be ignored, but as nanobind stubgen does not include __version__...
+select = ["E4", "E7", "E9", "F", "I", "UP", "SLOT", "PT", "RET504", "PERF"]
+ignore = ["D202", "D212", "D412", "D413", "D415", "F822"]  # F822 should not be ignored, but as nanobind stubgen does not include __version__...
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
 unfixable = []
 
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+"lib/test/*" = ["D"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["apytypes"]
 
 [tool.ruff.format]
 # Like Black, use double quotes for strings.

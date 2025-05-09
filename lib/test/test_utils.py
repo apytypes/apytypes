@@ -1,6 +1,8 @@
+import math
+
+import pytest
+
 from apytypes import (
-    fx,
-    fp,
     APyCFixed,
     APyCFixedArray,
     APyFixed,
@@ -8,10 +10,9 @@ from apytypes import (
     APyFloat,
     APyFloatArray,
     fn,
+    fp,
+    fx,
 )
-
-import pytest
-import math
 
 
 def test_fx():

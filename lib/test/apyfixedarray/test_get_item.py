@@ -1,7 +1,6 @@
-from apytypes import APyFixedArray, APyCFixedArray
-from apytypes import APyFixed, APyCFixed
-
 import pytest
+
+from apytypes import APyCFixed, APyCFixedArray, APyFixed, APyFixedArray
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
@@ -14,7 +13,7 @@ def test_raise_invalid_item(fixed_array):
 
 
 @pytest.mark.parametrize(
-    "fixed_array, fixed_scalar",
+    ("fixed_array", "fixed_scalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed)],
 )
 def test_get_item_integer(fixed_array, fixed_scalar):

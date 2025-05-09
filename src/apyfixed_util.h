@@ -732,8 +732,8 @@ static APY_INLINE void _cast_no_quantize_no_overflow(
  * ********************************************************************************** */
 
 //! Iterator-based multi-limb two's complement fixed-point product. The scratch
-//! vector `prod_abs` must have space for atleast `src1_limbs + src2_limbs` limbs. The
-//! scratch vectors `op1_abs` and `op2_abs` must have space for atleast `src1_limbs`
+//! vector `prod_abs` must have space for at least `src1_limbs + src2_limbs` limbs. The
+//! scratch vectors `op1_abs` and `op2_abs` must have space for at least `src1_limbs`
 //! and `src2_limbs` limbs, respectively. No overlap between `prod_abs` and `op[12]_abs`
 //! allowed. Overlap between `prod_abs` and `dst` is allowed
 //! if `dst_limbs >= src1_limbs + src2_limbs`.
@@ -793,8 +793,8 @@ static APY_INLINE void fixed_point_product(
 }
 
 //! Iterator-based multi-limb two's complement fixed-point squaring. The scratch
-//! vector `prod_abs` must have space for atleast `2 * src_limbs` limbs. The scratch
-//! vector `op_abs` must have space for atleast `src_limbs` limbs. No overlap
+//! vector `prod_abs` must have space for at least `2 * src_limbs` limbs. The scratch
+//! vector `op_abs` must have space for at least `src_limbs` limbs. No overlap
 //! between `prod_abs` and `op_abs` allowed. Overlap between `prod_abs` and `dst` is
 //! allowed if `dst_limbs >= 2 * src_limbs`.
 template <
@@ -822,8 +822,8 @@ static APY_INLINE void fixed_point_square(
 
 //! Iterator-based multi-limb two's complement complex-valued fixed-point
 //! multiplication. The scratch vector `prod_imm` must have space for
-//! atleast `2 + 2 * src1_limbs + 2 * src2_limbs` limbs. The scratch vectors `op1_abs`
-//! and `op2_abs` must have space for atleast `src1_limbs` and `src2_limbs`
+//! at least `2 + 2 * src1_limbs + 2 * src2_limbs` limbs. The scratch vectors `op1_abs`
+//! and `op2_abs` must have space for at least `src1_limbs` and `src2_limbs`
 //! limbs, respectively. No overlap between `prod_imm` and `op[12]_abs` allowed. No
 //! overlap between `prod_imm` and `dst` allowed.
 template <
@@ -923,8 +923,8 @@ static APY_INLINE void complex_fixed_point_product(
 
 //! Iterator-based multi-limb two's complement complex-valued fixed-point
 //! division. The scratch vector `prod_imm` must have space for
-//! atleast `2 + 2 * src1_limbs + 2 * src2_limbs` limbs. The scratch vectors `op1_abs`
-//! and `op2_abs` must have space for atleast `src1_limbs` and `src2_limbs`
+//! at least `2 + 2 * src1_limbs + 2 * src2_limbs` limbs. The scratch vectors `op1_abs`
+//! and `op2_abs` must have space for at least `src1_limbs` and `src2_limbs`
 //! limbs, respectively. No overlap between `prod_imm` and `op[12]_abs` allowed. No
 //! overlap between `prod_imm` and `dst` allowed.
 template <

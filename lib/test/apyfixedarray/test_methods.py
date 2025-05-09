@@ -1,8 +1,8 @@
 from itertools import permutations
-from apytypes import APyFixedArray, APyCFixedArray
-from apytypes import APyFixed, APyCFixed
 
 import pytest
+
+from apytypes import APyCFixed, APyCFixedArray, APyFixed, APyFixedArray
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
@@ -74,7 +74,7 @@ def test_squeeze(fixed_array):
 
 
 @pytest.mark.parametrize(
-    "fixed_array, fixed_scalar",
+    ("fixed_array", "fixed_scalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed)],
 )
 @pytest.mark.parametrize("sum_func", ["sum", "nansum"])
@@ -235,7 +235,7 @@ def test_special_case():  # Trigger the addition with different number of limbs
 
 
 @pytest.mark.parametrize(
-    "fixed_array, fixed_scalar",
+    ("fixed_array", "fixed_scalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed)],
 )
 @pytest.mark.parametrize("prod_func", ["prod", "nanprod"])
@@ -665,7 +665,7 @@ def test_round_trip_conversion(fixed_array):
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
 @pytest.mark.parametrize(
-    "shape, is_valid, is_invalid, test_neg_one",
+    ("shape", "is_valid", "is_invalid", "test_neg_one"),
     [
         ((6,), True, False, False),  # Valid shapes
         ((3, 2), True, False, False),
@@ -720,7 +720,7 @@ def test_reshape(fixed_array, shape, is_valid, is_invalid, test_neg_one):
 
 
 @pytest.mark.parametrize(
-    "fixed_array, fixed_scalar",
+    ("fixed_array", "fixed_scalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed)],
 )
 @pytest.mark.parametrize(
@@ -761,7 +761,7 @@ def test_reshape_2d(fixed_array, fixed_scalar, shape):
 
 
 @pytest.mark.parametrize(
-    "fixed_array, fixed_scalar",
+    ("fixed_array", "fixed_scalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed)],
 )
 @pytest.mark.parametrize(
@@ -1178,7 +1178,7 @@ def test_issue_615(fixed_array, bits):
 
 
 @pytest.mark.parametrize(
-    "fixed_array, fixed_scalar",
+    ("fixed_array", "fixed_scalar"),
     [
         (APyFixedArray, APyFixed),
         (APyCFixedArray, APyCFixed),

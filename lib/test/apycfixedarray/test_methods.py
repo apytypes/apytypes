@@ -1,7 +1,6 @@
-from apytypes import APyCFixedArray, APyFixedArray
-from apytypes import APyFloat, APyFixed, APyCFixed
-
 import pytest
+
+from apytypes import APyCFixed, APyCFixedArray, APyFixed, APyFixedArray, APyFloat
 
 
 def test_transpose():

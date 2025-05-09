@@ -1,7 +1,6 @@
-from apytypes import APyFloatArray
-from apytypes import APyFloat
-
 import pytest
+
+from apytypes import APyFloat, APyFloatArray
 
 
 def test_raise_invalid_item():

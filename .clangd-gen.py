@@ -14,7 +14,6 @@ import os
 import subprocess
 import sys
 
-
 APYTYPES_DIR = os.path.dirname(os.path.realpath(__file__))
 
 # Include files for Python details using `python3-config`

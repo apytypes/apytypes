@@ -1,6 +1,6 @@
-from apytypes import APyFixed
-
 import pytest
+
+from apytypes import APyFixed
 
 
 def test_not():

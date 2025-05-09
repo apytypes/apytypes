@@ -72,7 +72,7 @@ private:
 template <
     typename T,                             // Item type stored in `ScratchVector`
     std::size_t _N_SCRATCH_ELEMENTS = 2,    // Number of pre-allocated items
-    typename Allocator = std::allocator<T>> // Allocator used for allocating new iterms
+    typename Allocator = std::allocator<T>> // Allocator used for allocating new items
 class ScratchVector {
 
     // Scratch vector needs at-least one element of scratch data

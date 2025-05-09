@@ -1,5 +1,6 @@
-from apytypes import APyFloat
 import numpy as np
+
+from apytypes import APyFloat
 
 
 def test_float_scalar_multiplication_short(benchmark):

@@ -1,29 +1,31 @@
+from math import ceil, log2
+
+import pytest
+
 from apytypes import (
-    squeeze,
-    reshape,
-    shape,
-    transpose,
-    ravel,
-    moveaxis,
-    expand_dims,
-    swapaxes,
-    eye,
-    identity,
-    zeros,
-    zeros_like,
-    ones,
-    ones_like,
-    full,
-    full_like,
-    arange,
-    APyFloat,
+    APyCFixedArray,
     APyFixed,
     APyFixedArray,
-    APyCFixedArray,
+    APyFloat,
     APyFloatArray,
+    arange,
+    expand_dims,
+    eye,
+    full,
+    full_like,
+    identity,
+    moveaxis,
+    ones,
+    ones_like,
+    ravel,
+    reshape,
+    shape,
+    squeeze,
+    swapaxes,
+    transpose,
+    zeros,
+    zeros_like,
 )
-from math import log2, ceil
-import pytest
 
 
 @pytest.mark.parametrize("array_type", [APyFixedArray, APyCFixedArray, APyFloatArray])
@@ -101,7 +103,7 @@ def test_moveaxis(array_type):
 
 @pytest.mark.parametrize("array_type", [APyFixedArray, APyCFixedArray])
 @pytest.mark.parametrize(
-    "source, destination, expected_shape",
+    ("source", "destination", "expected_shape"),
     [
         (0, 2, (3, 4, 2)),
         (1, 0, (3, 2, 4)),
@@ -156,7 +158,7 @@ def test_expanddims(array_type):
 
 
 @pytest.mark.parametrize(
-    "n, m, nums",
+    ("n", "m", "nums"),
     [
         (1, 1, [1]),
         (1, 2, [1, 0]),
@@ -222,7 +224,7 @@ def test_eye(n, m, nums):
 
 
 @pytest.mark.parametrize(
-    "n, nums",
+    ("n", "nums"),
     [
         (1, [1]),
         (2, [1, 0, 0, 1]),

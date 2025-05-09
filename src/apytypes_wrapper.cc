@@ -214,7 +214,7 @@ void bind_common(nb::module_& m)
         mode : :class:`QuantizationMode`
             The quantization mode to use.
 
-        See also
+        See Also
         --------
         get_float_quantization_mode
         )pbdoc"
@@ -226,7 +226,7 @@ void bind_common(nb::module_& m)
         -------
         :class:`QuantizationMode`
 
-        See also
+        See Also
         --------
         set_float_quantization_mode
         )pbdoc")
@@ -244,7 +244,7 @@ void bind_common(nb::module_& m)
         seed : :class:`int`
             The quantization seed to use.
 
-        See also
+        See Also
         --------
         get_float_quantization_seed
         )pbdoc"
@@ -258,7 +258,7 @@ void bind_common(nb::module_& m)
         -------
         :class:`int`
 
-        See also
+        See Also
         --------
         set_float_quantization_seed
         )pbdoc")

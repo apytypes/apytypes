@@ -1,6 +1,8 @@
-import pytest
-from apytypes import APyFixed, APyCFloat, APyCFixed, APyFloat
 from itertools import product
+
+import pytest
+
+from apytypes import APyCFixed, APyCFloat, APyFixed, APyFloat
 
 
 @pytest.mark.float_comp

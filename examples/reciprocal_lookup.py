@@ -7,9 +7,10 @@ assuming that each bit is implemented using an N-ínput LUT, suitable for FPGA, 
 single-precision floating-point representation.
 """
 
-import apytypes as apy
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
+import apytypes as apy
 
 N = 6
 WL = 9
@@ -57,8 +58,7 @@ def eval_seed(x, table):
     table_row = x.man >> (23 - N)  # N most significant bits of x
     new_exp = 253 - x.exp
     new_man = (table[table_row].to_bits() & ((1 << (WL - 1)) - 1)) << (23 - WL + 1)
-    res = apy.APyFloat(x.sign, new_exp, new_man, 8, 23)
-    return res
+    return apy.APyFloat(x.sign, new_exp, new_man, 8, 23)
 
 
 fval = np.linspace(1, 2, points)

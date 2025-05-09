@@ -1,8 +1,8 @@
-from apytypes import APyCFloat, APyFloat
 from itertools import product
 
-
 import pytest
+
+from apytypes import APyCFloat, APyFloat
 
 
 def test_not_implemented():
@@ -64,10 +64,14 @@ def test_comparison(exp_bits: int, man_bits: int, value: complex):
     equal_b: bool = value == 3.25j
     equal_c: bool = value == -4.125 + 0j
     equal_d: bool = value == -4.125 + 3.25j
-    assert not (equal_a ^ (my_float == a)) and equal_a ^ (my_float != a)
-    assert not (equal_b ^ (my_float == b)) and equal_b ^ (my_float != b)
-    assert not (equal_c ^ (my_float == c)) and equal_c ^ (my_float != c)
-    assert not (equal_d ^ (my_float == d)) and equal_d ^ (my_float != d)
+    assert not (equal_a ^ (my_float == a))
+    assert equal_a ^ (my_float != a)
+    assert not (equal_b ^ (my_float == b))
+    assert equal_b ^ (my_float != b)
+    assert not (equal_c ^ (my_float == c))
+    assert equal_c ^ (my_float != c)
+    assert not (equal_d ^ (my_float == d))
+    assert equal_d ^ (my_float != d)
 
 
 def test_to_complex():
@@ -157,7 +161,7 @@ def test_str():
 @pytest.mark.parametrize("man_bits", product([11, 30, 51], repeat=2))
 @pytest.mark.parametrize("bias", product([None, 14], repeat=2))
 @pytest.mark.parametrize(
-    "value", (0.0, -0.0, 4.5, -62.0625, float("-inf"), -(2**11), 2**-11)
+    "value", [0.0, -0.0, 4.5, -62.0625, float("-inf"), -(2**11), 2**-11]
 )
 def test_from_apyfloat(
     exp_bits: tuple[int, int],

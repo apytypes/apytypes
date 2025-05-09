@@ -1,8 +1,15 @@
-from apytypes import APyFixedArray, APyCFixedArray, APyFixed, APyCFixed
-from apytypes import QuantizationMode, fx
-
 import math
+
 import pytest
+
+from apytypes import (
+    APyCFixed,
+    APyCFixedArray,
+    APyFixed,
+    APyFixedArray,
+    QuantizationMode,
+    fx,
+)
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
@@ -100,7 +107,7 @@ def test_array_add(fixed_array):
 
 
 @pytest.mark.parametrize(
-    "fixed_array, fixed_scalar",
+    ("fixed_array", "fixed_scalar"),
     [
         (APyFixedArray, APyFixed),
         (APyCFixedArray, APyCFixed),
@@ -140,7 +147,7 @@ def test_array_add_scalar(fixed_array, fixed_scalar):
 
 
 @pytest.mark.parametrize(
-    "fixed_array, fixed_scalar",
+    ("fixed_array", "fixed_scalar"),
     [
         (APyFixedArray, APyFixed),
         (APyCFixedArray, APyCFixed),
@@ -253,7 +260,7 @@ def test_array_sub(fixed_array):
 
 
 @pytest.mark.parametrize(
-    "fixed_array, fixed_scalar",
+    ("fixed_array", "fixed_scalar"),
     [
         (APyFixedArray, APyFixed),
         (APyCFixedArray, APyCFixed),
@@ -359,7 +366,7 @@ def test_array_mul(fixed_array):
 
 
 @pytest.mark.parametrize(
-    "fixed_array, fixed_scalar",
+    ("fixed_array", "fixed_scalar"),
     [
         (APyFixedArray, APyFixed),
         (APyCFixedArray, APyCFixed),
@@ -494,7 +501,7 @@ def test_array_div(fixed_array):
 
 
 @pytest.mark.parametrize(
-    "fixed_array, fixed_scalar",
+    ("fixed_array", "fixed_scalar"),
     [
         (APyFixedArray, APyFixed),
         (APyCFixedArray, APyCFixed),
@@ -561,7 +568,7 @@ def test_array_div_scalar(fixed_array, fixed_scalar):
 
 
 @pytest.mark.parametrize(
-    "fixed_array, fixed_scalar",
+    ("fixed_array", "fixed_scalar"),
     [
         (APyFixedArray, APyFixed),
         (APyCFixedArray, APyCFixed),
@@ -635,7 +642,7 @@ def test_rdiv_issue(fixed_array, fixed_scalar):
 
 
 @pytest.mark.parametrize(
-    "fixed_array, fixed_scalar",
+    ("fixed_array", "fixed_scalar"),
     [
         (APyFixedArray, APyFixed),
         (APyCFixedArray, APyCFixed),
@@ -663,7 +670,7 @@ def test_array_prod(fixed_array, fixed_scalar):
 
 
 @pytest.mark.parametrize(
-    "fixed_array, fixed_scalar",
+    ("fixed_array", "fixed_scalar"),
     [
         (APyFixedArray, APyFixed),
         (APyCFixedArray, APyCFixed),
@@ -695,7 +702,7 @@ def test_prod_negative_frac_bits(fixed_array, fixed_scalar):
 
 
 @pytest.mark.parametrize(
-    "fixed_array, fixed_scalar",
+    ("fixed_array", "fixed_scalar"),
     [
         (APyFixedArray, APyFixed),
         (APyCFixedArray, APyCFixed),

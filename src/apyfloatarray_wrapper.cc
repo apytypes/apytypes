@@ -502,7 +502,7 @@ void bind_float_array(nb::module_& m)
             nb::arg("bias") = std::nullopt,
             R"pbdoc(
 
-            Initializes an array with zeros.
+            Initialize an array with zeros.
 
             Parameters
             ----------
@@ -529,7 +529,7 @@ void bind_float_array(nb::module_& m)
             nb::arg("man_bits"),
             nb::arg("bias") = std::nullopt,
             R"pbdoc(
-        Initializes an array with ones.
+        Initialize an array with ones.
 
         Parameters
         ----------
@@ -557,7 +557,7 @@ void bind_float_array(nb::module_& m)
             nb::arg("m") = nb::none(),
             nb::arg("bias") = std::nullopt,
             R"pbdoc(
-        Initializes an array with ones on the diagonal.
+        Initialize an array with ones on the diagonal.
 
         Parameters
         ----------
@@ -586,7 +586,7 @@ void bind_float_array(nb::module_& m)
             nb::arg("man_bits"),
             nb::arg("bias") = std::nullopt,
             R"pbdoc(
-        Initializes an identity matrix with ones on the diagonal.
+        Initialize an identity matrix with ones on the diagonal.
 
         Parameters
         ----------
@@ -611,7 +611,7 @@ void bind_float_array(nb::module_& m)
             nb::arg("shape"),
             nb::arg("fill_value"),
             R"pbdoc(
-        Initializes an array filled with the specified value.
+        Initialize an array filled with the specified value.
 
         Parameters
         ----------

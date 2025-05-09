@@ -1,6 +1,8 @@
-from apytypes import APyCFixedArray, APyCFixed, fx
 import math
+
 import pytest
+
+from apytypes import APyCFixed, APyCFixedArray, fx
 
 
 def test_prod():

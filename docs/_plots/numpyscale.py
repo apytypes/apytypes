@@ -1,5 +1,6 @@
 # %%
 import timeit
+
 import matplotlib.pyplot as plt
 import numpy as np
 

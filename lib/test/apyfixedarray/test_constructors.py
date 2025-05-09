@@ -1,6 +1,6 @@
-from apytypes import APyFixedArray, APyCFixedArray
-from apytypes import APyFloat, APyFixed
 import pytest
+
+from apytypes import APyCFixedArray, APyFixed, APyFixedArray, APyFloat
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])

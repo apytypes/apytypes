@@ -1,6 +1,6 @@
-from collections.abc import Sequence
 import enum
 import types
+from collections.abc import Sequence
 from typing import Annotated, overload
 
 from numpy.typing import ArrayLike
@@ -18,7 +18,7 @@ class APyCFixed:
     :attr:`bits`, :attr:`int_bits`, and :attr:`frac_bits` bit specifiers. These specifiers
     determine the location of the binary fix-point and the total word length. Both the real
     and imaginary part share bit specifiers, and the overall number of bits in an
-    :class:`APyCFixed` is :code:`2 * bits`. Only two of three bit specifers need to be set
+    :class:`APyCFixed` is :code:`2 * bits`. Only two of three bit specifiers need to be set
     to uniquely determine the complete fixed-point format.
 
 
@@ -856,8 +856,9 @@ class APyCFixedArray:
 
     def squeeze(self, axis: int | tuple | None = None) -> APyCFixedArray:
         """
-        Removes axes of size one at the specified axis/axes, if no axis is
-        given removes all dimensions with size one.
+        Remove axes of size one at the specified axis/axes.
+
+        If no axis is given, remove all dimensions with size one.
 
         Parameters
         ----------
@@ -978,8 +979,7 @@ class APyCFixedArray:
 
     def nancumsum(self, axis: int | None = None) -> APyCFixedArray:
         """
-        Return the cumulative sum of the elements along a given axis treating NaN as
-        0.
+        Return the cumulative sum of the elements along a given axis treating NaN as 0.
 
         Parameters
         ----------
@@ -1000,7 +1000,7 @@ class APyCFixedArray:
 
     def prod(self, axis: tuple | int | None = None) -> APyCFixedArray | APyCFixed:
         """
-        Returns the product of the elements along specified axis/axes.
+        Return the product of the elements along specified axis/axes.
 
         Parameters
         ----------
@@ -1262,7 +1262,7 @@ class APyCFixedArray:
         bits: int | None = None,
     ) -> APyCFixedArray:
         """
-        Initializes an array with zeros.
+        Initialize an array with zeros.
 
         Parameters
         ----------
@@ -1289,7 +1289,7 @@ class APyCFixedArray:
         bits: int | None = None,
     ) -> APyCFixedArray:
         """
-        Initializes an array with ones.
+        Initialize an array with ones.
 
         Parameters
         ----------
@@ -1317,7 +1317,7 @@ class APyCFixedArray:
         bits: int | None = None,
     ) -> APyCFixedArray:
         """
-        Initializes an array with ones on the diagonal.
+        Initialize an array with ones on the diagonal.
 
         Parameters
         ----------
@@ -1346,7 +1346,7 @@ class APyCFixedArray:
         bits: int | None = None,
     ) -> APyCFixedArray:
         """
-        Initializes an identity matrix with ones on the diagonal.
+        Initialize an identity matrix with ones on the diagonal.
 
         Parameters
         ----------
@@ -1368,7 +1368,7 @@ class APyCFixedArray:
     @staticmethod
     def full(shape: tuple, fill_value: APyCFixed) -> APyCFixedArray:
         """
-        Initializes an array with the specified value.
+        Initialize an array with the specified value.
 
         Parameters
         ----------
@@ -1650,7 +1650,7 @@ class APyCFloat:
         -------
         :class:`APyCFloat`
 
-        See also
+        See Also
         --------
         from_complex
         """
@@ -1691,7 +1691,7 @@ class APyCFloat:
         -------
         :class:`APyCFloat`
 
-        See also
+        See Also
         --------
         from_complex
         """
@@ -1812,7 +1812,7 @@ class APyFixed:
     that it can be used within ordinary arithmetic expressions. Every fixed-point instance
     has an associated word length, determined by its :attr:`bits`, :attr:`int_bits`, and
     :attr:`frac_bits` bit specifiers. These specifiers determine the location of the binary
-    fix-point and the total word length. Only two of three bit specifers need to be set to
+    fix-point and the total word length. Only two of three bit specifiers need to be set to
     uniquely determine the complete fixed-point format.
 
     In general, the fixed-point representation is described by:
@@ -2731,8 +2731,9 @@ class APyFixedArray:
 
     def squeeze(self, axis: int | tuple | None = None) -> APyFixedArray:
         """
-        Removes axes of size one at the specified axis/axes, if no axis is given
-        removes all dimensions with size one.
+        Remove axes of size one at the specified axis/axes.
+
+        If no axis is given, remove all dimensions with size one.
 
         Parameters
         ----------
@@ -3195,7 +3196,7 @@ class APyFixedArray:
         bits: int | None = None,
     ) -> APyFixedArray:
         """
-        Initializes an array with zeros.
+        Initialize an array with zeros.
 
         Parameters
         ----------
@@ -3222,7 +3223,7 @@ class APyFixedArray:
         bits: int | None = None,
     ) -> APyFixedArray:
         """
-        Initializes an array with ones.
+        Initialize an array with ones.
 
         Parameters
         ----------
@@ -3250,7 +3251,7 @@ class APyFixedArray:
         bits: int | None = None,
     ) -> APyFixedArray:
         """
-        Initializes an array with ones on the diagonal.
+        Initialize an array with ones on the diagonal.
 
         Parameters
         ----------
@@ -3279,7 +3280,7 @@ class APyFixedArray:
         bits: int | None = None,
     ) -> APyFixedArray:
         """
-        Initializes an identity matrix with ones on the diagonal.
+        Initialize an identity matrix with ones on the diagonal.
 
         Parameters
         ----------
@@ -3301,7 +3302,7 @@ class APyFixedArray:
     @staticmethod
     def full(shape: tuple, fill_value: APyFixed) -> APyFixedArray:
         """
-        Initializes an array with the specified value.
+        Initialize an array with the specified value.
 
         Parameters
         ----------
@@ -3576,7 +3577,7 @@ class APyFloat:
         -------
         :class:`APyFloat`
 
-        See also
+        See Also
         --------
         from_bits
         """
@@ -3613,7 +3614,7 @@ class APyFloat:
         -------
         :class:`APyFloat`
 
-        See also
+        See Also
         --------
         to_bits
         from_float
@@ -3640,7 +3641,7 @@ class APyFloat:
         -------
         :class:`int`
 
-        See also
+        See Also
         --------
         from_bits
         """
@@ -3763,7 +3764,7 @@ class APyFloat:
         """
         Sign bit.
 
-        See also
+        See Also
         --------
         true_sign
 
@@ -3777,7 +3778,7 @@ class APyFloat:
         """
         Sign value.
 
-        See also
+        See Also
         --------
         sign
 
@@ -3793,7 +3794,7 @@ class APyFloat:
 
         These are without a possible hidden one.
 
-        See also
+        See Also
         --------
         true_man
 
@@ -3809,7 +3810,7 @@ class APyFloat:
 
         These are with a possible hidden one.
 
-        See also
+        See Also
         --------
         man
 
@@ -3823,7 +3824,7 @@ class APyFloat:
         """
         Exponent bits with bias.
 
-        See also
+        See Also
         --------
         true_exp
 
@@ -3840,7 +3841,7 @@ class APyFloat:
         The bias value is subtracted and exponent adjusted in case of
         a subnormal number.
 
-        See also
+        See Also
         --------
         exp
 
@@ -3961,10 +3962,12 @@ class APyFloat:
 
     def next_up(self) -> APyFloat:
         """
-        Get the smallest floating-point number in the same format that compares
-        greater.
+        Get the next larger number.
 
-        See also
+        That means the smallest floating-point number in the same format
+        that compares greater.
+
+        See Also
         --------
         next_down
 
@@ -3975,9 +3978,12 @@ class APyFloat:
 
     def next_down(self) -> APyFloat:
         """
-        Get the largest floating-point number in the same format that compares less.
+        Get the next smaller number.
 
-        See also
+        That means the largest floating-point number in the same format that
+        compares less.
+
+        See Also
         --------
         next_up
 
@@ -4015,7 +4021,7 @@ class APyFloat:
         -------
         :class:`APyFloat`
 
-        See also
+        See Also
         --------
         nan
         """
@@ -4049,7 +4055,7 @@ class APyFloat:
         -------
         :class:`APyFloat`
 
-        See also
+        See Also
         --------
         inf
         """
@@ -4570,7 +4576,7 @@ class APyFloatArray:
         shape: tuple, exp_bits: int, man_bits: int, bias: int | None = None
     ) -> APyFloatArray:
         """
-        Initializes an array with zeros.
+        Initialize an array with zeros.
 
         Parameters
         ----------
@@ -4594,7 +4600,7 @@ class APyFloatArray:
         shape: tuple, exp_bits: int, man_bits: int, bias: int | None = None
     ) -> APyFloatArray:
         """
-        Initializes an array with ones.
+        Initialize an array with ones.
 
         Parameters
         ----------
@@ -4622,7 +4628,7 @@ class APyFloatArray:
         bias: int | None = None,
     ) -> APyFloatArray:
         """
-        Initializes an array with ones on the diagonal.
+        Initialize an array with ones on the diagonal.
 
         Parameters
         ----------
@@ -4648,7 +4654,7 @@ class APyFloatArray:
         n: int, exp_bits: int, man_bits: int, bias: int | None = None
     ) -> APyFloatArray:
         """
-        Initializes an identity matrix with ones on the diagonal.
+        Initialize an identity matrix with ones on the diagonal.
 
         Parameters
         ----------
@@ -4670,7 +4676,7 @@ class APyFloatArray:
     @staticmethod
     def full(shape: tuple, fill_value: APyFloat) -> APyFloatArray:
         """
-        Initializes an array filled with the specified value.
+        Initialize an array filled with the specified value.
 
         Parameters
         ----------
@@ -5509,7 +5515,7 @@ def get_float_quantization_mode() -> QuantizationMode:
     -------
     :class:`QuantizationMode`
 
-    See also
+    See Also
     --------
     set_float_quantization_mode
     """
@@ -5524,7 +5530,7 @@ def get_float_quantization_seed() -> int:
     -------
     :class:`int`
 
-    See also
+    See Also
     --------
     set_float_quantization_seed
     """
@@ -5538,7 +5544,7 @@ def set_float_quantization_mode(mode: QuantizationMode) -> None:
     mode : :class:`QuantizationMode`
         The quantization mode to use.
 
-    See also
+    See Also
     --------
     get_float_quantization_mode
     """
@@ -5554,7 +5560,7 @@ def set_float_quantization_seed(seed: int) -> None:
     seed : :class:`int`
         The quantization seed to use.
 
-    See also
+    See Also
     --------
     get_float_quantization_seed
     """

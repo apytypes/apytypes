@@ -1,7 +1,8 @@
-from apytypes import APyFixedArray, APyFloatArray
+from itertools import product
 
 import pytest
-from itertools import product
+
+from apytypes import APyFixedArray, APyFloatArray
 
 
 def all_shapes(ndim: int, dim_elements: int):
@@ -39,7 +40,7 @@ def test_array_broadcast_to(apyarray_from_float):
             except ValueError:
                 # `ValueError` raised by `np.broadcast_to()` or `apy_src.broadcast_to()`
                 # for illegal broadcast. Make sure *both* arrays raises `ValueError`
-                with pytest.raises(ValueError):
+                with pytest.raises(ValueError):  # noqa: PT011
                     np.broadcast_to(numpy_src, dst_shape)
                 with pytest.raises(ValueError, match="Operands could not be broadcast"):
                     apy_src.broadcast_to(dst_shape)
@@ -65,7 +66,7 @@ def test_array_broadcast_to_raises(apyarray_from_float):
 
 
 @pytest.mark.parametrize(
-    "a_shape, b_shape",
+    ("a_shape", "b_shape"),
     [
         ((5, 1, 3, 4), (5, 5, 1, 4)),
         ((1, 3, 4), (5, 5, 1, 4)),

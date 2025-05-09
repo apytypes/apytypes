@@ -1,5 +1,6 @@
 # %%
 import timeit
+
 import matplotlib.pyplot as plt
 
 CREATE_TWO_FIXED_15_VECTORS = "import numpy as np; a = APyFixedArray.from_float(np.random.rand({l}) - 0.5, 1, 14); b = APyFixedArray.from_float(np.random.rand({l}) - 0.5, 1, 14)"

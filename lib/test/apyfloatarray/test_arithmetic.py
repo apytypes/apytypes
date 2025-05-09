@@ -1,4 +1,5 @@
 import pytest
+
 from apytypes import (
     APyFloat,
     APyFloatArray,
@@ -25,9 +26,9 @@ def test_array_raises():
 def test_array_add():
     a = APyFloatArray.from_float([0, 0.125, 2.5, 12], 5, 7)
     b = APyFloatArray.from_float([3, -0.75, -5, 8], 6, 5)
-    ans = APyFloatArray.from_float([3, -0.625, -2.5, 20], 6, 7)
-    assert (a + b).is_identical(ans)
-    assert (b + a).is_identical(ans)
+    answer = APyFloatArray.from_float([3, -0.625, -2.5, 20], 6, 7)
+    assert (a + b).is_identical(answer)
+    assert (b + a).is_identical(answer)
 
     a = APyFloatArray.from_float(
         [
@@ -45,7 +46,7 @@ def test_array_add():
         exp_bits=8,
         man_bits=8,
     )
-    ans = APyFloatArray.from_float(
+    answer = APyFloatArray.from_float(
         [
             [7.0, 4.5, 10.5],
             [-8.0, 15.0, 0.0],
@@ -53,8 +54,8 @@ def test_array_add():
         exp_bits=8,
         man_bits=8,
     )
-    assert (a + b).is_identical(ans)
-    assert (b + a).is_identical(ans)
+    assert (a + b).is_identical(answer)
+    assert (b + a).is_identical(answer)
 
     a = APyFloatArray.from_float(
         [
@@ -72,7 +73,7 @@ def test_array_add():
         exp_bits=8,
         man_bits=8,
     )
-    ans = APyFloatArray.from_float(
+    answer = APyFloatArray.from_float(
         [
             [6.0, float("nan"), float("inf"), 1.0, 252],
             [
@@ -86,9 +87,9 @@ def test_array_add():
         exp_bits=8,
         man_bits=8,
     )
-    assert (a + b).is_identical(ans)
+    assert (a + b).is_identical(answer)
     # Different sign of final nan
-    ans = APyFloatArray.from_float(
+    answer = APyFloatArray.from_float(
         [
             [6.0, float("nan"), float("inf"), 1.0, 252],
             [
@@ -102,28 +103,28 @@ def test_array_add():
         exp_bits=8,
         man_bits=8,
     )
-    assert (b + a).is_identical(ans)
+    assert (b + a).is_identical(answer)
 
     a = APyFloatArray([1], [2], [1], 4, 4)
     b = APyFloatArray([0], [0], [15], 4, 4)
-    ans = APyFloatArray([1], [1], [3], 4, 4)
+    answer = APyFloatArray([1], [1], [3], 4, 4)
     res = a + b
-    assert res.is_identical(ans)
-    assert (b + a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b + a).is_identical(answer)
 
     a = APyFloatArray([0, 0], [0, 14], [3, 15], 4, 4)
     b = APyFloatArray([0, 0], [0, 14], [5, 2], 4, 4)
-    ans = APyFloatArray([0, 0], [0, 15], [8, 0], 4, 4)
+    answer = APyFloatArray([0, 0], [0, 15], [8, 0], 4, 4)
     res = a + b
-    assert res.is_identical(ans)
-    assert (b + a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b + a).is_identical(answer)
 
     a = APyFloatArray([1], [2], [1], 4, 4)
     b = APyFloatArray([0], [1], [15], 4, 4)
-    ans = APyFloatArray([1], [0], [3], 4, 4)
+    answer = APyFloatArray([1], [0], [3], 4, 4)
     res = a + b
-    assert res.is_identical(ans)
-    assert (b + a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b + a).is_identical(answer)
 
 
 @pytest.mark.float_array
@@ -142,15 +143,15 @@ def test_array_add_scalar():
 
     a = APyFloatArray.from_float([12, -23, 34], 8, 8)
     b = APyFloat.from_float(8, 8, 8)
-    ans = APyFloatArray.from_float([20, -15, 42], 8, 8)
-    assert (a + b).is_identical(ans)
-    assert (b + a).is_identical(ans)
+    answer = APyFloatArray.from_float([20, -15, 42], 8, 8)
+    assert (a + b).is_identical(answer)
+    assert (b + a).is_identical(answer)
 
     a = APyFloatArray.from_float([12, -23, 34], 8, 60)
     b = APyFloat.from_float(0, 8, 60)
-    ans = APyFloatArray.from_float([12, -23, 34], 8, 60)
-    assert (a + b).is_identical(ans)
-    assert (b + a).is_identical(ans)
+    answer = APyFloatArray.from_float([12, -23, 34], 8, 60)
+    assert (a + b).is_identical(answer)
+    assert (b + a).is_identical(answer)
 
     a = APyFloatArray.from_float(
         [2.0**127, 1 + 2**-8, 2, 0, float("inf"), float("nan"), 1, 2**-7, 1 - 2**-7],
@@ -158,65 +159,65 @@ def test_array_add_scalar():
         8,
     )
     b = APyFloat.from_float(-1, 8, 8)
-    ans = APyFloatArray.from_float(
+    answer = APyFloatArray.from_float(
         [2.0**127, 2**-8, 1, -1, float("inf"), float("nan"), 0, 2**-7 - 1, -(2**-7)],
         8,
         8,
     )
-    assert (a + b).is_identical(ans)
-    assert (b + a).is_identical(ans)
+    assert (a + b).is_identical(answer)
+    assert (b + a).is_identical(answer)
 
     a = APyFloatArray.from_float([12, -23, 34], 8, 8)
     b = APyFloat.from_float(float("nan"), 8, 8)
-    ans = APyFloatArray.from_float([float("nan"), -float("nan"), float("nan")], 8, 8)
-    assert (a + b).is_identical(ans)
-    assert (b + a).is_identical(ans)
+    answer = APyFloatArray.from_float([float("nan"), -float("nan"), float("nan")], 8, 8)
+    assert (a + b).is_identical(answer)
+    assert (b + a).is_identical(answer)
 
     a = APyFloatArray.from_float(
         [-float("inf"), float("nan"), float("inf"), 0, 5], 8, 8
     )
     b = APyFloat.from_float(float("inf"), 8, 8)
-    ans = APyFloatArray.from_float(
+    answer = APyFloatArray.from_float(
         [-float("nan"), float("nan"), float("inf"), float("inf"), float("inf")], 8, 8
     )
-    assert (a + b).is_identical(ans)
-    assert (b + a).is_identical(ans)
+    assert (a + b).is_identical(answer)
+    assert (b + a).is_identical(answer)
 
     a = APyFloat(1, 2, 1, 4, 4)
     b = APyFloatArray([0], [0], [15], 4, 4)
-    ans = APyFloatArray([1], [1], [3], 4, 4)
+    answer = APyFloatArray([1], [1], [3], 4, 4)
     res = a + b
-    assert res.is_identical(ans)
-    assert (b + a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b + a).is_identical(answer)
 
     a = APyFloatArray([0], [0], [3], 4, 4)
     b = APyFloat(0, 0, 5, 4, 4)
-    ans = APyFloatArray([0], [0], [8], 4, 4)
+    answer = APyFloatArray([0], [0], [8], 4, 4)
     res = a + b
-    assert res.is_identical(ans)
-    assert (b + a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b + a).is_identical(answer)
 
     a = APyFloatArray([0], [14], [15], 4, 4)
     b = APyFloat(0, 14, 2, 4, 4)
-    ans = APyFloatArray([0], [15], [0], 4, 4)
+    answer = APyFloatArray([0], [15], [0], 4, 4)
     res = a + b
-    assert res.is_identical(ans)
-    assert (b + a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b + a).is_identical(answer)
 
     a = APyFloatArray([1], [2], [1], 4, 4)
     b = APyFloat(0, 1, 15, 4, 4)
-    ans = APyFloatArray([1], [0], [3], 4, 4)
+    answer = APyFloatArray([1], [0], [3], 4, 4)
     res = a + b
-    assert res.is_identical(ans)
-    assert (b + a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b + a).is_identical(answer)
 
 
 @pytest.mark.float_array
 def test_array_sub():
     a = APyFloatArray.from_float([0, 0.125, 2.5, 12], 5, 7)
     b = APyFloatArray.from_float([3, -0.75, -5, 8], 6, 5)
-    ans = APyFloatArray.from_float([-3, 0.875, 7.5, 4], 6, 7)
-    assert (a - b).is_identical(ans)
+    answer = APyFloatArray.from_float([-3, 0.875, 7.5, 4], 6, 7)
+    assert (a - b).is_identical(answer)
 
     a = APyFloatArray.from_float(
         [
@@ -234,7 +235,7 @@ def test_array_sub():
         exp_bits=8,
         man_bits=8,
     )
-    ans = APyFloatArray.from_float(
+    answer = APyFloatArray.from_float(
         [
             [-5, -0.5, -4.5],
             [0.0, -25.0, -12.0],
@@ -242,7 +243,7 @@ def test_array_sub():
         exp_bits=8,
         man_bits=8,
     )
-    assert (a - b).is_identical(ans)
+    assert (a - b).is_identical(answer)
 
 
 @pytest.mark.float_array
@@ -262,10 +263,10 @@ def test_array_sub_scalar():
 def test_array_mul():
     a = APyFloatArray.from_float([0, 0.125, 2.5, 12], 5, 7)
     b = APyFloatArray.from_float([3, -0.75, -5, 8], 6, 5)
-    ans = APyFloatArray.from_float([0, -0.09375, -12.5, 96], 6, 7)
+    answer = APyFloatArray.from_float([0, -0.09375, -12.5, 96], 6, 7)
     res = a * b
-    assert res.is_identical(ans)
-    assert (a * b).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (a * b).is_identical(answer)
 
     a = APyFloatArray.from_float(
         [
@@ -283,7 +284,7 @@ def test_array_mul():
         exp_bits=8,
         man_bits=8,
     )
-    ans = APyFloatArray.from_float(
+    answer = APyFloatArray.from_float(
         [
             [6, 5, 22.5],
             [16, -100, -36],
@@ -292,8 +293,8 @@ def test_array_mul():
         man_bits=8,
     )
     res = a * b
-    assert res.is_identical(ans)
-    assert (b * a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b * a).is_identical(answer)
 
     a = APyFloatArray.from_float(
         [
@@ -311,7 +312,7 @@ def test_array_mul():
         exp_bits=12,
         man_bits=40,
     )
-    ans = APyFloatArray.from_float(
+    answer = APyFloatArray.from_float(
         [
             [6, 5, 22.5],
             [16, -100, -36],
@@ -320,8 +321,8 @@ def test_array_mul():
         man_bits=40,
     )
     res = a * b
-    assert res.is_identical(ans)
-    assert (b * a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b * a).is_identical(answer)
 
     a = APyFloatArray.from_float(
         [
@@ -339,7 +340,7 @@ def test_array_mul():
         exp_bits=8,
         man_bits=8,
     )
-    ans = APyFloatArray.from_float(
+    answer = APyFloatArray.from_float(
         [
             [float("nan"), float("nan"), float("nan")],
             [-0.0, -float("inf"), float("nan")],
@@ -348,8 +349,8 @@ def test_array_mul():
         man_bits=8,
     )
     res = a * b
-    assert res.is_identical(ans)
-    assert (b * a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b * a).is_identical(answer)
 
     a = APyFloatArray.from_float(
         [
@@ -367,7 +368,7 @@ def test_array_mul():
         exp_bits=12,
         man_bits=35,
     )
-    ans = APyFloatArray.from_float(
+    answer = APyFloatArray.from_float(
         [
             [float("nan"), float("nan"), float("nan")],
             [-0.0, -float("inf"), float("nan")],
@@ -376,29 +377,31 @@ def test_array_mul():
         man_bits=35,
     )
     res = a * b
-    assert res.is_identical(ans)
-    assert (b * a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b * a).is_identical(answer)
 
     a = APyFloatArray([False, True, True], [60, 127, 0], [10, 192, 10], 8, 20)
     b = APyFloatArray([True, False, True], [60, 127, 0], [192, 192, 15], 8, 20)
-    ans = APyFloatArray([1, 1, 0], [0, 127, 0], [4097, 384, 0], exp_bits=8, man_bits=20)
+    answer = APyFloatArray(
+        [1, 1, 0], [0, 127, 0], [4097, 384, 0], exp_bits=8, man_bits=20
+    )
     res = a * b
-    assert res.is_identical(ans)
-    assert (b * a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b * a).is_identical(answer)
 
     a = APyFloatArray([0, 1], [6, 7], [7, 14], 4, 5)
     b = APyFloatArray([0, 1], [1, 0], [7, 14], 4, 5)
-    ans = APyFloatArray([0, 0], [0, 0], [24, 20], exp_bits=4, man_bits=5, bias=7)
+    answer = APyFloatArray([0, 0], [0, 0], [24, 20], exp_bits=4, man_bits=5, bias=7)
     res = a * b
-    assert res.is_identical(ans)
-    assert (b * a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b * a).is_identical(answer)
 
     a = APyFloatArray([0, 1], [7, 12], [30, 14], 4, 5)
     b = APyFloatArray([0, 1], [7, 12], [1, 14], 4, 5)
-    ans = APyFloatArray([0, 0], [8, 15], [0, 0], exp_bits=4, man_bits=5, bias=7)
+    answer = APyFloatArray([0, 0], [8, 15], [0, 0], exp_bits=4, man_bits=5, bias=7)
     res = a * b
-    assert res.is_identical(ans)
-    assert (b * a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b * a).is_identical(answer)
 
     # Subnormals
     x = APyFloatArray([0], [0], [11], exp_bits=4, man_bits=9)
@@ -548,38 +551,38 @@ def test_array_mul_scalar():
 
     a = APyFloatArray([0, 1], [7, 6], [0, 31], 4, 5)
     b = APyFloat(0, 0, 5, 4, 5)
-    ans = APyFloatArray([0, 1], [0, 0], [5, 5], 4, 5)
+    answer = APyFloatArray([0, 1], [0, 0], [5, 5], 4, 5)
     res = a * b
-    assert res.is_identical(ans)
-    assert (b * a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b * a).is_identical(answer)
 
     a = APyFloatArray([0, 1], [4, 0], [0, 31], 4, 5)
     b = APyFloat(0, 0, 5, 4, 5)
-    ans = APyFloatArray([0, 1], [0, 0], [1, 0], 4, 5)
+    answer = APyFloatArray([0, 1], [0, 0], [1, 0], 4, 5)
     res = a * b
-    assert res.is_identical(ans)
-    assert (b * a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b * a).is_identical(answer)
 
     a = APyFloatArray([0, 1], [6, 7], [31, 0], 4, 5)
     b = APyFloat(0, 7, 31, 4, 5)
-    ans = APyFloatArray([0, 1], [7, 7], [30, 31], 4, 5)
+    answer = APyFloatArray([0, 1], [7, 7], [30, 31], 4, 5)
     res = a * b
-    assert res.is_identical(ans)
-    assert (b * a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b * a).is_identical(answer)
 
     a = APyFloatArray([0, 1], [7, 12], [30, 14], 4, 5)
     b = APyFloat(0, 7, 1, 4, 5)
-    ans = APyFloatArray([0, 1], [8, 12], [0, 15], exp_bits=4, man_bits=5, bias=7)
+    answer = APyFloatArray([0, 1], [8, 12], [0, 15], exp_bits=4, man_bits=5, bias=7)
     res = a * b
-    assert res.is_identical(ans)
-    assert (b * a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b * a).is_identical(answer)
 
     a = APyFloatArray([0, 1], [7, 12], [30, 14], 4, 5)
     b = APyFloat(1, 12, 14, 4, 5)
-    ans = APyFloatArray([1, 0], [13, 15], [13, 0], exp_bits=4, man_bits=5, bias=7)
+    answer = APyFloatArray([1, 0], [13, 15], [13, 0], exp_bits=4, man_bits=5, bias=7)
     res = a * b
-    assert res.is_identical(ans)
-    assert (b * a).is_identical(ans)
+    assert res.is_identical(answer)
+    assert (b * a).is_identical(answer)
 
     # 1.0 x subn
     res = APyFloat(0, 7, 0, 4, 3) * APyFloatArray([0], [0], [1], 4, 3)
@@ -634,8 +637,8 @@ def test_array_mul_scalar():
 def test_array_div():
     a = APyFloatArray.from_float([3, -0.09375, -12.5, 96], 6, 6)
     b = APyFloatArray.from_float([1, 0.125, 2.5, 12], 5, 7)
-    ans = APyFloatArray.from_float([3, -0.75, -5, 8], 6, 7)
-    assert (a / b).is_identical(ans)
+    answer = APyFloatArray.from_float([3, -0.75, -5, 8], 6, 7)
+    assert (a / b).is_identical(answer)
 
     a = APyFloatArray.from_float(
         [
@@ -653,7 +656,7 @@ def test_array_div():
         exp_bits=8,
         man_bits=8,
     )
-    ans = APyFloatArray.from_float(
+    answer = APyFloatArray.from_float(
         [
             [1.0, 2.0, 3.0],
             [-4.0, -5.0, -6.0],
@@ -661,7 +664,7 @@ def test_array_div():
         exp_bits=8,
         man_bits=8,
     )
-    assert (a / b).is_identical(ans)
+    assert (a / b).is_identical(answer)
 
     res = APyFloatArray([0], [1], [1023], exp_bits=5, man_bits=10) / APyFloatArray(
         [0], [16], [0], exp_bits=5, man_bits=10

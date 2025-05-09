@@ -1,7 +1,8 @@
-from apytypes import APyFixed, APyFloat
 from math import pow
 
 import pytest
+
+from apytypes import APyFixed, APyFloat
 
 
 def test_construction_raises():
@@ -13,13 +14,13 @@ def test_construction_raises():
         APyFixed(0, bits=0, int_bits=0)
 
     # Exactly two of three bit-specifiers needs to be set when creating `APyFixed`
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Fixed-point bit specification needs exactly"):
         APyFixed(0, bits=1, int_bits=0, frac_bits=0)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Fixed-point bit specification needs exactly"):
         APyFixed(0, frac_bits=1)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Fixed-point bit specification needs exactly"):
         APyFixed(0, int_bits=1)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Fixed-point bit specification needs exactly"):
         APyFixed(0, bits=1)
 
 

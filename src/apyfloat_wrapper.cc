@@ -233,7 +233,7 @@ void bind_float(nb::module_& m)
             -------
             :class:`APyFloat`
 
-            See also
+            See Also
             --------
             from_bits
             )pbdoc"
@@ -273,7 +273,7 @@ void bind_float(nb::module_& m)
             -------
             :class:`APyFloat`
 
-            See also
+            See Also
             --------
             to_bits
             from_float
@@ -299,7 +299,7 @@ void bind_float(nb::module_& m)
             -------
             :class:`int`
 
-            See also
+            See Also
             --------
             from_bits
             )pbdoc")
@@ -415,7 +415,7 @@ void bind_float(nb::module_& m)
         .def_prop_ro("sign", &APyFloat::get_sign, R"pbdoc(
             Sign bit.
 
-            See also
+            See Also
             --------
             true_sign
 
@@ -429,7 +429,7 @@ void bind_float(nb::module_& m)
             R"pbdoc(
             Sign value.
 
-            See also
+            See Also
             --------
             sign
 
@@ -443,7 +443,7 @@ void bind_float(nb::module_& m)
 
             These are without a possible hidden one.
 
-            See also
+            See Also
             --------
             true_man
 
@@ -456,7 +456,7 @@ void bind_float(nb::module_& m)
 
             These are with a possible hidden one.
 
-            See also
+            See Also
             --------
             man
 
@@ -467,7 +467,7 @@ void bind_float(nb::module_& m)
         .def_prop_ro("exp", &APyFloat::get_exp, R"pbdoc(
             Exponent bits with bias.
 
-            See also
+            See Also
             --------
             true_exp
 
@@ -481,7 +481,7 @@ void bind_float(nb::module_& m)
             The bias value is subtracted and exponent adjusted in case of
             a subnormal number.
 
-            See also
+            See Also
             --------
             exp
 
@@ -602,10 +602,12 @@ void bind_float(nb::module_& m)
             )pbdoc"
         )
         .def("next_up", &APyFloat::next_up, R"pbdoc(
-            Get the smallest floating-point number in the same format that compares
-            greater.
+            Get the next larger number.
 
-            See also
+            That means the smallest floating-point number in the same format
+            that compares greater.
+
+            See Also
             --------
             next_down
 
@@ -615,9 +617,12 @@ void bind_float(nb::module_& m)
 
             )pbdoc")
         .def("next_down", &APyFloat::next_down, R"pbdoc(
-            Get the largest floating-point number in the same format that compares less.
+            Get the next smaller number.
 
-            See also
+            That means the largest floating-point number in the same format that
+            compares less.
+
+            See Also
             --------
             next_up
 
@@ -659,7 +664,7 @@ void bind_float(nb::module_& m)
             -------
             :class:`APyFloat`
 
-            See also
+            See Also
             --------
             nan
 
@@ -698,7 +703,7 @@ void bind_float(nb::module_& m)
             -------
             :class:`APyFloat`
 
-            See also
+            See Also
             --------
             inf
 

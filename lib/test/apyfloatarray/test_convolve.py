@@ -1,9 +1,9 @@
+import pytest
+
 from apytypes import (
     APyFloatArray,
     convolve,
 )
-
-import pytest
 
 
 def test_raises():

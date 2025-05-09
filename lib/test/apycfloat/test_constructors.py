@@ -1,6 +1,6 @@
-from apytypes import APyCFloat, APyCFixed
-
 import pytest
+
+from apytypes import APyCFixed, APyCFloat
 
 
 def test_constructor_raises():

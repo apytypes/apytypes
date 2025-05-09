@@ -6,10 +6,12 @@ This illustrates the effect of performing a vector rotation
 using different number of fractional bits and different quantization schemes.
 """
 
-import apytypes as apy
 import math
+
 import matplotlib.pyplot as plt
 import numpy as np
+
+import apytypes as apy
 
 angle = 0.003
 
