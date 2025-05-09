@@ -8,6 +8,7 @@
 
 #include "apycfixed.h"
 #include "apycfixed_util.h"
+#include "apycfixedarray.h"
 #include "apyfixed.h"
 #include "apyfixed_util.h"
 #include "apyfloat.h"
@@ -18,6 +19,7 @@
 // Python object access through Pybind
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/complex.h>
+#include <variant>
 namespace nb = nanobind;
 
 // Standard header includes
@@ -572,11 +574,6 @@ std::string APyCFixed::to_string_hex() const
 std::string APyCFixed::to_string_oct() const
 {
     throw NotImplementedException("APyCFixed::to_string_oct()");
-}
-
-bool APyCFixed::is_identical(const APyCFixed& other) const
-{
-    return bits() == other.bits() && int_bits() == other.int_bits() && *this == other;
 }
 
 bool APyCFixed::is_zero() const noexcept

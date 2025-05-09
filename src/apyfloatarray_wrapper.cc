@@ -268,88 +268,104 @@ void bind_float_array(nb::module_& m)
             :class:`list` or :class:`numpy.ndarray`
             )pbdoc"
         )
-        .def("reshape", &APyFloatArray::reshape, nb::arg("number_sequence"), R"pbdoc(
-        Reshape the APyFloatArray to the specified shape without changing its data.
+        .def(
+            "reshape",
+            &APyFloatArray::python_reshape,
+            nb::arg("number_sequence"),
+            R"pbdoc(
+            Reshape the APyFloatArray to the specified shape without changing its data.
 
-        Parameters
-        ----------
-        new_shape : `tuple`
-            The new shape should be compatible with the original shape. If a dimension is -1, its value will be inferred from the length of the array and remaining dimensions. Only one dimension can be -1.
+            Parameters
+            ----------
+            new_shape : :class:`tuple` of :class:`int`
+                The new shape should be compatible with the original shape. If a
+                dimension is -1, its value will be inferred from the length of the array
+                and remaining dimensions. Only one dimension can be -1.
 
-        Raises
-        ------
-        :class:`ValueError`
-            If negative dimensions less than -1 are provided, if the total size of the new array is not unchanged and divisible by the known dimensions, or if the total number of elements does not match the original array.
+            Raises
+            ------
+            :class:`ValueError`
+                If negative dimensions less than -1 are provided, if the total size of
+                the new array is not unchanged and divisible by the known dimensions, or
+                if the total number of elements does not match the original array.
 
-        Examples
-        --------
-        >>> import apytypes as apy
-        >>> signs = [0, 0, 1, 1]
-        >>> exps = [127, 128, 128, 129]
-        >>> mans = [0, 0, 4194304, 0]
-        >>> arr = apy.APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23)
-        >>> arr.to_numpy()
-        array([ 1.,  2., -3., -4.])
+            Examples
+            --------
+            >>> import apytypes as apy
+            >>> signs = [0, 0, 1, 1]
+            >>> exps = [127, 128, 128, 129]
+            >>> mans = [0, 0, 4194304, 0]
+            >>> arr = apy.APyFloatArray(
+            ...     signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23
+            ... )
+            >>> arr.to_numpy()
+            array([ 1.,  2., -3., -4.])
 
-        >>> arr.reshape((2, 2)).to_numpy()
-        array([[ 1.,  2.],
-               [-3., -4.]])
+            >>> arr.reshape((2, 2)).to_numpy()
+            array([[ 1.,  2.],
+                   [-3., -4.]])
 
-        >>> arr.reshape((4,)).to_numpy()
-        array([ 1.,  2., -3., -4.])
+            >>> arr.reshape((4,)).to_numpy()
+            array([ 1.,  2., -3., -4.])
 
-        >>> arr.reshape((2, -1)).to_numpy()
-        array([[ 1.,  2.],
-               [-3., -4.]])
+            >>> arr.reshape((2, -1)).to_numpy()
+            array([[ 1.,  2.],
+                   [-3., -4.]])
 
-        Returns
-        -------
-        :class:`APyFloatArray`
-        )pbdoc")
+            Returns
+            -------
+            :class:`APyFloatArray`
+            )pbdoc"
+        )
 
         .def("flatten", &APyFloatArray::flatten, R"pbdoc(
-        Return a copy of the array collapsed into one dimension.
+            Return a copy of the array collapsed into one dimension.
 
-        Examples
-        --------
-        >>> import apytypes as apy
-        >>> signs = [[0, 0], [1, 1]]
-        >>> exps = [[127, 128], [128, 129]]
-        >>> mans = [[0, 0], [4194304, 0]]
-        >>> arr = apy.APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23)
-        >>> arr.to_numpy()
-        array([[ 1.,  2.],
-               [-3., -4.]])
+            Examples
+            --------
+            >>> import apytypes as apy
+            >>> signs = [[0, 0], [1, 1]]
+            >>> exps = [[127, 128], [128, 129]]
+            >>> mans = [[0, 0], [4194304, 0]]
+            >>> arr = apy.APyFloatArray(
+            ...     signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23
+            ... )
+            >>> arr.to_numpy()
+            array([[ 1.,  2.],
+                   [-3., -4.]])
 
-        >>> arr.flatten().to_numpy()
-        array([ 1.,  2., -3., -4.])
+            >>> arr.flatten().to_numpy()
+            array([ 1.,  2., -3., -4.])
 
-        Returns
-        -------
-        :class:`APyFloatArray`
-            )pbdoc")
+            Returns
+            -------
+            :class:`APyFloatArray`
+                )pbdoc")
 
         .def("ravel", &APyFloatArray::ravel, R"pbdoc(
-        Return a copy of the array collapsed into one dimension. Same as flatten with current memory-copy model.
+            Return a copy of the array collapsed into one dimension. Same as flatten
+            with current memory-copy model.
 
-        Examples
-        --------
-        >>> import apytypes as apy
-        >>> signs = [[0, 0], [1, 1]]
-        >>> exps = [[127, 128], [128, 129]]
-        >>> mans = [[0, 0], [4194304, 0]]
-        >>> arr = apy.APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23)
-        >>> arr.to_numpy()
-        array([[ 1.,  2.],
-               [-3., -4.]])
+            Examples
+            --------
+            >>> import apytypes as apy
+            >>> signs = [[0, 0], [1, 1]]
+            >>> exps = [[127, 128], [128, 129]]
+            >>> mans = [[0, 0], [4194304, 0]]
+            >>> arr = apy.APyFloatArray(
+            ...     signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23
+            ... )
+            >>> arr.to_numpy()
+            array([[ 1.,  2.],
+                   [-3., -4.]])
 
-        >>> arr.ravel().to_numpy()
-        array([ 1.,  2., -3., -4.])
+            >>> arr.ravel().to_numpy()
+            array([ 1.,  2., -3., -4.])
 
-        Returns
-        -------
-        :class:`APyFloatArray`
-            )pbdoc")
+            Returns
+            -------
+            :class:`APyFloatArray`
+                )pbdoc")
 
         /*
          * Static methods
@@ -362,7 +378,8 @@ void bind_float_array(nb::module_& m)
             nb::arg("man_bits"),
             nb::arg("bias") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyFloatArray` object from a sequence of :class:`int`, :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
+            Create an :class:`APyFloatArray` object from a sequence of :class:`int`,
+            :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
 
             Parameters
             ----------
@@ -383,7 +400,9 @@ void bind_float_array(nb::module_& m)
 
             Array `a`, initialized from floating-point values.
 
-            >>> a = apy.APyFloatArray.from_float([1.0, 1.25, 1.49], exp_bits=10, man_bits=15)
+            >>> a = apy.APyFloatArray.from_float(
+            ...     [1.0, 1.25, 1.49], exp_bits=10, man_bits=15
+            ... )
 
             Array `lhs` (2 x 3 matrix), initialized from floating-point values.
 
@@ -420,7 +439,8 @@ void bind_float_array(nb::module_& m)
             Parameters
             ----------
             ndarray : ndarray
-                Values to initialize from. The tensor shape will be taken from the ndarray shape.
+                Values to initialize from. The tensor shape will be taken from the
+                ndarray shape.
             exp_bits : :class:`int`
                 Number of exponent bits in the created floating-point tensor
             man_bits : :class:`int`
@@ -670,6 +690,7 @@ void bind_float_array(nb::module_& m)
         .def("__matmul__", &APyFloatArray::matmul, nb::arg("rhs"))
         .def("__repr__", &APyFloatArray::repr)
         .def("__len__", &APyFloatArray::size)
+        .def("__str__", &APyFloatArray::to_string, nb::arg("base") = 10)
 
         .def("is_identical", &APyFloatArray::is_identical, nb::arg("other"), R"pbdoc(
         Test if two :class:`APyFloatArray` objects are identical.

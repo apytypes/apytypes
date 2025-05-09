@@ -12,6 +12,7 @@
 #include "apytypes_mp.h"
 #include "apytypes_scratch_vector.h"
 #include "apytypes_util.h"
+#include "ieee754.h"
 #include "python_util.h"
 
 // Standard header includes
@@ -632,7 +633,7 @@ check_mantissa_format(int man_bits, std::string_view exception_msg_prefix = "apy
 }
 
 /* ********************************************************************************** *
- * *              Floating-point conversion from fixed                              * *
+ * *                           Floating-point conversion                            * *
  * ********************************************************************************** */
 
 template <typename RANDOM_ACCESS_ITERATOR_IN>
@@ -705,6 +706,21 @@ APyFloatData floating_point_from_fixed_point(
         limb_vector_set_bit(std::begin(fx_man), std::end(fx_man), man_bits + c, 0);
         return { sign, exp_t(tmp_exp), uint64_t_from_limb_vector(fx_man, 0) };
     }
+}
+
+[[maybe_unused]] static APY_INLINE double
+floating_point_to_double(const APyFloatData& data_in, const APyFloatSpec& spec)
+{
+    constexpr APyFloatSpec double_spec = { 11, 52, 1023 };
+    constexpr QuantizationMode qntz = QuantizationMode::RND_CONV;
+    const APyFloatData data_double
+        = floating_point_cast(data_in, spec, double_spec, qntz, get_qntz_func(qntz));
+
+    double res {};
+    set_sign_of_double(res, data_double.sign);
+    set_exp_of_double(res, data_double.exp);
+    set_man_of_double(res, data_double.man);
+    return res;
 }
 
 /* ********************************************************************************** *

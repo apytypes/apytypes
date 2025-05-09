@@ -7,16 +7,15 @@
 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
+#include <nanobind/stl/variant.h>
 
-#include "fmt/format.h"
+#include <fmt/format.h>
 
 #include <algorithm>        // std::find, std::unique, etc...
 #include <cstddef>          // std::size_t
 #include <cstdint>          // int64_t
 #include <functional>       // std::bit_not
 #include <initializer_list> // std::initializer_list
-#include <iomanip>          // std::setfill, std::setw
-#include <ios>              // std::hex
 #include <iterator>         // std::distance
 #include <numeric>          // std::accumulate, std::multiplies
 #include <optional>         // std::optional, std::nullopt
@@ -456,25 +455,20 @@ double_dabble(std::vector<apy_limb_t> nibble_data)
 
 //! Convert a BCD limb vector into a `std::string`.
 [[maybe_unused, nodiscard]] static APY_INLINE std::string
-bcds_to_string(const std::vector<apy_limb_t> bcds)
+bcds_to_string(const std::vector<apy_limb_t>& bcds)
 {
     if (bcds.size() == 0) {
         return "";
     }
 
-    // Utilize the built-in stream hexadecimal conversion
-    std::stringstream ss;
-    ss << std::hex;
-
     // The first limb *should not* be padded with zeros
-    ss << *bcds.crbegin();
+    std::string result = fmt::format("{:X}", *bcds.crbegin());
 
     // Any remaining limbs *should* must be zero padded
     for (auto limb_it = bcds.crbegin() + 1; limb_it != bcds.crend(); ++limb_it) {
-        ss << std::setw(2 * APY_LIMB_SIZE_BYTES) << std::setfill('0') << *limb_it;
+        result += fmt::format("{:0{}X}", *limb_it, 2 * APY_LIMB_SIZE_BYTES);
     }
-
-    return ss.str();
+    return result;
 }
 
 //! Reverse double-dabble algorithm for BCD->binary conversion
@@ -1234,90 +1228,6 @@ template <typename RANDOM_ACCESS_ITERATOR_INOUT>
         auto it2 = begin_it + itemsize * (n_items - i - 1);
         multi_limb_swap(it1, it2, itemsize);
     }
-}
-
-//! Create a C++ shape vector (`std::vector<INT_TYPE>`) from a Python shape object
-//! (`std::variant<nanobind::tuple, nanobind::int_>`).
-template <typename INT_TYPE = std::size_t, bool allow_negative_dimensions = false>
-static APY_INLINE std::vector<INT_TYPE> cpp_shape_from_python_shape_like(
-    const std::variant<nanobind::tuple, nanobind::int_>& shape
-)
-{
-    constexpr auto func_name = __func__;
-    auto sanitize_integer_element = [&](const auto element) -> INT_TYPE {
-        nanobind::int_ nb_int;
-        long long cpp_int;
-
-        // Sanitize: element must be of integer type
-        try {
-            nb_int = nanobind::cast<nanobind::int_>(element);
-        } catch (const std::bad_cast& e) {
-            throw nanobind::value_error(
-                fmt::format("{}(): only integer dimensions allowed", func_name).c_str()
-            );
-        }
-
-        // Sanitize: integer fits in biggest native C++ type
-        try {
-            cpp_int = static_cast<long long>(nb_int);
-        } catch (const std::out_of_range& e) {
-            throw nanobind::value_error(
-                fmt::format("{}(): integer to large for C++ long long", func_name)
-                    .c_str()
-            );
-        }
-
-        // Sanitize: integer is negative? Conditionally enablable
-        if constexpr (!allow_negative_dimensions) {
-            if (cpp_int < 0) {
-                throw nanobind::value_error(
-                    fmt::format("{}(): negative integers disallowed", func_name).c_str()
-                );
-            }
-        }
-
-        return static_cast<INT_TYPE>(cpp_int);
-    };
-
-    std::vector<INT_TYPE> cpp_shape {};
-    if (std::holds_alternative<nanobind::tuple>(shape)) {
-        for (const auto& element : std::get<nanobind::tuple>(shape)) {
-            cpp_shape.push_back(sanitize_integer_element(element));
-        }
-    } else {
-        cpp_shape.push_back(sanitize_integer_element(std::get<nanobind::int_>(shape)));
-    }
-    return cpp_shape;
-}
-
-//! Convert a Python tuple to a unique sorted list of dimensions (smaller than `ndim`)
-static APY_INLINE std::vector<std::size_t> cpp_axes_from_python(
-    const std::optional<std::variant<nanobind::tuple, nanobind::int_>>& python_axes,
-    std::size_t ndim
-)
-{
-    std::vector<std::size_t> result {};
-    if (python_axes.has_value()) {
-        for (std::size_t i : cpp_shape_from_python_shape_like(*python_axes)) {
-            if (i >= ndim) {
-                std::string msg = fmt::format(
-                    "axes_from_tuple: dimension {} out of range (ndim = {})", i, ndim
-                );
-                throw nanobind::index_error(msg.c_str());
-            }
-            result.push_back(i);
-        }
-
-        // Sort and remove duplicates
-        std::sort(std::begin(result), std::end(result));
-        result.erase(
-            std::unique(std::begin(result), std::end(result)), std::end(result)
-        );
-    } else {
-        result = std::vector<std::size_t>(ndim);
-        std::iota(std::begin(result), std::end(result), 0);
-    }
-    return result;
 }
 
 //! Get the convolutional properties `len`, `n_left`, and `n_right` (in that order) from

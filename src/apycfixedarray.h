@@ -6,11 +6,9 @@
 #define _APYCFIXEDARRAY_H
 
 #include "apyarray.h"
-#include "apybuffer.h"
 #include "apycfixed.h"
 #include "apyfixedarray.h"
 #include "apytypes_common.h"
-#include "apytypes_util.h"
 
 #include <nanobind/nanobind.h>    // nanobind::object
 #include <nanobind/ndarray.h>     // nanobind::array_t
@@ -189,14 +187,14 @@ public:
 
     //! Sum over one or more axes.
     std::variant<APyCFixedArray, APyCFixed>
-    sum(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+    sum(const std::optional<PyShapeParam_t>& axis = std::nullopt) const;
 
     //! Cumulative sum over one or more axes.
     APyCFixedArray cumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Multiplication over one or more axes.
     std::variant<APyCFixedArray, APyCFixed>
-    prod(std::optional<std::variant<nb::tuple, nb::int_>> axis = std::nullopt) const;
+    prod(const std::optional<PyShapeParam_t>& axis = std::nullopt) const;
 
     //! Cumulative multiplication over one or more axes.
     APyCFixedArray cumprod(std::optional<nb::int_> axis = std::nullopt) const;
@@ -231,7 +229,7 @@ public:
     //! Create an `APyCFixedArray` tensor object initialized with values from a sequence
     //! of `complex`
     static APyCFixedArray from_complex(
-        const nb::sequence& double_seq,
+        const nb::typed<nb::sequence, nb::any>& double_seq,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
@@ -240,7 +238,7 @@ public:
     //! Create an `APyCFixedArray` tensor object initialized with values from a sequence
     //! of numbers
     static APyCFixedArray from_numbers(
-        const nb::sequence& number_seq,
+        const nb::typed<nb::sequence, nb::any>& number_seq,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
@@ -255,12 +253,20 @@ public:
     );
 
     /* ****************************************************************************** *
+     *                           Conversion to other types                            *
+     * ****************************************************************************** */
+public:
+    //! Retrieve a string of the stored values in this array.
+    std::string to_string(int base = 10) const;
+    std::string to_string_dec() const;
+
+    /* ****************************************************************************** *
      * *                    Static methods for array initialization                 * *
      * ****************************************************************************** */
 
     //! Create an `APyCFixedArray` initialized with zeros
     static APyCFixedArray zeros(
-        const nb::tuple& shape,
+        const PyShapeParam_t& shape,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
@@ -268,7 +274,7 @@ public:
 
     //! Create an `APyCFixedArray` initialized with ones
     static APyCFixedArray ones(
-        const nb::tuple& shape,
+        const PyShapeParam_t& shape,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt

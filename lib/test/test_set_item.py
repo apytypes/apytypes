@@ -14,7 +14,7 @@ from apytypes import (
     ("APyArray", "APyScalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
-def test_raise_invalid_item(APyArray, APyScalar):
+def test_raise_invalid_item(APyArray: type[APyCFixedArray], APyScalar: type[APyCFixed]):
     array = APyArray.from_float([[1, 2, 3], [4, 5, 6]], 10, 10)
     with pytest.raises(
         ValueError, match=r"APyC?(Fixed|Float)Array\.__setitem__: supported keys"
@@ -26,7 +26,7 @@ def test_raise_invalid_item(APyArray, APyScalar):
     ("APyArray", "APyScalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
-def test_raises_same_type(APyArray, APyScalar):
+def test_raises_same_type(APyArray: type[APyCFixedArray], APyScalar: type[APyCFixed]):
     array = APyArray.from_float([[1, 2, 3], [4, 5, 6]], 10, 10)
     with pytest.raises(
         ValueError, match=r"APyC?(Fixed|Float)Array\.__setitem__: `val` has different"
@@ -43,7 +43,7 @@ def test_raises_same_type(APyArray, APyScalar):
     ("APyArray", "APyScalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
-def test_set_item_integer(APyArray, APyScalar):
+def test_set_item_integer(APyArray: type[APyCFixedArray], APyScalar: type[APyCFixed]):
     # ndim == 1
     array = APyArray.from_float([1, 2, 3, 4, 5, 6], 10, 10)
 
@@ -72,7 +72,7 @@ def test_set_item_integer(APyArray, APyScalar):
     ("APyArray", "APyScalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
-def test_set_item_slice(APyArray, APyScalar):
+def test_set_item_slice(APyArray: type[APyCFixedArray], APyScalar: type[APyCFixed]):
     # ndim == 1
     array = APyArray.from_float([1, 2, 3, 4, 5, 6], 10, 10)
 
@@ -101,7 +101,9 @@ def test_set_item_slice(APyArray, APyScalar):
     ("APyArray", "APyScalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
-def test_set_item_single_ellipsis(APyArray, APyScalar):
+def test_set_item_single_ellipsis(
+    APyArray: type[APyCFixedArray], APyScalar: type[APyCFixed]
+):
     # ndim == 1
     array = APyArray.from_float([1, 2, 3, 4, 5, 6], 10, 10)
 
@@ -117,7 +119,7 @@ def test_set_item_single_ellipsis(APyArray, APyScalar):
     ("APyArray", "APyScalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
-def test_set_item_tuple(APyArray, APyScalar):
+def test_set_item_tuple(APyArray: type[APyCFixedArray], APyScalar: type[APyCFixed]):
     np = pytest.importorskip("numpy")
     np_array = np.array(range(3 * 4 * 5 * 6 * 7)).reshape((3, 4, 5, 6, 7))
     ap_array = APyArray.from_float(np_array, 25, 25)
@@ -156,7 +158,9 @@ def test_set_item_tuple(APyArray, APyScalar):
         (APyCFixedArray, APyCFixed),
     ],
 )
-def test_set_item_tuple_multi_limb(APyArray, APyScalar):
+def test_set_item_tuple_multi_limb(
+    APyArray: type[APyCFixedArray], APyScalar: type[APyCFixed]
+):
     np = pytest.importorskip("numpy")
     np_array = np.array(range(3 * 4 * 5 * 6 * 7)).reshape((3, 4, 5, 6, 7))
     ap_array = APyArray.from_float(np_array, 500, 25)
@@ -192,7 +196,9 @@ def test_set_item_tuple_multi_limb(APyArray, APyScalar):
     ("APyArray", "APyScalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
 )
-def test_set_item_not_broadcastable(APyArray, APyScalar):
+def test_set_item_not_broadcastable(
+    APyArray: type[APyCFixedArray], APyScalar: type[APyCFixed]
+):
     np = pytest.importorskip("numpy")
     np_array = np.array(range(3 * 4 * 5 * 6 * 7)).reshape((3, 4, 5, 6, 7))
     ap_array = APyArray.from_float(np_array, 25, 25)
