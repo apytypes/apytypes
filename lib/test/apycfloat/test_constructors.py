@@ -1,6 +1,6 @@
 import pytest
 
-from apytypes import APyCFixed, APyCFloat
+from apytypes import APyCFixed, APyCFloat, APyFixed
 
 
 def test_constructor_raises():
@@ -86,6 +86,9 @@ def test_from_complex():
     assert APyCFloat.from_complex(-4, exp_bits=10, man_bits=8).is_identical(
         APyCFloat((True, 0), (2**9 + 1, 0), (0, 0), exp_bits=10, man_bits=8)
     )
+    assert APyCFloat.from_complex(
+        APyFixed.from_float(-4, int_bits=10, frac_bits=8), exp_bits=10, man_bits=8
+    ).is_identical(APyCFloat((True, 0), (2**9 + 1, 0), (0, 0), exp_bits=10, man_bits=8))
     assert APyCFloat.from_complex(
         APyCFixed.from_complex(-4, int_bits=10, frac_bits=8), exp_bits=10, man_bits=8
     ).is_identical(APyCFloat((True, 0), (2**9 + 1, 0), (0, 0), exp_bits=10, man_bits=8))

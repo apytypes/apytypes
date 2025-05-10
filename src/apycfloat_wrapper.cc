@@ -231,25 +231,11 @@ void bind_cfloat(nb::module_& m)
         .def("__eq__", BIN_OP<std::equal_to<>, APyCFloat, APyFixed>)
         .def("__ne__", BIN_OP<std::not_equal_to<>, APyCFloat, APyFixed>)
 
-        .def("__add__", L_OP<ADD<>, APyFixed>, IS_OP(), NARG())
-        .def("__radd__", R_OP<ADD<>, APyFixed>, IS_OP(), NARG())
-        .def("__sub__", L_OP<SUB<>, APyFixed>, IS_OP(), NARG())
-        .def("__rsub__", R_OP<SUB<>, APyFixed>, IS_OP(), NARG())
-        .def("__mul__", L_OP<MUL<>, APyFixed>, IS_OP(), NARG())
-        .def("__rmul__", R_OP<MUL<>, APyFixed>, IS_OP(), NARG())
-        .def("__truediv__", L_OP<DIV<>, APyFixed>, IS_OP(), NARG())
-        .def("__rtruediv__", R_OP<DIV<>, APyFixed>, IS_OP(), NARG())
-
         /*
          * Arithmetic operations with `APyCFixed`
          */
         .def("__eq__", BIN_OP<std::equal_to<>, APyCFloat, APyCFixed>)
         .def("__ne__", BIN_OP<std::not_equal_to<>, APyCFloat, APyCFixed>)
-
-        .def("__add__", L_OP<ADD<>, APyCFixed>, IS_OP(), NARG())
-        .def("__sub__", L_OP<SUB<>, APyCFixed>, IS_OP(), NARG())
-        .def("__mul__", L_OP<MUL<>, APyCFixed>, IS_OP(), NARG())
-        .def("__truediv__", L_OP<DIV<>, APyCFixed>, IS_OP(), NARG())
 
         /*
          * Arithmetic with `float`

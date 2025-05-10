@@ -187,6 +187,41 @@ APyCFloat APyCFloat::from_number(
             c = c.cast(exp_bits, man_bits, res_bias, QuantizationMode::RND_CONV);
         }
         return APyCFloat(c.get_data(), exp_bits, man_bits, res_bias);
+    } else if (nb::isinstance<APyFixed>(py_obj)) {
+        exp_t res_bias = bias.value_or(ieee_bias(exp_bits));
+        const APyFixed& fx = nb::cast<const APyFixed&>(py_obj);
+        const APyFloatData& data = floating_point_from_fixed_point(
+            std::begin(fx._data),
+            std::end(fx._data),
+            fx.bits(),
+            fx.int_bits(),
+            exp_bits,
+            man_bits,
+            res_bias
+        );
+        return APyCFloat(data, exp_bits, man_bits, res_bias);
+    } else if (nb::isinstance<APyCFixed>(py_obj)) {
+        exp_t res_bias = bias.value_or(ieee_bias(exp_bits));
+        const APyCFixed& fx = nb::cast<const APyCFixed&>(py_obj);
+        const APyFloatData& re_data = floating_point_from_fixed_point(
+            fx.real_cbegin(),
+            fx.real_cend(),
+            fx.bits(),
+            fx.int_bits(),
+            exp_bits,
+            man_bits,
+            res_bias
+        );
+        const APyFloatData& im_data = floating_point_from_fixed_point(
+            fx.imag_cbegin(),
+            fx.imag_cend(),
+            fx.bits(),
+            fx.int_bits(),
+            exp_bits,
+            man_bits,
+            res_bias
+        );
+        return APyCFloat(re_data, im_data, exp_bits, man_bits, res_bias);
     } else {
         const nb::type_object type = nb::cast<nb::type_object>(py_obj.type());
         const nb::str type_string = nb::str(type);
