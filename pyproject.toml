@@ -124,6 +124,7 @@ select = [
     "PLR0402",
     "FURB",
     "ANN",
+    "PTH",
 ]
 ignore = [
     "D202",
@@ -146,6 +147,7 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 "docs/*" = ["ANN"]
 "comparison/*" = ["ANN"]
 "benchmark/*" = ["ANN"]
+"lib/test/apyfloat/run_berkeley_cases.py" = ["PTH"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["apytypes"]

@@ -71,9 +71,7 @@ def test_fp8_mul() -> None:
     sim = os.getenv("SIM", "nvc")
 
     dir_path = (
-        os.path.dirname(os.path.realpath(__file__))
-        if "__file__" in globals()
-        else Path.cwd()
+        Path(__file__).resolve().parent if "__file__" in globals() else Path.cwd()
     )
     sources = [f"{dir_path}/fp8_multiplier.vhdl"]
 

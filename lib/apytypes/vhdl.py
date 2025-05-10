@@ -1,4 +1,5 @@
 import math
+from pathlib import Path
 from typing import TextIO
 
 from apytypes._apytypes import APyFixedArray, APyFloatArray
@@ -60,7 +61,7 @@ def generate_rom(
         )
     else:
         filename = entity + ".vhdl"
-        with open(filename, "w") as f:
+        with Path(filename).open("w") as f:
             _write_rom(
                 f=f,
                 table=table,

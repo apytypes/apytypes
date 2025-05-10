@@ -30,7 +30,7 @@ def test_generate_rom(
     table, address, ieee2008, input_register, output_register, tmp_path
 ):
     filepath = tmp_path / "testrom.vhdl"
-    with open(filepath, "w") as f:
+    with filepath.open("w") as f:
         generate_rom(
             table,
             entity="testrom",
