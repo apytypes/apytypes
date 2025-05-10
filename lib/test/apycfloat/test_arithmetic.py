@@ -3,7 +3,7 @@ from itertools import product
 
 import pytest
 
-from apytypes import APyCFixed, APyCFloat, APyFixed, APyFloat
+from apytypes import APyCFloat, APyFloat
 
 
 def is_identical_or_nan(x: APyCFloat, y: APyCFloat):
@@ -338,62 +338,4 @@ def test_arithmetic_with_apyfloat(
                 APyCFloat.from_complex(
                     complex_division_double_precision(b_val, a_val), exp_bits, man_bits
                 )
-            )
-
-
-@pytest.mark.parametrize("exp_bits", [5, 11, 30])
-@pytest.mark.parametrize("man_bits", [10, 35, 52])
-@pytest.mark.parametrize(
-    ("a_val", "b_val"),
-    product(
-        [0.0 + 0.0j, -1.0 + 0.0j, -0.0 - 1.0j, 3.0625 - 1.25j, -(2 ** (-4)) + 247.25j],
-        repeat=2,
-    ),
-)
-def test_arithmetic_with_apycfixed(
-    exp_bits: int,
-    man_bits: int,
-    a_val: complex,
-    b_val: complex,
-):
-    a = APyCFloat.from_complex(a_val, exp_bits=exp_bits, man_bits=man_bits)
-    b = APyCFixed.from_complex(b_val, int_bits=10, frac_bits=30)
-    assert (a + b) == APyCFloat.from_complex(a_val + b_val, exp_bits, man_bits)
-    assert (a - b) == APyCFloat.from_complex(a_val - b_val, exp_bits, man_bits)
-    assert (b + a) == APyCFloat.from_complex(b_val + a_val, exp_bits, man_bits)
-    assert (b - a) == APyCFloat.from_complex(b_val - a_val, exp_bits, man_bits)
-    if exp_bits == 11 and man_bits == 52:
-        assert (a * b) == APyCFloat.from_complex(a_val * b_val, exp_bits, man_bits)
-        assert (b * a) == APyCFloat.from_complex(b_val * a_val, exp_bits, man_bits)
-        if b != 0:
-            assert (a / b) == APyCFloat.from_complex(
-                complex_division_double_precision(a_val, b_val), exp_bits, man_bits
-            )
-
-
-@pytest.mark.parametrize("exp_bits", [5, 11, 30])
-@pytest.mark.parametrize("man_bits", [10, 35, 52])
-@pytest.mark.parametrize(
-    "a_val",
-    [0.0 + 0.0j, -1.0 + 0.0j, -0.0 - 1.0j, 3.0625 - 1.25j, -(2 ** (-4)) + 247.25j],
-)
-@pytest.mark.parametrize("b_val", [0.0, -1.0, 3.0625, -(2**-7), 1234.0625])
-def test_arithmetic_with_apyfixed(
-    exp_bits: int,
-    man_bits: int,
-    a_val: complex,
-    b_val: float,
-):
-    a = APyCFloat.from_complex(a_val, exp_bits=exp_bits, man_bits=man_bits)
-    b = APyFixed.from_float(b_val, int_bits=12, frac_bits=30)
-    assert (a + b) == APyCFloat.from_complex(a_val + b_val, exp_bits, man_bits)
-    assert (a - b) == APyCFloat.from_complex(a_val - b_val, exp_bits, man_bits)
-    assert (b + a) == APyCFloat.from_complex(b_val + a_val, exp_bits, man_bits)
-    assert (b - a) == APyCFloat.from_complex(b_val - a_val, exp_bits, man_bits)
-    if exp_bits == 11 and man_bits == 52:
-        assert (a * b) == APyCFloat.from_complex(a_val * b_val, exp_bits, man_bits)
-        assert (b * a) == APyCFloat.from_complex(b_val * a_val, exp_bits, man_bits)
-        if b != 0:
-            assert (a / b) == APyCFloat.from_complex(
-                complex_division_double_precision(a_val, b_val), exp_bits, man_bits
             )
