@@ -36,16 +36,16 @@ def read_test_cases(testfile: str):
     with open(testfile) as file:
         # Interpret each line as a set of hexadecimal integers. Last column with exception flags is ignored.
         for line in file:
-            yield tuple(map(lambda x: int(x, 16), line.split()[:-1]))
+            yield tuple(int(x, 16) for x in line.split()[:-1])
 
 
 def generate_berkeley_test(
     operation: str,
     quantization: QuantizationMode,
     level: int = 2,
-    seed: int = None,
+    seed: int | None = None,
     verbose: bool = False,
-    filename: str = None,
+    filename: str | None = None,
 ) -> None:
     """
     operation: Can be an arithmetic operation such 'f16_add' or f64_mul, or a
@@ -72,7 +72,7 @@ def generate_berkeley_test(
         print(f"command to execute: {' '.join(command)} > {filename}")
 
     with open(filename, "w+") as f:
-        subprocess.run(command, stdout=f)
+        subprocess.run(command, stdout=f, check=False)
 
 
 def parse_format(format: str) -> tuple:

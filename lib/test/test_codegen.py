@@ -40,4 +40,4 @@ def test_generate_rom(
             output_register=output_register,
             file=f,
         )
-        subprocess.run(["nvc", "-a", filepath, "-e", "testrom"])
+        subprocess.run(["nvc", "-a", filepath, "-e", "testrom"], check=False)

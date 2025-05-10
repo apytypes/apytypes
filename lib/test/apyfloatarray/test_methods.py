@@ -1588,16 +1588,16 @@ def test_swapaxes():
 
     a = APyFloatArray.from_float([0] * 24, exp_bits=5, man_bits=2).reshape((4, 3, 2))
 
-    if not a.swapaxes(0, 1).shape == (3, 4, 2):
+    if a.swapaxes(0, 1).shape != (3, 4, 2):
         pytest.fail("swapaxes didn't correctly swap axis")
 
-    if not a.swapaxes(1, 0).shape == (3, 4, 2):
+    if a.swapaxes(1, 0).shape != (3, 4, 2):
         pytest.fail("swapaxes didn't correctly swap axis")
 
-    if not a.swapaxes(2, 0).shape == (2, 3, 4):
+    if a.swapaxes(2, 0).shape != (2, 3, 4):
         pytest.fail("swapaxes didn't correctly swap axis")
 
-    if not a.swapaxes(0, 2).shape == (2, 3, 4):
+    if a.swapaxes(0, 2).shape != (2, 3, 4):
         pytest.fail("swapaxes didn't correctly swap axis")
 
 
@@ -1645,7 +1645,7 @@ def test_transpose_highdim_np():
                 return
             for i in range(2, target + 1):
                 if target % i == 0:
-                    factor_combinations(target // i, factors + [i])
+                    factor_combinations(target // i, [*factors, i])
 
         factor_combinations(n, [])
         return list(result)  # Convert set back to list
@@ -1663,7 +1663,7 @@ def test_transpose_highdim_np():
         if len(shape) < 3:
             axes_permutations = [None]
         else:
-            axes_permutations = list(permutations([_ for _ in range(len(shape))]))
+            axes_permutations = list(permutations(list(range(len(shape)))))
 
         for perm in axes_permutations:
             apy_array = APyFloatArray.from_array(np.reshape(elements, shape), 5, 5)

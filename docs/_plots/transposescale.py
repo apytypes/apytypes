@@ -49,7 +49,7 @@ benchmarks = {
 }
 
 counts = [1, 2, 4, 7, 10, 20, 40, 70, 100, 200, 400]
-results = dict()
+results = {}
 for name, (func, setup) in benchmarks.items():
     results[name] = []
     for count in counts:

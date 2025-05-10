@@ -62,7 +62,7 @@ def test_array_broadcast_to_raises(apyarray_from_float):
 
     # Can not broadcast if the destination number-of-dimensions is zero
     with pytest.raises(ValueError, match="Operands could not be broadcast together"):
-        apyarray_from_float([1.0]).broadcast_to(tuple())
+        apyarray_from_float([1.0]).broadcast_to(())
 
 
 @pytest.mark.parametrize(

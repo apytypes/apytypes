@@ -40,17 +40,11 @@ def test_overflow_twos_complement(apyfixed: type[APyCFixed]):
 
 @pytest.mark.parametrize("apyfixed", [APyFixed, APyCFixed])
 def test_binary_comparison_orderless(apyfixed: type[APyCFixed]):
-    assert not (
-        apyfixed.from_float(0.0, 256, 128) == apyfixed.from_float(1.0, 256, 128)
-    )
+    assert apyfixed.from_float(0.0, 256, 128) != apyfixed.from_float(1.0, 256, 128)
     assert apyfixed.from_float(0.0, 256, 128) != apyfixed.from_float(1.0, 256, 128)
     assert apyfixed.from_float(1.0, 256, 128) == apyfixed.from_float(1.0, 256, 128)
-    assert not (
-        apyfixed.from_float(1.0, 256, 128) != apyfixed.from_float(1.0, 140, 128)
-    )
-    assert not (
-        apyfixed.from_float(-1.0, 256, 128) == apyfixed.from_float(-3.0, 140, 128)
-    )
+    assert apyfixed.from_float(1.0, 256, 128) == apyfixed.from_float(1.0, 140, 128)
+    assert apyfixed.from_float(-1.0, 256, 128) != apyfixed.from_float(-3.0, 140, 128)
     assert apyfixed.from_float(-1.0, 256, 128) != apyfixed.from_float(-3.0, 256, 128)
 
 
@@ -82,13 +76,13 @@ def test_binary_comparison_total_order():
 def test_float_and_int_comparison_orderless(
     py_type: type[float], apyfixed: type[APyCFixed]
 ):
-    assert not apyfixed.from_float(0.0, 256, 128) == py_type(1.0)
+    assert apyfixed.from_float(0.0, 256, 128) != py_type(1.0)
     assert apyfixed.from_float(0.0, 256, 128) != py_type(1.0)
 
     assert apyfixed.from_float(1.0, 256, 128) == py_type(1.0)
-    assert not apyfixed.from_float(1.0, 256, 128) != py_type(1.0)
+    assert apyfixed.from_float(1.0, 256, 128) == py_type(1.0)
 
-    assert not apyfixed.from_float(-1.0, 256, 128) == py_type(-3.0)
+    assert apyfixed.from_float(-1.0, 256, 128) != py_type(-3.0)
     assert apyfixed.from_float(-1.0, 256, 128) != py_type(-3.0)
 
 

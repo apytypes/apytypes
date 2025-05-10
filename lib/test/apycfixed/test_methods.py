@@ -33,13 +33,13 @@ def test_shift():
 
 def test_comparison():
     # Compare to `int`
-    assert not (APyCFixed.from_complex(1.0 + 2.0j, 5, 5) == 1)
+    assert APyCFixed.from_complex(1.0 + 2j, 5, 5) != 1
     assert APyCFixed.from_complex(1.0 + 2.0j, 5, 5) != 1
     assert APyCFixed.from_complex(4.0, 5, 5) == 4
     assert APyCFixed.from_complex(4.0, 5, 5) != 6
 
     # Compare to `double`
-    assert not (APyCFixed.from_complex(1.0 + 2.0j, 5, 5) == 1.0)
+    assert APyCFixed.from_complex(1.0 + 2j, 5, 5) != 1.0
     assert APyCFixed.from_complex(1.0 + 2.0j, 5, 5) != 1.0
     assert APyCFixed.from_complex(4.0, 5, 5) == 4.0
     assert APyCFixed.from_complex(4.0, 5, 5) != 6.0
@@ -51,9 +51,7 @@ def test_comparison():
     assert APyCFixed.from_complex(4.0, 5, 5) != APyFixed.from_float(5.0, 5, 5)
 
     # Compare to `APyFixed`
-    assert not (
-        APyCFixed.from_complex(1.0 + 2.0j, 5, 5) == APyFixed.from_float(1.0, 5, 5)
-    )
+    assert APyCFixed.from_complex(1.0 + 2j, 5, 5) != APyFixed.from_float(1.0, 5, 5)
     assert APyCFixed.from_complex(1.0 + 2.0j, 5, 5) != APyFixed.from_float(1.0, 5, 5)
     assert APyCFixed.from_complex(4.0, 5, 5) == APyFixed.from_float(4.0, 5, 5)
     assert APyCFixed.from_complex(4.0, 5, 5) != APyFixed.from_float(5.0, 5, 5)
