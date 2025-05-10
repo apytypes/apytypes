@@ -45,12 +45,8 @@ def test_comparisons_with_apyfixed():
 
     assert APyFloat.from_float(0, 4, 5) <= APyFixed.from_float(0, 16, 16)
     assert APyFloat.from_float(0.125, 4, 3) >= APyFixed.from_float(0.125, 16, 16)
-    assert not (
-        APyFloat.from_float(float("inf"), 4, 3) == APyFixed.from_float(1000, 16, 16)
-    )
-    assert not (
-        APyFloat.from_float(float("nan"), 4, 3) == APyFixed.from_float(1000, 16, 16)
-    )
+    assert APyFloat.from_float(float("inf"), 4, 3) != APyFixed.from_float(1000, 16, 16)
+    assert APyFloat.from_float(float("nan"), 4, 3) != APyFixed.from_float(1000, 16, 16)
     assert APyFloat.from_float(float("nan"), 4, 3) != APyFixed.from_float(1000, 16, 16)
     assert APyFloat.from_float(float("inf"), 4, 3) != APyFixed.from_float(1000, 16, 16)
     assert APyFloat.from_float(float("inf"), 4, 3) >= APyFixed.from_float(1000, 16, 16)
@@ -147,8 +143,8 @@ def test_nan_comparison(
 ):
     lhs = APyFloat.from_float(val, exp_bits=exp_bits[0], man_bits=man_bits[0])
     rhs = APyFloat.from_float(float("nan"), exp_bits=exp_bits[1], man_bits=man_bits[1])
-    assert not lhs == rhs
-    assert not lhs != rhs
+    assert not lhs == rhs  # noqa: SIM201
+    assert not lhs != rhs  # noqa: SIM202
     assert not lhs < rhs
     assert not lhs > rhs
     assert not lhs <= rhs
@@ -156,8 +152,8 @@ def test_nan_comparison(
 
     lhs = APyFloat.from_float(float("nan"), exp_bits=exp_bits[0], man_bits=man_bits[0])
     rhs = APyFloat.from_float(val, exp_bits=exp_bits[1], man_bits=man_bits[1])
-    assert not lhs == rhs
-    assert not lhs != rhs
+    assert not lhs == rhs  # noqa: SIM201
+    assert not lhs != rhs  # noqa: SIM202
     assert not lhs < rhs
     assert not lhs > rhs
     assert not lhs <= rhs
@@ -192,14 +188,14 @@ def test_signed_zero_comparison():
     b = APyFloat(1, 0, 0, 5, 10)
 
     assert a == b
-    assert not (a != b)
+    assert a == b
     assert not (a > b)
     assert a >= b
     assert not (a < b)
     assert a <= b
 
     assert b == a
-    assert not (b != a)
+    assert b == a
     assert not (b > a)
     assert b >= a
     assert not (b < a)
@@ -217,11 +213,11 @@ def test_mixed_bias_comparisons():
     assert x <= y
     assert not x > y
     assert not x < y
-    assert not x != y
+    assert x == y
 
     # Two normal numbers but y is smaller
     y = APyFloat(sign=0, exp=5, man=1, exp_bits=5, man_bits=2, bias=6)
-    assert not x == y
+    assert x != y
     assert x >= y
     assert not x <= y
     assert x > y
@@ -236,11 +232,11 @@ def test_mixed_bias_comparisons():
     assert x <= y
     assert not x > y
     assert not x < y
-    assert not x != y
+    assert x == y
 
     # Two subnormal numbers but y is slightly larger
     y = APyFloat(sign=0, exp=0, man=3, exp_bits=5, man_bits=2, bias=6)
-    assert not x == y
+    assert x != y
     assert not x >= y
     assert x <= y
     assert not x > y
@@ -255,7 +251,7 @@ def test_mixed_bias_comparisons():
     assert x <= y
     assert not x > y
     assert not x < y
-    assert not x != y
+    assert x == y
 
 
 @pytest.mark.float_comp
@@ -269,11 +265,11 @@ def test_mixed_format_comparisons():
     assert x <= y
     assert not x > y
     assert not x < y
-    assert not x != y
+    assert x == y
 
     # Two normal numbers but y is smaller
     y = APyFloat(sign=0, exp=7, man=3, exp_bits=5, man_bits=5, bias=8)
-    assert not x == y
+    assert x != y
     assert x >= y
     assert not x <= y
     assert x > y
@@ -288,12 +284,12 @@ def test_mixed_format_comparisons():
     assert x <= y
     assert not x > y
     assert not x < y
-    assert not x != y
+    assert x == y
 
     # Two subnormal numbers but y is slightly larger
     x = APyFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=2, bias=5)
     y = APyFloat(sign=0, exp=0, man=5, exp_bits=4, man_bits=3, bias=6)
-    assert not x == y
+    assert x != y
     assert not x >= y
     assert x <= y
     assert not x > y

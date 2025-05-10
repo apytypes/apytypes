@@ -75,18 +75,18 @@ def test_ravel():
 
 
 def _fixedArrange(fixed_array, end, start=0, jump=1):
-    int_bits = int(ceil(log2(end + 1))) + 1
+    int_bits = ceil(log2(end + 1)) + 1
     return fixed_array.from_float(
-        [num for num in range(start, end, jump)], int_bits=int_bits, frac_bits=0
+        list(range(start, end, jump)), int_bits=int_bits, frac_bits=0
     )
 
 
 def _floatArrange(end, start=0, jump=1):
     # probably buggy
-    exp_bits = int(ceil(log2(end + 1))) + 1
+    exp_bits = ceil(log2(end + 1)) + 1
     man_bits = 64 - 1 - exp_bits
     return APyFloatArray.from_float(
-        [num for num in range(start, end, jump)], exp_bits=exp_bits, man_bits=man_bits
+        list(range(start, end, jump)), exp_bits=exp_bits, man_bits=man_bits
     )
 
 
@@ -131,16 +131,16 @@ def test_swapaxes(array_type):
 
     a = _fixedArrange(array_type, 24).reshape((4, 3, 2))
 
-    if not swapaxes(a, 0, 1).shape == (3, 4, 2):
+    if swapaxes(a, 0, 1).shape != (3, 4, 2):
         pytest.fail("swapaxes didn't correctly swap axis")
 
-    if not swapaxes(a, 1, 0).shape == (3, 4, 2):
+    if swapaxes(a, 1, 0).shape != (3, 4, 2):
         pytest.fail("swapaxes didn't correctly swap axis")
 
-    if not swapaxes(a, 2, 0).shape == (2, 3, 4):
+    if swapaxes(a, 2, 0).shape != (2, 3, 4):
         pytest.fail("swapaxes didn't correctly swap axis")
 
-    if not swapaxes(a, 0, 2).shape == (2, 3, 4):
+    if swapaxes(a, 0, 2).shape != (2, 3, 4):
         pytest.fail("swapaxes didn't correctly swap axis")
 
 

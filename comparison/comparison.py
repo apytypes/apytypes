@@ -58,7 +58,7 @@ benchmarks = {
     "Matrix multiplication": ("c = a @ b", CREATE_TWO_ARRAYS),
 }
 
-results = dict()
+results = {}
 for lib_name, file in libraries.items():
     results[lib_name] = []
     for name, (func, setup) in benchmarks.items():
@@ -78,12 +78,10 @@ fig, ax = plt.subplots(layout="constrained", figsize=(8, 10))
 
 x = np.arange(len(benchmarks))  # the label locations
 width = 1 / (len(libraries) + 2)  # the width of the bars
-multiplier = 0
 
-for library, measurement in results.items():
+for multiplier, (library, measurement) in enumerate(results.items()):
     offset = width * multiplier
     rects = ax.bar(x + offset, measurement, width, label=library)
-    multiplier += 1
 
 ax.set_yscale("log")
 ax.set_ylabel("Time, s")
@@ -102,11 +100,10 @@ fig, ax = plt.subplots(layout="constrained", figsize=(8, 10))
 
 x = np.arange(len(benchmarks))  # the label locations
 width = 1 / (len(libraries) + 2)  # the width of the bars
-multiplier = 0
 ax.axhline(1, lw=2, color="C0", zorder=-2)
 ax.grid(True, which="major", axis="y")
 
-for library, measurement in results.items():
+for multiplier, (library, measurement) in enumerate(results.items()):
     offset = width * multiplier
     rects = ax.bar(
         x + offset,
@@ -115,7 +112,6 @@ for library, measurement in results.items():
         label=library,
         bottom=1,
     )
-    multiplier += 1
 
 ax.set_yscale("log")
 ax.set_ylabel("Relative time")

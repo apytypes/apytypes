@@ -8,21 +8,21 @@ from apytypes import APyCFixed, APyCFloat, APyFixed, APyFloat
 @pytest.mark.float_comp
 def test_comparisons_with_floats():
     a = APyCFloat.from_float(0.5, 3, 3)
-    assert not a == 0.0
-    assert not -a == 0.0
+    assert a != 0.0
+    assert -a != 0.0
     assert a != 0.0
     assert -a != 0.0
 
     assert a == 0.5
-    assert not -a == 0.5
-    assert not a != 0.5
+    assert -a != 0.5
+    assert a == 0.5
     assert -a != 0.5
 
     a = APyCFloat.from_float(0.0, 3, 3)
     assert a == 0.0
     assert -a == 0.0
-    assert not a != 0.0
-    assert not -a != 0.0
+    assert a == 0.0
+    assert -a == 0.0
 
 
 @pytest.mark.float_comp
@@ -32,12 +32,8 @@ def test_comparisons_with_apyfixed():
     assert a != b
     assert a == (b >> 1)
 
-    assert not (
-        APyCFloat.from_float(float("inf"), 4, 3) == APyFixed.from_float(1000, 16, 16)
-    )
-    assert not (
-        APyCFloat.from_float(float("nan"), 4, 3) == APyFixed.from_float(1000, 16, 16)
-    )
+    assert APyCFloat.from_float(float("inf"), 4, 3) != APyFixed.from_float(1000, 16, 16)
+    assert APyCFloat.from_float(float("nan"), 4, 3) != APyFixed.from_float(1000, 16, 16)
     assert APyCFloat.from_float(float("nan"), 4, 3) != APyFixed.from_float(1000, 16, 16)
     assert APyCFloat.from_float(float("inf"), 4, 3) != APyFixed.from_float(1000, 16, 16)
 
@@ -66,8 +62,8 @@ def test_comparisons_with_apyfixed():
 def test_comparisons_with_apycfixed(flp: APyCFloat, fxp: APyCFixed):
     a = complex(flp)
     b = complex(fxp)
-    assert (a == b) ^ (not flp == fxp)
-    assert (a != b) ^ (not flp != fxp)
+    assert (a == b) ^ (flp != fxp)
+    assert (a != b) ^ (flp == fxp)
 
 
 @pytest.mark.float_comp
@@ -95,8 +91,8 @@ def test_comparisons_with_apycfixed(flp: APyCFloat, fxp: APyCFixed):
 def test_comparisons_with_apyfloat(cflp: APyCFloat, flp: APyFloat):
     a = complex(cflp)
     b = float(flp)
-    assert (a == b) ^ (not cflp == flp)
-    assert (a != b) ^ (not cflp != flp)
+    assert (a == b) ^ (cflp != flp)
+    assert (a != b) ^ (cflp == flp)
 
 
 @pytest.mark.float_comp
@@ -120,9 +116,9 @@ def test_signed_zero_comparison(a_sign: tuple[int, int], b_sign: tuple[int, int]
     a = APyCFloat(a_sign, (0, 0), (0, 0), 5, 10)
     b = APyCFloat(b_sign, (0, 0), (0, 0), 5, 10)
     assert a == b
-    assert not (a != b)
+    assert a == b
     assert b == a
-    assert not (b != a)
+    assert b == a
 
 
 @pytest.mark.float_comp
@@ -132,29 +128,29 @@ def test_mixed_bias_comparisons():
     x = APyCFloat(sign=0, exp=5, man=1, exp_bits=5, man_bits=2, bias=5)
     y = APyCFloat(sign=0, exp=25, man=1, exp_bits=5, man_bits=2, bias=25)
     assert x == y
-    assert not x != y
+    assert x == y
 
     # Two normal numbers but y is smaller
     y = APyCFloat(sign=0, exp=5, man=1, exp_bits=5, man_bits=2, bias=6)
-    assert not x == y
+    assert x != y
     assert x != y
 
     # Two equal subnormal numbers
     x = APyCFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=2, bias=5)
     y = APyCFloat(sign=0, exp=0, man=2, exp_bits=5, man_bits=2, bias=6)
     assert x == y
-    assert not x != y
+    assert x == y
 
     # Two subnormal numbers but y is slightly larger
     y = APyCFloat(sign=0, exp=0, man=3, exp_bits=5, man_bits=2, bias=6)
-    assert not x == y
+    assert x != y
     assert x != y
 
     # Subnormal number equal to normal number
     x = APyCFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=2, bias=5)
     y = APyCFloat(sign=0, exp=1, man=0, exp_bits=5, man_bits=2, bias=7)
     assert x == y
-    assert not x != y
+    assert x == y
 
 
 @pytest.mark.float_comp
@@ -164,21 +160,21 @@ def test_mixed_format_comparisons():
     x = APyCFloat(sign=0, exp=5, man=2, exp_bits=4, man_bits=3, bias=5)
     y = APyCFloat(sign=0, exp=25, man=1, exp_bits=5, man_bits=2, bias=25)
     assert x == y
-    assert not x != y
+    assert x == y
 
     # Two normal numbers but y is smaller
     y = APyCFloat(sign=0, exp=7, man=3, exp_bits=5, man_bits=5, bias=8)
-    assert not x == y
+    assert x != y
     assert x != y
 
     # Two equal subnormal numbers
     x = APyCFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=2, bias=5)
     y = APyCFloat(sign=0, exp=0, man=4, exp_bits=4, man_bits=3, bias=6)
     assert x == y
-    assert not x != y
+    assert x == y
 
     # Two subnormal numbers but y is slightly larger
     x = APyCFloat(sign=0, exp=0, man=1, exp_bits=5, man_bits=2, bias=5)
     y = APyCFloat(sign=0, exp=0, man=5, exp_bits=4, man_bits=3, bias=6)
-    assert not x == y
+    assert x != y
     assert x != y

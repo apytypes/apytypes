@@ -496,8 +496,7 @@ def zeros(
     elif a_type is APyFloatArray:
         if force_complex:
             raise NotImplementedError("APyCFloatArray.zeros not implemented yet")
-        else:
-            return zeros(shape=shape, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
+        return zeros(shape=shape, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
     else:
         raise ValueError("Only fixed-point and floating-point array types supported")
 
@@ -567,8 +566,7 @@ def ones(
     elif a_type is APyFloatArray or isinstance(a_type, APyFloatArray):
         if force_complex:
             raise NotImplementedError("APyCFloatArray.ones not implemented yet")
-        else:
-            return ones(shape=shape, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
+        return ones(shape=shape, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
     else:
         raise ValueError("Only fixed-point and floating-point array types supported")
 
@@ -644,8 +642,7 @@ def eye(
     elif a_type is APyFloatArray or isinstance(a_type, APyFloatArray):
         if force_complex:
             raise NotImplementedError("APyCFloatArray.eye not implemented yet")
-        else:
-            return eye(n=n, m=m, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
+        return eye(n=n, m=m, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
     else:
         raise ValueError("Only fixed-point and floating-point array types supported")
 
@@ -716,8 +713,7 @@ def identity(
     elif a_type is APyFloatArray or isinstance(a_type, APyFloatArray):
         if force_complex:
             raise NotImplementedError("APyCFloatArray.identity not implemented yet")
-        else:
-            return identity(n=n, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
+        return identity(n=n, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
     else:
         raise ValueError("Only fixed-point and floating-point array types supported")
 
@@ -1154,8 +1150,7 @@ def _extract_fixed_bit_specifiers(
     if int_bits is not None and frac_bits is not None and bits is not None:
         if bits != int_bits + frac_bits:
             raise ValueError("Could not extract fixed-point bit-specifiers")
-        else:
-            return (int_bits, frac_bits)
+        return (int_bits, frac_bits)
     elif int_bits is not None and frac_bits is not None and bits is None:
         return (int_bits, frac_bits)
     elif int_bits is None and frac_bits is not None and bits is not None:

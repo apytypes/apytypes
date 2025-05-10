@@ -21,6 +21,7 @@ python3_includes = subprocess.run(
     ["python3-config", "--includes"],
     capture_output=True,
     encoding="utf-8",
+    check=False,
 )
 if python3_includes.returncode != 0:
     print(
@@ -35,6 +36,7 @@ nanobind_includes = subprocess.run(
     ["python3", "-m", "nanobind", "--include_dir"],
     capture_output=True,
     encoding="utf-8",
+    check=False,
 )
 if nanobind_includes.returncode != 0:
     print(

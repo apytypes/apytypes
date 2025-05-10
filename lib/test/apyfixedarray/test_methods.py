@@ -874,7 +874,7 @@ def _generate_dimensions(n):
             return
         for i in range(2, target + 1):
             if target % i == 0:
-                factor_combinations(target // i, factors + [i])
+                factor_combinations(target // i, [*factors, i])
 
     factor_combinations(n, [])
     return list(result)  # Convert set back to list
@@ -897,7 +897,7 @@ def test_transpose_highdim_np(fixed_array):
         if len(shape) < 3:
             axes_permutations = [None]
         else:
-            axes_permutations = list(permutations([_ for _ in range(len(shape))]))
+            axes_permutations = list(permutations(list(range(len(shape)))))
 
         for perm in axes_permutations:
             apy_array = fixed_array.from_array(np.reshape(elements, shape), 7474, 5)
@@ -968,9 +968,7 @@ def test_transpose_negative_dim(fixed_array):
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
 def test_swapaxes(fixed_array):
-    a = fixed_array.from_float([i for i in range(12)], int_bits=5, frac_bits=2).reshape(
-        (6, 2)
-    )
+    a = fixed_array.from_float(list(range(12)), int_bits=5, frac_bits=2).reshape((6, 2))
 
     if not a.swapaxes(0, 1).is_identical(a.T):
         pytest.fail("swapaxes didn't correctly swap axis")
@@ -980,16 +978,16 @@ def test_swapaxes(fixed_array):
 
     a = fixed_array.from_float([0] * 24, int_bits=5, frac_bits=2).reshape((4, 3, 2))
 
-    if not a.swapaxes(0, 1).shape == (3, 4, 2):
+    if a.swapaxes(0, 1).shape != (3, 4, 2):
         pytest.fail("swapaxes didn't correctly swap axis")
 
-    if not a.swapaxes(1, 0).shape == (3, 4, 2):
+    if a.swapaxes(1, 0).shape != (3, 4, 2):
         pytest.fail("swapaxes didn't correctly swap axis")
 
-    if not a.swapaxes(2, 0).shape == (2, 3, 4):
+    if a.swapaxes(2, 0).shape != (2, 3, 4):
         pytest.fail("swapaxes didn't correctly swap axis")
 
-    if not a.swapaxes(0, 2).shape == (2, 3, 4):
+    if a.swapaxes(0, 2).shape != (2, 3, 4):
         pytest.fail("swapaxes didn't correctly swap axis")
 
 

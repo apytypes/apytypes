@@ -18,7 +18,7 @@ def test_constructor_raises():
         _ = APyCFloat(sign=(0, 1), exp=(7, 7), man=(9,), man_bits=7, exp_bits=6)
 
     with pytest.raises(ValueError, match=r"APyCFloat\.__init__: less than one element"):
-        _ = APyCFloat(sign=tuple(), exp=tuple(), man=tuple(), man_bits=7, exp_bits=6)
+        _ = APyCFloat(sign=(), exp=(), man=(), man_bits=7, exp_bits=6)
 
     with pytest.raises(ValueError, match=r"APyCFloat\.__init__: more than two"):
         _ = APyCFloat(

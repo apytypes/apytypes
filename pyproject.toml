@@ -110,21 +110,21 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = [
-    "E4",
-    "E7",
-    "E9",
-    "F",
-    "I",
-    "UP",
-    "SLOT",
-    "PT",
-    "RET504",
-    "PERF",
-    "PLE1206",
-    "PLR0402",
-    "FURB",
     "ANN",
+    "C4",
+    "E",
+    "F",
+    "FURB",
+    "I",
+    "PERF",
+    "PT",
+    "PL",
     "PTH",
+    "RET",
+    "RUF",
+    "SIM",
+    "SLOT",
+    "UP",
 ]
 ignore = [
     "D202",
@@ -132,7 +132,15 @@ ignore = [
     "D412",
     "D413",
     "D415",
+    "E501", # Too long lines, format handles what is possible
     "F822", # F822 should not be ignored, but as nanobind stubgen does not include __version__...
+    "PLR0912", # Too many branches
+    "PLR0913", # Too many arguments in function definition
+    "PLR0915", # Too many statements
+    "PLR2004", # Compare to constants
+    "PLR5501", # Use `elif` instead of `else` then `if`: good for readability
+    "RET505", # Else after return statement
+    "SIM117", # Use single with-statement
 ]
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
@@ -147,6 +155,7 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 "docs/*" = ["ANN"]
 "comparison/*" = ["ANN"]
 "benchmark/*" = ["ANN"]
+"lib/apytypes/_apytypes.pyi" = ["C4"]
 "lib/test/apyfloat/run_berkeley_cases.py" = ["PTH"]
 
 [tool.ruff.lint.isort]
