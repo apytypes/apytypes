@@ -22,6 +22,7 @@ namespace nb = nanobind;
 #include <cassert>     // assert
 #include <functional>  // std::function
 #include <iterator>    // std::begin
+#include <optional>    // std::optional
 #include <set>         // std::set
 #include <string_view> // std::string_view
 #include <variant>     // std::variant
@@ -1130,6 +1131,152 @@ public:
     {
         auto acc = [&](std::size_t p, std::size_t i) { return p * _shape[i]; };
         return std::accumulate(std::begin(axes), std::end(axes), 1, acc);
+    }
+
+    /* ****************************************************************************** *
+     * *                       Array string-formatting functions                    * *
+     * ****************************************************************************** */
+private:
+    /*!
+     * Retrieve the padding needed to display the widest (in terms of number of `char`
+     * characters) in `*this` array.
+     */
+    template <typename FORMATER_SIGNATURE>
+    std::size_t _array_format_get_element_padding(FORMATER_SIGNATURE formatter) const
+    {
+        std::size_t max = 0;
+        for (std::size_t i = 0; i < _nitems; i++) {
+            auto cbegin_it = std::cbegin(_data) + (i + 0) * _itemsize;
+            auto cend_it = std::cbegin(_data) + (i + 1) * _itemsize;
+            max = std::max(max, formatter(cbegin_it, cend_it).length());
+        }
+        return max;
+    }
+
+public:
+    /*!
+     * Base implementation for the Python representation function (`repr`).
+     */
+    template <typename FORMATTER_SIGNATURE>
+    std::string array_repr(
+        FORMATTER_SIGNATURE formatter,
+        bool allow_summary = true,
+        std::optional<std::size_t> opt_max_line_width = std::nullopt,
+        std::optional<std::size_t> opt_max_lines = std::nullopt
+    ) const
+    {
+        // The array name of `*this`
+        std::string_view array_name = ARRAY_TYPE::ARRAY_NAME;
+
+        // Initial hanging indent, enough spaces for (e.g.: "APyCFixedArray([")
+        std::string hanging_indent = std::string(array_name.length() + 2, ' ');
+
+        // Maximum line width and height for `__repr__`, default: 88 and 120. These line
+        // settings are only considered when `allow_summary == true`.
+        std::size_t line_width = opt_max_line_width.value_or(88);
+        std::size_t max_lines = opt_max_lines.value_or(120);
+        line_width -= hanging_indent.length();
+
+        // Iterate over all items using the formatter to find the ``widest'' element.
+        std::size_t element_padding = _array_format_get_element_padding(formatter);
+
+        return fmt::format(
+            "{array_prefix}({array_repr})",
+            fmt::arg("array_prefix", array_name),
+            fmt::arg(
+                "array_repr",
+                array_format_recursive_descent(
+                    formatter,       // formatter
+                    0,               // axis
+                    hanging_indent,  // hanging_indent
+                    element_padding, // element_padding
+                    allow_summary,   // allow_summary
+                    line_width,      // line_width
+                    max_lines        // max_lines
+                )
+            )
+        );
+    }
+
+    template <typename FORMATTER_SIGNATURE>
+    std::string array_format_recursive_descent(
+        FORMATTER_SIGNATURE formatter,
+        std::size_t axis,
+        const std::string& hanging_indent,
+        std::size_t element_padding,
+        bool allow_summary = true,
+        std::size_t line_width = 88,
+        std::size_t max_lines = 100,
+        typename vector_type::const_iterator data_const_it = std::begin(_data)
+    ) const
+    {
+        /*
+         * More here:
+         * https://github.com/numpy/numpy/blob/57fe332bfca731306cff19e54d2ee67effa4e992/numpy/_core/arrayprint.py#L835
+         */
+
+        // When recursing dimensions, add a space to align with the added "["
+        std::string next_hanging_indent = hanging_indent + " ";
+        std::size_t next_line_width = line_width - 1;
+
+        std::size_t leading_items, trailing_items;
+
+        std::size_t edge_items = 20;
+        bool show_summary = allow_summary && 2 * edge_items < _shape[axis];
+        if (show_summary) {
+            leading_items = edge_items;
+            trailing_items = edge_items;
+        } else {
+            leading_items = 0;
+            trailing_items = _shape[axis];
+        }
+
+        if (axis + 1 == _ndim) {
+            /*
+             * This is the innermost dimension. Use the formatter to format individual
+             * elements and space equally on a single line or multiple lines if too
+             * long.
+             */
+            std::string res = "[";
+            for (std::size_t i = 0; i < trailing_items; i++) {
+                res.append(
+                    fmt::format(
+                        "{:>{}}, ",
+                        formatter(
+                            data_const_it + (i + 0) * _itemsize,
+                            data_const_it + (i + 1) * _itemsize
+                        ),
+                        element_padding
+                    )
+                );
+            }
+
+            // Remove trailing comma and space (", "), append "]", and return string
+            return res.substr(0, res.length() - 2) + "]";
+        } else {
+            /*
+             * This is not yet the final dimension. We need to go deeper.
+             */
+            std::string res = "[";
+            std::size_t newlines = _ndim - axis - 1;
+            std::size_t n_elements
+                = fold_shape(std::begin(_shape) + axis + 1, std::end(_shape));
+            for (std::size_t i = 0; i < _shape[axis]; i++) {
+                res += array_format_recursive_descent(
+                    formatter,
+                    axis + 1,
+                    next_hanging_indent,
+                    element_padding,
+                    allow_summary,
+                    next_line_width,
+                    max_lines,
+                    data_const_it + (i * n_elements * _itemsize)
+                );
+                res += "," + std::string(newlines, '\n') + hanging_indent;
+            }
+            std::size_t n = res.length() - hanging_indent.length() - newlines - 1;
+            return res.substr(0, n) + "]";
+        }
     }
 
     /* ****************************************************************************** *
