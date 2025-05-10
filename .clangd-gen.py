@@ -10,11 +10,11 @@
 # Author: Mikael Henriksson (2024)
 #
 
-import os
 import subprocess
 import sys
+from pathlib import Path
 
-APYTYPES_DIR = os.path.dirname(os.path.realpath(__file__))
+APYTYPES_DIR = Path(__file__).parent
 
 # Include files for Python details using `python3-config`
 python3_includes = subprocess.run(
