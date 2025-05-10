@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated [fmt](https://github.com/fmtlib/fmt) from v11.1.1 to v11.2.0
+
 ### Removed
 
 ## [0.3.1] - 2025-04-01
