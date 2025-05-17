@@ -246,7 +246,6 @@ apy_limb_t apy_unsigned_square(
     // Multiply src with the remaining limbs of src, adding the previous partial
     // results
     // TODO: Rewrite to use __int128 on supported architectures
-    carry = 0;
     for (std::size_t i = 1; i < src_limbs; i++) {
         // First iteration outside of loop to save a few computations
         auto [prod_high, prod_low] = long_unsigned_mult(src[0], src[i]);
