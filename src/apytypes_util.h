@@ -15,8 +15,6 @@
 #include <cstdint>          // int64_t
 #include <functional>       // std::bit_not
 #include <initializer_list> // std::initializer_list
-#include <iomanip>          // std::setfill, std::setw
-#include <ios>              // std::hex
 #include <iterator>         // std::distance
 #include <numeric>          // std::accumulate, std::multiplies
 #include <optional>         // std::optional, std::nullopt
@@ -456,25 +454,20 @@ double_dabble(std::vector<apy_limb_t> nibble_data)
 
 //! Convert a BCD limb vector into a `std::string`.
 [[maybe_unused, nodiscard]] static APY_INLINE std::string
-bcds_to_string(const std::vector<apy_limb_t> bcds)
+bcds_to_string(const std::vector<apy_limb_t>& bcds)
 {
     if (bcds.size() == 0) {
         return "";
     }
 
-    // Utilize the built-in stream hexadecimal conversion
-    std::stringstream ss;
-    ss << std::hex;
-
     // The first limb *should not* be padded with zeros
-    ss << *bcds.crbegin();
+    std::string result = fmt::format("{:X}", *bcds.crbegin());
 
     // Any remaining limbs *should* must be zero padded
     for (auto limb_it = bcds.crbegin() + 1; limb_it != bcds.crend(); ++limb_it) {
-        ss << std::setw(2 * APY_LIMB_SIZE_BYTES) << std::setfill('0') << *limb_it;
+        result += fmt::format("{:0{}X}", *limb_it, 2 * APY_LIMB_SIZE_BYTES);
     }
-
-    return ss.str();
+    return result;
 }
 
 //! Reverse double-dabble algorithm for BCD->binary conversion

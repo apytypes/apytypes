@@ -11,9 +11,9 @@
 #include "apytypes_common.h"
 #include "apytypes_simd.h"
 #include "apytypes_util.h"
-#include "array_utils.h"
 #include "broadcast.h"
 #include "python_util.h"
+#include "src/apytypes_mp.h"
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
@@ -26,10 +26,8 @@ namespace nb = nanobind;
 #include <algorithm> // std::copy, std::max, std::transform, etc...
 #include <cstddef>   // std::size_t
 #include <cstdint>   // std::int16, std::int32, std::int64, etc...
-#include <ios>       // std::dec, std::hex
 #include <optional>  // std::optional
 #include <set>       // std::set
-#include <sstream>   // std::stringstream
 #include <stdexcept> // std::length_error
 #include <string>    // std::string
 #include <variant>   // std::variant
@@ -42,32 +40,56 @@ namespace nb = nanobind;
  * ********************************************************************************** */
 
 APyCFixedArray::APyCFixedArray(
-    const nb::sequence& bit_pattern_sequence,
+    const nb::sequence& seq,
     std::optional<int> int_bits,
     std::optional<int> frac_bits,
     std::optional<int> bits
 )
     : APyCFixedArray(
-          python_sequence_extract_shape(bit_pattern_sequence), int_bits, frac_bits, bits
+          python_sequence_extract_shape</* IS_COMPLEX_COLLAPSE = */ true>(
+              seq, "APyCFixedArray.__init__"
+          ),
+          int_bits,
+          frac_bits,
+          bits
       )
 {
     // Specialized initialization for NDArray
-    if (nb::isinstance<nb::ndarray<>>(bit_pattern_sequence)) {
-        auto ndarray = nb::cast<nb::ndarray<nb::c_contig>>(bit_pattern_sequence);
+    if (nb::isinstance<nb::ndarray<>>(seq)) {
+        auto ndarray = nb::cast<nb::ndarray<nb::c_contig>>(seq);
         _set_bits_from_ndarray(ndarray);
         return; // initialization completed
     }
 
-    // 1D vector of Python int object (`nb::int_` objects)
-    auto python_ints = python_sequence_walk<nb::int_>(bit_pattern_sequence);
+    // 1D vector of Python int objects (`nb::int_` objects)
+    auto python_objs = python_sequence_walk<nb::int_>(seq, "APyCFixedArray.__init__");
 
-    for (std::size_t i = 0; i < _data.size() / _itemsize; i++) {
-        nb::int_ python_int = nb::cast<nb::int_>(python_ints[i]);
-        auto limb_vec = python_long_to_limb_vec(python_int, _itemsize);
-        _overflow_twos_complement(
-            std::begin(limb_vec), std::end(limb_vec), _bits, _int_bits
-        );
-        std::copy_n(std::begin(limb_vec), _itemsize / 2, real_begin() + i * _itemsize);
+    // If the walked sequence of Python integers is
+    assert(python_objs.size() == _nitems || python_objs.size() == 2 * _nitems);
+    bool is_inner_dim_complex = (python_objs.size() == 2 * _nitems);
+
+    if (is_inner_dim_complex) {
+        for (std::size_t i = 0; i < 2 * _nitems; i++) {
+            nb::int_ python_int = nb::cast<nb::int_>(python_objs[i]);
+            auto limb_vec = python_long_to_limb_vec(python_int, _itemsize / 2);
+            _overflow_twos_complement(
+                std::begin(limb_vec), std::end(limb_vec), _bits, _int_bits
+            );
+            std::copy_n(
+                std::begin(limb_vec), _itemsize / 2, real_begin() + i * _itemsize / 2
+            );
+        }
+    } else {
+        for (std::size_t i = 0; i < _nitems; i++) {
+            nb::int_ python_int = nb::cast<nb::int_>(python_objs[i]);
+            auto limb_vec = python_long_to_limb_vec(python_int, _itemsize / 2);
+            _overflow_twos_complement(
+                std::begin(limb_vec), std::end(limb_vec), _bits, _int_bits
+            );
+            std::copy_n(
+                std::begin(limb_vec), _itemsize / 2, real_begin() + i * _itemsize
+            );
+        }
     }
 }
 
@@ -953,45 +975,34 @@ APyCFixedArray APyCFixedArray::operator~() const
 
 std::string APyCFixedArray::repr() const
 {
-    std::stringstream ss {};
-    ss << "APyCFixedArray([";
-    if (_shape[0]) {
-        // Setup hex printing which will properly display the BCD characters
-        ss << std::hex;
+    const auto formatter = [bits = _bits](auto cbegin_it, auto cend_it) -> std::string {
+        std::size_t itemsize = std::distance(cbegin_it, cend_it);
+        auto creal_it = cbegin_it;
+        auto cimag_it = cbegin_it + itemsize / 2;
 
-        std::vector<apy_limb_t> data(_itemsize / 2, 0);
-        for (std::size_t offset = 0; offset < _data.size(); offset += _itemsize) {
+        std::vector<apy_limb_t> real_data(itemsize / 2);
+        std::vector<apy_limb_t> imag_data(itemsize / 2);
+        std::copy(creal_it, creal_it + itemsize / 2, std::begin(real_data));
+        std::copy(cimag_it, cimag_it + itemsize / 2, std::begin(imag_data));
 
-            ss << "(";
-
-            // Real part
-            std::copy_n(real_begin() + offset, _itemsize / 2, std::begin(data));
-            if (bits() % APY_LIMB_SIZE_BITS) {
-                apy_limb_t and_mask
-                    = (apy_limb_t(1) << (bits() % APY_LIMB_SIZE_BITS)) - 1;
-                data.back() &= and_mask;
-            }
-            ss << bcds_to_string(double_dabble(data));
-            ss << ", ";
-
-            // Imaginary part
-            std::copy_n(imag_begin() + offset, _itemsize / 2, std::begin(data));
-            if (bits() % APY_LIMB_SIZE_BITS) {
-                apy_limb_t and_mask
-                    = (apy_limb_t(1) << (bits() % APY_LIMB_SIZE_BITS)) - 1;
-                data.back() &= and_mask;
-            }
-            ss << bcds_to_string(double_dabble(data));
-            ss << "), ";
+        // Zero sign bits outside of bit-range
+        if (bits % APY_LIMB_SIZE_BITS) {
+            apy_limb_t and_mask = (apy_limb_t(1) << (bits % APY_LIMB_SIZE_BITS)) - 1;
+            real_data.back() &= and_mask;
+            imag_data.back() &= and_mask;
         }
+        return fmt::format(
+            "({}, {})",
+            bcds_to_string(double_dabble(real_data)),
+            bcds_to_string(double_dabble(imag_data))
+        );
+    };
 
-        ss.seekp(-2, ss.cur);
-    }
-    ss << "], shape=";
-    ss << tuple_string_from_vec(_shape);
-    ss << ", " << "bits=" << std::dec << bits() << ", " << "int_bits=" << std::dec
-       << int_bits() << ")";
-    return ss.str();
+    return array_repr(
+        formatter,
+        { fmt::format("int_bits={}", int_bits()),
+          fmt::format("frac_bits={}", frac_bits()) }
+    );
 }
 
 nb::ndarray<nb::numpy, std::complex<double>> APyCFixedArray::to_numpy() const
@@ -1274,7 +1285,10 @@ APyCFixedArray APyCFixedArray::from_complex(
     }
 
     APyCFixedArray result(
-        python_sequence_extract_shape(python_seq), int_bits, frac_bits, bits
+        python_sequence_extract_shape(python_seq, "APyCFixedArray.from_complex"),
+        int_bits,
+        frac_bits,
+        bits
     );
 
     // Extract all Python doubles and integers
@@ -1285,7 +1299,7 @@ APyCFixedArray APyCFixedArray::from_complex(
         APyFloat,
         APyCFixed,
         std::complex<double> // Put last so that APyC-scalars are not casted
-        >(python_seq);
+        >(python_seq, "APyCFixedArray.from_complex");
 
     // Set data from doubles (reuse `APyCFixed::from_double` conversion)
     for (std::size_t i = 0; i < result._data.size() / result._itemsize; i++) {
@@ -1425,33 +1439,27 @@ APyCFixedArray APyCFixedArray::from_array(
 
 void APyCFixedArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& ndarray)
 {
-#define CHECK_AND_SET_BITS_FROM_NPTYPE(__TYPE__)                                         \
-    do {                                                                                 \
-        if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                  \
-            auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                   \
-            for (std::size_t i = 0; i < ndarray.size(); i++) {                           \
-                apy_limb_t data;                                                         \
-                if constexpr (std::is_signed<__TYPE__>::value) {                         \
-                    data = static_cast<apy_limb_signed_t>(ndarray_view.data()[i]);       \
-                } else {                                                                 \
-                    data = static_cast<apy_limb_t>(ndarray_view.data()[i]);              \
-                }                                                                        \
-                _data[i * _itemsize] = data;                                             \
-                if (_itemsize / 2 >= 2) {                                                \
-                    std::fill_n(/* sign extend real part */                            \
-                                real_begin() + i * _itemsize + 1,                      \
-                                _itemsize / 2 - 1,                                     \
-                                apy_limb_signed_t(data) < 0 ? -1 : 0                   \
-                    ); \
-                }                                                                        \
-                std::fill_n(/* zero imag part */                                       \
-                            imag_begin() + i * _itemsize,                              \
-                            _itemsize / 2,                                             \
-                            0                                                          \
-                ); \
-            }                                                                            \
-            return; /* Conversion completed, exit `_set_bits_from_ndarray()` */          \
-        }                                                                                \
+#define CHECK_AND_SET_BITS_FROM_NPTYPE(__TYPE__)                                       \
+    do {                                                                               \
+        if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
+            auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
+            for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
+                apy_limb_t data;                                                       \
+                if constexpr (std::is_signed<__TYPE__>::value) {                       \
+                    data = static_cast<apy_limb_signed_t>(ndarray_view.data()[i]);     \
+                } else {                                                               \
+                    data = static_cast<apy_limb_t>(ndarray_view.data()[i]);            \
+                }                                                                      \
+                _data[i * _itemsize] = data;                                           \
+                if (_itemsize / 2 >= 2) {                                              \
+                    apy_limb_t limb = apy_limb_signed_t(data) < 0 ? -1 : 0;            \
+                    std::size_t real_n = _itemsize / 2 - 1;                            \
+                    std::fill_n(real_begin() + i * _itemsize + 1, real_n, limb);       \
+                }                                                                      \
+                std::fill_n(imag_begin() + i * _itemsize, _itemsize / 2, 0);           \
+            }                                                                          \
+            return; /* Conversion completed, exit `_set_bits_from_ndarray()` */        \
+        }                                                                              \
     } while (0)
 
     // Each `CHECK_AND_SET_BITS_FROM_NPTYPE` checks the dtype of `ndarray` and
@@ -1467,13 +1475,14 @@ void APyCFixedArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& nda
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint16_t);
     CHECK_AND_SET_BITS_FROM_NPTYPE(std::uint8_t);
 
+#undef CHECK_AND_SET_BITS_FROM_NPTYPE
+
     // None of the `CHECK_AND_SET_BITS_FROM_NPTYPE` succeeded. Unsupported type,
     // throw an error. If possible, it would be nice to show a string representation
     // of the `dtype`. Seems hard to achieve with nanobind, but please fix this if
     // you find out how this can be achieved.
     throw nb::type_error(
-        "APyCFixedArray::_set_bits_from_ndarray(): "
-        "expecting integer `dtype`"
+        "APyCFixedArray.__init__: expecting integer dtype from np.array"
     );
 }
 

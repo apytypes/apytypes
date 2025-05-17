@@ -87,8 +87,7 @@ def test_array_from_float_raises():
         APyFloatArray.from_float([0], 5, -300)
 
     with pytest.raises(
-        ValueError,
-        match="python_sequence_extract_shape",
+        ValueError, match=r"APyFloatArray\.from_float: unexpected type when traversing"
     ):
         APyFloatArray.from_float(["0"], 5, 10)
 
@@ -260,8 +259,7 @@ def test_from_bits():
         APyFloatArray.from_bits([0], 300, 5)
 
     with pytest.raises(
-        ValueError,
-        match="python_sequence_extract_shape",
+        ValueError, match=r"APyFloatArray\.from_bits: unexpected type when traversing"
     ):
         APyFloatArray.from_bits(["0"], 5, 10)
 

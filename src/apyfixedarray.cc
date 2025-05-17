@@ -15,6 +15,7 @@
 #include "python_util.h"
 
 // Python object access through Nanobind
+#include <iterator>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/variant.h> // std::variant (with nanobind support)
@@ -24,10 +25,8 @@ namespace nb = nanobind;
 #include <algorithm> // std::copy, std::max, std::transform, etc...
 #include <cstddef>   // std::size_t
 #include <cstdint>   // std::int16, std::int32, std::int64, etc...
-#include <ios>       // std::dec, std::hex
 #include <optional>  // std::optional
 #include <set>       // std::set
-#include <sstream>   // std::stringstream
 #include <stdexcept> // std::length_error
 #include <string>    // std::string
 #include <utility>   // std::move
@@ -47,7 +46,10 @@ APyFixedArray::APyFixedArray(
     std::optional<int> bits
 )
     : APyFixedArray(
-          python_sequence_extract_shape(bit_pattern_sequence), int_bits, frac_bits, bits
+          python_sequence_extract_shape(bit_pattern_sequence, "APyFixedArray.__init__"),
+          int_bits,
+          frac_bits,
+          bits
       )
 {
     // Specialized initialization for NDArray
@@ -58,7 +60,9 @@ APyFixedArray::APyFixedArray(
     }
 
     // 1D vector of Python int object (`nb::int_` objects)
-    auto python_ints = python_sequence_walk<nb::int_>(bit_pattern_sequence);
+    auto python_ints = python_sequence_walk<nb::int_>(
+        bit_pattern_sequence, "APyFixedArray.__init__"
+    );
 
     for (std::size_t i = 0; i < _data.size() / _itemsize; i++) {
         nb::int_ python_int = nb::cast<nb::int_>(python_ints[i]);
@@ -1071,35 +1075,22 @@ APyFixedArray::min(std::optional<std::variant<nb::tuple, nb::int_>> py_axis) con
 
 std::string APyFixedArray::repr() const
 {
-    std::stringstream ss {};
-    ss << "APyFixedArray([";
-    if (_shape[0]) {
-        // Setup hex printing which will properly display the BCD characters
-        ss << std::hex;
+    const auto formatter = [bits = _bits](auto cbegin_it, auto cend_it) -> std::string {
+        std::vector<apy_limb_t> data(std::distance(cbegin_it, cend_it));
+        std::copy(cbegin_it, cend_it, std::begin(data));
 
-        std::vector<apy_limb_t> data(_itemsize, 0);
-        for (std::size_t offset = 0; offset < _data.size(); offset += _itemsize) {
-            std::copy_n(_data.begin() + offset, _itemsize, data.begin());
-
-            // Zero sign bits outside of bit-range
-            if (bits() % APY_LIMB_SIZE_BITS) {
-                apy_limb_t and_mask
-                    = (apy_limb_t(1) << (bits() % APY_LIMB_SIZE_BITS)) - 1;
-                data.back() &= and_mask;
-            }
-
-            // Double-dabble for binary-to-BCD conversion
-            ss << bcds_to_string(double_dabble(data));
-            ss << ", ";
+        // Zero sign bits outside of bit-range
+        if (bits % APY_LIMB_SIZE_BITS) {
+            apy_limb_t and_mask = (apy_limb_t(1) << (bits % APY_LIMB_SIZE_BITS)) - 1;
+            data.back() &= and_mask;
         }
-
-        ss.seekp(-2, ss.cur);
-    }
-    ss << "], shape=";
-    ss << tuple_string_from_vec(_shape);
-    ss << ", " << "bits=" << std::dec << bits() << ", " << "int_bits=" << std::dec
-       << int_bits() << ")";
-    return ss.str();
+        return bcds_to_string(double_dabble(data));
+    };
+    return array_repr(
+        formatter,
+        { fmt::format("int_bits={}", int_bits()),
+          fmt::format("frac_bits={}", frac_bits()) }
+    );
 }
 
 APyFixedArray APyFixedArray::abs() const
@@ -1341,12 +1332,16 @@ APyFixedArray APyFixedArray::from_numbers(
     }
 
     APyFixedArray result(
-        python_sequence_extract_shape(number_seq), int_bits, frac_bits, bits
+        python_sequence_extract_shape(number_seq, "APyFixedArray.from_float"),
+        int_bits,
+        frac_bits,
+        bits
     );
 
     // Extract all Python doubles and integers
-    auto py_obj
-        = python_sequence_walk<nb::float_, nb::int_, APyFixed, APyFloat>(number_seq);
+    auto py_obj = python_sequence_walk<nb::float_, nb::int_, APyFixed, APyFloat>(
+        number_seq, "APyFixedArray.from_complex"
+    );
 
     // Set data from doubles (reuse `APyFixed::from_double` conversion)
     for (std::size_t i = 0; i < result._data.size() / result._itemsize; i++) {

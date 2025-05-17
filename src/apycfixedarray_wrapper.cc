@@ -887,7 +887,20 @@ void bind_cfixed_array(nb::module_& m)
          */
         .def_static(
             "from_complex",
-            &APyCFixedArray::from_complex,
+            [](nb::typed<
+                   nb::sequence,
+                   std::variant<
+                       std::complex<double>,
+                       nb::float_,
+                       nb::int_,
+                       APyCFixed,
+                       APyFixed,
+                       APyFloat>> seq,
+               std::optional<int> int_bits,
+               std::optional<int> frac_bits,
+               std::optional<int> bits) -> APyCFixedArray {
+                return APyCFixedArray::from_complex(seq, int_bits, frac_bits, bits);
+            },
             nb::arg("complex_sequence"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
@@ -905,7 +918,7 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            complex_sequence : sequence of float, int, or complex
+            complex_sequence : sequence of :class:`complex`, :class:`float`, :class:`int`, :class:`APyCFixed`, :class:`APyFixed`, or :class:`APyFloat`.
                 Values to initialize from. The tensor shape will be taken from the
                 sequence shape.
             int_bits : :class:`int`, optional
