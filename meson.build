@@ -91,7 +91,7 @@ else
 endif
 
 # fmt
-fmt = subproject('fmt')
+fmt = subproject('fmt', default_options: ['header-only=true'])
 fmt_dep = fmt.get_variable('fmt_header_only_dep')
 
 # Python module
