@@ -1,4 +1,5 @@
 #include "apycfixed.h"
+#include "apycfixedarray.h"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
@@ -9,6 +10,20 @@ namespace nb = nanobind;
 
 #include <functional>
 #include <type_traits>
+
+template <>
+bool APyCFixed::is_identical<APyCFixedArray>(
+    const std::variant<std::monostate, APyCFixed, APyCFixedArray>& other
+) const
+{
+    if (!std::holds_alternative<APyCFixed>(other)) {
+        return false;
+    } else {
+        const APyCFixed& other_scalar = std::get<APyCFixed>(other);
+        return bits() == other_scalar.bits() && int_bits() == other_scalar.int_bits()
+            && *this == other_scalar;
+    }
+}
 
 /*
  * Binding function of a custom R-operator (e.g., `__rmul__`) with non APyCFixed type
@@ -84,7 +99,7 @@ void bind_cfixed(nb::module_& m)
 
         .def(
             nb::init<
-                nb::tuple,
+                nb::typed<nb::tuple, nb::int_, nb::int_>,
                 std::optional<int>,
                 std::optional<int>,
                 std::optional<int>>(),
@@ -212,7 +227,9 @@ void bind_cfixed(nb::module_& m)
          */
         .def(
             "to_bits",
-            &APyCFixed::to_bits,
+            [](const APyCFixed& self) -> nb::typed<nb::tuple, nb::int_, nb::int_> {
+                return nb::typed<nb::tuple, nb::int_, nb::int_>(self.to_bits());
+            },
             R"pbdoc(
             Retrieve underlying bit-pattern in a :class:`tuple` of :class:`int`.
 
@@ -253,7 +270,11 @@ void bind_cfixed(nb::module_& m)
              -------
              :class:`int`
              )pbdoc")
-        .def("is_identical", &APyCFixed::is_identical, nb::arg("other"), R"pbdoc(
+        .def(
+            "is_identical",
+            &APyCFixed::is_identical<APyCFixedArray>,
+            nb::arg("other"),
+            R"pbdoc(
             Test if two fixed-point objects are exactly identical.
 
             Two `APyCFixed` objects are considered exactly identical if, and only if,
@@ -284,7 +305,8 @@ void bind_cfixed(nb::module_& m)
             Returns
             -------
             :class:`bool`
-            )pbdoc")
+            )pbdoc"
+        )
         .def_prop_ro("is_zero", &APyCFixed::is_zero, R"pbdoc(
             True if the value equals zero, false otherwise.
             )pbdoc")

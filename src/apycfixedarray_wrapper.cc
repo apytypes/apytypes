@@ -267,12 +267,16 @@ void bind_cfixed_array(nb::module_& m)
         //    )pbdoc"
         //)
 
-        .def("reshape", &APyCFixedArray::reshape, nb::arg("number_sequence"), R"pbdoc(
+        .def(
+            "reshape",
+            &APyCFixedArray::python_reshape,
+            nb::arg("number_sequence"),
+            R"pbdoc(
             Reshape the APyCFixedArray to the specified shape without changing its data.
 
             Parameters
             ----------
-            new_shape : `tuple`
+            new_shape : :class:`tuple` of :class:`int`
                 The new shape should be compatible with the original shape. If a
                 dimension is -1, its value will be inferred from the length of the
                 array and remaining dimensions. Only one dimension can be -1.
@@ -306,7 +310,8 @@ void bind_cfixed_array(nb::module_& m)
             Returns
             -------
             :class:`APyCFixedArray`
-        )pbdoc")
+        )pbdoc"
+        )
 
         .def("flatten", &APyCFixedArray::flatten, R"pbdoc(
             Return a copy of the array collapsed into one dimension.
@@ -314,13 +319,17 @@ void bind_cfixed_array(nb::module_& m)
             Examples
             --------
             >>> import apytypes as apy
-            >>> arr = apy.APyCFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
-            >>> arr.to_numpy()
-            array([[ 1. +0.j,  1.5+0.j],
-                   [-2. +0.j, -1.5+0.j]])
+            >>>
+            >>> a = apy.APyCFixedArray.from_complex(
+            ...     [[2, 3],
+            ...      [4, 5]], int_bits=7, frac_bits=0
+            ... )
+            >>> a
+            APyCFixedArray([[(2, 0), (3, 0)],
+                            [(4, 0), (5, 0)]], int_bits=7, frac_bits=0)
 
-            >>> arr.flatten().to_numpy()
-            array([ 1. +0.j,  1.5+0.j, -2. +0.j, -1.5+0.j])
+            >>> a.flatten()
+            APyCFixedArray([(2, 0), (3, 0), (4, 0), (5, 0)], int_bits=7, frac_bits=0)
 
             Returns
             -------
@@ -334,13 +343,17 @@ void bind_cfixed_array(nb::module_& m)
             Examples
             --------
             >>> import apytypes as apy
-            >>> arr = apy.APyCFixedArray([[2, 3], [4, 5]], int_bits=2, frac_bits=1)
-            >>> arr.to_numpy()
-            array([[ 1. +0.j,  1.5+0.j],
-                   [-2. +0.j, -1.5+0.j]])
+            >>>
+            >>> a = apy.APyCFixedArray.from_complex(
+            ...     [[2, 3],
+            ...      [4, 5]], int_bits=7, frac_bits=0
+            ... )
+            >>> a
+            APyCFixedArray([[(2, 0), (3, 0)],
+                            [(4, 0), (5, 0)]], int_bits=7, frac_bits=0)
 
-            >>> arr.ravel().to_numpy()
-            array([ 1. +0.j,  1.5+0.j, -2. +0.j, -1.5+0.j])
+            >>> a.ravel()
+            APyCFixedArray([(2, 0), (3, 0), (4, 0), (5, 0)], int_bits=7, frac_bits=0)
 
             Returns
             -------
@@ -887,7 +900,13 @@ void bind_cfixed_array(nb::module_& m)
          */
         .def_static(
             "from_complex",
-            &APyCFixedArray::from_complex,
+            &APyCFixedArray::from_numbers,
+            // [](nb::typed<nb::sequence, nb::any> seq,
+            //    std::optional<int> int_bits,
+            //    std::optional<int> frac_bits,
+            //    std::optional<int> bits) -> APyCFixedArray {
+            //     return APyCFixedArray::from_complex(seq, int_bits, frac_bits, bits);
+            // },
             nb::arg("complex_sequence"),
             nb::arg("int_bits") = nb::none(),
             nb::arg("frac_bits") = nb::none(),
@@ -905,7 +924,7 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            complex_sequence : sequence of float, int, or complex
+            complex_sequence : sequence of :class:`complex`, :class:`float`, :class:`int`, :class:`APyCFixed`, :class:`APyFixed`, or :class:`APyFloat`.
                 Values to initialize from. The tensor shape will be taken from the
                 sequence shape.
             int_bits : :class:`int`, optional
@@ -1158,6 +1177,7 @@ void bind_cfixed_array(nb::module_& m)
          */
         //     .def("__matmul__", &APyCFixedArray::matmul, nb::arg("rhs"))
         .def("__repr__", &APyCFixedArray::repr)
+        .def("__str__", &APyCFixedArray::to_string, nb::arg("base") = 10)
 
         // Iteration and friends
         .def("__getitem__", &APyCFixedArray::get_item, nb::arg("key"))

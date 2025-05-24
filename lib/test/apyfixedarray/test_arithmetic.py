@@ -13,9 +13,9 @@ from apytypes import (
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_array_raises(fixed_array):
-    a = fixed_array([5, 6], bits=10, int_bits=5)
-    b = fixed_array([1, 2, 3], bits=7, int_bits=2)
+def test_array_raises(fixed_array: type[APyCFixedArray]):
+    a = fixed_array([5, 6, 7], bits=10, int_bits=5)
+    b = fixed_array([1, 2, 3, 11], bits=7, int_bits=2)
     with pytest.raises(ValueError, match="APyC?FixedArray.__add__: shape mismatch"):
         _ = a + b
     with pytest.raises(ValueError, match="APyC?FixedArray.__sub__: shape mismatch"):
@@ -27,7 +27,7 @@ def test_array_raises(fixed_array):
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_array_add(fixed_array):
+def test_array_add(fixed_array: type[APyCFixedArray]):
     a = fixed_array([-5, -6, 7, 8, 9], bits=10, int_bits=5)
     b = fixed_array([1, -2, 3, -2, -1], bits=7, int_bits=2)
     assert (a + b).is_identical(fixed_array([-4, -8, 10, 6, 8], bits=11, int_bits=6))
@@ -38,28 +38,30 @@ def test_array_add(fixed_array):
     assert (a + b).is_identical(fixed_array([9, 18, 27, 40, 47], bits=14, frac_bits=3))
     assert (a + b).is_identical(b + a)
 
-    a = fixed_array.from_float([1.2345, -5.4321], bits=256, int_bits=128)
-    b = fixed_array.from_float([9.8765, 5.6789], bits=256, int_bits=128)
+    a = fixed_array.from_float([1.2345, -5.4321, 0], bits=256, int_bits=128)
+    b = fixed_array.from_float([9.8765, 5.6789, 0], bits=256, int_bits=128)
     assert (a + b).is_identical(b + a)
     assert (a + b).is_identical(
         fixed_array(
             [
                 3780877378858547263310314894523174486016,
                 83981688156087430476747255228080848896,
+                0,
             ],
             bits=257,
             int_bits=129,
         )
     )
 
-    a = fixed_array.from_float([1.2345, -5.4321], bits=255, int_bits=128)
-    b = fixed_array.from_float([9.8765, 5.6789], bits=255, int_bits=128)
+    a = fixed_array.from_float([1.2345, -5.4321, 0], bits=255, int_bits=128)
+    b = fixed_array.from_float([9.8765, 5.6789, 0], bits=255, int_bits=128)
     assert (a + b).is_identical(b + a)
     assert (a + b).is_identical(
         fixed_array(
             [
                 1890438689429273631655157447261587243008,
                 41990844078043715238373627614040424448,
+                0,
             ],
             bits=256,
             int_bits=129,
@@ -70,14 +72,15 @@ def test_array_add(fixed_array):
     b = fixed_array.from_float([9.8765, 5.6789], bits=25, int_bits=12)
     assert (a + b).is_identical(b + a)
 
-    a = fixed_array.from_float([1.2345, -5.4321], bits=252, int_bits=128)
-    b = fixed_array.from_float([9.8765, 5.6789], bits=252, int_bits=130)
+    a = fixed_array.from_float([1.2345, -5.4321, 0], bits=252, int_bits=128)
+    b = fixed_array.from_float([9.8765, 5.6789, 0], bits=252, int_bits=130)
     assert (a + b).is_identical(b + a)
     assert (a + b).is_identical(
         fixed_array(
             [
                 236304836178659203956894680907698405376,
                 5248855509755464404796703451755053056,
+                0,
             ],
             bits=255,
             int_bits=131,
@@ -85,7 +88,7 @@ def test_array_add(fixed_array):
     )
 
     c = fixed_array.from_float(
-        [[9.8765, 5.6789], [1.2345, -5.4321]], bits=252, int_bits=130
+        [[9.8765, 5.6789, 0], [1.2345, -5.4321, 0]], bits=252, int_bits=130
     )
 
     assert (b + c).is_identical(
@@ -94,10 +97,12 @@ def test_array_add(fixed_array):
                 [
                     105024962402957773554338513254185172992,
                     60388422922103665909831225372452061184,
+                    0,
                 ],
                 [
                     59076209044664800989223670226924601344,
                     1312213877438866101199175862938763264,
+                    0,
                 ],
             ],
             bits=253,
@@ -113,7 +118,9 @@ def test_array_add(fixed_array):
         (APyCFixedArray, APyCFixed),
     ],
 )
-def test_array_add_scalar(fixed_array, fixed_scalar):
+def test_array_add_scalar(
+    fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFixed]
+):
     # Equally many fractional bits
     a = fixed_array([-5, -6, 7, 10, -11], bits=10, int_bits=5)
     b = fixed_scalar(3, bits=7, int_bits=2)
@@ -153,7 +160,7 @@ def test_array_add_scalar(fixed_array, fixed_scalar):
         (APyCFixedArray, APyCFixed),
     ],
 )
-def test_array_sum(fixed_array, fixed_scalar):
+def test_array_sum(fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFixed]):
     a = fixed_array([-5, -6, 7, -1], bits=10, int_bits=5)
     assert sum(a).is_identical(fixed_scalar(16379, bits=14, int_bits=9))
     b = fixed_array.from_float(
@@ -168,7 +175,7 @@ def test_array_sum(fixed_array, fixed_scalar):
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_array_sub(fixed_array):
+def test_array_sub(fixed_array: type[APyCFixedArray]):
     a = fixed_array([-5, -6, 7, 8, 9], bits=10, int_bits=5)
     b = fixed_array([1, -2, 3, -2, -1], bits=7, int_bits=2)
     assert (a - b).is_identical(fixed_array([-6, -4, 4, 10, 10], bits=11, int_bits=6))
@@ -181,26 +188,28 @@ def test_array_sub(fixed_array):
         fixed_array([-7, -14, -21, -24, -33], bits=14, frac_bits=3)
     )
 
-    a = fixed_array.from_float([1.2345, -5.4321], bits=256, int_bits=128)
-    b = fixed_array.from_float([9.8765, 5.6789], bits=256, int_bits=128)
+    a = fixed_array.from_float([1.2345, -5.4321, 0], bits=256, int_bits=128)
+    b = fixed_array.from_float([9.8765, 5.6789, 0], bits=256, int_bits=128)
     assert (a - b).is_identical(
         fixed_array(
             [
                 0x1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF75BA5E353F7CED0000000000000000000,
                 0x1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF4E395810624DD40000000000000000000,
+                0,
             ],
             bits=257,
             int_bits=129,
         )
     )
 
-    a = fixed_array.from_float([1.2345, -5.4321], bits=255, int_bits=128)
-    b = fixed_array.from_float([9.8765, 5.6789], bits=255, int_bits=128)
+    a = fixed_array.from_float([1.2345, -5.4321, 0], bits=255, int_bits=128)
+    b = fixed_array.from_float([9.8765, 5.6789, 0], bits=255, int_bits=128)
     assert (a - b).is_identical(
         fixed_array(
             [
                 115792089237316195423570985008687907851799624558175188917373909031040791347200,
                 115792089237316195423570985008687907851379545976211290445581358423608704106496,
+                0,
             ],
             bits=256,
             int_bits=129,
@@ -211,19 +220,21 @@ def test_array_sub(fixed_array):
             [
                 1470360107465375122083674976872338292736,
                 1890438689429273593876225584304425533440,
+                0,
             ],
             bits=256,
             int_bits=129,
         )
     )
 
-    a = fixed_array.from_float([1.2345, -5.4321], bits=252, int_bits=128)
-    b = fixed_array.from_float([9.8765, 5.6789], bits=252, int_bits=130)
+    a = fixed_array.from_float([1.2345, -5.4321, 0], bits=252, int_bits=128)
+    b = fixed_array.from_float([9.8765, 5.6789, 0], bits=252, int_bits=130)
     assert (a - b).is_identical(
         fixed_array(
             [
                 57896044618658097711785492504343953926451197319387110129468332631847522533376,
                 57896044618658097711785492504343953926398687496641622820494263805918511628288,
+                0,
             ],
             bits=255,
             int_bits=131,
@@ -234,6 +245,7 @@ def test_array_sub(fixed_array):
             [
                 183795013433171890260459372109042286592,
                 236304836178659199234528198038053191680,
+                0,
             ],
             bits=255,
             int_bits=131,
@@ -241,16 +253,17 @@ def test_array_sub(fixed_array):
     )
 
     c = fixed_array.from_float(
-        [[9.8765, 5.6789], [1.2345, -5.4321]], bits=252, int_bits=130
+        [[9.8765, 5.6789, 0], [1.2345, -5.4321, 0]], bits=252, int_bits=130
     )
 
     assert (b - c).is_identical(
         fixed_array(
             [
-                [0, 0],
+                [0, 0, 0],
                 [
                     45948753358292972565114843027260571648,
                     59076209044664799808632049509513297920,
+                    0,
                 ],
             ],
             bits=253,
@@ -266,7 +279,9 @@ def test_array_sub(fixed_array):
         (APyCFixedArray, APyCFixed),
     ],
 )
-def test_array_sub_scalar(fixed_array, fixed_scalar):
+def test_array_sub_scalar(
+    fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFixed]
+):
     # Same number of fractional bits
     a = fixed_array([-5, -6, 7, 10, -11], bits=10, int_bits=5)
     b = fixed_scalar(3, bits=7, int_bits=2)
@@ -301,7 +316,7 @@ def test_array_sub_scalar(fixed_array, fixed_scalar):
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_array_mul(fixed_array):
+def test_array_mul(fixed_array: type[APyCFixedArray]):
     # Complex mult results in one additional bit compared to real mult
     cb = fixed_array == APyCFixedArray
 
@@ -313,8 +328,8 @@ def test_array_mul(fixed_array):
     )
     assert (a * b).is_identical(b * a)
 
-    a = fixed_array.from_float([1.2345, 5.4321], bits=128, int_bits=64)
-    b = fixed_array.from_float([9.8765, 5.6789], bits=128, int_bits=64)
+    a = fixed_array.from_float([1.2345, 5.4321, 0], bits=128, int_bits=64)
+    b = fixed_array.from_float([9.8765, 5.6789, 0], bits=128, int_bits=64)
     assert (a * b).is_identical(b * a)
     res = a * b
     assert res.is_identical(
@@ -322,14 +337,15 @@ def test_array_mul(fixed_array):
             [
                 4148906114766443653661449407827571376128,
                 10497150468965098645933053068265826287616,
+                0,
             ],
             bits=256 + cb,
             int_bits=128 + cb,
         )
     )
 
-    a = fixed_array.from_float([1.2345, 5.4321], bits=256, int_bits=128)
-    b = fixed_array.from_float([9.8765, 5.6789], bits=256, int_bits=128)
+    a = fixed_array.from_float([1.2345, 5.4321, 0], bits=256, int_bits=128)
+    b = fixed_array.from_float([9.8765, 5.6789, 0], bits=256, int_bits=128)
     assert (a * b).is_identical(b * a)
     res = a * b
     assert res.is_identical(
@@ -337,6 +353,7 @@ def test_array_mul(fixed_array):
             [
                 0xC314A4095F245001AC14C660A2000000000000000000000000000000000000000,
                 0x1ED92DA453060C056E0ACA8950A000000000000000000000000000000000000000,
+                0,
             ],
             bits=512 + cb,
             int_bits=256 + cb,
@@ -344,7 +361,7 @@ def test_array_mul(fixed_array):
     )
 
     c = fixed_array.from_float(
-        [[9.8765, 5.6789], [1.2345, -5.4321]], bits=252, int_bits=130
+        [[9.8765, 5.6789, 0], [1.2345, -5.4321, 0]], bits=252, int_bits=130
     )
 
     assert (b * c).is_identical(
@@ -353,10 +370,12 @@ def test_array_mul(fixed_array):
                 [
                     0x1862E569B17481C65668C26139000000000000000000000000000000000000000,
                     0x80FFE726C0333176828327924040000000000000000000000000000000000000,
+                    0,
                 ],
                 [
                     0x30C5290257C914006B0531982880000000000000000000000000000000000000,
                     0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF849B496EB3E7CFEA47D4D5DABD80000000000000000000000000000000000000,
+                    0,
                 ],
             ],
             bits=508 + cb,
@@ -372,7 +391,9 @@ def test_array_mul(fixed_array):
         (APyCFixedArray, APyCFixed),
     ],
 )
-def test_array_mul_scalar(fixed_array, fixed_scalar):
+def test_array_mul_scalar(
+    fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFixed]
+):
     # Complex mult results in one additional bit compared to real mult
     cb = fixed_array == APyCFixedArray
 
@@ -419,7 +440,7 @@ def test_array_mul_scalar(fixed_array, fixed_scalar):
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_array_div(fixed_array):
+def test_array_div(fixed_array: type[APyCFixedArray]):
     a = fixed_array.from_float([-5, -6, 7, 8, 9, 5], bits=10, int_bits=5)
     b = fixed_array.from_float([1, -2, 3, -4, -2, 2], bits=7, int_bits=3)
     assert (a / b).is_identical(
@@ -507,7 +528,9 @@ def test_array_div(fixed_array):
         (APyCFixedArray, APyCFixed),
     ],
 )
-def test_array_div_scalar(fixed_array, fixed_scalar):
+def test_array_div_scalar(
+    fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFixed]
+):
     a = fixed_array.from_float([-5, -6, 7, 8, 9, 5], bits=10, int_bits=5)
     b = fixed_scalar.from_float(2.25, bits=6, int_bits=4)
     assert (a / b).is_identical(
@@ -574,7 +597,7 @@ def test_array_div_scalar(fixed_array, fixed_scalar):
         (APyCFixedArray, APyCFixed),
     ],
 )
-def test_rdiv_issue(fixed_array, fixed_scalar):
+def test_rdiv_issue(fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFixed]):
     a = fixed_array.from_float([-5, -6, 7, 8, 9, 5], bits=100, int_bits=50)
     b = fixed_scalar.from_float(2.25, bits=14, int_bits=4)
     assert (a / b).is_identical(
@@ -648,7 +671,7 @@ def test_rdiv_issue(fixed_array, fixed_scalar):
         (APyCFixedArray, APyCFixed),
     ],
 )
-def test_array_prod(fixed_array, fixed_scalar):
+def test_array_prod(fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFixed]):
     # Complex mult results in one additional bit compared to real mult
     cb = fixed_array == APyCFixedArray
 
@@ -676,27 +699,35 @@ def test_array_prod(fixed_array, fixed_scalar):
         (APyCFixedArray, APyCFixed),
     ],
 )
-def test_prod_negative_frac_bits(fixed_array, fixed_scalar):
+def test_prod_negative_int_bits(
+    fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFixed]
+):
     # Complex mult results in one additional bit compared to real mult
     cb = fixed_array == APyCFixedArray
-    a = fixed_array([[2, 3], [4, 4], [5, 6], [7, 8]], int_bits=-5, frac_bits=10)
+    a = fixed_array(
+        [[1, 2, 3], [1, 4, 4], [1, 5, 6], [1, 7, 8]], int_bits=-5, frac_bits=10
+    )
     assert a.prod().is_identical(
-        fixed_scalar(161280, int_bits=-40 + 7 * cb, frac_bits=80)
+        fixed_scalar(161280, int_bits=-60 + 11 * cb, frac_bits=120)
     )
     assert a.cumprod().is_identical(
         fixed_array(
             [
-                2361183241434822606848,
-                6917529027641081856,
-                27021597764222976,
-                105553116266496,
-                515396075520,
+                1298074214633706907132624082305024,
+                2535301200456458802993406410752,
+                7427640235712281649394745344,
+                7253554917687775048237056,
+                28334198897217871282176,
+                110680464442257309696,
+                108086391056891904,
+                527765581332480,
+                3092376453120,
                 3019898880,
                 20643840,
                 161280,
             ],
-            frac_bits=80,
             int_bits=-5,
+            frac_bits=120,
         )
     )
 
@@ -708,33 +739,41 @@ def test_prod_negative_frac_bits(fixed_array, fixed_scalar):
         (APyCFixedArray, APyCFixed),
     ],
 )
-def test_prod_negative_int_bits(fixed_array, fixed_scalar):
+def test_prod_negative_frac_bits(
+    fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFixed]
+):
     # Complex mult results in one additional bit compared to real mult
     cb = fixed_array == APyCFixedArray
-    a = fixed_array([[2, 3], [4, 4], [5, 6], [7, 8]], int_bits=10, frac_bits=-5)
+    a = fixed_array(
+        [[1, 2, 3], [1, 4, 4], [1, 5, 6], [1, 7, 8]], int_bits=10, frac_bits=-5
+    )
     assert a.prod().is_identical(
-        fixed_scalar(161280, int_bits=80 + 7 * cb, frac_bits=-40)
+        fixed_scalar(161280, int_bits=120 + 11 * cb, frac_bits=-60)
     )
     assert a.cumprod().is_identical(
         fixed_array(
             [
-                2,
-                192,
-                24576,
-                3145728,
-                503316480,
-                96636764160,
-                21646635171840,
-                5541538603991040,
+                1,
+                64,
+                6144,
+                196608,
+                25165824,
+                3221225472,
+                103079215104,
+                16492674416640,
+                3166593487994880,
+                101330991615836160,
+                22698142121947299840,
+                5810724383218508759040,
             ],
+            int_bits=120 + 11 * cb,
             frac_bits=-5,
-            int_bits=80 + 7 * cb,
         )
     )
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_transpose(fixed_array):
+def test_transpose(fixed_array: type[APyCFixedArray]):
     # 1-D transposition simply returns the input (just like NumPy-arrays)
     assert fixed_array([], 1, 0).T.is_identical(fixed_array([], 1, 0))
     assert fixed_array([1, 2, 3], 5, 5).T.is_identical(fixed_array([1, 2, 3], 5, 5))
@@ -763,7 +802,7 @@ def test_transpose(fixed_array):
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_shift(fixed_array):
+def test_shift(fixed_array: type[APyCFixedArray]):
     a = fixed_array([1, 2, -3], bits=10, int_bits=5)
     assert (a >> 2).is_identical(fixed_array([1, 2, -3], bits=10, int_bits=3))
     assert (a << 7).is_identical(fixed_array([1, 2, -3], bits=10, int_bits=12))
@@ -783,7 +822,7 @@ def test_shift(fixed_array):
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_unary_negate(fixed_array):
+def test_unary_negate(fixed_array: type[APyCFixedArray]):
     a = fixed_array.from_float([0, -1, 2, -3, 4], bits=100, int_bits=50)
     b = fixed_array.from_float([0, -1, 2, -3, 4], bits=32, int_bits=20)
     assert (-a).is_identical(
@@ -821,7 +860,7 @@ def test_abs():
         QuantizationMode.JAM_UNBIASED,
     ],
 )
-def test_huge_narrowing_cast(fixed_array, mode):
+def test_huge_narrowing_cast(fixed_array: type[APyCFixedArray], mode: QuantizationMode):
     a = fixed_array.from_float([-0.75, 0.5], 500, 500)
     assert a.cast(5, 5, mode).is_identical(fixed_array.from_float([-0.75, 0.5], 5, 5))
 
@@ -842,7 +881,7 @@ def test_huge_narrowing_cast(fixed_array, mode):
         QuantizationMode.JAM_UNBIASED,
     ],
 )
-def test_huge_extending_cast(fixed_array, mode):
+def test_huge_extending_cast(fixed_array: type[APyCFixedArray], mode: QuantizationMode):
     a = fixed_array.from_float([-0.75, 0.5], 5, 5)
     assert a.cast(500, 500, mode).is_identical(
         fixed_array.from_float([-0.75, 0.5], 500, 500)
@@ -850,7 +889,7 @@ def test_huge_extending_cast(fixed_array, mode):
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_long_matrix_addition(fixed_array):
+def test_long_matrix_addition(fixed_array: type[APyCFixedArray]):
     np = pytest.importorskip("numpy")
     a = fixed_array(range(10000), bits=20, int_bits=20)
     b = fixed_array(range(10000), bits=20, int_bits=20)
@@ -860,7 +899,7 @@ def test_long_matrix_addition(fixed_array):
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_operation_with_integers(fixed_array):
+def test_operation_with_integers(fixed_array: type[APyCFixedArray]):
     a = fixed_array([5], 6, 2)
     one = fixed_array([4], 6, 2)
     zero = fixed_array([0], 6, 2)
@@ -887,7 +926,7 @@ def test_operation_with_integers(fixed_array):
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_operation_with_floats(fixed_array):
+def test_operation_with_floats(fixed_array: type[APyCFixedArray]):
     a = fixed_array([5], 6, 2)
     one = fixed_array([4], 6, 2)
     zero = fixed_array([0], 6, 2)
@@ -926,7 +965,7 @@ def test_operation_with_numpy():
 
 
 @pytest.mark.parametrize("frac_bits", range(10, 68))
-def test_array_multiplication_with_different_frac_bits(frac_bits):
+def test_array_multiplication_with_different_frac_bits(frac_bits: int):
     a = fx(1 / 3, int_bits=3, frac_bits=frac_bits)
     b = fx(math.pi, int_bits=3, frac_bits=frac_bits)
     c = fx(-math.pi, int_bits=3, frac_bits=frac_bits)
@@ -942,7 +981,7 @@ def test_array_multiplication_with_different_frac_bits(frac_bits):
 
 
 @pytest.mark.parametrize("frac_bits", range(10, 68))
-def test_scalar_array_multiplication_with_different_frac_bits(frac_bits):
+def test_scalar_array_multiplication_with_different_frac_bits(frac_bits: int):
     a = fx(1 / 3, int_bits=3, frac_bits=frac_bits)
     b = fx(math.pi, int_bits=3, frac_bits=frac_bits)
     c = fx(-math.pi, int_bits=3, frac_bits=frac_bits)

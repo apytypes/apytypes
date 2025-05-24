@@ -27,20 +27,17 @@ def test_transpose():
 def test_from_complex():
     a = APyCFixedArray.from_complex(
         [
-            [1, 2],
-            [-1, -5],
+            [1 - 2j, 1 / 2 + 3 / 4j],
+            [-(2**-5) + 17j, -3j],
         ],
         int_bits=10,
-        frac_bits=0,
+        frac_bits=10,
     )
     assert a.is_identical(
         APyCFixedArray(
-            [
-                [1, 2],
-                [-1, -5],
-            ],
+            [[(1024, 1046528), (512, 1047808)], [(1048544, 17408), (0, 1045504)]],
             int_bits=10,
-            frac_bits=0,
+            frac_bits=10,
         )
     )
 
@@ -78,7 +75,7 @@ def test_real_imag():
 
 
 @pytest.mark.parametrize("bits", [16, 32, 64, 128])
-def test_issue_615_complex(bits):
+def test_issue_615_complex(bits: int):
     """
     Specialized test for complex-valued array: no overflowing/carry between
     real/imaginary parts.

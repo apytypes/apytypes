@@ -4,7 +4,7 @@ from apytypes import APyCFixed, APyCFixedArray, APyFixed, APyFixedArray
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_raise_invalid_item(fixed_array):
+def test_raise_invalid_item(fixed_array: type[APyCFixedArray]):
     fx_array = fixed_array([[1, 2, 3], [4, 5, 6]], bits=10, int_bits=10)
     with pytest.raises(
         ValueError, match=r"APyC?FixedArray\.__getitem__: supported keys"
@@ -16,7 +16,9 @@ def test_raise_invalid_item(fixed_array):
     ("fixed_array", "fixed_scalar"),
     [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed)],
 )
-def test_get_item_integer(fixed_array, fixed_scalar):
+def test_get_item_integer(
+    fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFixed]
+):
     # ndim == 1
     fx_array = fixed_array([1, 2, 3, 4, 5, 6], bits=10, int_bits=10)
     assert fx_array[0].is_identical(fixed_scalar(1, bits=10, int_bits=10))
@@ -26,9 +28,9 @@ def test_get_item_integer(fixed_array, fixed_scalar):
         fx_array[6]
 
     # ndim == 2
-    fx_array = fixed_array([[1, 2], [3, 4]], bits=10, int_bits=10)
-    assert fx_array[0].is_identical(fixed_array([1, 2], bits=10, int_bits=10))
-    assert fx_array[1].is_identical(fixed_array([3, 4], bits=10, int_bits=10))
+    fx_array = fixed_array([[1, 2, 3], [4, 5, 6]], bits=10, int_bits=10)
+    assert fx_array[0].is_identical(fixed_array([1, 2, 3], bits=10, int_bits=10))
+    assert fx_array[1].is_identical(fixed_array([4, 5, 6], bits=10, int_bits=10))
     with pytest.raises(IndexError, match="APyC?FixedArray.__getitem__: index 2 is out"):
         fx_array[2]
 
@@ -41,21 +43,18 @@ def test_get_item_integer(fixed_array, fixed_scalar):
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_get_item_slice(fixed_array):
+def test_get_item_slice(fixed_array: type[APyCFixedArray]):
     # ndim == 1
     fx = fixed_array([1, 2, 3, 4, 5, 6], int_bits=10, frac_bits=0)
     assert fx[:].is_identical(fx)
-    assert fx[4:].is_identical(fixed_array([5, 6], int_bits=10, frac_bits=0))
+    assert fx[3:].is_identical(fixed_array([4, 5, 6], int_bits=10, frac_bits=0))
     assert fx[:5].is_identical(fixed_array([1, 2, 3, 4, 5], int_bits=10, frac_bits=0))
     assert fx[0:1].is_identical(fixed_array([1], int_bits=10, frac_bits=0))
-    assert fx[0:2].is_identical(fixed_array([1, 2], int_bits=10, frac_bits=0))
     assert fx[0:3].is_identical(fixed_array([1, 2, 3], int_bits=10, frac_bits=0))
     assert fx[2:6].is_identical(fixed_array([3, 4, 5, 6], int_bits=10, frac_bits=0))
     assert fx[2:100].is_identical(fixed_array([3, 4, 5, 6], int_bits=10, frac_bits=0))
     assert fx[0:6:2].is_identical(fixed_array([1, 3, 5], int_bits=10, frac_bits=0))
     assert fx[1:6:2].is_identical(fixed_array([2, 4, 6], int_bits=10, frac_bits=0))
-    assert fx[1:6:3].is_identical(fixed_array([2, 5], int_bits=10, frac_bits=0))
-    assert fx[0:6:3].is_identical(fixed_array([1, 4], int_bits=10, frac_bits=0))
     assert fx[::-1].is_identical(
         fixed_array([6, 5, 4, 3, 2, 1], int_bits=10, frac_bits=0)
     )
@@ -68,33 +67,43 @@ def test_get_item_slice(fixed_array):
     )
 
     # ndim == 2
-    fx = fixed_array([[1, 2], [3, 4], [5, 6], [7, 8]], bits=10, int_bits=10)
-    assert fx[:].is_identical(fx)
-    assert fx[2:].is_identical(fixed_array([[5, 6], [7, 8]], int_bits=10, frac_bits=0))
-    assert fx[3:].is_identical(fixed_array([[7, 8]], int_bits=10, frac_bits=0))
-    assert fx[:1].is_identical(fixed_array([[1, 2]], int_bits=10, frac_bits=0))
-    assert fx[:2].is_identical(fixed_array([[1, 2], [3, 4]], int_bits=10, frac_bits=0))
-    assert fx[:3].is_identical(
-        fixed_array([[1, 2], [3, 4], [5, 6]], int_bits=10, frac_bits=0)
+    fx = fixed_array(
+        [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]], bits=10, int_bits=10
     )
-    assert fx[1:3].is_identical(fixed_array([[3, 4], [5, 6]], int_bits=10, frac_bits=0))
+    assert fx[:].is_identical(fx)
+    assert fx[2:].is_identical(
+        fixed_array([[7, 8, 9], [10, 11, 12]], int_bits=10, frac_bits=0)
+    )
+    assert fx[3:].is_identical(fixed_array([[10, 11, 12]], int_bits=10, frac_bits=0))
+    assert fx[:1].is_identical(fixed_array([[1, 2, 3]], int_bits=10, frac_bits=0))
+    assert fx[:2].is_identical(
+        fixed_array([[1, 2, 3], [4, 5, 6]], int_bits=10, frac_bits=0)
+    )
+    assert fx[:3].is_identical(
+        fixed_array([[1, 2, 3], [4, 5, 6], [7, 8, 9]], int_bits=10, frac_bits=0)
+    )
+    assert fx[1:3].is_identical(
+        fixed_array([[4, 5, 6], [7, 8, 9]], int_bits=10, frac_bits=0)
+    )
     assert fx[1:100].is_identical(
-        fixed_array([[3, 4], [5, 6], [7, 8]], int_bits=10, frac_bits=0)
+        fixed_array([[4, 5, 6], [7, 8, 9], [10, 11, 12]], int_bits=10, frac_bits=0)
     )
     assert fx[0:4:2].is_identical(
-        fixed_array([[1, 2], [5, 6]], int_bits=10, frac_bits=0)
+        fixed_array([[1, 2, 3], [7, 8, 9]], int_bits=10, frac_bits=0)
     )
     assert fx[1:4:2].is_identical(
-        fixed_array([[3, 4], [7, 8]], int_bits=10, frac_bits=0)
+        fixed_array([[4, 5, 6], [10, 11, 12]], int_bits=10, frac_bits=0)
     )
     assert fx[0:4:3].is_identical(
-        fixed_array([[1, 2], [7, 8]], int_bits=10, frac_bits=0)
+        fixed_array([[1, 2, 3], [10, 11, 12]], int_bits=10, frac_bits=0)
     )
     assert fx[::-1].is_identical(
-        fixed_array([[7, 8], [5, 6], [3, 4], [1, 2]], int_bits=10, frac_bits=0)
+        fixed_array(
+            [[10, 11, 12], [7, 8, 9], [4, 5, 6], [1, 2, 3]], int_bits=10, frac_bits=0
+        )
     )
     assert fx[::-2].is_identical(
-        fixed_array([[7, 8], [3, 4]], int_bits=10, frac_bits=0)
+        fixed_array([[10, 11, 12], [4, 5, 6]], int_bits=10, frac_bits=0)
     )
 
     # ndim == 3
@@ -122,7 +131,7 @@ def test_get_item_slice(fixed_array):
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_get_item_tuple(fixed_array):
+def test_get_item_tuple(fixed_array: type[APyCFixedArray]):
     np = pytest.importorskip("numpy")
     np_array = np.array(range(3 * 4 * 5 * 6 * 7)).reshape((3, 4, 5, 6, 7))
     fx_array = fixed_array.from_float(np_array, int_bits=100, frac_bits=0)
@@ -158,7 +167,7 @@ def test_get_item_tuple(fixed_array):
 
 
 @pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_get_item_ellipsis(fixed_array):
+def test_get_item_ellipsis(fixed_array: type[APyCFixedArray]):
     np = pytest.importorskip("numpy")
     np_array = np.array(range(3 * 4 * 5 * 6 * 7)).reshape((3, 4, 5, 6, 7))
     fx_array = fixed_array.from_float(np_array, int_bits=100, frac_bits=0)
