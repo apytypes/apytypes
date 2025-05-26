@@ -39,4 +39,16 @@ def test_repr():
 
 
 def test_str():
+    assert str(APyCFixed.from_float(0, int_bits=2, frac_bits=4)) == "0+0j"
+    assert str(APyCFixed.from_float(1.25, int_bits=2, frac_bits=4)) == "1.25+0j"
     assert str(APyCFixed.from_float(-1.25, int_bits=2, frac_bits=4)) == "-1.25+0j"
+    assert str(APyCFixed.from_complex(1.25j, int_bits=2, frac_bits=4)) == "0+1.25j"
+    assert str(APyCFixed.from_complex(-1.25j, int_bits=2, frac_bits=4)) == "0-1.25j"
+    assert (
+        str(APyCFixed.from_complex(1.25 + 1.25j, int_bits=2, frac_bits=4))
+        == "1.25+1.25j"
+    )
+    assert (
+        str(APyCFixed.from_complex(-1.25 - 1.25j, int_bits=2, frac_bits=4))
+        == "-1.25-1.25j"
+    )
