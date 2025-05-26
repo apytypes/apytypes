@@ -402,6 +402,8 @@
 </li>
         <li><a href="cpp_api/apyfixed_util.html#_CPPv4I0E25_overflow_twos_complementv22RANDOM_ACCESS_ITERATOR22RANDOM_ACCESS_ITERATORii">_overflow_twos_complement (C++ function)</a>
 </li>
+        <li><a href="cpp_api/python_util.html#_CPPv448_python_sequence_extract_shape_recursive_descentRKN8nanobind8sequenceENSt11string_viewE">_python_sequence_extract_shape_recursive_descent (C++ function)</a>
+</li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv4I_16QuantizationMode_bE10_qntz_funcDaR5man_tR5exp_t5exp_tib5man_t5man_t">_qntz_func (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixed_util.html#_CPPv4I0E13_quantize_jamv28RANDOM_ACCESS_ITERATOR_INOUT28RANDOM_ACCESS_ITERATOR_INOUTiiii">_quantize_jam (C++ function)</a>
@@ -556,7 +558,7 @@
 </li>
         <li><a href="cpp_api/apycfixed.html#_CPPv4NK9APyCFixed8int_bitsEv">APyCFixed::int_bits (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apycfixed.html#_CPPv4NK9APyCFixed12is_identicalERK9APyCFixed">APyCFixed::is_identical (C++ function)</a>
+        <li><a href="cpp_api/apycfixed.html#_CPPv4NK9APyCFixed12is_identicalERKNSt7variantINSt9monostateEPK9APyCFixedPK14APyCFixedArrayEE">APyCFixed::is_identical (C++ function)</a>
 </li>
         <li><a href="cpp_api/apycfixed.html#_CPPv4NK9APyCFixed7is_zeroEv">APyCFixed::is_zero (C++ function)</a>
 </li>
@@ -636,9 +638,9 @@
 </li>
         <li><a href="cpp_api/apycfixedarray.html#_CPPv4N14APyCFixedArray10from_arrayERKN2nb7ndarrayIN2nb8c_contigEEENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyCFixedArray::from_array (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apycfixedarray.html#_CPPv4N14APyCFixedArray12from_complexERKN2nb8sequenceENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyCFixedArray::from_complex (C++ function)</a>
+        <li><a href="cpp_api/apycfixedarray.html#_CPPv4N14APyCFixedArray12from_complexERKN2nb5typedIN2nb8sequenceEN2nb3anyEEENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyCFixedArray::from_complex (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apycfixedarray.html#_CPPv4N14APyCFixedArray12from_numbersERKN2nb8sequenceENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyCFixedArray::from_numbers (C++ function)</a>
+        <li><a href="cpp_api/apycfixedarray.html#_CPPv4N14APyCFixedArray12from_numbersERKN2nb5typedIN2nb8sequenceEN2nb3anyEEENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyCFixedArray::from_numbers (C++ function)</a>
 </li>
         <li><a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArray8get_imagEv">APyCFixedArray::get_imag (C++ function)</a>
 </li>
@@ -648,7 +650,7 @@
 </li>
         <li><a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArray8int_bitsEv">APyCFixedArray::int_bits (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apycfixedarray.html#_CPPv4N14APyCFixedArray4onesERKN2nb5tupleENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyCFixedArray::ones (C++ function)</a>
+        <li><a href="cpp_api/apycfixedarray.html#_CPPv4N14APyCFixedArray4onesERK14PyShapeParam_tNSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyCFixedArray::ones (C++ function)</a>
 </li>
         <li><a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArraymlERK14APyCFixedArray">APyCFixedArray::operator* (C++ function)</a>, <a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArraymlERK9APyCFixed">[1]</a>
 </li>
@@ -668,7 +670,7 @@
 </li>
         <li><a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArraycoEv">APyCFixedArray::operator~ (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArray4prodENSt8optionalINSt7variantIN2nb5tupleEN2nb4int_EEEEE">APyCFixedArray::prod (C++ function)</a>
+        <li><a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArray4prodERKNSt8optionalI14PyShapeParam_tEE">APyCFixedArray::prod (C++ function)</a>
 </li>
         <li><a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArray11python_copyEv">APyCFixedArray::python_copy (C++ function)</a>
 </li>
@@ -682,11 +684,15 @@
 </li>
         <li><a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArray12same_type_asERK14APyCFixedArray">APyCFixedArray::same_type_as (C++ function)</a>, <a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArray12same_type_asERK9APyCFixed">[1]</a>
 </li>
-        <li><a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArray3sumENSt8optionalINSt7variantIN2nb5tupleEN2nb4int_EEEEE">APyCFixedArray::sum (C++ function)</a>
+        <li><a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArray3sumERKNSt8optionalI14PyShapeParam_tEE">APyCFixedArray::sum (C++ function)</a>
 </li>
         <li><a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArray8to_numpyEv">APyCFixedArray::to_numpy (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apycfixedarray.html#_CPPv4N14APyCFixedArray5zerosERKN2nb5tupleENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyCFixedArray::zeros (C++ function)</a>
+        <li><a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArray9to_stringEi">APyCFixedArray::to_string (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apycfixedarray.html#_CPPv4NK14APyCFixedArray13to_string_decEv">APyCFixedArray::to_string_dec (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apycfixedarray.html#_CPPv4N14APyCFixedArray5zerosERK14PyShapeParam_tNSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyCFixedArray::zeros (C++ function)</a>
 </li>
         <li><a href="api/apycfloat.html#apytypes.APyCFloat">APyCFloat (class in apytypes)</a>
 </li>
@@ -874,7 +880,7 @@
         </ul></li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray3absEv">APyFixedArray::abs (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray13APyFixedArrayERKN2nb8sequenceENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixedArray::APyFixedArray (C++ function)</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray13APyFixedArrayERKNSt6vectorINSt6size_tEEENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">[1]</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray13APyFixedArrayERKNSt6vectorINSt6size_tEEEii">[2]</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray13APyFixedArrayERKNSt6vectorINSt6size_tEEEiiRR11vector_type">[3]</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray13APyFixedArrayEv">[4]</a>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray13APyFixedArrayERKN2nb5typedIN2nb8sequenceEN2nb3anyEEENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixedArray::APyFixedArray (C++ function)</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray13APyFixedArrayERKNSt6vectorINSt6size_tEEENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">[1]</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray13APyFixedArrayERKNSt6vectorINSt6size_tEEEii">[2]</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray13APyFixedArrayERKNSt6vectorINSt6size_tEEEiiRR11vector_type">[3]</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray13APyFixedArrayEv">[4]</a>
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray6arangeERKN2nb6objectERKN2nb6objectERKN2nb6objectENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixedArray::arange (C++ function)</a>
 </li>
@@ -894,17 +900,17 @@
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray7cumprodENSt8optionalIN2nb4int_EEE">APyFixedArray::cumprod (C++ function)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray6cumsumENSt8optionalIN2nb4int_EEE">APyFixedArray::cumsum (C++ function)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray3eyeERKN2nb4int_ENSt8optionalIN2nb4int_EEENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixedArray::eye (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray9frac_bitsEv">APyFixedArray::frac_bits (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray10from_arrayERKN2nb7ndarrayIN2nb8c_contigEEENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixedArray::from_array (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray12from_numbersERKN2nb8sequenceENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixedArray::from_numbers (C++ function)</a>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray12from_numbersERKN2nb5typedIN2nb8sequenceEN2nb3anyEEENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixedArray::from_numbers (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray8identityERKN2nb4int_ENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixedArray::identity (C++ function)</a>
 </li>
@@ -912,11 +918,11 @@
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray6matmulERK13APyFixedArray">APyFixedArray::matmul (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray3maxENSt8optionalINSt7variantIN2nb5tupleEN2nb4int_EEEEE">APyFixedArray::max (C++ function)</a>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray3maxERKNSt8optionalI14PyShapeParam_tEE">APyFixedArray::max (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray3minENSt8optionalINSt7variantIN2nb5tupleEN2nb4int_EEEEE">APyFixedArray::min (C++ function)</a>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray3minERKNSt8optionalI14PyShapeParam_tEE">APyFixedArray::min (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray4onesERKN2nb5tupleENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixedArray::ones (C++ function)</a>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray4onesERK14PyShapeParam_tNSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixedArray::ones (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArraymlERK13APyFixedArray">APyFixedArray::operator* (C++ function)</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArraymlERK8APyFixed">[1]</a>
 </li>
@@ -936,7 +942,7 @@
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArraycoEv">APyFixedArray::operator~ (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray4prodENSt8optionalINSt7variantIN2nb5tupleEN2nb4int_EEEEE">APyFixedArray::prod (C++ function)</a>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray4prodERKNSt8optionalI14PyShapeParam_tEE">APyFixedArray::prod (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray11python_copyEv">APyFixedArray::python_copy (C++ function)</a>
 </li>
@@ -950,7 +956,7 @@
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray12same_type_asERK13APyFixedArray">APyFixedArray::same_type_as (C++ function)</a>, <a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray12same_type_asERK8APyFixed">[1]</a>
 </li>
-        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray3sumENSt8optionalINSt7variantIN2nb5tupleEN2nb4int_EEEEE">APyFixedArray::sum (C++ function)</a>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray3sumERKNSt8optionalI14PyShapeParam_tEE">APyFixedArray::sum (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray7to_bitsEb">APyFixedArray::to_bits (C++ function)</a>
 </li>
@@ -960,7 +966,11 @@
 </li>
         <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray8to_numpyEv">APyFixedArray::to_numpy (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray5zerosERKN2nb5tupleENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixedArray::zeros (C++ function)</a>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray9to_stringEi">APyFixedArray::to_string (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4NK13APyFixedArray13to_string_decEv">APyFixedArray::to_string_dec (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfixedarray.html#_CPPv4N13APyFixedArray5zerosERK14PyShapeParam_tNSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE">APyFixedArray::zeros (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_common.html#_CPPv419APyFixedCastContext">APyFixedCastContext (C++ class)</a>
 
@@ -1254,7 +1264,7 @@
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4N13APyFloatArray9from_bitsERKN2nb8sequenceEiiNSt8optionalI5exp_tEE">APyFloatArray::from_bits (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloatarray.html#_CPPv4N13APyFloatArray12from_numbersERKN8nanobind8sequenceEiiNSt8optionalI5exp_tEE">APyFloatArray::from_numbers (C++ function)</a>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4N13APyFloatArray12from_numbersERKN2nb5typedIN2nb8sequenceEN2nb3anyEEEiiNSt8optionalI5exp_tEE">APyFloatArray::from_numbers (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray8get_biasEv">APyFloatArray::get_bias (C++ function)</a>
 </li>
@@ -1270,23 +1280,23 @@
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray6matmulERK13APyFloatArray">APyFloatArray::matmul (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray3maxENSt8optionalINSt7variantIN2nb5tupleEN2nb4int_EEEEE">APyFloatArray::max (C++ function)</a>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray3maxERKNSt8optionalI14PyShapeParam_tEE">APyFloatArray::max (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray3minENSt8optionalINSt7variantIN2nb5tupleEN2nb4int_EEEEE">APyFloatArray::min (C++ function)</a>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray3minERKNSt8optionalI14PyShapeParam_tEE">APyFloatArray::min (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray10nancumprodENSt8optionalIN2nb4int_EEE">APyFloatArray::nancumprod (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray9nancumsumENSt8optionalIN2nb4int_EEE">APyFloatArray::nancumsum (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray6nanmaxENSt8optionalINSt7variantIN2nb5tupleEN2nb4int_EEEEE">APyFloatArray::nanmax (C++ function)</a>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray6nanmaxERKNSt8optionalI14PyShapeParam_tEE">APyFloatArray::nanmax (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray6nanminENSt8optionalINSt7variantIN2nb5tupleEN2nb4int_EEEEE">APyFloatArray::nanmin (C++ function)</a>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray6nanminERKNSt8optionalI14PyShapeParam_tEE">APyFloatArray::nanmin (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray7nanprodENSt8optionalINSt7variantIN2nb5tupleEN2nb4int_EEEEE">APyFloatArray::nanprod (C++ function)</a>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray7nanprodERKNSt8optionalI14PyShapeParam_tEE">APyFloatArray::nanprod (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray6nansumENSt8optionalINSt7variantIN2nb5tupleEN2nb4int_EEEEE">APyFloatArray::nansum (C++ function)</a>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray6nansumERKNSt8optionalI14PyShapeParam_tEE">APyFloatArray::nansum (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloatarray.html#_CPPv4N13APyFloatArray4onesERKN2nb5tupleENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE">APyFloatArray::ones (C++ function)</a>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4N13APyFloatArray4onesERK14PyShapeParam_tNSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE">APyFloatArray::ones (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArraymlERK13APyFloatArray">APyFloatArray::operator* (C++ function)</a>, <a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArraymlERK8APyFloat">[1]</a>
 </li>
@@ -1298,7 +1308,7 @@
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArraycoEv">APyFloatArray::operator~ (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray4prodENSt8optionalINSt7variantIN2nb5tupleEN2nb4int_EEEEE">APyFloatArray::prod (C++ function)</a>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray4prodERKNSt8optionalI14PyShapeParam_tEE">APyFloatArray::prod (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray11python_copyEv">APyFloatArray::python_copy (C++ function)</a>
 </li>
@@ -1314,7 +1324,7 @@
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray4specEv">APyFloatArray::spec (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray3sumENSt8optionalINSt7variantIN2nb5tupleEN2nb4int_EEEEE">APyFloatArray::sum (C++ function)</a>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray3sumERKNSt8optionalI14PyShapeParam_tEE">APyFloatArray::sum (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray7to_bitsEb">APyFloatArray::to_bits (C++ function)</a>
 </li>
@@ -1324,7 +1334,11 @@
 </li>
         <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray8to_numpyEv">APyFloatArray::to_numpy (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apyfloatarray.html#_CPPv4N13APyFloatArray5zerosERKN2nb5tupleENSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE">APyFloatArray::zeros (C++ function)</a>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray9to_stringEi">APyFloatArray::to_string (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4NK13APyFloatArray13to_string_decEv">APyFloatArray::to_string_dec (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloatarray.html#_CPPv4N13APyFloatArray5zerosERK14PyShapeParam_tNSt7uint8_tENSt7uint8_tENSt8optionalI5exp_tEE">APyFloatArray::zeros (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_common.html#_CPPv427APyFloatQuantizationContext">APyFloatQuantizationContext (C++ class)</a>
 
@@ -1366,7 +1380,7 @@
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv48bcd_mul2RNSt6vectorINSt7uint8_tEEE">bcd_mul2 (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apytypes_util.html#_CPPv414bcds_to_stringKNSt6vectorI10apy_limb_tEE">bcds_to_string (C++ function)</a>
+        <li><a href="cpp_api/apytypes_util.html#_CPPv414bcds_to_stringRKNSt6vectorI10apy_limb_tEE">bcds_to_string (C++ function)</a>
 </li>
         <li><a href="api/apycfloat.html#apytypes.APyCFloat.bias">bias (apytypes.APyCFloat property)</a>
 
@@ -1502,9 +1516,9 @@
         </ul></li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv4I0E19count_trailing_bitsNSt6size_tE8INT_TYPE">count_trailing_bits (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apytypes_util.html#_CPPv420cpp_axes_from_pythonRKNSt8optionalINSt7variantIN8nanobind5tupleEN8nanobind4int_EEEEENSt6size_tE">cpp_axes_from_python (C++ function)</a>
+        <li><a href="cpp_api/array_utils.html#_CPPv420cpp_axes_from_pythonRKNSt8optionalI14PyShapeParam_tEENSt6size_tE">cpp_axes_from_python (C++ function)</a>
 </li>
-        <li><a href="cpp_api/apytypes_util.html#_CPPv4I0_bE32cpp_shape_from_python_shape_likeNSt6vectorI8INT_TYPEEERKNSt7variantIN8nanobind5tupleEN8nanobind4int_EEE">cpp_shape_from_python_shape_like (C++ function)</a>
+        <li><a href="cpp_api/array_utils.html#_CPPv4I0_bE32cpp_shape_from_python_shape_likeNSt6vectorI8INT_TYPEEERK14PyShapeParam_t">cpp_shape_from_python_shape_like (C++ function)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#c.CREATE_FUNCTOR_FROM_FUNC">CREATE_FUNCTOR_FROM_FUNC (C macro)</a>
 
@@ -1643,6 +1657,8 @@
         <li><a href="cpp_api/apyfloat_util.html#_CPPv4I_KNSt6size_tE_KNSt6size_tE_KNSt6size_tE000E24floating_point_quotientsv26RANDOM_ACCESS_ITERATOR_IN126RANDOM_ACCESS_ITERATOR_IN228RANDOM_ACCESS_ITERATOR_INOUTRK12APyFloatSpecRK12APyFloatSpecRK12APyFloatSpecKNSt6size_tERK16QuantizationMode">floating_point_quotients (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv4I0E21floating_point_scalbn12APyFloatDataRK12APyFloatDataRK12APyFloatSpeci16QuantizationMode19QNTZ_FUNC_SIGNATURE">floating_point_scalbn (C++ function)</a>
+</li>
+        <li><a href="cpp_api/apyfloat_util.html#_CPPv424floating_point_to_doubleRK12APyFloatDataRK12APyFloatSpec">floating_point_to_double (C++ function)</a>
 </li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv4I_NSt6size_tE_NSt6size_tE_NSt6size_tEE18FloatingPointAdder">FloatingPointAdder (C++ type)</a>
 </li>
@@ -1826,7 +1842,7 @@
 </li>
         <li><a href="api/quantizationoverflow.html#apytypes.get_float_quantization_seed">get_float_quantization_seed() (in module apytypes)</a>
 </li>
-        <li><a href="cpp_api/array_utils.html#_CPPv419get_normalized_axesRKNSt7variantIN2nb5tupleEN2nb4int_EEEKNSt6size_tE">get_normalized_axes (C++ function)</a>
+        <li><a href="cpp_api/array_utils.html#_CPPv419get_normalized_axesRK14PyShapeParam_tKNSt6size_tE">get_normalized_axes (C++ function)</a>
 </li>
         <li><a href="cpp_api/python_util.html#c.GET_OB_DIGIT">GET_OB_DIGIT (C macro)</a>
 </li>
@@ -1934,6 +1950,8 @@
           <li><a href="cpp_api/apyfloat_util.html#_CPPv49is_normalRK12APyFloatData7uint8_t">(C++ function)</a>
 </li>
         </ul></li>
+        <li><a href="cpp_api/python_util.html#_CPPv4IDpE18is_seq_and_excludebRKN8nanobind6handleE">is_seq_and_exclude (C++ function)</a>
+</li>
         <li><a href="api/apyfloat.html#apytypes.APyFloat.is_subnormal">is_subnormal (apytypes.APyFloat property)</a>
 </li>
         <li><a href="cpp_api/apytypes_util.html#_CPPv431is_valid_decimal_numeric_stringRKNSt6stringE">is_valid_decimal_numeric_string (C++ function)</a>
@@ -2214,6 +2232,10 @@
         </ul></li>
         <li><a href="cpp_api/apyfloat_util.html#_CPPv48pure_expRK12APyFloatDataRK12APyFloatSpec">pure_exp (C++ function)</a>
 </li>
+        <li><a href="cpp_api/array_utils.html#_CPPv412PyArrayKey_t">PyArrayKey_t (C++ type)</a>
+</li>
+        <li><a href="cpp_api/array_utils.html#_CPPv417PyArrayKeyTuple_t">PyArrayKeyTuple_t (C++ type)</a>
+</li>
         <li><a href="cpp_api/python_util.html#c.PyLong_DigitCount">PyLong_DigitCount (C macro)</a>
 </li>
         <li><a href="cpp_api/python_util.html#c.PyLong_IsNegative">PyLong_IsNegative (C macro)</a>
@@ -2224,15 +2246,19 @@
 </li>
         <li><a href="cpp_api/python_util.html#c.PyLong_SetSignAndDigitCount">PyLong_SetSignAndDigitCount (C macro)</a>
 </li>
+        <li><a href="cpp_api/array_utils.html#_CPPv414PyShapeParam_t">PyShapeParam_t (C++ type)</a>
+</li>
+        <li><a href="cpp_api/array_utils.html#_CPPv414PyShapeTuple_t">PyShapeTuple_t (C++ type)</a>
+</li>
         <li><a href="cpp_api/python_util.html#_CPPv4I0E23python_limb_vec_to_longN8nanobind4int_E22RANDOM_ACCESS_ITERATOR22RANDOM_ACCESS_ITERATORbNSt8optionalIjEE">python_limb_vec_to_long (C++ function)</a>
 </li>
         <li><a href="cpp_api/python_util.html#_CPPv423python_long_is_negativeRKN8nanobind4int_E">python_long_is_negative (C++ function)</a>
 </li>
         <li><a href="cpp_api/python_util.html#_CPPv423python_long_to_limb_vecRKN8nanobind4int_ENSt8optionalINSt6size_tEEE">python_long_to_limb_vec (C++ function)</a>
 </li>
-        <li><a href="cpp_api/python_util.html#_CPPv429python_sequence_extract_shapeRKN8nanobind8sequenceE">python_sequence_extract_shape (C++ function)</a>
+        <li><a href="cpp_api/python_util.html#_CPPv4I_bE29python_sequence_extract_shapeNSt6vectorINSt6size_tEEERKN8nanobind8sequenceENSt11string_viewE">python_sequence_extract_shape (C++ function)</a>
 </li>
-        <li><a href="cpp_api/python_util.html#_CPPv4IDpE20python_sequence_walkNSt6vectorIN8nanobind6objectEEERKN8nanobind8sequenceE">python_sequence_walk (C++ function)</a>
+        <li><a href="cpp_api/python_util.html#_CPPv4IDpE20python_sequence_walkNSt6vectorIN8nanobind6objectEEERKN8nanobind8sequenceENSt11string_viewE">python_sequence_walk (C++ function)</a>
 </li>
     </ul></td>
   </tr></table>
