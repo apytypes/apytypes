@@ -559,11 +559,13 @@ std::string APyCFixed::to_string(int base) const
 
 std::string APyCFixed::to_string_dec() const
 {
-    std::string real
-        = fixed_point_to_string_dec(real_begin(), real_end(), _bits, _int_bits);
-    std::string imag
-        = fixed_point_to_string_dec(imag_begin(), imag_end(), _bits, _int_bits);
-    return real + "+" + imag + "j";
+    double re = fixed_point_to_double(real_begin(), real_end(), frac_bits());
+    double im = fixed_point_to_double(imag_begin(), imag_end(), frac_bits());
+    if (im < 0) {
+        return fmt::format("{}{}j", re, im);
+    } else {
+        return fmt::format("{}+{}j", re, im);
+    }
 }
 
 std::string APyCFixed::to_string_hex() const

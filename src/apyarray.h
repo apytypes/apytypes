@@ -21,7 +21,6 @@ namespace nb = nanobind;
 
 #include <algorithm>   // std::min_element
 #include <cassert>     // assert
-#include <functional>  // std::function
 #include <functional>  // std::function, std::bind
 #include <iterator>    // std::begin
 #include <optional>    // std::optional
