@@ -4529,8 +4529,7 @@ class APyFloatArray:
         bias: int | None = None,
     ) -> APyFloatArray:
         """
-        Create an :class:`APyFloatArray` object from a sequence of :class:`int`,
-        :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
+        Create an :class:`APyFloatArray` from a possibly nested sequence of numbers.
 
         Parameters
         ----------
@@ -4548,14 +4547,21 @@ class APyFloatArray:
         --------
 
         >>> import apytypes as apy
-        >>>
         >>> a = apy.APyFloatArray.from_float(
         ...     [1.0, 1.25, 1.49], exp_bits=10, man_bits=15
         ... )
+        >>> a
+        APyFloatArray(
+            [    0,     0,     0],
+            [  511,   511,   511],
+            [    0,  8192, 16056],
+            exp_bits=10,
+            man_bits=15
+        )
+        >>> print(a)
+        [      1,    1.25, 1.48999]
 
-        Array `lhs` (2 x 3 matrix), initialized from floating-point values.
-
-        >>> lhs = apy.APyFloatArray.from_float(
+        >>> b = apy.APyFloatArray.from_float(
         ...     [
         ...         [1.0, 2.0, 3.0],
         ...         [4.0, 5.0, 6.0],
@@ -4563,6 +4569,22 @@ class APyFloatArray:
         ...     exp_bits=5,
         ...     man_bits=2,
         ... )
+        >>> b
+        APyFloatArray(
+            [[ 0,  0,  0],
+             [ 0,  0,  0]],
+        <BLANKLINE>
+            [[15, 16, 16],
+             [17, 17, 17]],
+        <BLANKLINE>
+            [[ 0,  0,  2],
+             [ 0,  1,  2]],
+            exp_bits=5,
+            man_bits=2
+        )
+        >>> print(b)
+        [[1, 2, 3],
+         [4, 5, 6]]
 
         Returns
         -------
@@ -4582,7 +4604,7 @@ class APyFloatArray:
         bias: int | None = None,
     ) -> APyFloatArray:
         """
-        Create an :class:`APyFloatArray` object from an ndarray.
+        Create an :class:`APyFloatArray` from an ndarray.
 
         Parameters
         ----------
@@ -4601,9 +4623,6 @@ class APyFloatArray:
 
         >>> import apytypes as apy
         >>> import numpy as np
-
-        Array `a`, initialized from NumPy ndarray
-
         >>> a = apy.APyFloatArray.from_array(
         ...     np.array(
         ...         [
@@ -4614,6 +4633,22 @@ class APyFloatArray:
         ...     man_bits=10,
         ...     exp_bits=10,
         ... )
+        >>> print(a)
+        [[1, 2, 3],
+         [4, 5, 6]]
+        >>> a
+        APyFloatArray(
+            [[  0,   0,   0],
+             [  0,   0,   0]],
+        <BLANKLINE>
+            [[511, 512, 512],
+             [513, 513, 513]],
+        <BLANKLINE>
+            [[  0,   0, 512],
+             [  0, 256, 512]],
+            exp_bits=10,
+            man_bits=10
+        )
 
         Returns
         -------
@@ -4647,10 +4682,25 @@ class APyFloatArray:
         --------
 
         >>> import apytypes as apy
-
         >>> a = apy.APyFloatArray.from_bits(
         ...     [[60, 61], [80, 82]], exp_bits=5, man_bits=2
         ... )
+        >>> a
+        APyFloatArray(
+            [[ 0,  0],
+             [ 0,  0]],
+        <BLANKLINE>
+            [[15, 15],
+             [20, 20]],
+        <BLANKLINE>
+            [[ 0,  1],
+             [ 0,  2]],
+            exp_bits=5,
+            man_bits=2
+        )
+        >>> print(a)
+        [[   1, 1.25],
+         [  32,   48]]
 
         Returns
         -------
@@ -4939,8 +4989,9 @@ class APyFloatArray:
 
     def squeeze(self, axis: int | tuple[int, ...] | None = None) -> APyFloatArray:
         """
-        Remove axes of size one at the specified axis/axes, if no axís is given
-        removes all dimensions with size one.
+        Remove axes of size one at the specified axis/axes.
+
+        If no axis is given, remove all dimensions with size one.
 
         Parameters
         ----------
@@ -4988,11 +5039,21 @@ class APyFloatArray:
         --------
 
         >>> import apytypes as apy
-
         >>> a = apy.fp([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
-
+        >>> a
+        APyFloatArray(
+            [  0,   0,   0,   0,   0,   0],
+            [511, 512, 512, 513, 513, 513],
+            [  0,   0, 512,   0, 256, 512],
+            exp_bits=10,
+            man_bits=10
+        )
         >>> a.sum()
         APyFloat(sign=0, exp=515, man=320, exp_bits=10, man_bits=10)
+        >>> print(a)
+        [1, 2, 3, 4, 5, 6]
+        >>> print(a.sum())
+        21
 
         -------
         """
@@ -5021,19 +5082,15 @@ class APyFloatArray:
         --------
 
         >>> import apytypes as apy
-        >>>
         >>> a = apy.fp([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
         >>> print(a)
         [[1, 2, 3],
          [4, 5, 6]]
-
         >>> print(a.cumsum())
         [ 1,  3,  6, 10, 15, 21]
-
         >>> print(a.cumsum(0))
         [[1, 2, 3],
          [5, 7, 9]]
-
         >>> print(a.cumsum(1))
         [[ 1,  3,  6],
          [ 4,  9, 15]]
@@ -5067,15 +5124,12 @@ class APyFloatArray:
         --------
 
         >>> import apytypes as apy
-        >>>
         >>> nan = float("nan")
         >>> a = apy.fp([1, 2, 3, 4, 5, nan], exp_bits=10, man_bits=10)
         >>> print(a)
         [  1,   2,   3,   4,   5, nan]
-
         >>> print(a.sum())
         nan
-
         >>> print(a.nansum())
         15
 
@@ -5106,23 +5160,19 @@ class APyFloatArray:
         --------
 
         >>> import apytypes as apy
-        >>>
         >>> nan = float("nan")
         >>> a = apy.fp([[1, 2, 3], [4, 5, nan]], exp_bits=10, man_bits=10)
         >>> print(a)
         [[  1,   2,   3],
          [  4,   5, nan]]
-
         >>> print(a.cumsum())
         [  1,   3,   6,  10,  15, nan]
-
         >>> print(a.nancumsum())
         [ 1,  3,  6, 10, 15, 15]
 
         >>> print(a.cumsum(0))
         [[  1,   2,   3],
          [  5,   7, nan]]
-
         >>> print(a.nancumsum(0))
         [[1, 2, 3],
          [5, 7, 3]]
@@ -5130,7 +5180,6 @@ class APyFloatArray:
         >>> print(a.cumsum(1))
         [[  1,   3,   6],
          [  4,   9, nan]]
-
         >>> print(a.nancumsum(1))
         [[1, 3, 6],
          [4, 9, 9]]
@@ -5164,11 +5213,21 @@ class APyFloatArray:
         --------
 
         >>> import apytypes as apy
-
         >>> a = apy.fp([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
-
+        >>> a
+        APyFloatArray(
+            [  0,   0,   0,   0,   0,   0],
+            [511, 512, 512, 513, 513, 513],
+            [  0,   0, 512,   0, 256, 512],
+            exp_bits=10,
+            man_bits=10
+        )
         >>> a.prod()
         APyFloat(sign=0, exp=520, man=416, exp_bits=10, man_bits=10)
+        >>> print(a)
+        [1, 2, 3, 4, 5, 6]
+        >>> print(a.prod())
+        720
 
         -------
         """
@@ -5197,19 +5256,15 @@ class APyFloatArray:
         --------
 
         >>> import apytypes as apy
-        >>>
         >>> a = apy.fp([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
         >>> print(a)
         [[1, 2, 3],
          [4, 5, 6]]
-
         >>> print(a.cumprod())
         [  1,   2,   6,  24, 120, 720]
-
         >>> print(a.cumprod(0))
         [[ 1,  2,  3],
          [ 4, 10, 18]]
-
         >>> print(a.cumprod(1))
         [[  1,   2,   6],
          [  4,  20, 120]]
@@ -5286,18 +5341,14 @@ class APyFloatArray:
         --------
 
         >>> import apytypes as apy
-        >>>
         >>> a = apy.fp([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
         >>> print(a)
         [[1, 2, 3],
          [4, 5, 6]]
-
         >>> print(a.max())
         6
-
         >>> print(a.max(0))
         [4, 5, 6]
-
         >>> print(a.max(1))
         [3, 6]
 
@@ -5329,7 +5380,6 @@ class APyFloatArray:
         --------
 
         >>> import apytypes as apy
-        >>>
         >>> a = apy.fp([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
         >>> print(a)
         [[1, 2, 3],
