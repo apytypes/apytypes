@@ -634,7 +634,6 @@ void bind_cfixed_array(nb::module_& m)
             --------
 
             >>> import apytypes as apy
-
             >>> a = apy.APyCFixedArray(
             ...     [1, 2, 3, 4, 5, 6],
             ...     int_bits=10,
