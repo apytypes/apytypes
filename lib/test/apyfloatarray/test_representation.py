@@ -44,6 +44,28 @@ def test_repr():
 APyFloatArray([[ 1,  0]], [[ 5, 10]], [[ 3,  1]], exp_bits=5, man_bits=2, bias=2)"""
     )
 
+    arr = APyFloatArray.from_float([1, 2, 3], exp_bits=10, man_bits=10)
+    assert (
+        repr(arr)
+        == """\
+APyFloatArray(
+    [  0,   0,   0], [511, 512, 512], [  0,   0, 512], exp_bits=10, man_bits=10
+)"""
+    )
+
+    arr = APyFloatArray.from_float([1, 2, 3, 4, 5], exp_bits=10, man_bits=10)
+    assert (
+        repr(arr)
+        == """\
+APyFloatArray(
+    [  0,   0,   0,   0,   0],
+    [511, 512, 512, 513, 513],
+    [  0,   0, 512,   0, 256],
+    exp_bits=10,
+    man_bits=10
+)"""
+    )
+
     arr = APyFloatArray([[1, 0], [0, 1]], [[5, 10], [3, 17]], [[3, 1], [0, 2]], 4, 3)
     assert is_repr_identical(arr)
     assert (
@@ -83,6 +105,7 @@ APyFloatArray(
       [ 1,  0],
       [ 0,  1]]],
 
+
     [[[ 1,  2],
       [ 3,  4],
       [ 5,  6]],
@@ -90,6 +113,7 @@ APyFloatArray(
      [[ 7,  8],
       [ 9, 10],
       [11, 12]]],
+
 
     [[[13, 14],
       [15, 16],

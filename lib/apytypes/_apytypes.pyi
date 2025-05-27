@@ -4236,7 +4236,8 @@ class APyFloatArray:
         Parameters
         ----------
         signs : sequence of bools or ints
-            The sign of the float. False/0 means positive. True/non-zero means negative.
+            The sign of the float. False/0 means positive. True/non-zero means
+            negative.
         exps : sequence of ints
             Exponents of the floats as stored, i.e., actual value + bias.
         mans : sequence of ints
@@ -4462,26 +4463,19 @@ class APyFloatArray:
 
         Examples
         --------
+
         >>> import apytypes as apy
-        >>> signs = [0, 0, 1, 1]
-        >>> exps = [127, 128, 128, 129]
-        >>> mans = [0, 0, 4194304, 0]
-        >>> arr = apy.APyFloatArray(
-        ...     signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23
-        ... )
-        >>> arr.to_numpy()
-        array([ 1.,  2., -3., -4.])
-
-        >>> arr.reshape((2, 2)).to_numpy()
-        array([[ 1.,  2.],
-               [-3., -4.]])
-
-        >>> arr.reshape((4,)).to_numpy()
-        array([ 1.,  2., -3., -4.])
-
-        >>> arr.reshape((2, -1)).to_numpy()
-        array([[ 1.,  2.],
-               [-3., -4.]])
+        >>> arr = apy.fp([1, 2, -3, -4], exp_bits=8, man_bits=23)
+        >>> print(arr)
+        [ 1,  2, -3, -4]
+        >>> print(arr.reshape((2, 2)))
+        [[ 1,  2],
+         [-3, -4]]
+        >>> print(arr.reshape((4, 1)))
+        [[ 1],
+         [ 2],
+         [-3],
+         [-4]]
 
         Returns
         -------
@@ -4495,18 +4489,12 @@ class APyFloatArray:
         Examples
         --------
         >>> import apytypes as apy
-        >>> signs = [[0, 0], [1, 1]]
-        >>> exps = [[127, 128], [128, 129]]
-        >>> mans = [[0, 0], [4194304, 0]]
-        >>> arr = apy.APyFloatArray(
-        ...     signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23
-        ... )
-        >>> arr.to_numpy()
-        array([[ 1.,  2.],
-               [-3., -4.]])
-
-        >>> arr.flatten().to_numpy()
-        array([ 1.,  2., -3., -4.])
+        >>> arr = apy.fp([[1, 2], [-3, -4]], exp_bits=8, man_bits=23)
+        >>> print(arr)
+        [[ 1,  2],
+         [-3, -4]]
+        >>> print(arr.flatten())
+        [ 1,  2, -3, -4]
 
         Returns
         -------
@@ -4521,18 +4509,12 @@ class APyFloatArray:
         Examples
         --------
         >>> import apytypes as apy
-        >>> signs = [[0, 0], [1, 1]]
-        >>> exps = [[127, 128], [128, 129]]
-        >>> mans = [[0, 0], [4194304, 0]]
-        >>> arr = apy.APyFloatArray(
-        ...     signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23
-        ... )
-        >>> arr.to_numpy()
-        array([[ 1.,  2.],
-               [-3., -4.]])
-
-        >>> arr.ravel().to_numpy()
-        array([ 1.,  2., -3., -4.])
+        >>> arr = apy.fp([[1, 2], [-3, -4]], exp_bits=8, man_bits=23)
+        >>> print(arr)
+        [[ 1,  2],
+         [-3, -4]]
+        >>> print(arr.ravel())
+        [ 1,  2, -3, -4]
 
         Returns
         -------
@@ -4812,7 +4794,8 @@ class APyFloatArray:
         Two :class:`APyFloatArray` objects are considered identical if, and only if:
             * They represent exactly the same tensor shape
             * They store the exact same floating-ppint values in all tensor elements
-            * They have the exact same bit format (`exp_bits`, `man_bits`, and `bias`)
+            * They have the exact same bit format (`exp_bits`, `man_bits`, and
+              `bias`)
 
         Returns
         -------
@@ -4833,26 +4816,27 @@ class APyFloatArray:
         Examples
         --------
         >>> import apytypes as apy
-        >>> x = apy.fp([[1, 2, 3]], exp_bits=5, man_bits=2)
-        >>> x.swapaxes(0, 1).to_numpy()
-        array([[1.],
-               [2.],
-               [3.]])
+        >>> a = apy.fp([[1, 2, 3]], exp_bits=5, man_bits=2)
+        >>> print(a)
+        [[1, 2, 3]]
+        >>> print(a.swapaxes(0, 1))
+        [[1],
+         [2],
+         [3]]
 
-        >>> x = apy.fp([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], exp_bits=5, man_bits=5)
-        >>> x.to_numpy()
-        array([[[0., 1.],
-                [2., 3.]],
+        >>> b = apy.fp([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], exp_bits=5, man_bits=5)
+        >>> print(b)
+        [[[0, 1],
+          [2, 3]],
         <BLANKLINE>
-               [[4., 5.],
-                [6., 7.]]])
-
-        >>> x.swapaxes(0, 2).to_numpy()
-        array([[[0., 4.],
-                [2., 6.]],
+         [[4, 5],
+          [6, 7]]]
+        >>> print(b.swapaxes(0, 2))
+        [[[0, 4],
+          [2, 6]],
         <BLANKLINE>
-               [[1., 5.],
-                [3., 7.]]])
+         [[1, 5],
+          [3, 7]]]
 
         Returns
         -------
@@ -4882,21 +4866,21 @@ class APyFloatArray:
         Examples
         --------
         >>> import apytypes as apy
-        >>> a = apy.fp([[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]], exp_bits=5, man_bits=2)
-        >>> a.to_numpy()
-        array([[ 1.,  2.,  3.],
-               [-4., -5., -6.]])
-        >>> a = a.transpose()
-        >>> a.to_numpy()
-        array([[ 1., -4.],
-               [ 2., -5.],
-               [ 3., -6.]])
+        >>> a = apy.fp([[1, 2, 3], [-4, -5, -6]], exp_bits=5, man_bits=2)
+        >>> print(a)
+        [[ 1,  2,  3],
+         [-4, -5, -6]]
+        >>> print(a.transpose())
+        [[ 1, -4],
+         [ 2, -5],
+         [ 3, -6]]
 
-        >>> a = apy.fp([1.0] * 6, exp_bits=5, man_bits=2).reshape((1, 2, 3))
-        >>> a.transpose((1, 0, 2)).shape
+        >>> b = apy.fp([1.0] * 6, exp_bits=5, man_bits=2).reshape((1, 2, 3))
+        >>> b.shape
+        (1, 2, 3)
+        >>> b.transpose((1, 0, 2)).shape
         (2, 1, 3)
-
-        >>> a.transpose((-2, -3, -1)).shape
+        >>> b.transpose((-2, -3, -1)).shape
         (2, 1, 3)
 
         Returns
@@ -4914,7 +4898,8 @@ class APyFloatArray:
         Parameters
         ----------
         shape : :class:`tuple` of :class:`int` or :class:`int`
-            The shape to broadcast to. A single integer ``i`` is interpreted as ``(i,)``.
+            The shape to broadcast to. A single integer ``i`` is interpreted as
+            ``(i,)``.
 
         Returns
         -------
@@ -4954,12 +4939,15 @@ class APyFloatArray:
 
     def squeeze(self, axis: int | tuple[int, ...] | None = None) -> APyFloatArray:
         """
-        Remove axes of size one at the specified axis/axes, if no axís is given removes all dimensions with size one.
+        Remove axes of size one at the specified axis/axes, if no axís is given
+        removes all dimensions with size one.
 
         Parameters
         ----------
         axis : :class:`tuple` of :class:`int` or :class:`int`, optional
-            The axis/axes to squeeze, a given axis with a size other than one will result in an error. No given axes  will be remove all dimensions of size 1.
+            The axis/axes to squeeze, a given axis with a size other than one will
+            result in an error. No given axes  will be remove all dimensions of size
+            1.
 
         Returns
         -------
@@ -4970,7 +4958,8 @@ class APyFloatArray:
         :class:`ValueError`
             If given an axis of a size other than one, a ValueError will be thrown.
         :class:`IndexError`
-            If a specified axis is outside of the existing number of dimensions for the array.
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
         """
 
     def sum(
@@ -4982,7 +4971,8 @@ class APyFloatArray:
         Parameters
         ----------
         axis : :class:`tuple` of :class:`int` or :class:`int`, optional
-            The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
+            The axis/axes to summate across. Will summate the whole array if no int
+            or tuple is specified.
 
         Returns
         -------
@@ -4991,7 +4981,8 @@ class APyFloatArray:
         Raises
         ------
         :class:`IndexError`
-            If a specified axis is outside of the existing number of dimensions for the array.
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
 
         Examples
         --------
@@ -5059,7 +5050,8 @@ class APyFloatArray:
         Parameters
         ----------
         axis : :class:`tuple` of :class:`int` or :class:`int`, optional
-            The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
+            The axis/axes to summate across. Will summate the whole array if no int
+            or tuple is specified.
 
         Returns
         -------
@@ -5068,7 +5060,8 @@ class APyFloatArray:
         Raises
         ------
         :class:`IndexError`
-            If a specified axis is outside of the existing number of dimensions for the array.
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
 
         Examples
         --------
@@ -5091,12 +5084,13 @@ class APyFloatArray:
 
     def nancumsum(self, axis: int | None = None) -> APyFloatArray:
         """
-        Return the cumulative sum of the elements along a given axis treating NaN as 0.
+        Return cumulative sum of elements along a given axis treating NaN as 0.
 
         Parameters
         ----------
         axis : :class:`int`, optional
-            The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.
+            The axis to summate across. If not given an axis it will return the
+            cumulative sum of the flattened array.
 
         Returns
         -------
@@ -5105,7 +5099,8 @@ class APyFloatArray:
         Raises
         ------
         :class:`IndexError`
-            If a specified axis is outside of the existing number of dimensions for the array.
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
 
         Examples
         --------
@@ -5147,12 +5142,13 @@ class APyFloatArray:
         self, axis: int | tuple[int, ...] | None = None
     ) -> APyFloatArray | APyFloat:
         """
-        Return the product of the elements along specified axis/axes.
+        Return product of elements along specified axis/axes.
 
         Parameters
         ----------
         axis : :class:`tuple`, int, optional
-            The axis/axes to calculate the product across. If not given an axis it will return the product of the flattened array.
+            The axis/axes to calculate the product across. If not given an axis it
+            will return the product of the flattened array.
 
         Returns
         -------
@@ -5161,7 +5157,8 @@ class APyFloatArray:
         Raises
         ------
         :class:`IndexError`
-            If a specified axis is outside of the existing number of dimensions for the array.
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
 
         Examples
         --------
@@ -5178,12 +5175,13 @@ class APyFloatArray:
 
     def cumprod(self, axis: int | None = None) -> APyFloatArray:
         """
-        Return the cumulative product of the elements along a given axes.
+        Return cumulative product of elements along a given axes.
 
         Parameters
         ----------
         axis : :class:`int`, optional
-            The axes to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.
+            The axes to calculate the product across. If not given an axis it will
+            return the cumulative product of the flattened array.
 
         Returns
         -------
@@ -5192,7 +5190,8 @@ class APyFloatArray:
         Raises
         ------
         :class:`IndexError`
-            If a specified axis is outside of the existing number of dimensions for the array.
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
 
         Examples
         --------
@@ -5222,7 +5221,7 @@ class APyFloatArray:
         self, axis: int | tuple[int, ...] | None = None
     ) -> APyFloatArray | APyFloat:
         """
-        Return the product of the elements along a given axis treating NaN as 0.
+        Return product of the elements along a given axis treating NaN as 0.
 
         Parameters
         ----------
@@ -5243,8 +5242,7 @@ class APyFloatArray:
 
     def nancumprod(self, axis: int | None = None) -> APyFloatArray:
         """
-        Return the cumulative product of the elements along a given axis treating
-        NaN as 0.
+        Return cumulative product of elements along a given axis treating NaN as 0.
 
         Parameters
         ----------
@@ -5267,7 +5265,7 @@ class APyFloatArray:
         self, axis: int | tuple[int, ...] | None = None
     ) -> APyFloatArray | APyFloat:
         """
-        Return the maximum value from an array or the maximum values along an axis.
+        Return maximum value of array or along an axis.
 
         Parameters
         ----------
@@ -5281,7 +5279,8 @@ class APyFloatArray:
         Raises
         ------
         :class:`IndexError`
-            If a specified axis is outside of the existing number of dimensions for the array.
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
 
         Examples
         --------
@@ -5309,7 +5308,7 @@ class APyFloatArray:
         self, axis: int | tuple[int, ...] | None = None
     ) -> APyFloatArray | APyFloat:
         """
-        Return the minimum value from an array or the minimum values along an axis.
+        Return maximum value of array or along an axis.
 
         Parameters
         ----------
@@ -5352,7 +5351,7 @@ class APyFloatArray:
         self, axis: int | tuple[int, ...] | None = None
     ) -> APyFloatArray | APyFloat:
         """
-        Return the maximum value from an array or the maximum values along an axis, ignoring NaN.
+        Return maximum value of array or along an axis ignoring NaN.
 
         Issues a warning when encountering an all-nan slice or axis.
 
@@ -5368,14 +5367,15 @@ class APyFloatArray:
         Raises
         ------
         :class:`IndexError`
-            If a specified axis is outside of the existing number of dimensions for the array.
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
         """
 
     def nanmin(
         self, axis: int | tuple[int, ...] | None = None
     ) -> APyFloatArray | APyFloat:
         """
-        Return the minimum value from an array or the minimum values along an axis, ignoring NaN.
+        Return minimum value of array or along an axis ignoring NaN.
 
         Issues a warning when encountering an all-nan slice or axis.
 
@@ -5391,7 +5391,8 @@ class APyFloatArray:
         Raises
         ------
         :class:`IndexError`
-            If a specified axis is outside of the existing number of dimensions for the array.
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
         """
 
     def __getitem__(
