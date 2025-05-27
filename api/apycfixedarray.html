@@ -488,7 +488,6 @@ the ndarray shape.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
 <span class="gp">... </span>        <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
@@ -497,6 +496,9 @@ the ndarray shape.</p>
 <span class="gp">... </span>    <span class="n">int_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
 <span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">[[1+0j, 2+0j, 3+0j],</span>
+<span class="go"> [4+0j, 5+0j, 6+0j]]</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -533,7 +535,6 @@ sequence shape.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
-<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_complex</span><span class="p">(</span>
 <span class="gp">... </span>        <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.25</span><span class="n">j</span><span class="p">,</span> <span class="mf">1.49</span> <span class="o">-</span> <span class="mf">0.5</span><span class="n">j</span><span class="p">],</span>
 <span class="gp">... </span>        <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
@@ -827,22 +828,23 @@ the axes.</p>
 <span class="gp">... </span>        <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
 <span class="gp">... </span>        <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
 <span class="gp">... </span>    <span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[ 1.+0.j, -4.+0.j],</span>
-<span class="go">       [ 2.+0.j, -5.+0.j],</span>
-<span class="go">       [ 3.+0.j, -6.+0.j]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">[[ 1+0j,  2+0j,  3+0j],</span>
+<span class="go"> [-4+0j, -5+0j, -6+0j]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">transpose</span><span class="p">())</span>
+<span class="go">[[ 1+0j, -4+0j],</span>
+<span class="go"> [ 2+0j, -5+0j],</span>
+<span class="go"> [ 3+0j, -6+0j]]</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
 <span class="gp">... </span>        <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">,</span>
 <span class="gp">... </span>        <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
 <span class="gp">... </span>        <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
 <span class="gp">... </span>    <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">shape</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">shape</span>
 <span class="go">(2, 1, 3)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">shape</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">shape</span>
 <span class="go">(2, 1, 3)</span>
 </pre></div>
 </div>
@@ -864,7 +866,6 @@ the axes.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
-<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_complex</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="p">[[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
 <span class="gp">... </span>     <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
@@ -872,9 +873,7 @@ the axes.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
 <span class="go">APyCFixedArray([[(2, 0), (3, 0)],</span>
 <span class="go">                [(4, 0), (5, 0)]], int_bits=7, frac_bits=0)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
 <span class="go">APyCFixedArray([(2, 0), (3, 0), (4, 0), (5, 0)], int_bits=7, frac_bits=0)</span>
 </pre></div>
 </div>
@@ -894,7 +893,6 @@ with current memory-copy model.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
-<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_complex</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="p">[[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
 <span class="gp">... </span>     <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
@@ -940,23 +938,20 @@ original array.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([ 1. +0.j,  1.5+0.j, -2. +0.j, -1.5+0.j])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[ 1. +0.j,  1.5+0.j],</span>
-<span class="go">       [-2. +0.j, -1.5+0.j]])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">4</span><span class="p">,))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([ 1. +0.j,  1.5+0.j, -2. +0.j, -1.5+0.j])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[ 1. +0.j,  1.5+0.j],</span>
-<span class="go">       [-2. +0.j, -1.5+0.j]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">int_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">[2+0j, 3+0j, 4+0j, 5+0j]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+<span class="go">[[2+0j, 3+0j],</span>
+<span class="go"> [4+0j, 5+0j]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
+<span class="go">[[2+0j],</span>
+<span class="go"> [3+0j],</span>
+<span class="go"> [4+0j],</span>
+<span class="go"> [5+0j]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)))</span>
+<span class="go">[[2+0j, 3+0j],</span>
+<span class="go"> [4+0j, 5+0j]]</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1015,32 +1010,32 @@ dimensions for the array.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[1.+0.j],</span>
-<span class="go">       [2.+0.j],</span>
-<span class="go">       [3.+0.j]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">[[1+0j, 2+0j, 3+0j]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+<span class="go">[[1+0j],</span>
+<span class="go"> [2+0j],</span>
+<span class="go"> [3+0j]]</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span>
 <span class="gp">... </span>        <span class="p">[[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]]],</span>
 <span class="gp">... </span>        <span class="n">bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
 <span class="gp">... </span>        <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
 <span class="gp">... </span>    <span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[[0.+0.j, 1.+0.j],</span>
-<span class="go">        [2.+0.j, 3.+0.j]],</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">[[[0+0j, 1+0j],</span>
+<span class="go">  [2+0j, 3+0j]],</span>
 
-<span class="go">       [[4.+0.j, 5.+0.j],</span>
-<span class="go">        [6.+0.j, 7.+0.j]]])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[[0.+0.j, 4.+0.j],</span>
-<span class="go">        [2.+0.j, 6.+0.j]],</span>
+<span class="go"> [[4+0j, 5+0j],</span>
+<span class="go">  [6+0j, 7+0j]]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+<span class="go">[[[0+0j, 4+0j],</span>
+<span class="go">  [2+0j, 6+0j]],</span>
 
-<span class="go">       [[1.+0.j, 5.+0.j],</span>
-<span class="go">        [3.+0.j, 7.+0.j]]])</span>
+<span class="go"> [[1+0j, 5+0j],</span>
+<span class="go">  [3+0j, 7+0j]]]</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1116,14 +1111,15 @@ the array.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
-<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_complex</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="p">,</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">3</span><span class="n">j</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="p">,</span> <span class="mi">5</span> <span class="o">-</span> <span class="mi">2</span><span class="n">j</span><span class="p">,</span> <span class="mi">6</span> <span class="o">-</span> <span class="mi">3</span><span class="n">j</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="n">int_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
 <span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">complex</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">prod</span><span class="p">())</span>
-<span class="go">(-1395-225j)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">prod</span><span class="p">()</span>
+<span class="go">APyCFixed((36893488147419101837, 36893488147419103007), bits=65, int_bits=65)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">prod</span><span class="p">())</span>
+<span class="go">-1395-225j</span>
 </pre></div>
 </div>
 <hr class="docutils" />
@@ -1164,18 +1160,23 @@ the array.</p>
 <span class="gp">... </span>    <span class="n">int_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
 <span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([ 1.+1.j,  3.+4.j,  6.+2.j, 10.+1.j, 15.+3.j, 21.+3.j])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">[[1+1j, 2+3j, 3-2j],</span>
+<span class="go"> [4-1j, 5+2j, 6+0j]]</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[1.+1.j, 2.+3.j, 3.-2.j],</span>
-<span class="go">       [5.+0.j, 7.+5.j, 9.-2.j]])</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">cumsum</span><span class="p">())</span>
+<span class="go">[ 1+1j,  3+4j,  6+2j, 10+1j, 15+3j, 21+3j]</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[ 1.+1.j,  3.+4.j,  6.+2.j],</span>
-<span class="go">       [ 4.-1.j,  9.+1.j, 15.+1.j]])</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="go">[[1+1j, 2+3j, 3-2j],</span>
+<span class="go"> [5+0j, 7+5j, 9-2j]]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="go">[[ 1+1j,  3+4j,  6+2j],</span>
+<span class="go"> [ 4-1j,  9+1j, 15+1j]]</span>
 </pre></div>
 </div>
 <hr class="docutils" />
@@ -1208,26 +1209,27 @@ the array.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
-<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyCFixedArray</span><span class="o">.</span><span class="n">from_complex</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="p">[[</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="n">j</span><span class="p">,</span> <span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="n">j</span><span class="p">,</span> <span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="n">j</span><span class="p">],</span>
 <span class="gp">... </span>     <span class="p">[</span><span class="mi">4</span><span class="o">-</span><span class="mi">2</span><span class="n">j</span><span class="p">,</span> <span class="mi">5</span><span class="o">+</span><span class="mi">2</span><span class="n">j</span><span class="p">,</span> <span class="mi">6</span><span class="o">+</span><span class="mi">1</span><span class="n">j</span><span class="p">]],</span>
 <span class="gp">... </span>    <span class="n">int_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">frac_bits</span><span class="o">=</span><span class="mi">0</span>
 <span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">cumprod</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([   1.+1.00e+00j,    1.+3.00e+00j,   -3.+1.10e+01j,   10.+5.00e+01j,</span>
-<span class="go">        -50.+2.70e+02j, -570.+1.57e+03j])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">[[1+1j, 2+1j, 3+2j],</span>
+<span class="go"> [4-2j, 5+2j, 6+1j]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">cumprod</span><span class="p">())</span>
+<span class="go">[      1+1j,       1+3j,     -3+11j,     10+50j,   -50+270j, -570+1570j]</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">cumprod</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[ 1. +1.j,  2. +1.j,  3. +2.j],</span>
-<span class="go">       [ 6. +2.j,  8. +9.j, 16.+15.j]])</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">cumprod</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="go">[[  1+1j,   2+1j,   3+2j],</span>
+<span class="go"> [  6+2j,   8+9j, 16+15j]]</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">cumprod</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[  1. +1.j,   1. +3.j,  -3.+11.j],</span>
-<span class="go">       [  4. -2.j,  24. -2.j, 146.+12.j]])</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">cumprod</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="go">[[   1+1j,    1+3j,  -3+11j],</span>
+<span class="go"> [   4-2j,   24-2j, 146+12j]]</span>
 </pre></div>
 </div>
 <hr class="docutils" />
