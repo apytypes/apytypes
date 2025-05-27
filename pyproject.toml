@@ -48,7 +48,7 @@ docs = [
 ]
 test = ["numpy>=1.25", "pytest>=8.2"]
 test_hdl = ["numpy>=1.25", "pytest>=8.2", "cocotb>=1.9.1"]
-dev = ["nanobind>=2.4.0"]
+dev = ["nanobind>=2.7.0"]
 benchmark = ["numpy>=1.25", "pytest>=8.2", "pytest-benchmark"]
 comparison = [
     "fpbinary",
@@ -97,6 +97,12 @@ skip = [
 # MacOS 10.14 is the first MacOS release with full support for C++17
 MACOSX_DEPLOYMENT_TARGET = "10.14"
 
+[tool.cibuildwheel.pyodide.environment]
+# Exceptions are needed for nanobind:
+CFLAGS = "-fexceptions"
+CXXFLAGS = "-fexceptions"
+LDFLAGS = "-fexceptions"
+
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
 exclude = [".git", ".vscode", "_build", "build"]
@@ -128,9 +134,9 @@ select = [
 ]
 ignore = [
     "D202",
-    "D212",
+    "D212", # Start doc-string on first line
     "D412",
-    "D413",
+    "D413", # End last section with empty line
     "D415",
     "E501", # Too long lines, format handles what is possible
     "F822", # F822 should not be ignored, but as nanobind stubgen does not include __version__...
