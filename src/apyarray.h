@@ -1439,17 +1439,15 @@ public:
         std::optional<std::size_t> opt_line_width = std::nullopt
     ) const
     {
-        // The array name of `*this`
-        std::string_view array_name = ARRAY_TYPE::ARRAY_NAME;
-
         // Maximum line width array `__repr__()`, default: 88
-        std::size_t line_width = opt_line_width.value_or(88);
+        const std::size_t line_width = opt_line_width.value_or(88);
 
         // Format array data using the provided formatter
-        auto [formats, format_len] = array_format_vector(
-            formatters,     // formatters
-            line_width - 4, // line_width; -4 for single indentation level
-            allow_summary   // allow_summary
+        const std::string single_indent(4, ' ');
+        auto&& [formats, format_len] = array_format_vector(
+            formatters,                          // formatters
+            line_width - single_indent.length(), // line_width
+            allow_summary                        // allow_summary
         );
 
         // Compute width of appended key-word arguments when formatted on a single line
@@ -1458,11 +1456,14 @@ public:
             kw_len += 2 + kw_arg.length();
         }
 
+        // The array name of `*this`
+        constexpr std::string_view array_name = ARRAY_TYPE::ARRAY_NAME;
+
         // Produce a propriate final string
         std::string res {};
-        bool is_multi_format = formats.size() > 1;
-        bool is_format_multi_line = formats[0].size() > 1;
-        std::size_t total_format_len = formats.size() * (format_len + 2) - 2;
+        const bool is_multi_format = formats.size() > 1;
+        const bool is_format_multi_line = formats[0].size() > 1;
+        const std::size_t total_format_len = formats.size() * (format_len + 2) - 2;
         if ((!is_multi_format || !is_format_multi_line)
             && 2 + array_name.length() + total_format_len + kw_len <= line_width) {
             /*
@@ -1475,16 +1476,13 @@ public:
             res += std::string(array_name) + "(";
             for (std::size_t i = 0; i < formats.size(); i++) {
                 auto&& format_lines = formats[i];
-                bool is_last_line = (i == formats.size() - 1);
                 res += format_lines[0];
                 for (std::size_t i = 1; i < format_lines.size(); i++) {
-                    if (format_lines[i].length()) {
-                        res += "\n" + indent + format_lines[i];
-                    } else {
-                        res += "\n";
-                    }
+                    auto&& line = format_lines[i];
+                    res += "\n" + (line.size() ? indent + line : "");
                 }
-                if (!is_last_line) {
+                bool is_last_format = (i == formats.size() - 1);
+                if (!is_last_format) {
                     res += ", ";
                 }
             }
@@ -1501,10 +1499,12 @@ public:
              *     [  0,   1], [512, 512], [127,  35], exp_bits=10, man_bits=10
              * )
              */
-            const std::string indent(4, ' ');
-            res += std::string(array_name) + "(\n";
-            auto&& format_lines = formats[0];
-            res += indent + format_lines[0];
+            res += std::string(array_name) + "(\n" + single_indent;
+            for (std::size_t i = 0; i < formats.size(); i++) {
+                bool is_last_format = (i == formats.size() - 1);
+                res += formats[i][0];
+                res += !is_last_format ? ", " : "";
+            }
             for (auto&& kw : kw_args) {
                 res += ", " + kw;
             }
@@ -1520,25 +1520,17 @@ public:
              *     frac_bits=10
              * )
              */
-            const std::string indent(4, ' ');
             res += std::string(array_name) + "(";
             for (std::size_t i = 0; i < formats.size(); i++) {
-                auto&& format_lines = formats[i];
-                for (std::size_t i = 0; i < format_lines.size(); i++) {
-                    if (format_lines[i].size()) {
-                        res += "\n" + indent + format_lines[i];
-                    } else {
-                        res += "\n";
-                    }
+                for (auto&& line : formats[i]) {
+                    res += "\n" + (line.size() ? single_indent + line : "");
                 }
-                bool is_last_line = (i == formats.size() - 1);
-                if (!is_last_line) {
-                    res += ",\n";
-                }
+                bool is_last_format = (i == formats.size() - 1);
+                res += !is_last_format ? ("," + std::string(_ndim - 1, '\n')) : "";
             }
 
             for (auto&& kw : kw_args) {
-                res += ",\n" + indent + kw;
+                res += ",\n" + single_indent + kw;
             }
             res += "\n)";
         }

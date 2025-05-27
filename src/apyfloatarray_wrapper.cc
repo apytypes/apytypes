@@ -71,7 +71,8 @@ void bind_float_array(nb::module_& m)
             Parameters
             ----------
             signs : sequence of bools or ints
-                The sign of the float. False/0 means positive. True/non-zero means negative.
+                The sign of the float. False/0 means positive. True/non-zero means
+                negative.
             exps : sequence of ints
                 Exponents of the floats as stored, i.e., actual value + bias.
             mans : sequence of ints
@@ -287,26 +288,19 @@ void bind_float_array(nb::module_& m)
 
             Examples
             --------
+
             >>> import apytypes as apy
-            >>> signs = [0, 0, 1, 1]
-            >>> exps = [127, 128, 128, 129]
-            >>> mans = [0, 0, 4194304, 0]
-            >>> arr = apy.APyFloatArray(
-            ...     signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23
-            ... )
-            >>> arr.to_numpy()
-            array([ 1.,  2., -3., -4.])
-
-            >>> arr.reshape((2, 2)).to_numpy()
-            array([[ 1.,  2.],
-                   [-3., -4.]])
-
-            >>> arr.reshape((4,)).to_numpy()
-            array([ 1.,  2., -3., -4.])
-
-            >>> arr.reshape((2, -1)).to_numpy()
-            array([[ 1.,  2.],
-                   [-3., -4.]])
+            >>> arr = apy.fp([1, 2, -3, -4], exp_bits=8, man_bits=23)
+            >>> print(arr)
+            [ 1,  2, -3, -4]
+            >>> print(arr.reshape((2, 2)))
+            [[ 1,  2],
+             [-3, -4]]
+            >>> print(arr.reshape((4, 1)))
+            [[ 1],
+             [ 2],
+             [-3],
+             [-4]]
 
             Returns
             -------
@@ -319,18 +313,13 @@ void bind_float_array(nb::module_& m)
             Examples
             --------
             >>> import apytypes as apy
-            >>> signs = [[0, 0], [1, 1]]
-            >>> exps = [[127, 128], [128, 129]]
-            >>> mans = [[0, 0], [4194304, 0]]
-            >>> arr = apy.APyFloatArray(
-            ...     signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23
-            ... )
-            >>> arr.to_numpy()
-            array([[ 1.,  2.],
-                   [-3., -4.]])
-
-            >>> arr.flatten().to_numpy()
-            array([ 1.,  2., -3., -4.])
+            >>> arr = apy.fp([[ 1,  2],
+            ...               [-3, -4]], exp_bits=8, man_bits=23)
+            >>> print(arr)
+            [[ 1,  2],
+             [-3, -4]]
+            >>> print(arr.flatten())
+            [ 1,  2, -3, -4]
 
             Returns
             -------
@@ -344,18 +333,13 @@ void bind_float_array(nb::module_& m)
             Examples
             --------
             >>> import apytypes as apy
-            >>> signs = [[0, 0], [1, 1]]
-            >>> exps = [[127, 128], [128, 129]]
-            >>> mans = [[0, 0], [4194304, 0]]
-            >>> arr = apy.APyFloatArray(
-            ...     signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23
-            ... )
-            >>> arr.to_numpy()
-            array([[ 1.,  2.],
-                   [-3., -4.]])
-
-            >>> arr.ravel().to_numpy()
-            array([ 1.,  2., -3., -4.])
+            >>> arr = apy.fp([[ 1,  2],
+            ...               [-3, -4]], exp_bits=8, man_bits=23)
+            >>> print(arr)
+            [[ 1,  2],
+             [-3, -4]]
+            >>> print(arr.ravel())
+            [ 1,  2, -3, -4]
 
             Returns
             -------
@@ -532,7 +516,7 @@ void bind_float_array(nb::module_& m)
             -------
             :class:`APyFloatArray`
                 An array filled with zeros.
-    )pbdoc"
+            )pbdoc"
         )
         .def_static(
             "ones",
@@ -542,24 +526,24 @@ void bind_float_array(nb::module_& m)
             nb::arg("man_bits"),
             nb::arg("bias") = std::nullopt,
             R"pbdoc(
-        Initialize an array with ones.
+            Initialize an array with ones.
 
-        Parameters
-        ----------
-        shape : :class:`tuple`
-            Shape of the array.
-        exp_bits : :class:`int`
-            Number of exponent bits.
-        man_bits : :class:`int`
-            Number of mantissa bits.
-        bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Parameters
+            ----------
+            shape : :class:`tuple`
+                Shape of the array.
+            exp_bits : :class:`int`
+                Number of exponent bits.
+            man_bits : :class:`int`
+                Number of mantissa bits.
+            bias : :class:`int`, optional
+                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
-        Returns
-        -------
-        :class:`APyFloatArray`
-            An array filled with ones.
-    )pbdoc"
+            Returns
+            -------
+            :class:`APyFloatArray`
+                An array filled with ones.
+            )pbdoc"
         )
         .def_static(
             "eye",
@@ -570,26 +554,26 @@ void bind_float_array(nb::module_& m)
             nb::arg("m") = nb::none(),
             nb::arg("bias") = std::nullopt,
             R"pbdoc(
-        Initialize an array with ones on the diagonal.
+            Initialize an array with ones on the diagonal.
 
-        Parameters
-        ----------
-        n : :class:`int`
-            Number of rows (and columns) in the n x n output.
-        exp_bits : :class:`int`
-            Number of exponent bits.
-        man_bits : :class:`int`
-            Number of mantissa bits.
-        m : :class:`int`, optional
-            Number of columns. Default is None, which results in an n x n output.
-        bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Parameters
+            ----------
+            n : :class:`int`
+                Number of rows (and columns) in the n x n output.
+            exp_bits : :class:`int`
+                Number of exponent bits.
+            man_bits : :class:`int`
+                Number of mantissa bits.
+            m : :class:`int`, optional
+                Number of columns. Default is None, which results in an n x n output.
+            bias : :class:`int`, optional
+                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
-        Returns
-        -------
-        :class:`APyFloatArray`
-            An array with the specified value on the diagonal.
-    )pbdoc"
+            Returns
+            -------
+            :class:`APyFloatArray`
+                An array with the specified value on the diagonal.
+            )pbdoc"
         )
         .def_static(
             "identity",
@@ -599,24 +583,24 @@ void bind_float_array(nb::module_& m)
             nb::arg("man_bits"),
             nb::arg("bias") = std::nullopt,
             R"pbdoc(
-        Initialize an identity matrix with ones on the diagonal.
+            Initialize an identity matrix with ones on the diagonal.
 
-        Parameters
-        ----------
-        n : :class:`int`
-            Number of rows (and columns) in the n x n output.
-        exp_bits : :class:`int`
-            Number of exponent bits.
-        man_bits : :class:`int`
-            Number of mantissa bits.
-        bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Parameters
+            ----------
+            n : :class:`int`
+                Number of rows (and columns) in the n x n output.
+            exp_bits : :class:`int`
+                Number of exponent bits.
+            man_bits : :class:`int`
+                Number of mantissa bits.
+            bias : :class:`int`, optional
+                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
-        Returns
-        -------
-        :class:`APyFloatArray`
-            An identity matrix with ones on the diagonal.
-    )pbdoc"
+            Returns
+            -------
+            :class:`APyFloatArray`
+                An identity matrix with ones on the diagonal.
+            )pbdoc"
         )
         .def_static(
             "full",
@@ -624,20 +608,20 @@ void bind_float_array(nb::module_& m)
             nb::arg("shape"),
             nb::arg("fill_value"),
             R"pbdoc(
-        Initialize an array filled with the specified value.
+            Initialize an array filled with the specified value.
 
-        Parameters
-        ----------
-        shape : :class:`tuple`
-            Shape of the array.
-        fill_value : APyFloat
-            Value to fill the array.
+            Parameters
+            ----------
+            shape : :class:`tuple`
+                Shape of the array.
+            fill_value : APyFloat
+                Value to fill the array.
 
-        Returns
-        -------
-        :class:`APyFloatArray`
-            An array filled with the specified value.
-    )pbdoc"
+            Returns
+            -------
+            :class:`APyFloatArray`
+                An array filled with the specified value.
+            )pbdoc"
         )
         .def_static(
             "_arange",
@@ -649,33 +633,37 @@ void bind_float_array(nb::module_& m)
             nb::arg("man_bits"),
             nb::arg("bias") = std::nullopt,
             R"pbdoc(
-        Create an array with evenly spaced values within a given interval.
+            Create an array with evenly spaced values within a given interval.
 
-        The function can be called with varying number of positional arguments:
+            The function can be called with varying number of positional arguments:
 
-        * ``arange(stop)``: Values are generated within the half-open interval ``[0, stop)`` (in other words, the interval including ``start`` but excluding ``stop``).
-        * ``arange(start, stop)``: Values are generated within the half-open interval ``[start, stop)``.
-        * ``arange(start, stop, step)``: Values are generated within the half-open interval ``[start, stop)``, with spacing between values given by ``step``.
+            * ``arange(stop)``: Values are generated within the half-open interval
+              ``[0, stop)`` (in other words, the interval including ``start`` but
+              excluding ``stop``).
+            * ``arange(start, stop)``: Values are generated within the half-open
+              interval ``[start, stop)``.
+            * ``arange(start, stop, step)``: Values are generated within the half-open
+              interval ``[start, stop)``, with spacing between values given by ``step``.
 
-        Parameters
-        ----------
-        start : :class:`int`, :class:`float`, :class:`APyFloat`, :class:`APyFixed`
-            Start number.
-        stop : :class:`int`, :class:`float`, :class:`APyFloat`, :class:`APyFixed`
-            Stop number.
-        step : :class:`int`, :class:`float`, :class:`APyFloat`, :class:`APyFixed`
-            Step size in range.
-        exp_bits : :class:`int`
-                Number of exponent bits.
-        man_bits : :class:`int`
-            Number of mantissa bits.
-        bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+            Parameters
+            ----------
+            start : :class:`int`, :class:`float`, :class:`APyFloat`, :class:`APyFixed`
+                Start number.
+            stop : :class:`int`, :class:`float`, :class:`APyFloat`, :class:`APyFixed`
+                Stop number.
+            step : :class:`int`, :class:`float`, :class:`APyFloat`, :class:`APyFixed`
+                Step size in range.
+            exp_bits : :class:`int`
+                    Number of exponent bits.
+            man_bits : :class:`int`
+                Number of mantissa bits.
+            bias : :class:`int`, optional
+                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
 
-        Returns
-        -------
-        :class:`APyFloatArray`
-    )pbdoc"
+            Returns
+            -------
+            :class:`APyFloatArray`
+            )pbdoc"
         )
         /*
          * Dunder methods
@@ -686,61 +674,63 @@ void bind_float_array(nb::module_& m)
         .def("__str__", &APyFloatArray::to_string, nb::arg("base") = 10)
 
         .def("is_identical", &APyFloatArray::is_identical, nb::arg("other"), R"pbdoc(
-        Test if two :class:`APyFloatArray` objects are identical.
+            Test if two :class:`APyFloatArray` objects are identical.
 
-        Two :class:`APyFloatArray` objects are considered identical if, and only if:
-            * They represent exactly the same tensor shape
-            * They store the exact same floating-ppint values in all tensor elements
-            * They have the exact same bit format (`exp_bits`, `man_bits`, and `bias`)
+            Two :class:`APyFloatArray` objects are considered identical if, and only if:
+                * They represent exactly the same tensor shape
+                * They store the exact same floating-ppint values in all tensor elements
+                * They have the exact same bit format (`exp_bits`, `man_bits`, and
+                  `bias`)
 
-        Returns
-        -------
-        :class:`bool`
-    )pbdoc")
+            Returns
+            -------
+            :class:`bool`
+            )pbdoc")
         .def(
             "swapaxes",
             &APyFloatArray::swapaxes,
             nb::arg("axis1"),
             nb::arg("axis2"),
             R"pbdoc(
-        Interchange two axes of an array.
+            Interchange two axes of an array.
 
-        Parameters
-        ----------
-        axis1 : :class:`int`
-            First axis.
-        axis2 : :class:`int`
-            Second axis.
+            Parameters
+            ----------
+            axis1 : :class:`int`
+                First axis.
+            axis2 : :class:`int`
+                Second axis.
 
-        Examples
-        --------
-        >>> import apytypes as apy
-        >>> x = apy.fp([[1 ,2, 3]], exp_bits=5, man_bits=2)
-        >>> x.swapaxes(0,1).to_numpy()
-        array([[1.],
-               [2.],
-               [3.]])
+            Examples
+            --------
+            >>> import apytypes as apy
+            >>> a = apy.fp([[1 ,2, 3]], exp_bits=5, man_bits=2)
+            >>> print(a)
+            [[1, 2, 3]]
+            >>> print(a.swapaxes(0,1))
+            [[1],
+             [2],
+             [3]]
 
-        >>> x = apy.fp([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], exp_bits=5, man_bits=5)
-        >>> x.to_numpy()
-        array([[[0., 1.],
-                [2., 3.]],
-        <BLANKLINE>
-               [[4., 5.],
-                [6., 7.]]])
+            >>> b = apy.fp([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], exp_bits=5, man_bits=5)
+            >>> print(b)
+            [[[0, 1],
+              [2, 3]],
+            <BLANKLINE>
+             [[4, 5],
+              [6, 7]]]
+            >>> print(b.swapaxes(0,2))
+            [[[0, 4],
+              [2, 6]],
+            <BLANKLINE>
+             [[1, 5],
+              [3, 7]]]
 
-        >>> x.swapaxes(0,2).to_numpy()
-        array([[[0., 4.],
-                [2., 6.]],
-        <BLANKLINE>
-               [[1., 5.],
-                [3., 7.]]])
-
-        Returns
-        -------
-        a_swapped : :class:`APyFloatArray`
-            Copy of `a` with axes swapped
-    )pbdoc"
+            Returns
+            -------
+            a_swapped : :class:`APyFloatArray`
+                Copy of `a` with axes swapped
+            )pbdoc"
         )
 
         .def(
@@ -748,67 +738,68 @@ void bind_float_array(nb::module_& m)
             &APyFloatArray::transpose,
             nb::arg("axes") = nb::none(),
             R"pbdoc(
-        Return copy of array with axes transposed.
+            Return copy of array with axes transposed.
 
-        For a 1-D array, this return the same array.
-        For a 2-D array, this is the standard matrix transpose.
-        For an n-D array, if axes are given, their order indicates how the
-        axes are permuted (see Examples). If axes are not provided, then
-        ``a.transpose(a).shape == a.shape[::-1]``.
+            For a 1-D array, this return the same array.
+            For a 2-D array, this is the standard matrix transpose.
+            For an n-D array, if axes are given, their order indicates how the
+            axes are permuted (see Examples). If axes are not provided, then
+            ``a.transpose(a).shape == a.shape[::-1]``.
 
-        Parameters
-        ----------
-        axes : :class:`tuple` of :class:`int`, optional
-            If specified, it must be a tuple or list which contains a permutation
-            of [0,1,...,N-1] where N is the number of axes of `a`. The `i`'th axis
-            of the returned array will correspond to the axis numbered ``axes[i]``
-            of the input. If not specified, defaults to ``range(a.ndim)[::-1]``,
-            which reverses the order of the axes.
+            Parameters
+            ----------
+            axes : :class:`tuple` of :class:`int`, optional
+                If specified, it must be a tuple or list which contains a permutation
+                of [0,1,...,N-1] where N is the number of axes of `a`. The `i`'th axis
+                of the returned array will correspond to the axis numbered ``axes[i]``
+                of the input. If not specified, defaults to ``range(a.ndim)[::-1]``,
+                which reverses the order of the axes.
 
-        Examples
-        --------
-        >>> import apytypes as apy
-        >>> a = apy.fp([[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]], exp_bits=5, man_bits=2)
-        >>> a.to_numpy()
-        array([[ 1.,  2.,  3.],
-               [-4., -5., -6.]])
-        >>> a = a.transpose()
-        >>> a.to_numpy()
-        array([[ 1., -4.],
-               [ 2., -5.],
-               [ 3., -6.]])
+            Examples
+            --------
+            >>> import apytypes as apy
+            >>> a = apy.fp([[1, 2, 3], [-4, -5, -6]], exp_bits=5, man_bits=2)
+            >>> print(a)
+            [[ 1,  2,  3],
+             [-4, -5, -6]]
+            >>> print(a.transpose())
+            [[ 1, -4],
+             [ 2, -5],
+             [ 3, -6]]
 
-        >>> a = apy.fp([1.0] * 6, exp_bits=5, man_bits=2).reshape((1, 2, 3))
-        >>> a.transpose((1, 0, 2)).shape
-        (2, 1, 3)
+            >>> b = apy.fp([1.0] * 6, exp_bits=5, man_bits=2).reshape((1, 2, 3))
+            >>> b.shape
+            (1, 2, 3)
+            >>> b.transpose((1, 0, 2)).shape
+            (2, 1, 3)
+            >>> b.transpose((-2, -3, -1)).shape
+            (2, 1, 3)
 
-        >>> a.transpose((-2, -3, -1)).shape
-        (2, 1, 3)
-
-        Returns
-        -------
-        :class:`APyFloatArray`
-            `a` with its axes permuted.
-        )pbdoc"
+            Returns
+            -------
+            :class:`APyFloatArray`
+                `a` with its axes permuted.
+            )pbdoc"
         )
         .def(
             "broadcast_to",
             &APyFloatArray::broadcast_to_python,
             nb::arg("shape"),
             R"pbdoc(
-        Broadcast array to new shape.
+            Broadcast array to new shape.
 
-        .. versionadded:: 0.2
+            .. versionadded:: 0.2
 
-        Parameters
-        ----------
-        shape : :class:`tuple` of :class:`int` or :class:`int`
-            The shape to broadcast to. A single integer ``i`` is interpreted as ``(i,)``.
+            Parameters
+            ----------
+            shape : :class:`tuple` of :class:`int` or :class:`int`
+                The shape to broadcast to. A single integer ``i`` is interpreted as
+                ``(i,)``.
 
-        Returns
-        -------
-        :class:`APyFloatArray`
-    )pbdoc"
+            Returns
+            -------
+            :class:`APyFloatArray`
+            )pbdoc"
         )
         .def(
             "convolve",
@@ -816,105 +807,98 @@ void bind_float_array(nb::module_& m)
             nb::arg("other"),
             nb::arg("mode") = "full",
             R"pbdoc(
-        Return the discrete linear convolution with another one-dimensional array.
+            Return the discrete linear convolution with another one-dimensional array.
 
-        Requires that ``ndim = 1`` for both `self` and `other`.
+            Requires that ``ndim = 1`` for both `self` and `other`.
 
-        Parameters
-        ----------
-        other : :class:`APyFloatArray`
-            The one-dimensional array of length :code:`N` to convolve with.
+            Parameters
+            ----------
+            other : :class:`APyFloatArray`
+                The one-dimensional array of length :code:`N` to convolve with.
 
-        mode : {'full', 'same', 'valid'}, default: 'full'
-            'full':
-                Return the full convolution for each point of overlap. The
-                resulting single-dimensional shape will have length :code:`N + M -
-                1`. Boundary effects occurs for points where the `a` and `v` do not
-                overlap completely.
-            'same':
-                Return a convolution of length :code:`max(M, N)`. Boundary effects
-                still occur around the edges of the result.
-            'valid':
-                Return the convolution for each point of full overlap. The
-                resulting single-dimensional shape will have length :code:`max(M, N)
-                - min(M, N) + 1`
+            mode : {'full', 'same', 'valid'}, default: 'full'
+                'full':
+                    Return the full convolution for each point of overlap. The
+                    resulting single-dimensional shape will have length :code:`N + M -
+                    1`. Boundary effects occurs for points where the `a` and `v` do not
+                    overlap completely.
+                'same':
+                    Return a convolution of length :code:`max(M, N)`. Boundary effects
+                    still occur around the edges of the result.
+                'valid':
+                    Return the convolution for each point of full overlap. The
+                    resulting single-dimensional shape will have length :code:`max(M, N)
+                    - min(M, N) + 1`
 
-        Returns
-        -------
-        convolved : :class:`APyFloatArray`
-            The convolved array.
-    )pbdoc"
+            Returns
+            -------
+            convolved : :class:`APyFloatArray`
+                The convolved array.
+            )pbdoc"
         )
 
-        .def(
-            "squeeze",
-            &APyFloatArray::squeeze,
-            nb::arg("axis") = nb::none(),
-            R"pbdoc(
-        Remove axes of size one at the specified axis/axes, if no axís is given removes all dimensions with size one.
+        .def("squeeze", &APyFloatArray::squeeze, nb::arg("axis") = nb::none(), R"pbdoc(
+            Remove axes of size one at the specified axis/axes, if no axís is given
+            removes all dimensions with size one.
 
-        Parameters
-        ----------
-        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
-            The axis/axes to squeeze, a given axis with a size other than one will result in an error. No given axes  will be remove all dimensions of size 1.
+            Parameters
+            ----------
+            axis : :class:`tuple` of :class:`int` or :class:`int`, optional
+                The axis/axes to squeeze, a given axis with a size other than one will
+                result in an error. No given axes  will be remove all dimensions of size
+                1.
 
-        Returns
-        -------
-        :class:`APyFloatArray`
+            Returns
+            -------
+            :class:`APyFloatArray`
 
-        Raises
-        ------
-        :class:`ValueError`
-            If given an axis of a size other than one, a ValueError will be thrown.
-        :class:`IndexError`
-            If a specified axis is outside of the existing number of dimensions for the array.
+            Raises
+            ------
+            :class:`ValueError`
+                If given an axis of a size other than one, a ValueError will be thrown.
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
 
-    )pbdoc"
-        )
-        .def(
-            "sum",
-            &APyFloatArray::sum,
-            nb::arg("axis") = nb::none(),
-            R"pbdoc(
-        Return the sum of the elements along specified axis/axes.
+            )pbdoc")
 
-        Parameters
-        ----------
-        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
-            The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
+        .def("sum", &APyFloatArray::sum, nb::arg("axis") = nb::none(), R"pbdoc(
+            Return the sum of the elements along specified axis/axes.
 
-        Returns
-        -------
-        :class:`APyFloatArray` or :class:`APyFloat`
+            Parameters
+            ----------
+            axis : :class:`tuple` of :class:`int` or :class:`int`, optional
+                The axis/axes to summate across. Will summate the whole array if no int
+                or tuple is specified.
 
-        Raises
-        ------
-        :class:`IndexError`
-            If a specified axis is outside of the existing number of dimensions for the array.
+            Returns
+            -------
+            :class:`APyFloatArray` or :class:`APyFloat`
 
-        Examples
-        --------
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
 
-        >>> import apytypes as apy
+            Examples
+            --------
 
-        >>> a = apy.fp(
-        ...     [1, 2, 3, 4, 5, 6],
-        ...     exp_bits=10,
-        ...     man_bits=10
-        ... )
+            >>> import apytypes as apy
 
-        >>> a.sum()
-        APyFloat(sign=0, exp=515, man=320, exp_bits=10, man_bits=10)
+            >>> a = apy.fp(
+            ...     [1, 2, 3, 4, 5, 6],
+            ...     exp_bits=10,
+            ...     man_bits=10
+            ... )
 
-        -------
-    )pbdoc"
-        )
+            >>> a.sum()
+            APyFloat(sign=0, exp=515, man=320, exp_bits=10, man_bits=10)
 
-        .def(
-            "cumsum",
-            &APyFloatArray::cumsum,
-            nb::arg("axis") = nb::none(),
-            R"pbdoc(
+            -------
+            )pbdoc")
+
+        .def("cumsum", &APyFloatArray::cumsum, nb::arg("axis") = nb::none(), R"pbdoc(
             Return the cumulative sum of the elements along a given axis.
 
             Parameters
@@ -959,20 +943,16 @@ void bind_float_array(nb::module_& m)
              [ 4,  9, 15]]
 
             -------
-    )pbdoc"
-        )
+            )pbdoc")
 
-        .def(
-            "nansum",
-            &APyFloatArray::nansum,
-            nb::arg("axis") = nb::none(),
-            R"pbdoc(
+        .def("nansum", &APyFloatArray::nansum, nb::arg("axis") = nb::none(), R"pbdoc(
             Return the sum of the elements along specified axis/axes treating NaN as 0.
 
             Parameters
             ----------
             axis : :class:`tuple` of :class:`int` or :class:`int`, optional
-                The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.
+                The axis/axes to summate across. Will summate the whole array if no int
+                or tuple is specified.
 
             Returns
             -------
@@ -981,7 +961,8 @@ void bind_float_array(nb::module_& m)
             Raises
             ------
             :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for the array.
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
 
             Examples
             --------
@@ -1004,20 +985,20 @@ void bind_float_array(nb::module_& m)
             15
 
             -------
-            )pbdoc"
-        )
+            )pbdoc")
 
         .def(
             "nancumsum",
             &APyFloatArray::nancumsum,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Return the cumulative sum of the elements along a given axis treating NaN as 0.
+            Return cumulative sum of elements along a given axis treating NaN as 0.
 
             Parameters
             ----------
             axis : :class:`int`, optional
-                The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.
+                The axis to summate across. If not given an axis it will return the
+                cumulative sum of the flattened array.
 
             Returns
             -------
@@ -1026,7 +1007,8 @@ void bind_float_array(nb::module_& m)
             Raises
             ------
             :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for the array.
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
 
             Examples
             --------
@@ -1069,17 +1051,14 @@ void bind_float_array(nb::module_& m)
             )pbdoc"
         )
 
-        .def(
-            "prod",
-            &APyFloatArray::prod,
-            nb::arg("axis") = nb::none(),
-            R"pbdoc(
-            Return the product of the elements along specified axis/axes.
+        .def("prod", &APyFloatArray::prod, nb::arg("axis") = nb::none(), R"pbdoc(
+            Return product of elements along specified axis/axes.
 
             Parameters
             ----------
             axis : :class:`tuple`, int, optional
-                The axis/axes to calculate the product across. If not given an axis it will return the product of the flattened array.
+                The axis/axes to calculate the product across. If not given an axis it
+                will return the product of the flattened array.
 
             Returns
             -------
@@ -1088,7 +1067,8 @@ void bind_float_array(nb::module_& m)
             Raises
             ------
             :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for the array.
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
 
             Examples
             --------
@@ -1105,20 +1085,16 @@ void bind_float_array(nb::module_& m)
             APyFloat(sign=0, exp=520, man=416, exp_bits=10, man_bits=10)
 
             -------
-            )pbdoc"
-        )
+            )pbdoc")
 
-        .def(
-            "cumprod",
-            &APyFloatArray::cumprod,
-            nb::arg("axis") = nb::none(),
-            R"pbdoc(
-            Return the cumulative product of the elements along a given axes.
+        .def("cumprod", &APyFloatArray::cumprod, nb::arg("axis") = nb::none(), R"pbdoc(
+            Return cumulative product of elements along a given axes.
 
             Parameters
             ----------
             axis : :class:`int`, optional
-                The axes to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.
+                The axes to calculate the product across. If not given an axis it will
+                return the cumulative product of the flattened array.
 
             Returns
             -------
@@ -1127,7 +1103,8 @@ void bind_float_array(nb::module_& m)
             Raises
             ------
             :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for the array.
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
 
             Examples
             --------
@@ -1155,15 +1132,10 @@ void bind_float_array(nb::module_& m)
              [  4,  20, 120]]
 
             -------
-            )pbdoc"
-        )
+            )pbdoc")
 
-        .def(
-            "nanprod",
-            &APyFloatArray::nanprod,
-            nb::arg("axis") = nb::none(),
-            R"pbdoc(
-            Return the product of the elements along a given axis treating NaN as 0.
+        .def("nanprod", &APyFloatArray::nanprod, nb::arg("axis") = nb::none(), R"pbdoc(
+            Return product of the elements along a given axis treating NaN as 0.
 
             Parameters
             ----------
@@ -1180,16 +1152,14 @@ void bind_float_array(nb::module_& m)
             :class:`IndexError`
                 If a specified axis is outside of the existing number of dimensions for
                 the array.
-            )pbdoc"
-        )
+            )pbdoc")
 
         .def(
             "nancumprod",
             &APyFloatArray::nancumprod,
             nb::arg("axis") = nb::none(),
             R"pbdoc(
-            Return the cumulative product of the elements along a given axis treating
-            NaN as 0.
+            Return cumulative product of elements along a given axis treating NaN as 0.
 
             Parameters
             ----------
@@ -1210,61 +1180,52 @@ void bind_float_array(nb::module_& m)
             )pbdoc"
         )
 
-        .def(
-            "max",
-            &APyFloatArray::max,
-            nb::arg("axis") = nb::none(),
-            R"pbdoc(
-        Return the maximum value from an array or the maximum values along an axis.
+        .def("max", &APyFloatArray::max, nb::arg("axis") = nb::none(), R"pbdoc(
+            Return maximum value of array or along an axis.
 
-        Parameters
-        ----------
-        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
-            The axis to get the maximum along.
+            Parameters
+            ----------
+            axis : :class:`tuple` of :class:`int` or :class:`int`, optional
+                The axis to get the maximum along.
 
-        Returns
-        -------
-        :class:`APyFloatArray` or :class:`APyFloat`
+            Returns
+            -------
+            :class:`APyFloatArray` or :class:`APyFloat`
 
-        Raises
-        ------
-        :class:`IndexError`
-            If a specified axis is outside of the existing number of dimensions for the array.
+            Raises
+            ------
+            :class:`IndexError`
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
 
-        Examples
-        --------
+            Examples
+            --------
 
-        >>> import apytypes as apy
-        >>>
-        >>> a = apy.fp(
-        ...     [[1, 2, 3], [4, 5, 6]],
-        ...     exp_bits=10,
-        ...     man_bits=10
-        ... )
-        >>> print(a)
-        [[1, 2, 3],
-         [4, 5, 6]]
+            >>> import apytypes as apy
+            >>>
+            >>> a = apy.fp(
+            ...     [[1, 2, 3], [4, 5, 6]],
+            ...     exp_bits=10,
+            ...     man_bits=10
+            ... )
+            >>> print(a)
+            [[1, 2, 3],
+             [4, 5, 6]]
 
-        >>> print(a.max())
-        6
+            >>> print(a.max())
+            6
 
-        >>> print(a.max(0))
-        [4, 5, 6]
+            >>> print(a.max(0))
+            [4, 5, 6]
 
-        >>> print(a.max(1))
-        [3, 6]
+            >>> print(a.max(1))
+            [3, 6]
 
-        -------
+            -------
+            )pbdoc")
 
-    )pbdoc"
-        )
-
-        .def(
-            "min",
-            &APyFloatArray::min,
-            nb::arg("axis") = nb::none(),
-            R"pbdoc(
-            Return the minimum value from an array or the minimum values along an axis.
+        .def("min", &APyFloatArray::min, nb::arg("axis") = nb::none(), R"pbdoc(
+            Return maximum value of array or along an axis.
 
             Parameters
             ----------
@@ -1305,15 +1266,10 @@ void bind_float_array(nb::module_& m)
             [1, 4]
 
             -------
-            )pbdoc"
-        )
+            )pbdoc")
 
-        .def(
-            "nanmax",
-            &APyFloatArray::nanmax,
-            nb::arg("axis") = nb::none(),
-            R"pbdoc(
-            Return the maximum value from an array or the maximum values along an axis, ignoring NaN.
+        .def("nanmax", &APyFloatArray::nanmax, nb::arg("axis") = nb::none(), R"pbdoc(
+            Return maximum value of array or along an axis ignoring NaN.
 
             Issues a warning when encountering an all-nan slice or axis.
 
@@ -1329,17 +1285,13 @@ void bind_float_array(nb::module_& m)
             Raises
             ------
             :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for the array.
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
 
-            )pbdoc"
-        )
+            )pbdoc")
 
-        .def(
-            "nanmin",
-            &APyFloatArray::nanmin,
-            nb::arg("axis") = nb::none(),
-            R"pbdoc(
-            Return the minimum value from an array or the minimum values along an axis, ignoring NaN.
+        .def("nanmin", &APyFloatArray::nanmin, nb::arg("axis") = nb::none(), R"pbdoc(
+            Return minimum value of array or along an axis ignoring NaN.
 
             Issues a warning when encountering an all-nan slice or axis.
 
@@ -1355,11 +1307,11 @@ void bind_float_array(nb::module_& m)
             Raises
             ------
             :class:`IndexError`
-                If a specified axis is outside of the existing number of dimensions for the array.
+                If a specified axis is outside of the existing number of dimensions for
+                the array.
 
 
-            )pbdoc"
-        )
+            )pbdoc")
 
         // Iteration and friends
         .def("__getitem__", &APyFloatArray::get_item, nb::arg("key"))
