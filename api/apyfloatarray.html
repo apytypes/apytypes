@@ -371,7 +371,7 @@ equivalent <a class="reference internal" href="apyfloat.html#apytypes.APyFloat" 
 <td><p>Create a copy of the object.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cumprod" title="apytypes.APyFloatArray.cumprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cumprod</span></code></a></p></td>
-<td><p>Return the cumulative product of the elements along a given axes.</p></td>
+<td><p>Return cumulative product of elements along a given axes.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.cumsum" title="apytypes.APyFloatArray.cumsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cumsum</span></code></a></p></td>
 <td><p>Return the cumulative sum of the elements along a given axis.</p></td>
@@ -401,25 +401,25 @@ equivalent <a class="reference internal" href="apyfloat.html#apytypes.APyFloat" 
 <td><p>Test if two <a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> objects are identical.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.max" title="apytypes.APyFloatArray.max"><code class="xref py py-obj docutils literal notranslate"><span class="pre">max</span></code></a></p></td>
-<td><p>Return the maximum value from an array or the maximum values along an axis.</p></td>
+<td><p>Return maximum value of array or along an axis.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.min" title="apytypes.APyFloatArray.min"><code class="xref py py-obj docutils literal notranslate"><span class="pre">min</span></code></a></p></td>
-<td><p>Return the minimum value from an array or the minimum values along an axis.</p></td>
+<td><p>Return maximum value of array or along an axis.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.nancumprod" title="apytypes.APyFloatArray.nancumprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nancumprod</span></code></a></p></td>
-<td><p>Return the cumulative product of the elements along a given axis treating NaN as 0.</p></td>
+<td><p>Return cumulative product of elements along a given axis treating NaN as 0.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.nancumsum" title="apytypes.APyFloatArray.nancumsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nancumsum</span></code></a></p></td>
-<td><p>Return the cumulative sum of the elements along a given axis treating NaN as 0.</p></td>
+<td><p>Return cumulative sum of elements along a given axis treating NaN as 0.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.nanmax" title="apytypes.APyFloatArray.nanmax"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanmax</span></code></a></p></td>
-<td><p>Return the maximum value from an array or the maximum values along an axis, ignoring NaN.</p></td>
+<td><p>Return maximum value of array or along an axis ignoring NaN.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.nanmin" title="apytypes.APyFloatArray.nanmin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanmin</span></code></a></p></td>
-<td><p>Return the minimum value from an array or the minimum values along an axis, ignoring NaN.</p></td>
+<td><p>Return minimum value of array or along an axis ignoring NaN.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.nanprod" title="apytypes.APyFloatArray.nanprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanprod</span></code></a></p></td>
-<td><p>Return the product of the elements along a given axis treating NaN as 0.</p></td>
+<td><p>Return product of the elements along a given axis treating NaN as 0.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.nansum" title="apytypes.APyFloatArray.nansum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nansum</span></code></a></p></td>
 <td><p>Return the sum of the elements along specified axis/axes treating NaN as 0.</p></td>
@@ -428,7 +428,7 @@ equivalent <a class="reference internal" href="apyfloat.html#apytypes.APyFloat" 
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.prod" title="apytypes.APyFloatArray.prod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prod</span></code></a></p></td>
-<td><p>Return the product of the elements along specified axis/axes.</p></td>
+<td><p>Return product of elements along specified axis/axes.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyFloatArray.ravel" title="apytypes.APyFloatArray.ravel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ravel</span></code></a></p></td>
 <td><p>Return a copy of the array collapsed into one dimension.</p></td>
@@ -469,7 +469,8 @@ equivalent <a class="reference internal" href="apyfloat.html#apytypes.APyFloat" 
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>signs</strong><span class="classifier">sequence of bools or ints</span></dt><dd><p>The sign of the float. False/0 means positive. True/non-zero means negative.</p>
+<dt><strong>signs</strong><span class="classifier">sequence of bools or ints</span></dt><dd><p>The sign of the float. False/0 means positive. True/non-zero means
+negative.</p>
 </dd>
 <dt><strong>exps</strong><span class="classifier">sequence of ints</span></dt><dd><p>Exponents of the floats as stored, i.e., actual value + bias.</p>
 </dd>
@@ -847,7 +848,8 @@ quantization mode.</p>
 <dt>Two <a class="reference internal" href="#apytypes.APyFloatArray" title="apytypes.APyFloatArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a> objects are considered identical if, and only if:</dt><dd><ul class="simple">
 <li><p>They represent exactly the same tensor shape</p></li>
 <li><p>They store the exact same floating-ppint values in all tensor elements</p></li>
-<li><p>They have the exact same bit format (<cite>exp_bits</cite>, <cite>man_bits</cite>, and <cite>bias</cite>)</p></li>
+<li><p>They have the exact same bit format (<cite>exp_bits</cite>, <cite>man_bits</cite>, and
+<cite>bias</cite>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -931,23 +933,22 @@ which reverses the order of the axes.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fp</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">4.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.0</span><span class="p">]],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[ 1.,  2.,  3.],</span>
-<span class="go">       [-4., -5., -6.]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[ 1., -4.],</span>
-<span class="go">       [ 2., -5.],</span>
-<span class="go">       [ 3., -6.]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fp</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span><span class="p">]],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">[[ 1,  2,  3],</span>
+<span class="go"> [-4, -5, -6]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">transpose</span><span class="p">())</span>
+<span class="go">[[ 1, -4],</span>
+<span class="go"> [ 2, -5],</span>
+<span class="go"> [ 3, -6]]</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fp</span><span class="p">([</span><span class="mf">1.0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">shape</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fp</span><span class="p">([</span><span class="mf">1.0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(1, 2, 3)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">shape</span>
 <span class="go">(2, 1, 3)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">shape</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">shape</span>
 <span class="go">(2, 1, 3)</span>
 </pre></div>
 </div>
@@ -969,19 +970,13 @@ which reverses the order of the axes.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">signs</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">exps</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">127</span><span class="p">,</span> <span class="mi">128</span><span class="p">],</span> <span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">129</span><span class="p">]]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mans</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">4194304</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyFloatArray</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">signs</span><span class="o">=</span><span class="n">signs</span><span class="p">,</span> <span class="n">exps</span><span class="o">=</span><span class="n">exps</span><span class="p">,</span> <span class="n">mans</span><span class="o">=</span><span class="n">mans</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">23</span>
-<span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[ 1.,  2.],</span>
-<span class="go">       [-3., -4.]])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([ 1.,  2., -3., -4.])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fp</span><span class="p">([[</span> <span class="mi">1</span><span class="p">,</span>  <span class="mi">2</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">]],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">23</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+<span class="go">[[ 1,  2],</span>
+<span class="go"> [-3, -4]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+<span class="go">[ 1,  2, -3, -4]</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1000,19 +995,13 @@ with current memory-copy model.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">signs</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">exps</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">127</span><span class="p">,</span> <span class="mi">128</span><span class="p">],</span> <span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">129</span><span class="p">]]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mans</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">4194304</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyFloatArray</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">signs</span><span class="o">=</span><span class="n">signs</span><span class="p">,</span> <span class="n">exps</span><span class="o">=</span><span class="n">exps</span><span class="p">,</span> <span class="n">mans</span><span class="o">=</span><span class="n">mans</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">23</span>
-<span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[ 1.,  2.],</span>
-<span class="go">       [-3., -4.]])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([ 1.,  2., -3., -4.])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fp</span><span class="p">([[</span> <span class="mi">1</span><span class="p">,</span>  <span class="mi">2</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">]],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">23</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+<span class="go">[[ 1,  2],</span>
+<span class="go"> [-3, -4]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+<span class="go">[ 1,  2, -3, -4]</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1046,28 +1035,17 @@ if the total number of elements does not match the original array.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">signs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">exps</span> <span class="o">=</span> <span class="p">[</span><span class="mi">127</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">129</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mans</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4194304</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">APyFloatArray</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">signs</span><span class="o">=</span><span class="n">signs</span><span class="p">,</span> <span class="n">exps</span><span class="o">=</span><span class="n">exps</span><span class="p">,</span> <span class="n">mans</span><span class="o">=</span><span class="n">mans</span><span class="p">,</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">23</span>
-<span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([ 1.,  2., -3., -4.])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[ 1.,  2.],</span>
-<span class="go">       [-3., -4.]])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">4</span><span class="p">,))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([ 1.,  2., -3., -4.])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[ 1.,  2.],</span>
-<span class="go">       [-3., -4.]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fp</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">23</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+<span class="go">[ 1,  2, -3, -4]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+<span class="go">[[ 1,  2],</span>
+<span class="go"> [-3, -4]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
+<span class="go">[[ 1],</span>
+<span class="go"> [ 2],</span>
+<span class="go"> [-3],</span>
+<span class="go"> [-4]]</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1075,11 +1053,14 @@ if the total number of elements does not match the original array.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.squeeze">
 <span class="sig-name descname"><span class="pre">squeeze</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.squeeze" title="Link to this definition">¶</a></dt>
-<dd><p>Remove axes of size one at the specified axis/axes, if no axís is given removes all dimensions with size one.</p>
+<dd><p>Remove axes of size one at the specified axis/axes, if no axís is given
+removes all dimensions with size one.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>The axis/axes to squeeze, a given axis with a size other than one will result in an error. No given axes  will be remove all dimensions of size 1.</p>
+<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>The axis/axes to squeeze, a given axis with a size other than one will
+result in an error. No given axes  will be remove all dimensions of size
+1.</p>
 </dd>
 </dl>
 </dd>
@@ -1092,7 +1073,8 @@ if the total number of elements does not match the original array.</p>
 <dd class="field-odd"><dl class="simple">
 <dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a></dt><dd><p>If given an axis of a size other than one, a ValueError will be thrown.</p>
 </dd>
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for
+the array.</p>
 </dd>
 </dl>
 </dd>
@@ -1121,28 +1103,28 @@ if the total number of elements does not match the original array.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">apytypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fp</span><span class="p">([[</span><span class="mi">1</span> <span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[1.],</span>
-<span class="go">       [2.],</span>
-<span class="go">       [3.]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fp</span><span class="p">([[</span><span class="mi">1</span> <span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">[[1, 2, 3]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+<span class="go">[[1],</span>
+<span class="go"> [2],</span>
+<span class="go"> [3]]</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fp</span><span class="p">([[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]]],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[[0., 1.],</span>
-<span class="go">        [2., 3.]],</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">apy</span><span class="o">.</span><span class="n">fp</span><span class="p">([[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]]],</span> <span class="n">exp_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">man_bits</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">[[[0, 1],</span>
+<span class="go">  [2, 3]],</span>
 
-<span class="go">       [[4., 5.],</span>
-<span class="go">        [6., 7.]]])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="go">array([[[0., 4.],</span>
-<span class="go">        [2., 6.]],</span>
+<span class="go"> [[4, 5],</span>
+<span class="go">  [6, 7]]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+<span class="go">[[[0, 4],</span>
+<span class="go">  [2, 6]],</span>
 
-<span class="go">       [[1., 5.],</span>
-<span class="go">        [3., 7.]]])</span>
+<span class="go"> [[1, 5],</span>
+<span class="go">  [3, 7]]]</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1157,7 +1139,8 @@ if the total number of elements does not match the original array.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.</p>
+<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>The axis/axes to summate across. Will summate the whole array if no int
+or tuple is specified.</p>
 </dd>
 </dl>
 </dd>
@@ -1168,7 +1151,8 @@ if the total number of elements does not match the original array.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for
+the array.</p>
 </dd>
 </dl>
 </dd>
@@ -1194,11 +1178,12 @@ if the total number of elements does not match the original array.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.prod">
 <span class="sig-name descname"><span class="pre">prod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.prod" title="Link to this definition">¶</a></dt>
-<dd><p>Return the product of the elements along specified axis/axes.</p>
+<dd><p>Return product of elements along specified axis/axes.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>, int, optional</span></dt><dd><p>The axis/axes to calculate the product across. If not given an axis it will return the product of the flattened array.</p>
+<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>, int, optional</span></dt><dd><p>The axis/axes to calculate the product across. If not given an axis it
+will return the product of the flattened array.</p>
 </dd>
 </dl>
 </dd>
@@ -1209,7 +1194,8 @@ if the total number of elements does not match the original array.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for
+the array.</p>
 </dd>
 </dl>
 </dd>
@@ -1239,7 +1225,8 @@ if the total number of elements does not match the original array.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>The axis/axes to summate across. Will summate the whole array if no int or tuple is specified.</p>
+<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>The axis/axes to summate across. Will summate the whole array if no int
+or tuple is specified.</p>
 </dd>
 </dl>
 </dd>
@@ -1250,7 +1237,8 @@ if the total number of elements does not match the original array.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for
+the array.</p>
 </dd>
 </dl>
 </dd>
@@ -1282,7 +1270,7 @@ if the total number of elements does not match the original array.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.nanprod">
 <span class="sig-name descname"><span class="pre">nanprod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.nanprod" title="Link to this definition">¶</a></dt>
-<dd><p>Return the product of the elements along a given axis treating NaN as 0.</p>
+<dd><p>Return product of the elements along a given axis treating NaN as 0.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
@@ -1364,11 +1352,12 @@ the array.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.cumprod">
 <span class="sig-name descname"><span class="pre">cumprod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.cumprod" title="Link to this definition">¶</a></dt>
-<dd><p>Return the cumulative product of the elements along a given axes.</p>
+<dd><p>Return cumulative product of elements along a given axes.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>The axes to calculate the product across. If not given an axis it will return the cumulative product of the flattened array.</p>
+<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>The axes to calculate the product across. If not given an axis it will
+return the cumulative product of the flattened array.</p>
 </dd>
 </dl>
 </dd>
@@ -1379,7 +1368,8 @@ the array.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for
+the array.</p>
 </dd>
 </dl>
 </dd>
@@ -1417,11 +1407,12 @@ the array.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.nancumsum">
 <span class="sig-name descname"><span class="pre">nancumsum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.nancumsum" title="Link to this definition">¶</a></dt>
-<dd><p>Return the cumulative sum of the elements along a given axis treating NaN as 0.</p>
+<dd><p>Return cumulative sum of elements along a given axis treating NaN as 0.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>The axis to summate across. If not given an axis it will return the cumulative sum of the flattened array.</p>
+<dt><strong>axis</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, optional</span></dt><dd><p>The axis to summate across. If not given an axis it will return the
+cumulative sum of the flattened array.</p>
 </dd>
 </dl>
 </dd>
@@ -1432,7 +1423,8 @@ the array.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for
+the array.</p>
 </dd>
 </dl>
 </dd>
@@ -1485,8 +1477,7 @@ the array.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.nancumprod">
 <span class="sig-name descname"><span class="pre">nancumprod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.nancumprod" title="Link to this definition">¶</a></dt>
-<dd><p>Return the cumulative product of the elements along a given axis treating
-NaN as 0.</p>
+<dd><p>Return cumulative product of elements along a given axis treating NaN as 0.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
@@ -1513,7 +1504,7 @@ the array.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.max">
 <span class="sig-name descname"><span class="pre">max</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.max" title="Link to this definition">¶</a></dt>
-<dd><p>Return the maximum value from an array or the maximum values along an axis.</p>
+<dd><p>Return maximum value of array or along an axis.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
@@ -1528,7 +1519,8 @@ the array.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for
+the array.</p>
 </dd>
 </dl>
 </dd>
@@ -1564,7 +1556,7 @@ the array.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.min">
 <span class="sig-name descname"><span class="pre">min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.min" title="Link to this definition">¶</a></dt>
-<dd><p>Return the minimum value from an array or the minimum values along an axis.</p>
+<dd><p>Return maximum value of array or along an axis.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
@@ -1616,7 +1608,7 @@ the array.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.nanmax">
 <span class="sig-name descname"><span class="pre">nanmax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.nanmax" title="Link to this definition">¶</a></dt>
-<dd><p>Return the maximum value from an array or the maximum values along an axis, ignoring NaN.</p>
+<dd><p>Return maximum value of array or along an axis ignoring NaN.</p>
 <p>Issues a warning when encountering an all-nan slice or axis.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1632,7 +1624,8 @@ the array.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for
+the array.</p>
 </dd>
 </dl>
 </dd>
@@ -1642,7 +1635,7 @@ the array.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="apytypes.APyFloatArray.nanmin">
 <span class="sig-name descname"><span class="pre">nanmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyFloatArray" title="APyFloatArray"><span class="pre">APyFloatArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="apyfloat.html#apytypes.APyFloat" title="APyFloat"><span class="pre">APyFloat</span></a></span></span><a class="headerlink" href="#apytypes.APyFloatArray.nanmin" title="Link to this definition">¶</a></dt>
-<dd><p>Return the minimum value from an array or the minimum values along an axis, ignoring NaN.</p>
+<dd><p>Return minimum value of array or along an axis ignoring NaN.</p>
 <p>Issues a warning when encountering an all-nan slice or axis.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1658,7 +1651,8 @@ the array.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for the array.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexError</span></code></a></dt><dd><p>If a specified axis is outside of the existing number of dimensions for
+the array.</p>
 </dd>
 </dl>
 </dd>
@@ -1678,7 +1672,8 @@ the array.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>shape</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>The shape to broadcast to. A single integer <code class="docutils literal notranslate"><span class="pre">i</span></code> is interpreted as <code class="docutils literal notranslate"><span class="pre">(i,)</span></code>.</p>
+<dt><strong>shape</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>The shape to broadcast to. A single integer <code class="docutils literal notranslate"><span class="pre">i</span></code> is interpreted as
+<code class="docutils literal notranslate"><span class="pre">(i,)</span></code>.</p>
 </dd>
 </dl>
 </dd>
