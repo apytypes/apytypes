@@ -10,6 +10,7 @@ Comparison matrix
 
     * - Library
       - APyTypes
+      - `en_cl_fix <https://github.com/enclustra/en_cl_fix/>`_
       - `fixedpoint <https://github.com/Schweitzer-Engineering-Laboratories/fixedpoint>`_
       - `fpbinary <https://github.com/smlgit/fpbinary>`_
       - `fxpmath <https://github.com/francof2a/fxpmath>`_
@@ -17,6 +18,7 @@ Comparison matrix
       - `pyfixp <https://github.com/chipmuenk/pyfixp>`_
       - `spfpm <https://github.com/rwpenney/spfpm>`_
     * - Custom fixed-point formats
+      - Yes
       - Yes
       - Yes
       - Yes
@@ -32,8 +34,10 @@ Comparison matrix
       - No
       - No
       - No
+      - No
     * - Maximum wordlength [#wlfootnote]_
       - None
+      - 53/None [#enclfixfootnote]_
       - None
       - None
       - None
@@ -45,10 +49,12 @@ Comparison matrix
       - Yes
       - Yes
       - Yes
+      - Yes
       - Yes [#numfifootnote]_
       - Yes [#pyfixpfootnote]_
       - No
     * - Arrays
+      - Yes
       - Yes
       - No
       - No [#fpbinaryfootnote]_
@@ -58,6 +64,7 @@ Comparison matrix
       - No
     * - Matrix multiplication (``@``)
       - Yes
+      - No
       - N/A
       - N/A
       - No
@@ -66,6 +73,7 @@ Comparison matrix
       - N/A
     * - Written in
       - C++/Python
+      - Python
       - Python
       - C/Python
       - Python
@@ -76,6 +84,7 @@ Comparison matrix
 
 .. rubric:: Footnotes
 
+.. [#enclfixfootnote] ``en_cl_fix`` has two different fixed-point classes, one handles up to 53 bits, the other has no limitation. However, an operation involving the shorter format cannot produce the longer etc. In the comparison, the longer format was used for all tests.
 .. [#numfifootnote] ``numfi`` is limited to 64 total bits (including results of e.g. multiplication).
 .. [#pyfixpfootnote] ``pyfixp`` is essentially a package to simply quantize NumPy-arrays with doubles.
 .. [#fpbinaryfootnote] ``fpbinary`` provides a helper function to convert an array to a list with fixed-point numbers.
@@ -130,3 +139,9 @@ It is updated every documentation build and may vary over time as the code is fu
 
 .. image:: _static/comparison_relative.png
     :alt: Benchmark relative to APyTypes for different fixed-point libraries.
+
+Feature Comparison
+------------------
+
+.. image:: _static/comparison_matrix.png
+    :alt: Feature matrix for different fixed-point libraries.

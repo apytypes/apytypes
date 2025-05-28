@@ -1,14 +1,22 @@
+import os
+import sys
 import timeit
 
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Set up path for en_cl_fix
+root = os.path.dirname(__file__)  # noqa: PTH120
+en_cl_path = os.path.join(root, "../en_cl_fix/bittrue/models/python")  # noqa: PTH118
+sys.path.append(en_cl_path)
+
 libraries = {
     "APyTypes": "compare_apytypes",
-    # "fxpmath": "compare_fxpmath",
-    "numfi": "compare_numfi",
-    "fpbinary": "compare_fpbinary",
+    "en_cl_fix": "compare_en_cl_fix",
     "fixedpoint": "compare_fixedpoint",
+    "fpbinary": "compare_fpbinary",
+    "fxpmath": "compare_fxpmath",
+    "numfi": "compare_numfi",
     "spfpm": "compare_spfpm",
 }
 
@@ -123,3 +131,25 @@ ax.set_xticks(
 ax.legend(loc="upper right")
 ax.set_xbound((-0.5, len(benchmarks)))
 fig.savefig("comparison_relative.png")
+
+
+working = []
+
+
+def map_color(b):
+    return (0, 255, 0) if b else (255, 0, 0)
+
+
+for library, measurement in results.items():
+    working.append([map_color(m > 0) for m in measurement])
+
+working = np.array(working)
+fig, ax = plt.subplots(layout="constrained", figsize=(8, 5))
+ax.imshow(working)
+ax.set_xticks(
+    x,
+    benchmarks.keys(),
+    rotation=90,
+)
+ax.set_yticks(range(len(libraries)), libraries.keys())
+fig.savefig("comparison_matrix.png")

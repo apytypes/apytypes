@@ -53,9 +53,9 @@ benchmark = ["numpy>=1.25", "pytest>=8.2", "pytest-benchmark"]
 comparison = [
     "fpbinary",
     "fixedpoint",
-    #    "fxpmath",
+    "fxpmath>=0.4.9",
     "spfpm",
-    "numfi",
+    "numfi>=0.5",
     "numpy>=1.25",
     "matplotlib>=3.7",
 ]
