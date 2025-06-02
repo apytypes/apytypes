@@ -8,7 +8,7 @@ Thank you so much for your PR!
 issues and PRs.
 -->
 
-# PR Checklist
+## PR Checklist
 <!-- Please mark any checkboxes that do not apply to this PR as [N/A].-->
 
 - [ ] "closes #0000" is in the body of the PR description to [link the related issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue)
