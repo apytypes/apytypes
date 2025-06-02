@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Array `__repr__` methods.
   - Array `__str__` methods.
 - Improved type hints for APyArray methods.
+- Bug in `APyFixedArray.from_float` when converting from `APyFixed` (issue #683).
 
 ### Changed
 

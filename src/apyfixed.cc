@@ -1007,7 +1007,7 @@ APyFixed APyFixed::cast(
 
     // Result that temporarily can hold all the necessary bits
     APyFixed result(std::max(new_bits, _bits), new_int_bits);
-    _cast(
+    fixed_point_cast_unsafe(
         std::begin(_data),
         std::end(_data),
         std::begin(result._data),

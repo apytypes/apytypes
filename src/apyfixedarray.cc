@@ -1317,9 +1317,9 @@ APyFixedArray APyFixedArray::cast(
     std::size_t pad_limbs = bits_to_limbs(std::max(new_bits, _bits)) - result_limbs;
     APyFixedArray::vector_type result_data(_nitems * result_limbs + pad_limbs);
 
-    // Do the casting
+    // Do the casting: `fixed_point_cast_unsafe` is safe to use because of `pad_limbs`
     for (std::size_t i = 0; i < _nitems; i++) {
-        _cast(
+        fixed_point_cast_unsafe(
             std::begin(_data) + (i + 0) * _itemsize,
             std::begin(_data) + (i + 1) * _itemsize,
             std::begin(result_data) + (i + 0) * result_limbs,
@@ -1362,15 +1362,15 @@ APyFixedArray APyFixedArray::from_numbers(
     );
 
     // Extract all Python doubles and integers
-    auto py_obj = python_sequence_walk<nb::float_, nb::int_, APyFixed, APyFloat>(
+    auto py_objs = python_sequence_walk<nb::float_, nb::int_, APyFixed, APyFloat>(
         number_seq, "APyFixedArray.from_complex"
     );
 
-    // Set data from doubles (reuse `APyFixed::from_double` conversion)
-    for (std::size_t i = 0; i < result._data.size() / result._itemsize; i++) {
-        if (nb::isinstance<nb::float_>(py_obj[i])) {
+    // Iterate over objects and set in fixed-point array
+    for (std::size_t i = 0; i < result._nitems; i++) {
+        if (nb::isinstance<nb::float_>(py_objs[i])) {
             // Python double object
-            double d = static_cast<double>(nb::cast<nb::float_>(py_obj[i]));
+            double d = static_cast<double>(nb::cast<nb::float_>(py_objs[i]));
             fixed_point_from_double(
                 d,
                 std::begin(result._data) + (i + 0) * result._itemsize,
@@ -1378,39 +1378,38 @@ APyFixedArray APyFixedArray::from_numbers(
                 result._bits,
                 result._int_bits
             );
-        } else if (nb::isinstance<nb::int_>(py_obj[i])) {
+        } else if (nb::isinstance<nb::int_>(py_objs[i])) {
             // Python integer object
             fixed_point_from_py_integer(
-                nb::cast<nb::int_>(py_obj[i]),
+                nb::cast<nb::int_>(py_objs[i]),
                 std::begin(result._data) + (i + 0) * result._itemsize,
                 std::begin(result._data) + (i + 1) * result._itemsize,
                 result._bits,
                 result._int_bits
             );
-        } else if (nb::isinstance<APyFixed>(py_obj[i])) {
-            const auto d = static_cast<APyFixed>(nb::cast<APyFixed>(py_obj[i]));
-            _cast(
-                std::begin(d._data),
-                std::end(d._data),
+        } else if (nb::isinstance<APyFixed>(py_objs[i])) {
+            const APyFixed& fx = nb::cast<const APyFixed&>(py_objs[i]);
+            fixed_point_cast(
+                std::begin(fx._data),
+                std::end(fx._data),
                 std::begin(result._data) + (i + 0) * result._itemsize,
                 std::begin(result._data) + (i + 1) * result._itemsize,
-                d._bits,
-                d._int_bits,
+                fx._bits,
+                fx._int_bits,
                 result._bits,
                 result._int_bits,
                 QuantizationMode::RND_INF,
                 OverflowMode::WRAP
             );
-        } else if (nb::isinstance<APyFloat>(py_obj[i])) {
-            const auto d
-                = static_cast<APyFloat>(nb::cast<APyFloat>(py_obj[i])).to_fixed();
-            _cast(
-                std::begin(d._data),
-                std::end(d._data),
+        } else if (nb::isinstance<APyFloat>(py_objs[i])) {
+            const APyFixed& fx = nb::cast<const APyFloat&>(py_objs[i]).to_fixed();
+            fixed_point_cast(
+                std::begin(fx._data),
+                std::end(fx._data),
                 std::begin(result._data) + (i + 0) * result._itemsize,
                 std::begin(result._data) + (i + 1) * result._itemsize,
-                d._bits,
-                d._int_bits,
+                fx._bits,
+                fx._int_bits,
                 result._bits,
                 result._int_bits,
                 QuantizationMode::RND_INF,
@@ -1515,7 +1514,7 @@ APyFixedArray APyFixedArray::arange(
     APyFixedArray result({ apy_vals.size() }, res_bits, res_int_bits);
 
     for (std::size_t i = 0; i < apy_vals.size(); i++) {
-        _cast(
+        fixed_point_cast(
             std::begin(apy_vals[i]._data),
             std::end(apy_vals[i]._data),
             std::begin(result._data) + i * result._itemsize,       // output start

@@ -1259,3 +1259,27 @@ def test_array_is_not_identical_to_scalar(
     assert not fixed_array.from_float([-2.5], 10, 10).is_identical(
         fixed_scalar.from_float(-2.5, 10, 10)
     )
+
+
+@pytest.mark.parametrize(
+    ("fixed_array", "fixed_scalar"),
+    [
+        (APyFixedArray, APyFixed),
+        (APyCFixedArray, APyCFixed),
+    ],
+)
+def test_issue_683(fixed_array: type[APyCFixedArray], fixed_scalar: type[APyCFixed]):
+    a = fixed_scalar.from_float(3, int_bits=15, frac_bits=60)
+    b = fixed_scalar.from_float(3, int_bits=15, frac_bits=62)
+    c = b.cast(int_bits=7, frac_bits=30)
+    d = b.cast(int_bits=7, frac_bits=31)
+
+    arr0 = fixed_array.from_float([a], int_bits=7, frac_bits=30)
+    arr1 = fixed_array.from_float([b], int_bits=7, frac_bits=31)
+    arr2 = fixed_array.from_float([c], int_bits=7, frac_bits=30)
+    arr3 = fixed_array.from_float([d], int_bits=7, frac_bits=31)
+
+    assert arr0[0].is_identical(fixed_scalar.from_float(3, int_bits=7, frac_bits=30))
+    assert arr1[0].is_identical(fixed_scalar.from_float(3, int_bits=7, frac_bits=31))
+    assert arr2[0].is_identical(fixed_scalar.from_float(3, int_bits=7, frac_bits=30))
+    assert arr3[0].is_identical(fixed_scalar.from_float(3, int_bits=7, frac_bits=31))
