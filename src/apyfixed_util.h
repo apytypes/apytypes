@@ -6,14 +6,15 @@
 #define _APYFIXED_UTIL_H
 
 #include "apytypes_common.h"
+#include "apytypes_mp.h"
 #include "apytypes_scratch_vector.h"
 #include "apytypes_simd.h"
 #include "apytypes_util.h"
 #include "ieee754.h"
 #include "python_util.h"
 
-#include "apytypes_mp.h"
 #include <functional> // std::bind, std::function, std::placeholders
+#include <iterator>   // std::begin
 
 /* ********************************************************************************** *
  * *    Fixed-point iterator based in-place quantization with multi-limb support    * *
@@ -601,15 +602,14 @@ static void overflow(
  * ********************************************************************************** */
 
 /*!
- * General casting method for fixed-point numbers. It is named `_cast` to differentiate
- * it from the Python exposed `cast` methods (that usually just call this method).
- * General casting can perform both quantization and overflowing. The size of the
- * output region (`std::distance(dst_begin, dst_end)`) must be greater than or equal to
- * the size of the input region (`std::distance(src_begin, src_end)`), even when the
- * output bit-specifiers are smaller then the input bit-specifiers.
+ * General casting method for fixed-point numbers. General casting can perform both
+ * quantization and overflowing. The size of the output region
+ * (`std::distance(dst_begin, dst_end)`) must be greater than or equal to the size of
+ * the input region (`std::distance(src_begin, src_end)`), even when the output
+ * bit-specifiers are smaller then the input bit-specifiers (hence the name unsafe).
  */
 template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
-static APY_INLINE void _cast(
+static APY_INLINE void fixed_point_cast_unsafe(
     RANDOM_ACCESS_ITERATOR_IN src_begin,
     RANDOM_ACCESS_ITERATOR_IN src_end,
     RANDOM_ACCESS_ITERATOR_OUT dst_begin,
@@ -622,6 +622,8 @@ static APY_INLINE void _cast(
     OverflowMode v_mode
 )
 {
+    assert(std::distance(src_begin, src_end) <= std::distance(dst_begin, dst_end));
+
     // Copy data into the result region and sign extend
     limb_vector_copy_sign_extend(src_begin, src_end, dst_begin, dst_end);
 
@@ -632,6 +634,44 @@ static APY_INLINE void _cast(
 
     // Then perform overflowing
     overflow(dst_begin, dst_end, dst_bits, dst_int_bits, v_mode);
+}
+
+template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
+static APY_INLINE void fixed_point_cast(
+    RANDOM_ACCESS_ITERATOR_IN src_begin,
+    RANDOM_ACCESS_ITERATOR_IN src_end,
+    RANDOM_ACCESS_ITERATOR_OUT dst_begin,
+    RANDOM_ACCESS_ITERATOR_OUT dst_end,
+    int src_bits,
+    int src_int_bits,
+    int dst_bits,
+    int dst_int_bits,
+    QuantizationMode q_mode,
+    OverflowMode v_mode
+)
+{
+    const auto FX_CAST_UNSAFE = [&](auto begin, auto end, auto d_begin, auto d_end) {
+        fixed_point_cast_unsafe(
+            begin,
+            end,
+            d_begin,
+            d_end,
+            src_bits,
+            src_int_bits,
+            dst_bits,
+            dst_int_bits,
+            q_mode,
+            v_mode
+        );
+    };
+
+    if (std::distance(src_begin, src_end) <= std::distance(dst_begin, dst_end)) {
+        FX_CAST_UNSAFE(src_begin, src_end, dst_begin, dst_end);
+    } else {
+        ScratchVector<apy_limb_t, 8> res(std::distance(src_begin, src_end));
+        FX_CAST_UNSAFE(src_begin, src_end, std::begin(res), std::end(res));
+        std::copy_n(std::begin(res), bits_to_limbs(dst_bits), dst_begin);
+    }
 }
 
 /*!

@@ -1050,9 +1050,9 @@ APyCFixedArray APyCFixedArray::cast(
     std::size_t pad_limbs = bits_to_limbs(std::max(new_bits, _bits)) - result_limbs;
     APyCFixedArray::vector_type result_data(_nitems * 2 * result_limbs + pad_limbs);
 
-    // Do the casting
+    // Do the casting: `fixed_point_cast_unsafe` is safe to use because of `pad_limbs`
     for (std::size_t i = 0; i < 2 * _nitems; i++) {
-        _cast(
+        fixed_point_cast_unsafe(
             std::begin(_data) + (i + 0) * _itemsize / 2,
             std::begin(_data) + (i + 1) * _itemsize / 2,
             std::begin(result_data) + (i + 0) * result_limbs,
@@ -1325,7 +1325,7 @@ APyCFixedArray APyCFixedArray::from_complex(
             );
         } else if (nb::isinstance<APyFixed>(py_obj[i])) {
             const auto d = static_cast<APyFixed>(nb::cast<APyFixed>(py_obj[i]));
-            _cast(
+            fixed_point_cast(
                 std::begin(d._data),
                 std::end(d._data),
                 std::begin(result._data) + i * result._itemsize,
@@ -1340,7 +1340,7 @@ APyCFixedArray APyCFixedArray::from_complex(
         } else if (nb::isinstance<APyFloat>(py_obj[i])) {
             const auto d
                 = static_cast<APyFloat>(nb::cast<APyFloat>(py_obj[i])).to_fixed();
-            _cast(
+            fixed_point_cast(
                 std::begin(d._data),
                 std::end(d._data),
                 std::begin(result._data) + i * result._itemsize,
@@ -1354,7 +1354,7 @@ APyCFixedArray APyCFixedArray::from_complex(
             );
         } else if (nb::isinstance<APyCFixed>(py_obj[i])) {
             const auto d = static_cast<APyCFixed>(nb::cast<APyCFixed>(py_obj[i]));
-            _cast(
+            fixed_point_cast(
                 d.real_begin(),
                 d.real_end(),
                 result.real_begin() + i * result._itemsize,
@@ -1366,7 +1366,7 @@ APyCFixedArray APyCFixedArray::from_complex(
                 QuantizationMode::RND_INF,
                 OverflowMode::WRAP
             );
-            _cast(
+            fixed_point_cast(
                 d.imag_begin(),
                 d.imag_end(),
                 result.imag_begin() + i * result._itemsize,

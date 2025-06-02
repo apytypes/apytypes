@@ -616,7 +616,7 @@ APyCFixed APyCFixed::cast(
     APyCFixed result(std::max(new_bits, _bits), new_int_bits);
 
     // Real part
-    _cast(
+    fixed_point_cast_unsafe(
         real_begin(),
         real_end(),
         result.real_begin(),
@@ -630,7 +630,7 @@ APyCFixed APyCFixed::cast(
     );
 
     // Imaginary part
-    _cast(
+    fixed_point_cast_unsafe(
         imag_begin(),
         imag_end(),
         std::begin(result._data) + bits_to_limbs(new_bits),
@@ -677,7 +677,7 @@ APyCFixed APyCFixed::from_number(
     } else if (nb::isinstance<APyFixed>(py_obj)) {
         APyCFixed result(int_bits, frac_bits, bits);
         const auto d = static_cast<APyFixed>(nb::cast<APyFixed>(py_obj));
-        _cast(
+        fixed_point_cast_unsafe(
             std::begin(d._data),
             std::end(d._data),
             result.real_begin(),
@@ -693,7 +693,7 @@ APyCFixed APyCFixed::from_number(
     } else if (nb::isinstance<APyFloat>(py_obj)) {
         APyCFixed result(int_bits, frac_bits, bits);
         const auto d = static_cast<APyFloat>(nb::cast<APyFloat>(py_obj)).to_fixed();
-        _cast(
+        fixed_point_cast_unsafe(
             std::begin(d._data),
             std::end(d._data),
             result.real_begin(),

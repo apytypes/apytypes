@@ -648,21 +648,22 @@ APyFloatData floating_point_from_fixed_point(
     QuantizationMode q_mode = QuantizationMode::RND_CONV
 )
 {
+    assert(std::distance(cbegin_it, cend_it) == ptrdiff_t(bits_to_limbs(bits)));
+
     if (limb_vector_is_zero(cbegin_it, cend_it)) {
         return { 0, 0, 0 };
     }
 
     // Create the resulting floating-point data and extract its sign by taking absolute
     // value of fixed-point number.
-    ScratchVector<apy_limb_t, 8> abs(std::distance(cbegin_it, cend_it));
-    bool sign = limb_vector_abs(cbegin_it, cend_it, std::begin(abs));
+    ScratchVector<apy_limb_t, 8> fx_abs(std::distance(cbegin_it, cend_it));
+    bool sign = limb_vector_abs(cbegin_it, cend_it, std::begin(fx_abs));
 
     // Extract leading zeros in the fixed-point number
-    std::size_t fx_lz = limb_vector_leading_zeros(std::begin(abs), std::end(abs));
-    if (fx_lz != 0) {
-        std::size_t bits_last_limb = ((bits - 1) % APY_LIMB_SIZE_BITS) + 1;
-        fx_lz -= APY_LIMB_SIZE_BITS - bits_last_limb;
-    }
+    std::size_t fx_lz = limb_vector_leading_zeros(std::begin(fx_abs), std::end(fx_abs));
+    assert(fx_lz > 0);
+    std::size_t bits_last_limb = ((bits - 1) % APY_LIMB_SIZE_BITS) + 1;
+    fx_lz -= (APY_LIMB_SIZE_BITS - bits_last_limb);
 
     // Make the fixed-point number become [1, 2)
     const std::int64_t target_exp = int_bits - fx_lz - 1;
@@ -675,14 +676,17 @@ APyFloatData floating_point_from_fixed_point(
 
         // Forcing a one (1.xx) here makes the rest of the code the same
         const unsigned binary_point = std::max(0, bits - int_bits);
-        limb_vector_set_bit(std::begin(abs), std::end(abs), binary_point, 1);
+        limb_vector_set_bit(std::begin(fx_abs), std::end(fx_abs), binary_point, 1);
     }
 
     // Cast the absolute fixed-point mantissa to a `fx<int_bits=3, frac_bits=man_bits>`
+    // `fixed_point_cast_unsafe` is safe to use because `fx_man` is guaranteed have as
+    // many limbs as `fx_abs`.
     ScratchVector<apy_limb_t, 8> fx_man(bits_to_limbs(std::max(3 + man_bits, bits)));
-    _cast(
-        std::begin(abs),    // src_begin
-        std::end(abs),      // src_end
+    assert(fx_man.size() >= fx_abs.size());
+    fixed_point_cast_unsafe(
+        std::begin(fx_abs), // src_begin
+        std::end(fx_abs),   // src_end
         std::begin(fx_man), // dst_begin
         std::end(fx_man),   // dst_end
         bits,               // src_bits
