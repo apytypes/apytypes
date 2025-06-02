@@ -175,6 +175,8 @@ public:
     //! Elementwise logic not
     APyFixedArray operator~() const;
 
+    APyFixedArray operator&(const APyFixedArray& rhs) const;
+
     /*!
      * Matrix multiplication. If both arguments ar 2-D tensors, this method performs the
      * ordinary matrix multiplication. If input dimensions are greater than 2, this
