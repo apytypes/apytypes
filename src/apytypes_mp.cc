@@ -5,8 +5,7 @@
 #include "apytypes_mp.h"
 #include "apytypes_util.h"
 
-// Addition
-
+//! Multi-limb addition in-place
 apy_limb_t apy_inplace_addition(
     apy_limb_t* dest,
     const std::size_t dest_limbs,
@@ -196,7 +195,6 @@ apy_limb_t apy_unsigned_multiplication(
     // results
     for (std::size_t i = 1; i < src1_limbs; i++) {
         // First iteration outside of loop to save a few computations
-        // TODO: Rewrite to use __int128 on supported architectures
         auto [prod_high, prod_low] = long_unsigned_mult(src0[0], src1[i]);
 
         prod_low += dest[i];
@@ -292,8 +290,8 @@ void APyDivInverse::compute_3by2_inverse()
 {
     static_assert(
         sizeof(unsigned) * 2 >= APY_LIMB_SIZE_BYTES,
-        "You are trying to build APyTypes on a platform which has default types "
-        "that are not currently supported. Please open an issue at "
+        "You are trying to build APyTypes on a platform which has default types that "
+        "are not currently supported. Please open an issue at "
         "https://github.com/apytypes/apytypes/issues with information about the "
         "platform and we will be happy to add support for it."
     );

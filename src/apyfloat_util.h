@@ -1603,6 +1603,338 @@ template <
  * *              Floating-point iterator-based arithmetic functors                 * *
  * ********************************************************************************** */
 
+//! Short floating-point multiplication functor. Available when:
+//! `src1_spec.man_bits + src2_spec.man_bits <=_MAN_LIMIT_BITS`
+class _FloatingPointMultiplierShort {
+public:
+    // Construct an uninitialized functor. Calling `this->operator()` on an
+    // uninitialized functor is always undefined behaviour. To initialize the functor,
+    // assign a new initialized functor in its place.
+    explicit _FloatingPointMultiplierShort() { };
+
+    // Initializing constructor. After calling this constructor, the functor is fully
+    // initialized and ready to be used.
+    explicit _FloatingPointMultiplierShort(
+        const APyFloatSpec& src1_spec,
+        const APyFloatSpec& src2_spec,
+        const APyFloatSpec& dst_spec,
+        const QuantizationMode& qntz
+    )
+        : src1_spec { src1_spec }
+        , src2_spec { src2_spec }
+        , dst_spec { dst_spec }
+        , qntz { qntz }
+    {
+        SUM_MAN_BITS = unsigned(src1_spec.man_bits + src2_spec.man_bits);
+        SRC1_MAX_EXP = exp_t((1ULL << src1_spec.exp_bits) - 1);
+        SRC2_MAX_EXP = exp_t((1ULL << src2_spec.exp_bits) - 1);
+        RES_MAX_EXP = exp_t((1ULL << dst_spec.exp_bits) - 1);
+        unsigned NEW_MAN_BITS = SUM_MAN_BITS + 2;
+        MAN_DELTA = int(NEW_MAN_BITS) - int(dst_spec.man_bits);
+        TWO = 1ULL << NEW_MAN_BITS;
+        TWO_BEFORE = 1ULL << (NEW_MAN_BITS - 1);
+        ONE_BEFORE = 1ULL << (NEW_MAN_BITS - 2);
+        TWO_RES = 1ULL << dst_spec.man_bits;
+        STICKY = (1ULL << (MAN_DELTA - 1)) - 1;
+        qntz_func = get_qntz_func(qntz, MAN_DELTA < 0);
+    }
+
+    // Copy assign a new functor in the place of this one
+    _FloatingPointMultiplierShort& operator=(const _FloatingPointMultiplierShort&)
+        = default;
+
+    void operator()(
+        const APyFloatData* src1, const APyFloatData* src2, APyFloatData* dst
+    ) const
+    {
+        _floating_point_mul_short(
+            src1,
+            src2,
+            dst,
+            src1_spec,
+            src2_spec,
+            dst_spec,
+            qntz,
+            qntz_func,
+            SUM_MAN_BITS,
+            SRC1_MAX_EXP,
+            SRC2_MAX_EXP,
+            RES_MAX_EXP,
+            TWO,
+            TWO_BEFORE,
+            ONE_BEFORE,
+            TWO_RES,
+            MAN_DELTA,
+            STICKY
+        );
+    }
+
+private:
+    // Set first during functor initialization
+    APyFloatSpec src1_spec, src2_spec, dst_spec;
+    QuantizationMode qntz;
+
+    // The used quantization function
+    decltype(get_qntz_func(qntz)) qntz_func;
+
+    // Reusable constants used in the multiplication
+    unsigned SUM_MAN_BITS;
+    int MAN_DELTA;
+    exp_t SRC1_MAX_EXP;
+    exp_t SRC2_MAX_EXP;
+    exp_t RES_MAX_EXP;
+    man_t TWO;
+    man_t TWO_BEFORE;
+    man_t ONE_BEFORE;
+    man_t TWO_RES;
+    man_t STICKY;
+};
+
+//! General floating-point multiplication, always available but slower compared to
+//! `_FloatingPointMultiplierShort`.
+class _FloatingPointMultiplierGeneral {
+public:
+    // Construct an uninitialized functor. Calling `this->operator()` on an
+    // uninitialized functor is always undefined behaviour. To initialize the functor,
+    // assign a new initialized functor in its place.
+    explicit _FloatingPointMultiplierGeneral() { };
+
+    // Initializing constructor. After calling this constructor, the functor is fully
+    // initialized and ready to be used.
+    explicit _FloatingPointMultiplierGeneral(
+        const APyFloatSpec& src1_spec,
+        const APyFloatSpec& src2_spec,
+        const APyFloatSpec& dst_spec,
+        const QuantizationMode& qntz
+    )
+        : src1_spec { src1_spec }
+        , src2_spec { src2_spec }
+        , dst_spec { dst_spec }
+        , qntz { qntz }
+    {
+        SRC1_MAX_EXP = exp_t((1ULL << src1_spec.exp_bits) - 1);
+        SRC2_MAX_EXP = exp_t((1ULL << src2_spec.exp_bits) - 1);
+        RES_MAX_EXP = exp_t((1ULL << dst_spec.exp_bits) - 1);
+        qntz_func = get_qntz_func(qntz, false);
+    }
+
+    void operator()(
+        const APyFloatData* src1, const APyFloatData* src2, APyFloatData* dst
+    ) const
+    {
+        _floating_point_mul_general(
+            src1,
+            src2,
+            dst,
+            src1_spec,
+            src2_spec,
+            dst_spec,
+            qntz,
+            SRC1_MAX_EXP,
+            SRC2_MAX_EXP,
+            RES_MAX_EXP
+        );
+    }
+
+private:
+    // Set first during functor initialization
+    APyFloatSpec src1_spec, src2_spec, dst_spec;
+    QuantizationMode qntz;
+
+    // The used quantization function
+    decltype(get_qntz_func(qntz)) qntz_func;
+
+    // Reusable constants used in the multiplication
+    exp_t SRC1_MAX_EXP;
+    exp_t SRC2_MAX_EXP;
+    exp_t RES_MAX_EXP;
+};
+
+//! Floating-point adder/subtractor that works when:
+//! (1) `qntz != QuantizationMode::STOCK_WEIGHTED`,
+//! (2) `dst_spec.man_bits + 5 <= _MAN_T_SIZE_BITS`,
+//! (3) `src1_spec == src2_spec == dst_spec`.
+template <bool IS_SUBTRACT> class _FloatingPointAddSubSameWl {
+public:
+    // Construct an uninitialized functor. Calling `this->operator()` on an
+    // uninitialized functor is always undefined behaviour. To initialize the functor,
+    // assign a new initialized functor in its place.
+    explicit _FloatingPointAddSubSameWl() { };
+
+    // Initializing constructor. After calling this constructor, the functor is fully
+    // initialized and ready to be used.
+    explicit _FloatingPointAddSubSameWl(
+        const APyFloatSpec& src1_spec,
+        const APyFloatSpec& src2_spec,
+        const APyFloatSpec& dst_spec,
+        const QuantizationMode& qntz
+    )
+        : dst_spec { dst_spec }
+        , qntz { qntz }
+    {
+        (void)src1_spec;
+        (void)src2_spec;
+
+        RES_MAX_EXP = exp_t((1ULL << dst_spec.exp_bits) - 1);
+        FINAL_RES_LO = 1ULL << dst_spec.man_bits;
+        RES_LO = FINAL_RES_LO << 3;
+        CARRY_RES_LO = RES_LO << 1;
+        MAN_MASK = CARRY_RES_LO - 1;
+        NORM_CONST = unsigned(_MAN_T_SIZE_BITS - dst_spec.man_bits - 4);
+        qntz_func = get_qntz_func(qntz);
+    }
+
+    void operator()(
+        const APyFloatData* src1, const APyFloatData* src2, APyFloatData* dst
+    ) const
+    {
+        _floating_point_add_same_wl<IS_SUBTRACT>(
+            src1,
+            src2,
+            dst,
+            dst_spec,
+            qntz,
+            qntz_func,
+            RES_MAX_EXP,
+            FINAL_RES_LO,
+            RES_LO,
+            CARRY_RES_LO,
+            MAN_MASK,
+            NORM_CONST
+        );
+    }
+
+private:
+    // Set during functor initialization
+    APyFloatSpec dst_spec;
+    QuantizationMode qntz;
+
+    // Quantization function in use
+    decltype(get_qntz_func(qntz)) qntz_func;
+
+    // Reusable constants used in the addition
+    exp_t RES_MAX_EXP;
+    man_t FINAL_RES_LO;
+    man_t RES_LO;
+    man_t CARRY_RES_LO;
+    man_t MAN_MASK;
+    unsigned NORM_CONST;
+};
+
+//! Floating-point adder/subtractor that works when:
+//! (1) `qntz != QuantizationMode::STOCK_WEIGHTED`,
+//! (2) `dst_spec.man_bits + 5 <= _MAN_T_SIZE_BITS`.
+template <bool IS_SUBTRACT> class _FloatingPointAddSubDiffWl {
+public:
+    // Construct an uninitialized functor. Calling `this->operator()` on an
+    // uninitialized functor is always undefined behaviour. To initialize the functor,
+    // assign a new initialized functor in its place.
+    explicit _FloatingPointAddSubDiffWl() { };
+
+    // Initializing constructor. After calling this constructor, the functor is fully
+    // initialized and ready to be used.
+    explicit _FloatingPointAddSubDiffWl(
+        const APyFloatSpec& src1_spec,
+        const APyFloatSpec& src2_spec,
+        const APyFloatSpec& dst_spec,
+        const QuantizationMode& qntz
+    )
+        : src1_spec { src1_spec }
+        , src2_spec { src2_spec }
+        , dst_spec { dst_spec }
+        , qntz { qntz }
+    {
+        RES_MAX_EXP = exp_t((1ULL << dst_spec.exp_bits) - 1);
+        FINAL_RES_LO = 1ULL << dst_spec.man_bits;
+        RES_LO = FINAL_RES_LO << 3;
+        CARRY_RES_LO = RES_LO << 1;
+        MAN_MASK = CARRY_RES_LO - 1;
+        NORM_CONST = unsigned(_MAN_T_SIZE_BITS - dst_spec.man_bits - 4);
+        qntz_func = get_qntz_func(qntz);
+    }
+
+    void operator()(
+        const APyFloatData* src1, const APyFloatData* src2, APyFloatData* dst
+    ) const
+    {
+        _floating_point_add_diff_wl<IS_SUBTRACT>(
+            src1,
+            src2,
+            dst,
+            src1_spec,
+            src2_spec,
+            dst_spec,
+            qntz,
+            qntz_func,
+            RES_MAX_EXP,
+            FINAL_RES_LO,
+            RES_LO,
+            CARRY_RES_LO,
+            MAN_MASK,
+            NORM_CONST
+        );
+    }
+
+private:
+    // Set during functor initialization
+    APyFloatSpec src1_spec, src2_spec, dst_spec;
+    QuantizationMode qntz;
+
+    // Quantization function in use
+    decltype(get_qntz_func(qntz)) qntz_func;
+
+    // Reusable constants used in the addition
+    exp_t RES_MAX_EXP;
+    man_t FINAL_RES_LO;
+    man_t RES_LO;
+    man_t CARRY_RES_LO;
+    man_t MAN_MASK;
+    unsigned NORM_CONST;
+};
+
+//! Floating-point adder/subtractor that always works. It is slower compared to
+//! `_FloatingPointAddSubSameWl` and `_FloatingPointAddSubDiffWl`.
+template <bool IS_SUBTRACT> class _FloatingPointAddSubGeneral {
+public:
+    // Construct an uninitialized functor. Calling `this->operator()` on an
+    // uninitialized functor is always undefined behaviour. To initialize the functor,
+    // assign a new initialized functor in its place.
+    explicit _FloatingPointAddSubGeneral() { };
+
+    // Initializing constructor. After calling this constructor, the functor is fully
+    // initialized and ready to be used.
+    explicit _FloatingPointAddSubGeneral(
+        const APyFloatSpec& src1_spec,
+        const APyFloatSpec& src2_spec,
+        const APyFloatSpec& dst_spec,
+        const QuantizationMode& qntz
+    )
+        : src1_spec { src1_spec }
+        , src2_spec { src2_spec }
+        , dst_spec { dst_spec }
+        , qntz { qntz }
+    {
+        RES_MAX_EXP = exp_t((1ULL << dst_spec.exp_bits) - 1);
+    }
+
+    void operator()(
+        const APyFloatData* src1, const APyFloatData* src2, APyFloatData* dst
+    ) const
+    {
+        _floating_point_add_general<IS_SUBTRACT>(
+            src1, src2, dst, src1_spec, src2_spec, dst_spec, qntz, RES_MAX_EXP
+        );
+    }
+
+private:
+    // Set during functor initialization
+    APyFloatSpec src1_spec, src2_spec, dst_spec;
+    QuantizationMode qntz;
+
+    // Reusable constants used in the addition
+    exp_t RES_MAX_EXP;
+};
+
 template <
     bool IS_SUBTRACT,
     std::size_t SRC1_INC,
@@ -1617,34 +1949,34 @@ public:
         const APyFloatSpec& dst_spec,
         const QuantizationMode& qntz
     )
-        : src1_spec { src1_spec }
-        , src2_spec { src2_spec }
-        , dst_spec { dst_spec }
-        , qntz { qntz }
     {
-        RES_MAX_EXP = exp_t((1ULL << dst_spec.exp_bits) - 1);
         using F = _FloatingPointAddSub<IS_SUBTRACT, SRC1_INC, SRC2_INC, DST_INC>;
         if (qntz == QuantizationMode::STOCH_WEIGHTED) {
+            _add_general = _FloatingPointAddSubGeneral<IS_SUBTRACT>(
+                src1_spec, src2_spec, dst_spec, qntz
+            );
             f = &F::add_general;
         } else { /* qntz != QuantizationMode::STOCK_WEIGHTED */
             const unsigned MAX_MAN_BITS = dst_spec.man_bits + 5;
-            FINAL_RES_LO = 1ULL << dst_spec.man_bits;
-            RES_LO = FINAL_RES_LO << 3;
-            CARRY_RES_LO = RES_LO << 1;
-            MAN_MASK = CARRY_RES_LO - 1;
-            NORM_CONST = unsigned(_MAN_T_SIZE_BITS - dst_spec.man_bits - 4);
             if (MAX_MAN_BITS <= _MAN_T_SIZE_BITS) {
                 if (src1_spec == src2_spec) {
+                    _add_same_wl = _FloatingPointAddSubSameWl<IS_SUBTRACT>(
+                        src1_spec, src2_spec, dst_spec, qntz
+                    );
                     f = &F::add_same_wl;
                 } else {
+                    _add_diff_wl = _FloatingPointAddSubDiffWl<IS_SUBTRACT>(
+                        src1_spec, src2_spec, dst_spec, qntz
+                    );
                     f = &F::add_diff_wl;
                 }
             } else {
+                _add_general = _FloatingPointAddSubGeneral<IS_SUBTRACT>(
+                    src1_spec, src2_spec, dst_spec, qntz
+                );
                 f = &F::add_general;
             }
         }
-
-        qntz_func = get_qntz_func(qntz);
     }
 
     // Perform a single floating-point addition/subtractions
@@ -1668,19 +2000,9 @@ public:
 
 private:
     // Set during functor initialization
-    const APyFloatSpec src1_spec, src2_spec, dst_spec;
-    const QuantizationMode qntz;
-
-    // Reusable constants used in the addition
-    exp_t RES_MAX_EXP {};
-    man_t FINAL_RES_LO {};
-    man_t RES_LO {};
-    man_t CARRY_RES_LO {};
-    man_t MAN_MASK {};
-    unsigned NORM_CONST {};
-
-    // Quantization function in use
-    decltype(get_qntz_func(qntz)) qntz_func {};
+    _FloatingPointAddSubSameWl<IS_SUBTRACT> _add_same_wl;
+    _FloatingPointAddSubDiffWl<IS_SUBTRACT> _add_diff_wl;
+    _FloatingPointAddSubGeneral<IS_SUBTRACT> _add_general;
 
     // Pointer to the correct adder function based on the floating-point specs
     void (_FloatingPointAddSub::*f)(
@@ -1698,16 +2020,7 @@ private:
     ) const
     {
         for (std::size_t i = 0; i < nitems; i++) {
-            _floating_point_add_general<IS_SUBTRACT>(
-                src1 + SRC1_INC * i,
-                src2 + SRC2_INC * i,
-                dst + DST_INC * i,
-                src1_spec,
-                src2_spec,
-                dst_spec,
-                qntz,
-                RES_MAX_EXP
-            );
+            _add_general(src1 + SRC1_INC * i, src2 + SRC2_INC * i, dst + DST_INC * i);
         }
     }
 
@@ -1719,20 +2032,7 @@ private:
     ) const
     {
         for (std::size_t i = 0; i < nitems; i++) {
-            _floating_point_add_same_wl<IS_SUBTRACT>(
-                src1 + SRC1_INC * i,
-                src2 + SRC2_INC * i,
-                dst + DST_INC * i,
-                dst_spec,
-                qntz,
-                qntz_func,
-                RES_MAX_EXP,
-                FINAL_RES_LO,
-                RES_LO,
-                CARRY_RES_LO,
-                MAN_MASK,
-                NORM_CONST
-            );
+            _add_same_wl(src1 + SRC1_INC * i, src2 + SRC2_INC * i, dst + DST_INC * i);
         }
     }
 
@@ -1744,29 +2044,13 @@ private:
     ) const
     {
         for (std::size_t i = 0; i < nitems; i++) {
-            _floating_point_add_diff_wl<IS_SUBTRACT>(
-                src1 + SRC1_INC * i,
-                src2 + SRC2_INC * i,
-                dst + DST_INC * i,
-                src1_spec,
-                src2_spec,
-                dst_spec,
-                qntz,
-                qntz_func,
-                RES_MAX_EXP,
-                FINAL_RES_LO,
-                RES_LO,
-                CARRY_RES_LO,
-                MAN_MASK,
-                NORM_CONST
-            );
+            _add_diff_wl(src1 + SRC1_INC * i, src2 + SRC2_INC * i, dst + DST_INC * i);
         }
     }
 };
 
 template <std::size_t SRC1_INC = 1, std::size_t SRC2_INC = 1, std::size_t DST_INC = 1>
 class FloatingPointMultiplier {
-
 public:
     explicit FloatingPointMultiplier(
         const APyFloatSpec& src1_spec,
@@ -1774,32 +2058,18 @@ public:
         const APyFloatSpec& dst_spec,
         const QuantizationMode& qntz
     )
-        : src1_spec { src1_spec }
-        , src2_spec { src2_spec }
-        , dst_spec { dst_spec }
-        , qntz { qntz }
     {
         using F = FloatingPointMultiplier<SRC1_INC, SRC2_INC, DST_INC>;
-
-        SUM_MAN_BITS = unsigned(src1_spec.man_bits + src2_spec.man_bits);
-        SRC1_MAX_EXP = exp_t((1ULL << src1_spec.exp_bits) - 1);
-        SRC2_MAX_EXP = exp_t((1ULL << src2_spec.exp_bits) - 1);
-        RES_MAX_EXP = exp_t((1ULL << dst_spec.exp_bits) - 1);
-
+        unsigned SUM_MAN_BITS = unsigned(src1_spec.man_bits + src2_spec.man_bits);
         if (SUM_MAN_BITS <= _MAN_LIMIT_BITS) {
-            NEW_MAN_BITS = SUM_MAN_BITS + 2;
-            MAN_DELTA = int(NEW_MAN_BITS) - int(dst_spec.man_bits);
-            TWO = 1ULL << NEW_MAN_BITS;
-            TWO_BEFORE = 1ULL << (NEW_MAN_BITS - 1);
-            ONE_BEFORE = 1ULL << (NEW_MAN_BITS - 2);
-            TWO_RES = 1ULL << dst_spec.man_bits;
-            STICKY = (1ULL << (MAN_DELTA - 1)) - 1;
+            _mul_short
+                = _FloatingPointMultiplierShort(src1_spec, src2_spec, dst_spec, qntz);
             f = &F::mul_short;
-        } else { /* SUM_MAN_BITS > _MAN_LIMIT_BITS */
-            MAN_DELTA = 0;
+        } else {
+            _mul_general
+                = _FloatingPointMultiplierGeneral(src1_spec, src2_spec, dst_spec, qntz);
             f = &F::mul_general;
         }
-        qntz_func = get_qntz_func(qntz, MAN_DELTA < 0);
     }
 
     // Perform a single floating-point multiplication
@@ -1823,24 +2093,8 @@ public:
 
 private:
     // Set first during functor initialization
-    const APyFloatSpec src1_spec, src2_spec, dst_spec;
-    const QuantizationMode qntz;
-
-    // Reusable constants used in the multiplication
-    unsigned SUM_MAN_BITS {};
-    unsigned NEW_MAN_BITS {};
-    int MAN_DELTA {};
-    exp_t SRC1_MAX_EXP {};
-    exp_t SRC2_MAX_EXP {};
-    exp_t RES_MAX_EXP {};
-    man_t TWO {};
-    man_t TWO_BEFORE {};
-    man_t ONE_BEFORE {};
-    man_t TWO_RES {};
-    man_t STICKY {};
-
-    // The used quantization function
-    decltype(get_qntz_func(qntz)) qntz_func {};
+    _FloatingPointMultiplierShort _mul_short;
+    _FloatingPointMultiplierGeneral _mul_general;
 
     // Pointer `f` to the correct function based on the floating-point specs
     void (FloatingPointMultiplier::*f)(
@@ -1858,26 +2112,7 @@ private:
     ) const
     {
         for (std::size_t i = 0; i < nitems; i++) {
-            _floating_point_mul_short(
-                src1 + SRC1_INC * i,
-                src2 + SRC2_INC * i,
-                dst + DST_INC * i,
-                src1_spec,
-                src2_spec,
-                dst_spec,
-                qntz,
-                qntz_func,
-                SUM_MAN_BITS,
-                SRC1_MAX_EXP,
-                SRC2_MAX_EXP,
-                RES_MAX_EXP,
-                TWO,
-                TWO_BEFORE,
-                ONE_BEFORE,
-                TWO_RES,
-                MAN_DELTA,
-                STICKY
-            );
+            _mul_short(src1 + SRC1_INC * i, src2 + SRC2_INC * i, dst + DST_INC * i);
         }
     }
 
@@ -1889,18 +2124,7 @@ private:
     ) const
     {
         for (std::size_t i = 0; i < nitems; i++) {
-            _floating_point_mul_general(
-                src1 + SRC1_INC * i,
-                src2 + SRC2_INC * i,
-                dst + DST_INC * i,
-                src1_spec,
-                src2_spec,
-                dst_spec,
-                qntz,
-                SRC1_MAX_EXP,
-                SRC2_MAX_EXP,
-                RES_MAX_EXP
-            );
+            _mul_general(src1 + SRC1_INC * i, src2 + SRC2_INC * i, dst + DST_INC * i);
         }
     }
 };
@@ -1956,7 +2180,6 @@ template <std::size_t SRC1_INC = 1, std::size_t SRC2_INC = 1, std::size_t DST_IN
 using FloatingPointSubtractor = _FloatingPointAddSub<true, SRC1_INC, SRC2_INC, DST_INC>;
 
 class FloatingPointInnerProduct {
-
 public:
     explicit FloatingPointInnerProduct(
         const APyFloatSpec& src1_spec,
@@ -1964,9 +2187,36 @@ public:
         const APyFloatSpec& dst_spec,
         const QuantizationMode& qntz
     )
-        : mul(src1_spec, src2_spec, dst_spec, qntz)
-        , add(dst_spec, dst_spec, dst_spec, qntz)
     {
+        using F = FloatingPointInnerProduct;
+        using MUL_F_SHORT = _FloatingPointMultiplierShort;
+        using MUL_F_GENERAL = _FloatingPointMultiplierGeneral;
+        using ADD_F_GENERAL = _FloatingPointAddSubGeneral</*IS_SUBTRACT=*/false>;
+        using ADD_F_SHORT = _FloatingPointAddSubSameWl</*IS_SUBTRACT=*/false>;
+
+        bool is_short_mul = src1_spec.man_bits + src2_spec.man_bits <= _MAN_LIMIT_BITS;
+        bool is_short_add = qntz != QuantizationMode::STOCH_WEIGHTED
+            && std::size_t(dst_spec.man_bits + 5) <= _MAN_T_SIZE_BITS;
+
+        if (is_short_mul) {
+            mul_short = MUL_F_SHORT(src1_spec, src2_spec, dst_spec, qntz);
+            if (is_short_add) {
+                add_same_wl = ADD_F_SHORT(dst_spec, dst_spec, dst_spec, qntz);
+                f = &F::inner_product</*SHORT_MUL=*/true, /*SHORT_ADD=*/true>;
+            } else { /* !is_short_add */
+                add_general = ADD_F_GENERAL(dst_spec, dst_spec, dst_spec, qntz);
+                f = &F::inner_product</*SHORT_MUL=*/true, /*SHORT_ADD=*/false>;
+            }
+        } else { /* !is_short_mul */
+            mul_general = MUL_F_GENERAL(src1_spec, src2_spec, dst_spec, qntz);
+            if (is_short_add) {
+                add_same_wl = ADD_F_SHORT(dst_spec, dst_spec, dst_spec, qntz);
+                f = &F::inner_product</*SHORT_MUL=*/false, /*SHORT_ADD=*/true>;
+            } else { /* !is_short_add */
+                add_general = ADD_F_GENERAL(dst_spec, dst_spec, dst_spec, qntz);
+                f = &F::inner_product</*SHORT_MUL=*/false, /*SHORT_ADD=*/false>;
+            }
+        }
     }
 
     void operator()(
@@ -1978,7 +2228,20 @@ public:
         std::size_t DST_STEP = 1
     ) const
     {
-        // Matrix-vector multiplication Ab, where
+        std::invoke(f, this, src1, src2, dst, N, M, DST_STEP);
+    }
+
+    template <bool SHORT_MUL, auto SHORT_ADD>
+    void inner_product(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t N,
+        std::size_t M,
+        std::size_t DST_STEP
+    ) const
+    {
+        // Matrix-vector multiplication $`A \times b`$, where
         // * A: [ `M` x `N` ]
         // * b: [ `N` x `1` ]
         APyFloatData product { 0, 0, 0 };
@@ -1986,16 +2249,36 @@ public:
             auto A_it = src1 + N * m;
             APyFloatData sum { 0, 0, 0 };
             for (std::size_t n = 0; n < N; n++) {
-                mul(A_it + n, src2 + n, &product);
-                add(&sum, &product, &sum);
+                if constexpr (SHORT_MUL) {
+                    mul_short(A_it + n, src2 + n, &product);
+                } else {
+                    mul_general(A_it + n, src2 + n, &product);
+                }
+                if constexpr (SHORT_ADD) {
+                    add_same_wl(&sum, &product, &sum);
+                } else {
+                    add_general(&sum, &product, &sum);
+                }
             }
             *(dst + DST_STEP * m) = sum;
         }
     }
 
 private:
-    const FloatingPointMultiplier<> mul;
-    const FloatingPointAdder<> add;
+    // Pointer `f` to the correct function based on the floating-point specs
+    void (FloatingPointInnerProduct::*f)(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t N,
+        std::size_t M,
+        std::size_t DST_STEP
+    ) const;
+
+    _FloatingPointAddSubSameWl<false> add_same_wl;
+    _FloatingPointAddSubGeneral<false> add_general;
+    _FloatingPointMultiplierShort mul_short;
+    _FloatingPointMultiplierGeneral mul_general;
 };
 
 #endif // _APYFLOAT_UTIL_H

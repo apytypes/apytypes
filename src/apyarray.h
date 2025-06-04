@@ -577,8 +577,7 @@ public:
     //! Python exported `__setitem__` method for APyArrays
     void set_item(
         const PyArrayKey_t& key,
-        const std::variant<std::monostate, ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>&
-            val
+        const std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>& val
     )
     {
         // Convert the variant of Python objects into a tuple of keys
@@ -599,14 +598,8 @@ public:
 
         if (std::holds_alternative<scalar_variant_t<ARRAY_TYPE>>(val)) {
             set_item_from_scalar(cpp_key, std::get<scalar_variant_t<ARRAY_TYPE>>(val));
-        } else if (std::holds_alternative<ARRAY_TYPE>(val)) {
+        } else { /* (std::holds_alternative<ARRAY_TYPE>(val)) */
             set_item_from_array(cpp_key, std::get<ARRAY_TYPE>(val));
-        } else {
-            std::string msg = fmt::format(
-                "{}.__setitem__: unsupported value type (internal error: `monostate`?)",
-                ARRAY_TYPE::ARRAY_NAME
-            );
-            throw nb::value_error(msg.c_str());
         }
     }
 
@@ -1550,13 +1543,12 @@ public:
      *   * They have the exact same specifiers (as decided by `same_type_as`
      */
     bool is_identical(
-        const std::variant<std::monostate, ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>&
-            other
+        const std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>& other
     ) const
     {
         if (!std::holds_alternative<ARRAY_TYPE>(other)) {
             return false;
-        } else {
+        } else { /* std::holds_alternative<scalar_variant_t<ARRAY_TYPE>>(other) */
             const ARRAY_TYPE& other_array = std::get<ARRAY_TYPE>(other);
             return _shape == other_array._shape
                 && static_cast<const ARRAY_TYPE*>(this)->same_type_as(other_array)
