@@ -845,7 +845,7 @@ APyFixed APyCFixed::get_imag() const
 }
 
 bool APyCFixed::is_identical(
-    const std::variant<std::monostate, const APyCFixed*, const APyCFixedArray*>& other
+    const std::variant<const APyCFixed*, const APyCFixedArray*>& other
 ) const
 {
     if (!std::holds_alternative<const APyCFixed*>(other)) {

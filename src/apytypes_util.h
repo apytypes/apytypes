@@ -23,7 +23,6 @@
 #include <sstream>          // std::stringstream
 #include <string>           // std::string
 #include <tuple>            // std::tuple
-#include <variant>          // std::variant
 #include <vector>           // std::vector
 
 /*
@@ -36,8 +35,8 @@
 
 #include "apytypes_mp.h"
 
-/*
- * Macro for splitting a single `std::uint64_t` into enough limbs in list style
+/*!
+ * Macro for splitting a single `std::uint64_t` into comma-separated limbs
  */
 #if COMPILER_LIMB_SIZE == 64
 #define UINT64_TO_LIMB(x) apy_limb_t(x)
@@ -185,7 +184,7 @@ template <typename INT_TYPE>
 #endif
 }
 
-//! Compute the number of leading zeros in an integer
+//! Compute the number of leading zeros in a 32-bit or 64-bit integer of type `INT_TYPE`
 template <typename INT_TYPE>
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t leading_zeros(INT_TYPE n)
 {

@@ -642,3 +642,12 @@ def test_to_wide_accumulator(q):
             (a @ b).is_identical(
                 APyFloat(sign=0, exp=38, man=56, exp_bits=6, man_bits=man_bits)
             )
+
+
+def test_long_mul_short_add():
+    A = APyFloatArray.from_float(range(3 * 3), exp_bits=10, man_bits=40).reshape((3, 3))
+    b = APyFloatArray.from_float([1, 2, 3], exp_bits=10, man_bits=40)
+    c = A @ b
+    assert c.is_identical(
+        APyFloatArray.from_float([8, 26, 44], exp_bits=10, man_bits=40)
+    )
