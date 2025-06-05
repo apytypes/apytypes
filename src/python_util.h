@@ -501,38 +501,38 @@ python_sequence_walk(const nanobind::sequence& py_seq, std::string_view err_pref
 {
     namespace nb = nanobind;
 
-    // Result output iterator
-    std::vector<nb::object> result {};
-
     // Walk the Python sequences and extract the data
+    using iterator_t = decltype(std::begin(py_seq));
     struct seq_it_pair {
-        decltype(std::begin(py_seq)) iterator;
-        decltype(std::end(py_seq)) sentinel;
+        iterator_t iterator;
+        iterator_t sentinel;
     };
     std::stack<seq_it_pair, std::vector<seq_it_pair>> it_stack;
     it_stack.push({ py_seq.begin(), py_seq.end() });
 
+    std::vector<nb::object> result {};
     while (!it_stack.empty()) {
-        if (it_stack.top().iterator == it_stack.top().sentinel) {
+        auto&& iterator = it_stack.top().iterator;
+        auto&& sentinel = it_stack.top().sentinel;
+        if (iterator == sentinel) {
             // End of current iterator/sentinel pair. Pop it.
             it_stack.pop();
         } else {
-            if (is_seq_and_exclude<nb::str, PyTypes...>(*it_stack.top().iterator)) {
+            if (is_seq_and_exclude<nb::str, PyTypes...>(*iterator)) {
                 // New sequence found. We need to go deeper
-                auto new_sequence = nb::cast<nb::sequence>(*it_stack.top().iterator++);
-                it_stack.push({ new_sequence.begin(), new_sequence.end() });
-            } else if ((nb::isinstance<PyTypes>(*it_stack.top().iterator) || ...)) {
+                auto&& new_sequence = nb::cast<nb::sequence>(*iterator++);
+                it_stack.push({ std::begin(new_sequence), std::end(new_sequence) });
+            } else if ((nb::isinstance<PyTypes>(*iterator) || ...)) {
                 // Element matching one of the PyTypes found, store it in container
-                result.emplace_back(nb::cast<nb::object>(*it_stack.top().iterator++));
+                result.emplace_back(nb::cast<nb::object>(*iterator++));
             } else {
-                nb::object err_obj = nb::cast<nb::object>(*it_stack.top().iterator);
-                throw std::domain_error(
-                    fmt::format(
-                        "{}: unexpected type when traversing Sequence: {}",
-                        err_prefix,
-                        nb::repr(nb::cast<nb::type_object>(err_obj.type())).c_str()
-                    )
+                auto&& err_obj = nb::cast<nb::object>(*iterator);
+                std::string err_msg = fmt::format(
+                    "{}: unexpected type when traversing Sequence: {}",
+                    err_prefix,
+                    nb::repr(nb::cast<nb::type_object>(err_obj.type())).c_str()
                 );
+                throw std::domain_error(err_msg);
             }
         }
     }

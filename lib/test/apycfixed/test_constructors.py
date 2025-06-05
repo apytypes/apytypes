@@ -26,3 +26,34 @@ def test_raises():
 def test_constructor():
     assert APyCFixed((0x14,), int_bits=4, frac_bits=4) == 1.25
     assert APyCFixed((0x00, 0x14), int_bits=4, frac_bits=4) == 0.0 + 1.25j
+
+
+def test_from_float():
+    np = pytest.importorskip("numpy")
+    types = [
+        np.float16,
+        np.float32,
+        np.float64,
+        np.int8,
+        np.int16,
+        np.int32,
+        np.int64,
+        np.uint8,
+        np.uint16,
+        np.uint32,
+        np.uint64,
+    ]
+    for t in types:
+        a = APyCFixed.from_float(t(125), int_bits=30, frac_bits=30)
+        assert a.is_identical(APyCFixed.from_complex(125, int_bits=30, frac_bits=30))
+
+
+def test_from_complex():
+    np = pytest.importorskip("numpy")
+    types = [
+        np.complex64,
+        np.complex128,
+    ]
+    for t in types:
+        a = APyCFixed.from_float(t(923.75), int_bits=30, frac_bits=30)
+        assert a.is_identical(APyCFixed.from_complex(923.75, int_bits=30, frac_bits=30))

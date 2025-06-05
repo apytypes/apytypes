@@ -668,22 +668,21 @@ APyCFixed APyCFixed::from_number(
 )
 {
     if (nb::isinstance<nb::int_>(py_obj)) {
-        return APyCFixed::from_integer(
-            nb::cast<nb::int_>(py_obj), int_bits, frac_bits, bits
-        );
+        const nb::int_& val = nb::cast<nb::int_>(py_obj);
+        return APyCFixed::from_integer(val, int_bits, frac_bits, bits);
     } else if (nb::isinstance<nb::float_>(py_obj)) {
-        const auto d = static_cast<double>(nb::cast<nb::float_>(py_obj));
-        return APyCFixed::from_double(d, int_bits, frac_bits, bits);
+        double val = static_cast<double>(nb::cast<nb::float_>(py_obj));
+        return APyCFixed::from_double(val, int_bits, frac_bits, bits);
     } else if (nb::isinstance<APyFixed>(py_obj)) {
+        const APyFixed& fx = nb::cast<APyFixed>(py_obj);
         APyCFixed result(int_bits, frac_bits, bits);
-        const auto d = static_cast<APyFixed>(nb::cast<APyFixed>(py_obj));
         fixed_point_cast_unsafe(
-            std::begin(d._data),
-            std::end(d._data),
+            std::begin(fx._data),
+            std::end(fx._data),
             result.real_begin(),
             result.real_end(),
-            d._bits,
-            d._int_bits,
+            fx._bits,
+            fx._int_bits,
             result._bits,
             result._int_bits,
             QuantizationMode::RND_INF,
@@ -691,15 +690,15 @@ APyCFixed APyCFixed::from_number(
         );
         return result;
     } else if (nb::isinstance<APyFloat>(py_obj)) {
+        const auto fx = nb::cast<APyFloat>(py_obj).to_fixed();
         APyCFixed result(int_bits, frac_bits, bits);
-        const auto d = static_cast<APyFloat>(nb::cast<APyFloat>(py_obj)).to_fixed();
         fixed_point_cast_unsafe(
-            std::begin(d._data),
-            std::end(d._data),
+            std::begin(fx._data),
+            std::end(fx._data),
             result.real_begin(),
             result.real_end(),
-            d._bits,
-            d._int_bits,
+            fx._bits,
+            fx._int_bits,
             result._bits,
             result._int_bits,
             QuantizationMode::RND_INF,
@@ -707,19 +706,27 @@ APyCFixed APyCFixed::from_number(
         );
         return result;
     } else if (nb::isinstance<APyCFixed>(py_obj)) { // One should really use cast
-        const auto d = static_cast<APyCFixed>(nb::cast<APyCFixed>(py_obj));
-        return d.cast(
+        const APyCFixed& fx = nb::cast<APyCFixed>(py_obj);
+        return fx.cast(
             int_bits, frac_bits, QuantizationMode::RND_INF, OverflowMode::WRAP, bits
         );
     } else if (nb::isinstance<std::complex<double>>(py_obj)) {
-        const auto c = nb::cast<std::complex<double>>(py_obj);
-        return APyCFixed::from_complex(c, int_bits, frac_bits, bits);
+        std::complex<double> cplx = nb::cast<std::complex<double>>(py_obj);
+        return APyCFixed::from_complex(cplx, int_bits, frac_bits, bits);
     } else {
-        const nb::type_object type = nb::cast<nb::type_object>(py_obj.type());
-        const nb::str type_string = nb::str(type);
-        throw std::domain_error(
-            std::string("Non-supported type: ") + type_string.c_str()
-        );
+        // Last resort, try casting the Python object to a `std::complex`. This is
+        // useful since the Python type `numpy.complex128` does not match any nanobind
+        // type.
+        std::complex<double> cplx;
+        if (nb::try_cast<std::complex<double>>(py_obj, cplx)) {
+            return APyCFixed::from_complex(cplx, int_bits, frac_bits, bits);
+        } else {
+            const nb::type_object type = nb::cast<nb::type_object>(py_obj.type());
+            const nb::str type_string = nb::str(type);
+            throw std::domain_error(
+                std::string("Non-supported type: ") + type_string.c_str()
+            );
+        }
     }
 }
 
