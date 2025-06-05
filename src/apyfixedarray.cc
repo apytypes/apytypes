@@ -1363,16 +1363,15 @@ APyFixedArray APyFixedArray::from_numbers(
 
     // Extract all Python doubles and integers
     auto py_objs = python_sequence_walk<nb::float_, nb::int_, APyFixed, APyFloat>(
-        number_seq, "APyFixedArray.from_complex"
+        number_seq, "APyFixedArray.from_float"
     );
 
     // Iterate over objects and set in fixed-point array
     for (std::size_t i = 0; i < result._nitems; i++) {
         if (nb::isinstance<nb::float_>(py_objs[i])) {
             // Python double object
-            double d = static_cast<double>(nb::cast<nb::float_>(py_objs[i]));
             fixed_point_from_double(
-                d,
+                static_cast<double>(nb::cast<nb::float_>(py_objs[i])),
                 std::begin(result._data) + (i + 0) * result._itemsize,
                 std::begin(result._data) + (i + 1) * result._itemsize,
                 result._bits,

@@ -168,27 +168,24 @@ APyCFloat APyCFloat::from_number(
     const nb::object& py_obj, int exp_bits, int man_bits, std::optional<exp_t> bias
 )
 {
+    exp_t res_bias = bias.value_or(ieee_bias(exp_bits));
     if (nb::isinstance<nb::int_>(py_obj)) {
-        const nb::int_& py_int = nb::cast<nb::int_>(py_obj);
-        return APyCFloat::from_integer(py_int, exp_bits, man_bits, bias);
+        const nb::int_& val = nb::cast<nb::int_>(py_obj);
+        return APyCFloat::from_integer(val, exp_bits, man_bits, res_bias);
     } else if (nb::isinstance<nb::float_>(py_obj)) {
-        double d = static_cast<double>(nb::cast<nb::float_>(py_obj));
-        return APyCFloat::from_double(d, exp_bits, man_bits, bias);
+        double val = static_cast<double>(nb::cast<nb::float_>(py_obj));
+        return APyCFloat::from_double(val, exp_bits, man_bits, res_bias);
     } else if (nb::isinstance<std::complex<double>>(py_obj)) {
-        std::complex<double> c = nb::cast<std::complex<double>>(py_obj);
-        return APyCFloat::from_complex(c, exp_bits, man_bits, bias);
+        std::complex<double> cplx = nb::cast<std::complex<double>>(py_obj);
+        return APyCFloat::from_complex(cplx, exp_bits, man_bits, res_bias);
     } else if (nb::isinstance<APyFloat>(py_obj)) {
-        exp_t res_bias = bias.value_or(ieee_bias(exp_bits));
-        APyFloatSpec res_spec { std::uint8_t(exp_bits),
-                                std::uint8_t(man_bits),
-                                res_bias };
-        APyFloat c = nb::cast<APyFloat>(py_obj);
-        if (res_spec != c.spec()) {
-            c = c.cast(exp_bits, man_bits, res_bias, QuantizationMode::RND_CONV);
+        APyFloatSpec spec { std::uint8_t(exp_bits), std::uint8_t(man_bits), res_bias };
+        APyFloat fp = nb::cast<APyFloat>(py_obj);
+        if (spec != fp.spec()) {
+            fp = fp.cast(exp_bits, man_bits, res_bias, QuantizationMode::RND_CONV);
         }
-        return APyCFloat(c.get_data(), exp_bits, man_bits, res_bias);
+        return APyCFloat(fp.get_data(), exp_bits, man_bits, res_bias);
     } else if (nb::isinstance<APyFixed>(py_obj)) {
-        exp_t res_bias = bias.value_or(ieee_bias(exp_bits));
         const APyFixed& fx = nb::cast<const APyFixed&>(py_obj);
         const APyFloatData& data = floating_point_from_fixed_point(
             std::begin(fx._data),
@@ -201,7 +198,6 @@ APyCFloat APyCFloat::from_number(
         );
         return APyCFloat(data, exp_bits, man_bits, res_bias);
     } else if (nb::isinstance<APyCFixed>(py_obj)) {
-        exp_t res_bias = bias.value_or(ieee_bias(exp_bits));
         const APyCFixed& fx = nb::cast<const APyCFixed&>(py_obj);
         const APyFloatData& re_data = floating_point_from_fixed_point(
             fx.real_cbegin(),
@@ -223,11 +219,19 @@ APyCFloat APyCFloat::from_number(
         );
         return APyCFloat(re_data, im_data, exp_bits, man_bits, res_bias);
     } else {
-        const nb::type_object type = nb::cast<nb::type_object>(py_obj.type());
-        const nb::str type_string = nb::str(type);
-        throw std::domain_error(
-            std::string("Non supported type: ") + type_string.c_str()
-        );
+        // Last resort, try casting the Python object to a `std::complex`. This is
+        // useful since the Python type `numpy.complex128` does not match any nanobind
+        // type.
+        std::complex<double> cplx;
+        if (nb::try_cast<std::complex<double>>(py_obj, cplx)) {
+            return APyCFloat::from_complex(cplx, exp_bits, man_bits, res_bias);
+        } else {
+            const nb::type_object type = nb::cast<nb::type_object>(py_obj.type());
+            const nb::str type_string = nb::str(type);
+            throw std::domain_error(
+                std::string("Non supported type: ") + type_string.c_str()
+            );
+        }
     }
 }
 

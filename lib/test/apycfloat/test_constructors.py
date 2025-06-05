@@ -92,3 +92,32 @@ def test_from_complex():
     assert APyCFloat.from_complex(
         APyCFixed.from_complex(-4, int_bits=10, frac_bits=8), exp_bits=10, man_bits=8
     ).is_identical(APyCFloat((True, 0), (2**9 + 1, 0), (0, 0), exp_bits=10, man_bits=8))
+
+    np = pytest.importorskip("numpy")
+    types = [
+        np.complex64,
+        np.complex128,
+    ]
+    for t in types:
+        a = APyCFloat.from_float(t(923.75), exp_bits=11, man_bits=52)
+        assert a.is_identical(APyCFloat.from_complex(923.75, exp_bits=11, man_bits=52))
+
+
+def test_from_float():
+    np = pytest.importorskip("numpy")
+    types = [
+        np.float16,
+        np.float32,
+        np.float64,
+        np.int8,
+        np.int16,
+        np.int32,
+        np.int64,
+        np.uint8,
+        np.uint16,
+        np.uint32,
+        np.uint64,
+    ]
+    for t in types:
+        a = APyCFloat.from_float(t(125), exp_bits=11, man_bits=52)
+        assert a.is_identical(APyCFloat.from_complex(125, exp_bits=11, man_bits=52))
