@@ -24,15 +24,16 @@
 namespace nb = nanobind;
 
 // Standard header includes
-#include <algorithm> // std::copy, std::max, std::transform, etc...
-#include <cstddef>   // std::size_t
-#include <cstdint>   // std::int16, std::int32, std::int64, etc...
-#include <optional>  // std::optional
-#include <set>       // std::set
-#include <stdexcept> // std::length_error
-#include <string>    // std::string
-#include <variant>   // std::variant
-#include <vector>    // std::vector, std::swap
+#include <algorithm>   // std::copy, std::max, std::transform, etc...
+#include <cstddef>     // std::size_t
+#include <cstdint>     // std::int16, std::int32, std::int64, etc...
+#include <optional>    // std::optional
+#include <set>         // std::set
+#include <stdexcept>   // std::length_error
+#include <string>      // std::string
+#include <type_traits> // std::remove_cv_t
+#include <variant>     // std::variant
+#include <vector>      // std::vector, std::swap
 
 #include <fmt/format.h>
 
@@ -1302,18 +1303,57 @@ APyCFixedArray APyCFixedArray::from_complex(
         std::complex<double> // Put last so that APyC-scalars are not casted
         >(python_seq, "APyCFixedArray.from_complex");
 
-    // Set data from doubles (reuse `APyCFixed::from_double` conversion)
+    // Function used to set a single scalar from a floating-point
+    unsigned float_shift {};
+    std::function<void(APyCFixedArray&, std::size_t, double, unsigned)> from_fp;
+    if (result._itemsize == 2) {
+        float_shift = 64 - (result._bits & (64 - 1));
+        from_fp = [](APyCFixedArray& res, std::size_t i, double val, unsigned shift) {
+            res._data[i]
+                = fixed_point_from_double_single_limb(val, res.frac_bits(), shift);
+        };
+    } else {
+        assert(result._itemsize >= 4);
+        assert(result._itemsize % 2 == 0);
+        from_fp = [](APyCFixedArray& res, std::size_t i, double val, unsigned) {
+            fixed_point_from_double(
+                val,
+                std::begin(res._data) + (i + 0) * (res._itemsize / 2),
+                std::begin(res._data) + (i + 1) * (res._itemsize / 2),
+                res.bits(),
+                res.int_bits()
+            );
+        };
+    }
+
+    // Function used to cast fixed-point data to `*this` format
+    auto fx_cast = [](APyCFixedArray& res, std::size_t i, auto&& fx) {
+        using CleanFx_t = std::remove_cv_t<std::remove_reference_t<decltype(fx)>>;
+        constexpr bool is_cplx = std::is_same_v<CleanFx_t, APyCFixed>;
+        std::size_t offst = res._itemsize / 2;
+        for (std::size_t j = 0; j < 1 + is_cplx; j++) {
+            auto fx_begin = std::begin(fx._data) + j * fx._data.size() / 2;
+            auto fx_end = fx_begin + (is_cplx ? fx._data.size() / 2 : fx._data.size());
+            fixed_point_cast(
+                fx_begin,
+                fx_end,
+                (j ? res.imag_begin() : res.real_begin()) + i * res._itemsize,
+                (j ? res.imag_begin() : res.real_begin()) + i * res._itemsize + offst,
+                fx._bits,
+                fx._int_bits,
+                res._bits,
+                res._int_bits,
+                QuantizationMode::RND_INF,
+                OverflowMode::WRAP
+            );
+        }
+    };
+
     for (std::size_t i = 0; i < result._data.size() / result._itemsize; i++) {
         if (nb::isinstance<nb::float_>(py_obj[i])) {
             // Python double object
-            const auto d = static_cast<double>(nb::cast<nb::float_>(py_obj[i]));
-            fixed_point_from_double(
-                d,
-                result.real_begin() + i * result._itemsize,
-                result.real_begin() + i * result._itemsize + result._itemsize / 2,
-                result._bits,
-                result._int_bits
-            );
+            double val = static_cast<double>(nb::cast<nb::float_>(py_obj[i]));
+            from_fp(result, 2 * i, val, float_shift);
         } else if (nb::isinstance<nb::int_>(py_obj[i])) {
             // Python integer object
             fixed_point_from_py_integer(
@@ -1324,77 +1364,19 @@ APyCFixedArray APyCFixedArray::from_complex(
                 result._int_bits
             );
         } else if (nb::isinstance<APyFixed>(py_obj[i])) {
-            const auto d = static_cast<APyFixed>(nb::cast<APyFixed>(py_obj[i]));
-            fixed_point_cast(
-                std::begin(d._data),
-                std::end(d._data),
-                std::begin(result._data) + i * result._itemsize,
-                std::begin(result._data) + i * result._itemsize + result._itemsize / 2,
-                d._bits,
-                d._int_bits,
-                result._bits,
-                result._int_bits,
-                QuantizationMode::RND_INF,
-                OverflowMode::WRAP
-            );
+            const APyFixed& fx = static_cast<APyFixed>(nb::cast<APyFixed>(py_obj[i]));
+            fx_cast(result, i, fx);
         } else if (nb::isinstance<APyFloat>(py_obj[i])) {
-            const auto d
-                = static_cast<APyFloat>(nb::cast<APyFloat>(py_obj[i])).to_fixed();
-            fixed_point_cast(
-                std::begin(d._data),
-                std::end(d._data),
-                std::begin(result._data) + i * result._itemsize,
-                std::begin(result._data) + i * result._itemsize + result._itemsize / 2,
-                d._bits,
-                d._int_bits,
-                result._bits,
-                result._int_bits,
-                QuantizationMode::RND_INF,
-                OverflowMode::WRAP
-            );
+            const APyFixed& fx = nb::cast<APyFloat>(py_obj[i]).to_fixed();
+            fx_cast(result, i, fx);
         } else if (nb::isinstance<APyCFixed>(py_obj[i])) {
-            const auto d = static_cast<APyCFixed>(nb::cast<APyCFixed>(py_obj[i]));
-            fixed_point_cast(
-                d.real_begin(),
-                d.real_end(),
-                result.real_begin() + i * result._itemsize,
-                result.real_begin() + i * result._itemsize + result._itemsize / 2,
-                d._bits,
-                d._int_bits,
-                result._bits,
-                result._int_bits,
-                QuantizationMode::RND_INF,
-                OverflowMode::WRAP
-            );
-            fixed_point_cast(
-                d.imag_begin(),
-                d.imag_end(),
-                result.imag_begin() + i * result._itemsize,
-                result.imag_begin() + i * result._itemsize + result._itemsize / 2,
-                d._bits,
-                d._int_bits,
-                result._bits,
-                result._int_bits,
-                QuantizationMode::RND_INF,
-                OverflowMode::WRAP
-            );
+            const APyCFixed& cfx = nb::cast<APyCFixed>(py_obj[i]);
+            fx_cast(result, i, cfx);
         } else if (nb::isinstance<std::complex<double>>(py_obj[i])) {
             // Complex double object
             std::complex<double> c = nb::cast<std::complex<double>>(py_obj[i]);
-            fixed_point_from_double(
-                c.real(),
-                result.real_begin() + i * result._itemsize,
-                result.real_begin() + i * result._itemsize + result._itemsize / 2,
-                result._bits,
-                result._int_bits
-            );
-            fixed_point_from_double(
-                c.imag(),
-                result.imag_begin() + i * result._itemsize,
-                result.imag_begin() + i * result._itemsize + result._itemsize / 2,
-                result._bits,
-                result._int_bits
-            );
+            from_fp(result, 2 * i + 0, c.real(), float_shift);
+            from_fp(result, 2 * i + 1, c.imag(), float_shift);
         }
     }
 
@@ -1520,74 +1502,116 @@ void APyCFixedArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& nda
 
 void APyCFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& ndarray)
 {
-    if (ndarray.dtype() == nb::dtype<std::complex<double>>()) {
-        auto ndarray_view = ndarray.view<std::complex<double>, nb::ndim<1>>();
-        for (std::size_t i = 0; i < ndarray.size(); i++) {
-            fixed_point_from_double(
-                static_cast<std::complex<double>>(ndarray_view.data()[i]).real(),
-                real_begin() + i * _itemsize,
-                real_begin() + i * _itemsize + _itemsize / 2,
-                _bits,
-                _int_bits
-            );
-            fixed_point_from_double(
-                static_cast<std::complex<double>>(ndarray_view.data()[i]).imag(),
-                imag_begin() + i * _itemsize,
-                imag_begin() + i * _itemsize + _itemsize / 2,
-                _bits,
-                _int_bits
-            );
-        }
-        return; /* Conversion completed, exit `_set_values_from_ndarray()` */
-    }
+#define CHECK_AND_SET_VALUES_FROM_COMPLEX_NPTYPE(__TYPE__)                             \
+    do {                                                                               \
+        if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
+            auto view = ndarray.view<__TYPE__, nb::ndim<1>>();                         \
+            if (_itemsize == 2) {                                                      \
+                unsigned limb_shift_val = bits() & (64 - 1);                           \
+                unsigned twos_complement_shift = 64 - limb_shift_val;                  \
+                int _frac_bits = frac_bits();                                          \
+                for (std::size_t i = 0; i < ndarray.size(); i++) {                     \
+                    std::complex<double> cplx = view.data()[i];                        \
+                    _data[2 * i + 0] = fixed_point_from_double_single_limb(            \
+                        cplx.real(), _frac_bits, twos_complement_shift                 \
+                    );                                                                 \
+                    _data[2 * i + 1] = fixed_point_from_double_single_limb(            \
+                        cplx.imag(), _frac_bits, twos_complement_shift                 \
+                    );                                                                 \
+                }                                                                      \
+            } else {                                                                   \
+                assert(_itemsize >= 4);                                                \
+                assert(_itemsize % 2 == 0);                                            \
+                for (std::size_t i = 0; i < ndarray.size(); i++) {                     \
+                    std::complex<double> cplx = view.data()[i];                        \
+                    fixed_point_from_double(                                           \
+                        cplx.real(),                                                   \
+                        real_begin() + i * _itemsize,                                  \
+                        real_begin() + i * _itemsize + _itemsize / 2,                  \
+                        _bits,                                                         \
+                        _int_bits                                                      \
+                    );                                                                 \
+                    fixed_point_from_double(                                           \
+                        cplx.imag(),                                                   \
+                        imag_begin() + i * _itemsize,                                  \
+                        imag_begin() + i * _itemsize + _itemsize / 2,                  \
+                        _bits,                                                         \
+                        _int_bits                                                      \
+                    );                                                                 \
+                }                                                                      \
+            }                                                                          \
+            return; /* Conversion completed, exit `_set_values_from_ndarray()` */      \
+        }                                                                              \
+    } while (0)
 
-#define CHECK_AND_SET_VALUES_FROM_NPTYPE(__TYPE__)                                       \
-    do {                                                                                 \
-        if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                  \
-            auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                   \
-            for (std::size_t i = 0; i < ndarray.size(); i++) {                           \
-                if constexpr (std::is_same_v<__TYPE__, float>                            \
-                              || std::is_same_v<__TYPE__, double>) {                     \
-                    fixed_point_from_double(                                             \
-                        static_cast<double>(ndarray_view.data()[i]),                     \
-                        real_begin() + i * _itemsize,                                    \
-                        real_begin() + i * _itemsize + _itemsize / 2,                    \
-                        _bits,                                                           \
-                        _int_bits                                                        \
-                    );                                                                   \
-                } else {                                                                 \
-                    fixed_point_from_integer(                                            \
-                        static_cast<std::uint64_t>(ndarray_view.data()[i]),              \
-                        real_begin() + i * _itemsize,                                    \
-                        real_begin() + i * _itemsize + _itemsize / 2,                    \
-                        _bits,                                                           \
-                        _int_bits                                                        \
-                    );                                                                   \
-                }                                                                        \
-                std::fill_n(/* zero imag part */                                       \
-                            imag_begin() + i * _itemsize,                              \
-                            _itemsize / 2,                                             \
-                            0                                                          \
-                ); \
-            }                                                                            \
-            return; /* Conversion completed, exit `_set_values_from_ndarray()` */        \
-        }                                                                                \
+#define CHECK_AND_SET_VALUES_FROM_FLOAT_NPTYPE(__TYPE__)                               \
+    do {                                                                               \
+        if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
+            auto view = ndarray.view<__TYPE__, nb::ndim<1>>();                         \
+            if (_itemsize == 2) {                                                      \
+                unsigned limb_shift_val = bits() & (64 - 1);                           \
+                unsigned twos_complement_shift = 64 - limb_shift_val;                  \
+                int _frac_bits = frac_bits();                                          \
+                for (std::size_t i = 0; i < ndarray.size(); i++) {                     \
+                    _data[2 * i + 0] = fixed_point_from_double_single_limb(            \
+                        view.data()[i], _frac_bits, twos_complement_shift              \
+                    );                                                                 \
+                    _data[2 * i + 1] = 0;                                              \
+                }                                                                      \
+            } else {                                                                   \
+                assert(_itemsize >= 4);                                                \
+                assert(_itemsize % 2 == 0);                                            \
+                for (std::size_t i = 0; i < ndarray.size(); i++) {                     \
+                    fixed_point_from_double(                                           \
+                        view.data()[i],                                                \
+                        real_begin() + i * _itemsize,                                  \
+                        real_begin() + i * _itemsize + _itemsize / 2,                  \
+                        _bits,                                                         \
+                        _int_bits                                                      \
+                    );                                                                 \
+                    std::fill_n(imag_begin() + i * _itemsize, _itemsize / 2, 0);       \
+                }                                                                      \
+            }                                                                          \
+            return; /* Conversion completed, exit `_set_values_from_ndarray()` */      \
+        }                                                                              \
+    } while (0)
+
+#define CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(__TYPE__)                                 \
+    do {                                                                               \
+        if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
+            auto view = ndarray.view<__TYPE__, nb::ndim<1>>();                         \
+            for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
+                fixed_point_from_integer(                                              \
+                    static_cast<std::uint64_t>(view.data()[i]),                        \
+                    real_begin() + i * _itemsize,                                      \
+                    real_begin() + i * _itemsize + _itemsize / 2,                      \
+                    _bits,                                                             \
+                    _int_bits                                                          \
+                );                                                                     \
+                std::fill_n(imag_begin() + i * _itemsize, _itemsize / 2, 0);           \
+            }                                                                          \
+            return; /* Conversion completed, exit `_set_values_from_ndarray()` */      \
+        }                                                                              \
     } while (0)
 
     // Each `CHECK_AND_SET_VALUES_FROM_NPTYPE` checks the dtype of `ndarray` and
-    // converts all the data if it matches. If successful,
-    // `CHECK_AND_SET_VALUES_FROM_NPTYPES` returns. Otherwise, the next attempted
-    // conversion will take place
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(double);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(float);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int64_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int32_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int16_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int8_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint64_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint32_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint16_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint8_t);
+    // converts all the data if it matches. If successful, the macro returns. Otherwise,
+    // the next attempted conversion will take place.
+    CHECK_AND_SET_VALUES_FROM_COMPLEX_NPTYPE(std::complex<double>);
+    CHECK_AND_SET_VALUES_FROM_FLOAT_NPTYPE(double);
+    CHECK_AND_SET_VALUES_FROM_FLOAT_NPTYPE(float);
+    CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::int64_t);
+    CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::int32_t);
+    CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::int16_t);
+    CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::int8_t);
+    CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::uint64_t);
+    CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::uint32_t);
+    CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::uint16_t);
+    CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::uint8_t);
+
+#undef CHECK_AND_SET_VALUES_FROM_COMPLEX_NPTYPE
+#undef CHECK_AND_SET_VALUES_FROM_FLOAT_NPTYPE
+#undef CHECK_AND_SET_VALUES_FROM_INT_NPTYPE
 
     // None of the `CHECK_AND_VALUES_FROM_NPTYPE` succeeded. Unsupported type, throw
     // an error. If possible, it would be nice to show a string representation of
@@ -1595,6 +1619,6 @@ void APyCFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& n
     // find out how this can be achieved.
     throw nb::type_error(
         "APyCFixedArray.from_array: unsupported `dtype` in ndarray, expecting "
-        "integer/float"
+        "complex or float or integer"
     );
 }

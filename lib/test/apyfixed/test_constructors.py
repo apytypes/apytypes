@@ -11,17 +11,17 @@ def test_construction_raises():
     """
     # Zero-bit fixed-point numbers can not be created
     with pytest.raises(ValueError, match="Fixed-point bit specification needs a"):
-        APyFixed(0, bits=0, int_bits=0)
+        _ = APyFixed(0, bits=0, int_bits=0)
 
     # Exactly two of three bit-specifiers needs to be set when creating `APyFixed`
     with pytest.raises(ValueError, match="Fixed-point bit specification needs exactly"):
-        APyFixed(0, bits=1, int_bits=0, frac_bits=0)
+        _ = APyFixed(0, bits=1, int_bits=0, frac_bits=0)
     with pytest.raises(ValueError, match="Fixed-point bit specification needs exactly"):
-        APyFixed(0, frac_bits=1)
+        _ = APyFixed(0, frac_bits=1)
     with pytest.raises(ValueError, match="Fixed-point bit specification needs exactly"):
-        APyFixed(0, int_bits=1)
+        _ = APyFixed(0, int_bits=1)
     with pytest.raises(ValueError, match="Fixed-point bit specification needs exactly"):
-        APyFixed(0, bits=1)
+        _ = APyFixed(0, bits=1)
 
 
 def test_constructor():
@@ -134,21 +134,19 @@ def test_string_construction():
     )
 
     with pytest.raises(ValueError, match="Not a valid decimal numeric string"):
-        APyFixed.from_str("Foo", 4, 4)
+        _ = APyFixed.from_str("Foo", 4, 4)
 
 
-def test_incorrect_double_construction():
+@pytest.mark.parametrize("bits", [4, 8, 100, 2000])
+def test_incorrect_double_construction(bits: int):
     with pytest.raises(ValueError, match="Cannot convert nan to fixed-point"):
-        APyFixed.from_float(float("NaN"), 4, 4)
-
+        _ = APyFixed.from_float(float("NaN"), bits=bits, frac_bits=4)
     with pytest.raises(ValueError, match="Cannot convert inf to fixed-point"):
-        APyFixed.from_float(float("inf"), 4, 4)
-
+        _ = APyFixed.from_float(float("inf"), bits=bits, frac_bits=4)
     with pytest.raises(ValueError, match="Cannot convert nan to fixed-point"):
-        APyFixed.from_float(APyFloat(0, 15, 3, 4, 3), 4, 4)
-
+        _ = APyFixed.from_float(APyFloat(0, 15, 3, 4, 3), bits=bits, frac_bits=4)
     with pytest.raises(ValueError, match="Cannot convert inf to fixed-point"):
-        APyFixed.from_float(APyFloat(0, 15, 0, 4, 3), 4, 4)
+        _ = APyFixed.from_float(APyFloat(0, 15, 0, 4, 3), bits=bits, frac_bits=4)
 
 
 def test_issue_487():

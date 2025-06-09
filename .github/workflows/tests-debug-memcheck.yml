@@ -22,6 +22,8 @@ jobs:
   build:
     strategy:
       fail-fast: false
+      matrix:
+        limb-size: ["32", "64"]
     runs-on: "ubuntu-24.04"
 
     steps:
@@ -42,8 +44,9 @@ jobs:
     - name: Install APyTypes (debug mode)
       run: |
         git fetch --tags
-        python -m pip install -e . -v --no-build-isolation  \
-          -Csetup-args=-Dbuildtype=debug                    \
+        python -m pip install -e . -v --no-build-isolation   \
+          -Csetup-args='-Dbuildtype=debug'                   \
+          -Csetup-args='-Dlimb_size=${{ matrix.limb-size }}' \
           -Cbuild-dir=build-dbg
     - name: Run the test suite in Valgrind memcheck
       run: |

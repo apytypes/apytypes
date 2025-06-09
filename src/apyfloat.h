@@ -232,7 +232,7 @@ public:
     //! Copy scalar
     APyFloat python_copy() const { return *this; }
     //! Deepcopy scalar (same as copy here)
-    APyFloat python_deepcopy(nb::dict& _) const { return *this; }
+    APyFloat python_deepcopy(nb::dict&) const { return *this; }
 
     /* ****************************************************************************** *
      * *                             Arithmetic operators                           * *

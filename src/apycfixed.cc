@@ -738,9 +738,21 @@ APyCFixed APyCFixed::from_double(
 )
 {
     APyCFixed result(int_bits, frac_bits, bits);
-    fixed_point_from_double(
-        value, result.real_begin(), result.real_end(), result._bits, result._int_bits
-    );
+    if (result._data.size() == 2) {
+        unsigned shift = 64 - (result._bits & (64 - 1));
+        int frac_bits = result.frac_bits();
+        result._data[0] = fixed_point_from_double_single_limb(value, frac_bits, shift);
+    } else {
+        assert(result._data.size() >= 4);
+        assert(result._data.size() % 2 == 0);
+        fixed_point_from_double(
+            value,
+            result.real_begin(),
+            result.real_end(),
+            result._bits,
+            result._int_bits
+        );
+    }
     return result;
 }
 
@@ -784,12 +796,21 @@ APyCFixed APyCFixed::from_complex(
     APyCFixed result(int_bits, frac_bits, bits);
     double real = value.real();
     double imag = value.imag();
-    fixed_point_from_double(
-        real, result.real_begin(), result.real_end(), result._bits, result._int_bits
-    );
-    fixed_point_from_double(
-        imag, result.imag_begin(), result.imag_end(), result._bits, result._int_bits
-    );
+    if (result._data.size() == 2) {
+        unsigned shift = 64 - (result._bits & (64 - 1));
+        int frac_bits = result.frac_bits();
+        result._data[0] = fixed_point_from_double_single_limb(real, frac_bits, shift);
+        result._data[1] = fixed_point_from_double_single_limb(imag, frac_bits, shift);
+    } else {
+        assert(result._data.size() >= 4);
+        assert(result._data.size() % 2 == 0);
+        fixed_point_from_double(
+            real, result.real_begin(), result.real_end(), result._bits, result._int_bits
+        );
+        fixed_point_from_double(
+            imag, result.imag_begin(), result.imag_end(), result._bits, result._int_bits
+        );
+    }
     return result;
 }
 

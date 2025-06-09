@@ -1389,6 +1389,50 @@ inner_product_func_from_acc_mode(
  * *                       Fixed-point to and from other types                      * *
  * ********************************************************************************** */
 
+[[maybe_unused]] static APY_INLINE apy_limb_t
+fixed_point_from_double_single_limb(double value, int frac_bits, unsigned shift_amount)
+{
+    if (std::isnan(value) || std::isinf(value)) {
+        throw std::domain_error(fmt::format("Cannot convert {} to fixed-point", value));
+    }
+
+    int exp = exp_of_double(value);
+    std::uint64_t man = man_of_double(value);
+
+    // Left-shift amount needed to align floating binary point with fixed binary point
+    int left_shift_amnt = exp + frac_bits - 52 - 1023 + 1;
+    if (exp) {
+        // Append mantissa hidden one
+        man |= std::uint64_t(1) << 52;
+        left_shift_amnt--;
+    }
+
+    if (left_shift_amnt >= 0) {
+        if (left_shift_amnt < 64) {
+            man <<= left_shift_amnt;
+        } else {
+            man = 0;
+        }
+    } else {
+        unsigned right_shift_amount = -left_shift_amnt;
+        if (right_shift_amount < 64) {
+            // Round the mantissa value
+            man += std::uint64_t(1) << (right_shift_amount - 1);
+            man >>= right_shift_amount;
+        } else {
+            man = 0;
+        }
+    }
+
+    if (sign_of_double(value)) {
+        man = -man;
+    }
+
+    // Two's complement overflow
+    man = apy_limb_t(std::int64_t(man << shift_amount) >> shift_amount);
+    return man;
+}
+
 template <typename RANDOM_ACCESS_IT>
 void fixed_point_from_double(
     double value,
@@ -1399,9 +1443,8 @@ void fixed_point_from_double(
 )
 {
     // RANDOM_ACCESS_ITERATOR is `apy_limb_t` iterator (32-bit or 64-bit)
-    static_assert(std::is_same_v<
-                  apy_limb_t,
-                  std::remove_const_t<typename RANDOM_ACCESS_IT::value_type>>);
+    using IT_VALUE_TYPE = typename std::remove_const_t<RANDOM_ACCESS_IT>::value_type;
+    static_assert(std::is_same_v<apy_limb_t, IT_VALUE_TYPE>);
     static_assert(APY_LIMB_SIZE_BITS == 64 || APY_LIMB_SIZE_BITS == 32);
 
     if (std::isnan(value) || std::isinf(value)) {
@@ -1413,23 +1456,21 @@ void fixed_point_from_double(
 
     int frac_bits = bits - int_bits;
     int exp = exp_of_double(value);
-    uint64_t man = man_of_double(value);
+    std::uint64_t man = man_of_double(value);
 
     // Left-shift amount needed to align floating binary point with fixed binary point
     int left_shift_amnt = exp + frac_bits - 52 - 1023 + 1;
     if (exp) {
         // Append mantissa hidden one
-        man |= uint64_t(1) << 52;
+        man |= std::uint64_t(1) << 52;
         left_shift_amnt--;
     }
 
     if constexpr (APY_LIMB_SIZE_BITS == 64) {
-
         /*
          * Limb vector size is wide enough to accommodate the full mantissa of a
          * double-prection floating point number
          */
-
         if (left_shift_amnt >= 0) {
             *begin_it = man;
             limb_vector_lsl(begin_it, end_it, left_shift_amnt);
@@ -1437,52 +1478,31 @@ void fixed_point_from_double(
             auto right_shift_amount = -left_shift_amnt;
             if (right_shift_amount < 64) {
                 // Round the mantissa value
-                man += uint64_t(1) << (right_shift_amount - 1);
+                man += std::uint64_t(1) << (right_shift_amount - 1);
             }
             *begin_it = man;
             limb_vector_lsr(begin_it, end_it, right_shift_amount);
         }
 
     } else { /* APY_LIMB_SIZE_BITS == 32 */
-
         /*
          * Limb vector size is *NOT* wide enough to accommodate the full mantissa of a
-         * double-prection floating point number
+         * double-prection floating point number.
          */
-
-        if (std::distance(begin_it, end_it) == 1) {
-
-            if (left_shift_amnt >= 0) {
-                if (left_shift_amnt < 32) {
-                    man <<= left_shift_amnt;
-                    *(begin_it + 0) = (man & 0xFFFFFFFF);
-                }
-            } else {
-                auto right_shift_amount = -left_shift_amnt;
-                if (right_shift_amount < 64) {
-                    // Round the mantissa value
-                    man += uint64_t(1) << (right_shift_amount - 1);
-                    man >>= right_shift_amount;
-                    *(begin_it + 0) = (man & 0xFFFFFFFF);
-                }
+        assert(std::distance(begin_it, end_it) >= 2);
+        if (left_shift_amnt >= 0) {
+            *(begin_it + 0) = (man & 0xFFFFFFFF);
+            *(begin_it + 1) = (man >> 32);
+            limb_vector_lsl(begin_it, end_it, left_shift_amnt);
+        } else {
+            auto right_shift_amount = -left_shift_amnt;
+            if (right_shift_amount < 64) {
+                // Round the mantissa value
+                man += std::uint64_t(1) << (right_shift_amount - 1);
             }
-
-        } else { /* std::distance(begin_it, end_it > 1 */
-
-            if (left_shift_amnt >= 0) {
-                *(begin_it + 0) = (man & 0xFFFFFFFF);
-                *(begin_it + 1) = (man >> 32);
-                limb_vector_lsl(begin_it, end_it, left_shift_amnt);
-            } else {
-                auto right_shift_amount = -left_shift_amnt;
-                if (right_shift_amount < 64) {
-                    // Round the mantissa value
-                    man += uint64_t(1) << (right_shift_amount - 1);
-                }
-                *(begin_it + 0) = (man & 0xFFFFFFFF);
-                *(begin_it + 1) = (man >> 32);
-                limb_vector_lsr(begin_it, end_it, right_shift_amount);
-            }
+            *(begin_it + 0) = (man & 0xFFFFFFFF);
+            *(begin_it + 1) = (man >> 32);
+            limb_vector_lsr(begin_it, end_it, right_shift_amount);
         }
     }
 
@@ -1507,7 +1527,7 @@ fixed_point_to_double(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int fr
         return 0.0;
     }
 
-    uint64_t man {};
+    std::uint64_t man {};
     int exp {};
     bool sign = limb_vector_is_negative(begin_it, end_it);
 
@@ -1585,8 +1605,8 @@ fixed_point_to_double(RANDOM_ACCESS_IT begin_it, RANDOM_ACCESS_IT end_it, int fr
             }
         }
 
-        man = uint64_t(man_vec[0]);
-        man |= uint64_t(man_vec[1]) << 32;
+        man = std::uint64_t(man_vec[0]);
+        man |= std::uint64_t(man_vec[1]) << 32;
     }
 
     // Check for overflow to infinity

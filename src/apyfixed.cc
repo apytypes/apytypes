@@ -880,13 +880,21 @@ APyFixed APyFixed::from_double(
 )
 {
     APyFixed result(int_bits, frac_bits, bits);
-    fixed_point_from_double(
-        value,
-        std::begin(result._data),
-        std::end(result._data),
-        result._bits,
-        result._int_bits
-    );
+    if (result._data.size() == 1) {
+        unsigned shift_amount = 64 - (result._bits & (64 - 1));
+        result._data[0] = fixed_point_from_double_single_limb(
+            value, result.frac_bits(), shift_amount
+        );
+    } else {
+        assert(result._data.size() > 1);
+        fixed_point_from_double(
+            value,
+            std::begin(result._data),
+            std::end(result._data),
+            result._bits,
+            result._int_bits
+        );
+    }
     return result;
 }
 
