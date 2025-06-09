@@ -6,6 +6,7 @@ project(
       'c_std=c17',
       'b_lto=true',
       'b_ndebug=if-release',
+      'warning_level=2',
     ],
     version : run_command(
       find_program('python3'), '-m', 'setuptools_scm', check: true

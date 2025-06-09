@@ -117,7 +117,7 @@ public:
     APyFloat(std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias);
 
 private:
-    APyFloat() = default;
+    APyFloat() = delete;
 
     /* ****************************************************************************** *
      * *                          Methods for conversion                            * *

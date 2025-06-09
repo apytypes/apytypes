@@ -149,7 +149,7 @@ public:
     //! Copy scalar
     APyCFixed python_copy() const { return *this; }
     //! Deepcopy scalar (same as copy here)
-    APyCFixed python_deepcopy(nb::dict& memo) const { return *this; }
+    APyCFixed python_deepcopy(nb::dict& _) const { return *this; }
 
     /* ****************************************************************************** *
      *                         Binary arithmetic operators                            *

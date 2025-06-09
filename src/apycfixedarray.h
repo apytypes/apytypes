@@ -126,7 +126,7 @@ public:
     //! Copy array
     APyCFixedArray python_copy() const { return *this; }
     //! Deepcopy array (same as copy here)
-    APyCFixedArray python_deepcopy(const nb::dict& memo) const { return *this; }
+    APyCFixedArray python_deepcopy(const nb::dict& _) const { return *this; }
 
     /* ****************************************************************************** *
      * *                     Arithmetic member functions                            * *

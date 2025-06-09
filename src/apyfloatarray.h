@@ -262,7 +262,7 @@ public:
     APyFloatArray python_copy() const { return *this; }
 
     //! Deepcopy array
-    APyFloatArray python_deepcopy(const nb::dict& memo) const { return *this; }
+    APyFloatArray python_deepcopy(const nb::dict& _) const { return *this; }
 
     //! Perform a linear convolution with `other` using `mode`
     APyFloatArray convolve(const APyFloatArray& other, const std::string& mode) const;
