@@ -92,8 +92,9 @@ public:
     //! has to be set during construction.
     APyFixed() = delete;
 
-    //! Construct a copy from `other`.
+    //! Copy constructor and copy assignment
     APyFixed(const APyFixed& other) = default;
+    APyFixed& operator=(const APyFixed& other) = default;
 
     //! Main Python-exposed `APyFixed` constructor
     explicit APyFixed(
@@ -146,7 +147,7 @@ public:
     //! Copy scalar
     APyFixed python_copy() const { return *this; }
     //! Deepcopy scalar
-    APyFixed python_deepcopy(nb::dict& memo) const { return *this; }
+    APyFixed python_deepcopy(nb::dict& _) const { return *this; }
 
     /* ****************************************************************************** *
      *                         Binary arithmetic operators                            *
