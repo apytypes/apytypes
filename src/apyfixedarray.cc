@@ -1366,17 +1366,50 @@ APyFixedArray APyFixedArray::from_numbers(
         number_seq, "APyFixedArray.from_float"
     );
 
+    // Function used to set from a floating-point
+    unsigned float_shift {};
+    std::function<void(APyFixedArray&, std::size_t, double, unsigned)> from_fp;
+    if (result._itemsize == 1) {
+        float_shift = 64 - (result._bits & (64 - 1));
+        from_fp = [](APyFixedArray& res, std::size_t i, double val, unsigned shift) {
+            res._data[i]
+                = fixed_point_from_double_single_limb(val, res.frac_bits(), shift);
+        };
+    } else { /* result._itemsize > 1 */
+        assert(result._itemsize > 1);
+        from_fp = [](APyFixedArray& res, std::size_t i, double val, unsigned) {
+            fixed_point_from_double(
+                val,
+                std::begin(res._data) + (i + 0) * res._itemsize,
+                std::begin(res._data) + (i + 1) * res._itemsize,
+                res._bits,
+                res._int_bits
+            );
+        };
+    }
+
+    // Function used to set from a fixed-point
+    auto from_fx = [](APyFixedArray& res, std::size_t i, const APyFixed& fx) {
+        fixed_point_cast(
+            std::begin(fx._data),
+            std::end(fx._data),
+            std::begin(res._data) + (i + 0) * res._itemsize,
+            std::begin(res._data) + (i + 1) * res._itemsize,
+            fx._bits,
+            fx._int_bits,
+            res._bits,
+            res._int_bits,
+            QuantizationMode::RND_INF,
+            OverflowMode::WRAP
+        );
+    };
+
     // Iterate over objects and set in fixed-point array
     for (std::size_t i = 0; i < result._nitems; i++) {
         if (nb::isinstance<nb::float_>(py_objs[i])) {
             // Python double object
-            fixed_point_from_double(
-                static_cast<double>(nb::cast<nb::float_>(py_objs[i])),
-                std::begin(result._data) + (i + 0) * result._itemsize,
-                std::begin(result._data) + (i + 1) * result._itemsize,
-                result._bits,
-                result._int_bits
-            );
+            double value = static_cast<double>(nb::cast<nb::float_>(py_objs[i]));
+            from_fp(result, i, value, float_shift);
         } else if (nb::isinstance<nb::int_>(py_objs[i])) {
             // Python integer object
             fixed_point_from_py_integer(
@@ -1388,32 +1421,10 @@ APyFixedArray APyFixedArray::from_numbers(
             );
         } else if (nb::isinstance<APyFixed>(py_objs[i])) {
             const APyFixed& fx = nb::cast<const APyFixed&>(py_objs[i]);
-            fixed_point_cast(
-                std::begin(fx._data),
-                std::end(fx._data),
-                std::begin(result._data) + (i + 0) * result._itemsize,
-                std::begin(result._data) + (i + 1) * result._itemsize,
-                fx._bits,
-                fx._int_bits,
-                result._bits,
-                result._int_bits,
-                QuantizationMode::RND_INF,
-                OverflowMode::WRAP
-            );
+            from_fx(result, i, fx);
         } else if (nb::isinstance<APyFloat>(py_objs[i])) {
             const APyFixed& fx = nb::cast<const APyFloat&>(py_objs[i]).to_fixed();
-            fixed_point_cast(
-                std::begin(fx._data),
-                std::end(fx._data),
-                std::begin(result._data) + (i + 0) * result._itemsize,
-                std::begin(result._data) + (i + 1) * result._itemsize,
-                fx._bits,
-                fx._int_bits,
-                result._bits,
-                result._int_bits,
-                QuantizationMode::RND_INF,
-                OverflowMode::WRAP
-            );
+            from_fx(result, i, fx);
         }
     }
 
@@ -1849,23 +1860,23 @@ void APyFixedArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& ndar
 
 void APyFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& ndarray)
 {
-#define CHECK_AND_SET_VALUES_FROM_NPTYPE(__TYPE__)                                     \
+#define CHECK_AND_SET_VALUES_FROM_FLOAT_NPTYPE(__TYPE__)                               \
     do {                                                                               \
         if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
-            auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
-            for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
-                if constexpr (std::is_same_v<__TYPE__, float>                          \
-                              || std::is_same_v<__TYPE__, double>) {                   \
-                    fixed_point_from_double(                                           \
-                        static_cast<double>(ndarray_view.data()[i]),                   \
-                        std::begin(_data) + (i + 0) * _itemsize,                       \
-                        std::begin(_data) + (i + 1) * _itemsize,                       \
-                        _bits,                                                         \
-                        _int_bits                                                      \
+            auto view = ndarray.view<__TYPE__, nb::ndim<1>>();                         \
+            if (_itemsize == 1) {                                                      \
+                unsigned limb_shift_val = bits() & (64 - 1);                           \
+                unsigned twos_complement_shift = 64 - limb_shift_val;                  \
+                int _frac_bits = frac_bits();                                          \
+                for (std::size_t i = 0; i < ndarray.size(); i++) {                     \
+                    _data[i] = fixed_point_from_double_single_limb(                    \
+                        view.data()[i], _frac_bits, twos_complement_shift              \
                     );                                                                 \
-                } else {                                                               \
-                    fixed_point_from_integer(                                          \
-                        static_cast<std::uint64_t>(ndarray_view.data()[i]),            \
+                }                                                                      \
+            } else { /* _itemsize > 1 */                                               \
+                for (std::size_t i = 0; i < ndarray.size(); i++) {                     \
+                    fixed_point_from_double(                                           \
+                        static_cast<double>(view.data()[i]),                           \
                         std::begin(_data) + (i + 0) * _itemsize,                       \
                         std::begin(_data) + (i + 1) * _itemsize,                       \
                         _bits,                                                         \
@@ -1877,20 +1888,38 @@ void APyFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& nd
         }                                                                              \
     } while (0)
 
+#define CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(__TYPE__)                                 \
+    do {                                                                               \
+        if (ndarray.dtype() == nb::dtype<__TYPE__>()) {                                \
+            auto ndarray_view = ndarray.view<__TYPE__, nb::ndim<1>>();                 \
+            for (std::size_t i = 0; i < ndarray.size(); i++) {                         \
+                fixed_point_from_integer(                                              \
+                    static_cast<std::uint64_t>(ndarray_view.data()[i]),                \
+                    std::begin(_data) + (i + 0) * _itemsize,                           \
+                    std::begin(_data) + (i + 1) * _itemsize,                           \
+                    _bits,                                                             \
+                    _int_bits                                                          \
+                );                                                                     \
+            }                                                                          \
+            return; /* Conversion completed, exit `_set_values_from_ndarray()` */      \
+        }                                                                              \
+    } while (0)
+
     // Each `CHECK_AND_SET_VALUES_FROM_NPTYPE` checks the dtype of `ndarray` and
-    // converts all the data if it matches. If successful,
-    // `CHECK_AND_SET_VALUES_FROM_NPTYPES` returns. Otherwise, the next attempted
-    // conversion will take place
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(double);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(float);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int64_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int32_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int16_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::int8_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint64_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint32_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint16_t);
-    CHECK_AND_SET_VALUES_FROM_NPTYPE(std::uint8_t);
+    // converts all the data if it matches. If successful, the macro returns. Otherwise,
+    // the next attempted conversion will take place.
+    CHECK_AND_SET_VALUES_FROM_FLOAT_NPTYPE(double);
+    CHECK_AND_SET_VALUES_FROM_FLOAT_NPTYPE(float);
+    CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::int64_t);
+    CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::int32_t);
+    CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::int16_t);
+    CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::int8_t);
+    CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::uint64_t);
+    CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::uint32_t);
+    CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::uint16_t);
+    CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::uint8_t);
+#undef CHECK_AND_SET_VALUES_FROM_FLOAT_NPTYPE
+#undef CHECK_AND_SET_VALUES_FROM_INT_NPTYPE
 
     // None of the `CHECK_AND_VALUES_FROM_NPTYPE` succeeded. Unsupported type, throw
     // an error. If possible, it would be nice to show a string representation of

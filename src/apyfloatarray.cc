@@ -857,13 +857,13 @@ APyFloatArray::nanmin(const std::optional<PyShapeParam_t>& py_axis) const
 
 std::string APyFloatArray::repr() const
 {
-    const auto sign_formatter = [](auto cbegin_it, auto _) -> std::string {
+    const auto sign_formatter = [](auto cbegin_it, auto) -> std::string {
         return fmt::format("{}", int(cbegin_it->sign));
     };
-    const auto exp_formatter = [](auto cbegin_it, auto _) -> std::string {
+    const auto exp_formatter = [](auto cbegin_it, auto) -> std::string {
         return fmt::format("{}", cbegin_it->exp);
     };
-    const auto man_formatter = [](auto cbegin_it, auto _) -> std::string {
+    const auto man_formatter = [](auto cbegin_it, auto) -> std::string {
         return fmt::format("{}", cbegin_it->man);
     };
 
@@ -1366,7 +1366,7 @@ APyFloatArray APyFloatArray::checked_2d_matmul(const APyFloatArray& rhs) const
 
 std::string APyFloatArray::to_string_dec() const
 {
-    const auto formatter = [spec = spec()](auto cbegin_it, auto _) -> std::string {
+    const auto formatter = [spec = spec()](auto cbegin_it, auto) -> std::string {
         // NOTE: Python, unlike C++, unconditionally encodes the string of a
         // floating-point NaN without a minus sign.
         if (is_nan(*cbegin_it, spec)) {

@@ -135,7 +135,7 @@ public:
     //! Copy array
     APyFixedArray python_copy() const { return *this; }
     //! Deepcopy array (same as copy here)
-    APyFixedArray python_deepcopy(const nb::dict& _) const { return *this; }
+    APyFixedArray python_deepcopy(const nb::dict&) const { return *this; }
 
     /* ****************************************************************************** *
      * *                       Binary arithmetic operators                          * *
