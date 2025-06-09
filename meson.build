@@ -1,8 +1,15 @@
 project(
     'apytypes',
     'cpp', 'c',
-    default_options : ['cpp_std=c++17', 'c_std=c17', 'b_lto=true'],
-    version : run_command(find_program('python3'), '-m', 'setuptools_scm', check: true).stdout().strip(),
+    default_options : [
+      'cpp_std=c++17',
+      'c_std=c17',
+      'b_lto=true',
+      'b_ndebug=if-release',
+    ],
+    version : run_command(
+      find_program('python3'), '-m', 'setuptools_scm', check: true
+    ).stdout().strip(),
     meson_version : '>=1.1',
 )
 
