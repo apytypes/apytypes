@@ -46,7 +46,7 @@ static constexpr std::size_t _EXP_LIMIT_BITS = _EXP_T_SIZE_BITS - 2;
 }
 
 [[maybe_unused]] static APY_INLINE bool
-is_max_exponent(const APyFloatData& src, uint8_t exp_bits)
+is_max_exponent(const APyFloatData& src, std::uint8_t exp_bits)
 {
     return src.exp == ((1ULL << exp_bits) - 1);
 }
@@ -58,13 +58,13 @@ is_max_exponent(const APyFloatData& src, const APyFloatSpec& spec)
 }
 
 [[maybe_unused]] static APY_INLINE bool
-is_normal(const APyFloatData& src, uint8_t exp_bits)
+is_normal(const APyFloatData& src, std::uint8_t exp_bits)
 {
     return src.exp != 0 && !is_max_exponent(src, exp_bits);
 }
 
 [[maybe_unused]] static APY_INLINE bool
-is_nan(const APyFloatData& src, uint8_t exp_bits)
+is_nan(const APyFloatData& src, std::uint8_t exp_bits)
 {
     return is_max_exponent(src, exp_bits) && src.man != 0;
 }
@@ -76,7 +76,7 @@ is_nan(const APyFloatData& src, const APyFloatSpec& spec)
 }
 
 [[maybe_unused]] static APY_INLINE bool
-is_inf(const APyFloatData& src, uint8_t exp_bits)
+is_inf(const APyFloatData& src, std::uint8_t exp_bits)
 {
     return is_max_exponent(src, exp_bits) && src.man == 0;
 }
@@ -93,19 +93,20 @@ is_finite(const APyFloatData& src, const APyFloatSpec& spec)
     return !is_inf(src, spec) && !is_nan(src, spec);
 }
 
-[[maybe_unused]] static APY_INLINE int64_t true_exp(const APyFloatData& src, exp_t bias)
+[[maybe_unused]] static APY_INLINE std::int64_t
+true_exp(const APyFloatData& src, exp_t bias)
 {
     return std::int64_t(src.exp) - std::int64_t(bias) + (src.exp == 0);
 }
 
-[[maybe_unused]] static APY_INLINE int64_t
+[[maybe_unused]] static APY_INLINE std::int64_t
 true_exp(const APyFloatData& src, const APyFloatSpec& spec)
 {
     return true_exp(src, spec.bias);
 }
 
 [[maybe_unused]] static APY_INLINE man_t
-true_man(const APyFloatData& src, uint8_t exp_bits, uint8_t man_bits)
+true_man(const APyFloatData& src, std::uint8_t exp_bits, std::uint8_t man_bits)
 {
     return ((static_cast<man_t>(is_normal(src, exp_bits)) << man_bits) | src.man);
 }
@@ -120,7 +121,7 @@ true_man(const APyFloatData& src, const APyFloatSpec& spec)
 //! floating-point number, if it exists. It can be thought of as the exponent, in base
 //! 2, for the number written using scientific notation. The pure exponent is equal to
 //! the true biased exponent for all normal numbers.
-[[maybe_unused]] static APY_INLINE std::tuple<int64_t, std::size_t>
+[[maybe_unused]] static APY_INLINE std::tuple<std::int64_t, std::size_t>
 pure_exp(const APyFloatData& src, const APyFloatSpec& spec)
 {
     if (src.exp == 0) {
@@ -133,8 +134,10 @@ pure_exp(const APyFloatData& src, const APyFloatSpec& spec)
 
 //! Return a normalized (non subnormal) floating-point copy of `src`. Returns a
 //! three-tuple, [ `APyFloatData`, `exp_bits`, `bias` ]
-[[maybe_unused]] static APY_INLINE std::tuple<APyFloatData, uint8_t, exp_t>
-normalize(const APyFloatData& src, uint8_t exp_bits, uint8_t man_bits, exp_t bias)
+[[maybe_unused]] static APY_INLINE std::tuple<APyFloatData, std::uint8_t, exp_t>
+normalize(
+    const APyFloatData& src, std::uint8_t exp_bits, std::uint8_t man_bits, exp_t bias
+)
 {
     if (!(src.exp == 0 && src.man != 0)) { // if not subnormal
         return { src, exp_bits, bias };
@@ -162,7 +165,7 @@ normalize(const APyFloatData& src, uint8_t exp_bits, uint8_t man_bits, exp_t bia
              extended_bias };
 }
 
-[[maybe_unused]] static APY_INLINE std::tuple<APyFloatData, uint8_t, exp_t>
+[[maybe_unused]] static APY_INLINE std::tuple<APyFloatData, std::uint8_t, exp_t>
 normalize(const APyFloatData& src, const APyFloatSpec& spec)
 {
     return normalize(src, spec.exp_bits, spec.man_bits, spec.bias);
