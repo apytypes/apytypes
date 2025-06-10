@@ -886,21 +886,21 @@ std::string APyFloatArray::repr() const
 
 std::variant<
     nb::list,
-    nb::ndarray<nb::numpy, uint64_t>,
-    nb::ndarray<nb::numpy, uint32_t>,
-    nb::ndarray<nb::numpy, uint16_t>,
-    nb::ndarray<nb::numpy, uint8_t>>
+    nb::ndarray<nb::numpy, std::uint64_t>,
+    nb::ndarray<nb::numpy, std::uint32_t>,
+    nb::ndarray<nb::numpy, std::uint16_t>,
+    nb::ndarray<nb::numpy, std::uint8_t>>
 APyFloatArray::to_bits(bool numpy) const
 {
     if (numpy) {
         if (get_bits() <= 8) {
-            return to_bits_ndarray<nb::numpy, uint8_t>();
+            return to_bits_ndarray<nb::numpy, std::uint8_t>();
         } else if (get_bits() <= 16) {
-            return to_bits_ndarray<nb::numpy, uint16_t>();
+            return to_bits_ndarray<nb::numpy, std::uint16_t>();
         } else if (get_bits() <= 32) {
-            return to_bits_ndarray<nb::numpy, uint32_t>();
+            return to_bits_ndarray<nb::numpy, std::uint32_t>();
         } else {
-            return to_bits_ndarray<nb::numpy, uint64_t>();
+            return to_bits_ndarray<nb::numpy, std::uint64_t>();
         }
     } else {
         auto it = std::cbegin(_data);

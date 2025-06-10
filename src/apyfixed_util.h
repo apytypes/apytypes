@@ -1708,7 +1708,7 @@ std::string fixed_point_to_string_dec(
         bcd_limb_vec_mul2(bcd_limb_list);
     }
 
-    // Convert BCD limb list to regular BCD list (`std::vector<uint8_t>`)
+    // Convert BCD limb list to regular BCD list (`std::vector<std::uint8_t>`)
     auto bcd_list = to_nibble_list(bcd_limb_list, decimal_point + rjust + 1);
 
     // Convert BCDs to ASCII

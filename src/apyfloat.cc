@@ -379,7 +379,7 @@ APyFloat::one(std::uint8_t exp_bits, std::uint8_t man_bits, std::optional<exp_t>
 APyFloat& APyFloat::update_from_bits(nb::int_ python_long_int_bit_pattern)
 {
     auto data_vec = python_long_to_limb_vec(python_long_int_bit_pattern);
-    uint64_t low = uint64_t_from_limb_vector(data_vec, 0);
+    std::uint64_t low = uint64_t_from_limb_vector(data_vec, 0);
 
     man = low & man_mask();
 

@@ -13,7 +13,7 @@
 
 #include <algorithm>        // std::find, std::unique, etc...
 #include <cstddef>          // std::size_t
-#include <cstdint>          // int64_t
+#include <cstdint>          // std::int64_t
 #include <functional>       // std::bit_not
 #include <initializer_list> // std::initializer_list
 #include <iterator>         // std::distance
@@ -1124,7 +1124,7 @@ template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OU
 //! == 32`, the second 32-bits limb is bound-checked and the result upper 32-bits are
 //! zeroed if out-of-bounds.
 template <typename VECTOR_TYPE>
-[[maybe_unused, nodiscard]] static APY_INLINE uint64_t
+[[maybe_unused, nodiscard]] static APY_INLINE std::uint64_t
 uint64_t_from_limb_vector(const VECTOR_TYPE& limb_vec, std::size_t n)
 {
     static_assert(APY_LIMB_SIZE_BITS == 32 || APY_LIMB_SIZE_BITS == 64);
@@ -1133,9 +1133,9 @@ uint64_t_from_limb_vector(const VECTOR_TYPE& limb_vec, std::size_t n)
         return limb_vec[n];
     } else { /* APY_LIMB_SIZE_BITS == 32 */
         if (n + 1 < limb_vec.size()) {
-            return uint64_t(limb_vec[n]) | (uint64_t(limb_vec[n + 1]) << 32);
+            return std::uint64_t(limb_vec[n]) | (std::uint64_t(limb_vec[n + 1]) << 32);
         } else {
-            return uint64_t(limb_vec[n]);
+            return std::uint64_t(limb_vec[n]);
         }
     }
 }

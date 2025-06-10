@@ -284,7 +284,7 @@ public:
 
     //! Return the least significant 64-bits from the underlying limb-vector
     //! (convenience function used in `APyFloat`)
-    uint64_t get_lsbs() const { return uint64_t_from_limb_vector(_data, 0); }
+    std::uint64_t get_lsbs() const { return uint64_t_from_limb_vector(_data, 0); }
 
     APyFixed ipow(unsigned int n) const;
 
