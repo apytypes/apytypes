@@ -62,7 +62,7 @@ jobs:
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-  macos-14:
+  macos:
     strategy:
       fail-fast: false
       matrix:
