@@ -6,6 +6,7 @@
 #define _APYFIXED_UTIL_H
 
 #include "apytypes_common.h"
+#include "apytypes_fwd.h"
 #include "apytypes_mp.h"
 #include "apytypes_scratch_vector.h"
 #include "apytypes_simd.h"
