@@ -312,33 +312,6 @@
           <section id="apytypes-mp-h">
 <h1><code class="docutils literal notranslate"><span class="pre">apytypes_mp.h</span></code><a class="headerlink" href="#apytypes-mp-h" title="Link to this heading">¶</a></h1>
 <div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines</p>
-<dl class="cpp macro">
-<dt class="sig sig-object cpp" id="c.APY_INLINE">
-<span class="target" id="apytypes__mp_8h_1acf2da4e0fcdb1037efaecffef6dfca74"></span><span class="sig-name descname"><span class="n"><span class="pre">APY_INLINE</span></span></span><a class="headerlink" href="#c.APY_INLINE" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp macro">
-<dt class="sig sig-object cpp" id="c.POSIX_CHAR_BITS">
-<span class="target" id="apytypes__mp_8h_1ac7535580af6e69b1af7a85180d14456b"></span><span class="sig-name descname"><span class="n"><span class="pre">POSIX_CHAR_BITS</span></span></span><a class="headerlink" href="#c.POSIX_CHAR_BITS" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Number of bits in a char, as defined by POSIX. </p>
-</dd></dl>
-
-<dl class="cpp macro">
-<dt class="sig sig-object cpp" id="c.HOST_ENDIAN">
-<span class="target" id="apytypes__mp_8h_1aec28b24be4db35c319784a165e76b229"></span><span class="sig-name descname"><span class="n"><span class="pre">HOST_ENDIAN</span></span></span><a class="headerlink" href="#c.HOST_ENDIAN" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-</div>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric" id="breathe-section-title-typedefs">Typedefs</p>
-<dl class="cpp type">
-<dt class="sig sig-object cpp" id="_CPPv410apy_size_t">
-<span id="_CPPv310apy_size_t"></span><span id="_CPPv210apy_size_t"></span><span id="apy_size_t"></span><span class="target" id="apytypes__mp_8h_1a7dd967d1be60666e514ebd555c0d0e52"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">apy_size_t</span></span></span><a class="headerlink" href="#_CPPv410apy_size_t" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-</div>
-<div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv420apy_inplace_additionP10apy_limb_tKNSt6size_tEPK10apy_limb_tKNSt6size_tE">
@@ -448,58 +421,6 @@
 <span id="_CPPv333apy_unsigned_division_preinvertedP10apy_limb_tP10apy_limb_tKNSt6size_tEPK10apy_limb_tKNSt6size_tEPK13APyDivInverse"></span><span id="_CPPv233apy_unsigned_division_preinvertedP10apy_limb_tP10apy_limb_tKNSt6size_tEPK10apy_limb_tKNSt6size_tEPK13APyDivInverse"></span><span id="apy_unsigned_division_preinverted__apy_limb_tP.apy_limb_tP.std::sC.apy_limb_tCP.std::sC.APyDivInverseCP"></span><span class="target" id="apytypes__mp_8h_1ab733fa2d96b732e7acf98c36500b3349"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">apy_unsigned_division_preinverted</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">apy_limb_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">quotient</span></span>, <span class="n"><span class="pre">apy_limb_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">numerator</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">numerator_limbs</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">apy_limb_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">denominator</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">denominator_limbs</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv413APyDivInverse" title="APyDivInverse"><span class="n"><span class="pre">APyDivInverse</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">inv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv433apy_unsigned_division_preinvertedP10apy_limb_tP10apy_limb_tKNSt6size_tEPK10apy_limb_tKNSt6size_tEPK13APyDivInverse" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Divide two unsigned limb vectors where the <a class="reference internal" href="#classAPyDivInverse"><span class="std std-ref">APyDivInverse</span></a> is pre-computed. </p>
 </dd></dl>
-
-</div>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric" id="breathe-section-title-variables">Variables</p>
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv419APY_LIMB_SIZE_BYTES">
-<span id="_CPPv319APY_LIMB_SIZE_BYTES"></span><span id="_CPPv219APY_LIMB_SIZE_BYTES"></span><span id="APY_LIMB_SIZE_BYTES__std::s"></span><span class="target" id="apytypes__mp_8h_1a19dd4e2bcd360ec2a2d7715e94c53789"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APY_LIMB_SIZE_BYTES</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">sizeof</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">apy_limb_t</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv419APY_LIMB_SIZE_BYTES" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Number of bytes in a limb. </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv415APY_NUMBER_MASK">
-<span id="_CPPv315APY_NUMBER_MASK"></span><span id="_CPPv215APY_NUMBER_MASK"></span><span id="APY_NUMBER_MASK__apy_limb_t"></span><span class="target" id="apytypes__mp_8h_1a3005f0f318ad03e733210aa9beb01981"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">apy_limb_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APY_NUMBER_MASK</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="o"><span class="pre">~</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">apy_limb_t</span></span><span class="p"><span class="pre">)</span></span><span class="m"><span class="pre">0</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv415APY_NUMBER_MASK" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv418APY_LIMB_SIZE_BITS">
-<span id="_CPPv318APY_LIMB_SIZE_BITS"></span><span id="_CPPv218APY_LIMB_SIZE_BITS"></span><span id="APY_LIMB_SIZE_BITS__std::s"></span><span class="target" id="apytypes__mp_8h_1ae8193d60bd2d4c0285ba53fd0c9af49d"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APY_LIMB_SIZE_BITS</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">POSIX_CHAR_BITS</span></span><span class="w"> </span><span class="o"><span class="pre">*</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv419APY_LIMB_SIZE_BYTES" title="APY_LIMB_SIZE_BYTES"><span class="n"><span class="pre">APY_LIMB_SIZE_BYTES</span></span></a><a class="headerlink" href="#_CPPv418APY_LIMB_SIZE_BITS" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Number of bits in a limb. </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv423APY_HALF_LIMB_SIZE_BITS">
-<span id="_CPPv323APY_HALF_LIMB_SIZE_BITS"></span><span id="_CPPv223APY_HALF_LIMB_SIZE_BITS"></span><span id="APY_HALF_LIMB_SIZE_BITS__std::s"></span><span class="target" id="apytypes__mp_8h_1a28423f80364524529de6e6c9f7f7a38b"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APY_HALF_LIMB_SIZE_BITS</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv418APY_LIMB_SIZE_BITS" title="APY_LIMB_SIZE_BITS"><span class="n"><span class="pre">APY_LIMB_SIZE_BITS</span></span></a><span class="w"> </span><span class="o"><span class="pre">/</span></span><span class="w"> </span><span class="m"><span class="pre">2</span></span><a class="headerlink" href="#_CPPv423APY_HALF_LIMB_SIZE_BITS" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Number of bits in a half limb. </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv419APY_LOWER_LIMB_MASK">
-<span id="_CPPv319APY_LOWER_LIMB_MASK"></span><span id="_CPPv219APY_LOWER_LIMB_MASK"></span><span id="APY_LOWER_LIMB_MASK__apy_limb_t"></span><span class="target" id="apytypes__mp_8h_1a7277ee1ec9bb7bd2c1006577e200e386"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">apy_limb_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APY_LOWER_LIMB_MASK</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">apy_limb_t</span></span><span class="p"><span class="pre">)</span></span><span class="m"><span class="pre">1</span></span><span class="w"> </span><span class="o"><span class="pre">&lt;&lt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv423APY_HALF_LIMB_SIZE_BITS" title="APY_HALF_LIMB_SIZE_BITS"><span class="n"><span class="pre">APY_HALF_LIMB_SIZE_BITS</span></span></a><span class="p"><span class="pre">)</span></span><span class="w"> </span><span class="o"><span class="pre">-</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><a class="headerlink" href="#_CPPv419APY_LOWER_LIMB_MASK" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Mask for lower half of a limb. </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv411endian_test">
-<span id="_CPPv311endian_test"></span><span id="_CPPv211endian_test"></span><span id="endian_test__apy_limb_t"></span><span class="target" id="apytypes__mp_8h_1abec239a83e79349ee357f694c0c9b1cd"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">apy_limb_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">endian_test</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">apy_limb_t</span></span><span class="p"><span class="pre">)</span></span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">)</span></span><span class="w"> </span><span class="o"><span class="pre">&lt;&lt;</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><a class="reference internal" href="#_CPPv418APY_LIMB_SIZE_BITS" title="APY_LIMB_SIZE_BITS"><span class="n"><span class="pre">APY_LIMB_SIZE_BITS</span></span></a><span class="w"> </span><span class="o"><span class="pre">-</span></span><span class="w"> </span><span class="m"><span class="pre">7</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">)</span></span><span class="w"> </span><span class="o"><span class="pre">-</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><a class="headerlink" href="#_CPPv411endian_test" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv416NIBBLES_PER_LIMB">
-<span id="_CPPv316NIBBLES_PER_LIMB"></span><span id="_CPPv216NIBBLES_PER_LIMB"></span><span id="NIBBLES_PER_LIMB__std::s"></span><span class="target" id="apytypes__mp_8h_1a37b99044ac2b6dcc691d9d763be5e3f1"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NIBBLES_PER_LIMB</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">2</span></span><span class="w"> </span><span class="o"><span class="pre">*</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv419APY_LIMB_SIZE_BYTES" title="APY_LIMB_SIZE_BYTES"><span class="n"><span class="pre">APY_LIMB_SIZE_BYTES</span></span></a><a class="headerlink" href="#_CPPv416NIBBLES_PER_LIMB" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv415BITS_PER_NIBBLE">
-<span id="_CPPv315BITS_PER_NIBBLE"></span><span id="_CPPv215BITS_PER_NIBBLE"></span><span id="BITS_PER_NIBBLE__std::s"></span><span class="target" id="apytypes__mp_8h_1a50c79c1df317330ded4de4fe17e57116"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BITS_PER_NIBBLE</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">4</span></span><a class="headerlink" href="#_CPPv415BITS_PER_NIBBLE" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv418APY_LIMB_MSBWEIGHT">
-<span id="_CPPv318APY_LIMB_MSBWEIGHT"></span><span id="_CPPv218APY_LIMB_MSBWEIGHT"></span><span id="APY_LIMB_MSBWEIGHT__apy_limb_t"></span><span class="target" id="apytypes__mp_8h_1a800111e35b1cafa6111de95e5e900dbd"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">apy_limb_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APY_LIMB_MSBWEIGHT</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">apy_limb_t</span></span><span class="p"><span class="pre">)</span></span><span class="m"><span class="pre">1</span></span><span class="w"> </span><span class="o"><span class="pre">&lt;&lt;</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><a class="reference internal" href="#_CPPv418APY_LIMB_SIZE_BITS" title="APY_LIMB_SIZE_BITS"><span class="n"><span class="pre">APY_LIMB_SIZE_BITS</span></span></a><span class="w"> </span><span class="o"><span class="pre">-</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv418APY_LIMB_MSBWEIGHT" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
 
 </div>
 <dl class="cpp class">
@@ -620,10 +541,6 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">apytypes_mp.h</span></code></a><ul>
-<li><a class="reference internal" href="#c.APY_INLINE"><code class="docutils literal notranslate"><span class="pre">APY_INLINE</span></code></a></li>
-<li><a class="reference internal" href="#c.POSIX_CHAR_BITS"><code class="docutils literal notranslate"><span class="pre">POSIX_CHAR_BITS</span></code></a></li>
-<li><a class="reference internal" href="#c.HOST_ENDIAN"><code class="docutils literal notranslate"><span class="pre">HOST_ENDIAN</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv410apy_size_t"><code class="docutils literal notranslate"><span class="pre">apy_size_t</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv420apy_inplace_additionP10apy_limb_tKNSt6size_tEPK10apy_limb_tKNSt6size_tE"><code class="docutils literal notranslate"><span class="pre">apy_inplace_addition()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv424apy_addition_same_lengthP10apy_limb_tPK10apy_limb_tPK10apy_limb_tKNSt6size_tE"><code class="docutils literal notranslate"><span class="pre">apy_addition_same_length()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv432apy_inplace_addition_single_limbP10apy_limb_tKNSt6size_tEK10apy_limb_t"><code class="docutils literal notranslate"><span class="pre">apy_inplace_addition_single_limb()</span></code></a></li>
@@ -642,15 +559,6 @@
 <li><a class="reference internal" href="#_CPPv419apy_unsigned_squareP10apy_limb_tPK10apy_limb_tKNSt6size_tE"><code class="docutils literal notranslate"><span class="pre">apy_unsigned_square()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv421apy_unsigned_divisionP10apy_limb_tP10apy_limb_tKNSt6size_tEPK10apy_limb_tKNSt6size_tE"><code class="docutils literal notranslate"><span class="pre">apy_unsigned_division()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv433apy_unsigned_division_preinvertedP10apy_limb_tP10apy_limb_tKNSt6size_tEPK10apy_limb_tKNSt6size_tEPK13APyDivInverse"><code class="docutils literal notranslate"><span class="pre">apy_unsigned_division_preinverted()</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv419APY_LIMB_SIZE_BYTES"><code class="docutils literal notranslate"><span class="pre">APY_LIMB_SIZE_BYTES</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv415APY_NUMBER_MASK"><code class="docutils literal notranslate"><span class="pre">APY_NUMBER_MASK</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv418APY_LIMB_SIZE_BITS"><code class="docutils literal notranslate"><span class="pre">APY_LIMB_SIZE_BITS</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv423APY_HALF_LIMB_SIZE_BITS"><code class="docutils literal notranslate"><span class="pre">APY_HALF_LIMB_SIZE_BITS</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv419APY_LOWER_LIMB_MASK"><code class="docutils literal notranslate"><span class="pre">APY_LOWER_LIMB_MASK</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv411endian_test"><code class="docutils literal notranslate"><span class="pre">endian_test</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv416NIBBLES_PER_LIMB"><code class="docutils literal notranslate"><span class="pre">NIBBLES_PER_LIMB</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv415BITS_PER_NIBBLE"><code class="docutils literal notranslate"><span class="pre">BITS_PER_NIBBLE</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv418APY_LIMB_MSBWEIGHT"><code class="docutils literal notranslate"><span class="pre">APY_LIMB_MSBWEIGHT</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv413APyDivInverse"><code class="docutils literal notranslate"><span class="pre">APyDivInverse</span></code></a><ul>
 <li><a class="reference internal" href="#_CPPv4N13APyDivInverse13APyDivInverseEPK10apy_limb_tNSt6size_tE"><code class="docutils literal notranslate"><span class="pre">APyDivInverse()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N13APyDivInverse10norm_shiftE"><code class="docutils literal notranslate"><span class="pre">norm_shift</span></code></a></li>
