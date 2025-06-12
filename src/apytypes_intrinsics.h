@@ -1,3 +1,6 @@
+#ifndef _APYTYPES_INTRINSICS
+#define _APYTYPES_INTRINSICS
+
 #include <cstddef>
 #include <cstdint>
 
@@ -306,3 +309,5 @@ count_trailing_bits(INT_TYPE n)
 {
     return bit_width(n) - 1;
 }
+
+#endif
