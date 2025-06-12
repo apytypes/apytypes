@@ -2,6 +2,7 @@
 #include <cassert>
 #include <cstddef>
 
+#include "apytypes_intrinsics.h"
 #include "apytypes_mp.h"
 #include "apytypes_util.h"
 
@@ -460,9 +461,14 @@ apy_limb_t apy_division_single_limb_preinverted(
         auto [quotient_high, quotient_low]
             = long_unsigned_mult(remainder, inv->inverse);
         /* Compute [quotient_high, quotient_low] += [remainder + 1, numerator[limbs] */
-        apy_limb_t tmp_low = quotient_low + numerator[limbs];
-        quotient_high += remainder + 1 + (tmp_low < quotient_low);
-        quotient_low = tmp_low;
+        apy_limb_t carry;
+        add_single_limbs_with_carry(
+            quotient_low, numerator[limbs], &quotient_low, 0, &carry
+        );
+        add_single_limbs_with_carry(
+            quotient_high, remainder, &quotient_high, carry, &carry
+        );
+        quotient_high++;
 
         remainder = numerator[limbs]
             - apy_limb_multiplication(quotient_high, inv->norm_denominator_1);
@@ -491,9 +497,11 @@ apy_limb_t apy_division_3by2(
 {
     auto [quotient_high, quotient_low] = long_unsigned_mult(*remainder_1, inv->inverse);
     /* Compute [quotient_high, quotient_low] += [remainder_1, remainder_0] */
-    apy_limb_t tmp_low = quotient_low + *remainder_0;
-    quotient_high += *remainder_1 + (tmp_low < quotient_low);
-    quotient_low = tmp_low;
+    apy_limb_t carry;
+    add_single_limbs_with_carry(quotient_low, *remainder_0, &quotient_low, 0, &carry);
+    add_single_limbs_with_carry(
+        quotient_high, *remainder_1, &quotient_high, carry, &carry
+    );
 
     /* Compute the two most significant limbs of limbs - quotient_high'd */
     *remainder_1 = *remainder_0
@@ -501,15 +509,18 @@ apy_limb_t apy_division_3by2(
 
     /* Compute [remainder_1, remainder_0] = [remainder_1, numerator_tmp] -
      * [inv->norm_denominator_1, inv->norm_denominator_0] */
-    *remainder_0 = numerator_tmp - inv->norm_denominator_0;
-    *remainder_1 -= inv->norm_denominator_1 + (numerator_tmp < inv->norm_denominator_0);
+    sub_single_limbs_with_carry(
+        numerator_tmp, inv->norm_denominator_0, remainder_0, 0, &carry
+    );
+    sub_single_limbs_with_carry(
+        *remainder_1, inv->norm_denominator_1, remainder_1, carry, &carry
+    );
 
     auto [t_high, t_low] = long_unsigned_mult(inv->norm_denominator_0, quotient_high);
 
     /* Compute [remainder_1, remainder_0] -= [t_high, t_low] */
-    apy_limb_t carry = (apy_limb_t)(*remainder_0 < t_low);
-    *remainder_0 -= t_low;
-    *remainder_1 -= t_high + carry;
+    sub_single_limbs_with_carry(*remainder_0, t_low, remainder_0, 0, &carry);
+    sub_single_limbs_with_carry(*remainder_1, t_high, remainder_1, carry, &carry);
 
     (quotient_high)++;
 
@@ -517,11 +528,14 @@ apy_limb_t apy_division_3by2(
     apy_limb_t mask = -(apy_limb_t)(*remainder_1 >= quotient_low);
     quotient_high += mask;
 
-    /* Compute [remainder_1, remainder_0] -= [inv->norm_denominator_1,
+    /* Compute [remainder_1, remainder_0] += [inv->norm_denominator_1,
      * inv->norm_denominator_0], if mask */
-    tmp_low = *remainder_0 + (mask & inv->norm_denominator_0);
-    *remainder_1 += (mask & inv->norm_denominator_1) + (tmp_low < *remainder_0);
-    *remainder_0 = tmp_low;
+    add_single_limbs_with_carry(
+        *remainder_0, mask & inv->norm_denominator_0, remainder_0, 0, &carry
+    );
+    add_single_limbs_with_carry(
+        *remainder_1, mask & inv->norm_denominator_1, remainder_1, carry, &carry
+    );
 
     if (*remainder_1 >= inv->norm_denominator_1) {
         if (*remainder_1 > inv->norm_denominator_1
