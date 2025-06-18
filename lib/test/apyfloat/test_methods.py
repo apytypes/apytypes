@@ -556,8 +556,8 @@ def test_python_deepcopy():
     assert a is not c
 
 
-@pytest.mark.parametrize("func", ["inf", "nan"])
-def test_inf_nan_creation(func: str):
+@pytest.mark.parametrize("func", ["zero", "inf", "nan"])
+def test_zero_inf_nan_creation(func: str):
     # Too many exponent bits
     with pytest.raises(
         ValueError,
@@ -586,8 +586,15 @@ def test_inf_nan_creation(func: str):
 
     #
     # Test actual operation
-    x = eval(f"APyFloat.{func}(5, 7, 8)")
-    assert x.is_identical(APyFloat.from_float(float(func), 5, 7, 8))
+    if func == "zero":
+        x = eval(f"APyFloat.{func}(5, 7, 8)")
+        assert x.is_identical(APyFloat(0, 0, 0, 5, 7, 8))
 
-    x = eval(f"APyFloat.{func}(4, 3)")
-    assert x.is_identical(APyFloat.from_float(float(func), 4, 3, 7))
+        x = eval(f"APyFloat.{func}(4, 3)")
+        assert x.is_identical(APyFloat(0, 0, 0, 4, 3))
+    else:
+        x = eval(f"APyFloat.{func}(5, 7, 8)")
+        assert x.is_identical(APyFloat.from_float(float(func), 5, 7, 8))
+
+        x = eval(f"APyFloat.{func}(4, 3)")
+        assert x.is_identical(APyFloat.from_float(float(func), 4, 3, 7))

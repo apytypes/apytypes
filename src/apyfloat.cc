@@ -1135,6 +1135,13 @@ APyFloat APyFloat::next_down() const
     return APyFloat(0, exp, new_man, exp_bits, man_bits, bias);
 }
 
+APyFloat APyFloat::zero(int exp_bits, int man_bits, std::optional<exp_t> bias)
+{
+    check_exponent_format(exp_bits, "APyFloat.zero");
+    check_mantissa_format(man_bits, "APyFloat.zero");
+    return APyFloat(0, 0, 0, exp_bits, man_bits, bias);
+}
+
 APyFloat APyFloat::inf(int exp_bits, int man_bits, std::optional<exp_t> bias)
 {
     check_exponent_format(exp_bits, "APyFloat.inf");
