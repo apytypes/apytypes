@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Complex-valued floating-point types:
   - `APyCFloat`, a complex scalar floating-point type.
+- `APyFloat.zero`, to create floating-point objects initialized to zero.
 
 ### Fixed
 

@@ -632,6 +632,46 @@ void bind_float(nb::module_& m)
 
             )pbdoc")
         .def_static(
+            "zero",
+            &APyFloat::zero,
+            nb::arg("exp_bits"),
+            nb::arg("man_bits"),
+            nb::arg("bias") = nb::none(),
+            R"pbdoc(
+            Create an :class:`APyFloat` object that is initialized to positive zero.
+
+            .. versionadded:: 0.4
+
+            Parameters
+            ----------
+            exp_bits : :class:`int`
+                Number of exponent bits.
+            man_bits : :class:`int`
+                Number of mantissa bits.
+            bias : :class:`int`, optional
+                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+            Examples
+            --------
+
+            >>> import apytypes as apy
+
+            `a`, initialized to positive zero.
+
+            >>> a = apy.APyFloat.zero(exp_bits=10, man_bits=15)
+
+            Returns
+            -------
+            :class:`APyFloat`
+
+            See Also
+            --------
+            inf
+            nan
+
+            )pbdoc"
+        )
+        .def_static(
             "inf",
             &APyFloat::inf,
             nb::arg("exp_bits"),
@@ -666,6 +706,7 @@ void bind_float(nb::module_& m)
 
             See Also
             --------
+            zero
             nan
 
             )pbdoc"
@@ -705,6 +746,7 @@ void bind_float(nb::module_& m)
 
             See Also
             --------
+            zero
             inf
 
             )pbdoc"
