@@ -5,6 +5,158 @@ from typing import Annotated, Any, overload
 
 from numpy.typing import ArrayLike
 
+class QuantizationMode(enum.Enum):
+    TO_NEG = 0
+    """Alias. Round towards negative infinity."""
+
+    TO_ZERO = 2
+    """Alias. Round towards zero."""
+
+    TO_POS = 1
+    """Alias. Round towards positive infinity."""
+
+    TO_AWAY = 3
+    """Alias. Truncate away from zero."""
+
+    TIES_ZERO = 6
+    """Alias. Round to nearest, ties toward zero."""
+
+    TIES_AWAY = 7
+    """Alias. Round to nearest, ties away from zero."""
+
+    TIES_EVEN = 9
+    """Alias. Round to nearest, ties to even."""
+
+    TIES_ODD = 10
+    """Alias. Round to nearest, ties to odd."""
+
+    TIES_NEG = 8
+    """Alias. Round to nearest, ties towards negative infinity."""
+
+    TIES_POS = 5
+    """Alias. Round to nearest, ties towards positive infinity."""
+
+    TRN = 0
+    """Truncation (remove bits, round towards negative infinity"""
+
+    TRN_ZERO = 2
+    """Unbiased magnitude truncation (round towards zero)."""
+
+    TRN_INF = 1
+    """Round towards positive infinity."""
+
+    TRN_AWAY = 3
+    """Truncate away from zero."""
+
+    TRN_MAG = 4
+    """
+    Magnitude truncation (round towards zero), fixed-point friendly variant (add sign-bit).
+    """
+
+    RND = 5
+    """
+    Round to nearest, ties towards positive infinity (standard 'round' for fixed-point).
+    """
+
+    RND_ZERO = 6
+    """Round to nearest, ties toward zero."""
+
+    RND_INF = 7
+    """Round to nearest, ties away from zero."""
+
+    RND_MIN_INF = 8
+    """Round to nearest, ties toward negative infinity."""
+
+    RND_CONV = 9
+    """Round to nearest, ties to even."""
+
+    RND_CONV_ODD = 10
+    """Round to nearest, ties to odd."""
+
+    JAM = 11
+    """Jamming/von Neumann rounding. Set LSB to 1."""
+
+    JAM_UNBIASED = 12
+    """
+    Unbiased jamming/von Neumann rounding. Set LSB to 1 unless the previous LSB and all the removed bits are 0.
+    """
+
+    STOCH_WEIGHTED = 13
+    """Stochastic rounding. Probability depends on the bits to remove."""
+
+    STOCH_EQUAL = 14
+    """Stochastic rounding with equal probability."""
+
+class OverflowMode(enum.Enum):
+    WRAP = 0
+    """Two's complement overflow. Remove MSBs."""
+
+    SAT = 1
+    """Saturate to the closest of most positive and most negative value."""
+
+    NUMERIC_STD = 2
+    """
+    Remove MSBs, but keep the most significant bit. As ieee.numeric_std resize for signed.
+    """
+
+def set_float_quantization_mode(mode: QuantizationMode) -> None:
+    """
+    Set current quantization context.
+
+    Parameters
+    ----------
+    mode : :class:`QuantizationMode`
+        The quantization mode to use.
+
+    See Also
+    --------
+    get_float_quantization_mode
+    """
+
+def get_float_quantization_mode() -> QuantizationMode:
+    """
+    Get current quantization context.
+
+    Returns
+    -------
+    :class:`QuantizationMode`
+
+    See Also
+    --------
+    set_float_quantization_mode
+    """
+
+def set_float_quantization_seed(seed: int) -> None:
+    """
+    Set current quantization seed.
+
+    The quantization seed is used for stochastic quantization.
+
+    Parameters
+    ----------
+    seed : :class:`int`
+        The quantization seed to use.
+
+    See Also
+    --------
+    get_float_quantization_seed
+    """
+
+def get_float_quantization_seed() -> int:
+    """
+    Set current quantization seed.
+
+    The quantization seed is used for stochastic quantization.
+
+    Returns
+    -------
+    :class:`int`
+
+    See Also
+    --------
+    set_float_quantization_seed
+    """
+
 class APyCFixed:
     """
     Class for configurable complex-valued scalar fixed-point formats.
@@ -2272,23 +2424,6 @@ class APyFixed:
         :class:`APyFixed`
         """
 
-class APyFixedAccumulatorContext(ContextManager):
-    def __init__(
-        self,
-        int_bits: int | None = None,
-        frac_bits: int | None = None,
-        quantization: QuantizationMode | None = None,
-        overflow: OverflowMode | None = None,
-        bits: int | None = None,
-    ) -> None: ...
-    def __enter__(self) -> None: ...
-    def __exit__(
-        self,
-        exc_type: object | None = None,
-        exc_value: object | None = None,
-        traceback: object | None = None,
-    ) -> None: ...
-
 class APyFixedArray:
     def __init__(
         self,
@@ -3408,20 +3543,6 @@ class APyFixedArrayIterator:
     def __iter__(self) -> APyFixedArrayIterator: ...
     def __next__(self) -> APyFixedArray | APyFixed: ...
 
-class APyFixedCastContext(ContextManager):
-    def __init__(
-        self,
-        quantization: QuantizationMode | None = None,
-        overflow: OverflowMode | None = None,
-    ) -> None: ...
-    def __enter__(self) -> None: ...
-    def __exit__(
-        self,
-        exc_type: object | None = None,
-        exc_value: object | None = None,
-        traceback: object | None = None,
-    ) -> None: ...
-
 class APyFloat:
     r"""
     Floating-point scalar with configurable format.
@@ -4065,6 +4186,41 @@ class APyFloat:
         """
 
     @staticmethod
+    def zero(exp_bits: int, man_bits: int, bias: int | None = None) -> APyFloat:
+        """
+        Create an :class:`APyFloat` object that is initialized to positive zero.
+
+        .. versionadded:: 0.4
+
+        Parameters
+        ----------
+        exp_bits : :class:`int`
+            Number of exponent bits.
+        man_bits : :class:`int`
+            Number of mantissa bits.
+        bias : :class:`int`, optional
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+        Examples
+        --------
+
+        >>> import apytypes as apy
+
+        `a`, initialized to positive zero.
+
+        >>> a = apy.APyFloat.zero(exp_bits=10, man_bits=15)
+
+        Returns
+        -------
+        :class:`APyFloat`
+
+        See Also
+        --------
+        inf
+        nan
+        """
+
+    @staticmethod
     def inf(exp_bits: int, man_bits: int, bias: int | None = None) -> APyFloat:
         """
         Create an :class:`APyFloat` object that is initialized to positive infinity.
@@ -4095,6 +4251,7 @@ class APyFloat:
 
         See Also
         --------
+        zero
         nan
         """
 
@@ -4129,59 +4286,9 @@ class APyFloat:
 
         See Also
         --------
+        zero
         inf
         """
-
-class APyFloatAccumulatorContext(ContextManager):
-    """
-    Context for using custom accumulators when performing inner products and matrix multiplications.
-
-    Inner products and matrix multiplications will by default perform the summation in the resulting format
-    of the operands, but with :class:`APyFloatAccumulatorContext` a custom accumulator can be simulated
-    as seen in the example below.
-
-    Examples
-    --------
-
-    >>> import numpy as np
-    >>> from apytypes import APyFloatArray, QuantizationMode
-    >>> from apytypes import APyFloatAccumulatorContext
-
-    >>> An = np.random.normal(1, 2, size=(100, 100))
-    >>> A = APyFloatArray.from_float(An, exp_bits=5, man_bits=10)
-
-    >>> bn = (np.random.uniform(0, 1, size=100),)
-    >>> b = APyFloatArray.from_float(bn, exp_bits=5, man_bits=10)
-
-    Normal matrix multiplication
-
-    >>> c = A @ b.T
-
-    Matrix multiplication using stochastic quantization and a wider accumulator
-
-    >>> m = QuantizationMode.STOCH_WEIGHTED
-    >>> with APyFloatAccumulatorContext(exp_bits=6, man_bits=15, quantization=m):
-    ...     d = A @ b.T
-
-
-    If no quantization mode is specified to the accumulator context it will fallback to the mode set globally,
-    see :class:`APyFloatQuantizationContext`.
-    """
-
-    def __init__(
-        self,
-        exp_bits: int | None = None,
-        man_bits: int | None = None,
-        bias: int | None = None,
-        quantization: QuantizationMode | None = None,
-    ) -> None: ...
-    def __enter__(self) -> None: ...
-    def __exit__(
-        self,
-        exc_type: object | None = None,
-        exc_value: object | None = None,
-        traceback: object | None = None,
-    ) -> None: ...
 
 class APyFloatArray:
     """
@@ -5552,6 +5659,9 @@ class APyFloatArrayIterator:
     def __iter__(self) -> APyFloatArrayIterator: ...
     def __next__(self) -> APyFloatArray | APyFloat: ...
 
+class ContextManager:
+    pass
+
 class APyFloatQuantizationContext(ContextManager):
     """
     Context for changing the quantization mode used for floating-point operations.
@@ -5605,157 +5715,84 @@ class APyFloatQuantizationContext(ContextManager):
         traceback: object | None = None,
     ) -> None: ...
 
-class ContextManager:
-    pass
+class APyFixedAccumulatorContext(ContextManager):
+    def __init__(
+        self,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        quantization: QuantizationMode | None = None,
+        overflow: OverflowMode | None = None,
+        bits: int | None = None,
+    ) -> None: ...
+    def __enter__(self) -> None: ...
+    def __exit__(
+        self,
+        exc_type: object | None = None,
+        exc_value: object | None = None,
+        traceback: object | None = None,
+    ) -> None: ...
 
-class OverflowMode(enum.Enum):
-    WRAP = 0
-    """Two's complement overflow. Remove MSBs."""
-
-    SAT = 1
-    """Saturate to the closest of most positive and most negative value."""
-
-    NUMERIC_STD = 2
+class APyFloatAccumulatorContext(ContextManager):
     """
-    Remove MSBs, but keep the most significant bit. As ieee.numeric_std resize for signed.
-    """
+    Context for using custom accumulators when performing inner products and matrix multiplications.
 
-class QuantizationMode(enum.Enum):
-    TO_NEG = 0
-    """Alias. Round towards negative infinity."""
+    Inner products and matrix multiplications will by default perform the summation in the resulting format
+    of the operands, but with :class:`APyFloatAccumulatorContext` a custom accumulator can be simulated
+    as seen in the example below.
 
-    TO_ZERO = 2
-    """Alias. Round towards zero."""
-
-    TO_POS = 1
-    """Alias. Round towards positive infinity."""
-
-    TO_AWAY = 3
-    """Alias. Truncate away from zero."""
-
-    TIES_ZERO = 6
-    """Alias. Round to nearest, ties toward zero."""
-
-    TIES_AWAY = 7
-    """Alias. Round to nearest, ties away from zero."""
-
-    TIES_EVEN = 9
-    """Alias. Round to nearest, ties to even."""
-
-    TIES_ODD = 10
-    """Alias. Round to nearest, ties to odd."""
-
-    TIES_NEG = 8
-    """Alias. Round to nearest, ties towards negative infinity."""
-
-    TIES_POS = 5
-    """Alias. Round to nearest, ties towards positive infinity."""
-
-    TRN = 0
-    """Truncation (remove bits, round towards negative infinity"""
-
-    TRN_ZERO = 2
-    """Unbiased magnitude truncation (round towards zero)."""
-
-    TRN_INF = 1
-    """Round towards positive infinity."""
-
-    TRN_AWAY = 3
-    """Truncate away from zero."""
-
-    TRN_MAG = 4
-    """
-    Magnitude truncation (round towards zero), fixed-point friendly variant (add sign-bit).
-    """
-
-    RND = 5
-    """
-    Round to nearest, ties towards positive infinity (standard 'round' for fixed-point).
-    """
-
-    RND_ZERO = 6
-    """Round to nearest, ties toward zero."""
-
-    RND_INF = 7
-    """Round to nearest, ties away from zero."""
-
-    RND_MIN_INF = 8
-    """Round to nearest, ties toward negative infinity."""
-
-    RND_CONV = 9
-    """Round to nearest, ties to even."""
-
-    RND_CONV_ODD = 10
-    """Round to nearest, ties to odd."""
-
-    JAM = 11
-    """Jamming/von Neumann rounding. Set LSB to 1."""
-
-    JAM_UNBIASED = 12
-    """
-    Unbiased jamming/von Neumann rounding. Set LSB to 1 unless the previous LSB and all the removed bits are 0.
-    """
-
-    STOCH_WEIGHTED = 13
-    """Stochastic rounding. Probability depends on the bits to remove."""
-
-    STOCH_EQUAL = 14
-    """Stochastic rounding with equal probability."""
-
-def get_float_quantization_mode() -> QuantizationMode:
-    """
-    Get current quantization context.
-
-    Returns
-    -------
-    :class:`QuantizationMode`
-
-    See Also
+    Examples
     --------
-    set_float_quantization_mode
+
+    >>> import numpy as np
+    >>> from apytypes import APyFloatArray, QuantizationMode
+    >>> from apytypes import APyFloatAccumulatorContext
+
+    >>> An = np.random.normal(1, 2, size=(100, 100))
+    >>> A = APyFloatArray.from_float(An, exp_bits=5, man_bits=10)
+
+    >>> bn = (np.random.uniform(0, 1, size=100),)
+    >>> b = APyFloatArray.from_float(bn, exp_bits=5, man_bits=10)
+
+    Normal matrix multiplication
+
+    >>> c = A @ b.T
+
+    Matrix multiplication using stochastic quantization and a wider accumulator
+
+    >>> m = QuantizationMode.STOCH_WEIGHTED
+    >>> with APyFloatAccumulatorContext(exp_bits=6, man_bits=15, quantization=m):
+    ...     d = A @ b.T
+
+
+    If no quantization mode is specified to the accumulator context it will fallback to the mode set globally,
+    see :class:`APyFloatQuantizationContext`.
     """
 
-def get_float_quantization_seed() -> int:
-    """
-    Set current quantization seed.
+    def __init__(
+        self,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        quantization: QuantizationMode | None = None,
+    ) -> None: ...
+    def __enter__(self) -> None: ...
+    def __exit__(
+        self,
+        exc_type: object | None = None,
+        exc_value: object | None = None,
+        traceback: object | None = None,
+    ) -> None: ...
 
-    The quantization seed is used for stochastic quantization.
-
-    Returns
-    -------
-    :class:`int`
-
-    See Also
-    --------
-    set_float_quantization_seed
-    """
-
-def set_float_quantization_mode(mode: QuantizationMode) -> None:
-    """
-    Set current quantization context.
-
-    Parameters
-    ----------
-    mode : :class:`QuantizationMode`
-        The quantization mode to use.
-
-    See Also
-    --------
-    get_float_quantization_mode
-    """
-
-def set_float_quantization_seed(seed: int) -> None:
-    """
-    Set current quantization seed.
-
-    The quantization seed is used for stochastic quantization.
-
-    Parameters
-    ----------
-    seed : :class:`int`
-        The quantization seed to use.
-
-    See Also
-    --------
-    get_float_quantization_seed
-    """
+class APyFixedCastContext(ContextManager):
+    def __init__(
+        self,
+        quantization: QuantizationMode | None = None,
+        overflow: OverflowMode | None = None,
+    ) -> None: ...
+    def __enter__(self) -> None: ...
+    def __exit__(
+        self,
+        exc_type: object | None = None,
+        exc_value: object | None = None,
+        traceback: object | None = None,
+    ) -> None: ...
