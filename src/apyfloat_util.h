@@ -402,7 +402,8 @@ template <typename QNTZ_FUNC_SIGNATURE>
 
     // Initial values for cast data
     man_t man = src.man;
-    std::int64_t exp = true_exp(src, src_spec) + std::int64_t(dst_spec.bias);
+    std::int64_t exp = std::int64_t(src.exp) - std::int64_t(src_spec.bias)
+        + std::int64_t(dst_spec.bias);
 
     // Normalize the exponent and mantissa if converting from subnormal
     if (src.exp == 0) {
@@ -412,7 +413,7 @@ template <typename QNTZ_FUNC_SIGNATURE>
         exp_t subn_adjustment = count_trailing_bits(src.man);
         man_t remainder = src.man % (1ULL << subn_adjustment);
         exp_t left_shift_amount = src_spec.man_bits - subn_adjustment;
-        exp -= left_shift_amount;
+        exp -= left_shift_amount - 1;
         man = remainder << left_shift_amount;
     }
 
@@ -637,7 +638,7 @@ template <typename QNTZ_FUNC_SIGNATURE>
     }
 
     // Initial value for exponent
-    std::int64_t new_exp = true_exp(src, src_spec) + std::int64_t(dst_spec.bias);
+    std::int64_t new_exp = std::int64_t(dst_spec.bias) - std::int64_t(src_spec.bias);
 
     // Adjust the exponent and mantissa if convertering from a subnormal
     man_t new_man;
@@ -647,6 +648,7 @@ template <typename QNTZ_FUNC_SIGNATURE>
         }
         const exp_t subn_adjustment = count_trailing_bits(src.man);
         const exp_t left_shift_amount = src_spec.man_bits - subn_adjustment;
+        new_exp++;
         if (new_exp < left_shift_amount) {
             // The result remains subnormal
             new_man = src.man << new_exp;
@@ -659,6 +661,7 @@ template <typename QNTZ_FUNC_SIGNATURE>
         }
     } else {
         new_man = src.man;
+        new_exp += std::int64_t(src.exp);
     }
 
     new_man <<= dst_spec.man_bits - src_spec.man_bits;
@@ -731,7 +734,7 @@ template <typename QNTZ_FUNC_SIGNATURE>
         const std::int64_t left_shift_amount = src_spec.man_bits - subn_adjustment;
         if (tmp_exp < left_shift_amount) {
             // The result remains subnormal
-            new_man = src.man << new_exp;
+            new_man = src.man << tmp_exp;
             new_exp = 0;
         } else {
             // The result becomes normal
