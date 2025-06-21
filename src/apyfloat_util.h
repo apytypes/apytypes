@@ -495,7 +495,7 @@ template <typename QNTZ_FUNC_SIGNATURE>
         exp_t subn_adjustment = count_trailing_bits(src.man);
         man_t remainder = src.man % (1ULL << subn_adjustment);
         exp_t left_shift_amount = src_spec.man_bits - subn_adjustment;
-        exp = std::int64_t(src.exp) + 1 - BIAS_DELTA - left_shift_amount;
+        exp = 1 - BIAS_DELTA - left_shift_amount;
         man = remainder << left_shift_amount;
     } else {
         exp = std::int64_t(src.exp) - BIAS_DELTA;
@@ -576,8 +576,8 @@ template <typename QNTZ_FUNC_SIGNATURE>
         }
         exp_t subn_adjustment = count_trailing_bits(src.man);
         man_t remainder = src.man % (1ULL << subn_adjustment);
-        exp_t left_shift_amount = src_spec.man_bits - subn_adjustment;
-        exp = std::int64_t(src.exp) + 1 - BIAS_DELTA - left_shift_amount;
+        std::int64_t left_shift_amount = src_spec.man_bits - subn_adjustment;
+        exp = 1 - BIAS_DELTA - left_shift_amount;
         man = remainder << left_shift_amount;
     } else {
         exp = std::int64_t(src.exp) - BIAS_DELTA;
@@ -675,31 +675,30 @@ template <typename QNTZ_FUNC_SIGNATURE>
 {
     // Adjust the exponent and mantissa if convertering from a subnormal
     man_t new_man;
-    exp_t new_exp;
+    std::int64_t new_exp;
     if (src.exp == 0) {
         if (src.man == 0) {
             return { src.sign, 0, 0 };
         }
-        const exp_t tmp_exp = src.exp + 1;
         const exp_t subn_adjustment = count_trailing_bits(src.man);
-        const exp_t left_shift_amount = src_man_bits - subn_adjustment;
-        if (tmp_exp < left_shift_amount) {
+        const std::int64_t left_shift_amount = src_man_bits - subn_adjustment;
+        if (1 < left_shift_amount) {
             // The result remains subnormal
-            new_man = src.man << tmp_exp;
+            new_man = src.man << 1;
             new_exp = 0;
         } else {
             // The result becomes normal
             new_man = src.man << left_shift_amount;
             new_man &= (1ULL << src_man_bits) - 1;
-            new_exp = tmp_exp - left_shift_amount;
+            new_exp = std::int64_t(1) - left_shift_amount;
         }
     } else {
         new_man = src.man;
-        new_exp = src.exp;
+        new_exp = std::int64_t(src.exp);
     }
 
     new_man <<= dst_man_bits - src_man_bits;
-    return { src.sign, new_exp, new_man };
+    return { src.sign, exp_t(new_exp), new_man };
 }
 
 //! Cast a floating-point number when it is known that no quantization happens
@@ -719,7 +718,7 @@ template <typename QNTZ_FUNC_SIGNATURE>
     }
 
     // Initial value for exponent
-    exp_t new_exp;
+    std::int64_t new_exp;
 
     // Adjust the exponent and mantissa if convertering from a subnormal
     man_t new_man;
@@ -727,9 +726,9 @@ template <typename QNTZ_FUNC_SIGNATURE>
         if (src.man == 0) {
             return { src.sign, 0, 0 };
         }
-        const man_t tmp_exp = src.exp + 1 - BIAS_DELTA;
+        const std::int64_t tmp_exp = 1 - BIAS_DELTA;
         const exp_t subn_adjustment = count_trailing_bits(src.man);
-        const exp_t left_shift_amount = src_spec.man_bits - subn_adjustment;
+        const std::int64_t left_shift_amount = src_spec.man_bits - subn_adjustment;
         if (tmp_exp < left_shift_amount) {
             // The result remains subnormal
             new_man = src.man << new_exp;
@@ -742,11 +741,11 @@ template <typename QNTZ_FUNC_SIGNATURE>
         }
     } else {
         new_man = src.man;
-        new_exp = src.exp - BIAS_DELTA;
+        new_exp = std::int64_t(src.exp) - BIAS_DELTA;
     }
 
     new_man <<= SPEC_MAN_BITS_DELTA;
-    return { src.sign, new_exp, new_man };
+    return { src.sign, exp_t(new_exp), new_man };
 }
 
 //! Return the bit pattern of a floating-point data field. No checks on bit width is
@@ -1040,11 +1039,11 @@ template <typename QNTZ_FUNC_SIGNATURE>
          *      product may overflow to infinity.
          */
         if (src.exp == 0) {
-            int bw = src.exp == 0 ? bit_width(src.man) : src_spec.man_bits + 1;
+            int bw = bit_width(src.man);
             int man_shift = std::min(exp, src_spec.man_bits + 1 - bw);
             bool res_is_normal = bw + exp > src_spec.man_bits;
             man_t res_man = (src.man << man_shift) & ((1ULL << src_spec.man_bits) - 1);
-            exp_t res_exp = src.exp + exp - int(man_shift) + res_is_normal;
+            exp_t res_exp = exp - int(man_shift) + res_is_normal;
             res = { src.sign, res_exp, res_man };
         } else { /* src.exp > 0 */
             // Floating-point source is normal, and so is the product.
@@ -1195,6 +1194,7 @@ template <
     const APyFloatData& y = swap ? *src1 : *src2;
     const bool x_sign = GET_SIGN(x.sign, swap);
     const bool y_sign = GET_SIGN(y.sign, !swap);
+    const bool same_sign = x_sign == y_sign;
 
     // Tentative exponent
     exp_t new_exp = x.exp + (x.exp == 0);
@@ -1217,7 +1217,7 @@ template <
     }
 
     // Perform addition / subtraction
-    man_t new_man = (x_sign == y_sign) ? mx + my_aligned : mx - my_aligned;
+    man_t new_man = same_sign ? mx + my_aligned : mx - my_aligned;
 
     // Check for carry and cancellation
     if (new_man & CARRY_RES_LO) {
@@ -1227,7 +1227,7 @@ template <
         // Align mantissa to carry case
         new_man <<= 1;
     } else {
-        if (new_man == 0 && x_sign != y_sign && x.exp == y.exp) {
+        if (new_man == 0 && !same_sign && x.exp == y.exp) {
             man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
             bool res_sign = qntz == QuantizationMode::TRN;
             z = { res_sign, exp_t(0), res_man };
@@ -1292,12 +1292,13 @@ template <
     const APyFloatData& y = swap ? *src1 : *src2;
     const bool x_sign = GET_SIGN(x.sign, swap);
     const bool y_sign = GET_SIGN(y.sign, !swap);
+    const bool same_sign = x_sign == y_sign;
     APyFloatData& z = *dst;
 
     // Handle the NaN and inf cases
     if (is_max_exponent(x, x_spec) || is_max_exponent(y, y_spec)) {
         if (is_nan(x, x_spec) || is_nan(y, y_spec)
-            || (x_sign != y_sign && is_inf(x, x_spec) && is_inf(y, y_spec))) {
+            || (!same_sign && is_inf(x, x_spec) && is_inf(y, y_spec))) {
             z = { x_sign, RES_MAX_EXP, 1 }; // NaN
             return;
         } else {
@@ -1307,7 +1308,7 @@ template <
         }
     } else if (is_zero(x)) {
         // If `x` is zero, than so is `y`
-        bool res_sign = x_sign == y_sign ? x_sign : qntz == QuantizationMode::TRN;
+        bool res_sign = same_sign ? x_sign : qntz == QuantizationMode::TRN;
         man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
         z = { res_sign, 0, res_man };
         return;
@@ -1350,7 +1351,7 @@ template <
     }
 
     // Perform addition / subtraction
-    man_t new_man = (x_sign == y_sign) ? mx + my_aligned : mx - my_aligned;
+    man_t new_man = same_sign ? mx + my_aligned : mx - my_aligned;
 
     // Check for carry and cancellation
     if (new_man & CARRY_RES_LO) {
@@ -1358,7 +1359,7 @@ template <
     } else if (new_man & RES_LO) {
         new_man <<= 1;
     } else {
-        if (exp_delta == 0 && x_sign != y_sign && x_wide.man == y_wide.man) {
+        if (exp_delta == 0 && !same_sign && x_wide.man == y_wide.man) {
             man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
             bool res_sign = qntz == QuantizationMode::TRN;
             z = { res_sign, 0, res_man };
@@ -1416,12 +1417,13 @@ template <
     const bool x_sign = GET_SIGN(x.sign, swap);
     const bool y_sign = GET_SIGN(y.sign, !swap);
     APyFloatData& z = *dst;
+    const bool same_sign = x_sign == y_sign;
 
     // Handle the NaN and inf cases
     const bool x_is_max_exp = is_max_exponent(x, x_spec);
     if (x_is_max_exp || is_max_exponent(y, y_spec)) {
         if (is_nan(x, x_spec) || is_nan(y, y_spec)
-            || (x_sign != y_sign && is_inf(x, x_spec) && is_inf(y, y_spec))) {
+            || (!same_sign && is_inf(x, x_spec) && is_inf(y, y_spec))) {
             z = { x_sign, RES_MAX_EXP, 1 }; // NaN
             return;
         } else {
@@ -1431,7 +1433,7 @@ template <
         }
     } else if (is_zero(x)) {
         // If `x` is zero, than so is `y`
-        bool res_sign = x_sign == y_sign ? x_sign : qntz == QuantizationMode::TRN;
+        bool res_sign = same_sign ? x_sign : qntz == QuantizationMode::TRN;
         man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
         z = { res_sign, 0, res_man };
         return;
@@ -1451,7 +1453,7 @@ template <
 
     const unsigned exp_delta = x_true_exp - y_true_exp;
 
-    if (exp_delta == 0 && x_sign != y_sign && x_wide.man == y_wide.man) {
+    if (exp_delta == 0 && !same_sign && x_wide.man == y_wide.man) {
         man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
         bool res_sign = qntz == QuantizationMode::TRN;
         z = { res_sign, 0, res_man };
@@ -1473,7 +1475,7 @@ template <
     const APyFixed apy_my(2 + dst_spec.man_bits, 2 - exp_delta, { UINT64_TO_LIMB(my) });
 
     // Perform addition/subtraction
-    auto apy_res = (x_sign == y_sign) ? apy_mx + apy_my : apy_mx - apy_my;
+    auto apy_res = same_sign ? apy_mx + apy_my : apy_mx - apy_my;
 
     if (apy_res.positive_greater_than_equal_pow2(1)) {
         new_exp++;
