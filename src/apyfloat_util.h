@@ -392,15 +392,11 @@ template <typename QNTZ_FUNC_SIGNATURE>
     QNTZ_FUNC_SIGNATURE qntz_func
 )
 {
-    // Handle special values first
+    // Handle special values first (zero handled later)
     if (is_max_exponent(src, src_spec)) {
-        if (is_nan(src, src_spec)) {
-            return { src.sign, exp_t((1ULL << dst_spec.exp_bits) - 1), 1 }; // NaN
-        } else if (is_inf(src, src_spec)) {
-            return { src.sign, exp_t((1ULL << dst_spec.exp_bits) - 1), 0 }; // inf
-        }
-    } else if (is_zero(src)) {
-        return { src.sign, 0, 0 };
+        return { src.sign,
+                 exp_t((1ULL << dst_spec.exp_bits) - 1),
+                 man_t(src.man == 0 ? 0 : 1) }; // inf or nan
     }
 
     // Initial values for cast data
@@ -409,6 +405,9 @@ template <typename QNTZ_FUNC_SIGNATURE>
 
     // Normalize the exponent and mantissa if converting from subnormal
     if (src.exp == 0) {
+        if (src.man == 0) { // Zero
+            return { src.sign, 0, 0 };
+        }
         exp_t subn_adjustment = count_trailing_bits(src.man);
         man_t remainder = src.man % (1ULL << subn_adjustment);
         exp = exp - src_spec.man_bits + subn_adjustment;
@@ -460,6 +459,101 @@ template <typename QNTZ_FUNC_SIGNATURE>
     return res;
 }
 
+//! Cast a floating-point value from one format to another
+//! using many pre-computed constants making it suitable for arrays.
+template <typename QNTZ_FUNC_SIGNATURE>
+[[maybe_unused]] static APY_INLINE APyFloatData array_floating_point_cast(
+    const APyFloatData& src,
+    const APyFloatSpec& src_spec,
+    const APyFloatSpec& dst_spec,
+    QuantizationMode qntz,
+    QNTZ_FUNC_SIGNATURE qntz_func,
+    const exp_t SRC_MAX_EXP,
+    const exp_t DST_MAX_EXP,
+    const man_t SRC_LEADING_ONE,
+    const man_t DST_LEADING_ONE,
+    const int SPEC_MAN_BITS_DELTA,
+    const int SPEC_MAN_BITS_DELTA_REV,
+    const man_t SRC_HIDDEN_ONE,
+    const man_t FINAL_STICKY,
+    const std::int64_t BIAS_DELTA
+)
+{
+    // Handle special values first (zero handled later)
+    if (src.exp == SRC_MAX_EXP) {
+        return { src.sign, DST_MAX_EXP, man_t(src.man == 0 ? 0 : 1) }; // inf or nan
+    }
+
+    // Initial values for cast data
+    man_t man = src.man;
+    std::int64_t exp = std::int64_t(src.exp) - BIAS_DELTA + (src.exp == 0);
+
+    // Normalize the exponent and mantissa if converting from subnormal
+    if (src.exp == 0) {
+        if (src.man == 0) { // Zero
+            return { src.sign, 0, 0 };
+        }
+        exp_t subn_adjustment = count_trailing_bits(src.man);
+        man_t remainder = src.man % (1ULL << subn_adjustment);
+        exp = exp - src_spec.man_bits + subn_adjustment;
+        man = remainder << (src_spec.man_bits - subn_adjustment);
+    }
+
+    // Check if the result will be subnormal after cast
+    if (exp <= 0) {
+        if (exp < -std::int64_t(dst_spec.man_bits)) {
+            // Exponent to small after rounding
+            return { src.sign, 0, quantize_close_to_zero(src.sign, qntz) };
+        }
+
+        const int MAN_BITS_DELTA = 1 - exp - SPEC_MAN_BITS_DELTA;
+        man |= SRC_HIDDEN_ONE; // Add the hidden one
+        if (MAN_BITS_DELTA <= 0) {
+            return { src.sign, 0, (man << -MAN_BITS_DELTA) };
+        } else { /* man_bits_delta > 0 */
+            const man_t STICKY = (1ULL << (MAN_BITS_DELTA - 1)) - 1;
+            APyFloatData res = { src.sign, 0, man };
+            qntz_func(
+                res.man,
+                res.exp,
+                DST_MAX_EXP,
+                MAN_BITS_DELTA,
+                res.sign,
+                SRC_LEADING_ONE,
+                STICKY
+            );
+            return res;
+        }
+    }
+
+    // Quantize the mantissa and return
+    if (SPEC_MAN_BITS_DELTA >= 0) {
+        if (exp >= DST_MAX_EXP) {
+            if (do_infinity(qntz, src.sign)) {
+                return { src.sign, DST_MAX_EXP, 0 }; // inf
+            } else {
+                return { src.sign,
+                         DST_MAX_EXP - 1,
+                         DST_LEADING_ONE - 1 }; // largest normal
+            }
+        } else { /* exp < DST_MAX_EXP */
+            return { src.sign, exp_t(exp), (man << SPEC_MAN_BITS_DELTA) };
+        }
+    }
+
+    APyFloatData res { src.sign, exp_t(exp), man };
+    qntz_func(
+        res.man,
+        res.exp,
+        DST_MAX_EXP,
+        SPEC_MAN_BITS_DELTA_REV,
+        res.sign,
+        DST_LEADING_ONE,
+        FINAL_STICKY
+    );
+    return res;
+}
+
 //! Cast a floating-point number when it is known that no quantization happens
 [[maybe_unused]] static APY_INLINE APyFloatData floating_point_cast_no_quant(
     const APyFloatData& src, const APyFloatSpec& src_spec, const APyFloatSpec& dst_spec
@@ -467,13 +561,9 @@ template <typename QNTZ_FUNC_SIGNATURE>
 {
     // Handle special values first
     if (is_max_exponent(src, src_spec.exp_bits)) {
-        if (src.man) {
-            return { src.sign, exp_t((1ULL << dst_spec.exp_bits) - 1), 1 }; // NaN
-        } else {
-            return { src.sign, exp_t((1ULL << dst_spec.exp_bits) - 1), 0 }; // +-inf
-        }
-    } else if (is_zero(src)) {
-        return { src.sign, 0, 0 };
+        return { src.sign,
+                 exp_t((1ULL << dst_spec.exp_bits) - 1),
+                 man_t(src.man == 0 ? 0 : 1) }; // Int or NaN
     }
 
     // Initial value for exponent
@@ -482,6 +572,9 @@ template <typename QNTZ_FUNC_SIGNATURE>
     // Adjust the exponent and mantissa if convertering from a subnormal
     man_t new_man;
     if (src.exp == 0) {
+        if (src.man == 0) {
+            return { src.sign, 0, 0 };
+        }
         const exp_t subn_adjustment = count_trailing_bits(src.man);
         if (new_exp + subn_adjustment < src_spec.man_bits) {
             // The result remains subnormal
@@ -498,6 +591,50 @@ template <typename QNTZ_FUNC_SIGNATURE>
     }
 
     new_man <<= dst_spec.man_bits - src_spec.man_bits;
+    return { src.sign, exp_t(new_exp), man_t(new_man) };
+}
+
+//! Cast a floating-point number when it is known that no quantization happens
+//! using pre-computed values suitable for arrays
+[[maybe_unused]] static APY_INLINE APyFloatData array_floating_point_cast_no_quant(
+    const APyFloatData& src,
+    const APyFloatSpec& src_spec,
+    const exp_t SRC_MAX_EXP,
+    const exp_t DST_MAX_EXP,
+    const int SPEC_MAN_BITS_DELTA,
+    const std::int64_t BIAS_DELTA
+)
+{
+    // Handle special values first
+    if (src.exp == SRC_MAX_EXP) {
+        return { src.sign, DST_MAX_EXP, man_t(src.man == 0 ? 0 : 1) }; // Int or NaN
+    }
+
+    // Initial value for exponent
+    std::int64_t new_exp = std::int64_t(src.exp) - BIAS_DELTA + (src.exp == 0);
+
+    // Adjust the exponent and mantissa if convertering from a subnormal
+    man_t new_man;
+    if (src.exp == 0) {
+        if (src.man == 0) {
+            return { src.sign, 0, 0 };
+        }
+        const exp_t subn_adjustment = count_trailing_bits(src.man);
+        if (new_exp + subn_adjustment < src_spec.man_bits) {
+            // The result remains subnormal
+            new_man = src.man << new_exp;
+            new_exp = 0;
+        } else {
+            // The result becomes normal
+            new_man = src.man << (src_spec.man_bits - subn_adjustment);
+            new_man &= (1ULL << src_spec.man_bits) - 1;
+            new_exp = new_exp + subn_adjustment - src_spec.man_bits;
+        }
+    } else {
+        new_man = src.man;
+    }
+
+    new_man <<= SPEC_MAN_BITS_DELTA;
     return { src.sign, exp_t(new_exp), man_t(new_man) };
 }
 

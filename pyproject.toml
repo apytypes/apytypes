@@ -150,7 +150,7 @@ unfixable = []
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [tool.ruff.lint.per-file-ignores]
-"lib/test/*" = ["D", "ANN"]
+"lib/test/*" = ["D", "ANN", "PLC0415"]
 "examples/*" = ["ANN"]
 "docs/*" = ["ANN"]
 "comparison/*" = ["ANN"]

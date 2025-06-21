@@ -1240,32 +1240,54 @@ APyFloatArray APyFloatArray::_cast(
         return *this;
     }
 
+    APyFloatArray result(_shape, new_exp_bits, new_man_bits, new_bias);
+
+    const exp_t SRC_MAX_EXP = (1ULL << exp_bits) - 1;
+    const exp_t DST_MAX_EXP = (1ULL << new_exp_bits) - 1;
+    const int SPEC_MAN_BITS_DELTA = new_man_bits - man_bits;
+    const std::int64_t BIAS_DELTA = std::int64_t(bias) - std::int64_t(new_bias);
+
     // If longer word lengths, use simpler/faster method
     if (new_exp_bits >= exp_bits && new_man_bits >= man_bits) {
-        return cast_no_quant(new_exp_bits, new_man_bits, new_bias);
+        for (std::size_t i = 0; i < _data.size(); i++) {
+            result._data[i] = array_floating_point_cast_no_quant(
+                _data[i],
+                spec(),
+                SRC_MAX_EXP,
+                DST_MAX_EXP,
+                SPEC_MAN_BITS_DELTA,
+                BIAS_DELTA
+            );
+        }
+        return result;
     }
 
-    APyFloatArray result(_shape, new_exp_bits, new_man_bits, new_bias);
+    const auto quantization_func = get_qntz_func(quantization);
+    const man_t SRC_LEADING_ONE = (1ULL << man_bits);
+    const man_t DST_LEADING_ONE = (1ULL << new_man_bits);
+    const man_t SRC_HIDDEN_ONE = (1ULL << man_bits);
+    const int SPEC_MAN_BITS_DELTA_REV = -SPEC_MAN_BITS_DELTA;
+    const man_t FINAL_STICKY = (1ULL << (SPEC_MAN_BITS_DELTA_REV - 1)) - 1;
 
-    APyFloat caster(exp_bits, man_bits, bias);
     for (std::size_t i = 0; i < _data.size(); i++) {
-        caster.set_data(_data[i]);
-        result._data[i]
-            = caster.checked_cast(new_exp_bits, new_man_bits, new_bias, quantization)
-                  .get_data();
+        result._data[i] = array_floating_point_cast(
+            _data[i],
+            spec(),
+            result.spec(),
+            quantization,
+            quantization_func,
+            SRC_MAX_EXP,
+            DST_MAX_EXP,
+            SRC_LEADING_ONE,
+            DST_LEADING_ONE,
+            SPEC_MAN_BITS_DELTA,
+            SPEC_MAN_BITS_DELTA_REV,
+            SRC_HIDDEN_ONE,
+            FINAL_STICKY,
+            BIAS_DELTA
+        );
     }
 
-    return result;
-}
-
-APyFloatArray APyFloatArray::cast_no_quant(
-    std::uint8_t new_exp_bits, std::uint8_t new_man_bits, std::optional<exp_t> new_bias
-) const
-{
-    APyFloatArray result(_shape, new_exp_bits, new_man_bits, new_bias);
-    for (std::size_t i = 0; i < _data.size(); i++) {
-        result._data[i] = floating_point_cast_no_quant(_data[i], spec(), result.spec());
-    }
     return result;
 }
 
