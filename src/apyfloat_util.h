@@ -145,7 +145,8 @@ normalize(
 
     man_t new_man = src.man;
     std::int64_t tmp_exp = true_exp(src, bias);
-    while (!(new_man & (1ULL << man_bits))) {
+    const auto mask = (1ULL << man_bits);
+    while (!(new_man & mask)) {
         new_man <<= 1;
         tmp_exp--;
     }
@@ -272,8 +273,9 @@ template <QuantizationMode QNTZ, bool SUPPORT_NEGATIVE_BITS_TO_QUANTIZE = false>
             res_man |= 1;
         }
     } else if constexpr (QNTZ == QuantizationMode::STOCH_WEIGHTED) {
-        const man_t trailing_bits = man & ((1ULL << bits_to_quantize) - 1);
-        const man_t weight = random_number_float() & ((1ULL << bits_to_quantize) - 1);
+        const auto mask = ((1ULL << bits_to_quantize) - 1);
+        const man_t trailing_bits = man & mask;
+        const man_t weight = random_number_float() & mask;
         B = (trailing_bits + weight) >> bits_to_quantize;
     } else if constexpr (QNTZ == QuantizationMode::STOCH_EQUAL) {
         B = (G || T) ? random_number_float() & 1 : 0;
@@ -588,6 +590,42 @@ template <typename QNTZ_FUNC_SIGNATURE>
     }
 
     new_man <<= dst_spec.man_bits - src_spec.man_bits;
+    return { src.sign, exp_t(new_exp), man_t(new_man) };
+}
+
+//! Cast a floating-point number when it is known that no quantization happens and
+//! that the exponent is not max. In addition, src_spec.bias = dst_spec.bias.
+[[maybe_unused]] static APY_INLINE APyFloatData floating_point_cast_no_quant_no_max_exp(
+    const APyFloatData& src,
+    const std::uint8_t src_man_bits,
+    const std::uint8_t dst_man_bits
+)
+{
+    // Adjust the exponent and mantissa if convertering from a subnormal
+    man_t new_man;
+    std::int64_t new_exp;
+    if (src.exp == 0) {
+        if (src.man == 0) {
+            return { src.sign, 0, 0 };
+        }
+        const std::int64_t tmp_exp = std::int64_t(src.exp) + 1;
+        const exp_t subn_adjustment = count_trailing_bits(src.man);
+        if (tmp_exp + subn_adjustment < src_man_bits) {
+            // The result remains subnormal
+            new_man = src.man << tmp_exp;
+            new_exp = 0;
+        } else {
+            // The result becomes normal
+            new_man = src.man << (src_man_bits - subn_adjustment);
+            new_man &= (1ULL << src_man_bits) - 1;
+            new_exp = tmp_exp + subn_adjustment - src_man_bits;
+        }
+    } else {
+        new_man = src.man;
+        new_exp = std::int64_t(src.exp);
+    }
+
+    new_man <<= dst_man_bits - src_man_bits;
     return { src.sign, exp_t(new_exp), man_t(new_man) };
 }
 
@@ -1199,16 +1237,14 @@ template <
         return;
     }
 
-    APyFloatData x_wide = x_spec == dst_spec
-        ? x
-        : floating_point_cast_no_quant(
-              x, x_spec, { dst_spec.exp_bits, dst_spec.man_bits, x_spec.bias }
-          );
-    APyFloatData y_wide = y_spec == dst_spec
-        ? y
-        : floating_point_cast_no_quant(
-              y, y_spec, { dst_spec.exp_bits, dst_spec.man_bits, y_spec.bias }
-          );
+    APyFloatData x_wide = x_spec == dst_spec ? x
+                                             : floating_point_cast_no_quant_no_max_exp(
+                                                   x, x_spec.man_bits, dst_spec.man_bits
+                                               );
+    APyFloatData y_wide = y_spec == dst_spec ? y
+                                             : floating_point_cast_no_quant_no_max_exp(
+                                                   y, y_spec.man_bits, dst_spec.man_bits
+                                               );
 
     // Tentative exponent
     exp_t x_true_exp = true_exp(x_wide, x_spec.bias);
@@ -1306,13 +1342,14 @@ template <
     APyFloatData& z = *dst;
 
     // Handle the NaN and inf cases
-    if (is_max_exponent(x, x_spec) || is_max_exponent(y, y_spec)) {
+    const bool x_is_max_exp = is_max_exponent(x, x_spec);
+    if (x_is_max_exp || is_max_exponent(y, y_spec)) {
         if (is_nan(x, x_spec) || is_nan(y, y_spec)
             || (x_sign != y_sign && is_inf(x, x_spec) && is_inf(y, y_spec))) {
             z = { x_sign, RES_MAX_EXP, 1 }; // NaN
             return;
         } else {
-            bool sign = is_max_exponent(x, x_spec) ? x_sign : y_sign;
+            bool sign = x_is_max_exp ? x_sign : y_sign;
             z = { sign, RES_MAX_EXP, 0 }; // Inf
             return;
         }
@@ -1324,16 +1361,14 @@ template <
         return;
     }
 
-    APyFloatData x_wide = x_spec == dst_spec
-        ? x
-        : floating_point_cast_no_quant(
-              x, x_spec, { dst_spec.exp_bits, dst_spec.man_bits, x_spec.bias }
-          );
-    APyFloatData y_wide = y_spec == dst_spec
-        ? y
-        : floating_point_cast_no_quant(
-              y, y_spec, { dst_spec.exp_bits, dst_spec.man_bits, y_spec.bias }
-          );
+    APyFloatData x_wide = x_spec == dst_spec ? x
+                                             : floating_point_cast_no_quant_no_max_exp(
+                                                   x, x_spec.man_bits, dst_spec.man_bits
+                                               );
+    APyFloatData y_wide = y_spec == dst_spec ? y
+                                             : floating_point_cast_no_quant_no_max_exp(
+                                                   y, y_spec.man_bits, dst_spec.man_bits
+                                               );
 
     const std::int64_t x_true_exp = true_exp(x_wide, x_spec.bias);
     const std::int64_t y_true_exp = true_exp(y_wide, y_spec.bias);
