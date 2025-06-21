@@ -411,8 +411,9 @@ template <typename QNTZ_FUNC_SIGNATURE>
         }
         exp_t subn_adjustment = count_trailing_bits(src.man);
         man_t remainder = src.man % (1ULL << subn_adjustment);
-        exp = exp - src_spec.man_bits + subn_adjustment;
-        man = remainder << (src_spec.man_bits - subn_adjustment);
+        exp_t left_shift_amount = src_spec.man_bits - subn_adjustment;
+        exp -= left_shift_amount;
+        man = remainder << left_shift_amount;
     }
 
     // Check if the result will be subnormal after cast
@@ -460,8 +461,9 @@ template <typename QNTZ_FUNC_SIGNATURE>
 
 //! Cast a floating-point value from one format to another
 //! using many pre-computed constants making it suitable for arrays.
+//! Specialized for the case where more mantissa bits are used in the result.
 template <typename QNTZ_FUNC_SIGNATURE>
-[[maybe_unused]] static APY_INLINE APyFloatData array_floating_point_cast(
+[[maybe_unused]] static APY_INLINE APyFloatData array_floating_point_cast_pos_man_delta(
     const APyFloatData& src,
     const APyFloatSpec& src_spec,
     const APyFloatSpec& dst_spec,
@@ -472,9 +474,7 @@ template <typename QNTZ_FUNC_SIGNATURE>
     const man_t SRC_LEADING_ONE,
     const man_t DST_LEADING_ONE,
     const int SPEC_MAN_BITS_DELTA,
-    const int SPEC_MAN_BITS_DELTA_REV,
     const man_t SRC_HIDDEN_ONE,
-    const man_t FINAL_STICKY,
     const std::int64_t BIAS_DELTA
 )
 {
@@ -485,7 +485,7 @@ template <typename QNTZ_FUNC_SIGNATURE>
 
     // Initial values for cast data
     man_t man = src.man;
-    std::int64_t exp = std::int64_t(src.exp) - BIAS_DELTA + (src.exp == 0);
+    std::int64_t exp;
 
     // Normalize the exponent and mantissa if converting from subnormal
     if (src.exp == 0) {
@@ -494,8 +494,11 @@ template <typename QNTZ_FUNC_SIGNATURE>
         }
         exp_t subn_adjustment = count_trailing_bits(src.man);
         man_t remainder = src.man % (1ULL << subn_adjustment);
-        exp = exp - src_spec.man_bits + subn_adjustment;
-        man = remainder << (src_spec.man_bits - subn_adjustment);
+        exp_t left_shift_amount = src_spec.man_bits - subn_adjustment;
+        exp = std::int64_t(src.exp) + 1 - BIAS_DELTA - left_shift_amount;
+        man = remainder << left_shift_amount;
+    } else {
+        exp = std::int64_t(src.exp) - BIAS_DELTA;
     }
 
     // Check if the result will be subnormal after cast
@@ -525,21 +528,89 @@ template <typename QNTZ_FUNC_SIGNATURE>
         }
     }
 
-    // Quantize the mantissa and return
-    if (SPEC_MAN_BITS_DELTA >= 0) {
-        if (exp >= DST_MAX_EXP) {
-            if (do_infinity(qntz, src.sign)) {
-                return { src.sign, DST_MAX_EXP, 0 }; // inf
-            } else {
-                return { src.sign,
-                         DST_MAX_EXP - 1,
-                         DST_LEADING_ONE - 1 }; // largest normal
-            }
-        } else { /* exp < DST_MAX_EXP */
-            return { src.sign, exp_t(exp), (man << SPEC_MAN_BITS_DELTA) };
+    // Shift the mantissa and return
+    if (exp >= DST_MAX_EXP) {
+        if (do_infinity(qntz, src.sign)) {
+            return { src.sign, DST_MAX_EXP, 0 }; // inf
+        } else {
+            return { src.sign, DST_MAX_EXP - 1, DST_LEADING_ONE - 1 }; // largest normal
+        }
+    } else { /* exp < DST_MAX_EXP */
+        return { src.sign, exp_t(exp), (man << SPEC_MAN_BITS_DELTA) };
+    }
+}
+
+//! Cast a floating-point value from one format to another
+//! using many pre-computed constants making it suitable for arrays.
+//! Specialized for the case where fewer mantissa bits are used in the result.
+template <typename QNTZ_FUNC_SIGNATURE>
+[[maybe_unused]] static APY_INLINE APyFloatData array_floating_point_cast_neg_man_delta(
+    const APyFloatData& src,
+    const APyFloatSpec& src_spec,
+    const APyFloatSpec& dst_spec,
+    QuantizationMode qntz,
+    QNTZ_FUNC_SIGNATURE qntz_func,
+    const exp_t SRC_MAX_EXP,
+    const exp_t DST_MAX_EXP,
+    const man_t SRC_LEADING_ONE,
+    const man_t DST_LEADING_ONE,
+    const int SPEC_MAN_BITS_DELTA_REV,
+    const man_t SRC_HIDDEN_ONE,
+    const man_t FINAL_STICKY,
+    const std::int64_t BIAS_DELTA
+)
+{
+    // Handle special values first (zero handled later)
+    if (src.exp == SRC_MAX_EXP) {
+        return { src.sign, DST_MAX_EXP, man_t(src.man == 0 ? 0 : 1) }; // inf or nan
+    }
+
+    // Initial values for cast data
+    man_t man = src.man;
+    std::int64_t exp;
+
+    // Normalize the exponent and mantissa if converting from subnormal
+    if (src.exp == 0) {
+        if (src.man == 0) { // Zero
+            return { src.sign, 0, 0 };
+        }
+        exp_t subn_adjustment = count_trailing_bits(src.man);
+        man_t remainder = src.man % (1ULL << subn_adjustment);
+        exp_t left_shift_amount = src_spec.man_bits - subn_adjustment;
+        exp = std::int64_t(src.exp) + 1 - BIAS_DELTA - left_shift_amount;
+        man = remainder << left_shift_amount;
+    } else {
+        exp = std::int64_t(src.exp) - BIAS_DELTA;
+    }
+
+    // Check if the result will be subnormal after cast
+    if (exp <= 0) {
+        if (exp < -std::int64_t(dst_spec.man_bits)) {
+            // Exponent to small after rounding
+            return { src.sign, 0, quantize_close_to_zero(src.sign, qntz) };
+        }
+
+        const int MAN_BITS_DELTA = 1 - exp + SPEC_MAN_BITS_DELTA_REV;
+        man |= SRC_HIDDEN_ONE; // Add the hidden one
+        if (MAN_BITS_DELTA <= 0) {
+            return { src.sign, 0, (man << -MAN_BITS_DELTA) };
+        } else { /* man_bits_delta > 0 */
+            const man_t STICKY = (1ULL << (MAN_BITS_DELTA - 1)) - 1;
+            APyFloatData res = { src.sign, 0, man };
+            qntz_func(
+                res.man,
+                res.exp,
+                DST_MAX_EXP,
+                MAN_BITS_DELTA,
+                res.sign,
+                SRC_LEADING_ONE,
+                STICKY
+            );
+            return res;
         }
     }
 
+    // Quantize the mantissa and return
     APyFloatData res { src.sign, exp_t(exp), man };
     qntz_func(
         res.man,
@@ -575,22 +646,23 @@ template <typename QNTZ_FUNC_SIGNATURE>
             return { src.sign, 0, 0 };
         }
         const exp_t subn_adjustment = count_trailing_bits(src.man);
-        if (new_exp + subn_adjustment < src_spec.man_bits) {
+        const exp_t left_shift_amount = src_spec.man_bits - subn_adjustment;
+        if (new_exp < left_shift_amount) {
             // The result remains subnormal
             new_man = src.man << new_exp;
             new_exp = 0;
         } else {
             // The result becomes normal
-            new_man = src.man << (src_spec.man_bits - subn_adjustment);
+            new_man = src.man << left_shift_amount;
             new_man &= (1ULL << src_spec.man_bits) - 1;
-            new_exp = new_exp + subn_adjustment - src_spec.man_bits;
+            new_exp -= left_shift_amount;
         }
     } else {
         new_man = src.man;
     }
 
     new_man <<= dst_spec.man_bits - src_spec.man_bits;
-    return { src.sign, exp_t(new_exp), man_t(new_man) };
+    return { src.sign, exp_t(new_exp), new_man };
 }
 
 //! Cast a floating-point number when it is known that no quantization happens and
@@ -603,30 +675,31 @@ template <typename QNTZ_FUNC_SIGNATURE>
 {
     // Adjust the exponent and mantissa if convertering from a subnormal
     man_t new_man;
-    std::int64_t new_exp;
+    exp_t new_exp;
     if (src.exp == 0) {
         if (src.man == 0) {
             return { src.sign, 0, 0 };
         }
-        const std::int64_t tmp_exp = std::int64_t(src.exp) + 1;
+        const exp_t tmp_exp = src.exp + 1;
         const exp_t subn_adjustment = count_trailing_bits(src.man);
-        if (tmp_exp + subn_adjustment < src_man_bits) {
+        const exp_t left_shift_amount = src_man_bits - subn_adjustment;
+        if (tmp_exp < left_shift_amount) {
             // The result remains subnormal
             new_man = src.man << tmp_exp;
             new_exp = 0;
         } else {
             // The result becomes normal
-            new_man = src.man << (src_man_bits - subn_adjustment);
+            new_man = src.man << left_shift_amount;
             new_man &= (1ULL << src_man_bits) - 1;
-            new_exp = tmp_exp + subn_adjustment - src_man_bits;
+            new_exp = tmp_exp - left_shift_amount;
         }
     } else {
         new_man = src.man;
-        new_exp = std::int64_t(src.exp);
+        new_exp = src.exp;
     }
 
     new_man <<= dst_man_bits - src_man_bits;
-    return { src.sign, exp_t(new_exp), man_t(new_man) };
+    return { src.sign, new_exp, new_man };
 }
 
 //! Cast a floating-point number when it is known that no quantization happens
@@ -646,7 +719,7 @@ template <typename QNTZ_FUNC_SIGNATURE>
     }
 
     // Initial value for exponent
-    std::int64_t new_exp = std::int64_t(src.exp) - BIAS_DELTA + (src.exp == 0);
+    exp_t new_exp;
 
     // Adjust the exponent and mantissa if convertering from a subnormal
     man_t new_man;
@@ -654,23 +727,26 @@ template <typename QNTZ_FUNC_SIGNATURE>
         if (src.man == 0) {
             return { src.sign, 0, 0 };
         }
+        const man_t tmp_exp = src.exp + 1 - BIAS_DELTA;
         const exp_t subn_adjustment = count_trailing_bits(src.man);
-        if (new_exp + subn_adjustment < src_spec.man_bits) {
+        const exp_t left_shift_amount = src_spec.man_bits - subn_adjustment;
+        if (tmp_exp < left_shift_amount) {
             // The result remains subnormal
             new_man = src.man << new_exp;
             new_exp = 0;
         } else {
             // The result becomes normal
-            new_man = src.man << (src_spec.man_bits - subn_adjustment);
+            new_man = src.man << left_shift_amount;
             new_man &= (1ULL << src_spec.man_bits) - 1;
-            new_exp = new_exp + subn_adjustment - src_spec.man_bits;
+            new_exp = tmp_exp - left_shift_amount;
         }
     } else {
         new_man = src.man;
+        new_exp = src.exp - BIAS_DELTA;
     }
 
     new_man <<= SPEC_MAN_BITS_DELTA;
-    return { src.sign, exp_t(new_exp), man_t(new_man) };
+    return { src.sign, new_exp, new_man };
 }
 
 //! Return the bit pattern of a floating-point data field. No checks on bit width is

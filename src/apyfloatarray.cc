@@ -1266,26 +1266,44 @@ APyFloatArray APyFloatArray::_cast(
     const man_t SRC_LEADING_ONE = (1ULL << man_bits);
     const man_t DST_LEADING_ONE = (1ULL << new_man_bits);
     const man_t SRC_HIDDEN_ONE = (1ULL << man_bits);
-    const int SPEC_MAN_BITS_DELTA_REV = -SPEC_MAN_BITS_DELTA;
-    const man_t FINAL_STICKY = (1ULL << (SPEC_MAN_BITS_DELTA_REV - 1)) - 1;
 
-    for (std::size_t i = 0; i < _data.size(); i++) {
-        result._data[i] = array_floating_point_cast(
-            _data[i],
-            spec(),
-            result.spec(),
-            quantization,
-            quantization_func,
-            SRC_MAX_EXP,
-            DST_MAX_EXP,
-            SRC_LEADING_ONE,
-            DST_LEADING_ONE,
-            SPEC_MAN_BITS_DELTA,
-            SPEC_MAN_BITS_DELTA_REV,
-            SRC_HIDDEN_ONE,
-            FINAL_STICKY,
-            BIAS_DELTA
-        );
+    if (SPEC_MAN_BITS_DELTA >= 0) {
+        for (std::size_t i = 0; i < _data.size(); i++) {
+            result._data[i] = array_floating_point_cast_pos_man_delta(
+                _data[i],
+                spec(),
+                result.spec(),
+                quantization,
+                quantization_func,
+                SRC_MAX_EXP,
+                DST_MAX_EXP,
+                SRC_LEADING_ONE,
+                DST_LEADING_ONE,
+                SPEC_MAN_BITS_DELTA,
+                SRC_HIDDEN_ONE,
+                BIAS_DELTA
+            );
+        }
+    } else {
+        const int SPEC_MAN_BITS_DELTA_REV = -SPEC_MAN_BITS_DELTA;
+        const man_t FINAL_STICKY = (1ULL << (SPEC_MAN_BITS_DELTA_REV - 1)) - 1;
+        for (std::size_t i = 0; i < _data.size(); i++) {
+            result._data[i] = array_floating_point_cast_neg_man_delta(
+                _data[i],
+                spec(),
+                result.spec(),
+                quantization,
+                quantization_func,
+                SRC_MAX_EXP,
+                DST_MAX_EXP,
+                SRC_LEADING_ONE,
+                DST_LEADING_ONE,
+                SPEC_MAN_BITS_DELTA_REV,
+                SRC_HIDDEN_ONE,
+                FINAL_STICKY,
+                BIAS_DELTA
+            );
+        }
     }
 
     return result;
