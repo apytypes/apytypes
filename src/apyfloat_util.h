@@ -392,11 +392,10 @@ template <typename QNTZ_FUNC_SIGNATURE>
     QNTZ_FUNC_SIGNATURE qntz_func
 )
 {
+    const exp_t MAX_EXP = (1ULL << dst_spec.exp_bits) - 1;
     // Handle special values first (zero handled later)
     if (is_max_exponent(src, src_spec)) {
-        return { src.sign,
-                 exp_t((1ULL << dst_spec.exp_bits) - 1),
-                 man_t(src.man == 0 ? 0 : 1) }; // inf or nan
+        return { src.sign, MAX_EXP, man_t(src.man == 0 ? 0 : 1) }; // inf or nan
     }
 
     // Initial values for cast data
@@ -427,7 +426,6 @@ template <typename QNTZ_FUNC_SIGNATURE>
         if (MAN_BITS_DELTA <= 0) {
             return { src.sign, 0, (man << -MAN_BITS_DELTA) };
         } else { /* man_bits_delta > 0 */
-            const exp_t MAX_EXP = (1ULL << dst_spec.exp_bits) - 1;
             const man_t STICKY = (1ULL << (MAN_BITS_DELTA - 1)) - 1;
             APyFloatData res = { src.sign, 0, man };
             qntz_func(
@@ -439,7 +437,6 @@ template <typename QNTZ_FUNC_SIGNATURE>
 
     // Quantize the mantissa and return
     const int MAN_BITS_DELTA = src_spec.man_bits - dst_spec.man_bits;
-    const exp_t MAX_EXP = (1ULL << dst_spec.exp_bits) - 1;
     const man_t LEADING_ONE = (1ULL << dst_spec.man_bits);
     if (MAN_BITS_DELTA <= 0) {
         if (exp >= MAX_EXP) {
@@ -1214,7 +1211,8 @@ template <
           );
 
     // Tentative exponent
-    exp_t new_exp = true_exp(x_wide, x_spec.bias) + dst_spec.bias;
+    exp_t x_true_exp = true_exp(x_wide, x_spec.bias);
+    exp_t new_exp = x_true_exp + dst_spec.bias;
     if (new_exp > RES_MAX_EXP) {
         exp_t exp = int(new_exp) < 0 ? 0 : RES_MAX_EXP;
         man_t res_man = exp ? (qntz == QuantizationMode::JAM ? 1 : 0) : 0;
@@ -1229,7 +1227,7 @@ template <
 
     // Align mantissa based on difference in exponent
     man_t my_aligned;
-    const unsigned exp_delta = true_exp(x_wide, x_spec) - true_exp(y_wide, y_spec);
+    const unsigned exp_delta = x_true_exp - true_exp(y_wide, y_spec);
     if (exp_delta <= 3) {
         my_aligned = my >> exp_delta;
     } else if (exp_delta >= _MAN_T_SIZE_BITS) {
@@ -1248,13 +1246,11 @@ template <
     } else if (new_man & RES_LO) {
         new_man <<= 1;
     } else {
-        if (x_sign != y_sign && x_wide.man == y_wide.man) {
-            if (true_exp(x_wide, x_spec) == true_exp(y_wide, y_spec)) {
-                man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
-                bool res_sign = qntz == QuantizationMode::TRN;
-                z = { res_sign, 0, res_man };
-                return;
-            }
+        if (exp_delta == 0 && x_sign != y_sign && x_wide.man == y_wide.man) {
+            man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
+            bool res_sign = qntz == QuantizationMode::TRN;
+            z = { res_sign, 0, res_man };
+            return;
         }
 
         // Cancellation or addition with subnormals. Mantissa should be shifted
@@ -1311,14 +1307,13 @@ template <
 
     // Handle the NaN and inf cases
     if (is_max_exponent(x, x_spec) || is_max_exponent(y, y_spec)) {
-        exp_t res_max_exponent = exp_t((1ULL << dst_spec.exp_bits) - 1);
         if (is_nan(x, x_spec) || is_nan(y, y_spec)
             || (x_sign != y_sign && is_inf(x, x_spec) && is_inf(y, y_spec))) {
-            z = { x_sign, res_max_exponent, 1 }; // NaN
+            z = { x_sign, RES_MAX_EXP, 1 }; // NaN
             return;
         } else {
             bool sign = is_max_exponent(x, x_spec) ? x_sign : y_sign;
-            z = { sign, res_max_exponent, 0 }; // Inf
+            z = { sign, RES_MAX_EXP, 0 }; // Inf
             return;
         }
     } else if (is_zero(x)) {
@@ -1340,19 +1335,18 @@ template <
               y, y_spec, { dst_spec.exp_bits, dst_spec.man_bits, y_spec.bias }
           );
 
-    if (x_sign != y_sign) {
-        if (x_wide.man == y_wide.man) {
-            if (true_exp(x_wide, x_spec.bias) == true_exp(y_wide, y_spec.bias)) {
-                man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
-                bool res_sign = qntz == QuantizationMode::TRN;
-                z = { res_sign, 0, res_man };
-                return;
-            }
-        }
+    const std::int64_t x_true_exp = true_exp(x_wide, x_spec.bias);
+    const std::int64_t y_true_exp = true_exp(y_wide, y_spec.bias);
+
+    const unsigned exp_delta = x_true_exp - y_true_exp;
+
+    if (exp_delta == 0 && x_sign != y_sign && x_wide.man == y_wide.man) {
+        man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
+        bool res_sign = qntz == QuantizationMode::TRN;
+        z = { res_sign, 0, res_man };
+        return;
     }
 
-    const std::int64_t x_true_exp = true_exp(x_wide, x_spec.bias);
-    const unsigned exp_delta = x_true_exp - true_exp(y_wide, y_spec.bias);
     exp_t new_exp = x_true_exp + dst_spec.bias;
     if (new_exp > RES_MAX_EXP) {
         exp_t exp = int(new_exp) < 0 ? 0 : RES_MAX_EXP;
@@ -1401,13 +1395,12 @@ template <
     }
 
     // Check for overflow
-    if (new_exp >= ((1LL << dst_spec.exp_bits) - 1)) {
-        exp_t res_max_exponent = ((1LL << dst_spec.exp_bits) - 1);
+    if (new_exp >= RES_MAX_EXP) {
         if (do_infinity(qntz, x_sign)) {
-            z = { x_sign, res_max_exponent, 0 };
+            z = { x_sign, RES_MAX_EXP, 0 };
             return;
         } else {
-            z = { x_sign, res_max_exponent - 1, (1ULL << dst_spec.man_bits) - 1 };
+            z = { x_sign, RES_MAX_EXP - 1, (1ULL << dst_spec.man_bits) - 1 };
             return;
         }
     }
@@ -1446,7 +1439,8 @@ template <
     const man_t ONE_BEFORE,
     const man_t TWO_RES,
     const int MAN_DELTA,
-    const man_t STICKY
+    const man_t STICKY,
+    const int64_t BIAS_TERM
 )
 {
     const APyFloatData& x = *src1;
@@ -1486,8 +1480,8 @@ template <
     man_t mx = (man_t(!x_is_subnormal) << src1_spec.man_bits) | x.man;
     man_t my = (man_t(!y_is_subnormal) << src2_spec.man_bits) | y.man;
     man_t new_man = mx * my;
-    std::int64_t tmp_exp
-        = true_exp(x, src1_spec) + true_exp(y, src2_spec) + dst_spec.bias;
+    std::int64_t tmp_exp = std::int64_t(x.exp) + std::int64_t(y.exp) + x_is_subnormal
+        + y_is_subnormal + BIAS_TERM;
 
     // Check result from multiplication larger than/equal two
     if (new_man & TWO_BEFORE) {
@@ -1556,12 +1550,14 @@ template <
     const bool y_is_subnormal = (y.exp == 0);
     const bool y_is_maxexp = (y.exp == SRC2_MAX_EXP);
     if (x_is_maxexp || y_is_maxexp || x_is_subnormal || y_is_subnormal) {
-        bool src1_nan = is_nan(x, src1_spec.exp_bits);
-        bool src2_nan = is_nan(y, src2_spec.exp_bits);
-        bool src1_inf = is_inf(x, src1_spec.exp_bits);
-        bool src2_inf = is_inf(y, src2_spec.exp_bits);
-        bool src1_zero = is_zero(x);
-        bool src2_zero = is_zero(y);
+        bool x_has_zero_man = x.man == 0;
+        bool y_has_zero_man = y.man == 0;
+        bool src1_nan = x_is_maxexp & !x_has_zero_man;
+        bool src2_nan = y_is_maxexp & !y_has_zero_man;
+        bool src1_inf = x_is_maxexp & x_has_zero_man;
+        bool src2_inf = y_is_maxexp & y_has_zero_man;
+        bool src1_zero = x_is_subnormal & x_has_zero_man;
+        bool src2_zero = y_is_subnormal & y_has_zero_man;
         if (src1_nan || src2_nan || (src1_inf && src2_zero)
             || (src2_inf && src1_zero)) {
             // Set to NaN
@@ -1616,7 +1612,7 @@ template <
         apy_res >>= 1;
     }
 
-    if (new_exp >= exp_t((1ULL << dst_spec.exp_bits) - 1)) {
+    if (new_exp >= RES_MAX_EXP) {
         if (do_infinity(qntz, res_sign)) {
             z = { res_sign, RES_MAX_EXP, 0 };
         } else {
@@ -1655,14 +1651,15 @@ template <
     const APyFloatSpec& src2_spec,
     const APyFloatSpec& dst_spec,
     const std::size_t n_elements,
-    const QuantizationMode& qntz
+    const QuantizationMode& qntz,
+    const exp_t RES_MAX_EXP
 )
 {
-    const exp_t RES_MAX_EXP = ((1ULL << dst_spec.exp_bits) - 1);
-
     const APyFloatSpec& x_spec = src1_spec;
     const APyFloatSpec& y_spec = src2_spec;
     const APyFloatSpec& z_spec = dst_spec;
+    const exp_t X_MAX_EXP = exp_t((1ULL << x_spec.exp_bits) - 1);
+    const exp_t Y_MAX_EXP = exp_t((1ULL << y_spec.exp_bits) - 1);
     for (std::size_t i = 0; i < n_elements; i++) {
         const APyFloatData& x = src1[SRC1_INC * i];
         const APyFloatData& y = src2[SRC2_INC * i];
@@ -1670,16 +1667,28 @@ template <
         bool sign = x.sign ^ y.sign;
 
         // Handle special operands
-        if (is_nan(x, x_spec) || is_nan(y, y_spec) || (is_zero(x) && is_zero(y))
-            || (is_inf(x, x_spec) && is_inf(y, y_spec))) {
+        const bool x_is_max_exp = x.exp == X_MAX_EXP;
+        const bool y_is_max_exp = y.exp == Y_MAX_EXP;
+        const bool x_is_subnormal = x.exp == 0;
+        const bool y_is_subnormal = y.exp == 0;
+        const bool x_has_zero_man = x.man == 0;
+        const bool y_has_zero_man = y.man == 0;
+        const bool x_is_nan = x_is_max_exp & !x_has_zero_man;
+        const bool y_is_nan = y_is_max_exp & !y_has_zero_man;
+        const bool x_is_inf = x_is_max_exp & x_has_zero_man;
+        const bool y_is_inf = y_is_max_exp & y_has_zero_man;
+        const bool x_is_zero = x_is_subnormal & x_has_zero_man;
+        const bool y_is_zero = y_is_subnormal & y_has_zero_man;
+        if (x_is_nan || y_is_nan || (x_is_zero && y_is_zero)
+            || (x_is_inf && y_is_inf)) {
             z = { sign, RES_MAX_EXP, 1 }; // NaN
             continue;
         }
-        if (is_zero(x) || is_inf(y, y_spec)) {
+        if (x_is_zero || y_is_inf) {
             z = { sign, 0, 0 };
             continue;
         }
-        if (is_inf(x, x_spec) || is_zero(y)) {
+        if (x_is_inf || y_is_zero) {
             z = { sign, RES_MAX_EXP, 0 }; // inf
             continue;
         }
@@ -1777,6 +1786,8 @@ public:
         TWO_RES = 1ULL << dst_spec.man_bits;
         STICKY = (1ULL << (MAN_DELTA - 1)) - 1;
         qntz_func = get_qntz_func(qntz, MAN_DELTA < 0);
+        BIAS_TERM = dst_spec.bias - std::int64_t(src1_spec.bias)
+            - std::int64_t(src2_spec.bias);
     }
 
     // Copy assign a new functor in the place of this one
@@ -1805,7 +1816,8 @@ public:
             ONE_BEFORE,
             TWO_RES,
             MAN_DELTA,
-            STICKY
+            STICKY,
+            BIAS_TERM
         );
     }
 
@@ -1828,6 +1840,7 @@ private:
     man_t ONE_BEFORE;
     man_t TWO_RES;
     man_t STICKY;
+    std::int64_t BIAS_TERM;
 };
 
 //! General floating-point multiplication, always available but slower compared to
@@ -2284,6 +2297,7 @@ public:
         , dst_spec { dst_spec }
         , qntz { qntz }
     {
+        RES_MAX_EXP = (1ULL << dst_spec.exp_bits) - 1;
     }
 
     // Perform a single floating-point division
@@ -2303,7 +2317,7 @@ public:
     ) const
     {
         floating_point_quotients<SRC1_INC, SRC2_INC, DST_INC>(
-            src1, src2, dst, src1_spec, src2_spec, dst_spec, nitems, qntz
+            src1, src2, dst, src1_spec, src2_spec, dst_spec, nitems, qntz, RES_MAX_EXP
         );
     }
 
@@ -2311,6 +2325,7 @@ private:
     // Set first during functor initialization
     const APyFloatSpec src1_spec, src2_spec, dst_spec;
     const QuantizationMode qntz;
+    exp_t RES_MAX_EXP;
 };
 
 template <std::size_t SRC1_INC = 1, std::size_t SRC2_INC = 1, std::size_t DST_INC = 1>
