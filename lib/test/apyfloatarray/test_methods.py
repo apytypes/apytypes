@@ -2,7 +2,7 @@ from itertools import permutations
 
 import pytest
 
-from apytypes import APyFixed, APyFloat, APyFloatArray, QuantizationMode
+from apytypes import APyFixed, APyFloat, APyFloatArray, QuantizationMode, fp
 
 
 @pytest.mark.float_array
@@ -368,6 +368,73 @@ def test_cast():
     assert fp_array.cast(4).is_identical(answer)
     answer = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=10, man_bits=5)
     assert fp_array.cast(man_bits=5).is_identical(answer)
+
+
+@pytest.mark.float_array
+@pytest.mark.parametrize("exp_bits", range(4, 8))
+@pytest.mark.parametrize("man_bits", range(7, 12))
+@pytest.mark.parametrize(
+    "quantization",
+    [
+        QuantizationMode.RND_CONV,
+        QuantizationMode.JAM_UNBIASED,
+        QuantizationMode.RND_CONV_ODD,
+        QuantizationMode.RND_ZERO,
+        QuantizationMode.RND_INF,
+        QuantizationMode.RND_MIN_INF,
+        QuantizationMode.TIES_AWAY,
+        QuantizationMode.TIES_EVEN,
+        QuantizationMode.TIES_NEG,
+        QuantizationMode.TIES_POS,
+        QuantizationMode.TO_AWAY,
+        QuantizationMode.TO_ZERO,
+        QuantizationMode.TO_NEG,
+        QuantizationMode.TO_POS,
+    ],
+)
+def test_cast_array_parametrized(exp_bits, man_bits, quantization):
+    vals = [0, float("inf"), float("nan"), 1e-2, 1, 100, -1e-2, -1, -100]
+    fpvals = [fp(v, exp_bits, man_bits) for v in vals]
+    fparray = fp(vals, exp_bits, man_bits)
+
+    # Check that starting values are the same
+    for i, v in enumerate(fpvals):
+        assert v.is_identical(fparray[i])
+
+    # Decrease word length
+    casted_fparray = fparray.cast(exp_bits - 1, man_bits - 2, quantization=quantization)
+    for i, v in enumerate(fpvals):
+        assert v.cast(
+            exp_bits - 1, man_bits - 2, quantization=quantization
+        ).is_identical(casted_fparray[i])
+
+    # Decrease mantissa word length
+    casted_fparray = fparray.cast(exp_bits, man_bits - 2, quantization=quantization)
+    for i, v in enumerate(fpvals):
+        assert v.cast(exp_bits, man_bits - 2, quantization=quantization).is_identical(
+            casted_fparray[i]
+        )
+
+    # Decrease exponent word length
+    casted_fparray = fparray.cast(exp_bits - 1, man_bits, quantization=quantization)
+    for i, v in enumerate(fpvals):
+        assert v.cast(exp_bits - 1, man_bits, quantization=quantization).is_identical(
+            casted_fparray[i]
+        )
+
+    # Increase word length
+    casted_fparray = fparray.cast(exp_bits + 1, man_bits + 2, quantization=quantization)
+    for i, v in enumerate(fpvals):
+        assert v.cast(
+            exp_bits + 1, man_bits + 2, quantization=quantization
+        ).is_identical(casted_fparray[i])
+
+    # No change in word length
+    casted_fparray = fparray.cast(exp_bits, man_bits, quantization=quantization)
+    for i, v in enumerate(fpvals):
+        assert v.cast(exp_bits, man_bits, quantization=quantization).is_identical(
+            casted_fparray[i]
+        )
 
 
 @pytest.mark.float_array
