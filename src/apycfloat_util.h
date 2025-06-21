@@ -158,8 +158,8 @@ private:
         APyFloatData ar, br, cr, dr;
         APyFloatData num_real, num_imag;
 
+        auto caster = floating_point_cast<decltype(get_qntz_func(qntz))>;
         for (std::size_t i = 0; i < nitems; i++) {
-            auto caster = floating_point_cast<decltype(get_qntz_func(qntz))>;
 
             // Operands: a, b, c, d; (a + bi) / (c + di)
             const APyFloatData& a = PROMOTE_RHS
