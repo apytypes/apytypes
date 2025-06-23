@@ -18,8 +18,8 @@
  * https://en.cppreference.com/w/cpp/language/fold
  */
 
-//! Test target machine native little-endianness
-[[maybe_unused]] static constexpr bool target_is_little_endian()
+//! Test target machine native endianness
+[[maybe_unused]] static constexpr bool is_little_endian()
 {
 #if defined(_MSC_VER)
     // Microsoft Visual C/C++ compiler. Windows x86/64 systems are always little endian.
@@ -65,7 +65,7 @@
 [[maybe_unused]] static APY_INLINE bool sign_of_double(double d)
 {
     std::uint64_t double_pun = type_pun_double_to_uint64_t(d);
-    if constexpr (target_is_little_endian()) {
+    if constexpr (is_little_endian()) {
         return bool(double_pun & (std::uint64_t(1) << 63));
     } else { // std::endiand::native == std::endian::big
         throw NotImplementedException();
@@ -77,7 +77,7 @@
 [[maybe_unused]] static APY_INLINE int exp_of_double(double d)
 {
     std::uint64_t double_pun = type_pun_double_to_uint64_t(d);
-    if constexpr (target_is_little_endian()) {
+    if constexpr (is_little_endian()) {
         return static_cast<int>((double_pun << 1) >> 53);
     } else { // std::endiand::native == std::endian::big
         throw NotImplementedException();
@@ -89,7 +89,7 @@
 [[maybe_unused]] static APY_INLINE std::uint64_t man_of_double(double d)
 {
     std::uint64_t double_pun = type_pun_double_to_uint64_t(d);
-    if constexpr (target_is_little_endian()) {
+    if constexpr (is_little_endian()) {
         return double_pun & 0x000FFFFFFFFFFFFF;
     } else { // std::endiand::native == std::endian::big
         throw NotImplementedException();
@@ -100,7 +100,7 @@
 [[maybe_unused]] static APY_INLINE void set_sign_of_double(double& d, bool sign)
 {
     std::uint64_t double_pun = type_pun_double_to_uint64_t(d);
-    if constexpr (target_is_little_endian()) {
+    if constexpr (is_little_endian()) {
         double_pun &= 0x7FFFFFFFFFFFFFFF;
         double_pun |= (std::uint64_t(sign) << 63);
     } else {
@@ -114,7 +114,7 @@
 [[maybe_unused]] static APY_INLINE void set_exp_of_double(double& d, int exp)
 {
     std::uint64_t double_pun = type_pun_double_to_uint64_t(d);
-    if constexpr (target_is_little_endian()) {
+    if constexpr (is_little_endian()) {
         double_pun &= 0x800FFFFFFFFFFFFF;
         double_pun |= 0x7FF0000000000000 & (std::uint64_t(exp) << 52);
     } else {
@@ -128,7 +128,7 @@
 [[maybe_unused]] static APY_INLINE void set_man_of_double(double& d, std::uint64_t man)
 {
     std::uint64_t double_pun = type_pun_double_to_uint64_t(d);
-    if constexpr (target_is_little_endian()) {
+    if constexpr (is_little_endian()) {
         double_pun &= 0xFFF0000000000000;
         double_pun |= 0x000FFFFFFFFFFFFF & man;
     } else {

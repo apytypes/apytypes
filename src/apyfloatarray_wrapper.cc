@@ -20,7 +20,7 @@ static APyFloatArray R_OP(const APyFloatArray& rhs, const L_TYPE& lhs)
     [[maybe_unused]] exp_t bias = rhs.get_bias();
     if constexpr (std::is_floating_point_v<L_TYPE>) {
         return (rhs.*FUNC)(APyFloat::from_double(lhs, exp_bits, man_bits, bias));
-    } else if constexpr (std::is_same_v<std::remove_cv_t<L_TYPE>, APyFloat>) {
+    } else if constexpr (std::is_same_v<remove_cvref_t<L_TYPE>, APyFloat>) {
         return (rhs.*FUNC)(lhs);
     } else {
         return (rhs.*FUNC)(APyFloat::from_integer(lhs, exp_bits, man_bits, bias));
@@ -38,10 +38,10 @@ static APyFloatArray L_OP(const APyFloatArray& lhs, const R_TYPE& rhs)
     [[maybe_unused]] exp_t bias = lhs.get_bias();
     if constexpr (std::is_floating_point_v<R_TYPE>) {
         return OP()(lhs, APyFloat::from_double(rhs, exp_bits, man_bits, bias));
-    } else if constexpr (std::is_same_v<std::remove_cv_t<R_TYPE>, APyFloat>) {
+    } else if constexpr (std::is_same_v<remove_cvref_t<R_TYPE>, APyFloat>) {
         return OP()(lhs, rhs);
     } else if constexpr (std::is_same_v<
-                             std::remove_cv_t<R_TYPE>,
+                             remove_cvref_t<R_TYPE>,
                              nb::ndarray<nb::c_contig>>) {
         return OP()(lhs, APyFloatArray::from_array(rhs, exp_bits, man_bits, bias));
     } else {

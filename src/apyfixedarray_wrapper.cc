@@ -20,7 +20,7 @@ static APyFixedArray R_OP(const APyFixedArray& rhs, const L_TYPE& lhs)
 {
     if constexpr (std::is_floating_point_v<L_TYPE>) {
         return (rhs.*FUNC)(APyFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits()));
-    } else if constexpr (std::is_same_v<std::remove_cv_t<L_TYPE>, APyFixed>) {
+    } else if constexpr (std::is_same_v<remove_cvref_t<L_TYPE>, APyFixed>) {
         return (rhs.*FUNC)(lhs);
     } else {
         return (rhs.*FUNC)(
@@ -37,10 +37,10 @@ static APyFixedArray L_OP(const APyFixedArray& lhs, const R_TYPE& rhs)
 {
     if constexpr (std::is_floating_point_v<R_TYPE>) {
         return OP()(lhs, APyFixed::from_double(rhs, lhs.int_bits(), lhs.frac_bits()));
-    } else if constexpr (std::is_same_v<std::remove_cv_t<R_TYPE>, APyFixed>) {
+    } else if constexpr (std::is_same_v<remove_cvref_t<R_TYPE>, APyFixed>) {
         return OP()(lhs, rhs);
     } else if constexpr (std::is_same_v<
-                             std::remove_cv_t<R_TYPE>,
+                             remove_cvref_t<R_TYPE>,
                              nb::ndarray<nb::c_contig>>) {
         return OP()(
             lhs, APyFixedArray::from_array(rhs, lhs.int_bits(), lhs.frac_bits())

@@ -23,10 +23,25 @@
 #include <sstream>          // std::stringstream
 #include <string>           // std::string
 #include <tuple>            // std::tuple
+#include <type_traits>      // std::is_same_v
 #include <vector>           // std::vector
 
 #include "apytypes_fwd.h"
 #include "apytypes_mp.h"
+
+/*!
+ * Type trait removing const-volative qualifiers and reference of `T`. Equivalent to the
+ * C++20 trait `std::remove_cvref`.
+ */
+template <typename T> struct remove_cvref {
+    using type = std::remove_cv_t<std::remove_reference_t<T>>;
+};
+
+/*!
+ * Type trait removing const-volative qualifiers and reference of `T`. Equivalent to the
+ * C++20 trait `std::remove_cvref_t`.
+ */
+template <typename T> using remove_cvref_t = typename remove_cvref<T>::type;
 
 /*!
  * Macro for splitting a single `std::uint64_t` into comma-separated limbs
@@ -617,15 +632,26 @@ template <class RANDOM_ACCESS_ITERATOR>
     return false;
 }
 
-//! Test if the (two's complement) value of `src1` is smaller than that of `src2`
+//! Test if the two's complement value of `src1` is smaller than that of `src2`
 template <class RANDOM_ACCESS_ITERATOR1, class RANDOM_ACCESS_ITERATOR2>
 [[maybe_unused, nodiscard]] static APY_INLINE bool limb_vector_signed_less_than(
     RANDOM_ACCESS_ITERATOR1 src1, RANDOM_ACCESS_ITERATOR2 src2, std::size_t limbs
 )
 {
-    for (std::size_t i = limbs; i--;) {
-        if (apy_limb_signed_t(src1[i]) < apy_limb_signed_t(src2[i])) {
-            return true;
+    static_assert(std::is_same_v<remove_cvref_t<decltype(*src1)>, apy_limb_t>);
+    static_assert(std::is_same_v<remove_cvref_t<decltype(*src2)>, apy_limb_t>);
+    assert(limbs > 0);
+
+    if (src1[limbs - 1] != src2[limbs - 1]) {
+        return apy_limb_signed_t(src1[limbs - 1]) < apy_limb_signed_t(src2[limbs - 1]);
+    } else {
+        for (std::size_t i = limbs - 1; i--;) {
+            if (src1[i] != src2[i]) {
+                bool is_negative = apy_limb_signed_t(src1[limbs - 1]) < 0;
+                return is_negative
+                    ? apy_limb_signed_t(src1[i]) < apy_limb_signed_t(src2[i])
+                    : apy_limb_t(src1[i]) < apy_limb_t(src2[i]);
+            }
         }
     }
     return false;
@@ -962,19 +988,6 @@ template <typename T> std::string tuple_string_from_vec(const std::vector<T>& ve
         }
         return ss.str().substr(0, ss.str().length() - 2).append(")");
     }
-}
-
-[[maybe_unused, nodiscard]] static APY_INLINE apy_limb_t
-twos_complement_overflow(apy_limb_t value, int bits)
-{
-    unsigned limb_shift_val = bits & (APY_LIMB_SIZE_BITS - 1);
-
-    if (limb_shift_val) {
-        auto shift_amnt = APY_LIMB_SIZE_BITS - limb_shift_val;
-        auto signed_limb = apy_limb_signed_t(value << shift_amnt) >> shift_amnt;
-        return apy_limb_t(signed_limb);
-    }
-    return value;
 }
 
 //! Fold a shape under multiplication
