@@ -27,9 +27,9 @@ static APyCFixedArray R_OP(const APyCFixedArray& rhs, const L_TYPE& lhs)
         return (rhs.*FUNC)(
             APyCFixed::from_double(lhs, rhs.int_bits(), rhs.frac_bits())
         );
-    } else if constexpr (std::is_same_v<std::remove_cv_t<L_TYPE>, APyCFixed>) {
+    } else if constexpr (std::is_same_v<remove_cvref_t<L_TYPE>, APyCFixed>) {
         return (rhs.*FUNC)(lhs);
-    } else if constexpr (std::is_same_v<std::remove_cv_t<L_TYPE>, APyFixed>) {
+    } else if constexpr (std::is_same_v<remove_cvref_t<L_TYPE>, APyFixed>) {
         return (rhs.*FUNC)(
             APyCFixed::from_apyfixed(lhs, lhs.int_bits(), lhs.frac_bits())
         );

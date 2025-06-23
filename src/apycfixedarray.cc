@@ -1328,8 +1328,9 @@ APyCFixedArray APyCFixedArray::from_complex(
 
     // Function used to cast fixed-point data to `*this` format
     auto fx_cast = [](APyCFixedArray& res, std::size_t i, auto&& fx) {
-        using CleanFx_t = std::remove_cv_t<std::remove_reference_t<decltype(fx)>>;
+        using CleanFx_t = remove_cvref_t<decltype(fx)>;
         constexpr bool is_cplx = std::is_same_v<CleanFx_t, APyCFixed>;
+
         std::size_t offst = res._itemsize / 2;
         for (std::size_t j = 0; j < 1 + is_cplx; j++) {
             auto fx_begin = std::begin(fx._data) + j * fx._data.size() / 2;

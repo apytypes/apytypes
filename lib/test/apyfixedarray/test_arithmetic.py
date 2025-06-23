@@ -1002,3 +1002,27 @@ def test_unary_arith():
 
     assert (-a).is_identical(nega)
     assert (+a).is_identical(a)
+
+
+@pytest.mark.parametrize("limbs", range(1, 8))
+@pytest.mark.parametrize("limb_size", [16, 32, 64, 128])
+def test_min_max_msb(limbs: int, limb_size: int):
+    #
+    # Related issue: #721
+    # https://github.com/apytypes/apytypes/issues/721
+    #
+    int_bits = limbs * limb_size
+    for limb_idx in range(limbs):
+        a_bits = 1 << ((limb_size * (limb_idx + 1)) - 1)
+        b_bits = 1 << ((limb_size * (limb_idx + 1)) - 2)
+        arr = APyFixedArray([a_bits, b_bits], int_bits=int_bits, frac_bits=0)
+        if limb_idx + 1 == limbs:
+            max = APyFixed(b_bits, int_bits=int_bits, frac_bits=0)
+            min = APyFixed(a_bits, int_bits=int_bits, frac_bits=0)
+            assert arr.max().is_identical(max)
+            assert arr.min().is_identical(min)
+        else:
+            max = APyFixed(a_bits, int_bits=int_bits, frac_bits=0)
+            min = APyFixed(b_bits, int_bits=int_bits, frac_bits=0)
+            assert arr.max().is_identical(max)
+            assert arr.min().is_identical(min)

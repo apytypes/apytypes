@@ -21,7 +21,6 @@ namespace nb = nanobind;
 #include <cstdlib>     // std::malloc
 #include <memory>      // std::allocator
 #include <type_traits> // std::true_type
-#include <variant>     // std::variant
 #include <vector>      // std::vector
 
 template <typename T> struct NoDefaultConstructAllocator {
@@ -31,7 +30,7 @@ template <typename T> struct NoDefaultConstructAllocator {
     using propagate_on_container_move_assignment = std::true_type;
     using is_always_equal = std::true_type;
     template <typename U> struct rebind {
-        typedef NoDefaultConstructAllocator<U> other;
+        using other = NoDefaultConstructAllocator<U>;
     };
 
     NoDefaultConstructAllocator() noexcept = default;

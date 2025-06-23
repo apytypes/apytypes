@@ -6,7 +6,6 @@
 #define _PYTHON_UTIL_H
 
 // Python object access through Pybind
-#include <iterator>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/complex.h>
