@@ -14,6 +14,7 @@
 #include "apytypes_util.h"
 #include "ieee754.h"
 #include "python_util.h"
+#include "src/apytypes_intrinsics.h"
 
 // Standard header includes
 #include <algorithm>
@@ -280,7 +281,7 @@ template <QuantizationMode QNTZ, bool SUPPORT_NEGATIVE_BITS_TO_QUANTIZE = false>
     } else if constexpr (QNTZ == QuantizationMode::STOCH_EQUAL) {
         B = (G || T) ? random_number_float() & 1 : 0;
     } else {
-        apytypes_unreachable();
+        APYTYPES_UNREACHABLE();
     }
 
     man = res_man;

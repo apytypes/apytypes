@@ -260,7 +260,9 @@ public:
 
     //! Test if two Fixed-point numbers are identical, i.e., has the same values, the
     //! same number of integer bits, and the same number of fractional bits
-    bool is_identical(const APyFixed& other) const;
+    bool is_identical(
+        const std::variant<const APyFixed*, const APyFixedArray*>& other
+    ) const;
 
     //! Return leading zeros
     std::size_t leading_zeros() const;

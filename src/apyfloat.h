@@ -443,7 +443,10 @@ public:
 
     //! Test if two floating-point numbers are identical, i.e., has the same value, and
     //! the same format
-    bool is_identical(const APyFloat& other, bool ignore_zero_sign = false) const;
+    bool is_identical(
+        const std::variant<const APyFloat*, const APyFloatArray*>& other,
+        bool ignore_zero_sign = false
+    ) const;
 
     //! Convert to a fixed-point object
     APyFixed to_fixed() const;

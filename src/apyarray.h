@@ -1542,19 +1542,23 @@ public:
      *   * They store the exact same values in their `_data` vector
      *   * They have the exact same specifiers (as decided by `same_type_as`
      */
-    bool is_identical(
-        const std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>& other
-    ) const
+    bool is_identical(const nb::object& other) const
     {
-        if (!std::holds_alternative<ARRAY_TYPE>(other)) {
+        if (!nb::isinstance<ARRAY_TYPE>(other)) {
             return false;
-        } else { /* std::holds_alternative<scalar_variant_t<ARRAY_TYPE>>(other) */
-            const ARRAY_TYPE& other_array = std::get<ARRAY_TYPE>(other);
+        } else {
+            auto&& other_array = nb::cast<ARRAY_TYPE>(other);
             return _shape == other_array._shape
                 && static_cast<const ARRAY_TYPE*>(this)->same_type_as(other_array)
                 && _data == other_array._data;
         }
     }
+
+    //! Copy array
+    ARRAY_TYPE python_copy() const { return *static_cast<const ARRAY_TYPE*>(this); }
+
+    //! Deepcopy array (same as copy here)
+    ARRAY_TYPE python_deepcopy(const nb::dict&) const { return python_copy(); }
 
 }; // end class: `APyArray`
 

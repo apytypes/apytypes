@@ -488,11 +488,11 @@ python_sequence_extract_shape(
 }
 
 /*!
- * Walk a, possibly nested, Python sequence of iterable objects and convert every Python
- * object (of type `<T>`, via `nb::cast<T>()`) and return them in a `std::vector<T>`.
- * The sequence is walked in a depth-first search manner. If any object in the sequence
- * `bit_pattern_sequence` does not match `<T>` or another Python sequence a
- * `std::domain_error` exception is raised.
+ * Walk a (possibly nested) Python sequence, `py_seq`, of iterable objects and store
+ * handles to them them in a `std::vector<nb::object>`. The sequence is walked in a
+ * depth-first manner and all elements must match `(nb::isinstance<PyTypes> || ...)`. If
+ * any object in the sequence `py_seq` does not match any `PyTypes` (or another Python
+ * sequence) a `std::domain_error` exception is raised.
  */
 template <typename... PyTypes>
 [[maybe_unused]] static std::vector<nanobind::object>

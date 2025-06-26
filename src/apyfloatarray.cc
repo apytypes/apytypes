@@ -8,6 +8,7 @@
 #include "broadcast.h"
 #include "ieee754.h"
 #include "python_util.h"
+#include "src/apytypes_intrinsics.h"
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
@@ -28,9 +29,9 @@ namespace nb = nanobind;
 
 void APyFloatArray::create_in_place(
     APyFloatArray* apyfloatarray,
-    const nanobind::sequence& sign_seq,
-    const nanobind::sequence& exp_seq,
-    const nanobind::sequence& man_seq,
+    const nb::sequence& sign_seq,
+    const nb::sequence& exp_seq,
+    const nb::sequence& man_seq,
     int exp_bits,
     int man_bits,
     std::optional<exp_t> bias
@@ -44,9 +45,9 @@ void APyFloatArray::create_in_place(
 }
 
 APyFloatArray::APyFloatArray(
-    const nanobind::sequence& sign_seq,
-    const nanobind::sequence& exp_seq,
-    const nanobind::sequence& man_seq,
+    const nb::sequence& sign_seq,
+    const nb::sequence& exp_seq,
+    const nb::sequence& man_seq,
     std::uint8_t exp_bits,
     std::uint8_t man_bits,
     std::optional<exp_t> bias
@@ -857,31 +858,24 @@ APyFloatArray::nanmin(const std::optional<PyShapeParam_t>& py_axis) const
 
 std::string APyFloatArray::repr() const
 {
-    const auto sign_formatter = [](auto cbegin_it, auto) -> std::string {
+    const auto sign_fmt = [](auto cbegin_it, auto) -> std::string {
         return fmt::format("{}", int(cbegin_it->sign));
     };
-    const auto exp_formatter = [](auto cbegin_it, auto) -> std::string {
+    const auto exp_fmt = [](auto cbegin_it, auto) -> std::string {
         return fmt::format("{}", cbegin_it->exp);
     };
-    const auto man_formatter = [](auto cbegin_it, auto) -> std::string {
+    const auto man_fmt = [](auto cbegin_it, auto) -> std::string {
         return fmt::format("{}", cbegin_it->man);
     };
 
-    if (bias == ieee_bias(exp_bits)) {
-        return array_repr(
-            { sign_formatter, exp_formatter, man_formatter },
-            { fmt::format("exp_bits={}", exp_bits),
-              fmt::format("man_bits={}", man_bits) }
-        );
-    } else {
-        return array_repr(
-            { sign_formatter, exp_formatter, man_formatter },
-            { /* kw_args = */
-              fmt::format("exp_bits={}", exp_bits),
-              fmt::format("man_bits={}", man_bits),
-              fmt::format("bias={}", bias) }
-        );
+    std::initializer_list<formatter_t> formatters { sign_fmt, exp_fmt, man_fmt };
+    std::vector<std::string> kw_args = { fmt::format("exp_bits={}", exp_bits),
+                                         fmt::format("man_bits={}", man_bits) };
+    if (bias != ieee_bias(exp_bits)) {
+        kw_args.push_back(fmt::format("bias={}", bias));
     }
+
+    return array_repr(formatters, kw_args);
 }
 
 std::variant<
@@ -956,11 +950,11 @@ nb::list APyFloatArray::to_bits_python_recursive_descent(
 nb::ndarray<nb::numpy, double> APyFloatArray::to_numpy() const
 {
     // Dynamically allocate data to be passed to Python
-    double* result_data = new double[_data.size()];
-    auto apy_f = APyFloat(exp_bits, man_bits, bias);
-    for (std::size_t i = 0; i < _data.size(); i++) {
-        apy_f.set_data(_data[i]);
-        result_data[i] = apy_f.to_double();
+    double* result_data = new double[_nitems];
+    auto fp = APyFloat(exp_bits, man_bits, bias);
+    for (std::size_t i = 0; i < _nitems; i++) {
+        fp.set_data(_data[i]);
+        result_data[i] = fp.to_double();
     }
 
     // Delete 'data' when the 'owner' capsule expires
@@ -982,6 +976,9 @@ APyFloatArray APyFloatArray::from_numbers(
         return from_array(ndarray, exp_bits, man_bits, bias);
     }
 
+    check_exponent_format(exp_bits, "APyFloatArray.from_float");
+    check_mantissa_format(man_bits, "APyFloatArray.from_float");
+
     APyFloatArray result(
         python_sequence_extract_shape(number_seq, "APyFloatArray.from_float"),
         exp_bits,
@@ -989,46 +986,29 @@ APyFloatArray APyFloatArray::from_numbers(
         bias
     );
 
-    const auto py_obj = python_sequence_walk<nb::float_, nb::int_, APyFixed, APyFloat>(
+    const auto py_objs = python_sequence_walk<nb::float_, nb::int_, APyFixed, APyFloat>(
         number_seq, "APyFloatArray.from_float"
     );
 
     for (std::size_t i = 0; i < result._data.size(); i++) {
-        if (nb::isinstance<nb::float_>(py_obj[i])) {
-            // Check formats for proper printing
-            check_exponent_format(exp_bits, "APyFloatArray.from_float");
-            check_mantissa_format(man_bits, "APyFloatArray.from_float");
-
-            result._data[i] = APyFloat::from_double(
-                                  static_cast<double>(nb::cast<nb::float_>(py_obj[i])),
-                                  exp_bits,
-                                  man_bits,
-                                  result.bias
-            )
-                                  .get_data();
-        } else if (nb::isinstance<nb::int_>(py_obj[i])) {
-            // Check formats for proper error printing
-            check_exponent_format(exp_bits, "APyFloatArray.from_integer");
-            check_mantissa_format(man_bits, "APyFloatArray.from_integer");
-
-            result._data[i]
-                = APyFloat::from_integer(
-                      nb::cast<nb::int_>(py_obj[i]), exp_bits, man_bits, result.bias
-                )
-                      .get_data();
-        } else if (nb::isinstance<APyFixed>(py_obj[i])) {
-            // Check formats for proper error printing
-            check_exponent_format(exp_bits, "APyFloatArray.from_fixed");
-            check_mantissa_format(man_bits, "APyFloatArray.from_fixed");
-
-            const auto d = static_cast<APyFixed>(nb::cast<APyFixed>(py_obj[i]));
-            result._data[i]
-                = APyFloat::from_fixed(d, exp_bits, man_bits, bias).get_data();
-        } else if (nb::isinstance<APyFloat>(py_obj[i])) {
-            const auto d = static_cast<APyFloat>(nb::cast<APyFloat>(py_obj[i]));
-            result._data[i]
-                = d.cast(exp_bits, man_bits, bias, QuantizationMode::RND_CONV)
-                      .get_data();
+        if (nb::isinstance<nb::float_>(py_objs[i])) {
+            double val = static_cast<double>(nb::cast<nb::float_>(py_objs[i]));
+            auto&& fp = APyFloat::from_double(val, exp_bits, man_bits, result.bias);
+            result._data[i] = fp.get_data();
+        } else if (nb::isinstance<nb::int_>(py_objs[i])) {
+            auto&& obj = nb::cast<nb::int_>(py_objs[i]);
+            auto&& fp = APyFloat::from_integer(obj, exp_bits, man_bits, result.bias);
+            result._data[i] = fp.get_data();
+        } else if (nb::isinstance<APyFixed>(py_objs[i])) {
+            auto&& fx = nb::cast<APyFixed>(py_objs[i]);
+            auto&& fp = APyFloat::from_fixed(fx, exp_bits, man_bits, bias);
+            result._data[i] = fp.get_data();
+        } else if (nb::isinstance<APyFloat>(py_objs[i])) {
+            auto&& obj = nb::cast<APyFloat>(py_objs[i]);
+            auto&& fp = obj.cast(exp_bits, man_bits, bias, QuantizationMode::RND_CONV);
+            result._data[i] = fp.get_data();
+        } else {
+            APYTYPES_UNREACHABLE();
         }
     }
     return result;

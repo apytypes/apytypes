@@ -1,5 +1,6 @@
 #include "apyfixed.h"
 #include "apyfloat.h"
+#include "apyfloatarray.h" // Needed by: APyFloat::is_identical
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>

@@ -7,6 +7,7 @@
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
+#include <variant>
 namespace nb = nanobind;
 
 #include <algorithm>
@@ -841,19 +842,29 @@ bool APyFloat::operator==(const APyFloat& rhs) const
     }
 }
 
-bool APyFloat::is_identical(const APyFloat& other, bool ignore_zero_sign) const
+bool APyFloat::is_identical(
+    const std::variant<const APyFloat*, const APyFloatArray*>& other,
+    bool ignore_zero_sign
+) const
 {
-    if (ignore_zero_sign) {
-        // If `ignore_zero_sign` is set, ignore the sign bit if results equals zero
-        if (is_zero() && other.is_zero()) {
-            return (bias == other.bias) && (exp_bits == other.exp_bits)
-                && (man_bits == other.man_bits);
+    if (!std::holds_alternative<const APyFloat*>(other)) {
+        return false;
+    } else {
+        auto&& other_scalar = *std::get<const APyFloat*>(other);
+        if (ignore_zero_sign) {
+            // If `ignore_zero_sign` is set, ignore the sign bit if results equals zero
+            if (is_zero() && other_scalar.is_zero()) {
+                return (bias == other_scalar.bias)
+                    && (exp_bits == other_scalar.exp_bits)
+                    && (man_bits == other_scalar.man_bits);
+            }
         }
-    }
 
-    return (sign == other.sign) && (exp == other.exp) && (bias == other.bias)
-        && (man == other.man) && (exp_bits == other.exp_bits)
-        && (man_bits == other.man_bits);
+        return (sign == other_scalar.sign) && (exp == other_scalar.exp)
+            && (bias == other_scalar.bias) && (man == other_scalar.man)
+            && (exp_bits == other_scalar.exp_bits)
+            && (man_bits == other_scalar.man_bits);
+    }
 }
 
 bool APyFloat::operator!=(const APyFloat& rhs) const
