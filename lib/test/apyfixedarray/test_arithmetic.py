@@ -22,7 +22,7 @@ def test_array_raises(fixed_array: type[APyCFixedArray]):
         _ = a - b
     with pytest.raises(ValueError, match="APyC?FixedArray.__mul__: shape mismatch"):
         _ = a * b
-    with pytest.raises(ValueError, match="APyC?FixedArray.__div__: shape mismatch"):
+    with pytest.raises(ValueError, match="APyC?FixedArray.__truediv__: shape mismatch"):
         _ = a / b
 
 
@@ -925,8 +925,14 @@ def test_operation_with_integers(fixed_array: type[APyCFixedArray]):
     assert (_ := (-2) / a).is_identical(_ := neg_two / a)
 
 
-@pytest.mark.parametrize("fixed_array", [APyFixedArray, APyCFixedArray])
-def test_operation_with_floats(fixed_array: type[APyCFixedArray]):
+@pytest.mark.parametrize(
+    ("fixed_array", "fixed_scalar"),
+    [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed)],
+)
+def test_operation_with_floats(
+    fixed_array: type[APyCFixedArray],
+    fixed_scalar: type[APyCFixed],
+):
     a = fixed_array([5], 6, 2)
     one = fixed_array([4], 6, 2)
     zero = fixed_array([0], 6, 2)
@@ -941,7 +947,7 @@ def test_operation_with_floats(fixed_array: type[APyCFixedArray]):
     assert (_ := a / 1.0).is_identical(_ := a / one)
 
     # Other operations. 2.125 should quantize to -2.25
-    b = APyFixed(247, bits=8, int_bits=6)
+    b = fixed_scalar(247, bits=8, int_bits=6)
     assert (_ := a + (-2.125)).is_identical(_ := a + b)
     assert (_ := (-2.125) + a).is_identical(_ := b + a)
     assert (_ := a - (-2.125)).is_identical(_ := a - b)

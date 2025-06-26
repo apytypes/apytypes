@@ -11,8 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Complex-valued floating-point types:
   - `APyCFloat`, a complex scalar floating-point type.
+  - `APyCFloatArray`, a complex array floating-point type.
 - `APyFloat.zero`, to create floating-point objects initialized to zero.
 - ARM-Linux wheels.
+- Specialized overload typing signatures for array functions.
 
 ### Fixed
 
@@ -27,6 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved type hints for APyArray methods.
 - Bug in `APyFixedArray.from_float` when converting from `APyFixed` (issue #683).
 - Bug in multi-limb `APyFixedArray.max` and `APyFixedArray.min` (issue #721).
+- Wrong name in fixed-point division exception message (`__div__` -> `__truediv__`)
+- Inconsistency in formatting of complex-valued numbers (e.g., `(1.0+2.5j)` for
+  scalars and `[1.0+2.5j]` for arrays)
 
 ### Changed
 

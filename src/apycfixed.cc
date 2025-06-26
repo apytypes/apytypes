@@ -539,20 +539,12 @@ std::string APyCFixed::bit_pattern_to_string_dec() const
 std::string APyCFixed::to_string(int base) const
 {
     switch (base) {
-    case 8:
-        return to_string_oct();
-        break;
-    case 16:
-        return to_string_hex();
-        break;
     case 10:
         return to_string_dec();
         break;
     default:
-        throw nb::value_error(
-            fmt::format("APyCFixed::to_string(base={}): base is not supported", base)
-                .c_str()
-        );
+        auto msg = fmt::format("APyCFixed.__str__: base={} is not supported", base);
+        throw nb::value_error(msg.c_str());
         break;
     }
 }
@@ -562,9 +554,9 @@ std::string APyCFixed::to_string_dec() const
     double re = fixed_point_to_double(real_begin(), real_end(), frac_bits());
     double im = fixed_point_to_double(imag_begin(), imag_end(), frac_bits());
     if (im < 0) {
-        return fmt::format("{}{}j", re, im);
+        return fmt::format("({}{}j)", re, im);
     } else {
-        return fmt::format("{}+{}j", re, im);
+        return fmt::format("({}+{}j)", re, im);
     }
 }
 
@@ -879,7 +871,7 @@ bool APyCFixed::is_identical(
     if (!std::holds_alternative<const APyCFixed*>(other)) {
         return false;
     } else {
-        const APyCFixed& other_scalar = *std::get<const APyCFixed*>(other);
+        auto&& other_scalar = *std::get<const APyCFixed*>(other);
         return bits() == other_scalar.bits() && int_bits() == other_scalar.int_bits()
             && *this == other_scalar;
     }

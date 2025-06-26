@@ -155,7 +155,6 @@ template <> struct array_variant<APyCFloat> {
 };
 
 template <typename T> using scalar_variant_t = typename scalar_variant<T>::type;
-
 template <typename T> using array_variant_t = typename array_variant<T>::type;
 
 /* ********************************************************************************** *
@@ -173,6 +172,10 @@ struct APyFloatData {
     {
         return std::make_tuple(sign, exp, man)
             == std::make_tuple(other.sign, other.exp, other.man);
+    }
+    bool operator!=(const APyFloatData& other) const noexcept
+    {
+        return !(*this == other);
     }
 
     // Dereference (to act like iterators)

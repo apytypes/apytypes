@@ -8,12 +8,16 @@ from apytypes import APyCFloat, APyFloat
 def test_not_implemented():
     _ = APyCFloat.from_complex(1.0, exp_bits=10, man_bits=20).__str__(base=10)
 
-    with pytest.raises(ValueError, match=r"APyCFloat::to_string_hex()"):
+    with pytest.raises(
+        ValueError, match=r"APyCFloat.__str__: base=16 is not supported"
+    ):
         _ = APyCFloat.from_complex(1.0, exp_bits=10, man_bits=20).__str__(base=16)
-    with pytest.raises(ValueError, match=r"APyCFloat::to_string_oct()"):
-        _ = APyCFloat.from_complex(1.0, exp_bits=10, man_bits=20).__str__(base=8)
-    with pytest.raises(ValueError, match=r"APyCFloat::to_string\(base=17\): base is"):
+    with pytest.raises(
+        ValueError, match=r"APyCFloat.__str__: base=17 is not supported"
+    ):
         _ = APyCFloat.from_complex(1.0, exp_bits=10, man_bits=20).__str__(base=17)
+    with pytest.raises(ValueError, match=r"APyCFloat.__str__: base=8 is not supported"):
+        _ = APyCFloat.from_complex(1.0, exp_bits=10, man_bits=20).__str__(base=8)
 
 
 @pytest.mark.parametrize("exp_bits", [5, 10, 11, 17])

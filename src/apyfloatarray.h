@@ -4,7 +4,8 @@
 #include "apyarray.h"
 #include "apyfloat.h"
 #include "apytypes_common.h"
-#include "src/array_utils.h"
+#include "apytypes_fwd.h"
+#include "array_utils.h"
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>    // nanobind::object
@@ -34,6 +35,10 @@ public:
         std::optional<exp_t> bias = std::nullopt
     );
 
+    /* ****************************************************************************** *
+     * *                       APyFloatArray data fields                            * *
+     * ****************************************************************************** */
+
     //! Number of exponent bits
     std::uint8_t exp_bits;
     //! Number of mantissa bits
@@ -49,7 +54,7 @@ public:
     //! Constructor specifying only the shape and format of the array
     APyFloatArray(
         const std::vector<std::size_t>& shape,
-        exp_t exp_bits,
+        std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
     );
@@ -77,25 +82,23 @@ public:
 
     //! Create an `APyFloatArray` with a given shape and bit specifiers
     static APyFloatArray
-    create_array_static(const std::vector<std::size_t>& shape, const APyFloat& flt)
+    create_array_static(const std::vector<std::size_t>& shape, const APyFloat& fp)
     {
         return APyFloatArray(
-            shape, flt.get_exp_bits(), flt.get_man_bits(), flt.get_bias()
+            shape, fp.get_exp_bits(), fp.get_man_bits(), fp.get_bias()
         );
     }
 
     //! Test if two floating-point vectors have the same bit specifiers
-    APY_INLINE bool same_type_as(const APyFloatArray& other) const noexcept
+    APY_INLINE bool is_same_spec(const APyFloatArray& other) const noexcept
     {
-        return man_bits == other.man_bits && exp_bits == other.exp_bits
-            && bias == other.bias;
+        return spec() == other.spec();
     }
 
     //! Test if `*this` has the same bit specifiers as another `APyFloat`
-    APY_INLINE bool same_type_as(const APyFloat& other) const noexcept
+    APY_INLINE bool is_same_spec(const APyFloat& other) const noexcept
     {
-        return man_bits == other.get_man_bits() && exp_bits == other.get_exp_bits()
-            && bias == other.get_bias();
+        return spec() == other.spec();
     }
 
     //! Retrieve the bit specification
@@ -105,7 +108,7 @@ public:
     }
 
     /* ****************************************************************************** *
-     * *                       Binary arithmetic operators                          * *
+     * *                       Elementary arithmetic operators                      * *
      * ****************************************************************************** */
 
 public:
@@ -161,9 +164,9 @@ public:
     //! Factory function for Python interface
     static void create_in_place(
         APyFloatArray* apyfloatarray,
-        const nanobind::sequence& sign_seq,
-        const nanobind::sequence& exp_seq,
-        const nanobind::sequence& man_seq,
+        const nb::typed<nb::sequence, nb::any>& sign_seq,
+        const nb::typed<nb::sequence, nb::any>& exp_seq,
+        const nb::typed<nb::sequence, nb::any>& man_seq,
         int exp_bits,
         int man_bits,
         std::optional<exp_t> bias = std::nullopt
@@ -258,12 +261,6 @@ public:
      * *                          Public member functions                           * *
      * ****************************************************************************** */
 
-    //! Copy array
-    APyFloatArray python_copy() const { return *this; }
-
-    //! Deepcopy array
-    APyFloatArray python_deepcopy(const nb::dict&) const { return *this; }
-
     //! Perform a linear convolution with `other` using `mode`
     APyFloatArray convolve(const APyFloatArray& other, const std::string& mode) const;
 
@@ -343,13 +340,16 @@ public:
         std::optional<exp_t> bias = std::nullopt
     ) const;
     //! Return the bias.
-    APY_INLINE exp_t get_bias() const { return bias; }
+    APY_INLINE exp_t get_bias() const noexcept { return bias; }
     //! Return the bit width of the mantissa field.
-    APY_INLINE std::uint8_t get_man_bits() const { return man_bits; }
+    APY_INLINE std::uint8_t get_man_bits() const noexcept { return man_bits; }
     //! Return the bit width of the exponent field.
-    APY_INLINE std::uint8_t get_exp_bits() const { return exp_bits; }
+    APY_INLINE std::uint8_t get_exp_bits() const noexcept { return exp_bits; }
     //! Return the bit width of the entire floating-point format.
-    APY_INLINE std::uint8_t get_bits() const { return exp_bits + man_bits + 1; }
+    APY_INLINE std::uint8_t get_bits() const noexcept
+    {
+        return exp_bits + man_bits + 1;
+    }
 
     //! Extract bit-pattern
     std::variant<
@@ -371,6 +371,10 @@ public:
 
     //! Convert to a NumPy array
     nanobind::ndarray<nanobind::numpy, double> to_numpy() const;
+
+    //! Test if two floating-point arrays are identical, i.e., has the same values, and
+    //! the same format
+    bool is_identical(const nb::object& other, bool ignore_zero_sign = false) const;
 
     /* ****************************************************************************** *
      * *                          Convenience methods                               * *

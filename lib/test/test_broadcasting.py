@@ -1,8 +1,14 @@
+from collections.abc import Callable, Sequence
 from itertools import product
+from typing import Any
 
 import pytest
 
-from apytypes import APyFixedArray, APyFloatArray
+from apytypes import APyCFixedArray, APyCFloatArray, APyFixedArray, APyFloatArray
+from apytypes._typing import APyArray
+
+# pyright: reportExplicitAny=false
+# pyright: reportAny=false
 
 
 def all_shapes(ndim: int, dim_elements: int):
@@ -13,15 +19,33 @@ def all_shapes(ndim: int, dim_elements: int):
     return product(range(1, dim_elements + 1), repeat=ndim)
 
 
+def apyfloatarray_from_float(sfp: Sequence[Any] | Any):
+    return APyFloatArray.from_float(sfp, man_bits=52, exp_bits=11)
+
+
+def apyfixedarray_from_float(sfp: Sequence[Any] | Any):
+    return APyFixedArray.from_float(sfp, int_bits=200, frac_bits=0)
+
+
+def apycfloatarray_from_float(sfp: Sequence[Any] | Any):
+    return APyCFloatArray.from_float(sfp, man_bits=52, exp_bits=11)
+
+
+def apycfixedarray_from_float(sfp: Sequence[Any] | Any):
+    return APyCFixedArray.from_float(sfp, int_bits=200, frac_bits=0)
+
+
 # APyTypes array convenience generators
-apytypes_from_float_generators = [
-    lambda f: APyFixedArray.from_float(f, int_bits=200, frac_bits=0),  # multi-limb int
-    lambda f: APyFloatArray.from_float(f, man_bits=52, exp_bits=11),  # double-precision
-]
+apy_from_float_generators = (
+    apyfixedarray_from_float,
+    apyfloatarray_from_float,
+    apycfixedarray_from_float,
+    apycfloatarray_from_float,
+)
 
 
-@pytest.mark.parametrize("apyarray_from_float", apytypes_from_float_generators)
-def test_array_broadcast_to(apyarray_from_float):
+@pytest.mark.parametrize("apy_from_float", apy_from_float_generators)
+def test_array_broadcast_to(apy_from_float: Callable[[Sequence[Any]], APyArray]):
     MAX_NDIM = 3
     MAX_DIM_ELEMENTS = 3
     np = pytest.importorskip("numpy")
@@ -32,7 +56,7 @@ def test_array_broadcast_to(apyarray_from_float):
         dst_shapes = all_shapes(dst_ndim, MAX_DIM_ELEMENTS)
         for src_shape, dst_shape in product(src_shapes, dst_shapes):
             numpy_src = np.arange(np.prod(src_shape), dtype=float).reshape(src_shape)
-            apy_src = apyarray_from_float(numpy_src)
+            apy_src = apy_from_float(numpy_src)
             try:
                 numpy_res = np.broadcast_to(numpy_src, dst_shape)
                 apy_res = apy_src.broadcast_to(dst_shape).to_numpy()
@@ -41,28 +65,29 @@ def test_array_broadcast_to(apyarray_from_float):
                 # `ValueError` raised by `np.broadcast_to()` or `apy_src.broadcast_to()`
                 # for illegal broadcast. Make sure *both* arrays raises `ValueError`
                 with pytest.raises(ValueError):  # noqa: PT011
-                    np.broadcast_to(numpy_src, dst_shape)
+                    _ = np.broadcast_to(numpy_src, dst_shape)
                 with pytest.raises(ValueError, match="Operands could not be broadcast"):
-                    apy_src.broadcast_to(dst_shape)
+                    _ = apy_src.broadcast_to(dst_shape)
 
 
-@pytest.mark.parametrize("apyarray_from_float", apytypes_from_float_generators)
-def test_array_broadcast_to_integer(apyarray_from_float):
+@pytest.mark.parametrize("apy_from_float", apy_from_float_generators)
+def test_array_broadcast_to_integer(
+    apy_from_float: Callable[[Sequence[Any]], APyArray],
+):
     np = pytest.importorskip("numpy")
-    assert np.all(
-        apyarray_from_float([1.0]).broadcast_to(9).to_numpy() == np.ones((9,))
-    )
+    assert np.all(apy_from_float([1.0]).broadcast_to(9).to_numpy() == np.ones((9,)))
 
 
-@pytest.mark.parametrize("apyarray_from_float", apytypes_from_float_generators)
-def test_array_broadcast_to_raises(apyarray_from_float):
+@pytest.mark.parametrize("apy_from_float", apy_from_float_generators)
+def test_array_broadcast_to_raises(apy_from_float: Callable[[Sequence[Any]], APyArray]):
+    # Can not broadcast if any of the destination dimensions are zero
     # Cannot broadcast if any of the destination dimensions are zero
     with pytest.raises(ValueError, match="Operands could not be broadcast together"):
-        apyarray_from_float([1.0]).broadcast_to((3, 2, 1, 0, 1))
+        _ = apy_from_float([1.0]).broadcast_to((3, 2, 1, 0, 1))
 
     # Cannot broadcast if the destination number-of-dimensions is zero
     with pytest.raises(ValueError, match="Operands could not be broadcast together"):
-        apyarray_from_float([1.0]).broadcast_to(())
+        _ = apy_from_float([1.0]).broadcast_to(())
 
 
 @pytest.mark.parametrize(
@@ -82,11 +107,16 @@ def test_array_broadcast_to_raises(apyarray_from_float):
         lambda a, b: a * b,
     ],
 )
-@pytest.mark.parametrize("from_float", apytypes_from_float_generators)
-def test_array_broadcast_arithmetic(bin_func, from_float, a_shape, b_shape):
+@pytest.mark.parametrize("apy_from_float", apy_from_float_generators)
+def test_array_broadcast_arithmetic(
+    bin_func: Callable[[Any, Any], Any],
+    apy_from_float: Callable[[Sequence[Any]], APyArray],
+    a_shape: tuple[int, ...],
+    b_shape: tuple[int, ...],
+):
     np = pytest.importorskip("numpy")
     a = np.arange(1, np.prod(a_shape) + 1).reshape(a_shape)
     b = np.ones(b_shape)
     ref = bin_func(a, b)
-    acc = bin_func(from_float(a), from_float(b))
+    acc = bin_func(apy_from_float(a), apy_from_float(b))
     assert np.all(ref == acc)

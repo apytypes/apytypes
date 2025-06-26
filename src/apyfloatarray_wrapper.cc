@@ -108,74 +108,63 @@ void bind_float_array(nb::module_& m)
         /*
          * Arithmetic operations
          */
-        .def(nb::self + nb::self)
-        .def(nb::self - nb::self)
-        .def(nb::self * nb::self)
-        .def(nb::self / nb::self)
+        .def(nb::self + nb::self, NB_NARG())
+        .def(nb::self - nb::self, NB_NARG())
+        .def(nb::self * nb::self, NB_NARG())
+        .def(nb::self / nb::self, NB_NARG())
         .def(-nb::self)
         .def(+nb::self)
 
         /*
          * Arithmetic operators with integers
          */
-        .def("__add__", L_OP<std::plus<>, nb::int_>, nb::is_operator())
-        .def("__radd__", L_OP<std::plus<>, nb::int_>, nb::is_operator())
-        .def("__sub__", L_OP<std::minus<>, nb::int_>, nb::is_operator())
-        .def("__rsub__", R_OP<&APyFloatArray::rsub, nb::int_>, nb::is_operator())
-        .def("__mul__", L_OP<std::multiplies<>, nb::int_>, nb::is_operator())
-        .def("__rmul__", L_OP<std::multiplies<>, nb::int_>, nb::is_operator())
-        .def("__truediv__", L_OP<std::divides<>, nb::int_>, nb::is_operator())
-        .def("__rtruediv__", R_OP<&APyFloatArray::rdiv, nb::int_>, nb::is_operator())
+        .def("__add__", L_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__radd__", L_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<&APyFloatArray::rsub, nb::int_>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__rmul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<&APyFloatArray::rdiv, nb::int_>, NB_OP(), NB_NARG())
 
         /*
          * Arithmetic operators with floats
          */
-        .def("__add__", L_OP<std::plus<>, double>, nb::is_operator())
-        .def("__radd__", L_OP<std::plus<>, double>, nb::is_operator())
-        .def("__sub__", L_OP<std::minus<>, double>, nb::is_operator())
-        .def("__rsub__", R_OP<&APyFloatArray::rsub, double>, nb::is_operator())
-        .def("__mul__", L_OP<std::multiplies<>, double>, nb::is_operator())
-        .def("__rmul__", L_OP<std::multiplies<>, double>, nb::is_operator())
-        .def("__truediv__", L_OP<std::divides<>, double>, nb::is_operator())
-        .def("__rtruediv__", R_OP<&APyFloatArray::rdiv, double>, nb::is_operator())
+        .def("__add__", L_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
+        .def("__radd__", L_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<&APyFloatArray::rsub, double>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
+        .def("__rmul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<&APyFloatArray::rdiv, double>, NB_OP(), NB_NARG())
 
         /*
          * Arithmetic operators with APyFloat
          */
-        .def("__add__", L_OP<std::plus<>, APyFloat>, nb::is_operator())
-        .def("__radd__", L_OP<std::plus<>, APyFloat>, nb::is_operator())
-        .def("__sub__", L_OP<std::minus<>, APyFloat>, nb::is_operator())
-        .def("__rsub__", R_OP<&APyFloatArray::rsub, APyFloat>, nb::is_operator())
-        .def("__mul__", L_OP<std::multiplies<>, APyFloat>, nb::is_operator())
-        .def("__rmul__", L_OP<std::multiplies<>, APyFloat>, nb::is_operator())
-        .def("__truediv__", L_OP<std::divides<>, APyFloat>, nb::is_operator())
-        .def("__rtruediv__", R_OP<&APyFloatArray::rdiv, APyFloat>, nb::is_operator())
+        .def("__add__", L_OP<STD_ADD<>, APyFloat>, NB_OP(), NB_NARG())
+        .def("__radd__", L_OP<STD_ADD<>, APyFloat>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, APyFloat>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<&APyFloatArray::rsub, APyFloat>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, APyFloat>, NB_OP(), NB_NARG())
+        .def("__rmul__", L_OP<STD_MUL<>, APyFloat>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, APyFloat>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<&APyFloatArray::rdiv, APyFloat>, NB_OP(), NB_NARG())
 
         /*
          * Arithmetic operations with NumPy arrays
          * The right-hand versions are not used since Numpy will convert the
-         * APyFixedArray to a Numpy array before they are invoked.
+         * APyFloatArray to a Numpy array before they are invoked.
          */
-        .def("__add__", L_OP<std::plus<>, nb::ndarray<nb::c_contig>>, nb::is_operator())
-        // .def("__radd__", L_OP<std::plus<>, nb::ndarray<nb::c_contig>>,
-        // nb::is_operator())
-        .def(
-            "__sub__", L_OP<std::minus<>, nb::ndarray<nb::c_contig>>, nb::is_operator()
-        )
-        // .def("__rsub__", R_OP<std::minus<>>, nb::is_operator())
-        .def(
-            "__mul__",
-            L_OP<std::multiplies<>, nb::ndarray<nb::c_contig>>,
-            nb::is_operator()
-        )
-        // .def("__rmul__", L_OP<std::multiplies<>, nb::ndarray<nb::c_contig>>,
-        // nb::is_operator())
+        .def("__add__", L_OP<STD_ADD<>, nb::ndarray<nb::c_contig>>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, nb::ndarray<nb::c_contig>>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, nb::ndarray<nb::c_contig>>, NB_OP(), NB_NARG())
         .def(
             "__truediv__",
-            L_OP<std::divides<>, nb::ndarray<nb::c_contig>>,
-            nb::is_operator()
+            L_OP<STD_DIV<>, nb::ndarray<nb::c_contig>>,
+            NB_OP(),
+            NB_NARG()
         )
-        //.def("__rtruediv__", R_OP<std::divides<>>, nb::is_operator())
 
         /*
          * Logic operations
@@ -324,8 +313,7 @@ void bind_float_array(nb::module_& m)
             Returns
             -------
             :class:`APyFloatArray`
-                )pbdoc")
-
+            )pbdoc")
         .def("ravel", &APyFloatArray::ravel, R"pbdoc(
             Return a copy of the array collapsed into one dimension. Same as flatten
             with current memory-copy model.
@@ -344,7 +332,7 @@ void bind_float_array(nb::module_& m)
             Returns
             -------
             :class:`APyFloatArray`
-                )pbdoc")
+            )pbdoc")
 
         /*
          * Static methods
@@ -714,6 +702,7 @@ void bind_float_array(nb::module_& m)
             :class:`APyFloatArray`
             )pbdoc"
         )
+
         /*
          * Dunder methods
          */
@@ -722,7 +711,12 @@ void bind_float_array(nb::module_& m)
         .def("__len__", &APyFloatArray::size)
         .def("__str__", &APyFloatArray::to_string, nb::arg("base") = 10)
 
-        .def("is_identical", &APyFloatArray::is_identical, nb::arg("other"), R"pbdoc(
+        .def(
+            "is_identical",
+            &APyFloatArray::is_identical,
+            nb::arg("other"),
+            nb::arg("ignore_zero_sign") = false,
+            R"pbdoc(
             Test if two :class:`APyFloatArray` objects are identical.
 
             Two :class:`APyFloatArray` objects are considered identical if, and only if:
@@ -731,10 +725,20 @@ void bind_float_array(nb::module_& m)
                 * They have the exact same bit format (`exp_bits`, `man_bits`, and
                   `bias`)
 
+            Parameters
+            ----------
+            other : :class:`APyFloatArray`
+                The other array to compare against.
+
+            ignore_zero_sign : :class:`bool`, default: :code:`False`
+                If :code:`True`, plus and minus zero are considered identical. If
+                :code:`False`, plus and minus zero are considered non-identical.
+
             Returns
             -------
             :class:`bool`
-            )pbdoc")
+            )pbdoc"
+        )
         .def(
             "swapaxes",
             &APyFloatArray::swapaxes,
@@ -1383,10 +1387,10 @@ void bind_float_array(nb::module_& m)
             nb::arg("bias") = nb::none(),
             nb::arg("quantization") = nb::none(),
             R"pbdoc(
-            Change format of the floating-point number.
+            Change format of the floating-point array.
 
             This is the primary method for performing quantization when dealing with
-            APyTypes floating-point numbers.
+            APyTypes floating-point arrays.
 
             Parameters
             ----------
@@ -1402,7 +1406,7 @@ void bind_float_array(nb::module_& m)
 
             Returns
             -------
-            :class:`APyFloat`
+            :class:`APyFloatArray`
 
             )pbdoc"
         )
@@ -1428,6 +1432,10 @@ void bind_float_array(nb::module_& m)
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use. If not provided, the global mode,
                 see :func:`get_float_quantization_mode`, is used.
+
+            Returns
+            -------
+            :class:`APyFloatArray`
             )pbdoc"
         )
         .def(
@@ -1445,10 +1453,13 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use. If not provided, the global mode,
                 see :func:`get_float_quantization_mode`, is used.
+
+            Returns
+            -------
+            :class:`APyFloatArray`
             )pbdoc"
         )
         .def(
@@ -1466,10 +1477,13 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use. If not provided, the global mode,
                 see :func:`get_float_quantization_mode`, is used.
+
+            Returns
+            -------
+            :class:`APyFloatArray`
             )pbdoc"
         )
         .def(
@@ -1487,10 +1501,13 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-
             quantization : :class:`QuantizationMode`, optional
                 Quantization mode to use. If not provided, the global mode,
                 see :func:`get_float_quantization_mode`, is used.
+
+            Returns
+            -------
+            :class:`APyFloatArray`
             )pbdoc"
         );
 

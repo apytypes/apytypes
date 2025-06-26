@@ -5,9 +5,9 @@
 #include "apytypes_common.h"
 #include "apytypes_util.h"
 #include "array_utils.h"
-#include "broadcast.h"
 #include "ieee754.h"
 #include "python_util.h"
+#include "src/apytypes_intrinsics.h"
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
@@ -19,6 +19,7 @@ namespace nb = nanobind;
 #include <algorithm>
 #include <cstddef>
 #include <fmt/format.h>
+#include <functional>
 #include <set>
 #include <stdexcept>
 #include <stdlib.h>
@@ -28,9 +29,9 @@ namespace nb = nanobind;
 
 void APyFloatArray::create_in_place(
     APyFloatArray* apyfloatarray,
-    const nanobind::sequence& sign_seq,
-    const nanobind::sequence& exp_seq,
-    const nanobind::sequence& man_seq,
+    const nb::typed<nb::sequence, nb::any>& sign_seq,
+    const nb::typed<nb::sequence, nb::any>& exp_seq,
+    const nb::typed<nb::sequence, nb::any>& man_seq,
     int exp_bits,
     int man_bits,
     std::optional<exp_t> bias
@@ -44,9 +45,9 @@ void APyFloatArray::create_in_place(
 }
 
 APyFloatArray::APyFloatArray(
-    const nanobind::sequence& sign_seq,
-    const nanobind::sequence& exp_seq,
-    const nanobind::sequence& man_seq,
+    const nb::sequence& sign_seq,
+    const nb::sequence& exp_seq,
+    const nb::sequence& man_seq,
     std::uint8_t exp_bits,
     std::uint8_t man_bits,
     std::optional<exp_t> bias
@@ -57,7 +58,7 @@ APyFloatArray::APyFloatArray(
 {
     constexpr std::string_view caller_name = "APyFloatArray.__init__";
 
-    const std::vector<std::size_t>& signs_shape = _shape;
+    const auto& signs_shape = _shape;
     const auto exps_shape = python_sequence_extract_shape(exp_seq, caller_name);
     const auto mans_shape = python_sequence_extract_shape(man_seq, caller_name);
     if (!((signs_shape == exps_shape) && (signs_shape == mans_shape))) {
@@ -81,11 +82,9 @@ APyFloatArray::APyFloatArray(
         if (nb::isinstance<nb::bool_>(signs[i])) {
             sign = static_cast<bool>(nb::cast<nb::bool_>(signs[i]));
         } else if (nb::isinstance<nb::int_>(signs[i])) {
-            sign = static_cast<int>(
-                nb::cast<nb::int_>(signs[i])
-            ); // Must cast to int here
+            sign = static_cast<int>(nb::cast<nb::int_>(signs[i]));
         } else {
-            throw std::domain_error("Invalid objects in sign");
+            APYTYPES_UNREACHABLE();
         }
         exp_t exp = static_cast<exp_t>(nb::cast<nb::int_>(exps[i]));
         man_t man = static_cast<man_t>(nb::cast<nb::int_>(mans[i]));
@@ -96,7 +95,7 @@ APyFloatArray::APyFloatArray(
 
 APyFloatArray::APyFloatArray(
     const std::vector<std::size_t>& shape,
-    exp_t exp_bits,
+    std::uint8_t exp_bits,
     std::uint8_t man_bits,
     std::optional<exp_t> bias
 )
@@ -109,22 +108,12 @@ APyFloatArray::APyFloatArray(
 
 /* ********************************************************************************** *
  * *                            Binary arithmetic operators                         * *
- * ********************************************************************************* */
+ * ********************************************************************************** */
 
 APyFloatArray APyFloatArray::operator+(const APyFloatArray& rhs) const
 {
     if (_shape != rhs._shape) {
-        const auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
-        if (broadcast_shape.size() == 0) {
-            throw std::length_error(
-                fmt::format(
-                    "APyFloatArray.__add__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                    tuple_string_from_vec(_shape),
-                    tuple_string_from_vec(rhs._shape)
-                )
-            );
-        }
-        return broadcast_to(broadcast_shape) + rhs.broadcast_to(broadcast_shape);
+        return try_broadcast_and_then<std::plus<>>(rhs, "__add__");
     }
 
     const std::uint8_t res_exp_bits = std::max(exp_bits, rhs.exp_bits);
@@ -159,17 +148,7 @@ APyFloatArray APyFloatArray::operator+(const APyFloat& rhs) const
 APyFloatArray APyFloatArray::operator-(const APyFloatArray& rhs) const
 {
     if (_shape != rhs._shape) {
-        auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
-        if (broadcast_shape.size() == 0) {
-            throw std::length_error(
-                fmt::format(
-                    "APyFloatArray.__sub__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                    tuple_string_from_vec(_shape),
-                    tuple_string_from_vec(rhs._shape)
-                )
-            );
-        }
-        return broadcast_to(broadcast_shape) - rhs.broadcast_to(broadcast_shape);
+        return try_broadcast_and_then<std::minus<>>(rhs, "__sub__");
     }
 
     const std::uint8_t res_exp_bits = std::max(exp_bits, rhs.exp_bits);
@@ -222,17 +201,7 @@ APyFloatArray APyFloatArray::abs() const
 APyFloatArray APyFloatArray::operator*(const APyFloatArray& rhs) const
 {
     if (_shape != rhs._shape) {
-        auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
-        if (broadcast_shape.size() == 0) {
-            throw std::length_error(
-                fmt::format(
-                    "APyFloatArray.__mul__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                    tuple_string_from_vec(_shape),
-                    tuple_string_from_vec(rhs._shape)
-                )
-            );
-        }
-        return broadcast_to(broadcast_shape) * rhs.broadcast_to(broadcast_shape);
+        return try_broadcast_and_then<std::multiplies<>>(rhs, "__mul__");
     }
 
     const std::uint8_t res_exp_bits = std::max(exp_bits, rhs.exp_bits);
@@ -268,18 +237,7 @@ APyFloatArray APyFloatArray::operator*(const APyFloat& rhs) const
 APyFloatArray APyFloatArray::operator/(const APyFloatArray& rhs) const
 {
     if (_shape != rhs._shape) {
-        auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
-        if (broadcast_shape.size() == 0) {
-            throw std::length_error(
-                fmt::format(
-                    "APyFloatArray.__truediv__: shape mismatch, lhs.shape={}, "
-                    "rhs.shape={}",
-                    tuple_string_from_vec(_shape),
-                    tuple_string_from_vec(rhs._shape)
-                )
-            );
-        }
-        return broadcast_to(broadcast_shape) / rhs.broadcast_to(broadcast_shape);
+        return try_broadcast_and_then<std::divides<>>(rhs, "__truediv__");
     }
 
     const std::uint8_t res_exp_bits = std::max(exp_bits, rhs.get_exp_bits());
@@ -336,7 +294,7 @@ APyFloatArray APyFloatArray::rsub(const APyFloat& lhs) const
     const QuantizationMode& qntz = get_float_quantization_mode();
     APyFloatArray res(_shape, res_exp_bits, res_man_bits, res_bias);
 
-    // Perform division
+    // Perform subtraction
     const APyFloatData& lhs_data = lhs.get_data();
     FloatingPointSubtractor<0, 1, 1> sub(lhs.spec(), spec(), res.spec(), qntz);
     sub(&lhs_data, &_data[0], &res._data[0], _nitems);
@@ -547,16 +505,20 @@ APyFloatArray::sum(const std::optional<PyShapeParam_t>& py_axis) const
     std::vector<std::size_t> axes = cpp_axes_from_python(py_axis, _ndim);
 
     // Accumulation function
-    APyFloat acc(get_exp_bits(), get_man_bits(), get_bias());
-    APyFloat src(get_exp_bits(), get_man_bits(), get_bias());
-    auto accumulate = [&](auto acc_it, auto src_it) {
-        acc.set_data(*acc_it);
-        src.set_data(*src_it);
-        *acc_it = (acc + src).get_data();
-    };
+    auto&& qntz = get_float_quantization_mode();
+    FloatingPointAdder<> add(spec(), spec(), spec(), qntz);
+    auto accumulate
+        = [&](auto acc_it, auto src_it) { add(&*acc_it, &*src_it, &*acc_it); };
 
     return array_fold(
-        axes, accumulate, std::nullopt /* no init */, exp_bits, man_bits, bias
+        axes,         // axes
+        accumulate,   // fold function
+        std::nullopt, // initial fold data
+
+        /*  bit-specifier args: */
+        exp_bits,
+        man_bits,
+        bias
     );
 }
 
@@ -574,17 +536,21 @@ APyFloatArray APyFloatArray::cumsum(std::optional<nb::int_> py_axis) const
     }
 
     // Accumulation function
-    APyFloat acc(get_exp_bits(), get_man_bits(), get_bias());
-    APyFloat src(get_exp_bits(), get_man_bits(), get_bias());
-    auto accumulate = [&](auto acc_it, auto src_it) {
-        acc.set_data(*acc_it);
-        src.set_data(*src_it);
-        *acc_it = (acc + src).get_data();
-    };
+    auto&& qntz = get_float_quantization_mode();
+    FloatingPointAdder<> add(spec(), spec(), spec(), qntz);
+    auto accumulate
+        = [&](auto acc_it, auto src_it) { add(&*acc_it, &*src_it, &*acc_it); };
 
-    auto post_proc = [](auto, auto) { /* no post processing */ };
     return array_fold_cumulative(
-        axis, accumulate, post_proc, std::nullopt, exp_bits, man_bits, bias
+        axis,               // axes
+        accumulate,         // fold function
+        [](auto, auto) { }, // post-processing function
+        std::nullopt,       // initial fold data
+
+        /*  bit-specifier args: */
+        exp_bits,
+        man_bits,
+        bias
     );
 }
 
@@ -595,19 +561,23 @@ APyFloatArray::nansum(const std::optional<PyShapeParam_t>& py_axis) const
     std::vector<std::size_t> axes = cpp_axes_from_python(py_axis, _ndim);
 
     // Accumulation function
-    APyFloat acc(get_exp_bits(), get_man_bits(), get_bias());
-    APyFloat src(get_exp_bits(), get_man_bits(), get_bias());
+    auto&& qntz = get_float_quantization_mode();
+    FloatingPointAdder<> add(spec(), spec(), spec(), qntz);
     auto accumulate = [&](auto acc_it, auto src_it) {
-        acc.set_data(*acc_it);
-        src.set_data(*src_it);
-        if (src.is_nan()) {
-            src.set_data({ 0, 0, 0 });
+        if (!is_nan(*src_it, spec())) {
+            add(&*acc_it, &*src_it, &*acc_it);
         }
-        *acc_it = (acc + src).get_data();
     };
 
     return array_fold(
-        axes, accumulate, std::nullopt /* no init */, exp_bits, man_bits, bias
+        axes,         // axes
+        accumulate,   // fold function
+        std::nullopt, // initial fold data
+
+        /*  bit-specifier args: */
+        exp_bits,
+        man_bits,
+        bias
     );
 }
 
@@ -625,20 +595,24 @@ APyFloatArray APyFloatArray::nancumsum(std::optional<nb::int_> py_axis) const
     }
 
     // Accumulation function
-    APyFloat acc(get_exp_bits(), get_man_bits(), get_bias());
-    APyFloat src(get_exp_bits(), get_man_bits(), get_bias());
+    auto&& qntz = get_float_quantization_mode();
+    FloatingPointAdder<> add(spec(), spec(), spec(), qntz);
     auto accumulate = [&](auto acc_it, auto src_it) {
-        acc.set_data(*acc_it);
-        src.set_data(*src_it);
-        if (src.is_nan()) {
-            src.set_data({ 0, 0, 0 });
+        if (!is_nan(*src_it, spec())) {
+            add(&*acc_it, &*src_it, &*acc_it);
         }
-        *acc_it = (acc + src).get_data();
     };
 
-    auto post_proc = [](auto, auto) { /* no post processing */ };
     return array_fold_cumulative(
-        axis, accumulate, post_proc, std::nullopt, exp_bits, man_bits, bias
+        axis,               // axes
+        accumulate,         // fold function
+        [](auto, auto) { }, // post-processing function
+        std::nullopt,       // initial fold data
+
+        /*  bit-specifier args: */
+        exp_bits,
+        man_bits,
+        bias
     );
 }
 
@@ -649,46 +623,54 @@ APyFloatArray::prod(const std::optional<PyShapeParam_t>& py_axis) const
     std::vector<std::size_t> axes = cpp_axes_from_python(py_axis, _ndim);
 
     // Multiplicative fold function
-    APyFloat acc(get_exp_bits(), get_man_bits(), get_bias());
-    APyFloat src(get_exp_bits(), get_man_bits(), get_bias());
-    auto accumulate = [&](auto acc_it, auto src_it) {
-        acc.set_data(*acc_it);
-        src.set_data(*src_it);
-        *acc_it = (acc * src).get_data();
-    };
+    auto&& qntz = get_float_quantization_mode();
+    FloatingPointMultiplier<> prod(spec(), spec(), spec(), qntz);
+    auto fold_func
+        = [&](auto acc_it, auto src_it) { prod(&*acc_it, &*src_it, &*acc_it); };
 
     APyFloat init_one = APyFloat::one(get_exp_bits(), get_man_bits());
     return array_fold(
-        axes, accumulate, init_one, get_exp_bits(), get_man_bits(), get_bias()
+        axes,      // axes
+        fold_func, // fold function
+        init_one,  // initial fold data
+
+        /* bit-specifier args: */
+        exp_bits,
+        man_bits,
+        bias
     );
 }
 
 APyFloatArray APyFloatArray::cumprod(std::optional<nb::int_> py_axis) const
 {
-    std::optional<std::size_t> axis = py_axis.has_value()
+    std::optional<std::size_t> axes = py_axis.has_value()
         ? std::optional<std::size_t>(nb::cast<std::size_t>(*py_axis))
         : std::nullopt;
 
-    if (axis.has_value() && axis >= _ndim) {
+    if (axes.has_value() && axes >= _ndim) {
         std::string msg = fmt::format(
-            "APyFloatArray.cumprod: axis {} out of range (ndim = {})", *axis, _ndim
+            "APyFloatArray.cumprod: axis {} out of range (ndim = {})", *axes, _ndim
         );
         throw nb::index_error(msg.c_str());
     }
 
-    // Accumulation function
-    APyFloat acc(get_exp_bits(), get_man_bits(), get_bias());
-    APyFloat src(get_exp_bits(), get_man_bits(), get_bias());
-    auto accumulate = [&](auto acc_it, auto src_it) {
-        acc.set_data(*acc_it);
-        src.set_data(*src_it);
-        *acc_it = (acc * src).get_data();
-    };
+    // Multiplicative fold function
+    auto&& qntz = get_float_quantization_mode();
+    FloatingPointMultiplier<> prod(spec(), spec(), spec(), qntz);
+    auto fold_func
+        = [&](auto acc_it, auto src_it) { prod(&*acc_it, &*src_it, &*acc_it); };
 
     APyFloat init_one = APyFloat::one(get_exp_bits(), get_man_bits());
-    auto post_proc = [](auto, auto) { /* no post processing */ };
     return array_fold_cumulative(
-        axis, accumulate, post_proc, init_one, exp_bits, man_bits, bias
+        axes,               // axes
+        fold_func,          // fuld function
+        [](auto, auto) { }, // post-processing function
+        init_one,           // initial data
+
+        /* bit-specifier args: */
+        exp_bits,
+        man_bits,
+        bias
     );
 }
 
@@ -698,52 +680,61 @@ APyFloatArray::nanprod(const std::optional<PyShapeParam_t>& py_axis) const
     // Extract axes to multiply over
     std::vector<std::size_t> axes = cpp_axes_from_python(py_axis, _ndim);
 
-    APyFloat init_one = APyFloat::one(get_exp_bits(), get_man_bits());
-
     // Multiplicative fold function
-    APyFloat acc(get_exp_bits(), get_man_bits(), get_bias());
-    APyFloat src(get_exp_bits(), get_man_bits(), get_bias());
-    auto accumulate = [&](auto acc_it, auto src_it) {
-        acc.set_data(*acc_it);
-        src.set_data(*src_it);
-        if (src.is_nan()) {
-            src = init_one;
+    auto&& qntz = get_float_quantization_mode();
+    FloatingPointMultiplier<> prod(spec(), spec(), spec(), qntz);
+    auto fold_func = [&](auto acc_it, auto src_it) {
+        if (!is_nan(*src_it, spec())) {
+            prod(&*acc_it, &*src_it, &*acc_it);
         }
-        *acc_it = (acc * src).get_data();
     };
 
-    return array_fold(axes, accumulate, init_one, exp_bits, man_bits, bias);
+    APyFloat init_one = APyFloat::one(get_exp_bits(), get_man_bits());
+    return array_fold(
+        axes,      // axes
+        fold_func, // fold function
+        init_one,  // initial fold data
+
+        /* bit-specifier args: */
+        exp_bits,
+        man_bits,
+        bias
+    );
 }
 
 APyFloatArray APyFloatArray::nancumprod(std::optional<nb::int_> py_axis) const
 {
-    std::optional<std::size_t> axis = py_axis.has_value()
+    std::optional<std::size_t> axes = py_axis.has_value()
         ? std::optional<std::size_t>(nb::cast<std::size_t>(*py_axis))
         : std::nullopt;
 
-    if (axis.has_value() && axis >= _ndim) {
+    if (axes.has_value() && axes >= _ndim) {
         std::string msg = fmt::format(
-            "APyFloatArray.nancumprod: axis {} out of range (ndim = {})", *axis, _ndim
+            "APyFloatArray.nancumprod: axis {} out of range (ndim = {})", *axes, _ndim
         );
         throw nb::index_error(msg.c_str());
     }
 
-    // Accumulation function
-    APyFloat init_one = APyFloat::one(get_exp_bits(), get_man_bits());
-    APyFloat acc(get_exp_bits(), get_man_bits(), get_bias());
-    APyFloat src(get_exp_bits(), get_man_bits(), get_bias());
-    auto accumulate = [&](auto acc_it, auto src_it) {
-        acc.set_data(*acc_it);
-        src.set_data(*src_it);
-        if (src.is_nan()) {
-            src = init_one;
+    // Multiplicative fold function
+    auto&& qntz = get_float_quantization_mode();
+    FloatingPointMultiplier<> prod(spec(), spec(), spec(), qntz);
+    auto fold_func = [&](auto acc_it, auto src_it) {
+        if (!is_nan(*src_it, spec())) {
+            prod(&*acc_it, &*src_it, &*acc_it);
         }
-        *acc_it = (acc * src).get_data();
     };
 
-    auto post_proc = [](auto, auto) { /* no post processing */ };
+    APyFloat init_one = APyFloat::one(get_exp_bits(), get_man_bits());
     return array_fold_cumulative(
-        axis, accumulate, post_proc, init_one, exp_bits, man_bits, bias
+        axes,               // axes
+        fold_func,          // fuld function
+        [](auto, auto) { }, // post-processing function
+        init_one,           // initial data
+
+        /* bit-specifier args: */
+        exp_bits,
+        man_bits,
+        bias
     );
 }
 
@@ -857,31 +848,24 @@ APyFloatArray::nanmin(const std::optional<PyShapeParam_t>& py_axis) const
 
 std::string APyFloatArray::repr() const
 {
-    const auto sign_formatter = [](auto cbegin_it, auto) -> std::string {
+    const auto sign_fmt = [](auto cbegin_it, auto) -> std::string {
         return fmt::format("{}", int(cbegin_it->sign));
     };
-    const auto exp_formatter = [](auto cbegin_it, auto) -> std::string {
+    const auto exp_fmt = [](auto cbegin_it, auto) -> std::string {
         return fmt::format("{}", cbegin_it->exp);
     };
-    const auto man_formatter = [](auto cbegin_it, auto) -> std::string {
+    const auto man_fmt = [](auto cbegin_it, auto) -> std::string {
         return fmt::format("{}", cbegin_it->man);
     };
 
-    if (bias == ieee_bias(exp_bits)) {
-        return array_repr(
-            { sign_formatter, exp_formatter, man_formatter },
-            { fmt::format("exp_bits={}", exp_bits),
-              fmt::format("man_bits={}", man_bits) }
-        );
-    } else {
-        return array_repr(
-            { sign_formatter, exp_formatter, man_formatter },
-            { /* kw_args = */
-              fmt::format("exp_bits={}", exp_bits),
-              fmt::format("man_bits={}", man_bits),
-              fmt::format("bias={}", bias) }
-        );
+    std::initializer_list<formatter_t> formatters { sign_fmt, exp_fmt, man_fmt };
+    std::vector<std::string> kw_args = { fmt::format("exp_bits={}", exp_bits),
+                                         fmt::format("man_bits={}", man_bits) };
+    if (bias != ieee_bias(exp_bits)) {
+        kw_args.push_back(fmt::format("bias={}", bias));
     }
+
+    return array_repr(formatters, kw_args);
 }
 
 std::variant<
@@ -956,17 +940,42 @@ nb::list APyFloatArray::to_bits_python_recursive_descent(
 nb::ndarray<nb::numpy, double> APyFloatArray::to_numpy() const
 {
     // Dynamically allocate data to be passed to Python
-    double* result_data = new double[_data.size()];
-    auto apy_f = APyFloat(exp_bits, man_bits, bias);
-    for (std::size_t i = 0; i < _data.size(); i++) {
-        apy_f.set_data(_data[i]);
-        result_data[i] = apy_f.to_double();
+    double* result_data = new double[_nitems];
+    auto fp = APyFloat(exp_bits, man_bits, bias);
+    for (std::size_t i = 0; i < _nitems; i++) {
+        fp.set_data(_data[i]);
+        result_data[i] = fp.to_double();
     }
 
     // Delete 'data' when the 'owner' capsule expires
     nb::capsule owner(result_data, [](void* p) noexcept { delete[] (double*)p; });
 
     return nb::ndarray<nb::numpy, double>(result_data, ndim(), &_shape[0], owner);
+}
+
+bool APyFloatArray::is_identical(const nb::object& other, bool ignore_zero_sign) const
+{
+    if (!nb::isinstance<APyFloatArray>(other)) {
+        return false;
+    } else {
+        auto&& other_arr = nb::cast<APyFloatArray>(other);
+        if (!is_same_spec(other_arr) || _shape != other_arr._shape) {
+            return false;
+        }
+
+        for (std::size_t i = 0; i < _data.size(); i++) {
+            // If `ignore_zero_sign` is set, ignore the sign bit if results equals zero
+            if (ignore_zero_sign && is_zero(_data[i]) && is_zero(other_arr._data[i])) {
+                continue;
+            }
+
+            if (_data[i] != other_arr._data[i]) {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 APyFloatArray APyFloatArray::from_numbers(
@@ -982,6 +991,9 @@ APyFloatArray APyFloatArray::from_numbers(
         return from_array(ndarray, exp_bits, man_bits, bias);
     }
 
+    check_exponent_format(exp_bits, "APyFloatArray.from_float");
+    check_mantissa_format(man_bits, "APyFloatArray.from_float");
+
     APyFloatArray result(
         python_sequence_extract_shape(number_seq, "APyFloatArray.from_float"),
         exp_bits,
@@ -989,46 +1001,29 @@ APyFloatArray APyFloatArray::from_numbers(
         bias
     );
 
-    const auto py_obj = python_sequence_walk<nb::float_, nb::int_, APyFixed, APyFloat>(
+    const auto py_objs = python_sequence_walk<nb::float_, nb::int_, APyFixed, APyFloat>(
         number_seq, "APyFloatArray.from_float"
     );
 
     for (std::size_t i = 0; i < result._data.size(); i++) {
-        if (nb::isinstance<nb::float_>(py_obj[i])) {
-            // Check formats for proper printing
-            check_exponent_format(exp_bits, "APyFloatArray.from_float");
-            check_mantissa_format(man_bits, "APyFloatArray.from_float");
-
-            result._data[i] = APyFloat::from_double(
-                                  static_cast<double>(nb::cast<nb::float_>(py_obj[i])),
-                                  exp_bits,
-                                  man_bits,
-                                  result.bias
-            )
-                                  .get_data();
-        } else if (nb::isinstance<nb::int_>(py_obj[i])) {
-            // Check formats for proper error printing
-            check_exponent_format(exp_bits, "APyFloatArray.from_integer");
-            check_mantissa_format(man_bits, "APyFloatArray.from_integer");
-
-            result._data[i]
-                = APyFloat::from_integer(
-                      nb::cast<nb::int_>(py_obj[i]), exp_bits, man_bits, result.bias
-                )
-                      .get_data();
-        } else if (nb::isinstance<APyFixed>(py_obj[i])) {
-            // Check formats for proper error printing
-            check_exponent_format(exp_bits, "APyFloatArray.from_fixed");
-            check_mantissa_format(man_bits, "APyFloatArray.from_fixed");
-
-            const auto d = static_cast<APyFixed>(nb::cast<APyFixed>(py_obj[i]));
-            result._data[i]
-                = APyFloat::from_fixed(d, exp_bits, man_bits, bias).get_data();
-        } else if (nb::isinstance<APyFloat>(py_obj[i])) {
-            const auto d = static_cast<APyFloat>(nb::cast<APyFloat>(py_obj[i]));
-            result._data[i]
-                = d.cast(exp_bits, man_bits, bias, QuantizationMode::RND_CONV)
-                      .get_data();
+        if (nb::isinstance<nb::float_>(py_objs[i])) {
+            double val = static_cast<double>(nb::cast<nb::float_>(py_objs[i]));
+            auto&& fp = APyFloat::from_double(val, exp_bits, man_bits, result.bias);
+            result._data[i] = fp.get_data();
+        } else if (nb::isinstance<nb::int_>(py_objs[i])) {
+            auto&& obj = nb::cast<nb::int_>(py_objs[i]);
+            auto&& fp = APyFloat::from_integer(obj, exp_bits, man_bits, result.bias);
+            result._data[i] = fp.get_data();
+        } else if (nb::isinstance<APyFixed>(py_objs[i])) {
+            auto&& fx = nb::cast<APyFixed>(py_objs[i]);
+            auto&& fp = APyFloat::from_fixed(fx, exp_bits, man_bits, bias);
+            result._data[i] = fp.get_data();
+        } else if (nb::isinstance<APyFloat>(py_objs[i])) {
+            auto&& obj = nb::cast<APyFloat>(py_objs[i]);
+            auto&& fp = obj.cast(exp_bits, man_bits, bias, QuantizationMode::RND_CONV);
+            result._data[i] = fp.get_data();
+        } else {
+            APYTYPES_UNREACHABLE();
         }
     }
     return result;
@@ -1213,6 +1208,7 @@ APyFloatArray APyFloatArray::cast(
         quantization.value_or(get_float_quantization_mode())
     );
 }
+
 APyFloatArray APyFloatArray::_cast(
     std::uint8_t new_exp_bits,
     std::uint8_t new_man_bits,
@@ -1235,7 +1231,7 @@ APyFloatArray APyFloatArray::_cast(
     QuantizationMode quantization
 ) const
 {
-    // If same parameters, do not quantize
+    // If same bit specifiers, return a copy of this.
     if (new_exp_bits == exp_bits && new_man_bits == man_bits && new_bias == bias) {
         return *this;
     }
@@ -1425,9 +1421,8 @@ std::string APyFloatArray::to_string(int base) const
     case 10:
         return to_string_dec();
     default:
-        throw nb::value_error(
-            fmt::format("APyFloatArray.__str__: base {} is not supported", base).c_str()
-        );
+        auto msg = fmt::format("APyFloatArray.__str__: base={} is not supported", base);
+        throw nb::value_error(msg.c_str());
     }
 }
 

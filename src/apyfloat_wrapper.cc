@@ -1,5 +1,6 @@
 #include "apyfixed.h"
 #include "apyfloat.h"
+#include "apyfloatarray.h" // Needed by: APyFloat::is_identical
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
@@ -54,19 +55,6 @@ static auto BIN_OP(const L_TYPE& lhs, const R_TYPE& rhs) -> decltype(OP()(lhs, r
     return OP()(lhs, rhs);
 }
 
-// Mark a non-implicit conversion argument
-#define NARG(name) nb::arg(name).noconvert()
-
-// Mark a special double-underscore marker (e.g., `__add__`). Returns `NotImplemented`
-// rather than raising `TypeError`
-#define IS_OP(args) nb::is_operator(args)
-
-// Short-hand C++ arithmetic functors
-#define ADD std::plus
-#define SUB std::minus
-#define MUL std::multiplies
-#define DIV std::divides
-
 void bind_float(nb::module_& m)
 {
     nb::class_<APyFloat>(m, "APyFloat")
@@ -110,15 +98,11 @@ void bind_float(nb::module_& m)
         /*
          * Copy
          */
-        .def(
-            "copy",
-            &APyFloat::python_copy,
-            R"pbdoc(
+        .def("copy", &APyFloat::python_copy, R"pbdoc(
             Create a copy of the object.
 
             .. versionadded:: 0.3
-            )pbdoc"
-        )
+            )pbdoc")
         .def("__copy__", &APyFloat::python_copy)
         .def("__deepcopy__", &APyFloat::python_deepcopy, nb::arg("memo"))
 
@@ -132,10 +116,10 @@ void bind_float(nb::module_& m)
         .def(nb::self <= nb::self)
         .def(nb::self >= nb::self)
 
-        .def(nb::self + nb::self)
-        .def(nb::self - nb::self)
-        .def(nb::self * nb::self)
-        .def(nb::self / nb::self)
+        .def(nb::self + nb::self, NB_NARG())
+        .def(nb::self - nb::self, NB_NARG())
+        .def(nb::self * nb::self, NB_NARG())
+        .def(nb::self / nb::self, NB_NARG())
         .def(-nb::self)
         .def(+nb::self)
 
@@ -151,14 +135,14 @@ void bind_float(nb::module_& m)
         /*
          * Arithmetic operations with integers
          */
-        .def("__add__", L_OP<ADD<>, nb::int_>, IS_OP(), NARG())
-        .def("__radd__", R_OP<ADD<>, nb::int_>, IS_OP(), NARG())
-        .def("__sub__", L_OP<SUB<>, nb::int_>, IS_OP(), NARG())
-        .def("__rsub__", R_OP<SUB<>, nb::int_>, IS_OP(), NARG())
-        .def("__mul__", L_OP<MUL<>, nb::int_>, IS_OP(), NARG())
-        .def("__rmul__", R_OP<MUL<>, nb::int_>, IS_OP(), NARG())
-        .def("__truediv__", L_OP<DIV<>, nb::int_>, IS_OP(), NARG())
-        .def("__rtruediv__", R_OP<DIV<>, nb::int_>, IS_OP(), NARG())
+        .def("__add__", L_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__radd__", R_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__rmul__", R_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
 
         /*
          * Arithmetic with floats
@@ -170,14 +154,14 @@ void bind_float(nb::module_& m)
         .def(nb::self <= double())
         .def(nb::self >= double())
 
-        .def("__add__", L_OP<ADD<>, double>, IS_OP(), NARG())
-        .def("__radd__", R_OP<ADD<>, double>, IS_OP(), NARG())
-        .def("__sub__", L_OP<SUB<>, double>, IS_OP(), NARG())
-        .def("__rsub__", R_OP<SUB<>, double>, IS_OP(), NARG())
-        .def("__mul__", L_OP<MUL<>, double>, IS_OP(), NARG())
-        .def("__rmul__", R_OP<MUL<>, double>, IS_OP(), NARG())
-        .def("__truediv__", L_OP<DIV<>, double>, IS_OP(), NARG())
-        .def("__rtruediv__", R_OP<DIV<>, double>, IS_OP(), NARG())
+        .def("__add__", L_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
+        .def("__radd__", R_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
+        .def("__rmul__", R_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
 
         /*
          * Arithmetic operations with APyFixed
@@ -401,7 +385,7 @@ void bind_float(nb::module_& m)
 
             ignore_zero_sign : :class:`bool`, default: :code:`False`
                 If :code:`True`, plus and minus zero are considered identical. If
-                :code:`False`, plus and minus zero are considered different.
+                :code:`False`, plus and minus zero are considered non-identical.
 
             Returns
             -------

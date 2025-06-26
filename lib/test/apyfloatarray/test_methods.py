@@ -2,251 +2,315 @@ from itertools import permutations
 
 import pytest
 
-from apytypes import APyFixed, APyFloat, APyFloatArray, QuantizationMode, fp
+from apytypes import (
+    APyCFloat,
+    APyCFloatArray,
+    APyFixed,
+    APyFloat,
+    APyFloatArray,
+    QuantizationMode,
+)
 
 
 @pytest.mark.float_array
-def test_is_identical():
-    a = APyFloatArray([1], [2], [3], 4, 5)
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_is_identical(float_array: type[APyCFloatArray]):
+    a = float_array([1], [2], [3], 4, 5)
     assert a.is_identical(a)
 
-    assert not a.is_identical(APyFloatArray([0], [2], [3], 4, 5))
-    assert not a.is_identical(APyFloatArray([1], [1], [3], 4, 5))
-    assert not a.is_identical(APyFloatArray([1], [2], [2], 4, 5))
-    assert not a.is_identical(APyFloatArray([1], [2], [3], 5, 5))
-    assert not a.is_identical(APyFloatArray([1], [2], [3], 4, 6))
-    assert not a.is_identical(APyFloatArray([1], [2], [6], 4, 6))  # Same value
+    assert not a.is_identical(float_array([0], [2], [3], 4, 5))
+    assert not a.is_identical(float_array([1], [1], [3], 4, 5))
+    assert not a.is_identical(float_array([1], [2], [2], 4, 5))
+    assert not a.is_identical(float_array([1], [2], [3], 5, 5))
+    assert not a.is_identical(float_array([1], [2], [3], 4, 6))
+    assert not a.is_identical(float_array([1], [2], [6], 4, 6))  # Same value
 
 
 @pytest.mark.float_array
-def test_copy():
-    a = APyFloatArray([1, 0], [2, 3], [3, 1], 4, 5)
+@pytest.mark.parametrize(
+    ("float_array", "float_scalar"),
+    [(APyFloatArray, APyFloat), (APyCFloatArray, APyCFloat)],
+)
+def test_copy(
+    float_array: type[APyCFloatArray],
+    float_scalar: type[APyCFloat],
+):
+    a = float_array([1, 0], [2, 3], [3, 1], 4, 5)
     b = a
     assert a.is_identical(b)
     c = a.copy()
     assert a.is_identical(c)
-    a[0] = APyFloat(0, 1, 2, 4, 5)
+    a[0] = float_scalar(0, 1, 2, 4, 5)
     assert a.is_identical(b)
     assert not a.is_identical(c)
 
 
 @pytest.mark.float_array
-def test_python_copy():
+@pytest.mark.parametrize(
+    ("float_array", "float_scalar"),
+    [(APyFloatArray, APyFloat), (APyCFloatArray, APyCFloat)],
+)
+def test_python_copy(
+    float_array: type[APyCFloatArray],
+    float_scalar: type[APyCFloat],
+):
     import copy
 
-    a = APyFloatArray([1, 0], [2, 3], [3, 1], 4, 5)
+    a = float_array([1, 0], [2, 3], [3, 1], 4, 5)
     b = a
     assert a.is_identical(b)
     c = copy.copy(a)
     assert a.is_identical(c)
-    a[0] = APyFloat(0, 1, 2, 4, 5)
+    a[0] = float_scalar(0, 1, 2, 4, 5)
     assert a.is_identical(b)
     assert not a.is_identical(c)
 
 
 @pytest.mark.float_array
-def test_python_deepcopy():
+@pytest.mark.parametrize(
+    ("float_array", "float_scalar"),
+    [(APyFloatArray, APyFloat), (APyCFloatArray, APyCFloat)],
+)
+def test_python_deepcopy(
+    float_array: type[APyCFloatArray],
+    float_scalar: type[APyCFloat],
+):
     import copy
 
-    a = APyFloatArray([1, 0], [2, 3], [3, 1], 4, 5)
+    a = float_array([1, 0], [2, 3], [3, 1], 4, 5)
     b = a
     assert a.is_identical(b)
     c = copy.deepcopy(a)
     assert a.is_identical(c)
-    a[0] = APyFloat(0, 1, 2, 4, 5)
+    a[0] = float_scalar(0, 1, 2, 4, 5)
     assert a.is_identical(b)
     assert not a.is_identical(c)
 
 
 @pytest.mark.float_array
-def test_array_from_float_raises():
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_array_from_float_raises(float_array: type[APyCFloatArray]):
     # Too many exponent bits
     with pytest.raises(
         ValueError,
-        match=r"APyFloatArray.from_integer: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyC?FloatArray.from_(float)|(complex): "
+        + r"exponent bits must be a non-negative integer less or equal to .. but 300 "
+        + r"was given",
     ):
-        APyFloatArray.from_float([0], 300, 5)
+        _ = float_array.from_float([0], 300, 5)
 
     with pytest.raises(
         ValueError,
-        match=r"APyFloatArray.from_integer: exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyC?FloatArray.from_(float)|(complex): "
+        + r"exponent bits must be a non-negative integer less or equal to .. but -300 "
+        + r"was given",
     ):
-        APyFloatArray.from_float([0], -300, 5)
+        _ = float_array.from_float([0], -300, 5)
 
     # Too many mantissa bits
     with pytest.raises(
         ValueError,
-        match="APyFloatArray.from_integer: mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyC?FloatArray.from_(float)|(complex): "
+        + r"mantissa bits must be a non-negative integer less or equal to .. but 300 "
+        + "was given",
     ):
-        APyFloatArray.from_float([0], 5, 300)
+        _ = float_array.from_float([0], 5, 300)
 
     with pytest.raises(
         ValueError,
-        match="APyFloatArray.from_integer: mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyC?FloatArray.from_(float)|(complex): "
+        + r"mantissa bits must be a non-negative integer less or equal to .. but -300 "
+        + "was given",
     ):
-        APyFloatArray.from_float([0], 5, -300)
+        _ = float_array.from_float([0], 5, -300)
 
     with pytest.raises(
-        ValueError, match=r"APyFloatArray\.from_float: unexpected type when traversing"
+        ValueError,
+        match=r"APyC?FloatArray.from_(float)|(complex): "
+        + r"unexpected type when traversing Sequence: <class 'str'>",
     ):
-        APyFloatArray.from_float(["0"], 5, 10)
+        _ = float_array.from_float(["0"], 5, 10)
 
 
-def test_from_float_with_non_floats():
-    a = APyFloatArray.from_float([16], exp_bits=4, man_bits=2)
-    assert a.is_identical(APyFloatArray([0], [11], [0], exp_bits=4, man_bits=2))
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_from_float_with_non_floats(float_array: type[APyCFloatArray]):
+    a = float_array.from_float([16], exp_bits=4, man_bits=2)
+    assert a.is_identical(float_array([0], [11], [0], exp_bits=4, man_bits=2))
 
     # Should quantize to 16.0
-    a = APyFloatArray.from_float([17], exp_bits=4, man_bits=2)
-    assert a.is_identical(APyFloatArray([0], [11], [0], exp_bits=4, man_bits=2))
+    a = float_array.from_float([17], exp_bits=4, man_bits=2)
+    assert a.is_identical(float_array([0], [11], [0], exp_bits=4, man_bits=2))
 
     # Should quantize to -20.0
-    a = APyFloatArray.from_float([-19], exp_bits=4, man_bits=2)
-    assert a.is_identical(APyFloatArray([1], [11], [1], exp_bits=4, man_bits=2))
+    a = float_array.from_float([-19], exp_bits=4, man_bits=2)
+    assert a.is_identical(float_array([1], [11], [1], exp_bits=4, man_bits=2))
 
     # Tie break, should quantize to 16.0
-    a = APyFloatArray.from_float([18], exp_bits=4, man_bits=2)
-    assert a.is_identical(APyFloatArray([0], [11], [0], exp_bits=4, man_bits=2))
+    a = float_array.from_float([18], exp_bits=4, man_bits=2)
+    assert a.is_identical(float_array([0], [11], [0], exp_bits=4, man_bits=2))
 
     # Tie break, should quantize to 24.0
-    a = APyFloatArray.from_float([22], exp_bits=4, man_bits=2)
-    assert a.is_identical(APyFloatArray([0], [11], [2], exp_bits=4, man_bits=2))
+    a = float_array.from_float([22], exp_bits=4, man_bits=2)
+    assert a.is_identical(float_array([0], [11], [2], exp_bits=4, man_bits=2))
 
     # Should quantize to 28.0
-    a = APyFloatArray.from_float([29], exp_bits=4, man_bits=2)
-    assert a.is_identical(APyFloatArray([0], [11], [3], exp_bits=4, man_bits=2))
+    a = float_array.from_float([29], exp_bits=4, man_bits=2)
+    assert a.is_identical(float_array([0], [11], [3], exp_bits=4, man_bits=2))
 
     # Should quantize to 32.0
-    a = APyFloatArray.from_float([31], exp_bits=4, man_bits=2)
-    assert a.is_identical(APyFloatArray([0], [12], [0], exp_bits=4, man_bits=2))
+    a = float_array.from_float([31], exp_bits=4, man_bits=2)
+    assert a.is_identical(float_array([0], [12], [0], exp_bits=4, man_bits=2))
 
     # 152-bit number, should become negative infinity
-    a = APyFloatArray.from_float(
+    a = float_array.from_float(
         [-0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF], exp_bits=4, man_bits=2
     )
-    assert a.is_identical(APyFloatArray([1], [15], [0], exp_bits=4, man_bits=2))
+    assert a.is_identical(float_array([1], [15], [0], exp_bits=4, man_bits=2))
 
     # Test with bool and non IEEE-like bias
-    a = APyFloatArray.from_float([True], exp_bits=4, man_bits=2, bias=4)
-    assert a.is_identical(APyFloatArray([0], [4], [0], exp_bits=4, man_bits=2, bias=4))
+    a = float_array.from_float([True], exp_bits=4, man_bits=2, bias=4)
+    assert a.is_identical(float_array([0], [4], [0], exp_bits=4, man_bits=2, bias=4))
 
     # Test with big integer
-    a = APyFloatArray.from_float([2**2047], exp_bits=28, man_bits=2)
+    a = float_array.from_float([2**2047], exp_bits=28, man_bits=2)
     assert a.is_identical(
-        APyFloatArray([0], [(2047 + (2**27) - 1)], [0], exp_bits=28, man_bits=2)
+        float_array([0], [(2047 + (2**27) - 1)], [0], exp_bits=28, man_bits=2)
     )
 
     # From APyFixed
-    assert APyFloatArray.from_float(
+    assert float_array.from_float(
         [APyFixed(0, bits=3, int_bits=2)], 5, 2, 8
-    ).is_identical(APyFloatArray([0], [0], [0], 5, 2, 8))  # 0
+    ).is_identical(float_array([0], [0], [0], 5, 2, 8))  # 0
 
-    assert APyFloatArray.from_float(
-        [APyFixed(3, bits=3, int_bits=2)], 5, 2
-    ).is_identical(APyFloatArray([0], [15], [2], 5, 2))  # 1.5
+    assert float_array.from_float([APyFixed(3, bits=3, int_bits=2)], 5, 2).is_identical(
+        float_array([0], [15], [2], 5, 2)
+    )  # 1.5
 
-    assert APyFloatArray.from_float(
+    assert float_array.from_float(
         [APyFixed(13, bits=4, int_bits=3)], 5, 2
-    ).is_identical(APyFloatArray([1], [15], [2], 5, 2))  # -1.5
+    ).is_identical(float_array([1], [15], [2], 5, 2))  # -1.5
 
-    assert APyFloatArray.from_float(
+    assert float_array.from_float(
         [APyFixed(3, bits=3, int_bits=-1)], 7, 3
-    ).is_identical(APyFloatArray([0], [60], [4], 7, 3))  # 0.1875
+    ).is_identical(float_array([0], [60], [4], 7, 3))  # 0.1875
 
-    assert APyFloatArray.from_float(
+    assert float_array.from_float(
         [APyFixed(1, bits=5, int_bits=40)], 5, 2
-    ).is_identical(APyFloatArray([0], [31], [0], 5, 2))  # Saturate to infinity
+    ).is_identical(float_array([0], [31], [0], 5, 2))  # Saturate to infinity
 
-    assert APyFloatArray.from_float(
+    assert float_array.from_float(
         [APyFixed(1, bits=12, int_bits=2)], 4, 3
-    ).is_identical(APyFloatArray([0], [0], [0], 4, 3))  # Quantize to zero
+    ).is_identical(float_array([0], [0], [0], 4, 3))  # Quantize to zero
 
-    assert APyFloatArray.from_float(
+    assert float_array.from_float(
         [APyFixed(1, bits=10, int_bits=2)], 4, 3
-    ).is_identical(APyFloatArray([0], [0], [2], 4, 3))  # Subnormal
+    ).is_identical(float_array([0], [0], [2], 4, 3))  # Subnormal
 
-    assert APyFloatArray.from_float(
+    assert float_array.from_float(
         [APyFixed(1, int_bits=1, frac_bits=1076)], 11, 54
-    ).is_identical(APyFloatArray([0], [0], [1], 11, 54))  # Smallest subnormal
+    ).is_identical(float_array([0], [0], [1], 11, 54))  # Smallest subnormal
 
-    assert APyFloatArray.from_float(
+    assert float_array.from_float(
         [APyFixed(1, bits=2, int_bits=-1072)], 11, 52
-    ).is_identical(APyFloatArray([0], [0], [1], 11, 52))  # Smallest subnormal
+    ).is_identical(float_array([0], [0], [1], 11, 52))  # Smallest subnormal
 
     # From APyFloat
 
     # -0 to -0
-    assert APyFloatArray.from_float([APyFloat(1, 0, 0, 5, 7)], 10, 24, 8).is_identical(
-        APyFloatArray([1], [0], [0], 10, 24, 8)
+    assert float_array.from_float([APyFloat(1, 0, 0, 5, 7)], 10, 24, 8).is_identical(
+        float_array([1], [0], [0], 10, 24, 8)
     )
 
     # Cast -inf to -inf
-    assert APyFloatArray.from_float([APyFloat(1, 31, 0, 5, 7)], 11, 34).is_identical(
-        APyFloatArray([1], [2047], [0], 11, 34)
+    assert float_array.from_float([APyFloat(1, 31, 0, 5, 7)], 11, 34).is_identical(
+        float_array([1], [2047], [0], 11, 34)
     )
 
     # Cast from big number becomes infinity
-    assert APyFloatArray.from_float([APyFloat(1, 30, 4, 5, 3)], 4, 3).is_identical(
-        APyFloatArray([1], [15], [0], 4, 3)
+    assert float_array.from_float([APyFloat(1, 30, 4, 5, 3)], 4, 3).is_identical(
+        float_array([1], [15], [0], 4, 3)
     )
 
     # Cast where result becomes subnormal
-    assert APyFloatArray.from_float([APyFloat(0, 8, 0, 5, 2)], 4, 3).is_identical(
-        APyFloatArray([0], [0], [4], 4, 3)
+    assert float_array.from_float([APyFloat(0, 8, 0, 5, 2)], 4, 3).is_identical(
+        float_array([0], [0], [4], 4, 3)
     )
 
 
-def test_array_cast_raises():
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_array_cast_raises(float_array: type[APyCFloatArray]):
     # Too many exponent bits
     with pytest.raises(
         ValueError,
-        match=r"APyFloatArray\.cast: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyC?FloatArray\.cast: "
+        + r"exponent bits must be a non-negative integer less or equal to .. but 300 "
+        + r"was given",
     ):
-        APyFloatArray([0], [0], [0], 5, 5).cast(300, 5)
+        _ = float_array([0], [0], [0], 5, 5).cast(300, 5)
+
     with pytest.raises(
         ValueError,
-        match=r"APyFloatArray\.cast: exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyC?FloatArray\.cast: "
+        + r"exponent bits must be a non-negative integer less or equal to .. but -300 "
+        + r"was given",
     ):
-        APyFloatArray([0], [0], [0], 5, 5).cast(-300, 5)
-    # Too many mantissa bits
+        _ = float_array([0], [0], [0], 5, 5).cast(-300, 5)
+
     with pytest.raises(
         ValueError,
-        match=r"APyFloatArray\.cast: mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyC?FloatArray\.cast: "
+        + r"mantissa bits must be a non-negative integer less or equal to .. but 300 "
+        + r"was given",
     ):
-        APyFloatArray([0], [0], [0], 5, 5).cast(5, 300)
+        _ = float_array([0], [0], [0], 5, 5).cast(5, 300)
+
     with pytest.raises(
         ValueError,
-        match=r"APyFloatArray\.cast: mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyC?FloatArray\.cast: "
+        + r"mantissa bits must be a non-negative integer less or equal to .. but -300 "
+        + r"was given",
     ):
-        APyFloatArray([0], [0], [0], 5, 5).cast(5, -300)
+        _ = float_array([0], [0], [0], 5, 5).cast(5, -300)
 
 
-def test_array_from_array_raises():
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_array_from_array_raises(float_array: type[APyCFloatArray]):
     # Skip this test if `NumPy` is not present on the machine
     np = pytest.importorskip("numpy")
 
     # Too many exponent bits
     with pytest.raises(
         ValueError,
-        match=r"APyFloatArray\.cast: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyC?FloatArray\.cast: "
+        + r"exponent bits must be a non-negative integer less or equal to .. but 300 "
+        + r"was given",
     ):
-        _ = APyFloatArray.from_array(np.array([[1, 2, 3, 4]]), 5, 5).cast(300, 5)
+        _ = float_array.from_array(np.array([[1, 2, 3, 4]]), 5, 5).cast(300, 5)
+
     with pytest.raises(
         ValueError,
-        match=r"APyFloatArray\.cast: exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyC?FloatArray\.cast: "
+        + r"exponent bits must be a non-negative integer less or equal to .. but -300 "
+        + r"was given",
     ):
-        _ = APyFloatArray.from_array(np.array([[1, 2, 3, 4]]), 5, 5).cast(-300, 5)
+        _ = float_array.from_array(np.array([[1, 2, 3, 4]]), 5, 5).cast(-300, 5)
+
     # Too many mantissa bits
     with pytest.raises(
         ValueError,
-        match=r"APyFloatArray\.cast: mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyC?FloatArray\.cast: "
+        + r"mantissa bits must be a non-negative integer less or equal to .. but 300 "
+        + r"was given",
     ):
-        _ = APyFloatArray.from_array(np.array([[1, 2, 3, 4]]), 5, 5).cast(5, 300)
+        _ = float_array.from_array(np.array([[1, 2, 3, 4]]), 5, 5).cast(5, 300)
+
     with pytest.raises(
         ValueError,
-        match=r"APyFloatArray\.cast: mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyC?FloatArray\.cast: "
+        + r"mantissa bits must be a non-negative integer less or equal to .. but -300 "
+        + r"was given",
     ):
-        _ = APyFloatArray.from_array(np.array([[1, 2, 3, 4]]), 5, 5).cast(5, -300)
+        _ = float_array.from_array(np.array([[1, 2, 3, 4]]), 5, 5).cast(5, -300)
 
 
 @pytest.mark.float_array
@@ -311,20 +375,21 @@ def test_from_bits_numpy():
 
 
 @pytest.mark.float_array
-def test_to_numpy():
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_to_numpy(float_array: type[APyCFloatArray]):
     # Skip this test if `NumPy` is not present on the machine
     np = pytest.importorskip("numpy")
 
-    assert np.array_equal(APyFloatArray([], [], [], 5, 5).to_numpy(), np.array([]))
+    assert np.array_equal(float_array([], [], [], 5, 5).to_numpy(), np.array([]))
     assert np.array_equal(
-        APyFloatArray([0], [15], [1], 5, 2).to_numpy(), np.array([1.25])
+        float_array([0], [15], [1], 5, 2).to_numpy(), np.array([1.25])
     )
 
     float_seq = [
         [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
         [[7.0, 8.0, 9.0], [10.0, 11.0, 12.0]],
     ]
-    fp_arr = APyFloatArray.from_float(float_seq, 10, 10)
+    fp_arr = float_array.from_float(float_seq, 10, 10)
     assert fp_arr.to_numpy().shape == (2, 2, 3)
     assert np.array_equal(fp_arr.to_numpy(), np.array(float_seq))
 
@@ -338,35 +403,37 @@ def test_iterator():
 
 
 @pytest.mark.float_array
-def test_len():
-    fp_array = APyFloatArray.from_float([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_len(float_array: type[APyCFloatArray]):
+    fp_array = float_array.from_float([1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10)
     assert len(fp_array) == 6
 
 
 @pytest.mark.float_array
-def test_cast():
-    fp_array = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=10, man_bits=15)
-    answer = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=5, man_bits=2)
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_cast(float_array: type[APyCFloatArray]):
+    fp_array = float_array.from_float([[5, 4], [1, -7]], exp_bits=10, man_bits=15)
+    answer = float_array.from_float([[5, 4], [1, -7]], exp_bits=5, man_bits=2)
     assert fp_array.cast(5, 2).is_identical(answer)
 
-    fp_array = APyFloatArray.from_float(
+    fp_array = float_array.from_float(
         [[1000, -1000], [1.015625, float("nan")]], exp_bits=10, man_bits=15
     )
-    answer = APyFloatArray.from_float(
+    answer = float_array.from_float(
         [[float("inf"), float("-inf")], [1, float("nan")]], exp_bits=4, man_bits=3
     )
     assert fp_array.cast(4, 3).is_identical(answer)
 
-    fp_array = APyFloatArray.from_float([1.125, -1.875], exp_bits=10, man_bits=15)
-    answer = APyFloatArray.from_float([1, -1.75], exp_bits=5, man_bits=2)
+    fp_array = float_array.from_float([1.125, -1.875], exp_bits=10, man_bits=15)
+    answer = float_array.from_float([1, -1.75], exp_bits=5, man_bits=2)
     assert fp_array.cast(5, 2, quantization=QuantizationMode.TO_ZERO).is_identical(
         answer
     )
 
-    fp_array = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=10, man_bits=15)
-    answer = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=4, man_bits=15)
+    fp_array = float_array.from_float([[5, 4], [1, -7]], exp_bits=10, man_bits=15)
+    answer = float_array.from_float([[5, 4], [1, -7]], exp_bits=4, man_bits=15)
     assert fp_array.cast(4).is_identical(answer)
-    answer = APyFloatArray.from_float([[5, 4], [1, -7]], exp_bits=10, man_bits=5)
+    answer = float_array.from_float([[5, 4], [1, -7]], exp_bits=10, man_bits=5)
     assert fp_array.cast(man_bits=5).is_identical(answer)
 
 
@@ -392,10 +459,20 @@ def test_cast():
         QuantizationMode.TO_POS,
     ],
 )
-def test_cast_array_parametrized(exp_bits, man_bits, quantization):
+@pytest.mark.parametrize(
+    ("float_array", "float_scalar"),
+    [(APyFloatArray, APyFloat), (APyCFloatArray, APyCFloat)],
+)
+def test_cast_array_parametrized(
+    exp_bits: int,
+    man_bits: int,
+    quantization: QuantizationMode,
+    float_array: type[APyCFloatArray],
+    float_scalar: type[APyCFloat],
+):
     vals = [0, float("inf"), float("nan"), 1e-2, 1, 100, -1e-2, -1, -100]
-    fpvals = [fp(v, exp_bits, man_bits) for v in vals]
-    fparray = fp(vals, exp_bits, man_bits)
+    fpvals = [float_scalar.from_float(v, exp_bits, man_bits) for v in vals]
+    fparray = float_array.from_float(vals, exp_bits, man_bits)
 
     # Check that starting values are the same
     for i, v in enumerate(fpvals):
@@ -453,105 +530,107 @@ def test_round_trip_conversion():
             assert (APyFloatArray.from_float(a.to_numpy(), 4, 4)).is_identical(a)
 
 
-def test_squeeze():
-    a = APyFloatArray.from_float([[1], [2], [3]], exp_bits=10, man_bits=10)
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_squeeze(float_array: type[APyCFloatArray]):
+    a = float_array.from_float([[1], [2], [3]], exp_bits=10, man_bits=10)
     b = a.squeeze()
-    assert (b).is_identical(
-        APyFloatArray.from_float([1, 2, 3], exp_bits=10, man_bits=10)
-    )
-    c = APyFloatArray.from_float(
+    assert (b).is_identical(float_array.from_float([1, 2, 3], exp_bits=10, man_bits=10))
+    c = float_array.from_float(
         [[[1, 2], [3, 4], [5, 6], [7, 8]]], exp_bits=10, man_bits=10
     )
     d = c.squeeze()
     assert (d).is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[1, 2], [3, 4], [5, 6], [7, 8]], exp_bits=10, man_bits=10
         )
     )
-    e = APyFloatArray.from_float([1, 2, 3], exp_bits=10, man_bits=10)
+    e = float_array.from_float([1, 2, 3], exp_bits=10, man_bits=10)
     f = e.squeeze()
     assert f.is_identical(e)
-    g = APyFloatArray.from_float([[[[[[[[2]]]]]]]], exp_bits=10, man_bits=10)
+    g = float_array.from_float([[[[[[[[2]]]]]]]], exp_bits=10, man_bits=10)
     h = g.squeeze()
-    assert h.is_identical(APyFloatArray.from_float([2], exp_bits=10, man_bits=10))
-    i = APyFloatArray.from_float([], exp_bits=10, man_bits=10)
-    j = APyFloatArray.from_float([[]], exp_bits=10, man_bits=10)
+    assert h.is_identical(float_array.from_float([2], exp_bits=10, man_bits=10))
+    i = float_array.from_float([], exp_bits=10, man_bits=10)
+    j = float_array.from_float([[]], exp_bits=10, man_bits=10)
     k = i.squeeze()
     z = j.squeeze()
     assert k.is_identical(i)
     assert z.is_identical(i)
-    m = APyFloatArray.from_float([[1], [2], [3]], exp_bits=10, man_bits=10)
-    with pytest.raises(ValueError, match="APyFloatArray.squeeze: cannot squeeze"):
+    m = float_array.from_float([[1], [2], [3]], exp_bits=10, man_bits=10)
+    with pytest.raises(ValueError, match=r"APyC?FloatArray.squeeze: cannot squeeze"):
         _ = m.squeeze(axis=0)
     m1 = m.squeeze(axis=1)
-    assert m1.is_identical(
-        APyFloatArray.from_float([1, 2, 3], exp_bits=10, man_bits=10)
-    )
+    assert m1.is_identical(float_array.from_float([1, 2, 3], exp_bits=10, man_bits=10))
     with pytest.raises(IndexError):
         _ = m.squeeze(axis=2)
 
-    n = APyFloatArray.from_float([[[[[[[[2]]]]]]]], exp_bits=10, man_bits=10)
+    n = float_array.from_float([[[[[[[[2]]]]]]]], exp_bits=10, man_bits=10)
     o = n.squeeze((0, 1, 2, 3))
-    assert o.is_identical(APyFloatArray.from_float([[[[2]]]], exp_bits=10, man_bits=10))
+    assert o.is_identical(float_array.from_float([[[[2]]]], exp_bits=10, man_bits=10))
     p = n.squeeze((0, 1, 3))
-    assert p.is_identical(
-        APyFloatArray.from_float([[[[[2]]]]], exp_bits=10, man_bits=10)
-    )
-    q = APyFloatArray.from_float([[[1]], [[2]], [[3]], [[4]]], exp_bits=10, man_bits=10)
-    with pytest.raises(ValueError, match="APyFloatArray.squeeze: cannot squeeze"):
+    assert p.is_identical(float_array.from_float([[[[[2]]]]], exp_bits=10, man_bits=10))
+    q = float_array.from_float([[[1]], [[2]], [[3]], [[4]]], exp_bits=10, man_bits=10)
+    with pytest.raises(ValueError, match="APyC?FloatArray.squeeze: cannot squeeze"):
         _ = q.squeeze((0, 1, 2))
     with pytest.raises(IndexError):
         _ = m.squeeze((1, 4))
 
 
-def test_sum():
-    a = APyFloatArray.from_float(
+@pytest.mark.parametrize(
+    ("float_array", "float_scalar"),
+    [(APyFloatArray, APyFloat), (APyCFloatArray, APyCFloat)],
+)
+def test_sum(
+    float_array: type[APyCFloatArray],
+    float_scalar: type[APyCFloat],
+):
+    a = float_array.from_float(
         [[1, 2], [3, 4], [5, 6], [7, 8]], exp_bits=10, man_bits=10
     )
     b = a.sum()
-    assert b.is_identical(APyFloat.from_float(36, exp_bits=10, man_bits=10))
-    c = APyFloatArray.from_float([[0, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
+    assert b.is_identical(float_scalar.from_float(36, exp_bits=10, man_bits=10))
+    c = float_array.from_float([[0, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
     d = c.sum((0, 1))
     e = c.sum(0)
     f = c.sum(1)
-    assert d.is_identical(APyFloat.from_float(15, exp_bits=10, man_bits=10))
-    assert e.is_identical(APyFloatArray.from_float([3, 5, 7], exp_bits=10, man_bits=10))
-    assert f.is_identical(APyFloatArray.from_float([3, 12], exp_bits=10, man_bits=10))
+    assert d.is_identical(float_scalar.from_float(15, exp_bits=10, man_bits=10))
+    assert e.is_identical(float_array.from_float([3, 5, 7], exp_bits=10, man_bits=10))
+    assert f.is_identical(float_array.from_float([3, 12], exp_bits=10, man_bits=10))
 
-    g = APyFloatArray.from_float([[0, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
+    g = float_array.from_float([[0, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
     h = g.sum(0)
-    assert h.is_identical(APyFloatArray.from_float([3, 5, 7], exp_bits=10, man_bits=10))
-    j = APyFloatArray.from_float([[0, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
+    assert h.is_identical(float_array.from_float([3, 5, 7], exp_bits=10, man_bits=10))
+    j = float_array.from_float([[0, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
     k = j.sum(0)
-    assert k.is_identical(APyFloatArray.from_float([3, 5, 7], exp_bits=10, man_bits=10))
+    assert k.is_identical(float_array.from_float([3, 5, 7], exp_bits=10, man_bits=10))
 
     # test some float and negative summation
-    j = APyFloatArray.from_float([0.25, 1.375, 3.25], exp_bits=10, man_bits=10)
+    j = float_array.from_float([0.25, 1.375, 3.25], exp_bits=10, man_bits=10)
     k = j.sum()
-    assert k.is_identical(APyFloat.from_float(4.875, exp_bits=10, man_bits=10))
-    m = APyFloatArray.from_float([0.25, 1.25, 3.25], exp_bits=10, man_bits=10)
+    assert k.is_identical(float_scalar.from_float(4.875, exp_bits=10, man_bits=10))
+    m = float_array.from_float([0.25, 1.25, 3.25], exp_bits=10, man_bits=10)
     n = m.sum()
-    assert n.is_identical(APyFloat.from_float(4.75, exp_bits=10, man_bits=10))
+    assert n.is_identical(float_scalar.from_float(4.75, exp_bits=10, man_bits=10))
 
-    o = APyFloatArray.from_float([[-1, -2], [-3, -4]], exp_bits=10, man_bits=10)
+    o = float_array.from_float([[-1, -2], [-3, -4]], exp_bits=10, man_bits=10)
     p = o.sum(1)
-    assert p.is_identical(APyFloatArray.from_float([-3, -7], exp_bits=10, man_bits=10))
+    assert p.is_identical(float_array.from_float([-3, -7], exp_bits=10, man_bits=10))
 
-    q = APyFloatArray.from_float([[-1, -2], [1, 2]], exp_bits=10, man_bits=10)
+    q = float_array.from_float([[-1, -2], [1, 2]], exp_bits=10, man_bits=10)
     r = q.sum(0)
-    assert r.is_identical(APyFloatArray.from_float([0, 0], exp_bits=10, man_bits=10))
+    assert r.is_identical(float_array.from_float([0, 0], exp_bits=10, man_bits=10))
 
-    m = APyFloatArray.from_float([1, 2, 3], exp_bits=10, man_bits=10)
+    m = float_array.from_float([1, 2, 3], exp_bits=10, man_bits=10)
     with pytest.raises(IndexError):
         _ = m.sum(1)
 
-    n = APyFloatArray.from_float(
+    n = float_array.from_float(
         [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], exp_bits=10, man_bits=10
     )
     o = n.sum((0, 2))
-    assert o.is_identical(APyFloatArray.from_float([14, 22], exp_bits=10, man_bits=10))
+    assert o.is_identical(float_array.from_float([14, 22], exp_bits=10, man_bits=10))
 
-    x = APyFloatArray.from_float(
+    x = float_array.from_float(
         [
             [[[0, 1], [2, 3]], [[4, 5], [6, 7]]],
             [[[8, 9], [10, 11]], [[12, 13], [14, 15]]],
@@ -562,36 +641,39 @@ def test_sum():
     y = x.sum(1)
     z = x.sum(2)
     assert y.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[4, 6], [8, 10]], [[20, 22], [24, 26]]], exp_bits=10, man_bits=10
         )
     )
     assert z.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[2, 4], [10, 12]], [[18, 20], [26, 28]]], exp_bits=10, man_bits=10
         )
     )
     w = x.sum((1, 3))
     assert w.is_identical(
-        APyFloatArray.from_float([[10, 18], [42, 50]], exp_bits=10, man_bits=10)
+        float_array.from_float([[10, 18], [42, 50]], exp_bits=10, man_bits=10)
     )
 
 
-def test_cumsum():
-    a = APyFloatArray.from_float([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_cumsum(
+    float_array: type[APyCFloatArray],
+):
+    a = float_array.from_float([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
     b = a.cumsum()
     assert b.is_identical(
-        APyFloatArray.from_float([1, 3, 6, 10, 15, 21], exp_bits=10, man_bits=10)
+        float_array.from_float([1, 3, 6, 10, 15, 21], exp_bits=10, man_bits=10)
     )
     c = a.cumsum(0)
     assert c.is_identical(
-        APyFloatArray.from_float([[1, 2, 3], [5, 7, 9]], exp_bits=10, man_bits=10)
+        float_array.from_float([[1, 2, 3], [5, 7, 9]], exp_bits=10, man_bits=10)
     )
     d = a.cumsum(1)
     assert d.is_identical(
-        APyFloatArray.from_float([[1, 3, 6], [4, 9, 15]], exp_bits=10, man_bits=10)
+        float_array.from_float([[1, 3, 6], [4, 9, 15]], exp_bits=10, man_bits=10)
     )
-    e = APyFloatArray.from_float(
+    e = float_array.from_float(
         [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], exp_bits=10, man_bits=10
     )
     f = e.cumsum()
@@ -599,41 +681,39 @@ def test_cumsum():
     h = e.cumsum(1)
     i = e.cumsum(2)
     assert f.is_identical(
-        APyFloatArray.from_float(
-            [1, 3, 6, 10, 15, 21, 28, 36], exp_bits=10, man_bits=10
-        )
+        float_array.from_float([1, 3, 6, 10, 15, 21, 28, 36], exp_bits=10, man_bits=10)
     )
     assert g.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[1, 2], [3, 4]], [[6, 8], [10, 12]]], exp_bits=10, man_bits=10
         )
     )
     assert h.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[1, 2], [4, 6]], [[5, 6], [12, 14]]], exp_bits=10, man_bits=10
         )
     )
     assert i.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[1, 3], [3, 7]], [[5, 11], [7, 15]]], exp_bits=10, man_bits=10
         )
     )
     with pytest.raises(IndexError):
         _ = e.cumsum(4)
 
-    k = APyFloatArray.from_float([[0.25, 0.25], [0.25, 0.25]], exp_bits=10, man_bits=10)
+    k = float_array.from_float([[0.25, 0.25], [0.25, 0.25]], exp_bits=10, man_bits=10)
     m = k.cumsum()
     assert m.is_identical(
-        APyFloatArray.from_float([0.25, 0.5, 0.75, 1], exp_bits=10, man_bits=10)
+        float_array.from_float([0.25, 0.5, 0.75, 1], exp_bits=10, man_bits=10)
     )
 
-    o = APyFloatArray.from_float([[-1, 2], [-3, 4]], exp_bits=10, man_bits=10)
+    o = float_array.from_float([[-1, 2], [-3, 4]], exp_bits=10, man_bits=10)
     p = o.cumsum()
     assert p.is_identical(
-        APyFloatArray.from_float([-1, 1, -2, 2], exp_bits=10, man_bits=10)
+        float_array.from_float([-1, 1, -2, 2], exp_bits=10, man_bits=10)
     )
 
-    x = APyFloatArray.from_float(
+    x = float_array.from_float(
         [
             [[[0, 1], [2, 3]], [[4, 5], [6, 7]]],
             [[[8, 9], [10, 11]], [[12, 13], [14, 15]]],
@@ -644,7 +724,7 @@ def test_cumsum():
     y = x.cumsum(1)
     z = x.cumsum(2)
     assert y.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [
                 [[[0, 1], [2, 3]], [[4, 6], [8, 10]]],
                 [[[8, 9], [10, 11]], [[20, 22], [24, 26]]],
@@ -654,7 +734,7 @@ def test_cumsum():
         )
     )
     assert z.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [
                 [[[0, 1], [2, 4]], [[4, 5], [10, 12]]],
                 [[[8, 9], [18, 20]], [[12, 13], [26, 28]]],
@@ -665,57 +745,62 @@ def test_cumsum():
     )
 
 
-def test_nansum():
+@pytest.mark.parametrize(
+    ("float_array", "float_scalar"),
+    [(APyFloatArray, APyFloat), (APyCFloatArray, APyCFloat)],
+)
+def test_nansum(
+    float_array: type[APyCFloatArray],
+    float_scalar: type[APyCFloat],
+):
     nan = float("nan")
-    a = APyFloatArray.from_float(
+    a = float_array.from_float(
         [[nan, 2], [3, 4], [5, 6], [7, 8]], exp_bits=10, man_bits=10
     )
     b = a.nansum()
-    assert b.is_identical(APyFloat.from_float(35, exp_bits=10, man_bits=10))
-    c = APyFloatArray.from_float([[0, 1, nan], [3, 4, 5]], exp_bits=10, man_bits=10)
+    assert b.is_identical(float_scalar.from_float(35, exp_bits=10, man_bits=10))
+    c = float_array.from_float([[0, 1, nan], [3, 4, 5]], exp_bits=10, man_bits=10)
     d = c.nansum((0, 1))
     e = c.nansum(0)
     f = c.nansum(1)
-    assert d.is_identical(APyFloat.from_float(13, exp_bits=10, man_bits=10))
-    assert e.is_identical(APyFloatArray.from_float([3, 5, 5], exp_bits=10, man_bits=10))
-    assert f.is_identical(APyFloatArray.from_float([1, 12], exp_bits=10, man_bits=10))
+    assert d.is_identical(float_scalar.from_float(13, exp_bits=10, man_bits=10))
+    assert e.is_identical(float_array.from_float([3, 5, 5], exp_bits=10, man_bits=10))
+    assert f.is_identical(float_array.from_float([1, 12], exp_bits=10, man_bits=10))
 
-    g = APyFloatArray.from_float([[0, 1, 2], [nan, 4, 5]], exp_bits=10, man_bits=10)
+    g = float_array.from_float([[0, 1, 2], [nan, 4, 5]], exp_bits=10, man_bits=10)
     h = g.nansum(0)
-    assert h.is_identical(APyFloatArray.from_float([0, 5, 7], exp_bits=10, man_bits=10))
-    j = APyFloatArray.from_float([[0, 1, 2], [nan, nan, nan]], exp_bits=10, man_bits=10)
+    assert h.is_identical(float_array.from_float([0, 5, 7], exp_bits=10, man_bits=10))
+    j = float_array.from_float([[0, 1, 2], [nan, nan, nan]], exp_bits=10, man_bits=10)
     k = j.nansum(0)
-    assert k.is_identical(APyFloatArray.from_float([0, 1, 2], exp_bits=10, man_bits=10))
+    assert k.is_identical(float_array.from_float([0, 1, 2], exp_bits=10, man_bits=10))
 
     # test some float and negative summation
-    j = APyFloatArray.from_float([0.2, 1.4, 3.3], exp_bits=10, man_bits=10)
+    j = float_array.from_float([0.2, 1.4, 3.3], exp_bits=10, man_bits=10)
     k = j.nansum()
-    assert k.is_identical(APyFloat.from_float(4.904, exp_bits=10, man_bits=10))
-    m = APyFloatArray.from_float(
-        [0.333333, 1.333333, 3.33333], exp_bits=10, man_bits=10
-    )
+    assert k.is_identical(float_scalar.from_float(4.904, exp_bits=10, man_bits=10))
+    m = float_array.from_float([0.333333, 1.333333, 3.33333], exp_bits=10, man_bits=10)
     n = m.nansum()
-    assert n.is_identical(APyFloat.from_float(5, exp_bits=10, man_bits=10))
+    assert n.is_identical(float_scalar.from_float(5, exp_bits=10, man_bits=10))
 
-    o = APyFloatArray.from_float([[-1, -2], [-3, nan]], exp_bits=10, man_bits=10)
+    o = float_array.from_float([[-1, -2], [-3, nan]], exp_bits=10, man_bits=10)
     p = o.nansum(1)
-    assert p.is_identical(APyFloatArray.from_float([-3, -3], exp_bits=10, man_bits=10))
+    assert p.is_identical(float_array.from_float([-3, -3], exp_bits=10, man_bits=10))
 
-    q = APyFloatArray.from_float([[-1, -2], [1, nan]], exp_bits=10, man_bits=10)
+    q = float_array.from_float([[-1, -2], [1, nan]], exp_bits=10, man_bits=10)
     r = q.nansum(0)
-    assert r.is_identical(APyFloatArray.from_float([0, -2], exp_bits=10, man_bits=10))
+    assert r.is_identical(float_array.from_float([0, -2], exp_bits=10, man_bits=10))
 
-    m = APyFloatArray.from_float([1, 2, 3], exp_bits=10, man_bits=10)
+    m = float_array.from_float([1, 2, 3], exp_bits=10, man_bits=10)
     with pytest.raises(IndexError):
         _ = m.nansum(1)
 
-    n = APyFloatArray.from_float(
+    n = float_array.from_float(
         [[[1, 2], [3, nan]], [[5, 6], [7, 8]]], exp_bits=10, man_bits=10
     )
     o = n.nansum((0, 2))
-    assert o.is_identical(APyFloatArray.from_float([14, 18], exp_bits=10, man_bits=10))
+    assert o.is_identical(float_array.from_float([14, 18], exp_bits=10, man_bits=10))
 
-    x = APyFloatArray.from_float(
+    x = float_array.from_float(
         [
             [[[nan, 1], [2, 3]], [[4, 5], [6, 7]]],
             [[[8, 9], [10, 11]], [[12, 13], [14, 15]]],
@@ -726,37 +811,40 @@ def test_nansum():
     y = x.nansum(1)
     z = x.nansum(2)
     assert y.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[4, 6], [8, 10]], [[20, 22], [24, 26]]], exp_bits=10, man_bits=10
         )
     )
     assert z.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[2, 4], [10, 12]], [[18, 20], [26, 28]]], exp_bits=10, man_bits=10
         )
     )
     w = x.nansum((1, 3))
     assert w.is_identical(
-        APyFloatArray.from_float([[10, 18], [42, 50]], exp_bits=10, man_bits=10)
+        float_array.from_float([[10, 18], [42, 50]], exp_bits=10, man_bits=10)
     )
 
 
-def test_nancumsum():
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_nancumsum(
+    float_array: type[APyCFloatArray],
+):
     nan = float("nan")
-    a = APyFloatArray.from_float([[1, 2, 3], [4, 5, nan]], exp_bits=10, man_bits=10)
+    a = float_array.from_float([[1, 2, 3], [4, 5, nan]], exp_bits=10, man_bits=10)
     b = a.nancumsum()
     assert b.is_identical(
-        APyFloatArray.from_float([1, 3, 6, 10, 15, 15], exp_bits=10, man_bits=10)
+        float_array.from_float([1, 3, 6, 10, 15, 15], exp_bits=10, man_bits=10)
     )
     c = a.nancumsum(0)
     assert c.is_identical(
-        APyFloatArray.from_float([[1, 2, 3], [5, 7, 3]], exp_bits=10, man_bits=10)
+        float_array.from_float([[1, 2, 3], [5, 7, 3]], exp_bits=10, man_bits=10)
     )
     d = a.nancumsum(1)
     assert d.is_identical(
-        APyFloatArray.from_float([[1, 3, 6], [4, 9, 9]], exp_bits=10, man_bits=10)
+        float_array.from_float([[1, 3, 6], [4, 9, 9]], exp_bits=10, man_bits=10)
     )
-    e = APyFloatArray.from_float(
+    e = float_array.from_float(
         [[[1, 2], [3, 4]], [[nan, nan], [7, 8]]], exp_bits=10, man_bits=10
     )
     f = e.nancumsum()
@@ -764,41 +852,39 @@ def test_nancumsum():
     h = e.nancumsum(1)
     i = e.nancumsum(2)
     assert f.is_identical(
-        APyFloatArray.from_float(
-            [1, 3, 6, 10, 10, 10, 17, 25], exp_bits=10, man_bits=10
-        )
+        float_array.from_float([1, 3, 6, 10, 10, 10, 17, 25], exp_bits=10, man_bits=10)
     )
     assert g.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[1, 2], [3, 4]], [[1, 2], [10, 12]]], exp_bits=10, man_bits=10
         )
     )
     assert h.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[1, 2], [4, 6]], [[0, 0], [7, 8]]], exp_bits=10, man_bits=10
         )
     )
     assert i.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[1, 3], [3, 7]], [[0, 0], [7, 15]]], exp_bits=10, man_bits=10
         )
     )
     with pytest.raises(IndexError):
         _ = e.nancumsum(4)
 
-    k = APyFloatArray.from_float([[0.25, 0.25], [0.25, nan]], exp_bits=10, man_bits=10)
+    k = float_array.from_float([[0.25, 0.25], [0.25, nan]], exp_bits=10, man_bits=10)
     m = k.nancumsum()
     assert m.is_identical(
-        APyFloatArray.from_float([0.25, 0.5, 0.75, 0.75], exp_bits=10, man_bits=10)
+        float_array.from_float([0.25, 0.5, 0.75, 0.75], exp_bits=10, man_bits=10)
     )
 
-    o = APyFloatArray.from_float([[-1, 2], [nan, 4]], exp_bits=10, man_bits=10)
+    o = float_array.from_float([[-1, 2], [nan, 4]], exp_bits=10, man_bits=10)
     p = o.nancumsum()
     assert p.is_identical(
-        APyFloatArray.from_float([-1, 1, 1, 5], exp_bits=10, man_bits=10)
+        float_array.from_float([-1, 1, 1, 5], exp_bits=10, man_bits=10)
     )
 
-    x = APyFloatArray.from_float(
+    x = float_array.from_float(
         [
             [[[nan, 1], [2, 3]], [[4, 5], [6, 7]]],
             [[[8, 9], [10, 11]], [[12, 13], [14, 15]]],
@@ -809,7 +895,7 @@ def test_nancumsum():
     y = x.nancumsum(1)
     z = x.nancumsum(2)
     assert y.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [
                 [[[0, 1], [2, 3]], [[4, 6], [8, 10]]],
                 [[[8, 9], [10, 11]], [[20, 22], [24, 26]]],
@@ -819,7 +905,7 @@ def test_nancumsum():
         )
     )
     assert z.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [
                 [[[0, 1], [2, 4]], [[4, 5], [10, 12]]],
                 [[[8, 9], [18, 20]], [[12, 13], [26, 28]]],
@@ -830,60 +916,63 @@ def test_nancumsum():
     )
 
 
-def test_prod():
-    a = APyFloatArray.from_float(
+@pytest.mark.parametrize(
+    ("float_array", "float_scalar"),
+    [(APyFloatArray, APyFloat), (APyCFloatArray, APyCFloat)],
+)
+def test_prod(
+    float_array: type[APyCFloatArray],
+    float_scalar: type[APyCFloat],
+):
+    a = float_array.from_float(
         [[1, 2], [3, 4], [5, 6], [7, 8]], exp_bits=10, man_bits=10
     )
     b = a.prod()
-    assert b.is_identical(APyFloat.from_float(40320, exp_bits=10, man_bits=10))
-    c = APyFloatArray.from_float([[0, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
+    assert b.is_identical(float_scalar.from_float(40320, exp_bits=10, man_bits=10))
+    c = float_array.from_float([[0, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
     d = c.prod((0, 1))
     e = c.prod(0)
     f = c.prod(1)
-    assert d.is_identical(APyFloat.from_float(0, exp_bits=10, man_bits=10))
-    assert e.is_identical(
-        APyFloatArray.from_float([0, 4, 10], exp_bits=10, man_bits=10)
-    )
-    assert f.is_identical(APyFloatArray.from_float([0, 60], exp_bits=10, man_bits=10))
-    g = APyFloatArray.from_float([[0, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
+    assert d.is_identical(float_scalar.from_float(0, exp_bits=10, man_bits=10))
+    assert e.is_identical(float_array.from_float([0, 4, 10], exp_bits=10, man_bits=10))
+    assert f.is_identical(float_array.from_float([0, 60], exp_bits=10, man_bits=10))
+    g = float_array.from_float([[0, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
     h = g.prod(0)
-    assert h.is_identical(
-        APyFloatArray.from_float([0, 4, 10], exp_bits=10, man_bits=10)
-    )
-    j = APyFloatArray.from_float([[0, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
+    assert h.is_identical(float_array.from_float([0, 4, 10], exp_bits=10, man_bits=10))
+    j = float_array.from_float([[0, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
     k = j.prod(0)
-    assert k.is_identical(
-        APyFloatArray.from_float([0, 4, 10], exp_bits=10, man_bits=10)
-    )
+    assert k.is_identical(float_array.from_float([0, 4, 10], exp_bits=10, man_bits=10))
 
     # test some float and negative multiplication
-    j = APyFloatArray.from_float([0.25, 8], exp_bits=10, man_bits=10)
+    j = float_array.from_float([0.25, 8], exp_bits=10, man_bits=10)
     k = j.prod()
-    assert k.is_identical(APyFloat.from_float(2, exp_bits=10, man_bits=10))
+    assert k.is_identical(float_scalar.from_float(2, exp_bits=10, man_bits=10))
 
-    o = APyFloatArray.from_float([[-1, -2], [-3, -4]], exp_bits=10, man_bits=10)
+    o = float_array.from_float([[-1, -2], [-3, -4]], exp_bits=10, man_bits=10)
     p = o.prod(1)
-    assert p.is_identical(APyFloatArray.from_float([2, 12], exp_bits=10, man_bits=10))
+    assert p.is_identical(
+        float_array.from_float([2, 12], exp_bits=10, man_bits=10), ignore_zero_sign=True
+    )
 
-    q = APyFloatArray.from_float([[-1, -2], [1, 2]], exp_bits=10, man_bits=10)
+    q = float_array.from_float([[-1, -2], [1, 2]], exp_bits=10, man_bits=10)
     r = q.prod(0)
-    assert r.is_identical(APyFloatArray.from_float([-1, -4], exp_bits=10, man_bits=10))
+    assert r.is_identical(float_array.from_float([-1, -4], exp_bits=10, man_bits=10))
 
-    m = APyFloatArray.from_float([1, 2, 3], exp_bits=10, man_bits=10)
+    m = float_array.from_float([1, 2, 3], exp_bits=10, man_bits=10)
     with pytest.raises(IndexError):
         _ = m.prod(1)
 
-    n = APyFloatArray.from_float([[0.25, 0.5]], exp_bits=10, man_bits=10)
+    n = float_array.from_float([[0.25, 0.5]], exp_bits=10, man_bits=10)
     o = n.prod(1)
-    assert o.is_identical(APyFloatArray.from_float([0.125], exp_bits=10, man_bits=10))
+    assert o.is_identical(float_array.from_float([0.125], exp_bits=10, man_bits=10))
 
-    n = APyFloatArray.from_float(
+    n = float_array.from_float(
         [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], exp_bits=10, man_bits=10
     )
     o = n.prod((0, 2))
-    assert o.is_identical(APyFloatArray.from_float([60, 672], exp_bits=10, man_bits=10))
+    assert o.is_identical(float_array.from_float([60, 672], exp_bits=10, man_bits=10))
 
-    x = APyFloatArray.from_float(
+    x = float_array.from_float(
         [
             [[[0, 1], [2, 3]], [[4, 5], [6, 7]]],
             [[[8, 9], [10, 11]], [[12, 13], [14, 15]]],
@@ -894,36 +983,37 @@ def test_prod():
     y = x.prod(1)
     z = x.prod(2)
     assert y.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[0, 5], [12, 21]], [[96, 117], [140, 165]]], exp_bits=10, man_bits=10
         )
     )
     assert z.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[0, 3], [24, 35]], [[80, 99], [168, 195]]], exp_bits=10, man_bits=10
         )
     )
     w = x.prod((1, 3))
     assert w.is_identical(
-        APyFloatArray.from_float([[0, 252], [11232, 23100]], exp_bits=10, man_bits=10)
+        float_array.from_float([[0, 252], [11232, 23100]], exp_bits=10, man_bits=10)
     )
 
 
-def test_cumprod():
-    a = APyFloatArray.from_float([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_cumprod(float_array: type[APyCFloatArray]):
+    a = float_array.from_float([[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10)
     b = a.cumprod()
     assert b.is_identical(
-        APyFloatArray.from_float([1, 2, 6, 24, 120, 720], exp_bits=10, man_bits=10)
+        float_array.from_float([1, 2, 6, 24, 120, 720], exp_bits=10, man_bits=10)
     )
     c = a.cumprod(0)
     assert c.is_identical(
-        APyFloatArray.from_float([[1, 2, 3], [4, 10, 18]], exp_bits=10, man_bits=10)
+        float_array.from_float([[1, 2, 3], [4, 10, 18]], exp_bits=10, man_bits=10)
     )
     d = a.cumprod(1)
     assert d.is_identical(
-        APyFloatArray.from_float([[1, 2, 6], [4, 20, 120]], exp_bits=10, man_bits=10)
+        float_array.from_float([[1, 2, 6], [4, 20, 120]], exp_bits=10, man_bits=10)
     )
-    e = APyFloatArray.from_float(
+    e = float_array.from_float(
         [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], exp_bits=10, man_bits=10
     )
     f = e.cumprod()
@@ -931,52 +1021,54 @@ def test_cumprod():
     h = e.cumprod(1)
     i = e.cumprod(2)
     assert f.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [1, 2, 6, 24, 120, 720, 5040, 40320], exp_bits=10, man_bits=10
         )
     )
     assert g.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[1, 2], [3, 4]], [[5, 12], [21, 32]]], exp_bits=10, man_bits=10
         )
     )
     assert h.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[1, 2], [3, 8]], [[5, 6], [35, 48]]], exp_bits=10, man_bits=10
         )
     )
     assert i.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[1, 2], [3, 12]], [[5, 30], [7, 56]]], exp_bits=10, man_bits=10
         )
     )
     with pytest.raises(IndexError):
         _ = e.cumprod(4)
 
-    k = APyFloatArray.from_float([[0.25, 0.5], [1, 2]], exp_bits=10, man_bits=10)
+    k = float_array.from_float([[0.25, 0.5], [1, 2]], exp_bits=10, man_bits=10)
     m = k.cumprod()
     assert m.is_identical(
-        APyFloatArray.from_float([0.25, 0.125, 0.125, 0.25], exp_bits=10, man_bits=10)
+        float_array.from_float([0.25, 0.125, 0.125, 0.25], exp_bits=10, man_bits=10)
     )
 
-    g = APyFloatArray.from_float([[0, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
+    g = float_array.from_float([[0, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
     h = g.cumprod(0)
     assert h.is_identical(
-        APyFloatArray.from_float([[0, 1, 2], [0, 4, 10]], exp_bits=10, man_bits=10)
+        float_array.from_float([[0, 1, 2], [0, 4, 10]], exp_bits=10, man_bits=10)
     )
-    j = APyFloatArray.from_float([[1, -1, 2], [-3, 4, -5]], exp_bits=10, man_bits=10)
+    j = float_array.from_float([[1, -1, 2], [-3, 4, -5]], exp_bits=10, man_bits=10)
     k = j.cumprod()
     assert k.is_identical(
-        APyFloatArray.from_float([1, -1, -2, 6, 24, -120], exp_bits=10, man_bits=10)
+        float_array.from_float([1, -1, -2, 6, 24, -120], exp_bits=10, man_bits=10),
+        ignore_zero_sign=True,
     )
 
-    o = APyFloatArray.from_float([[-1, 2], [-3, 4]], exp_bits=10, man_bits=10)
+    o = float_array.from_float([[-1, 2], [-3, 4]], exp_bits=10, man_bits=10)
     p = o.cumprod()
     assert p.is_identical(
-        APyFloatArray.from_float([-1, -2, 6, 24], exp_bits=10, man_bits=10)
+        float_array.from_float([-1, -2, 6, 24], exp_bits=10, man_bits=10),
+        ignore_zero_sign=True,
     )
 
-    x = APyFloatArray.from_float(
+    x = float_array.from_float(
         [
             [[[0, 1], [2, 3]], [[4, 5], [6, 7]]],
             [[[8, 9], [10, 11]], [[12, 13], [14, 15]]],
@@ -987,7 +1079,7 @@ def test_cumprod():
     y = x.cumprod(1)
     z = x.cumprod(2)
     assert y.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [
                 [[[0, 1], [2, 3]], [[0, 5], [12, 21]]],
                 [[[8, 9], [10, 11]], [[96, 117], [140, 165]]],
@@ -997,7 +1089,7 @@ def test_cumprod():
         )
     )
     assert z.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [
                 [[[0, 1], [0, 3]], [[4, 5], [24, 35]]],
                 [[[8, 9], [80, 99]], [[12, 13], [168, 195]]],
@@ -1008,52 +1100,58 @@ def test_cumprod():
     )
 
 
-def test_nanprod():
+@pytest.mark.parametrize(
+    ("float_array", "float_scalar"),
+    [(APyFloatArray, APyFloat), (APyCFloatArray, APyCFloat)],
+)
+def test_nanprod(
+    float_array: type[APyCFloatArray],
+    float_scalar: type[APyCFloat],
+):
     nan = float("nan")
-    a = APyFloatArray.from_float(
+    a = float_array.from_float(
         [[1, 2], [3, 4], [5, 6], [7, nan]], exp_bits=10, man_bits=10
     )
     b = a.nanprod()
-    assert b.is_identical(APyFloat.from_float(5040, exp_bits=10, man_bits=10))
-    c = APyFloatArray.from_float([[0, 1, 2], [3, nan, 5]], exp_bits=10, man_bits=10)
+    assert b.is_identical(float_scalar.from_float(5040, exp_bits=10, man_bits=10))
+    c = float_array.from_float([[0, 1, 2], [3, nan, 5]], exp_bits=10, man_bits=10)
     d = c.nanprod((0, 1))
     e = c.nanprod(0)
     f = c.nanprod(1)
-    assert d.is_identical(APyFloat.from_float(0, exp_bits=10, man_bits=10))
-    assert e.is_identical(
-        APyFloatArray.from_float([0, 1, 10], exp_bits=10, man_bits=10)
-    )
-    assert f.is_identical(APyFloatArray.from_float([0, 15], exp_bits=10, man_bits=10))
-    g = APyFloatArray.from_float([[nan, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
+    assert d.is_identical(float_scalar.from_float(0, exp_bits=10, man_bits=10))
+    assert e.is_identical(float_array.from_float([0, 1, 10], exp_bits=10, man_bits=10))
+    assert f.is_identical(float_array.from_float([0, 15], exp_bits=10, man_bits=10))
+    g = float_array.from_float([[nan, 1, 2], [3, 4, 5]], exp_bits=10, man_bits=10)
     h = g.nanprod(0)
-    assert h.is_identical(
-        APyFloatArray.from_float([3, 4, 10], exp_bits=10, man_bits=10)
-    )
+    assert h.is_identical(float_array.from_float([3, 4, 10], exp_bits=10, man_bits=10))
 
     # test some float and negative multiplication
-    j = APyFloatArray.from_float([0.25, 8, nan], exp_bits=10, man_bits=10)
+    j = float_array.from_float([0.25, 8, nan], exp_bits=10, man_bits=10)
     k = j.nanprod()
-    assert k.is_identical(APyFloat.from_float(2, exp_bits=10, man_bits=10))
+    assert k.is_identical(float_scalar.from_float(2, exp_bits=10, man_bits=10))
 
-    o = APyFloatArray.from_float([[-1, nan], [-3, -4]], exp_bits=10, man_bits=10)
+    o = float_array.from_float([[-1, nan], [-3, -4]], exp_bits=10, man_bits=10)
     p = o.nanprod(1)
-    assert p.is_identical(APyFloatArray.from_float([-1, 12], exp_bits=10, man_bits=10))
+    assert p.is_identical(
+        float_array.from_float([-1, 12], exp_bits=10, man_bits=10),
+        ignore_zero_sign=True,
+    )
 
-    q = APyFloatArray.from_float([[-1, -2], [1, nan]], exp_bits=10, man_bits=10)
+    q = float_array.from_float([[-1, -2], [1, nan]], exp_bits=10, man_bits=10)
     r = q.nanprod(0)
-    assert r.is_identical(APyFloatArray.from_float([-1, -2], exp_bits=10, man_bits=10))
+    assert r.is_identical(float_array.from_float([-1, -2], exp_bits=10, man_bits=10))
 
-    m = APyFloatArray.from_float([1, 2, nan], exp_bits=10, man_bits=10)
+    m = float_array.from_float([1, 2, nan], exp_bits=10, man_bits=10)
     with pytest.raises(IndexError):
         _ = m.nanprod(1)
 
-    n = APyFloatArray.from_float(
+    n = float_array.from_float(
         [[[1, 2], [3, 4]], [[5, nan], [7, 8]]], exp_bits=10, man_bits=10
     )
     o = n.nanprod((0, 2))
-    assert o.is_identical(APyFloatArray.from_float([10, 672], exp_bits=10, man_bits=10))
+    assert o.is_identical(float_array.from_float([10, 672], exp_bits=10, man_bits=10))
 
-    x = APyFloatArray.from_float(
+    x = float_array.from_float(
         [
             [[[0, nan], [2, 3]], [[4, 5], [6, 7]]],
             [[[8, 9], [10, 11]], [[12, 13], [14, 15]]],
@@ -1064,37 +1162,38 @@ def test_nanprod():
     y = x.nanprod(1)
     z = x.nanprod(2)
     assert y.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[0, 5], [12, 21]], [[96, 117], [140, 165]]], exp_bits=10, man_bits=10
         )
     )
     assert z.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[0, 3], [24, 35]], [[80, 99], [168, 195]]], exp_bits=10, man_bits=10
         )
     )
     w = x.nanprod((1, 3))
     assert w.is_identical(
-        APyFloatArray.from_float([[0, 252], [11232, 23100]], exp_bits=10, man_bits=10)
+        float_array.from_float([[0, 252], [11232, 23100]], exp_bits=10, man_bits=10)
     )
 
 
-def test_nancumprod():
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_nancumprod(float_array: type[APyCFloatArray]):
     nan = float("nan")
-    a = APyFloatArray.from_float([[1, 2, 3], [4, 5, nan]], exp_bits=10, man_bits=10)
+    a = float_array.from_float([[1, 2, 3], [4, 5, nan]], exp_bits=10, man_bits=10)
     b = a.nancumprod()
     assert b.is_identical(
-        APyFloatArray.from_float([1, 2, 6, 24, 120, 120], exp_bits=10, man_bits=10)
+        float_array.from_float([1, 2, 6, 24, 120, 120], exp_bits=10, man_bits=10)
     )
     c = a.nancumprod(0)
     assert c.is_identical(
-        APyFloatArray.from_float([[1, 2, 3], [4, 10, 3]], exp_bits=10, man_bits=10)
+        float_array.from_float([[1, 2, 3], [4, 10, 3]], exp_bits=10, man_bits=10)
     )
     d = a.nancumprod(1)
     assert d.is_identical(
-        APyFloatArray.from_float([[1, 2, 6], [4, 20, 20]], exp_bits=10, man_bits=10)
+        float_array.from_float([[1, 2, 6], [4, 20, 20]], exp_bits=10, man_bits=10)
     )
-    e = APyFloatArray.from_float(
+    e = float_array.from_float(
         [[[1, 2], [3, nan]], [[nan, 6], [7, 8]]], exp_bits=10, man_bits=10
     )
     f = e.nancumprod()
@@ -1102,58 +1201,57 @@ def test_nancumprod():
     h = e.nancumprod(1)
     i = e.nancumprod(2)
     assert f.is_identical(
-        APyFloatArray.from_float(
-            [1, 2, 6, 6, 6, 36, 252, 2016], exp_bits=10, man_bits=10
-        )
+        float_array.from_float([1, 2, 6, 6, 6, 36, 252, 2016], exp_bits=10, man_bits=10)
     )
     assert g.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[1, 2], [3, 1]], [[1, 12], [21, 8]]], exp_bits=10, man_bits=10
         )
     )
     assert h.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[1, 2], [3, 2]], [[1, 6], [7, 48]]], exp_bits=10, man_bits=10
         )
     )
     assert i.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [[[1, 2], [3, 3]], [[1, 6], [7, 56]]], exp_bits=10, man_bits=10
         )
     )
     with pytest.raises(IndexError):
         _ = e.nancumprod(4)
 
-    k = APyFloatArray.from_float([[0.25, 0.5], [nan, 2]], exp_bits=10, man_bits=10)
+    k = float_array.from_float([[0.25, 0.5], [nan, 2]], exp_bits=10, man_bits=10)
     m = k.nancumprod()
     assert m.is_identical(
-        APyFloatArray.from_float([0.25, 0.125, 0.125, 0.25], exp_bits=10, man_bits=10)
+        float_array.from_float([0.25, 0.125, 0.125, 0.25], exp_bits=10, man_bits=10)
     )
 
-    g = APyFloatArray.from_float([[0, 1, nan], [3, 4, 5]], exp_bits=10, man_bits=10)
+    g = float_array.from_float([[0, 1, nan], [3, 4, 5]], exp_bits=10, man_bits=10)
     h = g.nancumprod(0)
     assert h.is_identical(
-        APyFloatArray.from_float([[0, 1, 1], [0, 4, 5]], exp_bits=10, man_bits=10)
+        float_array.from_float([[0, 1, 1], [0, 4, 5]], exp_bits=10, man_bits=10)
     )
-    j = APyFloatArray.from_float([[0, nan, 2], [3, nan, 5]], exp_bits=10, man_bits=10)
+    j = float_array.from_float([[0, nan, 2], [3, nan, 5]], exp_bits=10, man_bits=10)
     k = j.nancumprod(0)
     assert k.is_identical(
-        APyFloatArray.from_float([[0, 1, 2], [0, 1, 10]], exp_bits=10, man_bits=10)
+        float_array.from_float([[0, 1, 2], [0, 1, 10]], exp_bits=10, man_bits=10)
     )
 
-    x = APyFloatArray.from_float([[1, -1, nan], [-3, 4, -5]], exp_bits=10, man_bits=10)
+    x = float_array.from_float([[1, -1, nan], [-3, 4, -5]], exp_bits=10, man_bits=10)
     y = x.nancumprod()
     assert y.is_identical(
-        APyFloatArray.from_float([1, -1, -1, 3, 12, -60], exp_bits=10, man_bits=10)
+        float_array.from_float([1, -1, -1, 3, 12, -60], exp_bits=10, man_bits=10),
+        ignore_zero_sign=True,
     )
 
-    o = APyFloatArray.from_float([[-1, 2], [nan, 4]], exp_bits=10, man_bits=10)
+    o = float_array.from_float([[-1, 2], [nan, 4]], exp_bits=10, man_bits=10)
     p = o.nancumprod()
     assert p.is_identical(
-        APyFloatArray.from_float([-1, -2, -2, -8], exp_bits=10, man_bits=10)
+        float_array.from_float([-1, -2, -2, -8], exp_bits=10, man_bits=10)
     )
 
-    x = APyFloatArray.from_float(
+    x = float_array.from_float(
         [
             [[[0, nan], [2, 3]], [[4, 5], [6, 7]]],
             [[[8, 9], [10, 11]], [[12, 13], [14, 15]]],
@@ -1164,7 +1262,7 @@ def test_nancumprod():
     y = x.nancumprod(1)
     z = x.nancumprod(2)
     assert y.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [
                 [[[0, 1], [2, 3]], [[0, 5], [12, 21]]],
                 [[[8, 9], [10, 11]], [[96, 117], [140, 165]]],
@@ -1174,7 +1272,7 @@ def test_nancumprod():
         )
     )
     assert z.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [
                 [[[0, 1], [0, 3]], [[4, 5], [24, 35]]],
                 [[[8, 9], [80, 99]], [[12, 13], [168, 195]]],
@@ -1186,7 +1284,7 @@ def test_nancumprod():
 
 
 @pytest.mark.parametrize("max_func", ["max", "nanmax"])
-def test_max(max_func):
+def test_max(max_func: str):
     a = APyFloatArray.from_float([[0, 1], [2, 3]], exp_bits=10, man_bits=10)
     b = getattr(a, max_func)()
     c = getattr(a, max_func)(0)
@@ -1467,27 +1565,34 @@ def test_convenience_cast():
         ((-999, 12), False, False, True),
     ],
 )
-def test_reshape(shape, is_valid, is_invalid, test_neg_one):
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_reshape(
+    shape: tuple[int, ...],
+    is_valid: bool,
+    is_invalid: bool,
+    test_neg_one: bool,
+    float_array: type[APyCFloatArray],
+):
     signs = [[52, 15, 32], [12, 43, 5]]
     exps = [[5, 10, 6], [15, 20, 3]]
     mans = [[3, 1, 2], [4, 2, 8]]
 
-    arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=8, man_bits=23)
+    arr = float_array(signs, exps, mans, exp_bits=8, man_bits=23)
 
     if is_invalid:
         with pytest.raises(
             ValueError,
-            match=r"APyFloatArray\.reshape: target array number of elements does not",
+            match=r"APyC?FloatArray\.reshape: target array number of elements does not",
         ):
-            arr.reshape(shape)
+            _ = arr.reshape(shape)
     elif test_neg_one:
         with pytest.raises(
             ValueError,
-            match=r"APyFloatArray\.reshape: array dimensions must be greater than|"
-            r"APyFloatArray\.reshape: only one dimension can be -1|"
-            r"APyFloatArray\.reshape: the size of target array must be unchanged and",
+            match=r"APyC?FloatArray\.reshape: array dimensions must be greater than|"
+            + r"APyC?FloatArray\.reshape: only one dimension can be -1|"
+            + r"APyC?FloatArray\.reshape: the size of target array must be unchanged",
         ):
-            arr.reshape(shape)
+            _ = arr.reshape(shape)
     elif is_valid:
         try:
             g = arr.reshape(shape)
@@ -1518,23 +1623,24 @@ def test_reshape(shape, is_valid, is_invalid, test_neg_one):
         (12, -1),
     ],
 )
-def test_reshape_2d(shape):
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_reshape_2d(shape: tuple[int, ...], float_array: type[APyCFloatArray]):
     signs = [1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0]
     exps = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
     mans = [3, 1, 4, 2, 6, 5, 8, 7, 9, 0, 2, 3]
 
     # Creating 1D array to be reshaped
-    arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=5, man_bits=2)
+    arr = float_array(signs, exps, mans, exp_bits=5, man_bits=2)
 
     reshaped_arr = arr.reshape(shape)
     for i, row in enumerate(reshaped_arr):
         for j, float_ in enumerate(row):
             arr_index = i * reshaped_arr.shape[1] + j
-            if not APyFloat.is_identical(arr[arr_index], float_):
+            if not arr[arr_index].is_identical(float_):
                 pytest.fail(f"Mismatch at index {arr_index} during reshape")
 
     go_back = reshaped_arr.reshape(arr.shape)
-    if not APyFloatArray.is_identical(go_back, arr):
+    if not go_back.is_identical(arr):
         pytest.fail(f"Mismatch after reshaping back at index {arr_index}")
 
 
@@ -1565,13 +1671,14 @@ def test_reshape_2d(shape):
         (6, 1, -1),
     ],
 )
-def test_reshape_3d(shape):
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_reshape_3d(shape: tuple[int, ...], float_array: type[APyCFloatArray]):
     signs = [1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0]
     exps = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
     mans = [3, 1, 4, 2, 6, 5, 8, 7, 9, 0, 2, 3]
 
     # Creating 1D array to be reshaped
-    arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=5, man_bits=2)
+    arr = float_array(signs, exps, mans, exp_bits=5, man_bits=2)
 
     reshaped_arr = arr.reshape(shape)
     for i, matrix in enumerate(reshaped_arr):
@@ -1582,11 +1689,11 @@ def test_reshape_3d(shape):
                     + j * reshaped_arr.shape[2]
                     + k
                 )
-                if not APyFloat.is_identical(arr[arr_index], float_):
+                if not arr[arr_index].is_identical(float_):
                     pytest.fail(f"Mismatch at index {arr_index} during reshape")
 
     go_back = reshaped_arr.reshape(arr.shape)
-    if not APyFloatArray.is_identical(go_back, arr):
+    if not go_back.is_identical(arr):
         pytest.fail(f"Mismatch after reshaping back at index {arr_index}")
 
 
@@ -1601,15 +1708,16 @@ def test_reshape_3d(shape):
         (1, 6, 2),
     ],
 )
-def test_flatten(shape):
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_flatten(shape: tuple[int, ...], float_array: type[APyCFloatArray]):
     signs = [1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0]
     exps = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
     mans = [3, 1, 4, 2, 6, 5, 8, 7, 9, 0, 2, 3]
 
     # manually create 1d arr
-    arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=5, man_bits=2)
+    arr = float_array(signs, exps, mans, exp_bits=5, man_bits=2)
     reshaped = arr.reshape(shape)
-    if not APyFloatArray.is_identical(reshaped.flatten(), arr):
+    if not reshaped.flatten().is_identical(arr):
         pytest.fail(f"Flatten didn't return to original 1d list after reshape {shape}")
 
 
@@ -1624,26 +1732,26 @@ def test_flatten(shape):
         (1, 6, 2),
     ],
 )
-def test_ravel(shape):
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_ravel(shape: tuple[int, ...], float_array: type[APyCFloatArray]):
     signs = [1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0]
     exps = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
     mans = [3, 1, 4, 2, 6, 5, 8, 7, 9, 0, 2, 3]
 
     # manually create 1d arr
-    arr = APyFloatArray(signs=signs, exps=exps, mans=mans, exp_bits=5, man_bits=2)
+    arr = float_array(signs, exps, mans, exp_bits=5, man_bits=2)
     reshaped = arr.reshape(shape)
-    if not APyFloatArray.is_identical(reshaped.ravel(), arr):
+    if not reshaped.ravel().is_identical(arr):
         pytest.fail(f"Flatten didn't return to original 1d list after reshape {shape}")
 
 
-def test_swapaxes():
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_swapaxes(float_array: type[APyCFloatArray]):
     signs = [1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0]
     exps = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
     mans = [3, 1, 4, 2, 6, 5, 8, 7, 9, 0, 2, 3]
 
-    a = APyFloatArray(
-        signs=signs, exps=exps, mans=mans, exp_bits=5, man_bits=2
-    ).reshape((6, 2))
+    a = float_array(signs, exps, mans, exp_bits=5, man_bits=2).reshape((6, 2))
 
     if not a.swapaxes(0, 1).is_identical(a.T):
         pytest.fail("swapaxes didn't correctly swap axis")
@@ -1667,17 +1775,16 @@ def test_swapaxes():
 
 
 @pytest.mark.float_array
-def test_transpose():
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_transpose(float_array: type[APyCFloatArray]):
     # 1-D transposition simply returns the input (just like NumPy-arrays)
-    assert APyFloatArray([], [], [], 4, 3).T.is_identical(
-        APyFloatArray([], [], [], 4, 3)
-    )
-    assert APyFloatArray([1, 0, 1], [15, 4, 20], [7, 2, 3], 5, 5).T.is_identical(
-        APyFloatArray([1, 0, 1], [15, 4, 20], [7, 2, 3], 5, 5)
+    assert float_array([], [], [], 4, 3).T.is_identical(float_array([], [], [], 4, 3))
+    assert float_array([1, 0, 1], [15, 4, 20], [7, 2, 3], 5, 5).T.is_identical(
+        float_array([1, 0, 1], [15, 4, 20], [7, 2, 3], 5, 5)
     )
 
     # # 2-D transposition returns the matrix transposition
-    a = APyFloatArray.from_float(
+    a = float_array.from_float(
         [
             [1.0, 2.0, 3.0],
             [-4.0, -5.0, -6.0],
@@ -1687,7 +1794,7 @@ def test_transpose():
     )
     assert a.T.T.is_identical(a)
     assert a.T.is_identical(
-        APyFloatArray.from_float(
+        float_array.from_float(
             [
                 [1.0, -4.0],
                 [2.0, -5.0],
@@ -1700,11 +1807,12 @@ def test_transpose():
 
 
 @pytest.mark.float_array
-def test_transpose_highdim_np():
-    def _generate_dimensions(n):
-        result = set()  # Use a set to store unique combinations
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_transpose_highdim_np(float_array: type[APyCFloatArray]):
+    def _generate_dimensions(n: int):
+        result: set[tuple[int, ...]] = set()  # Use a set to store unique combinations
 
-        def factor_combinations(target, factors):
+        def factor_combinations(target: int, factors: list[int]):
             if target == 1:
                 result.add(tuple(sorted(factors)))  # Add sorted tuple to set
                 return
@@ -1731,11 +1839,11 @@ def test_transpose_highdim_np():
             axes_permutations = list(permutations(list(range(len(shape)))))
 
         for perm in axes_permutations:
-            apy_array = APyFloatArray.from_array(np.reshape(elements, shape), 5, 5)
+            apy_array = float_array.from_array(np.reshape(elements, shape), 5, 5)
             numpy_transposed = np.transpose(np.reshape(elements, shape), perm)
 
             apy_transposed = apy_array.transpose(perm)
-            numpy_array = APyFloatArray.from_array(numpy_transposed, 5, 5)
+            numpy_array = float_array.from_array(numpy_transposed, 5, 5)
 
             assert apy_transposed.is_identical(numpy_array), (
                 f"Failed for shape {shape} and permutation {perm}. "
@@ -1746,19 +1854,20 @@ def test_transpose_highdim_np():
 
 
 @pytest.mark.parametrize("start_val", [2**i for i in range(0, 130, 13)])
-def test_transpose_highdim(start_val):
-    a = APyFloatArray.from_float(
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_transpose_highdim(start_val: int, float_array: type[APyCFloatArray]):
+    a = float_array.from_float(
         [[start_val + 1, start_val + 2], [start_val + 3, start_val + 4]], 30, 5
     )
-    b = APyFloatArray.from_float(
-        [[start_val + 1, start_val + 4], [start_val + 3, start_val + 2]], 30, 5
+    b = float_array.from_float(
+        [[start_val + 1, start_val + 3], [start_val + 2, start_val + 4]], 30, 5
     )
-    a.transpose().is_identical(b)
+    assert a.transpose().is_identical(b)
     # 1  2  3
     # 4  5  6
     # 7  8  9
 
-    a = APyFloatArray.from_float(
+    a = float_array.from_float(
         [
             [start_val + 1, start_val + 2, start_val + 3],
             [start_val + 4, start_val + 5, start_val + 6],
@@ -1771,7 +1880,7 @@ def test_transpose_highdim(start_val):
     # 1  4  7
     # 2  5  8
     # 3  6  9
-    b = APyFloatArray.from_float(
+    b = float_array.from_float(
         [
             [start_val + 1, start_val + 4, start_val + 7],
             [start_val + 2, start_val + 5, start_val + 8],
@@ -1781,11 +1890,12 @@ def test_transpose_highdim(start_val):
         5,
     )
 
-    a.transpose().is_identical(b)
+    assert a.transpose().is_identical(b)
 
 
-def test_transpose_negative_dim():
-    a = APyFloatArray.from_float([1.0] * 6, man_bits=5, exp_bits=6).reshape((1, 2, 3))
+@pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])
+def test_transpose_negative_dim(float_array: type[APyCFloatArray]):
+    a = float_array.from_float([1.0] * 6, man_bits=5, exp_bits=6).reshape((1, 2, 3))
     assert a.transpose((1, 0, 2)).shape == (2, 1, 3)
     assert a.transpose((-2, -3, -1)).shape == (2, 1, 3)
 
@@ -1929,9 +2039,14 @@ def test_to_bits_numpy():
     )
 
 
-@pytest.mark.parametrize(("float_array", "float_scalar"), [(APyFloatArray, APyFloat)])
+@pytest.mark.parametrize(
+    ("float_array", "float_scalar"),
+    [(APyFloatArray, APyFloat), (APyCFloatArray, APyCFloat)],
+)
 @pytest.mark.parametrize("bits", [16, 32, 48])
-def test_issue_623(float_array, float_scalar, bits):
+def test_issue_623(
+    float_array: type[APyCFloatArray], float_scalar: type[APyCFloat], bits: int
+):
     """
     Test for GitHub issue #623: `cumsum` (and `cumprod`) of empty array crashing. Should
     use same semantics as Numpy.

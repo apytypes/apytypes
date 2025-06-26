@@ -354,10 +354,25 @@ APyCFixedArray.__doc__ = r"""
 Class for configurable complex-valued array fixed-point formats.
 
 .. versionadded:: 0.3
+.. note::
+    For real-valued fixed-point formats, see :class:`APyFixed` and
+    :class:`APyFixedArray`.
 """
 
 APyCFloat.__doc__ = r"""
 Class for configurable complex-valued scalar floating-point formats.
+
+.. versionadded:: 0.4
+
+.. note::
+    For real-valued floating-point formats, see :class:`APyFloat` and
+    :class:`APyFloatArray`.
+
+"""
+
+
+APyCFloatArray.__doc__ = r"""
+Class for configurable complex-valued array floating-point formats.
 
 .. versionadded:: 0.4
 

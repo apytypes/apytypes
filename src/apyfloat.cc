@@ -7,6 +7,7 @@
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>
+#include <variant>
 namespace nb = nanobind;
 
 #include <algorithm>
@@ -735,7 +736,7 @@ APyFloat APyFloat::pown(const APyFloat& x, int n)
 
 APyFloat APyFloat::operator&(const APyFloat& rhs) const
 {
-    if (same_type_as(rhs)) {
+    if (is_same_spec(rhs)) {
         return APyFloat(
             sign & rhs.sign, exp & rhs.exp, man & rhs.man, exp_bits, man_bits
         );
@@ -758,7 +759,7 @@ APyFloat APyFloat::operator&(const APyFloat& rhs) const
 
 APyFloat APyFloat::operator|(const APyFloat& rhs) const
 {
-    if (same_type_as(rhs)) {
+    if (is_same_spec(rhs)) {
         return APyFloat(
             sign | rhs.sign, exp | rhs.exp, man | rhs.man, exp_bits, man_bits
         );
@@ -780,7 +781,7 @@ APyFloat APyFloat::operator|(const APyFloat& rhs) const
 
 APyFloat APyFloat::operator^(const APyFloat& rhs) const
 {
-    if (same_type_as(rhs)) {
+    if (is_same_spec(rhs)) {
         return APyFloat(
             sign ^ rhs.sign, exp ^ rhs.exp, man ^ rhs.man, exp_bits, man_bits
         );
@@ -826,7 +827,7 @@ bool APyFloat::operator==(const APyFloat& rhs) const
         return false;
     }
 
-    if (same_type_as(rhs)) {
+    if (is_same_spec(rhs)) {
         return (exp == rhs.exp) && (man == rhs.man);
     } else {
 
@@ -841,19 +842,21 @@ bool APyFloat::operator==(const APyFloat& rhs) const
     }
 }
 
-bool APyFloat::is_identical(const APyFloat& other, bool ignore_zero_sign) const
+bool APyFloat::is_identical(const nb::object& other, bool ignore_zero_sign) const
 {
-    if (ignore_zero_sign) {
-        // If `ignore_zero_sign` is set, ignore the sign bit if results equals zero
-        if (is_zero() && other.is_zero()) {
-            return (bias == other.bias) && (exp_bits == other.exp_bits)
-                && (man_bits == other.man_bits);
+    if (!nb::isinstance<APyFloat>(other)) {
+        return false;
+    } else {
+        auto&& other_scalar = nb::cast<APyFloat>(other);
+        if (ignore_zero_sign) {
+            // If `ignore_zero_sign` is set, ignore the sign bit if results equals zero
+            if (is_zero() && other_scalar.is_zero()) {
+                return spec() == other_scalar.spec();
+            }
         }
-    }
 
-    return (sign == other.sign) && (exp == other.exp) && (bias == other.bias)
-        && (man == other.man) && (exp_bits == other.exp_bits)
-        && (man_bits == other.man_bits);
+        return get_data() == other_scalar.get_data() && spec() == other_scalar.spec();
+    }
 }
 
 bool APyFloat::operator!=(const APyFloat& rhs) const

@@ -78,7 +78,7 @@ public:
     }
 
     //! Test if two fixed-point numbers have the same bit specifiers
-    APY_INLINE bool same_type_as(const APyFixed& other) const
+    APY_INLINE bool is_same_spec(const APyFixed& other) const
     {
         return _bits == other._bits && _int_bits == other._int_bits;
     }
@@ -147,7 +147,10 @@ public:
     //! Copy scalar
     APyFixed python_copy() const { return *this; }
     //! Deepcopy scalar
-    APyFixed python_deepcopy(nb::dict&) const { return *this; }
+    APyFixed python_deepcopy(const nb::typed<nb::dict, nb::int_, nb::any>&) const
+    {
+        return *this;
+    }
 
     /* ****************************************************************************** *
      *                         Binary arithmetic operators                            *
@@ -260,7 +263,9 @@ public:
 
     //! Test if two Fixed-point numbers are identical, i.e., has the same values, the
     //! same number of integer bits, and the same number of fractional bits
-    bool is_identical(const APyFixed& other) const;
+    bool is_identical(
+        const std::variant<const APyFixed*, const APyFixedArray*>& other
+    ) const;
 
     //! Return leading zeros
     std::size_t leading_zeros() const;
