@@ -4,7 +4,8 @@
 #include "apyarray.h"
 #include "apyfloat.h"
 #include "apytypes_common.h"
-#include "src/array_utils.h"
+#include "apytypes_fwd.h"
+#include "array_utils.h"
 
 // Python object access through Nanobind
 #include <nanobind/nanobind.h>    // nanobind::object
