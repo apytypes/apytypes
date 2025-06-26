@@ -15,9 +15,9 @@ def test_from_str(fixed_type):
 
 @pytest.mark.parametrize("fixed_type", [APyFixed, APyCFixed])
 def test__str__(fixed_type):
-    with pytest.raises(ValueError, match=r"APy[C]?Fixed::to_string_oct"):
+    with pytest.raises(ValueError, match=r"APy[C]?Fixed.__str__: base=8 is not"):
         fixed_type(0, 1, 0).__str__(base=8)
-    with pytest.raises(ValueError, match=r"APy[C]?Fixed::to_string_hex"):
+    with pytest.raises(ValueError, match=r"APy[C]?Fixed.__str__: base=16 is not"):
         fixed_type(0, 1, 0).__str__(base=16)
-    with pytest.raises(ValueError, match=r"APy[C]?Fixed::to_string"):
+    with pytest.raises(ValueError, match=r"APy[C]?Fixed.__str__: base=37 is not"):
         fixed_type(0, 1, 0).__str__(base=37)

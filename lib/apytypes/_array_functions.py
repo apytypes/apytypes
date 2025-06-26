@@ -1,8 +1,11 @@
 from collections.abc import Sequence
-from typing import Literal
+from typing import Literal, overload
 
 from apytypes._apytypes import (
+    APyCFixed,
     APyCFixedArray,
+    APyCFloat,
+    APyCFloatArray,
     APyFixed,
     APyFixedArray,
     APyFloat,
@@ -11,21 +14,39 @@ from apytypes._apytypes import (
 from apytypes._typing import APyArray, APyScalar
 
 
+@overload
+def squeeze(
+    a: APyFixedArray, axis: int | tuple[int, ...] | None = None
+) -> APyFixedArray: ...
+@overload
+def squeeze(
+    a: APyFloatArray, axis: int | tuple[int, ...] | None = None
+) -> APyFloatArray: ...
+@overload
+def squeeze(
+    a: APyCFloatArray, axis: int | tuple[int, ...] | None = None
+) -> APyCFloatArray: ...
+@overload
+def squeeze(
+    a: APyCFixedArray, axis: int | tuple[int, ...] | None = None
+) -> APyCFixedArray: ...
+
+
 def squeeze(a: APyArray, axis: int | tuple[int, ...] | None = None) -> APyArray:
     """
     Remove axes of length one from `a`.
 
     Parameters
     ----------
-    a : :class:`APyFloatArray`, :class:`APyFixedArray`, or :class:`APyCFixedArray`
-        Input data.
+    a : :class:`APyFloatArray`, :class:`APyFixedArray`, or :class:`APyCFixedArray`, or :class:`APyCFloatArray`
+        Input array.
 
     axis : :class:`int` or tuple of ints, optional
         Selects a subset of the entries of length one in the shape.
 
     Returns
     -------
-    squeezed : :class:`APyFloatArray`, :class:`APyFixedArray`, or :class:`APyCFixedArray`
+    squeezed : :class:`APyFloatArray`, :class:`APyFixedArray`, :class:`APyCFixedArray`, or :class:`APyCFloatArray`
         The input array, but with all or a subset of the dimensions of length 1 removed.
 
     Raises
@@ -39,6 +60,28 @@ def squeeze(a: APyArray, axis: int | tuple[int, ...] | None = None) -> APyArray:
     except AttributeError:
         raise TypeError(f"Cannot squeeze {type(a)}")
     return squeeze(axis=axis)
+
+
+@overload
+def convolve(
+    a: APyFixedArray, v: APyFixedArray, mode: Literal["full", "same", "valid"] = "full"
+) -> APyFixedArray: ...
+@overload
+def convolve(
+    a: APyFloatArray, v: APyFloatArray, mode: Literal["full", "same", "valid"] = "full"
+) -> APyFloatArray: ...
+@overload
+def convolve(
+    a: APyCFixedArray,
+    v: APyCFixedArray,
+    mode: Literal["full", "same", "valid"] = "full",
+) -> APyCFixedArray: ...
+@overload
+def convolve(
+    a: APyCFloatArray,
+    v: APyCFloatArray,
+    mode: Literal["full", "same", "valid"] = "full",
+) -> APyCFloatArray: ...
 
 
 def convolve(
@@ -77,6 +120,16 @@ def convolve(
         return a.convolve(v, mode=mode)
     except (TypeError, AttributeError):
         raise TypeError(f"Cannot convolve {type(a)} with {type(v)}")
+
+
+@overload
+def reshape(a: APyFixedArray, new_shape: tuple[int, ...]) -> APyFixedArray: ...
+@overload
+def reshape(a: APyFloatArray, new_shape: tuple[int, ...]) -> APyFloatArray: ...
+@overload
+def reshape(a: APyCFixedArray, new_shape: tuple[int, ...]) -> APyCFixedArray: ...
+@overload
+def reshape(a: APyCFloatArray, new_shape: tuple[int, ...]) -> APyCFloatArray: ...
 
 
 def reshape(a: APyArray, new_shape: tuple[int, ...]) -> APyArray:
@@ -151,9 +204,27 @@ def shape(arr: APyArray) -> tuple[int, ...]:
     return shape
 
 
+@overload
+def transpose(
+    a: APyFixedArray, axes: tuple[int, ...] | None = None
+) -> APyFixedArray: ...
+@overload
+def transpose(
+    a: APyFloatArray, axes: tuple[int, ...] | None = None
+) -> APyFloatArray: ...
+@overload
+def transpose(
+    a: APyCFixedArray, axes: tuple[int, ...] | None = None
+) -> APyCFixedArray: ...
+@overload
+def transpose(
+    a: APyCFloatArray, axes: tuple[int, ...] | None = None
+) -> APyCFloatArray: ...
+
+
 def transpose(a: APyArray, axes: tuple[int, ...] | None = None) -> APyArray:
     """
-    Return an copy of the array with axes transposed.
+    Return a copy of the array with axes transposed.
 
     For a 1-D array, this return the same array
     For a 2-D array, this is the standard matrix transpose.
@@ -217,6 +288,16 @@ def transpose(a: APyArray, axes: tuple[int, ...] | None = None) -> APyArray:
     return transpose(axes=axes)
 
 
+@overload
+def ravel(a: APyFixedArray) -> APyFixedArray: ...
+@overload
+def ravel(a: APyFloatArray) -> APyFloatArray: ...
+@overload
+def ravel(a: APyCFixedArray) -> APyCFixedArray: ...
+@overload
+def ravel(a: APyCFloatArray) -> APyCFloatArray: ...
+
+
 def ravel(a: APyArray) -> APyArray:
     """
     Return a copy of the array collapsed into one dimension.
@@ -251,6 +332,24 @@ def ravel(a: APyArray) -> APyArray:
     except AttributeError:
         raise TypeError(f"Cannot ravel {type(a)}")
     return ravel()
+
+
+@overload
+def moveaxis(
+    a: APyFixedArray, source: int | Sequence[int], destination: int | Sequence[int]
+) -> APyFixedArray: ...
+@overload
+def moveaxis(
+    a: APyFloatArray, source: int | Sequence[int], destination: int | Sequence[int]
+) -> APyFloatArray: ...
+@overload
+def moveaxis(
+    a: APyCFixedArray, source: int | Sequence[int], destination: int | Sequence[int]
+) -> APyCFixedArray: ...
+@overload
+def moveaxis(
+    a: APyCFloatArray, source: int | Sequence[int], destination: int | Sequence[int]
+) -> APyCFloatArray: ...
 
 
 def moveaxis(
@@ -311,6 +410,16 @@ def moveaxis(
     return transpose(a, order_tuple)
 
 
+@overload
+def swapaxes(a: APyFixedArray, axis1: int, axis2: int) -> APyFixedArray: ...
+@overload
+def swapaxes(a: APyFloatArray, axis1: int, axis2: int) -> APyFloatArray: ...
+@overload
+def swapaxes(a: APyCFixedArray, axis1: int, axis2: int) -> APyCFixedArray: ...
+@overload
+def swapaxes(a: APyCFloatArray, axis1: int, axis2: int) -> APyCFloatArray: ...
+
+
 def swapaxes(a: APyArray, axis1: int, axis2: int) -> APyArray:
     """
     Interchange two axes of an array.
@@ -361,16 +470,27 @@ def swapaxes(a: APyArray, axis1: int, axis2: int) -> APyArray:
     return swapaxes(axis1, axis2)
 
 
+@overload
+def expand_dims(a: APyFixedArray, axis: int | tuple[int, ...]) -> APyFixedArray: ...
+@overload
+def expand_dims(a: APyFloatArray, axis: int | tuple[int, ...]) -> APyFloatArray: ...
+@overload
+def expand_dims(a: APyCFixedArray, axis: int | tuple[int, ...]) -> APyCFixedArray: ...
+@overload
+def expand_dims(a: APyCFloatArray, axis: int | tuple[int, ...]) -> APyCFloatArray: ...
+
+
 def expand_dims(a: APyArray, axis: int | tuple[int, ...]) -> APyArray:
     """
     Expand the shape of an array.
 
-    Insert a new axis that will appear at the `axis` position in the expanded
-    array shape.
+    Insert a new axis that will appear at the `axis` position in the expanded array
+    shape.
 
     Parameters
     ----------
-    a : :class:`APyFloatArray`, :class:`APyFixedArray`, or :class:`APyCFixedArray`
+    a : :class:`APyFloatArray`, :class:`APyFixedArray`, :class:`APyCFixedArray`, or
+        :class:`APyCFloatArray`
         The array whose axes should be reordered.
     axis : :class:`int` or tuple of ints
         Position in the expanded axes where the new axis (or axes) is placed.
@@ -412,7 +532,7 @@ def expand_dims(a: APyArray, axis: int | tuple[int, ...]) -> APyArray:
         Copy of `a` with the number of dimensions increased.
     """
 
-    if type(axis) not in (tuple, list):
+    if not isinstance(axis, tuple):
         axis = (axis,)
 
     out_ndim = len(axis) + a.ndim
@@ -427,6 +547,74 @@ def expand_dims(a: APyArray, axis: int | tuple[int, ...]) -> APyArray:
 # =============================================================================
 # array creation
 # =============================================================================
+
+
+@overload
+def zeros(
+    shape: tuple[int, ...],
+    int_bits: int,
+    frac_bits: int,
+    bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+    force_complex: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def zeros(
+    shape: tuple[int, ...],
+    *,
+    bits: int,
+    int_bits: int,
+    frac_bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+    force_complex: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def zeros(
+    shape: tuple[int, ...],
+    *,
+    bits: int,
+    frac_bits: int,
+    int_bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+    force_complex: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def zeros(
+    shape: tuple[int, ...],
+    *,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    force_complex: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def zeros(
+    shape: tuple[int, ...],
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    force_complex: bool | None = None,
+) -> APyArray: ...
 
 
 def zeros(
@@ -473,30 +661,88 @@ def zeros(
     result : :class:`APyFloatArray` or :class:`APyFixedArray` or :class:`APyCFixedArray`
         The initialized array with zeros.
     """
-
     a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
-
-    if not a_type:
-        raise ValueError("Could not determine array type from bit-specifiers")
-
-    try:
-        zeros = a_type.zeros
-    except AttributeError:
-        raise TypeError(f"Cannot make zeros array of type {type(a_type)}")
+    if a_type is None:
+        raise ValueError("zeros: could not determine array type from bit-specifiers")
 
     if a_type is APyFixedArray:
-        if force_complex:
-            return APyCFixedArray.zeros(
-                shape=shape, int_bits=int_bits, frac_bits=frac_bits, bits=bits
-            )
-        else:
-            return zeros(shape=shape, int_bits=int_bits, frac_bits=frac_bits, bits=bits)
+        zeros = APyCFixedArray.zeros if force_complex else APyFixedArray.zeros
+        return zeros(shape=shape, int_bits=int_bits, frac_bits=frac_bits, bits=bits)
     elif a_type is APyFloatArray:
-        if force_complex:
-            raise NotImplementedError("APyCFloatArray.zeros not implemented yet")
+        assert man_bits is not None
+        assert exp_bits is not None
+        zeros = APyCFloatArray.zeros if force_complex else APyFloatArray.zeros
         return zeros(shape=shape, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
     else:
         raise ValueError("Only fixed-point and floating-point array types supported")
+
+
+@overload
+def ones(
+    shape: tuple[int, ...],
+    int_bits: int,
+    frac_bits: int,
+    bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+    force_complex: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def ones(
+    shape: tuple[int, ...],
+    *,
+    bits: int,
+    int_bits: int,
+    frac_bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+    force_complex: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def ones(
+    shape: tuple[int, ...],
+    *,
+    bits: int,
+    frac_bits: int,
+    int_bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+    force_complex: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def ones(
+    shape: tuple[int, ...],
+    *,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    force_complex: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def ones(
+    shape: tuple[int, ...],
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    force_complex: bool | None = None,
+) -> APyArray: ...
 
 
 def ones(
@@ -543,30 +789,94 @@ def ones(
     result : :class:`APyFloatArray` or :class:`APyFixedArray` or :class:`APyCFixedArray`
         The array initialized filled with ones.
     """
-
     a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
+    if a_type is None:
+        raise ValueError("ones: could not determine array type from bit-specifiers")
 
-    if not a_type:
-        raise ValueError("Could not determine array type from bit-specifiers")
-
-    try:
-        ones = a_type.ones
-    except AttributeError:
-        raise TypeError(f"Cannot make ones array of type {type(a_type)}")
-
-    if a_type is APyFixedArray or isinstance(a_type, APyFixedArray):
-        if force_complex:
-            return APyCFixedArray.ones(
-                shape=shape, int_bits=int_bits, frac_bits=frac_bits, bits=bits
-            )
-        else:
-            return ones(shape=shape, int_bits=int_bits, frac_bits=frac_bits, bits=bits)
-    elif a_type is APyFloatArray or isinstance(a_type, APyFloatArray):
-        if force_complex:
-            raise NotImplementedError("APyCFloatArray.ones not implemented yet")
+    if a_type is APyFixedArray:
+        ones = APyCFixedArray.ones if force_complex else APyFixedArray.ones
+        return ones(shape=shape, int_bits=int_bits, frac_bits=frac_bits, bits=bits)
+    elif a_type is APyFloatArray:
+        assert man_bits is not None
+        assert exp_bits is not None
+        ones = APyCFloatArray.ones if force_complex else APyFloatArray.ones
         return ones(shape=shape, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
     else:
         raise ValueError("Only fixed-point and floating-point array types supported")
+
+
+@overload
+def eye(
+    n: int,
+    m: int | None = None,
+    *,
+    int_bits: int,
+    frac_bits: int,
+    bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+    force_complex: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def eye(
+    n: int,
+    m: int | None = None,
+    *,
+    bits: int,
+    int_bits: int,
+    frac_bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+    force_complex: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def eye(
+    n: int,
+    m: int | None = None,
+    *,
+    bits: int,
+    frac_bits: int,
+    int_bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+    force_complex: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def eye(
+    n: int,
+    m: int | None = None,
+    *,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    bits: None = None,
+    frac_bits: None = None,
+    int_bits: None = None,
+    force_complex: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def eye(
+    n: int,
+    m: int | None = None,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    force_complex: bool | None = None,
+) -> APyArray: ...
 
 
 def eye(
@@ -619,30 +929,88 @@ def eye(
         An array where all elements are equal to zero, except for the k-th diagonal,
         whose values are equal to one.
     """
-
     a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
+    if a_type is None:
+        raise ValueError("eye: could not determine array type from bit-specifiers")
 
-    if not a_type:
-        raise ValueError("Could not determine array type from bit-specifiers")
-
-    try:
-        eye = a_type.eye
-    except AttributeError:
-        raise TypeError(f"Cannot make eye array of type {type(a_type)}")
-
-    if a_type is APyFixedArray or isinstance(a_type, APyFixedArray):
-        if force_complex:
-            return APyCFixedArray.eye(
-                n=n, m=m, int_bits=int_bits, frac_bits=frac_bits, bits=bits
-            )
-        else:
-            return eye(n=n, m=m, int_bits=int_bits, frac_bits=frac_bits, bits=bits)
-    elif a_type is APyFloatArray or isinstance(a_type, APyFloatArray):
-        if force_complex:
-            raise NotImplementedError("APyCFloatArray.eye not implemented yet")
+    if a_type is APyFixedArray:
+        eye = APyCFixedArray.eye if force_complex else APyFixedArray.eye
+        return eye(n=n, m=m, int_bits=int_bits, frac_bits=frac_bits, bits=bits)
+    elif a_type is APyFloatArray:
+        assert man_bits is not None
+        assert exp_bits is not None
+        eye = APyCFloatArray.eye if force_complex else APyFloatArray.eye
         return eye(n=n, m=m, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
     else:
         raise ValueError("Only fixed-point and floating-point array types supported")
+
+
+@overload
+def identity(
+    n: int,
+    int_bits: int,
+    frac_bits: int,
+    bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+    force_complex: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def identity(
+    n: int,
+    *,
+    bits: int,
+    int_bits: int,
+    frac_bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+    force_complex: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def identity(
+    n: int,
+    *,
+    bits: int,
+    frac_bits: int,
+    int_bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+    force_complex: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def identity(
+    n: int,
+    *,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    int_bits: None = None,
+    bits: None = None,
+    frac_bits: None = None,
+    force_complex: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def identity(
+    n: int,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    force_complex: bool | None = None,
+) -> APyArray: ...
 
 
 def identity(
@@ -690,30 +1058,114 @@ def identity(
         `n` x `n` array with ones (stored value) on the main diagonal and zeros
         elsewhere.
     """
-
     a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
+    if a_type is None:
+        raise ValueError("identity: could not determine array type from bit-specifiers")
 
-    if not a_type:
-        raise ValueError("Could not determine array type from bit-specifiers")
-
-    try:
-        identity = a_type.identity
-    except AttributeError:
-        raise TypeError(f"Cannot make identity array of type {type(a_type)}")
-
-    if a_type is APyFixedArray or isinstance(a_type, APyFixedArray):
-        if force_complex:
-            return APyCFixedArray.identity(
-                n=n, int_bits=int_bits, frac_bits=frac_bits, bits=bits
-            )
-        else:
-            return identity(n=n, int_bits=int_bits, frac_bits=frac_bits, bits=bits)
-    elif a_type is APyFloatArray or isinstance(a_type, APyFloatArray):
-        if force_complex:
-            raise NotImplementedError("APyCFloatArray.identity not implemented yet")
+    if a_type is APyFixedArray:
+        identity = APyCFixedArray.identity if force_complex else APyFixedArray.identity
+        return identity(n=n, int_bits=int_bits, frac_bits=frac_bits, bits=bits)
+    elif a_type is APyFloatArray:
+        identity = APyCFloatArray.identity if force_complex else APyFloatArray.identity
+        assert man_bits is not None
+        assert exp_bits is not None
         return identity(n=n, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
     else:
         raise ValueError("Only fixed-point and floating-point array types supported")
+
+
+@overload
+def full(
+    shape: tuple[int, ...],
+    fill_value: APyScalar | int | float,
+    int_bits: int,
+    frac_bits: int,
+    bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def full(
+    shape: tuple[int, ...],
+    fill_value: APyScalar | int | float,
+    *,
+    bits: int,
+    int_bits: int,
+    frac_bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def full(
+    shape: tuple[int, ...],
+    fill_value: APyScalar | int | float,
+    *,
+    bits: int,
+    frac_bits: int,
+    int_bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def full(
+    shape: tuple[int, ...],
+    fill_value: APyScalar | int | float,
+    *,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def full(
+    shape: tuple[int, ...],
+    fill_value: APyFixed,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def full(
+    shape: tuple[int, ...],
+    fill_value: APyFloat,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def full(
+    shape: tuple[int, ...],
+    fill_value: APyScalar | int | float,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+) -> APyArray: ...
 
 
 def full(
@@ -768,8 +1220,74 @@ def full(
         return APyFixedArray.full(shape, fill_value)
     elif isinstance(fill_value, APyFloat):
         return APyFloatArray.full(shape, fill_value)
+    elif isinstance(fill_value, APyCFixed):
+        return APyCFixedArray.full(shape, fill_value)
+    elif isinstance(fill_value, APyCFloat):
+        return APyCFloatArray.full(shape, fill_value)
     else:
         raise TypeError(f"Cannot make full array of type {type(fill_value)}")
+
+
+@overload
+def zeros_like(
+    a: APyFixedArray,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def zeros_like(
+    a: APyCFixedArray,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyCFixedArray: ...
+
+
+@overload
+def zeros_like(
+    a: APyFloatArray,
+    *,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def zeros_like(
+    a: APyCFloatArray,
+    *,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+) -> APyCFloatArray: ...
+
+
+@overload
+def zeros_like(
+    a: APyArray,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+) -> APyArray: ...
 
 
 def zeros_like(
@@ -787,7 +1305,8 @@ def zeros_like(
     The type and bit-specifiers of the returned array can be overwritten through the
     bit-specifier arguments. To modify the type, either specify exactly two of three
     from `int_bits`, `frac_bits`, and `bits`, for :class:`APyFixedArray` and
-    :class:`APyCFixedArray`, or specify both `exp_bits` and `man_bits` for :class:`APyFloatArray`.
+    :class:`APyCFixedArray`, or specify both `exp_bits` and `man_bits` for
+    :class:`APyFloatArray`.
 
     Parameters
     ----------
@@ -811,24 +1330,82 @@ def zeros_like(
     result : :class:`APyFloatArray` or :class:`APyFixedArray`
         The initialized array with all zeros.
     """
-    try:
-        zeros = a.zeros
-    except AttributeError:
-        raise TypeError(f"Cannot make zeros array of type {type(a)}")
-
     if isinstance(a, APyFixedArray | APyCFixedArray):
         if int_bits is None and frac_bits is None and bits is None:
-            return zeros(shape=a.shape, int_bits=a.int_bits, frac_bits=a.frac_bits)
+            return a.zeros(a.shape, a.int_bits, a.frac_bits)
         else:
-            i_bits, f_bits = _extract_fixed_bit_specifiers(int_bits, frac_bits, bits)
-            return zeros(shape=a.shape, int_bits=i_bits, frac_bits=f_bits)
-    elif isinstance(a, APyFloatArray):
-        exp_bits = exp_bits if exp_bits is not None else a.exp_bits
-        man_bits = man_bits if man_bits is not None else a.man_bits
-        bias = bias if bias is not None else a.bias
-        return zeros(shape=a.shape, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
+            return a.zeros(a.shape, int_bits, frac_bits, bits)
+    elif isinstance(a, APyFloatArray | APyCFloatArray):
+        if exp_bits is None and man_bits is None and bias is None:
+            return a.zeros(a.shape, a.exp_bits, a.man_bits, a.bias)
+        else:
+            assert exp_bits is not None
+            assert man_bits is not None
+            return a.zeros(a.shape, exp_bits, man_bits, bias)
     else:
         raise ValueError("Only fixed-point and floating-point array types supported")
+
+
+@overload
+def ones_like(
+    a: APyFixedArray,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def ones_like(
+    a: APyCFixedArray,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyCFixedArray: ...
+
+
+@overload
+def ones_like(
+    a: APyFloatArray,
+    *,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def ones_like(
+    a: APyCFloatArray,
+    *,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    bias: None = None,
+) -> APyCFloatArray: ...
+
+
+@overload
+def ones_like(
+    a: APyArray,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+) -> APyArray: ...
 
 
 def ones_like(
@@ -870,24 +1447,85 @@ def ones_like(
     result : :class:`APyFloatArray` or :class:`APyFixedArray`
         The array initialized filled with all ones.
     """
-    try:
-        ones = a.ones
-    except AttributeError:
-        raise TypeError(f"Cannot make ones array of type {type(a)}")
-
     if isinstance(a, APyFixedArray | APyCFixedArray):
         if int_bits is None and frac_bits is None and bits is None:
-            return ones(shape=a.shape, int_bits=a.int_bits, frac_bits=a.frac_bits)
+            return a.ones(a.shape, a.int_bits, a.frac_bits)
         else:
-            i_bits, f_bits = _extract_fixed_bit_specifiers(int_bits, frac_bits, bits)
-            return ones(shape=a.shape, int_bits=i_bits, frac_bits=f_bits)
-    elif isinstance(a, APyFloatArray):
-        exp_bits = exp_bits if exp_bits is not None else a.exp_bits
-        man_bits = man_bits if man_bits is not None else a.man_bits
-        bias = bias if bias is not None else a.bias
-        return ones(shape=a.shape, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
+            return a.ones(a.shape, int_bits, frac_bits, bits)
+    elif isinstance(a, APyFloatArray | APyCFloatArray):
+        if exp_bits is None and man_bits is None and bias is None:
+            return a.ones(a.shape, a.exp_bits, a.man_bits, a.bias)
+        else:
+            assert exp_bits is not None
+            assert man_bits is not None
+            return a.ones(a.shape, exp_bits, man_bits, bias)
     else:
         raise ValueError("Only fixed-point and floating-point array types supported")
+
+
+@overload
+def full_like(
+    a: APyFixedArray,
+    fill_value: APyScalar | int | float,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def full_like(
+    a: APyFloatArray,
+    fill_value: APyScalar | int | float,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def full_like(
+    a: APyCFixedArray,
+    fill_value: APyScalar | int | float,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+) -> APyCFixedArray: ...
+
+
+@overload
+def full_like(
+    a: APyCFloatArray,
+    fill_value: APyScalar | int | float,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+) -> APyCFloatArray: ...
+
+
+@overload
+def full_like(
+    a: APyArray,
+    fill_value: APyScalar | int | float,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+) -> APyArray: ...
 
 
 def full_like(
@@ -941,7 +1579,199 @@ def full_like(
     fill_value = _determine_fill_value(
         fill_value, int_bits, frac_bits, bits, exp_bits, man_bits, bias
     )
+    if isinstance(fill_value, APyFixed) and isinstance(a, APyCFixedArray):
+        fill_value = APyCFixed.from_complex(fill_value, a.int_bits, a.frac_bits)
+    elif isinstance(fill_value, APyFloat) and isinstance(a, APyCFloatArray):
+        fill_value = APyCFloat.from_complex(fill_value, a.exp_bits, a.man_bits, a.bias)
     return full(a.shape, fill_value)
+
+
+@overload
+def arange(
+    start: APyScalar | int | float,
+    stop: APyScalar | int | float | None = None,
+    step: APyScalar | int | float = 1,
+    *,
+    int_bits: int,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def arange(
+    start: APyScalar | int | float,
+    stop: APyScalar | int | float | None = None,
+    step: APyScalar | int | float = 1,
+    *,
+    bits: int,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def arange(
+    start: APyScalar | int | float,
+    stop: APyScalar | int | float | None = None,
+    step: APyScalar | int | float = 1,
+    *,
+    frac_bits: int,
+    bits: int | None = None,
+    int_bits: int | None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def arange(
+    start: APyScalar | int | float,
+    stop: APyScalar | int | float | None = None,
+    step: APyScalar | int | float = 1,
+    *,
+    exp_bits: int,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def arange(
+    start: APyScalar | int | float,
+    stop: APyScalar | int | float | None = None,
+    step: APyScalar | int | float = 1,
+    *,
+    man_bits: int,
+    exp_bits: int | None = None,
+    bias: int | None = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def arange(
+    start: APyScalar | int | float,
+    stop: APyScalar | int | float | None = None,
+    step: APyScalar | int | float = 1,
+    *,
+    bias: int,
+    man_bits: int | None = None,
+    exp_bits: int | None = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def arange(
+    start: APyFixed,
+    stop: APyFixed | int | float | None = None,
+    step: APyFixed | int | float = 1,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def arange(
+    start: APyFixed | int | float,
+    stop: APyFixed,
+    step: APyFixed | int | float = 1,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def arange(
+    start: APyFixed | int | float,
+    stop: APyFixed | int | float,
+    step: APyFixed,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def arange(
+    start: APyFloat,
+    stop: APyFloat | int | float | None = None,
+    step: APyFloat | int | float = 1,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def arange(
+    start: APyFloat | int | float,
+    stop: APyFloat,
+    step: APyFloat | int | float = 1,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def arange(
+    start: APyFloat | int | float,
+    stop: APyFloat | int | float,
+    step: APyFloat,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def arange(
+    start: APyScalar | int | float,
+    stop: APyScalar | int | float | None = None,
+    step: APyScalar | int | float = 1,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+) -> APyArray: ...
 
 
 def arange(
@@ -964,8 +1794,9 @@ def arange(
     * ``arange(start, stop)``: Values are generated within the half-open interval ``[start, stop)``.
     * ``arange(start, stop, step)``: Values are generated within the half-open interval ``[start, stop)``, with spacing between values given by ``step``.
 
-    If no bit-specifiers are given, the array type is deduced based on ``start``, ``stop``, and ``step``.
-    In this case, all APyTypes scalars must be of the same format.
+    If no bit-specifiers are given, the array type is deduced based on ``start``,
+    ``stop``, and ``step``. In this case, all APyTypes scalars must be of the same
+    format.
 
     Parameters
     ----------
@@ -1054,7 +1885,8 @@ def arange(
     if stop is None:
         start, stop = (0, start)
 
-    # The values will be generated using APyFixed so exceptions on infinity and NaN will be generated by the constructors
+    # The values will be generated using APyFixed so exceptions on infinity and NaN will
+    # be generated by the constructors
     if deduced_type is APyFixedArray:
         return APyFixedArray._arange(
             start, stop, step, tmp_int_bits, tmp_frac_bits, tmp_bits
@@ -1078,48 +1910,49 @@ def _determine_array_type(
     man_bits: int | None,
     bias: int | None,
 ) -> type[APyFixedArray] | type[APyFloatArray] | None:
-    float_arr = exp_bits is not None or man_bits is not None or bias is not None
-    fixed_arr = bits is not None or int_bits is not None or frac_bits is not None
+    is_float_array = exp_bits is not None or man_bits is not None or bias is not None
+    is_fixed_array = bits is not None or int_bits is not None or frac_bits is not None
 
-    if float_arr and not fixed_arr:
+    if is_float_array and not is_fixed_array:
         return APyFloatArray
-    elif not float_arr and fixed_arr:
+    elif not is_float_array and is_fixed_array:
         return APyFixedArray
     else:
         return None
 
 
 def _determine_fill_value(
-    fill_value: int | float | APyFixed | APyFloat,
+    fill_value: int | float | complex | APyScalar,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
     exp_bits: int | None = None,
     man_bits: int | None = None,
     bias: int | None = None,
-) -> APyFloat | APyFixed:
-    if isinstance(fill_value, int | float):
+) -> APyScalar:
+    if isinstance(fill_value, int | float | complex):
         if man_bits is None and exp_bits is None:
-            i_bits, f_bits = _extract_fixed_bit_specifiers(int_bits, frac_bits, bits)
-            return APyFixed.from_float(fill_value, int_bits=i_bits, frac_bits=f_bits)
+            FixedType = APyCFixed if isinstance(fill_value, complex) else APyFixed
+            return FixedType.from_float(fill_value, int_bits, frac_bits, bits)
         else:
-            return APyFloat.from_float(
-                fill_value, exp_bits=exp_bits, man_bits=man_bits, bias=bias
-            )
-    elif isinstance(fill_value, APyFixed):
+            assert exp_bits is not None
+            assert man_bits is not None
+            FloatType = APyCFloat if isinstance(fill_value, complex) else APyFloat
+            return FloatType.from_float(fill_value, exp_bits, man_bits, bias)
+    elif isinstance(fill_value, APyFixed | APyCFixed):
         if int_bits is None and frac_bits is None and bits is None:
             return fill_value
         else:
-            i_bits, f_bits = _extract_fixed_bit_specifiers(int_bits, frac_bits, bits)
-            return fill_value.cast(int_bits, frac_bits)
-    elif isinstance(fill_value, APyFloat):
+            return fill_value.cast(int_bits=int_bits, frac_bits=frac_bits, bits=bits)
+    elif isinstance(fill_value, APyFloat | APyCFloat):
         if exp_bits is None and man_bits is None and bias is None:
             return fill_value
         else:
-            return fill_value.cast(exp_bits, man_bits, bias)
+            return fill_value.cast(exp_bits=exp_bits, man_bits=man_bits, bias=bias)
     else:
         raise ValueError(
-            "Only `int`, `float`, `APyFloat` and `APyFixed` are supported fill values"
+            "Only `int`, `float`, `complex`, and apytypes' scalars are supported "
+            + "fill values"
         )
 
 
@@ -1139,21 +1972,3 @@ def _normalize_axis_sequence(
     if isinstance(axis_sequence, int):
         axis_sequence = (axis_sequence,)
     return tuple(_normalize_axis(ax, ndim) for ax in axis_sequence)
-
-
-def _extract_fixed_bit_specifiers(
-    int_bits: int | None, frac_bits: int | None, bits: int | None
-) -> tuple[int, int]:
-    """Retrieve `int_bits` and `frac_bits` reliably from a triplet of bit-specifiers"""
-    if int_bits is not None and frac_bits is not None and bits is not None:
-        if bits != int_bits + frac_bits:
-            raise ValueError("Could not extract fixed-point bit-specifiers")
-        return (int_bits, frac_bits)
-    elif int_bits is not None and frac_bits is not None and bits is None:
-        return (int_bits, frac_bits)
-    elif int_bits is None and frac_bits is not None and bits is not None:
-        return (bits - frac_bits, frac_bits)
-    elif int_bits is not None and frac_bits is None and bits is not None:
-        return (int_bits, bits - int_bits)
-    else:
-        raise ValueError("Could not extract fixed-point bit-specifiers")

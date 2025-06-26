@@ -507,9 +507,9 @@ static APY_INLINE void _overflow_twos_complement(
 )
 {
     (void)int_bits;
-    (void)it_end;
+    (void)it_begin;
     if (bits % APY_LIMB_SIZE_BITS) {
-        RANDOM_ACCESS_ITERATOR ms_limb_it = it_begin + bits_to_limbs(bits) - 1;
+        RANDOM_ACCESS_ITERATOR ms_limb_it = std::prev(it_end);
         unsigned shift_amount = APY_LIMB_SIZE_BITS - (bits % APY_LIMB_SIZE_BITS);
         *ms_limb_it = apy_limb_signed_t(*ms_limb_it << shift_amount) >> shift_amount;
     }

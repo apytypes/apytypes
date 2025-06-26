@@ -1,5 +1,6 @@
 #include "apycfixed.h"
 #include "apycfloat.h"
+#include "apycfloatarray.h" // Needed by: APyCFloat::is_identical
 #include "apyfixed.h"
 
 #include <nanobind/nanobind.h>
@@ -147,9 +148,12 @@ void bind_cfloat(nb::module_& m)
 
         .def(
             nb::init<
-                nb::tuple,
-                nb::tuple,
-                nb::tuple,
+                nb::typed<
+                    nb::tuple,
+                    std::variant<nb::bool_, nb::int_>,
+                    std::variant<nb::bool_, nb::int_>>,
+                nb::typed<nb::tuple, nb::int_, nb::int_>,
+                nb::typed<nb::tuple, nb::int_, nb::int_>,
                 nb::int_,
                 nb::int_,
                 std::optional<nb::int_>>(),
@@ -184,6 +188,17 @@ void bind_cfloat(nb::module_& m)
             :class:`APyCFloat`
             )pbdoc"
         )
+
+        /*
+         * Copy
+         */
+        .def("copy", &APyCFloat::python_copy, R"pbdoc(
+            Create a copy of the object.
+
+            .. versionadded:: 0.3
+            )pbdoc")
+        .def("__copy__", &APyCFloat::python_copy)
+        .def("__deepcopy__", &APyCFloat::python_deepcopy, nb::arg("memo"))
 
         /*
          * Arithmetic operations
