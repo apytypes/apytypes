@@ -24,6 +24,7 @@ private:
     APyFloatData _data[2]; // { real, imag }
 
     // Access real/imag
+public:
     const APyFloatData& real() const noexcept { return _data[0]; }
     const APyFloatData& imag() const noexcept { return _data[1]; }
     APyFloatData& real() noexcept { return _data[0]; }
@@ -62,7 +63,7 @@ public:
     }
 
     //! Test if two floating-point numbers have the same bit specifiers
-    APY_INLINE bool same_type_as(const APyCFloat& other) const
+    APY_INLINE bool is_same_spec(const APyCFloat& other) const
     {
         return man_bits == other.man_bits && exp_bits == other.exp_bits
             && bias == other.bias;
@@ -122,9 +123,12 @@ public:
 
     //! Python constructor setting both real and imaginary field
     APyCFloat(
-        const nb::tuple& sign,
-        const nb::tuple& exp,
-        const nb::tuple& man,
+        const nb::typed<
+            nb::tuple,
+            std::variant<nb::bool_, nb::int_>,
+            std::variant<nb::bool_, nb::int_>>& sign,
+        const nb::typed<nb::tuple, nb::int_, nb::int_>& exp,
+        const nb::typed<nb::tuple, nb::int_, nb::int_>& man,
         const nb::int_& exp_bits,
         const nb::int_& man_bits,
         const std::optional<nb::int_>& bias
@@ -232,6 +236,19 @@ public:
     APY_INLINE std::uint8_t get_bits() const { return man_bits + exp_bits + 1; }
 
     /* ****************************************************************************** *
+     * *                                     Copy                                   * *
+     * ****************************************************************************** */
+
+    //! Copy scalar
+    APyCFloat python_copy() const { return *this; }
+
+    //! Deepcopy scalar (same as copy here)
+    APyCFloat python_deepcopy(const nb::typed<nb::dict, nb::int_, nb::any>&) const
+    {
+        return *this;
+    }
+
+    /* ****************************************************************************** *
      * *                       Other public member functions                        * *
      * ****************************************************************************** */
 
@@ -266,7 +283,7 @@ public:
 
     //! Test if two floating-point numbers are identical, i.e., has the same values, the
     //! same number of exponent bits, and the same number of mantissa bits
-    bool is_identical(const APyCFloat& other, bool ignore_zero_sign = false) const;
+    bool is_identical(const nb::object& other, bool ignore_zero_sign = false) const;
 
     //! Retrieve real part
     APyFloat get_real() const;
@@ -283,11 +300,18 @@ public:
         return real().exp == 0 && real().man == 0 && imag().exp == 0 && imag().man == 0;
     }
 
+    //! Create an `APyCFloat` with the stored value one
+    static APyCFloat
+    one(std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt);
+
     /* ****************************************************************************** *
      * *                           Friends of `APyCFloat`                           * *
      * ****************************************************************************** */
 
     template <typename T, typename ARRAY_TYPE> friend class APyArray;
+    friend class APyCFloatArray;
 };
 
 #endif

@@ -14,6 +14,7 @@
 #include "apytypes_util.h"
 #include "ieee754.h"
 #include "python_util.h"
+#include "src/apytypes_intrinsics.h"
 
 // Standard header includes
 #include <algorithm>
@@ -280,7 +281,7 @@ template <QuantizationMode QNTZ, bool SUPPORT_NEGATIVE_BITS_TO_QUANTIZE = false>
     } else if constexpr (QNTZ == QuantizationMode::STOCH_EQUAL) {
         B = (G || T) ? random_number_float() & 1 : 0;
     } else {
-        apytypes_unreachable();
+        APYTYPES_UNREACHABLE();
     }
 
     man = res_man;
@@ -460,9 +461,9 @@ template <typename QNTZ_FUNC_SIGNATURE>
     return res;
 }
 
-//! Cast a floating-point value from one format to another
-//! using many pre-computed constants making it suitable for arrays.
-//! Specialized for the case where more mantissa bits are used in the result.
+//! Cast a floating-point value from one format to another using many pre-computed
+//! constants making it suitable for arrays. Specialized for the case where more
+//! mantissa bits are used in the result.
 template <typename QNTZ_FUNC_SIGNATURE>
 [[maybe_unused]] static APY_INLINE APyFloatData array_floating_point_cast_pos_man_delta(
     const APyFloatData& src,
@@ -541,9 +542,9 @@ template <typename QNTZ_FUNC_SIGNATURE>
     }
 }
 
-//! Cast a floating-point value from one format to another
-//! using many pre-computed constants making it suitable for arrays.
-//! Specialized for the case where fewer mantissa bits are used in the result.
+//! Cast a floating-point value from one format to another using many pre-computed
+//! constants making it suitable for arrays. Specialized for the case where fewer
+//! mantissa bits are used in the result.
 template <typename QNTZ_FUNC_SIGNATURE>
 [[maybe_unused]] static APY_INLINE APyFloatData array_floating_point_cast_neg_man_delta(
     const APyFloatData& src,
@@ -668,8 +669,8 @@ template <typename QNTZ_FUNC_SIGNATURE>
     return { src.sign, exp_t(new_exp), new_man };
 }
 
-//! Cast a floating-point number when it is known that no quantization happens and
-//! that the exponent is not max. In addition, src_spec.bias = dst_spec.bias.
+//! Cast a floating-point number when it is known that no quantization happens and that
+//! the exponent is not max. In addition, src_spec.bias = dst_spec.bias.
 [[maybe_unused]] static APY_INLINE APyFloatData floating_point_cast_no_quant_no_max_exp(
     const APyFloatData& src,
     const std::uint8_t src_man_bits,
@@ -2502,7 +2503,8 @@ public:
         std::invoke(f, this, src1, src2, dst, N, M, DST_STEP);
     }
 
-    template <bool SHORT_MUL, auto SHORT_ADD>
+private:
+    template <bool SHORT_MUL, bool SHORT_ADD>
     void inner_product(
         const APyFloatData* src1,
         const APyFloatData* src2,
@@ -2520,22 +2522,34 @@ public:
             auto A_it = src1 + N * m;
             APyFloatData sum { 0, 0, 0 };
             for (std::size_t n = 0; n < N; n++) {
-                if constexpr (SHORT_MUL) {
-                    mul_short(A_it + n, src2 + n, &product);
-                } else {
-                    mul_general(A_it + n, src2 + n, &product);
-                }
-                if constexpr (SHORT_ADD) {
-                    add_same_wl(&sum, &product, &sum);
-                } else {
-                    add_general(&sum, &product, &sum);
-                }
+                real_product<SHORT_MUL>(A_it + n, src2 + n, &product);
+                real_sum<SHORT_ADD>(&sum, &product, &sum);
             }
             *(dst + DST_STEP * m) = sum;
         }
     }
 
-private:
+    template <bool SHORT_MUL>
+    void
+    real_product(const APyFloatData* x, const APyFloatData* y, APyFloatData* z) const
+    {
+        if constexpr (SHORT_MUL) {
+            mul_short(x, y, z);
+        } else {
+            mul_general(x, y, z);
+        }
+    }
+
+    template <bool SHORT_ADD>
+    void real_sum(const APyFloatData* x, const APyFloatData* y, APyFloatData* z) const
+    {
+        if constexpr (SHORT_ADD) {
+            add_same_wl(x, y, z);
+        } else {
+            add_general(x, y, z);
+        }
+    }
+
     // Pointer `f` to the correct function based on the floating-point specs
     void (FloatingPointInnerProduct::*f)(
         const APyFloatData* src1,

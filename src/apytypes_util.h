@@ -1090,4 +1090,20 @@ get_conv_lengths(const std::string& mode, const APY_ARRAY& a, const APY_ARRAY& b
 CREATE_FUNCTOR_FROM_FUNC(apy_add_n_functor, apy_addition_same_length);
 CREATE_FUNCTOR_FROM_FUNC(apy_sub_n_functor, apy_subtraction_same_length);
 
+//! Mark nanobind Python-exposed parameter that does not support implicit conversions
+//! from other types.
+#define NB_NARG(name) nb::arg(name).noconvert()
+
+//! Mark a special double-underscore nanobind operator (e.g., `__add__`) the implements
+//! an arithmetic operation. In Python, when a bound function with this annotation is
+//! called with incompatible arguments, it will return `NotImplemented` rather than
+//! raising a `TypeError` as is default.
+#define NB_OP(args) nb::is_operator(args)
+
+//! Short-hand C++ arithmetic functors
+#define STD_ADD std::plus
+#define STD_SUB std::minus
+#define STD_MUL std::multiplies
+#define STD_DIV std::divides
+
 #endif // _APYTYPES_UTIL_H

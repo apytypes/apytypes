@@ -50,12 +50,14 @@ class QuantizationMode(enum.Enum):
 
     TRN_MAG = 4
     """
-    Magnitude truncation (round towards zero), fixed-point friendly variant (add sign-bit).
+    Magnitude truncation (round towards zero), fixed-point friendly variant (add
+    sign-bit).
     """
 
     RND = 5
     """
-    Round to nearest, ties towards positive infinity (standard 'round' for fixed-point).
+    Round to nearest, ties towards positive infinity (standard 'round' for
+    fixed-point).
     """
 
     RND_ZERO = 6
@@ -78,7 +80,8 @@ class QuantizationMode(enum.Enum):
 
     JAM_UNBIASED = 12
     """
-    Unbiased jamming/von Neumann rounding. Set LSB to 1 unless the previous LSB and all the removed bits are 0.
+    Unbiased jamming/von Neumann rounding. Set LSB to 1 unless the previous LSB
+    and all the removed bits are 0.
     """
 
     STOCH_WEIGHTED = 13
@@ -96,7 +99,8 @@ class OverflowMode(enum.Enum):
 
     NUMERIC_STD = 2
     """
-    Remove MSBs, but keep the most significant bit. As ieee.numeric_std resize for signed.
+    Remove MSBs, but keep the most significant bit. As ieee.numeric_std resize
+    for signed.
     """
 
 def set_float_quantization_mode(mode: QuantizationMode) -> None:
@@ -227,7 +231,7 @@ class APyCFixed:
         """
 
     def __copy__(self) -> APyCFixed: ...
-    def __deepcopy__(self, memo: dict) -> APyCFixed: ...
+    def __deepcopy__(self, memo: dict[int, Any]) -> APyCFixed: ...
     @overload
     def __eq__(self, arg: APyCFixed, /) -> bool: ...
     @overload
@@ -249,7 +253,7 @@ class APyCFixed:
     @overload
     def __ne__(self, arg: APyFixed, /) -> bool: ...
     @overload
-    def __add__(self, arg: APyCFixed, /) -> APyCFixed: ...
+    def __add__(self, arg: APyCFixed) -> APyCFixed: ...
     @overload
     def __add__(self, arg: int) -> APyCFixed: ...
     @overload
@@ -259,7 +263,7 @@ class APyCFixed:
     @overload
     def __add__(self, arg: APyFixed) -> APyCFixed: ...
     @overload
-    def __sub__(self, arg: APyCFixed, /) -> APyCFixed: ...
+    def __sub__(self, arg: APyCFixed) -> APyCFixed: ...
     @overload
     def __sub__(self, arg: int) -> APyCFixed: ...
     @overload
@@ -269,7 +273,7 @@ class APyCFixed:
     @overload
     def __sub__(self, arg: APyFixed) -> APyCFixed: ...
     @overload
-    def __mul__(self, arg: APyCFixed, /) -> APyCFixed: ...
+    def __mul__(self, arg: APyCFixed) -> APyCFixed: ...
     @overload
     def __mul__(self, arg: int) -> APyCFixed: ...
     @overload
@@ -279,7 +283,7 @@ class APyCFixed:
     @overload
     def __mul__(self, arg: APyFixed) -> APyCFixed: ...
     @overload
-    def __truediv__(self, arg: APyCFixed, /) -> APyCFixed: ...
+    def __truediv__(self, arg: APyCFixed) -> APyCFixed: ...
     @overload
     def __truediv__(self, arg: int) -> APyCFixed: ...
     @overload
@@ -531,8 +535,8 @@ class APyCFixed:
         >>> fx_a = apy.APyCFixed.from_complex(1.234 + 0.4j, int_bits=2, frac_bits=2)
         >>> fx_a
         APyCFixed((5, 2), bits=4, int_bits=2)
-        >>> str(fx_a)
-        '1.25+0.5j'
+        >>> print(fx_a)
+        (1.25+0.5j)
 
         Returns
         -------
@@ -577,11 +581,14 @@ class APyCFixedArray:
     Class for configurable complex-valued array fixed-point formats.
 
     .. versionadded:: 0.3
+    .. note::
+        For real-valued fixed-point formats, see :class:`APyFixed` and
+        :class:`APyFixedArray`.
     """
 
     def __init__(
         self,
-        bit_pattern_sequence: Sequence,
+        bit_pattern_sequence: Sequence[Any],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
@@ -594,47 +601,47 @@ class APyCFixedArray:
         """
 
     def __copy__(self) -> APyCFixedArray: ...
-    def __deepcopy__(self, memo: dict) -> APyCFixedArray: ...
+    def __deepcopy__(self, memo: dict[int, Any]) -> APyCFixedArray: ...
     @overload
-    def __add__(self, arg: APyCFixedArray, /) -> APyCFixedArray: ...
+    def __add__(self, arg: APyCFixedArray) -> APyCFixedArray: ...
     @overload
-    def __add__(self, arg: APyCFixed, /) -> APyCFixedArray: ...
+    def __add__(self, arg: APyCFixed) -> APyCFixedArray: ...
     @overload
-    def __add__(self, arg: complex, /) -> APyCFixedArray: ...
+    def __add__(self, arg: complex) -> APyCFixedArray: ...
     @overload
-    def __add__(self, arg: float, /) -> APyCFixedArray: ...
+    def __add__(self, arg: float) -> APyCFixedArray: ...
     @overload
-    def __add__(self, arg: int, /) -> APyCFixedArray: ...
+    def __add__(self, arg: int) -> APyCFixedArray: ...
     @overload
-    def __sub__(self, arg: APyCFixedArray, /) -> APyCFixedArray: ...
+    def __sub__(self, arg: APyCFixedArray) -> APyCFixedArray: ...
     @overload
-    def __sub__(self, arg: APyCFixed, /) -> APyCFixedArray: ...
+    def __sub__(self, arg: APyCFixed) -> APyCFixedArray: ...
     @overload
-    def __sub__(self, arg: complex, /) -> APyCFixedArray: ...
+    def __sub__(self, arg: complex) -> APyCFixedArray: ...
     @overload
-    def __sub__(self, arg: float, /) -> APyCFixedArray: ...
+    def __sub__(self, arg: float) -> APyCFixedArray: ...
     @overload
-    def __sub__(self, arg: int, /) -> APyCFixedArray: ...
+    def __sub__(self, arg: int) -> APyCFixedArray: ...
     @overload
-    def __mul__(self, arg: APyCFixedArray, /) -> APyCFixedArray: ...
+    def __mul__(self, arg: APyCFixedArray) -> APyCFixedArray: ...
     @overload
-    def __mul__(self, arg: APyCFixed, /) -> APyCFixedArray: ...
+    def __mul__(self, arg: APyCFixed) -> APyCFixedArray: ...
     @overload
-    def __mul__(self, arg: complex, /) -> APyCFixedArray: ...
+    def __mul__(self, arg: complex) -> APyCFixedArray: ...
     @overload
-    def __mul__(self, arg: float, /) -> APyCFixedArray: ...
+    def __mul__(self, arg: float) -> APyCFixedArray: ...
     @overload
-    def __mul__(self, arg: int, /) -> APyCFixedArray: ...
+    def __mul__(self, arg: int) -> APyCFixedArray: ...
     @overload
-    def __truediv__(self, arg: APyCFixedArray, /) -> APyCFixedArray: ...
+    def __truediv__(self, arg: APyCFixedArray) -> APyCFixedArray: ...
     @overload
-    def __truediv__(self, arg: APyCFixed, /) -> APyCFixedArray: ...
+    def __truediv__(self, arg: APyCFixed) -> APyCFixedArray: ...
     @overload
-    def __truediv__(self, arg: complex, /) -> APyCFixedArray: ...
+    def __truediv__(self, arg: complex) -> APyCFixedArray: ...
     @overload
-    def __truediv__(self, arg: float, /) -> APyCFixedArray: ...
+    def __truediv__(self, arg: float) -> APyCFixedArray: ...
     @overload
-    def __truediv__(self, arg: int, /) -> APyCFixedArray: ...
+    def __truediv__(self, arg: int) -> APyCFixedArray: ...
     def __neg__(self) -> APyCFixedArray: ...
     def __pos__(self) -> APyCFixedArray: ...
     def __ilshift__(self, arg: int, /) -> APyCFixedArray: ...
@@ -642,37 +649,37 @@ class APyCFixedArray:
     def __lshift__(self, arg: int, /) -> APyCFixedArray: ...
     def __rshift__(self, arg: int, /) -> APyCFixedArray: ...
     @overload
-    def __radd__(self, arg: APyCFixed, /) -> APyCFixedArray: ...
+    def __radd__(self, arg: APyCFixed) -> APyCFixedArray: ...
     @overload
-    def __radd__(self, arg: complex, /) -> APyCFixedArray: ...
+    def __radd__(self, arg: complex) -> APyCFixedArray: ...
     @overload
-    def __radd__(self, arg: float, /) -> APyCFixedArray: ...
+    def __radd__(self, arg: float) -> APyCFixedArray: ...
     @overload
-    def __radd__(self, arg: int, /) -> APyCFixedArray: ...
+    def __radd__(self, arg: int) -> APyCFixedArray: ...
     @overload
-    def __rsub__(self, arg: APyCFixed, /) -> APyCFixedArray: ...
+    def __rsub__(self, arg: APyCFixed) -> APyCFixedArray: ...
     @overload
-    def __rsub__(self, arg: complex, /) -> APyCFixedArray: ...
+    def __rsub__(self, arg: complex) -> APyCFixedArray: ...
     @overload
-    def __rsub__(self, arg: float, /) -> APyCFixedArray: ...
+    def __rsub__(self, arg: float) -> APyCFixedArray: ...
     @overload
-    def __rsub__(self, arg: int, /) -> APyCFixedArray: ...
+    def __rsub__(self, arg: int) -> APyCFixedArray: ...
     @overload
-    def __rmul__(self, arg: APyCFixed, /) -> APyCFixedArray: ...
+    def __rmul__(self, arg: APyCFixed) -> APyCFixedArray: ...
     @overload
-    def __rmul__(self, arg: complex, /) -> APyCFixedArray: ...
+    def __rmul__(self, arg: complex) -> APyCFixedArray: ...
     @overload
-    def __rmul__(self, arg: float, /) -> APyCFixedArray: ...
+    def __rmul__(self, arg: float) -> APyCFixedArray: ...
     @overload
-    def __rmul__(self, arg: int, /) -> APyCFixedArray: ...
+    def __rmul__(self, arg: int) -> APyCFixedArray: ...
     @overload
-    def __rtruediv__(self, arg: APyCFixed, /) -> APyCFixedArray: ...
+    def __rtruediv__(self, arg: APyCFixed) -> APyCFixedArray: ...
     @overload
-    def __rtruediv__(self, arg: complex, /) -> APyCFixedArray: ...
+    def __rtruediv__(self, arg: complex) -> APyCFixedArray: ...
     @overload
-    def __rtruediv__(self, arg: float, /) -> APyCFixedArray: ...
+    def __rtruediv__(self, arg: float) -> APyCFixedArray: ...
     @overload
-    def __rtruediv__(self, arg: int, /) -> APyCFixedArray: ...
+    def __rtruediv__(self, arg: int) -> APyCFixedArray: ...
     def __invert__(self) -> APyCFixedArray: ...
     @property
     def real(self) -> APyFixedArray:
@@ -855,7 +862,7 @@ class APyCFixedArray:
         :class:`APyCFixedArray`
         """
 
-    def is_identical(self, other: APyCFixedArray | APyCFixed) -> bool:
+    def is_identical(self, other: object) -> bool:
         """
         Test if two :class:`APyCFixedArray` objects are identical.
 
@@ -1196,7 +1203,7 @@ class APyCFixedArray:
         >>> a.prod()
         APyCFixed((36893488147419101837, 36893488147419103007), bits=65, int_bits=65)
         >>> print(a.prod())
-        -1395-225j
+        (-1395-225j)
 
         -------
         """
@@ -1308,7 +1315,7 @@ class APyCFixedArray:
         is handled using the :class:`OverflowMode.WRAP` mode. Exactly two of the
         three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
-        Using NumPy arrays as input is in general faster than e.g. lists.
+        Using NumPy arrays as input is in general faster than using e.g. lists.
 
         Parameters
         ----------
@@ -1359,9 +1366,10 @@ class APyCFixedArray:
         """
         Create an :class:`APyCFixedArray` object from a sequence of :class:`int`,
         :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
-        :class:`APyCFixed`. This is an alias for
-        :func:`~apytypes.APyCFixedArray.from_complex`, look there for more
-        documentation.
+        :class:`APyCFixed`.
+
+        This is an alias for :func:`~apytypes.APyCFixedArray.from_complex`, look
+        there for more documentation.
 
         Parameters
         ----------
@@ -1631,9 +1639,9 @@ class APyCFloat:
     @overload
     def __init__(
         self,
-        sign: tuple,
-        exp: tuple,
-        man: tuple,
+        sign: tuple[bool | int, bool | int],
+        exp: tuple[int, int],
+        man: tuple[int, int],
         exp_bits: int,
         man_bits: int,
         bias: int | None = None,
@@ -1663,6 +1671,15 @@ class APyCFloat:
         :class:`APyCFloat`
         """
 
+    def copy(self) -> APyCFloat:
+        """
+        Create a copy of the object.
+
+        .. versionadded:: 0.3
+        """
+
+    def __copy__(self) -> APyCFloat: ...
+    def __deepcopy__(self, memo: dict[int, Any]) -> APyCFloat: ...
     @overload
     def __eq__(self, arg: APyCFloat, /) -> bool: ...
     @overload
@@ -1684,7 +1701,7 @@ class APyCFloat:
     @overload
     def __ne__(self, arg: float, /) -> bool: ...
     @overload
-    def __add__(self, arg: APyCFloat, /) -> APyCFloat: ...
+    def __add__(self, arg: APyCFloat) -> APyCFloat: ...
     @overload
     def __add__(self, arg: int) -> APyCFloat: ...
     @overload
@@ -1694,7 +1711,7 @@ class APyCFloat:
     @overload
     def __add__(self, arg: complex) -> APyCFloat: ...
     @overload
-    def __sub__(self, arg: APyCFloat, /) -> APyCFloat: ...
+    def __sub__(self, arg: APyCFloat) -> APyCFloat: ...
     @overload
     def __sub__(self, arg: int) -> APyCFloat: ...
     @overload
@@ -1704,7 +1721,7 @@ class APyCFloat:
     @overload
     def __sub__(self, arg: complex) -> APyCFloat: ...
     @overload
-    def __mul__(self, arg: APyCFloat, /) -> APyCFloat: ...
+    def __mul__(self, arg: APyCFloat) -> APyCFloat: ...
     @overload
     def __mul__(self, arg: int) -> APyCFloat: ...
     @overload
@@ -1714,7 +1731,7 @@ class APyCFloat:
     @overload
     def __mul__(self, arg: complex) -> APyCFloat: ...
     @overload
-    def __truediv__(self, arg: APyCFloat, /) -> APyCFloat: ...
+    def __truediv__(self, arg: APyCFloat) -> APyCFloat: ...
     @overload
     def __truediv__(self, arg: int) -> APyCFloat: ...
     @overload
@@ -1902,7 +1919,7 @@ class APyCFloat:
         :class:`bool`
         """
 
-    def is_identical(self, other: APyCFloat, ignore_zero_sign: bool = False) -> bool:
+    def is_identical(self, other: object, ignore_zero_sign: bool = False) -> bool:
         """
         Test if two :py:class:`APyCFloat` objects are identical.
 
@@ -1964,7 +1981,1095 @@ class APyCFloat:
         """
 
 class APyCFloatArray:
-    pass
+    """
+    Class for configurable complex-valued array floating-point formats.
+
+    .. versionadded:: 0.4
+
+    .. note::
+        For real-valued floating-point formats, see :class:`APyFloat` and
+        :class:`APyFloatArray`.
+    """
+
+    def __init__(
+        self,
+        sign_seq: Sequence[Any],
+        exp_seq: Sequence[Any],
+        man_seq: Sequence[Any],
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
+    ) -> None: ...
+    @overload
+    def __add__(self, arg: APyCFloatArray) -> APyCFloatArray: ...
+    @overload
+    def __add__(self, arg: APyCFloat) -> APyCFloatArray: ...
+    @overload
+    def __add__(self, arg: int) -> APyCFloatArray: ...
+    @overload
+    def __add__(self, arg: float) -> APyCFloatArray: ...
+    @overload
+    def __add__(self, arg: complex) -> APyCFloatArray: ...
+    @overload
+    def __add__(self, arg: Annotated[ArrayLike, dict(order="C")]) -> APyCFloatArray: ...
+    @overload
+    def __sub__(self, arg: APyCFloatArray) -> APyCFloatArray: ...
+    @overload
+    def __sub__(self, arg: APyCFloat) -> APyCFloatArray: ...
+    @overload
+    def __sub__(self, arg: int) -> APyCFloatArray: ...
+    @overload
+    def __sub__(self, arg: float) -> APyCFloatArray: ...
+    @overload
+    def __sub__(self, arg: complex) -> APyCFloatArray: ...
+    @overload
+    def __sub__(self, arg: Annotated[ArrayLike, dict(order="C")]) -> APyCFloatArray: ...
+    @overload
+    def __mul__(self, arg: APyCFloatArray) -> APyCFloatArray: ...
+    @overload
+    def __mul__(self, arg: APyCFloat) -> APyCFloatArray: ...
+    @overload
+    def __mul__(self, arg: int) -> APyCFloatArray: ...
+    @overload
+    def __mul__(self, arg: float) -> APyCFloatArray: ...
+    @overload
+    def __mul__(self, arg: complex) -> APyCFloatArray: ...
+    @overload
+    def __mul__(self, arg: Annotated[ArrayLike, dict(order="C")]) -> APyCFloatArray: ...
+    @overload
+    def __truediv__(self, arg: APyCFloatArray) -> APyCFloatArray: ...
+    @overload
+    def __truediv__(self, arg: APyCFloat) -> APyCFloatArray: ...
+    @overload
+    def __truediv__(self, arg: int) -> APyCFloatArray: ...
+    @overload
+    def __truediv__(self, arg: float) -> APyCFloatArray: ...
+    @overload
+    def __truediv__(self, arg: complex) -> APyCFloatArray: ...
+    @overload
+    def __truediv__(
+        self, arg: Annotated[ArrayLike, dict(order="C")]
+    ) -> APyCFloatArray: ...
+    def __neg__(self) -> APyCFloatArray: ...
+    def __pos__(self) -> APyCFloatArray: ...
+    @overload
+    def __radd__(self, arg: APyCFloat) -> APyCFloatArray: ...
+    @overload
+    def __radd__(self, arg: int) -> APyCFloatArray: ...
+    @overload
+    def __radd__(self, arg: float) -> APyCFloatArray: ...
+    @overload
+    def __radd__(self, arg: complex) -> APyCFloatArray: ...
+    @overload
+    def __rsub__(self, arg: APyCFloat) -> APyCFloatArray: ...
+    @overload
+    def __rsub__(self, arg: int) -> APyCFloatArray: ...
+    @overload
+    def __rsub__(self, arg: float) -> APyCFloatArray: ...
+    @overload
+    def __rsub__(self, arg: complex) -> APyCFloatArray: ...
+    @overload
+    def __rmul__(self, arg: APyCFloat) -> APyCFloatArray: ...
+    @overload
+    def __rmul__(self, arg: int) -> APyCFloatArray: ...
+    @overload
+    def __rmul__(self, arg: float) -> APyCFloatArray: ...
+    @overload
+    def __rmul__(self, arg: complex) -> APyCFloatArray: ...
+    @overload
+    def __rtruediv__(self, arg: APyCFloat) -> APyCFloatArray: ...
+    @overload
+    def __rtruediv__(self, arg: int) -> APyCFloatArray: ...
+    @overload
+    def __rtruediv__(self, arg: float) -> APyCFloatArray: ...
+    @overload
+    def __rtruediv__(self, arg: complex) -> APyCFloatArray: ...
+    def copy(self) -> APyCFloatArray:
+        """Create a copy of the object."""
+
+    def __copy__(self) -> APyCFloatArray: ...
+    def __deepcopy__(self, memo: dict[int, Any]) -> APyCFloatArray: ...
+    @property
+    def exp_bits(self) -> int:
+        """
+        Number of exponent bits.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def man_bits(self) -> int:
+        """
+        Number of mantissa bits.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def bits(self) -> int:
+        """
+        Total number of bits.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def bias(self) -> int:
+        """
+        Exponent bias.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def shape(self) -> tuple[int, ...]:
+        """
+        The shape of the array.
+
+        Returns
+        -------
+        :class:`tuple` of :class:`int`
+        """
+
+    @property
+    def ndim(self) -> int:
+        """
+        Number of dimensions in the array.
+
+        Returns
+        -------
+        :class:`int`
+        """
+
+    @property
+    def T(self) -> APyCFloatArray:
+        """
+        The transposition of the array.
+
+        Equivalent to calling :func:`APyCFloatArray.transpose`.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+        """
+
+    @staticmethod
+    def from_complex(
+        complex_sequence: Sequence[Any],
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
+    ) -> APyCFloatArray:
+        """
+        Create an :class:`APyCFloatArray` object from a sequence of :class:`int`,
+        :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
+        :class:`APyCFixed`.
+
+        Using NumPy arrays as input is in general faster than using e.g. lists.
+
+        Parameters
+        ----------
+        complex_sequence : sequence of :class:`complex`, :class:`float`, :class:`int`, :class:`APyCFloat`, :class:`APyCFixed`, :class:`APyFixed`, or :class:`APyFloat`.
+            Values to initialize from. The tensor shape will be taken from the
+            sequence shape.
+        exp_bits : :class:`int`
+            Number of exponent bits in the created floating-point tensor.
+        man_bits : :class:`int`
+            Number of mantissa bits in the created floating-point tensor.
+        bias : :class:`int`, optional
+            Bias in the created floating-point tensor.
+
+        Examples
+        --------
+
+        >>> import apytypes as apy
+        >>> a = apy.APyCFloatArray.from_complex(
+        ...     [1.0, 1.25, 1.49], exp_bits=4, man_bits=6
+        ... )
+        >>> a
+        APyCFloatArray(
+            [ (0, 0),  (0, 0),  (0, 0)],
+            [ (7, 0),  (7, 0),  (7, 0)],
+            [ (0, 0), (16, 0), (31, 0)],
+            exp_bits=4,
+            man_bits=6
+        )
+        >>> print(a)
+        [       1+0j,     1.25+0j, 1.484375+0j]
+
+        >>> b = apy.APyCFloatArray.from_complex(
+        ...     [
+        ...         [1.0, 2.0, 3.0],
+        ...         [4.0, 5.0, 6.0],
+        ...     ],
+        ...     exp_bits=5,
+        ...     man_bits=2,
+        ... )
+        >>> b
+        APyCFloatArray(
+            [[ (0, 0),  (0, 0),  (0, 0)],
+             [ (0, 0),  (0, 0),  (0, 0)]],
+        <BLANKLINE>
+            [[(15, 0), (16, 0), (16, 0)],
+             [(17, 0), (17, 0), (17, 0)]],
+        <BLANKLINE>
+            [[ (0, 0),  (0, 0),  (2, 0)],
+             [ (0, 0),  (1, 0),  (2, 0)]],
+            exp_bits=5,
+            man_bits=2
+        )
+        >>> print(b)
+        [[1+0j, 2+0j, 3+0j],
+         [4+0j, 5+0j, 6+0j]]
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+
+        See Also
+        --------
+        fp
+        from_array
+        """
+
+    @staticmethod
+    def from_float(
+        complex_sequence: Sequence[Any],
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
+    ) -> APyCFloatArray:
+        """
+        Create an :class:`APyCFloatArray` object from a sequence of :class:`int`,
+        :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
+        :class:`APyCFixed`.
+
+        This is an alias for :func:`~apytypes.APyCFloatArray.from_complex`, look
+        there for more documentation.
+
+        Parameters
+        ----------
+        complex_sequence : sequence of :class:`complex`, :class:`float`, :class:`int`, :class:`APyCFloat`, :class:`APyCFixed`, :class:`APyFixed`, or :class:`APyFloat`.
+            Values to initialize from. The tensor shape will be taken from the
+            sequence shape.
+        exp_bits : :class:`int`
+            Number of exponent bits in the created floating-point tensor.
+        man_bits : :class:`int`
+            Number of mantissa bits in the created floating-point tensor.
+        bias : :class:`int`, optional
+            Bias in the created floating-point tensor.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+        """
+
+    @staticmethod
+    def from_array(
+        ndarray: Annotated[ArrayLike, dict(order="C")],
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
+    ) -> APyCFloatArray:
+        """
+        Create an :class:`APyCFloatArray` from an ndarray.
+
+        Parameters
+        ----------
+        ndarray : ndarray
+            Values to initialize from. The tensor shape will be taken from the
+            ndarray shape.
+        exp_bits : :class:`int`
+            Number of exponent bits in the created floating-point tensor
+        man_bits : :class:`int`
+            Number of mantissa bits in the created floating-point tensor
+        bias : :class:`int`, optional
+            Bias in the created floating-point tensor
+
+        Examples
+        --------
+
+        >>> import apytypes as apy
+        >>> import numpy as np
+        >>> a = apy.APyCFloatArray.from_array(
+        ...     np.array(
+        ...         [
+        ...             [1.0, 2.0, 3.0],
+        ...             [4.0, 5.0, 6.0],
+        ...         ]
+        ...     ),
+        ...     man_bits=10,
+        ...     exp_bits=10,
+        ... )
+        >>> print(a)
+        [[1+0j, 2+0j, 3+0j],
+         [4+0j, 5+0j, 6+0j]]
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+
+        See Also
+        --------
+        fp
+        from_float
+        """
+
+    def is_identical(self, other: object, ignore_zero_sign: bool = False) -> bool:
+        """
+        Test if two :py:class:`APyCFloatArray` objects are identical.
+
+        Two :class:`APyCFloatArray` objects are considered identical if, and only
+        if:
+            * They represent exactly the same tensor shape
+            * They store the exact same floating-point values in all elements
+            * They have the exact same bit format (`exp_bits`, `man_bits`, and
+              `bias`)
+
+        Parameters
+        ----------
+        other : :class:`APyCFloatArray`
+            The floating-point object to test identicality against.
+
+        ignore_zero_sign : :class:`bool`, default: :code:`False`
+            If :code:`True`, plus and minus zero are considered identical. If
+            :code:`False`, plus and minus zero are considered different.
+
+        Returns
+        -------
+        :class:`bool`
+        """
+
+    def reshape(self, new_shape: int | tuple[int, ...]) -> APyCFloatArray:
+        """
+        Reshape the APyCFloatArray to the specified shape without changing its data.
+
+        Parameters
+        ----------
+        new_shape : :class:`tuple` of :class:`int`
+            The new shape should be compatible with the original shape. If a
+            dimension is -1, its value will be inferred from the length of the array
+            and remaining dimensions. Only one dimension can be -1.
+
+        Raises
+        ------
+        :class:`ValueError`
+            If negative dimensions less than -1 are provided, if the total size of
+            the new array is not unchanged and divisible by the known dimensions, or
+            if the total number of elements does not match the original array.
+
+        Examples
+        --------
+        >>> import apytypes as apy
+        >>> arr = apy.APyCFloatArray.from_float([1, 2, -3, -4], exp_bits=8, man_bits=23)
+        >>> print(arr)
+        [ 1+0j,  2+0j, -3+0j, -4+0j]
+        >>> print(arr.reshape((2, 2)))
+        [[ 1+0j,  2+0j],
+         [-3+0j, -4+0j]]
+        >>> print(arr.reshape((4, 1)))
+        [[ 1+0j],
+         [ 2+0j],
+         [-3+0j],
+         [-4+0j]]
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+        """
+
+    def transpose(self, axes: tuple[int, ...] | None = None) -> APyCFloatArray:
+        """
+        Return copy of array with axes transposed.
+
+        For a 1-D array, this return the same array.
+        For a 2-D array, this is the standard matrix transpose.
+        For an n-D array, if axes are given, their order indicates how the
+        axes are permuted (see Examples). If axes are not provided, then
+        ``a.transpose(a).shape == a.shape[::-1]``.
+
+        Parameters
+        ----------
+        axes : :class:`tuple` of :class:`int`, optional
+            If specified, it must be a tuple or list which contains a
+            permutation of [0,1,...,N-1] where N is the number of axes of
+            `a`. The `i`'th axis of the returned array will correspond to the
+            axis numbered ``axes[i]`` of the input. If not specified,
+            defaults to ``range(a.ndim)[::-1]``, which reverses the order of
+            the axes.
+
+        Examples
+        --------
+        >>> import apytypes as apy
+        >>> a = apy.APyCFloatArray.from_float(
+        ...     [[1.0, 2.0, 3.0], [-4.0, -5.0, -6.0]], exp_bits=5, man_bits=5
+        ... )
+        >>> print(a)
+        [[ 1+0j,  2+0j,  3+0j],
+         [-4+0j, -5+0j, -6+0j]]
+        >>> print(a.transpose())
+        [[ 1+0j, -4+0j],
+         [ 2+0j, -5+0j],
+         [ 3+0j, -6+0j]]
+
+        >>> b = apy.APyCFloatArray.from_float(
+        ...     [1.0] * 6, exp_bits=5, man_bits=5
+        ... ).reshape((1, 2, 3))
+        >>> b.transpose((1, 0, 2)).shape
+        (2, 1, 3)
+        >>> b.transpose((-2, -3, -1)).shape
+        (2, 1, 3)
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+            `a` with its axes permuted.
+        """
+
+    def squeeze(self, axis: int | tuple[int, ...] | None = None) -> APyCFloatArray:
+        """
+        Remove axes of size one at the specified axis/axes.
+
+        If no axis is given, remove all dimensions with size one.
+
+        Parameters
+        ----------
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
+            The axes to squeeze, a given axis with a size other than one will
+            result in an error. No given axes  will be remove all dimensions
+            of size one.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+
+        Raises
+        ------
+        :class:`ValueError`
+            If given an axis of a size other than one a ValueError will be
+            thrown.
+        :class:`IndexError`
+            If a specified axis is outside of the existing number of
+            dimensions for the array.
+        """
+
+    def swapaxes(self, axis1: int, axis2: int) -> APyCFloatArray:
+        """
+        Interchange two axes of an array.
+
+        Parameters
+        ----------
+        axis1 : :class:`int`
+            First axis.
+        axis2 : :class:`int`
+            Second axis.
+
+        Examples
+        --------
+        >>> import apytypes as apy
+        >>> a = apy.APyCFloatArray.from_float([[1, 2, 3]], exp_bits=5, man_bits=2)
+        >>> print(a)
+        [[1+0j, 2+0j, 3+0j]]
+        >>> print(a.swapaxes(0, 1))
+        [[1+0j],
+         [2+0j],
+         [3+0j]]
+
+        >>> b = apy.APyCFloatArray.from_float(
+        ...     [[[0, 1], [2, 3]], [[4, 5], [6, 7]]], exp_bits=5, man_bits=5
+        ... )
+        >>> print(b)
+        [[[0+0j, 1+0j],
+          [2+0j, 3+0j]],
+        <BLANKLINE>
+         [[4+0j, 5+0j],
+          [6+0j, 7+0j]]]
+        >>> print(b.swapaxes(0, 2))
+        [[[0+0j, 4+0j],
+          [2+0j, 6+0j]],
+        <BLANKLINE>
+         [[1+0j, 5+0j],
+          [3+0j, 7+0j]]]
+
+        Returns
+        -------
+        a_swapped : :class:`APyCFloatArray`
+            Copy of `a` with axes swapped
+        """
+
+    def flatten(self) -> APyCFloatArray:
+        """
+        Return a copy of the array collapsed into one dimension.
+
+        Examples
+        --------
+        >>> import apytypes as apy
+        >>> arr = apy.APyCFloatArray.from_float(
+        ...     [[1, 2], [-3, -4]], exp_bits=8, man_bits=23
+        ... )
+        >>> print(arr)
+        [[ 1+0j,  2+0j],
+         [-3+0j, -4+0j]]
+        >>> print(arr.flatten())
+        [ 1+0j,  2+0j, -3+0j, -4+0j]
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+        """
+
+    def ravel(self) -> APyCFloatArray:
+        """
+        Return a copy of the array collapsed into one dimension. Same as flatten
+        with current memory-copy model.
+
+        Examples
+        --------
+        >>> import apytypes as apy
+        >>> arr = apy.APyCFloatArray.from_float(
+        ...     [[1, 2], [-3, -4]], exp_bits=8, man_bits=23
+        ... )
+        >>> print(arr)
+        [[ 1+0j,  2+0j],
+         [-3+0j, -4+0j]]
+        >>> print(arr.ravel())
+        [ 1+0j,  2+0j, -3+0j, -4+0j]
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+        """
+
+    @staticmethod
+    def zeros(
+        shape: int | tuple[int, ...],
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
+    ) -> APyCFloatArray:
+        """
+        Initialize an array with zeros.
+
+        Parameters
+        ----------
+        shape : :class:`tuple`
+            Shape of the array.
+        exp_bits : :class:`int`
+            Number of exponent bits.
+        man_bits : :class:`int`
+            Number of mantissa bits.
+        bias : :class:`int`, optional
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+            An array filled with zeros.
+        """
+
+    @staticmethod
+    def ones(
+        shape: int | tuple[int, ...],
+        exp_bits: int,
+        man_bits: int,
+        bias: int | None = None,
+    ) -> APyCFloatArray:
+        """
+        Initialize an array with ones.
+
+        Parameters
+        ----------
+        shape : :class:`tuple`
+            Shape of the array.
+        exp_bits : :class:`int`
+            Number of exponent bits.
+        man_bits : :class:`int`
+            Number of mantissa bits.
+        bias : :class:`int`, optional
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+            An array filled with ones.
+        """
+
+    @staticmethod
+    def eye(
+        n: int,
+        exp_bits: int,
+        man_bits: int,
+        m: int | None = None,
+        bias: int | None = None,
+    ) -> APyCFloatArray:
+        """
+        Initialize an array with ones on the diagonal.
+
+        Parameters
+        ----------
+        n : :class:`int`
+            Number of rows (and columns) in the n x n output.
+        exp_bits : :class:`int`
+            Number of exponent bits.
+        man_bits : :class:`int`
+            Number of mantissa bits.
+        m : :class:`int`, optional
+            Number of columns. Default is None, which results in an n x n output.
+        bias : :class:`int`, optional
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+            An array with the specified value on the diagonal.
+        """
+
+    @staticmethod
+    def identity(
+        n: int, exp_bits: int, man_bits: int, bias: int | None = None
+    ) -> APyCFloatArray:
+        """
+        Initialize an identity matrix with ones on the diagonal.
+
+        Parameters
+        ----------
+        n : :class:`int`
+            Number of rows (and columns) in the n x n output.
+        exp_bits : :class:`int`
+            Number of exponent bits.
+        man_bits : :class:`int`
+            Number of mantissa bits.
+        bias : :class:`int`, optional
+            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+            An identity matrix with ones on the diagonal.
+        """
+
+    @staticmethod
+    def full(shape: int | tuple[int, ...], fill_value: APyCFloat) -> APyCFloatArray:
+        """
+        Initialize an array filled with the specified value.
+
+        Parameters
+        ----------
+        shape : :class:`tuple`
+            Shape of the array.
+        fill_value : APyFloat
+            Value to fill the array.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+            An array filled with the specified value.
+        """
+
+    def to_numpy(self) -> Annotated[ArrayLike, dict(dtype="complex128")]:
+        """
+        Return array as a :class:`numpy.ndarray` of :class:`numpy.complex128`.
+
+        The returned array has the same `shape` and values as `self`. This
+        method rounds away from infinity on ties.
+
+        Returns
+        -------
+        :class:`numpy.ndarray`
+        """
+
+    def broadcast_to(self, shape: int | tuple[int, ...]) -> APyCFloatArray:
+        """
+        Broadcast array to new shape.
+
+        Parameters
+        ----------
+        shape : :class:`tuple` of :class:`int` or :class:`int`
+            The shape to broadcast to. A single integer ``i`` is interpreted as
+            ``(i,)``.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+        """
+
+    def cast(
+        self,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        quantization: QuantizationMode | None = None,
+    ) -> APyCFloatArray:
+        """
+        Change format of the floating-point array.
+
+        This is the primary method for performing quantization when dealing with
+        APyTypes floating-point arrays.
+
+        Parameters
+        ----------
+        exp_bits : :class:`int`, optional
+            Number of exponent bits in the result.
+        man_bits : :class:`int`, optional
+            Number of mantissa bits in the result.
+        bias : :class:`int`, optional
+            Bias used in the result.
+        quantization : :class:`QuantizationMode`, optional.
+            Quantization mode to use in this cast. If None, use the global
+            quantization mode.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+        """
+
+    def sum(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyCFloatArray | APyCFloat:
+        """
+        Return the sum of the elements along specified axis/axes.
+
+        Parameters
+        ----------
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
+            The axis/axes to summate across. Will summate the whole array if no int
+            or tuple is specified.
+
+        Returns
+        -------
+        :class:`APyCFloatArray` or :class:`APyCFloat`
+
+        Raises
+        ------
+        :class:`IndexError`
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
+
+        Examples
+        --------
+        >>> import apytypes as apy
+        >>> a = apy.APyCFloatArray.from_float(
+        ...     [1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10
+        ... )
+        >>> print(a)
+        [1+0j, 2+0j, 3+0j, 4+0j, 5+0j, 6+0j]
+        >>> print(a.sum())
+        (21+0j)
+
+        -------
+        """
+
+    def cumsum(self, axis: int | None = None) -> APyCFloatArray:
+        """
+        Return the cumulative sum of the elements along a given axis.
+
+        Parameters
+        ----------
+        axis : :class:`int`, optional
+            The axis to summate across. If not given an axis it will return the
+            cumulative sum of the flattened array.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+
+        Raises
+        ------
+        :class:`IndexError`
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
+
+        Examples
+        --------
+        >>> import apytypes as apy
+        >>> a = apy.APyCFloatArray.from_float(
+        ...     [[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10
+        ... )
+        >>> print(a)
+        [[1+0j, 2+0j, 3+0j],
+         [4+0j, 5+0j, 6+0j]]
+        >>> print(a.cumsum())
+        [ 1+0j,  3+0j,  6+0j, 10+0j, 15+0j, 21+0j]
+        >>> print(a.cumsum(0))
+        [[1+0j, 2+0j, 3+0j],
+         [5+0j, 7+0j, 9+0j]]
+        >>> print(a.cumsum(1))
+        [[ 1+0j,  3+0j,  6+0j],
+         [ 4+0j,  9+0j, 15+0j]]
+
+        -------
+        """
+
+    def nansum(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyCFloatArray | APyCFloat:
+        """
+        Return the sum of the elements along specified axis/axes treating NaN as 0.
+
+        Parameters
+        ----------
+        axis : :class:`tuple` of :class:`int` or :class:`int`, optional
+            The axis/axes to summate across. Will summate the whole array if no int
+            or tuple is specified.
+
+        Returns
+        -------
+        :class:`APyCFloatArray` or :class:`APyCFloat`
+
+        Raises
+        ------
+        :class:`IndexError`
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
+
+        Examples
+        --------
+        >>> import apytypes as apy
+        >>> nan = float("nan")
+        >>> a = apy.APyCFloatArray.from_float(
+        ...     [1, 2, 3, 4, 5, nan], exp_bits=10, man_bits=10
+        ... )
+        >>> print(a)
+        [  1+0j,   2+0j,   3+0j,   4+0j,   5+0j, nan+0j]
+        >>> print(a.sum())
+        (nan+0j)
+        >>> print(a.nansum())
+        (15+0j)
+
+        -------
+        """
+
+    def nancumsum(self, axis: int | None = None) -> APyCFloatArray:
+        """
+        Return cumulative sum of elements along a given axis treating NaN as 0.
+
+        Parameters
+        ----------
+        axis : :class:`int`, optional
+            The axis to summate across. If not given an axis it will return the
+            cumulative sum of the flattened array.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+
+        Raises
+        ------
+        :class:`IndexError`
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
+
+        Examples
+        --------
+        >>> import apytypes as apy
+        >>> nan = float("nan")
+        >>> a = apy.APyCFloatArray.from_float(
+        ...     [[1, 2, 3], [4, nan, 6]], exp_bits=10, man_bits=10
+        ... )
+        >>> print(a)
+        [[  1+0j,   2+0j,   3+0j],
+         [  4+0j, nan+0j,   6+0j]]
+        >>> print(a.cumsum())
+        [  1+0j,   3+0j,   6+0j,  10+0j, nan+0j, nan+0j]
+        >>> print(a.nancumsum())
+        [ 1+0j,  3+0j,  6+0j, 10+0j, 10+0j, 16+0j]
+
+        >>> print(a.cumsum(0))
+        [[  1+0j,   2+0j,   3+0j],
+         [  5+0j, nan+0j,   9+0j]]
+        >>> print(a.nancumsum(0))
+        [[1+0j, 2+0j, 3+0j],
+         [5+0j, 2+0j, 9+0j]]
+
+        >>> print(a.cumsum(1))
+        [[  1+0j,   3+0j,   6+0j],
+         [  4+0j, nan+0j, nan+0j]]
+        >>> print(a.nancumsum(1))
+        [[ 1+0j,  3+0j,  6+0j],
+         [ 4+0j,  4+0j, 10+0j]]
+
+        -------
+        """
+
+    def prod(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyCFloatArray | APyCFloat:
+        """
+        Return product of elements along specified axis/axes.
+
+        Parameters
+        ----------
+        axis : :class:`tuple`, int, optional
+            The axis/axes to calculate the product across. If not given an axis it
+            will return the product of the flattened array.
+
+        Returns
+        -------
+        :class:`APyCFloatArray` or :class:`APyCFloat`
+
+        Raises
+        ------
+        :class:`IndexError`
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
+
+        Examples
+        --------
+        >>> import apytypes as apy
+        >>> a = apy.APyCFloatArray.from_float(
+        ...     [1, 2, 3, 4, 5, 6], exp_bits=10, man_bits=10
+        ... )
+        >>> print(a)
+        [1+0j, 2+0j, 3+0j, 4+0j, 5+0j, 6+0j]
+        >>> print(a.prod())
+        (720+0j)
+
+        -------
+        """
+
+    def cumprod(self, axis: int | None = None) -> APyCFloatArray:
+        """
+        Return cumulative product of elements along a given axes.
+
+        Parameters
+        ----------
+        axis : :class:`int`, optional
+            The axes to calculate the product across. If not given an axis it will
+            return the cumulative product of the flattened array.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+
+        Raises
+        ------
+        :class:`IndexError`
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
+
+        Examples
+        --------
+        >>> import apytypes as apy
+        >>> a = apy.APyCFloatArray.from_float(
+        ...     [[1, 2, 3], [4, 5, 6]], exp_bits=10, man_bits=10
+        ... )
+        >>> print(a)
+        [[1+0j, 2+0j, 3+0j],
+         [4+0j, 5+0j, 6+0j]]
+        >>> print(a.cumprod())
+        [  1+0j,   2+0j,   6+0j,  24+0j, 120+0j, 720+0j]
+        >>> print(a.cumprod(0))
+        [[ 1+0j,  2+0j,  3+0j],
+         [ 4+0j, 10+0j, 18+0j]]
+        >>> print(a.cumprod(1))
+        [[  1+0j,   2+0j,   6+0j],
+         [  4+0j,  20+0j, 120+0j]]
+
+        -------
+        """
+
+    def nanprod(
+        self, axis: int | tuple[int, ...] | None = None
+    ) -> APyCFloatArray | APyCFloat:
+        """
+        Return product of the elements along a given axis treating NaN as 0.
+
+        Parameters
+        ----------
+        axis : :class:`int`, optional
+            The axis to calculate the product across. If not given an axis it will
+            return the product of the flattened array.
+
+        Returns
+        -------
+        :class:`APyCFloatArray` or :class:`APyCFloat`
+
+        Raises
+        ------
+        :class:`IndexError`
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
+        """
+
+    def nancumprod(self, axis: int | None = None) -> APyCFloatArray:
+        """
+        Return cumulative product of elements along a given axis treating NaN as 0.
+
+        Parameters
+        ----------
+        axis : :class:`int`, optional
+            The axis to calculate the product across. If not given an axis it will
+            return the cumulative product of the flattened array.
+
+        Returns
+        -------
+        :class:`APyCFloatArray`
+
+        Raises
+        ------
+        :class:`IndexError`
+            If a specified axis is outside of the existing number of dimensions for
+            the array.
+        """
+
+    def convolve(self, other: APyCFloatArray, mode: str = "full") -> APyCFloatArray:
+        """
+        Return the discrete linear convolution with another one-dimensional array.
+
+        Requires that ``ndim = 1`` for both `self` and `other`.
+
+        Parameters
+        ----------
+        other : :class:`APyCFloatArray`
+            The one-dimensional array of length :code:`N` to convolve with.
+
+        mode : {'full', 'same', 'valid'}, default: 'full'
+            'full':
+                Return the full convolution for each point of overlap. The
+                resulting single-dimensional shape will have length :code:`N + M -
+                1`. Boundary effects occurs for points where the `a` and `v` do not
+                overlap completely.
+            'same':
+                Return a convolution of length :code:`max(M, N)`. Boundary effects
+                still occur around the edges of the result.
+            'valid':
+                Return the convolution for each point of full overlap. The
+                resulting single-dimensional shape will have length :code:`max(M, N)
+                - min(M, N) + 1`
+
+        Returns
+        -------
+        convolved : :class:`APyCFloatArray`
+            The convolved array.
+        """
+
+    def __matmul__(self, rhs: APyCFloatArray) -> APyCFloatArray | APyCFloat: ...
+    def __repr__(self) -> str: ...
+    def __str__(self, base: int = 10) -> str: ...
+    def __getitem__(
+        self,
+        key: int
+        | slice
+        | types.EllipsisType
+        | tuple[int | slice | types.EllipsisType, ...],
+    ) -> APyCFloatArray | APyCFloat: ...
+    def __setitem__(
+        self,
+        key: int
+        | slice
+        | types.EllipsisType
+        | tuple[int | slice | types.EllipsisType, ...],
+        val: APyCFloatArray | APyCFloat,
+    ) -> None: ...
+    def __len__(self) -> int: ...
 
 class APyFixed:
     r"""
@@ -2050,7 +3155,7 @@ class APyFixed:
         """
 
     def __copy__(self) -> APyFixed: ...
-    def __deepcopy__(self, memo: dict) -> APyFixed: ...
+    def __deepcopy__(self, memo: dict[int, Any]) -> APyFixed: ...
     @overload
     def __eq__(self, arg: APyFixed, /) -> bool: ...
     @overload
@@ -2088,25 +3193,25 @@ class APyFixed:
     @overload
     def __ge__(self, arg: float, /) -> bool: ...
     @overload
-    def __add__(self, arg: APyFixed, /) -> APyFixed: ...
+    def __add__(self, arg: APyFixed) -> APyFixed: ...
     @overload
     def __add__(self, arg: int) -> APyFixed: ...
     @overload
     def __add__(self, arg: float) -> APyFixed: ...
     @overload
-    def __sub__(self, arg: APyFixed, /) -> APyFixed: ...
+    def __sub__(self, arg: APyFixed) -> APyFixed: ...
     @overload
     def __sub__(self, arg: int) -> APyFixed: ...
     @overload
     def __sub__(self, arg: float) -> APyFixed: ...
     @overload
-    def __mul__(self, arg: APyFixed, /) -> APyFixed: ...
+    def __mul__(self, arg: APyFixed) -> APyFixed: ...
     @overload
     def __mul__(self, arg: int) -> APyFixed: ...
     @overload
     def __mul__(self, arg: float) -> APyFixed: ...
     @overload
-    def __truediv__(self, arg: APyFixed, /) -> APyFixed: ...
+    def __truediv__(self, arg: APyFixed) -> APyFixed: ...
     @overload
     def __truediv__(self, arg: int) -> APyFixed: ...
     @overload
@@ -2185,7 +3290,7 @@ class APyFixed:
         :class:`int`
         """
 
-    def is_identical(self, other: APyFixed) -> bool:
+    def is_identical(self, other: APyFixed | APyFixedArray) -> bool:
         """
         Test if two fixed-point objects are exactly identical.
 
@@ -2440,54 +3545,48 @@ class APyFixedArray:
         """
 
     def __copy__(self) -> APyFixedArray: ...
-    def __deepcopy__(self, memo: dict) -> APyFixedArray: ...
+    def __deepcopy__(self, memo: dict[int, Any]) -> APyFixedArray: ...
     @overload
-    def __add__(self, arg: APyFixedArray, /) -> APyFixedArray: ...
+    def __add__(self, arg: APyFixedArray) -> APyFixedArray: ...
     @overload
-    def __add__(self, arg: int, /) -> APyFixedArray: ...
+    def __add__(self, arg: int) -> APyFixedArray: ...
     @overload
-    def __add__(self, arg: float, /) -> APyFixedArray: ...
+    def __add__(self, arg: float) -> APyFixedArray: ...
     @overload
-    def __add__(self, arg: APyFixed, /) -> APyFixedArray: ...
+    def __add__(self, arg: APyFixed) -> APyFixedArray: ...
     @overload
-    def __add__(
-        self, arg: Annotated[ArrayLike, dict(order="C")], /
-    ) -> APyFixedArray: ...
+    def __add__(self, arg: Annotated[ArrayLike, dict(order="C")]) -> APyFixedArray: ...
     @overload
-    def __sub__(self, arg: APyFixedArray, /) -> APyFixedArray: ...
+    def __sub__(self, arg: APyFixedArray) -> APyFixedArray: ...
     @overload
-    def __sub__(self, arg: int, /) -> APyFixedArray: ...
+    def __sub__(self, arg: int) -> APyFixedArray: ...
     @overload
-    def __sub__(self, arg: float, /) -> APyFixedArray: ...
+    def __sub__(self, arg: float) -> APyFixedArray: ...
     @overload
-    def __sub__(self, arg: APyFixed, /) -> APyFixedArray: ...
+    def __sub__(self, arg: APyFixed) -> APyFixedArray: ...
     @overload
-    def __sub__(
-        self, arg: Annotated[ArrayLike, dict(order="C")], /
-    ) -> APyFixedArray: ...
+    def __sub__(self, arg: Annotated[ArrayLike, dict(order="C")]) -> APyFixedArray: ...
     @overload
-    def __mul__(self, arg: APyFixedArray, /) -> APyFixedArray: ...
+    def __mul__(self, arg: APyFixedArray) -> APyFixedArray: ...
     @overload
-    def __mul__(self, arg: int, /) -> APyFixedArray: ...
+    def __mul__(self, arg: int) -> APyFixedArray: ...
     @overload
-    def __mul__(self, arg: float, /) -> APyFixedArray: ...
+    def __mul__(self, arg: float) -> APyFixedArray: ...
     @overload
-    def __mul__(self, arg: APyFixed, /) -> APyFixedArray: ...
+    def __mul__(self, arg: APyFixed) -> APyFixedArray: ...
     @overload
-    def __mul__(
-        self, arg: Annotated[ArrayLike, dict(order="C")], /
-    ) -> APyFixedArray: ...
+    def __mul__(self, arg: Annotated[ArrayLike, dict(order="C")]) -> APyFixedArray: ...
     @overload
-    def __truediv__(self, arg: APyFixedArray, /) -> APyFixedArray: ...
+    def __truediv__(self, arg: APyFixedArray) -> APyFixedArray: ...
     @overload
-    def __truediv__(self, arg: int, /) -> APyFixedArray: ...
+    def __truediv__(self, arg: int) -> APyFixedArray: ...
     @overload
-    def __truediv__(self, arg: float, /) -> APyFixedArray: ...
+    def __truediv__(self, arg: float) -> APyFixedArray: ...
     @overload
-    def __truediv__(self, arg: APyFixed, /) -> APyFixedArray: ...
+    def __truediv__(self, arg: APyFixed) -> APyFixedArray: ...
     @overload
     def __truediv__(
-        self, arg: Annotated[ArrayLike, dict(order="C")], /
+        self, arg: Annotated[ArrayLike, dict(order="C")]
     ) -> APyFixedArray: ...
     def __neg__(self) -> APyFixedArray: ...
     def __pos__(self) -> APyFixedArray: ...
@@ -2496,29 +3595,29 @@ class APyFixedArray:
     def __lshift__(self, arg: int, /) -> APyFixedArray: ...
     def __rshift__(self, arg: int, /) -> APyFixedArray: ...
     @overload
-    def __radd__(self, arg: int, /) -> APyFixedArray: ...
+    def __radd__(self, arg: int) -> APyFixedArray: ...
     @overload
-    def __radd__(self, arg: float, /) -> APyFixedArray: ...
+    def __radd__(self, arg: float) -> APyFixedArray: ...
     @overload
-    def __radd__(self, arg: APyFixed, /) -> APyFixedArray: ...
+    def __radd__(self, arg: APyFixed) -> APyFixedArray: ...
     @overload
-    def __rsub__(self, arg: int, /) -> APyFixedArray: ...
+    def __rsub__(self, arg: int) -> APyFixedArray: ...
     @overload
-    def __rsub__(self, arg: float, /) -> APyFixedArray: ...
+    def __rsub__(self, arg: float) -> APyFixedArray: ...
     @overload
-    def __rsub__(self, arg: APyFixed, /) -> APyFixedArray: ...
+    def __rsub__(self, arg: APyFixed) -> APyFixedArray: ...
     @overload
-    def __rmul__(self, arg: int, /) -> APyFixedArray: ...
+    def __rmul__(self, arg: int) -> APyFixedArray: ...
     @overload
-    def __rmul__(self, arg: float, /) -> APyFixedArray: ...
+    def __rmul__(self, arg: float) -> APyFixedArray: ...
     @overload
-    def __rmul__(self, arg: APyFixed, /) -> APyFixedArray: ...
+    def __rmul__(self, arg: APyFixed) -> APyFixedArray: ...
     @overload
-    def __rtruediv__(self, arg: int, /) -> APyFixedArray: ...
+    def __rtruediv__(self, arg: int) -> APyFixedArray: ...
     @overload
-    def __rtruediv__(self, arg: float, /) -> APyFixedArray: ...
+    def __rtruediv__(self, arg: float) -> APyFixedArray: ...
     @overload
-    def __rtruediv__(self, arg: APyFixed, /) -> APyFixedArray: ...
+    def __rtruediv__(self, arg: APyFixed) -> APyFixedArray: ...
     def __invert__(self) -> APyFixedArray: ...
     @property
     def bits(self) -> int:
@@ -2695,7 +3794,7 @@ class APyFixedArray:
         :class:`APyFixedArray`
         """
 
-    def is_identical(self, other: APyFixedArray | APyFixed) -> bool:
+    def is_identical(self, other: object) -> bool:
         """
         Test if two :class:`APyFixedArray` objects are identical.
 
@@ -3644,7 +4743,7 @@ class APyFloat:
         """
 
     def __copy__(self) -> APyFloat: ...
-    def __deepcopy__(self, memo: dict) -> APyFloat: ...
+    def __deepcopy__(self, memo: dict[int, Any]) -> APyFloat: ...
     @overload
     def __eq__(self, arg: APyFloat, /) -> bool: ...
     @overload
@@ -3682,25 +4781,25 @@ class APyFloat:
     @overload
     def __ge__(self, arg: APyFixed, /) -> bool: ...
     @overload
-    def __add__(self, arg: APyFloat, /) -> APyFloat: ...
+    def __add__(self, arg: APyFloat) -> APyFloat: ...
     @overload
     def __add__(self, arg: int) -> APyFloat: ...
     @overload
     def __add__(self, arg: float) -> APyFloat: ...
     @overload
-    def __sub__(self, arg: APyFloat, /) -> APyFloat: ...
+    def __sub__(self, arg: APyFloat) -> APyFloat: ...
     @overload
     def __sub__(self, arg: int) -> APyFloat: ...
     @overload
     def __sub__(self, arg: float) -> APyFloat: ...
     @overload
-    def __mul__(self, arg: APyFloat, /) -> APyFloat: ...
+    def __mul__(self, arg: APyFloat) -> APyFloat: ...
     @overload
     def __mul__(self, arg: int) -> APyFloat: ...
     @overload
     def __mul__(self, arg: float) -> APyFloat: ...
     @overload
-    def __truediv__(self, arg: APyFloat, /) -> APyFloat: ...
+    def __truediv__(self, arg: APyFloat) -> APyFloat: ...
     @overload
     def __truediv__(self, arg: int) -> APyFloat: ...
     @overload
@@ -3931,7 +5030,7 @@ class APyFloat:
         :class:`bool`
         """
 
-    def is_identical(self, other: APyFloat, ignore_zero_sign: bool = False) -> bool:
+    def is_identical(self, other: object, ignore_zero_sign: bool = False) -> bool:
         """
         Test if two :py:class:`APyFloat` objects are identical.
 
@@ -3945,7 +5044,7 @@ class APyFloat:
 
         ignore_zero_sign : :class:`bool`, default: :code:`False`
             If :code:`True`, plus and minus zero are considered identical. If
-            :code:`False`, plus and minus zero are considered different.
+            :code:`False`, plus and minus zero are considered non-identical.
 
         Returns
         -------
@@ -4306,9 +5405,9 @@ class APyFloatArray:
 
     def __init__(
         self,
-        signs: Sequence,
-        exps: Sequence,
-        mans: Sequence,
+        signs: Sequence[Any],
+        exps: Sequence[Any],
+        mans: Sequence[Any],
         exp_bits: int,
         man_bits: int,
         bias: int | None = None,
@@ -4345,81 +5444,75 @@ class APyFloatArray:
         """
 
     def __copy__(self) -> APyFloatArray: ...
-    def __deepcopy__(self, memo: dict) -> APyFloatArray: ...
+    def __deepcopy__(self, memo: dict[int, Any]) -> APyFloatArray: ...
     @overload
-    def __add__(self, arg: APyFloatArray, /) -> APyFloatArray: ...
+    def __add__(self, arg: APyFloatArray) -> APyFloatArray: ...
     @overload
-    def __add__(self, arg: int, /) -> APyFloatArray: ...
+    def __add__(self, arg: int) -> APyFloatArray: ...
     @overload
-    def __add__(self, arg: float, /) -> APyFloatArray: ...
+    def __add__(self, arg: float) -> APyFloatArray: ...
     @overload
-    def __add__(self, arg: APyFloat, /) -> APyFloatArray: ...
+    def __add__(self, arg: APyFloat) -> APyFloatArray: ...
     @overload
-    def __add__(
-        self, arg: Annotated[ArrayLike, dict(order="C")], /
-    ) -> APyFloatArray: ...
+    def __add__(self, arg: Annotated[ArrayLike, dict(order="C")]) -> APyFloatArray: ...
     @overload
-    def __sub__(self, arg: APyFloatArray, /) -> APyFloatArray: ...
+    def __sub__(self, arg: APyFloatArray) -> APyFloatArray: ...
     @overload
-    def __sub__(self, arg: int, /) -> APyFloatArray: ...
+    def __sub__(self, arg: int) -> APyFloatArray: ...
     @overload
-    def __sub__(self, arg: float, /) -> APyFloatArray: ...
+    def __sub__(self, arg: float) -> APyFloatArray: ...
     @overload
-    def __sub__(self, arg: APyFloat, /) -> APyFloatArray: ...
+    def __sub__(self, arg: APyFloat) -> APyFloatArray: ...
     @overload
-    def __sub__(
-        self, arg: Annotated[ArrayLike, dict(order="C")], /
-    ) -> APyFloatArray: ...
+    def __sub__(self, arg: Annotated[ArrayLike, dict(order="C")]) -> APyFloatArray: ...
     @overload
-    def __mul__(self, arg: APyFloatArray, /) -> APyFloatArray: ...
+    def __mul__(self, arg: APyFloatArray) -> APyFloatArray: ...
     @overload
-    def __mul__(self, arg: int, /) -> APyFloatArray: ...
+    def __mul__(self, arg: int) -> APyFloatArray: ...
     @overload
-    def __mul__(self, arg: float, /) -> APyFloatArray: ...
+    def __mul__(self, arg: float) -> APyFloatArray: ...
     @overload
-    def __mul__(self, arg: APyFloat, /) -> APyFloatArray: ...
+    def __mul__(self, arg: APyFloat) -> APyFloatArray: ...
     @overload
-    def __mul__(
-        self, arg: Annotated[ArrayLike, dict(order="C")], /
-    ) -> APyFloatArray: ...
+    def __mul__(self, arg: Annotated[ArrayLike, dict(order="C")]) -> APyFloatArray: ...
     @overload
-    def __truediv__(self, arg: APyFloatArray, /) -> APyFloatArray: ...
+    def __truediv__(self, arg: APyFloatArray) -> APyFloatArray: ...
     @overload
-    def __truediv__(self, arg: int, /) -> APyFloatArray: ...
+    def __truediv__(self, arg: int) -> APyFloatArray: ...
     @overload
-    def __truediv__(self, arg: float, /) -> APyFloatArray: ...
+    def __truediv__(self, arg: float) -> APyFloatArray: ...
     @overload
-    def __truediv__(self, arg: APyFloat, /) -> APyFloatArray: ...
+    def __truediv__(self, arg: APyFloat) -> APyFloatArray: ...
     @overload
     def __truediv__(
-        self, arg: Annotated[ArrayLike, dict(order="C")], /
+        self, arg: Annotated[ArrayLike, dict(order="C")]
     ) -> APyFloatArray: ...
     def __neg__(self) -> APyFloatArray: ...
     def __pos__(self) -> APyFloatArray: ...
     @overload
-    def __radd__(self, arg: int, /) -> APyFloatArray: ...
+    def __radd__(self, arg: int) -> APyFloatArray: ...
     @overload
-    def __radd__(self, arg: float, /) -> APyFloatArray: ...
+    def __radd__(self, arg: float) -> APyFloatArray: ...
     @overload
-    def __radd__(self, arg: APyFloat, /) -> APyFloatArray: ...
+    def __radd__(self, arg: APyFloat) -> APyFloatArray: ...
     @overload
-    def __rsub__(self, arg: int, /) -> APyFloatArray: ...
+    def __rsub__(self, arg: int) -> APyFloatArray: ...
     @overload
-    def __rsub__(self, arg: float, /) -> APyFloatArray: ...
+    def __rsub__(self, arg: float) -> APyFloatArray: ...
     @overload
-    def __rsub__(self, arg: APyFloat, /) -> APyFloatArray: ...
+    def __rsub__(self, arg: APyFloat) -> APyFloatArray: ...
     @overload
-    def __rmul__(self, arg: int, /) -> APyFloatArray: ...
+    def __rmul__(self, arg: int) -> APyFloatArray: ...
     @overload
-    def __rmul__(self, arg: float, /) -> APyFloatArray: ...
+    def __rmul__(self, arg: float) -> APyFloatArray: ...
     @overload
-    def __rmul__(self, arg: APyFloat, /) -> APyFloatArray: ...
+    def __rmul__(self, arg: APyFloat) -> APyFloatArray: ...
     @overload
-    def __rtruediv__(self, arg: int, /) -> APyFloatArray: ...
+    def __rtruediv__(self, arg: int) -> APyFloatArray: ...
     @overload
-    def __rtruediv__(self, arg: float, /) -> APyFloatArray: ...
+    def __rtruediv__(self, arg: float) -> APyFloatArray: ...
     @overload
-    def __rtruediv__(self, arg: APyFloat, /) -> APyFloatArray: ...
+    def __rtruediv__(self, arg: APyFloat) -> APyFloatArray: ...
     def __invert__(self) -> APyFloatArray: ...
     def __abs__(self) -> APyFloatArray: ...
     @property
@@ -4920,7 +6013,7 @@ class APyFloatArray:
     def __repr__(self) -> str: ...
     def __len__(self) -> int: ...
     def __str__(self, base: int = 10) -> str: ...
-    def is_identical(self, other: APyFloatArray | APyFloat) -> bool:
+    def is_identical(self, other: object, ignore_zero_sign: bool = False) -> bool:
         """
         Test if two :class:`APyFloatArray` objects are identical.
 
@@ -4929,6 +6022,15 @@ class APyFloatArray:
             * They store the exact same floating-point values in all tensor elements
             * They have the exact same bit format (`exp_bits`, `man_bits`, and
               `bias`)
+
+        Parameters
+        ----------
+        other : :class:`APyFloatArray`
+            The other array to compare against.
+
+        ignore_zero_sign : :class:`bool`, default: :code:`False`
+            If :code:`True`, plus and minus zero are considered identical. If
+            :code:`False`, plus and minus zero are considered non-identical.
 
         Returns
         -------
@@ -5553,10 +6655,10 @@ class APyFloatArray:
         quantization: QuantizationMode | None = None,
     ) -> APyFloatArray:
         """
-        Change format of the floating-point number.
+        Change format of the floating-point array.
 
         This is the primary method for performing quantization when dealing with
-        APyTypes floating-point numbers.
+        APyTypes floating-point arrays.
 
         Parameters
         ----------
@@ -5572,7 +6674,7 @@ class APyFloatArray:
 
         Returns
         -------
-        :class:`APyFloat`
+        :class:`APyFloatArray`
         """
 
     def cast_to_double(
@@ -5593,6 +6695,10 @@ class APyFloatArray:
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use. If not provided, the global mode,
             see :func:`get_float_quantization_mode`, is used.
+
+        Returns
+        -------
+        :class:`APyFloatArray`
         """
 
     def cast_to_single(
@@ -5609,10 +6715,13 @@ class APyFloatArray:
 
         Parameters
         ----------
-
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use. If not provided, the global mode,
             see :func:`get_float_quantization_mode`, is used.
+
+        Returns
+        -------
+        :class:`APyFloatArray`
         """
 
     def cast_to_half(
@@ -5629,10 +6738,13 @@ class APyFloatArray:
 
         Parameters
         ----------
-
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use. If not provided, the global mode,
             see :func:`get_float_quantization_mode`, is used.
+
+        Returns
+        -------
+        :class:`APyFloatArray`
         """
 
     def cast_to_bfloat16(
@@ -5649,10 +6761,13 @@ class APyFloatArray:
 
         Parameters
         ----------
-
         quantization : :class:`QuantizationMode`, optional
             Quantization mode to use. If not provided, the global mode,
             see :func:`get_float_quantization_mode`, is used.
+
+        Returns
+        -------
+        :class:`APyFloatArray`
         """
 
 class APyFloatArrayIterator:

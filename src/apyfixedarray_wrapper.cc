@@ -50,19 +50,6 @@ static APyFixedArray L_OP(const APyFixedArray& lhs, const R_TYPE& rhs)
     }
 }
 
-/*
- * Binding function of a custom R-operator with Numpy arrays
- * Not used as we expose __array__, which converts the APyFixedArray to Numpy
- * before this has a chance to be called.
- *
-template <typename OP>
-static APyFixedArray R_OP(const APyFixedArray& rhs, const nb::ndarray<nb::c_contig>&
-lhs)
-{
-    return OP()(APyFixedArray::from_array(lhs, rhs.int_bits(), rhs.frac_bits()), rhs);
-}
-*/
-
 void bind_fixed_array(nb::module_& m)
 {
     nb::class_<APyFixedArray>(m, "APyFixedArray")
@@ -100,10 +87,10 @@ void bind_fixed_array(nb::module_& m)
         /*
          * Arithmetic operations
          */
-        .def(nb::self + nb::self)
-        .def(nb::self - nb::self)
-        .def(nb::self * nb::self)
-        .def(nb::self / nb::self)
+        .def(nb::self + nb::self, NB_NARG())
+        .def(nb::self - nb::self, NB_NARG())
+        .def(nb::self * nb::self, NB_NARG())
+        .def(nb::self / nb::self, NB_NARG())
         .def(-nb::self)
         .def(+nb::self)
         .def(nb::self <<= int(), nb::rv_policy::none)
@@ -114,64 +101,53 @@ void bind_fixed_array(nb::module_& m)
         /*
          * Arithmetic operations with integers
          */
-        .def("__add__", L_OP<std::plus<>, nb::int_>, nb::is_operator())
-        .def("__radd__", L_OP<std::plus<>, nb::int_>, nb::is_operator())
-        .def("__sub__", L_OP<std::minus<>, nb::int_>, nb::is_operator())
-        .def("__rsub__", R_OP<&APyFixedArray::rsub, nb::int_>, nb::is_operator())
-        .def("__mul__", L_OP<std::multiplies<>, nb::int_>, nb::is_operator())
-        .def("__rmul__", L_OP<std::multiplies<>, nb::int_>, nb::is_operator())
-        .def("__truediv__", L_OP<std::divides<>, nb::int_>, nb::is_operator())
-        .def("__rtruediv__", R_OP<&APyFixedArray::rdiv, nb::int_>, nb::is_operator())
+        .def("__add__", L_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__radd__", L_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<&APyFixedArray::rsub, nb::int_>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__rmul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<&APyFixedArray::rdiv, nb::int_>, NB_OP(), NB_NARG())
 
         /*
          * Arithmetic operation with floats
          */
-        .def("__add__", L_OP<std::plus<>, double>, nb::is_operator())
-        .def("__radd__", L_OP<std::plus<>, double>, nb::is_operator())
-        .def("__sub__", L_OP<std::minus<>, double>, nb::is_operator())
-        .def("__rsub__", R_OP<&APyFixedArray::rsub, double>, nb::is_operator())
-        .def("__mul__", L_OP<std::multiplies<>, double>, nb::is_operator())
-        .def("__rmul__", L_OP<std::multiplies<>, double>, nb::is_operator())
-        .def("__truediv__", L_OP<std::divides<>, double>, nb::is_operator())
-        .def("__rtruediv__", R_OP<&APyFixedArray::rdiv, double>, nb::is_operator())
+        .def("__add__", L_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
+        .def("__radd__", L_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<&APyFixedArray::rsub, double>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
+        .def("__rmul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<&APyFixedArray::rdiv, double>, NB_OP(), NB_NARG())
 
         /*
          * Arithmetic operations with APyFixed
          */
-        .def("__add__", L_OP<std::plus<>, APyFixed>, nb::is_operator())
-        .def("__radd__", L_OP<std::plus<>, APyFixed>, nb::is_operator())
-        .def("__sub__", L_OP<std::minus<>, APyFixed>, nb::is_operator())
-        .def("__rsub__", R_OP<&APyFixedArray::rsub, APyFixed>, nb::is_operator())
-        .def("__mul__", L_OP<std::multiplies<>, APyFixed>, nb::is_operator())
-        .def("__rmul__", L_OP<std::multiplies<>, APyFixed>, nb::is_operator())
-        .def("__truediv__", L_OP<std::divides<>, APyFixed>, nb::is_operator())
-        .def("__rtruediv__", R_OP<&APyFixedArray::rdiv, APyFixed>, nb::is_operator())
+        .def("__add__", L_OP<STD_ADD<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__radd__", L_OP<STD_ADD<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<&APyFixedArray::rsub, APyFixed>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__rmul__", L_OP<STD_MUL<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<&APyFixedArray::rdiv, APyFixed>, NB_OP(), NB_NARG())
 
         /*
          * Arithmetic operations with NumPy arrays
          * The right-hand versions are not used since Numpy will convert the
          * APyFixedArray to a Numpy array before they are invoked.
          */
-        .def("__add__", L_OP<std::plus<>, nb::ndarray<nb::c_contig>>, nb::is_operator())
-        // .def("__radd__", L_OP<std::plus<>, nb::ndarray<nb::c_contig>>,
-        // nb::is_operator())
-        .def(
-            "__sub__", L_OP<std::minus<>, nb::ndarray<nb::c_contig>>, nb::is_operator()
-        )
-        // .def("__rsub__", R_OP<std::minus<>>, nb::is_operator())
-        .def(
-            "__mul__",
-            L_OP<std::multiplies<>, nb::ndarray<nb::c_contig>>,
-            nb::is_operator()
-        )
-        // .def("__rmul__", L_OP<std::multiplies<>, nb::ndarray<nb::c_contig>>,
-        // nb::is_operator())
+        .def("__add__", L_OP<STD_ADD<>, nb::ndarray<nb::c_contig>>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, nb::ndarray<nb::c_contig>>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, nb::ndarray<nb::c_contig>>, NB_OP(), NB_NARG())
         .def(
             "__truediv__",
-            L_OP<std::divides<>, nb::ndarray<nb::c_contig>>,
-            nb::is_operator()
+            L_OP<STD_DIV<>, nb::ndarray<nb::c_contig>>,
+            NB_OP(),
+            NB_NARG()
         )
-        //.def("__rtruediv__", R_OP<std::divides<>>, nb::is_operator())
 
         /*
          * Logic operations

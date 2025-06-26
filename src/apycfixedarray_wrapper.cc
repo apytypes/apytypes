@@ -62,8 +62,7 @@ static APyCFixedArray L_OP(const APyCFixedArray& lhs, const R_TYPE& rhs)
     }
 }
 
-using std::complex;
-using is_op = nb::is_operator;
+using complex_t = std::complex<double>;
 
 void bind_cfixed_array(nb::module_& m)
 {
@@ -74,7 +73,7 @@ void bind_cfixed_array(nb::module_& m)
          */
         .def(
             nb::init<
-                const nb::sequence&,
+                const nb::typed<nb::sequence, nb::any>&,
                 std::optional<int>,
                 std::optional<int>,
                 std::optional<int>>(),
@@ -102,10 +101,10 @@ void bind_cfixed_array(nb::module_& m)
         /*
          * Arithmetic operations
          */
-        .def(nb::self + nb::self)
-        .def(nb::self - nb::self)
-        .def(nb::self * nb::self)
-        .def(nb::self / nb::self)
+        .def(nb::self + nb::self, NB_NARG())
+        .def(nb::self - nb::self, NB_NARG())
+        .def(nb::self * nb::self, NB_NARG())
+        .def(nb::self / nb::self, NB_NARG())
         .def(-nb::self)
         .def(+nb::self)
         .def(nb::self <<= int(), nb::rv_policy::none)
@@ -116,50 +115,50 @@ void bind_cfixed_array(nb::module_& m)
         /*
          * Arithmetic operations with `APyCFixed`
          */
-        .def("__add__", L_OP<std::plus<>, APyCFixed>, is_op())
-        .def("__radd__", L_OP<std::plus<>, APyCFixed>, is_op())
-        .def("__sub__", L_OP<std::minus<>, APyCFixed>, is_op())
-        .def("__rsub__", R_OP<&APyCFixedArray::rsub, APyCFixed>, is_op())
-        .def("__rmul__", L_OP<std::multiplies<>, APyCFixed>, is_op())
-        .def("__mul__", L_OP<std::multiplies<>, APyCFixed>, is_op())
-        .def("__truediv__", L_OP<std::divides<>, APyCFixed>, is_op())
-        .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, APyCFixed>, is_op())
+        .def("__add__", L_OP<STD_ADD<>, APyCFixed>, NB_OP(), NB_NARG())
+        .def("__radd__", L_OP<STD_ADD<>, APyCFixed>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, APyCFixed>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<&APyCFixedArray::rsub, APyCFixed>, NB_OP(), NB_NARG())
+        .def("__rmul__", L_OP<STD_MUL<>, APyCFixed>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, APyCFixed>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, APyCFixed>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, APyCFixed>, NB_OP(), NB_NARG())
 
         /*
          * Arithmetic operation with complex
          */
-        .def("__add__", L_OP<std::plus<>, complex<double>>, is_op())
-        .def("__radd__", L_OP<std::plus<>, complex<double>>, is_op())
-        .def("__sub__", L_OP<std::minus<>, complex<double>>, is_op())
-        .def("__rsub__", R_OP<&APyCFixedArray::rsub, complex<double>>, is_op())
-        .def("__mul__", L_OP<std::multiplies<>, complex<double>>, is_op())
-        .def("__rmul__", L_OP<std::multiplies<>, complex<double>>, is_op())
-        .def("__truediv__", L_OP<std::divides<>, complex<double>>, is_op())
-        .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, complex<double>>, is_op())
+        .def("__add__", L_OP<STD_ADD<>, complex_t>, NB_OP(), NB_NARG())
+        .def("__radd__", L_OP<STD_ADD<>, complex_t>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, complex_t>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<&APyCFixedArray::rsub, complex_t>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, complex_t>, NB_OP(), NB_NARG())
+        .def("__rmul__", L_OP<STD_MUL<>, complex_t>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, complex_t>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, complex_t>, NB_OP(), NB_NARG())
 
         /*
          * Arithmetic operation with floats
          */
-        .def("__add__", L_OP<std::plus<>, double>, is_op())
-        .def("__radd__", L_OP<std::plus<>, double>, is_op())
-        .def("__sub__", L_OP<std::minus<>, double>, is_op())
-        .def("__rsub__", R_OP<&APyCFixedArray::rsub, double>, is_op())
-        .def("__mul__", L_OP<std::multiplies<>, double>, is_op())
-        .def("__rmul__", L_OP<std::multiplies<>, double>, is_op())
-        .def("__truediv__", L_OP<std::divides<>, double>, is_op())
-        .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, double>, is_op())
+        .def("__add__", L_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
+        .def("__radd__", L_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<&APyCFixedArray::rsub, double>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
+        .def("__rmul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, double>, NB_OP(), NB_NARG())
 
         /*
          * Arithmetic operations with integers
          */
-        .def("__add__", L_OP<std::plus<>, nb::int_>, is_op())
-        .def("__radd__", L_OP<std::plus<>, nb::int_>, is_op())
-        .def("__sub__", L_OP<std::minus<>, nb::int_>, is_op())
-        .def("__rsub__", R_OP<&APyCFixedArray::rsub, nb::int_>, is_op())
-        .def("__mul__", L_OP<std::multiplies<>, nb::int_>, is_op())
-        .def("__rmul__", L_OP<std::multiplies<>, nb::int_>, is_op())
-        .def("__truediv__", L_OP<std::divides<>, nb::int_>, is_op())
-        .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, nb::int_>, is_op())
+        .def("__add__", L_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__radd__", L_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<&APyCFixedArray::rsub, nb::int_>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__rmul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<&APyCFixedArray::rdiv, nb::int_>, NB_OP(), NB_NARG())
 
         /*
          * Logic operations
@@ -478,7 +477,7 @@ void bind_cfixed_array(nb::module_& m)
             -------
             :class:`APyCFixedArray`
                 `a` with its axes permuted.
-        )pbdoc"
+            )pbdoc"
         )
 
         .def(
@@ -516,7 +515,6 @@ void bind_cfixed_array(nb::module_& m)
             :class:`APyCFixedArray`
             )pbdoc"
         )
-
         .def(
             "broadcast_to",
             &APyCFixedArray::broadcast_to_python,
@@ -533,7 +531,7 @@ void bind_cfixed_array(nb::module_& m)
             Returns
             -------
             :class:`APyCFixedArray`
-        )pbdoc"
+            )pbdoc"
         )
 
         //     .def(
@@ -787,7 +785,7 @@ void bind_cfixed_array(nb::module_& m)
             >>> a.prod()
             APyCFixed((36893488147419101837, 36893488147419103007), bits=65, int_bits=65)
             >>> print(a.prod())
-            -1395-225j
+            (-1395-225j)
 
             -------
             )pbdoc"
@@ -915,7 +913,7 @@ void bind_cfixed_array(nb::module_& m)
             is handled using the :class:`OverflowMode.WRAP` mode. Exactly two of the
             three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
-            Using NumPy arrays as input is in general faster than e.g. lists.
+            Using NumPy arrays as input is in general faster than using e.g. lists.
 
             Parameters
             ----------
@@ -969,9 +967,10 @@ void bind_cfixed_array(nb::module_& m)
             R"pbdoc(
             Create an :class:`APyCFixedArray` object from a sequence of :class:`int`,
             :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
-            :class:`APyCFixed`. This is an alias for
-            :func:`~apytypes.APyCFixedArray.from_complex`, look there for more
-            documentation.
+            :class:`APyCFixed`.
+
+            This is an alias for :func:`~apytypes.APyCFixedArray.from_complex`, look
+            there for more documentation.
 
             Parameters
             ----------
@@ -1180,8 +1179,6 @@ void bind_cfixed_array(nb::module_& m)
         //     .def("__matmul__", &APyCFixedArray::matmul, nb::arg("rhs"))
         .def("__repr__", &APyCFixedArray::repr)
         .def("__str__", &APyCFixedArray::to_string, nb::arg("base") = 10)
-
-        // Iteration and friends
         .def("__getitem__", &APyCFixedArray::get_item, nb::arg("key"))
         .def("__setitem__", &APyCFixedArray::set_item, nb::arg("key"), nb::arg("val"))
         .def("__len__", &APyCFixedArray::size)

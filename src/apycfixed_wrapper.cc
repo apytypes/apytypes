@@ -50,19 +50,6 @@ static auto L_OP(const APyCFixed& lhs, const R_TYPE& rhs) -> decltype(OP()(lhs, 
     }
 }
 
-// Mark a non-implicit conversion argument
-#define NARG(name) nb::arg(name).noconvert()
-
-// Mark a special double-underscore marker (e.g., `__add__`). Returns `NotImplemented`
-// rather than raising `TypeError`
-#define IS_OP(args) nb::is_operator(args)
-
-// Short-hand C++ arithmetic functors
-#define ADD std::plus
-#define SUB std::minus
-#define MUL std::multiplies
-#define DIV std::divides
-
 void bind_cfixed(nb::module_& m)
 {
     nb::class_<APyCFixed>(m, "APyCFixed")
@@ -97,15 +84,11 @@ void bind_cfixed(nb::module_& m)
         /*
          * Copy
          */
-        .def(
-            "copy",
-            &APyCFixed::python_copy,
-            R"pbdoc(
+        .def("copy", &APyCFixed::python_copy, R"pbdoc(
             Create a copy of the object.
 
             .. versionadded:: 0.3
-            )pbdoc"
-        )
+            )pbdoc")
         .def("__copy__", &APyCFixed::python_copy)
         .def("__deepcopy__", &APyCFixed::python_deepcopy, nb::arg("memo"))
 
@@ -115,10 +98,10 @@ void bind_cfixed(nb::module_& m)
         .def(nb::self == nb::self)
         .def(nb::self != nb::self)
 
-        .def(nb::self + nb::self)
-        .def(nb::self - nb::self)
-        .def(nb::self * nb::self)
-        .def(nb::self / nb::self)
+        .def(nb::self + nb::self, NB_NARG())
+        .def(nb::self - nb::self, NB_NARG())
+        .def(nb::self * nb::self, NB_NARG())
+        .def(nb::self / nb::self, NB_NARG())
         .def(-nb::self)
         .def(+nb::self)
         .def(nb::self <<= int(), nb::rv_policy::none)
@@ -130,14 +113,14 @@ void bind_cfixed(nb::module_& m)
         .def(nb::self == nb::int_())
         .def(nb::self != nb::int_())
 
-        .def("__add__", L_OP<ADD<>, nb::int_>, IS_OP(), NARG())
-        .def("__sub__", L_OP<SUB<>, nb::int_>, IS_OP(), NARG())
-        .def("__mul__", L_OP<MUL<>, nb::int_>, IS_OP(), NARG())
-        .def("__truediv__", L_OP<DIV<>, nb::int_>, IS_OP(), NARG())
-        .def("__radd__", R_OP<ADD<>, nb::int_>, IS_OP(), NARG())
-        .def("__rsub__", R_OP<SUB<>, nb::int_>, IS_OP(), NARG())
-        .def("__rmul__", R_OP<MUL<>, nb::int_>, IS_OP(), NARG())
-        .def("__rtruediv__", R_OP<DIV<>, nb::int_>, IS_OP(), NARG())
+        .def("__add__", L_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__radd__", R_OP<STD_ADD<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<STD_SUB<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__rmul__", R_OP<STD_MUL<>, nb::int_>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<STD_DIV<>, nb::int_>, NB_OP(), NB_NARG())
 
         /*
          * Arithmetic operations with floats
@@ -145,14 +128,14 @@ void bind_cfixed(nb::module_& m)
         .def(nb::self == double())
         .def(nb::self != double())
 
-        .def("__add__", L_OP<ADD<>, double>, IS_OP(), NARG())
-        .def("__radd__", R_OP<ADD<>, double>, IS_OP(), NARG())
-        .def("__sub__", L_OP<SUB<>, double>, IS_OP(), NARG())
-        .def("__rsub__", R_OP<SUB<>, double>, IS_OP(), NARG())
-        .def("__mul__", L_OP<MUL<>, double>, IS_OP(), NARG())
-        .def("__rmul__", R_OP<MUL<>, double>, IS_OP(), NARG())
-        .def("__truediv__", L_OP<DIV<>, double>, IS_OP(), NARG())
-        .def("__rtruediv__", R_OP<DIV<>, double>, IS_OP(), NARG())
+        .def("__add__", L_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
+        .def("__radd__", R_OP<STD_ADD<>, double>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<STD_SUB<>, double>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
+        .def("__rmul__", R_OP<STD_MUL<>, double>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<STD_DIV<>, double>, NB_OP(), NB_NARG())
 
         /*
          * Arithmetic operations with Python complex
@@ -160,29 +143,29 @@ void bind_cfixed(nb::module_& m)
         .def(nb::self == std::complex<double>())
         .def(nb::self != std::complex<double>())
 
-        .def("__add__", L_OP<ADD<>, std::complex<double>>, IS_OP(), NARG())
-        .def("__radd__", R_OP<ADD<>, std::complex<double>>, IS_OP(), NARG())
-        .def("__sub__", L_OP<SUB<>, std::complex<double>>, IS_OP(), NARG())
-        .def("__rsub__", R_OP<SUB<>, std::complex<double>>, IS_OP(), NARG())
-        .def("__mul__", L_OP<MUL<>, std::complex<double>>, IS_OP(), NARG())
-        .def("__rmul__", R_OP<MUL<>, std::complex<double>>, IS_OP(), NARG())
-        .def("__truediv__", L_OP<DIV<>, std::complex<double>>, IS_OP(), NARG())
-        .def("__rtruediv__", R_OP<DIV<>, std::complex<double>>, IS_OP(), NARG())
+        .def("__add__", L_OP<STD_ADD<>, std::complex<double>>, NB_OP(), NB_NARG())
+        .def("__radd__", R_OP<STD_ADD<>, std::complex<double>>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, std::complex<double>>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<STD_SUB<>, std::complex<double>>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, std::complex<double>>, NB_OP(), NB_NARG())
+        .def("__rmul__", R_OP<STD_MUL<>, std::complex<double>>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, std::complex<double>>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<STD_DIV<>, std::complex<double>>, NB_OP(), NB_NARG())
 
         /*
          * Arithmetic operations with `APyFixed`
          */
-        .def("__eq__", L_OP<std::equal_to<>, APyFixed>, IS_OP())
-        .def("__ne__", L_OP<std::not_equal_to<>, APyFixed>, IS_OP())
+        .def("__eq__", L_OP<std::equal_to<>, APyFixed>, NB_OP())
+        .def("__ne__", L_OP<std::not_equal_to<>, APyFixed>, NB_OP())
 
-        .def("__add__", L_OP<ADD<>, APyFixed>, IS_OP(), NARG())
-        .def("__radd__", R_OP<ADD<>, APyFixed>, IS_OP(), NARG())
-        .def("__sub__", L_OP<SUB<>, APyFixed>, IS_OP(), NARG())
-        .def("__rsub__", R_OP<SUB<>, APyFixed>, IS_OP(), NARG())
-        .def("__mul__", L_OP<MUL<>, APyFixed>, IS_OP(), NARG())
-        .def("__rmul__", R_OP<MUL<>, APyFixed>, IS_OP(), NARG())
-        .def("__truediv__", L_OP<DIV<>, APyFixed>, IS_OP(), NARG())
-        .def("__rtruediv__", R_OP<DIV<>, APyFixed>, IS_OP(), NARG())
+        .def("__add__", L_OP<STD_ADD<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__radd__", R_OP<STD_ADD<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__sub__", L_OP<STD_SUB<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__rsub__", R_OP<STD_SUB<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__mul__", L_OP<STD_MUL<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__rmul__", R_OP<STD_MUL<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__truediv__", L_OP<STD_DIV<>, APyFixed>, NB_OP(), NB_NARG())
+        .def("__rtruediv__", R_OP<STD_DIV<>, APyFixed>, NB_OP(), NB_NARG())
 
         /*
          * Logic operations
@@ -350,18 +333,8 @@ void bind_cfixed(nb::module_& m)
         .def("__repr__", &APyCFixed::repr)
         .def("__str__", &APyCFixed::to_string, nb::arg("base") = 10)
         .def("__complex__", &APyCFixed::to_complex)
-        .def(
-            "__lshift__",
-            &APyCFixed::operator<<,
-            nb::arg("shift_amnt"),
-            nb::is_operator()
-        )
-        .def(
-            "__rshift__",
-            &APyCFixed::operator>>,
-            nb::arg("shift_amnt"),
-            nb::is_operator()
-        )
+        .def("__lshift__", &APyCFixed::operator<<, nb::arg("shift_amnt"), NB_OP())
+        .def("__rshift__", &APyCFixed::operator>>, nb::arg("shift_amnt"), NB_OP())
 
         /*
          * Static methods
@@ -405,8 +378,8 @@ void bind_cfixed(nb::module_& m)
             >>> fx_a = apy.APyCFixed.from_complex(1.234 + 0.4j, int_bits=2, frac_bits=2)
             >>> fx_a
             APyCFixed((5, 2), bits=4, int_bits=2)
-            >>> str(fx_a)
-            '1.25+0.5j'
+            >>> print(fx_a)
+            (1.25+0.5j)
 
             Returns
             -------

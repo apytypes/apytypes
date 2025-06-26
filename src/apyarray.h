@@ -501,7 +501,7 @@ public:
         assert(key.size() <= _shape.size());
 
         // Make sure that all bit specifiers in `*this` and `val` are equal.
-        if (!static_cast<const ARRAY_TYPE*>(this)->same_type_as(val)) {
+        if (!static_cast<const ARRAY_TYPE*>(this)->is_same_spec(val)) {
             std::string error_msg = fmt::format(
                 "{}.__setitem__: `val` has different bit specifiers than `self`",
                 ARRAY_TYPE::ARRAY_NAME
@@ -559,7 +559,7 @@ public:
     )
     {
         // Make sure that all bit specifiers in `*this` and `val` are equal.
-        if (!static_cast<const ARRAY_TYPE*>(this)->same_type_as(val)) {
+        if (!static_cast<const ARRAY_TYPE*>(this)->is_same_spec(val)) {
             std::string error_msg = fmt::format(
                 "{}.__setitem__: `val` has different bit specifiers than `self`",
                 ARRAY_TYPE::ARRAY_NAME
@@ -609,7 +609,7 @@ public:
 
     //! Broadcast `*this` array to `shape`. Throws `nb::value_error` if `*this` shape is
     //! incompatible with `shape`.
-    ARRAY_TYPE broadcast_to(const std::vector<std::size_t> shape) const
+    ARRAY_TYPE broadcast_to(const std::vector<std::size_t>& shape) const
     {
         if (!is_broadcastable(_shape, shape)) {
             std::string error_msg = fmt::format(
@@ -631,6 +631,30 @@ public:
     ARRAY_TYPE broadcast_to_python(const PyShapeParam_t& python_shape) const
     {
         return broadcast_to(cpp_shape_from_python_shape_like(python_shape));
+    }
+
+    //! Try broadcasting two shapes to a common shape before applying the `BIN_OP`
+    //! functor to them and returning the result.
+    template <typename BIN_OP>
+    ARRAY_TYPE try_broadcast_and_then(
+        const ARRAY_TYPE& rhs, std::string_view exception_bin_op_name
+    ) const
+    {
+        auto&& new_shape = smallest_broadcastable_shape(_shape, rhs._shape);
+        if (new_shape.size() == 0) {
+            throw std::length_error(
+                fmt::format(
+                    "{}.{}: shape mismatch, lhs.shape={}, rhs.shape={}",
+                    ARRAY_TYPE::ARRAY_NAME,
+                    exception_bin_op_name,
+                    tuple_string_from_vec(_shape),
+                    tuple_string_from_vec(rhs._shape)
+                )
+            );
+        }
+
+        // Apply binary op to the broadcasted arrays and return
+        return BIN_OP()(broadcast_to(new_shape), rhs.broadcast_to(new_shape));
     }
 
     /* ****************************************************************************** *
@@ -1540,20 +1564,27 @@ public:
      * objects are considered identical if, and only if:
      *   * They represent exactly the same tensor shape
      *   * They store the exact same values in their `_data` vector
-     *   * They have the exact same specifiers (as decided by `same_type_as`
+     *   * They have the exact same specifiers (as decided by `is_same_spec`
      */
-    bool is_identical(
-        const std::variant<ARRAY_TYPE, scalar_variant_t<ARRAY_TYPE>>& other
-    ) const
+    bool is_identical(const nb::object& other) const
     {
-        if (!std::holds_alternative<ARRAY_TYPE>(other)) {
+        if (!nb::isinstance<ARRAY_TYPE>(other)) {
             return false;
-        } else { /* std::holds_alternative<scalar_variant_t<ARRAY_TYPE>>(other) */
-            const ARRAY_TYPE& other_array = std::get<ARRAY_TYPE>(other);
+        } else {
+            auto&& other_array = nb::cast<ARRAY_TYPE>(other);
             return _shape == other_array._shape
-                && static_cast<const ARRAY_TYPE*>(this)->same_type_as(other_array)
+                && static_cast<const ARRAY_TYPE*>(this)->is_same_spec(other_array)
                 && _data == other_array._data;
         }
+    }
+
+    //! Copy array
+    ARRAY_TYPE python_copy() const { return *static_cast<const ARRAY_TYPE*>(this); }
+
+    //! Deepcopy array (same as copy here)
+    ARRAY_TYPE python_deepcopy(const nb::typed<nb::dict, nb::int_, nb::any>&) const
+    {
+        return python_copy();
     }
 
 }; // end class: `APyArray`

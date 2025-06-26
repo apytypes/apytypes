@@ -8,7 +8,8 @@ from apytypes import APyCFloat, APyFloat
 
 def is_identical_or_nan(x: APyCFloat, y: APyCFloat):
     """
-    Test if two :class:`APyCFloat` are identical or if they are NaN in the same fields:
+    Test if two :class:`APyCFloat` are identical or if they are NaN in the same fields.
+    This can be useful in some tests since `NaN != NaN` always.
 
     Parameters
     ----------

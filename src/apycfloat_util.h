@@ -5,31 +5,137 @@
 #include "apyfloat_util.h"
 #include "apytypes_fwd.h"
 
+#include <cmath>      // std::isnan, std::signbit
 #include <cstddef>    // std::size_t
 #include <functional> // std::invoke
+
+/* ********************************************************************************** *
+ * *              Complex-valued floating-point helper functions                    * *
+ * ********************************************************************************** */
+
+/*!
+ * Convert a APyTypes complex-valued floating-point to a string:
+ * Returns, e.g., "1.25-2.5j" or "-6+nanj"
+ */
+[[maybe_unused, nodiscard]] static APY_INLINE std::string
+complex_floating_point_to_str_dec(
+    const APyFloatData& re_data, const APyFloatData& im_data, const APyFloatSpec& spec
+)
+{
+    // NOTE: Python, unlike C++, unconditionally encodes the string of a floating-point
+    //       NaN without a minus sign.
+    const double re = floating_point_to_double(re_data, spec);
+    const double im = floating_point_to_double(im_data, spec);
+
+    auto&& re_str = std::isnan(re) ? "nan" : fmt::format("{}", re);
+    if (std::isnan(im)) {
+        return fmt::format("{}+nanj", re_str);
+    } else {
+        return fmt::format("{}{}{}j", re_str, std::signbit(im) ? "" : "+", im);
+    }
+}
 
 /* ********************************************************************************** *
  * *              Floating-point iterator-based arithmetic functors                 * *
  * ********************************************************************************** */
 
+template <
+    bool IS_SUBTRACT,
+    std::size_t SRC1_INC,
+    std::size_t SRC2_INC,
+    std::size_t DST_INC>
+struct _ComplexFloatingPointAddSub {
+public:
+    explicit _ComplexFloatingPointAddSub(
+        const APyFloatSpec& src1_spec,
+        const APyFloatSpec& src2_spec,
+        const APyFloatSpec& dst_spec,
+        const QuantizationMode& qntz
+    )
+        : functor(src1_spec, src2_spec, dst_spec, qntz)
+    {
+    }
+
+    // Perform `nitems` complex-valued floating-point additions/subtractions
+    void operator()(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t nitems = 1
+    ) const
+    {
+        functor(src1 + 0, src2 + 0, dst + 0, nitems); // real
+        functor(src1 + 1, src2 + 1, dst + 1, nitems); // imag
+    }
+
+private:
+    _FloatingPointAddSub<IS_SUBTRACT, 2 * SRC1_INC, 2 * SRC2_INC, 2 * DST_INC> functor;
+};
+
 template <std::size_t SRC1_INC = 1, std::size_t SRC2_INC = 1, std::size_t DST_INC = 1>
-struct FloatingPointComplexMultiplier {
+using ComplexFloatingPointAdder = _ComplexFloatingPointAddSub<
+    /*is_subtract = */ false,
+    SRC1_INC,
+    SRC2_INC,
+    DST_INC>;
+
+template <std::size_t SRC1_INC = 1, std::size_t SRC2_INC = 1, std::size_t DST_INC = 1>
+using ComplexFloatingPointSubtractor = _ComplexFloatingPointAddSub<
+    /* is_subtract = */ true,
+    SRC1_INC,
+    SRC2_INC,
+    DST_INC>;
+
+template <std::size_t SRC1_INC = 1, std::size_t SRC2_INC = 1, std::size_t DST_INC = 1>
+struct ComplexFloatingPointMultiplier {
     /*
      * GENERAL COMPLEX-VALUED MULTIPLICATION FORMULA:
      *
      *  (a + bi) * (c + di) = (ac - bd) + (ad + bc)i
      *
      */
-    explicit FloatingPointComplexMultiplier(
+    explicit ComplexFloatingPointMultiplier(
         const APyFloatSpec& src1_spec,
         const APyFloatSpec& src2_spec,
         const APyFloatSpec& dst_spec,
         const QuantizationMode& qntz
     )
-        : mul(src1_spec, src2_spec, dst_spec, qntz)
-        , add(dst_spec, dst_spec, dst_spec, qntz)
-        , sub(dst_spec, dst_spec, dst_spec, qntz)
     {
+        using F = ComplexFloatingPointMultiplier;
+        using MUL_F_SHORT = _FloatingPointMultiplierShort;
+        using MUL_F_GENERAL = _FloatingPointMultiplierGeneral;
+        using ADD_F_GENERAL = _FloatingPointAddSubGeneral</*IS_SUBTRACT=*/false>;
+        using ADD_F_SHORT = _FloatingPointAddSubSameWl</*IS_SUBTRACT=*/false>;
+        using SUB_F_GENERAL = _FloatingPointAddSubGeneral</*IS_SUBTRACT=*/true>;
+        using SUB_F_SHORT = _FloatingPointAddSubSameWl</*IS_SUBTRACT=*/true>;
+
+        bool is_short_mul = src1_spec.man_bits + src2_spec.man_bits <= _MAN_LIMIT_BITS;
+        bool is_short_add = qntz != QuantizationMode::STOCH_WEIGHTED
+            && std::size_t(dst_spec.man_bits + 5) <= _MAN_T_SIZE_BITS;
+
+        if (is_short_mul) {
+            mul_short = MUL_F_SHORT(src1_spec, src2_spec, dst_spec, qntz);
+            if (is_short_add) {
+                add_same_wl = ADD_F_SHORT(dst_spec, dst_spec, dst_spec, qntz);
+                sub_same_wl = SUB_F_SHORT(dst_spec, dst_spec, dst_spec, qntz);
+                f = &F::product</*SHORT_MUL=*/true, /*SHORT_ADD=*/true>;
+            } else { /* !is_short_add */
+                add_general = ADD_F_GENERAL(dst_spec, dst_spec, dst_spec, qntz);
+                sub_general = SUB_F_GENERAL(dst_spec, dst_spec, dst_spec, qntz);
+                f = &F::product</*SHORT_MUL=*/true, /*SHORT_ADD=*/false>;
+            }
+        } else { /* !is_short_mul */
+            mul_general = MUL_F_GENERAL(src1_spec, src2_spec, dst_spec, qntz);
+            if (is_short_add) {
+                add_same_wl = ADD_F_SHORT(dst_spec, dst_spec, dst_spec, qntz);
+                sub_same_wl = SUB_F_SHORT(dst_spec, dst_spec, dst_spec, qntz);
+                f = &F::product</*SHORT_MUL=*/false, /*SHORT_ADD=*/true>;
+            } else { /* !is_short_add */
+                add_general = ADD_F_GENERAL(dst_spec, dst_spec, dst_spec, qntz);
+                sub_general = SUB_F_GENERAL(dst_spec, dst_spec, dst_spec, qntz);
+                f = &F::product</*SHORT_MUL=*/false, /*SHORT_ADD=*/false>;
+            }
+        }
     }
 
     // Perform floating-point complex multiplications
@@ -40,6 +146,18 @@ struct FloatingPointComplexMultiplier {
         std::size_t nitems = 1
     ) const
     {
+        std::invoke(f, this, src1, src2, dst, nitems);
+    }
+
+private:
+    template <bool SHORT_MUL, bool SHORT_ADD>
+    void product(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t nitems
+    ) const
+    {
         APyFloatData ac, ad, bc, bd;
         for (std::size_t i = 0; i < nitems; i++) {
             const APyFloatData* a = src1 + 2 * i * SRC1_INC + 0;
@@ -48,26 +166,47 @@ struct FloatingPointComplexMultiplier {
             const APyFloatData* d = src2 + 2 * i * SRC2_INC + 1;
 
             // Perform partial products: a*c, a*d, b*c, b*d
-            mul(a, c, &ac);
-            mul(a, d, &ad);
-            mul(b, c, &bc);
-            mul(b, d, &bd);
+            if constexpr (SHORT_MUL) {
+                mul_short(a, c, &ac);
+                mul_short(a, d, &ad);
+                mul_short(b, c, &bc);
+                mul_short(b, d, &bd);
+            } else {
+                mul_general(a, c, &ac);
+                mul_general(a, d, &ad);
+                mul_general(b, c, &bc);
+                mul_general(b, d, &bd);
+            }
 
             // Perform additions: ac - bd, ad + bc
-            sub(&ac, &bd, dst + 2 * i * DST_INC + 0);
-            add(&ad, &bc, dst + 2 * i * DST_INC + 1);
+            if constexpr (SHORT_ADD) {
+                sub_same_wl(&ac, &bd, dst + 2 * i * DST_INC + 0);
+                add_same_wl(&ad, &bc, dst + 2 * i * DST_INC + 1);
+            } else {
+                sub_general(&ac, &bd, dst + 2 * i * DST_INC + 0);
+                add_general(&ad, &bc, dst + 2 * i * DST_INC + 1);
+            }
         }
     }
 
-private:
-    // Set first during functor initialization
-    FloatingPointMultiplier<> mul;
-    FloatingPointAdder<> add;
-    FloatingPointSubtractor<> sub;
+    // Pointer `f` to the correct function based on the floating-point specs
+    void (ComplexFloatingPointMultiplier::*f)(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t nitems
+    ) const;
+
+    _FloatingPointAddSubSameWl<false> add_same_wl;
+    _FloatingPointAddSubGeneral<false> add_general;
+    _FloatingPointAddSubSameWl<true> sub_same_wl;
+    _FloatingPointAddSubGeneral<true> sub_general;
+    _FloatingPointMultiplierShort mul_short;
+    _FloatingPointMultiplierGeneral mul_general;
 };
 
 template <std::size_t SRC1_INC = 1, std::size_t SRC2_INC = 1, std::size_t DST_INC = 1>
-struct FloatingPointComplexDivider {
+struct ComplexFloatingPointDivider {
     /*
      * For valuable information on floating-point complex-valued division arithmetic,
      * read ``Annex G, IEC 60559-compatible complex arithmetic'' of the C99 standard:
@@ -88,7 +227,7 @@ struct FloatingPointComplexDivider {
      *   c + di       c^2 + d^2     c^2 + d^2
      *
      */
-    explicit FloatingPointComplexDivider(
+    explicit ComplexFloatingPointDivider(
         const APyFloatSpec& src1_spec,
         const APyFloatSpec& src2_spec,
         const APyFloatSpec& dst_spec,
@@ -104,7 +243,7 @@ struct FloatingPointComplexDivider {
         , mul(dst_spec, dst_spec, dst_spec, qntz)
         , div(dst_spec, dst_spec, dst_spec, qntz)
     {
-        using F = FloatingPointComplexDivider<SRC1_INC, SRC2_INC, DST_INC>;
+        using F = ComplexFloatingPointDivider<SRC1_INC, SRC2_INC, DST_INC>;
         if (src1_spec == dst_spec && src2_spec == dst_spec) {
             f = &F::template complex_div</* PROMOTE_RHS = */ false>;
         } else { /* SUM_MAN_BITS > _MAN_LIMIT_BITS */
@@ -137,7 +276,7 @@ private:
     FloatingPointDivider<> div;
 
     // Pointer `f` to the correct function based on the floating-point specs
-    void (FloatingPointComplexDivider::*f)(
+    void (ComplexFloatingPointDivider::*f)(
         const APyFloatData* src1,
         const APyFloatData* src2,
         APyFloatData* dst,
@@ -278,4 +417,168 @@ private:
 #endif
         }
     }
+};
+
+struct ComplexFloatingPointInnerProduct {
+    explicit ComplexFloatingPointInnerProduct(
+        const APyFloatSpec& src1_spec,
+        const APyFloatSpec& src2_spec,
+        const APyFloatSpec& dst_spec,
+        const QuantizationMode& qntz
+    )
+    {
+        using F = ComplexFloatingPointInnerProduct;
+        using MUL_F_SHORT = _FloatingPointMultiplierShort;
+        using MUL_F_GENERAL = _FloatingPointMultiplierGeneral;
+        using ADD_F_GENERAL = _FloatingPointAddSubGeneral</*IS_SUBTRACT=*/false>;
+        using ADD_F_SHORT = _FloatingPointAddSubSameWl</*IS_SUBTRACT=*/false>;
+        using SUB_F_GENERAL = _FloatingPointAddSubGeneral</*IS_SUBTRACT=*/true>;
+        using SUB_F_SHORT = _FloatingPointAddSubSameWl</*IS_SUBTRACT=*/true>;
+
+        bool is_short_mul = src1_spec.man_bits + src2_spec.man_bits <= _MAN_LIMIT_BITS;
+        bool is_short_add = qntz != QuantizationMode::STOCH_WEIGHTED
+            && std::size_t(dst_spec.man_bits + 5) <= _MAN_T_SIZE_BITS;
+
+        if (is_short_mul) {
+            mul_short = MUL_F_SHORT(src1_spec, src2_spec, dst_spec, qntz);
+            if (is_short_add) {
+                add_same_wl = ADD_F_SHORT(dst_spec, dst_spec, dst_spec, qntz);
+                sub_same_wl = SUB_F_SHORT(dst_spec, dst_spec, dst_spec, qntz);
+                f = &F::inner_product</*SHORT_MUL=*/true, /*SHORT_ADD=*/true>;
+            } else { /* !is_short_add */
+                add_general = ADD_F_GENERAL(dst_spec, dst_spec, dst_spec, qntz);
+                sub_general = SUB_F_GENERAL(dst_spec, dst_spec, dst_spec, qntz);
+                f = &F::inner_product</*SHORT_MUL=*/true, /*SHORT_ADD=*/false>;
+            }
+        } else { /* !is_short_mul */
+            mul_general = MUL_F_GENERAL(src1_spec, src2_spec, dst_spec, qntz);
+            if (is_short_add) {
+                add_same_wl = ADD_F_SHORT(dst_spec, dst_spec, dst_spec, qntz);
+                sub_same_wl = SUB_F_SHORT(dst_spec, dst_spec, dst_spec, qntz);
+                f = &F::inner_product</*SHORT_MUL=*/false, /*SHORT_ADD=*/true>;
+            } else { /* !is_short_add */
+                add_general = ADD_F_GENERAL(dst_spec, dst_spec, dst_spec, qntz);
+                sub_general = SUB_F_GENERAL(dst_spec, dst_spec, dst_spec, qntz);
+                f = &F::inner_product</*SHORT_MUL=*/false, /*SHORT_ADD=*/false>;
+            }
+        }
+    }
+
+    void operator()(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t N,
+        std::size_t M = 1,
+        std::size_t DST_STEP = 1
+    ) const
+    {
+        std::invoke(f, this, src1, src2, dst, N, M, DST_STEP);
+    }
+
+private:
+    template <bool SHORT_MUL, bool SHORT_ADD>
+    void inner_product(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t N,
+        std::size_t M,
+        std::size_t DST_STEP
+    ) const
+    {
+        // Matrix-vector multiplication $`A \times b`$, where
+        // * A: [ `M` x `N` ]
+        // * b: [ `N` x `1` ]
+        APyFloatData prod_re { 0, 0, 0 };
+        APyFloatData prod_im { 0, 0, 0 };
+        for (std::size_t m = 0; m < M; m++) {
+            auto A_it = src1 + 2 * N * m;
+            APyFloatData sum_re { 0, 0, 0 };
+            APyFloatData sum_im { 0, 0, 0 };
+            for (std::size_t n = 0; n < N; n++) {
+                auto lhs = A_it + 2 * n;
+                auto rhs = src2 + 2 * n;
+                complex_product<SHORT_MUL, SHORT_ADD>(
+                    lhs + 0, lhs + 1, rhs + 0, rhs + 1, &prod_re, &prod_im
+                );
+                complex_sum<SHORT_ADD>(
+                    &prod_re, &prod_im, &sum_re, &sum_im, &sum_re, &sum_im
+                );
+            }
+            *(dst + 2 * DST_STEP * m + 0) = sum_re;
+            *(dst + 2 * DST_STEP * m + 1) = sum_im;
+        }
+    }
+
+    template <bool SHORT_MUL, bool SHORT_ADD>
+    void complex_product(
+        const APyFloatData* x_re,
+        const APyFloatData* x_im,
+        const APyFloatData* y_re,
+        const APyFloatData* y_im,
+        APyFloatData* z_re,
+        APyFloatData* z_im
+    ) const
+    {
+        // Perform partial products: a*c, a*d, b*c, b*d
+        APyFloatData ac, ad, bc, bd;
+        if constexpr (SHORT_MUL) {
+            mul_short(x_re, y_re, &ac);
+            mul_short(x_re, y_im, &ad);
+            mul_short(x_im, y_re, &bc);
+            mul_short(x_im, y_im, &bd);
+        } else {
+            mul_general(x_re, y_re, &ac);
+            mul_general(x_re, y_im, &ad);
+            mul_general(x_im, y_re, &bc);
+            mul_general(x_im, y_im, &bd);
+        }
+
+        // Perform additions: ac - bd, ad + bc
+        if constexpr (SHORT_ADD) {
+            sub_same_wl(&ac, &bd, z_re);
+            add_same_wl(&ad, &bc, z_im);
+        } else {
+            sub_general(&ac, &bd, z_re);
+            add_general(&ad, &bc, z_im);
+        }
+    }
+
+    template <bool SHORT_ADD>
+    void complex_sum(
+        const APyFloatData* x_re,
+        const APyFloatData* x_im,
+        const APyFloatData* y_re,
+        const APyFloatData* y_im,
+        APyFloatData* z_re,
+        APyFloatData* z_im
+    ) const
+    {
+
+        if constexpr (SHORT_ADD) {
+            add_same_wl(x_re, y_re, z_re);
+            add_same_wl(x_im, y_im, z_im);
+        } else {
+            add_general(x_re, y_re, z_re);
+            add_general(x_im, y_im, z_im);
+        }
+    }
+
+    // Pointer `f` to the correct function based on the floating-point specs
+    void (ComplexFloatingPointInnerProduct::*f)(
+        const APyFloatData* src1,
+        const APyFloatData* src2,
+        APyFloatData* dst,
+        std::size_t N,
+        std::size_t M,
+        std::size_t DST_STEP
+    ) const;
+
+    _FloatingPointAddSubSameWl<false> add_same_wl;
+    _FloatingPointAddSubGeneral<false> add_general;
+    _FloatingPointAddSubSameWl<true> sub_same_wl;
+    _FloatingPointAddSubGeneral<true> sub_general;
+    _FloatingPointMultiplierShort mul_short;
+    _FloatingPointMultiplierGeneral mul_general;
 };

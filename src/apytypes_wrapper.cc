@@ -132,12 +132,18 @@ void bind_common(nb::module_& m)
         .value(
             "TRN_MAG",
             QuantizationMode::TRN_MAG,
-            R"pbdoc(Magnitude truncation (round towards zero), fixed-point friendly variant (add sign-bit).)pbdoc"
+            R"pbdoc(
+            Magnitude truncation (round towards zero), fixed-point friendly variant (add
+            sign-bit).
+            )pbdoc"
         )
         .value(
             "RND",
             QuantizationMode::RND,
-            R"pbdoc(Round to nearest, ties towards positive infinity (standard 'round' for fixed-point).)pbdoc"
+            R"pbdoc(
+            Round to nearest, ties towards positive infinity (standard 'round' for
+            fixed-point).
+            )pbdoc"
         )
         .value(
             "RND_ZERO",
@@ -172,12 +178,17 @@ void bind_common(nb::module_& m)
         .value(
             "JAM_UNBIASED",
             QuantizationMode::JAM_UNBIASED,
-            R"pbdoc(Unbiased jamming/von Neumann rounding. Set LSB to 1 unless the previous LSB and all the removed bits are 0.)pbdoc"
+            R"pbdoc(
+            Unbiased jamming/von Neumann rounding. Set LSB to 1 unless the previous LSB
+            and all the removed bits are 0.
+            )pbdoc"
         )
         .value(
             "STOCH_WEIGHTED",
             QuantizationMode::STOCH_WEIGHTED,
-            R"pbdoc(Stochastic rounding. Probability depends on the bits to remove.)pbdoc"
+            R"pbdoc(
+            Stochastic rounding. Probability depends on the bits to remove.
+            )pbdoc"
         )
         .value(
             "STOCH_EQUAL",
@@ -194,12 +205,17 @@ void bind_common(nb::module_& m)
         .value(
             "SAT",
             OverflowMode::SAT,
-            R"pbdoc(Saturate to the closest of most positive and most negative value.)pbdoc"
+            R"pbdoc(
+            Saturate to the closest of most positive and most negative value.
+            )pbdoc"
         )
         .value(
             "NUMERIC_STD",
             OverflowMode::NUMERIC_STD,
-            R"pbdoc(Remove MSBs, but keep the most significant bit. As ieee.numeric_std resize for signed.)pbdoc"
+            R"pbdoc(
+            Remove MSBs, but keep the most significant bit. As ieee.numeric_std resize
+            for signed.
+            )pbdoc"
         );
 
     m.def(
