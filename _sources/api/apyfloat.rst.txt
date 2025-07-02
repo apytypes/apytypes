@@ -36,6 +36,8 @@
    Creation
    ^^^^^^^^
 
+   .. automethod:: zero
+
    .. automethod:: inf
 
    .. automethod:: nan
