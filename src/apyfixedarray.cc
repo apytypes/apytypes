@@ -1918,14 +1918,15 @@ void APyFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& nd
     CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::uint32_t);
     CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::uint16_t);
     CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::uint8_t);
+
 #undef CHECK_AND_SET_VALUES_FROM_FLOAT_NPTYPE
 #undef CHECK_AND_SET_VALUES_FROM_INT_NPTYPE
 
-    // None of the `CHECK_AND_VALUES_FROM_NPTYPE` succeeded. Unsupported type, throw
-    // an error. If possible, it would be nice to show a string representation of
+    // None of the `CHECK_AND_SET_VALUES_FROM_*_NPTYPE` succeeded. Unsupported type,
+    // throw an error. If possible, it would be nice to show a string representation of
     // the `dtype`. Seems hard to achieve with nanobind, but please fix this if you
     // find out how this can be achieved.
     throw nb::type_error(
-        "APyFixedArray.from_array: unsupported `dtype` expecting integer/float"
+        "APyFixedArray.from_array: unsupported `dtype`, expecting float or integer"
     );
 }

@@ -1,6 +1,7 @@
 #ifndef _APYTYPES_INTRINSICS
 #define _APYTYPES_INTRINSICS
 
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 
@@ -30,18 +31,17 @@ static_assert(
 #include "apytypes_fwd.h"
 
 //! Mark code path unreachable. Allows the compiler to make further control-flow
-//! optimizations. Calling this function under any circumstance is undefined behaviour.
-[[maybe_unused, noreturn]] static inline void apytypes_unreachable()
-{
-    // Uses compiler specific extensions if possible. Even if no extension is used,
-    // undefined behavior is still raised by an empty function body and the noreturn
-    // attribute.
+//! optimizations. Calling this macro under any circumstance is undefined behaviour,
+//! but it triggers an assertion failure in debug builds.
 #if defined(_MSC_VER) && !defined(__clang__) // MSVC
-    __assume(false);
+#define APYTYPES_UNREACHABLE()                                                         \
+    assert(false);                                                                     \
+    __assume(false)
 #else // GCC, Clang
-    __builtin_unreachable();
+#define APYTYPES_UNREACHABLE()                                                         \
+    assert(false);                                                                     \
+    __builtin_unreachable()
 #endif
-}
 
 //! Compute multiplication between two apy_limb_t and obtain double length result
 [[maybe_unused, nodiscard]] static APY_INLINE std::tuple<apy_limb_t, apy_limb_t>

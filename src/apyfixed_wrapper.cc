@@ -1,4 +1,5 @@
 #include "apyfixed.h"
+#include "apyfixedarray.h" // Needed by: APyFixed::is_identical
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>

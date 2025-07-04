@@ -237,8 +237,7 @@ arange(const nb::object& start, const nb::object& stop, const nb::object& step)
 
     std::vector<APyFixed> result;
 
-    auto curr_val = apy_start;
-
+    APyFixed curr_val = apy_start;
     if (apy_step.is_negative()) {
         while (curr_val > apy_stop) {
             result.push_back(curr_val);

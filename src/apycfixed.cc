@@ -879,7 +879,7 @@ bool APyCFixed::is_identical(
     if (!std::holds_alternative<const APyCFixed*>(other)) {
         return false;
     } else {
-        const APyCFixed& other_scalar = *std::get<const APyCFixed*>(other);
+        auto&& other_scalar = *std::get<const APyCFixed*>(other);
         return bits() == other_scalar.bits() && int_bits() == other_scalar.int_bits()
             && *this == other_scalar;
     }

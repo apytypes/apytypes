@@ -324,8 +324,7 @@ void bind_float_array(nb::module_& m)
             Returns
             -------
             :class:`APyFloatArray`
-                )pbdoc")
-
+            )pbdoc")
         .def("ravel", &APyFloatArray::ravel, R"pbdoc(
             Return a copy of the array collapsed into one dimension. Same as flatten
             with current memory-copy model.
@@ -344,7 +343,7 @@ void bind_float_array(nb::module_& m)
             Returns
             -------
             :class:`APyFloatArray`
-                )pbdoc")
+            )pbdoc")
 
         /*
          * Static methods
@@ -714,6 +713,7 @@ void bind_float_array(nb::module_& m)
             :class:`APyFloatArray`
             )pbdoc"
         )
+
         /*
          * Dunder methods
          */

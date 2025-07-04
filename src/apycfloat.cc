@@ -583,19 +583,28 @@ std::string APyCFloat::to_string_oct() const
     throw NotImplementedException("APyCFloat::to_string_oct()");
 }
 
-bool APyCFloat::is_identical(const APyCFloat& other, bool ignore_zero_sign) const
+bool APyCFloat::is_identical(
+    const std::variant<const APyCFloat*, const APyCFloatArray*>& other,
+    bool ignore_zero_sign
+) const
 {
-    if (ignore_zero_sign) {
-        if (is_zero() && other.is_zero()) {
-            return spec() == other.spec();
-        } else if (::is_zero(real()) && ::is_zero(other.real())) {
-            return spec() == other.spec() && imag() == other.imag();
-        } else if (::is_zero(imag()) && ::is_zero(other.imag())) {
-            return spec() == other.spec() && real() == other.real();
+    if (!std::holds_alternative<const APyCFloat*>(other)) {
+        return false;
+    } else {
+        auto&& other_scalar = *std::get<const APyCFloat*>(other);
+        if (ignore_zero_sign) {
+            if (is_zero() && other_scalar.is_zero()) {
+                return spec() == other_scalar.spec();
+            } else if (::is_zero(real()) && ::is_zero(other_scalar.real())) {
+                return spec() == other_scalar.spec() && imag() == other_scalar.imag();
+            } else if (::is_zero(imag()) && ::is_zero(other_scalar.imag())) {
+                return spec() == other_scalar.spec() && real() == other_scalar.real();
+            }
         }
-    }
 
-    return spec() == other.spec() && real() == other.real() && imag() == other.imag();
+        return spec() == other_scalar.spec() && real() == other_scalar.real()
+            && imag() == other_scalar.imag();
+    }
 }
 
 APyFloat APyCFloat::get_real() const
@@ -610,4 +619,11 @@ APyFloat APyCFloat::get_imag() const
     APyFloat result(exp_bits, man_bits, bias);
     result.set_data(imag());
     return result;
+}
+
+APyCFloat
+APyCFloat::one(std::uint8_t exp_bits, std::uint8_t man_bits, std::optional<exp_t> bias)
+{
+    const exp_t res_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
+    return APyCFloat({ 0, res_bias, 0 }, { 0, 0, 0 }, exp_bits, man_bits, res_bias);
 }

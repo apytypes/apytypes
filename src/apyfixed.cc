@@ -712,9 +712,17 @@ std::string APyFixed::latex() const
     return str;
 }
 
-bool APyFixed::is_identical(const APyFixed& other) const
+bool APyFixed::is_identical(
+    const std::variant<const APyFixed*, const APyFixedArray*>& other
+) const
 {
-    return bits() == other.bits() && int_bits() == other.int_bits() && *this == other;
+    if (!std::holds_alternative<const APyFixed*>(other)) {
+        return false;
+    } else {
+        auto&& other_scalar = *std::get<const APyFixed*>(other);
+        return bits() == other_scalar.bits() && int_bits() == other_scalar.int_bits()
+            && *this == other_scalar;
+    }
 }
 
 std::size_t APyFixed::leading_zeros() const

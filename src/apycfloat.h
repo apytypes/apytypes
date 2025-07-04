@@ -24,6 +24,7 @@ private:
     APyFloatData _data[2]; // { real, imag }
 
     // Access real/imag
+public:
     const APyFloatData& real() const noexcept { return _data[0]; }
     const APyFloatData& imag() const noexcept { return _data[1]; }
     APyFloatData& real() noexcept { return _data[0]; }
@@ -266,7 +267,10 @@ public:
 
     //! Test if two floating-point numbers are identical, i.e., has the same values, the
     //! same number of exponent bits, and the same number of mantissa bits
-    bool is_identical(const APyCFloat& other, bool ignore_zero_sign = false) const;
+    bool is_identical(
+        const std::variant<const APyCFloat*, const APyCFloatArray*>& other,
+        bool ignore_zero_sign = false
+    ) const;
 
     //! Retrieve real part
     APyFloat get_real() const;
@@ -282,6 +286,12 @@ public:
     {
         return real().exp == 0 && real().man == 0 && imag().exp == 0 && imag().man == 0;
     }
+
+    //! Create an `APyCFloat` with the stored value one
+    static APyCFloat
+    one(std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt);
 
     /* ****************************************************************************** *
      * *                           Friends of `APyCFloat`                           * *

@@ -155,7 +155,6 @@ template <> struct array_variant<APyCFloat> {
 };
 
 template <typename T> using scalar_variant_t = typename scalar_variant<T>::type;
-
 template <typename T> using array_variant_t = typename array_variant<T>::type;
 
 /* ********************************************************************************** *

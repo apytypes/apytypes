@@ -63,26 +63,26 @@ def test_array_from_float_raises():
     # Too many exponent bits
     with pytest.raises(
         ValueError,
-        match=r"APyFloatArray.from_integer: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
+        match=r"APyFloatArray.from_float: exponent bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
         APyFloatArray.from_float([0], 300, 5)
 
     with pytest.raises(
         ValueError,
-        match=r"APyFloatArray.from_integer: exponent bits must be a non-negative integer less or equal to .. but -300 was given",
+        match=r"APyFloatArray.from_float: exponent bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
         APyFloatArray.from_float([0], -300, 5)
 
     # Too many mantissa bits
     with pytest.raises(
         ValueError,
-        match="APyFloatArray.from_integer: mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
+        match="APyFloatArray.from_float: mantissa bits must be a non-negative integer less or equal to .. but 300 was given",
     ):
         APyFloatArray.from_float([0], 5, 300)
 
     with pytest.raises(
         ValueError,
-        match="APyFloatArray.from_integer: mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
+        match="APyFloatArray.from_float: mantissa bits must be a non-negative integer less or equal to .. but -300 was given",
     ):
         APyFloatArray.from_float([0], 5, -300)
 
