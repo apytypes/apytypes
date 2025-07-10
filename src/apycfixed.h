@@ -91,7 +91,7 @@ public:
      * ****************************************************************************** */
 
 public:
-    //! No default (empty) constructed `APyCFixed` objects. At lesast the bit-specifiers
+    //! No default (empty) constructed `APyCFixed` objects. At least the bit-specifiers
     //! has to be set during construction.
     APyCFixed() = delete;
 

@@ -53,12 +53,12 @@ cpp_shape_from_python_shape_like(const PyShapeParam_t& shape)
         long long cpp_int;
         if (!nanobind::try_cast<long long>(nb_int, cpp_int)) {
             throw nanobind::value_error(
-                fmt::format("{}(): integer to large for C++ long long", func_name)
+                fmt::format("{}(): integer too large for C++ long long", func_name)
                     .c_str()
             );
         }
 
-        // Sanitize: integer is negative? Conditionally enablable
+        // Sanitize: integer is negative? Conditionally enableable
         if constexpr (!allow_negative_dimensions) {
             if (cpp_int < 0) {
                 throw nanobind::value_error(
@@ -144,7 +144,7 @@ get_normalized_axes(const PyShapeParam_t& axes, const std::size_t n_dim)
  *
  * This function permutes the dimensions of the source data according to the provided
  * permutation array and copies the permuted data to the destination.
- * Assumunes that the sizes specified in src_shape and perm match the dimensionality of
+ * Assumes that the sizes specified in src_shape and perm match the dimensionality of
  * the data.
  */
 template <typename RANDOM_ACCESS_CONST_ITERATOR, typename RANDOM_ACCESS_ITERATOR>
@@ -164,7 +164,7 @@ static APY_INLINE void transpose_axes_and_copy_data(
 
     std::vector<std::size_t> dst_stride = strides_from_shape(dst_shape);
 
-    // Start at indice [0,0, ..., 0]
+    // Start at indices [0,0, ..., 0]
     std::vector<std::size_t> indices(src_shape.size(), 0);
     std::vector<std::size_t> dst_indices(indices.size());
 

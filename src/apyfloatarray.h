@@ -278,7 +278,7 @@ public:
     std::variant<APyFloatArray, APyFloat>
     nansum(const std::optional<PyShapeParam_t>& axis = std::nullopt) const;
 
-    //! Cumulative sum over one or more axes, treatíng Nan as 0.
+    //! Cumulative sum over one or more axes, treating Nan as 0.
     APyFloatArray nancumsum(std::optional<nb::int_> axis = std::nullopt) const;
 
     //! Multiplication over one or more axes.
@@ -403,7 +403,7 @@ public:
     );
 
     /*!
-     * Evaluate the inner between two vectors. This method assumes that the the shape
+     * Evaluate the inner between two vectors. This method assumes that the shape
      * of both `*this` and `rhs` are equally long. Anything else is undefined
      * behaviour.
      */

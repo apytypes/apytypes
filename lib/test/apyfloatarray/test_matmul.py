@@ -283,7 +283,7 @@ def test_array_matmul_mixed_bias():
         APyFloat(0, 30, 0, exp_bits=5, man_bits=2, bias=15)
     )
 
-    # Multiply two one's but with different formats
+    # Multiply two ones but with different formats
     x = APyFloatArray([0], [14], [0], exp_bits=5, man_bits=2, bias=14)
     y = APyFloatArray([0], [21], [0], exp_bits=5, man_bits=2, bias=21)
     assert (_ := x @ y).is_identical(

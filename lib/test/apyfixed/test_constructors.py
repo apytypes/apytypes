@@ -9,7 +9,7 @@ def test_construction_raises():
     """
     Disallowed construction of `APyFixed` object raises `ValueError`
     """
-    # Zero-bit fixed-point numbers can not be created
+    # Zero-bit fixed-point numbers cannot be created
     with pytest.raises(ValueError, match="Fixed-point bit specification needs a"):
         _ = APyFixed(0, bits=0, int_bits=0)
 
@@ -35,7 +35,7 @@ def test_constructor():
     assert APyFixed(-1234, int_bits=10, frac_bits=0).to_bits() == 814
     assert float(APyFixed(0x18, int_bits=4, frac_bits=4)) == 1.5
 
-    # Integers that dont fit a single Python digit
+    # Integers that don't fit a single Python digit
     assert (
         APyFixed(1234567898765432123456789, int_bits=50, frac_bits=50).to_bits()
         == 1234567898765432123456789

@@ -1470,7 +1470,7 @@ void fixed_point_from_double(
     if constexpr (APY_LIMB_SIZE_BITS == 64) {
         /*
          * Limb vector size is wide enough to accommodate the full mantissa of a
-         * double-prection floating point number
+         * double-precision floating point number
          */
         if (left_shift_amnt >= 0) {
             *begin_it = man;
@@ -1488,7 +1488,7 @@ void fixed_point_from_double(
     } else { /* APY_LIMB_SIZE_BITS == 32 */
         /*
          * Limb vector size is *NOT* wide enough to accommodate the full mantissa of a
-         * double-prection floating point number.
+         * double-precision floating point number.
          */
         assert(std::distance(begin_it, end_it) >= 2);
         if (left_shift_amnt >= 0) {

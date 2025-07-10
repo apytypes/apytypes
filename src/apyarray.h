@@ -145,7 +145,7 @@ public:
                 cpp_tuple.push_back(integer);
             } else if (nb::try_cast<nb::ellipsis>(tuple_element, ellipsis)) {
                 if (ellipsis_found) {
-                    // An ellipsis object has already been procecced. Only a single
+                    // An ellipsis object has already been processed. Only a single
                     // ellipsis per tuple key is allowed
                     std::string msg = fmt::format(
                         "{}.{}: only one single ellipsis object allowed",
@@ -260,7 +260,7 @@ public:
             }
         } else {
             /*
-             * This is not yet the final dimesnsion of the tuple slice in this recursive
+             * This is not yet the final dimension of the tuple slice in this recursive
              * descent. We need to go deeper...
              */
             if (std::holds_alternative<nb::int_>(element)) {
@@ -450,7 +450,7 @@ public:
             }
         } else {
             /*
-             * This is not yet the final dimesnsion of the tuple slice in this recursive
+             * This is not yet the final dimension of the tuple slice in this recursive
              * descent. We need to go deeper...
              */
             if (std::holds_alternative<nb::int_>(element)) {
@@ -1313,7 +1313,7 @@ public:
                      2 * _ndim };
         }
 
-        // Retrieve necesasry padding of elements
+        // Retrieve necessary padding of elements
         std::size_t padding = 0;
         for (auto&& formatter : formatters) {
             padding = std::max(padding, _array_format_get_padding(formatter));
@@ -1452,7 +1452,7 @@ public:
         // The array name of `*this`
         constexpr std::string_view array_name = ARRAY_TYPE::ARRAY_NAME;
 
-        // Produce a propriate final string
+        // Produce appropriate final string
         std::string res {};
         const bool is_multi_format = formats.size() > 1;
         const bool is_format_multi_line = formats[0].size() > 1;

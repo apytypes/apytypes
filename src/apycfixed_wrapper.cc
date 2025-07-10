@@ -303,7 +303,7 @@ void bind_cfixed(nb::module_& m)
 
             This is the primary method for performing quantization and
             overflowing/saturation when dealing with APyTypes fixed-point numbers.
-            The specified quatization and overflow are applied piecewise to the real and
+            The specified quantization and overflow are applied piecewise to the real and
             imaginary part.
 
             Exactly two of three bit-specifiers (`bits`, `int_bits`, `frac_bits`)
@@ -428,7 +428,7 @@ void bind_cfixed(nb::module_& m)
 
             .. attention::
                 It is in all cases better to use :func:`~apytypes.APyCFixed.cast` to
-                create an :class:`APyCFixed` from anpther :class:`APyCFixed`.
+                create an :class:`APyCFixed` from another :class:`APyCFixed`.
 
             Parameters
             ----------

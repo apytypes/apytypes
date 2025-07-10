@@ -302,7 +302,7 @@ def test_from_float_with_non_floats():
         APyFixed(int_val, int_bits=257, frac_bits=0)
     )
 
-    # Test negative number of fractioal bits
+    # Test negative number of fractional bits
     assert APyFixed.from_float(14, int_bits=6, frac_bits=-1).is_identical(
         APyFixed(7, bits=5, int_bits=6)
     )

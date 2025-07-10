@@ -624,7 +624,7 @@ def test_issue_179(fixed_type, im):
     ("fixed_type", "im"), [(APyFixed, 1), (APyCFixed, 1), (APyCFixed, 1j)]
 )
 def test_exactly_full_limb_quantize(fixed_type, im):
-    # Truncate towrads minus infinity
+    # Truncate towards minus infinity
     mode = QuantizationMode.TRN
     fx1 = fixed_type.from_float(-0.5 * im, 0, 64).cast(64, 0, quantization=mode)
     fx2 = fixed_type.from_float(-0.25 * im, 0, 64).cast(64, 0, quantization=mode)
@@ -690,7 +690,7 @@ def test_exactly_full_limb_quantize(fixed_type, im):
     assert fx3 == 0.0 * im
     assert fx4 == 0.0 * im
 
-    # Round to nearest, ties towrard zero
+    # Round to nearest, ties toward zero
     mode = QuantizationMode.RND_ZERO
     fx1 = fixed_type.from_float(-0.5 * im, 0, 64).cast(64, 0, quantization=mode)
     fx2 = fixed_type.from_float(-0.25 * im, 0, 64).cast(64, 0, quantization=mode)

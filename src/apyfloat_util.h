@@ -420,7 +420,7 @@ template <typename QNTZ_FUNC_SIGNATURE>
     // Check if the result will be subnormal after cast
     if (exp <= 0) {
         if (exp < -std::int64_t(dst_spec.man_bits)) {
-            // Exponent to small after rounding
+            // Exponent too small after rounding
             return { src.sign, 0, quantize_close_to_zero(src.sign, qntz) };
         }
 
@@ -505,7 +505,7 @@ template <typename QNTZ_FUNC_SIGNATURE>
     // Check if the result will be subnormal after cast
     if (exp <= 0) {
         if (exp < -std::int64_t(dst_spec.man_bits)) {
-            // Exponent to small after rounding
+            // Exponent too small after rounding
             return { src.sign, 0, quantize_close_to_zero(src.sign, qntz) };
         }
 
@@ -587,7 +587,7 @@ template <typename QNTZ_FUNC_SIGNATURE>
     // Check if the result will be subnormal after cast
     if (exp <= 0) {
         if (exp < -std::int64_t(dst_spec.man_bits)) {
-            // Exponent to small after rounding
+            // Exponent too small after rounding
             return { src.sign, 0, quantize_close_to_zero(src.sign, qntz) };
         }
 
@@ -640,7 +640,7 @@ template <typename QNTZ_FUNC_SIGNATURE>
     // Initial value for exponent
     std::int64_t new_exp = std::int64_t(dst_spec.bias) - std::int64_t(src_spec.bias);
 
-    // Adjust the exponent and mantissa if convertering from a subnormal
+    // Adjust the exponent and mantissa if converting from a subnormal
     man_t new_man;
     if (src.exp == 0) {
         if (src.man == 0) {
@@ -676,7 +676,7 @@ template <typename QNTZ_FUNC_SIGNATURE>
     const std::uint8_t dst_man_bits
 )
 {
-    // Adjust the exponent and mantissa if convertering from a subnormal
+    // Adjust the exponent and mantissa if converting from a subnormal
     man_t new_man;
     std::int64_t new_exp;
     if (src.exp == 0) {
@@ -723,7 +723,7 @@ template <typename QNTZ_FUNC_SIGNATURE>
     // Initial value for exponent
     std::int64_t new_exp;
 
-    // Adjust the exponent and mantissa if convertering from a subnormal
+    // Adjust the exponent and mantissa if converting from a subnormal
     man_t new_man;
     if (src.exp == 0) {
         if (src.man == 0) {
@@ -1694,7 +1694,7 @@ template <
     auto [norm_x, norm_x_exp_bits, norm_x_bias] = normalize(x, src1_spec);
     auto [norm_y, norm_y_exp_bits, norm_y_bias] = normalize(y, src2_spec);
 
-    // Add leading one's
+    // Add leading ones
     const man_t mx = true_man(norm_x, norm_x_exp_bits, src1_spec.man_bits);
     const man_t my = true_man(norm_y, norm_y_exp_bits, src2_spec.man_bits);
 

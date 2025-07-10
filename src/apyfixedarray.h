@@ -94,7 +94,7 @@ public:
      * ****************************************************************************** */
 
 public:
-    //! No default (empty) constructed `APyFixedArray` objects. At lesast the
+    //! No default (empty) constructed `APyFixedArray` objects. At least the
     //! bit-specifiers and shape has to be set during construction.
     APyFixedArray() = delete;
 
@@ -356,7 +356,7 @@ private:
 
     /*!
      * Evaluate the inner product between `*this` and `rhs`, possibly using an
-     * accumulator mode `mode`. This method assumes that the the shape of both `*this`
+     * accumulator mode `mode`. This method assumes that the shape of both `*this`
      * and `rhs` are equally long. Anything else is undefined behaviour. Return result
      * in a new `APyFixedArray`.
      */

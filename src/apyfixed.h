@@ -88,7 +88,7 @@ public:
      * ****************************************************************************** */
 
 public:
-    //! No default (empty) constructed `APyFixed` objects. At lesast the bit-specifiers
+    //! No default (empty) constructed `APyFixed` objects. At least the bit-specifiers
     //! has to be set during construction.
     APyFixed() = delete;
 
