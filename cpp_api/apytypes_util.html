@@ -331,7 +331,7 @@
 <dl class="cpp type">
 <dt class="sig sig-object cpp" id="_CPPv4I0E14remove_cvref_t">
 <span id="_CPPv3I0E14remove_cvref_t"></span><span id="_CPPv2I0E14remove_cvref_t"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="apytypes__util_8h_1a3c0600da43d6867a247432fcc43ce84f"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">remove_cvref_t</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0E12remove_cvref" title="remove_cvref"><span class="n"><span class="pre">remove_cvref</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0E14remove_cvref_t" title="remove_cvref_t::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">type</span></span><a class="headerlink" href="#_CPPv4I0E14remove_cvref_t" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Type trait removing const-volative qualifiers and reference of <code class="docutils literal notranslate"><span class="pre">T</span></code>. Equivalent to the C++20 trait <code class="docutils literal notranslate"><span class="pre">std::remove_cvref_t</span></code>. </p>
+<dd><p>Type trait removing const-volatile qualifiers and reference of <code class="docutils literal notranslate"><span class="pre">T</span></code>. Equivalent to the C++20 trait <code class="docutils literal notranslate"><span class="pre">std::remove_cvref_t</span></code>. </p>
 </dd></dl>
 
 </div>
@@ -340,7 +340,7 @@
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv413bits_to_limbsNSt6size_tE">
 <span id="_CPPv313bits_to_limbsNSt6size_tE"></span><span id="_CPPv213bits_to_limbsNSt6size_tE"></span><span id="bits_to_limbs__std::s"></span><span class="target" id="apytypes__util_8h_1a3c3109e7286c09553aa91a8aba71c741"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bits_to_limbs</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bits</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413bits_to_limbsNSt6size_tE" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Quickly evaluate how many limbs are required to to store a <code class="docutils literal notranslate"><span class="pre">bits</span></code> bit word. Undefined behaviour when <code class="docutils literal notranslate"><span class="pre">bits</span></code> is equal to zero. </p>
+<dd><p>Quickly evaluate how many limbs are required to store a <code class="docutils literal notranslate"><span class="pre">bits</span></code> bit word. Undefined behaviour when <code class="docutils literal notranslate"><span class="pre">bits</span></code> is equal to zero. </p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -641,7 +641,7 @@
 <span id="_CPPv3I0E12remove_cvref"></span><span id="_CPPv2I0E12remove_cvref"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structremove__cvref"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">remove_cvref</span></span></span><a class="headerlink" href="#_CPPv4I0E12remove_cvref" title="Link to this definition">¶</a><br /></dt>
 <dd><div class="docutils container">
 <em>#include &lt;apytypes_util.h&gt;</em></div>
-<p>Type trait removing const-volative qualifiers and reference of <code class="docutils literal notranslate"><span class="pre">T</span></code>. Equivalent to the C++20 trait <code class="docutils literal notranslate"><span class="pre">std::remove_cvref</span></code>. </p>
+<p>Type trait removing const-volatile qualifiers and reference of <code class="docutils literal notranslate"><span class="pre">T</span></code>. Equivalent to the C++20 trait <code class="docutils literal notranslate"><span class="pre">std::remove_cvref</span></code>. </p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-types">Public Types</p>
 <dl class="cpp type">
@@ -670,7 +670,7 @@
 <span id="_CPPv316DoubleDabbleList"></span><span id="_CPPv216DoubleDabbleList"></span><span id="DoubleDabbleList"></span><span class="target" id="structDoubleDabbleList"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DoubleDabbleList</span></span></span><a class="headerlink" href="#_CPPv416DoubleDabbleList" title="Link to this definition">¶</a><br /></dt>
 <dd><div class="docutils container">
 <em>#include &lt;apytypes_util.h&gt;</em></div>
-<p>Double-Dabble helper class with proporate methods for performing the double-dabble and reverse double-dabble algorithm. </p>
+<p>Double-Dabble helper class with appropriate methods for performing the double-dabble and reverse double-dabble algorithm. </p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
