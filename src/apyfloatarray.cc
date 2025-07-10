@@ -1309,7 +1309,7 @@ APyFloatArray APyFloatArray::_cast(
     return result;
 }
 
-// Evaluate the inner between two vectors. This method assumes that the the shape of
+// Evaluate the inner between two vectors. This method assumes that the shape of
 // both `*this` and `rhs` are equally long. Anything else is undefined behaviour.
 APyFloat APyFloatArray::checked_inner_product(const APyFloatArray& rhs) const
 {

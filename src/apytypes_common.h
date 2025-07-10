@@ -17,7 +17,7 @@ enum class QuantizationMode {
     RND_ZERO,       // !< Round to nearest, ties toward zero
     RND_INF,        // !< Round to nearest, ties away from zero
     RND_MIN_INF,    // !< Round to nearest, ties toward minus infinity
-    RND_CONV,       // !< Round to nearest, ties toward even quantization setps
+    RND_CONV,       // !< Round to nearest, ties toward even quantization steps
     RND_CONV_ODD,   // !< Round to nearest, ties toward odd quantization steps
     JAM,            // !< Jamming
     JAM_UNBIASED,   // !< Unbiased jamming

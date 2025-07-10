@@ -118,7 +118,7 @@ APyCFloat::APyCFloat(
     // Sanitize input: no more than two values in all tuples
     if (n_tuple_elements > 2) {
         throw nb::value_error(
-            "APyCFloat.__init__: more than two elements in initializetion tuples"
+            "APyCFloat.__init__: more than two elements in initialization tuples"
         );
     }
 

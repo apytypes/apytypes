@@ -30,7 +30,7 @@
 #include "apytypes_mp.h"
 
 /*!
- * Type trait removing const-volative qualifiers and reference of `T`. Equivalent to the
+ * Type trait removing const-volatile qualifiers and reference of `T`. Equivalent to the
  * C++20 trait `std::remove_cvref`.
  */
 template <typename T> struct remove_cvref {
@@ -38,7 +38,7 @@ template <typename T> struct remove_cvref {
 };
 
 /*!
- * Type trait removing const-volative qualifiers and reference of `T`. Equivalent to the
+ * Type trait removing const-volatile qualifiers and reference of `T`. Equivalent to the
  * C++20 trait `std::remove_cvref_t`.
  */
 template <typename T> using remove_cvref_t = typename remove_cvref<T>::type;
@@ -62,7 +62,7 @@ public:
         : std::domain_error(msg.value_or("Not implemented yet")) { };
 };
 
-//! Quickly evaluate how many limbs are required to to store a `bits` bit word.
+//! Quickly evaluate how many limbs are required to store a `bits` bit word.
 //! Undefined behaviour when `bits` is equal to zero.
 [[maybe_unused, nodiscard]] static APY_INLINE std::size_t
 bits_to_limbs(std::size_t bits)
@@ -186,7 +186,7 @@ from_nibble_list(const std::vector<std::uint8_t>& nibble_list)
     return result;
 }
 
-//! Double-Dabble helper class with proporate methods for performing the
+//! Double-Dabble helper class with appropriate methods for performing the
 //! double-dabble and reverse double-dabble algorithm.
 struct DoubleDabbleList {
 

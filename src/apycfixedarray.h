@@ -85,7 +85,7 @@ public:
      * ****************************************************************************** */
 
 public:
-    //! No default (empty) constructed `APyCFixedArray` objects. At lesast the
+    //! No default (empty) constructed `APyCFixedArray` objects. At least the
     //! bit-specifiers and shape has to be set during construction.
     APyCFixedArray() = delete;
 

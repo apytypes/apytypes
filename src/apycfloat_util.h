@@ -70,7 +70,7 @@ template <std::size_t SRC1_INC = 1, std::size_t SRC2_INC = 1, std::size_t DST_IN
 struct FloatingPointComplexDivider {
     /*
      * For valuable information on floating-point complex-valued division arithmetic,
-     * read ``Annex G, IEC 60559-compatibale complex arithmetic'' of the C99 standard:
+     * read ``Annex G, IEC 60559-compatible complex arithmetic'' of the C99 standard:
      * https://open-std.org/JTC1/SC22/WG14/www/docs/n1256.pdf
      *
      * The used complex-valued division formula (algorithm) can be found here:

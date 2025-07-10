@@ -820,7 +820,7 @@ def test_array_mul_mixed_bias(with_scalar):
         APyFloatArray([0], [30], [0], exp_bits=5, man_bits=2, bias=15)
     )
 
-    # Multiply two one's but with different formats
+    # Multiply two ones but with different formats
     x = APyFloatArray([0], [14], [0], exp_bits=5, man_bits=2, bias=14)
 
     if with_scalar:

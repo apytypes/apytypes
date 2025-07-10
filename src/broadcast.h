@@ -51,17 +51,17 @@ static APY_INLINE bool is_broadcastable(
 }
 
 //! Get the smallest broadcastable shape from `shape1` and `shape2`. Return an empty
-//! vector `_.size() == 0` if the shapes can not be broadcast together.
+//! vector `_.size() == 0` if the shapes cannot be broadcast together.
 static APY_INLINE std::vector<std::size_t> smallest_broadcastable_shape(
     const std::vector<std::size_t>& shape1, const std::vector<std::size_t>& shape2
 )
 {
-    // Can not broadcast if either shape is zero-dimensional
+    // Cannot broadcast if either shape is zero-dimensional
     if (shape1.size() == 0 || shape2.size() == 0) {
         return {};
     }
 
-    // Can not broadcast if any shape dimension is zero
+    // Cannot broadcast if any shape dimension is zero
     auto is_zero = [](auto n) { return n == 0; };
     for (const auto& shape : { shape1, shape2 }) {
         if (std::any_of(std::begin(shape), std::end(shape), is_zero)) {
@@ -138,7 +138,7 @@ static APY_INLINE void broadcast_data_copy(
         return; // early exit
     }
 
-    // Destination strides and intermediate woorking coordinate vector
+    // Destination strides and intermediate working coordinate vector
     std::vector<std::size_t> dst_stride = strides_from_shape(dst_shape);
 
     // Lambda for left-padded source shape

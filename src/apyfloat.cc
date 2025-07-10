@@ -267,7 +267,7 @@ APyFloat APyFloat::cast_from_double(
     // Initial value for exponent
     std::int64_t new_exp;
 
-    // Normalize the exponent and mantissa if convertering from a subnormal
+    // Normalize the exponent and mantissa if converting from a subnormal
     man_t prev_man;
     if (is_zero_exponent()) {
         const exp_t subn_adjustment = count_trailing_bits(man);

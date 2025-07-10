@@ -379,7 +379,7 @@ def test_tuple_construction_raises():
         zeros((4, -2), int_bits=2, frac_bits=2)
 
     with pytest.raises(
-        ValueError, match=r"cpp_shape_from_python_shape_like\(\): integer to large"
+        ValueError, match=r"cpp_shape_from_python_shape_like\(\): integer too large"
     ):
         zeros((111111111111111111111111111111111111, -2), int_bits=2, frac_bits=2)
 

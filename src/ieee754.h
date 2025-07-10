@@ -45,7 +45,7 @@
     // These functions are only compatible with IEEE-754 double-precision `double`s
     static_assert(std::numeric_limits<double>::is_iec559);
 
-    // The *only* C++17 way to legaly and portably type-pun in C++: with `std::memcpy`
+    // The *only* C++17 way to legally and portably type-pun in C++: with `std::memcpy`
     std::uint64_t double_pun;
     std::memcpy(&double_pun, &d, sizeof(double_pun));
     return double_pun;
@@ -56,7 +56,7 @@
     // These functions are only compatible with IEEE-754 double-precision `double`s
     static_assert(std::numeric_limits<double>::is_iec559);
 
-    // The *only* C++17 way to legaly and portably type-pun in C++: with `std::memcpy`
+    // The *only* C++17 way to legally and portably type-pun in C++: with `std::memcpy`
     double d;
     std::memcpy(&d, &num, sizeof(d));
     return d;

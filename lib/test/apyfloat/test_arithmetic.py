@@ -592,7 +592,7 @@ def test_mul_mixed_bias(apyfloat: type[APyCFloat]):
         apyfloat(sign=0, exp=30, man=0, exp_bits=5, man_bits=2, bias=15)
     )
 
-    # Multiply two one's but with different formats
+    # Multiply two ones but with different formats
     x = apyfloat(sign=0, exp=14, man=0, exp_bits=5, man_bits=2, bias=14)
     y = apyfloat(sign=0, exp=21, man=0, exp_bits=5, man_bits=2, bias=21)
     assert (_ := x * y).is_identical(

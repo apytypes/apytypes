@@ -56,11 +56,11 @@ def test_array_broadcast_to_integer(apyarray_from_float):
 
 @pytest.mark.parametrize("apyarray_from_float", apytypes_from_float_generators)
 def test_array_broadcast_to_raises(apyarray_from_float):
-    # Can not broadcast if any of the destination dimensions are zero
+    # Cannot broadcast if any of the destination dimensions are zero
     with pytest.raises(ValueError, match="Operands could not be broadcast together"):
         apyarray_from_float([1.0]).broadcast_to((3, 2, 1, 0, 1))
 
-    # Can not broadcast if the destination number-of-dimensions is zero
+    # Cannot broadcast if the destination number-of-dimensions is zero
     with pytest.raises(ValueError, match="Operands could not be broadcast together"):
         apyarray_from_float([1.0]).broadcast_to(())
 
