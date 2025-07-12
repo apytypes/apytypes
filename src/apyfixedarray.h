@@ -78,13 +78,13 @@ public:
     }
 
     //! Test if two fixed-point vectors have the same bit specifiers
-    APY_INLINE bool same_type_as(const APyFixedArray& other) const noexcept
+    APY_INLINE bool is_same_spec(const APyFixedArray& other) const noexcept
     {
         return _bits == other._bits && _int_bits == other._int_bits;
     }
 
     //! Test if `*this` has the same bit specifiers as another `APyFixed`
-    APY_INLINE bool same_type_as(const APyFixed& other) const noexcept
+    APY_INLINE bool is_same_spec(const APyFixed& other) const noexcept
     {
         return _bits == other._bits && _int_bits == other._int_bits;
     }
@@ -127,15 +127,6 @@ public:
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
     );
-
-    /* ****************************************************************************** *
-     * *                                   Copy                                       *
-     * ****************************************************************************** */
-
-    //! Copy array
-    APyFixedArray python_copy() const { return *this; }
-    //! Deepcopy array (same as copy here)
-    APyFixedArray python_deepcopy(const nb::dict&) const { return *this; }
 
     /* ****************************************************************************** *
      * *                       Binary arithmetic operators                          * *

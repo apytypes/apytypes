@@ -62,7 +62,7 @@ public:
     }
 
     //! Test if two floating-point numbers have the same bit specifiers
-    APY_INLINE bool same_type_as(const APyFloat& other) const
+    APY_INLINE bool is_same_spec(const APyFloat& other) const
     {
         return man_bits == other.man_bits && exp_bits == other.exp_bits
             && bias == other.bias;
@@ -232,7 +232,10 @@ public:
     //! Copy scalar
     APyFloat python_copy() const { return *this; }
     //! Deepcopy scalar (same as copy here)
-    APyFloat python_deepcopy(nb::dict&) const { return *this; }
+    APyFloat python_deepcopy(const nb::typed<nb::dict, nb::int_, nb::any>&) const
+    {
+        return *this;
+    }
 
     /* ****************************************************************************** *
      * *                             Arithmetic operators                           * *
@@ -443,7 +446,7 @@ public:
 
     //! Test if two floating-point numbers are identical, i.e., has the same value, and
     //! the same format
-    bool is_identical(const APyFloat& other, bool ignore_zero_sign = false) const;
+    bool is_identical(const nb::object& other, bool ignore_zero_sign = false) const;
 
     //! Convert to a fixed-point object
     APyFixed to_fixed() const;

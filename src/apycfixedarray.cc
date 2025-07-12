@@ -13,6 +13,7 @@
 #include "apytypes_util.h"
 #include "broadcast.h"
 #include "python_util.h"
+#include "src/apytypes_intrinsics.h"
 #include "src/apytypes_mp.h"
 #include "src/array_utils.h"
 
@@ -42,7 +43,7 @@ namespace nb = nanobind;
  * ********************************************************************************** */
 
 APyCFixedArray::APyCFixedArray(
-    const nb::sequence& seq,
+    const nb::typed<nb::sequence, nb::any>& seq,
     std::optional<int> int_bits,
     std::optional<int> frac_bits,
     std::optional<int> bits
@@ -324,18 +325,7 @@ APyCFixedArray::_apycfixed_base_add_sub(const APyCFixed& rhs) const
 APyCFixedArray APyCFixedArray::operator+(const APyCFixedArray& rhs) const
 {
     if (_shape != rhs._shape) {
-        auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
-        if (broadcast_shape.size() == 0) {
-            throw std::length_error(
-                fmt::format(
-                    "APyCFixedArray.__add__: shape mismatch, lhs.shape={}, "
-                    "rhs.shape={}",
-                    tuple_string_from_vec(_shape),
-                    tuple_string_from_vec(rhs._shape)
-                )
-            );
-        }
-        return broadcast_to(broadcast_shape) + rhs.broadcast_to(broadcast_shape);
+        return try_broadcast_and_then<std::plus<>>(rhs, "__add__");
     }
 
     return _apycfixedarray_base_add_sub<
@@ -352,18 +342,7 @@ APyCFixedArray APyCFixedArray::operator+(const APyCFixed& rhs) const
 APyCFixedArray APyCFixedArray::operator-(const APyCFixedArray& rhs) const
 {
     if (_shape != rhs._shape) {
-        auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
-        if (broadcast_shape.size() == 0) {
-            throw std::length_error(
-                fmt::format(
-                    "APyCFixedArray.__sub__: shape mismatch, lhs.shape={}, "
-                    "rhs.shape={}",
-                    tuple_string_from_vec(_shape),
-                    tuple_string_from_vec(rhs._shape)
-                )
-            );
-        }
-        return broadcast_to(broadcast_shape) - rhs.broadcast_to(broadcast_shape);
+        return try_broadcast_and_then<std::minus<>>(rhs, "__sub__");
     }
 
     return _apycfixedarray_base_add_sub<
@@ -447,18 +426,7 @@ APyCFixedArray APyCFixedArray::rsub(const APyCFixed& lhs) const
 APyCFixedArray APyCFixedArray::operator*(const APyCFixedArray& rhs) const
 {
     if (_shape != rhs._shape) {
-        auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
-        if (broadcast_shape.size() == 0) {
-            throw std::length_error(
-                fmt::format(
-                    "APyCFixedArray.__mul__: shape mismatch, lhs.shape={}, "
-                    "rhs.shape={}",
-                    tuple_string_from_vec(_shape),
-                    tuple_string_from_vec(rhs._shape)
-                )
-            );
-        }
-        return broadcast_to(broadcast_shape) * rhs.broadcast_to(broadcast_shape);
+        return try_broadcast_and_then<std::multiplies<>>(rhs, "__mul__");
     }
 
     const int res_int_bits = 1 + int_bits() + rhs.int_bits();
@@ -614,20 +582,8 @@ APyCFixedArray APyCFixedArray::operator*(const APyCFixed& rhs) const
 
 APyCFixedArray APyCFixedArray::operator/(const APyCFixedArray& rhs) const
 {
-    // Make sure `_shape` of `*this` and `rhs` are the same
     if (_shape != rhs._shape) {
-        auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
-        if (broadcast_shape.size() == 0) {
-            throw std::length_error(
-                fmt::format(
-                    "APyCFixedArray.__div__: shape mismatch, lhs.shape={}, "
-                    "rhs.shape={}",
-                    tuple_string_from_vec(_shape),
-                    tuple_string_from_vec(rhs._shape)
-                )
-            );
-        }
-        return broadcast_to(broadcast_shape) / rhs.broadcast_to(broadcast_shape);
+        return try_broadcast_and_then<std::divides<>>(rhs, "__truediv__");
     }
 
     // Divider bits (denominator known to be positive)
@@ -1000,11 +956,10 @@ std::string APyCFixedArray::repr() const
         );
     };
 
-    return array_repr(
-        { formatter },
-        { fmt::format("int_bits={}", int_bits()),
-          fmt::format("frac_bits={}", frac_bits()) }
-    );
+    auto&& kw_args = { fmt::format("int_bits={}", int_bits()),
+                       fmt::format("frac_bits={}", frac_bits()) };
+
+    return array_repr({ formatter }, kw_args);
 }
 
 nb::ndarray<nb::numpy, std::complex<double>> APyCFixedArray::to_numpy() const
@@ -1220,7 +1175,7 @@ APyFixedArray APyCFixedArray::get_imag() const
 }
 
 /* ********************************************************************************** *
- * *                     Static conversion from other types                         * *
+ * *                            Static array creation                               * *
  * ********************************************************************************** */
 
 APyCFixedArray APyCFixedArray::zeros(
@@ -1274,20 +1229,20 @@ APyCFixedArray APyCFixedArray::identity(
 }
 
 APyCFixedArray APyCFixedArray::from_complex(
-    const nb::typed<nb::sequence, nb::any>& python_seq,
+    const nb::typed<nb::sequence, nb::any>& cplx_seq,
     std::optional<int> int_bits,
     std::optional<int> frac_bits,
     std::optional<int> bits
 )
 {
-    if (nb::isinstance<nb::ndarray<>>(python_seq)) {
+    if (nb::isinstance<nb::ndarray<>>(cplx_seq)) {
         // Sequence is NDArray. Initialize using `from_array`
-        auto ndarray = nb::cast<nb::ndarray<nb::c_contig>>(python_seq);
+        auto ndarray = nb::cast<nb::ndarray<nb::c_contig>>(cplx_seq);
         return from_array(ndarray, int_bits, frac_bits, bits);
     }
 
     APyCFixedArray result(
-        python_sequence_extract_shape(python_seq, "APyCFixedArray.from_complex"),
+        python_sequence_extract_shape(cplx_seq, "APyCFixedArray.from_complex"),
         int_bits,
         frac_bits,
         bits
@@ -1300,8 +1255,7 @@ APyCFixedArray APyCFixedArray::from_complex(
         APyFixed,
         APyFloat,
         APyCFixed,
-        std::complex<double> // Put last so that APyC-scalars are not casted
-        >(python_seq, "APyCFixedArray.from_complex");
+        std::complex<double>>(cplx_seq, "APyCFixedArray.from_complex");
 
     // Function used to set a single scalar from a floating-point
     unsigned float_shift {};
@@ -1350,7 +1304,7 @@ APyCFixedArray APyCFixedArray::from_complex(
         }
     };
 
-    for (std::size_t i = 0; i < result._data.size() / result._itemsize; i++) {
+    for (std::size_t i = 0; i < result._nitems; i++) {
         if (nb::isinstance<nb::float_>(py_obj[i])) {
             // Python double object
             double val = static_cast<double>(nb::cast<nb::float_>(py_obj[i]));
@@ -1375,10 +1329,12 @@ APyCFixedArray APyCFixedArray::from_complex(
             fx_cast(result, i, cfx);
         } else if (nb::isinstance<std::complex<double>>(py_obj[i])) {
             // Complex double object
-            std::complex<double> c = nb::cast<std::complex<double>>(py_obj[i]);
-            from_fp(result, 2 * i + 0, c.real(), float_shift);
-            from_fp(result, 2 * i + 1, c.imag(), float_shift);
-        }
+            std::complex<double> cplx = nb::cast<std::complex<double>>(py_obj[i]);
+            from_fp(result, 2 * i + 0, cplx.real(), float_shift);
+            from_fp(result, 2 * i + 1, cplx.imag(), float_shift);
+        } else {
+            APYTYPES_UNREACHABLE();
+        };
     }
 
     return result;
@@ -1441,10 +1397,9 @@ std::string APyCFixedArray::to_string(int base) const
     case 10:
         return to_string_dec();
     default:
-        throw nb::value_error(
-            fmt::format("APyCFixedArray.__str__: base {} is not supported", base)
-                .c_str()
-        );
+        auto msg
+            = fmt::format("APyCFixedArray.__str__: base={} is not supported", base);
+        throw nb::value_error(msg.c_str());
     }
 }
 

@@ -3,6 +3,8 @@ import pytest
 from apytypes import (
     APyCFixed,
     APyCFixedArray,
+    APyCFloat,
+    APyCFloatArray,
     APyFixed,
     APyFixedArray,
     APyFloat,
@@ -12,7 +14,12 @@ from apytypes import (
 
 @pytest.mark.parametrize(
     ("APyArray", "APyScalar"),
-    [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
+    [
+        (APyFixedArray, APyFixed),
+        (APyCFixedArray, APyCFixed),
+        (APyFloatArray, APyFloat),
+        (APyCFloatArray, APyCFloat),
+    ],
 )
 def test_raise_invalid_item(APyArray: type[APyCFixedArray], APyScalar: type[APyCFixed]):
     array = APyArray.from_float([[1, 2, 3], [4, 5, 6]], 10, 10)
@@ -24,7 +31,12 @@ def test_raise_invalid_item(APyArray: type[APyCFixedArray], APyScalar: type[APyC
 
 @pytest.mark.parametrize(
     ("APyArray", "APyScalar"),
-    [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
+    [
+        (APyFixedArray, APyFixed),
+        (APyCFixedArray, APyCFixed),
+        (APyFloatArray, APyFloat),
+        (APyCFloatArray, APyCFloat),
+    ],
 )
 def test_raises_same_type(APyArray: type[APyCFixedArray], APyScalar: type[APyCFixed]):
     array = APyArray.from_float([[1, 2, 3], [4, 5, 6]], 10, 10)
@@ -41,7 +53,12 @@ def test_raises_same_type(APyArray: type[APyCFixedArray], APyScalar: type[APyCFi
 
 @pytest.mark.parametrize(
     ("APyArray", "APyScalar"),
-    [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
+    [
+        (APyFixedArray, APyFixed),
+        (APyCFixedArray, APyCFixed),
+        (APyFloatArray, APyFloat),
+        (APyCFloatArray, APyCFloat),
+    ],
 )
 def test_set_item_integer(APyArray: type[APyCFixedArray], APyScalar: type[APyCFixed]):
     # ndim == 1
@@ -70,7 +87,12 @@ def test_set_item_integer(APyArray: type[APyCFixedArray], APyScalar: type[APyCFi
 
 @pytest.mark.parametrize(
     ("APyArray", "APyScalar"),
-    [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
+    [
+        (APyFixedArray, APyFixed),
+        (APyCFixedArray, APyCFixed),
+        (APyFloatArray, APyFloat),
+        (APyCFloatArray, APyCFloat),
+    ],
 )
 def test_set_item_slice(APyArray: type[APyCFixedArray], APyScalar: type[APyCFixed]):
     # ndim == 1
@@ -99,7 +121,12 @@ def test_set_item_slice(APyArray: type[APyCFixedArray], APyScalar: type[APyCFixe
 
 @pytest.mark.parametrize(
     ("APyArray", "APyScalar"),
-    [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
+    [
+        (APyFixedArray, APyFixed),
+        (APyCFixedArray, APyCFixed),
+        (APyFloatArray, APyFloat),
+        (APyCFloatArray, APyCFloat),
+    ],
 )
 def test_set_item_single_ellipsis(
     APyArray: type[APyCFixedArray], APyScalar: type[APyCFixed]
@@ -117,7 +144,12 @@ def test_set_item_single_ellipsis(
 
 @pytest.mark.parametrize(
     ("APyArray", "APyScalar"),
-    [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
+    [
+        (APyFixedArray, APyFixed),
+        (APyCFixedArray, APyCFixed),
+        (APyFloatArray, APyFloat),
+        (APyCFloatArray, APyCFloat),
+    ],
 )
 def test_set_item_tuple(APyArray: type[APyCFixedArray], APyScalar: type[APyCFixed]):
     np = pytest.importorskip("numpy")
@@ -194,7 +226,12 @@ def test_set_item_tuple_multi_limb(
 
 @pytest.mark.parametrize(
     ("APyArray", "APyScalar"),
-    [(APyFixedArray, APyFixed), (APyCFixedArray, APyCFixed), (APyFloatArray, APyFloat)],
+    [
+        (APyFixedArray, APyFixed),
+        (APyCFixedArray, APyCFixed),
+        (APyFloatArray, APyFloat),
+        (APyCFloatArray, APyCFloat),
+    ],
 )
 def test_set_item_not_broadcastable(
     APyArray: type[APyCFixedArray], APyScalar: type[APyCFixed]

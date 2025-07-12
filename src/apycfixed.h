@@ -81,7 +81,7 @@ public:
     }
 
     //! Test if two fixed-point numbers have the same bit specifiers
-    APY_INLINE bool same_type_as(const APyCFixed& other) const
+    APY_INLINE bool is_same_spec(const APyCFixed& other) const
     {
         return _bits == other._bits && _int_bits == other._int_bits;
     }
@@ -142,14 +142,17 @@ public:
     //! bit-pattern from iterator pair [ `begin`, `end` ).
     explicit APyCFixed(int bits, int int_bits, std::initializer_list<apy_limb_t> list);
 
-    /* ************************************************************************* *
-     * *                                        Copy                           * *
-     * ************************************************************************* */
+    /* ****************************************************************************** *
+     * *                                     Copy                                   * *
+     * ****************************************************************************** */
 
     //! Copy scalar
     APyCFixed python_copy() const { return *this; }
     //! Deepcopy scalar (same as copy here)
-    APyCFixed python_deepcopy(nb::dict&) const { return *this; }
+    APyCFixed python_deepcopy(const nb::typed<nb::dict, nb::int_, nb::any>&) const
+    {
+        return *this;
+    }
 
     /* ****************************************************************************** *
      *                         Binary arithmetic operators                            *
