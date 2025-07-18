@@ -1,6 +1,7 @@
 #ifndef _APYTYPES_INTRINSICS
 #define _APYTYPES_INTRINSICS
 
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 
@@ -29,21 +30,20 @@ static_assert(
 #endif
 #include "apytypes_fwd.h"
 
-//! Mark code path unreachable. Allows the compiler to make further control-flow
-//! optimizations. Calling this function under any circumstance is undefined behaviour.
-[[maybe_unused, noreturn]] static inline void apytypes_unreachable()
-{
-    // Uses compiler specific extensions if possible. Even if no extension is used,
-    // undefined behavior is still raised by an empty function body and the noreturn
-    // attribute.
+//! Mark code path as unreachable, allowing the compiler to make more aggressive
+//! control-flow optimizations. Calling this macro in debug builds triggers an assertion
+//! failure. Calling this macro in release builds causes undefined behaviour.
 #if defined(_MSC_VER) && !defined(__clang__) // MSVC
-    __assume(false);
+#define APYTYPES_UNREACHABLE()                                                         \
+    assert(false);                                                                     \
+    __assume(false)
 #else // GCC, Clang
-    __builtin_unreachable();
+#define APYTYPES_UNREACHABLE()                                                         \
+    assert(false);                                                                     \
+    __builtin_unreachable()
 #endif
-}
 
-//! Compute multiplication between two apy_limb_t and obtain double length result
+//! Compute unsigned product of two `apy_limb_t`, obtaining two-limb product
 [[maybe_unused, nodiscard]] static APY_INLINE std::tuple<apy_limb_t, apy_limb_t>
 long_unsigned_mult(apy_limb_t src0, apy_limb_t src1)
 {
@@ -80,7 +80,7 @@ long_unsigned_mult(apy_limb_t src0, apy_limb_t src1)
 #endif
 }
 
-//! Compute multiplication between two apy_limb_t and obtain double length result
+//! Compute signed product of two `apy_limb_t`, obtaining two-limb product
 [[maybe_unused, nodiscard]] static APY_INLINE std::tuple<apy_limb_t, apy_limb_t>
 long_signed_mult(apy_limb_t src0, apy_limb_t src1)
 {

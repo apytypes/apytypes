@@ -10,6 +10,7 @@
 #include <nanobind/stl/optional.h>
 #include <nanobind/stl/variant.h>
 
+#include <cmath>
 #include <fmt/format.h>
 #include <variant>
 
@@ -90,9 +91,12 @@ APyCFloat::APyCFloat(
 }
 
 APyCFloat::APyCFloat(
-    const nb::tuple& sign_tuple,
-    const nb::tuple& exp_tuple,
-    const nb::tuple& man_tuple,
+    const nb::typed<
+        nb::tuple,
+        std::variant<nb::bool_, nb::int_>,
+        std::variant<nb::bool_, nb::int_>>& sign_tuple,
+    const nb::typed<nb::tuple, nb::int_, nb::int_>& exp_tuple,
+    const nb::typed<nb::tuple, nb::int_, nb::int_>& man_tuple,
     const nb::int_& exp_bits,
     const nb::int_& man_bits,
     const std::optional<nb::int_>& bias
@@ -445,7 +449,7 @@ APyCFloat APyCFloat::operator*(const APyCFloat& rhs) const
     QuantizationMode qntz = get_float_quantization_mode();
 
     // Perform the product
-    FloatingPointComplexMultiplier<> complex_mul(spec(), rhs.spec(), res.spec(), qntz);
+    ComplexFloatingPointMultiplier<> complex_mul(spec(), rhs.spec(), res.spec(), qntz);
     complex_mul(_data, rhs._data, res._data);
 
     return res;
@@ -460,7 +464,7 @@ APyCFloat APyCFloat::operator/(const APyCFloat& rhs) const
     QuantizationMode qntz = get_float_quantization_mode();
 
     // Perform the division
-    FloatingPointComplexDivider<> complex_div(spec(), rhs.spec(), res.spec(), qntz);
+    ComplexFloatingPointDivider<> complex_div(spec(), rhs.spec(), res.spec(), qntz);
     complex_div(_data, rhs._data, res._data);
 
     return res;
@@ -539,38 +543,20 @@ std::complex<double> APyCFloat::to_complex() const
 std::string APyCFloat::to_string(int base) const
 {
     switch (base) {
-    case 8:
-        return to_string_oct();
-        break;
-    case 16:
-        return to_string_hex();
-        break;
     case 10:
         return to_string_dec();
         break;
     default:
-        throw nb::value_error(
-            fmt::format("APyCFloat::to_string(base={}): base is not supported", base)
-                .c_str()
-        );
+        auto msg = fmt::format("APyCFloat.__str__: base={} is not supported", base);
+        throw nb::value_error(msg.c_str());
         break;
     }
 }
 
 std::string APyCFloat::to_string_dec() const
 {
-    // NOTE:
-    // Python, unlike C++, unconditionally encodes the string of a floating-point NaN
-    // without a minus sign.
-    const std::complex<double> cplx = to_complex();
-    const auto& re_str
-        = is_nan(real(), spec()) ? "nan" : fmt::format("{}", cplx.real());
-
-    if (is_nan(imag(), spec())) {
-        return fmt::format("({}+nanj)", re_str);
-    } else {
-        return fmt::format("({}{}{}j)", re_str, imag().sign ? "" : "+", cplx.imag());
-    }
+    auto&& cplx_str = complex_floating_point_to_str_dec(real(), imag(), spec());
+    return fmt::format("({})", cplx_str);
 }
 
 std::string APyCFloat::to_string_hex() const
@@ -583,19 +569,25 @@ std::string APyCFloat::to_string_oct() const
     throw NotImplementedException("APyCFloat::to_string_oct()");
 }
 
-bool APyCFloat::is_identical(const APyCFloat& other, bool ignore_zero_sign) const
+bool APyCFloat::is_identical(const nb::object& other, bool ignore_zero_sign) const
 {
-    if (ignore_zero_sign) {
-        if (is_zero() && other.is_zero()) {
-            return spec() == other.spec();
-        } else if (::is_zero(real()) && ::is_zero(other.real())) {
-            return spec() == other.spec() && imag() == other.imag();
-        } else if (::is_zero(imag()) && ::is_zero(other.imag())) {
-            return spec() == other.spec() && real() == other.real();
+    if (!nb::isinstance<APyCFloat>(other)) {
+        return false;
+    } else {
+        auto&& other_scalar = nb::cast<APyCFloat>(other);
+        if (ignore_zero_sign) {
+            if (is_zero() && other_scalar.is_zero()) {
+                return spec() == other_scalar.spec();
+            } else if (::is_zero(real()) && ::is_zero(other_scalar.real())) {
+                return spec() == other_scalar.spec() && imag() == other_scalar.imag();
+            } else if (::is_zero(imag()) && ::is_zero(other_scalar.imag())) {
+                return spec() == other_scalar.spec() && real() == other_scalar.real();
+            }
         }
-    }
 
-    return spec() == other.spec() && real() == other.real() && imag() == other.imag();
+        return spec() == other_scalar.spec() && real() == other_scalar.real()
+            && imag() == other_scalar.imag();
+    }
 }
 
 APyFloat APyCFloat::get_real() const
@@ -610,4 +602,11 @@ APyFloat APyCFloat::get_imag() const
     APyFloat result(exp_bits, man_bits, bias);
     result.set_data(imag());
     return result;
+}
+
+APyCFloat
+APyCFloat::one(std::uint8_t exp_bits, std::uint8_t man_bits, std::optional<exp_t> bias)
+{
+    const exp_t res_bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
+    return APyCFloat({ 0, res_bias, 0 }, { 0, 0, 0 }, exp_bits, man_bits, res_bias);
 }

@@ -74,7 +74,7 @@ void bind_cfixed_array(nb::module_& m)
          */
         .def(
             nb::init<
-                const nb::sequence&,
+                const nb::typed<nb::sequence, nb::any>&,
                 std::optional<int>,
                 std::optional<int>,
                 std::optional<int>>(),
@@ -478,7 +478,7 @@ void bind_cfixed_array(nb::module_& m)
             -------
             :class:`APyCFixedArray`
                 `a` with its axes permuted.
-        )pbdoc"
+            )pbdoc"
         )
 
         .def(
@@ -516,7 +516,6 @@ void bind_cfixed_array(nb::module_& m)
             :class:`APyCFixedArray`
             )pbdoc"
         )
-
         .def(
             "broadcast_to",
             &APyCFixedArray::broadcast_to_python,
@@ -533,7 +532,7 @@ void bind_cfixed_array(nb::module_& m)
             Returns
             -------
             :class:`APyCFixedArray`
-        )pbdoc"
+            )pbdoc"
         )
 
         //     .def(
@@ -787,7 +786,7 @@ void bind_cfixed_array(nb::module_& m)
             >>> a.prod()
             APyCFixed((36893488147419101837, 36893488147419103007), bits=65, int_bits=65)
             >>> print(a.prod())
-            -1395-225j
+            (-1395-225j)
 
             -------
             )pbdoc"
@@ -915,7 +914,7 @@ void bind_cfixed_array(nb::module_& m)
             is handled using the :class:`OverflowMode.WRAP` mode. Exactly two of the
             three bit-specifiers (`bits`, `int_bits`, `frac_bits`) must be set.
 
-            Using NumPy arrays as input is in general faster than e.g. lists.
+            Using NumPy arrays as input is in general faster than using e.g. lists.
 
             Parameters
             ----------
@@ -969,9 +968,10 @@ void bind_cfixed_array(nb::module_& m)
             R"pbdoc(
             Create an :class:`APyCFixedArray` object from a sequence of :class:`int`,
             :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
-            :class:`APyCFixed`. This is an alias for
-            :func:`~apytypes.APyCFixedArray.from_complex`, look there for more
-            documentation.
+            :class:`APyCFixed`.
+
+            This is an alias for :func:`~apytypes.APyCFixedArray.from_complex`, look
+            there for more documentation.
 
             Parameters
             ----------
@@ -1180,8 +1180,6 @@ void bind_cfixed_array(nb::module_& m)
         //     .def("__matmul__", &APyCFixedArray::matmul, nb::arg("rhs"))
         .def("__repr__", &APyCFixedArray::repr)
         .def("__str__", &APyCFixedArray::to_string, nb::arg("base") = 10)
-
-        // Iteration and friends
         .def("__getitem__", &APyCFixedArray::get_item, nb::arg("key"))
         .def("__setitem__", &APyCFixedArray::set_item, nb::arg("key"), nb::arg("val"))
         .def("__len__", &APyCFixedArray::size)

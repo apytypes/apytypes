@@ -324,8 +324,7 @@ void bind_float_array(nb::module_& m)
             Returns
             -------
             :class:`APyFloatArray`
-                )pbdoc")
-
+            )pbdoc")
         .def("ravel", &APyFloatArray::ravel, R"pbdoc(
             Return a copy of the array collapsed into one dimension. Same as flatten
             with current memory-copy model.
@@ -344,7 +343,7 @@ void bind_float_array(nb::module_& m)
             Returns
             -------
             :class:`APyFloatArray`
-                )pbdoc")
+            )pbdoc")
 
         /*
          * Static methods
@@ -714,6 +713,7 @@ void bind_float_array(nb::module_& m)
             :class:`APyFloatArray`
             )pbdoc"
         )
+
         /*
          * Dunder methods
          */
@@ -722,7 +722,12 @@ void bind_float_array(nb::module_& m)
         .def("__len__", &APyFloatArray::size)
         .def("__str__", &APyFloatArray::to_string, nb::arg("base") = 10)
 
-        .def("is_identical", &APyFloatArray::is_identical, nb::arg("other"), R"pbdoc(
+        .def(
+            "is_identical",
+            &APyFloatArray::is_identical,
+            nb::arg("other"),
+            nb::arg("ignore_zero_sign") = false,
+            R"pbdoc(
             Test if two :class:`APyFloatArray` objects are identical.
 
             Two :class:`APyFloatArray` objects are considered identical if, and only if:
@@ -731,10 +736,20 @@ void bind_float_array(nb::module_& m)
                 * They have the exact same bit format (`exp_bits`, `man_bits`, and
                   `bias`)
 
+            Parameters
+            ----------
+            other : :class:`APyFloatArray`
+                The other array to compare against.
+
+            ignore_zero_sign : :class:`bool`, default: :code:`False`
+                If :code:`True`, plus and minus zero are considered identical. If
+                :code:`False`, plus and minus zero are considered non-identical.
+
             Returns
             -------
             :class:`bool`
-            )pbdoc")
+            )pbdoc"
+        )
         .def(
             "swapaxes",
             &APyFloatArray::swapaxes,

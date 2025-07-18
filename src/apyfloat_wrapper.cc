@@ -1,5 +1,6 @@
 #include "apyfixed.h"
 #include "apyfloat.h"
+#include "apyfloatarray.h" // Needed by: APyFloat::is_identical
 
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
@@ -110,15 +111,11 @@ void bind_float(nb::module_& m)
         /*
          * Copy
          */
-        .def(
-            "copy",
-            &APyFloat::python_copy,
-            R"pbdoc(
+        .def("copy", &APyFloat::python_copy, R"pbdoc(
             Create a copy of the object.
 
             .. versionadded:: 0.3
-            )pbdoc"
-        )
+            )pbdoc")
         .def("__copy__", &APyFloat::python_copy)
         .def("__deepcopy__", &APyFloat::python_deepcopy, nb::arg("memo"))
 
@@ -401,7 +398,7 @@ void bind_float(nb::module_& m)
 
             ignore_zero_sign : :class:`bool`, default: :code:`False`
                 If :code:`True`, plus and minus zero are considered identical. If
-                :code:`False`, plus and minus zero are considered different.
+                :code:`False`, plus and minus zero are considered non-identical.
 
             Returns
             -------

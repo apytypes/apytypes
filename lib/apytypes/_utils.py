@@ -23,15 +23,17 @@ def fx(
     """
     Create an :class:`APyFixed`, :class:`APyCFixed` or :class:`APyFixedArray` object.
 
-    Convenience method that applies :func:`APyFixed.from_float`, :func:`APyCFixed.from_complex` or
-    :func:`APyFixedArray.from_float`, or :func:`APyFixedArray.from_complex` depending on if the input,
-    *value*, is a scalar or not.
-    For scalar values, return :class:`APyCFixed` if *value* is complex or if
+    Convenience method that applies :func:`APyFixed.from_float`,
+    :func:`APyCFixed.from_complex` or :func:`APyFixedArray.from_float`, or
+    :func:`APyFixedArray.from_complex` depending on if the input, *value*, is a scalar
+    or not. For scalar values, return :class:`APyCFixed` if *value* is complex or if
     *force_complex* is True.
 
     .. versionadded:: 0.3
 
-    .. hint:: Currently, this function will not detect sequences of complex values. Set *force_complex* to True.
+    .. hint::
+        Currently, this function will not detect sequences of complex values. Set
+        *force_complex* to True.
 
     Parameters
     ----------
@@ -44,7 +46,8 @@ def fx(
     bits : :class:`int`, optional
         Total number of bits in the created fixed-point object.
     force_complex : :class:`bool`, default: False
-        If True, force the return value to be :class:`APyCFixed` even if *value* is real.
+        If True, force the return value to be :class:`APyCFixed` even if *value* is
+        real.
 
     Returns
     -------

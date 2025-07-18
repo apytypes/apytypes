@@ -69,13 +69,13 @@ public:
     }
 
     //! Test if two fixed-point vectors have the same bit specifiers
-    APY_INLINE bool same_type_as(const APyCFixedArray& other) const noexcept
+    APY_INLINE bool is_same_spec(const APyCFixedArray& other) const noexcept
     {
         return _bits == other._bits && _int_bits == other._int_bits;
     }
 
     //! Test if `*this` has the same bit specifiers as another `APyCFixed`
-    APY_INLINE bool same_type_as(const APyCFixed& other) const noexcept
+    APY_INLINE bool is_same_spec(const APyCFixed& other) const noexcept
     {
         return _bits == other._bits && _int_bits == other._int_bits;
     }
@@ -90,7 +90,7 @@ public:
     APyCFixedArray() = delete;
 
     explicit APyCFixedArray(
-        const nb::sequence& bit_pattern_sequence,
+        const nb::typed<nb::sequence, nb::any>& bit_pattern_sequence,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
@@ -119,17 +119,8 @@ public:
         std::optional<int> bits = std::nullopt
     );
 
-    /* ************************************************************************* *
-     * *                                        Copy                           * *
-     * ************************************************************************* */
-
-    //! Copy array
-    APyCFixedArray python_copy() const { return *this; }
-    //! Deepcopy array (same as copy here)
-    APyCFixedArray python_deepcopy(const nb::dict&) const { return *this; }
-
     /* ****************************************************************************** *
-     * *                     Arithmetic member functions                            * *
+     * *                        Arithmetic member functions                         * *
      * ****************************************************************************** */
 private:
     //! Base addition/subtraction routine for `APyCFixedArray`
@@ -222,14 +213,14 @@ public:
     ) const;
 
     /* ****************************************************************************** *
-     * *                     Static conversion from other types                     * *
+     * *                           Static array creation                            * *
      * ****************************************************************************** */
 
 public:
     //! Create an `APyCFixedArray` tensor object initialized with values from a sequence
     //! of `complex`
     static APyCFixedArray from_complex(
-        const nb::typed<nb::sequence, nb::any>& double_seq,
+        const nb::typed<nb::sequence, nb::any>& cplx_seq,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
@@ -246,7 +237,7 @@ public:
 
     //! Create an `APyCFixedArray` tensor object initialized with values from an ndarray
     static APyCFixedArray from_array(
-        const nb::ndarray<nb::c_contig>& double_seq,
+        const nb::ndarray<nb::c_contig>& ndarray,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
