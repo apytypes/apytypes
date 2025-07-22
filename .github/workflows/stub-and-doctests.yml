@@ -2,6 +2,8 @@ name: Stub and doc tests
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
   cancel-in-progress: true
+permissions:
+  contents: read
 
 on:
   push:
