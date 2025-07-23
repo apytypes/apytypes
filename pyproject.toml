@@ -89,9 +89,11 @@ markers = [
 
 [tool.cibuildwheel]
 skip = [
-    "pp*",     # APyTypes currently can not be build for PyPy ...
-    "*-win32", # ... nor can it be build for 32-bit Windows systems
+    "*t-win*", # no free-threading versions on Windows
+    "*-win32*", # win32 does not work
 ]
+enable = ["cpython-freethreading", "cpython-prerelease"]
+# "graalpy" does also work
 
 [tool.cibuildwheel.macos.environment]
 # MacOS 10.14 is the first MacOS release with full support for C++17
