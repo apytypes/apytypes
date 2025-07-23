@@ -22,7 +22,7 @@ def test_array_raises(fixed_array: type[APyCFixedArray]):
         _ = a - b
     with pytest.raises(ValueError, match="APyC?FixedArray.__mul__: shape mismatch"):
         _ = a * b
-    with pytest.raises(ValueError, match="APyC?FixedArray.__div__: shape mismatch"):
+    with pytest.raises(ValueError, match="APyC?FixedArray.__truediv__: shape mismatch"):
         _ = a / b
 
 

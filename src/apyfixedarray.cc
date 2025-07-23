@@ -291,17 +291,7 @@ inline APyFixedArray APyFixedArray::_apyfixed_base_add_sub(const APyFixed& rhs) 
 APyFixedArray APyFixedArray::operator+(const APyFixedArray& rhs) const
 {
     if (_shape != rhs._shape) {
-        auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
-        if (broadcast_shape.size() == 0) {
-            throw std::length_error(
-                fmt::format(
-                    "APyFixedArray.__add__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                    tuple_string_from_vec(_shape),
-                    tuple_string_from_vec(rhs._shape)
-                )
-            );
-        }
-        return broadcast_to(broadcast_shape) + rhs.broadcast_to(broadcast_shape);
+        return try_broadcast_and_then<std::plus<>>(rhs, "__add__");
     }
 
     return _apyfixedarray_base_add_sub<
@@ -321,17 +311,7 @@ APyFixedArray APyFixedArray::operator+(const APyFixed& rhs) const
 APyFixedArray APyFixedArray::operator-(const APyFixedArray& rhs) const
 {
     if (_shape != rhs._shape) {
-        auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
-        if (broadcast_shape.size() == 0) {
-            throw std::length_error(
-                fmt::format(
-                    "APyFixedArray.__sub__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                    tuple_string_from_vec(_shape),
-                    tuple_string_from_vec(rhs._shape)
-                )
-            );
-        }
-        return broadcast_to(broadcast_shape) - rhs.broadcast_to(broadcast_shape);
+        return try_broadcast_and_then<std::minus<>>(rhs, "__sub__");
     }
 
     return _apyfixedarray_base_add_sub<
@@ -399,17 +379,7 @@ APyFixedArray APyFixedArray::rsub(const APyFixed& lhs) const
 APyFixedArray APyFixedArray::operator*(const APyFixedArray& rhs) const
 {
     if (_shape != rhs._shape) {
-        auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
-        if (broadcast_shape.size() == 0) {
-            throw std::length_error(
-                fmt::format(
-                    "APyFixedArray.__mul__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                    tuple_string_from_vec(_shape),
-                    tuple_string_from_vec(rhs._shape)
-                )
-            );
-        }
-        return broadcast_to(broadcast_shape) * rhs.broadcast_to(broadcast_shape);
+        return try_broadcast_and_then<std::multiplies<>>(rhs, "__mul__");
     }
 
     const int res_int_bits = int_bits() + rhs.int_bits();
@@ -545,19 +515,8 @@ APyFixedArray APyFixedArray::operator*(const APyFixed& rhs) const
 
 APyFixedArray APyFixedArray::operator/(const APyFixedArray& rhs) const
 {
-    // Make sure `_shape` of `*this` and `rhs` are the same
     if (_shape != rhs._shape) {
-        auto broadcast_shape = smallest_broadcastable_shape(_shape, rhs._shape);
-        if (broadcast_shape.size() == 0) {
-            throw std::length_error(
-                fmt::format(
-                    "APyFixedArray.__div__: shape mismatch, lhs.shape={}, rhs.shape={}",
-                    tuple_string_from_vec(_shape),
-                    tuple_string_from_vec(rhs._shape)
-                )
-            );
-        }
-        return broadcast_to(broadcast_shape) / rhs.broadcast_to(broadcast_shape);
+        return try_broadcast_and_then<std::divides<>>(rhs, "__truediv__");
     }
 
     const int res_int_bits = int_bits() + rhs.frac_bits() + 1;
@@ -1110,9 +1069,8 @@ std::string APyFixedArray::to_string(int base) const
     case 10:
         return to_string_dec();
     default:
-        throw nb::value_error(
-            fmt::format("APyFixedArray.__str__: base {} is not supported", base).c_str()
-        );
+        auto msg = fmt::format("APyFixedArray.__str__: base={} is not supported", base);
+        throw nb::value_error(msg.c_str());
     }
 }
 
@@ -1918,14 +1876,15 @@ void APyFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& nd
     CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::uint32_t);
     CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::uint16_t);
     CHECK_AND_SET_VALUES_FROM_INT_NPTYPE(std::uint8_t);
+
 #undef CHECK_AND_SET_VALUES_FROM_FLOAT_NPTYPE
 #undef CHECK_AND_SET_VALUES_FROM_INT_NPTYPE
 
-    // None of the `CHECK_AND_VALUES_FROM_NPTYPE` succeeded. Unsupported type, throw
-    // an error. If possible, it would be nice to show a string representation of
+    // None of the `CHECK_AND_SET_VALUES_FROM_*_NPTYPE` succeeded. Unsupported type,
+    // throw an error. If possible, it would be nice to show a string representation of
     // the `dtype`. Seems hard to achieve with nanobind, but please fix this if you
     // find out how this can be achieved.
     throw nb::type_error(
-        "APyFixedArray.from_array: unsupported `dtype` expecting integer/float"
+        "APyFixedArray.from_array: unsupported `dtype`, expecting float or integer"
     );
 }

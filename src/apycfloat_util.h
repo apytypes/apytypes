@@ -5,22 +5,49 @@
 #include "apyfloat_util.h"
 #include "apytypes_fwd.h"
 
+#include <cmath>      // std::isnan, std::signbit
 #include <cstddef>    // std::size_t
 #include <functional> // std::invoke
+
+/* ********************************************************************************** *
+ * *              Complex-valued floating-point helper functions                    * *
+ * ********************************************************************************** */
+
+/*!
+ * Convert a APyTypes complex-valued floating-point to a string:
+ * Returns, e.g., "1.25-2.5j" or "-6+nanj"
+ */
+[[maybe_unused, nodiscard]] static APY_INLINE std::string
+complex_floating_point_to_str_dec(
+    const APyFloatData& re_data, const APyFloatData& im_data, const APyFloatSpec& spec
+)
+{
+    // NOTE: Python, unlike C++, unconditionally encodes the string of a floating-point
+    //       NaN without a minus sign.
+    const double re = floating_point_to_double(re_data, spec);
+    const double im = floating_point_to_double(im_data, spec);
+
+    auto&& re_str = std::isnan(re) ? "nan" : fmt::format("{}", re);
+    if (std::isnan(im)) {
+        return fmt::format("{}+nanj", re_str);
+    } else {
+        return fmt::format("{}{}{}j", re_str, std::signbit(im) ? "" : "+", im);
+    }
+}
 
 /* ********************************************************************************** *
  * *              Floating-point iterator-based arithmetic functors                 * *
  * ********************************************************************************** */
 
 template <std::size_t SRC1_INC = 1, std::size_t SRC2_INC = 1, std::size_t DST_INC = 1>
-struct FloatingPointComplexMultiplier {
+struct ComplexFloatingPointMultiplier {
     /*
      * GENERAL COMPLEX-VALUED MULTIPLICATION FORMULA:
      *
      *  (a + bi) * (c + di) = (ac - bd) + (ad + bc)i
      *
      */
-    explicit FloatingPointComplexMultiplier(
+    explicit ComplexFloatingPointMultiplier(
         const APyFloatSpec& src1_spec,
         const APyFloatSpec& src2_spec,
         const APyFloatSpec& dst_spec,
@@ -67,7 +94,7 @@ private:
 };
 
 template <std::size_t SRC1_INC = 1, std::size_t SRC2_INC = 1, std::size_t DST_INC = 1>
-struct FloatingPointComplexDivider {
+struct ComplexFloatingPointDivider {
     /*
      * For valuable information on floating-point complex-valued division arithmetic,
      * read ``Annex G, IEC 60559-compatible complex arithmetic'' of the C99 standard:
@@ -88,7 +115,7 @@ struct FloatingPointComplexDivider {
      *   c + di       c^2 + d^2     c^2 + d^2
      *
      */
-    explicit FloatingPointComplexDivider(
+    explicit ComplexFloatingPointDivider(
         const APyFloatSpec& src1_spec,
         const APyFloatSpec& src2_spec,
         const APyFloatSpec& dst_spec,
@@ -104,7 +131,7 @@ struct FloatingPointComplexDivider {
         , mul(dst_spec, dst_spec, dst_spec, qntz)
         , div(dst_spec, dst_spec, dst_spec, qntz)
     {
-        using F = FloatingPointComplexDivider<SRC1_INC, SRC2_INC, DST_INC>;
+        using F = ComplexFloatingPointDivider<SRC1_INC, SRC2_INC, DST_INC>;
         if (src1_spec == dst_spec && src2_spec == dst_spec) {
             f = &F::template complex_div</* PROMOTE_RHS = */ false>;
         } else { /* SUM_MAN_BITS > _MAN_LIMIT_BITS */
@@ -137,7 +164,7 @@ private:
     FloatingPointDivider<> div;
 
     // Pointer `f` to the correct function based on the floating-point specs
-    void (FloatingPointComplexDivider::*f)(
+    void (ComplexFloatingPointDivider::*f)(
         const APyFloatData* src1,
         const APyFloatData* src2,
         APyFloatData* dst,

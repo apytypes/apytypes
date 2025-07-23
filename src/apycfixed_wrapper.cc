@@ -97,15 +97,11 @@ void bind_cfixed(nb::module_& m)
         /*
          * Copy
          */
-        .def(
-            "copy",
-            &APyCFixed::python_copy,
-            R"pbdoc(
+        .def("copy", &APyCFixed::python_copy, R"pbdoc(
             Create a copy of the object.
 
             .. versionadded:: 0.3
-            )pbdoc"
-        )
+            )pbdoc")
         .def("__copy__", &APyCFixed::python_copy)
         .def("__deepcopy__", &APyCFixed::python_deepcopy, nb::arg("memo"))
 
@@ -405,8 +401,8 @@ void bind_cfixed(nb::module_& m)
             >>> fx_a = apy.APyCFixed.from_complex(1.234 + 0.4j, int_bits=2, frac_bits=2)
             >>> fx_a
             APyCFixed((5, 2), bits=4, int_bits=2)
-            >>> str(fx_a)
-            '1.25+0.5j'
+            >>> print(fx_a)
+            (1.25+0.5j)
 
             Returns
             -------

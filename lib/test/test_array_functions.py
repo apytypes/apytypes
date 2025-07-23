@@ -1,9 +1,13 @@
 from math import ceil, log2
+from typing import overload
 
 import pytest
 
 from apytypes import (
+    APyCFixed,
     APyCFixedArray,
+    APyCFloat,
+    APyCFloatArray,
     APyFixed,
     APyFixedArray,
     APyFloat,
@@ -26,10 +30,54 @@ from apytypes import (
     zeros,
     zeros_like,
 )
+from apytypes._typing import APyArray
 
 
-@pytest.mark.parametrize("array_type", [APyFixedArray, APyCFixedArray, APyFloatArray])
-def test_squeeze(array_type: type[APyCFixedArray]):
+@overload
+def _Arrange(
+    array_type: type[APyFloatArray], end: int, start: int = 0, jump: int = 1
+) -> APyFloatArray: ...
+@overload
+def _Arrange(
+    array_type: type[APyCFloatArray], end: int, start: int = 0, jump: int = 1
+) -> APyCFloatArray: ...
+@overload
+def _Arrange(
+    array_type: type[APyFixedArray], end: int, start: int = 0, jump: int = 1
+) -> APyFixedArray: ...
+@overload
+def _Arrange(
+    array_type: type[APyCFixedArray], end: int, start: int = 0, jump: int = 1
+) -> APyCFixedArray: ...
+
+
+def _Arrange(
+    array_type: type[APyFloatArray | APyCFloatArray | APyFixedArray | APyCFixedArray],
+    end: int,
+    start: int = 0,
+    jump: int = 1,
+):
+    if array_type is APyFloatArray or array_type is APyCFloatArray:
+        # _floatArrange
+        exp_bits = ceil(log2(end + 1)) + 1
+        man_bits = 64 - 1 - exp_bits
+        return array_type.from_float(
+            list(range(start, end, jump)), exp_bits=exp_bits, man_bits=man_bits
+        )
+    elif array_type is APyFixedArray or array_type is APyCFixedArray:
+        # _fixedArrange
+        int_bits = ceil(log2(end + 1)) + 1
+        return array_type.from_float(
+            list(range(start, end, jump)), int_bits=int_bits, frac_bits=0
+        )
+    else:
+        raise TypeError()
+
+
+@pytest.mark.parametrize(
+    "array_type", [APyFixedArray, APyCFixedArray, APyFloatArray, APyCFloatArray]
+)
+def test_squeeze(array_type: type[APyArray]):
     a = array_type.from_float([[1, 2]], 5, 5)
     assert a.shape == (1, 2)
 
@@ -37,8 +85,10 @@ def test_squeeze(array_type: type[APyCFixedArray]):
     assert b.shape == (2,)
 
 
-@pytest.mark.parametrize("array_type", [APyFixedArray, APyCFixedArray, APyFloatArray])
-def test_reshape(array_type: type[APyCFixedArray]):
+@pytest.mark.parametrize(
+    "array_type", [APyFixedArray, APyCFixedArray, APyFloatArray, APyCFloatArray]
+)
+def test_reshape(array_type: type[APyArray]):
     a = array_type.from_float([[1, 2]], 5, 5)
     assert a.shape == (1, 2)
     b = reshape(a, (2, 1))
@@ -47,8 +97,10 @@ def test_reshape(array_type: type[APyCFixedArray]):
     assert c.shape == (2,)
 
 
-@pytest.mark.parametrize("array_type", [APyFixedArray, APyCFixedArray, APyFloatArray])
-def test_shape(array_type: type[APyCFixedArray]):
+@pytest.mark.parametrize(
+    "array_type", [APyFixedArray, APyCFixedArray, APyFloatArray, APyCFloatArray]
+)
+def test_shape(array_type: type[APyArray]):
     a = array_type.from_float([[1, 2]], 3, 0)
     assert shape(a) == (1, 2)
     b = reshape(a, (2, 1))
@@ -57,8 +109,10 @@ def test_shape(array_type: type[APyCFixedArray]):
     assert shape(c) == (2,)
 
 
-@pytest.mark.parametrize("array_type", [APyFixedArray, APyCFixedArray, APyFloatArray])
-def test_transpose(array_type: type[APyCFixedArray]):
+@pytest.mark.parametrize(
+    "array_type", [APyFixedArray, APyCFixedArray, APyFloatArray, APyCFloatArray]
+)
+def test_transpose(array_type: type[APyArray]):
     a = array_type.from_float([[1, 2], [3, 4]], 5, 5)
     assert transpose(a).is_identical(array_type.from_float([[1, 3], [2, 4]], 5, 5))
 
@@ -86,25 +140,9 @@ def test_ravel():
     assert APyFloatArray.is_identical(ravel(reshaped), arr)
 
 
-def _fixedArrange(fixed_array, end, start=0, jump=1):
-    int_bits = ceil(log2(end + 1)) + 1
-    return fixed_array.from_float(
-        list(range(start, end, jump)), int_bits=int_bits, frac_bits=0
-    )
-
-
-def _floatArrange(end, start=0, jump=1):
-    # probably buggy
-    exp_bits = ceil(log2(end + 1)) + 1
-    man_bits = 64 - 1 - exp_bits
-    return APyFloatArray.from_float(
-        list(range(start, end, jump)), exp_bits=exp_bits, man_bits=man_bits
-    )
-
-
 @pytest.mark.parametrize("array_type", [APyFixedArray, APyCFixedArray])
-def test_moveaxis(array_type):
-    a = _fixedArrange(array_type, 10).reshape((5, 2))
+def test_moveaxis(array_type: type[APyCFixedArray]):
+    a = _Arrange(array_type, 10).reshape((5, 2))
     b = array_type([[0, 2, 4, 6, 8], [1, 3, 5, 7, 9]], a.int_bits, frac_bits=0)
     if not moveaxis(a, 0, 1).is_identical(b):
         pytest.fail("moveaxis didn't correctly move axis")
@@ -113,7 +151,9 @@ def test_moveaxis(array_type):
         pytest.fail("moveaxis didn't correctly move axis")
 
 
-@pytest.mark.parametrize("array_type", [APyFixedArray, APyCFixedArray])
+@pytest.mark.parametrize(
+    "array_type", [APyFixedArray, APyCFixedArray, APyFloatArray, APyCFloatArray]
+)
 @pytest.mark.parametrize(
     ("source", "destination", "expected_shape"),
     [
@@ -122,18 +162,25 @@ def test_moveaxis(array_type):
         (2, 0, (4, 2, 3)),
     ],
 )
-def test_moveaxis_shape(array_type, source, destination, expected_shape):
-    a = _fixedArrange(array_type, 24).reshape((2, 3, 4))
+def test_fixed_moveaxis_shape(
+    array_type: type[APyArray],
+    source: int,
+    destination: int,
+    expected_shape: tuple[int, int, int],
+):
+    a = _Arrange(array_type, 24).reshape((2, 3, 4))
     if moveaxis(a, source, destination).shape != expected_shape:
         pytest.fail(
             "moveaxis didn't get correct shape. Got "
-            f"{moveaxis(a, source, destination).shape}, expected {expected_shape}"
+            + f"{moveaxis(a, source, destination).shape}, expected {expected_shape}"
         )
 
 
-@pytest.mark.parametrize("array_type", [APyFixedArray, APyCFixedArray])
-def test_swapaxes(array_type):
-    a = _fixedArrange(array_type, 10).reshape((5, 2))
+@pytest.mark.parametrize(
+    "array_type", [APyFixedArray, APyCFixedArray, APyFloatArray, APyCFloatArray]
+)
+def test_swapaxes(array_type: type[APyArray]):
+    a = _Arrange(array_type, 10).reshape((5, 2))
 
     if not swapaxes(a, 0, 1).is_identical(a.T):
         pytest.fail("swapaxes didn't correctly swap axis")
@@ -141,7 +188,7 @@ def test_swapaxes(array_type):
     if not swapaxes(a, 1, 0).is_identical(a.T):
         pytest.fail("swapaxes didn't correctly swap axis")
 
-    a = _fixedArrange(array_type, 24).reshape((4, 3, 2))
+    a = _Arrange(array_type, 24).reshape((4, 3, 2))
 
     if swapaxes(a, 0, 1).shape != (3, 4, 2):
         pytest.fail("swapaxes didn't correctly swap axis")
@@ -156,17 +203,14 @@ def test_swapaxes(array_type):
         pytest.fail("swapaxes didn't correctly swap axis")
 
 
-@pytest.mark.parametrize("array_type", [APyFixedArray, APyCFixedArray])
-def test_expanddims(array_type):
-    a = _fixedArrange(array_type, 10).reshape((2, 5))
-    b = _fixedArrange(array_type, 10).reshape((1, 2, 5))
+@pytest.mark.parametrize(
+    "array_type", [APyFixedArray, APyCFixedArray, APyFloatArray, APyCFloatArray]
+)
+def test_expanddims(array_type: type[APyArray]):
+    a = _Arrange(array_type, 10).reshape((2, 5))
+    b = _Arrange(array_type, 10).reshape((1, 2, 5))
     c = expand_dims(a, 0)
-    assert c.is_identical(b), "expanddims failed for fixed array"
-
-    a = _floatArrange(10).reshape((2, 5))
-    b = _floatArrange(10).reshape((1, 2, 5))
-    c = expand_dims(a, 0)
-    assert c.is_identical(b), "expanddims failed for float array"
+    assert c.is_identical(b)
 
 
 @pytest.mark.parametrize(
@@ -179,14 +223,14 @@ def test_expanddims(array_type):
         (4, None, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]),
     ],
 )
-def test_eye(n, m, nums):
+def test_eye(n: int, m: int | None, nums: list[int]):
     def check_eye(
-        int_bits=None,
-        frac_bits=None,
-        exp_bits=None,
-        man_bits=None,
-        bias=None,
-        force_complex=None,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        force_complex: bool | None = None,
     ):
         a = eye(
             n=n,
@@ -199,40 +243,53 @@ def test_eye(n, m, nums):
             force_complex=force_complex,
         )
         if isinstance(a, APyFixedArray):
+            assert int_bits is not None
+            assert frac_bits is not None
             b = APyFixedArray.from_float(
                 nums, int_bits=int_bits, frac_bits=frac_bits
             ).reshape((n, m if m is not None else n))
         elif isinstance(a, APyCFixedArray):
+            assert int_bits is not None
+            assert frac_bits is not None
             b = APyCFixedArray.from_float(
                 nums, int_bits=int_bits, frac_bits=frac_bits
             ).reshape((n, m if m is not None else n))
         elif isinstance(a, APyFloatArray):
+            assert exp_bits is not None
+            assert man_bits is not None
             b = APyFloatArray.from_float(
+                nums, exp_bits=exp_bits, man_bits=man_bits, bias=bias
+            ).reshape((n, m if m is not None else n))
+        else:
+            assert exp_bits is not None
+            assert man_bits is not None
+            b = APyCFloatArray.from_float(
                 nums, exp_bits=exp_bits, man_bits=man_bits, bias=bias
             ).reshape((n, m if m is not None else n))
         assert a.is_identical(b), str(
             f"eye on {type(a).__name__} didn't work when n={n}, "
-            "m={m}. Expected result was {nums} but got \n {a}"
+            + f"m={m}. Expected result was {nums} but got \n {a}"
         )
 
-    # Test cases for APyFixedArray
+    # Test cases for `APyFixedArray`
     check_eye(int_bits=5, frac_bits=5)
     check_eye(int_bits=12314, frac_bits=1832)
 
-    # Test cases for APyCFixedArray
+    # Test cases for `APyCFixedArray`
     check_eye(int_bits=5, frac_bits=5, force_complex=True)
     check_eye(int_bits=12314, frac_bits=1832, force_complex=True)
 
-    # Test cases for APyFloatArray
+    # Test cases for `APyFloatArray`
     check_eye(exp_bits=13, man_bits=28)
     check_eye(exp_bits=16, man_bits=5, bias=8)
 
+    # Test cases for `APyCFloatArray`
+    check_eye(exp_bits=13, man_bits=28, force_complex=True)
+    check_eye(exp_bits=16, man_bits=5, bias=8, force_complex=True)
+
     # Test raise
-    with pytest.raises(
-        ValueError,
-        match="Could not determine array type",
-    ):
-        eye((2, 2), int_bits=4, frac_bits=0, exp_bits=15)
+    with pytest.raises(ValueError, match="eye: could not determine array type"):
+        _ = eye(2, 2, int_bits=4, frac_bits=0, exp_bits=15)
 
 
 @pytest.mark.parametrize(
@@ -242,20 +299,16 @@ def test_eye(n, m, nums):
         (2, [1, 0, 0, 1]),
         (3, [1, 0, 0, 0, 1, 0, 0, 0, 1]),
         (4, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]),
-        (
-            5,
-            [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-        ),
     ],
 )
-def test_identity(n, nums):
+def test_identity(n: int, nums: list[int]):
     def check_identity(
-        int_bits=None,
-        frac_bits=None,
-        exp_bits=None,
-        man_bits=None,
-        bias=None,
-        force_complex=None,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        force_complex: bool | None = None,
     ):
         a = identity(
             n=n,
@@ -267,19 +320,32 @@ def test_identity(n, nums):
             force_complex=force_complex,
         )
         if isinstance(a, APyFixedArray):
+            assert int_bits is not None
+            assert frac_bits is not None
             b = APyFixedArray.from_float(
                 nums, int_bits=int_bits, frac_bits=frac_bits
             ).reshape((n, n))
         elif isinstance(a, APyCFixedArray):
+            assert int_bits is not None
+            assert frac_bits is not None
             b = APyCFixedArray.from_float(
                 nums, int_bits=int_bits, frac_bits=frac_bits
             ).reshape((n, n))
         elif isinstance(a, APyFloatArray):
+            assert exp_bits is not None
+            assert man_bits is not None
             b = APyFloatArray.from_float(
                 nums, exp_bits=exp_bits, man_bits=man_bits, bias=bias
             ).reshape((n, n))
+        else:
+            assert exp_bits is not None
+            assert man_bits is not None
+            b = APyCFloatArray.from_float(
+                nums, exp_bits=exp_bits, man_bits=man_bits, bias=bias
+            ).reshape((n, n))
         assert a.is_identical(b), (
-            f"identity on {type(a).__name__} didn't work when n={n}. Expected result was {nums} but got \n {a}"
+            f"identity on {type(a).__name__} didn't work when n={n}. "
+            + f"Expected result was {nums} but got \n {a}"
         )
 
     # Test cases for APyFixedArray
@@ -294,24 +360,28 @@ def test_identity(n, nums):
     check_identity(exp_bits=13, man_bits=28)
     check_identity(exp_bits=16, man_bits=5, bias=8)
 
+    # Test cases for APyCFloatArray
+    check_identity(exp_bits=13, man_bits=28, force_complex=True)
+    check_identity(exp_bits=16, man_bits=5, bias=8, force_complex=True)
+
     # Test raise
     with pytest.raises(
         ValueError,
-        match="Could not determine array type",
+        match="identity: could not determine array type",
     ):
-        identity(2, int_bits=4, frac_bits=0, exp_bits=15)
+        _ = identity(2, int_bits=4, frac_bits=0, exp_bits=15)
 
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
-def test_zeros(shape):
+def test_zeros(shape: tuple[int, int]):
     def check_zeros(
-        int_bits=None,
-        frac_bits=None,
-        bits=None,
-        exp_bits=None,
-        man_bits=None,
-        bias=None,
-        force_complex=None,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        force_complex: bool | None = None,
     ):
         a = zeros(
             shape,
@@ -324,51 +394,69 @@ def test_zeros(shape):
             force_complex=force_complex,
         )
         if isinstance(a, APyFixedArray):
+            assert int_bits is not None
+            assert frac_bits is not None
             b = APyFixedArray.from_float(
                 [0] * (shape[0] * shape[1]),
                 int_bits=int_bits,
                 frac_bits=frac_bits,
                 bits=bits,
             ).reshape(shape)
-        if isinstance(a, APyCFixedArray):
+        elif isinstance(a, APyCFixedArray):
+            assert int_bits is not None
+            assert frac_bits is not None
             b = APyCFixedArray.from_float(
                 [0] * (shape[0] * shape[1]),
                 int_bits=int_bits,
                 frac_bits=frac_bits,
                 bits=bits,
             ).reshape(shape)
-        if isinstance(a, APyFloatArray):
+        elif isinstance(a, APyFloatArray):
+            assert exp_bits is not None
+            assert man_bits is not None
             b = APyFloatArray.from_float(
                 [0] * (shape[0] * shape[1]),
                 exp_bits=exp_bits,
                 man_bits=man_bits,
                 bias=bias,
             ).reshape(shape)
+        else:
+            assert exp_bits is not None
+            assert man_bits is not None
+            b = APyCFloatArray.from_float(
+                [0] * (shape[0] * shape[1]),
+                exp_bits=exp_bits,
+                man_bits=man_bits,
+                bias=bias,
+            ).reshape(shape)
+
         assert a.is_identical(b), (
-            f"zeros on {a.__name__} didn't work when shape={shape}."
+            f"zeros on {type(a).__name__} didn't work when shape={shape}."
         )
 
     # APyFixedArray
     check_zeros(int_bits=5, frac_bits=5)
-    check_zeros(int_bits=12314, bits=14146)
-    check_zeros(bits=5, frac_bits=5)
+    check_zeros(int_bits=12314, frac_bits=14146)
+    check_zeros(int_bits=0, frac_bits=5)
 
     # APyCFixedArray
     check_zeros(int_bits=5, frac_bits=5, force_complex=True)
-    check_zeros(int_bits=12314, bits=14146, force_complex=True)
-    check_zeros(bits=5, frac_bits=5, force_complex=True)
+    check_zeros(int_bits=12314, frac_bits=14146, force_complex=True)
+    check_zeros(int_bits=0, frac_bits=5, force_complex=True)
 
     # APyFloatArray
     check_zeros(exp_bits=13, man_bits=28)
     check_zeros(exp_bits=13, man_bits=0)
     check_zeros(exp_bits=16, man_bits=5, bias=8)
 
+    # APyCFloatArray
+    check_zeros(exp_bits=13, man_bits=28, force_complex=True)
+    check_zeros(exp_bits=13, man_bits=0, force_complex=True)
+    check_zeros(exp_bits=16, man_bits=5, bias=8, force_complex=True)
+
     # Test raise
-    with pytest.raises(
-        ValueError,
-        match="Could not determine array type",
-    ):
-        zeros((2, 2), int_bits=4, frac_bits=0, exp_bits=15)
+    with pytest.raises(ValueError, match="zeros: could not determine array type"):
+        _ = zeros((2, 2), int_bits=4, frac_bits=0, exp_bits=15)
 
 
 def test_tuple_construction_raises():
@@ -376,30 +464,30 @@ def test_tuple_construction_raises():
         ValueError,
         match=r"cpp_shape_from_python_shape_like\(\): negative integers disallowed",
     ):
-        zeros((4, -2), int_bits=2, frac_bits=2)
+        _ = zeros((4, -2), int_bits=2, frac_bits=2)
 
     with pytest.raises(
         ValueError, match=r"cpp_shape_from_python_shape_like\(\): integer too large"
     ):
-        zeros((111111111111111111111111111111111111, -2), int_bits=2, frac_bits=2)
+        _ = zeros((111111111111111111111111111111111111, -2), int_bits=2, frac_bits=2)
 
     with pytest.raises(
         ValueError,
         match=r"cpp_shape_from_python_shape_like\(\): only integer dimensions allowed",
     ):
-        zeros((2.5, -2), int_bits=2, frac_bits=2)
+        _ = zeros((2.5, -2), int_bits=2, frac_bits=2)
 
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
-def test_zeros_like(shape):
+def test_zeros_like(shape: tuple[int, int]):
     def check_zeros_like(
-        ArrayType,
-        int_bits=None,
-        frac_bits=None,
-        bits=None,
-        exp_bits=None,
-        man_bits=None,
-        bias=None,
+        ArrayType: type[APyArray],
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        bits: int | None = None,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
     ):
         if ArrayType in (APyFixedArray, APyCFixedArray):
             b = ArrayType.from_float(
@@ -409,7 +497,9 @@ def test_zeros_like(shape):
                 bits=bits,
             ).reshape(shape)
             a = zeros_like(b, int_bits=int_bits, frac_bits=frac_bits, bits=bits)
-        elif ArrayType is APyFloatArray:
+        elif ArrayType in (APyFloatArray, APyCFloatArray):
+            assert exp_bits is not None
+            assert man_bits is not None
             b = ArrayType.from_float(
                 [0] * (shape[0] * shape[1]),
                 exp_bits=exp_bits,
@@ -417,6 +507,9 @@ def test_zeros_like(shape):
                 bias=bias,
             ).reshape(shape)
             a = zeros_like(b, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
+        else:
+            raise ValueError("This shouldn't happen...")
+
         assert a.is_identical(b), (
             f"zeros_like on {ArrayType.__name__} didn't work when shape={shape}."
         )
@@ -440,27 +533,28 @@ def test_zeros_like(shape):
     check_zeros_like(APyCFixedArray, bits=10, int_bits=5)
     check_zeros_like(APyCFixedArray, int_bits=12314, frac_bits=1832)
 
+    # Test cases for APyCFloatArray
+    check_zeros_like(APyCFloatArray, exp_bits=13, man_bits=28)
+    check_zeros_like(APyCFloatArray, exp_bits=16, man_bits=5, bias=8)
+
 
 def test_zeros_like_raises():
     a = zeros((5, 5), int_bits=10, frac_bits=10)
-    with pytest.raises(ValueError, match=r"Could not extract fixed-point"):
+    with pytest.raises(ValueError, match=r"Fixed-point bit specification needs exact"):
         _ = zeros_like(a, int_bits=2)
-    with pytest.raises(ValueError, match=r"Could not extract fixed-point"):
+    with pytest.raises(ValueError, match=r"Fixed-point bit specification needs exact"):
         _ = zeros_like(a, bits=1000, int_bits=2, frac_bits=2)
-
-    # Does *NOT* raise
-    _ = zeros_like(a, bits=4, int_bits=2, frac_bits=2)
 
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
-def test_ones(shape):
+def test_ones(shape: tuple[int, int]):
     def check_ones(
-        int_bits=None,
-        frac_bits=None,
-        exp_bits=None,
-        man_bits=None,
-        bias=None,
-        force_complex=None,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
+        force_complex: bool | None = None,
     ):
         a = ones(
             shape,
@@ -471,21 +565,29 @@ def test_ones(shape):
             bias=bias,
             force_complex=force_complex,
         )
-        if isinstance(a, APyFixedArray):
-            b = APyFixedArray.from_float(
-                [1] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
-            ).reshape(shape)
-        if isinstance(a, APyCFixedArray):
-            b = APyCFixedArray.from_float(
-                [1] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
-            ).reshape(shape)
-        elif isinstance(a, APyFloatArray):
-            b = APyFloatArray.from_float(
-                [1] * (shape[0] * shape[1]),
-                exp_bits=exp_bits,
-                man_bits=man_bits,
-                bias=bias,
-            ).reshape(shape)
+        if isinstance(a, APyFixedArray | APyCFixedArray):
+            b = (
+                type(a)
+                .from_float(
+                    [1] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
+                )
+                .reshape(shape)
+            )
+        elif isinstance(a, APyFloatArray | APyCFloatArray):
+            assert exp_bits is not None
+            assert man_bits is not None
+            b = (
+                type(a)
+                .from_float(
+                    [1] * (shape[0] * shape[1]),
+                    exp_bits=exp_bits,
+                    man_bits=man_bits,
+                    bias=bias,
+                )
+                .reshape(shape)
+            )
+        else:
+            raise ValueError("This should not happen...")
         assert a.is_identical(b), (
             f"ones on {type(a).__name__} didn't work when shape={shape}."
         )
@@ -502,30 +604,36 @@ def test_ones(shape):
     check_ones(exp_bits=13, man_bits=28)
     check_ones(exp_bits=16, man_bits=5, bias=8)
 
+    # Test cases for APyCFloatArray
+    check_ones(exp_bits=13, man_bits=28, force_complex=True)
+    check_ones(exp_bits=16, man_bits=5, bias=8, force_complex=True)
+
     # Test raise
     with pytest.raises(
         ValueError,
-        match="Could not determine array type",
+        match="ones: could not determine array type",
     ):
-        ones((2, 2), int_bits=4, frac_bits=0, exp_bits=15)
+        _ = ones((2, 2), int_bits=4, frac_bits=0, exp_bits=15)
 
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
-def test_ones_like(shape):
+def test_ones_like(shape: tuple[int, int]):
     def check_ones_like(
-        ArrayType,
-        int_bits=None,
-        frac_bits=None,
-        exp_bits=None,
-        man_bits=None,
-        bias=None,
+        ArrayType: type[APyArray],
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
     ):
         if ArrayType in (APyFixedArray, APyCFixedArray):
             b = ArrayType.from_float(
                 [1] * (shape[0] * shape[1]), int_bits=int_bits, frac_bits=frac_bits
             ).reshape(shape)
             a = ones_like(b, int_bits=int_bits, frac_bits=frac_bits)
-        elif ArrayType is APyFloatArray:
+        elif ArrayType in (APyFloatArray, APyCFloatArray):
+            assert exp_bits is not None
+            assert man_bits is not None
             b = ArrayType.from_float(
                 [1] * (shape[0] * shape[1]),
                 exp_bits=exp_bits,
@@ -533,6 +641,9 @@ def test_ones_like(shape):
                 bias=bias,
             ).reshape(shape)
             a = ones_like(b, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
+        else:
+            raise ValueError("This should not happen...")
+
         assert a.is_identical(b), (
             f"ones_like on {ArrayType.__name__} didn't work when shape={shape}."
         )
@@ -549,83 +660,97 @@ def test_ones_like(shape):
     check_ones_like(APyFloatArray, exp_bits=13, man_bits=28)
     check_ones_like(APyFloatArray, exp_bits=16, man_bits=5, bias=8)
 
-    # Test cases for APyFixedArray
+    # Test cases for APyCFixedArray
     check_ones_like(APyCFixedArray, int_bits=5, frac_bits=5)
     check_ones_like(APyCFixedArray, int_bits=12314, frac_bits=1832)
 
+    # Test cases for APyCFloatArray
+    check_ones_like(APyCFloatArray, exp_bits=13, man_bits=28)
+    check_ones_like(APyCFloatArray, exp_bits=16, man_bits=5, bias=8)
+
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
-def test_full(shape):
+def test_full(shape: tuple[int, int]):
     def check_full(
-        ArrayType,
-        fill_value,
-        int_bits=None,
-        frac_bits=None,
-        exp_bits=None,
-        man_bits=None,
-        bias=None,
+        ArrayType: type[APyArray],
+        fill_value: int,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
     ):
-        if ArrayType is APyFixedArray:
+        if ArrayType in (APyFixedArray, APyCFixedArray):
+            ScalarType = APyCFixed if ArrayType is APyCFixedArray else APyFixed
             b = ArrayType.from_float(
                 [fill_value] * (shape[0] * shape[1]),
                 int_bits=int_bits,
                 frac_bits=frac_bits,
             ).reshape(shape)
-            num = APyFixed.from_float(
+            num = ScalarType.from_float(
                 fill_value, int_bits=int_bits, frac_bits=frac_bits
             )
             a = full(shape, num, int_bits=int_bits, frac_bits=frac_bits)
-        elif ArrayType is APyFloatArray:
+        elif ArrayType in (APyFloatArray, APyCFloatArray):
+            ScalarType = APyCFloat if ArrayType is APyCFloatArray else APyFloat
+            assert exp_bits is not None
+            assert man_bits is not None
             b = ArrayType.from_float(
                 [fill_value] * (shape[0] * shape[1]),
                 exp_bits=exp_bits,
                 man_bits=man_bits,
                 bias=bias,
             ).reshape(shape)
-            num = APyFloat.from_float(
+            num = ScalarType.from_float(
                 fill_value, exp_bits=exp_bits, man_bits=man_bits, bias=bias
             )
             a = full(shape, num, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
+        else:
+            raise ValueError("This should not happen...")
         assert a.is_identical(b), (
             f"full on {ArrayType.__name__} didn't work when shape={shape}."
         )
 
     # Test cases for APyFixedArray
-    check_full(APyFixedArray, fill_value=shape[0] + shape[1], int_bits=5, frac_bits=5)
-    check_full(
-        APyFixedArray, fill_value=shape[0] + shape[1], int_bits=12314, frac_bits=1832
-    )
-
-    check_full(
-        APyFixedArray, fill_value=shape[0] + shape[1], int_bits=0, frac_bits=1832
-    )
+    check_full(APyFixedArray, shape[0] + shape[1], int_bits=5, frac_bits=5)
+    check_full(APyFixedArray, shape[0] + shape[1], int_bits=12314, frac_bits=1832)
+    check_full(APyFixedArray, shape[0] + shape[1], int_bits=0, frac_bits=1832)
 
     # Test cases for APyFloatArray
-    check_full(APyFloatArray, fill_value=shape[0] + shape[1], exp_bits=13, man_bits=28)
-    check_full(
-        APyFloatArray, fill_value=shape[0] + shape[1], exp_bits=16, man_bits=5, bias=8
-    )
+    check_full(APyFloatArray, shape[0] + shape[1], exp_bits=13, man_bits=28)
+    check_full(APyFloatArray, shape[0] + shape[1], exp_bits=16, man_bits=5, bias=8)
     check_full(APyFloatArray, fill_value=shape[0] + shape[1], exp_bits=0, man_bits=5)
+
+    # Test cases for APyCFixedArray
+    check_full(APyCFixedArray, shape[0] + shape[1], int_bits=5, frac_bits=5)
+    check_full(APyCFixedArray, shape[0] + shape[1], int_bits=12314, frac_bits=1832)
+    check_full(APyCFixedArray, shape[0] + shape[1], int_bits=0, frac_bits=1832)
+
+    # Test cases for APyCFloatArray
+    check_full(APyCFloatArray, shape[0] + shape[1], exp_bits=13, man_bits=28)
+    check_full(APyCFloatArray, shape[0] + shape[1], exp_bits=16, man_bits=5, bias=8)
+    check_full(APyCFloatArray, fill_value=shape[0] + shape[1], exp_bits=0, man_bits=5)
 
 
 @pytest.mark.parametrize("shape", [(i, j) for i in range(1, 5) for j in range(1, 5)])
-def test_full_like(shape):
+def test_full_like(shape: tuple[int, int]):
     def check_full_like(
-        ArrayType,
-        fill_value,
-        int_bits=None,
-        frac_bits=None,
-        exp_bits=None,
-        man_bits=None,
-        bias=None,
+        ArrayType: type[APyArray],
+        fill_value: int,
+        int_bits: int | None = None,
+        frac_bits: int | None = None,
+        exp_bits: int | None = None,
+        man_bits: int | None = None,
+        bias: int | None = None,
     ):
-        if ArrayType is APyFixedArray:
+        if ArrayType in (APyFixedArray, APyCFixedArray):
+            ScalarType = APyCFixed if ArrayType is APyCFixedArray else APyFixed
             b = ArrayType.from_float(
                 [fill_value] * (shape[0] * shape[1]),
                 int_bits=int_bits,
                 frac_bits=frac_bits,
             ).reshape(shape)
-            num = APyFixed.from_float(
+            num = ScalarType.from_float(
                 fill_value, int_bits=int_bits, frac_bits=frac_bits
             )
             a = full_like(b, num, int_bits=int_bits, frac_bits=frac_bits)
@@ -636,14 +761,17 @@ def test_full_like(shape):
             assert a.is_identical(b), (
                 f"full_like on {ArrayType.__name__} didn't work when shape={shape}."
             )
-        elif ArrayType is APyFloatArray:
+        elif ArrayType in (APyFloatArray, APyCFloatArray):
+            ScalarType = APyCFloat if ArrayType is APyCFloatArray else APyFloat
+            assert exp_bits is not None
+            assert man_bits is not None
             b = ArrayType.from_float(
                 [fill_value] * (shape[0] * shape[1]),
                 exp_bits=exp_bits,
                 man_bits=man_bits,
                 bias=bias,
             ).reshape(shape)
-            num = APyFloat.from_float(
+            num = ScalarType.from_float(
                 fill_value, exp_bits=exp_bits, man_bits=man_bits, bias=bias
             )
             a = full_like(b, num, exp_bits=exp_bits, man_bits=man_bits, bias=bias)
@@ -656,144 +784,91 @@ def test_full_like(shape):
             assert a.is_identical(b), (
                 f"full_like on {ArrayType.__name__} didn't work when shape={shape}."
             )
+        else:
+            raise ValueError("This should never happen...")
 
     # Test cases for APyFixedArray
-    check_full_like(
-        APyFixedArray, fill_value=shape[0] + shape[1], int_bits=5, frac_bits=5
-    )
-    check_full_like(
-        APyFixedArray, fill_value=shape[0] + shape[1], int_bits=12314, frac_bits=1832
-    )
-    check_full_like(
-        APyFixedArray, fill_value=shape[0] + shape[1], int_bits=0, frac_bits=5
-    )
+    check_full_like(APyFixedArray, shape[0] + shape[1], int_bits=5, frac_bits=5)
+    check_full_like(APyFixedArray, shape[0] + shape[1], int_bits=12314, frac_bits=1832)
+    check_full_like(APyFixedArray, shape[0] + shape[1], int_bits=0, frac_bits=5)
+    check_full_like(APyFixedArray, shape[0] + shape[1], int_bits=5, frac_bits=0)
 
-    check_full_like(
-        APyFixedArray, fill_value=shape[0] + shape[1], int_bits=5, frac_bits=0
-    )
-
-    check_full_like(
-        APyFixedArray, fill_value=shape[0] + shape[1], int_bits=5, frac_bits=0
-    )
+    # Test cases for APyCFixedArray
+    check_full_like(APyCFixedArray, shape[0] + shape[1], int_bits=5, frac_bits=5)
+    check_full_like(APyCFixedArray, shape[0] + shape[1], int_bits=12314, frac_bits=1832)
+    check_full_like(APyCFixedArray, shape[0] + shape[1], int_bits=0, frac_bits=5)
+    check_full_like(APyCFixedArray, shape[0] + shape[1], int_bits=5, frac_bits=0)
 
     # Test cases for APyFloatArray
+    check_full_like(APyFloatArray, shape[0] + shape[1], exp_bits=13, man_bits=28)
+    check_full_like(APyFloatArray, shape[0] + shape[1], exp_bits=16, man_bits=5, bias=8)
+    check_full_like(APyFloatArray, shape[0] + shape[1], exp_bits=16, man_bits=0)
 
+    # Test cases for APyCFloatArray
+    check_full_like(APyCFloatArray, shape[0] + shape[1], exp_bits=13, man_bits=28)
     check_full_like(
-        APyFloatArray, fill_value=shape[0] + shape[1], exp_bits=13, man_bits=28
+        APyCFloatArray, shape[0] + shape[1], exp_bits=16, man_bits=5, bias=8
     )
-    check_full_like(
-        APyFloatArray, fill_value=shape[0] + shape[1], exp_bits=16, man_bits=5, bias=8
-    )
-    check_full_like(
-        APyFloatArray, fill_value=shape[0] + shape[1], exp_bits=16, man_bits=0
-    )
+    check_full_like(APyCFloatArray, shape[0] + shape[1], exp_bits=16, man_bits=0)
 
 
 def test_arange():
     # Test raises
-    with pytest.raises(
-        ValueError,
-        match="Step size cannot be zero",
-    ):
-        arange(0, 10, 0, int_bits=4, frac_bits=0)
+    with pytest.raises(ValueError, match="Step size cannot be zero"):
+        _ = arange(0, 10, 0, int_bits=4, frac_bits=0)
 
-    with pytest.raises(
-        ValueError,
-        match="Undefined input",
-    ):
-        arange(10, 2, 1, int_bits=4, frac_bits=0)
+    with pytest.raises(ValueError, match="Undefined input"):
+        _ = arange(10, 2, 1, int_bits=4, frac_bits=0)
 
-    with pytest.raises(
-        ValueError,
-        match="Undefined input",
-    ):
-        arange(2, 10, -1, int_bits=4, frac_bits=0)
+    with pytest.raises(ValueError, match="Undefined input"):
+        _ = arange(2, 10, -1, int_bits=4, frac_bits=0)
 
-    with pytest.raises(
-        ValueError,
-        match="Cannot convert",
-    ):
-        arange(0, float("inf"), 2**5, exp_bits=5, man_bits=10)
+    with pytest.raises(ValueError, match="Cannot convert"):
+        _ = arange(0, float("inf"), 2**5, exp_bits=5, man_bits=10)
 
-    with pytest.raises(
-        ValueError,
-        match="Cannot convert",
-    ):
-        arange(float("nan"), 10, 2**5, exp_bits=5, man_bits=10)
+    with pytest.raises(ValueError, match="Cannot convert"):
+        _ = arange(float("nan"), 10, 2**5, exp_bits=5, man_bits=10)
 
-    with pytest.raises(
-        ValueError,
-        match="Cannot convert",
-    ):
-        arange(0, 10, float("inf"), exp_bits=5, man_bits=10)
+    with pytest.raises(ValueError, match="Cannot convert"):
+        _ = arange(0, 10, float("inf"), exp_bits=5, man_bits=10)
 
-    with pytest.raises(
-        ValueError,
-        match="Non supported type",
-    ):
-        arange("0", 10, 1, exp_bits=5, man_bits=10)
+    with pytest.raises(ValueError, match="Non supported type"):
+        _ = arange("0", 10, 1, exp_bits=5, man_bits=10)
 
-    with pytest.raises(
-        ValueError,
-        match="Could not determine array type",
-    ):
-        arange(0, 10, 1)
+    with pytest.raises(ValueError, match="Could not determine array type"):
+        _ = arange(0, 10, 1)
 
-    with pytest.raises(
-        ValueError,
-        match="Could not determine array type",
-    ):
-        arange(0, 10, 1, exp_bits=5, man_bits=10, bits=10, int_bits=10)
+    with pytest.raises(ValueError, match="Could not determine array type"):
+        _ = arange(0, 10, 1, exp_bits=5, man_bits=10, bits=10, int_bits=10)
 
-    with pytest.raises(
-        ValueError,
-        match="Could not determine bit specifiers",
-    ):
-        arange(APyFixed(1, 4, 0), 10, APyFixed(1, 4, 1))
+    with pytest.raises(ValueError, match="Could not determine bit specifiers"):
+        _ = arange(APyFixed(1, 4, 0), 10, APyFixed(1, 4, 1))
 
-    with pytest.raises(
-        ValueError,
-        match="Could not determine bit specifiers",
-    ):
-        arange(APyFloat(0, 0, 0, 4, 4), APyFloat(0, 7, 0, 4, 3))
+    with pytest.raises(ValueError, match="Could not determine bit specifiers"):
+        _ = arange(APyFloat(0, 0, 0, 4, 4), APyFloat(0, 7, 0, 4, 3))
 
-    with pytest.raises(
-        ValueError,
-        match="Could not determine bit specifiers",
-    ):
-        arange(
+    with pytest.raises(ValueError, match="Could not determine bit specifiers"):
+        _ = arange(
             APyFloat(0, 0, 0, 4, 4), APyFloat(0, 7, 0, 4, 4), APyFloat(0, 7, 0, 4, 4, 5)
         )
 
-    with pytest.raises(
-        ValueError,
-        match="Could not determine array type",
-    ):
-        arange(APyFloat(0, 0, 0, 4, 4), APyFloat(0, 7, 0, 4, 4), APyFixed(1, 4, 0))
+    with pytest.raises(ValueError, match="Could not determine array type"):
+        _ = arange(APyFloat(0, 0, 0, 4, 4), APyFloat(0, 7, 0, 4, 4), APyFixed(1, 4, 0))
 
-    with pytest.raises(
-        ValueError,
-        match="Could not determine array type",
-    ):
-        arange(APyFixed(1, 4, 0), 10, APyFloat(0, 7, 0, 4, 3))
+    with pytest.raises(ValueError, match="Could not determine array type"):
+        _ = arange(APyFixed(1, 4, 0), 10, APyFloat(0, 7, 0, 4, 3))
 
-    with pytest.raises(
-        ValueError,
-        match="Could not determine array type",
-    ):
-        arange(10, exp_bits=5, man_bits=10, bits=20)
+    with pytest.raises(ValueError, match="Could not determine array type"):
+        _ = arange(10, exp_bits=5, man_bits=10, bits=20)
 
-    with pytest.raises(
-        ValueError,
-        match="Could not determine array type",
-    ):
-        arange(10, int_bits=5, frac_bits=10, bias=15)
+    with pytest.raises(ValueError, match="Could not determine array type"):
+        _ = arange(10, int_bits=5, frac_bits=10, bias=15)
 
     with pytest.raises(
         ValueError,
         match="Fixed-point bit specification needs exactly two of three bit specifiers",
     ):
-        arange(
+        _ = arange(
             APyFixed(0, int_bits=4, frac_bits=0),
             APyFixed(10, int_bits=4, frac_bits=0),
             bits=20,
@@ -803,7 +878,7 @@ def test_arange():
         ValueError,
         match="Fixed-point bit specification needs exactly two of three bit specifiers",
     ):
-        arange(
+        _ = arange(
             APyFixed(0, int_bits=4, frac_bits=0),
             APyFixed(10, int_bits=4, frac_bits=0),
             bits=20,

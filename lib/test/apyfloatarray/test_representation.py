@@ -224,7 +224,7 @@ def test_str():
     arr = APyFloatArray.from_float(
         [[float("nan"), 1.0], [2.0, 3.0]], exp_bits=10, man_bits=10
     )
-    with pytest.raises(ValueError, match=r"APyFloatArray\.__str__: base 9 is not"):
+    with pytest.raises(ValueError, match=r"APyFloatArray\.__str__: base=9 is not"):
         _ = arr.__str__(9)
     assert (
         str(arr)
