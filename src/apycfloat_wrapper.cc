@@ -152,7 +152,7 @@ void bind_cfloat(nb::module_& m)
             nb::arg("bias") = nb::none(),
             R"pbdoc(
             Create an :class:`APyCFloat` object and initialize both real and imaginary
-            part.
+            parts.
 
             Parameters
             ----------
