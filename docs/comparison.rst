@@ -15,6 +15,7 @@ Comparison matrix
       - `fpbinary <https://github.com/smlgit/fpbinary>`_
       - `fxpmath <https://github.com/francof2a/fxpmath>`_
       - `numfi <https://github.com/ZZZZzzzzac/numfi>`_
+      - `pychop <https://github.com/inEXASCALE/pychop>`_
       - `pyfixp <https://github.com/chipmuenk/pyfixp>`_
       - `spfpm <https://github.com/rwpenney/spfpm>`_
     * - Custom fixed-point formats
@@ -26,6 +27,7 @@ Comparison matrix
       - Yes [#numfifootnote]_
       - Yes
       - Yes
+      - Yes
     * - Custom floating-point formats
       - Yes
       - No
@@ -33,6 +35,7 @@ Comparison matrix
       - No
       - No
       - No
+      - Yes
       - No
       - No
     * - Maximum wordlength [#wlfootnote]_
@@ -42,6 +45,7 @@ Comparison matrix
       - None
       - None
       - 64 [#numfifootnote]_
+      - 53 [#pychopfootnote]_
       - 53 [#pyfixpfootnote]_
       - None
     * - Resizing of fixed-point results
@@ -51,6 +55,7 @@ Comparison matrix
       - Yes
       - Yes
       - Yes [#numfifootnote]_
+      - Yes [#pychopfootnote]_
       - Yes [#pyfixpfootnote]_
       - No
     * - Arrays
@@ -60,6 +65,7 @@ Comparison matrix
       - No [#fpbinaryfootnote]_
       - Yes
       - Yes
+      - Yes [#pychopfootnote]_
       - Yes [#pyfixpfootnote]_
       - No
     * - Matrix multiplication (``@``)
@@ -69,6 +75,7 @@ Comparison matrix
       - N/A
       - No
       - No
+      - Yes [#pychopfootnote]_
       - Yes [#pyfixpfootnote]_
       - N/A
     * - Written in
@@ -78,6 +85,7 @@ Comparison matrix
       - C/Python
       - Python
       - Python
+      - Python [#pychopfootnote]_
       - Python [#pyfixpfootnote]_
       - Python
 
@@ -86,7 +94,8 @@ Comparison matrix
 
 .. [#enclfixfootnote] ``en_cl_fix`` has two different fixed-point classes, one handles up to 53 bits, the other has no limitation. However, an operation involving the shorter format cannot produce the longer etc. In the comparison, the longer format was used for all tests.
 .. [#numfifootnote] ``numfi`` is limited to 64 total bits (including results of e.g. multiplication).
-.. [#pyfixpfootnote] ``pyfixp`` is essentially a package to simply quantize NumPy-arrays with doubles.
+.. [#pychopfootnote] ``pychop`` is essentially a package to simply quantize floating-point NumPy, PyTorch, and JAX-arrays to a corresponding fixed-point or floating-point representation. Computation still happens at the precision of the underlying array.
+.. [#pyfixpfootnote] ``pyfixp`` is essentially a package to simply quantize floating-point NumPy-arrays with doubles to a corresponding fixed-point representation. Computation still happens at the precision of the underlying array.
 .. [#fpbinaryfootnote] ``fpbinary`` provides a helper function to convert an array to a list with fixed-point numbers.
 .. [#wlfootnote] Note that this holds for intermediate results as well. For example, multiplying two 27-bit numbers will create a 54-bit result which will not give bit-accurate results with ``pyfixp``.
 
@@ -96,36 +105,67 @@ Comparison matrix
 
     * - Library
       - APyTypes
-      - `gmpy2 <https://github.com/aleaxit/gmpy>`_
+      - `bigfloat <https://github.com/mdickinson/bigfloat>`_ [#bigfloatfootnote]_
+      - `gmpy2 <https://github.com/aleaxit/gmpy>`_ [#gmpy2footnote]_
+      - `mpmath <https://github.com/mpmath/mpmath>`
+      - `PyChop <https://github.com/inEXASCALE/pychop>`_
     * - Custom fixed-point formats
       - Yes
       - No
+      - No
+      - No
+      - Yes [#pychopfootnotefp]_
     * - Custom floating-point formats
       - Yes
       - Yes
+      - Yes
+      - Yes
+      - Yes [#pychopfootnotefp]_
     * - Binary representation of number [#binaryfootnote]_
       - Yes
+      - No
+      - No
+      - No
       - No
     * - Maximum wordlength
       - 32 bits for exponent, 64 bits for mantissa [#apytypesfootnote]_
       - None
+      - None
+      - None
+      - Yes [#pychopfootnotefp]_
     * - Stochastic rounding
       - Yes
       - No
+      - No
+      - No
+      - Yes
     * - Arrays
       - Yes
       - No
+      - No
+      - Yes
+      - Yes [#pychopfootnotefp]_
     * - Matrix multiplication (``@``)
       - Yes
       - N/A
+      - N/A
+      - Yes
+      - Yes [#pychopfootnotefp]_
     * - Written in
       - C++/Python
       - C/Python
+      - C/Python
+      - Python [#mpmathfootnote]
+      - Python [#pychopfootnotefp]_
 
 .. rubric:: Footnotes
 
+.. [#bigfloatfootnote] ``bigfloat`` is a Python wrapper around the `GNU MPFR <https://www.mpfr.org/>`_ library.
+.. [#gmpy2footnote] ``gmpy2`` is a Python wrapper around the `GNU MPFR <https://www.mpfr.org/>`_ and `GNU MPC <https://www.multiprecision.org/>`_ libraries.
+.. [#pychopfootnotefp] ``pychop`` is essentially a package to simply quantize floating-point NumPy, PyTorch, and JAX-arrays to a given fixed-point or floating-point representation. Computation still happens at the precision of the underlying array.
 .. [#binaryfootnote] This means that it is possible to get a binary representation for comparison with, e.g., a hardware implementation.
 .. [#apytypesfootnote] This is a design choice since ``apytypes``  is aimed at simulating shorter custom formats. However, there is unlimited word length support for fixed-point values which can, if deemed suitable at a later time, be used for floating-point as well.
+.. [#mpmathfootnote] ``mpmath`` can use ``gmpy`` as a backend to do faster arithmetic, but uses Python integers by default.
 
 
 Performance Comparison

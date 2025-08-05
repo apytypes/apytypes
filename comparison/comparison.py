@@ -51,7 +51,7 @@ benchmarks = {
     "Scalar to float, 320-bit": ("c = float(a)", CREATE_TWO_LONG_SCALARS),
     "Matrix-scalar addition": ("c = a + b", CREATE_SCALAR_AND_ARRAY),
     "Matrix-scalar multiplication": ("c = a * b", CREATE_SCALAR_AND_ARRAY),
-    # "Matrix-scalar division": ("c = a / b", CREATE_SCALAR_AND_ARRAY),
+    "Matrix-scalar division": ("c = a / b", CREATE_SCALAR_AND_ARRAY),
     "20-element vector summation": ("sum(a)", CREATE_SHORT_VECTOR),
     "200-element vector summation": ("sum(a)", CREATE_VECTOR),
     "20-element vector product": ("math.prod(a)", CREATE_SHORT_VECTOR),
@@ -77,9 +77,9 @@ for lib_name, file in libraries.items():
             num, timing = timeit.Timer(stmt=func, setup=setup_tmp).autorange()
             results[lib_name].append(timing / num)
             print(f"{lib_name} {name} (average of {num}): {timing / num}")
-        except Exception:
+        except Exception as e:
             results[lib_name].append(float("NaN"))
-            print(f"{lib_name} {name}: Error")
+            print(f"{lib_name} {name}: Error ({e})")
 
 # %%
 fig, ax = plt.subplots(layout="constrained", figsize=(8, 10))
