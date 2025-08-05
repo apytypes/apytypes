@@ -1648,7 +1648,7 @@ class APyCFloat:
     ) -> None:
         """
         Create an :class:`APyCFloat` object and initialize both real and imaginary
-        part.
+        parts.
 
         Parameters
         ----------
