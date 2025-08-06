@@ -22,6 +22,8 @@ Array creation functions
 
 .. autofunction:: apytypes.arange
 
+.. autofunction:: apytypes.loadtxt_bits
+
 
 Array modification functions
 ----------------------------

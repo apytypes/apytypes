@@ -1,4 +1,6 @@
+import csv
 from collections.abc import Sequence
+from pathlib import Path
 from typing import Literal
 
 from apytypes._apytypes import (
@@ -1065,6 +1067,82 @@ def arange(
         )
     else:
         raise ValueError("Could not determine array type")
+
+
+def loadtxt_bits(
+    fname: str,
+    delimiter: str = ",",
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    force_complex: bool | None = None,
+) -> APyArray:
+    """
+    Create an array from a CSV file containing bit patterns.
+
+    Parameters
+    ----------
+    fname : :class:`str`
+        Path to the CSV file containing bit patterns.
+    delimiter : :class:`str`, optional
+        Character used in the CSV file to separate bit patterns. Default is `,`.
+    int_bits : :class:`int`, optional
+        Number of fixed-point integer bits.
+    frac_bits : :class:`int`, optional
+        Number of fixed-point fractional bits.
+    bits : :class:`int`, optional
+        Number of fixed-point bits.
+    exp_bits : :class:`int`, optional
+        Number of floating-point exponential bits.
+    man_bits : :class:`int`, optional
+        Number of floating-point mantissa bits.
+    bias : :class:`int`, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        Array created from the bit patterns in the CSV file.
+    """
+
+    a_type = _determine_array_type(int_bits, frac_bits, bits, exp_bits, man_bits, bias)
+
+    if not a_type:
+        raise ValueError("Could not determine array type from bit-specifiers")
+
+    with Path.open(fname) as f:
+        reader = csv.reader(f, delimiter=delimiter)
+        bit_patterns = []
+        for row in reader:
+            bit_patterns_row = [int(bit_pattern) for bit_pattern in row]
+            bit_patterns.append(bit_patterns_row)
+
+    # Check if 1D or 2D array
+    if len(bit_patterns) == 1:
+        bit_patterns = bit_patterns[0]
+
+    if a_type is APyFixedArray or isinstance(a_type, APyFixedArray):
+        if force_complex:
+            raise NotImplementedError(
+                "loadtxt_bits for APyCFixedArray not implemented yet"
+            )
+            # return APyCFixedArray(bit_patterns, bits=bits, int_bits=int_bits, frac_bits=frac_bits)
+        return APyFixedArray(
+            bit_patterns, bits=bits, int_bits=int_bits, frac_bits=frac_bits
+        )
+    elif a_type is APyFloatArray or isinstance(a_type, APyFloatArray):
+        if force_complex:
+            raise NotImplementedError(
+                "loadtxt_bits for APyCFloatArray not implemented yet"
+            )
+        return APyFloatArray.from_bits(
+            bit_patterns, exp_bits=exp_bits, man_bits=man_bits, bias=bias
+        )
+    else:
+        raise ValueError("Only fixed-point and floating-point array types supported")
 
 
 # =============================================================================
