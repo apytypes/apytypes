@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `APyCFloat`, a complex scalar floating-point type.
 - `APyFloat.zero`, to create floating-point objects initialized to zero.
 - ARM-Linux wheels.
+- `loadtxt_bits`, CSV import of bit patterns
 
 ### Fixed
 
