@@ -325,6 +325,39 @@
 <dd><p>Macro for creating a void-specialization state-less functor <code class="docutils literal notranslate"><span class="pre">FUNCTOR_NAME</span></code> from a function <code class="docutils literal notranslate"><span class="pre">FUNC_NAME</span></code>. The void-specialization functor allows template argument deduction to be performed once its function is called. Neat! </p>
 </dd></dl>
 
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.NB_NARG">
+<span class="target" id="apytypes__util_8h_1a26034a1423e012e5bc2d44a6ac0234f2"></span><span class="sig-name descname"><span class="n"><span class="pre">NB_NARG</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.NB_NARG" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Mark nanobind Python-exposed parameter that does not support implicit conversions from other types. </p>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.NB_OP">
+<span class="target" id="apytypes__util_8h_1a4f21968d8912c66cd157e7cd28bccaba"></span><span class="sig-name descname"><span class="n"><span class="pre">NB_OP</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">args</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.NB_OP" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Mark a special double-underscore nanobind operator (e.g., <code class="docutils literal notranslate"><span class="pre">__add__</span></code>) the implements an arithmetic operation. In Python, when a bound function with this annotation is called with incompatible arguments, it will return <code class="docutils literal notranslate"><span class="pre">NotImplemented</span></code> rather than raising a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> as is default. </p>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.STD_ADD">
+<span class="target" id="apytypes__util_8h_1a39c5bbad18cd75aacb39386e3b1716e3"></span><span class="sig-name descname"><span class="n"><span class="pre">STD_ADD</span></span></span><a class="headerlink" href="#c.STD_ADD" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Short-hand C++ arithmetic functors. </p>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.STD_SUB">
+<span class="target" id="apytypes__util_8h_1a7723471444c7114659081ecbcdddbdaa"></span><span class="sig-name descname"><span class="n"><span class="pre">STD_SUB</span></span></span><a class="headerlink" href="#c.STD_SUB" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.STD_MUL">
+<span class="target" id="apytypes__util_8h_1a1c3070e14b15ee737aa84e6e59789fae"></span><span class="sig-name descname"><span class="n"><span class="pre">STD_MUL</span></span></span><a class="headerlink" href="#c.STD_MUL" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.STD_DIV">
+<span class="target" id="apytypes__util_8h_1a72459dc2b3ba76b9e126967e8b0bb8d2"></span><span class="sig-name descname"><span class="n"><span class="pre">STD_DIV</span></span></span><a class="headerlink" href="#c.STD_DIV" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
 </div>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-typedefs">Typedefs</p>
@@ -784,6 +817,12 @@
 <li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">apytypes_util.h</span></code></a><ul>
 <li><a class="reference internal" href="#c.UINT64_TO_LIMB"><code class="docutils literal notranslate"><span class="pre">UINT64_TO_LIMB</span></code></a></li>
 <li><a class="reference internal" href="#c.CREATE_FUNCTOR_FROM_FUNC"><code class="docutils literal notranslate"><span class="pre">CREATE_FUNCTOR_FROM_FUNC</span></code></a></li>
+<li><a class="reference internal" href="#c.NB_NARG"><code class="docutils literal notranslate"><span class="pre">NB_NARG</span></code></a></li>
+<li><a class="reference internal" href="#c.NB_OP"><code class="docutils literal notranslate"><span class="pre">NB_OP</span></code></a></li>
+<li><a class="reference internal" href="#c.STD_ADD"><code class="docutils literal notranslate"><span class="pre">STD_ADD</span></code></a></li>
+<li><a class="reference internal" href="#c.STD_SUB"><code class="docutils literal notranslate"><span class="pre">STD_SUB</span></code></a></li>
+<li><a class="reference internal" href="#c.STD_MUL"><code class="docutils literal notranslate"><span class="pre">STD_MUL</span></code></a></li>
+<li><a class="reference internal" href="#c.STD_DIV"><code class="docutils literal notranslate"><span class="pre">STD_DIV</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4I0E14remove_cvref_t"><code class="docutils literal notranslate"><span class="pre">remove_cvref_t</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv413bits_to_limbsNSt6size_tE"><code class="docutils literal notranslate"><span class="pre">bits_to_limbs()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4I0E17significant_limbsNSt6size_tE22RANDOM_ACCESS_ITERATOR22RANDOM_ACCESS_ITERATOR"><code class="docutils literal notranslate"><span class="pre">significant_limbs()</span></code></a></li>

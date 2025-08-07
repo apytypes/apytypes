@@ -322,10 +322,12 @@ and this project adheres to <a class="reference external" href="https://semver.o
 <li><p>Complex-valued floating-point types:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">APyCFloat</span></code>, a complex scalar floating-point type.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">APyCFloatArray</span></code>, a complex array floating-point type.</p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">APyFloat.zero</span></code>, to create floating-point objects initialized to zero.</p></li>
 <li><p>ARM-Linux wheels.</p></li>
+<li><p>Specialized overload typing signatures for array functions.</p></li>
 </ul>
 </section>
 <section id="fixed">
@@ -345,6 +347,9 @@ formats.</p></li>
 <li><p>Improved type hints for APyArray methods.</p></li>
 <li><p>Bug in <code class="docutils literal notranslate"><span class="pre">APyFixedArray.from_float</span></code> when converting from <code class="docutils literal notranslate"><span class="pre">APyFixed</span></code> (issue #683).</p></li>
 <li><p>Bug in multi-limb <code class="docutils literal notranslate"><span class="pre">APyFixedArray.max</span></code> and <code class="docutils literal notranslate"><span class="pre">APyFixedArray.min</span></code> (issue #721).</p></li>
+<li><p>Wrong name in fixed-point division exception message (<code class="docutils literal notranslate"><span class="pre">__div__</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">__truediv__</span></code>)</p></li>
+<li><p>Inconsistency in formatting of complex-valued numbers (e.g., <code class="docutils literal notranslate"><span class="pre">(1.0+2.5j)</span></code> for
+scalars and <code class="docutils literal notranslate"><span class="pre">[1.0+2.5j]</span></code> for arrays)</p></li>
 </ul>
 </section>
 <section id="changed">
