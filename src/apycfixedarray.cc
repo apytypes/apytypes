@@ -1578,3 +1578,61 @@ void APyCFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& n
         "complex or float or integer"
     );
 }
+
+std::variant<APyCFixedArray, APyCFixed>
+APyCFixedArray::matmul(const APyCFixedArray& rhs) const
+{
+    if (ndim() == 1 && rhs.ndim() == 1) {
+        if (_shape[0] == rhs._shape[0]) {
+            // Dimensionality for a standard scalar inner product checks out.
+            // Perform the checked inner product.
+            return checked_inner_product(rhs);
+        }
+    }
+    if (ndim() == 2 && (rhs.ndim() == 2 || rhs.ndim() == 1)) {
+        if (_shape[1] == rhs._shape[0]) {
+            // Dimensionality for a standard 2D matrix multiplication checks out.
+            // Perform the checked 2D matrix
+            return checked_2d_matmul(rhs);
+        }
+    }
+
+    // Unsupported `__matmul__` dimensionality, raise exception
+    throw std::length_error(
+        fmt::format(
+            "APyCFixedArray.__matmul__: input shape mismatch, lhs: {}, rhs: {}",
+            tuple_string_from_vec(_shape),
+            tuple_string_from_vec(rhs._shape)
+        )
+    );
+}
+
+// Evaluate the inner between two vectors. This method assumes that the shape of
+// both `*this` and `rhs` are equally long. Anything else is undefined behaviour.
+APyCFixed APyCFixedArray::checked_inner_product(const APyCFixedArray& rhs) const
+{
+    (void)rhs;
+    APyCFixed result(10, 10);
+    return result;
+}
+
+// Evaluate the matrix product between two 2D matrices. This method assumes that the
+// shape of `*this` and `rhs` have been checked to match a 2d matrix multiplication.
+APyCFixedArray APyCFixedArray::checked_2d_matmul(const APyCFixedArray& rhs) const
+{
+    // Result array
+    (void)rhs;
+    APyCFixedArray result({ 2 }, 10, 10);
+    return result;
+}
+
+//! Perform a linear convolution with `other` using `mode`
+APyCFixedArray
+APyCFixedArray::convolve(const APyCFixedArray& rhs, const std::string& conv_mode) const
+{
+    // Result array
+    (void)rhs;
+    (void)conv_mode;
+    APyCFixedArray result({ 2 }, 10, 10);
+    return result;
+}
