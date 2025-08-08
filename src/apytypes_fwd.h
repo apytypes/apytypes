@@ -202,4 +202,23 @@ struct APyFloatSpec {
     }
 };
 
+/* ********************************************************************************** *
+ * *                           APyFixed C++ data types                              * *
+ * ********************************************************************************** */
+
+struct APyFixedSpec {
+    int bits;
+    int int_bits;
+
+    bool operator==(const APyFixedSpec& other) const noexcept
+    {
+        return std::make_tuple(bits, int_bits)
+            == std::make_tuple(other.bits, other.int_bits);
+    }
+    bool operator!=(const APyFixedSpec& other) const noexcept
+    {
+        return !(*this == other);
+    }
+};
+
 #endif

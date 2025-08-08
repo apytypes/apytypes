@@ -156,6 +156,31 @@ public:
     //! Elementwise logic not
     APyCFixedArray operator~() const;
 
+    /*!
+     * Matrix multiplication. If both arguments are 2-D tensors, this method performs
+     * the ordinary matrix multiplication. If input dimensions are greater than 2, this
+     * method performs stacked matrix multiplications, where the dimensions of last two
+     * dimensions are treated as matrices.
+     */
+    std::variant<APyCFixedArray, APyCFixed> matmul(const APyCFixedArray& rhs) const;
+
+    /*!
+     * Evaluate the inner between two vectors. This method assumes that the shape
+     * of both `*this` and `rhs` are equally long. Anything else is undefined
+     * behaviour.
+     */
+    APyCFixed checked_inner_product(const APyCFixedArray& rhs) const;
+
+    /*!
+     * Evaluate the matrix product between two 2D matrices. This method assumes that
+     * the shape of `*this` and `rhs` have been checked to match a 2D matrix
+     * multiplication.
+     */
+    APyCFixedArray checked_2d_matmul(const APyCFixedArray& rhs) const;
+
+    //! Perform a linear convolution with `other` using `mode`
+    APyCFixedArray convolve(const APyCFixedArray& other, const std::string& mode) const;
+
     /* ****************************************************************************** *
      * *                          Public member functions                           * *
      * ****************************************************************************** */
