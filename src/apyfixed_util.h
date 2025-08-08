@@ -16,6 +16,7 @@
 
 #include <functional> // std::bind, std::function, std::placeholders
 #include <iterator>   // std::begin
+#include <optional>   // std::optional
 
 /* ********************************************************************************** *
  * *    Fixed-point iterator based in-place quantization with multi-limb support    * *
@@ -861,267 +862,6 @@ static APY_INLINE void fixed_point_square(
     }
 }
 
-//! Iterator-based multi-limb two's complement complex-valued fixed-point
-//! multiplication. The scratch vector `prod_imm` must have space for
-//! at least `2 + 2 * src1_limbs + 2 * src2_limbs` limbs. The scratch vectors `op1_abs`
-//! and `op2_abs` must have space for at least `src1_limbs` and `src2_limbs`
-//! limbs, respectively. No overlap between `prod_imm` and `op[12]_abs` allowed. No
-//! overlap between `prod_imm` and `dst` allowed.
-template <
-    typename RANDOM_ACCESS_ITERATOR_IN1,
-    typename RANDOM_ACCESS_ITERATOR_IN2,
-    typename RANDOM_ACCESS_ITERATOR_OUT,
-    typename RANDOM_ACCESS_ITERATOR_INOUT>
-static APY_INLINE void complex_fixed_point_product(
-    RANDOM_ACCESS_ITERATOR_IN1 src1,
-    RANDOM_ACCESS_ITERATOR_IN2 src2,
-    RANDOM_ACCESS_ITERATOR_OUT dst,
-    std::size_t src1_limbs,
-    std::size_t src2_limbs,
-    std::size_t dst_limbs,
-    RANDOM_ACCESS_ITERATOR_INOUT op1_abs,
-    RANDOM_ACCESS_ITERATOR_INOUT op2_abs,
-    RANDOM_ACCESS_ITERATOR_INOUT prod_imm
-)
-{
-    /*
-     * (a + bi)(c + di) = ac - bd + (bc + ad)i
-     * Compute the imaginary part of the result first.
-     */
-
-    // b*c
-    fixed_point_product(
-        src1 + src1_limbs,           // src1 (b)
-        src2,                        // src2 (c)
-        prod_imm,                    // dst
-        src1_limbs,                  // src1_limbs
-        src2_limbs,                  // src2_limbs
-        src1_limbs + src2_limbs + 1, // dst_limbs
-        op1_abs,                     // op1_abs
-        op2_abs,                     // op2_abs
-        prod_imm                     // prod_abs
-    );
-
-    // a*d
-    fixed_point_product(
-        src1,                                   // src1 (a)
-        src2 + src2_limbs,                      // src2 (d)
-        prod_imm + src1_limbs + src2_limbs + 1, // dst
-        src1_limbs,                             // src1_limbs
-        src2_limbs,                             // src2_limbs
-        src1_limbs + src2_limbs + 1,            // dst_limbs
-        op1_abs,                                // op1_abs
-        op2_abs,                                // op2_abs
-        prod_imm + src1_limbs + src2_limbs + 1  // prod_abs
-    );
-
-    // Copy `src1 (imag)` to `op1_abs`, so we can use `src1` as both a source and
-    // destination.
-    std::copy_n(src1 + src1_limbs, src1_limbs, op1_abs);
-
-    // bc + ad
-    apy_addition_same_length(
-        &*(dst + dst_limbs),                             // dst (imag part)
-        &*(prod_imm),                                    // src1 (b*c)
-        &*(prod_imm + src1_limbs + src2_limbs + 1),      // src2 (a*d)
-        std::min(src1_limbs + src2_limbs + 1, dst_limbs) // limbs
-    );
-
-    // b*d
-    fixed_point_product(
-        op1_abs,                                // src1 (b)
-        src2 + src2_limbs,                      // src2 (d)
-        prod_imm + src1_limbs + src2_limbs + 1, // dst
-        src1_limbs,                             // src1_limbs
-        src2_limbs,                             // src2_limbs
-        src1_limbs + src2_limbs + 1,            // dst_limbs
-        op1_abs,                                // op1_abs
-        op2_abs,                                // op2_abs
-        prod_imm + src1_limbs + src2_limbs + 1  // prod_abs
-    );
-
-    // a*c
-    fixed_point_product(
-        src1,                        // src1 (a)
-        src2,                        // src2 (c)
-        prod_imm,                    // dst
-        src1_limbs,                  // src1_limbs
-        src2_limbs,                  // src2_limbs
-        src1_limbs + src2_limbs + 1, // dst limbs
-        op1_abs,                     // op1_abs
-        op2_abs,                     // op2_abs
-        prod_imm                     // prod_abs
-    );
-
-    // ac - bd
-    apy_subtraction_same_length(
-        &*(dst),                                         // dst (real part)
-        &*(prod_imm),                                    // src1 (a*c)
-        &*(prod_imm + src1_limbs + src2_limbs + 1),      // src2 (b*d)
-        std::min(src1_limbs + src2_limbs + 1, dst_limbs) // limbs
-    );
-}
-
-//! Iterator-based multi-limb two's complement complex-valued fixed-point
-//! division. The scratch vector `prod_imm` must have space for
-//! at least `2 + 2 * src1_limbs + 2 * src2_limbs` limbs. The scratch vectors `op1_abs`
-//! and `op2_abs` must have space for at least `src1_limbs` and `src2_limbs`
-//! limbs, respectively. No overlap between `prod_imm` and `op[12]_abs` allowed. No
-//! overlap between `prod_imm` and `dst` allowed.
-template <
-    typename RANDOM_ACCESS_ITERATOR_IN1,
-    typename RANDOM_ACCESS_ITERATOR_IN2,
-    typename RANDOM_ACCESS_ITERATOR_OUT,
-    typename RANDOM_ACCESS_ITERATOR_INOUT>
-static APY_INLINE void complex_fixed_point_division(
-    RANDOM_ACCESS_ITERATOR_IN1 src1,
-    RANDOM_ACCESS_ITERATOR_IN2 src2,
-    RANDOM_ACCESS_ITERATOR_OUT dst,
-    std::size_t src1_limbs,
-    std::size_t src2_limbs,
-    std::size_t dst_limbs,
-    std::size_t src2_bits,
-    std::size_t div_limbs,
-    RANDOM_ACCESS_ITERATOR_INOUT op1_abs,
-    RANDOM_ACCESS_ITERATOR_INOUT op2_abs,
-    RANDOM_ACCESS_ITERATOR_INOUT prod_imm,
-    RANDOM_ACCESS_ITERATOR_INOUT den_imm,
-    RANDOM_ACCESS_ITERATOR_INOUT num_imm,
-    RANDOM_ACCESS_ITERATOR_INOUT qte_imm
-)
-{
-    //
-    //  a + bi        ac + bd       bc - ad
-    // --------  =  ----------- + ----------- i
-    //  c + di       c^2 + d^2     c^2 + d^2
-    //
-
-    /*
-     * Pre-compute the denominator: c^2 + d^2
-     */
-    fixed_point_square(
-        src2,           // src (c)
-        den_imm,        // dst
-        src2_limbs,     // src_limbs
-        2 * src2_limbs, // dst_limbs
-        op2_abs,        // op_abs
-        prod_imm        // prod_abs
-    );
-    fixed_point_square(
-        src2 + src2_limbs, // src (c)
-        prod_imm,          // dst
-        src2_limbs,        // src_limbs
-        2 * src2_limbs,    // dst_limbs
-        op2_abs,           // op_abs
-        prod_imm           // prod_abs
-    );
-    apy_inplace_addition_same_length(&den_imm[0], &prod_imm[0], 2 * src2_limbs);
-    auto den_significant_limbs = significant_limbs(den_imm, den_imm + 2 * src2_limbs);
-
-    /*                                          ac + bd
-     * Compute the real part of the quotient: -----------
-     *                                         c^2 + d^2
-     */
-    std::size_t prod_len = src1_limbs + src2_limbs + 1;
-    fixed_point_product(
-        src1,       // src1 (a)
-        src2,       // src2 (c)
-        prod_imm,   // dst
-        src1_limbs, // src1_limbs
-        src2_limbs, // src2_limbs
-        prod_len,   // dst_limbs
-        op1_abs,    // op1_abs
-        op2_abs,    // op1_abs
-        prod_imm    // prod_abs
-    );
-    fixed_point_product(
-        src1 + src1_limbs,   // src1 (b)
-        src2 + src2_limbs,   // src2 (d)
-        prod_imm + prod_len, // dst
-        src1_limbs,          // src1_limbs
-        src2_limbs,          // src2_limbs
-        prod_len,            // dst_limbs
-        op1_abs,             // op1_abs
-        op2_abs,             // op1_abs
-        prod_imm + prod_len  // prod_abs
-    );
-
-    apy_inplace_addition_same_length(&prod_imm[0], &prod_imm[0] + prod_len, prod_len);
-    bool real_negative = limb_vector_is_negative(prod_imm, prod_imm + prod_len);
-    if (real_negative) {
-        limb_vector_negate(prod_imm, prod_imm + div_limbs, num_imm);
-    } else {
-        std::copy(prod_imm, prod_imm + div_limbs, num_imm);
-    }
-    limb_vector_lsl(num_imm, num_imm + div_limbs, src2_bits);
-
-    apy_unsigned_division(
-        &qte_imm[0],          // Quotient
-        &num_imm[0],          // Numerator
-        div_limbs,            // Numerator limbs
-        &den_imm[0],          // Denominator
-        den_significant_limbs // Denominator significant limbs
-    );
-
-    if (real_negative) {
-        limb_vector_negate(qte_imm, qte_imm + dst_limbs, dst);
-    } else {
-        std::copy_n(qte_imm, dst_limbs, dst);
-    }
-
-    /*                                               bc - ad
-     * Compute the imaginary part of the quotient: -----------
-     *                                              c^2 + d^2
-     */
-    fixed_point_product(
-        src1 + src1_limbs, // src1 (b)
-        src2,              // src2 (c)
-        prod_imm,          // dst
-        src1_limbs,        // src1_limbs
-        src2_limbs,        // src2_limbs
-        prod_len,          // dst_limbs
-        op1_abs,           // op1_abs
-        op2_abs,           // op1_abs
-        prod_imm           // prod_abs
-    );
-    fixed_point_product(
-        src1,                // src1 (a)
-        src2 + src2_limbs,   // src2 (d)
-        prod_imm + prod_len, // dst
-        src1_limbs,          // src1_limbs
-        src2_limbs,          // src2_limbs
-        prod_len,            // dst_limbs
-        op1_abs,             // op1_abs
-        op2_abs,             // op1_abs
-        prod_imm + prod_len  // prod_abs
-    );
-
-    apy_inplace_subtraction_same_length(
-        &prod_imm[0], &prod_imm[0] + prod_len, prod_len
-    );
-    bool imag_negative = limb_vector_is_negative(prod_imm, prod_imm + prod_len);
-    if (imag_negative) {
-        limb_vector_negate(prod_imm, prod_imm + div_limbs, num_imm);
-    } else {
-        std::copy(prod_imm, prod_imm + div_limbs, num_imm);
-    }
-    limb_vector_lsl(num_imm, num_imm + div_limbs, src2_bits);
-
-    apy_unsigned_division(
-        &qte_imm[0],          // Quotient
-        &num_imm[0],          // Numerator
-        div_limbs,            // Numerator limbs
-        &den_imm[0],          // Denominator
-        den_significant_limbs // Denominator significant limbs
-    );
-
-    if (imag_negative) {
-        limb_vector_negate(qte_imm, qte_imm + dst_limbs, dst + dst_limbs);
-    } else {
-        std::copy_n(qte_imm, dst_limbs, dst + dst_limbs);
-    }
-}
-
 //! Iterator-based multi-limb fixed-point hadamard product
 template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
 static void fixed_point_hadamard_product(
@@ -1152,239 +892,181 @@ static void fixed_point_hadamard_product(
     }
 }
 
-//! Iterator-based multiply-accumulate
-template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
-static void fixed_point_inner_product(
-    RANDOM_ACCESS_ITERATOR_IN src1,
-    RANDOM_ACCESS_ITERATOR_IN src2,
-    RANDOM_ACCESS_ITERATOR_OUT dst,
-    std::size_t src1_limbs, // Number of limbs in one fixed-point of `src1`
-    std::size_t src2_limbs, // Number of limbs in one fixed-point of `src2`
-    std::size_t dst_limbs,  // Number of limbs in the result
-    std::size_t n_items     // Number of elements to use in inner product
-)
-{
-    //
-    // Specialization #1: the resulting number of limbs is exactly one
-    //
-    if (dst_limbs == 1) {
-        dst[0] = simd::vector_multiply_accumulate(src1, src2, n_items);
-        return; // early exit
-    }
-
-    //
-    // General case. This always works, but is the slowest variant.
-    //
-    ScratchVector<apy_limb_t, 8> op1_abs(src1_limbs);
-    ScratchVector<apy_limb_t, 8> op2_abs(src2_limbs);
-
-    // Absolute product must be long enough to contain a possibly sign extended result
-    std::size_t product_limbs = src1_limbs + src2_limbs;
-    ScratchVector<apy_limb_t, 16> product(std::max(product_limbs, dst_limbs));
-
-    if (dst_limbs <= product_limbs) {
-        /*
-         * (1): Multiply-accumulate, no need to sign extend
-         */
-        for (std::size_t i = 0; i < n_items; i++) {
-            fixed_point_product(
-                src1 + i * src1_limbs, // src1
-                src2 + i * src2_limbs, // src2
-                std::begin(product),   // dst
-                src1_limbs,            // src1_limbs
-                src2_limbs,            // src2_limbs
-                product_limbs,         // dst_limbs
-                std::begin(op1_abs),   // op1_abs scratch vector
-                std::begin(op2_abs),   // op2_abs scratch vector
-                std::begin(product)    // product_abs scratch_vector
-            );
-            apy_inplace_addition_same_length(&dst[0], &product[0], dst_limbs);
-        }
-    } else { /* dst_limbs > product_limbs */
-        /*
-         * (2): Multiply-accumulate, but sign extend each product
-         */
-        for (std::size_t i = 0; i < n_items; i++) {
-            fixed_point_product(
-                src1 + i * src1_limbs, // src1
-                src2 + i * src2_limbs, // src2
-                std::begin(product),   // dst
-                src1_limbs,            // src1_limbs
-                src2_limbs,            // src2_limbs
-                product_limbs,         // dst_limbs
-                std::begin(op1_abs),   // op1_abs scratch vector
-                std::begin(op2_abs),   // op2_abs scratch vector
-                std::begin(product)    // product_abs scratch_vector
-            );
-            if (apy_limb_signed_t(product[product_limbs - 1]) < 0) {
-                // Sign-extend
-                std::fill(std::begin(product) + product_limbs, std::end(product), -1);
-            } else {
-                // Zero-extend
-                std::fill(std::begin(product) + product_limbs, std::end(product), 0);
+struct FixedPointInnerProduct {
+    explicit FixedPointInnerProduct(
+        const APyFixedSpec& src1_spec,
+        const APyFixedSpec& src2_spec,
+        const APyFixedSpec& dst_spec,
+        const std::optional<APyFixedAccumulatorOption> acc_mode
+    )
+        : src1_limbs { bits_to_limbs(src1_spec.bits) }
+        , src2_limbs { bits_to_limbs(src2_spec.bits) }
+        , dst_limbs { bits_to_limbs(dst_spec.bits) }
+        , acc_mode { acc_mode }
+    {
+        if (!acc_mode.has_value()) {
+            if (dst_limbs == 1) {
+                // Specialization #1: the resulting number of limbs is exactly one and
+                // no accumulator mode has been set. Use the SIMD inner product.
+                assert(src1_limbs == 1);
+                assert(src2_limbs == 1);
+                f = &FixedPointInnerProduct::inner_product_simd;
+                return;
+            } else if (dst_limbs == 2 && src1_limbs == 1 && src2_limbs == 1) {
+                // Special case #2: resulting elements fit into two limbs, and
+                // each argument element fits into a single limb.
+                f = &FixedPointInnerProduct::inner_product_one_limb_src_two_limb_dst;
+                return;
             }
-            apy_inplace_addition_same_length(&dst[0], &product[0], dst_limbs);
         }
-    }
-}
 
-//! Iterator-based multiply-accumulate using in accumulator context
-template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OUT>
-static void fixed_point_inner_product_accumulator(
-    RANDOM_ACCESS_ITERATOR_IN src1,
-    RANDOM_ACCESS_ITERATOR_IN src2,
-    RANDOM_ACCESS_ITERATOR_OUT dst,
-    std::size_t src1_limbs, // Number of limbs in one fixed-point of `src1`
-    std::size_t src2_limbs, // Number of limbs in one fixed-point of `src2`
-    std::size_t dst_limbs,  // Number of limbs in the result
-    std::size_t n_items,    // Number of elements to use in inner product
-    int product_bits,       // Number of bits in the raw product
-    int product_int_bits,   // Number of int_bits in the raw product
-    const APyFixedAccumulatorOption& acc
-)
-{
-    ScratchVector<apy_limb_t, 8> op1_abs(src1_limbs);
-    ScratchVector<apy_limb_t, 8> op2_abs(src2_limbs);
+        // Initialize scratch vectors
+        product_limbs = src1_limbs + src2_limbs;
+        product = ScratchVector<apy_limb_t, 16>(std::max(product_limbs, dst_limbs));
+        op1_abs = ScratchVector<apy_limb_t, 8>(src1_limbs);
+        op2_abs = ScratchVector<apy_limb_t, 8>(src2_limbs);
 
-    // Absolute product must be long enough to contain a possibly sign extended result
-    std::size_t product_limbs = src1_limbs + src2_limbs;
-    ScratchVector<apy_limb_t, 16> product(std::max(product_limbs, dst_limbs));
-
-    if (dst_limbs <= product_limbs) {
-        /*
-         * (1): Multiply-accumulate, no need to sign extend
-         */
-        for (std::size_t i = 0; i < n_items; i++) {
-            // Multiply
-            fixed_point_product(
-                src1 + i * src1_limbs,
-                src2 + i * src2_limbs,
-                std::begin(product),
-                src1_limbs,
-                src2_limbs,
-                product_limbs,
-                std::begin(op1_abs),
-                std::begin(op2_abs),
-                std::begin(product)
-            );
-
-            // Quantize and overflow
-            quantize(
-                std::begin(product),
-                std::end(product),
-                product_bits,
-                product_int_bits,
-                acc.bits,
-                acc.int_bits,
-                acc.quantization
-            );
-            overflow(
-                std::begin(product),
-                std::end(product),
-                acc.bits,
-                acc.int_bits,
-                acc.overflow
-            );
-
-            // Accumulate
-            apy_inplace_addition_same_length(&dst[0], &product[0], dst_limbs);
-        }
-    } else { /* dst_limbs > product_limbs */
-        /*
-         * (2): Multiply-accumulate, but sign extend each product
-         */
-        for (std::size_t i = 0; i < n_items; i++) {
-            // Multiply
-            fixed_point_product(
-                src1 + i * src1_limbs,
-                src2 + i * src2_limbs,
-                std::begin(product),
-                src1_limbs,
-                src2_limbs,
-                product_limbs,
-                std::begin(op1_abs),
-                std::begin(op2_abs),
-                std::begin(product)
-            );
-
-            if (apy_limb_signed_t(product[product_limbs - 1]) < 0) {
-                // Sign-extend
-                std::fill(std::begin(product) + product_limbs, std::end(product), -1);
+        if (acc_mode.has_value()) {
+            // Accumulator mode set, use the accumulator inner product
+            assert(acc_mode->bits == dst_spec.bits);
+            assert(acc_mode->int_bits == dst_spec.int_bits);
+            product_bits = src1_spec.bits + src2_spec.bits;
+            product_int_bits = src1_spec.int_bits + src2_spec.int_bits;
+            if (dst_limbs <= src1_limbs + src2_limbs) {
+                f = &FixedPointInnerProduct::inner_product<true, false>;
             } else {
-                // Zero-extend
-                std::fill(std::begin(product) + product_limbs, std::end(product), 0);
+                f = &FixedPointInnerProduct::inner_product<true, true>;
             }
-
-            // Quantize and overflow
-            quantize(
-                std::begin(product),
-                std::end(product),
-                product_bits,
-                product_int_bits,
-                acc.bits,
-                acc.int_bits,
-                acc.quantization
-            );
-            overflow(
-                std::begin(product),
-                std::end(product),
-                acc.bits,
-                acc.int_bits,
-                acc.overflow
-            );
-
-            // Accumulate
-            apy_inplace_addition_same_length(&dst[0], &product[0], dst_limbs);
+        } else {
+            if (dst_limbs <= product_limbs) {
+                f = &FixedPointInnerProduct::inner_product<false, false>;
+            } else {
+                f = &FixedPointInnerProduct::inner_product<false, true>;
+            }
         }
     }
-}
 
-/*!
- * Retrieve an appropriate fixed-point inner product function from `accumulator_mode`.
- * The returned inner product function object will have the accumulator mode bound, if
- * available. Otherwise, the return function object will be a plain inner product
- * function.
- */
-template <typename VECTOR_TYPE>
-[[maybe_unused]] static std::function<
-    void(
-        typename VECTOR_TYPE::const_iterator,
-        typename VECTOR_TYPE::const_iterator,
-        typename VECTOR_TYPE::iterator,
-        std::size_t,
-        std::size_t,
-        std::size_t,
-        std::size_t
-    )>
-inner_product_func_from_acc_mode(
-    int product_bits,
-    int product_int_bits,
-    const std::optional<APyFixedAccumulatorOption>& accumulator_mode
-)
-{
-    using namespace std::placeholders;
-    if (accumulator_mode.has_value()) {
-        return std::bind(
-            fixed_point_inner_product_accumulator<
-                typename VECTOR_TYPE::const_iterator,
-                typename VECTOR_TYPE::iterator>,
-            _1,
-            _2,
-            _3,
-            _4,
-            _5,
-            _6,
-            _7,
-            product_bits,
-            product_int_bits,
-            *accumulator_mode
-        );
-    } else { /* !accumulator_mode.has_value() */
-        return fixed_point_inner_product<
-            typename VECTOR_TYPE::const_iterator,
-            typename VECTOR_TYPE::iterator>;
+    using It = APyBuffer<apy_limb_t>::vector_type::iterator;
+    using CIt = APyBuffer<apy_limb_t>::vector_type::const_iterator;
+
+    void operator()(
+        CIt src1,
+        CIt src2,
+        It dst,
+        std::size_t N,
+        std::size_t M = 1,
+        std::size_t DST_STEP = 1
+    ) const
+    {
+        // Matrix-vector multiplication $`A \times b`$, where
+        // * A (src1): [ `M` x `N` ]
+        // * b (src2): [ `N` x `1` ]
+        std::invoke(f, this, src1, src2, dst, N, M, DST_STEP);
     }
-}
+
+private:
+    void inner_product_simd(
+        CIt src1, CIt src2, It dst, std::size_t N, std::size_t M, std::size_t DST_STEP
+    ) const
+    {
+        assert(src1_limbs == 1);
+        assert(src2_limbs == 1);
+        assert(dst_limbs == 1);
+        for (std::size_t m = 0; m < M; m++) {
+            dst[m * DST_STEP] = simd::vector_multiply_accumulate(src1 + m * N, src2, N);
+        }
+    }
+
+    void inner_product_one_limb_src_two_limb_dst(
+        CIt src1, CIt src2, It dst, std::size_t N, std::size_t M, std::size_t DST_STEP
+    ) const
+    {
+        assert(src1_limbs == 1);
+        assert(src2_limbs == 1);
+        assert(dst_limbs == 2);
+        for (std::size_t m = 0; m < M; m++) {
+            auto A_it = src1 + src1_limbs * N * m;
+            auto acc = dst + m * dst_limbs * DST_STEP;
+            std::fill_n(acc, dst_limbs, 0);
+            for (std::size_t n = 0; n < N; n++) {
+                auto&& [prod_hi, prod_lo] = long_signed_mult(A_it[n], src2[n]);
+                const apy_limb_t prod[2] = { prod_lo, prod_hi };
+                apy_inplace_addition_same_length(&*acc, prod, dst_limbs);
+            }
+        }
+    }
+
+    template <bool is_acc_context = false, bool support_sign_ext = false>
+    void inner_product(
+        CIt src1, CIt src2, It dst, std::size_t N, std::size_t M, std::size_t DST_STEP
+    ) const
+    {
+        for (std::size_t m = 0; m < M; m++) {
+            auto A_it = src1 + src1_limbs * N * m;
+            auto acc = dst + m * dst_limbs * DST_STEP;
+            std::fill_n(acc, dst_limbs, 0);
+            for (std::size_t n = 0; n < N; n++) {
+                fixed_point_product(
+                    A_it + n * src1_limbs, // src1
+                    src2 + n * src2_limbs, // src2
+                    std::begin(product),   // dst
+                    src1_limbs,            // src1_limbs
+                    src2_limbs,            // src2_limbs
+                    product_limbs,         // dst_limbs
+                    std::begin(op1_abs),   // op1_abs scratch vector
+                    std::begin(op2_abs),   // op2_abs scratch vector
+                    std::begin(product)    // product_abs scratch_vector
+                );
+
+                // *Constexpr*: conditionally sign extend product. This is needed when
+                // the resulting accumulation adds one or more additional limbs compared
+                // to the product, as adding fixed-point numbers increases integer bits.
+                if constexpr (support_sign_ext) {
+                    apy_limb_t msb_limb = product[product_limbs - 1];
+                    apy_limb_t limb_ext = apy_limb_signed_t(msb_limb) < 0 ? -1 : 0;
+                    auto&& start_it = std::begin(product) + product_limbs;
+                    std::fill(start_it, std::end(product), limb_ext);
+                }
+
+                // *Constexpr*: conditionally quantize and overflow the product if this
+                // inner product takes place within an accumulator context.
+                if constexpr (is_acc_context) {
+                    quantize(
+                        std::begin(product),
+                        std::end(product),
+                        product_bits,
+                        product_int_bits,
+                        acc_mode->bits,
+                        acc_mode->int_bits,
+                        acc_mode->quantization
+                    );
+                    overflow(
+                        std::begin(product),
+                        std::end(product),
+                        acc_mode->bits,
+                        acc_mode->int_bits,
+                        acc_mode->overflow
+                    );
+                }
+
+                // Accumulate the data
+                apy_inplace_addition_same_length(&*acc, &product[0], dst_limbs);
+            }
+        }
+    }
+
+    // Pointer `f` to the correct function based on the limb lengths
+    void (FixedPointInnerProduct::*f)(
+        CIt src1, CIt src2, It dst, std::size_t N, std::size_t M, std::size_t DST_STEP
+    ) const;
+
+    std::size_t src1_limbs, src2_limbs, dst_limbs, product_limbs;
+    std::optional<APyFixedAccumulatorOption> acc_mode;
+    int product_bits, product_int_bits;
+    mutable ScratchVector<apy_limb_t, 8> op1_abs;
+    mutable ScratchVector<apy_limb_t, 8> op2_abs;
+    mutable ScratchVector<apy_limb_t, 16> product;
+};
 
 /* ********************************************************************************** *
  * *                       Fixed-point to and from other types                      * *

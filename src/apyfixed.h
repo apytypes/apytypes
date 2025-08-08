@@ -83,6 +83,9 @@ public:
         return _bits == other._bits && _int_bits == other._int_bits;
     }
 
+    //! Retrieve the bit specification
+    APY_INLINE APyFixedSpec spec() const noexcept { return { _bits, _int_bits }; }
+
     /* ****************************************************************************** *
      *                            Python constructors                                 *
      * ****************************************************************************** */

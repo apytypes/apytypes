@@ -40,6 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated [fmt](https://github.com/fmtlib/fmt) from v11.1.1 to v11.2.0
 - Updated [nanobind](https://github.com/wjakob/nanobind) from v2.4.0 to v2.8.0.
+- `APyFixedArray` inner products now returns `APyFixed`, instead of returning
+  an `APyFixedArray` with a single element.
 
 ### Removed
 

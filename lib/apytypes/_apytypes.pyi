@@ -1020,6 +1020,37 @@ class APyCFixedArray:
         :class:`APyCFixedArray`
         """
 
+    def convolve(self, other: APyCFixedArray, mode: str = "full") -> APyCFixedArray:
+        """
+        Return the discrete linear convolution with another one-dimensional array.
+
+        Requires that ``ndim = 1`` for both `self` and `other`.
+
+        Parameters
+        ----------
+        other : :class:`APyCFixedArray`
+            The one-dimensional array of length :code:`N` to convolve with.
+
+        mode : {'full', 'same', 'valid'}, default: 'full'
+            'full':
+                Return the full convolution for each point of overlap. The
+                resulting single-dimensional shape will have length :code:`N + M -
+                1`. Boundary effects occurs for points where the `a` and `v` do not
+                overlap completely.
+            'same':
+                Return a convolution of length :code:`max(M, N)`. Boundary effects
+                still occur around the edges of the result.
+            'valid':
+                Return the convolution for each point of full overlap. The
+                resulting single-dimensional shape will have length :code:`max(M, N)
+                - min(M, N) + 1`
+
+        Returns
+        -------
+        convolved : :class:`APyCFixedArray`
+            The convolved array.
+        """
+
     def squeeze(self, axis: int | tuple[int, ...] | None = None) -> APyCFixedArray:
         """
         Remove axes of size one at the specified axis/axes.
@@ -1570,6 +1601,7 @@ class APyCFixedArray:
             An array filled with the specified value.
         """
 
+    def __matmul__(self, rhs: APyCFixedArray) -> APyCFixedArray | APyCFixed: ...
     def __repr__(self) -> str: ...
     def __str__(self, base: int = 10) -> str: ...
     def __getitem__(
@@ -4615,7 +4647,7 @@ class APyFixedArray:
             An array filled with the specified value.
         """
 
-    def __matmul__(self, rhs: APyFixedArray) -> APyFixedArray: ...
+    def __matmul__(self, rhs: APyFixedArray) -> APyFixedArray | APyFixed: ...
     def __repr__(self) -> str: ...
     def __abs__(self) -> APyFixedArray: ...
     def __str__(self, base: int = 10) -> str: ...

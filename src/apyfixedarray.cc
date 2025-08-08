@@ -762,7 +762,8 @@ APyFixedArray& APyFixedArray::operator>>=(const int shift_val)
     return *this;
 }
 
-APyFixedArray APyFixedArray::matmul(const APyFixedArray& rhs) const
+std::variant<APyFixedArray, APyFixed>
+APyFixedArray::matmul(const APyFixedArray& rhs) const
 {
     if (ndim() == 1 && rhs.ndim() == 1) {
         if (_shape[0] == rhs._shape[0]) {
@@ -910,7 +911,7 @@ APyFixedArray APyFixedArray::cumprod(std::optional<nb::int_> py_axis) const
 }
 
 APyFixedArray
-APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) const
+APyFixedArray::convolve(const APyFixedArray& other, const std::string& conv_mode) const
 {
     if (ndim() != 1 || other.ndim() != 1) {
         auto msg = fmt::format(
@@ -933,53 +934,52 @@ APyFixedArray::convolve(const APyFixedArray& other, const std::string& mode) con
     const APyFixedArray* a = swap ? &other : this;
     const APyFixedArray* b = &b_cpy;
 
-    // Extract convolution properties
-    auto [len, n_left, n_right] = get_conv_lengths(mode, a, b);
+    // Get convolution properties from the convolution mode
+    auto [len, n_left, n_right] = get_conv_lengths(conv_mode, a, b);
 
-    // Handle accumulator context
-    const int prod_bits = a->bits() + b->bits();
-    const int prod_int_bits = a->int_bits() + b->int_bits();
-    std::optional<APyFixedAccumulatorOption> acc_mode = get_accumulator_mode_fixed();
-    auto dot = inner_product_func_from_acc_mode<APyBuffer<apy_limb_t>::vector_type>(
-        prod_bits, prod_int_bits, acc_mode
-    );
+    int pad_bits = b->_shape[0] ? bit_width(b->_shape[0] - 1) : 0;
+    int res_bits = a->bits() + b->bits() + pad_bits;
+    int res_int_bits = a->int_bits() + b->int_bits() + pad_bits;
+    std::optional<APyFixedAccumulatorOption> acc = get_accumulator_mode_fixed();
+    if (acc.has_value()) {
+        res_bits = acc->bits;
+        res_int_bits = acc->int_bits;
+    }
 
-    // Result vector
-    const int sum_bits = b->_shape[0] ? bit_width(b->_shape[0] - 1) : 0;
-    const int res_bits = acc_mode ? acc_mode->bits : prod_bits + sum_bits;
-    const int res_int_bits = acc_mode ? acc_mode->int_bits : prod_int_bits + sum_bits;
-    APyFixedArray result({ len }, res_bits, res_int_bits);
+    APyFixedArray res({ len }, res_bits, res_int_bits);
+
+    auto inner_product = FixedPointInnerProduct(a->spec(), b->spec(), res.spec(), acc);
 
     // Loop working variables
     std::size_t n = b->_shape[0] - n_left;
-    auto dst = std::begin(result._data);
+    auto dst = std::begin(res._data);
     auto src1 = std::cbegin(a->_data);
     auto src2 = std::cbegin(b->_data) + n_left * b->_itemsize;
 
     // `b` limits length of the inner product length
     for (std::size_t i = 0; i < n_left; i++) {
-        dot(src1, src2, dst, a->_itemsize, b->_itemsize, result._itemsize, n);
+        inner_product(src1, src2, dst, n);
         src2 -= b->_itemsize;
-        dst += result._itemsize;
+        dst += res._itemsize;
         n++;
     }
 
     // full inner product length
     for (std::size_t i = 0; i < a->_shape[0] - b->_shape[0] + 1; i++) {
-        dot(src1, src2, dst, a->_itemsize, b->_itemsize, result._itemsize, n);
+        inner_product(src1, src2, dst, n);
         src1 += a->_itemsize;
-        dst += result._itemsize;
+        dst += res._itemsize;
     }
 
     // `a` limits length of the inner product length
     for (std::size_t i = 0; i < n_right; i++) {
         n--;
-        dot(src1, src2, dst, a->_itemsize, b->_itemsize, result._itemsize, n);
+        inner_product(src1, src2, dst, n);
         src1 += a->_itemsize;
-        dst += result._itemsize;
+        dst += res._itemsize;
     }
 
-    return result;
+    return res;
 }
 
 std::variant<APyFixedArray, APyFixed>
@@ -1538,7 +1538,7 @@ APyFixedArray APyFixedArray::fullrange(
  * *                            Private member functions                            * *
  * ********************************************************************************** */
 
-APyFixedArray APyFixedArray::_checked_inner_product(
+APyFixed APyFixedArray::_checked_inner_product(
     const APyFixedArray& rhs,                     // rhs
     std::optional<APyFixedAccumulatorOption> mode // optional accumulation mode
 ) const
@@ -1546,47 +1546,28 @@ APyFixedArray APyFixedArray::_checked_inner_product(
     int pad_bits = _shape[0] ? bit_width(_shape[0] - 1) : 0;
     int res_bits = bits() + rhs.bits() + pad_bits;
     int res_int_bits = int_bits() + rhs.int_bits() + pad_bits;
-    APyFixedArray result({ 1 }, res_bits, res_int_bits);
-
-    if (!mode.has_value()) {
-        if (unsigned(res_bits) <= APY_LIMB_SIZE_BITS) {
-            // Fastest path, no accumulation mode specified and result fit in a single
-            // limb.
-            result._data[0] = simd::vector_multiply_accumulate(
-                _data.begin(), rhs._data.begin(), _data.size()
-            );
-            return result;
-        } else { /* unsigned(res_bits) > APY_LIMB_SIZE_BITS */
-            fixed_point_inner_product(
-                std::begin(_data),        // src1
-                std::begin(rhs._data),    // src2
-                std::begin(result._data), // dst
-                _itemsize,                // src1_limbs
-                rhs._itemsize,            // src2_limbs
-                result._itemsize,         // dst_limbs
-                _nitems                   // n_items
-            );
-            return result;
-        }
-    } else { /* mode.has_value() */
-        result._bits = mode->bits;
-        result._int_bits = mode->int_bits;
-        result.buffer_resize(result._shape, bits_to_limbs(mode->bits));
-
-        fixed_point_inner_product_accumulator(
-            std::begin(_data),           // src1
-            std::begin(rhs._data),       // src2
-            std::begin(result._data),    // dst
-            _itemsize,                   // src1_limbs
-            rhs._itemsize,               // src2_limbs
-            result._itemsize,            // dst_limbs
-            _nitems,                     // n_items
-            bits() + rhs.bits(),         // product_bits
-            int_bits() + rhs.int_bits(), // product_int_bits
-            *mode
-        );
-        return result;
+    if (mode.has_value()) {
+        res_bits = mode->bits;
+        res_int_bits = mode->int_bits;
     }
+
+    APyFixedArray res_arr({ 1 }, res_bits, res_int_bits);
+
+    auto inner_product
+        = FixedPointInnerProduct(spec(), rhs.spec(), res_arr.spec(), mode);
+
+    inner_product(
+        std::begin(_data),         // src1
+        std::begin(rhs._data),     // src2
+        std::begin(res_arr._data), // dst
+        _nitems
+    );
+
+    APyFixed res(res_bits, res_int_bits);
+    for (std::size_t i = 0; i < res_arr._data.size(); i++) {
+        res._data[i] = res_arr._data[i];
+    }
+    return res;
 }
 
 APyFixedArray APyFixedArray::_checked_2d_matmul(
@@ -1603,204 +1584,40 @@ APyFixedArray APyFixedArray::_checked_2d_matmul(
     std::size_t pad_bits = _shape[1] ? bit_width(_shape[1] - 1) : 0;
     std::size_t res_bits = bits() + rhs.bits() + pad_bits;
     std::size_t res_int_bits = int_bits() + rhs.int_bits() + pad_bits;
+    if (mode.has_value()) {
+        res_bits = mode->bits;
+        res_int_bits = mode->int_bits;
+    }
 
     // Resulting tensor and a working column from `rhs`
-    APyFixedArray result(res_shape, res_bits, res_int_bits);
+    APyFixedArray res(res_shape, res_bits, res_int_bits);
     APyFixedArray current_col({ rhs._shape[0] }, rhs.bits(), rhs.int_bits());
 
-    /*
-     * Special case #1: No accumulator mode specified and resulting matrix elements fit
-     * into a single limb. This is the fastest `_checked_2d_matmul` path.
-     */
-    if (!mode.has_value()) {
-        if (res_bits <= APY_LIMB_SIZE_BITS) {
-            for (std::size_t x = 0; x < res_cols; x++) {
-                // Copy column from `rhs` and use as the current working column. As
-                // reading columns from `rhs` is cache-inefficient, we like to do this
-                // only once for each element in the resulting matrix.
-                for (std::size_t row = 0; row < rhs._shape[0]; row++) {
-                    current_col._data[row] = rhs._data[x + row * res_cols];
-                }
-                for (std::size_t y = 0; y < res_shape[0]; y++) {
-                    result._data[y * res_cols + x] = simd::vector_multiply_accumulate(
-                        _data.begin() + (y * _shape[1]), // src1
-                        current_col._data.begin(),       // src2
-                        _shape[1]                        // multiply-accumulate length
-                    );
-                }
-            }
-            return result; // early exit
+    auto inner_product = FixedPointInnerProduct(spec(), rhs.spec(), res.spec(), mode);
+    for (std::size_t x = 0; x < res_cols; x++) {
+        // Copy column from `rhs` and use as the current working column. As
+        // reading columns from `rhs` is cache-inefficient, we like to do this
+        // only once for each element in the resulting matrix.
+        for (std::size_t row = 0; row < rhs._shape[0]; row++) {
+            std::copy_n(
+                rhs._data.begin() + (x + row * res_cols) * rhs._itemsize,
+                rhs._itemsize,
+                current_col._data.begin() + row * rhs._itemsize
+            );
         }
-        /*
-         * Special case #2: No accumulator mode specified, resulting matrix elements fit
-         * into two limbs, and each argument element fits into a single limb.
-         * So far only supported for 64-bit limbs and compilation with gcc or clang.
-         */
-#if (COMPILER_LIMB_SIZE == 64)
-#if defined(__GNUC__)
-        // GNU C-compatible compiler (including Clang and MacOS Xcode)
-        if ((res_bits <= 2 * APY_LIMB_SIZE_BITS)
-            && (std::size_t(bits()) <= APY_LIMB_SIZE_BITS)
-            && (std::size_t(rhs.bits()) <= APY_LIMB_SIZE_BITS)) {
-            for (std::size_t x = 0; x < res_cols; x++) {
-                // Copy column from `rhs` and use as the current working column. As
-                // reading columns from `rhs` is cache-inefficient, we like to do this
-                // only once for each element in the resulting matrix.
-                for (std::size_t row = 0; row < rhs._shape[0]; row++) {
-                    current_col._data[row] = rhs._data[x + row * res_cols];
-                }
-                for (std::size_t y = 0; y < res_shape[0]; y++) {
-                    __int128 tmp = 0;
-                    for (std::size_t i = 0; i < _shape[1]; i++) {
-                        tmp += (__int128)apy_limb_signed_t(_data[y * _shape[1] + i])
-                            * (__int128)apy_limb_signed_t(current_col._data[i]);
-                    }
-                    result._data[2 * (y * res_cols + x) + 0] = apy_limb_t(tmp);
-                    result._data[2 * (y * res_cols + x) + 1] = apy_limb_t(tmp >> 64);
-                }
-            }
-            return result; // early exit
-        }
-#elif defined(_MSC_VER)
-        // Microsoft Visual C/C++ compiler#endif
-        if ((res_bits <= 2 * APY_LIMB_SIZE_BITS)
-            && (std::size_t(bits()) <= APY_LIMB_SIZE_BITS)
-            && (std::size_t(rhs.bits()) <= APY_LIMB_SIZE_BITS)) {
-            for (std::size_t x = 0; x < res_cols; x++) {
-                // Copy column from `rhs` and use as the current working column. As
-                // reading columns from `rhs` is cache-inefficient, we like to do this
-                // only once for each element in the resulting matrix.
-                for (std::size_t row = 0; row < rhs._shape[0]; row++) {
-                    current_col._data[row] = rhs._data[x + row * res_cols];
-                }
-                for (std::size_t y = 0; y < res_shape[0]; y++) {
-                    apy_limb_t high_limb = 0, low_limb = 0;
-                    for (std::size_t i = 0; i < _shape[1]; i++) {
-                        auto [high_prod, low_prod] = long_signed_mult(
-                            _data[y * _shape[1] + i], current_col._data[i]
-                        );
-                        low_limb += low_prod;
-                        high_limb += high_prod + (low_limb < low_prod);
-                    }
-                    result._data[2 * (y * res_cols + x) + 0] = low_limb;
-                    result._data[2 * (y * res_cols + x) + 1] = high_limb;
-                }
-            }
-            return result; // early exit
-        }
-#endif
-#elif (COMPILER_LIMB_SIZE == 32)
-        if ((res_bits <= 2 * APY_LIMB_SIZE_BITS)
-            && (std::size_t(bits()) <= APY_LIMB_SIZE_BITS)
-            && (std::size_t(rhs.bits()) <= APY_LIMB_SIZE_BITS)) {
-            for (std::size_t x = 0; x < res_cols; x++) {
-                // Copy column from `rhs` and use as the current working column. As
-                // reading columns from `rhs` is cache-inefficient, we like to do this
-                // only once for each element in the resulting matrix.
-                for (std::size_t row = 0; row < rhs._shape[0]; row++) {
-                    current_col._data[row] = rhs._data[x + row * res_cols];
-                }
-                for (std::size_t y = 0; y < res_shape[0]; y++) {
-                    // TODO: rewrite using SIMD?
-                    std::int64_t res = 0;
-                    for (std::size_t i = 0; i < _shape[1]; i++) {
-                        res += (std::int64_t)apy_limb_signed_t(_data[y * _shape[1] + i])
-                            * (std::int64_t)apy_limb_signed_t(current_col._data[i]);
-                    }
-                    result._data[2 * (y * res_cols + x) + 0] = apy_limb_t(res);
-                    result._data[2 * (y * res_cols + x) + 1] = apy_limb_t(res >> 32);
-                }
-            }
-            return result; // early exit
-        }
-#endif
+
+        // dst = A x b
+        inner_product(
+            std::begin(_data),                         // src1, A: [M x N]
+            std::begin(current_col._data),             // src2, b: [N x 1]
+            std::begin(res._data) + res._itemsize * x, // dst
+            _shape[1],                                 // N
+            res_shape[0],                              // M
+            res_cols                                   // DST_STEP
+        );
     }
 
-    /*
-     * General case: This always works but is slower than the special cases.
-     */
-    // Scratch memories for avoiding memory re-allocation
-    APyFixedArray current_row({ _shape[1] }, bits(), int_bits());
-    APyFixedArray hadamard_tmp(
-        { rhs._shape[0] }, bits() + rhs.bits(), int_bits() + rhs.int_bits()
-    );
-    if (!mode.has_value()) {
-
-        for (std::size_t x = 0; x < res_cols; x++) {
-            // Copy column from `rhs` and use as the current working column. As
-            // reading columns from `rhs` is cache-inefficient, we like to do this
-            // only once for each element in the resulting matrix.
-            for (std::size_t row = 0; row < rhs._shape[0]; row++) {
-                std::copy_n(
-                    rhs._data.begin() + (x + row * res_cols) * rhs._itemsize,
-                    rhs._itemsize,
-                    current_col._data.begin() + row * rhs._itemsize
-                );
-            }
-            for (std::size_t y = 0; y < res_shape[0]; y++) {
-                // Copy current row from lhs (`*this`)
-                std::copy_n(
-                    _data.begin() + (y * _shape[1] * _itemsize), // src
-                    _itemsize * _shape[1],                       // limbs to copy
-                    current_row._data.begin()                    // dst
-                );
-
-                fixed_point_inner_product(
-                    std::begin(current_col._data), // src1
-                    std::begin(current_row._data), // src2
-                    std::begin(result._data)       // dst
-                        + (y * res_cols + x) * result._itemsize,
-                    current_col._itemsize, // src1_limbs
-                    current_row._itemsize, // src2_limbs
-                    result._itemsize,      // dst_limbs
-                    current_col._nitems    // n_items
-                );
-            }
-        }
-        return result;
-
-    } else { /* mode.has_value() */
-        result._bits = mode->bits;
-        result._int_bits = mode->int_bits;
-        result.buffer_resize(result._shape, bits_to_limbs(mode->bits));
-
-        for (std::size_t x = 0; x < res_cols; x++) {
-            // Copy column from `rhs` and use as the current working column. As
-            // reading columns from `rhs` is cache-inefficient, we like to do this
-            // only once for each element in the resulting matrix.
-            for (std::size_t row = 0; row < rhs._shape[0]; row++) {
-                std::copy_n(
-                    rhs._data.begin() + (x + row * res_cols) * rhs._itemsize,
-                    rhs._itemsize,
-                    current_col._data.begin() + row * rhs._itemsize
-                );
-            }
-            for (std::size_t y = 0; y < res_shape[0]; y++) {
-                // Copy current row from lhs (`*this`)
-                std::copy_n(
-                    _data.begin() + (y * _shape[1] * _itemsize), // src
-                    _itemsize * _shape[1],                       // limbs to copy
-                    current_row._data.begin()                    // dst
-                );
-
-                fixed_point_inner_product_accumulator(
-                    std::begin(current_col._data),               // src1
-                    std::begin(current_row._data),               // src2
-                    std::begin(result._data)                     // dst
-                        + (y * res_cols + x) * result._itemsize, //
-                    current_col._itemsize,                       // src1_limbs
-                    current_row._itemsize,                       // src2_limbs
-                    result._itemsize,                            // dst_limbs
-                    current_col._nitems,                         // n_items
-                    bits() + rhs.bits(),                         // product_bits
-                    int_bits() + rhs.int_bits(),                 // product_int_bits
-                    *mode
-                );
-            }
-        }
-
-        return result;
-    }
+    return res;
 }
 
 void APyFixedArray::_set_bits_from_ndarray(const nb::ndarray<nb::c_contig>& ndarray)

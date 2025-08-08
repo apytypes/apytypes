@@ -102,22 +102,16 @@ def _test_apyfixedarray_accumulator_context(success: list[bool] | None = None):
     a = APyFixedArray.from_float([0.25, 0.50], int_bits=1, frac_bits=2)
     b = APyFixedArray.from_float([0.75, 0.25], int_bits=1, frac_bits=2)
 
-    assert (a @ b).is_identical(
-        APyFixedArray.from_float([0.3125], int_bits=3, frac_bits=4)
-    )
+    assert (a @ b).is_identical(APyFixed.from_float(0.3125, int_bits=3, frac_bits=4))
 
     with APyFixedAccumulatorContext(int_bits=1, frac_bits=4):
         assert (a @ b).is_identical(
-            APyFixedArray.from_float([0.3125], int_bits=1, frac_bits=4)
+            APyFixed.from_float(0.3125, int_bits=1, frac_bits=4)
         )
     with APyFixedAccumulatorContext(int_bits=1, frac_bits=3):
-        assert (a @ b).is_identical(
-            APyFixedArray.from_float([0.25], int_bits=1, frac_bits=3)
-        )
+        assert (a @ b).is_identical(APyFixed.from_float(0.25, int_bits=1, frac_bits=3))
     with APyFixedAccumulatorContext(int_bits=1, frac_bits=2):
-        assert (a @ b).is_identical(
-            APyFixedArray.from_float([0.0], int_bits=1, frac_bits=2)
-        )
+        assert (a @ b).is_identical(APyFixed.from_float(0.0, int_bits=1, frac_bits=2))
 
     if success is not None:
         success[0] = True

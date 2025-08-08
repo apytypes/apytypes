@@ -1,7 +1,7 @@
-``APyCFixedArray``
+``APyCFloatArray``
 ==================
 
-.. autoclass:: apytypes.APyCFixedArray
+.. autoclass:: apytypes.APyCFloatArray
 
    Constructor
    -----------
@@ -13,14 +13,18 @@
 
    .. automethod:: to_numpy
 
+   .. automethod:: to_bits
+
    Creation from other types
    -------------------------
 
    .. automethod:: from_array
 
+   .. automethod:: from_float
+
    .. automethod:: from_complex
 
-   .. automethod:: from_float
+   .. automethod:: from_bits
 
    Other creation functions
    ------------------------
@@ -47,6 +51,11 @@
 
    .. automethod:: is_identical
 
+   Convolution
+   -----------
+
+   .. automethod:: convolve
+
    Transposition
    -------------
 
@@ -72,38 +81,55 @@
 
    .. automethod:: prod
 
+   .. automethod:: nansum
+
+   .. automethod:: nanprod
+
    .. automethod:: cumsum
 
    .. automethod:: cumprod
 
-   Convolution
-   -----------
+   .. automethod:: nancumsum
 
-   .. automethod:: convolve
+   .. automethod:: nancumprod
+
+   .. automethod:: max
+
+   .. automethod:: min
+
+   .. automethod:: nanmax
+
+   .. automethod:: nanmin
 
    Broadcasting
    ------------
 
    .. automethod:: broadcast_to
 
+   Convenience casting methods
+   ---------------------------
+
+   .. automethod:: cast_to_bfloat16
+
+   .. automethod:: cast_to_double
+
+   .. automethod:: cast_to_half
+
+   .. automethod:: cast_to_single
+
    Properties
    ----------
-
-   Real and imaginary part
-   ^^^^^^^^^^^^^^^^^^^^^^^
-
-   .. autoproperty:: real
-
-   .. autoproperty:: imag
 
    Word length
    ^^^^^^^^^^^
 
    .. autoproperty:: bits
 
-   .. autoproperty:: int_bits
+   .. autoproperty:: exp_bits
 
-   .. autoproperty:: frac_bits
+   .. autoproperty:: man_bits
+
+   .. autoproperty:: bias
 
    Array properties
    ^^^^^^^^^^^^^^^^

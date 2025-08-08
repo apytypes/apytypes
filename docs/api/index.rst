@@ -14,7 +14,7 @@
    apyfloat
    apyfloatarray
    arrayfunctions
+   codegeneration
    context
    quantizationoverflow
    utils
-   codegeneration
