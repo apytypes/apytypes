@@ -86,6 +86,9 @@ public:
         return _bits == other._bits && _int_bits == other._int_bits;
     }
 
+    //! Retrieve the bit specification
+    APY_INLINE APyFixedSpec spec() const noexcept { return { _bits, _int_bits }; }
+
     /* ****************************************************************************** *
      *                            Python constructors                                 *
      * ****************************************************************************** */
@@ -139,7 +142,7 @@ public:
     explicit APyCFixed(int bits, int int_bits, _IT begin, _IT end);
 
     //! Construct a number with `bits` and `int_bits`, and initialize underlying
-    //! bit-pattern from iterator pair [ `begin`, `end` ).
+    //! bit-pattern from initializer list of limbs
     explicit APyCFixed(int bits, int int_bits, std::initializer_list<apy_limb_t> list);
 
     /* ****************************************************************************** *

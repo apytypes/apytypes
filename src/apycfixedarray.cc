@@ -11,7 +11,6 @@
 #include "apytypes_common.h"
 #include "apytypes_simd.h"
 #include "apytypes_util.h"
-#include "broadcast.h"
 #include "python_util.h"
 #include "src/apytypes_intrinsics.h"
 #include "src/apytypes_mp.h"
@@ -1577,4 +1576,194 @@ void APyCFixedArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& n
         "APyCFixedArray.from_array: unsupported `dtype` in ndarray, expecting "
         "complex or float or integer"
     );
+}
+
+std::variant<APyCFixedArray, APyCFixed>
+APyCFixedArray::matmul(const APyCFixedArray& rhs) const
+{
+    if (ndim() == 1 && rhs.ndim() == 1) {
+        if (_shape[0] == rhs._shape[0]) {
+            // Dimensionality for a standard scalar inner product checks out.
+            // Perform the checked inner product.
+            return checked_inner_product(rhs, get_accumulator_mode_fixed());
+        }
+    }
+    if (ndim() == 2 && (rhs.ndim() == 2 || rhs.ndim() == 1)) {
+        if (_shape[1] == rhs._shape[0]) {
+            // Dimensionality for a standard 2D matrix multiplication checks out.
+            // Perform the checked 2D matrix
+            return checked_2d_matmul(rhs, get_accumulator_mode_fixed());
+        }
+    }
+
+    // Unsupported `__matmul__` dimensionality, raise exception
+    throw std::length_error(
+        fmt::format(
+            "APyCFixedArray.__matmul__: input shape mismatch, lhs: {}, rhs: {}",
+            tuple_string_from_vec(_shape),
+            tuple_string_from_vec(rhs._shape)
+        )
+    );
+}
+
+// Evaluate the inner between two vectors. This method assumes that the shape of
+// both `*this` and `rhs` are equally long. Anything else is undefined behaviour.
+APyCFixed APyCFixedArray::checked_inner_product(
+    const APyCFixedArray& rhs, std::optional<APyFixedAccumulatorOption> mode
+) const
+{
+    int pad_bits = _shape[0] ? bit_width(_shape[0] - 1) : 0;
+    int res_bits = 1 + bits() + rhs.bits() + pad_bits;
+    int res_int_bits = 1 + int_bits() + rhs.int_bits() + pad_bits;
+    if (mode.has_value()) {
+        res_bits = mode->bits;
+        res_int_bits = mode->int_bits;
+    }
+
+    APyCFixedArray res_arr({ 1 }, res_bits, res_int_bits);
+
+    auto inner_product
+        = ComplexFixedPointInnerProduct(spec(), rhs.spec(), res_arr.spec(), mode);
+
+    inner_product(
+        std::begin(_data),         // src1
+        std::begin(rhs._data),     // src2
+        std::begin(res_arr._data), // dst
+        _nitems
+    );
+
+    APyCFixed res(res_bits, res_int_bits);
+    for (std::size_t i = 0; i < res_arr._data.size(); i++) {
+        res._data[i] = res_arr._data[i];
+    }
+    return res;
+}
+
+// Evaluate the matrix product between two 2D matrices. This method assumes that the
+// shape of `*this` and `rhs` have been checked to match a 2d matrix multiplication.
+APyCFixedArray APyCFixedArray::checked_2d_matmul(
+    const APyCFixedArray& rhs, std::optional<APyFixedAccumulatorOption> mode
+) const
+{
+    // Resulting shape
+    const std::size_t res_cols = rhs._shape.size() > 1 ? rhs._shape[1] : 1;
+    std::vector<std::size_t> res_shape = rhs._shape.size() > 1
+        ? std::vector<std::size_t> { _shape[0], rhs._shape[1] } // rhs is 2-D
+        : std::vector<std::size_t> { _shape[0] };               // rhs is 1-D
+
+    // Resulting number of bits
+    std::size_t pad_bits = _shape[1] ? bit_width(_shape[1] - 1) : 0;
+    std::size_t res_bits = 1 + bits() + rhs.bits() + pad_bits;
+    std::size_t res_int_bits = 1 + int_bits() + rhs.int_bits() + pad_bits;
+    if (mode.has_value()) {
+        res_bits = mode->bits;
+        res_int_bits = mode->int_bits;
+    }
+
+    // Resulting tensor and a working column from `rhs`
+    APyCFixedArray res(res_shape, res_bits, res_int_bits);
+    APyCFixedArray current_col({ rhs._shape[0] }, rhs.bits(), rhs.int_bits());
+
+    auto inner_product
+        = ComplexFixedPointInnerProduct(spec(), rhs.spec(), res.spec(), mode);
+    for (std::size_t x = 0; x < res_cols; x++) {
+        // Copy column from `rhs` and use as the current working column. As
+        // reading columns from `rhs` is cache-inefficient, we like to do this
+        // only once for each element in the resulting matrix.
+        for (std::size_t row = 0; row < rhs._shape[0]; row++) {
+            std::copy_n(
+                rhs._data.begin() + (x + row * res_cols) * rhs._itemsize,
+                rhs._itemsize,
+                current_col._data.begin() + row * rhs._itemsize
+            );
+        }
+
+        // dst = A x b
+        inner_product(
+            std::begin(_data),                         // src1, A: [M x N]
+            std::begin(current_col._data),             // src2, b: [N x 1]
+            std::begin(res._data) + res._itemsize * x, // dst
+            _shape[1],                                 // N
+            res_shape[0],                              // M
+            res_cols                                   // DST_STEP
+        );
+    }
+
+    return res;
+}
+
+//! Perform a linear convolution with `other` using `mode`
+APyCFixedArray APyCFixedArray::convolve(
+    const APyCFixedArray& other, const std::string& conv_mode
+) const
+{
+    if (ndim() != 1 || other.ndim() != 1) {
+        auto msg = fmt::format(
+            "can only convolve 1D arrays (lhs.ndim = {}, rhs.ndim = {})",
+            ndim(),
+            other.ndim()
+        );
+        throw nanobind::value_error(msg.c_str());
+    }
+
+    // Find the shorter array of `*this` and `other` based on length.
+    bool swap = _shape[0] < other._shape[0];
+
+    // Make a reverse copy of the shorter array
+    APyCFixedArray b_cpy = swap ? *this : other;
+    multi_limb_reverse(std::begin(b_cpy._data), std::end(b_cpy._data), b_cpy._itemsize);
+
+    // Let `a` be a pointer to the longer array, and let `b` be a pointer to the reverse
+    // copy of the shorter array.
+    const APyCFixedArray* a = swap ? &other : this;
+    const APyCFixedArray* b = &b_cpy;
+
+    // Get convolution properties from the convolution mode
+    auto [len, n_left, n_right] = get_conv_lengths(conv_mode, a, b);
+
+    // Compute resulting bit specification
+    int pad_bits = b->_shape[0] ? bit_width(b->_shape[0] - 1) : 0;
+    int res_bits = 1 + a->bits() + b->bits() + pad_bits;
+    int res_int_bits = 1 + a->int_bits() + b->int_bits() + pad_bits;
+    std::optional<APyFixedAccumulatorOption> acc = get_accumulator_mode_fixed();
+    if (acc.has_value()) {
+        res_bits = acc->bits;
+        res_int_bits = acc->int_bits;
+    }
+
+    APyCFixedArray res({ len }, res_bits, res_int_bits);
+
+    auto inner_product
+        = ComplexFixedPointInnerProduct(a->spec(), b->spec(), res.spec(), acc);
+
+    // Loop working variables
+    std::size_t n = b->_shape[0] - n_left;
+    auto dst = std::begin(res._data);
+    auto src1 = std::cbegin(a->_data);
+    auto src2 = std::cbegin(b->_data) + n_left * b->_itemsize;
+
+    // `b` limits length of the inner product length
+    for (std::size_t i = 0; i < n_left; i++) {
+        inner_product(src1, src2, dst, n);
+        src2 -= b->_itemsize;
+        dst += res._itemsize;
+        n++;
+    }
+
+    // full inner product length
+    for (std::size_t i = 0; i < a->_shape[0] - b->_shape[0] + 1; i++) {
+        inner_product(src1, src2, dst, n);
+        src1 += a->_itemsize;
+        dst += res._itemsize;
+    }
+
+    // `a` limits length of the inner product length
+    for (std::size_t i = 0; i < n_right; i++) {
+        n--;
+        inner_product(src1, src2, dst, n);
+        src1 += a->_itemsize;
+        dst += res._itemsize;
+    }
+
+    return res;
 }

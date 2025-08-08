@@ -442,7 +442,7 @@ APyFloatArray APyFloatArray::fullrange(
     }
 
     // Calculate size of resulting array
-    std::uint64_t num_elements;
+    std::size_t num_elements;
     const man_t max_man = apy_start.man_mask();
     const man_t leading_one = apy_start.leading_one();
     const std::int64_t exp_diff = static_cast<std::int64_t>(apy_stop.get_exp())
@@ -458,7 +458,7 @@ APyFloatArray APyFloatArray::fullrange(
         APyFloatArray result({ num_elements }, exp_bits, man_bits, bias);
 
         result._data[0] = { true, tmp_exp, tmp_man };
-        for (int i = 1; i < num_elements; i++) {
+        for (std::size_t i = 1; i < num_elements; i++) {
             --tmp_man;
             if (tmp_man >= leading_one) {
                 --tmp_exp;
@@ -469,7 +469,7 @@ APyFloatArray APyFloatArray::fullrange(
         return result;
     } else if (apy_start.get_sign() && !apy_stop.get_sign()) {
         // The start is negative, the stop is positive
-        const int neg_numbers
+        const std::size_t neg_numbers
             = 1 + apy_start.get_exp() * (max_man + 1) + apy_start.get_man();
         num_elements
             = neg_numbers + apy_stop.get_exp() * (max_man + 1) + apy_stop.get_man();
@@ -477,7 +477,7 @@ APyFloatArray APyFloatArray::fullrange(
         APyFloatArray result({ num_elements }, exp_bits, man_bits, bias);
 
         result._data[0] = { true, tmp_exp, tmp_man };
-        for (int i = 1; i < neg_numbers; i++) {
+        for (std::size_t i = 1; i < neg_numbers; i++) {
             --tmp_man;
             if (tmp_man >= leading_one) {
                 --tmp_exp;
@@ -487,7 +487,7 @@ APyFloatArray APyFloatArray::fullrange(
         }
         if (neg_numbers < num_elements) {
             result._data[neg_numbers] = { false, 0, 0 };
-            for (int i = neg_numbers + 1; i < num_elements; i++) {
+            for (std::size_t i = neg_numbers + 1; i < num_elements; i++) {
                 ++tmp_man;
                 if (tmp_man >= leading_one) {
                     ++tmp_exp;
@@ -503,7 +503,7 @@ APyFloatArray APyFloatArray::fullrange(
         APyFloatArray result({ num_elements }, exp_bits, man_bits, bias);
 
         result._data[0] = { 0, tmp_exp, tmp_man };
-        for (int i = 1; i < num_elements; i++) {
+        for (std::size_t i = 1; i < num_elements; i++) {
             ++tmp_man;
             if (tmp_man >= leading_one) {
                 ++tmp_exp;

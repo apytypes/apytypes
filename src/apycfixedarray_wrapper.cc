@@ -533,45 +533,41 @@ void bind_cfixed_array(nb::module_& m)
             :class:`APyCFixedArray`
             )pbdoc"
         )
+        .def(
+            "convolve",
+            &APyCFixedArray::convolve,
+            nb::arg("other"),
+            nb::arg("mode") = "full",
+            R"pbdoc(
+            Return the discrete linear convolution with another one-dimensional array.
 
-        //     .def(
-        //         "convolve",
-        //         &APyCFixedArray::convolve,
-        //         nb::arg("other"),
-        //         nb::arg("mode") = "full",
-        //         R"pbdoc(
-        //         Return the discrete linear convolution with another one-dimensional
-        //         array.
+            Requires that ``ndim = 1`` for both `self` and `other`.
 
-        //         Requires that ``ndim = 1`` for both `self` and `other`.
+            Parameters
+            ----------
+            other : :class:`APyCFixedArray`
+                The one-dimensional array of length :code:`N` to convolve with.
 
-        //         Parameters
-        //         ----------
-        //         other : :class:`APyCFixedArray`
-        //             The one-dimensional array of length :code:`N` to convolve with.
+            mode : {'full', 'same', 'valid'}, default: 'full'
+                'full':
+                    Return the full convolution for each point of overlap. The
+                    resulting single-dimensional shape will have length :code:`N + M -
+                    1`. Boundary effects occurs for points where the `a` and `v` do not
+                    overlap completely.
+                'same':
+                    Return a convolution of length :code:`max(M, N)`. Boundary effects
+                    still occur around the edges of the result.
+                'valid':
+                    Return the convolution for each point of full overlap. The
+                    resulting single-dimensional shape will have length :code:`max(M, N)
+                    - min(M, N) + 1`
 
-        //         mode : {'full', 'same', 'valid'}, default: 'full'
-        //             'full':
-        //                 Return the full convolution for each point of overlap. The
-        //                 resulting single-dimensional shape will have length :code:`N
-        //                 + M - 1`. Boundary effects occurs for points where the `a`
-        //                 and `v` do not overlap completely.
-        //             'same':
-        //                 Return a convolution of length :code:`max(M, N)`. Boundary
-        //                 effects still occur around the edges of the result.
-        //             'valid':
-        //                 Return the convolution for each point of full overlap. The
-        //                 resulting single-dimensional shape will have length
-        //                 :code:`max(M, N)
-        //                 - min(M, N) + 1`
-
-        //         Returns
-        //         -------
-        //         convolved : :class:`APyCFixedArray`
-        //             The convolved array.
-
-        //         )pbdoc"
-        //     )
+            Returns
+            -------
+            convolved : :class:`APyCFixedArray`
+                The convolved array.
+            )pbdoc"
+        )
 
         .def(
             "squeeze",
@@ -1176,7 +1172,7 @@ void bind_cfixed_array(nb::module_& m)
         /*
          * Dunder methods
          */
-        //     .def("__matmul__", &APyCFixedArray::matmul, nb::arg("rhs"))
+        .def("__matmul__", &APyCFixedArray::matmul, nb::arg("rhs"))
         .def("__repr__", &APyCFixedArray::repr)
         .def("__str__", &APyCFixedArray::to_string, nb::arg("base") = 10)
         .def("__getitem__", &APyCFixedArray::get_item, nb::arg("key"))

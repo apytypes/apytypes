@@ -658,7 +658,7 @@ def test_multiplication_different_wordlengths(bits: int):
 
 
 @pytest.mark.parametrize("bits", range(13, 90))
-def test_multiplicatio_different_wordlengths_different_fracbits(bits: int):
+def test_multiplication_different_wordlengths_different_fracbits(bits: int):
     a = APyFixed(3, bits=bits, int_bits=8)
     b = APyFixed(18, bits=bits, int_bits=6)
     assert (a * b).is_identical(APyFixed(54, bits=2 * bits, int_bits=14))

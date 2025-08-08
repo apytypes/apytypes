@@ -178,9 +178,9 @@ struct APyFloatData {
         return !(*this == other);
     }
 
-    // Dereference (to act like iterators)
-    const APyFloatData& operator*() const noexcept { return *this; };
-    const APyFloatData* operator->() const noexcept { return this; };
+    // // Dereference (to act like iterators)
+    // const APyFloatData& operator*() const noexcept { return *this; };
+    // const APyFloatData* operator->() const noexcept { return this; };
 };
 
 struct APyFloatSpec {
@@ -200,6 +200,15 @@ struct APyFloatSpec {
     {
         return !(*this == other);
     }
+};
+
+/* ********************************************************************************** *
+ * *                           APyFixed C++ data types                              * *
+ * ********************************************************************************** */
+
+struct APyFixedSpec {
+    int bits;
+    int int_bits;
 };
 
 #endif
