@@ -350,6 +350,8 @@ formats.</p></li>
 <li><p>Wrong name in fixed-point division exception message (<code class="docutils literal notranslate"><span class="pre">__div__</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">__truediv__</span></code>)</p></li>
 <li><p>Inconsistency in formatting of complex-valued numbers (e.g., <code class="docutils literal notranslate"><span class="pre">(1.0+2.5j)</span></code> for
 scalars and <code class="docutils literal notranslate"><span class="pre">[1.0+2.5j]</span></code> for arrays)</p></li>
+<li><p>Bug in floating-point matrix multiplications when inside accumulator contexts
+using quantization modes <code class="docutils literal notranslate"><span class="pre">TRN_INF</span></code> and <code class="docutils literal notranslate"><span class="pre">TRN_AWAY</span></code>.</p></li>
 </ul>
 </section>
 <section id="changed">
