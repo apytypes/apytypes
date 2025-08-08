@@ -32,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Wrong name in fixed-point division exception message (`__div__` -> `__truediv__`)
 - Inconsistency in formatting of complex-valued numbers (e.g., `(1.0+2.5j)` for
   scalars and `[1.0+2.5j]` for arrays)
+- Bug in floating-point matrix multiplications when inside accumulator contexts
+  using quantization modes `TRN_INF` and `TRN_AWAY`.
 
 ### Changed
 
