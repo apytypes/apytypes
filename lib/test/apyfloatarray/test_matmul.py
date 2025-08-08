@@ -591,38 +591,26 @@ def test_matrix_mul_acc_context_mixed_bias_overflow(
 
 @pytest.mark.float_array
 @pytest.mark.parametrize(
-    "q",
-    [
-        QuantizationMode.TRN,
-        QuantizationMode.TRN_ZERO,
-        # QuantizationMode.TRN_INF,
-        # QuantizationMode.TRN_AWAY,
-        QuantizationMode.TRN_MAG,
-        QuantizationMode.RND,
-        QuantizationMode.RND_ZERO,
-        QuantizationMode.RND_INF,
-        QuantizationMode.RND_MIN_INF,
-        QuantizationMode.RND_CONV,
-        QuantizationMode.RND_CONV_ODD,
-    ],
-)
-@pytest.mark.parametrize(
     ("float_array", "float_scalar"),
     [(APyFloatArray, APyFloat), (APyCFloatArray, APyCFloat)],
 )
 def test_to_wide_accumulator(
-    q: QuantizationMode,
     float_array: type[APyCFloatArray],
     float_scalar: type[APyCFloat],
 ):
+    """
+    Related issue #742:
+    https://github.com/apytypes/apytypes/issues/742
+    """
     a = float_array.from_float([1, 2, 3, 4, 5, 6, 7, 8], exp_bits=6, man_bits=8)
     b = float_array.from_float([9, 8, 7, 6, 5, 4, 3, 2], exp_bits=6, man_bits=8)
 
-    for man_bits in range(16, 30):
-        with APyFloatAccumulatorContext(exp_bits=6, man_bits=man_bits, quantization=q):
-            assert (a @ b).is_identical(
-                float_scalar.from_float(156, exp_bits=6, man_bits=man_bits)
-            )
+    for q in filter(lambda q: q not in [QuantizationMode.JAM], QuantizationMode):
+        for man_bits in range(8, 61):
+            for man_bits_acc in range(man_bits, 61):
+                ref = float_scalar.from_float(156, exp_bits=6, man_bits=man_bits_acc)
+                with APyFloatAccumulatorContext(6, man_bits_acc, quantization=q):
+                    assert (a @ b).is_identical(ref)
 
 
 @pytest.mark.parametrize("float_array", [APyFloatArray, APyCFloatArray])

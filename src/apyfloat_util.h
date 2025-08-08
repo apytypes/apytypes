@@ -231,7 +231,7 @@ template <QuantizationMode QNTZ, bool SUPPORT_NEGATIVE_BITS_TO_QUANTIZE = false>
 )
 {
     if constexpr (SUPPORT_NEGATIVE_BITS_TO_QUANTIZE) {
-        if (bits_to_quantize < 0) {
+        if (bits_to_quantize <= 0) {
             man <<= -bits_to_quantize;
             return; // early exit
         }
@@ -1902,7 +1902,7 @@ public:
         ONE_BEFORE = 1ULL << (NEW_MAN_BITS - 2);
         TWO_RES = 1ULL << dst_spec.man_bits;
         STICKY = (1ULL << (MAN_DELTA - 1)) - 1;
-        qntz_func = get_qntz_func(qntz, MAN_DELTA < 0);
+        qntz_func = get_qntz_func(qntz, MAN_DELTA <= 0);
         BIAS_TERM = dst_spec.bias - std::int64_t(src1_spec.bias)
             - std::int64_t(src2_spec.bias);
     }
