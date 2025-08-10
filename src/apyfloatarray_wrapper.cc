@@ -702,6 +702,43 @@ void bind_float_array(nb::module_& m)
             :class:`APyFloatArray`
             )pbdoc"
         )
+        .def_static(
+            "_fullrange",
+            &APyFloatArray::fullrange,
+            nb::arg("start"),
+            nb::arg("stop"),
+            nb::arg("exp_bits"),
+            nb::arg("man_bits"),
+            nb::arg("bias") = std::nullopt,
+            R"pbdoc(
+            Create an array with all values within a given interval.
+
+            The function can be called with varying number of positional arguments:
+
+            * ``arange(stop)``: Values are generated within the half-open interval
+              ``[0, stop)`` (in other words, the interval including ``start`` but
+              excluding ``stop``).
+            * ``arange(start, stop)``: Values are generated within the half-open
+              interval ``[start, stop)``.
+
+            Parameters
+            ----------
+            start : :class:`int`, :class:`float`, :class:`APyFloat`, :class:`APyFixed`
+                Start number.
+            stop : :class:`int`, :class:`float`, :class:`APyFloat`, :class:`APyFixed`
+                Stop number.
+            exp_bits : :class:`int`
+                    Number of exponent bits.
+            man_bits : :class:`int`
+                Number of mantissa bits.
+            bias : :class:`int`, optional
+                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+            Returns
+            -------
+            :class:`APyFloatArray`
+            )pbdoc"
+        )
 
         /*
          * Dunder methods

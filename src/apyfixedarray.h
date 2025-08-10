@@ -322,6 +322,15 @@ public:
         std::optional<int> bits = std::nullopt
     );
 
+    //! Create an `APyFixedArray` with all values within a given interval
+    static APyFixedArray fullrange(
+        const nb::object& start,
+        const nb::object& stop,
+        std::optional<int> int_bits = std::nullopt,
+        std::optional<int> frac_bits = std::nullopt,
+        std::optional<int> bits = std::nullopt
+    );
+
     /* ****************************************************************************** *
      *                           Conversion to other types                            *
      * ****************************************************************************** */

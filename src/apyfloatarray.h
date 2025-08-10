@@ -257,6 +257,15 @@ public:
         std::optional<exp_t> bias = std::nullopt
     );
 
+    //! Create an `APyFloatArray` with all values within a given interval.
+    static APyFloatArray fullrange(
+        const nb::object& start,
+        const nb::object& stop,
+        std::uint8_t exp_bits,
+        std::uint8_t man_bits,
+        std::optional<exp_t> bias = std::nullopt
+    );
+
     /* ****************************************************************************** *
      * *                          Public member functions                           * *
      * ****************************************************************************** */
