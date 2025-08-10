@@ -17,6 +17,7 @@ from apytypes import (
     eye,
     full,
     full_like,
+    fullrange,
     identity,
     moveaxis,
     ones,
@@ -1204,3 +1205,174 @@ def test_arange():
     assert a.is_identical(
         APyFloatArray([0, 0, 0], [1, 2, 2], [0, 0, 1 << 9], exp_bits=20, man_bits=10)
     )
+
+
+def test_fullrange():
+    # Test raises
+    with pytest.raises(ValueError, match="Cannot convert"):
+        _ = fullrange(0, float("inf"), bits=10, int_bits=5)
+
+    with pytest.raises(ValueError, match="Cannot convert"):
+        _ = fullrange(float("nan"), 10, bits=10, int_bits=5)
+
+    with pytest.raises(ValueError, match="Non supported type"):
+        _ = fullrange("0", 10, exp_bits=5, man_bits=10)
+
+    with pytest.raises(ValueError, match="Could not determine array type"):
+        _ = fullrange(0, 10)
+
+    with pytest.raises(ValueError, match="Could not determine array type"):
+        _ = fullrange(0, 10, exp_bits=5, man_bits=10, bits=10, int_bits=10)
+
+    with pytest.raises(ValueError, match="Could not determine bit specifiers"):
+        _ = fullrange(APyFixed(1, 4, 0), APyFixed(1, 4, 1))
+
+    with pytest.raises(ValueError, match="Could not determine bit specifiers"):
+        _ = fullrange(APyFloat(0, 0, 0, 4, 4), APyFloat(0, 7, 0, 4, 3))
+
+    with pytest.raises(ValueError, match="Could not determine bit specifiers"):
+        _ = fullrange(APyFloat(0, 0, 0, 4, 4), APyFloat(0, 7, 0, 5, 3))
+
+    with pytest.raises(ValueError, match="Could not determine array type"):
+        _ = fullrange(APyFloat(0, 0, 0, 4, 4), APyFixed(1, 4, 0))
+
+    with pytest.raises(ValueError, match="Could not determine array type"):
+        _ = fullrange(APyFixed(1, 4, 0), APyFloat(0, 7, 0, 4, 3))
+
+    with pytest.raises(ValueError, match="Could not determine array type"):
+        _ = fullrange(10, exp_bits=5, man_bits=10, bits=20)
+
+    with pytest.raises(ValueError, match="Could not determine array type"):
+        _ = fullrange(10, int_bits=5, frac_bits=10, bias=15)
+
+    with pytest.raises(
+        ValueError, match="APyFloatArray.fullrange: start or stop is NaN"
+    ):
+        _ = fullrange(0, float("nan"), exp_bits=5, man_bits=10)
+
+    with pytest.raises(
+        ValueError, match="APyFloatArray.fullrange: start or stop is NaN"
+    ):
+        _ = fullrange(float("nan"), 1, exp_bits=5, man_bits=10)
+
+    with pytest.raises(
+        ValueError,
+        match="Fixed-point bit specification needs exactly two of three bit specifiers",
+    ):
+        _ = fullrange(
+            APyFixed(0, int_bits=4, frac_bits=0),
+            APyFixed(10, int_bits=4, frac_bits=0),
+            bits=20,
+        )
+
+    with pytest.raises(
+        ValueError,
+        match="Fixed-point bit specification needs exactly two of three bit specifiers",
+    ):
+        _ = fullrange(
+            APyFixed(0, int_bits=4, frac_bits=0),
+            APyFixed(10, int_bits=4, frac_bits=0),
+            bits=20,
+        )
+
+    # Test empty range, and test with APyFixed
+    start, stop = 3, APyFixed(1, 5, 2)
+    a = fullrange(start, stop, exp_bits=4, man_bits=3, bias=8)
+    assert a.is_identical(APyFloatArray([], [], [], 4, 3, 8))
+
+    # Test when both start and stop are positive
+    start, stop = APyFloat.from_float(1, 4, 3), APyFloat.from_float(2, 4, 3)
+    a = fullrange(start, stop)
+    assert a.is_identical(
+        APyFloatArray.from_bits(range(start.to_bits(), stop.to_bits()), 4, 3)
+    )
+
+    # Test with one argument
+    start, stop = APyFloat(0, 0, 0, 4, 3), APyFloat.from_float(2, 4, 3)
+    a = fullrange(stop)
+    assert a.is_identical(
+        APyFloatArray.from_bits(range(start.to_bits(), stop.to_bits()), 4, 3)
+    )
+
+    # Large exponent range, including subnormals
+    start, stop = APyFloat.from_float(0, 4, 3), APyFloat.from_float(180, 4, 3)
+    a = fullrange(start, stop)
+    assert a.is_identical(
+        APyFloatArray.from_bits(range(start.to_bits(), stop.to_bits()), 4, 3)
+    )
+
+    # Test with infinity
+    start, stop = (
+        APyFloat.from_float(180, 4, 3),
+        APyFloat.from_float(float("inf"), 4, 3),
+    )
+    a = fullrange(start, stop)
+    assert a[-1].is_finite
+    assert a.is_identical(
+        APyFloatArray.from_bits(range(start.to_bits(), stop.to_bits()), 4, 3)
+    )
+
+    # Test when both start and stop are negative
+    start, stop = APyFloat.from_float(-16, 4, 2), APyFloat.from_float(-0.5, 4, 2)
+    a = fullrange(start, stop)
+    assert a.is_identical(
+        APyFloatArray.from_bits(range(start.to_bits(), stop.to_bits(), -1), 4, 2)
+    )
+
+    # Test when both start and stop are negative, include negative zero
+    start, stop = APyFloat.from_float(-1, 4, 2), APyFloat.from_float(0, 4, 2)
+    a = fullrange(start, stop)
+    assert a[-1].is_identical(APyFloat(1, 0, 0, 4, 2))
+    bits = list(range(start.to_bits(), APyFloat(1, 0, 0, 4, 2).to_bits() - 1, -1))
+    assert a.is_identical(APyFloatArray.from_bits(bits, 4, 2))
+
+    # Test with infinity
+    start, stop = (
+        APyFloat.from_float(float("-inf"), 4, 2),
+        APyFloat.from_float(-100, 4, 2),
+    )
+    a = fullrange(start, stop)
+    assert a[0].is_identical(APyFloat(1, 15, 0, 4, 2))
+    assert a.is_identical(
+        APyFloatArray.from_bits(range(start.to_bits(), stop.to_bits(), -1), 4, 2)
+    )
+
+    # Test with negative start and positive stop
+    start, stop = APyFloat.from_float(-2, 4, 2), APyFloat.from_float(1, 4, 2)
+    a = fullrange(start, stop)
+    bits = list(
+        range(start.to_bits(), APyFloat(1, 0, 0, 4, 2).to_bits() - 1, -1)
+    ) + list(range(0, stop.to_bits()))
+    assert a.is_identical(APyFloatArray.from_bits(bits, 4, 2))
+
+    # Similar tests for APyFixedArray
+
+    # Test empty range, and test with APyFloat
+    start, stop = 3, APyFloat.from_float(1, 5, 2)
+    a = fullrange(start, stop, int_bits=5, frac_bits=2)
+    assert a.is_identical(APyFixedArray([], 5, 2))
+
+    # Test when both start and stop are positive
+    start, stop = APyFixed.from_float(1, 5, 2), APyFixed.from_float(3, 5, 2)
+    a = fullrange(start, stop)
+    assert a.is_identical(APyFixedArray(range(start.to_bits(), stop.to_bits()), 5, 2))
+
+    # Test with one argument
+    start, stop = APyFixed(0, 5, 2), APyFixed.from_float(2, 5, 2)
+    a = fullrange(stop)
+    assert a.is_identical(APyFixedArray(range(start.to_bits(), stop.to_bits()), 5, 2))
+
+    # Test when both start and stop are negative
+    start, stop = APyFixed.from_float(-8, 5, 2), APyFixed.from_float(-0.5, 5, 2)
+    a = fullrange(start, stop)
+    assert a.is_identical(APyFixedArray(range(start.to_bits(), stop.to_bits()), 5, 2))
+
+    # Test with negative start and positive stop
+    start, stop = APyFixed.from_float(-3.5, 5, 2), APyFixed.from_float(-2, 5, 2)
+    a = fullrange(start, stop)
+    assert a.is_identical(APyFixedArray(range(start.to_bits(), stop.to_bits()), 5, 2))
+
+    # Test with wraparound
+    start, stop = APyFixed(128, 5, 2), APyFixed(133, 5, 2)
+    a = fullrange(start, stop)
+    assert a.is_identical(APyFixedArray(range(0, 5), 5, 2))

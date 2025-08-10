@@ -27,6 +27,8 @@ namespace nb = nanobind;
 #include <string_view>
 #include <variant>
 
+#include <iostream>
+
 void APyFloatArray::create_in_place(
     APyFloatArray* apyfloatarray,
     const nb::typed<nb::sequence, nb::any>& sign_seq,
@@ -413,6 +415,104 @@ APyFloatArray APyFloatArray::arange(
     }
 
     return result;
+}
+
+APyFloatArray APyFloatArray::fullrange(
+    const nb::object& start,
+    const nb::object& stop,
+    std::uint8_t exp_bits,
+    std::uint8_t man_bits,
+    std::optional<exp_t> bias
+)
+{
+    check_exponent_format(exp_bits, "APyFloatArray.fullrange");
+    check_mantissa_format(man_bits, "APyFloatArray.fullrange");
+
+    const APyFloat apy_start = APyFloat::from_number(start, exp_bits, man_bits, bias);
+    const APyFloat apy_stop = APyFloat::from_number(stop, exp_bits, man_bits, bias);
+
+    if (apy_start.is_nan() || apy_stop.is_nan()) {
+        throw nanobind::value_error(
+            "APyFloatArray.fullrange: start or stop is NaN, cannot compute range"
+        );
+    }
+
+    if ((apy_start > apy_stop)) {
+        return APyFloatArray({ 0 }, exp_bits, man_bits, bias);
+    }
+
+    // Calculate size of resulting array
+    std::uint64_t num_elements;
+    const man_t max_man = apy_start.man_mask();
+    const man_t leading_one = apy_start.leading_one();
+    const std::int64_t exp_diff = static_cast<std::int64_t>(apy_stop.get_exp())
+        - static_cast<std::int64_t>(apy_start.get_exp());
+
+    man_t tmp_man = apy_start.get_man();
+    exp_t tmp_exp = apy_start.get_exp();
+
+    if (apy_start.get_sign() && apy_stop.get_sign()) {
+        // Both numbers are negative
+        num_elements
+            = -exp_diff * (max_man + 1) + apy_start.get_man() - apy_stop.get_man();
+        APyFloatArray result({ num_elements }, exp_bits, man_bits, bias);
+
+        result._data[0] = { true, tmp_exp, tmp_man };
+        for (int i = 1; i < num_elements; i++) {
+            --tmp_man;
+            if (tmp_man >= leading_one) {
+                --tmp_exp;
+                tmp_man = max_man;
+            }
+            result._data[i] = { true, tmp_exp, tmp_man };
+        }
+        return result;
+    } else if (apy_start.get_sign() && !apy_stop.get_sign()) {
+        // The start is negative, the stop is positive
+        const int neg_numbers
+            = 1 + apy_start.get_exp() * (max_man + 1) + apy_start.get_man();
+        num_elements
+            = neg_numbers + apy_stop.get_exp() * (max_man + 1) + apy_stop.get_man();
+
+        APyFloatArray result({ num_elements }, exp_bits, man_bits, bias);
+
+        result._data[0] = { true, tmp_exp, tmp_man };
+        for (int i = 1; i < neg_numbers; i++) {
+            --tmp_man;
+            if (tmp_man >= leading_one) {
+                --tmp_exp;
+                tmp_man = max_man;
+            }
+            result._data[i] = { true, tmp_exp, tmp_man };
+        }
+        if (neg_numbers < num_elements) {
+            result._data[neg_numbers] = { false, 0, 0 };
+            for (int i = neg_numbers + 1; i < num_elements; i++) {
+                ++tmp_man;
+                if (tmp_man >= leading_one) {
+                    ++tmp_exp;
+                    tmp_man = 0;
+                }
+                result._data[i] = { false, tmp_exp, tmp_man };
+            }
+        }
+        return result;
+    } else { // Both numbers are positive
+        num_elements
+            = exp_diff * (max_man + 1) - apy_start.get_man() + apy_stop.get_man();
+        APyFloatArray result({ num_elements }, exp_bits, man_bits, bias);
+
+        result._data[0] = { 0, tmp_exp, tmp_man };
+        for (int i = 1; i < num_elements; i++) {
+            ++tmp_man;
+            if (tmp_man >= leading_one) {
+                ++tmp_exp;
+                tmp_man = 0;
+            }
+            result._data[i] = { false, tmp_exp, tmp_man };
+        }
+        return result;
+    }
 }
 
 //! Perform a linear convolution with `other` using `mode`

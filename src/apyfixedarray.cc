@@ -1499,6 +1499,41 @@ APyFixedArray APyFixedArray::arange(
     return result;
 }
 
+APyFixedArray APyFixedArray::fullrange(
+    const nb::object& start,
+    const nb::object& stop,
+    std::optional<int> int_bits,
+    std::optional<int> frac_bits,
+    std::optional<int> bits
+)
+{
+    const int res_bits = bits_from_optional(bits, int_bits, frac_bits);
+    const int res_int_bits = int_bits.has_value() ? *int_bits : res_bits - *frac_bits;
+
+    const APyFixed apy_start = APyFixed::from_number(start, int_bits, frac_bits, bits);
+    const APyFixed apy_stop = APyFixed::from_number(stop, int_bits, frac_bits, bits);
+
+    std::vector<APyFixed> apy_vals;
+
+    APyFixed curr_val = apy_start;
+    while (curr_val < apy_stop) {
+        apy_vals.push_back(curr_val);
+        curr_val.increment_lsb();
+    }
+
+    APyFixedArray result({ apy_vals.size() }, res_bits, res_int_bits);
+
+    for (std::size_t i = 0; i < apy_vals.size(); i++) {
+        std::copy_n(
+            std::begin(apy_vals[i]._data),
+            result._itemsize,
+            std::begin(result._data) + i * result._itemsize
+        );
+    }
+
+    return result;
+}
+
 /* ********************************************************************************** *
  * *                            Private member functions                            * *
  * ********************************************************************************** */

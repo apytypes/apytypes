@@ -1899,6 +1899,274 @@ def arange(
         raise ValueError("Could not determine array type")
 
 
+@overload
+def fullrange(
+    start: APyScalar | int | float,
+    stop: APyScalar | int | float | None = None,
+    *,
+    int_bits: int,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def fullrange(
+    start: APyScalar | int | float,
+    stop: APyScalar | int | float | None = None,
+    *,
+    bits: int,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def fullrange(
+    start: APyScalar | int | float,
+    stop: APyScalar | int | float | None = None,
+    *,
+    frac_bits: int,
+    bits: int | None = None,
+    int_bits: int | None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def fullrange(
+    start: APyScalar | int | float,
+    stop: APyScalar | int | float | None = None,
+    *,
+    exp_bits: int,
+    man_bits: int | None = None,
+    bias: int | None = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def fullrange(
+    start: APyScalar | int | float,
+    stop: APyScalar | int | float | None = None,
+    *,
+    man_bits: int,
+    exp_bits: int | None = None,
+    bias: int | None = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def fullrange(
+    start: APyScalar | int | float,
+    stop: APyScalar | int | float | None = None,
+    *,
+    bias: int,
+    man_bits: int | None = None,
+    exp_bits: int | None = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def fullrange(
+    start: APyFixed,
+    stop: APyFixed | int | float | None = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def fullrange(
+    start: APyFixed | int | float,
+    stop: APyFixed,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFixedArray: ...
+
+
+@overload
+def fullrange(
+    start: APyFloat,
+    stop: APyFloat | int | float | None = None,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def fullrange(
+    start: APyFloat | int | float,
+    stop: APyFloat,
+    int_bits: None = None,
+    frac_bits: None = None,
+    bits: None = None,
+    exp_bits: None = None,
+    man_bits: None = None,
+    bias: None = None,
+) -> APyFloatArray: ...
+
+
+@overload
+def fullrange(
+    start: APyScalar | int | float,
+    stop: APyScalar | int | float | None = None,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+) -> APyArray: ...
+
+
+def fullrange(
+    start: APyScalar | int | float,
+    stop: APyScalar | int | float | None = None,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    exp_bits: int | None = None,
+    man_bits: int | None = None,
+    bias: int | None = None,
+) -> APyArray:
+    """
+    Create an array with all values within a given interval.
+
+    The function can be called with varying number of positional arguments:
+
+    * ``arange(stop)``: Values are generated within the half-open interval ``[0, stop)`` (in other words, the interval including ``start`` but excluding ``stop``).
+    * ``arange(start, stop)``: Values are generated within the half-open interval ``[start, stop)``.
+
+    If no bit-specifiers are given, the array type is deduced based on ``start`` and
+    ``stop``. In this case, all APyTypes scalars must be of the same
+    format.
+
+    Parameters
+    ----------
+    start : :class:`int`, :class:`float`, :class:`APyFloat`, :class:`APyFixed`
+        Start number.
+    stop : :class:`int`, :class:`float`, :class:`APyFloat`, :class:`APyFixed`, optional
+        Stop number.
+    int_bits : :class:`int`, optional
+        Number of fixed-point integer bits.
+    frac_bits : :class:`int`, optional
+        Number of fixed-point fractional bits.
+    bits : :class:`int`, optional
+        Number of fixed-point bits.
+    exp_bits : :class:`int`, optional
+        Number of floating-point exponential bits.
+    man_bits : :class:`int`, optional
+        Number of floating-point mantissa bits.
+    bias : :class:`int`, optional
+        Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+
+    Returns
+    -------
+    result : :class:`APyFloatArray` or :class:`APyFixedArray`
+        Array with all values within a given interval.
+    """
+    explicit_type = _determine_array_type(
+        int_bits, frac_bits, bits, exp_bits, man_bits, bias
+    )
+
+    # Deduced bit specifiers
+    deduced_type = explicit_type
+    (
+        tmp_int_bits,
+        tmp_frac_bits,
+        tmp_bits,
+        tmp_exp_bits,
+        tmp_man_bits,
+        tmp_bias,
+    ) = [None] * 6
+
+    for var in (start, stop):
+        if isinstance(var, APyFixed):
+            if explicit_type == APyFloatArray:
+                continue
+
+            if deduced_type == APyFloatArray:
+                raise ValueError("Could not determine array type")
+            deduced_type = APyFixedArray
+
+            tmp_int_bits = var.int_bits if tmp_int_bits is None else tmp_int_bits
+            tmp_frac_bits = var.frac_bits if tmp_frac_bits is None else tmp_frac_bits
+
+            if (int_bits is None and (tmp_int_bits != var.int_bits)) or (
+                frac_bits is None and (tmp_frac_bits != var.frac_bits)
+            ):
+                raise ValueError("Could not determine bit specifiers")
+
+        elif isinstance(var, APyFloat):
+            if explicit_type == APyFixedArray:
+                continue
+
+            if deduced_type == APyFixedArray:
+                raise ValueError("Could not determine array type")
+            deduced_type = APyFloatArray
+
+            tmp_exp_bits = var.exp_bits if tmp_exp_bits is None else tmp_exp_bits
+            tmp_man_bits = var.man_bits if tmp_man_bits is None else tmp_man_bits
+            tmp_bias = var.bias if tmp_bias is None else tmp_bias
+
+            if (
+                (exp_bits is None and (tmp_exp_bits != var.exp_bits))
+                or (man_bits is None and (tmp_man_bits != var.man_bits))
+                or (bias is None and (tmp_bias != var.bias))
+            ):
+                raise ValueError("Could not determine bit specifiers")
+
+    tmp_int_bits = tmp_int_bits if int_bits is None else int_bits
+    tmp_frac_bits = tmp_frac_bits if frac_bits is None else frac_bits
+    tmp_bits = tmp_bits if bits is None else bits
+    tmp_exp_bits = tmp_exp_bits if exp_bits is None else exp_bits
+    tmp_man_bits = tmp_man_bits if man_bits is None else man_bits
+    tmp_bias = tmp_bias if bias is None and exp_bits is None else bias
+
+    if stop is None:
+        start, stop = (0, start)
+
+    if deduced_type is APyFixedArray:
+        return APyFixedArray._fullrange(
+            start, stop, tmp_int_bits, tmp_frac_bits, tmp_bits
+        )
+    elif deduced_type is APyFloatArray:
+        return APyFloatArray._fullrange(
+            start, stop, tmp_exp_bits, tmp_man_bits, tmp_bias
+        )
+    else:
+        raise ValueError("Could not determine array type")
+
+
 # =============================================================================
 # Helpers
 # =============================================================================
