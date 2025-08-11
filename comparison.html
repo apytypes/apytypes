@@ -313,9 +313,9 @@
 <h1>Comparison<a class="headerlink" href="#comparison" title="Link to this heading">¶</a></h1>
 <section id="comparison-matrix">
 <h2>Comparison matrix<a class="headerlink" href="#comparison-matrix" title="Link to this heading">¶</a></h2>
-<div class="table-wrapper docutils container" id="id29">
-<table class="docutils align-default" id="id29">
-<caption><span class="caption-text">Fixed-point libraries</span><a class="headerlink" href="#id29" title="Link to this table">¶</a></caption>
+<div class="table-wrapper docutils container" id="id30">
+<table class="docutils align-default" id="id30">
+<caption><span class="caption-text">Fixed-point libraries</span><a class="headerlink" href="#id30" title="Link to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head stub"><p>Library</p></th>
 <th class="head"><p>APyTypes</p></th>
@@ -440,15 +440,15 @@
 <p>Note that this holds for intermediate results as well. For example, multiplying two 27-bit numbers will create a 54-bit result which will not give bit-accurate results with <code class="docutils literal notranslate"><span class="pre">pyfixp</span></code>.</p>
 </aside>
 </aside>
-<div class="table-wrapper docutils container" id="id30">
-<table class="docutils align-default" id="id30">
-<caption><span class="caption-text">Floating-point libraries</span><a class="headerlink" href="#id30" title="Link to this table">¶</a></caption>
+<div class="table-wrapper docutils container" id="id31">
+<table class="docutils align-default" id="id31">
+<caption><span class="caption-text">Floating-point libraries</span><a class="headerlink" href="#id31" title="Link to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head stub"><p>Library</p></th>
 <th class="head"><p>APyTypes</p></th>
 <th class="head"><p><a class="reference external" href="https://github.com/mdickinson/bigfloat">bigfloat</a> <a class="footnote-reference brackets" href="#bigfloatfootnote" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a></p></th>
 <th class="head"><p><a class="reference external" href="https://github.com/aleaxit/gmpy">gmpy2</a> <a class="footnote-reference brackets" href="#gmpy2footnote" id="id18" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a></p></th>
-<th class="head"><p><cite>mpmath &lt;https://github.com/mpmath/mpmath&gt;</cite></p></th>
+<th class="head"><p><a class="reference external" href="https://github.com/mpmath/mpmath">mpmath</a></p></th>
 <th class="head"><p><a class="reference external" href="https://github.com/inEXASCALE/pychop">PyChop</a></p></th>
 </tr>
 </thead>
@@ -506,8 +506,8 @@
 <td><p>C++/Python</p></td>
 <td><p>C/Python</p></td>
 <td><p>C/Python</p></td>
-<td><p>Python [#mpmathfootnote]</p></td>
-<td><p>Python <a class="footnote-reference brackets" href="#pychopfootnotefp" id="id27" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a></p></td>
+<td><p>Python <a class="footnote-reference brackets" href="#mpmathfootnote" id="id27" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a></p></td>
+<td><p>Python <a class="footnote-reference brackets" href="#pychopfootnotefp" id="id28" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a></p></td>
 </tr>
 </tbody>
 </table>
@@ -524,7 +524,7 @@
 </aside>
 <aside class="footnote brackets" id="pychopfootnotefp" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id20">1</a>,<a role="doc-backlink" href="#id21">2</a>,<a role="doc-backlink" href="#id24">3</a>,<a role="doc-backlink" href="#id25">4</a>,<a role="doc-backlink" href="#id26">5</a>,<a role="doc-backlink" href="#id27">6</a>)</span>
+<span class="backrefs">(<a role="doc-backlink" href="#id20">1</a>,<a role="doc-backlink" href="#id21">2</a>,<a role="doc-backlink" href="#id24">3</a>,<a role="doc-backlink" href="#id25">4</a>,<a role="doc-backlink" href="#id26">5</a>,<a role="doc-backlink" href="#id28">6</a>)</span>
 <p><code class="docutils literal notranslate"><span class="pre">pychop</span></code> is essentially a package to simply quantize floating-point NumPy, PyTorch, and JAX-arrays to a given fixed-point or floating-point representation. Computation still happens at the precision of the underlying array.</p>
 </aside>
 <aside class="footnote brackets" id="binaryfootnote" role="doc-footnote">
@@ -536,7 +536,7 @@
 <p>This is a design choice since <code class="docutils literal notranslate"><span class="pre">apytypes</span></code>  is aimed at simulating shorter custom formats. However, there is unlimited word length support for fixed-point values which can, if deemed suitable at a later time, be used for floating-point as well.</p>
 </aside>
 <aside class="footnote brackets" id="mpmathfootnote" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id27">12</a><span class="fn-bracket">]</span></span>
 <p><code class="docutils literal notranslate"><span class="pre">mpmath</span></code> can use <code class="docutils literal notranslate"><span class="pre">gmpy</span></code> as a backend to do faster arithmetic, but uses Python integers by default.</p>
 </aside>
 </aside>

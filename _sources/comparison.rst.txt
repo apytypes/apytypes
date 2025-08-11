@@ -107,7 +107,7 @@ Comparison matrix
       - APyTypes
       - `bigfloat <https://github.com/mdickinson/bigfloat>`_ [#bigfloatfootnote]_
       - `gmpy2 <https://github.com/aleaxit/gmpy>`_ [#gmpy2footnote]_
-      - `mpmath <https://github.com/mpmath/mpmath>`
+      - `mpmath <https://github.com/mpmath/mpmath>`_
       - `PyChop <https://github.com/inEXASCALE/pychop>`_
     * - Custom fixed-point formats
       - Yes
@@ -155,7 +155,7 @@ Comparison matrix
       - C++/Python
       - C/Python
       - C/Python
-      - Python [#mpmathfootnote]
+      - Python [#mpmathfootnote]_
       - Python [#pychopfootnotefp]_
 
 .. rubric:: Footnotes
