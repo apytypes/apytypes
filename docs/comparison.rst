@@ -109,60 +109,79 @@ Comparison matrix
       - `gmpy2 <https://github.com/aleaxit/gmpy>`_ [#gmpy2footnote]_
       - `mpmath <https://github.com/mpmath/mpmath>`_
       - `PyChop <https://github.com/inEXASCALE/pychop>`_
+      - `PyMPF <https://github.com/florianschanda/PyMPF>`_
+      - `gfloat <https://github.com/graphcore-research/gfloat>`_
     * - Custom fixed-point formats
       - Yes
       - No
       - No
       - No
       - Yes [#pychopfootnotefp]_
+      - No
+      - No
     * - Custom floating-point formats
       - Yes
       - Yes
       - Yes
       - Yes
       - Yes [#pychopfootnotefp]_
+      - Yes
+      - Yes [#gfloatfootnote]_
     * - Binary representation of number [#binaryfootnote]_
       - Yes
       - No
       - No
       - No
       - No
+      - Yes
+      - Yes
     * - Maximum wordlength
       - 32 bits for exponent, 64 bits for mantissa [#apytypesfootnote]_
       - None
       - None
       - None
       - Yes [#pychopfootnotefp]_
+      - 18 bits for exponent, none for mantissa
+      - Yes [#gfloatfootnote]_
     * - Stochastic rounding
       - Yes
       - No
       - No
       - No
       - Yes
+      - No
+      - Yes [#gfloatfootnote]_
     * - Arrays
       - Yes
       - No
       - No
       - Yes
       - Yes [#pychopfootnotefp]_
+      - No
+      - Yes [#gfloatfootnote]_
     * - Matrix multiplication (``@``)
       - Yes
       - N/A
       - N/A
       - Yes
       - Yes [#pychopfootnotefp]_
+      - N/A
+      - Yes [#gfloatfootnote]_
     * - Written in
       - C++/Python
       - C/Python
       - C/Python
       - Python [#mpmathfootnote]_
       - Python [#pychopfootnotefp]_
+      - Python
+      - Python [#gfloatfootnote]_
 
 .. rubric:: Footnotes
 
 .. [#bigfloatfootnote] ``bigfloat`` is a Python wrapper around the `GNU MPFR <https://www.mpfr.org/>`_ library.
 .. [#gmpy2footnote] ``gmpy2`` is a Python wrapper around the `GNU MPFR <https://www.mpfr.org/>`_ and `GNU MPC <https://www.multiprecision.org/>`_ libraries.
 .. [#pychopfootnotefp] ``pychop`` is essentially a package to simply quantize floating-point NumPy, PyTorch, and JAX-arrays to a given fixed-point or floating-point representation. Computation still happens at the precision of the underlying array.
+.. [#gfloatfootnote] ``gfloat`` is a package for encoding/decoding floating-point numbers. Floating-point NumPy, PyTorch, and JAX-arrays are quantized to a given floating-point representation, and computation still happens at the precision of the underlying array.
 .. [#binaryfootnote] This means that it is possible to get a binary representation for comparison with, e.g., a hardware implementation.
 .. [#apytypesfootnote] This is a design choice since ``apytypes``  is aimed at simulating shorter custom formats. However, there is unlimited word length support for fixed-point values which can, if deemed suitable at a later time, be used for floating-point as well.
 .. [#mpmathfootnote] ``mpmath`` can use ``gmpy`` as a backend to do faster arithmetic, but uses Python integers by default.
