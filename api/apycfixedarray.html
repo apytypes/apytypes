@@ -221,15 +221,16 @@
 <li class="toctree-l2"><a class="reference internal" href="apycfixed.html"><code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apycfloat.html"><code class="docutils literal notranslate"><span class="pre">APyCFloat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="apycfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="arrayfunctions.html">Array functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codegeneration.html">Code generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="context.html">Context handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quantizationoverflow.html">Quantization and overflow handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html">Utility functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="codegeneration.html">Code generation</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../cpp_api/index.html">APyTypes C++ API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of APyTypes C++ API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -355,79 +356,82 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.cast" title="apytypes.APyCFixedArray.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a></p></td>
 <td><p>Change format of the fixed-point array.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.copy" title="apytypes.APyCFixedArray.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.convolve" title="apytypes.APyCFixedArray.convolve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convolve</span></code></a></p></td>
+<td><p>Return the discrete linear convolution with another one-dimensional array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.copy" title="apytypes.APyCFixedArray.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
 <td><p>Create a copy of the object.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.cumprod" title="apytypes.APyCFixedArray.cumprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cumprod</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.cumprod" title="apytypes.APyCFixedArray.cumprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cumprod</span></code></a></p></td>
 <td><p>Return the cumulative product of the elements along a given axes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.cumsum" title="apytypes.APyCFixedArray.cumsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cumsum</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.cumsum" title="apytypes.APyCFixedArray.cumsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cumsum</span></code></a></p></td>
 <td><p>Return the cumulative sum of the elements along a given axes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.eye" title="apytypes.APyCFixedArray.eye"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eye</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.eye" title="apytypes.APyCFixedArray.eye"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eye</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.flatten" title="apytypes.APyCFixedArray.flatten"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flatten</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.flatten" title="apytypes.APyCFixedArray.flatten"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flatten</span></code></a></p></td>
 <td><p>Return a copy of the array collapsed into one dimension.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.from_array" title="apytypes.APyCFixedArray.from_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_array</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.from_array" title="apytypes.APyCFixedArray.from_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_array</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.from_complex" title="apytypes.APyCFixedArray.from_complex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_complex</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.from_complex" title="apytypes.APyCFixedArray.from_complex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_complex</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.from_float" title="apytypes.APyCFixedArray.from_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_float</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.from_float" title="apytypes.APyCFixedArray.from_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_float</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.full" title="apytypes.APyCFixedArray.full"><code class="xref py py-obj docutils literal notranslate"><span class="pre">full</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.full" title="apytypes.APyCFixedArray.full"><code class="xref py py-obj docutils literal notranslate"><span class="pre">full</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.identity" title="apytypes.APyCFixedArray.identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">identity</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.identity" title="apytypes.APyCFixedArray.identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">identity</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.is_identical" title="apytypes.APyCFixedArray.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.is_identical" title="apytypes.APyCFixedArray.is_identical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_identical</span></code></a></p></td>
 <td><p>Test if two <a class="reference internal" href="#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a> objects are identical.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nancumprod</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nancumprod</span></code></p></td>
 <td><p>Return the cumulative product of the elements along a given axis treating NaN as 0.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nancumsum</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nancumsum</span></code></p></td>
 <td><p>Return the cumulative sum of the elements along a given axis treating NaN as 0.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanprod</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nanprod</span></code></p></td>
 <td><p>Return the product of the elements along a given axis treating NaN as 0.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nansum</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nansum</span></code></p></td>
 <td><p>Return the sum of the elements along specified axis/axes treating NaN as 0.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.ones" title="apytypes.APyCFixedArray.ones"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ones</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.ones" title="apytypes.APyCFixedArray.ones"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ones</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.prod" title="apytypes.APyCFixedArray.prod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prod</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.prod" title="apytypes.APyCFixedArray.prod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prod</span></code></a></p></td>
 <td><p>Return the product of the elements along specified axis/axes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.ravel" title="apytypes.APyCFixedArray.ravel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ravel</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.ravel" title="apytypes.APyCFixedArray.ravel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ravel</span></code></a></p></td>
 <td><p>Return a copy of the array collapsed into one dimension.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.reshape" title="apytypes.APyCFixedArray.reshape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reshape</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.reshape" title="apytypes.APyCFixedArray.reshape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reshape</span></code></a></p></td>
 <td><p>Reshape the APyCFixedArray to the specified shape without changing its data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.squeeze" title="apytypes.APyCFixedArray.squeeze"><code class="xref py py-obj docutils literal notranslate"><span class="pre">squeeze</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.squeeze" title="apytypes.APyCFixedArray.squeeze"><code class="xref py py-obj docutils literal notranslate"><span class="pre">squeeze</span></code></a></p></td>
 <td><p>Remove axes of size one at the specified axis/axes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.sum" title="apytypes.APyCFixedArray.sum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.sum" title="apytypes.APyCFixedArray.sum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum</span></code></a></p></td>
 <td><p>Return the sum of the elements along specified axis/axes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.swapaxes" title="apytypes.APyCFixedArray.swapaxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">swapaxes</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.swapaxes" title="apytypes.APyCFixedArray.swapaxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">swapaxes</span></code></a></p></td>
 <td><p>Interchange two axes of an array.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.to_numpy" title="apytypes.APyCFixedArray.to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.to_numpy" title="apytypes.APyCFixedArray.to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_numpy</span></code></a></p></td>
 <td><p>Return array as a <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.complex128</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.transpose" title="apytypes.APyCFixedArray.transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.transpose" title="apytypes.APyCFixedArray.transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code></a></p></td>
 <td><p>Return copy of array with axes transposed.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.zeros" title="apytypes.APyCFixedArray.zeros"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zeros</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#apytypes.APyCFixedArray.zeros" title="apytypes.APyCFixedArray.zeros"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zeros</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -1239,6 +1243,45 @@ the array.</p>
 </dd></dl>
 
 </section>
+<section id="convolution">
+<h2>Convolution<a class="headerlink" href="#convolution" title="Link to this heading">¶</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="apytypes.APyCFixedArray.convolve">
+<span class="sig-name descname"><span class="pre">convolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#apytypes.APyCFixedArray" title="APyCFixedArray"><span class="pre">APyCFixedArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'full'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#apytypes.APyCFixedArray" title="APyCFixedArray"><span class="pre">APyCFixedArray</span></a></span></span><a class="headerlink" href="#apytypes.APyCFixedArray.convolve" title="Link to this definition">¶</a></dt>
+<dd><p>Return the discrete linear convolution with another one-dimensional array.</p>
+<p>Requires that <code class="docutils literal notranslate"><span class="pre">ndim</span> <span class="pre">=</span> <span class="pre">1</span></code> for both <cite>self</cite> and <cite>other</cite>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>other</strong><span class="classifier"><a class="reference internal" href="#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></span></dt><dd><p>The one-dimensional array of length <code class="code docutils literal notranslate"><span class="pre">N</span></code> to convolve with.</p>
+</dd>
+<dt><strong>mode</strong><span class="classifier">{‘full’, ‘same’, ‘valid’}, default: ‘full’</span></dt><dd><dl class="simple">
+<dt>‘full’:</dt><dd><p>Return the full convolution for each point of overlap. The
+resulting single-dimensional shape will have length <code class="code docutils literal notranslate"><span class="pre">N</span> <span class="pre">+</span> <span class="pre">M</span> <span class="pre">-</span>
+<span class="pre">1</span></code>. Boundary effects occurs for points where the <cite>a</cite> and <cite>v</cite> do not
+overlap completely.</p>
+</dd>
+<dt>‘same’:</dt><dd><p>Return a convolution of length <code class="code docutils literal notranslate"><span class="pre">max(M,</span> <span class="pre">N)</span></code>. Boundary effects
+still occur around the edges of the result.</p>
+</dd>
+<dt>‘valid’:</dt><dd><p>Return the convolution for each point of full overlap. The
+resulting single-dimensional shape will have length <code class="code docutils literal notranslate"><span class="pre">max(M,</span> <span class="pre">N)</span>
+<span class="pre">-</span> <span class="pre">min(M,</span> <span class="pre">N)</span> <span class="pre">+</span> <span class="pre">1</span></code></p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>convolved</strong><span class="classifier"><a class="reference internal" href="#apytypes.APyCFixedArray" title="apytypes.APyCFixedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></span></dt><dd><p>The convolved array.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="broadcasting">
 <h2>Broadcasting<a class="headerlink" href="#broadcasting" title="Link to this heading">¶</a></h2>
 <dl class="py method">
@@ -1473,6 +1516,7 @@ the array.</p>
 <li><a class="reference internal" href="#apytypes.APyCFixedArray.prod"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.prod()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFixedArray.cumsum"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.cumsum()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFixedArray.cumprod"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.cumprod()</span></code></a></li>
+<li><a class="reference internal" href="#apytypes.APyCFixedArray.convolve"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.convolve()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFixedArray.broadcast_to"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.broadcast_to()</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFixedArray.real"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.real</span></code></a></li>
 <li><a class="reference internal" href="#apytypes.APyCFixedArray.imag"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray.imag</span></code></a></li>

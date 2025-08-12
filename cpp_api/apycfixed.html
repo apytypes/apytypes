@@ -221,15 +221,16 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/apycfixed.html"><code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/apycfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/apycfloat.html"><code class="docutils literal notranslate"><span class="pre">APyCFloat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apycfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/arrayfunctions.html">Array functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/codegeneration.html">Code generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/context.html">Context handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/quantizationoverflow.html">Quantization and overflow handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/utils.html">Utility functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/codegeneration.html">Code generation</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">APyTypes C++ API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of APyTypes C++ API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -335,6 +336,12 @@
 </dd></dl>
 
 <dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK9APyCFixed4specEv">
+<span id="_CPPv3NK9APyCFixed4specEv"></span><span id="_CPPv2NK9APyCFixed4specEv"></span><span id="APyCFixed::specC"></span><span class="target" id="classAPyCFixed_1a723720112d535756cb5a3fc9079605e8"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">APyFixedSpec</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">spec</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK9APyCFixed4specEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Retrieve the bit specification. </p>
+</dd></dl>
+
+<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N9APyCFixed9APyCFixedEv">
 <span id="_CPPv3N9APyCFixed9APyCFixedEv"></span><span id="_CPPv2N9APyCFixed9APyCFixedEv"></span><span id="APyCFixed::APyCFixed"></span><span class="target" id="classAPyCFixed_1aed49565a69d3cc779623935b1338855f"></span><span class="sig-name descname"><span class="n"><span class="pre">APyCFixed</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">delete</span></span><a class="headerlink" href="#_CPPv4N9APyCFixed9APyCFixedEv" title="Link to this definition">¶</a><br /></dt>
 <dd><p>No default (empty) constructed <code class="docutils literal notranslate"><a class="reference internal" href="#classAPyCFixed"><span class="std std-ref"><span class="pre">APyCFixed</span></span></a></code> objects. At least the bit-specifiers has to be set during construction. </p>
@@ -379,7 +386,7 @@
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N9APyCFixed9APyCFixedEiiNSt16initializer_listI10apy_limb_tEE">
 <span id="_CPPv3N9APyCFixed9APyCFixedEiiNSt16initializer_listI10apy_limb_tEE"></span><span id="_CPPv2N9APyCFixed9APyCFixedEiiNSt16initializer_listI10apy_limb_tEE"></span><span id="APyCFixed::APyCFixed__i.i.std::initializer_list:apy_limb_t:"></span><span class="target" id="classAPyCFixed_1a1c10d10cfe02f24f66ef47e71746b903"></span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">APyCFixed</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bits</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">int_bits</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">initializer_list</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">apy_limb_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">list</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9APyCFixed9APyCFixedEiiNSt16initializer_listI10apy_limb_tEE" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Construct a number with <code class="docutils literal notranslate"><span class="pre">bits</span></code> and <code class="docutils literal notranslate"><span class="pre">int_bits</span></code>, and initialize underlying bit-pattern from iterator pair [ <code class="docutils literal notranslate"><span class="pre">begin</span></code>, <code class="docutils literal notranslate"><span class="pre">end</span></code> ). </p>
+<dd><p>Construct a number with <code class="docutils literal notranslate"><span class="pre">bits</span></code> and <code class="docutils literal notranslate"><span class="pre">int_bits</span></code>, and initialize underlying bit-pattern from initializer list of limbs </p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -740,6 +747,7 @@
 <li><a class="reference internal" href="#_CPPv4I0EN9APyCFixed11copy_n_fromEv22RANDOM_ACCESS_ITERATORNSt6size_tE"><code class="docutils literal notranslate"><span class="pre">copy_n_from()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4I0ENK9APyCFixed9copy_n_toEv22RANDOM_ACCESS_ITERATORNSt6size_tE"><code class="docutils literal notranslate"><span class="pre">copy_n_to()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK9APyCFixed12is_same_specERK9APyCFixed"><code class="docutils literal notranslate"><span class="pre">is_same_spec()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK9APyCFixed4specEv"><code class="docutils literal notranslate"><span class="pre">spec()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N9APyCFixed9APyCFixedEv"><code class="docutils literal notranslate"><span class="pre">APyCFixed()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N9APyCFixed9APyCFixedERK9APyCFixed"><code class="docutils literal notranslate"><span class="pre">APyCFixed()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N9APyCFixed9APyCFixedERKN2nb4int_ENSt8optionalIiEENSt8optionalIiEENSt8optionalIiEE"><code class="docutils literal notranslate"><span class="pre">APyCFixed()</span></code></a></li>

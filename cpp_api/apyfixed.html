@@ -221,15 +221,16 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/apycfixed.html"><code class="docutils literal notranslate"><span class="pre">APyCFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/apycfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyCFixedArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/apycfloat.html"><code class="docutils literal notranslate"><span class="pre">APyCFloat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/apycfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyCFloatArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/apyfixed.html"><code class="docutils literal notranslate"><span class="pre">APyFixed</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/apyfixedarray.html"><code class="docutils literal notranslate"><span class="pre">APyFixedArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/apyfloat.html"><code class="docutils literal notranslate"><span class="pre">APyFloat</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/apyfloatarray.html"><code class="docutils literal notranslate"><span class="pre">APyFloatArray</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/arrayfunctions.html">Array functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/codegeneration.html">Code generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/context.html">Context handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/quantizationoverflow.html">Quantization and overflow handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/utils.html">Utility functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/codegeneration.html">Code generation</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">APyTypes C++ API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of APyTypes C++ API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -332,6 +333,12 @@
 <dt class="sig sig-object cpp" id="_CPPv4NK8APyFixed12is_same_specERK8APyFixed">
 <span id="_CPPv3NK8APyFixed12is_same_specERK8APyFixed"></span><span id="_CPPv2NK8APyFixed12is_same_specERK8APyFixed"></span><span id="APyFixed::is_same_spec__APyFixedCRC"></span><span class="target" id="classAPyFixed_1aa133e5f1a2273523d82d714aad2599cd"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">is_same_spec</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv48APyFixed" title="APyFixed"><span class="n"><span class="pre">APyFixed</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8APyFixed12is_same_specERK8APyFixed" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Test if two fixed-point numbers have the same bit specifiers. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK8APyFixed4specEv">
+<span id="_CPPv3NK8APyFixed4specEv"></span><span id="_CPPv2NK8APyFixed4specEv"></span><span id="APyFixed::specC"></span><span class="target" id="classAPyFixed_1a8e7fb247dac359fa6dad9b679ddaf1d9"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">APyFixedSpec</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">spec</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK8APyFixed4specEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Retrieve the bit specification. </p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -935,6 +942,7 @@
 <li><a class="reference internal" href="#_CPPv4I0EN8APyFixed11copy_n_fromEv22RANDOM_ACCESS_ITERATORNSt6size_tE"><code class="docutils literal notranslate"><span class="pre">copy_n_from()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4I0ENK8APyFixed9copy_n_toEv22RANDOM_ACCESS_ITERATORNSt6size_tE"><code class="docutils literal notranslate"><span class="pre">copy_n_to()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK8APyFixed12is_same_specERK8APyFixed"><code class="docutils literal notranslate"><span class="pre">is_same_spec()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK8APyFixed4specEv"><code class="docutils literal notranslate"><span class="pre">spec()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N8APyFixed8APyFixedEv"><code class="docutils literal notranslate"><span class="pre">APyFixed()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N8APyFixed8APyFixedERK8APyFixed"><code class="docutils literal notranslate"><span class="pre">APyFixed()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N8APyFixedaSERK8APyFixed"><code class="docutils literal notranslate"><span class="pre">operator=()</span></code></a></li>
