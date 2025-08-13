@@ -14,6 +14,7 @@
 #include "ieee754.h"
 #include "python_util.h"
 
+#include <cstdint>    // std::int64_t
 #include <functional> // std::bind, std::function, std::placeholders
 #include <iterator>   // std::begin
 #include <optional>   // std::optional
@@ -986,13 +987,42 @@ private:
         assert(dst_limbs == 2);
         for (std::size_t m = 0; m < M; m++) {
             auto A_it = src1 + src1_limbs * N * m;
-            auto acc = dst + m * dst_limbs * DST_STEP;
-            std::fill_n(acc, dst_limbs, 0);
+#if (COMPILER_LIMB_SIZE == 64)
+#if defined(__GNUC__)
+            /*
+             * GNU C-compatible compiler, including Clang, MacOS Xcode, and Intel C++
+             * compiler (ICC).
+             */
+            __int128 acc = 0;
+            for (std::size_t n = 0; n < N; n++) {
+                __int128 a = apy_limb_signed_t(A_it[n]);
+                __int128 b = apy_limb_signed_t(src2[n]);
+                acc += a * b;
+            }
+            dst[2 * m * DST_STEP + 0] = apy_limb_t(acc >> 0);
+            dst[2 * m * DST_STEP + 1] = apy_limb_t(acc >> 64);
+#else
+            /*
+             * Microsoft Visual C/C++ compiler (or other unknown compiler)
+             */
+            auto acc = dst + 2 * m * DST_STEP;
+            std::fill_n(acc, 2, 0);
             for (std::size_t n = 0; n < N; n++) {
                 auto&& [prod_hi, prod_lo] = long_signed_mult(A_it[n], src2[n]);
-                const apy_limb_t prod[2] = { prod_lo, prod_hi };
-                apy_inplace_addition_same_length(&*acc, prod, dst_limbs);
+                acc[0] += prod_lo;
+                acc[1] += prod_hi + (acc[0] < prod_lo);
             }
+#endif
+#elif (COMPILER_LIMB_SIZE == 32)
+            std::int64_t acc = 0;
+            for (std::size_t n = 0; n < N; n++) {
+                std::int64_t a = apy_limb_signed_t(A_it[n]);
+                std::int64_t b = apy_limb_signed_t(src2[n]);
+                acc += a * b;
+            }
+            dst[2 * m * DST_STEP + 0] = apy_limb_t(acc >> 0);
+            dst[2 * m * DST_STEP + 1] = apy_limb_t(acc >> 32);
+#endif
         }
     }
 

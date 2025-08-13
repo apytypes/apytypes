@@ -53,7 +53,10 @@ long_unsigned_mult(apy_limb_t src0, apy_limb_t src1)
     return { high_limb, apy_limb_t(res) };
 #elif (COMPILER_LIMB_SIZE == 64)
 #if defined(__GNUC__)
-    // GNU C-compatible compiler (including Clang and MacOS Xcode)
+    /*
+     * GNU C-compatible compiler, including Clang, MacOS Xcode, and Intel C++ compiler
+     * (ICC).
+     */
     unsigned __int128 res = (unsigned __int128)src0 * (unsigned __int128)src1;
     apy_limb_t high_limb = apy_limb_t(res >> 64);
     return { high_limb, apy_limb_t(res) };
@@ -91,7 +94,10 @@ long_signed_mult(apy_limb_t src0, apy_limb_t src1)
     return { high_limb, apy_limb_t(res) };
 #elif (COMPILER_LIMB_SIZE == 64)
 #if defined(__GNUC__)
-    // GNU C-compatible compiler (including Clang and MacOS Xcode)
+    /*
+     * GNU C-compatible compiler, including Clang, MacOS Xcode, and Intel C++ compiler
+     * (ICC).
+     */
     __int128 res
         = (__int128)apy_limb_signed_t(src0) * (__int128)apy_limb_signed_t(src1);
     apy_limb_signed_t high_limb = apy_limb_signed_t(res >> 64);
@@ -224,7 +230,10 @@ template <typename INT_TYPE>
         "leading_zeros(INT_TYPE n): int type must be 32-bit or 64-bit"
     );
 #if defined(__GNUC__)
-    // GNU C-compatible compiler (including Clang and MacOS Xcode)
+    /*
+     * GNU C-compatible compiler, including Clang, MacOS Xcode, and Intel C++ compiler
+     * (ICC).
+     */
     if constexpr (sizeof(INT_TYPE) == 8) {
         return n == 0 ? 0 : __builtin_ctzll(n);
     } else {
@@ -262,7 +271,10 @@ template <typename INT_TYPE>
         "leading_zeros(INT_TYPE n): int type must be 32-bit or 64-bit"
     );
 #if defined(__GNUC__)
-    // GNU C-compatible compiler (including Clang and MacOS Xcode)
+    /*
+     * GNU C-compatible compiler, including Clang, MacOS Xcode, and Intel C++ compiler
+     * (ICC).
+     */
     if constexpr (sizeof(INT_TYPE) == 8) {
         return n == 0 ? 64 : __builtin_clzll(n);
     } else {
