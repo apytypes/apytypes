@@ -2,7 +2,7 @@
 NumPy integration
 =================
 
-It is possible to easily go between numpy and apytypes and therefore also use plotting tools like Matplotlib in an integrated manner.
+It is possible to easily go between NumPy and APyTypes and therefore also use plotting tools like Matplotlib in an integrated manner.
 
 Consider the example from https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.convolve.html implemented using fixed-point arithmetic
 
