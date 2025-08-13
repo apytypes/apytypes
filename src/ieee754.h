@@ -27,8 +27,10 @@
     // big-endian architectures.
     return true;
 #elif defined(__GNUC__) && defined(__BYTE_ORDER__)
-    // GNU C-compatible compiler (including Clang and MacOS Xcode) with macro
-    // __BYTE_ORDER__ specified
+    /*
+     * GNU C-compatible compiler, including Clang, MacOS Xcode, and Intel C++ compiler
+     * (ICC). Macro __BYTE_ORDER__ is specified
+     */
     return __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__;
 #else
     // Failure: could not reliably detect the byte-order of the target architecture.

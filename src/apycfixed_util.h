@@ -1,6 +1,7 @@
 #include "apyfixed_util.h"
 #include "apytypes_mp.h"
 #include "src/apytypes_fwd.h"
+#include "src/apytypes_util.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -424,13 +425,41 @@ private:
         assert(src2_limbs == 1);
         assert(dst_limbs == 2);
 
-        constexpr auto tuple_to_array = [](auto&& t) {
-            return std::array<apy_limb_t, 2> { std::get<1>(t), std::get<0>(t) };
-        };
-        std::array<apy_limb_t, 2> ac_bd;
-        std::array<apy_limb_t, 2> bc_ad;
         for (std::size_t m = 0; m < M; m++) {
             auto A_it = src1 + 2 * N * m;
+#if (COMPILER_LIMB_SIZE == 64)
+#if defined(__GNUC__)
+            /*
+             * GNU C-compatible compiler, including Clang, MacOS Xcode, and Intel C++
+             * compiler (ICC).
+             */
+            __int128_t acc_re = 0;
+            __int128_t acc_im = 0;
+            for (std::size_t n = 0; n < N; n++) {
+                __int128 z1_re = apy_limb_signed_t(A_it[2 * n + 0]);
+                __int128 z1_im = apy_limb_signed_t(A_it[2 * n + 1]);
+                __int128 z2_re = apy_limb_signed_t(src2[2 * n + 0]);
+                __int128 z2_im = apy_limb_signed_t(src2[2 * n + 1]);
+                __int128 ac = z1_re * z2_re;
+                __int128 bd = z1_im * z2_im;
+                __int128 bc = z1_im * z2_re;
+                __int128 ad = z1_re * z2_im;
+                acc_re += ac - bd;
+                acc_im += bc + ad;
+            }
+            dst[4 * m * DST_STEP + 0] = apy_limb_t(acc_re >> 0);
+            dst[4 * m * DST_STEP + 1] = apy_limb_t(acc_re >> 64);
+            dst[4 * m * DST_STEP + 2] = apy_limb_t(acc_im >> 0);
+            dst[4 * m * DST_STEP + 3] = apy_limb_t(acc_im >> 64);
+#else
+            /*
+             * Microsoft Visual C/C++ compiler (or other unknown compiler)
+             */
+            constexpr auto tuple_to_array = [](auto&& t) {
+                return std::array<apy_limb_t, 2> { std::get<1>(t), std::get<0>(t) };
+            };
+            std::array<apy_limb_t, 2> ac_bd;
+            std::array<apy_limb_t, 2> bc_ad;
             auto acc = dst + m * 4 * DST_STEP;
             std::fill_n(acc, 4, 0);
             for (std::size_t n = 0; n < N; n++) {
@@ -455,6 +484,29 @@ private:
                 apy_inplace_addition_same_length(&acc[0], &ac_bd[0], 2);
                 apy_inplace_addition_same_length(&acc[2], &bc_ad[0], 2);
             }
+
+#endif
+#elif (COMPILER_LIMB_SIZE == 32)
+            std::int64_t acc_re = 0;
+            std::int64_t acc_im = 0;
+            for (std::size_t n = 0; n < N; n++) {
+                std::int64_t z1_re = apy_limb_signed_t(A_it[2 * n + 0]);
+                std::int64_t z1_im = apy_limb_signed_t(A_it[2 * n + 1]);
+                std::int64_t z2_re = apy_limb_signed_t(src2[2 * n + 0]);
+                std::int64_t z2_im = apy_limb_signed_t(src2[2 * n + 1]);
+                std::int64_t ac = z1_re * z2_re;
+                std::int64_t bd = z1_im * z2_im;
+                std::int64_t bc = z1_im * z2_re;
+                std::int64_t ad = z1_re * z2_im;
+                acc_re += ac - bd;
+                acc_im += bc + ad;
+            }
+            dst[4 * m * DST_STEP + 0] = apy_limb_t(acc_re >> 0);
+            dst[4 * m * DST_STEP + 1] = apy_limb_t(acc_re >> 32);
+            dst[4 * m * DST_STEP + 2] = apy_limb_t(acc_im >> 0);
+            dst[4 * m * DST_STEP + 3] = apy_limb_t(acc_im >> 32);
+
+#endif
         }
     }
 
