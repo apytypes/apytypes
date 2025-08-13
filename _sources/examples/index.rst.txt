@@ -52,7 +52,7 @@ These are examples of how APyTypes can be used.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="It is possible to easily go between numpy and apytypes and therefore also use plotting tools like Matplotlib in an integrated manner.">
+    <div class="sphx-glr-thumbcontainer" tooltip="It is possible to easily go between NumPy and APyTypes and therefore also use plotting tools like Matplotlib in an integrated manner.">
 
 .. only:: html
 
@@ -86,7 +86,7 @@ These are examples of how APyTypes can be used.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="In this example a lookup table for floating-point reciprocals is designed, assuming that each bit is implemented using an N-ínput LUT, suitable for FPGA, and single-precision floating-point representation.">
+    <div class="sphx-glr-thumbcontainer" tooltip="In this example a lookup table for floating-point reciprocals is designed, assuming that each bit is implemented using an N-input LUT, suitable for FPGA, and single-precision floating-point representation.">
 
 .. only:: html
 

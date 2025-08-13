@@ -21,7 +21,7 @@
 NumPy integration
 =================
 
-It is possible to easily go between numpy and apytypes and therefore also use plotting tools like Matplotlib in an integrated manner.
+It is possible to easily go between NumPy and APyTypes and therefore also use plotting tools like Matplotlib in an integrated manner.
 
 Consider the example from https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.convolve.html implemented using fixed-point arithmetic
 
@@ -91,7 +91,7 @@ The results can then be plotted in Matplotlib
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.703 seconds)
+   **Total running time of the script:** (0 minutes 0.683 seconds)
 
 
 .. _sphx_glr_download_examples_numpy_integration.py:

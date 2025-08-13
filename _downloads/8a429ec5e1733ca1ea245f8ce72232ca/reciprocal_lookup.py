@@ -3,7 +3,7 @@ Reciprocal lookup table
 =======================
 
 In this example a lookup table for floating-point reciprocals is designed,
-assuming that each bit is implemented using an N-ínput LUT, suitable for FPGA, and
+assuming that each bit is implemented using an N-input LUT, suitable for FPGA, and
 single-precision floating-point representation.
 """
 
