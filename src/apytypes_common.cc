@@ -35,12 +35,6 @@ APyFloatQuantizationContext::APyFloatQuantizationContext(
     , new_seed(new_seed.value_or(get_float_quantization_seed()))
     , prev_seed(get_float_quantization_seed())
 {
-    if (new_seed.has_value() && new_mode != QuantizationMode::STOCH_WEIGHTED
-        && new_mode != QuantizationMode::STOCH_EQUAL) {
-        throw nb::value_error(
-            "Seed for quantization was given for a non-stochastic quantization mode."
-        );
-    }
 }
 
 void APyFloatQuantizationContext::enter_context()

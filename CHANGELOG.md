@@ -42,6 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated [nanobind](https://github.com/wjakob/nanobind) from v2.4.0 to v2.8.0.
 - `APyFixedArray` inner products now returns `APyFixed`, instead of returning
   an `APyFixedArray` with a single element.
+- `APyFloatQuantizationContext` now accepts the seed parameter for all quantization
+  modes, although it is only used for the stochastic ones.
 
 ### Removed
 
