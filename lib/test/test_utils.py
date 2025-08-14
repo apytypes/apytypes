@@ -5,6 +5,8 @@ import pytest
 from apytypes import (
     APyCFixed,
     APyCFixedArray,
+    APyCFloat,
+    APyCFloatArray,
     APyFixed,
     APyFixedArray,
     APyFloat,
@@ -26,7 +28,19 @@ def test_fx():
         APyCFixed.from_complex(0.3, 4, 6)
     )
 
+    assert fx(0.3, 4, 6, force_complex=False).is_identical(
+        APyFixed.from_float(0.3, 4, 6)
+    )
+
     assert fx(0.3j, 4, 6).is_identical(APyCFixed.from_complex(0.3j, 4, 6))
+
+    assert fx(0.3j, 4, 6, force_complex=False).is_identical(
+        APyCFixed.from_complex(0.3j, 4, 6)
+    )
+
+    assert fx(0.3j, 4, 6, force_complex=True).is_identical(
+        APyCFixed.from_complex(0.3j, 4, 6)
+    )
 
     assert fx([0.3j, -0.4], 4, 6, force_complex=True).is_identical(
         APyCFixedArray.from_complex([0.3j, -0.4], 4, 6)
@@ -36,8 +50,28 @@ def test_fx():
 def test_fp():
     assert fp(0.3, 4, 6).is_identical(APyFloat.from_float(0.3, 4, 6))
 
+    assert fp(0.3, 4, 6, force_complex=True).is_identical(
+        APyCFloat.from_complex(0.3, 4, 6)
+    )
+
+    assert fp(0.3, 4, 6, force_complex=False).is_identical(
+        APyFloat.from_float(0.3, 4, 6)
+    )
+
+    assert fp(0.3j, 4, 6, force_complex=False).is_identical(
+        APyCFloat.from_complex(0.3j, 4, 6)
+    )
+
+    assert fp(0.3j, 4, 6, force_complex=True).is_identical(
+        APyCFloat.from_complex(0.3j, 4, 6)
+    )
+
     assert fp([0.3, -0.4], 4, 6).is_identical(
         APyFloatArray.from_float([0.3, -0.4], 4, 6)
+    )
+
+    assert fp([0.3j, -0.4], 4, 6, force_complex=True).is_identical(
+        APyCFloatArray.from_complex([0.3j, -0.4], 4, 6)
     )
 
 
