@@ -14,7 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `APyCFloatArray`, a complex array floating-point type.
 - `APyFloat.zero`, to create floating-point objects initialized to zero.
 - ARM-Linux wheels.
-- Specialized overload typing signatures for array functions.
+- Specialized overload typing signatures for array functions and utility
+  functions.
 - Array creation method: `fullrange`.
 
 ### Fixed
