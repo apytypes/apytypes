@@ -335,8 +335,8 @@ class TestQuantizationContext:
         assert get_float_quantization_mode() == QuantizationMode.TO_POS
         assert get_float_quantization_seed() == 123
 
-    def test_raised_exception(self):
-        """Make sure an exception is raised if a seed is given for APyFloatQuantizationContext with a non-stochastic quantization mode."""
-        with pytest.raises(ValueError, match="Seed"):
-            with APyFloatQuantizationContext(QuantizationMode.TO_POS, 123):
-                pass
+    def test_no_exception(self):
+        """Make sure no exception is raised if a seed is given for APyFloatQuantizationContext with a non-stochastic quantization mode."""
+        with APyFloatQuantizationContext(QuantizationMode.TO_POS, 123):
+            assert get_float_quantization_mode() == QuantizationMode.TO_POS
+            assert get_float_quantization_seed() == 123
