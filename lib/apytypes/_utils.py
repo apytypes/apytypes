@@ -1,11 +1,14 @@
 import math
 import warnings
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from functools import partial
+from typing import Any, Literal, overload
 
 from apytypes._apytypes import (
     APyCFixed,
     APyCFixedArray,
+    APyCFloat,
+    APyCFloatArray,
     APyFixed,
     APyFixedArray,
     APyFloat,
@@ -13,21 +16,83 @@ from apytypes._apytypes import (
 )
 
 
+@overload
 def fx(
-    value: int | float | Sequence[int] | Sequence[float],
+    value: int | float,
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
-    force_complex: bool = False,
-) -> APyCFixed | APyFixed | APyCFixedArray | APyFixedArray:
-    """
-    Create an :class:`APyFixed`, :class:`APyCFixed` or :class:`APyFixedArray` object.
+    *,
+    force_complex: Literal[False] = False,
+) -> APyFixed: ...
 
-    Convenience method that applies :func:`APyFixed.from_float`,
-    :func:`APyCFixed.from_complex` or :func:`APyFixedArray.from_float`, or
-    :func:`APyFixedArray.from_complex` depending on if the input, *value*, is a scalar
-    or not. For scalar values, return :class:`APyCFixed` if *value* is complex or if
-    *force_complex* is True.
+
+@overload
+def fx(
+    value: int | float,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    *,
+    force_complex: Literal[True],
+) -> APyCFixed: ...
+
+
+@overload
+def fx(
+    value: complex,
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    *,
+    force_complex: bool = False,
+) -> APyCFixed: ...
+
+
+@overload
+def fx(
+    value: Sequence[Any],
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    *,
+    force_complex: Literal[False] = False,
+) -> APyFixedArray: ...
+
+
+@overload
+def fx(
+    value: Sequence[Any],
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    *,
+    force_complex: Literal[True],
+) -> APyCFixedArray: ...
+
+
+def fx(
+    value: int | float | complex | Sequence[Any],
+    int_bits: int | None = None,
+    frac_bits: int | None = None,
+    bits: int | None = None,
+    *,
+    force_complex: bool = False,
+) -> APyFixed | APyCFixed | APyFixedArray | APyCFixedArray:
+    """
+    Create a fixed-point scalar or array.
+
+    Convenience method that passes `value` and bit-specifiers to one of:
+
+    * :func:`APyFixed.from_float`
+    * :func:`APyFixedArray.from_float`
+    * :func:`APyCFixed.from_complex`
+    * :func:`APyCFixedArray.from_complex`
+
+    depending on `value`. Returns :class:`APyFixed` when `value` is :class:`int` or
+    :class:`float`. Returns :class:`APyCFixed` when `value` is :class:`complex` or
+    *force_complex* is True. Returns :class:`APyFixedArray` or :class:`APyCFixedArray`
+    when `value` is a sequence of numbers.
 
     .. versionadded:: 0.3
 
@@ -38,7 +103,7 @@ def fx(
     Parameters
     ----------
     val : :class:`int`, :class:`float`, list of int or float, ndarray
-        Floating-point/integer value(s) to initialize from.
+        Floating-point/integer/complex value(s) to initialize from.
     int_bits : :class:`int`, optional
         Number of integer bits in the created fixed-point object.
     frac_bits : :class:`int`, optional
@@ -46,73 +111,147 @@ def fx(
     bits : :class:`int`, optional
         Total number of bits in the created fixed-point object.
     force_complex : :class:`bool`, default: False
-        If True, force the return value to be :class:`APyCFixed` even if *value* is
-        real.
+        If True, force the return value to be :class:`APyCFixed` or
+        :class:`APyCFixedArray`, even if *value* is real.
 
     Returns
     -------
-    :class:`APyFixed`, :class:`APyFixedArray`
+    :class:`APyFixed`, :class:`APyFixedArray`, :class:`APyCFixed`, or
+    :class:`APyCFixedArray
 
     """
-    try:
-        iter(value)
-    except TypeError:
-        if force_complex or isinstance(value, complex):
-            return APyCFixed.from_complex(
-                value, int_bits=int_bits, frac_bits=frac_bits, bits=bits
-            )
-        return APyFixed.from_float(
-            value, int_bits=int_bits, frac_bits=frac_bits, bits=bits
-        )
-    if force_complex:
-        return APyCFixedArray.from_complex(
-            value, int_bits=int_bits, frac_bits=frac_bits, bits=bits
-        )
-
-    return APyFixedArray.from_float(
-        value, int_bits=int_bits, frac_bits=frac_bits, bits=bits
-    )
+    if isinstance(value, Iterable):
+        if force_complex:
+            return APyCFixedArray.from_complex(value, int_bits, frac_bits, bits)
+        else:
+            return APyFixedArray.from_float(value, int_bits, frac_bits, bits)
+    else:
+        if isinstance(value, complex):
+            return APyCFixed.from_complex(value, int_bits, frac_bits, bits)
+        else:
+            if force_complex:
+                return APyCFixed.from_complex(value, int_bits, frac_bits, bits)
+            else:
+                return APyFixed.from_float(value, int_bits, frac_bits, bits)
 
 
+@overload
 def fp(
-    value: int | float | Sequence[int] | Sequence[float],
+    value: int | float,
     exp_bits: int,
     man_bits: int,
     bias: int | None = None,
-) -> APyFloat | APyFloatArray:
-    """
-    Create an :class:`APyFloat` or :class:`APyFloatArray` object.
+    *,
+    force_complex: Literal[False] = False,
+) -> APyFloat: ...
 
-    Convenience method that applies :func:`APyFloat.from_float` or
-    :func:`APyFloatArray.from_float` depending on if the input, *value*, is a scalar or not.
+
+@overload
+def fp(
+    value: int | float,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    *,
+    force_complex: Literal[True],
+) -> APyCFloat: ...
+
+
+@overload
+def fp(
+    value: complex,
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    *,
+    force_complex: bool = False,
+) -> APyCFloat: ...
+
+
+@overload
+def fp(
+    value: Sequence[Any],
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    *,
+    force_complex: Literal[False] = False,
+) -> APyFloatArray: ...
+
+
+@overload
+def fp(
+    value: Sequence[Any],
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    *,
+    force_complex: Literal[True],
+) -> APyCFloatArray: ...
+
+
+def fp(
+    value: int | float | complex | Sequence[Any],
+    exp_bits: int,
+    man_bits: int,
+    bias: int | None = None,
+    *,
+    force_complex: bool = False,
+) -> APyFloat | APyCFloat | APyFloatArray | APyCFloatArray:
+    """
+    Create a floating-point scalar or array.
+
+    Convenience method that passes `value` and bit-specifiers to one of:
+
+    * :func:`APyFloat.from_float`
+    * :func:`APyFloatArray.from_float`
+    * :func:`APyCFloat.from_complex`
+    * :func:`APyCFloatArray.from_complex`
+
+    depending on `value`. Returns :class:`APyFloat` when `value` is :class:`int` or
+    :class:`float`. Returns :class:`APyCFloat` when `value` is :class:`complex` or when
+    *is_complex* is True. Returns :class:`APyFloatArray` or :class:`APyCFloatArray` when
+    `value` is a sequence of numbers.
 
     .. versionadded:: 0.3
+
+    .. hint::
+        Currently, this function will not detect sequences of complex values. Set
+        *force_complex* to True.
 
     Parameters
     ----------
     value : :class:`int`, :class:`float`, list of int or float, ndarray
-        Floating-point/integer value(s) to initialize from.
+        Floating-point/integer/complex value(s) to initialize from.
     exp_bits : :class:`int`
         Number of exponent bits.
     man_bits : :class:`int`
         Number of mantissa bits.
     bias : :class:`int`, optional
         Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
+    force_complex : :class:`bool`, default: False
+        If True, force the return value to be :class:`APyCFloat` or
+        :class:`APyCFloatArray`, even if *value* is real.
 
     Returns
     -------
-    :class:`APyFloat`, :class:`APyFloatArray`
+    :class:`APyFloat`, :class:`APyFloatArray`, :class:`APyCFloat`, or
+    :class:`APyCFloatArray`
 
     """
-    try:
-        iter(value)
-    except TypeError:
-        return APyFloat.from_float(
-            value, exp_bits=exp_bits, man_bits=man_bits, bias=bias
-        )
-    return APyFloatArray.from_float(
-        value, exp_bits=exp_bits, man_bits=man_bits, bias=bias
-    )
+    if isinstance(value, Iterable):
+        if force_complex:
+            return APyCFloatArray.from_complex(value, exp_bits, man_bits, bias)
+        else:
+            return APyFloatArray.from_float(value, exp_bits, man_bits, bias)
+    else:
+        if isinstance(value, complex):
+            return APyCFloat.from_complex(value, exp_bits, man_bits, bias)
+        else:
+            if force_complex:
+                return APyCFloat.from_complex(value, exp_bits, man_bits, bias)
+            else:
+                return APyFloat.from_float(value, exp_bits, man_bits, bias)
 
 
 def _process_args(
@@ -184,7 +323,8 @@ def _process_args(
 
 
 def fn(
-    fn: Callable, *args: APyFloat | APyFixed | APyFixedArray | APyFloatArray
+    fn: Callable[[int | float], int | float],
+    *args: APyFloat | APyFixed | APyFixedArray | APyFloatArray,
 ) -> APyFloat | APyFixed | APyFixedArray | APyFloatArray:
     """
     Utility function to evaluate functions on arguments and convert back.
