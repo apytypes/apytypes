@@ -16,7 +16,13 @@ from pathlib import Path
 
 import cocotb
 from cocotb.clock import Clock
-from cocotb.runner import get_runner
+
+try:
+    # cocotb < 2
+    from cocotb.runner import get_runner
+except ModuleNotFoundError:
+    # cocotb >= 2
+    from cocotb_tools.runner import get_runner
 from cocotb.triggers import FallingEdge
 
 import apytypes as apy

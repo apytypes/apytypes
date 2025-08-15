@@ -28,7 +28,7 @@ Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are availabl
 
 .. _examples: https://github.com/apytypes/apytypes/tree/main/examples
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-61
+.. GENERATED FROM PYTHON SOURCE LINES 12-67
 
 .. code-block:: Python
 
@@ -39,7 +39,13 @@ Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are availabl
 
     import cocotb
     from cocotb.clock import Clock
-    from cocotb.runner import get_runner
+
+    try:
+        # cocotb < 2
+        from cocotb.runner import get_runner
+    except ModuleNotFoundError:
+        # cocotb >= 2
+        from cocotb_tools.runner import get_runner
     from cocotb.triggers import FallingEdge
 
     import apytypes as apy
@@ -89,17 +95,17 @@ Both source files, ``test_fp8_mul.py`` and ``fp8_multiplier.vhdl``, are availabl
 
  .. code-block:: none
 
-    /home/runner/work/apytypes/apytypes/examples/test_fp8_mul.py:19: UserWarning: Python runners and associated APIs are an experimental feature and subject to change.
+    /home/runner/work/apytypes/apytypes/examples/test_fp8_mul.py:22: UserWarning: Python runners and associated APIs are an experimental feature and subject to change.
       from cocotb.runner import get_runner
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 62-63
+.. GENERATED FROM PYTHON SOURCE LINES 68-69
 
 The rest of the testbench is set up as one would normally do using cocotb.
 
-.. GENERATED FROM PYTHON SOURCE LINES 63-93
+.. GENERATED FROM PYTHON SOURCE LINES 69-99
 
 .. code-block:: Python
 
@@ -148,7 +154,7 @@ The rest of the testbench is set up as one would normally do using cocotb.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 94-98
+.. GENERATED FROM PYTHON SOURCE LINES 100-104
 
 The contents of ``fp8_multiplier.vhdl`` is shown below.
 
@@ -158,7 +164,7 @@ The contents of ``fp8_multiplier.vhdl`` is shown below.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 11.811 seconds)
+   **Total running time of the script:** (0 minutes 11.769 seconds)
 
 
 .. _sphx_glr_download_examples_test_fp8_mul.py:
