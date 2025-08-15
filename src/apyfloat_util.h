@@ -1983,7 +1983,7 @@ public:
     // Construct an uninitialized functor. Calling `this->operator()` on an
     // uninitialized functor is always undefined behaviour. To initialize the
     // functor, assign a new initialized functor in its place.
-    explicit _FloatingPointMultiplierShort() {};
+    explicit _FloatingPointMultiplierShort() { };
 
     // Initializing constructor. After calling this constructor, the functor is
     // fully initialized and ready to be used.
@@ -2074,7 +2074,7 @@ public:
     // Construct an uninitialized functor. Calling `this->operator()` on an
     // uninitialized functor is always undefined behaviour. To initialize the
     // functor, assign a new initialized functor in its place.
-    explicit _FloatingPointMultiplierGeneral() {};
+    explicit _FloatingPointMultiplierGeneral() { };
 
     // Initializing constructor. After calling this constructor, the functor is
     // fully initialized and ready to be used.
@@ -2136,7 +2136,7 @@ public:
     // Construct an uninitialized functor. Calling `this->operator()` on an
     // uninitialized functor is always undefined behaviour. To initialize the
     // functor, assign a new initialized functor in its place.
-    explicit _FloatingPointAddSubSameWl() {};
+    explicit _FloatingPointAddSubSameWl() { };
 
     // Initializing constructor. After calling this constructor, the functor is
     // fully initialized and ready to be used.
@@ -2206,7 +2206,7 @@ public:
     // Construct an uninitialized functor. Calling `this->operator()` on an
     // uninitialized functor is always undefined behaviour. To initialize the
     // functor, assign a new initialized functor in its place.
-    explicit _FloatingPointAddSubDiffWl() {};
+    explicit _FloatingPointAddSubDiffWl() { };
 
     // Initializing constructor. After calling this constructor, the functor is
     // fully initialized and ready to be used.
@@ -2276,7 +2276,7 @@ public:
     // Construct an uninitialized functor. Calling `this->operator()` on an
     // uninitialized functor is always undefined behaviour. To initialize the
     // functor, assign a new initialized functor in its place.
-    explicit _FloatingPointAddSubGeneral() {};
+    explicit _FloatingPointAddSubGeneral() { };
 
     // Initializing constructor. After calling this constructor, the functor is
     // fully initialized and ready to be used.
