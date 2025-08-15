@@ -69,6 +69,23 @@ These are examples of how APyTypes can be used.
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="This illustrates the effect of solving an ODE with forward Euler using different floating-point formats and different quantization schemes.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_ode_solver_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_ode_solver.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Floating-point ODE solver</div>
+    </div>
+
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="This illustrates the effect of performing a vector rotation using different number of fractional bits and different quantization schemes.">
 
 .. only:: html
@@ -131,6 +148,7 @@ These are examples of how APyTypes can be used.
    /examples/apyfloat
    /examples/apyfixed
    /examples/numpy_integration
+   /examples/ode_solver
    /examples/vectorrotation
    /examples/reciprocal_lookup
    /examples/test_fp8_mul
