@@ -86,6 +86,7 @@ markers = [
     "float_array : custom marker for grouping tests for floating-point arrays",
     "slow : custom marker for grouping long running tests",
 ]
+testpaths = ["lib/test"]
 
 [tool.cibuildwheel]
 skip = [
