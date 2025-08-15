@@ -1431,27 +1431,27 @@ template <
     const bool same_sign = x_sign == y_sign;
 
     // Handle the NaN and inf cases
-    bool x_is_max_exp = is_max_exponent(x, x_spec);
-    bool y_is_max_exp = is_max_exponent(y, y_spec);
+    const bool x_is_max_exp = is_max_exponent(x, x_spec);
+    const bool y_is_max_exp = is_max_exponent(y, y_spec);
 
     if (x_is_max_exp || y_is_max_exp) {
-        bool x_man_is_zero = x.man == 0;
-        bool y_man_is_zero = y.man == 0;
-        bool x_is_nan = x_is_max_exp & !x_man_is_zero;
-        bool y_is_nan = y_is_max_exp & !y_man_is_zero;
+        const bool x_man_is_zero = x.man == 0;
+        const bool y_man_is_zero = y.man == 0;
+        const bool x_is_nan = x_is_max_exp & !x_man_is_zero;
+        const bool y_is_nan = y_is_max_exp & !y_man_is_zero;
         // Simplified based on Boolean logic rules
         if (x_is_nan || y_is_nan || (!same_sign && x_is_max_exp && y_is_max_exp)) {
             z = { x_sign, RES_MAX_EXP, 1 }; // NaN
             return;
         } else {
-            bool sign = x_is_max_exp ? x_sign : y_sign;
+            const bool sign = x_is_max_exp ? x_sign : y_sign;
             z = { sign, RES_MAX_EXP, 0 }; // Inf
             return;
         }
     } else if (is_zero(x)) {
         // If `x` is zero, then so is `y`
-        bool res_sign = same_sign ? x_sign : qntz == QuantizationMode::TRN;
-        man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
+        const bool res_sign = same_sign ? x_sign : qntz == QuantizationMode::TRN;
+        const man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
         z = { res_sign, 0, res_man };
         return;
     }
@@ -1479,8 +1479,8 @@ template <
 
     exp_t new_exp = x_true_exp + dst_spec.bias;
     if (new_exp > RES_MAX_EXP) {
-        exp_t exp = int(new_exp) < 0 ? 0 : RES_MAX_EXP;
-        man_t res_man = exp ? (qntz == QuantizationMode::JAM ? 1 : 0) : 0;
+        const exp_t exp = int(new_exp) < 0 ? 0 : RES_MAX_EXP;
+        const man_t res_man = exp ? (qntz == QuantizationMode::JAM ? 1 : 0) : 0;
         z = { x_sign, exp, res_man };
         return;
     }
@@ -1584,12 +1584,12 @@ template <
     const bool y_is_subnormal = (y.exp == 0);
     const bool y_is_max_exp = (y.exp == SRC2_MAX_EXP);
     if (x_is_max_exp || y_is_max_exp || x_is_subnormal || y_is_subnormal) {
-        bool x_man_is_zero = x.man == 0;
-        bool y_man_is_zero = y.man == 0;
-        bool x_is_nan = x_is_max_exp & !x_man_is_zero;
-        bool y_is_nan = y_is_max_exp & !y_man_is_zero;
-        bool x_is_zero = x_is_subnormal & x_man_is_zero;
-        bool y_is_zero = y_is_subnormal & y_man_is_zero;
+        const bool x_man_is_zero = x.man == 0;
+        const bool y_man_is_zero = y.man == 0;
+        const bool x_is_nan = x_is_max_exp & !x_man_is_zero;
+        const bool y_is_nan = y_is_max_exp & !y_man_is_zero;
+        const bool x_is_zero = x_is_subnormal & x_man_is_zero;
+        const bool y_is_zero = y_is_subnormal & y_man_is_zero;
         // Simplified based on Boolean logic rules
         if (x_is_nan || y_is_nan || (x_is_max_exp && y_is_zero)
             || (y_is_max_exp && x_is_zero)) {
@@ -1681,12 +1681,12 @@ template <
     const bool y_is_subnormal = (y.exp == 0);
     const bool y_is_max_exp = (y.exp == SRC2_MAX_EXP);
     if (x_is_max_exp || y_is_max_exp || x_is_subnormal || y_is_subnormal) {
-        bool x_has_zero_man = x.man == 0;
-        bool y_has_zero_man = y.man == 0;
-        bool x_is_nan = x_is_max_exp & !x_has_zero_man;
-        bool y_is_nan = y_is_max_exp & !y_has_zero_man;
-        bool x_is_zero = x_is_subnormal & x_has_zero_man;
-        bool y_is_zero = y_is_subnormal & y_has_zero_man;
+        const bool x_has_zero_man = x.man == 0;
+        const bool y_has_zero_man = y.man == 0;
+        const bool x_is_nan = x_is_max_exp & !x_has_zero_man;
+        const bool y_is_nan = y_is_max_exp & !y_has_zero_man;
+        const bool x_is_zero = x_is_subnormal & x_has_zero_man;
+        const bool y_is_zero = y_is_subnormal & y_has_zero_man;
         // Simplified based on Boolean logic rules
         if (x_is_nan || y_is_nan || (x_is_max_exp && y_is_zero)
             || (y_is_max_exp && x_is_zero)) {
@@ -1801,27 +1801,29 @@ template <
         const bool y_is_max_exp = y.exp == Y_MAX_EXP;
         const bool x_is_subnormal = x.exp == 0;
         const bool y_is_subnormal = y.exp == 0;
-        const bool x_has_zero_man = x.man == 0;
-        const bool y_has_zero_man = y.man == 0;
-        const bool x_is_nan = x_is_max_exp & !x_has_zero_man;
-        const bool y_is_nan = y_is_max_exp & !y_has_zero_man;
-        const bool x_is_zero = x_is_subnormal & x_has_zero_man;
-        const bool y_is_zero = y_is_subnormal & y_has_zero_man;
-        // Simplified based on Boolean logic rules
-        if (x_is_nan || y_is_nan || (x_is_zero && y_is_zero)
-            || (x_is_max_exp && y_is_max_exp)) {
-            z = { sign, RES_MAX_EXP, 1 }; // NaN
-            continue;
-        }
-        const bool y_is_inf = y_is_max_exp & y_has_zero_man;
-        if (x_is_zero || y_is_inf) {
-            z = { sign, 0, 0 };
-            continue;
-        }
-        const bool x_is_inf = x_is_max_exp & x_has_zero_man;
-        if (x_is_inf || y_is_zero) {
-            z = { sign, RES_MAX_EXP, 0 }; // inf
-            continue;
+        if (x_is_max_exp || y_is_max_exp || x_is_subnormal || y_is_subnormal) {
+            const bool x_has_zero_man = x.man == 0;
+            const bool y_has_zero_man = y.man == 0;
+            const bool x_is_nan = x_is_max_exp & !x_has_zero_man;
+            const bool y_is_nan = y_is_max_exp & !y_has_zero_man;
+            const bool x_is_zero = x_is_subnormal & x_has_zero_man;
+            const bool y_is_zero = y_is_subnormal & y_has_zero_man;
+            // Simplified based on Boolean logic rules
+            if (x_is_nan || y_is_nan || (x_is_zero && y_is_zero)
+                || (x_is_max_exp && y_is_max_exp)) {
+                z = { sign, RES_MAX_EXP, 1 }; // NaN
+                continue;
+            }
+            const bool y_is_inf = y_is_max_exp & y_has_zero_man;
+            if (x_is_zero || y_is_inf) {
+                z = { sign, 0, 0 };
+                continue;
+            }
+            const bool x_is_inf = x_is_max_exp & x_has_zero_man;
+            if (x_is_inf || y_is_zero) {
+                z = { sign, RES_MAX_EXP, 0 }; // inf
+                continue;
+            }
         }
 
         const auto [nx_data, nx_exp_bits, nx_bias] = normalize(x, x_spec);
