@@ -1765,6 +1765,101 @@ template <
     return;
 }
 
+[[maybe_unused]]
+static void APY_INLINE floating_point_quotient_inner(
+    const bool x_is_max_exp,
+    const bool y_is_max_exp,
+    const bool x_is_subnormal,
+    const bool y_is_subnormal,
+    const APyFloatData& x,
+    const APyFloatData& y,
+    APyFloatData& z,
+    const exp_t& RES_MAX_EXP,
+    const APyFloatSpec& x_spec,
+    const APyFloatSpec& y_spec,
+    const APyFloatSpec& z_spec,
+    const QuantizationMode& qntz
+)
+{
+    const bool sign = x.sign ^ y.sign;
+    if (x_is_max_exp || y_is_max_exp || x_is_subnormal || y_is_subnormal) {
+        const bool x_has_zero_man = x.man == 0;
+        const bool y_has_zero_man = y.man == 0;
+        const bool x_is_nan = x_is_max_exp & !x_has_zero_man;
+        const bool y_is_nan = y_is_max_exp & !y_has_zero_man;
+        const bool x_is_zero = x_is_subnormal & x_has_zero_man;
+        const bool y_is_zero = y_is_subnormal & y_has_zero_man;
+        // Simplified based on Boolean logic rules
+        if (x_is_nan || y_is_nan || (x_is_zero && y_is_zero)
+            || (x_is_max_exp && y_is_max_exp)) {
+            z = { sign, RES_MAX_EXP, 1 }; // NaN
+            return;
+        }
+        const bool y_is_inf = y_is_max_exp & y_has_zero_man;
+        if (x_is_zero || y_is_inf) {
+            z = { sign, 0, 0 };
+            return;
+        }
+        const bool x_is_inf = x_is_max_exp & x_has_zero_man;
+        if (x_is_inf || y_is_zero) {
+            z = { sign, RES_MAX_EXP, 0 }; // inf
+            return;
+        }
+    }
+
+    const auto [nx_data, nx_exp_bits, nx_bias] = normalize(x, x_spec);
+    const auto [ny_data, ny_exp_bits, ny_bias] = normalize(y, y_spec);
+
+    std::int64_t new_exp = std::int64_t(nx_data.exp) - std::int64_t(nx_bias)
+        - std::int64_t(ny_data.exp) + ny_bias + z_spec.bias;
+
+    const man_t mx = true_man(nx_data, { nx_exp_bits, x_spec.man_bits, nx_bias });
+    const man_t my = true_man(ny_data, { ny_exp_bits, y_spec.man_bits, ny_bias });
+    const APyFixed apy_mx(2 + 64 + x_spec.man_bits, 2, { UINT64_TO_LIMB(mx) });
+    const APyFixed apy_my(2 + 64 + y_spec.man_bits, 2, { UINT64_TO_LIMB(my) });
+    APyFixed apy_man_res = apy_mx / apy_my;
+
+    // The result from the division will be in (1/2, 2) so normalization may be
+    // required.
+    if (!apy_man_res.positive_greater_than_equal_pow2(0)) {
+        apy_man_res <<= 1;
+        new_exp--;
+    }
+
+    // Check limits
+    if (new_exp >= RES_MAX_EXP) {
+        if (do_infinity(qntz, sign)) {
+            z = { sign, RES_MAX_EXP, 0 }; // Inf
+            return;
+        } else {
+            z = { sign, RES_MAX_EXP - 1, (1ULL << z_spec.man_bits) - 1 };
+            return;
+        }
+    }
+
+    // Handle subnormal case
+    if (new_exp <= 0) {
+        apy_man_res >>= unsigned(1 - new_exp);
+        new_exp = 0;
+    }
+
+    // Quantize mantissa. This will never create carry.
+    quantize_apymantissa(apy_man_res, sign, z_spec.man_bits, qntz);
+
+    // Remove leading one
+    if (apy_man_res.positive_greater_than_equal_pow2(0)) {
+        apy_man_res = apy_man_res - APyFixed(2, 2, { 1 });
+
+        // If a leading one is present while the exponent is zero,
+        // then it 'acts like a carry' and creates a normal number
+        if (new_exp == 0) {
+            new_exp = 1;
+        }
+    }
+    apy_man_res <<= z_spec.man_bits;
+    z = { sign, exp_t(new_exp), man_t(apy_man_res.to_double()) };
+}
+
 //! Iterator-based floating-point quotients
 template <
     const std::size_t SRC1_INC = 1,
@@ -1773,7 +1868,8 @@ template <
     typename RANDOM_ACCESS_ITERATOR_IN1,
     typename RANDOM_ACCESS_ITERATOR_IN2,
     typename RANDOM_ACCESS_ITERATOR_INOUT>
-[[maybe_unused]] static APY_INLINE void floating_point_quotients(
+[[maybe_unused]]
+static APY_INLINE void floating_point_quotients(
     RANDOM_ACCESS_ITERATOR_IN1 src1,
     RANDOM_ACCESS_ITERATOR_IN2 src2,
     RANDOM_ACCESS_ITERATOR_INOUT dst,
@@ -1790,112 +1886,107 @@ template <
     const APyFloatSpec& z_spec = dst_spec;
     const exp_t X_MAX_EXP = exp_t((1ULL << x_spec.exp_bits) - 1);
     const exp_t Y_MAX_EXP = exp_t((1ULL << y_spec.exp_bits) - 1);
-    for (std::size_t i = 0; i < n_elements; i++) {
-        const APyFloatData& x = src1[SRC1_INC * i];
-        const APyFloatData& y = src2[SRC2_INC * i];
-        APyFloatData& z = dst[DST_INC * i];
-        bool sign = x.sign ^ y.sign;
-
-        // Handle special operands
+    if constexpr (SRC1_INC == 0) {
+        // Scalar divided by array
+        const APyFloatData& x = src1[0];
         const bool x_is_max_exp = x.exp == X_MAX_EXP;
-        const bool y_is_max_exp = y.exp == Y_MAX_EXP;
         const bool x_is_subnormal = x.exp == 0;
+        for (std::size_t i = 0; i < n_elements; i++) {
+            const APyFloatData& y = src2[SRC2_INC * i];
+            APyFloatData& z = dst[DST_INC * i];
+
+            // Handle special operands
+            const bool y_is_max_exp = y.exp == Y_MAX_EXP;
+            const bool y_is_subnormal = y.exp == 0;
+            floating_point_quotient_inner(
+                x_is_max_exp,
+                y_is_max_exp,
+                x_is_subnormal,
+                y_is_subnormal,
+                x,
+                y,
+                z,
+                RES_MAX_EXP,
+                x_spec,
+                y_spec,
+                z_spec,
+                qntz
+            );
+        }
+    } else if constexpr (SRC2_INC == 0) {
+        // Array divided by scalar
+        const APyFloatData& y = src2[0];
+        const bool y_is_max_exp = y.exp == Y_MAX_EXP;
         const bool y_is_subnormal = y.exp == 0;
-        if (x_is_max_exp || y_is_max_exp || x_is_subnormal || y_is_subnormal) {
-            const bool x_has_zero_man = x.man == 0;
-            const bool y_has_zero_man = y.man == 0;
-            const bool x_is_nan = x_is_max_exp & !x_has_zero_man;
-            const bool y_is_nan = y_is_max_exp & !y_has_zero_man;
-            const bool x_is_zero = x_is_subnormal & x_has_zero_man;
-            const bool y_is_zero = y_is_subnormal & y_has_zero_man;
-            // Simplified based on Boolean logic rules
-            if (x_is_nan || y_is_nan || (x_is_zero && y_is_zero)
-                || (x_is_max_exp && y_is_max_exp)) {
-                z = { sign, RES_MAX_EXP, 1 }; // NaN
-                continue;
-            }
-            const bool y_is_inf = y_is_max_exp & y_has_zero_man;
-            if (x_is_zero || y_is_inf) {
-                z = { sign, 0, 0 };
-                continue;
-            }
-            const bool x_is_inf = x_is_max_exp & x_has_zero_man;
-            if (x_is_inf || y_is_zero) {
-                z = { sign, RES_MAX_EXP, 0 }; // inf
-                continue;
-            }
+        for (std::size_t i = 0; i < n_elements; i++) {
+            const APyFloatData& x = src1[SRC1_INC * i];
+            APyFloatData& z = dst[DST_INC * i];
+
+            // Handle special operands
+            const bool x_is_max_exp = x.exp == X_MAX_EXP;
+            const bool x_is_subnormal = x.exp == 0;
+            floating_point_quotient_inner(
+                x_is_max_exp,
+                y_is_max_exp,
+                x_is_subnormal,
+                y_is_subnormal,
+                x,
+                y,
+                z,
+                RES_MAX_EXP,
+                x_spec,
+                y_spec,
+                z_spec,
+                qntz
+            );
         }
+    } else {
+        // Array divided by array
+        for (std::size_t i = 0; i < n_elements; i++) {
+            const APyFloatData& x = src1[SRC1_INC * i];
+            const APyFloatData& y = src2[SRC2_INC * i];
+            APyFloatData& z = dst[DST_INC * i];
 
-        const auto [nx_data, nx_exp_bits, nx_bias] = normalize(x, x_spec);
-        const auto [ny_data, ny_exp_bits, ny_bias] = normalize(y, y_spec);
-
-        std::int64_t new_exp = std::int64_t(nx_data.exp) - std::int64_t(nx_bias)
-            - std::int64_t(ny_data.exp) + ny_bias + z_spec.bias;
-
-        const man_t mx = true_man(nx_data, { nx_exp_bits, x_spec.man_bits, nx_bias });
-        const man_t my = true_man(ny_data, { ny_exp_bits, y_spec.man_bits, ny_bias });
-        const APyFixed apy_mx(2 + 64 + x_spec.man_bits, 2, { UINT64_TO_LIMB(mx) });
-        const APyFixed apy_my(2 + 64 + y_spec.man_bits, 2, { UINT64_TO_LIMB(my) });
-        APyFixed apy_man_res = apy_mx / apy_my;
-
-        // The result from the division will be in (1/2, 2) so normalization may be
-        // required.
-        if (!apy_man_res.positive_greater_than_equal_pow2(0)) {
-            apy_man_res <<= 1;
-            new_exp--;
+            // Handle special operands
+            const bool x_is_max_exp = x.exp == X_MAX_EXP;
+            const bool y_is_max_exp = y.exp == Y_MAX_EXP;
+            const bool x_is_subnormal = x.exp == 0;
+            const bool y_is_subnormal = y.exp == 0;
+            floating_point_quotient_inner(
+                x_is_max_exp,
+                y_is_max_exp,
+                x_is_subnormal,
+                y_is_subnormal,
+                x,
+                y,
+                z,
+                RES_MAX_EXP,
+                x_spec,
+                y_spec,
+                z_spec,
+                qntz
+            );
         }
-
-        // Check limits
-        if (new_exp >= RES_MAX_EXP) {
-            if (do_infinity(qntz, sign)) {
-                z = { sign, RES_MAX_EXP, 0 }; // Inf
-                continue;
-            } else {
-                z = { sign, RES_MAX_EXP - 1, (1ULL << z_spec.man_bits) - 1 };
-                continue;
-            }
-        }
-
-        // Handle subnormal case
-        if (new_exp <= 0) {
-            apy_man_res >>= unsigned(1 - new_exp);
-            new_exp = 0;
-        }
-
-        // Quantize mantissa. This will never create carry.
-        quantize_apymantissa(apy_man_res, sign, z_spec.man_bits, qntz);
-
-        // Remove leading one
-        if (apy_man_res.positive_greater_than_equal_pow2(0)) {
-            apy_man_res = apy_man_res - APyFixed(2, 2, { 1 });
-
-            // If a leading one is present while the exponent is zero,
-            // then it 'acts like a carry' and creates a normal number
-            if (new_exp == 0) {
-                new_exp = 1;
-            }
-        }
-        apy_man_res <<= z_spec.man_bits;
-        z = { sign, exp_t(new_exp), man_t(apy_man_res.to_double()) };
-        continue;
     }
 }
 
-/* ********************************************************************************** *
- * *              Floating-point iterator-based arithmetic functors                 * *
- * ********************************************************************************** */
+/* **********************************************************************************
+ * *
+ * *              Floating-point iterator-based arithmetic functors * *
+ * **********************************************************************************
+ */
 
 //! Short floating-point multiplication functor. Available when:
 //! `src1_spec.man_bits + src2_spec.man_bits <=_MAN_LIMIT_BITS`
 class _FloatingPointMultiplierShort {
 public:
     // Construct an uninitialized functor. Calling `this->operator()` on an
-    // uninitialized functor is always undefined behaviour. To initialize the functor,
-    // assign a new initialized functor in its place.
-    explicit _FloatingPointMultiplierShort() { };
+    // uninitialized functor is always undefined behaviour. To initialize the
+    // functor, assign a new initialized functor in its place.
+    explicit _FloatingPointMultiplierShort() {};
 
-    // Initializing constructor. After calling this constructor, the functor is fully
-    // initialized and ready to be used.
+    // Initializing constructor. After calling this constructor, the functor is
+    // fully initialized and ready to be used.
     explicit _FloatingPointMultiplierShort(
         const APyFloatSpec& src1_spec,
         const APyFloatSpec& src2_spec,
@@ -1981,12 +2072,12 @@ private:
 class _FloatingPointMultiplierGeneral {
 public:
     // Construct an uninitialized functor. Calling `this->operator()` on an
-    // uninitialized functor is always undefined behaviour. To initialize the functor,
-    // assign a new initialized functor in its place.
-    explicit _FloatingPointMultiplierGeneral() { };
+    // uninitialized functor is always undefined behaviour. To initialize the
+    // functor, assign a new initialized functor in its place.
+    explicit _FloatingPointMultiplierGeneral() {};
 
-    // Initializing constructor. After calling this constructor, the functor is fully
-    // initialized and ready to be used.
+    // Initializing constructor. After calling this constructor, the functor is
+    // fully initialized and ready to be used.
     explicit _FloatingPointMultiplierGeneral(
         const APyFloatSpec& src1_spec,
         const APyFloatSpec& src2_spec,
@@ -2043,12 +2134,12 @@ private:
 template <bool IS_SUBTRACT> class _FloatingPointAddSubSameWl {
 public:
     // Construct an uninitialized functor. Calling `this->operator()` on an
-    // uninitialized functor is always undefined behaviour. To initialize the functor,
-    // assign a new initialized functor in its place.
-    explicit _FloatingPointAddSubSameWl() { };
+    // uninitialized functor is always undefined behaviour. To initialize the
+    // functor, assign a new initialized functor in its place.
+    explicit _FloatingPointAddSubSameWl() {};
 
-    // Initializing constructor. After calling this constructor, the functor is fully
-    // initialized and ready to be used.
+    // Initializing constructor. After calling this constructor, the functor is
+    // fully initialized and ready to be used.
     explicit _FloatingPointAddSubSameWl(
         const APyFloatSpec& src1_spec,
         const APyFloatSpec& src2_spec,
@@ -2113,12 +2204,12 @@ private:
 template <bool IS_SUBTRACT> class _FloatingPointAddSubDiffWl {
 public:
     // Construct an uninitialized functor. Calling `this->operator()` on an
-    // uninitialized functor is always undefined behaviour. To initialize the functor,
-    // assign a new initialized functor in its place.
-    explicit _FloatingPointAddSubDiffWl() { };
+    // uninitialized functor is always undefined behaviour. To initialize the
+    // functor, assign a new initialized functor in its place.
+    explicit _FloatingPointAddSubDiffWl() {};
 
-    // Initializing constructor. After calling this constructor, the functor is fully
-    // initialized and ready to be used.
+    // Initializing constructor. After calling this constructor, the functor is
+    // fully initialized and ready to be used.
     explicit _FloatingPointAddSubDiffWl(
         const APyFloatSpec& src1_spec,
         const APyFloatSpec& src2_spec,
@@ -2183,12 +2274,12 @@ private:
 template <bool IS_SUBTRACT> class _FloatingPointAddSubGeneral {
 public:
     // Construct an uninitialized functor. Calling `this->operator()` on an
-    // uninitialized functor is always undefined behaviour. To initialize the functor,
-    // assign a new initialized functor in its place.
-    explicit _FloatingPointAddSubGeneral() { };
+    // uninitialized functor is always undefined behaviour. To initialize the
+    // functor, assign a new initialized functor in its place.
+    explicit _FloatingPointAddSubGeneral() {};
 
-    // Initializing constructor. After calling this constructor, the functor is fully
-    // initialized and ready to be used.
+    // Initializing constructor. After calling this constructor, the functor is
+    // fully initialized and ready to be used.
     explicit _FloatingPointAddSubGeneral(
         const APyFloatSpec& src1_spec,
         const APyFloatSpec& src2_spec,
