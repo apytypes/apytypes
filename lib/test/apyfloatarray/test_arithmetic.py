@@ -661,6 +661,29 @@ def test_array_div_scalar(
 
 
 @pytest.mark.float_array
+def test_array_div_scalar_special_cases():
+    a = APyFloatArray.from_float([0, float("inf"), float("nan"), 1], 9, 10)
+    b = APyFloat.from_float(0, 9, 8)
+    res = APyFloatArray.from_float(
+        [float("nan"), float("inf"), float("nan"), float("inf")], 9, 10
+    )
+    assert res.is_identical(a / b)
+
+    b = APyFloat.from_float(1, 9, 8)
+    assert a.is_identical(a / b)
+
+    b = APyFloat.from_float(float("nan"), 9, 8)
+    res = APyFloatArray.from_float(
+        [float("nan"), float("nan"), float("nan"), float("nan")], 9, 10
+    )
+    assert res.is_identical(a / b)
+
+    b = APyFloat.from_float(float("inf"), 9, 8)
+    res = APyFloatArray.from_float([0, float("nan"), float("nan"), 0], 9, 10)
+    assert res.is_identical(a / b)
+
+
+@pytest.mark.float_array
 @pytest.mark.parametrize(
     ("float_array", "float_scalar"),
     [(APyFloatArray, APyFloat), (APyCFloatArray, APyCFloat)],
@@ -672,6 +695,30 @@ def test_array_rdiv_scalar(
     a = float_array.from_float([4, 5, 32], 9, 10)
     b = float_scalar.from_float(8, 5, 8)
     assert (b / a).is_identical(float_array.from_float([2, 1.6, 0.25], 9, 10))
+
+
+@pytest.mark.float_array
+def test_array_rdiv_scalar_special_cases():
+    a = APyFloatArray.from_float([0, float("inf"), float("nan"), 1], 9, 10)
+    b = APyFloat.from_float(0, 9, 8)
+    res = APyFloatArray.from_float([float("nan"), 0, float("nan"), 0], 9, 10)
+    assert res.is_identical(b / a)
+
+    b = APyFloat.from_float(1, 9, 8)
+    res = APyFloatArray.from_float([float("inf"), 0, float("nan"), 1], 9, 10)
+    assert res.is_identical(b / a)
+
+    b = APyFloat.from_float(float("nan"), 9, 8)
+    res = APyFloatArray.from_float(
+        [float("nan"), float("nan"), float("nan"), float("nan")], 9, 10
+    )
+    assert res.is_identical(b / a)
+
+    b = APyFloat.from_float(float("inf"), 9, 8)
+    res = APyFloatArray.from_float(
+        [float("inf"), float("nan"), float("nan"), float("inf")], 9, 10
+    )
+    assert res.is_identical(b / a)
 
 
 @pytest.mark.float_array
