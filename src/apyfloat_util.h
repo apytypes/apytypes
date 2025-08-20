@@ -37,6 +37,8 @@ static constexpr std::size_t _EXP_T_SIZE_BITS = 8 * _EXP_T_SIZE_BYTES;
 static constexpr std::size_t _MAN_LIMIT_BITS = _MAN_T_SIZE_BITS - 3;
 static constexpr std::size_t _EXP_LIMIT_BITS = _EXP_T_SIZE_BITS - 2;
 
+static const APyFixed FX_ONE = APyFixed(2, 2, { 1 });
+
 /* ********************************************************************************** *
  * *                        Floating-point helper utilities                         * *
  * ********************************************************************************** */
@@ -1537,7 +1539,7 @@ template <
 
     // Remove leading one
     if (apy_res.positive_greater_than_equal_pow2(0)) {
-        apy_res = apy_res - APyFixed(2, 2, { 1 });
+        apy_res = apy_res - FX_ONE;
     }
 
     z = { x_sign, exp_t(new_exp), apy_res.get_lsbs() };
@@ -1752,7 +1754,7 @@ template <
     }
 
     if (apy_res.positive_greater_than_equal_pow2(0)) { // Remove leading one
-        apy_res = apy_res - APyFixed(2, 2, { 1 });
+        apy_res = apy_res - FX_ONE;
 
         // If a leading one is present while the exponent is zero,
         // then it 'acts like a carry' and creates a normal number
@@ -1809,7 +1811,7 @@ static void APY_INLINE _division_core(
 
     // Remove leading one
     if (apy_man_res.positive_greater_than_equal_pow2(0)) {
-        apy_man_res = apy_man_res - APyFixed(2, 2, { 1 });
+        apy_man_res = apy_man_res - FX_ONE;
 
         // If a leading one is present while the exponent is zero,
         // then it 'acts like a carry' and creates a normal number
