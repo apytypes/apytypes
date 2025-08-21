@@ -52,12 +52,12 @@ template <typename T> struct NoDefaultConstructAllocator {
     }
 
     template <typename U>
-    bool operator==(const NoDefaultConstructAllocator<U>& _) noexcept
+    bool operator==(const NoDefaultConstructAllocator<U>&) noexcept
     {
         return true;
     }
     template <typename U>
-    bool operator!=(const NoDefaultConstructAllocator<U>& _) noexcept
+    bool operator!=(const NoDefaultConstructAllocator<U>&) noexcept
     {
         return false;
     }
