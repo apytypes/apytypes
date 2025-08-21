@@ -27,9 +27,9 @@ public:
     //! Constructor taking a sequence of signs, biased exponents, and mantissas.
     //! If no bias is given, an IEEE-like bias will be used.
     explicit APyFloatArray(
-        const nanobind::sequence& sign_seq,
-        const nanobind::sequence& exp_seq,
-        const nanobind::sequence& man_seq,
+        const nanobind::iterable& sign_seq,
+        const nanobind::iterable& exp_seq,
+        const nanobind::iterable& man_seq,
         std::uint8_t exp_bits,
         std::uint8_t man_bits,
         std::optional<exp_t> bias = std::nullopt
@@ -164,9 +164,9 @@ public:
     //! Factory function for Python interface
     static void create_in_place(
         APyFloatArray* apyfloatarray,
-        const nb::typed<nb::sequence, nb::any>& sign_seq,
-        const nb::typed<nb::sequence, nb::any>& exp_seq,
-        const nb::typed<nb::sequence, nb::any>& man_seq,
+        const nb::typed<nb::iterable, nb::any>& sign_seq,
+        const nb::typed<nb::iterable, nb::any>& exp_seq,
+        const nb::typed<nb::iterable, nb::any>& man_seq,
         int exp_bits,
         int man_bits,
         std::optional<exp_t> bias = std::nullopt
@@ -175,7 +175,7 @@ public:
     //! Create an `APyFloatArray` tensor object initialized with values from a sequence
     //! of numbers
     static APyFloatArray from_numbers(
-        const nb::typed<nb::sequence, nb::any>& number_seq,
+        const nb::typed<nb::iterable, nb::any>& number_seq,
         int exp_bits,
         int man_bits,
         std::optional<exp_t> bias = std::nullopt
@@ -191,7 +191,7 @@ public:
 
     //! Create an `APyFloatArray` tensor object initialized from bit-representation
     static APyFloatArray from_bits(
-        const nb::sequence& python_bit_patterns,
+        const nb::iterable& python_bit_patterns,
         int exp_bits,
         int man_bits,
         std::optional<exp_t> bias = std::nullopt

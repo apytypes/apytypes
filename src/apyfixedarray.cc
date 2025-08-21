@@ -11,7 +11,6 @@
 #include "apytypes_simd.h"
 #include "apytypes_util.h"
 #include "array_utils.h"
-#include "broadcast.h"
 #include "python_util.h"
 
 // Python object access through Nanobind
@@ -40,13 +39,13 @@ namespace nb = nanobind;
  * ********************************************************************************** */
 
 APyFixedArray::APyFixedArray(
-    const nb::typed<nb::sequence, nb::any>& bit_pattern_sequence,
+    const nb::typed<nb::iterable, nb::any>& bit_pattern_sequence,
     std::optional<int> int_bits,
     std::optional<int> frac_bits,
     std::optional<int> bits
 )
     : APyFixedArray(
-          python_sequence_extract_shape(bit_pattern_sequence, "APyFixedArray.__init__"),
+          python_iterable_extract_shape(bit_pattern_sequence, "APyFixedArray.__init__"),
           int_bits,
           frac_bits,
           bits
@@ -60,7 +59,7 @@ APyFixedArray::APyFixedArray(
     }
 
     // 1D vector of Python int object (`nb::int_` objects)
-    auto python_ints = python_sequence_walk<nb::int_>(
+    auto python_ints = python_iterable_walk<nb::int_>(
         bit_pattern_sequence, "APyFixedArray.__init__"
     );
 
@@ -1300,7 +1299,7 @@ APyFixedArray APyFixedArray::cast(
  * ********************************************************************************** */
 
 APyFixedArray APyFixedArray::from_numbers(
-    const nb::typed<nb::sequence, nb::any>& number_seq,
+    const nb::typed<nb::iterable, nb::any>& number_seq,
     std::optional<int> int_bits,
     std::optional<int> frac_bits,
     std::optional<int> bits
@@ -1313,14 +1312,14 @@ APyFixedArray APyFixedArray::from_numbers(
     }
 
     APyFixedArray result(
-        python_sequence_extract_shape(number_seq, "APyFixedArray.from_float"),
+        python_iterable_extract_shape(number_seq, "APyFixedArray.from_float"),
         int_bits,
         frac_bits,
         bits
     );
 
     // Extract all Python doubles and integers
-    auto py_objs = python_sequence_walk<nb::float_, nb::int_, APyFixed, APyFloat>(
+    auto py_objs = python_iterable_walk<nb::float_, nb::int_, APyFixed, APyFloat>(
         number_seq, "APyFixedArray.from_float"
     );
 

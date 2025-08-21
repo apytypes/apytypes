@@ -127,7 +127,7 @@ def test_array_from_float_raises(float_array: type[APyCFloatArray]):
     with pytest.raises(
         ValueError,
         match=r"APyC?FloatArray.from_(float)|(complex): "
-        + r"unexpected type when traversing Sequence: <class 'str'>",
+        + r"unexpected type when traversing iterable sequence: <class 'str'>",
     ):
         _ = float_array.from_float(["0"], 5, 10)
 

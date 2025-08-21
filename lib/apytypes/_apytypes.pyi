@@ -1,6 +1,6 @@
 import enum
 import types
-from collections.abc import Sequence
+from collections.abc import Iterable
 from typing import Annotated, Any, overload
 
 from numpy.typing import ArrayLike
@@ -588,7 +588,7 @@ class APyCFixedArray:
 
     def __init__(
         self,
-        bit_pattern_sequence: Sequence[Any],
+        bit_pattern_sequence: Iterable[Any],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
@@ -1332,15 +1332,13 @@ class APyCFixedArray:
 
     @staticmethod
     def from_complex(
-        complex_sequence: Sequence[Any],
+        complex_sequence: Iterable[Any],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
     ) -> APyCFixedArray:
         """
-        Create an :class:`APyCFixedArray` object from a sequence of :class:`int`,
-        :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
-        :class:`APyCFixed`.
+        Create an :class:`APyCFixedArray` from iterable sequence of numbers.
 
         The input is quantized using :class:`QuantizationMode.RND_INF` and overflow
         is handled using the :class:`OverflowMode.WRAP` mode. Exactly two of the
@@ -1350,7 +1348,7 @@ class APyCFixedArray:
 
         Parameters
         ----------
-        complex_sequence : sequence of :class:`complex`, :class:`float`, :class:`int`, :class:`APyCFixed`, :class:`APyFixed`, or :class:`APyFloat`.
+        complex_sequence : :class:`~collections.abc.Iterable` of numbers
             Values to initialize from. The tensor shape will be taken from the
             sequence shape.
         int_bits : :class:`int`, optional
@@ -1389,22 +1387,20 @@ class APyCFixedArray:
 
     @staticmethod
     def from_float(
-        number_seq: Sequence[Any],
+        number_seq: Iterable[Any],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
     ) -> APyCFixedArray:
         """
-        Create an :class:`APyCFixedArray` object from a sequence of :class:`int`,
-        :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
-        :class:`APyCFixed`.
+        Create an :class:`APyCFixedArray` from iterable sequence of numbers.
 
         This is an alias for :func:`~apytypes.APyCFixedArray.from_complex`, look
         there for more documentation.
 
         Parameters
         ----------
-        number_seq : sequence of numbers
+        number_seq : :class:`~collections.abc.Iterable` of numbers
             Values to initialize from. The tensor shape will be taken from the
             sequence shape.
         int_bits : :class:`int`, optional
@@ -1642,32 +1638,7 @@ class APyCFloat:
         exp_bits: int,
         man_bits: int,
         bias: int | None = None,
-    ) -> None:
-        """
-        Create an :class:`APyCFloat` object and initialize its real part.
-
-        The imaginary part is zero initialized.
-
-        Parameters
-        ----------
-        sign : :class:`bool` or :class:`int`
-            Sign of real part. `True`/non-zero equals negative.
-        exp : :class:`int`
-            Exponent of real part as stored, i.e., actual value + bias.
-        man : :class:`int`
-            Mantissa of the float as stored, i.e., without a hidden one.
-        exp_bits : :class:`int`
-            Number of exponent bits.
-        man_bits : :class:`int`
-            Number of mantissa bits.
-        bias : :class:`int`, optional
-            Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
-
-        Returns
-        -------
-        :class:`APyCFloat`
-        """
-
+    ) -> None: ...
     @overload
     def __init__(
         self,
@@ -2025,9 +1996,9 @@ class APyCFloatArray:
 
     def __init__(
         self,
-        sign_seq: Sequence[Any],
-        exp_seq: Sequence[Any],
-        man_seq: Sequence[Any],
+        sign_seq: Iterable[Any],
+        exp_seq: Iterable[Any],
+        man_seq: Iterable[Any],
         exp_bits: int,
         man_bits: int,
         bias: int | None = None,
@@ -2195,21 +2166,19 @@ class APyCFloatArray:
 
     @staticmethod
     def from_complex(
-        complex_sequence: Sequence[Any],
+        complex_sequence: Iterable[Any],
         exp_bits: int,
         man_bits: int,
         bias: int | None = None,
     ) -> APyCFloatArray:
         """
-        Create an :class:`APyCFloatArray` object from a sequence of :class:`int`,
-        :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
-        :class:`APyCFixed`.
+        Create an :class:`APyCFloatArray` from iterable sequence of numbers.
 
         Using NumPy arrays as input is in general faster than using e.g. lists.
 
         Parameters
         ----------
-        complex_sequence : sequence of :class:`complex`, :class:`float`, :class:`int`, :class:`APyCFloat`, :class:`APyCFixed`, :class:`APyFixed`, or :class:`APyFloat`.
+        complex_sequence : :class:`~collections.abc.Iterable` of numbers.
             Values to initialize from. The tensor shape will be taken from the
             sequence shape.
         exp_bits : :class:`int`
@@ -2274,22 +2243,20 @@ class APyCFloatArray:
 
     @staticmethod
     def from_float(
-        complex_sequence: Sequence[Any],
+        complex_sequence: Iterable[Any],
         exp_bits: int,
         man_bits: int,
         bias: int | None = None,
     ) -> APyCFloatArray:
         """
-        Create an :class:`APyCFloatArray` object from a sequence of :class:`int`,
-        :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
-        :class:`APyCFixed`.
+        Create an :class:`APyCFloatArray` from iterable sequence of numbers.
 
         This is an alias for :func:`~apytypes.APyCFloatArray.from_complex`, look
         there for more documentation.
 
         Parameters
         ----------
-        complex_sequence : sequence of :class:`complex`, :class:`float`, :class:`int`, :class:`APyCFloat`, :class:`APyCFixed`, :class:`APyFixed`, or :class:`APyFloat`.
+        complex_sequence : :class:`~collections.abc.Iterable` of numbers.
             Values to initialize from. The tensor shape will be taken from the
             sequence shape.
         exp_bits : :class:`int`
@@ -3564,7 +3531,7 @@ class APyFixed:
 class APyFixedArray:
     def __init__(
         self,
-        bit_pattern_sequence: Sequence[Any],
+        bit_pattern_sequence: Iterable[Any],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
@@ -4406,14 +4373,13 @@ class APyFixedArray:
 
     @staticmethod
     def from_float(
-        number_seq: Sequence[Any],
+        number_seq: Iterable[Any],
         int_bits: int | None = None,
         frac_bits: int | None = None,
         bits: int | None = None,
     ) -> APyFixedArray:
         """
-        Create an :class:`APyFixedArray` object from a sequence of :class:`int`,
-        :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
+        Create an :class:`APyFixedArray` from iterable sequence of numbers.
 
         The input is quantized using :class:`QuantizationMode.RND_INF` and overflow
         is handled using the :class:`OverflowMode.WRAP` mode. Exactly two of the
@@ -4423,7 +4389,7 @@ class APyFixedArray:
 
         Parameters
         ----------
-        number_seq : sequence of numbers
+        number_seq : :class:`~collections.abc.Iterable` of numbers.
             Values to initialize from. The tensor shape will be taken from the
             sequence shape.
         int_bits : :class:`int`, optional
@@ -5437,9 +5403,9 @@ class APyFloatArray:
 
     def __init__(
         self,
-        signs: Sequence[Any],
-        exps: Sequence[Any],
-        mans: Sequence[Any],
+        signs: Iterable[Any],
+        exps: Iterable[Any],
+        mans: Iterable[Any],
         exp_bits: int,
         man_bits: int,
         bias: int | None = None,
@@ -5449,12 +5415,12 @@ class APyFloatArray:
 
         Parameters
         ----------
-        signs : sequence of bools or ints
+        signs : :class:`~collections.abc.Iterable` of :class:`bool`s or :class:`int`s
             The sign of the float. False/0 means positive. True/non-zero means
             negative.
-        exps : sequence of ints
+        exps : :class:`~collections.abc.Iterable` of :class:`int`s
             Exponents of the floats as stored, i.e., actual value + bias.
-        mans : sequence of ints
+        mans : :class:`~collections.abc.Iterable` of :class:`int`s
             Mantissas of the floats as stored, i.e., without a hidden one.
         exp_bits : :class:`int`
             Number of exponent bits.
@@ -5731,17 +5697,17 @@ class APyFloatArray:
 
     @staticmethod
     def from_float(
-        number_sequence: Sequence[Any],
+        number_sequence: Iterable[Any],
         exp_bits: int,
         man_bits: int,
         bias: int | None = None,
     ) -> APyFloatArray:
         """
-        Create an :class:`APyFloatArray` from a possibly nested sequence of numbers.
+        Create an :class:`APyFloatArray` from iterable sequence of numbers.
 
         Parameters
         ----------
-        number_sequence : sequence of numbers
+        number_sequence : :class:`~collections.abc.Iterable` of numbers
             Floating point values to initialize from. The tensor shape will be taken
             from the sequence shape.
         exp_bits : :class:`int`
@@ -5870,7 +5836,7 @@ class APyFloatArray:
 
     @staticmethod
     def from_bits(
-        bits: Sequence, exp_bits: int, man_bits: int, bias: int | None = None
+        bits: Iterable, exp_bits: int, man_bits: int, bias: int | None = None
     ) -> APyFloatArray:
         """
         Create an :class:`APyFloatArray` object from bit-representations.

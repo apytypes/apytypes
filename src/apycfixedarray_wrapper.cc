@@ -73,7 +73,7 @@ void bind_cfixed_array(nb::module_& m)
          */
         .def(
             nb::init<
-                const nb::typed<nb::sequence, nb::any>&,
+                const nb::typed<nb::iterable, nb::any>&,
                 std::optional<int>,
                 std::optional<int>,
                 std::optional<int>>(),
@@ -901,9 +901,7 @@ void bind_cfixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyCFixedArray` object from a sequence of :class:`int`,
-            :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
-            :class:`APyCFixed`.
+            Create an :class:`APyCFixedArray` from iterable sequence of numbers.
 
             The input is quantized using :class:`QuantizationMode.RND_INF` and overflow
             is handled using the :class:`OverflowMode.WRAP` mode. Exactly two of the
@@ -913,7 +911,7 @@ void bind_cfixed_array(nb::module_& m)
 
             Parameters
             ----------
-            complex_sequence : sequence of :class:`complex`, :class:`float`, :class:`int`, :class:`APyCFixed`, :class:`APyFixed`, or :class:`APyFloat`.
+            complex_sequence : :class:`~collections.abc.Iterable` of numbers
                 Values to initialize from. The tensor shape will be taken from the
                 sequence shape.
             int_bits : :class:`int`, optional
@@ -961,16 +959,14 @@ void bind_cfixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyCFixedArray` object from a sequence of :class:`int`,
-            :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
-            :class:`APyCFixed`.
+            Create an :class:`APyCFixedArray` from iterable sequence of numbers.
 
             This is an alias for :func:`~apytypes.APyCFixedArray.from_complex`, look
             there for more documentation.
 
             Parameters
             ----------
-            number_seq : sequence of numbers
+            number_seq : :class:`~collections.abc.Iterable` of numbers
                 Values to initialize from. The tensor shape will be taken from the
                 sequence shape.
             int_bits : :class:`int`, optional

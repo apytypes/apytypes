@@ -70,12 +70,12 @@ void bind_float_array(nb::module_& m)
 
             Parameters
             ----------
-            signs : sequence of bools or ints
+            signs : :class:`~collections.abc.Iterable` of :class:`bool`s or :class:`int`s
                 The sign of the float. False/0 means positive. True/non-zero means
                 negative.
-            exps : sequence of ints
+            exps : :class:`~collections.abc.Iterable` of :class:`int`s
                 Exponents of the floats as stored, i.e., actual value + bias.
-            mans : sequence of ints
+            mans : :class:`~collections.abc.Iterable` of :class:`int`s
                 Mantissas of the floats as stored, i.e., without a hidden one.
             exp_bits : :class:`int`
                 Number of exponent bits.
@@ -345,11 +345,11 @@ void bind_float_array(nb::module_& m)
             nb::arg("man_bits"),
             nb::arg("bias") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyFloatArray` from a possibly nested sequence of numbers.
+            Create an :class:`APyFloatArray` from iterable sequence of numbers.
 
             Parameters
             ----------
-            number_sequence : sequence of numbers
+            number_sequence : :class:`~collections.abc.Iterable` of numbers
                 Floating point values to initialize from. The tensor shape will be taken
                 from the sequence shape.
             exp_bits : :class:`int`

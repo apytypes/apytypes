@@ -36,15 +36,15 @@ APyCFloatArray::APyCFloatArray(
  * ********************************************************************************** */
 
 APyCFloatArray::APyCFloatArray(
-    const nb::typed<nb::sequence, nb::any>& sign_seq,
-    const nb::typed<nb::sequence, nb::any>& exp_seq,
-    const nb::typed<nb::sequence, nb::any>& man_seq,
+    const nb::typed<nb::iterable, nb::any>& sign_seq,
+    const nb::typed<nb::iterable, nb::any>& exp_seq,
+    const nb::typed<nb::iterable, nb::any>& man_seq,
     int exp_bits,
     int man_bits,
     std::optional<exp_t> bias
 )
     : APyArray(
-          python_sequence_extract_shape<true>(sign_seq, "APyCFloatArray.__init__"),
+          python_iterable_extract_shape<true>(sign_seq, "APyCFloatArray.__init__"),
           /* itemsize= */ 2
       )
     , exp_bits { check_exponent_format(exp_bits, "APyCFloatArray.__init__") }
@@ -54,8 +54,8 @@ APyCFloatArray::APyCFloatArray(
     constexpr std::string_view NAME = "APyCFloatArray.__init__";
 
     const auto& signs_shape = _shape;
-    const auto exps_shape = python_sequence_extract_shape<true>(exp_seq, NAME);
-    const auto mans_shape = python_sequence_extract_shape<true>(man_seq, NAME);
+    const auto exps_shape = python_iterable_extract_shape<true>(exp_seq, NAME);
+    const auto mans_shape = python_iterable_extract_shape<true>(man_seq, NAME);
     if (!((signs_shape == exps_shape) && (signs_shape == mans_shape))) {
         throw std::domain_error(
             fmt::format(
@@ -68,9 +68,9 @@ APyCFloatArray::APyCFloatArray(
         );
     }
 
-    auto signs = python_sequence_walk<nb::int_, nb::bool_>(sign_seq, NAME);
-    auto exps = python_sequence_walk<nb::int_>(exp_seq, NAME);
-    auto mans = python_sequence_walk<nb::int_>(man_seq, NAME);
+    auto signs = python_iterable_walk<nb::int_, nb::bool_>(sign_seq, NAME);
+    auto exps = python_iterable_walk<nb::int_>(exp_seq, NAME);
+    auto mans = python_iterable_walk<nb::int_>(man_seq, NAME);
 
     // If the walked sequence of Python integers is
     assert(signs.size() == exps.size() && signs.size() == mans.size());
@@ -145,7 +145,7 @@ APyCFloatArray APyCFloatArray::identity(
 //! Create an `APyCFloatArray` tensor object initialized with values from a sequence
 //! of complex-like numbers
 APyCFloatArray APyCFloatArray::from_numbers(
-    const nb::typed<nb::sequence, nb::any>& number_seq,
+    const nb::typed<nb::iterable, nb::any>& number_seq,
     int exp_bits,
     int man_bits,
     std::optional<exp_t> bias
@@ -161,13 +161,13 @@ APyCFloatArray APyCFloatArray::from_numbers(
     }
 
     APyCFloatArray result(
-        python_sequence_extract_shape(number_seq, "APyCFloatArray.from_complex"),
+        python_iterable_extract_shape(number_seq, "APyCFloatArray.from_complex"),
         exp_bits,
         man_bits,
         bias
     );
 
-    const auto py_objs = python_sequence_walk<
+    const auto py_objs = python_iterable_walk<
         std::complex<double>,
         nb::float_,
         nb::int_,

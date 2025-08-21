@@ -42,13 +42,13 @@ namespace nb = nanobind;
  * ********************************************************************************** */
 
 APyCFixedArray::APyCFixedArray(
-    const nb::typed<nb::sequence, nb::any>& seq,
+    const nb::typed<nb::iterable, nb::any>& seq,
     std::optional<int> int_bits,
     std::optional<int> frac_bits,
     std::optional<int> bits
 )
     : APyCFixedArray(
-          python_sequence_extract_shape</* IS_COMPLEX_COLLAPSE = */ true>(
+          python_iterable_extract_shape</* IS_COMPLEX_COLLAPSE = */ true>(
               seq, "APyCFixedArray.__init__"
           ),
           int_bits,
@@ -64,7 +64,7 @@ APyCFixedArray::APyCFixedArray(
     }
 
     // 1D vector of Python int objects (`nb::int_` objects)
-    auto python_objs = python_sequence_walk<nb::int_>(seq, "APyCFixedArray.__init__");
+    auto python_objs = python_iterable_walk<nb::int_>(seq, "APyCFixedArray.__init__");
 
     // If the walked sequence of Python integers is
     assert(python_objs.size() == _nitems || python_objs.size() == 2 * _nitems);
@@ -1228,7 +1228,7 @@ APyCFixedArray APyCFixedArray::identity(
 }
 
 APyCFixedArray APyCFixedArray::from_complex(
-    const nb::typed<nb::sequence, nb::any>& cplx_seq,
+    const nb::typed<nb::iterable, nb::any>& cplx_seq,
     std::optional<int> int_bits,
     std::optional<int> frac_bits,
     std::optional<int> bits
@@ -1241,14 +1241,14 @@ APyCFixedArray APyCFixedArray::from_complex(
     }
 
     APyCFixedArray result(
-        python_sequence_extract_shape(cplx_seq, "APyCFixedArray.from_complex"),
+        python_iterable_extract_shape(cplx_seq, "APyCFixedArray.from_complex"),
         int_bits,
         frac_bits,
         bits
     );
 
     // Extract all Python doubles and integers
-    auto py_obj = python_sequence_walk<
+    auto py_obj = python_iterable_walk<
         nb::float_,
         nb::int_,
         APyFixed,
@@ -1340,7 +1340,7 @@ APyCFixedArray APyCFixedArray::from_complex(
 }
 
 APyCFixedArray APyCFixedArray::from_numbers(
-    const nb::typed<nb::sequence, nb::any>& number_seq,
+    const nb::typed<nb::iterable, nb::any>& number_seq,
     std::optional<int> int_bits,
     std::optional<int> frac_bits,
     std::optional<int> bits
