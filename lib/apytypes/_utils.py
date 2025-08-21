@@ -1,6 +1,6 @@
 import math
 import warnings
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable
 from functools import partial
 from typing import Any, Literal, overload
 
@@ -51,7 +51,7 @@ def fx(
 
 @overload
 def fx(
-    value: Sequence[Any],
+    value: Iterable[Any],
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -62,7 +62,7 @@ def fx(
 
 @overload
 def fx(
-    value: Sequence[Any],
+    value: Iterable[Any],
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -72,7 +72,7 @@ def fx(
 
 
 def fx(
-    value: int | float | complex | Sequence[Any],
+    value: int | float | complex | Iterable[Any],
     int_bits: int | None = None,
     frac_bits: int | None = None,
     bits: int | None = None,
@@ -170,7 +170,7 @@ def fp(
 
 @overload
 def fp(
-    value: Sequence[Any],
+    value: Iterable[Any],
     exp_bits: int,
     man_bits: int,
     bias: int | None = None,
@@ -181,7 +181,7 @@ def fp(
 
 @overload
 def fp(
-    value: Sequence[Any],
+    value: Iterable[Any],
     exp_bits: int,
     man_bits: int,
     bias: int | None = None,
@@ -191,7 +191,7 @@ def fp(
 
 
 def fp(
-    value: int | float | complex | Sequence[Any],
+    value: int | float | complex | Iterable[Any],
     exp_bits: int,
     man_bits: int,
     bias: int | None = None,

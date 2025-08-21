@@ -64,9 +64,9 @@ void bind_cfloat_array(nb::module_& m)
          */
         .def(
             nb::init<
-                const nb::typed<nb::sequence, nb::any>&,
-                const nb::typed<nb::sequence, nb::any>&,
-                const nb::typed<nb::sequence, nb::any>&,
+                const nb::typed<nb::iterable, nb::any>&,
+                const nb::typed<nb::iterable, nb::any>&,
+                const nb::typed<nb::iterable, nb::any>&,
                 int,
                 int,
                 std::optional<exp_t>>(),
@@ -237,15 +237,13 @@ void bind_cfloat_array(nb::module_& m)
             nb::arg("man_bits"),
             nb::arg("bias") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyCFloatArray` object from a sequence of :class:`int`,
-            :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
-            :class:`APyCFixed`.
+            Create an :class:`APyCFloatArray` from iterable sequence of numbers.
 
             Using NumPy arrays as input is in general faster than using e.g. lists.
 
             Parameters
             ----------
-            complex_sequence : sequence of :class:`complex`, :class:`float`, :class:`int`, :class:`APyCFloat`, :class:`APyCFixed`, :class:`APyFixed`, or :class:`APyFloat`.
+            complex_sequence : :class:`~collections.abc.Iterable` of numbers.
                 Values to initialize from. The tensor shape will be taken from the
                 sequence shape.
             exp_bits : :class:`int`
@@ -318,16 +316,14 @@ void bind_cfloat_array(nb::module_& m)
             nb::arg("man_bits"),
             nb::arg("bias") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyCFloatArray` object from a sequence of :class:`int`,
-            :class:`float`, :class:`complex`, :class:`APyFixed`, :class:`APyFloat`, or
-            :class:`APyCFixed`.
+            Create an :class:`APyCFloatArray` from iterable sequence of numbers.
 
             This is an alias for :func:`~apytypes.APyCFloatArray.from_complex`, look
             there for more documentation.
 
             Parameters
             ----------
-            complex_sequence : sequence of :class:`complex`, :class:`float`, :class:`int`, :class:`APyCFloat`, :class:`APyCFixed`, :class:`APyFixed`, or :class:`APyFloat`.
+            complex_sequence : :class:`~collections.abc.Iterable` of numbers.
                 Values to initialize from. The tensor shape will be taken from the
                 sequence shape.
             exp_bits : :class:`int`

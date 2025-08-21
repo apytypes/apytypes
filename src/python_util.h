@@ -380,14 +380,15 @@ template <class RANDOM_ACCESS_ITERATOR>
 }
 
 /*!
- * Test whether a `nb::object` is a Python sequence, and simultaneously that the object
+ * Test whether a `nb::object` is a Python iterable, and simultaneously that the object
  * is *not* any of the `PyArgs` types.
  */
 template <typename... PyTypes>
-[[maybe_unused]] static APY_INLINE bool is_seq_and_exclude(const nanobind::handle& obj)
+[[maybe_unused]] static APY_INLINE bool
+is_iterable_and_exclude(const nanobind::handle& obj)
 {
     namespace nb = nanobind;
-    return nb::isinstance<nb::sequence>(obj) && !(nb::isinstance<PyTypes>(obj) || ...);
+    return nb::isinstance<nb::iterable>(obj) && !(nb::isinstance<PyTypes>(obj) || ...);
 }
 
 /*!
@@ -395,8 +396,8 @@ template <typename... PyTypes>
  * dimensions.
  */
 [[maybe_unused]] static APY_INLINE std::vector<std::size_t>
-_python_sequence_extract_shape_recursive_descent(
-    const nanobind::sequence& sequence, std::string_view err_prefix
+_python_iterable_extract_shape_recursive_descent(
+    const nanobind::iterable& sequence, std::string_view err_prefix
 )
 {
     namespace nb = nanobind;
@@ -407,19 +408,19 @@ _python_sequence_extract_shape_recursive_descent(
     if (sequence.begin() == sequence.end()) {
         // An empty sequence constitutes one dimension with shape zero
         return { 0 };
-    } else if (is_seq_and_exclude<nb::str>(*sequence.begin())) {
+    } else if (is_iterable_and_exclude<nb::str, nb::set, nb::dict>(*sequence.begin())) {
         // First element along this dimension is another sequence. Make sure all
         // elements along this dimensions are also sequences and recursively evaluate
         // their shapes.
         std::vector<std::vector<std::size_t>> shapes {};
         for (auto&& element : sequence) {
-            if (!nb::isinstance<nb::sequence>(element)) {
+            if (!nb::isinstance<nb::iterable>(element)) {
                 throw inhomogenous_shape_err();
             }
 
-            auto next = nb::cast<nb::sequence>(element);
+            auto next = nb::cast<nb::iterable>(element);
             shapes.emplace_back(
-                _python_sequence_extract_shape_recursive_descent(next, err_prefix)
+                _python_iterable_extract_shape_recursive_descent(next, err_prefix)
             );
         }
 
@@ -439,7 +440,7 @@ _python_sequence_extract_shape_recursive_descent(
         // along this dimension are non-sequence.
         std::size_t sequence_len = 0;
         for (auto&& element : sequence) {
-            if (is_seq_and_exclude<nb::str>(element)) {
+            if (is_iterable_and_exclude<nb::str, nb::set, nb::dict>(element)) {
                 throw inhomogenous_shape_err();
             }
             sequence_len++;
@@ -457,8 +458,8 @@ _python_sequence_extract_shape_recursive_descent(
  */
 template <bool IS_COMPLEX_COLLAPSE = false>
 [[maybe_unused]] static APY_INLINE std::vector<std::size_t>
-python_sequence_extract_shape(
-    const nanobind::sequence& seq, std::string_view err_prefix
+python_iterable_extract_shape(
+    const nanobind::iterable& seq, std::string_view err_prefix
 )
 {
     namespace nb = nanobind;
@@ -471,7 +472,7 @@ python_sequence_extract_shape(
         }
         assert(result.size());
     } else {
-        result = _python_sequence_extract_shape_recursive_descent(seq, err_prefix);
+        result = _python_iterable_extract_shape_recursive_descent(seq, err_prefix);
         assert(result.size());
     }
 
@@ -488,15 +489,15 @@ python_sequence_extract_shape(
 }
 
 /*!
- * Walk a (possibly nested) Python sequence, `py_seq`, of iterable objects and store
- * handles to them them in a `std::vector<nb::object>`. The sequence is walked in a
- * depth-first manner and all elements must match `(nb::isinstance<PyTypes> || ...)`. If
- * any object in the sequence `py_seq` does not match any `PyTypes` (or another Python
- * sequence) a `std::domain_error` exception is raised.
+ * Walk a (possibly nested) Python iterable sequence, `py_seq`, of iterable objects and
+ * store handles to them them in a `std::vector<nb::object>`. The sequence is walked in
+ * a depth-first manner and all elements must match `(nb::isinstance<PyTypes> || ...)`.
+ * If any object in the sequence `py_seq` does not match any `PyTypes` (or another
+ * Python sequence) a `std::domain_error` exception is raised.
  */
 template <typename... PyTypes>
 [[maybe_unused]] static std::vector<nanobind::object>
-python_sequence_walk(const nanobind::sequence& py_seq, std::string_view err_prefix)
+python_iterable_walk(const nanobind::iterable& py_seq, std::string_view err_prefix)
 {
     namespace nb = nanobind;
 
@@ -517,9 +518,10 @@ python_sequence_walk(const nanobind::sequence& py_seq, std::string_view err_pref
             // End of current iterator/sentinel pair. Pop it.
             it_stack.pop();
         } else {
-            if (is_seq_and_exclude<nb::str, PyTypes...>(*iterator)) {
+            using namespace nb;
+            if (is_iterable_and_exclude<str, set, dict, PyTypes...>(*iterator)) {
                 // New sequence found. We need to go deeper
-                auto&& new_sequence = nb::cast<nb::sequence>(*iterator++);
+                auto&& new_sequence = nb::cast<nb::iterable>(*iterator++);
                 it_stack.push({ std::begin(new_sequence), std::end(new_sequence) });
             } else if ((nb::isinstance<PyTypes>(*iterator) || ...)) {
                 // Element matching one of the PyTypes found, store it in container
@@ -527,7 +529,7 @@ python_sequence_walk(const nanobind::sequence& py_seq, std::string_view err_pref
             } else {
                 auto&& err_obj = nb::cast<nb::object>(*iterator);
                 std::string err_msg = fmt::format(
-                    "{}: unexpected type when traversing Sequence: {}",
+                    "{}: unexpected type when traversing iterable sequence: {}",
                     err_prefix,
                     nb::repr(nb::cast<nb::type_object>(err_obj.type())).c_str()
                 );
@@ -538,6 +540,28 @@ python_sequence_walk(const nanobind::sequence& py_seq, std::string_view err_pref
 
     // Return the result
     return result;
+}
+
+//! See: `python_iterable_walk()`
+template <typename... PyTypes>
+[[maybe_unused]] static std::vector<nanobind::object>
+python_sequence_walk(const nanobind::sequence& py_seq, std::string_view err_prefix)
+{
+    namespace nb = nanobind;
+    return python_iterable_walk<PyTypes...>(nb::cast<nb::iterable>(py_seq), err_prefix);
+}
+
+//! See: `python_iterable_extract_shape()`
+template <bool IS_COMPLEX_COLLAPSE = false>
+[[maybe_unused]] static APY_INLINE std::vector<std::size_t>
+python_sequence_extract_shape(
+    const nanobind::sequence& py_seq, std::string_view err_prefix
+)
+{
+    namespace nb = nanobind;
+    return python_iterable_extract_shape<IS_COMPLEX_COLLAPSE>(
+        nb::cast<nb::iterable>(py_seq), err_prefix
+    );
 }
 
 #endif // _PYTHON_UTIL_H

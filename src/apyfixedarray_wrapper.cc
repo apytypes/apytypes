@@ -59,7 +59,7 @@ void bind_fixed_array(nb::module_& m)
          */
         .def(
             nb::init<
-                const nb::typed<nb::sequence, nb::any>&,
+                const nb::typed<nb::iterable, nb::any>&,
                 std::optional<int>,
                 std::optional<int>,
                 std::optional<int>>(),
@@ -978,8 +978,7 @@ void bind_fixed_array(nb::module_& m)
             nb::arg("frac_bits") = nb::none(),
             nb::arg("bits") = nb::none(),
             R"pbdoc(
-            Create an :class:`APyFixedArray` object from a sequence of :class:`int`,
-            :class:`float`, :class:`APyFixed`, or :class:`APyFloat`.
+            Create an :class:`APyFixedArray` from iterable sequence of numbers.
 
             The input is quantized using :class:`QuantizationMode.RND_INF` and overflow
             is handled using the :class:`OverflowMode.WRAP` mode. Exactly two of the
@@ -989,7 +988,7 @@ void bind_fixed_array(nb::module_& m)
 
             Parameters
             ----------
-            number_seq : sequence of numbers
+            number_seq : :class:`~collections.abc.Iterable` of numbers.
                 Values to initialize from. The tensor shape will be taken from the
                 sequence shape.
             int_bits : :class:`int`, optional

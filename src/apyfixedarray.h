@@ -102,7 +102,7 @@ public:
     APyFixedArray() = delete;
 
     explicit APyFixedArray(
-        const nb::typed<nb::sequence, nb::any>& bit_pattern_sequence,
+        const nb::typed<nb::iterable, nb::any>& bit_pattern_sequence,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt
@@ -265,7 +265,7 @@ public:
     //! Create an `APyFixedArray` tensor object initialized with values from a sequence
     //! of Python objects
     static APyFixedArray from_numbers(
-        const nb::typed<nb::sequence, nb::any>& number_seq,
+        const nb::typed<nb::iterable, nb::any>& number_seq,
         std::optional<int> int_bits = std::nullopt,
         std::optional<int> frac_bits = std::nullopt,
         std::optional<int> bits = std::nullopt

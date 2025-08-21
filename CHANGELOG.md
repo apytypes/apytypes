@@ -46,6 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   an `APyFixedArray` with a single element.
 - `APyFloatQuantizationContext` now accepts the seed parameter for all quantization
   modes, although it is only used for the stochastic ones.
+- Initialize tensors with [Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)
+  instead of [Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence).
 
 ### Removed
 

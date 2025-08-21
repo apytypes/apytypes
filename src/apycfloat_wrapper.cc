@@ -106,31 +106,7 @@ void bind_cfloat(nb::module_& m)
             nb::arg("man"),
             nb::arg("exp_bits"),
             nb::arg("man_bits"),
-            nb::arg("bias") = nb::none(),
-            R"pbdoc(
-            Create an :class:`APyCFloat` object and initialize its real part.
-
-            The imaginary part is zero initialized.
-
-            Parameters
-            ----------
-            sign : :class:`bool` or :class:`int`
-                Sign of real part. `True`/non-zero equals negative.
-            exp : :class:`int`
-                Exponent of real part as stored, i.e., actual value + bias.
-            man : :class:`int`
-                Mantissa of the float as stored, i.e., without a hidden one.
-            exp_bits : :class:`int`
-                Number of exponent bits.
-            man_bits : :class:`int`
-                Number of mantissa bits.
-            bias : :class:`int`, optional
-                Exponent bias. If not provided, *bias* is ``2**exp_bits - 1``.
-
-            Returns
-            -------
-            :class:`APyCFloat`
-            )pbdoc"
+            nb::arg("bias") = nb::none()
         )
 
         .def(

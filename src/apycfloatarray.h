@@ -36,9 +36,9 @@ public:
     APyCFloatArray() = delete;
 
     explicit APyCFloatArray(
-        const nb::typed<nb::sequence, nb::any>& sign_seq,
-        const nb::typed<nb::sequence, nb::any>& exp_seq,
-        const nb::typed<nb::sequence, nb::any>& man_seq,
+        const nb::typed<nb::iterable, nb::any>& sign_seq,
+        const nb::typed<nb::iterable, nb::any>& exp_seq,
+        const nb::typed<nb::iterable, nb::any>& man_seq,
         int exp_bits,
         int man_bits,
         std::optional<exp_t> bias = std::nullopt
@@ -246,7 +246,7 @@ public:
     //! Create an `APyCFloatArray` tensor object initialized with values from a sequence
     //! of `complex`
     static APyCFloatArray from_complex(
-        const nb::typed<nb::sequence, nb::any>& cplx_seq,
+        const nb::typed<nb::iterable, nb::any>& cplx_seq,
         int exp_bits,
         int man_bits,
         std::optional<exp_t> bias = std::nullopt
@@ -255,7 +255,7 @@ public:
     //! Create an `APyCFloatArray` tensor object initialized with values from a sequence
     //! of complex-like numbers
     static APyCFloatArray from_numbers(
-        const nb::typed<nb::sequence, nb::any>& number_seq,
+        const nb::typed<nb::iterable, nb::any>& number_seq,
         int exp_bits,
         int man_bits,
         std::optional<exp_t> bias = std::nullopt

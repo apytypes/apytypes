@@ -31,9 +31,9 @@ namespace nb = nanobind;
 
 void APyFloatArray::create_in_place(
     APyFloatArray* apyfloatarray,
-    const nb::typed<nb::sequence, nb::any>& sign_seq,
-    const nb::typed<nb::sequence, nb::any>& exp_seq,
-    const nb::typed<nb::sequence, nb::any>& man_seq,
+    const nb::typed<nb::iterable, nb::any>& sign_seq,
+    const nb::typed<nb::iterable, nb::any>& exp_seq,
+    const nb::typed<nb::iterable, nb::any>& man_seq,
     int exp_bits,
     int man_bits,
     std::optional<exp_t> bias
@@ -47,22 +47,22 @@ void APyFloatArray::create_in_place(
 }
 
 APyFloatArray::APyFloatArray(
-    const nb::sequence& sign_seq,
-    const nb::sequence& exp_seq,
-    const nb::sequence& man_seq,
+    const nb::iterable& sign_seq,
+    const nb::iterable& exp_seq,
+    const nb::iterable& man_seq,
     std::uint8_t exp_bits,
     std::uint8_t man_bits,
     std::optional<exp_t> bias
 )
-    : APyArray(python_sequence_extract_shape(sign_seq, "APyFloatArray.__init__"))
+    : APyArray(python_iterable_extract_shape(sign_seq, "APyFloatArray.__init__"))
     , exp_bits(exp_bits)
     , man_bits(man_bits)
 {
     constexpr std::string_view caller_name = "APyFloatArray.__init__";
 
     const auto& signs_shape = _shape;
-    const auto exps_shape = python_sequence_extract_shape(exp_seq, caller_name);
-    const auto mans_shape = python_sequence_extract_shape(man_seq, caller_name);
+    const auto exps_shape = python_iterable_extract_shape(exp_seq, caller_name);
+    const auto mans_shape = python_iterable_extract_shape(man_seq, caller_name);
     if (!((signs_shape == exps_shape) && (signs_shape == mans_shape))) {
         throw std::domain_error(
             fmt::format(
@@ -74,9 +74,9 @@ APyFloatArray::APyFloatArray(
         );
     }
 
-    auto signs = python_sequence_walk<nb::int_, nb::bool_>(sign_seq, caller_name);
-    auto exps = python_sequence_walk<nb::int_>(exp_seq, caller_name);
-    auto mans = python_sequence_walk<nb::int_>(man_seq, caller_name);
+    auto signs = python_iterable_walk<nb::int_, nb::bool_>(sign_seq, caller_name);
+    auto exps = python_iterable_walk<nb::int_>(exp_seq, caller_name);
+    auto mans = python_iterable_walk<nb::int_>(man_seq, caller_name);
 
     this->bias = bias.value_or(APyFloat::ieee_bias(exp_bits));
     for (std::size_t i = 0; i < signs.size(); ++i) {
@@ -1079,7 +1079,7 @@ bool APyFloatArray::is_identical(const nb::object& other, bool ignore_zero_sign)
 }
 
 APyFloatArray APyFloatArray::from_numbers(
-    const nb::typed<nb::sequence, nb::any>& number_seq,
+    const nb::typed<nb::iterable, nb::any>& number_seq,
     int exp_bits,
     int man_bits,
     std::optional<exp_t> bias
@@ -1095,13 +1095,13 @@ APyFloatArray APyFloatArray::from_numbers(
     check_mantissa_format(man_bits, "APyFloatArray.from_float");
 
     APyFloatArray result(
-        python_sequence_extract_shape(number_seq, "APyFloatArray.from_float"),
+        python_iterable_extract_shape(number_seq, "APyFloatArray.from_float"),
         exp_bits,
         man_bits,
         bias
     );
 
-    const auto py_objs = python_sequence_walk<nb::float_, nb::int_, APyFixed, APyFloat>(
+    const auto py_objs = python_iterable_walk<nb::float_, nb::int_, APyFixed, APyFloat>(
         number_seq, "APyFloatArray.from_float"
     );
 
@@ -1200,7 +1200,7 @@ void APyFloatArray::_set_values_from_ndarray(const nb::ndarray<nb::c_contig>& nd
 }
 
 APyFloatArray APyFloatArray::from_bits(
-    const nb::sequence& python_bit_patterns,
+    const nb::iterable& python_bit_patterns,
     int exp_bits,
     int man_bits,
     std::optional<exp_t> bias
@@ -1224,13 +1224,13 @@ APyFloatArray APyFloatArray::from_bits(
     }
 
     APyFloatArray result(
-        python_sequence_extract_shape(python_bit_patterns, "APyFloatArray.from_bits"),
+        python_iterable_extract_shape(python_bit_patterns, "APyFloatArray.from_bits"),
         exp_bits,
         man_bits,
         bias
     );
 
-    const auto py_obj = python_sequence_walk<nb::float_, nb::int_>(
+    const auto py_obj = python_iterable_walk<nb::float_, nb::int_>(
         python_bit_patterns, "APyFloatArray.from_bits"
     );
 
