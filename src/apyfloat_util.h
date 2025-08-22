@@ -1762,8 +1762,16 @@ template <
             new_exp = 1;
         }
     }
-    apy_res <<= dst_spec.man_bits;
-    z = { res_sign, exp_t(new_exp), man_t(apy_res.to_double()) };
+
+#if (COMPILER_LIMB_SIZE == 64)
+    z = { res_sign, exp_t(new_exp), apy_res.read_data()[0] };
+#elif (COMPILER_LIMB_SIZE == 32)
+    man_t man = apy_res.read_data()[0] + (man_t(apy_res.read_data()[1]) << 32);
+    z = { res_sign, exp_t(new_exp), man };
+#else
+#error "C Macro `COMPILER_LIMB_SIZE` not specified. Must be set during compilation."
+#endif
+
     return;
 }
 
@@ -1819,8 +1827,15 @@ static void APY_INLINE _division_core(
             new_exp = 1;
         }
     }
-    apy_man_res <<= z_spec.man_bits;
-    z = { sign, exp_t(new_exp), man_t(apy_man_res.to_double()) };
+
+#if (COMPILER_LIMB_SIZE == 64)
+    z = { sign, exp_t(new_exp), apy_man_res.read_data()[0] };
+#elif (COMPILER_LIMB_SIZE == 32)
+    man_t man = apy_res_man.read_data()[0] + (man_t(apy_res_man.read_data()[1]) << 32);
+    z = { sign, exp_t(new_exp), man };
+#else
+#error "C Macro `COMPILER_LIMB_SIZE` not specified. Must be set during compilation."
+#endif
 }
 
 [[maybe_unused]]

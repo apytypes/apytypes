@@ -86,6 +86,9 @@ public:
     //! Retrieve the bit specification
     APY_INLINE APyFixedSpec spec() const noexcept { return { _bits, _int_bits }; }
 
+    //! Peak at the underlying data vector
+    const ScratchVector<apy_limb_t>& read_data() const { return _data; }
+
     /* ****************************************************************************** *
      *                            Python constructors                                 *
      * ****************************************************************************** */
