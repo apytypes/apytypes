@@ -1,12 +1,19 @@
 #ifndef _APYTYPES_COMMON_H
 #define _APYTYPES_COMMON_H
 
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/function.h>
+
 #include <cstdint>  // std::uint32_t, uint64_t
 #include <optional> // std::optional
+#include <random>   // std::mt19937_64, std::random_device
 
 #include "apytypes_fwd.h"
 
-//! Quantization modes in APyTypes
+/* ********************************************************************************** *
+ * *                    Quantization modes and overflow modes                       * *
+ * ********************************************************************************** */
+
 enum class QuantizationMode {
     TRN,            // !< Truncation, quantization toward minus infinity
     TRN_INF,        // !< Truncation, quantization toward plus infinity
@@ -25,7 +32,6 @@ enum class QuantizationMode {
     STOCH_EQUAL     // !< Stochastic quantization with equal probability
 };
 
-//! Overflowing modes in APyTypes
 enum class OverflowMode {
     WRAP,        // !< Drop bits left of the MSB (two's complement overflowing)
     SAT,         // !< Saturate on overflow
@@ -33,19 +39,32 @@ enum class OverflowMode {
 };
 
 /* ********************************************************************************** *
- * *                          Context management for APyTypes                       * *
+ * *            Random number engines for APyTypes stochastic quantization          * *
  * ********************************************************************************** */
-// Base class defining the interface for context managers
+
+//! 64-bit uniform random number generator for fixed-point stachastic quantization
+std::uint64_t rnd64_fx();
+std::uint64_t rnd64_fp();
+
+//! Reset the default stochastic quantization random number generators
+void rst_default_rnd64_fx(std::uint64_t seed);
+void rst_default_rnd64_fp(std::uint64_t seed);
+
+// Retrieve the seed used to initialize the active random number engine
+std::uint64_t get_rnd64_fx_seed();
+std::uint64_t get_rnd64_fp_seed();
+
+/* ********************************************************************************** *
+ * *                             Context management                                 * *
+ * ********************************************************************************** */
+
+//! Base class defining the interface for context managers
 class ContextManager {
 public:
     virtual ~ContextManager() = default;
     virtual void enter_context() = 0;
     virtual void exit_context() = 0;
 };
-
-/* ********************************************************************************** *
- * *                          Quantization context for APyFloat                     * *
- * ********************************************************************************** */
 
 /*
  * This allows the user to choose a quantization mode for all operations performed
@@ -71,14 +90,18 @@ class APyFloatQuantizationContext : public ContextManager {
 public:
     APyFloatQuantizationContext(
         const QuantizationMode& new_mode,
-        std::optional<std::uint64_t> new_seed = std::nullopt
+        std::optional<std::uint64_t> seed = std::nullopt
     );
     void enter_context() override;
     void exit_context() override;
 
 private:
-    QuantizationMode new_mode, prev_mode;
-    std::uint64_t new_seed, prev_seed;
+    QuantizationMode prev_mode, new_mode;
+    std::uint64_t prev_seed, new_seed;
+    const std::function<std::uint64_t()>& prev_engine;
+
+    std::mt19937_64 default_engine;
+    std::function<std::uint64_t()> new_engine;
 };
 
 //! Set the global quantization mode for APyFloat
@@ -86,15 +109,6 @@ void set_float_quantization_mode(QuantizationMode mode);
 
 //! Return the global quantization mode for APyFloat
 QuantizationMode get_float_quantization_mode();
-
-//! Set the global seed for stochastic quantization for APyFloat
-void set_float_quantization_seed(std::uint64_t);
-
-//! Get the global seed for stochastic quantization for APyFloat
-std::uint64_t get_float_quantization_seed();
-
-//! Return a random 64-bit number from the random number engine used for APyFloat
-std::uint64_t random_number_float();
 
 /* ********************************************************************************** *
  * *                          Cast context for APyFixed                             * *

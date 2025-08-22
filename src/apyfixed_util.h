@@ -7,6 +7,7 @@
 
 #include "apytypes_common.h"
 #include "apytypes_fwd.h"
+#include "apytypes_intrinsics.h"
 #include "apytypes_mp.h"
 #include "apytypes_scratch_vector.h"
 #include "apytypes_simd.h"
@@ -14,10 +15,13 @@
 #include "ieee754.h"
 #include "python_util.h"
 
+#include <algorithm>
+#include <cassert>
 #include <cstdint>    // std::int64_t
 #include <functional> // std::bind, std::function, std::placeholders
 #include <iterator>   // std::begin
-#include <optional>   // std::optional
+#include <numeric>
+#include <optional> // std::optional
 
 /* ********************************************************************************** *
  * *    Fixed-point iterator based in-place quantization with multi-limb support    * *
@@ -421,6 +425,79 @@ static APY_INLINE void _quantize_jam_unbiased(
     }
 }
 
+template <class RANDOM_ACCESS_ITERATOR_INOUT>
+static APY_INLINE void _quantize_stoch_equal(
+    RANDOM_ACCESS_ITERATOR_INOUT it_begin,
+    RANDOM_ACCESS_ITERATOR_INOUT it_end,
+    int bits,
+    int int_bits,
+    int new_bits,
+    int new_int_bits,
+    std::function<std::uint64_t()> get_random_uint64
+)
+{
+    int frac_bits = bits - int_bits;
+    int new_frac_bits = new_bits - new_int_bits;
+    auto left_shift_amnt = new_frac_bits - frac_bits;
+    if (left_shift_amnt >= 0) {
+        limb_vector_lsl(it_begin, it_end, left_shift_amnt);
+    } else {
+        /*
+         * Proper 50/50 Bernoulli distribution if `GET_RANDOM_UINT64()` is uniformally
+         * distributed with high entropy.
+         */
+        limb_vector_asr(it_begin, it_end, -left_shift_amnt);
+        if (get_random_uint64() % 2) {
+            limb_vector_add_pow2(it_begin, it_end, 0);
+        }
+    }
+}
+
+template <class RANDOM_ACCESS_ITERATOR_INOUT>
+static APY_INLINE void _quantize_stoch_weighted(
+    RANDOM_ACCESS_ITERATOR_INOUT it_begin,
+    RANDOM_ACCESS_ITERATOR_INOUT it_end,
+    int bits,
+    int int_bits,
+    int new_bits,
+    int new_int_bits,
+    std::function<std::uint64_t()> get_random_uint64
+)
+{
+    int frac_bits = bits - int_bits;
+    int new_frac_bits = new_bits - new_int_bits;
+    int left_shift_amnt = new_frac_bits - frac_bits;
+    if (left_shift_amnt >= 0) {
+        limb_vector_lsl(it_begin, it_end, left_shift_amnt);
+    } else {
+        std::size_t src_nlimbs = std::distance(it_begin, it_end);
+        unsigned bits_to_qntz = unsigned(-left_shift_amnt);
+        unsigned limbs_to_qntz = (bits_to_qntz - 1) / APY_LIMB_SIZE_BITS + 1;
+        unsigned qntz_bit_idx = bits_to_qntz % APY_LIMB_SIZE_BITS;
+        if (limbs_to_qntz == 1) {
+            // Fast path, only only limb to quantize
+            apy_limb_t rnd_word = get_random_uint64();
+            if (qntz_bit_idx) {
+                rnd_word &= (apy_limb_t(1) << qntz_bit_idx) - 1;
+            }
+            apy_inplace_addition_single_limb(&*it_begin, src_nlimbs, rnd_word);
+            limb_vector_asr(it_begin, it_end, bits_to_qntz);
+        } else {
+            // General path, can quantize infinitely many limbs
+            assert(limbs_to_qntz > 1);
+            ScratchVector<apy_limb_t> rnd_words(limbs_to_qntz);
+            for (auto&& rnd_word : rnd_words) {
+                rnd_word = get_random_uint64();
+            }
+            if (qntz_bit_idx) {
+                rnd_words.back() &= (apy_limb_t(1) << qntz_bit_idx) - 1;
+            }
+            apy_inplace_addition(&*it_begin, src_nlimbs, &rnd_words[0], limbs_to_qntz);
+            limb_vector_asr(it_begin, it_end, bits_to_qntz);
+        }
+    }
+}
+
 template <typename RANDOM_ACCESS_ITERATOR_INOUT>
 static void quantize(
     RANDOM_ACCESS_ITERATOR_INOUT it_begin,
@@ -429,7 +506,8 @@ static void quantize(
     int int_bits,
     int new_bits,
     int new_int_bits,
-    QuantizationMode quantization
+    QuantizationMode quantization,
+    std::optional<std::function<std::uint64_t()>> get_random_uint64 = std::nullopt
 )
 {
     /*
@@ -483,16 +561,18 @@ static void quantize(
             it_begin, it_end, bits, int_bits, new_bits, new_int_bits
         );
         break;
-    default:
-        throw NotImplementedException(
-            fmt::format(
-                "Not implemented: fixed-point quantize() with mode {}",
-                quantization == QuantizationMode::STOCH_WEIGHTED ? "`STOCH_WEIGHTED`"
-                    : quantization == QuantizationMode::STOCH_EQUAL
-                    ? "`STOCH_EQUAL`"
-                    : "unknown (did you pass `int` as `QuantizationMode`?)"
-            )
+    case QuantizationMode::STOCH_EQUAL:
+        _quantize_stoch_equal(
+            it_begin, it_end, bits, int_bits, new_bits, new_int_bits, *get_random_uint64
         );
+        break;
+    case QuantizationMode::STOCH_WEIGHTED:
+        _quantize_stoch_weighted(
+            it_begin, it_end, bits, int_bits, new_bits, new_int_bits, *get_random_uint64
+        );
+        break;
+    default:
+        APYTYPES_UNREACHABLE();
     }
 }
 
@@ -632,7 +712,14 @@ static APY_INLINE void fixed_point_cast_unsafe(
 
     // First perform quantization
     quantize(
-        dst_begin, dst_end, src_bits, src_int_bits, dst_bits, dst_int_bits, q_mode
+        dst_begin,
+        dst_end,
+        src_bits,
+        src_int_bits,
+        dst_bits,
+        dst_int_bits,
+        q_mode,
+        rnd64_fx
     );
 
     // Then perform overflowing

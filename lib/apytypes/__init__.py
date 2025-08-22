@@ -16,8 +16,10 @@ from apytypes._apytypes import (
     OverflowMode,
     QuantizationMode,
     _get_simd_version_str,
+    get_fixed_quantization_seed,
     get_float_quantization_mode,
     get_float_quantization_seed,
+    set_fixed_quantization_seed,
     set_float_quantization_mode,
     set_float_quantization_seed,
 )
@@ -72,6 +74,7 @@ __all__ = [
     "full_like",
     "fullrange",
     "fx",
+    "get_fixed_quantization_seed",
     "get_float_quantization_mode",
     "get_float_quantization_seed",
     "identity",
@@ -80,6 +83,7 @@ __all__ = [
     "ones_like",
     "ravel",
     "reshape",
+    "set_fixed_quantization_seed",
     "set_float_quantization_mode",
     "set_float_quantization_seed",
     "shape",
@@ -144,19 +148,20 @@ format is calculated as the "average" of the inputs' biases:
 .. math::
     \texttt{bias}_3 = \frac{\left ( \left (\texttt{bias}_1 + 1 \right ) / 2^{\texttt{exp_bits}_1} + \left (\texttt{bias}_2 + 1 \right ) / 2^{\texttt{exp_bits}_2} \right ) \times 2^{\texttt{exp_bits}_3}}{2} - 1,
 
-where :math:`\texttt{exp_bits}_1` and :math:`\texttt{exp_bits}_2` are the bit widths of the operands, :math:`\texttt{bias}_1` and :math:`\texttt{bias}_2` are the
-input biases, and :math:`\texttt{exp_bits}_3` is the target bit width.
-Note that this formula still results in an IEEE-like bias when the inputs use IEEE-like biases.
+where :math:`\texttt{exp_bits}_1` and :math:`\texttt{exp_bits}_2` are the bit widths of
+the operands, :math:`\texttt{bias}_1` and :math:`\texttt{bias}_2` are the input biases,
+and :math:`\texttt{exp_bits}_3` is the target bit width. Note that this formula still
+results in an IEEE-like bias when the inputs use IEEE-like biases.
 """
 
 APyFloatArray.__doc__ = r"""
 Class for multidimensional arrays with configurable floating-point formats.
 
 :class:`APyFloatArray` is a class for multidimensional arrays with configurable
-floating-point formats. The interface is much like the one of NumPy,
-and direct plotting is supported by most functions in Matplotlib.
-:class:`APyFloatArray` should always be preferred, if possible, when working with
-arrays as it allows for better performance, and integration with other features of APyTypes.
+floating-point formats. The interface is much like the one of NumPy, and direct plotting
+is supported by most functions in Matplotlib. :class:`APyFloatArray` should always be
+preferred, if possible, when working with arrays as it allows for better performance,
+and integration with other features of APyTypes.
 
 For information about the workings of floating-point numbers, see its scalar
 equivalent :class:`APyFloat`.
@@ -165,11 +170,12 @@ equivalent :class:`APyFloat`.
 APyFloatQuantizationContext.__doc__ = r"""
 Context for changing the quantization mode used for floating-point operations.
 
-If not specified explicitly, floating-point operations will use the quantization mode that is set globally,
-which is :class:`QuantizationMode.TIES_EVEN` by default. The mode however can be changed using the static method
-:func:`apytypes.set_float_quantization_mode`, or, preferably, by using a so-called quantization context.
-With a quantization context one can change the quantization mode used by all operations within a specific section
-in the code.
+If not specified explicitly, floating-point operations will use the quantization mode
+that is set globally, which is :class:`QuantizationMode.TIES_EVEN` by default. The mode
+however can be changed using the static method
+:func:`apytypes.set_float_quantization_mode`, or, preferably, by using a so-called
+quantization context. With a quantization context one can change the quantization mode
+used by all operations within a specific section in the code.
 
 Examples
 --------
@@ -195,7 +201,7 @@ Stochastic rounding with an optional seed
 
 >>> m = QuantizationMode.STOCH_WEIGHTED
 >>> s = 0x1234
->>> with APyFloatQuantizationContext(quantization=m, quantization_seed=s):
+>>> with APyFloatQuantizationContext(quantization=m, seed=s):
 ...     a + b
 APyFloat(sign=0, exp=16, man=683, exp_bits=5, man_bits=10)
 
@@ -204,11 +210,12 @@ Nesting the contexts is also possible.
 """
 
 APyFloatAccumulatorContext.__doc__ = r"""
-Context for using custom accumulators when performing inner products and matrix multiplications.
+Context for using custom accumulators when performing inner products and matrix
+multiplications.
 
-Inner products and matrix multiplications will by default perform the summation in the resulting format
-of the operands, but with :class:`APyFloatAccumulatorContext` a custom accumulator can be simulated
-as seen in the example below.
+Inner products and matrix multiplications will by default perform the summation in the
+resulting format of the operands, but with :class:`APyFloatAccumulatorContext` a custom
+accumulator can be simulated as seen in the example below.
 
 Examples
 --------
@@ -234,8 +241,8 @@ Matrix multiplication using stochastic quantization and a wider accumulator
 ...     d = A @ b.T
 
 
-If no quantization mode is specified to the accumulator context it will fallback to the mode set globally,
-see :class:`APyFloatQuantizationContext`.
+If no quantization mode is specified to the accumulator context it will fallback to the
+mode set globally, see :class:`APyFloatQuantizationContext`.
 """
 
 APyFixed.__doc__ = r"""

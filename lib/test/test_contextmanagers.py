@@ -9,8 +9,10 @@ from apytypes import (
     APyFloatQuantizationContext,
     OverflowMode,
     QuantizationMode,
+    get_fixed_quantization_seed,
     get_float_quantization_mode,
     get_float_quantization_seed,
+    set_fixed_quantization_seed,
     set_float_quantization_mode,
     set_float_quantization_seed,
 )
@@ -95,8 +97,8 @@ class TestCastContext:
 
     def test_cast_context_overflow(self):
         """
-        If the previous tests pass for the quantization mode, then overflow should also work.
-        These are therefore more like sanity tests.
+        If the previous tests pass for the quantization mode, then overflow should also
+        work. These are therefore more like sanity tests.
         """
         a = APyFixed.from_float(4, int_bits=4, frac_bits=0)
         # WRAP by default
@@ -153,7 +155,8 @@ class TestCastContext:
 
     def test_cast_context_array(self):
         """
-        Basic sanity tests, if the scalar case works then it should work for arrays as well.
+        Basic sanity tests, if the scalar case works then it should work for arrays as
+        well.
         """
         a = APyFixedArray.from_float([4], int_bits=4, frac_bits=0)
         # WRAP by default
@@ -207,6 +210,13 @@ class TestCastContext:
             assert (_ := a.cast(int_bits=3, frac_bits=0)).is_identical(
                 APyFixedArray([3], int_bits=3, frac_bits=0)
             )
+
+    def test_cast_context_default_stoch_seed(self):
+        seed = get_fixed_quantization_seed()
+        new_seed = seed + 1
+        assert get_fixed_quantization_seed != new_seed
+        set_fixed_quantization_seed(new_seed)
+        assert get_fixed_quantization_seed() == new_seed
 
 
 class TestAccumulatorContext:
@@ -309,7 +319,6 @@ class TestQuantizationContext:
         set_float_quantization_seed(123)
         with APyFloatQuantizationContext(QuantizationMode.STOCH_EQUAL):
             assert get_float_quantization_mode() == QuantizationMode.STOCH_EQUAL
-            assert get_float_quantization_seed() == 123
         assert get_float_quantization_mode() == QuantizationMode.TO_POS
         assert get_float_quantization_seed() == 123
 

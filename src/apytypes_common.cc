@@ -4,71 +4,92 @@
 
 // Python object access through Pybind
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/function.h>
 namespace nb = nanobind;
 
 #include <random>
 
 /* ********************************************************************************** *
+ * *                        Thread local states for APyTypes                        * *
+ * ********************************************************************************** */
+
+// Quantization mode for floating-point arithmetic
+thread_local static QuantizationMode qntz_mode_fl = QuantizationMode::RND_CONV;
+
+// Get the thread-local floating-point quantization mode
+QuantizationMode get_float_quantization_mode() { return qntz_mode_fl; }
+
+// Set the thread-local floating-point quantization mode
+void set_float_quantization_mode(QuantizationMode mode) { qntz_mode_fl = mode; }
+
+/* ********************************************************************************** *
+ * *            Random number engines for APyTypes stochastic quantization          * *
+ * ********************************************************************************** */
+
+// Seed used for the current stochastic rounding engine
+thread_local static std::uint64_t rnd64_fx_seed = std::random_device {}();
+thread_local static std::uint64_t rnd64_fp_seed = std::random_device {}();
+
+// Default random-number generators for stochastic quantization (uniform distribution)
+thread_local static std::mt19937_64 default_mt19937_fx { rnd64_fx_seed };
+thread_local static std::mt19937_64 default_mt19937_fp { rnd64_fp_seed };
+static std::uint64_t default_rnd64_fx() { return default_mt19937_fx(); }
+static std::uint64_t default_rnd64_fp() { return default_mt19937_fp(); }
+
+// Current (thread local) stochastic rounding floating-point random number engine
+thread_local static std::function<std::uint64_t()> rnd64_fx_ptr = default_rnd64_fx;
+thread_local static std::function<std::uint64_t()> rnd64_fp_ptr = default_rnd64_fp;
+
+// Reset the default stochastic quantization random number generators
+void rst_default_rnd64_fx(std::uint64_t seed)
+{
+    rnd64_fx_seed = seed;
+    default_mt19937_fx.seed(seed);
+}
+void rst_default_rnd64_fp(std::uint64_t seed)
+{
+    rnd64_fp_seed = seed;
+    default_mt19937_fp.seed(seed);
+}
+
+// Retrieve the seed used to initialize the active random number engine
+std::uint64_t get_rnd64_fx_seed() { return rnd64_fx_seed; }
+std::uint64_t get_rnd64_fp_seed() { return rnd64_fp_seed; }
+
+// Generate a 64-bit random number using the current random-number engines
+std::uint64_t rnd64_fx() { return rnd64_fx_ptr(); }
+std::uint64_t rnd64_fp() { return rnd64_fp_ptr(); }
+
+/* ********************************************************************************** *
  * *                          Quantization context for APyFloat                     * *
  * ********************************************************************************** */
 
-// Global quantization mode
-thread_local static QuantizationMode global_quantization_mode_float
-    = QuantizationMode::RND_CONV;
-
-// Get the global quantization mode
-QuantizationMode get_float_quantization_mode()
-{
-    return global_quantization_mode_float;
-}
-
-void set_float_quantization_mode(QuantizationMode mode)
-{
-    global_quantization_mode_float = mode;
-}
-
 APyFloatQuantizationContext::APyFloatQuantizationContext(
-    const QuantizationMode& new_mode, std::optional<std::uint64_t> new_seed
+    const QuantizationMode& new_mode, std::optional<std::uint64_t> seed
 )
-    : new_mode(new_mode)
-    , prev_mode(get_float_quantization_mode())
-    , new_seed(new_seed.value_or(get_float_quantization_seed()))
-    , prev_seed(get_float_quantization_seed())
+    : prev_mode { get_float_quantization_mode() }
+    , new_mode { new_mode }
+    , prev_seed { rnd64_fp_seed }
+    , new_seed { seed.value_or(std::random_device {}()) }
+    , prev_engine { rnd64_fp_ptr }
+    , default_engine(new_seed)
+    , new_engine(std::bind(default_engine))
 {
 }
 
 void APyFloatQuantizationContext::enter_context()
 {
     set_float_quantization_mode(new_mode);
-    set_float_quantization_seed(new_seed);
+    rnd64_fp_seed = new_seed;
+    rnd64_fp_ptr = new_engine;
 }
 
 void APyFloatQuantizationContext::exit_context()
 {
     set_float_quantization_mode(prev_mode);
-    set_float_quantization_seed(prev_seed);
+    rnd64_fp_seed = prev_seed;
+    rnd64_fp_ptr = prev_engine;
 }
-
-/* ********************************************************************************** *
- * *                          Random number engine for APyFloat                     * *
- * ********************************************************************************** */
-
-// This creates a random seed on every program start.
-thread_local static std::uint64_t quantization_seed = std::random_device {}();
-
-// A random number engine is used instead of purely std::random_device so that runs can
-// be reproducible.
-thread_local static std::mt19937_64 gen64(quantization_seed);
-
-void set_float_quantization_seed(std::uint64_t seed)
-{
-    quantization_seed = seed;
-    gen64.seed(seed);
-}
-
-std::uint64_t get_float_quantization_seed() { return quantization_seed; }
-
-std::uint64_t random_number_float() { return gen64(); }
 
 /* ********************************************************************************** *
  * *                      Cast context for APyFixed                                 * *

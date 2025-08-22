@@ -1,5 +1,6 @@
 #include "apytypes_common.h"
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/function.h>
 #include <nanobind/stl/optional.h>
 
 namespace nb = nanobind;
@@ -32,7 +33,7 @@ void bind_quantization_context(nb::module_& m)
         .def(
             nb::init<QuantizationMode, std::optional<std::uint64_t>>(),
             nb::arg("quantization"),
-            nb::arg("quantization_seed") = nb::none()
+            nb::arg("seed") = nb::none()
         )
 
         .def("__enter__", &context_enter_handler)
