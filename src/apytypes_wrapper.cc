@@ -248,36 +248,54 @@ void bind_common(nb::module_& m)
         )pbdoc")
         .def(
             "set_float_quantization_seed",
-            &set_float_quantization_seed,
+            &rst_default_rnd64_fp,
             nb::arg("seed"),
             R"pbdoc(
-        Set current quantization seed.
+            Reset the floating-point default stochastic quantization engine.
 
-        The quantization seed is used for stochastic quantization.
-
-        Parameters
-        ----------
-        seed : :class:`int`
-            The quantization seed to use.
-
-        See Also
-        --------
-        get_float_quantization_seed
+            Parameters
+            ----------
+            seed : :class:`int`
+                The quantization seed passed to the default engine.
         )pbdoc"
         )
-        .def("get_float_quantization_seed", &get_float_quantization_seed, R"pbdoc(
-        Set current quantization seed.
+        .def(
+            "set_fixed_quantization_seed",
+            &rst_default_rnd64_fx,
+            nb::arg("seed"),
+            R"pbdoc(
+            Reset the fixed-point default stochastic quantization engine.
 
-        The quantization seed is used for stochastic quantization.
+            Parameters
+            ----------
+            seed : :class:`int`
+                The quantization seed passed to the default engine.
+            )pbdoc"
+        )
+        .def(
+            "get_float_quantization_seed",
+            &get_rnd64_fp_seed,
+            R"pbdoc(
+            Retrieve the currently used floating-point quantization seed.
 
-        Returns
-        -------
-        :class:`int`
+            Returns
+            -------
+            :class:`int`
 
-        See Also
-        --------
-        set_float_quantization_seed
-        )pbdoc")
+            )pbdoc"
+        )
+        .def(
+            "get_fixed_quantization_seed",
+            &get_rnd64_fx_seed,
+            R"pbdoc(
+            Retrieve the currently used fixed-point quantization seed.
+
+            Returns
+            -------
+            :class:`int`
+
+            )pbdoc"
+        )
 
         /* Get the APyTypes SIMD version string */
         .def("_get_simd_version_str", &simd::get_simd_version_str);

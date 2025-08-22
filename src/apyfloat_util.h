@@ -278,10 +278,10 @@ template <QuantizationMode QNTZ, bool SUPPORT_NEGATIVE_BITS_TO_QUANTIZE = false>
     } else if constexpr (QNTZ == QuantizationMode::STOCH_WEIGHTED) {
         const auto mask = ((1ULL << bits_to_quantize) - 1);
         const man_t trailing_bits = man & mask;
-        const man_t weight = random_number_float() & mask;
+        const man_t weight = rnd64_fp() & mask;
         B = (trailing_bits + weight) >> bits_to_quantize;
     } else if constexpr (QNTZ == QuantizationMode::STOCH_EQUAL) {
-        B = (G || T) ? random_number_float() & 1 : 0;
+        B = (G || T) ? rnd64_fp() & 1 : 0;
     } else {
         APYTYPES_UNREACHABLE();
     }
@@ -377,7 +377,7 @@ quantize_close_to_zero(bool sign, QuantizationMode quantization)
         return !sign;
     case QuantizationMode::STOCH_EQUAL:
         // STOCH_WEIGHTED should not use this function
-        return random_number_float() & 1;
+        return rnd64_fp() & 1;
     default:
         return 0;
     }
@@ -831,14 +831,14 @@ translate_quantization_mode(QuantizationMode quantization, bool sign)
 )
 {
     if (quantization == QuantizationMode::STOCH_WEIGHTED) {
-        auto rnd_data = { UINT64_TO_LIMB(random_number_float()),
-                          UINT64_TO_LIMB(random_number_float()),
+        auto rnd_data = { UINT64_TO_LIMB(rnd64_fp()),
+                          UINT64_TO_LIMB(rnd64_fp()),
                           UINT64_TO_LIMB(0) };
         APyFixed rnd_num(64 * 3, 64 - bits, rnd_data);
         apyman = apyman + rnd_num;
         apyman = apyman.cast_no_overflow(2 + bits, 2, QuantizationMode::TRN);
     } else if (quantization == QuantizationMode::STOCH_EQUAL) {
-        const apy_limb_t rnd = -(random_number_float() % 2);
+        const apy_limb_t rnd = -(rnd64_fp() % 2);
         auto rnd_data = { UINT64_TO_LIMB(rnd), UINT64_TO_LIMB(rnd), UINT64_TO_LIMB(0) };
         APyFixed rnd_num(64 * 3, 64 - bits, rnd_data);
         apyman = apyman + rnd_num;
@@ -1469,13 +1469,11 @@ template <
 
     const std::int64_t x_true_exp = true_exp(x_wide, x_spec.bias);
     const std::int64_t y_true_exp = true_exp(y_wide, y_spec.bias);
-
     const unsigned exp_delta = x_true_exp - y_true_exp;
 
     if (exp_delta == 0 && !same_sign && x_wide.man == y_wide.man) {
         man_t res_man = qntz == QuantizationMode::JAM ? 1 : 0;
-        bool res_sign = qntz == QuantizationMode::TRN;
-        z = { res_sign, 0, res_man };
+        z = { qntz == QuantizationMode::TRN, 0, res_man };
         return;
     }
 
@@ -1710,40 +1708,89 @@ template <
     auto [norm_x, norm_x_exp_bits, norm_x_bias] = normalize(x, src1_spec);
     auto [norm_y, norm_y_exp_bits, norm_y_bias] = normalize(y, src2_spec);
 
-    // Add leading ones
-    const man_t mx = true_man(norm_x, norm_x_exp_bits, src1_spec.man_bits);
-    const man_t my = true_man(norm_y, norm_y_exp_bits, src2_spec.man_bits);
-
     // Tentative exponent
     std::int64_t new_exp = ((std::int64_t)norm_x.exp - (std::int64_t)norm_x_bias)
         + ((std::int64_t)norm_y.exp - (std::int64_t)norm_y_bias) + dst_spec.bias;
 
-    // Two integer bits, sign bit and leading one
+    const man_t mx = true_man(norm_x, norm_x_exp_bits, src1_spec.man_bits);
+    const man_t my = true_man(norm_y, norm_y_exp_bits, src2_spec.man_bits);
+
+    constexpr auto MAN_LIMBS = 2 * POSIX_CHAR_BITS * sizeof(man_t) / COMPILER_LIMB_SIZE;
+    APyFixedSpec man_spec = { 4 + src1_spec.man_bits + src2_spec.man_bits, 4 };
+    std::array<apy_limb_t, MAN_LIMBS> man {};
+
+#if (COMPILER_LIMB_SIZE == 64)
+#if defined(__GNUC__)
+    /*
+     * GNU C-compatible compiler, including Clang, MacOS Xcode, and Intel C++ compiler
+     * (ICC).
+     */
+    __uint128_t product = __uint128_t(mx) * __uint128_t(my);
+    man[0] = std::uint64_t(product);
+    man[1] = std::uint64_t(product >> COMPILER_LIMB_SIZE);
+#elif defined(_MSC_VER)
+    man[0] = _umul128(mx, my, &man[1]);
+#else
+    // No 128-bit multiplication intrinsic found. We could implement this function,
+    // but fail for now so we can clearly see which systems are missing out on these
+    // intrinsics.
+    static_assert(
+        false,
+        "_floating_point_mul_general(): No intrinsic available on your compiler. "
+        "Please open an issue at https://github.com/apytypes/apytypes/issues with "
+        "information about the compiler and platform and we will be happy to add "
+        "support for it."
+    );
+#endif
+#elif (COMPILER_LIMB_SIZE == 32)
     const APyFixed apy_mx(2 + src1_spec.man_bits, 2, { UINT64_TO_LIMB(mx) });
     const APyFixed apy_my(2 + src2_spec.man_bits, 2, { UINT64_TO_LIMB(my) });
-    APyFixed apy_res = (apy_mx * apy_my);
+    const APyFixed apy_res = (apy_mx * apy_my);
+    std::copy_n(
+        std::begin(apy_res.read_data()), apy_res.read_data().size(), std::begin(man)
+    );
+#else
+    static_assert(false, "COMPILER_LIMB_SIZE must be 32 or 64");
+#endif
+
+    constexpr unsigned LIMB_SIZE = COMPILER_LIMB_SIZE;
 
     // Check result from multiplication larger than/equal two
-    if (apy_res.positive_greater_than_equal_pow2(1)) {
-        apy_res >>= 1;
+    unsigned pow2 = man_spec.bits - man_spec.int_bits + 1;
+    if (man[pow2 / LIMB_SIZE] >= (apy_limb_t(1) << (pow2 % LIMB_SIZE))) {
+        man_spec.int_bits -= 1;
         new_exp++;
     }
 
     // Handle subnormal case
     if (new_exp <= 0) {
-        apy_res >>= std::abs(new_exp) + 1;
+        man_spec.int_bits -= std::abs(new_exp) + 1;
         new_exp = 0;
     }
 
-    // Quantize mantissa
-    quantize_apymantissa(apy_res, res_sign, dst_spec.man_bits, qntz);
+    // Quantize the mantissa
+    auto&& qntz_fl = translate_quantization_mode(qntz, res_sign);
+    quantize(
+        std::begin(man),
+        std::end(man),
+        man_spec.bits,
+        man_spec.int_bits,
+        3 + dst_spec.man_bits,
+        3,
+        qntz_fl,
+        rnd64_fp
+    );
+    man_spec.bits = 3 + dst_spec.man_bits;
+    man_spec.int_bits = 3;
 
     // Carry from quantization
-    if (apy_res.positive_greater_than_equal_pow2(1)) {
+    pow2 = dst_spec.man_bits + 1;
+    if (man[pow2 / LIMB_SIZE] >= (apy_limb_t(1) << (pow2 % LIMB_SIZE))) {
         new_exp++;
-        apy_res >>= 1;
+        man_spec.int_bits -= 1;
     }
 
+    // Handle overflow to infinity/float max
     if (new_exp >= RES_MAX_EXP) {
         if (do_infinity(qntz, res_sign)) {
             z = { res_sign, RES_MAX_EXP, 0 };
@@ -1753,17 +1800,16 @@ template <
         return;
     }
 
-    if (apy_res.positive_greater_than_equal_pow2(0)) { // Remove leading one
-        apy_res = apy_res - FX_ONE;
-
-        // If a leading one is present while the exponent is zero,
-        // then it 'acts like a carry' and creates a normal number
+    // Remove leading one
+    pow2 = man_spec.bits - man_spec.int_bits;
+    if (man[pow2 / LIMB_SIZE] >= (apy_limb_t(1) << (pow2 % LIMB_SIZE))) {
+        man[pow2 / LIMB_SIZE] -= (apy_limb_t(1) << (pow2 % LIMB_SIZE));
         if (new_exp == 0) {
             new_exp = 1;
         }
     }
 
-    z = { res_sign, exp_t(new_exp), limb_vector_to_uint64(apy_res.read_data(), 0) };
+    z = { res_sign, exp_t(new_exp), man_t(limb_vector_to_uint64(man, 0)) };
     return;
 }
 

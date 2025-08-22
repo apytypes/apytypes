@@ -54,9 +54,7 @@ fp_formats = [
 ]
 
 for exp_bits, man_bits, bias, mode in fp_formats:
-    with apy.APyFloatQuantizationContext(
-        eval(f"apy.QuantizationMode.{mode}"), quantization_seed=12
-    ):
+    with apy.APyFloatQuantizationContext(eval(f"apy.QuantizationMode.{mode}"), seed=12):
         results = solve_ode(exp_bits, man_bits, bias)
     ax.plot(results[:, 0], results[:, 1], label=f"E{exp_bits}M{man_bits} ({mode})")
 

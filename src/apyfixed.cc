@@ -1050,7 +1050,9 @@ APyFixed::cast_no_overflow(int bits, int int_bits, QuantizationMode quantization
     limb_vector_copy_sign_extend(src_begin, src_end, dst_begin, dst_end);
 
     // Perform quantization
-    quantize(dst_begin, dst_end, _bits, _int_bits, bits, int_bits, quantization);
+    quantize(
+        dst_begin, dst_end, _bits, _int_bits, bits, int_bits, quantization, rnd64_fx
+    );
 
     // Set the result bit-specifiers correctly
     result._bits = bits;
