@@ -957,12 +957,12 @@ template <typename RANDOM_ACCESS_ITERATOR_IN, typename RANDOM_ACCESS_ITERATOR_OU
 //! zeroed if out-of-bounds.
 template <typename VECTOR_TYPE>
 [[maybe_unused, nodiscard]] static APY_INLINE std::uint64_t
-uint64_t_from_limb_vector(const VECTOR_TYPE& limb_vec, std::size_t n)
+limb_vector_to_uint64(const VECTOR_TYPE& limb_vec, std::size_t n)
 {
     static_assert(APY_LIMB_SIZE_BITS == 32 || APY_LIMB_SIZE_BITS == 64);
     if constexpr (APY_LIMB_SIZE_BITS == 64) {
         // No bound-checking for 64-bit limbs
-        return limb_vec[n];
+        return std::uint64_t(limb_vec[n]);
     } else { /* APY_LIMB_SIZE_BITS == 32 */
         if (n + 1 < limb_vec.size()) {
             return std::uint64_t(limb_vec[n]) | (std::uint64_t(limb_vec[n + 1]) << 32);

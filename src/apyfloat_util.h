@@ -964,7 +964,7 @@ APyFloatData floating_point_from_fixed_point(
     } else {
         // We know the mantissa is in [1, 2), so remove the leading one
         limb_vector_set_bit(std::begin(fx_man), std::end(fx_man), man_bits + c, 0);
-        return { sign, exp_t(tmp_exp), uint64_t_from_limb_vector(fx_man, 0) };
+        return { sign, exp_t(tmp_exp), limb_vector_to_uint64(fx_man, 0) };
     }
 }
 
@@ -1763,15 +1763,7 @@ template <
         }
     }
 
-#if (COMPILER_LIMB_SIZE == 64)
-    z = { res_sign, exp_t(new_exp), apy_res.read_data()[0] };
-#elif (COMPILER_LIMB_SIZE == 32)
-    man_t man = apy_res.read_data()[0] + (man_t(apy_res.read_data()[1]) << 32);
-    z = { res_sign, exp_t(new_exp), man };
-#else
-#error "C Macro `COMPILER_LIMB_SIZE` not specified. Must be set during compilation."
-#endif
-
+    z = { res_sign, exp_t(new_exp), limb_vector_to_uint64(apy_res.read_data(), 0) };
     return;
 }
 
@@ -1828,14 +1820,8 @@ static void APY_INLINE _division_core(
         }
     }
 
-#if (COMPILER_LIMB_SIZE == 64)
-    z = { sign, exp_t(new_exp), apy_man_res.read_data()[0] };
-#elif (COMPILER_LIMB_SIZE == 32)
-    man_t man = apy_res_man.read_data()[0] + (man_t(apy_res_man.read_data()[1]) << 32);
-    z = { sign, exp_t(new_exp), man };
-#else
-#error "C Macro `COMPILER_LIMB_SIZE` not specified. Must be set during compilation."
-#endif
+    z = { sign, exp_t(new_exp), limb_vector_to_uint64(apy_man_res.read_data(), 0) };
+    return;
 }
 
 [[maybe_unused]]
