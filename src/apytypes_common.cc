@@ -50,6 +50,24 @@ void APyFloatQuantizationContext::exit_context()
 }
 
 /* ********************************************************************************** *
+ * *            Random number engines for APyTypes stochastic quantization          * *
+ * ********************************************************************************** */
+
+// Default random-number generators for stochastic quantization
+thread_local static std::mt19937_64 _default_mt19937_fx { std::random_device {}() };
+thread_local static std::mt19937_64 _default_mt19937_fp { std::random_device {}() };
+static std::uint64_t _default_rnd64_fx() { return _default_mt19937_fx(); }
+static std::uint64_t _default_rnd64_fp() { return _default_mt19937_fp(); }
+thread_local static std::function<std::uint64_t()> rnd64_fx_ptr = _default_rnd64_fx;
+thread_local static std::function<std::uint64_t()> rnd64_fp_ptr = _default_rnd64_fp;
+
+// 64-bit uniform random number generator for fixed-point stachastic quantization
+std::uint64_t rnd64_fx() { return rnd64_fx_ptr(); }
+
+//! 64-bit uniform random number generator for floating-point stachastic quantization
+std::uint64_t rnd64_fp() { return rnd64_fp_ptr(); }
+
+/* ********************************************************************************** *
  * *                          Random number engine for APyFloat                     * *
  * ********************************************************************************** */
 

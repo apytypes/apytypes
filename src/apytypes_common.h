@@ -1,8 +1,10 @@
 #ifndef _APYTYPES_COMMON_H
 #define _APYTYPES_COMMON_H
 
-#include <cstdint>  // std::uint32_t, uint64_t
-#include <optional> // std::optional
+#include <cstdint>    // std::uint32_t, uint64_t
+#include <functional> // std::function
+#include <optional>   // std::optional
+#include <random>     // std::mt19937_64, std::random_device
 
 #include "apytypes_fwd.h"
 
@@ -80,6 +82,16 @@ private:
     QuantizationMode new_mode, prev_mode;
     std::uint64_t new_seed, prev_seed;
 };
+
+/* ********************************************************************************** *
+ * *            Random number engines for APyTypes stochastic quantization          * *
+ * ********************************************************************************** */
+
+//! 64-bit uniform random number generator for fixed-point stachastic quantization
+std::uint64_t rnd64_fx();
+
+//! 64-bit uniform random number generator for floating-point stachastic quantization
+std::uint64_t rnd64_fp();
 
 //! Set the global quantization mode for APyFloat
 void set_float_quantization_mode(QuantizationMode mode);
