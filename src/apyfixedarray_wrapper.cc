@@ -1306,6 +1306,46 @@ void bind_fixed_array(nb::module_& m)
             :class:`APyFixedArray`
             )pbdoc"
         )
+        .def_static(
+            "_meshgrid",
+            &APyFixedArray::meshgrid,
+            nb::arg("arrays"),
+            nb::arg("indexing") = "xy",
+            R"pbdoc(
+            Create a list of coordinate arrays based on several coordinate vectors (1-D arrays).
+            The input vectors must all have the same bit specifiers.
+
+            .. versionadded:: 0.4
+
+            Parameters
+            ----------
+            arrays : :class:`APyFixedArray`
+                The coordinate vectors (1-D arrays).
+            indexing : {"xy", "ij"}, default: "xy"
+                The indexing mode to use for the meshgrid. "xy" is the standard Cartesian indexing,
+                while "ij" is the matrix indexing.
+
+            Returns
+            -------
+            result : list of :class:`APyFixedArray`
+                List of 2-D arrays representing the meshgrid.
+
+            Examples
+            --------
+            >>> import apytypes as apy
+            >>> x = apy.fx(range(3), int_bits=5, frac_bits=0)
+            >>> y = apy.fx(range(4, 7), int_bits=5, frac_bits=0)
+            >>> xx, yy = apy.meshgrid(x, y)
+            >>> xx
+            APyFixedArray([[0, 1, 2],
+                           [0, 1, 2],
+                           [0, 1, 2]], int_bits=5, frac_bits=0)
+            >>> yy
+            APyFixedArray([[4, 4, 4],
+                           [5, 5, 5],
+                           [6, 6, 6]], int_bits=5, frac_bits=0)
+            )pbdoc"
+        )
 
         /*
          * Dunder methods
