@@ -15,7 +15,7 @@ The ODE in question is
 
 and the solution is the unit circle in the (u, v) plane.
 
-(Example was inspired from M. Croci, M. Fasi, N. J Higham, T. Mary, M. Mikaitis. "Stochastic Rounding: Implementation, Error Analysis, and Applications", in *Royal Society Open Science*, 2022.)
+(Example inspired from M. Croci, M. Fasi, N. J Higham, T. Mary, M. Mikaitis. "Stochastic Rounding: Implementation, Error Analysis, and Applications", in *Royal Society Open Science*, 2022.)
 """
 
 import math
